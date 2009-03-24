@@ -7,54 +7,37 @@
 //
 // **********************************************************************
 
-public class Collocated
+package test.Ice.operations;
+
+public class Collocated extends test.Util.Application
 {
-    private static int
-    run(String[] args, Ice.Communicator communicator)
+    public int run(String[] args)
     {
-        communicator.getProperties().setProperty("TestAdapter.Endpoints", "default -p 12010 -t 10000");
-        Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
-        adapter.add(new MyDerivedClassI(), communicator.stringToIdentity("test"));
+        java.io.PrintWriter out = getWriter();
+        Ice.ObjectAdapter adapter = communicator().createObjectAdapter("TestAdapter");
+        adapter.add(new MyDerivedClassI(), communicator().stringToIdentity("test"));
         adapter.activate();
 
-        AllTests.allTests(communicator, true);
+        AllTests.allTests(this, true, out);
 
         return 0;
     }
 
-    public static void
-    main(String[] args)
+    protected Ice.InitializationData getInitData(Ice.StringSeqHolder argsH)
     {
-        int status = 0;
-        Ice.Communicator communicator = null;
+        Ice.InitializationData initData = new Ice.InitializationData();
+        initData.properties = Ice.Util.createProperties(argsH);
+        initData.properties.setProperty("Ice.Package.Test", "test.Ice.operations");
+        initData.properties.setProperty("TestAdapter.Endpoints", "default -p 12010 -t 20000");
+        return initData;
+    }
 
-        try
-        {
-            Ice.StringSeqHolder argsH = new Ice.StringSeqHolder(args);
-            Ice.InitializationData initData = new Ice.InitializationData();
-            initData.properties = Ice.Util.createProperties(argsH);
-            communicator = Ice.Util.initialize(argsH, initData);
-            status = run(args, communicator);
-        }
-        catch(Exception ex)
-        {
-            ex.printStackTrace();
-            status = 1;
-        }
+    public static void main(String[] args)
+    {
+        Collocated c = new Collocated();
+        int status = c.main("Collocated", args);
 
-        if(communicator != null)
-        {
-            try
-            {
-                communicator.destroy();
-            }
-            catch(Ice.LocalException ex)
-            {
-                ex.printStackTrace();
-                status = 1;
-            }
-        }
-
+        System.gc();
         System.exit(status);
     }
 }

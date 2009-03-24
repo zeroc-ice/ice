@@ -7,7 +7,11 @@
 //
 // **********************************************************************
 
-import Test.*;
+package test.Ice.binding;
+
+import test.Ice.binding.Test.TestIntfPrx;
+import test.Ice.binding.Test.TestIntfPrxHelper;
+import test.Ice.binding.Test._RemoteObjectAdapterDisp;
 
 public class RemoteObjectAdapterI extends _RemoteObjectAdapterDisp
 {

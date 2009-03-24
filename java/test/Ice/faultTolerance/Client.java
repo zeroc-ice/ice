@@ -7,7 +7,12 @@
 //
 // **********************************************************************
 
-public class Client
+package test.Ice.faultTolerance;
+
+import java.io.PrintWriter;
+
+
+public class Client extends test.Util.Application
 {
     private static void
     usage()
@@ -15,9 +20,12 @@ public class Client
         System.err.println("Usage: Client port...");
     }
 
-    private static int
-    run(String[] args, Ice.Communicator communicator)
+    public int
+    run(String[] args)
     {
+        PrintWriter out = getWriter();
+        
+    	Ice.Communicator communicator = communicator();
         java.util.List<Integer> ports = new java.util.ArrayList<Integer>(args.length);
         for(int i = 0; i < args.length; i++)
         {
@@ -48,7 +56,7 @@ public class Client
 
         if(ports.isEmpty())
         {
-            System.err.println("Client: no ports specified");
+			out.println("Client: no ports specified");
             usage();
             return 1;
         }
@@ -61,7 +69,7 @@ public class Client
 
         try
         {
-            AllTests.allTests(communicator, arr);
+            AllTests.allTests(communicator, arr, out);
         }
         catch(Ice.LocalException ex)
         {
@@ -72,46 +80,24 @@ public class Client
         return 0;
     }
 
-    public static void
-    main(String[] args)
+    protected Ice.InitializationData getInitData(Ice.StringSeqHolder argsH)
     {
-        int status = 0;
-        Ice.Communicator communicator = null;
+        Ice.InitializationData initData = new Ice.InitializationData();
+        initData.properties = Ice.Util.createProperties(argsH);
+        initData.properties.setProperty("Ice.Package.Test", "test.Ice.faultTolerance");
+        //
+        // This test aborts servers, so we don't want warnings.
+        //
+        initData.properties.setProperty("Ice.Warn.Connections", "0");
 
-        try
-        {
-            Ice.StringSeqHolder argsH = new Ice.StringSeqHolder(args);
-            Ice.InitializationData initData = new Ice.InitializationData();
-            initData.properties = Ice.Util.createProperties(argsH);
+        return initData;
+    }
 
-            //
-            // This test aborts servers, so we don't want warnings.
-            //
-            initData. properties.setProperty("Ice.Warn.Connections", "0");
-
-            communicator = Ice.Util.initialize(argsH, initData);
-            status = run(argsH.value, communicator);
-        }
-        catch(Exception ex)
-        {
-            ex.printStackTrace();
-            status = 1;
-        }
-
-        if(communicator != null)
-        {
-            try
-            {
-                communicator.destroy();
-            }
-            catch(Ice.LocalException ex)
-            {
-                ex.printStackTrace();
-                status = 1;
-            }
-        }
-
+    public static void main(String[] args)
+    {
+        Client app = new Client();
+        int result = app.main("Client", args);
         System.gc();
-        System.exit(status);
+        System.exit(result);
     }
 }

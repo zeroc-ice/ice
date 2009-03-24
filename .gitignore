@@ -21,6 +21,7 @@
 core
 /*/dist
 generated
+generated.test
 cgenerated
 sgenerated
 /java/depcache
@@ -49,5 +50,7 @@ obj
 *.RES
 ClientBin
 vcproj
+.metadata
+.DS_Store
 # VIM swap file
 *.swp

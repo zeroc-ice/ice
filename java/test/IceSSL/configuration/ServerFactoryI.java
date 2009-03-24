@@ -7,7 +7,12 @@
 //
 // **********************************************************************
 
-class ServerFactoryI extends Test._ServerFactoryDisp
+package test.IceSSL.configuration;
+import test.IceSSL.configuration.Test.ServerPrx;
+import test.IceSSL.configuration.Test.ServerPrxHelper;
+import test.IceSSL.configuration.Test._ServerFactoryDisp;
+
+class ServerFactoryI extends _ServerFactoryDisp
 {
     private static void
     test(boolean b)
@@ -18,7 +23,7 @@ class ServerFactoryI extends Test._ServerFactoryDisp
         }
     }
 
-    public Test.ServerPrx
+    public ServerPrx
     createServer(java.util.Map _props, Ice.Current current)
     {
         // TODO: Fix the parameters and remove the cast below when the Java2 mapping is removed.
@@ -40,11 +45,11 @@ class ServerFactoryI extends Test._ServerFactoryDisp
         _servers.put(obj.ice_getIdentity(), server);
         adapter.activate();
 
-        return Test.ServerPrxHelper.uncheckedCast(obj);
+        return ServerPrxHelper.uncheckedCast(obj);
     }
 
     public void
-    destroyServer(Test.ServerPrx srv, Ice.Current current)
+    destroyServer(ServerPrx srv, Ice.Current current)
     {
         Ice.Identity key = srv.ice_getIdentity();
         if(_servers.containsKey(key))

@@ -12,69 +12,11 @@
 <project name="test_Ice" default="all" basedir=".">
 
     <target name="all">
-        <ant dir="adapterDeactivation"/>
-        <ant dir="background"/>
-        <ant dir="binding"/>
-        <ant dir="exceptions"/>
-        <ant dir="exceptionsAMD"/>
-        <ant dir="facets"/>
-        <ant dir="faultTolerance"/>
-        <ant dir="hold"/>
-        <ant dir="inheritance"/>
-        <ant dir="location"/>
-        <ant dir="objects"/>
-        <ant dir="proxy"/>
-        <ant dir="proxyAMD"/>
-        <ant dir="operations"/>
-        <ant dir="operationsAMD"/>
-        <ant dir="seqMapping"/>
-        <ant dir="seqMappingAMD"/>
-        <ant dir="slicing"/>
-        <ant dir="custom"/>
-        <ant dir="translator"/>
-        <ant dir="checksum"/>
-        <ant dir="package"/>
-        <ant dir="stream"/>
-        <ant dir="retry"/>
-        <ant dir="timeout"/>
-        <ant dir="servantLocator"/>
-        <ant dir="servantLocatorAMD"/>
-        <ant dir="interceptor"/>
-        <ant dir="udp"/>
-        <ant dir="serialize"/>
+	<ant dir="translator"/>
     </target>
 
     <target name="clean">
-        <ant dir="adapterDeactivation" target="clean"/>
-        <ant dir="background" target="clean"/>
-        <ant dir="binding" target="clean"/>
-        <ant dir="exceptions" target="clean"/>
-        <ant dir="exceptionsAMD" target="clean"/>
-        <ant dir="facets" target="clean"/>
-        <ant dir="faultTolerance" target="clean"/>
-        <ant dir="hold" target="clean"/>
-        <ant dir="inheritance" target="clean"/>
-        <ant dir="location" target="clean"/>
-        <ant dir="objects" target="clean"/>
-        <ant dir="proxy" target="clean"/>
-        <ant dir="proxyAMD" target="clean"/>
-        <ant dir="operations" target="clean"/>
-        <ant dir="operationsAMD" target="clean"/>
-        <ant dir="seqMapping" target="clean"/>
-        <ant dir="seqMappingAMD" target="clean"/>
-        <ant dir="slicing" target="clean"/>
-        <ant dir="custom" target="clean"/>
-        <ant dir="translator" target="clean"/>
-        <ant dir="checksum" target="clean"/>
-        <ant dir="package" target="clean"/>
-        <ant dir="stream" target="clean"/>
-        <ant dir="retry" target="clean"/>
-        <ant dir="timeout" target="clean"/>
-        <ant dir="servantLocator" target="clean"/>
-        <ant dir="servantLocatorAMD" target="clean"/>
-        <ant dir="interceptor" target="clean"/>
-        <ant dir="udp" target="clean"/>
-        <ant dir="serialize" target="clean"/>
+	<ant dir="translator" target="clean"/>
     </target>
 
 </project>

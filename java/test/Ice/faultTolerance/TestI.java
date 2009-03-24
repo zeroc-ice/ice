@@ -7,7 +7,9 @@
 //
 // **********************************************************************
 
-import Test.*;
+package test.Ice.faultTolerance;
+
+import test.Ice.faultTolerance.Test._TestIntfDisp;
 
 public final class TestI extends _TestIntfDisp
 {

@@ -6,16 +6,17 @@
 // ICE_LICENSE file included in this distribution.
 //
 // **********************************************************************
+package test.Ice.background;
 
 final class EndpointI extends IceInternal.EndpointI
 {
     final static short TYPE_BASE = 100;
 
     public
-    EndpointI(IceInternal.EndpointI endpoint)
+    EndpointI(Configuration configuration, IceInternal.EndpointI endpoint)
     {
         _endpoint = endpoint;
-        _configuration = Configuration.getInstance();
+        _configuration = configuration;
     }
 
     //
@@ -71,7 +72,7 @@ final class EndpointI extends IceInternal.EndpointI
         }
         else
         {
-            return new EndpointI(endpoint);
+            return new EndpointI(_configuration, endpoint);
         }
     }
 
@@ -88,7 +89,7 @@ final class EndpointI extends IceInternal.EndpointI
         }
         else
         {
-            return new EndpointI(endpoint);
+            return new EndpointI(_configuration, endpoint);
         }
     }
 
@@ -117,7 +118,7 @@ final class EndpointI extends IceInternal.EndpointI
         }
         else
         {
-            return new EndpointI(endpoint);
+            return new EndpointI(_configuration, endpoint);
         }
     }
 
@@ -165,12 +166,12 @@ final class EndpointI extends IceInternal.EndpointI
         }
         else
         {
-            endpoint.value = new EndpointI(endpoint.value);
+            endpoint.value = new EndpointI(_configuration, endpoint.value);
         }
 
         if(transceiver != null)
         {
-            return new Transceiver(transceiver);
+            return new Transceiver(_configuration, transceiver);
         }
         else
         {
@@ -190,7 +191,7 @@ final class EndpointI extends IceInternal.EndpointI
         java.util.Iterator<IceInternal.Connector> p = _endpoint.connectors().iterator();
         while(p.hasNext())
         {
-            connectors.add(new Connector(p.next()));
+            connectors.add(new Connector(_configuration, p.next()));
         }
         return connectors;
     }
@@ -207,7 +208,7 @@ final class EndpointI extends IceInternal.EndpointI
                 java.util.Iterator<IceInternal.Connector> p = cons.iterator();
                 while(p.hasNext())
                 {
-                    connectors.add(new Connector(p.next()));
+                    connectors.add(new Connector(_configuration, p.next()));
                 }
                 cb.connectors(connectors);
             }
@@ -233,8 +234,8 @@ final class EndpointI extends IceInternal.EndpointI
     public IceInternal.Acceptor
     acceptor(IceInternal.EndpointIHolder endpoint, String adapterName)
     {
-        Acceptor p = new Acceptor(_endpoint.acceptor(endpoint, adapterName));
-        endpoint.value = new EndpointI(endpoint.value);
+        Acceptor p = new Acceptor(_configuration, _endpoint.acceptor(endpoint, adapterName));
+        endpoint.value = new EndpointI(_configuration, endpoint.value);
         return p;
     }
 
@@ -246,7 +247,7 @@ final class EndpointI extends IceInternal.EndpointI
         while(iter.hasNext())
         {
             IceInternal.EndpointI endpt = iter.next();
-            endps.add(endpt == _endpoint ? this : new EndpointI(endpt));
+            endps.add(endpt == _endpoint ? this : new EndpointI(_configuration, endpt));
         }
         return endps;
     }

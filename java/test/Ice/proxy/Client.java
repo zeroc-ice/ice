@@ -7,51 +7,33 @@
 //
 // **********************************************************************
 
-public class Client
+package test.Ice.proxy;
+
+import test.Ice.proxy.Test.MyClassPrx;
+
+public class Client extends test.Util.Application
 {
-    private static int
-    run(String[] args, Ice.Communicator communicator)
+    public int run(String[] args)
     {
-        Test.MyClassPrx myClass = AllTests.allTests(communicator);
+        Ice.Communicator communicator = communicator();
+        MyClassPrx myClass = AllTests.allTests(communicator, getWriter());
         myClass.shutdown();
         return 0;
     }
 
-    public static void
-    main(String[] args)
+    protected Ice.InitializationData getInitData(Ice.StringSeqHolder argsH)
     {
-        int status = 0;
-        Ice.Communicator communicator = null;
+        Ice.InitializationData initData = new Ice.InitializationData();
+        initData.properties = Ice.Util.createProperties(argsH);
+        initData.properties.setProperty("Ice.Package.Test", "test.Ice.proxy");
+        return initData;
+    }
 
-        try
-        {
-            Ice.StringSeqHolder argsH = new Ice.StringSeqHolder(args);
-            Ice.InitializationData initData = new Ice.InitializationData();
-            initData.properties = Ice.Util.createProperties(argsH);
-
-            communicator = Ice.Util.initialize(argsH, initData);
-            status = run(argsH.value, communicator);
-        }
-        catch(Exception ex)
-        {
-            ex.printStackTrace();
-            status = 1;
-        }
-
-        if(communicator != null)
-        {
-            try
-            {
-                communicator.destroy();
-            }
-            catch(Ice.LocalException ex)
-            {
-                ex.printStackTrace();
-                status = 1;
-            }
-        }
-
+    public static void main(String[] args)
+    {
+        Client app = new Client();
+        int result = app.main("Client", args);
         System.gc();
-        System.exit(status);
+        System.exit(result);
     }
 }

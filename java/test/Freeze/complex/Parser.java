@@ -7,9 +7,12 @@
 //
 // **********************************************************************
 
+package test.Freeze.complex;
+import test.Freeze.complex.Complex.*;
+
 public class Parser
 {
-    public Complex.Node
+    public Node
     parse(String buf)
         throws ParseError
     {
@@ -20,12 +23,12 @@ public class Parser
         return start();
     }
 
-    private Complex.Node
+    private Node
     start()
         throws ParseError
     {
         nextToken();
-        Complex.Node node = expr();
+        Node node = expr();
         if(_token != null)
         {
             throw new ParseError("Extra garbage: " + _token);
@@ -33,7 +36,7 @@ public class Parser
         return node;
     }
 
-    private Complex.Node
+    private Node
     expr()
         throws ParseError
     {
@@ -51,7 +54,7 @@ public class Parser
             {
                 nextToken();
 
-                Complex.Node node = expr();
+                Node node = expr();
                 if(_token.charAt(0) != ')')
                 {
                     throw new ParseError("Expected ')'");
@@ -69,8 +72,8 @@ public class Parser
                 throw new ParseError("Expected number");
             }
             
-            Complex.NumberNode number = new Complex.NumberNodeI(Integer.parseInt(_token));
-            Complex.Node result = number;
+            NumberNode number = new NumberNodeI(Integer.parseInt(_token));
+            Node result = number;
             
             //
             // expr?
@@ -84,8 +87,8 @@ public class Parser
                 if(_token.charAt(0) == '+')
                 {
                     nextToken();
-                    Complex.Node right = expr();
-                    result = new Complex.AddNodeI(number, right);
+                    Node right = expr();
+                    result = new AddNodeI(number, right);
                 }
                 
                 //
@@ -94,8 +97,8 @@ public class Parser
                 else if(_token.charAt(0) == '*')
                 {
                     nextToken();
-                    Complex.Node right = expr();
-                    result = new Complex.MultiplyNodeI(number, right);
+                    Node right = expr();
+                    result = new MultiplyNodeI(number, right);
                 }
             }
             return result;

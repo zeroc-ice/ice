@@ -7,7 +7,9 @@
 //
 // **********************************************************************
 
-import Test.*;
+package test.Ice.facets;
+
+import test.Ice.facets.Test._GDisp;
 
 public final class GI extends _GDisp
 {

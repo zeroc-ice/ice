@@ -7,7 +7,11 @@
 //
 // **********************************************************************
 
-public class Client
+package test.Freeze.evictor;
+import test.Freeze.evictor.Test.*;
+import java.io.PrintWriter;
+
+public class Client extends test.Util.Application
 {
     private static void
     test(boolean b)
@@ -18,7 +22,7 @@ public class Client
         }
     }
 
-    private static class AMI_Servant_setValueAsyncI extends Test.AMI_Servant_setValueAsync
+    private static class AMI_Servant_setValueAsyncI extends AMI_Servant_setValueAsync
     {
         public void
         ice_response()
@@ -33,7 +37,7 @@ public class Client
 
     static class ReadThread extends  Thread
     {
-        ReadThread(Test.ServantPrx[] servants)
+        ReadThread(ServantPrx[] servants)
         {
             _servants = servants;    
         } 
@@ -64,7 +68,7 @@ public class Client
             }
         }
         
-        private Test.ServantPrx[] _servants;
+        private ServantPrx[] _servants;
     }
 
     public static final int StateRunning = 0;
@@ -73,7 +77,7 @@ public class Client
 
     static class ReadForeverThread extends Thread
     {
-        ReadForeverThread(Test.ServantPrx[] servants)
+        ReadForeverThread(ServantPrx[] servants)
         {
             _servants = servants;
         }
@@ -140,14 +144,14 @@ public class Client
             _state = s;
         }
 
-        private Test.ServantPrx[] _servants;
+        private ServantPrx[] _servants;
         private int _state = StateRunning;
     }
 
 
     static class AddForeverThread extends Thread
     {   
-        AddForeverThread(Test.RemoteEvictorPrx evictor, int prefix)
+        AddForeverThread(RemoteEvictorPrx evictor, int prefix)
         {
             _evictor = evictor;
             _prefix = "" + prefix;
@@ -173,7 +177,7 @@ public class Client
                         _evictor.createServant(id, 0);
                     }
                 }
-                catch(Test.EvictorDeactivatedException e)
+                catch(EvictorDeactivatedException e)
                 {
                     //
                     // Expected
@@ -189,7 +193,7 @@ public class Client
                     test(validEx());
                     return;
                 }
-                catch(Test.AlreadyRegisteredException e)
+                catch(AlreadyRegisteredException e)
                 {
                     System.err.println("Caught unexpected AlreadyRegistedException:" + e.toString());
                     System.err.println("index is " + index);
@@ -230,7 +234,7 @@ public class Client
             _state = s;
         }
 
-        private Test.RemoteEvictorPrx _evictor;
+        private RemoteEvictorPrx _evictor;
         private String _prefix;
         private int _state = StateRunning;
     }
@@ -238,7 +242,7 @@ public class Client
 
     static class CreateDestroyThread extends Thread
     {
-        CreateDestroyThread(Test.RemoteEvictorPrx evictor, int id, int size) 
+        CreateDestroyThread(RemoteEvictorPrx evictor, int id, int size) 
         {
             _evictor = evictor;
             _id = "" + id;
@@ -264,7 +268,7 @@ public class Client
                             
                             if(loops % 2 == 0)
                             {
-                                Test.ServantPrx servant = _evictor.getServant(id);
+                                ServantPrx servant = _evictor.getServant(id);
                                 servant.destroy();
                                 
                                 //
@@ -282,7 +286,7 @@ public class Client
                             }
                             else
                             {
-                                Test.ServantPrx servant = _evictor.createServant(id, i);
+                                ServantPrx servant = _evictor.createServant(id, i);
                                 
                                 //
                                 // Twice
@@ -292,7 +296,7 @@ public class Client
                                     servant = _evictor.createServant(id, 0);
                                     test(false);
                                 }
-                                catch(Test.AlreadyRegisteredException e)
+                                catch(AlreadyRegisteredException e)
                                 {
                                     // Expected
                                 }
@@ -303,7 +307,7 @@ public class Client
                             //
                             // Just read/write the value
                             //
-                            Test.ServantPrx servant = _evictor.getServant(id);
+                            ServantPrx servant = _evictor.getServant(id);
                             try
                             {
                                 int val = servant.getValue();
@@ -327,14 +331,14 @@ public class Client
             }
         }
 
-        private Test.RemoteEvictorPrx _evictor;
+        private RemoteEvictorPrx _evictor;
         private String _id;
         private int _size;
     }
 
     static class TransferThread extends Thread
     {
-        TransferThread(Test.AccountPrx[] accounts, int count)
+        TransferThread(AccountPrx[] accounts, int count)
         {
             _accounts = accounts;
             _random = new java.util.Random(count);
@@ -350,9 +354,9 @@ public class Client
                 //
                 // Transfer 100 at random between two distinct accounts 
                 //
-                Test.AccountPrx from = _accounts[Math.abs(_random.nextInt() % _accounts.length)];
+                AccountPrx from = _accounts[Math.abs(_random.nextInt() % _accounts.length)];
                 
-                Test.AccountPrx to = null;
+                AccountPrx to = null;
                 do
                 {
                     to = _accounts[Math.abs(_random.nextInt() % _accounts.length)];
@@ -389,7 +393,7 @@ public class Client
                     transferOp++;
                     transferOp = transferOp % 3;
                 }
-                catch(Test.InsufficientFundsException e)
+                catch(InsufficientFundsException e)
                 {
                     //
                     // Expected from time to time
@@ -413,47 +417,46 @@ public class Client
             }
         }
 
-        private final Test.AccountPrx[] _accounts;
+        private final AccountPrx[] _accounts;
         private final java.util.Random _random;
     }
     
-
-
-    private static int
-    run(String[] args, Ice.Communicator communicator, boolean transactional, boolean shutdown)
-        throws Test.AlreadyRegisteredException, Test.NotRegisteredException, Test.EvictorDeactivatedException
+    private int
+    run(String[] args, PrintWriter out, boolean transactional, boolean shutdown)
+        throws AlreadyRegisteredException, NotRegisteredException, EvictorDeactivatedException
     {
+        Ice.Communicator communicator = communicator();
         String ref = "factory:default -p 12010 -t 30000";
         Ice.ObjectPrx base = communicator.stringToProxy(ref);
         test(base != null);
-        Test.RemoteEvictorFactoryPrx factory = Test.RemoteEvictorFactoryPrxHelper.checkedCast(base);
+        RemoteEvictorFactoryPrx factory = RemoteEvictorFactoryPrxHelper.checkedCast(base);
 
         if(transactional)
         {
-            System.out.print("testing transactional Freeze Evictor... ");
+            out.print("testing transactional Freeze Evictor... ");
         }
         else
         {
-            System.out.print("testing background-save Freeze Evictor... ");
+            out.print("testing background-save Freeze Evictor... ");
         }
-        System.out.flush();
+        out.flush();
 
         final int size = 5;
         
-        Test.RemoteEvictorPrx evictor = factory.createEvictor("Test", transactional);
+        RemoteEvictorPrx evictor = factory.createEvictor("Test", transactional);
         evictor.setSize(size);
 
         //
         // Create some servants 
         //
-        Test.ServantPrx[] servants = new Test.ServantPrx[size];
+        ServantPrx[] servants = new ServantPrx[size];
         for(int i = 0; i < size; i++)
         {
             String id = "" + i;
             servants[i] = evictor.createServant(id, i);
             servants[i].ice_ping();
             
-            Test.FacetPrx facet1 = Test.FacetPrxHelper.uncheckedCast(servants[i], "facet1");
+            FacetPrx facet1 = FacetPrxHelper.uncheckedCast(servants[i], "facet1");
             try
             {
                 facet1.ice_ping();
@@ -467,11 +470,11 @@ public class Client
             }
             servants[i].addFacet("facet1", "data");
             facet1.ice_ping();
-            facet1 = Test.FacetPrxHelper.checkedCast(servants[i], "facet1");
+            facet1 = FacetPrxHelper.checkedCast(servants[i], "facet1");
             test(facet1 != null);
             facet1.setValue(10 * i);
             facet1.addFacet("facet2", "moreData");
-            Test.FacetPrx facet2 = Test.FacetPrxHelper.checkedCast(facet1, "facet2");
+            FacetPrx facet2 = FacetPrxHelper.checkedCast(facet1, "facet2");
             test(facet2 != null);
             facet2.setValue(100 * i);
         }
@@ -485,11 +488,11 @@ public class Client
         {
             servants[i].ice_ping();
             test(servants[i].getValue() == i);
-            Test.FacetPrx facet1 = Test.FacetPrxHelper.checkedCast(servants[i], "facet1");
+            FacetPrx facet1 = FacetPrxHelper.checkedCast(servants[i], "facet1");
             test(facet1 != null);
             test(facet1.getValue() == 10 * i);
             test(facet1.getData().equals("data"));
-            Test.FacetPrx facet2 = Test.FacetPrxHelper.checkedCast(facet1, "facet2");
+            FacetPrx facet2 = FacetPrxHelper.checkedCast(facet1, "facet2");
             test(facet2 != null);
             test(facet2.getData().equals("moreData"));
         }
@@ -500,10 +503,10 @@ public class Client
         for(int i = 0; i < size; i++)
         {
             servants[i].setValue(i + 100);
-            Test.FacetPrx facet1 = Test.FacetPrxHelper.checkedCast(servants[i], "facet1");
+            FacetPrx facet1 = FacetPrxHelper.checkedCast(servants[i], "facet1");
             test(facet1 != null);
             facet1.setValue(10 * i + 100);
-            Test.FacetPrx facet2 = Test.FacetPrxHelper.checkedCast(facet1, "facet2");
+            FacetPrx facet2 = FacetPrxHelper.checkedCast(facet1, "facet2");
             test(facet2 != null);
             facet2.setValue(100 * i + 100);
         }
@@ -511,10 +514,10 @@ public class Client
         for(int i = 0; i < size; i++)
         {
             test(servants[i].getValue() == i + 100);
-            Test.FacetPrx facet1 = Test.FacetPrxHelper.checkedCast(servants[i], "facet1");
+            FacetPrx facet1 = FacetPrxHelper.checkedCast(servants[i], "facet1");
             test(facet1 != null);
             test(facet1.getValue() == 10 * i + 100);
-            Test.FacetPrx facet2 = Test.FacetPrxHelper.checkedCast(facet1, "facet2");
+            FacetPrx facet2 = FacetPrxHelper.checkedCast(facet1, "facet2");
             test(facet2 != null);
             test(facet2.getValue() == 100 * i + 100);
         }
@@ -527,10 +530,10 @@ public class Client
         for(int i = 0; i < size; i++)
         {
             test(servants[i].getValue() == i + 100);
-            Test.FacetPrx facet1 = Test.FacetPrxHelper.checkedCast(servants[i], "facet1");
+            FacetPrx facet1 = FacetPrxHelper.checkedCast(servants[i], "facet1");
             test(facet1 != null);
             test(facet1.getValue() == 10 * i + 100);
-            Test.FacetPrx facet2 = Test.FacetPrxHelper.checkedCast(facet1, "facet2");
+            FacetPrx facet2 = FacetPrxHelper.checkedCast(facet1, "facet2");
             test(facet2 != null);
             test(facet2.getValue() == 100 * i + 100);
         }
@@ -575,7 +578,7 @@ public class Client
                 servants[i].addFacet("facet1", "foobar");
                 test(false);
             }
-            catch(Test.AlreadyRegisteredException ex)
+            catch(AlreadyRegisteredException ex)
             {
             }
         }
@@ -588,7 +591,7 @@ public class Client
             servants[0].removeFacet("facet3");
             test(false);
         }
-        catch(Test.NotRegisteredException ex)
+        catch(NotRegisteredException ex)
         {
         }
 
@@ -635,7 +638,7 @@ public class Client
         //
         // Allocate space for size servants.
         //
-        servants = new Test.ServantPrx[size];
+        servants = new ServantPrx[size];
 
         //
         // Recreate servants, set transient value
@@ -727,7 +730,7 @@ public class Client
                     servants[i].release();
                     test(false);
                 }
-                catch(Test.NotRegisteredException e)
+                catch(NotRegisteredException e)
                 {
                     // Expected
                 }
@@ -739,7 +742,7 @@ public class Client
             int totalBalance = servants[0].getTotalBalance();
             test(totalBalance == 0);
 
-            Test.AccountPrx[] accounts = servants[0].getAccounts();
+            AccountPrx[] accounts = servants[0].getAccounts();
             test(accounts.length > 0);
 
             totalBalance = servants[0].getTotalBalance();
@@ -875,7 +878,7 @@ public class Client
         //
         // Recreate servants.
         //  
-        servants = new Test.ServantPrx[size];
+        servants = new ServantPrx[size];
         for(int i = 0; i < size; i++)
         {
             String id = "" + i;
@@ -995,7 +998,7 @@ public class Client
         evictor.destroyAllServants("");
         evictor.deactivate();
 
-        System.out.println("ok");
+        out.println("ok");
         
         if(shutdown)
         {
@@ -1005,54 +1008,49 @@ public class Client
         return 0;
     }
 
-    public static void
-    main(String[] args)
+    public int
+    run(String[] args)
     {
+        PrintWriter out = getWriter();
         int status = 0;
-        Ice.Communicator communicator = null;
-
         try
         {
-            communicator = Ice.Util.initialize(args);
-            status = run(args, communicator, false, false);
+            status = run(args, out, false, false);
             if(status == 0)
             {
-                status = run(args, communicator, true, true);
+                status = run(args, out, true, true);
             }
         }
-        catch(Test.AlreadyRegisteredException ex)
+        catch(AlreadyRegisteredException ex)
         {
-            ex.printStackTrace();
+            ex.printStackTrace(out);
             status = 1;
         }
-        catch(Test.NotRegisteredException ex)
+        catch(NotRegisteredException ex)
         {
-            ex.printStackTrace();
+            ex.printStackTrace(out);
             status = 1;
         }
-        catch(Test.EvictorDeactivatedException ex)
+        catch(EvictorDeactivatedException ex)
         {
-            ex.printStackTrace();
+            ex.printStackTrace(out);
             status = 1;
         }
-        catch(Exception ex)
-        {
-            ex.printStackTrace();
-            status = 1;
-        }
+        return status;
+    }
 
-        if(communicator != null)
-        {
-            try
-            {
-                communicator.destroy();
-            }
-            catch(Ice.LocalException ex)
-            {
-                ex.printStackTrace();
-                status = 1;
-            }
-        }
+    protected Ice.InitializationData getInitData(Ice.StringSeqHolder argsH)
+    {
+        Ice.InitializationData initData = new Ice.InitializationData();
+        initData.properties = Ice.Util.createProperties(argsH);
+        initData.properties.setProperty("Ice.Package.Test", "test.Freeze.evictor");
+        return initData;
+    }
+
+    public static void main(String[] args)
+    {
+        Client c = new Client();
+        int status = c.main("Client", args);
 
         System.gc();
         System.exit(status);

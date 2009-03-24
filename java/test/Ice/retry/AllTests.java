@@ -7,6 +7,14 @@
 //
 // **********************************************************************
 
+package test.Ice.retry;
+
+import java.io.PrintWriter;
+
+import test.Ice.retry.Test.AMI_Retry_op;
+import test.Ice.retry.Test.RetryPrx;
+import test.Ice.retry.Test.RetryPrxHelper;
+
 public class AllTests
 {
     private static void
@@ -60,7 +68,7 @@ public class AllTests
         private boolean _called;
     }
 
-    private static class AMIRegular extends Test.AMI_Retry_op
+    private static class AMIRegular extends AMI_Retry_op
     {
         public void
         ice_response()
@@ -83,7 +91,7 @@ public class AllTests
         private Callback callback = new Callback();
     }
 
-    private static class AMIException extends Test.AMI_Retry_op
+    private static class AMIException extends AMI_Retry_op
     {
         public void
         ice_response()
@@ -107,8 +115,8 @@ public class AllTests
         private Callback callback = new Callback();
     }
 
-    public static Test.RetryPrx
-    allTests(Ice.Communicator communicator, java.io.PrintStream out)
+    public static RetryPrx
+    allTests(Ice.Communicator communicator, PrintWriter out)
     {
         out.print("testing stringToProxy... ");
         out.flush();
@@ -121,10 +129,10 @@ public class AllTests
 
         out.print("testing checked cast... ");
         out.flush();
-        Test.RetryPrx retry1 = Test.RetryPrxHelper.checkedCast(base1);
+        RetryPrx retry1 = RetryPrxHelper.checkedCast(base1);
         test(retry1 != null);
         test(retry1.equals(base1));
-        Test.RetryPrx retry2 = Test.RetryPrxHelper.checkedCast(base2);
+        RetryPrx retry2 = RetryPrxHelper.checkedCast(base2);
         test(retry2 != null);
         test(retry2.equals(base2));
         out.println("ok");

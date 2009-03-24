@@ -7,7 +7,16 @@
 //
 // **********************************************************************
 
-import Test.*;
+package test.Ice.binding;
+
+import java.io.PrintWriter;
+
+import test.Ice.binding.Test.AMI_TestIntf_getAdapterName;
+import test.Ice.binding.Test.RemoteCommunicatorPrx;
+import test.Ice.binding.Test.RemoteCommunicatorPrxHelper;
+import test.Ice.binding.Test.RemoteObjectAdapterPrx;
+import test.Ice.binding.Test.TestIntfPrx;
+import test.Ice.binding.Test.TestIntfPrxHelper;
 
 public class AllTests
 {
@@ -113,13 +122,13 @@ public class AllTests
     }
 
     public static void
-    allTests(Ice.Communicator communicator)
+    allTests(Ice.Communicator communicator, PrintWriter out)
     {
         String ref = "communicator:default -p 12010 -t 10000";
         RemoteCommunicatorPrx com = RemoteCommunicatorPrxHelper.uncheckedCast(communicator.stringToProxy(ref));
 
-        System.out.print("testing binding with single endpoint... ");
-        System.out.flush();
+		out.print("testing binding with single endpoint... ");
+        out.flush();
         {
             RemoteObjectAdapterPrx adapter = com.createObjectAdapter("Adapter", "default");
 
@@ -149,10 +158,10 @@ public class AllTests
                 //
             }
         }
-        System.out.println("ok");
+        out.println("ok");
 
-        System.out.print("testing binding with multiple endpoints... ");
-        System.out.flush();
+        out.print("testing binding with multiple endpoints... ");
+        out.flush();
         {
             java.util.List<RemoteObjectAdapterPrx> adapters = new java.util.ArrayList<RemoteObjectAdapterPrx>();
             adapters.add(com.createObjectAdapter("Adapter11", "default"));
@@ -245,10 +254,10 @@ public class AllTests
 
             deactivate(com, adapters);
         }
-        System.out.println("ok");
+        out.println("ok");
 
-        System.out.print("testing binding with multiple random endpoints... ");
-        System.out.flush();
+        out.print("testing binding with multiple random endpoints... ");
+        out.flush();
         {
             java.util.Random rand = new java.util.Random();
 
@@ -345,10 +354,10 @@ public class AllTests
                 }
             }
         }
-        System.out.println("ok");
+        out.println("ok");
 
-        System.out.print("testing binding with multiple endpoints and AMI... ");
-        System.out.flush();
+        out.print("testing binding with multiple endpoints and AMI... ");
+        out.flush();
         {
             java.util.List<RemoteObjectAdapterPrx> adapters = new java.util.ArrayList<RemoteObjectAdapterPrx>();
             adapters.add(com.createObjectAdapter("AdapterAMI11", "default"));
@@ -441,10 +450,10 @@ public class AllTests
 
             deactivate(com, adapters);
         }
-        System.out.println("ok");
+        out.println("ok");
 
-        System.out.print("testing random endpoint selection... ");
-        System.out.flush();
+        out.print("testing random endpoint selection... ");
+        out.flush();
         {
             java.util.List<RemoteObjectAdapterPrx> adapters = new java.util.ArrayList<RemoteObjectAdapterPrx>();
             adapters.add(com.createObjectAdapter("Adapter21", "default"));
@@ -478,10 +487,10 @@ public class AllTests
 
             deactivate(com, adapters);
         }
-        System.out.println("ok");
+        out.println("ok");
 
-        System.out.print("testing ordered endpoint selection... ");
-        System.out.flush();
+        out.print("testing ordered endpoint selection... ");
+        out.flush();
         {
             java.util.List<RemoteObjectAdapterPrx> adapters = new java.util.ArrayList<RemoteObjectAdapterPrx>();
             adapters.add(com.createObjectAdapter("Adapter31", "default"));
@@ -542,10 +551,10 @@ public class AllTests
 
             deactivate(com, adapters);
         }
-        System.out.println("ok");
+        out.println("ok");
 
-        System.out.print("testing per request binding with single endpoint... ");
-        System.out.flush();
+        out.print("testing per request binding with single endpoint... ");
+        out.flush();
         {
             RemoteObjectAdapterPrx adapter = com.createObjectAdapter("Adapter41", "default");
 
@@ -573,10 +582,10 @@ public class AllTests
                 //
             }
         }
-        System.out.println("ok");
+        out.println("ok");
 
-        System.out.print("testing per request binding with multiple endpoints... ");
-        System.out.flush();
+        out.print("testing per request binding with multiple endpoints... ");
+        out.flush();
         {
             java.util.List<RemoteObjectAdapterPrx> adapters = new java.util.ArrayList<RemoteObjectAdapterPrx>();
             adapters.add(com.createObjectAdapter("Adapter51", "default"));
@@ -610,10 +619,10 @@ public class AllTests
 
             deactivate(com, adapters);
         }
-        System.out.println("ok");
+        out.println("ok");
 
-        System.out.print("testing per request binding with multiple endpoints and AMI... ");
-        System.out.flush();
+        out.print("testing per request binding with multiple endpoints and AMI... ");
+        out.flush();
         {
             java.util.List<RemoteObjectAdapterPrx> adapters = new java.util.ArrayList<RemoteObjectAdapterPrx>();
             adapters.add(com.createObjectAdapter("AdapterAMI51", "default"));
@@ -647,10 +656,10 @@ public class AllTests
 
             deactivate(com, adapters);
         }
-        System.out.println("ok");
+        out.println("ok");
 
-        System.out.print("testing per request binding and ordered endpoint selection... ");
-        System.out.flush();
+        out.print("testing per request binding and ordered endpoint selection... ");
+        out.flush();
         {
             java.util.List<RemoteObjectAdapterPrx> adapters = new java.util.ArrayList<RemoteObjectAdapterPrx>();
             adapters.add(com.createObjectAdapter("Adapter61", "default"));
@@ -711,10 +720,10 @@ public class AllTests
 
             deactivate(com, adapters);
         }
-        System.out.println("ok");
+        out.println("ok");
 
-        System.out.print("testing per request binding and ordered endpoint selection and AMI... ");
-        System.out.flush();
+        out.print("testing per request binding and ordered endpoint selection and AMI... ");
+        out.flush();
         {
             java.util.List<RemoteObjectAdapterPrx> adapters = new java.util.ArrayList<RemoteObjectAdapterPrx>();
             adapters.add(com.createObjectAdapter("AdapterAMI61", "default"));
@@ -775,10 +784,10 @@ public class AllTests
 
             deactivate(com, adapters);
         }
-        System.out.println("ok");
+        out.println("ok");
 
-        System.out.print("testing endpoint mode filtering... ");
-        System.out.flush();
+        out.print("testing endpoint mode filtering... ");
+        out.flush();
         {
             java.util.List<RemoteObjectAdapterPrx> adapters = new java.util.ArrayList<RemoteObjectAdapterPrx>();
             adapters.add(com.createObjectAdapter("Adapter71", "default"));
@@ -797,12 +806,12 @@ public class AllTests
             {
             }
         }
-        System.out.println("ok");
+        out.println("ok");
 
         if(communicator.getProperties().getProperty("Ice.Plugin.IceSSL").length() > 0)
         {
-            System.out.print("testing unsecure vs. secure endpoints... ");
-            System.out.flush();
+            out.print("testing unsecure vs. secure endpoints... ");
+            out.flush();
             {
                 java.util.List<RemoteObjectAdapterPrx> adapters = new java.util.ArrayList<RemoteObjectAdapterPrx>();
                 adapters.add(com.createObjectAdapter("Adapter81", "ssl"));
@@ -856,7 +865,7 @@ public class AllTests
 
                 deactivate(com, adapters);
             }
-            System.out.println("ok");
+            out.println("ok");
         }
 
         com.shutdown();

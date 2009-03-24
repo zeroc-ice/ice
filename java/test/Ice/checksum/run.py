@@ -20,8 +20,4 @@ if len(path) == 0:
 sys.path.append(os.path.join(path[0]))
 from scripts import *
 
-import copy
-serverenv = copy.deepcopy(os.environ)
-TestUtil.addClasspath(os.path.join(os.getcwd(), "server", "classes"), serverenv)
-
-TestUtil.clientServerTest(serverenv = serverenv)
+TestUtil.clientServerTest()

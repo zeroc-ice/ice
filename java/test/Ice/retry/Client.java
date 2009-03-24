@@ -7,61 +7,43 @@
 //
 // **********************************************************************
 
-public class Client
+package test.Ice.retry;
+
+import test.Ice.retry.Test.RetryPrx;
+
+public class Client extends test.Util.Application
 {
-    public static int
-    run(String[] args, Ice.Communicator communicator, java.io.PrintStream out)
+    public int run(String[] args)
     {
-        Test.RetryPrx retry = AllTests.allTests(communicator, out);
+        Ice.Communicator communicator = communicator();
+        RetryPrx retry = AllTests.allTests(communicator, getWriter());
         retry.shutdown();
         return 0;
     }
 
-    public static void
-    main(String[] args)
+    protected Ice.InitializationData getInitData(Ice.StringSeqHolder argsH)
     {
-        int status = 0;
-        Ice.Communicator communicator = null;
+        Ice.InitializationData initData = new Ice.InitializationData();
+        initData.properties = Ice.Util.createProperties(argsH);
+        initData.properties.setProperty("Ice.Package.Test", "test.Ice.retry");
+        //
+        // For this test, we want to disable retries.
+        //
+        initData.properties.setProperty("Ice.RetryIntervals", "-1");
 
-        try
-        {
-            Ice.StringSeqHolder argsH = new Ice.StringSeqHolder(args);
-            Ice.InitializationData initData = new Ice.InitializationData();
-            initData.properties = Ice.Util.createProperties(argsH);
+        //
+        // We don't want connection warnings because of the timeout
+        //
+        initData.properties.setProperty("Ice.Warn.Connections", "0");
 
-            //
-            // For this test, we want to disable retries.
-            //
-            initData.properties.setProperty("Ice.RetryIntervals", "-1");
+        return initData;
+    }
 
-            //
-            // We don't want connection warnings because of the timeout test.
-            //
-            initData.properties.setProperty("Ice.Warn.Connections", "0");
-
-            communicator = Ice.Util.initialize(argsH, initData);
-            status = run(argsH.value, communicator, System.out);
-        }
-        catch(Exception ex)
-        {
-            ex.printStackTrace();
-            status = 1;
-        }
-
-        if(communicator != null)
-        {
-            try
-            {
-                communicator.destroy();
-            }
-            catch(Ice.LocalException ex)
-            {
-                ex.printStackTrace();
-                status = 1;
-            }
-        }
-
+    public static void main(String[] args)
+    {
+        Client app = new Client();
+        int result = app.main("Client", args);
         System.gc();
-        System.exit(status);
+        System.exit(result);
     }
 }

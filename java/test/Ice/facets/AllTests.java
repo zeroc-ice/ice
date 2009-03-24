@@ -7,7 +7,19 @@
 //
 // **********************************************************************
 
-import Test.*;
+package test.Ice.facets;
+
+import java.io.PrintStream;
+import java.io.PrintWriter;
+
+import test.Ice.facets.Test.DPrx;
+import test.Ice.facets.Test.DPrxHelper;
+import test.Ice.facets.Test.FPrx;
+import test.Ice.facets.Test.FPrxHelper;
+import test.Ice.facets.Test.GPrx;
+import test.Ice.facets.Test.GPrxHelper;
+import test.Ice.facets.Test.HPrx;
+import test.Ice.facets.Test.HPrxHelper;
 
 public class AllTests
 {
@@ -21,9 +33,9 @@ public class AllTests
     }
 
     public static GPrx
-    allTests(Ice.Communicator communicator)
+    allTests(Ice.Communicator communicator, PrintWriter out)
     {
-        System.out.print("testing Ice.Admin.Facets property... ");
+		out.print("testing Ice.Admin.Facets property... ");
         test(communicator.getProperties().getPropertyAsList("Ice.Admin.Facets").length == 0);
         communicator.getProperties().setProperty("Ice.Admin.Facets", "foobar");
         String[] facetFilter = communicator.getProperties().getPropertyAsList("Ice.Admin.Facets");
@@ -42,9 +54,9 @@ public class AllTests
         // facetFilter = communicator.getProperties().getPropertyAsList("Ice.Admin.Facets");
         // test(facetFilter.length == 0);
         communicator.getProperties().setProperty("Ice.Admin.Facets", "");
-        System.out.println("ok");
+        out.println("ok");
 
-        System.out.print("testing facet registration exceptions... ");
+        out.print("testing facet registration exceptions... ");
         communicator.getProperties().setProperty("FacetExceptionTestAdapter.Endpoints", "default");
         Ice.ObjectAdapter adapter = communicator.createObjectAdapter("FacetExceptionTestAdapter");
         Ice.Object obj = new EmptyI();
@@ -67,9 +79,9 @@ public class AllTests
         catch(Ice.NotRegisteredException ex)
         {
         }
-        System.out.println("ok");
+        out.println("ok");
 
-        System.out.print("testing removeAllFacets... ");
+        out.print("testing removeAllFacets... ");
         Ice.Object obj1 = new EmptyI();
         Ice.Object obj2 = new EmptyI();
         adapter.addFacet(obj1, communicator.stringToIdentity("id1"), "f1");
@@ -95,19 +107,19 @@ public class AllTests
         test(fm.get("f1") == obj1);
         test(fm.get("f2") == obj2);
         test(fm.get("") == obj3);
-        System.out.println("ok");
+        out.println("ok");
 
         adapter.deactivate();
 
-        System.out.print("testing stringToProxy... ");
-        System.out.flush();
+        out.print("testing stringToProxy... ");
+        out.flush();
         String ref = "d:default -p 12010 -t 10000";
         Ice.ObjectPrx db = communicator.stringToProxy(ref);
         test(db != null);
-        System.out.println("ok");
+        out.println("ok");
 
-        System.out.print("testing unchecked cast... ");
-        System.out.flush();
+        out.print("testing unchecked cast... ");
+        out.flush();
         Ice.ObjectPrx prx = Ice.ObjectPrxHelper.uncheckedCast(db);
         test(prx.ice_getFacet().length() == 0);
         prx = Ice.ObjectPrxHelper.uncheckedCast(db, "facetABCD");
@@ -116,18 +128,18 @@ public class AllTests
         test(prx2.ice_getFacet() == "facetABCD");
         Ice.ObjectPrx prx3 = Ice.ObjectPrxHelper.uncheckedCast(prx, "");
         test(prx3.ice_getFacet().length() == 0);
-        DPrx d = Test.DPrxHelper.uncheckedCast(db);
+        DPrx d = DPrxHelper.uncheckedCast(db);
         test(d.ice_getFacet().length() == 0);
-        DPrx df = Test.DPrxHelper.uncheckedCast(db, "facetABCD");
+        DPrx df = DPrxHelper.uncheckedCast(db, "facetABCD");
         test(df.ice_getFacet() == "facetABCD");
-        DPrx df2 = Test.DPrxHelper.uncheckedCast(df);
+        DPrx df2 = DPrxHelper.uncheckedCast(df);
         test(df2.ice_getFacet() == "facetABCD");
-        DPrx df3 = Test.DPrxHelper.uncheckedCast(df, "");
+        DPrx df3 = DPrxHelper.uncheckedCast(df, "");
         test(df3.ice_getFacet().length() == 0);
-        System.out.println("ok");
+        out.println("ok");
 
-        System.out.print("testing checked cast... ");
-        System.out.flush();
+        out.print("testing checked cast... ");
+        out.flush();
         prx = Ice.ObjectPrxHelper.checkedCast(db);
         test(prx.ice_getFacet().length() == 0);
         prx = Ice.ObjectPrxHelper.checkedCast(db, "facetABCD");
@@ -136,18 +148,18 @@ public class AllTests
         test(prx2.ice_getFacet() == "facetABCD");
         prx3 = Ice.ObjectPrxHelper.checkedCast(prx, "");
         test(prx3.ice_getFacet().length() == 0);
-        d = Test.DPrxHelper.checkedCast(db);
+        d = DPrxHelper.checkedCast(db);
         test(d.ice_getFacet().length() == 0);
-        df = Test.DPrxHelper.checkedCast(db, "facetABCD");
+        df = DPrxHelper.checkedCast(db, "facetABCD");
         test(df.ice_getFacet() == "facetABCD");
-        df2 = Test.DPrxHelper.checkedCast(df);
+        df2 = DPrxHelper.checkedCast(df);
         test(df2.ice_getFacet() == "facetABCD");
-        df3 = Test.DPrxHelper.checkedCast(df, "");
+        df3 = DPrxHelper.checkedCast(df, "");
         test(df3.ice_getFacet().length() == 0);
-        System.out.println("ok");
+        out.println("ok");
 
-        System.out.print("testing non-facets A, B, C, and D... ");
-        System.out.flush();
+        out.print("testing non-facets A, B, C, and D... ");
+        out.flush();
         d = DPrxHelper.checkedCast(db);
         test(d != null);
         test(d.equals(db));
@@ -155,40 +167,40 @@ public class AllTests
         test(d.callB().equals("B"));
         test(d.callC().equals("C"));
         test(d.callD().equals("D"));
-        System.out.println("ok");
+        out.println("ok");
 
-        System.out.print("testing facets A, B, C, and D... ");
-        System.out.flush();
+        out.print("testing facets A, B, C, and D... ");
+        out.flush();
         df = DPrxHelper.checkedCast(d, "facetABCD");
         test(df != null);
         test(df.callA().equals("A"));
         test(df.callB().equals("B"));
         test(df.callC().equals("C"));
         test(df.callD().equals("D"));
-        System.out.println("ok");
+        out.println("ok");
 
-        System.out.print("testing facets E and F... ");
-        System.out.flush();
+        out.print("testing facets E and F... ");
+        out.flush();
         FPrx ff = FPrxHelper.checkedCast(d, "facetEF");
         test(ff != null);
         test(ff.callE().equals("E"));
         test(ff.callF().equals("F"));
-        System.out.println("ok");
+        out.println("ok");
 
-        System.out.print("testing facet G... ");
-        System.out.flush();
+        out.print("testing facet G... ");
+        out.flush();
         GPrx gf = GPrxHelper.checkedCast(ff, "facetGH");
         test(gf != null);
         test(gf.callG().equals("G"));
-        System.out.println("ok");
+        out.println("ok");
 
-        System.out.print("testing whether casting preserves the facet... ");
-        System.out.flush();
+        out.print("testing whether casting preserves the facet... ");
+        out.flush();
         HPrx hf = HPrxHelper.checkedCast(gf);
         test(hf != null);
         test(hf.callG().equals("G"));
         test(hf.callH().equals("H"));
-        System.out.println("ok");
+        out.println("ok");
 
         return gf;
     }

@@ -12,6 +12,7 @@
 
 #include <Ice/SliceChecksumDict.ice>
 
+[["java:package:test.Ice.checksum"]]
 module Test
 {
 

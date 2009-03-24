@@ -7,7 +7,17 @@
 //
 // **********************************************************************
 
-import Test.*;
+package test.Ice.faultTolerance;
+
+import java.io.PrintStream;
+import java.io.PrintWriter;
+
+import test.Ice.faultTolerance.Test.AMI_TestIntf_abort;
+import test.Ice.faultTolerance.Test.AMI_TestIntf_idempotentAbort;
+import test.Ice.faultTolerance.Test.AMI_TestIntf_pid;
+import test.Ice.faultTolerance.Test.AMI_TestIntf_shutdown;
+import test.Ice.faultTolerance.Test.TestIntfPrx;
+import test.Ice.faultTolerance.Test.TestIntfPrxHelper;
 
 public class AllTests
 {
@@ -205,10 +215,10 @@ public class AllTests
     }
      
     public static void
-    allTests(Ice.Communicator communicator, int[] ports)
+    allTests(Ice.Communicator communicator, int[] ports, PrintWriter out)
     {
-        System.out.print("testing stringToProxy... ");
-        System.out.flush();
+		out.print("testing stringToProxy... ");
+        out.flush();
         String ref = "test";
         for(int i = 0; i < ports.length; i++)
         {
@@ -216,14 +226,14 @@ public class AllTests
         }
         Ice.ObjectPrx base = communicator.stringToProxy(ref);
         test(base != null);
-        System.out.println("ok");
+        out.println("ok");
 
-        System.out.print("testing checked cast... ");
-        System.out.flush();
+        out.print("testing checked cast... ");
+        out.flush();
         TestIntfPrx obj = TestIntfPrxHelper.checkedCast(base);
         test(obj != null);
         test(obj.equals(base));
-        System.out.println("ok");
+        out.println("ok");
 
         int oldPid = 0;
         boolean ami = false;
@@ -237,23 +247,23 @@ public class AllTests
 
             if(!ami)
             {
-                System.out.print("testing server #" + i + "... ");
-                System.out.flush();
+                out.print("testing server #" + i + "... ");
+                out.flush();
                 int pid = obj.pid();
                 test(pid != oldPid);
-                System.out.println("ok");
+                out.println("ok");
                 oldPid = pid;
             }
             else
             {
-                System.out.print("testing server #" + i + " with AMI... ");
-                System.out.flush();
+                out.print("testing server #" + i + " with AMI... ");
+                out.flush();
                 AMI_Test_pidI cb = new AMI_Test_pidI();
                 obj.pid_async(cb);
                 test(cb.check());
                 int pid = cb.pid();
                 test(pid != oldPid);
-                System.out.println("ok");
+                out.println("ok");
                 oldPid = pid;
             }
 
@@ -261,27 +271,27 @@ public class AllTests
             {
                 if(!ami)
                 {
-                    System.out.print("shutting down server #" + i + "... ");
-                    System.out.flush();
+                    out.print("shutting down server #" + i + "... ");
+                    out.flush();
                     obj.shutdown();
-                    System.out.println("ok");
+                    out.println("ok");
                 }
                 else
                 {
-                    System.out.print("shutting down server #" + i + " with AMI... ");
-                    System.out.flush();
+                    out.print("shutting down server #" + i + " with AMI... ");
+                    out.flush();
                     AMI_Test_shutdownI cb = new AMI_Test_shutdownI();
                     obj.shutdown_async(cb);
                     test(cb.check());
-                    System.out.println("ok");
+                    out.println("ok");
                 }
             }
             else if(j == 1 || i + 1 > ports.length)
             {
                 if(!ami)
                 {
-                    System.out.print("aborting server #" + i + "... ");
-                    System.out.flush();
+                    out.print("aborting server #" + i + "... ");
+                    out.flush();
                     try
                     {
                         obj.abort();
@@ -289,33 +299,33 @@ public class AllTests
                     }
                     catch(Ice.ConnectionLostException ex)
                     {
-                        System.out.println("ok");
+                        out.println("ok");
                     }
                     catch(Ice.ConnectFailedException exc)
                     {
-                        System.out.println("ok");
+                        out.println("ok");
                     }
                     catch(Ice.SocketException ex)
                     {
-                        System.out.println("ok");
+                        out.println("ok");
                     }
                 }
                 else
                 {
-                    System.out.print("aborting server #" + i + " with AMI... ");
-                    System.out.flush();
+                    out.print("aborting server #" + i + " with AMI... ");
+                    out.flush();
                     AMI_Test_abortI cb = new AMI_Test_abortI();
                     obj.abort_async(cb);
                     test(cb.check());
-                    System.out.println("ok");
+                    out.println("ok");
                 }
             }
             else if(j == 2 || j == 3)
             {
                 if(!ami)
                 {
-                    System.out.print("aborting server #" + i + " and #" + (i + 1) + " with idempotent call... ");
-                    System.out.flush();
+                    out.print("aborting server #" + i + " and #" + (i + 1) + " with idempotent call... ");
+                    out.flush();
                     try
                     {
                         obj.idempotentAbort();
@@ -323,25 +333,25 @@ public class AllTests
                     }
                     catch(Ice.ConnectionLostException ex)
                     {
-                        System.out.println("ok");
+                        out.println("ok");
                     }
                     catch(Ice.ConnectFailedException exc)
                     {
-                        System.out.println("ok");
+                        out.println("ok");
                     }
                     catch(Ice.SocketException ex)
                     {
-                        System.out.println("ok");
+                        out.println("ok");
                     }
                 }
                 else
                 {
-                    System.out.print("aborting server #" + i + " and #" + (i + 1) + " with idempotent AMI call... ");
-                    System.out.flush();
+                    out.print("aborting server #" + i + " and #" + (i + 1) + " with idempotent AMI call... ");
+                    out.flush();
                     AMI_Test_idempotentAbortI cb = new AMI_Test_idempotentAbortI();
                     obj.idempotentAbort_async(cb);
                     test(cb.check());
-                    System.out.println("ok");
+                    out.println("ok");
                 }
 
                 ++i;
@@ -352,8 +362,8 @@ public class AllTests
             }
         }
 
-        System.out.print("testing whether all servers are gone... ");
-        System.out.flush();
+        out.print("testing whether all servers are gone... ");
+        out.flush();
         try
         {
             obj.ice_ping();
@@ -361,7 +371,7 @@ public class AllTests
         }
         catch(Ice.LocalException ex)
         {
-            System.out.println("ok");
+            out.println("ok");
         }
     }
 }

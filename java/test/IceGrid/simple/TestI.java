@@ -7,7 +7,9 @@
 //
 // **********************************************************************
 
-import Test.*;
+package test.IceGrid.simple;
+
+import test.IceGrid.simple.Test._TestIntfDisp;
 
 public class TestI extends _TestIntfDisp
 {

@@ -7,51 +7,38 @@
 //
 // **********************************************************************
 
-public class Collocated
+package test.Ice.exceptions;
+
+public class Collocated extends test.Util.Application
 {
-    private static int
-    run(String[] args, Ice.Communicator communicator)
+    public int
+    run(String[] args)
     {
-        communicator.getProperties().setProperty("TestAdapter.Endpoints", "default -p 12010 -t 10000");
+    	Ice.Communicator communicator = communicator();
         Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
         Ice.Object object = new ThrowerI(adapter);
         adapter.add(object, communicator.stringToIdentity("thrower"));
 
-        AllTests.allTests(communicator, true);
+        AllTests.allTests(communicator, true, getWriter());
 
         return 0;
+    }
+
+    protected Ice.InitializationData getInitData(Ice.StringSeqHolder argsH)
+    {
+        Ice.InitializationData initData = new Ice.InitializationData();
+        initData.properties = Ice.Util.createProperties(argsH);
+        initData.properties.setProperty("Ice.Package.Test", "test.Ice.exceptions");
+        initData.properties.setProperty("TestAdapter.Endpoints", "default -p 12010 -t 10000");
+        return initData;
     }
 
     public static void
     main(String[] args)
     {
-        int status = 0;
-        Ice.Communicator communicator = null;
-
-        try
-        {
-            communicator = Ice.Util.initialize(args);
-            status = run(args, communicator);
-        }
-        catch(Exception ex)
-        {
-            ex.printStackTrace();
-            status = 1;
-        }
-
-        if(communicator != null)
-        {
-            try
-            {
-                communicator.destroy();
-            }
-            catch(Ice.LocalException ex)
-            {
-                ex.printStackTrace();
-                status = 1;
-            }
-        }
-
-        System.exit(status);
+    	Collocated app = new Collocated();
+        int result = app.main("Collocated", args);
+        System.gc();
+        System.exit(result);
     }
 }

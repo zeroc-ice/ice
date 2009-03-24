@@ -7,7 +7,11 @@
 //
 // **********************************************************************
 
-import Test.*;
+package test.Glacier2.router;
+
+import test.Glacier2.router.Test.CallbackException;
+import test.Glacier2.router.Test.CallbackReceiverPrx;
+import test.Glacier2.router.Test._CallbackDisp;
 
 final class CallbackI extends _CallbackDisp
 {

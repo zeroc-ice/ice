@@ -7,25 +7,30 @@
 //
 // **********************************************************************
 
-import Test.*;
+package test.Ice.servantLocator;
 
-public class Client
+import test.Ice.servantLocator.Test.TestIntfPrx;
+
+public class Client extends test.Util.Application
 {
-    static class TestClient extends Ice.Application
+    public int run(String[] args)
     {
-        public int
-        run(String[] args)
-        {
-            TestIntfPrx obj = AllTests.allTests(communicator(), false);
-            obj.shutdown();
-            return 0;
-        }
+        TestIntfPrx obj = AllTests.allTests(communicator(), false, getWriter());
+        obj.shutdown();
+        return 0;
     }
 
-    public static void
-    main(String[] args)
+    protected Ice.InitializationData getInitData(Ice.StringSeqHolder argsH)
     {
-        TestClient app = new TestClient();
+        Ice.InitializationData initData = new Ice.InitializationData();
+        initData.properties = Ice.Util.createProperties(argsH);
+        initData.properties.setProperty("Ice.Package.Test", "test.Ice.servantLocator");
+        return initData;
+    }
+
+    public static void main(String[] args)
+    {
+        Client app = new Client();
         int result = app.main("Client", args);
         System.gc();
         System.exit(result);

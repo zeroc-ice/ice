@@ -6,8 +6,17 @@
 // ICE_LICENSE file included in this distribution.
 //
 // **********************************************************************
+package test.Ice.background;
 
-import Test.*;
+import java.io.PrintStream;
+import java.io.PrintWriter;
+
+import test.Ice.background.Test.AMI_Background_op;
+import test.Ice.background.Test.AMI_Background_opWithPayload;
+import test.Ice.background.Test.BackgroundControllerPrx;
+import test.Ice.background.Test.BackgroundControllerPrxHelper;
+import test.Ice.background.Test.BackgroundPrx;
+import test.Ice.background.Test.BackgroundPrxHelper;
 
 public class AllTests
 {
@@ -121,7 +130,7 @@ public class AllTests
         private BackgroundPrx _background = null;
     }
 
-    private static class OpAMICallback extends Test.AMI_Background_op implements Ice.AMISentCallback
+    private static class OpAMICallback extends AMI_Background_op implements Ice.AMISentCallback
     {
         public void
         ice_response()
@@ -165,7 +174,7 @@ public class AllTests
         private Callback sent = new Callback();
     }
 
-    private static class OpExAMICallback extends Test.AMI_Background_op implements Ice.AMISentCallback
+    private static class OpExAMICallback extends AMI_Background_op implements Ice.AMISentCallback
     {
         public void
         ice_response()
@@ -201,7 +210,7 @@ public class AllTests
         private Callback sent = new Callback();
     }
 
-    private static class OpWithPayloadOnewayAMICallback extends Test.AMI_Background_opWithPayload
+    private static class OpWithPayloadOnewayAMICallback extends AMI_Background_opWithPayload
     {
         public void
         ice_response()
@@ -226,8 +235,8 @@ public class AllTests
         }
     };
 
-    public static Test.BackgroundPrx
-    allTests(Ice.Communicator communicator, java.io.PrintStream out)
+    public static BackgroundPrx
+    allTests(Configuration configuration, Ice.Communicator communicator, PrintWriter out)
     {
         String sref = "background:default -p 12010 -t 20000";
         Ice.ObjectPrx obj = communicator.stringToProxy(sref);
@@ -241,38 +250,36 @@ public class AllTests
 
         BackgroundControllerPrx backgroundController = BackgroundControllerPrxHelper.uncheckedCast(obj);
 
-        Configuration configuration = Configuration.getInstance();
-
-        System.out.print("testing connect... ");
-        System.out.flush();
+        out.print("testing connect... ");
+        out.flush();
         {
             connectTests(configuration, background);
         }
-        System.out.println("ok");
+        out.println("ok");
 
-        System.out.print("testing initialization... ");
-        System.out.flush();
+        out.print("testing initialization... ");
+        out.flush();
         {
             initializeTests(configuration, background, backgroundController);
         }
-        System.out.println("ok");
+        out.println("ok");
 
-        System.out.print("testing connection validation... ");
-        System.out.flush();
+        out.print("testing connection validation... ");
+        out.flush();
         {
             validationTests(configuration, background, backgroundController);
         }
-        System.out.println("ok");
+        out.println("ok");
 
-        System.out.print("testing read/write... ");
-        System.out.flush();
+        out.print("testing read/write... ");
+        out.flush();
         {
             readWriteTests(configuration, background, backgroundController);
         }
-        System.out.println("ok");
+        out.println("ok");
 
-        System.out.print("testing locator... ");
-        System.out.flush();
+        out.print("testing locator... ");
+        out.flush();
         {
             Ice.LocatorPrx locator;
             obj = communicator.stringToProxy("locator:default -p 12010 -t 500");
@@ -289,7 +296,7 @@ public class AllTests
             }
             backgroundController.resumeCall("findAdapterById");
 
-            obj = communicator.stringToProxy("locator:default -p 12010 -t 10000");
+            obj = communicator.stringToProxy("locator:default -p 12010 -t 20000");
             locator = Ice.LocatorPrxHelper.uncheckedCast(obj);
             obj = obj.ice_locator(locator);
             obj.ice_ping();
@@ -308,10 +315,10 @@ public class AllTests
             test(cb.response(true));
             test(cb2.response(true));
         }
-        System.out.println("ok");
+        out.println("ok");
 
-        System.out.print("testing router... ");
-        System.out.flush();
+        out.print("testing router... ");
+        out.flush();
         {
             Ice.RouterPrx router;
 
@@ -329,7 +336,7 @@ public class AllTests
             }
             backgroundController.resumeCall("getClientProxy");
 
-            obj = communicator.stringToProxy("router:default -p 12010 -t 10000");
+            obj = communicator.stringToProxy("router:default -p 12010 -t 20000");
             router = Ice.RouterPrxHelper.uncheckedCast(obj);
             obj = communicator.stringToProxy("background@Test").ice_router(router);
             BackgroundPrx bg = BackgroundPrxHelper.uncheckedCast(obj);
@@ -346,13 +353,13 @@ public class AllTests
             test(cb.response(true));
             test(cb2.response(true));
         }
-        System.out.println("ok");
+        out.println("ok");
 
         return background;
     }
 
     private static void
-    connectTests(Configuration configuration, Test.BackgroundPrx background)
+    connectTests(Configuration configuration, BackgroundPrx background)
     {
         try
         {
@@ -455,7 +462,7 @@ public class AllTests
     }
 
     private static void
-    initializeTests(Configuration configuration, Test.BackgroundPrx background, Test.BackgroundControllerPrx ctl)
+    initializeTests(Configuration configuration, BackgroundPrx background, BackgroundControllerPrx ctl)
     {
         try
         {
@@ -690,7 +697,7 @@ public class AllTests
     }
 
     private static void
-    validationTests(Configuration configuration, Test.BackgroundPrx background, Test.BackgroundControllerPrx ctl)
+    validationTests(Configuration configuration, BackgroundPrx background, BackgroundControllerPrx ctl)
     {
         try
         {
@@ -919,7 +926,7 @@ public class AllTests
     }
 
     private static void
-    readWriteTests(Configuration configuration, Test.BackgroundPrx background, Test.BackgroundControllerPrx ctl)
+    readWriteTests(Configuration configuration, BackgroundPrx background, BackgroundControllerPrx ctl)
     {
         try
         {

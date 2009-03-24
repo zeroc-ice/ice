@@ -7,73 +7,93 @@
 //
 // **********************************************************************
 
-public final class InitialI extends Test._InitialDisp
+package test.Ice.inheritance;
+
+import test.Ice.inheritance.Test._InitialDisp;
+import test.Ice.inheritance.Test.MA.CAPrx;
+import test.Ice.inheritance.Test.MA.CAPrxHelper;
+import test.Ice.inheritance.Test.MA.CCPrx;
+import test.Ice.inheritance.Test.MA.CCPrxHelper;
+import test.Ice.inheritance.Test.MA.CDPrx;
+import test.Ice.inheritance.Test.MA.CDPrxHelper;
+import test.Ice.inheritance.Test.MA.IAPrx;
+import test.Ice.inheritance.Test.MA.IAPrxHelper;
+import test.Ice.inheritance.Test.MA.ICPrx;
+import test.Ice.inheritance.Test.MA.ICPrxHelper;
+import test.Ice.inheritance.Test.MB.CBPrx;
+import test.Ice.inheritance.Test.MB.CBPrxHelper;
+import test.Ice.inheritance.Test.MB.IB1Prx;
+import test.Ice.inheritance.Test.MB.IB1PrxHelper;
+import test.Ice.inheritance.Test.MB.IB2Prx;
+import test.Ice.inheritance.Test.MB.IB2PrxHelper;
+
+public final class InitialI extends _InitialDisp
 {
     public
     InitialI(Ice.ObjectAdapter adapter)
     {
         _adapter = adapter;
-        _ca = Test.MA.CAPrxHelper.uncheckedCast(
+        _ca = CAPrxHelper.uncheckedCast(
             _adapter.addWithUUID(new CAI()));
-        _cb = Test.MB.CBPrxHelper.uncheckedCast(
+        _cb = CBPrxHelper.uncheckedCast(
             _adapter.addWithUUID(new CBI()));
-        _cc = Test.MA.CCPrxHelper.uncheckedCast(
+        _cc = CCPrxHelper.uncheckedCast(
             _adapter.addWithUUID(new CCI()));
-        _cd = Test.MA.CDPrxHelper.uncheckedCast(
+        _cd = CDPrxHelper.uncheckedCast(
             _adapter.addWithUUID(new CDI()));
-        _ia = Test.MA.IAPrxHelper.uncheckedCast(
+        _ia = IAPrxHelper.uncheckedCast(
             _adapter.addWithUUID(new IAI()));
-        _ib1 = Test.MB.IB1PrxHelper.uncheckedCast(
+        _ib1 = IB1PrxHelper.uncheckedCast(
             _adapter.addWithUUID(new IB1I()));
-        _ib2 = Test.MB.IB2PrxHelper.uncheckedCast(
+        _ib2 = IB2PrxHelper.uncheckedCast(
             _adapter.addWithUUID(new IB2I()));
-        _ic = Test.MA.ICPrxHelper.uncheckedCast(
+        _ic = ICPrxHelper.uncheckedCast(
             _adapter.addWithUUID(new ICI()));
     }
 
-    public Test.MA.CAPrx
+    public CAPrx
     caop(Ice.Current current)
     {
         return _ca;
     }
 
-    public Test.MB.CBPrx
+    public CBPrx
     cbop(Ice.Current current)
     {
         return _cb;
     }
 
-    public Test.MA.CCPrx
+    public CCPrx
     ccop(Ice.Current current)
     {
         return _cc;
     }
 
-    public Test.MA.CDPrx
+    public CDPrx
     cdop(Ice.Current current)
     {
         return _cd;
     }
 
-    public Test.MA.IAPrx
+    public IAPrx
     iaop(Ice.Current current)
     {
         return _ia;
     }
 
-    public Test.MB.IB1Prx
+    public IB1Prx
     ib1op(Ice.Current current)
     {
         return _ib1;
     }
 
-    public Test.MB.IB2Prx
+    public IB2Prx
     ib2op(Ice.Current current)
     {
         return _ib2;
     }
 
-    public Test.MA.ICPrx
+    public ICPrx
     icop(Ice.Current current)
     {
         return _ic;
@@ -86,12 +106,12 @@ public final class InitialI extends Test._InitialDisp
     }
 
     private Ice.ObjectAdapter _adapter;
-    private Test.MA.CAPrx _ca;
-    private Test.MB.CBPrx _cb;
-    private Test.MA.CCPrx _cc;
-    private Test.MA.CDPrx _cd;
-    private Test.MA.IAPrx _ia;
-    private Test.MB.IB1Prx _ib1;
-    private Test.MB.IB2Prx _ib2;
-    private Test.MA.ICPrx _ic;
+    private CAPrx _ca;
+    private CBPrx _cb;
+    private CCPrx _cc;
+    private CDPrx _cd;
+    private IAPrx _ia;
+    private IB1Prx _ib1;
+    private IB2Prx _ib2;
+    private ICPrx _ic;
 }

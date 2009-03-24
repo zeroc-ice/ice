@@ -7,21 +7,21 @@
 //
 // **********************************************************************
 
-public class Server
+package test.Ice.location;
+
+public class Server extends test.Util.Application
 {
-    private static int
-    run(String[] args, Ice.Communicator communicator, Ice.InitializationData initData)
+    private Ice.InitializationData _initData;
+
+    public int run(String[] args)
     {
+        Ice.Communicator communicator = communicator();
+        
         //
         // Register the server manager. The server manager creates a new
         // 'server' (a server isn't a different process, it's just a new
         // communicator and object adapter).
         //
-        Ice.Properties properties = communicator.getProperties();
-        properties.setProperty("Ice.ThreadPool.Server.Size", "2");
-        properties.setProperty("Ice.ThreadPool.Server.SizeWarn", "0");
-        properties.setProperty("ServerManagerAdapter.Endpoints", "default -p 12010 -t 30000:udp");
-
         Ice.ObjectAdapter adapter = communicator.createObjectAdapter("ServerManagerAdapter");
 
         //
@@ -31,55 +31,38 @@ public class Server
         //
         ServerLocatorRegistry registry = new ServerLocatorRegistry();
         registry.addObject(adapter.createProxy(communicator.stringToIdentity("ServerManager")));
-        Ice.Object object = new ServerManagerI(adapter, registry, initData);
+        Ice.Object object = new ServerManagerI(adapter, registry, _initData, this);
         adapter.add(object, communicator.stringToIdentity("ServerManager"));
 
-        Ice.LocatorRegistryPrx registryPrx = 
-            Ice.LocatorRegistryPrxHelper.uncheckedCast(adapter.add(registry, communicator.stringToIdentity("registry")));
-        
+        Ice.LocatorRegistryPrx registryPrx = Ice.LocatorRegistryPrxHelper.uncheckedCast(adapter.add(registry,
+                communicator.stringToIdentity("registry")));
+
         ServerLocator locator = new ServerLocator(registry, registryPrx);
         adapter.add(locator, communicator.stringToIdentity("locator"));
-        
+
         adapter.activate();
-        communicator.waitForShutdown();
-        
-        return 0;
+
+        return WAIT;
     }
 
-    public static void
-    main(String[] args)
+    protected Ice.InitializationData getInitData(Ice.StringSeqHolder argsH)
     {
-        int status = 0;
-        Ice.Communicator communicator = null;
+        Ice.InitializationData initData = new Ice.InitializationData();
+        initData.properties = Ice.Util.createProperties(argsH);
+        initData.properties.setProperty("Ice.Package.Test", "test.Ice.location");
+        initData.properties.setProperty("Ice.ThreadPool.Server.Size", "2");
+        initData.properties.setProperty("Ice.ThreadPool.Server.SizeWarn", "0");
+        initData.properties.setProperty("ServerManagerAdapter.Endpoints", "default -p 12010 -t 30000:udp");
 
-        try
-        {
-            Ice.StringSeqHolder argsH = new Ice.StringSeqHolder(args);
-            Ice.InitializationData initData = new Ice.InitializationData();
-            initData.properties = Ice.Util.createProperties(argsH);
-            communicator = Ice.Util.initialize(argsH, initData);
-            status = run(argsH.value, communicator, initData);
-        }
-        catch(Exception ex)
-        {
-            ex.printStackTrace();
-            status = 1;
-        }
+        _initData = initData;
+        return initData;
+    }
 
-        if(communicator != null)
-        {
-            try
-            {
-                communicator.destroy();
-            }
-            catch(Ice.LocalException ex)
-            {
-                ex.printStackTrace();
-                status = 1;
-            }
-        }
-
+    public static void main(String[] args)
+    {
+        Server app = new Server();
+        int result = app.main("Server", args);
         System.gc();
-        System.exit(status);
+        System.exit(result);
     }
 }

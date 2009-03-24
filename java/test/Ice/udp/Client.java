@@ -7,54 +7,33 @@
 //
 // **********************************************************************
 
-import Test.*;
+package test.Ice.udp;
 
-public class Client
+import test.Ice.udp.Test.*;
+
+public class Client extends test.Util.Application
 {
-    private static int
-    run(String[] args, Ice.Communicator communicator)
+    public int run(String[] args)
     {
-        TestIntfPrx obj = AllTests.allTests(communicator);
+        TestIntfPrx obj = AllTests.allTests(communicator());
         obj.shutdown();
         return 0;
     }
 
-    public static void
-    main(String[] args)
+    protected Ice.InitializationData getInitData(Ice.StringSeqHolder argsH)
     {
-        int status = 0;
-        Ice.Communicator communicator = null;
+        Ice.InitializationData initData = new Ice.InitializationData();
+        initData.properties = Ice.Util.createProperties(argsH);
+        initData.properties.setProperty("Ice.Package.Test", "test.Ice.udp");
+        initData.properties.setProperty("Ice.Warn.Connections", "0");
+        initData.properties.setProperty("Ice.UDP.SndSize", "16384");
+        return initData;
+    }
 
-        try
-        {
-            Ice.StringSeqHolder argHolder = new Ice.StringSeqHolder(args);
-            Ice.InitializationData initData = new Ice.InitializationData();
-            initData.properties = Ice.Util.createProperties(argHolder);
-        
-            initData.properties.setProperty("Ice.Warn.Connections", "0");
-            initData.properties.setProperty("Ice.UDP.SndSize", "16384");
-
-            communicator = Ice.Util.initialize(argHolder, initData);
-            status = run(args, communicator);
-        }
-        catch(Exception ex)
-        {
-            ex.printStackTrace();
-            status = 1;
-        }
-
-        if(communicator != null)
-        {
-            try
-            {
-                communicator.destroy();
-            }
-            catch(Ice.LocalException ex)
-            {
-                ex.printStackTrace();
-                status = 1;
-            }
-        }
+    public static void main(String[] args)
+    {
+        Client c = new Client();
+        int status = c.main("Client", args);
 
         System.gc();
         System.exit(status);

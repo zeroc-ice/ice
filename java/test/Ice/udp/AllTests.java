@@ -7,6 +7,10 @@
 //
 // **********************************************************************
 
+package test.Ice.udp;
+
+import test.Ice.udp.Test.*;
+
 public class AllTests
 {
     private static void
@@ -18,7 +22,7 @@ public class AllTests
         }
     }
 
-    public static class PingReplyI extends Test._PingReplyDisp
+    public static class PingReplyI extends _PingReplyDisp
     {
         public synchronized void
         reply(Ice.Current current)
@@ -61,20 +65,21 @@ public class AllTests
         private int _replies;
     }
 
-    public static Test.TestIntfPrx
+    public static TestIntfPrx
     allTests(Ice.Communicator communicator)
     {
         communicator.getProperties().setProperty("ReplyAdapter.Endpoints", "udp -p 12030");
         Ice.ObjectAdapter adapter = communicator.createObjectAdapter("ReplyAdapter");
         PingReplyI replyI = new PingReplyI();
-        Test.PingReplyPrx reply = 
-            (Test.PingReplyPrx)Test.PingReplyPrxHelper.uncheckedCast(adapter.addWithUUID(replyI)).ice_datagram();
+
+        PingReplyPrx reply = 
+            (PingReplyPrx)PingReplyPrxHelper.uncheckedCast(adapter.addWithUUID(replyI)).ice_datagram();
         adapter.activate();
 
         System.out.print("testing udp... ");
         System.out.flush();
         Ice.ObjectPrx base = communicator.stringToProxy("test:udp -p 12010").ice_datagram();
-        Test.TestIntfPrx obj = Test.TestIntfPrxHelper.uncheckedCast(base);
+        TestIntfPrx obj = TestIntfPrxHelper.uncheckedCast(base);
 
         int nRetry = 5;
         boolean ret = false;
@@ -93,7 +98,7 @@ public class AllTests
             // If the 3 datagrams were not received within the 2 seconds, we try again to
             // receive 3 new datagrams using a new object. We give up after 5 retries. 
             replyI = new PingReplyI();
-            reply =(Test.PingReplyPrx)Test.PingReplyPrxHelper.uncheckedCast(adapter.addWithUUID(replyI)).ice_datagram();
+            reply = (PingReplyPrx)PingReplyPrxHelper.uncheckedCast(adapter.addWithUUID(replyI)).ice_datagram();
         }
         test(ret == true);
 
@@ -149,7 +154,7 @@ public class AllTests
             host = "239.255.1.1";
         }
         base = communicator.stringToProxy("test:udp -h " + host + " -p 12020").ice_datagram();
-        obj = Test.TestIntfPrxHelper.uncheckedCast(base);
+        obj = TestIntfPrxHelper.uncheckedCast(base);
 
         replyI.reset();
         obj.ping(reply);

@@ -753,6 +753,22 @@ def getCommandLine(exe, config):
 
     return commandline
 
+def directoryToPackage():
+    """Determine the package name from the directory."""
+    base = os.getcwd()
+    after = []
+    before = base
+    lang = getDefaultMapping()
+    while len(before) > 0:
+	current = os.path.basename(before)
+	before = os.path.dirname(before)
+	if current == lang:
+	    break
+	after.insert(0, current)
+    else:
+        raise "cannot find language dir"
+    return ".".join(after)
+
 def getDefaultServerFile():
     lang = getDefaultMapping()
     if lang in ["rb", "php", "cpp", "cs", "cppe"]:
@@ -760,7 +776,7 @@ def getDefaultServerFile():
     if lang == "py":
         return "Server.py"
     if lang in ["java", "javae"]:
-        return "Server"
+        return directoryToPackage() + ".Server"
 
 def getDefaultClientFile(lang = None):
     if lang is None:
@@ -774,7 +790,7 @@ def getDefaultClientFile(lang = None):
     if lang == "py":
         return "Client.py"
     if lang in ["java", "javae"]:
-        return "Client"
+        return directoryToPackage() + ".Client"
 
 def getDefaultCollocatedFile():
     lang = getDefaultMapping()
@@ -787,7 +803,7 @@ def getDefaultCollocatedFile():
     if lang == "py":
         return "Collocated.py"
     if lang in ["java", "javae"]:
-        return "Collocated"
+        return directoryToPackage() + ".Collocated"
 
 def isDebug():
     return debug

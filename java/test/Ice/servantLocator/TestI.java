@@ -7,7 +7,11 @@
 //
 // **********************************************************************
 
-import Test.*;
+package test.Ice.servantLocator;
+
+import test.Ice.servantLocator.Test.TestImpossibleException;
+import test.Ice.servantLocator.Test.TestIntfUserException;
+import test.Ice.servantLocator.Test._TestIntfDisp;
 
 public final class TestI extends _TestIntfDisp
 {
@@ -79,6 +83,6 @@ public final class TestI extends _TestIntfDisp
     public void
     shutdown(Ice.Current current)
     {
-        current.adapter.deactivate();
+        current.adapter.getCommunicator().shutdown();
     }
 }

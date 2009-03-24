@@ -10,6 +10,7 @@
 #ifndef CALLBACK_ICE
 #define CALLBACK_ICE
 
+[["java:package:test.Glacier2.router"]]
 module Test
 {
 

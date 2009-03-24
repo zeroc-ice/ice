@@ -7,7 +7,9 @@
 //
 // **********************************************************************
 
-import Test.*;
+package test.Ice.hold;
+
+import test.Ice.hold.Test._HoldDisp;
 
 public final class HoldI extends _HoldDisp
 {
@@ -78,6 +80,7 @@ public final class HoldI extends _HoldDisp
     {
         if(_last != expected)
         {
+            System.err.println("_last = " + _last + " expected = " + expected);
             _adapter.getCommunicator().shutdown();
             test(false);
         }

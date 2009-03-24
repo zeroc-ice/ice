@@ -12,6 +12,7 @@
 
 #include <Ice/Identity.ice>
 
+[["java:package:test.Freeze.evictor"]]
 module Test
 {
 

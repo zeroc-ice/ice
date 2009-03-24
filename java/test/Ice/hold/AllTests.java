@@ -7,7 +7,14 @@
 //
 // **********************************************************************
 
-import Test.*;
+package test.Ice.hold;
+
+import java.io.PrintStream;
+import java.io.PrintWriter;
+
+import test.Ice.hold.Test.AMI_Hold_set;
+import test.Ice.hold.Test.HoldPrx;
+import test.Ice.hold.Test.HoldPrxHelper;
 
 public class AllTests
 {
@@ -93,20 +100,20 @@ public class AllTests
     };
 
     public static void
-    allTests(Ice.Communicator communicator)
+    allTests(Ice.Communicator communicator, PrintWriter out)
     {
-        System.out.print("testing stringToProxy... ");
-        System.out.flush();
-        String ref = "hold:default -p 12010 -t 30000";
+        out.print("testing stringToProxy... ");
+        out.flush();
+        String ref = "hold:default -p 12010 -t 60000";
         Ice.ObjectPrx base = communicator.stringToProxy(ref);
         test(base != null);
-        String refSerialized = "hold:default -p 12011 -t 30000";
+        String refSerialized = "hold:default -p 12011 -t 60000";
         Ice.ObjectPrx baseSerialized = communicator.stringToProxy(refSerialized);
         test(baseSerialized != null);
-        System.out.println("ok");
+        out.println("ok");
         
-        System.out.print("testing checked cast... ");
-        System.out.flush();
+        out.print("testing checked cast... ");
+        out.flush();
         HoldPrx hold = HoldPrxHelper.checkedCast(base);
         HoldPrx holdOneway = HoldPrxHelper.uncheckedCast(base.ice_oneway());
         test(hold != null);
@@ -115,10 +122,10 @@ public class AllTests
         HoldPrx holdSerializedOneway = HoldPrxHelper.uncheckedCast(baseSerialized.ice_oneway());
         test(holdSerialized != null);
         test(holdSerialized.equals(baseSerialized));
-        System.out.println("ok");
+        out.println("ok");
         
-        System.out.print("changing state between active and hold rapidly... ");
-        System.out.flush();
+        out.print("changing state between active and hold rapidly... ");
+        out.flush();
         for(int i = 0; i < 100; ++i)
         {
             hold.putOnHold(0);
@@ -135,10 +142,10 @@ public class AllTests
         {
             holdSerializedOneway.putOnHold(0);
         }
-        System.out.println("ok");
+        out.println("ok");
         
-        System.out.print("testing without serialize mode... ");
-        System.out.flush();
+        out.print("testing without serialize mode... ");
+        out.flush();
         java.util.Random random = new java.util.Random();
         {
             Condition cond = new Condition(true);
@@ -166,10 +173,10 @@ public class AllTests
                 cb = null;
             }
         }
-        System.out.println("ok");
+        out.println("ok");
 
-        System.out.print("testing with serialize mode... ");
-        System.out.flush();
+        out.print("testing with serialize mode... ");
+        out.flush();
         {
             Condition cond = new Condition(true);
             int value = 0;
@@ -207,12 +214,12 @@ public class AllTests
                 }
             }
         }
-        System.out.println("ok");
+        out.println("ok");
 
-        System.out.print("changing state to hold and shutting down server... ");
-        System.out.flush();
+        out.print("changing state to hold and shutting down server... ");
+        out.flush();
         hold.shutdown();
-        System.out.println("ok");
+        out.println("ok");
     }
 }
         

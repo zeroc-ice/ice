@@ -7,7 +7,11 @@
 //
 // **********************************************************************
 
-public class ServerLocatorRegistry extends Test._TestLocatorRegistryDisp
+package test.Ice.location;
+
+import test.Ice.location.Test._TestLocatorRegistryDisp;
+
+public class ServerLocatorRegistry extends _TestLocatorRegistryDisp
 {
     public void
     setAdapterDirectProxy_async(Ice.AMD_LocatorRegistry_setAdapterDirectProxy cb, String adapter,

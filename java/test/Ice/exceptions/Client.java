@@ -7,54 +7,34 @@
 //
 // **********************************************************************
 
-import Test.*;
+package test.Ice.exceptions;
 
-public class Client
+import test.Ice.exceptions.Test.ThrowerPrx;
+
+public class Client extends test.Util.Application
 {
-    private static int
-    run(String[] args, Ice.Communicator communicator)
+    public int run(String[] args)
     {
-        ThrowerPrx thrower = AllTests.allTests(communicator, false);
+        Ice.Communicator communicator = communicator();
+        ThrowerPrx thrower = AllTests.allTests(communicator, false, getWriter());
         thrower.shutdown();
         return 0;
     }
 
-    public static void
-    main(String[] args)
+    protected Ice.InitializationData getInitData(Ice.StringSeqHolder argsH)
     {
-        int status = 0;
-        Ice.Communicator communicator = null;
+        Ice.InitializationData initData = new Ice.InitializationData();
+        initData.properties = Ice.Util.createProperties(argsH);
+        initData.properties.setProperty("Ice.Package.Test", "test.Ice.exceptions");
+        initData.properties.setProperty("Ice.Warn.Connections", "0");
+        return initData;
+    }
 
-        try
-        {
-            Ice.StringSeqHolder argsH = new Ice.StringSeqHolder(args);
-            Ice.InitializationData initData = new Ice.InitializationData();
-            initData.properties = Ice.Util.createProperties(argsH);
-            initData.properties.setProperty("Ice.Warn.Connections", "0");
-
-            communicator = Ice.Util.initialize(argsH, initData);
-            status = run(args, communicator);
-        }
-        catch(Exception ex)
-        {
-            ex.printStackTrace();
-            status = 1;
-        }
-
-        if(communicator != null)
-        {
-            try
-            {
-                communicator.destroy();
-            }
-            catch(Ice.LocalException ex)
-            {
-                ex.printStackTrace();
-                status = 1;
-            }
-        }
-
+    public static void main(String[] args)
+    {
+        Client app = new Client();
+        int result = app.main("Client", args);
         System.gc();
-        System.exit(status);
+        System.exit(result);
     }
 }

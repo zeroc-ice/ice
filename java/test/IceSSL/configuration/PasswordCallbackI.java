@@ -7,6 +7,9 @@
 //
 // **********************************************************************
 
+package test.IceSSL.configuration;
+import test.IceSSL.configuration.Test.*;
+
 public class PasswordCallbackI implements IceSSL.PasswordCallback
 {
     public

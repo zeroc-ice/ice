@@ -7,7 +7,10 @@
 //
 // **********************************************************************
 
-import Test.*;
+package test.Ice.objects;
+
+import test.Ice.objects.Test.E;
+
 
 public final class EI extends E
 {

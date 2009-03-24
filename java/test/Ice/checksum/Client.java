@@ -7,46 +7,36 @@
 //
 // **********************************************************************
 
-public class Client
+package test.Ice.checksum;
+
+import test.Ice.checksum.Test.ChecksumPrx;
+
+public class Client extends test.Util.Application
 {
-    private static int
-    run(String[] args, Ice.Communicator communicator)
+    public int
+    run(String[] args)
     {
-        Test.ChecksumPrx checksum = AllTests.allTests(communicator, false);
+	Ice.Communicator communicator = communicator();
+        ChecksumPrx checksum = AllTests.allTests(communicator, false, getWriter());
         checksum.shutdown();
         return 0;
+    }
+
+
+    protected Ice.InitializationData getInitData(Ice.StringSeqHolder argsH)
+    {
+        Ice.InitializationData initData = new Ice.InitializationData();
+        initData.properties = Ice.Util.createProperties(argsH);
+        initData.properties.setProperty("Ice.Package.Test", "test.Ice.checksum");
+        return initData;
     }
 
     public static void
     main(String[] args)
     {
-        int status = 0;
-        Ice.Communicator communicator = null;
-
-        try
-        {
-            communicator = Ice.Util.initialize(args);
-            status = run(args, communicator);
-        }
-        catch(Exception ex)
-        {
-            ex.printStackTrace();
-            status = 1;
-        }
-
-        if(communicator != null)
-        {
-            try
-            {
-                communicator.destroy();
-            }
-            catch(Ice.LocalException ex)
-            {
-                ex.printStackTrace();
-                status = 1;
-            }
-        }
-
+    	Client c = new Client();
+    	int status = c.main("Client", args);
+        
         System.gc();
         System.exit(status);
     }

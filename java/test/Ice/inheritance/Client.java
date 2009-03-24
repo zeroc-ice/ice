@@ -7,47 +7,32 @@
 //
 // **********************************************************************
 
-import Test.*;
+package test.Ice.inheritance;
 
-public class Client
+import test.Ice.inheritance.Test.InitialPrx;
+
+public class Client extends test.Util.Application
 {
-    private static int
-    run(String[] args, Ice.Communicator communicator)
+    public int run(String[] args)
     {
-        InitialPrx initial = AllTests.allTests(communicator);
+        Ice.Communicator communicator = communicator();
+        InitialPrx initial = AllTests.allTests(communicator, getWriter());
         initial.shutdown();
         return 0;
     }
 
-    public static void
-    main(String[] args)
+    protected Ice.InitializationData getInitData(Ice.StringSeqHolder argsH)
     {
-        int status = 0;
-        Ice.Communicator communicator = null;
+        Ice.InitializationData initData = new Ice.InitializationData();
+        initData.properties = Ice.Util.createProperties(argsH);
+        initData.properties.setProperty("Ice.Package.Test", "test.Ice.inheritance");
+        return initData;
+    }
 
-        try
-        {
-            communicator = Ice.Util.initialize(args);
-            status = run(args, communicator);
-        }
-        catch(Exception ex)
-        {
-            ex.printStackTrace();
-            status = 1;
-        }
-
-        if(communicator != null)
-        {
-            try
-            {
-                communicator.destroy();
-            }
-            catch(Ice.LocalException ex)
-            {
-                ex.printStackTrace();
-                status = 1;
-            }
-        }
+    public static void main(String[] args)
+    {
+        Client c = new Client();
+        int status = c.main("Client", args);
 
         System.gc();
         System.exit(status);

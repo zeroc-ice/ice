@@ -7,33 +7,41 @@
 //
 // **********************************************************************
 
-public final class ICI extends Test.MA._ICDisp
+package test.Ice.inheritance;
+
+import test.Ice.inheritance.Test.MA.IAPrx;
+import test.Ice.inheritance.Test.MA.ICPrx;
+import test.Ice.inheritance.Test.MA._ICDisp;
+import test.Ice.inheritance.Test.MB.IB1Prx;
+import test.Ice.inheritance.Test.MB.IB2Prx;
+
+public final class ICI extends _ICDisp
 {
     public
     ICI()
     {
     }
 
-    public Test.MA.IAPrx
-    iaop(Test.MA.IAPrx p, Ice.Current current)
+    public IAPrx
+    iaop(IAPrx p, Ice.Current current)
     {
         return p;
     }
 
-    public Test.MA.ICPrx
-    icop(Test.MA.ICPrx p, Ice.Current current)
+    public ICPrx
+    icop(ICPrx p, Ice.Current current)
     {
         return p;
     }
 
-    public Test.MB.IB1Prx
-    ib1op(Test.MB.IB1Prx p, Ice.Current current)
+    public IB1Prx
+    ib1op(IB1Prx p, Ice.Current current)
     {
         return p;
     }
 
-    public Test.MB.IB2Prx
-    ib2op(Test.MB.IB2Prx p, Ice.Current current)
+    public IB2Prx
+    ib2op(IB2Prx p, Ice.Current current)
     {
         return p;
     }

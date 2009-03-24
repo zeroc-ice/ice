@@ -7,21 +7,27 @@
 //
 // **********************************************************************
 
-public final class IB2I extends Test.MB._IB2Disp
+package test.Ice.inheritance;
+
+import test.Ice.inheritance.Test.MA.IAPrx;
+import test.Ice.inheritance.Test.MB.IB2Prx;
+import test.Ice.inheritance.Test.MB._IB2Disp;
+
+public final class IB2I extends _IB2Disp
 {
     public
     IB2I()
     {
     }
 
-    public Test.MA.IAPrx
-    iaop(Test.MA.IAPrx p, Ice.Current current)
+    public IAPrx
+    iaop(IAPrx p, Ice.Current current)
     {
         return p;
     }
 
-    public Test.MB.IB2Prx
-    ib2op(Test.MB.IB2Prx p, Ice.Current current)
+    public IB2Prx
+    ib2op(IB2Prx p, Ice.Current current)
     {
         return p;
     }

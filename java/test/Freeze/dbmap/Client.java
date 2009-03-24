@@ -7,6 +7,8 @@
 //
 // **********************************************************************
 
+package test.Freeze.dbmap;
+
 import Freeze.*;
 
 public class Client

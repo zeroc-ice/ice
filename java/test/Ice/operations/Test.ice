@@ -12,6 +12,7 @@
 
 #include <Ice/Current.ice>
 
+[["java:package:test.Ice.operations"]]
 module Test
 {
 

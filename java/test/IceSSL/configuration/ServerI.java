@@ -7,7 +7,10 @@
 //
 // **********************************************************************
 
-class ServerI extends Test._ServerDisp
+package test.IceSSL.configuration;
+import test.IceSSL.configuration.Test._ServerDisp;
+
+class ServerI extends _ServerDisp
 {
     ServerI(Ice.Communicator communicator)
     {

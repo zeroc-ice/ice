@@ -7,6 +7,9 @@
 //
 // **********************************************************************
 
+package test.Ice.exceptions;
+
+
 public final class DummyLogger implements Ice.Logger
 {
     public void

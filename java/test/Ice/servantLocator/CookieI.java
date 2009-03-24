@@ -7,7 +7,9 @@
 //
 // **********************************************************************
 
-import Test.*;
+package test.Ice.servantLocator;
+
+import test.Ice.servantLocator.Test.Cookie;
 
 public final class CookieI extends Cookie
 {

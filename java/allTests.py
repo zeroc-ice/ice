@@ -21,6 +21,11 @@ sys.path.append(os.path.join(toplevel))
 from scripts import *
 
 #
+# TODO: custom14 is commented out. We need to determine a java2 vs java5 build to determine
+# which custom test to run.
+#
+
+#
 # List of all basic tests.
 #
 tests = [
@@ -39,9 +44,10 @@ tests = [
     ("Ice/adapterDeactivation", ["core"]),
     ("Ice/slicing/exceptions", ["core"]),
     ("Ice/slicing/objects", ["core"]),
-    ("Ice/custom", ["core"]),
+    #("Ice/custom14", ["core"]),
+    ("Ice/custom15", ["core"]),
     ("Ice/checksum", ["core"]),
-    ("Ice/package", ["core"]),
+    ("Ice/packagemd", ["core"]),
     ("Ice/stream", ["core"]),
     ("Ice/hold", ["core"]),
     ("Ice/retry", ["core"]),

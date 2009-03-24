@@ -7,7 +7,9 @@
 //
 // **********************************************************************
 
-public class Server extends Ice.Application
+package test.IceGrid.simple;
+
+public class Server extends test.Util.Application
 {
     public int
     run(String[] args)
@@ -18,7 +20,7 @@ public class Server extends Ice.Application
         Ice.ObjectAdapter adapter = communicator().createObjectAdapter("TestAdapter");
         Ice.Object object = new TestI(adapter);
         adapter.add(object, communicator().stringToIdentity("test"));
-        shutdownOnInterrupt();
+        //shutdownOnInterrupt();
         try
         {
             adapter.activate();
@@ -27,15 +29,30 @@ public class Server extends Ice.Application
         {
         }
         communicator().waitForShutdown();
-        defaultInterrupt();
+        //defaultInterrupt();
         return 0;
+    }
+    
+    protected Ice.InitializationData getInitData(Ice.StringSeqHolder argsH)
+    {
+        Ice.InitializationData initData = new Ice.InitializationData();
+        initData.properties = Ice.Util.createProperties(argsH);
+        //
+        // Its possible to have batch oneway requests dispatched
+        // after the adapter is deactivated due to thread
+        // scheduling so we supress this warning.
+        //
+        initData.properties.setProperty("Ice.Warn.Dispatch", "0");
+        initData.properties.setProperty("Ice.Package.Test", "test.IceGrid.simple");
+        return initData;
     }
 
     public static void
     main(String[] args)
     {
-        Server server = new Server();
-        int status = server.main("test.IceGrid.simple.Server", args);
+    	Server c = new Server();
+    	int status = c.main("test.IceGrid.simple.Server", args);
+        
         System.gc();
         System.exit(status);
     }

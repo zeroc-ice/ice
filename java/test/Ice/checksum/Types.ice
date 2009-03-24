@@ -10,6 +10,7 @@
 #ifndef CLASS_ICE
 #define CLASS_ICE
 
+[["java:package:test.Ice.checksum"]]
 module Test
 {
 

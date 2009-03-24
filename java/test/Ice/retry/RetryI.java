@@ -7,7 +7,8 @@
 //
 // **********************************************************************
 
-import Test.*;
+package test.Ice.retry;
+import test.Ice.retry.Test._RetryDisp;
 
 public final class RetryI extends _RetryDisp
 {

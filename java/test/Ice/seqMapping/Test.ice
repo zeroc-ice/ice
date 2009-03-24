@@ -10,12 +10,13 @@
 #ifndef TEST_ICE
 #define TEST_ICE
 
+[["java:package:test.Ice.seqMapping"]]
 module Test
 {
 
-["java:serializable:Serialize.Small"] sequence<byte> SerialSmall;
-["java:serializable:Serialize.Large"] sequence<byte> SerialLarge;
-["java:serializable:Serialize.Struct"] sequence<byte> SerialStruct;
+["java:serializable:test.Ice.seqMapping.Serialize.Small"] sequence<byte> SerialSmall;
+["java:serializable:test.Ice.seqMapping.Serialize.Large"] sequence<byte> SerialLarge;
+["java:serializable:test.Ice.seqMapping.Serialize.Struct"] sequence<byte> SerialStruct;
 
 ["ami"] class MyClass
 {

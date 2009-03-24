@@ -7,7 +7,25 @@
 //
 // **********************************************************************
 
-import Test.*;
+package test.Ice.objects;
+
+import java.io.PrintWriter;
+
+import test.Ice.objects.Test.B;
+import test.Ice.objects.Test.BHolder;
+import test.Ice.objects.Test.C;
+import test.Ice.objects.Test.CHolder;
+import test.Ice.objects.Test.D;
+import test.Ice.objects.Test.DHolder;
+import test.Ice.objects.Test.E;
+import test.Ice.objects.Test.F;
+import test.Ice.objects.Test.H;
+import test.Ice.objects.Test.I;
+import test.Ice.objects.Test.InitialPrx;
+import test.Ice.objects.Test.InitialPrxHelper;
+import test.Ice.objects.Test.J;
+import test.Ice.objects.Test.UnexpectedObjectExceptionTestPrx;
+import test.Ice.objects.Test.UnexpectedObjectExceptionTestPrxHelper;
 
 public class AllTests
 {
@@ -21,48 +39,48 @@ public class AllTests
     }
 
     public static InitialPrx
-    allTests(Ice.Communicator communicator, boolean collocated)
+    allTests(Ice.Communicator communicator, boolean collocated, PrintWriter out)
     {
-        System.out.print("testing stringToProxy... ");
-        System.out.flush();
+		out.print("testing stringToProxy... ");
+        out.flush();
         String ref = "initial:default -p 12010 -t 10000";
         Ice.ObjectPrx base = communicator.stringToProxy(ref);
         test(base != null);
-        System.out.println("ok");
+        out.println("ok");
 
-        System.out.print("testing checked cast... ");
-        System.out.flush();
+        out.print("testing checked cast... ");
+        out.flush();
         InitialPrx initial = InitialPrxHelper.checkedCast(base);
         test(initial != null);
         test(initial.equals(base));
-        System.out.println("ok");
+        out.println("ok");
 
-        System.out.print("getting B1... ");
-        System.out.flush();
+        out.print("getting B1... ");
+        out.flush();
         B b1 = initial.getB1();
         test(b1 != null);
-        System.out.println("ok");
+        out.println("ok");
 
-        System.out.print("getting B2... ");
-        System.out.flush();
+        out.print("getting B2... ");
+        out.flush();
         B b2 = initial.getB2();
         test(b2 != null);
-        System.out.println("ok");
+        out.println("ok");
 
-        System.out.print("getting C... ");
-        System.out.flush();
+        out.print("getting C... ");
+        out.flush();
         C c = initial.getC();
         test(c != null);
-        System.out.println("ok");
+        out.println("ok");
 
-        System.out.print("getting D... ");
-        System.out.flush();
+        out.print("getting D... ");
+        out.flush();
         D d = initial.getD();
         test(d != null);
-        System.out.println("ok");
+        out.println("ok");
 
-        System.out.print("checking consistency... ");
-        System.out.flush();
+        out.print("checking consistency... ");
+        out.flush();
         test(b1 != b2);
         //test(b1 != c);
         //test(b1 != d);
@@ -89,10 +107,10 @@ public class AllTests
         // sufficient.
         test(b2.theA == b2);
         test(d.theC == null);
-        System.out.println("ok");
+        out.println("ok");
 
-        System.out.print("getting B1, B2, C, and D all at once... ");
-        System.out.flush();
+        out.print("getting B1, B2, C, and D all at once... ");
+        out.flush();
         BHolder b1H = new BHolder();
         BHolder b2H = new BHolder();
         CHolder cH = new CHolder();
@@ -106,10 +124,10 @@ public class AllTests
         test(b2 != null);
         test(c != null);
         test(d != null);
-        System.out.println("ok");
+        out.println("ok");
 
-        System.out.print("checking consistency... ");
-        System.out.flush();
+        out.print("checking consistency... ");
+        out.flush();
         test(b1 != b2);
         //test(b1 != c);
         //test(b1 != d);
@@ -137,10 +155,10 @@ public class AllTests
             test(d.theB.theC.preMarshalInvoked);
             test(d.theB.theC.postUnmarshalInvoked(null));
         }
-        System.out.println("ok");
+        out.println("ok");
 
-        System.out.print("testing protected members... ");
-        System.out.flush();
+        out.print("testing protected members... ");
+        out.flush();
         E e = initial.getE();
         test(e.checkValues());
         try
@@ -164,29 +182,29 @@ public class AllTests
         {
             test(false);
         }
-        System.out.println("ok");
+        out.println("ok");
 
-        System.out.print("getting I, J and H... ");
-        System.out.flush();
+        out.print("getting I, J and H... ");
+        out.flush();
         I i = initial.getI();
         test(i != null);
         I j = initial.getJ();
         test(j != null && ((J)j) != null);
         I h = initial.getH();
         test(h != null && ((H)h) != null);
-        System.out.println("ok");
+        out.println("ok");
 
-        System.out.print("setting I... ");
-        System.out.flush();
+        out.print("setting I... ");
+        out.flush();
         initial.setI(i);
         initial.setI(j);
         initial.setI(h);
-        System.out.println("ok");
+        out.println("ok");
 
         if(!collocated)
         {
-            System.out.print("testing UnexpectedObjectException...");
-            System.out.flush();
+            out.print("testing UnexpectedObjectException...");
+            out.flush();
             ref = "uoet:default -p 12010 -t 10000";
             base = communicator.stringToProxy(ref);
             test(base != null);
@@ -204,10 +222,10 @@ public class AllTests
             }
             catch(java.lang.Exception ex)
             {
-                System.out.println(ex);
+                out.println(ex);
                 test(false);
             }
-            System.out.println("ok");
+            out.println("ok");
         }
 
         return initial;

@@ -7,11 +7,14 @@
 //
 // **********************************************************************
 
-public class Server
+package test.IceSSL.configuration;
+
+
+public class Server extends test.Util.Application
 {
-    private static int
-    run(String[] args, Ice.Communicator communicator)
+    public int run(String[] args)
     {
+        Ice.Communicator communicator = communicator();
         communicator.getProperties().setProperty("TestAdapter.Endpoints", "tcp -p 12010");
         Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
         Ice.Identity id = communicator.stringToIdentity("factory");
@@ -22,37 +25,20 @@ public class Server
         return 0;
     }
 
-    public static void
-    main(String[] args)
+    protected Ice.InitializationData getInitData(Ice.StringSeqHolder argsH)
     {
-        int status = 0;
-        Ice.Communicator communicator = null;
+        Ice.InitializationData initData = new Ice.InitializationData();
+        initData.properties = Ice.Util.createProperties(argsH);
+        initData.properties.setProperty("Ice.Package.Test", "test.IceSSL.configuration");
+        return initData;
+    }
 
-        try
-        {
-            Ice.StringSeqHolder argsH = new Ice.StringSeqHolder(args);
-            communicator = Ice.Util.initialize(argsH);
-            status = run(argsH.value, communicator);
-        }
-        catch(Exception ex)
-        {
-            ex.printStackTrace();
-            status = 1;
-        }
-        
-        if(communicator != null)
-        {
-            try
-            {
-                communicator.destroy();
-            }
-            catch(Ice.LocalException ex)
-            {
-                ex.printStackTrace();
-                status = 1;
-            }
-        }
-        
+    public static void main(String[] args)
+    {
+        Server c = new Server();
+        int status = c.main("Server", args);
+
+        System.gc();
         System.exit(status);
     }
 }

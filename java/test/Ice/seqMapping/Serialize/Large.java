@@ -7,7 +7,7 @@
 //
 // **********************************************************************
 
-package Serialize;
+package test.Ice.seqMapping.Serialize;
 
 public class Large implements java.io.Serializable // More than 254 bytes when serialized.
 {

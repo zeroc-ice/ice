@@ -7,7 +7,10 @@
 //
 // **********************************************************************
 
-public final class RemoteEvictorI extends Test._RemoteEvictorDisp
+package test.Freeze.evictor;
+import test.Freeze.evictor.Test.*;
+
+public final class RemoteEvictorI extends _RemoteEvictorDisp
 {
     static class Initializer implements Freeze.ServantInitializer
     {
@@ -21,12 +24,12 @@ public final class RemoteEvictorI extends Test._RemoteEvictorDisp
             }
             else if(facet.length() == 0)
             {
-                ServantI servantImpl =  (ServantI) ((Test._ServantTie) servant).ice_delegate();
+                ServantI servantImpl =  (ServantI) ((_ServantTie) servant).ice_delegate();
                 servantImpl.init(_remoteEvictor, _evictor);
             }
             else
             {
-                ServantI servantImpl =  (ServantI) ((Test._FacetTie) servant).ice_delegate();
+                ServantI servantImpl =  (ServantI) ((_FacetTie) servant).ice_delegate();
                 servantImpl.init(_remoteEvictor, _evictor);
             }
         }
@@ -78,30 +81,30 @@ public final class RemoteEvictorI extends Test._RemoteEvictorDisp
         _evictor.setSize(size);
     }
 
-    public Test.ServantPrx
+    public ServantPrx
     createServant(String id, int value, Ice.Current current)
-        throws Test.AlreadyRegisteredException, Test.EvictorDeactivatedException
+        throws AlreadyRegisteredException, EvictorDeactivatedException
     {
         Ice.Identity ident = new Ice.Identity();
         ident.category = _category;
         ident.name = id;
-        Test._ServantTie tie = new Test._ServantTie();
+        _ServantTie tie = new _ServantTie();
         tie.ice_delegate(new ServantI(tie, this, _evictor, value));
         try
         {
-            return Test.ServantPrxHelper.uncheckedCast(_evictor.add(tie, ident));
+            return ServantPrxHelper.uncheckedCast(_evictor.add(tie, ident));
         }
         catch(Ice.AlreadyRegisteredException e)
         {
-            throw new Test.AlreadyRegisteredException();
+            throw new AlreadyRegisteredException();
         }
         catch(Ice.ObjectAdapterDeactivatedException e)
         {
-            throw new Test.EvictorDeactivatedException();
+            throw new EvictorDeactivatedException();
         }
         catch(Freeze.EvictorDeactivatedException e)
         {
-            throw new Test.EvictorDeactivatedException();
+            throw new EvictorDeactivatedException();
         }
         catch(Ice.LocalException e)
         {
@@ -110,13 +113,13 @@ public final class RemoteEvictorI extends Test._RemoteEvictorDisp
         }
     }
 
-    public Test.ServantPrx
+    public ServantPrx
     getServant(String id, Ice.Current current)
     {
         Ice.Identity ident = new Ice.Identity();
         ident.category = _category;
         ident.name = id;
-        return Test.ServantPrxHelper.uncheckedCast(_evictorAdapter.createProxy(ident));
+        return ServantPrxHelper.uncheckedCast(_evictorAdapter.createProxy(ident));
     }
 
     public void

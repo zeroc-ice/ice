@@ -7,7 +7,9 @@
 //
 // **********************************************************************
 
-import Test.*;
+package test.Ice.adapterDeactivation;
+
+import test.Ice.adapterDeactivation.Test.*;
 
 public final class TestI extends _TestIntfDisp
 {

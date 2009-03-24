@@ -7,7 +7,32 @@
 //
 // **********************************************************************
 
-public class Client
+package test.Ice.stream;
+
+import java.io.PrintWriter;
+
+import test.Ice.stream.Test.BoolSHelper;
+import test.Ice.stream.Test.ByteSHelper;
+import test.Ice.stream.Test.DoubleSHelper;
+import test.Ice.stream.Test.FloatSHelper;
+import test.Ice.stream.Test.IntSHelper;
+import test.Ice.stream.Test.LongSHelper;
+import test.Ice.stream.Test.MyClass;
+import test.Ice.stream.Test.MyClassPrxHelper;
+import test.Ice.stream.Test.MyClassSHelper;
+import test.Ice.stream.Test.MyEnum;
+import test.Ice.stream.Test.MyEnumSHelper;
+import test.Ice.stream.Test.MyInterface;
+import test.Ice.stream.Test.MyInterfaceHelper;
+import test.Ice.stream.Test.MyInterfaceHolder;
+import test.Ice.stream.Test.ShortSHelper;
+import test.Ice.stream.Test.SmallStruct;
+import test.Ice.stream.Test.StringSHelper;
+import test.Ice.stream.Test._MyInterfaceDisp;
+
+import java.io.PrintWriter;
+
+public class Client extends test.Util.Application
 {
     private static void
     test(boolean b)
@@ -20,7 +45,7 @@ public class Client
 
     private static class TestObjectWriter extends Ice.ObjectWriter
     {
-        TestObjectWriter(Test.MyClass obj)
+        TestObjectWriter(MyClass obj)
         {
             this.obj = obj;
         }
@@ -32,7 +57,7 @@ public class Client
             called = true;
         }
 
-        Test.MyClass obj;
+        MyClass obj;
         boolean called = false;
     }
 
@@ -41,12 +66,12 @@ public class Client
         public void
         read(Ice.InputStream in, boolean rid)
         {
-            obj = new Test.MyClass();
+            obj = new MyClass();
             obj.__read(in, rid);
             called = true;
         }
 
-        Test.MyClass obj;
+        MyClass obj;
         boolean called = false;
     }
 
@@ -55,7 +80,7 @@ public class Client
         public Ice.Object
         create(String type)
         {
-            assert(type.equals(Test.MyClass.ice_staticId()));
+            assert(type.equals(MyClass.ice_staticId()));
             return new TestObjectReader();
         }
 
@@ -65,7 +90,7 @@ public class Client
         }
     }
 
-    private static class MyInterfaceI extends Test._MyInterfaceDisp
+    private static class MyInterfaceI extends _MyInterfaceDisp
     {
     };
 
@@ -74,7 +99,7 @@ public class Client
         public Ice.Object
         create(String type)
         {
-            assert(type.equals(Test._MyInterfaceDisp.ice_staticId()));
+            assert(type.equals(_MyInterfaceDisp.ice_staticId()));
             return new MyInterfaceI();
         }
         
@@ -99,7 +124,7 @@ public class Client
     {
         MyClassFactoryWrapper()
         {
-            _factory = Test.MyClass.ice_factory();
+            _factory = MyClass.ice_factory();
         }
 
         public Ice.Object
@@ -122,34 +147,36 @@ public class Client
         private Ice.ObjectFactory _factory;
     }
 
-    private static int
-    run(String[] args, Ice.Communicator communicator)
+    public int
+    run(String[] args)
     {
+    	Ice.Communicator comm = communicator();
         MyClassFactoryWrapper factoryWrapper = new MyClassFactoryWrapper();
-        communicator.addObjectFactory(factoryWrapper, Test.MyClass.ice_staticId());
-        communicator.addObjectFactory(new MyInterfaceFactory(), Test._MyInterfaceDisp.ice_staticId());
+        comm.addObjectFactory(factoryWrapper, MyClass.ice_staticId());
+        comm.addObjectFactory(new MyInterfaceFactory(), _MyInterfaceDisp.ice_staticId());
 
         Ice.InputStream in;
         Ice.OutputStream out;
 
-        System.out.print("testing primitive types... ");
-        System.out.flush();
+        PrintWriter printWriter = getWriter();
+        printWriter.print("testing primitive types... ");
+        printWriter.flush();
 
         {
             byte[] data = new byte[0];
-            in = Ice.Util.createInputStream(communicator, data);
+            in = Ice.Util.createInputStream(comm, data);
             in.destroy();
         }
 
         {
-            out = Ice.Util.createOutputStream(communicator);
+            out = Ice.Util.createOutputStream(comm);
             out.startEncapsulation();
             out.writeBool(true);
             out.endEncapsulation();
             byte[] data = out.finished();
             out.destroy();
 
-            in = Ice.Util.createInputStream(communicator, data);
+            in = Ice.Util.createInputStream(comm, data);
             in.startEncapsulation();
             test(in.readBool());
             in.endEncapsulation();
@@ -158,7 +185,7 @@ public class Client
 
         {
             byte[] data = new byte[0];
-            in = Ice.Util.createInputStream(communicator, data);
+            in = Ice.Util.createInputStream(comm, data);
             try
             {
                 in.readBool();
@@ -171,103 +198,103 @@ public class Client
         }
 
         {
-            out = Ice.Util.createOutputStream(communicator);
+            out = Ice.Util.createOutputStream(comm);
             out.writeBool(true);
             byte[] data = out.finished();
-            in = Ice.Util.createInputStream(communicator, data);
+            in = Ice.Util.createInputStream(comm, data);
             test(in.readBool());
             out.destroy();
             in.destroy();
         }
 
         {
-            out = Ice.Util.createOutputStream(communicator);
+            out = Ice.Util.createOutputStream(comm);
             out.writeByte((byte)1);
             byte[] data = out.finished();
-            in = Ice.Util.createInputStream(communicator, data);
+            in = Ice.Util.createInputStream(comm, data);
             test(in.readByte() == (byte)1);
             out.destroy();
             in.destroy();
         }
 
         {
-            out = Ice.Util.createOutputStream(communicator);
+            out = Ice.Util.createOutputStream(comm);
             out.writeShort((short)2);
             byte[] data = out.finished();
-            in = Ice.Util.createInputStream(communicator, data);
+            in = Ice.Util.createInputStream(comm, data);
             test(in.readShort() == (short)2);
             out.destroy();
             in.destroy();
         }
 
         {
-            out = Ice.Util.createOutputStream(communicator);
+            out = Ice.Util.createOutputStream(comm);
             out.writeInt(3);
             byte[] data = out.finished();
-            in = Ice.Util.createInputStream(communicator, data);
+            in = Ice.Util.createInputStream(comm, data);
             test(in.readInt() == 3);
             out.destroy();
             in.destroy();
         }
 
         {
-            out = Ice.Util.createOutputStream(communicator);
+            out = Ice.Util.createOutputStream(comm);
             out.writeLong(4);
             byte[] data = out.finished();
-            in = Ice.Util.createInputStream(communicator, data);
+            in = Ice.Util.createInputStream(comm, data);
             test(in.readLong() == 4);
             out.destroy();
             in.destroy();
         }
 
         {
-            out = Ice.Util.createOutputStream(communicator);
+            out = Ice.Util.createOutputStream(comm);
             out.writeFloat((float)5.0);
             byte[] data = out.finished();
-            in = Ice.Util.createInputStream(communicator, data);
+            in = Ice.Util.createInputStream(comm, data);
             test(in.readFloat() == (float)5.0);
             out.destroy();
             in.destroy();
         }
 
         {
-            out = Ice.Util.createOutputStream(communicator);
+            out = Ice.Util.createOutputStream(comm);
             out.writeDouble(6.0);
             byte[] data = out.finished();
-            in = Ice.Util.createInputStream(communicator, data);
+            in = Ice.Util.createInputStream(comm, data);
             test(in.readDouble() == 6.0);
             out.destroy();
             in.destroy();
         }
 
         {
-            out = Ice.Util.createOutputStream(communicator);
+            out = Ice.Util.createOutputStream(comm);
             out.writeString("hello world");
             byte[] data = out.finished();
-            in = Ice.Util.createInputStream(communicator, data);
+            in = Ice.Util.createInputStream(comm, data);
             test(in.readString().equals("hello world"));
             out.destroy();
             in.destroy();
         }
 
-        System.out.println("ok");
+        printWriter.println("ok");
 
-        System.out.print("testing constructed types... ");
-        System.out.flush();
+        printWriter.print("testing constructed types... ");
+        printWriter.flush();
 
         {
-            out = Ice.Util.createOutputStream(communicator);
-            Test.MyEnum.enum3.ice_write(out);
+            out = Ice.Util.createOutputStream(comm);
+            MyEnum.enum3.ice_write(out);
             byte[] data = out.finished();
-            in = Ice.Util.createInputStream(communicator, data);
-            test(Test.MyEnum.ice_read(in) == Test.MyEnum.enum3);
+            in = Ice.Util.createInputStream(comm, data);
+            test(MyEnum.ice_read(in) == MyEnum.enum3);
             out.destroy();
             in.destroy();
         }
 
         {
-            out = Ice.Util.createOutputStream(communicator);
-            Test.SmallStruct s = new Test.SmallStruct();
+            out = Ice.Util.createOutputStream(comm);
+            SmallStruct s = new SmallStruct();
             s.bo = true;
             s.by = (byte)1;
             s.sh = (short)2;
@@ -276,12 +303,12 @@ public class Client
             s.f = (float)5.0;
             s.d = 6.0;
             s.str = "7";
-            s.e = Test.MyEnum.enum2;
-            s.p = Test.MyClassPrxHelper.uncheckedCast(communicator.stringToProxy("test:default"));
+            s.e = MyEnum.enum2;
+            s.p = MyClassPrxHelper.uncheckedCast(comm.stringToProxy("test:default"));
             s.ice_write(out);
             byte[] data = out.finished();
-            in = Ice.Util.createInputStream(communicator, data);
-            Test.SmallStruct s2 = new Test.SmallStruct();
+            in = Ice.Util.createInputStream(comm, data);
+            SmallStruct s2 = new SmallStruct();
             s2.ice_read(in);
             test(s2.equals(s));
             out.destroy();
@@ -296,11 +323,11 @@ public class Client
                 true,
                 false
             };
-            out = Ice.Util.createOutputStream(communicator);
-            Test.BoolSHelper.write(out, arr);
+            out = Ice.Util.createOutputStream(comm);
+            BoolSHelper.write(out, arr);
             byte[] data = out.finished();
-            in = Ice.Util.createInputStream(communicator, data);
-            boolean[] arr2 = Test.BoolSHelper.read(in);
+            in = Ice.Util.createInputStream(comm, data);
+            boolean[] arr2 = BoolSHelper.read(in);
             test(java.util.Arrays.equals(arr2, arr));
             out.destroy();
             in.destroy();
@@ -314,24 +341,24 @@ public class Client
                 (byte)0x12,
                 (byte)0x22
             };
-            out = Ice.Util.createOutputStream(communicator);
-            Test.ByteSHelper.write(out, arr);
+            out = Ice.Util.createOutputStream(comm);
+            ByteSHelper.write(out, arr);
             byte[] data = out.finished();
-            in = Ice.Util.createInputStream(communicator, data);
-            byte[] arr2 = Test.ByteSHelper.read(in);
+            in = Ice.Util.createInputStream(comm, data);
+            byte[] arr2 = ByteSHelper.read(in);
             test(java.util.Arrays.equals(arr2, arr));
             out.destroy();
             in.destroy();
         }
 
         {
-            Serialize.Small small = new Serialize.Small();
+            test.Ice.stream.Serialize.Small small = new test.Ice.stream.Serialize.Small();
             small.i = 99;
-            out = Ice.Util.createOutputStream(communicator);
+            out = Ice.Util.createOutputStream(comm);
             out.writeSerializable(small);
             byte[] data = out.finished();
-            in = Ice.Util.createInputStream(communicator, data);
-            Serialize.Small small2 = (Serialize.Small)in.readSerializable();
+            in = Ice.Util.createInputStream(comm, data);
+            test.Ice.stream.Serialize.Small small2 = (test.Ice.stream.Serialize.Small)in.readSerializable();
             test(small2.i == 99);
             out.destroy();
             in.destroy();
@@ -345,11 +372,11 @@ public class Client
                 (short)0x12,
                 (short)0x22
             };
-            out = Ice.Util.createOutputStream(communicator);
-            Test.ShortSHelper.write(out, arr);
+            out = Ice.Util.createOutputStream(comm);
+            ShortSHelper.write(out, arr);
             byte[] data = out.finished();
-            in = Ice.Util.createInputStream(communicator, data);
-            short[] arr2 = Test.ShortSHelper.read(in);
+            in = Ice.Util.createInputStream(comm, data);
+            short[] arr2 = ShortSHelper.read(in);
             test(java.util.Arrays.equals(arr2, arr));
             out.destroy();
             in.destroy();
@@ -363,11 +390,11 @@ public class Client
                 0x12,
                 0x22
             };
-            out = Ice.Util.createOutputStream(communicator);
-            Test.IntSHelper.write(out, arr);
+            out = Ice.Util.createOutputStream(comm);
+            IntSHelper.write(out, arr);
             byte[] data = out.finished();
-            in = Ice.Util.createInputStream(communicator, data);
-            int[] arr2 = Test.IntSHelper.read(in);
+            in = Ice.Util.createInputStream(comm, data);
+            int[] arr2 = IntSHelper.read(in);
             test(java.util.Arrays.equals(arr2, arr));
             out.destroy();
             in.destroy();
@@ -381,11 +408,11 @@ public class Client
                 0x12,
                 0x22
             };
-            out = Ice.Util.createOutputStream(communicator);
-            Test.LongSHelper.write(out, arr);
+            out = Ice.Util.createOutputStream(comm);
+            LongSHelper.write(out, arr);
             byte[] data = out.finished();
-            in = Ice.Util.createInputStream(communicator, data);
-            long[] arr2 = Test.LongSHelper.read(in);
+            in = Ice.Util.createInputStream(comm, data);
+            long[] arr2 = LongSHelper.read(in);
             test(java.util.Arrays.equals(arr2, arr));
             out.destroy();
             in.destroy();
@@ -399,11 +426,11 @@ public class Client
                 (float)3,
                 (float)4
             };
-            out = Ice.Util.createOutputStream(communicator);
-            Test.FloatSHelper.write(out, arr);
+            out = Ice.Util.createOutputStream(comm);
+            FloatSHelper.write(out, arr);
             byte[] data = out.finished();
-            in = Ice.Util.createInputStream(communicator, data);
-            float[] arr2 = Test.FloatSHelper.read(in);
+            in = Ice.Util.createInputStream(comm, data);
+            float[] arr2 = FloatSHelper.read(in);
             test(java.util.Arrays.equals(arr2, arr));
             out.destroy();
             in.destroy();
@@ -417,11 +444,11 @@ public class Client
                 (double)3,
                 (double)4
             };
-            out = Ice.Util.createOutputStream(communicator);
-            Test.DoubleSHelper.write(out, arr);
+            out = Ice.Util.createOutputStream(comm);
+            DoubleSHelper.write(out, arr);
             byte[] data = out.finished();
-            in = Ice.Util.createInputStream(communicator, data);
-            double[] arr2 = Test.DoubleSHelper.read(in);
+            in = Ice.Util.createInputStream(comm, data);
+            double[] arr2 = DoubleSHelper.read(in);
             test(java.util.Arrays.equals(arr2, arr));
             out.destroy();
             in.destroy();
@@ -435,43 +462,43 @@ public class Client
                 "string3",
                 "string4"
             };
-            out = Ice.Util.createOutputStream(communicator);
-            Test.StringSHelper.write(out, arr);
+            out = Ice.Util.createOutputStream(comm);
+            StringSHelper.write(out, arr);
             byte[] data = out.finished();
-            in = Ice.Util.createInputStream(communicator, data);
-            String[] arr2 = Test.StringSHelper.read(in);
+            in = Ice.Util.createInputStream(comm, data);
+            String[] arr2 = StringSHelper.read(in);
             test(java.util.Arrays.equals(arr2, arr));
             out.destroy();
             in.destroy();
         }
 
         {
-            final Test.MyEnum[] arr =
+            final MyEnum[] arr =
             {
-                Test.MyEnum.enum3,
-                Test.MyEnum.enum2,
-                Test.MyEnum.enum1,
-                Test.MyEnum.enum2
+                MyEnum.enum3,
+                MyEnum.enum2,
+                MyEnum.enum1,
+                MyEnum.enum2
             };
-            out = Ice.Util.createOutputStream(communicator);
-            Test.MyEnumSHelper.write(out, arr);
+            out = Ice.Util.createOutputStream(comm);
+            MyEnumSHelper.write(out, arr);
             byte[] data = out.finished();
-            in = Ice.Util.createInputStream(communicator, data);
-            Test.MyEnum[] arr2 = Test.MyEnumSHelper.read(in);
+            in = Ice.Util.createInputStream(comm, data);
+            MyEnum[] arr2 = MyEnumSHelper.read(in);
             test(java.util.Arrays.equals(arr2, arr));
             out.destroy();
             in.destroy();
         }
 
         {
-            Test.MyClass[] arr = new Test.MyClass[4];
+            MyClass[] arr = new MyClass[4];
             for(int i = 0; i < arr.length; ++i)
             {
-                arr[i] = new Test.MyClass();
+                arr[i] = new MyClass();
                 arr[i].c = arr[i];
                 arr[i].o = arr[i];
-                arr[i].s = new Test.SmallStruct();
-                arr[i].s.e = Test.MyEnum.enum2;
+                arr[i].s = new SmallStruct();
+                arr[i].s.e = MyEnum.enum2;
                 arr[i].seq1 = new boolean[] { true, false, true, false };
                 arr[i].seq2 = new byte[] { (byte)1, (byte)2, (byte)3, (byte)4 };
                 arr[i].seq3 = new short[] { (short)1, (short)2, (short)3, (short)4 };
@@ -480,17 +507,17 @@ public class Client
                 arr[i].seq6 = new float[] { (float)1, (float)2, (float)3, (float)4 };
                 arr[i].seq7 = new double[] { (double)1, (double)2, (double)3, (double)4 };
                 arr[i].seq8 = new String[] { "string1", "string2", "string3", "string4" };
-                arr[i].seq9 = new Test.MyEnum[] { Test.MyEnum.enum3, Test.MyEnum.enum2, Test.MyEnum.enum1 };
-                arr[i].seq10 = new Test.MyClass[4]; // null elements.
-                arr[i].d = new java.util.HashMap<String, Test.MyClass>();
+                arr[i].seq9 = new MyEnum[] { MyEnum.enum3, MyEnum.enum2, MyEnum.enum1 };
+                arr[i].seq10 = new MyClass[4]; // null elements.
+                arr[i].d = new java.util.HashMap<String, MyClass>();
                 arr[i].d.put("hi", arr[i]);
             }
-            out = Ice.Util.createOutputStream(communicator);
-            Test.MyClassSHelper.write(out, arr);
+            out = Ice.Util.createOutputStream(comm);
+            MyClassSHelper.write(out, arr);
             out.writePendingObjects();
             byte[] data = out.finished();
-            in = Ice.Util.createInputStream(communicator, data);
-            Test.MyClass[] arr2 = Test.MyClassSHelper.read(in);
+            in = Ice.Util.createInputStream(comm, data);
+            MyClass[] arr2 = MyClassSHelper.read(in);
             in.readPendingObjects();
             test(arr2.length == arr.length);
             for(int i = 0; i < arr2.length; ++i)
@@ -498,7 +525,7 @@ public class Client
                 test(arr2[i] != null);
                 test(arr2[i].c == arr2[i]);
                 test(arr2[i].o == arr2[i]);
-                test(arr2[i].s.e == Test.MyEnum.enum2);
+                test(arr2[i].s.e == MyEnum.enum2);
                 test(java.util.Arrays.equals(arr2[i].seq1, arr[i].seq1));
                 test(java.util.Arrays.equals(arr2[i].seq2, arr[i].seq2));
                 test(java.util.Arrays.equals(arr2[i].seq3, arr[i].seq3));
@@ -515,30 +542,30 @@ public class Client
         }
         
         {
-            Test.MyInterface i = new MyInterfaceI();
-            out = Ice.Util.createOutputStream(communicator);
-            Test.MyInterfaceHelper.write(out, i);
+            MyInterface i = new MyInterfaceI();
+            out = Ice.Util.createOutputStream(comm);
+            MyInterfaceHelper.write(out, i);
             out.writePendingObjects();
             byte[] data = out.finished();
-            in = Ice.Util.createInputStream(communicator, data);
-            Test.MyInterfaceHolder j = new Test.MyInterfaceHolder();
-            Test.MyInterfaceHelper.read(in, j);
+            in = Ice.Util.createInputStream(comm, data);
+            MyInterfaceHolder j = new MyInterfaceHolder();
+            MyInterfaceHelper.read(in, j);
             in.readPendingObjects();
             test(j.value != null);
         }
 
         {
-            out = Ice.Util.createOutputStream(communicator);
-            Test.MyClass obj = new Test.MyClass();
-            obj.s = new Test.SmallStruct();
-            obj.s.e = Test.MyEnum.enum2;
+            out = Ice.Util.createOutputStream(comm);
+            MyClass obj = new MyClass();
+            obj.s = new SmallStruct();
+            obj.s.e = MyEnum.enum2;
             TestObjectWriter writer = new TestObjectWriter(obj);
             out.writeObject(writer);
             out.writePendingObjects();
             byte[] data = out.finished();
             test(writer.called);
             factoryWrapper.setFactory(new TestObjectFactory());
-            in = Ice.Util.createInputStream(communicator, data);
+            in = Ice.Util.createInputStream(comm, data);
             TestReadObjectCallback cb = new TestReadObjectCallback();
             in.readObject(cb);
             in.readPendingObjects();
@@ -547,47 +574,29 @@ public class Client
             TestObjectReader reader = (TestObjectReader)cb.obj;
             test(reader.called);
             test(reader.obj != null);
-            test(reader.obj.s.e == Test.MyEnum.enum2);
+            test(reader.obj.s.e == MyEnum.enum2);
             out.destroy();
             in.destroy();
         }
 
-        System.out.println("ok");
+        printWriter.println("ok");
 
         return 0;
     }
 
-    public static void
-    main(String[] args)
+    protected Ice.InitializationData getInitData(Ice.StringSeqHolder argsH)
     {
-        int status = 0;
-        Ice.Communicator communicator = null;
+        Ice.InitializationData initData = new Ice.InitializationData();
+        initData.properties = Ice.Util.createProperties(argsH);
+        initData.properties.setProperty("Ice.Package.Test", "test.Ice.stream");
+        return initData;
+    }
 
-        try
-        {
-            communicator = Ice.Util.initialize(args);
-            status = run(args, communicator);
-        }
-        catch(Exception ex)
-        {
-            ex.printStackTrace();
-            status = 1;
-        }
-
-        if(communicator != null)
-        {
-            try
-            {
-                communicator.destroy();
-            }
-            catch(Ice.LocalException ex)
-            {
-                ex.printStackTrace();
-                status = 1;
-            }
-        }
-
+    public static void main(String[] args)
+    {
+        Client app = new Client();
+        int result = app.main("Client", args);
         System.gc();
-        System.exit(status);
+        System.exit(result);
     }
 }

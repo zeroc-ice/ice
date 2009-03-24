@@ -7,55 +7,41 @@
 //
 // **********************************************************************
 
-public class Client
+package test.IceSSL.configuration;
+
+import java.io.PrintWriter;
+
+import test.IceSSL.configuration.Test.ServerFactoryPrx;
+
+public class Client extends test.Util.Application
 {
-    private static int
-    run(String[] args, Ice.Communicator communicator)
+    public int run(String[] args)
     {
+        PrintWriter out = getWriter();
         if(args.length < 1)
         {
-            System.out.println("Usage: client testdir");
+            out.println("Usage: client testdir");
             return 1;
         }
 
-        Test.ServerFactoryPrx factory;
-
-        factory = AllTests.allTests(communicator, args[0]);
-
+        ServerFactoryPrx factory = AllTests.allTests(this, args[0], out);
         factory.shutdown();
 
         return 0;
     }
 
+    protected Ice.InitializationData getInitData(Ice.StringSeqHolder argsH)
+    {
+        Ice.InitializationData initData = new Ice.InitializationData();
+        initData.properties = Ice.Util.createProperties(argsH);
+        initData.properties.setProperty("Ice.Package.Test", "test.IceSSL.configuration");
+        return initData;
+    }
+
     public static void main(String[] args)
     {
-        int status = 0;
-        Ice.Communicator communicator = null;
-
-        try
-        {
-            Ice.StringSeqHolder argsH = new Ice.StringSeqHolder(args);
-            communicator = Ice.Util.initialize(argsH);
-            status = run(argsH.value, communicator);
-        }
-        catch(Exception ex)
-        {
-            ex.printStackTrace();
-            status = 1;
-        }
-
-        if(communicator != null)
-        {
-            try
-            {
-                communicator.destroy();
-            }
-            catch(Ice.LocalException ex)
-            {
-                ex.printStackTrace();
-                status = 1;
-            }
-        }
+        Client c = new Client();
+        int status = c.main("Client", args);
 
         System.gc();
         System.exit(status);

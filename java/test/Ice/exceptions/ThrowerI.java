@@ -7,7 +7,13 @@
 //
 // **********************************************************************
 
-import Test.*;
+package test.Ice.exceptions;
+
+import test.Ice.exceptions.Test.A;
+import test.Ice.exceptions.Test.B;
+import test.Ice.exceptions.Test.C;
+import test.Ice.exceptions.Test.D;
+import test.Ice.exceptions.Test._ThrowerDisp;
 
 public final class ThrowerI extends _ThrowerDisp
 {

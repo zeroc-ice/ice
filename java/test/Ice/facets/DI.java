@@ -7,7 +7,9 @@
 //
 // **********************************************************************
 
-import Test.*;
+package test.Ice.facets;
+
+import test.Ice.facets.Test._DDisp;
 
 public final class DI extends _DDisp
 {

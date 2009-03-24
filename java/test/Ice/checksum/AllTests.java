@@ -7,6 +7,11 @@
 //
 // **********************************************************************
 
+package test.Ice.checksum;
+
+import java.io.PrintWriter;
+import test.Ice.checksum.Test.*;
+
 public class AllTests
 {
     private static void
@@ -18,21 +23,21 @@ public class AllTests
         }
     }
 
-    public static Test.ChecksumPrx
-    allTests(Ice.Communicator communicator, boolean collocated)
+    public static ChecksumPrx
+    allTests(Ice.Communicator communicator, boolean collocated, PrintWriter out)
     {
         String ref = "test:default -p 12010 -t 10000";
         Ice.ObjectPrx base = communicator.stringToProxy(ref);
         test(base != null);
 
-        Test.ChecksumPrx checksum = Test.ChecksumPrxHelper.checkedCast(base);
+        ChecksumPrx checksum = ChecksumPrxHelper.checkedCast(base);
         test(checksum != null);
 
         //
         // Verify that no checksums are present for local types.
         //
-        System.out.print("testing checksums... ");
-        System.out.flush();
+        out.print("testing checksums... ");
+        out.flush();
         java.util.Iterator<java.util.Map.Entry<String, String> > p = SliceChecksums.checksums.entrySet().iterator();
         while(p.hasNext())
         {
@@ -84,7 +89,7 @@ public class AllTests
                 test(!value.equals(entry.getValue()));
             }
         }
-        System.out.println("ok");
+        out.println("ok");
 
         return checksum;
     }

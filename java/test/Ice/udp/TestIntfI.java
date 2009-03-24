@@ -7,9 +7,13 @@
 //
 // **********************************************************************
 
-public final class TestIntfI extends Test._TestIntfDisp
+package test.Ice.udp;
+
+import test.Ice.udp.Test.*;
+
+public final class TestIntfI extends _TestIntfDisp
 {
-    public void ping(Test.PingReplyPrx reply, Ice.Current current)
+    public void ping(PingReplyPrx reply, Ice.Current current)
     {
         try
         {
@@ -21,7 +25,7 @@ public final class TestIntfI extends Test._TestIntfDisp
         }
     }
 
-    public void sendByteSeq(byte[] seq, Test.PingReplyPrx reply, Ice.Current current)
+    public void sendByteSeq(byte[] seq, PingReplyPrx reply, Ice.Current current)
     {
         try
         {

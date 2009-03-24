@@ -6,7 +6,7 @@
 // ICE_LICENSE file included in this distribution.
 //
 // **********************************************************************
-
+package test.Ice.background;
 final class Transceiver implements IceInternal.Transceiver
 {
     public java.nio.channels.SelectableChannel
@@ -112,10 +112,10 @@ final class Transceiver implements IceInternal.Transceiver
     //
     // Only for use by Connector, Acceptor
     //
-    Transceiver(IceInternal.Transceiver transceiver)
+    Transceiver(Configuration configuration, IceInternal.Transceiver transceiver)
     {
         _transceiver = transceiver;
-        _configuration = Configuration.getInstance();
+        _configuration = configuration;
     }
 
     protected synchronized void

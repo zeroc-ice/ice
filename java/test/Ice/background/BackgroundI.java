@@ -6,8 +6,9 @@
 // ICE_LICENSE file included in this distribution.
 //
 // **********************************************************************
+package test.Ice.background;
 
-import Test.*;
+import test.Ice.background.Test._BackgroundDisp;
 
 class BackgroundI extends _BackgroundDisp
 {

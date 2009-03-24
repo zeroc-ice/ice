@@ -12,6 +12,7 @@
 
 #include <Ice/Current.ice>
 
+[["java:package:test.Ice.proxy"]]
 module Test
 {
 

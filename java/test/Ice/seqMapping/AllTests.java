@@ -7,26 +7,32 @@
 //
 // **********************************************************************
 
+package test.Ice.seqMapping;
+
+import java.io.PrintWriter;
+
+import test.Ice.seqMapping.Test.*;
+
 public class AllTests
 {
-    public static Test.MyClassPrx
-    allTests(Ice.Communicator communicator, boolean collocated)
+    public static MyClassPrx
+    allTests(Ice.Communicator communicator, boolean collocated, PrintWriter out)
     {
         String ref = "test:default -p 12010 -t 10000";
         Ice.ObjectPrx baseProxy = communicator.stringToProxy(ref);
-        Test.MyClassPrx cl = Test.MyClassPrxHelper.checkedCast(baseProxy);
+        MyClassPrx cl = MyClassPrxHelper.checkedCast(baseProxy);
 
-        System.out.print("testing twoway operations... ");
-        System.out.flush();
-        Twoways.twoways(communicator, cl);
-        System.out.println("ok");
+        out.print("testing twoway operations... ");
+        out.flush();
+        Twoways.twoways(cl);
+        out.println("ok");
 
         if(!collocated)
         {
-            System.out.print("testing twoway operations with AMI... ");
-            System.out.flush();
-            TwowaysAMI.twowaysAMI(communicator, cl);
-            System.out.println("ok");
+            out.print("testing twoway operations with AMI... ");
+            out.flush();
+            TwowaysAMI.twowaysAMI(cl);
+            out.println("ok");
         }
 
         return cl;

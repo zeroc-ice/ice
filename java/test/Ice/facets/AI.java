@@ -7,7 +7,9 @@
 //
 // **********************************************************************
 
-import Test.*;
+package test.Ice.facets;
+
+import test.Ice.facets.Test._ADisp;
 
 public final class AI extends _ADisp
 {

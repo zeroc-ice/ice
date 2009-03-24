@@ -7,27 +7,34 @@
 //
 // **********************************************************************
 
-public final class CCI extends Test.MA.CC
+package test.Ice.inheritance;
+
+import test.Ice.inheritance.Test.MA.CAPrx;
+import test.Ice.inheritance.Test.MA.CC;
+import test.Ice.inheritance.Test.MA.CCPrx;
+import test.Ice.inheritance.Test.MB.CBPrx;
+
+public final class CCI extends CC
 {
     public
     CCI()
     {
     }
 
-    public Test.MA.CAPrx
-    caop(Test.MA.CAPrx p, Ice.Current current)
+    public CAPrx
+    caop(CAPrx p, Ice.Current current)
     {
         return p;
     }
 
-    public Test.MA.CCPrx
-    ccop(Test.MA.CCPrx p, Ice.Current current)
+    public CCPrx
+    ccop(CCPrx p, Ice.Current current)
     {
         return p;
     }
 
-    public Test.MB.CBPrx
-    cbop(Test.MB.CBPrx p, Ice.Current current)
+    public CBPrx
+    cbop(CBPrx p, Ice.Current current)
     {
         return p;
     }

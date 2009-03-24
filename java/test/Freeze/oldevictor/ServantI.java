@@ -7,11 +7,14 @@
 //
 // **********************************************************************
 
-public class ServantI implements Test._ServantOperations
+package test.Freeze.oldevictor;
+import test.Freeze.oldevictor.Test.*;
+
+public class ServantI implements _ServantOperations
 {
     static class DelayedResponse extends Thread
     {   
-        DelayedResponse(Test.AMD_Servant_slowGetValue cb, int val)
+        DelayedResponse(AMD_Servant_slowGetValue cb, int val)
         {
             _cb = cb;
             _val = val;
@@ -31,17 +34,17 @@ public class ServantI implements Test._ServantOperations
             _cb.ice_response(_val);
         }
 
-        private Test.AMD_Servant_slowGetValue _cb;
+        private AMD_Servant_slowGetValue _cb;
         private int _val;
     }
 
 
-    ServantI(Test.Servant tie)
+    ServantI(Servant tie)
     {
         _tie = tie;
     }
 
-    ServantI(Test.Servant tie, RemoteEvictorI remoteEvictor, Freeze.BackgroundSaveEvictor evictor, int value)
+    ServantI(Servant tie, RemoteEvictorI remoteEvictor, Freeze.BackgroundSaveEvictor evictor, int value)
     {
         _tie = tie;
         _remoteEvictor = remoteEvictor;
@@ -72,7 +75,7 @@ public class ServantI implements Test._ServantOperations
     }
     
     public void
-    slowGetValue_async(Test.AMD_Servant_slowGetValue cb, Ice.Current current)
+    slowGetValue_async(AMD_Servant_slowGetValue cb, Ice.Current current)
     {
         synchronized(_tie)
         {
@@ -92,7 +95,7 @@ public class ServantI implements Test._ServantOperations
     }
 
     public void
-    setValueAsync_async(Test.AMD_Servant_setValueAsync __cb, int value, Ice.Current current)
+    setValueAsync_async(AMD_Servant_setValueAsync __cb, int value, Ice.Current current)
     {
         synchronized(_tie)
         {
@@ -127,9 +130,9 @@ public class ServantI implements Test._ServantOperations
 
     public void
     addFacet(String name, String data, Ice.Current current)
-        throws Test.AlreadyRegisteredException
+        throws AlreadyRegisteredException
     {
-        Test._FacetTie tie = new Test._FacetTie();
+        _FacetTie tie = new _FacetTie();
         tie.ice_delegate(new FacetI(tie, _remoteEvictor, _evictor, 0, data));
 
         try
@@ -138,13 +141,13 @@ public class ServantI implements Test._ServantOperations
         }
         catch(Ice.AlreadyRegisteredException ex)
         {
-            throw new Test.AlreadyRegisteredException();
+            throw new AlreadyRegisteredException();
         }
     }
 
     public void
     removeFacet(String name, Ice.Current current)
-        throws Test.NotRegisteredException
+        throws NotRegisteredException
     {
         try
         {
@@ -152,7 +155,7 @@ public class ServantI implements Test._ServantOperations
         }
         catch(Ice.NotRegisteredException ex)
         {
-            throw new Test.NotRegisteredException();
+            throw new NotRegisteredException();
         }
    
     }
@@ -177,7 +180,7 @@ public class ServantI implements Test._ServantOperations
 
     public void
     release(Ice.Current current)
-        throws Test.NotRegisteredException
+        throws NotRegisteredException
     {
         try
         {
@@ -185,14 +188,14 @@ public class ServantI implements Test._ServantOperations
         }
         catch(Ice.NotRegisteredException e)
         {
-            throw new Test.NotRegisteredException();
+            throw new NotRegisteredException();
         }
     }
 
     protected RemoteEvictorI _remoteEvictor;
     protected Freeze.BackgroundSaveEvictor _evictor;
-    protected Test.AMD_Servant_setValueAsync _setValueAsyncCB;
+    protected AMD_Servant_setValueAsync _setValueAsyncCB;
     protected int _setValueAsyncValue;
-    protected Test.Servant _tie;
+    protected Servant _tie;
     private int _transientValue = -1;
 }

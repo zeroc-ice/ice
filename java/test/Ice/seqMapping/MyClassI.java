@@ -7,7 +7,12 @@
 //
 // **********************************************************************
 
-public final class MyClassI extends Test.MyClass
+package test.Ice.seqMapping;
+
+import test.Ice.seqMapping.Test.*;
+import test.Ice.seqMapping.Serialize.*;
+
+public final class MyClassI extends MyClass
 {
     private static void
     test(boolean b)
@@ -24,19 +29,19 @@ public final class MyClassI extends Test.MyClass
         current.adapter.getCommunicator().shutdown();
     }
 
-    public Serialize.Small opSerialSmallJava(Serialize.Small i, Ice.Holder<Serialize.Small> o, Ice.Current current)
+    public Small opSerialSmallJava(Small i, Ice.Holder<Small> o, Ice.Current current)
     {
         o.value = i;
         return i;
     }
 
-    public Serialize.Large opSerialLargeJava(Serialize.Large i, Ice.Holder<Serialize.Large> o, Ice.Current current)
+    public Large opSerialLargeJava(Large i, Ice.Holder<Large> o, Ice.Current current)
     {
         o.value = i;
         return i;
     }
 
-    public Serialize.Struct opSerialStructJava(Serialize.Struct i, Ice.Holder<Serialize.Struct> o, Ice.Current current)
+    public Struct opSerialStructJava(Struct i, Ice.Holder<Struct> o, Ice.Current current)
     {
         o.value = i;
         return i;

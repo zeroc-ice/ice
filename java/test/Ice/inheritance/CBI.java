@@ -7,21 +7,27 @@
 //
 // **********************************************************************
 
-public final class CBI extends Test.MB.CB
+package test.Ice.inheritance;
+
+import test.Ice.inheritance.Test.MA.CAPrx;
+import test.Ice.inheritance.Test.MB.CB;
+import test.Ice.inheritance.Test.MB.CBPrx;
+
+public final class CBI extends CB
 {
     public
     CBI()
     {
     }
 
-    public Test.MA.CAPrx
-    caop(Test.MA.CAPrx p, Ice.Current current)
+    public CAPrx
+    caop(CAPrx p, Ice.Current current)
     {
         return p;
     }
 
-    public Test.MB.CBPrx
-    cbop(Test.MB.CBPrx p, Ice.Current current)
+    public CBPrx
+    cbop(CBPrx p, Ice.Current current)
     {
         return p;
     }

@@ -7,7 +7,9 @@
 //
 // **********************************************************************
 
-import Test.*;
+package test.Ice.facets;
+
+import test.Ice.facets.Test._HDisp;
 
 public final class HI extends _HDisp
 {

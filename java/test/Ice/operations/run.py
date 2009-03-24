@@ -24,10 +24,7 @@ print "tests with regular server."
 TestUtil.clientServerTest()
 
 print "tests with AMD server."
-import copy
-amdenv = copy.deepcopy(os.environ)
-TestUtil.addClasspath(os.path.join(os.getcwd(), "..", "operationsAMD", "classes"), amdenv)
-TestUtil.clientServerTest(serverenv = amdenv)
+TestUtil.clientServerTest(server="test.Ice.operations.AMDServer")
 
 print "tests with collocated server."
 TestUtil.collocatedTest()

@@ -7,6 +7,14 @@
 //
 // **********************************************************************
 
+package test.Ice.proxy;
+import java.io.PrintWriter;
+
+import test.Ice.proxy.Test.MyClassPrx;
+import test.Ice.proxy.Test.MyClassPrxHelper;
+import test.Ice.proxy.Test.MyDerivedClassPrx;
+import test.Ice.proxy.Test.MyDerivedClassPrxHelper;
+
 public class AllTests
 {
     private static void
@@ -18,11 +26,11 @@ public class AllTests
         }
     }
 
-    public static Test.MyClassPrx
-    allTests(Ice.Communicator communicator)
+    public static MyClassPrx
+    allTests(Ice.Communicator communicator, PrintWriter out)
     {
-        System.out.print("testing stringToProxy... ");
-        System.out.flush();
+        out.print("testing stringToProxy... ");
+        out.flush();
         String ref = "test:default -p 12010 -t 10000";
         Ice.ObjectPrx base = communicator.stringToProxy(ref);
         test(base != null);
@@ -221,10 +229,10 @@ public class AllTests
         catch(Ice.EndpointParseException ex)
         {
         }
-        System.out.println("ok");
+        out.println("ok");
 
-        System.out.print("testing propertyToProxy... ");
-        System.out.flush();
+        out.print("testing propertyToProxy... ");
+        out.flush();
         Ice.Properties prop = communicator.getProperties();
         String propertyPrefix = "Foo.Proxy";
         prop.setProperty(propertyPrefix, "test:default -p 12010 -t 10000");
@@ -311,15 +319,15 @@ public class AllTests
         test(!b1.ice_isCollocationOptimized());
         prop.setProperty(property, "");
 
-        System.out.println("ok");
+        out.println("ok");
 
-        System.out.print("testing ice_getCommunicator... ");
-        System.out.flush();
+        out.print("testing ice_getCommunicator... ");
+        out.flush();
         test(base.ice_getCommunicator() == communicator);
-        System.out.println("ok");
+        out.println("ok");
 
-        System.out.print("testing proxy methods... ");
-        System.out.flush();
+        out.print("testing proxy methods... ");
+        out.flush();
         test(communicator.identityToString(
                  base.ice_identity(communicator.stringToIdentity("other")).ice_getIdentity()).equals("other"));
         test(base.ice_facet("facet").ice_getFacet().equals("facet"));
@@ -335,10 +343,10 @@ public class AllTests
         test(!base.ice_collocationOptimized(false).ice_isCollocationOptimized());
         test(base.ice_preferSecure(true).ice_isPreferSecure());
         test(!base.ice_preferSecure(false).ice_isPreferSecure());
-        System.out.println("ok");
+        out.println("ok");
 
-        System.out.print("testing proxy comparison... ");
-        System.out.flush();
+        out.print("testing proxy comparison... ");
+        out.flush();
 
         test(communicator.stringToProxy("foo").equals(communicator.stringToProxy("foo")));
         test(!communicator.stringToProxy("foo").equals(communicator.stringToProxy("foo2")));
@@ -421,21 +429,21 @@ public class AllTests
         //
         // TODO: Ideally we should also test comparison of fixed proxies.
         //
-        System.out.println("ok");
+        out.println("ok");
 
-        System.out.print("testing checked cast... ");
-        System.out.flush();
-        Test.MyClassPrx cl = Test.MyClassPrxHelper.checkedCast(base);
+        out.print("testing checked cast... ");
+        out.flush();
+        MyClassPrx cl = MyClassPrxHelper.checkedCast(base);
         test(cl != null);
-        Test.MyDerivedClassPrx derived = Test.MyDerivedClassPrxHelper.checkedCast(cl);
+        MyDerivedClassPrx derived = MyDerivedClassPrxHelper.checkedCast(cl);
         test(derived != null);
         test(cl.equals(base));
         test(derived.equals(base));
         test(cl.equals(derived));
-        System.out.println("ok");
+        out.println("ok");
 
-        System.out.print("testing checked cast with context... ");
-        System.out.flush();
+        out.print("testing checked cast with context... ");
+        out.flush();
 
         java.util.Map<String, String> c = cl.getContext();
         test(c == null || c.size() == 0);
@@ -443,13 +451,13 @@ public class AllTests
         c = new java.util.HashMap<String, String>();
         c.put("one", "hello");
         c.put("two", "world");
-        cl = Test.MyClassPrxHelper.checkedCast(base, c);
+        cl = MyClassPrxHelper.checkedCast(base, c);
         java.util.Map<String, String> c2 = cl.getContext();
         test(c.equals(c2));
-        System.out.println("ok");
+        out.println("ok");
 
-        System.out.print("testing opaque endpoints... ");
-        System.out.flush();
+        out.print("testing opaque endpoints... ");
+        out.flush();
 
         try
         {
@@ -632,7 +640,7 @@ public class AllTests
             }
 
         }
-        System.out.println("ok");
+        out.println("ok");
 
         return cl;
     }

@@ -7,7 +7,18 @@
 //
 // **********************************************************************
 
-class MyObjectI extends Test._MyObjectDisp
+package test.Ice.interceptor;
+
+import test.Ice.interceptor.Test.AMD_MyObject_amdAdd;
+import test.Ice.interceptor.Test.AMD_MyObject_amdAddWithRetry;
+import test.Ice.interceptor.Test.AMD_MyObject_amdBadAdd;
+import test.Ice.interceptor.Test.AMD_MyObject_amdBadSystemAdd;
+import test.Ice.interceptor.Test.AMD_MyObject_amdNotExistAdd;
+import test.Ice.interceptor.Test.InvalidInputException;
+import test.Ice.interceptor.Test.RetryException;
+import test.Ice.interceptor.Test._MyObjectDisp;
+
+class MyObjectI extends _MyObjectDisp
 {
 
     public int 
@@ -23,15 +34,15 @@ class MyObjectI extends Test._MyObjectDisp
         
         if(val == null || !val.equals("no"))
         {
-            throw new Test.RetryException();
+            throw new RetryException();
         }
         return x + y;
     } 
 
     public int 
-    badAdd(int x, int y, Ice.Current current) throws Test.InvalidInputException
+    badAdd(int x, int y, Ice.Current current) throws InvalidInputException
     {
-        throw new Test.InvalidInputException();
+        throw new InvalidInputException();
     } 
 
     public int 
@@ -52,7 +63,7 @@ class MyObjectI extends Test._MyObjectDisp
     //
 
     public void 
-    amdAdd_async(final Test.AMD_MyObject_amdAdd cb, final int x, final int y, Ice.Current current)
+    amdAdd_async(final AMD_MyObject_amdAdd cb, final int x, final int y, Ice.Current current)
     {
         Thread thread = new Thread()
             {
@@ -75,7 +86,7 @@ class MyObjectI extends Test._MyObjectDisp
     }
 
     public void 
-    amdAddWithRetry_async(final Test.AMD_MyObject_amdAddWithRetry cb, final int x, final int y, Ice.Current current)
+    amdAddWithRetry_async(final AMD_MyObject_amdAddWithRetry cb, final int x, final int y, Ice.Current current)
     {
         Thread thread = new Thread()
             {
@@ -100,12 +111,12 @@ class MyObjectI extends Test._MyObjectDisp
         
         if(val == null || !val.equals("no"))
         {
-            throw new Test.RetryException();
+            throw new RetryException();
         }
     } 
     
     public void 
-    amdBadAdd_async(final Test.AMD_MyObject_amdBadAdd cb, int x, int y, Ice.Current current)
+    amdBadAdd_async(final AMD_MyObject_amdBadAdd cb, int x, int y, Ice.Current current)
     {
         Thread thread = new Thread()
             {
@@ -119,7 +130,7 @@ class MyObjectI extends Test._MyObjectDisp
                     catch(InterruptedException e)
                     {
                     }
-                    cb.ice_exception(new Test.InvalidInputException());
+                    cb.ice_exception(new InvalidInputException());
                 }
             };
         
@@ -128,7 +139,7 @@ class MyObjectI extends Test._MyObjectDisp
     } 
 
     public void 
-    amdNotExistAdd_async(final Test.AMD_MyObject_amdNotExistAdd cb, int x, int y, Ice.Current current)
+    amdNotExistAdd_async(final AMD_MyObject_amdNotExistAdd cb, int x, int y, Ice.Current current)
     {
         Thread thread = new Thread()
             {
@@ -151,7 +162,7 @@ class MyObjectI extends Test._MyObjectDisp
     } 
     
     public void 
-    amdBadSystemAdd_async(final Test.AMD_MyObject_amdBadSystemAdd cb, int x, int y, Ice.Current current)
+    amdBadSystemAdd_async(final AMD_MyObject_amdBadSystemAdd cb, int x, int y, Ice.Current current)
     {
         Thread thread = new Thread()
             {

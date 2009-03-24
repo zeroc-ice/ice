@@ -10,6 +10,7 @@
 #ifndef TESTICE
 #define TESTICE
 
+[["java:package:test.Ice.inheritance"]]
 module Test
 {
 

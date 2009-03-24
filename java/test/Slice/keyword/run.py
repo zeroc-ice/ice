@@ -20,10 +20,8 @@ if len(path) == 0:
 sys.path.append(os.path.join(path[0]))
 from scripts import *
 
-TestUtil.addClasspath(os.path.join(os.getcwd(), "classes"))
-
 print "starting client...",
-clientProc = TestUtil.startClient("Client", startReader = False)
+clientProc = TestUtil.startClient("test.Slice.keyword.Client",startReader=False)
 print "ok"
 clientProc.startReader()
 clientProc.waitTestSuccess()

@@ -7,14 +7,15 @@
 //
 // **********************************************************************
 
-import Test.*;
+package test.Ice.objects;
 
-public class Client
+import test.Ice.objects.Test.InitialPrx;
+
+public class Client extends test.Util.Application
 {
     private static class MyObjectFactory implements Ice.ObjectFactory
     {
-        public Ice.Object
-        create(String type)
+        public Ice.Object create(String type)
         {
             if(type.equals("::Test::B"))
             {
@@ -49,20 +50,19 @@ public class Client
                 return new HI();
             }
 
-            assert(false); // Should never be reached
+            assert (false); // Should never be reached
             return null;
         }
 
-        public void
-        destroy()
+        public void destroy()
         {
             // Nothing to do
         }
     }
 
-    private static int
-    run(String[] args, Ice.Communicator communicator)
+    public int run(String[] args)
     {
+        Ice.Communicator communicator = communicator();
         Ice.ObjectFactory factory = new MyObjectFactory();
         communicator.addObjectFactory(factory, "::Test::B");
         communicator.addObjectFactory(factory, "::Test::C");
@@ -73,42 +73,24 @@ public class Client
         communicator.addObjectFactory(factory, "::Test::J");
         communicator.addObjectFactory(factory, "::Test::H");
 
-        InitialPrx initial = AllTests.allTests(communicator, false);
+        InitialPrx initial = AllTests.allTests(communicator, false, getWriter());
         initial.shutdown();
         return 0;
     }
 
-    public static void
-    main(String[] args)
+    protected Ice.InitializationData getInitData(Ice.StringSeqHolder argsH)
     {
-        int status = 0;
-        Ice.Communicator communicator = null;
+        Ice.InitializationData initData = new Ice.InitializationData();
+        initData.properties = Ice.Util.createProperties(argsH);
+        initData.properties.setProperty("Ice.Package.Test", "test.Ice.objects");
+        return initData;
+    }
 
-        try
-        {
-            communicator = Ice.Util.initialize(args);
-            status = run(args, communicator);
-        }
-        catch(Exception ex)
-        {
-            ex.printStackTrace();
-            status = 1;
-        }
-
-        if(communicator != null)
-        {
-            try
-            {
-                communicator.destroy();
-            }
-            catch(Ice.LocalException ex)
-            {
-                ex.printStackTrace();
-                status = 1;
-            }
-        }
-
+    public static void main(String[] args)
+    {
+        Client app = new Client();
+        int result = app.main("Client", args);
         System.gc();
-        System.exit(status);
+        System.exit(result);
     }
 }

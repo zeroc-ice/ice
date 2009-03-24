@@ -6,8 +6,9 @@
 // ICE_LICENSE file included in this distribution.
 //
 // **********************************************************************
+package test.Ice.background;
 
-import Test.*;
+import test.Ice.background.Test._BackgroundControllerDisp;
 
 class BackgroundControllerI extends _BackgroundControllerDisp
 {
@@ -105,10 +106,10 @@ class BackgroundControllerI extends _BackgroundControllerDisp
     }
     
     public
-    BackgroundControllerI(Ice.ObjectAdapter adapter)
+    BackgroundControllerI(Configuration configuration, Ice.ObjectAdapter adapter)
     {
         _adapter = adapter;
-        _configuration = Configuration.getInstance();
+        _configuration = configuration;
     }
 
     final private Ice.ObjectAdapter _adapter;

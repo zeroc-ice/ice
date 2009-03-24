@@ -7,7 +7,11 @@
 //
 // **********************************************************************
 
-import Test.*;
+package test.IceGrid.simple;
+import java.io.PrintWriter;
+
+import test.IceGrid.simple.Test.TestIntfPrx;
+import test.IceGrid.simple.Test.TestIntfPrxHelper;
 
 public class AllTests
 {
@@ -69,67 +73,67 @@ public class AllTests
     }
 
     public static void
-    allTests(Ice.Communicator communicator)
+    allTests(Ice.Communicator communicator, PrintWriter out)
     {
-        System.out.print("testing stringToProxy... ");
-        System.out.flush();
+        out.print("testing stringToProxy... ");
+        out.flush();
         String ref = "test @ TestAdapter";
         Ice.ObjectPrx base = communicator.stringToProxy(ref);
         test(base != null);
-        System.out.println("ok");
+        out.println("ok");
 
-        System.out.print("testing IceGrid.Locator is present... ");
+        out.print("testing IceGrid.Locator is present... ");
         IceGrid.LocatorPrx locator = IceGrid.LocatorPrxHelper.uncheckedCast(base);
         test(locator != null);
-        System.out.println("ok");
+        out.println("ok");
 
-        System.out.print("testing checked cast... ");
-        System.out.flush();
+        out.print("testing checked cast... ");
+        out.flush();
         TestIntfPrx obj = TestIntfPrxHelper.checkedCast(base);
         test(obj != null);
         test(obj.equals(base));
-        System.out.println("ok");
+        out.println("ok");
         
-        System.out.print("pinging server... ");
-        System.out.flush();
+        out.print("pinging server... ");
+        out.flush();
         obj.ice_ping();
-        System.out.println("ok");
+        out.println("ok");
         
-        System.out.print("shutting down server... ");
-        System.out.flush();
+        out.print("shutting down server... ");
+        out.flush();
         obj.shutdown();
-        System.out.println("ok");       
+        out.println("ok");       
     }
 
     public static void
-    allTestsWithDeploy(Ice.Communicator communicator)
+    allTestsWithDeploy(Ice.Communicator communicator, PrintWriter out)
     {
-        System.out.print("testing stringToProxy... ");
-        System.out.flush();
+        out.print("testing stringToProxy... ");
+        out.flush();
         Ice.ObjectPrx base = communicator.stringToProxy("test @ TestAdapter");
         test(base != null);
         Ice.ObjectPrx base2 = communicator.stringToProxy("test");
         test(base2 != null);
-        System.out.println("ok");
+        out.println("ok");
 
-        System.out.print("testing checked cast... ");
-        System.out.flush();
+        out.print("testing checked cast... ");
+        out.flush();
         TestIntfPrx obj = TestIntfPrxHelper.checkedCast(base);
         test(obj != null);
         test(obj.equals(base));
         TestIntfPrx obj2 = TestIntfPrxHelper.checkedCast(base2);
         test(obj2 != null);
         test(obj2.equals(base2));
-        System.out.println("ok");
+        out.println("ok");
         
-        System.out.print("pinging server... ");
-        System.out.flush();
+        out.print("pinging server... ");
+        out.flush();
         obj.ice_ping();
         obj2.ice_ping();
-        System.out.println("ok");
+        out.println("ok");
 
-        System.out.print("testing reference with unknown identity... ");
-        System.out.flush();
+        out.print("testing reference with unknown identity... ");
+        out.flush();
         try
         {
             communicator.stringToProxy("unknown/unknown").ice_ping();
@@ -140,10 +144,10 @@ public class AllTests
             test(ex.kindOfObject.equals("object"));
             test(ex.id.equals("unknown/unknown"));
         }
-        System.out.println("ok");       
+        out.println("ok");       
 
-        System.out.print("testing reference with unknown adapter... ");
-        System.out.flush();
+        out.print("testing reference with unknown adapter... ");
+        out.flush();
         try
         {
             communicator.stringToProxy("test @ TestAdapterUnknown").ice_ping();
@@ -154,7 +158,7 @@ public class AllTests
             test(ex.kindOfObject.equals("object adapter"));
             test(ex.id.equals("TestAdapterUnknown"));
         }
-        System.out.println("ok");       
+        out.println("ok");       
 
         IceGrid.RegistryPrx registry = IceGrid.RegistryPrxHelper.checkedCast(
             communicator.stringToProxy("IceGrid/Registry"));
@@ -197,8 +201,8 @@ public class AllTests
             test(false);
         }
 
-        System.out.print("testing whether server is still reachable... ");
-        System.out.flush();
+        out.print("testing whether server is still reachable... ");
+        out.flush();
         try
         {
             obj = TestIntfPrxHelper.checkedCast(base);
@@ -249,7 +253,7 @@ public class AllTests
         {
             test(false);
         }
-        System.out.println("ok");
+        out.println("ok");
 
         try
         {

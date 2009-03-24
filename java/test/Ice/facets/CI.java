@@ -7,7 +7,9 @@
 //
 // **********************************************************************
 
-import Test.*;
+package test.Ice.facets;
+
+import test.Ice.facets.Test._CDisp;
 
 public final class CI extends _CDisp
 {

@@ -8,15 +8,20 @@
 //
 // **********************************************************************
 
-import Test.*;
+package test.Ice.location;
+
+import test.Ice.location.Test._ServerManagerDisp;
+
 
 public class ServerManagerI extends _ServerManagerDisp
 {
-    ServerManagerI(Ice.ObjectAdapter adapter, ServerLocatorRegistry registry, Ice.InitializationData initData)
+    ServerManagerI(Ice.ObjectAdapter adapter, ServerLocatorRegistry registry, Ice.InitializationData initData, test.Util.Application app)
     {
         _adapter = adapter;
         _registry = registry;
         _communicators = new java.util.ArrayList<Ice.Communicator>();
+        
+        _app = app;
         _initData = initData;
         
         _initData.properties.setProperty("TestAdapter.AdapterId", "TestAdapter");
@@ -44,7 +49,7 @@ public class ServerManagerI extends _ServerManagerDisp
         // its endpoints with the locator and create references containing
         // the adapter id instead of the endpoints.
         //
-        Ice.Communicator serverCommunicator = Ice.Util.initialize(_initData);
+        Ice.Communicator serverCommunicator = _app.initialize(_initData);
         _communicators.add(serverCommunicator);
 
         //
@@ -85,5 +90,6 @@ public class ServerManagerI extends _ServerManagerDisp
     private ServerLocatorRegistry _registry;
     private java.util.List<Ice.Communicator> _communicators;
     private Ice.InitializationData _initData;
+    private test.Util.Application _app;
     private int _nextPort = 12011;
 }

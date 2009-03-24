@@ -7,6 +7,37 @@
 //
 // **********************************************************************
 
+package test.Ice.operations;
+
+import test.Ice.operations.Test.AnotherStruct;
+import test.Ice.operations.Test.BoolSHolder;
+import test.Ice.operations.Test.ByteBoolDHolder;
+import test.Ice.operations.Test.ByteSHolder;
+import test.Ice.operations.Test.ByteSSHolder;
+import test.Ice.operations.Test.DoubleSHolder;
+import test.Ice.operations.Test.DoubleSSHolder;
+import test.Ice.operations.Test.FloatSHolder;
+import test.Ice.operations.Test.FloatSSHolder;
+import test.Ice.operations.Test.IntSHolder;
+import test.Ice.operations.Test.LongFloatDHolder;
+import test.Ice.operations.Test.LongSHolder;
+import test.Ice.operations.Test.MyClassPrx;
+import test.Ice.operations.Test.MyClassPrxHelper;
+import test.Ice.operations.Test.MyClassPrxHolder;
+import test.Ice.operations.Test.MyEnum;
+import test.Ice.operations.Test.MyStruct;
+import test.Ice.operations.Test.MyEnumHolder;
+import test.Ice.operations.Test.MyStructMyEnumDHolder;
+import test.Ice.operations.Test.ShortIntDHolder;
+import test.Ice.operations.Test.ShortSHolder;
+import test.Ice.operations.Test.StringMyEnumDHolder;
+import test.Ice.operations.Test.StringSHolder;
+import test.Ice.operations.Test.StringSSHolder;
+import test.Ice.operations.Test.StringSSSHolder;
+import test.Ice.operations.Test.StringStringDHolder;
+import test.Ice.operations.Test.Structure;
+import test.Ice.operations.Test.StructureHolder;
+
 class Twoways
 {
     private static void
@@ -20,7 +51,7 @@ class Twoways
 
     static class PerThreadContextInvokeThread extends Thread
     {
-        public PerThreadContextInvokeThread(Test.MyClassPrx proxy)
+        public PerThreadContextInvokeThread(MyClassPrx proxy)
         {
             _proxy = proxy;
         }
@@ -35,12 +66,13 @@ class Twoways
             test(_proxy.opContext().equals(ctx));
         }
         
-        final private Test.MyClassPrx _proxy;
+        final private MyClassPrx _proxy;
     }
 
     static void
-    twoways(Ice.Communicator communicator, Test.MyClassPrx p)
+    twoways(test.Util.Application app, MyClassPrx p)
     {
+        Ice.Communicator communicator = app.communicator();
         {
             p.opVoid();
         }
@@ -121,18 +153,18 @@ class Twoways
         }
 
         {
-            Test.MyEnumHolder e = new Test.MyEnumHolder();
-            Test.MyEnum r;
+            MyEnumHolder e = new MyEnumHolder();
+            MyEnum r;
 
-            r = p.opMyEnum(Test.MyEnum.enum2, e);
-            test(e.value == Test.MyEnum.enum2);
-            test(r == Test.MyEnum.enum3);
+            r = p.opMyEnum(MyEnum.enum2, e);
+            test(e.value == MyEnum.enum2);
+            test(r == MyEnum.enum3);
         }
 
         {
-            Test.MyClassPrxHolder c1 = new Test.MyClassPrxHolder();
-            Test.MyClassPrxHolder c2 = new Test.MyClassPrxHolder();
-            Test.MyClassPrx r;
+            MyClassPrxHolder c1 = new MyClassPrxHolder();
+            MyClassPrxHolder c2 = new MyClassPrxHolder();
+            MyClassPrx r;
 
             r = p.opMyClass(p, c1, c2);
             test(Ice.Util.proxyIdentityAndFacetCompare(c1.value, p) == 0);
@@ -160,24 +192,24 @@ class Twoways
         }
 
         {
-            Test.Structure si1 = new Test.Structure();
+            Structure si1 = new Structure();
             si1.p = p;
-            si1.e = Test.MyEnum.enum3;
-            si1.s = new Test.AnotherStruct();
+            si1.e = MyEnum.enum3;
+            si1.s = new AnotherStruct();
             si1.s.s = "abc";
-            Test.Structure si2 = new Test.Structure();
+            Structure si2 = new Structure();
             si2.p = null;
-            si2.e = Test.MyEnum.enum2;
-            si2.s = new Test.AnotherStruct();
+            si2.e = MyEnum.enum2;
+            si2.s = new AnotherStruct();
             si2.s.s = "def";
 
-            Test.StructureHolder so = new Test.StructureHolder();
-            Test.Structure rso = p.opStruct(si1, si2, so);
+            StructureHolder so = new StructureHolder();
+            Structure rso = p.opStruct(si1, si2, so);
             test(rso.p == null);
-            test(rso.e == Test.MyEnum.enum2);
+            test(rso.e == MyEnum.enum2);
             test(rso.s.s.equals("def"));
             test(so.value.p.equals(p));
-            test(so.value.e == Test.MyEnum.enum3);
+            test(so.value.e == MyEnum.enum3);
             test(so.value.s.s.equals("a new string"));
             so.value.p.opVoid();
         }
@@ -198,7 +230,7 @@ class Twoways
                 (byte)0xf4
             };
 
-            Test.ByteSHolder bso = new Test.ByteSHolder();
+            ByteSHolder bso = new ByteSHolder();
             byte[] rso;
 
             rso = p.opByteS(bsi1, bsi2, bso);
@@ -222,7 +254,7 @@ class Twoways
             final boolean[] bsi1 = { true, true, false };
             final boolean[] bsi2 = { false };
 
-            Test.BoolSHolder bso = new Test.BoolSHolder();
+            BoolSHolder bso = new BoolSHolder();
             boolean[] rso;
 
             rso = p.opBoolS(bsi1, bsi2, bso);
@@ -242,9 +274,9 @@ class Twoways
             final int[] isi = { 5, 6, 7, 8 };
             final long[] lsi = { 10, 30, 20 };
 
-            Test.ShortSHolder sso = new Test.ShortSHolder();
-            Test.IntSHolder iso = new Test.IntSHolder();
-            Test.LongSHolder lso = new Test.LongSHolder();
+            ShortSHolder sso = new ShortSHolder();
+            IntSHolder iso = new IntSHolder();
+            LongSHolder lso = new LongSHolder();
             long[] rso;
 
             rso = p.opShortIntLongS(ssi, isi, lsi, sso, iso, lso);
@@ -274,8 +306,8 @@ class Twoways
             final float[] fsi = { 3.14f, 1.11f };
             final double[] dsi = { 1.1E10, 1.2E10, 1.3E10 };
 
-            Test.FloatSHolder fso = new Test.FloatSHolder();
-            Test.DoubleSHolder dso = new Test.DoubleSHolder();
+            FloatSHolder fso = new FloatSHolder();
+            DoubleSHolder dso = new DoubleSHolder();
             double[] rso;
 
             rso = p.opFloatDoubleS(fsi, dsi, fso, dso);
@@ -298,7 +330,7 @@ class Twoways
             final String[] ssi1 = { "abc", "de", "fghi" };
             final String[] ssi2 = { "xyz" };
 
-            Test.StringSHolder sso = new Test.StringSHolder();
+            StringSHolder sso = new StringSHolder();
             String[] rso;
 
             rso = p.opStringS(ssi1, ssi2, sso);
@@ -325,7 +357,7 @@ class Twoways
                 { (byte)0xf2, (byte)0xf1 }
             };
 
-            Test.ByteSSHolder bso = new Test.ByteSSHolder();
+            ByteSSHolder bso = new ByteSSHolder();
             byte[][] rso;
 
             rso = p.opByteSS(bsi1, bsi2, bso);
@@ -362,8 +394,8 @@ class Twoways
                 { 1.1E10, 1.2E10, 1.3E10 }
             };
 
-            Test.FloatSSHolder fso = new Test.FloatSSHolder();
-            Test.DoubleSSHolder dso = new Test.DoubleSSHolder();
+            FloatSSHolder fso = new FloatSSHolder();
+            DoubleSSHolder dso = new DoubleSSHolder();
             double[][] rso;
 
             rso = p.opFloatDoubleSS(fsi, dsi, fso, dso);
@@ -402,7 +434,7 @@ class Twoways
                 { "xyz" }
             };
 
-            Test.StringSSHolder sso = new Test.StringSSHolder();
+            StringSSHolder sso = new StringSSHolder();
             String[][] rso;
 
             rso = p.opStringSS(ssi1, ssi2, sso);
@@ -460,7 +492,7 @@ class Twoways
                 }
             };
 
-            Test.StringSSSHolder ssso = new Test.StringSSSHolder();
+            StringSSSHolder ssso = new StringSSSHolder();
             String rsso[][][];
 
             rsso = p.opStringSSS(sssi1, sssi2, ssso);
@@ -507,7 +539,7 @@ class Twoways
             di2.put((byte)11, Boolean.FALSE);
             di2.put((byte)101, Boolean.TRUE);
 
-            Test.ByteBoolDHolder _do = new Test.ByteBoolDHolder();
+            ByteBoolDHolder _do = new ByteBoolDHolder();
             java.util.Map<Byte, Boolean> ro = p.opByteBoolD(di1, di2, _do);
 
             test(_do.value.equals(di1));
@@ -527,7 +559,7 @@ class Twoways
             di2.put((short)111, -100);
             di2.put((short)1101, 0);
 
-            Test.ShortIntDHolder _do = new Test.ShortIntDHolder();
+            ShortIntDHolder _do = new ShortIntDHolder();
             java.util.Map<Short, Integer> ro = p.opShortIntD(di1, di2, _do);
 
             test(_do.value.equals(di1));
@@ -547,7 +579,7 @@ class Twoways
             di2.put(999999120L, new Float(-100.4f));
             di2.put(999999130L, new Float(0.5f));
 
-            Test.LongFloatDHolder _do = new Test.LongFloatDHolder();
+            LongFloatDHolder _do = new LongFloatDHolder();
             java.util.Map<Long, Float> ro = p.opLongFloatD(di1, di2, _do);
 
             test(_do.value.equals(di1));
@@ -567,7 +599,7 @@ class Twoways
             di2.put("FOO", "abc -100.4");
             di2.put("BAR", "abc 0.5");
 
-            Test.StringStringDHolder _do = new Test.StringStringDHolder();
+            StringStringDHolder _do = new StringStringDHolder();
             java.util.Map<String, String> ro = p.opStringStringD(di1, di2, _do);
 
             test(_do.value.equals(di1));
@@ -579,48 +611,48 @@ class Twoways
         }
 
         {
-            java.util.Map<String, Test.MyEnum> di1 = new java.util.HashMap<String, Test.MyEnum>();
-            di1.put("abc", Test.MyEnum.enum1);
-            di1.put("", Test.MyEnum.enum2);
-            java.util.Map<String, Test.MyEnum> di2 = new java.util.HashMap<String, Test.MyEnum>();
-            di2.put("abc", Test.MyEnum.enum1);
-            di2.put("qwerty", Test.MyEnum.enum3);
-            di2.put("Hello!!", Test.MyEnum.enum2);
+            java.util.Map<String, MyEnum> di1 = new java.util.HashMap<String, MyEnum>();
+            di1.put("abc", MyEnum.enum1);
+            di1.put("", MyEnum.enum2);
+            java.util.Map<String, MyEnum> di2 = new java.util.HashMap<String, MyEnum>();
+            di2.put("abc", MyEnum.enum1);
+            di2.put("qwerty", MyEnum.enum3);
+            di2.put("Hello!!", MyEnum.enum2);
 
-            Test.StringMyEnumDHolder _do = new Test.StringMyEnumDHolder();
-            java.util.Map<String, Test.MyEnum> ro = p.opStringMyEnumD(di1, di2, _do);
+            StringMyEnumDHolder _do = new StringMyEnumDHolder();
+            java.util.Map<String, MyEnum> ro = p.opStringMyEnumD(di1, di2, _do);
 
             test(_do.value.equals(di1));
             test(ro.size() == 4);
-            test(ro.get("abc") == Test.MyEnum.enum1);
-            test(ro.get("qwerty") == Test.MyEnum.enum3);
-            test(ro.get("") == Test.MyEnum.enum2);
-            test(ro.get("Hello!!") == Test.MyEnum.enum2);
+            test(ro.get("abc") == MyEnum.enum1);
+            test(ro.get("qwerty") == MyEnum.enum3);
+            test(ro.get("") == MyEnum.enum2);
+            test(ro.get("Hello!!") == MyEnum.enum2);
         }
 
         {
-            Test.MyStruct s11 = new Test.MyStruct(1, 1);
-            Test.MyStruct s12 = new Test.MyStruct(1, 2);
-            java.util.Map<Test.MyStruct, Test.MyEnum> di1 = new java.util.HashMap<Test.MyStruct, Test.MyEnum>();
-            di1.put(s11, Test.MyEnum.enum1);
-            di1.put(s12, Test.MyEnum.enum2);
+            MyStruct s11 = new MyStruct(1, 1);
+            MyStruct s12 = new MyStruct(1, 2);
+            java.util.Map<MyStruct, MyEnum> di1 = new java.util.HashMap<MyStruct, MyEnum>();
+            di1.put(s11, MyEnum.enum1);
+            di1.put(s12, MyEnum.enum2);
 
-            Test.MyStruct s22 = new Test.MyStruct(2, 2);
-            Test.MyStruct s23 = new Test.MyStruct(2, 3);
-            java.util.Map<Test.MyStruct, Test.MyEnum> di2 = new java.util.HashMap<Test.MyStruct, Test.MyEnum>();
-            di2.put(s11, Test.MyEnum.enum1);
-            di2.put(s22, Test.MyEnum.enum3);
-            di2.put(s23, Test.MyEnum.enum2);
+            MyStruct s22 = new MyStruct(2, 2);
+            MyStruct s23 = new MyStruct(2, 3);
+            java.util.Map<MyStruct, MyEnum> di2 = new java.util.HashMap<MyStruct, MyEnum>();
+            di2.put(s11, MyEnum.enum1);
+            di2.put(s22, MyEnum.enum3);
+            di2.put(s23, MyEnum.enum2);
 
-            Test.MyStructMyEnumDHolder _do = new Test.MyStructMyEnumDHolder();
-            java.util.Map<Test.MyStruct, Test.MyEnum> ro = p.opMyStructMyEnumD(di1, di2, _do);
+            MyStructMyEnumDHolder _do = new MyStructMyEnumDHolder();
+            java.util.Map<MyStruct, MyEnum> ro = p.opMyStructMyEnumD(di1, di2, _do);
 
             test(_do.value.equals(di1));
             test(ro.size() == 4);
-            test(ro.get(s11) == Test.MyEnum.enum1);
-            test(ro.get(s12) == Test.MyEnum.enum2);
-            test(ro.get(s22) == Test.MyEnum.enum3);
-            test(ro.get(s23) == Test.MyEnum.enum2);
+            test(ro.get(s11) == MyEnum.enum1);
+            test(ro.get(s12) == MyEnum.enum2);
+            test(ro.get(s22) == MyEnum.enum3);
+            test(ro.get(s23) == MyEnum.enum2);
         }
 
         {
@@ -658,7 +690,7 @@ class Twoways
                 test(r.equals(ctx));
             }
             {
-                Test.MyClassPrx p2 = Test.MyClassPrxHelper.checkedCast(p.ice_context(ctx));
+                MyClassPrx p2 = MyClassPrxHelper.checkedCast(p.ice_context(ctx));
                 test(p2.ice_getContext().equals(ctx));
                 java.util.Map<String, String> r = p2.opContext();
                 test(r.equals(ctx));
@@ -675,35 +707,35 @@ class Twoways
                 communicator.setDefaultContext(dflt);
                 test(!p.opContext().equals(dflt));
 
-                Test.MyClassPrx p2 = Test.MyClassPrxHelper.uncheckedCast(p.ice_context(new java.util.HashMap()));
+                MyClassPrx p2 = MyClassPrxHelper.uncheckedCast(p.ice_context(new java.util.HashMap()));
                 test(p2.opContext().isEmpty());
 
-                p2 = Test.MyClassPrxHelper.uncheckedCast(p.ice_defaultContext());
+                p2 = MyClassPrxHelper.uncheckedCast(p.ice_defaultContext());
                 test(p2.opContext().equals(dflt));
 
                 communicator.setDefaultContext(new java.util.HashMap());
                 test(!p2.opContext().isEmpty());
 
                 communicator.setDefaultContext(dflt);
-                Test.MyClassPrx c = Test.MyClassPrxHelper.checkedCast(
-                                        communicator.stringToProxy("test:default -p 12010 -t 10000"));
+                MyClassPrx c = MyClassPrxHelper.checkedCast(
+                                        communicator.stringToProxy("test:default -p 12010 -t 20000"));
                 test(c.opContext().equals(dflt));
 
                 dflt.put("a", "c");
-                Test.MyClassPrx c2 = Test.MyClassPrxHelper.uncheckedCast(c.ice_context(dflt));
+                MyClassPrx c2 = MyClassPrxHelper.uncheckedCast(c.ice_context(dflt));
                 test(c2.opContext().get("a").equals("c"));
 
                 dflt.clear();
-                Test.MyClassPrx c3 = Test.MyClassPrxHelper.uncheckedCast(c2.ice_context(dflt));
+                MyClassPrx c3 = MyClassPrxHelper.uncheckedCast(c2.ice_context(dflt));
                 test(c3.opContext().get("a") == null);
 
-                Test.MyClassPrx c4 = Test.MyClassPrxHelper.uncheckedCast(c2.ice_defaultContext());
+                MyClassPrx c4 = MyClassPrxHelper.uncheckedCast(c2.ice_defaultContext());
                 test(c4.opContext().get("a").equals("b"));
 
                 dflt.put("a", "d");
                 communicator.setDefaultContext(dflt);
 
-                Test.MyClassPrx c5 = Test.MyClassPrxHelper.uncheckedCast(c2.ice_defaultContext());
+                MyClassPrx c5 = MyClassPrxHelper.uncheckedCast(c2.ice_defaultContext());
                 test(c5.opContext().get("a").equals("d"));
 
                 communicator.setDefaultContext(new java.util.HashMap());
@@ -722,15 +754,15 @@ class Twoways
                 initData.properties = communicator.getProperties()._clone();
                 initData.properties.setProperty("Ice.ImplicitContext", impls[i]);
 
-                Ice.Communicator ic = Ice.Util.initialize(initData);
+                Ice.Communicator ic = app.initialize(initData);
 
                 java.util.Map<String, String> ctx = new java.util.HashMap<String, String>();
                 ctx.put("one", "ONE");
                 ctx.put("two", "TWO");
                 ctx.put("three", "THREE");
 
-                Test.MyClassPrx p3 = Test.MyClassPrxHelper.uncheckedCast(
-                    ic.stringToProxy("test:default -p 12010 -t 10000"));
+                MyClassPrx p3 = MyClassPrxHelper.uncheckedCast(
+                    ic.stringToProxy("test:default -p 12010 -t 20000"));
 
                 ic.getImplicitContext().setContext(ctx);
                 test(ic.getImplicitContext().getContext().equals(ctx));
@@ -753,7 +785,7 @@ class Twoways
                 combined.putAll(prxContext);
                 test(combined.get("one").equals("UN"));
 
-                p3 = Test.MyClassPrxHelper.uncheckedCast(p3.ice_context(prxContext));
+                p3 = MyClassPrxHelper.uncheckedCast(p3.ice_context(prxContext));
 
                 ic.getImplicitContext().setContext(null);
                 test(p3.opContext().equals(prxContext));
@@ -766,7 +798,7 @@ class Twoways
                 if(impls[i].equals("PerThread"))
                 {
                     Thread thread = new PerThreadContextInvokeThread(
-                        Test.MyClassPrxHelper.uncheckedCast(p3.ice_context(null)));
+                        MyClassPrxHelper.uncheckedCast(p3.ice_context(null)));
                     thread.start();
                     try
                     {

@@ -7,22 +7,38 @@
 //
 // **********************************************************************
 
-public class Server
+package test.Ice.udp;
+
+public class Server extends test.Util.Application
 {
-    private static int
-    run(String[] args, Ice.Communicator communicator)
+    public int run(String[] args)
     {
-        Ice.Properties properties = communicator.getProperties();
+        Ice.Properties properties = communicator().getProperties();
         if(args.length == 1 && args[0].equals("1"))
         {
             properties.setProperty("TestAdapter.Endpoints", "udp -p 12010");
-            Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
-            adapter.add(new TestIntfI(), communicator.stringToIdentity("test"));
+            Ice.ObjectAdapter adapter = communicator().createObjectAdapter("TestAdapter");
+            adapter.add(new TestIntfI(), communicator().stringToIdentity("test"));
             adapter.activate();
         }
 
+        Ice.ObjectAdapter mcastAdapter = communicator().createObjectAdapter("McastTestAdapter");
+        mcastAdapter.add(new TestIntfI(), communicator().stringToIdentity("test"));
+        mcastAdapter.activate();
+
+        return WAIT;
+    }
+
+    protected Ice.InitializationData getInitData(Ice.StringSeqHolder argsH)
+    {
+        Ice.InitializationData initData = new Ice.InitializationData();
+	initData.properties = Ice.Util.createProperties(argsH);
+        initData.properties.setProperty("Ice.Package.Test", "test.Ice.udp");
+        initData.properties.setProperty("Ice.Warn.Connections", "0");
+        initData.properties.setProperty("Ice.UDP.RcvSize", "16384");
+
         String host;
-        if(properties.getProperty("Ice.IPv6") == "1")
+        if(initData.properties.getProperty("Ice.IPv6") == "1")
         {
             host = "\"ff01::1:1\"";
         }
@@ -30,51 +46,14 @@ public class Server
         {
             host = "239.255.1.1";
         }
-        properties.setProperty("McastTestAdapter.Endpoints", "udp -h " + host + " -p 12020");
-        Ice.ObjectAdapter mcastAdapter = communicator.createObjectAdapter("McastTestAdapter");
-        mcastAdapter.add(new TestIntfI(), communicator.stringToIdentity("test"));
-        mcastAdapter.activate();
-
-        communicator.waitForShutdown();
-        return 0;
+        initData.properties.setProperty("McastTestAdapter.Endpoints", "udp -h " + host + " -p 12020");
+        return initData;
     }
 
-    public static void
-    main(String[] args)
+    public static void main(String[] args)
     {
-        int status = 0;
-        Ice.Communicator communicator = null;
-
-        try
-        {
-            Ice.StringSeqHolder argHolder = new Ice.StringSeqHolder(args);
-            Ice.InitializationData initData = new Ice.InitializationData();
-            initData.properties = Ice.Util.createProperties(argHolder);
-        
-            initData.properties.setProperty("Ice.Warn.Connections", "0");
-            initData.properties.setProperty("Ice.UDP.RcvSize", "16384");
-
-            communicator = Ice.Util.initialize(argHolder, initData);
-            status = run(argHolder.value, communicator);
-        }
-        catch(Exception ex)
-        {
-            ex.printStackTrace();
-            status = 1;
-        }
-
-        if(communicator != null)
-        {
-            try
-            {
-                communicator.destroy();
-            }
-            catch(Ice.LocalException ex)
-            {
-                ex.printStackTrace();
-                status = 1;
-            }
-        }
+        Server c = new Server();
+        int status = c.main("Server", args);
 
         System.gc();
         System.exit(status);

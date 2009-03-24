@@ -7,7 +7,7 @@
 //
 // **********************************************************************
 
-package Serialize;
+package test.Ice.seqMapping.Serialize;
 
 public class Struct implements java.io.Serializable // Used to test that null members marshal correctly.
 {

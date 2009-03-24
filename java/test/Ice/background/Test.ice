@@ -12,6 +12,7 @@
 
 #include <Ice/BuiltinSequences.ice>
 
+[["java:package:test.Ice.background"]]
 module Test
 {
 

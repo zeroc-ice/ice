@@ -7,7 +7,7 @@
 //
 // **********************************************************************
 
-package Complex;
+package test.Freeze.complex.Complex;
 
 public class AddNodeI extends AddNode
 {

@@ -7,69 +7,38 @@
 //
 // **********************************************************************
 
-public class Server
-{
-    public static int
-    run(String[] args, Ice.Communicator communicator, java.io.PrintStream out)
-    {
-        //
-        // When running as a MIDlet the properties for the server may be
-        // overridden by configuration. If it isn't then we assume
-        // defaults.
-        //
-        if(communicator.getProperties().getProperty("TestAdapter.Endpoints").length() == 0)
-        {
-            communicator.getProperties().setProperty("TestAdapter.Endpoints", "default -p 12010 -t 10000");
-        }
+package test.Ice.timeout;
 
+public class Server extends test.Util.Application
+{
+    public int run(String[] args)
+    {
+        Ice.Communicator communicator = communicator();
         Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
         adapter.add(new TimeoutI(), communicator.stringToIdentity("timeout"));
         adapter.activate();
-
-        communicator.waitForShutdown();
-        return 0;
+        return WAIT;
     }
 
-    public static void
-    main(String[] args)
+    protected Ice.InitializationData getInitData(Ice.StringSeqHolder argsH)
     {
-        int status = 0;
-        Ice.Communicator communicator = null;
+        Ice.InitializationData initData = new Ice.InitializationData();
+        initData.properties = Ice.Util.createProperties(argsH);
+        initData.properties.setProperty("Ice.Package.Test", "test.Ice.timeout");
+        initData.properties.setProperty("TestAdapter.Endpoints", "default -p 12010 -t 10000");
 
-        try
-        {
-            Ice.StringSeqHolder argsH = new Ice.StringSeqHolder(args);
-            Ice.InitializationData initData = new Ice.InitializationData();
-            initData.properties = Ice.Util.createProperties(argsH);
-        
-            //
-            // This test kills connections, so we don't want warnings.
-            //
-            initData.properties.setProperty("Ice.Warn.Connections", "0");
+        //
+        // This test kills connections, so we don't want warnings.
+        //
+        initData.properties.setProperty("Ice.Warn.Connections", "0");
+        return initData;
+    }
 
-            communicator = Ice.Util.initialize(argsH, initData);
-            status = run(argsH.value, communicator, System.out);
-        }
-        catch(Exception ex)
-        {
-            ex.printStackTrace();
-            status = 1;
-        }
-
-        if(communicator != null)
-        {
-            try
-            {
-                communicator.destroy();
-            }
-            catch(Ice.LocalException ex)
-            {
-                ex.printStackTrace();
-                status = 1;
-            }
-        }
-
+    public static void main(String[] args)
+    {
+        Server app = new Server();
+        int result = app.main("Server", args);
         System.gc();
-        System.exit(status);
+        System.exit(result);
     }
 }

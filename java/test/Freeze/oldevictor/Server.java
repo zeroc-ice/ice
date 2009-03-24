@@ -7,7 +7,10 @@
 //
 // **********************************************************************
 
-public class Server
+package test.Freeze.oldevictor;
+import test.Freeze.oldevictor.Test.*;
+
+public class Server extends test.Util.Application
 { 
     static class ServantFactory implements Ice.ObjectFactory
     {
@@ -15,7 +18,7 @@ public class Server
         create(String type)
         {
             assert(type.equals("::Test::Servant"));
-            Test._ServantTie tie = new Test._ServantTie();
+            _ServantTie tie = new _ServantTie();
             tie.ice_delegate(new ServantI(tie));
             return tie;
         }
@@ -32,7 +35,7 @@ public class Server
         create(String type)
         {
             assert(type.equals("::Test::Facet"));
-            Test._FacetTie tie = new Test._FacetTie();
+            _FacetTie tie = new _FacetTie();
             tie.ice_delegate(new FacetI(tie));
             return tie;
         }
@@ -43,13 +46,13 @@ public class Server
         }
     }
 
-    static int
-    run(String[] args, Ice.Communicator communicator, String envName)
+    public int
+    run(String[] args)
     {
-        communicator.getProperties().setProperty("Evictor.Endpoints", "default -p 12010");
+        Ice.Communicator communicator = communicator();
         Ice.ObjectAdapter adapter = communicator.createObjectAdapter("Evictor");
     
-        RemoteEvictorFactoryI factory = new RemoteEvictorFactoryI(adapter, envName);
+        RemoteEvictorFactoryI factory = new RemoteEvictorFactoryI(adapter, "db");
         adapter.add(factory, communicator.stringToIdentity("factory"));
     
         Ice.ObjectFactory servantFactory = new ServantFactory();
@@ -65,39 +68,19 @@ public class Server
         return 0;
     }
 
-    public static void
-    main(String[] args)
+    protected Ice.InitializationData getInitData(Ice.StringSeqHolder argsH)
     {
-        int status = 0;
-        Ice.Communicator communicator = null;
-        String envName = "db";
+        Ice.InitializationData initData = new Ice.InitializationData();
+        initData.properties = Ice.Util.createProperties(argsH);
+        initData.properties.setProperty("Evictor.Endpoints", "default -p 12010");
+        initData.properties.setProperty("Ice.Package.Test", "test.Freeze.oldevictor");
+        return initData;
+    }
 
-        try
-        {
-            Ice.StringSeqHolder holder = new Ice.StringSeqHolder();
-            holder.value = args;
-            communicator = Ice.Util.initialize(holder);
-            args = holder.value;
-            status = run(args, communicator, envName);
-        }
-        catch(Exception ex)
-        {
-            ex.printStackTrace();
-            status = 1;
-        }
-
-        if(communicator != null)
-        {
-            try
-            {
-                communicator.destroy();
-            }
-            catch(Ice.LocalException ex)
-            {
-                ex.printStackTrace();
-                status = 1;
-            }
-        }
+    public static void main(String[] args)
+    {
+        Server c = new Server();
+        int status = c.main("Server", args);
 
         System.gc();
         System.exit(status);

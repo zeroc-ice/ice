@@ -7,6 +7,10 @@
 //
 // **********************************************************************
 
+package test.Ice.interceptor;
+
+import test.Ice.interceptor.Test.RetryException;
+
 //
 // A dispatch interceptor with special handling for AMD requests
 //
@@ -38,7 +42,7 @@ class AMDInterceptorI extends InterceptorI implements Ice.DispatchInterceptorAsy
                         
                         public boolean exception(java.lang.Exception ex)
                         {
-                            test(ex instanceof Test.RetryException);
+                            test(ex instanceof RetryException);
                             return false;
                         }
                     };

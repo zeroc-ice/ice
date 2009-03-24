@@ -7,15 +7,20 @@
 //
 // **********************************************************************
 
-public final class CAI extends Test.MA.CA
+package test.Ice.inheritance;
+
+import test.Ice.inheritance.Test.MA.CA;
+import test.Ice.inheritance.Test.MA.CAPrx;
+
+public final class CAI extends CA
 {
     public
     CAI()
     {
     }
 
-    public Test.MA.CAPrx
-    caop(Test.MA.CAPrx p, Ice.Current current)
+    public CAPrx
+    caop(CAPrx p, Ice.Current current)
     {
         return p;
     }

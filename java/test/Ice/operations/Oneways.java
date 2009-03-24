@@ -7,6 +7,11 @@
 //
 // **********************************************************************
 
+package test.Ice.operations;
+
+import test.Ice.operations.Test.MyClassPrx;
+import test.Ice.operations.Test.MyClassPrxHelper;
+
 class Oneways
 {
     private static void
@@ -19,9 +24,10 @@ class Oneways
     }
 
     static void
-    oneways(Ice.Communicator communicator, Test.MyClassPrx p)
+    oneways(test.Util.Application app, MyClassPrx p)
     {
-        p = Test.MyClassPrxHelper.uncheckedCast(p.ice_oneway());
+        Ice.Communicator communicator = app.communicator();
+        p = MyClassPrxHelper.uncheckedCast(p.ice_oneway());
 
         {
             p.opVoid();

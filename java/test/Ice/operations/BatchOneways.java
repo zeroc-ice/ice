@@ -7,6 +7,13 @@
 //
 // **********************************************************************
 
+package test.Ice.operations;
+
+import java.io.PrintWriter;
+
+import test.Ice.operations.Test.MyClassPrx;
+import test.Ice.operations.Test.MyClassPrxHelper;
+
 class BatchOneways
 {
     private static void
@@ -19,7 +26,7 @@ class BatchOneways
     }
 
     static void
-    batchOneways(Test.MyClassPrx p)
+    batchOneways(MyClassPrx p, PrintWriter out)
     {
         final byte[] bs1 = new byte[10  * 1024];
         final byte[] bs2 = new byte[99  * 1024];
@@ -52,7 +59,7 @@ class BatchOneways
         {
         }
 
-        Test.MyClassPrx batch = Test.MyClassPrxHelper.uncheckedCast(p.ice_batchOneway());
+        MyClassPrx batch = MyClassPrxHelper.uncheckedCast(p.ice_batchOneway());
 
         for(int i = 0 ; i < 30 ; ++i)
         {

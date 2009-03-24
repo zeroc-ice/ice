@@ -12,6 +12,7 @@
 
 #include <Ice/Locator.ice>
 
+[["java:package:test.Ice.location"]]
 module Test
 {
 

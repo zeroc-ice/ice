@@ -7,7 +7,8 @@
 //
 // **********************************************************************
 
-import Test.*;
+package test.Ice.binding;
+import test.Ice.binding.Test._TestIntfDisp;
 
 public class TestI extends _TestIntfDisp
 {

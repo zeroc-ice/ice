@@ -7,7 +7,11 @@
 //
 // **********************************************************************
 
-public class Server
+package test.Ice.faultTolerance;
+
+import java.io.PrintWriter;
+
+public class Server extends test.Util.Application
 {
     private static void
     usage()
@@ -15,22 +19,24 @@ public class Server
         System.err.println("Usage: Server port");
     }
 
-    private static int
-    run(String[] args, Ice.Communicator communicator)
+    public int
+    run(String[] args)
     {
+    	Ice.Communicator communicator = communicator();
         int port = 0;
-        for(int i = 0; i < args.length; i++)
+        PrintWriter out = getWriter();
+		for(int i = 0; i < args.length; i++)
         {
             if(args[i].charAt(0) == '-')
             {
-                System.err.println("Server: unknown option `" + args[i] + "'");
+                out.println("Server: unknown option `" + args[i] + "'");
                 usage();
                 return 1;
             }
 
             if(port > 0)
             {
-                System.err.println("Server: only one port can be specified");
+                out.println("Server: only one port can be specified");
                 usage();
                 return 1;
             }
@@ -41,7 +47,7 @@ public class Server
             }
             catch(NumberFormatException ex)
             {
-                System.err.println("Server: invalid port");
+                out.println("Server: invalid port");
                 usage();
                 return 1;
             }
@@ -49,62 +55,35 @@ public class Server
 
         if(port <= 0)
         {
-            System.err.println("Server: no port specified");
+            out.println("Server: no port specified");
             usage();
             return 1;
         }
 
+        // Don't move this, it needs the port.
         communicator.getProperties().setProperty("TestAdapter.Endpoints", "default -p " + port + ":udp");
         Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
         Ice.Object object = new TestI(adapter, port);
         adapter.add(object, communicator.stringToIdentity("test"));
         adapter.activate();
-        communicator.waitForShutdown();
-        return 0;
+        return WAIT;
     }
 
-    public static void
-    main(String[] args)
+	protected Ice.InitializationData getInitData(Ice.StringSeqHolder argsH)
     {
-        int status = 0;
-        Ice.Communicator communicator = null;
+        Ice.InitializationData initData = new Ice.InitializationData();
+        initData.properties = Ice.Util.createProperties(argsH);
+        initData.properties.setProperty("Ice.Package.Test", "test.Ice.faultTolerance");
+        // Two minutes.
+        initData.properties.setProperty("Ice.ServerIdleTime", "120");
+        return initData;
+    }
 
-        try
-        {
-            //
-            // In this test, we need a longer server idle time,
-            // otherwise our test servers may time out before they are
-            // used in the test.
-            //
-            Ice.StringSeqHolder argsH = new Ice.StringSeqHolder(args);
-            Ice.InitializationData initData = new Ice.InitializationData();
-            initData.properties = Ice.Util.createProperties(argsH);
-
-            initData.properties.setProperty("Ice.ServerIdleTime", "120"); // Two minutes.
-
-            communicator = Ice.Util.initialize(argsH, initData);
-            status = run(argsH.value, communicator);
-        }
-        catch(Exception ex)
-        {
-            ex.printStackTrace();
-            status = 1;
-        }
-
-        if(communicator != null)
-        {
-            try
-            {
-                communicator.destroy();
-            }
-            catch(Ice.LocalException ex)
-            {
-                ex.printStackTrace();
-                status = 1;
-            }
-        }
-
+    public static void main(String[] args)
+    {
+        Server app = new Server();
+        int result = app.main("Server", args);
         System.gc();
-        System.exit(status);
+        System.exit(result);
     }
 }

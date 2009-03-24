@@ -20,22 +20,20 @@ if len(path) == 0:
 sys.path.append(os.path.join(path[0]))
 from scripts import *
 
-TestUtil.addClasspath(os.path.join(os.getcwd(), "classes"))
-
 num = 12
 base = 12340
 
 serverProc = []
 for i in range(0, num):
     print "starting server #%d..." % (i + 1),
-    serverProc.append(TestUtil.startServer("Server", " %d" % (base + i)))
+    serverProc.append(TestUtil.startServer("test.Ice.faultTolerance.Server", " %d" % (base + i)))
     print "ok"
 
 ports = ""
 for i in range(0, num):
     ports = "%s %d" % (ports, base + i)
 print "starting client...",
-clientProc = TestUtil.startClient("Client", ports, startReader = False)
+clientProc = TestUtil.startClient("test.Ice.faultTolerance.Client", ports, startReader=False)
 print "ok"
 clientProc.startReader()
 

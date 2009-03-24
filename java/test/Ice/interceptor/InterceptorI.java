@@ -7,6 +7,10 @@
 //
 // **********************************************************************
 
+package test.Ice.interceptor;
+
+import test.Ice.interceptor.Test.RetryException;
+
 class InterceptorI extends Ice.DispatchInterceptor
 {
     InterceptorI(Ice.Object servant)
@@ -39,7 +43,7 @@ class InterceptorI extends Ice.DispatchInterceptor
                     _servant.ice_dispatch(request, null);
                     test(false);
                 }
-                catch(Test.RetryException re)
+                catch(RetryException re)
                 {
                     //
                     // Expected, retry

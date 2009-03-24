@@ -10,6 +10,7 @@
 #ifndef TEST_ICE
 #define TEST_ICE
 
+[["java:package:test.Ice.stream"]]
 module Test
 {
 
@@ -22,7 +23,7 @@ enum MyEnum
 
 class MyClass;
 
-["java:serializable:Serialize.Small"] sequence<byte> SerialSmall;
+["java:serializable:test.Ice.stream.Serialize.Small"] sequence<byte> SerialSmall;
 
 struct SmallStruct
 {

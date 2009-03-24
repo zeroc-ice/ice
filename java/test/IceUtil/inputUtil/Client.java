@@ -7,6 +7,8 @@
 //
 // **********************************************************************
 
+package test.IceUtil.inputUtil;
+
 public class Client
 {
     private static void

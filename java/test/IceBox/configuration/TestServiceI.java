@@ -7,11 +7,15 @@
 //
 // **********************************************************************
 
+package test.IceBox.configuration;
+
 public class TestServiceI implements IceBox.Service
 {
     public void
     start(String name, Ice.Communicator communicator, String[] args)
     {
+        communicator.getProperties().setProperty("Ice.Package.Test", "test.IceBox.configuration");
+        
         Ice.ObjectAdapter adapter = communicator.createObjectAdapter(name + "OA");
         adapter.add(new TestI(args), communicator.stringToIdentity("test"));
         adapter.activate();

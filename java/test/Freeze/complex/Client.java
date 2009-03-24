@@ -7,6 +7,9 @@
 //
 // **********************************************************************
 
+package test.Freeze.complex;
+import test.Freeze.complex.Complex.*;
+
 import Freeze.*;
 
 public class Client
@@ -26,7 +29,7 @@ public class Client
     validate(String dbName)
         throws DatabaseException
     {
-        Complex.ComplexDict m = new Complex.ComplexDict(_connection, dbName, true);
+        ComplexDict m = new ComplexDict(_connection, dbName, true);
 
         try
         {
@@ -38,17 +41,17 @@ public class Client
             {
                 java.util.Map.Entry e = (java.util.Map.Entry)p.next();
 
-                Complex.Key key = (Complex.Key)e.getKey();
+                Key key = (Key)e.getKey();
 
                 //
                 // Verify the stored record is correct.
                 //
-                test(key.result == ((Complex.Node)e.getValue()).calc());
+                test(key.result == ((Node)e.getValue()).calc());
             
                 //
                 // Verify that the expression & result again.
                 //
-                Complex.Node root = parser.parse(key.expression);
+                Node root = parser.parse(key.expression);
                 test(root.calc(null) == key.result);
             }
             System.out.println("ok");
@@ -77,7 +80,7 @@ public class Client
             "10+(10+(20+(8*(2*(3*2+4+5+6)))))"
         };
         
-        Complex.ComplexDict m = new Complex.ComplexDict(_connection, dbName, true);
+        ComplexDict m = new ComplexDict(_connection, dbName, true);
 
         try
         {
@@ -86,9 +89,9 @@ public class Client
             System.out.print("populating the database... ");
             for(int i = 0 ; i < expressions.length; ++i)
             {
-                Complex.Node root = parser.parse(expressions[i]);
+                Node root = parser.parse(expressions[i]);
                 assert(root != null);
-                Complex.Key k = new Complex.Key();
+                Key k = new Key();
                 k.expression = expressions[i];
                 k.result = root.calc(null);
                 m.put(k, root);
@@ -120,7 +123,7 @@ public class Client
         //
         // Register a factory for the node types.
         //
-        Ice.ObjectFactory factory = new Complex.ObjectFactoryI();
+        Ice.ObjectFactory factory = new ObjectFactoryI();
         _communicator.addObjectFactory(factory, "::Complex::NumberNode");
         _communicator.addObjectFactory(factory, "::Complex::AddNode");
         _communicator.addObjectFactory(factory, "::Complex::MultiplyNode");

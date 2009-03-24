@@ -17,6 +17,8 @@
     <!-- import common definitions -->
     <import file="config/common.xml"/>
 
+    <property name="generated.test.dir" value="generated.test"/>
+    <property name="test.dir" value="test"/>
     <property name="src.dir" value="src"/>
     <property name="lib.dir" value="lib${build.suffix}"/>
     <property name="cache.dir" value="depcache${build.suffix}"/>
@@ -188,11 +190,334 @@
             <include name="**/*.class"/>
             <exclude name="Freeze/**"/>
             <exclude name="IceGridGUI/**"/>
+            <exclude name="test/**"/>
             <exclude name="ant/**"/>
             <exclude name="*.jar"/>
             <manifest>
                 <attribute name="Built-By" value="ZeroC, Inc."/>
                 <attribute name="Class-Path" value="Freeze.jar"/>
+            </manifest>
+        </jar>
+    </target>
+
+    <target name="test-generate" depends="tasks, task-init">
+        <mkdir dir="${generated.test.dir}"/>
+        <!-- Create the output directory for generated code -->
+        <slice2java outputdir="${generated.test.dir}" dependencyfile="${generated.test.dir}/.depend.Test">
+            <meta value="${java2metadata}"/>
+            <includepath>
+                <pathelement path="${slice.dir}" />
+            </includepath>
+            <fileset dir="test/Ice/udp">
+                <include name="Test.ice" />
+            </fileset>
+            <fileset dir="test/Ice/adapterDeactivation">
+                <include name="Test.ice" />
+            </fileset>
+            <fileset dir="test/Ice/background">
+                <include name="Test.ice" />
+            </fileset>
+            <fileset dir="test/Ice/binding">
+                <include name="Test.ice" />
+            </fileset>
+            <fileset dir="test/Ice/exceptions">
+                <include name="Test.ice" />
+                <include name="TestAMD.ice" />
+            </fileset>
+            <fileset dir="test/Ice/facets">
+                <include name="Test.ice" />
+            </fileset>
+            <fileset dir="test/Ice/faultTolerance">
+                <include name="Test.ice" />
+            </fileset>
+            <fileset dir="test/Ice/hold">
+                <include name="Test.ice" />
+            </fileset>
+            <fileset dir="test/Ice/inheritance">
+                <include name="Test.ice" />
+            </fileset>
+            <fileset dir="test/Ice/interceptor">
+                <include name="Test.ice" />
+            </fileset>
+            <fileset dir="test/Ice/location">
+                <include name="Test.ice" />
+            </fileset>
+            <fileset dir="test/Ice/operations">
+                <include name="Test.ice" />
+                <include name="TestAMD.ice" />
+            </fileset>
+            <fileset dir="test/Ice/proxy">
+                <include name="Test.ice" />
+                <include name="TestAMD.ice" />
+            </fileset>
+            <fileset dir="test/Ice/retry">
+                <include name="Test.ice" />
+            </fileset>
+            <fileset dir="test/Ice/seqMapping">
+                <include name="Test.ice" />
+                <include name="TestAMD.ice" />
+            </fileset>
+            <fileset dir="test/Ice/servantLocator">
+                <include name="Test.ice" />
+                <include name="TestAMD.ice" />
+            </fileset>
+            <fileset dir="test/Ice/serialize">
+                <include name="Test.ice" />
+            </fileset>
+            <fileset dir="test/Ice/slicing/exceptions">
+                <include name="Test.ice" />
+                <include name="ServerPrivate.ice" />
+                <include name="ServerPrivateAMD.ice" />
+            </fileset>
+            <fileset dir="test/Ice/slicing/objects">
+                <include name="ServerPrivate.ice" />
+                <include name="ServerPrivateAMD.ice" />
+                <include name="ClientPrivate.ice" />
+            </fileset>
+            <fileset dir="test/Ice/timeout">
+                <include name="Test.ice" />
+            </fileset>
+            <fileset dir="test/Freeze/complex">
+                <include name="Complex.ice" />
+            </fileset>
+	    <fileset dir="test/Glacier2/router/">
+                <include name="Callback.ice" />
+            </fileset>
+	    <fileset dir="test/IceGrid/simple/">
+                <include name="Test.ice" />
+            </fileset>
+	    <fileset dir="test/IceBox/configuration/">
+                <include name="Test.ice" />
+            </fileset>
+	    <fileset dir="test/IceSSL/configuration/">
+                <include name="Test.ice" />
+            </fileset>
+	    <fileset dir="test/Slice/keyword/">
+                <include name="Key.ice" />
+            </fileset>
+            <fileset dir="test/Ice/throughput">
+                <include name="Throughput.ice" />
+            </fileset>
+        </slice2java>
+
+        <slice2java tie="on" outputdir="${generated.test.dir}" dependencyfile="${generated.test.dir}/.depend.Test">
+            <includepath>
+                <pathelement path="${slice.dir}" />
+            </includepath>
+            <meta value="${java2metadata}"/>
+            <fileset dir="test/Freeze/evictor">
+                <include name="Test.ice" />
+            </fileset>
+            <fileset dir="test/Freeze/oldevictor">
+                <include name="Test.ice" />
+            </fileset>
+        </slice2java>
+
+        <!-- test/Freeze/complex -->
+        <slice2freezej outputdir="${generated.test.dir}" dependencyfile="${generated.test.dir}/.depend.Test">
+	    <meta value="${java2metadata}"/>
+            <dict name="test.Freeze.complex.Complex.ComplexDict" key="Complex::Key" value="Complex::Node"/>
+            <fileset dir="test/Freeze/complex">
+                <include name="Complex.ice" />
+            </fileset>
+        </slice2freezej>
+
+        <!-- test/Freeze/dbmap -->
+        <slice2freezej outputdir="${generated.test.dir}" dependencyfile="${generated.test.dir}/.depend.Test">
+	    <meta value="${java2metadata}"/>
+            <dict name="test.Freeze.dbmap.ByteIntMap" key="byte" value="int"/>
+            <dictindex name="test.Freeze.dbmap.ByteIntMap"/>
+        </slice2freezej>
+        <slice2freezej ice="on" outputdir="${generated.test.dir}">
+	    <meta value="${java2metadata}"/>
+            <includepath>
+                <pathelement path="${slice.dir}" />
+            </includepath>
+            <fileset dir="${slice.dir}/Ice" includes="Identity.ice"/>
+            <dict name="test.Freeze.dbmap.IntIdentityMap" key="int" value="Ice::Identity"/>
+        </slice2freezej>
+        <slice2freezej ice="on" outputdir="${generated.test.dir}">
+	    <meta value="${java2metadata}"/>
+           <includepath>
+                <pathelement path="${slice.dir}" />
+            </includepath>
+            <fileset dir="${slice.dir}/Ice" includes="Identity.ice"/>
+           <dict name="test.Freeze.dbmap.IntIdentityMapWithIndex" key="int" value="Ice::Identity"/>
+           <dictindex name="test.Freeze.dbmap.IntIdentityMapWithIndex" member="category"/>  
+        </slice2freezej>
+        <slice2freezej ice="on" outputdir="${generated.test.dir}">
+	    <meta value="${java2metadata}"/>
+           <includepath>
+                <pathelement path="${slice.dir}" />
+            </includepath>
+            <fileset dir="${slice.dir}/Ice" includes="Identity.ice"/>
+           <dict name="test.Freeze.dbmap.SortedMap" key="int" value="Ice::Identity"/>
+           <dictindex name="test.Freeze.dbmap.SortedMap" member="category"/>  
+        </slice2freezej>
+
+        <slice2java stream="on" outputdir="${generated.test.dir}" dependencyfile="${generated.test.dir}/.depend.Test">
+            <meta value="${java2metadata}"/>
+            <includepath>
+                <pathelement path="${slice.dir}" />
+            </includepath>
+            <fileset dir="test/Ice/objects">
+                <include name="Test.ice" />
+            </fileset>
+            <fileset dir="test/Ice/stream">
+                <include name="Test.ice" />
+            </fileset>
+        </slice2java>
+
+        <slice2java checksum="test.Ice.checksum.Test.SliceChecksums" outputdir="${generated.test.dir}" dependencyfile="${generated.test.dir}/.depend.Test">
+            <meta value="${java2metadata}"/>
+            <includepath>
+                <pathelement path="${slice.dir}" />
+            </includepath>
+            <fileset dir="test/Ice/checksum">
+                <include name="Test.ice" />
+                <include name="Types.ice" />
+            </fileset>
+        </slice2java>
+
+        <slice2java outputdir="${generated.test.dir}" dependencyfile="${generated.test.dir}/.depend.Test">
+            <meta value="${java2metadata}"/>
+            <includepath>
+                <pathelement path="${slice.dir}" />
+                <pathelement path="test/Ice/packagemd" />
+            </includepath>
+            <fileset dir="test/Ice/packagemd">
+                <include name="Test.ice" />
+                <include name="Package.ice" />
+                <include name="NoPackage.ice" />
+            </fileset>
+        </slice2java>
+
+        <slice2java checksum="test.Ice.checksum.server.Test.SliceChecksums" outputdir="${generated.test.dir}" dependencyfile="${generated.test.dir}/.depend.Test">
+            <meta value="${java2metadata}"/>
+            <includepath>
+                <pathelement path="${slice.dir}" />
+            </includepath>
+            <fileset dir="test/Ice/checksum">
+                <include name="TestServer.ice" />
+                <include name="TypesServer.ice" />
+            </fileset>
+        </slice2java>
+    </target>
+
+    <target name="custom-test-generate4" depends="test-generate" if="java2">
+        <!-- Create the output directory for generated code -->
+        <mkdir dir="${generated.test.dir}"/>
+        <slice2java outputdir="${generated.test.dir}" dependencyfile="${generated.test.dir}/.depend.Test">
+            <meta value="${java2metadata}"/>
+            <fileset dir="test/Ice/custom14">
+                <include name="Test.ice" />
+            </fileset>
+        </slice2java>
+    </target>
+
+    <target name="custom-test-generate5" depends="test-generate" unless="java2">
+        <!-- Create the output directory for generated code -->
+        <mkdir dir="${generated.test.dir}"/>
+        <slice2java outputdir="${generated.test.dir}" dependencyfile="${generated.test.dir}/.depend.Test">
+            <fileset dir="test/Ice/custom15">
+                <include name="Test.ice" />
+            </fileset>
+        </slice2java>
+    </target>
+
+    <target name="custom-test-generate" depends="custom-test-generate4,custom-test-generate5"/>
+
+    <target name="test-compile-generated" depends="ice-compile,test-generate,custom-test-generate">
+    </target>
+
+    <target name="test-compile-base" depends="test-compile-generated">
+        <mkdir dir="${lib.dir}"/>
+        <mkdir dir="${cache.dir}"/>
+        <depend srcdir="." destdir="${lib.dir}" cache="${cache.dir}"/>
+        <javac destdir="${lib.dir}"
+            source="1.5" debug="${debug}"
+	    deprecation="on">
+
+            <src path="."/>
+            <src path="${generated.test.dir}"/>
+
+	    <include name="test/Util/"/>
+	    <include name="test/Ice/adapterDeactivation/"/>
+	    <include name="test/Ice/background/"/>
+	    <include name="test/Ice/binding/"/>
+	    <include name="test/Ice/exceptions/"/>
+	    <include name="test/Ice/exceptionsAMD/"/>
+	    <include name="test/Ice/checksum/"/>
+	    <include name="test/Ice/facets/"/>
+	    <include name="test/Ice/faultTolerance/"/>
+	    <include name="test/Ice/hold/"/>
+	    <include name="test/Ice/inheritance/"/>
+	    <include name="test/Ice/interceptor/"/>
+	    <include name="test/Ice/location/"/>
+	    <include name="test/Ice/objects/"/>
+	    <include name="test/Ice/operations/"/>
+	    <include name="test/Ice/operationsAMD/"/>
+	    <include name="test/Ice/packagemd/"/>
+	    <include name="test/Ice/proxy/"/>
+	    <include name="test/Ice/proxyAMD/"/>
+	    <include name="test/Ice/retry/"/>
+	    <include name="test/Ice/serialize/"/>
+	    <include name="test/Ice/servantLocator/"/>
+	    <include name="test/Ice/servantLocatorAMD/"/>
+	    <include name="test/Ice/seqMapping/"/>
+	    <include name="test/Ice/seqMappingAMD/"/>
+	    <include name="test/Ice/slicing/exceptions/"/>
+	    <include name="test/Ice/slicing/objects/"/>
+	    <include name="test/Ice/stream/"/>
+	    <include name="test/Ice/timeout/"/>
+	    <include name="test/Ice/udp/"/>
+	    <include name="test/Freeze/complex/"/>
+	    <include name="test/Freeze/dbmap/"/>
+	    <include name="test/Freeze/evictor/"/>
+	    <include name="test/Freeze/oldevictor/"/>
+	    <include name="test/Glacier2/router/"/>
+	    <include name="test/IceGrid/simple/"/>
+	    <include name="test/IceBox/configuration/"/>
+	    <include name="test/IceSSL/configuration/"/>
+	    <include name="test/IceUtil/inputUtil/"/>
+	    <include name="test/Slice/keyword/"/>
+	    <include name="test/Ice/throughput/"/>
+            <compilerarg value="${javac.lint}"/>
+        </javac>
+    </target>
+
+    <target name="test-custom-compile4" depends="test-compile-generated" if="java2">
+        <mkdir dir="${lib.dir}"/>
+        <mkdir dir="${cache.dir}"/>
+        <depend srcdir="." destdir="${lib.dir}" cache="${cache.dir}"/>
+        <javac destdir="${lib.dir}" debug="${debug}">
+            <src path="."/>
+            <src path="${generated.test.dir}"/>
+	    <include name="test/Ice/custom14/"/>
+	</javac>
+    </target>
+
+    <target name="test-custom-compile5" depends="test-compile-generated" unless="java2">
+        <mkdir dir="${lib.dir}"/>
+        <mkdir dir="${cache.dir}"/>
+        <depend srcdir="." destdir="${lib.dir}" cache="${cache.dir}"/>
+        <javac destdir="${lib.dir}" debug="${debug}" source="1.5">
+            <src path="."/>
+            <src path="${generated.test.dir}"/>
+	    <include name="test/Ice/custom15/"/>
+            <compilerarg value="${javac.lint}"/>
+	</javac>
+    </target>
+
+    <target name="test-compile" depends="test-compile-base,test-custom-compile4,test-custom-compile5"/>
+
+    <target name="test-jar" depends="test-compile">
+        <jar jarfile="${lib.dir}/IceTest.jar" basedir="${lib.dir}">
+            <include name="test/**"/>
+            <exclude name="test/Freeze/**"/>
+            <manifest>
+                <attribute name="Built-By" value="ZeroC, Inc."/>
+                <attribute name="Class-Path" value="Ice.jar"/>
             </manifest>
         </jar>
     </target>
@@ -296,7 +621,9 @@
     <target name="compile" depends="ice-compile, icegridadmin-compile">
     </target>
 
-    <target name="jar" depends="ice-jar, freeze-jar, icegridadmin-plain-jar, icegridadmin-pro-jar"/>
+    <target name="jar" depends="ice-jar, test-jar, freeze-jar, icegridadmin-plain-jar, icegridadmin-pro-jar"/>
+
+    <target name="test" depends="test-compile, ice-compile"/>
 
     <target name="all" depends="jar">
         <ant inheritAll="false" dir="demo"/>
@@ -349,6 +676,7 @@
 
     <target name="clean" depends="config-init">
         <delete dir="${generated.dir}"/>
+        <delete dir="${generated.test.dir}"/>
         <delete deleteonexit="true" dir="${lib.dir}"/>
         <delete dir="${cache.dir}"/>
         <ant inheritAll="false" dir="demo" target="clean"/>

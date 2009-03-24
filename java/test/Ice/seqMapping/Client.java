@@ -7,50 +7,39 @@
 //
 // **********************************************************************
 
-public class Client
-{
-    private static int
-    run(String[] args, Ice.Communicator communicator)
-    {
-        Test.MyClassPrx myClass = AllTests.allTests(communicator, false);
+package test.Ice.seqMapping;
 
-        System.out.print("shutting down server... ");
-        System.out.flush();
+import test.Ice.seqMapping.Test.*;
+
+public class Client extends test.Util.Application
+{
+    public int
+    run(String[] args)
+    {
+        java.io.PrintWriter out = getWriter();
+
+        MyClassPrx myClass = AllTests.allTests(communicator(), false, out);
+
+        out.print("shutting down server... ");
+        out.flush();
         myClass.shutdown();
-        System.out.println("ok");
+        out.println("ok");
 
         return 0;
     }
 
-    public static void
-    main(String[] args)
+    protected Ice.InitializationData getInitData(Ice.StringSeqHolder argsH)
     {
-        int status = 0;
-        Ice.Communicator communicator = null;
+        Ice.InitializationData initData = new Ice.InitializationData();
+        initData.properties = Ice.Util.createProperties(argsH);
+        initData.properties.setProperty("Ice.Package.Test", "test.Ice.seqMapping");
+        return initData;
+    }
 
-        try
-        {
-            communicator = Ice.Util.initialize(args);
-            status = run(args, communicator);
-        }
-        catch(Exception ex)
-        {
-            ex.printStackTrace();
-            status = 1;
-        }
-
-        if(communicator != null)
-        {
-            try
-            {
-                communicator.destroy();
-            }
-            catch(Ice.LocalException ex)
-            {
-                ex.printStackTrace();
-                status = 1;
-            }
-        }
+    public static void main(String[] args)
+    {
+        Client c = new Client();
+        int status = c.main("Client", args);
 
         System.gc();
         System.exit(status);

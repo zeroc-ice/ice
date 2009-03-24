@@ -10,6 +10,7 @@
 #ifndef TEST_ICE
 #define TEST_ICE
 
+[["java:package:test.Freeze.oldevictor"]]
 module Test
 {
 

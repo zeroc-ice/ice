@@ -6,6 +6,7 @@
 // ICE_LICENSE file included in this distribution.
 //
 // **********************************************************************
+package test.Ice.background;
 
 public final class Configuration
 {
@@ -141,12 +142,6 @@ public final class Configuration
         }
     }
 
-    static public synchronized Configuration
-    getInstance()
-    {
-        return _instance;
-    }
-
     private Ice.LocalException _connectorsException;
     private Ice.LocalException _connectException;
     private IceInternal.SocketStatus _initializeSocketStatus;
@@ -156,6 +151,4 @@ public final class Configuration
     private Ice.LocalException _readException;
     private int _writeReadyCount;
     private Ice.LocalException _writeException;
-
-    private final static Configuration _instance = new Configuration();
 }

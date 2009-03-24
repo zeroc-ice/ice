@@ -7,7 +7,10 @@
 //
 // **********************************************************************
 
-public class AccountI extends Test.Account
+package test.Freeze.evictor;
+import test.Freeze.evictor.Test.*;
+
+public class AccountI extends Account
 {
     public int
     getBalance(Ice.Current current)
@@ -16,7 +19,7 @@ public class AccountI extends Test.Account
     }
 
     public void
-    deposit(int amount, Ice.Current current) throws Test.InsufficientFundsException
+    deposit(int amount, Ice.Current current) throws InsufficientFundsException
     {
         //
         // No need to synchronize since everything occurs within its own transaction
@@ -24,13 +27,13 @@ public class AccountI extends Test.Account
         int newBalance = balance + amount;
         if(newBalance < 0)
         {
-            throw new Test.InsufficientFundsException();
+            throw new InsufficientFundsException();
         }
         balance = newBalance;
     }
 
     public void
-    transfer(int amount, Test.AccountPrx toAccount, Ice.Current current) throws Test.InsufficientFundsException
+    transfer(int amount, AccountPrx toAccount, Ice.Current current) throws InsufficientFundsException
     {
         test(_evictor.getCurrentTransaction() != null);
 
@@ -39,7 +42,7 @@ public class AccountI extends Test.Account
     }
 
     public void
-    transfer2_async(Test.AMD_Account_transfer2 cb, int amount, Test.AccountPrx toAccount, Ice.Current current)
+    transfer2_async(AMD_Account_transfer2 cb, int amount, AccountPrx toAccount, Ice.Current current)
     {
         //
         // Here the dispatch thread does everything
@@ -51,7 +54,7 @@ public class AccountI extends Test.Account
             toAccount.deposit(amount); // collocated call
             deposit(-amount, current); // direct call
         }
-        catch(Test.InsufficientFundsException ex)
+        catch(InsufficientFundsException ex)
         {
             cb.ice_exception(ex);
             return;
@@ -61,7 +64,7 @@ public class AccountI extends Test.Account
     }
 
     public void
-    transfer3_async(final Test.AMD_Account_transfer3 cb, int amount, Test.AccountPrx toAccount, Ice.Current current)
+    transfer3_async(final AMD_Account_transfer3 cb, int amount, AccountPrx toAccount, Ice.Current current)
     {
         //
         // Here the dispatch thread does the actual work, but a separate thread sends the response

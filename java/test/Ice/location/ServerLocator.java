@@ -7,7 +7,11 @@
 //
 // **********************************************************************
 
-public class ServerLocator extends Test._TestLocatorDisp
+package test.Ice.location;
+
+import test.Ice.location.Test._TestLocatorDisp;
+
+public class ServerLocator extends _TestLocatorDisp
 {
     public
     ServerLocator(ServerLocatorRegistry registry, Ice.LocatorRegistryPrx registryPrx)

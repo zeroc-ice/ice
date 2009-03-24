@@ -7,7 +7,9 @@
 //
 // **********************************************************************
 
-import Test.*;
+package test.Ice.adapterDeactivation;
+
+import test.Ice.adapterDeactivation.Test.Cookie;
 
 public final class CookieI extends Cookie
 {

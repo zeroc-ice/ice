@@ -7,9 +7,31 @@
 //
 // **********************************************************************
 
+package test.Slice.keyword;
+import test.Slice.keyword._abstract.AMD_catch_checkedCast;
+import test.Slice.keyword._abstract._assert;
+import test.Slice.keyword._abstract._break;
+import test.Slice.keyword._abstract._catch;
+import test.Slice.keyword._abstract._catchDisp;
+import test.Slice.keyword._abstract._default;
+import test.Slice.keyword._abstract._defaultDisp;
+import test.Slice.keyword._abstract._else;
+import test.Slice.keyword._abstract._finalize;
+import test.Slice.keyword._abstract._hashCode;
+import test.Slice.keyword._abstract._import;
+import test.Slice.keyword._abstract._new;
+import test.Slice.keyword._abstract._switch;
+import test.Slice.keyword._abstract.catchPrx;
+import test.Slice.keyword._abstract.defaultPrx;
+import test.Slice.keyword._abstract.defaultPrxHelper;
+import test.Slice.keyword._abstract.elsePrx;
+import test.Slice.keyword._abstract.finalizePrx;
+import test.Slice.keyword._abstract.forHolder;
+import test.Slice.keyword._abstract.gotoHolder;
+
 public class Client
 {
-    static public class catchI extends _abstract._catchDisp
+    static public class catchI extends _catchDisp
     {
         public
         catchI()
@@ -17,14 +39,14 @@ public class Client
         }
         
         public void
-        checkedCast_async(_abstract.AMD_catch_checkedCast __cb, int _clone, Ice.Current __current)
+        checkedCast_async(AMD_catch_checkedCast __cb, int _clone, Ice.Current __current)
         {
             int _continue = 0;
             __cb.ice_response(_continue);
         }
     }
 
-    static public class defaultI extends _abstract._defaultDisp
+    static public class defaultI extends _defaultDisp
     {
         public
         defaultI()
@@ -38,7 +60,7 @@ public class Client
         }
     }
 
-    static public class elseI extends _abstract._else
+    static public class elseI extends _else
     {
         public
         elseI()
@@ -46,29 +68,29 @@ public class Client
         }
 
         public void
-        foo(_abstract.defaultPrx _equals, Ice.IntHolder _final, Ice.Current __current)
+        foo(defaultPrx _equals, Ice.IntHolder _final, Ice.Current __current)
         {
         }
     }
 
-    static public class newI implements _abstract._new
+    static public class newI implements _new
     {
         public
         newI()
         {
         }
 
-        public _abstract._assert
-        _notify(_abstract._break _notifyAll, _abstract._else _null, _abstract._finalize _package,
-                _abstract.elsePrx _private, _abstract.finalizePrx _protected,
-                _abstract.catchPrx _public, _abstract.defaultPrx _return, int _static, int _strictfp, int _super)
-            throws _abstract._hashCode, _abstract._import
+        public _assert
+        _notify(_break _notifyAll, _else _null, _finalize _package,
+                elsePrx _private, finalizePrx _protected,
+                catchPrx _public, defaultPrx _return, int _static, int _strictfp, int _super)
+            throws _hashCode, _import
         {
             return null;
         }
     }
 
-    static public class finalizeI extends _abstract._finalize
+    static public class finalizeI extends _finalize
     {
         public
         finalizeI()
@@ -76,7 +98,7 @@ public class Client
         }
 
         public void
-        checkedCast_async(_abstract.AMD_catch_checkedCast __cb, int _clone, Ice.Current __current)
+        checkedCast_async(AMD_catch_checkedCast __cb, int _clone, Ice.Current __current)
         {
             int _continue = 0;
             __cb.ice_response(_continue);
@@ -88,7 +110,7 @@ public class Client
         }
 
         public void
-        foo(_abstract.defaultPrx _equals, Ice.IntHolder _final, Ice.Current __current)
+        foo(defaultPrx _equals, Ice.IntHolder _final, Ice.Current __current)
         {
         }
     }
@@ -100,44 +122,43 @@ public class Client
     private static void
     testtypes()
     {
-        _abstract._assert v = _abstract._assert._boolean;
-        _abstract._break b = new _abstract._break();
+        _assert v = _assert._boolean;
+        _break b = new _break();
         b._case = 0;
-        _abstract.catchPrx c = null;
+        catchPrx c = null;
         c._checkedCast(0, new Ice.IntHolder());
-        _abstract._catch c1 = new catchI();
-        _abstract.defaultPrx d = null;
+        _catch c1 = new catchI();
+        defaultPrx d = null;
         d._do();
-        _abstract._default d1 = new defaultI();
-        _abstract.elsePrx e;
-        _abstract._else e1 = new elseI();
-        _abstract.finalizePrx f = null;
+        _default d1 = new defaultI();
+        elsePrx e;
+        _else e1 = new elseI();
+        finalizePrx f = null;
         f._checkedCast(0, new Ice.IntHolder());
         f._do();
-        _abstract._finalize f1 = new finalizeI();
-        _abstract.forHolder g;
-        _abstract.gotoHolder h;
-        _abstract._hashCode i = new _abstract._hashCode();
+        _finalize f1 = new finalizeI();
+        forHolder g;
+        gotoHolder h;
+        _hashCode i = new _hashCode();
         i._if = 0;
-        _abstract._import j = new _abstract._import();
+        _import j = new _import();
         j._if = 0;
         j._instanceof = 1;
         j._native = 2;
-        _abstract._new k = new newI();
-        assert _abstract._switch.value == 0;
+        _new k = new newI();
+        assert _switch.value == 0;
     }
 
     private static int
     run(String[] args, Ice.Communicator communicator)
     {
-        communicator.getProperties().setProperty("TestAdapter.Endpoints", "default -p 12010:udp");
         Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
         adapter.add(new defaultI(), communicator.stringToIdentity("test"));
         adapter.activate();
 
         System.out.print("Testing operation name... ");
         System.out.flush();
-        _abstract.defaultPrx p = _abstract.defaultPrxHelper.uncheckedCast(
+        defaultPrx p = defaultPrxHelper.uncheckedCast(
             adapter.createProxy(communicator.stringToIdentity("test")));
         p._do();
         System.out.println("ok");
@@ -160,8 +181,10 @@ public class Client
             Ice.StringSeqHolder argsH = new Ice.StringSeqHolder(args);
             Ice.InitializationData initData = new Ice.InitializationData();
             initData.properties = Ice.Util.createProperties(argsH);
+            initData.properties.setProperty("Ice.Package._abstract", "test.Slice.keyword");
             initData.properties.setProperty("Ice.ThreadPool.Client.Size", "2");
             initData.properties.setProperty("Ice.ThreadPool.Client.SizeWarn", "0");
+            initData.properties.setProperty("TestAdapter.Endpoints", "default -p 12010:udp");
 
             //
             // We must set MessageSizeMax to an explicit values,

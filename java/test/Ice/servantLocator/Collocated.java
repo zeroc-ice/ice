@@ -7,32 +7,38 @@
 //
 // **********************************************************************
 
-public class Collocated
+package test.Ice.servantLocator;
+
+public class Collocated extends test.Util.Application
 {
-    static class TestServer extends Ice.Application
+    public int run(String[] args)
     {
-        public int
-        run(String[] args)
-        {
-            communicator().getProperties().setProperty("TestAdapter.Endpoints", "default -p 12010 -t 10000");
-            communicator().getProperties().setProperty("Ice.Warn.Dispatch", "0");
+        Ice.ObjectAdapter adapter = communicator().createObjectAdapter("TestAdapter");
+        adapter.addServantLocator(new ServantLocatorI("category"), "category");
+        adapter.addServantLocator(new ServantLocatorI(""), "");
+        adapter.add(new TestI(), communicator().stringToIdentity("asm"));
 
-            Ice.ObjectAdapter adapter = communicator().createObjectAdapter("TestAdapter");
-            adapter.addServantLocator(new ServantLocatorI("category"), "category");
-            adapter.addServantLocator(new ServantLocatorI(""), "");
-            adapter.add(new TestI(), communicator().stringToIdentity("asm"));
+        AllTests.allTests(communicator(), true, getWriter());
 
-            AllTests.allTests(communicator(), true);
-
-            return 0;
-        }
+        return 0;
     }
 
-    public static void
-    main(String[] args)
+    protected Ice.InitializationData getInitData(Ice.StringSeqHolder argsH)
     {
-        TestServer app = new TestServer();
+        Ice.InitializationData initData = new Ice.InitializationData();
+        initData.properties = Ice.Util.createProperties(argsH);
+        initData.properties.setProperty("Ice.Package.Test", "test.Ice.servantLocator");
+        initData.properties.setProperty("TestAdapter.Endpoints", "default -p 12010 -t 10000");
+        initData.properties.setProperty("Ice.Warn.Dispatch", "0");
+
+        return initData;
+    }
+
+    public static void main(String[] args)
+    {
+        Collocated app = new Collocated();
         int result = app.main("Collocated", args);
+        System.gc();
         System.exit(result);
     }
 }

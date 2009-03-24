@@ -21,10 +21,7 @@ sys.path.append(os.path.join(path[0]))
 from scripts import *
 
 print "tests with regular server."
-import copy
-serverenv = copy.deepcopy(os.environ)
-TestUtil.addClasspath(os.path.join(os.getcwd(), "sclasses"), serverenv)
-TestUtil.clientServerTest(serverenv = serverenv)
+TestUtil.clientServerTest()
 
 print "tests with AMD server."
 import copy

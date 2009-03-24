@@ -7,8 +7,16 @@
 //
 // **********************************************************************
 
-import Test.*;
-import Ice.*;
+package test.Ice.servantLocator;
+
+import test.Ice.servantLocator.Test.Cookie;
+import test.Ice.servantLocator.Test.TestImpossibleException;
+import test.Ice.servantLocator.Test.TestIntfUserException;
+import Ice.ObjectNotExistException;
+import Ice.SocketException;
+import Ice.UnknownException;
+import Ice.UnknownLocalException;
+import Ice.UnknownUserException;
 
 public final class ServantLocatorI implements Ice.ServantLocator
 {
@@ -97,7 +105,7 @@ public final class ServantLocatorI implements Ice.ServantLocator
     {
         if(current.operation.equals("ice_ids"))
         {
-            throw new Test.TestIntfUserException();
+            throw new TestIntfUserException();
         }
         else if(current.operation.equals("requestFailedException"))
         {

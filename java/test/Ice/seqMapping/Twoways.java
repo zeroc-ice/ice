@@ -7,6 +7,11 @@
 //
 // **********************************************************************
 
+package test.Ice.seqMapping;
+
+import test.Ice.seqMapping.Test.*;
+import test.Ice.seqMapping.Serialize.*;
+
 class Twoways
 {
     private static void
@@ -19,12 +24,12 @@ class Twoways
     }
 
     static void
-    twoways(Ice.Communicator communicator, Test.MyClassPrx p)
+    twoways(MyClassPrx p)
     {
         {
-            Serialize.Small i = null;
-            Ice.Holder<Serialize.Small> o = new Ice.Holder<Serialize.Small>();
-            Serialize.Small r;
+            Small i = null;
+            Ice.Holder<Small> o = new Ice.Holder<Small>();
+            Small r;
 
             r = p.opSerialSmallJava(i, o);
 
@@ -33,10 +38,10 @@ class Twoways
         }
 
         {
-            Serialize.Small i = new Serialize.Small();
+            Small i = new Small();
             i.i = 99;
-            Ice.Holder<Serialize.Small> o = new Ice.Holder<Serialize.Small>();
-            Serialize.Small r;
+            Ice.Holder<Small> o = new Ice.Holder<Small>();
+            Small r;
 
             try
             {
@@ -52,7 +57,7 @@ class Twoways
         }
 
         {
-            Serialize.Large i = new Serialize.Large();
+            Large i = new Large();
             i.d1 = 1.0;
             i.d2 = 2.0;
             i.d3 = 3.0;
@@ -63,8 +68,8 @@ class Twoways
             i.d8 = 8.0;
             i.d9 = 9.0;
             i.d10 = 10.0;
-            Ice.Holder<Serialize.Large> o = new Ice.Holder<Serialize.Large>();
-            Serialize.Large r;
+            Ice.Holder<Large> o = new Ice.Holder<Large>();
+            Large r;
 
             try
             {
@@ -98,13 +103,13 @@ class Twoways
         }
 
         {
-            Serialize.Struct i = new Serialize.Struct();
+            Struct i = new Struct();
             i.o = null;
             i.o2 = i;
             i.s = null;
             i.s2 = "Hello";
-            Ice.Holder<Serialize.Struct> o = new Ice.Holder<Serialize.Struct>();
-            Serialize.Struct r;
+            Ice.Holder<Struct> o = new Ice.Holder<Struct>();
+            Struct r;
 
             try
             {
@@ -112,14 +117,14 @@ class Twoways
 
                 test(o.value.o == null);
                 test(o.value.o2 != null);
-                test(((Serialize.Struct)(o.value.o2)).o == null);
-                test(((Serialize.Struct)(o.value.o2)).o2 == o.value.o2);
+                test(((Struct)(o.value.o2)).o == null);
+                test(((Struct)(o.value.o2)).o2 == o.value.o2);
                 test(o.value.s == null);
                 test(o.value.s2.equals("Hello"));
                 test(r.o == null);
                 test(r.o2 != null);
-                test(((Serialize.Struct)(r.o2)).o == null);
-                test(((Serialize.Struct)(r.o2)).o2 == r.o2);
+                test(((Struct)(r.o2)).o == null);
+                test(((Struct)(r.o2)).o2 == r.o2);
                 test(r.s == null);
                 test(r.s2.equals("Hello"));
             }

@@ -7,7 +7,10 @@
 //
 // **********************************************************************
 
-public final class MyDerivedClassI extends Test.MyDerivedClass
+package test.Ice.proxy;
+import test.Ice.proxy.Test.MyDerivedClass;
+
+public final class MyDerivedClassI extends MyDerivedClass
 {
     public
     MyDerivedClassI()

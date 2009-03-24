@@ -6,8 +6,10 @@
 // ICE_LICENSE file included in this distribution.
 //
 // **********************************************************************
-
-import Test.*;
+package test.Ice.binding;
+import test.Ice.binding.Test.RemoteObjectAdapterPrx;
+import test.Ice.binding.Test.RemoteObjectAdapterPrxHelper;
+import test.Ice.binding.Test._RemoteCommunicatorDisp;
 
 public class RemoteCommunicatorI extends _RemoteCommunicatorDisp
 {

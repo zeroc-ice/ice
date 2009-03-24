@@ -7,15 +7,20 @@
 //
 // **********************************************************************
 
-public final class IAI extends Test.MA._IADisp
+package test.Ice.inheritance;
+
+import test.Ice.inheritance.Test.MA.IAPrx;
+import test.Ice.inheritance.Test.MA._IADisp;
+
+public final class IAI extends _IADisp
 {
     public
     IAI()
     {
     }
 
-    public Test.MA.IAPrx
-    iaop(Test.MA.IAPrx p, Ice.Current current)
+    public IAPrx
+    iaop(IAPrx p, Ice.Current current)
     {
         return p;
     }

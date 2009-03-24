@@ -6,69 +6,61 @@
 // ICE_LICENSE file included in this distribution.
 //
 // **********************************************************************
+package test.Ice.background;
 
-public class Client
+import test.Ice.background.PluginFactory.PluginI;
+import test.Ice.background.Test.BackgroundPrx;
+
+public class Client extends test.Util.Application
 {
-    public static int
-    run(String[] args, Ice.Communicator communicator, java.io.PrintStream out)
+    public int
+    run(String[] args)
     {
-        Test.BackgroundPrx background = AllTests.allTests(communicator, out);
+        Configuration configuration = new Configuration();
+        PluginI plugin = (PluginI)communicator().getPluginManager().getPlugin("Test");
+        plugin.setConfiguration(configuration);
+        communicator().getPluginManager().initializePlugins();
+
+        BackgroundPrx background = AllTests.allTests(configuration, communicator(), getWriter());
         background.shutdown();
         return 0;
+    }
+    
+    protected Ice.InitializationData getInitData(Ice.StringSeqHolder argsH)
+    {
+        Ice.InitializationData initData = new Ice.InitializationData();
+        initData.properties = Ice.Util.createProperties(argsH);
+
+        // For this test, we want to disable retries.
+        //
+        initData.properties.setProperty("Ice.RetryIntervals", "-1");
+
+        //
+        // This test kills connections, so we don't want warnings.
+        //
+        initData.properties.setProperty("Ice.Warn.Connections", "0");
+
+        //
+        // Setup the test transport plug-in.
+        //
+        initData.properties.setProperty("Ice.Plugin.Test", "test.Ice.background.PluginFactory");
+        String defaultProtocol = initData.properties.getPropertyWithDefault("Ice.Default.Protocol", "tcp");
+        initData.properties.setProperty("Ice.Default.Protocol", "test-" + defaultProtocol);
+        
+        initData.properties.setProperty("Ice.Package.Test", "test.Ice.background");
+        
+        // Don't initialize the plugin until I've set the configuration.
+        initData.properties.setProperty("Ice.InitPlugins", "0");
+
+        return initData;
     }
 
     public static void
     main(String[] args)
     {
-        int status = 0;
-        Ice.Communicator communicator = null;
-
-        try
-        {
-            Ice.StringSeqHolder argsH = new Ice.StringSeqHolder(args);
-            Ice.InitializationData initData = new Ice.InitializationData();
-            initData.properties = Ice.Util.createProperties(argsH);
-
-            //
-            // For this test, we want to disable retries.
-            //
-            initData.properties.setProperty("Ice.RetryIntervals", "-1");
-
-            //
-            // This test kills connections, so we don't want warnings.
-            //
-            initData.properties.setProperty("Ice.Warn.Connections", "0");
-
-            //
-            // Setup the test transport plug-in.
-            //
-            initData.properties.setProperty("Ice.Plugin.Test", "PluginFactory");
-            String defaultProtocol = initData.properties.getPropertyWithDefault("Ice.Default.Protocol", "tcp");
-            initData.properties.setProperty("Ice.Default.Protocol", "test-" + defaultProtocol);
-
-            communicator = Ice.Util.initialize(argsH, initData);
-            status = run(argsH.value, communicator, System.out);
-        }
-        catch(Exception ex)
-        {
-            ex.printStackTrace();
-            status = 1;
-        }
-
-        if(communicator != null)
-        {
-            try
-            {
-                communicator.destroy();
-            }
-            catch(Ice.LocalException ex)
-            {
-                ex.printStackTrace();
-                status = 1;
-            }
-        }
-
+    	Client app = new Client();
+        int result = app.main("Client", args);
         System.gc();
-        System.exit(status);
+        System.exit(result);
     }
 }
