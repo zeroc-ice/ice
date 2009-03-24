@@ -604,6 +604,7 @@
 
         <proguard>
              -injars ${lib.dir}/IceGridGUItemp.jar
+             -injars ${lib.dir}/Ice.jar(!META-INF/**)
              -injars ${jgoodies.looks}(!META-INF/**)
              -injars ${jgoodies.forms}(!META-INF/**)
              -outjars ${lib.dir}/IceGridGUI.jar
