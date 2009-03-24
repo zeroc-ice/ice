@@ -9,9 +9,9 @@
 
 package test.Ice.servantLocator;
 
-import test.Ice.servantLocatorAMD.Test.Cookie;
-import test.Ice.servantLocatorAMD.Test.TestImpossibleException;
-import test.Ice.servantLocatorAMD.Test.TestIntfUserException;
+import test.Ice.servantLocator.AMD.Test.Cookie;
+import test.Ice.servantLocator.AMD.Test.TestImpossibleException;
+import test.Ice.servantLocator.AMD.Test.TestIntfUserException;
 import Ice.ObjectNotExistException;
 import Ice.SocketException;
 import Ice.UnknownException;

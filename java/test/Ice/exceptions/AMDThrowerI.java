@@ -9,27 +9,27 @@
 
 package test.Ice.exceptions;
 
-import test.Ice.exceptionsAMD.Test.A;
-import test.Ice.exceptionsAMD.Test.AMD_Thrower_shutdown;
-import test.Ice.exceptionsAMD.Test.AMD_Thrower_supportsAssertException;
-import test.Ice.exceptionsAMD.Test.AMD_Thrower_supportsUndeclaredExceptions;
-import test.Ice.exceptionsAMD.Test.AMD_Thrower_throwAasA;
-import test.Ice.exceptionsAMD.Test.AMD_Thrower_throwAorDasAorD;
-import test.Ice.exceptionsAMD.Test.AMD_Thrower_throwAssertException;
-import test.Ice.exceptionsAMD.Test.AMD_Thrower_throwBasA;
-import test.Ice.exceptionsAMD.Test.AMD_Thrower_throwBasB;
-import test.Ice.exceptionsAMD.Test.AMD_Thrower_throwCasA;
-import test.Ice.exceptionsAMD.Test.AMD_Thrower_throwCasB;
-import test.Ice.exceptionsAMD.Test.AMD_Thrower_throwCasC;
-import test.Ice.exceptionsAMD.Test.AMD_Thrower_throwLocalException;
-import test.Ice.exceptionsAMD.Test.AMD_Thrower_throwNonIceException;
-import test.Ice.exceptionsAMD.Test.AMD_Thrower_throwUndeclaredA;
-import test.Ice.exceptionsAMD.Test.AMD_Thrower_throwUndeclaredB;
-import test.Ice.exceptionsAMD.Test.AMD_Thrower_throwUndeclaredC;
-import test.Ice.exceptionsAMD.Test.B;
-import test.Ice.exceptionsAMD.Test.C;
-import test.Ice.exceptionsAMD.Test.D;
-import test.Ice.exceptionsAMD.Test._ThrowerDisp;
+import test.Ice.exceptions.AMD.Test.A;
+import test.Ice.exceptions.AMD.Test.AMD_Thrower_shutdown;
+import test.Ice.exceptions.AMD.Test.AMD_Thrower_supportsAssertException;
+import test.Ice.exceptions.AMD.Test.AMD_Thrower_supportsUndeclaredExceptions;
+import test.Ice.exceptions.AMD.Test.AMD_Thrower_throwAasA;
+import test.Ice.exceptions.AMD.Test.AMD_Thrower_throwAorDasAorD;
+import test.Ice.exceptions.AMD.Test.AMD_Thrower_throwAssertException;
+import test.Ice.exceptions.AMD.Test.AMD_Thrower_throwBasA;
+import test.Ice.exceptions.AMD.Test.AMD_Thrower_throwBasB;
+import test.Ice.exceptions.AMD.Test.AMD_Thrower_throwCasA;
+import test.Ice.exceptions.AMD.Test.AMD_Thrower_throwCasB;
+import test.Ice.exceptions.AMD.Test.AMD_Thrower_throwCasC;
+import test.Ice.exceptions.AMD.Test.AMD_Thrower_throwLocalException;
+import test.Ice.exceptions.AMD.Test.AMD_Thrower_throwNonIceException;
+import test.Ice.exceptions.AMD.Test.AMD_Thrower_throwUndeclaredA;
+import test.Ice.exceptions.AMD.Test.AMD_Thrower_throwUndeclaredB;
+import test.Ice.exceptions.AMD.Test.AMD_Thrower_throwUndeclaredC;
+import test.Ice.exceptions.AMD.Test.B;
+import test.Ice.exceptions.AMD.Test.C;
+import test.Ice.exceptions.AMD.Test.D;
+import test.Ice.exceptions.AMD.Test._ThrowerDisp;
 
 public final class AMDThrowerI extends _ThrowerDisp
 {

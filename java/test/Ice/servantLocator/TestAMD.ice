@@ -10,7 +10,7 @@
 #ifndef TEST_ICE
 #define TEST_ICE
 
-[["java:package:test.Ice.servantLocatorAMD"]]
+[["java:package:test.Ice.servantLocator.AMD"]]
 module Test
 {
 

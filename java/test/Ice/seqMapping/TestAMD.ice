@@ -10,7 +10,7 @@
 #ifndef TEST_ICE
 #define TEST_ICE
 
-[["java:package:test.Ice.seqMappingAMD"]]
+[["java:package:test.Ice.seqMapping.AMD"]]
 module Test
 {
 

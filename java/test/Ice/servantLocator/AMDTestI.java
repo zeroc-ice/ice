@@ -9,18 +9,18 @@
 
 package test.Ice.servantLocator;
 
-import test.Ice.servantLocatorAMD.Test.AMD_TestIntf_impossibleException;
-import test.Ice.servantLocatorAMD.Test.AMD_TestIntf_intfUserException;
-import test.Ice.servantLocatorAMD.Test.AMD_TestIntf_javaException;
-import test.Ice.servantLocatorAMD.Test.AMD_TestIntf_localException;
-import test.Ice.servantLocatorAMD.Test.AMD_TestIntf_requestFailedException;
-import test.Ice.servantLocatorAMD.Test.AMD_TestIntf_shutdown;
-import test.Ice.servantLocatorAMD.Test.AMD_TestIntf_unknownException;
-import test.Ice.servantLocatorAMD.Test.AMD_TestIntf_unknownLocalException;
-import test.Ice.servantLocatorAMD.Test.AMD_TestIntf_unknownUserException;
-import test.Ice.servantLocatorAMD.Test.TestImpossibleException;
-import test.Ice.servantLocatorAMD.Test.TestIntfUserException;
-import test.Ice.servantLocatorAMD.Test._TestIntfDisp;
+import test.Ice.servantLocator.AMD.Test.AMD_TestIntf_impossibleException;
+import test.Ice.servantLocator.AMD.Test.AMD_TestIntf_intfUserException;
+import test.Ice.servantLocator.AMD.Test.AMD_TestIntf_javaException;
+import test.Ice.servantLocator.AMD.Test.AMD_TestIntf_localException;
+import test.Ice.servantLocator.AMD.Test.AMD_TestIntf_requestFailedException;
+import test.Ice.servantLocator.AMD.Test.AMD_TestIntf_shutdown;
+import test.Ice.servantLocator.AMD.Test.AMD_TestIntf_unknownException;
+import test.Ice.servantLocator.AMD.Test.AMD_TestIntf_unknownLocalException;
+import test.Ice.servantLocator.AMD.Test.AMD_TestIntf_unknownUserException;
+import test.Ice.servantLocator.AMD.Test.TestImpossibleException;
+import test.Ice.servantLocator.AMD.Test.TestIntfUserException;
+import test.Ice.servantLocator.AMD.Test._TestIntfDisp;
 
 public final class AMDTestI extends _TestIntfDisp
 {

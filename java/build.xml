@@ -446,7 +446,6 @@
 	    <include name="test/Ice/background/"/>
 	    <include name="test/Ice/binding/"/>
 	    <include name="test/Ice/exceptions/"/>
-	    <include name="test/Ice/exceptionsAMD/"/>
 	    <include name="test/Ice/checksum/"/>
 	    <include name="test/Ice/facets/"/>
 	    <include name="test/Ice/faultTolerance/"/>
@@ -456,16 +455,12 @@
 	    <include name="test/Ice/location/"/>
 	    <include name="test/Ice/objects/"/>
 	    <include name="test/Ice/operations/"/>
-	    <include name="test/Ice/operationsAMD/"/>
 	    <include name="test/Ice/packagemd/"/>
 	    <include name="test/Ice/proxy/"/>
-	    <include name="test/Ice/proxyAMD/"/>
 	    <include name="test/Ice/retry/"/>
 	    <include name="test/Ice/serialize/"/>
 	    <include name="test/Ice/servantLocator/"/>
-	    <include name="test/Ice/servantLocatorAMD/"/>
 	    <include name="test/Ice/seqMapping/"/>
-	    <include name="test/Ice/seqMappingAMD/"/>
 	    <include name="test/Ice/slicing/exceptions/"/>
 	    <include name="test/Ice/slicing/objects/"/>
 	    <include name="test/Ice/stream/"/>

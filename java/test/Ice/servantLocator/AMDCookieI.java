@@ -9,7 +9,7 @@
 
 package test.Ice.servantLocator;
 
-import test.Ice.servantLocatorAMD.Test.Cookie;
+import test.Ice.servantLocator.AMD.Test.Cookie;
 
 public final class AMDCookieI extends Cookie
 {

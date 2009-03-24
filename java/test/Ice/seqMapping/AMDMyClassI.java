@@ -9,7 +9,7 @@
 
 package test.Ice.seqMapping;
 
-import test.Ice.seqMappingAMD.Test.*;
+import test.Ice.seqMapping.AMD.Test.*;
 import test.Ice.seqMapping.Serialize.*;
 
 public final class AMDMyClassI extends MyClass

@@ -12,7 +12,7 @@
 
 #include<Ice/Current.ice>
 
-[["java:package:test.Ice.proxyAMD"]]
+[["java:package:test.Ice.proxy.AMD"]]
 module Test
 {
 

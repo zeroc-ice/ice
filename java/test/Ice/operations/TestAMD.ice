@@ -12,7 +12,7 @@
 
 #include<Ice/Current.ice>
 
-[["java:package:test.Ice.operationsAMD"]]
+[["java:package:test.Ice.operations.AMD"]]
 module Test
 {
 

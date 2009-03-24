@@ -10,7 +10,7 @@
 #ifndef TEST_AMD_ICE
 #define TEST_AMD_ICE
 
-[["java:package:test.Ice.exceptionsAMD"]]
+[["java:package:test.Ice.exceptions.AMD"]]
 module Test
 {
 
