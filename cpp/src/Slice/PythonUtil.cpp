@@ -32,6 +32,7 @@ class MetaDataVisitor : public ParserVisitor
 {
 public:
 
+    virtual bool visitUnitStart(const UnitPtr&);
     virtual bool visitModuleStart(const ModulePtr&);
     virtual void visitClassDecl(const ClassDeclPtr&);
     virtual bool visitClassDefStart(const ClassDefPtr&);
@@ -47,14 +48,9 @@ public:
 private:
 
     //
-    // Validates global metadata.
-    //
-    void validateGlobal(const DefinitionContextPtr&);
-
-    //
     // Validates sequence metadata.
     //
-    void validateSequence(const DefinitionContextPtr&, const string&, const TypePtr&, const StringList&);
+    void validateSequence(const string&, const string&, const TypePtr&, const StringList&);
 
     //
     // Checks a definition that doesn't currently support Python metadata.
@@ -152,6 +148,11 @@ private:
         StringList metaData;
     };
     typedef list<MemberInfo> MemberInfoList;
+
+    //
+    // Write a member assignment statement for a constructor.
+    //
+    void writeAssign(const MemberInfo&);
 
     void collectClassMembers(const ClassDefPtr&, MemberInfoList&, bool);
     void collectExceptionMembers(const ExceptionPtr&, MemberInfoList&, bool);
@@ -476,7 +477,7 @@ Slice::Python::CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
         {
             if(!q->inherited)
             {
-                _out << nl << "self." << q->fixedName << " = " << q->fixedName;;
+                writeAssign(*q);
             }
         }
     }
@@ -982,7 +983,7 @@ Slice::Python::CodeVisitor::visitExceptionStart(const ExceptionPtr& p)
         {
             if(!q->inherited)
             {
-                _out << nl << "self." << q->fixedName << " = " << q->fixedName;;
+                writeAssign(*q);
             }
         }
     }
@@ -1101,7 +1102,7 @@ Slice::Python::CodeVisitor::visitStructStart(const StructPtr& p)
     _out.inc();
     for(r = memberList.begin(); r != memberList.end(); ++r)
     {
-        _out << nl << "self." << r->fixedName << " = " << r->fixedName;
+        writeAssign(*r);
     }
     _out.dec();
 
@@ -1199,17 +1200,46 @@ Slice::Python::CodeVisitor::visitStructStart(const StructPtr& p)
 void
 Slice::Python::CodeVisitor::visitSequence(const SequencePtr& p)
 {
+    static const string protobuf = "python:protobuf:";
+    StringList metaData = p->getMetaData();
+    bool isCustom = false;
+    string customType;
+    for(StringList::const_iterator q = metaData.begin(); q != metaData.end(); ++q)
+    {
+        if(q->find(protobuf) == 0)
+        {
+            BuiltinPtr builtin = BuiltinPtr::dynamicCast(p->type());
+            if(!builtin || builtin->kind() != Builtin::KindByte)
+            {
+                continue;
+            }
+            isCustom = true;
+            customType = q->substr(protobuf.size());
+            break;
+        }
+    }
+
     //
     // Emit the type information.
     //
     string scoped = p->scoped();
     _out << sp << nl << "if not " << getDictLookup(p, "_t_") << ':';
     _out.inc();
-    _out << nl << "_M_" << getAbsolute(p, "_t_") << " = IcePy.defineSequence('" << scoped << "', ";
-    writeMetaData(p->getMetaData());
-    _out << ", ";
-    writeType(p->type());
-    _out << ")";
+    if(isCustom)
+    {
+        string package = customType.substr(0, customType.find('.'));
+        _out << nl << "import " << package;
+        _out << nl << "_M_" << getAbsolute(p, "_t_")
+             << " = IcePy.defineCustom('" << scoped << "', " << customType << ")";
+    }
+    else
+    {
+        _out << nl << "_M_" << getAbsolute(p, "_t_") << " = IcePy.defineSequence('" << scoped << "', ";
+        writeMetaData(metaData);
+        _out << ", ";
+        writeType(p->type());
+        _out << ")";
+    }
     _out.dec();
 }
 
@@ -1629,7 +1659,13 @@ Slice::Python::CodeVisitor::writeDefaultValue(const TypePtr& p)
     StructPtr st = StructPtr::dynamicCast(p);
     if(st)
     {
-        _out << getSymbol(st) << "()";
+        //
+        // We cannot emit a call to the struct's constructor here because Python
+        // only evaluates this expression once (see bug 3676). Instead, we emit
+        // a marker that allows us to determine whether the application has
+        // supplied a value.
+        //
+        _out << "Ice._struct_marker";
         return;
     }
 
@@ -1699,6 +1735,30 @@ Slice::Python::CodeVisitor::writeMetaData(const StringList& meta)
         _out << ',';
     }
     _out << ')';
+}
+
+void
+Slice::Python::CodeVisitor::writeAssign(const MemberInfo& info)
+{
+    //
+    // Structures are treated differently (see bug 3676).
+    //
+    StructPtr st = StructPtr::dynamicCast(info.type);
+    if(st)
+    {
+        _out << nl << "if " << info.fixedName << " is Ice._struct_marker:";
+        _out.inc();
+        _out << nl << "self." << info.fixedName << " = " << getSymbol(st) << "()";
+        _out.dec();
+        _out << nl << "else:";
+        _out.inc();
+        _out << nl << "self." << info.fixedName << " = " << info.fixedName;
+        _out.dec();
+    }
+    else
+    {
+        _out << nl << "self." << info.fixedName << " = " << info.fixedName;
+    }
 }
 
 string
@@ -1778,6 +1838,16 @@ Slice::Python::generate(const UnitPtr& un, bool all, bool checksum, const vector
     un->visit(&visitor, false);
 
     out << nl << "import Ice, IcePy, __builtin__";
+
+    //
+    // For backward-compatibility with generated code from Ice 3.3.0, we add a definition
+    // of _struct_marker to the Ice module if necessary.
+    //
+    out << nl;
+    out << nl << "if not Ice.__dict__.has_key(\"_struct_marker\"):";
+    out.inc();
+    out << nl << "Ice._struct_marker = object()";
+    out.dec();
 
     if(!all)
     {
@@ -1866,20 +1936,19 @@ Slice::Python::fixIdent(const string& ident)
 string
 Slice::Python::getPackageMetadata(const ContainedPtr& cont)
 {
-    string package;
+    UnitPtr unit = cont->container()->unit();
+    string file = cont->file();
+    assert(!file.empty());
 
-    DefinitionContextPtr dc = cont->definitionContext();
-    if(dc)
+    static const string prefix = "python:package:";
+    DefinitionContextPtr dc = unit->findDefinitionContext(file);
+    assert(dc);
+    string q = dc->findMetaData(prefix);
+    if(!q.empty())
     {
-        static const string prefix = "python:package:";
-        string metadata = dc->findMetaData(prefix);
-        if(!metadata.empty())
-        {
-            package = metadata.substr(prefix.size());
-        }
+        q = q.substr(prefix.size());
     }
-
-    return package;
+    return q;
 }
 
 string
@@ -1929,15 +1998,44 @@ Slice::Python::printHeader(IceUtilInternal::Output& out)
 }
 
 bool
+Slice::Python::MetaDataVisitor::visitUnitStart(const UnitPtr& p)
+{
+    static const string prefix = "python:";
+
+    //
+    // Validate global metadata in the top-level file and all included files.
+    //
+    StringList files = p->allFiles();
+
+    for(StringList::iterator q = files.begin(); q != files.end(); ++q)
+    {
+        string file = *q;
+        DefinitionContextPtr dc = p->findDefinitionContext(file);
+        assert(dc);
+        StringList globalMetaData = dc->getMetaData();
+        for(StringList::const_iterator r = globalMetaData.begin(); r != globalMetaData.end(); ++r)
+        {
+            string s = *r;
+            if(_history.count(s) == 0)
+            {
+                if(s.find(prefix) == 0)
+                {
+                    static const string packagePrefix = "python:package:";
+                    if(s.find(packagePrefix) != 0 || s.size() == packagePrefix.size())
+                    {
+                        emitWarning(file, "", "ignoring invalid global metadata `" + s + "'");
+                    }
+                }
+                _history.insert(s);
+            }
+        }
+    }
+    return true;
+}
+
+bool
 Slice::Python::MetaDataVisitor::visitModuleStart(const ModulePtr& p)
 {
-    if(!ModulePtr::dynamicCast(p->container()))
-    {
-        //
-        // We only need to validate global metadata for top-level modules.
-        //
-        validateGlobal(p->definitionContext());
-    }
     reject(p);
     return true;
 }
@@ -1972,32 +2070,52 @@ Slice::Python::MetaDataVisitor::visitStructStart(const StructPtr& p)
 void
 Slice::Python::MetaDataVisitor::visitOperation(const OperationPtr& p)
 {
-    DefinitionContextPtr dc = p->definitionContext();
-    assert(dc);
-
     TypePtr ret = p->returnType();
     if(ret)
     {
-        validateSequence(dc, p->line(), ret, p->getMetaData());
+        validateSequence(p->file(), p->line(), ret, p->getMetaData());
     }
 
     ParamDeclList params = p->parameters();
     for(ParamDeclList::iterator q = params.begin(); q != params.end(); ++q)
     {
-        validateSequence(dc, (*q)->line(), (*q)->type(), (*q)->getMetaData());
+        validateSequence(p->file(), (*q)->line(), (*q)->type(), (*q)->getMetaData());
     }
 }
 
 void
 Slice::Python::MetaDataVisitor::visitDataMember(const DataMemberPtr& p)
 {
-    validateSequence(p->definitionContext(), p->line(), p->type(), p->getMetaData());
+    validateSequence(p->file(), p->line(), p->type(), p->getMetaData());
 }
 
 void
 Slice::Python::MetaDataVisitor::visitSequence(const SequencePtr& p)
 {
-    validateSequence(p->definitionContext(), p->line(), p, p->getMetaData());
+    static const string protobuf = "python:protobuf:";
+    StringList metaData = p->getMetaData();
+    const string file = p->file();
+    const string line = p->line();
+    for(StringList::const_iterator q = metaData.begin(); q != metaData.end(); )
+    {
+        string s = *q++;
+        if(s.find(protobuf) == 0)
+        {
+            //
+            // Remove from list so validateSequence does not try to handle as well.
+            //
+            metaData.remove(s);
+
+            BuiltinPtr builtin = BuiltinPtr::dynamicCast(p->type());
+            if(!builtin || builtin->kind() != Builtin::KindByte)
+            {
+                emitWarning(file, line, "ignoring invalid metadata `" + s + ": " +
+                            "`protobuf' encoding must be a byte sequence");
+            }
+        }
+    }
+
+    validateSequence(file, line, p, metaData);
 }
 
 void
@@ -2019,32 +2137,7 @@ Slice::Python::MetaDataVisitor::visitConst(const ConstPtr& p)
 }
 
 void
-Slice::Python::MetaDataVisitor::validateGlobal(const DefinitionContextPtr& dc)
-{
-    StringList globalMetaData = dc->getMetaData();
-
-    static const string prefix = "python:";
-
-    for(StringList::const_iterator p = globalMetaData.begin(); p != globalMetaData.end(); ++p)
-    {
-        string s = *p;
-        if(_history.count(s) == 0)
-        {
-            if(s.find(prefix) == 0)
-            {
-                static const string packagePrefix = "python:package:";
-                if(s.find(packagePrefix) != 0 || s.size() == packagePrefix.size())
-                {
-                    cerr << dc->filename() << ": warning: ignoring invalid global metadata `" << s << "'" << endl;
-                }
-            }
-            _history.insert(s);
-        }
-    }
-}
-
-void
-Slice::Python::MetaDataVisitor::validateSequence(const DefinitionContextPtr& dc, const string& line,
+Slice::Python::MetaDataVisitor::validateSequence(const string& file, const string& line,
                                                  const TypePtr& type, const StringList& meta)
 {
     static const string prefix = "python:";
@@ -2067,7 +2160,7 @@ Slice::Python::MetaDataVisitor::validateSequence(const DefinitionContextPtr& dc,
                     }
                 }
             }
-            cerr << dc->filename() << ":" << line << ": warning: ignoring metadata `" << s << "'" << endl;
+            emitWarning(file, line, "ignoring invalid metadata `" + s + "'");
         }
     }
 }
@@ -2083,9 +2176,7 @@ Slice::Python::MetaDataVisitor::reject(const ContainedPtr& cont)
     {
         if(p->find(prefix) == 0)
         {
-            DefinitionContextPtr dc = cont->definitionContext();
-            assert(dc);
-            cerr << dc->filename() << ":" << cont->line() << ": warning: ignoring metadata `" << *p << "'" << endl;
+            emitWarning(cont->file(), cont->line(), "ignoring invalid metadata `" + *p + "'");
         }
     }
 }

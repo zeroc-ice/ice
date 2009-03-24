@@ -548,10 +548,15 @@ NodeI::destroyServer_async(const AMD_Node_destroyServerPtr& amdCB,
         //
         try
         {
+#if defined(__BCPLUSPLUS__) && (__BCPLUSPLUS__ >= 0x0600)
+            IceUtil::DummyBCC dummy;
+#endif
             command = server->destroy(amdCB, uuid, revision, replicaName);
         }
         catch(const Ice::ObjectNotExistException&)
         {
+            amdCB->ice_response();
+            return;
         }
     }
     if(command)

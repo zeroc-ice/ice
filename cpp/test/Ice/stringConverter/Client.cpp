@@ -156,7 +156,7 @@ Client::run(int, char*[])
     {
         cout << " (using iconv)";
     }
-    cout << "..." << flush;
+    cout << "... " << flush;
     wstring wmsg = clientPrx->widen(msg);
     test(clientPrx->narrow(wmsg) == msg);
     test(wmsg.size() == msg.size());

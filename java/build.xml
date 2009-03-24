@@ -177,7 +177,8 @@
             source="1.5" debug="${debug}"
             excludes="IceGridGUI/**"
             includes="**"
-            deprecation="on">
+            deprecation="on"
+            classpathref="db.classpath">
             <compilerarg value="${javac.lint}"/>
         </javac>
     </target>
@@ -238,6 +239,9 @@
         <jar jarfile="${lib.dir}/IceGridGUI.jar" manifest="${lib.dir}/icegridgui.mf" basedir="${lib.dir}">
             <include name="IceGridGUI/**"/>
         </jar>
+        <jar jarfile="${lib.dir}/IceGridGUI.jar" basedir="resources" update="true">
+            <include name="icons/**"/>
+        </jar>
         <delete file="${lib.dir}/icegridgui.mf" />
     </target>
 
@@ -249,7 +253,7 @@
             <!-- Library jar files for Sun JDK -->
             <available file="${java.home}/lib/rt.jar"/>
         </condition>
-        <condition property="library.jarfiles" value="vm.jar,core.jar,graphics.jar,security.jar">
+        <condition property="library.jarfiles" value="vm.jar,core.jar,graphics.jar,security.jar,server.jar">
             <!-- Library jar files for IBM J9 (from Linux SuSE) -->
             <available file="${java.home}/lib/vm.jar"/>
         </condition>

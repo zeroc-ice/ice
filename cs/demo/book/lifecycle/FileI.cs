@@ -68,31 +68,21 @@ namespace FilesystemI
                 {
                     throw new ObjectNotExistException();
                 }
+
+                c.adapter.remove(id());
                 _destroyed = true;
             }
 
-            lock(DirectoryI.lcMutex)
-            {
-                c.adapter.remove(id());
-                _parent.addReapEntry(_name);
-            }
+            _parent.removeEntry(_name);
         }
 
-        public FileI(ObjectAdapter a, string name, DirectoryI parent)
+        public FileI(string name, DirectoryI parent)
         {
             _name = name;
             _parent = parent;
             _destroyed = false;
             _id = new Identity();
             _id.name = Util.generateUUID();
-        }
-
-        public FilePrx
-        activate(Ice.ObjectAdapter a)
-        {
-            FilePrx node = FilePrxHelper.uncheckedCast(a.add(this, _id));
-            _parent.addChild(_name, this);
-            return node;
         }
 
         private string _name;

@@ -23,8 +23,13 @@ __all__ = ["Expect", "EOF", "TIMEOUT" ]
 
 win32 = (sys.platform == "win32")
 if win32:
-    # We use this to remove the reliance on win32api.
-    import ctypes
+    # We use this to remove the reliance on win32api. Unfortunately,
+    # python 2.5 under 64 bit versions of windows doesn't have ctypes,
+    # hence we have to be prepared for that module not to be present.
+    try:
+        import ctypes
+    except ImportError:
+        pass
 
 class EOF:
     """Raised when EOF is read from a child.
@@ -115,6 +120,7 @@ class reader(threading.Thread):
 		    self._tbuf.truncate(0)
 	    else:
 		sys.stdout.write(c)
+		sys.stdout.flush()
 
     def enabletrace(self, supress = None):
 	self.cv.acquire()
@@ -236,8 +242,58 @@ class reader(threading.Thread):
 	finally:
 	    self.cv.release()
 
+def splitCommand(command_line):
+    arg_list = []
+    arg = ''
+
+    state_basic = 0
+    state_esc = 1
+    state_singlequote = 2
+    state_doublequote = 3
+    state_whitespace = 4
+    state = state_basic
+    pre_esc_state = state_basic
+
+    for c in command_line:
+        if state != state_esc and c == '\\':
+            pre_esc_state = state
+            state = state_esc
+        elif state == state_basic or state == state_whitespace:
+            if c == r"'":
+                state = state_singlequote
+            elif c == r'"':
+                state = state_doublequote
+            elif c.isspace():
+                if state == state_whitespace:
+                    None
+                else:
+                    arg_list.append(arg)
+                    arg = ''
+                    state = state_whitespace
+            else:
+                arg = arg + c
+                state = state_basic
+        elif state == state_esc:
+            arg = arg + c
+            state = pre_esc_state
+        elif state == state_singlequote:
+            if c == r"'":
+                state = state_basic
+            else:
+                arg = arg + c
+        elif state == state_doublequote:
+            if c == r'"':
+                state = state_basic
+            else:
+                arg = arg + c
+
+    if arg != '':
+        arg_list.append(arg)
+
+    return arg_list
+
 class Expect (object):
-    def __init__(self, command, timeout=30, logfile=None, mapping = None, desc = None, cwd = None, env = None):
+    def __init__(self, command, startReader = True, timeout=30, logfile=None, mapping = None, desc = None, cwd = None, env = None):
 	self.buf = "" # The part before the match
 	self.before = "" # The part before the match
 	self.after = "" # The part after the match
@@ -249,6 +305,7 @@ class Expect (object):
 	self.desc = desc
 	self.logfile = logfile
 	self.timeout = timeout
+	self.p = None
 
 	if self.logfile:
 	    self.logfile.write('spawn: "%s"\n' % command)
@@ -263,8 +320,8 @@ class Expect (object):
                                       stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
                                       creationflags = 512) # CREATE_NEW_PROCESS_GROUP
         else:
-            self.p = subprocess.Popen(command, env = env, cwd = cwd, shell=True, bufsize=0, stdin=subprocess.PIPE,
-                                      stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+            self.p = subprocess.Popen(splitCommand(command), env = env, cwd = cwd, shell=False, bufsize=0,
+                                      stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
 	self.r = reader(desc, self.p, logfile)
 
 	# The thread is marked as a daemon thread. This is done so that if
@@ -274,6 +331,10 @@ class Expect (object):
 	# terminates and joins with the reader thread.
 	self.r.setDaemon(True)
 
+	if startReader:
+	    self.startReader()
+
+    def startReader(self):
 	self.r.start()
 
     def __del__(self):
@@ -389,8 +450,11 @@ class Expect (object):
                     #
                     # Using the ctypes module removes the reliance on the
                     # python win32api
-                    #win32console.GenerateConsoleCtrlEvent(win32console.CTRL_BREAK_EVENT, self.p.pid)
-                    ctypes.windll.kernel32.GenerateConsoleCtrlEvent(1, self.p.pid) # 1 is CTRL_BREAK_EVENT
+                    try:
+                        #win32console.GenerateConsoleCtrlEvent(win32console.CTRL_BREAK_EVENT, self.p.pid)
+                        ctypes.windll.kernel32.GenerateConsoleCtrlEvent(1, self.p.pid) # 1 is CTRL_BREAK_EVENT
+                    except NameError:
+                        pass
                 else:
                    os.kill(self.p.pid, signal.SIGINT)
             except:
@@ -431,8 +495,11 @@ class Expect (object):
                     #
                     # Using the ctypes module removes the reliance on the
                     # python win32api
-                    ctypes.windll.kernel32.GenerateConsoleCtrlEvent(1, self.p.pid) # 1 is CTRL_BREAK_EVENT
-                    #win32console.GenerateConsoleCtrlEvent(win32console.CTRL_BREAK_EVENT, self.p.pid)
+                    try:
+                        #win32console.GenerateConsoleCtrlEvent(win32console.CTRL_BREAK_EVENT, self.p.pid)
+                        ctypes.windll.kernel32.GenerateConsoleCtrlEvent(1, self.p.pid) # 1 is CTRL_BREAK_EVENT
+                    except NameError:
+                        pass
                 except:
                     traceback.print_exc(file=sys.stdout)
             else:

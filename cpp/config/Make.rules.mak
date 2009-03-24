@@ -27,7 +27,7 @@ prefix			= C:\Ice-$(VERSION)
 
 #
 # Specify your C++ compiler. Supported values are:
-# VC60, VC80, VC80_EXPRESS, VC90, VC90_EXPRESS, BCC2007
+# VC60, VC80, VC80_EXPRESS, VC90, VC90_EXPRESS, BCC2007, BCC2009
 #
 !if "$(CPP_COMPILER)" == ""
 CPP_COMPILER		= VC80
@@ -38,9 +38,7 @@ CPP_COMPILER		= VC80
 # or THIRDPARTY_HOME is not set in your environment variables then
 # change the following setting to reflect the installation location.
 #
-!if "$(CPP_COMPILER)" == "BCC2007"
-THIRDPARTY_HOME_EXT 	= BCC
-!elseif "$(CPP_COMPILER)" == "VC80_EXPRESS"
+!if "$(CPP_COMPILER)" == "VC80_EXPRESS"
 THIRDPARTY_HOME_EXT	= VC80
 !elseif "$(CPP_COMPILER)" == "VC90_EXPRESS"
 THIRDPARTY_HOME_EXT	= VC90
@@ -53,18 +51,11 @@ THIRDPARTY_HOME		= C:\Ice-$(VERSION)-ThirdParty-$(THIRDPARTY_HOME_EXT)
 !endif
 
 #
-# For VC80 and VC80 Express it is necessary to set the location of the
-# manifest tool. This must be the 6.x version of mt.exe, not the 5.x
-# version!
-#
-# For VC80 Express mt.exe 6.x is provided by the Windows Platform SDK. 
-# It is necessary to set the location of the Platform SDK through the
-# PDK_HOME environment variable (see INSTALL.WINDOWS for details).
+# For VC80 it is necessary to set the location of the manifest tool.
+# This must be the 6.x version of mt.exe, not the 5.x # version!
 #
 !if "$(CPP_COMPILER)" == "VC80"
 MT = "$(VS80COMNTOOLS)bin\mt.exe"
-!elseif "$(CPP_COMPILER)" == "VC80_EXPRESS"
-MT = "$(PDK_HOME)\bin\mt.exe"
 !else
 MT = mt.exe
 !endif
@@ -110,7 +101,8 @@ SETARGV			= setargv.obj
 #
 # Compiler specific definitions
 #
-!if "$(CPP_COMPILER)" == "BCC2007"
+!if "$(CPP_COMPILER)" == "BCC2007" || "$(CPP_COMPILER)" == "BCC2009"
+BCPLUSPLUS		= yes
 !include 	$(top_srcdir)/config/Make.rules.bcc
 !elseif "$(CPP_COMPILER)" == "VC60" || "$(CPP_COMPILER)" == "VC71" || \
         "$(CPP_COMPILER)" == "VC80" || "$(CPP_COMPILER)" == "VC80_EXPRESS" || \

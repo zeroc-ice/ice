@@ -111,6 +111,7 @@ public class AllTests
         }
         catch(Ice.LocalException ex)
         {
+            ex.printStackTrace();
             test(false);
         }
         System.out.println("ok");    
@@ -126,6 +127,7 @@ public class AllTests
         }
         catch(Ice.LocalException ex)
         {
+            ex.printStackTrace();
             test(false);
         }
         System.out.println("ok");    
@@ -141,6 +143,7 @@ public class AllTests
         }
         catch(Ice.LocalException ex)
         {
+            ex.printStackTrace();
             test(false);
         }
         try
@@ -150,6 +153,7 @@ public class AllTests
         }
         catch(Ice.LocalException ex)
         {
+            ex.printStackTrace();
             test(false);
         }
         obj.shutdown();
@@ -161,6 +165,7 @@ public class AllTests
         }
         catch(Ice.LocalException ex)
         {
+            ex.printStackTrace();
             test(false);
         }
         try
@@ -170,6 +175,7 @@ public class AllTests
         }
         catch(Ice.LocalException ex)
         {
+            ex.printStackTrace();
             test(false);
         }
         obj.shutdown();
@@ -181,6 +187,7 @@ public class AllTests
         }
         catch(Ice.LocalException ex)
         {
+            ex.printStackTrace();
             test(false);
         }
         obj.shutdown();
@@ -192,6 +199,7 @@ public class AllTests
         }
         catch(Ice.LocalException ex)
         {
+            ex.printStackTrace();
             test(false);
         }
         obj.shutdown();
@@ -203,6 +211,7 @@ public class AllTests
         }
         catch(Ice.LocalException ex)
         {
+            ex.printStackTrace();
             test(false);
         }
 
@@ -310,6 +319,7 @@ public class AllTests
                 public void
                 ice_exception(Ice.LocalException ex)
                 {
+                    ex.printStackTrace();
                     test(false);
                 }
 
@@ -320,7 +330,12 @@ public class AllTests
             };
             hello.sayHello_async(new AMICallback());
         }
-        test(locator.getRequestCount() > count && locator.getRequestCount() < count + 500);
+        hello.ice_ping();
+        test(locator.getRequestCount() > count && locator.getRequestCount() < count + 999);
+        if(locator.getRequestCount() > count + 800)
+        {
+            System.out.print("queuing = " + (locator.getRequestCount() - count));
+        }
         count = locator.getRequestCount();
         hello = (HelloPrx)hello.ice_adapterId("unknown");
         for(int i = 0; i < 1000; i++)
@@ -341,7 +356,20 @@ public class AllTests
             };
             hello.sayHello_async(new AMICallback());
         }
-        test(locator.getRequestCount() > count && locator.getRequestCount() < count + 500);
+        try
+        {
+            hello.ice_ping();
+            test(false);
+        }
+        catch(Ice.NotRegisteredException ex)
+        {
+        }
+        // We need to take into account the retries.
+        test(locator.getRequestCount() > count && locator.getRequestCount() < count + 1999);
+        if(locator.getRequestCount() > count + 800)
+        {
+            System.out.print("queuing = " + (locator.getRequestCount() - count));
+        }
         System.out.println("ok");
 
         System.out.print("testing adapter locator cache... ");
@@ -383,6 +411,7 @@ public class AllTests
         }
         catch(Ice.LocalException ex)
         {
+            ex.printStackTrace();
             test(false);
         }
     
@@ -418,6 +447,7 @@ public class AllTests
         }
         catch(Ice.LocalException ex)
         {
+            ex.printStackTrace();
             test(false);
         }
         System.out.println("ok");
@@ -471,6 +501,7 @@ public class AllTests
         }
         catch(Ice.LocalException ex)
         {
+            ex.printStackTrace();
             test(false);
         }
 
@@ -490,6 +521,7 @@ public class AllTests
         }
         catch(Ice.LocalException ex)
         {
+        ex.printStackTrace();
             test(false);
         }
 
@@ -574,8 +606,8 @@ public class AllTests
             {
             }
             registry.addObject(communicator.stringToProxy("test3:tcp"));
-            ic.stringToProxy("test@TestAdapter5").ice_locatorCacheTimeout(1).ice_ping(); // 1s timeout.
-            ic.stringToProxy("test3").ice_locatorCacheTimeout(1).ice_ping(); // 1s timeout.
+            ic.stringToProxy("test@TestAdapter5").ice_locatorCacheTimeout(10).ice_ping(); // 10s timeout.
+            ic.stringToProxy("test3").ice_locatorCacheTimeout(10).ice_ping(); // 10s timeout.
             test(count == locator.getRequestCount());
             try
             {

@@ -391,6 +391,9 @@ Ice::Service::main(int& argc, char* argv[], const InitializationData& initializa
     InitializationData initData = initializationData;
     try
     {
+#if defined(__BCPLUSPLUS__) && (__BCPLUSPLUS__ >= 0x0600)
+        IceUtil::DummyBCC dummy;
+#endif
         initData.properties = createProperties(argc, argv, initData.properties, initData.stringConverter);
     }
     catch(const Ice::Exception& ex)
@@ -1028,7 +1031,11 @@ Ice::Service::startService(const string& name, const vector<string>& args)
     int i = 0;
     for(vector<string>::const_iterator p = args.begin(); p != args.end(); ++p)
     {
-        argv[i++] = strdup(p->c_str());
+#if defined(_MSC_VER) && (_MSC_VER >= 1400)
+       argv[i++] = _strdup(p->c_str());
+#else
+       argv[i++] = strdup(p->c_str());
+#endif
     }
 
     //

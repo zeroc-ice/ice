@@ -1,10 +1,10 @@
-# Microsoft Developer Studio Project File - Name="IceBox.hello.client" - Package Owner=<4>
+# Microsoft Developer Studio Project File - Name="IceBox.hello.client.exe" - Package Owner=<4>
 # Microsoft Developer Studio Generated Build File, Format Version 6.00
 # ** DO NOT EDIT **
 
 # TARGTYPE "Win32 (x86) Console Application" 0x0103
 
-CFG=IceBox.hello.client - Win32 Debug
+CFG=IceBox.hello.client.exe - Win32 Debug
 !MESSAGE This is not a valid makefile. To build this project using NMAKE,
 !MESSAGE use the Export Makefile command and run
 !MESSAGE 
@@ -13,12 +13,12 @@ CFG=IceBox.hello.client - Win32 Debug
 !MESSAGE You can specify a configuration when running NMAKE
 !MESSAGE by defining the macro CFG on the command line. For example:
 !MESSAGE 
-!MESSAGE NMAKE /f "IceBox.hello.client.mak" CFG="IceBox.hello.client - Win32 Debug"
+!MESSAGE NMAKE /f "IceBox.hello.client.mak" CFG="IceBox.hello.client.exe - Win32 Debug"
 !MESSAGE 
 !MESSAGE Possible choices for configuration are:
 !MESSAGE 
-!MESSAGE "IceBox.hello.client - Win32 Release" (based on "Win32 (x86) Console Application")
-!MESSAGE "IceBox.hello.client - Win32 Debug" (based on "Win32 (x86) Console Application")
+!MESSAGE "IceBox.hello.client.exe - Win32 Release" (based on "Win32 (x86) Console Application")
+!MESSAGE "IceBox.hello.client.exe - Win32 Debug" (based on "Win32 (x86) Console Application")
 !MESSAGE 
 
 # Begin Project
@@ -28,7 +28,7 @@ CFG=IceBox.hello.client - Win32 Debug
 CPP=cl.exe
 RSC=rc.exe
 
-!IF  "$(CFG)" == "IceBox.hello.client - Win32 Release"
+!IF  "$(CFG)" == "IceBox.hello.client.exe - Win32 Release"
 
 # PROP BASE Use_MFC 0
 # PROP BASE Use_Debug_Libraries 0
@@ -51,10 +51,10 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LINK32=link.exe
 # ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /subsystem:console /machine:I386
-# ADD LINK32 Ice.lib IceUtil.lib setargv.obj /nologo /subsystem:console /pdb:none /machine:I386 /out:"client.exe" /libpath:"../../../lib" /FIXED:no
+# ADD LINK32 Ice.lib IceUtil.lib setargv.obj /nologo /subsystem:console /pdb:none /machine:I386 /out:"client.exe" /libpath:"../../../lib" /FIXED:no /IGNORE:4089
 # SUBTRACT LINK32 /debug /nodefaultlib
 
-!ELSEIF  "$(CFG)" == "IceBox.hello.client - Win32 Debug"
+!ELSEIF  "$(CFG)" == "IceBox.hello.client.exe - Win32 Debug"
 
 # PROP BASE Use_MFC 0
 # PROP BASE Use_Debug_Libraries 1
@@ -84,8 +84,8 @@ LINK32=link.exe
 
 # Begin Target
 
-# Name "IceBox.hello.client - Win32 Release"
-# Name "IceBox.hello.client - Win32 Debug"
+# Name "IceBox.hello.client.exe - Win32 Release"
+# Name "IceBox.hello.client.exe - Win32 Debug"
 # Begin Group "Source Files"
 
 # PROP Default_Filter "cpp;c;cxx;rc;def;r;odl;idl;hpj;bat"
@@ -113,7 +113,7 @@ SOURCE=.\Hello.h
 
 SOURCE=.\Hello.ice
 
-!IF  "$(CFG)" == "IceBox.hello.client - Win32 Release"
+!IF  "$(CFG)" == "IceBox.hello.client.exe - Win32 Release"
 
 USERDEP__HELLO="..\..\..\bin\slice2cpp.exe"	"..\..\..\lib\slice.lib"	
 # Begin Custom Build
@@ -129,7 +129,7 @@ BuildCmds= \
    $(BuildCmds)
 # End Custom Build
 
-!ELSEIF  "$(CFG)" == "IceBox.hello.client - Win32 Debug"
+!ELSEIF  "$(CFG)" == "IceBox.hello.client.exe - Win32 Debug"
 
 USERDEP__HELLO="..\..\..\bin\slice2cpp.exe"	"..\..\..\lib\sliced.lib"	
 # Begin Custom Build

@@ -50,7 +50,7 @@ public final class Server extends Ice.Application
             }
         }
 
-        ServiceManagerI serviceManagerImpl = new ServiceManagerI(this, args);
+        ServiceManagerI serviceManagerImpl = new ServiceManagerI(communicator(), args);
         return serviceManagerImpl.run();
     }
 }

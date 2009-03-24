@@ -52,13 +52,13 @@
 	<summary>
 		<codepage>1252</codepage>
 		<title>##ID_STRING42##</title>
-		<subject>Ice 3.3.0 for Visual Studio 2005</subject>
+		<subject>##ID_STRING46##</subject>
 		<author>##COMPANY_NAME##</author>
 		<keywords>Ice, Internet Communications Engine</keywords>
 		<comments>##ID_STRING32##</comments>
 		<template>Intel;1033</template>
 		<lastauthor>Administrator</lastauthor>
-		<revnumber>{863422AD-F7C1-4A65-903F-FB76B08F7EFF}</revnumber>
+		<revnumber>{439608C2-19DD-4ACE-B34C-62A3CAE580D6}</revnumber>
 		<lastprinted/>
 		<createdtm>06/21/1999 04:30</createdtm>
 		<lastsavedtm>07/14/2000 08:20</lastsavedtm>
@@ -1064,7 +1064,8 @@
 		<row><td>GAC</td><td>ASSEMBLY</td><td>GAC</td><td/><td>0</td><td/></row>
 		<row><td>GlobalAssemblyCache</td><td>TARGETDIR</td><td>.:Global~1|GlobalAssemblyCache</td><td/><td>0</td><td/></row>
 		<row><td>ICE_3.3.0</td><td>WindowsVolume</td><td>ICE-3_~3|Ice-3.3.0</td><td/><td>0</td><td/></row>
-		<row><td>INSTALLDIR</td><td>ICE_3.3.0</td><td>.</td><td/><td>0</td><td/></row>
+		<row><td>ICE_3.3.1</td><td>WindowsVolume</td><td>ICE-3_~1|Ice-3.3.1</td><td/><td>0</td><td/></row>
+		<row><td>INSTALLDIR</td><td>ICE_3.3.1</td><td>.</td><td/><td>0</td><td/></row>
 		<row><td>ISCommonFilesFolder</td><td>CommonFilesFolder</td><td>Instal~1|InstallShield</td><td/><td>0</td><td/></row>
 		<row><td>ISMyCompanyDir</td><td>ProgramFilesFolder</td><td>MYCOMP~1|My Company Name</td><td/><td>0</td><td/></row>
 		<row><td>ISUpdateServiceFolder</td><td>ISCommonFilesFolder</td><td>UPDATE~1|UpdateService</td><td/><td>0</td><td/></row>
@@ -1768,11 +1769,11 @@
 		<col key="yes" def="s72">ISProductConfiguration_</col>
 		<col key="yes" def="s72">Property</col>
 		<col def="L255">Value</col>
-		<row><td>ZEROC</td><td>MSIPackageFileName</td><td>Ice-3.3.0-VC80</td></row>
-		<row><td>ZEROC</td><td>PackageCode</td><td>{9F603C9D-E6E0-4CAA-804E-5E42B79EB979}</td></row>
-		<row><td>ZEROC</td><td>ProductCode</td><td>{72296355-A35D-44EE-814D-0851EAA18934}</td></row>
+		<row><td>ZEROC</td><td>MSIPackageFileName</td><td>Ice-3.3.1-VC80</td></row>
+		<row><td>ZEROC</td><td>PackageCode</td><td>{08FDEA81-AD81-4A04-BE29-C9C7EF1A869C}</td></row>
+		<row><td>ZEROC</td><td>ProductCode</td><td>{3AF664FB-2B7A-4A8B-A921-656867EB0345}</td></row>
 		<row><td>ZEROC</td><td>SetupFileName</td><td/></row>
-		<row><td>ZEROC</td><td>UpgradeCode</td><td>{86002992-BC48-424A-879F-FF69F5546282}</td></row>
+		<row><td>ZEROC</td><td>UpgradeCode</td><td>{455FDA0D-2AB2-4E58-9A43-78B61EF3FE75}</td></row>
 	</table>
 
 	<table name="ISRelease">
@@ -2443,10 +2444,11 @@
 		<row><td>ID_STRING4</td><td>1033</td><td>C++ Demos</td><td>0</td><td/><td>-1457943126</td></row>
 		<row><td>ID_STRING40</td><td>1033</td><td>Microsoft C/C++ runtime x86</td><td>0</td><td/><td>563925071</td></row>
 		<row><td>ID_STRING41</td><td>1033</td><td>Install this feature to run Ice for C++ executables on a system without Visual Studio</td><td>0</td><td/><td>1369226160</td></row>
-		<row><td>ID_STRING42</td><td>1033</td><td>Ice 3.3.0 for Visual Studio 2005</td><td>0</td><td/><td>1369200943</td></row>
+		<row><td>ID_STRING42</td><td>1033</td><td>Ice 3.3.1 for Visual Studio 2005</td><td>0</td><td/><td>1369254670</td></row>
 		<row><td>ID_STRING43</td><td>1033</td><td>support@zeroc.com</td><td>0</td><td/><td>1369178447</td></row>
 		<row><td>ID_STRING44</td><td>1033</td><td>http://www.zeroc.com/support.html</td><td>0</td><td/><td>1369192815</td></row>
 		<row><td>ID_STRING45</td><td>1033</td><td>+1 561 283-1480</td><td>0</td><td/><td>1369205103</td></row>
+		<row><td>ID_STRING46</td><td>1033</td><td>Ice 3.3.1 for Visual Studio 2005</td><td>0</td><td/><td>1369262862</td></row>
 		<row><td>ID_STRING5</td><td>1033</td><td>Third Party Development Packages</td><td>0</td><td/><td>-1457924662</td></row>
 		<row><td>ID_STRING6</td><td>1033</td><td>Ice for Java</td><td>0</td><td/><td>1234824659</td></row>
 		<row><td>ID_STRING7</td><td>1033</td><td>Java Demos</td><td>0</td><td/><td>-1457945110</td></row>
@@ -2855,11 +2857,11 @@ SQBDAEUAXwBNAFMASQABAFoARQBSAE8AQwA=
 		<row><td>NewProperty1</td><td>0</td><td/></row>
 		<row><td>NewProperty2</td><td>0</td><td/></row>
 		<row><td>PIDTemplate</td><td>12345&lt;###-%%%%%%%&gt;@@@@@</td><td/></row>
-		<row><td>ProductCode</td><td>{3C3F10C1-57EB-4A7E-B2EA-901B119435BB}</td><td/></row>
+		<row><td>ProductCode</td><td>{2BAC3E31-0D9B-4E17-986D-60A35A474B30}</td><td/></row>
 		<row><td>ProductID</td><td>none</td><td/></row>
 		<row><td>ProductLanguage</td><td>1033</td><td/></row>
-		<row><td>ProductName</td><td>Ice 3.3.0 for Visual Studio 2005</td><td/></row>
-		<row><td>ProductVersion</td><td>3.3.0</td><td/></row>
+		<row><td>ProductName</td><td>Ice 3.3.1 for Visual Studio 2005</td><td/></row>
+		<row><td>ProductVersion</td><td>3.3.1</td><td/></row>
 		<row><td>ProgressType0</td><td>install</td><td/></row>
 		<row><td>ProgressType1</td><td>Installing</td><td/></row>
 		<row><td>ProgressType2</td><td>installed</td><td/></row>
@@ -2868,7 +2870,7 @@ SQBDAEUAXwBNAFMASQABAFoARQBSAE8AQwA=
 		<row><td>ReinstallModeText</td><td>omus</td><td/></row>
 		<row><td>SHOWLAUNCHPROGRAM</td><td>0</td><td/></row>
 		<row><td>SetupType</td><td>Typical</td><td/></row>
-		<row><td>UpgradeCode</td><td>{CBA4E482-203B-4D18-A8BE-204BC062A10F}</td><td/></row>
+		<row><td>UpgradeCode</td><td>{C252B195-23BA-4590-84B6-2A24185FEF1E}</td><td/></row>
 		<row><td>_IsMaintenance</td><td>Change</td><td/></row>
 		<row><td>_IsSetupTypeMin</td><td>Typical</td><td/></row>
 	</table>

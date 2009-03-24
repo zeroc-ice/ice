@@ -9,6 +9,7 @@
 
 #include <Ice/StreamI.h>
 #include <Ice/Initialize.h>
+#include <Ice/LocalException.h>
 
 using namespace std;
 using namespace Ice;
@@ -305,7 +306,7 @@ Ice::InputStreamI::startEncapsulation()
 void
 Ice::InputStreamI::endEncapsulation()
 {
-    _is->endReadEncaps();
+    _is->endReadEncapsChecked();
 }
 
 void
@@ -562,6 +563,11 @@ Ice::OutputStreamI::writeWstringSeq(const vector<wstring>& v)
 void
 Ice::OutputStreamI::writeSize(Int sz)
 {
+    if(sz < 0)
+    {
+        throw NegativeSizeException(__FILE__, __LINE__);
+    }
+
     _os->writeSize(sz);
 }
 
@@ -610,7 +616,7 @@ Ice::OutputStreamI::startEncapsulation()
 void
 Ice::OutputStreamI::endEncapsulation()
 {
-    _os->endWriteEncaps();
+    _os->endWriteEncapsChecked();
 }
 
 void

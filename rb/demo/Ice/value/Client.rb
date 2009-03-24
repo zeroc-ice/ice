@@ -34,7 +34,7 @@ end
 
 class ObjectFactory
     def create(type)
-        if type == "::Demo::DerivedPrinter"
+        if type == Demo::DerivedPrinter::ice_staticId()
             return DerivedPrinterI.new
         end
 
@@ -147,7 +147,7 @@ class Ice::Application
 	STDOUT.flush
         STDIN.readline
 
-        Ice::Application::communicator().addObjectFactory(ObjectFactory.new, "::Demo::DerivedPrinter")
+        Ice::Application::communicator().addObjectFactory(ObjectFactory.new, Demo::DerivedPrinter::ice_staticId())
 
         derived = initial.getDerivedPrinter()
         puts "==> The type ID of the received object is \"" + derived.ice_id() + "\""

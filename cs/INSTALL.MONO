@@ -28,6 +28,7 @@ only on:
 You need to install the mono-core and the mono-devel RPMs to build Ice 
 for .NET on Linux.
 
+
 Build instructions
 ------------------
 
@@ -52,6 +53,16 @@ If you have not built Ice for C++ from the cpp subdirectory, then
 you need to set (and export) ICE_HOME to the top-level directory of
 an Ice for C++ installation. (The makefiles look there for a bin
 directory that contains slice2cs.)
+
+
+Managed Code
+------------
+
+By default, Ice for .NET uses unmanaged code for performing protocol
+compression and for handling signals in the Ice.Application class
+on Windows. You can build a managed version of Ice for .NET that
+lacks the aforementioned features by editing config/Make.rules.cs and
+uncommenting the MANAGED=yes line before you build.
 
 
 Configuring the bzip library
@@ -88,6 +99,7 @@ $ mono foo
 If you want to avoid having to explicitly invoke the Mono interpreter,
 please follow the "Registering .exe as non-native binaries" instructions
 at http://www.mono-project.com/Guide:Running_Mono_Applications.
+
 
 Running the tests
 -----------------
@@ -155,16 +167,10 @@ directory that contains the .exe for your application.
 Binary compatibility
 --------------------
 
-Patch releases of Ice are binary compatible. For example, version
-3.2.1 is compatible with 3.2.0, so you can run applications
-compiled with 3.2.0 with the 3.2.1 runtime without having to
-recompile.
+Ice patch releases are binary compatible. For example, Ice version 
+@mmver@.1 is compatible with @mmver@.0: you can run an application built
+against Ice @mmver@.0 with Ice @mmver@.1 (or later) without having to
+recompile or relink this application.
 
-Ice for .NET includes policy assemblies in Ice-@ver@/cs/bin that
-supply the Mono run time with the required compatibility information.
-Policy assemblies have names of the form policy.<major>.<minor>.<package>.dll.
-For example, the policy assembly for IceBox 3.2 is called policy.3.2.IceBox.dll.
-
-To upgrade an existing application to a new patch release, the policy
-assemblies must be present in your MONO_PATH, or they must be
-installed into the GAC as described in the previous section.
+Please refer to the RELEASE_NOTES file included in this distribution
+for detailed upgrade instructions.

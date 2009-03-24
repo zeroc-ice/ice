@@ -52,6 +52,11 @@ Demos in this directory:
   A demo to illustrate how nested callbacks work, and how the size of
   the thread pool affects the maximum nesting depth.
 
+- serialize
+
+  This demo illustrates how to transfer serializable Java classes
+  with Ice.
+
 - session
 
   This demo shows how to use sessions to clean up client-specific

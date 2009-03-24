@@ -118,6 +118,12 @@ To build the C++ demos, start Visual Studio and open the workspace
 demo\demo.dsw. Set your active project to "all" using Project->Set
 Active Project, then start the compilation using Build->Build.
 
+To build the MFC demos, you must have the Unicode library installed.
+If you get a link failure about a missing MFC42UD.LIB, run Visual Studio
+setup, and add the Unicode library (under "MFC and Template Libraries",
+"MS Foundation Class Libraries", "Shared Libraries for Unicode") to
+your Visual Studio installation.
+
 To run these demos, you need to add the Ice bin directory to your
 PATH, as shown below:
 
@@ -375,10 +381,10 @@ appropriate changes as you follow the instructions.
 Binary compatibility
 --------------------
 
-Ice patch releases are binary compatible. For example, Ice version 
-<x>.<y>.1 is compatible with <x>.<y>.0: you can run an application 
-built against Ice <x>.<y>.0 with Ice <x>.<y>.1 (or later) without 
-having to recompile or relink this application.
+Ice patch releases are binary compatible. For example, Ice version
+@mmver@.1 is compatible with @mmver@.0: you can run an application built
+against Ice @mmver@.0 with Ice @mmver@.1 (or later) without having to
+recompile or relink this application.
 
 Please refer to the RELEASE_NOTES.txt file included in this
 distribution for detailed upgrade instructions.

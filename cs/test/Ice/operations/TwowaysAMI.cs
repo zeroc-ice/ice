@@ -852,6 +852,40 @@ public class TwowaysAMI
         
         private Callback callback = new Callback();
     }
+
+    private class AMI_MyClass_opMyStructMyEnumDI : Test.AMI_MyClass_opMyStructMyEnumD
+    {
+        public override void ice_response(Dictionary<Test.MyStruct, Test.MyEnum> ro,
+                                          Dictionary<Test.MyStruct, Test.MyEnum> _do)
+        {
+            Test.MyStruct s11 = new Test.MyStruct(1, 1);
+            Test.MyStruct s12 = new Test.MyStruct(1, 2);
+            Dictionary<Test.MyStruct, Test.MyEnum> di1 = new Dictionary<Test.MyStruct, Test.MyEnum>();
+            di1[s11] = Test.MyEnum.enum1;
+            di1[s12] = Test.MyEnum.enum2;
+            test(Ice.CollectionComparer.Equals(_do, di1));
+            Test.MyStruct s22 = new Test.MyStruct(2, 2);
+            Test.MyStruct s23 = new Test.MyStruct(2, 3);
+            test(ro.Count == 4);
+            test(ro[s11] == Test.MyEnum.enum1);
+            test(ro[s12] == Test.MyEnum.enum2);
+            test(ro[s22] == Test.MyEnum.enum3);
+            test(ro[s23] == Test.MyEnum.enum2);
+            callback.called();
+        }
+        
+        public override void ice_exception(Ice.Exception ex)
+        {
+            test(false);
+        }
+        
+        public virtual bool check()
+        {
+            return callback.check();
+        }
+        
+        private Callback callback = new Callback();
+    }
     
     private class AMI_MyClass_opIntSI : Test.AMI_MyClass_opIntS
     {
@@ -1273,6 +1307,23 @@ public class TwowaysAMI
             
             AMI_MyClass_opStringMyEnumDI cb = new AMI_MyClass_opStringMyEnumDI();
             p.opStringMyEnumD_async(cb, di1, di2);
+            test(cb.check());
+        }
+
+        {
+            Test.MyStruct s11 = new Test.MyStruct(1, 1);
+            Test.MyStruct s12 = new Test.MyStruct(1, 2);
+            Dictionary<Test.MyStruct, Test.MyEnum> di1 = new Dictionary<Test.MyStruct, Test.MyEnum>();
+            di1[s11] = Test.MyEnum.enum1;
+            di1[s12] = Test.MyEnum.enum2;
+            Test.MyStruct s22 = new Test.MyStruct(2, 2);
+            Test.MyStruct s23 = new Test.MyStruct(2, 3);
+            Dictionary<Test.MyStruct, Test.MyEnum> di2 = new Dictionary<Test.MyStruct, Test.MyEnum>();
+            di2[s22] = Test.MyEnum.enum3;
+            di2[s23] = Test.MyEnum.enum2;
+            
+            AMI_MyClass_opMyStructMyEnumDI cb = new AMI_MyClass_opMyStructMyEnumDI();
+            p.opMyStructMyEnumD_async(cb, di1, di2);
             test(cb.check());
         }
         

@@ -618,18 +618,22 @@ IceInternal::Instance::getAdmin()
                 // (can't call again getAdmin() after fixing the problem)
                 // since all the facets (servants) in the adapter are lost
                 //
+                adapter->destroy();
                 sync.acquire();
                 _adminAdapter = 0;
-                adapter->destroy();
                 throw;
             }
             
+            Ice::ObjectPrx admin = adapter->createProxy(_adminIdentity);
             if(defaultLocator != 0 && serverId != "")
             {    
-                ProcessPrx process = ProcessPrx::uncheckedCast(
-                    adapter->createProxy(_adminIdentity)->ice_facet("Process"));
+                ProcessPrx process = ProcessPrx::uncheckedCast(admin->ice_facet("Process"));
                 try
                 {
+                    //
+                    // Note that as soon as the process proxy is registered, the communicator might be 
+                    // shutdown by a remote client and admin facets might start receiving calls.
+                    //
                     defaultLocator->getRegistry()->setServerProcessProxy(serverId, process);
                 }
                 catch(const ServerNotFoundException&)
@@ -661,7 +665,7 @@ IceInternal::Instance::getAdmin()
                 out << "registered server `" + serverId + "' with the locator registry";
             }
             
-            return adapter->createProxy(_adminIdentity);
+            return admin;
         }
         else
         {
@@ -1164,11 +1168,6 @@ IceInternal::Instance::finishSetup(int& argc, char* argv[])
 #endif
     }
     
-    if(_initData.properties->getPropertyAsIntWithDefault("Ice.Admin.DelayCreation", 0) <= 0)
-    {
-        getAdmin();
-    }
-
     //
     // Start connection monitor if necessary. Set the check interval to
     // 1/10 of the ACM timeout with a minmal value of 1 second and a 
@@ -1189,7 +1188,7 @@ IceInternal::Instance::finishSetup(int& argc, char* argv[])
     }
     if(interval > 0)
     {
-        interval = min(300, max(1, (int)interval / 10));
+        interval = min(300, max(5, (int)interval / 10));
     }
     interval = _initData.properties->getPropertyAsIntWithDefault("Ice.MonitorConnections", interval);
     if(interval > 0)
@@ -1200,6 +1199,16 @@ IceInternal::Instance::finishSetup(int& argc, char* argv[])
     //
     // Server thread pool initialization is lazy in serverThreadPool().
     //
+
+    //
+    // This must be done last as this call creates the Ice.Admin object adapter
+    // and eventually register a process proxy with the Ice locator (allowing 
+    // remote clients to invoke on Ice.Admin facets as soon as it's registered).
+    //
+    if(_initData.properties->getPropertyAsIntWithDefault("Ice.Admin.DelayCreation", 0) <= 0)
+    {
+        getAdmin();
+    }
 }
 
 bool

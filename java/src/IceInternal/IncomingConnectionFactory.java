@@ -412,7 +412,6 @@ public final class IncomingConnectionFactory extends EventHandler implements Ice
             _endpoint = _endpoint.compress(defaultsAndOverrides.overrideCompressValue);
         }
 
-        Ice.ObjectAdapterI adapterImpl = (Ice.ObjectAdapterI)_adapter;
         try
         {
             EndpointIHolder h = new EndpointIHolder();
@@ -586,17 +585,6 @@ public final class IncomingConnectionFactory extends EventHandler implements Ice
         pw.flush();
         String s = "connection exception:\n" + sw.toString() + '\n' + _acceptor.toString();
         _instance.initializationData().logger.warning(s);
-    }
-
-    private void
-    error(String msg, Exception ex)
-    {
-        java.io.StringWriter sw = new java.io.StringWriter();
-        java.io.PrintWriter pw = new java.io.PrintWriter(sw);
-        ex.printStackTrace(pw);
-        pw.flush();
-        String s = msg + ":\n" + toString() + "\n" + sw.toString();
-        _instance.initializationData().logger.error(s);
     }
 
     private Acceptor _acceptor;

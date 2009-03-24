@@ -31,6 +31,7 @@ module and
 
     class for
     {
+        int lambda;
         ["ami"] void foo(exec* from, out int global);
     };
 

@@ -421,7 +421,7 @@ Ice::ConnectionI::waitUntilFinished()
 }
 
 void
-Ice::ConnectionI::monitor()
+Ice::ConnectionI::monitor(const IceUtil::Time& now)
 {
     IceUtil::Monitor<IceUtil::Mutex>::TryLock sync(*this);
     if(!sync.acquired())
@@ -445,7 +445,7 @@ Ice::ConnectionI::monitor()
         return;
     }
 
-    if(IceUtil::Time::now(IceUtil::Time::Monotonic) >= _acmAbsoluteTimeout)
+    if(now >= _acmAbsoluteTimeout)
     {
         setState(StateClosing, ConnectionTimeoutException(__FILE__, __LINE__));
     }
@@ -985,12 +985,7 @@ Ice::ConnectionI::setAdapter(const ObjectAdapterPtr& adapter)
 {
     IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
 
-    if(_state == StateClosing || _state == StateClosed)
-    {
-        assert(_exception.get());
-        _exception->ice_throw();
-    }
-    else if(_state <= StateNotValidated)
+    if(_state <= StateNotValidated || _state >= StateClosing)
     {
         return;
     }
@@ -2357,7 +2352,7 @@ Ice::ConnectionI::parseMessage(BasicStream& stream, Int& invokeNum, Int& request
                         _asyncRequests.erase(q);
                     }
                 }
-
+                notifyAll(); // Notify threads blocked in close(false)
                 break;
             }
 
@@ -2379,10 +2374,6 @@ Ice::ConnectionI::parseMessage(BasicStream& stream, Int& invokeNum, Int& request
                 break;
             }
         }
-    }
-    catch(const SocketException& ex)
-    {
-        exception(ex);
     }
     catch(const LocalException& ex)
     {

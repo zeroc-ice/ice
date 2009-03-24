@@ -78,9 +78,10 @@ FilesystemClient::run(int argc, char* argv[])
     //
     // Create a file called "README" in the root directory.
     //
+    FilePrx readme;
     try
     {
-        FilePrx readme = rootDir->createFile("README");
+        readme = rootDir->createFile("README");
         Lines text;
         text.push_back("This file system contains a collection of poetry.");
         readme->write(text);
@@ -88,9 +89,9 @@ FilesystemClient::run(int argc, char* argv[])
     }
     catch(const NameInUse&)
     {
-        //
-        // Ignore - file already exists.
-        //
+        NodeDesc desc = rootDir->find("README");
+        readme = FilePrx::checkedCast(desc.proxy);
+        assert(readme);
     }
 
     //
@@ -112,9 +113,10 @@ FilesystemClient::run(int argc, char* argv[])
     //
     // Create a file called "Kubla_Khan" in the Coleridge directory.
     //
+    FilePrx file;
     try
     {
-        FilePrx file = coleridge->createFile("Kubla_Khan");
+        file = coleridge->createFile("Kubla_Khan");
         Lines text;
         text.push_back("In Xanadu did Kubla Khan");
         text.push_back("A stately pleasure-dome decree:");
@@ -126,9 +128,9 @@ FilesystemClient::run(int argc, char* argv[])
     }
     catch(const NameInUse&)
     {
-        //
-        // Ignore - file already exists.
-        //
+        NodeDesc desc = coleridge->find("Kubla_Khan");
+        file = FilePrx::checkedCast(desc.proxy);
+        assert(file);
     }
 
     cout << "Contents of filesystem:" << endl;
@@ -137,12 +139,12 @@ FilesystemClient::run(int argc, char* argv[])
     //
     // Destroy the filesystem.
     //
-    NodeDescSeq contents = rootDir->list();
-    for(NodeDescSeq::iterator i = contents.begin(); i != contents.end(); ++i)
-    {
-        cout << "Destroying " << i->name << endl;
-        i->proxy->destroy();
-    }
+    cout << "Destroying " << file->name() << endl;
+    file->destroy();
+    cout << "Destroying " << readme->name() << endl;
+    readme->destroy();
+    cout << "Destroying " << coleridge->name() << endl;
+    coleridge->destroy();
 
     return EXIT_SUCCESS;
 }

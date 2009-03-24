@@ -54,6 +54,17 @@ public class AllTests
         private string _name = null;
     };
 
+    private class NoOpGetAdapterNameCB : AMI_TestIntf_getAdapterName
+    {
+        public override void ice_response(string name)
+        {
+        }
+        
+        public override void ice_exception(Ice.Exception ex)
+        {
+        }
+    };
+
     private static string getAdapterNameWithAMI(TestIntfPrx test)
     {
         GetAdapterNameCB cb = new GetAdapterNameCB();
@@ -111,6 +122,8 @@ public class AllTests
     {
         string @ref = "communicator:default -p 12010 -t 10000";
         RemoteCommunicatorPrx com = RemoteCommunicatorPrxHelper.uncheckedCast(communicator.stringToProxy(@ref));
+
+        System.Random rand = new System.Random(unchecked((int)System.DateTime.Now.Ticks));
 
         Console.Out.Write("testing binding with single endpoint... ");
         Console.Out.Flush();
@@ -230,6 +243,107 @@ public class AllTests
             test(obj.getAdapterName().Equals("Adapter12"));
 
             deactivate(com, adapters);
+        }
+        Console.Out.WriteLine("ok");
+
+        Console.Out.Write("testing binding with multiple random endpoints... ");
+        Console.Out.Flush();
+        {
+            RemoteObjectAdapterPrx[] adapters = new RemoteObjectAdapterPrx[5];
+            adapters[0] = com.createObjectAdapter("AdapterRandom11", "default");
+            adapters[1] = com.createObjectAdapter("AdapterRandom12", "default");
+            adapters[2] = com.createObjectAdapter("AdapterRandom13", "default");
+            adapters[3] = com.createObjectAdapter("AdapterRandom14", "default");
+            adapters[4] = com.createObjectAdapter("AdapterRandom15", "default");
+
+            int count;
+            if(IceInternal.AssemblyUtil.platform_ == IceInternal.AssemblyUtil.Platform.Windows)
+            {
+                count = 20;
+            }
+            else
+            {
+                count = 60;
+            }
+
+            int adapterCount = adapters.Length;
+            while(--count > 0)
+            {
+                TestIntfPrx[] proxies;
+                if(IceInternal.AssemblyUtil.platform_ == IceInternal.AssemblyUtil.Platform.Windows)
+                {
+                    if(count == 10)
+                    {
+                        com.deactivateObjectAdapter(adapters[4]);
+                        --adapterCount;
+                    }
+                    proxies = new TestIntfPrx[10];
+                }
+                else
+                {
+                    if(count < 60 && count % 10 == 0)
+                    {
+                        com.deactivateObjectAdapter(adapters[count / 10 - 1]);
+                        --adapterCount;
+                    }
+                    proxies = new TestIntfPrx[40];
+                }
+
+                int i;
+                for(i = 0; i < proxies.Length; ++i)
+                {
+                    RemoteObjectAdapterPrx[] adpts = new RemoteObjectAdapterPrx[rand.Next(adapters.Length)];
+                    if(adpts.Length == 0)
+                    {
+                        adpts = new RemoteObjectAdapterPrx[1];
+                    }
+                    for(int j = 0; j < adpts.Length; ++j)
+                    {
+                        adpts[j] = adapters[rand.Next(adapters.Length)];
+                    }
+                    proxies[i] = createTestIntfPrx(new ArrayList(adpts));
+                }
+            
+                for(i = 0; i < proxies.Length; i++)
+                {
+                    proxies[i].getAdapterName_async(new NoOpGetAdapterNameCB());
+                }
+                for(i = 0; i < proxies.Length; i++)
+                {
+                    try
+                    {
+                        proxies[i].ice_ping();
+                    }
+                    catch(Ice.LocalException)
+                    {
+                    }
+                }
+                
+                ArrayList connections = new ArrayList();
+                for(i = 0; i < proxies.Length; i++)
+                {
+                    if(proxies[i].ice_getCachedConnection() != null)
+                    {
+                        if(!connections.Contains(proxies[i].ice_getCachedConnection()))
+                        {
+                            connections.Add(proxies[i].ice_getCachedConnection());
+                        }
+                    }
+                }
+                test(connections.Count <= adapterCount);
+
+                foreach(RemoteObjectAdapterPrx a in adapters)
+                {
+                    try
+                    {
+                        a.getTestIntf().ice_getConnection().close(false);
+                    }
+                    catch(Ice.LocalException)
+                    {
+                        // Expected if adapter is down.
+                    }
+                }
+            }
         }
         Console.Out.WriteLine("ok");
 

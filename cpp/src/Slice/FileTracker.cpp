@@ -9,6 +9,10 @@
 
 #include <Slice/FileTracker.h>
 
+#ifdef __sun
+#   include <unistd.h>
+#endif
+
 #ifdef _WIN32
 #   include <direct.h>
 #endif
@@ -36,7 +40,11 @@ Slice::FileException::ice_name() const
 void
 Slice::FileException::ice_print(ostream& out) const
 {
+#if defined(_MSC_VER) && (_MSC_VER < 1300)
+    Exception::ice_print(out);
+#else
     IceUtil::Exception::ice_print(out);
+#endif
     out << ": " << _reason;
 }
 
@@ -61,7 +69,8 @@ Slice::FileException::reason() const
 
 static Slice::FileTrackerPtr Instance;
 
-Slice::FileTracker::FileTracker()
+Slice::FileTracker::FileTracker() :
+    _curr(_generated.end())
 {
 }
 
@@ -81,9 +90,33 @@ Slice::FileTracker::instance()
 }
 
 void
+Slice::FileTracker::setSource(const string& source)
+{
+    _source = source;
+    pair<map<string, list<string> >::iterator, bool> p = _generated.insert(make_pair(source, list<string>()));
+    assert(p.second);
+    _curr = p.first;
+}
+
+void
+Slice::FileTracker::setOutput(const string& output, bool error)
+{
+    assert(!_source.empty());
+    _errors.insert(make_pair(_source, output));
+    if(error)
+    {
+        _curr = _generated.end();
+    }
+}
+
+void
 Slice::FileTracker::addFile(const string& file)
 {
     _files.push_front(make_pair(file, false));
+    if(_curr != _generated.end())
+    {
+        _curr->second.push_back(file);
+    }
 }
 
 void
@@ -114,4 +147,63 @@ Slice::FileTracker::cleanup()
 #endif
         }
     }
+}
+
+void
+Slice::FileTracker::dumpxml()
+{
+    cout << "<?xml version=\"1.0\" encoding=\"UTF-8\"?>" << endl;
+
+    cout << "<generated>" << endl;
+    for(map<string, string>::const_iterator p = _errors.begin(); p != _errors.end(); ++p)
+    {
+        cout << "  <source name=\"" << p->first << "\"";
+
+        map<string, list<string> >::const_iterator q = _generated.find(p->first);
+        if(q == _generated.end())
+        {
+            cout << " error=\"true\">" << endl;
+        }
+        else
+        {
+            cout << ">" << endl;
+            for(list<string>::const_iterator r = q->second.begin(); r != q->second.end(); ++r)
+            {
+                cout << "    <file name=\"" << *r << "\"/>" << endl;
+            }
+        }
+        cout << "    <output>" << escape(p->second) << "</output>" << endl;
+        cout << "  </source>" << endl;
+    }
+    cout << "</generated>" << endl;
+}
+
+string
+Slice::FileTracker::escape(const string& str) const
+{
+    ostringstream ostr;
+
+    for(string::const_iterator p = str.begin(); p != str.end(); ++p)
+    {
+        switch(*p)
+        {
+        case '<':
+            ostr << "&lt;";
+            break;
+        case '>':
+            ostr << "&gt;";
+            break;
+        case '&':
+            ostr << "&amp;";
+            break;
+        case '"':
+            ostr << "&quot;";
+            break;
+        default:
+            ostr << *p;
+            break;
+        }
+    }
+
+    return ostr.str();
 }

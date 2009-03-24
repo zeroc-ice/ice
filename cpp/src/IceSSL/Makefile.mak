@@ -34,7 +34,7 @@ HDIR		= $(headerdir)\IceSSL
 CPPFLAGS	= -I.. $(CPPFLAGS) -DICE_SSL_API_EXPORTS -DFD_SETSIZE=1024 -DWIN32_LEAN_AND_MEAN
 
 LINKWITH        = $(OPENSSL_LIBS) $(LIBS)
-!if "$(CPP_COMPILER)" != "BCC2007"
+!if "$(BCPLUSPLUS)" != "yes"
 LINKWITH	= $(LINKWITH) ws2_32.lib
 !endif
 
@@ -42,7 +42,7 @@ LINKWITH	= $(LINKWITH) ws2_32.lib
 PDBFLAGS        = /pdb:$(DLLNAME:.dll=.pdb)
 !endif
 
-!if "$(CPP_COMPILER)" == "BCC2007"
+!if "$(BCPLUSPLUS)" == "yes"
 RES_FILE        = ,, IceSSL.res
 !else
 RES_FILE        = IceSSL.res
@@ -65,7 +65,7 @@ install:: all
 	copy $(DLLNAME) $(install_bindir)
 
 
-!if "$(CPP_COMPILER)" == "BCC2007" && "$(OPTIMIZE)" != "yes"
+!if "$(BCPLUSPLUS)" == "yes" && "$(OPTIMIZE)" != "yes"
 
 install:: all
 	copy $(DLLNAME:.dll=.tds) $(install_bindir)

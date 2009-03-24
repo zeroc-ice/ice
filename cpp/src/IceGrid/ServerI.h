@@ -121,7 +121,7 @@ private:
     void updateImpl(const InternalServerDescriptorPtr&);
     void checkRevision(const std::string&, const std::string&, int) const;
     void updateRevision(const std::string&, int);
-    void checkActivation();
+    bool checkActivation();
     void checkDestroyed() const;
     void disableOnFailure();
     void enableAfterFailure(bool);

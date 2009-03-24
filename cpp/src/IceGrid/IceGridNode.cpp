@@ -77,6 +77,7 @@ public:
 protected:
 
     virtual bool start(int, char*[]);
+    bool startImpl(int, char*[]);
     virtual void waitForShutdown();
     virtual bool stop();
     virtual CommunicatorPtr initializeCommunicator(int&, char*[], const InitializationData&);
@@ -183,6 +184,25 @@ NodeService::shutdown()
 
 bool
 NodeService::start(int argc, char* argv[])
+{
+    try
+    {
+        if(!startImpl(argc, argv))
+        {
+            stop();
+            return false;
+        }
+    }
+    catch(...)
+    {
+        stop();
+        throw;
+    }
+    return true;
+}
+
+bool
+NodeService::startImpl(int argc, char* argv[])
 {
     bool nowarn = false;
     bool readonly = false;
@@ -668,43 +688,53 @@ NodeService::waitForShutdown()
 bool
 NodeService::stop()
 {
-    try
+    if(_activator)
     {
-        _activator->destroy();
-    }
-    catch(...)
-    {
-        assert(false);
-    }
-
-    //
-    // The timer must be destroyed after the activator and before the
-    // communicator is shutdown.
-    //
-    try
-    {
-        _timer->destroy();
-    }
-    catch(...)
-    {
-        assert(false);
+        try
+        {
+            _activator->shutdown();
+            _activator->destroy();
+        }
+        catch(...)
+        {
+            assert(false);
+        }
+        _activator = 0;
     }
 
-    _activator = 0;
+    if(_timer)
+    {
+        //
+        // The timer must be destroyed after the activator and before the
+        // communicator is shutdown.
+        //
+        try
+        {
+            _timer->destroy();
+        }
+        catch(...)
+        {
+            assert(false);
+        }
+        _timer = 0;
+    }
 
     //
     // Deactivate the node object adapter.
     //
-    try
+    if(_adapter)
     {
-        _adapter->deactivate();
-        _adapter = 0;
-    }
-    catch(const Ice::LocalException& ex)
-    {
-        ostringstream ostr;
-        ostr << "unexpected exception while shutting down node:\n" << ex;
-        warning(ostr.str());
+        try
+        {
+            _adapter->deactivate();
+            _adapter = 0;
+        }
+        catch(const Ice::LocalException& ex)
+        {
+            ostringstream ostr;
+            ostr << "unexpected exception while shutting down node:\n" << ex;
+            warning(ostr.str());
+        }
     }
 
     //
@@ -715,7 +745,10 @@ NodeService::stop()
     //
     // Stop the platform info thread.
     //
-    _node->getPlatformInfo().stop();
+    if(_node)
+    {
+        _node->getPlatformInfo().stop();
+    }
 
     //
     // We can now safely shutdown the communicator.
@@ -735,8 +768,11 @@ NodeService::stop()
     //
     // Break cylic reference counts.
     //
-    _node->shutdown();
-    _node = 0;
+    if(_node)
+    {
+        _node->shutdown();
+        _node = 0;
+    }
 
     //
     // And shutdown the collocated registry.

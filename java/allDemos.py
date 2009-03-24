@@ -33,6 +33,7 @@ demos = [
     "Ice/minimal",
     "Ice/multicast",
     "Ice/nested",
+    "Ice/serialize",
     "Ice/session",
     "Ice/throughput",
     "Ice/value",
@@ -52,5 +53,9 @@ demos = [
     "book/lifecycle",
 ]
 
+protoDemos = [
+    "Ice/protobuf"
+]
+
 if __name__ == "__main__":
-    Util.run(demos)
+    Util.run(demos, protoDemos)

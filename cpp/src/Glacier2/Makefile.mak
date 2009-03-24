@@ -45,7 +45,7 @@ SDIR		= $(slicedir)\Glacier2
 
 CPPFLAGS	= -I.. $(CPPFLAGS) -DWIN32_LEAN_AND_MEAN
 LINKWITH 	= $(LIBS) $(OPENSSL_LIBS) glacier2$(LIBSUFFIX).lib icessl$(LIBSUFFIX).lib
-!if "$(CPP_COMPILER)" != "BCC2007"
+!if "$(BCPLUSPLUS)" != "yes"
 LINKWITH	= $(LINKWITH) ws2_32.lib
 !endif
 
@@ -54,7 +54,7 @@ PDBFLAGS        = /pdb:$(DLLNAME:.dll=.pdb)
 RPDBFLAGS       = /pdb:$(ROUTER:.exe=.pdb)
 !endif
 
-!if "$(CPP_COMPILER)" == "BCC2007"
+!if "$(BCPLUSPLUS)" == "yes"
 RES_FILE        = ,, Glacier2.res
 RRES_FILE       = ,, Glacier2Router.res
 !else
@@ -95,7 +95,7 @@ install:: all
 	copy $(ROUTER) $(install_bindir)
 
 
-!if "$(CPP_COMPILER)" == "BCC2007" && "$(OPTIMIZE)" != "yes"
+!if "$(BCPLUSPLUS)" == "yes" && "$(OPTIMIZE)" != "yes"
 
 install:: all
 	copy $(DLLNAME:.dll=.tds) $(install_bindir)

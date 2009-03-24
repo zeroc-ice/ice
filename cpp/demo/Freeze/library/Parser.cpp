@@ -171,6 +171,9 @@ Parser::printCurrent()
             string renter;
             try
             {
+#if defined(__BCPLUSPLUS__) && (__BCPLUSPLUS__ >= 0x0600)
+                IceUtil::DummyBCC dummy;
+#endif
                 renter = (*_current)->getRenterName();
             }
             catch(const BookNotRentedException&)

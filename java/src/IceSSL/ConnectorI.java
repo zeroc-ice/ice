@@ -9,7 +9,7 @@
 
 package IceSSL;
 
-final class ConnectorI implements IceInternal.Connector, java.lang.Comparable
+final class ConnectorI implements IceInternal.Connector
 {
     public IceInternal.Transceiver
     connect()
@@ -94,17 +94,8 @@ final class ConnectorI implements IceInternal.Connector, java.lang.Comparable
         _hashCode = 5 * _hashCode + _connectionId.hashCode();
     }
 
-    //
-    // Compare connectors for sorting purposes
-    //
     public boolean
     equals(java.lang.Object obj)
-    {
-        return compareTo(obj) == 0;
-    }
-
-    public int
-    compareTo(java.lang.Object obj) // From java.lang.Comparable
     {
         ConnectorI p = null;
 
@@ -114,44 +105,25 @@ final class ConnectorI implements IceInternal.Connector, java.lang.Comparable
         }
         catch(ClassCastException ex)
         {
-            try
-            {
-                IceInternal.Connector c = (IceInternal.Connector)obj;
-                return type() < c.type() ? -1 : 1;
-            }
-            catch(ClassCastException ee)
-            {
-                assert(false);
-            }
+            return false;
         }
 
         if(this == p)
         {
-            return 0;
+            return false;
         }
 
-        if(_timeout < p._timeout)
+        if(_timeout != p._timeout)
         {
-            return -1;
-        }
-        else if(p._timeout < _timeout)
-        {
-            return 1;
+            return false;
         }
 
         if(!_connectionId.equals(p._connectionId))
         {
-            return _connectionId.compareTo(p._connectionId);
+            return false;
         }
 
-        return IceInternal.Network.compareAddress(_addr, p._addr);
-    }
-
-    protected synchronized void
-    finalize()
-        throws Throwable
-    {
-        super.finalize();
+        return IceInternal.Network.compareAddress(_addr, p._addr) == 0;
     }
 
     private Instance _instance;

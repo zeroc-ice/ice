@@ -367,6 +367,17 @@ public class BasicStream
     }
 
     public void
+    endWriteEncapsChecked() // Used by public stream API.
+    {
+        if(_writeEncapsStack == null)
+        {
+            throw new Ice.EncapsulationException("not in an encapsulation");
+        }
+
+        endWriteEncaps();
+    }
+
+    public void
     startReadEncaps()
     {
         {
@@ -476,6 +487,17 @@ public class BasicStream
         {
             throw new Ice.UnmarshalOutOfBoundsException();
         }
+    }
+
+    public void
+    endReadEncapsChecked() // Used by public stream API.
+    {
+        if(_readEncapsStack == null)
+        {
+            throw new Ice.EncapsulationException("not in an encapsulation");
+        }
+
+        endReadEncaps();
     }
 
     public int
@@ -592,6 +614,14 @@ public class BasicStream
     public void
     writeTypeId(String id)
     {
+        if(_writeEncapsStack == null || _writeEncapsStack.typeIdMap == null)
+        {
+            //
+            // writeObject() must be called first.
+            //
+            throw new Ice.MarshalException("type ids require an encapsulation");
+        }
+
         Integer index = _writeEncapsStack.typeIdMap.get(id);
         if(index != null)
         {
@@ -610,6 +640,14 @@ public class BasicStream
     public String
     readTypeId()
     {
+        if(_readEncapsStack == null || _readEncapsStack.typeIdMap == null)
+        {
+            //
+            // readObject() must be called first.
+            //
+            throw new Ice.MarshalException("type ids require an encapsulation");
+        }
+
         String id;
         Integer index;
         final boolean isIndex = readBool();
@@ -692,6 +730,28 @@ public class BasicStream
         }
     }
 
+    public void
+    writeSerializable(java.io.Serializable o)
+    {
+        if(o == null)
+        {
+            writeSize(0);
+            return;
+        }
+        try
+        {
+            OutputStreamWrapper w = new OutputStreamWrapper(this);
+            java.io.ObjectOutputStream out = new java.io.ObjectOutputStream(w);
+            out.writeObject(o);
+            out.close();
+            w.close();
+        }
+        catch(java.lang.Exception ex)
+        {
+            throw new Ice.MarshalException("cannot serialize object: " + ex);
+        }
+    }
+
     public byte
     readByte()
     {
@@ -730,6 +790,27 @@ public class BasicStream
         catch(java.nio.BufferUnderflowException ex)
         {
             throw new Ice.UnmarshalOutOfBoundsException();
+        }
+    }
+
+    public java.io.Serializable
+    readSerializable()
+    {
+        int sz = readSize();
+        if (sz == 0)
+        {
+            return null;
+        }
+        checkFixedSeq(sz, 1);
+        try
+        {
+            InputStreamWrapper w = new InputStreamWrapper(sz, this);
+            java.io.ObjectInputStream in = new java.io.ObjectInputStream(w);
+            return (java.io.Serializable)in.readObject();
+        }
+        catch(java.lang.Exception ex)
+        {
+            throw new Ice.MarshalException("cannot deserialize object: " + ex);
         }
     }
 
@@ -1377,33 +1458,40 @@ public class BasicStream
 
         int index = readInt();
 
-        if(index == 0)
+        if(patcher != null)
         {
-            patcher.patch(null);
-            return;
-        }
-
-        if(index < 0 && patcher != null)
-        {
-            Integer i = new Integer(-index);
-            java.util.LinkedList<Patcher> patchlist = _readEncapsStack.patchMap.get(i);
-            if(patchlist == null)
+            if(index == 0)
             {
-                //
-                // We have no outstanding instances to be patched for
-                // this index, so make a new entry in the patch map.
-                //
-                patchlist = new java.util.LinkedList<Patcher>();
-                _readEncapsStack.patchMap.put(i, patchlist);
+                patcher.patch(null);
+                return;
             }
-            //
-            // Append a patcher for this instance and see if we can
-            // patch the instance. (The instance may have been
-            // unmarshaled previously.)
-            //
-            patchlist.add(patcher);
-            patchReferences(null, i);
-            return;
+
+            if(index < 0)
+            {
+                Integer i = new Integer(-index);
+                java.util.LinkedList<Patcher> patchlist = _readEncapsStack.patchMap.get(i);
+                if(patchlist == null)
+                {
+                    //
+                    // We have no outstanding instances to be patched for
+                    // this index, so make a new entry in the patch map.
+                    //
+                    patchlist = new java.util.LinkedList<Patcher>();
+                    _readEncapsStack.patchMap.put(i, patchlist);
+                }
+                //
+                // Append a patcher for this instance and see if we can
+                // patch the instance. (The instance may have been
+                // unmarshaled previously.)
+                //
+                patchlist.add(patcher);
+                patchReferences(null, i);
+                return;
+            }
+        }
+        if(index < 0)
+        {
+            throw new Ice.MarshalException("Invalid class instance index");
         }
 
         String mostDerivedId = readTypeId();
@@ -1523,6 +1611,7 @@ public class BasicStream
         boolean usesClasses = readBool();
 
         String id = readString();
+        final String origId = id;
 
         for(;;)
         {
@@ -1567,8 +1656,24 @@ public class BasicStream
                 {
                     TraceUtil.traceSlicing("exception", id, _slicingCat, _instance.initializationData().logger);
                 }
+
                 skipSlice(); // Slice off what we don't understand.
-                id = readString(); // Read type id for next slice.
+
+                try
+                {
+                    id = readString(); // Read type id for next slice.
+                }
+                catch(Ice.UnmarshalOutOfBoundsException ex)
+                {
+                    //
+                    // When readString raises this exception it means we've seen the last slice,
+                    // so we set the reason member to a more helpful message.
+                    //
+                    Ice.UnmarshalOutOfBoundsException e = new Ice.UnmarshalOutOfBoundsException();
+                    e.reason = "unknown exception type `" + origId + "'";
+                    e.initCause(ex);
+                    throw e;
+                }
             }
         }
 
@@ -1635,6 +1740,15 @@ public class BasicStream
             }
         }
         while(num > 0);
+
+        if(_readEncapsStack != null && _readEncapsStack.patchMap != null && _readEncapsStack.patchMap.size() != 0)
+        {
+            //
+            // If any entries remain in the patch map, the sender has sent an index for an object, but failed
+            // to supply the object.
+            //
+            throw new Ice.MarshalException("Index for class received, but no instance");
+        }
 
         //
         // Iterate over unmarshaledMap and invoke ice_postUnmarshal on
@@ -2023,7 +2137,7 @@ public class BasicStream
         return ucStream;
     }
 
-    private void
+    public void
     expand(int n)
     {
         if(!_unlimited && _buf.b != null && _buf.b.position() + n > _messageSizeMax)
@@ -2035,7 +2149,7 @@ public class BasicStream
 
     private static final class DynamicObjectFactory implements Ice.ObjectFactory
     {
-        DynamicObjectFactory(Class c)
+        DynamicObjectFactory(Class<?> c)
         {
             _class = c;
         }
@@ -2060,7 +2174,7 @@ public class BasicStream
         {
         }
 
-        private Class _class;
+        private Class<?> _class;
     }
 
     private Ice.ObjectFactory
@@ -2070,7 +2184,7 @@ public class BasicStream
 
         try
         {
-            Class c = findClass(id);
+            Class<?> c = findClass(id);
             if(c != null)
             {
                 Ice.ObjectFactory dynamicFactory = new DynamicObjectFactory(c);
@@ -2115,7 +2229,7 @@ public class BasicStream
     private static final class DynamicUserExceptionFactory
         implements UserExceptionFactory
     {
-        DynamicUserExceptionFactory(Class c)
+        DynamicUserExceptionFactory(Class<?> c)
         {
             _class = c;
         }
@@ -2145,7 +2259,7 @@ public class BasicStream
         {
         }
 
-        private Class _class;
+        private Class<?> _class;
     }
 
     private UserExceptionFactory
@@ -2162,7 +2276,7 @@ public class BasicStream
         {
             try
             {
-                Class c = findClass(id);
+                Class<?> c = findClass(id);
                 if(c != null)
                 {
                     factory = new DynamicUserExceptionFactory(c);
@@ -2187,11 +2301,11 @@ public class BasicStream
         return factory;
     }
 
-    private Class
+    private Class<?>
     findClass(String id)
         throws LinkageError
     {
-        Class c = null;
+        Class<?> c = null;
 
         //
         // To convert a Slice type id into a Java class, we do the following:
@@ -2231,13 +2345,13 @@ public class BasicStream
         return c;
     }
 
-    private Class
+    private Class<?>
     getConcreteClass(String className)
         throws LinkageError
     {
         try
         {
-            Class c = Class.forName(className);
+            Class<?> c = Class.forName(className);
             //
             // Ensure the class is instantiable. The constants are
             // defined in the JVM specification (0x200 = interface,
@@ -2289,7 +2403,7 @@ public class BasicStream
             throw new Ice.MarshalException();
         }
 
-        StringBuffer buf = new StringBuffer(id.length());
+        StringBuilder buf = new StringBuilder(id.length());
 
         int start = 2;
         boolean done = false;
@@ -2417,8 +2531,8 @@ public class BasicStream
         return _bzInputStreamCtor != null && _bzOutputStreamCtor != null;
     }
 
-    private static java.lang.reflect.Constructor _bzInputStreamCtor;
-    private static java.lang.reflect.Constructor _bzOutputStreamCtor;
+    private static java.lang.reflect.Constructor<?> _bzInputStreamCtor;
+    private static java.lang.reflect.Constructor<?> _bzOutputStreamCtor;
     static
     {
         try

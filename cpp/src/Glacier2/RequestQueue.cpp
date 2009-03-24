@@ -51,11 +51,9 @@ public:
         //
         if(_connection)
         {
-            try
-            {
-                ex.ice_throw();
-            }
-            catch(const Ice::ConnectionLostException&)
+            if(dynamic_cast<const Ice::SocketException*>(&ex) ||
+               dynamic_cast<const Ice::TimeoutException*>(&ex) ||
+               dynamic_cast<const Ice::ProtocolException*>(&ex))
             {
                 try
                 {
@@ -64,9 +62,6 @@ public:
                 catch(const Exception&)
                 {
                 }
-            }
-            catch(const Exception&)
-            {
             }
         }
      
@@ -87,14 +82,13 @@ private:
 
 Glacier2::Request::Request(const ObjectPrx& proxy, const std::pair<const Byte*, const Byte*>& inParams,
                            const Current& current, bool forwardContext, const Ice::Context& sslContext,
-                           const AMD_Array_Object_ice_invokePtr& amdCB, const ConnectionPtr& connection) :
+                           const AMD_Array_Object_ice_invokePtr& amdCB) :
     _proxy(proxy),
     _inParams(inParams.first, inParams.second),
     _current(current),
     _forwardContext(forwardContext),
     _sslContext(sslContext),
-    _amdCB(amdCB),
-    _connection(connection)
+    _amdCB(amdCB)
 {
     //
     // If this is not a twoway call, we can finish the AMD call right
@@ -114,7 +108,7 @@ Glacier2::Request::Request(const ObjectPrx& proxy, const std::pair<const Byte*, 
 
 
 bool
-Glacier2::Request::invoke(const InstancePtr& instance)
+Glacier2::Request::invoke(const InstancePtr& instance, const Ice::ConnectionPtr& connection)
 {
     pair<const Byte*, const Byte*> inPair;
     if(_inParams.size() == 0)
@@ -161,11 +155,11 @@ Glacier2::Request::invoke(const InstancePtr& instance)
         AMI_Array_Object_ice_invokePtr amiCB;
         if(_proxy->ice_isTwoway())
         {
-            amiCB = new AMI_Array_Object_ice_invokeI(_amdCB, instance, _connection);
+            amiCB = new AMI_Array_Object_ice_invokeI(_amdCB, instance, connection);
         }
         else
         {
-            amiCB = new AMI_Array_Object_ice_invokeI(0, instance, _connection);
+            amiCB = new AMI_Array_Object_ice_invokeI(0, instance, connection);
         }
         
         if(_forwardContext)
@@ -227,10 +221,12 @@ Glacier2::Request::override(const RequestPtr& other) const
     return _override == other->_override;
 }
 
-Glacier2::RequestQueue::RequestQueue(const RequestQueueThreadPtr& requestQueueThread,
-                                     const InstancePtr& instance) :
+Glacier2::RequestQueue::RequestQueue(const RequestQueueThreadPtr& requestQueueThread, 
+                                     const InstancePtr& instance, 
+                                     const Ice::ConnectionPtr& connection) :
     _requestQueueThread(requestQueueThread),
-    _instance(instance)
+    _instance(instance),
+    _connection(connection)
 {
 }
 
@@ -273,7 +269,7 @@ Glacier2::RequestQueue::flushRequests(set<Ice::ObjectPrx>& batchProxies)
     {
         try
         {
-            if((*p)->invoke(_instance)) // If batch invocation, add the proxy to the batch proxy set.
+            if((*p)->invoke(_instance, _connection)) // If batch invocation, add the proxy to the batch proxy set.
             {
                 batchProxies.insert((*p)->getProxy());
             }
@@ -311,7 +307,14 @@ Glacier2::RequestQueueThread::destroy()
         notify();
     }
 
-    getThreadControl().join();
+    try
+    {
+        getThreadControl().join();
+    }
+    catch(const IceUtil::ThreadNotStartedException&)
+    {
+        // Expected if start() failed.
+    }
 }
 
 void

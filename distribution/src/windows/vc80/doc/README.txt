@@ -50,7 +50,8 @@ Supported Windows versions
 This distribution is supported on the following Windows versions:
 
  - Windows XP with Service Pack 2 (x86)
- - Windows Server 2003 Standard (x86 and x64)
+ - Windows Server 2003 Standard with Service Pack 2 (x86 and x64)
+ - Windows Server 2008 Standard (x86 and x64)
  - Windows Vista (x86 and x64)
 
 
@@ -64,6 +65,21 @@ relevant for your system:
 
   http://support.microsoft.com/?id=896256
   http://support.microsoft.com/?id=895980
+
+
+Managed code in Ice for .NET
+----------------------------
+
+The main Ice for .NET assembly (Ice.dll) included in this distribution
+uses unmanaged code. If you require only managed code then you can
+download the Ice source distribution and build Ice for .NET in a
+purely managed version. Note that the managed version of Ice for .NET
+omits support for protocol compression and for signal handling in the
+Ice.Application class.
+
+You can download the source distribution at the link below:
+
+    http://www.zeroc.com/download.html
 
 
 Running IceGrid and Glacier2 components as services
@@ -110,6 +126,7 @@ Make sure to download and install the Visual C++ 8.0 SP1 run time:
   (x86) http://www.microsoft.com/downloads/details.aspx?familyid=200B2FD9-AE1A-4A14-984D-389C36F85647&displaylang=en
   (x64) http://www.microsoft.com/downloads/details.aspx?familyid=EB4EBE2D-33C0-4A47-9DD4-B9A6D7BD44DA&displaylang=en
 
+
 Setting up Visual Studio 2005 SP1 to build Ice applications in C++
 ------------------------------------------------------------------
 
@@ -148,11 +165,11 @@ Visual C++ 2005 Express and SP1 is available for download from:
   http://www.microsoft.com/express/2005/
 
 In addition to the steps listed above for setting up Visual Studio
-2005, users of Visual C++ 2005 Express Edition must also follow the
-instructions at the link below for installing and configuring the
-Platform SDK:
+2005, users of Visual C++ 2005 Express Edition must also install
+the Platform SDK. The Platform SDK is available at the following 
+link:
 
-  http://msdn2.microsoft.com/en-us/express/aa700755.aspx
+  http://www.microsoft.com/Downloads/details.aspx?familyid=0BAF2B35-C656-4969-ACE8-E4C0C0716ADB&displaylang=en
 
 
 Building and running the C++ demos
@@ -265,6 +282,48 @@ remove the certificate:
    confirm that you want to remove this certificate.
 
 
+Installing the .NET assemblies in the GAC
+-----------------------------------------
+
+You can add the .NET assemblies to the Global Assembly Cache (GAC). To
+do this, open Windows Explorer and navigate to the directory
+C:\WINDOWS\assembly. Next, drag and drop (or copy and paste) the
+.NET assemblies from bin directory into the right-hand pane to install
+them in the cache.
+
+Or you can use gacutil from the command line to achieve the same
+result:
+
+  > gacutil /i <library.dll>
+
+You can find gacutil.exe in the SDK\Tools\Bin folder of your Visual C#
+installation. For example, if you have installed Visual C# 8.0 in
+C:\Program Files, the path to gacutil is
+
+  C:\Program Files\Microsoft Visual Studio 8\SDK\v2.0\Bin\gacutil.exe
+
+Once installed in the cache, the assemblies will always be located
+correctly without having to set environment variables or copy them
+into the same directory as an executable.
+
+If you want line numbers for stack traces, you must also install the
+PDB (.pdb) files in the GAC. Unfortunately, you cannot do this using
+Explorer, so you have to do it from the command line. Open a command
+shell window and navigate to C:\WINDOWS\assembly\GAC_MSIL\Ice.
+(Assuming C:\WINDOWS is your system root.) Doing a directory listing
+there, you will find a directory named @dotnetver@__<UUID>, for
+example:
+
+  @dotnetver@__cdd571ade22f2f16
+
+Change to that directory (making sure that you use the correct version
+number for this release of Ice). In this directory, you will see the
+Ice.dll you installed into the GAC in the preceding step. Now copy the
+Ice.pdb file into this directory:
+
+  > copy <path_to_ice.pdb> .
+
+
 Building and running the Java demos
 -----------------------------------
 
@@ -361,9 +420,9 @@ Binary compatibility
 --------------------
 
 Ice patch releases are binary compatible. For example, Ice version 
-<x>.<y>.1 is compatible with <x>.<y>.0: you can run an application 
-built against Ice <x>.<y>.0 with Ice <x>.<y>.1 (or later) without 
-having to recompile or relink this application.
+@mmver@.1 is compatible with @mmver@.0: you can run an application built
+against Ice @mmver@.0 with Ice @mmver@.1 (or later) without having to
+recompile or relink this application.
 
 Please refer to the RELEASE_NOTES.txt file included in this
 distribution for detailed upgrade instructions.

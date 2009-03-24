@@ -9,7 +9,7 @@
 
 package Ice;
 
-public abstract class ObjectImpl implements Object, java.lang.Cloneable
+public abstract class ObjectImpl implements Object, java.lang.Cloneable, java.io.Serializable
 {
     public
     ObjectImpl()
@@ -243,7 +243,7 @@ public abstract class ObjectImpl implements Object, java.lang.Cloneable
     {
         if(__rid)
         {
-            String myId = __is.readTypeId();
+            __is.readTypeId();
         }
 
         __is.startReadSlice();
@@ -272,7 +272,7 @@ public abstract class ObjectImpl implements Object, java.lang.Cloneable
     {
         if(__rid)
         {
-            String myId = __inS.readTypeId();
+            __inS.readTypeId();
         }
 
         __inS.startSlice();

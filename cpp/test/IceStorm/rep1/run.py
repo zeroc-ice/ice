@@ -42,7 +42,7 @@ def runtest(opt, ref, subopt="", pubopt=""):
     subscriberProc.waitTestSuccess(timeout=30)
 
 def runsub2(replica = -1, expect = None):
-    proc = TestUtil.startServer(subscriber2, icestorm.reference(replica) + ' --id foo', count=0)
+    proc = TestUtil.startServer(subscriber2, icestorm.reference(replica) + ' --id foo', count=0, echo = False)
     if expect:
         proc.expect(expect)
         proc.wait()
@@ -55,7 +55,7 @@ def rununsub2(replica = -1, expect = None):
         proc.waitTestSuccess()
     # Else we first subscribe to this replica, then unsub. We
     # shouldn't get an AlreadySubscribedException.
-    proc = TestUtil.startServer(subscriber2, icestorm.reference(replica) + ' --id foo', count=0)
+    proc = TestUtil.startServer(subscriber2, icestorm.reference(replica) + ' --id foo', count=0, echo = False)
     if expect:
         proc.expect(expect)
         proc.wait()

@@ -3,8 +3,8 @@ Requirements
 ======================================================================
 
 - Ice @ver@
-- Python 2.3, 2.4, or 2.5 built with a C++ compiler compatible with
-  the C++ compiler used to build Ice for C++.
+- Python 2.3, 2.4, 2.5 or 2.6 built with a C++ compiler compatible 
+  with the C++ compiler used to build Ice for C++.
 
 Depending on your platform, you may need to download the Python source
 distribution from http://www.python.org and make your own Python
@@ -34,7 +34,7 @@ Follow these steps to build the Ice extension for Python:
 
    * Modify the installation prefix (if necessary).
 
-   * Review the comments describing the PYTHON_HOME variable.
+   * Review the comments describing the PYTHON_VERSION variable.
 
 4) Execute 'python -V' to verify that the correct Python interpreter
    is in your executable search path.
@@ -62,10 +62,11 @@ compiler that Ice supports. Although the Python developers do not
 support the use of Python extensions that are compiled with other
 versions of Visual C++, we have tested the Ice extension built with
 Visual C++ 8.0 SP1 and experienced no issues in combination with
-Python's binary distribution. It should also be possible to use the
-Ice extension when compiled with Visual C++ 6.0, however the extension
-cannot be compiled with Visual C++ 9.0. The optimal solution is to
-compile both Python and Ice using Visual C++ 8.0 SP1.
+Python's binary distribution. The Python 2.6.x binary distribution
+is compiled with Visual C++ 9.0, you should use this binary
+distribution if you want to compile the Ice extension with Visual C++ 9.0.
+
+Visual C++ 6.0 is not supported with Ice for Python.
 
 Follow these steps to build the Ice extension for Python:
 
@@ -110,23 +111,13 @@ Visual C++ 2005 Express SP1 Setup
 Users of Visual C++ 2005 Express SP1 need to install the Microsoft
 Platform SDK:
 
-  http://www.microsoft.com/downloads/details.aspx?FamilyId=A55B6B43-E24F-4EA3-A93E-40C0EC4F68E5&displaylang=en
+  http://www.microsoft.com/Downloads/details.aspx?familyid=0BAF2B35-C656-4969-ACE8-E4C0C0716ADB&displaylang=en
 
-You also need to add the Platform SDK directories to the INCLUDE, LIB
-and PATH environment variables. For example:
+Once installed, you need to add the Platform SDK directories to the
+INCLUDE, LIB and PATH environment variables. This can be done by
+executing the following script from within the compiler command prompt:
 
-@SET PDK_HOME=C:\Program Files\Microsoft Platform SDK for Windows Server 2003 R2
-@SET PATH=%PDK_HOME%\bin;%PATH%
-@SET INCLUDE=%PDK_HOME%\include;%INCLUDE%
-@SET LIB=%PDK_HOME%\lib;%LIB%
-
-The PDK_HOME environment variable must be defined in order to build
-the Ice source distribution. Note that PDK_HOME must not contain a
-trailing backslash (\).
-
-You may also need to execute the vsvars32.bat script, located in
-C:\Program Files\Microsoft Visual Studio 8\Common7\Tools, to properly
-configure your build environment.
+  C:\Program Files\Microsoft Platform SDK for Windows Server 2003 R2\SetEnv.Cmd
 
 
 ======================================================================

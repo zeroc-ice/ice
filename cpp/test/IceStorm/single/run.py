@@ -45,8 +45,9 @@ def dotest(type):
     #
     print "starting publisher...",
     sys.stdout.flush()
-    publisherProc = TestUtil.startClient(publisher, icestorm.reference())
+    publisherProc = TestUtil.startClient(publisher, icestorm.reference(), startReader = False)
     print "ok"
+    publisherProc.startReader()
 
     subscriberProc.waitTestSuccess()
     publisherProc.waitTestSuccess()

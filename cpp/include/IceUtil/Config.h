@@ -221,4 +221,24 @@ typedef long long Int64;
 #define ICE_STRING_VERSION "3.3.1" // "A.B.C", with A=major, B=minor, C=patch
 #define ICE_INT_VERSION 30301      // AABBCC, with AA=major, BB=minor, CC=patch
 
+#if defined(__BCPLUSPLUS__) && (__BCPLUSPLUS__ >= 0x0600)
+//
+// Dummy class used in work around for bug in C++Builder 2009
+// http://qc.embarcadero/wc/qcmain.aspx?d=71611
+//
+namespace IceUtil
+{
+
+class DummyBCC
+{
+public:
+
+    ~DummyBCC() 
+    {
+    }
+};
+
+}
+#endif
+
 #endif

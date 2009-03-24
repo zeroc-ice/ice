@@ -9,7 +9,7 @@
 
 import Demo.*;
 
-class LibraryServer extends Ice.Application
+class Server extends Ice.Application
 {
     static class LocatorI implements Ice.ServantLocator
     {
@@ -129,14 +129,11 @@ class LibraryServer extends Ice.Application
 
         return 0;
     }
-}
 
-public class Server
-{
     static public void
     main(String[] args)
     {
-        LibraryServer app = new LibraryServer();
+        Server app = new Server();
         app.main("demo.Database.library.Server", args, "config.server");
     }
 }

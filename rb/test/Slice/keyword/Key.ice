@@ -26,6 +26,7 @@ module BEGIN
 
     class display
     {
+        int when;
         void do(break* dup, out int else);
     };
 

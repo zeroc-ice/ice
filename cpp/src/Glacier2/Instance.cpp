@@ -30,14 +30,30 @@ Glacier2::Instance::Instance(const Ice::CommunicatorPtr& communicator, const Ice
     {
         IceUtil::Time sleepTime = IceUtil::Time::milliSeconds(_properties->getPropertyAsInt(serverSleepTime));
         const_cast<RequestQueueThreadPtr&>(_serverRequestQueueThread) = new RequestQueueThread(sleepTime);
-        _serverRequestQueueThread->start();
+        try
+        {
+            _serverRequestQueueThread->start();
+        }
+        catch(const IceUtil::Exception&)
+        {
+            _serverRequestQueueThread->destroy();
+            throw;
+        }
     }
 
     if(_properties->getPropertyAsIntWithDefault(clientBuffered, 1) > 0)
     {
         IceUtil::Time sleepTime = IceUtil::Time::milliSeconds(_properties->getPropertyAsInt(clientSleepTime));
         const_cast<RequestQueueThreadPtr&>(_clientRequestQueueThread) = new RequestQueueThread(sleepTime);
-        _clientRequestQueueThread->start();
+        try
+        {
+            _clientRequestQueueThread->start();
+        }
+        catch(const IceUtil::Exception&)
+        {
+            _clientRequestQueueThread->destroy();
+            throw;
+        }
     }
 
     const_cast<ProxyVerifierPtr&>(_proxyVerifier) = new ProxyVerifier(communicator);

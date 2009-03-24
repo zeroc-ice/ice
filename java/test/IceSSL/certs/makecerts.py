@@ -12,7 +12,7 @@ import os, sys, shutil
 
 for toplevel in [".", "..", "../..", "../../..", "../../../..", "../../../../.."]:
     toplevel = os.path.normpath(toplevel)
-    if os.path.exists(os.path.join(toplevel, "config", "TestUtil.py")):
+    if os.path.exists(os.path.join(toplevel, "scripts", "TestUtil.py")):
         break
 else:
     raise "can't find toplevel directory!"

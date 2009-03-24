@@ -56,6 +56,12 @@ public class OutputStreamI implements OutputStream
     }
 
     public void
+    writeSerializable(java.io.Serializable v)
+    {
+        _os.writeSerializable(v);
+    }
+
+    public void
     writeShort(short v)
     {
         _os.writeShort(v);
@@ -130,6 +136,11 @@ public class OutputStreamI implements OutputStream
     public void
     writeSize(int sz)
     {
+        if(sz < 0)
+        {
+            throw new NegativeSizeException();
+        }
+
         _os.writeSize(sz);
     }
 
@@ -178,7 +189,7 @@ public class OutputStreamI implements OutputStream
     public void
     endEncapsulation()
     {
-        _os.endWriteEncaps();
+        _os.endWriteEncapsChecked();
     }
 
     public void

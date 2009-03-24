@@ -346,16 +346,19 @@ ReplicaSessionManager::getNodes(const NodePrxSeq& nodes) const
 void
 ReplicaSessionManager::destroy()
 {
+    ThreadPtr thread;
     {
         Lock sync(*this);
         if(!_thread)
         {
             return;
         }
+        thread = _thread;
+        _thread = 0;
     }
 
-    _thread->terminate();
-    _thread->getThreadControl().join();
+    thread->terminate();
+    thread->getThreadControl().join();
 
     _database = 0;
     _wellKnownObjects = 0;

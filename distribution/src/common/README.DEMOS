@@ -2,8 +2,7 @@ Building the Demos
 ==================
 
 This section describes how to build the demos included in the Ice demo
-distribution. Check the 'Platform Specific Notes' section to see if
-there are extra details relevant to your platform.
+distribution.
 
 The demo archive contains sample programs for each language mapping
 that Ice supports. Not all demos will build against all Ice

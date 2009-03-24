@@ -12,7 +12,7 @@ protocol compression. You can download bzip2 at
 
 Supported environments:
 
-- Visual C#, .NET 2.0 (Windows)
-- Mono
+- Visual C#, .NET 2.0 and 3.5 (Windows)
+- Mono (Linux)
 
 See INSTALL.VISUAL_C# or INSTALL.MONO for installation information.

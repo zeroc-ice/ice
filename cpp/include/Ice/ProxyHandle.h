@@ -15,9 +15,10 @@
 
 //
 // We include Handle.h here to make sure that the Ice::Handle template
-// is defined before any definition of incRef() or decRef() (see
-// http://gcc.gnu.org/bugzilla/show_bug.cgi?id=25495 for information
-// on why this is necessary.)
+// is defined before any definition of upCast().
+//
+// See http://gcc.gnu.org/bugzilla/show_bug.cgi?id=25495 for information
+// on why this is necessary.
 //
 #include <Ice/Handle.h>
 
@@ -106,6 +107,17 @@ template<typename T>
 class ProxyHandle : public ::IceUtil::HandleBase<T>
 {
 public:
+
+#if defined(__BCPLUSPLUS__) && (__BCPLUSPLUS__ >= 0x0600)
+    //
+    // C++Builder 2009 does not allow setting Prx to 0.
+    //
+    ProxyHandle(int p)
+    {
+	assert(p == 0);
+        this->_ptr = 0;
+    }
+#endif
     
     ProxyHandle(T* p = 0)
     {
@@ -281,7 +293,6 @@ public:
         return ::IceInternal::uncheckedCastImpl<ProxyHandle>(r, f);
     }
 };
-
 
 }
 

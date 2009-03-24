@@ -8,24 +8,34 @@
 // **********************************************************************
 
 #include <Ice/Ice.h>
-#include <iostream>
 #include <NrvoI.h>
 
 using namespace std;
 
 NrvoI::NrvoI() :
-    _stringSeq(Demo::StringSeqSize, "hello")
+    _stringSeq(10, "hello")
 {
 }
 
+//
+// NRVO (Named Return Value Optimization):
+// the return value is a stack-allocated variable,
+// and there is only a single return path.
+//
 Demo::StringSeq
 NrvoI::op1(const Ice::Current&)
 {
     cout << "running op1" << endl;
-    MyStringSeq seq = MyStringSeq(Demo::StringSeqSize, "hello");
+    //
+    // Not "return MyStringSeq(10, "hello")", since this lacks a name.
+    //
+    MyStringSeq seq = MyStringSeq(10, "hello");
     return seq;
 }
 
+//
+// No optimization: the return value is a data member.
+//
 Demo::StringSeq
 NrvoI::op2(const Ice::Current&)
 {
@@ -33,19 +43,29 @@ NrvoI::op2(const Ice::Current&)
     return _stringSeq;
 }
 
+
+//
+// Operation with multiple return paths.
+//
 Demo::StringSeq
 NrvoI::op3(int size, const Ice::Current&)
 {
     cout << "running op3" << endl;
-    MyStringSeq seq;
     if(size < 10)
     {
+        //
+	// RVO (Return Value Optimization): return value
+	// is constructed in place.
+	//
         return MyStringSeq(size, "hello");
     }
-    seq = MyStringSeq(10, "hello");
+
+    //
+    // No optimization: NRVO requires a single return path.
+    //
+    MyStringSeq seq = MyStringSeq(10, "hello");
     return seq;
 }
-
 
 void
 NrvoI::shutdown(const Ice::Current& c)

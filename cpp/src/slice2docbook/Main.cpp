@@ -13,6 +13,7 @@
 #include <IceUtil/StaticMutex.h>
 #include <Slice/Preprocessor.h>
 #include <Slice/FileTracker.h>
+#include <Slice/Util.h>
 #include <Gen.h>
 
 using namespace std;
@@ -75,11 +76,14 @@ main(int argc, char* argv[])
     vector<string> args;
     try
     {
+#if defined(__BCPLUSPLUS__) && (__BCPLUSPLUS__ >= 0x0600)
+        IceUtil::DummyBCC dummy;
+#endif
         args = opts.parse(argc, (const char**)argv);
     }
     catch(const IceUtilInternal::BadOptException& e)
     {
-        cerr << argv[0] << ": " << e.reason << endl;
+        cerr << argv[0] << ": error: " << e.reason << endl;
         usage(argv[0]);
         return EXIT_FAILURE;
     }
@@ -134,7 +138,7 @@ main(int argc, char* argv[])
 
     if(args.empty())
     {
-        cerr << argv[0] << ": no docbook file specified" << endl;
+        getErrorStream() << argv[0] << ": error: no docbook file specified" << endl;
         usage(argv[0]);
         return EXIT_FAILURE;
     }
@@ -148,13 +152,13 @@ main(int argc, char* argv[])
     }
     if(suffix != ".sgml")
     {
-        cerr << argv[0] << ": docbook file must end with `.sgml'" << endl;
+        getErrorStream() << argv[0] << ": error: docbook file must end with `.sgml'" << endl;
         return EXIT_FAILURE;
     }
 
     if(args.size() < 2)
     {
-        cerr << argv[0] << ": no input file" << endl;
+        getErrorStream() << argv[0] << ": error: no input file" << endl;
         usage(argv[0]);
         return EXIT_FAILURE;
     }
@@ -222,7 +226,7 @@ main(int argc, char* argv[])
             // cleanup any created files.
             FileTracker::instance()->cleanup();
             p->destroy();
-            cerr << argv[0] << ": " << ex.reason() << endl;
+            getErrorStream() << argv[0] << ": error: " << ex.reason() << endl;
             return EXIT_FAILURE;
         }
     }

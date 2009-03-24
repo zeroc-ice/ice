@@ -137,6 +137,9 @@ logTests(const Ice::CommunicatorPtr& comm, const AdminSessionPrx& session)
     assert(!testDir.empty());
     try
     {
+#if defined(__BCPLUSPLUS__) && (__BCPLUSPLUS__ >= 0x0600)
+        IceUtil::DummyBCC dummy;
+#endif
         session->openServerStdErr("LogServer", -1);
         test(false);
     }
@@ -145,6 +148,9 @@ logTests(const Ice::CommunicatorPtr& comm, const AdminSessionPrx& session)
     }
     try
     {
+#if defined(__BCPLUSPLUS__) && (__BCPLUSPLUS__ >= 0x0600)
+        IceUtil::DummyBCC dummy;
+#endif
         session->openServerStdOut("LogServer", -1);
         test(false);
     }
@@ -153,6 +159,9 @@ logTests(const Ice::CommunicatorPtr& comm, const AdminSessionPrx& session)
     }
     try
     {
+#if defined(__BCPLUSPLUS__) && (__BCPLUSPLUS__ >= 0x0600)
+        IceUtil::DummyBCC dummy;
+#endif
         session->openServerLog("LogServer", "unknown.txt", -1);
         test(false);
     }
@@ -544,6 +553,7 @@ allTests(const Ice::CommunicatorPtr& comm)
     test(obj->getProperty("TestServer1Identity") == "Server1");
     test(obj->getProperty("LogFilePath") == "test-Server1.log");
     test(obj->getProperty("LogFilePath-Server1") == "test.log");
+    test(obj->getProperty("PropertyWithSpaces") == "   test   ");
     cout << "ok" << endl;
 
     cout << "testing service configuration... " << flush;
@@ -553,6 +563,7 @@ allTests(const Ice::CommunicatorPtr& comm)
     test(obj->getProperty("TestService1Identity") == "IceBox1-Service1");
     test(obj->getProperty("LogFilePath") == "test-Service1.log");
     test(obj->getProperty("LogFilePath-Service1") == "test.log");
+    test(obj->getProperty("PropertyWithSpaces") == "   test   ");
 
     obj = TestIntfPrx::checkedCast(comm->stringToProxy("IceBox2-Service2@IceBox2Service2Adapter"));
     test(obj->getProperty("Service2.Type") == "freeze");

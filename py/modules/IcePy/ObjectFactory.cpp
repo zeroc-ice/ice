@@ -62,6 +62,7 @@ IcePy::ObjectFactory::create(const string& id)
         PyObjectHandle obj = PyObject_CallMethod(factory, STRCAST("create"), STRCAST("s"), id.c_str());
         if(!obj.get())
         {
+            assert(PyErr_Occurred());
             throw AbortMarshaling();
         }
         if(obj.get() == Py_None)
@@ -87,6 +88,7 @@ IcePy::ObjectFactory::create(const string& id)
     PyObjectHandle obj = type->tp_new(type, args.get(), 0);
     if(!obj.get())
     {
+        assert(PyErr_Occurred());
         throw AbortMarshaling();
     }
 
@@ -116,7 +118,7 @@ IcePy::ObjectFactory::destroy()
         // Invoke the destroy method on each registered Python factory.
         //
         PyObjectHandle obj = PyObject_CallMethod(p->second, STRCAST("destroy"), 0);
-        PyErr_Clear();
+        PyErr_Clear(); // Ignore errors.
         Py_DECREF(p->second);
     }
 }

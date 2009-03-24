@@ -61,6 +61,12 @@ public class InputStreamI implements InputStream
         return _is.readByteSeq();
     }
 
+    public java.io.Serializable
+    readSerializable()
+    {
+        return _is.readSerializable();
+    }
+
     public short
     readShort()
     {
@@ -219,7 +225,7 @@ public class InputStreamI implements InputStream
     public void
     endEncapsulation()
     {
-        _is.endReadEncaps();
+        _is.endReadEncapsChecked();
     }
 
     public void

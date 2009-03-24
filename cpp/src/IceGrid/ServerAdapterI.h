@@ -34,6 +34,7 @@ public:
     void destroy();
     void clear();
     void activationFailed(const std::string&);
+    void activationCompleted();
 
     AdapterPrx getProxy() const;
 

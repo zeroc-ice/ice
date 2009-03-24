@@ -653,6 +653,9 @@ LocatorI::findObjectById_async(const Ice::AMD_Locator_findObjectByIdPtr& cb,
     Ice::ObjectPrx proxy;
     try
     {
+#if defined(__BCPLUSPLUS__) && (__BCPLUSPLUS__ >= 0x0600)
+        IceUtil::DummyBCC dummy;
+#endif
         proxy = _database->getObjectProxy(id);
     }
     catch(const ObjectNotRegisteredException&)
@@ -701,7 +704,7 @@ LocatorI::findAdapterById_async(const Ice::AMD_Locator_findAdapterByIdPtr& cb,
         int count;
         LocatorAdapterInfoSeq adapters;
         bool roundRobin;
-        _database->getAdapter(id)->getLocatorAdapterInfo(adapters, count, replicaGroup, roundRobin);
+        _database->getLocatorAdapterInfo(id, adapters, count, replicaGroup, roundRobin);
         RequestPtr request;
         if(roundRobin)
         {
@@ -717,18 +720,10 @@ LocatorI::findAdapterById_async(const Ice::AMD_Locator_findAdapterByIdPtr& cb,
             request = new AdapterRequest(cb, self, adapters[0]);
         }
         request->execute();
+        return;
     }
     catch(const AdapterNotExistException&)
     {
-        try
-        {
-            cb->ice_response(_database->getAdapterDirectProxy(id));
-        }
-        catch(const AdapterNotExistException&)
-        {
-            cb->ice_exception(Ice::AdapterNotFoundException());
-        }
-        return;
     }
     catch(const Ice::Exception& ex)
     {
@@ -747,6 +742,18 @@ LocatorI::findAdapterById_async(const Ice::AMD_Locator_findAdapterByIdPtr& cb,
         }
         cb->ice_response(0);
         return;
+    }
+
+    try
+    {
+#if defined(__BCPLUSPLUS__) && (__BCPLUSPLUS__ >= 0x0600)
+        IceUtil::DummyBCC dummy;
+#endif
+        cb->ice_response(_database->getAdapterDirectProxy(id));
+    }
+    catch(const AdapterNotExistException&)
+    {
+        cb->ice_exception(Ice::AdapterNotFoundException());
     }
 }
 
@@ -892,5 +899,5 @@ LocatorI::getAdapterInfo(const string& id,
                          bool& roundRobin, 
                          const set<string>& excludes)
 {
-    _database->getAdapter(id)->getLocatorAdapterInfo(adapters, count, replicaGroup, roundRobin, excludes);
+    _database->getLocatorAdapterInfo(id, adapters, count, replicaGroup, roundRobin, excludes);
 }

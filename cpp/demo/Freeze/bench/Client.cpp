@@ -705,13 +705,6 @@ public:
     destroy()
     {
     }
-    
-    void
-    install(const Ice::CommunicatorPtr& communicator)
-    {
-        communicator->addObjectFactory(this, "::Class1");
-        communicator->addObjectFactory(this, "::Class2");
-    }
 };
 typedef IceUtil::Handle<MyFactory> MyFactoryPtr;
 
@@ -787,8 +780,7 @@ TestApp::run(int argc, char* argv[])
 #endif
 
     MyFactoryPtr factory = new MyFactory();
-    factory->install(communicator());
-    
+
     cout <<"Struct1ObjectMap" << endl;
     Struct1ObjectMapTest();
 

@@ -42,10 +42,8 @@ public final class DirectoryI extends PersistentDirectory
     {
         if(parent == null)
         {
-            throw new PermissionDenied("cannot remove root directory");
+            throw new PermissionDenied("cannot destroy root directory");
         }
-
-        java.util.Map children = null;
 
         synchronized(this)
         {
@@ -53,22 +51,12 @@ public final class DirectoryI extends PersistentDirectory
             {
                 throw new Ice.ObjectNotExistException(current.id, current.facet, current.operation);
             }
-
-            children = (java.util.Map)((java.util.HashMap)nodes).clone();
-            _destroyed = true;
+            if(!nodes.isEmpty())
+            {
+                throw new PermissionDenied("cannot destroy non-empty directory");
+            }
+	    _destroyed = true;
         }
-
-        //
-        // For consistency with C++, we iterate over the children outside of synchronization.
-        //
-        java.util.Iterator p = children.values().iterator();
-        while(p.hasNext())
-        {
-            NodeDesc desc = (NodeDesc)p.next();
-            desc.proxy.destroy();
-        }
-
-        assert(nodes.isEmpty());
 
         parent.removeNode(nodeName);
         _evictor.remove(_id);

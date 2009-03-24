@@ -66,10 +66,6 @@ private:
     struct sockaddr_storage _mcastAddr;
 
     SOCKET _fd;
-#ifdef _WIN32
-    fd_set _rFdSet;
-    fd_set _wFdSet;
-#endif
     bool _connect;
     int _rcvSize;
     int _sndSize;

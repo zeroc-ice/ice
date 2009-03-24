@@ -327,11 +327,6 @@ IceInternal::UdpTransceiver::UdpTransceiver(const InstancePtr& instance, const s
         _fd = INVALID_SOCKET;
         throw;
     }
-
-#ifdef _WIN32
-    FD_ZERO(&_rFdSet);
-    FD_ZERO(&_wFdSet);
-#endif
 }
 
 IceInternal::UdpTransceiver::UdpTransceiver(const InstancePtr& instance, const string& host, int port,
@@ -371,6 +366,10 @@ IceInternal::UdpTransceiver::UdpTransceiver(const InstancePtr& instance, const s
 #endif
 
             const_cast<struct sockaddr_storage&>(_addr) = doBind(_fd, _addr);
+            if(getPort(_mcastAddr) == 0)
+            {
+                setPort(_mcastAddr, getPort(_addr));
+            }
             setMcastGroup(_fd, _mcastAddr, mcastInterface);
         }
         else
@@ -407,11 +406,6 @@ IceInternal::UdpTransceiver::UdpTransceiver(const InstancePtr& instance, const s
         _fd = INVALID_SOCKET;
         throw;
     }
-
-#ifdef _WIN32
-    FD_ZERO(&_rFdSet);
-    FD_ZERO(&_wFdSet);
-#endif
 }
 
 IceInternal::UdpTransceiver::~UdpTransceiver()

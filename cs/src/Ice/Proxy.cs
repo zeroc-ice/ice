@@ -748,7 +748,7 @@ namespace Ice
                     // Wait for the connection to be established.
                     return del__.getRequestHandler__().getConnection(false);
                 }
-                catch(CollocationOptimizationException)
+                catch(LocalException)
                 {
                 }
             }

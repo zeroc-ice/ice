@@ -104,7 +104,7 @@ public class Client extends Ice.Application
         readline(in);
 
         Ice.ObjectFactory factory = new ObjectFactory();
-        communicator().addObjectFactory(factory, "::Demo::Printer");
+        communicator().addObjectFactory(factory, Demo.Printer.ice_staticId());
 
         initial.getPrinter(printer, printerProxy);
         System.out.println("==> " + printer.value.message);
@@ -136,7 +136,7 @@ public class Client extends Ice.Application
 
         Printer derivedAsBase = initial.getDerivedPrinter();
         System.out.println("==> The type ID of the received object is \"" + derivedAsBase.ice_id() + "\"");
-        assert(derivedAsBase.ice_id().equals("::Demo::Printer"));
+        assert(derivedAsBase.ice_id().equals(Demo.Printer.ice_staticId()));
 
         System.out.println();
         System.out.println("Now we install a factory for the derived class, and try again.");
@@ -145,7 +145,7 @@ public class Client extends Ice.Application
         System.out.println("[press enter]");
         readline(in);
 
-        communicator().addObjectFactory(factory, "::Demo::DerivedPrinter");
+        communicator().addObjectFactory(factory, Demo.DerivedPrinter.ice_staticId());
 
         derivedAsBase = initial.getDerivedPrinter();
         DerivedPrinter derived = (Demo.DerivedPrinter)derivedAsBase;

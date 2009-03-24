@@ -1,10 +1,14 @@
 ======================================================================
-CHANGES for Ice 3.3.0
+CHANGES for Ice 3.3.1
 ======================================================================
 
 The entries below contain brief descriptions of the changes in a
 release, in no particular order. Some of the entries reflect
 significant new additions, while others represent minor corrections.
+Although this list is not a comprehensive report of every change we
+made in a release, it does provide details on the changes we feel
+Ice users might need to be aware of.
+
 We recommend that you use the release notes included in your Ice
 distribution as a guide for migrating your applications to this
 release, and the Ice manual for complete details on a particular
@@ -31,6 +35,37 @@ Changes since version 3.3.0
 General Changes
 ===============
 
+These entries apply to all relevant language mappings unless otherwise
+noted.
+
+- Fixed a bug where ice_getCachedConnection could throw if called
+  shortly after connection establishment failed.
+
+- Fixed an IceGrid bug where an application update could trigger the
+  deactivation of all session-activated servers even if these servers
+  were not updated.
+
+- The frequency at which Ice checks for connections that can be reaped
+  by active connection management (ACM) is now set by default to 10%
+  of the smallest, non-zero ACM setting (Ice.ACM.Client and
+  Ice.ACM.Server), with a minimum value of 5 seconds and a maximum
+  value of 5 minutes. This default can be overridden by setting
+  Ice.MonitorConnections, which is no longer deprecated, and whose
+  value is the check frequency in seconds.
+
+- Fixed a bug in IceBox where services using the shared communicator
+  would be passed the wrong communicator if re-started with the IceBox
+  service manager interface.
+
+- Improved Glacier2 to automatically destroy the client session if the
+  forwarding of a request from a back-end server to the client fails
+  with an unrecoverable error. This is particularly useful for clients
+  that receive requests from back-end servers on a regular basis and
+  disable the Glacier2 session timeout. If for some reason the client
+  becomes unreachable, Glacier2 will eventually destroy the client
+  session (assuming timeouts are properly configured on the Glacier2
+  client endpoints).
+
 - Added support for updating locator cache endpoints in the background
   if the new Ice.BackgroundLocatorCacheUpdates property is set to 1.
 
@@ -49,8 +84,8 @@ General Changes
   the same well-known object, object adapter, or replica group.
 
 - Fixed a bug in IceGrid that would cause it to generate incorrect
-  config files for servers whose ice-version was set to a version
-  previous to Ice 3.3.0.
+  configuration files for servers whose ice-version was set to a
+  version previous to Ice 3.3.0.
 
 - Fixed a bug in the Slice translators that prevented them from being
   run from a directory without write permissions, even if no output 
@@ -60,26 +95,68 @@ General Changes
   print an error message if the retry failed and if Ice.RetryIntervals
   was configured with non-zero time intervals.
 
-- All error output from the slice compilers now goes to stderr.
+- All error output from the Slice compilers now goes to stderr.
+
+- Made unmarshaling code robust against messages containing invalid
+  indexes for class instances.
+
+- Fixed IcePatch2 to handle non-ASCII file names properly.
+
+- Fixed a bug in IceGrid that could cause the registry to fail with an
+  assertion if an application is synchronized concurrently by multiple
+  administrative clients (or by nodes started with the --deploy
+  option).
+
+- IceGrid locator implementation changes:
+
+  * Fixed a bug where the registry could crash when resolving the
+    endpoints of a replica group if some servers were activating
+    concurrently.
+
+  * Fixed a bug where the registry could hang when resolving the
+    endpoints of a round-robin replica group if a member of the
+    replica group was removed concurrently.
+
+  * Improved the scalability of the locator implementation to better
+    handle a high volume of concurrent requests. The registry now
+    limits the number of invocations to the IceGrid nodes to get the
+    object adapter endpoints.
+
+- A Slice compiler now removes any files it has generated during the
+  current execution if it fails or is interrupted.
+
+- The Slice compilers that support the --depend option now use an exit
+  status of 1 if a failure occurs while generating dependencies. In
+  previous releases the compilers used an exit status of 0.
+
+- Fixed a bug in the iceca script that prevented the command "init
+  --overwrite" from working properly on Windows.
+
+- Fixed a bug where the IceBox shared communicator ignored Ice
+  communicator properties specified in an IceBox service configuration
+  file.
+
+- Fixed a bug where Ice plug-ins could be destroyed more than once.
+
+- Fixed several issues in the IceGrid GUI.
 
 
 C++ Changes
 ===========
 
-- Fixed bug in slice2cpp that caused bad code to be generated for classes
-  whose name was a C++ keyword.
+- Changed the thread pool to ensure that references to AMI callback
+  objects are released as soon as possible.
+
+- Fixed bug in slice2cpp that caused bad code to be generated for
+  classes and modules whose name was a C++ keyword.
 
 - Fixed a bug in IceSSL where the IceSSL.CheckCertName property did
   not have any effect.
 
-- Fixed a bug in the IceGrid locator implementation that could cause
-  the registry to crash when resolving the endpoints of a replica
-  group and if some servers were activating.
-
 - Fixed icegridadmin `service list' command crash.
 
-- Fixed a bug where slice2cpp would generate absolute include paths
-  if the command line option "-I." was used.
+- Fixed a bug where slice2cpp and slice2freeze would generate absolute
+  include paths if the command line option "-I." was used.
 
 - Fixed a Freeze transactional evictor bug that could cause the
   transaction of an asynchronous method dispatch to be rolled back if
@@ -88,9 +165,30 @@ C++ Changes
 - Fixed a bug that could cause the first invocation on a proxy to
   incorrectly be sent compressed or not compressed.
 
+- Fixed a bug on Windows that could cause an interrupted application
+  to spin for a while before terminating.
+
 
 Java Changes
 ============
+
+- Slice types now implement java.io.Serializable.
+
+- If a servant raises OutOfMemoryError while dispatching an operation,
+  the Ice run time now traps it and treats it as a hard error, meaning
+  Ice logs an error message and closes the connection on which the
+  request was received.
+
+- Added object serialization that allows native Java objects to be
+  sent as operation parameters. See the Slice chapter and the Java
+  language mapping chapter in the manual for more information.
+
+- Fixed bug in slice2java that caused bad code to be generated for a
+  class whose name was a Java keyword if the class contained data
+  members.
+
+- The path names specified by the IceSSL.Keystore, IceSSL.Truststore,
+  and IceSSL.Random properties can now refer to class path resources.
 
 - Added methods to the IceSSL plug-in to allow keystores, truststores,
   and RNG seeds to be specified using input streams.
@@ -98,29 +196,42 @@ Java Changes
 - Fixed the IceSSL.ConnectionInfo type so that the "incoming" and
   "adapterName" members are public.
 
-- Added applet demo.
+- Added support for using Ice in an applet, along with a new demo.
 
 
 C# Changes
 ==========
 
-- Fixed a discrepancy between the documented behavior of the property
-  IceSSL.CheckCertName and its actual behavior. The documented
-  behavior states that IceSSL compares the host name as it appears in
-  the proxy's endpoint against the server certificate's alternative
-  subject names. The actual behavior in Ice 3.3.0 differed slightly
-  in that the host name may have undergone a translation that could
-  result in IceSSL using a different host name than that of the proxy.
-  For example, the proxy may have contained "localhost" but IceSSL
-  used "127.0.0.1". This could cause the SSL connection attempt to
-  fail if IceSSL.CheckCertName is enabled. IceSSL now uses the host
-  name from the proxy for this validation step.
+- Added object serialization that allows native C# objects to be sent
+  as operation parameters. See the Slice chapter and the C# language
+  mapping chapter in the manual for more information.
 
-- Changed the Ice runtime to not rely anymore on .NET worker threads
-  to start asynchronous IO operations.
+- Changed the Ice run time to no longer rely on .NET worker threads
+  to start asynchronous I/O operations.
 
-- Fixed a bug in slice2cs that caused a core dump if a dictionary
-  had a value type of Object.
+- Fixed a bug in slice2cs that caused a core dump if a dictionary had
+  a value type of Object.
+
+- Fixed a bug in slice2cs that caused incorrect code to be generated
+  if an operation had a parameter named "ex".
+
+- Fixed a bug in slice2cs that caused incorrect code to be generated
+  if a Slice class used the property mapping and also applied
+  a ["cs:attribute:..."] metadata directive to a data member.
+
+- Fixed an issue that could cause an application to fail to start if
+  Ice was unable to load an assembly that was referenced (but not
+  required) by the program and not present on the system.
+
+- Fixed a bug in marshaling code that caused a trailing zero byte
+  to be marshaled for user exceptions without class data members.
+  
+- Fixed a bug in slice2cs that caused incorrect code to be generated
+  for a dictionary that used a structure as the key type.
+
+- Fixed a bug in slice2cs that caused incorrect code to be generated
+  for a sequence whose element type is a structure that uses the
+  class mapping.
 
 
 Java Changes
@@ -142,21 +253,53 @@ Java Changes
 Python Changes
 ==============
 
+- Implemented the Ice.Trace.Slicing property for user exceptions.
+
+- It is now possible to pass a sequence of 64-bit integer values
+  using an object that supports the buffer protocol.
+
+- Fixed a bug in the constructors of user-defined types that have
+  structures as data members. Consider this example:
+
+  // Slice
+  struct Point {
+      int x;
+      int y;
+  };
+  struct Event {
+      Point location;
+      ...
+  };
+
+  The Event constructor supplied a default instance of the Point
+  member if the caller did not supply one. However, this default
+  instance was unintentionally shared by all Event objects that
+  omitted a value for the Point member during construction. The
+  generated code now ensures that each instance of Event assigns a
+  new instance of Point.
+
 - Fixed bugs in getImplicitContext related to using it when an
   implicit context had not been set.
 
 - Fixed bugs in stringToProxy and propertyToProxy related to null
   proxies.
 
-- Ice.getSliceDir() now only searches for the slice directory in
-  a standard Ice installation.
+- Ice.getSliceDir() now only searches for the "slice" directory in a
+  standard Ice installation.
+
+- Improved the way the build system locates the Python framework on
+  Mac OS X.
 
 
 Ruby Changes
 ============
 
-- Added helper Ice.getSliceDir, which locates the slice directory
-  in a standard Ice installation.
+- The translator now generates an eql? method for Slice structures.
+
+- Implemented the Ice.Trace.Slicing property for user exceptions.
+
+- Added helper Ice.getSliceDir, which locates the "slice" directory in
+  a standard Ice installation.
 
 
 PHP Changes

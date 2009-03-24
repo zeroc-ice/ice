@@ -1,10 +1,10 @@
-# Microsoft Developer Studio Project File - Name="book.lifecycle.client" - Package Owner=<4>
+# Microsoft Developer Studio Project File - Name="book.lifecycle.client.exe" - Package Owner=<4>
 # Microsoft Developer Studio Generated Build File, Format Version 6.00
 # ** DO NOT EDIT **
 
 # TARGTYPE "Win32 (x86) Console Application" 0x0103
 
-CFG=book.lifecycle.client - Win32 Debug
+CFG=book.lifecycle.client.exe - Win32 Debug
 !MESSAGE This is not a valid makefile. To build this project using NMAKE,
 !MESSAGE use the Export Makefile command and run
 !MESSAGE 
@@ -13,12 +13,12 @@ CFG=book.lifecycle.client - Win32 Debug
 !MESSAGE You can specify a configuration when running NMAKE
 !MESSAGE by defining the macro CFG on the command line. For example:
 !MESSAGE 
-!MESSAGE NMAKE /f "book.lifecycle.client.mak" CFG="book.lifecycle.client - Win32 Debug"
+!MESSAGE NMAKE /f "book.lifecycle.client.mak" CFG="book.lifecycle.client.exe - Win32 Debug"
 !MESSAGE 
 !MESSAGE Possible choices for configuration are:
 !MESSAGE 
-!MESSAGE "book.lifecycle.client - Win32 Release" (based on "Win32 (x86) Console Application")
-!MESSAGE "book.lifecycle.client - Win32 Debug" (based on "Win32 (x86) Console Application")
+!MESSAGE "book.lifecycle.client.exe - Win32 Release" (based on "Win32 (x86) Console Application")
+!MESSAGE "book.lifecycle.client.exe - Win32 Debug" (based on "Win32 (x86) Console Application")
 !MESSAGE 
 
 # Begin Project
@@ -28,7 +28,7 @@ CFG=book.lifecycle.client - Win32 Debug
 CPP=cl.exe
 RSC=rc.exe
 
-!IF  "$(CFG)" == "book.lifecycle.client - Win32 Release"
+!IF  "$(CFG)" == "book.lifecycle.client.exe - Win32 Release"
 
 # PROP BASE Use_MFC 0
 # PROP BASE Use_Debug_Libraries 0
@@ -50,10 +50,10 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LINK32=link.exe
 # ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /subsystem:console /machine:I386
-# ADD LINK32 Ice.lib IceUtil.lib setargv.obj /nologo /subsystem:console /pdb:none /machine:I386 /out:"client.exe" /libpath:"../../../lib" /FIXED:no
+# ADD LINK32 Ice.lib IceUtil.lib setargv.obj /nologo /subsystem:console /pdb:none /machine:I386 /out:"client.exe" /libpath:"../../../lib" /FIXED:no /IGNORE:4089
 # SUBTRACT LINK32 /debug
 
-!ELSEIF  "$(CFG)" == "book.lifecycle.client - Win32 Debug"
+!ELSEIF  "$(CFG)" == "book.lifecycle.client.exe - Win32 Debug"
 
 # PROP BASE Use_MFC 0
 # PROP BASE Use_Debug_Libraries 1
@@ -82,8 +82,8 @@ LINK32=link.exe
 
 # Begin Target
 
-# Name "book.lifecycle.client - Win32 Release"
-# Name "book.lifecycle.client - Win32 Debug"
+# Name "book.lifecycle.client.exe - Win32 Release"
+# Name "book.lifecycle.client.exe - Win32 Debug"
 # Begin Group "Source Files"
 
 # PROP Default_Filter ""
@@ -131,7 +131,7 @@ SOURCE=.\Parser.h
 
 SOURCE=.\Filesystem.ice
 
-!IF  "$(CFG)" == "book.lifecycle.client - Win32 Release"
+!IF  "$(CFG)" == "book.lifecycle.client.exe - Win32 Release"
 
 USERDEP__FILES="../../../bin/slice2cpp.exe"	
 # Begin Custom Build
@@ -147,7 +147,7 @@ BuildCmds= \
    $(BuildCmds)
 # End Custom Build
 
-!ELSEIF  "$(CFG)" == "book.lifecycle.client - Win32 Debug"
+!ELSEIF  "$(CFG)" == "book.lifecycle.client.exe - Win32 Debug"
 
 USERDEP__FILES="..\..\..\bin\slice2cpp.exe"	
 # Begin Custom Build
@@ -161,80 +161,6 @@ BuildCmds= \
 
 "Filesystem.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
-# End Custom Build
-
-!ENDIF 
-
-# End Source File
-# Begin Source File
-
-SOURCE=.\Grammar.y
-
-!IF  "$(CFG)" == "book.lifecycle.client - Win32 Release"
-
-# Begin Custom Build
-InputPath=.\Grammar.y
-
-BuildCmds= \
-	bison -dvt Grammar.y \
-	move Grammar.tab.c Grammar.cpp \
-	move Grammar.tab.h Grammar.h \
-	
-
-"Grammar.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-   $(BuildCmds)
-
-"Grammar.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-   $(BuildCmds)
-# End Custom Build
-
-!ELSEIF  "$(CFG)" == "book.lifecycle.client - Win32 Debug"
-
-# Begin Custom Build
-InputPath=.\Grammar.y
-
-BuildCmds= \
-	bison -dvt Grammar.y \
-	move Grammar.tab.c Grammar.cpp \
-	move Grammar.tab.h Grammar.h \
-	
-
-"Grammar.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-   $(BuildCmds)
-
-"Grammar.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-   $(BuildCmds)
-# End Custom Build
-
-!ENDIF 
-
-# End Source File
-# Begin Source File
-
-SOURCE=.\Scanner.l
-
-!IF  "$(CFG)" == "book.lifecycle.client - Win32 Release"
-
-# Begin Custom Build
-InputPath=.\Scanner.l
-
-"Scanner.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-	flex Scanner.l 
-	echo #include "IceUtil/Config.h" > Scanner.cpp 
-	type lex.yy.c >> Scanner.cpp 
-	
-# End Custom Build
-
-!ELSEIF  "$(CFG)" == "book.lifecycle.client - Win32 Debug"
-
-# Begin Custom Build
-InputPath=.\Scanner.l
-
-"Scanner.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-	flex Scanner.l 
-	echo #include "IceUtil/Config.h" > Scanner.cpp 
-	type lex.yy.c >> Scanner.cpp 
-	
 # End Custom Build
 
 !ENDIF 

@@ -47,11 +47,6 @@ namespace FilesystemI
                 {
                     throw new ObjectNotExistException();
                 }
-            }
-
-            lock(lcMutex)
-            {
-                reap();
 
                 NodeDesc[] ret = new NodeDesc[_contents.Count];
                 int i = 0;
@@ -78,11 +73,6 @@ namespace FilesystemI
                 {
                     throw new ObjectNotExistException();
                 }
-            }
-
-            lock(lcMutex)
-            {
-                reap();
 
                 NodeI p = (NodeI) _contents[name];
                 if(p == null)
@@ -108,17 +98,16 @@ namespace FilesystemI
                 {
                     throw new ObjectNotExistException();
                 }
-            }
 
-            lock(lcMutex)
-            {
-                reap();
-
-                if(_contents.Contains(name))
+                if(name.Length == 0 || _contents.Contains(name))
                 {
                     throw new NameInUse(name);
                 }
-                return new FileI(c.adapter, name, this).activate(c.adapter);
+
+                FileI f = new FileI(name, this);
+                ObjectPrx node = c.adapter.add(f, f.id());
+                _contents.Add(name, f);
+                return FilePrxHelper.uncheckedCast(node);
             }
         }
 
@@ -132,17 +121,16 @@ namespace FilesystemI
                 {
                     throw new ObjectNotExistException();
                 }
-            }
 
-            lock(lcMutex)
-            {
-                reap();
-
-                if(_contents.Contains(name))
+                if(name.Length == 0 || _contents.Contains(name))
                 {
                     throw new NameInUse(name);
                 }
-                return new DirectoryI(name, this).activate(c.adapter);
+
+                DirectoryI d = new DirectoryI(name, this);
+                ObjectPrx node = c.adapter.add(d, d.id());
+                _contents.Add(name, d);
+                return DirectoryPrxHelper.uncheckedCast(node);
             }
         }
 
@@ -162,20 +150,16 @@ namespace FilesystemI
                     throw new ObjectNotExistException();
                 }
 
-                lock(lcMutex)
+                if(_contents.Count != 0)
                 {
-                    reap();
-
-                    if(_contents.Count != 0)
-                    {
-                        throw new PermissionDenied("Cannot destroy non-empty directory");
-                    }
-
-                    c.adapter.remove(id());
-                    _parent.addReapEntry(_name);
-                    _destroyed = true;
+                    throw new PermissionDenied("Cannot destroy non-empty directory");
                 }
+
+                c.adapter.remove(id());
+                _destroyed = true;
             }
+
+            _parent.removeEntry(_name);
         }
 
         // DirectoryI constructor for root directory.
@@ -189,7 +173,6 @@ namespace FilesystemI
 
         public DirectoryI(string name, DirectoryI parent)
         {
-            lcMutex = new System.Object();
             _name = name;
             _parent = parent;
             _id = new Identity();
@@ -206,67 +189,17 @@ namespace FilesystemI
             }
         }
 
-        // Add servant to ASM and to parent's _contents map.
+        // Remove the entry from the _contents map.
 
-        public DirectoryPrx
-        activate(Ice.ObjectAdapter a)
+        public void removeEntry(String name)
         {
-            DirectoryPrx node = DirectoryPrxHelper.uncheckedCast(a.add(this, _id));
-            if(_parent != null)
-            {
-                _parent.addChild(_name, this);
-            }
-            return node;
+            _contents.Remove(name);
         }
-
-        // Add the name-node pair to the _contents map.
-
-        public virtual void addChild(string name, NodeI node)
-        {
-            _contents[name] = node;
-        }
-
-        // Add this directory and the name of a deleted entry to the reap map.
-
-        public virtual void addReapEntry(string name)
-        {
-            IList l = (IList)_reapMap[this];
-            if(l != null)
-            {
-                l.Add(name);
-            }
-            else
-            {
-                ArrayList v = new ArrayList();
-                v.Add(name);
-                _reapMap[this] = v;
-            }
-        }
-
-        // Remove all names in the reap map from the corresponding directory contents.
-
-        private static void reap()
-        {
-            foreach(DictionaryEntry e in _reapMap)
-            {
-                DirectoryI dir = (DirectoryI)e.Key;
-                IList v = (IList)e.Value;
-                foreach(string name in v)
-                {
-                    dir._contents.Remove(name);
-                }
-            }
-            _reapMap.Clear();
-        }
-
-        public static System.Object lcMutex = new System.Object();
 
         private string _name; // Immutable
         private DirectoryI _parent; // Immutable
         private Identity _id; // Immutable
         private bool _destroyed;
         private IDictionary _contents;
-
-        private static IDictionary _reapMap = new Hashtable();
     }
 }

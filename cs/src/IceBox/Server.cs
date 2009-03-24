@@ -42,7 +42,7 @@ public class Server
                 }
             }
 
-            ServiceManagerI serviceManagerImpl = new ServiceManagerI(args);
+            ServiceManagerI serviceManagerImpl = new ServiceManagerI(communicator(), args);
             return serviceManagerImpl.run();
         }
     }
@@ -54,11 +54,7 @@ public class Server
         initData.properties.setProperty("Ice.Admin.DelayCreation", "1");
 
         App server = new App();
-        int status = server.main(args, initData);
-        if(status != 0)
-        {
-            System.Environment.Exit(status);
-        }
+        System.Environment.Exit(server.main(args, initData));
     }
 }
 }

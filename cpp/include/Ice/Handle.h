@@ -14,24 +14,28 @@
 #include <Ice/Config.h>
 
 //
-// We include ProxyHandle.h here to make sure that the
-// Ice::ProxyHandle template is defined before any definition of
-// incRef() or decRef() (see
-// http://gcc.gnu.org/bugzilla/show_bug.cgi?id=25495 for information
-// on why this is necessary.)
+// We include ProxyHandle.h here to make sure that the Ice::ProxyHandle
+// template is defined before any definition of upCast().
+//
+// See http://gcc.gnu.org/bugzilla/show_bug.cgi?id=25495 for information
+// on why this is necessary.
 //
 #include <Ice/ProxyHandle.h>
 
 //
-// "Handle" or "smart pointer" class for classes derived from
-// IceUtil::GCShared, IceUtil::Shared, or IceUtil::SimpleShared.
+// "Handle" or "smart pointer" template for classes derived from
+// IceInternal::GCShared, IceUtil::Shared, or IceUtil::SimpleShared.
 //
-// In constrast to IceUtil::Handle, IceInternal::Handle requires the
-// declaration of the two global operations IceInternal::incRef(T*)
-// and IceInternal::decRef(T*). The use of global operations allows
-// this template to be used for types which are declared but not
-// defined, provided that the two above mentioned operations are
-// declared.
+// In constrast to IceUtil::Handle, IceInternal::Handle<T> can be used
+// for a type T that has been declared but not defined. The only
+// requirement is a declaration of the following function:
+//
+// namespace IceInternal
+// {
+//     X* upCast(T*);
+// }
+//
+// Where X is (or derives from) IceUtil::Shared or IceUtil::SimpleShared.
 //
 
 namespace IceInternal
@@ -42,6 +46,17 @@ class Handle : public ::IceUtil::HandleBase<T>
 {
 public:
     
+#if defined(__BCPLUSPLUS__) && (__BCPLUSPLUS__ >= 0x0600)
+    //
+    // C++Builder 2009 does not allow setting Ptr to 0.
+    //
+    Handle(int p)
+    {
+        assert(p == 0);
+        this->_ptr = 0;
+    }
+#endif
+
     Handle(T* p = 0)
     {
         this->_ptr = p;

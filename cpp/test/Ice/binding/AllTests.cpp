@@ -62,6 +62,21 @@ private:
 };
 typedef IceUtil::Handle<GetAdapterNameCB> GetAdapterNameCBPtr;
 
+class NoOpGetAdapterNameCB : public AMI_TestIntf_getAdapterName
+{
+public:
+
+    virtual void
+    ice_response(const string&)
+    {
+    }
+
+    virtual void
+    ice_exception(const Ice::Exception&)
+    {
+    }
+};
+
 string
 getAdapterNameWithAMI(const TestIntfPrx& test)
 {
@@ -217,6 +232,95 @@ allTests(const Ice::CommunicatorPtr& communicator)
         test(test->getAdapterName() == "Adapter12");    
 
         deactivate(com, adapters);
+    }
+    cout << "ok" << endl;
+
+    cout << "testing binding with multiple random endpoints... " << flush;
+    {
+        vector<RemoteObjectAdapterPrx> adapters;
+        adapters.push_back(com->createObjectAdapter("AdapterRandom11", "default"));
+        adapters.push_back(com->createObjectAdapter("AdapterRandom12", "default"));
+        adapters.push_back(com->createObjectAdapter("AdapterRandom13", "default"));
+        adapters.push_back(com->createObjectAdapter("AdapterRandom14", "default"));
+        adapters.push_back(com->createObjectAdapter("AdapterRandom15", "default"));
+
+#ifdef _WIN32
+        int count = 60;
+#else
+        int count = 20;
+#endif
+        int adapterCount = static_cast<int>(adapters.size());
+        while(--count > 0)
+        {
+#ifdef _WIN32
+            if(count == 10)
+            {
+                com->deactivateObjectAdapter(adapters[4]);
+                --adapterCount;
+            }
+            vector<TestIntfPrx> proxies;
+            proxies.resize(10);
+#else
+            if(count < 60 && count % 10 == 0)
+            {
+                com->deactivateObjectAdapter(adapters[count / 10 - 1]);
+                --adapterCount;
+            }
+            vector<TestIntfPrx> proxies;
+            proxies.resize(40);
+#endif
+            unsigned int i;
+            for(i = 0; i < proxies.size(); ++i)
+            {
+                vector<RemoteObjectAdapterPrx> adpts;
+                adpts.resize(IceUtilInternal::random(static_cast<int>(adapters.size())));
+                if(adpts.empty())
+                {
+                    adpts.resize(1);
+                }
+                for(vector<RemoteObjectAdapterPrx>::iterator p = adpts.begin(); p != adpts.end(); ++p)
+                {
+                    *p = adapters[IceUtilInternal::random(static_cast<int>(adapters.size()))];
+                }
+                proxies[i] = createTestIntfPrx(adpts);
+            }
+            
+            for(i = 0; i < proxies.size(); i++)
+            {
+                proxies[i]->getAdapterName_async(new NoOpGetAdapterNameCB());
+            }
+            for(i = 0; i < proxies.size(); i++)
+            {
+                try
+                {
+                    proxies[i]->ice_ping();
+                }
+                catch(const Ice::LocalException&)
+                {
+                }
+            }
+            set<Ice::ConnectionPtr> connections;
+            for(i = 0; i < proxies.size(); i++)
+            {
+                if(proxies[i]->ice_getCachedConnection())
+                {
+                    connections.insert(proxies[i]->ice_getCachedConnection());
+                }
+            }
+            test(static_cast<int>(connections.size()) <= adapterCount);
+
+            for(vector<RemoteObjectAdapterPrx>::const_iterator q = adapters.begin(); q != adapters.end(); ++q)
+            {
+                try
+                {
+                    (*q)->getTestIntf()->ice_getConnection()->close(false);
+                }
+                catch(const Ice::LocalException&)
+                {
+                    // Expected if adapter is down.
+                }
+            }
+        }
     }
     cout << "ok" << endl;
 
@@ -376,6 +480,9 @@ allTests(const Ice::CommunicatorPtr& communicator)
         
         try
         {
+#if defined(__BCPLUSPLUS__) && (__BCPLUSPLUS__ >= 0x0600)
+            IceUtil::DummyBCC dummy;
+#endif
             test->getAdapterName();
         }
         catch(const Ice::ConnectionRefusedException&)
@@ -423,6 +530,9 @@ allTests(const Ice::CommunicatorPtr& communicator)
         TestIntfPrx test3 = TestIntfPrx::uncheckedCast(test1);
         try
         {
+#if defined(__BCPLUSPLUS__) && (__BCPLUSPLUS__ >= 0x0600)
+            IceUtil::DummyBCC dummy;
+#endif
             test(test3->ice_getConnection() == test1->ice_getConnection());
             test(false);
         }
@@ -461,7 +571,6 @@ allTests(const Ice::CommunicatorPtr& communicator)
         }
 
         com->deactivateObjectAdapter(adapters[2]);
-
 
         test(test->getAdapterName() == "Adapter52");
         
@@ -536,6 +645,9 @@ allTests(const Ice::CommunicatorPtr& communicator)
         
         try
         {
+#if defined(__BCPLUSPLUS__) && (__BCPLUSPLUS__ >= 0x0600)
+            IceUtil::DummyBCC dummy;
+#endif
             test->getAdapterName();
         }
         catch(const Ice::ConnectionRefusedException&)
@@ -595,6 +707,9 @@ allTests(const Ice::CommunicatorPtr& communicator)
         
         try
         {
+#if defined(__BCPLUSPLUS__) && (__BCPLUSPLUS__ >= 0x0600)
+            IceUtil::DummyBCC dummy;
+#endif
             test->getAdapterName();
         }
         catch(const Ice::ConnectionRefusedException&)
@@ -636,6 +751,9 @@ allTests(const Ice::CommunicatorPtr& communicator)
         test(test->ice_getConnection() != testUDP->ice_getConnection());
         try
         {
+#if defined(__BCPLUSPLUS__) && (__BCPLUSPLUS__ >= 0x0600)
+            IceUtil::DummyBCC dummy;
+#endif
             testUDP->getAdapterName();
         }
         catch(const Ice::TwowayOnlyException&)

@@ -24,8 +24,9 @@ Windows version
 
 Ice has been extensively tested on:
 
-- Windows XP x86
-- Windows 2003 Server x86 and x64
+- Windows XP SP2 x86
+- Windows 2003 Server SP2 x86 and x64
+- Windows 2008 Server x86 and x64
 - Windows Vista x86 and x64
 
 Ice does not work on Windows 2000. However, porting Ice to Windows
@@ -71,39 +72,25 @@ The following C++ compilers are supported:
   supported. STLport is included in the Ice third-party package
   for Visual C++ 6.0.
 
-  In order to build the MFC demos, you need to install the MFC
-  "Shared Libraries for Unicode".
-
 - CodeGear C++Builder 2007 R2 with December 2007 Update
 
+- CodeGear C++Builder 2009 Update 2
 
-Visual C++ 2005 Express SP1 Setup
+
+Visual C++ Express/C++Builder Setup
 ---------------------------------
 
-Users of Visual C++ 2005 Express SP1 need to install the Microsoft
+Users of Visual C++ 2005 Express, Visual C++ 2008 Express, 
+C++Builder 2007 or C++Builder 2009 need to install the Microsoft
 Platform SDK:
 
-  http://www.microsoft.com/downloads/details.aspx?FamilyId=A55B6B43-E24F-4EA3-A93E-40C0EC4F68E5&displaylang=en
+  http://www.microsoft.com/Downloads/details.aspx?familyid=0BAF2B35-C656-4969-ACE8-E4C0C0716ADB&displaylang=en
 
-Once installed, follow the instructions at the link below:
+Once installed, you need to add the Platform SDK directories to the
+INCLUDE, LIB and PATH environment variables. This can be done by
+executing the following script from within the compiler command prompt:
 
-  http://msdn2.microsoft.com/en-us/express/aa700755.aspx
-
-You also need to add the Platform SDK directories to the INCLUDE, LIB
-and PATH environment variables. For example:
-
-@SET PDK_HOME=C:\Program Files\Microsoft Platform SDK for Windows Server 2003 R2
-@SET PATH=%PDK_HOME%\bin;%PATH%
-@SET INCLUDE=%PDK_HOME%\include;%INCLUDE%
-@SET LIB=%PDK_HOME%\lib;%LIB%
-
-The PDK_HOME environment variable must be defined in order to build
-the Ice source distribution. Note that PDK_HOME must not contain a
-trailing backslash (\).
-
-You may also need to execute the vsvars32.bat script, located in
-C:\Program Files\Microsoft Visual Studio 8\Common7\Tools, to properly
-configure your build environment.
+  C:\Program Files\Microsoft Platform SDK for Windows Server 2003 R2\SetEnv.Cmd
 
 
 Visual C++ 6.0 Setup
@@ -135,16 +122,11 @@ variable.
 This Platform SDK is only required to compile Ice and is not necessary
 to build applications using Ice.
 
-
-NMAKE and Message Compiler (MC.EXE)
------------------------------------
-
-In order to build Ice, you will need the Microsoft NMAKE and Message
-Compiler utilities. These are included in all full Microsoft C++
-compiler distributions. If you are using C++Builder or Visual C++ 2008
-Express, you can download them as part of the Windows Platform SDK:
- 
-  http://www.microsoft.com/downloads/details.aspx?FamilyId=E6E1C3DF-A74F-4207-8586-711EBE331CDC&displaylang=en
+To build the MFC demos, you must have the Unicode library installed.
+If you get a link failure about a missing MFC42UD.LIB, run Visual Studio
+setup, and add the Unicode library (under "MFC and Template Libraries",
+"MS Foundation Class Libraries", "Shared Libraries for Unicode") to
+your Visual Studio installation.
 
 
 Third-party libraries

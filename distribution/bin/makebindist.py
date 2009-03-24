@@ -199,8 +199,11 @@ for l in buildLanguages:
     else:
         antCmd = platform.getAntEnv() + " ant " + platform.getAntOptions() + " -Dprefix=" + buildDir
 
+	jgoodiesDefines = "-Djgoodies.forms=" + platform.getJGoodiesForms() + " -Djgoodies.looks=" + \
+			  platform.getJGoodiesLooks()
+
         if os.system(antCmd + " -Dbuild.suffix=-java2 -Dice.mapping=java2 install") != 0 or \
-           os.system(antCmd + " -Dbuild.suffix=-java5 -Dice.mapping=java5 install") != 0: 
+           os.system(antCmd + " -Dbuild.suffix=-java5 -Dice.mapping=java5 " + jgoodiesDefines + " install") != 0: 
            print sys.argv[0] + ": `" + l + "' build failed"
            os.chdir(cwd)
            sys.exit(1)

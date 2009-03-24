@@ -10,6 +10,7 @@
 #include <IceUtil/DisableWarnings.h>
 #include <Gen.h>
 #include <Slice/Checksum.h>
+#include <Slice/Util.h>
 #include <IceUtil/Functional.h>
 #include <IceUtil/Iterator.h>
 #include <cstring>
@@ -1206,12 +1207,6 @@ Slice::Gen::~Gen()
 {
 }
 
-bool
-Slice::Gen::operator!() const
-{
-    return false;
-}
-
 void
 Slice::Gen::generate(const UnitPtr& p, bool stream)
 {
@@ -1670,30 +1665,19 @@ Slice::Gen::PackageVisitor::PackageVisitor(const string& dir) :
 bool
 Slice::Gen::PackageVisitor::visitModuleStart(const ModulePtr& p)
 {
-    DefinitionContextPtr dc = p->definitionContext();
-    assert(dc);
-    StringList globalMetaData = dc->getMetaData();
-
-    static const string packagePrefix = "java:package:";
-
-    for(StringList::const_iterator q = globalMetaData.begin(); q != globalMetaData.end(); ++q)
+    string prefix = getPackagePrefix(p);
+    if(!prefix.empty())
     {
-        string s = *q;
-        if(s.find(packagePrefix) == 0)
-        {
-            string markerClass = s.substr(packagePrefix.size()) + "." + fixKwd(p->name()) + "._Marker";
-
-            open(markerClass);
-
-            Output& out = output();
-            out << sp << nl << "interface _Marker";
-            out << sb;
-            out << eb;
-
-            close();
-        }
+        string markerClass = prefix + "." + fixKwd(p->name()) + "._Marker";
+        open(markerClass);
+    
+        Output& out = output();
+        out << sp << nl << "interface _Marker";
+        out << sb;
+        out << eb;
+    
+        close();
     }
-
     return false;
 }
 
@@ -1837,7 +1821,7 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
         // Constructors.
         //
         out << sp;
-        out << nl << "public " << name << "()";
+        out << nl << "public " << fixKwd(name) << "()";
         out << sb;
         if(baseClass)
         {
@@ -1845,7 +1829,7 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
         }
         out << eb;
 
-        out << sp << nl << "public " << name << spar;
+        out << sp << nl << "public " << fixKwd(name) << spar;
         vector<string> paramDecl;
         for(d = allDataMembers.begin(); d != allDataMembers.end(); ++d)
         {
@@ -2279,7 +2263,7 @@ Slice::Gen::TypesVisitor::visitStructStart(const StructPtr& p)
         out << nl << " **/";
     }
 
-    out << nl << "public final class " << name << " implements java.lang.Cloneable";
+    out << nl << "public final class " << name << " implements java.lang.Cloneable, java.io.Serializable";
     out << sb;
 
     return true;
@@ -2658,8 +2642,7 @@ Slice::Gen::TypesVisitor::visitDataMember(const DataMemberPtr& p)
         if(cls)
         {
             ops = cls->allOperations();
-            DefinitionContextPtr dc = p->definitionContext();
-            file = dc->filename();
+            file = p->file();
             line = p->line();
             if(!validateGetterSetter(ops, "get" + capName, 0, file, line) ||
                !validateGetterSetter(ops, "set" + capName, 1, file, line))
@@ -2800,11 +2783,11 @@ Slice::Gen::TypesVisitor::visitEnum(const EnumPtr& p)
         out << nl << " **/";
     }
 
-    bool java2 = p->definitionContext()->findMetaData("java:java2") == "java:java2";
+    bool java2 = p->definitionContext()->findMetaData(_java2MetaData) == _java2MetaData;
 
     if(java2)
     {
-        out << nl << "public final class " << name;
+        out << nl << "public final class " << name << " implements java.io.Serializable";
         out << sb;
 
         out << nl << "private static " << name << "[] __values = new " << name << "[" << sz << "];";
@@ -2857,7 +2840,7 @@ Slice::Gen::TypesVisitor::visitEnum(const EnumPtr& p)
     }
     else
     {
-        out << nl << "public enum " << name;
+        out << nl << "public enum " << name << " implements java.io.Serializable";
         out << sb;
 
         for(en = enumerators.begin(); en != enumerators.end(); ++en)
@@ -2983,8 +2966,21 @@ Slice::Gen::TypesVisitor::visitEnum(const EnumPtr& p)
 
     if(java2)
     {
+        //
+        // Without this method, Java would create a new instance of an enumerator
+        // during deserialization, but we want it to use one of the predefined
+        // enumerators instead.
+        //
+        out << sp << nl << "private java.lang.Object" << nl << "readResolve()";
+        out.inc();
+        out << nl << "throws java.io.ObjectStreamException";
+        out.dec();
+        out << sb;
+        out << nl << "return convert(__value);";
+        out << eb;
         out << sp << nl << "final static private String[] __T =";
         out << sb;
+
         en = enumerators.begin();
         while(en != enumerators.end())
         {
@@ -3134,8 +3130,9 @@ Slice::Gen::TypesVisitor::validateGetterSetter(const OperationList& ops, const s
             int numParams = static_cast<int>((*i)->parameters().size());
             if(numArgs >= numParams && numArgs - numParams <= 1)
             {
-                cerr << file << ":" << line
-                     << ": error: operation `" << name << "' conflicts with getter/setter method" << endl;
+                ostringstream ostr;
+                ostr << "operation `" << name << "' conflicts with getter/setter method";
+                emitError(file, line, ostr.str());
                 return false;
             }
             break;
@@ -3189,6 +3186,23 @@ Slice::Gen::HolderVisitor::visitStructStart(const StructPtr& p)
 void
 Slice::Gen::HolderVisitor::visitSequence(const SequencePtr& p)
 {
+    BuiltinPtr builtin = BuiltinPtr::dynamicCast(p->type());
+    if(builtin && builtin->kind() == Builtin::KindByte)
+    {
+        string prefix = "java:serializable:";
+        string meta;
+        if(p->findMetaData(prefix, meta))
+        {
+            return; // No holders for serializable types.
+        }
+        prefix = "java:protobuf:";
+        if(p->findMetaData(prefix, meta))
+        {
+            return; // No holders for protobuf types.
+
+        }
+    }
+    
     writeHolder(p);
 }
 
@@ -3310,7 +3324,7 @@ Slice::Gen::HelperVisitor::visitClassDefStart(const ClassDefPtr& p)
 
     out << sb;
 
-    bool java2 = p->definitionContext()->findMetaData("java:java2") == "java:java2";
+    bool java2 = p->definitionContext()->findMetaData(_java2MetaData) == _java2MetaData;
     string contextType = java2 ? "java.util.Map" : "java.util.Map<String, String>";
     string contextParam = contextType + " __ctx";
     string explicitContextParam = "boolean __explicitCtx";
@@ -3974,7 +3988,7 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
         out << nl << " **/";
     }
 
-    bool java2 = p->definitionContext()->findMetaData("java:java2") == "java:java2";
+    bool java2 = p->definitionContext()->findMetaData(_java2MetaData) == _java2MetaData;
     string contextParam = java2 ? "java.util.Map __ctx" : "java.util.Map<String, String> __ctx";
 
     out << nl << "public " << retS << ' ' << name << spar << params << contextParam << epar;
@@ -4051,7 +4065,7 @@ Slice::Gen::DelegateVisitor::visitClassDefStart(const ClassDefPtr& p)
 
     out << sb;
 
-    bool java2 = p->definitionContext()->findMetaData("java:java2") == "java:java2";
+    bool java2 = p->definitionContext()->findMetaData(_java2MetaData) == _java2MetaData;
     string contextParam = java2 ? "java.util.Map __ctx" : "java.util.Map<String, String> __ctx";
 
     OperationList ops = p->operations();
@@ -4107,7 +4121,7 @@ Slice::Gen::DelegateMVisitor::visitClassDefStart(const ClassDefPtr& p)
     out << sp << nl << "public final class _" << name << "DelM extends Ice._ObjectDelM implements _" << name << "Del";
     out << sb;
 
-    bool java2 = p->definitionContext()->findMetaData("java:java2") == "java:java2";
+    bool java2 = p->definitionContext()->findMetaData(_java2MetaData) == _java2MetaData;
     string contextParam = java2 ? "java.util.Map __ctx" : "java.util.Map<String, String> __ctx";
 
     OperationList ops = p->allOperations();
@@ -4308,7 +4322,7 @@ Slice::Gen::DelegateDVisitor::visitClassDefStart(const ClassDefPtr& p)
     out << sp << nl << "public final class _" << name << "DelD extends Ice._ObjectDelD implements _" << name << "Del";
     out << sb;
 
-    bool java2 = p->definitionContext()->findMetaData("java:java2") == "java:java2";
+    bool java2 = p->definitionContext()->findMetaData(_java2MetaData) == _java2MetaData;
     string contextParam = java2 ? "java.util.Map __ctx" : "java.util.Map<String, String> __ctx";
 
     OperationList ops = p->allOperations();
@@ -4992,7 +5006,7 @@ Slice::Gen::AsyncVisitor::visitOperation(const OperationPtr& p)
             out << nl << "public abstract void ice_exception(Ice.UserException ex);";
         }
         
-        bool java2 = p->definitionContext()->findMetaData("java:java2") == "java:java2";
+        bool java2 = p->definitionContext()->findMetaData(_java2MetaData) == _java2MetaData;
         string contextParam = java2 ? "java.util.Map __ctx" : "java.util.Map<String, String> __ctx";
 
         out << sp << nl << "public final boolean" << nl << "__invoke" << spar << "Ice.ObjectPrx __prx"

@@ -182,20 +182,24 @@ public class Slice2FreezeJTask extends SliceTask
         // Add the --dict options.
         //
         p = _dicts.iterator();
-        StringBuffer dictString = new StringBuffer();
+        StringBuilder dictString = new StringBuilder(128);
         while(p.hasNext())
         {
             Dict d = (Dict)p.next();
 
             dictString.append(" --dict ");
-            dictString.append(d.getName() + "," + d.getKey() + "," + d.getValue());
+            dictString.append(d.getName());
+            dictString.append(",");
+            dictString.append(d.getKey());
+            dictString.append(",");
+            dictString.append(d.getValue());
         }
 
         //
         // Add the --dict-index options.
         //
         p = _dictIndices.iterator();
-        StringBuffer dictIndexString = new StringBuffer();
+        StringBuilder dictIndexString = new StringBuilder(128);
         while(p.hasNext())
         {
             Dictindex d = (Dictindex)p.next();
@@ -204,11 +208,12 @@ public class Slice2FreezeJTask extends SliceTask
             dictIndexString.append(d.getName());
             if(d.getMember() != null)
             {
-                dictIndexString.append("," + d.getMember());
+                dictIndexString.append(",");
+                dictIndexString.append(d.getMember());
             }
             if(d.getCasesensitive() == false)
             {
-                dictIndexString.append("," + "case-insensitive");
+                dictIndexString.append(",case-insensitive");
             }
         }
         
@@ -216,16 +221,20 @@ public class Slice2FreezeJTask extends SliceTask
         // Add the --index options.
         //
         p = _indices.iterator();
-        StringBuffer indexString = new StringBuffer();
+        StringBuilder indexString = new StringBuilder();
         while(p.hasNext())
         {
             Index i = (Index)p.next();
 
             indexString.append(" --index ");
-            indexString.append(i.getName() + "," + i.getType() + "," + i.getMember());
+            indexString.append(i.getName());
+            indexString.append(",");
+            indexString.append(i.getType());
+            indexString.append(",");
+            indexString.append(i.getMember());
             if(i.getCasesensitive() == false)
             {
-                indexString.append("," + "case-insensitive");
+                indexString.append(",case-insensitive");
             }
         }
 
@@ -238,7 +247,7 @@ public class Slice2FreezeJTask extends SliceTask
         //
         // Run the translator
         //
-        StringBuffer cmd = new StringBuffer();
+        StringBuilder cmd = new StringBuilder(256);
 
         //
         // Add --ice
@@ -308,17 +317,17 @@ public class Slice2FreezeJTask extends SliceTask
         //
         // Add the --dict options.
         //
-        cmd.append(dictString);
+        cmd.append(dictString.toString());
 
         //
         // Add the --dict-index options.
         //
-        cmd.append(dictIndexString);
+        cmd.append(dictIndexString.toString());
 
         //
         // Add the --index options.
         //
-        cmd.append(indexString);
+        cmd.append(indexString.toString());
 
         //
         // Add the --meta options.
@@ -379,7 +388,8 @@ public class Slice2FreezeJTask extends SliceTask
         //      
         if(!sliceFiles.isEmpty())
         {
-            cmd = new StringBuffer("--depend");
+            cmd = new StringBuilder(256);
+            cmd.append("--depend");
             
             //
             // Add include directives
@@ -392,7 +402,9 @@ public class Slice2FreezeJTask extends SliceTask
                     cmd.append(" -I");
                     if(dirs[i].indexOf(' ') != -1)
                     {
-                        cmd.append('"' + dirs[i] + '"');
+                        cmd.append('"');
+                        cmd.append(dirs[i]);
+                        cmd.append('"');
                     }
                     else
                     {
@@ -404,17 +416,17 @@ public class Slice2FreezeJTask extends SliceTask
             //
             // Add the --dict options.
             //
-            cmd.append(dictString);
+            cmd.append(dictString.toString());
 
             //
             // Add the --dict-index options.
             //
-            cmd.append(dictIndexString);
+            cmd.append(dictIndexString.toString());
 
              //
             // Add the --index options.
             //
-            cmd.append(indexString);
+            cmd.append(indexString.toString());
 
             //
             // Add the slice files.
@@ -427,7 +439,9 @@ public class Slice2FreezeJTask extends SliceTask
                 String s = f.toString();
                 if(s.indexOf(' ') != -1)
                 {
-                    cmd.append('"' + s + '"');
+                    cmd.append('"');
+                    cmd.append(s);
+                    cmd.append('"');
                 }
                 else
                 {
@@ -435,7 +449,6 @@ public class Slice2FreezeJTask extends SliceTask
                 }
             }
  
-
             //
             // It's not possible anymore to re-use the same output property since Ant 1.5.x. so we use a 
             // unique property name here. Perhaps we should output the dependencies to a file instead.

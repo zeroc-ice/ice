@@ -54,6 +54,11 @@ namespace Ice
             return _is.readByteSeq();
         }
 
+        public object readSerializable()
+        {
+            return _is.readSerializable();
+        }
+
         public short readShort()
         {
             return _is.readShort();
@@ -176,7 +181,7 @@ namespace Ice
 
         public void endEncapsulation()
         {
-            _is.endReadEncaps();
+            _is.endReadEncapsChecked();
         }
 
         public void skipEncapsulation()
@@ -250,6 +255,11 @@ namespace Ice
             _os.writeByteSeq(v);
         }
 
+        public void writeSerializable(object v)
+        {
+            _os.writeSerializable(v);
+        }
+
         public void writeShort(short v)
         {
             _os.writeShort(v);
@@ -312,6 +322,11 @@ namespace Ice
 
         public void writeSize(int sz)
         {
+            if(sz < 0)
+            {
+                throw new NegativeSizeException();
+            }
+
             _os.writeSize(sz);
         }
 
@@ -352,7 +367,7 @@ namespace Ice
 
         public void endEncapsulation()
         {
-            _os.endWriteEncaps();
+            _os.endWriteEncapsChecked();
         }
 
         public void writeBlob(byte[] data)

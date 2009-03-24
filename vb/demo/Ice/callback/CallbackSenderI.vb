@@ -15,7 +15,7 @@ Public NotInheritable Class CallbackSenderI
     Public Overloads Overrides Sub initiateCallback(ByVal proxy As CallbackReceiverPrx, ByVal current As Ice.Current)
         System.Console.Out.WriteLine("initiating callback")
         Try
-            proxy.callback(current.ctx)
+            proxy.callback()
         Catch ex As System.Exception
             System.Console.Error.WriteLine(ex)
         End Try

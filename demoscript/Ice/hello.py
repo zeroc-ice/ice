@@ -59,7 +59,7 @@ def runtests(client, server, secure):
     client.sendline('P')
     client.expect('server delay is now set to 2500ms')
     client.sendline('t')
-    client.expect('.*TimeoutException.*', timeout=5)
+    client.expect('.*TimeoutException.*', timeout=10)
     server.expect('Hello World!')
     server.expect('Hello World!') # second because op is idempotent
     client.sendline('P')

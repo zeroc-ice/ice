@@ -47,8 +47,9 @@ client = os.path.join(os.getcwd(), "client")
 time.sleep(1)
 
 print "starting client...",
-clientProc = TestUtil.startClient(client)
+clientProc = TestUtil.startClient(client, startReader = False)
 print "ok"
+clientProc.startReader()
 
 clientProc.waitTestSuccess()
 serverProc.waitTestSuccess()

@@ -105,20 +105,7 @@ public final class ProxyFactory
         {
             Ice.ObjectNotExistException one = (Ice.ObjectNotExistException)ex;
 
-            LocatorInfo li = ref.getLocatorInfo();
-            if(li != null && ref.isIndirect())
-            {
-                //
-                // We retry ObjectNotExistException if the reference is
-                // indirect.
-                //
-
-                if(ref.isWellKnown())
-                {
-                    li.clearCache(ref);
-                }
-            }
-            else if(ref.getRouterInfo() != null && one.operation.equals("ice_add_proxy"))
+            if(ref.getRouterInfo() != null && one.operation.equals("ice_add_proxy"))
             {
                 //
                 // If we have a router, an ObjectNotExistException with an
@@ -139,6 +126,22 @@ public final class ProxyFactory
                     out.__retry(cnt, 0);
                 }
                 return cnt; // We must always retry, so we don't look at the retry count.
+            }
+            else if(ref.isIndirect())
+            {
+                //
+                // We retry ObjectNotExistException if the reference is
+                // indirect.
+                //
+
+                if(ref.isWellKnown())
+                {
+                    LocatorInfo li = ref.getLocatorInfo();
+                    if(li != null)
+                    {
+                        li.clearCache(ref);
+                    }
+                }
             }
             else
             {
@@ -220,7 +223,7 @@ public final class ProxyFactory
             //
             try
             {
-                Thread.currentThread().sleep(interval);
+                Thread.sleep(interval);
             }
             catch(InterruptedException ex1)
             {

@@ -23,7 +23,8 @@ from scripts import *
 TestUtil.addClasspath(os.path.join(os.getcwd(), "classes"))
 
 print "starting test...",
-clientProc = TestUtil.startClient("Client")
+clientProc = TestUtil.startClient("Client", startReader = False)
 print "ok"
+clientProc.startReader()
 
 clientProc.waitTestSuccess()

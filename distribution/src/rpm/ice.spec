@@ -7,12 +7,17 @@
 #
 # **********************************************************************
 
-%if "%{dist}" != ".sles10"
-%define ruby 1
-%define mono 0
+%if "%{dist}" == ".rhel4" || "%{dist}" == ".rhel5"
+  %define ruby 1
+  %define mono 0
 %else
-%define ruby 0
-%define mono 1
+  %if "%{dist}" == ".sles10"
+    %define ruby 0
+    %define mono 1
+  %else
+    %define ruby 0
+    %define mono 0
+  %endif
 %endif
 
 %define buildall 1
@@ -22,14 +27,18 @@
 
 #
 # See http://fedoraproject.org/wiki/Packaging/Python
-# Since we build a single ice-python arch-specific package, we put everything in sitearch
+#
+# We put everything in sitearch because we're building a single
+# ice-python arch-specific package.
 #
 %{!?python_sitearch: %define python_sitearch %(%{__python} -c "from distutils.sysconfig import get_python_lib; print get_python_lib(1)")}
 
 %if %{ruby}
 #
 # See http://fedoraproject.org/wiki/Packaging/Ruby
-# Since we build a single ice-ruby arch-specific package, we put everything in sitearch
+#
+# We put everything in sitearch because we're building a single
+# ice-ruby arch-specific package.
 #
 %{!?ruby_sitearch: %define ruby_sitearch %(ruby -rrbconfig -e 'puts Config::CONFIG["sitearchdir"]')}
 %endif
@@ -48,7 +57,7 @@ Source1: Ice-rpmbuild-%{version}.tar.gz
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
 %define soversion 33
-%define dotnetversion 3.3..1.1.1.1.1.1
+%define dotnetversion 3.3.1
 %define dotnetpolicyversion 3.3
 
 %define formsversion 1.2.0
@@ -61,8 +70,16 @@ BuildRequires: jpackage-utils
 BuildRequires: mcpp-devel >= 2.7.2
 
 #
-# We also need a recent version of ant, %{_javadir}/jgoodies-forms-%{formsversion}.jar,
-#  %{_javadir}/jgoodies-forms-%{looksversion}.jar and  %{_javadir}/proguard.jar
+# Prerequisites for building Ice for Java:
+#
+# - a recent version of ant
+# - %{_javadir}/jgoodies-forms-%{formsversion}.jar
+# - %{_javadir}/jgoodies-forms-%{looksversion}.jar
+# - %{_javadir}/proguard.jar
+#
+# Use find-jar to verify that the JAR files are present:
+#
+# $ find-jar proguard.jar
 #
 
 %if %{ruby}
@@ -102,10 +119,10 @@ plug-ins, TCP/IP and UDP/IP support, SSL-based security, a firewall
 solution, and much more.
 
 #
-# We create both noarch and arch-specific packages for these
-# GAC files. Please delete the arch-specific packages after the build:
-# we create them only to keep rpmbuild happy ... it does not want
-# to create dangling symbolic links (the GAC symlinks used for development) 
+# We create both noarch and arch-specific packages for these GAC files.
+# Please delete the arch-specific packages after the build: we create
+# them only to keep rpmbuild happy (it does not want to create dangling
+# symbolic links (the GAC symlinks used for development)).
 #
 %if %{mono}
 %package mono
@@ -266,7 +283,8 @@ make %{makeopts} OPTIMIZE=yes embedded_runpath_prefix=""
 %endif
 
 #
-# We build java5 all the time, since we include the GUI and ant-ice.jar in a non-noarch package.
+# We build java5 all the time, since we include the GUI and
+# ant-ice.jar in a non-noarch package.
 #
 cd $RPM_BUILD_DIR/Ice-%{version}/java
 export CLASSPATH=`build-classpath db-%{dbversion} jgoodies-forms-%{formsversion} jgoodies-looks-%{looksversion} proguard`
@@ -280,11 +298,12 @@ ant -Dice.mapping=java2 -Dbuild.suffix=java2 jar
 %endif
 
 # 
-# We build mono all the time because we include iceboxnet.exe in a arch-specific package;
-# we also include GAC symlinks is another arch-specific package
+# We build mono all the time because we include iceboxnet.exe in an
+# arch-specific package; we also include GAC symlinks in another
+# arch-specific package.
 #
-#
-# Define the env variable KEYFILE to strong-name sign with your own key file
+# Define the environment variable KEYFILE to strong-name sign the
+# assemblies your own key file.
 #
 
 %if %{mono}
@@ -305,7 +324,6 @@ rm -rf $RPM_BUILD_ROOT
 #
 # C++
 #
-
 mkdir -p $RPM_BUILD_ROOT/lib
 
 cd $RPM_BUILD_DIR/Ice-%{version}/cpp
@@ -483,7 +501,6 @@ mv $RPM_BUILD_ROOT/slice $RPM_BUILD_ROOT%{_datadir}/Ice-%{version}
 #
 # Cleanup extra files
 #
-
 rm -fr $RPM_BUILD_ROOT/help
 rm -f $RPM_BUILD_ROOT/lib/IceGridGUI.jar $RPM_BUILD_ROOT/lib/ant-ice.jar
 %if %{mono}
@@ -773,6 +790,9 @@ fi
 
 %changelog
 
+* Wed Mar 4 2009 Bernard Normier <bernard@zeroc.com> 3.3.1
+- Minor updates for the Ice 3.3.1 release.
+
 * Wed Feb 27 2008 Bernard Normier <bernard@zeroc.com> 3.3b-1
 - Updates for Ice 3.3b release:
  - Split main ice rpm into ice noarch (license and Slice files), ice-libs 
@@ -799,6 +819,3 @@ fi
 * Fri Dec 6 2006 ZeroC Staff <support@zeroc.com>
 - See source distributions or the ZeroC website for more information
   about the changes in this release
-
-
-

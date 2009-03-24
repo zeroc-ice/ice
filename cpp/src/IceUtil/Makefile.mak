@@ -47,7 +47,7 @@ CPPFLAGS        = $(CPPFLAGS) -DICE_UTIL_API_EXPORTS -I.. -DWIN32_LEAN_AND_MEAN
 PDBFLAGS	= /pdb:$(DLLNAME:.dll=.pdb)
 !endif
 
-!if "$(CPP_COMPILER)" == "BCC2007"
+!if "$(BCPLUSPLUS)" == "yes"
 RES_FILE	= ,, IceUtil.res
 !else
 RES_FILE	= IceUtil.res
@@ -81,7 +81,7 @@ install:: all
 	copy $(DLLNAME) $(install_bindir)
 
 
-!if "$(CPP_COMPILER)" == "BCC2007" && "$(OPTIMIZE)" != "yes"
+!if "$(BCPLUSPLUS)" == "yes" && "$(OPTIMIZE)" != "yes"
 
 install:: all
 	copy $(DLLNAME:.dll=.tds) $(install_bindir)

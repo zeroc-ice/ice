@@ -949,6 +949,45 @@ class TwowaysAMI
         private Callback callback = new Callback();
     }
 
+    private static class AMI_MyClass_opMyStructMyEnumDI extends Test.AMI_MyClass_opMyStructMyEnumD
+    {
+        public void
+        ice_response(java.util.Map _ro, java.util.Map __do)
+        {
+            // TODO: Fix the parameters and remove the casts below when the Java2 mapping is removed.
+            Test.MyStruct s11 = new Test.MyStruct(1, 1);
+            Test.MyStruct s12 = new Test.MyStruct(1, 2);
+            java.util.Map<Test.MyStruct, Test.MyEnum> ro = (java.util.Map<Test.MyStruct, Test.MyEnum>)_ro;
+            java.util.Map<Test.MyStruct, Test.MyEnum> _do = (java.util.Map<Test.MyStruct, Test.MyEnum>)__do;
+            java.util.Map<Test.MyStruct, Test.MyEnum> di1 = new java.util.HashMap<Test.MyStruct, Test.MyEnum>();
+            di1.put(s11, Test.MyEnum.enum1);
+            di1.put(s12, Test.MyEnum.enum2);
+            test(_do.equals(di1));
+            Test.MyStruct s22 = new Test.MyStruct(2, 2);
+            Test.MyStruct s23 = new Test.MyStruct(2, 3);
+            test(ro.size() == 4);
+            test(ro.get(s11) == Test.MyEnum.enum1);
+            test(ro.get(s12) == Test.MyEnum.enum2);
+            test(ro.get(s22) == Test.MyEnum.enum3);
+            test(ro.get(s23) == Test.MyEnum.enum2);
+            callback.called();
+        }
+
+        public void
+        ice_exception(Ice.LocalException ex)
+        {
+            test(false);
+        }
+
+        public boolean
+        check()
+        {
+            return callback.check();
+        }
+
+        private Callback callback = new Callback();
+    }
+
     private static class AMI_MyClass_opIntSI extends Test.AMI_MyClass_opIntS
     {
         AMI_MyClass_opIntSI(int l)
@@ -1437,6 +1476,24 @@ class TwowaysAMI
 
             AMI_MyClass_opStringMyEnumDI cb = new AMI_MyClass_opStringMyEnumDI();
             p.opStringMyEnumD_async(cb, di1, di2);
+            test(cb.check());
+        }
+
+        {
+            Test.MyStruct s11 = new Test.MyStruct(1, 1);
+            Test.MyStruct s12 = new Test.MyStruct(1, 2);
+            java.util.Map<Test.MyStruct, Test.MyEnum> di1 = new java.util.HashMap<Test.MyStruct, Test.MyEnum>();
+            di1.put(s11, Test.MyEnum.enum1);
+            di1.put(s12, Test.MyEnum.enum2);
+            Test.MyStruct s22 = new Test.MyStruct(2, 2);
+            Test.MyStruct s23 = new Test.MyStruct(2, 3);
+            java.util.Map<Test.MyStruct, Test.MyEnum> di2 = new java.util.HashMap<Test.MyStruct, Test.MyEnum>();
+            di2.put(s11, Test.MyEnum.enum1);
+            di2.put(s22, Test.MyEnum.enum3);
+            di2.put(s23, Test.MyEnum.enum2);
+
+            AMI_MyClass_opMyStructMyEnumDI cb = new AMI_MyClass_opMyStructMyEnumDI();
+            p.opMyStructMyEnumD_async(cb, di1, di2);
             test(cb.check());
         }
 

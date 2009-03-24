@@ -26,7 +26,7 @@ public class Client
         Console.Out.Write("shutting down server... ");
         Console.Out.Flush();
         myClass.shutdown();
-        Console.Out.WriteLine("OK");
+        Console.Out.WriteLine("ok");
         return 0;
     }
 

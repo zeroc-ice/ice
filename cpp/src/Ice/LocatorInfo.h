@@ -20,6 +20,8 @@
 #include <Ice/EndpointIF.h>
 #include <Ice/PropertiesF.h>
 
+#include <memory>
+
 namespace IceInternal
 {
 

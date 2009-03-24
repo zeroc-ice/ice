@@ -14,15 +14,9 @@ Freeze.DbEnv.backup.OldLogsAutoDelete=0
 Freeze.DbEnv.backup.DbPrivate=0
 
 #
-# Disable checkpoints
-#
-Freeze.DbEnv.backup.CheckpointPeriod=-1
-
-#
 # "Fatal" recovery
 #
 #Freeze.DbEnv.backup.DbRecoverFatal=1
-
 
 
 

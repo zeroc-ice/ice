@@ -79,6 +79,7 @@ public final class ConnectionMonitor implements IceInternal.TimerTask
         // so that connections can be added or removed during
         // monitoring.
         //
+        long now = IceInternal.Time.currentMonotonicTimeMillis();
         java.util.Iterator<Ice.ConnectionI> iter = connections.iterator();
         while(iter.hasNext())
         {
@@ -86,7 +87,7 @@ public final class ConnectionMonitor implements IceInternal.TimerTask
             
             try
             {              
-                connection.monitor();
+                connection.monitor(now);
             }
             catch(Ice.LocalException ex)
             {

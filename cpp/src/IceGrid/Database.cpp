@@ -42,6 +42,30 @@ struct ObjectLoadCI : binary_function<pair<Ice::ObjectPrx, float>&, pair<Ice::Ob
     }
 };
 
+bool 
+isServerUpdated(const ServerInfo& lhs, const ServerInfo& rhs)
+{
+    if(lhs.node != rhs.node)
+    {
+        return true;
+    }
+
+    IceBoxDescriptorPtr lhsIceBox = IceBoxDescriptorPtr::dynamicCast(lhs.descriptor);
+    IceBoxDescriptorPtr rhsIceBox = IceBoxDescriptorPtr::dynamicCast(rhs.descriptor);
+    if(lhsIceBox && rhsIceBox)
+    {
+        return IceBoxHelper(lhsIceBox) != IceBoxHelper(rhsIceBox);
+    }
+    else if(!lhsIceBox && !rhsIceBox)
+    {
+        return ServerHelper(lhs.descriptor) != ServerHelper(rhs.descriptor);
+    }
+    else
+    {
+        return true;
+    }
+}
+
 }
 
 Database::Database(const Ice::ObjectAdapterPtr& registryAdapter,
@@ -786,10 +810,23 @@ Database::removeAdapter(const string& adapterId)
     _adapterObserverTopic->waitForSyncedSubscribers(serial);
 }
 
-AdapterEntryPtr
-Database::getAdapter(const string& id) const
+AdapterPrx
+Database::getAdapterProxy(const string& adapterId, const string& replicaGroupId, bool upToDate)
 {
-    return _adapterCache.get(id);
+    Lock sync(*this); // make sure this isn't call during an update.
+    return _adapterCache.get(adapterId)->getProxy(replicaGroupId, upToDate);
+}
+
+void 
+Database::getLocatorAdapterInfo(const string& id, 
+                                LocatorAdapterInfoSeq& adpts, 
+                                int& count, 
+                                bool& replicaGroup, 
+                                bool& roundRobin,
+                                const set<string>& excludes)
+{
+    Lock sync(*this); // Make sure this isn't call during an update.
+    _adapterCache.get(id)->getLocatorAdapterInfo(adpts, count, replicaGroup, roundRobin, excludes);
 }
 
 AdapterInfoSeq
@@ -802,6 +839,7 @@ Database::getAdapterInfo(const string& id)
     //
     try
     {
+        Lock sync(*this); // Make sure this isn't call during an update.
         return _adapterCache.get(id)->getAdapterInfo();
     }
     catch(AdapterNotExistException&)
@@ -1458,10 +1496,16 @@ Database::reload(const ApplicationHelper& oldApp,
         {
             load.push_back(p->second);
         } 
-        else
+        else if(isServerUpdated(p->second, q->second))
         {
             _serverCache.remove(p->first, false); // Don't destroy the server if it was updated.
             load.push_back(p->second);
+        }
+        else
+        {
+            ServerEntryPtr server = _serverCache.get(p->first);
+            server->update(q->second); // Just update the server revision on the node.
+            entries.push_back(server);
         }
     }
     for(p = oldServers.begin(); p != oldServers.end(); ++p)
@@ -1593,6 +1637,10 @@ Database::finishApplicationUpdate(ServerEntrySeq& entries,
             finishUpdating(newDesc.name);
             throw ex;
         }
+    }
+    else
+    {
+        for_each(entries.begin(), entries.end(), IceUtil::voidMemFun(&ServerEntry::sync));
     }
 
     //

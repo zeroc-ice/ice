@@ -26,7 +26,7 @@ CPPFLAGS	= -I. $(CPPFLAGS) -DWIN32_LEAN_AND_MEAN
 PDBFLAGS        = /pdb:$(NAME:.exe=.pdb)
 !endif
 
-!if "$(CPP_COMPILER)" == "BCC2007"
+!if "$(BCPLUSPLUS)" == "yes"
 RES_FILE        = ,, Slice2Html.res
 !else
 RES_FILE        = Slice2Html.res
@@ -46,7 +46,7 @@ install:: all
 	copy $(NAME) $(install_bindir)
 
 
-!if "$(CPP_COMPILER)" == "BCC2007" && "$(OPTIMIZE)" != "yes"
+!if "$(BCPLUSPLUS)" == "yes" && "$(OPTIMIZE)" != "yes"
 
 install:: all
 	copy $(NAME:.exe=.tds) $(install_bindir)

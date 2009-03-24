@@ -47,6 +47,16 @@ the source code of a sample program, you can rebuild it using nmake,
 or you can open the Visual Studio solution located in demo\demo.sln.
 
 
+Managed Code
+------------
+
+By default, Ice for .NET uses unmanaged code for performing protocol
+compression and for handling signals in the Ice.Application class.
+You can build a managed version of Ice for .NET that lacks the
+aforementioned features by editing config/Make.rules.mak.cs and
+uncommenting the MANAGED=yes line before you build.
+
+
 SSL Notes
 ---------
 
@@ -165,17 +175,17 @@ into the same directory as an executable.
 If you want line numbers for stack traces, you must also install the
 PDB (.pdb) files in the GAC. Unfortunately, you cannot do this using
 Explorer, so you have to do it from the command line. Open a command
-shell window and navigate to C:\WINDOWS\assembly\GAC\Ice. (Assuming
-C:\WINDOWS is your system root.) Doing a directory listing there, you
-will find a directory named @dotnetver@__<UUID>, for example:
+shell window and navigate to C:\WINDOWS\assembly\GAC_MSIL\Ice.
+(Assuming C:\WINDOWS is your system root.) Doing a directory listing
+there, you will find a directory named @dotnetver@__<UUID>, for 
+example:
 
   @dotnetver@__1f998c50fec78381
 
 Change to that directory (making sure that you use the correct version
-number for this release of Ice). In this directory, you will see a
-file called __AssemblyInfo__.ini and the Ice.dll you installed into
-the GAC in the preceding step. Now copy the Ice.pdb file into this
-directory:
+number for this release of Ice). In this directory, you will see the 
+Ice.dll you installed into the GAC in the preceding step. Now copy the
+Ice.pdb file into this directory:
 
   > copy <path_to_ice.pdb> .
 
@@ -196,16 +206,10 @@ if it detects a bzip2.dll format mismatch during start-up.)
 Binary compatibility of patch releases
 --------------------------------------
 
-Patch releases of Ice are binary compatible. For example, version
-3.2.1 is compatible with 3.2.0, so you can run applications
-compiled with 3.2.0 with the 3.2.1 Ice assemblies without
-having to recompile.
+Ice patch releases are binary compatible. For example, Ice version 
+@mmver@.1 is compatible with @mmver@.0: you can run an application built 
+against Ice @mmver@.0 with Ice @mmver@.1 (or later) without having to
+recompile or relink this application.
 
-Ice for .NET includes policy assemblies in Ice-@ver@/cs/bin that
-supply the .NET run time with the required compatibility information.
-Policy assemblies have names of the form policy.<major>.<minor>.<package>.dll.
-For example, the policy assembly for IceBox 3.2 is called policy.3.2.IceBox.dll.
-
-To upgrade an existing application to a new patch release, the policy
-assemblies must be present in your PATH, or they must be
-installed into the GAC as described in the previous section.
+Please refer to the RELEASE_NOTES file included in this distribution
+for detailed upgrade instructions.

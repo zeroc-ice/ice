@@ -61,6 +61,6 @@ clean::
 	del /q IntIdentityMapWithIndex.h IntIdentityMapWithIndex.cpp
         del /q SortedMap.h SortedMap.cpp
 	del /q WstringWstringMap.h WstringWstringMap.cpp
-	for %f in (db\*) do if not %f == db\.gitignore del /q %f
+	-for %f in (db\*) do if not %f == db\.gitignore del /q %f
 
 !include .depend

@@ -425,9 +425,9 @@ Slice::CsVisitor::writeDispatchAndMarshalling(const ClassDefPtr& p, bool stream)
                 for(t = throws.begin(); t != throws.end(); ++t)
                 {
                     string exS = fixId((*t)->scoped());
-                    _out << nl << "catch(" << exS << " ex)";
+                    _out << nl << "catch(" << exS << " ex__)";
                     _out << sb;
-                    _out << nl << "os__.writeUserException(ex);";
+                    _out << nl << "os__.writeUserException(ex__);";
                     _out << nl << "return Ice.DispatchStatus.DispatchUserException;";
                     _out << eb;
                 }
@@ -534,9 +534,9 @@ Slice::CsVisitor::writeDispatchAndMarshalling(const ClassDefPtr& p, bool stream)
             }
             _out << "current__" << epar << ';';
             _out << eb;
-            _out << nl << "catch(_System.Exception ex)";
+            _out << nl << "catch(_System.Exception ex__)";
             _out << sb;
-            _out << nl << "cb__.ice_exception(ex);";
+            _out << nl << "cb__.ice_exception(ex__);";
             _out << eb;
             _out << nl << "return Ice.DispatchStatus.DispatchAsync;";
 
@@ -1110,7 +1110,7 @@ Slice::Gen::Gen(const string& base, const vector<string>& includePaths, const st
         if(stat(fileImpl.c_str(), &st) == 0)
         {
             ostringstream os;
-            os << fileImpl << "' already exists - will not overwrite";
+            os << "`" << fileImpl << "' already exists - will not overwrite";
             throw FileException(__FILE__, __LINE__, os.str());
         }
 
@@ -1143,7 +1143,7 @@ Slice::Gen::generate(const UnitPtr& p)
 {
     CsGenerator::validateMetaData(p);
 
-    UnitVisitor unitVisitor(_out, _stream);
+    UnitVisitor unitVisitor(_out);
     p->visit(&unitVisitor, false);
 
     TypesVisitor typesVisitor(_out, _stream);
@@ -1263,35 +1263,34 @@ Slice::Gen::printHeader()
     _out << "\n// Ice version " << ICE_STRING_VERSION;
 }
 
-Slice::Gen::UnitVisitor::UnitVisitor(IceUtilInternal::Output& out, bool stream)
-    : CsVisitor(out), _stream(stream), _globalMetaDataDone(false)
+Slice::Gen::UnitVisitor::UnitVisitor(IceUtilInternal::Output& out)
+    : CsVisitor(out)
 {
 }
 
 bool
-Slice::Gen::UnitVisitor::visitModuleStart(const ModulePtr& p)
+Slice::Gen::UnitVisitor::visitUnitStart(const UnitPtr& p)
 {
-    if(!_globalMetaDataDone)
+    DefinitionContextPtr dc = p->findDefinitionContext(p->topLevelFile());
+    assert(dc);
+    StringList globalMetaData = dc->getMetaData();
+
+    static const string attributePrefix = "cs:attribute:";
+
+    bool sep = false;
+    for(StringList::const_iterator q = globalMetaData.begin(); q != globalMetaData.end(); ++q)
     {
-        DefinitionContextPtr dc = p->definitionContext();
-        StringList globalMetaData = dc->getMetaData();
-
-        static const string attributePrefix = "cs:attribute:";
-
-        if(!globalMetaData.empty())
+        string::size_type pos = q->find(attributePrefix);
+        if(pos == 0 && q->size() > attributePrefix.size())
         {
-            _out << sp;
-        }
-        for(StringList::const_iterator q = globalMetaData.begin(); q != globalMetaData.end(); ++q)
-        {
-            string::size_type pos = q->find(attributePrefix);
-            if(pos == 0)
+            if(!sep)
             {
-                string attrib = q->substr(pos + attributePrefix.size());
-                _out << nl << '[' << attrib << ']';
+                _out << sp;
+                sep = true;
             }
+            string attrib = q->substr(pos + attributePrefix.size());
+            _out << nl << '[' << attrib << ']';
         }
-        _globalMetaDataDone = true; // Do this only once per source file.
     }
     return false;
 }
@@ -1661,6 +1660,15 @@ Slice::Gen::TypesVisitor::visitSequence(const SequencePtr& p)
     //
     string prefix = "clr:type:";
     string meta;
+    if(p->findMetaData(prefix, meta))
+    {
+        return;
+    }
+
+    //
+    // No need to generate anything for serializable sequences.
+    //
+    prefix = "clr:serializable:";
     if(p->findMetaData(prefix, meta))
     {
         return;
@@ -2137,7 +2145,7 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
             _out << eb;
         }
 
-        if(!base || (base && !base->usesClasses()))
+        if((!base || (base && !base->usesClasses())) && p->usesClasses())
         {
             _out << sp << nl << "public override bool usesClasses__()";
             _out << sb;
@@ -2668,8 +2676,6 @@ Slice::Gen::TypesVisitor::visitDataMember(const DataMemberPtr& p)
 
     emitDeprecate(p, cont, _out, "member");
 
-    emitAttributes(p);
-
     string type = typeToString(p->type());
     string propertyName = fixId(p->name(), baseTypes, isClass);
     string dataMemberName = propertyName;
@@ -2678,18 +2684,19 @@ Slice::Gen::TypesVisitor::visitDataMember(const DataMemberPtr& p)
         dataMemberName += "_prop";
     }
 
-    _out << nl;
     if(propertyMapping)
     {
-        _out << "private";
+        _out << nl << "private";
     }
     else if(isProtected)
     {
-        _out << "protected";
+        emitAttributes(p);
+        _out << nl << "protected";
     }
     else
     {
-        _out << "public";
+        emitAttributes(p);
+        _out << nl << "public";
     }
     _out << ' ' << type << ' ' << dataMemberName << ';';
 
@@ -2698,6 +2705,7 @@ Slice::Gen::TypesVisitor::visitDataMember(const DataMemberPtr& p)
         return;
     }
 
+    emitAttributes(p);
     _out << nl << (isProtected ? "protected" : "public");
     if(!isValue)
     {
@@ -2732,9 +2740,10 @@ Slice::Gen::TypesVisitor::writeMemberHashCode(const DataMemberList& dataMembers,
         SequencePtr seq = SequencePtr::dynamicCast(memberType);
         if(seq)
         {
-            string genericType;
-            bool isGeneric = seq->findMetaData("clr:generic:", genericType);
-            bool isArray = !isGeneric && !seq->hasMetaData("clr:collection");
+            string meta;
+            bool isSerializable = seq->findMetaData("clr:serializable", meta);
+            bool isGeneric = seq->findMetaData("clr:generic:", meta);
+            bool isArray = !isSerializable && !isGeneric && !seq->hasMetaData("clr:collection");
             if(isArray)
             {
                 //
@@ -2811,9 +2820,10 @@ Slice::Gen::TypesVisitor::writeMemberEquals(const DataMemberList& dataMembers, i
             SequencePtr seq = SequencePtr::dynamicCast(memberType);
             if(seq)
             {
-                string genericType;
-                bool isGeneric = seq->findMetaData("clr:generic:", genericType);
-                bool isArray = !isGeneric && !seq->hasMetaData("clr:collection");
+                string meta;
+                bool isSerializable = seq->findMetaData("clr:serializable:", meta);
+                bool isGeneric = seq->findMetaData("clr:generic:", meta);
+                bool isArray = !isSerializable && !isGeneric && !seq->hasMetaData("clr:collection");
                 if(isArray)
                 {
                     //
@@ -4000,9 +4010,9 @@ Slice::Gen::DelegateMVisitor::visitClassDefStart(const ClassDefPtr& p)
             _out << nl << "throw;";
             _out << eb;
         }
-        _out << nl << "catch(Ice.UserException ex)";
+        _out << nl << "catch(Ice.UserException ex__)";
         _out << sb;
-        _out << nl << "throw new Ice.UnknownUserException(ex.ice_name(), ex);";
+        _out << nl << "throw new Ice.UnknownUserException(ex__.ice_name(), ex__);";
         _out << eb;
         _out << eb;
         if(ret || !outParams.empty())

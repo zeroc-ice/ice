@@ -121,6 +121,7 @@ ICE_API std::string inetAddrToString(const struct sockaddr_storage&);
 ICE_API std::string addrToString(const struct sockaddr_storage&);
 ICE_API bool isMulticast(const struct sockaddr_storage&);
 ICE_API int getPort(const struct sockaddr_storage&);
+ICE_API void setPort(struct sockaddr_storage&, int);
 
 ICE_API std::vector<std::string> getHostsForEndpointExpand(const std::string&, ProtocolSupport);
 ICE_API void setTcpBufSize(SOCKET, const Ice::PropertiesPtr&, const Ice::LoggerPtr&);

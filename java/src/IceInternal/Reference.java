@@ -257,7 +257,7 @@ public abstract class Reference implements Cloneable
         // these features. Please review for all features that depend on the
         // format of proxyToString() before changing this and related code.
         //
-        StringBuffer s = new StringBuffer();
+        StringBuilder s = new StringBuilder(128);
 
         //
         // If the encoded identity string contains characters which

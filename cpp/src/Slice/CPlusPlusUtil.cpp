@@ -59,7 +59,8 @@ Slice::printVersionCheck(Output& out)
 {
     out << "\n";
     out << "\n#ifndef ICE_IGNORE_VERSION";
-    if(ICE_INT_VERSION % 100 > 50)
+    int iceVersion = ICE_INT_VERSION; // Use this to prevent warning with C++Builder
+    if(iceVersion % 100 > 50)
     {
         //
         // Beta version: exact match required
@@ -215,6 +216,13 @@ Slice::typeToString(const TypePtr& type, bool useWstring, const StringList& meta
         }
         else
         {
+            // Get the metadata associated at the point of definition.
+            bool protobuf;
+            seqType = findMetaData(seq, seq->getMetaData(), true, protobuf);
+            if(protobuf && !seqType.empty())
+            {
+                return seqType;
+            }
             return fixKwd(seq->scoped());
         }
     }
@@ -348,6 +356,13 @@ Slice::inputTypeToString(const TypePtr& type, bool useWstring, const StringList&
         }
         else
         {
+            // Get the metadata associated at the point of definition.
+            bool protobuf;
+            seqType = findMetaData(seq, seq->getMetaData(), true, protobuf);
+            if(protobuf && !seqType.empty())
+            {
+                return "const " + seqType + "&";
+            }
             return "const " + fixKwd(seq->scoped()) + "&";
         }
     }
@@ -432,6 +447,12 @@ Slice::outputTypeToString(const TypePtr& type, bool useWstring, const StringList
         }
         else
         {
+            bool protobuf;
+            seqType = findMetaData(seq, seq->getMetaData(), true, protobuf);
+            if(protobuf && !seqType.empty())
+            {
+                return seqType + "&";
+            }
             return fixKwd(seq->scoped()) + "&";
         }
     }
@@ -679,6 +700,7 @@ Slice::writeMarshalUnmarshalCode(Output& out, const TypePtr& type, const string&
         if(marshal)
         {
             string scope = fixKwd(seq->scope());
+
             if(seqType == "array" || seqType == "range:array")
             {
                 //
@@ -758,11 +780,13 @@ Slice::writeMarshalUnmarshalCode(Output& out, const TypePtr& type, const string&
             else
             {
                 //
-                // No modifying metadata specified. Use appropriate write methods for type.
+                // No modifying metadata specified. Use appropriate
+                // write methods for type.
                 //
                 StringList l = seq->getMetaData();
-                seqType = findMetaData(l, false);
-                if(!seqType.empty())
+                bool protobuf;
+                seqType = findMetaData(seq, l, false, protobuf);
+                if(protobuf || !seqType.empty())
                 {
                     out << nl << scope << "__" << funcSeq << (pointer ? "" : "&") << stream << ", " << fixedParam 
                         << ");";
@@ -911,12 +935,14 @@ Slice::writeMarshalUnmarshalCode(Output& out, const TypePtr& type, const string&
             else
             {
                 //
-                // No modifying metadata supplied. Just use appropriate read function.
+                // No modifying metadata supplied. Just use
+                // appropriate read function.
                 //
                 StringList l = seq->getMetaData();
-                seqType = findMetaData(l, false);
-                if(!seqType.empty() || !builtin || builtin->kind() == Builtin::KindObject ||
-                   builtin->kind() == Builtin::KindObjectProxy)
+                bool protobuf;
+                seqType = findMetaData(seq, l, false, protobuf);
+                if(protobuf || !seqType.empty() || !builtin || builtin->kind() == Builtin::KindObject ||
+                        builtin->kind() == Builtin::KindObjectProxy)
                 {
                     out << nl << scope << "__" << funcSeq << (pointer ? "" : "&") << stream << ", "
                         << fixedParam << ");";
@@ -1019,8 +1045,13 @@ writeRangeAllocateCode(Output& out, const TypePtr& type, const string& fixedName
     SequencePtr seq = SequencePtr::dynamicCast(type);
     if(seq)
     {
-        string seqType = findMetaData(metaData, true);
-        if(seqType.find("range") == 0 && seqType != "range:array")
+        bool protobuf;
+        string seqType = findMetaData(seq, metaData, true, protobuf);
+        if(!protobuf && seqType.empty())
+        {
+            seqType = findMetaData(seq, seq->getMetaData(), true, protobuf);
+        }
+        if(!protobuf && seqType.find("range") == 0 && seqType != "range:array")
         {
             StringList md;
             if(seqType.find("range:") == 0)
@@ -1305,9 +1336,10 @@ Slice::writeStreamMarshalUnmarshalCode(Output& out, const TypePtr& type, const s
         }
         else
         {
-            seqType = findMetaData(seq->getMetaData(), false);
+            bool protobuf;
+            seqType = findMetaData(seq, seq->getMetaData(), false, protobuf);
             builtin = BuiltinPtr::dynamicCast(seq->type());
-            if(!seqType.empty() || !builtin || (builtin->kind() == Builtin::KindObject || 
+            if(protobuf || !seqType.empty() || !builtin || (builtin->kind() == Builtin::KindObject || 
                builtin->kind() == Builtin::KindObjectProxy))
             {
                 string scope = fixKwd(seq->scope());
@@ -1501,6 +1533,95 @@ Slice::writeStreamMarshalUnmarshalCode(Output& out, const TypePtr& type, const s
     assert(false);
 }
 
+// Accepted metadata.
+//
+// cpp:type:<typename>
+// cpp:const
+// cpp:array
+// cpp:range:<typename>
+// cpp:protobuf<:typename>
+//
+
+// This form is for sequences definitions only.
+string
+Slice::findMetaData(const SequencePtr& seq, const StringList& metaData, bool inParam, bool& isProtobuf)
+{
+    isProtobuf = false;
+    static const string prefix = "cpp:";
+    for(StringList::const_iterator q = metaData.begin(); q != metaData.end(); ++q)
+    {
+        string str = *q;
+        if(str.find(prefix) == 0)
+        {
+            string::size_type pos = str.find(':', prefix.size());
+            string ss;
+            if(pos == string::npos)
+            {
+                ss = str.substr(prefix.size());
+            }
+            else
+            {
+                ss = str.substr(prefix.size(), pos - prefix.size());
+            }
+            //
+            // If the form is cpp:type:<...> the data after cpp:type:
+            // is returned.  If the form is cpp:range:<...> (and this
+            // is an inParam) the data after cpp: is returned.
+            //
+            if(ss == "protobuf" || pos != string::npos)
+            {
+                string ss = str.substr(prefix.size(), pos - prefix.size());
+                if(ss == "type")
+                {
+                    return str.substr(pos + 1);
+                }
+                else if(ss == "protobuf")
+                {
+                    BuiltinPtr builtin = BuiltinPtr::dynamicCast(seq->type());
+                    if(!builtin || builtin->kind() != Builtin::KindByte)
+                    {
+                        continue;
+                    }
+                    isProtobuf = true;
+                    if(pos != string::npos)
+                    {
+                        return str.substr(pos + 1);
+                    }
+                    return "";
+                }
+                else if(inParam && ss == "range")
+                {
+                    return str.substr(prefix.size());
+                }
+            }
+            //
+            // If the data is an inParam and the metadata is cpp:array
+            // or cpp:range then array or range is returned.
+            //
+            else if(inParam)
+            {
+                if(ss == "array" || ss == "range")
+                {
+                    return ss;
+                }
+            }
+            //
+            // Otherwise if the data is "class" it is returned.
+            //
+            else
+            {
+                if(ss == "class")
+                {
+                    return ss;
+                }
+            }
+        }
+    }
+
+    return "";
+}
+
+// Does not handle cpp:protobuf
 string
 Slice::findMetaData(const StringList& metaData, bool inParam)
 {

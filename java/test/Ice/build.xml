@@ -27,6 +27,8 @@
         <ant dir="proxyAMD"/>
         <ant dir="operations"/>
         <ant dir="operationsAMD"/>
+        <ant dir="seqMapping"/>
+        <ant dir="seqMappingAMD"/>
         <ant dir="slicing"/>
         <ant dir="custom"/>
         <ant dir="translator"/>
@@ -39,6 +41,7 @@
         <ant dir="servantLocatorAMD"/>
         <ant dir="interceptor"/>
         <ant dir="udp"/>
+        <ant dir="serialize"/>
     </target>
 
     <target name="clean">
@@ -57,6 +60,8 @@
         <ant dir="proxyAMD" target="clean"/>
         <ant dir="operations" target="clean"/>
         <ant dir="operationsAMD" target="clean"/>
+        <ant dir="seqMapping" target="clean"/>
+        <ant dir="seqMappingAMD" target="clean"/>
         <ant dir="slicing" target="clean"/>
         <ant dir="custom" target="clean"/>
         <ant dir="translator" target="clean"/>
@@ -69,6 +74,7 @@
         <ant dir="servantLocatorAMD" target="clean"/>
         <ant dir="interceptor" target="clean"/>
         <ant dir="udp" target="clean"/>
+        <ant dir="serialize" target="clean"/>
     </target>
 
 </project>

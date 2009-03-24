@@ -20,6 +20,9 @@ public class ServerLocator : Test.TestLocatorDisp_
                                                Ice.Current current)
     {
         ++_requestCount;
+        // We add a small delay to make sure locator request queuing gets tested when
+        // running the test on a fast machine
+        System.Threading.Thread.Sleep(1);
         response.ice_response(_registry.getAdapter(adapter));
     }
     
@@ -27,6 +30,9 @@ public class ServerLocator : Test.TestLocatorDisp_
                                               Ice.Current current)
     {
         ++_requestCount;
+        // We add a small delay to make sure locator request queuing gets tested when
+        // running the test on a fast machine
+        System.Threading.Thread.Sleep(1);
         response.ice_response(_registry.getObject(id));
     }
     

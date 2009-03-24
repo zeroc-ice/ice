@@ -38,9 +38,16 @@ includeSubDirs = [ \
 filesToRemove = [ \
     "fixCopyright.py", \
     "fixVersion.py", \
+    "FixUtil.py", \
     "makedist.py", \
     "cpp/config/makegitignore.py", \
     "rb/config/Make.rules.Darwin", \
+    "cpp/demo/Ice/protobuf", \
+    "java/demo/Ice/protobuf", \
+    "py/demo/Ice/protobuf", \
+    "cpp/test/Ice/protobuf", \
+    "java/test/Ice/protobuf", \
+    "py/test/Ice/protobuf", \
 ]
 
 #
@@ -160,11 +167,13 @@ print "ok"
 print "Walking through distribution to fix permissions, versions, etc...",
 sys.stdout.flush()
 
+fixVersion("RELEASE_NOTES", *versions)
 fixVersion(os.path.join("distribution", "bin", "makebindist.py"), *versions)
 fixVersion(os.path.join("cpp", "config", "glacier2router.cfg"), *versions)
 fixVersion(os.path.join("cpp", "config", "icegridregistry.cfg"), *versions)
 fixVersion(os.path.join("distribution", "src", "rpm", "glacier2router.conf"), *versions)
 fixVersion(os.path.join("distribution", "src", "rpm", "icegridregistry.conf"), *versions)
+fixVersion(os.path.join("distribution", "src", "rpm", "RPM_README"), *versions)
 
 bisonFiles = []
 flexFiles = []
@@ -277,6 +286,8 @@ copyMatchingFiles(os.path.join(distFilesDir), rpmBuildDir, rpmBuildFiles)
 #
 copy(os.path.join(srcDir, "CHANGES"), os.path.join(distDir, "Ice-" + version + "-CHANGES"))
 copy(os.path.join(srcDir, "RELEASE_NOTES"), os.path.join(distDir, "Ice-" + version + "-RELEASE_NOTES"))
+copy(os.path.join(distFilesDir, "src", "rpm", "RPM_README"), \
+        os.path.join(distDir, "Ice-" + version + "-RPM_README"))
 
 #
 # Everything should be clean now, we can create the source distributions archives

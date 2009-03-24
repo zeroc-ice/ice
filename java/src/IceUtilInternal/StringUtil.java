@@ -82,7 +82,7 @@ public final class StringUtil
     // characters, b is preceded by a backslash in sb.
     //
     private static void
-    encodeChar(byte b, StringBuffer sb, String special)
+    encodeChar(byte b, StringBuilder sb, String special)
     {
         switch(b)
         {
@@ -189,7 +189,7 @@ public final class StringUtil
             return null;
         }
 
-        StringBuffer result = new StringBuffer(bytes.length);
+        StringBuilder result = new StringBuilder(bytes.length);
         for(int i = 0; i < bytes.length; i++)
         {
             encodeChar(bytes[i], result, special);
@@ -313,7 +313,7 @@ public final class StringUtil
     // Return true if successful, false otherwise.
     //
     private static void
-    decodeString(String s, int start, int end, StringBuffer sb)
+    decodeString(String s, int start, int end, StringBuilder sb)
     {
         Ice.IntHolder nextStart = new Ice.IntHolder();
         while(start < end)
@@ -344,7 +344,7 @@ public final class StringUtil
 
         try
         {
-            StringBuffer sb = new StringBuffer();
+            StringBuilder sb = new StringBuilder(end - start);
             decodeString(s, start, end, sb);
             String decodedString = sb.toString();
 

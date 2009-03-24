@@ -47,6 +47,8 @@ static PyMethodDef methods[] =
         PyDoc_STR(STRCAST("internal function")) },
     { STRCAST("defineSequence"), reinterpret_cast<PyCFunction>(IcePy_defineSequence), METH_VARARGS,
         PyDoc_STR(STRCAST("internal function")) },
+    { STRCAST("defineCustom"), reinterpret_cast<PyCFunction>(IcePy_defineCustom), METH_VARARGS,
+        PyDoc_STR(STRCAST("internal function")) },
     { STRCAST("defineDictionary"), reinterpret_cast<PyCFunction>(IcePy_defineDictionary), METH_VARARGS,
         PyDoc_STR(STRCAST("internal function")) },
     { STRCAST("declareProxy"), reinterpret_cast<PyCFunction>(IcePy_declareProxy), METH_VARARGS,

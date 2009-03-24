@@ -1,583 +1,562 @@
 ======================================================================
-Release notes for Ice 3.3.0
+Release notes for Ice 3.3.1
 ======================================================================
 
-The sections below describe the new features and fixes included in
-this release. See the section titled "Upgrading your application"
-for more information about migrating to a new Ice release, including
-details about APIs that have been deprecated or removed in this
-release.
+Introduction
+------------
 
-Note that because the Python, Ruby, and PHP language mappings use the
-C++ Ice run time, they automatically benefit from fixes to the C++ Ice
-core even if those language mappings are not explicitly mentioned
-below.
+This document outlines changes and improvements in this release that
+may affect the operation of your applications or have an impact on
+your source code. Refer to the "Upgrading" sections for more
+information about migrating to a new Ice release.
+
+The main purpose of a patch release such as this one is to correct
+defects while maintaining binary compatibility with the most recent
+minor release (3.3). This patch release also introduces a few 
+enhancements and new features while maintaining binary compatibility.
+
+For a detailed list of the changes in this release, please refer to
+the CHANGES file included in your Ice distribution.
 
 
 Table of Contents
 -----------------
 
   1. New Features
-     - Non-blocking AMI
-     - Scalability improvements in Glacier2
-     - IceStorm
-     - Freeze transactional evictor
-     - Administrative facility
-     - Dynamic network interfaces
-     - IPv6 and UDP multicast
-     - Updated C# mapping
-  2. Ice for .NET
-  3. Fixes and improvements
-  4. Desupported components
-     - Java2
-     - Thread per connection concurrency model
-  5. Upgrading your application
+  2. Upgrading your application from Ice 3.3.0
+  3. Upgrading your application from Ice 3.2 or earlier releases
+     - Compatibility
      - Migrating IceStorm databases
      - Migrating IceGrid databases
      - Migrating Freeze databases
      - Removed APIs
      - Deprecated APIs
-  6. Platform specific notes
-     - IBM JDK
+  4. Platform-specific notes
+     - Supported platforms
      - Java and IPv6
      - Mono
      - Red Hat Enterprise Linux 5.1
-     - Solaris x86
+     - IBM JDK
+  5. Known Problems
+     - Slice-to-HTML
+     - UNC Paths and Slice compilers
+     - C++Builder 2009 Bugs
 
 
 ======================================================================
 1. New Features
 ======================================================================
 
-This section discusses the significant enhancements offered in this
-release.
+This section discusses the significant enhancements in Ice 3.3.
 
 
-Non-blocking AMI
-----------------
-
-Ice 3.3 includes an important change in the semantics of AMI
-requests: Ice now guarantees that the calling thread will never block
-when issuing an asynchronous invocation.
-
-In previous releases, the Ice run time blocked the calling thread
-until the request was accepted by the local transport buffer.
-Typically this occurred quickly enough that AMI requests appeared to
-be non-blocking, and applications may have been designed based on that
-assumption. In fact, however, there were many opportunities for an AMI
-request to block:
-
-* If a connection was not yet established, the calling thread would
-  block while Ice attempted to resolve DNS host names and open a
-  connection to one of the proxy's endpoints.
-
-* When using an indirect proxy, the calling thread blocked while Ice
-  issued a request to the locator.
-
-* If the local network buffer was full, Ice blocked until there was
-  room for the entire message.
-
-An application could use timeouts to avoid blocking indefinitely, but
-it was not safe to assume that an AMI request would never block.
-
-As of this release, Ice behaves quite differently when processing an
-AMI request. An initial attempt is made to send the request
-synchronously, without blocking. This includes the activities
-mentioned above, such as establishing a connection and contacting a
-locator. If any of these activities would block, Ice queues the
-request and returns immediately. Queued requests are sent in the
-background; in C++ and Java, an internal thread performs this duty,
-while in .NET Ice uses the platform's asynchronous I/O facility.
-
-An application can still use timeouts if necessary, and in fact
-AMI timeouts have much greater precision in this release because they
-no longer depend on the interval defined by the configuration property
-Ice.MonitorConnections.
-
-The new non-blocking nature of AMI requests is especially useful for
-a graphical application, which in previous releases needed to use some
-potentially elaborate workarounds to avoid impacting the interactive
-responsiveness of its user interface.
-
-Along with this new capability comes new responsibility. There now
-exists the potential for accumulating an unlimited number of queued
-AMI requests in the Ice run time, consuming an equally unlimited
-amount of memory. To that end, Ice provides new APIs that enable an
-application to implement its own flow-control logic:
-
-* Asynchronous proxy methods now return a boolean value to indicate
-  whether the AMI request was sent synchronously. If the method
-  returns false, it means the Ice run time has queued the request.
-
-* An AMI callback can be notified when a queued request is sent.
-
-Taken together, these two API enhancements allow you to keep track of
-your outstanding AMI invocations.
-
-There have been other notable changes to the asynchronous invocation
-model:
-
-* AMI now supports oneway requests. The callback object is required
-  to implement the ice_response and ice_exception methods as usual,
-  but ice_response is not called for oneway requests. Ice calls the
-  ice_exception method if an error occurs before a oneway request
-  is accepted by the local transport buffer.
-
-* Batch requests can be flushed for individual proxies using two new
-  proxy methods:
-
-  void ice_flushBatchRequests()
-  bool ice_flushBatchRequests_async(callback)
-
-  As its name implies, the second method allows you to flush batch
-  requests with non-blocking AMI semantics.
-
-* Ice guarantees that the thread making an AMI request is never used
-  to invoke a method in the callback object. Instead, all invocations
-  on an AMI callback are now performed by a thread from an Ice thread
-  pool. As a result, it is now safe to hold a non-recursive lock while
-  making an AMI request, whereas in previous releases doing so had the
-  potential for causing a deadlock if the callback acquired the same
-  lock.
-
-* A thread that invokes an asynchronous proxy method must be prepared
-  to catch CommunicatorDestroyedException if it is possible for the
-  communicator to be destroyed while the thread is active. All other
-  exceptions are passed to the ice_exception method of the callback
-  object. This behavior differs from previous releases, in which no
-  exceptions could be raised by an asynchronous proxy method.
-
-Please refer to the "Asynchronous Programming" chapter in the Ice
-manual for more information on the new AMI semantics.
+Features added with 3.3.1
+=========================
 
 
-Scalability improvements in Glacier2
-------------------------------------
+Java and .NET serialization
+---------------------------
 
-The new AMI semantics made it possible to significantly improve the
-scalability of the Glacier2 router. In previous releases Glacier2 used
-the thread-per-connection concurrency model in an effort to prevent
-the activities of one client from impacting other clients. The main
-disadvantage of using thread-per-connection is that it did not scale
-as well as the thread pool concurrency model.
+This release adds support for Java and .NET serializable classes. You
+can now enable the serialization, transmission, and deserialization
+of Java and .NET classes with a simple metadata directive. As an
+example, the Slice definition shown below specifies the name of a
+serializable Java class:
 
-Glacier2 now uses the thread pool for greater scalability, and takes
-advantage of non-blocking AMI to ensure that slow or misbehaving
-clients cannot affect the router's other clients.
+// Slice
+["java:serializable:Demo.MyGreeting"] sequence<byte> Greeting;
 
-The router's buffering mode has also been enhanced so that at most
-two threads are used, rather than a thread for each client as in prior
-versions. However, it is no longer necessary to use buffered mode
-solely to gain better separation between clients; Glacier2 now
-provides the same separation regardless of its buffering mode. The
-primary motivations for enabling buffering are to give the router an
-opportunity to batch oneway requests, and to support its ability to
-override pending requests.
+This definition allows you to transfer instances of Demo.MyGreeting as
+a byte sequence while Ice handles the low-level serialization chores.
+
+You can read more about this feature in the Ice manual. We have also
+included a new sample program for each of the supported languages.
+
+
+Background locator updates
+--------------------------
+
+For an indirect proxy, the Ice run time queries the locator and caches
+the resulting endpoints. By default, Ice caches these endpoints
+indefinitely unless the proxy is configured with a cache timeout, in
+which case Ice must update the cached endpoints after the timeout
+expires by issuing a new locator query. This update occurs upon the
+next invocation on the proxy, and in previous releases the update
+would delay the invocation until the new endpoints were obtained from
+the locator.
+
+This update can now be performed in the background by setting the new
+property Ice.BackgroundLocatorCacheUpdates to 1. With this feature
+enabled, Ice allows the invocation that triggered the update to use
+the previously-cached endpoints while the locator query completes in
+the background.
+
+
+Glacier2 session destruction
+----------------------------
+
+Glacier2 now automatically destroys the client session if the
+forwarding of a request from a back-end server to the client fails
+with an unrecoverable error. This is particularly useful for clients
+that receive requests from back-end servers on a regular basis and
+disable the Glacier2 session timeout. If for some reason the client
+becomes unreachable, Glacier2 will eventually destroy the client
+session (assuming timeouts are properly configured on the Glacier2
+client endpoints).
+
+
+Java Applets
+------------
+
+It is now possible to use Ice for Java in an applet. Additionally,
+IceSSL can now obtain keystores, truststores, and RNG seeds from class
+path resources using configuration properties or programmatically
+using input streams.
+
+
+New sample programs
+-------------------
+
+This release adds the following sample programs:
+
+  - serialize (.NET, Java)
+
+    Shows how to transfer serializable classes with Ice.
+
+  - nrvo (C++)
+
+    Highlights the benefits of Named Return Value Optimization (NRVO).
+    See the section titled "Upgrading your application from Ice 3.3.0"
+    for more information on NRVO.
+
+  - applet (Java)
+
+    Shows how to use asynchronous invocations in an applet and how to
+    configure IceSSL using class path resources.
+
+  - Database (Java)
+
+    A client/server application in which the server accesses MySQL via
+    the JDBC API.
+
+
+Features added with 3.3.0
+=========================
+
+
+AMI
+---
+
+AMI requests are now guaranteed non-blocking. New proxy methods,
+ice_flushBatchRequests and ice_flushBatchRequests_async, allow
+flushing of requests batched for a connection. The latter method
+is guaranteed to not block. AMI requests can now be sent oneway.
+
+
+Threads
+-------
+
+The Ice thread pool now supports serialization of requests received
+over a connection.
+
+
+Exceptions
+----------
+
+Exceptions thrown from collocation-optimized invocations are now fully
+transparent, so a collocated invocation raises the same exception as a
+remote invocation. (Previously, a collocated invocation raised the
+original exception whereas the corresponding remote invocation raised
+an unknown exception.)
+
+Servant locators now can throw a user exception from the locate and
+finished operations.
+
+
+Transports
+----------
+
+The run time now tries to connect to multi-homed hosts on all IP
+addresses returned by the DNS.
+
+Ice.TCP.Backlog allows control of the incoming connection backlog.
+
+Ice now supports IPv6.
+
+Ice now supports UDP multicast.
+
+A new adapter operation, refreshPublishedEndpoints, permits you to
+update an adapter's published endpoints after a change to the
+available network interfaces or an update to the PublishedEndpoints
+property.
+
+Ice now listens on INADDR_ANY for endpoints that do not specify a
+host, instead of listening only on the interfaces that were present
+when the adapter was created.
+
+
+IceBox
+------
+
+IceBox can now recursively start and stop other IceBox services.
+
+IceBox properties can now be defined on the command line.
+
+Setting IceBox.ServiceManager.Endpoints is now optional.
 
 
 IceStorm
 --------
 
-The most significant improvement to IceStorm is the addition of a
-highly-available mode. Using master-slave replication with support for
-automatic failover, IceStorm now provides a much greater degree of
-reliability. This mode is enabled entirely via configuration and
-requires no changes to publishers or subscribers.
+IceStorm now supports master/slave replication with automatic
+failover.
 
-This release also contains a number of other IceStorm changes:
+IceStorm now has a transient mode that allows it to run without a
+database.
 
-* Subscriptions are now persistent by default, meaning IceStorm stores
-  the proxy of each subscriber in its database. At startup, IceStorm
-  considers each of these subscribers as already subscribed and
-  automatically removes a subscriber's proxy from the database if a
-  delivery attempt fails. To take advantage of a persistent
-  subscription, a subscriber should register either an indirect proxy
-  or a direct proxy that uses a fixed port.
+IceStorm subscriptions are now persistent (except in transient mode).
 
-* A new Quality of Service (QoS) parameter, retryCount, gives a
-  subscriber some control over IceStorm's behavior when delivery
-  attempts fail.
+A new QoS parameter, retryCount, allows you to control after how many
+soft failures a subscription is removed.
 
-* IceStorm can run in a fully-transient mode in which no databases are
-  maintained. Replication is not supported in this mode.
+A new replication2 demo illustrates how to manually configure
+replication.
 
-* IceStorm guarantees that it will deliver all received events to
-  subscribers before it shuts down.
-
-* A new operation, getNonReplicatedPublisher, has been added to the
-  Topic interface for use when event ordering is important.
-
-The IceStorm chapter in the Ice manual has more information on these
-changes, including a new section devoted to the highly-available mode.
+IceStorm now guarantees ordering by default even for oneway proxies.
 
 
-Freeze transactional evictor
-----------------------------
+Freeze
+------
 
-This release adds a new kind of Freeze Evictor in which all write
-operations are automatically enclosed in a Freeze transaction. This
-new Evictor gives applications write-ordering guarantees, allows
-developers to enclose several operations in the same transaction (when
-using collocated invocations), and helps ensure data consistency when
-recovering from a crash.
-
-See the "Freeze" chapter in the Ice manual for complete details.
+The existing evictor is now named BackgroundSaveEvictor. A new
+evictor, TransactionalEvictor, makes updates in a transaction.
 
 
-Administrative facility
------------------------
+IceGrid
+-------
 
-Ice supports an extensible new facility for adding administrative
-capabilities to your applications. When an application is properly
-configured, the Ice run time creates a dedicated object adapter that
-hosts a single object known as the "admin" object. Each administrative
-capability is represented by a separate facet of the admin object.
-
-Ice supplies two facets by default: the Process facet enables a server
-activation service such as IceGrid to gracefully terminate the
-process, and the Properties facet allows remote inspection of a
-program's configuration. Applications can also install their own
-facets, and easily control which facets are enabled using a
-configuration property.
-
-IceBox extends the facility to make its ServiceManager interface
-available via an administrative facet, giving you the ability to
-remotely start and stop individual IceBox services. The facility is
-also integrated into IceGrid and its administrative clients. You can
-find more details in the relevant chapters of the Ice manual.
-
-For more information on the administrative facility, see the "Ice
-Run Time" chapter.
+A new secure demo illustrates how to secure an IceGrid deployment.
 
 
-Dynamic network interfaces
---------------------------
-
-Ice server endpoints that are configured to listen on all local
-interfaces now listen on INADDR_ANY/0.0.0.0 rather than listening
-separately on each of the interfaces that were found at the time the
-server started. This means that if a new interface becomes available
-while the server is running, Ice will be able to receive and process
-requests using that interface.
-
-Note that, if an interface change occurs, an object adapter does not
-automatically refresh the list of endpoints that it embeds in newly-
-created proxies. Rather, an application must instruct the object
-adapter to refresh its endpoint list using the new operation
-refreshPublishedEndpoints. See the "Ice Run Time" chapter in the Ice
-manual for further details.
-
-
-IPv6 and UDP multicast
+Miscellaneous features
 ----------------------
 
-Ice 3.3 includes support for IPv6 as well as UDP multicast. Both of
-these features are controlled via configuration properties.
+Ice for Java now supports the ICE_CONFIG environment variable.
 
-IPv6 is disabled by default, and can be enabled using the new property
-Ice.IPv6. Another new property, Ice.IPv4, allows you to disable the
-use of IPv4 if you prefer to use only IPv6 in your application.
+Ice.Application now supports signal handling with Mono.
 
-Using UDP multicast in an application simply requires that you select
-an appropriate IP address for your endpoints.
+Improved marshaling performance with Ice for .NET.
 
-Appendix D of the Ice manual explains the syntax for specifying IPv6
-and UDP multicast addresses in endpoints.
+Ice for .NET now supports C# 2.0 generics for sequences and
+dictionaries.
 
+Ice for Python now includes a converter demo that illustrates
+how to use the C++ string converter plug-in.
 
-Updated C# mapping
-------------------
-
-New metadata allows .NET users to map Slice sequence types into
-generic .NET 2.0 collections:
-
-  // Slice
-  ["clr:generic:List"] sequence<int> S;
-
-maps to:
-
-  // C#
-  System.Collections.Generic.List<int> S;
-
-Additional collection types are also supported.
-
-Slice dictionary types now map to a generic .NET 2.0 collection by
-default:
-
-  // Slice
-  dictionary<string, int> D;
-
-maps to:
-
-  // C#
-  System.Collections.Generic.Dictionary<string, int> D;
-
-If you prefer to use the previous .NET 1.1 mapping to DictionaryBase,
-you will need to annotate your Slice definitions with the metadata
-tag "clr:collection".
+Ice for Python now supports blobjects.
 
 
 ======================================================================
-2. Ice for .NET
+2. Upgrading your application from Ice 3.3.0
 ======================================================================
 
-Given the language-neutral nature of .NET's Common Language Runtime
-(CLR), maintaining Slice compilers for both Visual Basic and C# is
-unnecessary. As a result, Ice no longer includes a Slice compiler for
-Visual Basic, and Ice for C# is now known as Ice for .NET.
+Since Ice 3.3.1 maintains binary compatibility with Ice 3.3.0, it is
+not necessary for you to recompile your Slice files or your program
+code, nor is it necessary to relink your application. The database
+formats used by Ice services such as IceGrid and IceStorm have not
+changed, therefore no database migration is required. Finally, this
+release has not removed or deprecated any APIs. Generally speaking,
+you are free to use any combination of Ice 3.3.0 or Ice 3.3.1
+applications and Ice services.
 
-Users can write an Ice application in any language that is supported
-by the CLR, but Slice definitions must now be generated in C#.
-
-The names of the Ice for .NET run-time DLLs have also been changed
-accordingly. Below is a list of the old DLL names and their equivalent
-names in this release:
-
-  icecs.dll        Ice.dll
-  glacier2cs.dll   Glacier2.dll
-  iceboxcs.dll     IceBox.dll
-  icegridcs.dll    IceGrid.dll
-  icepatch2cs.dll  IcePatch2.dll
-  icesslcs.dll     IceSSL.dll
-  icestormcs.dll   IceStorm.dll
-
-You will need to update your Visual Studio projects to reflect these
-changes. Ice continues to include sample programs for Visual Basic,
-and you can use these projects as a guide for updating your own Visual
-Basic projects.
+The subsections below provide additional information about upgrading
+to Ice 3.3.1, including administrative procedures for the supported
+platforms.
 
 
-======================================================================
-3. Fixes and improvements
-======================================================================
+NRVO in C++
+-----------
 
-Below is an abbreviated list of changes included in this release that
-were not already discussed in "New Features". For a complete list of
-changes, please refer to the CHANGES file included in your Ice
-distribution.
+Named Return Value Optimization (NRVO) is a C++ compiler feature that
+can improve the marshaling performance of Ice applications that
+return large data structures. The Slice-to-C++ compiler (slice2cpp) in 
+Ice 3.3.1 generates code for client-side stubs with a structure that
+is slightly different than in previous Ice releases to make the code
+eligible for NRVO with GNU C++ (GCC).
 
-* An IceBox service can now recursively start and stop other IceBox
-  services from within its start and stop methods. The level of
-  recursion is limited to the threads in the administrative object
-  adapter's thread pool.
+Note that this enhancement to the generated code in Ice 3.3.1 only
+affects client-side stubs, and is only necessary to satisfy the NRVO
+requirements for GCC. If you use GCC and you wish to take advantage of
+this optimization in your client-side invocations, you must recompile
+your Slice files as well as the resulting generated code, and then
+relink your application. No action is necessary for Visual C++ users.
 
-* IceBox services that share a communicator now use a dedicated
-  communicator instance that is not used by the IceBox server. This
-  dedicated communicator only inherits properties from the server's
-  communicator if IceBox.InheritProperties is set to a non-zero value.
 
-* It is no longer necessary to define a value for the property
-  IceBox.ServiceManager.Endpoints. If this property is not defined,
-  the ServiceManager interface is not available.
+RPMs (Linux)
+------------
 
-* Configuration properties for IceBox services can now be defined on
-  the command line.
+For RPM installations, you can use the Ice 3.3.1 RPMs to upgrade an
+existing installation of Ice 3.3.0.
 
-* A new object adapter property, <adapter>.ProxyOptions, lets you
-  customize the proxies that the adapter creates.
+For a Java application, no additional steps are necessary if your
+CLASSPATH refers to /usr/share/java/Ice.jar, which is a symbolic link
+that points to the actual version-specific JAR file.
 
-* Accepting incoming connections can no longer block a thread from a
-  server thread pool. This includes activities such as connection
-  validation and SSL handshaking.
+For a Mono application, the ice-mono RPM for Ice 3.3.1 installs the
+updated Ice run time assemblies into the Global Assembly Cache (GAC)
+along with policy assemblies that enable backward compatibility with
+Ice 3.3.0.
 
-* The new property Ice.TCP.Backlog allows you to specify the size of
-  incoming connection backlog for TCP/IP sockets. This setting is
-  also used for SSL. In C++ the default value is SOMAXCONN or 511 if
-  that macro is not defined. In Java and .NET the default value is
-  511.
 
-* Changed servant locators so both locate() and finished() can throw
-  user exceptions.
+Windows
+-------
 
-* It is now legal to change the compression setting of a fixed proxy.
+The file names of the Ice for C++ run time DLLs do not contain the
+patch number of a release. For example, the core Ice DLL uses the same
+name (ice33.dll) for both Ice 3.3.0 and Ice 3.3.1. As a result, you
+can simply substitute the 3.3.1 DLLs for the 3.3.0 DLLs. If you
+install the 3.3.1 DLLs in a different directory, you will typically
+need to adjust the PATH setting of a C++ application so that it can
+locate the new libraries. This also applies to Python, Ruby, and PHP
+applications because they use the Ice for C++ DLLs.
 
-* An IceGrid node is more conservative when removing the directory of
-  a server. The node only removes the directory when the server is
-  explicitly removed from a deployed application or if the directory
-  contains only files and directories that were created by the node.
+For a Java application, you can replace the existing Ice.jar file
+with the one from Ice 3.3.1, or you can adjust the CLASSPATH setting
+to point to the new JAR file.
 
-* IceGrid's round-robin load balancing policy better handles servers
-  that are unreachable.
+For a .NET application, Ice for .NET includes policy assemblies that
+supply the .NET run time with the required compatibility information.
+Policy assemblies have names of the form policy.3.3.<package>.dll.
+For example, the policy assembly for IceBox is policy.3.3.IceBox.dll.
+One way to upgrade an existing .NET application to a new patch release
+while maintaining binary compatibility is to install the policy
+assemblies into the Global Assembly Cache (GAC) using one of the
+following methods:
 
-* When resolving the endpoints of a replica group, the IceGrid locator
-  no longer waits for an object adapter to complete its activation if
-  another adapter is already active.
+  - Open Windows Explorer and navigate to the directory
+    C:\WINDOWS\assembly. Next, drag and drop (or copy and paste) the
+    assemblies into the right-hand pane to install them in the GAC.
 
-* Added an object adapter to the IceGrid registry. The adapter is
-  named `IceGrid.Registry.AdminSessionManager' and is responsible for
-  Glacier2 administrative sessions.
+  - Use gacutil from the command line:
 
-* Glacier2 filters are now disabled by default for IceGrid client
-  and administrative sessions created with the IceGrid session
-  managers. If you rely on these filters being enabled, you must now
-  explicitly set the property IceGrid.Registry.SessionFilters or
-  IceGrid.Registry.AdminSessionFilters.
+    > gacutil -i <policy.dll>
 
-* The IceGrid node now unblocks the SIGHUP, SIGINT and SIGTERM signals
-  from forked servers.
+Another option is to modify the .config file of your application to
+add bindingRedirect directives, as explained in the links below:
 
-* Several improvements have been made to the output of slice2html.
+  http://msdn.microsoft.com/en-us/library/7wd6ex19.aspx
+  http://msdn.microsoft.com/en-us/library/yx7xezcf.aspx
 
-* The inheritance structure of C++ servant classes has changed such
-  that it is now possible for a servant to derive from
-  IceUtil::Thread.
+For example, in the .config file of an application you can modify the
+configuration of the Ice assembly as follows:
 
-* If a proxy contains a host that is multihomed, the client will now
-  try all of the IP addresses reported by DNS. Previously, only the
-  first address in the list was used and others were ignored.
+  <dependentAssembly>
+    <assemblyIdentity name="Ice" culture="neutral"
+      publicKeyToken="cdd571ade22f2f16"/>
+    <bindingRedirect oldVersion="3.3.0.0" newVersion="3.3.1.0"/>
+    <codeBase version="3.3.1.0" href="...\Ice.dll"/>
+  </dependentAssembly>
 
-* The way that the Ice run time determines whether a proxy invocation
-  is eligible for collocation optimization has changed somewhat. The
-  Ice run time no longer performs a DNS lookup; instead, invocations
-  on a direct proxy will use the optimization only if the host and
-  port of one of its endpoints match the host and port of an endpoint
-  or published endpoint of an object adapter from the same
-  communicator.
+The advantage of installing the policy assemblies into the GAC is that
+they establish binary compatibility for all Ice applications, whereas
+modifying a .config file must be done for each application
+individually.
 
-* Exceptions thrown from collocation-optimized invocations are now
-  fully transparent. If an operation throws an exception that is
-  not in the operation's exception specification, or throws a
-  non-Ice exception, the client receives UnknownUserException
-  or UnknownException, exactly as if the servant for a remote
-  invocation had thrown the same exception. (In earlier versions,
-  the client received the original exception, rather than an
-  unknown exception.)
+On a development system, it is not necessary to remove your existing
+Ice installation prior to installing Ice 3.3.1 unless you intend to
+install Ice 3.3.1 in the same directory as your existing installation.
+You may need to update your PATH setting and modify your Visual C++
+directory configurations to reflect the installation directory for
+Ice 3.3.1.
 
-  For Ice run-time exceptions, all run-time exceptions are passed
-  to the client as UnknownLocalException, except for
 
-  - ObjectNotExistException
-  - FacetNotExistException
-  - OperationNotExistException
-  - OperationNotExistException
-  - UnknownException
-  - UnknownLocalException
-  - UnknownUserException
-  - CollocationOptimizationException
+Binary Archives (Mac OS X, Solaris)
+-----------------------------------
 
-* Most proxy factory methods now return a proxy of the same type as
-  the original and no longer require the use of a checked or unchecked
-  cast. For example, in C++ you can write
+The README file included in each binary distribution archive
+describes how to configure your environment so that the embedded
+path names in the Ice for C++ shared libraries are resolved correctly.
+For example, if you extracted the binary distribution for Ice 3.3.0
+into /opt/Ice-3.3.0, the README file instructs you to create the
+following symbolic link:
 
-  HelloPrx hello = ...;
-  hello = hello->ice_oneway();
+  /opt/Ice-3.3 -> /opt/Ice-3.3.0
 
-  Previously you would have needed a cast, such as
+To upgrade to Ice 3.3.1, you simply extract the binary distribution
+archive into /opt/Ice-3.3.1 and reset the symbolic link to point to
+the new installation:
 
-  hello = HelloPrx::uncheckedCast(hello->ice_oneway());
+  /opt/Ice-3.3 -> /opt/Ice-3.3.1
 
-  In Java and .NET, you must use a type cast:
+No additional steps are necessary for a Java application if its
+CLASSPATH refers to the JAR file via the symbolic link:
 
-  hello = (HelloPrx)hello.ice_oneway();
+  export CLASSPATH=/opt/Ice-3.3/lib/Ice.jar
 
-* The IceSSL plug-ins for Java and .NET now support a password callback
-  interface. You can also specify the class name of a certificate
-  verifier or password callback via configuration properties.
+This also applies for Python and Ruby applications:
 
-* It is now possible to use Ice's built-in sequence types in Slice
-  data structures that are compiled with streaming support. Previously
-  this would not work because the Ice sequences were not compiled with
-  streaming support.
+  export PYTHONPATH=/opt/Ice-3.3/python
+  export RUBYLIB=/opt/Ice-3.3/ruby
 
-* Changed Ice.Exception in .NET to derive from System.Exception
-  instead of System.ApplicationException in accordance with
-  Microsoft's recommendations for writing custom exceptions.
 
-* The Ice.Application class now supports signal handling on Mono.
+Source Distribution (Linux, Mac OS X, Solaris)
+----------------------------------------------
 
-* The .NET build system supports the new macro MANAGED, which can be
-  enabled if you want to build a version of the Ice run time that uses
-  only managed code.
+If you compiled an Ice 3.3.0 source distribution and installed it via
+"make install", the installation process created a symbolic link in
+the target directory (/opt by default) that points to the 3.3.0
+subdirectory:
 
-* Marshaling performance in .NET has been improved.
+  /opt/Ice-3.3 -> /opt/Ice-3.3.0
 
-* The rules for legal property names and values have been relaxed.
-  Refer to the "Properties" chapter in the Ice manual for a complete
-  description of the syntax. The limit on the line length of a
-  property in a configuration file has also been removed.
+When you build and install an Ice 3.3.1 source distribution, this
+symbolic link is reset to point to the 3.3.1 installation:
 
-* The new property Ice.Warn.UnusedProperties causes the communicator
-  to display a warning during its destruction that lists all
-  properties that were set but whose values were never read.
+  /opt/Ice-3.3 -> /opt/Ice-3.3.1
 
-* Ice for Java now supports the ICE_CONFIG environment variable.
+If an application resolves its Ice run time via the symbolic link,
+that application will automatically use the Ice 3.3.1 run time for its
+next execution. The relevant environment variables for each language
+mapping are detailed below.
 
-* It is now possible to use UNC paths on Windows in the configuration
-  of Ice services.
+C++, Ruby, Python, PHP:
 
-* A string converter plug-in has been added to Ice for C++, which is
-  particularly useful for the scripting language extensions.
+  export LD_LIBRARY_PATH=/opt/Ice-3.3/lib (32-bit Linux & 32-bit Solaris)
+  export LD_LIBRARY_PATH=/opt/Ice-3.3/lib64 (64-bit Linux)
+  export LD_LIBRARY_PATH_64=/opt/Ice-3.3/lib/amd64 (64-bit Solaris Intel)
+  export LD_LIBRARY_PATH_64=/opt/Ice-3.3/lib/sparcv9 (64-bit Solaris SPARC)
+  export DYLD_LIBRARY_PATH=/opt/Ice-3.3/lib (Mac OS X)
 
-* Ice for Python now accepts Unicode objects as arguments to remote
-  operations.
+Python:
+
+  export PYTHONPATH=/opt/Ice-3.3/python
+
+Ruby:
+
+  export RUBYLIB=/opt/Ice-3.3/ruby
+
+Java:
+
+  export CLASSPATH=/opt/Ice-3.3/lib/Ice.jar
+
+Mono:
+
+  export MONO_PATH=/opt/Ice-3.3/bin
 
 
 ======================================================================
-4. Desupported components
+3. Upgrading your application from Ice 3.2 or earlier releases
 ======================================================================
 
-This section describes Ice components that are no longer supported.
 
+Compatibility
+-------------
 
-Java2
------
+A discussion of backward compatibility in Ice involves several
+factors:
 
-Ice for Java now requires Java5 or Java6 as its compilation and run-
-time environment. See the section titled "Deprecated APIs" for
-additional information on the Java language mapping.
+  - Source-code compatibility
 
-To continue using Java2 for your application, you must use a previous
-Ice release. Note however that ZeroC only provides support for the
-most recent Ice release unless you have a support contract.
+    Ice maintains source-code compatibility between a patch release
+    (e.g., 3.3.1) and the most recent minor release (e.g., 3.3.0),
+    but we do not guarantee source-code compatibility between minor
+    releases (e.g., between 3.2 and 3.3).
 
+    Certain APIs that were deprecated in earlier Ice releases have
+    been removed in Ice 3.3. Your application may no longer compile
+    successfully if it relies on one of these APIs. A list of the
+    removed APIs is provided in the section titled "Removed APIs"
+    along with a description of their replacements. Furthermore, the
+    section "Deprecated APIs" discusses APIs that are deprecated as of
+    release 3.3.0; we encourage you to update your applications and
+    eliminate the use of these APIs as soon as possible.
 
-Thread per connection concurrency model
----------------------------------------
+  - Binary compatibility
 
-The improvements introduced by the non-blocking AMI feature (see
-"Background I/O") have made this concurrency model unnecessary
-and it has been removed as of this release. See "Removed APIs" for
-additional information.
+    As for source-code compatibility, Ice maintains backward binary
+    compatibility between a patch release and the most recent minor
+    release, but we do not guarantee binary compatibility between
+    minor releases.
 
+    At a minimum, you must recompile your Slice files if you use a
+    Slice compiler for your language mapping. For example, in a
+    statically-typed language (C++, Java, .NET) you must recompile
+    your application in addition to your Slice files. In a scripting
+    language (Ruby or Python), no action is necessary if you load your
+    Slice files dynamically.
 
-======================================================================
-5. Upgrading your application
-======================================================================
+  - On-the-wire compatibility
 
-Ice 3.3 does not maintain backward binary compatibility with
-applications built using Ice 3.2, but every effort was made to
-preserve source compatibility. Note however that Ice always maintains
-protocol ("on the wire") compatibility with prior releases.
+    Ice always maintains protocol ("on the wire") compatibility with
+    prior releases.
 
-The requirements for upgrading depend on the language mapping used by
-your application:
+  - Database compatibility
 
-- For statically-typed languages (C++, Java, .NET), the application
-  must be recompiled.
+    Upgrading to a new minor release of Ice often includes an upgrade
+    to the supported version of Berkeley DB. In turn, this may require
+    an application to migrate its databases, either because the format
+    of Berkeley DB's database files has changed, or due to a change in
+    the schema of the data stored in those databases.
 
-- For scripting languages that use static translation, your Slice
-  files must be recompiled.
+    For example, if your application uses Freeze, it may be necessary
+    for you to migrate your databases even if your schema has not
+    changed.
 
-If your application uses IceStorm or IceGrid, please refer to the
-relevant sections below for migration instructions.
+    Certain Ice services also use Freeze in their implementation. If
+    your application uses these services (IceGrid and IceStorm), it
+    may be necessary for you to migrate their databases as well.
 
-Finally, certain APIs that were deprecated in previous Ice releases
-have been removed in this release. If your application relied on one
-of these APIs, it may no longer compile or execute correctly. A list
-of the removed APIs is provided in the section titled "Removed APIs"
-along with a description of their replacements. Furthermore, the
-section "Deprecated APIs" discusses APIs that are deprecated as of
-this release; we encourage you to update your applications and
-eliminate the use of these APIs as soon as possible.
+    Please refer to the relevant subsections below for migration
+    instructions.
+
+  - Interface compatibility
+
+    Although Ice always maintains compatibility at the protocol level,
+    changing Slice definitions can also lead to incompatibilities. As
+    a result, Ice maintains interface compatibility between a patch
+    release and the most recent minor release, but does not guarantee
+    compatibility between minor releases.
+
+    This issue is particularly relevant if your application uses Ice
+    services such as IceGrid or IceStorm, as a change to an interface
+    in one of these services may adversely affect your application.
+
+    Interface changes in an Ice service can also impact compatibility
+    with its administrative tools, which means it may not be possible
+    to administer an Ice 3.3.x service using a tool from a previous
+    minor release (or vice-versa).
+
+    IceGrid
+    -------
+
+    Starting with Ice 3.2.0, IceGrid registries and nodes are
+    interface-compatible. For example, you can use an IceGrid node
+    from Ice 3.2.x with a registry from Ice 3.3.x.
+
+    IceGrid registry replication is only supported between 3.3.x 
+    releases.
+
+    An IceGrid node from Ice 3.3.x is able to activate a server built
+    with Ice 3.2.x. The reverse is also true: an IceGrid node from
+    Ice 3.2.x is able to activate a server built with Ice 3.3, but
+    only if the server's configuration properties do not rely on
+    features from Ice 3.3 (such as the ability to escape characters
+    in property names and values).
+
+    IceStorm
+    --------
+
+    Topic linking is supported between all IceStorm versions released
+    after 3.0.0.
 
 
 Migrating IceStorm databases
 ----------------------------
 
-Ice 3.3 supports migrating IceStorm databases from Ice 3.1 and from
-Ice 3.2. Migration from other Ice versions may work, but is not
-officially supported. If you require assistance with this please
-contact sales@zeroc.com.
+Ice 3.3 supports the migration of IceStorm databases from Ice 3.1 and
+from Ice 3.2. Migration from other Ice versions may work, but is not
+officially supported. If you require assistance with such migration, 
+please contact support@zeroc.com.
 
 To migrate, first stop your IceStorm servers.
 
@@ -610,16 +589,16 @@ $ mkdir db
 $ icestormmigrate <path-to-recovered.db> db
 
 The migration is now complete, and the contents of the old database
-environment are now in the db directory.
+environment are now in the "db" directory.
 
 
 Migrating IceGrid databases
 ---------------------------
 
-Ice 3.3 supports migrating IceGrid databases from Ice 3.1 and from Ice
-3.2. Migration from other Ice versions may work, but is not officially
-supported. If you require assistance with this please contact
-sales@zeroc.com.
+Ice 3.3 supports the migration of IceGrid databases from Ice 3.1 and
+from Ice 3.2. Migration from other Ice versions may work, but is not
+officially supported. If you require assistance with this please
+contact sales@zeroc.com.
 
 To migrate, first stop the IceGrid registry you wish to upgrade.
 
@@ -642,8 +621,8 @@ environments are stored:
 $ cd <new-location>
 
 Next, run the upgradeicegrid.py utility located in the `config'
-directory of your Ice distribution (or in /usr/share/Ice-3.3.0 if using
-an RPM installation). The first argument is the path to the old
+directory of your Ice distribution (or in /usr/share/Ice-3.3.1 if
+using an RPM installation). The first argument is the path to the old
 database environment. The second argument is the path to the new
 database environment.
 
@@ -654,7 +633,7 @@ $ mkdir db
 $ upgradeicegrid.py <path-to-recovered.db> db
 
 The migration is now complete, and the contents of the old database
-environment are now in the db directory.
+environment are now in the "db" directory.
 
 By default, the migration utility assumes that the servers deployed
 with IceGrid also use Ice 3.3. If your servers still use an older Ice
@@ -667,9 +646,10 @@ The migration utility will set the server descriptor `ice-version'
 attribute to the specified version and the IceGrid registry will
 generate configuration files compatible with the given version.
 
-If upgrading the master IceGrid registry in a replicated environment
-and the slaves are still running, you should first restart the master
-registry in read-only mode using the --readonly option, for example:
+If you are upgrading the master IceGrid registry in a replicated
+environment and the slaves are still running, you should first restart
+the master registry in read-only mode using the --readonly option, for
+example:
 
 $ icegridregistry --Ice.Config=config.master --readonly
 
@@ -678,57 +658,61 @@ IceGrid administrative GUI to ensure that the database is correct. If
 everything looks fine, you can shutdown and restart the master
 registry without the --readonly option.
 
+
 Migrating Freeze Databases
 --------------------------
 
-There is no special Freeze procedure or Freeze tool to perform this 
-upgrade. Freeze is still storing exactly the same data, in the same format.
+There is no special Freeze procedure or Freeze tool to perform this
+upgrade. Freeze still stores exactly the same data, in the same
+format.
 
-However, we upgraded the version of Berkeley DB, and as a result when 
-upgrading from Ice 3.2 to Ice 3.3, you have to upgrade your database 
-from the "Berkeley DB 4.5" format to the new "Berkeley DB 4.6" format. 
+However, we upgraded the version of Berkeley DB, and as a result when
+upgrading from Ice 3.2 to Ice 3.3, you have to upgrade your database
+from the "Berkeley DB 4.5" format to the new "Berkeley DB 4.6" format.
 
-This is fortunately straightforward, since the only relevant format change 
-for Freeze was the log format change.
+This is fortunately straightforward, since the only relevant format
+change for Freeze was the log format change.
 
 From the Berkeley DB Upgrade Process:
 
  http://www.oracle.com/technology/documentation/berkeley-db/db/ref/upgrade/process.html
 
-If the application has a Berkeley DB transactional environment, and the
-log files need upgrading but the databases do not, the application may be 
-installed in the field using the following steps:
+If the application has a Berkeley DB transactional environment, and
+the log files need upgrading but the databases do not, the application
+may be installed in the field using the following steps:
 
  1. Shut down the old version of the application.
 
- 2. Still using the old version of Berkeley DB, run recovery on the database
-    environment using the DB_ENV->open method or the db_recover utility.
+ 2. Still using the old version of Berkeley DB, run recovery on the
+    database environment using the DB_ENV->open method or the
+    db_recover utility.
 
- 3. If you used the DB_ENV->open method to run recovery, make sure that the
-    Berkeley DB environment is removed using the DB_ENV->remove method or 
-    an appropriate system utility.
+ 3. If you used the DB_ENV->open method to run recovery, make sure
+    that the Berkeley DB environment is removed using the
+    DB_ENV->remove method or an appropriate system utility.
 
  4. Archive the database environment for catastrophic recovery.
     See Archival procedures for more information.
 
  5. Recompile and install the new version of the application.
 
- 6. Force a checkpoint using the DB_ENV->txn_checkpoint method or
-    the db_checkpoint utility. If you use the db_checkpoint utility, make sure
-    to use the new version of the utility; that is, the version that came with
-    the release of Berkeley DB to which you are upgrading.
+ 6. Force a checkpoint using the DB_ENV->txn_checkpoint method or the
+    db_checkpoint utility. If you use the db_checkpoint utility, make
+    sure to use the new version of the utility; that is, the version
+    that came with the release of Berkeley DB to which you are
+    upgrading.
 
- 7. Restart the application. 
+ 7. Restart the application.
 
-Is recommend to use the db_ utilities, and not write your own upgrade program!
-
+We recommend that you use the Berkeley DB utilities rather than
+writing your own database migration program.
 
 
 Removed APIs
 ------------
 
-This section describes features and APIs that are no longer available
-in this release.
+Release 3.3.0 removed a number of APIs. These APIs are no longer
+available.
 
 * Thread per connection
 
@@ -865,11 +849,9 @@ in this release.
 Deprecated APIs
 ---------------
 
-The Ice APIs and components listed below are deprecated in this
-release. They will be supported for at least one more minor release;
-for example, these items will be supported in Ice 3.4 and removed in
-Ice 3.5. We encourage you to update your applications and eliminate
-the use of these APIs as soon as possible.
+The Ice APIs and components listed below are deprecated. We encourage
+you to update your applications and eliminate the use of these APIs as
+soon as possible.
 
 * Java2 language mapping
 
@@ -899,14 +881,6 @@ the use of these APIs as soon as possible.
   Python  object
 
   The types Ice.LocalObject and Ice.LocalObjectImpl are deprecated.
-
-* Ice.MonitorConnections
-
-  In previous releases this property specified the interval at which a
-  background thread in the Ice run time checked for idle connections
-  and enforced timeouts on AMI requests. This setting is now ignored
-  because the changes to AMI (see "New Features") include more precise
-  AMI timeouts.
 
 * Ice.Trace.Location
 
@@ -942,8 +916,57 @@ the use of these APIs as soon as possible.
 
 
 ======================================================================
-6. Platform specific notes
+4. Platform-specific notes
 ======================================================================
+
+
+Supported platforms
+-------------------
+
+This release supports the operating systems, compilers, and run-time
+environments listed in the link below:
+
+  http://www.zeroc.com/platforms_3_3_1.html
+
+
+Java and IPv6
+-------------
+
+IPv6 is not currently supported in Java on Windows due to a bug in the
+JVM. Refer to the bug database for more information:
+
+  http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=6230761
+
+
+Mono
+----
+
+Mono requires that a system's host name be correctly configured and
+that it resolves to an IP address. Otherwise, Mono is unable to
+determine the local IP addresses, which causes the creation of object
+adapters that listen on INADDR_ANY/0.0.0.0 to fail with an
+Ice::DNSException.
+
+Note that SLES 10 SP1 includes Mono 1.2.2, which does not support
+IPv6 multi-cast. If you want to use this feature, you need to upgrade
+to Mono 1.2.6 or later. To upgrade to a more recent version
+of Mono please follow the directions at:
+
+    http://www.go-mono.com/mono-downloads/download.html
+
+
+Red Hat Enterprise Linux 5.1
+----------------------------
+
+On Red Hat Enterprise Linux 5.1 systems, Ice connection establishment
+to an inactive port of an IPv6 interface might hang instead of
+immediately reporting "connection refused" (ECONNREFUSED). The hang
+can last for several minutes and is similar to hangs you would get if
+you try to connect to an unreachable address. This is a RHEL 5.1
+kernel issue which has been fixed in the RHEL 5.2 kernel.
+
+Refer to https://bugzilla.redhat.com/show_bug.cgi?id=248052 for more
+information.
 
 
 IBM JDK
@@ -967,46 +990,119 @@ Once you have downloaded the policy files, you must unpack them into
 the jre/lib/security directory.
 
 
-Java and IPv6
+======================================================================
+5. Known Problems
+======================================================================
+
+
+Slice-to-HTML
 -------------
 
-IPv6 is not currently supported in Java on Windows due to a bug in the
-JVM. Refer to the bug database for more information:
+slice2html generates incorrect code for some legal constructs. The
+problem is caused by bug in the mcpp preprocessor. For example:
 
-  http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=6230761
+module M
+{
+    class SomeClass; // Forward declaration. mcpp loses this.
+
+    struct SomeStruct
+    {
+        SomeClass* proxy;
+    };
+};
+
+The mcpp bug causes the forward declaration to be lost, resulting in
+an undefined symbol error for the proxy member. To work around this
+issue, you can move the trailing comment onto a separate line:
+
+module M
+{
+    // Forward declaration. This works.
+    class SomeClass;
+
+    struct SomeStruct
+    {
+        SomeClass* proxy;
+    };
+};
+
+Or you can use a C-style comment:
+
+module M
+{
+    class SomeClass; /* Forward declaration. This works. */
+
+    struct SomeStruct
+    {
+        SomeClass* proxy;
+    };
+};
 
 
-Mono
-----
+UNC Paths and Slice compilers
+-----------------------------
 
-Mono requires that a system's host name be correctly configured and
-that it resolves to an IP address. Otherwise, Mono is unable to
-determine the local IP addresses, which causes the creation of object
-adapters that listen on INADDR_ANY/0.0.0.0 to fail with an
-Ice::DNSException.
+The Slice compilers currently do not support the use of UNC paths in
+include directories. For example, the following does not work:
 
+  slice2cpp -I\\MACHINE\SliceFiles Test.ice
 
-Red Hat Enterprise Linux 5.1
-----------------------------
-
-On Red Hat Enterprise Linux 5.1 systems, Ice connection establishment
-to an inactive port of an IPv6 interface might hang instead of
-immediately reporting "connection refused" (ECONNREFUSED). The hang
-can last for several minutes and is similar to hangs you would get if
-you try to connect to an unreachable address. This is a RHEL 5.1
-kernel issue which has been fixed in the RHEL 5.2 kernel.
-
-Refer to https://bugzilla.redhat.com/show_bug.cgi?id=248052 for more
-information.
+The compiler will report errors indicating it cannot find any of the
+files from \\MACHINE\SliceFiles that were included by Test.ice. This
+limitation is caused by a bug in the mcpp preprocessor.
 
 
-Solaris 10 x86
---------------
+C++Builder 2009 Bugs
+--------------------
 
-C++ developers using sequence<bool> on Solaris 10 x86 (32-bit) should
-link their applications with the static version of libCstd, or upgrade
-the Sun C++ runtime shared libraries to a newer version (not yet
-available as of this Ice release).
+C++Builder 2009 (BCC) suffers from several bugs that required us to
+devise workarounds in Ice and may affect Ice for C++ applications as
+well.
 
-Refer to http://forum.java.sun.com/thread.jspa?threadID=5277939 for
-more information.
+This bug is the most likely to affect an application:
+
+  http://qc.embarcadero.com/wc/qcmain.aspx?d=71611
+
+If you have a call within a try/catch that returns an object, the
+destructor for that object is called even though the object is not
+constructed.
+
+Here is a simple example that would be common in an Ice application:
+
+   Ice::ObjectPrx proxy;
+   try
+   {
+       proxy = communicator->stringToProxy("...");
+   }
+   catch(const ProxyParseException&)
+   {
+   }
+
+If stringToProxy throws an exception, C++Builder 2009 tries to
+destruct an Ice::ObjectPrx object that was never constructed, leading
+to an access violation and a program crash.
+
+This problem only occurs if there are no other objects that have a
+defined destructor declared on the stack inside the try/catch block.
+Therefore, the workaround is to add such an object declaration. For
+example, you can define a simple class with a destructor and allocate
+an instance of that class on the stack in each try/catch block.
+
+Here is the second run time bug:
+
+  http://qc.embarcadero.com/wc/qcmain.aspx?d=69968
+
+If a constructor throws an exception, the destructor of class members
+can sometimes be called twice. A workaround is to add an initialize
+method to the class, move code that might throw an exception from the
+constructor to the initialize method, and invoke initialize
+immediately after the constructor.
+
+Here is another run time bug:
+
+  http://qc.embarcadero.com/wc/qcmain.aspx?d=71689
+
+The destructor for a stack-allocated object inside a catch block can
+be called twice if you are inside a loop and call continue from within
+the catch block. The workaround is to ensure that the destructors of
+any stack-allocated objects are executed before you call continue.

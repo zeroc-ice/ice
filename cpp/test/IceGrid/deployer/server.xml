@@ -37,6 +37,8 @@
 	<property name="ManyEscape" value="$$$$$$$${name}"/>
 	<property name="Ice.Warn.Connections" value="1"/>
 
+        <property name="PropertyWithSpaces" value="   test   "/>
+
 	<include file="varproperties.xml"/>
 
 	<property name="Param1Prop" value="${Param1}"/>

@@ -287,9 +287,6 @@ IceInternal::TcpTransceiver::TcpTransceiver(const InstancePtr& instance, SOCKET 
     _state(connected ? StateConnected : StateNeedConnect),
     _desc(fdToString(_fd))
 {
-    FD_ZERO(&_rFdSet);
-    FD_ZERO(&_wFdSet);
-
 #ifdef _WIN32
     //
     // On Windows, limiting the buffer size is important to prevent

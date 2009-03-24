@@ -627,9 +627,34 @@ twoways(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrx& p)
     }
 
     {
+        Test::MyStruct s11 = { 1, 1 };
+        Test::MyStruct s12 = { 1, 2 };
+        Test::MyStructMyEnumD di1;
+        di1[s11] = Test::enum1;
+        di1[s12] = Test::enum2;
+
+        Test::MyStruct s22 = { 2, 2 };
+        Test::MyStruct s23 = { 2, 3 };
+        Test::MyStructMyEnumD di2;
+        di2[s11] = Test::enum1;
+        di2[s22] = Test::enum3;
+        di2[s23] = Test::enum2;
+
+        Test::MyStructMyEnumD _do;
+        Test::MyStructMyEnumD ro = p->opMyStructMyEnumD(di1, di2, _do);
+
+        test(_do == di1);
+        test(ro.size() == 4);
+        test(ro[s11] == Test::enum1);
+        test(ro[s12] == Test::enum2);
+        test(ro[s22] == Test::enum3);
+        test(ro[s23] == Test::enum2);
+    }
+
+    {
         const int lengths[] = { 0, 1, 2, 126, 127, 128, 129, 253, 254, 255, 256, 257, 1000 };
 
-        for(int l = 0; l != sizeof(lengths) / sizeof(*lengths); ++l)
+        for(unsigned int l = 0; l != sizeof(lengths) / sizeof(*lengths); ++l)
         {
             Test::IntS s;
             for(int i = 0; i < lengths[l]; ++i)

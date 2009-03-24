@@ -46,17 +46,10 @@ private:
 
 
     //
-    // Get the header extension defined in the global metadata for a given file
-    // if there isn't defined returns a empty string
+    // Returns the header extension defined in the global metadata for a given file,
+    // or an empty string if no global metadata was found.
     //
-    std::string getHeaderExt(const std::string& file, const ModuleList& modules);
-
-    //
-    // Get the header extension defined in the global metadata for the current 
-    // compiling file.
-    // if there isn't defined returns a empty string
-    //
-    std::string getHeaderExt(const ModuleList& modules);
+    std::string getHeaderExt(const std::string& file, const UnitPtr& unit);
 
     ::IceUtilInternal::Output H;
     ::IceUtilInternal::Output C;
@@ -77,21 +70,6 @@ private:
     bool _checksum;
     bool _stream;
     bool _ice;
-
-    class GlobalIncludeVisitor : private ::IceUtil::noncopyable, public ParserVisitor
-    {
-    public:
-
-        GlobalIncludeVisitor(::IceUtilInternal::Output&);
-
-        virtual bool visitModuleStart(const ModulePtr&);
-
-    private:
-
-        ::IceUtilInternal::Output& H;
-
-        bool _finished;
-    };
 
     class TypesVisitor : private ::IceUtil::noncopyable, public ParserVisitor
     {
@@ -416,6 +394,7 @@ private:
     {
     public:
 
+        virtual bool visitUnitStart(const UnitPtr&);
         virtual bool visitModuleStart(const ModulePtr&);
         virtual void visitModuleEnd(const ModulePtr&);
         virtual void visitClassDecl(const ClassDeclPtr&);

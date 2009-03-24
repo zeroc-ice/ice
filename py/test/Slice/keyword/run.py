@@ -21,6 +21,7 @@ sys.path.append(os.path.join(path[0]))
 from scripts import *
 
 print "starting client...",
-clientProc = TestUtil.startClient("Client.py", "--Ice.Default.Host=127.0.0.1")
+clientProc = TestUtil.startClient("Client.py", "--Ice.Default.Host=127.0.0.1", startReader = False)
 print "ok"
+clientProc.startReader()
 clientProc.waitTestSuccess()

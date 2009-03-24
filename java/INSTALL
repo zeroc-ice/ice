@@ -102,10 +102,10 @@ Java support. For Linux, this is done by specifying the --enable-java
 option when running the configure script. On Windows, you must select
 the project "db_java -- Win32 Release".
 
-Make sure to add db.jar to your CLASSPATH, and verify that the
-Berkeley DB shared libraries are in your java.library.path. On Linux,
-this can be achieved by adding <Berkeley DB home>/lib to your
-LD_LIBRARY_PATH, for example:
+In order to run an application that uses Freeze, you must add db.jar
+to your CLASSPATH and verify that the Berkeley DB shared libraries are
+in your java.library.path. On Linux, this can be achieved by adding
+<Berkeley DB home>/lib to your LD_LIBRARY_PATH, for example:
 
   $ export LD_LIBRARY_PATH=/opt/db46/lib:$LD_LIBRARY_PATH
 
@@ -153,7 +153,7 @@ ProGuard is available here:
 
   http://proguard.sourceforge.net
 
-Ice for Java has been tested with ProGuard 4.1.
+Ice for Java has been tested with ProGuard 4.1 and 4.3.
 
 
 ======================================================================
@@ -169,11 +169,20 @@ is available at the link below:
 
   http://ant.apache.org/
 
-To successfully compile Ice for Java, the Java run time for Berkeley
-DB (db.jar) must be in your CLASSPATH. The build system also requires
-the Slice translators from Ice for C++. If you have not built Ice for
-C++ in this source distribution, you must set the ICE_HOME environment
-variable with the path name of your Ice installation. For example:
+This source distribution cannot be compiled successfully without the
+Berkeley DB run time for Java (db.jar). On Unix platforms, the build
+system searches for this file in two locations:
+
+  * /usr/share/java/db-4.6.21.jar
+  * /opt/Ice-@ver@/lib/db.jar
+
+If neither of these files is present on your system, or if you are not
+using a Unix platform, you must add db.jar to your CLASSPATH.
+
+The build system also requires the Slice translators from Ice for C++.
+If you have not built Ice for C++ in this source distribution, you
+must set the ICE_HOME environment variable with the path name of your
+Ice installation. For example:
 
   # On Unix.
   $ export ICE_HOME=/opt/Ice-@ver@  (For local build)

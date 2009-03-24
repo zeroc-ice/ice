@@ -78,8 +78,6 @@ public final class TraceUtil
     public static void
     dumpStream(BasicStream stream)
     {
-        final int inc = 8;
-
         int pos = stream.pos();
         stream.pos(0);
 
@@ -356,19 +354,22 @@ public final class TraceUtil
     private static byte
     printHeader(java.io.Writer out, BasicStream stream)
     {
-        byte magic;
-        magic = stream.readByte();  // Don't bother printing the magic number
-        magic = stream.readByte();
-        magic = stream.readByte();
-        magic = stream.readByte();
+        stream.readByte();  // Don't bother printing the magic number
+        stream.readByte();
+        stream.readByte();
+        stream.readByte();
         
-        byte pMajor = stream.readByte();
-        byte pMinor = stream.readByte();
-//            out.write("\nprotocol version = " + (int)pMajor + "." + (int)pMinor);
+//        byte pMajor = stream.readByte();
+//        byte pMinor = stream.readByte();
+//        out.write("\nprotocol version = " + (int)pMajor + "." + (int)pMinor);
+        stream.readByte(); // major
+        stream.readByte(); // minor
         
-        byte eMajor = stream.readByte();
-        byte eMinor = stream.readByte();
-//            out.write("\nencoding version = " + (int)eMajor + "." + (int)eMinor);
+//        byte eMajor = stream.readByte();
+//        byte eMinor = stream.readByte();
+//        out.write("\nencoding version = " + (int)eMajor + "." + (int)eMinor);
+        stream.readByte(); // major
+        stream.readByte(); // minor
         
         byte type = stream.readByte();
 

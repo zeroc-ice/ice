@@ -28,6 +28,13 @@ generateUUID = IcePy.generateUUID
 loadSlice = IcePy.loadSlice
 
 #
+# This value is used as the default value for struct types in the constructors
+# of user-defined types. It allows us to determine whether the application has
+# supplied a value. (See bug 3676)
+#
+_struct_marker = object()
+
+#
 # Core Ice types.
 #
 class Object(object):

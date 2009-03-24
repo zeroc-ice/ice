@@ -9,7 +9,7 @@
 
 package Ice;
 
-public class ObjectPrxHelperBase implements ObjectPrx
+public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
 {
     public final int
     hashCode()
@@ -716,7 +716,7 @@ public class ObjectPrxHelperBase implements ObjectPrx
                 // Don't wait for the connection to be established.
                 return __del.__getRequestHandler().getConnection(false);
             }
-            catch(CollocationOptimizationException ex)
+            catch(LocalException ex)
             {
             }
         }
@@ -1049,6 +1049,41 @@ public class ObjectPrxHelperBase implements ObjectPrx
             //
             assert false;
             return null;
+        }
+    }
+
+    private void
+    writeObject(java.io.ObjectOutputStream out)
+         throws java.io.IOException
+     {
+         out.writeUTF(toString());
+     }
+
+    private void
+    readObject(java.io.ObjectInputStream in)
+         throws java.io.IOException, ClassNotFoundException
+    {
+        String s = in.readUTF();
+        try
+        {
+            Communicator communicator = ((Ice.ObjectInputStream)in).getCommunicator();
+            if(communicator == null)
+            {
+                throw new java.io.IOException("Cannot deserialize proxy: no communicator provided");
+            }
+            ObjectPrxHelperBase proxy = (ObjectPrxHelperBase)communicator.stringToProxy(s);
+            _reference = proxy._reference;
+            assert(proxy._delegate == null);
+        }
+        catch(ClassCastException ex)
+        {
+            throw new java.io.IOException("Cannot deserialize proxy: Ice.ObjectInputStream not found");
+        }
+        catch(LocalException ex)
+        {
+            java.io.IOException e = new java.io.IOException("Failure occurred while deserializing proxy");
+            e.initCause(ex);
+            throw e;
         }
     }
 

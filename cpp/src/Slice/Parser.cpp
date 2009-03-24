@@ -1351,6 +1351,13 @@ Slice::Container::lookupException(const string& scoped, bool printError)
     return exceptions.front();
 }
 
+UnitPtr
+Slice::Container::unit() const
+{
+    return SyntaxTreeBase::unit();
+}
+
+
 ModuleList
 Slice::Container::modules() const
 {
@@ -4714,8 +4721,7 @@ Slice::Operation::attributes() const
         }
         if(i == 2)
         {
-            cerr << definitionContext()->filename() << ":" << line()
-                 << ": warning: invalid freeze metadata for operation" << endl;
+            emitWarning(definitionContext()->filename(), line(), "invalid freeze metadata for operation");
         }
         else
         {
@@ -4736,8 +4742,7 @@ Slice::Operation::attributes() const
                 {
                     if(result != 0 && (i == int(Supports) || i == int(Never)))
                     {
-                        cerr << definitionContext()->filename() << ":" << line()
-                             << ": warning: invalid freeze metadata for operation" << endl;
+                        emitWarning(definitionContext()->filename(), line(), "invalid freeze metadata for operation");
                     }
                     else
                     {
@@ -4751,8 +4756,7 @@ Slice::Operation::attributes() const
             
             if(i == 4)
             {
-                cerr << definitionContext()->filename() << ":" << line()
-                     << ": warning: invalid freeze metadata for operation" << endl;
+                emitWarning(definitionContext()->filename(), line(), "invalid freeze metadata for operation");
 
                 //
                 // Set default
@@ -5004,6 +5008,12 @@ Slice::Unit::currentFile() const
     }
 }
 
+string
+Slice::Unit::topLevelFile() const
+{
+    return _topLevelFile;
+}
+
 int
 Slice::Unit::currentLine() const
 {
@@ -5057,23 +5067,13 @@ Slice::Unit::scanPosition(const char* s)
         }
     }
 
-    //
-    // Cache full paths to avoid too many full path computations.
-    //
-    map<string, string>::const_iterator p = _fullPaths.find(currentFile);
-    if(p == _fullPaths.end())
-    {
-        p =  _fullPaths.insert(make_pair(currentFile, fullPath(currentFile))).first;
-    }
-    currentFile = p->second;
-
     enum LineType { File, Push, Pop };
 
     LineType type = File;
 
     if(_currentLine == 0)
     {
-        if(currentFile != _topLevelFile)
+        if(_currentIncludeLevel > 0 || currentFile != _topLevelFile)
         {
             type = Push;
             line.erase(idx);
@@ -5123,6 +5123,7 @@ Slice::Unit::scanPosition(const char* s)
         DefinitionContextPtr dc = currentDefinitionContext();
         assert(dc);
         dc->setFilename(currentFile);
+        _definitionContextMap.insert(make_pair(currentFile, dc));
     }
 }
 
@@ -5150,6 +5151,9 @@ Slice::Unit::addGlobalMetaData(const StringList& metaData)
     }
     else
     {
+        //
+        // Append the global metadata to any existing metadata (e.g., default global metadata).
+        //
         StringList l = dc->getMetaData();
         copy(metaData.begin(), metaData.end(), back_inserter(l));
         dc->setMetaData(l);
@@ -5167,36 +5171,27 @@ Slice::Unit::setSeenDefinition()
 void
 Slice::Unit::error(const char* s)
 {
-    string file = currentFile();
-    if(!file.empty())
-    {
-        cerr << file << ':' << _currentLine << ": ";
-    }
-    cerr << s << endl;
+    emitError(currentFile(), _currentLine, s);
     _errors++;
 }
 
 void
 Slice::Unit::error(const string& s)
 {
-    error(s.c_str());
+    emitError(currentFile(), _currentLine, s);
+    _errors++;
 }
 
 void
 Slice::Unit::warning(const char* s) const
 {
-    string file = currentFile();
-    if(!file.empty())
-    {
-        cerr << file << ':' << _currentLine << ": ";
-    }
-    cerr << "warning: " << s << endl;
+    emitWarning(currentFile(), _currentLine, s);
 }
 
 void
 Slice::Unit::warning(const string& s) const
 {
-    warning(s.c_str());
+    emitWarning(currentFile(), _currentLine, s);
 }
 
 ContainerPtr
@@ -5233,7 +5228,7 @@ Slice::Unit::currentDefinitionContext() const
 void
 Slice::Unit::pushDefinitionContext()
 {
-    _definitionContextStack.push(new DefinitionContext(_currentIncludeLevel, _defaultGlobalMetadata));
+    _definitionContextStack.push(new DefinitionContext(_currentIncludeLevel, _defaultGlobalMetaData));
 }
 
 void
@@ -5241,6 +5236,17 @@ Slice::Unit::popDefinitionContext()
 {
     assert(!_definitionContextStack.empty());
     _definitionContextStack.pop();
+}
+
+DefinitionContextPtr
+Slice::Unit::findDefinitionContext(const string& file) const
+{
+    map<string, DefinitionContextPtr>::const_iterator p = _definitionContextMap.find(file);
+    if(p != _definitionContextMap.end())
+    {
+        return p->second;
+    }
+    return 0;
 }
 
 void
@@ -5453,6 +5459,18 @@ Slice::Unit::includeFiles() const
     return _includeFiles;
 }
 
+StringList
+Slice::Unit::allFiles() const
+{
+    StringList result;
+    for(map<string, DefinitionContextPtr>::const_iterator p = _definitionContextMap.begin();
+        p != _definitionContextMap.end(); ++p)
+    {
+        result.push_back(p->first);
+    }
+    return result;
+}
+
 int
 Slice::Unit::parse(const string& filename, FILE* file, bool debug, Slice::FeatureProfile profile)
 {
@@ -5466,7 +5484,6 @@ Slice::Unit::parse(const string& filename, FILE* file, bool debug, Slice::Featur
     _currentIncludeLevel = 0;
     _featureProfile = profile;
     _topLevelFile = fullPath(filename);
-    _fullPaths[filename] = _topLevelFile;
     pushContainer(this);
     pushDefinitionContext();
 
@@ -5539,7 +5556,7 @@ Slice::Unit::Unit(bool ignRedefs, bool all, bool allowIcePrefix, bool caseSensit
     _all(all),
     _allowIcePrefix(allowIcePrefix),
     _caseSensitive(caseSensitive),
-    _defaultGlobalMetadata(defaultGlobalMetadata),
+    _defaultGlobalMetaData(defaultGlobalMetadata),
     _errors(0)
 
 {

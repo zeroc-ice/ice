@@ -118,20 +118,7 @@ IceInternal::ProxyFactory::checkRetryAfterException(const LocalException& ex,
 
     if(one)
     {
-        LocatorInfoPtr li = ref->getLocatorInfo();
-        if(li && ref->isIndirect())
-        {
-            //
-            // We retry ObjectNotExistException if the reference is
-            // indirect.
-            //
-
-            if(ref->isWellKnown())
-            {
-                li->clearCache(ref);
-            }
-        }
-        else if(ref->getRouterInfo() && one->operation == "ice_add_proxy")
+        if(ref->getRouterInfo() && one->operation == "ice_add_proxy")
         {
             //
             // If we have a router, an ObjectNotExistException with an
@@ -152,6 +139,22 @@ IceInternal::ProxyFactory::checkRetryAfterException(const LocalException& ex,
                 out->__send();
             }
             return; // We must always retry, so we don't look at the retry count.
+        }
+        else if(ref->isIndirect())
+        {
+            //
+            // We retry ObjectNotExistException if the reference is
+            // indirect.
+            //
+
+            if(ref->isWellKnown())
+            {
+                LocatorInfoPtr li = ref->getLocatorInfo();
+                if(li)
+                {
+                    li->clearCache(ref);
+                }
+            }
         }
         else
         {

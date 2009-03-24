@@ -26,7 +26,7 @@ SUBDIRS		= minimal \
 		  multicast \
 		  nrvo
 
-!if "$(CPP_COMPILER)" != "BCC2007" && "$(CPP_COMPILER)" != "VC80_EXPRESS" &&  "$(CPP_COMPILER)" != "VC90_EXPRESS"
+!if "$(BCPLUSPLUS)" != "yes" && "$(CPP_COMPILER)" != "VC80_EXPRESS" &&  "$(CPP_COMPILER)" != "VC90_EXPRESS"
 SUBDIRS		= $(SUBDIRS) MFC
 !endif
 

@@ -21,7 +21,7 @@ class NestedI : NestedDisp_
         System.Console.Out.WriteLine("" + level);
         if(--level > 0)
         {
-            proxy.nestedCall(level, _self, current.ctx);
+            proxy.nestedCall(level, _self);
         }
     }
     

@@ -472,6 +472,35 @@ class AMI_MyClass_opStringMyEnumDI(CallbackBase):
     def ice_exception(self, ex):
         test(False)
 
+class AMI_MyClass_opMyStructMyEnumDI(CallbackBase):
+    def __init__(self):
+        CallbackBase.__init__(self)
+
+    def ice_response(self, ro, do):
+        s11 = Test.MyStruct()
+        s11.i = 1
+        s11.j = 1
+        s12 = Test.MyStruct()
+        s12.i = 1
+        s12.j = 2
+        s22 = Test.MyStruct()
+        s22.i = 2
+        s22.j = 2
+        s23 = Test.MyStruct()
+        s23.i = 2
+        s23.j = 3
+        di1 = {s11: Test.MyEnum.enum1, s12: Test.MyEnum.enum2}
+        test(do == di1)
+        test(len(ro) == 4)
+        test(ro[s11] == Test.MyEnum.enum1)
+        test(ro[s12] == Test.MyEnum.enum2)
+        test(ro[s22] == Test.MyEnum.enum3)
+        test(ro[s23] == Test.MyEnum.enum2)
+        self.called()
+
+    def ice_exception(self, ex):
+        test(False)
+
 class AMI_MyClass_opIntSI(CallbackBase):
     def __init__(self, l):
         CallbackBase.__init__(self)
@@ -766,6 +795,28 @@ def twowaysAMI(communicator, p):
 
     cb = AMI_MyClass_opStringMyEnumDI()
     p.opStringMyEnumD_async(cb, di1, di2)
+    test(cb.check())
+
+    #
+    # opMyStructMyEnumD
+    #
+    s11 = Test.MyStruct()
+    s11.i = 1
+    s11.j = 1
+    s12 = Test.MyStruct()
+    s12.i = 1
+    s12.j = 2
+    s22 = Test.MyStruct()
+    s22.i = 2
+    s22.j = 2
+    s23 = Test.MyStruct()
+    s23.i = 2
+    s23.j = 3
+    di1 = {s11: Test.MyEnum.enum1, s12: Test.MyEnum.enum2}
+    di2 = {s11: Test.MyEnum.enum1, s22: Test.MyEnum.enum3, s23: Test.MyEnum.enum2}
+
+    cb = AMI_MyClass_opMyStructMyEnumDI()
+    p.opMyStructMyEnumD_async(cb, di1, di2)
     test(cb.check())
 
     #

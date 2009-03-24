@@ -64,7 +64,7 @@ class Collocated extends Ice.Application
         // Create and install a factory and initializer for books.
         //
         Ice.ObjectFactory bookFactory = new BookFactory(library);
-        communicator().addObjectFactory(bookFactory, "::Demo::Book");
+        communicator().addObjectFactory(bookFactory, Demo.Book.ice_staticId());
     
         //
         // Everything ok, let's go.

@@ -130,7 +130,7 @@ public final class ValueWriter
                         {
                             break;
                         }
-                        java.lang.reflect.Method valueMethod = c.getDeclaredMethod("value", new Class[0]);
+                        java.lang.reflect.Method valueMethod = c.getDeclaredMethod("value", new Class<?>[0]);
                         if(!valueMethod.getReturnType().equals(Integer.TYPE) ||
                            !java.lang.reflect.Modifier.isPublic(valueMethod.getModifiers()) ||
                            java.lang.reflect.Modifier.isStatic(valueMethod.getModifiers()))
@@ -179,7 +179,7 @@ public final class ValueWriter
     }
 
     private static void
-    writeFields(String name, java.lang.Object obj, Class c,
+    writeFields(String name, java.lang.Object obj, Class<?> c,
                 java.util.Map<java.lang.Object, java.lang.Object> objectTable, IceUtilInternal.OutputBase out)
     {
         if(!c.equals(java.lang.Object.class))

@@ -37,6 +37,8 @@ protected:
     void __warning(const Ice::Exception&) const;
     void __warning(const std::string&) const;
 
+    bool __servantLocatorFinished();
+
     void __handleException(const std::exception&);
     void __handleException();
 

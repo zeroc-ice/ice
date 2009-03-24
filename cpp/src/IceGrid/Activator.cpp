@@ -482,7 +482,11 @@ Activator::activate(const string& name,
     //
     // Make a copy of the command line.
     //
+#if defined(_MSC_VER) && (_MSC_VER >= 1400)
+    char* cmdbuf = _strdup(cmd.c_str());
+#else
     char* cmdbuf = strdup(cmd.c_str());
+#endif
 
     //
     // Create the environment block for the child process. We start with the environment
@@ -569,9 +573,7 @@ Activator::activate(const string& name,
 
     if(!b)
     {
-        SyscallException ex(__FILE__, __LINE__);
-        ex.error = getSystemErrno();
-        throw ex;
+        throw IceUtilInternal::lastErrorToString();
     }
 
     //
@@ -1054,8 +1056,11 @@ Activator::destroy()
     // when there's no more processes and when _deactivating is set to
     // true.
     //
-    _thread->getThreadControl().join();
-    _thread = 0;
+    if(_thread)
+    {
+        _thread->getThreadControl().join();
+        _thread = 0;
+    }
     assert(_processes.empty());
 }
 

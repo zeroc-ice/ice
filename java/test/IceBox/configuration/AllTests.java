@@ -59,13 +59,13 @@ public class AllTests
             test(service3.getProperty("Service").equals("4"));
             test(service3.getProperty("Prop").equals(""));
             test(service3.getProperty("Service3.Prop").equals("1"));
-            test(service3.getProperty("Ice.Trace.Network").equals("3"));
+            test(service3.getProperty("Ice.Trace.Slicing").equals("3"));
 
             test(service4.getProperty("Ice.ProgramName").equals("IceBox-SharedCommunicator"));
             test(service4.getProperty("Service").equals("4"));
             test(service4.getProperty("Prop").equals(""));
             test(service4.getProperty("Service3.Prop").equals("1"));
-            test(service4.getProperty("Ice.Trace.Network").equals("3"));
+            test(service4.getProperty("Ice.Trace.Slicing").equals("3"));
 
             String[] args4 = {"--Service3.Prop=2"};
             test(java.util.Arrays.equals(service4.getArgs(), args4));

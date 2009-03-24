@@ -22,7 +22,8 @@ SUBDIRS		= bidir \
 		  throughput \
 		  value \
 		  async \
-		  multicast
+		  multicast \
+		  serialize
 
 $(EVERYTHING)::
 	@for subdir in $(SUBDIRS); \

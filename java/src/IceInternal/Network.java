@@ -443,8 +443,7 @@ public final class Network
                         {
                             try
                             {
-                                java.nio.channels.SelectionKey key =
-                                    fd.register(selector, java.nio.channels.SelectionKey.OP_ACCEPT);
+                                fd.register(selector, java.nio.channels.SelectionKey.OP_ACCEPT);
                                 int n;
                                 if(timeout > 0)
                                 {
@@ -772,7 +771,7 @@ public final class Network
             //
         }
 
-        if(addr == null || isValidAddr(addr, protocol))
+        if(addr == null || !isValidAddr(addr, protocol))
         {
             //
             // Iterate over the network interfaces and pick an IP
@@ -1104,7 +1103,7 @@ public final class Network
     public static String
     addressesToString(java.net.InetAddress localAddr, int localPort, java.net.InetAddress remoteAddr, int remotePort)
     {
-        StringBuffer s = new StringBuffer();
+        StringBuilder s = new StringBuilder(128);
         s.append("local address = ");
         s.append(localAddr.getHostAddress());
         s.append(':');
@@ -1127,7 +1126,7 @@ public final class Network
     public static String
     addrToString(java.net.InetSocketAddress addr)
     {
-        StringBuffer s = new StringBuffer();
+        StringBuilder s = new StringBuilder(128);
         s.append(addr.getAddress().getHostAddress());
         s.append(':');
         s.append(addr.getPort());

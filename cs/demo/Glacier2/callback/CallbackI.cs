@@ -17,7 +17,7 @@ public sealed class CallbackI : CallbackDisp_
         Console.WriteLine("initiating callback to: " + current.adapter.getCommunicator().proxyToString(proxy));
         try
         {
-            proxy.callback(current.ctx);
+            proxy.callback();
         }
         catch(System.Exception ex)
         {

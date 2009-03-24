@@ -13,7 +13,8 @@ Public Class FileI
 
         ' Create an identity
         '
-        Dim myId As Ice.Identity = _adapter.getCommunicator().stringToIdentity(Ice.Util.generateUUID())
+        Dim myId As Ice.Identity = New Ice.Identity
+        myId.name = Ice.Util.generateUUID()
 
         ' Add the identity to the object adapter
         '

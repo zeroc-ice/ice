@@ -90,7 +90,8 @@ class LibraryI extends _LibraryDisp
             }
 
             // Build a query that finds all books by these authors.
-            StringBuffer sb = new StringBuffer("(");
+            StringBuilder sb = new StringBuilder(128);
+            sb.append("(");
             boolean front = true;
             do
             {

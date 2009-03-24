@@ -19,7 +19,6 @@ prefix			= C:\Ice-$(VERSION)
 #
 # - Protocol compression
 # - Signal processing in the Ice.Application class (Windows only)
-# - Monotonic time (Windows only)
 #
 # Enable MANAGED below if you do not require these features and prefer that
 # the Ice run time use only managed code.
@@ -157,7 +156,7 @@ $(bindir)/$(POLICY_TARGET):
 	@sn -q -T $(ice_dir)\bin\Ice.dll > tmp.publicKeyToken && \
 	set /P TMP_TOKEN= < tmp.publicKeyToken && \
         cmd /c "set PUBLIC_KEY_TOKEN=%TMP_TOKEN:~-16% && \
-	del tmp.pub tmp.publicKeyToken && \
+	del tmp.publicKeyToken && \
 	nmake /nologo /f Makefile.mak policy"
 !endif
 !endif
@@ -170,24 +169,15 @@ policy:
   <runtime>
     <assemblyBinding xmlns="urn:schemas-microsoft-com:asm.v1">
       <dependentAssembly>
-        <assemblyIdentity name="Ice" publicKeyToken="$(publicKeyToken)" culture=""/>
+        <assemblyIdentity name="$(PKG)" publicKeyToken="$(publicKeyToken)" culture=""/>
         <publisherPolicy apply="yes"/>
-        <bindingRedirect oldVersion="$(SHORT_VERSION).0.0" newVersion="$(SHORT_VERSION).4.0"/>
-        <bindingRedirect oldVersion="$(SHORT_VERSION).0.0" newVersion="$(SHORT_VERSION).3.0"/>
-        <bindingRedirect oldVersion="$(SHORT_VERSION).0.0" newVersion="$(SHORT_VERSION).2.0"/>
-        <bindingRedirect oldVersion="$(SHORT_VERSION).0.0" newVersion="$(SHORT_VERSION).1.0"/>
-        <bindingRedirect oldVersion="$(SHORT_VERSION).1.0" newVersion="$(SHORT_VERSION).4.0"/>
-        <bindingRedirect oldVersion="$(SHORT_VERSION).1.0" newVersion="$(SHORT_VERSION).3.0"/>
-        <bindingRedirect oldVersion="$(SHORT_VERSION).1.0" newVersion="$(SHORT_VERSION).2.0"/>
-        <bindingRedirect oldVersion="$(SHORT_VERSION).2.0" newVersion="$(SHORT_VERSION).4.0"/>
-        <bindingRedirect oldVersion="$(SHORT_VERSION).2.0" newVersion="$(SHORT_VERSION).3.0"/>
-        <bindingRedirect oldVersion="$(SHORT_VERSION).3.0" newVersion="$(SHORT_VERSION).4.0"/>
+        <bindingRedirect oldVersion="$(SHORT_VERSION).0.0" newVersion="$(VERSION).0"/>
       </dependentAssembly>
     </assemblyBinding>
   </runtime>
 </configuration>
 <<KEEP
-	$(AL) /link:$(POLICY) /out:$(POLICY_TARGET) /keyfile:$(KEYFILE)
+	$(AL) /link:$(POLICY) /version:0.0.0.0 /out:$(POLICY_TARGET) /keyfile:$(KEYFILE)
 	move $(POLICY) $(bindir)
 	move $(POLICY_TARGET) $(bindir)
 
@@ -196,10 +186,8 @@ clean::
 
 !endif
 
-
 install::
-	if not exist $(prefix) mkdir $(prefix)
-	if not exist $(install_bindir) mkdir $(install_bindir)
+
 
 !if "$(TARGETS_CONFIG)" != ""
 
@@ -218,7 +206,7 @@ $(TARGETS_CONFIG):
 	@sn -q -T $(ice_dir)\bin\Ice.dll > tmp.publicKeyToken && \
 	set /P TMP_TOKEN= < tmp.publicKeyToken && \
         cmd /c "set PUBLIC_KEY_TOKEN=%TMP_TOKEN:~-16% && \
-	del /q tmp.pub tmp.publicKeyToken && \
+	del /q tmp.publicKeyToken && \
 	nmake /nologo /f Makefile.mak config"
 !endif
 

@@ -12,6 +12,7 @@
 #include <IceUtil/StaticMutex.h>
 #include <Slice/Preprocessor.h>
 #include <Slice/FileTracker.h>
+#include <Slice/Util.h>
 #include <Gen.h>
 
 #ifdef __BCPLUSPLUS__
@@ -50,6 +51,8 @@ usage(const char* n)
         "--impl                  Generate sample implementations.\n"
         "--impl-tie              Generate sample TIE implementations.\n"
         "--depend                Generate Makefile dependencies.\n"
+        "--depend-xml            Generate dependencies in XML format.\n"
+        "--list-generated        Emit list of generated files in XML format.\n"
         "-d, --debug             Print debug messages.\n"
         "--ice                   Permit `Ice' prefix (for building Ice source code only)\n"
         "--checksum CLASS        Generate checksums for Slice definitions into CLASS.\n"
@@ -74,6 +77,8 @@ main(int argc, char* argv[])
     opts.addOpt("", "impl");
     opts.addOpt("", "impl-tie");
     opts.addOpt("", "depend");
+    opts.addOpt("", "depend-xml");
+    opts.addOpt("", "list-generated");
     opts.addOpt("d", "debug");
     opts.addOpt("", "ice");
     opts.addOpt("", "checksum", IceUtilInternal::Options::NeedArg);
@@ -84,11 +89,14 @@ main(int argc, char* argv[])
     vector<string>args;
     try
     {
+#if defined(__BCPLUSPLUS__) && (__BCPLUSPLUS__ >= 0x0600)
+        IceUtil::DummyBCC dummy;
+#endif
         args = opts.parse(argc, (const char**)argv);
     }
     catch(const IceUtilInternal::BadOptException& e)
     {
-        cerr << argv[0] << ": " << e.reason << endl;
+        cerr << argv[0] << ": error: " << e.reason << endl;
         usage(argv[0]);
         return EXIT_FAILURE;
     }
@@ -136,6 +144,7 @@ main(int argc, char* argv[])
     bool implTie = opts.isSet("impl-tie");
 
     bool depend = opts.isSet("depend");
+    bool dependxml = opts.isSet("depend-xml");
 
     bool debug = opts.isSet("debug");
 
@@ -144,6 +153,8 @@ main(int argc, char* argv[])
     string checksumClass = opts.optArg("checksum");
 
     bool stream = opts.isSet("stream");
+
+    bool listGenerated = opts.isSet("list-generated");
 
     StringList globalMetadata;
     vector<string> v = opts.argVec("meta");
@@ -162,23 +173,23 @@ main(int argc, char* argv[])
         }
     }
 
-    if(java2)
+    if(java2 && !listGenerated && !depend && !dependxml)
     {
-        cerr << argv[0] << ": warning: The Java2 mapping is deprecated." << endl;
+        getErrorStream() << argv[0] << ": warning: The Java2 mapping is deprecated." << endl;
     }
 
     bool caseSensitive = opts.isSet("case-sensitive");
 
     if(args.empty())
     {
-        cerr << argv[0] << ": no input file" << endl;
+        getErrorStream() << argv[0] << ": error: no input file" << endl;
         usage(argv[0]);
         return EXIT_FAILURE;
     }
 
     if(impl && implTie)
     {
-        cerr << argv[0] << ": cannot specify both --impl and --impl-tie" << endl;
+        getErrorStream() << argv[0] << ": error: cannot specify both --impl and --impl-tie" << endl;
         usage(argv[0]);
         return EXIT_FAILURE;
     }
@@ -190,24 +201,39 @@ main(int argc, char* argv[])
     IceUtil::CtrlCHandler ctrlCHandler;
     ctrlCHandler.setCallback(interruptedCallback);
 
+    if(dependxml)
+    {
+        cout << "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<dependencies>" << endl;
+    }
+
     for(i = args.begin(); i != args.end(); ++i)
     {
-        if(depend)
+        if(depend || dependxml)
         {
             Preprocessor icecpp(argv[0], *i, cppArgs);
-            if(!icecpp.printMakefileDependencies(Preprocessor::Java, includePaths))
+            if(!icecpp.printMakefileDependencies(depend ? Preprocessor::Java : Preprocessor::JavaXML, includePaths))
             {
                 return EXIT_FAILURE;
             }
         }
         else
         {
+            ostringstream os;
+            if(listGenerated)
+            {
+                Slice::setErrorStream(os);
+            }
+
+            FileTracker::instance()->setSource(*i);
+
             Preprocessor icecpp(argv[0], *i, cppArgs);
             FILE* cppHandle = icecpp.preprocess(false);
 
             if(cppHandle == 0)
             {
-                return EXIT_FAILURE;
+                FileTracker::instance()->setOutput(os.str(), true);
+                status = EXIT_FAILURE;
+                break;
             }
 
             if(preprocess)
@@ -238,6 +264,8 @@ main(int argc, char* argv[])
 
                 if(parseStatus == EXIT_FAILURE)
                 {
+                    p->destroy();
+                    FileTracker::instance()->setOutput(os.str(), true);
                     status = EXIT_FAILURE;
                 }
                 else
@@ -245,11 +273,6 @@ main(int argc, char* argv[])
                     try
                     {
                         Gen gen(argv[0], icecpp.getBaseName(), includePaths, output);
-                        if(!gen)
-                        {
-                            p->destroy();
-                            return EXIT_FAILURE;
-                        }
                         gen.generate(p, stream);
                         if(tie)
                         {
@@ -271,15 +294,19 @@ main(int argc, char* argv[])
                             ChecksumMap m = createChecksums(p);
                             copy(m.begin(), m.end(), inserter(checksums, checksums.begin()));
                         }
+                        FileTracker::instance()->setOutput(os.str(), false);
                     }
                     catch(const Slice::FileException& ex)
                     {
-                        // If a file could not be created, then
-                        // cleanup any created files.
+                        //
+                        // If a file could not be created then cleanup any files we've already created.
+                        //
                         FileTracker::instance()->cleanup();
                         p->destroy();
-                        cerr << argv[0] << ": " << ex.reason() << endl;
-                        return EXIT_FAILURE;
+                        os << argv[0] << ": error: " << ex.reason() << endl;
+                        FileTracker::instance()->setOutput(os.str(), true);
+                        status = EXIT_FAILURE;
+                        break;
                     }
                 }
                 p->destroy();
@@ -291,15 +318,21 @@ main(int argc, char* argv[])
 
             if(_interrupted)
             {
-                // If the translator was interrupted, then cleanup any
-                // created files.
+                //
+                // If the translator was interrupted then cleanup any files we've already created.
+                //
                 FileTracker::instance()->cleanup();
                 return EXIT_FAILURE;
             }
         }
     }
 
-    if(!checksumClass.empty())
+    if(dependxml)
+    {
+        cout << "</dependencies>\n";
+    }
+
+    if(status == EXIT_SUCCESS && !checksumClass.empty())
     {
         try
         {
@@ -310,9 +343,14 @@ main(int argc, char* argv[])
             // If a file could not be created, then
             // cleanup any created files.
             FileTracker::instance()->cleanup();
-            cerr << argv[0] << ": " << ex.reason() << endl;
+            getErrorStream() << argv[0] << ": error: " << ex.reason() << endl;
             return EXIT_FAILURE;
         }
+    }
+
+    if(listGenerated)
+    {
+        FileTracker::instance()->dumpxml();
     }
 
     return status;

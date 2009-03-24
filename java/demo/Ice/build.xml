@@ -22,6 +22,7 @@
         <ant dir="minimal"/>
         <ant dir="multicast"/>
         <ant dir="nested"/>
+        <ant dir="serialize"/>
         <ant dir="session"/>
         <ant dir="throughput"/>
         <ant dir="value"/>
@@ -38,6 +39,7 @@
         <ant dir="minimal" target="clean"/>
         <ant dir="multicast" target="clean"/>
         <ant dir="nested" target="clean"/>
+        <ant dir="serialize" target="clean"/>
         <ant dir="session" target="clean"/>
         <ant dir="throughput" target="clean"/>
         <ant dir="value" target="clean"/>

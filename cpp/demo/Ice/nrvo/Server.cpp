@@ -36,8 +36,7 @@ NrvotServer::run(int argc, char* argv[])
     }
 
     Ice::ObjectAdapterPtr adapter = communicator()->createObjectAdapter("Nrvo");
-    Demo::NrvoPtr servant = new NrvoI();
-    adapter->add(servant, communicator()->stringToIdentity("nrvo"));
+    adapter->add(new NrvoI(), communicator()->stringToIdentity("nrvo"));
     adapter->activate();
     communicator()->waitForShutdown();
     return EXIT_SUCCESS;

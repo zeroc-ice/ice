@@ -1,32 +1,31 @@
+// **********************************************************************
+//
+// Copyright (c) 2003-2009 ZeroC, Inc. All rights reserved.
+//
+// This copy of Ice is licensed to you under the terms described in the
+// ICE_LICENSE file included in this distribution.
+//
+// **********************************************************************
+
 #ifndef MY_STRING_SEQ
 #define MY_STRING_SEQ
 
+#include <IceUtil/Config.h>
 #include <vector>
 #include <string>
-#include <iostream>
 
 class MyStringSeq : public std::vector<std::string>
 {
 public:
 
-    MyStringSeq()
-    {}
+    MyStringSeq();
 
-    MyStringSeq(size_t n) : 
-        std::vector<std::string>(n)
-    {
-    }
+    MyStringSeq(size_t);
 
-    MyStringSeq(size_t n, const std::string& str) : 
-        std::vector<std::string>(n, str)
-    {
-    }
+    MyStringSeq(size_t, const std::string&);
 
-    MyStringSeq(const MyStringSeq& seq) : 
-        std::vector<std::string>(seq)
-    {
-        std::cout << "MyStringSeq copy ctor" << std::endl;
-    }
+    MyStringSeq(const MyStringSeq&);
+
 };
 
 #endif

@@ -19,8 +19,10 @@
 #include <Ice/IncomingAsync.h>
 #include <Ice/Initialize.h>
 #include <Ice/LocalException.h>
+#include <Ice/Logger.h>
 #include <Ice/ObjectAdapter.h>
 #include <Ice/OutgoingAsync.h>
+#include <Ice/Properties.h>
 #include <Ice/Proxy.h>
 #include <Slice/PythonUtil.h>
 
@@ -901,6 +903,7 @@ IcePy::TypedInvocation::prepareRequest(PyObject* args, bool async, vector<Ice::B
         }
         catch(const AbortMarshaling&)
         {
+            assert(PyErr_Occurred());
             return false;
         }
         catch(const Ice::Exception& ex)
@@ -950,11 +953,15 @@ IcePy::TypedInvocation::unmarshalResults(const pair<const Ice::Byte*, const Ice:
 PyObject*
 IcePy::TypedInvocation::unmarshalException(const pair<const Ice::Byte*, const Ice::Byte*>& bytes)
 {
+    int traceSlicing = -1;
+
     Ice::InputStreamPtr is = Ice::createInputStream(_communicator, bytes);
 
     is->readBool(); // usesClasses
 
     string id = is->readString();
+    const string origId = id;
+
     while(!id.empty())
     {
         ExceptionInfoPtr info = lookupExceptionInfo(id);
@@ -978,18 +985,41 @@ IcePy::TypedInvocation::unmarshalException(const pair<const Ice::Byte*, const Ic
         }
         else
         {
-            is->skipSlice();
-            id = is->readString();
+            if(traceSlicing == -1)
+            {
+                traceSlicing = _communicator->getProperties()->getPropertyAsInt("Ice.Trace.Slicing") > 0;
+            }
+
+            if(traceSlicing > 0)
+            {
+                _communicator->getLogger()->trace("Slicing", "unknown exception type `" + id + "'");
+            }
+
+            is->skipSlice(); // Slice off what we don't understand.
+
+            try
+            {
+                id = is->readString(); // Read type id for next slice.
+            }
+            catch(Ice::UnmarshalOutOfBoundsException& ex)
+            {
+                //
+                // When readString raises this exception it means we've seen the last slice,
+                // so we set the reason member to a more helpful message.
+                //
+                ex.reason = "unknown exception type `" + origId + "'";
+                throw;
+            }
         }
     }
 
     //
     // Getting here should be impossible: we can get here only if the
     // sender has marshaled a sequence of type IDs, none of which we
-    // have factory for. This means that sender and receiver disagree
+    // have a factory for. This means that sender and receiver disagree
     // about the Slice definitions they use.
     //
-    throw Ice::UnknownUserException(__FILE__, __LINE__);
+    throw Ice::UnknownUserException(__FILE__, __LINE__, "unknown exception type `" + origId + "'");
 }
 
 bool
@@ -1142,6 +1172,7 @@ IcePy::SyncTypedInvocation::invoke(PyObject* args)
     }
     catch(const AbortMarshaling&)
     {
+        assert(PyErr_Occurred());
         return 0;
     }
     catch(const Ice::Exception& ex)

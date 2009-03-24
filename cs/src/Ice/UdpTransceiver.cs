@@ -74,25 +74,22 @@ namespace IceInternal
 
         public void close()
         {
-            lock(this)
+            if(_traceLevels.network >= 1)
             {
-                if(_traceLevels.network >= 1)
+                string s = "closing udp connection\n" + ToString();
+                _logger.trace(_traceLevels.networkCat, s);
+            }
+            
+            if(_fd != null)
+            {
+                try
                 {
-                    string s = "closing udp connection\n" + ToString();
-                    _logger.trace(_traceLevels.networkCat, s);
+                    _fd.Close();
                 }
-
-                if(_fd != null)
+                catch(System.IO.IOException)
                 {
-                    try
-                    {
-                        _fd.Close();
-                    }
-                    catch(System.IO.IOException)
-                    {
-                    }
-                    _fd = null;
                 }
+                _fd = null;
             }
         }
 
@@ -596,14 +593,18 @@ namespace IceInternal
                 {
                     Network.setReuseAddress(_fd, true);
                     _mcastAddr = _addr;
-                    if(_mcastAddr.AddressFamily == AddressFamily.InterNetwork)
+                    if(_addr.AddressFamily == AddressFamily.InterNetwork)
                     {
                         _addr = Network.doBind(_fd, new IPEndPoint(IPAddress.Any, port));
                     }
                     else
                     {
-                        Debug.Assert(_mcastAddr.AddressFamily == AddressFamily.InterNetworkV6);
+                        Debug.Assert(_addr.AddressFamily == AddressFamily.InterNetworkV6);
                         _addr = Network.doBind(_fd, new IPEndPoint(IPAddress.IPv6Any, port));
+                    }
+                    if(port == 0)
+                    {
+                        _mcastAddr.Port = _addr.Port;
                     }
                     Network.setMcastGroup(_fd, _mcastAddr.Address, mcastInterface);
                 }

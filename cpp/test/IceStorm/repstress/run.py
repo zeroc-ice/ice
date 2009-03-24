@@ -41,14 +41,14 @@ print "ok"
 
 print "running subscriber...",
 sys.stdout.flush()
-subscriberProc = TestUtil.startServer(subscriber, ' --Ice.ServerIdleTime=0 ' + icestorm.reference())
+subscriberProc = TestUtil.startServer(subscriber, ' --Ice.ServerIdleTime=0 ' + icestorm.reference(), echo = False)
 subscriberProc.expect("([^\n]+)\n")
 subControl = subscriberProc.match.group(1)
 print "ok"
 
 print "running publisher...",
 sys.stdout.flush()
-publisherProc = TestUtil.startServer(publisher, ' --Ice.ServerIdleTime=0 ' + icestorm.reference())
+publisherProc = TestUtil.startServer(publisher, ' --Ice.ServerIdleTime=0 ' + icestorm.reference(), echo = False)
 publisherProc.expect("([^\n]+)\n")
 pubControl = publisherProc.match.group(1)
 print "ok"

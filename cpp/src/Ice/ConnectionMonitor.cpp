@@ -88,11 +88,12 @@ IceInternal::ConnectionMonitor::runTimerTask()
     // Monitor connections outside the thread synchronization, so
     // that connections can be added or removed during monitoring.
     //
+    IceUtil::Time now = IceUtil::Time::now(IceUtil::Time::Monotonic);
     for(set<ConnectionIPtr>::const_iterator p = connections.begin(); p != connections.end(); ++p)
     {
         try
         {          
-            (*p)->monitor();
+            (*p)->monitor(now);
         }
         catch(const Exception& ex)
         {   

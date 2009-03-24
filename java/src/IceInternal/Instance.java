@@ -429,29 +429,35 @@ public final class Instance
                 // (can't call again getAdmin() after fixing the problem)
                 // since all the facets (servants) in the adapter are lost
                 //
+                adapter.destroy();
                 synchronized(this)
                 {
                     _adminAdapter = null;
-                    adapter.destroy();
                 }
                 throw ex;
             }
 
+            Ice.ObjectPrx admin = adapter.createProxy(_adminIdentity);
             if(defaultLocator != null && serverId.length() > 0)
             {    
-                Ice.ProcessPrx process = Ice.ProcessPrxHelper.uncheckedCast(
-                    adapter.createProxy(_adminIdentity).ice_facet("Process"));
+                Ice.ProcessPrx process = Ice.ProcessPrxHelper.uncheckedCast(admin.ice_facet("Process"));
                 
                 try
                 {
+                    //
+                    // Note that as soon as the process proxy is registered, the communicator might be 
+                    // shutdown by a remote client and admin facets might start receiving calls.
+                    //
                     defaultLocator.getRegistry().setServerProcessProxy(serverId, process);
                 }
                 catch(Ice.ServerNotFoundException ex)
                 {
                     if(_traceLevels.location >= 1)
                     {
-                        StringBuffer s = new StringBuffer();
-                        s.append("couldn't register server `" + serverId + "' with the locator registry:\n");
+                        StringBuilder s = new StringBuilder(128);
+                        s.append("couldn't register server `");
+                        s.append(serverId);
+                        s.append("' with the locator registry:\n");
                         s.append("the server is not known to the locator registry");
                         _initData.logger.trace(_traceLevels.locationCat, s.toString());
                     }
@@ -462,8 +468,11 @@ public final class Instance
                 {
                     if(_traceLevels.location >= 1)
                     {
-                        StringBuffer s = new StringBuffer();
-                        s.append("couldn't register server `" + serverId + "' with the locator registry:\n" + ex);
+                        StringBuilder s = new StringBuilder(128);
+                        s.append("couldn't register server `");
+                        s.append(serverId);
+                        s.append("' with the locator registry:\n");
+                        s.append(ex.toString());
                         _initData.logger.trace(_traceLevels.locationCat, s.toString());
                     }
                     throw ex;
@@ -471,12 +480,14 @@ public final class Instance
 
                 if(_traceLevels.location >= 1)
                 {
-                    StringBuffer s = new StringBuffer();
-                    s.append("registered server `" + serverId + "' with the locator registry");
+                    StringBuilder s = new StringBuilder(128);
+                    s.append("registered server `");
+                    s.append(serverId);
+                    s.append("' with the locator registry");
                     _initData.logger.trace(_traceLevels.locationCat, s.toString());
                 }
             }
-            return adapter.createProxy(_adminIdentity);
+            return admin;
         }
     }
     
@@ -827,11 +838,6 @@ public final class Instance
         {
             _referenceFactory = _referenceFactory.setDefaultLocator(loc);
         }
-        
-        if(_initData.properties.getPropertyAsIntWithDefault("Ice.Admin.DelayCreation", 0) <= 0)
-        {
-            getAdmin();
-        }
 
         //
         // Start connection monitor if necessary. Set the check interval to
@@ -860,7 +866,7 @@ public final class Instance
         }
         if(interval > 0)
         {
-            interval = java.lang.Math.min(300, java.lang.Math.max(1, (int)interval / 10));
+            interval = java.lang.Math.min(300, java.lang.Math.max(5, (int)interval / 10));
         }
         interval = _initData.properties.getPropertyAsIntWithDefault("Ice.MonitorConnections", interval);
         if(interval > 0)
@@ -871,6 +877,16 @@ public final class Instance
         //
         // Server thread pool initialization is lazy in serverThreadPool().
         //
+        
+        //
+        // This must be done last as this call creates the Ice.Admin object adapter
+        // and eventually registers a process proxy with the Ice locator (allowing 
+        // remote clients to invoke on Ice.Admin facets as soon as it's registered).
+        //
+        if(_initData.properties.getPropertyAsIntWithDefault("Ice.Admin.DelayCreation", 0) <= 0)
+        {
+            getAdmin();
+        }
     }
 
     //

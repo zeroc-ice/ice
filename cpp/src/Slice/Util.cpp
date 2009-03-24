@@ -10,6 +10,7 @@
 #include <Slice/Util.h>
 #include <IceUtil/Unicode.h>
 #include <IceUtil/FileUtil.h>
+#include <IceUtil/StringUtil.h>
 #include <climits>
 
 #include <unistd.h> // For readlink()
@@ -27,7 +28,18 @@ normalizePath(const string& path)
     string result = path;
     replace(result.begin(), result.end(), '\\', '/');
     string::size_type pos;
-    while((pos = result.find("//")) != string::npos)
+    string::size_type startReplace = 0;
+#ifdef _WIN32
+    //
+    // For UNC paths we need to ensure they are in the format that is
+    // returned by MCPP. IE. "//MACHINE/PATH"
+    //
+    if(result.find("//") == 0)
+    {
+        startReplace = 2;
+    }
+#endif
+    while((pos = result.find("//", startReplace)) != string::npos)
     {
         result.replace(pos, 2, "/");
     }
@@ -172,3 +184,156 @@ Slice::changeInclude(const string& orig, const vector<string>& includePaths)
     return result;
 }
 
+static ostream* errorStream = &cerr;
+
+void
+Slice::setErrorStream(ostream& stream)
+{
+    errorStream = &stream;
+}
+
+ostream&
+Slice::getErrorStream()
+{
+    return *errorStream;
+}
+
+void
+Slice::emitError(const string& file, int line, const string& message)
+{
+    if(!file.empty())
+    {
+        *errorStream << file;
+        if(line != -1)
+        {
+            *errorStream << ':' << line;
+        }
+        *errorStream << ": ";
+    }
+    *errorStream << message << endl;
+}
+
+void
+Slice::emitWarning(const string& file, int line, const string& message)
+{
+    if(!file.empty())
+    {
+        *errorStream << file;
+        if(line != -1)
+        {
+            *errorStream << ':' << line;
+        }
+        *errorStream << ": ";
+    }
+    *errorStream << "warning: " << message << endl;
+}
+
+void
+Slice::emitError(const string& file, const std::string& line, const string& message)
+{
+    if(!file.empty())
+    {
+        *errorStream << file;
+        if(!line.empty())
+        {
+            *errorStream << ':' << line;
+        }
+        *errorStream << ": ";
+    }
+    *errorStream << message << endl;
+}
+
+void
+Slice::emitWarning(const string& file, const std::string& line, const string& message)
+{
+    if(!file.empty())
+    {
+        *errorStream << file;
+        if(!line.empty())
+        {
+            *errorStream << ':' << line;
+        }
+        *errorStream << ": ";
+    }
+    *errorStream << "warning: " << message << endl;
+}
+
+void
+Slice::emitRaw(const char* message)
+{
+    *errorStream << message << flush;
+}
+
+vector<string>
+Slice::filterMcppWarnings(const string& message)
+{
+    static const char* messages[] =
+    {
+        "Converted [CR+LF] to [LF]",
+        "no newline, supplemented newline",
+        0
+    };
+
+    static const string warningPrefix = "warning:";
+    static const string fromPrefix = "from";
+    static const string separators = "\n\t ";
+
+    vector<string> in;
+    vector<string> out;
+    IceUtilInternal::splitString(message, "\n", in);
+    bool skipped;
+    for(vector<string>::const_iterator i = in.begin(); i != in.end(); i++)
+    {
+        skipped = false;
+
+        if(i->find(warningPrefix) != string::npos)
+        {
+            for(int j = 0; messages[j] != 0; ++j)
+            {
+                if(i->find(messages[j]) != string::npos)
+                {
+                    // This line should be skipped it contains the unwanted mcpp warning
+                    // next line should also be skipped it contains the slice line that
+                    // produces the skipped warning
+                    i++;
+                    skipped = true;
+                    //
+                    // Check if next lines are still the same warning
+                    //
+                    i++;
+                    while(i != in.end())
+                    {
+                        string token = *i;
+                        string::size_type index = token.find_first_not_of(separators);
+                        if(index != string::npos)
+                        {
+                            token = token.substr(index);
+                        }
+                        if(token.find(fromPrefix) != 0)
+                        {
+                            //
+                            // First line not of this warning
+                            //
+                            i--;
+                            break;
+                        }
+                        else
+                        {
+                            i++;
+                        }
+                    }
+                    break;
+                }
+            }
+            if(i == in.end())
+            {
+                break;
+            }
+        }
+        if(!skipped)
+        {
+            out.push_back(*i + "\n");
+        }
+    }
+    return out;
+}

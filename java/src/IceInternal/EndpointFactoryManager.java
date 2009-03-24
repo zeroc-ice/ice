@@ -112,7 +112,7 @@ public final class EndpointFactoryManager
                     ue.streamWrite(bs);
                     Buffer buf = bs.getBuffer();
                     buf.b.position(0);
-                    short type = bs.readShort();
+                    bs.readShort(); // type
                     return f.read(bs);
                 }
             }
@@ -125,7 +125,6 @@ public final class EndpointFactoryManager
     public synchronized EndpointI
     read(BasicStream s)
     {
-        EndpointI v;
         short type = s.readShort();
 
         for(int i = 0; i < _factories.size(); i++)

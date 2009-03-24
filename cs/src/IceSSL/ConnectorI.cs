@@ -15,7 +15,7 @@ namespace IceSSL
     using System.Net;
     using System.Net.Sockets;
 
-    sealed class ConnectorI : IceInternal.Connector, IComparable
+    sealed class ConnectorI : IceInternal.Connector
     {
         internal const short TYPE = 2;
 
@@ -73,57 +73,14 @@ namespace IceSSL
             return TYPE;
         }
 
-        public int CompareTo(object obj)
-        {
-            ConnectorI p = null;
-
-            try
-            {
-                p = (ConnectorI)obj;
-            }
-            catch(System.InvalidCastException)
-            {
-                try
-                {
-                    IceInternal.Connector e = (IceInternal.Connector)obj;
-                    return type() < e.type() ? -1 : 1;
-                }
-                catch(System.InvalidCastException)
-                {
-                    Debug.Assert(false);
-                }
-            }
-
-            if(this == p)
-            {
-                return 0;
-            }
-
-            if(_timeout < p._timeout)
-            {
-                return -1;
-            }
-            else if(p._timeout < _timeout)
-            {
-                return 1;
-            }
-
-            if(!_connectionId.Equals(p._connectionId))
-            {
-                return _connectionId.CompareTo(p._connectionId);
-            }
-
-            return IceInternal.Network.compareAddress(_addr, p._addr);
-        }
-
         //
         // Only for use by EndpointI.
         //
-        internal ConnectorI(Instance instance, string host, IPEndPoint addr, int timeout, string connectionId)
+        internal ConnectorI(Instance instance, IPEndPoint addr, int timeout, string connectionId)
         {
             _instance = instance;
+            _host = addr.Address.ToString();
             _logger = instance.communicator().getLogger();
-            _host = host;
             _addr = addr;
             _timeout = timeout;
             _connectionId = connectionId;
@@ -135,7 +92,33 @@ namespace IceSSL
 
         public override bool Equals(object obj)
         {
-            return CompareTo(obj) == 0;
+            ConnectorI p = null;
+
+            try
+            {
+                p = (ConnectorI)obj;
+            }
+            catch(System.InvalidCastException)
+            {
+                return false;
+            }
+
+            if(this == p)
+            {
+                return true;
+            }
+
+            if(_timeout != p._timeout)
+            {
+                return false;
+            }
+
+            if(!_connectionId.Equals(p._connectionId))
+            {
+                return false;
+            }
+
+            return IceInternal.Network.compareAddress(_addr, p._addr) == 0;
         }
 
         public override string ToString()

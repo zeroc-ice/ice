@@ -599,6 +599,31 @@ class Twoways
         }
 
         {
+            Test.MyStruct s11 = new Test.MyStruct(1, 1);
+            Test.MyStruct s12 = new Test.MyStruct(1, 2);
+            java.util.Map<Test.MyStruct, Test.MyEnum> di1 = new java.util.HashMap<Test.MyStruct, Test.MyEnum>();
+            di1.put(s11, Test.MyEnum.enum1);
+            di1.put(s12, Test.MyEnum.enum2);
+
+            Test.MyStruct s22 = new Test.MyStruct(2, 2);
+            Test.MyStruct s23 = new Test.MyStruct(2, 3);
+            java.util.Map<Test.MyStruct, Test.MyEnum> di2 = new java.util.HashMap<Test.MyStruct, Test.MyEnum>();
+            di2.put(s11, Test.MyEnum.enum1);
+            di2.put(s22, Test.MyEnum.enum3);
+            di2.put(s23, Test.MyEnum.enum2);
+
+            Test.MyStructMyEnumDHolder _do = new Test.MyStructMyEnumDHolder();
+            java.util.Map<Test.MyStruct, Test.MyEnum> ro = p.opMyStructMyEnumD(di1, di2, _do);
+
+            test(_do.value.equals(di1));
+            test(ro.size() == 4);
+            test(ro.get(s11) == Test.MyEnum.enum1);
+            test(ro.get(s12) == Test.MyEnum.enum2);
+            test(ro.get(s22) == Test.MyEnum.enum3);
+            test(ro.get(s23) == Test.MyEnum.enum2);
+        }
+
+        {
             int[] lengths = { 0, 1, 2, 126, 127, 128, 129, 253, 254, 255, 256, 257, 1000 };
 
             for(int l = 0; l < lengths.length; ++l)

@@ -12,6 +12,7 @@
 #include <IceUtil/StaticMutex.h>
 #include <Slice/Preprocessor.h>
 #include <Slice/FileTracker.h>
+#include <Slice/Util.h>
 #include <Gen.h>
 
 using namespace std;
@@ -78,11 +79,14 @@ main(int argc, char* argv[])
     vector<string> args;
     try
     {
+#if defined(__BCPLUSPLUS__) && (__BCPLUSPLUS__ >= 0x0600)
+        IceUtil::DummyBCC dummy;
+#endif
         args = opts.parse(argc, (const char**)argv);
     }
     catch(const IceUtilInternal::BadOptException& e)
     {
-        cerr << argv[0] << ": " << e.reason << endl;
+        cerr << argv[0] << ": error: " << e.reason << endl;
         usage(argv[0]);
         return EXIT_FAILURE;
     }
@@ -143,14 +147,14 @@ main(int argc, char* argv[])
 
     if(args.empty())
     {
-        cerr << argv[0] << ": no input file" << endl;
+        getErrorStream() << argv[0] << ": error: no input file" << endl;
         usage(argv[0]);
         return EXIT_FAILURE;
     }
 
     if(impl && implTie)
     {
-        cerr << argv[0] << ": cannot specify both --impl and --impl-tie" << endl;
+        getErrorStream() << argv[0] << ": error: cannot specify both --impl and --impl-tie" << endl;
         usage(argv[0]);
         return EXIT_FAILURE;
     }
@@ -238,7 +242,7 @@ main(int argc, char* argv[])
                         // cleanup any created files.
                         FileTracker::instance()->cleanup();
                         p->destroy();
-                        cerr << argv[0] << ": " << ex.reason() << endl;
+                        getErrorStream() << argv[0] << ": error: " << ex.reason() << endl;
                         return EXIT_FAILURE;
                     }
                 }

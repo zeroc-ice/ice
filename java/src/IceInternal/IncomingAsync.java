@@ -50,7 +50,7 @@ public class IncomingAsync extends IncomingBase
     {
         try
         {
-            if(!__servantLocatorFinished())
+            if(_locator != null && !__servantLocatorFinished())
             {
                 return;
             }
@@ -92,7 +92,7 @@ public class IncomingAsync extends IncomingBase
 
         try
         {
-            if(!__servantLocatorFinished())
+            if(_locator != null && !__servantLocatorFinished())
             {
                 return;
             }
@@ -102,47 +102,6 @@ public class IncomingAsync extends IncomingBase
         catch(Ice.LocalException ex)
         {
             _connection.invokeException(ex, 1);
-        }
-    }
-
-    final private boolean
-    __servantLocatorFinished()
-    {
-        try
-        {
-            if(_locator != null && _servant != null)
-            {
-                try
-                {
-                    _locator.finished(_current, _servant, _cookie.value);
-                }
-                catch(Ice.UserException ex)
-                {
-                    // The operation may have already marshaled a reply; we must overwrite that reply.
-                    //
-                    if(_response)
-                    {
-                        _os.endWriteEncaps();
-                        _os.resize(Protocol.headerSize + 4, false); // Reply status position.
-                        _os.writeByte(ReplyStatus.replyUserException);
-                        _os.startWriteEncaps();
-                        _os.writeUserException(ex);
-                        _os.endWriteEncaps();
-                        _connection.sendResponse(_os, _compress);
-                    }
-                    else
-                    {
-                        _connection.sendNoResponse();
-                    }
-                    return false;
-                }
-            }
-            return true;
-        }
-        catch(java.lang.Exception ex)
-        {
-            __handleException(ex);
-            return false;
         }
     }
 
@@ -158,10 +117,10 @@ public class IncomingAsync extends IncomingBase
         {
             if(_interceptorAsyncCallbackList != null)
             {
-                java.util.Iterator p = _interceptorAsyncCallbackList.iterator();
+                java.util.Iterator<Ice.DispatchInterceptorAsyncCallback> p = _interceptorAsyncCallbackList.iterator();
                 while(p.hasNext())
                 {
-                    Ice.DispatchInterceptorAsyncCallback cb = (Ice.DispatchInterceptorAsyncCallback)p.next();
+                    Ice.DispatchInterceptorAsyncCallback cb = p.next();
                     if(cb.response(ok) == false)
                     {
                         return false;

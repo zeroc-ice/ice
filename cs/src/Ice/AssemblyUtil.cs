@@ -164,16 +164,16 @@ namespace IceInternal
             {
                 if(!_loadedAssemblies.Contains(name.FullName))
                 {
-		    try
-		    {
-			Assembly ra = Assembly.Load(name);
-			_loadedAssemblies[ra.FullName] = ra;
-			loadReferencedAssemblies(ra);
-		    }
-		    catch(System.Exception)
-		    {
-		        // Ignore assemblies that cannot be loaded.
-		    }
+                    try
+                    {
+                        Assembly ra = Assembly.Load(name);
+                        _loadedAssemblies[ra.FullName] = ra;
+                        loadReferencedAssemblies(ra);
+                    }
+                    catch(System.Exception)
+                    {
+                        // Ignore assemblies that cannot be loaded.
+                    }
                 }
             }
         }

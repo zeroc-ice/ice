@@ -16,6 +16,7 @@
 #include <Slice/Preprocessor.h>
 #include <Slice/FileTracker.h>
 #include <Slice/PythonUtil.h>
+#include <Slice/Util.h>
 #include <cstring>
 
 #include <fstream>
@@ -403,11 +404,14 @@ main(int argc, char* argv[])
     vector<string> args;
     try
     {
+#if defined(__BCPLUSPLUS__) && (__BCPLUSPLUS__ >= 0x0600)
+        IceUtil::DummyBCC dummy;
+#endif
         args = opts.parse(argc, (const char**)argv);
     }
     catch(const IceUtilInternal::BadOptException& e)
     {
-        cerr << argv[0] << ": " << e.reason << endl;
+        cerr << argv[0] << ": error: " << e.reason << endl;
         usage(argv[0]);
         return EXIT_FAILURE;
     }
@@ -464,7 +468,7 @@ main(int argc, char* argv[])
 
     if(args.empty())
     {
-        cerr << argv[0] << ": no input file" << endl;
+        getErrorStream() << argv[0] << ": error: no input file" << endl;
         usage(argv[0]);
         return EXIT_FAILURE;
     }
@@ -573,13 +577,13 @@ main(int argc, char* argv[])
                     // created files.
                     FileTracker::instance()->cleanup();
                     u->destroy();
-                    cerr << argv[0] << ": " << ex.reason() << endl;
+                    getErrorStream() << argv[0] << ": error: " << ex.reason() << endl;
                     return EXIT_FAILURE;
                 }
                 catch(const string& err)
                 {
                     FileTracker::instance()->cleanup();
-                    cerr << argv[0] << ": " << err << endl;
+                    getErrorStream() << argv[0] << ": error: " << err << endl;
                     status = EXIT_FAILURE;
                 }
             }

@@ -23,35 +23,6 @@ internal class Connector : IceInternal.Connector
         return (short)(EndpointI.TYPE_BASE + _connector.type());
     }
 
-    public int CompareTo(object obj)
-    {
-        Connector p = null;
-
-        try
-        {
-            p = (Connector)obj;
-        }
-        catch(System.InvalidCastException)
-        {
-            try
-            {
-                IceInternal.Connector c = (IceInternal.Connector)obj;
-                return type() < c.type() ? -1 : 1;
-            }
-            catch(System.InvalidCastException)
-            {
-                Debug.Assert(false);
-            }
-        }
-
-        if(this == p)
-        {
-            return 0;
-        }
-
-        return _connector.CompareTo(p._connector);
-    } 
-
     //
     // Only for use by Endpoint
     //
@@ -63,7 +34,23 @@ internal class Connector : IceInternal.Connector
 
     public override bool Equals(object obj)
     {
-        return CompareTo(obj) == 0;
+        Connector p = null;
+
+        try
+        {
+            p = (Connector)obj;
+        }
+        catch(System.InvalidCastException)
+        {
+            return false;
+        }
+
+        if(this == p)
+        {
+            return true;
+        }
+
+        return _connector.Equals(p._connector);
     }
 
     public override string ToString()

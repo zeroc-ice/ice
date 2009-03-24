@@ -250,8 +250,14 @@ class MyApplication : public Ice::Application
 {
 public:
 
+    MyApplication();
     virtual int run(int, char* []);
 };
+
+MyApplication::MyApplication()
+    : Ice::Application(Ice::NoSignalHandling)
+{
+}
 
 int
 MyApplication::run(int argc, char* argv[])

@@ -10,12 +10,12 @@
 #ifndef NRVO_ICE
 #define NRVO_ICE
 
+[["cpp:include:MyStringSeq.h"]]
+
 module Demo
 {
 
-[["cpp:include:MyStringSeq.h"]]
 ["cpp:type:MyStringSeq"] sequence<string> StringSeq;
-const int StringSeqSize = 50000;
 
 interface Nrvo
 {

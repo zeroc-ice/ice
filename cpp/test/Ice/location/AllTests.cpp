@@ -324,7 +324,12 @@ allTests(const Ice::CommunicatorPtr& communicator, const string& ref)
         };
         hello->sayHello_async(new AMICallback());
     }
-    test(locator->getRequestCount() > count && locator->getRequestCount() < count + 500);
+    hello->ice_ping();
+    test(locator->getRequestCount() > count && locator->getRequestCount() < count + 999);
+    if(locator->getRequestCount() > count + 800)
+    {
+        cout << "queuing = " << locator->getRequestCount() - count;
+    }
     count = locator->getRequestCount();
     hello = hello->ice_adapterId("unknown");
     for(i = 0; i < 1000; i++)
@@ -346,7 +351,20 @@ allTests(const Ice::CommunicatorPtr& communicator, const string& ref)
         };
         hello->sayHello_async(new AMICallback());
     }
-    test(locator->getRequestCount() > count && locator->getRequestCount() < count + 500);
+    try
+    {
+        hello->ice_ping();
+        test(false);
+    }
+    catch(const Ice::NotRegisteredException&)
+    {
+    }
+    // Take into account the retries.
+    test(locator->getRequestCount() > count && locator->getRequestCount() < count + 1999);
+    if(locator->getRequestCount() > count + 800)
+    {
+        cout << "queuing = " << locator->getRequestCount() - count;
+    }
     cout << "ok" << endl;
 
     cout << "testing adapter locator cache... " << flush;
@@ -505,8 +523,8 @@ allTests(const Ice::CommunicatorPtr& communicator, const string& ref)
         test(count == locator->getRequestCount());
         registry->setAdapterDirectProxy("TestAdapter5", 0);
         registry->addObject(communicator->stringToProxy("test3:tcp"));
-        ic->stringToProxy("test@TestAdapter5")->ice_locatorCacheTimeout(1)->ice_ping(); // 1s timeout.
-        ic->stringToProxy("test3")->ice_locatorCacheTimeout(1)->ice_ping(); // 1s timeout.
+        ic->stringToProxy("test@TestAdapter5")->ice_locatorCacheTimeout(10)->ice_ping(); // 10s timeout.
+        ic->stringToProxy("test3")->ice_locatorCacheTimeout(10)->ice_ping(); // 10s timeout.
         test(count == locator->getRequestCount());
         IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(1200));
 

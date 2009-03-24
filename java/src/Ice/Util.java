@@ -191,7 +191,7 @@ public final class Util
     public static String
     identityToString(Identity ident)
     {
-        if(ident.category.length() == 0)
+        if(ident.category == null || ident.category.length() == 0)
         {
             return IceUtilInternal.StringUtil.escapeString(ident.name, "/");
         }

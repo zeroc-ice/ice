@@ -75,7 +75,7 @@ public class Client
             Console.In.ReadLine();
 
             Ice.ObjectFactory factory = new ObjectFactory();
-            communicator().addObjectFactory(factory, "::Demo::Printer");
+            communicator().addObjectFactory(factory, Demo.Printer.ice_staticId());
 
             initial.getPrinter(out printer, out printerProxy);
             Console.Out.WriteLine("==> " + printer.message);
@@ -107,7 +107,7 @@ public class Client
 
             Printer derivedAsBase = initial.getDerivedPrinter();
             Console.Out.WriteLine("==> The type ID of the received object is \"" + derivedAsBase.ice_id() + "\"");
-            Debug.Assert(derivedAsBase.ice_id().Equals("::Demo::Printer"));
+            Debug.Assert(derivedAsBase.ice_id().Equals(Demo.Printer.ice_staticId()));
 
             Console.Out.WriteLine();
             Console.Out.WriteLine("Now we install a factory for the derived class, and try again.");
@@ -116,7 +116,7 @@ public class Client
             Console.Out.WriteLine("[press enter]");
             Console.In.ReadLine();
 
-            communicator().addObjectFactory(factory, "::Demo::DerivedPrinter");
+            communicator().addObjectFactory(factory, Demo.DerivedPrinter.ice_staticId());
 
             derivedAsBase = initial.getDerivedPrinter();
             DerivedPrinter derived = (DerivedPrinter)derivedAsBase;

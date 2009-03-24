@@ -37,7 +37,7 @@ public final class Options
 
         int state = NormalState;
 
-        StringBuffer arg = new StringBuffer();
+        StringBuilder arg = new StringBuilder(128);
         java.util.List<String> vec = new java.util.ArrayList<String>();
 
         for(int i = 0; i < line.length(); ++i)
@@ -113,7 +113,7 @@ public final class Options
                     if(IFS.indexOf(line.charAt(i)) != -1)
                     {
                         vec.add(arg.toString());
-                        arg = new StringBuffer();
+                        arg = new StringBuilder(128);
                         
                         //
                         // Move to start of next argument.

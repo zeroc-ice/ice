@@ -51,8 +51,8 @@ private:
     class MetaDataVisitor : public ParserVisitor
     {
     public:
-        MetaDataVisitor();
 
+        virtual bool visitUnitStart(const UnitPtr&);
         virtual bool visitModuleStart(const ModulePtr&);
         virtual void visitModuleEnd(const ModulePtr&);
         virtual void visitClassDecl(const ClassDeclPtr&);
@@ -74,8 +74,8 @@ private:
 
         void validate(const ContainedPtr&);
 
+        std::string _fileName;
         StringSet _history;
-        bool _globalMetaDataDone;
     };
 };
 

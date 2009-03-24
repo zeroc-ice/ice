@@ -1678,29 +1678,29 @@ IceInternal::RoutableReference::createConnection(const vector<EndpointIPtr>& all
 
 	    virtual void
 	    setConnection(const Ice::ConnectionIPtr& connection, bool compress)
+            { 
+                //
+                // If we have a router, set the object adapter for this router
+                // (if any) to the new connection, so that callbacks from the
+                // router can be received over this new connection.
+                //
+                if(_routerInfo && _routerInfo->getAdapter())
                 {
-                    //
-                    // If we have a router, set the object adapter for this router
-                    // (if any) to the new connection, so that callbacks from the
-                    // router can be received over this new connection.
-                    //
-                    if(_routerInfo && _routerInfo->getAdapter())
-                    {
-                        connection->setAdapter(_routerInfo->getAdapter());
-                    }
-                    _callback->setConnection(connection, compress);
+                    connection->setAdapter(_routerInfo->getAdapter());
                 }
+                _callback->setConnection(connection, compress);
+            }
 
 	    virtual void
 	    setException(const Ice::LocalException& ex)
-                {
-                    _callback->setException(ex);
-                }
-
+            {
+                _callback->setException(ex);
+            }
+            
 	    CB1(const RouterInfoPtr& routerInfo, const GetConnectionCallbackPtr& callback) :
-		_routerInfo(routerInfo), _callback(callback)
-                {
-                }
+                _routerInfo(routerInfo), _callback(callback)
+            {
+            }
 
 	private:
 
@@ -1723,49 +1723,49 @@ IceInternal::RoutableReference::createConnection(const vector<EndpointIPtr>& all
 
 	    virtual void
 	    setConnection(const Ice::ConnectionIPtr& connection, bool compress)
+            {
+                //
+                // If we have a router, set the object adapter for this router
+                // (if any) to the new connection, so that callbacks from the
+                // router can be received over this new connection.
+                //
+                if(_reference->getRouterInfo() && _reference->getRouterInfo()->getAdapter())
                 {
-                    //
-                    // If we have a router, set the object adapter for this router
-                    // (if any) to the new connection, so that callbacks from the
-                    // router can be received over this new connection.
-                    //
-                    if(_reference->getRouterInfo() && _reference->getRouterInfo()->getAdapter())
-                    {
-                        connection->setAdapter(_reference->getRouterInfo()->getAdapter());
-                    }
-                    _callback->setConnection(connection, compress);
+                    connection->setAdapter(_reference->getRouterInfo()->getAdapter());
                 }
+                _callback->setConnection(connection, compress);
+            }
 
 	    virtual void
 	    setException(const Ice::LocalException& ex)
+            {
+                if(!_exception.get())
                 {
-                    if(!_exception.get())
-                    {
-                        _exception.reset(dynamic_cast<Ice::LocalException*>(ex.ice_clone()));
-                    }
-
-                    if(++_i == _endpoints.size())
-                    {
-                        _callback->setException(*_exception.get());
-                        return;
-                    }
-
-                    const bool more = _i != _endpoints.size() - 1;
-                    vector<EndpointIPtr> endpoint;
-                    endpoint.push_back(_endpoints[_i]);
-
-                    OutgoingConnectionFactoryPtr factory = _reference->getInstance()->outgoingConnectionFactory();
-                    factory->create(endpoint, more, _reference->getEndpointSelection(), this);
+                    _exception.reset(dynamic_cast<Ice::LocalException*>(ex.ice_clone()));
                 }
-
+                
+                if(++_i == _endpoints.size())
+                {
+                    _callback->setException(*_exception.get());
+                    return;
+                }
+                
+                const bool more = _i != _endpoints.size() - 1;
+                vector<EndpointIPtr> endpoint;
+                endpoint.push_back(_endpoints[_i]);
+                
+                OutgoingConnectionFactoryPtr factory = _reference->getInstance()->outgoingConnectionFactory();
+                factory->create(endpoint, more, _reference->getEndpointSelection(), this);
+            }
+            
 	    CB2(const RoutableReferencePtr& reference, const vector<EndpointIPtr>& endpoints,
 		const GetConnectionCallbackPtr& callback) :
 		_reference(reference),
 		_endpoints(endpoints),
 		_callback(callback),
 		_i(0)
-                {
-                }
+            {
+            }
 
 	private:
 

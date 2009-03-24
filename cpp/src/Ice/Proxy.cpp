@@ -117,6 +117,9 @@ IceProxy::Ice::Object::ice_isA(const string& typeId, const Context* context)
         Handle< ::IceDelegate::Ice::Object> __del;
         try
         {
+#if defined(__BCPLUSPLUS__) && (__BCPLUSPLUS__ >= 0x0600)
+            IceUtil::DummyBCC dummy;
+#endif
             __checkTwowayOnly(ice_isA_name);
             __del = __getDelegate(false);
             return __del->ice_isA(typeId, context);
@@ -141,6 +144,9 @@ IceProxy::Ice::Object::ice_ping(const Context* context)
         Handle< ::IceDelegate::Ice::Object> __del;
         try
         {
+#if defined(__BCPLUSPLUS__) && (__BCPLUSPLUS__ >= 0x0600)
+            IceUtil::DummyBCC dummy;
+#endif
             __del = __getDelegate(false);
             __del->ice_ping(context);
             return;
@@ -165,6 +171,9 @@ IceProxy::Ice::Object::ice_ids(const Context* context)
         Handle< ::IceDelegate::Ice::Object> __del;
         try
         {
+#if defined(__BCPLUSPLUS__) && (__BCPLUSPLUS__ >= 0x0600)
+            IceUtil::DummyBCC dummy;
+#endif
             __checkTwowayOnly(ice_ids_name);
             __del = __getDelegate(false);
             return __del->ice_ids(context);
@@ -189,6 +198,9 @@ IceProxy::Ice::Object::ice_id(const Context* context)
         Handle< ::IceDelegate::Ice::Object> __del;
         try
         {
+#if defined(__BCPLUSPLUS__) && (__BCPLUSPLUS__ >= 0x0600)
+            IceUtil::DummyBCC dummy;
+#endif
             __checkTwowayOnly(ice_id_name);
             __del = __getDelegate(false);
             return __del->ice_id(context);
@@ -239,6 +251,9 @@ IceProxy::Ice::Object::ice_invoke(const string& operation,
         Handle< ::IceDelegate::Ice::Object> __del;
         try
         {
+#if defined(__BCPLUSPLUS__) && (__BCPLUSPLUS__ >= 0x0600)
+            IceUtil::DummyBCC dummy;
+#endif
             __del = __getDelegate(false);
             return __del->ice_invoke(operation, mode, inParams, outParams, context);
         }
@@ -755,6 +770,9 @@ IceProxy::Ice::Object::ice_getConnection()
         Handle< ::IceDelegate::Ice::Object> __del;
         try
         {
+#if defined(__BCPLUSPLUS__) && (__BCPLUSPLUS__ >= 0x0600)
+            IceUtil::DummyBCC dummy;
+#endif
             __del = __getDelegate(false);
             return __del->__getRequestHandler()->getConnection(true); // Wait for the connection to be established.
 
@@ -781,7 +799,7 @@ IceProxy::Ice::Object::ice_getCachedConnection() const
         {
             return __del->__getRequestHandler()->getConnection(false);
         }
-        catch(const CollocationOptimizationException&)
+        catch(const LocalException&)
         {
         }
     }
@@ -799,6 +817,9 @@ IceProxy::Ice::Object::ice_flushBatchRequests()
     int __cnt = -1; // Don't retry.
     try
     {
+#if defined(__BCPLUSPLUS__) && (__BCPLUSPLUS__ >= 0x0600)
+            IceUtil::DummyBCC dummy;
+#endif
         __del = __getDelegate(false);
         __del->ice_flushBatchRequests();
     }
@@ -892,6 +913,9 @@ IceProxy::Ice::Object::__handleException(const ::IceInternal::Handle< ::IceDeleg
 
     try
     {
+#if defined(__BCPLUSPLUS__) && (__BCPLUSPLUS__ >= 0x0600)
+        IceUtil::DummyBCC dummy;
+#endif
         _reference->getInstance()->proxyFactory()->checkRetryAfterException(ex, _reference, out, cnt);
     }
     catch(const CommunicatorDestroyedException&)

@@ -3,7 +3,7 @@ Microsoft Developer Studio Workspace File, Format Version 6.00
 
 ###############################################################################
 
-Project: "Freeze.backup"=.\Freeze\backup\Freeze.backup.dsp - Package Owner=<4>
+Project: "Freeze.backup.client.exe"=".\Freeze\backup\Freeze.backup.client.dsp" - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -15,7 +15,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "Freeze.bench"=.\Freeze\bench\Freeze.bench.dsp - Package Owner=<4>
+Project: "Freeze.bench.client.exe"=".\Freeze\bench\Freeze.bench.client.dsp" - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -27,7 +27,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "Freeze.casino.client"=.\Freeze\casino\Freeze.casino.client.dsp - Package Owner=<4>
+Project: "Freeze.casino.client.exe"=".\Freeze\casino\Freeze.casino.client.dsp" - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -36,13 +36,13 @@ Package=<5>
 Package=<4>
 {{{
     Begin Project Dependency
-    Project_Dep_Name Freeze.casino.server
+    Project_Dep_Name Freeze.casino.server.exe
     End Project Dependency
 }}}
 
 ###############################################################################
 
-Project: "Freeze.casino.server"=.\Freeze\casino\Freeze.casino.server.dsp - Package Owner=<4>
+Project: "Freeze.casino.server.exe"=".\Freeze\casino\Freeze.casino.server.dsp" - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -54,7 +54,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "Freeze.customEvictor.client"=.\Freeze\customEvictor\Freeze.customEvictor.client.dsp - Package Owner=<4>
+Project: "Freeze.customEvictor.client.exe"=".\Freeze\customEvictor\Freeze.customEvictor.client.dsp" - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -63,13 +63,13 @@ Package=<5>
 Package=<4>
 {{{
     Begin Project Dependency
-    Project_Dep_Name Freeze.customEvictor.server
+    Project_Dep_Name Freeze.customEvictor.server.exe
     End Project Dependency
 }}}
 
 ###############################################################################
 
-Project: "Freeze.customEvictor.server"=.\Freeze\customEvictor\Freeze.customEvictor.server.dsp - Package Owner=<4>
+Project: "Freeze.customEvictor.server.exe"=".\Freeze\customEvictor\Freeze.customEvictor.server.dsp" - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -81,7 +81,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "Freeze.library.client"=.\Freeze\library\Freeze.library.client.dsp - Package Owner=<4>
+Project: "Freeze.library.client.exe"=".\Freeze\library\Freeze.library.client.dsp" - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -90,13 +90,13 @@ Package=<5>
 Package=<4>
 {{{
     Begin Project Dependency
-    Project_Dep_Name Freeze.library.server
+    Project_Dep_Name Freeze.library.server.exe
     End Project Dependency
 }}}
 
 ###############################################################################
 
-Project: "Freeze.library.collocated"=.\Freeze\library\Freeze.library.collocated.dsp - Package Owner=<4>
+Project: "Freeze.library.collocated.exe"=".\Freeze\library\Freeze.library.collocated.dsp" - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -108,7 +108,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "Freeze.library.server"=.\Freeze\library\Freeze.library.server.dsp - Package Owner=<4>
+Project: "Freeze.library.server.exe"=".\Freeze\library\Freeze.library.server.dsp" - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -117,13 +117,13 @@ Package=<5>
 Package=<4>
 {{{
     Begin Project Dependency
-    Project_Dep_Name Freeze.library.collocated
+    Project_Dep_Name Freeze.library.collocated.exe
     End Project Dependency
 }}}
 
 ###############################################################################
 
-Project: "Freeze.phonebook.client"=.\Freeze\phonebook\Freeze.phonebook.client.dsp - Package Owner=<4>
+Project: "Freeze.phonebook.client.exe"=".\Freeze\phonebook\Freeze.phonebook.client.dsp" - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -132,13 +132,13 @@ Package=<5>
 Package=<4>
 {{{
     Begin Project Dependency
-    Project_Dep_Name Freeze.phonebook.server
+    Project_Dep_Name Freeze.phonebook.server.exe
     End Project Dependency
 }}}
 
 ###############################################################################
 
-Project: "Freeze.phonebook.collocated"=.\Freeze\phonebook\Freeze.phonebook.collocated.dsp - Package Owner=<4>
+Project: "Freeze.phonebook.collocated.exe"=".\Freeze\phonebook\Freeze.phonebook.collocated.dsp" - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -150,7 +150,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "Freeze.phonebook.server"=.\Freeze\phonebook\Freeze.phonebook.server.dsp - Package Owner=<4>
+Project: "Freeze.phonebook.server.exe"=".\Freeze\phonebook\Freeze.phonebook.server.dsp" - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -159,13 +159,13 @@ Package=<5>
 Package=<4>
 {{{
     Begin Project Dependency
-    Project_Dep_Name Freeze.phonebook.collocated
+    Project_Dep_Name Freeze.phonebook.collocated.exe
     End Project Dependency
 }}}
 
 ###############################################################################
 
-Project: "Freeze.transform.create"=.\Freeze\transform\Freeze.transform.create.dsp - Package Owner=<4>
+Project: "Freeze.transform.create.exe"=".\Freeze\transform\Freeze.transform.create.dsp" - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -177,7 +177,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "Freeze.transform.read"=.\Freeze\transform\Freeze.transform.read.dsp - Package Owner=<4>
+Project: "Freeze.transform.read.exe"=".\Freeze\transform\Freeze.transform.read.dsp" - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -186,13 +186,13 @@ Package=<5>
 Package=<4>
 {{{
     Begin Project Dependency
-    Project_Dep_Name Freeze.transform.create
+    Project_Dep_Name Freeze.transform.create.exe
     End Project Dependency
 }}}
 
 ###############################################################################
 
-Project: "Freeze.transform.readnew"=.\Freeze\transform\Freeze.transform.readnew.dsp - Package Owner=<4>
+Project: "Freeze.transform.readnew.exe"=".\Freeze\transform\Freeze.transform.readnew.dsp" - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -201,13 +201,13 @@ Package=<5>
 Package=<4>
 {{{
     Begin Project Dependency
-    Project_Dep_Name Freeze.transform.recreate
+    Project_Dep_Name Freeze.transform.read.exe
     End Project Dependency
 }}}
 
 ###############################################################################
 
-Project: "Freeze.transform.recreate"=.\Freeze\transform\Freeze.transform.recreate.dsp - Package Owner=<4>
+Project: "Freeze.transform.recreate.exe"=".\Freeze\transform\Freeze.transform.recreate.dsp" - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -216,13 +216,13 @@ Package=<5>
 Package=<4>
 {{{
     Begin Project Dependency
-    Project_Dep_Name Freeze.transform.read
+    Project_Dep_Name Freeze.transform.readnew.exe
     End Project Dependency
 }}}
 
 ###############################################################################
 
-Project: "Glacier2.callback.client"=.\Glacier2\callback\Glacier2.callback.client.dsp - Package Owner=<4>
+Project: "Glacier2.callback.client.exe"=".\Glacier2\callback\Glacier2.callback.client.dsp" - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -231,13 +231,13 @@ Package=<5>
 Package=<4>
 {{{
     Begin Project Dependency
-    Project_Dep_Name Glacier2.callback.server
+    Project_Dep_Name Glacier2.callback.server.exe
     End Project Dependency
 }}}
 
 ###############################################################################
 
-Project: "Glacier2.callback.server"=.\Glacier2\callback\Glacier2.callback.server.dsp - Package Owner=<4>
+Project: "Glacier2.callback.server.exe"=".\Glacier2\callback\Glacier2.callback.server.dsp" - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -245,11 +245,14 @@ Package=<5>
 
 Package=<4>
 {{{
+    Begin Project Dependency
+    Project_Dep_Name Glacier2.callback.sessionserver.exe
+    End Project Dependency
 }}}
 
 ###############################################################################
 
-Project: "Glacier2.callback.sessionserver"=.\Glacier2\callback\Glacier2.callback.sessionserver.dsp - Package Owner=<4>
+Project: "Glacier2.callback.sessionserver.exe"=".\Glacier2\callback\Glacier2.callback.sessionserver.dsp" - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -261,7 +264,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "Glacier2.chat.client"=.\Glacier2\chat\Glacier2.chat.client.dsp - Package Owner=<4>
+Project: "Glacier2.chat.client.exe"=".\Glacier2\chat\Glacier2.chat.client.dsp" - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -270,13 +273,37 @@ Package=<5>
 Package=<4>
 {{{
     Begin Project Dependency
-    Project_Dep_Name Glacier2.chat.server
+    Project_Dep_Name Glacier2.chat.server.exe
     End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "Glacier2.chat.server.exe"=".\Glacier2\chat\Glacier2.chat.server.dsp" - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
+Project: "Ice.MFC.client.exe"=".\Ice\MFC\client\Ice.MFC.client.dsp" - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
 }}}
 
 ###############################################################################
 
-Project: "Glacier2.chat.server"=.\Glacier2\chat\Glacier2.chat.server.dsp - Package Owner=<4>
+Project: "Ice.MFC.server.exe"=".\Ice\MFC\server\Ice.MFC.server.dsp" - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -288,7 +315,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "Ice.MFC.client"=.\Ice\MFC\client\Ice.MFC.client.dsp - Package Owner=<4>
+Project: "Ice.async.client.exe"=".\Ice\async\Ice.async.client.dsp" - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -296,11 +323,14 @@ Package=<5>
 
 Package=<4>
 {{{
+    Begin Project Dependency
+    Project_Dep_Name Ice.async.server.exe
+    End Project Dependency
 }}}
 
 ###############################################################################
 
-Project: "Ice.MFC.server"=.\Ice\MFC\server\Ice.MFC.server.dsp - Package Owner=<4>
+Project: "Ice.async.server.exe"=".\Ice\async\Ice.async.server.dsp" - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -312,7 +342,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "Ice.async.client"=.\Ice\async\Ice.async.client.dsp - Package Owner=<4>
+Project: "Ice.bidir.client.exe"=".\Ice\bidir\Ice.bidir.client.dsp" - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -321,13 +351,13 @@ Package=<5>
 Package=<4>
 {{{
     Begin Project Dependency
-    Project_Dep_Name Ice.async.server
+    Project_Dep_Name Ice.bidir.server.exe
     End Project Dependency
 }}}
 
 ###############################################################################
 
-Project: "Ice.async.server"=.\Ice\async\Ice.async.server.dsp - Package Owner=<4>
+Project: "Ice.bidir.server.exe"=".\Ice\bidir\Ice.bidir.server.dsp" - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -339,7 +369,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "Ice.bidir.client"=.\Ice\bidir\Ice.bidir.client.dsp - Package Owner=<4>
+Project: "Ice.callback.client.exe"=".\Ice\callback\Ice.callback.client.dsp" - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -348,13 +378,13 @@ Package=<5>
 Package=<4>
 {{{
     Begin Project Dependency
-    Project_Dep_Name Ice.bidir.server
+    Project_Dep_Name Ice.callback.server.exe
     End Project Dependency
 }}}
 
 ###############################################################################
 
-Project: "Ice.bidir.server"=.\Ice\bidir\Ice.bidir.server.dsp - Package Owner=<4>
+Project: "Ice.callback.server.exe"=".\Ice\callback\Ice.callback.server.dsp" - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -366,7 +396,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "Ice.callback.client"=.\Ice\callback\Ice.callback.client.dsp - Package Owner=<4>
+Project: "Ice.converter.client.exe"=".\Ice\converter\Ice.converter.client.dsp" - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -375,13 +405,13 @@ Package=<5>
 Package=<4>
 {{{
     Begin Project Dependency
-    Project_Dep_Name Ice.callback.server
+    Project_Dep_Name Ice.converter.server.exe
     End Project Dependency
 }}}
 
 ###############################################################################
 
-Project: "Ice.callback.server"=.\Ice\callback\Ice.callback.server.dsp - Package Owner=<4>
+Project: "Ice.converter.server.exe"=".\Ice\converter\Ice.converter.server.dsp" - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -393,7 +423,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "Ice.converter.client"=.\Ice\converter\Ice.converter.client.dsp - Package Owner=<4>
+Project: "Ice.hello.client.exe"=".\Ice\hello\Ice.hello.client.dsp" - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -402,13 +432,13 @@ Package=<5>
 Package=<4>
 {{{
     Begin Project Dependency
-    Project_Dep_Name Ice.converter.server
+    Project_Dep_Name Ice.hello.server.exe
     End Project Dependency
 }}}
 
 ###############################################################################
 
-Project: "Ice.converter.server"=.\Ice\converter\Ice.converter.server.dsp - Package Owner=<4>
+Project: "Ice.hello.server.exe"=".\Ice\hello\Ice.hello.server.dsp" - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -420,7 +450,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "Ice.hello.client"=.\Ice\hello\Ice.hello.client.dsp - Package Owner=<4>
+Project: "Ice.invoke.client.exe"=".\Ice\invoke\Ice.invoke.client.dsp" - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -429,13 +459,13 @@ Package=<5>
 Package=<4>
 {{{
     Begin Project Dependency
-    Project_Dep_Name Ice.hello.server
+    Project_Dep_Name Ice.invoke.server.exe
     End Project Dependency
 }}}
 
 ###############################################################################
 
-Project: "Ice.hello.server"=.\Ice\hello\Ice.hello.server.dsp - Package Owner=<4>
+Project: "Ice.invoke.server.exe"=".\Ice\invoke\Ice.invoke.server.dsp" - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -447,7 +477,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "Ice.invoke.client"=.\Ice\invoke\Ice.invoke.client.dsp - Package Owner=<4>
+Project: "Ice.latency.client.exe"=".\Ice\latency\Ice.latency.client.dsp" - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -456,13 +486,13 @@ Package=<5>
 Package=<4>
 {{{
     Begin Project Dependency
-    Project_Dep_Name Ice.invoke.server
+    Project_Dep_Name Ice.latency.server.exe
     End Project Dependency
 }}}
 
 ###############################################################################
 
-Project: "Ice.invoke.server"=.\Ice\invoke\Ice.invoke.server.dsp - Package Owner=<4>
+Project: "Ice.latency.server.exe"=".\Ice\latency\Ice.latency.server.dsp" - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -474,7 +504,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "Ice.latency.client"=.\Ice\latency\Ice.latency.client.dsp - Package Owner=<4>
+Project: "Ice.minimal.client.exe"=".\Ice\minimal\Ice.minimal.client.dsp" - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -483,13 +513,13 @@ Package=<5>
 Package=<4>
 {{{
     Begin Project Dependency
-    Project_Dep_Name Ice.latency.server
+    Project_Dep_Name Ice.minimal.server.exe
     End Project Dependency
 }}}
 
 ###############################################################################
 
-Project: "Ice.latency.server"=.\Ice\latency\Ice.latency.server.dsp - Package Owner=<4>
+Project: "Ice.minimal.server.exe"=".\Ice\minimal\Ice.minimal.server.dsp" - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -501,7 +531,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "Ice.minimal.client"=.\Ice\minimal\Ice.minimal.client.dsp - Package Owner=<4>
+Project: "Ice.multicast.client.exe"=".\Ice\multicast\Ice.multicast.client.dsp" - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -510,13 +540,13 @@ Package=<5>
 Package=<4>
 {{{
     Begin Project Dependency
-    Project_Dep_Name Ice.minimal.server
+    Project_Dep_Name Ice.multicast.server.exe
     End Project Dependency
 }}}
 
 ###############################################################################
 
-Project: "Ice.minimal.server"=.\Ice\minimal\Ice.minimal.server.dsp - Package Owner=<4>
+Project: "Ice.multicast.server.exe"=".\Ice\multicast\Ice.multicast.server.dsp" - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -528,7 +558,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "Ice.multicast.client"=.\Ice\multicast\Ice.multicast.client.dsp - Package Owner=<4>
+Project: "Ice.nested.client.exe"=".\Ice\nested\Ice.nested.client.dsp" - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -537,13 +567,13 @@ Package=<5>
 Package=<4>
 {{{
     Begin Project Dependency
-    Project_Dep_Name Ice.multicast.server
+    Project_Dep_Name Ice.nested.server.exe
     End Project Dependency
 }}}
 
 ###############################################################################
 
-Project: "Ice.multicast.server"=.\Ice\multicast\Ice.multicast.server.dsp - Package Owner=<4>
+Project: "Ice.nested.server.exe"=".\Ice\nested\Ice.nested.server.dsp" - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -555,7 +585,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "Ice.nested.client"=.\Ice\nested\Ice.nested.client.dsp - Package Owner=<4>
+Project: "Ice.nrvo.client.exe"=".\Ice\nrvo\Ice.nrvo.client.dsp" - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -564,13 +594,13 @@ Package=<5>
 Package=<4>
 {{{
     Begin Project Dependency
-    Project_Dep_Name Ice.nested.server
+    Project_Dep_Name Ice.nrvo.server.exe
     End Project Dependency
 }}}
 
 ###############################################################################
 
-Project: "Ice.nested.server"=.\Ice\nested\Ice.nested.server.dsp - Package Owner=<4>
+Project: "Ice.nrvo.server.exe"=".\Ice\nrvo\Ice.nrvo.server.dsp" - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -582,7 +612,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "Ice.session.client"=.\Ice\session\Ice.session.client.dsp - Package Owner=<4>
+Project: "Ice.session.client.exe"=".\Ice\session\Ice.session.client.dsp" - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -591,13 +621,13 @@ Package=<5>
 Package=<4>
 {{{
     Begin Project Dependency
-    Project_Dep_Name Ice.session.server
+    Project_Dep_Name Ice.session.server.exe
     End Project Dependency
 }}}
 
 ###############################################################################
 
-Project: "Ice.session.server"=.\Ice\session\Ice.session.server.dsp - Package Owner=<4>
+Project: "Ice.session.server.exe"=".\Ice\session\Ice.session.server.dsp" - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -609,7 +639,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "Ice.throughput.client"=.\Ice\throughput\Ice.throughput.client.dsp - Package Owner=<4>
+Project: "Ice.throughput.client.exe"=".\Ice\throughput\Ice.throughput.client.dsp" - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -618,13 +648,13 @@ Package=<5>
 Package=<4>
 {{{
     Begin Project Dependency
-    Project_Dep_Name Ice.throughput.server
+    Project_Dep_Name Ice.throughput.server.exe
     End Project Dependency
 }}}
 
 ###############################################################################
 
-Project: "Ice.throughput.server"=.\Ice\throughput\Ice.throughput.server.dsp - Package Owner=<4>
+Project: "Ice.throughput.server.exe"=".\Ice\throughput\Ice.throughput.server.dsp" - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -636,7 +666,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "Ice.value.client"=.\Ice\value\Ice.value.client.dsp - Package Owner=<4>
+Project: "Ice.value.client.exe"=".\Ice\value\Ice.value.client.dsp" - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -645,13 +675,13 @@ Package=<5>
 Package=<4>
 {{{
     Begin Project Dependency
-    Project_Dep_Name Ice.value.server
+    Project_Dep_Name Ice.value.server.exe
     End Project Dependency
 }}}
 
 ###############################################################################
 
-Project: "Ice.value.server"=.\Ice\value\Ice.value.server.dsp - Package Owner=<4>
+Project: "Ice.value.server.exe"=".\Ice\value\Ice.value.server.dsp" - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -663,7 +693,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "IceBox.hello.client"=.\IceBox\hello\IceBox.hello.client.dsp - Package Owner=<4>
+Project: "IceBox.hello.client.exe"=".\IceBox\hello\IceBox.hello.client.dsp" - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -672,13 +702,13 @@ Package=<5>
 Package=<4>
 {{{
     Begin Project Dependency
-    Project_Dep_Name IceBox.hello.server
+    Project_Dep_Name IceBox.hello.server.dll
     End Project Dependency
 }}}
 
 ###############################################################################
 
-Project: "IceBox.hello.server"=.\IceBox\hello\IceBox.hello.server.dsp - Package Owner=<4>
+Project: "IceBox.hello.server.dll"=".\IceBox\hello\IceBox.hello.server.dsp" - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -690,7 +720,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "IceGrid.allocate.client"=.\IceGrid\allocate\IceGrid.allocate.client.dsp - Package Owner=<4>
+Project: "IceGrid.allocate.client.exe"=".\IceGrid\allocate\IceGrid.allocate.client.dsp" - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -699,13 +729,13 @@ Package=<5>
 Package=<4>
 {{{
     Begin Project Dependency
-    Project_Dep_Name IceGrid.allocate.server
+    Project_Dep_Name IceGrid.allocate.server.exe
     End Project Dependency
 }}}
 
 ###############################################################################
 
-Project: "IceGrid.allocate.server"=.\IceGrid\allocate\IceGrid.allocate.server.dsp - Package Owner=<4>
+Project: "IceGrid.allocate.server.exe"=".\IceGrid\allocate\IceGrid.allocate.server.dsp" - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -717,7 +747,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "IceGrid.icebox.client"=.\IceGrid\icebox\IceGrid.icebox.client.dsp - Package Owner=<4>
+Project: "IceGrid.icebox.client.exe"=".\IceGrid\icebox\IceGrid.icebox.client.dsp" - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -726,13 +756,13 @@ Package=<5>
 Package=<4>
 {{{
     Begin Project Dependency
-    Project_Dep_Name IceGrid.icebox.server
+    Project_Dep_Name IceGrid.icebox.server.dll
     End Project Dependency
 }}}
 
 ###############################################################################
 
-Project: "IceGrid.icebox.server"=.\IceGrid\icebox\IceGrid.icebox.server.dsp - Package Owner=<4>
+Project: "IceGrid.icebox.server.dll"=".\IceGrid\icebox\IceGrid.icebox.server.dsp" - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -744,7 +774,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "IceGrid.replication.client"=.\IceGrid\replication\IceGrid.replication.client.dsp - Package Owner=<4>
+Project: "IceGrid.replication.client.exe"=".\IceGrid\replication\IceGrid.replication.client.dsp" - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -753,13 +783,13 @@ Package=<5>
 Package=<4>
 {{{
     Begin Project Dependency
-    Project_Dep_Name IceGrid.replication.server
+    Project_Dep_Name IceGrid.replication.server.exe
     End Project Dependency
 }}}
 
 ###############################################################################
 
-Project: "IceGrid.replication.server"=.\IceGrid\replication\IceGrid.replication.server.dsp - Package Owner=<4>
+Project: "IceGrid.replication.server.exe"=".\IceGrid\replication\IceGrid.replication.server.dsp" - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -771,7 +801,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "IceGrid.secure.client"=.\IceGrid\secure\IceGrid.secure.client.dsp - Package Owner=<4>
+Project: "IceGrid.secure.client.exe"=".\IceGrid\secure\IceGrid.secure.client.dsp" - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -780,13 +810,13 @@ Package=<5>
 Package=<4>
 {{{
     Begin Project Dependency
-    Project_Dep_Name IceGrid.secure.server
+    Project_Dep_Name IceGrid.secure.server.exe
     End Project Dependency
 }}}
 
 ###############################################################################
 
-Project: "IceGrid.secure.server"=.\IceGrid\secure\IceGrid.secure.server.dsp - Package Owner=<4>
+Project: "IceGrid.secure.server.exe"=".\IceGrid\secure\IceGrid.secure.server.dsp" - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -798,7 +828,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "IceGrid.sessionActivation.client"=.\IceGrid\sessionActivation\IceGrid.sessionActivation.client.dsp - Package Owner=<4>
+Project: "IceGrid.sessionActivation.client.exe"=".\IceGrid\sessionActivation\IceGrid.sessionActivation.client.dsp" - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -807,13 +837,13 @@ Package=<5>
 Package=<4>
 {{{
     Begin Project Dependency
-    Project_Dep_Name IceGrid.sessionActivation.server
+    Project_Dep_Name IceGrid.sessionActivation.server.exe
     End Project Dependency
 }}}
 
 ###############################################################################
 
-Project: "IceGrid.sessionActivation.server"=.\IceGrid\sessionActivation\IceGrid.sessionActivation.server.dsp - Package Owner=<4>
+Project: "IceGrid.sessionActivation.server.exe"=".\IceGrid\sessionActivation\IceGrid.sessionActivation.server.dsp" - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -825,7 +855,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "IceGrid.simple.client"=.\IceGrid\simple\IceGrid.simple.client.dsp - Package Owner=<4>
+Project: "IceGrid.simple.client.exe"=".\IceGrid\simple\IceGrid.simple.client.dsp" - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -834,13 +864,13 @@ Package=<5>
 Package=<4>
 {{{
     Begin Project Dependency
-    Project_Dep_Name IceGrid.simple.server
+    Project_Dep_Name IceGrid.simple.server.exe
     End Project Dependency
 }}}
 
 ###############################################################################
 
-Project: "IceGrid.simple.server"=.\IceGrid\simple\IceGrid.simple.server.dsp - Package Owner=<4>
+Project: "IceGrid.simple.server.exe"=".\IceGrid\simple\IceGrid.simple.server.dsp" - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -852,7 +882,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "IcePatch2.MFC.client"=.\IcePatch2\MFC\IcePatch2.MFC.client.dsp - Package Owner=<4>
+Project: "IcePatch2.MFC.client.exe"=".\IcePatch2\MFC\IcePatch2.MFC.client.dsp" - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -864,7 +894,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "IceStorm.clock.publisher"=.\IceStorm\clock\IceStorm.clock.publisher.dsp - Package Owner=<4>
+Project: "IceStorm.clock.publisher.exe"=".\IceStorm\clock\IceStorm.clock.publisher.dsp" - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -873,13 +903,13 @@ Package=<5>
 Package=<4>
 {{{
     Begin Project Dependency
-    Project_Dep_Name IceStorm.clock.subscriber
+    Project_Dep_Name IceStorm.clock.subscriber.exe
     End Project Dependency
 }}}
 
 ###############################################################################
 
-Project: "IceStorm.clock.subscriber"=.\IceStorm\clock\IceStorm.clock.subscriber.dsp - Package Owner=<4>
+Project: "IceStorm.clock.subscriber.exe"=".\IceStorm\clock\IceStorm.clock.subscriber.dsp" - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -891,7 +921,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "IceStorm.counter.client"=.\IceStorm\counter\IceStorm.counter.client.dsp - Package Owner=<4>
+Project: "IceStorm.counter.client.exe"=".\IceStorm\counter\IceStorm.counter.client.dsp" - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -900,13 +930,13 @@ Package=<5>
 Package=<4>
 {{{
     Begin Project Dependency
-    Project_Dep_Name IceStorm.counter.server
+    Project_Dep_Name IceStorm.counter.server.exe
     End Project Dependency
 }}}
 
 ###############################################################################
 
-Project: "IceStorm.counter.server"=.\IceStorm\counter\IceStorm.counter.server.dsp - Package Owner=<4>
+Project: "IceStorm.counter.server.exe"=".\IceStorm\counter\IceStorm.counter.server.dsp" - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -918,7 +948,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "IceStorm.replicated.publisher"=.\IceStorm\replicated\IceStorm.replicated.publisher.dsp - Package Owner=<4>
+Project: "IceStorm.replicated.publisher.exe"=".\IceStorm\replicated\IceStorm.replicated.publisher.dsp" - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -927,13 +957,13 @@ Package=<5>
 Package=<4>
 {{{
     Begin Project Dependency
-    Project_Dep_Name IceStorm.replicated.subscriber
+    Project_Dep_Name IceStorm.replicated.subscriber.exe
     End Project Dependency
 }}}
 
 ###############################################################################
 
-Project: "IceStorm.replicated.subscriber"=.\IceStorm\replicated\IceStorm.replicated.subscriber.dsp - Package Owner=<4>
+Project: "IceStorm.replicated.subscriber.exe"=".\IceStorm\replicated\IceStorm.replicated.subscriber.dsp" - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -945,7 +975,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "IceStorm.replicated2.publisher"=.\IceStorm\replicated2\IceStorm.replicated2.publisher.dsp - Package Owner=<4>
+Project: "IceStorm.replicated2.publisher.exe"=".\IceStorm\replicated2\IceStorm.replicated2.publisher.dsp" - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -954,13 +984,13 @@ Package=<5>
 Package=<4>
 {{{
     Begin Project Dependency
-    Project_Dep_Name IceStorm.replicated2.subscriber
+    Project_Dep_Name IceStorm.replicated2.subscriber.exe
     End Project Dependency
 }}}
 
 ###############################################################################
 
-Project: "IceStorm.replicated2.subscriber"=.\IceStorm\replicated2\IceStorm.replicated2.subscriber.dsp - Package Owner=<4>
+Project: "IceStorm.replicated2.subscriber.exe"=".\IceStorm\replicated2\IceStorm.replicated2.subscriber.dsp" - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -972,7 +1002,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "IceUtil.workqueue"=.\IceUtil\workqueue\IceUtil.workqueue.dsp - Package Owner=<4>
+Project: "IceUtil.workqueue.exe"=".\IceUtil\workqueue\IceUtil.workqueue.dsp" - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -984,7 +1014,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "all"=.\demo.dsp - Package Owner=<4>
+Project: "all"=".\demo.dsp" - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -992,494 +1022,260 @@ Package=<5>
 
 Package=<4>
 {{{
-    Begin Project Dependency
-    Project_Dep_Name bench
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name callbackC
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name callbackS
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name clockC
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name clockS
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name glacier2callbackC
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name glacier2callbackS
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name glacier2callbackSS
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name helloC
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name helloiceboxC
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name helloiceboxS
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name helloS
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name invokeC
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name invokeS
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name latencyC
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name latencyS
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name libraryC
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name libraryCOL
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name libraryS
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name mfchelloC
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name mfchelloS
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name nestedC
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name nestedS
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name phonebookC
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name phonebookCOL
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name phonebookS
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name printerC
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name printerS
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name simplefsC
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name simplefsS
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name throughputC
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name throughputS
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name valueC
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name valueS
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name workqueue
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name chatC
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name chatS
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name mfcpatchC
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name bidirC
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name bidirS
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name sessionC
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name sessionS
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name minimalC
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name minimalS
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name simpleC
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name simpleS
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name allocateC
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name allocateS
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name converterC
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name converterS
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name sessionActivationC
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name sessionActivationS
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name asyncC
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name asyncS
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name counterC
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name counterS
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name replicatedC
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name replicatedS
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name replicationC
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name replicationS
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name freezefsS
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name lifecyclefsC
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name lifecyclefsS
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name casinoC
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name casinoS
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name transformCreate
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name transformRead
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name transformRecreate
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name transformReadnew
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name iceboxgridC
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name iceboxgridS
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name backup
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name customEvictorC
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name customEvictorS
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name multicastC
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name multicastS
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name replicated2C
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name replicated2S
-    End Project Dependency
     Begin Project Dependency
-    Project_Dep_Name secureC
+    Project_Dep_Name book.freeze_filesystem.client.exe
     End Project Dependency
     Begin Project Dependency
-    Project_Dep_Name secureS
+    Project_Dep_Name book.freeze_filesystem.server.exe
     End Project Dependency
     Begin Project Dependency
-    Project_Dep_Name book.freeze_filesystem.client
+    Project_Dep_Name book.lifecycle.client.exe
     End Project Dependency
     Begin Project Dependency
-    Project_Dep_Name book.freeze_filesystem.server
+    Project_Dep_Name book.lifecycle.server.exe
     End Project Dependency
     Begin Project Dependency
-    Project_Dep_Name book.lifecycle.client
+    Project_Dep_Name book.printer.client.exe
     End Project Dependency
     Begin Project Dependency
-    Project_Dep_Name book.lifecycle.server
+    Project_Dep_Name book.printer.server.exe
     End Project Dependency
     Begin Project Dependency
-    Project_Dep_Name book.printer.client
+    Project_Dep_Name book.simple_filesystem.client.exe
     End Project Dependency
     Begin Project Dependency
-    Project_Dep_Name book.printer.server
+    Project_Dep_Name book.simple_filesystem.server.exe
     End Project Dependency
     Begin Project Dependency
-    Project_Dep_Name book.simple_filesystem.client
+    Project_Dep_Name Freeze.backup.client.exe
     End Project Dependency
     Begin Project Dependency
-    Project_Dep_Name book.simple_filesystem.server
+    Project_Dep_Name Freeze.bench.client.exe
     End Project Dependency
     Begin Project Dependency
-    Project_Dep_Name Freeze.backup
+    Project_Dep_Name Freeze.casino.client.exe
     End Project Dependency
     Begin Project Dependency
-    Project_Dep_Name Freeze.bench
+    Project_Dep_Name Freeze.casino.server.exe
     End Project Dependency
     Begin Project Dependency
-    Project_Dep_Name Freeze.casino.client
+    Project_Dep_Name Freeze.customEvictor.client.exe
     End Project Dependency
     Begin Project Dependency
-    Project_Dep_Name Freeze.casino.server
+    Project_Dep_Name Freeze.customEvictor.server.exe
     End Project Dependency
     Begin Project Dependency
-    Project_Dep_Name Freeze.customEvictor.client
+    Project_Dep_Name Freeze.library.client.exe
     End Project Dependency
     Begin Project Dependency
-    Project_Dep_Name Freeze.customEvictor.server
+    Project_Dep_Name Freeze.library.collocated.exe
     End Project Dependency
     Begin Project Dependency
-    Project_Dep_Name Freeze.library.client
+    Project_Dep_Name Freeze.library.server.exe
     End Project Dependency
     Begin Project Dependency
-    Project_Dep_Name Freeze.library.collocated
+    Project_Dep_Name Freeze.phonebook.client.exe
     End Project Dependency
     Begin Project Dependency
-    Project_Dep_Name Freeze.library.server
+    Project_Dep_Name Freeze.phonebook.collocated.exe
     End Project Dependency
     Begin Project Dependency
-    Project_Dep_Name Freeze.phonebook.client
+    Project_Dep_Name Freeze.phonebook.server.exe
     End Project Dependency
     Begin Project Dependency
-    Project_Dep_Name Freeze.phonebook.collocated
+    Project_Dep_Name Freeze.transform.create.exe
     End Project Dependency
     Begin Project Dependency
-    Project_Dep_Name Freeze.phonebook.server
+    Project_Dep_Name Freeze.transform.read.exe
     End Project Dependency
     Begin Project Dependency
-    Project_Dep_Name Freeze.transform.create
+    Project_Dep_Name Freeze.transform.readnew.exe
     End Project Dependency
     Begin Project Dependency
-    Project_Dep_Name Freeze.transform.read
+    Project_Dep_Name Freeze.transform.recreate.exe
     End Project Dependency
     Begin Project Dependency
-    Project_Dep_Name Freeze.transform.readnew
+    Project_Dep_Name Glacier2.callback.client.exe
     End Project Dependency
     Begin Project Dependency
-    Project_Dep_Name Freeze.transform.recreate
+    Project_Dep_Name Glacier2.callback.server.exe
     End Project Dependency
     Begin Project Dependency
-    Project_Dep_Name Glacier2.callback.client
+    Project_Dep_Name Glacier2.callback.sessionserver.exe
     End Project Dependency
     Begin Project Dependency
-    Project_Dep_Name Glacier2.callback.server
+    Project_Dep_Name Glacier2.chat.client.exe
     End Project Dependency
     Begin Project Dependency
-    Project_Dep_Name Glacier2.callback.sessionserver
+    Project_Dep_Name Glacier2.chat.server.exe
     End Project Dependency
     Begin Project Dependency
-    Project_Dep_Name Glacier2.chat.client
+    Project_Dep_Name Ice.async.client.exe
     End Project Dependency
     Begin Project Dependency
-    Project_Dep_Name Glacier2.chat.server
+    Project_Dep_Name Ice.async.server.exe
     End Project Dependency
     Begin Project Dependency
-    Project_Dep_Name Ice.async.client
+    Project_Dep_Name Ice.bidir.client.exe
     End Project Dependency
     Begin Project Dependency
-    Project_Dep_Name Ice.async.server
+    Project_Dep_Name Ice.bidir.server.exe
     End Project Dependency
     Begin Project Dependency
-    Project_Dep_Name Ice.bidir.client
+    Project_Dep_Name Ice.callback.client.exe
     End Project Dependency
     Begin Project Dependency
-    Project_Dep_Name Ice.bidir.server
+    Project_Dep_Name Ice.callback.server.exe
     End Project Dependency
     Begin Project Dependency
-    Project_Dep_Name Ice.callback.client
+    Project_Dep_Name Ice.converter.client.exe
     End Project Dependency
     Begin Project Dependency
-    Project_Dep_Name Ice.callback.server
+    Project_Dep_Name Ice.converter.server.exe
     End Project Dependency
     Begin Project Dependency
-    Project_Dep_Name Ice.converter.client
+    Project_Dep_Name Ice.hello.client.exe
     End Project Dependency
     Begin Project Dependency
-    Project_Dep_Name Ice.converter.server
+    Project_Dep_Name Ice.hello.server.exe
     End Project Dependency
     Begin Project Dependency
-    Project_Dep_Name Ice.hello.client
+    Project_Dep_Name Ice.invoke.client.exe
     End Project Dependency
     Begin Project Dependency
-    Project_Dep_Name Ice.hello.server
+    Project_Dep_Name Ice.invoke.server.exe
     End Project Dependency
     Begin Project Dependency
-    Project_Dep_Name Ice.invoke.client
+    Project_Dep_Name Ice.latency.client.exe
     End Project Dependency
     Begin Project Dependency
-    Project_Dep_Name Ice.invoke.server
+    Project_Dep_Name Ice.latency.server.exe
     End Project Dependency
     Begin Project Dependency
-    Project_Dep_Name Ice.latency.client
+    Project_Dep_Name Ice.MFC.client.exe
     End Project Dependency
     Begin Project Dependency
-    Project_Dep_Name Ice.latency.server
+    Project_Dep_Name Ice.MFC.server.exe
     End Project Dependency
     Begin Project Dependency
-    Project_Dep_Name Ice.MFC.client
+    Project_Dep_Name Ice.minimal.client.exe
     End Project Dependency
     Begin Project Dependency
-    Project_Dep_Name Ice.MFC.server
+    Project_Dep_Name Ice.minimal.server.exe
     End Project Dependency
     Begin Project Dependency
-    Project_Dep_Name Ice.minimal.client
+    Project_Dep_Name Ice.multicast.client.exe
     End Project Dependency
     Begin Project Dependency
-    Project_Dep_Name Ice.minimal.server
+    Project_Dep_Name Ice.multicast.server.exe
     End Project Dependency
     Begin Project Dependency
-    Project_Dep_Name Ice.multicast.client
+    Project_Dep_Name Ice.nested.client.exe
     End Project Dependency
     Begin Project Dependency
-    Project_Dep_Name Ice.multicast.server
+    Project_Dep_Name Ice.nested.server.exe
     End Project Dependency
     Begin Project Dependency
-    Project_Dep_Name Ice.nested.client
+    Project_Dep_Name Ice.session.client.exe
     End Project Dependency
     Begin Project Dependency
-    Project_Dep_Name Ice.nested.server
+    Project_Dep_Name Ice.session.server.exe
     End Project Dependency
     Begin Project Dependency
-    Project_Dep_Name Ice.session.client
+    Project_Dep_Name Ice.throughput.client.exe
     End Project Dependency
     Begin Project Dependency
-    Project_Dep_Name Ice.session.server
+    Project_Dep_Name Ice.throughput.server.exe
     End Project Dependency
     Begin Project Dependency
-    Project_Dep_Name Ice.throughput.client
+    Project_Dep_Name Ice.value.client.exe
     End Project Dependency
     Begin Project Dependency
-    Project_Dep_Name Ice.throughput.server
+    Project_Dep_Name Ice.value.server.exe
     End Project Dependency
     Begin Project Dependency
-    Project_Dep_Name Ice.value.client
+    Project_Dep_Name IceBox.hello.client.exe
     End Project Dependency
     Begin Project Dependency
-    Project_Dep_Name Ice.value.server
+    Project_Dep_Name IceBox.hello.server.dll
     End Project Dependency
     Begin Project Dependency
-    Project_Dep_Name IceBox.hello.client
+    Project_Dep_Name IceGrid.allocate.client.exe
     End Project Dependency
     Begin Project Dependency
-    Project_Dep_Name IceBox.hello.server
+    Project_Dep_Name IceGrid.allocate.server.exe
     End Project Dependency
     Begin Project Dependency
-    Project_Dep_Name IceGrid.allocate.client
+    Project_Dep_Name IceGrid.icebox.client.exe
     End Project Dependency
     Begin Project Dependency
-    Project_Dep_Name IceGrid.allocate.server
+    Project_Dep_Name IceGrid.icebox.server.dll
     End Project Dependency
     Begin Project Dependency
-    Project_Dep_Name IceGrid.icebox.client
+    Project_Dep_Name IceGrid.replication.client.exe
     End Project Dependency
     Begin Project Dependency
-    Project_Dep_Name IceGrid.icebox.server
+    Project_Dep_Name IceGrid.replication.server.exe
     End Project Dependency
     Begin Project Dependency
-    Project_Dep_Name IceGrid.replication.client
+    Project_Dep_Name IceGrid.secure.client.exe
     End Project Dependency
     Begin Project Dependency
-    Project_Dep_Name IceGrid.replication.server
+    Project_Dep_Name IceGrid.secure.server.exe
     End Project Dependency
     Begin Project Dependency
-    Project_Dep_Name IceGrid.secure.client
+    Project_Dep_Name IceGrid.sessionActivation.client.exe
     End Project Dependency
     Begin Project Dependency
-    Project_Dep_Name IceGrid.secure.server
+    Project_Dep_Name IceGrid.sessionActivation.server.exe
     End Project Dependency
     Begin Project Dependency
-    Project_Dep_Name IceGrid.sessionActivation.client
+    Project_Dep_Name IceGrid.simple.client.exe
     End Project Dependency
     Begin Project Dependency
-    Project_Dep_Name IceGrid.sessionActivation.server
+    Project_Dep_Name IceGrid.simple.server.exe
     End Project Dependency
     Begin Project Dependency
-    Project_Dep_Name IceGrid.simple.client
+    Project_Dep_Name IcePatch2.MFC.client.exe
     End Project Dependency
     Begin Project Dependency
-    Project_Dep_Name IceGrid.simple.server
+    Project_Dep_Name IceStorm.clock.publisher.exe
     End Project Dependency
     Begin Project Dependency
-    Project_Dep_Name IcePatch2.MFC.client
+    Project_Dep_Name IceStorm.clock.subscriber.exe
     End Project Dependency
     Begin Project Dependency
-    Project_Dep_Name IceStorm.clock.publisher
+    Project_Dep_Name IceStorm.counter.client.exe
     End Project Dependency
     Begin Project Dependency
-    Project_Dep_Name IceStorm.clock.subscriber
+    Project_Dep_Name IceStorm.counter.server.exe
     End Project Dependency
     Begin Project Dependency
-    Project_Dep_Name IceStorm.counter.client
+    Project_Dep_Name IceStorm.replicated.publisher.exe
     End Project Dependency
     Begin Project Dependency
-    Project_Dep_Name IceStorm.counter.server
+    Project_Dep_Name IceStorm.replicated.subscriber.exe
     End Project Dependency
     Begin Project Dependency
-    Project_Dep_Name IceStorm.replicated.publisher
+    Project_Dep_Name IceStorm.replicated2.publisher.exe
     End Project Dependency
     Begin Project Dependency
-    Project_Dep_Name IceStorm.replicated.subscriber
+    Project_Dep_Name IceStorm.replicated2.subscriber.exe
     End Project Dependency
     Begin Project Dependency
-    Project_Dep_Name IceStorm.replicated2.publisher
+    Project_Dep_Name IceUtil.workqueue.exe
     End Project Dependency
     Begin Project Dependency
-    Project_Dep_Name IceStorm.replicated2.subscriber
+    Project_Dep_Name Ice.nrvo.client.exe
     End Project Dependency
     Begin Project Dependency
-    Project_Dep_Name IceUtil.workqueue
+    Project_Dep_Name Ice.nrvo.server.exe
     End Project Dependency
 }}}
 
 ###############################################################################
 
-Project: "book.freeze_filesystem.client"=.\book\freeze_filesystem\book.freeze_filesystem.client.dsp - Package Owner=<4>
+Project: "book.freeze_filesystem.client.exe"=".\book\freeze_filesystem\book.freeze_filesystem.client.dsp" - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -1488,13 +1284,13 @@ Package=<5>
 Package=<4>
 {{{
     Begin Project Dependency
-    Project_Dep_Name book.freeze_filesystem.server
+    Project_Dep_Name book.freeze_filesystem.server.exe
     End Project Dependency
 }}}
 
 ###############################################################################
 
-Project: "book.freeze_filesystem.server"=.\book\freeze_filesystem\book.freeze_filesystem.server.dsp - Package Owner=<4>
+Project: "book.freeze_filesystem.server.exe"=".\book\freeze_filesystem\book.freeze_filesystem.server.dsp" - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -1506,7 +1302,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "book.lifecycle.client"=.\book\lifecycle\book.lifecycle.client.dsp - Package Owner=<4>
+Project: "book.lifecycle.client.exe"=".\book\lifecycle\book.lifecycle.client.dsp" - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -1515,13 +1311,13 @@ Package=<5>
 Package=<4>
 {{{
     Begin Project Dependency
-    Project_Dep_Name book.lifecycle.server
+    Project_Dep_Name book.lifecycle.server.exe
     End Project Dependency
 }}}
 
 ###############################################################################
 
-Project: "book.lifecycle.server"=.\book\lifecycle\book.lifecycle.server.dsp - Package Owner=<4>
+Project: "book.lifecycle.server.exe"=".\book\lifecycle\book.lifecycle.server.dsp" - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -1533,7 +1329,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "book.printer.client"=.\book\printer\book.printer.client.dsp - Package Owner=<4>
+Project: "book.printer.client.exe"=".\book\printer\book.printer.client.dsp" - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -1542,13 +1338,13 @@ Package=<5>
 Package=<4>
 {{{
     Begin Project Dependency
-    Project_Dep_Name book.printer.server
+    Project_Dep_Name book.printer.server.exe
     End Project Dependency
 }}}
 
 ###############################################################################
 
-Project: "book.printer.server"=.\book\printer\book.printer.server.dsp - Package Owner=<4>
+Project: "book.printer.server.exe"=".\book\printer\book.printer.server.dsp" - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -1560,7 +1356,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "book.simple_filesystem.client"=.\book\simple_filesystem\book.simple_filesystem.client.dsp - Package Owner=<4>
+Project: "book.simple_filesystem.client.exe"=".\book\simple_filesystem\book.simple_filesystem.client.dsp" - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -1569,13 +1365,13 @@ Package=<5>
 Package=<4>
 {{{
     Begin Project Dependency
-    Project_Dep_Name book.simple_filesystem.server
+    Project_Dep_Name book.simple_filesystem.server.exe
     End Project Dependency
 }}}
 
 ###############################################################################
 
-Project: "book.simple_filesystem.server"=.\book\simple_filesystem\book.simple_filesystem.server.dsp - Package Owner=<4>
+Project: "book.simple_filesystem.server.exe"=".\book\simple_filesystem\book.simple_filesystem.server.dsp" - Package Owner=<4>
 
 Package=<5>
 {{{

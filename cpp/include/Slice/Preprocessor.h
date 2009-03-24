@@ -32,15 +32,15 @@ class SLICE_API Preprocessor
 {
 public:
 
-    Preprocessor(const std::string&, const std::string&, const std::vector<std::string>&, const std::string& = "cpp");
+    Preprocessor(const std::string&, const std::string&, const std::vector<std::string>&);
     ~Preprocessor();
     
     FILE* preprocess(bool);
     bool close();
 
-    enum Language { CPlusPlus, Java, CSharp, VisualBasic };
+    enum Language { CPlusPlus, Java, JavaXML, CSharp, VisualBasic };
 
-    bool printMakefileDependencies(Language, const std::vector<std::string>&);
+    bool printMakefileDependencies(Language, const std::vector<std::string>&, const std::string& = "cpp");
     
     std::string getBaseName();
 
@@ -54,7 +54,6 @@ private:
     const std::string _path;
     const std::string _fileName;
     const std::vector<std::string> _args;
-    const std::string _cppSourceExt;
 #ifdef _WIN32
     std::wstring _cppFile;
 #else

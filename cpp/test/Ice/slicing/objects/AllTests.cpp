@@ -642,7 +642,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
         }
         catch(...)
         {
-            test(0);
+            test(false);
         }
         SBasePtr sb = SBasePtr::dynamicCast(o);
         test(sb);
@@ -668,7 +668,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
         }
         catch(...)
         {
-            test(0);
+            test(false);
         }
     }
     cout << "ok" << endl;
@@ -691,7 +691,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
         }
         catch(...)
         {
-            test(0);
+            test(false);
         }
         SBSKnownDerivedPtr sbskd = SBSKnownDerivedPtr::dynamicCast(sb);
         test(sbskd);
@@ -717,7 +717,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
         }
         catch(...)
         {
-            test(0);
+            test(false);
         }
     }
     cout << "ok" << endl;
@@ -740,7 +740,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
         }
         catch(...)
         {
-            test(0);
+            test(false);
         }
     }
     cout << "ok" << endl;
@@ -758,15 +758,18 @@ allTests(const Ice::CommunicatorPtr& communicator)
         Ice::ObjectPtr o;
         try
         {
+#if defined(__BCPLUSPLUS__) && (__BCPLUSPLUS__ >= 0x0600)
+            IceUtil::DummyBCC dummy;
+#endif
             o = test->SUnknownAsObject();
-            test(0);
+            test(false);
         }
         catch(const Ice::NoObjectFactoryException&)
         {
         }
         catch(...)
         {
-            test(0);
+            test(false);
         }
     }
     cout << "ok" << endl;
@@ -781,7 +784,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
         }
         catch(...)
         {
-            test(0);
+            test(false);
         }
     }
     cout << "ok" << endl;
@@ -798,7 +801,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
         }
         catch(...)
         {
-            test(0);
+            test(false);
         }
     }
     cout << "ok" << endl;
@@ -828,7 +831,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
         }
         catch(...)
         {
-            test(0);
+            test(false);
         }
     }
     cout << "ok" << endl;
@@ -867,7 +870,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
         }
         catch(...)
         {
-            test(0);
+            test(false);
         }
     }
     cout << "ok" << endl;
@@ -900,7 +903,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
         }
         catch(...)
         {
-            test(0);
+            test(false);
         }
     }
     cout << "ok" << endl;
@@ -937,7 +940,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
         }
         catch(...)
         {
-            test(0);
+            test(false);
         }
     }
     cout << "ok" << endl;
@@ -974,7 +977,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
         }
         catch(...)
         {
-            test(0);
+            test(false);
         }
     }
     cout << "ok" << endl;
@@ -1011,7 +1014,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
         }
         catch(...)
         {
-            test(0);
+            test(false);
         }
     }
     cout << "ok" << endl;
@@ -1027,7 +1030,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
         }
         catch(...)
         {
-            test(0);
+            test(false);
         }
     }
     cout << "ok" << endl;
@@ -1051,7 +1054,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
         }
         catch(...)
         {
-            test(0);
+            test(false);
         }
     }
     cout << "ok" << endl;
@@ -1104,7 +1107,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
         }
         catch(...)
         {
-            test(0);
+            test(false);
         }
     }
     cout << "ok" << endl;
@@ -1152,7 +1155,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
         }
         catch(...)
         {
-            test(0);
+            test(false);
         }
     }
     cout << "ok" << endl;
@@ -1197,7 +1200,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
         }
         catch(...)
         {
-            test(0);
+            test(false);
         }
     }
     cout << "ok" << endl;
@@ -1245,7 +1248,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
         }
         catch(...)
         {
-            test(0);
+            test(false);
         }
     }
     cout << "ok" << endl;
@@ -1275,7 +1278,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
         }
         catch(...)
         {
-            test(0);
+            test(false);
         }
     }
     cout << "ok" << endl;
@@ -1307,7 +1310,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
         }
         catch(...)
         {
-            test(0);
+            test(false);
         }
     }
     cout << "ok" << endl;
@@ -1348,7 +1351,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
         }
         catch(...)
         {
-            test(0);
+            test(false);
         }
     }
     cout << "ok" << endl;
@@ -1383,7 +1386,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
         }
         catch(...)
         {
-            test(0);
+            test(false);
         }
     }
     cout << "ok" << endl;
@@ -1418,7 +1421,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
         }
         catch(...)
         {
-            test(0);
+            test(false);
         }
     }
     cout << "ok" << endl;
@@ -1456,7 +1459,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
         }
         catch(...)
         {
-            test(0);
+            test(false);
         }
     }
     cout << "ok" << endl;
@@ -1543,7 +1546,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
         }
         catch(const ::Ice::Exception&)
         {
-            test(0);
+            test(false);
         }
     }
     cout << "ok" << endl;
@@ -1633,7 +1636,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
         }
         catch(const ::Ice::Exception&)
         {
-            test(0);
+            test(false);
         }
     }
     cout << "ok" << endl;
@@ -1690,7 +1693,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
         }
         catch(const ::Ice::Exception&)
         {
-            test(0);
+            test(false);
         }
     }
     cout << "ok" << endl;
@@ -1751,7 +1754,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
         }
         catch(const ::Ice::Exception&)
         {
-            test(0);
+            test(false);
         }
     }
     cout << "ok" << endl;
@@ -1761,7 +1764,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
         try
         {
             test->throwBaseAsBase();
-            test(0);
+            test(false);
         }
         catch(const BaseException& e)
         {
@@ -1773,7 +1776,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
         }
         catch(...)
         {
-            test(0);
+            test(false);
         }
     }
     cout << "ok" << endl;
@@ -1791,7 +1794,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
         try
         {
             test->throwDerivedAsBase();
-            test(0);
+            test(false);
         }
         catch(const DerivedException& e)
         {
@@ -1809,7 +1812,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
         }
         catch(...)
         {
-            test(0);
+            test(false);
         }
     }
     cout << "ok" << endl;
@@ -1827,7 +1830,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
         try
         {
             test->throwDerivedAsDerived();
-            test(0);
+            test(false);
         }
         catch(const DerivedException& e)
         {
@@ -1845,7 +1848,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
         }
         catch(...)
         {
-            test(0);
+            test(false);
         }
     }
     cout << "ok" << endl;
@@ -1863,7 +1866,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
         try
         {
             test->throwUnknownDerivedAsBase();
-            test(0);
+            test(false);
         }
         catch(const BaseException& e)
         {
@@ -1875,7 +1878,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
         }
         catch(...)
         {
-            test(0);
+            test(false);
         }
     }
     cout << "ok" << endl;
@@ -1898,7 +1901,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
         }
         catch(...)
         {
-            test(0);
+            test(false);
         }
     }
     cout << "ok" << endl;

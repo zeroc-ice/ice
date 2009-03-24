@@ -44,12 +44,9 @@ public:
     AdapterEntry(AdapterCache&, const std::string&, const std::string&);
 
     virtual void getLocatorAdapterInfo(LocatorAdapterInfoSeq&, int&, bool&, bool&, const std::set<std::string>&) = 0;
-    void getLocatorAdapterInfo(LocatorAdapterInfoSeq& adapters, int& count, bool& replicaGroup, bool& roundRobin)
-    {
-        getLocatorAdapterInfo(adapters, count, replicaGroup, roundRobin, std::set<std::string>());
-    }
     virtual float getLeastLoadedNodeLoad(LoadSample) const = 0;
     virtual AdapterInfoSeq getAdapterInfo() const = 0;
+    virtual AdapterPrx getProxy(const std::string&, bool) const = 0;
 
     virtual bool canRemove();
 
@@ -74,9 +71,9 @@ public:
     virtual void getLocatorAdapterInfo(LocatorAdapterInfoSeq&, int&, bool&, bool&, const std::set<std::string>&);
     virtual float getLeastLoadedNodeLoad(LoadSample) const;
     virtual AdapterInfoSeq getAdapterInfo() const;
-    virtual const std::string& getReplicaGroupId() const { return _replicaGroupId; }
+    virtual AdapterPrx getProxy(const std::string&, bool) const;
 
-    AdapterPrx getProxy(const std::string&, bool) const;
+    const std::string& getReplicaGroupId() const { return _replicaGroupId; }
     int getPriority() const;
     
 private:
@@ -96,6 +93,7 @@ public:
     virtual void getLocatorAdapterInfo(LocatorAdapterInfoSeq&, int&, bool&, bool&, const std::set<std::string>&);
     virtual float getLeastLoadedNodeLoad(LoadSample) const;
     virtual AdapterInfoSeq getAdapterInfo() const;
+    virtual AdapterPrx getProxy(const std::string&, bool) const { return 0; }
 
     void addReplica(const std::string&, const ServerAdapterEntryPtr&);
     void removeReplica(const std::string&);

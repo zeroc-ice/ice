@@ -38,6 +38,7 @@ demos = [
     "Ice/session",
     "Ice/throughput",
     "Ice/value",
+    "Ice/nrvo",
     "IceBox/hello",
     "IceStorm/clock",
     "IceStorm/counter",
@@ -64,5 +65,9 @@ demos = [
     "book/lifecycle",
 ]
 
+protoDemos = [
+    "Ice/protobuf"
+]
+
 if __name__ == "__main__":
-    Util.run(demos)
+    Util.run(demos, protoDemos)

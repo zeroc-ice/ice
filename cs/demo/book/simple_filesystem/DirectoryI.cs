@@ -21,7 +21,8 @@ public class DirectoryI : DirectoryDisp_
 
         // Create an identity. The root directory has the fixed identity "RootDir"
         //
-        _id = communicator.stringToIdentity(_parent != null ? Ice.Util.generateUUID() : "RootDir");
+        _id = new Ice.Identity();
+        _id.name = _parent != null ? Ice.Util.generateUUID() : "RootDir";
     }
 
     // Slice Node::name() operation

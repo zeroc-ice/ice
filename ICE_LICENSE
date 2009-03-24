@@ -22,11 +22,14 @@ combine Ice with:
 a) the OpenSSL library (or with modified versions of OpenSSL that use the
 same license as OpenSSL)
 
-b) any Orca library (http://orca-robotics.sourceforge.net) licensed under
-the GNU Lesser General Public License (LGPL), version 2.1
-(http://www.gnu.org/licenses/lgpl.html)
+b) any library licensed under the Apache License, version 2.0
+(http://www.apache.org/licenses/LICENSE-2.0.html)
 
-c) any code from the Mumble project (http://mumble.sourceforge.net)
+c) any Orca library (http://orca-robotics.sourceforge.net) licensed under
+the GNU Lesser General Public License (LGPL), version 2.1
+(http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html)
+
+d) any code from the Mumble project (http://mumble.sourceforge.net)
 licensed under the BSD license
 
 You may copy and distribute such combinations following the terms of the

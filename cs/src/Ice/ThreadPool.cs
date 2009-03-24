@@ -315,65 +315,68 @@ namespace IceInternal
                     {
                         if(!_destroyed)
                         {
-                            //
-                            // First we reap threads that have been destroyed before.
-                            //
-                            int sz = _threads.Count;
-                            Debug.Assert(_running <= sz);
-                            if(_running < sz)
+                            if(_size < _sizeMax) // Dynamic thread pool
                             {
-                                List<WorkerThread> liveThreads = new List<WorkerThread>();
-                                foreach(WorkerThread thread in _threads)
+                                //
+                                // First we reap threads that have been destroyed before.
+                                //
+                                int sz = _threads.Count;
+                                Debug.Assert(_running <= sz);
+                                if(_running < sz)
                                 {
-                                    if(!thread.IsAlive())
+                                    List<WorkerThread> liveThreads = new List<WorkerThread>();
+                                    foreach(WorkerThread thread in _threads)
                                     {
-                                        thread.Join();
+                                        if(!thread.IsAlive())
+                                        {
+                                            thread.Join();
+                                        }
+                                        else
+                                        {
+                                            liveThreads.Add(thread);
+                                        }
                                     }
-                                    else
-                                    {
-                                        liveThreads.Add(thread);
-                                    }
+                                    _threads = liveThreads;
                                 }
-                                _threads = liveThreads;
-                            }
 
-                            //
-                            // Now we check if this thread can be destroyed, based
-                            // on a load factor.
-                            //
+                                //
+                                // Now we check if this thread can be destroyed, based
+                                // on a load factor.
+                                //
 
-                            //
-                            // The load factor jumps immediately to the number of
-                            // threads that are currently in use, but decays
-                            // exponentially if the number of threads in use is
-                            // smaller than the load factor. This reflects that we
-                            // create threads immediately when they are needed,
-                            // but want the number of threads to slowly decline to
-                            // the configured minimum.
-                            //
-                            double inUse = (double)_inUse;
-                            if(_load < inUse)
-                            {
-                                _load = inUse;
-                            }
-                            else
-                            {
-                                double loadFactor = 0.05; // TODO: Configurable?
-                                double oneMinusLoadFactor = 1 - loadFactor;
-                                _load = _load * oneMinusLoadFactor + inUse * loadFactor;
-                            }
-
-                            if(_running > _size)
-                            {
-                                int load = (int)(_load + 0.5);
-                                if(load + 1 < _running)
+                                //
+                                // The load factor jumps immediately to the number of
+                                // threads that are currently in use, but decays
+                                // exponentially if the number of threads in use is
+                                // smaller than the load factor. This reflects that we
+                                // create threads immediately when they are needed,
+                                // but want the number of threads to slowly decline to
+                                // the configured minimum.
+                                //
+                                double inUse = (double)_inUse;
+                                if(_load < inUse)
                                 {
-                                    Debug.Assert(_inUse > 0);
-                                    --_inUse;
+                                    _load = inUse;
+                                }
+                                else
+                                {
+                                    double loadFactor = 0.05; // TODO: Configurable?
+                                    double oneMinusLoadFactor = 1 - loadFactor;
+                                    _load = _load * oneMinusLoadFactor + inUse * loadFactor;
+                                }
 
-                                    Debug.Assert(_running > 0);
-                                    --_running;
-                                    return;
+                                if(_running > _size)
+                                {
+                                    int load = (int)(_load + 0.5);
+                                    if(load + 1 < _running)
+                                    {
+                                        Debug.Assert(_inUse > 0);
+                                        --_inUse;
+
+                                        Debug.Assert(_running > 0);
+                                        --_running;
+                                        return;
+                                    }
                                 }
                             }
 

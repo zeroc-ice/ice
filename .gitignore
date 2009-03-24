@@ -17,6 +17,7 @@
 *.opt
 *.user
 .gdb_history
+.DS_Store
 core
 /*/dist
 generated
@@ -48,3 +49,5 @@ obj
 *.RES
 ClientBin
 vcproj
+# VIM swap file
+*.swp

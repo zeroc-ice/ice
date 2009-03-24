@@ -22,8 +22,6 @@
 #include <sys/stat.h>
 #include <string.h>
 
-#include <iostream> //TODO
-
 using namespace std;
 using namespace Slice;
 using namespace IceUtil;
@@ -86,11 +84,12 @@ Slice::Gen::~Gen()
 void
 Slice::Gen::generate(const UnitPtr& p)
 {
+    string file = p->topLevelFile();
 
     //
-    // Check the header-ext global meta data if is not empty we override _headerExtension
+    // Give precedence to header-ext global metadata.
     //
-    string headerExtension = getHeaderExt(p->modules());
+    string headerExtension = getHeaderExt(file, p);
     if(!headerExtension.empty())
     {
         _headerExtension = headerExtension;
@@ -291,7 +290,7 @@ Slice::Gen::generate(const UnitPtr& p)
 
     for(StringList::const_iterator q = includes.begin(); q != includes.end(); ++q)
     {
-        string extension = getHeaderExt((*q), p->modules());
+        string extension = getHeaderExt((*q), p);
         if(extension.empty())
         {
             extension = _headerExtension;
@@ -306,8 +305,24 @@ Slice::Gen::generate(const UnitPtr& p)
         C << "\n#include <IceUtil/DisableWarnings.h>";
     }
 
-    GlobalIncludeVisitor globalIncludeVisitor(H);
-    p->visit(&globalIncludeVisitor, false);
+    //
+    // Emit #include statements for any cpp:include metadata directives
+    // in the top-level Slice file.
+    //
+    {
+        DefinitionContextPtr dc = p->findDefinitionContext(file);
+        assert(dc);
+        StringList globalMetaData = dc->getMetaData();
+        for(StringList::const_iterator q = globalMetaData.begin(); q != globalMetaData.end(); ++q)
+        {
+            string s = *q;
+            static const string includePrefix = "cpp:include:";
+            if(s.find(includePrefix) == 0 && s.size() > includePrefix.size())
+            {
+                H << nl << "#include <" << s.substr(includePrefix.size()) << ">";
+            }
+        }
+    }
 
     printVersionCheck(H);
     printVersionCheck(C);
@@ -440,36 +455,6 @@ Slice::Gen::writeExtraHeaders(IceUtilInternal::Output& out)
             out << "\n#endif";
         }
     }
-}
-
-Slice::Gen::GlobalIncludeVisitor::GlobalIncludeVisitor(Output& h) :
-    H(h), _finished(false)
-{
-}
-
-bool
-Slice::Gen::GlobalIncludeVisitor::visitModuleStart(const ModulePtr& p)
-{
-    if(!_finished)
-    {
-        DefinitionContextPtr dc = p->definitionContext();
-        assert(dc);
-        StringList globalMetaData = dc->getMetaData();
-
-        static const string includePrefix = "cpp:include:";
-
-        for(StringList::const_iterator q = globalMetaData.begin(); q != globalMetaData.end(); ++q)
-        {
-            string s = *q;
-            if(s.find(includePrefix) == 0)
-            {
-                H << nl << "#include <" << s.substr(includePrefix.size()) << ">";
-            }
-        }
-        _finished = true;
-    }
-
-    return false;
 }
 
 Slice::Gen::TypesVisitor::TypesVisitor(Output& h, Output& c, const string& dllExport, bool stream) :
@@ -1140,6 +1125,26 @@ void
 Slice::Gen::TypesVisitor::visitDataMember(const DataMemberPtr& p)
 {
     string name = fixKwd(p->name());
+    TypePtr type = p->type();
+    if(p->container() != 0 && (StructPtr::dynamicCast(p->container()) || ExceptionPtr::dynamicCast(p->container())) &&
+       SequencePtr::dynamicCast(type))
+    {
+        SequencePtr s = SequencePtr::dynamicCast(type);
+        BuiltinPtr builtin = BuiltinPtr::dynamicCast(s->type());
+        if(builtin && builtin->kind() == Builtin::KindByte)
+        {
+            StringList metaData = s->getMetaData();
+            bool protobuf;
+            findMetaData(s, metaData, false, protobuf);
+            if(protobuf)
+            {
+                emitWarning(p->file(), p->line(), string("protobuf cannot be used as a ") + 
+                                                  (StructPtr::dynamicCast(p->container()) ? "struct" : "exception") +
+                                                  " member in C++");
+            }
+        }
+    }
+
     string s = typeToString(p->type(), _useWstring, p->getMetaData());
     H << nl << s << ' ' << name << ';';
 }
@@ -1151,14 +1156,20 @@ Slice::Gen::TypesVisitor::visitSequence(const SequencePtr& p)
     TypePtr type = p->type();
     string s = typeToString(type, _useWstring, p->typeMetaData());
     StringList metaData = p->getMetaData();
-    string seqType = findMetaData(metaData, false);
-    if(!seqType.empty())
+
+    bool protobuf;
+    string seqType = findMetaData(p, metaData, false, protobuf);
+    H << sp;
+    if(!protobuf)
     {
-        H << sp << nl << "typedef " << seqType << ' ' << name << ';';
-    }
-    else
-    {
-        H << sp << nl << "typedef ::std::vector<" << (s[0] == ':' ? " " : "") << s << "> " << name << ';';
+        if(!seqType.empty())
+        {
+            H << nl << "typedef " << seqType << ' ' << name << ';';
+        }
+        else
+        {
+            H << nl << "typedef ::std::vector<" << (s[0] == ':' ? " " : "") << s << "> " << name << ';';
+        }
     }
 
     BuiltinPtr builtin = BuiltinPtr::dynamicCast(type);
@@ -1167,100 +1178,163 @@ Slice::Gen::TypesVisitor::visitSequence(const SequencePtr& p)
         string scoped = fixKwd(p->scoped());
         string scope = fixKwd(p->scope());
 
-        if(!seqType.empty())
+        if(protobuf || !seqType.empty())
         {
-            H << nl << _dllExport << "void __write" << name << "(::IceInternal::BasicStream*, const " << name << "&);";
-            H << nl << _dllExport << "void __read" << name << "(::IceInternal::BasicStream*, " << name << "&);";
+            string typeName = name;
+            string scopedName = scoped;
+            if(protobuf && !seqType.empty())
+            {
+                typeName = seqType;
+                scopedName = seqType;
+            }
+            H << nl << _dllExport << "void __write" << name << "(::IceInternal::BasicStream*, const "
+              << typeName << "&);";
+            H << nl << _dllExport << "void __read" << name << "(::IceInternal::BasicStream*, "
+              << typeName << "&);";
 
             if(_stream)
             {
                 H << nl << _dllExport << "void ice_write" << p->name() << "(const ::Ice::OutputStreamPtr&, const "
-                  << name << "&);";
-                H << nl << _dllExport << "void ice_read" << p->name() << "(const ::Ice::InputStreamPtr&, " << name
+                  << typeName << "&);";
+                H << nl << _dllExport << "void ice_read" << p->name() << "(const ::Ice::InputStreamPtr&, " << typeName
                   << "&);";
             }
 
             C << sp << nl << "void" << nl << scope.substr(2) << "__write" << name <<
-                "(::IceInternal::BasicStream* __os, const " << scoped << "& v)";
+                "(::IceInternal::BasicStream* __os, const " << scopedName << "& v)";
             C << sb;
-            C << nl << "::Ice::Int size = static_cast< ::Ice::Int>(v.size());";
-            C << nl << "__os->writeSize(size);";
-            C << nl << "for(" << name << "::const_iterator p = v.begin(); p != v.end(); ++p)";
-            C << sb;
-            writeMarshalUnmarshalCode(C, type, "(*p)", true);
-            C << eb;
-            C << eb;
-
-            C << sp << nl << "void" << nl << scope.substr(2) << "__read" << name
-              << "(::IceInternal::BasicStream* __is, " << scoped << "& v)";
-            C << sb;
-            C << nl << "::Ice::Int sz;";
-            C << nl << "__is->readSize(sz);";
-            C << nl << name << "(sz).swap(v);";
-            if(type->isVariableLength())
+            if(protobuf)
             {
-                // Protect against bogus sequence sizes.
-                C << nl << "__is->startSeq(sz, " << type->minWireSize() << ");";
+                C << nl << "std::vector< ::Ice::Byte> data(v.ByteSize());";
+                C << nl << "if(!v.IsInitialized())";
+                C << sb;
+                C << nl << "throw ::Ice::MarshalException(__FILE__, __LINE__, \"type not fully initialized: \" + v.InitializationErrorString());";
+                C << eb;
+                C << nl << "if(!v.SerializeToArray(&data[0], data.size()))";
+                C << sb;
+                C << nl << "throw ::Ice::MarshalException(__FILE__, __LINE__, \"SerializeToArray failed\");";
+                C << eb;
+                C << nl << "__os->write(&data[0], &data[0] + data.size());";
             }
             else
             {
-                C << nl << "__is->checkFixedSeq(sz, " << type->minWireSize() << ");";
-            }
-            C << nl << "for(" << name << "::iterator p = v.begin(); p != v.end(); ++p)";
-            C << sb;
-            writeMarshalUnmarshalCode(C, type, "(*p)", false);
-
-            //
-            // After unmarshaling each element, check that there are still enough bytes left in the stream
-            // to unmarshal the remainder of the sequence, and decrement the count of elements
-            // yet to be unmarshaled for sequences with variable-length element type (that is, for sequences
-            // of classes, structs, dictionaries, sequences, strings, or proxies). This allows us to
-            // abort unmarshaling for bogus sequence sizes at the earliest possible moment.
-            // (For fixed-length sequences, we don't need to do this because the prediction of how many
-            // bytes will be taken up by the sequence is accurate.)
-            //
-            if(type->isVariableLength())
-            {
-                if(!SequencePtr::dynamicCast(type))
-                {
-                    //
-                    // No need to check for directly nested sequences because, at the start of each
-                    // sequence, we check anyway.
-                    //
-                    C << nl << "__is->checkSeq();";
-                }
-                C << nl << "__is->endElement();";
+                C << nl << "::Ice::Int size = static_cast< ::Ice::Int>(v.size());";
+                C << nl << "__os->writeSize(size);";
+                C << nl << "for(" << name << "::const_iterator p = v.begin(); p != v.end(); ++p)";
+                C << sb;
+                writeMarshalUnmarshalCode(C, type, "(*p)", true);
+                C << eb;
             }
             C << eb;
-            if(type->isVariableLength())
+
+            C << sp << nl << "void" << nl << scope.substr(2) << "__read" << name
+              << "(::IceInternal::BasicStream* __is, " << scopedName << "& v)";
+            C << sb;
+            if(protobuf)
             {
-                C << nl << "__is->endSeq(sz);";
+                C << nl << "::std::pair<const ::Ice::Byte*, const ::Ice::Byte*> data;";
+                C << nl << "__is->read(data);";
+                C << nl << "if(!v.ParseFromArray(data.first, data.second - data.first))";
+                C << sb;
+                C << nl << "throw ::Ice::MarshalException(__FILE__, __LINE__, \"ParseFromArray failed\");";
+                C << eb;
+            }
+            else
+            {
+                C << nl << "::Ice::Int sz;";
+                C << nl << "__is->readSize(sz);";
+                C << nl << name << "(sz).swap(v);";
+                if(type->isVariableLength())
+                {
+                    // Protect against bogus sequence sizes.
+                    C << nl << "__is->startSeq(sz, " << type->minWireSize() << ");";
+                }
+                else
+                {
+                    C << nl << "__is->checkFixedSeq(sz, " << type->minWireSize() << ");";
+                }
+                C << nl << "for(" << name << "::iterator p = v.begin(); p != v.end(); ++p)";
+                C << sb;
+                writeMarshalUnmarshalCode(C, type, "(*p)", false);
+
+                //
+                // After unmarshaling each element, check that there are still enough bytes left in the stream
+                // to unmarshal the remainder of the sequence, and decrement the count of elements
+                // yet to be unmarshaled for sequences with variable-length element type (that is, for sequences
+                // of classes, structs, dictionaries, sequences, strings, or proxies). This allows us to
+                // abort unmarshaling for bogus sequence sizes at the earliest possible moment.
+                // (For fixed-length sequences, we don't need to do this because the prediction of how many
+                // bytes will be taken up by the sequence is accurate.)
+                //
+                if(type->isVariableLength())
+                {
+                    if(!SequencePtr::dynamicCast(type))
+                    {
+                        //
+                        // No need to check for directly nested sequences because, at the start of each
+                        // sequence, we check anyway.
+                        //
+                        C << nl << "__is->checkSeq();";
+                    }
+                    C << nl << "__is->endElement();";
+                }
+                C << eb;
+                if(type->isVariableLength())
+                {
+                    C << nl << "__is->endSeq(sz);";
+                }
             }
             C << eb;
 
             if(_stream)
             {
                 C << sp << nl << "void" << nl << scope.substr(2) << "ice_write" << p->name()
-                  << "(const ::Ice::OutputStreamPtr& __outS, const " << scoped << "& v)";
+                  << "(const ::Ice::OutputStreamPtr& __outS, const " << scopedName << "& v)";
                 C << sb;
-                C << nl << "__outS->writeSize(::Ice::Int(v.size()));";
-                C << nl << scoped << "::const_iterator p;";
-                C << nl << "for(p = v.begin(); p != v.end(); ++p)";
-                C << sb;
-                writeStreamMarshalUnmarshalCode(C, type, "(*p)", true, "", _useWstring);
-                C << eb;
+                if(protobuf)
+                {
+                    C << nl << "std::vector< ::Ice::Byte> data(v.ByteSize());";
+                    C << nl << "if(!v.IsInitialized())";
+                    C << sb;
+                    C << nl << "throw ::Ice::MarshalException(__FILE__, __LINE__, \"type not fully initialized: \" + v.InitializationErrorString());";
+                    C << eb;
+                    C << nl << "v.SerializeToArray(&data[0], data.size());";
+
+                    C << nl << "__outS->writeByteSeq(data);";
+                }
+                else
+                {
+                    C << nl << "__outS->writeSize(::Ice::Int(v.size()));";
+                    C << nl << scopedName << "::const_iterator p;";
+                    C << nl << "for(p = v.begin(); p != v.end(); ++p)";
+                    C << sb;
+                    writeStreamMarshalUnmarshalCode(C, type, "(*p)", true, "", _useWstring);
+                    C << eb;
+                }
                 C << eb;
 
                 C << sp << nl << "void" << nl << scope.substr(2) << "ice_read" << p->name()
-                  << "(const ::Ice::InputStreamPtr& __inS, " << scoped << "& v)";
+                  << "(const ::Ice::InputStreamPtr& __inS, " << scopedName << "& v)";
                 C << sb;
-                C << nl << "::Ice::Int sz = __inS->readSize();";
-                C << nl << scoped << "(sz).swap(v);";
-                C << nl << scoped << "::iterator p;";
-                C << nl << "for(p = v.begin(); p != v.end(); ++p)";
-                C << sb;
-                writeStreamMarshalUnmarshalCode(C, type, "(*p)", false, "", _useWstring);
-                C << eb;
+                if(protobuf)
+                {
+                    C << nl << "std::pair<const ::Ice::Byte*, const ::Ice::Byte*> data;";
+                    C << nl << "__inS->readByteSeq(data);";
+                    C << nl << "if(!v.ParseFromArray(data.first, data.second - data.first))";
+                    C << sb;
+                    C << nl << "throw ::Ice::MarshalException(__FILE__, __LINE__, \"ParseFromArray failed\");";
+                    C << eb;
+                }
+                else
+                {
+                    C << nl << "::Ice::Int sz = __inS->readSize();";
+                    C << nl << scopedName << "(sz).swap(v);";
+                    C << nl << scopedName << "::iterator p;";
+                    C << nl << "for(p = v.begin(); p != v.end(); ++p)";
+                    C << sb;
+                    writeStreamMarshalUnmarshalCode(C, type, "(*p)", false, "", _useWstring);
+                    C << eb;
+                }
                 C << eb;
             }
         }
@@ -1369,6 +1443,22 @@ Slice::Gen::TypesVisitor::visitDictionary(const DictionaryPtr& p)
 {
     string name = fixKwd(p->name());
     TypePtr keyType = p->keyType();
+    if(SequencePtr::dynamicCast(keyType))
+    {
+        SequencePtr s = SequencePtr::dynamicCast(keyType);
+        BuiltinPtr builtin = BuiltinPtr::dynamicCast(s->type());
+        if(builtin && builtin->kind() == Builtin::KindByte)
+        {
+            StringList metaData = s->getMetaData();
+            bool protobuf;
+            findMetaData(s, metaData, false, protobuf);
+            if(protobuf)
+            {
+                emitWarning(p->file(), p->line(), "protobuf cannot be used as a dictionary key in C++");
+            }
+        }
+    }
+
     TypePtr valueType = p->valueType();
     string ks = typeToString(keyType, _useWstring, p->keyMetaData());
     if(ks[0] == ':')
@@ -2277,6 +2367,15 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
     C << nl << "::IceInternal::Handle< ::IceDelegate::Ice::Object> __delBase;";
     C << nl << "try";
     C << sb;
+
+    C.zeroIndent();
+    C << nl << "#if defined(__BCPLUSPLUS__) && (__BCPLUSPLUS__ >= 0x0600) // C++Builder 2009 compiler bug";
+    C.restoreIndent();
+    C << nl << "IceUtil::DummyBCC dummy;";
+    C.zeroIndent();
+    C << nl << "#endif";
+    C.restoreIndent();
+
     if(p->returnsData())
     {
         C << nl << "__checkTwowayOnly(" << p->flattenedScope() + p->name() + "_name);";
@@ -2646,6 +2745,11 @@ Slice::Gen::DelegateMVisitor::visitOperation(const OperationPtr& p)
     }
 
     C << nl << "bool __ok = __og.invoke();";
+
+    //
+    // Declare the return __ret variable at the top-level scope to
+    // enable NRVO with GCC (see also bug #3619).
+    //
     writeAllocateCode(C, ParamDeclList(), ret, p->getMetaData(), _useWstring);
     if(!p->returnsData())
     {
@@ -3811,6 +3915,23 @@ Slice::Gen::ObjectVisitor::visitClassDefEnd(const ClassDefPtr& p)
     bool prot = p->hasMetaData("protected");
     for(q = dataMembers.begin(); q != dataMembers.end(); ++q)
     {
+        TypePtr type = (*q)->type();
+        if(SequencePtr::dynamicCast(type))
+        {
+            SequencePtr s = SequencePtr::dynamicCast(type);
+            BuiltinPtr builtin = BuiltinPtr::dynamicCast(s->type());
+            if(builtin && builtin->kind() == Builtin::KindByte)
+            {
+                StringList metaData = s->getMetaData();
+                bool protobuf;
+                findMetaData(s, metaData, false, protobuf);
+                if(protobuf)
+                {
+                    emitWarning((*q)->file(), (*q)->line(), "protobuf cannot be used as a class member in C++");
+                }
+            }
+        }
+
         if(prot || (*q)->hasMetaData("protected"))
         {
             if(!inProtected)
@@ -4460,7 +4581,8 @@ Slice::Gen::ObjectVisitor::emitOneShotConstructor(const ClassDefPtr& p)
 
     if(!allDataMembers.empty())
     {
-        C << sp << nl << p->scoped().substr(2) << "::" << fixKwd(p->name()) << spar << allParamDecls << epar << " :";
+        C << sp << nl << fixKwd(p->scoped()).substr(2) << "::" << fixKwd(p->name())
+	  << spar << allParamDecls << epar << " :";
         C.inc();
 
         DataMemberList dataMembers = p->dataMembers();
@@ -5653,45 +5775,64 @@ Slice::Gen::validateMetaData(const UnitPtr& u)
 }
 
 bool
-Slice::Gen::MetaDataVisitor::visitModuleStart(const ModulePtr& p)
+Slice::Gen::MetaDataVisitor::visitUnitStart(const UnitPtr& p)
 {
-    //
-    // Validate global metadata.
-    //
-    DefinitionContextPtr dc = p->definitionContext();
-    assert(dc);
-    StringList globalMetaData = dc->getMetaData();
-    string file = dc->filename();
     static const string prefix = "cpp:";
 
-    int headerExtension = 0;
-    for(StringList::const_iterator q = globalMetaData.begin(); q != globalMetaData.end(); ++q)
+    //
+    // Validate global metadata in the top-level file and all included files.
+    //
+    StringList files = p->allFiles();
+
+    for(StringList::iterator q = files.begin(); q != files.end(); ++q)
     {
-        string s = *q;
-        if(_history.count(s) == 0)
+        string file = *q;
+        DefinitionContextPtr dc = p->findDefinitionContext(file);
+        assert(dc);
+        StringList globalMetaData = dc->getMetaData();
+        int headerExtension = 0;
+        for(StringList::const_iterator r = globalMetaData.begin(); r != globalMetaData.end(); ++r)
         {
-            if(s.find(prefix) == 0)
+            string s = *r;
+            if(_history.count(s) == 0)
             {
-                string ss = s.substr(prefix.size());
-                if(ss.find("include:") == 0)
+                if(s.find(prefix) == 0)
                 {
-                    continue;
-                }
-                else if(ss.find("header-ext:") == 0)
-                {
-                    headerExtension++;
-                    if(headerExtension == 1)
+                    static const string cppIncludePrefix = "cpp:include:";
+                    static const string cppHeaderExtPrefix = "cpp:header-ext:";
+                    if(s.find(cppIncludePrefix) == 0 && s.size() > cppIncludePrefix.size())
                     {
                         continue;
                     }
+                    else if(s.find(cppHeaderExtPrefix) == 0 && s.size() > cppHeaderExtPrefix.size())
+                    {
+                        headerExtension++;
+                        if(headerExtension > 1)
+                        {
+                            ostringstream ostr;
+                            ostr << "ignoring invalid global metadata `" << s
+                                << "': directive can appear only once per file";
+                            emitWarning(file, -1, ostr.str());
+                            _history.insert(s);
+                        }
+                        continue;
+                    }
+                    ostringstream ostr;
+                    ostr << "ignoring invalid global metadata `" << s << "'";
+                    emitWarning(file, -1, ostr.str());
                 }
-                cerr << file << ": warning: ignoring invalid global metadata `" << s << "', the cpp:header-ext global metadata can only appear once per file." << endl;
+                _history.insert(s);
             }
-            _history.insert(s);
         }
     }
 
-    validate(p, p->getMetaData(), p->definitionContext()->filename(), p->line());
+    return true;
+}
+
+bool
+Slice::Gen::MetaDataVisitor::visitModuleStart(const ModulePtr& p)
+{
+    validate(p, p->getMetaData(), p->file(), p->line());
     return true;
 }
 
@@ -5703,13 +5844,13 @@ Slice::Gen::MetaDataVisitor::visitModuleEnd(const ModulePtr&)
 void
 Slice::Gen::MetaDataVisitor::visitClassDecl(const ClassDeclPtr& p)
 {
-    validate(p, p->getMetaData(), p->definitionContext()->filename(), p->line());
+    validate(p, p->getMetaData(), p->file(), p->line());
 }
 
 bool
 Slice::Gen::MetaDataVisitor::visitClassDefStart(const ClassDefPtr& p)
 {
-    validate(p, p->getMetaData(), p->definitionContext()->filename(), p->line());
+    validate(p, p->getMetaData(), p->file(), p->line());
     return true;
 }
 
@@ -5721,7 +5862,7 @@ Slice::Gen::MetaDataVisitor::visitClassDefEnd(const ClassDefPtr&)
 bool
 Slice::Gen::MetaDataVisitor::visitExceptionStart(const ExceptionPtr& p)
 {
-    validate(p, p->getMetaData(), p->definitionContext()->filename(), p->line());
+    validate(p, p->getMetaData(), p->file(), p->line());
     return true;
 }
 
@@ -5733,7 +5874,7 @@ Slice::Gen::MetaDataVisitor::visitExceptionEnd(const ExceptionPtr&)
 bool
 Slice::Gen::MetaDataVisitor::visitStructStart(const StructPtr& p)
 {
-    validate(p, p->getMetaData(), p->definitionContext()->filename(), p->line());
+    validate(p, p->getMetaData(), p->file(), p->line());
     return true;
 }
 
@@ -5745,6 +5886,7 @@ Slice::Gen::MetaDataVisitor::visitStructEnd(const StructPtr&)
 void
 Slice::Gen::MetaDataVisitor::visitOperation(const OperationPtr& p)
 {
+
     bool ami = false;
     ClassDefPtr cl = ClassDefPtr::dynamicCast(p->container());
     if(cl->hasMetaData("ami") || p->hasMetaData("ami") || cl->hasMetaData("amd") || p->hasMetaData("amd"))
@@ -5756,10 +5898,11 @@ Slice::Gen::MetaDataVisitor::visitOperation(const OperationPtr& p)
     {
         if(!cl->isLocal())
         {
-            cerr << p->definitionContext()->filename() << ":" << p->line()
-                 << ": warning: metadata directive `UserException' applies only to local operations "
+            ostringstream ostr;
+            ostr << "ignoring invalid metadata `UserException': directive applies only to local operations "
                  << "but enclosing " << (cl->isInterface() ? "interface" : "class") << "`" << cl->name()
-                 << "' is not local" << endl;
+                 << "' is not local";
+            emitWarning(p->file(), p->line(), ostr.str());
         }
     }
 
@@ -5775,60 +5918,86 @@ Slice::Gen::MetaDataVisitor::visitOperation(const OperationPtr& p)
             {
                 if(q->find("cpp:type:", 0) == 0 || q->find("cpp:array", 0) == 0 || q->find("cpp:range", 0) == 0)
                 {
-                    cerr << p->definitionContext()->filename() << ":" << p->line()
-                         << ": warning: invalid metadata for operation" << endl;
+                    emitWarning(p->file(), p->line(), "ignoring invalid metadata `" + *q +
+                                "' for operation with void return type");
                     break;
                 }
             }
         }
         else
         {
-            validate(returnType, metaData, p->definitionContext()->filename(), p->line(), ami);
+            validate(returnType, metaData, p->file(), p->line(), ami);
         }
     }
 
     ParamDeclList params = p->parameters();
     for(ParamDeclList::iterator q = params.begin(); q != params.end(); ++q)
     {
-        validate((*q)->type(), (*q)->getMetaData(), p->definitionContext()->filename(), (*q)->line(),
-                 ami || !(*q)->isOutParam());
+        validate((*q)->type(), (*q)->getMetaData(), p->file(), (*q)->line(), ami || !(*q)->isOutParam());
     }
 }
 
 void
 Slice::Gen::MetaDataVisitor::visitParamDecl(const ParamDeclPtr& p)
 {
-    validate(p, p->getMetaData(), p->definitionContext()->filename(), p->line());
+    validate(p, p->getMetaData(), p->file(), p->line());
 }
 
 void
 Slice::Gen::MetaDataVisitor::visitDataMember(const DataMemberPtr& p)
 {
-    validate(p->type(), p->getMetaData(), p->definitionContext()->filename(), p->line());
+    validate(p->type(), p->getMetaData(), p->file(), p->line());
 }
 
 void
 Slice::Gen::MetaDataVisitor::visitSequence(const SequencePtr& p)
 {
-    validate(p, p->getMetaData(), p->definitionContext()->filename(), p->line());
+    StringList metaData = p->getMetaData();
+    const string file = p->file();
+    const string line = p->line();
+    static const string prefix = "cpp:protobuf";
+    for(StringList::const_iterator q = metaData.begin(); q != metaData.end(); )
+    {
+        string s = *q++;
+        if(_history.count(s) == 0)
+        {
+            if(s.find(prefix) == 0)
+            {
+                //
+                // Remove from list so validate does not try to handle as well.
+                //
+                metaData.remove(s);
+
+                BuiltinPtr builtin = BuiltinPtr::dynamicCast(p->type());
+                if(!builtin || builtin->kind() != Builtin::KindByte)
+                {
+                    _history.insert(s);
+                    emitWarning(file, line, "ignoring invalid metadata `" + s + "':\n"+
+                                "`protobuf' encoding must be a byte sequence.");
+                }
+            }
+        }
+    }
+
+    validate(p, metaData, file, line);
 }
 
 void
 Slice::Gen::MetaDataVisitor::visitDictionary(const DictionaryPtr& p)
 {
-    validate(p, p->getMetaData(), p->definitionContext()->filename(), p->line());
+    validate(p, p->getMetaData(), p->file(), p->line());
 }
 
 void
 Slice::Gen::MetaDataVisitor::visitEnum(const EnumPtr& p)
 {
-    validate(p, p->getMetaData(), p->definitionContext()->filename(), p->line());
+    validate(p, p->getMetaData(), p->file(), p->line());
 }
 
 void
 Slice::Gen::MetaDataVisitor::visitConst(const ConstPtr& p)
 {
-    validate(p, p->getMetaData(), p->definitionContext()->filename(), p->line());
+    validate(p, p->getMetaData(), p->file(), p->line());
 }
 
 void
@@ -5867,8 +6036,7 @@ Slice::Gen::MetaDataVisitor::validate(const SyntaxTreeBasePtr& cont, const Strin
                 {
                     continue;
                 }
-
-                cerr << file << ":" << line << ": warning: ignoring invalid metadata `" << s << "'" << endl;
+                emitWarning(file, line, "ignoring invalid metadata `" + s + "'");
             }
             _history.insert(s);
         }
@@ -5900,45 +6068,16 @@ Slice::Gen::resetUseWstring(list<bool>& hist)
 }
 
 string
-Slice::Gen::getHeaderExt(const string& file, const ModuleList& modules)
+Slice::Gen::getHeaderExt(const string& file, const UnitPtr& unit)
 {
-    string ext = "";
-    if(!modules.empty()) // Just in case the Slice file has no definitions
+    string ext;
+    static const string headerExtPrefix = "cpp:header-ext:";
+    DefinitionContextPtr dc = unit->findDefinitionContext(file);
+    assert(dc);
+    string meta = dc->findMetaData(headerExtPrefix);
+    if(meta.size() > headerExtPrefix.size())
     {
-        for(ModuleList::const_iterator i = modules.begin(); i != modules.end(); ++i)
-        {
-            if((*i)->definitionContext()->filename() == file)
-            {
-                string meta = (*i)->definitionContext()->findMetaData("cpp:header-ext");
-                string::size_type index = meta.find_last_of(":");
-                if(index != string::npos && index + 1 < meta.size())
-                {
-                    ext = meta.substr(index + 1, meta.size() - index - 1);
-                }
-            }
-        }
-    }
-    return ext;
-}
-
-string
-Slice::Gen::getHeaderExt(const ModuleList& modules)
-{
-    string ext = "";
-    if(!modules.empty()) // Just in case the Slice file has no definitions
-    {
-        for(ModuleList::const_iterator i = modules.begin(); i != modules.end(); ++i)
-        {
-            if((*i)->definitionContext()->includeLevel() == 0)
-            {
-                string meta = (*i)->definitionContext()->findMetaData("cpp:header-ext");
-                string::size_type index = meta.find_last_of(":");
-                if(index != string::npos && index + 1 < meta.size())
-                {
-                    ext = meta.substr(index + 1, meta.size() - index - 1);
-                }
-            }
-        }
+        ext = meta.substr(headerExtPrefix.size());
     }
     return ext;
 }

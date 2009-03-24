@@ -170,11 +170,8 @@ local exception UnknownException
 {
     /**
      *
-     * A textual representation of the unknown exception. This field may
-     * or may not be set, depending on the security policy of the
-     * server. Some servers may give this information to clients for
-     * debugging purposes, while others may not wish to disclose
-     * information about server internals.
+     * This field is set to the textual representation of the unknown 
+     * exception if available.
      *
      **/
     string unknown;

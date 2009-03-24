@@ -1,10 +1,10 @@
-# Microsoft Developer Studio Project File - Name="Freeze.transform.readnew" - Package Owner=<4>
+# Microsoft Developer Studio Project File - Name="Freeze.transform.readnew.exe" - Package Owner=<4>
 # Microsoft Developer Studio Generated Build File, Format Version 6.00
 # ** DO NOT EDIT **
 
 # TARGTYPE "Win32 (x86) Console Application" 0x0103
 
-CFG=Freeze.transform.readnew - Win32 Debug
+CFG=Freeze.transform.readnew.exe - Win32 Debug
 !MESSAGE This is not a valid makefile. To build this project using NMAKE,
 !MESSAGE use the Export Makefile command and run
 !MESSAGE 
@@ -13,12 +13,12 @@ CFG=Freeze.transform.readnew - Win32 Debug
 !MESSAGE You can specify a configuration when running NMAKE
 !MESSAGE by defining the macro CFG on the command line. For example:
 !MESSAGE 
-!MESSAGE NMAKE /f "Freeze.transform.readnew.mak" CFG="Freeze.transform.readnew - Win32 Debug"
+!MESSAGE NMAKE /f "Freeze.transform.readnew.mak" CFG="Freeze.transform.readnew.exe - Win32 Debug"
 !MESSAGE 
 !MESSAGE Possible choices for configuration are:
 !MESSAGE 
-!MESSAGE "Freeze.transform.readnew - Win32 Release" (based on "Win32 (x86) Console Application")
-!MESSAGE "Freeze.transform.readnew - Win32 Debug" (based on "Win32 (x86) Console Application")
+!MESSAGE "Freeze.transform.readnew.exe - Win32 Release" (based on "Win32 (x86) Console Application")
+!MESSAGE "Freeze.transform.readnew.exe - Win32 Debug" (based on "Win32 (x86) Console Application")
 !MESSAGE 
 
 # Begin Project
@@ -28,7 +28,7 @@ CFG=Freeze.transform.readnew - Win32 Debug
 CPP=cl.exe
 RSC=rc.exe
 
-!IF  "$(CFG)" == "Freeze.transform.readnew - Win32 Release"
+!IF  "$(CFG)" == "Freeze.transform.readnew.exe - Win32 Release"
 
 # PROP BASE Use_MFC 0
 # PROP BASE Use_Debug_Libraries 0
@@ -51,10 +51,10 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LINK32=link.exe
 # ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /subsystem:console /machine:I386
-# ADD LINK32 IceXML.lib Freeze.lib Ice.lib IceUtil.lib setargv.obj /nologo /subsystem:console /pdb:none /machine:I386 /out:"readnew.exe" /libpath:"../../../lib" /FIXED:no
+# ADD LINK32 IceXML.lib Freeze.lib Ice.lib IceUtil.lib setargv.obj /nologo /subsystem:console /pdb:none /machine:I386 /out:"readnew.exe" /libpath:"../../../lib" /FIXED:no /IGNORE:4089
 # SUBTRACT LINK32 /debug /nodefaultlib
 
-!ELSEIF  "$(CFG)" == "Freeze.transform.readnew - Win32 Debug"
+!ELSEIF  "$(CFG)" == "Freeze.transform.readnew.exe - Win32 Debug"
 
 # PROP BASE Use_MFC 0
 # PROP BASE Use_Debug_Libraries 1
@@ -84,8 +84,8 @@ LINK32=link.exe
 
 # Begin Target
 
-# Name "Freeze.transform.readnew - Win32 Release"
-# Name "Freeze.transform.readnew - Win32 Debug"
+# Name "Freeze.transform.readnew.exe - Win32 Release"
+# Name "Freeze.transform.readnew.exe - Win32 Debug"
 # Begin Group "Source Files"
 
 # PROP Default_Filter "cpp;c;cxx;rc;def;r;odl;idl;hpj;bat"
@@ -121,7 +121,7 @@ SOURCE=.\NewContacts.h
 
 SOURCE=.\NewContactData.ice
 
-!IF  "$(CFG)" == "Freeze.transform.readnew - Win32 Release"
+!IF  "$(CFG)" == "Freeze.transform.readnew.exe - Win32 Release"
 
 USERDEP__NEWCO="..\..\..\bin\slice2cpp.exe"	"..\..\..\bin\slice2freeze.exe"	"..\..\..\lib\slice.lib"	
 # Begin Custom Build
@@ -145,7 +145,7 @@ BuildCmds= \
    $(BuildCmds)
 # End Custom Build
 
-!ELSEIF  "$(CFG)" == "Freeze.transform.readnew - Win32 Debug"
+!ELSEIF  "$(CFG)" == "Freeze.transform.readnew.exe - Win32 Debug"
 
 USERDEP__NEWCO="..\..\..\bin\slice2cpp.exe"	"..\..\..\bin\slice2freeze.exe"	"..\..\..\lib\sliced.lib"	
 # Begin Custom Build

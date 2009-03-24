@@ -37,48 +37,19 @@ IceInternal::Direct::Direct(const Current& current) :
     ServantManagerPtr servantManager = adapter->getServantManager();
     assert(servantManager);
 
-    try
+    _servant = servantManager->findServant(_current.id, _current.facet);
+    if(!_servant)
     {
-        _servant = servantManager->findServant(_current.id, _current.facet);
-        if(!_servant)
+        _locator = servantManager->findServantLocator(_current.id.category);
+        if(!_locator && !_current.id.category.empty())
         {
-            _locator = servantManager->findServantLocator(_current.id.category);
-            if(!_locator && !_current.id.category.empty())
-            {
-                _locator = servantManager->findServantLocator("");
-            }
-            if(_locator)
-            {
-                _servant = _locator->locate(_current, _cookie);
-            }
+            _locator = servantManager->findServantLocator("");
         }
-        if(!_servant)
-        {
-            if(servantManager && servantManager->hasServant(_current.id))
-            {
-                FacetNotExistException ex(__FILE__, __LINE__);
-                ex.id = _current.id;
-                ex.facet = _current.facet;
-                ex.operation = _current.operation;
-                throw ex;
-            }
-            else
-            {
-                ObjectNotExistException ex(__FILE__, __LINE__);
-                ex.id = _current.id;
-                ex.facet = _current.facet;
-                ex.operation = _current.operation;
-                throw ex;
-            }
-        }
-    }
-    catch(...)
-    {
-        if(_locator && _servant)
+        if(_locator)
         {
             try
             {
-                _locator->finished(_current, _servant, _cookie);
+                _servant = _locator->locate(_current, _cookie);
             }
             catch(...)
             {
@@ -86,8 +57,27 @@ IceInternal::Direct::Direct(const Current& current) :
                 throw;
             }
         }
+    }
+
+    if(!_servant)
+    {
         adapter->decDirectCount();
-        throw;
+        if(servantManager && servantManager->hasServant(_current.id))
+        {
+            FacetNotExistException ex(__FILE__, __LINE__);
+            ex.id = _current.id;
+            ex.facet = _current.facet;
+            ex.operation = _current.operation;
+            throw ex;
+        }
+        else
+        {
+            ObjectNotExistException ex(__FILE__, __LINE__);
+            ex.id = _current.id;
+            ex.facet = _current.facet;
+            ex.operation = _current.operation;
+            throw ex;
+        }
     }
 }
 

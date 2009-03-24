@@ -79,6 +79,9 @@ SessionControlClient::run(int argc, char* argv[])
     cout << "testing create exceptions... " << flush;
     try
     {
+#if defined(__BCPLUSPLUS__) && (__BCPLUSPLUS__ >= 0x0600)
+        IceUtil::DummyBCC dummy;
+#endif
         router->createSession("rejectme", "abc123");
         test(false);
     }
@@ -87,6 +90,9 @@ SessionControlClient::run(int argc, char* argv[])
     }
     try
     {
+#if defined(__BCPLUSPLUS__) && (__BCPLUSPLUS__ >= 0x0600)
+        IceUtil::DummyBCC dummy;
+#endif
         router->createSession("localexception", "abc123");
         test(false);
     }

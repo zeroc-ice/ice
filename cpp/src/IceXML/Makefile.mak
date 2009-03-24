@@ -28,7 +28,7 @@ LINKWITH        = $(EXPAT_LIBS) $(BASELIBS)
 PDBFLAGS        = /pdb:$(DLLNAME:.dll=.pdb)
 !endif
 
-!if "$(CPP_COMPILER)" == "BCC2007"
+!if "$(BCPLUSPLUS)" == "yes"
 RES_FILE        = ,, IceXML.res
 !else
 RES_FILE        = IceXML.res
@@ -51,7 +51,7 @@ install:: all
 	copy $(DLLNAME) $(install_bindir)
 
 
-!if "$(CPP_COMPILER)" == "BCC2007" && "$(OPTIMIZE)" != "yes"
+!if "$(BCPLUSPLUS)" == "yes" && "$(OPTIMIZE)" != "yes"
 
 install:: all
 	copy $(DLLNAME:.dll=.tds) $(install_bindir)

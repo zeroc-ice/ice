@@ -153,6 +153,42 @@ public class IncomingBase
         _os.instance().initializationData().logger.warning(sw.toString());
     }
 
+    final protected boolean
+    __servantLocatorFinished()
+    {
+        assert(_locator != null && _servant != null);
+        try
+        {
+            _locator.finished(_current, _servant, _cookie.value);
+            return true;
+        }
+        catch(Ice.UserException ex)
+        {
+            //
+            // The operation may have already marshaled a reply; we must overwrite that reply.
+            //
+            if(_response)
+            {
+                _os.endWriteEncaps();
+                _os.resize(Protocol.headerSize + 4, false); // Reply status position.
+                _os.writeByte(ReplyStatus.replyUserException);
+                _os.startWriteEncaps();
+                _os.writeUserException(ex);
+                _os.endWriteEncaps();
+                _connection.sendResponse(_os, _compress);
+            }
+            else
+            {
+                _connection.sendNoResponse();
+            }
+        }
+        catch(java.lang.Exception ex)
+        {
+            __handleException(ex);
+        }
+        return false;
+    }
+
     final protected void
     __handleException(java.lang.Exception exc)
     {

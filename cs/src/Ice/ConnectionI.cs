@@ -297,7 +297,7 @@ namespace Ice
             }
         }
 
-        public void monitor()
+        public void monitor(long now)
         {
             if(!Monitor.TryEnter(this))
             {
@@ -323,7 +323,7 @@ namespace Ice
                     return;
                 }
 
-                if(IceInternal.Time.currentMonotonicTimeMillis() >= _acmAbsoluteTimeoutMillis)
+                if(now >= _acmAbsoluteTimeoutMillis)
                 {
                     setState(StateClosing, new ConnectionTimeoutException());
                 }
@@ -846,12 +846,7 @@ namespace Ice
         {
             lock(this)
             {
-                if(_state == StateClosing || _state == StateClosed)
-                {
-                    Debug.Assert(_exception != null);
-                    throw _exception;
-                }
-                else if(_state <= StateNotValidated)
+                if(_state <= StateNotValidated || _state >= StateClosing)
                 {
                     return;
                 }
@@ -1719,15 +1714,24 @@ namespace Ice
 
                     if(_state == StateClosed)
                     {
+                        //
+                        // If the write completed and the connection is closed, we must check if the 
+                        // message might have been completely sent. If that's the case, we have to 
+                        // assume it's sent (even if it might not) to not break at-most once
+                        // semantics.
+                        //
                         if(result != null && result.IsCompleted)
                         {
                             OutgoingMessage message = _sendStreams.First.Value;
-                            message.sent(this, true);
-                            if(message.outAsync is Ice.AMISentCallback)
+                            if(message.stream.pos() == message.stream.size())
                             {
-                                _sentCallbacks.AddLast(message);
+                                message.sent(this, true);
+                                if(message.outAsync is Ice.AMISentCallback)
+                                {
+                                    _sentCallbacks.AddLast(message);
+                                }
+                                _sendStreams.RemoveFirst();
                             }
-                            _sendStreams.RemoveFirst();
                         }
                         _sendInProgress = false;
                         _threadPool.finish(this);
@@ -1737,6 +1741,14 @@ namespace Ice
                     while(_sendStreams.Count > 0)
                     {
                         OutgoingMessage message = _sendStreams.First.Value;
+                        
+                        //
+                        // The message may have already been prepared and partially sent.
+                        //
+                        if(!message.prepared)
+                        {
+                            prepareMessage(message);
+                        }
 
                         //
                         // If we have a result, it means we need to complete a pending I/O request.
@@ -1744,22 +1756,21 @@ namespace Ice
                         if(result != null)
                         {
                             _transceiver.endWrite(message.stream.getBuffer(), result);
+                            result = null;
+                        }
+                        
+                        //
+                        // If there's nothing left to send, dequeue the message and send another one.
+                        //
+                        if(message.stream.pos() == message.stream.size())
+                        {
                             message.sent(this, true); // true indicates that this is called by the async callback.
                             if(message.outAsync is Ice.AMISentCallback)
                             {
                                 _sentCallbacks.AddLast(message);
                             }
                             _sendStreams.RemoveFirst();
-                            result = null;
                             continue; // Begin another I/O request if necessary.
-                        }
-
-                        //
-                        // The message may have already been prepared and partially sent.
-                        //
-                        if(!message.prepared)
-                        {
-                            prepareMessage(message);
                         }
 
                         //
@@ -1988,7 +1999,7 @@ namespace Ice
                     }
 
                     Debug.Assert(_transceiver != null);
-                    bool parseHeader = _stream.isEmpty() || _stream.pos() < IceInternal.Protocol.headerSize;
+                    bool parseHeader = _stream.isEmpty() || _stream.pos() <= IceInternal.Protocol.headerSize;
 
                     //
                     // Complete an asynchronous read operation if necessary. This may raise a SocketException
@@ -2140,8 +2151,7 @@ namespace Ice
                 //
                 // Expected. Restart the read.
                 //
-                _stream.pos(0);
-                _stream.resize(IceInternal.Protocol.headerSize, true); // Make room for the next header.
+                _stream.resize(0, true);
                 readAsync(null);
             }
             catch(IceInternal.ReadAbortedException)
@@ -2168,8 +2178,7 @@ namespace Ice
                     //
                     // Restart the read.
                     //
-                    _stream.pos(0);
-                    _stream.resize(IceInternal.Protocol.headerSize, true); // Make room for the next header.
+                    _stream.resize(0, true);
                     readAsync(null);
                 }
                 else
@@ -2390,6 +2399,7 @@ namespace Ice
                             message.outAsync = _asyncRequests[requestId];
                             _asyncRequests.Remove(requestId);
                         }
+                        Monitor.PulseAll(this); // Notify threads blocked in close(false)
                         break;
                     }
 

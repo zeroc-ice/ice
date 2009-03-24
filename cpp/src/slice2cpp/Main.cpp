@@ -12,6 +12,7 @@
 #include <IceUtil/StaticMutex.h>
 #include <Slice/Preprocessor.h>
 #include <Slice/FileTracker.h>
+#include <Slice/Util.h>
 #include <Gen.h>
 
 using namespace std;
@@ -84,6 +85,9 @@ main(int argc, char* argv[])
     vector<string> args;
     try
     {
+#if defined(__BCPLUSPLUS__) && (__BCPLUSPLUS__ >= 0x0600)
+        IceUtil::DummyBCC dummy;
+#endif
         args = opts.parse(argc, (const char**)argv);
     }
     catch(const IceUtilInternal::BadOptException& e)
@@ -155,7 +159,7 @@ main(int argc, char* argv[])
 
     if(args.empty())
     {
-        cerr << argv[0] << ": no input file" << endl;
+        getErrorStream() << argv[0] << ": error: no input file" << endl;
         usage(argv[0]);
         return EXIT_FAILURE;
     }
@@ -169,15 +173,15 @@ main(int argc, char* argv[])
     {
         if(depend)
         {
-            Preprocessor icecpp(argv[0], *i, cppArgs, sourceExtension);
-            if(!icecpp.printMakefileDependencies(Preprocessor::CPlusPlus, includePaths))
+            Preprocessor icecpp(argv[0], *i, cppArgs);
+            if(!icecpp.printMakefileDependencies(Preprocessor::CPlusPlus, includePaths, sourceExtension))
             {
                 return EXIT_FAILURE;
             }
         }
         else
         {
-            Preprocessor icecpp(argv[0], *i, cppArgs, sourceExtension);
+            Preprocessor icecpp(argv[0], *i, cppArgs);
             FILE* cppHandle = icecpp.preprocess(false);
 
             if(cppHandle == 0)
@@ -229,7 +233,7 @@ main(int argc, char* argv[])
                         // cleanup any created files.
                         FileTracker::instance()->cleanup();
                         u->destroy();
-                        cerr << argv[0] << ": " << ex.reason() << endl;
+                        getErrorStream() << argv[0] << ": error: " << ex.reason() << endl;
                         return EXIT_FAILURE;
                     }
                 }

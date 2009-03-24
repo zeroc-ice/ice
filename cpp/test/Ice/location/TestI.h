@@ -30,6 +30,7 @@ private:
     std::vector<Ice::CommunicatorPtr> _communicators;
     ServerLocatorRegistryPtr _registry;
     Ice::InitializationData _initData;
+    int _nextPort;
 };
 
 class HelloI : public Test::Hello

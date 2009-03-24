@@ -81,7 +81,7 @@ public:
     void waitUntilHolding() const;
     void waitUntilFinished(); // Not const, as this might close the connection upon timeout.
 
-    void monitor();
+    void monitor(const IceUtil::Time&);
 
     bool sendRequest(IceInternal::Outgoing*, bool, bool);
     bool sendAsyncRequest(const IceInternal::OutgoingAsyncPtr&, bool, bool);

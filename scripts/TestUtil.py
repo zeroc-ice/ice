@@ -25,6 +25,7 @@ java2 = False                   # Use Java 2 jar file from binary distribution
 javaCmd = "java"                # Default java loader
 valgrind = False                # Set to True to use valgrind for C++ executables.
 tracefile = None
+printenv = False
 cross = []
 
 def isCygwin():
@@ -104,13 +105,33 @@ toplevel = path[0]
 def sanitize(cp):
     np = ""
     for p in cp.split(os.pathsep):
-        if p == "classes":
+        if os.path.normpath(p) == "classes":
             continue
         if len(np) > 0:
             np = np + os.pathsep
         np = np + p
     return np
         
+def dumpenv(env, lang):
+    if env == None:
+        env = os.environ
+    vars = ["PATH", "LD_LIBRARY_PATH", "DYLD_LIBRARY_PATH", "SHLIB_PATH", "LIBPATH", "LD_LIBRARY_PATH_64"]
+    if lang == None:
+        vars.extend(["CLASSPATH", "MONO_PATH", "PYTHONPATH", "RUBYLIB"])
+    elif lang == "cpp":
+        pass
+    elif lang == "java":
+        vars.append("CLASSPATH")
+    elif lang == "cs":
+        vars.append("MONO_PATH")
+    elif lang == "py":
+        vars.append("PYTHONPATH")
+    elif lang ==  "rb":
+        vars.append("RUBYLIB")
+    for i in vars:
+        if i in env:
+            print "%s=%s" % (i, env[i])
+
 def configurePaths():
     if iceHome:
         print "*** using Ice installation from " + iceHome,
@@ -165,46 +186,50 @@ def configurePaths():
     # On Windows, C# assemblies are found thanks to the .exe.config files.
     #
     if not isWin32():
-        os.environ["MONO_PATH"] = os.path.join(getIceDir("cs"), "bin") + os.pathsep + os.getenv("MONO_PATH", "")
+        addPathToEnv("MONO_PATH", os.path.join(getIceDir("cs"), "bin"))
         
     #
     # On Windows x64, set PYTHONPATH to python/x64.
     #
     pythonDir = os.path.join(getIceDir("py"), "python")
     if isWin32() and x64:
-        os.environ["PYTHONPATH"] = os.path.join(pythonDir, "x64") + os.pathsep + os.getenv("PYTHONPATH", "")
+        addPathToEnv("PYTHONPATH", os.path.join(pythonDir, "x64"))
     else:
-        os.environ["PYTHONPATH"] = pythonDir + os.pathsep + os.getenv("PYTHONPATH", "")
+        addPathToEnv("PYTHONPATH", pythonDir)
 
-    rubyDir = os.path.join(getIceDir("rb"), "ruby")
-    os.environ["RUBYLIB"] = rubyDir + os.pathsep + os.getenv("RUBYLIB", "")
+    addPathToEnv("RUBYLIB", os.path.join(getIceDir("rb"), "ruby"))
 
 def addLdPath(libpath, env = None):
     if env is None:
         env = os.environ
     if isWin32():
-        env["PATH"] = libpath + os.pathsep + env.get("PATH", "")
+        addPathToEnv("PATH", libpath, env)
     elif isHpUx():
-        env["SHLIB_PATH"] = libpath + os.pathsep + env.get("SHLIB_PATH", "")
-        env["LD_LIBRARY_PATH"] = libpath + os.pathsep + env.get("LD_LIBRARY_PATH", "")
+        addPathToEnv("SHLIB_PATH", libpath, env)
+        addPathToEnv("LD_LIBRARY_PATH", libpath, env)
     elif isDarwin():
-        env["DYLD_LIBRARY_PATH"] = libpath + os.pathsep + env.get("DYLD_LIBRARY_PATH", "")
+        addPathToEnv("DYLD_LIBRARY_PATH", libpath, env)
     elif isAIX():
-        env["LIBPATH"] = libpath + os.pathsep + env.get("LIBPATH", "")
+        addPathToEnv("LIBPATH", libpath, env)
     else:
-        env["LD_LIBRARY_PATH"] = libpath + os.pathsep + env.get("LD_LIBRARY_PATH", "")
-        env["LD_LIBRARY_PATH_64"] = libpath + os.pathsep + env.get("LD_LIBRARY_PATH_64", "")
+        addPathToEnv("LD_LIBRARY_PATH", libpath, env)
+        addPathToEnv("LD_LIBRARY_PATH_64", libpath, env)
     return env
 
-def addClasspath(dir, env = None):
+def addClasspath(path, env = None):
+    return addPathToEnv("CLASSPATH", path, env)
+
+def addPathToEnv(variable, path, env = None):
     if env is None:
         env = os.environ
-    env["CLASSPATH"] = dir + os.pathsep + env.get("CLASSPATH", "")
+    if not env.has_key(variable):
+        env[variable] = path
+    else:
+        env[variable] = path + os.pathsep + env.get(variable)
     return env
 
 # List of supported cross languages test.
-crossTests = [
-               "Ice/adapterDeactivation",
+crossTests = [ "Ice/adapterDeactivation",
                "Ice/background",
                "Ice/binding",
                "Ice/checksum",
@@ -241,11 +266,13 @@ def run(tests, root = False):
           --serialize             Run with connection serialization.
           --continue              Keep running when a test fails
           --ipv6                  Use IPv6 addresses.
+          --no-ipv6               Don't use IPv6 addresses.
           --ice-home=<path>       Use the binary distribution from the given path.
           --x64                   Binary distribution is 64-bit.
           --java2                 Use Java 2 jar file.
           --cross=lang            Run cross language test.
           --script                Generate a script to run the tests.
+          --env                   Print important environment variables
         """
         sys.exit(2)
 
@@ -253,7 +280,7 @@ def run(tests, root = False):
         opts, args = getopt.getopt(sys.argv[1:], "lr:R:",
                                    ["start=", "start-after=", "filter=", "rfilter=", "all", "all-cross", "loop",
                                     "debug", "protocol=", "compress", "valgrind", "host=", "serialize", "continue",
-                                    "ipv6", "ice-home=", "cross=", "x64", "script", "java2"])
+                                    "ipv6", "no-ipv6", "ice-home=", "cross=", "x64", "script", "java2", "env"])
     except getopt.GetoptError:
         usage()
 
@@ -266,6 +293,7 @@ def run(tests, root = False):
     allCross = False
     arg = ""
     script = False
+    noipv6 = False
 
     filters = []
     for o, a in opts:
@@ -288,6 +316,8 @@ def run(tests, root = False):
             cross.append(a)
         elif o == "--all" :
             all = True
+        elif o == "--no-ipv6" :
+            noipv6 = True
         elif o == "--all-cross" :
             allCross = True
         elif o in '--start':
@@ -302,7 +332,7 @@ def run(tests, root = False):
                 sys.exit(1)
 
         if o in ( "--cross", "--protocol", "--host", "--debug", "--compress", "--valgrind", "--serialize", "--ipv6", \
-                  "--ice-home", "--x64", "--java2"):
+                  "--ice-home", "--x64", "--java2", "--env"):
             arg += " " + o
             if len(a) > 0:
                 arg += " " + a
@@ -324,17 +354,19 @@ def run(tests, root = False):
         a = '--protocol=tcp --compress %s'  % arg
         expanded.append([ (test, a, config) for test,config in tests if "core" in config])
 
-        a = "--ipv6 --protocol=tcp %s" % arg
-        expanded.append([ (test, a, config) for test,config in tests if "core" in config])
+        if not noipv6:
+            a = "--ipv6 --protocol=tcp %s" % arg
+            expanded.append([ (test, a, config) for test,config in tests if "core" in config])
 
-        a = "--ipv6 --protocol=ssl %s" % arg
-        expanded.append([ (test, a, config) for test,config in tests if "core" in config])
+            a = "--ipv6 --protocol=ssl %s" % arg
+            expanded.append([ (test, a, config) for test,config in tests if "core" in config])
 
         a = "--protocol=tcp %s" % arg
         expanded.append([ (test, a, config) for test,config in tests if "service" in config])
 
-        a = "--protocol=ssl --ipv6 %s" % arg
-        expanded.append([ (test, a, config) for test,config in tests if "service" in config])
+        if not noipv6:
+            a = "--protocol=ssl --ipv6 %s" % arg
+            expanded.append([ (test, a, config) for test,config in tests if "service" in config])
 
         a = "--protocol=tcp --serialize %s" % arg
         expanded.append([ (test, a, config) for test,config in tests if "stress" in config])
@@ -575,11 +607,6 @@ def getDefaultMapping():
     else:
         raise "cannot determine mapping"
 
-def getTestEnv():
-    env = {}
-    env["certsdir"] = os.path.abspath(os.path.join(toplevel, "certs"))
-    return env 
-
 class DriverConfig:
     lang = None
     protocol = None 
@@ -635,11 +662,8 @@ def argsToDict(argumentString, results):
             results[current] = None
     return results
             
-def getCommandLine(exe, config, env=None):
+def getCommandLine(exe, config):
 
-    if not env:
-        env = getTestEnv()
-        
     #
     # Command lines are built up from the items in the components
     # sequence, which is initialized with command line options common to
@@ -659,8 +683,10 @@ def getCommandLine(exe, config, env=None):
     # configuration.
     #
     if config.protocol == "ssl":
-        components.append(sslConfigTree[config.lang]["plugin"] % env)
-        components.append(sslConfigTree[config.lang][config.type] % env)
+        sslenv = {}
+        sslenv["certsdir"] = os.path.abspath(os.path.join(toplevel, "certs"))
+        components.append(sslConfigTree[config.lang]["plugin"] % sslenv)
+        components.append(sslConfigTree[config.lang][config.type] % sslenv)
 
     if config.compress:
         components.append("--Ice.Override.Compress=1")
@@ -767,19 +793,21 @@ def isDebug():
     return debug
 
 import Expect
-def spawn(cmd, env = None, cwd = None):
+def spawn(cmd, env = None, cwd = None, startReader = True,lang=None):
     if debug:
         print "(%s)" % cmd,
-    return Expect.Expect(cmd, env = env, logfile=tracefile, cwd = cwd)
+    if printenv:
+        dumpenv(env, lang)
+    return Expect.Expect(cmd, startReader = startReader, env = env, logfile=tracefile, cwd = cwd)
 
-def spawnClient(cmd, env = None, cwd = None, echo = True):
-    client = spawn(cmd, env, cwd)
+def spawnClient(cmd, env = None, cwd = None, echo = True, startReader = True,lang=None):
+    client = spawn(cmd, env, cwd, startReader = startReader,lang = lang)
     if echo:
         client.trace()
     return client
 
-def spawnServer(cmd, env = None, cwd = None, count = 1, adapter = None, echo = True):
-    server = spawn(cmd, env, cwd)
+def spawnServer(cmd, env = None, cwd = None, count = 1, adapter = None, echo = True, lang=None):
+    server = spawn(cmd, env, cwd, lang=lang)
     if adapter:
         server.expect("%s ready\n" % adapter)
     else:
@@ -805,7 +833,6 @@ def getMirrorDir(base, mapping):
         raise "cannot find language dir"
     return os.path.join(before, mapping, *after)
 
-
 def clientServerTest(additionalServerOptions = "", additionalClientOptions = "",
                      server = None, client = None, serverenv = None, clientenv = None):
     if server is None:
@@ -827,11 +854,7 @@ def clientServerTest(additionalServerOptions = "", additionalClientOptions = "",
         server = os.path.join(serverdir, server)
 
     if serverenv is None:
-        serverenv = copy.deepcopy(os.environ)
-        if lang == "cpp":
-            addLdPath(os.path.join(serverdir), serverenv)
-        elif lang == "java":
-            addClasspath(os.path.join(serverdir, "classes"), serverenv)
+        serverenv = getTestEnv(lang, serverdir)
 
     global cross
     if len(cross) == 0:
@@ -858,18 +881,14 @@ def clientServerTest(additionalServerOptions = "", additionalClientOptions = "",
             client = os.path.join(clientdir, client)
 
         if clientenv is None:
-            clientenv = copy.deepcopy(os.environ)
-            if clientLang == "cpp":
-                addLdPath(os.path.join(clientdir), clientenv)
-            elif clientLang == "java":
-                addClasspath(os.path.join(clientdir, "classes"), clientenv)
+            clientenv = getTestEnv(clientLang, clientdir)
 
         print "starting " + serverDesc + "...",
         serverCfg = DriverConfig("server")
         if lang in ["rb", "php"]:
             serverCfg.lang = "cpp"
         server = getCommandLine(server, serverCfg) + " " + additionalServerOptions
-        serverProc = spawnServer(server, env = serverenv)
+        serverProc = spawnServer(server, env = serverenv, lang=serverCfg.lang)
         print "ok"
 
         if lang == "php":
@@ -880,8 +899,9 @@ def clientServerTest(additionalServerOptions = "", additionalClientOptions = "",
         else:
             print "starting %s %s ..." % (clientLang, clientDesc),
         client = getCommandLine(client, clientCfg) + " " + additionalClientOptions
-        clientProc = spawnClient(client, env = clientenv)
+        clientProc = spawnClient(client, env = clientenv, startReader = False, lang=clientCfg.lang)
         print "ok"
+	clientProc.startReader()
 
         clientProc.waitTestSuccess()
         serverProc.waitTestSuccess()
@@ -896,51 +916,52 @@ def collocatedTest(additionalOptions = ""):
     collocated = getDefaultCollocatedFile()
     if lang != "java" and lang != "javae":
         collocated = os.path.join(testdir, collocated) 
-        if lang == "cpp":
-            env = copy.deepcopy(os.environ)
-            addLdPath(os.path.join(testdir), env)
-        else:
-            env = None
-    else:
-        env = copy.deepcopy(os.environ)
-        addClasspath(os.path.join(testdir, "classes"), env)
+
+    env = getTestEnv(lang, testdir)
 
     print "starting collocated...",
     collocated = getCommandLine(collocated, DriverConfig("colloc")) + ' ' + additionalOptions 
-    collocatedProc = spawnClient(collocated, env = env)
+    collocatedProc = spawnClient(collocated, env = env, startReader = False, lang=lang)
     print "ok"
+    collocatedProc.startReader()
     collocatedProc.waitTestSuccess()
 
 def cleanDbDir(path):
     for filename in [ os.path.join(path, f) for f in os.listdir(path) if f != ".gitignore" and f != "DB_CONFIG" ]:
 	os.remove(filename)
 
-def startClient(exe, args = "", config=None, env=None, echo = True):
+def startClient(exe, args = "", config=None, env=None, echo = True, startReader = True):
     if config == None:
         config = DriverConfig("client")
-    cmd = getCommandLine(exe, config, env) + ' ' + args
+    if env == None:
+        env = getTestEnv(getDefaultMapping(), os.getcwd())
+    cmd = getCommandLine(exe, config) + ' ' + args
     if config.lang == "php":
         writePhpIni("php.ini", "tmp.ini")
+    return spawnClient(cmd, env = env, echo = echo, startReader = startReader, lang=config.lang)
 
-    return spawnClient(cmd, echo = echo)
-
-def startServer(exe, args = "", config=None, env=None, adapter = None, count = 1, echo = False):
+def startServer(exe, args = "", config=None, env=None, adapter = None, count = 1, echo = True):
     if config == None:
         config = DriverConfig("server")
-    cmd = getCommandLine(exe, config, env) + ' ' + args
-    return spawnServer(cmd, adapter = adapter, count = count, echo = echo)
+    if env == None:
+        env = getTestEnv(getDefaultMapping(), os.getcwd())
+    cmd = getCommandLine(exe, config) + ' ' + args
+    return spawnServer(cmd, env = env, adapter = adapter, count = count, echo = echo,lang=config.lang)
 
 def startColloc(exe, args, config=None, env=None):
     if config == None:
         config = DriverConfig("colloc")
-    cmd = getCommandLine(exe, config, env) + ' ' + args
-    return spawnClient(cmd)
+    if env == None:
+        env = getTestEnv(lang, testdir)
+    cmd = getCommandLine(exe, config) + ' ' + args
+    return spawnClient(cmd, env = env, lang=config.lang)
 
 def simpleTest(exe, options = ""):
     print "starting client...",
     command = exe + ' ' + options
-    client = spawnClient(command)
+    client = spawnClient(command, startReader = False, lang=getDefaultMapping())
     print "ok"
+    client.startReader()
     client.waitTestSuccess()
 
 def getCppBinDir():
@@ -956,6 +977,14 @@ def getCppBinDir():
         elif isWin32():
             binDir = os.path.join(binDir, "x64")
     return binDir
+
+def getTestEnv(lang, testdir):
+    env = os.environ.copy()
+    if lang == "cpp":
+        addLdPath(os.path.join(testdir), env)
+    elif lang == "java":
+        addClasspath(os.path.join(testdir, "classes"), env)
+    return env;
 
 def getTestName():
     lang = getDefaultMapping()
@@ -985,6 +1014,7 @@ def processCmdLine():
           --ice-home=<path>       Use the binary distribution from the given path.
           --x64                   Binary distribution is 64-bit.
           --java2                 Use Java 2 jar file.
+          --env                   Print important environment variables.
           --cross=lang            Run cross language test.
         """
         sys.exit(2)
@@ -992,7 +1022,7 @@ def processCmdLine():
     try:
         opts, args = getopt.getopt(
             sys.argv[1:], "", ["debug", "trace=", "protocol=", "compress", "valgrind", "host=", "serialize", "ipv6", \
-                              "ice-home=", "x64", "cross=", "java2"])
+                              "ice-home=", "x64", "cross=", "java2", "env"])
     except getopt.GetoptError:
         usage()
 
@@ -1051,6 +1081,9 @@ def processCmdLine():
         elif o == "--debug":
             global debug
             debug = True
+        elif o == "--env":
+            global printenv
+            printenv = True
         elif o == "--protocol":
             if a not in ( "ssl", "tcp"):
                 usage()

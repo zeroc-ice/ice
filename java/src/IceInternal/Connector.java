@@ -20,5 +20,4 @@ public interface Connector
     // Compare connectors for sorting process.
     //
     boolean equals(java.lang.Object obj);
-    int compareTo(java.lang.Object obj); // From java.lang.Comparable.
 }

@@ -54,13 +54,13 @@ allTests(const Ice::CommunicatorPtr& communicator)
         test(service3->getProperty("Service") == "4");
         test(service3->getProperty("Prop") == "");
         test(service3->getProperty("Service3.Prop") == "1");
-        test(service3->getProperty("Ice.Trace.Network") == "3");
+        test(service3->getProperty("Ice.Trace.Slicing") == "3");
 
         test(service4->getProperty("Ice.ProgramName") == "IceBox-SharedCommunicator");
         test(service4->getProperty("Service") == "4");
         test(service4->getProperty("Prop") == "");
         test(service4->getProperty("Service3.Prop") == "1");
-        test(service4->getProperty("Ice.Trace.Network") == "3");
+        test(service4->getProperty("Ice.Trace.Slicing") == "3");
 
         Ice::StringSeq args4;
         args4.push_back("--Service3.Prop=2");

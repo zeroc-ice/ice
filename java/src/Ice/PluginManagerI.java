@@ -118,8 +118,8 @@ public final class PluginManagerI implements PluginManager
                     }
                     catch(RuntimeException ex)
                     {
-                        Ice.Util.getProcessLogger().warning("unexpected exception raised by plug-in '" + entry.getKey() + "' destruction.\n");
-                        Ice.Util.getProcessLogger().warning("exception: " + ex.toString());
+                        Ice.Util.getProcessLogger().warning("unexpected exception raised by plug-in `" + 
+                                                            entry.getKey() + "' destruction:\n" + ex.toString());
                     }
                 }
             }
@@ -306,7 +306,7 @@ public final class PluginManagerI implements PluginManager
         PluginFactory pluginFactory = null;
         try
         {
-            Class c = Class.forName(className);
+            Class<?> c = Class.forName(className);
             java.lang.Object obj = c.newInstance();
             try
             {

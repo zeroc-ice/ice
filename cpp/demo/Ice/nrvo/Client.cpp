@@ -34,7 +34,12 @@ main(int argc, char* argv[])
     return app.main(argc, argv, "config.client");
 }
 
-NrvoClient::NrvoClient()
+NrvoClient::NrvoClient() :
+    //
+    // Since this is an interactive demo we don't want any signal
+    // handling.
+    //
+    Ice::Application(Ice::NoSignalHandling)
 {
 }
 
@@ -56,7 +61,6 @@ NrvoClient::run(int argc, char* argv[])
 
     menu();
 
-    char currentOperation = '1';
     char c;
     do
     {
@@ -65,54 +69,59 @@ NrvoClient::run(int argc, char* argv[])
             cout << "==> ";
             cin >> c;
 
-            if(c == '1' || c == '2' || c == '3' || c == 's' || c == '?' || c == 'x')
-            {
-                currentOperation = c;
-                switch(c)
-                {
-                    case '1':
-                    {
-                        cout << "calling op1" << endl;
-                        MyStringSeq seq = nrvo->op1();
-                        break;
-                    }
+	    switch(c)
+	    {
+		case '1':
+		{
+		    cout << "calling op1" << endl;
+		    MyStringSeq seq = nrvo->op1();
+		    break;
+		}
 
-                    case '2':
-                    {
-                        cout << "calling op2" << endl;
-                        MyStringSeq seq = nrvo->op2();
-                        break;
-                    }
+		case '2':
+		{
+		    cout << "calling op2" << endl;
+		    MyStringSeq seq = nrvo->op2();
+		    break;
+		}
 
-                    case '3':
-                    {
-                        cout << "calling op3" << endl;
-                        MyStringSeq seq = nrvo->op3(10);
-                        break;
-                    }
+		case '3':
+		{
+		    cout << "calling op3(10)" << endl;
+		    MyStringSeq seq = nrvo->op3(10);
+		    break;
+		}
 
-                    case 's':
-                    {
-                        nrvo->shutdown();
-                    }
+		case '4':
+		{
+		    cout << "calling op3(0)" << endl;
+		    MyStringSeq seq = nrvo->op3(0);
+		    break;
+		}
 
-                    case '?':
-                    {
-                        menu();
-                        break;
-                    }
+		case 's':
+		{
+		    nrvo->shutdown();
+		    break;
+		}
 
-                    case 'x':
-                    {
-                        break;
-                    }
-                }
-            }
-            else
-            {
-                cout << "unknown command `" << c << "'" << endl;
-                menu();
-            }
+		case '?':
+		{
+		    menu();
+		    break;
+		}
+
+		case 'x':
+		{
+		    break;
+		}
+		default:
+		{
+		    cout << "unknown command `" << c << "'" << endl;
+		    menu();
+		    break;
+		}
+	    }
         }
         catch(const Ice::Exception& ex)
         {
@@ -124,7 +133,6 @@ NrvoClient::run(int argc, char* argv[])
     return EXIT_SUCCESS;
 }
 
-
 void
 NrvoClient::menu()
 {
@@ -132,10 +140,11 @@ NrvoClient::menu()
         "usage:\n"
         "\n"
         "Operation to call:\n"
-        "1: return a string sequence.\n"
-        "2: return a string sequence that is a data member of the servant.\n"
-        "3: return a string sequence from an operation with multiple return path.\n"
-        "s: shutdown server.\n"
-        "x: exit.\n"
-        "?: show this menu.\n";
+        "1: return a string sequence\n"
+        "2: return a string sequence that is a data member of the servant\n"
+        "3: return a string sequence from an operation with multiple return paths\n"
+        "4: return a string sequence from an operation with multiple return paths, using RVO\n"
+        "s: shutdown server\n"
+        "x: exit\n"
+        "?: show this menu\n";
 }

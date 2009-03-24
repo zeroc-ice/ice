@@ -171,7 +171,6 @@ checkChar(char c)
 static char
 decodeChar(const string& s, string::size_type start, string::size_type end, string::size_type& nextStart)
 {
-    assert(start >= 0);
     assert(start < end);
     assert(end <= s.size());
 
@@ -282,10 +281,6 @@ static void decodeString(const string& s, string::size_type start, string::size_
 bool
 IceUtilInternal::unescapeString(const string& s, string::size_type start, string::size_type end, string& result)
 {
-    if(start < 0)
-    {
-        throw IllegalArgumentException(__FILE__, __LINE__, "start offset must be >= 0");
-    }
     if(end > s.size())
     {
         throw IllegalArgumentException(__FILE__, __LINE__, "end offset must be <= s.size()");
@@ -691,7 +686,8 @@ string
 IceUtilInternal::toLower(const std::string& s)
 {
     string result;
-    for(unsigned int i = 0; i < s.length(); ++ i)
+    result.reserve(s.size());
+    for(unsigned int i = 0; i < s.length(); ++i)
     {
          result += tolower(static_cast<unsigned char>(s[i]));
     }
@@ -702,7 +698,8 @@ string
 IceUtilInternal::toUpper(const std::string& s)
 {
     string result;
-    for(unsigned int i = 0; i < s.length(); ++ i)
+    result.reserve(s.size());
+    for(unsigned int i = 0; i < s.length(); ++i)
     {
          result += toupper(static_cast<unsigned char>(s[i]));
     }

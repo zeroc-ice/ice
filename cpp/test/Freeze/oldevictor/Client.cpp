@@ -174,6 +174,9 @@ public:
             string id = ostr.str();
             try
             {
+#if defined(__BCPLUSPLUS__) && (__BCPLUSPLUS__ >= 0x0600)
+                IceUtil::DummyBCC dummy;
+#endif
                 if(getState() == StateDeactivated)
                 {
                     _evictor->createServant(id, 0);
@@ -314,6 +317,9 @@ public:
                             //
                             try
                             {
+#if defined(__BCPLUSPLUS__) && (__BCPLUSPLUS__ >= 0x0600)
+                                IceUtil::DummyBCC dummy;
+#endif
                                 servant = _evictor->createServant(id, 0);
                                 test(false);
                             }

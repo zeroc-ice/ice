@@ -144,6 +144,41 @@ namespace IceInternal
             }
         }
 
+        protected bool servantLocatorFinished__()
+        {
+            Debug.Assert(locator_ != null && servant_ != null);
+            try
+            {
+                locator_.finished(current_, servant_, cookie_);
+                return true;
+            }
+            catch(Ice.UserException ex)
+            {
+                //
+                // The operation may have already marshaled a reply; we must overwrite that reply.
+                //
+                if(response_)
+                {
+                    os_.endWriteEncaps();
+                    os_.resize(Protocol.headerSize + 4, false); // Reply status position.
+                    os_.writeByte(ReplyStatus.replyUserException);
+                    os_.startWriteEncaps();
+                    os_.writeUserException(ex);
+                    os_.endWriteEncaps();
+                    connection_.sendResponse(os_, compress_);
+                }
+                else
+                {
+                    connection_.sendNoResponse();
+                }
+            }
+            catch(System.Exception ex)
+            {
+                handleException__(ex);
+            }
+            return false;
+        }
+
         protected internal void handleException__(System.Exception exc)
         {
             try
@@ -478,83 +513,76 @@ namespace IceInternal
             // the caller of this operation.
             //
 
-            try
+            if(servantManager != null)
             {
-                try
+                servant_ = servantManager.findServant(current_.id, current_.facet);
+                if(servant_ == null)
                 {
-                    if(servantManager != null)
+                    locator_ = servantManager.findServantLocator(current_.id.category);
+                    if(locator_ == null && current_.id.category.Length > 0)
                     {
-                        servant_ = servantManager.findServant(current_.id, current_.facet);
-                        if(servant_ == null)
-                        {
-                            locator_ = servantManager.findServantLocator(current_.id.category);
-                            if(locator_ == null && current_.id.category.Length > 0)
-                            {
-                                locator_ = servantManager.findServantLocator("");
-                            }
-                            if(locator_ != null)
-                            {
-                                try
-                                {
-                                    servant_ = locator_.locate(current_, out cookie_);
-                                }
-                                catch(Ice.UserException ex)
-                                {
-                                    os_.writeUserException(ex);
-                                    replyStatus = ReplyStatus.replyUserException;
-                                }
-                            }
-                        }
+                        locator_ = servantManager.findServantLocator("");
                     }
-                    if(replyStatus == ReplyStatus.replyOK)
-                    {
-                        if(servant_ == null)
-                        {
-                            if(servantManager != null && servantManager.hasServant(current_.id))
-                            {
-                                replyStatus = ReplyStatus.replyFacetNotExist;
-                            }
-                            else
-                            {
-                                replyStatus = ReplyStatus.replyObjectNotExist;
-                            }
-                        }
-                        else
-                        {
-                            dispatchStatus = servant_.dispatch__(this, current_);
-                            if(dispatchStatus == Ice.DispatchStatus.DispatchUserException)
-                            {
-                                replyStatus = ReplyStatus.replyUserException;
-                            }
-                        }
-                    }
-                }
-                finally
-                {
-                    if(locator_ != null && servant_ != null && dispatchStatus != Ice.DispatchStatus.DispatchAsync)
+
+                    if(locator_ != null)
                     {
                         try
                         {
-                            locator_.finished(current_, servant_, cookie_);
+                            servant_ = locator_.locate(current_, out cookie_);
                         }
                         catch(Ice.UserException ex)
                         {
-                            //
-                            // The operation may have already marshaled a reply; we must overwrite that reply.
-                            //
-                            os_.endWriteEncaps();
-                            os_.resize(Protocol.headerSize + 5, false); // Byte following reply status.
-                            os_.startWriteEncaps();
                             os_.writeUserException(ex);
-                            replyStatus = ReplyStatus.replyUserException; // Code below inserts the reply status.
+                            replyStatus = ReplyStatus.replyUserException;
+                        }
+                        catch(System.Exception ex)
+                        {
+                            handleException__(ex);
+                            return;
                         }
                     }
                 }
             }
-            catch(System.Exception ex)
+
+            if(servant_ != null)
             {
-                handleException__(ex);
-                return;
+                try
+                {
+                    Debug.Assert(replyStatus == ReplyStatus.replyOK);
+                    dispatchStatus = servant_.dispatch__(this, current_);
+                    if(dispatchStatus == Ice.DispatchStatus.DispatchUserException)
+                    {
+                        replyStatus = ReplyStatus.replyUserException;
+                    }
+
+                    if(dispatchStatus != Ice.DispatchStatus.DispatchAsync)
+                    {
+                        if(locator_ != null && !servantLocatorFinished__())
+                        {
+                            return;
+                        }
+                    }
+                }
+                catch(System.Exception ex)
+                {
+                    if(locator_ != null && !servantLocatorFinished__())
+                    {
+                        return;
+                    }
+                    handleException__(ex);
+                    return;
+                }
+            }
+            else if(replyStatus == ReplyStatus.replyOK)
+            {
+                if(servantManager != null && servantManager.hasServant(current_.id))
+                {
+                    replyStatus = ReplyStatus.replyFacetNotExist;
+                }
+                else
+                {
+                    replyStatus = ReplyStatus.replyObjectNotExist;
+                }
             }
 
             //

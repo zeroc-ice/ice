@@ -131,25 +131,22 @@ Ice::PluginManagerI::destroy()
                 catch(const std::exception& ex)
                 {
                     Warning out(getProcessLogger());
-                    out << "unexpected exception raised by plug-in '" << r->first << "' destruction.\n";
-                    out << "exception: " << ex.what();
+                    out << "unexpected exception raised by plug-in `" << r->first << "' destruction:\n" << ex.what();
                 }
                 catch(const std::string& str)
                 {
                     Warning out(getProcessLogger());
-                    out << "unexpected exception raised by plug-in '" << r->first << "' destruction.\n";
-                    out << "exception: " << str;
+                    out << "unexpected exception raised by plug-in `" << r->first << "' destruction:\n" << str;
                 }
                 catch(const char* msg)
                 {
                     Warning out(getProcessLogger());
-                    out << "unexpected exception raised by plug-in '" << r->first << "' destruction.\n";
-                    out << "exception: " << msg;
+                    out << "unexpected exception raised by plug-in `" << r->first << "' destruction:\n" << msg;
                 }
                 catch(...)
                 {
                     Warning out(getProcessLogger());
-                    out << "unexpected exception raised by plug-in '"    << r->first << "' destruction.";
+                    out << "unexpected exception raised by plug-in `"    << r->first << "' destruction";
                 }
             }
         }

@@ -25,10 +25,11 @@ development tools to build Ice applications:
  - in C++, using Visual Studio 2008 or Visual C++ 2008 Express Edition
  - in .NET, using Visual Studio 2008
  - in Java, using Java 5 or Java 6
+ - in Python, using Python 2.6.1
 
-If you want to develop Ice applications in Python, Ruby or PHP, or
-with another C++ compiler, please download the appropriate Ice binary
-distribution from the ZeroC web site at
+If you want to develop Ice applications in Ruby or PHP, or with another
+C++ compiler, please download the appropriate Ice binary distribution 
+from the ZeroC web site at
 
   http://www.zeroc.com/download.html
 
@@ -48,7 +49,8 @@ Supported Windows versions
 This distribution is supported on the following Windows versions:
 
  - Windows XP with Service Pack 2 (x86)
- - Windows Server 2003 Standard (x86 & x64)
+ - Windows Server 2003 Standard with Service Pack 2 (x86 & x64)
+ - Windows Server 2008 Standard (x86 & x64)
  - Windows Vista (x86 & x64)
 
 
@@ -62,6 +64,21 @@ relevant for your system:
 
   http://support.microsoft.com/?id=896256
   http://support.microsoft.com/?id=895980
+
+
+Managed code in Ice for .NET
+----------------------------
+
+The main Ice for .NET assembly (Ice.dll) included in this distribution
+uses unmanaged code. If you require only managed code then you can
+download the Ice source distribution and build Ice for .NET in a
+purely managed version. Note that the managed version of Ice for .NET
+omits support for protocol compression and for signal handling in the
+Ice.Application class.
+
+You can download the source distribution at the link below:
+
+    http://www.zeroc.com/download.html
 
 
 Running IceGrid and Glacier2 components as services
@@ -235,6 +252,48 @@ remove the certificate:
    confirm that you want to remove this certificate.
 
 
+Installing the .NET assemblies in the GAC
+-----------------------------------------
+
+You can add the .NET assemblies to the Global Assembly Cache (GAC). To
+do this, open Windows Explorer and navigate to the directory
+C:\WINDOWS\assembly. Next, drag and drop (or copy and paste) the
+.NET assemblies from bin directory into the right-hand pane to install
+them in the cache.
+
+Or you can use gacutil from the command line to achieve the same
+result:
+
+  > gacutil /i <library.dll>
+
+You can find gacutil.exe in the SDK\Tools\Bin folder of your Visual C#
+installation. For example, if you have installed Visual C# 8.0 in
+C:\Program Files, the path to gacutil is
+
+  C:\Program Files\Microsoft Visual Studio 8\SDK\v2.0\Bin\gacutil.exe
+
+Once installed in the cache, the assemblies will always be located
+correctly without having to set environment variables or copy them
+into the same directory as an executable.
+
+If you want line numbers for stack traces, you must also install the
+PDB (.pdb) files in the GAC. Unfortunately, you cannot do this using
+Explorer, so you have to do it from the command line. Open a command
+shell window and navigate to C:\WINDOWS\assembly\GAC_MSIL\Ice.
+(Assuming C:\WINDOWS is your system root.) Doing a directory listing
+there, you will find a directory named @dotnetver@__<UUID>, for
+example:
+
+  @dotnetver@__cdd571ade22f2f16
+
+Change to that directory (making sure that you use the correct version
+number for this release of Ice). In this directory, you will see the
+Ice.dll you installed into the GAC in the preceding step. Now copy the
+Ice.pdb file into this directory:
+
+  > copy <path_to_ice.pdb> .
+
+
 Building and running the Java demos
 -----------------------------------
 
@@ -285,6 +344,35 @@ Some demo directories contain README files if additional requirements
 are necessary.
 
 
+Running the Python demos
+------------------------
+
+The Python demos are in the demopy directory.
+
+You need Python 2.6.1 to run the demos. A binary installer for Python
+can be downloaded from:
+
+  http://www.python.org/download
+
+You also need to add the Ice bin directory to your PATH, for example:
+
+set PATH=<Ice installation root directory>\bin;%PATH%
+
+Finally, set PYTHONPATH so that the Python interpreter is able to load
+the Ice extension. For a 32-bit Python installation, use this setting:
+
+set PYTHONPATH=<Ice installation root directory>\python
+
+For a 64-bit Python installation, use this setting instead:
+
+set PYTHONPATH=<Ice installation root directory>\python\x64
+
+To run a demo, open a Command Prompt, change to the desired demo
+directory, and type 'python Server.py' to start the server. In a
+separate Command Prompt window, type 'python Client.py' to run the
+client.
+
+
 Protocol compression with 64-bit Windows
 ----------------------------------------
 
@@ -301,10 +389,10 @@ detects a bzip2.dll format mismatch during start-up.)
 Binary compatibility
 --------------------
 
-Ice patch releases are binary compatible. For example, Ice version 
-<x>.<y>.1 is compatible with <x>.<y>.0: you can run an application 
-built against Ice <x>.<y>.0 with Ice <x>.<y>.1 (or later) without 
-having to recompile or relink this application.
+Ice patch releases are binary compatible. For example, Ice version
+@mmver@.1 is compatible with @mmver@.0: you can run an application built
+against Ice @mmver@.0 with Ice @mmver@.1 (or later) without having to
+recompile or relink this application.
 
 Please refer to the RELEASE_NOTES.txt file included in this
 distribution for detailed upgrade instructions.

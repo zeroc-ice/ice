@@ -16,6 +16,8 @@ namespace IceInternal
     using System.Diagnostics;
     using System.Reflection;
     using System.Runtime.InteropServices;
+    using System.Runtime.Serialization;
+    using System.Runtime.Serialization.Formatters.Binary;
     using System.Threading;
 
     public class BasicStream
@@ -412,6 +414,16 @@ namespace IceInternal
             _writeEncapsCache.reset();
         }
 
+        public virtual void endWriteEncapsChecked()
+        {
+            if(_writeEncapsStack == null)
+            {
+                throw new Ice.EncapsulationException("not in an encapsulation");
+            }
+
+            endWriteEncaps();
+        }
+
         public virtual void startReadEncaps()
         {
             {
@@ -520,6 +532,16 @@ namespace IceInternal
             {
                 throw new Ice.UnmarshalOutOfBoundsException(ex);
             }
+        }
+
+        public virtual void endReadEncapsChecked()
+        {
+            if(_readEncapsStack == null)
+            {
+                throw new Ice.EncapsulationException("not in an encapsulation");
+            }
+
+            endReadEncaps();
         }
 
         public virtual int getReadEncapsSize()
@@ -634,6 +656,11 @@ namespace IceInternal
 
         public virtual void writeTypeId(string id)
         {
+            if(_writeEncapsStack == null || _writeEncapsStack.typeIdMap == null)
+            {
+                throw new Ice.MarshalException("type ids require an encapsulation");
+            }
+
             object o = _writeEncapsStack.typeIdMap[id];
             if(o != null)
             {
@@ -651,6 +678,11 @@ namespace IceInternal
 
         public virtual string readTypeId()
         {
+            if(_readEncapsStack == null || _readEncapsStack.typeIdMap == null)
+            {
+                throw new Ice.MarshalException("type ids require an encapsulation");
+            }
+
             string id;
             int index;
             bool isIndex = readBool();
@@ -778,6 +810,26 @@ namespace IceInternal
             }
         }
 
+        public virtual void writeSerializable(object o)
+        {
+            if(o == null)
+            {
+                writeSize(0);
+                return;
+            }
+            try
+            {
+                StreamWrapper w = new StreamWrapper(this);
+                IFormatter f = new BinaryFormatter();
+                f.Serialize(w, o);
+                w.Close();
+            }
+            catch(System.Exception ex)
+            {
+                throw new Ice.MarshalException("cannot serialize object:", ex);
+            }
+        }
+
         public virtual byte readByte()
         {
             try
@@ -857,6 +909,26 @@ namespace IceInternal
             for(int i = array.Length - 1; i >= 0; --i)
             {
                 l.Push(array[i]);
+            }
+        }
+
+        public virtual object readSerializable()
+        {
+            int sz = readSize();
+            if(sz == 0)
+            {
+                return null;
+            }
+            checkFixedSeq(sz, 1);
+            try
+            {
+                StreamWrapper w = new StreamWrapper(sz, this);
+                IFormatter f = new BinaryFormatter();
+                return f.Deserialize(w);
+            }
+            catch(System.Exception ex)
+            {
+                throw new Ice.MarshalException("cannot deserialize object:", ex);
             }
         }
 
@@ -2001,34 +2073,41 @@ namespace IceInternal
 
             int index = readInt();
 
-            if(index == 0)
+            if(patcher != null)
             {
-                patcher.patch(null);
-                return;
-            }
-
-            if(index < 0 && patcher != null)
-            {
-                int i = -index;
-                IceUtilInternal.LinkedList patchlist = (IceUtilInternal.LinkedList)_readEncapsStack.patchMap[i];
-                if(patchlist == null)
+                if(index == 0)
                 {
-                    //
-                    // We have no outstanding instances to be patched
-                    // for this index, so make a new entry in the
-                    // patch map.
-                    //
-                    patchlist = new IceUtilInternal.LinkedList();
-                    _readEncapsStack.patchMap[i] = patchlist;
+                    patcher.patch(null);
+                    return;
                 }
-                //
-                // Append a patcher for this instance and see if we
-                // can patch the instance. (The instance may have been
-                // unmarshaled previously.)
-                //
-                patchlist.Add(patcher);
-                patchReferences(null, i);
-                return;
+
+                if(index < 0)
+                {
+                    int i = -index;
+                    IceUtilInternal.LinkedList patchlist = (IceUtilInternal.LinkedList)_readEncapsStack.patchMap[i];
+                    if(patchlist == null)
+                    {
+                        //
+                        // We have no outstanding instances to be patched
+                        // for this index, so make a new entry in the
+                        // patch map.
+                        //
+                        patchlist = new IceUtilInternal.LinkedList();
+                        _readEncapsStack.patchMap[i] = patchlist;
+                    }
+                    //
+                    // Append a patcher for this instance and see if we
+                    // can patch the instance. (The instance may have been
+                    // unmarshaled previously.)
+                    //
+                    patchlist.Add(patcher);
+                    patchReferences(null, i);
+                    return;
+                }
+            }
+            if(index < 0)
+            {
+                throw new Ice.MarshalException("Invalid class instance index");
             }
 
             string mostDerivedId = readTypeId();
@@ -2149,6 +2228,7 @@ namespace IceInternal
             bool usesClasses = readBool();
 
             string id = readString();
+            string origId = id;
 
             for(;;)
             {
@@ -2193,8 +2273,22 @@ namespace IceInternal
                     {
                         TraceUtil.traceSlicing("exception", id, _slicingCat, instance_.initializationData().logger);
                     }
+
                     skipSlice(); // Slice off what we don't understand.
-                    id = readString(); // Read type id for next slice.
+
+                    try
+                    {
+                        id = readString(); // Read type id for next slice.
+                    }
+                    catch(Ice.UnmarshalOutOfBoundsException ex)
+                    {
+                        //
+                        // When readString raises this exception it means we've seen the last slice,
+                        // so we set the reason member to a more helpful message.
+                        //
+                        ex.reason = "unknown exception type `" + origId + "'";
+                        throw ex;
+                    }
                 }
             }
 
@@ -2256,6 +2350,15 @@ namespace IceInternal
                 }
             }
             while(num > 0);
+
+            if(_readEncapsStack != null && _readEncapsStack.patchMap != null && _readEncapsStack.patchMap.Count != 0)
+            {
+                //
+                // If any entries remain in the patch map, the sender has sent an index for an object, but failed
+                // to supply the object.
+                //
+                throw new Ice.MarshalException("Index for class received, but no instance");
+            }
 
             //
             // Iterate over unmarshaledMap and invoke
@@ -2591,7 +2694,7 @@ namespace IceInternal
             return _buf.empty();
         }
 
-        private void expand(int n)
+        public void expand(int n)
         {
             if(!_unlimited && _buf.b != null && _buf.b.position() + n > _messageSizeMax)
             {   

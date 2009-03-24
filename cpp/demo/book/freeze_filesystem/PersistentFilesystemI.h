@@ -29,6 +29,8 @@ protected:
     NodeI();
     NodeI(const Ice::Identity&);
 
+    bool _destroyed;
+
 public:
 
     const Ice::Identity _id;
@@ -67,9 +69,6 @@ public:
     DirectoryI();
     DirectoryI(const Ice::Identity&);
 
-private:
-
-    bool _destroyed;
 };
 
 class NodeFactory : virtual public Ice::ObjectFactory

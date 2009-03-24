@@ -200,6 +200,7 @@ public:
             delete oldEncaps;
         }
     }
+    void endWriteEncapsChecked(); // Used by public stream API.
 
     void startReadEncaps()
     {
@@ -298,6 +299,7 @@ public:
         }
         i += 2;
     }
+    void endReadEncapsChecked(); // Used by public stream API.
 
     Ice::Int getReadEncapsSize();
     void skipEncaps();

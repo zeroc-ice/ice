@@ -305,7 +305,7 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
     }
 
     synchronized public void
-    monitor()
+    monitor(long now)
     {
         if(_state != StateActive)
         {
@@ -323,7 +323,7 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
             return;
         }
         
-        if(IceInternal.Time.currentMonotonicTimeMillis() >= _acmAbsoluteTimeoutMillis)
+        if(now >= _acmAbsoluteTimeoutMillis)
         {
             setState(StateClosing, new ConnectionTimeoutException());
         }
@@ -837,12 +837,7 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
     public synchronized void
     setAdapter(ObjectAdapter adapter)
     {
-        if(_state == StateClosing || _state == StateClosed)
-        {
-            assert(_exception != null);
-            throw _exception;
-        }
-        else if(_state <= StateNotValidated)
+        if(_state <= StateNotValidated || _state >= StateClosing)
         {
             return;
         }
@@ -1630,7 +1625,7 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
                 {
                     throw new ConnectionNotValidatedException();
                 }
-                byte compress = is.readByte(); // Ignore compression status for validate connection.
+                is.readByte(); // Ignore compression status for validate connection.
                 int size = is.readInt();
                 if(size != IceInternal.Protocol.headerSize)
                 {
@@ -1963,6 +1958,7 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
                             throw new UnknownRequestIdException();
                         }
                     }
+                    notifyAll(); // Notify threads blocked in close(false)
                     break;
                 }
 
@@ -1983,10 +1979,6 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
                     throw new UnknownMessageException();
                 }
             }
-        }
-        catch(SocketException ex)
-        {
-            setState(StateClosed, ex);
         }
         catch(LocalException ex)
         {
@@ -2071,6 +2063,17 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
             _logger.error(uex.unknown);
             invokeException(uex, invokeNum);
         }
+        catch(java.lang.OutOfMemoryError ex)
+        {
+            UnknownException uex = new UnknownException();
+            java.io.StringWriter sw = new java.io.StringWriter();
+            java.io.PrintWriter pw = new java.io.PrintWriter(sw);
+            ex.printStackTrace(pw);
+            pw.flush();
+            uex.unknown = sw.toString();
+            _logger.error(uex.unknown);
+            invokeException(uex, invokeNum);
+        }
         finally
         {
             if(in != null)
@@ -2089,17 +2092,6 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
         pw.flush();
         String s = msg + ":\n" + _desc + "\n" + sw.toString();
         _logger.warning(s);
-    }
-
-    private void
-    error(String msg, Exception ex)
-    {
-        java.io.StringWriter sw = new java.io.StringWriter();
-        java.io.PrintWriter pw = new java.io.PrintWriter(sw);
-        ex.printStackTrace(pw);
-        pw.flush();
-        String s = msg + ":\n" + _desc + "\n" + sw.toString();
-        _logger.error(s);
     }
 
     private IceInternal.Incoming

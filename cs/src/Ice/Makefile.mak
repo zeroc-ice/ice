@@ -84,6 +84,7 @@ SRCS		= Acceptor.cs \
 		  SliceChecksums.cs \
 		  Stream.cs \
 		  StreamI.cs \
+                  StreamWrapper.cs \
 		  StringUtil.cs \
 		  SysLoggerI.cs \
 		  TcpAcceptor.cs \

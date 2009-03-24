@@ -28,6 +28,8 @@ namespace Ice
         byte readByte();
         byte[] readByteSeq();
 
+        object readSerializable();
+
         short readShort();
         short[] readShortSeq();
 
@@ -81,6 +83,8 @@ namespace Ice
 
         void writeByte(byte v);
         void writeByteSeq(byte[] v);
+
+        void writeSerializable(object v);
 
         void writeShort(short v);
         void writeShortSeq(short[] v);

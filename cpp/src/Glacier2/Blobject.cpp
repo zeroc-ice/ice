@@ -53,11 +53,9 @@ public:
         //
         if(_connection)
         {
-            try
-            {
-                ex.ice_throw();
-            }
-            catch(const Ice::ConnectionLostException&)
+            if(dynamic_cast<const Ice::SocketException*>(&ex) ||
+               dynamic_cast<const Ice::TimeoutException*>(&ex) ||
+               dynamic_cast<const Ice::ProtocolException*>(&ex))
             {
                 try
                 {
@@ -66,9 +64,6 @@ public:
                 catch(const Exception&)
                 {
                 }
-            }
-            catch(const Exception&)
-            {
             }
         }
 
@@ -115,11 +110,9 @@ public:
         //
         if(_connection)
         {
-            try
-            {
-                ex.ice_throw();
-            }
-            catch(const Ice::ConnectionLostException&)
+            if(dynamic_cast<const Ice::SocketException*>(&ex) ||
+               dynamic_cast<const Ice::TimeoutException*>(&ex) ||
+               dynamic_cast<const Ice::ProtocolException*>(&ex))
             {
                 try
                 {
@@ -128,9 +121,6 @@ public:
                 catch(const Exception&)
                 {
                 }
-            }
-            catch(const Exception&)
-            {
             }
         }
 
@@ -168,7 +158,7 @@ Glacier2::Blobject::Blobject(const InstancePtr& instance, const ConnectionPtr& r
                                                    _instance->clientRequestQueueThread();
     if(t)
     {
-        const_cast<RequestQueuePtr&>(_requestQueue) = new RequestQueue(t, _instance);
+        const_cast<RequestQueuePtr&>(_requestQueue) = new RequestQueue(t, _instance, _reverseConnection);
     }
 }
 
@@ -347,8 +337,8 @@ Glacier2::Blobject::invoke(ObjectPrx& proxy, const AMD_Array_Object_ice_invokePt
         bool override;
         try
         {
-            override = _requestQueue->addRequest(
-                new Request(proxy, inParams, current, _forwardContext, _sslContext, amdCB, _reverseConnection));
+            override = _requestQueue->addRequest(new Request(proxy, inParams, current, _forwardContext, _sslContext, 
+                                                             amdCB));
         }
         catch(const ObjectNotExistException& ex)
         {

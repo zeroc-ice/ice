@@ -327,14 +327,32 @@ public class AllTests
         {
             hello.sayHello_async(new AMICallbackResponse());
         }
-        test(locator.getRequestCount() > count && locator.getRequestCount() < count + 500);
+        hello.ice_ping();
+        test(locator.getRequestCount() > count && locator.getRequestCount() < count + 999);
+        if(locator.getRequestCount() > count + 800)
+        {
+            Console.Out.Write("queuing = " + (locator.getRequestCount() - count));
+        }
         count = locator.getRequestCount();
         hello = (HelloPrx)hello.ice_adapterId("unknown");
         for(int i = 0; i < 1000; i++)
         {
             hello.sayHello_async(new AMICallbackException());
         }
-        test(locator.getRequestCount() > count && locator.getRequestCount() < count + 500);
+        try
+        {
+            hello.ice_ping();
+            test(false);
+        }
+        catch(Ice.NotRegisteredException)
+        {
+        }
+        // Take into account the retries.
+        test(locator.getRequestCount() > count && locator.getRequestCount() < count + 1999);
+        if(locator.getRequestCount() > count + 800)
+        {
+            Console.Out.Write("queuing = " + (locator.getRequestCount() - count));
+        }
         Console.Out.WriteLine("ok");
 
         Console.Out.Write("testing adapter locator cache... ");
@@ -567,8 +585,8 @@ public class AllTests
             {
             }
             registry.addObject(communicator.stringToProxy("test3:tcp"));
-            ic.stringToProxy("test@TestAdapter5").ice_locatorCacheTimeout(1).ice_ping(); // 1s timeout.
-            ic.stringToProxy("test3").ice_locatorCacheTimeout(1).ice_ping(); // 1s timeout.
+            ic.stringToProxy("test@TestAdapter5").ice_locatorCacheTimeout(10).ice_ping(); // 10s timeout.
+            ic.stringToProxy("test3").ice_locatorCacheTimeout(10).ice_ping(); // 10s timeout.
             test(count == locator.getRequestCount());
             System.Threading.Thread.Sleep(new System.TimeSpan(10 * 1200 * 1000));
 

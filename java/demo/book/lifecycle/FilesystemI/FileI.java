@@ -13,7 +13,7 @@ import Ice.*;
 import Filesystem.*;
 import FilesystemI.*;
 
-public class FileI extends _FileDisp implements NodeI, _FileOperations
+public class FileI extends _FileDisp implements NodeI
 {
     public synchronized String
     name(Current c)
@@ -62,14 +62,12 @@ public class FileI extends _FileDisp implements NodeI, _FileOperations
             {
                 throw new ObjectNotExistException();
             }
+
+            c.adapter.remove(id());
             _destroyed = true;
         }
 
-        synchronized(_parent._lcMutex)
-        {
-            c.adapter.remove(id());
-            _parent.addReapEntry(_name);
-        }
+        _parent.removeEntry(_name);
     }
 
     public FileI(String name, DirectoryI parent)
@@ -79,14 +77,6 @@ public class FileI extends _FileDisp implements NodeI, _FileOperations
         _destroyed = false;
         _id = new Identity();
         _id.name = java.util.UUID.randomUUID().toString();
-    }
-
-    public FilePrx
-    activate(Ice.ObjectAdapter a)
-    {
-        FilePrx node = FilePrxHelper.uncheckedCast(a.add(this, _id));
-        _parent.addChild(_name, this);
-        return node;
     }
 
     private String _name;

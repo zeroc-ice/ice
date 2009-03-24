@@ -30,6 +30,7 @@ Server::run(int argc, char* argv[])
     try
     {
         adapter->activate();
+        communicator()->getAdmin();
     }
     catch(const Ice::ObjectAdapterDeactivatedException&)
     {

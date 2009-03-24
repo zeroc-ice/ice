@@ -75,6 +75,7 @@ private:
         }
 
         bool operator<(const ConnectorInfo& other) const;
+        bool operator==(const ConnectorInfo& other) const;
 
         ConnectorPtr connector;
         EndpointIPtr endpoint;
@@ -99,8 +100,15 @@ private:
         void getConnection();
         void nextConnector();
 
+        void setConnection(const Ice::ConnectionIPtr&, bool);
+        void setException(const Ice::LocalException&);
+
+        bool hasConnector(const ConnectorInfo&);
+        bool removeConnectors(const std::vector<ConnectorInfo>&);
+        void removeFromPending();
+
         bool operator<(const ConnectCallback&) const;
-        
+
     private:
 
         const OutgoingConnectionFactoryPtr _factory;
@@ -120,7 +128,13 @@ private:
     void incPendingConnectCount();
     void decPendingConnectCount();
     Ice::ConnectionIPtr getConnection(const std::vector<ConnectorInfo>&, const ConnectCallbackPtr&, bool&);
-    void finishGetConnection(const std::vector<ConnectorInfo>&, const ConnectCallbackPtr&, const Ice::ConnectionIPtr&);
+    void finishGetConnection(const std::vector<ConnectorInfo>&, const ConnectorInfo&, const Ice::ConnectionIPtr&, 
+                             const ConnectCallbackPtr&);
+    void finishGetConnection(const std::vector<ConnectorInfo>&, const Ice::LocalException&, const ConnectCallbackPtr&);
+    
+    bool addToPending(const ConnectCallbackPtr&, const std::vector<ConnectorInfo>&);
+    void removeFromPending(const ConnectCallbackPtr&, const std::vector<ConnectorInfo>&);
+
     Ice::ConnectionIPtr findConnection(const std::vector<ConnectorInfo>&, bool&);
     Ice::ConnectionIPtr createConnection(const TransceiverPtr&, const ConnectorInfo&);
 

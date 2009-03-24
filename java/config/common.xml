@@ -195,6 +195,27 @@
         <isset property="ice.src.dist"/>
     </condition>
 
+    <!-- Set db.jar.file to the path name of the Berkeley DB JAR file, but only if it's
+         not already present in the class path. -->
+    <condition property="db.jar.file" value="/usr/share/java/db-${db.version}.jar">
+        <and>
+            <not><available classname="com.sleepycat.db.Database"/></not>
+            <available file="/usr/share/java/db-${db.version}.jar"/>
+        </and>
+    </condition>
+    <condition property="db.jar.file" value="/opt/Ice-${ice.version}/lib/db.jar">
+        <and>
+            <not><os family="windows"/></not>
+            <not><isset property="db.jar.file"/></not>
+            <not><available classname="com.sleepycat.db.Database"/></not>
+            <available file="/opt/Ice-${ice.version}/lib/db.jar"/>
+        </and>
+    </condition>
+
+    <path id="db.classpath">
+        <pathelement path="${db.jar.file}"/>
+    </path>
+
     <target name="config-init-warn" if="ice.warn.duplicate.translator">
         <echo message="Found ${slice.translator} in both ${ice.cpp.dir}/bin and ${ice.dir}/cpp/bin, ${ice.cpp.dir}/bin/${slice.translator} will be used!" level="warning"/>
     </target>
@@ -256,6 +277,9 @@
             <fileset file="${dist.jar.file}"/>
         </path>
 
+        <condition property="certs.dir" value="${ice.top.dir}/certs" else="${ice.top.dir}/../certs">
+            <available file="${ice.top.dir}/certs/client.jks"/>
+        </condition>
     </target>
 
     <!-- Install the Slice ant tasks. -->

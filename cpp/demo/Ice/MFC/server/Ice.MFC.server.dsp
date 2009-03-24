@@ -1,10 +1,10 @@
-# Microsoft Developer Studio Project File - Name="Ice.MFC.server" - Package Owner=<4>
+# Microsoft Developer Studio Project File - Name="Ice.MFC.server.exe" - Package Owner=<4>
 # Microsoft Developer Studio Generated Build File, Format Version 6.00
 # ** DO NOT EDIT **
 
 # TARGTYPE "Win32 (x86) Application" 0x0101
 
-CFG=Ice.MFC.server - Win32 Debug
+CFG=Ice.MFC.server.exe - Win32 Debug
 !MESSAGE This is not a valid makefile. To build this project using NMAKE,
 !MESSAGE use the Export Makefile command and run
 !MESSAGE 
@@ -13,12 +13,12 @@ CFG=Ice.MFC.server - Win32 Debug
 !MESSAGE You can specify a configuration when running NMAKE
 !MESSAGE by defining the macro CFG on the command line. For example:
 !MESSAGE 
-!MESSAGE NMAKE /f "Ice.MFC.server.mak" CFG="Ice.MFC.server - Win32 Debug"
+!MESSAGE NMAKE /f "Ice.MFC.server.mak" CFG="Ice.MFC.server.exe - Win32 Debug"
 !MESSAGE 
 !MESSAGE Possible choices for configuration are:
 !MESSAGE 
-!MESSAGE "Ice.MFC.server - Win32 Release" (based on "Win32 (x86) Application")
-!MESSAGE "Ice.MFC.server - Win32 Debug" (based on "Win32 (x86) Application")
+!MESSAGE "Ice.MFC.server.exe - Win32 Release" (based on "Win32 (x86) Application")
+!MESSAGE "Ice.MFC.server.exe - Win32 Debug" (based on "Win32 (x86) Application")
 !MESSAGE 
 
 # Begin Project
@@ -29,7 +29,7 @@ CPP=cl.exe
 MTL=midl.exe
 RSC=rc.exe
 
-!IF  "$(CFG)" == "Ice.MFC.server - Win32 Release"
+!IF  "$(CFG)" == "Ice.MFC.server.exe - Win32 Release"
 
 # PROP BASE Use_MFC 6
 # PROP BASE Use_Debug_Libraries 0
@@ -53,10 +53,10 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LINK32=link.exe
 # ADD BASE LINK32 /nologo /subsystem:windows /machine:I386
-# ADD LINK32 ice.lib iceutil.lib /nologo /subsystem:windows /pdb:none /machine:I386 /out:"server.exe" /libpath:"../../../../lib" /FIXED:no
+# ADD LINK32 ice.lib iceutil.lib /nologo /subsystem:windows /pdb:none /machine:I386 /out:"server.exe" /libpath:"../../../../lib" /FIXED:no /IGNORE:4089
 # SUBTRACT LINK32 /debug
 
-!ELSEIF  "$(CFG)" == "Ice.MFC.server - Win32 Debug"
+!ELSEIF  "$(CFG)" == "Ice.MFC.server.exe - Win32 Debug"
 
 # PROP BASE Use_MFC 6
 # PROP BASE Use_Debug_Libraries 1
@@ -87,8 +87,8 @@ LINK32=link.exe
 
 # Begin Target
 
-# Name "Ice.MFC.server - Win32 Release"
-# Name "Ice.MFC.server - Win32 Debug"
+# Name "Ice.MFC.server.exe - Win32 Release"
+# Name "Ice.MFC.server.exe - Win32 Debug"
 # Begin Group "Source Files"
 
 # PROP Default_Filter "cpp;c;cxx;rc;def;r;odl;idl;hpj;bat"
@@ -161,7 +161,7 @@ SOURCE=.\StdAfx.h
 
 SOURCE=.\Hello.ice
 
-!IF  "$(CFG)" == "Ice.MFC.server - Win32 Release"
+!IF  "$(CFG)" == "Ice.MFC.server.exe - Win32 Release"
 
 USERDEP__HELLO="..\..\..\..\bin\slice2cpp.exe"	"..\..\..\..\lib\slice.lib"	
 # Begin Custom Build
@@ -177,7 +177,7 @@ BuildCmds= \
    $(BuildCmds)
 # End Custom Build
 
-!ELSEIF  "$(CFG)" == "Ice.MFC.server - Win32 Debug"
+!ELSEIF  "$(CFG)" == "Ice.MFC.server.exe - Win32 Debug"
 
 USERDEP__HELLO="..\..\..\..\bin\slice2cpp.exe"	"..\..\..\..\lib\sliced.lib"	
 # Begin Custom Build

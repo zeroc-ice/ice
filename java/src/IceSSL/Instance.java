@@ -13,8 +13,6 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
-import Ice.Logger;
-
 class Instance
 {
     Instance(Ice.Communicator communicator)
@@ -108,7 +106,7 @@ class Instance
                 throw e;
             }
 
-            Class cls = null;
+            Class<?> cls = null;
             try
             {
                 cls = Class.forName(certVerifierClass);
@@ -147,7 +145,7 @@ class Instance
                 throw e;
             }
 
-            Class cls = null;
+            Class<?> cls = null;
             try
             {
                 cls = Class.forName(passwordCallbackClass);
@@ -209,22 +207,22 @@ class Instance
                     final String[] arr = seedFiles.split(java.io.File.pathSeparator);
                     for(int i = 0; i < arr.length; ++i)
                     {
-                        Ice.StringHolder seedFile = new Ice.StringHolder(arr[i]);
-                        if(!checkPath(seedFile, false))
-                        {
-                            Ice.PluginInitializationException e = new Ice.PluginInitializationException();
-                            e.reason = "IceSSL: random seed file not found:\n" + arr[i];
-                            throw e;
-                        }
-                        java.io.File f = new java.io.File(seedFile.value);
                         try
                         {
-                            _seeds.add(new java.io.FileInputStream(f));
+                            java.io.InputStream seedStream = openResource(arr[i]);
+                            if(seedStream == null)
+                            {
+                                Ice.PluginInitializationException e = new Ice.PluginInitializationException();
+                                e.reason = "IceSSL: random seed file not found:\n" + arr[i];
+                                throw e;
+                            }
+
+                            _seeds.add(seedStream);
                         }
                         catch(java.io.IOException ex)
                         {
                             Ice.PluginInitializationException e = new Ice.PluginInitializationException();
-                            e.reason = "IceSSL: error while reading random seed file:\n" + arr[i];
+                            e.reason = "IceSSL: unable to access random seed file:\n" + arr[i];
                             e.initCause(ex);
                             throw e;
                         }
@@ -275,7 +273,7 @@ class Instance
                 //
                 // The keystore holds private keys and associated certificates.
                 //
-                Ice.StringHolder keystorePath = new Ice.StringHolder(properties.getProperty(prefix + "Keystore"));
+                String keystorePath = properties.getProperty(prefix + "Keystore");
 
                 //
                 // The password for the keys.
@@ -302,7 +300,7 @@ class Instance
                 //
                 // The truststore holds the certificates of trusted CAs.
                 //
-                Ice.StringHolder truststorePath = new Ice.StringHolder(properties.getProperty(prefix + "Truststore"));
+                String truststorePath = properties.getProperty(prefix + "Truststore");
 
                 //
                 // The password for the truststore.
@@ -322,17 +320,27 @@ class Instance
                 //
                 javax.net.ssl.KeyManager[] keyManagers = null;
                 java.security.KeyStore keys = null;
-                if(_keystoreStream != null || keystorePath.value.length() > 0)
+                if(_keystoreStream != null || keystorePath.length() > 0)
                 {
-                    if(_keystoreStream == null && !checkPath(keystorePath, false))
-                    {
-                        Ice.PluginInitializationException e = new Ice.PluginInitializationException();
-                        e.reason = "IceSSL: keystore file not found:\n" + keystorePath.value;
-                        throw e;
-                    }
-                    keys = java.security.KeyStore.getInstance(keystoreType);
+                    java.io.InputStream keystoreStream = null;
                     try
                     {
+                        if(_keystoreStream != null)
+                        {
+                            keystoreStream = _keystoreStream;
+                        }
+                        else
+                        {
+                            keystoreStream = openResource(keystorePath);
+                            if(keystoreStream == null)
+                            {
+                                Ice.PluginInitializationException e = new Ice.PluginInitializationException();
+                                e.reason = "IceSSL: keystore not found:\n" + keystorePath;
+                                throw e;
+                            }
+                        }
+
+                        keys = java.security.KeyStore.getInstance(keystoreType);
                         char[] passwordChars = null;
                         if(keystorePassword.length() > 0)
                         {
@@ -348,16 +356,7 @@ class Instance
                             passwordChars = new char[0];
                         }
 
-                        java.io.InputStream bis;
-                        if(_keystoreStream != null)
-                        {
-                            bis = _keystoreStream;
-                        }
-                        else
-                        {
-                            bis = new java.io.BufferedInputStream(new java.io.FileInputStream(keystorePath.value));
-                        }
-                        keys.load(bis, passwordChars);
+                        keys.load(keystoreStream, passwordChars);
 
                         if(passwordChars != null)
                         {
@@ -368,9 +367,23 @@ class Instance
                     catch(java.io.IOException ex)
                     {
                         Ice.PluginInitializationException e = new Ice.PluginInitializationException();
-                        e.reason = "IceSSL: unable to load keystore:\n" + keystorePath.value;
+                        e.reason = "IceSSL: unable to load keystore:\n" + keystorePath;
                         e.initCause(ex);
                         throw e;
+                    }
+                    finally
+                    {
+                        if(keystoreStream != null)
+                        {
+                            try
+                            {
+                                keystoreStream.close();
+                            }
+                            catch(java.io.IOException e)
+                            {
+                                // Ignore.
+                            }
+                        }
                     }
 
                     String algorithm = javax.net.ssl.KeyManagerFactory.getDefaultAlgorithm();
@@ -416,31 +429,41 @@ class Instance
                 // Collect the trust managers.
                 //
                 javax.net.ssl.TrustManager[] trustManagers = null;
-                if(_truststoreStream != null || truststorePath.value.length() > 0)
+                if(_truststoreStream != null || truststorePath.length() > 0)
                 {
-                    if(_truststoreStream == null && !checkPath(truststorePath, false))
-                    {
-                        Ice.PluginInitializationException e = new Ice.PluginInitializationException();
-                        e.reason = "IceSSL: truststore file not found:\n" + truststorePath.value;
-                        throw e;
-                    }
-
                     //
                     // If the trust store and the key store are the same input
                     // stream or file, don't create another key store.
                     //
                     java.security.KeyStore ts;
                     if((_truststoreStream != null && _truststoreStream == _keystoreStream) ||
-                       (truststorePath.value.length() > 0 && truststorePath.value.equals(keystorePath.value)))
+                       (truststorePath.length() > 0 && truststorePath.equals(keystorePath)))
                     {
                         assert keys != null;
                         ts = keys;
                     }
                     else
                     {
-                        ts = java.security.KeyStore.getInstance(truststoreType);
+                        java.io.InputStream truststoreStream = null;
                         try
                         {
+                            if(_truststoreStream != null)
+                            {
+                                truststoreStream = _truststoreStream;
+                            }
+                            else
+                            {
+                                truststoreStream = openResource(truststorePath);
+                                if(truststoreStream == null)
+                                {
+                                    Ice.PluginInitializationException e = new Ice.PluginInitializationException();
+                                    e.reason = "IceSSL: truststore not found:\n" + truststorePath;
+                                    throw e;
+                                }
+                            }
+
+                            ts = java.security.KeyStore.getInstance(truststoreType);
+
                             char[] passwordChars = null;
                             if(truststorePassword.length() > 0)
                             {
@@ -456,17 +479,7 @@ class Instance
                                 passwordChars = new char[0];
                             }
 
-                            java.io.InputStream bis;
-                            if(_truststoreStream != null)
-                            {
-                                bis = _truststoreStream;
-                            }
-                            else
-                            {
-                                bis = new java.io.BufferedInputStream(
-                                    new java.io.FileInputStream(truststorePath.value));
-                            }
-                            ts.load(bis, passwordChars);
+                            ts.load(truststoreStream, passwordChars);
 
                             if(passwordChars != null)
                             {
@@ -477,9 +490,23 @@ class Instance
                         catch(java.io.IOException ex)
                         {
                             Ice.PluginInitializationException e = new Ice.PluginInitializationException();
-                            e.reason = "IceSSL: unable to load truststore:\n" + truststorePath.value;
+                            e.reason = "IceSSL: unable to load truststore:\n" + truststorePath;
                             e.initCause(ex);
                             throw e;
+                        }
+                        finally
+                        {
+                            if(truststoreStream != null)
+                            {
+                                try
+                                {
+                                    truststoreStream.close();
+                                }
+                                catch(java.io.IOException e)
+                                {
+                                    // Ignore.
+                                }
+                            }
                         }
                     }
 
@@ -681,11 +708,12 @@ class Instance
 
         if(_securityTraceLevel >= 1)
         {
-            StringBuffer s = new StringBuffer();
+            StringBuilder s = new StringBuilder(128);
             s.append("enabling SSL ciphersuites:");
             for(int i = 0; i < cipherSuites.length; ++i)
             {
-                s.append("\n  " + cipherSuites[i]);
+                s.append("\n  ");
+                s.append(cipherSuites[i]);
             }
             _logger.trace(_securityTraceCategory, s.toString());
         }
@@ -898,14 +926,15 @@ class Instance
                     //
                     if(!certNameOK && (_checkCertName || (_securityTraceLevel >= 1 && _verifier == null)))
                     {
-                        StringBuffer sb = new StringBuffer();
+                        StringBuilder sb = new StringBuilder(128);
                         sb.append("IceSSL: ");
                         if(!_checkCertName)
                         {
                             sb.append("ignoring ");
                         }
-                        sb.append("certificate validation failure:\npeer certificate does not contain `" +
-                                  address + "' in its subjectAltName extension");
+                        sb.append("certificate validation failure:\npeer certificate does not contain `");
+                        sb.append(address);
+                        sb.append("' in its subjectAltName extension");
                         if(!dnsNames.isEmpty())
                         {
                             sb.append("\nDNS names found in certificate: ");
@@ -1057,33 +1086,60 @@ class Instance
         cipherList.toArray(_ciphers);
     }
 
-    private boolean
-    checkPath(Ice.StringHolder path, boolean dir)
+    private java.io.InputStream
+    openResource(String path)
+        throws java.io.IOException
     {
         //
-        // Check if file exists. If not, try prepending the default
-        // directory and check again. If the file is found, the
-        // string argument is modified and true is returned. Otherwise
-        // false is returned.
+        // We resolve the path as follows:
         //
-        java.io.File f = new java.io.File(path.value);
-        if(f.exists())
-        {
-            return dir ? f.isDirectory() : f.isFile();
-        }
+        // 1. Try to open it as a class path resource
+        // 2. Try to open it in the file system
+        // 3. Prepend the value of IceSSL.DefaultDir (if defined) and try to open
+        //    it in the file system
+        //
 
-        if(_defaultDir.length() > 0)
+        //
+        // Calling getResourceAsStream on the class loader means all paths are absolute,
+        // whereas calling it on the class requires you to prepend "/" to the path in
+        // order to make it absolute, otherwise the path is interpreted relative to the
+        // class.
+        //
+        // getResourceAsStream returns null if the resource can't be found.
+        //
+        java.io.InputStream stream = getClass().getClassLoader().getResourceAsStream(path);
+        if(stream != null)
         {
-            String s = _defaultDir + java.io.File.separator + path.value;
-            f = new java.io.File(s);
-            if(f.exists() && ((!dir && f.isFile()) || (dir && f.isDirectory())))
+            stream = new java.io.BufferedInputStream(stream);
+        }
+        else
+        {
+            try
             {
-                path.value = s;
-                return true;
+                java.io.File f = new java.io.File(path);
+                if(f.exists())
+                {
+                    stream = new java.io.BufferedInputStream(new java.io.FileInputStream(f));
+                }
+                else
+                {
+                    if(_defaultDir.length() > 0)
+                    {
+                        f = new java.io.File(_defaultDir + java.io.File.separator + path);
+                        if(f.exists())
+                        {
+                            stream = new java.io.BufferedInputStream(new java.io.FileInputStream(f));
+                        }
+                    }
+                }
+            }
+            catch(java.lang.SecurityException ex)
+            {
+                // Ignore - a security manager may forbid access to the local file system.
             }
         }
 
-        return false;
+        return stream;
     }
 
     private static class CipherExpression
