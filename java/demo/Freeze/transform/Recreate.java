@@ -64,6 +64,7 @@ class Recreate extends Ice.Application
     main(String[] args)
     {
         Recreate app = new Recreate();
-        app.main("demo.Freeze.transform.Recreate", args);
+        int status = app.main("demo.Freeze.transform.Recreate", args);
+        System.exit(status);
     }
 }

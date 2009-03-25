@@ -86,6 +86,7 @@ class Read extends Ice.Application
     main(String[] args)
     {
         Read app = new Read();
-        app.main("demo.Freeze.transform.Read", args);
+        int status = app.main("demo.Freeze.transform.Read", args);
+        System.exit(status);
     }
 }

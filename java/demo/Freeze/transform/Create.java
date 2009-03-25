@@ -81,6 +81,7 @@ class Create extends Ice.Application
     main(String[] args)
     {
         Create app = new Create();
-        app.main("demo.Freeze.transform.Create", args);
+        int status = app.main("demo.Freeze.transform.Create", args);
+        System.exit(status);
     }
 }
