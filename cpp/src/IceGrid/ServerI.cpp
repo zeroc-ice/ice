@@ -1750,6 +1750,11 @@ ServerI::shutdown()
 {
     Lock sync(*this);
     assert(_state == ServerI::Inactive);
+    assert(!_destroy);
+    assert(!_stop);
+    assert(!_load);
+    assert(!_patch);
+    assert(!_start);
     _timerTask = 0;
 }
 
@@ -2567,6 +2572,12 @@ ServerI::setStateNoSync(InternalServerState st, const std::string& reason)
         break;
     }
 
+    if(_timerTask)
+    {
+        _node->getTimer()->cancel(_timerTask);
+        _timerTask = 0;
+    }
+
     if(_state == Destroyed && !_load)
     {
         //
@@ -2587,6 +2598,7 @@ ServerI::setStateNoSync(InternalServerState st, const std::string& reason)
     {
         if(_activation == Always)
         {
+            assert(!_timerTask);
             _timerTask = new DelayedStart(this, _node->getTraceLevels());
             try
             {
@@ -2606,12 +2618,21 @@ ServerI::setStateNoSync(InternalServerState st, const std::string& reason)
             // server will be ready to be reactivated when the
             // callback is executed.  
             //
+            assert(!_timerTask);
             _timerTask = new DelayedStart(this, _node->getTraceLevels());
             try
             {
-                _node->getTimer()->schedule(_timerTask, 
-                                            IceUtil::Time::seconds(_disableOnFailure) + 
-                                            IceUtil::Time::milliSeconds(500));
+                IceUtil::Time now = IceUtil::Time::now(IceUtil::Time::Monotonic);
+                if(now - _failureTime < IceUtil::Time::seconds(_disableOnFailure))
+                {
+                    _node->getTimer()->schedule(_timerTask, 
+                                                IceUtil::Time::seconds(_disableOnFailure) - now + _failureTime +
+                                                IceUtil::Time::milliSeconds(500));
+                }
+                else
+                {
+                    _node->getTimer()->schedule(_timerTask, IceUtil::Time::milliSeconds(500));
+                }
             }
             catch(const IceUtil::Exception&)
             {

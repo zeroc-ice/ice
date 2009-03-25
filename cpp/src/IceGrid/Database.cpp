@@ -307,10 +307,7 @@ Database::addApplication(const ApplicationInfo& info, AdminSessionI* session)
         Lock sync(*this);
         checkSessionLock(session);
 
-        while(_updating.find(info.descriptor.name) != _updating.end())
-        {
-            wait();
-        }
+        waitForUpdate(info.descriptor.name);
 
         if(_applications.find(info.descriptor.name) != _applications.end())
         {
@@ -320,7 +317,7 @@ Database::addApplication(const ApplicationInfo& info, AdminSessionI* session)
         ApplicationHelper helper(_communicator, info.descriptor, true);
         checkForAddition(helper);
         load(helper, entries, info.uuid, info.revision);
-        startUpdating(info.descriptor.name);
+        startUpdating(info.descriptor.name, info.uuid, info.revision);
     }
 
     if(_master)
@@ -378,10 +375,7 @@ Database::updateApplication(const ApplicationUpdateInfo& updt, AdminSessionI* se
         Lock sync(*this);       
         checkSessionLock(session);
 
-        while(_updating.find(update.descriptor.name) != _updating.end())
-        {
-            wait();
-        }
+        waitForUpdate(update.descriptor.name);
 
         StringApplicationInfoDict::const_iterator p = _applications.find(update.descriptor.name);
         if(p == _applications.end())
@@ -403,7 +397,7 @@ Database::updateApplication(const ApplicationUpdateInfo& updt, AdminSessionI* se
 
         newDesc = helper.getDefinition();
 
-        startUpdating(update.descriptor.name);
+        startUpdating(update.descriptor.name, oldApp.uuid, oldApp.revision + 1);
     }
 
     finishApplicationUpdate(entries, update, oldApp, newDesc, session);
@@ -419,10 +413,7 @@ Database::syncApplicationDescriptor(const ApplicationDescriptor& newDesc, AdminS
         Lock sync(*this);
         checkSessionLock(session);
 
-        while(_updating.find(newDesc.name) != _updating.end())
-        {
-            wait();
-        }
+        waitForUpdate(newDesc.name);
 
         StringApplicationInfoDict::const_iterator p = _applications.find(newDesc.name);
         if(p == _applications.end())
@@ -442,7 +433,7 @@ Database::syncApplicationDescriptor(const ApplicationDescriptor& newDesc, AdminS
         checkForUpdate(previous, helper);       
         reload(previous, helper, entries, oldApp.uuid, oldApp.revision + 1);
 
-        startUpdating(update.descriptor.name);
+        startUpdating(update.descriptor.name, oldApp.uuid, oldApp.revision + 1);
     }
 
     finishApplicationUpdate(entries, update, oldApp, newDesc, session);
@@ -462,10 +453,7 @@ Database::instantiateServer(const string& application,
         Lock sync(*this);       
         checkSessionLock(session);
 
-        while(_updating.find(application) != _updating.end())
-        {
-            wait();
-        }
+        waitForUpdate(application);
 
         StringApplicationInfoDict::const_iterator p = _applications.find(application);
         if(p == _applications.end())
@@ -487,7 +475,7 @@ Database::instantiateServer(const string& application,
 
         newDesc = helper.getDefinition();
 
-        startUpdating(update.descriptor.name);
+        startUpdating(update.descriptor.name, oldApp.uuid, oldApp.revision + 1);
     }
 
     finishApplicationUpdate(entries, update, oldApp, newDesc, session);
@@ -502,10 +490,7 @@ Database::removeApplication(const string& name, AdminSessionI* session)
         Lock sync(*this);
         checkSessionLock(session);
 
-        while(_updating.find(name) != _updating.end())
-        {
-            wait();
-        }
+        waitForUpdate(name);
 
         StringApplicationInfoDict::iterator p = _applications.find(name);
         if(p == _applications.end())
@@ -535,7 +520,7 @@ Database::removeApplication(const string& name, AdminSessionI* session)
             //
         }
         
-        startUpdating(name);
+        startUpdating(name, p->second.uuid, p->second.revision);
     }
 
     if(_master)
@@ -588,14 +573,15 @@ Database::getAllApplications(const string& expression)
 
 void
 Database::waitForApplicationUpdate(const AMD_NodeSession_waitForApplicationUpdatePtr& cb,
-                                   const string& application, 
+                                   const string& uuid, 
                                    int revision)
 {
     Lock sync(*this);
-    map<string, vector<AMD_NodeSession_waitForApplicationUpdatePtr> >::iterator p = _updating.find(application);
+
+    vector<UpdateInfo>::iterator p = find(_updating.begin(), _updating.end(), make_pair(uuid, revision));
     if(p != _updating.end())
     {
-        p->second.push_back(cb);
+        p->cbs.push_back(cb);
     }
     else
     {
@@ -1674,21 +1660,30 @@ Database::finishApplicationUpdate(ServerEntrySeq& entries,
 }
 
 void
-Database::startUpdating(const string& name)
+Database::waitForUpdate(const string& name)
+{
+    while(find(_updating.begin(), _updating.end(), name) != _updating.end())
+    {
+        wait();
+    }
+}
+
+void
+Database::startUpdating(const string& name, const string& uuid, int revision)
 {
     // Must be called within the synchronization.
-    _updating.insert(make_pair(name, vector<AMD_NodeSession_waitForApplicationUpdatePtr>()));
+    assert(find(_updating.begin(), _updating.end(), name) == _updating.end());
+    _updating.push_back(UpdateInfo(name, uuid, revision));
 }
 
 void
 Database::finishUpdating(const string& name)
 {
     Lock sync(*this);
-    
-    map<string, vector<AMD_NodeSession_waitForApplicationUpdatePtr> >::iterator p = _updating.find(name);
+
+    vector<UpdateInfo>::iterator p = find(_updating.begin(), _updating.end(), name);
     assert(p != _updating.end());
-    for(vector<AMD_NodeSession_waitForApplicationUpdatePtr>::const_iterator q = p->second.begin(); 
-        q != p->second.end(); ++q)
+    for(vector<AMD_NodeSession_waitForApplicationUpdatePtr>::const_iterator q = p->cbs.begin(); q != p->cbs.end(); ++q)
     {
         (*q)->ice_response();
     }

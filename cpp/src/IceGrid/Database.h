@@ -148,7 +148,8 @@ private:
 
     void checkSessionLock(AdminSessionI*);
 
-    void startUpdating(const std::string&);
+    void waitForUpdate(const std::string&);
+    void startUpdating(const std::string&, const std::string&, int);
     void finishUpdating(const std::string&);
     
     friend struct AddComponent;
@@ -193,7 +194,29 @@ private:
     int _replicaApplicationSerial;
     int _adapterSerial;
     int _objectSerial;
-    std::map<std::string, std::vector<AMD_NodeSession_waitForApplicationUpdatePtr> > _updating;
+
+    struct UpdateInfo
+    {
+        std::string name;
+        std::string uuid;
+        int revision;
+        std::vector<AMD_NodeSession_waitForApplicationUpdatePtr> cbs;
+
+        UpdateInfo(const std::string& n, const std::string& u, int r) :
+            name(n), uuid(u), revision(r)
+        {
+        }
+
+        bool operator==(const std::string& n)
+        {
+            return name == n;
+        }
+        bool operator==(const std::pair<std::string, int>& p)
+        {
+            return uuid == p.first && revision == p.second;
+        }
+    };
+    std::vector<UpdateInfo> _updating;
 };
 typedef IceUtil::Handle<Database> DatabasePtr;
 
