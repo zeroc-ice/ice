@@ -211,7 +211,28 @@ main(int argc, char* argv[])
         if(depend || dependxml)
         {
             Preprocessor icecpp(argv[0], *i, cppArgs);
+            FILE* cppHandle = icecpp.preprocess(false);
+
+            if(cppHandle == 0)
+            {
+                return EXIT_FAILURE;
+            }
+
+            UnitPtr u = Unit::createUnit(false, false, ice, caseSensitive);
+            int parseStatus = u->parse(*i, cppHandle, debug);
+            u->destroy();
+
+            if(parseStatus == EXIT_FAILURE)
+            {
+                return EXIT_FAILURE;
+            }
+
             if(!icecpp.printMakefileDependencies(depend ? Preprocessor::Java : Preprocessor::JavaXML, includePaths))
+            {
+                return EXIT_FAILURE;
+            }
+
+            if(!icecpp.close())
             {
                 return EXIT_FAILURE;
             }

@@ -26,6 +26,16 @@ NOTE: Use this section for changes that are NOT included in the 3.3
 branch.
 ======================================================================
 
+General Changes
+===============
+
+These entries apply to all relevant language mappings unless otherwise
+noted.
+
+- Using the --depend option with Slice compilers that support it no 
+  longer outputs dependency info even if the Slice file itself 
+  contains errors.
+
 
 ======================================================================
 Changes since version 3.3.0

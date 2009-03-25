@@ -322,6 +322,22 @@ public class Slice2JavaTask extends SliceTask
             cmd.append("--depend");
 
             //
+            // Add --ice
+            //
+            if(_ice)
+            {
+                cmd.append(" --ice");
+            }
+
+            //
+            // Add --case-sensitive
+            //
+            if(_caseSensitive)
+            {
+                cmd.append(" --case-sensitive");
+            }
+
+            //
             // Add include directives
             //
             if(_includePath != null)

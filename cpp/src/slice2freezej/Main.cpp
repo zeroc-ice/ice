@@ -1449,8 +1449,31 @@ main(int argc, char* argv[])
         if(depend)
         {
             Preprocessor icecpp(argv[0], args[idx], cppArgs);
+            FILE* cppHandle = icecpp.preprocess(false);
+
+            if(cppHandle == 0)
+            {
+                u->destroy();
+                return EXIT_FAILURE;
+            }
+
+            status = u->parse(args[idx], cppHandle, debug);
+
+            if(status == EXIT_FAILURE)
+            {
+                u->destroy();
+                return EXIT_FAILURE;
+            }
+
             if(!icecpp.printMakefileDependencies(Preprocessor::Java, includePaths))
             {
+                u->destroy();
+                return EXIT_FAILURE;
+            }
+
+            if(!icecpp.close())
+            {
+                u->destroy();
                 return EXIT_FAILURE;
             }
         }
