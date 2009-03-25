@@ -404,7 +404,7 @@
         </slice2java>
     </target>
 
-    <target name="custom-test-generate4" depends="test-generate" if="java2">
+    <target name="test-generate-custom4" depends="test-generate" if="java2">
         <!-- Create the output directory for generated code -->
         <mkdir dir="${generated.test.dir}"/>
         <slice2java outputdir="${generated.test.dir}" dependencyfile="${generated.test.dir}/.depend.Test">
@@ -415,7 +415,7 @@
         </slice2java>
     </target>
 
-    <target name="custom-test-generate5" depends="test-generate" unless="java2">
+    <target name="test-generate-custom5" depends="test-generate" unless="java2">
         <!-- Create the output directory for generated code -->
         <mkdir dir="${generated.test.dir}"/>
         <slice2java outputdir="${generated.test.dir}" dependencyfile="${generated.test.dir}/.depend.Test">
@@ -425,80 +425,39 @@
         </slice2java>
     </target>
 
-    <target name="custom-test-generate" depends="custom-test-generate4,custom-test-generate5"/>
-
-    <target name="test-compile-generated" depends="ice-compile,test-generate,custom-test-generate">
-    </target>
-
-    <target name="test-compile-base" depends="test-compile-generated">
+    <target name="test-compile-base" depends="ice-compile,test-generate">
         <mkdir dir="${lib.dir}"/>
         <mkdir dir="${cache.dir}"/>
         <depend srcdir="." destdir="${lib.dir}" cache="${cache.dir}"/>
-        <javac destdir="${lib.dir}"
-            source="1.5" debug="${debug}"
-	    deprecation="on">
+        <javac srcdir=".:${generated.test.dir}" destdir="${lib.dir}" source="1.5" debug="${debug}" deprecation="on">
 
-            <src path="."/>
-            <src path="${generated.test.dir}"/>
+            <exclude name="${generated.test.dir}/**"/>
 
-	    <include name="test/Util/"/>
-	    <include name="test/Ice/adapterDeactivation/"/>
-	    <include name="test/Ice/background/"/>
-	    <include name="test/Ice/binding/"/>
-	    <include name="test/Ice/exceptions/"/>
-	    <include name="test/Ice/checksum/"/>
-	    <include name="test/Ice/facets/"/>
-	    <include name="test/Ice/faultTolerance/"/>
-	    <include name="test/Ice/hold/"/>
-	    <include name="test/Ice/inheritance/"/>
-	    <include name="test/Ice/interceptor/"/>
-	    <include name="test/Ice/location/"/>
-	    <include name="test/Ice/objects/"/>
-	    <include name="test/Ice/operations/"/>
-	    <include name="test/Ice/packagemd/"/>
-	    <include name="test/Ice/proxy/"/>
-	    <include name="test/Ice/retry/"/>
-	    <include name="test/Ice/serialize/"/>
-	    <include name="test/Ice/servantLocator/"/>
-	    <include name="test/Ice/seqMapping/"/>
-	    <include name="test/Ice/slicing/exceptions/"/>
-	    <include name="test/Ice/slicing/objects/"/>
-	    <include name="test/Ice/stream/"/>
-	    <include name="test/Ice/timeout/"/>
-	    <include name="test/Ice/udp/"/>
-	    <include name="test/Freeze/complex/"/>
-	    <include name="test/Freeze/dbmap/"/>
-	    <include name="test/Freeze/evictor/"/>
-	    <include name="test/Freeze/oldevictor/"/>
-	    <include name="test/Glacier2/router/"/>
-	    <include name="test/IceGrid/simple/"/>
-	    <include name="test/IceBox/configuration/"/>
-	    <include name="test/IceSSL/configuration/"/>
-	    <include name="test/IceUtil/inputUtil/"/>
-	    <include name="test/Slice/keyword/"/>
-	    <include name="test/Ice/throughput/"/>
+	    <include name="test/**"/>
+            <exclude name="test/Ice/translator/"/>
+            <exclude name="test/Ice/custom14/"/>
+            <exclude name="test/Ice/custom15/"/>
+            <exclude name="test/Ice/protobuf/"/>
             <compilerarg value="${javac.lint}"/>
         </javac>
     </target>
 
-    <target name="test-custom-compile4" depends="test-compile-generated" if="java2">
+    <target name="test-custom-compile4" depends="test-generate-custom4,test-compile-base" if="java2">
         <mkdir dir="${lib.dir}"/>
         <mkdir dir="${cache.dir}"/>
         <depend srcdir="." destdir="${lib.dir}" cache="${cache.dir}"/>
-        <javac destdir="${lib.dir}" debug="${debug}">
-            <src path="."/>
-            <src path="${generated.test.dir}"/>
+        <javac srcdir=".:${generated.test.dir}" destdir="${lib.dir}" debug="${debug}">
+            <exclude name="${generated.test.dir}/**"/>
 	    <include name="test/Ice/custom14/"/>
 	</javac>
     </target>
 
-    <target name="test-custom-compile5" depends="test-compile-generated" unless="java2">
+    <target name="test-custom-compile5" depends="test-generate-custom5,test-compile-base" unless="java2">
         <mkdir dir="${lib.dir}"/>
         <mkdir dir="${cache.dir}"/>
         <depend srcdir="." destdir="${lib.dir}" cache="${cache.dir}"/>
-        <javac destdir="${lib.dir}" debug="${debug}" source="1.5">
-            <src path="."/>
-            <src path="${generated.test.dir}"/>
+        <javac srcdir=".:${generated.test.dir}" destdir="${lib.dir}" debug="${debug}" source="1.5">
+            <exclude name="${generated.test.dir}/**"/>
 	    <include name="test/Ice/custom15/"/>
             <compilerarg value="${javac.lint}"/>
 	</javac>
