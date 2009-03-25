@@ -28,16 +28,6 @@ using namespace Slice;
 using namespace IceUtil;
 using namespace IceUtilInternal;
 
-//
-// TODO: Temporary work-around for Mono compiler bug: "global::" does not work for generic classes.
-//
-
-static string
-global()
-{
-    return "\n#if !__MonoCS__    \nglobal::\n#endif\n";
-}
-
 static string
 lookupKwd(const string& name, int baseTypes, bool mangleCasts = false)
 {
@@ -210,7 +200,7 @@ Slice::CsGenerator::typeToString(const TypePtr& type)
             }
             else
             {
-                return global() + type + "<" + typeToString(seq->type()) + ">";
+                return "global::" + type + "<" + typeToString(seq->type()) + ">";
             }
         }
 
@@ -218,7 +208,7 @@ Slice::CsGenerator::typeToString(const TypePtr& type)
         if(seq->findMetaData(prefix, meta))
         {
             string type = meta.substr(prefix.size());
-            return global() + type;
+            return "global::" + type;
         }
 
         return typeToString(seq->type()) + "[]";
@@ -806,7 +796,7 @@ Slice::CsGenerator::writeSequenceMarshalUnmarshalCode(Output& out,
                         }
                         else if(isCustom)
                         {
-                            out << global() << genericType << "<Ice.Object>();";
+                            out << "global::" << genericType << "<Ice.Object>();";
                         }
                         else if(isGeneric)
                         {
@@ -936,7 +926,7 @@ Slice::CsGenerator::writeSequenceMarshalUnmarshalCode(Output& out,
                     else if(isCustom)
                     {
                         out << sb;
-                        out << nl << param << " = new " << global() << genericType << "<"
+                        out << nl << param << " = new " << "global::" << genericType << "<"
                             << typeToString(type) << ">();";
                         out << nl << "int szx__ = " << stream << ".readSize();";
                         out << nl << "for(int ix__ = 0; ix__ < szx__; ++ix__)";
@@ -1017,7 +1007,7 @@ Slice::CsGenerator::writeSequenceMarshalUnmarshalCode(Output& out,
             }
             else if(isCustom)
             {
-                out << global() << genericType << "<" << typeS << ">()";
+                out << "global::" << genericType << "<" << typeS << ">()";
             }
             else if(isGeneric)
             {
@@ -1183,7 +1173,7 @@ Slice::CsGenerator::writeSequenceMarshalUnmarshalCode(Output& out,
             }
             else if(isCustom)
             {
-                out << global() << genericType << "<" << typeS << ">();";
+                out << "global::" << genericType << "<" << typeS << ">();";
             }
             else if(isGeneric)
             {
@@ -1335,7 +1325,7 @@ Slice::CsGenerator::writeSequenceMarshalUnmarshalCode(Output& out,
             }
             else if(isCustom)
             {
-                out << global() << genericType << "<" << typeS << ">();";
+                out << "global::" << genericType << "<" << typeS << ">();";
             }
             else if(isGeneric)
             {
@@ -1460,7 +1450,7 @@ Slice::CsGenerator::writeSequenceMarshalUnmarshalCode(Output& out,
         }
         else if(isCustom)
         {
-            out << global() << genericType << "<" << typeS << ">();";
+            out << "global::" << genericType << "<" << typeS << ">();";
         }
         else if(isGeneric)
         {
