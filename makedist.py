@@ -42,12 +42,6 @@ filesToRemove = [ \
     "makedist.py", \
     "cpp/config/makegitignore.py", \
     "rb/config/Make.rules.Darwin", \
-    "cpp/demo/Ice/protobuf", \
-    "java/demo/Ice/protobuf", \
-    "py/demo/Ice/protobuf", \
-    "cpp/test/Ice/protobuf", \
-    "java/test/Ice/protobuf", \
-    "py/test/Ice/protobuf", \
 ]
 
 #

@@ -53,9 +53,5 @@ demos = [
     "book/lifecycle",
 ]
 
-protoDemos = [
-    "Ice/protobuf"
-]
-
 if __name__ == "__main__":
-    Util.run(demos, protoDemos)
+    Util.run(demos)
