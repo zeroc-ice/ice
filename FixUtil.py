@@ -15,8 +15,14 @@ def copyright(commentMark, product, license):
         line2 = commentMark + line1[line1.rfind(" ", 0, 72):]
         line1 = line1[:line1.rfind(" ", 0, 72)]
     line2 += (" %s file included in this distribution.") % license
+    line3 = commentMark
+    if len(line2) >= 72:
+        line3 = commentMark + line2[line2.rfind(" ", 0, 72):]
+        line2 = line2[:line2.rfind(" ", 0, 72)]
     result.append(line1 + "\n")
     result.append(line2 + "\n")
+    if line3 != commentMark:
+        result.append(line3 + "\n")
     result.append(commentMark + "\n")
     result.append(commentMark + " **********************************************************************\n")
     return result
