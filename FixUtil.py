@@ -11,9 +11,9 @@ def copyright(commentMark, product, license):
     result.append(commentMark + "\n")
     line1 = commentMark + (" This copy of %s is licensed to you under the terms described in the") % product
     line2 = commentMark
-    if len(line1) >= 79:
-        line2 = commentMark + line1[line1.rfind(" ", 0, 79):]
-        line1 = line1[:line1.rfind(" ", 0, 79)]
+    if len(line1) >= 72:
+        line2 = commentMark + line1[line1.rfind(" ", 0, 72):]
+        line1 = line1[:line1.rfind(" ", 0, 72)]
     line2 += (" %s file included in this distribution.") % license
     result.append(line1 + "\n")
     result.append(line2 + "\n")
@@ -173,7 +173,9 @@ def replaceAllCopyrights(path, product, license, recursive):
             elif fnmatch.fnmatch(x, "Make*") or fnmatch.fnmatch(x, "*.properties"):
                 commentMark = "#"
                 copyrightLines = makefileCopyright
-            elif fnmatch.fnmatch(x, "*.h") or fnmatch.fnmatch(x, "*.cpp") or fnmatch.fnmatch(x, "*.cs") or fnmatch.fnmatch(x, "*.java") or fnmatch.fnmatch(x, "*.l") or fnmatch.fnmatch(x, "*.y"):
+            elif fnmatch.fnmatch(x, "*.h") or fnmatch.fnmatch(x, "*.cpp") or fnmatch.fnmatch(x, "*.cs") or \
+                 fnmatch.fnmatch(x, "*.java") or fnmatch.fnmatch(x, "*.l") or fnmatch.fnmatch(x, "*.y") or \
+                 fnmatch.fnmatch(x, "*.m") or fnmatch.fnmatch(x, "*.mm"):
                 commentMark = "//"
                 copyrightLines = cppCopyright
             elif fnmatch.fnmatch(x, "*.ice") and not fnmatch.fnmatch(x, "IllegalIdentifier.ice"):
