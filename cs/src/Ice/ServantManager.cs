@@ -50,6 +50,25 @@ public sealed class ServantManager
             m[facet] = servant;
         }
     }
+
+    public void addDefaultServant(Ice.Object servant, string category)
+    {
+        lock(this)
+        {
+            Debug.Assert(instance_ != null); // Must not be called after destruction.
+            Ice.Object obj = null;
+            _defaultServantMap.TryGetValue(category, out obj);
+            if(obj != null)
+            {
+                Ice.AlreadyRegisteredException ex = new Ice.AlreadyRegisteredException();
+                ex.kindOfObject = "default servant";
+                ex.id = category;
+                throw ex;
+            }
+
+            _defaultServantMap[category] = servant;
+        }
+    }
     
     public Ice.Object removeServant(Ice.Identity ident, string facet)
     {
@@ -83,6 +102,27 @@ public sealed class ServantManager
             {
                 _servantMapMap.Remove(ident);
             }
+            return obj;
+        }
+    }
+
+    public Ice.Object removeDefaultServant(string category)
+    {
+        lock(this)
+        {
+            Debug.Assert(instance_ != null); // Must not be called after destruction.
+
+            Ice.Object obj = null;
+            _defaultServantMap.TryGetValue(category, out obj);
+            if(obj == null)
+            {
+                Ice.NotRegisteredException ex = new Ice.NotRegisteredException();
+                ex.kindOfObject = "default servant";
+                ex.id = category;
+                throw ex;
+            }
+
+            _defaultServantMap.Remove(category);
             return obj;
         }
     }
@@ -128,11 +168,31 @@ public sealed class ServantManager
             Dictionary<string, Ice.Object> m;
             _servantMapMap.TryGetValue(ident, out m);
             Ice.Object obj = null;
-            if(m != null)
+            if(m == null)
+            {
+                _defaultServantMap.TryGetValue(ident.category, out obj);
+                if(obj == null)
+                {
+                    _defaultServantMap.TryGetValue("", out obj);
+                }
+            }
+            else
             {
                 m.TryGetValue(facet, out obj);
             }
 
+            return obj;
+        }
+    }
+
+    public Ice.Object findDefaultServant(string category)
+    {
+        lock(this)
+        {
+            Debug.Assert(instance_ != null); // Must not be called after destruction.
+
+            Ice.Object obj = null;
+            _defaultServantMap.TryGetValue(category, out obj);
             return obj;
         }
     }
@@ -279,6 +339,7 @@ public sealed class ServantManager
     private readonly string _adapterName;
     private Dictionary <Ice.Identity, Dictionary<string, Ice.Object>> _servantMapMap
             = new Dictionary<Ice.Identity, Dictionary<string, Ice.Object>>();
+    private Dictionary <string, Ice.Object> _defaultServantMap = new Dictionary<string, Ice.Object>();
     private Dictionary<string, Ice.ServantLocator> _locatorMap = new Dictionary<string, Ice.ServantLocator>();
 }
 

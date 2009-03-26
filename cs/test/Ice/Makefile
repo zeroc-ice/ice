@@ -33,7 +33,8 @@ SUBDIRS		= application \
                   dictMapping \
                   seqMapping \
                   background \
-		  udp
+		  udp \
+		  defaultServant
 
 $(EVERYTHING)::
 	@for subdir in $(SUBDIRS); \

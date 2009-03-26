@@ -423,6 +423,14 @@ public final class ObjectAdapterI implements ObjectAdapter
         return addFacet(object, ident, facet);
     }
 
+    public synchronized void
+    addDefaultServant(Ice.Object servant, String category)
+    {
+        checkForDeactivation();
+
+        _servantManager.addDefaultServant(servant, category);
+    }
+
     public Ice.Object
     remove(Identity ident)
     {
@@ -445,6 +453,14 @@ public final class ObjectAdapterI implements ObjectAdapter
         checkIdentity(ident);
 
         return _servantManager.removeAllFacets(ident);
+    }
+
+    public synchronized Ice.Object
+    removeDefaultServant(String category)
+    {
+        checkForDeactivation();
+
+        return _servantManager.removeDefaultServant(category);
     }
 
     public Ice.Object
@@ -478,6 +494,14 @@ public final class ObjectAdapterI implements ObjectAdapter
 
         IceInternal.Reference ref = ((ObjectPrxHelperBase)proxy).__reference();
         return findFacet(ref.getIdentity(), ref.getFacet());
+    }
+
+    public synchronized Ice.Object
+    findDefaultServant(String category)
+    {
+        checkForDeactivation();
+
+        return _servantManager.findDefaultServant(category);
     }
 
     public synchronized void

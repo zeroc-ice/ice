@@ -58,6 +58,25 @@ IceInternal::ServantManager::addServant(const ObjectPtr& object, const Identity&
     p->second.insert(pair<const string, ObjectPtr>(facet, object));
 }
 
+void
+IceInternal::ServantManager::addDefaultServant(const ObjectPtr& object, const string& category)
+{
+    IceUtil::Mutex::Lock sync(*this);
+
+    assert(_instance); // Must not be called after destruction.
+
+    DefaultServantMap::iterator p = _defaultServantMap.find(category);
+    if(p != _defaultServantMap.end())
+    {
+        AlreadyRegisteredException ex(__FILE__, __LINE__);
+        ex.kindOfObject = "default servant";
+        ex.id = category;
+        throw ex;
+    }
+
+    _defaultServantMap.insert(pair<const string, ObjectPtr>(category, object));
+}
+
 ObjectPtr
 IceInternal::ServantManager::removeServant(const Identity& ident, const string& facet)
 {
@@ -107,6 +126,35 @@ IceInternal::ServantManager::removeServant(const Identity& ident, const string& 
             _servantMapMap.erase(p);
         }
     }
+    return servant;
+}
+
+ObjectPtr
+IceInternal::ServantManager::removeDefaultServant(const string& category)
+{
+    //
+    // We return the removed servant to avoid releasing the last reference count
+    // with *this locked. We don't want to run user code, such as the servant
+    // destructor, with an internal Ice mutex locked.
+    //
+    ObjectPtr servant = 0;
+
+    IceUtil::Mutex::Lock sync(*this);
+
+    assert(_instance); // Must not be called after destruction.
+
+    DefaultServantMap::iterator p = _defaultServantMap.find(category);
+    if(p == _defaultServantMap.end())
+    {
+        NotRegisteredException ex(__FILE__, __LINE__);
+        ex.kindOfObject = "default servant";
+        ex.id = category;
+        throw ex;
+    }
+
+    servant = p->second;
+    _defaultServantMap.erase(p);
+
     return servant;
 }
 
@@ -172,12 +220,44 @@ IceInternal::ServantManager::findServant(const Identity& ident, const string& fa
     
     if(p == servantMapMap.end() || (q = p->second.find(facet)) == p->second.end())
     {
-        return 0;
+        DefaultServantMap::const_iterator p = _defaultServantMap.find(ident.category);
+        if(p == _defaultServantMap.end())
+        {
+            p = _defaultServantMap.find("");
+            if(p == _defaultServantMap.end())
+            {
+                return 0;
+            }
+            else
+            {
+                return p->second;
+            }
+        }
+        else
+        {
+            return p->second;
+        }
     }
     else
     {
         _servantMapMapHint = p;
         return q->second;
+    }
+}
+
+ObjectPtr
+IceInternal::ServantManager::findDefaultServant(const string& category) const
+{
+    IceUtil::Mutex::Lock sync(*this);
+
+    DefaultServantMap::const_iterator p = _defaultServantMap.find(category);
+    if(p == _defaultServantMap.end())
+    {
+        return 0;
+    }
+    else
+    {
+        return p->second;
     }
 }
 

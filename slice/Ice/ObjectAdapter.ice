@@ -264,6 +264,25 @@ local interface ObjectAdapter
 
     /**
      *
+     * Add a default servant to handle requests for specific
+     * category. Adding a default servant for a category for
+     * which a default servant locator is already registered
+     * throws [AlreadyRegisteredException].
+     *
+     * @param servant The default servant.
+     *
+     * @param category The category for which the default
+     * servant is registered. An empty category means it will
+     * handle all categories.
+     *
+     * @see removeDefaultServant
+     * @see findDefaultServant
+     *
+     **/
+    void addDefaultServant(Object servant, string category);
+
+    /**
+     *
      * Remove a servant (that is, the default facet) from the
      * object adapter's Active Servant Map.
      *
@@ -320,6 +339,22 @@ local interface ObjectAdapter
      *
      **/
     FacetMap removeAllFacets(Identity id);
+
+    /**
+     *
+     * Remove the default servant for a specific category. Attempting
+     * to remove a default servant for a category that is not
+     * registered throws [NotRegisteredException]. 
+     *
+     * @param category The category of the default servant to remove.
+     *
+     * @return The default servant.
+     *
+     * @see addDefaultServant
+     * @see findDefaultServant
+     *
+     **/
+    Object removeDefaultServant(string category);
 
     /**
      *
@@ -471,6 +506,21 @@ local interface ObjectAdapter
      *
      **/
     ["cpp:const"] ServantLocator findServantLocator(string category);
+
+    /**
+     *
+     * Find the default servant for a specific category.
+     *
+     * @param category The category of the default servant to find.
+     *
+     * @return The default servant or null if no default servant was
+     * registered for the category.
+     *
+     * @see addDefaultServant
+     * @see removeDefaultServant
+     *
+     **/
+    ["cpp:const"] Object findDefaultServant(string category);
 
     /**
      *

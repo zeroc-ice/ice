@@ -32,6 +32,15 @@ General Changes
 These entries apply to all relevant language mappings unless otherwise
 noted.
 
+- Added the following operations to the ObjectAdapter API:
+
+   - addDefaultServant
+   - removeDefaultServant
+   - findDefaultServant
+
+These methods allow you to use default servants with Ice. Please refer
+to the manual file for more information.
+
 - Using the --depend option with Slice compilers that support it no 
   longer outputs dependency info even if the Slice file itself 
   contains errors.

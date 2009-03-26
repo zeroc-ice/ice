@@ -400,6 +400,16 @@ namespace Ice
             
             return addFacet(obj, ident, facet);
         }
+
+        public void addDefaultServant(Ice.Object servant, string category)
+        {
+            lock(this)
+            {
+                checkForDeactivation();
+
+                _servantManager.addDefaultServant(servant, category);
+            }
+        }
         
         public Ice.Object remove(Identity ident)
         {
@@ -425,6 +435,16 @@ namespace Ice
                 checkIdentity(ident);
 
                 return _servantManager.removeAllFacets(ident);
+            }
+        }
+
+        public Ice.Object removeDefaultServant(string category)
+        {
+            lock(this)
+            {
+                checkForDeactivation();
+
+                return _servantManager.removeDefaultServant(category);
             }
         }
 
@@ -466,6 +486,16 @@ namespace Ice
             }
         }
         
+        public Ice.Object findDefaultServant(string category)
+        {
+            lock(this)
+            {
+                checkForDeactivation();
+
+                return _servantManager.findDefaultServant(category);
+            }
+        }
+
         public void addServantLocator(ServantLocator locator, string prefix)
         {
             lock(this)

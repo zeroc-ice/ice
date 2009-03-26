@@ -49,6 +49,7 @@ tests = [
     ("Ice/seqMapping", ["core"]),
     ("Ice/background", ["core"]),
     ("Ice/udp", ["core"]),
+    ("Ice/defaultServant", ["core"]),
     ("IceBox/configuration", ["core", "noipv6"]),
     ("Glacier2/router", ["service"]),
     ("IceGrid/simple", ["service"]),

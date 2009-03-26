@@ -399,6 +399,9 @@ class ObjectAdapterI(ObjectAdapter):
     def addFacetWithUUID(self, servant, facet):
         return self._impl.addFacetWIthUUID(servant, facet)
 
+    def addDefaultServant(self, servant, category):
+        self._impl.addDefaultServant(servant, category)
+
     def remove(self, id):
         return self._impl.remove(id)
 
@@ -407,6 +410,9 @@ class ObjectAdapterI(ObjectAdapter):
 
     def removeAllFacets(self, id):
         return self._impl.removeAllFacets(id)
+
+    def removeDefaultServant(self, category):
+        return self._impl.removeDefaultServant(category)
 
     def find(self, id):
         return self._impl.find(id)
@@ -419,6 +425,9 @@ class ObjectAdapterI(ObjectAdapter):
 
     def findByProxy(self, proxy):
         return self._impl.findByProxy(proxy)
+
+    def findDefaultServant(self, category):
+        return self._impl.findDefaultServant(category)
 
     def addServantLocator(self, locator, category):
         self._impl.addServantLocator(locator, category)

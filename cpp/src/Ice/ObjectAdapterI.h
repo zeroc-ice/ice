@@ -56,13 +56,17 @@ public:
     virtual ObjectPrx addFacet(const ObjectPtr&, const Identity&, const std::string&);
     virtual ObjectPrx addWithUUID(const ObjectPtr&);
     virtual ObjectPrx addFacetWithUUID(const ObjectPtr&, const std::string&);
+    virtual void addDefaultServant(const ObjectPtr&, const std::string&);
     virtual ObjectPtr remove(const Identity&);
     virtual ObjectPtr removeFacet(const Identity&, const std::string&);
     virtual FacetMap removeAllFacets(const Identity&);
+    virtual ObjectPtr removeDefaultServant(const std::string&);
     virtual ObjectPtr find(const Identity&) const;
     virtual ObjectPtr findFacet(const Identity&, const std::string&) const;
     virtual FacetMap findAllFacets(const Identity&) const;
     virtual ObjectPtr findByProxy(const ObjectPrx&) const;
+    virtual ObjectPtr findDefaultServant(const std::string&) const;
+
 
     virtual void addServantLocator(const ServantLocatorPtr&, const std::string&);
     virtual ServantLocatorPtr findServantLocator(const std::string&) const;

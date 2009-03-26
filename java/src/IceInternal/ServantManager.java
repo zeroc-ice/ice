@@ -45,6 +45,23 @@ public final class ServantManager
         m.put(facet, servant);
     }
 
+    public synchronized void
+    addDefaultServant(Ice.Object servant, String category)
+    {
+        assert(_instance != null); // Must not be called after destruction
+
+        Ice.Object obj = _defaultServantMap.get(category);
+        if(obj != null)
+        {
+            Ice.AlreadyRegisteredException ex = new Ice.AlreadyRegisteredException();
+            ex.kindOfObject = "default servant";
+            ex.id = category;
+            throw ex;
+        }
+
+        _defaultServantMap.put(category, servant);
+    }
+
     public synchronized Ice.Object
     removeServant(Ice.Identity ident, String facet)
     {
@@ -73,6 +90,24 @@ public final class ServantManager
         {
             _servantMapMap.remove(ident);
         }
+        return obj;
+    }
+
+    public synchronized Ice.Object
+    removeDefaultServant(String category)
+    {
+        assert(_instance != null); // Must not be called after destruction.
+
+        Ice.Object obj = _defaultServantMap.get(category);
+        if(obj == null)
+        {
+            Ice.NotRegisteredException ex = new Ice.NotRegisteredException();
+            ex.kindOfObject = "default servant";
+            ex.id = category;
+            throw ex;
+        }
+
+        _defaultServantMap.remove(category);
         return obj;
     }
 
@@ -113,12 +148,28 @@ public final class ServantManager
 
         java.util.Map<String, Ice.Object> m = _servantMapMap.get(ident);
         Ice.Object obj = null;
-        if(m != null)
+        if(m == null)
+        {
+            obj = _defaultServantMap.get(ident.category);
+            if(obj == null)
+            {
+                obj = _defaultServantMap.get("");
+            }
+        }
+        else
         {
             obj = m.get(facet);
         }
 
         return obj;
+    }
+
+    public synchronized Ice.Object
+    findDefaultServant(String category)
+    {
+        assert(_instance != null); // Must not be called after destruction.
+
+        return _defaultServantMap.get(category);
     }
 
     public synchronized java.util.Map<String, Ice.Object>
@@ -253,5 +304,6 @@ public final class ServantManager
     final private String _adapterName;
     private java.util.Map<Ice.Identity, java.util.Map<String, Ice.Object> > _servantMapMap =
         new java.util.HashMap<Ice.Identity, java.util.Map<String, Ice.Object> >();
+    private java.util.Map<String, Ice.Object> _defaultServantMap = new java.util.HashMap<String, Ice.Object>();
     private java.util.Map<String, Ice.ServantLocator> _locatorMap = new java.util.HashMap<String, Ice.ServantLocator>();
 }

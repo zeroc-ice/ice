@@ -33,7 +33,8 @@ SUBDIRS		= proxy \
                   interceptor \
                   stringConverter \
 		  background \
-		  udp
+		  udp \
+		  defaultServant
 
 $(EVERYTHING)::
 	@for %i in ( $(SUBDIRS) ) do \
