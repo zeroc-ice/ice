@@ -21,12 +21,12 @@ for x in sys.argv[1:]:
 
 ice_dir = os.path.normpath(os.path.join(os.path.dirname(__file__)))
 
-FixUtil.replaceAllCopyrights(ice_dir, False, False)
+FixUtil.replaceAllCopyrights(ice_dir, "Ice", "ICE_LICENSE", False)
 for dir in ["slice", "cpp", "java", "cs", "vb", "php", "py", "rb", "demoscript", "distribution", "config", "certs",\
             "scripts"]:
     home = os.path.join(ice_dir, dir)
     if home:
-       FixUtil.replaceAllCopyrights(home, False, True)
+       FixUtil.replaceAllCopyrights(home, "Ice", "ICE_LICENSE", True)
 
 # **********************************************************************
 #

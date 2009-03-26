@@ -3,18 +3,20 @@
 import os, sys, shutil, fnmatch, re, glob, getopt
 from stat import *
 
-def copyright(commentMark, patchIceE):
+def copyright(commentMark, product, license):
     result = [ ]
     result.append(commentMark + " **********************************************************************\n")
     result.append(commentMark + "\n")
     result.append(commentMark + " Copyright (c) 2003-2009 ZeroC, Inc. All rights reserved.\n")
     result.append(commentMark + "\n")
-    if patchIceE == True:
-        result.append(commentMark + " This copy of Ice-E is licensed to you under the terms described in the\n")
-        result.append(commentMark + " ICEE_LICENSE file included in this distribution.\n")
-    else:
-        result.append(commentMark + " This copy of Ice is licensed to you under the terms described in the\n")
-        result.append(commentMark + " ICE_LICENSE file included in this distribution.\n")
+    line1 = commentMark + (" This copy of %s is licensed to you under the terms described in the") % product
+    line2 = commentMark
+    if len(line1) >= 79:
+        line2 = commentMark + line1[line1.rfind(" ", 0, 79):]
+        line1 = line1[:line1.rfind(" ", 0, 79)]
+    line2 += (" %s file included in this distribution.") % license
+    result.append(line1 + "\n")
+    result.append(line2 + "\n")
     result.append(commentMark + "\n")
     result.append(commentMark + " **********************************************************************\n")
     return result
@@ -40,6 +42,7 @@ def replaceCopyright(file, commentMark, commentBegin, commentEnd, newCopyrightLi
     newLines = []
 
     justDone = 0
+    isWindowsEOL = False
 
     if commentBegin == "":
         for x in oldLines:
@@ -49,6 +52,8 @@ def replaceCopyright(file, commentMark, commentBegin, commentEnd, newCopyrightLi
                 commentFound = 1
                 if not copyrightFound and x.lower().find("copyright") != -1:
                     copyrightFound = 1
+                    if x.endswith("\r\n"):
+                        isWindowsEOL = True
                 # skip this comment line 
                 oldCopyrightLines.append(x)            
             else:
@@ -77,7 +82,9 @@ def replaceCopyright(file, commentMark, commentBegin, commentEnd, newCopyrightLi
                 if commentFound:
                    if not copyrightFound and x.find("Copyright") != -1:
                        copyrightFound = 1
-                          
+                       if x.endswith("\r\n"):
+                           isWindowsEOL = True
+
                    # skip this comment line 
                    if x.find(commentEnd) != -1:
                        done = 1
@@ -111,7 +118,10 @@ def replaceCopyright(file, commentMark, commentBegin, commentEnd, newCopyrightLi
 
         newFile = open(file, "w")
         newFile.writelines(beforeCopyrightLines)
-        newFile.writelines(newCopyrightLines)
+        if isWindowsEOL:
+            newFile.writelines([l.replace('\n', '\r\n') for l in newCopyrightLines])
+        else:
+            newFile.writelines(newCopyrightLines)
 
         #
         # Hack to keep the .err files
@@ -125,28 +135,22 @@ def replaceCopyright(file, commentMark, commentBegin, commentEnd, newCopyrightLi
         os.chmod(file, S_IMODE(mode))
         print "------ Replaced copyright in " + file + " -------"
 
-        #
-        # Make sure Windows Makefiles are kept in DOS format.
-        #
-        if fnmatch.fnmatch(file, "*.mak*") or fnmatch.fnmatch(file, "*Make.rules.bcc") or fnmatch.fnmatch(file, "*Make.rules.msvc"):
-            os.popen("unix2dos " + file);
-
     return copyrightFound
 
 #
 # Replace alls copyrights
 #
-def replaceAllCopyrights(path, patchIceE, recursive):
+def replaceAllCopyrights(path, product, license, recursive):
 
-    cppCopyright = copyright("//", patchIceE)
-    mcCopyright = copyright("; //", patchIceE)
-    makefileCopyright = copyright("#", patchIceE)
-    vbCopyright = copyright("'", patchIceE)
+    cppCopyright = copyright("//", product, license)
+    mcCopyright = copyright("; //", product, license)
+    makefileCopyright = copyright("#", product, license)
+    vbCopyright = copyright("'", product, license)
     pythonCopyright = makefileCopyright
     rubyCopyright = makefileCopyright
     xmlCopyright = []
     xmlCopyright.append("<!--\n");
-    xmlCopyright.extend(copyright("", patchIceE))
+    xmlCopyright.extend(copyright("", product, license))
     xmlCopyright.append("-->\n");
     
     files = os.listdir(path)
@@ -154,7 +158,7 @@ def replaceAllCopyrights(path, patchIceE, recursive):
         fullpath = os.path.join(path, x);
         if os.path.isdir(fullpath) and not os.path.islink(fullpath):
             if recursive:
-                replaceAllCopyrights(fullpath, patchIceE, True)
+                replaceAllCopyrights(fullpath, product, license, True)
         else:
             
             commentMark = ""
@@ -193,7 +197,7 @@ def replaceAllCopyrights(path, patchIceE, recursive):
             elif fnmatch.fnmatch(x, "*.vb"):
                 commentMark = "'"
                 copyrightLines = vbCopyright
-            elif fnmatch.fnmatch(x, "*.xml"):
+            elif fnmatch.fnmatch(x, "*.xml") or fnmatch.fnmatch(x, "*.xaml"):
                 commentBegin = "<!--"
                 commentEnd = "-->"
                 copyrightLines = xmlCopyright
