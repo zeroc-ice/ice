@@ -13,7 +13,6 @@
 [["cpp:header-ext:h"]]
 
 #include <Ice/SliceChecksumDict.ice>
-#include <Ice/Identity.ice>
 
 /**
  *
