@@ -211,7 +211,7 @@ TestIntfPrx
 allTests(const CommunicatorPtr& communicator, bool collocated)
 {
     cout << "testing stringToProxy... " << flush;
-    ObjectPrx base = communicator->stringToProxy("asm:default -p 12010 -t 10000");
+    ObjectPrx base = communicator->stringToProxy("asm:default -p 12010");
     test(base);
     cout << "ok" << endl;
 
@@ -224,7 +224,7 @@ allTests(const CommunicatorPtr& communicator, bool collocated)
     cout << "testing ice_ids... " << flush;
     try
     {
-        ObjectPrx o = communicator->stringToProxy("category/locate:default -p 12010 -t 10000");
+        ObjectPrx o = communicator->stringToProxy("category/locate:default -p 12010");
         o->ice_ids();
         test(false);
     }
@@ -239,7 +239,7 @@ allTests(const CommunicatorPtr& communicator, bool collocated)
 
     try
     {
-        ObjectPrx o = communicator->stringToProxy("category/finished:default -p 12010 -t 10000");
+        ObjectPrx o = communicator->stringToProxy("category/finished:default -p 12010");
         o->ice_ids();
         test(false);
     }
@@ -254,14 +254,14 @@ allTests(const CommunicatorPtr& communicator, bool collocated)
     cout << "ok" << endl;
 
     cout << "testing servant locator..." << flush;
-    base = communicator->stringToProxy("category/locate:default -p 12010 -t 10000");
+    base = communicator->stringToProxy("category/locate:default -p 12010");
     obj = TestIntfPrx::checkedCast(base);
     try
     {
 #if defined(__BCPLUSPLUS__) && (__BCPLUSPLUS__ >= 0x0600)
         IceUtil::DummyBCC dummy;
 #endif
-        TestIntfPrx::checkedCast(communicator->stringToProxy("category/unknown:default -p 12010 -t 10000"));
+        TestIntfPrx::checkedCast(communicator->stringToProxy("category/unknown:default -p 12010"));
     }
     catch(const ObjectNotExistException&)
     {
@@ -269,16 +269,16 @@ allTests(const CommunicatorPtr& communicator, bool collocated)
     cout << "ok" << endl;
 
     cout << "testing default servant locator..." << flush;
-    base = communicator->stringToProxy("anothercategory/locate:default -p 12010 -t 10000");
+    base = communicator->stringToProxy("anothercategory/locate:default -p 12010");
     obj = TestIntfPrx::checkedCast(base);
-    base = communicator->stringToProxy("locate:default -p 12010 -t 10000");
+    base = communicator->stringToProxy("locate:default -p 12010");
     obj = TestIntfPrx::checkedCast(base);
     try
     {
 #if defined(__BCPLUSPLUS__) && (__BCPLUSPLUS__ >= 0x0600)
         IceUtil::DummyBCC dummy;
 #endif
-        TestIntfPrx::checkedCast(communicator->stringToProxy("anothercategory/unknown:default -p 12010 -t 10000"));
+        TestIntfPrx::checkedCast(communicator->stringToProxy("anothercategory/unknown:default -p 12010"));
     }
     catch(const ObjectNotExistException&)
     {
@@ -288,7 +288,7 @@ allTests(const CommunicatorPtr& communicator, bool collocated)
 #if defined(__BCPLUSPLUS__) && (__BCPLUSPLUS__ >= 0x0600)
         IceUtil::DummyBCC dummy;
 #endif
-        TestIntfPrx::checkedCast(communicator->stringToProxy("unknown:default -p 12010 -t 10000"));
+        TestIntfPrx::checkedCast(communicator->stringToProxy("unknown:default -p 12010"));
     }
     catch(const Ice::ObjectNotExistException&)
     {
@@ -296,13 +296,13 @@ allTests(const CommunicatorPtr& communicator, bool collocated)
     cout << "ok" << endl;
 
     cout << "testing locate exceptions... " << flush;
-    base = communicator->stringToProxy("category/locate:default -p 12010 -t 10000");
+    base = communicator->stringToProxy("category/locate:default -p 12010");
     obj = TestIntfPrx::checkedCast(base);
     testExceptions(obj, collocated);
     cout << "ok" << endl;
 
     cout << "testing finished exceptions... " << flush;
-    base = communicator->stringToProxy("category/finished:default -p 12010 -t 10000");
+    base = communicator->stringToProxy("category/finished:default -p 12010");
     obj = TestIntfPrx::checkedCast(base);
     testExceptions(obj, collocated);
     cout << "ok" << endl;

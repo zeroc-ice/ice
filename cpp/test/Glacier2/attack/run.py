@@ -24,8 +24,8 @@ testdir = os.getcwd()
 router = os.path.join(TestUtil.getCppBinDir(), "glacier2router")
 
 args = ' --Glacier2.RoutingTable.MaxSize=10' + \
-       ' --Glacier2.Client.Endpoints="default -p 12347 -t 10000"' + \
-       ' --Ice.Admin.Endpoints="tcp -h 127.0.0.1 -p 12348 -t 10000"' + \
+       ' --Glacier2.Client.Endpoints="default -p 12347"' + \
+       ' --Ice.Admin.Endpoints="tcp -h 127.0.0.1 -p 12348"' + \
        ' --Ice.Admin.InstanceName=Glacier2' + \
        ' --Glacier2.CryptPasswords="' + os.path.join(testdir, "passwords")  + '"'
 
@@ -36,3 +36,5 @@ print "ok"
 TestUtil.clientServerTest()
 
 starterProc.waitTestSuccess()
+
+TestUtil.cleanup()

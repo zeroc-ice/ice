@@ -340,7 +340,7 @@ public class Client extends test.Util.Application
     run(String[] args, PrintWriter out)
         throws AlreadyRegisteredException, NotRegisteredException, EvictorDeactivatedException
     {
-        String ref = "factory:default -p 12010 -t 30000";
+        String ref = "factory:default -p 12010";
         Ice.ObjectPrx base = communicator().stringToProxy(ref);
         test(base != null);
         RemoteEvictorFactoryPrx factory = RemoteEvictorFactoryPrxHelper.checkedCast(base);

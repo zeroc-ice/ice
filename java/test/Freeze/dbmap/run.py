@@ -28,3 +28,5 @@ clientProc = TestUtil.startClient("test.Freeze.dbmap.Client", os.getcwd(), start
 print "ok"
 clientProc.startReader()
 clientProc.waitTestSuccess()
+
+TestUtil.cleanup()

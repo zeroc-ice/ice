@@ -85,7 +85,7 @@ def allTests(communicator, ports):
     print "testing stringToProxy... ",
     ref = "test"
     for p in ports:
-        ref = ref + ":default -t 60000 -p " + str(p)
+        ref = ref + ":default -p " + str(p)
     base = communicator.stringToProxy(ref)
     test(base)
     print "ok"

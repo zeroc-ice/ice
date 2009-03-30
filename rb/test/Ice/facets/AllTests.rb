@@ -38,7 +38,7 @@ def allTests(communicator)
 
     print "testing stringToProxy... "
     STDOUT.flush
-    ref = "d:default -p 12010 -t 10000"
+    ref = "d:default -p 12010"
     db = communicator.stringToProxy(ref)
     test(db)
     puts "ok"

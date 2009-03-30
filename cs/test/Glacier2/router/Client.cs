@@ -31,7 +31,7 @@ public class Client
             {
                 Console.Out.Write("testing stringToProxy for router... ");
                 Console.Out.Flush();
-                routerBase = communicator().stringToProxy("Glacier2/router:default -p 12347 -t 30000");
+                routerBase = communicator().stringToProxy("Glacier2/router:default -p 12347");
                 Console.Out.WriteLine("ok");
             }
             
@@ -65,7 +65,7 @@ public class Client
             {
                 Console.Out.Write("testing stringToProxy for server object... ");
                 Console.Out.Flush();
-                @base = communicator().stringToProxy("c1/callback:tcp -p 12010 -t 10000");
+                @base = communicator().stringToProxy("c1/callback:tcp -p 12010");
                 Console.Out.WriteLine("ok");
             }
                 
@@ -386,7 +386,7 @@ public class Client
                 
                 {
                     Console.Out.Write("testing stringToProxy for admin object... ");
-                    processBase = communicator().stringToProxy("Glacier2/admin -f Process:tcp -h 127.0.0.1 -p 12348 -t 10000");
+                    processBase = communicator().stringToProxy("Glacier2/admin -f Process:tcp -h 127.0.0.1 -p 12348");
                     Console.Out.WriteLine("ok");
                 }
                 

@@ -26,3 +26,5 @@ sys.path.append(os.path.join(path[0]))
 from scripts import *
 
 TestUtil.clientServerTest()
+
+TestUtil.cleanup()

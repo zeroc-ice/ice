@@ -499,7 +499,7 @@ def twoways(communicator, p)
 #    test(p2.opContext().length > 0)
 #
 #    communicator.setDefaultContext(dflt)
-#    c = Test::MyClassPrx::checkedCast(communicator.stringToProxy("test:default -p 12010 -t 10000"))
+#    c = Test::MyClassPrx::checkedCast(communicator.stringToProxy("test:default -p 12010"))
 #    test(c.opContext() == dflt)
 #
 #    dflt['a'] = 'c'
@@ -534,7 +534,7 @@ def twoways(communicator, p)
         
         ctx = {'one'=>'ONE', 'two'=>'TWO', 'three'=>'THREE'}
         
-        p = Test::MyClassPrx::uncheckedCast(ic.stringToProxy('test:default -p 12010 -t 10000'))
+        p = Test::MyClassPrx::uncheckedCast(ic.stringToProxy('test:default -p 12010'))
         
         ic.getImplicitContext().setContext(ctx)
         test(ic.getImplicitContext().getContext() == ctx)

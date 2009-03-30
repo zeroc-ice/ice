@@ -161,7 +161,7 @@ function allTests()
 
     echo "testing stringToProxy... ";
     flush();
-    $ref = "initial:default -p 12010 -t 2000";
+    $ref = "initial:default -p 12010";
     $base = $ICE->stringToProxy($ref);
     test($base != null);
     echo "ok\n";
@@ -336,7 +336,7 @@ function allTests()
  
     echo "testing UnexpectedObjectException... ";
     flush();
-    $ref = "uoet:default -p 12010 -t 2000";
+    $ref = "uoet:default -p 12010";
     $base = $ICE->stringToProxy($ref);
     test($base != null);
     $uoet = $base->ice_uncheckedCast("::Test::UnexpectedObjectExceptionTest");

@@ -38,7 +38,7 @@ public class Client extends test.Util.Application
         {
             out.print("testing stringToProxy for router... ");
             out.flush();
-            routerBase = communicator().stringToProxy("Glacier2/router:default -p 12347 -t 30000");
+            routerBase = communicator().stringToProxy("Glacier2/router:default -p 12347");
             out.println("ok");
         }
         
@@ -72,7 +72,7 @@ public class Client extends test.Util.Application
         {
             out.print("testing stringToProxy for server object... ");
             out.flush();
-            base = communicator().stringToProxy("c1/callback:tcp -p 12010 -t 10000");
+            base = communicator().stringToProxy("c1/callback:tcp -p 12010");
             out.println("ok");
         }
             
@@ -421,7 +421,7 @@ public class Client extends test.Util.Application
             
             {
                 out.print("testing stringToProxy for process object... ");
-                processBase = communicator().stringToProxy("Glacier2/admin -f Process:tcp -h 127.0.0.1 -p 12348 -t 10000");
+                processBase = communicator().stringToProxy("Glacier2/admin -f Process:tcp -h 127.0.0.1 -p 12348");
                 out.println("ok");
             }
             

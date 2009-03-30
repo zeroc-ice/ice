@@ -25,7 +25,7 @@ public class AllTests
     {
         Console.Out.Write("testing stringToProxy... ");
         Console.Out.Flush();
-        string rf = "test:default -p 12010 -t 10000";
+        string rf = "test:default -p 12010";
         Ice.ObjectPrx baseProxy = communicator.stringToProxy(rf);
         test(baseProxy != null);
 
@@ -229,7 +229,7 @@ public class AllTests
         Console.Out.Flush();
         Ice.Properties prop = communicator.getProperties();
         String propertyPrefix = "Foo.Proxy";
-        prop.setProperty(propertyPrefix, "test:default -p 12010 -t 10000");
+        prop.setProperty(propertyPrefix, "test:default -p 12010");
         b1 = communicator.propertyToProxy(propertyPrefix);
         test(b1.ice_getIdentity().name.Equals("test") && b1.ice_getIdentity().category.Length == 0 &&
              b1.ice_getAdapterId().Length == 0 && b1.ice_getFacet().Length == 0);
@@ -273,7 +273,7 @@ public class AllTests
         //test(b1.ice_getLocatorCacheTimeout() == 60);
         //prop.setProperty("Ice.Default.LocatorCacheTimeout", "");
 
-        prop.setProperty(propertyPrefix, "test:default -p 12010 -t 10000");
+        prop.setProperty(propertyPrefix, "test:default -p 12010");
 
         property = propertyPrefix + ".Router";
         test(b1.ice_getRouter() == null);

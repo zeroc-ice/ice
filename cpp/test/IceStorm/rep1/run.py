@@ -281,3 +281,5 @@ print "stopping replicas...",
 sys.stdout.flush()
 icestorm.stop()
 print "ok"
+
+TestUtil.cleanup()

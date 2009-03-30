@@ -43,7 +43,7 @@ public class AllTests
     {
 		out.print("testing stringToProxy... ");
         out.flush();
-        String ref = "initial:default -p 12010 -t 10000";
+        String ref = "initial:default -p 12010";
         Ice.ObjectPrx base = communicator.stringToProxy(ref);
         test(base != null);
         out.println("ok");
@@ -205,7 +205,7 @@ public class AllTests
         {
             out.print("testing UnexpectedObjectException...");
             out.flush();
-            ref = "uoet:default -p 12010 -t 10000";
+            ref = "uoet:default -p 12010";
             base = communicator.stringToProxy(ref);
             test(base != null);
             UnexpectedObjectExceptionTestPrx uoet = UnexpectedObjectExceptionTestPrxHelper.uncheckedCast(base);

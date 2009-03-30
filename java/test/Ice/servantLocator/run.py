@@ -28,3 +28,5 @@ TestUtil.clientServerTest(server="test.Ice.servantLocator.AMDServer")
 
 print "tests with collocated server."
 TestUtil.collocatedTest()
+
+TestUtil.cleanup()

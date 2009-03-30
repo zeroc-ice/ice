@@ -421,7 +421,7 @@ function allTests()
 {
     global $ICE;
 
-    $ref = "test:default -p 12010 -t 2000";
+    $ref = "test:default -p 12010";
     $base = $ICE->stringToProxy($ref);
     $cl = $base->ice_checkedCast("::Test::MyClass");
     $derived = $cl->ice_checkedCast("::Test::MyDerivedClass");

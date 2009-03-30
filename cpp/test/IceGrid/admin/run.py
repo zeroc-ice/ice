@@ -29,8 +29,8 @@ print "starting glacier2...",
 sys.stdout.flush()
 router = os.path.join(TestUtil.getCppBinDir(), "glacier2router")
 args = ' --Glacier2.SessionTimeout=5' + \
-       ' --Glacier2.Client.Endpoints="default -p 12347 -t 10000"' + \
-       ' --Glacier2.Server.Endpoints="tcp -h 127.0.0.1 -t 10000"' \
+       ' --Glacier2.Client.Endpoints="default -p 12347"' + \
+       ' --Glacier2.Server.Endpoints="tcp -h 127.0.0.1"' \
        ' --Glacier2.SessionManager=IceGrid/AdminSessionManager' + \
        ' --Glacier2.PermissionsVerifier=Glacier2/NullPermissionsVerifier' + \
        ' --Glacier2.SSLSessionManager=IceGrid/AdminSSLSessionManager' + \
@@ -240,3 +240,5 @@ print "ok"
 IceGridAdmin.iceGridAdmin("node shutdown localnode")
 IceGridAdmin.shutdownIceGridRegistry(registryProcs)
 nodeProc.waitTestSuccess()
+
+TestUtil.cleanup()

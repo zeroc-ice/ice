@@ -21,3 +21,5 @@ sys.path.append(os.path.join(path[0]))
 from scripts import *
 
 IceGridAdmin.iceGridTest("application.xml")
+
+TestUtil.cleanup()

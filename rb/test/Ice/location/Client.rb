@@ -20,7 +20,7 @@ Ice::loadSlice('-I' + slice_dir + ' Test.ice')
 require 'AllTests'
 
 def run(args, communicator)
-    allTests(communicator, "ServerManager:default -p 12010 -t 10000")
+    allTests(communicator, "ServerManager:default -p 12010")
     return true
 end
 

@@ -23,3 +23,5 @@ from scripts import *
 client = os.path.join(os.getcwd(), "client")
 
 TestUtil.simpleTest(client, " --Ice.Warn.Dispatch=0")
+
+TestUtil.cleanup()

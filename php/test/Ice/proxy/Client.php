@@ -32,7 +32,7 @@ function allTests()
 
     echo "testing stringToProxy... ";
     flush();
-    $ref = "test:default -p 12010 -t 2000";
+    $ref = "test:default -p 12010";
     $base = $ICE->stringToProxy($ref);
     test($base != null);
 
@@ -234,7 +234,7 @@ function allTests()
 
     echo "testing propertyToProxy... ";
     $propertyPrefix = "Foo.Proxy";
-    $ICE->setProperty($propertyPrefix, "test:default -p 12010 -t 10000");
+    $ICE->setProperty($propertyPrefix, "test:default -p 12010");
     $b1 = $ICE->propertyToProxy($propertyPrefix);
     test($b1->ice_getIdentity()->name == "test" && $b1->ice_getIdentity()->category == "" &&
          $b1->ice_getAdapterId() == "" && $b1->ice_getFacet() == "");
@@ -282,7 +282,7 @@ function allTests()
     //test($b1->ice_getLocatorCacheTimeout() == 60);
     //$ICE->setProperty("Ice.Default.LocatorCacheTimeout", "");
 
-    $ICE->setProperty($propertyPrefix, "test:default -p 12010 -t 10000");
+    $ICE->setProperty($propertyPrefix, "test:default -p 12010");
 
     $property = $propertyPrefix . ".Router";
     test(!$b1->ice_getRouter());

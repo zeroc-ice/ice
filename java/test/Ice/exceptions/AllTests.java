@@ -769,7 +769,7 @@ public class AllTests
             try
             {
                 Ice.ObjectAdapter second = 
-                    communicator.createObjectAdapterWithEndpoints("TestAdapter0", "ssl -h foo -p 12011 -t 10000");
+                    communicator.createObjectAdapterWithEndpoints("TestAdapter0", "ssl -h foo -p 12011");
                 test(false);
             }
             catch(Ice.AlreadyRegisteredException ex)
@@ -845,7 +845,7 @@ public class AllTests
 
         out.print("testing stringToProxy... ");
         out.flush();
-        String ref = "thrower:default -p 12010 -t 10000";
+        String ref = "thrower:default -p 12010";
         Ice.ObjectPrx base = communicator.stringToProxy(ref);
         test(base != null);
         out.println("ok");

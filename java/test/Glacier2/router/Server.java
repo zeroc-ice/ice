@@ -14,7 +14,7 @@ public class Server extends test.Util.Application
     public int
     run(String[] args)
     {
-        communicator().getProperties().setProperty("CallbackAdapter.Endpoints", "tcp -p 12010 -t 10000");
+        communicator().getProperties().setProperty("CallbackAdapter.Endpoints", "tcp -p 12010");
         Ice.ObjectAdapter adapter = communicator().createObjectAdapter("CallbackAdapter");
         adapter.add(new CallbackI(),
                     communicator().stringToIdentity("c1/callback")); // The test allows "c1" as category.

@@ -21,7 +21,7 @@ public class Server
 {
     public static int run(string[] args, Ice.Communicator communicator)
     {
-        communicator.getProperties().setProperty("TestAdapter.Endpoints", "default -p 12010 -t 10000");
+        communicator.getProperties().setProperty("TestAdapter.Endpoints", "default -p 12010");
         Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
         adapter.add(new RetryI(), communicator.stringToIdentity("retry"));
         adapter.activate();

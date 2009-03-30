@@ -16,7 +16,7 @@ end
 def allTests(communicator)
     print "testing stringToProxy... "
     STDOUT.flush
-    ref = "initial:default -p 12010 -t 10000"
+    ref = "initial:default -p 12010"
     base = communicator.stringToProxy(ref)
     test(base)
     puts "ok"

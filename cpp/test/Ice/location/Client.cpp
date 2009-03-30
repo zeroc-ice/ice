@@ -17,7 +17,7 @@ int
 run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
 {
     void allTests(const Ice::CommunicatorPtr&, const string&);
-    allTests(communicator, "ServerManager:default -p 12010 -t 10000");
+    allTests(communicator, "ServerManager:default -p 12010");
     return EXIT_SUCCESS;
 }
 

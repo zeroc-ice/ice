@@ -7,8 +7,7 @@
 #
 # **********************************************************************
 
-import sys, os, re, errno, getopt, time, StringIO, string, copy
-from threading import Thread
+import sys, os, re, errno, getopt, time, StringIO, string, copy, threading, signal
 
 # Global flags and their default values.
 protocol = ""                   # If unset, default to TCP. Valid values are "tcp" or "ssl".
@@ -27,6 +26,7 @@ valgrind = False                # Set to True to use valgrind for C++ executable
 tracefile = None
 printenv = False
 cross = []
+watchDog = None
 
 def isCygwin():
     # The substring on sys.platform is required because some cygwin
@@ -698,7 +698,7 @@ def getCommandLine(exe, config):
         components.append("--Ice.ThreadPool.Server.Size=1 --Ice.ThreadPool.Server.SizeMax=3 --Ice.ThreadPool.Server.SizeWarn=0")
 
     if config.type == "server":
-        components.append("--Ice.PrintAdapterReady=1 --Ice.ServerIdleTime=30")
+        components.append("--Ice.PrintAdapterReady=1")
 
     if config.ipv6:
         components.append("--Ice.Default.Host=0:0:0:0:0:0:0:1 --Ice.IPv6=1")
@@ -810,6 +810,13 @@ def isDebug():
 
 import Expect
 def spawn(cmd, env = None, cwd = None, startReader = True,lang=None):
+    # Start/Reset the watch dog thread
+    global watchDog
+    if watchDog == None:
+        watchDog = WatchDog()
+    else:
+        watchDog.reset()
+
     if debug:
         print "(%s)" % cmd,
     if printenv:
@@ -1015,6 +1022,61 @@ def getTestName():
     here.reverse()
     # The crossTests list is in UNIX format.
     return os.path.join(*here).replace(os.sep, '/')
+
+class WatchDog(threading.Thread):
+    def __init__(self):
+        self._done = False
+        self._reset = False
+        self._cv = threading.Condition()
+        threading.Thread.__init__(self)
+
+        #
+        # Setup and install signal handlers
+        #
+        if signal.__dict__.has_key('SIGHUP'):
+            signal.signal(signal.SIGHUP, signal.SIG_DFL)
+        if signal.__dict__.has_key('SIGBREAK'):
+            signal.signal(signal.SIGBREAK, signal.SIG_DFL)
+        signal.signal(signal.SIGINT, signal.SIG_DFL)
+        signal.signal(signal.SIGTERM, signal.SIG_DFL)
+
+        self.start()
+
+    def run(self):
+        self._cv.acquire()
+        while self._done == False:
+            self._cv.wait(180)
+            if self._reset:
+                self._reset = False
+            elif not self._done:
+                print "\a*** %s Warning: Test has been inactive for 3 minutes and may be hung", time.strftime("%x %X")
+                somecrap
+        self._cv.release()
+
+    def reset(self):
+        self._cv.acquire()
+        self._reset = True
+        self._cv.notify()
+        self._cv.release()
+
+    def destroy(self):
+        self._cv.acquire()
+        self._done = True
+        self._cv.notify()
+        self._cv.release()
+
+    def signalHandler(self, sig, frame):
+        self.destroy()
+        self.join()
+    signalHandler = classmethod(signalHandler)
+
+def cleanup():
+    # Stop watch dog thread
+    global watchDog
+    if watchDog != None:
+        watchDog.destroy()
+        watchDog.join()
+        watchDog = None
 
 def processCmdLine():
     def usage():
@@ -1229,7 +1291,6 @@ def runTests(start, expanded, num = 0, script = False):
                         print " ** Error logged and will be displayed again when suite is completed **"
                         global testErrors
                         testErrors.append(message)
-
 
 if os.environ.has_key("ICE_CONFIG"):
     os.unsetenv("ICE_CONFIG")

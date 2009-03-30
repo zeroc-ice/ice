@@ -103,7 +103,7 @@ public class AllTests
         
         Console.Write("testing stringToProxy... ");
         Console.Out.Flush();
-        string @ref = "d:default -p 12010 -t 2000";
+        string @ref = "d:default -p 12010";
         Ice.ObjectPrx db = communicator.stringToProxy(@ref);
         test(db != null);
         Console.WriteLine("ok");

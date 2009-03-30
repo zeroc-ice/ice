@@ -45,7 +45,7 @@ int
 SessionControlClient::run(int argc, char* argv[])
 {
     cout << "getting router... " << flush;
-    ObjectPrx routerBase = communicator()->stringToProxy("Glacier2/router:default -p 12347 -t 10000");
+    ObjectPrx routerBase = communicator()->stringToProxy("Glacier2/router:default -p 12347");
     Glacier2::RouterPrx router = Glacier2::RouterPrx::checkedCast(routerBase);
     test(router);
     communicator()->setDefaultRouter(router);
@@ -105,7 +105,7 @@ SessionControlClient::run(int argc, char* argv[])
     session = Test::SessionPrx::uncheckedCast(router->createSession("userid", "abc123"));
     session->shutdown();
     communicator()->setDefaultRouter(0);
-    ObjectPrx processBase = communicator()->stringToProxy("Glacier2/admin -f Process:tcp -p 12348 -t 10000");
+    ObjectPrx processBase = communicator()->stringToProxy("Glacier2/admin -f Process:tcp -p 12348");
     Ice::ProcessPrx process = Ice::ProcessPrx::checkedCast(processBase);
     test(process);
     process->shutdown();

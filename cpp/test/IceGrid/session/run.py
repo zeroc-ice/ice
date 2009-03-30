@@ -51,3 +51,5 @@ IceGridAdmin.iceGridTest("application.xml",
     '\\"properties-override=%s\\"' % TestUtil.getCommandLine("", TestUtil.DriverConfig("server")).replace("--", ""))
 
 verifierProc.waitTestSuccess()
+
+TestUtil.cleanup()

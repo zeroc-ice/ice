@@ -32,7 +32,7 @@ public class AMDServer extends test.Util.Application
 
         initData.properties = Ice.Util.createProperties(argsH);
         initData.properties.setProperty("Ice.Package.Test", "test.Ice.exceptions.AMD");
-        initData.properties.setProperty("TestAdapter.Endpoints", "default -p 12010 -t 10000:udp");
+        initData.properties.setProperty("TestAdapter.Endpoints", "default -p 12010:udp");
 
         // We don't need to disable warnings, because we have a dummy logger.
         // properties.setProperty("Ice.Warn.Dispatch", "0");

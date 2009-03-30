@@ -18,7 +18,7 @@ InitialPrx
 allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
 {
     cout << "testing stringToProxy... " << flush;
-    string ref = "initial:default -p 12010 -t 10000";
+    string ref = "initial:default -p 12010";
     Ice::ObjectPrx base = communicator->stringToProxy(ref);
     test(base);
     cout << "ok" << endl;
@@ -164,7 +164,7 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
     if(!collocated)
     {
         cout << "testing UnexpectedObjectException... " << flush;
-        ref = "uoet:default -p 12010 -t 10000";
+        ref = "uoet:default -p 12010";
         base = communicator->stringToProxy(ref);
         test(base);
         UnexpectedObjectExceptionTestPrx uoet = UnexpectedObjectExceptionTestPrx::uncheckedCast(base);

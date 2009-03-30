@@ -90,7 +90,7 @@ public class Server
         //
         if(communicator.getProperties().getProperty("TestAdapter.Endpoints").Length == 0)
         {
-            communicator.getProperties().setProperty("TestAdapter.Endpoints", "default -p 12010 -t 10000");
+            communicator.getProperties().setProperty("TestAdapter.Endpoints", "default -p 12010");
         }
         if(communicator.getProperties().getProperty("ControllerAdapter.Endpoints").Length == 0)
         {

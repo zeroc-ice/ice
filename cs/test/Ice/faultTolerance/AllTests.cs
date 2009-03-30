@@ -173,7 +173,7 @@ public class AllTests
         string refString = "test";
         for(int i = 0; i < ports.Count; i++)
         {
-            refString += ":default -t 60000 -p " + ports[i];
+            refString += ":default -p " + ports[i];
         }
         Ice.ObjectPrx basePrx = communicator.stringToProxy(refString);
         test(basePrx != null);

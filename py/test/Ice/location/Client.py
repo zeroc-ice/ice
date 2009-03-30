@@ -24,7 +24,7 @@ def test(b):
         raise RuntimeError('test assertion failed')
 
 def run(args, communicator):
-    AllTests.allTests(communicator, "ServerManager:default -p 12010 -t 10000")
+    AllTests.allTests(communicator, "ServerManager:default -p 12010")
     return True
 
 try:

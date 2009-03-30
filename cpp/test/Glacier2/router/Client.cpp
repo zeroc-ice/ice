@@ -86,7 +86,7 @@ public:
     void run()
     {
         CommunicatorPtr communicator = initialize(initData);
-        ObjectPrx routerBase = communicator->stringToProxy("Glacier2/router:default -p 12347 -t 10000");
+        ObjectPrx routerBase = communicator->stringToProxy("Glacier2/router:default -p 12347");
         Glacier2::RouterPrx router = Glacier2::RouterPrx::checkedCast(routerBase);
         communicator->setDefaultRouter(router);
 
@@ -109,7 +109,7 @@ public:
         ident.category = category;
         CallbackReceiverPrx receiver = CallbackReceiverPrx::uncheckedCast(adapter->add(_callbackReceiver, ident));
         
-        ObjectPrx base = communicator->stringToProxy("c1/callback:tcp -p 12010 -t 10000");
+        ObjectPrx base = communicator->stringToProxy("c1/callback:tcp -p 12010");
         base = base->ice_oneway();
         CallbackPrx callback = CallbackPrx::uncheckedCast(base);
 
@@ -193,7 +193,7 @@ public:
     void run()
     {
         CommunicatorPtr communicator = initialize(initData);
-        ObjectPrx routerBase = communicator->stringToProxy("Glacier2/router:default -p 12347 -t 30000");
+        ObjectPrx routerBase = communicator->stringToProxy("Glacier2/router:default -p 12347");
         _router = Glacier2::RouterPrx::checkedCast(routerBase);
         communicator->setDefaultRouter(_router);
 
@@ -211,7 +211,7 @@ public:
         ident.category = category;
         CallbackReceiverPrx receiver = CallbackReceiverPrx::uncheckedCast(adapter->add(_callbackReceiver, ident));
         
-        ObjectPrx base = communicator->stringToProxy("c1/callback:tcp -p 12010 -t 10000");
+        ObjectPrx base = communicator->stringToProxy("c1/callback:tcp -p 12010");
         base = base->ice_oneway();
         CallbackPrx callback = CallbackPrx::uncheckedCast(base);
 
@@ -438,7 +438,7 @@ CallbackClient::run(int argc, char* argv[])
 
     {
         cout << "testing stringToProxy for router... " << flush;
-        routerBase = communicator()->stringToProxy("Glacier2/router:default -p 12347 -t 10000");
+        routerBase = communicator()->stringToProxy("Glacier2/router:default -p 12347");
         cout << "ok" << endl;
     }
     
@@ -468,7 +468,7 @@ CallbackClient::run(int argc, char* argv[])
 
     {
         cout << "testing stringToProxy for server object... " << flush;
-        base = communicator()->stringToProxy("c1/callback:tcp -p 12010 -t 10000");
+        base = communicator()->stringToProxy("c1/callback:tcp -p 12010");
         cout << "ok" << endl;
     }
         
@@ -874,7 +874,7 @@ CallbackClient::run(int argc, char* argv[])
 
         {
             cout << "testing stringToProxy for admin process facet... " << flush;
-            processBase = communicator()->stringToProxy("Glacier2/admin -f Process:tcp -h 127.0.0.1 -p 12348 -t 10000");
+            processBase = communicator()->stringToProxy("Glacier2/admin -f Process:tcp -h 127.0.0.1 -p 12348");
             cout << "ok" << endl;
         }
         

@@ -14,7 +14,7 @@ public class AllTests
     public static Test.MyClassPrx allTests(Ice.Communicator communicator, bool collocated)
     {
         Console.Out.Flush();
-        string rf = "test:default -p 12010 -t 10000";
+        string rf = "test:default -p 12010";
         Ice.ObjectPrx baseProxy = communicator.stringToProxy(rf);
         Test.MyClassPrx cl = Test.MyClassPrxHelper.checkedCast(baseProxy);
         Test.MyDerivedClassPrx derivedProxy = Test.MyDerivedClassPrxHelper.checkedCast(cl);

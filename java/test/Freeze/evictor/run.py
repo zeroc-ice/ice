@@ -26,3 +26,5 @@ TestUtil.cleanDbDir(dbdir)
 testOptions = " --Freeze.Warn.Deadlocks=0 --Freeze.DbEnv.db.DbHome=%s/db --Ice.Config=%s/config " % (os.getcwd(), os.getcwd())
 
 TestUtil.clientServerTest(testOptions, testOptions)
+
+TestUtil.cleanup()

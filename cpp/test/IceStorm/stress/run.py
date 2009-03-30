@@ -169,3 +169,5 @@ def runtest(type):
 
 runtest("persistent")
 runtest("replicated")
+
+TestUtil.cleanup()

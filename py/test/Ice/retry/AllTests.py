@@ -60,7 +60,7 @@ class AMIException(CallbackBase):
 
 def allTests(communicator):
     print "testing stringToProxy...",
-    ref = "retry:default -p 12010 -t 10000"
+    ref = "retry:default -p 12010"
     base1 = communicator.stringToProxy(ref)
     test(base1)
     base2 = communicator.stringToProxy(ref)

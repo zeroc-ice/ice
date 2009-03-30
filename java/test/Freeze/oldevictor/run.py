@@ -26,3 +26,5 @@ TestUtil.cleanDbDir(dbdir)
 testOptions = " --Freeze.DbEnv.db.DbHome=%s --Ice.Config=%s" % (dbdir, os.path.join(os.getcwd(), "config"))
 
 TestUtil.clientServerTest(testOptions, testOptions)
+
+TestUtil.cleanup()

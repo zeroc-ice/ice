@@ -29,3 +29,5 @@ IceGridAdmin.iceGridClientServerTest("", "--TestAdapter.Endpoints=default --Test
 # Test client/server with on demand activation.
 #
 IceGridAdmin.iceGridTest("simple_server.xml", "--with-deploy")
+
+TestUtil.cleanup()

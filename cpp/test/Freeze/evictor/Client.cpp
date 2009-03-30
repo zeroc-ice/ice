@@ -464,7 +464,7 @@ private:
 int
 run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator, bool transactional, bool shutdown)
 {
-    string ref = "factory:default -p 12010 -t 30000";
+    string ref = "factory:default -p 12010";
     Ice::ObjectPrx base = communicator->stringToProxy(ref);
     test(base);
     Test::RemoteEvictorFactoryPrx factory = Test::RemoteEvictorFactoryPrx::checkedCast(base);

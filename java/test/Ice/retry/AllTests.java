@@ -120,7 +120,7 @@ public class AllTests
     {
         out.print("testing stringToProxy... ");
         out.flush();
-        String ref = "retry:default -p 12010 -t 10000";
+        String ref = "retry:default -p 12010";
         Ice.ObjectPrx base1 = communicator.stringToProxy(ref);
         test(base1 != null);
         Ice.ObjectPrx base2 = communicator.stringToProxy(ref);

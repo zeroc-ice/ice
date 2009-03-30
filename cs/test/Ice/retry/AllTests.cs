@@ -105,7 +105,7 @@ public class AllTests
     {
         Console.Out.Write("testing stringToProxy... ");
         Console.Out.Flush();
-        string rf = "retry:default -p 12010 -t 10000";
+        string rf = "retry:default -p 12010";
         Ice.ObjectPrx base1 = communicator.stringToProxy(rf);
         test(base1 != null);
         Ice.ObjectPrx base2 = communicator.stringToProxy(rf);

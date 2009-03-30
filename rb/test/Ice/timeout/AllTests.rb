@@ -8,7 +8,7 @@
 # **********************************************************************
 
 def allTests(communicator)
-    sref = "timeout:default -p 12010 -t 10000"
+    sref = "timeout:default -p 12010"
     obj = communicator.stringToProxy(sref)
     test(obj)
 

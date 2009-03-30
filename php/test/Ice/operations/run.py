@@ -24,3 +24,5 @@ print "tests with regular server."
 TestUtil.clientServerTest()
 print "tests with AMD server."
 TestUtil.clientServerTest(server="serveramd")
+
+TestUtil.cleanup()

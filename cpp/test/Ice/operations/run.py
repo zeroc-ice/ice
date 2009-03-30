@@ -26,3 +26,5 @@ print "tests with AMD server."
 TestUtil.clientServerTest(server = "serveramd")
 print "tests with collocated server."
 TestUtil.collocatedTest()
+
+TestUtil.cleanup()

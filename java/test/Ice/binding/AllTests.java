@@ -124,7 +124,7 @@ public class AllTests
     public static void
     allTests(Ice.Communicator communicator, PrintWriter out)
     {
-        String ref = "communicator:default -p 12010 -t 10000";
+        String ref = "communicator:default -p 12010";
         RemoteCommunicatorPrx com = RemoteCommunicatorPrxHelper.uncheckedCast(communicator.stringToProxy(ref));
 
 		out.print("testing binding with single endpoint... ");

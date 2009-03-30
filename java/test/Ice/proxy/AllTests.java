@@ -31,7 +31,7 @@ public class AllTests
     {
         out.print("testing stringToProxy... ");
         out.flush();
-        String ref = "test:default -p 12010 -t 10000";
+        String ref = "test:default -p 12010";
         Ice.ObjectPrx base = communicator.stringToProxy(ref);
         test(base != null);
 
@@ -235,7 +235,7 @@ public class AllTests
         out.flush();
         Ice.Properties prop = communicator.getProperties();
         String propertyPrefix = "Foo.Proxy";
-        prop.setProperty(propertyPrefix, "test:default -p 12010 -t 10000");
+        prop.setProperty(propertyPrefix, "test:default -p 12010");
         b1 = communicator.propertyToProxy(propertyPrefix);
         test(b1.ice_getIdentity().name.equals("test") && b1.ice_getIdentity().category.length() == 0 &&
              b1.ice_getAdapterId().length() == 0 && b1.ice_getFacet().length() == 0);
@@ -279,7 +279,7 @@ public class AllTests
         //test(b1.ice_getLocatorCacheTimeout() == 60);
         //prop.setProperty("Ice.Default.LocatorCacheTimeout", "");
 
-        prop.setProperty(propertyPrefix, "test:default -p 12010 -t 10000");
+        prop.setProperty(propertyPrefix, "test:default -p 12010");
 
         property = propertyPrefix + ".Router";
         test(b1.ice_getRouter() == null);

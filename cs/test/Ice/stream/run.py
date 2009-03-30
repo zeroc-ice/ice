@@ -27,3 +27,5 @@ clientProc = TestUtil.startClient(client, " --Ice.Warn.Dispatch=0 2>&1", startRe
 print "ok"
 clientProc.startReader()
 clientProc.waitTestSuccess()
+
+TestUtil.cleanup()

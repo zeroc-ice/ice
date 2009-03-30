@@ -46,7 +46,7 @@ main(int argc, char* argv[])
 int
 AttackClient::run(int argc, char* argv[])
 {
-    ObjectPrx routerBase = communicator()->stringToProxy("Glacier2/router:default -p 12347 -t 60000");
+    ObjectPrx routerBase = communicator()->stringToProxy("Glacier2/router:default -p 12347");
     Glacier2::RouterPrx router = Glacier2::RouterPrx::checkedCast(routerBase);
     test(router);
     communicator()->setDefaultRouter(router);
@@ -144,7 +144,7 @@ AttackClient::run(int argc, char* argv[])
     communicator()->setDefaultRouter(0);
     try
     {
-        BackendPrx backend = BackendPrx::checkedCast(communicator()->stringToProxy("dummy:tcp -p 12010 -t 60000"));
+        BackendPrx backend = BackendPrx::checkedCast(communicator()->stringToProxy("dummy:tcp -p 12010"));
         backend->shutdown();
     }
     catch(const Ice::LocalException&)
@@ -152,7 +152,7 @@ AttackClient::run(int argc, char* argv[])
         test(false);
     }
 
-    ObjectPrx processBase = communicator()->stringToProxy("Glacier2/admin -f Process:tcp -h 127.0.0.1 -p 12348 -t 60000");
+    ObjectPrx processBase = communicator()->stringToProxy("Glacier2/admin -f Process:tcp -h 127.0.0.1 -p 12348");
     Ice::ProcessPrx process = Ice::ProcessPrx::checkedCast(processBase);
     test(process);
     process->shutdown();

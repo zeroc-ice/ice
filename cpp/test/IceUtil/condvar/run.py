@@ -32,3 +32,5 @@ client.waitTestSuccess()
 
 client = TestUtil.spawnClient(match + " -b", startReader = True)
 client.waitTestSuccess()
+
+TestUtil.cleanup()

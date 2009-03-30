@@ -104,10 +104,10 @@ public class AllTests
     {
         out.print("testing stringToProxy... ");
         out.flush();
-        String ref = "hold:default -p 12010 -t 60000";
+        String ref = "hold:default -p 12010";
         Ice.ObjectPrx base = communicator.stringToProxy(ref);
         test(base != null);
-        String refSerialized = "hold:default -p 12011 -t 60000";
+        String refSerialized = "hold:default -p 12011";
         Ice.ObjectPrx baseSerialized = communicator.stringToProxy(refSerialized);
         test(baseSerialized != null);
         out.println("ok");

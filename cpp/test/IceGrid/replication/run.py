@@ -24,3 +24,5 @@ TestUtil.addLdPath(os.getcwd())
 
 IceGridAdmin.iceGridTest("application.xml", '--IceDir="%s" --TestDir="%s"' % (TestUtil.toplevel, os.getcwd()),
     "'properties-override=%s'" % TestUtil.getCommandLine("", TestUtil.DriverConfig("server")).replace("--", ""))
+
+TestUtil.cleanup()

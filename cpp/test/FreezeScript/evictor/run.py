@@ -65,3 +65,5 @@ command = transformdb + " -e --old " + testnew + " --new " + testnew + " -f " + 
 proc = TestUtil.spawn(command)
 proc.waitTestSuccess()
 print "ok"
+
+TestUtil.cleanup()

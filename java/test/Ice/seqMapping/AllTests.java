@@ -18,7 +18,7 @@ public class AllTests
     public static MyClassPrx
     allTests(Ice.Communicator communicator, boolean collocated, PrintWriter out)
     {
-        String ref = "test:default -p 12010 -t 10000";
+        String ref = "test:default -p 12010";
         Ice.ObjectPrx baseProxy = communicator.stringToProxy(ref);
         MyClassPrx cl = MyClassPrxHelper.checkedCast(baseProxy);
 

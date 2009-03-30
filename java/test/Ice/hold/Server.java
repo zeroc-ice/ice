@@ -38,13 +38,13 @@ public class Server extends test.Util.Application
         Ice.InitializationData initData = new Ice.InitializationData();
         initData.properties = Ice.Util.createProperties(argsH);
         initData.properties.setProperty("Ice.Package.Test", "test.Ice.hold");
-        initData.properties.setProperty("TestAdapter1.Endpoints", "default -p 12010 -t 10000:udp");
+        initData.properties.setProperty("TestAdapter1.Endpoints", "default -p 12010:udp");
         initData.properties.setProperty("TestAdapter1.ThreadPool.Size", "5");
         initData.properties.setProperty("TestAdapter1.ThreadPool.SizeMax", "5");
         initData.properties.setProperty("TestAdapter1.ThreadPool.SizeWarn", "0");
         initData.properties.setProperty("TestAdapter1.ThreadPool.Serialize", "0");
 
-        initData.properties.setProperty("TestAdapter2.Endpoints", "default -p 12011 -t 10000:udp");
+        initData.properties.setProperty("TestAdapter2.Endpoints", "default -p 12011:udp");
         initData.properties.setProperty("TestAdapter2.ThreadPool.Size", "5");
         initData.properties.setProperty("TestAdapter2.ThreadPool.SizeMax", "5");
         initData.properties.setProperty("TestAdapter2.ThreadPool.SizeWarn", "0");

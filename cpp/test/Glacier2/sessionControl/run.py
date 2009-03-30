@@ -28,11 +28,11 @@ print "ok"
 
 router = os.path.join(TestUtil.getCppBinDir(), "glacier2router")
 
-args =    ' --Glacier2.Client.Endpoints="default -p 12347 -t 10000"' + \
-          ' --Ice.Admin.Endpoints="tcp -p 12348 -t 10000"' + \
+args =    ' --Glacier2.Client.Endpoints="default -p 12347"' + \
+          ' --Ice.Admin.Endpoints="tcp -p 12348"' + \
           ' --Ice.Admin.InstanceName=Glacier2' + \
-          ' --Glacier2.Server.Endpoints="default -p 12349 -t 10000"' + \
-          ' --Glacier2.SessionManager="SessionManager:tcp -p 12010 -t 10000"' \
+          ' --Glacier2.Server.Endpoints="default -p 12349"' + \
+          ' --Glacier2.SessionManager="SessionManager:tcp -p 12010"' \
           ' --Glacier2.PermissionsVerifier="Glacier2/NullPermissionsVerifier"'
 
 print "starting router...",
@@ -54,3 +54,5 @@ clientProc.startReader()
 clientProc.waitTestSuccess()
 serverProc.waitTestSuccess()
 starterProc.waitTestSuccess()
+
+TestUtil.cleanup()

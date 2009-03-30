@@ -25,3 +25,5 @@ clientProc = TestUtil.startClient("Client.py", "--Ice.Default.Host=127.0.0.1", s
 print "ok"
 clientProc.startReader()
 clientProc.waitTestSuccess()
+
+TestUtil.cleanup()

@@ -14,7 +14,7 @@ def test(b):
         raise RuntimeError('test assertion failed')
 
 def allTests(communicator, collocated):
-    ref = "test:default -p 12010 -t 10000"
+    ref = "test:default -p 12010"
     base = communicator.stringToProxy(ref)
     cl = Test.MyClassPrx.checkedCast(base)
     derived = Test.MyDerivedClassPrx.checkedCast(cl)

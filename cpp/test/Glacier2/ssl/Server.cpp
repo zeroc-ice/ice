@@ -125,7 +125,7 @@ int
 SessionServer::run(int argc, char* argv[])
 {
     Ice::ObjectAdapterPtr adapter = communicator()->createObjectAdapterWithEndpoints(
-        "SessionServer", "tcp -h 127.0.0.1 -p 12350 -t 10000");
+        "SessionServer", "tcp -h 127.0.0.1 -p 12350");
     adapter->add(new SSLPermissionsVerifierI, communicator()->stringToIdentity("sslverifier"));
     adapter->add(new SessionManagerI, communicator()->stringToIdentity("sessionmanager"));
     adapter->add(new SSLSessionManagerI, communicator()->stringToIdentity("sslsessionmanager"));

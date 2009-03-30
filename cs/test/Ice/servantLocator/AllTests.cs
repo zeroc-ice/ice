@@ -189,7 +189,7 @@ public class AllTests
     {
         Console.Out.Write("testing stringToProxy... ");
         Console.Out.Flush();
-        string @ref = "asm:default -p 12010 -t 2000";
+        string @ref = "asm:default -p 12010";
         Ice.ObjectPrx @base = communicator.stringToProxy(@ref);
         test(@base != null);
         Console.Out.WriteLine("ok");
@@ -205,7 +205,7 @@ public class AllTests
         Console.Out.Flush();
         try
         {
-            Ice.ObjectPrx o = communicator.stringToProxy("category/locate:default -p 12010 -t 10000");
+            Ice.ObjectPrx o = communicator.stringToProxy("category/locate:default -p 12010");
             o.ice_ids();
             test(false);
         }
@@ -220,7 +220,7 @@ public class AllTests
 
         try
         {
-            Ice.ObjectPrx o = communicator.stringToProxy("category/finished:default -p 12010 -t 10000");
+            Ice.ObjectPrx o = communicator.stringToProxy("category/finished:default -p 12010");
             o.ice_ids();
             test(false);
         }
@@ -236,11 +236,11 @@ public class AllTests
 
         Console.Out.Write("testing servant locator...");
         Console.Out.Flush();
-        @base = communicator.stringToProxy("category/locate:default -p 12010 -t 10000");
+        @base = communicator.stringToProxy("category/locate:default -p 12010");
         obj = TestIntfPrxHelper.checkedCast(@base);
         try
         {
-            TestIntfPrxHelper.checkedCast(communicator.stringToProxy("category/unknown:default -p 12010 -t 10000"));
+            TestIntfPrxHelper.checkedCast(communicator.stringToProxy("category/unknown:default -p 12010"));
         }
         catch(ObjectNotExistException)
         {
@@ -249,20 +249,20 @@ public class AllTests
 
         Console.Out.Write("testing default servant locator...");
         Console.Out.Flush();
-        @base = communicator.stringToProxy("anothercat/locate:default -p 12010 -t 10000");
+        @base = communicator.stringToProxy("anothercat/locate:default -p 12010");
         obj = TestIntfPrxHelper.checkedCast(@base);
-        @base = communicator.stringToProxy("locate:default -p 12010 -t 10000");
+        @base = communicator.stringToProxy("locate:default -p 12010");
         obj = TestIntfPrxHelper.checkedCast(@base);
         try
         {
-            TestIntfPrxHelper.checkedCast(communicator.stringToProxy("anothercat/unknown:default -p 12010 -t 10000"));
+            TestIntfPrxHelper.checkedCast(communicator.stringToProxy("anothercat/unknown:default -p 12010"));
         }
         catch(ObjectNotExistException)
         {
         }
         try
         {
-            TestIntfPrxHelper.checkedCast(communicator.stringToProxy("unknown:default -p 12010 -t 10000"));
+            TestIntfPrxHelper.checkedCast(communicator.stringToProxy("unknown:default -p 12010"));
         }
         catch(ObjectNotExistException)
         {
@@ -271,14 +271,14 @@ public class AllTests
 
         Console.Out.Write("testing locate exceptions... ");
         Console.Out.Flush();
-        @base = communicator.stringToProxy("category/locate:default -p 12010 -t 10000");
+        @base = communicator.stringToProxy("category/locate:default -p 12010");
         obj = TestIntfPrxHelper.checkedCast(@base);
         testExceptions(obj, collocated);
         Console.Out.WriteLine("ok");
 
         Console.Out.Write("testing finished exceptions... ");
         Console.Out.Flush();
-        @base = communicator.stringToProxy("category/finished:default -p 12010 -t 10000");
+        @base = communicator.stringToProxy("category/finished:default -p 12010");
         obj = TestIntfPrxHelper.checkedCast(@base);
         testExceptions(obj, collocated);
         Console.Out.WriteLine("ok");

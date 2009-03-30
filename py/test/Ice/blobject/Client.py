@@ -20,7 +20,7 @@ def test(b):
         raise RuntimeError('test assertion failed')
 
 def run(args, communicator, sync):
-    hello = Test.HelloPrx.checkedCast(communicator.stringToProxy("test:default -p 12010 -t 10000"))
+    hello = Test.HelloPrx.checkedCast(communicator.stringToProxy("test:default -p 12010"))
     hello.sayHello(False)
     hello.sayHello(False, { "_fwd":"o" } )
     test(hello.add(10, 20) == 30)

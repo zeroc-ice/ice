@@ -32,7 +32,7 @@ function allTests()
 
     echo "testing stringToProxy... ";
     flush();
-    $ref = "d:default -p 12010 -t 2000";
+    $ref = "d:default -p 12010";
     $db = $ICE->stringToProxy($ref);
     test($db != null);
     echo "ok\n";

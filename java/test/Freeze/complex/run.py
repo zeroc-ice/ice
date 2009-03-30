@@ -40,3 +40,5 @@ clientProc = TestUtil.startClient("test.Freeze.complex.Client", " --dbdir %s val
 print "ok"
 clientProc.startReader()
 clientProc.waitTestSuccess()
+
+TestUtil.cleanup()

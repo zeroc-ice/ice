@@ -95,7 +95,7 @@ RetryPrx
 allTests(const Ice::CommunicatorPtr& communicator)
 {
     cout << "testing stringToProxy... " << flush;
-    string ref = "retry:default -p 12010 -t 10000";
+    string ref = "retry:default -p 12010";
     Ice::ObjectPrx base1 = communicator->stringToProxy(ref);
     test(base1);
     Ice::ObjectPrx base2 = communicator->stringToProxy(ref);

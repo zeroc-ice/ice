@@ -120,7 +120,7 @@ public class AllTests
 
     public static void allTests(Ice.Communicator communicator)
     {
-        string @ref = "communicator:default -p 12010 -t 10000";
+        string @ref = "communicator:default -p 12010";
         RemoteCommunicatorPrx com = RemoteCommunicatorPrxHelper.uncheckedCast(communicator.stringToProxy(@ref));
 
         System.Random rand = new System.Random(unchecked((int)System.DateTime.Now.Ticks));

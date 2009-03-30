@@ -15,7 +15,7 @@ public class Server extends test.Util.Application
     run(String[] args)
     {
 	Ice.Communicator communicator = communicator();
-        communicator.getProperties().setProperty("TestAdapter.Endpoints", "default -p 12010 -t 10000");
+        communicator.getProperties().setProperty("TestAdapter.Endpoints", "default -p 12010");
         Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
         Ice.Object object = new ChecksumI(adapter);
         adapter.add(object, communicator.stringToIdentity("test"));

@@ -1038,7 +1038,7 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
 {
     cout << "testing stringToProxy... " << flush;
     string ref = communicator->getProperties()->getPropertyWithDefault(
-        "Custom.Proxy", "test:default -p 12010 -t 10000");
+        "Custom.Proxy", "test:default -p 12010");
     Ice::ObjectPrx base = communicator->stringToProxy(ref);
     test(base);
     cout << "ok" << endl;
@@ -2008,14 +2008,14 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
     wdict2 = wdict1;
 
     ref = communicator->getProperties()->getPropertyWithDefault(
-        "Custom.WstringProxy1", "wstring1:default -p 12010 -t 10000");
+        "Custom.WstringProxy1", "wstring1:default -p 12010");
     base = communicator->stringToProxy(ref);
     test(base);
     Test1::WstringClassPrx wsc1 = Test1::WstringClassPrx::checkedCast(base);
     test(t);
 
     ref = communicator->getProperties()->getPropertyWithDefault(
-        "Custom.WstringProxy2", "wstring2:default -p 12010 -t 10000");
+        "Custom.WstringProxy2", "wstring2:default -p 12010");
     base = communicator->stringToProxy(ref);
     test(base);
     Test2::WstringClassPrx wsc2 = Test2::WstringClassPrx::checkedCast(base);

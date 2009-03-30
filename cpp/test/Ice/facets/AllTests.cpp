@@ -107,7 +107,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
     adapter->deactivate();
 
     cout << "testing stringToProxy... " << flush;
-    string ref = "d:default -p 12010 -t 10000";
+    string ref = "d:default -p 12010";
     Ice::ObjectPrx db = communicator->stringToProxy(ref);
     test(db);
     cout << "ok" << endl;

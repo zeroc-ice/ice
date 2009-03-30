@@ -192,7 +192,7 @@ public class AllTests
     {
 		out.print("testing stringToProxy... ");
         out.flush();
-        String ref = "asm:default -p 12010 -t 10000";
+        String ref = "asm:default -p 12010";
         Ice.ObjectPrx base = communicator.stringToProxy(ref);
         test(base != null);
         out.println("ok");
@@ -208,7 +208,7 @@ public class AllTests
         out.flush();
         try
         {
-            ObjectPrx o = communicator.stringToProxy("category/locate:default -p 12010 -t 10000");
+            ObjectPrx o = communicator.stringToProxy("category/locate:default -p 12010");
             o.ice_ids();
             test(false);
         }
@@ -223,7 +223,7 @@ public class AllTests
 
         try
         {
-            ObjectPrx o = communicator.stringToProxy("category/finished:default -p 12010 -t 10000");
+            ObjectPrx o = communicator.stringToProxy("category/finished:default -p 12010");
             o.ice_ids();
             test(false);
         }
@@ -239,11 +239,11 @@ public class AllTests
 
         out.print("testing servant locator... ");
         out.flush();
-        base = communicator.stringToProxy("category/locate:default -p 12010 -t 10000");
+        base = communicator.stringToProxy("category/locate:default -p 12010");
         obj = TestIntfPrxHelper.checkedCast(base);
         try
         {
-            TestIntfPrxHelper.checkedCast(communicator.stringToProxy("category/unknown:default -p 12010 -t 10000"));
+            TestIntfPrxHelper.checkedCast(communicator.stringToProxy("category/unknown:default -p 12010"));
         }
         catch(ObjectNotExistException ex)
         {
@@ -252,20 +252,20 @@ public class AllTests
 
         out.print("testing default servant locator... ");
         out.flush();
-        base = communicator.stringToProxy("anothercat/locate:default -p 12010 -t 10000");
+        base = communicator.stringToProxy("anothercat/locate:default -p 12010");
         obj = TestIntfPrxHelper.checkedCast(base);
-        base = communicator.stringToProxy("locate:default -p 12010 -t 10000");
+        base = communicator.stringToProxy("locate:default -p 12010");
         obj = TestIntfPrxHelper.checkedCast(base);
         try
         {
-            TestIntfPrxHelper.checkedCast(communicator.stringToProxy("anothercat/unknown:default -p 12010 -t 10000"));
+            TestIntfPrxHelper.checkedCast(communicator.stringToProxy("anothercat/unknown:default -p 12010"));
         }
         catch(ObjectNotExistException ex)
         {
         }
         try
         {
-            TestIntfPrxHelper.checkedCast(communicator.stringToProxy("unknown:default -p 12010 -t 10000"));
+            TestIntfPrxHelper.checkedCast(communicator.stringToProxy("unknown:default -p 12010"));
         }
         catch(ObjectNotExistException ex)
         {
@@ -274,14 +274,14 @@ public class AllTests
 
         out.print("testing locate exceptions... ");
         out.flush();
-        base = communicator.stringToProxy("category/locate:default -p 12010 -t 10000");
+        base = communicator.stringToProxy("category/locate:default -p 12010");
         obj = TestIntfPrxHelper.checkedCast(base);
         testExceptions(obj, collocated);
         out.println("ok");
 
         out.print("testing finished exceptions... ");
         out.flush();
-        base = communicator.stringToProxy("category/finished:default -p 12010 -t 10000");
+        base = communicator.stringToProxy("category/finished:default -p 12010");
         obj = TestIntfPrxHelper.checkedCast(base);
         testExceptions(obj, collocated);
         out.println("ok");

@@ -125,7 +125,7 @@ typedef IceUtil::Handle<AMISleepEx> AMISleepExPtr;
 TimeoutPrx
 allTests(const Ice::CommunicatorPtr& communicator)
 {
-    string sref = "timeout:default -p 12010 -t 10000";
+    string sref = "timeout:default -p 12010";
     Ice::ObjectPrx obj = communicator->stringToProxy(sref);
     test(obj);
 

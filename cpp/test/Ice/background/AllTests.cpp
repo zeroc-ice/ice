@@ -245,13 +245,13 @@ void readWriteTests(const ConfigurationPtr&, const Test::BackgroundPrx&, const T
 BackgroundPrx
 allTests(const Ice::CommunicatorPtr& communicator)
 {
-    string sref = "background:default -p 12010 -t 20000";
+    string sref = "background:default -p 12010";
     Ice::ObjectPrx obj = communicator->stringToProxy(sref);
     test(obj);
 
     BackgroundPrx background = BackgroundPrx::uncheckedCast(obj);
 
-    sref = "backgroundController:tcp -p 12011 -t 20000";
+    sref = "backgroundController:tcp -p 12011";
     obj = communicator->stringToProxy(sref);
     test(obj);
 
@@ -303,7 +303,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
         }
         backgroundController->resumeCall("findAdapterById");
 
-        obj = communicator->stringToProxy("locator:default -p 12010 -t 10000");
+        obj = communicator->stringToProxy("locator:default -p 12010");
         locator = Ice::LocatorPrx::uncheckedCast(obj);
         obj = obj->ice_locator(locator);
         obj->ice_ping();
@@ -343,7 +343,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
         }
         backgroundController->resumeCall("getClientProxy");
 
-        obj = communicator->stringToProxy("router:default -p 12010 -t 10000");
+        obj = communicator->stringToProxy("router:default -p 12010");
         router = Ice::RouterPrx::uncheckedCast(obj);
         obj = communicator->stringToProxy("background@Test")->ice_router(router);
         BackgroundPrx bg = BackgroundPrx::uncheckedCast(obj);

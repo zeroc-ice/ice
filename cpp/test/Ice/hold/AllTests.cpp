@@ -112,10 +112,10 @@ void
 allTests(const Ice::CommunicatorPtr& communicator)
 {
     cout << "testing stringToProxy... " << flush;
-    string ref = "hold:default -p 12010 -t 30000";
+    string ref = "hold:default -p 12010";
     Ice::ObjectPrx base = communicator->stringToProxy(ref);
     test(base);
-    string refSerialized = "hold:default -p 12011 -t 60000";
+    string refSerialized = "hold:default -p 12011";
     Ice::ObjectPrx baseSerialized = communicator->stringToProxy(refSerialized);
     test(base);
     cout << "ok" << endl;

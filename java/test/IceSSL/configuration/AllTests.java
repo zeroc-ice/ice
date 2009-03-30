@@ -71,7 +71,7 @@ public class AllTests
     allTests(test.Util.Application app, String testDir, PrintWriter out)
     {
         Ice.Communicator communicator = app.communicator();
-        final String factoryRef = "factory:tcp -p 12010 -t 10000";
+        final String factoryRef = "factory:tcp -p 12010";
         Ice.ObjectPrx b = communicator.stringToProxy(factoryRef);
         test(b != null);
         ServerFactoryPrx factory = ServerFactoryPrxHelper.checkedCast(b);

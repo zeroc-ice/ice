@@ -715,7 +715,7 @@ twoways(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrx& p)
 
             communicator->setDefaultContext(dflt);
             Test::MyClassPrx c = Test::MyClassPrx::checkedCast(
-                                        communicator->stringToProxy("test:default -p 12010 -t 10000"));
+                                        communicator->stringToProxy("test:default -p 12010"));
             test(c->opContext() == dflt);
 
             dflt["a"] = "c";

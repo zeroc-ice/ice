@@ -24,7 +24,7 @@ public class Collocated
     {
         public override int run(string[] args)
         {
-            communicator().getProperties().setProperty("TestAdapter.Endpoints", "default -p 12010 -t 10000");
+            communicator().getProperties().setProperty("TestAdapter.Endpoints", "default -p 12010");
             Ice.ObjectAdapter adapter = communicator().createObjectAdapter("TestAdapter");
             Ice.ServantLocator locator = new ServantLocatorI();
             adapter.addServantLocator(locator, "");

@@ -41,3 +41,5 @@ clientProc = TestUtil.startClient(client, " --dbdir %s validate" % os.getcwd(), 
 print "ok"
 clientProc.startReader()
 clientProc.waitTestSuccess()
+
+TestUtil.cleanup()

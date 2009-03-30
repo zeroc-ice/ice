@@ -273,8 +273,8 @@ for testcase in testcases:
     #
 
     routerArgs = " --Ice.Config=" + os.path.join(os.getcwd(), "router.cfg") + \
-          ' --Glacier2.Client.Endpoints="default -p 12347 -t 60000"' + \
-          ' --Ice.Admin.Endpoints="tcp -h 127.0.0.1 -p 12348 -t 60000"' + \
+          ' --Glacier2.Client.Endpoints="default -p 12347"' + \
+          ' --Ice.Admin.Endpoints="tcp -h 127.0.0.1 -p 12348"' + \
           ' --Ice.Admin.InstanceName=Glacier2' + \
           ' --Glacier2.CryptPasswords="'  + os.path.join(os.getcwd(), "passwords") + '"'
 
@@ -322,7 +322,7 @@ for testcase in testcases:
     if TestUtil.protocol != "ssl":
         serverConfig = file(os.path.join(os.getcwd(), "server.cfg"), "w")
         serverOptions = ' --Ice.Config=' + os.path.join(os.getcwd(), "server.cfg") + " " 
-        serverConfig.write("BackendAdapter.Endpoints=tcp -p 12010 -t 20000\n")
+        serverConfig.write("BackendAdapter.Endpoints=tcp -p 12010\n")
         serverConfig.close()
     else:
         serverOptions = ""
@@ -352,3 +352,5 @@ for testcase in testcases:
     clientProc.waitTestSuccess()
     serverProc.waitTestSuccess()
     starterProc.waitTestSuccess()
+
+TestUtil.cleanup()

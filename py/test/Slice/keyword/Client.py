@@ -76,7 +76,7 @@ def testtypes():
     print "ok"
 
 def run(args, communicator):
-    communicator.getProperties().setProperty("TestAdapter.Endpoints", "default -p 12010 -t 10000:udp")
+    communicator.getProperties().setProperty("TestAdapter.Endpoints", "default -p 12010:udp")
     adapter = communicator.createObjectAdapter("TestAdapter")
     adapter.add(execI(), communicator.stringToIdentity("test"))
     adapter.activate()

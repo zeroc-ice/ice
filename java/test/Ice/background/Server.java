@@ -126,7 +126,7 @@ public class Server extends test.Util.Application
         
         initData.properties.setProperty("Ice.Package.Test", "test.Ice.background");
 
-        initData.properties.setProperty("TestAdapter.Endpoints", "default -p 12010 -t 20000");
+        initData.properties.setProperty("TestAdapter.Endpoints", "default -p 12010");
         initData.properties.setProperty("ControllerAdapter.Endpoints", "tcp -p 12011");
         initData.properties.setProperty("ControllerAdapter.ThreadPool.Size", "1");
         

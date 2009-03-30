@@ -45,7 +45,7 @@ int
 AttackClient::run(int argc, char* argv[])
 {
     cout << "getting router... " << flush;
-    ObjectPrx routerBase = communicator()->stringToProxy("Glacier2/router:default -p 12347 -t 10000");
+    ObjectPrx routerBase = communicator()->stringToProxy("Glacier2/router:default -p 12347");
     Glacier2::RouterPrx router = Glacier2::RouterPrx::checkedCast(routerBase);
     test(router);
     communicator()->setDefaultRouter(router);
@@ -56,7 +56,7 @@ AttackClient::run(int argc, char* argv[])
     cout << "ok" << endl;
 
     cout << "making thousands of invocations on proxies... " << flush;
-    ObjectPrx backendBase = communicator()->stringToProxy("dummy:tcp -p 12010 -t 10000");
+    ObjectPrx backendBase = communicator()->stringToProxy("dummy:tcp -p 12010");
     BackendPrx backend = BackendPrx::uncheckedCast(backendBase);
     backend->ice_ping();
 
@@ -114,7 +114,7 @@ AttackClient::run(int argc, char* argv[])
     cout << "testing server and router shutdown... " << flush;
     backend->shutdown();
     communicator()->setDefaultRouter(0);
-    ObjectPrx adminBase = communicator()->stringToProxy("Glacier2/admin -f Process:tcp -h 127.0.0.1 -p 12348 -t 10000");
+    ObjectPrx adminBase = communicator()->stringToProxy("Glacier2/admin -f Process:tcp -h 127.0.0.1 -p 12348");
     Ice::ProcessPrx process = Ice::ProcessPrx::checkedCast(adminBase);
     test(process);
     process->shutdown();

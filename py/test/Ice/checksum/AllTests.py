@@ -14,7 +14,7 @@ def test(b):
         raise RuntimeError('test assertion failed')
 
 def allTests(communicator):
-    ref = "test:default -p 12010 -t 10000"
+    ref = "test:default -p 12010"
     base = communicator.stringToProxy(ref)
     test(base)
 

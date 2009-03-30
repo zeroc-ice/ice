@@ -25,3 +25,5 @@ clientProc = TestUtil.startClient("test.IceUtil.inputUtil.Client",startReader=Fa
 print "ok"
 clientProc.startReader()
 clientProc.waitTestSuccess()
+
+TestUtil.cleanup()

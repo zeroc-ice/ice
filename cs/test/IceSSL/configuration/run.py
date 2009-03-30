@@ -25,3 +25,5 @@ from scripts import *
 # plug-in will not work.
 #
 TestUtil.clientServerTest(additionalClientOptions=os.path.splitdrive(os.getcwd())[1])
+
+TestUtil.cleanup()

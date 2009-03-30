@@ -24,12 +24,12 @@
     <node name="localnode">
 
       <server-instance id="Glacier2" template="Glacier2"
-                       endpoints="default -p 12347 -h 127.0.0.1 -t 10000"
+                       endpoints="default -p 12347 -h 127.0.0.1"
                        verifier="ClientPermissionsVerifier"
                        manager="IceGrid/SessionManager"
                        ssl-manager="IceGrid/SSLSessionManager"/>
       <server-instance id="Glacier2Admin" template="Glacier2"
-                       endpoints="default -p 12348 -h 127.0.0.1 -t 10000"
+                       endpoints="default -p 12348 -h 127.0.0.1"
                        verifier="AdminPermissionsVerifier:tcp -p 12002"
                        manager="IceGrid/AdminSessionManager"
                        ssl-manager="IceGrid/AdminSSLSessionManager"/>

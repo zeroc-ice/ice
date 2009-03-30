@@ -24,3 +24,5 @@ from scripts import *
 # Test client/server without on demand activation.
 #
 IceGridAdmin.iceGridTest("application.xml", "", '"icebox.exe=%s"' % TestUtil.getIceBox())
+
+TestUtil.cleanup()

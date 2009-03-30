@@ -31,7 +31,7 @@ def deactivate(com, adapters)
 end
 
 def allTests(communicator)
-    ref = "communicator:default -p 12010 -t 10000"
+    ref = "communicator:default -p 12010"
     com = Test::RemoteCommunicatorPrx::uncheckedCast(communicator.stringToProxy(ref))
 
     print "testing binding with single endpoint... "

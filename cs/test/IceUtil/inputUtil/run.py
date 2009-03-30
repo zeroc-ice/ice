@@ -27,3 +27,5 @@ clientProc = TestUtil.startClient(client, "", startReader = False)
 print "ok"
 clientProc.startReader()
 clientProc.waitTestSuccess()
+
+TestUtil.cleanup()

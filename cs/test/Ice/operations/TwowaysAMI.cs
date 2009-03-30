@@ -1409,7 +1409,7 @@ public class TwowaysAMI
 
                 communicator.setDefaultContext(dflt);
                 Test.MyClassPrx c = Test.MyClassPrxHelper.checkedCast(
-                                                communicator.stringToProxy("test:default -p 12010 -t 10000"));
+                                                communicator.stringToProxy("test:default -p 12010"));
                 {
                     Ice.Context tmp = new Ice.Context();
                     tmp["a"] = "b";
@@ -1483,7 +1483,7 @@ public class TwowaysAMI
                 ctx["three"] = "THREE";
                 
                 Test.MyClassPrx p3 = Test.MyClassPrxHelper.uncheckedCast(
-                    ic.stringToProxy("test:default -p 12010 -t 10000"));
+                    ic.stringToProxy("test:default -p 12010"));
                 
                 ic.getImplicitContext().setContext(ctx);
                 test(Ice.CollectionComparer.Equals(ic.getImplicitContext().getContext(), ctx));

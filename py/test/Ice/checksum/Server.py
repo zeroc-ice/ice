@@ -30,7 +30,7 @@ class ChecksumI(Test.Checksum):
         self._adapter.getCommunicator().shutdown()
 
 def run(args, communicator):
-    communicator.getProperties().setProperty("TestAdapter.Endpoints", "default -p 12010 -t 10000")
+    communicator.getProperties().setProperty("TestAdapter.Endpoints", "default -p 12010")
     adapter = communicator.createObjectAdapter("TestAdapter")
     object = ChecksumI(adapter)
     adapter.add(object, communicator.stringToIdentity("test"))

@@ -53,7 +53,7 @@ public class AllTests
     {
         out.print("testing stringToProxy... ");
         out.flush();
-        String ref = "test:default -p 12010 -t 10000";
+        String ref = "test:default -p 12010";
         Ice.ObjectPrx obj = communicator.stringToProxy(ref);
         test(obj != null);
         out.println("ok");

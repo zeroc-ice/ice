@@ -58,7 +58,7 @@ main(int argc, char* argv[])
 int
 BackendServer::run(int argc, char* argv[])
 {
-    communicator()->getProperties()->setProperty("BackendAdapter.Endpoints", "tcp -p 12010 -t 10000");
+    communicator()->getProperties()->setProperty("BackendAdapter.Endpoints", "tcp -p 12010");
     ObjectAdapterPtr adapter = communicator()->createObjectAdapter("BackendAdapter");
     adapter->addServantLocator(new ServantLocatorI, "");
     adapter->activate();

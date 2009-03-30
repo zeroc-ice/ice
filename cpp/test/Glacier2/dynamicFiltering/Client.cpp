@@ -169,7 +169,7 @@ SessionControlClient::run(int argc, char* argv[])
     // Shut down the router.
     //
     communicator()->setDefaultRouter(0);
-    ObjectPrx processBase = communicator()->stringToProxy("Glacier2/admin -f Process:tcp -p 12348 -t 10000");
+    ObjectPrx processBase = communicator()->stringToProxy("Glacier2/admin -f Process:tcp -p 12348");
     Ice::ProcessPrx process = Ice::ProcessPrx::checkedCast(processBase);
     test(process);
     process->shutdown();

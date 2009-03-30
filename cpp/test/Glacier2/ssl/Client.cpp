@@ -42,7 +42,7 @@ int
 CallbackClient::run(int argc, char* argv[])
 {
     Glacier2::RouterPrx router = Glacier2::RouterPrx::uncheckedCast(
-        communicator()->stringToProxy("Glacier2/router:tcp -h 127.0.0.1 -p 12347 -t 10000"));
+        communicator()->stringToProxy("Glacier2/router:tcp -h 127.0.0.1 -p 12347"));
     communicator()->setDefaultRouter(router);
 
     //
@@ -81,7 +81,7 @@ CallbackClient::run(int argc, char* argv[])
     //
     communicator()->setDefaultRouter(Glacier2::RouterPrx());
     router = Glacier2::RouterPrx::uncheckedCast(
-        communicator()->stringToProxy("Glacier2/router:ssl -h 127.0.0.1 -p 12348 -t 10000"));
+        communicator()->stringToProxy("Glacier2/router:ssl -h 127.0.0.1 -p 12348"));
     communicator()->setDefaultRouter(router);
 
     //
@@ -121,7 +121,7 @@ CallbackClient::run(int argc, char* argv[])
 
     communicator()->setDefaultRouter(0);
     Ice::ProcessPrx process = Ice::ProcessPrx::checkedCast(
-        communicator()->stringToProxy("Glacier2/admin -f Process:tcp -h 127.0.0.1 -p 12349 -t 10000"));
+        communicator()->stringToProxy("Glacier2/admin -f Process:tcp -h 127.0.0.1 -p 12349"));
     process->shutdown();
     
     return EXIT_SUCCESS;

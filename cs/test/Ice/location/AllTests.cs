@@ -52,7 +52,7 @@ public class AllTests
     public static void allTests(Ice.Communicator communicator)
     {
         ServerManagerPrx manager = ServerManagerPrxHelper.checkedCast(
-                                        communicator.stringToProxy("ServerManager :default -t 10000 -p 12010"));
+                                        communicator.stringToProxy("ServerManager :default -p 12010"));
         test(manager != null);
         TestLocatorPrx locator = TestLocatorPrxHelper.uncheckedCast(communicator.getDefaultLocator());
         test(locator != null);

@@ -27,3 +27,5 @@ seedfile = os.path.join(os.getcwd(), "seed")
 TestUtil.simpleTest(client, seedfile)
 
 os.remove(seedfile)
+
+TestUtil.cleanup()

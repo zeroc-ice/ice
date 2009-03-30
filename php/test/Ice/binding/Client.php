@@ -55,7 +55,7 @@ function allTests()
 {
     global $ICE;
 
-    $ref = "communicator:default -p 12010 -t 10000";
+    $ref = "communicator:default -p 12010";
     $com = $ICE->stringToProxy($ref)->ice_uncheckedCast("::Test::RemoteCommunicator");
 
     echo "testing binding with single endpoint... ";

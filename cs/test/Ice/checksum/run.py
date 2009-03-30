@@ -21,3 +21,5 @@ sys.path.append(os.path.join(path[0]))
 from scripts import *
 
 TestUtil.clientServerTest(server = os.path.join(os.getcwd(), "server", "server"))
+
+TestUtil.cleanup()

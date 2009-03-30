@@ -22,3 +22,5 @@ from scripts import *
 
 IceGridAdmin.iceGridTest("application.xml", "--Ice.RetryIntervals=\"0 50 100 250\"",
                          "icebox.exe=%s" % TestUtil.getIceBox())
+
+TestUtil.cleanup()

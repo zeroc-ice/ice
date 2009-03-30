@@ -15,7 +15,7 @@ import Test, TestI
 
 class TestServer(Ice.Application):
     def run(self, args):
-        self.communicator().getProperties().setProperty("TestAdapter.Endpoints", "default -p 12010 -t 10000:udp")
+        self.communicator().getProperties().setProperty("TestAdapter.Endpoints", "default -p 12010:udp")
         adapter = self.communicator().createObjectAdapter("TestAdapter")
         locator = TestI.ServantLocatorI()
 

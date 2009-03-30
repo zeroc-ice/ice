@@ -81,7 +81,7 @@ class Replicated(IceStormUtil):
         replicaPublishEndpoints = ''
         for replica in range(0, 3):
             replicaProperties = replicaProperties + \
-                ' --IceStorm.Nodes.%d="%s/node%d:default -p %d -t 1000"' % (
+                ' --IceStorm.Nodes.%d="%s/node%d:default -p %d"' % (
                 replica, instanceName, replica, self.nendpoints[replica])
             replicaTopicManagerEndpoints = replicaTopicManagerEndpoints + "%sdefault -p %d" % (
                 sep, self.isendpoints[replica])

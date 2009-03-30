@@ -62,11 +62,13 @@ public final class RemoteEvictorI extends _RemoteEvictorDisp
 
         if(transactional)
         {
-            _evictor = Freeze.Util.createTransactionalEvictor(_evictorAdapter, envName, category, null, initializer, null, true);
+            _evictor = Freeze.Util.createTransactionalEvictor(_evictorAdapter, envName, category, null, initializer,
+                                                              null, true);
         }
         else
         {
-            _evictor = Freeze.Util.createBackgroundSaveEvictor(_evictorAdapter, envName, category, initializer, null, true);
+            _evictor = Freeze.Util.createBackgroundSaveEvictor(_evictorAdapter, envName, category, initializer, null,
+                                                               true);
         }
 
         initializer.init(this, _evictor);

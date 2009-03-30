@@ -27,9 +27,9 @@ args =  ' --Ice.Warn.Dispatch=0' + \
         ' --Glacier2.Filter.Category.Accept="c1 c2"' + \
         ' --Glacier2.Filter.Category.AcceptUser="2"' + \
         ' --Glacier2.SessionTimeout="30"' + \
-        ' --Glacier2.Client.Endpoints="default -p 12347 -t 10000"' + \
-        ' --Glacier2.Server.Endpoints="tcp -h 127.0.0.1 -t 10000"' \
-        ' --Ice.Admin.Endpoints="tcp -h 127.0.0.1 -p 12348 -t 10000"' + \
+        ' --Glacier2.Client.Endpoints="default -p 12347"' + \
+        ' --Glacier2.Server.Endpoints="tcp -h 127.0.0.10"' \
+        ' --Ice.Admin.Endpoints="tcp -h 127.0.0.1 -p 12348"' + \
         ' --Ice.Admin.InstanceName=Glacier2' + \
         ' --Glacier2.CryptPasswords="' + os.path.join(os.getcwd(), "passwords") + '"'
 
@@ -44,3 +44,5 @@ TestUtil.clientServerTest()
 TestUtil.clientServerTest(additionalClientOptions=" --shutdown")
 
 starterProc.waitTestSuccess()
+
+TestUtil.cleanup()

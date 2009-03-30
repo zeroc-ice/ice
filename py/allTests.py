@@ -42,7 +42,7 @@ tests = [
     ("Ice/retry", ["core"]),
     ("Ice/timeout", ["core"]),
     ("Ice/servantLocator", ["core"]),
-    ("Ice/blobject", ["core"])
+    ("Ice/blobject", ["core"]),
     ("Ice/defaultServant", ["core"])
     ]
 

@@ -10,7 +10,7 @@
 def allTests(communicator)
     print "testing stringToProxy... "
     STDOUT.flush
-    ref = "test:default -p 12010 -t 10000"
+    ref = "test:default -p 12010"
     base = communicator.stringToProxy(ref)
     test(base)
 
@@ -184,7 +184,7 @@ def allTests(communicator)
     STDOUT.flush
     prop = communicator.getProperties()
     propertyPrefix = "Foo.Proxy"
-    prop.setProperty(propertyPrefix, "test:default -p 12010 -t 10000")
+    prop.setProperty(propertyPrefix, "test:default -p 12010")
     b1 = communicator.propertyToProxy(propertyPrefix)
     test(b1.ice_getIdentity().name == "test" && b1.ice_getIdentity().category.empty? && \
          b1.ice_getAdapterId().empty? && b1.ice_getFacet().empty?)
@@ -226,7 +226,7 @@ def allTests(communicator)
     #test(b1.ice_getLocatorCacheTimeout() == 60)
     #prop.setProperty("Ice::Default.LocatorCacheTimeout", "")
 
-    prop.setProperty(propertyPrefix, "test:default -p 12010 -t 10000")
+    prop.setProperty(propertyPrefix, "test:default -p 12010")
 
     property = propertyPrefix + ".Router"
     test(!b1.ice_getRouter())

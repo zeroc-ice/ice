@@ -21,7 +21,7 @@
     <node name="localnode">
 
       <server-instance template="Glacier2" id="Glacier2" 
-                       endpoints="default -p 12347 -t 10000" 
+                       endpoints="default -p 12347" 
                        verifier="PermissionsVerifier"
                        manager="IceGrid/SessionManager"/>
 

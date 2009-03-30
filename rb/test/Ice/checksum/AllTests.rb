@@ -14,7 +14,7 @@ def test(b)
 end
 
 def allTests(communicator)
-    ref = "test:default -p 12010 -t 10000"
+    ref = "test:default -p 12010"
     base = communicator.stringToProxy(ref)
     test(base)
 

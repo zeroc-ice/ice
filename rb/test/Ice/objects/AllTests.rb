@@ -57,7 +57,7 @@ def allTests(communicator)
 
     print "testing stringToProxy... "
     STDOUT.flush
-    ref = "initial:default -p 12010 -t 10000"
+    ref = "initial:default -p 12010"
     base = communicator.stringToProxy(ref)
     test(base)
     puts "ok"
@@ -202,7 +202,7 @@ def allTests(communicator)
 
     print "testing UnexpectedObjectException... "
     STDOUT.flush
-    ref = "uoet:default -p 12010 -t 10000"
+    ref = "uoet:default -p 12010"
     base = communicator.stringToProxy(ref)
     test(base)
     uoet = Test::UnexpectedObjectExceptionTestPrx::uncheckedCast(base)

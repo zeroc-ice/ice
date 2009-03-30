@@ -98,7 +98,7 @@ private:
 int
 run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
 {
-    communicator->getProperties()->setProperty("TestAdapter.Endpoints", "default -p 12010 -t 10000");
+    communicator->getProperties()->setProperty("TestAdapter.Endpoints", "default -p 12010");
     communicator->getProperties()->setProperty("ControllerAdapter.Endpoints", "tcp -p 12011");
     communicator->getProperties()->setProperty("ControllerAdapter.ThreadPool.Size", "1");
 

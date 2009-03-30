@@ -126,9 +126,8 @@ main(int argc, char* argv[])
 int
 BackendServer::run(int argc, char* argv[])
 {
-    string endpoints = 
-        communicator()->getProperties()->getPropertyWithDefault("BackendAdapter.Endpoints", 
-                                                                "tcp -p 12010 -t 20000:ssl -p 12011 -t 20000");
+    string endpoints = communicator()->getProperties()->getPropertyWithDefault("BackendAdapter.Endpoints", 
+                                                                               "tcp -p 12010:ssl -p 12011");
 
     communicator()->getProperties()->setProperty("BackendAdapter.Endpoints", endpoints);
     ObjectAdapterPtr adapter = communicator()->createObjectAdapter("BackendAdapter");

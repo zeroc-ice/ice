@@ -102,10 +102,10 @@ public class AllTests
     {
         Console.Out.Write("testing stringToProxy... ");
         Console.Out.Flush();
-        String @ref = "hold:default -p 12010 -t 30000";
+        String @ref = "hold:default -p 12010";
         Ice.ObjectPrx @base = communicator.stringToProxy(@ref);
         test(@base != null);
-        String refSerialized = "hold:default -p 12011 -t 30000";
+        String refSerialized = "hold:default -p 12011";
         Ice.ObjectPrx baseSerialized = communicator.stringToProxy(refSerialized);
         test(baseSerialized != null);
         Console.Out.WriteLine("ok");

@@ -137,3 +137,5 @@ if os.system(command) != 0:
     sys.exit(1)
 
 print "ok"
+
+TestUtil.cleanup()

@@ -26,3 +26,5 @@ print "ok"
 clientProc.startReader()
 
 clientProc.waitTestSuccess()
+
+TestUtil.cleanup()

@@ -25,3 +25,5 @@ clientProc = TestUtil.startClient("test.Slice.keyword.Client",startReader=False)
 print "ok"
 clientProc.startReader()
 clientProc.waitTestSuccess()
+
+TestUtil.cleanup()

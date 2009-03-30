@@ -222,7 +222,7 @@ public class AllTests
         String ref = "test";
         for(int i = 0; i < ports.length; i++)
         {
-            ref += ":default -t 60000 -p " + ports[i];
+            ref += ":default -p " + ports[i];
         }
         Ice.ObjectPrx base = communicator.stringToProxy(ref);
         test(base != null);

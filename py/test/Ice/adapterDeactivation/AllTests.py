@@ -16,7 +16,7 @@ def test(b):
 def allTests(communicator):
     print "testing stringToProxy... ",
     sys.stdout.flush()
-    base = communicator.stringToProxy("test:default -p 12010 -t 10000")
+    base = communicator.stringToProxy("test:default -p 12010")
     test(base)
     print "ok"
 

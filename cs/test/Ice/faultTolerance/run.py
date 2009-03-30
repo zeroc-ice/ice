@@ -51,3 +51,5 @@ for p in serverProc:
     # We simuluate the abort of the server by calling Process.Kill(). However, this
     # results in a non-zero exit status. Therefore we ignore the status.
     p.wait()
+
+TestUtil.cleanup()

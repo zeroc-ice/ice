@@ -40,3 +40,5 @@ nodeOverrideOptions = '--IceBinDir="%s" --TestDir="%s" --NodePropertiesOverride=
     TestUtil.getCommandLine("", TestUtil.DriverConfig("server")).replace("--", ""))
 
 IceGridAdmin.iceGridTest("", nodeOverrideOptions)
+
+TestUtil.cleanup()

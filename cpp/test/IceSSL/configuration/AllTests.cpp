@@ -147,7 +147,7 @@ createServerProps(const Ice::PropertiesPtr& defaultProperties, const string& def
 void
 allTests(const CommunicatorPtr& communicator, const string& testDir)
 {
-    string factoryRef = "factory:tcp -p 12010 -t 10000";
+    string factoryRef = "factory:tcp -p 12010";
     ObjectPrx base = communicator->stringToProxy(factoryRef);
     test(base);
     Test::ServerFactoryPrx factory = Test::ServerFactoryPrx::checkedCast(base);

@@ -426,7 +426,7 @@ public class Client extends test.Util.Application
         throws AlreadyRegisteredException, NotRegisteredException, EvictorDeactivatedException
     {
         Ice.Communicator communicator = communicator();
-        String ref = "factory:default -p 12010 -t 30000";
+        String ref = "factory:default -p 12010";
         Ice.ObjectPrx base = communicator.stringToProxy(ref);
         test(base != null);
         RemoteEvictorFactoryPrx factory = RemoteEvictorFactoryPrxHelper.checkedCast(base);

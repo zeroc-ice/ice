@@ -21,7 +21,7 @@ public class AllTests
     allTests(test.Util.Application app, boolean collocated, PrintWriter out)
     {
         Ice.Communicator communicator = app.communicator();
-        String ref = "test:default -p 12010 -t 20000";
+        String ref = "test:default -p 12010";
         Ice.ObjectPrx base = communicator.stringToProxy(ref);
         MyClassPrx cl = MyClassPrxHelper.checkedCast(base);
         MyDerivedClassPrx derived = MyDerivedClassPrxHelper.checkedCast(cl);

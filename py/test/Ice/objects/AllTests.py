@@ -55,7 +55,7 @@ def allTests(communicator, collocated):
     communicator.addObjectFactory(factory, '::Test::H')
 
     print "testing stringToProxy...",
-    ref = "initial:default -p 12010 -t 10000"
+    ref = "initial:default -p 12010"
     base = communicator.stringToProxy(ref)
     test(base)
     print "ok"
@@ -174,7 +174,7 @@ def allTests(communicator, collocated):
 
     if not collocated:
         print "testing UnexpectedObjectException...",
-        ref = "uoet:default -p 12010 -t 10000"
+        ref = "uoet:default -p 12010"
         base = communicator.stringToProxy(ref)
         test(base)
         uoet = Test.UnexpectedObjectExceptionTestPrx.uncheckedCast(base)
