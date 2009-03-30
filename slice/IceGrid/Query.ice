@@ -53,7 +53,7 @@ enum LoadSample
 /**
  *
  * The IceGrid query interface. This interface is accessible to
- * Ice clients who wish to lookup well-known objects.
+ * Ice clients who wish to look up well-known objects.
  *
  **/
 ["ami"] interface Query
@@ -72,27 +72,27 @@ enum LoadSample
     /**
      *
      * Find a well-known object by type. If there are several objects
-     * registered for the given type, the object will be randomly
+     * registered for the given type, the object is randomly
      * selected.
      *
      * @param type The object type.
      *
-     * @return The proxy or null if no such object has been found.
+     * @return The proxy or null, if no such object has been found.
      *
      **/
     ["nonmutating", "cpp:const"] idempotent Object* findObjectByType(string type);
 
     /**
      *
-     * Find a well-known object by type on the least loaded node. If
-     * the registry can't figure out the node that hosts the object
-     * (e.g., if the object was registered with a direct proxy), the
+     * Find a well-known object by type on the least-loaded node. If
+     * the registry does not know which node hosts the object
+     * (for example, because the object was registered with a direct proxy), the
      * registry assumes the object is hosted on a node that has a load
      * average of 1.0.
      *
      * @param type The object type.
      *
-     * @return The proxy or null if no such object has been found.
+     * @return The proxy or null, if no such object has been found.
      *
      **/
     ["nonmutating", "cpp:const"] idempotent Object* findObjectByTypeOnLeastLoadedNode(string type, LoadSample sample);
@@ -103,7 +103,7 @@ enum LoadSample
      *
      * @param type The object type.
      *
-     * @return The proxies or an empty sequence if no such objects
+     * @return The proxies or an empty sequence, if no such objects
      * have been found.
      *
      **/
@@ -117,7 +117,7 @@ enum LoadSample
      *
      * @param proxy The object proxy.
      *
-     * @return The proxies of each object replica or an empty sequence
+     * @return The proxies of each object replica or an empty sequence,
      * if the given proxy is not from a replica group.
      *
      **/
