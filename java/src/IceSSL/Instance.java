@@ -18,7 +18,7 @@ class Instance
     Instance(Ice.Communicator communicator)
     {
         _logger = communicator.getLogger();
-        _facade = Ice.Util.getProtocolPluginFacade(communicator);
+        _facade = IceInternal.Util.getProtocolPluginFacade(communicator);
         _securityTraceLevel = communicator.getProperties().getPropertyAsIntWithDefault("IceSSL.Trace.Security", 0);
         _securityTraceCategory = "Security";
         _trustManager = new TrustManager(communicator);

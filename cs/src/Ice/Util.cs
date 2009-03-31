@@ -9,8 +9,6 @@
 
 namespace Ice
 {
-
-    using IceInternal;
     using System;
 
     public interface ThreadNotification
@@ -95,17 +93,6 @@ namespace Ice
         public static Communicator initialize()
         {
             return initialize(null);
-        }
-
-        public static IceInternal.Instance getInstance(Communicator communicator)
-        {
-            CommunicatorI p = (CommunicatorI) communicator;
-            return p.getInstance();
-        }
-
-        public static IceInternal.ProtocolPluginFacade getProtocolPluginFacade(Communicator communicator)
-        {
-            return new IceInternal.ProtocolPluginFacadeI(communicator);
         }
 
         public static Identity stringToIdentity(string s)
@@ -313,5 +300,22 @@ namespace Ice
 
         private static object _processLoggerMutex = new object();
         private static Logger _processLogger = null;
+    }
+}
+
+namespace IceInternal
+{
+    public sealed class Util
+    {
+        public static Instance getInstance(Ice.Communicator communicator)
+        {
+            Ice.CommunicatorI p = (Ice.CommunicatorI) communicator;
+            return p.getInstance();
+        }
+
+        public static ProtocolPluginFacade getProtocolPluginFacade(Ice.Communicator communicator)
+        {
+            return new ProtocolPluginFacadeI(communicator);
+        }
     }
 }

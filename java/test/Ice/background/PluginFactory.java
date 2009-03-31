@@ -6,6 +6,7 @@
 // ICE_LICENSE file included in this distribution.
 //
 // **********************************************************************
+
 package test.Ice.background;
 
 public class PluginFactory implements Ice.PluginFactory
@@ -22,7 +23,7 @@ public class PluginFactory implements Ice.PluginFactory
         initialize()
         {
             assert _configuration != null;
-            IceInternal.ProtocolPluginFacade facade = Ice.Util.getProtocolPluginFacade(_communicator);
+            IceInternal.ProtocolPluginFacade facade = IceInternal.Util.getProtocolPluginFacade(_communicator);
             for(short s = 0; s < 100; ++s)
             {
                 IceInternal.EndpointFactory factory = facade.getEndpointFactory(s);

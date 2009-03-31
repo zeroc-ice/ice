@@ -16,7 +16,7 @@ internal class PluginI : Ice.Plugin
 
     public void initialize()
     {
-        IceInternal.ProtocolPluginFacade facade = Ice.Util.getProtocolPluginFacade(_communicator);
+        IceInternal.ProtocolPluginFacade facade = IceInternal.Util.getProtocolPluginFacade(_communicator);
         for(short s = 0; s < 100; ++s)
         {
             IceInternal.EndpointFactory factory = facade.getEndpointFactory(s);

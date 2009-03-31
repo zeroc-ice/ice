@@ -104,19 +104,6 @@ public final class Util
         return initialize(new InitializationData());
     }
 
-    public static IceInternal.Instance
-    getInstance(Communicator communicator)
-    {
-        CommunicatorI p = (CommunicatorI)communicator;
-        return p.getInstance();
-    }
-
-    public static IceInternal.ProtocolPluginFacade
-    getProtocolPluginFacade(Communicator communicator)
-    {
-        return new IceInternal.ProtocolPluginFacadeI(communicator);
-    }
-
     public static Identity
     stringToIdentity(String s)
     {

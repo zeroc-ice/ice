@@ -15,7 +15,7 @@ public class ProtocolPluginFacadeI implements ProtocolPluginFacade
     ProtocolPluginFacadeI(Ice.Communicator communicator)
     {
         _communicator = communicator;
-        _instance = Ice.Util.getInstance(communicator);
+        _instance = Util.getInstance(communicator);
     }
 
     //

@@ -564,7 +564,7 @@ FreezeGenerator::generate(UnitPtr& u, const Dict& dict)
         out << sb;
         out << nl << "assert(o instanceof " << typeS << ");";
         out << nl << "IceInternal.BasicStream __os = "
-            << "new IceInternal.BasicStream(Ice.Util.getInstance(communicator));";
+            << "new IceInternal.BasicStream(IceInternal.Util.getInstance(communicator));";
         if(encaps)
         {
             out << nl << "__os.startWriteEncaps();";
@@ -591,7 +591,7 @@ FreezeGenerator::generate(UnitPtr& u, const Dict& dict)
         out << sp << nl << "public Object" << nl << "decode" << keyValue
             << "(byte[] b, Ice.Communicator communicator)";
         out << sb;
-        out << nl << "IceInternal.BasicStream __is = new IceInternal.BasicStream(Ice.Util.getInstance(communicator));";
+        out << nl << "IceInternal.BasicStream __is = new IceInternal.BasicStream(IceInternal.Util.getInstance(communicator));";
         if(type->usesClasses())
         {
             out << nl << "__is.sliceObjects(false);";
@@ -729,7 +729,7 @@ FreezeGenerator::generate(UnitPtr& u, const Dict& dict)
             keyS = objectToVar(indexTypes[i], keyS);
 
             out << nl << "IceInternal.BasicStream __os = "
-                << "new IceInternal.BasicStream(Ice.Util.getInstance(communicator));";
+                << "new IceInternal.BasicStream(IceInternal.Util.getInstance(communicator));";
             int iter = 0;
             writeMarshalUnmarshalCode(out, "", indexTypes[i], keyS, true, iter, false);
             assert(!indexTypes[i]->usesClasses());
@@ -756,7 +756,7 @@ FreezeGenerator::generate(UnitPtr& u, const Dict& dict)
         }
         else
         {
-            out << nl << "IceInternal.BasicStream __is = new IceInternal.BasicStream(Ice.Util.getInstance(communicator));";
+            out << nl << "IceInternal.BasicStream __is = new IceInternal.BasicStream(IceInternal.Util.getInstance(communicator));";
             out << nl << "__is.resize(bytes.length, true);";
             out << nl << "IceInternal.Buffer buf = __is.getBuffer();";
             out << nl << "buf.b.position(0);";
@@ -1085,7 +1085,7 @@ FreezeGenerator::generate(UnitPtr& u, const Index& index)
         << "marshalKey(" << memberTypeString << " __key)";
     out << sb;
     out << nl << "IceInternal.BasicStream __os = "
-        << "new IceInternal.BasicStream(Ice.Util.getInstance(communicator()));";
+        << "new IceInternal.BasicStream(IceInternal.Util.getInstance(communicator()));";
     int iter = 0;
     writeMarshalUnmarshalCode(out, "", dataMember->type(), valueS, true, iter, false);
     if(type->usesClasses())

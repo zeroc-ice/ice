@@ -232,9 +232,9 @@ public final class CommunicatorI implements Communicator
     }
 
     //
-    // For use by Util.getInstance()
+    // For use by IceInternal.Util.getInstance()
     //
-    IceInternal.Instance
+    public IceInternal.Instance
     getInstance()
     {
         return _instance;
