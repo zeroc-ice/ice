@@ -1050,7 +1050,6 @@ class WatchDog(threading.Thread):
                 self._reset = False
             elif not self._done:
                 print "\a*** %s Warning: Test has been inactive for 3 minutes and may be hung", time.strftime("%x %X")
-                somecrap
         self._cv.release()
 
     def reset(self):
