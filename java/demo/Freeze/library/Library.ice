@@ -81,7 +81,7 @@ class Book
      * @return The book description.
      *
      **/
-    ["cpp:const"] idempotent BookDescription getBookDescription();
+    idempotent BookDescription getBookDescription();
 
     /**
      *
@@ -117,7 +117,7 @@ class Book
      * currently rented.
      *
      **/
-    ["cpp:const"] idempotent string getRenterName()
+    idempotent string getRenterName()
         throws BookNotRentedException;
 
     /**
@@ -191,7 +191,7 @@ interface Library
      * @throws DatabaseException Raised if there is a problem with the database.
      *
      **/
-    ["cpp:const"] idempotent Book* findByIsbn(string isbn)
+    idempotent Book* findByIsbn(string isbn)
         throws DatabaseException;
 
     /**
@@ -206,7 +206,7 @@ interface Library
      * @throws DatabaseException Raised if there is a problem with the database.
      *
      **/
-    ["cpp:const"] idempotent BookPrxSeq findByAuthors(string authors)
+    idempotent BookPrxSeq findByAuthors(string authors)
         throws DatabaseException;
 
     /**

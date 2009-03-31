@@ -16,7 +16,7 @@ class GreetI : public Demo::Greet
 {
 public:
 
-    virtual std::string exchangeGreeting(const std::string&, const Ice::Current&) const;
+    virtual std::string exchangeGreeting(const std::string&, const Ice::Current&);
     virtual void shutdown(const Ice::Current&);
 };
 

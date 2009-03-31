@@ -21,7 +21,7 @@ public:
 
     HelloI(const LogIPtr&, CDialog*);
 
-    virtual void sayHello(int, const Ice::Current&) const;
+    virtual void sayHello(int, const Ice::Current&);
     virtual void shutdown(const Ice::Current&);
 
 private:

@@ -22,7 +22,7 @@ public:
 
     virtual Demo::HelloPrx createHello(const Ice::Current&);
     virtual void refresh(const Ice::Current&);
-    virtual std::string getName(const Ice::Current&) const;
+    virtual std::string getName(const Ice::Current&);
     virtual void destroy(const Ice::Current&);
 
     IceUtil::Time timestamp() const;

@@ -74,7 +74,7 @@ interface SessionFactory
      * @return The timeout (in seconds).
      *
      **/
-    ["nonmutating", "cpp:const"] idempotent long getSessionTimeout();
+    ["nonmutating"] idempotent long getSessionTimeout();
 };
 
 };

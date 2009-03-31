@@ -32,7 +32,7 @@ string decodeString(const string& str)
 }
 
 string
-GreetI::exchangeGreeting(const std::string& msg, const Ice::Current&) const
+GreetI::exchangeGreeting(const std::string& msg, const Ice::Current&)
 {
     cout << "Received (UTF-8): \"" << decodeString(msg) << '\"' << endl;
     return "Bonne journ\303\251e";

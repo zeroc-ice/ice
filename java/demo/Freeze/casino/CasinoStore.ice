@@ -46,12 +46,12 @@ module CasinoStore
         //
         // The total number of chips in play, i.e. amount * potentialWinners.size()
         //
-        ["cpp:const"] int getChipsInPlay();
+        int getChipsInPlay();
 
         //
         // Milliseconds since the epoch
         //
-        ["cpp:const"] long getCloseTime();
+        long getCloseTime();
 
         //
         // Decide who wins and self-destroys

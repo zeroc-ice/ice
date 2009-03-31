@@ -22,13 +22,13 @@ exception DatabaseException
 
 class Contact
 {
-    ["cpp:const"] idempotent string getName();
+    idempotent string getName();
     ["freeze:write"] idempotent void setName(string name) throws DatabaseException;
 
-    ["cpp:const"] idempotent string getAddress();
+    idempotent string getAddress();
     ["freeze:write"] idempotent void setAddress(string address);
 
-    ["cpp:const"] idempotent string getPhone();
+    idempotent string getPhone();
     ["freeze:write"] idempotent void setPhone(string phone);
 
     ["freeze:write"] void destroy() throws DatabaseException;
@@ -43,7 +43,7 @@ sequence<Contact*> Contacts;
 interface PhoneBook
 {
     Contact* createContact() throws DatabaseException;
-    ["cpp:const"] idempotent Contacts findContacts(string name) throws DatabaseException;
+    idempotent Contacts findContacts(string name) throws DatabaseException;
     void setEvictorSize(int size) throws DatabaseException;
     void shutdown();
 };

@@ -28,7 +28,7 @@ public:
     }
 
     void
-    sayHello(const Ice::Current&) const
+    sayHello(const Ice::Current&)
     {
         cout << "Hello object #" << _id << " for session `" << _name << "' says:\n"
              << "Hello " << _name << "!" << endl;
@@ -76,7 +76,7 @@ SessionI::refresh(const Ice::Current& c)
 }
 
 string
-SessionI::getName(const Ice::Current&) const
+SessionI::getName(const Ice::Current&)
 {
     Lock sync(*this);
     if(_destroy)

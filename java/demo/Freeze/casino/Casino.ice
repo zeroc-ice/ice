@@ -21,7 +21,7 @@ module Casino
         //
         // The number of chips held by this player
         //
-        ["cpp:const"] int getChips();
+        int getChips();
 
         //
         // Destroy this player
@@ -43,7 +43,7 @@ module Casino
         // The number of chips each player needs to provide to join
         // this bet
         //
-        ["cpp:const"] int getAmount();
+        int getAmount();
 
         //
         // Player p attempts to accept this bet
@@ -64,28 +64,28 @@ module Casino
         //
         // List of all Players
         //
-        ["cpp:const"]  PlayerPrxSeq getPlayers();
+        PlayerPrxSeq getPlayers();
 
         //
         // The number of chips sold by this Bank
         //
-        ["cpp:const"]  int getOutstandingChips();
+        int getOutstandingChips();
 
         //
         // The number of live bets
         //
-        ["cpp:const"] int getLiveBetCount();
+        int getLiveBetCount();
 
         //
         // The number of chips earned by the Bank
         //
-        ["cpp:const"] int getEarnings();
+        int getEarnings();
 
         //
         // Verify that the total number of chips held by all known players and bets; 
         // match getOutstandingChips();
         //
-        ["cpp:const", "freeze:read:required"] bool checkAllChips();
+        ["freeze:read:required"] bool checkAllChips();
 
         //
         // Create a new bet with the given amount to join; this bet ends in 
