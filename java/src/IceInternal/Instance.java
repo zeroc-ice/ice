@@ -649,9 +649,18 @@ public final class Instance
 
             if(_initData.logger == null)
             {
+                String logfile = _initData.properties.getProperty("Ice.LogFile");
                 if(_initData.properties.getPropertyAsInt("Ice.UseSyslog") > 0)
                 {
+                    if(logfile.length() != 0)
+                    {
+                        throw new Ice.InitializationException("Both syslog and file logger cannot be enabled.");
+                    }
                     _initData.logger = new Ice.SysLoggerI(_initData.properties.getProperty("Ice.ProgramName"));
+                }
+                else if(logfile.length() != 0)
+                {
+                    _initData.logger = new Ice.LoggerI(_initData.properties.getProperty("Ice.ProgramName"), logfile);
                 }
                 else
                 {

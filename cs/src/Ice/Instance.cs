@@ -691,9 +691,19 @@ namespace IceInternal
                 
                 if(_initData.logger == null)
                 {
+                    string logfile = _initData.properties.getProperty("Ice.LogFile");
                     if(_initData.properties.getPropertyAsInt("Ice.UseSyslog") > 0)
                     {
+                        if(logfile.Length != 0)
+                        {
+                            throw new Ice.InitializationException("Both syslog and file logger cannot be enabled.");
+                        }
                         _initData.logger = new Ice.SysLoggerI(_initData.properties.getProperty("Ice.ProgramName"));
+                    }
+                    else if(logfile.Length != 0)
+                    {
+                        _initData.logger = 
+                            new Ice.LoggerI(_initData.properties.getProperty("Ice.ProgramName"), logfile);
                     }
                     else
                     {

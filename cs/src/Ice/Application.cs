@@ -303,7 +303,7 @@ namespace Ice
                 //
                 if(Util.getProcessLogger() is LoggerI)
                 {
-                    Util.setProcessLogger(new LoggerI(initData.properties.getProperty("Ice.ProgramName")));
+                    Util.setProcessLogger(new LoggerI(initData.properties.getProperty("Ice.ProgramName"), ""));
                 }
 
                 _application = this;

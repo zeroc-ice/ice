@@ -12,7 +12,7 @@ package Ice;
 public class LoggerI implements Logger
 {
     public 
-    LoggerI(String prefix)
+    LoggerI(String prefix, String file)
     {
         if(prefix.length() > 0)
         {
@@ -22,12 +22,39 @@ public class LoggerI implements Logger
         _lineSeparator = System.getProperty("line.separator");
         _date = java.text.DateFormat.getDateInstance(java.text.DateFormat.SHORT);
         _time = new java.text.SimpleDateFormat(" HH:mm:ss:SSS");
+
+        if(file.length() != 0)
+        {
+            try
+            {
+                _out = new java.io.FileOutputStream(new java.io.File(file), true);
+            }
+            catch(java.io.FileNotFoundException ex)
+            {
+                throw new InitializationException("FileLogger: cannot open " + file);
+            }
+        }
+    }
+
+    protected void
+    finalize()
+    {
+        if(_out != null)
+        {
+            try
+            {
+                _out.close();
+            }
+            catch(java.lang.Exception ex)
+            {
+            }
+        }
     }
 
     public void
     print(String message)
     {
-        System.err.print(message + _lineSeparator);
+        write(message + _lineSeparator);
     }
 
     public void
@@ -50,7 +77,7 @@ public class LoggerI implements Logger
             ++idx;
         }
         s.append(_lineSeparator);
-        System.err.print(s.toString());
+        write(s.toString());
     }
 
     public void
@@ -66,7 +93,7 @@ public class LoggerI implements Logger
         s.append(": ");
         s.append(message);
         s.append(_lineSeparator);
-        System.err.print(s.toString());
+        write(s.toString());
     }
 
     public void
@@ -82,11 +109,31 @@ public class LoggerI implements Logger
         s.append(": ");
         s.append(message);
         s.append(_lineSeparator);
-        System.err.print(s.toString());
+        write(s.toString());
+    }
+
+    private void
+    write(String message)
+    {
+        if(_out == null)
+        {
+            System.err.print(message);
+        }
+        else
+        {
+            try
+            {
+                _out.write(message.getBytes());
+            }
+            catch(java.io.IOException ex)
+            {
+            }
+        }
     }
 
     String _prefix = "";
     String _lineSeparator;
     java.text.DateFormat _date;
     java.text.SimpleDateFormat _time;
+    java.io.FileOutputStream _out = null;
 }

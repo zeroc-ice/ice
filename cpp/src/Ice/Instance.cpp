@@ -916,20 +916,33 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const Initi
 
         if(!_initData.logger)
         {
+            string logfile = _initData.properties->getProperty("Ice.LogFile");
 #ifdef _WIN32
             //
             // DEPRECATED PROPERTY: Ice.UseEventLog is deprecated.
             //
             if(_initData.properties->getPropertyAsInt("Ice.UseEventLog") > 0)
             {
+                if(!logfile.empty())
+                {
+                    throw InitializationException(__FILE__, __LINE__, "Both event and file logger cannot be enabled.");
+                }
                 _initData.logger = new EventLoggerI(_initData.properties->getProperty("Ice.ProgramName"));
             }
 #else
             if(_initData.properties->getPropertyAsInt("Ice.UseSyslog") > 0)
             {
+                if(!logfile.empty())
+                {
+                    throw InitializationException(__FILE__, __LINE__, "Both syslog and file logger cannot be enabled.");
+                }
                 _initData.logger = new SysLoggerI;
             }
 #endif
+            else if(!logfile.empty())
+            {
+                _initData.logger = new LoggerI(_initData.properties->getProperty("Ice.ProgramName"), logfile);
+            }
             else
             {
                 _initData.logger = getProcessLogger();

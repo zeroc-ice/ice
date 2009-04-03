@@ -7,9 +7,10 @@
 //
 // **********************************************************************
 
+#include <IceUtil/StaticMutex.h>
 #include <IceUtil/Time.h>
 #include <Ice/LoggerI.h>
-#include <IceUtil/StaticMutex.h>
+#include <Ice/LocalException.h>
 
 using namespace std;
 using namespace Ice;
@@ -17,20 +18,36 @@ using namespace IceInternal;
 
 static IceUtil::StaticMutex outputMutex = ICE_STATIC_MUTEX_INITIALIZER;
 
-Ice::LoggerI::LoggerI(const string& prefix)
+Ice::LoggerI::LoggerI(const string& prefix, const string& file)
 {
     if(!prefix.empty())
     {
         _prefix = prefix + ": ";
+    }
+
+    if(!file.empty())
+    {
+        _out.open(file.c_str(), fstream::out | fstream::app);
+        if(!_out.is_open())
+        {
+            throw InitializationException(__FILE__, __LINE__, "FileLogger: cannot open " + file);
+        }
+    }
+}
+
+
+Ice::LoggerI::~LoggerI()
+{
+    if(_out.is_open())
+    {
+        _out.close();
     }
 }
 
 void
 Ice::LoggerI::print(const string& message)
 {
-    IceUtil::StaticMutex::Lock sync(outputMutex);
-
-    cerr << message << endl;
+    write(message);
 }
 
 void
@@ -50,23 +67,32 @@ Ice::LoggerI::trace(const string& category, const string& message)
         ++idx;
     }
 
-    IceUtil::StaticMutex::Lock sync(outputMutex);
-
-    cerr << s << endl;
+    write(s);
 }
 
 void
 Ice::LoggerI::warning(const string& message)
 {
-    IceUtil::StaticMutex::Lock sync(outputMutex);
-
-    cerr << IceUtil::Time::now().toDateTime() << " " << _prefix << "warning: " << message << endl;
+    write(IceUtil::Time::now().toDateTime() + " " + _prefix + "warning: " + message);
 }
 
 void
 Ice::LoggerI::error(const string& message)
 {
+    write(IceUtil::Time::now().toDateTime() + " " + _prefix + "error: " + message);
+}
+
+void
+Ice::LoggerI::write(const string& message)
+{
     IceUtil::StaticMutex::Lock sync(outputMutex);
 
-    cerr << IceUtil::Time::now().toDateTime() << " " << _prefix << "error: " << message << endl;
+    if(_out.is_open())
+    {
+        _out << message << endl;
+    }
+    else
+    {
+        cerr << message << endl;
+    }
 }

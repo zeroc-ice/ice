@@ -32,6 +32,10 @@ General Changes
 These entries apply to all relevant language mappings unless otherwise
 noted.
 
+- Added a new property, Ice.LogFile, which causes the default Ice
+  logger to write to a file rather than stderr. The file name is the
+  properties value.
+
 - Added the following operations to the ObjectAdapter API:
 
    - addDefaultServant

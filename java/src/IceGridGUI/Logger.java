@@ -18,7 +18,7 @@ public class Logger extends Ice.LoggerI
     public 
     Logger(JFrame mainFrame)
     {
-        super("IceGrid Admin");
+        super("IceGrid Admin", "");
 
         _mainFrame = mainFrame;
     }

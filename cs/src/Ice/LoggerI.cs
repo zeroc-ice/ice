@@ -12,9 +12,9 @@ namespace Ice
 
     using System.Globalization;
 
-    public sealed class LoggerI :  Logger
+    public sealed class LoggerI : Logger
     {
-        public LoggerI(string prefix)
+        public LoggerI(string prefix, string file)
         {
             if(prefix.Length > 0)
             {
@@ -23,16 +23,40 @@ namespace Ice
             
             _date = "d";
             _time = "HH:mm:ss:fff";
+
+            if(file.Length != 0)
+            {
+                try
+                {
+                    _out = System.IO.File.AppendText(file);
+                }
+                catch(System.IO.IOException)
+                {
+                    throw new Ice.InitializationException("FileLogger: cannot open " + file);
+                }
+                _out.AutoFlush = true;
+            }
+        }
+
+        ~LoggerI()
+        {
+            if(_out != null)
+            {
+                try
+                {
+                    _out.Close();
+                }
+                catch(System.Exception)
+                {
+                }
+            }
         }
         
         public void print(string message)
         {
-            lock(_globalMutex)
-            {
-                System.Console.Error.WriteLine(message);
-            }
+            write(message);
         }
-
+        
         public void trace(string category, string message)
         {
             System.Text.StringBuilder s = new System.Text.StringBuilder("[ ");
@@ -46,11 +70,7 @@ namespace Ice
             s.Append(message);
             s.Append(" ]");
             s.Replace("\n", "\n  ");
-
-            lock(_globalMutex)
-            {
-                System.Console.Error.WriteLine(s.ToString());
-            }
+            write(s.ToString());
         }
         
         public void warning(string message)
@@ -63,11 +83,7 @@ namespace Ice
             s.Append(_prefix);
             s.Append("warning: ");
             s.Append(message);
-
-            lock(_globalMutex)
-            {
-                System.Console.Error.WriteLine(s.ToString());
-            }
+            write(s.ToString());
         }
         
         public void error(string message)
@@ -80,17 +96,30 @@ namespace Ice
             s.Append(_prefix);
             s.Append("error: ");
             s.Append(message);
+            write(s.ToString());
+        }
 
+        private void write(string message)
+        {
             lock(_globalMutex)
             {
-                System.Console.Error.WriteLine(s.ToString());
+                if(_out == null)
+                {
+                    System.Console.Error.WriteLine(message);
+                }
+                else
+                {
+                    _out.WriteLine(message);
+                }
             }
         }
         
         internal string _prefix = "";
-        internal static object _globalMutex;
         internal string _date = null;
         internal string _time = null;
+        internal System.IO.StreamWriter _out = null;
+
+        internal static object _globalMutex;
         static LoggerI()
         {
             _globalMutex = new object();

@@ -12,6 +12,8 @@
 
 #include <Ice/Logger.h>
 
+#include <fstream>
+
 namespace Ice
 {
 
@@ -19,7 +21,8 @@ class LoggerI : public Logger
 {
 public:
 
-    LoggerI(const std::string&);
+    LoggerI(const std::string&, const std::string&);
+    ~LoggerI();
 
     virtual void print(const std::string&);
     virtual void trace(const std::string&, const std::string&);
@@ -28,7 +31,10 @@ public:
 
 private:
 
+    void write(const std::string&);
+
     std::string _prefix;
+    std::fstream _out;
 };
 
 typedef IceUtil::Handle<LoggerI> LoggerIPtr;

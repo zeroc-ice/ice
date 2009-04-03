@@ -274,7 +274,7 @@ namespace Ice
             {
                 if(_processLogger == null)
                 {
-                    _processLogger = new LoggerI(System.AppDomain.CurrentDomain.FriendlyName);
+                    _processLogger = new LoggerI(System.AppDomain.CurrentDomain.FriendlyName, "");
                 }
                 return _processLogger;
             }

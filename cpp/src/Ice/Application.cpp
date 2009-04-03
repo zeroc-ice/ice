@@ -553,7 +553,7 @@ Ice::Application::mainInternal(int argc, char* argv[], const InitializationData&
         //
         if(LoggerIPtr::dynamicCast(getProcessLogger()))
         {
-            setProcessLogger(new LoggerI(initData.properties->getProperty("Ice.ProgramName")));
+            setProcessLogger(new LoggerI(initData.properties->getProperty("Ice.ProgramName"), ""));
         }
 
         _application = this;

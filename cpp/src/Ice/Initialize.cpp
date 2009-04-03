@@ -222,7 +222,7 @@ Ice::getProcessLogger()
        //
        // TODO: Would be nice to be able to use process name as prefix by default.
        //
-       processLogger = new Ice::LoggerI("");
+       processLogger = new Ice::LoggerI("", "");
     }
     return processLogger;
 }

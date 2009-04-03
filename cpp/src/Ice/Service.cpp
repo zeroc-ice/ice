@@ -700,7 +700,7 @@ Ice::Service::main(int& argc, char* argv[], const InitializationData& initializa
         _logger = getProcessLogger();
         if(LoggerIPtr::dynamicCast(_logger))
         {
-            _logger = new LoggerI(initData.properties->getProperty("Ice.ProgramName"));
+            _logger = new LoggerI(initData.properties->getProperty("Ice.ProgramName"), "");
             setProcessLogger(_logger);
         }
     }
