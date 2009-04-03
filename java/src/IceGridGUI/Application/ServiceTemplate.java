@@ -6,6 +6,7 @@
 // ICE_LICENSE file included in this distribution.
 //
 // **********************************************************************
+
 package IceGridGUI.Application;
 
 import java.awt.Component;
@@ -22,37 +23,29 @@ class ServiceTemplate extends Communicator
     static public TemplateDescriptor
     copyDescriptor(TemplateDescriptor templateDescriptor)
     {
-        TemplateDescriptor copy = (TemplateDescriptor)
-            templateDescriptor.clone();
-
-        copy.descriptor = PlainService.copyDescriptor( 
-            (ServiceDescriptor)copy.descriptor);
-        
+        TemplateDescriptor copy = (TemplateDescriptor)templateDescriptor.clone();
+        copy.descriptor = PlainService.copyDescriptor((ServiceDescriptor)copy.descriptor);
         return copy;
     }
-    
+
     public Component getTreeCellRendererComponent(
-            JTree tree,
-            Object value,
-            boolean sel,
-            boolean expanded,
-            boolean leaf,
-            int row,
-            boolean hasFocus) 
+        JTree tree,
+        Object value,
+        boolean sel,
+        boolean expanded,
+        boolean leaf,
+        int row,
+        boolean hasFocus)
     {
         if(_cellRenderer == null)
         {
             _cellRenderer = new DefaultTreeCellRenderer();
-            _cellRenderer.setOpenIcon(
-                Utils.getIcon("/icons/16x16/service_template.png"));
-            _cellRenderer.setClosedIcon(
-                Utils.getIcon("/icons/16x16/service_template.png"));
+            _cellRenderer.setOpenIcon(Utils.getIcon("/icons/16x16/service_template.png"));
+            _cellRenderer.setClosedIcon(Utils.getIcon("/icons/16x16/service_template.png"));
         }
 
-        return _cellRenderer.getTreeCellRendererComponent(
-            tree, value, sel, expanded, leaf, row, hasFocus);
+        return _cellRenderer.getTreeCellRendererComponent(tree, value, sel, expanded, leaf, row, hasFocus);
     }
-
 
     //
     // Actions
@@ -68,7 +61,7 @@ class ServiceTemplate extends Communicator
         else
         {
             Object clipboard = getCoordinator().getClipboard();
-            actions[PASTE] = clipboard != null && 
+            actions[PASTE] = clipboard != null &&
                 (clipboard instanceof Adapter.AdapterCopy
                  || clipboard instanceof DbEnvDescriptor);
         }
@@ -76,20 +69,21 @@ class ServiceTemplate extends Communicator
         actions[DELETE] = true;
 
         if(!_ephemeral)
-        {       
+        {
             actions[COPY] = true;
             actions[NEW_ADAPTER] = true;
             actions[NEW_DBENV] = true;
         }
-        
+
         return actions;
     }
+
     public void copy()
     {
         getCoordinator().setClipboard(copyDescriptor(_templateDescriptor));
         getCoordinator().getActionsForMenu().get(PASTE).setEnabled(true);
     }
-    
+
     public JPopupMenu getPopupMenu()
     {
         ApplicationActions actions = getCoordinator().getActionsForPopup();
@@ -118,8 +112,7 @@ class ServiceTemplate extends Communicator
         return new ServiceTemplateEditor();
     }
 
-    ServiceTemplate(boolean brandNew, ServiceTemplates parent,
-                    String name, TemplateDescriptor descriptor)
+    ServiceTemplate(boolean brandNew, ServiceTemplates parent, String name, TemplateDescriptor descriptor)
         throws UpdateFailedException
     {
         super(parent, name);
@@ -127,7 +120,7 @@ class ServiceTemplate extends Communicator
         _ephemeral = false;
         rebuild(descriptor);
     }
-    
+
     ServiceTemplate(ServiceTemplates parent, String name, TemplateDescriptor descriptor)
     {
         super(parent, name);
@@ -136,16 +129,16 @@ class ServiceTemplate extends Communicator
         _templateDescriptor = descriptor;
     }
 
-    void write(XMLWriter writer) throws java.io.IOException
+    void write(XMLWriter writer)
+        throws java.io.IOException
     {
         if(!_ephemeral)
         {
-            java.util.List attributes = new java.util.LinkedList();
+            java.util.List<String[]> attributes = new java.util.LinkedList<String[]>();
             attributes.add(createAttribute("id", _id));
             writer.writeStartTag("service-template", attributes);
-            writeParameters(writer, _templateDescriptor.parameters,
-                            _templateDescriptor.parameterDefaults);
-            
+            writeParameters(writer, _templateDescriptor.parameters, _templateDescriptor.parameterDefaults);
+
             ServiceDescriptor descriptor = (ServiceDescriptor)_templateDescriptor.descriptor;
 
             writer.writeStartTag("service", PlainService.createAttributes(descriptor));
@@ -154,7 +147,7 @@ class ServiceTemplate extends Communicator
             {
                 writer.writeElement("description", descriptor.description);
             }
-            
+
             writePropertySet(writer, descriptor.propertySet, descriptor.adapters, descriptor.logs);
             writeLogs(writer, descriptor.logs, descriptor.propertySet.properties);
             _adapters.write(writer, descriptor.propertySet.properties);
@@ -198,7 +191,7 @@ class ServiceTemplate extends Communicator
     {
         return _ephemeral;
     }
-    
+
     public void destroy()
     {
         ServiceTemplates serviceTemplates = (ServiceTemplates)_parent;
@@ -212,13 +205,12 @@ class ServiceTemplate extends Communicator
             serviceTemplates.removeDescriptor(_id);
             getRoot().removeServiceInstances(_id);
             serviceTemplates.removeChild(this);
-            serviceTemplates.getEditable().
-                removeElement(_id, _editable, ServiceTemplate.class);
+            serviceTemplates.getEditable().removeElement(_id, _editable, ServiceTemplate.class);
             getRoot().updated();
         }
     }
 
-    java.util.List findInstances()
+    java.util.List<? extends TemplateInstance> findInstances()
     {
         return getRoot().findServiceInstances(_id);
     }
@@ -242,7 +234,7 @@ class ServiceTemplate extends Communicator
         clone.descriptor = (ServiceDescriptor)_templateDescriptor.descriptor.clone();
         return clone;
     }
-    
+
     public void restoreDescriptor(Object savedDescriptor)
     {
         TemplateDescriptor clone = (TemplateDescriptor)savedDescriptor;

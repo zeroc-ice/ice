@@ -6,6 +6,7 @@
 // ICE_LICENSE file included in this distribution.
 //
 // **********************************************************************
+
 package IceGridGUI;
 
 import java.awt.Component;
@@ -20,8 +21,7 @@ public class MainPane extends JTabbedPane
     public void addApplication(ApplicationPane application)
     {
         IceGridGUI.Application.Root root = application.getRoot();
-        super.addTab(computeTitle(root.getId()), 
-                     getIcon(root), application);
+        super.addTab(computeTitle(root.getId()), getIcon(root), application);
     }
 
     public void setTitleAt(int index, String title)
@@ -93,7 +93,7 @@ public class MainPane extends JTabbedPane
 
         addChangeListener(new ChangeListener()
             {
-                public void stateChanged(ChangeEvent evt) 
+                public void stateChanged(ChangeEvent evt)
                 {
                     Tab tab = (Tab)getSelectedComponent();
                     tab.selected();
@@ -102,13 +102,12 @@ public class MainPane extends JTabbedPane
 
         _registryIcon = Utils.getIcon("/icons/16x16/registry_bound_application.png");
         _fileIcon = Utils.getIcon("/icons/16x16/file_bound_application.png");
-            
-        addTab("Live Deployment", 
+
+        addTab("Live Deployment",
                Utils.getIcon("/icons/16x16/live_deployment.png"),
                _coordinator.getLiveDeploymentPane());
     }
 
-   
     private String computeTitle(String name)
     {
         String title = name;
@@ -148,7 +147,6 @@ public class MainPane extends JTabbedPane
             return null;
         }
     }
-
 
     private Coordinator _coordinator;
     private ImageIcon _registryIcon;

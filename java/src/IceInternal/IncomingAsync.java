@@ -117,10 +117,8 @@ public class IncomingAsync extends IncomingBase
         {
             if(_interceptorAsyncCallbackList != null)
             {
-                java.util.Iterator<Ice.DispatchInterceptorAsyncCallback> p = _interceptorAsyncCallbackList.iterator();
-                while(p.hasNext())
+                for(Ice.DispatchInterceptorAsyncCallback cb : _interceptorAsyncCallbackList)
                 {
-                    Ice.DispatchInterceptorAsyncCallback cb = p.next();
                     if(cb.response(ok) == false)
                     {
                         return false;
@@ -163,10 +161,8 @@ public class IncomingAsync extends IncomingBase
         {
             if(_interceptorAsyncCallbackList != null)
             {
-                java.util.Iterator<Ice.DispatchInterceptorAsyncCallback> p = _interceptorAsyncCallbackList.iterator();
-                while(p.hasNext())
+                for(Ice.DispatchInterceptorAsyncCallback cb : _interceptorAsyncCallbackList)
                 {
-                    Ice.DispatchInterceptorAsyncCallback cb = p.next();
                     if(cb.exception(exc) == false)
                     {
                         return false;

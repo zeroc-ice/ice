@@ -107,11 +107,8 @@ class BookI extends _BookDisp
             // Convert the authors string to an id set.
             //
             java.util.List<Integer> authIds = new java.util.LinkedList<Integer>();
-            java.util.Iterator<String> p = authors.iterator();
-            while(p.hasNext())
+            for(String author : authors)
             {
-                String author = p.next();
-
                 Integer authid;
                 stmt = context.prepareStatement("SELECT * FROM authors WHERE name = ?");
                 stmt.setString(1, author);
@@ -142,12 +139,11 @@ class BookI extends _BookDisp
             }
 
             // Create new authors_books records.
-            java.util.Iterator<Integer> q = authIds.iterator();
-            while(q.hasNext())
+            for(Integer i : authIds)
             {
                 stmt = context.prepareStatement("INSERT INTO authors_books (book_id, author_id) VALUES(?, ?)");
                 stmt.setInt(1, id);
-                stmt.setInt(2, q.next());
+                stmt.setInt(2, i);
                 int count = stmt.executeUpdate();
                 assert count == 1;
             }

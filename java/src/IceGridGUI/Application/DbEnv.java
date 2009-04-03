@@ -6,6 +6,7 @@
 // ICE_LICENSE file included in this distribution.
 //
 // **********************************************************************
+
 package IceGridGUI.Application;
 
 import java.awt.Component;
@@ -22,33 +23,31 @@ class DbEnv extends TreeNode implements DescriptorHolder
         return (DbEnvDescriptor)d.clone();
     }
 
-    static public java.util.List copyDescriptors(java.util.List list)
+    static public java.util.List<DbEnvDescriptor> copyDescriptors(java.util.List<DbEnvDescriptor> list)
     {
-        java.util.List copy = new java.util.LinkedList();
-        java.util.Iterator p = list.iterator();
-        while(p.hasNext())
+        java.util.List<DbEnvDescriptor> copy = new java.util.LinkedList<DbEnvDescriptor>();
+        for(DbEnvDescriptor p : list)
         {
-            copy.add(copyDescriptor((DbEnvDescriptor)p.next()));
+            copy.add(copyDescriptor(p));
         }
         return copy;
     }
 
     public Component getTreeCellRendererComponent(
-            JTree tree,
-            Object value,
-            boolean sel,
-            boolean expanded,
-            boolean leaf,
-            int row,
-            boolean hasFocus) 
+        JTree tree,
+        Object value,
+        boolean sel,
+        boolean expanded,
+        boolean leaf,
+        int row,
+        boolean hasFocus)
     {
         if(_cellRenderer == null)
         {
             _cellRenderer = new DefaultTreeCellRenderer();
             _cellRenderer.setLeafIcon(Utils.getIcon("/icons/16x16/database.png"));
         }
-        return _cellRenderer.getTreeCellRendererComponent(
-            tree, value, sel, expanded, leaf, row, hasFocus);
+        return _cellRenderer.getTreeCellRendererComponent(tree, value, sel, expanded, leaf, row, hasFocus);
     }
 
     //
@@ -60,11 +59,11 @@ class DbEnv extends TreeNode implements DescriptorHolder
         actions[COPY] = !_ephemeral;
 
         Object clipboard = getCoordinator().getClipboard();
-        actions[PASTE] = clipboard != null && 
+        actions[PASTE] = clipboard != null &&
             (clipboard instanceof Adapter.AdapterCopy
              || clipboard instanceof DbEnvDescriptor);
         actions[DELETE] = true;
-        
+
         if(!_ephemeral)
         {
             boolean[] parentActions = ((TreeNode)_parent).getAvailableActions();
@@ -134,42 +133,38 @@ class DbEnv extends TreeNode implements DescriptorHolder
         return _ephemeral;
     }
 
-    DbEnv(Communicator parent, String dbEnvName, DbEnvDescriptor descriptor, 
-          boolean ephemeral)
+    DbEnv(Communicator parent, String dbEnvName, DbEnvDescriptor descriptor, boolean ephemeral)
     {
         super(parent, dbEnvName);
         _descriptor = descriptor;
         _ephemeral = ephemeral;
     }
 
-    static void writeDbProperties(XMLWriter writer,
-                                  java.util.List properties)
+    static void writeDbProperties(XMLWriter writer, java.util.List<PropertyDescriptor> properties)
         throws java.io.IOException
     {
-        java.util.Iterator p = properties.iterator();
-        while(p.hasNext())
+        for(PropertyDescriptor p : properties)
         {
-            PropertyDescriptor pd = (PropertyDescriptor)p.next();
-            java.util.List attributes = new java.util.LinkedList();
-            attributes.add(createAttribute("name", pd.name));
-            attributes.add(createAttribute("value", pd.value));
+            java.util.List<String[]> attributes = new java.util.LinkedList<String[]>();
+            attributes.add(createAttribute("name", p.name));
+            attributes.add(createAttribute("value", p.value));
             writer.writeElement("dbproperty", attributes);
         }
     }
 
-    void write(XMLWriter writer) throws java.io.IOException
+    void write(XMLWriter writer)
+        throws java.io.IOException
     {
         if(!_ephemeral)
         {
-            java.util.List attributes = new java.util.LinkedList();
+            java.util.List<String[]> attributes = new java.util.LinkedList<String[]>();
             attributes.add(createAttribute("name", _descriptor.name));
             if(_descriptor.dbHome.length() > 0)
             {
                 attributes.add(createAttribute("home", _descriptor.dbHome));
             }
-                           
-            if(_descriptor.description.length() == 0 && 
-               _descriptor.properties.isEmpty())
+
+            if(_descriptor.description.length() == 0 && _descriptor.properties.isEmpty())
             {
                 writer.writeElement("dbenv", attributes);
             }
@@ -187,8 +182,8 @@ class DbEnv extends TreeNode implements DescriptorHolder
     }
 
     private DbEnvDescriptor _descriptor;
-    private final boolean _ephemeral; 
+    private final boolean _ephemeral;
     private DbEnvEditor _editor;
 
-    static private DefaultTreeCellRenderer _cellRenderer;    
+    static private DefaultTreeCellRenderer _cellRenderer;
 }

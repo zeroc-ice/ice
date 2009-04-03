@@ -1268,7 +1268,7 @@ Slice::Gen::generateImplTie(const UnitPtr& p)
 }
 
 void
-Slice::Gen::writeChecksumClass(const string& checksumClass, const string& dir, const ChecksumMap& m, bool java2)
+Slice::Gen::writeChecksumClass(const string& checksumClass, const string& dir, const ChecksumMap& m)
 {
     //
     // Attempt to open the source file for the checksum class.
@@ -1299,24 +1299,10 @@ Slice::Gen::writeChecksumClass(const string& checksumClass, const string& dir, c
     //
     // Use a static initializer to populate the checksum map.
     //
-    if(java2)
-    {
-        out << sp << nl << "public static java.util.Map checksums;";
-    }
-    else
-    {
-        out << sp << nl << "public static java.util.Map<String, String> checksums;";
-    }
+    out << sp << nl << "public static java.util.Map<String, String> checksums;";
     out << sp << nl << "static";
     out << sb;
-    if(java2)
-    {
-        out << nl << "java.util.Map map = new java.util.HashMap();";
-    }
-    else
-    {
-        out << nl << "java.util.Map<String, String> map = new java.util.HashMap<String, String>();";
-    }
+    out << nl << "java.util.Map<String, String> map = new java.util.HashMap<String, String>();";
     for(ChecksumMap::const_iterator p = m.begin(); p != m.end(); ++p)
     {
         out << nl << "map.put(\"" << p->first << "\", \"";
@@ -1614,7 +1600,14 @@ Slice::Gen::TieVisitor::visitClassDefStart(const ClassDefPtr& p)
             args = getArgs(*r);
         }
 
+        string deprecateReason = getDeprecateReason(*r, cl, "operation");
+
         out << sp;
+        if(!deprecateReason.empty())
+        {
+            out << nl << "@Deprecated";
+            out << nl << "@SuppressWarnings(\"deprecation\")";
+        }
         out << nl << "public " << (hasAMD ? string("void") : retS) << nl << opName << spar << params;
         if(!p->isLocal())
         {
@@ -2783,110 +2776,18 @@ Slice::Gen::TypesVisitor::visitEnum(const EnumPtr& p)
         out << nl << " **/";
     }
 
-    bool java2 = p->definitionContext()->findMetaData(_java2MetaData) == _java2MetaData;
+    out << nl << "public enum " << name << " implements java.io.Serializable";
+    out << sb;
 
-    if(java2)
+    for(en = enumerators.begin(); en != enumerators.end(); ++en)
     {
-        out << nl << "public final class " << name << " implements java.io.Serializable";
-        out << sb;
-
-        out << nl << "private static " << name << "[] __values = new " << name << "[" << sz << "];";
-        out << nl << "private int __value;";
-
-        out << sp;
-        int n;
-        for(en = enumerators.begin(), n = 0; en != enumerators.end(); ++en, ++n)
+        if(en != enumerators.begin())
         {
-            string member = fixKwd((*en)->name());
-            out << nl << "public static final int _" << member << " = " << n << ';';
-            out << nl << "public static final " << name << ' ' << fixKwd(member)
-                << " = new " << name << "(_" << member << ");";
+            out << ',';
         }
-
-        out << sp << nl << "public static " << name << nl << "convert(int val)";
-        out << sb;
-        out << nl << "assert val >= 0 && val < " << sz << ';';
-        out << nl << "return __values[val];";
-        out << eb;
-
-        out << sp << nl << "public static " << name << nl << "convert(String val)";
-        out << sb;
-        out << nl << "for(int __i = 0; __i < __values.length; ++__i)";
-        out << sb;
-        out << nl << "if(__values[__i].toString().equals(val))";
-        out << sb;
-        out << nl << "return __values[__i];";
-        out << eb;
-        out << eb;
-        out << nl << "assert false;";
-        out << nl << "return null;";
-        out << eb;
-
-        out << sp << nl << "public int" << nl << "value()";
-        out << sb;
-        out << nl << "return __value;";
-        out << eb;
-
-        out << sp << nl << "public String" << nl << "toString()";
-        out << sb;
-        out << nl << "return __T[__value];";
-        out << eb;
-
-        out << sp << nl << "private" << nl << name << "(int val)";
-        out << sb;
-        out << nl << "__value = val;";
-        out << nl << "__values[val] = this;";
-        out << eb;
+        out << nl << fixKwd((*en)->name());
     }
-    else
-    {
-        out << nl << "public enum " << name << " implements java.io.Serializable";
-        out << sb;
-
-        for(en = enumerators.begin(); en != enumerators.end(); ++en)
-        {
-            if(en != enumerators.begin())
-            {
-                out << ',';
-            }
-            out << nl << fixKwd((*en)->name());
-        }
-        out << ';';
-
-        //
-        // For backward compatibility, we keep the integer member in the Java5 mapping.
-        //
-        out << sp;
-        int n;
-        for(en = enumerators.begin(), n = 0; en != enumerators.end(); ++en, ++n)
-        {
-            string member = fixKwd((*en)->name());
-            out << nl << "public static final int _" << member << " = " << n << ';';
-        }
-
-        out << sp << nl << "public static " << name << nl << "convert(int val)";
-        out << sb;
-        out << nl << "assert val >= 0 && val < " << sz << ';';
-        out << nl << "return values()[val];";
-        out << eb;
-
-        out << sp << nl << "public static " << name << nl << "convert(String val)";
-        out << sb;
-        out << nl << "try";
-        out << sb;
-        out << nl << "return valueOf(val);";
-        out << eb;
-        out << nl << "catch(java.lang.IllegalArgumentException ex)";
-        out << sb;
-        out << nl << "return null;";
-        out << eb;
-        out << eb;
-
-        out << sp << nl << "public int" << nl << "value()";
-        out << sb;
-        out << nl << "return ordinal();";
-        out << eb;
-    }
+    out << ';';
 
     if(!p->isLocal())
     {
@@ -2894,15 +2795,15 @@ Slice::Gen::TypesVisitor::visitEnum(const EnumPtr& p)
         out << sb;
         if(sz <= 0x7f)
         {
-            out << nl << "__os.writeByte((byte)value());";
+            out << nl << "__os.writeByte((byte)ordinal());";
         }
         else if(sz <= 0x7fff)
         {
-            out << nl << "__os.writeShort((short)value());";
+            out << nl << "__os.writeShort((short)ordinal());";
         }
         else
         {
-            out << nl << "__os.writeInt(value());";
+            out << nl << "__os.writeInt(ordinal());";
         }
         out << eb;
 
@@ -2920,7 +2821,7 @@ Slice::Gen::TypesVisitor::visitEnum(const EnumPtr& p)
         {
             out << nl << "int __v = __is.readInt(" << sz << ");";
         }
-        out << nl << "return " << name << ".convert(__v);";
+        out << nl << "return values()[__v];";
         out << eb;
 
         if(_stream)
@@ -2929,15 +2830,15 @@ Slice::Gen::TypesVisitor::visitEnum(const EnumPtr& p)
             out << sb;
             if(sz <= 0x7f)
             {
-                out << nl << "__outS.writeByte((byte)value());";
+                out << nl << "__outS.writeByte((byte)ordinal());";
             }
             else if(sz <= 0x7fff)
             {
-                out << nl << "__outS.writeShort((short)value());";
+                out << nl << "__outS.writeShort((short)ordinal());";
             }
             else
             {
-                out << nl << "__outS.writeInt(value());";
+                out << nl << "__outS.writeInt(ordinal());";
             }
             out << eb;
 
@@ -2959,38 +2860,9 @@ Slice::Gen::TypesVisitor::visitEnum(const EnumPtr& p)
             out << sb;
             out << nl << "throw new Ice.MarshalException(\"enumerator out of range\");";
             out << eb;
-            out << nl << "return " << name << ".convert(__v);";
+            out << nl << "return values()[__v];";
             out << eb;
         }
-    }
-
-    if(java2)
-    {
-        //
-        // Without this method, Java would create a new instance of an enumerator
-        // during deserialization, but we want it to use one of the predefined
-        // enumerators instead.
-        //
-        out << sp << nl << "private java.lang.Object" << nl << "readResolve()";
-        out.inc();
-        out << nl << "throws java.io.ObjectStreamException";
-        out.dec();
-        out << sb;
-        out << nl << "return convert(__value);";
-        out << eb;
-        out << sp << nl << "final static private String[] __T =";
-        out << sb;
-
-        en = enumerators.begin();
-        while(en != enumerators.end())
-        {
-            out << nl << "\"" << (*en)->name() << "\"";
-            if(++en != enumerators.end())
-            {
-                out << ',';
-            }
-        }
-        out << eb << ';';
     }
 
     out << eb;
@@ -3324,9 +3196,7 @@ Slice::Gen::HelperVisitor::visitClassDefStart(const ClassDefPtr& p)
 
     out << sb;
 
-    bool java2 = p->definitionContext()->findMetaData(_java2MetaData) == _java2MetaData;
-    string contextType = java2 ? "java.util.Map" : "java.util.Map<String, String>";
-    string contextParam = contextType + " __ctx";
+    string contextParam = "java.util.Map<String, String> __ctx";
     string explicitContextParam = "boolean __explicitCtx";
 
     OperationList ops = p->allOperations();
@@ -3387,17 +3257,6 @@ Slice::Gen::HelperVisitor::visitClassDefStart(const ClassDefPtr& p)
         out << eb;
 
         out << sp;
-        //
-        // TODO: If we eventually drop support for Java2, we can remove this
-        // SupressWarnings annotation. Meanwhile, it is necessary to prevent
-        // a compiler warning about an unchecked conversion. This is caused
-        // by the fact that _emptyContext returns the unchecked type
-        // java.util.Map but Ice.Context is mapped to Map<String, String>.
-        //
-        if(!java2)
-        {
-            out << nl << "@SuppressWarnings(\"unchecked\")";
-        }
         out << nl << "private " << retS << nl << opName << spar << params << contextParam
             << explicitContextParam << epar;
         writeThrowsClause(package, throws);
@@ -3477,17 +3336,6 @@ Slice::Gen::HelperVisitor::visitClassDefStart(const ClassDefPtr& p)
             out << eb;
 
             out << sp;
-            //
-            // TODO: If we eventually drop support for Java2, we can remove this
-            // SupressWarnings annotation. Meanwhile, it is necessary to prevent
-            // a compiler warning about an unchecked conversion. This is caused
-            // by the fact that _emptyContext returns the unchecked type
-            // java.util.Map but Ice.Context is mapped to Map<String, String>.
-            //
-            if(!java2)
-            {
-                out << nl << "@SuppressWarnings(\"unchecked\")";
-            }
             out << nl << "private boolean" << nl << opName << "_async" << spar << paramsAMI
                 << contextParam << explicitContextParam << epar;
             out << sb;
@@ -3752,6 +3600,59 @@ Slice::Gen::HelperVisitor::visitSequence(const SequencePtr& p)
     string package = getPackage(p);
     string typeS = typeToString(p, TypeModeIn, package);
 
+    //
+    // We cannot allocate an array of a generic type, such as
+    //
+    // arr = new Map<String, String>[sz];
+    //
+    // Attempting to compile this code results in a "generic array creation" error
+    // message. This problem can occur when the sequence's element type is a
+    // dictionary, or when the element type is a nested sequence that uses a custom
+    // mapping.
+    //
+    // The solution is to rewrite the code as follows:
+    //
+    // arr = (Map<String, String>[])new Map[sz];
+    //
+    // Unfortunately, this produces an unchecked warning during compilation, so we
+    // annotate the read() method to suppress the warning.
+    //
+    // A simple test is to look for a "<" character in the content type, which
+    // indicates the use of a generic type.
+    //
+    bool suppressUnchecked = false;
+    if(_featureProfile != Slice::IceE)
+    {
+        string instanceType, formalType;
+        bool customType = getSequenceTypes(p, "", StringList(), instanceType, formalType);
+
+        if(!customType)
+        {
+            //
+            // Determine sequence depth.
+            //
+            int depth = 0;
+            TypePtr origContent = p->type();
+            SequencePtr s = SequencePtr::dynamicCast(origContent);
+            while(s)
+            {
+                //
+                // Stop if the inner sequence type has a custom, serializable or protobuf type.
+                //
+                if(hasTypeMetaData(s))
+                {
+                    break;
+                }
+                depth++;
+                origContent = s->type();
+                s = SequencePtr::dynamicCast(origContent);
+            }
+
+            string origContentS = typeToString(origContent, TypeModeIn, package);
+            suppressUnchecked = origContentS.find('<') != string::npos;
+        }
+    }
+
     open(helper);
     Output& out = output();
     int iter;
@@ -3765,7 +3666,12 @@ Slice::Gen::HelperVisitor::visitSequence(const SequencePtr& p)
     writeSequenceMarshalUnmarshalCode(out, package, p, "__v", true, iter, false);
     out << eb;
 
-    out << sp << nl << "public static " << typeS << nl << "read(IceInternal.BasicStream __is)";
+    out << sp;
+    if(suppressUnchecked)
+    {
+        out << nl << "@SuppressWarnings(\"unchecked\")";
+    }
+    out << nl << "public static " << typeS << nl << "read(IceInternal.BasicStream __is)";
     out << sb;
     out << nl << typeS << " __v;";
     iter = 0;
@@ -3781,7 +3687,12 @@ Slice::Gen::HelperVisitor::visitSequence(const SequencePtr& p)
         writeStreamSequenceMarshalUnmarshalCode(out, package, p, "__v", true, iter, false);
         out << eb;
 
-        out << sp << nl << "public static " << typeS << nl << "read(Ice.InputStream __inS)";
+        out << sp;
+        if(suppressUnchecked)
+        {
+            out << nl << "@SuppressWarnings(\"unchecked\")";
+        }
+        out << nl << "public static " << typeS << nl << "read(Ice.InputStream __inS)";
         out << sb;
         out << nl << typeS << " __v;";
         iter = 0;
@@ -3988,8 +3899,7 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
         out << nl << " **/";
     }
 
-    bool java2 = p->definitionContext()->findMetaData(_java2MetaData) == _java2MetaData;
-    string contextParam = java2 ? "java.util.Map __ctx" : "java.util.Map<String, String> __ctx";
+    string contextParam = "java.util.Map<String, String> __ctx";
 
     out << nl << "public " << retS << ' ' << name << spar << params << contextParam << epar;
     writeThrowsClause(package, throws);
@@ -4065,8 +3975,7 @@ Slice::Gen::DelegateVisitor::visitClassDefStart(const ClassDefPtr& p)
 
     out << sb;
 
-    bool java2 = p->definitionContext()->findMetaData(_java2MetaData) == _java2MetaData;
-    string contextParam = java2 ? "java.util.Map __ctx" : "java.util.Map<String, String> __ctx";
+    string contextParam = "java.util.Map<String, String> __ctx";
 
     OperationList ops = p->operations();
 
@@ -4121,8 +4030,7 @@ Slice::Gen::DelegateMVisitor::visitClassDefStart(const ClassDefPtr& p)
     out << sp << nl << "public final class _" << name << "DelM extends Ice._ObjectDelM implements _" << name << "Del";
     out << sb;
 
-    bool java2 = p->definitionContext()->findMetaData(_java2MetaData) == _java2MetaData;
-    string contextParam = java2 ? "java.util.Map __ctx" : "java.util.Map<String, String> __ctx";
+    string contextParam = "java.util.Map<String, String> __ctx";
 
     OperationList ops = p->allOperations();
 
@@ -4322,8 +4230,7 @@ Slice::Gen::DelegateDVisitor::visitClassDefStart(const ClassDefPtr& p)
     out << sp << nl << "public final class _" << name << "DelD extends Ice._ObjectDelD implements _" << name << "Del";
     out << sb;
 
-    bool java2 = p->definitionContext()->findMetaData(_java2MetaData) == _java2MetaData;
-    string contextParam = java2 ? "java.util.Map __ctx" : "java.util.Map<String, String> __ctx";
+    string contextParam = "java.util.Map<String, String> __ctx";
 
     OperationList ops = p->allOperations();
 
@@ -5006,8 +4913,7 @@ Slice::Gen::AsyncVisitor::visitOperation(const OperationPtr& p)
             out << nl << "public abstract void ice_exception(Ice.UserException ex);";
         }
         
-        bool java2 = p->definitionContext()->findMetaData(_java2MetaData) == _java2MetaData;
-        string contextParam = java2 ? "java.util.Map __ctx" : "java.util.Map<String, String> __ctx";
+        string contextParam = "java.util.Map<String, String> __ctx";
 
         out << sp << nl << "public final boolean" << nl << "__invoke" << spar << "Ice.ObjectPrx __prx"
             << paramsInvoke << contextParam << epar;

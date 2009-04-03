@@ -21,7 +21,7 @@ public final class DirectoryI extends PersistentDirectory
     DirectoryI(Ice.Identity id)
     {
         _id = id;
-        nodes = new java.util.HashMap();
+        nodes = new java.util.HashMap<java.lang.String, NodeDesc>();
         _destroyed = false;
     }
 

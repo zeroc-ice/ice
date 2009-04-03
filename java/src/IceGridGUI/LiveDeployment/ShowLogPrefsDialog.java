@@ -6,6 +6,7 @@
 // ICE_LICENSE file included in this distribution.
 //
 // **********************************************************************
+
 package IceGridGUI.LiveDeployment;
 
 import java.awt.event.ActionEvent;
@@ -34,11 +35,11 @@ class ShowLogPrefsDialog extends JDialog
     {
         super(sld, "Preferences - IceGrid Admin", true);
         setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
-        
+
         final JTextField maxLinesField = new JTextField(10);
         maxLinesField.setText(Integer.toString(sld.getMaxLines()));
         maxLinesField.setToolTipText("Maximum number of lines in this dialog's buffer");
-        
+
         final JTextField maxSizeField = new JTextField(10);
         maxSizeField.setText(Integer.toString(sld.getMaxSize()));
         maxSizeField.setToolTipText("Maximum number of characters in this dialog's buffer");
@@ -67,7 +68,7 @@ class ShowLogPrefsDialog extends JDialog
                         int initialLines = parseInt(initialLinesField, "Initial tail (lines)");
                         int maxReadSize = parseInt(maxReadSizeField, "Max bytes read per request");
                         int period = (int)(parseFloat(periodField, "Poll period (seconds)") * 1000);
-                        
+
                         sld.setPrefs(maxLines, maxSize, initialLines, maxReadSize, period);
                         dispose();
                     }
@@ -79,7 +80,7 @@ class ShowLogPrefsDialog extends JDialog
             };
         okButton.addActionListener(okListener);
         getRootPane().setDefaultButton(okButton);
-        
+
         JButton cancelButton = new JButton("Cancel");
         ActionListener cancelListener = new ActionListener()
             {
@@ -89,14 +90,13 @@ class ShowLogPrefsDialog extends JDialog
                 }
             };
         cancelButton.addActionListener(cancelListener);
-        
-        
+
         FormLayout layout = new FormLayout("left:pref, 3dlu, fill:pref:grow", "");
         DefaultFormBuilder builder = new DefaultFormBuilder(layout);
         builder.setDefaultDialogBorder();
         builder.setRowGroupingEnabled(true);
         builder.setLineGapSize(LayoutStyle.getCurrent().getLinePad());
-        
+
         builder.append("Max lines in buffer", maxLinesField);
         builder.nextLine();
         builder.append("Max characters in buffer", maxSizeField);
@@ -107,23 +107,22 @@ class ShowLogPrefsDialog extends JDialog
         builder.nextLine();
         builder.append("Poll period (seconds)", periodField);
         builder.nextLine();
-        
-        JComponent buttonBar = 
+
+        JComponent buttonBar =
             ButtonBarFactory.buildOKCancelBar(okButton, cancelButton);
         buttonBar.setBorder(Borders.DIALOG_BORDER);
-        
+
         java.awt.Container contentPane = getContentPane();
         contentPane.setLayout(new BoxLayout(contentPane, BoxLayout.Y_AXIS));
         contentPane.add(builder.getPanel());
         contentPane.add(buttonBar);
-        
+
         pack();
         setResizable(false);
         setLocationRelativeTo(sld);
         setVisible(true);
     }
 
-    
     private int parseInt(JTextField field, String label) throws NumberFormatException
     {
         try
@@ -137,7 +136,7 @@ class ShowLogPrefsDialog extends JDialog
                 label + " must be an integer",
                 "Invalid entry",
                 JOptionPane.ERROR_MESSAGE);
-            
+
             throw e;
         }
     }
@@ -155,7 +154,7 @@ class ShowLogPrefsDialog extends JDialog
                 label + " must be a decimal number",
                 "Invalid entry",
                 JOptionPane.ERROR_MESSAGE);
-            
+
             throw e;
         }
     }

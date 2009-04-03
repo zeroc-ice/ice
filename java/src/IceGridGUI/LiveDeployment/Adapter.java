@@ -6,6 +6,7 @@
 // ICE_LICENSE file included in this distribution.
 //
 // **********************************************************************
+
 package IceGridGUI.LiveDeployment;
 
 import java.awt.Component;
@@ -20,7 +21,6 @@ import java.util.Enumeration;
 
 import IceGrid.*;
 import IceGridGUI.*;
-
 
 class Adapter extends TreeNode
 {
@@ -41,7 +41,7 @@ class Adapter extends TreeNode
         boolean expanded,
         boolean leaf,
         int row,
-        boolean hasFocus) 
+        boolean hasFocus)
     {
         if(_cellRenderer == null)
         {
@@ -60,12 +60,11 @@ class Adapter extends TreeNode
         }
 
         _cellRenderer.setToolTipText(_toolTip);
-        return _cellRenderer.getTreeCellRendererComponent(
-            tree, value, sel, expanded, leaf, row, hasFocus);
+        return _cellRenderer.getTreeCellRendererComponent(tree, value, sel, expanded, leaf, row, hasFocus);
     }
 
-    Adapter(TreeNode parent, String adapterName, Utils.Resolver resolver,
-            String adapterId, AdapterDescriptor descriptor, Ice.ObjectPrx proxy)
+    Adapter(TreeNode parent, String adapterName, Utils.Resolver resolver, String adapterId,
+            AdapterDescriptor descriptor, Ice.ObjectPrx proxy)
     {
         super(parent, adapterName);
         _resolver = resolver;
@@ -79,7 +78,7 @@ class Adapter extends TreeNode
     {
         return _descriptor;
     }
-    
+
     Utils.Resolver getResolver()
     {
         return _resolver;
@@ -90,7 +89,7 @@ class Adapter extends TreeNode
         return _currentEndpoints;
     }
 
-    java.util.Map getProperties()
+    java.util.Map<String, String> getProperties()
     {
         if(_parent instanceof Server)
         {
@@ -122,12 +121,10 @@ class Adapter extends TreeNode
         }
     }
 
-    boolean update(java.util.List infoList)
+    boolean update(java.util.List<AdapterDynamicInfo> infoList)
     {
-        java.util.Iterator p = infoList.iterator();
-        while(p.hasNext())
+        for(AdapterDynamicInfo info : infoList)
         {
-            AdapterDynamicInfo info = (AdapterDynamicInfo)p.next();
             if(update(info))
             {
                 return true;
@@ -158,7 +155,6 @@ class Adapter extends TreeNode
             _toolTip = "Published endpoints: " + _currentEndpoints;
         }
     }
-
 
     private AdapterDescriptor _descriptor;
     private Utils.Resolver _resolver;

@@ -6,6 +6,7 @@
 // ICE_LICENSE file included in this distribution.
 //
 // **********************************************************************
+
 package IceGridGUI.Application;
 
 import java.awt.event.ActionEvent;
@@ -68,14 +69,14 @@ class ApplicationEditor extends Editor
                 //
                 root.updated();
                 root.getEditable().markModified();
-                
+
                 if(!savedDescriptor.name.equals(root.getId()))
                 {
                     mainPane.resetTitle(root);
                     root.getTreeModel().nodeChanged(root);
                 }
             }
-              
+
             _applyButton.setEnabled(false);
             _discardButton.setEnabled(false);
             return true;
@@ -90,11 +91,11 @@ class ApplicationEditor extends Editor
     {
         _name.getDocument().addDocumentListener(_updateListener);
         _description.getDocument().addDocumentListener(_updateListener);
-        
+
         //
         // Variables
         //
-        _variables = new MapField(this, "Name", "Value", false);
+        _variables = new SimpleMapField(this, false, "Name", "Value");
 
         //
         // Distrib
@@ -103,10 +104,8 @@ class ApplicationEditor extends Editor
         _distrib.setEditable(true);
         _distrib.setToolTipText("The proxy to the IcePatch2 server holding your files");
 
-        JTextField distribTextField = (JTextField)
-            _distrib.getEditor().getEditorComponent();
-        distribTextField.getDocument().addDocumentListener(
-            _updateListener);
+        JTextField distribTextField = (JTextField)_distrib.getEditor().getEditorComponent();
+        distribTextField.getDocument().addDocumentListener(_updateListener);
 
         _distribDirs.getDocument().addDocumentListener(_updateListener);
         _distribDirs.setToolTipText(
@@ -114,9 +113,9 @@ class ApplicationEditor extends Editor
             + "Use whitespace as separator; use double-quotes around directories containing whitespaces</html>");
 
     }
- 
+
     protected void appendProperties(DefaultFormBuilder builder)
-    {    
+    {
         builder.append("Name");
         builder.append(_name, 3);
 
@@ -126,8 +125,7 @@ class ApplicationEditor extends Editor
         builder.nextRow(-2);
         CellConstraints cc = new CellConstraints();
         JScrollPane scrollPane = new JScrollPane(_description);
-        builder.add(scrollPane, 
-                    cc.xywh(builder.getColumn(), builder.getRow(), 3, 3));
+        builder.add(scrollPane, cc.xywh(builder.getColumn(), builder.getRow(), 3, 3));
         builder.nextRow(2);
         builder.nextLine();
 
@@ -140,8 +138,7 @@ class ApplicationEditor extends Editor
         builder.append("");
         builder.nextRow(-6);
         scrollPane = new JScrollPane(_variables);
-        builder.add(scrollPane, 
-                    cc.xywh(builder.getColumn(), builder.getRow(), 3, 7));
+        builder.add(scrollPane, cc.xywh(builder.getColumn(), builder.getRow(), 3, 7));
         builder.nextRow(6);
         builder.nextLine();
 
@@ -154,7 +151,7 @@ class ApplicationEditor extends Editor
         builder.append(_distribDirs, 3);
         builder.nextLine();
     }
-    
+
     protected void buildPropertiesPanel()
     {
         super.buildPropertiesPanel();
@@ -164,8 +161,7 @@ class ApplicationEditor extends Editor
     boolean isSimpleUpdate()
     {
         ApplicationDescriptor descriptor = (ApplicationDescriptor)_target.getDescriptor();
-        return descriptor.name.equals(_name.getText().trim()) 
-            && _variables.get().equals(descriptor.variables);
+        return descriptor.name.equals(_name.getText().trim()) && _variables.get().equals(descriptor.variables);
     }
 
     void writeDescriptor()
@@ -184,8 +180,8 @@ class ApplicationEditor extends Editor
             descriptor.distrib.icepatch = _distrib.getSelectedItem().toString().trim();
         }
         descriptor.distrib.directories = _distribDirs.getList();
-    }       
-    
+    }
+
     protected boolean validate()
     {
         return check(new String[]{"Name", _name.getText().trim()});
@@ -195,28 +191,25 @@ class ApplicationEditor extends Editor
     {
         detectUpdates(false);
         _target = root;
-        
+
         Utils.Resolver resolver = getDetailResolver();
         boolean isEditable = (resolver == null);
 
-        ApplicationDescriptor descriptor = 
-            (ApplicationDescriptor)root.getDescriptor();
+        ApplicationDescriptor descriptor = (ApplicationDescriptor)root.getDescriptor();
 
         _name.setText(descriptor.name);
         _name.setEditable(!root.isLive() && isEditable);
 
-        _description.setText(
-            Utils.substitute(descriptor.description, resolver));
+        _description.setText(Utils.substitute(descriptor.description, resolver));
         _description.setEditable(isEditable);
         _description.setOpaque(isEditable);
         _description.setToolTipText("An optional description for this application");
-        
+
         _variables.set(descriptor.variables, resolver, isEditable);
-        
+
         _distrib.setEnabled(true);
         _distrib.setEditable(true);
-        String icepatch = 
-            Utils.substitute(descriptor.distrib.icepatch, resolver);
+        String icepatch = Utils.substitute(descriptor.distrib.icepatch, resolver);
         if(icepatch.equals(""))
         {
             _distrib.setSelectedItem(NO_DISTRIB);
@@ -232,10 +225,10 @@ class ApplicationEditor extends Editor
         _distribDirs.setEditable(isEditable);
 
         _applyButton.setEnabled(false);
-        _discardButton.setEnabled(false);         
+        _discardButton.setEnabled(false);
         detectUpdates(true);
     }
-    
+
     Utils.Resolver getDetailResolver()
     {
         if(_target.getCoordinator().substitute())
@@ -259,7 +252,7 @@ class ApplicationEditor extends Editor
 
     private JTextField _name = new JTextField(20);
     private JTextArea _description = new JTextArea(3, 20);
-    private MapField _variables;
+    private SimpleMapField _variables;
     private JComboBox _distrib;
     private ListTextField _distribDirs = new ListTextField(20);
 }

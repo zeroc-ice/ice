@@ -6,6 +6,7 @@
 // ICE_LICENSE file included in this distribution.
 //
 // **********************************************************************
+
 package IceGridGUI.LiveDeployment;
 
 import java.awt.Cursor;
@@ -45,12 +46,11 @@ class WriteMessageDialog extends JDialog
 {
     WriteMessageDialog(final Root root)
     {
-        super(root.getCoordinator().getMainFrame(), 
-              "Write Message - IceGrid Admin", true);
+        super(root.getCoordinator().getMainFrame(), "Write Message - IceGrid Admin", true);
         setDefaultCloseOperation(JDialog.HIDE_ON_CLOSE);
 
         _mainFrame = root.getCoordinator().getMainFrame();
-        
+
         _stdOut = new JRadioButton("Write to stdout");
         _stdOut.setSelected(true);
         JRadioButton stdErr = new JRadioButton("Write to stderr");
@@ -64,7 +64,7 @@ class WriteMessageDialog extends JDialog
                 public void actionPerformed(ActionEvent e)
                 {
                     final Coordinator c = root.getCoordinator();
-                 
+
                     AdminPrx admin = c.getAdmin();
                     if(admin == null)
                     {
@@ -76,12 +76,12 @@ class WriteMessageDialog extends JDialog
                     }
                     else
                     {
-                 
+
                         Ice.Identity adminId = new Ice.Identity(_target, c.getServerAdminCategory());
-                    
+
                         final Ice.ProcessPrx process = Ice.ProcessPrxHelper.uncheckedCast(
                             admin.ice_identity(adminId).ice_facet("Process"));
-                    
+
                         final String prefix = "Writing message to server '" + _target + "'...";
                         c.getStatusBar().setText(prefix);
 
@@ -89,20 +89,20 @@ class WriteMessageDialog extends JDialog
                             {
                                 public void ice_response()
                                 {
-                                    SwingUtilities.invokeLater(new Runnable() 
-                                        {   
-                                            public void run() 
+                                    SwingUtilities.invokeLater(new Runnable()
+                                        {
+                                            public void run()
                                             {
                                                 c.getStatusBar().setText(prefix + "done.");
                                             }
                                         });
                                 }
-                                            
+
                                 public void ice_exception(final Ice.LocalException e)
                                 {
-                                    SwingUtilities.invokeLater(new Runnable() 
+                                    SwingUtilities.invokeLater(new Runnable()
                                         {
-                                            public void run() 
+                                            public void run()
                                             {
                                                 handleFailure("Communication exception: " + e.toString());
                                             }
@@ -112,7 +112,7 @@ class WriteMessageDialog extends JDialog
                                 private void handleFailure(String message)
                                 {
                                     c.getStatusBar().setText(prefix + "failed!");
-                                
+
                                     JOptionPane.showMessageDialog(
                                         _mainFrame,
                                         message,
@@ -120,7 +120,7 @@ class WriteMessageDialog extends JDialog
                                         JOptionPane.ERROR_MESSAGE);
                                 }
                             };
-                  
+
                         try
                         {
                             process.writeMessage_async(cb, _message.getText(), _stdOut.isSelected() ? 1 : 2);
@@ -133,17 +133,17 @@ class WriteMessageDialog extends JDialog
                                 "Communication exception: " + ex.toString(),
                                 "Writing message to server '" + _target + "' failed",
                                 JOptionPane.ERROR_MESSAGE);
-                
+
                             return;
                         }
                     }
-                    
+
                     setVisible(false);
                 }
             };
         okButton.addActionListener(okListener);
         getRootPane().setDefaultButton(okButton);
-        
+
         JButton cancelButton = new JButton("Cancel");
         ActionListener cancelListener = new ActionListener()
             {
@@ -162,15 +162,14 @@ class WriteMessageDialog extends JDialog
 
         _message.setLineWrap(true);
         JScrollPane scrollPane = new JScrollPane(_message,
-                                                 JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, 
+                                                 JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,
                                                  JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
         builder.append(scrollPane, 3);
         builder.nextLine();
         builder.append(_stdOut);
         builder.append(stdErr);
         builder.nextLine();
-        JComponent buttonBar = 
-            ButtonBarFactory.buildOKCancelBar(okButton, cancelButton);
+        JComponent buttonBar = ButtonBarFactory.buildOKCancelBar(okButton, cancelButton);
         buttonBar.setBorder(Borders.DIALOG_BORDER);
 
         Container contentPane = getContentPane();

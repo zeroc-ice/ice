@@ -6,6 +6,7 @@
 // ICE_LICENSE file included in this distribution.
 //
 // **********************************************************************
+
 package IceGridGUI;
 
 import java.util.Enumeration;
@@ -18,10 +19,10 @@ import javax.swing.tree.TreeCellRenderer;
 import javax.swing.JPopupMenu;
 
 //
-// This class behaves like a leaf; derived class that represent non-leaf nodes must 
+// This class behaves like a leaf; derived class that represent non-leaf nodes must
 // override various methods.
 //
-public class TreeNodeBase implements javax.swing.tree.TreeNode, TreeCellRenderer 
+public class TreeNodeBase implements javax.swing.tree.TreeNode, TreeCellRenderer
 {
     public Coordinator getCoordinator()
     {
@@ -43,17 +44,17 @@ public class TreeNodeBase implements javax.swing.tree.TreeNode, TreeCellRenderer
                 }
             };
     }
-    
+
     public boolean getAllowsChildren()
     {
         return false;
     }
-    
+
     public javax.swing.tree.TreeNode getChildAt(int childIndex)
     {
         return null;
     }
-   
+
     public int getChildCount()
     {
         return 0;
@@ -63,7 +64,7 @@ public class TreeNodeBase implements javax.swing.tree.TreeNode, TreeCellRenderer
     {
         return -1;
     }
-        
+
     public javax.swing.tree.TreeNode getParent()
     {
         return _parent;
@@ -81,7 +82,7 @@ public class TreeNodeBase implements javax.swing.tree.TreeNode, TreeCellRenderer
         boolean expanded,
         boolean leaf,
         int row,
-        boolean hasFocus) 
+        boolean hasFocus)
     {
         return null;
     }
@@ -100,7 +101,7 @@ public class TreeNodeBase implements javax.swing.tree.TreeNode, TreeCellRenderer
     {
         return _id;
     }
-    
+
     public TreePath getPath()
     {
         if(_parent == null)
@@ -113,10 +114,10 @@ public class TreeNodeBase implements javax.swing.tree.TreeNode, TreeCellRenderer
         }
     }
 
-    public java.util.LinkedList getFullId()
+    public java.util.LinkedList<String> getFullId()
     {
-        java.util.LinkedList result = _parent == null ?
-            new java.util.LinkedList() :
+        java.util.LinkedList<String> result = _parent == null ?
+            new java.util.LinkedList<String>() :
             _parent.getFullId();
 
         result.add(_id);
@@ -157,14 +158,16 @@ public class TreeNodeBase implements javax.swing.tree.TreeNode, TreeCellRenderer
     //
     // Helper functions
     //
-    protected boolean insertSortedChild(TreeNodeBase newChild, java.util.List children,
-                                        DefaultTreeModel treeModel)
+    protected boolean insertSortedChild(TreeNodeBase newChild, java.util.List c, DefaultTreeModel treeModel)
     {
+        @SuppressWarnings("unchecked")
+        java.util.List<TreeNodeBase> children = (java.util.List<TreeNodeBase>)c;
+
         String id = newChild.getId();
         int i;
         for(i = 0; i < children.size(); ++i)
         {
-            String otherId = ((TreeNodeBase)children.get(i)).getId();
+            String otherId = children.get(i).getId();
             int cmp = id.compareTo(otherId);
 
             if(cmp == 0)
@@ -185,13 +188,16 @@ public class TreeNodeBase implements javax.swing.tree.TreeNode, TreeCellRenderer
         return true;
     }
 
-    protected String insertSortedChildren(java.util.List newChildren, 
-                                          java.util.List intoChildren,
-                                          DefaultTreeModel treeModel)
+    protected String insertSortedChildren(java.util.List nc, java.util.List ic, DefaultTreeModel treeModel)
     {
-        TreeNodeBase[] children = (TreeNodeBase[])newChildren.toArray(new TreeNodeBase[0]);    
+        @SuppressWarnings("unchecked")
+        java.util.List<TreeNodeBase> newChildren = (java.util.List<TreeNodeBase>)nc;
+        @SuppressWarnings("unchecked")
+        java.util.List<TreeNodeBase> intoChildren = (java.util.List<TreeNodeBase>)ic;
+
+        TreeNodeBase[] children = newChildren.toArray(new TreeNodeBase[0]);
         java.util.Arrays.sort(children, _childComparator);
-            
+
         int[] indices = new int[children.length];
 
         int offset = -1;
@@ -201,12 +207,12 @@ public class TreeNodeBase implements javax.swing.tree.TreeNode, TreeCellRenderer
         for(int j = 0; j < children.length; ++j)
         {
             String id = children[j].getId();
-            
+
             if(checkInsert)
             {
-                while(i < intoChildren.size()) 
+                while(i < intoChildren.size())
                 {
-                    TreeNodeBase existingChild = (TreeNodeBase)intoChildren.get(i);
+                    TreeNodeBase existingChild = intoChildren.get(i);
                     int cmp = id.compareTo(existingChild.getId());
                     if(cmp == 0)
                     {
@@ -218,49 +224,51 @@ public class TreeNodeBase implements javax.swing.tree.TreeNode, TreeCellRenderer
                     }
                     i++;
                 }
-                
+
                 if(i < intoChildren.size())
-                {    
+                {
                     // Insert here, and increment i (since children is sorted)
                     intoChildren.add(i, children[j]);
                     if(offset == -1)
                     {
-                        offset = getIndex((TreeNodeBase)intoChildren.get(0));
+                        offset = getIndex(intoChildren.get(0));
                     }
 
                     indices[j] = offset + i;
-                    i++;                    continue; // for
+                    i++;
+                    continue; // for
                 }
                 else
                 {
                     checkInsert = false;
                 }
             }
-            
+
             //
             // Append
             //
             intoChildren.add(children[j]);
             if(offset == -1)
             {
-                offset = getIndex((TreeNodeBase)intoChildren.get(0));
+                offset = getIndex(intoChildren.get(0));
             }
             indices[j] = offset + i;
             i++;
         }
-        
+
         if(treeModel != null)
         {
             treeModel.nodesWereInserted(this, indices);
         }
-        
+
         return null;
     }
 
-    protected void removeSortedChildren(String[] childIds, 
-                                        java.util.List fromChildren, 
-                                        DefaultTreeModel treeModel)
+    protected void removeSortedChildren(String[] childIds, java.util.List fc, DefaultTreeModel treeModel)
     {
+        @SuppressWarnings("unchecked")
+        java.util.List<TreeNodeBase> fromChildren = (java.util.List<TreeNodeBase>)fc;
+
         if(childIds.length == 0)
         {
             return; // nothing to do
@@ -269,17 +277,17 @@ public class TreeNodeBase implements javax.swing.tree.TreeNode, TreeCellRenderer
 
         String[] ids = (String[])childIds.clone();
         java.util.Arrays.sort(ids);
-        
+
         Object[] childrenToRemove = new Object[ids.length];
         int[] indices = new int[ids.length];
-            
-        int i = getIndex((TreeNodeBase)fromChildren.get(0));
-        int j = 0;
-        java.util.Iterator p = fromChildren.iterator();
 
+        int i = getIndex(fromChildren.get(0));
+        int j = 0;
+
+        java.util.Iterator<TreeNodeBase> p = fromChildren.iterator();
         while(p.hasNext() && j < ids.length)
         {
-            TreeNodeBase child = (TreeNodeBase)p.next();            
+            TreeNodeBase child = p.next();
             if(ids[j].equals(child.getId()))
             {
                 childrenToRemove[j] = child;
@@ -289,7 +297,7 @@ public class TreeNodeBase implements javax.swing.tree.TreeNode, TreeCellRenderer
             }
             ++i;
         }
-            
+
         //
         // Should be all removed
         //
@@ -301,16 +309,17 @@ public class TreeNodeBase implements javax.swing.tree.TreeNode, TreeCellRenderer
         }
     }
 
-    protected void childrenChanged(java.util.List children, DefaultTreeModel treeModel)
+    protected void childrenChanged(java.util.List c, DefaultTreeModel treeModel)
     {
-        java.util.Iterator p = children.iterator();
-        while(p.hasNext())
+        @SuppressWarnings("unchecked")
+        java.util.List<TreeNodeBase> children = (java.util.List<TreeNodeBase>)c;
+
+        for(TreeNodeBase child : children)
         {
-            TreeNodeBase child = (TreeNodeBase)p.next();
             treeModel.nodeStructureChanged(child);
         }
     }
-    
+
     public int[] resize(int[] array, int size)
     {
         int[] result = new int[size];
@@ -318,12 +327,13 @@ public class TreeNodeBase implements javax.swing.tree.TreeNode, TreeCellRenderer
         return result;
     }
 
-    protected TreeNodeBase find(String id, java.util.List inList)
+    protected TreeNodeBase find(String id, java.util.List il)
     {
-        java.util.Iterator p = inList.iterator();
-        while(p.hasNext())
+        @SuppressWarnings("unchecked")
+        java.util.List<TreeNodeBase> inList = (java.util.List<TreeNodeBase>)il;
+
+        for(TreeNodeBase node : inList)
         {
-            TreeNodeBase node = (TreeNodeBase)p.next();
             if(node.getId().equals(id))
             {
                 return node;
@@ -335,13 +345,11 @@ public class TreeNodeBase implements javax.swing.tree.TreeNode, TreeCellRenderer
     protected TreeNodeBase _parent;
     protected String _id;
 
-    protected java.util.Comparator _childComparator = new java.util.Comparator()
+    protected java.util.Comparator<TreeNodeBase> _childComparator = new java.util.Comparator<TreeNodeBase>()
         {
-            public int compare(Object o1, Object o2)
+            public int compare(TreeNodeBase o1, TreeNodeBase o2)
             {
-                TreeNodeBase child1 = (TreeNodeBase)o1;
-                TreeNodeBase child2 = (TreeNodeBase)o2;
-                return child1.getId().compareTo(child2.getId());
+                return o1.getId().compareTo(o2.getId());
             }
         };
 }

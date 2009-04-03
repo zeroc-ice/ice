@@ -35,16 +35,16 @@ public final class Server extends Ice.Application
     public int
     run(String[] args)
     {
-        for(int i = 1; i < args.length; ++i)
+        for(String arg : args)
         {
-            if(args[i].equals("-h") || args[i].equals("--help"))
+            if(arg.equals("-h") || arg.equals("--help"))
             {
                 usage();
                 return 0;
             }
-            else if(!args[i].startsWith("--"))
+            else if(!arg.startsWith("--"))
             {
-                System.err.println("Server: unknown option `" + args[i] + "'");
+                System.err.println("Server: unknown option `" + arg + "'");
                 usage();
                 return 1;
             }

@@ -6,6 +6,7 @@
 // ICE_LICENSE file included in this distribution.
 //
 // **********************************************************************
+
 package IceGridGUI.Application;
 
 public class UpdateFailedException extends Exception
@@ -15,12 +16,12 @@ public class UpdateFailedException extends Exception
         _parent = parent;
         _id = id;
     }
-    
+
     public String toString()
     {
         return _parent.getFullId().toString() + " has already a child with '" + _id + "' as ID.";
     }
-    
+
     private TreeNode _parent;
     private String _id;
 }

@@ -6,6 +6,7 @@
 // ICE_LICENSE file included in this distribution.
 //
 // **********************************************************************
+
 package IceGridGUI.Application;
 
 import java.awt.BorderLayout;
@@ -37,22 +38,20 @@ import IceGrid.*;
 import IceGridGUI.*;
 
 public class Editor extends EditorBase
-{      
-    static public java.util.Map makeParameterValues(
-        java.util.Map oldParameterValues,
-        java.util.List newParameters)
+{
+    static public java.util.Map<String, String> makeParameterValues(
+        java.util.Map<String, String> oldParameterValues,
+        java.util.List<String> newParameters)
     {
-        java.util.Map result = new java.util.HashMap();
+        java.util.Map<String, String> result = new java.util.HashMap<String, String>();
 
-        java.util.Iterator p = newParameters.iterator();
-        while(p.hasNext())
+        for(String name : newParameters)
         {
-            Object name =  p.next();
-            Object value = oldParameterValues.get(name);
+            String value = oldParameterValues.get(name);
             if(value != null)
             {
                 result.put(name, value);
-            } 
+            }
         }
         return result;
     }
@@ -79,7 +78,7 @@ public class Editor extends EditorBase
         assert false;
         return false;
     }
-    
+
     protected void detectUpdates(boolean val)
     {
         _detectUpdates = val;
@@ -101,18 +100,16 @@ public class Editor extends EditorBase
     }
 
     protected void appendProperties(DefaultFormBuilder builder)
-    {}
+    {
+    }
 
     protected void buildPropertiesPanel()
     {
         super.buildPropertiesPanel();
-        JComponent buttonBar = 
-            ButtonBarFactory.buildRightAlignedBar(_applyButton, 
-                                                  _discardButton);
+        JComponent buttonBar = ButtonBarFactory.buildRightAlignedBar(_applyButton, _discardButton);
         buttonBar.setBorder(Borders.DIALOG_BORDER);
         _propertiesPanel.add(buttonBar, BorderLayout.SOUTH);
     }
-
 
     Editor()
     {
@@ -121,7 +118,7 @@ public class Editor extends EditorBase
         //
         AbstractAction apply = new AbstractAction("Apply")
             {
-                public void actionPerformed(ActionEvent e) 
+                public void actionPerformed(ActionEvent e)
                 {
                     if(validate())
                     {
@@ -134,13 +131,13 @@ public class Editor extends EditorBase
             };
         _applyButton = new JButton(apply);
         _applyButton.setEnabled(false);
-        
+
         //
         // _discardButton
         //
         AbstractAction discard = new AbstractAction("Discard")
             {
-                public void actionPerformed(ActionEvent e) 
+                public void actionPerformed(ActionEvent e)
                 {
                     discardUpdate();
                     _target.getRoot().getTree().grabFocus();
@@ -148,19 +145,19 @@ public class Editor extends EditorBase
             };
         _discardButton = new JButton(discard);
         _discardButton.setEnabled(false);
-        
-        _updateListener = new DocumentListener() 
+
+        _updateListener = new DocumentListener()
             {
                 public void changedUpdate(DocumentEvent e)
                 {
                     updated();
                 }
-                
+
                 public void insertUpdate(DocumentEvent e)
                 {
                     updated();
                 }
-                
+
                 public void removeUpdate(DocumentEvent e)
                 {
                     updated();
@@ -185,7 +182,7 @@ public class Editor extends EditorBase
     {
         return _target;
     }
-    
+
     void updated()
     {
         if(_detectUpdates)
@@ -221,7 +218,7 @@ public class Editor extends EditorBase
                 emptyFields += "'" + nameValArray[i - 1] + "'";
             }
         }
-        
+
         if(errorCount > 0)
         {
             String message = errorCount == 1 ?
@@ -241,7 +238,7 @@ public class Editor extends EditorBase
     protected JButton _applyButton;
     protected JButton _discardButton;
     protected DocumentListener _updateListener;
-   
+
     protected TreeNode _target;
-    private boolean _detectUpdates = true;   
+    private boolean _detectUpdates = true;
 }

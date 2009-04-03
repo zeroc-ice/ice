@@ -88,7 +88,7 @@ public class Slice2FreezeJTask extends SliceTask
         _indices.add(i);
         return i;
     }
-    
+
     public Dictindex
     createDictindex()
     {
@@ -109,26 +109,23 @@ public class Slice2FreezeJTask extends SliceTask
         //
         // Read the set of dependencies for this task.
         //
-        java.util.HashMap dependencies = readDependencies();
+        java.util.HashMap<String, SliceDependency> dependencies = readDependencies();
 
         //
         // Check if the set of slice files changed. If it changed we
         // need to rebuild all the dictionnaries and indices.
         //
         boolean build = false;
-        java.util.List sliceFiles = new java.util.LinkedList();
+        java.util.List<File> sliceFiles = new java.util.LinkedList<File>();
 
-        java.util.Iterator p = _fileSets.iterator();
-        while(p.hasNext())
+        for(FileSet fileset : _fileSets)
         {
-            FileSet fileset = (FileSet)p.next();
-
             DirectoryScanner scanner = fileset.getDirectoryScanner(getProject());
             String[] files = scanner.getIncludedFiles();
-            
-            for(int i = 0; i < files.length; i++)
+
+            for(String file : files)
             {
-                File slice = new File(fileset.getDir(getProject()), files[i]);
+                File slice = new File(fileset.getDir(getProject()), file);
                 sliceFiles.add(slice);
 
                 if(!build)
@@ -137,7 +134,7 @@ public class Slice2FreezeJTask extends SliceTask
                     // The dictionnaries need to be re-created since
                     // on dependency changed.
                     //
-                    SliceDependency depend = (SliceDependency)dependencies.get(getSliceTargetKey(slice.toString()));
+                    SliceDependency depend = dependencies.get(getSliceTargetKey(slice.toString()));
                     if(depend == null || !depend.isUpToDate())
                     {
                         build = true;
@@ -152,10 +149,9 @@ public class Slice2FreezeJTask extends SliceTask
             // Check that each dictionary has been built at least
             // once.
             //
-            p = _dicts.iterator();
-            while(p.hasNext())
+            for(Dict p : _dicts)
             {
-                SliceDependency depend = (SliceDependency)dependencies.get(getDictTargetKey((Dict)p.next()));
+                SliceDependency depend = dependencies.get(getDictTargetKey(p));
                 if(depend == null)
                 {
                     build = true;
@@ -166,10 +162,9 @@ public class Slice2FreezeJTask extends SliceTask
             //
             // Likewise for indices
             //
-            p = _indices.iterator();
-            while(p.hasNext())
+            for(Index p : _indices)
             {
-                SliceDependency depend = (SliceDependency)dependencies.get(getIndexTargetKey((Index)p.next()));
+                SliceDependency depend = dependencies.get(getIndexTargetKey(p));
                 if(depend == null)
                 {
                     build = true;
@@ -177,16 +172,13 @@ public class Slice2FreezeJTask extends SliceTask
                 }
             }
         }
-        
+
         //
         // Add the --dict options.
         //
-        p = _dicts.iterator();
         StringBuilder dictString = new StringBuilder(128);
-        while(p.hasNext())
+        for(Dict d : _dicts)
         {
-            Dict d = (Dict)p.next();
-
             dictString.append(" --dict ");
             dictString.append(d.getName());
             dictString.append(",");
@@ -198,12 +190,9 @@ public class Slice2FreezeJTask extends SliceTask
         //
         // Add the --dict-index options.
         //
-        p = _dictIndices.iterator();
         StringBuilder dictIndexString = new StringBuilder(128);
-        while(p.hasNext())
+        for(Dictindex d : _dictIndices)
         {
-            Dictindex d = (Dictindex)p.next();
-
             dictIndexString.append(" --dict-index ");
             dictIndexString.append(d.getName());
             if(d.getMember() != null)
@@ -216,16 +205,13 @@ public class Slice2FreezeJTask extends SliceTask
                 dictIndexString.append(",case-insensitive");
             }
         }
-        
+
         //
         // Add the --index options.
         //
-        p = _indices.iterator();
         StringBuilder indexString = new StringBuilder();
-        while(p.hasNext())
+        for(Index i : _indices)
         {
-            Index i = (Index)p.next();
-
             indexString.append(" --index ");
             indexString.append(i.getName());
             indexString.append(",");
@@ -280,16 +266,16 @@ public class Slice2FreezeJTask extends SliceTask
         if(_includePath != null)
         {
             String[] dirs = _includePath.list();
-            for(int i = 0; i < dirs.length; i++)
+            for(String dir : dirs)
             {
                 cmd.append(" -I");
-                if(dirs[i].indexOf(' ') != -1)
+                if(dir.indexOf(' ') != -1)
                 {
-                    cmd.append('"' + dirs[i] + '"');
+                    cmd.append('"' + dir + '"');
                 }
                 else
                 {
-                    cmd.append(dirs[i]);
+                    cmd.append(dir);
                 }
             }
         }
@@ -299,10 +285,8 @@ public class Slice2FreezeJTask extends SliceTask
         //
         if(!_defines.isEmpty())
         {
-            java.util.Iterator i = _defines.iterator();
-            while(i.hasNext())
+            for(SliceDefine define : _defines)
             {
-                SliceDefine define = (SliceDefine)i.next();
                 cmd.append(" -D");
                 cmd.append(define.getName());
                 String value = define.getValue();
@@ -334,10 +318,8 @@ public class Slice2FreezeJTask extends SliceTask
         //
         if(!_meta.isEmpty())
         {
-            java.util.Iterator i = _meta.iterator();
-            while(i.hasNext())
+            for(SliceMeta m : _meta)
             {
-                SliceMeta m = (SliceMeta)i.next();
                 cmd.append(" --meta " + m.getValue());
             }
         }
@@ -345,10 +327,8 @@ public class Slice2FreezeJTask extends SliceTask
         //
         // Add the slice files.
         //
-        p = sliceFiles.iterator();
-        while(p.hasNext())
+        for(File f : sliceFiles)
         {
-            File f = (File)p.next();
             cmd.append(" ");
             String s = f.toString();
             if(s.indexOf(' ') != -1)
@@ -370,7 +350,7 @@ public class Slice2FreezeJTask extends SliceTask
         {
             translator = _translator.toString();
         }
-        
+
         //
         // Execute.
         //
@@ -382,15 +362,15 @@ public class Slice2FreezeJTask extends SliceTask
         arg.setLine(cmd.toString());
         task.setExecutable(translator);
         task.execute();
-        
+
         //
         // Update the dependencies.
-        //      
+        //
         if(!sliceFiles.isEmpty())
         {
             cmd = new StringBuilder(256);
             cmd.append("--depend");
-            
+
             //
             // Add --ice
             //
@@ -413,18 +393,18 @@ public class Slice2FreezeJTask extends SliceTask
             if(_includePath != null)
             {
                 String[] dirs = _includePath.list();
-                for(int i = 0; i < dirs.length; i++)
+                for(String dir : dirs)
                 {
                     cmd.append(" -I");
-                    if(dirs[i].indexOf(' ') != -1)
+                    if(dir.indexOf(' ') != -1)
                     {
                         cmd.append('"');
-                        cmd.append(dirs[i]);
+                        cmd.append(dir);
                         cmd.append('"');
                     }
                     else
                     {
-                        cmd.append(dirs[i]);
+                        cmd.append(dir);
                     }
                 }
             }
@@ -447,10 +427,8 @@ public class Slice2FreezeJTask extends SliceTask
             //
             // Add the slice files.
             //
-            p = sliceFiles.iterator();
-            while(p.hasNext())
+            for(File f : sliceFiles)
             {
-                File f = (File)p.next();
                 cmd.append(" ");
                 String s = f.toString();
                 if(s.indexOf(' ') != -1)
@@ -464,9 +442,9 @@ public class Slice2FreezeJTask extends SliceTask
                     cmd.append(s);
                 }
             }
- 
+
             //
-            // It's not possible anymore to re-use the same output property since Ant 1.5.x. so we use a 
+            // It's not possible anymore to re-use the same output property since Ant 1.5.x. so we use a
             // unique property name here. Perhaps we should output the dependencies to a file instead.
             //
             final String outputProperty = "slice2freezej.depend." + System.currentTimeMillis();
@@ -483,25 +461,22 @@ public class Slice2FreezeJTask extends SliceTask
             //
             // Update dependency file.
             //
-            java.util.List newDependencies = parseDependencies(getProject().getProperty(outputProperty));
-            p = newDependencies.iterator();
-            while(p.hasNext())
+            java.util.List<SliceDependency> newDependencies =
+                parseDependencies(getProject().getProperty(outputProperty));
+            for(SliceDependency dep : newDependencies)
             {
-                SliceDependency dep = (SliceDependency)p.next();
                 dependencies.put(getSliceTargetKey(dep._dependencies[0]), dep);
             }
         }
 
-        p = _dicts.iterator();
-        while(p.hasNext())
+        for(Dict d : _dicts)
         {
-            dependencies.put(getDictTargetKey((Dict)p.next()), new SliceDependency());
+            dependencies.put(getDictTargetKey(d), new SliceDependency());
         }
 
-        p = _indices.iterator();
-        while(p.hasNext())
+        for(Index i : _indices)
         {
-            dependencies.put(getIndexTargetKey((Index)p.next()), new SliceDependency());
+            dependencies.put(getIndexTargetKey(i), new SliceDependency());
         }
 
         writeDependencies(dependencies);
@@ -520,11 +495,11 @@ public class Slice2FreezeJTask extends SliceTask
         String name;
         if(_dicts.size() > 0)
         {
-            name = ((Dict)_dicts.get(0)).getName();
+            name = (_dicts.get(0)).getName();
         }
         else
         {
-            name = ((Index)_indices.get(0)).getName();
+            name = (_indices.get(0)).getName();
         }
         return "slice2freezej " + _outputDir.toString() + name + slice;
     }
@@ -615,7 +590,7 @@ public class Slice2FreezeJTask extends SliceTask
         {
             return _member;
         }
-        
+
         public void
         setCasesensitive(boolean caseSensitive)
         {
@@ -628,7 +603,6 @@ public class Slice2FreezeJTask extends SliceTask
             return _caseSensitive;
         }
     }
-
 
     public class Index
     {
@@ -672,7 +646,7 @@ public class Slice2FreezeJTask extends SliceTask
         {
             return _member;
         }
-        
+
         public void
         setCasesensitive(boolean caseSensitive)
         {
@@ -686,7 +660,7 @@ public class Slice2FreezeJTask extends SliceTask
         }
     }
 
-    private java.util.List _dicts = new java.util.LinkedList();
-    private java.util.List _dictIndices = new java.util.LinkedList();
-    private java.util.List _indices = new java.util.LinkedList();
+    private java.util.List<Dict> _dicts = new java.util.LinkedList<Dict>();
+    private java.util.List<Dictindex> _dictIndices = new java.util.LinkedList<Dictindex>();
+    private java.util.List<Index> _indices = new java.util.LinkedList<Index>();
 }

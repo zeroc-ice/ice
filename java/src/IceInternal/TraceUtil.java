@@ -305,21 +305,21 @@ public final class TraceUtil
         {
             byte mode = stream.readByte();
             out.write("\nmode = " + (int)mode + ' ');
-            switch(mode)
+            switch(Ice.OperationMode.values()[mode])
             {
-                case Ice.OperationMode._Normal:
+                case Normal:
                 {
                     out.write("(normal)");
                     break;
                 }
                 
-                case Ice.OperationMode._Nonmutating:
+                case Nonmutating:
                 {
                     out.write("(nonmutating)");
                     break;
                 }
                 
-                case Ice.OperationMode._Idempotent:
+                case Idempotent:
                 {
                     out.write("(idempotent)");
                     break;

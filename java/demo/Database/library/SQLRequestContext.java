@@ -150,10 +150,9 @@ class SQLRequestContext
                 }
             }
 
-            java.util.Iterator<java.sql.Statement> p = _statements.iterator();
-            while(p.hasNext())
+            for(java.sql.Statement p : _statements)
             {
-                p.next().close();
+                p.close();
             }
         }
         catch(java.sql.SQLException e)

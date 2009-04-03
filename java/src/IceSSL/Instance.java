@@ -58,9 +58,9 @@ class Instance
         if(protocols.length != 0)
         {
             java.util.ArrayList<String> l = new java.util.ArrayList<String>();
-            for(int i = 0; i < protocols.length; ++i)
+            for(String prot : protocols)
             {
-                String s = protocols[i].toLowerCase();
+                String s = prot.toLowerCase();
                 if(s.equals("ssl3") || s.equals("sslv3"))
                 {
                     l.add("SSLv3");
@@ -72,7 +72,7 @@ class Instance
                 else
                 {
                     Ice.PluginInitializationException e = new Ice.PluginInitializationException();
-                    e.reason = "IceSSL: unrecognized protocol `" + protocols[i] + "'";
+                    e.reason = "IceSSL: unrecognized protocol `" + prot + "'";
                     throw e;
                 }
             }
@@ -205,15 +205,15 @@ class Instance
                 if(seedFiles.length() > 0)
                 {
                     final String[] arr = seedFiles.split(java.io.File.pathSeparator);
-                    for(int i = 0; i < arr.length; ++i)
+                    for(String file : arr)
                     {
                         try
                         {
-                            java.io.InputStream seedStream = openResource(arr[i]);
+                            java.io.InputStream seedStream = openResource(file);
                             if(seedStream == null)
                             {
                                 Ice.PluginInitializationException e = new Ice.PluginInitializationException();
-                                e.reason = "IceSSL: random seed file not found:\n" + arr[i];
+                                e.reason = "IceSSL: random seed file not found:\n" + file;
                                 throw e;
                             }
 
@@ -222,7 +222,7 @@ class Instance
                         catch(java.io.IOException ex)
                         {
                             Ice.PluginInitializationException e = new Ice.PluginInitializationException();
-                            e.reason = "IceSSL: unable to access random seed file:\n" + arr[i];
+                            e.reason = "IceSSL: unable to access random seed file:\n" + file;
                             e.initCause(ex);
                             throw e;
                         }
@@ -233,9 +233,8 @@ class Instance
                 {
                     byte[] seed = null;
                     int start = 0;
-                    for(java.util.Iterator<InputStream> p = _seeds.iterator(); p.hasNext();)
+                    for(InputStream in : _seeds)
                     {
-                        InputStream in = p.next();
                         try
                         {
                             int num = in.available();
@@ -710,10 +709,10 @@ class Instance
         {
             StringBuilder s = new StringBuilder(128);
             s.append("enabling SSL ciphersuites:");
-            for(int i = 0; i < cipherSuites.length; ++i)
+            for(String suite : cipherSuites)
             {
                 s.append("\n  ");
-                s.append(cipherSuites[i]);
+                s.append(suite);
             }
             _logger.trace(_securityTraceCategory, s.toString());
         }
@@ -772,24 +771,23 @@ class Instance
         java.util.LinkedList<String> result = new java.util.LinkedList<String>();
         if(_allCiphers)
         {
-            for(int i = 0; i < supportedCiphers.length; ++i)
+            for(String cipher : supportedCiphers)
             {
-                result.add(supportedCiphers[i]);
+                result.add(cipher);
             }
         }
         else if(!_noCiphers)
         {
-            for(int i = 0; i < defaultCiphers.length; ++i)
+            for(String cipher : defaultCiphers)
             {
-                result.add(defaultCiphers[i]);
+                result.add(cipher);
             }
         }
 
         if(_ciphers != null)
         {
-            for(int i = 0; i < _ciphers.length; ++i)
+            for(CipherExpression ce : _ciphers)
             {
-                CipherExpression ce = (CipherExpression)_ciphers[i];
                 if(ce.not)
                 {
                     java.util.Iterator<String> e = result.iterator();
@@ -823,12 +821,12 @@ class Instance
                     else
                     {
                         assert(ce.re != null);
-                        for(int j = 0; j < supportedCiphers.length; ++j)
+                        for(String cipher : supportedCiphers)
                         {
-                            java.util.regex.Matcher m = ce.re.matcher(supportedCiphers[j]);
+                            java.util.regex.Matcher m = ce.re.matcher(cipher);
                             if(m.find())
                             {
-                                result.add(0, supportedCiphers[j]);
+                                result.add(0, cipher);
                             }
                         }
                     }
@@ -890,10 +888,8 @@ class Instance
                 java.util.ArrayList<String> dnsNames = new java.util.ArrayList<String>();
                 if(subjectAltNames != null)
                 {
-                    java.util.Iterator<java.util.List<?> > i = subjectAltNames.iterator();
-                    while(i.hasNext())
+                    for(java.util.List<?> l : subjectAltNames)
                     {
-                        java.util.List<?> l = i.next();
                         assert(!l.isEmpty());
                         Integer n = (Integer)l.get(0);
                         if(n.intValue() == 7)

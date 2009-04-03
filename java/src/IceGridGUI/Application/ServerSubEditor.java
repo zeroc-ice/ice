@@ -6,6 +6,7 @@
 // ICE_LICENSE file included in this distribution.
 //
 // **********************************************************************
+
 package IceGridGUI.Application;
 
 import java.awt.event.ActionEvent;
@@ -31,44 +32,38 @@ class ServerSubEditor extends CommunicatorSubEditor
     {
         super(mainEditor);
 
-        _id.getDocument().addDocumentListener(
-            _mainEditor.getUpdateListener());
+        _id.getDocument().addDocumentListener(_mainEditor.getUpdateListener());
         _id.setToolTipText("Must be unique within this IceGrid deployment");
 
-        _exe.getDocument().addDocumentListener(
-            _mainEditor.getUpdateListener());
+        _exe.getDocument().addDocumentListener(_mainEditor.getUpdateListener());
         _exe.setToolTipText("<html>Path to this server's executable, e.g.:<br>"
                             + "icebox<br>"
                             + "java<br>"
                             + "myHelloServer<br>"
                             + "C:\\testbed\\hello\\server</html>");
 
-        _iceVersion.getDocument().addDocumentListener(
-            _mainEditor.getUpdateListener());
+        _iceVersion.getDocument().addDocumentListener(_mainEditor.getUpdateListener());
         _iceVersion.setToolTipText("<html>The Ice version used by this server;<br>"
                                    + "blank means 'same version as the IceGrid registry'.</html>");
 
-        _pwd.getDocument().addDocumentListener(
-            _mainEditor.getUpdateListener());
+        _pwd.getDocument().addDocumentListener(_mainEditor.getUpdateListener());
         _pwd.setToolTipText(
             "<html>If not set, the server will start in "
             + "<i>node data dir</i>/servers/<i>server-id</i>;<br>"
             + "relative directories are relative to the current directory"
             + " of the icegridnode process.</html>");
 
-        _options.getDocument().addDocumentListener(
-            _mainEditor.getUpdateListener());
+        _options.getDocument().addDocumentListener(_mainEditor.getUpdateListener());
         _options.setToolTipText(
             "<html>Command-line arguments for this server.<br>"
             + "Use whitespace as separator; use double-quotes around arguments containing whitespaces</html>");
-        
-        _user.getDocument().addDocumentListener(
-            _mainEditor.getUpdateListener());
+
+        _user.getDocument().addDocumentListener(_mainEditor.getUpdateListener());
         _user.setToolTipText(
             "<html>Run the server using this user account.<br>"
             + "This feature is only available on Unix/Linux, when the IceGrid node runs as root.</html>");
 
-        _envs = new MapField(mainEditor, "Name", "Value", true);
+        _envs = new SimpleMapField(mainEditor, true, "Name", "Value");
 
         _activation = new JComboBox(new Object[]{ALWAYS, MANUAL, ON_DEMAND, SESSION});
         _activation.setToolTipText("<html>always: IceGrid starts and keeps the server up all the time<br>"
@@ -76,22 +71,18 @@ class ServerSubEditor extends CommunicatorSubEditor
                                    + "on-demand: IceGrid starts the server when a client needs it<br>"
                                    + "session: IceGrid starts and shuts down the server for each session</html>");
 
-        JTextField activationTextField = (JTextField)
-            _activation.getEditor().getEditorComponent();
-        activationTextField.getDocument().addDocumentListener(
-            _mainEditor.getUpdateListener());
+        JTextField activationTextField = (JTextField)_activation.getEditor().getEditorComponent();
+        activationTextField.getDocument().addDocumentListener(_mainEditor.getUpdateListener());
 
-        _activationTimeout.getDocument().addDocumentListener(
-            _mainEditor.getUpdateListener());
-        _activationTimeout.setToolTipText("<html>Number of seconds; if not set or set to 0, " 
+        _activationTimeout.getDocument().addDocumentListener(_mainEditor.getUpdateListener());
+        _activationTimeout.setToolTipText("<html>Number of seconds; if not set or set to 0, "
                                           + "the IceGrid Node<br> uses the value of its "
                                           + "IceGrid.Node.WaitTime property</html>");
-        _deactivationTimeout.getDocument().addDocumentListener(
-            _mainEditor.getUpdateListener());
-        _deactivationTimeout.setToolTipText("<html>Number of seconds; if not set or set to 0, " 
+        _deactivationTimeout.getDocument().addDocumentListener(_mainEditor.getUpdateListener());
+        _deactivationTimeout.setToolTipText("<html>Number of seconds; if not set or set to 0, "
                                              + "the IceGrid Node<br> uses the value of its "
                                              + "IceGrid.Node.WaitTime property</html>");
-        
+
         Action allocatable = new AbstractAction("Allocatable")
             {
                 public void actionPerformed(ActionEvent e)
@@ -103,7 +94,7 @@ class ServerSubEditor extends CommunicatorSubEditor
                              "<html>Check this box to ensure that the well-known objects<br>"
                              + "of this server can only be allocated by one session at a time.</html>");
         _allocatable = new JCheckBox(allocatable);
-        
+
 
         Action appDistrib = new AbstractAction("Depends on the application distribution")
             {
@@ -119,34 +110,28 @@ class ServerSubEditor extends CommunicatorSubEditor
         _applicationDistrib = new JCheckBox(appDistrib);
 
         _distrib = new JComboBox(new Object[]{NO_DISTRIB, DEFAULT_DISTRIB});
-        _distrib.setToolTipText(
-            "The proxy to the IcePatch2 server holding your files");
+        _distrib.setToolTipText("The proxy to the IcePatch2 server holding your files");
 
-        JTextField distribTextField = (JTextField)
-            _distrib.getEditor().getEditorComponent();
-        distribTextField.getDocument().addDocumentListener(
-            _mainEditor.getUpdateListener());
+        JTextField distribTextField = (JTextField)_distrib.getEditor().getEditorComponent();
+        distribTextField.getDocument().addDocumentListener(_mainEditor.getUpdateListener());
 
-        _distribDirs.getDocument().addDocumentListener(
-            _mainEditor.getUpdateListener());
+        _distribDirs.getDocument().addDocumentListener(_mainEditor.getUpdateListener());
         _distribDirs.setToolTipText(
             "<html>Include only these directories when patching.<br>"
             + "Use whitespace as separator; use double-quotes around directories containing whitespaces</html>");
-        
     }
- 
+
     ServerDescriptor getServerDescriptor()
     {
-        return (ServerDescriptor)
-            _mainEditor.getSubDescriptor();
+        return (ServerDescriptor)_mainEditor.getSubDescriptor();
     }
-    
+
     void appendProperties(DefaultFormBuilder builder)
-    {    
+    {
         builder.append("Server ID");
         builder.append(_id, 3);
         builder.nextLine();
-        
+
         //
         // Add Communicator fields
         //
@@ -178,11 +163,10 @@ class ServerSubEditor extends CommunicatorSubEditor
         builder.nextRow(-6);
         CellConstraints cc = new CellConstraints();
         JScrollPane scrollPane = new JScrollPane(_envs);
-        builder.add(scrollPane, 
-                    cc.xywh(builder.getColumn(), builder.getRow(), 3, 7));
+        builder.add(scrollPane, cc.xywh(builder.getColumn(), builder.getRow(), 3, 7));
         builder.nextRow(6);
         builder.nextLine();
-        
+
         builder.append("Activation Mode");
         builder.append(_activation, 3);
         builder.nextLine();
@@ -194,7 +178,7 @@ class ServerSubEditor extends CommunicatorSubEditor
         builder.nextLine();
         builder.append("", _allocatable);
         builder.nextLine();
-        
+
         JComponent c = builder.appendSeparator("Distribution");
         c.setToolTipText("Files specific to this server");
 
@@ -207,7 +191,7 @@ class ServerSubEditor extends CommunicatorSubEditor
         builder.append(_distribDirs, 3);
         builder.nextLine();
     }
-    
+
     void writeDescriptor()
     {
         ServerDescriptor descriptor = getServerDescriptor();
@@ -219,15 +203,12 @@ class ServerSubEditor extends CommunicatorSubEditor
         descriptor.options = _options.getList();
         descriptor.user = _user.getText().trim();
 
-        descriptor.envs = new java.util.LinkedList();
-        java.util.Iterator p = _envs.get().entrySet().iterator();
-        while(p.hasNext())
+        descriptor.envs = new java.util.LinkedList<String>();
+        for(java.util.Map.Entry<String, String> p : _envs.get().entrySet())
         {
-            java.util.Map.Entry entry = (java.util.Map.Entry)p.next();
-            descriptor.envs.add(entry.getKey().toString() 
-                                 + "=" + entry.getValue().toString());
+            descriptor.envs.add(p.getKey() + "=" + p.getValue());
         }
-     
+
         descriptor.activation = _activation.getSelectedItem().toString().trim();
         descriptor.activationTimeout = _activationTimeout.getText().trim();
         descriptor.deactivationTimeout = _deactivationTimeout.getText().trim();
@@ -247,11 +228,11 @@ class ServerSubEditor extends CommunicatorSubEditor
         descriptor.distrib.directories = _distribDirs.getList();
 
         super.writeDescriptor(descriptor);
-    }       
-    
+    }
+
     boolean isSimpleUpdate()
     {
-        return getServerDescriptor().id.equals(_id.getText().trim()); 
+        return getServerDescriptor().id.equals(_id.getText().trim());
     }
 
     boolean validate()
@@ -265,7 +246,7 @@ class ServerSubEditor extends CommunicatorSubEditor
     {
         ServerDescriptor descriptor = getServerDescriptor();
         Utils.Resolver detailResolver = _mainEditor.getDetailResolver();
-        
+
         isEditable = isEditable && (detailResolver == null);
 
         if(detailResolver != null)
@@ -277,46 +258,38 @@ class ServerSubEditor extends CommunicatorSubEditor
             _id.setText(descriptor.id);
         }
         _id.setEditable(isEditable);
-        
-        _exe.setText(
-            Utils.substitute(descriptor.exe, detailResolver));
+
+        _exe.setText(Utils.substitute(descriptor.exe, detailResolver));
         _exe.setEditable(isEditable);
-        _iceVersion.setText(
-            Utils.substitute(descriptor.iceVersion, detailResolver));
+        _iceVersion.setText(Utils.substitute(descriptor.iceVersion, detailResolver));
         _iceVersion.setEditable(isEditable);
 
-        _pwd.setText(
-            Utils.substitute(descriptor.pwd, detailResolver));
+        _pwd.setText(Utils.substitute(descriptor.pwd, detailResolver));
         _pwd.setEditable(isEditable);
 
         _options.setList(descriptor.options, detailResolver);
         _options.setEditable(isEditable);
 
-        _user.setText(
-            Utils.substitute(descriptor.user, detailResolver));
+        _user.setText(Utils.substitute(descriptor.user, detailResolver));
         _user.setEditable(isEditable);
 
-        java.util.Map envMap = new java.util.TreeMap();
-        java.util.Iterator p = descriptor.envs.iterator();
-        while(p.hasNext())
+        java.util.Map<String, String> envMap = new java.util.TreeMap<String, String>();
+        for(String p : descriptor.envs)
         {
-            String env = (String)p.next();
-            int equal = env.indexOf('=');
-            if(equal == -1 || equal == env.length() - 1)
+            int equal = p.indexOf('=');
+            if(equal == -1 || equal == p.length() - 1)
             {
-                envMap.put(env, "");
+                envMap.put(p, "");
             }
             else
             {
-                envMap.put(env.substring(0, equal),
-                           env.substring(equal + 1));
+                envMap.put(p.substring(0, equal), p.substring(equal + 1));
             }
         }
         _envs.set(envMap, detailResolver, isEditable);
 
-        String activation = Utils.substitute(descriptor.activation,
-                                             detailResolver);
-        
+        String activation = Utils.substitute(descriptor.activation, detailResolver);
+
         _activation.setEnabled(true);
         _activation.setEditable(true);
         if(activation.equals(ALWAYS))
@@ -342,12 +315,10 @@ class ServerSubEditor extends CommunicatorSubEditor
         _activation.setEnabled(isEditable);
         _activation.setEditable(isEditable);
 
-        _activationTimeout.setText(
-            Utils.substitute(descriptor.activationTimeout, detailResolver));
+        _activationTimeout.setText(Utils.substitute(descriptor.activationTimeout, detailResolver));
         _activationTimeout.setEditable(isEditable);
 
-        _deactivationTimeout.setText(
-            Utils.substitute(descriptor.deactivationTimeout, detailResolver));
+        _deactivationTimeout.setText(Utils.substitute(descriptor.deactivationTimeout, detailResolver));
         _deactivationTimeout.setEditable(isEditable);
 
         _allocatable.setSelected(descriptor.allocatable);
@@ -358,8 +329,7 @@ class ServerSubEditor extends CommunicatorSubEditor
 
         _distrib.setEnabled(true);
         _distrib.setEditable(true);
-        String icepatch = Utils.substitute(descriptor.distrib.icepatch,
-                                           detailResolver);
+        String icepatch = Utils.substitute(descriptor.distrib.icepatch, detailResolver);
         if(icepatch.equals(""))
         {
             _distrib.setSelectedItem(NO_DISTRIB);
@@ -398,7 +368,7 @@ class ServerSubEditor extends CommunicatorSubEditor
     private JTextField _pwd = new JTextField(20);
     private ListTextField _options = new ListTextField(20);
     private JTextField _user = new JTextField(20);
-    private MapField _envs;
+    private SimpleMapField _envs;
 
     private JComboBox _activation;
     private JTextField _activationTimeout = new JTextField(20);

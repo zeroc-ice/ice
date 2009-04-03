@@ -6,6 +6,7 @@
 // ICE_LICENSE file included in this distribution.
 //
 // **********************************************************************
+
 package IceGridGUI.Application;
 
 import java.awt.Component;
@@ -31,8 +32,8 @@ public class Root extends ListTreeNode
     //
     // Construct a normal, existing Application
     //
-    public Root(Coordinator coordinator, ApplicationDescriptor desc, 
-                boolean live, File file) throws UpdateFailedException
+    public Root(Coordinator coordinator, ApplicationDescriptor desc, boolean live, File file)
+        throws UpdateFailedException
     {
         super(false, null, desc.name);
         _coordinator = coordinator;
@@ -46,7 +47,7 @@ public class Root extends ListTreeNode
 
         init();
     }
-   
+
     //
     // Construct a new Application
     //
@@ -59,7 +60,7 @@ public class Root extends ListTreeNode
 
         _file = null;
         _live = false;
-        
+
         try
         {
             init();
@@ -73,8 +74,8 @@ public class Root extends ListTreeNode
         }
     }
 
-   
-    private void init() throws UpdateFailedException
+    private void init()
+        throws UpdateFailedException
     {
         _resolver = new Utils.Resolver(_descriptor.variables);
         _resolver.put("application", _descriptor.name);
@@ -84,7 +85,7 @@ public class Root extends ListTreeNode
         _origDistrib = (DistributionDescriptor)_descriptor.distrib.clone();
 
         _propertySets = new PropertySets(this, _descriptor.propertySets);
-        _replicaGroups = new ReplicaGroups(this, _descriptor.replicaGroups);       
+        _replicaGroups = new ReplicaGroups(this, _descriptor.replicaGroups);
         _serviceTemplates = new ServiceTemplates(this, _descriptor.serviceTemplates);
         _serverTemplates = new ServerTemplates(this, _descriptor.serverTemplates);
         _nodes = new Nodes(this, _descriptor.nodes);
@@ -106,23 +107,19 @@ public class Root extends ListTreeNode
         am.put("paste", _coordinator.getActionsForMenu().get(PASTE));
     }
 
-
     static public ApplicationDescriptor
     copyDescriptor(ApplicationDescriptor ad)
     {
         ApplicationDescriptor copy = (ApplicationDescriptor)ad.clone();
-        
+
         copy.propertySets = PropertySets.copyDescriptors(copy.propertySets);
 
-        copy.replicaGroups = 
-            ReplicaGroups.copyDescriptors(copy.replicaGroups);
-        
-        copy.serverTemplates = 
-            ServerTemplates.copyDescriptors(copy.serverTemplates);
-        
-        copy.serviceTemplates = 
-            ServiceTemplates.copyDescriptors(copy.serviceTemplates);
-        
+        copy.replicaGroups = ReplicaGroups.copyDescriptors(copy.replicaGroups);
+
+        copy.serverTemplates = ServerTemplates.copyDescriptors(copy.serverTemplates);
+
+        copy.serviceTemplates = ServiceTemplates.copyDescriptors(copy.serviceTemplates);
+
         copy.nodes = Nodes.copyDescriptors(copy.nodes);
 
         copy.distrib = (DistributionDescriptor)copy.distrib.clone();
@@ -133,8 +130,7 @@ public class Root extends ListTreeNode
     {
         if(_editor == null)
         {
-            _editor = (ApplicationEditor) 
-                getEditor(ApplicationEditor.class, this);
+            _editor = (ApplicationEditor)getEditor(ApplicationEditor.class, this);
         }
         _editor.show(this);
         return _editor;
@@ -156,7 +152,7 @@ public class Root extends ListTreeNode
         for(int i = 0; i < path.getPathCount(); ++i)
         {
             TreeNode node = (TreeNode)path.getPathComponent(i);
-            
+
             if(result == null)
             {
                 if(node.getId().equals(_id))
@@ -191,7 +187,7 @@ public class Root extends ListTreeNode
 
         return result;
     }
-    
+
     //
     // Check that this node is attached to the tree
     //
@@ -250,25 +246,22 @@ public class Root extends ListTreeNode
     }
 
     public Component getTreeCellRendererComponent(
-            JTree tree,
-            Object value,
-            boolean sel,
-            boolean expanded,
-            boolean leaf,
-            int row,
-            boolean hasFocus) 
+        JTree tree,
+        Object value,
+        boolean sel,
+        boolean expanded,
+        boolean leaf,
+        int row,
+        boolean hasFocus)
     {
         if(_cellRenderer == null)
         {
             _cellRenderer = new DefaultTreeCellRenderer();
-            _cellRenderer.setOpenIcon(
-                Utils.getIcon("/icons/16x16/application_open.png"));
-            _cellRenderer.setClosedIcon(
-                Utils.getIcon("/icons/16x16/application_closed.png"));
+            _cellRenderer.setOpenIcon(Utils.getIcon("/icons/16x16/application_open.png"));
+            _cellRenderer.setClosedIcon(Utils.getIcon("/icons/16x16/application_closed.png"));
         }
 
-        return _cellRenderer.getTreeCellRendererComponent(
-            tree, value, sel, expanded, leaf, row, hasFocus);
+        return _cellRenderer.getTreeCellRendererComponent(tree, value, sel, expanded, leaf, row, hasFocus);
     }
 
     public boolean[] getAvailableActions()
@@ -285,7 +278,7 @@ public class Root extends ListTreeNode
         }
 
         actions[SHOW_VARS] = true;
-        actions[SUBSTITUTE_VARS] = true;        
+        actions[SUBSTITUTE_VARS] = true;
         actions[NEW_NODE] = true;
         actions[NEW_PROPERTY_SET] = true;
         actions[NEW_REPLICA_GROUP] = true;
@@ -320,35 +313,42 @@ public class Root extends ListTreeNode
         _coordinator.setClipboard(copyDescriptor(_descriptor));
         _coordinator.getActionsForMenu().get(PASTE).setEnabled(true);
     }
+
     public void paste()
     {
         _coordinator.pasteApplication();
     }
+
     public void newNode()
     {
         _nodes.newNode();
     }
+
     public void newPropertySet()
     {
         _propertySets.newPropertySet();
     }
+
     public void newReplicaGroup()
     {
         _replicaGroups.newReplicaGroup();
     }
+
     public void newTemplateServer()
     {
         _serverTemplates.newTemplateServer();
     }
+
     public void newTemplateServerIceBox()
     {
         _serverTemplates.newTemplateServerIceBox();
     }
+
     public void newTemplateService()
     {
         _serviceTemplates.newTemplateService();
     }
-    
+
     public void save()
     {
         if(_live)
@@ -391,7 +391,8 @@ public class Root extends ListTreeNode
 
                     if(isSelected())
                     {
-                        _coordinator.getSaveAction().setEnabled(isLive() && _coordinator.connectedToMaster() || hasFile());
+                        _coordinator.getSaveAction().setEnabled(isLive() && _coordinator.connectedToMaster() ||
+                                                                hasFile());
                         _coordinator.getSaveToRegistryAction().setEnabled(true);
                         _coordinator.getDiscardUpdatesAction().setEnabled(true);
                     }
@@ -404,13 +405,12 @@ public class Root extends ListTreeNode
                         title,
                         JOptionPane.ERROR_MESSAGE);
                 }
-                
 
                 public void run()
                 {
                     _coordinator.getMainFrame().setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
                     boolean asyncRelease = false;
-                    
+
                     try
                     {
                         if(_live && _canUseUpdateDescriptor)
@@ -420,19 +420,20 @@ public class Root extends ListTreeNode
                             {
                                 final String prefix = "Updating application '" + _id + "'...";
                                 _coordinator.getStatusBar().setText(prefix);
-                                
+
                                 AMI_Admin_updateApplication cb = new AMI_Admin_updateApplication()
                                     {
                                         public void ice_response()
                                         {
                                             if(_traceSaveToRegistry)
                                             {
-                                                _coordinator.traceSaveToRegistry("updateApplication for application " + _id + ": success");
+                                                _coordinator.traceSaveToRegistry("updateApplication for application " +
+                                                                                _id + ": success");
                                             }
 
-                                            SwingUtilities.invokeLater(new Runnable() 
-                                                {       
-                                                    public void run() 
+                                            SwingUtilities.invokeLater(new Runnable()
+                                                {
+                                                    public void run()
                                                     {
                                                         commit();
                                                         release();
@@ -440,39 +441,41 @@ public class Root extends ListTreeNode
                                                     }
                                                 });
                                         }
-                                        
+
                                         public void ice_exception(final Ice.UserException e)
                                         {
                                             if(_traceSaveToRegistry)
                                             {
-                                                _coordinator.traceSaveToRegistry("updateApplication for application " + _id + ": failed");
+                                                _coordinator.traceSaveToRegistry("updateApplication for application " +
+                                                                                 _id + ": failed");
                                             }
-                                            
-                                            SwingUtilities.invokeLater(new Runnable() 
+
+                                            SwingUtilities.invokeLater(new Runnable()
                                                 {
-                                                    public void run() 
+                                                    public void run()
                                                     {
                                                         _skipUpdates--;
-                                                        handleFailure(prefix, "Update failed", 
+                                                        handleFailure(prefix, "Update failed",
                                                                       "IceGrid exception: " + e.toString());
                                                     }
-                                                    
+
                                                 });
                                         }
-                                            
+
                                         public void ice_exception(final Ice.LocalException e)
                                         {
                                             if(_traceSaveToRegistry)
                                             {
-                                                _coordinator.traceSaveToRegistry("updateApplication for application " + _id + ": failed");
+                                                _coordinator.traceSaveToRegistry("updateApplication for application " +
+                                                                                 _id + ": failed");
                                             }
 
-                                            SwingUtilities.invokeLater(new Runnable() 
+                                            SwingUtilities.invokeLater(new Runnable()
                                                 {
-                                                    public void run() 
+                                                    public void run()
                                                     {
                                                         _skipUpdates--;
-                                                        handleFailure(prefix, "Update failed", 
+                                                        handleFailure(prefix, "Update failed",
                                                                       "Communication exception: " + e.toString());
                                                     }
                                                 });
@@ -482,7 +485,8 @@ public class Root extends ListTreeNode
 
                                 if(_traceSaveToRegistry)
                                 {
-                                    _coordinator.traceSaveToRegistry("sending updateApplication for application " + _id);
+                                    _coordinator.traceSaveToRegistry("sending updateApplication for application " +
+                                                                     _id);
                                 }
 
                                 _coordinator.getAdmin().updateApplication_async(cb, updateDescriptor);
@@ -510,22 +514,22 @@ public class Root extends ListTreeNode
                             {
                                 assert _live == false;
 
-
                                 final String prefix = "Adding application '" + _id + "'...";
                                 _coordinator.getStatusBar().setText(prefix);
-                                
+
                                 AMI_Admin_addApplication cb = new AMI_Admin_addApplication()
                                     {
                                         public void ice_response()
                                         {
                                             if(_traceSaveToRegistry)
                                             {
-                                                _coordinator.traceSaveToRegistry("addApplication for application " + _id + ": success");
+                                                _coordinator.traceSaveToRegistry("addApplication for application " +
+                                                                                 _id + ": success");
                                             }
 
-                                            SwingUtilities.invokeLater(new Runnable() 
-                                                {       
-                                                    public void run() 
+                                            SwingUtilities.invokeLater(new Runnable()
+                                                {
+                                                    public void run()
                                                     {
                                                         commit();
                                                         liveReset();
@@ -535,37 +539,39 @@ public class Root extends ListTreeNode
                                                     }
                                                 });
                                         }
-                                        
+
                                         public void ice_exception(final Ice.UserException e)
                                         {
                                             if(_traceSaveToRegistry)
                                             {
-                                                _coordinator.traceSaveToRegistry("addApplication for application " + _id + ": failed");
+                                                _coordinator.traceSaveToRegistry("addApplication for application " +
+                                                                                 _id + ": failed");
                                             }
 
-                                            SwingUtilities.invokeLater(new Runnable() 
+                                            SwingUtilities.invokeLater(new Runnable()
                                                 {
-                                                    public void run() 
+                                                    public void run()
                                                     {
-                                                        handleFailure(prefix, "Add failed", 
+                                                        handleFailure(prefix, "Add failed",
                                                                       "IceGrid exception: " + e.toString());
                                                     }
-                                                    
+
                                                 });
                                         }
-                                            
+
                                         public void ice_exception(final Ice.LocalException e)
                                         {
                                             if(_traceSaveToRegistry)
                                             {
-                                                _coordinator.traceSaveToRegistry("addApplication for application " + _id + ": failed");
+                                                _coordinator.traceSaveToRegistry("addApplication for application " +
+                                                                                 _id + ": failed");
                                             }
 
-                                            SwingUtilities.invokeLater(new Runnable() 
+                                            SwingUtilities.invokeLater(new Runnable()
                                                 {
-                                                    public void run() 
+                                                    public void run()
                                                     {
-                                                        handleFailure(prefix, "Add failed", 
+                                                        handleFailure(prefix, "Add failed",
                                                                       "Communication exception: " + e.toString());
                                                     }
                                                 });
@@ -592,18 +598,20 @@ public class Root extends ListTreeNode
                                         {
                                             if(_traceSaveToRegistry)
                                             {
-                                                _coordinator.traceSaveToRegistry("syncApplication for application " + _id + ": failed");
+                                                _coordinator.traceSaveToRegistry("syncApplication for application " +
+                                                                                 _id + ": failed");
                                             }
 
-                                            SwingUtilities.invokeLater(new Runnable() 
-                                                {       
-                                                    public void run() 
+                                            SwingUtilities.invokeLater(new Runnable()
+                                                {
+                                                    public void run()
                                                     {
                                                         commit();
                                                         if(!_live)
                                                         {
                                                             //
-                                                            // Make this tab live or close it if there is one already open
+                                                            // Make this tab live or close it if there is one already
+                                                            // open
                                                             //
                                                             ApplicationPane app = _coordinator.getLiveApplication(_id);
                                                             if(app == null)
@@ -617,7 +625,8 @@ public class Root extends ListTreeNode
                                                                 _coordinator.getMainPane().removeApplication(Root.this);
                                                                 if(selected)
                                                                 {
-                                                                    _coordinator.getMainPane().setSelectedComponent(app);
+                                                                    _coordinator.getMainPane()
+                                                                        .setSelectedComponent(app);
                                                                 }
                                                             }
                                                         }
@@ -627,47 +636,49 @@ public class Root extends ListTreeNode
                                                     }
                                                 });
                                         }
-                                        
+
                                         public void ice_exception(final Ice.UserException e)
                                         {
                                             if(_traceSaveToRegistry)
                                             {
-                                                _coordinator.traceSaveToRegistry("syncApplication for application " + _id + ": failed");
+                                                _coordinator.traceSaveToRegistry("syncApplication for application " +
+                                                                                 _id + ": failed");
                                             }
 
-                                            SwingUtilities.invokeLater(new Runnable() 
+                                            SwingUtilities.invokeLater(new Runnable()
                                                 {
-                                                    public void run() 
+                                                    public void run()
                                                     {
                                                         if(_live)
                                                         {
                                                             _skipUpdates--;
                                                         }
 
-                                                        handleFailure(prefix, "Sync failed", 
+                                                        handleFailure(prefix, "Sync failed",
                                                                       "IceGrid exception: " + e.toString());
                                                     }
-                                                    
+
                                                 });
                                         }
-                                            
+
                                         public void ice_exception(final Ice.LocalException e)
                                         {
                                             if(_traceSaveToRegistry)
                                             {
-                                                _coordinator.traceSaveToRegistry("syncApplication for application " + _id + ": failed");
+                                                _coordinator.traceSaveToRegistry("syncApplication for application " +
+                                                                                 _id + ": failed");
                                             }
 
-                                            SwingUtilities.invokeLater(new Runnable() 
+                                            SwingUtilities.invokeLater(new Runnable()
                                                 {
-                                                    public void run() 
+                                                    public void run()
                                                     {
                                                         if(_live)
                                                         {
                                                             _skipUpdates--;
                                                         }
 
-                                                        handleFailure(prefix, "Sync failed", 
+                                                        handleFailure(prefix, "Sync failed",
                                                                       "Communication exception: " + e.toString());
                                                     }
                                                 });
@@ -699,8 +710,9 @@ public class Root extends ListTreeNode
                     {
                         if(_traceSaveToRegistry)
                         {
-                            _coordinator.traceSaveToRegistry("Ice communications exception while saving application " + _id);
-                        }       
+                            _coordinator.traceSaveToRegistry("Ice communications exception while saving application " +
+                                                             _id);
+                        }
 
                         JOptionPane.showMessageDialog(
                             _coordinator.getMainFrame(),
@@ -718,7 +730,7 @@ public class Root extends ListTreeNode
                     }
                 }
             };
-        
+
         try
         {
             _coordinator.acquireExclusiveWriteAccess(runnable);
@@ -797,7 +809,7 @@ public class Root extends ListTreeNode
         ApplicationPane app = _coordinator.getMainPane().findApplication(this);
         assert app != null;
         app.setRoot(newRoot);
-        
+
         TreeNode node = newRoot.findNodeLike(_tree.getSelectionPath(), false);
         if(node == null)
         {
@@ -818,7 +830,6 @@ public class Root extends ListTreeNode
         _coordinator.getMainPane().resetIcon(this);
     }
 
-
     private ApplicationUpdateDescriptor createUpdateDescriptor()
     {
         ApplicationUpdateDescriptor update = new ApplicationUpdateDescriptor();
@@ -830,87 +841,77 @@ public class Root extends ListTreeNode
             //
             if(!_descriptor.description.equals(_origDescription))
             {
-                update.description = 
-                    new IceGrid.BoxedString(_descriptor.description);
+                update.description = new IceGrid.BoxedString(_descriptor.description);
             }
 
             //
             // Diff variables
             //
-            update.variables = new java.util.TreeMap(_descriptor.variables);
-            java.util.List removeVariables = new java.util.LinkedList();
+            update.variables = new java.util.TreeMap<String, String>(_descriptor.variables);
+            java.util.List<String> removeVariables = new java.util.LinkedList<String>();
 
-            java.util.Iterator p = _origVariables.entrySet().iterator();
-            while(p.hasNext())
+            for(java.util.Map.Entry<String, String> p : _origVariables.entrySet())
             {
-                java.util.Map.Entry entry = (java.util.Map.Entry)p.next();
-                Object key = entry.getKey();
-                Object newValue =  update.variables.get(key);
+                String key = p.getKey();
+                String newValue =  update.variables.get(key);
                 if(newValue == null)
                 {
                     removeVariables.add(key);
                 }
                 else
                 {
-                    Object value = entry.getValue();
+                    String value = p.getValue();
                     if(newValue.equals(value))
                     {
                         update.variables.remove(key);
                     }
                 }
             }
-            update.removeVariables = (String[])removeVariables.toArray(new String[0]);
+            update.removeVariables = removeVariables.toArray(new String[0]);
 
             //
             // Diff distribution
             //
             if(!_descriptor.distrib.equals(_origDistrib))
             {
-                update.distrib = new IceGrid.BoxedDistributionDescriptor(
-                    _descriptor.distrib);
+                update.distrib = new IceGrid.BoxedDistributionDescriptor(_descriptor.distrib);
             }
         }
         else
         {
-            update.variables = new java.util.TreeMap();
+            update.variables = new java.util.TreeMap<String, String>();
             update.removeVariables = new String[0];
         }
 
         //
         // Property sets
         //
-        update.removePropertySets = _propertySets.getEditable().
-            removedElements(PropertySet.class);
+        update.removePropertySets = _propertySets.getEditable().removedElements(PropertySet.class);
         update.propertySets = _propertySets.getUpdates();
 
         //
         // Replica Groups
         //
-        update.removeReplicaGroups = _replicaGroups.getEditable().
-            removedElements(ReplicaGroup.class);
+        update.removeReplicaGroups = _replicaGroups.getEditable().removedElements(ReplicaGroup.class);
         update.replicaGroups = _replicaGroups.getUpdates();
-        
+
         //
         // Server Templates
         //
-        update.removeServerTemplates = _serverTemplates.getEditable().
-            removedElements(ServerTemplate.class);
+        update.removeServerTemplates = _serverTemplates.getEditable().removedElements(ServerTemplate.class);
         update.serverTemplates = _serverTemplates.getUpdates();
 
         //
         // Service Templates
         //
-        update.removeServiceTemplates = _serviceTemplates.getEditable().
-            removedElements(ServiceTemplate.class);
+        update.removeServiceTemplates = _serviceTemplates.getEditable().removedElements(ServiceTemplate.class);
         update.serviceTemplates =_serviceTemplates.getUpdates();
 
         //
         // Nodes
         //
-        update.removeNodes = _nodes.getEditable().
-            removedElements(Node.class);
+        update.removeNodes = _nodes.getEditable().removedElements(Node.class);
         update.nodes = _nodes.getUpdates();
-
 
         //
         // Return null if nothing changed
@@ -947,7 +948,7 @@ public class Root extends ListTreeNode
         _origVariables = _descriptor.variables;
         _origDescription = _descriptor.description;
         _origDistrib = (DistributionDescriptor)_descriptor.distrib.clone();
-        
+
         _nodes.commit();
         _propertySets.commit();
         _replicaGroups.commit();
@@ -971,7 +972,7 @@ public class Root extends ListTreeNode
             int confirm = JOptionPane.showConfirmDialog(
                 _coordinator.getMainFrame(),
                 "You are about to remove application '" + _id + "' from the IceGrid registry. "
-                + "Do you want to proceed?", 
+                + "Do you want to proceed?",
                 "Remove Confirmation",
                 JOptionPane.YES_NO_OPTION);
 
@@ -988,7 +989,7 @@ public class Root extends ListTreeNode
             int confirm = JOptionPane.showConfirmDialog(
                 _coordinator.getMainFrame(),
                 "You are about to remove application '" + _id + "' and its associated file. "
-                + "Do you want to proceed?", 
+                + "Do you want to proceed?",
                 "Remove Confirmation",
                 JOptionPane.YES_NO_OPTION);
 
@@ -1005,7 +1006,7 @@ public class Root extends ListTreeNode
     public boolean update(ApplicationUpdateDescriptor desc)
     {
         assert _live == true;
-        
+
         if(_skipUpdates > 0)
         {
             _skipUpdates--;
@@ -1035,16 +1036,16 @@ public class Root extends ListTreeNode
                 _descriptor.description = desc.description.value;
                 _origDescription = _descriptor.description;
             }
-            
+
             //
             // Variables
             //
-            for(int i = 0; i < desc.removeVariables.length; ++i)
+            for(String name : desc.removeVariables)
             {
-                _descriptor.variables.remove(desc.removeVariables[i]);
+                _descriptor.variables.remove(name);
             }
             _descriptor.variables.putAll(desc.variables);
-            
+
             //
             // Distrib
             //
@@ -1053,69 +1054,59 @@ public class Root extends ListTreeNode
                 _descriptor.distrib = desc.distrib.value;
                 _origDistrib = (DistributionDescriptor)_descriptor.distrib.clone();
             }
-            
+
             //
             // Property Sets
             //
-            for(int i = 0; i < desc.removePropertySets.length; ++i)
+            for(String id : desc.removePropertySets)
             {
-                _descriptor.propertySets.remove(desc.removePropertySets[i]);
+                _descriptor.propertySets.remove(id);
             }
             _descriptor.propertySets.putAll(desc.propertySets);
-            _propertySets.update(desc.propertySets, 
-                                 desc.removePropertySets);
+            _propertySets.update(desc.propertySets, desc.removePropertySets);
 
             //
             // Replica groups
             //
-            for(int i = 0; i < desc.removeReplicaGroups.length; ++i)
+            for(String id : desc.removeReplicaGroups)
             {
-                _descriptor.replicaGroups.remove(desc.
-                                                 removeReplicaGroups[i]);
+                _descriptor.replicaGroups.remove(id);
             }
             _descriptor.replicaGroups.addAll(desc.replicaGroups);
-            _replicaGroups.update(desc.replicaGroups, 
-                                  desc.removeReplicaGroups);
-            
-            
+            _replicaGroups.update(desc.replicaGroups, desc.removeReplicaGroups);
+
             //
             // Service templates
             //
-            for(int i = 0; i < desc.removeServiceTemplates.length; ++i)
+            for(String id : desc.removeServiceTemplates)
             {
-                _descriptor.serviceTemplates.remove(desc.
-                                                    removeServiceTemplates[i]);
+                _descriptor.serviceTemplates.remove(id);
             }
             _descriptor.serviceTemplates.putAll(desc.serviceTemplates);
-            _serviceTemplates.update(desc.serviceTemplates, 
-                                     desc.removeServiceTemplates);
-            
+            _serviceTemplates.update(desc.serviceTemplates, desc.removeServiceTemplates);
+
             //
             // Server templates
             //
-            for(int i = 0; i < desc.removeServerTemplates.length; ++i)
+            for(String id : desc.removeServerTemplates)
             {
-                _descriptor.serverTemplates.remove(desc.removeServerTemplates[i]);
+                _descriptor.serverTemplates.remove(id);
             }
             _descriptor.serverTemplates.putAll(desc.serverTemplates);
-            _serverTemplates.update(desc.serverTemplates, 
-                                    desc.removeServerTemplates,
-                                    desc.serviceTemplates.keySet());
-            
+            _serverTemplates.update(desc.serverTemplates, desc.removeServerTemplates, desc.serviceTemplates.keySet());
+
             //
             // Nodes
             //
-            for(int i = 0; i < desc.removeNodes.length; ++i)
+            for(String id : desc.removeNodes)
             {
-                _descriptor.nodes.remove(desc.removeNodes[i]);
+                _descriptor.nodes.remove(id);
             }
-            
+
             //
             // Updates also _descriptor.nodes
             //
-            _nodes.update(desc.nodes, desc.removeNodes,
-                          desc.serverTemplates.keySet(),
-                          desc.serviceTemplates.keySet());
+            _nodes.update(desc.nodes, desc.removeNodes, desc.serverTemplates.keySet(), desc.serviceTemplates.keySet());
         }
         catch(UpdateFailedException e)
         {
@@ -1167,11 +1158,9 @@ public class Root extends ListTreeNode
             //
             // Apply now any delayed concurrent update
             //
-            java.util.Iterator p = _concurrentUpdates.iterator();
-            while(p.hasNext())
+            for(ApplicationUpdateDescriptor p : _concurrentUpdates)
             {
-                ApplicationUpdateDescriptor d = (ApplicationUpdateDescriptor)p.next();
-                boolean ok = update(d);
+                boolean ok = update(p);
                 assert ok;
             }
             if(!_concurrentUpdates.isEmpty())
@@ -1182,8 +1171,7 @@ public class Root extends ListTreeNode
 
             _coordinator.getSaveAction().setEnabled(false);
             _coordinator.getDiscardUpdatesAction().setEnabled(false);
-            _coordinator.getSaveToRegistryAction().setEnabled(hasFile() 
-                                                              && _coordinator.connectedToMaster());
+            _coordinator.getSaveToRegistryAction().setEnabled(hasFile() && _coordinator.connectedToMaster());
         }
     }
 
@@ -1198,8 +1186,7 @@ public class Root extends ListTreeNode
         else
         {
             _coordinator.getMainPane().resetIcon(this);
-            _coordinator.getCurrentTab().selected(); // only needed when 'this' 
-                                                     // corresponds to the current tab
+            _coordinator.getCurrentTab().selected(); // only needed when 'this' corresponds to the current tab
             return false;
         }
     }
@@ -1229,10 +1216,9 @@ public class Root extends ListTreeNode
         return _applicationPane;
     }
 
-
     Editor getEditor(Class c, TreeNode node)
     {
-        Editor result = (Editor)_editorMap.get(c);
+        Editor result = _editorMap.get(c);
         if(result == null)
         {
             result = node.createEditor();
@@ -1262,11 +1248,12 @@ public class Root extends ListTreeNode
         _descriptor.description = clone.description;
     }
 
-    public void write(XMLWriter writer) throws java.io.IOException
+    public void write(XMLWriter writer)
+        throws java.io.IOException
     {
         writer.writeStartTag("icegrid");
 
-        java.util.List attributes = new java.util.LinkedList();
+        java.util.List<String[]> attributes = new java.util.LinkedList<String[]>();
         attributes.add(createAttribute("name", _id));
 
         writer.writeStartTag("application", attributes);
@@ -1283,7 +1270,7 @@ public class Root extends ListTreeNode
         _replicaGroups.write(writer);
         _propertySets.write(writer);
         _nodes.write(writer);
-        
+
         writer.writeEndTag("application");
         writer.writeEndTag("icegrid");
     }
@@ -1306,11 +1293,12 @@ public class Root extends ListTreeNode
     {
         _updated = true;
         disableRegistryUpdates(); // can be still enabled when updated() is called by destroy()
-       
+
         _concurrentUpdates.clear();
     }
-  
-    void rebuild() throws UpdateFailedException
+
+    void rebuild()
+        throws UpdateFailedException
     {
         Utils.Resolver oldResolver = _resolver;
         String oldId = _id;
@@ -1329,7 +1317,7 @@ public class Root extends ListTreeNode
             throw e;
         }
     }
-    
+
     //
     // Called when a server-template is deleted, to remove all
     // corresponding instances.
@@ -1348,7 +1336,6 @@ public class Root extends ListTreeNode
         _nodes.removeServiceInstances(templateId);
         _serverTemplates.removeServiceInstances(templateId);
     }
-
 
     ServerTemplate findServerTemplate(String id)
     {
@@ -1370,35 +1357,33 @@ public class Root extends ListTreeNode
         return (Node)_nodes.findChild(id);
     }
 
-    java.util.List findServerInstances(String template)
+    java.util.List<ServerInstance> findServerInstances(String template)
     {
         return _nodes.findServerInstances(template);
     }
 
-    java.util.List findServiceInstances(String template)
+    java.util.List<ServiceInstance> findServiceInstances(String template)
     {
-        java.util.List result = _serverTemplates.findServiceInstances(template);
+        java.util.List<ServiceInstance> result = _serverTemplates.findServiceInstances(template);
         result.addAll(_nodes.findServiceInstances(template));
         return result;
     }
 
     TemplateDescriptor findServerTemplateDescriptor(String templateName)
     {
-        return (TemplateDescriptor)
-            _descriptor.serverTemplates.get(templateName);
+        return (TemplateDescriptor)_descriptor.serverTemplates.get(templateName);
     }
 
     TemplateDescriptor findServiceTemplateDescriptor(String templateName)
     {
-        return (TemplateDescriptor)
-            _descriptor.serviceTemplates.get(templateName);
+        return (TemplateDescriptor)_descriptor.serviceTemplates.get(templateName);
     }
-    
+
     ServerTemplates getServerTemplates()
     {
         return _serverTemplates;
     }
-    
+
     ServiceTemplates getServiceTemplates()
     {
         return _serviceTemplates;
@@ -1415,25 +1400,23 @@ public class Root extends ListTreeNode
         // During paste, check that all service instances refer to existing services,
         // and remove any extra template parameters
         //
-        java.util.Iterator p = ibd.services.iterator();
-        while(p.hasNext())
+        for(ServiceInstanceDescriptor p : ibd.services)
         {
-            ServiceInstanceDescriptor sid = (ServiceInstanceDescriptor)p.next();
-            if(sid.template.length() > 0)
+            if(p.template.length() > 0)
             {
-                TemplateDescriptor td = findServiceTemplateDescriptor(sid.template);
+                TemplateDescriptor td = findServiceTemplateDescriptor(p.template);
 
                 if(td == null)
                 {
                     JOptionPane.showMessageDialog(
                         _coordinator.getMainFrame(),
-                        "Descriptor refers to undefined service template '" + sid.template + "'",
+                        "Descriptor refers to undefined service template '" + p.template + "'",
                         "Cannot paste",
                         JOptionPane.ERROR_MESSAGE);
                     return false;
                 }
 
-                sid.parameterValues.keySet().retainAll(td.parameters);
+                p.parameterValues.keySet().retainAll(td.parameters);
             }
         }
         return true;
@@ -1443,7 +1426,7 @@ public class Root extends ListTreeNode
     {
         return this;
     }
-    
+
     Utils.Resolver getResolver()
     {
         return _resolver;
@@ -1452,7 +1435,7 @@ public class Root extends ListTreeNode
     //
     // Should only be used for reading
     //
-    java.util.Map getVariables()
+    java.util.Map<String, String> getVariables()
     {
         return _descriptor.variables;
     }
@@ -1482,17 +1465,17 @@ public class Root extends ListTreeNode
     private boolean _live;
 
     //
-    // null when this application is not tied to a file 
+    // null when this application is not tied to a file
     //
     private File _file;
-    
+
     private ApplicationDescriptor _descriptor;
 
     //
-    // Keeps original version (as shallow copies) to be able to build 
+    // Keeps original version (as shallow copies) to be able to build
     // ApplicationUpdateDescriptor. Only used when _live == true
     //
-    private java.util.Map _origVariables;
+    private java.util.Map<String, String> _origVariables;
     private String _origDescription;
     private DistributionDescriptor _origDistrib;
 
@@ -1506,16 +1489,17 @@ public class Root extends ListTreeNode
     private boolean _discardMe = false;
 
     //
-    // True when any update was applied to this application 
+    // True when any update was applied to this application
     // (including children)
     //
     private boolean _updated = false;
-    
+
     //
-    // Updates saved when _updated == false and 
+    // Updates saved when _updated == false and
     // _registryUpdatesEnabled == false
     //
-    private java.util.List _concurrentUpdates = new java.util.LinkedList();
+    private java.util.List<ApplicationUpdateDescriptor> _concurrentUpdates =
+        new java.util.LinkedList<ApplicationUpdateDescriptor>();
 
     //
     // When _live is true and _canUseUpdateDescriptor is true, we can
@@ -1525,8 +1509,7 @@ public class Root extends ListTreeNode
     //
     // Updates to skip (because already applied locally)
     //
-    private int  _skipUpdates = 0;
-
+    private int _skipUpdates = 0;
 
     private Nodes _nodes;
     private PropertySets _propertySets;
@@ -1541,10 +1524,10 @@ public class Root extends ListTreeNode
     //
     // Map editor-class to Editor object
     //
-    private java.util.Map _editorMap = new java.util.HashMap();
+    private java.util.Map<Class, Editor> _editorMap = new java.util.HashMap<Class, Editor>();
 
     private ApplicationPane _applicationPane;
 
-    static private DefaultTreeCellRenderer _cellRenderer;    
+    static private DefaultTreeCellRenderer _cellRenderer;
     static private JPopupMenu _popup;
 }

@@ -6,6 +6,7 @@
 // ICE_LICENSE file included in this distribution.
 //
 // **********************************************************************
+
 package IceGridGUI.Application;
 
 import javax.swing.JOptionPane;
@@ -26,36 +27,31 @@ abstract class Templates extends ListTreeNode
     void tryUpdate(Communicator child)
         throws UpdateFailedException
     {
-        java.util.List instanceList = child.findInstances();
-        java.util.List backupList = new java.util.Vector();
+        java.util.List<? extends TemplateInstance> instanceList = child.findInstances();
+        java.util.List<Object> backupList = new java.util.Vector<Object>();
 
-        java.util.List editables = new java.util.LinkedList();
+        java.util.List<Editable> editables = new java.util.LinkedList<Editable>();
 
-        java.util.Iterator p = instanceList.iterator();
-        while(p.hasNext())
+        for(TemplateInstance p : instanceList)
         {
-            TemplateInstance instance = (TemplateInstance)p.next();
-            
             try
             {
-                backupList.add(instance.rebuild(editables));
+                backupList.add(p.rebuild(editables));
             }
             catch(UpdateFailedException e)
             {
                 for(int i = backupList.size() - 1; i >= 0; --i)
                 {
-                    instance = (TemplateInstance)instanceList.get(i);
+                    TemplateInstance instance = instanceList.get(i);
                     instance.restore(backupList.get(i));
                 }
                 throw e;
             }
         }
-        
-        p = editables.iterator();
-        while(p.hasNext())
+
+        for(Editable p : editables)
         {
-            Editable editable = (Editable)p.next();
-            editable.markModified();
+            p.markModified();
         }
     }
 }

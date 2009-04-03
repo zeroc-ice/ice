@@ -6,6 +6,7 @@
 // ICE_LICENSE file included in this distribution.
 //
 // **********************************************************************
+
 package IceGridGUI.Application;
 
 import java.awt.event.ActionEvent;
@@ -75,7 +76,7 @@ class NodeEditor extends Editor
                         JOptionPane.ERROR_MESSAGE);
                     return false;
                 }
-                
+
                 //
                 // Success
                 //
@@ -99,13 +100,13 @@ class NodeEditor extends Editor
                 //
                 NodeDescriptor savedDescriptor = ((Node)_target).saveDescriptor();
                 writeDescriptor();
-        
+
                 //
                 // Rebuild node; don't need the backup
                 // since it's just one node
                 //
-                java.util.List editables = new java.util.LinkedList();
-                        
+                java.util.List<Editable> editables = new java.util.LinkedList<Editable>();
+
                 try
                 {
                     ((Node)_target).rebuild(editables);
@@ -120,12 +121,10 @@ class NodeEditor extends Editor
                         JOptionPane.ERROR_MESSAGE);
                     return false;
                 }
-                
-                java.util.Iterator p = editables.iterator();
-                while(p.hasNext())
+
+                for(Editable p : editables)
                 {
-                    Editable editable = (Editable)p.next();
-                    editable.markModified();
+                    p.markModified();
                 }
 
                 ((Node)_target).getEditable().markModified();
@@ -143,7 +142,7 @@ class NodeEditor extends Editor
         finally
         {
             root.enableSelectionListener();
-        }           
+        }
     }
 
     Utils.Resolver getDetailResolver()
@@ -164,11 +163,11 @@ class NodeEditor extends Editor
         _name.setToolTipText("Must match the IceGrid.Node.Name property of the desired icegridnode process");
         _description.getDocument().addDocumentListener(_updateListener);
         _description.setToolTipText("An optional description for this node");
-        
+
         //
         // Variables
         //
-        _variables = new MapField(this, "Name", "Value", false);
+        _variables = new SimpleMapField(this, false, "Name", "Value");
 
         _loadFactor.getDocument().addDocumentListener(_updateListener);
         _loadFactor.setToolTipText("<html>A floating point value.<br>"
@@ -177,7 +176,7 @@ class NodeEditor extends Editor
     }
 
     protected void appendProperties(DefaultFormBuilder builder)
-    {    
+    {
         builder.append("Name");
         builder.append(_name, 3);
         builder.nextLine();
@@ -188,8 +187,7 @@ class NodeEditor extends Editor
         builder.nextRow(-2);
         CellConstraints cc = new CellConstraints();
         JScrollPane scrollPane = new JScrollPane(_description);
-        builder.add(scrollPane, 
-                    cc.xywh(builder.getColumn(), builder.getRow(), 3, 3));
+        builder.add(scrollPane, cc.xywh(builder.getColumn(), builder.getRow(), 3, 3));
         builder.nextRow(2);
         builder.nextLine();
 
@@ -202,8 +200,7 @@ class NodeEditor extends Editor
         builder.append("");
         builder.nextRow(-6);
         scrollPane = new JScrollPane(_variables);
-        builder.add(scrollPane, 
-                    cc.xywh(builder.getColumn(), builder.getRow(), 3, 7));
+        builder.add(scrollPane, cc.xywh(builder.getColumn(), builder.getRow(), 3, 7));
         builder.nextRow(6);
         builder.nextLine();
 
@@ -211,7 +208,7 @@ class NodeEditor extends Editor
         builder.append(_loadFactor, 3);
         builder.nextLine();
     }
-    
+
     boolean isSimpleUpdate()
     {
         NodeDescriptor descriptor = (NodeDescriptor)_target.getDescriptor();
@@ -224,8 +221,8 @@ class NodeEditor extends Editor
         descriptor.description = _description.getText();
         descriptor.variables = _variables.get();
         descriptor.loadFactor = _loadFactor.getText().trim();
-    }       
-    
+    }
+
     protected boolean validate()
     {
         return check(new String[]{"Name", _name.getText().trim()});
@@ -235,24 +232,22 @@ class NodeEditor extends Editor
     {
         detectUpdates(false);
         _target = node;
-        
+
         Utils.Resolver resolver = getDetailResolver();
         boolean isEditable = (resolver == null);
 
         _name.setText(_target.getId());
         _name.setEditable(_target.isEphemeral());
-        
+
         NodeDescriptor descriptor = (NodeDescriptor)_target.getDescriptor();
 
-        _description.setText(
-            Utils.substitute(descriptor.description, resolver));
+        _description.setText(Utils.substitute(descriptor.description, resolver));
         _description.setEditable(isEditable);
         _description.setOpaque(isEditable);
 
         _variables.set(descriptor.variables, resolver, isEditable);
 
-        _loadFactor.setText(
-            Utils.substitute(descriptor.loadFactor, resolver));
+        _loadFactor.setText(Utils.substitute(descriptor.loadFactor, resolver));
         _loadFactor.setEditable(isEditable);
 
         _applyButton.setEnabled(node.isEphemeral());
@@ -266,6 +261,6 @@ class NodeEditor extends Editor
 
     private JTextField _name = new JTextField(20);
     private JTextArea _description = new JTextArea(3, 20);
-    private MapField _variables;
+    private SimpleMapField _variables;
     private JTextField _loadFactor = new JTextField(20);
 }

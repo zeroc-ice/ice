@@ -6,6 +6,7 @@
 // ICE_LICENSE file included in this distribution.
 //
 // **********************************************************************
+
 package IceGridGUI.Application;
 
 import javax.swing.JMenuItem;
@@ -16,18 +17,13 @@ import IceGridGUI.*;
 
 class ServerTemplates extends Templates
 {
-    static public java.util.Map
-    copyDescriptors(java.util.Map descriptors)
+    static public java.util.Map<String, TemplateDescriptor>
+    copyDescriptors(java.util.Map<String, TemplateDescriptor> descriptors)
     {
-        java.util.Map copy = new java.util.HashMap();
-        java.util.Iterator p = descriptors.entrySet().iterator();
-        while(p.hasNext())
+        java.util.Map<String, TemplateDescriptor> copy = new java.util.HashMap<String, TemplateDescriptor>();
+        for(java.util.Map.Entry<String, TemplateDescriptor> p : descriptors.entrySet())
         {
-            java.util.Map.Entry entry = (java.util.Map.Entry)p.next();
-            
-            copy.put(entry.getKey(), 
-                     ServerTemplate.copyDescriptor(
-                         (TemplateDescriptor)entry.getValue()));
+            copy.put(p.getKey(), ServerTemplate.copyDescriptor(p.getValue()));
         }
         return copy;
     }
@@ -40,7 +36,7 @@ class ServerTemplates extends Templates
         boolean[] actions = new boolean[ACTION_COUNT];
         actions[NEW_TEMPLATE_SERVER] = true;
         actions[NEW_TEMPLATE_SERVER_ICEBOX] = true;
-        
+
         Object clipboard = getCoordinator().getClipboard();
         if(clipboard != null && clipboard instanceof TemplateDescriptor)
         {
@@ -49,6 +45,7 @@ class ServerTemplates extends Templates
         }
         return actions;
     }
+
     public JPopupMenu getPopupMenu()
     {
         ApplicationActions actions = getCoordinator().getActionsForPopup();
@@ -65,17 +62,19 @@ class ServerTemplates extends Templates
     public void newTemplateServer()
     {
         newServerTemplate(new TemplateDescriptor(
-                              PlainServer.newServerDescriptor(), 
-                              new java.util.LinkedList(),
-                              new java.util.TreeMap()));
+                              PlainServer.newServerDescriptor(),
+                              new java.util.LinkedList<String>(),
+                              new java.util.TreeMap<String, String>()));
     }
+
     public void newTemplateServerIceBox()
     {
         newServerTemplate(new TemplateDescriptor(
-                              PlainServer.newIceBoxDescriptor(), 
-                              new java.util.LinkedList(),
-                              new java.util.TreeMap()));
+                              PlainServer.newIceBoxDescriptor(),
+                              new java.util.LinkedList<String>(),
+                              new java.util.TreeMap<String, String>()));
     }
+
     public void paste()
     {
         Object descriptor =  getCoordinator().getClipboard();
@@ -88,27 +87,20 @@ class ServerTemplates extends Templates
                 return;
             }
         }
-      
+
         newServerTemplate(td);
     }
 
-
-    ServerTemplates(Root parent, java.util.Map descriptors)
+    ServerTemplates(Root parent, java.util.Map<String, TemplateDescriptor> descriptors)
         throws UpdateFailedException
     {
         super(parent, "Server templates");
 
         _descriptors = descriptors;
 
-        java.util.Iterator p = _descriptors.entrySet().iterator();
-        
-        while(p.hasNext())
+        for(java.util.Map.Entry<String, TemplateDescriptor> p : _descriptors.entrySet())
         {
-            java.util.Map.Entry entry = (java.util.Map.Entry)p.next();
-            insertChild(new ServerTemplate(false, this,
-                                           (String)entry.getKey(),
-                                           (TemplateDescriptor)entry.getValue()),
-                        false);
+            insertChild(new ServerTemplate(false, this, p.getKey(), p.getValue()), false);
         }
     }
 
@@ -120,16 +112,15 @@ class ServerTemplates extends Templates
         return null;
     }
 
-    java.util.Map getUpdates()
+    java.util.Map<String, TemplateDescriptor> getUpdates()
     {
-        java.util.Map updates = new java.util.HashMap();
-        java.util.Iterator p = _children.iterator();
-        while(p.hasNext())
+        java.util.Map<String, TemplateDescriptor> updates = new java.util.HashMap<String, TemplateDescriptor>();
+        for(TreeNodeBase p : _children)
         {
-            ServerTemplate t = (ServerTemplate)p.next();
+            ServerTemplate t = (ServerTemplate)p;
             if(t.getEditable().isNew() || t.getEditable().isModified())
             {
-                updates.put(t.getId(), t.getDescriptor());
+                updates.put(t.getId(), (TemplateDescriptor)t.getDescriptor());
             }
         }
         return updates;
@@ -138,21 +129,19 @@ class ServerTemplates extends Templates
     void commit()
     {
         _editable.commit();
-        java.util.Iterator p = _children.iterator();
-        while(p.hasNext())
+        for(TreeNodeBase p : _children)
         {
-            ServerTemplate st = (ServerTemplate)p.next();
+            ServerTemplate st = (ServerTemplate)p;
             st.commit();
         }
     }
 
-    java.util.List findServiceInstances(String template)
+    java.util.List<ServiceInstance> findServiceInstances(String template)
     {
-        java.util.List result = new java.util.LinkedList();
-        java.util.Iterator p = _children.iterator();
-        while(p.hasNext())
+        java.util.List<ServiceInstance> result = new java.util.LinkedList<ServiceInstance>();
+        for(TreeNodeBase p : _children)
         {
-            ServerTemplate t = (ServerTemplate)p.next();
+            ServerTemplate t = (ServerTemplate)p;
             result.addAll(t.findServiceInstances(template));
         }
         return result;
@@ -160,14 +149,13 @@ class ServerTemplates extends Templates
 
     void removeServiceInstances(String template)
     {
-        java.util.Iterator p = _children.iterator();
-        while(p.hasNext())
+        for(TreeNodeBase p : _children)
         {
-            ServerTemplate t = (ServerTemplate)p.next();
+            ServerTemplate t = (ServerTemplate)p;
             t.removeServiceInstances(template);
         }
     }
-    
+
     void newServerTemplate(TemplateDescriptor descriptor)
     {
         String id;
@@ -179,7 +167,7 @@ class ServerTemplates extends Templates
         {
             id = makeNewChildId("NewServerTemplate");
         }
-        
+
         ServerTemplate t = new ServerTemplate(this, id, descriptor);
         try
         {
@@ -195,19 +183,18 @@ class ServerTemplates extends Templates
     void tryAdd(String newId, TemplateDescriptor descriptor)
         throws UpdateFailedException
     {
-        insertChild(new ServerTemplate(true, this, newId, descriptor), 
-                    true);
+        insertChild(new ServerTemplate(true, this, newId, descriptor), true);
         _descriptors.put(newId, descriptor);
     }
 
-    void update(java.util.Map updates, String[] removeTemplates, 
-                java.util.Set serviceTemplates)
+    void update(java.util.Map<String, TemplateDescriptor> updates, String[] removeTemplates,
+                java.util.Set<String> serviceTemplates)
         throws UpdateFailedException
     {
         //
         // Note: _descriptors is updated by Root
         //
-        
+
         Root root = getRoot();
 
         //
@@ -218,16 +205,13 @@ class ServerTemplates extends Templates
         //
         // One big set of updates, followed by inserts
         //
-        java.util.Vector newChildren = new java.util.Vector();
-        java.util.Vector updatedChildren = new java.util.Vector();
-        
-        java.util.Iterator p = updates.entrySet().iterator();
-        while(p.hasNext())
+        java.util.List<TreeNodeBase> newChildren = new java.util.ArrayList<TreeNodeBase>();
+        java.util.List<TreeNodeBase> updatedChildren = new java.util.LinkedList<TreeNodeBase>();
+
+        for(java.util.Map.Entry<String, TemplateDescriptor> p : updates.entrySet())
         {
-            java.util.Map.Entry entry = (java.util.Map.Entry)p.next();
-            String name = (String)entry.getKey();
-            TemplateDescriptor templateDescriptor 
-                = (TemplateDescriptor)entry.getValue();
+            String name = p.getKey();
+            TemplateDescriptor templateDescriptor = p.getValue();
             ServerTemplate child = (ServerTemplate)findChild(name);
             if(child == null)
             {
@@ -239,45 +223,39 @@ class ServerTemplates extends Templates
                 updatedChildren.add(child);
             }
         }
-        
+
         //
         // Rebuild template affected by service template updates
         //
-        p = serviceTemplates.iterator();
-        while(p.hasNext())
+        for(String p : serviceTemplates)
         {
-            java.util.List serviceInstances = 
-                findServiceInstances((String)p.next());
-            java.util.Iterator q = serviceInstances.iterator();
-            while(q.hasNext())
+            java.util.List<ServiceInstance> serviceInstances = findServiceInstances(p);
+            for(ServiceInstance q : serviceInstances)
             {
-                ServiceInstance service = (ServiceInstance)q.next();
-                ServerTemplate serverTemplate = 
-                    (ServerTemplate)service.getParent();
-                
-                if(!updatedChildren.contains(serverTemplate) &&
-                   !newChildren.contains(serverTemplate))
+                ServerTemplate serverTemplate = (ServerTemplate)q.getParent();
+
+                if(!updatedChildren.contains(serverTemplate) && !newChildren.contains(serverTemplate))
                 {
                     serverTemplate.rebuild();
                     updatedChildren.add(serverTemplate);
                 }
             }
         }
-        
+
         childrenChanged(updatedChildren);
         insertChildren(newChildren, true);
     }
-    
+
     void removeDescriptor(String id)
     {
         _descriptors.remove(id);
     }
-    
+
     Object getDescriptor()
     {
         return _descriptors;
     }
 
-    private java.util.Map _descriptors;
+    private java.util.Map<String, TemplateDescriptor> _descriptors;
     static private JPopupMenu _popup;
 }

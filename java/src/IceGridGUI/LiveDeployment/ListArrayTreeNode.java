@@ -6,6 +6,7 @@
 // ICE_LICENSE file included in this distribution.
 //
 // **********************************************************************
+
 package IceGridGUI.LiveDeployment;
 
 import java.util.Enumeration;
@@ -28,7 +29,7 @@ abstract class ListArrayTreeNode extends TreeNode
                     {
                         return true;
                     }
-                   
+
                     while(++_index < _childrenArray.length)
                     {
                         _p = _childrenArray[_index].iterator();
@@ -58,17 +59,17 @@ abstract class ListArrayTreeNode extends TreeNode
                         }
                     }
                 }
-                
+
                 private int _index = 0;
                 private java.util.Iterator _p = _childrenArray[0].iterator();
             };
     }
-    
+
     public boolean getAllowsChildren()
     {
         return true;
     }
-    
+
     public javax.swing.tree.TreeNode getChildAt(int childIndex)
     {
         if(childIndex < 0)
@@ -76,39 +77,39 @@ abstract class ListArrayTreeNode extends TreeNode
             throw new ArrayIndexOutOfBoundsException(childIndex);
         }
         int offset = 0;
-        for(int i = 0; i < _childrenArray.length; ++i)
+        for(java.util.List l : _childrenArray)
         {
-            if(childIndex < offset + _childrenArray[i].size())
+            if(childIndex < offset + l.size())
             {
-                return (javax.swing.tree.TreeNode)_childrenArray[i].get(childIndex - offset);
+                return (javax.swing.tree.TreeNode)l.get(childIndex - offset);
             }
             else
             {
-                offset += _childrenArray[i].size();
+                offset += l.size();
             }
         }
         throw new ArrayIndexOutOfBoundsException(childIndex);
     }
-   
+
     public int getChildCount()
     {
         int result = 0;
-        for(int i = 0; i < _childrenArray.length; ++i)
+        for(java.util.List l : _childrenArray)
         {
-            result += _childrenArray[i].size();
+            result += l.size();
         }
         return result;
     }
-    
+
     public int getIndex(javax.swing.tree.TreeNode node)
     {
         int offset = 0;
-        for(int i = 0; i < _childrenArray.length; ++i)
+        for(java.util.List l : _childrenArray)
         {
-            int index = _childrenArray[i].indexOf(node);
+            int index = l.indexOf(node);
             if(index == -1)
             {
-                offset += _childrenArray[i].size();
+                offset += l.size();
             }
             else
             {
@@ -120,9 +121,9 @@ abstract class ListArrayTreeNode extends TreeNode
 
     public boolean isLeaf()
     {
-        for(int i = 0; i < _childrenArray.length; ++i)
+        for(java.util.List l : _childrenArray)
         {
-            if(!_childrenArray[i].isEmpty())
+            if(!l.isEmpty())
             {
                 return false;
             }

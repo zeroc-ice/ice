@@ -6,6 +6,7 @@
 // ICE_LICENSE file included in this distribution.
 //
 // **********************************************************************
+
 package IceGridGUI.Application;
 
 class Editable implements Cloneable
@@ -46,10 +47,10 @@ class Editable implements Cloneable
     {
         if(!editable.isNew())
         {
-            java.util.TreeSet set = (java.util.TreeSet)_removedElements.get(forClass);
+            java.util.TreeSet<String> set = _removedElements.get(forClass);
             if(set == null)
             {
-                set = new java.util.TreeSet();
+                set = new java.util.TreeSet<String>();
                 _removedElements.put(forClass, set);
             }
             set.add(id);
@@ -58,14 +59,14 @@ class Editable implements Cloneable
     
     String[] removedElements(Class forClass)
     {
-        java.util.TreeSet set = (java.util.TreeSet)_removedElements.get(forClass);
+        java.util.TreeSet<String> set = _removedElements.get(forClass);
         if(set == null)
         {
             return new String[0];
         }
         else
         {
-            return (String[])set.toArray(new String[0]);
+            return set.toArray(new String[0]);
         }
     }
 
@@ -74,13 +75,12 @@ class Editable implements Cloneable
         try
         {
             Editable result = (Editable)clone();
-            java.util.HashMap removedElements = new java.util.HashMap();
-            java.util.Iterator p = result._removedElements.entrySet().iterator();
-            while(p.hasNext())
+            java.util.HashMap<Class, java.util.TreeSet<String>> removedElements =
+                new java.util.HashMap<Class, java.util.TreeSet<String>>();
+            for(java.util.Map.Entry<Class, java.util.TreeSet<String>> p : result._removedElements.entrySet())
             {
-                java.util.Map.Entry entry = (java.util.Map.Entry)p.next();
-                Object val = ((java.util.TreeSet)entry.getValue()).clone();
-                removedElements.put(entry.getKey(), val);
+                java.util.TreeSet<String> val = new java.util.TreeSet<String>(p.getValue());
+                removedElements.put(p.getKey(), val);
             }
             result._removedElements = removedElements;
             return result;
@@ -102,5 +102,6 @@ class Editable implements Cloneable
     private boolean _isNew = false;
     private boolean _modified = false;
 
-    private java.util.HashMap _removedElements = new java.util.HashMap();
+    private java.util.HashMap<Class, java.util.TreeSet<String>> _removedElements =
+        new java.util.HashMap<Class, java.util.TreeSet<String>>();
 }

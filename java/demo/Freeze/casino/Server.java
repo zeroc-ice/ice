@@ -37,18 +37,17 @@ class Server extends Ice.Application
         destroy()
         {
         }
-        
+
         private Class _factoryClass;
     }
 
-    private java.util.Map
+    private java.util.Map<String, String>
     createTypeMap(String defaultFacetType)
     {
-        java.util.Map result = new java.util.HashMap();
+        java.util.Map<String, String> result = new java.util.HashMap<String, String>();
         result.put("", defaultFacetType);
         return result;
     }
-
 
     public int
     run(String[] args)
@@ -67,7 +66,7 @@ class Server extends Ice.Application
             _bankEdge = 1;
         }
         System.out.println("Bank edge is " + _bankEdge);
-    
+
         //
         // Create an object adapter
         //
@@ -79,148 +78,148 @@ class Server extends Ice.Application
         communicator().addObjectFactory(new ObjectFactory(BankI.class), CasinoStore.PersistentBank.ice_staticId());
         communicator().addObjectFactory(new ObjectFactory(PlayerI.class), CasinoStore.PersistentPlayer.ice_staticId());
         communicator().addObjectFactory(new ObjectFactory(BetI.class), CasinoStore.PersistentBet.ice_staticId());
-        
+
         //
         // Create evictors; each type gets its own type-specific evictor
         //
-        
+
         //
         // Bank evictor
         //
 
         Freeze.ServantInitializer bankInitializer = new Freeze.ServantInitializer()
             {
-                public void 
+                public void
                 initialize(Ice.ObjectAdapter adapter, Ice.Identity identity, String facet, Ice.Object servant)
                 {
                     ((BankI)servant).init(_bankPrx, _bankEvictor, _playerEvictor, _betEvictor, _betResolver, _bankEdge);
                 }
             };
 
-       _bankEvictor =
-           Freeze.Util.createTransactionalEvictor(adapter, _envName, "bank", 
-                                                  createTypeMap(CasinoStore.PersistentBank.ice_staticId()),
-                                                  bankInitializer, null, true);
-       
-       int size = properties.getPropertyAsInt("Bank.EvictorSize");
-       if(size > 0)
-       {
-           _bankEvictor.setSize(size);
-       }
+        _bankEvictor =
+            Freeze.Util.createTransactionalEvictor(adapter, _envName, "bank",
+                                                   createTypeMap(CasinoStore.PersistentBank.ice_staticId()),
+                                                   bankInitializer, null, true);
 
-       adapter.addServantLocator(_bankEvictor, "bank");
+        int size = properties.getPropertyAsInt("Bank.EvictorSize");
+        if(size > 0)
+        {
+            _bankEvictor.setSize(size);
+        }
 
-       
-       //
-       // Player evictor
-       //
+        adapter.addServantLocator(_bankEvictor, "bank");
 
-       Freeze.ServantInitializer playerInitializer = new Freeze.ServantInitializer()
+        //
+        // Player evictor
+        //
+
+        Freeze.ServantInitializer playerInitializer = new Freeze.ServantInitializer()
             {
-                public void 
+                public void
                 initialize(Ice.ObjectAdapter adapter, Ice.Identity identity, String facet, Ice.Object servant)
                 {
-                    CasinoStore.PersistentPlayerPrx prx = 
+                    CasinoStore.PersistentPlayerPrx prx =
                         CasinoStore.PersistentPlayerPrxHelper.uncheckedCast(adapter.createProxy(identity));
                     ((PlayerI)servant).init(prx, _playerEvictor, _bankPrx);
                 }
             };
 
-       _playerEvictor =
-           Freeze.Util.createTransactionalEvictor(adapter, _envName, "player", 
-                                                  createTypeMap(CasinoStore.PersistentPlayer.ice_staticId()),
-                                                  playerInitializer, null, true);
+        _playerEvictor =
+            Freeze.Util.createTransactionalEvictor(adapter, _envName, "player",
+                                                   createTypeMap(CasinoStore.PersistentPlayer.ice_staticId()),
+                                                   playerInitializer, null, true);
 
-       size = properties.getPropertyAsInt("Player.EvictorSize");
-       if(size > 0)
-       {
-           _playerEvictor.setSize(size);
-       }
-       
-       adapter.addServantLocator(_playerEvictor, "player");
+        size = properties.getPropertyAsInt("Player.EvictorSize");
+        if(size > 0)
+        {
+            _playerEvictor.setSize(size);
+        }
 
+        adapter.addServantLocator(_playerEvictor, "player");
 
-       //
-       // Bet evictor
-       //
+        //
+        // Bet evictor
+        //
 
-       Freeze.ServantInitializer betInitializer = new Freeze.ServantInitializer()
+        Freeze.ServantInitializer betInitializer = new Freeze.ServantInitializer()
             {
-                public void 
+                public void
                 initialize(Ice.ObjectAdapter adapter, Ice.Identity identity, String facet, Ice.Object servant)
                 {
                     ((BetI)servant).init(_betEvictor, _bankEdge);
                 }
             };
 
-       _betEvictor =
-           Freeze.Util.createTransactionalEvictor(adapter, _envName, "bet", 
-                                                  createTypeMap(CasinoStore.PersistentBet.ice_staticId()),
-                                                  betInitializer, null, true);
-       size = properties.getPropertyAsInt("Bet.EvictorSize");
-       if(size > 0)
-       {
-           _betEvictor.setSize(size);
-       }
+        _betEvictor =
+            Freeze.Util.createTransactionalEvictor(adapter, _envName, "bet",
+                                                   createTypeMap(CasinoStore.PersistentBet.ice_staticId()),
+                                                   betInitializer, null, true);
+        size = properties.getPropertyAsInt("Bet.EvictorSize");
+        if(size > 0)
+        {
+            _betEvictor.setSize(size);
+        }
 
-       adapter.addServantLocator(_betEvictor, "bet");
-    
+        adapter.addServantLocator(_betEvictor, "bet");
 
-       //
-       // Prepare startup
-       //
+        //
+        // Prepare startup
+        //
 
-       _betResolver = new BetResolver();
+        _betResolver = new BetResolver();
 
-       try
-       {
-           //
-           // Retrieve / create the bank
-           //
-           
-           Ice.Identity bankId = Ice.Util.stringToIdentity("bank/Montecito");
-           _bankPrx = CasinoStore.PersistentBankPrxHelper.uncheckedCast(adapter.createProxy(bankId));
-           
-           if(!_bankEvictor.hasObject(bankId))
-           {
-               _bankEvictor.add(new BankI(_bankPrx, _bankEvictor, _playerEvictor, _betEvictor, _betResolver, _bankEdge), bankId);
-           }
-           
-           //
-           // reload existing bets into the bet resolver
-           //
-           
-           _bankPrx.reloadBets();
-           
-           //
-           // Create players / recreate missing players
-           //
+        try
+        {
+            //
+            // Retrieve / create the bank
+            //
 
-           String[] players = { "al", "bob", "charlie", "dave", "ed", "fred", "gene", "herb", "irvin", "joe", "ken", "lance" };  
-           
-           for(int i = 0; i < players.length; ++i)
-           {
-               Ice.Identity ident = new Ice.Identity(players[i], "player");
-               if(!_playerEvictor.hasObject(ident))
-               {
-                   _playerEvictor.add(new PlayerI(), ident);
-               }
-           } 
-           
-           //
-           // Everything is ready, activate
-           //
-           adapter.activate();
-           
-           shutdownOnInterrupt();
-           communicator().waitForShutdown();
-           defaultInterrupt();
-       }
-       finally
-       {
-           _betResolver.cancel();
-       }
-       return 0;
+            Ice.Identity bankId = Ice.Util.stringToIdentity("bank/Montecito");
+            _bankPrx = CasinoStore.PersistentBankPrxHelper.uncheckedCast(adapter.createProxy(bankId));
+
+            if(!_bankEvictor.hasObject(bankId))
+            {
+                _bankEvictor.add(
+                    new BankI(_bankPrx, _bankEvictor, _playerEvictor, _betEvictor, _betResolver, _bankEdge),
+                    bankId);
+            }
+
+            //
+            // reload existing bets into the bet resolver
+            //
+
+            _bankPrx.reloadBets();
+
+            //
+            // Create players / recreate missing players
+            //
+
+            String[] players =
+                { "al", "bob", "charlie", "dave", "ed", "fred", "gene", "herb", "irvin", "joe", "ken", "lance" };
+
+            for(String player : players)
+            {
+                Ice.Identity ident = new Ice.Identity(player, "player");
+                if(!_playerEvictor.hasObject(ident))
+                {
+                    _playerEvictor.add(new PlayerI(), ident);
+                }
+            }
+
+            //
+            // Everything is ready, activate
+            //
+            adapter.activate();
+
+            shutdownOnInterrupt();
+            communicator().waitForShutdown();
+            defaultInterrupt();
+        }
+        finally
+        {
+            _betResolver.cancel();
+        }
+        return 0;
     }
 
     Server(String envName)
@@ -241,6 +240,6 @@ class Server extends Ice.Application
     private Freeze.TransactionalEvictor _bankEvictor;
     private Freeze.TransactionalEvictor _playerEvictor;
     private Freeze.TransactionalEvictor _betEvictor;
-    private BetResolver _betResolver; 
+    private BetResolver _betResolver;
     private int _bankEdge;
 }

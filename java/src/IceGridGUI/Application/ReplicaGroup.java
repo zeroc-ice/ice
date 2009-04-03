@@ -6,6 +6,7 @@
 // ICE_LICENSE file included in this distribution.
 //
 // **********************************************************************
+
 package IceGridGUI.Application;
 
 import java.awt.Component;
@@ -17,32 +18,30 @@ import IceGridGUI.*;
 
 class ReplicaGroup extends TreeNode
 {
-    static public ReplicaGroupDescriptor 
+    static public ReplicaGroupDescriptor
     copyDescriptor(ReplicaGroupDescriptor d)
     {
         return (ReplicaGroupDescriptor)d.clone();
     }
 
     public Component getTreeCellRendererComponent(
-            JTree tree,
-            Object value,
-            boolean sel,
-            boolean expanded,
-            boolean leaf,
-            int row,
-            boolean hasFocus) 
+        JTree tree,
+        Object value,
+        boolean sel,
+        boolean expanded,
+        boolean leaf,
+        int row,
+        boolean hasFocus)
     {
         if(_cellRenderer == null)
         {
             _cellRenderer = new DefaultTreeCellRenderer();
-            _cellRenderer.setLeafIcon(
-                Utils.getIcon("/icons/16x16/replica_group.png"));
+            _cellRenderer.setLeafIcon(Utils.getIcon("/icons/16x16/replica_group.png"));
         }
 
-        return _cellRenderer.getTreeCellRendererComponent(
-            tree, value, sel, expanded, leaf, row, hasFocus);
+        return _cellRenderer.getTreeCellRendererComponent(tree, value, sel, expanded, leaf, row, hasFocus);
     }
-    
+
     //
     // Actions
     //
@@ -50,7 +49,7 @@ class ReplicaGroup extends TreeNode
     {
         boolean[] actions = new boolean[ACTION_COUNT];
         actions[COPY] = !_ephemeral;
-        
+
         if(((TreeNode)_parent).getAvailableActions()[PASTE])
         {
             actions[PASTE] = true;
@@ -84,8 +83,7 @@ class ReplicaGroup extends TreeNode
         if(!_ephemeral)
         {
             replicaGroups.removeDescriptor(_descriptor);
-            replicaGroups.getEditable().
-                removeElement(_id, _editable, ReplicaGroup.class);
+            replicaGroups.getEditable().removeElement(_id, _editable, ReplicaGroup.class);
             getRoot().updated();
         }
     }
@@ -114,11 +112,12 @@ class ReplicaGroup extends TreeNode
     {
         return _descriptor;
     }
-    
+
     Object saveDescriptor()
     {
         return _descriptor.clone();
     }
+
     void restoreDescriptor(Object savedDescriptor)
     {
         ReplicaGroupDescriptor clone = (ReplicaGroupDescriptor)savedDescriptor;
@@ -132,22 +131,20 @@ class ReplicaGroup extends TreeNode
     {
         _editable.commit();
     }
-    
+
     Editable getEditable()
     {
         return _editable;
     }
-   
-    ReplicaGroup(boolean brandNew,
-                 TreeNode parent,
-                 ReplicaGroupDescriptor descriptor)
+
+    ReplicaGroup(boolean brandNew, TreeNode parent, ReplicaGroupDescriptor descriptor)
     {
         super(parent, descriptor.id);
         _ephemeral = false;
         _editable = new Editable(brandNew);
         rebuild(descriptor);
     }
-    
+
     ReplicaGroup(TreeNode parent, ReplicaGroupDescriptor descriptor)
     {
         super(parent, descriptor.id);
@@ -155,15 +152,16 @@ class ReplicaGroup extends TreeNode
         _editable = null;
         rebuild(descriptor);
     }
-    
-    void write(XMLWriter writer) throws java.io.IOException
+
+    void write(XMLWriter writer)
+        throws java.io.IOException
     {
         if(!_ephemeral)
         {
-            java.util.List attributes = new java.util.LinkedList();
+            java.util.List<String[]> attributes = new java.util.LinkedList<String[]>();
             attributes.add(createAttribute("id", _descriptor.id));
-                                   
-            if(_descriptor.loadBalancing == null && 
+
+            if(_descriptor.loadBalancing == null &&
                _descriptor.description.length() == 0 && _descriptor.objects.isEmpty())
             {
                 writer.writeElement("replica-group", attributes);
@@ -181,33 +179,30 @@ class ReplicaGroup extends TreeNode
                 attributes.clear();
                 if(_descriptor.loadBalancing instanceof RandomLoadBalancingPolicy)
                 {
-                    attributes.add(createAttribute("type", "random")); 
+                    attributes.add(createAttribute("type", "random"));
                 }
                 else if(_descriptor.loadBalancing instanceof OrderedLoadBalancingPolicy)
                 {
-                    attributes.add(createAttribute("type", "ordered")); 
+                    attributes.add(createAttribute("type", "ordered"));
                 }
                 else if(_descriptor.loadBalancing instanceof RoundRobinLoadBalancingPolicy)
                 {
-                    attributes.add(createAttribute("type", "round-robin")); 
+                    attributes.add(createAttribute("type", "round-robin"));
                 }
                 else if(_descriptor.loadBalancing instanceof AdaptiveLoadBalancingPolicy)
                 {
                     attributes.add(createAttribute("type", "adaptive"));
-                    AdaptiveLoadBalancingPolicy policy = 
-                        (AdaptiveLoadBalancingPolicy)_descriptor.loadBalancing;
+                    AdaptiveLoadBalancingPolicy policy = (AdaptiveLoadBalancingPolicy)_descriptor.loadBalancing;
                     attributes.add(createAttribute("load-sample", policy.loadSample));
                 }
-                attributes.add(createAttribute("n-replicas", 
-                                               _descriptor.loadBalancing.nReplicas));
+                attributes.add(createAttribute("n-replicas", _descriptor.loadBalancing.nReplicas));
                 writer.writeElement("load-balancing", attributes);
-             
+
                 writeObjects("object", writer, _descriptor.objects, null);
                 writer.writeEndTag("replica-group");
             }
         }
     }
-
 
     void rebuild(ReplicaGroupDescriptor descriptor)
     {
@@ -222,5 +217,5 @@ class ReplicaGroup extends TreeNode
     private final Editable _editable;
     private ReplicaGroupEditor _editor;
 
-    static private DefaultTreeCellRenderer _cellRenderer;  
+    static private DefaultTreeCellRenderer _cellRenderer;
 }

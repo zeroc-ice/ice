@@ -6,6 +6,7 @@
 // ICE_LICENSE file included in this distribution.
 //
 // **********************************************************************
+
 package IceGridGUI.Application;
 
 import javax.swing.JOptionPane;
@@ -20,11 +21,11 @@ import IceGridGUI.*;
 public abstract class TreeNode extends TreeNodeBase
 {
     abstract public Editor getEditor();
-    abstract protected Editor createEditor(); 
+    abstract protected Editor createEditor();
     abstract Object getDescriptor();
-    
+
     abstract void write(XMLWriter writer) throws java.io.IOException;
- 
+
     //
     // Ephemeral objects are destroyed when discard their changes
     //
@@ -40,7 +41,7 @@ public abstract class TreeNode extends TreeNodeBase
     {
         assert false;
     }
-   
+
     TreeNode(TreeNode parent, String id)
     {
         super(parent, id);
@@ -97,33 +98,29 @@ public abstract class TreeNode extends TreeNodeBase
         return new String[]{name, value};
     }
 
-    static void writeVariables(XMLWriter writer, 
-                               java.util.Map variables)
+    static void writeVariables(XMLWriter writer, java.util.Map<String, String> variables)
         throws java.io.IOException
     {
-        java.util.Iterator p = variables.entrySet().iterator();
-        while(p.hasNext())
+        for(java.util.Map.Entry<String, String> p : variables.entrySet())
         {
-            java.util.Map.Entry entry = (java.util.Map.Entry)p.next();
-            
-            java.util.List attributes = new java.util.LinkedList();
-            attributes.add(createAttribute("name", entry.getKey().toString()));
-            attributes.add(createAttribute("value", entry.getValue().toString()));
+            java.util.List<String[]> attributes = new java.util.LinkedList<String[]>();
+            attributes.add(createAttribute("name", p.getKey()));
+            attributes.add(createAttribute("value", p.getValue()));
 
             writer.writeElement("variable", attributes);
         }
     }
 
-    static void writePropertySet(XMLWriter writer, PropertySetDescriptor psd, 
-                                 java.util.List adapters, String[] logs)
+    static void writePropertySet(XMLWriter writer, PropertySetDescriptor psd,
+                                 java.util.List<AdapterDescriptor> adapters, String[] logs)
         throws java.io.IOException
     {
         writePropertySet(writer, "", "", psd, adapters, logs);
     }
 
     static void writePropertySet(XMLWriter writer, String id, String idAttrName,
-                                 PropertySetDescriptor psd, 
-                                 java.util.List adapters, String[] logs)
+                                 PropertySetDescriptor psd,
+                                 java.util.List<AdapterDescriptor> adapters, String[] logs)
         throws java.io.IOException
     {
         if(id.length() == 0 && psd.references.length == 0 && psd.properties.size() == 0)
@@ -135,41 +132,35 @@ public abstract class TreeNode extends TreeNodeBase
         // We don't show the .Endpoint of adapters,
         // since they already appear in the Adapter descriptors
         //
-        java.util.Set hiddenPropertyNames = new java.util.HashSet();
-        java.util.Set hiddenPropertyValues = new java.util.HashSet();
+        java.util.Set<String> hiddenPropertyNames = new java.util.HashSet<String>();
+        java.util.Set<String> hiddenPropertyValues = new java.util.HashSet<String>();
 
         if(adapters != null)
         {
-            java.util.Iterator p = adapters.iterator();
-            while(p.hasNext())
+            for(AdapterDescriptor p : adapters)
             {
-                AdapterDescriptor ad = (AdapterDescriptor)p.next();
-                hiddenPropertyNames.add(ad.name + ".Endpoints");
+                hiddenPropertyNames.add(p.name + ".Endpoints");
 
-                java.util.Iterator q = ad.objects.iterator();
-                while(q.hasNext())
+                for(ObjectDescriptor q : p.objects)
                 {
-                    ObjectDescriptor od = (ObjectDescriptor)q.next();
-                    hiddenPropertyValues.add(Ice.Util.identityToString(od.id));
+                    hiddenPropertyValues.add(Ice.Util.identityToString(q.id));
                 }
-                q = ad.allocatables.iterator();
-                while(q.hasNext())
+                for(ObjectDescriptor q : p.allocatables)
                 {
-                    ObjectDescriptor od = (ObjectDescriptor)q.next();
-                    hiddenPropertyValues.add(Ice.Util.identityToString(od.id));
+                    hiddenPropertyValues.add(Ice.Util.identityToString(q.id));
                 }
             }
         }
 
         if(logs != null)
         {
-            for(int i = 0; i < logs.length; ++i)
+            for(String log : logs)
             {
-                hiddenPropertyValues.add(logs[i]);
+                hiddenPropertyValues.add(log);
             }
         }
 
-        java.util.List attributes = new java.util.LinkedList();
+        java.util.List<String[]> attributes = new java.util.LinkedList<String[]>();
         if(id.length() > 0)
         {
             attributes.add(createAttribute(idAttrName, id));
@@ -181,34 +172,32 @@ public abstract class TreeNode extends TreeNodeBase
         else
         {
             writer.writeStartTag("properties", attributes);
-            
-            for(int i = 0; i < psd.references.length; ++i)
+
+            for(String ref : psd.references)
             {
                 attributes.clear();
-                attributes.add(createAttribute("refid", psd.references[i])); 
+                attributes.add(createAttribute("refid", ref));
                 writer.writeElement("properties", attributes);
             }
-            
-            java.util.Iterator p = psd.properties.iterator();
-            while(p.hasNext())
+
+            for(PropertyDescriptor p : psd.properties)
             {
-                PropertyDescriptor pd = (PropertyDescriptor)p.next();
-                if(hiddenPropertyNames.contains(pd.name))
+                if(hiddenPropertyNames.contains(p.name))
                 {
                     //
                     // We hide only the first occurence
                     //
-                    hiddenPropertyNames.remove(pd.name);
+                    hiddenPropertyNames.remove(p.name);
                 }
-                else if(hiddenPropertyValues.contains(pd.value))
+                else if(hiddenPropertyValues.contains(p.value))
                 {
-                    hiddenPropertyValues.remove(pd.value);
+                    hiddenPropertyValues.remove(p.value);
                 }
                 else
                 {
                     attributes.clear();
-                    attributes.add(createAttribute("name", pd.name));
-                    attributes.add(createAttribute("value", pd.value));
+                    attributes.add(createAttribute("name", p.name));
+                    attributes.add(createAttribute("value", p.value));
                     writer.writeElement("property", attributes);
                 }
             }
@@ -216,14 +205,14 @@ public abstract class TreeNode extends TreeNodeBase
         }
     }
 
-    static void writeLogs(XMLWriter writer, String[] logs, java.util.List properties)
+    static void writeLogs(XMLWriter writer, String[] logs, java.util.List<PropertyDescriptor> properties)
         throws java.io.IOException
     {
-        for(int i = 0; i < logs.length; ++i)
+        for(String log : logs)
         {
-            java.util.List attributes = new java.util.LinkedList();
-            attributes.add(createAttribute("path", logs[i]));
-            String prop = lookupName(logs[i], properties);
+            java.util.List<String[]> attributes = new java.util.LinkedList<String[]>();
+            attributes.add(createAttribute("path", log));
+            String prop = lookupName(log, properties);
             if(prop != null)
             {
                 attributes.add(createAttribute("property", prop));
@@ -232,30 +221,26 @@ public abstract class TreeNode extends TreeNodeBase
         }
     }
 
-    static String lookupName(String val, java.util.List properties)
+    static String lookupName(String val, java.util.List<PropertyDescriptor> properties)
     {
-        java.util.Iterator p = properties.iterator();
-        while(p.hasNext())
+        for(PropertyDescriptor p : properties)
         {
-            PropertyDescriptor pd = (PropertyDescriptor)p.next();
-            if(pd.value.equals(val))
+            if(p.value.equals(val))
             {
-                return pd.name;
+                return p.name;
             }
         }
         return null;
     }
 
-
-    static void writeDistribution(XMLWriter writer, 
-                                  DistributionDescriptor descriptor)
+    static void writeDistribution(XMLWriter writer, DistributionDescriptor descriptor)
         throws java.io.IOException
     {
         if(descriptor.icepatch.length() > 0)
         {
-            java.util.List attributes = new java.util.LinkedList();
+            java.util.List<String[]> attributes = new java.util.LinkedList<String[]>();
             attributes.add(createAttribute("icepatch", descriptor.icepatch));
-        
+
             if(descriptor.directories.isEmpty())
             {
                 writer.writeElement("distrib", attributes);
@@ -263,30 +248,27 @@ public abstract class TreeNode extends TreeNodeBase
             else
             {
                 writer.writeStartTag("distrib", attributes);
-                java.util.Iterator p = descriptor.directories.iterator();
-                while(p.hasNext())
+                for(String p : descriptor.directories)
                 {
-                    writer.writeElement("directory", p.next().toString());
+                    writer.writeElement("directory", p);
                 }
                 writer.writeEndTag("distrib");
             }
         }
     }
-    
-    static void writeObjects(String elt, XMLWriter writer, java.util.List objects, 
-                             java.util.List properties)
+
+    static void writeObjects(String elt, XMLWriter writer, java.util.List<ObjectDescriptor> objects,
+                             java.util.List<PropertyDescriptor> properties)
         throws java.io.IOException
     {
-        java.util.Iterator p = objects.iterator();
-        while(p.hasNext())
+        for(ObjectDescriptor p : objects)
         {
-            ObjectDescriptor od = (ObjectDescriptor)p.next();
-            java.util.List attributes = new java.util.LinkedList();
-            String strId = Ice.Util.identityToString(od.id);
+            java.util.List<String[]> attributes = new java.util.LinkedList<String[]>();
+            String strId = Ice.Util.identityToString(p.id);
             attributes.add(createAttribute("identity", strId));
-            if(od.type.length() > 0)
+            if(p.type.length() > 0)
             {
-                attributes.add(createAttribute("type", od.type));
+                attributes.add(createAttribute("type", p.type));
             }
             if(properties != null)
             {
@@ -296,22 +278,20 @@ public abstract class TreeNode extends TreeNodeBase
                     attributes.add(createAttribute("property", prop));
                 }
             }
-            
+
             writer.writeElement(elt, attributes);
         }
-    }     
+    }
 
-    static void writeParameters(XMLWriter writer, java.util.List parameters,
-                                java.util.Map defaultValues)
+    static void writeParameters(XMLWriter writer, java.util.List<String> parameters,
+                                java.util.Map<String, String> defaultValues)
         throws java.io.IOException
     {
-        java.util.Iterator p = new java.util.LinkedHashSet(parameters).iterator();
-        while(p.hasNext())
+        for(String p : new java.util.LinkedHashSet<String>(parameters))
         {
-            String parameter = (String)p.next();
-            String val = (String)defaultValues.get(parameter);
-            java.util.List attributes = new java.util.LinkedList();
-            attributes.add(createAttribute("name", parameter));
+            String val = defaultValues.get(p);
+            java.util.List<String[]> attributes = new java.util.LinkedList<String[]>();
+            attributes.add(createAttribute("name", p));
             if(val != null)
             {
                 attributes.add(createAttribute("default", val));
@@ -320,23 +300,20 @@ public abstract class TreeNode extends TreeNodeBase
         }
     }
 
-    static java.util.LinkedList 
-    parameterValuesToAttributes(java.util.Map parameterValues,
-                                java.util.List parameters)
+    static java.util.LinkedList<String[]>
+    parameterValuesToAttributes(java.util.Map<String, String> parameterValues, java.util.List<String> parameters)
     {
-        java.util.LinkedList result = new java.util.LinkedList();
+        java.util.LinkedList<String[]> result = new java.util.LinkedList<String[]>();
 
         //
         // We use a LinkedHashSet to maintain order while eliminating duplicates
         //
-        java.util.Iterator p = new java.util.LinkedHashSet(parameters).iterator();
-        while(p.hasNext())
+        for(String p : new java.util.LinkedHashSet<String>(parameters))
         {
-            String param = (String)p.next();
-            String val = (String)parameterValues.get(param);
+            String val = parameterValues.get(p);
             if(val != null)
             {
-                result.add(createAttribute(param, val));
+                result.add(createAttribute(p, val));
             }
         }
         return result;
@@ -358,7 +335,7 @@ public abstract class TreeNode extends TreeNodeBase
     public static final int NEW_TEMPLATE_SERVER = 10;
     public static final int NEW_TEMPLATE_SERVER_ICEBOX = 11;
     public static final int NEW_TEMPLATE_SERVICE = 12;
-  
+
     public static final int COPY = 13;
     public static final int PASTE = 14;
     public static final int DELETE = 15;

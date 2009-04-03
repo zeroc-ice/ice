@@ -311,39 +311,6 @@ local interface Communicator
      **/
     ["cpp:const"] ObjectFactory findObjectFactory(string id);
 
-
-    /**
-     *
-     * Get the currently-set default context.
-     *
-     * <p class="Deprecated">This operation is deprecated as of version 3.2.
-     *
-     * @return The currently established default context. If no
-     * default context is currently set, [getDefaultContext]
-     * returns an empty context.
-     *
-     * @see setDefaultContext
-     **/
-    ["cpp:const", "deprecate:getDefaultContext is deprecated, use per-proxy contexts or implicit contexts (if applicable) instead."]
-    Context getDefaultContext();
-
-    /**
-     *
-     * Set a default context on this communicator. All newly
-     * created proxies will use this default context. This operation 
-     * has no effect on existing proxies.
-     *
-     * <p class="Note"> You can also set a context for an individual proxy
-     * by calling the operation [ice_context] on the proxy.</p>
-     *
-     * <p class="Deprecated">This operation is deprecated as of version 3.2.
-     *
-     * @param ctx The default context to be set.
-     * @see getDefaultContext
-     **/
-    ["deprecate:setDefaultContext is deprecated, use per-proxy contexts or implicit contexts (if applicable) instead."]
-    void setDefaultContext(Context ctx);
-    
     /**
      * Get the implicit context associated with this communicator.
      *

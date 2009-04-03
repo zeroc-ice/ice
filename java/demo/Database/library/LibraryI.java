@@ -224,11 +224,8 @@ class LibraryI extends _LibraryDisp
             // First convert the authors string to an id set.
             //
             java.util.List<Integer> authIds = new java.util.LinkedList<Integer>();
-            java.util.Iterator<String> p = authors.iterator();
-            while(p.hasNext())
+            for(String author : authors)
             {
-                String author = p.next();
-
                 Integer id;
                 stmt = context.prepareStatement("SELECT * FROM authors WHERE name = ?");
                 stmt.setString(1, author);
@@ -272,12 +269,11 @@ class LibraryI extends _LibraryDisp
             Integer bookId = rs.getInt(1);
 
             // Create new authors_books records.
-            java.util.Iterator<Integer> q = authIds.iterator();
-            while(q.hasNext())
+            for(Integer i : authIds)
             {
                 stmt = context.prepareStatement("INSERT INTO authors_books (book_id, author_id) VALUES(?, ?)");
                 stmt.setInt(1, bookId);
-                stmt.setInt(2, q.next());
+                stmt.setInt(2, i);
                 count = stmt.executeUpdate();
                 assert count == 1;
             }
@@ -304,12 +300,11 @@ class LibraryI extends _LibraryDisp
             return;
         }
         _destroyed = true;
-        java.util.Iterator<QueryProxyPair> p = _queries.iterator();
-        while(p.hasNext())
+        for(QueryProxyPair p : _queries)
         {
             try
             {
-                p.next().proxy.destroy();
+                p.proxy.destroy();
             }
             catch(Ice.ObjectNotExistException e)
             {
@@ -328,10 +323,9 @@ class LibraryI extends _LibraryDisp
         _destroyed = true;
 
         // Shutdown each of the associated query objects.
-        java.util.Iterator<QueryProxyPair> p = _queries.iterator();
-        while(p.hasNext())
+        for(QueryProxyPair p : _queries)
         {
-            p.next().impl.shutdown();
+            p.impl.shutdown();
         }
     }
 

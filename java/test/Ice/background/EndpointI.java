@@ -188,10 +188,9 @@ final class EndpointI extends IceInternal.EndpointI
     {
         _configuration.checkConnectorsException();
         java.util.List<IceInternal.Connector> connectors = new java.util.ArrayList<IceInternal.Connector>();
-        java.util.Iterator<IceInternal.Connector> p = _endpoint.connectors().iterator();
-        while(p.hasNext())
+        for(IceInternal.Connector p : _endpoint.connectors())
         {
-            connectors.add(new Connector(_configuration, p.next()));
+            connectors.add(new Connector(_configuration, p));
         }
         return connectors;
     }
@@ -205,10 +204,9 @@ final class EndpointI extends IceInternal.EndpointI
             connectors(java.util.List<IceInternal.Connector> cons)
             {
                 java.util.List<IceInternal.Connector> connectors = new java.util.ArrayList<IceInternal.Connector>();
-                java.util.Iterator<IceInternal.Connector> p = cons.iterator();
-                while(p.hasNext())
+                for(IceInternal.Connector p : cons)
                 {
-                    connectors.add(new Connector(_configuration, p.next()));
+                    connectors.add(new Connector(_configuration, p));
                 }
                 cb.connectors(connectors);
             }
@@ -243,10 +241,8 @@ final class EndpointI extends IceInternal.EndpointI
     expand()
     {
         java.util.List<IceInternal.EndpointI> endps = new java.util.ArrayList<IceInternal.EndpointI>();
-        java.util.Iterator<IceInternal.EndpointI> iter = _endpoint.expand().iterator();
-        while(iter.hasNext())
+        for(IceInternal.EndpointI endpt : _endpoint.expand())
         {
-            IceInternal.EndpointI endpt = iter.next();
             endps.add(endpt == _endpoint ? this : new EndpointI(_configuration, endpt));
         }
         return endps;

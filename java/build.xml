@@ -44,7 +44,6 @@
         <!-- Create the output directory for generated code -->
         <mkdir dir="${generated.dir}"/>
         <slice2java ice="on" stream="on" outputdir="${generated.dir}" dependencyfile="${generated.dir}/.depend.Ice">
-            <meta value="${java2metadata}"/>
             <includepath>
                 <pathelement path="${slice.dir}" />
             </includepath>
@@ -53,7 +52,6 @@
             </fileset>
         </slice2java>
         <slice2java ice="on" outputdir="${generated.dir}" dependencyfile="${generated.dir}/.depend.Ice">
-            <meta value="${java2metadata}"/>
             <includepath>
                 <pathelement path="${slice.dir}" />
             </includepath>
@@ -95,7 +93,6 @@
         </slice2java>
 
         <slice2freezej outputdir="${generated.dir}" dependencyfile="${generated.dir}/.depend.Freeze">
-            <meta value="${java2metadata}"/>
             <includepath>
                 <pathelement path="${slice.dir}" />
             </includepath>
@@ -104,7 +101,6 @@
         </slice2freezej>
 
         <slice2freezej ice="on" outputdir="${generated.dir}" dependencyfile="${generated.dir}/.depend.Freeze">
-            <meta value="${java2metadata}"/>
             <includepath>
                 <pathelement path="${slice.dir}" />
             </includepath>
@@ -116,7 +112,6 @@
 
         <slice2java ice="on" outputdir="${generated.dir}" checksum="Glacier2.SliceChecksums"
             dependencyfile="${generated.dir}/.depend.Glacier2">
-            <meta value="${java2metadata}"/>
             <includepath>
                 <pathelement path="${slice.dir}" />
             </includepath>
@@ -130,7 +125,6 @@
 
         <slice2java ice="on" outputdir="${generated.dir}" checksum="IceBox.SliceChecksums"
             dependencyfile="${generated.dir}/.depend.IceBox">
-            <meta value="${java2metadata}"/>
             <includepath>
                 <pathelement path="${slice.dir}" />
             </includepath>
@@ -141,7 +135,6 @@
 
         <slice2java ice="on" outputdir="${generated.dir}" checksum="IceGrid.SliceChecksums"
             dependencyfile="${generated.dir}/.depend.IceGrid">
-            <meta value="${java2metadata}"/>
             <includepath>
                 <pathelement path="${slice.dir}" />
             </includepath>
@@ -161,7 +154,6 @@
 
         <slice2java ice="on" outputdir="${generated.dir}" checksum="IceStorm.SliceChecksums"
             dependencyfile="${generated.dir}/.depend.IceStorm">
-            <meta value="${java2metadata}"/>
             <includepath>
                 <pathelement path="${slice.dir}" />
             </includepath>
@@ -218,6 +210,9 @@
                 <include name="Test.ice" />
             </fileset>
             <fileset dir="test/Ice/binding">
+                <include name="Test.ice" />
+            </fileset>
+            <fileset dir="test/Ice/custom">
                 <include name="Test.ice" />
             </fileset>
             <fileset dir="test/Ice/defaultServant">
@@ -280,6 +275,9 @@
             <fileset dir="test/Ice/timeout">
                 <include name="Test.ice" />
             </fileset>
+            <fileset dir="test/Ice/throughput">
+                <include name="Throughput.ice" />
+            </fileset>
             <fileset dir="test/Freeze/complex">
                 <include name="Complex.ice" />
             </fileset>
@@ -297,9 +295,6 @@
             </fileset>
 	    <fileset dir="test/Slice/keyword/">
                 <include name="Key.ice" />
-            </fileset>
-            <fileset dir="test/Ice/throughput">
-                <include name="Throughput.ice" />
             </fileset>
         </slice2java>
 
@@ -407,66 +402,18 @@
         </slice2java>
     </target>
 
-    <target name="test-generate-custom4" depends="test-generate" if="java2">
-        <!-- Create the output directory for generated code -->
-        <mkdir dir="${generated.test.dir}"/>
-        <slice2java outputdir="${generated.test.dir}" dependencyfile="${generated.test.dir}/.depend.Test">
-            <meta value="${java2metadata}"/>
-            <fileset dir="test/Ice/custom14">
-                <include name="Test.ice" />
-            </fileset>
-        </slice2java>
-    </target>
-
-    <target name="test-generate-custom5" depends="test-generate" unless="java2">
-        <!-- Create the output directory for generated code -->
-        <mkdir dir="${generated.test.dir}"/>
-        <slice2java outputdir="${generated.test.dir}" dependencyfile="${generated.test.dir}/.depend.Test">
-            <fileset dir="test/Ice/custom15">
-                <include name="Test.ice" />
-            </fileset>
-        </slice2java>
-    </target>
-
-    <target name="test-compile-base" depends="ice-compile,test-generate">
+    <target name="test-compile" depends="ice-compile,test-generate">
         <mkdir dir="${lib.dir}"/>
         <mkdir dir="${cache.dir}"/>
         <depend srcdir="." destdir="${lib.dir}" cache="${cache.dir}"/>
-        <javac srcdir=".:${generated.test.dir}" destdir="${lib.dir}" source="1.5" debug="${debug}" deprecation="on">
-
+        <javac srcdir=".:${generated.test.dir}" destdir="${lib.dir}" source="1.5" debug="${debug}" deprecation="on"
+            classpathref="db.classpath">
             <exclude name="${generated.test.dir}/**"/>
-
 	    <include name="test/**"/>
             <exclude name="test/Ice/translator/"/>
-            <exclude name="test/Ice/custom14/"/>
-            <exclude name="test/Ice/custom15/"/>
-            <exclude name="test/Ice/protobuf/"/>
             <compilerarg value="${javac.lint}"/>
         </javac>
     </target>
-
-    <target name="test-custom-compile4" depends="test-generate-custom4,test-compile-base" if="java2">
-        <mkdir dir="${lib.dir}"/>
-        <mkdir dir="${cache.dir}"/>
-        <depend srcdir="." destdir="${lib.dir}" cache="${cache.dir}"/>
-        <javac srcdir=".:${generated.test.dir}" destdir="${lib.dir}" debug="${debug}">
-            <exclude name="${generated.test.dir}/**"/>
-	    <include name="test/Ice/custom14/"/>
-	</javac>
-    </target>
-
-    <target name="test-custom-compile5" depends="test-generate-custom5,test-compile-base" unless="java2">
-        <mkdir dir="${lib.dir}"/>
-        <mkdir dir="${cache.dir}"/>
-        <depend srcdir="." destdir="${lib.dir}" cache="${cache.dir}"/>
-        <javac srcdir=".:${generated.test.dir}" destdir="${lib.dir}" debug="${debug}" source="1.5">
-            <exclude name="${generated.test.dir}/**"/>
-	    <include name="test/Ice/custom15/"/>
-            <compilerarg value="${javac.lint}"/>
-	</javac>
-    </target>
-
-    <target name="test-compile" depends="test-compile-base,test-custom-compile4,test-custom-compile5"/>
 
     <target name="test-jar" depends="test-compile">
         <jar jarfile="${lib.dir}/IceTest.jar" basedir="${lib.dir}">
@@ -489,12 +436,14 @@
         </jar>
     </target>
 
-    <target name="icegridadmin-compile" depends="ice-compile" unless="java2">
+    <target name="icegridadmin-compile" depends="ice-compile">
         <javac srcdir="${src.dir}" destdir="${lib.dir}"
             source="1.5" debug="${debug}"
             includes="IceGridGUI/**"
             classpath="${jgoodies.looks}:${jgoodies.forms}"
-            deprecation="on"/>
+            deprecation="on">
+            <compilerarg value="${javac.lint}"/>
+        </javac>
     </target>
 
     <condition property="build-icegridadmin-pro-jar">
@@ -502,15 +451,11 @@
             <available classname="proguard.ant.ProGuardTask" classpath="${env.CLASSPATH}" />
             <available file="${jgoodies.looks}" />
             <available file="${jgoodies.forms}" />
-            <not><isset property="java2"/></not>
         </and>
     </condition>
 
     <condition property="build-icegridadmin-plain-jar">
-        <and>
-            <not><isset property="build-icegridadmin-pro-jar"/></not>
-            <not><isset property="java2"/></not>
-        </and>
+        <not><isset property="build-icegridadmin-pro-jar"/></not>
     </condition>
 
     <target name="icegridadmin-plain-jar" depends="icegridadmin-compile" if="build-icegridadmin-plain-jar">
@@ -608,7 +553,7 @@
         </copy>
     </target>
 
-    <target name="install-icegridgui-jar" unless="java2">
+    <target name="install-icegridgui-jar">
         <mkdir dir="${prefix}/help"/>
         <copy file="${lib.dir}/IceGridGUI.jar" todir="${prefix}/lib"/>
         <copy todir="${prefix}/help">
@@ -616,20 +561,15 @@
         </copy>
     </target>
 
-    <target name="install-jar" unless="java2">
+    <target name="install-jar">
         <copy file="${lib.dir}/Ice.jar" todir="${prefix}/lib"/>
-    </target>
-
-    <target name="install-java2-jar" if="java2">
-        <mkdir dir="${prefix}/lib/java2"/>
-        <copy file="${lib.dir}/Ice.jar" todir="${prefix}/lib/java2"/>
     </target>
 
     <target name="install-tasks">
         <copy file="${lib.dir}/ant-ice.jar" todir="${prefix}/lib"/>
     </target>
 
-    <target name="install" depends="jar, install-common, install-jar, install-java2-jar, install-icegridgui-jar, install-tasks, install-slice">
+    <target name="install" depends="jar, install-common, install-jar, install-icegridgui-jar, install-tasks, install-slice">
     </target>
 
     <target name="clean" depends="config-init">

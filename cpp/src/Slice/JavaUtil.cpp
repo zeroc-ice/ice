@@ -168,8 +168,6 @@ Slice::JavaOutput::printHeader()
 }
 
 const string Slice::JavaGenerator::_getSetMetaData = "java:getset";
-const string Slice::JavaGenerator::_java2MetaData = "java:java2";
-const string Slice::JavaGenerator::_java5MetaData = "java:java5";
 
 Slice::JavaGenerator::JavaGenerator(const string& dir) :
     _featureProfile(Slice::Ice),
@@ -533,22 +531,12 @@ Slice::JavaGenerator::typeToString(const TypePtr& type,
                     return getAbsolute(dict, package, "", "Holder");
                 }
 
-                bool java2 = dict->definitionContext()->findMetaData(_java2MetaData) == _java2MetaData;
-
                 //
                 // The custom type may or may not be compatible with the type used
-                // in the generated holder. For Java5, we can use a generic holder
-                // that holds a value of the formal custom type. Otherwise, we
-                // use MapHolder.
+                // in the generated holder. We use a generic holder that holds a value of the
+                // formal custom type.
                 //
-                if(java2)
-                {
-                    return "Ice.MapHolder";
-                }
-                else
-                {
-                    return string("Ice.Holder<") + formalType + " >";
-                }
+                return string("Ice.Holder<") + formalType + " >";
             }
         }
         else
@@ -599,33 +587,12 @@ Slice::JavaGenerator::typeToString(const TypePtr& type,
                     return getAbsolute(seq, package, "", "Holder");
                 }
 
-                bool java2 = seq->definitionContext()->findMetaData(_java2MetaData) == _java2MetaData;
-
                 //
                 // The custom type may or may not be compatible with the type used
-                // in the generated holder. For Java5, we can use a generic holder
-                // that holds a value of the formal custom type. Otherwise, we
-                // choose a predefined holder class.
+                // in the generated holder. We use a generic holder that holds a value of the
+                // formal custom type.
                 //
-                if(java2)
-                {
-                    if(formalType == "java.util.ArrayList")
-                    {
-                        return "Ice.ArrayListHolder";
-                    }
-                    else if(formalType == "java.util.LinkedList")
-                    {
-                        return "Ice.LinkedListHolder";
-                    }
-                    else
-                    {
-                        return "Ice.ListHolder";
-                    }
-                }
-                else
-                {
-                    return string("Ice.Holder<") + formalType + " >";
-                }
+                return string("Ice.Holder<") + formalType + " >";
             }
         }
         else
@@ -990,13 +957,10 @@ Slice::JavaGenerator::writeDictionaryMarshalUnmarshalCode(Output& out,
     string stream = marshal ? "__os" : "__is";
     string v = param;
 
-    bool java2 = false;
     string instanceType;
 
     if(_featureProfile != Slice::IceE)
     {
-        java2 = dict->definitionContext()->findMetaData(_java2MetaData) == _java2MetaData;
-
         //
         // We have to determine whether it's possible to use the
         // type's generated helper class for this marshal/unmarshal
@@ -1059,24 +1023,13 @@ Slice::JavaGenerator::writeDictionaryMarshalUnmarshalCode(Output& out,
         out << nl << "else";
         out << sb;
         out << nl << "__os.writeSize(" << v << ".size());";
-        if(java2)
-        {
-            out << nl << "java.util.Iterator __i" << iterS << " = " << v << ".entrySet().iterator();";
-            out << nl << "while(__i" << iterS << ".hasNext())";
-            out << sb;
-            out << nl << "java.util.Map.Entry __e = (java.util.Map.Entry)" << "__i" << iterS << ".next();";
-        }
-        else
-        {
-            string keyObjectS = typeToObjectString(key, TypeModeIn, package);
-            string valueObjectS = typeToObjectString(value, TypeModeIn, package);
-            out << nl << "for(java.util.Map.Entry<" << keyObjectS << ", " << valueObjectS << "> __e : " << v
-                << ".entrySet())";
-            out << sb;
-        }
+        string keyObjectS = typeToObjectString(key, TypeModeIn, package);
+        string valueObjectS = typeToObjectString(value, TypeModeIn, package);
+        out << nl << "for(java.util.Map.Entry<" << keyObjectS << ", " << valueObjectS << "> __e : " << v
+            << ".entrySet())";
+        out << sb;
         for(i = 0; i < 2; i++)
         {
-            string val;
             string arg;
             TypePtr type;
             if(i == 0)
@@ -1089,76 +1042,7 @@ Slice::JavaGenerator::writeDictionaryMarshalUnmarshalCode(Output& out,
                 arg = "__e.getValue()";
                 type = value;
             }
-
-            //
-            // We have to downcast unless we're using Java5.
-            //
-            if(java2)
-            {
-                BuiltinPtr b = BuiltinPtr::dynamicCast(type);
-                if(b)
-                {
-                    switch(b->kind())
-                    {
-                        case Builtin::KindByte:
-                        {
-                            val = "((java.lang.Byte)" + arg + ").byteValue()";
-                            break;
-                        }
-                        case Builtin::KindBool:
-                        {
-                            val = "((java.lang.Boolean)" + arg + ").booleanValue()";
-                            break;
-                        }
-                        case Builtin::KindShort:
-                        {
-                            val = "((java.lang.Short)" + arg + ").shortValue()";
-                            break;
-                        }
-                        case Builtin::KindInt:
-                        {
-                            val = "((java.lang.Integer)" + arg + ").intValue()";
-                            break;
-                        }
-                        case Builtin::KindLong:
-                        {
-                            val = "((java.lang.Long)" + arg + ").longValue()";
-                            break;
-                        }
-                        case Builtin::KindFloat:
-                        {
-                            val = "((java.lang.Float)" + arg + ").floatValue()";
-                            break;
-                        }
-                        case Builtin::KindDouble:
-                        {
-                            val = "((java.lang.Double)" + arg + ").doubleValue()";
-                            break;
-                        }
-                        case Builtin::KindString:
-                        case Builtin::KindObject:
-                        case Builtin::KindObjectProxy:
-                        {
-                            break;
-                        }
-                        case Builtin::KindLocalObject:
-                        {
-                            assert(false);
-                            break;
-                        }
-                    }
-                }
-
-                if(val.empty())
-                {
-                    val = "((" + typeToString(type, TypeModeIn, package) + ')' + arg + ')';
-                }
-            }
-            else
-            {
-                val = arg;
-            }
-            writeMarshalUnmarshalCode(out, package, type, val, true, iter, false);
+            writeMarshalUnmarshalCode(out, package, type, arg, true, iter, false);
         }
         out << eb;
         out << eb;
@@ -1188,87 +1072,18 @@ Slice::JavaGenerator::writeDictionaryMarshalUnmarshalCode(Output& out,
             }
 
             BuiltinPtr b = BuiltinPtr::dynamicCast(type);
-            if(b && java2)
+            if(ClassDeclPtr::dynamicCast(type) || (b && b->kind() == Builtin::KindObject))
             {
-                switch(b->kind())
-                {
-                    case Builtin::KindByte:
-                    {
-                        out << nl << "java.lang.Byte " << arg << " = new java.lang.Byte(__is.readByte());";
-                        break;
-                    }
-                    case Builtin::KindBool:
-                    {
-                        out << nl << "java.lang.Boolean " << arg << " = new java.lang.Boolean(__is.readBool());";
-                        break;
-                    }
-                    case Builtin::KindShort:
-                    {
-                        out << nl << "java.lang.Short " << arg << " = new java.lang.Short(__is.readShort());";
-                        break;
-                    }
-                    case Builtin::KindInt:
-                    {
-                        out << nl << "java.lang.Integer " << arg << " = new java.lang.Integer(__is.readInt());";
-                        break;
-                    }
-                    case Builtin::KindLong:
-                    {
-                        out << nl << "java.lang.Long " << arg << " = new java.lang.Long(__is.readLong());";
-                        break;
-                    }
-                    case Builtin::KindFloat:
-                    {
-                        out << nl << "java.lang.Float " << arg << " = new java.lang.Float(__is.readFloat());";
-                        break;
-                    }
-                    case Builtin::KindDouble:
-                    {
-                        out << nl << "java.lang.Double " << arg << " = new java.lang.Double(__is.readDouble());";
-                        break;
-                    }
-                    case Builtin::KindString:
-                    {
-                        out << nl << "java.lang.String " << arg << " = __is.readString();";
-                        break;
-                    }
-                    case Builtin::KindObject:
-                    {
-                        assert(i == 1); // Must be the element value, since an object cannot be a key.
-                        string keyTypeStr = typeToObjectString(key, TypeModeIn, package);
-                        string valueTypeStr = typeToObjectString(value, TypeModeIn, package);
-                        out << nl << "__is.readObject(new IceInternal.DictionaryPatcher<" << keyTypeStr << ", "
-                            << valueTypeStr << ">(" << v << ", " 
-                            << valueS << ".class, \"" << value->typeId() << "\", __key));";
-                        break;
-                    }
-                    case Builtin::KindObjectProxy:
-                    {
-                        out << nl << "Ice.ObjectPrx " << arg << " = __is.readProxy();";
-                        break;
-                    }
-                    case Builtin::KindLocalObject:
-                    {
-                        assert(false);
-                        break;
-                    }
-                }
+                string keyTypeStr = typeToObjectString(key, TypeModeIn, package);
+                string valueTypeStr = typeToObjectString(value, TypeModeIn, package);
+                writeMarshalUnmarshalCode(out, package, type, arg, false, iter, false, StringList(),
+                                          "new IceInternal.DictionaryPatcher<" + keyTypeStr + ", " + valueTypeStr +
+                                          ">(" + v + ", " + typeS + ".class, \"" + type->typeId() + "\", __key)");
             }
             else
             {
-                if(ClassDeclPtr::dynamicCast(type) || (b && b->kind() == Builtin::KindObject))
-                {
-                    string keyTypeStr = typeToObjectString(key, TypeModeIn, package);
-                    string valueTypeStr = typeToObjectString(value, TypeModeIn, package);
-                    writeMarshalUnmarshalCode(out, package, type, arg, false, iter, false, StringList(),
-                                              "new IceInternal.DictionaryPatcher<" + keyTypeStr + ", " + valueTypeStr +
-                                              ">(" + v + ", " + typeS + ".class, \"" + type->typeId() + "\", __key)");
-                }
-                else
-                {
-                    out << nl << typeS << ' ' << arg << ';';
-                    writeMarshalUnmarshalCode(out, package, type, arg, false, iter, false);
-                }
+                out << nl << typeS << ' ' << arg << ';';
+                writeMarshalUnmarshalCode(out, package, type, arg, false, iter, false);
             }
         }
         BuiltinPtr builtin = BuiltinPtr::dynamicCast(value);
@@ -1292,7 +1107,6 @@ Slice::JavaGenerator::writeSequenceMarshalUnmarshalCode(Output& out,
 {
     string stream = marshal ? "__os" : "__is";
     string v = param;
-    bool java2 = seq->definitionContext()->findMetaData(_java2MetaData) == _java2MetaData;
 
     //
     // If the sequence is a byte sequence, check if there's the serializable or protobuf metadata to
@@ -1420,331 +1234,121 @@ Slice::JavaGenerator::writeSequenceMarshalUnmarshalCode(Output& out,
         // Marshal/unmarshal a custom sequence type.
         //
         BuiltinPtr b = BuiltinPtr::dynamicCast(type);
-        if(b && b->kind() != Builtin::KindObject && b->kind() != Builtin::KindObjectProxy && java2)
+        string typeS = getAbsolute(seq, package);
+        ostringstream o;
+        o << origContentS;
+        int d = depth;
+        while(d--)
         {
-            if(marshal)
-            {
-                out << nl << "if(" << v << " == null)";
-                out << sb;
-                out << nl << stream << ".writeSize(0);";
-                out << eb;
-                out << nl << "else";
-                out << sb;
-                out << nl << stream << ".writeSize(" << v << ".size());";
-                ostringstream o;
-                o << "__i" << iter;
-                string it = o.str();
-                iter++;
-                out << nl << "java.util.Iterator " << it << " = " << v << ".iterator();";
-                out << nl << "while(" << it << ".hasNext())";
-                out << sb;
-
-                switch(b->kind())
-                {
-                    case Builtin::KindByte:
-                    {
-                        out << nl << "java.lang.Byte __elem = (java.lang.Byte)" << it << ".next();";
-                        out << nl << stream << ".writeByte(__elem.byteValue());";
-                        break;
-                    }
-                    case Builtin::KindBool:
-                    {
-                        out << nl << "java.lang.Boolean __elem = (java.lang.Boolean)" << it << ".next();";
-                        out << nl << stream << ".writeBool(__elem.booleanValue());";
-                        break;
-                    }
-                    case Builtin::KindShort:
-                    {
-                        out << nl << "java.lang.Short __elem = (java.lang.Short)" << it << ".next();";
-                        out << nl << stream << ".writeShort(__elem.shortValue());";
-                        break;
-                    }
-                    case Builtin::KindInt:
-                    {
-                        out << nl << "java.lang.Integer __elem = (java.lang.Integer)" << it << ".next();";
-                        out << nl << stream << ".writeInt(__elem.intValue());";
-                        break;
-                    }
-                    case Builtin::KindLong:
-                    {
-                        out << nl << "java.lang.Long __elem = (java.lang.Long)" << it << ".next();";
-                        out << nl << stream << ".writeLong(__elem.longValue());";
-                        break;
-                    }
-                    case Builtin::KindFloat:
-                    {
-                        out << nl << "java.lang.Float __elem = (java.lang.Float)" << it << ".next();";
-                        out << nl << stream << ".writeFloat(__elem.floatValue());";
-                        break;
-                    }
-                    case Builtin::KindDouble:
-                    {
-                        out << nl << "java.lang.Double __elem = (java.lang.Double)" << it << ".next();";
-                        out << nl << stream << ".writeDouble(__elem.doubleValue());";
-                        break;
-                    }
-                    case Builtin::KindString:
-                    {
-                        out << nl << "java.lang.String __elem = (java.lang.String)" << it << ".next();";
-                        out << nl << stream << ".writeString(__elem);";
-                        break;
-                    }
-                    case Builtin::KindObject:
-                    case Builtin::KindObjectProxy:
-                    case Builtin::KindLocalObject:
-                    {
-                        assert(false);
-                        break;
-                    }
-                }
-                out << eb; // while
-                out << eb;
-            }
-            else
-            {
-                out << nl << v << " = new " << instanceType << "();";
-                ostringstream o;
-                o << origContentS << "[]";
-                int d = depth;
-                while(d--)
-                {
-                    o << "[]";
-                }
-                switch(b->kind())
-                {
-                    case Builtin::KindByte:
-                    {
-                        out << nl << o.str() << " __seq" << iter << " = " << stream << ".readByteSeq();";
-                        out << nl << "for(int __i" << iter << " = 0; __i" << iter << " < __seq" << iter
-                            << ".length; __i" << iter << "++)";
-                        out << sb;
-                        out << nl << v << ".add(new java.lang.Byte(__seq" << iter << "[__i" << iter << "]));";
-                        out << eb;
-                        iter++;
-                        break;
-                    }
-                    case Builtin::KindBool:
-                    {
-                        out << nl << o.str() << " __seq" << iter << " = " << stream << ".readBoolSeq();";
-                        out << nl << "for(int __i" << iter << " = 0; __i" << iter << " < __seq" << iter
-                            << ".length; __i" << iter << "++)";
-                        out << sb;
-                        out << nl << v << ".add(__seq" << iter << "[__i" << iter
-                            << "] ? java.lang.Boolean.TRUE : java.lang.Boolean.FALSE);";
-                        out << eb;
-                        iter++;
-                        break;
-                    }
-                    case Builtin::KindShort:
-                    {
-                        out << nl << o.str() << " __seq" << iter << " = " << stream << ".readShortSeq();";
-                        out << nl << "for(int __i" << iter << " = 0; __i" << iter << " < __seq" << iter
-                            << ".length; __i" << iter << "++)";
-                        out << sb;
-                        out << nl << v << ".add(new java.lang.Short(__seq" << iter << "[__i" << iter << "]));";
-                        out << eb;
-                        iter++;
-                        break;
-                    }
-                    case Builtin::KindInt:
-                    {
-                        out << nl << o.str() << " __seq" << iter << " = " << stream << ".readIntSeq();";
-                        out << nl << "for(int __i" << iter << " = 0; __i" << iter << " < __seq" << iter
-                            << ".length; __i" << iter << "++)";
-                        out << sb;
-                        out << nl << v << ".add(new java.lang.Integer(__seq" << iter << "[__i" << iter << "]));";
-                        out << eb;
-                        iter++;
-                        break;
-                    }
-                    case Builtin::KindLong:
-                    {
-                        out << nl << o.str() << " __seq" << iter << " = " << stream << ".readLongSeq();";
-                        out << nl << "for(int __i" << iter << " = 0; __i" << iter << " < __seq" << iter
-                            << ".length; __i" << iter << "++)";
-                        out << sb;
-                        out << nl << v << ".add(new java.lang.Long(__seq" << iter << "[__i" << iter << "]));";
-                        out << eb;
-                        iter++;
-                        break;
-                    }
-                    case Builtin::KindFloat:
-                    {
-                        out << nl << o.str() << " __seq" << iter << " = " << stream << ".readFloatSeq();";
-                        out << nl << "for(int __i" << iter << " = 0; __i" << iter << " < __seq" << iter
-                            << ".length; __i" << iter << "++)";
-                        out << sb;
-                        out << nl << v << ".add(new java.lang.Float(__seq" << iter << "[__i" << iter << "]));";
-                        out << eb;
-                        iter++;
-                        break;
-                    }
-                    case Builtin::KindDouble:
-                    {
-                        out << nl << o.str() << " __seq" << iter << " = " << stream << ".readDoubleSeq();";
-                        out << nl << "for(int __i" << iter << " = 0; __i" << iter << " < __seq" << iter
-                            << ".length; __i" << iter << "++)";
-                        out << sb;
-                        out << nl << v << ".add(new java.lang.Double(__seq" << iter << "[__i" << iter << "]));";
-                        out << eb;
-                        iter++;
-                        break;
-                    }
-                    case Builtin::KindString:
-                    {
-                        out << nl << o.str() << " __seq" << iter << " = " << stream << ".readStringSeq();";
-                        out << nl << "for(int __i" << iter << " = 0; __i" << iter << " < __seq" << iter
-                            << ".length; __i" << iter << "++)";
-                        out << sb;
-                        out << nl << v << ".add(__seq" << iter << "[__i" << iter << "]);";
-                        out << eb;
-                        iter++;
-                        break;
-                    }
-                    case Builtin::KindObject:
-                    case Builtin::KindObjectProxy:
-                    case Builtin::KindLocalObject:
-                    {
-                        assert(false);
-                        break;
-                    }
-                }
-            }
+            o << "[]";
+        }
+        string cont = o.str();
+        if(marshal)
+        {
+            out << nl << "if(" << v << " == null)";
+            out << sb;
+            out << nl << stream << ".writeSize(0);";
+            out << eb;
+            out << nl << "else";
+            out << sb;
+            out << nl << stream << ".writeSize(" << v << ".size());";
+            string typeS = typeToString(type, TypeModeIn, package);
+            out << nl << "for(" << typeS << " __elem : " << v << ')';
+            out << sb;
+            writeMarshalUnmarshalCode(out, package, type, "__elem", true, iter, false);
+            out << eb;
+            out << eb; // else
         }
         else
         {
-            string typeS = getAbsolute(seq, package);
-            ostringstream o;
-            o << origContentS;
-            int d = depth;
-            while(d--)
+            bool isObject = false;
+            ClassDeclPtr cl = ClassDeclPtr::dynamicCast(type);
+            if((b && b->kind() == Builtin::KindObject) || cl)
             {
-                o << "[]";
+                isObject = true;
             }
-            string cont = o.str();
-            if(marshal)
+            out << nl << v << " = new " << instanceType << "();";
+            out << nl << "final int __len" << iter << " = " << stream << ".readSize();";
+            if(type->isVariableLength())
             {
-                out << nl << "if(" << v << " == null)";
-                out << sb;
-                out << nl << stream << ".writeSize(0);";
-                out << eb;
-                out << nl << "else";
-                out << sb;
-                out << nl << stream << ".writeSize(" << v << ".size());";
-                if(java2)
-                {
-                    ostringstream oit;
-                    oit << "__i" << iter;
-                    iter++;
-                    string it = oit.str();
-                    out << nl << "java.util.Iterator " << it << " = " << v << ".iterator();";
-                    out << nl << "while(" << it << ".hasNext())";
-                    out << sb;
-                    out << nl << cont << " __elem = (" << cont << ")" << it << ".next();";
-                    writeMarshalUnmarshalCode(out, package, type, "__elem", true, iter, false);
-                    out << eb;
-                }
-                else
-                {
-                    string typeS = typeToString(type, TypeModeIn, package);
-                    out << nl << "for(" << typeS << " __elem : " << v << ')';
-                    out << sb;
-                    writeMarshalUnmarshalCode(out, package, type, "__elem", true, iter, false);
-                    out << eb;
-                }
-                out << eb; // else
+                out << nl << stream << ".startSeq(__len" << iter << ", " << type->minWireSize() << ");";
             }
             else
             {
-                bool isObject = false;
-                ClassDeclPtr cl = ClassDeclPtr::dynamicCast(type);
-                if((b && b->kind() == Builtin::KindObject) || cl)
+                out << nl << stream << ".checkFixedSeq(__len" << iter << ", " << type->minWireSize() << ");";
+            }
+            if(isObject)
+            {
+                if(b)
                 {
-                    isObject = true;
-                }
-                out << nl << v << " = new " << instanceType << "();";
-                out << nl << "final int __len" << iter << " = " << stream << ".readSize();";
-                if(type->isVariableLength())
-                {
-                    out << nl << stream << ".startSeq(__len" << iter << ", " << type->minWireSize() << ");";
+                    out << nl << "final String __type" << iter << " = Ice.ObjectImpl.ice_staticId();";
                 }
                 else
                 {
-                    out << nl << stream << ".checkFixedSeq(__len" << iter << ", " << type->minWireSize() << ");";
-                }
-                if(isObject)
-                {
-                    if(b)
+                    assert(cl);
+                    if(cl->isInterface())
                     {
-                        out << nl << "final String __type" << iter << " = Ice.ObjectImpl.ice_staticId();";
+                        out << nl << "final String __type" << iter << " = "
+                            << getAbsolute(cl, package, "_", "Disp") << ".ice_staticId();";
                     }
                     else
                     {
-                        assert(cl);
-                        if(cl->isInterface())
-                        {
-                            out << nl << "final String __type" << iter << " = "
-                                << getAbsolute(cl, package, "_", "Disp") << ".ice_staticId();";
-                        }
-                        else
-                        {
-                            out << nl << "final String __type" << iter << " = " << origContentS << ".ice_staticId();";
-                        }
+                        out << nl << "final String __type" << iter << " = " << origContentS << ".ice_staticId();";
                     }
                 }
-                out << nl << "for(int __i" << iter << " = 0; __i" << iter << " < __len" << iter << "; __i" << iter
-                    << "++)";
-                out << sb;
-                if(isObject)
-                {
-                    //
-                    // Add a null value to the list as a placeholder for the element.
-                    //
-                    out << nl << v << ".add(null);";
-                    ostringstream patchParams;
-                    patchParams << "new IceInternal.ListPatcher<" << origContentS << ">(" << v << ", " << origContentS
-                                << ".class, __type" << iter << ", __i" << iter << ')';
-                    writeMarshalUnmarshalCode(out, package, type, "__elem", false, iter, false, StringList(),
-                                              patchParams.str());
-                }
-                else
-                {
-                    out << nl << cont << " __elem;";
-                    writeMarshalUnmarshalCode(out, package, type, "__elem", false, iter, false);
-                }
-                if(!isObject)
-                {
-                    out << nl << v << ".add(__elem);";
-                }
-
-                //
-                // After unmarshaling each element, check that there are still enough bytes left in the stream
-                // to unmarshal the remainder of the sequence, and decrement the count of elements
-                // yet to be unmarshaled for sequences with variable-length element type (that is, for sequences
-                // of classes, structs, dictionaries, sequences, strings, or proxies). This allows us to
-                // abort unmarshaling for bogus sequence sizes at the earliest possible moment.
-                // (For fixed-length sequences, we don't need to do this because the prediction of how many
-                // bytes will be taken up by the sequence is accurate.)
-                //
-                if(type->isVariableLength())
-                {
-                    if(!SequencePtr::dynamicCast(type))
-                    {
-                        //
-                        // No need to check for directly nested sequences because, at the at start of each
-                        // sequence, we check anyway.
-                        //
-                        out << nl << stream << ".checkSeq();";
-                    }
-                    out << nl << stream << ".endElement();";
-                }
-                out << eb;
-                if(type->isVariableLength())
-                {
-                    out << nl << stream << ".endSeq(__len" << iter << ");";
-                }
-                iter++;
             }
+            out << nl << "for(int __i" << iter << " = 0; __i" << iter << " < __len" << iter << "; __i" << iter
+                << "++)";
+            out << sb;
+            if(isObject)
+            {
+                //
+                // Add a null value to the list as a placeholder for the element.
+                //
+                out << nl << v << ".add(null);";
+                ostringstream patchParams;
+                patchParams << "new IceInternal.ListPatcher<" << origContentS << ">(" << v << ", " << origContentS
+                            << ".class, __type" << iter << ", __i" << iter << ')';
+                writeMarshalUnmarshalCode(out, package, type, "__elem", false, iter, false, StringList(),
+                                          patchParams.str());
+            }
+            else
+            {
+                out << nl << cont << " __elem;";
+                writeMarshalUnmarshalCode(out, package, type, "__elem", false, iter, false);
+            }
+            if(!isObject)
+            {
+                out << nl << v << ".add(__elem);";
+            }
+
+            //
+            // After unmarshaling each element, check that there are still enough bytes left in the stream
+            // to unmarshal the remainder of the sequence, and decrement the count of elements
+            // yet to be unmarshaled for sequences with variable-length element type (that is, for sequences
+            // of classes, structs, dictionaries, sequences, strings, or proxies). This allows us to
+            // abort unmarshaling for bogus sequence sizes at the earliest possible moment.
+            // (For fixed-length sequences, we don't need to do this because the prediction of how many
+            // bytes will be taken up by the sequence is accurate.)
+            //
+            if(type->isVariableLength())
+            {
+                if(!SequencePtr::dynamicCast(type))
+                {
+                    //
+                    // No need to check for directly nested sequences because, at the at start of each
+                    // sequence, we check anyway.
+                    //
+                    out << nl << stream << ".checkSeq();";
+                }
+                out << nl << stream << ".endElement();";
+            }
+            out << eb;
+            if(type->isVariableLength())
+            {
+                out << nl << stream << ".endSeq(__len" << iter << ");";
+            }
+            iter++;
         }
     }
     else
@@ -1918,7 +1522,7 @@ Slice::JavaGenerator::writeSequenceMarshalUnmarshalCode(Output& out,
                     }
                 }
                 //
-                // In Java5, we cannot allocate an array of a generic type, such as
+                // We cannot allocate an array of a generic type, such as
                 //
                 // arr = new Map<String, String>[sz];
                 //
@@ -2299,8 +1903,6 @@ Slice::JavaGenerator::writeStreamDictionaryMarshalUnmarshalCode(Output& out,
     string stream = marshal ? "__outS" : "__inS";
     string v = param;
 
-    bool java2 = dict->definitionContext()->findMetaData(_java2MetaData) == _java2MetaData;
-
     //
     // We have to determine whether it's possible to use the
     // type's generated helper class for this marshal/unmarshal
@@ -2362,24 +1964,13 @@ Slice::JavaGenerator::writeStreamDictionaryMarshalUnmarshalCode(Output& out,
         out << nl << "else";
         out << sb;
         out << nl << "__outS.writeSize(" << v << ".size());";
-        if(java2)
-        {
-            out << nl << "java.util.Iterator __i" << iterS << " = " << v << ".entrySet().iterator();";
-            out << nl << "while(__i" << iterS << ".hasNext())";
-            out << sb;
-            out << nl << "java.util.Map.Entry __e = (java.util.Map.Entry)" << "__i" << iterS << ".next();";
-        }
-        else
-        {
-            string keyObjectS = typeToObjectString(key, TypeModeIn, package);
-            string valueObjectS = typeToObjectString(value, TypeModeIn, package);
-            out << nl << "for(java.util.Map.Entry<" << keyObjectS << ", " << valueObjectS << "> __e : " << v
-                << ".entrySet())";
-            out << sb;
-        }
+        string keyObjectS = typeToObjectString(key, TypeModeIn, package);
+        string valueObjectS = typeToObjectString(value, TypeModeIn, package);
+        out << nl << "for(java.util.Map.Entry<" << keyObjectS << ", " << valueObjectS << "> __e : " << v
+            << ".entrySet())";
+        out << sb;
         for(i = 0; i < 2; i++)
         {
-            string val;
             string arg;
             TypePtr type;
             if(i == 0)
@@ -2392,76 +1983,7 @@ Slice::JavaGenerator::writeStreamDictionaryMarshalUnmarshalCode(Output& out,
                 arg = "__e.getValue()";
                 type = value;
             }
-
-            //
-            // We have to downcast unless we're using Java5.
-            //
-            if(java2)
-            {
-                BuiltinPtr b = BuiltinPtr::dynamicCast(type);
-                if(b)
-                {
-                    switch(b->kind())
-                    {
-                        case Builtin::KindByte:
-                        {
-                            val = "((java.lang.Byte)" + arg + ").byteValue()";
-                            break;
-                        }
-                        case Builtin::KindBool:
-                        {
-                            val = "((java.lang.Boolean)" + arg + ").booleanValue()";
-                            break;
-                        }
-                        case Builtin::KindShort:
-                        {
-                            val = "((java.lang.Short)" + arg + ").shortValue()";
-                            break;
-                        }
-                        case Builtin::KindInt:
-                        {
-                            val = "((java.lang.Integer)" + arg + ").intValue()";
-                            break;
-                        }
-                        case Builtin::KindLong:
-                        {
-                            val = "((java.lang.Long)" + arg + ").longValue()";
-                            break;
-                        }
-                        case Builtin::KindFloat:
-                        {
-                            val = "((java.lang.Float)" + arg + ").floatValue()";
-                            break;
-                        }
-                        case Builtin::KindDouble:
-                        {
-                            val = "((java.lang.Double)" + arg + ").doubleValue()";
-                            break;
-                        }
-                        case Builtin::KindString:
-                        case Builtin::KindObject:
-                        case Builtin::KindObjectProxy:
-                        {
-                            break;
-                        }
-                        case Builtin::KindLocalObject:
-                        {
-                            assert(false);
-                            break;
-                        }
-                    }
-                }
-
-                if(val.empty())
-                {
-                    val = "((" + typeToString(type, TypeModeIn, package) + ')' + arg + ')';
-                }
-            }
-            else
-            {
-                val = arg;
-            }
-            writeStreamMarshalUnmarshalCode(out, package, type, val, true, iter, false);
+            writeStreamMarshalUnmarshalCode(out, package, type, arg, true, iter, false);
         }
         out << eb;
         out << eb;
@@ -2491,88 +2013,20 @@ Slice::JavaGenerator::writeStreamDictionaryMarshalUnmarshalCode(Output& out,
             }
 
             BuiltinPtr b = BuiltinPtr::dynamicCast(type);
-            if(b && java2)
+            string s = typeToString(type, TypeModeIn, package);
+            if(ClassDeclPtr::dynamicCast(type) || (b && b->kind() == Builtin::KindObject))
             {
-                switch(b->kind())
-                {
-                    case Builtin::KindByte:
-                    {
-                        out << nl << "java.lang.Byte " << arg << " = new java.lang.Byte(__inS.readByte());";
-                        break;
-                    }
-                    case Builtin::KindBool:
-                    {
-                        out << nl << "java.lang.Boolean " << arg << " = new java.lang.Boolean(__inS.readBool());";
-                        break;
-                    }
-                    case Builtin::KindShort:
-                    {
-                        out << nl << "java.lang.Short " << arg << " = new java.lang.Short(__inS.readShort());";
-                        break;
-                    }
-                    case Builtin::KindInt:
-                    {
-                        out << nl << "java.lang.Integer " << arg << " = new java.lang.Integer(__inS.readInt());";
-                        break;
-                    }
-                    case Builtin::KindLong:
-                    {
-                        out << nl << "java.lang.Long " << arg << " = new java.lang.Long(__inS.readLong());";
-                        break;
-                    }
-                    case Builtin::KindFloat:
-                    {
-                        out << nl << "java.lang.Float " << arg << " = new java.lang.Float(__inS.readFloat());";
-                        break;
-                    }
-                    case Builtin::KindDouble:
-                    {
-                        out << nl << "java.lang.Double " << arg << " = new java.lang.Double(__inS.readDouble());";
-                        break;
-                    }
-                    case Builtin::KindString:
-                    {
-                        out << nl << "java.lang.String " << arg << " = __inS.readString();";
-                        break;
-                    }
-                    case Builtin::KindObject:
-                    {
-                        string keyTypeStr = typeToObjectString(key, TypeModeIn, package);
-                        string valueTypeStr = typeToObjectString(value, TypeModeIn, package);
-                        out << nl << "__inS.readObject(new IceInternal.DictionaryPatcher<" << keyTypeStr << ", "
-                            << valueTypeStr << ">(" << v << ", " << valueS << ".class, \"" << value->typeId()
-                            << "\", __key));";
-                        break;
-                    }
-                    case Builtin::KindObjectProxy:
-                    {
-                        out << nl << "Ice.ObjectPrx " << arg << " = __inS.readProxy();";
-                        break;
-                    }
-                    case Builtin::KindLocalObject:
-                    {
-                        assert(false);
-                        break;
-                    }
-                }
+                string keyTypeStr = typeToObjectString(key, TypeModeIn, package);
+                string valueTypeStr = typeToObjectString(value, TypeModeIn, package);
+                writeStreamMarshalUnmarshalCode(out, package, type, arg, false, iter, false, StringList(),
+                                                "new IceInternal.DictionaryPatcher<" + keyTypeStr + ", " +
+                                                valueTypeStr + ">(" + v + ", " + s + ".class, \"" +
+                                                type->typeId() + "\", __key)");
             }
             else
             {
-                string s = typeToString(type, TypeModeIn, package);
-                if(ClassDeclPtr::dynamicCast(type) || (b && b->kind() == Builtin::KindObject))
-                {
-                    string keyTypeStr = typeToObjectString(key, TypeModeIn, package);
-                    string valueTypeStr = typeToObjectString(value, TypeModeIn, package);
-                    writeStreamMarshalUnmarshalCode(out, package, type, arg, false, iter, false, StringList(),
-                                                    "new IceInternal.DictionaryPatcher<" + keyTypeStr + ", " +
-                                                    valueTypeStr + ">(" + v + ", " + s + ".class, \"" +
-                                                    type->typeId() + "\", __key)");
-                }
-                else
-                {
-                    out << nl << s << ' ' << arg << ';';
-                    writeStreamMarshalUnmarshalCode(out, package, type, arg, false, iter, false);
-                }
+                out << nl << s << ' ' << arg << ';';
+                writeStreamMarshalUnmarshalCode(out, package, type, arg, false, iter, false);
             }
         }
         BuiltinPtr builtin = BuiltinPtr::dynamicCast(value);
@@ -2596,7 +2050,6 @@ Slice::JavaGenerator::writeStreamSequenceMarshalUnmarshalCode(Output& out,
 {
     string stream = marshal ? "__outS" : "__inS";
     string v = param;
-    bool java2 = seq->definitionContext()->findMetaData(_java2MetaData) == _java2MetaData;
 
     //
     // If the sequence is a byte sequence, check if there's the serializable or protobuf metadata to
@@ -2718,297 +2171,87 @@ Slice::JavaGenerator::writeStreamSequenceMarshalUnmarshalCode(Output& out,
         // Marshal/unmarshal a custom sequence type.
         //
         BuiltinPtr b = BuiltinPtr::dynamicCast(type);
-        if(b && b->kind() != Builtin::KindObject && b->kind() != Builtin::KindObjectProxy && java2)
+        string typeS = getAbsolute(seq, package);
+        ostringstream o;
+        o << origContentS;
+        int d = depth;
+        while(d--)
         {
-            if(marshal)
-            {
-                out << nl << "if(" << v << " == null)";
-                out << sb;
-                out << nl << stream << ".writeSize(0);";
-                out << eb;
-                out << nl << "else";
-                out << sb;
-                out << nl << stream << ".writeSize(" << v << ".size());";
-                ostringstream o;
-                o << "__i" << iter;
-                string it = o.str();
-                iter++;
-                out << nl << "java.util.Iterator " << it << " = " << v << ".iterator();";
-                out << nl << "while(" << it << ".hasNext())";
-                out << sb;
-
-                switch(b->kind())
-                {
-                    case Builtin::KindByte:
-                    {
-                        out << nl << "java.lang.Byte __elem = (java.lang.Byte)" << it << ".next();";
-                        out << nl << stream << ".writeByte(__elem.byteValue());";
-                        break;
-                    }
-                    case Builtin::KindBool:
-                    {
-                        out << nl << "java.lang.Boolean __elem = (java.lang.Boolean)" << it << ".next();";
-                        out << nl << stream << ".writeBool(__elem.booleanValue());";
-                        break;
-                    }
-                    case Builtin::KindShort:
-                    {
-                        out << nl << "java.lang.Short __elem = (java.lang.Short)" << it << ".next();";
-                        out << nl << stream << ".writeShort(__elem.shortValue());";
-                        break;
-                    }
-                    case Builtin::KindInt:
-                    {
-                        out << nl << "java.lang.Integer __elem = (java.lang.Integer)" << it << ".next();";
-                        out << nl << stream << ".writeInt(__elem.intValue());";
-                        break;
-                    }
-                    case Builtin::KindLong:
-                    {
-                        out << nl << "java.lang.Long __elem = (java.lang.Long)" << it << ".next();";
-                        out << nl << stream << ".writeLong(__elem.longValue());";
-                        break;
-                    }
-                    case Builtin::KindFloat:
-                    {
-                        out << nl << "java.lang.Float __elem = (java.lang.Float)" << it << ".next();";
-                        out << nl << stream << ".writeFloat(__elem.floatValue());";
-                        break;
-                    }
-                    case Builtin::KindDouble:
-                    {
-                        out << nl << "java.lang.Double __elem = (java.lang.Double)" << it << ".next();";
-                        out << nl << stream << ".writeDouble(__elem.doubleValue());";
-                        break;
-                    }
-                    case Builtin::KindString:
-                    {
-                        out << nl << "java.lang.String __elem = (java.lang.String)" << it << ".next();";
-                        out << nl << stream << ".writeString(__elem);";
-                        break;
-                    }
-                    case Builtin::KindObject:
-                    case Builtin::KindObjectProxy:
-                    case Builtin::KindLocalObject:
-                    {
-                        assert(false);
-                        break;
-                    }
-                }
-                out << eb; // while
-                out << eb;
-            }
-            else
-            {
-                out << nl << v << " = new " << instanceType << "();";
-                ostringstream o;
-                o << origContentS << "[]";
-                int d = depth;
-                while(d--)
-                {
-                    o << "[]";
-                }
-                switch(b->kind())
-                {
-                    case Builtin::KindByte:
-                    {
-                        out << nl << o.str() << " __seq" << iter << " = " << stream << ".readByteSeq();";
-                        out << nl << "for(int __i" << iter << " = 0; __i" << iter << " < __seq" << iter
-                            << ".length; __i" << iter << "++)";
-                        out << sb;
-                        out << nl << v << ".add(new java.lang.Byte(__seq" << iter << "[__i" << iter << "]));";
-                        out << eb;
-                        iter++;
-                        break;
-                    }
-                    case Builtin::KindBool:
-                    {
-                        out << nl << o.str() << " __seq" << iter << " = " << stream << ".readBoolSeq();";
-                        out << nl << "for(int __i" << iter << " = 0; __i" << iter << " < __seq" << iter
-                            << ".length; __i" << iter << "++)";
-                        out << sb;
-                        out << nl << v << ".add(__seq" << iter << "[__i" << iter
-                            << "] ? java.lang.Boolean.TRUE : java.lang.Boolean.FALSE);";
-                        out << eb;
-                        iter++;
-                        break;
-                    }
-                    case Builtin::KindShort:
-                    {
-                        out << nl << o.str() << " __seq" << iter << " = " << stream << ".readShortSeq();";
-                        out << nl << "for(int __i" << iter << " = 0; __i" << iter << " < __seq" << iter
-                            << ".length; __i" << iter << "++)";
-                        out << sb;
-                        out << nl << v << ".add(new java.lang.Short(__seq" << iter << "[__i" << iter << "]));";
-                        out << eb;
-                        iter++;
-                        break;
-                    }
-                    case Builtin::KindInt:
-                    {
-                        out << nl << o.str() << " __seq" << iter << " = " << stream << ".readIntSeq();";
-                        out << nl << "for(int __i" << iter << " = 0; __i" << iter << " < __seq" << iter
-                            << ".length; __i" << iter << "++)";
-                        out << sb;
-                        out << nl << v << ".add(new java.lang.Integer(__seq" << iter << "[__i" << iter << "]));";
-                        out << eb;
-                        iter++;
-                        break;
-                    }
-                    case Builtin::KindLong:
-                    {
-                        out << nl << o.str() << " __seq" << iter << " = " << stream << ".readLongSeq();";
-                        out << nl << "for(int __i" << iter << " = 0; __i" << iter << " < __seq" << iter
-                            << ".length; __i" << iter << "++)";
-                        out << sb;
-                        out << nl << v << ".add(new java.lang.Long(__seq" << iter << "[__i" << iter << "]));";
-                        out << eb;
-                        iter++;
-                        break;
-                    }
-                    case Builtin::KindFloat:
-                    {
-                        out << nl << o.str() << " __seq" << iter << " = " << stream << ".readFloatSeq();";
-                        out << nl << "for(int __i" << iter << " = 0; __i" << iter << " < __seq" << iter
-                            << ".length; __i" << iter << "++)";
-                        out << sb;
-                        out << nl << v << ".add(new java.lang.Float(__seq" << iter << "[__i" << iter << "]));";
-                        out << eb;
-                        iter++;
-                        break;
-                    }
-                    case Builtin::KindDouble:
-                    {
-                        out << nl << o.str() << " __seq" << iter << " = " << stream << ".readDoubleSeq();";
-                        out << nl << "for(int __i" << iter << " = 0; __i" << iter << " < __seq" << iter
-                            << ".length; __i" << iter << "++)";
-                        out << sb;
-                        out << nl << v << ".add(new java.lang.Double(__seq" << iter << "[__i" << iter << "]));";
-                        out << eb;
-                        iter++;
-                        break;
-                    }
-                    case Builtin::KindString:
-                    {
-                        out << nl << o.str() << " __seq" << iter << " = " << stream << ".readStringSeq();";
-                        out << nl << "for(int __i" << iter << " = 0; __i" << iter << " < __seq" << iter
-                            << ".length; __i" << iter << "++)";
-                        out << sb;
-                        out << nl << v << ".add(__seq" << iter << "[__i" << iter << "]);";
-                        out << eb;
-                        iter++;
-                        break;
-                    }
-                    case Builtin::KindObject:
-                    case Builtin::KindObjectProxy:
-                    case Builtin::KindLocalObject:
-                    {
-                        assert(false);
-                        break;
-                    }
-                }
-            }
+            o << "[]";
+        }
+        string cont = o.str();
+        if(marshal)
+        {
+            out << nl << "if(" << v << " == null)";
+            out << sb;
+            out << nl << stream << ".writeSize(0);";
+            out << eb;
+            out << nl << "else";
+            out << sb;
+            out << nl << stream << ".writeSize(" << v << ".size());";
+            string typeS = typeToString(type, TypeModeIn, package);
+            out << nl << "for(" << typeS << " __elem : " << v << ')';
+            out << sb;
+            writeStreamMarshalUnmarshalCode(out, package, type, "__elem", true, iter, false);
+            out << eb;
+            out << eb; // else
         }
         else
         {
-            string typeS = getAbsolute(seq, package);
-            ostringstream o;
-            o << origContentS;
-            int d = depth;
-            while(d--)
+            bool isObject = false;
+            ClassDeclPtr cl = ClassDeclPtr::dynamicCast(type);
+            if((b && b->kind() == Builtin::KindObject) || cl)
             {
-                o << "[]";
+                isObject = true;
             }
-            string cont = o.str();
-            if(marshal)
+            out << nl << v << " = new " << instanceType << "();";
+            out << nl << "final int __len" << iter << " = " << stream << ".readSize();";
+            if(isObject)
             {
-                out << nl << "if(" << v << " == null)";
-                out << sb;
-                out << nl << stream << ".writeSize(0);";
-                out << eb;
-                out << nl << "else";
-                out << sb;
-                out << nl << stream << ".writeSize(" << v << ".size());";
-                if(java2)
+                if(b)
                 {
-                    ostringstream oit;
-                    oit << "__i" << iter;
-                    iter++;
-                    string it = oit.str();
-                    out << nl << "java.util.Iterator " << it << " = " << v << ".iterator();";
-                    out << nl << "while(" << it << ".hasNext())";
-                    out << sb;
-                    out << nl << cont << " __elem = (" << cont << ")" << it << ".next();";
-                    writeStreamMarshalUnmarshalCode(out, package, type, "__elem", true, iter, false);
-                    out << eb;
+                    out << nl << "final String __type" << iter << " = Ice.ObjectImpl.ice_staticId();";
                 }
                 else
                 {
-                    string typeS = typeToString(type, TypeModeIn, package);
-                    out << nl << "for(" << typeS << " __elem : " << v << ')';
-                    out << sb;
-                    writeStreamMarshalUnmarshalCode(out, package, type, "__elem", true, iter, false);
-                    out << eb;
-                }
-                out << eb; // else
-            }
-            else
-            {
-                bool isObject = false;
-                ClassDeclPtr cl = ClassDeclPtr::dynamicCast(type);
-                if((b && b->kind() == Builtin::KindObject) || cl)
-                {
-                    isObject = true;
-                }
-                out << nl << v << " = new " << instanceType << "();";
-                out << nl << "final int __len" << iter << " = " << stream << ".readSize();";
-                if(isObject)
-                {
-                    if(b)
+                    assert(cl);
+                    if(cl->isInterface())
                     {
-                        out << nl << "final String __type" << iter << " = Ice.ObjectImpl.ice_staticId();";
+                        out << nl << "final String __type" << iter << " = "
+                            << getAbsolute(cl, package, "_", "Disp") << ".ice_staticId();";
                     }
                     else
                     {
-                        assert(cl);
-                        if(cl->isInterface())
-                        {
-                            out << nl << "final String __type" << iter << " = "
-                                << getAbsolute(cl, package, "_", "Disp") << ".ice_staticId();";
-                        }
-                        else
-                        {
-                            out << nl << "final String __type" << iter << " = " << origContentS << ".ice_staticId();";
-                        }
+                        out << nl << "final String __type" << iter << " = " << origContentS << ".ice_staticId();";
                     }
                 }
-                out << nl << "for(int __i" << iter << " = 0; __i" << iter << " < __len" << iter << "; __i" << iter
-                    << "++)";
-                out << sb;
-                if(isObject)
-                {
-                    //
-                    // Add a null value to the list as a placeholder for the element.
-                    //
-                    out << nl << v << ".add(null);";
-                    ostringstream patchParams;
-                    patchParams << "new IceInternal.ListPatcher<" << origContentS << ">(" << v << ", " << origContentS
-                                << ".class, __type" << iter << ", __i" << iter << ')';
-                    writeStreamMarshalUnmarshalCode(out, package, type, "__elem", false, iter, false,
-                                                    StringList(), patchParams.str());
-                }
-                else
-                {
-                    out << nl << cont << " __elem;";
-                    writeStreamMarshalUnmarshalCode(out, package, type, "__elem", false, iter, false);
-                }
-                if(!isObject)
-                {
-                    out << nl << v << ".add(__elem);";
-                }
-                out << eb;
-                iter++;
             }
+            out << nl << "for(int __i" << iter << " = 0; __i" << iter << " < __len" << iter << "; __i" << iter
+                << "++)";
+            out << sb;
+            if(isObject)
+            {
+                //
+                // Add a null value to the list as a placeholder for the element.
+                //
+                out << nl << v << ".add(null);";
+                ostringstream patchParams;
+                patchParams << "new IceInternal.ListPatcher<" << origContentS << ">(" << v << ", " << origContentS
+                            << ".class, __type" << iter << ", __i" << iter << ')';
+                writeStreamMarshalUnmarshalCode(out, package, type, "__elem", false, iter, false,
+                                                StringList(), patchParams.str());
+            }
+            else
+            {
+                out << nl << cont << " __elem;";
+                writeStreamMarshalUnmarshalCode(out, package, type, "__elem", false, iter, false);
+            }
+            if(!isObject)
+            {
+                out << nl << v << ".add(__elem);";
+            }
+            out << eb;
+            iter++;
         }
     }
     else
@@ -3174,7 +2417,7 @@ Slice::JavaGenerator::writeStreamSequenceMarshalUnmarshalCode(Output& out,
                     }
                 }
                 //
-                // In Java5, we cannot allocate an array of a generic type, such as
+                // We cannot allocate an array of a generic type, such as
                 //
                 // arr = new Map<String, String>[sz];
                 //
@@ -3328,8 +2571,6 @@ Slice::JavaGenerator::getDictionaryTypes(const DictionaryPtr& dict,
         return customType;
     }
 
-    bool java2 = dict->definitionContext()->findMetaData(_java2MetaData) == _java2MetaData;
-
     //
     // Collect metadata for a custom type.
     //
@@ -3343,13 +2584,8 @@ Slice::JavaGenerator::getDictionaryTypes(const DictionaryPtr& dict,
     //
     // Get the types of the key and value.
     //
-    string keyTypeStr;
-    string valueTypeStr;
-    if(!java2)
-    {
-        keyTypeStr = typeToObjectString(dict->keyType(), TypeModeIn, package);
-        valueTypeStr = typeToObjectString(dict->valueType(), TypeModeIn, package);
-    }
+    string keyTypeStr = typeToObjectString(dict->keyType(), TypeModeIn, package);
+    string valueTypeStr = typeToObjectString(dict->valueType(), TypeModeIn, package);
 
     //
     // Handle a custom type.
@@ -3357,46 +2593,8 @@ Slice::JavaGenerator::getDictionaryTypes(const DictionaryPtr& dict,
     if(customType)
     {
         assert(!ct.empty());
-
-        //
-        // Check for portable syntax. Convert {type} to type<key, value> for Java5.
-        //
-        if(ct[0] == '{')
-        {
-            string::size_type pos = ct.find('}');
-            if(pos != string::npos)
-            {
-                instanceType = ct.substr(1, pos - 1);
-                if(!java2)
-                {
-                    instanceType += "<" + keyTypeStr + ", " + valueTypeStr + ">";
-                }
-            }
-        }
-        else
-        {
-            instanceType = ct;
-        }
-
-        if(!at.empty())
-        {
-            if(at[0] == '{')
-            {
-                string::size_type pos = at.find('}');
-                if(pos != string::npos)
-                {
-                    formalType = at.substr(1, pos - 1);
-                    if(!java2)
-                    {
-                        formalType += "<" + keyTypeStr + ", " + valueTypeStr + ">";
-                    }
-                }
-            }
-            else
-            {
-                formalType = at;
-            }
-        }
+        instanceType = ct;
+        formalType = at;
     }
 
     //
@@ -3404,11 +2602,7 @@ Slice::JavaGenerator::getDictionaryTypes(const DictionaryPtr& dict,
     //
     if(instanceType.empty())
     {
-        instanceType = "java.util.HashMap";
-        if(!java2)
-        {
-            instanceType += "<" + keyTypeStr + ", " + valueTypeStr + ">";
-        }
+        instanceType = "java.util.HashMap<" + keyTypeStr + ", " + valueTypeStr + ">";
     }
 
     //
@@ -3420,11 +2614,7 @@ Slice::JavaGenerator::getDictionaryTypes(const DictionaryPtr& dict,
     //
     if(formalType.empty())
     {
-        formalType = "java.util.Map";
-        if(!java2)
-        {
-            formalType += "<" + keyTypeStr + ", " + valueTypeStr + ">";
-        }
+        formalType = "java.util.Map<" + keyTypeStr + ", " + valueTypeStr + ">";
     }
 
     return customType;
@@ -3445,8 +2635,6 @@ Slice::JavaGenerator::getSequenceTypes(const SequencePtr& seq,
         return customType;
     }
 
-    bool java2 = seq->definitionContext()->findMetaData(_java2MetaData) == _java2MetaData;
-
     //
     // Collect metadata for a custom type.
     //
@@ -3460,11 +2648,7 @@ Slice::JavaGenerator::getSequenceTypes(const SequencePtr& seq,
     //
     // Get the inner type.
     //
-    string typeStr;
-    if(!java2)
-    {
-        typeStr = typeToObjectString(seq->type(), TypeModeIn, package);
-    }
+    string typeStr = typeToObjectString(seq->type(), TypeModeIn, package);
 
     //
     // Handle a custom type.
@@ -3472,45 +2656,11 @@ Slice::JavaGenerator::getSequenceTypes(const SequencePtr& seq,
     if(customType)
     {
         assert(!ct.empty());
-
-        //
-        // Check for portable syntax. Convert {type} to type<key, value> for Java5.
-        //
-        if(ct[0] == '{')
-        {
-            string::size_type pos = ct.find('}');
-            if(pos != string::npos)
-            {
-                instanceType = ct.substr(1, pos - 1);
-                if(!java2)
-                {
-                    instanceType += "<" + typeStr + ">";
-                }
-            }
-        }
-        else
-        {
-            instanceType = ct;
-        }
+        instanceType = ct;
 
         if(!at.empty())
         {
-            if(at[0] == '{')
-            {
-                string::size_type pos = at.find('}');
-                if(pos != string::npos)
-                {
-                    formalType = at.substr(1, pos - 1);
-                    if(!java2)
-                    {
-                        formalType += "<" + typeStr + ">";
-                    }
-                }
-            }
-            else
-            {
-                formalType = at;
-            }
+            formalType = at;
         }
         else
         {
@@ -3521,11 +2671,7 @@ Slice::JavaGenerator::getSequenceTypes(const SequencePtr& seq,
             // allow polymorphic assignment between generic types if it can weaken the
             // compile-time type safety rules.
             //
-            formalType = "java.util.List";
-            if(!java2)
-            {
-                formalType += "<" + typeStr + ">";
-            }
+            formalType = "java.util.List<" + typeStr + ">";
         }
     }
 
@@ -3580,14 +2726,6 @@ Slice::JavaGenerator::MetaDataVisitor::visitUnitStart(const UnitPtr& p)
 
                     static const string packagePrefix = "java:package:";
                     if(s.find(packagePrefix) == 0 && s.size() > packagePrefix.size())
-                    {
-                        ok = true;
-                    }
-                    else if(s == _java2MetaData)
-                    {
-                        ok = true;
-                    }
-                    else if(s == _java5MetaData)
                     {
                         ok = true;
                     }

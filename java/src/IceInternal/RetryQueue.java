@@ -27,10 +27,8 @@ public class RetryQueue
     synchronized public void
     destroy()
     {
-        java.util.Iterator<RetryTask> p = _requests.iterator();
-        while(p.hasNext())
+        for(RetryTask task : _requests)
         {
-            RetryTask task = p.next();
             _instance.timer().cancel(task);
             task.destroy();
         }

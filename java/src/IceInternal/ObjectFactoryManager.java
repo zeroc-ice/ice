@@ -69,14 +69,11 @@ public final class ObjectFactoryManager
             _factoryMap = new java.util.HashMap<String, Ice.ObjectFactory>();
         }
 
-        java.util.Iterator<Ice.ObjectFactory> i = oldMap.values().iterator();
-        while(i.hasNext())
+        for(Ice.ObjectFactory factory : oldMap.values())
         {
-            Ice.ObjectFactory factory = i.next();
             factory.destroy();
         }
     }
 
-    private java.util.Map<String, Ice.ObjectFactory> _factoryMap =
-        new java.util.HashMap<String, Ice.ObjectFactory>();
+    private java.util.Map<String, Ice.ObjectFactory> _factoryMap = new java.util.HashMap<String, Ice.ObjectFactory>();
 }

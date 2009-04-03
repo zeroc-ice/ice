@@ -8,6 +8,7 @@
 // **********************************************************************
 
 package test.Ice.operations;
+
 import test.Ice.operations.Test.BoolSHolder;
 import test.Ice.operations.Test.BoolSSHolder;
 import test.Ice.operations.Test.ByteBoolDHolder;
@@ -116,8 +117,7 @@ public final class MyDerivedClassI extends MyDerivedClass
     }
 
     public java.util.Map<Byte, Boolean>
-    opByteBoolD(java.util.Map p1, java.util.Map p2,
-                ByteBoolDHolder p3,
+    opByteBoolD(java.util.Map<Byte, Boolean> p1, java.util.Map<Byte, Boolean> p2, ByteBoolDHolder p3,
                 Ice.Current current)
     {
         p3.value = p1;
@@ -209,8 +209,7 @@ public final class MyDerivedClassI extends MyDerivedClass
     }
 
     public java.util.Map<Long, Float>
-    opLongFloatD(java.util.Map p1, java.util.Map p2,
-                 LongFloatDHolder p3,
+    opLongFloatD(java.util.Map<Long, Float> p1, java.util.Map<Long, Float> p2, LongFloatDHolder p3,
                  Ice.Current current)
     {
         p3.value = p1;
@@ -241,8 +240,7 @@ public final class MyDerivedClassI extends MyDerivedClass
     }
 
     public java.util.Map<Short, Integer>
-    opShortIntD(java.util.Map p1, java.util.Map p2,
-                ShortIntDHolder p3,
+    opShortIntD(java.util.Map<Short, Integer> p1, java.util.Map<Short, Integer> p2, ShortIntDHolder p3,
                 Ice.Current current)
     {
         p3.value = p1;
@@ -307,8 +305,7 @@ public final class MyDerivedClassI extends MyDerivedClass
     }
 
     public java.util.Map<String, MyEnum>
-    opStringMyEnumD(java.util.Map p1, java.util.Map p2,
-                    StringMyEnumDHolder p3,
+    opStringMyEnumD(java.util.Map<String, MyEnum> p1, java.util.Map<String, MyEnum> p2, StringMyEnumDHolder p3,
                     Ice.Current current)
     {
         p3.value = p1;
@@ -319,9 +316,8 @@ public final class MyDerivedClassI extends MyDerivedClass
     }
 
     public java.util.Map<MyStruct, MyEnum>
-    opMyStructMyEnumD(java.util.Map p1, java.util.Map p2,
-                    MyStructMyEnumDHolder p3,
-                    Ice.Current current)
+    opMyStructMyEnumD(java.util.Map<MyStruct, MyEnum> p1, java.util.Map<MyStruct, MyEnum> p2, MyStructMyEnumDHolder p3,
+                      Ice.Current current)
     {
         p3.value = p1;
         java.util.Map<MyStruct, MyEnum> r = new java.util.HashMap<MyStruct, MyEnum>();
@@ -415,8 +411,7 @@ public final class MyDerivedClassI extends MyDerivedClass
     }
 
     public java.util.Map<String, String>
-    opStringStringD(java.util.Map p1, java.util.Map p2,
-                    StringStringDHolder p3,
+    opStringStringD(java.util.Map<String, String> p1, java.util.Map<String, String> p2, StringStringDHolder p3,
                     Ice.Current current)
     {
         p3.value = p1;

@@ -6,6 +6,7 @@
 // ICE_LICENSE file included in this distribution.
 //
 // **********************************************************************
+
 package IceGridGUI.LiveDeployment;
 
 import java.util.Enumeration;
@@ -31,16 +32,16 @@ abstract class ListTreeNode extends TreeNode
                 {
                     return _p.next();
                 }
-                
+
                 private java.util.Iterator _p = _children.iterator();
             };
     }
-    
+
     public boolean getAllowsChildren()
     {
         return true;
     }
-    
+
     public javax.swing.tree.TreeNode getChildAt(int childIndex)
     {
         if(childIndex < 0)
@@ -56,12 +57,12 @@ abstract class ListTreeNode extends TreeNode
             throw new ArrayIndexOutOfBoundsException(childIndex);
         }
     }
-   
+
     public int getChildCount()
     {
         return _children.size();
     }
-    
+
     public int getIndex(javax.swing.tree.TreeNode node)
     {
         return _children.indexOf(node);
@@ -77,5 +78,6 @@ abstract class ListTreeNode extends TreeNode
         super(parent, id);
     }
 
-    protected final java.util.List _children = new java.util.LinkedList();
+    protected final java.util.List<javax.swing.tree.TreeNode> _children =
+        new java.util.LinkedList<javax.swing.tree.TreeNode>();
 }

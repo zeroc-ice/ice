@@ -350,7 +350,7 @@ public abstract class OutgoingAsync extends OutgoingAsyncMessageCallback
 
         __os.writeString(operation);
 
-        __os.writeByte((byte)mode.value());
+        __os.writeByte((byte)mode.ordinal());
 
         if(context != null)
         {

@@ -33,7 +33,7 @@ class BankI extends CasinoStore.PersistentBank
     public Casino.PlayerPrx[]
     getPlayers(Ice.Current current)
     {
-        java.util.Vector result = new java.util.Vector();
+        java.util.Vector<Casino.PlayerPrx> result = new java.util.Vector<Casino.PlayerPrx>();
 
         Freeze.EvictorIterator p = _playerEvictor.getIterator("", 10);
         
@@ -43,7 +43,7 @@ class BankI extends CasinoStore.PersistentBank
             result.add(Casino.PlayerPrxHelper.uncheckedCast(current.adapter.createProxy(ident)));
         }
 
-        return (Casino.PlayerPrx[])result.toArray(new Casino.PlayerPrx[0]);
+        return result.toArray(new Casino.PlayerPrx[0]);
     }
 
     public int
@@ -71,9 +71,9 @@ class BankI extends CasinoStore.PersistentBank
         int playerTotal = 0;
 
         Casino.PlayerPrx[] players = getPlayers(current);
-        for(int i = 0; i < players.length; ++i)
+        for(Casino.PlayerPrx player : players)
         {
-            playerTotal += players[i].getChips();
+            playerTotal += player.getChips();
         }
 
         System.out.println("The players hold a total of " + playerTotal + " chips");
@@ -81,9 +81,9 @@ class BankI extends CasinoStore.PersistentBank
         int betTotal = 0;
 
         CasinoStore.PersistentBetPrx[] bets = getBets(current.adapter);
-        for(int i = 0; i < bets.length; ++i)
+        for(CasinoStore.PersistentBetPrx bet : bets)
         {
-            betTotal += bets[i].getChipsInPlay();
+            betTotal += bet.getChipsInPlay();
         }
         System.out.println("The bets hold a total of " + betTotal + " chips");
         System.out.println("players + bets chips == " + (playerTotal + betTotal));
@@ -156,10 +156,9 @@ class BankI extends CasinoStore.PersistentBank
     reloadBets(Ice.Current current)
     {
         CasinoStore.PersistentBetPrx[] bets = getBets(current.adapter);
-        
-        for(int i = 0; i < bets.length; ++i)
+        for(CasinoStore.PersistentBetPrx bet : bets)
         {
-            _betResolver.add(bets[i], bets[i].getCloseTime());
+            _betResolver.add(bet, bet.getCloseTime());
         }
     }
 
@@ -193,7 +192,7 @@ class BankI extends CasinoStore.PersistentBank
     private CasinoStore.PersistentBetPrx[] 
     getBets(Ice.ObjectAdapter adapter)
     {
-        java.util.Vector result = new java.util.Vector();
+        java.util.Vector<CasinoStore.PersistentBetPrx> result = new java.util.Vector<CasinoStore.PersistentBetPrx>();
 
         Freeze.EvictorIterator p = _betEvictor.getIterator("", 100);
         
@@ -203,7 +202,7 @@ class BankI extends CasinoStore.PersistentBank
             result.add(CasinoStore.PersistentBetPrxHelper.uncheckedCast(adapter.createProxy(ident)));
         }
 
-        return (CasinoStore.PersistentBetPrx[])result.toArray(new CasinoStore.PersistentBetPrx[0]);
+        return result.toArray(new CasinoStore.PersistentBetPrx[0]);
     }
 
     private CasinoStore.PersistentBankPrx _prx;

@@ -6,6 +6,7 @@
 // ICE_LICENSE file included in this distribution.
 //
 // **********************************************************************
+
 package IceGridGUI;
 
 import javax.swing.SwingUtilities;
@@ -13,7 +14,6 @@ import IceGrid.*;
 
 class RegistryObserverI extends _RegistryObserverDisp
 {
-
     RegistryObserverI(Coordinator coordinator)
     {
         _coordinator = coordinator;
@@ -31,23 +31,23 @@ class RegistryObserverI extends _RegistryObserverDisp
             else
             {
                 String names = "";
-                for(int i = 0; i < registryInfos.length; ++i)
+                for(RegistryInfo info : registryInfos)
                 {
-                    names += " " + registryInfos[i].name;
+                    names += " " + info.name;
                 }
-                _coordinator.traceObserver("registryInit for registr" + 
+                _coordinator.traceObserver("registryInit for registr" +
                                            (registryInfos.length == 1 ? "y" : "ies")
                                            + names);
             }
         }
 
-        SwingUtilities.invokeLater(new Runnable() 
+        SwingUtilities.invokeLater(new Runnable()
             {
-                public void run() 
+                public void run()
                 {
-                    for(int i = 0; i < registryInfos.length; ++i)
+                    for(RegistryInfo info : registryInfos)
                     {
-                        _coordinator.registryUp(registryInfos[i]);
+                        _coordinator.registryUp(info);
                     }
                 }
             });
@@ -60,13 +60,13 @@ class RegistryObserverI extends _RegistryObserverDisp
             _coordinator.traceObserver("registryUp for registry " + registryInfo.name);
         }
 
-        SwingUtilities.invokeLater(new Runnable() 
+        SwingUtilities.invokeLater(new Runnable()
             {
-                public void run() 
+                public void run()
                 {
                     _coordinator.registryUp(registryInfo);
                 }
-            });                    
+            });
     }
 
     public void registryDown(final String registryName, Ice.Current current)
@@ -76,15 +76,15 @@ class RegistryObserverI extends _RegistryObserverDisp
             _coordinator.traceObserver("registryDown for registry " + registryName);
         }
 
-        SwingUtilities.invokeLater(new Runnable() 
+        SwingUtilities.invokeLater(new Runnable()
             {
-                public void run() 
+                public void run()
                 {
                     _coordinator.registryDown(registryName);
                 }
-            });                    
+            });
     }
 
     private final Coordinator _coordinator;
     private final boolean _trace;
-};
+}

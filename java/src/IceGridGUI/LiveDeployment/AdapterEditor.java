@@ -6,6 +6,7 @@
 // ICE_LICENSE file included in this distribution.
 //
 // **********************************************************************
+
 package IceGridGUI.LiveDeployment;
 
 import javax.swing.AbstractAction;
@@ -43,16 +44,15 @@ class AdapterEditor extends Editor
         _serverLifetime.setEnabled(false);
     }
 
-
     void show(Adapter adapter)
     {
         AdapterDescriptor descriptor = adapter.getDescriptor();
         Utils.Resolver resolver = adapter.getResolver();
-        
+
         _id.setText(resolver.substitute(descriptor.id));
 
         String currentEndpoints = adapter.getCurrentEndpoints();
-            
+
         if(currentEndpoints == null)
         {
             _currentStatus.setText("Inactive");
@@ -63,19 +63,19 @@ class AdapterEditor extends Editor
             _currentStatus.setText("Active");
             _currentEndpoints.setText(currentEndpoints);
         }
-        
+
         _description.setText(resolver.substitute(descriptor.description));
         _replicaGroupId.setText(resolver.substitute(descriptor.replicaGroupId));
         _priority.setText(resolver.substitute(descriptor.priority));
 
-        java.util.Map properties = adapter.getProperties();
-        
+        java.util.Map<String, String> properties = adapter.getProperties();
+
         // getId() returns the name of the adapter!
-        _endpoints.setText(resolver.substitute((String)properties.get(adapter.getId() + ".Endpoints")));
+        _endpoints.setText(resolver.substitute(properties.get(adapter.getId() + ".Endpoints")));
         _publishedEndpoints.setText(
             resolver.substitute((String)properties.get(adapter.getId() + ".PublishedEndpoints")));
-        
-        _registerProcess.setSelected(descriptor.registerProcess);       
+
+        _registerProcess.setSelected(descriptor.registerProcess);
         _serverLifetime.setSelected(descriptor.serverLifetime);
 
         _objects.setObjects(descriptor.objects, resolver);
@@ -95,26 +95,25 @@ class AdapterEditor extends Editor
         builder.nextLine();
 
         builder.appendSeparator("Configuration");
-        
+
         builder.append("Description");
         builder.nextLine();
         builder.append("");
         builder.nextRow(-2);
         CellConstraints cc = new CellConstraints();
         JScrollPane scrollPane = new JScrollPane(_description);
-        builder.add(scrollPane, 
-                    cc.xywh(builder.getColumn(), builder.getRow(), 3, 3));
+        builder.add(scrollPane, cc.xywh(builder.getColumn(), builder.getRow(), 3, 3));
         builder.nextRow(2);
         builder.nextLine();
 
         builder.append("Adapter ID");
         builder.append(_id, 3);
         builder.nextLine();
-        
+
         builder.append("Replica Group");
         builder.append(_replicaGroupId, 3);
         builder.nextLine();
-        
+
         builder.append("Priority");
         builder.append(_priority, 3);
         builder.nextLine();
@@ -141,8 +140,7 @@ class AdapterEditor extends Editor
         builder.append("");
         builder.nextRow(-6);
         scrollPane = new JScrollPane(_objects);
-        builder.add(scrollPane, 
-                    cc.xywh(builder.getColumn(), builder.getRow(), 3, 7));
+        builder.add(scrollPane, cc.xywh(builder.getColumn(), builder.getRow(), 3, 7));
         builder.nextRow(6);
         builder.nextLine();
 
@@ -155,8 +153,7 @@ class AdapterEditor extends Editor
         builder.append("");
         builder.nextRow(-6);
         scrollPane = new JScrollPane(_allocatables);
-        builder.add(scrollPane, 
-                    cc.xywh(builder.getColumn(), builder.getRow(), 3, 7));
+        builder.add(scrollPane, cc.xywh(builder.getColumn(), builder.getRow(), 3, 7));
         builder.nextRow(6);
         builder.nextLine();
     }
@@ -179,7 +176,7 @@ class AdapterEditor extends Editor
 
     private JCheckBox _registerProcess = new JCheckBox("Register Process");
     private JCheckBox _serverLifetime = new JCheckBox("Server Lifetime");
-    
+
     private TableField _objects = new TableField("Identity", "Type");
     private TableField _allocatables = new TableField("Identity", "Type");
 }

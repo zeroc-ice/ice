@@ -53,7 +53,7 @@ class Grammar
                 }
                 else if(_token.type == Token.TOK_ADD_BOOK)
                 {
-                    java.util.List s = strings();
+                    java.util.List<String> s = strings();
                     if(_token.type != Token.TOK_SEMI)
                     {
                         throw new ParseError("Expected ';'");
@@ -62,7 +62,7 @@ class Grammar
                 }
                 else if(_token.type == Token.TOK_FIND_ISBN)
                 {
-                    java.util.List s = strings();
+                    java.util.List<String> s = strings();
                     if(_token.type != Token.TOK_SEMI)
                     {
                         throw new ParseError("Expected ';'");
@@ -71,7 +71,7 @@ class Grammar
                 }
                 else if(_token.type == Token.TOK_FIND_AUTHORS)
                 {
-                    java.util.List s = strings();
+                    java.util.List<String> s = strings();
                     if(_token.type != Token.TOK_SEMI)
                     {
                         throw new ParseError("Expected ';'");
@@ -80,7 +80,7 @@ class Grammar
                 }
                 else if(_token.type == Token.TOK_FIND_TITLE)
                 {
-                    java.util.List s = strings();
+                    java.util.List<String> s = strings();
                     if(_token.type != Token.TOK_SEMI)
                     {
                         throw new ParseError("Expected ';'");
@@ -109,7 +109,7 @@ class Grammar
                 }
                 else if(_token.type == Token.TOK_RENT_BOOK)
                 {
-                    java.util.List s = strings();
+                    java.util.List<String> s = strings();
                     if(_token.type != Token.TOK_SEMI)
                     {
                         throw new ParseError("Expected ';'");
@@ -147,10 +147,10 @@ class Grammar
         }
     }
 
-    private java.util.List
+    private java.util.List<String>
     strings()
     {
-        java.util.List l = new java.util.ArrayList();
+        java.util.List<String> l = new java.util.ArrayList<String>();
         while(true)
         {
             _token = _scanner.nextToken();

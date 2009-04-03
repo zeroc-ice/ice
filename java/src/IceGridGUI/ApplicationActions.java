@@ -6,6 +6,7 @@
 // ICE_LICENSE file included in this distribution.
 //
 // **********************************************************************
+
 package IceGridGUI;
 
 import java.awt.Toolkit;
@@ -28,7 +29,7 @@ public class ApplicationActions
     {
         return _array[index];
     }
-    
+
     public boolean[] setTarget(TreeNode target)
     {
         _target = target;
@@ -39,7 +40,7 @@ public class ApplicationActions
             availableActions = new boolean[TreeNode.ACTION_COUNT];
         }
         else
-        {   
+        {
             availableActions = _target.getAvailableActions();
         }
 
@@ -55,10 +56,9 @@ public class ApplicationActions
     {
         final int MENU_MASK = Toolkit.getDefaultToolkit().getMenuShortcutKeyMask();
 
-        _array[TreeNode.NEW_ADAPTER] = new AbstractAction(
-            popup ? "New Adapter" : "Adapter")
+        _array[TreeNode.NEW_ADAPTER] = new AbstractAction(popup ? "New Adapter" : "Adapter")
             {
-                public void actionPerformed(ActionEvent e) 
+                public void actionPerformed(ActionEvent e)
                 {
                     if(apply(_target))
                     {
@@ -67,10 +67,9 @@ public class ApplicationActions
                 }
             };
 
-        _array[TreeNode.NEW_DBENV] = new AbstractAction(
-            popup ? "New Database Environment" : "Database Environment")
+        _array[TreeNode.NEW_DBENV] = new AbstractAction(popup ? "New Database Environment" : "Database Environment")
             {
-                public void actionPerformed(ActionEvent e) 
+                public void actionPerformed(ActionEvent e)
                 {
                     if(apply(_target))
                     {
@@ -78,11 +77,10 @@ public class ApplicationActions
                     }
                 }
             };
-        
-        _array[TreeNode.NEW_NODE] = new AbstractAction(
-            popup ? "New Node" : "Node")
+
+        _array[TreeNode.NEW_NODE] = new AbstractAction(popup ? "New Node" : "Node")
             {
-                public void actionPerformed(ActionEvent e) 
+                public void actionPerformed(ActionEvent e)
                 {
                     if(apply(_target))
                     {
@@ -91,10 +89,9 @@ public class ApplicationActions
                 }
             };
 
-        _array[TreeNode.NEW_PROPERTY_SET] = new AbstractAction(
-            popup ? "New Property Set" : "Property Set")
+        _array[TreeNode.NEW_PROPERTY_SET] = new AbstractAction(popup ? "New Property Set" : "Property Set")
             {
-                public void actionPerformed(ActionEvent e) 
+                public void actionPerformed(ActionEvent e)
                 {
                     if(apply(_target))
                     {
@@ -103,10 +100,9 @@ public class ApplicationActions
                 }
             };
 
-        _array[TreeNode.NEW_REPLICA_GROUP] = new AbstractAction(
-            popup ? "New Replica Group" : "Replica Group" )
+        _array[TreeNode.NEW_REPLICA_GROUP] = new AbstractAction(popup ? "New Replica Group" : "Replica Group" )
             {
-                public void actionPerformed(ActionEvent e) 
+                public void actionPerformed(ActionEvent e)
                 {
                     if(apply(_target))
                     {
@@ -115,10 +111,9 @@ public class ApplicationActions
                 }
             };
 
-        _array[TreeNode.NEW_SERVER] = new AbstractAction(
-            popup ? "New Server" : "Server")
+        _array[TreeNode.NEW_SERVER] = new AbstractAction(popup ? "New Server" : "Server")
             {
-                public void actionPerformed(ActionEvent e) 
+                public void actionPerformed(ActionEvent e)
                 {
                     if(apply(_target))
                     {
@@ -127,10 +122,9 @@ public class ApplicationActions
                 }
             };
 
-        _array[TreeNode.NEW_SERVER_ICEBOX] = new AbstractAction(
-            popup ? "New IceBox Server" : "IceBox Server")
+        _array[TreeNode.NEW_SERVER_ICEBOX] = new AbstractAction(popup ? "New IceBox Server" : "IceBox Server")
             {
-                public void actionPerformed(ActionEvent e) 
+                public void actionPerformed(ActionEvent e)
                 {
                     if(apply(_target))
                     {
@@ -142,7 +136,7 @@ public class ApplicationActions
         _array[TreeNode.NEW_SERVER_FROM_TEMPLATE] = new AbstractAction(
             popup ? "New Server from Template" : "Server from Template")
             {
-                public void actionPerformed(ActionEvent e) 
+                public void actionPerformed(ActionEvent e)
                 {
                     if(apply(_target))
                     {
@@ -152,10 +146,9 @@ public class ApplicationActions
             };
 
 
-        _array[TreeNode.NEW_SERVICE] = new AbstractAction(
-            popup ? "New Service" : "Service")
+        _array[TreeNode.NEW_SERVICE] = new AbstractAction(popup ? "New Service" : "Service")
             {
-                public void actionPerformed(ActionEvent e) 
+                public void actionPerformed(ActionEvent e)
                 {
                     if(apply(_target))
                     {
@@ -167,7 +160,7 @@ public class ApplicationActions
         _array[TreeNode.NEW_SERVICE_FROM_TEMPLATE] = new AbstractAction(
             popup ? "New Service from Template" : "Service from Template")
             {
-                public void actionPerformed(ActionEvent e) 
+                public void actionPerformed(ActionEvent e)
                 {
                     if(apply(_target))
                     {
@@ -176,10 +169,9 @@ public class ApplicationActions
                 }
             };
 
-        _array[TreeNode.NEW_TEMPLATE_SERVER] = new AbstractAction(
-            popup ? "New Server Template" : "Server Template")
+        _array[TreeNode.NEW_TEMPLATE_SERVER] = new AbstractAction(popup ? "New Server Template" : "Server Template")
             {
-                public void actionPerformed(ActionEvent e) 
+                public void actionPerformed(ActionEvent e)
                 {
                     if(apply(_target))
                     {
@@ -187,11 +179,11 @@ public class ApplicationActions
                     }
                 }
             };
-        
+
         _array[TreeNode.NEW_TEMPLATE_SERVER_ICEBOX] = new AbstractAction(
             popup ? "New IceBox Server Template" : "IceBox Server Template")
             {
-                public void actionPerformed(ActionEvent e) 
+                public void actionPerformed(ActionEvent e)
                 {
                     if(apply(_target))
                     {
@@ -201,10 +193,9 @@ public class ApplicationActions
             };
 
 
-        _array[TreeNode.NEW_TEMPLATE_SERVICE] = new AbstractAction(
-            popup ? "New Service Template" : "Service Template")
+        _array[TreeNode.NEW_TEMPLATE_SERVICE] = new AbstractAction(popup ? "New Service Template" : "Service Template")
             {
-                public void actionPerformed(ActionEvent e) 
+                public void actionPerformed(ActionEvent e)
                 {
                     if(apply(_target))
                     {
@@ -212,18 +203,18 @@ public class ApplicationActions
                     }
                 }
             };
-        
+
         _array[TreeNode.COPY] = new AbstractAction("Copy")
             {
-                public void actionPerformed(ActionEvent e) 
+                public void actionPerformed(ActionEvent e)
                 {
                     _target.copy();
                 }
             };
-        
+
         _array[TreeNode.PASTE] = new AbstractAction("Paste")
             {
-                public void actionPerformed(ActionEvent e) 
+                public void actionPerformed(ActionEvent e)
                 {
                     if(apply(_target))
                     {
@@ -231,45 +222,43 @@ public class ApplicationActions
                     }
                 }
             };
-        
+
         _array[TreeNode.DELETE] = new AbstractAction("Delete")
             {
-                public void actionPerformed(ActionEvent e) 
+                public void actionPerformed(ActionEvent e)
                 {
                     _target.delete();
                 }
             };
 
-        _array[TreeNode.SHOW_VARS] = new 
-            AbstractAction("Show Variables")
+        _array[TreeNode.SHOW_VARS] = new AbstractAction("Show Variables")
             {
-                public void actionPerformed(ActionEvent e) 
+                public void actionPerformed(ActionEvent e)
                 {
                     _target.getCoordinator().showVars();
                 }
             };
+
         _array[TreeNode.SHOW_VARS].putValue(
-            Action.SHORT_DESCRIPTION, 
+            Action.SHORT_DESCRIPTION,
             "Show variables and parameters in the Properties pane");
 
-
-        _array[TreeNode.SUBSTITUTE_VARS] = new 
+        _array[TreeNode.SUBSTITUTE_VARS] = new
             AbstractAction("Substitute Variables")
             {
-                public void actionPerformed(ActionEvent e) 
+                public void actionPerformed(ActionEvent e)
                 {
                     _target.getCoordinator().substituteVars();
                 }
             };
-        
+
         _array[TreeNode.SUBSTITUTE_VARS].putValue(
-            Action.SHORT_DESCRIPTION, 
+            Action.SHORT_DESCRIPTION,
             "Substitute variables and parameters with their values in the Properties pane");
 
-        
         _array[TreeNode.MOVE_UP] = new AbstractAction("Move Up")
             {
-                public void actionPerformed(ActionEvent e) 
+                public void actionPerformed(ActionEvent e)
                 {
                     if(apply(_target))
                     {
@@ -277,10 +266,10 @@ public class ApplicationActions
                     }
                 }
             };
-                           
+
         _array[TreeNode.MOVE_DOWN] = new AbstractAction("Move Down")
             {
-                public void actionPerformed(ActionEvent e) 
+                public void actionPerformed(ActionEvent e)
                 {
                     if(apply(_target))
                     {
@@ -293,8 +282,7 @@ public class ApplicationActions
     static private boolean apply(TreeNode target)
     {
         return target.getRoot().getPane().applyUpdates(false);
-    } 
-
+    }
 
     private TreeNode _target;
     private Action[] _array = new Action[TreeNode.ACTION_COUNT];

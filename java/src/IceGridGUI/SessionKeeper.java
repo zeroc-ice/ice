@@ -6,6 +6,7 @@
 // ICE_LICENSE file included in this distribution.
 //
 // **********************************************************************
+
 package IceGridGUI;
 
 import javax.swing.*;
@@ -52,7 +53,7 @@ class SessionKeeper
         Session(AdminSessionPrx session, long keepAliveperiod, boolean routed, Component parent)
         {
             _session = session;
-            
+
             try
             {
                 _admin = _session.getAdmin();
@@ -77,12 +78,11 @@ class SessionKeeper
                     if(adminCallbackTemplate != null)
                     {
                         _adminCallbackCategory = adminCallbackTemplate.ice_getIdentity().category;
-                        
-                        Ice.Endpoint[] endpoints = adminCallbackTemplate.ice_getEndpoints();
+
                         String publishedEndpoints = null;
-                        for(int i = 0; i < endpoints.length; ++i)
+                        for(Ice.Endpoint endpoint : adminCallbackTemplate.ice_getEndpoints())
                         {
-                            String endpointString = endpoints[i].toString();
+                            String endpointString = endpoint.toString();
                             if(publishedEndpoints == null)
                             {
                                 publishedEndpoints = endpointString;
@@ -97,7 +97,6 @@ class SessionKeeper
                     }
                 }
                 _serverAdminCategory = _admin.getServerAdminCategory();
-
             }
             catch(Ice.OperationNotExistException e)
             {
@@ -124,7 +123,7 @@ class SessionKeeper
             _thread = new Pinger(_session, keepAliveperiod);
             _thread.setDaemon(true);
             _thread.start();
-            
+
             try
             {
                 registerObservers(routed);
@@ -140,7 +139,7 @@ class SessionKeeper
                 throw e;
             }
         }
-        
+
         void logout(boolean destroySession)
         {
             close(destroySession);
@@ -179,10 +178,10 @@ class SessionKeeper
                 //
                 Ice.ObjectAdapter adminRouterAdapter = _coordinator.getCommunicator().
                     createObjectAdapterWithEndpoints("IceGrid.AdminRouter", "tcp -h localhost");
-                
+
                 _routedAdmin = AdminPrxHelper.uncheckedCast(
                     adminRouterAdapter.addWithUUID(new AdminRouter(_admin)));
-                
+
                 adminRouterAdapter.activate();
             }
             return _routedAdmin;
@@ -219,7 +218,6 @@ class SessionKeeper
                 }
             }
         }
-        
 
         Ice.Object removeCallback(String name, String facet)
         {
@@ -239,7 +237,7 @@ class SessionKeeper
             {
                 _thread.done();
             }
-            
+
             if(_adapter != null)
             {
                 _adapter.destroy();
@@ -259,11 +257,11 @@ class SessionKeeper
             // Create the object adapter for the observers
             //
             String category;
-            
+
             if(!routed)
             {
                 category = "observer";
-              
+
                 String adapterName = _adminCallbackCategory == null ? "" : "CallbackAdapter";
 
                 _adapter = _coordinator.getCommunicator().createObjectAdapter(adapterName);
@@ -280,7 +278,7 @@ class SessionKeeper
                 _adapter = _coordinator.getCommunicator().createObjectAdapterWithRouter("RoutedAdapter", router);
                 _adapter.activate();
             }
-            
+
             //
             // Create servants and proxies
             //
@@ -294,30 +292,30 @@ class SessionKeeper
             _registryObserverIdentity.category = category;
             _nodeObserverIdentity.name = "node-" + java.util.UUID.randomUUID().toString();
             _nodeObserverIdentity.category = category;
-            
+
             ApplicationObserverI applicationObserverServant = new ApplicationObserverI(
                 _admin.ice_getIdentity().category, _coordinator);
-            
-            ApplicationObserverPrx applicationObserver = 
+
+            ApplicationObserverPrx applicationObserver =
                 ApplicationObserverPrxHelper.uncheckedCast(
                     _adapter.add(
                         applicationObserverServant, _applicationObserverIdentity));
 
-            AdapterObserverPrx adapterObserver = 
+            AdapterObserverPrx adapterObserver =
                 AdapterObserverPrxHelper.uncheckedCast(
                     _adapter.add(
                         new AdapterObserverI(_coordinator), _adapterObserverIdentity));
 
-            ObjectObserverPrx objectObserver = 
+            ObjectObserverPrx objectObserver =
                 ObjectObserverPrxHelper.uncheckedCast(
                     _adapter.add(
                         new ObjectObserverI(_coordinator), _objectObserverIdentity));
-            
+
             RegistryObserverPrx registryObserver =
                 RegistryObserverPrxHelper.uncheckedCast(
                     _adapter.add(
                         new RegistryObserverI(_coordinator), _registryObserverIdentity));
-            
+
             NodeObserverPrx nodeObserver =
                 NodeObserverPrxHelper.uncheckedCast(
                     _adapter.add(
@@ -327,17 +325,17 @@ class SessionKeeper
             {
                 if(routed)
                 {
-                    _session.setObservers(registryObserver, 
-                                          nodeObserver, 
-                                          applicationObserver, 
-                                          adapterObserver, 
-                                          objectObserver); 
+                    _session.setObservers(registryObserver,
+                                          nodeObserver,
+                                          applicationObserver,
+                                          adapterObserver,
+                                          objectObserver);
                 }
                 else
                 {
                     _session.setObserversByIdentity(
                         _registryObserverIdentity,
-                        _nodeObserverIdentity, 
+                        _nodeObserverIdentity,
                         _applicationObserverIdentity,
                         _adapterObserverIdentity,
                         _objectObserverIdentity);
@@ -347,15 +345,14 @@ class SessionKeeper
             {
                 assert false; // We use UUIDs for the observer identities.
             }
-            
+
             applicationObserverServant.waitForInit();
         }
 
-
         private final AdminSessionPrx _session;
-      
+
         private Pinger _thread;
-        
+
         private Ice.ObjectAdapter _adapter;
         private AdminPrx _admin;
         private String _serverAdminCategory;
@@ -367,7 +364,6 @@ class SessionKeeper
         private Ice.Identity _registryObserverIdentity = new Ice.Identity();
         private Ice.Identity _nodeObserverIdentity = new Ice.Identity();
     }
-
 
     static public class LoginInfo
     {
@@ -396,25 +392,22 @@ class SessionKeeper
                 //
                 registryInstanceName = defaultLocatorProxy.ice_getIdentity().category;
                 registryEndpoints = "";
-                Ice.Endpoint[] endpoints = defaultLocatorProxy.ice_getEndpoints();
-                for(int i = 0; i < endpoints.length; ++i)
+                for(Ice.Endpoint endpoint : defaultLocatorProxy.ice_getEndpoints())
                 {
-                    if(i > 0)
+                    if(registryEndpoints.length() > 0)
                     {
                         registryEndpoints += ":";
                     }
-                    registryEndpoints += endpoints[i].toString();
+                    registryEndpoints += endpoint.toString();
                 }
             }
             else
             {
-                registryInstanceName = 
-                    _connectionPrefs.get("registry.instanceName", registryInstanceName);
-                registryEndpoints = 
-                    _connectionPrefs.get("registry.endpoints", registryEndpoints);
+                registryInstanceName = _connectionPrefs.get("registry.instanceName", registryInstanceName);
+                registryEndpoints = _connectionPrefs.get("registry.endpoints", registryEndpoints);
             }
             connectToMaster = _connectionPrefs.getBoolean("registry.connectToMaster", connectToMaster);
-            
+
             //
             // Glacier2 properties
             //
@@ -434,14 +427,13 @@ class SessionKeeper
                 //
                 routerInstanceName = defaultRouterProxy.ice_getIdentity().category;
                 routerEndpoints = "";
-                Ice.Endpoint[] endpoints = defaultRouterProxy.ice_getEndpoints();
-                for(int i = 0; i < endpoints.length; ++i)
+                for(Ice.Endpoint endpoint : defaultRouterProxy.ice_getEndpoints())
                 {
-                    if(i > 0)
+                    if(routerEndpoints.length() > 0)
                     {
                         routerEndpoints += ":";
                     }
-                    routerEndpoints += endpoints[i].toString();
+                    routerEndpoints += endpoint.toString();
                 }
             }
             else
@@ -457,12 +449,13 @@ class SessionKeeper
             registryUsername = _connectionPrefs.get("registry.username", registryUsername);
             registryUsername = properties.getPropertyWithDefault("IceGridAdmin.Username", registryUsername);
             registryPassword = properties.getProperty("IceGridAdmin.Password").toCharArray();
-                 
+
             registryUseSSL = _connectionPrefs.getBoolean("registry.useSSL", registryUseSSL);
             registryUseSSL = properties.getPropertyAsIntWithDefault("IceGridAdmin.AuthenticateUsingSSL",
                                                                registryUseSSL ? 1 : 0) > 0;
 
-            registrySSLEnabled = registryUseSSL || _connectionPrefs.getBoolean("registry.sslEnabled", registrySSLEnabled);
+            registrySSLEnabled = registryUseSSL ||
+                _connectionPrefs.getBoolean("registry.sslEnabled", registrySSLEnabled);
 
             routerUsername = _connectionPrefs.get("router.username", routerUsername);
             routerUsername = properties.getPropertyWithDefault("IceGridAdmin.Username", routerUsername);
@@ -481,9 +474,8 @@ class SessionKeeper
             //
 
             final File defaultDir = new File(properties.getProperty("IceSSL.DefaultDir")).getAbsoluteFile();
-            
-            keystore = properties.getPropertyWithDefault("IceSSL.Keystore",
-                                                         _connectionPrefs.get("keystore", keystore));
+
+            keystore = properties.getPropertyWithDefault("IceSSL.Keystore", _connectionPrefs.get("keystore", keystore));
 
             if(keystore != null && keystore.length() > 0)
             {
@@ -499,21 +491,22 @@ class SessionKeeper
                 keyPassword = prop.toCharArray();
             }
 
-            prop = properties.getPropertyWithDefault("IceSSL.KeystorePassword", System.getProperty("java.net.ssl.keyStorePassword"));
+            prop = properties.getPropertyWithDefault("IceSSL.KeystorePassword",
+                                                     System.getProperty("java.net.ssl.keyStorePassword"));
 
             if(prop != null && prop.length() > 0)
             {
                 keystorePassword = prop.toCharArray();
             }
-            
-            prop = properties.getPropertyWithDefault("IceSSL.TruststorePassword", System.getProperty("java.net.ssl.trustStorePassword"));
+
+            prop = properties.getPropertyWithDefault("IceSSL.TruststorePassword",
+                                                     System.getProperty("java.net.ssl.trustStorePassword"));
             if(prop != null && prop.length() > 0)
             {
                 truststorePassword = prop.toCharArray();
             }
 
-            alias = properties.getPropertyWithDefault("IceSSL.Alias",
-                                                      _connectionPrefs.get("alias", ""));
+            alias = properties.getPropertyWithDefault("IceSSL.Alias", _connectionPrefs.get("alias", ""));
 
             truststore = properties.getPropertyWithDefault("IceSSL.Truststore",
                                                            _connectionPrefs.get("truststore", truststore));
@@ -594,12 +587,13 @@ class SessionKeeper
             super(_coordinator.getMainFrame(), "Login - IceGrid Admin", true);
             setDefaultCloseOperation(JDialog.HIDE_ON_CLOSE);
 
-            final File defaultDir = new File(_coordinator.getProperties().getProperty("IceSSL.DefaultDir")).getAbsoluteFile();
+            final File defaultDir =
+                new File(_coordinator.getProperties().getProperty("IceSSL.DefaultDir")).getAbsoluteFile();
 
-            _keystoreType = 
-                _coordinator.getProperties().getPropertyWithDefault("IceSSL.KeystoreType", 
+            _keystoreType =
+                _coordinator.getProperties().getPropertyWithDefault("IceSSL.KeystoreType",
                                                                     java.security.KeyStore.getDefaultType());
-           
+
             JButton okButton = new JButton("OK");
             ActionListener okListener = new ActionListener()
                 {
@@ -619,7 +613,7 @@ class SessionKeeper
                 };
             okButton.addActionListener(okListener);
             getRootPane().setDefaultButton(okButton);
-        
+
             JButton cancelButton = new JButton("Cancel");
             ActionListener cancelListener = new ActionListener()
                 {
@@ -632,17 +626,16 @@ class SessionKeeper
 
             Action registryUseSSL = new AbstractAction("Use SSL for authentication")
                 {
-                    public void actionPerformed(ActionEvent e) 
+                    public void actionPerformed(ActionEvent e)
                     {
                         selectRegistryUseSSL(_registryUseSSL.isSelected());
                     }
                 };
             _registryUseSSL = new JCheckBox(registryUseSSL);
-            
 
             Action routerUseSSL = new AbstractAction("Use SSL for authentication")
                 {
-                    public void actionPerformed(ActionEvent e) 
+                    public void actionPerformed(ActionEvent e)
                     {
                         selectRouterUseSSL(_routerUseSSL.isSelected());
                     }
@@ -651,28 +644,27 @@ class SessionKeeper
 
             Action registrySSLEnabled = new AbstractAction("Enable IceSSL")
                 {
-                    public void actionPerformed(ActionEvent e) 
+                    public void actionPerformed(ActionEvent e)
                     {
                         selectRegistrySSLEnabled(_registrySSLEnabled.isSelected());
                     }
                 };
             _registrySSLEnabled = new JCheckBox(registrySSLEnabled);
-            
+
             Action routerSSLEnabled = new AbstractAction("Enable IceSSL")
                 {
-                    public void actionPerformed(ActionEvent e) 
+                    public void actionPerformed(ActionEvent e)
                     {
                         selectRouterSSLEnabled(_routerSSLEnabled.isSelected());
                     }
                 };
             _routerSSLEnabled = new JCheckBox(routerSSLEnabled);
 
-
             _keystore.setEditable(true);
             _advancedKeystore.setEditable(true);
             Action chooseKeystore = new AbstractAction("...")
                 {
-                    public void actionPerformed(ActionEvent e) 
+                    public void actionPerformed(ActionEvent e)
                     {
                         String store = _keystore.getText();
                         if(store == null || store.length() == 0)
@@ -700,13 +692,13 @@ class SessionKeeper
                             updateAlias(file, _alias.getSelectedItem());
                         }
                     }
-                    private JFileChooser _fileChooser = new JFileChooser(); 
+                    private JFileChooser _fileChooser = new JFileChooser();
                 };
 
             _truststore.setEditable(true);
             Action chooseTruststore = new AbstractAction("...")
                 {
-                    public void actionPerformed(ActionEvent e) 
+                    public void actionPerformed(ActionEvent e)
                     {
                         String store = _truststore.getText();
                         if(store == null || store.length() == 0)
@@ -734,17 +726,16 @@ class SessionKeeper
                         }
                     }
 
-                    private JFileChooser _fileChooser = new JFileChooser(); 
+                    private JFileChooser _fileChooser = new JFileChooser();
                 };
 
-            
             _registryUsername.setToolTipText("Your username");
             _registryPassword.setToolTipText("Your password in this IceGrid registry");
             _registryUseSSL.setToolTipText("Do you want to use SSL instead of username/password for authentication?");
             _registryInstanceName.setToolTipText("The instance name of your IceGrid registry. For example: DemoIceGrid");
             _registryEndpoints.setToolTipText("<html>Corresponds to the client endpoints of this IceGrid registry.<br>"
                                               + "For example: tcp -h registry.domain.com -p 12000</html>");
-            
+
             _routerUsername.setToolTipText("Your username");
             _routerPassword.setToolTipText("Your password in this Glacier2 router");
             _routerUseSSL.setToolTipText("Do you want to use SSL instead of username/password for authentication?");
@@ -759,20 +750,19 @@ class SessionKeeper
 
             _keystorePassword.setToolTipText("Password used to check the integrity of the keystore");
             _alias.setToolTipText("Use this alias when authenticating IceGrid Admin with the IceGrid registry or Glacier2 router");
-            
+
             _truststore.setToolTipText("SSL truststore file");
             _truststorePassword.setToolTipText("Password used to check the integrity of the truststore");
-              
 
             JPanel directPanel = null;
             {
                 FormLayout layout = new FormLayout("right:pref, 3dlu, pref", "");
-                
+
                 DefaultFormBuilder builder = new DefaultFormBuilder(layout);
                 builder.setDefaultDialogBorder();
                 builder.setRowGroupingEnabled(true);
                 builder.setLineGapSize(LayoutStyle.getCurrent().getLinePad());
-                
+
                 _registryUsernameLabel = builder.append("Username", _registryUsername);
                 builder.nextLine();
                 _registryPasswordLabel = builder.append("Password", _registryPassword);
@@ -787,20 +777,19 @@ class SessionKeeper
                 builder.nextLine();
                 builder.append("", _connectToMaster);
                 builder.nextLine();
-                
+
                 directPanel = builder.getPanel();
             }
 
-            
             JPanel routedPanel = null;
             {
                 FormLayout layout = new FormLayout("right:pref, 3dlu, pref", "");
-                
+
                 DefaultFormBuilder builder = new DefaultFormBuilder(layout);
                 builder.setDefaultDialogBorder();
                 builder.setRowGroupingEnabled(true);
                 builder.setLineGapSize(LayoutStyle.getCurrent().getLinePad());
-                
+
                 _routerUsernameLabel = builder.append("Username", _routerUsername);
                 builder.nextLine();
                 _routerPasswordLabel = builder.append("Password", _routerPassword);
@@ -813,10 +802,10 @@ class SessionKeeper
                 builder.nextLine();
                 builder.append("Glacier2 Router Endpoint(s)", _routerEndpoints);
                 builder.nextLine();
-        
+
                 routedPanel = builder.getPanel();
             }
-            
+
             _mainPane.addTab("Direct", null, directPanel, "Log directly into the IceGrid registry");
             _mainPane.addTab("Routed", null, routedPanel, "Log into the IceGrid registry through a Glacier2 router");
             _mainPane.setBorder(Borders.DIALOG_BORDER);
@@ -831,16 +820,15 @@ class SessionKeeper
                         }
                         else
                         {
-                            routedTabSelected(); 
+                            routedTabSelected();
                         }
                     }
                 });
 
             JPanel basicSSLPanel = null;
             {
-                FormLayout layout = new FormLayout(
-                    "right:pref, 3dlu, fill:pref:grow, 3dlu, pref", "");
-                
+                FormLayout layout = new FormLayout("right:pref, 3dlu, fill:pref:grow, 3dlu, pref", "");
+
                 DefaultFormBuilder builder = new DefaultFormBuilder(layout);
                 builder.setDefaultDialogBorder();
                 builder.setRowGroupingEnabled(true);
@@ -853,20 +841,19 @@ class SessionKeeper
                 builder.append("Key Password");
                 builder.append(_keyPassword, 3);
                 builder.nextLine();
-                
+
                 basicSSLPanel = builder.getPanel();
             }
-            
+
             JPanel advancedSSLPanel = null;
             {
-                FormLayout layout = new FormLayout(
-                    "right:pref, 3dlu, fill:pref:grow, 3dlu, pref", "");
-                
+                FormLayout layout = new FormLayout("right:pref, 3dlu, fill:pref:grow, 3dlu, pref", "");
+
                 DefaultFormBuilder builder = new DefaultFormBuilder(layout);
                 builder.setDefaultDialogBorder();
                 builder.setRowGroupingEnabled(true);
                 builder.setLineGapSize(LayoutStyle.getCurrent().getLinePad());
-                
+
                 builder.appendSeparator("Keystore");
                 builder.append("File", _advancedKeystore);
                 builder.append(new JButton(chooseKeystore));
@@ -880,7 +867,7 @@ class SessionKeeper
                 builder.append("Alias");
                 builder.append(_alias, 3);
                 builder.nextLine();
-                
+
                 builder.appendSeparator("Truststore");
                 builder.append("File", _truststore);
                 builder.append(new JButton(chooseTruststore));;
@@ -888,21 +875,18 @@ class SessionKeeper
                 builder.append("Integrity Password");
                 builder.append(_truststorePassword, 3);
                 builder.nextLine();
-        
+
                 advancedSSLPanel = builder.getPanel();
             }
 
-            
             _sslPane.addTab("Basic", basicSSLPanel);
             _sslPane.addTab("Advanced", advancedSSLPanel);
-            TitledBorder titledBorder = BorderFactory.createTitledBorder(Borders.DIALOG_BORDER,
-                                                                         "SSL Configuration");
+            TitledBorder titledBorder = BorderFactory.createTitledBorder(Borders.DIALOG_BORDER, "SSL Configuration");
             _sslPane.setBorder(titledBorder);
 
-            JComponent buttonBar = 
-                    ButtonBarFactory.buildOKCancelBar(okButton, cancelButton);
+            JComponent buttonBar = ButtonBarFactory.buildOKCancelBar(okButton, cancelButton);
             buttonBar.setBorder(Borders.DIALOG_BORDER);
-            
+
             Container contentPane = getContentPane();
             contentPane.setLayout(new BoxLayout(contentPane, BoxLayout.Y_AXIS));
             contentPane.add(_mainPane);
@@ -912,7 +896,7 @@ class SessionKeeper
             pack();
             setResizable(false);
         }
-        
+
         void showDialog()
         {
             if(isVisible() == false)
@@ -932,11 +916,11 @@ class SessionKeeper
                 _routerUsername.setText(_loginInfo.routerUsername);
                 _routerPassword.setText(new String(_loginInfo.routerPassword));
                 selectRouterUseSSL(_loginInfo.routerUseSSL);
-        
+
                 _routerInstanceName.setText(_loginInfo.routerInstanceName);
                 _routerEndpoints.setText(_loginInfo.routerEndpoints);
                 _routerSSLEnabled.setSelected(_loginInfo.routerSSLEnabled);
-                
+
                 _keystore.setText(_loginInfo.keystore);
                 if(_loginInfo.keystore == null)
                 {
@@ -946,7 +930,7 @@ class SessionKeeper
                 {
                     updateAlias(new File(_loginInfo.keystore), _loginInfo.alias);
                 }
-                
+
                 if(_loginInfo.keyPassword != null)
                 {
                     _keyPassword.setText(new String(_loginInfo.keyPassword));
@@ -975,12 +959,12 @@ class SessionKeeper
                 setLocationRelativeTo(_coordinator.getMainFrame());
                 setVisible(true);
             }
-          
+
             //
             // Otherwise it was already on the screen!
             //
         }
-       
+
         private void writeInfo()
         {
             _loginInfo.routed = (_mainPane.getSelectedIndex() == 1);
@@ -992,7 +976,7 @@ class SessionKeeper
             _loginInfo.registryInstanceName = _registryInstanceName.getText();
             _loginInfo.registryEndpoints = _registryEndpoints.getText();
             _loginInfo.connectToMaster = _connectToMaster.isSelected();
-         
+
             _loginInfo.routerUsername = _routerUsername.getText();
             _loginInfo.routerPassword = _routerPassword.getPassword();
             _loginInfo.routerUseSSL = _routerUseSSL.isSelected();
@@ -1000,10 +984,12 @@ class SessionKeeper
             _loginInfo.routerInstanceName = _routerInstanceName.getText();
             _loginInfo.routerEndpoints = _routerEndpoints.getText();
 
-            final File defaultDir = new File(_coordinator.getProperties().getProperty("IceSSL.DefaultDir")).getAbsoluteFile();
+            final File defaultDir =
+                new File(_coordinator.getProperties().getProperty("IceSSL.DefaultDir")).getAbsoluteFile();
 
             _loginInfo.keystore = _keystore.getText();
-            if(_loginInfo.keystore != null && _loginInfo.keystore.length() > 0 && new File(_loginInfo.keystore).isAbsolute() == false)
+            if(_loginInfo.keystore != null && _loginInfo.keystore.length() > 0 &&
+               new File(_loginInfo.keystore).isAbsolute() == false)
             {
                 _loginInfo.keystore = new File(defaultDir, _loginInfo.keystore).getAbsolutePath();
             }
@@ -1019,7 +1005,8 @@ class SessionKeeper
                 _loginInfo.alias = _alias.getSelectedItem().toString();
             }
             _loginInfo.truststore = _truststore.getText();
-            if(_loginInfo.truststore != null && _loginInfo.truststore.length() > 0 && new File(_loginInfo.truststore).isAbsolute() == false)
+            if(_loginInfo.truststore != null && _loginInfo.truststore.length() > 0 &&
+               new File(_loginInfo.truststore).isAbsolute() == false)
             {
                 _loginInfo.truststore = new File(defaultDir, _loginInfo.truststore).getAbsolutePath();
             }
@@ -1041,13 +1028,13 @@ class SessionKeeper
                     return;
                 }
 
-                java.util.Vector aliasVector = new java.util.Vector();
+                java.util.Vector<String> aliasVector = new java.util.Vector<String>();
 
                 try
                 {
                     KeyStore ks = KeyStore.getInstance(_keystoreType);
                     ks.load(is, null);
-                    java.util.Enumeration p = ks.aliases();
+                    java.util.Enumeration<String> p = ks.aliases();
                     while(p.hasMoreElements())
                     {
                         aliasVector.add(p.nextElement());
@@ -1091,13 +1078,13 @@ class SessionKeeper
             _registryUsernameLabel.setEnabled(!selected);
             _registryPassword.setEnabled(!selected);
             _registryPasswordLabel.setEnabled(!selected);
-            
+
             if(selected && _registrySSLEnabled.isSelected() == false)
             {
                 selectRegistrySSLEnabled(selected);
             }
         }
-        
+
         private void selectRouterUseSSL(boolean selected)
         {
             _routerUseSSL.setSelected(selected);
@@ -1105,13 +1092,13 @@ class SessionKeeper
             _routerUsernameLabel.setEnabled(!selected);
             _routerPassword.setEnabled(!selected);
             _routerPasswordLabel.setEnabled(!selected);
-            
+
             if(selected && _routerSSLEnabled.isSelected() == false)
             {
                 selectRouterSSLEnabled(selected);
             }
         }
-        
+
         private void selectRegistrySSLEnabled(boolean selected)
         {
             _registrySSLEnabled.setSelected(selected);
@@ -1180,11 +1167,9 @@ class SessionKeeper
         private JTextField _keystore = new JTextField(30);
         private JPasswordField _keyPassword = new JPasswordField(30);
 
-        private JTextField _advancedKeystore = new JTextField(
-            _keystore.getDocument(), null, 30);
-        private JPasswordField _advancedKeyPassword = new JPasswordField(
-            _keyPassword.getDocument(), null, 30);
-        
+        private JTextField _advancedKeystore = new JTextField(_keystore.getDocument(), null, 30);
+        private JPasswordField _advancedKeyPassword = new JPasswordField(_keyPassword.getDocument(), null, 30);
+
         private JPasswordField _keystorePassword = new JPasswordField(30);
         private JComboBox _alias = new JComboBox();
 
@@ -1194,7 +1179,6 @@ class SessionKeeper
         private String _keystoreType;
     }
 
-   
     //
     // We create a brand new Pinger thread for each session
     //
@@ -1206,7 +1190,7 @@ class SessionKeeper
 
             _session = session;
             _period = period;
-            
+
             if(_period <= 0)
             {
                 _period = 5000;
@@ -1237,21 +1221,21 @@ class SessionKeeper
                             done = _done;
                             _done = true;
                         }
-                  
+
                         if(!done)
                         {
-                            SwingUtilities.invokeLater(new Runnable() 
+                            SwingUtilities.invokeLater(new Runnable()
                                 {
-                                    public void run() 
+                                    public void run()
                                     {
-                                        sessionLost("Failed to contact the IceGrid registry: " 
+                                        sessionLost("Failed to contact the IceGrid registry: "
                                                     + e.toString());
                                     }
                                 });
                         }
                     }
                 }
-                
+
                 synchronized(this)
                 {
                     if(!_done)
@@ -1269,7 +1253,7 @@ class SessionKeeper
                 }
             } while(!done);
         }
-        
+
         public synchronized void done()
         {
             if(!_done)
@@ -1278,13 +1262,11 @@ class SessionKeeper
                 notify();
             }
         }
-        
+
         private AdminSessionPrx _session;
         private long _period;
         private boolean _done = false;
-    } 
-
-  
+    }
 
     SessionKeeper(Coordinator coordinator)
     {
@@ -1301,7 +1283,7 @@ class SessionKeeper
         _loginInfo = new LoginInfo(_loginPrefs, _coordinator);
         _loginDialog.showDialog();
     }
-  
+
     void relog(boolean showDialog)
     {
         if(_loginInfo == null)
@@ -1324,14 +1306,14 @@ class SessionKeeper
             logout(true);
         }
         assert _session == null;
-        
+
         Cursor oldCursor = parent.getCursor();
         try
         {
             parent.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
-       
+
             Ice.LongHolder keepAlivePeriodHolder = new Ice.LongHolder();
-         
+
             AdminSessionPrx session = _coordinator.login(_loginInfo, parent, keepAlivePeriodHolder);
             if(session == null)
             {
@@ -1353,7 +1335,7 @@ class SessionKeeper
             }
 
             _coordinator.getStatusBar().setConnected(true);
-            
+
             _connectedToMaster = _replicaName.equals("Master");
             if(_connectedToMaster)
             {
@@ -1363,7 +1345,7 @@ class SessionKeeper
             {
                 _coordinator.getStatusBar().setText("Logged into Slave Registry '" + _replicaName + "'");
             }
-            
+
             try
             {
                 _session = new Session(session, keepAlivePeriodHolder.value, _loginInfo.routed, parent);
@@ -1388,7 +1370,7 @@ class SessionKeeper
             message,
             "Session lost",
             JOptionPane.ERROR_MESSAGE);
-        
+
         logout(false);
     }
 
@@ -1400,12 +1382,12 @@ class SessionKeeper
             _session = null;
         }
     }
-   
+
     AdminSessionPrx getSession()
     {
         return _session == null ? null : _session.getSession();
     }
-    
+
     AdminPrx getAdmin()
     {
         return _session == null ? null : _session.getAdmin();
@@ -1420,12 +1402,11 @@ class SessionKeeper
     {
         return _session == null ? null : _session.addCallback(servant, name, facet);
     }
-    
+
     Ice.ObjectPrx retrieveCallback(String name, String facet)
     {
         return _session == null ? null : _session.retrieveCallback(name, facet);
     }
-
 
     Ice.Object removeCallback(String name, String facet)
     {
@@ -1446,13 +1427,13 @@ class SessionKeeper
     {
         return _replicaName;
     }
-   
+
     private LoginDialog _loginDialog;
     private LoginInfo _loginInfo;
 
     private final Coordinator _coordinator;
     private Preferences _loginPrefs;
-  
+
     private Session _session;
     private boolean _connectedToMaster = false;
     private String _replicaName = "";

@@ -6,6 +6,7 @@
 // ICE_LICENSE file included in this distribution.
 //
 // **********************************************************************
+
 package IceGridGUI.Application;
 
 import IceGrid.*;
@@ -25,37 +26,36 @@ import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 
 //
-// A special field used to show/edit a map 
+// A special field used to show/edit a map
 //
 
-public class MapField extends JTable
+public class ArrayMapField extends JTable
 {
-    public MapField(Editor editor, String headKey, String[] headValues, boolean substituteKey)
+    public ArrayMapField(Editor editor, boolean substituteKey, String... columns)
     {
         _editor = editor;
         _substituteKey = substituteKey;
-        _vectorSize = headValues.length + 1;
+        _vectorSize = columns.length;
 
-        _columnNames = new java.util.Vector(_vectorSize);
-        _columnNames.add(headKey);
-        for(int i = 0; i < headValues.length; ++i)
+        _columnNames = new java.util.Vector<String>(_vectorSize);
+        for(String name : columns)
         {
-            _columnNames.add(headValues[i]);
+            _columnNames.add(name);
         }
 
-        assert _vectorSize >= 2;
-        
+        assert _vectorSize > 2;
+
         Action deleteRow = new AbstractAction("Delete selected row(s)")
             {
-                public void actionPerformed(ActionEvent e) 
+                public void actionPerformed(ActionEvent e)
                 {
                     if(_editable)
                     {
-                        if(isEditing()) 
+                        if(isEditing())
                         {
                             getCellEditor().stopCellEditing();
                         }
-                        
+
                         for(;;)
                         {
                             int selectedRow = getSelectedRow();
@@ -72,58 +72,42 @@ public class MapField extends JTable
                 }
             };
         getActionMap().put("delete", deleteRow);
-        getInputMap().put(
-            KeyStroke.getKeyStroke("DELETE"), "delete");
+        getInputMap().put(KeyStroke.getKeyStroke("DELETE"), "delete");
     }
 
-    public MapField(Editor editor, String headKey, String headValue, boolean substituteKey)
-    {
-        this(editor, headKey, new String[]{headValue}, substituteKey);
-    }
-
-    public void set(java.util.Map map, Utils.Resolver resolver, 
-                    boolean editable)
+    public void set(java.util.Map<String, String[]> map, Utils.Resolver resolver, boolean editable)
     {
         _editable = editable;
+        assert(_vectorSize > 2);
 
         //
         // Transform map into vector of vectors
         //
-        java.util.Vector vector = new java.util.Vector(map.size());
-        java.util.Iterator p = map.entrySet().iterator();
-        while(p.hasNext())
+        java.util.Vector<java.util.Vector<String>> vector = new java.util.Vector<java.util.Vector<String>>(map.size());
+        for(java.util.Map.Entry<String, String[]> p : map.entrySet())
         {
-            java.util.Vector row = new java.util.Vector(_vectorSize);
-            java.util.Map.Entry entry = (java.util.Map.Entry)p.next();
-            
+            java.util.Vector<String> row = new java.util.Vector<String>(_vectorSize);
+
             if(_substituteKey)
             {
-                row.add(Utils.substitute((String)entry.getKey(), resolver));
+                row.add(Utils.substitute(p.getKey(), resolver));
             }
             else
             {
-                row.add((String)entry.getKey());
+                row.add(p.getKey());
             }
 
-            if(_vectorSize == 2)
+            for(String val : p.getValue())
             {
-                row.add(Utils.substitute((String)entry.getValue(), resolver));
+                row.add(Utils.substitute(val, resolver));
             }
-            else
-            {
-                String[] val = (String[])entry.getValue();
 
-                for(int i = 0; i < val.length; ++i)
-                {
-                    row.add(Utils.substitute(val[i], resolver));
-                }
-            }
             vector.add(row);
         }
 
         if(_editable)
         {
-            java.util.Vector newRow = new java.util.Vector(_vectorSize);
+            java.util.Vector<String> newRow = new java.util.Vector<String>(_vectorSize);
             for(int i = 0; i < _vectorSize; ++i)
             {
                 newRow.add("");
@@ -138,15 +122,14 @@ public class MapField extends JTable
                     return _editable;
                 }
             };
-        
+
         _model.addTableModelListener(new TableModelListener()
             {
                 public void tableChanged(TableModelEvent e)
                 {
                     if(_editable)
                     {
-                        Object lastKey = _model.getValueAt(
-                            _model.getRowCount() - 1 , 0);
+                        Object lastKey = _model.getValueAt(_model.getRowCount() - 1 , 0);
                         if(lastKey != null && !lastKey.equals(""))
                         {
                             Object[] emptyRow = new Object[_vectorSize];
@@ -166,62 +149,48 @@ public class MapField extends JTable
         setOpaque(_editable);
         setPreferredScrollableViewportSize(getPreferredSize());
 
-        DefaultTableCellRenderer cr = (DefaultTableCellRenderer)
-            getDefaultRenderer(String.class);
-        cr.setOpaque(_editable);        
+        DefaultTableCellRenderer cr = (DefaultTableCellRenderer)getDefaultRenderer(String.class);
+        cr.setOpaque(_editable);
     }
 
-
-    public java.util.TreeMap get()
+    public java.util.TreeMap<String, String[]> get()
     {
         assert _editable;
+        assert(_vectorSize > 2);
 
-        if(isEditing()) 
+        if(isEditing())
         {
             getCellEditor().stopCellEditing();
         }
-        java.util.Vector vector = _model.getDataVector();
-        
-        java.util.TreeMap result = new java.util.TreeMap();
+        @SuppressWarnings("unchecked")
+        java.util.Vector<java.util.Vector<String>> vector =
+            (java.util.Vector<java.util.Vector<String>>)_model.getDataVector();
 
-        java.util.Iterator p = vector.iterator();
-        while(p.hasNext())
+        java.util.TreeMap<String, String[]> result = new java.util.TreeMap<String, String[]>();
+
+        for(java.util.Vector<String> row : vector)
         {
-             java.util.Vector row = (java.util.Vector)p.next();
-
-             //
-             // Eliminate rows with null or empty keys 
-             //
-             String key = (String)row.elementAt(0);
-             if(key != null)
-             {
-                 key = key.trim(); 
-                 if(!key.equals(""))
-                 {
-                     if(_vectorSize == 2)
-                     {
-                         String val = (String)row.elementAt(1);
-                         if(val == null)
-                         {
-                             val = "";
-                         }
-                         result.put(key, val);
-                     }
-                     else
-                     {
-                         String[] val = new String[_vectorSize - 1];
-                         for(int i = 1; i < _vectorSize; ++i)
-                         {
-                             val[i - 1] = (String)row.elementAt(i);
-                             if(val[i - 1] == null)
-                             {
-                                 val[i - 1] = "";
-                             }
-                         }
-                         result.put(key, val);
-                     }
-                 }
-             }
+            //
+            // Eliminate rows with null or empty keys
+            //
+            String key = row.elementAt(0);
+            if(key != null)
+            {
+                key = key.trim();
+                if(!key.equals(""))
+                {
+                    String[] val = new String[_vectorSize - 1];
+                    for(int i = 1; i < _vectorSize; ++i)
+                    {
+                        val[i - 1] = row.elementAt(i);
+                        if(val[i - 1] == null)
+                        {
+                            val[i - 1] = "";
+                        }
+                    }
+                    result.put(key, val);
+                }
+            }
         }
         return result;
     }
@@ -229,12 +198,10 @@ public class MapField extends JTable
     private final int _vectorSize;
 
     private DefaultTableModel _model;
-    private java.util.Vector _columnNames;
+    private java.util.Vector<String> _columnNames;
     private boolean _editable = false;
 
     private boolean _substituteKey;
 
     private Editor _editor;
 }
-
-

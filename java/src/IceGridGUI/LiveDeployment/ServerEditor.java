@@ -6,6 +6,7 @@
 // ICE_LICENSE file included in this distribution.
 //
 // **********************************************************************
+
 package IceGridGUI.LiveDeployment;
 
 import java.awt.event.ActionEvent;
@@ -48,19 +49,19 @@ class ServerEditor extends CommunicatorEditor
         _enabled.setEnabled(false);
         _currentPid.setEditable(false);
         _buildId.setEditable(false);
-        
+
         _application.setEditable(false);
         _exe.setEditable(false);
         _iceVersion.setEditable(false);
         _pwd.setEditable(false);
-   
+
         _activation.setEditable(false);
         _activationTimeout.setEditable(false);
         _deactivationTimeout.setEditable(false);
 
         _options.setEditable(false);
         _user.setEditable(false);
-        
+
         _allocatable.setEnabled(false);
         _applicationDistrib.setEnabled(false);
         _icepatch.setEditable(false);
@@ -68,34 +69,29 @@ class ServerEditor extends CommunicatorEditor
 
         Action refresh = new AbstractAction("Refresh")
             {
-                public void actionPerformed(ActionEvent e) 
+                public void actionPerformed(ActionEvent e)
                 {
                     _buildId.setText("Retrieving...");
                     _properties.clear();
                     _target.showRuntimeProperties();
                 }
             };
-        refresh.putValue(Action.SHORT_DESCRIPTION, 
-                        "Reread the properties from the server");
+        refresh.putValue(Action.SHORT_DESCRIPTION, "Reread the properties from the server");
         _refreshButton = new JButton(refresh);
 
-        Action gotoApplication = new AbstractAction(
-            "", Utils.getIcon("/icons/16x16/goto.png"))
+        Action gotoApplication = new AbstractAction("", Utils.getIcon("/icons/16x16/goto.png"))
             {
-                public void actionPerformed(ActionEvent e) 
+                public void actionPerformed(ActionEvent e)
                 {
                     _target.openDefinition();
                 }
             };
-        gotoApplication.putValue(Action.SHORT_DESCRIPTION, 
-                              "View/Edit this application");
+        gotoApplication.putValue(Action.SHORT_DESCRIPTION, "View/Edit this application");
         _gotoApplication = new JButton(gotoApplication);
     }
 
-
     void show(Server server)
     {
-
         Server previousServer = _target;
 
         _target = server;
@@ -136,7 +132,7 @@ class ServerEditor extends CommunicatorEditor
                 {
                     _buildId.setText("Retrieving...");
                     _properties.clear();
-                
+
                     //
                     // Retrieve all properties in background
                     //
@@ -148,7 +144,6 @@ class ServerEditor extends CommunicatorEditor
                 // Otherwise, use current value
                 //
                 _refreshButton.setEnabled(true);
-               
             }
             else
             {
@@ -158,11 +153,11 @@ class ServerEditor extends CommunicatorEditor
                 _refreshButton.setEnabled(false);
             }
         }
-      
+
         _application.setText(resolver.find("application"));
 
         super.show(descriptor, server.getProperties(), resolver);
-        
+
         _exe.setText(resolver.substitute(descriptor.exe));
         _iceVersion.setText(resolver.substitute(descriptor.iceVersion));
         _pwd.setText(resolver.substitute(descriptor.pwd));
@@ -175,9 +170,8 @@ class ServerEditor extends CommunicatorEditor
                     return resolver.substitute((String)obj);
                 }
             };
-        
-        _options.setText(
-            Utils.stringify(descriptor.options, stringifier, " ", toolTipHolder));
+
+        _options.setText(Utils.stringify(descriptor.options, stringifier, " ", toolTipHolder));
         _options.setToolTipText(toolTipHolder.value);
 
         _envs.setEnvs(descriptor.envs, resolver);
@@ -187,16 +181,16 @@ class ServerEditor extends CommunicatorEditor
         _activation.setText(resolver.substitute(descriptor.activation));
         _activationTimeout.setText(resolver.substitute(descriptor.activationTimeout));
         _deactivationTimeout.setText(resolver.substitute(descriptor.deactivationTimeout));
-        
+
         _allocatable.setSelected(descriptor.allocatable);
 
         _applicationDistrib.setSelected(descriptor.applicationDistrib);
         _icepatch.setText(resolver.substitute(resolver.substitute(descriptor.distrib.icepatch)));
 
         toolTipHolder = new Ice.StringHolder();
-        
+
         _directories.setText(
-            Utils.stringify(descriptor.distrib.directories, stringifier, ", ", 
+            Utils.stringify(descriptor.distrib.directories, stringifier, ", ",
                             toolTipHolder));
 
         String toolTip = "<html>Include only these directories";
@@ -224,14 +218,14 @@ class ServerEditor extends CommunicatorEditor
         //
     }
 
-    void setRuntimeProperties(java.util.SortedMap map, Server server)
+    void setRuntimeProperties(java.util.SortedMap<String, String> map, Server server)
     {
         if(server == _target)
         {
             _properties.setSortedMap(map);
             _propertiesRetrieved = true;
 
-            String buildString = (String)map.get("BuildId");
+            String buildString = map.get("BuildId");
             if(buildString == null)
             {
                 _buildId.setText("");
@@ -277,11 +271,10 @@ class ServerEditor extends CommunicatorEditor
         builder.nextRow(-6);
         CellConstraints cc = new CellConstraints();
         JScrollPane scrollPane = new JScrollPane(_properties);
-        builder.add(scrollPane, 
-                    cc.xywh(builder.getColumn(), builder.getRow(), 3, 7));
+        builder.add(scrollPane, cc.xywh(builder.getColumn(), builder.getRow(), 3, 7));
         builder.nextRow(6);
         builder.nextLine();
-        
+
         builder.appendSeparator("Configuration");
 
         builder.append("Application");
@@ -293,7 +286,7 @@ class ServerEditor extends CommunicatorEditor
         // Add Communicator fields
         //
         super.appendProperties(builder);
-        
+
         builder.appendSeparator("Activation");
         builder.append("Path to Executable");
         builder.append(_exe, 3);
@@ -319,8 +312,7 @@ class ServerEditor extends CommunicatorEditor
         builder.append("");
         builder.nextRow(-6);
         scrollPane = new JScrollPane(_envs);
-        builder.add(scrollPane, 
-                    cc.xywh(builder.getColumn(), builder.getRow(), 3, 7));
+        builder.add(scrollPane, cc.xywh(builder.getColumn(), builder.getRow(), 3, 7));
         builder.nextRow(6);
         builder.nextLine();
 
@@ -355,7 +347,6 @@ class ServerEditor extends CommunicatorEditor
         _propertiesPanel.setName("Server Properties");
     }
 
-
     private class ToolBar extends JToolBar
     {
         private ToolBar()
@@ -364,7 +355,7 @@ class ServerEditor extends CommunicatorEditor
             putClientProperty(PlasticLookAndFeel.BORDER_STYLE_KEY, BorderStyle.SEPARATOR);
             setFloatable(false);
             putClientProperty("JToolBar.isRollover", Boolean.TRUE);
-            
+
             LiveActions la = _coordinator.getLiveActionsForMenu();
 
             add(la.get(TreeNode.START));
@@ -374,7 +365,6 @@ class ServerEditor extends CommunicatorEditor
             add(la.get(TreeNode.DISABLE));
         }
     }
-
 
     private Coordinator _coordinator;
     private Server _target;
@@ -394,15 +384,14 @@ class ServerEditor extends CommunicatorEditor
     private JTextField _iceVersion = new JTextField(20);
     private JTextField _pwd = new JTextField(20);
     private JTextField _user = new JTextField(20);
-   
+
     private JTextField _activation = new JTextField(20);
     private JTextField _activationTimeout = new JTextField(20);
     private JTextField _deactivationTimeout = new JTextField(20);
     private JCheckBox _allocatable = new JCheckBox("Allocatable");
 
+    private TableField _envs = new TableField("Name", "Value");
 
-    private TableField _envs = new TableField("Name", "Value");  
-   
     private JTextField _options = new JTextField(20);
     private JCheckBox _applicationDistrib = new JCheckBox("Depends on the application distribution");
 

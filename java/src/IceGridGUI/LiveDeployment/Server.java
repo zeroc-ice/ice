@@ -6,6 +6,7 @@
 // ICE_LICENSE file included in this distribution.
 //
 // **********************************************************************
+
 package IceGridGUI.LiveDeployment;
 
 import java.awt.Component;
@@ -46,8 +47,8 @@ class Server extends ListArrayTreeNode
             actions[RETRIEVE_STDOUT] = true;
             actions[RETRIEVE_STDERR] = true;
             actions[RETRIEVE_LOG] = _serverDescriptor.logs.length > 0;
-            
-            actions[PATCH_SERVER] = 
+
+            actions[PATCH_SERVER] =
                 !_serverDescriptor.distrib.icepatch.equals("");
 
             if(_state != ServerState.Inactive)
@@ -82,7 +83,7 @@ class Server extends ListArrayTreeNode
                 {
                     amiSuccess(prefix);
                 }
-                
+
                 public void ice_exception(Ice.UserException e)
                 {
                     amiFailure(prefix, "Failed to start " + _id, e);
@@ -93,11 +94,10 @@ class Server extends ListArrayTreeNode
                     amiFailure(prefix, "Failed to start " + _id, e.toString());
                 }
             };
-        
+
         try
-        {   
-            getCoordinator().getMainFrame().setCursor(
-                Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+        {
+            getCoordinator().getMainFrame().setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
             getCoordinator().getAdmin().startServer_async(cb, _id);
         }
         catch(Ice.LocalException e)
@@ -106,11 +106,10 @@ class Server extends ListArrayTreeNode
         }
         finally
         {
-            getCoordinator().getMainFrame().setCursor(
-                Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+            getCoordinator().getMainFrame().setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
         }
     }
-    
+
     public void stop()
     {
         final String prefix = "Stopping server '" + _id + "'...";
@@ -125,7 +124,7 @@ class Server extends ListArrayTreeNode
                 {
                     amiSuccess(prefix);
                 }
-                
+
                 public void ice_exception(Ice.UserException e)
                 {
                     amiFailure(prefix, "Failed to stop " + _id, e);
@@ -136,11 +135,10 @@ class Server extends ListArrayTreeNode
                     amiFailure(prefix, "Failed to stop " + _id, e.toString());
                 }
             };
-        
+
         try
-        {   
-            getCoordinator().getMainFrame().setCursor(
-                Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+        {
+            getCoordinator().getMainFrame().setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
             getCoordinator().getAdmin().stopServer_async(cb, _id);
         }
         catch(Ice.LocalException e)
@@ -149,8 +147,7 @@ class Server extends ListArrayTreeNode
         }
         finally
         {
-            getCoordinator().getMainFrame().setCursor(
-                Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+            getCoordinator().getMainFrame().setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
         }
     }
 
@@ -178,7 +175,8 @@ class Server extends ListArrayTreeNode
         getRoot().openShowLogDialog(new ShowLogDialog.FileIteratorFactory()
             {
                 public FileIteratorPrx open(int count)
-                    throws FileNotAvailableException, ServerNotExistException, NodeUnreachableException, DeploymentException
+                    throws FileNotAvailableException, ServerNotExistException, NodeUnreachableException,
+                           DeploymentException
                 {
                     AdminSessionPrx session = getRoot().getCoordinator().getSession();
                     FileIteratorPrx result;
@@ -203,14 +201,14 @@ class Server extends ListArrayTreeNode
                     return _id + (stdout ? ".out" : ".err");
                 }
             });
-    } 
+    }
 
     public void retrieveLog()
     {
         assert _serverDescriptor.logs.length > 0;
 
         String path = null;
-        
+
         if(_serverDescriptor.logs.length == 1)
         {
             path = _resolver.substitute(_serverDescriptor.logs[0]);
@@ -218,46 +216,47 @@ class Server extends ListArrayTreeNode
         else
         {
             Object[] pathArray = new Object[_serverDescriptor.logs.length];
-            for(int i = 0; i < _serverDescriptor.logs.length; ++i)
+            int i = 0;
+            for(String log : _serverDescriptor.logs)
             {
-                pathArray[i] = _resolver.substitute(_serverDescriptor.logs[i]);
+                pathArray[i++] = _resolver.substitute(log);
             }
-        
+
             path  = (String)JOptionPane.showInputDialog(
-                getCoordinator().getMainFrame(), 
-                "Which log file do you want to retrieve?", 
-                "Retrieve Log File",     
+                getCoordinator().getMainFrame(),
+                "Which log file do you want to retrieve?",
+                "Retrieve Log File",
                 JOptionPane.QUESTION_MESSAGE, null,
                 pathArray, pathArray[0]);
         }
- 
+
         if(path != null)
         {
             final String fPath = path;
-          
+
             getRoot().openShowLogDialog(new ShowLogDialog.FileIteratorFactory()
                 {
                     public FileIteratorPrx open(int count)
-                        throws FileNotAvailableException, ServerNotExistException, NodeUnreachableException, 
+                        throws FileNotAvailableException, ServerNotExistException, NodeUnreachableException,
                         DeploymentException
                     {
                         AdminSessionPrx session = getRoot().getCoordinator().getSession();
                         return session.openServerLog(_id, fPath, count);
                     }
-                    
+
                     public String getTitle()
                     {
                         return "Server " + _id + " " + new java.io.File(fPath).getName();
                     }
-                    
+
                     public String getDefaultFilename()
                     {
                         return new java.io.File(fPath).getName();
                     }
                 });
-        }       
+        }
     }
-    
+
     public void signal(final String s)
     {
         final String prefix = "Sending '" + s + "' to server '" + _id + "'...";
@@ -272,7 +271,7 @@ class Server extends ListArrayTreeNode
                 {
                     amiSuccess(prefix);
                 }
-                
+
                 public void ice_exception(Ice.UserException e)
                 {
                     amiFailure(prefix, "Failed to deliver signal " + s + " to " + _id, e);
@@ -283,9 +282,9 @@ class Server extends ListArrayTreeNode
                     amiFailure(prefix, "Failed to deliver signal " + s + " to " + _id, e.toString());
                 }
             };
-        
+
         try
-        {   
+        {
             getCoordinator().getAdmin().sendSignal_async(cb, _id, s);
         }
         catch(Ice.LocalException e)
@@ -297,18 +296,18 @@ class Server extends ListArrayTreeNode
     public void patchServer()
     {
         String message = _serverDescriptor.applicationDistrib ?
-            "You are about to install or refresh your" 
+            "You are about to install or refresh your"
             + " server distribution and your application distribution onto this node.\n"
             + "Do you want shut down all servers affected by this update?" :
-            "You are about to install or refresh the distribution for this server.\n" 
+            "You are about to install or refresh the distribution for this server.\n"
             + "Do you want to shut down the server for this update?";
 
         int shutdown = JOptionPane.showConfirmDialog(
             getCoordinator().getMainFrame(),
-            message, 
+            message,
             "Patch Confirmation",
             JOptionPane.YES_NO_CANCEL_OPTION);
-       
+
         if(shutdown == JOptionPane.CANCEL_OPTION)
         {
             return;
@@ -326,7 +325,7 @@ class Server extends ListArrayTreeNode
                 {
                     amiSuccess(prefix);
                 }
-                
+
                 public void ice_exception(Ice.UserException e)
                 {
                     amiFailure(prefix, "Failed to patch " + _id, e);
@@ -337,14 +336,11 @@ class Server extends ListArrayTreeNode
                     amiFailure(prefix, "Failed to patch " + _id, e.toString());
                 }
             };
-        
+
         try
-        {   
-            getCoordinator().getMainFrame().setCursor(
-                Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
-            getCoordinator().getAdmin().
-                patchServer_async(cb, _id, 
-                                  shutdown == JOptionPane.YES_OPTION);
+        {
+            getCoordinator().getMainFrame().setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+            getCoordinator().getAdmin().patchServer_async(cb, _id, shutdown == JOptionPane.YES_OPTION);
         }
         catch(Ice.LocalException e)
         {
@@ -352,18 +348,16 @@ class Server extends ListArrayTreeNode
         }
         finally
         {
-            getCoordinator().getMainFrame().setCursor(
-                Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+            getCoordinator().getMainFrame().setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
         }
     }
 
     private void enableServer(boolean enable)
     {
-        final String prefix = (enable ?
-                               "Enabling" : "Disabling") + " server '" + _id + "'...";
-        
+        final String prefix = (enable ?  "Enabling" : "Disabling") + " server '" + _id + "'...";
+
         final String action = enable ? "enable" : "disable";
-        
+
         getCoordinator().getStatusBar().setText(prefix);
 
         AMI_Admin_enableServer cb = new AMI_Admin_enableServer()
@@ -375,7 +369,7 @@ class Server extends ListArrayTreeNode
                 {
                     amiSuccess(prefix);
                 }
-                
+
                 public void ice_exception(Ice.UserException e)
                 {
                     amiFailure(prefix, "Failed to " + action + " " + _id, e);
@@ -386,11 +380,10 @@ class Server extends ListArrayTreeNode
                     amiFailure(prefix, "Failed to " + action + " " + _id, e.toString());
                 }
             };
-        
+
         try
-        {   
-            getCoordinator().getMainFrame().setCursor(
-                Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+        {
+            getCoordinator().getMainFrame().setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
             getCoordinator().getAdmin().enableServer_async(cb, _id, enable);
         }
         catch(Ice.LocalException e)
@@ -399,15 +392,14 @@ class Server extends ListArrayTreeNode
         }
         finally
         {
-            getCoordinator().getMainFrame().setCursor(
-                Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+            getCoordinator().getMainFrame().setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
         }
     }
 
     void showRuntimeProperties()
     {
         Ice.ObjectPrx serverAdmin = getServerAdmin();
-            
+
         if(serverAdmin == null)
         {
             _editor.setBuildId("", this);
@@ -416,31 +408,33 @@ class Server extends ListArrayTreeNode
         {
             Ice.AMI_PropertiesAdmin_getPropertiesForPrefix cb = new Ice.AMI_PropertiesAdmin_getPropertiesForPrefix()
                 {
-                    public void ice_response(final java.util.Map properties)
+                    public void ice_response(final java.util.Map<String, String> properties)
                     {
-                        SwingUtilities.invokeLater(new Runnable() 
+                        SwingUtilities.invokeLater(new Runnable()
                             {
-                                public void run() 
+                                public void run()
                                 {
-                                    _editor.setRuntimeProperties((java.util.SortedMap)properties, Server.this);
+                                    _editor.setRuntimeProperties((java.util.SortedMap<String, String>)properties,
+                                                                 Server.this);
                                 }
                             });
                     }
-                
+
                     public void ice_exception(final Ice.LocalException e)
                     {
-                        SwingUtilities.invokeLater(new Runnable() 
+                        SwingUtilities.invokeLater(new Runnable()
                             {
-                                public void run() 
+                                public void run()
                                 {
                                     if(e instanceof Ice.ObjectNotExistException)
                                     {
-                                        _editor.setBuildId("Error: can't reach this server's Admin object", Server.this);
+                                        _editor.setBuildId("Error: can't reach this server's Admin object",
+                                                           Server.this);
                                     }
                                     else if(e instanceof Ice.FacetNotExistException)
                                     {
-                                        _editor.setBuildId("Error: this server's Admin object does not provide a 'Properties' facet", 
-                                                           Server.this);
+                                        _editor.setBuildId("Error: this server's Admin object does not provide a " +
+                                                           "'Properties' facet", Server.this);
                                     }
                                     else
                                     {
@@ -454,8 +448,9 @@ class Server extends ListArrayTreeNode
 
 
             try
-            {    
-                Ice.PropertiesAdminPrx propAdmin = Ice.PropertiesAdminPrxHelper.uncheckedCast(serverAdmin.ice_facet("Properties"));
+            {
+                Ice.PropertiesAdminPrx propAdmin =
+                    Ice.PropertiesAdminPrxHelper.uncheckedCast(serverAdmin.ice_facet("Properties"));
                 propAdmin.getPropertiesForPrefix_async(cb, "");
             }
             catch(Ice.LocalException e)
@@ -498,7 +493,7 @@ class Server extends ListArrayTreeNode
 
             _signalMenu = new JMenu("Send Signal");
             _popup.add(_signalMenu);
-            
+
             _signalMenu.add(la.get(SIGHUP));
             _signalMenu.add(la.get(SIGINT));
             _signalMenu.add(la.get(SIGQUIT));
@@ -509,12 +504,11 @@ class Server extends ListArrayTreeNode
             _popup.addSeparator();
             _popup.add(la.get(OPEN_DEFINITION));
         }
-        
+
         la.setTarget(this);
         _signalMenu.setEnabled(la.get(SIGHUP).isEnabled());
         return _popup;
     }
-
 
     public Editor getEditor()
     {
@@ -533,7 +527,7 @@ class Server extends ListArrayTreeNode
         boolean expanded,
         boolean leaf,
         int row,
-        boolean hasFocus) 
+        boolean hasFocus)
     {
         if(_cellRenderer == null)
         {
@@ -547,80 +541,71 @@ class Server extends ListArrayTreeNode
             //
             _icons = new Icon[8][2][2];
             _icons[0][0][0] = Utils.getIcon("/icons/16x16/server_unknown.png");
-            _icons[ServerState.Inactive.value() + 1][0][0]
-                = Utils.getIcon("/icons/16x16/server_inactive.png");
-            _icons[ServerState.Activating.value() + 1][0][0] = 
+            _icons[ServerState.Inactive.ordinal() + 1][0][0] = Utils.getIcon("/icons/16x16/server_inactive.png");
+            _icons[ServerState.Activating.ordinal() + 1][0][0] = Utils.getIcon("/icons/16x16/server_activating.png");
+            _icons[ServerState.ActivationTimedOut.ordinal() + 1][0][0] =
                 Utils.getIcon("/icons/16x16/server_activating.png");
-            _icons[ServerState.ActivationTimedOut.value() + 1][0][0] = 
-                Utils.getIcon("/icons/16x16/server_activating.png");
-            _icons[ServerState.Active.value() + 1][0][0] = 
-                Utils.getIcon("/icons/16x16/server_active.png");
-            _icons[ServerState.Deactivating.value() + 1][0][0] = 
+            _icons[ServerState.Active.ordinal() + 1][0][0] = Utils.getIcon("/icons/16x16/server_active.png");
+            _icons[ServerState.Deactivating.ordinal() + 1][0][0] =
                 Utils.getIcon("/icons/16x16/server_deactivating.png");
-            _icons[ServerState.Destroying.value() + 1][0][0] = 
-                Utils.getIcon("/icons/16x16/server_destroying.png");
-            _icons[ServerState.Destroyed.value() + 1][0][0] = 
-                Utils.getIcon("/icons/16x16/server_destroyed.png");
+            _icons[ServerState.Destroying.ordinal() + 1][0][0] = Utils.getIcon("/icons/16x16/server_destroying.png");
+            _icons[ServerState.Destroyed.ordinal() + 1][0][0] = Utils.getIcon("/icons/16x16/server_destroyed.png");
 
             //
             // IceBox servers
             //
             _icons[0][1][0] = Utils.getIcon("/icons/16x16/icebox_server_unknown.png");
-            _icons[ServerState.Inactive.value() + 1][1][0]
-                = Utils.getIcon("/icons/16x16/icebox_server_inactive.png");
-            _icons[ServerState.Activating.value() + 1][1][0] = 
+            _icons[ServerState.Inactive.ordinal() + 1][1][0] = Utils.getIcon("/icons/16x16/icebox_server_inactive.png");
+            _icons[ServerState.Activating.ordinal() + 1][1][0] =
                 Utils.getIcon("/icons/16x16/icebox_server_activating.png");
-            _icons[ServerState.ActivationTimedOut.value() + 1][1][0] = 
+            _icons[ServerState.ActivationTimedOut.ordinal() + 1][1][0] =
                 Utils.getIcon("/icons/16x16/icebox_server_activating.png");
-            _icons[ServerState.Active.value() + 1][1][0] = 
-                Utils.getIcon("/icons/16x16/icebox_server_active.png");
-            _icons[ServerState.Deactivating.value() + 1][1][0] = 
+            _icons[ServerState.Active.ordinal() + 1][1][0] = Utils.getIcon("/icons/16x16/icebox_server_active.png");
+            _icons[ServerState.Deactivating.ordinal() + 1][1][0] =
                 Utils.getIcon("/icons/16x16/icebox_server_deactivating.png");
-            _icons[ServerState.Destroying.value() + 1][1][0] = 
+            _icons[ServerState.Destroying.ordinal() + 1][1][0] =
                 Utils.getIcon("/icons/16x16/icebox_server_destroying.png");
-            _icons[ServerState.Destroyed.value() + 1][1][0] = 
+            _icons[ServerState.Destroyed.ordinal() + 1][1][0] =
                 Utils.getIcon("/icons/16x16/icebox_server_destroyed.png");
 
             //
             // Regular servers (disabled)
             //
             _icons[0][0][1] = Utils.getIcon("/icons/16x16/server_unknown.png");
-            _icons[ServerState.Inactive.value() + 1][0][1]
-                = Utils.getIcon("/icons/16x16/server_disabled_inactive.png");
-            _icons[ServerState.Activating.value() + 1][0][1] = 
+            _icons[ServerState.Inactive.ordinal() + 1][0][1] =
+                Utils.getIcon("/icons/16x16/server_disabled_inactive.png");
+            _icons[ServerState.Activating.ordinal() + 1][0][1] =
                 Utils.getIcon("/icons/16x16/server_disabled_activating.png");
-            _icons[ServerState.ActivationTimedOut.value() + 1][0][1] = 
+            _icons[ServerState.ActivationTimedOut.ordinal() + 1][0][1] =
                 Utils.getIcon("/icons/16x16/server_disabled_activating.png");
-            _icons[ServerState.Active.value() + 1][0][1] = 
-                Utils.getIcon("/icons/16x16/server_disabled_active.png");
-            _icons[ServerState.Deactivating.value() + 1][0][1] = 
+            _icons[ServerState.Active.ordinal() + 1][0][1] = Utils.getIcon("/icons/16x16/server_disabled_active.png");
+            _icons[ServerState.Deactivating.ordinal() + 1][0][1] =
                 Utils.getIcon("/icons/16x16/server_disabled_deactivating.png");
-            _icons[ServerState.Destroying.value() + 1][0][1] = 
+            _icons[ServerState.Destroying.ordinal() + 1][0][1] =
                 Utils.getIcon("/icons/16x16/server_disabled_destroying.png");
-            _icons[ServerState.Destroyed.value() + 1][0][1] = 
+            _icons[ServerState.Destroyed.ordinal() + 1][0][1] =
                 Utils.getIcon("/icons/16x16/server_disabled_destroyed.png");
 
             //
             // IceBox servers (disabled)
             //
             _icons[0][1][1] = Utils.getIcon("/icons/16x16/icebox_server_unknown.png");
-            _icons[ServerState.Inactive.value() + 1][1][1]
+            _icons[ServerState.Inactive.ordinal() + 1][1][1]
                 = Utils.getIcon("/icons/16x16/icebox_server_disabled_inactive.png");
-            _icons[ServerState.Activating.value() + 1][1][1] = 
+            _icons[ServerState.Activating.ordinal() + 1][1][1] =
                 Utils.getIcon("/icons/16x16/icebox_server_disabled_activating.png");
-            _icons[ServerState.ActivationTimedOut.value() + 1][1][1] = 
+            _icons[ServerState.ActivationTimedOut.ordinal() + 1][1][1] =
                 Utils.getIcon("/icons/16x16/icebox_server_disabled_activating.png");
-            _icons[ServerState.Active.value() + 1][1][1] = 
+            _icons[ServerState.Active.ordinal() + 1][1][1] =
                 Utils.getIcon("/icons/16x16/icebox_server_disabled_active.png");
-            _icons[ServerState.Deactivating.value() + 1][1][1] = 
+            _icons[ServerState.Deactivating.ordinal() + 1][1][1] =
                 Utils.getIcon("/icons/16x16/icebox_server_disabled_deactivating.png");
-            _icons[ServerState.Destroying.value() + 1][1][1] = 
+            _icons[ServerState.Destroying.ordinal() + 1][1][1] =
                 Utils.getIcon("/icons/16x16/icebox_server_disabled_destroying.png");
-            _icons[ServerState.Destroyed.value() + 1][1][1] = 
+            _icons[ServerState.Destroyed.ordinal() + 1][1][1] =
                 Utils.getIcon("/icons/16x16/icebox_server_disabled_destroyed.png");
-
         }
-        
+
         int icebox = _serverDescriptor instanceof IceBoxDescriptor ? 1 : 0;
         int disabled = _enabled ? 0 : 1;
 
@@ -631,32 +616,29 @@ class Server extends ListArrayTreeNode
         else
         {
             _cellRenderer.setClosedIcon(_icons[_stateIconIndex][icebox][disabled]);
-        }   
+        }
 
         _cellRenderer.setToolTipText(_toolTip);
-        return _cellRenderer.getTreeCellRendererComponent(
-            tree, value, sel, expanded, leaf, row, hasFocus);
+        return _cellRenderer.getTreeCellRendererComponent(tree, value, sel, expanded, leaf, row, hasFocus);
     }
 
-
-    Server(Node parent, String serverId, Utils.Resolver resolver,
-           ServerInstanceDescriptor instanceDescriptor,
-           ServerDescriptor serverDescriptor, ApplicationDescriptor application,
-           ServerState state, int pid, boolean enabled)
+    Server(Node parent, String serverId, Utils.Resolver resolver, ServerInstanceDescriptor instanceDescriptor,
+           ServerDescriptor serverDescriptor, ApplicationDescriptor application, ServerState state, int pid,
+           boolean enabled)
     {
         super(parent, serverId, 3);
         _resolver = resolver;
-        
+
         _instanceDescriptor = instanceDescriptor;
         _serverDescriptor = serverDescriptor;
         _application = application;
-        
+
         _childrenArray[0] = _adapters;
         _childrenArray[1] = _dbEnvs;
         _childrenArray[2] = _services;
 
         update(state, pid, enabled, false);
-        
+
         createAdapters();
         createDbEnvs();
         createServices();
@@ -686,12 +668,12 @@ class Server extends ListArrayTreeNode
     {
         return _serviceObserver != null;
     }
-    
+
     int getPid()
     {
         return _pid;
     }
-    
+
     boolean isEnabled()
     {
         return _enabled;
@@ -727,7 +709,7 @@ class Server extends ListArrayTreeNode
     }
 
     void rebuild(Server server)
-    {   
+    {
         _resolver = server._resolver;
         _instanceDescriptor = server._instanceDescriptor;
         _serverDescriptor = server._serverDescriptor;
@@ -736,7 +718,7 @@ class Server extends ListArrayTreeNode
         _adapters = server._adapters;
         _dbEnvs = server._dbEnvs;
         _services = server._services;
-        
+
         _childrenArray[0] = _adapters;
         _childrenArray[1] = _dbEnvs;
         _childrenArray[2] = _services;
@@ -764,20 +746,19 @@ class Server extends ListArrayTreeNode
         getRoot().getTreeModel().nodeStructureChanged(this);
     }
 
-    void rebuild(Utils.Resolver resolver, boolean variablesChanged, java.util.Set serviceTemplates,
-                 java.util.Set serverTemplates)
+    void rebuild(Utils.Resolver resolver, boolean variablesChanged, java.util.Set<String> serviceTemplates,
+                 java.util.Set<String> serverTemplates)
     {
-        if(variablesChanged || 
-           (_instanceDescriptor != null && serverTemplates != null && serverTemplates.contains(_instanceDescriptor.template)))
+        if(variablesChanged ||
+           (_instanceDescriptor != null && serverTemplates != null &&
+            serverTemplates.contains(_instanceDescriptor.template)))
         {
             if(_instanceDescriptor != null)
             {
-                TemplateDescriptor templateDescriptor = 
-                    (TemplateDescriptor)_application.serverTemplates.get(_instanceDescriptor.template);
+                TemplateDescriptor templateDescriptor = _application.serverTemplates.get(_instanceDescriptor.template);
                 assert templateDescriptor != null;
-        
-                _resolver.reset(resolver, _instanceDescriptor.parameterValues,
-                                templateDescriptor.parameterDefaults);
+
+                _resolver.reset(resolver, _instanceDescriptor.parameterValues, templateDescriptor.parameterDefaults);
                 _resolver.put("server", _id);
                 _serverDescriptor = (ServerDescriptor)templateDescriptor.descriptor;
             }
@@ -786,7 +767,7 @@ class Server extends ListArrayTreeNode
                 _resolver.reset(resolver);
                 _resolver.put("server", _id);
             }
-            
+
             _adapters.clear();
             createAdapters();
             _dbEnvs.clear();
@@ -795,10 +776,11 @@ class Server extends ListArrayTreeNode
             _servicePropertySets.clear();
             createServices();
             updateServices();
-            
+
             getRoot().getTreeModel().nodeStructureChanged(this);
         }
-        else if(serviceTemplates != null && serviceTemplates.size() > 0 && _serverDescriptor instanceof IceBoxDescriptor)
+        else if(serviceTemplates != null && serviceTemplates.size() > 0 &&
+                _serverDescriptor instanceof IceBoxDescriptor)
         {
             _services.clear();
             _servicePropertySets.clear();
@@ -824,7 +806,7 @@ class Server extends ListArrayTreeNode
             }
             else
             {
-                _stateIconIndex = _state.value() + 1;
+                _stateIconIndex = _state.ordinal() + 1;
             }
 
             if(_serverDescriptor instanceof IceBoxDescriptor)
@@ -842,11 +824,12 @@ class Server extends ListArrayTreeNode
                                 {
                                     public void servicesStarted(final String[] services, Ice.Current current)
                                     {
-                                        final java.util.Set<String> serviceSet = new java.util.HashSet<String>(java.util.Arrays.asList(services));
+                                        final java.util.Set<String> serviceSet =
+                                            new java.util.HashSet<String>(java.util.Arrays.asList(services));
 
-                                        SwingUtilities.invokeLater(new Runnable() 
+                                        SwingUtilities.invokeLater(new Runnable()
                                             {
-                                                public void run() 
+                                                public void run()
                                                 {
                                                     for(Service service: _services)
                                                     {
@@ -860,14 +843,15 @@ class Server extends ListArrayTreeNode
                                                 }
                                             });
                                     }
-                                    
+
                                     public void servicesStopped(final String[] services, Ice.Current current)
                                     {
-                                        final java.util.Set<String> serviceSet = new java.util.HashSet<String>(java.util.Arrays.asList(services));
+                                        final java.util.Set<String> serviceSet =
+                                            new java.util.HashSet<String>(java.util.Arrays.asList(services));
 
-                                        SwingUtilities.invokeLater(new Runnable() 
+                                        SwingUtilities.invokeLater(new Runnable()
                                             {
-                                                public void run() 
+                                                public void run()
                                                 {
                                                     for(Service service: _services)
                                                     {
@@ -881,11 +865,11 @@ class Server extends ListArrayTreeNode
                                                 }
                                             });
                                     }
-                                    
+
                                 };
-                        
+
                             _serviceObserver = IceBox.ServiceObserverPrxHelper.uncheckedCast(
-                                getCoordinator().addCallback(servant, _id, "IceBox.ServiceManager")); 
+                                getCoordinator().addCallback(servant, _id, "IceBox.ServiceManager"));
 
                             if(_serviceObserver == null)
                             {
@@ -896,23 +880,23 @@ class Server extends ListArrayTreeNode
                                     JOptionPane.ERROR_MESSAGE);
                             }
                         }
-                        
+
                     }
-                     
+
                     if(_serviceObserver != null)
                     {
                         //
                         // Add observer to service manager using AMI call
                         // Note that duplicate registrations are ignored
                         //
-                        
+
                         IceBox.AMI_ServiceManager_addObserver cb = new IceBox.AMI_ServiceManager_addObserver()
                             {
                                 public void ice_response()
                                 {
                                     // all is good
                                 }
-                                
+
                                 public void ice_exception(Ice.LocalException e)
                                 {
                                     JOptionPane.showMessageDialog(
@@ -922,13 +906,14 @@ class Server extends ListArrayTreeNode
                                         JOptionPane.ERROR_MESSAGE);
                                 }
                             };
-                        
+
                         Ice.ObjectPrx serverAdmin = getServerAdmin();
                         if(serverAdmin != null)
                         {
-                            IceBox.ServiceManagerPrx serviceManager = 
-                                IceBox.ServiceManagerPrxHelper.uncheckedCast(serverAdmin.ice_facet("IceBox.ServiceManager"));
-                            
+                            IceBox.ServiceManagerPrx serviceManager =
+                                IceBox.ServiceManagerPrxHelper.uncheckedCast(
+                                    serverAdmin.ice_facet("IceBox.ServiceManager"));
+
                             try
                             {
                                 serviceManager.addObserver_async(cb, _serviceObserver);
@@ -949,10 +934,10 @@ class Server extends ListArrayTreeNode
             {
                 for(Service service: _services)
                 {
-                    service.stopped(); 
+                    service.stopped();
                 }
             }
-            
+
             if(fireEvent)
             {
                 getRoot().getTreeModel().nodeChanged(this);
@@ -962,11 +947,9 @@ class Server extends ListArrayTreeNode
 
     boolean updateAdapter(AdapterDynamicInfo info)
     {
-        java.util.Iterator p = _adapters.iterator();
-        while(p.hasNext())
+        for(Adapter p : _adapters)
         {
-            Adapter adapter = (Adapter)p.next();
-            if(adapter.update(info))
+            if(p.update(info))
             {
                 return true;
             }
@@ -975,40 +958,44 @@ class Server extends ListArrayTreeNode
         //
         // Could be in one of the services as well
         //
-        p = _services.iterator();
-        while(p.hasNext())
+        for(Service p : _services)
         {
-            Service service = (Service)p.next();
-            if(service.updateAdapter(info))
+            if(p.updateAdapter(info))
             {
                 return true;
             }
         }
+
         return false;
     }
 
-    int updateAdapters(java.util.List infoList)
+    int updateAdapters(java.util.List<AdapterDynamicInfo> infoList)
     {
         int result = 0;
-        java.util.Iterator p = _adapters.iterator();
-        while(p.hasNext() && result < infoList.size())
         {
-            Adapter adapter = (Adapter)p.next();
-            if(adapter.update(infoList))
+            java.util.Iterator<Adapter> p = _adapters.iterator();
+            while(p.hasNext() && result < infoList.size())
             {
-                result++;
+                Adapter adapter = p.next();
+                if(adapter.update(infoList))
+                {
+                    result++;
+                }
             }
         }
 
         //
         // Could be in one of the services as well
         //
-        p = _services.iterator();
-        while(p.hasNext() && result < infoList.size())
         {
-            Service service = (Service)p.next();
-            result += service.updateAdapters(infoList);
+            java.util.Iterator<Service> p = _services.iterator();
+            while(p.hasNext() && result < infoList.size())
+            {
+                Service service = p.next();
+                result += service.updateAdapters(infoList);
+            }
         }
+
         return result;
     }
 
@@ -1016,34 +1003,27 @@ class Server extends ListArrayTreeNode
     {
         update(null, 0, true, true);
 
-        java.util.Iterator p = _adapters.iterator();
-        while(p.hasNext())
+        for(Adapter p : _adapters)
         {
-            Adapter adapter = (Adapter)p.next();
-            adapter.update((AdapterDynamicInfo)null);
+            p.update((AdapterDynamicInfo)null);
         }
-        
-        p = _services.iterator();
-        while(p.hasNext())
+
+        for(Service p : _services)
         {
-            Service service = (Service)p.next();
-            service.nodeDown();
+            p.nodeDown();
         }
     }
 
-    java.util.SortedMap getProperties()
+    java.util.SortedMap<String, String> getProperties()
     {
-        java.util.List psList = new java.util.LinkedList();
+        java.util.List<Utils.ExpandedPropertySet> psList = new java.util.LinkedList<Utils.ExpandedPropertySet>();
         Node node = (Node)_parent;
 
-        
-        psList.add(node.expand(_serverDescriptor.propertySet,
-                               _application.name, _resolver));
+        psList.add(node.expand(_serverDescriptor.propertySet, _application.name, _resolver));
 
         if(_instanceDescriptor != null)
         {
-            psList.add(node.expand(_instanceDescriptor.propertySet, 
-                                   _application.name, _resolver));
+            psList.add(node.expand(_instanceDescriptor.propertySet, _application.name, _resolver));
         }
 
         return Utils.propertySetsToMap(psList, _resolver);
@@ -1056,34 +1036,26 @@ class Server extends ListArrayTreeNode
 
     private void createAdapters()
     {
-        java.util.Iterator p = _serverDescriptor.adapters.iterator();
-        while(p.hasNext())
+        for(AdapterDescriptor p : _serverDescriptor.adapters)
         {
-            AdapterDescriptor descriptor = (AdapterDescriptor)p.next();
-            String adapterName = Utils.substitute(descriptor.name, _resolver);
-            String adapterId = Utils.substitute(descriptor.id, _resolver);
+            String adapterName = Utils.substitute(p.name, _resolver);
+            String adapterId = Utils.substitute(p.id, _resolver);
             Ice.ObjectPrx proxy = null;
             if(adapterId.length() > 0)
             {
                 proxy = ((Node)_parent).getProxy(adapterId);
             }
 
-            insertSortedChild(new Adapter(this, adapterName, 
-                                          _resolver, adapterId, descriptor, proxy),
-                              _adapters, null);
+            insertSortedChild(new Adapter(this, adapterName, _resolver, adapterId, p, proxy), _adapters, null);
         }
     }
-    
+
     private void createDbEnvs()
     {
-        java.util.Iterator p = _serverDescriptor.dbEnvs.iterator();
-        while(p.hasNext())
+        for(DbEnvDescriptor p : _serverDescriptor.dbEnvs)
         {
-            DbEnvDescriptor descriptor = (DbEnvDescriptor)p.next();
-            String dbEnvName = Utils.substitute(descriptor.name, _resolver);
-            
-            insertSortedChild(new DbEnv(this, dbEnvName, _resolver, descriptor),
-                              _dbEnvs, null);
+            String dbEnvName = Utils.substitute(p.name, _resolver);
+            insertSortedChild(new DbEnv(this, dbEnvName, _resolver, p), _dbEnvs, null);
         }
     }
 
@@ -1093,21 +1065,18 @@ class Server extends ListArrayTreeNode
         {
             if(_instanceDescriptor != null)
             {
-                java.util.Iterator p = _instanceDescriptor.servicePropertySets.entrySet().iterator();
-                while(p.hasNext())
+                for(java.util.Map.Entry<String, PropertySetDescriptor> p :
+                    _instanceDescriptor.servicePropertySets.entrySet())
                 {
-                    java.util.Map.Entry entry = (java.util.Map.Entry)p.next();
-                    _servicePropertySets.put(_resolver.substitute((String)entry.getKey()), entry.getValue());
+                    _servicePropertySets.put(_resolver.substitute(p.getKey()), p.getValue());
                 }
             }
 
             IceBoxDescriptor iceBoxDescriptor = (IceBoxDescriptor)_serverDescriptor;
-         
-            java.util.Iterator p = iceBoxDescriptor.services.iterator();
-            while(p.hasNext())
+
+            for(ServiceInstanceDescriptor p : iceBoxDescriptor.services)
             {
-                ServiceInstanceDescriptor descriptor = (ServiceInstanceDescriptor)p.next();
-                createService(descriptor);
+                createService(p);
             }
         }
     }
@@ -1117,18 +1086,18 @@ class Server extends ListArrayTreeNode
         ServiceDescriptor serviceDescriptor = null;
         String serviceName = null;
         Utils.Resolver serviceResolver = null;
-        
+
         if(descriptor.template.length() > 0)
         {
-            TemplateDescriptor templateDescriptor 
+            TemplateDescriptor templateDescriptor
                 = (TemplateDescriptor)_application.serviceTemplates.get(descriptor.template);
-            
+
             assert templateDescriptor != null;
-            
+
             serviceDescriptor = (ServiceDescriptor)templateDescriptor.descriptor;
             assert serviceDescriptor != null;
-            
-            serviceResolver = new Utils.Resolver(_resolver, 
+
+            serviceResolver = new Utils.Resolver(_resolver,
                                                  descriptor.parameterValues,
                                                  templateDescriptor.parameterDefaults);
             serviceName = serviceResolver.substitute(serviceDescriptor.name);
@@ -1138,17 +1107,16 @@ class Server extends ListArrayTreeNode
         {
             serviceDescriptor = descriptor.descriptor;
             assert serviceDescriptor != null;
-            
+
             serviceResolver = new Utils.Resolver(_resolver);
             serviceName = _resolver.substitute(serviceDescriptor.name);
             serviceResolver.put("service", serviceName);
         }
 
-        PropertySetDescriptor serverInstancePSDescriptor = 
-            (PropertySetDescriptor)_servicePropertySets.get(serviceName);
+        PropertySetDescriptor serverInstancePSDescriptor = (PropertySetDescriptor)_servicePropertySets.get(serviceName);
 
-        _services.add(new Service(this, serviceName, serviceResolver,
-                                  descriptor, serviceDescriptor, serverInstancePSDescriptor));
+        _services.add(new Service(this, serviceName, serviceResolver, descriptor, serviceDescriptor,
+                                  serverInstancePSDescriptor));
     }
 
     Ice.ObjectPrx getServerAdmin()
@@ -1169,12 +1137,11 @@ class Server extends ListArrayTreeNode
             return admin.ice_identity(adminId);
         }
     }
-   
-    
+
     static private String toolTip(ServerState state, int pid, boolean enabled)
     {
         String result = (state == null ? "Unknown" : state.toString());
-        
+
         if(!enabled)
         {
             result += ", disabled";
@@ -1187,9 +1154,9 @@ class Server extends ListArrayTreeNode
         return result;
     }
 
-
     private ServerInstanceDescriptor _instanceDescriptor;
-    private java.util.Map _servicePropertySets = new java.util.HashMap(); // with substituted names!
+    private java.util.Map<String, PropertySetDescriptor> _servicePropertySets =
+        new java.util.HashMap<String, PropertySetDescriptor>(); // with substituted names!
 
     private ServerDescriptor _serverDescriptor;
     private ApplicationDescriptor _application;

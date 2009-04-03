@@ -217,12 +217,12 @@ public class AllTests
     public static void
     allTests(Ice.Communicator communicator, int[] ports, PrintWriter out)
     {
-		out.print("testing stringToProxy... ");
+        out.print("testing stringToProxy... ");
         out.flush();
         String ref = "test";
-        for(int i = 0; i < ports.length; i++)
+        for(int port : ports)
         {
-            ref += ":default -p " + ports[i];
+            ref += ":default -p " + port;
         }
         Ice.ObjectPrx base = communicator.stringToProxy(ref);
         test(base != null);

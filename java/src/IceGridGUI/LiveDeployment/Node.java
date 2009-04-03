@@ -6,6 +6,7 @@
 // ICE_LICENSE file included in this distribution.
 //
 // **********************************************************************
+
 package IceGridGUI.LiveDeployment;
 
 import java.awt.Component;
@@ -71,8 +72,7 @@ class Node extends ListTreeNode
                     return _id + (stdout ? ".out" : ".err");
                 }
             });
-    } 
-
+    }
 
     public void shutdownNode()
     {
@@ -88,7 +88,7 @@ class Node extends ListTreeNode
                 {
                     amiSuccess(prefix);
                 }
-                
+
                 public void ice_exception(Ice.UserException e)
                 {
                     amiFailure(prefix, "Failed to shutdown " + _id, e);
@@ -96,16 +96,16 @@ class Node extends ListTreeNode
 
                 public void ice_exception(Ice.LocalException e)
                 {
-                    amiFailure(prefix, "Failed to shutdown " + _id, 
+                    amiFailure(prefix, "Failed to shutdown " + _id,
                                e.toString());
                 }
             };
 
         try
-        {   
+        {
             getCoordinator().getMainFrame().setCursor(
                 Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
-            
+
             getCoordinator().getAdmin().shutdownNode_async(cb, _id);
         }
         catch(Ice.LocalException e)
@@ -131,11 +131,10 @@ class Node extends ListTreeNode
             _popup.addSeparator();
             _popup.add(la.get(SHUTDOWN_NODE));
         }
-        
+
         la.setTarget(this);
         return _popup;
     }
-
 
     public Editor getEditor()
     {
@@ -148,13 +147,13 @@ class Node extends ListTreeNode
     }
 
     public Component getTreeCellRendererComponent(
-            JTree tree,
-            Object value,
-            boolean sel,
-            boolean expanded,
-            boolean leaf,
-            int row,
-            boolean hasFocus) 
+        JTree tree,
+        Object value,
+        boolean sel,
+        boolean expanded,
+        boolean leaf,
+        int row,
+        boolean hasFocus)
     {
         if(_cellRenderer == null)
         {
@@ -191,8 +190,7 @@ class Node extends ListTreeNode
             }
         }
 
-        return _cellRenderer.getTreeCellRendererComponent(
-            tree, value, sel, expanded, leaf, row, hasFocus);
+        return _cellRenderer.getTreeCellRendererComponent(tree, value, sel, expanded, leaf, row, hasFocus);
     }
 
     Node(Root parent, NodeDynamicInfo info)
@@ -201,8 +199,7 @@ class Node extends ListTreeNode
         up(info, false);
     }
 
-
-    Node(Root parent, ApplicationDescriptor appDesc, 
+    Node(Root parent, ApplicationDescriptor appDesc,
          String nodeName, NodeDescriptor nodeDesc)
     {
         super(parent, nodeName);
@@ -220,32 +217,30 @@ class Node extends ListTreeNode
             update.loadFactor == null ? "" : update.loadFactor.value,
             update.description == null ? "" : update.description.value,
             update.propertySets);
-            
+
         appDesc.nodes.put(_id, nodeDesc);
         add(appDesc, nodeDesc);
     }
 
-    Utils.ExpandedPropertySet expand(PropertySetDescriptor descriptor, 
-                                     String applicationName, Utils.Resolver resolver)
+    Utils.ExpandedPropertySet expand(PropertySetDescriptor descriptor, String applicationName, Utils.Resolver resolver)
     {
         Utils.ExpandedPropertySet result = new Utils.ExpandedPropertySet();
         result.references = new Utils.ExpandedPropertySet[descriptor.references.length];
-        
-        for(int i = 0; i < descriptor.references.length; ++i)
+
+        int i = 0;
+        for(String ref : descriptor.references)
         {
-            result.references[i] = expand(
-                findNamedPropertySet(resolver.substitute(descriptor.references[i]), 
-                                     applicationName),
-                applicationName, resolver);
+            result.references[i++] = expand(findNamedPropertySet(resolver.substitute(ref), applicationName),
+                                            applicationName, resolver);
         }
 
         result.properties = descriptor.properties;
         return result;
     }
-    
+
     PropertySetDescriptor findNamedPropertySet(String name, String applicationName)
     {
-        ApplicationData appData = (ApplicationData)_map.get(applicationName);
+        ApplicationData appData = _map.get(applicationName);
         if(appData != null)
         {
             NodeDescriptor descriptor = appData.descriptor;
@@ -262,25 +257,23 @@ class Node extends ListTreeNode
     {
         ApplicationData data = new ApplicationData();
         data.descriptor = nodeDesc;
-        data.resolver = new Utils.Resolver(new java.util.Map[]{appDesc.variables, nodeDesc.variables});
+        @SuppressWarnings("unchecked")
+        Utils.Resolver resolver = new Utils.Resolver(new java.util.Map[]{appDesc.variables, nodeDesc.variables});
+        data.resolver = resolver;
         data.resolver.put("application", appDesc.name);
         data.resolver.put("node", _id);
         putInfoVariables(data.resolver);
 
         _map.put(appDesc.name, data);
-        
-        java.util.Iterator p = nodeDesc.serverInstances.iterator();
-        while(p.hasNext())
+
+        for(ServerInstanceDescriptor p : nodeDesc.serverInstances)
         {
-            ServerInstanceDescriptor desc = (ServerInstanceDescriptor)p.next();
-            insertServer(createServer(appDesc, data.resolver, desc));
+            insertServer(createServer(appDesc, data.resolver, p));
         }
-        
-        p = nodeDesc.servers.iterator();
-        while(p.hasNext())
+
+        for(ServerDescriptor p : nodeDesc.servers)
         {
-            ServerDescriptor desc = (ServerDescriptor)p.next();
-            insertServer(createServer(appDesc, data.resolver, desc));
+            insertServer(createServer(appDesc, data.resolver, p));
         }
     }
 
@@ -292,10 +285,10 @@ class Node extends ListTreeNode
             return true;
         }
 
-        java.util.List toRemove = new java.util.LinkedList();
+        java.util.List<Server> toRemove = new java.util.LinkedList<Server>();
         int[] toRemoveIndices = new int[_children.size()];
         int i = 0;
-        
+
         for(int index = 0; index < _children.size(); ++index)
         {
             Server server = (Server)_children.get(index);
@@ -312,12 +305,11 @@ class Node extends ListTreeNode
         return false;
     }
 
-    void update(ApplicationDescriptor appDesc, NodeUpdateDescriptor update,
-                boolean variablesChanged, java.util.Set serviceTemplates,
-                java.util.Set serverTemplates)
+    void update(ApplicationDescriptor appDesc, NodeUpdateDescriptor update, boolean variablesChanged,
+                java.util.Set<String> serviceTemplates, java.util.Set<String> serverTemplates)
     {
         ApplicationData data = (ApplicationData)_map.get(appDesc.name);
-        
+
         if(data == null)
         {
             if(update != null)
@@ -329,7 +321,7 @@ class Node extends ListTreeNode
                     update.loadFactor == null ? "" : update.loadFactor.value,
                     update.description == null ? "" : update.description.value,
                     update.propertySets);
-                
+
                 appDesc.nodes.put(_id, nodeDesc);
                 add(appDesc, nodeDesc);
             }
@@ -341,8 +333,8 @@ class Node extends ListTreeNode
         }
 
         NodeDescriptor nodeDesc = data.descriptor;
-        java.util.Set freshServers = new java.util.HashSet();
-        
+        java.util.Set<Server> freshServers = new java.util.HashSet<Server>();
+
         if(update != null)
         {
             //
@@ -356,33 +348,31 @@ class Node extends ListTreeNode
             {
                 nodeDesc.loadFactor = update.loadFactor.value;
             }
-        
+
             nodeDesc.variables.keySet().removeAll(java.util.Arrays.asList(update.removeVariables));
             nodeDesc.variables.putAll(update.variables);
-            
+
             if(!variablesChanged)
             {
-                variablesChanged = update.removeVariables.length > 0 ||
-                    !update.variables.isEmpty();
+                variablesChanged = update.removeVariables.length > 0 || !update.variables.isEmpty();
             }
 
-            nodeDesc.propertySets.keySet().removeAll(
-                java.util.Arrays.asList(update.removePropertySets));
+            nodeDesc.propertySets.keySet().removeAll(java.util.Arrays.asList(update.removePropertySets));
             nodeDesc.propertySets.putAll(update.propertySets);
 
             //
             // Remove servers
             //
-            for(int i = 0; i < update.removeServers.length; ++i)
+            for(String id : update.removeServers)
             {
-                Server server = findServer(update.removeServers[i]);
+                Server server = findServer(id);
                 if(server == null)
                 {
                     //
                     // This should never happen
                     //
-                    String errorMsg = "LiveDeployment/Node: unable to remove server '" + update.removeServers[i] 
-                        + "'; please report this bug."; 
+                    String errorMsg = "LiveDeployment/Node: unable to remove server '" + id +
+                        "'; please report this bug.";
 
                     getCoordinator().getCommunicator().getLogger().error(errorMsg);
                 }
@@ -390,7 +380,7 @@ class Node extends ListTreeNode
                 {
                     server.removeCallbacks();
                     removeDescriptor(nodeDesc, server);
-                    int index = getIndex(server); 
+                    int index = getIndex(server);
                     _children.remove(server);
                     getRoot().getTreeModel().nodesWereRemoved(this, new int[]{index}, new Object[]{server});
                 }
@@ -399,12 +389,10 @@ class Node extends ListTreeNode
             //
             // Add/update servers
             //
-            java.util.Iterator p = update.serverInstances.iterator();
-            while(p.hasNext())
+            for(ServerInstanceDescriptor desc : update.serverInstances)
             {
-                ServerInstanceDescriptor desc = (ServerInstanceDescriptor)p.next();
                 Server server = createServer(appDesc, data.resolver, desc);
-                
+
                 Server oldServer = findServer(server.getId());
                 if(oldServer == null)
                 {
@@ -420,14 +408,11 @@ class Node extends ListTreeNode
                     nodeDesc.serverInstances.add(desc);
                 }
             }
-            
-            p = update.servers.iterator();
-            while(p.hasNext())
+
+            for(ServerDescriptor desc : update.servers)
             {
-                ServerDescriptor desc = (ServerDescriptor)p.next();
-                
                 Server server = createServer(appDesc, data.resolver, desc);
-                
+
                 Server oldServer = findServer(server.getId());
                 if(oldServer == null)
                 {
@@ -444,29 +429,26 @@ class Node extends ListTreeNode
                 }
             }
         }
-        
+
         if(variablesChanged || !serviceTemplates.isEmpty() || !serverTemplates.isEmpty())
         {
             //
             // Rebuild every other server in this application
             //
-            java.util.Iterator p = _children.iterator();
-            while(p.hasNext())
+            for(javax.swing.tree.TreeNode p : _children)
             {
-                Server server = (Server)p.next();
+                Server server = (Server)p;
                 if(server.getApplication() == appDesc)
                 {
                     if(!freshServers.contains(server))
                     {
-                        server.rebuild(data.resolver,
-                                       variablesChanged, 
-                                       serviceTemplates, serverTemplates);
+                        server.rebuild(data.resolver, variablesChanged, serviceTemplates, serverTemplates);
                     }
                 }
             }
         }
     }
-    
+
     NodeInfo getStaticInfo()
     {
         if(_info == null)
@@ -478,7 +460,7 @@ class Node extends ListTreeNode
             return _info.info;
         }
     }
-    
+
     boolean isRunningWindows()
     {
         return _windows;
@@ -494,7 +476,7 @@ class Node extends ListTreeNode
         {
             boolean updated = resolver.put("node.os", _info.info.os);
             updated = resolver.put("node.hostname", _info.info.hostname) || updated;
-            updated = resolver.put("node.release", _info.info.release) || updated; 
+            updated = resolver.put("node.release", _info.info.release) || updated;
             updated = resolver.put("node.version", _info.info.version) || updated;
             updated = resolver.put("node.machine", _info.info.machine) || updated;
             updated = resolver.put("node.datadir", _info.info.dataDir) || updated;
@@ -507,23 +489,19 @@ class Node extends ListTreeNode
         _up = true;
         _info = info;
         _windows = info.info.os.toLowerCase().startsWith("windows");
-        
+
         //
         // Update variables and rebuild all affected servers
         //
-        java.util.Iterator p = _map.values().iterator();
-        while(p.hasNext())
+        for(ApplicationData data : _map.values())
         {
-            ApplicationData data = (ApplicationData)p.next();
-
             if(putInfoVariables(data.resolver))
             {
                 String appName = data.resolver.find("application");
 
-                java.util.Iterator q = _children.iterator();
-                while(q.hasNext())
+                for(javax.swing.tree.TreeNode p : _children)
                 {
-                    Server server = (Server)q.next();
+                    Server server = (Server)p;
                     if(server.getApplication().name.equals(appName))
                     {
                         server.rebuild(data.resolver, true, null, null);
@@ -531,15 +509,13 @@ class Node extends ListTreeNode
                 }
             }
         }
-        
+
         //
         // Tell every server on this node
         //
-        java.util.Set updatedServers = new java.util.HashSet();
-        p = _info.servers.iterator();
-        while(p.hasNext())
+        java.util.Set<Server> updatedServers = new java.util.HashSet<Server>();
+        for(ServerDynamicInfo sinfo : _info.servers)
         {
-            ServerDynamicInfo sinfo = (ServerDynamicInfo)p.next();
             Server server = findServer(sinfo.id);
             if(server != null)
             {
@@ -547,10 +523,9 @@ class Node extends ListTreeNode
                 updatedServers.add(server);
             }
         }
-        p = _children.iterator();
-        while(p.hasNext())
+        for(javax.swing.tree.TreeNode p : _children)
         {
-            Server server = (Server)p.next();
+            Server server = (Server)p;
             if(!updatedServers.contains(server))
             {
                 server.update(ServerState.Inactive, 0, true, true);
@@ -560,7 +535,7 @@ class Node extends ListTreeNode
         //
         // Tell adapters
         //
-        p = _children.iterator();
+        java.util.Iterator<javax.swing.tree.TreeNode> p = _children.iterator();
         int updateCount = 0;
         while(p.hasNext() && updateCount < _info.adapters.size())
         {
@@ -586,10 +561,9 @@ class Node extends ListTreeNode
         }
         else
         {
-            java.util.Iterator p = _children.iterator();
-            while(p.hasNext())
+            for(javax.swing.tree.TreeNode p : _children)
             {
-                Server server = (Server)p.next();
+                Server server = (Server)p;
                 server.nodeDown();
             }
 
@@ -602,10 +576,10 @@ class Node extends ListTreeNode
     {
         if(_info != null)
         {
-            java.util.ListIterator p = _info.servers.listIterator();
+            java.util.ListIterator<ServerDynamicInfo> p = _info.servers.listIterator();
             while(p.hasNext())
             {
-                ServerDynamicInfo sinfo = (ServerDynamicInfo)p.next();
+                ServerDynamicInfo sinfo = p.next();
                 if(sinfo.id.equals(updatedInfo.id))
                 {
                     p.set(updatedInfo);
@@ -617,8 +591,7 @@ class Node extends ListTreeNode
         Server server = findServer(updatedInfo.id);
         if(server != null)
         {
-            server.update(updatedInfo.state, updatedInfo.pid, 
-                          updatedInfo.enabled, true);
+            server.update(updatedInfo.state, updatedInfo.pid, updatedInfo.enabled, true);
         }
     }
 
@@ -626,10 +599,10 @@ class Node extends ListTreeNode
     {
         if(_info != null)
         {
-            java.util.ListIterator p = _info.adapters.listIterator();
+            java.util.ListIterator<AdapterDynamicInfo> p = _info.adapters.listIterator();
             while(p.hasNext())
             {
-                AdapterDynamicInfo ainfo = (AdapterDynamicInfo)p.next();
+                AdapterDynamicInfo ainfo = p.next();
                 if(ainfo.id.equals(updatedInfo.id))
                 {
                     p.set(updatedInfo);
@@ -638,25 +611,24 @@ class Node extends ListTreeNode
             }
         }
 
-        java.util.Iterator p = _children.iterator();
-        while(p.hasNext())
+        for(javax.swing.tree.TreeNode p : _children)
         {
-            Server server = (Server)p.next();
+            Server server = (Server)p;
             if(server.updateAdapter(updatedInfo))
             {
                 break;
             }
         }
     }
-    
+
     Ice.ObjectPrx getProxy(String adapterId)
     {
         if(_info != null)
         {
-            java.util.ListIterator p = _info.adapters.listIterator();
+            java.util.ListIterator<AdapterDynamicInfo> p = _info.adapters.listIterator();
             while(p.hasNext())
             {
-                AdapterDynamicInfo ainfo = (AdapterDynamicInfo)p.next();
+                AdapterDynamicInfo ainfo = p.next();
                 if(ainfo.id.equals(adapterId))
                 {
                     return ainfo.proxy;
@@ -666,28 +638,24 @@ class Node extends ListTreeNode
         return null;
     }
 
-    java.util.SortedMap getLoadFactors()
+    java.util.SortedMap<String, String> getLoadFactors()
     {
-        java.util.SortedMap result = new java.util.TreeMap();
-        
-        java.util.Iterator p = _map.entrySet().iterator();
-        while(p.hasNext())
+        java.util.SortedMap<String, String> result = new java.util.TreeMap<String, String>();
+
+        for(java.util.Map.Entry<String, ApplicationData> p : _map.entrySet())
         {
-            java.util.Map.Entry entry = (java.util.Map.Entry)p.next();
-            
-            ApplicationData ad = (ApplicationData)entry.getValue();
-            
+            ApplicationData ad = p.getValue();
+
             String val = ad.resolver.substitute(ad.descriptor.loadFactor);
             if(val.length() == 0)
             {
                 val = "Default";
             }
 
-            result.put(entry.getKey(), val);
+            result.put(p.getKey(), val);
         }
         return result;
     }
-
 
     void showLoad()
     {
@@ -708,15 +676,15 @@ class Node extends ListTreeNode
                         format.setMaximumFractionDigits(2);
                         format.setMinimumFractionDigits(2);
                     }
-                    
-                    final String load = 
+
+                    final String load =
                         format.format(loadInfo.avg1) + " " +
                         format.format(loadInfo.avg5) + " " +
-                        format.format(loadInfo.avg15); 
+                        format.format(loadInfo.avg15);
 
-                    SwingUtilities.invokeLater(new Runnable() 
+                    SwingUtilities.invokeLater(new Runnable()
                         {
-                            public void run() 
+                            public void run()
                             {
                                 _editor.setLoad(load, Node.this);
                             }
@@ -725,9 +693,9 @@ class Node extends ListTreeNode
 
                 public void ice_exception(final Ice.UserException e)
                 {
-                    SwingUtilities.invokeLater(new Runnable() 
+                    SwingUtilities.invokeLater(new Runnable()
                         {
-                            public void run() 
+                            public void run()
                             {
                                 if(e instanceof IceGrid.NodeNotExistException)
                                 {
@@ -745,13 +713,13 @@ class Node extends ListTreeNode
                                 }
                             }
                         });
-                }             
-                
+                }
+
                 public void ice_exception(final Ice.LocalException e)
                 {
-                    SwingUtilities.invokeLater(new Runnable() 
+                    SwingUtilities.invokeLater(new Runnable()
                         {
-                            public void run() 
+                            public void run()
                             {
                                 _editor.setLoad("Error: " + e.toString(), Node.this);
                             }
@@ -760,10 +728,10 @@ class Node extends ListTreeNode
             };
 
         try
-        {   
+        {
             getCoordinator().getMainFrame().setCursor(
                 Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
-            
+
             IceGrid.AdminPrx admin = getCoordinator().getAdmin();
             if(admin == null)
             {
@@ -785,33 +753,31 @@ class Node extends ListTreeNode
         }
     }
 
-    
-    private Server createServer(ApplicationDescriptor application, 
-                                Utils.Resolver resolver, ServerInstanceDescriptor instanceDescriptor)
+    private Server createServer(ApplicationDescriptor application, Utils.Resolver resolver,
+                                ServerInstanceDescriptor instanceDescriptor)
     {
         //
         // Find template
         //
-        TemplateDescriptor templateDescriptor = 
+        TemplateDescriptor templateDescriptor =
             (TemplateDescriptor)application.serverTemplates.get(instanceDescriptor.template);
         assert templateDescriptor != null;
-            
-        ServerDescriptor serverDescriptor = 
-            (ServerDescriptor)templateDescriptor.descriptor;
-        
+
+        ServerDescriptor serverDescriptor = (ServerDescriptor)templateDescriptor.descriptor;
+
         assert serverDescriptor != null;
-        
+
         //
         // Build resolver
         //
-        Utils.Resolver instanceResolver = 
-            new Utils.Resolver(resolver, 
+        Utils.Resolver instanceResolver =
+            new Utils.Resolver(resolver,
                                instanceDescriptor.parameterValues,
                                templateDescriptor.parameterDefaults);
-        
+
         String serverId = instanceResolver.substitute(serverDescriptor.id);
         instanceResolver.put("server", serverId);
-        
+
         //
         // Lookup dynamic info
         //
@@ -820,15 +786,13 @@ class Node extends ListTreeNode
         boolean enabled = true;
         if(_info != null)
         {
-            java.util.Iterator p = _info.servers.iterator();
-            while(p.hasNext())
+            for(ServerDynamicInfo info : _info.servers)
             {
-                ServerDynamicInfo sinfo = (ServerDynamicInfo)p.next();
-                if(sinfo.id.equals(serverId))
+                if(info.id.equals(serverId))
                 {
-                    serverState = sinfo.state;
-                    pid = sinfo.pid;
-                    enabled = sinfo.enabled;
+                    serverState = info.state;
+                    pid = info.pid;
+                    enabled = info.enabled;
                     break;
                 }
             }
@@ -837,21 +801,19 @@ class Node extends ListTreeNode
         //
         // Create server
         //
-        return new Server(this, serverId, instanceResolver, instanceDescriptor, 
-                          serverDescriptor, application,
+        return new Server(this, serverId, instanceResolver, instanceDescriptor, serverDescriptor, application,
                           serverState, pid, enabled);
-
     }
 
-    private Server createServer(ApplicationDescriptor application, 
-                                Utils.Resolver resolver, ServerDescriptor serverDescriptor)
+    private Server createServer(ApplicationDescriptor application, Utils.Resolver resolver,
+                                ServerDescriptor serverDescriptor)
     {
         //
         // Build resolver
         //
         Utils.Resolver instanceResolver = new Utils.Resolver(resolver);
         String serverId = instanceResolver.substitute(serverDescriptor.id);
-        instanceResolver.put("server", serverId);       
+        instanceResolver.put("server", serverId);
 
         //
         // Lookup dynamic info
@@ -861,15 +823,13 @@ class Node extends ListTreeNode
         boolean enabled = true;
         if(_info != null)
         {
-            java.util.Iterator p = _info.servers.iterator();
-            while(p.hasNext())
+            for(ServerDynamicInfo info : _info.servers)
             {
-                ServerDynamicInfo sinfo = (ServerDynamicInfo)p.next();
-                if(sinfo.id.equals(serverId))
+                if(info.id.equals(serverId))
                 {
-                    serverState = sinfo.state;
-                    pid = sinfo.pid;
-                    enabled = sinfo.enabled;
+                    serverState = info.state;
+                    pid = info.pid;
+                    enabled = info.enabled;
                     break;
                 }
             }
@@ -878,9 +838,8 @@ class Node extends ListTreeNode
         //
         // Create server
         //
-        return new Server(this, serverId, instanceResolver, null, serverDescriptor, 
-                          application, serverState, pid, enabled);
-
+        return new Server(this, serverId, instanceResolver, null, serverDescriptor, application, serverState, pid,
+                          enabled);
     }
 
     private void insertServer(Server server)
@@ -893,11 +852,9 @@ class Node extends ListTreeNode
         return (Server)find(id, _children);
     }
 
-
     private void removeDescriptor(NodeDescriptor nodeDesc, Server server)
     {
-        ServerInstanceDescriptor instanceDescriptor = 
-            server.getInstanceDescriptor();
+        ServerInstanceDescriptor instanceDescriptor = server.getInstanceDescriptor();
         if(instanceDescriptor != null)
         {
             removeDescriptor(nodeDesc, instanceDescriptor);
@@ -913,7 +870,7 @@ class Node extends ListTreeNode
         //
         // A straight remove uses equals(), which is not the desired behavior
         //
-        java.util.Iterator p = nodeDesc.servers.iterator();
+        java.util.Iterator<ServerDescriptor> p = nodeDesc.servers.iterator();
         while(p.hasNext())
         {
             if(sd == p.next())
@@ -929,7 +886,7 @@ class Node extends ListTreeNode
         //
         // A straight remove uses equals(), which is not the desired behavior
         //
-        java.util.Iterator p = nodeDesc.serverInstances.iterator();
+        java.util.Iterator<ServerInstanceDescriptor> p = nodeDesc.serverInstances.iterator();
         while(p.hasNext())
         {
             if(sd == p.next())
@@ -940,7 +897,6 @@ class Node extends ListTreeNode
         }
     }
 
- 
     static class ApplicationData
     {
         NodeDescriptor descriptor;
@@ -950,8 +906,8 @@ class Node extends ListTreeNode
     //
     // Application name to ApplicationData
     //
-    private final java.util.SortedMap _map = new java.util.TreeMap();
-    
+    private final java.util.SortedMap<String, ApplicationData> _map = new java.util.TreeMap<String, ApplicationData>();
+
     private boolean _up = false;
     private NodeDynamicInfo _info;
     private boolean _windows = false;

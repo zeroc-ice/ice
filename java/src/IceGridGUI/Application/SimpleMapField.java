@@ -26,18 +26,19 @@ import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 
 //
-// A special field used to show/edit properties
+// A special field used to show/edit a map
 //
 
-public class PropertiesField extends JTable
+public class SimpleMapField extends JTable
 {
-    public PropertiesField(Editor editor)
+    public SimpleMapField(Editor editor, boolean substituteKey, String headKey, String headValue)
     {
-        _columnNames = new java.util.Vector<String>(2);
-        _columnNames.add("Name");
-        _columnNames.add("Value");
-
         _editor = editor;
+        _substituteKey = substituteKey;
+
+        _columnNames = new java.util.Vector<String>(2);
+        _columnNames.add(headKey);
+        _columnNames.add(headValue);
 
         Action deleteRow = new AbstractAction("Delete selected row(s)")
             {
@@ -69,99 +70,29 @@ public class PropertiesField extends JTable
         getInputMap().put(KeyStroke.getKeyStroke("DELETE"), "delete");
     }
 
-    public void setProperties(java.util.List<PropertyDescriptor> properties,
-                              java.util.List<AdapterDescriptor> adapters, String[] logs, Utils.Resolver resolver,
-                              boolean editable)
+    public void set(java.util.Map<String, String> map, Utils.Resolver resolver, boolean editable)
     {
         _editable = editable;
 
         //
-        // We don't show the .Endpoint and .PublishedEndpoints of adapters,
-        // since they already appear in the Adapter pages
+        // Transform map into vector of vectors
         //
-        java.util.Set<String> hiddenPropertyNames = new java.util.HashSet<String>();
-
-        //
-        // We also hide properties whose value match an object or allocatable
-        //
-        java.util.Set<String> hiddenPropertyValues = new java.util.HashSet<String>();
-
-        _hiddenProperties.clear();
-
-        if(adapters != null)
+        java.util.Vector<java.util.Vector<String>> vector = new java.util.Vector<java.util.Vector<String>>(map.size());
+        for(java.util.Map.Entry<String, String> p : map.entrySet())
         {
-            //
-            // Note that we don't substitute *on purpose*, i.e. the names or values
-            // must match before substitution.
-            //
-            for(AdapterDescriptor p : adapters)
+            java.util.Vector<String> row = new java.util.Vector<String>(2);
+
+            if(_substituteKey)
             {
-                hiddenPropertyNames.add(p.name + ".Endpoints");
-                hiddenPropertyNames.add(p.name + ".PublishedEndpoints");
-
-                for(ObjectDescriptor q : p.objects)
-                {
-                    hiddenPropertyValues.add(Ice.Util.identityToString(q.id));
-                }
-                for(ObjectDescriptor q : p.allocatables)
-                {
-                    hiddenPropertyValues.add(Ice.Util.identityToString(q.id));
-                }
-            }
-        }
-
-        if(logs != null)
-        {
-            for(String log : logs)
-            {
-                hiddenPropertyValues.add(log);
-            }
-        }
-
-        //
-        // Transform list into vector of vectors
-        //
-        java.util.Vector<java.util.Vector<String>> vector =
-            new java.util.Vector<java.util.Vector<String>>(properties.size());
-        for(PropertyDescriptor p : properties)
-        {
-            if(hiddenPropertyNames.contains(p.name))
-            {
-                //
-                // We keep them at the top of the list
-                //
-                if(_editable)
-                {
-                    _hiddenProperties.add(p);
-                }
-
-                //
-                // We hide only the first occurence
-                //
-                hiddenPropertyNames.remove(p.name);
-            }
-            else if(hiddenPropertyValues.contains(p.value))
-            {
-                //
-                // We keep them at the top of the list
-                //
-                if(_editable)
-                {
-                    _hiddenProperties.add(p);
-                }
-
-                //
-                // We hide only the first occurence
-                //
-                hiddenPropertyValues.remove(p.value);
+                row.add(Utils.substitute(p.getKey(), resolver));
             }
             else
             {
-                java.util.Vector<String> row = new java.util.Vector<String>(2);
-                row.add(Utils.substitute(p.name, resolver));
-                row.add(Utils.substitute(p.value, resolver));
-                vector.add(row);
+                row.add(p.getKey());
             }
+
+            row.add(Utils.substitute(p.getValue(), resolver));
+            vector.add(row);
         }
 
         if(_editable)
@@ -189,7 +120,8 @@ public class PropertiesField extends JTable
                         Object lastKey = _model.getValueAt(_model.getRowCount() - 1 , 0);
                         if(lastKey != null && !lastKey.equals(""))
                         {
-                            _model.addRow(new Object[]{"", ""});
+                            Object[] emptyRow = new Object[]{"", ""};
+                            _model.addRow(emptyRow);
                         }
                         _editor.updated();
                     }
@@ -205,7 +137,7 @@ public class PropertiesField extends JTable
         cr.setOpaque(_editable);
     }
 
-    public java.util.LinkedList<PropertyDescriptor> getProperties()
+    public java.util.TreeMap<String, String> get()
     {
         assert _editable;
 
@@ -217,8 +149,7 @@ public class PropertiesField extends JTable
         java.util.Vector<java.util.Vector<String>> vector =
             (java.util.Vector<java.util.Vector<String>>)_model.getDataVector();
 
-        java.util.LinkedList<PropertyDescriptor> result =
-            new java.util.LinkedList<PropertyDescriptor>(_hiddenProperties);
+        java.util.TreeMap<String, String> result = new java.util.TreeMap<String, String>();
 
         for(java.util.Vector<String> row : vector)
         {
@@ -236,8 +167,7 @@ public class PropertiesField extends JTable
                      {
                          val = "";
                      }
-
-                     result.add(new PropertyDescriptor(key, val));
+                     result.put(key, val);
                  }
              }
         }
@@ -248,8 +178,7 @@ public class PropertiesField extends JTable
     private java.util.Vector<String> _columnNames;
     private boolean _editable = false;
 
-    private java.util.LinkedList<PropertyDescriptor> _hiddenProperties =
-        new java.util.LinkedList<PropertyDescriptor>();
+    private boolean _substituteKey;
 
     private Editor _editor;
 }

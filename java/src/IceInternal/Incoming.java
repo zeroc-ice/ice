@@ -93,7 +93,7 @@ final public class Incoming extends IncomingBase implements Ice.Request
         }
 
         _current.operation = _is.readString();
-        _current.mode = Ice.OperationMode.convert(_is.readByte());
+        _current.mode = Ice.OperationMode.values()[_is.readByte()];
         _current.ctx = new java.util.HashMap<String, String>();
         int sz = _is.readSize();
         while(sz-- > 0)

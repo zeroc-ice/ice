@@ -27,15 +27,15 @@ public class Client extends test.Util.Application
         
     	Ice.Communicator communicator = communicator();
         java.util.List<Integer> ports = new java.util.ArrayList<Integer>(args.length);
-        for(int i = 0; i < args.length; i++)
+        for(String arg : args)
         {
-            if(args[i].charAt(0) == '-')
+            if(arg.charAt(0) == '-')
             {
                 //
                 // TODO: Arguments recognized by the communicator are not
                 // removed from the argument list.
                 //
-                //System.err.println("Client: unknown option `" + args[i] + "'");
+                //System.err.println("Client: unknown option `" + arg + "'");
                 //usage();
                 //return 1;
                 continue;
@@ -44,7 +44,7 @@ public class Client extends test.Util.Application
             int port = 0;
             try
             {
-                port = Integer.parseInt(args[i]);
+                port = Integer.parseInt(arg);
             }
             catch(NumberFormatException ex)
             {

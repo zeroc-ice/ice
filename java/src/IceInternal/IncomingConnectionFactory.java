@@ -158,13 +158,11 @@ public final class IncomingConnectionFactory extends EventHandler implements Ice
     public void
     flushBatchRequests()
     {
-        java.util.Iterator<Ice.ConnectionI> p =
-            connections().iterator(); // connections() is synchronized, no need to synchronize here.
-        while(p.hasNext())
+        for(Ice.ConnectionI p : connections()) // connections() is synchronized, no need to synchronize here.
         {
             try
             {
-                p.next().flushBatchRequests();
+                p.flushBatchRequests();
             }
             catch(Ice.LocalException ex)
             {

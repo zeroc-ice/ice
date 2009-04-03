@@ -160,7 +160,6 @@ class LibraryI extends _LibraryDisp
 
             assert isbnSeq != null;
             
-
             int i;
             for(i = 0; i < isbnSeq.length; ++i)
             {

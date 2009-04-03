@@ -100,10 +100,9 @@ class ReapThread extends Thread
         // proxy since terminate() is called after the communicator is
         // shutdown, which means calls on collocated objects are not
         // permitted.
-        java.util.Iterator<SessionProxyPair> p = _sessions.iterator();
-        while(p.hasNext())
+        for(SessionProxyPair p : _sessions)
         {
-            p.next().session.shutdown();
+            p.session.shutdown();
         }
         _sessions.clear();
     }

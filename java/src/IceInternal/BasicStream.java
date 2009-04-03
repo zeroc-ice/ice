@@ -832,9 +832,9 @@ public class BasicStream
         {
             writeSize(v.length);
             expand(v.length);
-            for(int i = 0; i < v.length; i++)
+            for(boolean b : v)
             {
-                _buf.b.put(v[i] ? (byte)1 : (byte)0);
+                _buf.b.put(b ? (byte)1 : (byte)0);
             }
         }
     }
@@ -1272,9 +1272,9 @@ public class BasicStream
         else
         {
             writeSize(v.length);
-            for(int i = 0; i < v.length; i++)
+            for(String e : v)
             {
-                writeString(v[i]);
+                writeString(e);
             }
         }
     }
@@ -1697,8 +1697,7 @@ public class BasicStream
                 java.util.IdentityHashMap<Ice.Object, Integer> savedMap =
                     new java.util.IdentityHashMap<Ice.Object, Integer>(_writeEncapsStack.toBeMarshaledMap);
                 writeSize(savedMap.size());
-                java.util.Iterator<java.util.Map.Entry<Ice.Object, Integer> > p = savedMap.entrySet().iterator();
-                while(p.hasNext())
+                for(java.util.Map.Entry<Ice.Object, Integer> p : savedMap.entrySet())
                 {
                     //
                     // Add an instance from the old to-be-marshaled
@@ -1707,9 +1706,8 @@ public class BasicStream
                     // instances that are triggered by the classes
                     // marshaled are added to toBeMarshaledMap.
                     //
-                    java.util.Map.Entry<Ice.Object, Integer> e = p.next();
-                    _writeEncapsStack.marshaledMap.put(e.getKey(), e.getValue());
-                    writeInstance(e.getKey(), e.getValue());
+                    _writeEncapsStack.marshaledMap.put(p.getKey(), p.getValue());
+                    writeInstance(p.getKey(), p.getValue());
                 }
             
                 //
@@ -1717,10 +1715,9 @@ public class BasicStream
                 // substract what we have marshaled from the
                 // toBeMarshaledMap.
                 //
-                java.util.Iterator<Ice.Object> q = savedMap.keySet().iterator();
-                while(q.hasNext())
+                for(Ice.Object p : savedMap.keySet())
                 {
-                    _writeEncapsStack.toBeMarshaledMap.remove(q.next());
+                    _writeEncapsStack.toBeMarshaledMap.remove(p);
                 }
             }
         }
@@ -1758,10 +1755,8 @@ public class BasicStream
         //
         if(_objectList != null)
         {
-            java.util.Iterator<Ice.Object> e = _objectList.iterator();
-            while(e.hasNext())
+            for(Ice.Object obj : _objectList)
             {
-                Ice.Object obj = e.next();
                 try
                 {
                     obj.ice_postUnmarshal();
@@ -1857,9 +1852,8 @@ public class BasicStream
         //
         // Patch all references that refer to the instance.
         //
-        for(java.util.Iterator<Patcher> i = patchlist.iterator(); i.hasNext(); )
+        for(Patcher p : patchlist)
         {
-            Patcher p = i.next();
             try
             {
                 p.patch(v);

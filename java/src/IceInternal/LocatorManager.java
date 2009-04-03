@@ -19,10 +19,8 @@ public final class LocatorManager
     synchronized void
     destroy()
     {
-        java.util.Iterator<LocatorInfo> i = _table.values().iterator();
-        while(i.hasNext())
+        for(LocatorInfo info : _table.values())
         {
-            LocatorInfo info = i.next();
             info.destroy();
         }
         _table.clear();

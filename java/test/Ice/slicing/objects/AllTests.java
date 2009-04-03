@@ -95,7 +95,7 @@ public class AllTests
             _called = false;
             return true;
         }
-        
+
         public synchronized void
         called()
         {
@@ -789,7 +789,7 @@ public class AllTests
     private static class AMI_Test_dictionaryTestI extends AMI_TestIntf_dictionaryTest
     {
         public void
-        ice_response(java.util.Map r, java.util.Map bout)
+        ice_response(java.util.Map<Integer, B> r, java.util.Map<Integer, B> bout)
         {
             this.r = r;
             this.bout = bout;
@@ -1033,7 +1033,7 @@ public class AllTests
     public static TestIntfPrx
     allTests(Ice.Communicator communicator, boolean collocated, PrintWriter out)
     {
-		out.print("testing stringToProxy... ");
+        out.print("testing stringToProxy... ");
         out.flush();
         String ref = "Test:default -p 12010 -t 10000";
         Ice.ObjectPrx base = communicator.stringToProxy(ref);
@@ -2113,13 +2113,11 @@ public class AllTests
                 }
 
                 r = test.dictionaryTest(bin, boutH);
-                // TODO: Remove this cast when the Java2 mapping is removed.
-                java.util.Map<Integer, B> bout = (java.util.Map<Integer, B>)boutH.value;
 
-                test(bout.size() == 10);
+                test(boutH.value.size() == 10);
                 for(i = 0; i < 10; ++i)
                 {
-                    B b = bout.get(i * 10);
+                    B b = boutH.value.get(i * 10);
                     test(b != null);
                     String s = "D1." + new Integer(i).toString();
                     test(b.sb.equals(s));

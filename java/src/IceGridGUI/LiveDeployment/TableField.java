@@ -6,6 +6,7 @@
 // ICE_LICENSE file included in this distribution.
 //
 // **********************************************************************
+
 package IceGridGUI.LiveDeployment;
 
 import IceGrid.*;
@@ -24,27 +25,19 @@ import javax.swing.event.TableModelListener;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 
-
 //
 // A special field used to show a map or list
 //
 
 public class TableField extends JTable
 {
-    public TableField(String headKey, String headValue)
-    {   
-        _columnNames = new java.util.Vector(2);
-        _columnNames.add(headKey);
-        _columnNames.add(headValue);
-        init();
-    }
-
-    public TableField(String headKey, String headValue1, String headValue2)
-    {   
-        _columnNames = new java.util.Vector(3);
-        _columnNames.add(headKey);
-        _columnNames.add(headValue1);
-        _columnNames.add(headValue2);
+    public TableField(String... columns)
+    {
+        _columnNames = new java.util.Vector<String>(columns.length);
+        for(String name : columns)
+        {
+            _columnNames.add(name);
+        }
         init();
     }
 
@@ -64,55 +57,45 @@ public class TableField extends JTable
         setPreferredScrollableViewportSize(getPreferredSize());
     }
 
-    public void setProperties(java.util.List properties, Utils.Resolver resolver)
+    public void setProperties(java.util.List<PropertyDescriptor> properties, Utils.Resolver resolver)
     {
-        java.util.SortedMap map = new java.util.TreeMap();
-        java.util.Iterator p = properties.iterator();
-        while(p.hasNext())
+        java.util.SortedMap<String, String> map = new java.util.TreeMap<String, String>();
+        for(PropertyDescriptor p : properties)
         {
-            PropertyDescriptor pd = (PropertyDescriptor)p.next();
-            map.put(resolver.substitute(pd.name), resolver.substitute(pd.value));
+            map.put(resolver.substitute(p.name), resolver.substitute(p.value));
         }
         setSortedMap(map);
     }
 
-    public void setObjects(java.util.List objects, Utils.Resolver resolver)
+    public void setObjects(java.util.List<ObjectDescriptor> objects, Utils.Resolver resolver)
     {
-        java.util.SortedMap map = new java.util.TreeMap();
-        java.util.Iterator p = objects.iterator();
-        while(p.hasNext())
+        java.util.SortedMap<String, String> map = new java.util.TreeMap<String, String>();
+        for(ObjectDescriptor p : objects)
         {
-            ObjectDescriptor od = (ObjectDescriptor)p.next();
-            Ice.Identity id = new Ice.Identity(
-                resolver.substitute(od.id.name),
-                resolver.substitute(od.id.category));
-
-            map.put(Ice.Util.identityToString(id), resolver.substitute(od.type));
+            Ice.Identity id = new Ice.Identity( resolver.substitute(p.id.name), resolver.substitute(p.id.category));
+            map.put(Ice.Util.identityToString(id), resolver.substitute(p.type));
         }
         setSortedMap(map);
     }
 
-    public void setObjects(java.util.SortedMap objects)
+    public void setObjects(java.util.SortedMap<String, ObjectInfo> objects)
     {
-        java.util.SortedMap map = new java.util.TreeMap();
-        java.util.Iterator p = objects.values().iterator();
-        while(p.hasNext())
+        java.util.SortedMap<String, String> map = new java.util.TreeMap<String, String>();
+        for(ObjectInfo p : objects.values())
         {
-            ObjectInfo oi = (ObjectInfo)p.next();
-            map.put(oi.proxy.toString(), oi.type);
+            map.put(p.proxy.toString(), p.type);
         }
         setSortedMap(map);
     }
 
-    public void setEnvs(java.util.List envs, Utils.Resolver resolver)
+    public void setEnvs(java.util.List<String> envs, Utils.Resolver resolver)
     {
-        java.util.SortedMap map = new java.util.TreeMap();
+        java.util.SortedMap<String, String> map = new java.util.TreeMap<String, String>();
 
-        java.util.Iterator p = envs.iterator();
-        while(p.hasNext())
+        for(String p : envs)
         {
-            String env = resolver.substitute((String)p.next());
-            
+            String env = resolver.substitute(p);
+
             int equal = env.indexOf('=');
             if(equal == -1 || equal == env.length() - 1)
             {
@@ -120,25 +103,23 @@ public class TableField extends JTable
             }
             else
             {
-                map.put(env.substring(0, equal),
-                        env.substring(equal + 1));
+                map.put(env.substring(0, equal), env.substring(equal + 1));
             }
         }
         setSortedMap(map);
     }
 
-    public void setAdapters(java.util.SortedMap adapters)
+    public void setAdapters(java.util.SortedMap<String, AdapterInfo> adapters)
     {
-        java.util.Vector vector = new java.util.Vector(adapters.size());
-        java.util.Iterator p = adapters.entrySet().iterator();
-        while(p.hasNext())
+        java.util.Vector<java.util.Vector<String>> vector =
+            new java.util.Vector<java.util.Vector<String>>(adapters.size());
+        for(java.util.Map.Entry<String, AdapterInfo> p : adapters.entrySet())
         {
-            java.util.Vector row = new java.util.Vector(3);
-            java.util.Map.Entry entry = (java.util.Map.Entry)p.next();
-            row.add((String)entry.getKey());
+            java.util.Vector<String> row = new java.util.Vector<String>(3);
+            row.add(p.getKey());
 
-            AdapterInfo ai = (AdapterInfo)entry.getValue();
-            
+            AdapterInfo ai = p.getValue();
+
             if(ai.proxy == null)
             {
                 row.add("");
@@ -163,42 +144,34 @@ public class TableField extends JTable
 
         _model.setDataVector(vector, _columnNames);
 
-        DefaultTableCellRenderer cr = (DefaultTableCellRenderer)
-            getDefaultRenderer(String.class);
-        cr.setOpaque(false);    
+        DefaultTableCellRenderer cr = (DefaultTableCellRenderer)getDefaultRenderer(String.class);
+        cr.setOpaque(false);
     }
 
-
-    public void setSortedMap(java.util.SortedMap map)
+    public void setSortedMap(java.util.SortedMap<String, String> map)
     {
-        java.util.Vector vector = new java.util.Vector(map.size());
-        java.util.Iterator p = map.entrySet().iterator();
-        while(p.hasNext())
+        java.util.Vector<java.util.Vector<String>> vector = new java.util.Vector<java.util.Vector<String>>(map.size());
+        for(java.util.Map.Entry<String, String> p : map.entrySet())
         {
-            java.util.Vector row = new java.util.Vector(2);
-            java.util.Map.Entry entry = (java.util.Map.Entry)p.next();
-            row.add((String)entry.getKey());
-            row.add((String)entry.getValue());
+            java.util.Vector<String> row = new java.util.Vector<String>(2);
+            row.add(p.getKey());
+            row.add(p.getValue());
             vector.add(row);
         }
 
         _model.setDataVector(vector, _columnNames);
 
-        DefaultTableCellRenderer cr = (DefaultTableCellRenderer)
-            getDefaultRenderer(String.class);
-        cr.setOpaque(false);    
+        DefaultTableCellRenderer cr = (DefaultTableCellRenderer)getDefaultRenderer(String.class);
+        cr.setOpaque(false);
     }
 
     public void clear()
     {
-        _model.setDataVector(new java.util.Vector(), _columnNames);
-        DefaultTableCellRenderer cr = (DefaultTableCellRenderer)
-            getDefaultRenderer(String.class);
-        cr.setOpaque(false);  
+        _model.setDataVector(new java.util.Vector<java.util.Vector<String>>(), _columnNames);
+        DefaultTableCellRenderer cr = (DefaultTableCellRenderer)getDefaultRenderer(String.class);
+        cr.setOpaque(false);
     }
 
     private DefaultTableModel _model;
-    private java.util.Vector _columnNames;
+    private java.util.Vector<String> _columnNames;
 }
-
-

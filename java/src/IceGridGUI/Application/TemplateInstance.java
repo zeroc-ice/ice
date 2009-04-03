@@ -6,11 +6,12 @@
 // ICE_LICENSE file included in this distribution.
 //
 // **********************************************************************
+
 package IceGridGUI.Application;
 
 interface TemplateInstance
 {
-    Object rebuild(java.util.List editables) throws UpdateFailedException;
+    Object rebuild(java.util.List<Editable> editables) throws UpdateFailedException;
     void restore(Object backupObj);
 }
 

@@ -101,10 +101,9 @@ public class EndpointHostResolver
             }
         }
 
-        java.util.Iterator<ResolveEntry> p = _queue.iterator();
-        while(p.hasNext())
+        for(ResolveEntry p : _queue)
         {
-            p.next().callback.exception(new Ice.CommunicatorDestroyedException());
+            p.callback.exception(new Ice.CommunicatorDestroyedException());
         }
         _queue.clear();
     }

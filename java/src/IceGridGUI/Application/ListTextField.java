@@ -6,6 +6,7 @@
 // ICE_LICENSE file included in this distribution.
 //
 // **********************************************************************
+
 package IceGridGUI.Application;
 
 import IceGrid.*;
@@ -25,7 +26,7 @@ public class ListTextField extends JTextField
         super(columns);
     }
 
-    public void setList(java.util.List list, final Utils.Resolver resolver)
+    public void setList(java.util.List<String> list, final Utils.Resolver resolver)
     {
         Utils.Stringifier stringifier =  new Utils.Stringifier()
             {
@@ -34,14 +35,14 @@ public class ListTextField extends JTextField
                     return Utils.substitute((String)obj, resolver);
                 }
             };
-        
+
         setText(Utils.stringify(list, stringifier, " ", null));
     }
 
-    public java.util.LinkedList getList()
+    public java.util.LinkedList<String> getList()
     {
         String text = getText().trim();
-        java.util.LinkedList result = new java.util.LinkedList();
+        java.util.LinkedList<String> result = new java.util.LinkedList<String>();
 
         while(text.length() > 0)
         {

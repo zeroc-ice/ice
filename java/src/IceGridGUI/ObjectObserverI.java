@@ -6,6 +6,7 @@
 // ICE_LICENSE file included in this distribution.
 //
 // **********************************************************************
+
 package IceGridGUI;
 
 import javax.swing.SwingUtilities;
@@ -13,7 +14,6 @@ import IceGrid.*;
 
 class ObjectObserverI extends _ObjectObserverDisp
 {
-
     ObjectObserverI(Coordinator coordinator)
     {
         _coordinator = coordinator;
@@ -31,18 +31,18 @@ class ObjectObserverI extends _ObjectObserverDisp
             else
             {
                 String names = "";
-                for(int i = 0; i < objects.length; ++i)
+                for(ObjectInfo obj : objects)
                 {
-                    names += " " + objects[i].proxy.toString();
+                    names += " " + obj.proxy.toString();
                 }
-                
+
                 _coordinator.traceObserver("objectInit for objects" + names);
             }
         }
 
-        SwingUtilities.invokeLater(new Runnable() 
+        SwingUtilities.invokeLater(new Runnable()
             {
-                public void run() 
+                public void run()
                 {
                     _coordinator.objectInit(objects);
                 }
@@ -56,14 +56,14 @@ class ObjectObserverI extends _ObjectObserverDisp
             _coordinator.traceObserver("objectAdded for object " + info.proxy.toString());
         }
 
-        SwingUtilities.invokeLater(new Runnable() 
+        SwingUtilities.invokeLater(new Runnable()
             {
-                public void run() 
+                public void run()
                 {
                     _coordinator.objectAdded(info);
                 }
             });
-    }    
+    }
 
     public void objectUpdated(final ObjectInfo info, Ice.Current current)
     {
@@ -72,14 +72,14 @@ class ObjectObserverI extends _ObjectObserverDisp
             _coordinator.traceObserver("objectUpdated for object " + info.proxy.toString());
         }
 
-        SwingUtilities.invokeLater(new Runnable() 
+        SwingUtilities.invokeLater(new Runnable()
             {
-                public void run() 
+                public void run()
                 {
                     _coordinator.objectUpdated(info);
                 }
             });
-    }    
+    }
 
     public void objectRemoved(final Ice.Identity id, Ice.Current current)
     {
@@ -88,15 +88,15 @@ class ObjectObserverI extends _ObjectObserverDisp
             _coordinator.traceObserver("objectRemoved for object " + Ice.Util.identityToString(id));
         }
 
-        SwingUtilities.invokeLater(new Runnable() 
+        SwingUtilities.invokeLater(new Runnable()
             {
-                public void run() 
+                public void run()
                 {
                     _coordinator.objectRemoved(id);
                 }
             });
     }
 
-    private final Coordinator _coordinator; 
+    private final Coordinator _coordinator;
     private final boolean _trace;
-};
+}

@@ -30,10 +30,8 @@ public class CertificateVerifierI implements IceSSL.CertificateVerifier
                 test(subjectAltNames != null);
                 java.util.List<String> ipAddresses = new java.util.ArrayList<String>();
                 java.util.List<String> dnsNames = new java.util.ArrayList<String>();
-                java.util.Iterator<java.util.List<?> > i = subjectAltNames.iterator();
-                while(i.hasNext())
+                for(java.util.List<?> l : subjectAltNames)
                 {
-                    java.util.List<?> l = i.next();
                     test(!l.isEmpty());
                     Integer n = (Integer)l.get(0);
                     if(n.intValue() == 7)

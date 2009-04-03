@@ -28,7 +28,7 @@ dictionary<string, string> StringStringDict;
 /**
  *
  * Property descriptor.
- * 
+ *
  **/
 struct PropertyDescriptor
 {
@@ -50,9 +50,9 @@ struct PropertyDescriptor
 /**
  *
  * A sequence of property descriptors.
- * 
+ *
  **/
-["java:type:{java.util.LinkedList}"] sequence<PropertyDescriptor> PropertyDescriptorSeq;
+["java:type:java.util.LinkedList<PropertyDescriptor>"] sequence<PropertyDescriptor> PropertyDescriptorSeq;
 
 /**
  *
@@ -64,7 +64,7 @@ struct PropertySetDescriptor
     /**
      *
      * References to named property sets.
-     * 
+     *
      **/
     Ice::StringSeq references;
 
@@ -86,7 +86,7 @@ dictionary<string, PropertySetDescriptor> PropertySetDescriptorDict;
 /**
  *
  * An Ice object descriptor.
- * 
+ *
  **/
 struct ObjectDescriptor
 {
@@ -110,7 +110,7 @@ struct ObjectDescriptor
  * A sequence of object descriptors.
  *
  **/
-["java:type:{java.util.LinkedList}"] sequence<ObjectDescriptor> ObjectDescriptorSeq;
+["java:type:java.util.LinkedList<ObjectDescriptor>"] sequence<ObjectDescriptor> ObjectDescriptorSeq;
 
 /**
  *
@@ -152,7 +152,7 @@ struct AdapterDescriptor
      * The adapter priority. This is eventually used when the adapter
      * is member of a replica group to sort the adapter endpoints by
      * priority.
-     * 
+     *
      **/
     string priority;
 
@@ -193,7 +193,7 @@ struct AdapterDescriptor
  * A sequence of adapter descriptors.
  *
  **/
-["java:type:{java.util.LinkedList}"] sequence<AdapterDescriptor> AdapterDescriptorSeq;
+["java:type:java.util.LinkedList<AdapterDescriptor>"] sequence<AdapterDescriptor> AdapterDescriptorSeq;
 
 /**
  *
@@ -239,7 +239,7 @@ struct DbEnvDescriptor
  * A sequence of database environment descriptors.
  *
  **/
-["java:type:{java.util.LinkedList}"] sequence<DbEnvDescriptor> DbEnvDescriptorSeq;
+["java:type:java.util.LinkedList<DbEnvDescriptor>"] sequence<DbEnvDescriptor> DbEnvDescriptorSeq;
 
 /**
  *
@@ -296,7 +296,7 @@ struct DistributionDescriptor
     string icepatch;
 
     /** The source directories. */
-    ["java:type:{java.util.LinkedList}"] Ice::StringSeq directories;
+    ["java:type:java.util.LinkedList<String>"] Ice::StringSeq directories;
 };
 
 /**
@@ -308,7 +308,7 @@ class ServerDescriptor extends CommunicatorDescriptor
 {
     /**
      *
-     * The server id. 
+     * The server id.
      *
      **/
     string id;
@@ -319,7 +319,7 @@ class ServerDescriptor extends CommunicatorDescriptor
      *
      **/
     string exe;
-   
+
     /**
      *
      * The Ice version used by this server. This is only required if
@@ -343,14 +343,14 @@ class ServerDescriptor extends CommunicatorDescriptor
      * The command line options to pass to the server executable.
      *
      **/
-    ["java:type:{java.util.LinkedList}"] Ice::StringSeq options;
+    ["java:type:java.util.LinkedList<String>"] Ice::StringSeq options;
 
     /**
      *
      * The server environment variables.
      *
      **/
-    ["java:type:{java.util.LinkedList}"] Ice::StringSeq envs;
+    ["java:type:java.util.LinkedList<String>"] Ice::StringSeq envs;
 
     /**
      *
@@ -380,7 +380,7 @@ class ServerDescriptor extends CommunicatorDescriptor
      *
      * Specifies if the server depends on the application
      * distribution.
-     * 
+     *
      **/
     bool applicationDistrib;
 
@@ -411,7 +411,7 @@ class ServerDescriptor extends CommunicatorDescriptor
  * A sequence of server descriptors.
  *
  **/
-["java:type:{java.util.LinkedList}"] sequence<ServerDescriptor> ServerDescriptorSeq;
+["java:type:java.util.LinkedList<ServerDescriptor>"] sequence<ServerDescriptor> ServerDescriptorSeq;
 
 /**
  *
@@ -430,7 +430,7 @@ class ServiceDescriptor extends CommunicatorDescriptor
     /**
      *
      * The entry point of the IceBox service.
-     * 
+     *
      **/
     string entry;
 };
@@ -440,19 +440,19 @@ class ServiceDescriptor extends CommunicatorDescriptor
  * A sequence of service descriptors.
  *
  **/
-["java:type:{java.util.LinkedList}"] sequence<ServiceDescriptor> ServiceDescriptorSeq;
+["java:type:java.util.LinkedList<ServiceDescriptor>"] sequence<ServiceDescriptor> ServiceDescriptorSeq;
 
-/** 
+/**
  *
  * A server template instance descriptor.
- * 
+ *
  **/
 struct ServerInstanceDescriptor
 {
     /**
      *
      * The template used by this instance.
-     * 
+     *
      **/
     string template;
 
@@ -482,14 +482,15 @@ struct ServerInstanceDescriptor
 /**
  *
  * A sequence of server instance descriptors.
- * 
+ *
  **/
-["java:type:{java.util.LinkedList}"] sequence<ServerInstanceDescriptor> ServerInstanceDescriptorSeq;
+["java:type:java.util.LinkedList<ServerInstanceDescriptor>"]
+sequence<ServerInstanceDescriptor> ServerInstanceDescriptorSeq;
 
 /**
  *
  * A template descriptor for server or service templates.
- * 
+ *
  **/
 struct TemplateDescriptor
 {
@@ -505,7 +506,7 @@ struct TemplateDescriptor
      * The parameters required to instantiate the template.
      *
      **/
-    ["java:type:{java.util.LinkedList}"] Ice::StringSeq parameters;
+    ["java:type:java.util.LinkedList<String>"] Ice::StringSeq parameters;
 
     /**
      *
@@ -522,17 +523,17 @@ struct TemplateDescriptor
  **/
 dictionary<string, TemplateDescriptor> TemplateDescriptorDict;
 
-/** 
+/**
  *
  * A service template instance descriptor.
- * 
+ *
  **/
 struct ServiceInstanceDescriptor
 {
     /**
      *
      * The template used by this instance.
-     * 
+     *
      **/
     string template;
 
@@ -564,7 +565,8 @@ struct ServiceInstanceDescriptor
  * A sequence of service instance descriptors.
  *
  **/
-["java:type:{java.util.LinkedList}"] sequence<ServiceInstanceDescriptor> ServiceInstanceDescriptorSeq;
+["java:type:java.util.LinkedList<ServiceInstanceDescriptor>"]
+sequence<ServiceInstanceDescriptor> ServiceInstanceDescriptorSeq;
 
 /**
  *
@@ -593,7 +595,7 @@ struct NodeDescriptor
      * The variables defined for the node.
      *
      **/
-    ["java:type:{java.util.TreeMap}"] StringStringDict variables;
+    ["java:type:java.util.TreeMap<String, String>"] StringStringDict variables;
 
     /**
      *
@@ -702,7 +704,7 @@ class AdaptiveLoadBalancingPolicy extends LoadBalancingPolicy
 /**
  *
  * A replica group descriptor.
- * 
+ *
  **/
 struct ReplicaGroupDescriptor
 {
@@ -716,7 +718,7 @@ struct ReplicaGroupDescriptor
     /**
      *
      * The load balancing policy.
-     * 
+     *
      **/
     LoadBalancingPolicy loadBalancing;
 
@@ -738,9 +740,9 @@ struct ReplicaGroupDescriptor
 /**
  *
  * A sequence of replica groups.
- * 
+ *
  **/
-["java:type:{java.util.LinkedList}"] sequence<ReplicaGroupDescriptor> ReplicaGroupDescriptorSeq; 
+["java:type:java.util.LinkedList<ReplicaGroupDescriptor>"] sequence<ReplicaGroupDescriptor> ReplicaGroupDescriptorSeq;
 
 /**
  *
@@ -755,13 +757,13 @@ struct ApplicationDescriptor
      *
      **/
     string name;
-    
+
     /**
      *
      * The variables defined in the application descriptor.
      *
      **/
-    ["java:type:{java.util.TreeMap}"] StringStringDict variables;
+    ["java:type:java.util.TreeMap<String, String>"] StringStringDict variables;
 
     /**
      *
@@ -802,7 +804,7 @@ struct ApplicationDescriptor
      *
      * The description of this application.
      *
-     **/ 
+     **/
     string description;
 
     /**
@@ -818,7 +820,7 @@ struct ApplicationDescriptor
  * A sequence of application descriptors.
  *
  **/
-["java:type:{java.util.LinkedList}"] sequence<ApplicationDescriptor> ApplicationDescriptorSeq;
+["java:type:java.util.LinkedList<ApplicationDescriptor>"] sequence<ApplicationDescriptor> ApplicationDescriptorSeq;
 
 /**
  *
@@ -859,7 +861,7 @@ struct NodeUpdateDescriptor
      * The variables to update.
      *
      **/
-    ["java:type:{java.util.TreeMap}"] StringStringDict variables;
+    ["java:type:java.util.TreeMap<String, String>"] StringStringDict variables;
 
     /**
      *
@@ -917,7 +919,7 @@ struct NodeUpdateDescriptor
  * A sequence of node update descriptors.
  *
  **/
-["java:type:{java.util.LinkedList}"] sequence<NodeUpdateDescriptor> NodeUpdateDescriptorSeq;
+["java:type:java.util.LinkedList<NodeUpdateDescriptor>"] sequence<NodeUpdateDescriptor> NodeUpdateDescriptorSeq;
 
 /**
  *
@@ -944,7 +946,7 @@ struct ApplicationUpdateDescriptor
      *
      **/
     string name;
-    
+
     /**
      *
      * The updated description (or null if the description wasn't
@@ -956,16 +958,16 @@ struct ApplicationUpdateDescriptor
     /**
      *
      * The updated distribution application descriptor.
-     * 
+     *
      **/
     BoxedDistributionDescriptor distrib;
-    
+
     /**
      *
      * The variables to update.
      *
      **/
-    ["java:type:{java.util.TreeMap}"] StringStringDict variables;
+    ["java:type:java.util.TreeMap<String, String>"] StringStringDict variables;
 
     /**
      *

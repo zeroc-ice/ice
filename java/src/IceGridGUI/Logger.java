@@ -15,7 +15,7 @@ import javax.swing.SwingUtilities;
 
 public class Logger extends Ice.LoggerI
 {
-    public 
+    public
     Logger(JFrame mainFrame)
     {
         super("IceGrid Admin", "");
@@ -26,7 +26,7 @@ public class Logger extends Ice.LoggerI
     public void
     warning(final String message)
     {
-        SwingUtilities.invokeLater(new Runnable() 
+        SwingUtilities.invokeLater(new Runnable()
             {
                 public void run()
                 {
@@ -42,7 +42,7 @@ public class Logger extends Ice.LoggerI
     public void
     error(final String message)
     {
-        SwingUtilities.invokeLater(new Runnable() 
+        SwingUtilities.invokeLater(new Runnable()
             {
                 public void run()
                 {

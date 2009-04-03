@@ -6,6 +6,7 @@
 // ICE_LICENSE file included in this distribution.
 //
 // **********************************************************************
+
 package IceGridGUI.Application;
 
 import java.awt.event.ActionEvent;
@@ -44,10 +45,9 @@ class PropertySetEditor extends Editor
             if(nps.isEphemeral())
             {
                 writeDescriptor();
-                PropertySetDescriptor descriptor = 
-                    (PropertySetDescriptor)nps.getDescriptor();
+                PropertySetDescriptor descriptor = (PropertySetDescriptor)nps.getDescriptor();
                 nps.destroy(); // just removes the child
-                
+
                 try
                 {
                     parent.tryAdd(getIdText(), descriptor);
@@ -66,7 +66,7 @@ class PropertySetEditor extends Editor
                         assert false;
                     }
                     root.setSelectedNode(_target);
-                    
+
                     JOptionPane.showMessageDialog(
                         root.getCoordinator().getMainFrame(),
                         e.toString(),
@@ -87,8 +87,7 @@ class PropertySetEditor extends Editor
             }
             else if(!isSimpleUpdate())
             {
-                PropertySetDescriptor descriptor = 
-                    (PropertySetDescriptor)nps.getDescriptor();
+                PropertySetDescriptor descriptor = (PropertySetDescriptor)nps.getDescriptor();
 
                 try
                 {
@@ -121,7 +120,7 @@ class PropertySetEditor extends Editor
                 root.updated();
                 nps.getEditable().markModified();
             }
-            
+
             if(refresh)
             {
                 root.getCoordinator().getCurrentTab().showNode(_target);
@@ -165,17 +164,15 @@ class PropertySetEditor extends Editor
         _propertySets.setToolTipText("Property Set References");
         _properties = new PropertiesField(this);
     }
-    
+
     void writeDescriptor()
     {
-        PropertySetDescriptor descriptor = 
-            (PropertySetDescriptor)getPropertySet().getDescriptor();
+        PropertySetDescriptor descriptor = (PropertySetDescriptor)getPropertySet().getDescriptor();
 
-        descriptor.references = 
-            (String[])_propertySets.getList().toArray(new String[0]);
+        descriptor.references = (String[])_propertySets.getList().toArray(new String[0]);
         descriptor.properties = _properties.getProperties();
-    }       
-    
+    }
+
     boolean isSimpleUpdate()
     {
         return getIdText().equals(_oldId);
@@ -186,7 +183,7 @@ class PropertySetEditor extends Editor
         builder.append(_idLabel);
         builder.append(getIdComponent(), 3);
         builder.nextLine();
-        
+
         builder.append("Property Sets");
         builder.append(_propertySets, 3);
         builder.nextLine();
@@ -202,8 +199,7 @@ class PropertySetEditor extends Editor
         builder.nextRow(-6);
         JScrollPane scrollPane = new JScrollPane(_properties);
         CellConstraints cc = new CellConstraints();
-        builder.add(scrollPane, 
-                    cc.xywh(builder.getColumn(), builder.getRow(), 3, 7));
+        builder.add(scrollPane, cc.xywh(builder.getColumn(), builder.getRow(), 3, 7));
         builder.nextRow(6);
         builder.nextLine();
     }
@@ -213,7 +209,7 @@ class PropertySetEditor extends Editor
         super.buildPropertiesPanel();
         _propertiesPanel.setName("Named Property Set");
     }
-  
+
     protected boolean validate()
     {
         return check(new String[]{_idLabel.getText(), getIdText()});
@@ -226,22 +222,19 @@ class PropertySetEditor extends Editor
 
         Utils.Resolver resolver = getDetailResolver();
         boolean isEditable = (resolver == null);
-        
-        PropertySetDescriptor descriptor = 
-            (PropertySetDescriptor)nps.getDescriptor();
-        
+
+        PropertySetDescriptor descriptor = (PropertySetDescriptor)nps.getDescriptor();
+
         showId(unsubstitutedId, resolver);
         _oldId = unsubstitutedId;
 
-        _propertySets.setList(java.util.Arrays.asList(descriptor.references),
-                              resolver);
+        _propertySets.setList(java.util.Arrays.asList(descriptor.references), resolver);
         _propertySets.setEditable(isEditable);
 
-        _properties.setProperties(descriptor.properties, null, null, 
-                                  getDetailResolver(), isEditable);
+        _properties.setProperties(descriptor.properties, null, null, getDetailResolver(), isEditable);
 
         _applyButton.setEnabled(nps.isEphemeral());
-        _discardButton.setEnabled(nps.isEphemeral());     
+        _discardButton.setEnabled(nps.isEphemeral());
         detectUpdates(true);
         if(nps.isEphemeral())
         {
@@ -268,7 +261,6 @@ class PropertySetEditor extends Editor
         _id.setEditable(resolver == null);
     }
 
-
     private PropertySet getPropertySet()
     {
         return (PropertySet)_target;
@@ -280,5 +272,5 @@ class PropertySetEditor extends Editor
     private final JLabel _idLabel;
 
     private ListTextField _propertySets = new ListTextField(20);
-    private PropertiesField _properties;  
+    private PropertiesField _properties;
 }

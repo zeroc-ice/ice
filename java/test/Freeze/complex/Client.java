@@ -87,12 +87,12 @@ public class Client
             Parser parser = new Parser();
         
             System.out.print("populating the database... ");
-            for(int i = 0 ; i < expressions.length; ++i)
+            for(String expr : expressions)
             {
-                Node root = parser.parse(expressions[i]);
+                Node root = parser.parse(expr);
                 assert(root != null);
                 Key k = new Key();
-                k.expression = expressions[i];
+                k.expression = expr;
                 k.result = root.calc(null);
                 m.put(k, root);
             }

@@ -92,13 +92,13 @@ class BetI extends CasinoStore.PersistentBet
     {
     }
 
-    BetI(int amount, long closeTime, CasinoStore.PersistentBankPrx bank, 
-         Freeze.TransactionalEvictor evictor, int bankEdge)
+    BetI(int amount, long closeTime, CasinoStore.PersistentBankPrx bank, Freeze.TransactionalEvictor evictor,
+         int bankEdge)
     {
         this.amount = amount;
         this.closeTime = closeTime;
         init(evictor, bankEdge);
-        potentialWinners = new java.util.Vector();
+        potentialWinners = new java.util.Vector<CasinoStore.WinnerPrx>();
         potentialWinners.add(bank);
     }
 

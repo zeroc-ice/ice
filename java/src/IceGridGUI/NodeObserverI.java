@@ -6,6 +6,7 @@
 // ICE_LICENSE file included in this distribution.
 //
 // **********************************************************************
+
 package IceGridGUI;
 
 import javax.swing.SwingUtilities;
@@ -18,7 +19,7 @@ class NodeObserverI extends _NodeObserverDisp
         _coordinator = coordinator;
         _trace = _coordinator.traceObservers();
     }
-    
+
     public void nodeInit(final NodeDynamicInfo[] nodes, Ice.Current current)
     {
         if(_trace)
@@ -30,23 +31,21 @@ class NodeObserverI extends _NodeObserverDisp
             else
             {
                 String names = "";
-                for(int i = 0; i < nodes.length; ++i)
+                for(NodeDynamicInfo node : nodes)
                 {
-                    names += " " + nodes[i].info.name;
+                    names += " " + node.info.name;
                 }
-                _coordinator.traceObserver("nodeInit for node" 
-                                           + (nodes.length == 1 ? "" : "s")
-                                           + names);
+                _coordinator.traceObserver("nodeInit for node" + (nodes.length == 1 ? "" : "s") + names);
             }
         }
 
-        SwingUtilities.invokeLater(new Runnable() 
+        SwingUtilities.invokeLater(new Runnable()
             {
-                public void run() 
+                public void run()
                 {
-                    for(int i = 0; i < nodes.length; ++i)
+                    for(NodeDynamicInfo node : nodes)
                     {
-                        _coordinator.nodeUp(nodes[i]);
+                        _coordinator.nodeUp(node);
                     }
                 }
             });
@@ -58,14 +57,14 @@ class NodeObserverI extends _NodeObserverDisp
         {
             _coordinator.traceObserver("nodeUp for node " + nodeInfo.info.name);
         }
-        
-        SwingUtilities.invokeLater(new Runnable() 
+
+        SwingUtilities.invokeLater(new Runnable()
             {
-                public void run() 
+                public void run()
                 {
                     _coordinator.nodeUp(nodeInfo);
                 }
-            });                    
+            });
     }
 
     public void nodeDown(final String nodeName, Ice.Current current)
@@ -75,18 +74,17 @@ class NodeObserverI extends _NodeObserverDisp
             _coordinator.traceObserver("nodeUp for node " + nodeName);
         }
 
-        SwingUtilities.invokeLater(new Runnable() 
+        SwingUtilities.invokeLater(new Runnable()
             {
-                public void run() 
+                public void run()
                 {
                     _coordinator.nodeDown(nodeName);
                 }
-            });                    
+            });
     }
 
-    public void updateServer(final String node, final ServerDynamicInfo updatedInfo, 
-                             Ice.Current current)
-    {   
+    public void updateServer(final String node, final ServerDynamicInfo updatedInfo, Ice.Current current)
+    {
         if(_trace)
         {
             _coordinator.traceObserver("updateServer for server " + updatedInfo.id
@@ -94,35 +92,34 @@ class NodeObserverI extends _NodeObserverDisp
                                        + updatedInfo.state.toString());
         }
 
-        SwingUtilities.invokeLater(new Runnable() 
+        SwingUtilities.invokeLater(new Runnable()
             {
-                public void run() 
+                public void run()
                 {
                     _coordinator.updateServer(node, updatedInfo);
                 }
             });
     }
 
-    public void updateAdapter(final String node, final AdapterDynamicInfo updatedInfo, 
-                              Ice.Current current)
+    public void updateAdapter(final String node, final AdapterDynamicInfo updatedInfo, Ice.Current current)
     {
         if(_trace)
         {
             _coordinator.traceObserver("updateAdapter for adapter " + updatedInfo.id
                                        + " on node " + node + "; new proxy is "
-                                       + (updatedInfo.proxy == null ? "null" 
+                                       + (updatedInfo.proxy == null ? "null"
                                           : updatedInfo.proxy.toString()));
         }
-        
-        SwingUtilities.invokeLater(new Runnable() 
+
+        SwingUtilities.invokeLater(new Runnable()
             {
-                public void run() 
+                public void run()
                 {
                     _coordinator.updateAdapter(node, updatedInfo);
                 }
-            }); 
+            });
     }
 
     private final Coordinator _coordinator;
     private final boolean _trace;
-};
+}

@@ -6,6 +6,7 @@
 // ICE_LICENSE file included in this distribution.
 //
 // **********************************************************************
+
 package IceGridGUI.LiveDeployment;
 
 import java.awt.event.ActionEvent;
@@ -19,7 +20,6 @@ import javax.swing.JTextField;
 
 import com.jgoodies.forms.builder.DefaultFormBuilder;
 import com.jgoodies.forms.layout.CellConstraints;
-
 
 import IceGrid.*;
 import IceGridGUI.*;
@@ -35,12 +35,12 @@ class NodeEditor extends Editor
 
         Action refresh = new AbstractAction("Refresh")
             {
-                public void actionPerformed(ActionEvent e) 
+                public void actionPerformed(ActionEvent e)
                 {
                     _target.showLoad();
                 }
             };
-        refresh.putValue(Action.SHORT_DESCRIPTION, 
+        refresh.putValue(Action.SHORT_DESCRIPTION,
                         "Fetch the latest values from this IceGrid Node");
         _refreshButton = new JButton(refresh);
     }
@@ -50,7 +50,7 @@ class NodeEditor extends Editor
         _target = node;
 
         NodeInfo info = node.getStaticInfo();
-        
+
         if(info == null)
         {
             _hostname.setText("Unknown");
@@ -64,30 +64,28 @@ class NodeEditor extends Editor
             _hostname.setText(info.hostname);
             _os.setText(info.os + " " + info.release + " " + info.version);
             _os.setCaretPosition(0);
-            _machineType.setText(info.machine + " with " + 
-                                 info.nProcessors 
-                                 + " CPU" 
+            _machineType.setText(info.machine + " with " +
+                                 info.nProcessors
+                                 + " CPU"
                                  + (info.nProcessors >= 2 ? "s" : ""));
-        
+
             if(node.isRunningWindows())
             {
                 _loadAverageLabel.setText("CPU Usage");
-                _loadAverage.setToolTipText(
-                    "CPU usage in the past 1 min, 5 min and 15 min period");
+                _loadAverage.setToolTipText("CPU usage in the past 1 min, 5 min and 15 min period");
             }
             else
             {
                 _loadAverageLabel.setText("Load Average");
-                _loadAverage.setToolTipText(
-                    "Load average in the past 1 min, 5 min and 15 min period");
+                _loadAverage.setToolTipText("Load average in the past 1 min, 5 min and 15 min period");
             }
             _loadAverage.setText("Refreshing...");
             node.showLoad();
         }
 
-        _loadFactor.setSortedMap(node.getLoadFactors());        
+        _loadFactor.setSortedMap(node.getLoadFactors());
     }
-    
+
     void setLoad(String load, Node node)
     {
         if(node == _target)
@@ -96,13 +94,13 @@ class NodeEditor extends Editor
         }
         //
         // Otherwise, we've already moved to another node
-        // 
+        //
     }
 
     protected void appendProperties(DefaultFormBuilder builder)
     {
         builder.appendSeparator("System Information");
-        
+
         builder.append("Hostname");
         builder.append(_hostname, 3);
         builder.nextLine();
@@ -131,8 +129,7 @@ class NodeEditor extends Editor
         builder.nextRow(-6);
         CellConstraints cc = new CellConstraints();
         JScrollPane scrollPane = new JScrollPane(_loadFactor);
-        builder.add(scrollPane, 
-                    cc.xywh(builder.getColumn(), builder.getRow(), 3, 7));
+        builder.add(scrollPane, cc.xywh(builder.getColumn(), builder.getRow(), 3, 7));
         builder.nextRow(6);
         builder.nextLine();
     }

@@ -18,10 +18,8 @@ public final class RouterManager
     synchronized void
     destroy()
     {
-        java.util.Iterator<RouterInfo> i = _table.values().iterator();
-        while(i.hasNext())
+        for(RouterInfo info : _table.values())
         {
-            RouterInfo info = i.next();
             info.destroy();
         }
         _table.clear();

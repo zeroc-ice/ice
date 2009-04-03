@@ -40,12 +40,12 @@ public abstract class ImplicitContextI implements ImplicitContext
 
     static class Shared extends ImplicitContextI
     {
-        public synchronized java.util.Map getContext()
+        public synchronized java.util.Map<String, String> getContext()
         {
             return new java.util.HashMap<String, String>(_context);
         }
 
-        public synchronized void setContext(java.util.Map context)
+        public synchronized void setContext(java.util.Map<String, String> context)
         {
             _context.clear();
             if(context != null && !context.isEmpty())
@@ -148,7 +148,7 @@ public abstract class ImplicitContextI implements ImplicitContext
     static class PerThread extends ImplicitContextI
     {
 
-        public java.util.Map getContext()
+        public java.util.Map<String, String> getContext()
         {
             //
             // Note that _map is a *synchronized* map
@@ -162,7 +162,7 @@ public abstract class ImplicitContextI implements ImplicitContext
             return threadContext;
         }
 
-        public void setContext(java.util.Map context)
+        public void setContext(java.util.Map<String, String> context)
         {
             if(context == null || context.isEmpty())
             {
