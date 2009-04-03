@@ -89,7 +89,7 @@ public abstract class Application
         //
         if(Util.getProcessLogger() instanceof LoggerI)
         {
-            Util.setProcessLogger(new LoggerI(initData.properties.getProperty("Ice.ProgramName")));
+            Util.setProcessLogger(new LoggerI(initData.properties.getProperty("Ice.ProgramName"), ""));
         }
 
         int status = 0;
