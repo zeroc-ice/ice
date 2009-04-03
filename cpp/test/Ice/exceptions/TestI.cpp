@@ -12,15 +12,14 @@
 
 using namespace Test;
 
-ThrowerI::ThrowerI(const Ice::ObjectAdapterPtr& adapter) :
-    _adapter(adapter)
+ThrowerI::ThrowerI()
 {
 }
 
 void
-ThrowerI::shutdown(const Ice::Current&)
+ThrowerI::shutdown(const Ice::Current& current)
 {
-    _adapter->getCommunicator()->shutdown();
+    current.adapter->getCommunicator()->shutdown();
 }
 
 bool

@@ -35,7 +35,7 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator,
     //
     ServerLocatorRegistryPtr registry = new ServerLocatorRegistry();
     registry->addObject(adapter->createProxy(communicator->stringToIdentity("ServerManager")));
-    Ice::ObjectPtr object = new ServerManagerI(adapter, registry, initData);
+    Ice::ObjectPtr object = new ServerManagerI(registry, initData);
     adapter->add(object, communicator->stringToIdentity("ServerManager"));
 
     Ice::LocatorRegistryPrx registryPrx = 

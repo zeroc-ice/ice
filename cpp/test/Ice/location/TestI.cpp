@@ -13,10 +13,9 @@
 
 using namespace Test;
 
-ServerManagerI::ServerManagerI(const Ice::ObjectAdapterPtr& adapter, 
-                               const ServerLocatorRegistryPtr& registry,
+ServerManagerI::ServerManagerI(const ServerLocatorRegistryPtr& registry,
                                const Ice::InitializationData& initData) :
-    _adapter(adapter), _registry(registry), _initData(initData), _nextPort(12011)
+    _registry(registry), _initData(initData), _nextPort(12011)
 {
     _initData.properties->setProperty("TestAdapter.AdapterId", "TestAdapter");
     _initData.properties->setProperty("TestAdapter.ReplicaGroupId", "ReplicatedAdapter");    
@@ -77,13 +76,13 @@ ServerManagerI::startServer(const Ice::Current& current)
 }
 
 void
-ServerManagerI::shutdown(const Ice::Current&)
+ServerManagerI::shutdown(const Ice::Current& current)
 {
     for(::std::vector<Ice::CommunicatorPtr>::const_iterator i = _communicators.begin(); i != _communicators.end(); ++i)
     {
         (*i)->destroy();
     }
-    _adapter->getCommunicator()->shutdown();
+    current.adapter->getCommunicator()->shutdown();
 }
 
 

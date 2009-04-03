@@ -13,21 +13,18 @@ namespace Test
 {
     public sealed class ChecksumI : ChecksumDisp_
     {
-        public ChecksumI(Ice.ObjectAdapter adapter)
+        public ChecksumI()
         {
-            _adapter = adapter;
         }
 
-        public override Dictionary<string, string> getSliceChecksums(Ice.Current __current)
+        public override Dictionary<string, string> getSliceChecksums(Ice.Current current)
         {
             return Ice.SliceChecksums.checksums;
         }
 
-        public override void shutdown(Ice.Current __current)
+        public override void shutdown(Ice.Current current)
         {
-            _adapter.getCommunicator().shutdown();
+            current.adapter.getCommunicator().shutdown();
         }
-
-        private Ice.ObjectAdapter _adapter;
     }
 }

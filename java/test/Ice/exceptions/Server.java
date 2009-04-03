@@ -15,7 +15,7 @@ public class Server extends test.Util.Application
     {
         Ice.Communicator communicator = communicator();
         Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
-        Ice.Object object = new ThrowerI(adapter);
+        Ice.Object object = new ThrowerI();
         adapter.add(object, communicator.stringToIdentity("thrower"));
         adapter.activate();
         return WAIT;

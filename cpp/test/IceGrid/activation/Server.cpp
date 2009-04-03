@@ -34,7 +34,7 @@ Server::run(int argc, char* argv[])
     }
 
     Ice::ObjectAdapterPtr adapter = communicator()->createObjectAdapter("TestAdapter");
-    TestI* test = new TestI(adapter);
+    TestI* test = new TestI();
     Ice::ObjectPtr obj = test;
     adapter->add(test, communicator()->stringToIdentity(properties->getProperty("Ice.Admin.ServerId")));
 

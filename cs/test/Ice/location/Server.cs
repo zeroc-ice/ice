@@ -39,7 +39,7 @@ public class Server
         // 'servers' created with the server manager interface.
         //
         ServerLocatorRegistry registry = new ServerLocatorRegistry();
-        Ice.Object @object = new ServerManagerI(adapter, registry, initData);
+        Ice.Object @object = new ServerManagerI(registry, initData);
         adapter.add(@object, communicator.stringToIdentity("ServerManager"));
         registry.addObject(adapter.createProxy(communicator.stringToIdentity("ServerManager")));
         Ice.LocatorRegistryPrx registryPrx = Ice.LocatorRegistryPrxHelper.uncheckedCast(

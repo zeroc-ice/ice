@@ -22,15 +22,14 @@ import test.Ice.slicing.exceptions.server.Test._TestIntfDisp;
 public final class TestI extends _TestIntfDisp
 {
     public
-    TestI(Ice.ObjectAdapter adapter)
+    TestI()
     {
-        _adapter = adapter;
     }
 
     public void
     shutdown(Ice.Current current)
     {
-        _adapter.getCommunicator().shutdown();
+        current.adapter.getCommunicator().shutdown();
     }
 
     public void
@@ -167,5 +166,4 @@ public final class TestI extends _TestIntfDisp
         umd2.umd2 = "UnknownMostDerived2.umd2";
         throw umd2;
     }
-    private Ice.ObjectAdapter _adapter;
 }

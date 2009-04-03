@@ -90,7 +90,7 @@ class RemoteEvictorI : virtual public RemoteEvictor
 {
 public:
 
-    RemoteEvictorI(const Ice::ObjectAdapterPtr&, const std::string&, const std::string&);
+    RemoteEvictorI(const Ice::CommunicatorPtr&, const std::string&, const std::string&);
 
     virtual void setSize(::Ice::Int, const Ice::Current&);
 
@@ -106,7 +106,6 @@ public:
 
 private:
 
-    Ice::ObjectAdapterPtr _adapter;
     std::string _category;
     Freeze::EvictorPtr _evictor;
     Ice::ObjectAdapterPtr _evictorAdapter;
@@ -116,7 +115,7 @@ class RemoteEvictorFactoryI : virtual public RemoteEvictorFactory
 {
 public:
 
-    RemoteEvictorFactoryI(const Ice::ObjectAdapterPtr&, const std::string&);
+    RemoteEvictorFactoryI(const std::string&);
 
     virtual ::Test::RemoteEvictorPrx createEvictor(const ::std::string&, const Ice::Current&);
 
@@ -124,7 +123,6 @@ public:
 
 private:
 
-    Ice::ObjectAdapterPtr _adapter;
     const std::string _envName;
 };
 

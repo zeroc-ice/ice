@@ -31,7 +31,6 @@ public:
 
 private:
 
-    Ice::ObjectAdapterPtr _adapter;
     Test::MA::CAPrx _ca;
     Test::MB::CBPrx _cb;
     Test::MA::CCPrx _cc;

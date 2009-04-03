@@ -15,7 +15,7 @@ public class AMDServer extends test.Util.Application
     {
         Ice.Communicator communicator = communicator();
         Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
-        Ice.Object object = new AMDThrowerI(adapter);
+        Ice.Object object = new AMDThrowerI();
         adapter.add(object, communicator.stringToIdentity("thrower"));
         adapter.activate();
         return WAIT;

@@ -10,9 +10,7 @@
 #include <Ice/Ice.h>
 #include <TestI.h>
 
-TestI::TestI(const Ice::ObjectAdapterPtr& adapter, const Ice::PropertiesPtr& properties) :
-    _adapter(adapter),
-    _properties(properties)
+TestI::TestI()
 {
 }
 

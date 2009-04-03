@@ -16,7 +16,7 @@ class ThrowerI : public Test::Thrower
 {
 public:
 
-    ThrowerI(const Ice::ObjectAdapterPtr&);
+    ThrowerI();
 
     virtual void shutdown_async(const Test::AMD_Thrower_shutdownPtr&,
                                 const Ice::Current&);
@@ -55,10 +55,6 @@ public:
                                             const Ice::Current&);
     virtual void throwAssertException_async(const Test::AMD_Thrower_throwAssertExceptionPtr&,
                                             const Ice::Current&);
-
-private:
-
-    Ice::ObjectAdapterPtr _adapter;
 };
 
 #endif

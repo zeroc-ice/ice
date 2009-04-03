@@ -53,7 +53,7 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator, const stri
     communicator->getProperties()->setProperty("Factory.Endpoints", "default -p 12010");
     Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter("Factory");
 
-    Test::RemoteEvictorFactoryPtr factory = new Test::RemoteEvictorFactoryI(adapter, envName);
+    Test::RemoteEvictorFactoryPtr factory = new Test::RemoteEvictorFactoryI(envName);
     adapter->add(factory, communicator->stringToIdentity("factory"));
 
     Ice::ObjectFactoryPtr servantFactory = new ServantFactory;

@@ -56,15 +56,14 @@ import test.Ice.slicing.objects.serverAMD.Test._TestIntfDisp;
 public final class AMDTestI extends _TestIntfDisp
 {
     public
-    AMDTestI(Ice.ObjectAdapter adapter)
+    AMDTestI()
     {
-        _adapter = adapter;
     }
 
     public void
     shutdown_async(AMD_TestIntf_shutdown cb, Ice.Current current)
     {
-        _adapter.getCommunicator().shutdown();
+        current.adapter.getCommunicator().shutdown();
         cb.ice_response();
     }
 
@@ -415,6 +414,4 @@ public final class AMDTestI extends _TestIntfDisp
         f.h.f = f;
         cb.ice_response(f);
     }
-
-    private Ice.ObjectAdapter _adapter;
 }

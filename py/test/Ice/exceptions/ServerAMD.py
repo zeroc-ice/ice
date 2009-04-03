@@ -15,11 +15,8 @@ Ice.loadSlice('TestAMD.ice')
 import Test
 
 class ThrowerI(Test.Thrower):
-    def __init__(self, adapter):
-        self._adapter = adapter
-
     def shutdown_async(self, cb, current=None):
-        self._adapter.getCommunicator().shutdown()
+        current.adapter.getCommunicator().shutdown()
         cb.ice_response()
 
     def supportsUndeclaredExceptions_async(self, cb, current=None):
@@ -117,7 +114,7 @@ def run(args, communicator):
     properties.setProperty("Ice.Warn.Dispatch", "0")
     properties.setProperty("TestAdapter.Endpoints", "default -p 12010:udp")
     adapter = communicator.createObjectAdapter("TestAdapter")
-    object = ThrowerI(adapter)
+    object = ThrowerI()
     adapter.add(object, communicator.stringToIdentity("thrower"))
     adapter.activate()
     communicator.waitForShutdown()

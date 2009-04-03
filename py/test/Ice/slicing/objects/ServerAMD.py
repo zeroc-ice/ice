@@ -15,9 +15,6 @@ Ice.loadSlice('-I. --all ServerPrivateAMD.ice Forward.ice')
 import Test
 
 class TestI(Test.TestIntf):
-    def __init__(self, adapter):
-        self._adapter = adapter
-
     def SBaseAsObject_async(self, cb, current=None):
         sb = Test.SBase()
         sb.sb = "SBase.sb"
@@ -288,7 +285,7 @@ class TestI(Test.TestIntf):
         cb.ice_response(f)
 
     def shutdown_async(self, cb, current=None):
-        self._adapter.getCommunicator().shutdown()
+        current.adapter.getCommunicator().shutdown()
         cb.ice_response()
 
 def run(args, communicator):
@@ -296,7 +293,7 @@ def run(args, communicator):
     properties.setProperty("Ice.Warn.Dispatch", "0")
     properties.setProperty("TestAdapter.Endpoints", "default -p 12010 -t 10000")
     adapter = communicator.createObjectAdapter("TestAdapter")
-    object = TestI(adapter)
+    object = TestI()
     adapter.add(object, communicator.stringToIdentity("Test"))
     adapter.activate()
     communicator.waitForShutdown()

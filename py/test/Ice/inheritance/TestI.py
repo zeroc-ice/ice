@@ -43,18 +43,17 @@ class CDI(Test.MA.CD, CCI, IB1I, IB2I):
 
 class InitialI(Test.Initial):
     def __init__(self, adapter):
-        self._adapter = adapter
-        self._ca = Test.MA.CAPrx.uncheckedCast(self._adapter.addWithUUID(CAI()))
-        self._cb = Test.MB.CBPrx.uncheckedCast(self._adapter.addWithUUID(CBI()))
-        self._cc = Test.MA.CCPrx.uncheckedCast(self._adapter.addWithUUID(CCI()))
-        self._cd = Test.MA.CDPrx.uncheckedCast(self._adapter.addWithUUID(CDI()))
-        self._ia = Test.MA.IAPrx.uncheckedCast(self._adapter.addWithUUID(IAI()))
-        self._ib1 = Test.MB.IB1Prx.uncheckedCast(self._adapter.addWithUUID(IB1I()))
-        self._ib2 = Test.MB.IB2Prx.uncheckedCast(self._adapter.addWithUUID(IB2I()))
-        self._ic = Test.MA.ICPrx.uncheckedCast(self._adapter.addWithUUID(ICI()))
+        self._ca = Test.MA.CAPrx.uncheckedCast(adapter.addWithUUID(CAI()))
+        self._cb = Test.MB.CBPrx.uncheckedCast(adapter.addWithUUID(CBI()))
+        self._cc = Test.MA.CCPrx.uncheckedCast(adapter.addWithUUID(CCI()))
+        self._cd = Test.MA.CDPrx.uncheckedCast(adapter.addWithUUID(CDI()))
+        self._ia = Test.MA.IAPrx.uncheckedCast(adapter.addWithUUID(IAI()))
+        self._ib1 = Test.MB.IB1Prx.uncheckedCast(adapter.addWithUUID(IB1I()))
+        self._ib2 = Test.MB.IB2Prx.uncheckedCast(adapter.addWithUUID(IB2I()))
+        self._ic = Test.MA.ICPrx.uncheckedCast(adapter.addWithUUID(ICI()))
 
     def shutdown(self, current=None):
-        self._adapter.getCommunicator().shutdown()
+        current.adapter.getCommunicator().shutdown()
 
     def caop(self, current=None):
         return self._ca

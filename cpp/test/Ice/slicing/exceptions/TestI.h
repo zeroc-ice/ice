@@ -16,7 +16,7 @@ class TestI : virtual public Test::TestIntf
 {
 public:
 
-    TestI(const ::Ice::ObjectAdapterPtr&);
+    TestI();
     virtual void baseAsBase(const ::Ice::Current&);
     virtual void unknownDerivedAsBase(const ::Ice::Current&);
     virtual void knownDerivedAsBase(const ::Ice::Current&);
@@ -34,10 +34,6 @@ public:
     virtual void unknownMostDerived2AsBase(const ::Ice::Current&);
 
     virtual void shutdown(const ::Ice::Current&);
-
-private:
-
-    const ::Ice::ObjectAdapterPtr _adapter;
 };
 
 #endif

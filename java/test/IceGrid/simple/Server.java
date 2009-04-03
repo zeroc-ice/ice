@@ -18,7 +18,7 @@ public class Server extends test.Util.Application
         argsH.value = communicator().getProperties().parseCommandLineOptions("TestAdapter", argsH.value);
 
         Ice.ObjectAdapter adapter = communicator().createObjectAdapter("TestAdapter");
-        Ice.Object object = new TestI(adapter);
+        Ice.Object object = new TestI();
         adapter.add(object, communicator().stringToIdentity("test"));
         //shutdownOnInterrupt();
         try

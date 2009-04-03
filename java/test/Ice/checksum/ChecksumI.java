@@ -14,22 +14,19 @@ import test.Ice.checksum.server.Test.*;
 public final class ChecksumI extends _ChecksumDisp
 {
     public
-    ChecksumI(Ice.ObjectAdapter adapter)
+    ChecksumI()
     {
-        _adapter = adapter;
     }
 
     public java.util.Map<String, String>
-    getSliceChecksums(Ice.Current __current)
+    getSliceChecksums(Ice.Current current)
     {
         return SliceChecksums.checksums;
     }
 
     public void
-    shutdown(Ice.Current __current)
+    shutdown(Ice.Current current)
     {
-        _adapter.getCommunicator().shutdown();
+        current.adapter.getCommunicator().shutdown();
     }
-
-    private Ice.ObjectAdapter _adapter;
 }

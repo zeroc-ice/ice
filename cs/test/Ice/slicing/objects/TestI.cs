@@ -13,14 +13,13 @@ using Test;
 
 public sealed class TestI : TestIntfDisp_
 {
-    public TestI(Ice.ObjectAdapter adapter)
+    public TestI()
     {
-        _adapter = adapter;
     }
     
     public override void shutdown(Ice.Current current)
     {
-        _adapter.getCommunicator().shutdown();
+        current.adapter.getCommunicator().shutdown();
     }
     
     public override Ice.Object SBaseAsObject(Ice.Current current)
@@ -315,6 +314,4 @@ public sealed class TestI : TestIntfDisp_
         f.h = new Hidden();
         f.h.f = f;
     }
-    
-    private Ice.ObjectAdapter _adapter;
 }

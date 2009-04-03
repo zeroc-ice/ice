@@ -13,8 +13,7 @@
 
 using namespace Test;
 
-TestI::TestI(const Ice::ObjectAdapterPtr& adapter) :
-    _adapter(adapter)
+TestI::TestI()
 {
 }
 
@@ -339,7 +338,7 @@ TestI::useForward(ForwardPtr& f, const ::Ice::Current&)
 }
 
 void
-TestI::shutdown(const ::Ice::Current&)
+TestI::shutdown(const ::Ice::Current& current)
 {
-    _adapter->getCommunicator()->shutdown();
+    current.adapter->getCommunicator()->shutdown();
 }

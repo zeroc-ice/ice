@@ -45,9 +45,8 @@ public final class RemoteEvictorI extends _RemoteEvictorDisp
     }
 
 
-    RemoteEvictorI(Ice.ObjectAdapter adapter, String envName, String category, boolean transactional)
+    RemoteEvictorI(Ice.Communicator communicator, String envName, String category, boolean transactional)
     {
-        _adapter = adapter;
         _envName = envName;
         _category = category;
 
@@ -55,7 +54,7 @@ public final class RemoteEvictorI extends _RemoteEvictorDisp
         // NOTE: COMPILERBUG: The timeout here is required for MacOS X. It shouldn't be too low since
         // some operations can take some time to complete on slow machines.
         //
-        _evictorAdapter = _adapter.getCommunicator().
+        _evictorAdapter = communicator.
             createObjectAdapterWithEndpoints(java.util.UUID.randomUUID().toString(), "default -t 60000");
 
         Initializer initializer = new Initializer();
@@ -140,7 +139,7 @@ public final class RemoteEvictorI extends _RemoteEvictorDisp
     deactivate(Ice.Current current)
     {
         _evictorAdapter.destroy();
-        _adapter.remove(_adapter.getCommunicator().stringToIdentity(_category));
+        current.adapter.remove(current.adapter.getCommunicator().stringToIdentity(_category));
     }
     
     public void
@@ -165,8 +164,6 @@ public final class RemoteEvictorI extends _RemoteEvictorDisp
         return _envName;
     }    
 
-
-    private Ice.ObjectAdapter _adapter;
     private final String _envName;
     private String _category;
     private Freeze.Evictor _evictor;

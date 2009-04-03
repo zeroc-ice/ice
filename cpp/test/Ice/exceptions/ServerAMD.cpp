@@ -19,7 +19,7 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
     properties->setProperty("Ice.Warn.Dispatch", "0");
     communicator->getProperties()->setProperty("TestAdapter.Endpoints", "default -p 12010:udp");
     Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter("TestAdapter");
-    Ice::ObjectPtr object = new ThrowerI(adapter);
+    Ice::ObjectPtr object = new ThrowerI();
     adapter->add(object, communicator->stringToIdentity("thrower"));
     adapter->activate();
     communicator->waitForShutdown();

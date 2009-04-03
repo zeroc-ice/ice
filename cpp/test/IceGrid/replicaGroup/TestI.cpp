@@ -10,21 +10,20 @@
 #include <Ice/Ice.h>
 #include <TestI.h>
 
-TestI::TestI(const Ice::ObjectAdapterPtr& adapter, const Ice::PropertiesPtr& properties) :
-    _adapter(adapter),
+TestI::TestI(const Ice::PropertiesPtr& properties) :
     _properties(properties)
 {
 }
 
 std::string
-TestI::getReplicaId(const Ice::Current&)
+TestI::getReplicaId(const Ice::Current& current)
 {
-    return _properties->getProperty(_adapter->getName() + ".AdapterId");
+    return _properties->getProperty(current.adapter->getName() + ".AdapterId");
 }
 
 std::string
-TestI::getReplicaIdAndShutdown(const Ice::Current&)
+TestI::getReplicaIdAndShutdown(const Ice::Current& current)
 {
-    _adapter->getCommunicator()->shutdown();
-    return _properties->getProperty(_adapter->getName() + ".AdapterId");
+    current.adapter->getCommunicator()->shutdown();
+    return _properties->getProperty(current.adapter->getName() + ".AdapterId");
 }

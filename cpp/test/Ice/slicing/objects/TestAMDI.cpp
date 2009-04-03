@@ -13,8 +13,7 @@
 
 using namespace Test;
 
-TestI::TestI(const Ice::ObjectAdapterPtr& adapter) :
-    _adapter(adapter)
+TestI::TestI()
 {
 }
 
@@ -364,8 +363,8 @@ TestI::useForward_async(const AMD_TestIntf_useForwardPtr& cb, const ::Ice::Curre
 }
 
 void
-TestI::shutdown_async(const AMD_TestIntf_shutdownPtr& cb, const ::Ice::Current&)
+TestI::shutdown_async(const AMD_TestIntf_shutdownPtr& cb, const ::Ice::Current& current)
 {
-    _adapter->getCommunicator()->shutdown();
+    current.adapter->getCommunicator()->shutdown();
     cb->ice_response();
 }

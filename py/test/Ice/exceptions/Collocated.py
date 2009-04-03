@@ -19,7 +19,7 @@ def run(args, communicator):
     properties.setProperty("Ice.Warn.Dispatch", "0")
     properties.setProperty("TestAdapter.Endpoints", "default -p 12010")
     adapter = communicator.createObjectAdapter("TestAdapter")
-    object = TestI.ThrowerI(adapter)
+    object = TestI.ThrowerI()
     adapter.add(object, communicator.stringToIdentity("thrower"))
     adapter.activate()
 

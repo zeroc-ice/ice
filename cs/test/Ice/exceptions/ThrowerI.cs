@@ -13,14 +13,13 @@ using Test;
 
 public sealed class ThrowerI : ThrowerDisp_
 {
-    public ThrowerI(Ice.ObjectAdapter adapter)
+    public ThrowerI()
     {
-        _adapter = adapter;
     }
     
     public override void shutdown(Ice.Current current)
     {
-        _adapter.getCommunicator().shutdown();
+        current.adapter.getCommunicator().shutdown();
     }
     
     public override bool supportsUndeclaredExceptions(Ice.Current current)
@@ -126,6 +125,4 @@ public sealed class ThrowerI : ThrowerDisp_
         ex.cMem = c;
         throw ex;
     }
-    
-    private Ice.ObjectAdapter _adapter;
 }

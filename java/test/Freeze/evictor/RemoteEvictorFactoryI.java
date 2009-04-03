@@ -12,9 +12,8 @@ import test.Freeze.evictor.Test.*;
 
 public final class RemoteEvictorFactoryI extends _RemoteEvictorFactoryDisp
 {
-    RemoteEvictorFactoryI(Ice.ObjectAdapter adapter, String envName)
+    RemoteEvictorFactoryI(String envName)
     {
-        _adapter = adapter;
         _envName = envName;
     }
 
@@ -22,17 +21,17 @@ public final class RemoteEvictorFactoryI extends _RemoteEvictorFactoryDisp
     public RemoteEvictorPrx
     createEvictor(String name, boolean transactional, Ice.Current current)
     {
-        RemoteEvictorI remoteEvictor = new RemoteEvictorI(_adapter, _envName, name, transactional);
+        RemoteEvictorI remoteEvictor = 
+            new RemoteEvictorI(current.adapter.getCommunicator(), _envName, name, transactional);
         return RemoteEvictorPrxHelper.
-            uncheckedCast(_adapter.add(remoteEvictor, _adapter.getCommunicator().stringToIdentity(name)));
+            uncheckedCast(current.adapter.add(remoteEvictor, current.adapter.getCommunicator().stringToIdentity(name)));
     }
 
     public void
     shutdown(Ice.Current current)
     {
-        _adapter.getCommunicator().shutdown();
+        current.adapter.getCommunicator().shutdown();
     }
 
-    private Ice.ObjectAdapter _adapter;
     private String _envName;
 }

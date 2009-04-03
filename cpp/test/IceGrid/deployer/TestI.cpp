@@ -10,16 +10,15 @@
 #include <Ice/Ice.h>
 #include <TestI.h>
 
-TestI::TestI(const Ice::ObjectAdapterPtr& adapter, const Ice::PropertiesPtr& properties) :
-    _adapter(adapter),
+TestI::TestI(const Ice::PropertiesPtr& properties) :
     _properties(properties)
 {
 }
 
 void
-TestI::shutdown(const Ice::Current&)
+TestI::shutdown(const Ice::Current& current)
 {
-    _adapter->getCommunicator()->shutdown();
+    current.adapter->getCommunicator()->shutdown();
 }
 
 std::string

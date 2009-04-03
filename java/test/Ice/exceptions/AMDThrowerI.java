@@ -34,15 +34,14 @@ import test.Ice.exceptions.AMD.Test._ThrowerDisp;
 public final class AMDThrowerI extends _ThrowerDisp
 {
     public
-    AMDThrowerI(Ice.ObjectAdapter adapter)
+    AMDThrowerI()
     {
-        _adapter = adapter;
     }
 
     public void
     shutdown_async(AMD_Thrower_shutdown cb, Ice.Current current)
     {
-        _adapter.getCommunicator().shutdown();
+        current.adapter.getCommunicator().shutdown();
         cb.ice_response();
     }
 
@@ -185,6 +184,4 @@ public final class AMDThrowerI extends _ThrowerDisp
     {
         throw new java.lang.AssertionError();
     }
-
-    private Ice.ObjectAdapter _adapter;
 }

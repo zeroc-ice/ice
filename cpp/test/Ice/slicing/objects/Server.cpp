@@ -19,7 +19,7 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
     properties->setProperty("Ice.Warn.Dispatch", "0");
     communicator->getProperties()->setProperty("TestAdapter.Endpoints", "default -p 12010 -t 2000");
     Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter("TestAdapter");
-    Ice::ObjectPtr object = new TestI(adapter);
+    Ice::ObjectPtr object = new TestI();
     adapter->add(object, communicator->stringToIdentity("Test"));
     adapter->activate();
     communicator->waitForShutdown();

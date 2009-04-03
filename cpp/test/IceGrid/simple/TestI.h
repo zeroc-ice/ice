@@ -16,13 +16,9 @@ class TestI : public ::Test::TestIntf
 {
 public:
 
-    TestI(const Ice::ObjectAdapterPtr&);
+    TestI();
 
     virtual void shutdown(const Ice::Current&);
-
-private:
-
-    Ice::ObjectAdapterPtr _adapter;
 };
 
 #endif

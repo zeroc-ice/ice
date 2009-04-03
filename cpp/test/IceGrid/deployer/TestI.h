@@ -16,14 +16,13 @@ class TestI : public ::Test::TestIntf
 {
 public:
 
-    TestI(const Ice::ObjectAdapterPtr&, const Ice::PropertiesPtr&);
+    TestI(const Ice::PropertiesPtr&);
 
     virtual void shutdown(const Ice::Current&);
     virtual std::string getProperty(const std::string&, const Ice::Current&);
 
 private:
 
-    Ice::ObjectAdapterPtr _adapter;
     Ice::PropertiesPtr _properties;
 };
 

@@ -75,7 +75,7 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator, const stri
     communicator->addObjectFactory(new FacetFactory, "::Test::Facet");
     communicator->addObjectFactory(new AccountFactory, "::Test::Account");
 
-    Test::RemoteEvictorFactoryPtr factory = new Test::RemoteEvictorFactoryI(adapter, envName);
+    Test::RemoteEvictorFactoryPtr factory = new Test::RemoteEvictorFactoryI(envName);
     adapter->add(factory, communicator->stringToIdentity("factory"));
 
     adapter->activate();

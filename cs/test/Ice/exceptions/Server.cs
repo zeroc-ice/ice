@@ -45,7 +45,7 @@ public class Server
         //properties.setProperty("Ice.Warn.Dispatch", "0");
         properties.setProperty("TestAdapter.Endpoints", "default -p 12010:udp");
         Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
-        Ice.Object @object = new ThrowerI(adapter);
+        Ice.Object @object = new ThrowerI();
         adapter.add(@object, communicator.stringToIdentity("thrower"));
         adapter.activate();
         communicator.waitForShutdown();

@@ -14,16 +14,13 @@ import test.IceGrid.simple.Test._TestIntfDisp;
 public class TestI extends _TestIntfDisp
 {
     public
-    TestI(Ice.ObjectAdapter adapter)
+    TestI()
     {
-        _adapter = adapter;
     }
 
     public void
     shutdown(Ice.Current current)
     {
-        _adapter.getCommunicator().shutdown();
+        current.adapter.getCommunicator().shutdown();
     }
-
-    private Ice.ObjectAdapter _adapter;
 }

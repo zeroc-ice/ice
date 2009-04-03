@@ -12,23 +12,22 @@
 
 using namespace Test;
 
-TestI::TestI(const Ice::ObjectAdapterPtr& adapter) :
-    _adapter(adapter),
+TestI::TestI() :
     _failed(false)
 {
 }
 
 void
-TestI::fail(const Ice::Current&)
+TestI::fail(const Ice::Current& current)
 {
     _failed = true;
-    _adapter->getCommunicator()->shutdown();
+    current.adapter->getCommunicator()->shutdown();
 }
 
 void
-TestI::shutdown(const Ice::Current&)
+TestI::shutdown(const Ice::Current& current)
 {
-    _adapter->getCommunicator()->shutdown();
+    current.adapter->getCommunicator()->shutdown();
 }
 
 bool

@@ -16,7 +16,7 @@ class TestI : virtual public Test::TestIntf
 {
 public:
 
-    TestI(const ::Ice::ObjectAdapterPtr&);
+    TestI();
     virtual void baseAsBase_async(const ::Test::AMD_TestIntf_baseAsBasePtr&, const ::Ice::Current&);
 
     virtual void unknownDerivedAsBase_async(const ::Test::AMD_TestIntf_unknownDerivedAsBasePtr&, const ::Ice::Current&);
@@ -51,10 +51,6 @@ public:
                     const ::Ice::Current&);
 
     virtual void shutdown_async(const ::Test::AMD_TestIntf_shutdownPtr&, const ::Ice::Current&);
-
-private:
-
-    const ::Ice::ObjectAdapterPtr& _adapter;
 };
 
 #endif

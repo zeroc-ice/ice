@@ -18,15 +18,14 @@ import test.Ice.exceptions.Test._ThrowerDisp;
 public final class ThrowerI extends _ThrowerDisp
 {
     public
-    ThrowerI(Ice.ObjectAdapter adapter)
+    ThrowerI()
     {
-        _adapter = adapter;
     }
 
     public void
     shutdown(Ice.Current current)
     {
-        _adapter.getCommunicator().shutdown();
+        current.adapter.getCommunicator().shutdown();
     }
 
     public boolean
@@ -149,6 +148,4 @@ public final class ThrowerI extends _ThrowerDisp
     {
         throw new java.lang.AssertionError();
     }
-
-    private Ice.ObjectAdapter _adapter;
 }

@@ -15,7 +15,7 @@ public class AMDServer extends test.Util.Application
     {
         Ice.Communicator communicator = communicator();
         Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
-        Ice.Object object = new AMDTestI(adapter);
+        Ice.Object object = new AMDTestI();
         adapter.add(object, communicator.stringToIdentity("Test"));
         return WAIT;
     }

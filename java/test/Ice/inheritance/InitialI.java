@@ -32,23 +32,14 @@ public final class InitialI extends _InitialDisp
     public
     InitialI(Ice.ObjectAdapter adapter)
     {
-        _adapter = adapter;
-        _ca = CAPrxHelper.uncheckedCast(
-            _adapter.addWithUUID(new CAI()));
-        _cb = CBPrxHelper.uncheckedCast(
-            _adapter.addWithUUID(new CBI()));
-        _cc = CCPrxHelper.uncheckedCast(
-            _adapter.addWithUUID(new CCI()));
-        _cd = CDPrxHelper.uncheckedCast(
-            _adapter.addWithUUID(new CDI()));
-        _ia = IAPrxHelper.uncheckedCast(
-            _adapter.addWithUUID(new IAI()));
-        _ib1 = IB1PrxHelper.uncheckedCast(
-            _adapter.addWithUUID(new IB1I()));
-        _ib2 = IB2PrxHelper.uncheckedCast(
-            _adapter.addWithUUID(new IB2I()));
-        _ic = ICPrxHelper.uncheckedCast(
-            _adapter.addWithUUID(new ICI()));
+        _ca = CAPrxHelper.uncheckedCast(adapter.addWithUUID(new CAI()));
+        _cb = CBPrxHelper.uncheckedCast(adapter.addWithUUID(new CBI()));
+        _cc = CCPrxHelper.uncheckedCast(adapter.addWithUUID(new CCI()));
+        _cd = CDPrxHelper.uncheckedCast(adapter.addWithUUID(new CDI()));
+        _ia = IAPrxHelper.uncheckedCast(adapter.addWithUUID(new IAI()));
+        _ib1 = IB1PrxHelper.uncheckedCast(adapter.addWithUUID(new IB1I()));
+        _ib2 = IB2PrxHelper.uncheckedCast(adapter.addWithUUID(new IB2I()));
+        _ic = ICPrxHelper.uncheckedCast(adapter.addWithUUID(new ICI()));
     }
 
     public CAPrx
@@ -102,10 +93,9 @@ public final class InitialI extends _InitialDisp
     public void
     shutdown(Ice.Current current)
     {
-        _adapter.getCommunicator().shutdown();
+        current.adapter.getCommunicator().shutdown();
     }
 
-    private Ice.ObjectAdapter _adapter;
     private CAPrx _ca;
     private CBPrx _cb;
     private CCPrx _cc;

@@ -244,12 +244,10 @@ private:
 };
 
 
-Test::RemoteEvictorI::RemoteEvictorI(const ObjectAdapterPtr& adapter, const string& envName,
+Test::RemoteEvictorI::RemoteEvictorI(const CommunicatorPtr& communicator, const string& envName,
                                      const string& category) :
-    _adapter(adapter),
     _category(category)
 {
-    CommunicatorPtr communicator = adapter->getCommunicator();
     _evictorAdapter = communicator->createObjectAdapterWithEndpoints(IceUtil::generateUUID(), "default");
  
     Initializer* initializer = new Initializer;
@@ -317,7 +315,7 @@ void
 Test::RemoteEvictorI::deactivate(const Current& current)
 {
     _evictorAdapter->destroy();
-    _adapter->remove(_adapter->getCommunicator()->stringToIdentity(_category));
+    current.adapter->remove(current.adapter->getCommunicator()->stringToIdentity(_category));
 }
 
 
@@ -337,9 +335,7 @@ Test::RemoteEvictorI::destroyAllServants(const string& facetName, const Current&
 }
 
 
-Test::RemoteEvictorFactoryI::RemoteEvictorFactoryI(const ObjectAdapterPtr& adapter,
-                                                   const std::string& envName) :
-    _adapter(adapter),
+Test::RemoteEvictorFactoryI::RemoteEvictorFactoryI(const std::string& envName) :
     _envName(envName)
 {
 }
@@ -347,13 +343,13 @@ Test::RemoteEvictorFactoryI::RemoteEvictorFactoryI(const ObjectAdapterPtr& adapt
 ::Test::RemoteEvictorPrx
 Test::RemoteEvictorFactoryI::createEvictor(const string& name, const Current& current)
 {
-    RemoteEvictorIPtr remoteEvictor = new RemoteEvictorI(_adapter, _envName, name);  
-    return RemoteEvictorPrx::uncheckedCast(_adapter->add(remoteEvictor, 
-                                                         _adapter->getCommunicator()->stringToIdentity(name)));
+    RemoteEvictorIPtr remoteEvictor = new RemoteEvictorI(current.adapter->getCommunicator(), _envName, name);  
+    return RemoteEvictorPrx::uncheckedCast(
+        current.adapter->add(remoteEvictor, current.adapter->getCommunicator()->stringToIdentity(name)));
 }
 
 void
-Test::RemoteEvictorFactoryI::shutdown(const Current&)
+Test::RemoteEvictorFactoryI::shutdown(const Current& current)
 {
-    _adapter->getCommunicator()->shutdown();
+    current.adapter->getCommunicator()->shutdown();
 }

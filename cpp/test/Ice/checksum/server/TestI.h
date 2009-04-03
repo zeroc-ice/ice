@@ -16,15 +16,11 @@ class ChecksumI : public Test::Checksum
 {
 public:
 
-    ChecksumI(const Ice::ObjectAdapterPtr&);
+    ChecksumI();
 
     virtual Ice::SliceChecksumDict getSliceChecksums(const Ice::Current&) const;
 
     virtual void shutdown(const Ice::Current&);
-
-private:
-
-    Ice::ObjectAdapterPtr _adapter;
 };
 
 #endif

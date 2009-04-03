@@ -63,7 +63,7 @@ public class Server extends test.Util.Application
         // Don't move this, it needs the port.
         communicator.getProperties().setProperty("TestAdapter.Endpoints", "default -p " + port + ":udp");
         Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
-        Ice.Object object = new TestI(adapter, port);
+        Ice.Object object = new TestI(port);
         adapter.add(object, communicator.stringToIdentity("test"));
         adapter.activate();
         return WAIT;

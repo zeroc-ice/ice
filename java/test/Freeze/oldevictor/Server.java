@@ -52,7 +52,7 @@ public class Server extends test.Util.Application
         Ice.Communicator communicator = communicator();
         Ice.ObjectAdapter adapter = communicator.createObjectAdapter("Evictor");
     
-        RemoteEvictorFactoryI factory = new RemoteEvictorFactoryI(adapter, "db");
+        RemoteEvictorFactoryI factory = new RemoteEvictorFactoryI("db");
         adapter.add(factory, communicator.stringToIdentity("factory"));
     
         Ice.ObjectFactory servantFactory = new ServantFactory();

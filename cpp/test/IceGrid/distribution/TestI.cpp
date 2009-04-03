@@ -14,8 +14,7 @@
 
 using namespace std;
 
-TestI::TestI(const Ice::ObjectAdapterPtr& adapter, const Ice::PropertiesPtr& properties) :
-    _adapter(adapter),
+TestI::TestI(const Ice::PropertiesPtr& properties) :
     _properties(properties)
 {
 }

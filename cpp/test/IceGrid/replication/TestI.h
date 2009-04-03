@@ -16,12 +16,7 @@ class TestI : public ::Test::TestIntf
 {
 public:
 
-    TestI(const Ice::ObjectAdapterPtr&, const Ice::PropertiesPtr&);
-
-private:
-
-    Ice::ObjectAdapterPtr _adapter;
-    Ice::PropertiesPtr _properties;
+    TestI();
 };
 
 #endif

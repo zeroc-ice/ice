@@ -15,9 +15,8 @@ import test.Ice.location.Test._ServerManagerDisp;
 
 public class ServerManagerI extends _ServerManagerDisp
 {
-    ServerManagerI(Ice.ObjectAdapter adapter, ServerLocatorRegistry registry, Ice.InitializationData initData, test.Util.Application app)
+    ServerManagerI(ServerLocatorRegistry registry, Ice.InitializationData initData, test.Util.Application app)
     {
-        _adapter = adapter;
         _registry = registry;
         _communicators = new java.util.ArrayList<Ice.Communicator>();
         
@@ -83,10 +82,9 @@ public class ServerManagerI extends _ServerManagerDisp
         {
             i.next().destroy();
         }
-        _adapter.getCommunicator().shutdown();
+        current.adapter.getCommunicator().shutdown();
     }
 
-    private Ice.ObjectAdapter _adapter;
     private ServerLocatorRegistry _registry;
     private java.util.List<Ice.Communicator> _communicators;
     private Ice.InitializationData _initData;

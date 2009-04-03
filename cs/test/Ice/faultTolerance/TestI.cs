@@ -15,11 +15,10 @@ using Test;
 
 public sealed class TestI : TestIntfDisp_
 {
-    public TestI(Ice.ObjectAdapter adapter)
+    public TestI()
     {
         lock(this)
         {
-            _adapter = adapter;
             _p = Process.GetCurrentProcess();
             _pid = _p.Id;
         }
@@ -51,10 +50,9 @@ public sealed class TestI : TestIntfDisp_
     
     public override void shutdown(Ice.Current current)
     {
-        _adapter.getCommunicator().shutdown();
+        current.adapter.getCommunicator().shutdown();
     }
-    
-    private Ice.ObjectAdapter _adapter;
+
     private Process _p;
     private int _pid;
 }

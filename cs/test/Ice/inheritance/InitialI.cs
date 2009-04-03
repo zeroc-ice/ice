@@ -11,15 +11,14 @@ public sealed class InitialI : Test.InitialDisp_
 {
     public InitialI(Ice.ObjectAdapter adapter)
     {
-        _adapter = adapter;
-        _ca = Test.MA.CAPrxHelper.uncheckedCast(_adapter.addWithUUID(new CAI()));
-        _cb = Test.MB.CBPrxHelper.uncheckedCast(_adapter.addWithUUID(new CBI()));
-        _cc = Test.MA.CCPrxHelper.uncheckedCast(_adapter.addWithUUID(new CCI()));
-        _cd = Test.MA.CDPrxHelper.uncheckedCast(_adapter.addWithUUID(new CDI()));
-        _ia = Test.MA.IAPrxHelper.uncheckedCast(_adapter.addWithUUID(new IAI()));
-        _ib1 = Test.MB.IB1PrxHelper.uncheckedCast(_adapter.addWithUUID(new IB1I()));
-        _ib2 = Test.MB.IB2PrxHelper.uncheckedCast(_adapter.addWithUUID(new IB2I()));
-        _ic = Test.MA.ICPrxHelper.uncheckedCast(_adapter.addWithUUID(new ICI()));
+        _ca = Test.MA.CAPrxHelper.uncheckedCast(adapter.addWithUUID(new CAI()));
+        _cb = Test.MB.CBPrxHelper.uncheckedCast(adapter.addWithUUID(new CBI()));
+        _cc = Test.MA.CCPrxHelper.uncheckedCast(adapter.addWithUUID(new CCI()));
+        _cd = Test.MA.CDPrxHelper.uncheckedCast(adapter.addWithUUID(new CDI()));
+        _ia = Test.MA.IAPrxHelper.uncheckedCast(adapter.addWithUUID(new IAI()));
+        _ib1 = Test.MB.IB1PrxHelper.uncheckedCast(adapter.addWithUUID(new IB1I()));
+        _ib2 = Test.MB.IB2PrxHelper.uncheckedCast(adapter.addWithUUID(new IB2I()));
+        _ic = Test.MA.ICPrxHelper.uncheckedCast(adapter.addWithUUID(new ICI()));
     }
     
     public override Test.MA.CAPrx caop(Ice.Current current)
@@ -64,10 +63,9 @@ public sealed class InitialI : Test.InitialDisp_
     
     public override void  shutdown(Ice.Current current)
     {
-        _adapter.getCommunicator().shutdown();
+       current.adapter.getCommunicator().shutdown();
     }
     
-    private Ice.ObjectAdapter _adapter;
     private Test.MA.CAPrx _ca;
     private Test.MB.CBPrx _cb;
     private Test.MA.CCPrx _cc;

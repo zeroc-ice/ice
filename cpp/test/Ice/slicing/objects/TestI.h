@@ -17,7 +17,7 @@ class TestI : virtual public Test::TestIntf
 {
 public:
 
-    TestI(const ::Ice::ObjectAdapterPtr&);
+    TestI();
 
     virtual ::Ice::ObjectPtr SBaseAsObject(const ::Ice::Current&);
     virtual ::Test::SBasePtr SBaseAsSBase(const ::Ice::Current&);
@@ -56,10 +56,6 @@ public:
     virtual void useForward(::Test::ForwardPtr&, const ::Ice::Current&);
 
     virtual void shutdown(const ::Ice::Current&);
-
-private:
-
-    const ::Ice::ObjectAdapterPtr _adapter;
 };
 
 #endif

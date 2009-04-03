@@ -72,7 +72,7 @@ public class Server extends test.Util.Application
         communicator.addObjectFactory(new ServantFactory(), "::Test::Servant");
         communicator.addObjectFactory(new FacetFactory(), "::Test::Facet");
 
-        RemoteEvictorFactoryI factory = new RemoteEvictorFactoryI(adapter, "db");
+        RemoteEvictorFactoryI factory = new RemoteEvictorFactoryI("db");
         adapter.add(factory, communicator.stringToIdentity("factory"));
     
         adapter.activate();

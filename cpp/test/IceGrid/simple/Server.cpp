@@ -28,7 +28,7 @@ Server::run(int argc, char* argv[])
     Ice::stringSeqToArgs(args, argc, argv);
 
     Ice::ObjectAdapterPtr adapter = communicator()->createObjectAdapter("TestAdapter");
-    Ice::ObjectPtr object = new TestI(adapter);
+    Ice::ObjectPtr object = new TestI();
     adapter->add(object, communicator()->stringToIdentity("test"));
 
     shutdownOnInterrupt();

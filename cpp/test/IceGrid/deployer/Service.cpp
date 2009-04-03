@@ -65,7 +65,7 @@ ServiceI::start(const string& name,
         //
         Freeze::createConnection(communicator, name);
     }
-    Ice::ObjectPtr object = new TestI(adapter, properties);
+    Ice::ObjectPtr object = new TestI(properties);
     adapter->add(object, communicator->stringToIdentity(properties->getProperty(name + ".Identity")));
     adapter->activate();
 }

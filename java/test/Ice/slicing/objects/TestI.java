@@ -33,15 +33,14 @@ import test.Ice.slicing.objects.server.Test._TestIntfDisp;
 public final class TestI extends _TestIntfDisp
 {
     public
-    TestI(Ice.ObjectAdapter adapter)
+    TestI()
     {
-        _adapter = adapter;
     }
 
     public void
     shutdown(Ice.Current current)
     {
-        _adapter.getCommunicator().shutdown();
+        current.adapter.getCommunicator().shutdown();
     }
 
     public Ice.Object
@@ -368,6 +367,4 @@ public final class TestI extends _TestIntfDisp
         f.value.h = new Hidden();
         f.value.h.f = f.value;
     }
-
-    private Ice.ObjectAdapter _adapter;
 }

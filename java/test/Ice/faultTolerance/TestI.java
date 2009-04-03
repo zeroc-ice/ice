@@ -14,16 +14,15 @@ import test.Ice.faultTolerance.Test._TestIntfDisp;
 public final class TestI extends _TestIntfDisp
 {
     public
-    TestI(Ice.ObjectAdapter adapter, int port)
+    TestI(int port)
     {
-        _adapter = adapter;
         _pseudoPid = port; // We use the port number instead of the process ID in Java.
     }
 
     public void
     shutdown(Ice.Current current)
     {
-        _adapter.getCommunicator().shutdown();
+        current.adapter.getCommunicator().shutdown();
     }
 
     public void
@@ -45,5 +44,4 @@ public final class TestI extends _TestIntfDisp
     }
 
     private int _pseudoPid;
-    private Ice.ObjectAdapter _adapter;
 }

@@ -31,7 +31,7 @@ public class Server extends test.Util.Application
         //
         ServerLocatorRegistry registry = new ServerLocatorRegistry();
         registry.addObject(adapter.createProxy(communicator.stringToIdentity("ServerManager")));
-        Ice.Object object = new ServerManagerI(adapter, registry, _initData, this);
+        Ice.Object object = new ServerManagerI(registry, _initData, this);
         adapter.add(object, communicator.stringToIdentity("ServerManager"));
 
         Ice.LocatorRegistryPrx registryPrx = Ice.LocatorRegistryPrxHelper.uncheckedCast(adapter.add(registry,
