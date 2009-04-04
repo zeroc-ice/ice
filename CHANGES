@@ -61,6 +61,9 @@ General Changes
 These entries apply to all relevant language mappings unless otherwise
 noted.
 
+- Fixed a bug in slice2html that caused incorrect hyperlinks to be
+  generated for the summary of the index sections of a module page.
+
 - Fixed a bug where ice_getCachedConnection could throw if called
   shortly after connection establishment failed.
 
