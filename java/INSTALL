@@ -231,6 +231,23 @@ one, use these commands:
   ant clean
   ant
 
+You may receive an error during the build:
+
+    [javac] The system is out of resources.
+    [javac] Consult the following stack trace for details.
+    [javac] java.lang.OutOfMemoryError: Java heap space
+
+If so, set ANT_OPTS as follows:
+
+    # On Unix
+    $ ANT_OPTS="-Xms256m -Xmx256m"
+    $ export ANT_OPTS
+
+    # On Windows
+    > set ANT_OPTS=-Xms256m -Xmx256m
+
+This increases the size of the heap for the Java VM.
+
 
 Ant Tasks
 ---------
@@ -264,7 +281,7 @@ the Ice for C++ distribution. If you have not built Ice for C++ in
 this source distribution then you must set the ICE_HOME environment
 variable with the path name of your Ice installation:
 
-  # On Unix.
+  # On Unix
   $ export ICE_HOME=/opt/Ice-@ver@  (For local build)
   $ export ICE_HOME=/usr            (For RPM installation)
 
