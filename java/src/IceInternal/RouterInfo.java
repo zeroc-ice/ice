@@ -291,16 +291,16 @@ public final class RouterInfo
         //
         // We also must remove whatever proxies the router evicted.
         //
-        for(int i = 0; i < evictedProxies.length; ++i)
+        for(Ice.ObjectPrx p : evictedProxies)
         {
-            if(!_identities.remove(evictedProxies[i].ice_getIdentity()))
+            if(!_identities.remove(p.ice_getIdentity()))
             {
                 //
                 // It's possible for the proxy to not have been
                 // added yet in the local map if two threads
                 // concurrently call addProxies.
                 //
-                _evictedIdentities.add(evictedProxies[i].ice_getIdentity());
+                _evictedIdentities.add(p.ice_getIdentity());
             }
         }
     }

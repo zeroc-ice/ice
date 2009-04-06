@@ -6,6 +6,7 @@
 // ICE_LICENSE file included in this distribution.
 //
 // **********************************************************************
+
 package IceGridGUI;
 
 import java.awt.Component;
@@ -22,16 +23,14 @@ class CellRenderer implements TreeCellRenderer
         boolean expanded,
         boolean leaf,
         int row,
-        boolean hasFocus) 
+        boolean hasFocus)
     {
         TreeCellRenderer node = (TreeCellRenderer)value;
-        Component result = node.getTreeCellRendererComponent(
-            tree, value, sel, expanded, leaf, row, hasFocus);
+        Component result = node.getTreeCellRendererComponent(tree, value, sel, expanded, leaf, row, hasFocus);
 
         if(result == null)
         {
-            result = _defaultRenderer.getTreeCellRendererComponent(
-                tree, value, sel, expanded, leaf, row, hasFocus);
+            result = _defaultRenderer.getTreeCellRendererComponent(tree, value, sel, expanded, leaf, row, hasFocus);
         }
         return result;
     }

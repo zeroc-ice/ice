@@ -6,6 +6,7 @@
 // ICE_LICENSE file included in this distribution.
 //
 // **********************************************************************
+
 package IceGridGUI.LiveDeployment;
 
 import java.awt.event.ActionEvent;
@@ -39,14 +40,14 @@ class RegistryEditor extends Editor
 
         Action openDefinition = new AbstractAction("Open definition")
             {
-                public void actionPerformed(ActionEvent e) 
+                public void actionPerformed(ActionEvent e)
                 {
                     int selectedRow = _applications.getSelectedRow();
                     if(selectedRow != -1)
                     {
                         String appName = (String)_applications.getValueAt(selectedRow, 0);
                         ApplicationPane app = _target.getCoordinator().openLiveApplication(appName);
-                        
+
                         if(app != null && app.getRoot().getSelectedNode() == null)
                         {
                             app.getRoot().setSelectedNode(app.getRoot());
@@ -57,7 +58,7 @@ class RegistryEditor extends Editor
 
         Action showDetails = new AbstractAction("Show details")
             {
-                public void actionPerformed(ActionEvent e) 
+                public void actionPerformed(ActionEvent e)
                 {
                     int selectedRow = _applications.getSelectedRow();
                     if(selectedRow != -1)
@@ -70,7 +71,7 @@ class RegistryEditor extends Editor
 
         final Action patch = new AbstractAction("Patch distribution")
             {
-                public void actionPerformed(ActionEvent e) 
+                public void actionPerformed(ActionEvent e)
                 {
                     int selectedRow = _applications.getSelectedRow();
                     if(selectedRow != -1)
@@ -83,7 +84,7 @@ class RegistryEditor extends Editor
 
         Action removeApplication = new AbstractAction("Remove from registry")
             {
-                public void actionPerformed(ActionEvent e) 
+                public void actionPerformed(ActionEvent e)
                 {
                     int selectedRow = _applications.getSelectedRow();
                     if(selectedRow != -1)
@@ -93,10 +94,10 @@ class RegistryEditor extends Editor
                         int confirm = JOptionPane.showConfirmDialog(
                             _target.getCoordinator().getMainFrame(),
                             "You are about to remove application '" + appName + "' from the IceGrid registry. "
-                            + "Do you want to proceed?", 
+                            + "Do you want to proceed?",
                             "Remove Confirmation",
                             JOptionPane.YES_NO_OPTION);
-                        
+
                         if(confirm == JOptionPane.YES_OPTION)
                         {
                             _target.getCoordinator().removeApplicationFromRegistry(appName);
@@ -105,12 +106,10 @@ class RegistryEditor extends Editor
                 }
             };
 
-        removeApplication.putValue(Action.ACCELERATOR_KEY, 
-                                   KeyStroke.getKeyStroke("DELETE"));
+        removeApplication.putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke("DELETE"));
 
         _applications.getActionMap().put("delete", removeApplication);
-        _applications.getInputMap().put(
-            KeyStroke.getKeyStroke("DELETE"), "delete");
+        _applications.getInputMap().put(KeyStroke.getKeyStroke("DELETE"), "delete");
 
         final JPopupMenu appPopup = new JPopupMenu();
         appPopup.add(openDefinition);
@@ -135,17 +134,17 @@ class RegistryEditor extends Editor
                     }
                 }
 
-                public void mousePressed(MouseEvent e) 
+                public void mousePressed(MouseEvent e)
                 {
                     maybeShowPopup(e);
                 }
-                
-                public void mouseReleased(MouseEvent e) 
+
+                public void mouseReleased(MouseEvent e)
                 {
                     maybeShowPopup(e);
                 }
-                
-                private void maybeShowPopup(MouseEvent e) 
+
+                private void maybeShowPopup(MouseEvent e)
                 {
                     int selectedRow = _applications.getSelectedRow();
                     if (e.isPopupTrigger() && selectedRow != -1)
@@ -161,7 +160,7 @@ class RegistryEditor extends Editor
 
         Action deleteObject = new AbstractAction("Remove selected object")
             {
-                public void actionPerformed(ActionEvent e) 
+                public void actionPerformed(ActionEvent e)
                 {
                     if(_target.getCoordinator().connectedToMaster())
                     {
@@ -173,17 +172,14 @@ class RegistryEditor extends Editor
                     }
                 }
             };
-        deleteObject.putValue(Action.ACCELERATOR_KEY, 
-                              KeyStroke.getKeyStroke("DELETE"));
+        deleteObject.putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke("DELETE"));
 
         _objects.getActionMap().put("delete", deleteObject);
-        _objects.getInputMap().put(
-            KeyStroke.getKeyStroke("DELETE"), "delete");
+        _objects.getInputMap().put(KeyStroke.getKeyStroke("DELETE"), "delete");
 
-        
         Action showObject = new AbstractAction("Show details")
             {
-                public void actionPerformed(ActionEvent e) 
+                public void actionPerformed(ActionEvent e)
                 {
                     int selectedRow = _objects.getSelectedRow();
                     if(selectedRow != -1)
@@ -197,7 +193,7 @@ class RegistryEditor extends Editor
 
         Action addObject = new AbstractAction("Add a new well-known object")
             {
-                public void actionPerformed(ActionEvent e) 
+                public void actionPerformed(ActionEvent e)
                 {
                     if(_target.getCoordinator().connectedToMaster())
                     {
@@ -205,17 +201,14 @@ class RegistryEditor extends Editor
                     }
                 }
             };
-        addObject.putValue(Action.ACCELERATOR_KEY, 
-                           KeyStroke.getKeyStroke("INSERT"));
+        addObject.putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke("INSERT"));
 
         _objects.getActionMap().put("insert", addObject);
-        _objects.getInputMap().put(
-            KeyStroke.getKeyStroke("INSERT"), "insert");
+        _objects.getInputMap().put(KeyStroke.getKeyStroke("INSERT"), "insert");
 
         _objects.setToolTipText("<html>Well-known objects registered through the Admin interface.<br>"
-                                + "Well-known objects registered using Adapter or Replica Group<br>" 
+                                + "Well-known objects registered using Adapter or Replica Group<br>"
                                 + "definitions are not displayed here.</html>");
-
 
         final JPopupMenu objectsPopup = new JPopupMenu();
         objectsPopup.add(addObject);
@@ -240,17 +233,17 @@ class RegistryEditor extends Editor
                     }
                 }
 
-                public void mousePressed(MouseEvent e) 
+                public void mousePressed(MouseEvent e)
                 {
                     maybeShowPopup(e);
                 }
-                
-                public void mouseReleased(MouseEvent e) 
+
+                public void mouseReleased(MouseEvent e)
                 {
                     maybeShowPopup(e);
                 }
-                
-                private void maybeShowPopup(MouseEvent e) 
+
+                private void maybeShowPopup(MouseEvent e)
                 {
                     if (e.isPopupTrigger())
                     {
@@ -261,10 +254,9 @@ class RegistryEditor extends Editor
                 }
             });
 
-       
         Action deleteAdapter = new AbstractAction("Remove selected adapter")
             {
-                public void actionPerformed(ActionEvent e) 
+                public void actionPerformed(ActionEvent e)
                 {
                     if(_target.getCoordinator().connectedToMaster())
                     {
@@ -276,12 +268,10 @@ class RegistryEditor extends Editor
                     }
                 }
             };
-        deleteAdapter.putValue(Action.ACCELERATOR_KEY, 
-                               KeyStroke.getKeyStroke("DELETE"));
+        deleteAdapter.putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke("DELETE"));
 
         _adapters.getActionMap().put("delete", deleteAdapter);
-        _adapters.getInputMap().put(
-            KeyStroke.getKeyStroke("DELETE"), "delete");
+        _adapters.getInputMap().put(KeyStroke.getKeyStroke("DELETE"), "delete");
         _adapters.setToolTipText("<html>Object adapters registered at run time.</html>");
 
         final JPopupMenu adaptersPopup = new JPopupMenu();
@@ -289,17 +279,17 @@ class RegistryEditor extends Editor
 
         _adapters.addMouseListener(new MouseAdapter()
             {
-                public void mousePressed(MouseEvent e) 
+                public void mousePressed(MouseEvent e)
                 {
                     maybeShowPopup(e);
                 }
-                
-                public void mouseReleased(MouseEvent e) 
+
+                public void mouseReleased(MouseEvent e)
                 {
                     maybeShowPopup(e);
                 }
-                
-                private void maybeShowPopup(MouseEvent e) 
+
+                private void maybeShowPopup(MouseEvent e)
                 {
                     if (e.isPopupTrigger() && _adapters.getSelectedRow() != -1)
                     {
@@ -308,7 +298,7 @@ class RegistryEditor extends Editor
                 }
             });
     }
-    
+
     protected void appendProperties(DefaultFormBuilder builder)
     {
         CellConstraints cc = new CellConstraints();
@@ -336,8 +326,7 @@ class RegistryEditor extends Editor
         builder.nextRow(-14);
         JScrollPane scrollPane = new JScrollPane(_applications);
         scrollPane.setToolTipText(_applications.getToolTipText());
-        builder.add(scrollPane, 
-                    cc.xywh(builder.getColumn(), builder.getRow(), 3, 14));
+        builder.add(scrollPane, cc.xywh(builder.getColumn(), builder.getRow(), 3, 14));
         builder.nextRow(14);
         builder.nextLine();
 
@@ -383,8 +372,7 @@ class RegistryEditor extends Editor
         builder.nextRow(-14);
         scrollPane = new JScrollPane(_adapters);
         scrollPane.setToolTipText(_adapters.getToolTipText());
-        builder.add(scrollPane, 
-                    cc.xywh(builder.getColumn(), builder.getRow(), 3, 14));
+        builder.add(scrollPane, cc.xywh(builder.getColumn(), builder.getRow(), 3, 14));
         builder.nextRow(14);
         builder.nextLine();
     }
@@ -408,6 +396,6 @@ class RegistryEditor extends Editor
     private TableField _applications = new TableField("Name", "Last Update");
     private TableField _objects = new TableField("Proxy", "Type");
     private TableField _adapters = new TableField("ID", "Endpoints", "Replica Group");
-    
+
     private Root _target;
 }

@@ -6,6 +6,7 @@
 // ICE_LICENSE file included in this distribution.
 //
 // **********************************************************************
+
 package IceGridGUI.Application;
 
 import IceGrid.*;
@@ -37,7 +38,7 @@ public class ParameterValuesField extends JTable
     {
         _editor = editor;
 
-        _columnNames = new java.util.Vector(2);
+        _columnNames = new java.util.Vector<String>(2);
         _columnNames.add("Name");
         _columnNames.add("Value");
 
@@ -45,29 +46,28 @@ public class ParameterValuesField extends JTable
         _notSetCombo.setEditable(true);
     }
 
-    public void set(java.util.List names,
-                    java.util.Map values,
-                    java.util.Map defaultValues,
+    public void set(java.util.List<String> names,
+                    java.util.Map<String, String> values,
+                    java.util.Map<String, String> defaultValues,
                     final Utils.Resolver resolver)
     {
         //
         // Transform map into vector of vectors
         //
-        java.util.Vector vector = new java.util.Vector(names.size());
-        java.util.Iterator p = names.iterator();
+        java.util.Vector<java.util.Vector<String>> vector =
+            new java.util.Vector<java.util.Vector<String>>(names.size());
 
         _hasDefault = new boolean[names.size()];
         int i = 0;
 
-        while(p.hasNext())
+        for(String name : names)
         {
-            java.util.Vector row = new java.util.Vector(2);
-            String name = (String)p.next(); 
+            java.util.Vector<String> row = new java.util.Vector<String>(2);
             row.add(name);
 
             _hasDefault[i] = (defaultValues.get(name) != null);
-           
-            Object val = values.get(name);
+
+            String val = values.get(name);
             if(val == null)
             {
                 row.add(_hasDefault[i] ? _useDefault : _notSet);
@@ -94,7 +94,7 @@ public class ParameterValuesField extends JTable
                     }
                 }
             };
-        
+
         _model.addTableModelListener(new TableModelListener()
             {
                 public void tableChanged(TableModelEvent e)
@@ -108,35 +108,32 @@ public class ParameterValuesField extends JTable
         setOpaque(resolver == null);
         setPreferredScrollableViewportSize(getPreferredSize());
 
-        DefaultTableCellRenderer cr = (DefaultTableCellRenderer)
-            getDefaultRenderer(String.class);
-        cr.setOpaque(resolver == null); 
+        DefaultTableCellRenderer cr = (DefaultTableCellRenderer)getDefaultRenderer(String.class);
+        cr.setOpaque(resolver == null);
     }
 
-
-    public java.util.Map getValues()
+    public java.util.Map<String, String> getValues()
     {
-        java.util.Map values = new java.util.HashMap();
+        java.util.Map<String, String> values = new java.util.HashMap<String, String>();
 
-        if(isEditing()) 
+        if(isEditing())
         {
             getCellEditor().stopCellEditing();
         }
-        java.util.Vector vector = _model.getDataVector();
-        
-        java.util.Iterator p = vector.iterator();
-        while(p.hasNext())
+        @SuppressWarnings("unchecked")
+        java.util.Vector<java.util.Vector<String>> vector =
+            (java.util.Vector<java.util.Vector<String>>)_model.getDataVector();
+
+        for(java.util.Vector<String> row : vector)
         {
-            java.util.Vector row = (java.util.Vector)p.next();
-            
             //
             // Eliminate rows with null or empty names
             //
-            String name = (String)row.elementAt(0);
+            String name = row.elementAt(0);
             assert name != null;
-               
-            Object val = row.elementAt(1);
-                    
+
+            String val = row.elementAt(1);
+
             //
             // Eliminate entries with default or not set value
             //
@@ -149,8 +146,7 @@ public class ParameterValuesField extends JTable
         return values;
     }
 
-    public TableCellEditor getCellEditor(int row,
-                                         int column)
+    public TableCellEditor getCellEditor(int row, int column)
     {
         if(column == 1)
         {
@@ -162,37 +158,20 @@ public class ParameterValuesField extends JTable
         }
     }
 
+    private static final String _useDefault = "Use default";
 
-    private static final Object _useDefault = new Object()
-        {
-            public String toString()
-            {
-                return "Use default";
-            }
-        };
+    private static final String _notSet = "Not set";
 
-    private static final Object _notSet = new Object()
-        {
-            public String toString()
-            {
-                return "Not set";
-            }
-        };
+    private JComboBox _useDefaultCombo = new JComboBox(new Object[]{_useDefault});
 
-    private JComboBox _useDefaultCombo = new JComboBox(
-        new Object[]{_useDefault});
-    
-    private JComboBox _notSetCombo = new JComboBox(
-        new Object[]{_notSet});
+    private JComboBox _notSetCombo = new JComboBox(new Object[]{_notSet});
 
     private TableCellEditor _useDefaultEditor = new DefaultCellEditor(_useDefaultCombo);
     private TableCellEditor _notSetEditor = new DefaultCellEditor(_notSetCombo);
 
     private DefaultTableModel _model;
-    private java.util.Vector _columnNames;
+    private java.util.Vector<String> _columnNames;
     private Editor _editor;
 
     private boolean[] _hasDefault;
 }
-
-

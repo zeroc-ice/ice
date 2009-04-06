@@ -1,31 +1,31 @@
 /*
  * Copyright (c) 2000-2005 JGoodies Karsten Lentzsch. All Rights Reserved.
  *
- * Redistribution and use in source and binary forms, with or without 
+ * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
- * 
- *  o Redistributions of source code must retain the above copyright notice, 
- *    this list of conditions and the following disclaimer. 
- *     
- *  o Redistributions in binary form must reproduce the above copyright notice, 
- *    this list of conditions and the following disclaimer in the documentation 
- *    and/or other materials provided with the distribution. 
- *     
- *  o Neither the name of JGoodies Karsten Lentzsch nor the names of 
- *    its contributors may be used to endorse or promote products derived 
- *    from this software without specific prior written permission. 
- *     
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" 
- * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, 
- * THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR 
- * PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR 
- * CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, 
- * EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, 
- * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; 
- * OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, 
- * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE 
- * OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, 
- * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. 
+ *
+ *  o Redistributions of source code must retain the above copyright notice,
+ *    this list of conditions and the following disclaimer.
+ *
+ *  o Redistributions in binary form must reproduce the above copyright notice,
+ *    this list of conditions and the following disclaimer in the documentation
+ *    and/or other materials provided with the distribution.
+ *
+ *  o Neither the name of JGoodies Karsten Lentzsch nor the names of
+ *    its contributors may be used to endorse or promote products derived
+ *    from this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
+ * THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+ * PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR
+ * CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+ * EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+ * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;
+ * OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+ * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
+ * OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
+ * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
 package IceGridGUI;
@@ -37,28 +37,28 @@ import javax.swing.border.AbstractBorder;
 
 import com.jgoodies.looks.LookUtils;
 
-/** 
- * A <code>JPanel</code> subclass that has a drop shadow border and 
+/**
+ * A <code>JPanel</code> subclass that has a drop shadow border and
  * that provides a header with icon, title and tool bar.<p>
- * 
+ *
  * This class can be used to replace the <code>JInternalFrame</code>,
- * for use outside of a <code>JDesktopPane</code>. 
+ * for use outside of a <code>JDesktopPane</code>.
  * The <code>SimpleInternalFrame</code> is less flexible but often
- * more usable; it avoids overlapping windows and scales well 
+ * more usable; it avoids overlapping windows and scales well
  * up to IDE size.
- * Several customers have reported that they and their clients feel 
+ * Several customers have reported that they and their clients feel
  * much better with both the appearance and the UI feel.<p>
- * 
+ *
  * The SimpleInternalFrame provides the following bound properties:
  * <i>frameIcon, title, toolBar, content, selected.</i><p>
- * 
+ *
  * By default the SimpleInternalFrame is in <i>selected</i> state.
  * If you don't do anything, multiple simple internal frames will
  * be displayed as selected.
- * 
+ *
  * @author Karsten Lentzsch
  * @version $Revision: 1.2 $
- * 
+ *
  * @see    javax.swing.JInternalFrame
  * @see    javax.swing.JDesktopPane
  */
@@ -69,26 +69,26 @@ public class SimpleInternalFrame extends JPanel {
     private GradientPanel gradientPanel;
     private JPanel        headerPanel;
     private boolean       selected;
-    
-    
+
+
     // Instance Creation ****************************************************
 
     /**
      * Constructs a SimpleInternalFrame with the specified title.
      * The title is intended to be non-blank, or in other words
      * should contain non-space characters.
-     * 
+     *
      * @param title       the initial title
      */
     public SimpleInternalFrame(String title) {
         this(null, title, null, null);
     }
-    
-    
+
+
     /**
-     * Constructs a SimpleInternalFrame with the specified 
+     * Constructs a SimpleInternalFrame with the specified
      * icon, and title.
-     * 
+     *
      * @param icon        the initial icon
      * @param title       the initial title
      */
@@ -96,11 +96,11 @@ public class SimpleInternalFrame extends JPanel {
         this(icon, title, null, null);
     }
 
-    
+
     /**
-     * Constructs a SimpleInternalFrame with the specified 
+     * Constructs a SimpleInternalFrame with the specified
      * title, tool bar, and content panel.
-     * 
+     *
      * @param title       the initial title
      * @param bar         the initial tool bar
      * @param content     the initial content pane
@@ -108,12 +108,12 @@ public class SimpleInternalFrame extends JPanel {
     public SimpleInternalFrame(String title, JToolBar bar, JComponent content) {
         this(null, title, bar, content);
     }
-    
+
 
     /**
-     * Constructs a SimpleInternalFrame with the specified 
+     * Constructs a SimpleInternalFrame with the specified
      * icon, title, tool bar, and content panel.
-     * 
+     *
      * @param icon        the initial icon
      * @param title       the initial title
      * @param bar         the initial tool bar
@@ -138,22 +138,22 @@ public class SimpleInternalFrame extends JPanel {
         updateHeader();
     }
 
-    
+
     // Public API ***********************************************************
 
     /**
      * Returns the frame's icon.
-     * 
+     *
      * @return the frame's icon
      */
     public Icon getFrameIcon() {
         return titleLabel.getIcon();
     }
-    
+
 
     /**
      * Sets a new frame icon.
-     * 
+     *
      * @param newIcon   the icon to be set
      */
     public void setFrameIcon(Icon newIcon) {
@@ -161,7 +161,7 @@ public class SimpleInternalFrame extends JPanel {
         titleLabel.setIcon(newIcon);
         firePropertyChange("frameIcon", oldIcon, newIcon);
     }
-    
+
 
     /**
      * Returns the frame's title text.
@@ -169,13 +169,13 @@ public class SimpleInternalFrame extends JPanel {
     public String getTitle() {
         return titleLabel.getText();
     }
-    
+
     public JLabel getTitleLabel() {
         return titleLabel;
     }
 
 
-    
+
     /**
      * Sets a new title text.
      *      * @param newText  the title text tp be set     */
@@ -184,11 +184,11 @@ public class SimpleInternalFrame extends JPanel {
         titleLabel.setText(newText);
         firePropertyChange("title", oldText, newText);
     }
-    
-    
+
+
     /**
      * Returns the current toolbar, null if none has been set before.
-     * 
+     *
      * @return the current toolbar - if any
      */
     public JToolBar getToolBar() {
@@ -196,11 +196,11 @@ public class SimpleInternalFrame extends JPanel {
             ? (JToolBar) headerPanel.getComponent(1)
             : null;
     }
-    
+
 
     /**
      * Sets a new tool bar in the header.
-     * 
+     *
      * @param newToolBar the tool bar to be set in the header
      */
     public void setToolBar(JToolBar newToolBar) {
@@ -219,15 +219,15 @@ public class SimpleInternalFrame extends JPanel {
         firePropertyChange("toolBar", oldToolBar, newToolBar);
     }
 
-    
+
     /**
      * Returns the content - null, if none has been set.
      *      * @return the current content     */
     public Component getContent() {
         return hasContent() ? getComponent(1) : null;
     }
-    
-    
+
+
     /**
      * Sets a new panel content; replaces any existing content, if existing.
      *      * @param newContent   the panel's new content     */
@@ -239,28 +239,28 @@ public class SimpleInternalFrame extends JPanel {
         add(newContent, BorderLayout.CENTER);
         firePropertyChange("content", oldContent, newContent);
     }
-    
+
 
     /**
      * Answers if the panel is currently selected (or in other words active)
      * or not. In the selected state, the header background will be
      * rendered differently.
-     * 
-     * @return boolean  a boolean, where true means the frame is selected 
-     *                  (currently active) and false means it is not  
+     *
+     * @return boolean  a boolean, where true means the frame is selected
+     *                  (currently active) and false means it is not
      */
     public boolean isSelected() {
         return selected;
     }
-    
-    
+
+
     /**
      * This panel draws its title bar differently if it is selected,
      * which may be used to indicate to the user that this panel
      * has the focus, or should get more attention than other
      * simple internal frames.
      *
-     * @param newValue  a boolean, where true means the frame is selected 
+     * @param newValue  a boolean, where true means the frame is selected
      *                  (currently active) and false means it is not
      */
     public void setSelected(boolean newValue) {
@@ -269,14 +269,14 @@ public class SimpleInternalFrame extends JPanel {
         updateHeader();
         firePropertyChange("selected", oldValue, newValue);
     }
-    
+
 
     // Building *************************************************************
 
     /**
      * Creates and answers the header panel, that consists of:
      * an icon, a title label, a tool bar, and a gradient background.
-     * 
+     *
      * @param label   the label to paint the icon and text
      * @param bar     the panel's tool bar
      * @return the panel's built header area
@@ -290,7 +290,7 @@ public class SimpleInternalFrame extends JPanel {
         gradientPanel.setBorder(BorderFactory.createEmptyBorder(3, 4, 3, 1));
 
         headerPanel = new JPanel(new BorderLayout());
-        
+
         Dimension prefSize = new Dimension(0, 24);
         Dimension maxSize = new Dimension(Short.MAX_VALUE, 24);
         headerPanel.setMinimumSize(prefSize);
@@ -313,7 +313,7 @@ public class SimpleInternalFrame extends JPanel {
         titleLabel.setForeground(getTextForeground(isSelected()));
         headerPanel.repaint();
     }
-    
+
 
     /**
      * Updates the UI. In addition to the superclass behavior, we need
@@ -331,7 +331,7 @@ public class SimpleInternalFrame extends JPanel {
 
     /**
      * Checks and answers if the panel has a content component set.
-     * 
+     *
      * @return true if the panel has a content, false if it's empty
      */
     private boolean hasContent() {
@@ -341,7 +341,7 @@ public class SimpleInternalFrame extends JPanel {
      * Determines and answers the header's text foreground color.
      * Tries to lookup a special color from the L&amp;F.
      * In case it is absent, it uses the standard internal frame forground.
-     * 
+     *
      * @param isSelected   true to lookup the active color, false for the inactive
      * @return the color of the foreground text
      */
@@ -355,8 +355,8 @@ public class SimpleInternalFrame extends JPanel {
             return c;
         }
         return UIManager.getColor(
-            isSelected 
-                ? "InternalFrame.activeTitleForeground" 
+            isSelected
+                ? "InternalFrame.activeTitleForeground"
                 : "Label.foreground");
 
     }
@@ -365,7 +365,7 @@ public class SimpleInternalFrame extends JPanel {
      * Determines and answers the header's background color.
      * Tries to lookup a special color from the L&amp;F.
      * In case it is absent, it uses the standard internal frame background.
-     * 
+     *
      * @return the color of the header's background
      */
     protected Color getHeaderBackground() {
@@ -392,7 +392,7 @@ public class SimpleInternalFrame extends JPanel {
 
         public void paintBorder(Component c, Graphics g,
             int x, int y, int w, int h) {
-                
+
             g.translate(x, y);
             g.setColor(UIManager.getColor("controlLtHighlight"));
             g.fillRect(0, 0,   w, 1);
@@ -412,21 +412,21 @@ public class SimpleInternalFrame extends JPanel {
 
         public void paintBorder(Component c, Graphics g,
             int x, int y, int w, int h) {
-                
+
             Color shadow        = UIManager.getColor("controlShadow");
             if (shadow == null) {
                 shadow = Color.GRAY;
             }
-            Color lightShadow   = new Color(shadow.getRed(), 
-                                            shadow.getGreen(), 
-                                            shadow.getBlue(), 
+            Color lightShadow   = new Color(shadow.getRed(),
+                                            shadow.getGreen(),
+                                            shadow.getBlue(),
                                             170);
             Color lighterShadow = new Color(shadow.getRed(),
                                             shadow.getGreen(),
                                             shadow.getBlue(),
                                             70);
             g.translate(x, y);
-            
+
             g.setColor(shadow);
             g.fillRect(0, 0, w - 3, 1);
             g.fillRect(0, 0, 1, h - 3);
@@ -451,7 +451,7 @@ public class SimpleInternalFrame extends JPanel {
 
     // A panel with a horizontal gradient background.
     private static class GradientPanel extends JPanel {
-        
+
         private GradientPanel(LayoutManager lm, Color background) {
             super(lm);
             setBackground(background);

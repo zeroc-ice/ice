@@ -420,10 +420,9 @@ public final class ReferenceFactory
                    _instance.initializationData().properties.getPropertyAsIntWithDefault("Ice.Warn.Endpoints", 1) > 0)
             {
                 String msg = "Proxy contains unknown endpoints:";
-                java.util.Iterator<String> iter = unknownEndpoints.iterator();
-                while(iter.hasNext())
+                for(String e : unknownEndpoints)
                 {
-                    msg += " `" + iter.next() + "'";
+                    msg += " `" + e + "'";
                 }
                 _instance.initializationData().logger.warning(msg);
             }
@@ -667,16 +666,14 @@ public final class ReferenceFactory
         java.util.ArrayList<String> unknownProps = new java.util.ArrayList<String>();
         java.util.Map<String, String> props =
             _instance.initializationData().properties.getPropertiesForPrefix(prefix + ".");
-        java.util.Iterator<java.util.Map.Entry<String, String> > p = props.entrySet().iterator();
-        while(p.hasNext())
+        for(java.util.Map.Entry<String, String> p : props.entrySet())
         {
-            java.util.Map.Entry<String, String> entry = p.next();
-            String prop = entry.getKey();
+            String prop = p.getKey();
 
             boolean valid = false;
-            for(int i = 0; i < _suffixes.length; ++i)
+            for(String suffix : _suffixes)
             {
-                if(prop.equals(prefix + "." + _suffixes[i]))
+                if(prop.equals(prefix + "." + suffix))
                 {
                     valid = true;
                     break;
@@ -692,10 +689,9 @@ public final class ReferenceFactory
         if(unknownProps.size() != 0)
         {
             String message = "found unknown properties for proxy '" + prefix + "':";
-            java.util.Iterator<String> q = unknownProps.iterator();
-            while(q.hasNext())
+            for(String s : unknownProps)
             {
-                message += "\n    " + q.next();
+                message += "\n    " + s;
             }
             _instance.initializationData().logger.warning(message);
         }

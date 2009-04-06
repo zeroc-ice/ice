@@ -30,7 +30,6 @@ module CasinoStore
     };
     sequence<Winner*> WinnerPrxSeq;
 
-
     class PersistentPlayer implements Casino::Player, Winner
     {
         //

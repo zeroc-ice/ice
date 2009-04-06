@@ -108,7 +108,7 @@ public class Slice2JavaTask extends SliceTask
         //
         // Read the set of dependencies for this task.
         //
-        java.util.HashMap dependencies = readDependencies();
+        java.util.HashMap<String, SliceDependency> dependencies = readDependencies();
 
         //
         // Compose a list of the files that need to be translated. A
@@ -117,28 +117,25 @@ public class Slice2JavaTask extends SliceTask
         // anymore (the slice file changed since the dependency was
         // last updated or a slice file it depends on changed).
         //
-        java.util.Vector buildList = new java.util.Vector();
-        java.util.Vector skipList = new java.util.Vector();
-        java.util.Iterator p = _fileSets.iterator();
-        while(p.hasNext())
+        java.util.ArrayList<File> buildList = new java.util.ArrayList<File>();
+        java.util.ArrayList<File> skipList = new java.util.ArrayList<File>();
+        for(FileSet fileset : _fileSets)
         {
-            FileSet fileset = (FileSet)p.next();
-
             DirectoryScanner scanner = fileset.getDirectoryScanner(getProject());
             scanner.scan();
             String[] files = scanner.getIncludedFiles();
-            for(int i = 0; i < files.length; i++)
+            for(String file : files)
             {
-                File slice = new File(fileset.getDir(getProject()), files[i]);
+                File slice = new File(fileset.getDir(getProject()), file);
 
-                SliceDependency depend = (SliceDependency)dependencies.get(getTargetKey(slice.toString()));
+                SliceDependency depend = dependencies.get(getTargetKey(slice.toString()));
                 if(depend == null || !depend.isUpToDate())
                 {
-                    buildList.addElement(slice);
+                    buildList.add(slice);
                 }
                 else
                 {
-                    skipList.addElement(slice);
+                    skipList.add(slice);
                 }
             }
 
@@ -151,10 +148,8 @@ public class Slice2JavaTask extends SliceTask
             }
             else 
             {
-                java.util.Iterator i = skipList.iterator();
-                while(i.hasNext())
+                for(File file : skipList)
                 {
-                    File file = (File)i.next();
                     log("skipping " + file.getName());
                 }
             }
@@ -192,18 +187,18 @@ public class Slice2JavaTask extends SliceTask
             if(_includePath != null)
             {
                 String[] dirs = _includePath.list();
-                for(int i = 0; i < dirs.length; i++)
+                for(String dir : dirs)
                 {
                     cmd.append(" -I");
-                    if(dirs[i].indexOf(' ') != -1)
+                    if(dir.indexOf(' ') != -1)
                     {
                         cmd.append('"');
-                        cmd.append(dirs[i]);
+                        cmd.append(dir);
                         cmd.append('"');
                     }
                     else
                     {
-                        cmd.append(dirs[i]);
+                        cmd.append(dir);
                     }
                 }
             }
@@ -213,10 +208,8 @@ public class Slice2JavaTask extends SliceTask
             //
             if(!_defines.isEmpty())
             {
-                java.util.Iterator i = _defines.iterator();
-                while(i.hasNext())
+                for(SliceDefine define : _defines)
                 {
-                    SliceDefine define = (SliceDefine)i.next();
                     cmd.append(" -D");
                     cmd.append(define.getName());
                     String value = define.getValue();
@@ -258,10 +251,8 @@ public class Slice2JavaTask extends SliceTask
             //
             if(!_meta.isEmpty())
             {
-                java.util.Iterator i = _meta.iterator();
-                while(i.hasNext())
+                for(SliceMeta m : _meta)
                 {
-                    SliceMeta m = (SliceMeta)i.next();
                     cmd.append(" --meta ");
                     cmd.append(m.getValue());
                 }
@@ -286,9 +277,8 @@ public class Slice2JavaTask extends SliceTask
             //
             // Add files to be translated
             //
-            for(int i = 0; i < buildList.size(); i++)
+            for(File f : buildList)
             {
-                File f = (File)buildList.elementAt(i);
                 cmd.append(" ");
                 String s = f.toString();
                 if(s.indexOf(' ') != -1)
@@ -343,18 +333,18 @@ public class Slice2JavaTask extends SliceTask
             if(_includePath != null)
             {
                 String[] dirs = _includePath.list();
-                for(int i = 0; i < dirs.length; i++)
+                for(String dir : dirs)
                 {
                     cmd.append(" -I");
-                    if(dirs[i].indexOf(' ') != -1)
+                    if(dir.indexOf(' ') != -1)
                     {
                         cmd.append('"');
-                        cmd.append(dirs[i]);
+                        cmd.append(dir);
                         cmd.append('"');
                     }
                     else
                     {
-                        cmd.append(dirs[i]);
+                        cmd.append(dir);
                     }
                 }
             }
@@ -362,9 +352,8 @@ public class Slice2JavaTask extends SliceTask
             //
             // Add files for which we need to check dependencies.
             //
-            for(int i = 0; i < buildList.size(); i++)
+            for(File f : buildList)
             {
-                File f = (File)buildList.elementAt(i);
                 cmd.append(" ");
                 String s = f.toString();
                 if(s.indexOf(' ') != -1)
@@ -399,11 +388,10 @@ public class Slice2JavaTask extends SliceTask
             //
             // Update dependency file.
             //
-            java.util.List newDependencies = parseDependencies(getProject().getProperty(outputProperty));
-            p = newDependencies.iterator();
-            while(p.hasNext())
+            java.util.List<SliceDependency> newDependencies =
+                parseDependencies(getProject().getProperty(outputProperty));
+            for(SliceDependency dep : newDependencies)
             {
-                SliceDependency dep = (SliceDependency)p.next();
                 dependencies.put(getTargetKey(dep._dependencies[0]), dep);
             }
 

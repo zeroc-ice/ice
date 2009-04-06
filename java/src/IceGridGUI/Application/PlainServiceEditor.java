@@ -6,6 +6,7 @@
 // ICE_LICENSE file included in this distribution.
 //
 // **********************************************************************
+
 package IceGridGUI.Application;
 
 import com.jgoodies.forms.builder.DefaultFormBuilder;
@@ -19,7 +20,7 @@ class PlainServiceEditor extends CommunicatorChildEditor
     {
         _subEditor = new ServiceSubEditor(this);
     }
- 
+
     //
     // From Editor:
     //
@@ -37,10 +38,10 @@ class PlainServiceEditor extends CommunicatorChildEditor
     }
 
     protected void appendProperties(DefaultFormBuilder builder)
-    {    
+    {
         _subEditor.appendProperties(builder);
     }
-    
+
     protected void buildPropertiesPanel()
     {
         super.buildPropertiesPanel();
@@ -52,17 +53,16 @@ class PlainServiceEditor extends CommunicatorChildEditor
         return _subEditor.validate();
     }
 
-
     void writeDescriptor()
     {
         _subEditor.writeDescriptor();
-    }       
-    
+    }
+
     boolean isSimpleUpdate()
     {
-        return _subEditor.isSimpleUpdate(); 
+        return _subEditor.isSimpleUpdate();
     }
-    
+
     Communicator.ChildList getChildList()
     {
         return ((Communicator)_target.getParent()).getServices();
@@ -82,7 +82,7 @@ class PlainServiceEditor extends CommunicatorChildEditor
         _subEditor.show(true);
 
         _applyButton.setEnabled(service.isEphemeral());
-        _discardButton.setEnabled(service.isEphemeral());         
+        _discardButton.setEnabled(service.isEphemeral());
         detectUpdates(true);
         if(service.isEphemeral())
         {

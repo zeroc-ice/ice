@@ -260,7 +260,7 @@ public final class ServantManager
         // properly deactivated.
         //
         //IceUtilInternal.Assert.FinalizerAssert(_instance == null);
-        
+
         super.finalize();
     }
 
@@ -273,15 +273,13 @@ public final class ServantManager
         assert(_instance != null); // Must not be called after destruction.
 
         _servantMapMap.clear();
-        
-        java.util.Iterator<java.util.Map.Entry<String, Ice.ServantLocator> > p = _locatorMap.entrySet().iterator();
-        while(p.hasNext())
+
+        for(java.util.Map.Entry<String, Ice.ServantLocator> p : _locatorMap.entrySet())
         {
-            java.util.Map.Entry<String, Ice.ServantLocator> e = p.next();
-            Ice.ServantLocator locator = e.getValue();
+            Ice.ServantLocator locator = p.getValue();
             try
             {
-                locator.deactivate(e.getKey());
+                locator.deactivate(p.getKey());
             }
             catch(java.lang.Exception ex)
             {
@@ -290,7 +288,7 @@ public final class ServantManager
                 ex.printStackTrace(pw);
                 pw.flush();
                 String s = "exception during locator deactivation:\n" + "object adapter: `" + _adapterName + "'\n" +
-                    "locator category: `" + e.getKey() + "'\n" + sw.toString();
+                    "locator category: `" + p.getKey() + "'\n" + sw.toString();
                 _instance.initializationData().logger.error(s);
             }
         }

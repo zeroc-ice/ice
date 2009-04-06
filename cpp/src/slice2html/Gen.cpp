@@ -562,7 +562,7 @@ Slice::GeneratorBase::printMetaData(const ContainedPtr& p)
 }
 
 void
-Slice::GeneratorBase::printSummary(const ContainedPtr& p, const ContainerPtr& module, bool deprecated)
+Slice::GeneratorBase::printSummary(const ContainedPtr& p, const ContainerPtr& module, bool deprecated, bool forIndex)
 {
     ContainerPtr container = ContainerPtr::dynamicCast(p);
     if(!container)
@@ -575,7 +575,7 @@ Slice::GeneratorBase::printSummary(const ContainedPtr& p, const ContainerPtr& mo
         container = module;
     }
 
-    string summary = getComment(p, container, true, module);
+    string summary = getComment(p, container, true, forIndex);
     _out << nl << summary;
 
     if(deprecated)
@@ -2042,7 +2042,7 @@ Slice::ModuleGenerator::visitContainer(const ContainerPtr& p)
             end();
             start("dd");
             string metadata;
-            printSummary(*q, p, (*q)->findMetaData("deprecate", metadata));
+            printSummary(*q, p, (*q)->findMetaData("deprecate", metadata), true);
             end();
         }
         end();
@@ -2071,7 +2071,7 @@ Slice::ModuleGenerator::visitContainer(const ContainerPtr& p)
             end();
             start("dd");
             string metadata;
-            printSummary(*q, p, (*q)->findMetaData("deprecate", metadata));
+            printSummary(*q, p, (*q)->findMetaData("deprecate", metadata), true);
             end();
         }
         end();
@@ -2092,7 +2092,7 @@ Slice::ModuleGenerator::visitContainer(const ContainerPtr& p)
             end();
             start("dd");
             string metadata;
-            printSummary(*q, p, (*q)->findMetaData("deprecate", metadata));
+            printSummary(*q, p, (*q)->findMetaData("deprecate", metadata), true);
             end();
         }
         end();
@@ -2115,7 +2115,7 @@ Slice::ModuleGenerator::visitContainer(const ContainerPtr& p)
             end();
             start("dd");
             string metadata;
-            printSummary(*q, p, (*q)->findMetaData("deprecate", metadata));
+            printSummary(*q, p, (*q)->findMetaData("deprecate", metadata), true);
             end();
         }
         end();
@@ -2138,7 +2138,7 @@ Slice::ModuleGenerator::visitContainer(const ContainerPtr& p)
             end();
             start("dd");
             string metadata;
-            printSummary(*q, p, (*q)->findMetaData("deprecate", metadata));
+            printSummary(*q, p, (*q)->findMetaData("deprecate", metadata), true);
             end();
         }
         end();
@@ -2161,7 +2161,7 @@ Slice::ModuleGenerator::visitContainer(const ContainerPtr& p)
             end();
             start("dd");
             string metadata;
-            printSummary(*q, p, (*q)->findMetaData("deprecate", metadata));
+            printSummary(*q, p, (*q)->findMetaData("deprecate", metadata), true);
             end();
         }
         end();
@@ -2184,7 +2184,7 @@ Slice::ModuleGenerator::visitContainer(const ContainerPtr& p)
             end();
             start("dd");
             string metadata;
-            printSummary(*q, p, (*q)->findMetaData("deprecate", metadata));
+            printSummary(*q, p, (*q)->findMetaData("deprecate", metadata), true);
             end();
         }
         end();
@@ -2207,7 +2207,7 @@ Slice::ModuleGenerator::visitContainer(const ContainerPtr& p)
             end();
             start("dd");
             string metadata;
-            printSummary(*q, p, (*q)->findMetaData("deprecate", metadata));
+            printSummary(*q, p, (*q)->findMetaData("deprecate", metadata), true);
             end();
         }
         end();
@@ -2230,7 +2230,7 @@ Slice::ModuleGenerator::visitContainer(const ContainerPtr& p)
             end();
             start("dd");
             string metadata;
-            printSummary(*q, p, (*q)->findMetaData("deprecate", metadata));
+            printSummary(*q, p, (*q)->findMetaData("deprecate", metadata), true);
             end();
         }
         end();
@@ -2427,7 +2427,7 @@ Slice::ExceptionGenerator::generate(const ExceptionPtr& e)
             end();
             start("dd");
             string metadata;
-            printSummary(*q, e, (*q)->findMetaData("deprecate", metadata));
+            printSummary(*q, e, (*q)->findMetaData("deprecate", metadata), false);
             end();
         }
         end();
@@ -2557,7 +2557,7 @@ Slice::ClassGenerator::generate(const ClassDefPtr& c)
             end();
             start("dd");
             string metadata;
-            printSummary(*q, c, (*q)->findMetaData("deprecate", metadata));
+            printSummary(*q, c, (*q)->findMetaData("deprecate", metadata), false);
             end();
         }
         end();
@@ -2578,7 +2578,7 @@ Slice::ClassGenerator::generate(const ClassDefPtr& c)
             end();
             start("dd");
             string metadata;
-            printSummary(*q, c, (*q)->findMetaData("deprecate", metadata));
+            printSummary(*q, c, (*q)->findMetaData("deprecate", metadata), false);
             end();
         }
         end();
@@ -2739,7 +2739,7 @@ Slice::StructGenerator::generate(const StructPtr& s)
             end();
             start("dd");
             string metadata;
-            printSummary(*q, s, (*q)->findMetaData("deprecate", metadata));
+            printSummary(*q, s, (*q)->findMetaData("deprecate", metadata), false);
             end();
         }
         end();

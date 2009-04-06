@@ -353,7 +353,7 @@ struct ApplicationInfo
  * A sequence of [ApplicationInfo] structures.
  *
  **/
-["java:type:{java.util.LinkedList}"] sequence<ApplicationInfo> ApplicationInfoSeq;
+["java:type:java.util.LinkedList<ApplicationInfo>"] sequence<ApplicationInfo> ApplicationInfoSeq;
 
 /**
  *

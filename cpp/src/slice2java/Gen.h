@@ -79,7 +79,7 @@ public:
     void generateImpl(const UnitPtr&);
     void generateImplTie(const UnitPtr&);
 
-    static void writeChecksumClass(const std::string&, const std::string&, const ChecksumMap&, bool);
+    static void writeChecksumClass(const std::string&, const std::string&, const ChecksumMap&);
 
 private:
 

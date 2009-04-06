@@ -400,10 +400,9 @@ final class EndpointI extends IceInternal.EndpointI
         }
         else
         {
-            java.util.Iterator<String> p = hosts.iterator();
-            while(p.hasNext())
+            for(String host : hosts)
             {
-                endps.add(new EndpointI(_instance, p.next(), _port, _timeout, _connectionId, _compress));
+                endps.add(new EndpointI(_instance, host, _port, _timeout, _connectionId, _compress));
             }
         }
         return endps;
@@ -508,10 +507,9 @@ final class EndpointI extends IceInternal.EndpointI
     connectors(java.util.List<java.net.InetSocketAddress> addresses)
     {
         java.util.List<IceInternal.Connector> connectors = new java.util.ArrayList<IceInternal.Connector>();
-        java.util.Iterator<java.net.InetSocketAddress> p = addresses.iterator();
-        while(p.hasNext())
+        for(java.net.InetSocketAddress p : addresses)
         {
-            connectors.add(new ConnectorI(_instance, _host, p.next(), _timeout, _connectionId));
+            connectors.add(new ConnectorI(_instance, _host, p, _timeout, _connectionId));
         }
         return connectors;
     }

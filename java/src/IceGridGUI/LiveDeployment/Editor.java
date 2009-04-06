@@ -6,6 +6,7 @@
 // ICE_LICENSE file included in this distribution.
 //
 // **********************************************************************
+
 package IceGridGUI.LiveDeployment;
 
 import IceGridGUI.*;
@@ -14,5 +15,3 @@ import IceGrid.*;
 public abstract class Editor extends EditorBase
 {
 }
-
-

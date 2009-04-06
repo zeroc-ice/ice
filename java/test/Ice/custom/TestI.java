@@ -7,32 +7,32 @@
 //
 // **********************************************************************
 
-package test.Ice.custom15;
+package test.Ice.custom;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
-import test.Ice.custom15.Test.BoolSeqHolder;
-import test.Ice.custom15.Test.ByteSeqHolder;
-import test.Ice.custom15.Test.C;
-import test.Ice.custom15.Test.CArrayHolder;
-import test.Ice.custom15.Test.CListHolder;
-import test.Ice.custom15.Test.CSeqHolder;
-import test.Ice.custom15.Test.DSeqHolder;
-import test.Ice.custom15.Test.DoubleSeqHolder;
-import test.Ice.custom15.Test.E;
-import test.Ice.custom15.Test.ESeqHolder;
-import test.Ice.custom15.Test.FloatSeqHolder;
-import test.Ice.custom15.Test.IntSeqHolder;
-import test.Ice.custom15.Test.LongSeqHolder;
-import test.Ice.custom15.Test.S;
-import test.Ice.custom15.Test.SSeqHolder;
-import test.Ice.custom15.Test.ShortSeqHolder;
-import test.Ice.custom15.Test.StringSeqHolder;
-import test.Ice.custom15.Test.StringSeqSeqHolder;
-import test.Ice.custom15.Test.TestIntf;
+import test.Ice.custom.Test.BoolSeqHolder;
+import test.Ice.custom.Test.ByteSeqHolder;
+import test.Ice.custom.Test.C;
+import test.Ice.custom.Test.CArrayHolder;
+import test.Ice.custom.Test.CListHolder;
+import test.Ice.custom.Test.CSeqHolder;
+import test.Ice.custom.Test.DSeqHolder;
+import test.Ice.custom.Test.DoubleSeqHolder;
+import test.Ice.custom.Test.E;
+import test.Ice.custom.Test.ESeqHolder;
+import test.Ice.custom.Test.FloatSeqHolder;
+import test.Ice.custom.Test.IntSeqHolder;
+import test.Ice.custom.Test.LongSeqHolder;
+import test.Ice.custom.Test.S;
+import test.Ice.custom.Test.SSeqHolder;
+import test.Ice.custom.Test.ShortSeqHolder;
+import test.Ice.custom.Test.StringSeqHolder;
+import test.Ice.custom.Test.StringSeqSeqHolder;
+import test.Ice.custom.Test.TestIntf;
 
 public final class TestI extends TestIntf
 {

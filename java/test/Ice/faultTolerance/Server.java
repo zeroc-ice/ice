@@ -22,14 +22,14 @@ public class Server extends test.Util.Application
     public int
     run(String[] args)
     {
-    	Ice.Communicator communicator = communicator();
+        Ice.Communicator communicator = communicator();
         int port = 0;
         PrintWriter out = getWriter();
-		for(int i = 0; i < args.length; i++)
+        for(String arg : args)
         {
-            if(args[i].charAt(0) == '-')
+            if(arg.charAt(0) == '-')
             {
-                out.println("Server: unknown option `" + args[i] + "'");
+                out.println("Server: unknown option `" + arg + "'");
                 usage();
                 return 1;
             }
@@ -43,7 +43,7 @@ public class Server extends test.Util.Application
 
             try
             {
-                port = Integer.parseInt(args[i]);
+                port = Integer.parseInt(arg);
             }
             catch(NumberFormatException ex)
             {
@@ -69,7 +69,7 @@ public class Server extends test.Util.Application
         return WAIT;
     }
 
-	protected Ice.InitializationData getInitData(Ice.StringSeqHolder argsH)
+    protected Ice.InitializationData getInitData(Ice.StringSeqHolder argsH)
     {
         Ice.InitializationData initData = new Ice.InitializationData();
         initData.properties = Ice.Util.createProperties(argsH);

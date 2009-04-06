@@ -6,6 +6,7 @@
 // ICE_LICENSE file included in this distribution.
 //
 // **********************************************************************
+
 package IceGridGUI.Application;
 
 import com.jgoodies.forms.builder.DefaultFormBuilder;
@@ -18,18 +19,18 @@ class PlainServerEditor extends AbstractServerEditor
     protected void writeDescriptor()
     {
         _subEditor.writeDescriptor();
-    }       
-    
+    }
+
     protected boolean isSimpleUpdate()
     {
-        return _subEditor.isSimpleUpdate(); 
+        return _subEditor.isSimpleUpdate();
     }
 
     PlainServerEditor()
     {
         _subEditor = new ServerSubEditor(this);
     }
- 
+
     //
     // From Editor:
     //
@@ -46,10 +47,10 @@ class PlainServerEditor extends AbstractServerEditor
     }
 
     protected void appendProperties(DefaultFormBuilder builder)
-    {    
+    {
         _subEditor.appendProperties(builder);
     }
-    
+
     Object getSubDescriptor()
     {
         return _target.getDescriptor();
@@ -68,7 +69,7 @@ class PlainServerEditor extends AbstractServerEditor
         _subEditor.show(true);
 
         _applyButton.setEnabled(server.isEphemeral());
-        _discardButton.setEnabled(server.isEphemeral());          
+        _discardButton.setEnabled(server.isEphemeral());
         detectUpdates(true);
         if(server.isEphemeral())
         {

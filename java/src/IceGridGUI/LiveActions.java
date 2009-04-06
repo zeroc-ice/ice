@@ -6,6 +6,7 @@
 // ICE_LICENSE file included in this distribution.
 //
 // **********************************************************************
+
 package IceGridGUI;
 
 import java.awt.event.ActionEvent;
@@ -26,23 +27,21 @@ public class LiveActions
         {
             super(name);
             _name = name;
-            putValue(Action.SHORT_DESCRIPTION, 
-                     "Send " + _name);
+            putValue(Action.SHORT_DESCRIPTION, "Send " + _name);
         }
 
-        public void actionPerformed(ActionEvent e) 
+        public void actionPerformed(ActionEvent e)
         {
             _target.signal(_name);
         }
         private String _name;
-    };
-
+    }
 
     public Action get(int index)
     {
         return _array[index];
     }
-    
+
     public boolean[] setTarget(TreeNode target)
     {
         _target = target;
@@ -53,7 +52,7 @@ public class LiveActions
             availableActions = new boolean[TreeNode.ACTION_COUNT];
         }
         else
-        {   
+        {
             availableActions = _target.getAvailableActions();
         }
 
@@ -67,50 +66,42 @@ public class LiveActions
 
     LiveActions()
     {
-        _array[TreeNode.START] = new AbstractAction(
-            "Start", Utils.getIcon("/icons/16x16/start.png"))
+        _array[TreeNode.START] = new AbstractAction("Start", Utils.getIcon("/icons/16x16/start.png"))
             {
-                public void actionPerformed(ActionEvent e) 
+                public void actionPerformed(ActionEvent e)
                 {
                     _target.start();
                 }
             };
-        _array[TreeNode.START].putValue(Action.SHORT_DESCRIPTION, 
-                                        "Start this server or service");
+        _array[TreeNode.START].putValue(Action.SHORT_DESCRIPTION, "Start this server or service");
 
-        _array[TreeNode.STOP] = new AbstractAction(
-            "Stop", Utils.getIcon("/icons/16x16/stop.png"))
+        _array[TreeNode.STOP] = new AbstractAction("Stop", Utils.getIcon("/icons/16x16/stop.png"))
             {
-                public void actionPerformed(ActionEvent e) 
+                public void actionPerformed(ActionEvent e)
                 {
                     _target.stop();
                 }
             };
-        _array[TreeNode.STOP].putValue(Action.SHORT_DESCRIPTION, 
-                                       "Stop this server or service");
-        
+        _array[TreeNode.STOP].putValue(Action.SHORT_DESCRIPTION, "Stop this server or service");
 
-        _array[TreeNode.ENABLE] = new AbstractAction(
-            "Enable", Utils.getIcon("/icons/16x16/enable.png"))
+
+        _array[TreeNode.ENABLE] = new AbstractAction("Enable", Utils.getIcon("/icons/16x16/enable.png"))
             {
-                public void actionPerformed(ActionEvent e) 
+                public void actionPerformed(ActionEvent e)
                 {
                     _target.enable();
                 }
             };
-        _array[TreeNode.ENABLE].putValue(Action.SHORT_DESCRIPTION, 
-                                             "Enable this server");
-        
-        _array[TreeNode.DISABLE] = new AbstractAction(
-            "Disable", Utils.getIcon("/icons/16x16/disable.png"))
+        _array[TreeNode.ENABLE].putValue(Action.SHORT_DESCRIPTION, "Enable this server");
+
+        _array[TreeNode.DISABLE] = new AbstractAction("Disable", Utils.getIcon("/icons/16x16/disable.png"))
             {
-                public void actionPerformed(ActionEvent e) 
+                public void actionPerformed(ActionEvent e)
                 {
                     _target.disable();
                 }
             };
-        _array[TreeNode.DISABLE].putValue(Action.SHORT_DESCRIPTION, 
-                                              "Disable this server");
+        _array[TreeNode.DISABLE].putValue(Action.SHORT_DESCRIPTION, "Disable this server");
 
         _array[TreeNode.SIGHUP] = new SendSignal("SIGHUP");
         _array[TreeNode.SIGINT] = new SendSignal("SIGINT");
@@ -122,49 +113,44 @@ public class LiveActions
 
         _array[TreeNode.WRITE_MESSAGE] = new AbstractAction("Write Message")
             {
-                public void actionPerformed(ActionEvent e) 
+                public void actionPerformed(ActionEvent e)
                 {
                     _target.writeMessage();
                 }
             };
-        _array[TreeNode.WRITE_MESSAGE].putValue(Action.SHORT_DESCRIPTION, 
-                                               "Write message to stdout or stderr");
-        
+        _array[TreeNode.WRITE_MESSAGE].putValue(Action.SHORT_DESCRIPTION, "Write message to stdout or stderr");
+
 
         _array[TreeNode.RETRIEVE_STDOUT] = new AbstractAction("Retrieve stdout")
             {
-                public void actionPerformed(ActionEvent e) 
+                public void actionPerformed(ActionEvent e)
                 {
                     _target.retrieveOutput(true);
                 }
             };
-        _array[TreeNode.RETRIEVE_STDOUT].putValue(Action.SHORT_DESCRIPTION, 
-                                               "Retrieve stdout");
+        _array[TreeNode.RETRIEVE_STDOUT].putValue(Action.SHORT_DESCRIPTION, "Retrieve stdout");
 
         _array[TreeNode.RETRIEVE_STDERR] = new AbstractAction("Retrieve stderr")
             {
-                public void actionPerformed(ActionEvent e) 
+                public void actionPerformed(ActionEvent e)
                 {
                     _target.retrieveOutput(false);
                 }
             };
-        _array[TreeNode.RETRIEVE_STDERR].putValue(Action.SHORT_DESCRIPTION, 
-                                                  "Retrieve stderr");
+        _array[TreeNode.RETRIEVE_STDERR].putValue(Action.SHORT_DESCRIPTION, "Retrieve stderr");
 
         _array[TreeNode.RETRIEVE_LOG] = new AbstractAction("Retrieve Log")
             {
-                public void actionPerformed(ActionEvent e) 
+                public void actionPerformed(ActionEvent e)
                 {
                     _target.retrieveLog();
                 }
             };
-        _array[TreeNode.RETRIEVE_LOG].putValue(Action.SHORT_DESCRIPTION, 
-                                               "Retrieve log file from the server");
-
+        _array[TreeNode.RETRIEVE_LOG].putValue(Action.SHORT_DESCRIPTION, "Retrieve log file from the server");
 
         _array[TreeNode.SHUTDOWN_NODE] = new AbstractAction("Shutdown")
             {
-                public void actionPerformed(ActionEvent e) 
+                public void actionPerformed(ActionEvent e)
                 {
                     _target.shutdownNode();
                 }
@@ -172,39 +158,36 @@ public class LiveActions
 
         _array[TreeNode.SHUTDOWN_REGISTRY] = new AbstractAction("Shutdown")
             {
-                public void actionPerformed(ActionEvent e) 
+                public void actionPerformed(ActionEvent e)
                 {
                     _target.shutdownRegistry();
                 }
             };
-        
-        _array[TreeNode.PATCH_SERVER] = 
-            new AbstractAction("Patch Distribution")
+
+        _array[TreeNode.PATCH_SERVER] = new AbstractAction("Patch Distribution")
             {
-                public void actionPerformed(ActionEvent e) 
+                public void actionPerformed(ActionEvent e)
                 {
                     _target.patchServer();
                 }
             };
 
-        _array[TreeNode.ADD_OBJECT] = 
-            new AbstractAction("Add Well-known Object")
+        _array[TreeNode.ADD_OBJECT] = new AbstractAction("Add Well-known Object")
             {
-                public void actionPerformed(ActionEvent e) 
+                public void actionPerformed(ActionEvent e)
                 {
                     _target.addObject();
                 }
             };
 
-        _array[TreeNode.OPEN_DEFINITION] =
-            new AbstractAction("Open Definition")
+        _array[TreeNode.OPEN_DEFINITION] = new AbstractAction("Open Definition")
             {
-                public void actionPerformed(ActionEvent e) 
+                public void actionPerformed(ActionEvent e)
                 {
                     _target.openDefinition();
                 }
             };
-            
+
     }
 
     private TreeNode _target;

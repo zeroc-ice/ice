@@ -7,7 +7,7 @@
 //
 // **********************************************************************
 
-package test.Ice.custom14;
+package test.Ice.custom;
 
 import java.io.PrintWriter;
 import java.util.ArrayList;
@@ -15,27 +15,28 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
-import test.Ice.custom14.Test.BoolSeqHolder;
-import test.Ice.custom14.Test.ByteSeqHolder;
-import test.Ice.custom14.Test.C;
-import test.Ice.custom14.Test.CArrayHolder;
-import test.Ice.custom14.Test.CListHolder;
-import test.Ice.custom14.Test.CSeqHolder;
-import test.Ice.custom14.Test.DSeqHolder;
-import test.Ice.custom14.Test.DoubleSeqHolder;
-import test.Ice.custom14.Test.E;
-import test.Ice.custom14.Test.ESeqHolder;
-import test.Ice.custom14.Test.FloatSeqHolder;
-import test.Ice.custom14.Test.IntSeqHolder;
-import test.Ice.custom14.Test.LongSeqHolder;
-import test.Ice.custom14.Test.S;
-import test.Ice.custom14.Test.SSeqHolder;
-import test.Ice.custom14.Test.ShortSeqHolder;
-import test.Ice.custom14.Test.StringSeqHolder;
-import test.Ice.custom14.Test.StringSeqSeqHolder;
-import test.Ice.custom14.Test.TestIntfPrx;
-import test.Ice.custom14.Test.TestIntfPrxHelper;
+import test.Ice.custom.Test.BoolSeqHolder;
+import test.Ice.custom.Test.ByteSeqHolder;
+import test.Ice.custom.Test.C;
+import test.Ice.custom.Test.CArrayHolder;
+import test.Ice.custom.Test.CListHolder;
+import test.Ice.custom.Test.CSeqHolder;
+import test.Ice.custom.Test.DSeqHolder;
+import test.Ice.custom.Test.DoubleSeqHolder;
+import test.Ice.custom.Test.E;
+import test.Ice.custom.Test.ESeqHolder;
+import test.Ice.custom.Test.FloatSeqHolder;
+import test.Ice.custom.Test.IntSeqHolder;
+import test.Ice.custom.Test.LongSeqHolder;
+import test.Ice.custom.Test.S;
+import test.Ice.custom.Test.SSeqHolder;
+import test.Ice.custom.Test.ShortSeqHolder;
+import test.Ice.custom.Test.StringSeqHolder;
+import test.Ice.custom.Test.StringSeqSeqHolder;
+import test.Ice.custom.Test.TestIntfPrx;
+import test.Ice.custom.Test.TestIntfPrxHelper;
 
 public class AllTests
 {
@@ -94,9 +95,9 @@ public class AllTests
                 test(seqR[i] == seqH.value[i]);
             }
 
-            ArrayList arr = new ArrayList(Arrays.asList(seq));
+            ArrayList<C> arr = new ArrayList<C>(Arrays.asList(seq));
             CArrayHolder arrH = new CArrayHolder();
-            List arrR = t.opCArray(arr, arrH);
+            List<C> arrR = t.opCArray(arr, arrH);
             test(arrR.size() == arr.size());
             test(arrH.value.size() == arr.size());
             for(int i = 1; i < arr.size(); i++)
@@ -106,9 +107,9 @@ public class AllTests
                 test(arrR.get(i) == arrH.value.get(i));
             }
 
-            LinkedList list = new LinkedList(Arrays.asList(seq));
+            LinkedList<C> list = new LinkedList<C>(Arrays.asList(seq));
             CListHolder listH = new CListHolder();
-            List listR = t.opCList(list, listH);
+            List<C> listR = t.opCList(list, listH);
             test(listR.size() == list.size());
             test(listH.value.size() == list.size());
             for(int i = 1; i < list.size(); i++)
@@ -121,81 +122,81 @@ public class AllTests
 
         {
             final Boolean[] seq = { Boolean.TRUE, Boolean.FALSE, Boolean.TRUE, Boolean.FALSE, Boolean.TRUE };
-            ArrayList list = new ArrayList(Arrays.asList(seq));
+            ArrayList<Boolean> list = new ArrayList<Boolean>(Arrays.asList(seq));
             BoolSeqHolder listH = new BoolSeqHolder();
-            List listR = t.opBoolSeq(list, listH);
+            List<Boolean> listR = t.opBoolSeq(list, listH);
             test(listH.value.equals(listR));
             test(listH.value.equals(list));
         }
 
         {
             final Byte[] seq = { new Byte((byte)0), new Byte((byte)1), new Byte((byte)2), new Byte((byte)3) };
-            ArrayList list = new ArrayList(Arrays.asList(seq));
+            ArrayList<Byte> list = new ArrayList<Byte>(Arrays.asList(seq));
             ByteSeqHolder listH = new ByteSeqHolder();
-            List listR = t.opByteSeq(list, listH);
+            List<Byte> listR = t.opByteSeq(list, listH);
             test(listH.value.equals(listR));
             test(listH.value.equals(list));
         }
 
         {
             final Short[] seq = { new Short((short)0), new Short((short)1), new Short((short)2), new Short((short)3) };
-            ArrayList list = new ArrayList(Arrays.asList(seq));
+            ArrayList<Short> list = new ArrayList<Short>(Arrays.asList(seq));
             ShortSeqHolder listH = new ShortSeqHolder();
-            List listR = t.opShortSeq(list, listH);
+            List<Short> listR = t.opShortSeq(list, listH);
             test(listH.value.equals(listR));
             test(listH.value.equals(list));
         }
 
         {
             final Integer[] seq = { new Integer(0), new Integer(1), new Integer(2), new Integer(3) };
-            ArrayList list = new ArrayList(Arrays.asList(seq));
+            ArrayList<Integer> list = new ArrayList<Integer>(Arrays.asList(seq));
             IntSeqHolder listH = new IntSeqHolder();
-            List listR = t.opIntSeq(list, listH);
+            List<Integer> listR = t.opIntSeq(list, listH);
             test(listH.value.equals(listR));
             test(listH.value.equals(list));
         }
 
         {
             final Long[] seq = { new Long(0), new Long(1), new Long(2), new Long(3) };
-            ArrayList list = new ArrayList(Arrays.asList(seq));
+            ArrayList<Long> list = new ArrayList<Long>(Arrays.asList(seq));
             LongSeqHolder listH = new LongSeqHolder();
-            List listR = t.opLongSeq(list, listH);
+            List<Long> listR = t.opLongSeq(list, listH);
             test(listH.value.equals(listR));
             test(listH.value.equals(list));
         }
 
         {
             final Float[] seq = { new Float(0), new Float(1), new Float(2), new Float(3) };
-            ArrayList list = new ArrayList(Arrays.asList(seq));
+            ArrayList<Float> list = new ArrayList<Float>(Arrays.asList(seq));
             FloatSeqHolder listH = new FloatSeqHolder();
-            List listR = t.opFloatSeq(list, listH);
+            List<Float> listR = t.opFloatSeq(list, listH);
             test(listH.value.equals(listR));
             test(listH.value.equals(list));
         }
 
         {
             final Double[] seq = { new Double(0), new Double(1), new Double(2), new Double(3) };
-            ArrayList list = new ArrayList(Arrays.asList(seq));
+            ArrayList<Double> list = new ArrayList<Double>(Arrays.asList(seq));
             DoubleSeqHolder listH = new DoubleSeqHolder();
-            List listR = t.opDoubleSeq(list, listH);
+            List<Double> listR = t.opDoubleSeq(list, listH);
             test(listH.value.equals(listR));
             test(listH.value.equals(list));
         }
 
         {
             final String[] seq = { "0", "1", "2", "3", "4" };
-            ArrayList list = new ArrayList(Arrays.asList(seq));
+            ArrayList<String> list = new ArrayList<String>(Arrays.asList(seq));
             StringSeqHolder listH = new StringSeqHolder();
-            List listR = t.opStringSeq(list, listH);
+            List<String> listR = t.opStringSeq(list, listH);
             test(listH.value.equals(listR));
             test(listH.value.equals(list));
         }
 
         {
             final E[] seq = { E.E1, E.E2, E.E3 };
-            ArrayList list = new ArrayList(Arrays.asList(seq));
+            ArrayList<E> list = new ArrayList<E>(Arrays.asList(seq));
             ESeqHolder listH = new ESeqHolder();
-            List listR = t.opESeq(list, listH);
+            List<E> listR = t.opESeq(list, listH);
             test(listH.value.equals(listR));
             test(listH.value.equals(list));
         }
@@ -205,43 +206,43 @@ public class AllTests
             for(int i = 0; i < seq.length; i++)
             {
                 seq[i] = new S();
-                seq[i].en = E.convert(i % 3);
+                seq[i].en = E.values()[i % 3];
             }
-            ArrayList list = new ArrayList(Arrays.asList(seq));
+            ArrayList<S> list = new ArrayList<S>(Arrays.asList(seq));
             SSeqHolder listH = new SSeqHolder();
-            List listR = t.opSSeq(list, listH);
+            List<S> listR = t.opSSeq(list, listH);
             test(listH.value.equals(listR));
             test(listH.value.equals(list));
         }
 
         {
-            ArrayList list = new ArrayList();
+            ArrayList<Map<Integer, String>> list = new ArrayList<Map<Integer, String>>();
             for(int i = 0; i < 5; i++)
             {
-                HashMap m = new HashMap();
+                Map<Integer, String> m = new HashMap<Integer, String>();
                 for(int j = 0; j < 4; j++)
                 {
-                    m.put(new Integer(j), "" + j);
+                    m.put(j, "" + j);
                 }
                 list.add(m);
             }
             DSeqHolder listH = new DSeqHolder();
-            List listR = t.opDSeq(list, listH);
+            List<Map<Integer, String>> listR = t.opDSeq(list, listH);
             test(listH.value.equals(listR));
             test(listH.value.equals(list));
         }
 
         {
-            ArrayList[] seq = new ArrayList[5];
+            List<List<String>> seq = new LinkedList<List<String>>();
             for(int i = 0; i < 5; i++)
             {
                 final String[] arr = { "0", "1", "2", "3", "4" };
-                seq[i] = new ArrayList(Arrays.asList(arr));
+                seq.add(new ArrayList<String>(Arrays.asList(arr)));
             }
             StringSeqSeqHolder listH = new StringSeqSeqHolder();
-            List[] listR = t.opStringSeqSeq(seq, listH);
-            test(Arrays.equals(listH.value, listR));
-            test(Arrays.equals(listH.value, seq));
+            List<List<String>> listR = t.opStringSeqSeq(seq, listH);
+            test(listH.value.equals(listR));
+            test(listH.value.equals(seq));
         }
 
         out.println("ok");

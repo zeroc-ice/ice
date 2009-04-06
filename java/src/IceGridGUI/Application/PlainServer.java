@@ -6,6 +6,7 @@
 // ICE_LICENSE file included in this distribution.
 //
 // **********************************************************************
+
 package IceGridGUI.Application;
 
 import java.awt.Component;
@@ -21,7 +22,7 @@ import IceGrid.*;
 import IceGridGUI.*;
 
 class PlainServer extends Communicator implements Server
-{ 
+{
     static public ServerDescriptor
     copyDescriptor(ServerDescriptor sd)
     {
@@ -31,7 +32,7 @@ class PlainServer extends Communicator implements Server
         copy.dbEnvs = DbEnv.copyDescriptors(copy.dbEnvs);
 
         copy.propertySet = PropertySet.copyDescriptor(copy.propertySet);
-        
+
         copy.distrib = (DistributionDescriptor)copy.distrib.clone();
 
         if(copy instanceof IceBoxDescriptor)
@@ -41,11 +42,11 @@ class PlainServer extends Communicator implements Server
         }
         return copy;
     }
-    
+
     static public void shallowRestore(ServerDescriptor from, ServerDescriptor into)
     {
         //
-        // When editing a server or server template, if we update properties, 
+        // When editing a server or server template, if we update properties,
         // we replace the entire field
         //
         into.propertySet = from.propertySet;
@@ -65,22 +66,22 @@ class PlainServer extends Communicator implements Server
     static public ServerDescriptor newServerDescriptor()
     {
         return new ServerDescriptor(
-            new java.util.LinkedList(),
-            new PropertySetDescriptor(new String[0], new java.util.LinkedList()),
-            new java.util.LinkedList(),
+            new java.util.LinkedList<AdapterDescriptor>(),
+            new PropertySetDescriptor(new String[0], new java.util.LinkedList<PropertyDescriptor>()),
+            new java.util.LinkedList<DbEnvDescriptor>(),
             new String[0],
             "",
             "NewServer",
             "",
             "",
             "",
-            new java.util.LinkedList(),
-            new java.util.LinkedList(),
+            new java.util.LinkedList<String>(),
+            new java.util.LinkedList<String>(),
             "manual",
             "",
             "",
             true,
-            new DistributionDescriptor("", new java.util.LinkedList()),
+            new DistributionDescriptor("", new java.util.LinkedList<String>()),
             false, // Allocatable
             "");
     }
@@ -88,39 +89,39 @@ class PlainServer extends Communicator implements Server
     static public IceBoxDescriptor newIceBoxDescriptor()
     {
         return new IceBoxDescriptor(
-            new java.util.LinkedList(),
-            new PropertySetDescriptor(new String[0], new java.util.LinkedList()),
-            new java.util.LinkedList(),
+            new java.util.LinkedList<AdapterDescriptor>(),
+            new PropertySetDescriptor(new String[0], new java.util.LinkedList<PropertyDescriptor>()),
+            new java.util.LinkedList<DbEnvDescriptor>(),
             new String[0],
             "",
             "NewIceBox",
             "",
             "",
             "",
-            new java.util.LinkedList(),
-            new java.util.LinkedList(),
+            new java.util.LinkedList<String>(),
+            new java.util.LinkedList<String>(),
             "manual",
             "",
             "",
             true,
-            new DistributionDescriptor("", new java.util.LinkedList()),
+            new DistributionDescriptor("", new java.util.LinkedList<String>()),
             false, // Allocatable
             "",
-            new java.util.LinkedList()
+            new java.util.LinkedList<ServiceInstanceDescriptor>()
             );
     }
-    
+
     //
     // Actions
     //
     public boolean[] getAvailableActions()
     {
         boolean[] actions = new boolean[ACTION_COUNT];
-        
+
         Object clipboard = getCoordinator().getClipboard();
-        if(clipboard != null && 
+        if(clipboard != null &&
            (clipboard instanceof ServerDescriptor
-            || clipboard instanceof ServerInstanceDescriptor 
+            || clipboard instanceof ServerInstanceDescriptor
             || (isIceBox() && (clipboard instanceof ServiceInstanceDescriptor))
             || (!isIceBox() && (clipboard instanceof Adapter.AdapterCopy
                                 || clipboard instanceof DbEnvDescriptor))))
@@ -142,6 +143,7 @@ class PlainServer extends Communicator implements Server
         }
         return actions;
     }
+
     public JPopupMenu getPopupMenu()
     {
         ApplicationActions actions = getCoordinator().getActionsForPopup();
@@ -156,12 +158,13 @@ class PlainServer extends Communicator implements Server
         actions.setTarget(this);
         return _popup;
     }
+
     public void copy()
     {
         getCoordinator().setClipboard(copyDescriptor(_descriptor));
         getCoordinator().getActionsForMenu().get(PASTE).setEnabled(true);
     }
-    
+
     public Editor getEditor()
     {
         if(_editor == null)
@@ -176,15 +179,15 @@ class PlainServer extends Communicator implements Server
     {
         return new PlainServerEditor();
     }
-        
+
     public Component getTreeCellRendererComponent(
-            JTree tree,
-            Object value,
-            boolean sel,
-            boolean expanded,
-            boolean leaf,
-            int row,
-            boolean hasFocus) 
+        JTree tree,
+        Object value,
+        boolean sel,
+        boolean expanded,
+        boolean leaf,
+        int row,
+        boolean hasFocus)
     {
         if(_cellRenderer == null)
         {
@@ -196,23 +199,22 @@ class PlainServer extends Communicator implements Server
             _serverIcon = Utils.getIcon("/icons/16x16/server_inactive.png");
             _iceboxServerIcon = Utils.getIcon("/icons/16x16/icebox_server_inactive.png");
         }
-        
+
         if(expanded)
-        {       
+        {
             _cellRenderer.setOpenIcon(isIceBox() ? _iceboxServerIcon : _serverIcon);
         }
         else
         {
             _cellRenderer.setClosedIcon(isIceBox() ? _iceboxServerIcon : _serverIcon);
-        } 
-        return _cellRenderer.getTreeCellRendererComponent(
-            tree, value, sel, expanded, leaf, row, hasFocus);
+        }
+        return _cellRenderer.getTreeCellRendererComponent(tree, value, sel, expanded, leaf, row, hasFocus);
     }
 
     public void destroy()
     {
         Node node = (Node)_parent;
-        
+
         if(_ephemeral)
         {
             node.removeServer(this);
@@ -246,8 +248,8 @@ class PlainServer extends Communicator implements Server
     //
     // Builds the server and all its sub-tree
     //
-    PlainServer(boolean brandNew, TreeNode parent, String serverId, 
-                Utils.Resolver resolver, ServerDescriptor serverDescriptor) 
+    PlainServer(boolean brandNew, TreeNode parent, String serverId, Utils.Resolver resolver,
+                ServerDescriptor serverDescriptor)
         throws UpdateFailedException
     {
         super(parent, serverId);
@@ -271,28 +273,25 @@ class PlainServer extends Communicator implements Server
         }
     }
 
-    static java.util.List createAttributes(ServerDescriptor descriptor)
+    static java.util.List<String[]> createAttributes(ServerDescriptor descriptor)
     {
-        java.util.List attributes = new java.util.LinkedList();
+        java.util.List<String[]> attributes = new java.util.LinkedList<String[]>();
         attributes.add(createAttribute("id", descriptor.id));
         if(descriptor.activation.length() > 0)
         {
-            attributes.add(createAttribute("activation", 
-                                           descriptor.activation));
+            attributes.add(createAttribute("activation", descriptor.activation));
         }
         if(descriptor.activationTimeout.length() > 0)
         {
-            attributes.add(createAttribute("activation-timeout", 
-                                           descriptor.activationTimeout));
+            attributes.add(createAttribute("activation-timeout", descriptor.activationTimeout));
         }
         if(!descriptor.applicationDistrib)
         {
-            attributes.add(createAttribute("application-distrib", "false")); 
+            attributes.add(createAttribute("application-distrib", "false"));
         }
         if(descriptor.deactivationTimeout.length() > 0)
         {
-            attributes.add(createAttribute("deactivation-timeout", 
-                                           descriptor.deactivationTimeout));
+            attributes.add(createAttribute("deactivation-timeout", descriptor.deactivationTimeout));
         }
         if(descriptor.exe.length() > 0)
         {
@@ -309,35 +308,33 @@ class PlainServer extends Communicator implements Server
 
         return attributes;
     }
-    
-    static void writeOptions(XMLWriter writer, java.util.List options)
+
+    static void writeOptions(XMLWriter writer, java.util.List<String> options)
         throws java.io.IOException
     {
-        java.util.Iterator p = options.iterator();
-        while(p.hasNext())
+        for(String p : options)
         {
-            writer.writeElement("option", (String)p.next()); 
-        }
-    }
-    
-    static void writeEnvs(XMLWriter writer, java.util.List envs)
-        throws java.io.IOException
-    {
-        java.util.Iterator p = envs.iterator();
-        while(p.hasNext())
-        {
-            writer.writeElement("env", (String)p.next()); 
+            writer.writeElement("option", p);
         }
     }
 
-    void write(XMLWriter writer) throws java.io.IOException
+    static void writeEnvs(XMLWriter writer, java.util.List<String> envs)
+        throws java.io.IOException
+    {
+        for(String p : envs)
+        {
+            writer.writeElement("env", p);
+        }
+    }
+
+    void write(XMLWriter writer)
+        throws java.io.IOException
     {
         if(!_ephemeral)
         {
             if(isIceBox())
             {
-                writer.writeStartTag("icebox", 
-                                     createAttributes(_descriptor));
+                writer.writeStartTag("icebox", createAttributes(_descriptor));
 
                 if(_descriptor.description.length() > 0)
                 {
@@ -345,9 +342,8 @@ class PlainServer extends Communicator implements Server
                 }
                 writeOptions(writer, _descriptor.options);
                 writeEnvs(writer, _descriptor.envs);
-                
-                writePropertySet(writer, "", "", _descriptor.propertySet, 
-                                 _descriptor.adapters, _descriptor.logs);
+
+                writePropertySet(writer, "", "", _descriptor.propertySet, _descriptor.adapters, _descriptor.logs);
                 writeLogs(writer, _descriptor.logs, _descriptor.propertySet.properties);
                 writeDistribution(writer, _descriptor.distrib);
 
@@ -363,10 +359,10 @@ class PlainServer extends Communicator implements Server
                 {
                     writer.writeElement("description", _descriptor.description);
                 }
-                
+
                 writeOptions(writer, _descriptor.options);
                 writeEnvs(writer, _descriptor.envs);
-                
+
                 writePropertySet(writer, _descriptor.propertySet, _descriptor.adapters, _descriptor.logs);
                 writeLogs(writer, _descriptor.logs, _descriptor.propertySet.properties);
                 writeDistribution(writer, _descriptor.distrib);
@@ -378,13 +374,13 @@ class PlainServer extends Communicator implements Server
         }
     }
 
-
     boolean isIceBox()
     {
         return _descriptor instanceof IceBoxDescriptor;
     }
 
-    public Object rebuild(java.util.List editables) throws UpdateFailedException
+    public Object rebuild(java.util.List<Editable> editables)
+        throws UpdateFailedException
     {
         Node node = (Node)_parent;
         PlainServer newServer = node.createServer(false, _descriptor);
@@ -394,7 +390,7 @@ class PlainServer extends Communicator implements Server
         if(_id.equals(newServer.getId()))
         {
             //
-            // A simple update. We can't simply rebuild server because 
+            // A simple update. We can't simply rebuild server because
             // we need to keep a backup
             //
             if(_editable.isModified())
@@ -402,7 +398,7 @@ class PlainServer extends Communicator implements Server
                 newServer.getEditable().markModified();
             }
 
-            node.removeServer(this);        
+            node.removeServer(this);
             try
             {
                 node.insertServer(newServer, true);
@@ -422,7 +418,7 @@ class PlainServer extends Communicator implements Server
             node.removeServer(this);
             backup = node.getEditable().save();
             node.getEditable().removeElement(_id, _editable, Server.class);
-            
+
             try
             {
                 node.insertServer(newServer, true);
@@ -433,7 +429,7 @@ class PlainServer extends Communicator implements Server
                 throw e;
             }
         }
-        
+
         return backup;
     }
 
@@ -471,8 +467,8 @@ class PlainServer extends Communicator implements Server
     //
     // Update the server and all its subtree
     //
-    void rebuild(Utils.Resolver resolver,  
-                 ServerDescriptor serverDescriptor) throws UpdateFailedException
+    void rebuild(Utils.Resolver resolver, ServerDescriptor serverDescriptor)
+        throws UpdateFailedException
     {
         assert serverDescriptor != null;
         _resolver = resolver;
@@ -489,7 +485,7 @@ class PlainServer extends Communicator implements Server
             {
                 IceBoxDescriptor iceBoxDescriptor = (IceBoxDescriptor)_descriptor;
                 _services.init(iceBoxDescriptor.services);
-   
+
                 //
                 // IceBox has not dbEnv
                 //
@@ -511,7 +507,7 @@ class PlainServer extends Communicator implements Server
     {
         return _resolver;
     }
-    
+
     public Editable getEditable()
     {
         return _editable;
@@ -534,10 +530,10 @@ class PlainServer extends Communicator implements Server
 
     private Utils.Resolver _resolver;
     private Editable _editable;
-    
+
     static private DefaultTreeCellRenderer _cellRenderer;
     static private Icon _serverIcon;
     static private Icon _iceboxServerIcon;
- 
+
     static private JPopupMenu _popup;
 }

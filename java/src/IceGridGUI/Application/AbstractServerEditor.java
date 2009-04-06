@@ -6,6 +6,7 @@
 // ICE_LICENSE file included in this distribution.
 //
 // **********************************************************************
+
 package IceGridGUI.Application;
 
 import javax.swing.JOptionPane;
@@ -91,12 +92,12 @@ abstract class AbstractServerEditor extends Editor
                 //
                 _target = (TreeNode)node.findChildWithDescriptor(server.getDescriptor());
                 root.updated();
-        
+
                 if(refresh)
                 {
                     root.setSelectedNode(_target);
                 }
-        
+
             }
             else if(isSimpleUpdate())
             {
@@ -112,9 +113,9 @@ abstract class AbstractServerEditor extends Editor
                 Object savedDescriptor = server.saveDescriptor();
                 Node node = (Node)_target.getParent();
                 writeDescriptor();
-                
+
                 node.removeServer(_target);
-                
+
                 try
                 {
                     if(server instanceof PlainServer)
@@ -130,7 +131,7 @@ abstract class AbstractServerEditor extends Editor
                 {
                     //
                     // Restore
-                    //  
+                    //
                     try
                     {
                         node.insertServer(_target, true);
@@ -141,7 +142,7 @@ abstract class AbstractServerEditor extends Editor
                     }
                     server.restoreDescriptor(savedDescriptor);
                     root.setSelectedNode(_target);
-                    
+
                     JOptionPane.showMessageDialog(
                         root.getCoordinator().getMainFrame(),
                         e.toString(),
@@ -149,13 +150,13 @@ abstract class AbstractServerEditor extends Editor
                         JOptionPane.ERROR_MESSAGE);
                     return false;
                 }
-                
+
                 //
                 // Success
                 //
-                node.getEditable().removeElement(_target.getId(), server.getEditable(), 
+                node.getEditable().removeElement(_target.getId(), server.getEditable(),
                                                  Server.class); // replaced by brand new Server
-                
+
                 _target = node.findChildWithDescriptor(server.getDescriptor());
                 root.updated();
                 if(refresh)
@@ -163,7 +164,7 @@ abstract class AbstractServerEditor extends Editor
                     root.setSelectedNode(_target);
                 }
             }
-            
+
             if(refresh)
             {
                 root.getCoordinator().getCurrentTab().showNode(_target);

@@ -28,7 +28,7 @@ module CasinoStore
         //
         ["freeze:write:mandatory"] void win(int count);
     };
-    ["java:type:{java.util.Vector}:{java.util.Vector}"] sequence<Winner*> WinnerPrxSeq;
+    ["java:type:java.util.Vector<WinnerPrx>:java.util.Vector<WinnerPrx>"] sequence<Winner*> WinnerPrxSeq;
 
 
     class PersistentPlayer implements Casino::Player, Winner

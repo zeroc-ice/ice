@@ -10,7 +10,7 @@
 #ifndef TEST_ICE
 #define TEST_ICE
 
-[["java:package:test.Ice.custom15"]]
+[["java:package:test.Ice.custom"]]
 module Test
 {
 

@@ -20,19 +20,19 @@ public class ServantI implements _ServantOperations
             throw new RuntimeException();
         }
     }
-    
+
 
     static class DelayedResponse extends Thread
-    {   
+    {
         DelayedResponse(AMD_Servant_slowGetValue cb, int val)
         {
             _cb = cb;
             _val = val;
         }
-        
+
         public void
         run()
-        { 
+        {
             try
             {
                 sleep(500);
@@ -64,7 +64,7 @@ public class ServantI implements _ServantOperations
 
     void
     init(RemoteEvictorI remoteEvictor, Freeze.Evictor evictor)
-    {   
+    {
         _remoteEvictor = remoteEvictor;
         _evictor = evictor;
     }
@@ -79,9 +79,9 @@ public class ServantI implements _ServantOperations
         //
         if(_tie.accounts != null)
         {
-            for(int i = 0; i < _tie.accounts.length; ++i)
+            for(Ice.Identity id : _tie.accounts)
             {
-                _evictor.remove(_tie.accounts[i]);
+                _evictor.remove(id);
             }
         }
     }
@@ -94,7 +94,7 @@ public class ServantI implements _ServantOperations
             return _tie.value;
         }
     }
-    
+
     public void
     slowGetValue_async(AMD_Servant_slowGetValue cb, Ice.Current current)
     {
@@ -178,7 +178,7 @@ public class ServantI implements _ServantOperations
         {
             throw new NotRegisteredException();
         }
-   
+
     }
 
     public synchronized int
@@ -220,13 +220,13 @@ public class ServantI implements _ServantOperations
     getAccounts(Ice.Current current)
     {
         Freeze.TransactionalEvictor te = (Freeze.TransactionalEvictor)_evictor;
-        
+
         if(te.getCurrentTransaction() != null)
         {
             if(_tie.accounts == null || _tie.accounts.length == 0)
-            {  
+            {
                 _tie.accounts = new Ice.Identity[10];
-                
+
                 for(int i = 0; i < _tie.accounts.length; ++i)
                 {
                     _tie.accounts[i] = new Ice.Identity(current.id.name + "-account#" + i, current.id.category);
@@ -238,7 +238,7 @@ public class ServantI implements _ServantOperations
                 te.getCurrentTransaction().rollback(); // not need to re-write this servant
             }
         }
-        
+
         if(_tie.accounts == null || _tie.accounts.length == 0)
         {
             return new AccountPrx[0];
@@ -262,18 +262,19 @@ public class ServantI implements _ServantOperations
         // Need to start a transaction to ensure a consistent result
         //
         Freeze.TransactionalEvictor te = (Freeze.TransactionalEvictor)_evictor;
-     
+
         for(;;)
         {
             test(te.getCurrentTransaction() == null);
-            Freeze.Connection con = Freeze.Util.createConnection(current.adapter.getCommunicator(), _remoteEvictor.envName());
+            Freeze.Connection con =
+                Freeze.Util.createConnection(current.adapter.getCommunicator(), _remoteEvictor.envName());
             te.setCurrentTransaction(con.beginTransaction());
             int total = 0;
             try
             {
-                for(int i = 0; i < accounts.length; ++i)
+                for(AccountPrx account : accounts)
                 {
-                    total += accounts[i].getBalance();
+                    total += account.getBalance();
                 }
                 return total;
             }

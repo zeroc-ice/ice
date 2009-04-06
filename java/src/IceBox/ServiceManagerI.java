@@ -24,7 +24,7 @@ public class ServiceManagerI extends _ServiceManagerDisp
         _traceServiceObserver = _communicator.getProperties().getPropertyAsInt("IceBox.Trace.ServiceObserver");
     }
 
-    public java.util.Map
+    public java.util.Map<String, String>
     getSliceChecksums(Ice.Current current)
     {
         return SliceChecksums.checksums;
@@ -41,18 +41,16 @@ public class ServiceManagerI extends _ServiceManagerDisp
             // Search would be more efficient if services were contained in
             // a map, but order is required for shutdown.
             //
-            java.util.Iterator<ServiceInfo> p = _services.iterator();
-            while(p.hasNext())
+            for(ServiceInfo p : _services)
             {
-                ServiceInfo in = p.next();
-                if(in.name.equals(name))
+                if(p.name.equals(name))
                 {
-                    if(in.status == StatusStarted)
+                    if(p.status == StatusStarted)
                     {
                         throw new AlreadyStartedException();
                     }
-                    in.status = StatusStarting;
-                    info = (ServiceInfo)in.clone();
+                    p.status = StatusStarting;
+                    info = (ServiceInfo)p.clone();
                     break;
                 }
             }
@@ -75,21 +73,18 @@ public class ServiceManagerI extends _ServiceManagerDisp
             java.io.PrintWriter pw = new java.io.PrintWriter(sw);
             e.printStackTrace(pw);
             pw.flush();
-            _logger.warning("ServiceManager: exception in start for service " + info.name + "\n" +
-                            sw.toString());
+            _logger.warning("ServiceManager: exception in start for service " + info.name + "\n" + sw.toString());
         }
 
         synchronized(this)
         {
-            java.util.Iterator<ServiceInfo> p = _services.iterator();
-            while(p.hasNext())
+            for(ServiceInfo p : _services)
             {
-                ServiceInfo in = p.next();
-                if(in.name.equals(name))
+                if(p.name.equals(name))
                 {
                     if(started)
                     {
-                        in.status = StatusStarted;
+                        p.status = StatusStarted;
 
                         java.util.List<String> services = new java.util.ArrayList<String>();
                         services.add(name);
@@ -97,7 +92,7 @@ public class ServiceManagerI extends _ServiceManagerDisp
                     }
                     else
                     {
-                        in.status = StatusStopped;
+                        p.status = StatusStopped;
                     }
                     break;
                 }
@@ -118,18 +113,16 @@ public class ServiceManagerI extends _ServiceManagerDisp
             // Search would be more efficient if services were contained in
             // a map, but order is required for shutdown.
             //
-            java.util.Iterator<ServiceInfo> p = _services.iterator();
-            while(p.hasNext())
+            for(ServiceInfo p : _services)
             {
-                ServiceInfo in = p.next();
-                if(in.name.equals(name))
+                if(p.name.equals(name))
                 {
-                    if(in.status == StatusStopped)
+                    if(p.status == StatusStopped)
                     {
                         throw new AlreadyStoppedException();
                     }
-                    in.status = StatusStopping;
-                    info = (ServiceInfo)in.clone();
+                    p.status = StatusStopping;
+                    info = (ServiceInfo)p.clone();
                     break;
                 }
             }
@@ -158,15 +151,13 @@ public class ServiceManagerI extends _ServiceManagerDisp
 
         synchronized(this)
         {
-            java.util.Iterator<ServiceInfo> p = _services.iterator();
-            while(p.hasNext())
+            for(ServiceInfo p : _services)
             {
-                ServiceInfo in = p.next();
-                if(in.name.equals(name))
+                if(p.name.equals(name))
                 {
                     if(stopped)
                     {
-                        in.status = StatusStopped;
+                        p.status = StatusStopped;
 
                         java.util.List<String> services = new java.util.ArrayList<String>();
                         services.add(name);
@@ -174,7 +165,7 @@ public class ServiceManagerI extends _ServiceManagerDisp
                     }
                     else
                     {
-                        in.status = StatusStarted;
+                        p.status = StatusStarted;
                     }
                     break;
                 }
@@ -280,28 +271,26 @@ public class ServiceManagerI extends _ServiceManagerDisp
             java.util.Map<String, String> services = properties.getPropertiesForPrefix(prefix);
             String[] loadOrder = properties.getPropertyAsList("IceBox.LoadOrder");
             java.util.List<StartServiceInfo> servicesInfo = new java.util.ArrayList<StartServiceInfo>();
-            for(int i = 0; i < loadOrder.length; ++i)
+            for(String name : loadOrder)
             {
-                if(loadOrder[i].length() > 0)
+                if(name.length() > 0)
                 {
-                    String key = prefix + loadOrder[i];
+                    String key = prefix + name;
                     String value = services.get(key);
                     if(value == null)
                     {
                         FailureException ex = new FailureException();
-                        ex.reason = "ServiceManager: no service definition for `" + loadOrder[i] + "'";
+                        ex.reason = "ServiceManager: no service definition for `" + name + "'";
                         throw ex;
                     }
-                    servicesInfo.add(new StartServiceInfo(loadOrder[i], value, _argv));
+                    servicesInfo.add(new StartServiceInfo(name, value, _argv));
                     services.remove(key);
                 }
             }
-            java.util.Iterator<java.util.Map.Entry<String, String> > p = services.entrySet().iterator();
-            while(p.hasNext())
+            for(java.util.Map.Entry<String, String> p : services.entrySet())
             {
-                java.util.Map.Entry<String, String> entry = p.next();
-                String name = entry.getKey().substring(prefix.length());
-                String value = entry.getValue();
+                String name = p.getKey().substring(prefix.length());
+                String value = p.getValue();
                 servicesInfo.add(new StartServiceInfo(name, value, _argv));
             }
 
@@ -336,10 +325,8 @@ public class ServiceManagerI extends _ServiceManagerDisp
                     // overriden by the service properties).
                     //
                     java.util.Map<String, String> allProps = initData.properties.getPropertiesForPrefix("");
-                    java.util.Iterator<String> q = allProps.keySet().iterator();
-                    while(q.hasNext())
+                    for(String key : allProps.keySet())
                     {
-                        String key = q.next();
                         if(svcProperties.getProperty(key).length() == 0)
                         {
                             initData.properties.setProperty(key, "");
@@ -349,12 +336,9 @@ public class ServiceManagerI extends _ServiceManagerDisp
                     //
                     // Add the service properties to the shared communicator properties.
                     //
-                    java.util.Iterator<java.util.Map.Entry<String, String> > r =
-                        svcProperties.getPropertiesForPrefix("").entrySet().iterator();
-                    while(r.hasNext())
+                    for(java.util.Map.Entry<String, String> p : svcProperties.getPropertiesForPrefix("").entrySet())
                     {
-                        java.util.Map.Entry<String, String> entry = r.next();
-                        initData.properties.setProperty(entry.getKey(), entry.getValue());
+                        initData.properties.setProperty(p.getKey(), p.getValue());
                     }
 
                     //
@@ -940,11 +924,11 @@ public class ServiceManagerI extends _ServiceManagerDisp
             if(serverArgs.length > 0)
             {
                 java.util.List<String> l = new java.util.ArrayList<String>(java.util.Arrays.asList(args));
-                for(int j = 0; j < serverArgs.length; j++)
+                for(String arg : serverArgs)
                 {
-                    if(serverArgs[j].startsWith("--" + service + "."))
+                    if(arg.startsWith("--" + service + "."))
                     {
-                        l.add(serverArgs[j]);
+                        l.add(arg);
                     }
                 }
                 args = l.toArray(args);

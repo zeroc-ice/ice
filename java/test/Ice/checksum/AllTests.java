@@ -38,11 +38,9 @@ public class AllTests
         //
         out.print("testing checksums... ");
         out.flush();
-        java.util.Iterator<java.util.Map.Entry<String, String> > p = SliceChecksums.checksums.entrySet().iterator();
-        while(p.hasNext())
+        for(java.util.Map.Entry<String, String> p : SliceChecksums.checksums.entrySet())
         {
-            java.util.Map.Entry<String, String> entry = p.next();
-            String key = entry.getKey();
+            String key = p.getKey();
             int pos = key.indexOf("Local");
             test(pos == -1);
         }
@@ -57,13 +55,11 @@ public class AllTests
         // we assume that the server's type does not change for N = 1, and does
         // change for N > 1.
         //
-        p = d.entrySet().iterator();
         java.util.regex.Pattern patt = java.util.regex.Pattern.compile("\\d+");
-        while(p.hasNext())
+        for(java.util.Map.Entry<String, String> p : d.entrySet())
         {
             int n = 0;
-            java.util.Map.Entry<String, String> entry = p.next();
-            String key = entry.getKey();
+            String key = p.getKey();
             java.util.regex.Matcher m = patt.matcher(key);
             if(m.find())
             {
@@ -82,11 +78,11 @@ public class AllTests
 
             if(n <= 1)
             {
-                test(value.equals(entry.getValue()));
+                test(value.equals(p.getValue()));
             }
             else
             {
-                test(!value.equals(entry.getValue()));
+                test(!value.equals(p.getValue()));
             }
         }
         out.println("ok");

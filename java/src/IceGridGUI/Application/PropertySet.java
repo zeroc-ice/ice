@@ -6,6 +6,7 @@
 // ICE_LICENSE file included in this distribution.
 //
 // **********************************************************************
+
 package IceGridGUI.Application;
 
 import java.awt.Component;
@@ -17,34 +18,32 @@ import IceGridGUI.*;
 
 class PropertySet extends TreeNode
 {
-    static public PropertySetDescriptor 
+    static public PropertySetDescriptor
     copyDescriptor(PropertySetDescriptor d)
     {
         PropertySetDescriptor psd = (PropertySetDescriptor)d.clone();
-        psd.properties = new java.util.LinkedList(psd.properties);
+        psd.properties = new java.util.LinkedList<PropertyDescriptor>(psd.properties);
         return psd;
     }
 
     public Component getTreeCellRendererComponent(
-            JTree tree,
-            Object value,
-            boolean sel,
-            boolean expanded,
-            boolean leaf,
-            int row,
-            boolean hasFocus) 
+        JTree tree,
+        Object value,
+        boolean sel,
+        boolean expanded,
+        boolean leaf,
+        int row,
+        boolean hasFocus)
     {
         if(_cellRenderer == null)
         {
             _cellRenderer = new DefaultTreeCellRenderer();
-            _cellRenderer.setLeafIcon(
-                Utils.getIcon("/icons/16x16/property_set.png"));
+            _cellRenderer.setLeafIcon(Utils.getIcon("/icons/16x16/property_set.png"));
         }
 
-        return _cellRenderer.getTreeCellRendererComponent(
-            tree, value, sel, expanded, leaf, row, hasFocus);
+        return _cellRenderer.getTreeCellRendererComponent(tree, value, sel, expanded, leaf, row, hasFocus);
     }
-    
+
     //
     // Actions
     //
@@ -52,7 +51,7 @@ class PropertySet extends TreeNode
     {
         boolean[] actions = new boolean[ACTION_COUNT];
         actions[COPY] = !_ephemeral;
-        
+
         if(((TreeNode)_parent).getAvailableActions()[PASTE])
         {
             actions[PASTE] = true;
@@ -73,6 +72,7 @@ class PropertySet extends TreeNode
         getCoordinator().getActionsForMenu().get(PASTE).setEnabled(true);
 
     }
+
     public void paste()
     {
         ((TreeNode)_parent).paste();
@@ -104,13 +104,11 @@ class PropertySet extends TreeNode
         {
             if(_inServerInstance)
             {
-                _editor = (PropertySetEditor)getRoot().
-                    getEditor(ServerInstancePropertySetEditor.class, this);
+                _editor = (PropertySetEditor)getRoot().getEditor(ServerInstancePropertySetEditor.class, this);
             }
             else
             {
-                _editor = (PropertySetEditor)getRoot().
-                    getEditor(PropertySetEditor.class, this);
+                _editor = (PropertySetEditor)getRoot().getEditor(PropertySetEditor.class, this);
             }
         }
         _editor.show(_unsubstitutedId, this);
@@ -143,11 +141,12 @@ class PropertySet extends TreeNode
     {
         return _descriptor;
     }
-    
+
     Object saveDescriptor()
     {
         return _descriptor.clone();
     }
+
     void restoreDescriptor(Object savedDescriptor)
     {
         PropertySetDescriptor clone = (PropertySetDescriptor)savedDescriptor;
@@ -162,7 +161,7 @@ class PropertySet extends TreeNode
             _editable.commit();
         }
     }
-    
+
     Editable getEditable()
     {
         if(_editable != null)
@@ -174,12 +173,8 @@ class PropertySet extends TreeNode
             return ((PropertySetParent)_parent).getEditable();
         }
     }
-   
-    PropertySet(boolean brandNew,
-                TreeNode parent,
-                String id,
-                String unsubstitutedId,
-                PropertySetDescriptor descriptor)
+
+    PropertySet(boolean brandNew, TreeNode parent, String id, String unsubstitutedId, PropertySetDescriptor descriptor)
     {
         super(parent, id);
         _unsubstitutedId = unsubstitutedId;
@@ -189,10 +184,7 @@ class PropertySet extends TreeNode
         rebuild(descriptor);
     }
 
-    PropertySet(TreeNode parent,
-                String id,
-                String unsubstitutedId,
-                PropertySetDescriptor descriptor)
+    PropertySet(TreeNode parent, String id, String unsubstitutedId, PropertySetDescriptor descriptor)
     {
         super(parent, id);
         _unsubstitutedId = unsubstitutedId;
@@ -202,7 +194,7 @@ class PropertySet extends TreeNode
         rebuild(descriptor);
     }
 
-    
+
     PropertySet(TreeNode parent, String id, PropertySetDescriptor descriptor)
     {
         super(parent, id);
@@ -212,14 +204,13 @@ class PropertySet extends TreeNode
         _editable = null;
         rebuild(descriptor);
     }
-    
-    void write(XMLWriter writer) throws java.io.IOException
+
+    void write(XMLWriter writer)
+        throws java.io.IOException
     {
         if(!_ephemeral)
         {
-            writePropertySet(writer, _unsubstitutedId, 
-                             _inServerInstance ? "service" : "id",
-                             _descriptor, null, null);
+            writePropertySet(writer, _unsubstitutedId, _inServerInstance ? "service" : "id", _descriptor, null, null);
         }
     }
 
@@ -235,5 +226,5 @@ class PropertySet extends TreeNode
     private final boolean _inServerInstance;
     private PropertySetEditor _editor;
 
-    static private DefaultTreeCellRenderer _cellRenderer;  
+    static private DefaultTreeCellRenderer _cellRenderer;
 }

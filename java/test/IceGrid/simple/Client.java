@@ -15,9 +15,9 @@ public class Client extends test.Util.Application
     {
         Ice.Communicator communicator = communicator();
         boolean withDeploy = false;
-        for(int i = 1; i < args.length; i++)
+        for(String arg : args)
         {
-            if(args[i].equals("--with-deploy"))
+            if(arg.equals("--with-deploy"))
             {
                 withDeploy = true;
                 break;

@@ -64,23 +64,21 @@ class CallbackSenderI extends _CallbackSenderDisp implements java.lang.Runnable
             {
                 ++num;
 
-                java.util.Iterator<CallbackReceiverPrx> p = clients.iterator();
-                while(p.hasNext())
+                for(CallbackReceiverPrx p : clients)
                 {
-                    CallbackReceiverPrx r = p.next();
                     try
                     {
-                        r.callback(num);
+                        p.callback(num);
                     }
                     catch(Exception ex)
                     {
-                        System.out.println("removing client `" + _communicator.identityToString(r.ice_getIdentity()) +
+                        System.out.println("removing client `" + _communicator.identityToString(p.ice_getIdentity()) +
                                            "':");
                         ex.printStackTrace();
 
                         synchronized(this)
                         {
-                            _clients.remove(r);
+                            _clients.remove(p);
                         }
                     }
                 }

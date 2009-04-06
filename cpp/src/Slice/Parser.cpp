@@ -2201,8 +2201,6 @@ Slice::Container::checkGlobalMetaData(const StringList& m1, const StringList& m2
     static const char* prefixes[] =
     {
         "java:package",
-        "java:java2",
-        "java:java5",
         "python:package",
         0
     };

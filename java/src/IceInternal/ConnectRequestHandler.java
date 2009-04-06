@@ -522,10 +522,8 @@ public class ConnectRequestHandler
     void
     flushRequestsWithException(Ice.LocalException ex)
     {
-        java.util.Iterator<Request> p = _requests.iterator();
-        while(p.hasNext())
+        for(Request request : _requests)
         {
-            Request request = p.next();
             if(request.out != null)
             {            
                 request.out.__finished(ex);
@@ -541,10 +539,8 @@ public class ConnectRequestHandler
     void
     flushRequestsWithException(LocalExceptionWrapper ex)
     {
-        java.util.Iterator<Request> p = _requests.iterator();
-        while(p.hasNext())
+        for(Request request : _requests)
         {
-            Request request = p.next();
             if(request.out != null)
             {            
                 request.out.__finished(ex);

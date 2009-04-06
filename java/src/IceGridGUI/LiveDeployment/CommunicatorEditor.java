@@ -6,6 +6,7 @@
 // ICE_LICENSE file included in this distribution.
 //
 // **********************************************************************
+
 package IceGridGUI.LiveDeployment;
 
 import javax.swing.JScrollPane;
@@ -25,8 +26,7 @@ class CommunicatorEditor extends Editor
         _description.setOpaque(false);
     }
 
-    protected void show(CommunicatorDescriptor descriptor, 
-                        java.util.SortedMap properties,
+    protected void show(CommunicatorDescriptor descriptor, java.util.SortedMap<String, String> properties,
                         Utils.Resolver resolver)
     {
         _description.setText(resolver.substitute(descriptor.description));
@@ -41,11 +41,11 @@ class CommunicatorEditor extends Editor
         builder.nextRow(-2);
         CellConstraints cc = new CellConstraints();
         JScrollPane scrollPane = new JScrollPane(_description);
-        builder.add(scrollPane, 
+        builder.add(scrollPane,
                     cc.xywh(builder.getColumn(), builder.getRow(), 3, 3));
         builder.nextRow(2);
         builder.nextLine();
-        
+
         builder.append("Properties");
         builder.nextLine();
         builder.append("");
@@ -57,8 +57,7 @@ class CommunicatorEditor extends Editor
 
         builder.nextRow(-6);
         scrollPane = new JScrollPane(_properties);
-        builder.add(scrollPane, 
-                    cc.xywh(builder.getColumn(), builder.getRow(), 3, 7));
+        builder.add(scrollPane, cc.xywh(builder.getColumn(), builder.getRow(), 3, 7));
         builder.nextRow(6);
         builder.nextLine();
     }
@@ -66,4 +65,3 @@ class CommunicatorEditor extends Editor
     private JTextArea _description = new JTextArea(3, 20);
     private TableField _properties = new TableField("Name", "Value");
 }
-

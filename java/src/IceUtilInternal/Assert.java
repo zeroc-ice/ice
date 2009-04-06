@@ -31,9 +31,9 @@ public final class Assert
                 // Skip the first frame, which represents this method.
                 //
                 System.err.println("Assertion failure:");
-                for(int i = 1; i < trace.length; ++i)
+                for(StackTraceElement e : trace)
                 {
-                    System.err.println("\tat " + trace[i]);
+                    System.err.println("\tat " + e);
                 }
             }
             else

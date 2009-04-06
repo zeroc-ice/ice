@@ -6,6 +6,7 @@
 // ICE_LICENSE file included in this distribution.
 //
 // **********************************************************************
+
 package IceGridGUI.Application;
 
 import java.awt.Component;
@@ -20,7 +21,7 @@ class Adapter extends TreeNode implements DescriptorHolder
     static class AdapterCopy
     {
         AdapterDescriptor descriptor;
-        java.util.Map parentProperties;
+        java.util.Map<String, String> parentProperties;
     }
 
     static public AdapterDescriptor copyDescriptor(AdapterDescriptor d)
@@ -28,14 +29,13 @@ class Adapter extends TreeNode implements DescriptorHolder
         return (AdapterDescriptor)d.clone();
     }
 
-    static public java.util.List
-    copyDescriptors(java.util.List descriptors)
+    static public java.util.List<AdapterDescriptor>
+    copyDescriptors(java.util.List<AdapterDescriptor> descriptors)
     {
-        java.util.List copy = new java.util.LinkedList();
-        java.util.Iterator p = descriptors.iterator();
-        while(p.hasNext())
+        java.util.List<AdapterDescriptor> copy = new java.util.LinkedList<AdapterDescriptor>();
+        for(AdapterDescriptor p : descriptors)
         {
-            copy.add(copyDescriptor((AdapterDescriptor)p.next()));
+            copy.add(copyDescriptor(p));
         }
         return copy;
     }
@@ -47,14 +47,13 @@ class Adapter extends TreeNode implements DescriptorHolder
     {
         boolean[] actions = new boolean[ACTION_COUNT];
         actions[COPY] = !_ephemeral;
-        
+
         Object clipboard = getCoordinator().getClipboard();
-        actions[PASTE] = clipboard != null && 
-            (clipboard instanceof AdapterCopy
-             || clipboard instanceof DbEnvDescriptor);
-        
+        actions[PASTE] = clipboard != null && (clipboard instanceof AdapterCopy ||
+            clipboard instanceof DbEnvDescriptor);
+
         actions[DELETE] = true;
-        
+
         if(!_ephemeral)
         {
             boolean[] parentActions = ((TreeNode)_parent).getAvailableActions();
@@ -80,13 +79,13 @@ class Adapter extends TreeNode implements DescriptorHolder
     }
 
     public Component getTreeCellRendererComponent(
-            JTree tree,
-            Object value,
-            boolean sel,
-            boolean expanded,
-            boolean leaf,
-            int row,
-            boolean hasFocus) 
+        JTree tree,
+        Object value,
+        boolean sel,
+        boolean expanded,
+        boolean leaf,
+        int row,
+        boolean hasFocus)
     {
         if(_cellRenderer == null)
         {
@@ -94,8 +93,7 @@ class Adapter extends TreeNode implements DescriptorHolder
             _cellRenderer.setLeafIcon(Utils.getIcon("/icons/16x16/adapter_inactive.png"));
         }
 
-        return _cellRenderer.getTreeCellRendererComponent(
-            tree, value, sel, expanded, leaf, row, hasFocus);
+        return _cellRenderer.getTreeCellRendererComponent(tree, value, sel, expanded, leaf, row, hasFocus);
     }
 
     public Editor getEditor()
@@ -120,7 +118,7 @@ class Adapter extends TreeNode implements DescriptorHolder
 
         ((Communicator)_parent).getAdapters().destroyChild(this);
     }
-  
+
     Object getDescriptor()
     {
         return _descriptor;
@@ -134,7 +132,7 @@ class Adapter extends TreeNode implements DescriptorHolder
     public void restoreDescriptor(Object savedDescriptor)
     {
         AdapterDescriptor ad = (AdapterDescriptor)savedDescriptor;
-        
+
         _descriptor.name = ad.name;
         _descriptor.id = ad.id;
         _descriptor.replicaGroupId = ad.replicaGroupId;
@@ -143,9 +141,9 @@ class Adapter extends TreeNode implements DescriptorHolder
         _descriptor.serverLifetime = ad.serverLifetime;
         _descriptor.objects = ad.objects;
     }
-    
-    Adapter(Communicator parent, String adapterName, AdapterDescriptor descriptor, 
-            java.util.Map parentProperties, boolean ephemeral)
+
+    Adapter(Communicator parent, String adapterName, AdapterDescriptor descriptor,
+            java.util.Map<String, String> parentProperties, boolean ephemeral)
     {
         super(parent, adapterName);
         _descriptor = descriptor;
@@ -153,17 +151,18 @@ class Adapter extends TreeNode implements DescriptorHolder
         _parentProperties = parentProperties;
     }
 
-   
-    void write(XMLWriter writer) throws java.io.IOException
+    void write(XMLWriter writer)
+        throws java.io.IOException
     {
         assert false;
     }
 
-    void write(XMLWriter writer, java.util.List properties) throws java.io.IOException
+    void write(XMLWriter writer, java.util.List<PropertyDescriptor> properties)
+        throws java.io.IOException
     {
         if(!_ephemeral)
         {
-            java.util.List attributes = new java.util.LinkedList();
+            java.util.List<String[]> attributes = new java.util.LinkedList<String[]>();
             attributes.add(createAttribute("name", _descriptor.name));
             String oaPrefix = _descriptor.name + ".";
 
@@ -185,8 +184,8 @@ class Adapter extends TreeNode implements DescriptorHolder
             {
                 attributes.add(createAttribute("server-lifetime", "false"));
             }
-                                   
-            if(_descriptor.description.length() == 0 
+
+            if(_descriptor.description.length() == 0
                && _descriptor.objects.isEmpty()
                && _descriptor.allocatables.isEmpty())
             {
@@ -211,24 +210,23 @@ class Adapter extends TreeNode implements DescriptorHolder
     {
         if(_parentProperties != null)
         {
-            return (String)_parentProperties.get(property);
+            return _parentProperties.get(property);
         }
         else
         {
             return ((Communicator)_parent).getProperty(property);
         }
     }
+
     String lookupPropertyValue(String val)
     {
         if(_parentProperties != null)
         {
-            java.util.Iterator p = _parentProperties.entrySet().iterator();
-            while(p.hasNext())
+            for(java.util.Map.Entry<String, String> p : _parentProperties.entrySet())
             {
-                java.util.Map.Entry entry = (java.util.Map.Entry)p.next();
-                if(entry.getValue().equals(val))
+                if(p.getValue().equals(val))
                 {
-                    return (String)entry.getKey();
+                    return p.getKey();
                 }
             }
             return "";
@@ -238,23 +236,26 @@ class Adapter extends TreeNode implements DescriptorHolder
             return ((Communicator)_parent).lookupPropertyValue(val);
         }
     }
+
     void setProperty(String property, String newValue)
     {
         ((Communicator)_parent).setProperty(property, newValue);
     }
+
     void removeProperty(String property)
     {
         ((Communicator)_parent).removeProperty(property);
     }
+
     String getDefaultAdapterId()
     {
         return getDefaultAdapterId(_id);
     }
 
     String getDefaultAdapterId(String name)
-    {   
-        return (_parent instanceof Service || 
-                _parent instanceof ServiceTemplate) ? 
+    {
+        return (_parent instanceof Service ||
+                _parent instanceof ServiceTemplate) ?
             "${server}.${service}." + name: "${server}." + name;
     }
 
@@ -264,9 +265,9 @@ class Adapter extends TreeNode implements DescriptorHolder
     }
 
     private final boolean _ephemeral;
-    private final java.util.Map _parentProperties; // set only when ephemeral == true;
+    private final java.util.Map<String, String> _parentProperties; // set only when ephemeral == true;
     private AdapterDescriptor _descriptor;
     private AdapterEditor _editor;
 
-    static private DefaultTreeCellRenderer _cellRenderer;   
+    static private DefaultTreeCellRenderer _cellRenderer;
 }

@@ -40,10 +40,8 @@ public final class ObjectAdapterFactory
         //
         if(adapters != null)
         {
-            java.util.Iterator<Ice.ObjectAdapterI> i = adapters.values().iterator();
-            while(i.hasNext())
+            for(Ice.ObjectAdapterI adapter : adapters.values())
             {
-                Ice.ObjectAdapter adapter = i.next();
                 adapter.deactivate();
             }
         }
@@ -92,10 +90,8 @@ public final class ObjectAdapterFactory
         //
         if(adapters != null)
         {
-            java.util.Iterator<Ice.ObjectAdapterI> i = adapters.values().iterator();
-            while(i.hasNext())
+            for(Ice.ObjectAdapterI adapter : adapters.values())
             {
-                Ice.ObjectAdapter adapter = i.next();
                 adapter.waitForDeactivate();
             }
         }
@@ -142,10 +138,8 @@ public final class ObjectAdapterFactory
         //
         if(adapters != null)
         {
-            java.util.Iterator<Ice.ObjectAdapterI> i = adapters.values().iterator();
-            while(i.hasNext())
+            for(Ice.ObjectAdapterI adapter : adapters.values())
             {
-                Ice.ObjectAdapter adapter = i.next();
                 adapter.destroy();
             }
         }
@@ -200,12 +194,10 @@ public final class ObjectAdapterFactory
             adapters = new java.util.ArrayList<Ice.ObjectAdapterI>(_adapters.values());
         }
 
-        java.util.Iterator<Ice.ObjectAdapterI> p = adapters.iterator();
-        while(p.hasNext())
+        for(Ice.ObjectAdapterI adapter : adapters)
         {
             try
             {
-                Ice.ObjectAdapterI adapter = p.next();
                 if(adapter.isLocal(proxy))
                 {
                     return adapter;
@@ -245,10 +237,9 @@ public final class ObjectAdapterFactory
             adapters = new java.util.ArrayList<Ice.ObjectAdapterI>(_adapters.values());
         }
 
-        java.util.Iterator<Ice.ObjectAdapterI> p = adapters.iterator();
-        while(p.hasNext())
+        for(Ice.ObjectAdapterI adapter : adapters)
         {
-            p.next().flushBatchRequests();
+            adapter.flushBatchRequests();
         }
     }
 

@@ -100,7 +100,7 @@ local interface Properties
      **/
     int getPropertyAsIntWithDefault(string key, int value);
 
-    
+
      /**
      *
      * Get a property as a list of strings. If the property is not set,
@@ -262,7 +262,7 @@ interface PropertiesAdmin
      * @return The matching property set.
      *
      **/
-    ["ami", "java:type:{java.util.TreeMap}"] PropertyDict getPropertiesForPrefix(string prefix);    
+    ["ami", "java:type:java.util.TreeMap<String, String>"] PropertyDict getPropertiesForPrefix(string prefix);
 };
 
 };

@@ -6,6 +6,7 @@
 // ICE_LICENSE file included in this distribution.
 //
 // **********************************************************************
+
 package IceGridGUI.Application;
 
 import com.jgoodies.forms.builder.DefaultFormBuilder;
@@ -16,12 +17,12 @@ class ServiceTemplateEditor extends TemplateEditor
     {
         _subEditor = new ServiceSubEditor(this);
     }
-    
+
     void writeDescriptor()
     {
         super.writeDescriptor();
         _subEditor.writeDescriptor();
-    }       
+    }
 
     boolean isSimpleUpdate()
     {
@@ -29,7 +30,7 @@ class ServiceTemplateEditor extends TemplateEditor
     }
 
     protected void appendProperties(DefaultFormBuilder builder)
-    { 
+    {
         super.appendProperties(builder);
         builder.appendSeparator();
         builder.nextLine();
@@ -51,12 +52,12 @@ class ServiceTemplateEditor extends TemplateEditor
     {
         detectUpdates(false);
         _target = t;
-        
+
         super.show();
         _subEditor.show(true);
 
         _applyButton.setEnabled(t.isEphemeral());
-        _discardButton.setEnabled(t.isEphemeral());       
+        _discardButton.setEnabled(t.isEphemeral());
         detectUpdates(true);
         if(t.isEphemeral())
         {

@@ -65,9 +65,9 @@ class BetResolver
     void
     cancel()
     {
-        for(int i = 0; i < _timers.length; ++i)
+        for(java.util.Timer timer : _timers)
         {
-            _timers[i].cancel();
+            timer.cancel();
         }
     }
 

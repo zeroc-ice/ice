@@ -6,6 +6,7 @@
 // ICE_LICENSE file included in this distribution.
 //
 // **********************************************************************
+
 package IceGridGUI.Application;
 
 import javax.swing.tree.DefaultTreeModel;
@@ -34,7 +35,7 @@ abstract class ListTreeNode extends TreeNode
                     return _p.next();
                 }
                 
-                private java.util.Iterator _p = _children.iterator();
+                private java.util.Iterator<TreeNodeBase> _p = _children.iterator();
             };
     }
     
@@ -51,7 +52,7 @@ abstract class ListTreeNode extends TreeNode
         }
         else if(childIndex < _children.size())
         {
-            return (javax.swing.tree.TreeNode)_children.get(childIndex);
+            return _children.get(childIndex);
         }
         else
         {
@@ -95,12 +96,12 @@ abstract class ListTreeNode extends TreeNode
         _editable = new Editable(brandNew);
     }
 
-    void write(XMLWriter writer) throws java.io.IOException
+    void write(XMLWriter writer)
+        throws java.io.IOException
     {
-        java.util.Iterator p = _children.iterator();
-        while(p.hasNext())
+        for(TreeNodeBase p : _children)
         {
-            TreeNode node = (TreeNode)p.next();
+            TreeNode node = (TreeNode)p;
             node.write(writer);
         }
     }
@@ -108,8 +109,7 @@ abstract class ListTreeNode extends TreeNode
     void insertChild(TreeNode child, boolean fireEvent)
         throws UpdateFailedException
     {
-        DefaultTreeModel treeModel = fireEvent ?
-            getRoot().getTreeModel() : null;
+        DefaultTreeModel treeModel = fireEvent ?  getRoot().getTreeModel() : null;
         
         if(!insertSortedChild(child, _children, treeModel))
         {
@@ -120,8 +120,7 @@ abstract class ListTreeNode extends TreeNode
     void insertChildren(java.util.List newChildren, boolean fireEvent)
         throws UpdateFailedException
     {
-        DefaultTreeModel treeModel = fireEvent ?
-            getRoot().getTreeModel() : null;
+        DefaultTreeModel treeModel = fireEvent ?  getRoot().getTreeModel() : null;
         
         String badChildId = insertSortedChildren(newChildren, _children, treeModel);
         
@@ -136,9 +135,7 @@ abstract class ListTreeNode extends TreeNode
         int index = getIndex(child);
         _children.remove(child);
         
-        getRoot().getTreeModel().nodesWereRemoved(this,
-                                                  new int[]{index},
-                                                  new Object[]{child});
+        getRoot().getTreeModel().nodesWereRemoved(this, new int[]{index}, new Object[]{child});
         return index;
     }
 
@@ -170,8 +167,7 @@ abstract class ListTreeNode extends TreeNode
     //
     // Adapts ListTreeNode to a ComboBoxModel
     //
-    class ComboBoxModel extends javax.swing.AbstractListModel 
-        implements javax.swing.ComboBoxModel
+    class ComboBoxModel extends javax.swing.AbstractListModel implements javax.swing.ComboBoxModel
     {
         public Object getElementAt(int index)
         {
@@ -232,7 +228,7 @@ abstract class ListTreeNode extends TreeNode
         private Object _selectedItem;
     }
 
-    protected final java.util.LinkedList _children = new java.util.LinkedList();
+    protected final java.util.LinkedList<TreeNodeBase> _children = new java.util.LinkedList<TreeNodeBase>();
     protected Editable _editable;
 
     static private Editor _editor;

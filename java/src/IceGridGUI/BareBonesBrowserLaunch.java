@@ -50,5 +50,5 @@ public class BareBonesBrowserLaunch {
         catch (Exception e) {
             JOptionPane.showMessageDialog(null, errMsg + ":\n" + e.getLocalizedMessage());
         }
-    }   
+    }
 }

@@ -114,7 +114,7 @@ public final class PropertiesI implements Properties
         }
         catch(NumberFormatException ex)
         {
-            Ice.Util.getProcessLogger().warning("numeric property " + key + 
+            Ice.Util.getProcessLogger().warning("numeric property " + key +
                                                 " set to non-numeric value, defaulting to " + value);
             return value;
         }
@@ -155,11 +155,11 @@ public final class PropertiesI implements Properties
             pv.used = true;
             result = pv.value;
         }
-        
+
         String[] arr = splitString(result, ", \t\r\n");
         if(arr == null)
         {
-            Ice.Util.getProcessLogger().warning("mismatched quotes in property " + key 
+            Ice.Util.getProcessLogger().warning("mismatched quotes in property " + key
                                                 + "'s value, returning default value");
             return value;
         }
@@ -169,19 +169,16 @@ public final class PropertiesI implements Properties
         }
     }
 
-
     public synchronized java.util.Map<String, String>
     getPropertiesForPrefix(String prefix)
     {
         java.util.HashMap<String, String> result = new java.util.HashMap<String, String>();
-        java.util.Iterator<java.util.Map.Entry<String, PropertyValue> > p = _properties.entrySet().iterator();
-        while(p.hasNext())
+        for(java.util.Map.Entry<String, PropertyValue> p : _properties.entrySet())
         {
-            java.util.Map.Entry<String, PropertyValue> entry = p.next();
-            String key = entry.getKey();
+            String key = p.getKey();
             if(prefix.length() == 0 || key.startsWith(prefix))
             {
-                PropertyValue pv = entry.getValue();
+                PropertyValue pv = p.getValue();
                 pv.used = true;
                 result.put(key, pv.value);
             }
@@ -281,12 +278,10 @@ public final class PropertiesI implements Properties
     getCommandLineOptions()
     {
         String[] result = new String[_properties.size()];
-        java.util.Iterator<java.util.Map.Entry<String, PropertyValue> > p = _properties.entrySet().iterator();
         int i = 0;
-        while(p.hasNext())
+        for(java.util.Map.Entry<String, PropertyValue> p : _properties.entrySet())
         {
-            java.util.Map.Entry<String, PropertyValue> entry = p.next();
-            result[i++] = "--" + entry.getKey() + "=" + entry.getValue().value;
+            result[i++] = "--" + p.getKey() + "=" + p.getValue().value;
         }
         assert(i == result.length);
         return result;
@@ -302,9 +297,8 @@ public final class PropertiesI implements Properties
         pfx = "--" + pfx;
 
         java.util.ArrayList<String> result = new java.util.ArrayList<String>();
-        for(int i = 0; i < options.length; i++)
+        for(String opt : options)
         {
-            String opt = options[i];
             if(opt.startsWith(pfx))
             {
                 if(opt.indexOf('=') == -1)
@@ -319,7 +313,7 @@ public final class PropertiesI implements Properties
                 result.add(opt);
             }
         }
-        return (String[])result.toArray(new String[0]);
+        return result.toArray(new String[0]);
     }
 
     public String[]
@@ -362,14 +356,12 @@ public final class PropertiesI implements Properties
     getUnusedProperties()
     {
         java.util.List<String> unused = new java.util.ArrayList<String>();
-        java.util.Iterator<java.util.Map.Entry<String, PropertyValue> > p = _properties.entrySet().iterator();
-        while(p.hasNext())
+        for(java.util.Map.Entry<String, PropertyValue> p : _properties.entrySet())
         {
-            java.util.Map.Entry<String, PropertyValue> entry = p.next();
-            PropertyValue pv = entry.getValue();
+            PropertyValue pv = p.getValue();
             if(!pv.used)
             {
-                unused.add(entry.getKey());
+                unused.add(p.getKey());
             }
         }
         return unused;
@@ -378,15 +370,13 @@ public final class PropertiesI implements Properties
     PropertiesI(PropertiesI props)
     {
         //
-        // NOTE: we can't just do a shallow copy of the map as the map values 
+        // NOTE: we can't just do a shallow copy of the map as the map values
         // would otherwise be shared between the two PropertiesI object.
         //
         //_properties = new java.util.HashMap<String, PropertyValue>(props._properties);
-        java.util.Iterator<java.util.Map.Entry<String, PropertyValue> > p = props._properties.entrySet().iterator();
-        while(p.hasNext())
+        for(java.util.Map.Entry<String, PropertyValue> p : props._properties.entrySet())
         {
-            java.util.Map.Entry<String, PropertyValue> entry = p.next();
-            _properties.put(entry.getKey(), new PropertyValue(entry.getValue()));
+            _properties.put(p.getKey(), new PropertyValue(p.getValue()));
         }
     }
 
@@ -400,7 +390,7 @@ public final class PropertiesI implements Properties
         {
             _properties = new java.util.HashMap<String, PropertyValue>(((PropertiesI)defaults)._properties);
         }
-        
+
         boolean loadConfigFiles = false;
 
         for(int i = 0; i < args.value.length; i++)
@@ -468,7 +458,7 @@ public final class PropertiesI implements Properties
     {
         String key = "";
         String value = "";
-    
+
         int state = ParseStateKey;
 
         String whitespace = "";
@@ -496,7 +486,7 @@ public final class PropertiesI implements Properties
                               whitespace = "";
                               key += c;
                               break;
-    
+
                             case ' ':
                               if(key.length() != 0)
                               {
@@ -518,7 +508,7 @@ public final class PropertiesI implements Properties
                           key += c;
                       }
                       break;
-    
+
                     case ' ':
                     case '\t':
                     case '\r':
@@ -528,16 +518,16 @@ public final class PropertiesI implements Properties
                             whitespace += c;
                         }
                         break;
-    
+
                     case '=':
                         whitespace = "";
                         state = ParseStateValue;
                         break;
-    
+
                     case '#':
                         finished = true;
                         break;
-    
+
                     default:
                         key += whitespace;
                         whitespace = "";
@@ -546,7 +536,7 @@ public final class PropertiesI implements Properties
                   }
                   break;
               }
-    
+
               case ParseStateValue:
               {
                   switch(c)
@@ -565,12 +555,12 @@ public final class PropertiesI implements Properties
                               escapedspace = "";
                               value += c;
                               break;
-    
+
                             case ' ':
                               whitespace += c;
                               escapedspace += c;
                               break;
-    
+
                             default:
                               value += value.length() == 0 ? escapedspace : whitespace;
                               whitespace = "";
@@ -586,7 +576,7 @@ public final class PropertiesI implements Properties
                           value += c;
                       }
                       break;
-    
+
                     case ' ':
                     case '\t':
                     case '\r':
@@ -596,12 +586,12 @@ public final class PropertiesI implements Properties
                             whitespace += c;
                         }
                         break;
-    
+
                     case '#':
                         value += escapedspace;
                         finished = true;
                         break;
-    
+
                     default:
                         value += value.length() == 0 ? escapedspace : whitespace;
                         whitespace = "";
@@ -618,7 +608,7 @@ public final class PropertiesI implements Properties
             }
         }
         value += escapedspace;
-    
+
         if((state == ParseStateKey && key.length() != 0) || (state == ParseStateValue && key.length() == 0))
         {
             Ice.Util.getProcessLogger().warning("invalid config file entry: \"" + line + "\"");
@@ -655,10 +645,9 @@ public final class PropertiesI implements Properties
 
         if(value.length() > 0)
         {
-            String[] files = value.split(",");
-            for(int i = 0; i < files.length; i++)
+            for(String file : value.split(","))
             {
-                load(files[i]);
+                load(file);
             }
         }
 
@@ -673,7 +662,7 @@ public final class PropertiesI implements Properties
         java.util.List<String> l = new java.util.ArrayList<String>();
         char[] arr = new char[str.length()];
         int pos = 0;
-        
+
         while(pos < str.length())
         {
             int n = 0;
@@ -704,7 +693,7 @@ public final class PropertiesI implements Properties
                         break;
                     }
                 }
-                
+
                 if(pos < str.length())
                 {
                     arr[n++] = str.charAt(pos++);
@@ -719,7 +708,7 @@ public final class PropertiesI implements Properties
                 l.add(new String(arr, 0, n));
             }
         }
-        
+
         return (String[])l.toArray(new String[0]);
     }
 

@@ -52,7 +52,7 @@ protected:
 
     void printComment(const ContainedPtr&, const ContainerPtr&, const ::std::string&, bool = false);
     void printMetaData(const ContainedPtr&);
-    void printSummary(const ContainedPtr&, const ContainerPtr&, bool);
+    void printSummary(const ContainedPtr&, const ContainerPtr&, bool, bool);
 
     void printHeaderFooter(const ContainedPtr&);
     void printSearch();

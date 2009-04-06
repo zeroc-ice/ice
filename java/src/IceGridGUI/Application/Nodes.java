@@ -6,6 +6,7 @@
 // ICE_LICENSE file included in this distribution.
 //
 // **********************************************************************
+
 package IceGridGUI.Application;
 
 import java.awt.Component;
@@ -20,18 +21,13 @@ import IceGridGUI.*;
 
 class Nodes extends ListTreeNode
 {
-    static public java.util.Map
-    copyDescriptors(java.util.Map descriptors)
+    static public java.util.Map<String, NodeDescriptor>
+    copyDescriptors(java.util.Map<String, NodeDescriptor> descriptors)
     {
-        java.util.Map copy = new java.util.HashMap();
-        java.util.Iterator p = descriptors.entrySet().iterator();
-        while(p.hasNext())
+        java.util.Map<String, NodeDescriptor> copy = new java.util.HashMap<String, NodeDescriptor>();
+        for(java.util.Map.Entry<String, NodeDescriptor> p : descriptors.entrySet())
         {
-            java.util.Map.Entry entry = (java.util.Map.Entry)p.next();
-            
-            copy.put(entry.getKey(), 
-                     Node.copyDescriptor(
-                         (NodeDescriptor)entry.getValue()));
+            copy.put(p.getKey(), Node.copyDescriptor(p.getValue()));
         }
         return copy;
     }
@@ -65,38 +61,34 @@ class Nodes extends ListTreeNode
     {
         Object descriptor = getCoordinator().getClipboard();
         NodeDescriptor nd = Node.copyDescriptor((NodeDescriptor)descriptor);
-        
+
         //
         // Verify / fix all template instances
         //
-        
-        java.util.Iterator p = nd.serverInstances.iterator();
-        while(p.hasNext())
+
+        for(ServerInstanceDescriptor p : nd.serverInstances)
         {
-            ServerInstanceDescriptor sid = (ServerInstanceDescriptor)p.next();
-            TemplateDescriptor td = getRoot().findServerTemplateDescriptor(sid.template);
+            TemplateDescriptor td = getRoot().findServerTemplateDescriptor(p.template);
             if(td == null)
             {
                 JOptionPane.showMessageDialog(
                     getCoordinator().getMainFrame(),
-                    "Descriptor refers to undefined server template '" + sid.template + "'",
+                    "Descriptor refers to undefined server template '" + p.template + "'",
                     "Cannot paste",
                     JOptionPane.ERROR_MESSAGE);
                 return;
             }
             else
             {
-                sid.parameterValues.keySet().retainAll(td.parameters);
+                p.parameterValues.keySet().retainAll(td.parameters);
             }
         }
 
-        p = nd.servers.iterator();
-        while(p.hasNext())
+        for(ServerDescriptor p : nd.servers)
         {
-            ServerDescriptor sd = (ServerDescriptor)p.next();
-            if(sd instanceof IceBoxDescriptor)
+            if(p instanceof IceBoxDescriptor)
             {
-                if(!getRoot().pasteIceBox((IceBoxDescriptor)sd))
+                if(!getRoot().pasteIceBox((IceBoxDescriptor)p))
                 {
                     return;
                 }
@@ -105,31 +97,29 @@ class Nodes extends ListTreeNode
 
         newNode(nd);
     }
-    
+
     public void newNode()
     {
         newNode(new NodeDescriptor(
-                    new java.util.TreeMap(),
-                    new java.util.LinkedList(),
-                    new java.util.LinkedList(),
+                    new java.util.TreeMap<String, String>(),
+                    new java.util.LinkedList<ServerInstanceDescriptor>(),
+                    new java.util.LinkedList<ServerDescriptor>(),
                     "",
                     "",
-                    new java.util.HashMap()));
+                    new java.util.HashMap<String, PropertySetDescriptor>()));
     }
-    
-    Nodes(TreeNode parent, java.util.Map descriptors)
+
+    Nodes(TreeNode parent, java.util.Map<String, NodeDescriptor> descriptors)
         throws UpdateFailedException
     {
         super(false, parent, "Nodes");
         _descriptors = descriptors;
 
-        java.util.Iterator p = _descriptors.entrySet().iterator();
-        while(p.hasNext())
+        for(java.util.Map.Entry<String, NodeDescriptor> p : _descriptors.entrySet())
         {
-            java.util.Map.Entry entry = (java.util.Map.Entry)p.next();
-            String nodeName = (String)entry.getKey();
-            NodeDescriptor nodeDescriptor = (NodeDescriptor)entry.getValue();
-            insertChild(new Node(false, this, nodeName, nodeDescriptor), false); 
+            String nodeName = p.getKey();
+            NodeDescriptor nodeDescriptor = p.getValue();
+            insertChild(new Node(false, this, nodeName, nodeDescriptor), false);
         }
     }
 
@@ -137,15 +127,15 @@ class Nodes extends ListTreeNode
     // Try to rebuild all my children
     // No-op if it fails
     //
-    void rebuild() throws UpdateFailedException
+    void rebuild()
+        throws UpdateFailedException
     {
-        java.util.List backupList = new java.util.Vector();
-        java.util.List editables = new java.util.LinkedList();
+        java.util.List<Node.Backup> backupList = new java.util.ArrayList<Node.Backup>();
+        java.util.List<Editable> editables = new java.util.LinkedList<Editable>();
 
-        java.util.Iterator p = _children.iterator();
-        while(p.hasNext())
+        for(TreeNodeBase p : _children)
         {
-            Node node = (Node)p.next();
+            Node node = (Node)p;
             try
             {
                 backupList.add(node.rebuild(editables));
@@ -154,7 +144,7 @@ class Nodes extends ListTreeNode
             {
                 for(int i = backupList.size() - 1; i >= 0; --i)
                 {
-                    ((Node)_children.get(i)).restore((Node.Backup)backupList.get(i));
+                    ((Node)_children.get(i)).restore(backupList.get(i));
                 }
                 throw e;
             }
@@ -163,32 +153,28 @@ class Nodes extends ListTreeNode
         //
         // Success
         //
-        p = editables.iterator();
-        while(p.hasNext())
+        for(Editable p : editables)
         {
-            Editable editable = (Editable)p.next();
-            editable.markModified();
+            p.markModified();
         }
     }
 
     void commit()
     {
         _editable.commit();
-        java.util.Iterator p = _children.iterator();
-        while(p.hasNext())
+        for(TreeNodeBase p : _children)
         {
-            Node node = (Node)p.next();
+            Node node = (Node)p;
             node.commit();
         }
     }
 
-    java.util.LinkedList getUpdates()
+    java.util.LinkedList<NodeUpdateDescriptor> getUpdates()
     {
-        java.util.LinkedList updates = new java.util.LinkedList();
-        java.util.Iterator p = _children.iterator();
-        while(p.hasNext())
+        java.util.LinkedList<NodeUpdateDescriptor> updates = new java.util.LinkedList<NodeUpdateDescriptor>();
+        for(TreeNodeBase p : _children)
         {
-            Node node = (Node)p.next();
+            Node node = (Node)p;
             NodeUpdateDescriptor d = node.getUpdate();
             if(d != null)
             {
@@ -200,39 +186,35 @@ class Nodes extends ListTreeNode
 
     void removeServerInstances(String templateId)
     {
-        java.util.Iterator p = _children.iterator();
-        while(p.hasNext())
+        for(TreeNodeBase p : _children)
         {
-            Node node = (Node)p.next();
+            Node node = (Node)p;
             node.removeServerInstances(templateId);
         }
     }
 
-    java.util.List findServiceInstances(String template)
+    java.util.List<ServiceInstance> findServiceInstances(String template)
     {
-        java.util.List result = new java.util.LinkedList();
-        java.util.Iterator p = _children.iterator();
-        while(p.hasNext())
+        java.util.List<ServiceInstance> result = new java.util.LinkedList<ServiceInstance>();
+        for(TreeNodeBase p : _children)
         {
-            Node node = (Node)p.next();
+            Node node = (Node)p;
             result.addAll(node.findServiceInstances(template));
         }
         return result;
     }
 
-
     void removeServiceInstances(String templateId)
     {
-        java.util.Iterator p = _children.iterator();
-        while(p.hasNext())
+        for(TreeNodeBase p : _children)
         {
-            Node node = (Node)p.next();
+            Node node = (Node)p;
             node.removeServiceInstances(templateId);
         }
     }
 
-    void update(java.util.List updates, String[] removeNodes,
-                java.util.Set serverTemplates, java.util.Set serviceTemplates)
+    void update(java.util.List<NodeUpdateDescriptor> updates, String[] removeNodes,
+                java.util.Set<String> serverTemplates, java.util.Set<String> serviceTemplates)
         throws UpdateFailedException
     {
         Root root = getRoot();
@@ -246,27 +228,26 @@ class Nodes extends ListTreeNode
         // One big set of removes
         //
         removeChildren(removeNodes);
-        
+
         //
         // One big set of updates, followed by inserts
         //
-        java.util.Vector newChildren = new java.util.Vector();
-        java.util.Set updatedNodes = new java.util.HashSet();
-        
-        java.util.Iterator p = updates.iterator();
-        while(p.hasNext())
+        java.util.List<TreeNodeBase> newChildren = new java.util.ArrayList<TreeNodeBase>();
+        java.util.Set<Node> updatedNodes = new java.util.HashSet<Node>();
+
+        for(NodeUpdateDescriptor update : updates)
         {
-            NodeUpdateDescriptor update = (NodeUpdateDescriptor)p.next();
             Node node = findNode(update.name);
 
             if(node == null)
             {
-                NodeDescriptor nodeDescriptor = new NodeDescriptor(update.variables,
-                                                                   update.serverInstances,
-                                                                   update.servers,
-                                                                   update.loadFactor == null ? "" : update.loadFactor.value,
-                                                                   update.description == null ? "" : update.description.value,
-                                                                   new java.util.HashMap());
+                NodeDescriptor nodeDescriptor =
+                    new NodeDescriptor(update.variables,
+                                       update.serverInstances,
+                                       update.servers,
+                                       update.loadFactor == null ? "" : update.loadFactor.value,
+                                       update.description == null ? "" : update.description.value,
+                                       new java.util.HashMap<String, PropertySetDescriptor>());
                 _descriptors.put(update.name, nodeDescriptor);
                 node = new Node(false, this, update.name, nodeDescriptor);
                 newChildren.add(node);
@@ -281,33 +262,29 @@ class Nodes extends ListTreeNode
         //
         // Some nodes are only affected by template updates
         //
-        p = _children.iterator();
-        while(p.hasNext())
+        for(TreeNodeBase p : _children)
         {
-            Node node = (Node)p.next();
+            Node node = (Node)p;
             if(!updatedNodes.contains(node))
             {
                 node.update(null, serverTemplates, serviceTemplates);
             }
         }
-        
+
         insertChildren(newChildren, true);
     }
-
-   
 
     Node findNode(String nodeName)
     {
         return (Node)findChild(nodeName);
     }
 
-    java.util.List findServerInstances(String template)
+    java.util.List<ServerInstance> findServerInstances(String template)
     {
-        java.util.List result = new java.util.LinkedList();
-        java.util.Iterator p = _children.iterator();
-        while(p.hasNext())
+        java.util.List<ServerInstance> result = new java.util.LinkedList<ServerInstance>();
+        for(TreeNodeBase p : _children)
         {
-            Node node = (Node)p.next();
+            Node node = (Node)p;
             result.addAll(node.findServerInstances(template));
         }
         return result;
@@ -317,6 +294,7 @@ class Nodes extends ListTreeNode
     {
         _descriptors.put(nodeName, descriptor);
     }
+
     void removeDescriptor(String nodeName)
     {
         _descriptors.remove(nodeName);
@@ -334,11 +312,11 @@ class Nodes extends ListTreeNode
         insertChild(node, true);
         _descriptors.put(nodeName, descriptor);
     }
- 
+
     private void newNode(NodeDescriptor descriptor)
     {
         String name = makeNewChildId("NewNode");
-        
+
         Node node = new Node(this, name, descriptor);
         try
         {
@@ -351,8 +329,6 @@ class Nodes extends ListTreeNode
         getRoot().setSelectedNode(node);
     }
 
-    
-
-    private java.util.Map _descriptors;
+    private java.util.Map<String, NodeDescriptor> _descriptors;
     static private JPopupMenu _popup;
 }

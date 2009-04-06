@@ -83,10 +83,8 @@ class Parser
     {
         DirectoryPrx dir = _dirs.getFirst();
 
-        java.util.Iterator<String> i = names.iterator();
-        while(i.hasNext())
+        for(String name : names)
         {
-            String name = i.next();
             if(name.equals(".."))
             {
                 System.out.println("Cannot create a file named `..'");
@@ -109,10 +107,8 @@ class Parser
     {
         DirectoryPrx dir = _dirs.getFirst();
 
-        java.util.Iterator<String> i = names.iterator();
-        while(i.hasNext())
+        for(String name : names)
         {
-            String name = i.next();
             if(name.equals(".."))
             {
                 System.out.println("Cannot create a directory named `..'");
@@ -239,12 +235,7 @@ class Parser
         }
         FilePrx f = FilePrxHelper.uncheckedCast(d.proxy);
 
-        String[] l = new String[args.size()];
-        java.util.Iterator<String> i = args.iterator();
-        for(int j = 0; j < args.size(); ++j)
-        {
-            l[j] = i.next();
-        }
+        String[] l = args.toArray(new String[0]);
         try
         {
             f.write(l);
@@ -260,22 +251,20 @@ class Parser
     {
         DirectoryPrx dir = _dirs.getFirst();
 
-        java.util.Iterator<String> i = names.iterator();
-        while(i.hasNext())
+        for(String name : names)
         {
-            String name = i.next();
             if(name.equals("*"))
             {
                 NodeDesc[] nodes = dir.list();
-                for(int j = 0; j < nodes.length; ++j)
+                for(NodeDesc node : nodes)
                 {
                     try
                     {
-                        nodes[j].proxy.destroy();
+                        node.proxy.destroy();
                     }
                     catch(PermissionDenied ex)
                     {
-                        System.out.println("cannot remove `" + nodes[j].name + "': " + ex.reason);
+                        System.out.println("cannot remove `" + node.name + "': " + ex.reason);
                     }
                 }
                 return;
@@ -302,7 +291,6 @@ class Parser
                 }
             }
         }
-
     }
 
     void

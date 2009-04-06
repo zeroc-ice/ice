@@ -198,11 +198,9 @@ public class SelectorThread
                 }
             }
 
-            java.util.Iterator<SocketReadyCallback> iter = readyList.iterator();
-            while(iter.hasNext())
+            for(SocketReadyCallback cb : readyList)
             {
                 SocketStatus status = SocketStatus.Finished;
-                SocketReadyCallback cb = iter.next();
                 try
                 {
                     if(cb._timeout >= 0)

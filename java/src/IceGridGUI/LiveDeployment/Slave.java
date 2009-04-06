@@ -6,6 +6,7 @@
 // ICE_LICENSE file included in this distribution.
 //
 // **********************************************************************
+
 package IceGridGUI.LiveDeployment;
 
 import java.awt.Component;
@@ -20,7 +21,6 @@ import javax.swing.tree.TreePath;
 
 import IceGrid.*;
 import IceGridGUI.*;
-
 
 class Slave extends TreeNode
 {
@@ -50,7 +50,7 @@ class Slave extends TreeNode
                 {
                     amiSuccess(prefix);
                 }
-                
+
                 public void ice_exception(Ice.UserException e)
                 {
                     amiFailure(prefix, "Failed to shutdown " + _id, e);
@@ -58,16 +58,15 @@ class Slave extends TreeNode
 
                 public void ice_exception(Ice.LocalException e)
                 {
-                    amiFailure(prefix, "Failed to shutdown " + _id, 
+                    amiFailure(prefix, "Failed to shutdown " + _id,
                                e.toString());
                 }
             };
 
         try
-        {   
-            getCoordinator().getMainFrame().setCursor(
-                Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
-            
+        {
+            getCoordinator().getMainFrame().setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+
             getCoordinator().getAdmin().shutdownRegistry_async(cb, _id);
         }
         catch(Ice.LocalException e)
@@ -76,8 +75,7 @@ class Slave extends TreeNode
         }
         finally
         {
-            getCoordinator().getMainFrame().setCursor(
-                Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+            getCoordinator().getMainFrame().setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
         }
     }
 
@@ -106,7 +104,7 @@ class Slave extends TreeNode
                 {
                     return "Registry " + _title + " " + (stdout ? "stdout" : "stderr");
                 }
-                
+
                 public String getDefaultFilename()
                 {
                     return _id + (stdout ? ".out" : ".err");
@@ -126,11 +124,10 @@ class Slave extends TreeNode
             _popup.addSeparator();
             _popup.add(la.get(SHUTDOWN_REGISTRY));
         }
-        
+
         la.setTarget(this);
         return _popup;
     }
-
 
     public Editor getEditor()
     {
@@ -149,7 +146,7 @@ class Slave extends TreeNode
         boolean expanded,
         boolean leaf,
         int row,
-        boolean hasFocus) 
+        boolean hasFocus)
     {
         if(_cellRenderer == null)
         {
@@ -161,8 +158,7 @@ class Slave extends TreeNode
             _cellRenderer.setLeafIcon(Utils.getIcon("/icons/16x16/registry.png"));
         }
 
-        return _cellRenderer.getTreeCellRendererComponent(
-            tree, value, sel, expanded, leaf, row, hasFocus);
+        return _cellRenderer.getTreeCellRendererComponent(tree, value, sel, expanded, leaf, row, hasFocus);
     }
 
     Slave(TreeNode parent, RegistryInfo info, String instanceName)
@@ -170,7 +166,7 @@ class Slave extends TreeNode
         super(parent, info.name);
         _info = info;
         _title = instanceName + " (" + info.name + ")";
-    }   
+    }
 
     private final RegistryInfo _info;
     private final String _title;

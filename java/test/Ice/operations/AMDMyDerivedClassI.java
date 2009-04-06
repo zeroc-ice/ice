@@ -168,7 +168,7 @@ public final class AMDMyDerivedClassI extends MyDerivedClass
 
     public void
     opByteBoolD_async(AMD_MyClass_opByteBoolD cb,
-                      java.util.Map p1, java.util.Map p2,
+                      java.util.Map<Byte, Boolean> p1, java.util.Map<Byte, Boolean> p2,
                       Ice.Current current)
     {
         java.util.Map<Byte, Boolean> p3 = p1;
@@ -259,7 +259,7 @@ public final class AMDMyDerivedClassI extends MyDerivedClass
 
     public void
     opLongFloatD_async(AMD_MyClass_opLongFloatD cb,
-                       java.util.Map p1, java.util.Map p2,
+                       java.util.Map<Long, Float> p1, java.util.Map<Long, Float> p2,
                        Ice.Current current)
     {
         java.util.Map<Long, Float> p3 = p1;
@@ -290,7 +290,7 @@ public final class AMDMyDerivedClassI extends MyDerivedClass
 
     public void
     opShortIntD_async(AMD_MyClass_opShortIntD cb,
-                      java.util.Map p1, java.util.Map p2,
+                      java.util.Map<Short, Integer> p1, java.util.Map<Short, Integer> p2,
                       Ice.Current current)
     {
         java.util.Map<Short, Integer> p3 = p1;
@@ -352,7 +352,7 @@ public final class AMDMyDerivedClassI extends MyDerivedClass
 
     public void
     opStringMyEnumD_async(AMD_MyClass_opStringMyEnumD cb,
-                          java.util.Map p1, java.util.Map p2,
+                          java.util.Map<String, MyEnum> p1, java.util.Map<String, MyEnum> p2,
                           Ice.Current current)
     {
         java.util.Map<String, MyEnum> p3 = p1;
@@ -364,7 +364,7 @@ public final class AMDMyDerivedClassI extends MyDerivedClass
 
     public void
     opMyStructMyEnumD_async(AMD_MyClass_opMyStructMyEnumD cb,
-                            java.util.Map p1, java.util.Map p2,
+                            java.util.Map<MyStruct, MyEnum> p1, java.util.Map<MyStruct, MyEnum> p2,
                             Ice.Current current)
     {
         java.util.Map<MyStruct, MyEnum> p3 = p1;
@@ -462,7 +462,7 @@ public final class AMDMyDerivedClassI extends MyDerivedClass
 
     public void
     opStringStringD_async(AMD_MyClass_opStringStringD cb,
-                          java.util.Map p1, java.util.Map p2,
+                          java.util.Map<String, String> p1, java.util.Map<String, String> p2,
                           Ice.Current current)
     {
         java.util.Map<String, String> p3 = p1;

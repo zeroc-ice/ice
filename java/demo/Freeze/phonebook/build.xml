@@ -21,14 +21,12 @@
         <!-- Create the output directory for generated code -->
         <mkdir dir="${generated.dir}"/>
         <slice2java outputdir="${generated.dir}">
-	    <meta value="${java2metadata}"/>
             <includepath>
                 <pathelement path="${slice.dir}" />
             </includepath>
             <fileset dir="." includes="PhoneBook.ice"/>
         </slice2java>
         <slice2freezej outputdir="${generated.dir}">
-	    <meta value="${java2metadata}"/>
             <includepath>
                 <pathelement path="${slice.dir}" />
             </includepath>

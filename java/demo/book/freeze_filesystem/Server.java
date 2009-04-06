@@ -53,7 +53,7 @@ public class Server extends Ice.Application
         {
             PersistentDirectory root = new DirectoryI(rootId);
             root.nodeName = "/";
-            root.nodes = new java.util.HashMap();
+            root.nodes = new java.util.HashMap<java.lang.String, NodeDesc>();
             evictor.add(root, rootId);
         }
 

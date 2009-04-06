@@ -6,6 +6,7 @@
 // ICE_LICENSE file included in this distribution.
 //
 // **********************************************************************
+
 package IceGridGUI;
 
 import javax.swing.SwingUtilities;
@@ -30,18 +31,18 @@ class AdapterObserverI extends _AdapterObserverDisp
             else
             {
                 String names = "";
-                for(int i = 0; i < adapters.length; ++i)
+                for(AdapterInfo info : adapters)
                 {
-                    names += " " + adapters[i].id;
+                    names += " " + info.id;
                 }
-                
+
                 _coordinator.traceObserver("adapterInit for adapters" + names);
             }
         }
 
-        SwingUtilities.invokeLater(new Runnable() 
+        SwingUtilities.invokeLater(new Runnable()
             {
-                public void run() 
+                public void run()
                 {
                     _coordinator.adapterInit(adapters);
                 }
@@ -55,14 +56,14 @@ class AdapterObserverI extends _AdapterObserverDisp
             _coordinator.traceObserver("adapterAdded for adapter " + info.id);
         }
 
-        SwingUtilities.invokeLater(new Runnable() 
+        SwingUtilities.invokeLater(new Runnable()
             {
-                public void run() 
+                public void run()
                 {
                     _coordinator.adapterAdded(info);
                 }
             });
-    }    
+    }
 
     public void adapterUpdated(final AdapterInfo info, Ice.Current current)
     {
@@ -71,14 +72,14 @@ class AdapterObserverI extends _AdapterObserverDisp
             _coordinator.traceObserver("adapterUpdated for adapter " + info.id);
         }
 
-        SwingUtilities.invokeLater(new Runnable() 
+        SwingUtilities.invokeLater(new Runnable()
             {
-                public void run() 
+                public void run()
                 {
                     _coordinator.adapterUpdated(info);
                 }
             });
-    }    
+    }
 
     public void adapterRemoved(final String id, Ice.Current current)
     {
@@ -87,9 +88,9 @@ class AdapterObserverI extends _AdapterObserverDisp
             _coordinator.traceObserver("adapterRemoved for adapter " + id);
         }
 
-        SwingUtilities.invokeLater(new Runnable() 
+        SwingUtilities.invokeLater(new Runnable()
             {
-                public void run() 
+                public void run()
                 {
                     _coordinator.adapterRemoved(id);
                 }
@@ -98,4 +99,4 @@ class AdapterObserverI extends _AdapterObserverDisp
 
     private final Coordinator _coordinator;
     private final boolean _trace;
-};
+}

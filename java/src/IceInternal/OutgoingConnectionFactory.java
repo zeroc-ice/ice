@@ -25,15 +25,10 @@ public final class OutgoingConnectionFactory
             return;
         }
 
-        java.util.Iterator<java.util.List<Ice.ConnectionI> > p = _connections.values().iterator();
-        while(p.hasNext())
+        for(java.util.List<Ice.ConnectionI> connectionList : _connections.values())
         {
-            java.util.List<Ice.ConnectionI> connectionList = p.next();
-                
-            java.util.Iterator<Ice.ConnectionI> q = connectionList.iterator();
-            while(q.hasNext())
+            for(Ice.ConnectionI connection : connectionList)
             {
-                Ice.ConnectionI connection = q.next();
                 connection.destroy(Ice.ConnectionI.CommunicatorDestroyed);
             }
         }
@@ -72,23 +67,17 @@ public final class OutgoingConnectionFactory
             //
             if(_connections != null)
             {
-                connections =
-                    new java.util.HashMap<ConnectorInfo, java.util.List<Ice.ConnectionI> >(_connections);
+                connections = new java.util.HashMap<ConnectorInfo, java.util.List<Ice.ConnectionI> >(_connections);
             }
         }
-        
+
         //
         // Now we wait until the destruction of each connection is finished.
         //
-        java.util.Iterator<java.util.List<Ice.ConnectionI> > p = connections.values().iterator();
-        while(p.hasNext())
+        for(java.util.List<Ice.ConnectionI> connectionList : connections.values())
         {
-            java.util.List<Ice.ConnectionI> connectionList = p.next();
-                
-            java.util.Iterator<Ice.ConnectionI> q = connectionList.iterator();
-            while(q.hasNext())
+            for(Ice.ConnectionI connection : connectionList)
             {
-                Ice.ConnectionI connection = q.next();
                 connection.waitUntilFinished();
             }
         }
@@ -143,7 +132,7 @@ public final class OutgoingConnectionFactory
             {
                 java.util.List<Connector> cons = endpoint.connectors();
                 assert(cons.size() > 0);
-                
+
                 //
                 // Shuffle connectors if endpoint selection type is Random.
                 //
@@ -151,11 +140,10 @@ public final class OutgoingConnectionFactory
                 {
                     java.util.Collections.shuffle(cons);
                 }
-                
-                java.util.Iterator<Connector> q = cons.iterator();
-                while(q.hasNext())
+
+                for(Connector c : cons)
                 {
-                    connectors.add(new ConnectorInfo(q.next(), endpoint));
+                    connectors.add(new ConnectorInfo(c, endpoint));
                 }
             }
             catch(Ice.LocalException ex)
@@ -164,13 +152,13 @@ public final class OutgoingConnectionFactory
                 handleException(exception, hasMore || p.hasNext());
             }
         }
-        
+
         if(connectors.isEmpty())
         {
             assert(exception != null);
             throw exception;
         }
-        
+
         //
         // Try to get a connection to one of the connectors. A null result indicates that no
         // connection was found and that we should try to establish the connection (and that
@@ -297,11 +285,8 @@ public final class OutgoingConnectionFactory
         //
         Ice.ObjectAdapter adapter = routerInfo.getAdapter();
         DefaultsAndOverrides defaultsAndOverrides = _instance.defaultsAndOverrides();
-        EndpointI[] endpoints = routerInfo.getClientEndpoints();
-        for(int i = 0; i < endpoints.length; i++)
+        for(EndpointI endpoint : routerInfo.getClientEndpoints())
         {
-            EndpointI endpoint = endpoints[i];
-
             //
             // Modify endpoints with overrides.
             //
@@ -321,15 +306,10 @@ public final class OutgoingConnectionFactory
             //
             endpoint = endpoint.compress(false);
 
-            java.util.Iterator<java.util.List<Ice.ConnectionI> > p = _connections.values().iterator();
-            while(p.hasNext())
+            for(java.util.List<Ice.ConnectionI> connectionList : _connections.values())
             {
-                java.util.List<Ice.ConnectionI> connectionList = p.next();
-
-                java.util.Iterator<Ice.ConnectionI> q = connectionList.iterator();
-                while(q.hasNext())
+                for(Ice.ConnectionI connection : connectionList)
                 {
-                    Ice.ConnectionI connection = q.next();
                     if(connection.endpoint() == endpoint)
                     {
                         connection.setAdapter(adapter);
@@ -347,15 +327,10 @@ public final class OutgoingConnectionFactory
             return;
         }
 
-        java.util.Iterator<java.util.List<Ice.ConnectionI> > p = _connections.values().iterator();
-        while(p.hasNext())
+        for(java.util.List<Ice.ConnectionI> connectionList : _connections.values())
         {
-            java.util.List<Ice.ConnectionI> connectionList = p.next();
-                
-            java.util.Iterator<Ice.ConnectionI> q = connectionList.iterator();
-            while(q.hasNext())
+            for(Ice.ConnectionI connection : connectionList)
             {
-                Ice.ConnectionI connection = q.next();
                 if(connection.getAdapter() == adapter)
                 {
                     connection.setAdapter(null);
@@ -371,22 +346,17 @@ public final class OutgoingConnectionFactory
 
         synchronized(this)
         {
-            java.util.Iterator<java.util.List<Ice.ConnectionI> > p = _connections.values().iterator();
-            while(p.hasNext())
+            for(java.util.List<Ice.ConnectionI> connectionList : _connections.values())
             {
-                java.util.List<Ice.ConnectionI> connectionList = p.next();
-                java.util.Iterator<Ice.ConnectionI> q = connectionList.iterator();
-                while(q.hasNext())
+                for(Ice.ConnectionI connection : connectionList)
                 {
-                    c.add(q.next());
+                    c.add(connection);
                 }
             }
         }
 
-        java.util.Iterator<Ice.ConnectionI> p = c.iterator();
-        while(p.hasNext())
+        for(Ice.ConnectionI conn : c)
         {
-            Ice.ConnectionI conn = p.next();
             try
             {
                 conn.flushBatchRequests();
@@ -425,18 +395,18 @@ public final class OutgoingConnectionFactory
     {
         DefaultsAndOverrides defaultsAndOverrides = _instance.defaultsAndOverrides();
         java.util.List<EndpointI> endpoints = new java.util.ArrayList<EndpointI>();
-        for(int i = 0; i < endpts.length; i++)
+        for(EndpointI endpoint : endpts)
         {
             //
             // Modify endpoints with overrides.
             //
             if(defaultsAndOverrides.overrideTimeout)
             {
-                endpoints.add(endpts[i].timeout(defaultsAndOverrides.overrideTimeoutValue));
+                endpoints.add(endpoint.timeout(defaultsAndOverrides.overrideTimeoutValue));
             }
             else
             {
-                endpoints.add(endpts[i]);
+                endpoints.add(endpoint);
             }
         }
 
@@ -454,20 +424,16 @@ public final class OutgoingConnectionFactory
         DefaultsAndOverrides defaultsAndOverrides = _instance.defaultsAndOverrides();
         assert(!endpoints.isEmpty());
 
-        java.util.Iterator<EndpointI> p = endpoints.iterator();
-        while(p.hasNext())
+        for(EndpointI endpoint : endpoints)
         {
-            EndpointI endpoint = p.next();
             java.util.List<Ice.ConnectionI> connectionList = _connectionsByEndpoint.get(endpoint);
             if(connectionList == null)
             {
                 continue;
             }
-            
-            java.util.Iterator<Ice.ConnectionI> q = connectionList.iterator();
-            while(q.hasNext())
+
+            for(Ice.ConnectionI connection : connectionList)
             {
-                Ice.ConnectionI connection = q.next();
                 if(connection.isActiveOrHolding()) // Don't return destroyed or un-validated connections
                 {
                     if(defaultsAndOverrides.overrideCompress)
@@ -482,7 +448,7 @@ public final class OutgoingConnectionFactory
                 }
             }
         }
-        
+
         return null;
     }
 
@@ -493,25 +459,21 @@ public final class OutgoingConnectionFactory
     findConnection(java.util.List<ConnectorInfo> connectors, Ice.BooleanHolder compress)
     {
         DefaultsAndOverrides defaultsAndOverrides = _instance.defaultsAndOverrides();
-        java.util.Iterator<ConnectorInfo> p = connectors.iterator();
-        while(p.hasNext())
+        for(ConnectorInfo ci : connectors)
         {
-            ConnectorInfo ci = p.next();
             if(_pending.containsKey(ci))
             {
                 continue;
             }
-            
+
             java.util.List<Ice.ConnectionI> connectionList = _connections.get(ci);
             if(connectionList == null)
             {
                 continue;
             }
-            
-            java.util.Iterator<Ice.ConnectionI> q = connectionList.iterator();
-            while(q.hasNext())
+
+            for(Ice.ConnectionI connection : connectionList)
             {
-                Ice.ConnectionI connection = q.next();
                 if(connection.isActiveOrHolding()) // Don't return destroyed or un-validated connections
                 {
                     if(!connection.endpoint().equals(ci.endpoint))
@@ -524,7 +486,7 @@ public final class OutgoingConnectionFactory
                         }
                         conList.add(connection);
                     }
-                    
+
                     if(defaultsAndOverrides.overrideCompress)
                     {
                         compress.value = defaultsAndOverrides.overrideCompressValue;
@@ -537,7 +499,7 @@ public final class OutgoingConnectionFactory
                 }
             }
         }
-        
+
         return null;
     }
 
@@ -545,7 +507,7 @@ public final class OutgoingConnectionFactory
     incPendingConnectCount()
     {
         //
-        // Keep track of the number of pending connects. The outgoing connection factory 
+        // Keep track of the number of pending connects. The outgoing connection factory
         // waitUntilFinished() method waits for all the pending connects to terminate before
         // to return. This ensures that the communicator client thread pool isn't destroyed
         // too soon and will still be available to execute the ice_exception() callbacks for
@@ -597,7 +559,7 @@ public final class OutgoingConnectionFactory
                             q.remove();
                         }
                     }
-                    
+
                     if(connectionList.isEmpty())
                     {
                         p.remove();
@@ -619,7 +581,7 @@ public final class OutgoingConnectionFactory
                             q.remove();
                         }
                     }
-                    
+
                     if(connectionList.isEmpty())
                     {
                         p.remove();
@@ -647,13 +609,13 @@ public final class OutgoingConnectionFactory
                 {
                     return connection;
                 }
-                
+
                 if(addToPending(cb, connectors))
                 {
                     //
-                    // If a callback is not specified we wait until another thread notifies us about a 
-                    // change to the pending list. Otherwise, if a callback is provided we're done: 
-                    // when the pending list changes the callback will be notified and will try to 
+                    // If a callback is not specified we wait until another thread notifies us about a
+                    // change to the pending list. Otherwise, if a callback is provided we're done:
+                    // when the pending list changes the callback will be notified and will try to
                     // get the connection again.
                     //
                     if(cb == null)
@@ -684,7 +646,7 @@ public final class OutgoingConnectionFactory
         }
 
         //
-        // At this point, we're responsible for establishing the connection to one of 
+        // At this point, we're responsible for establishing the connection to one of
         // the given connectors. If it's a non-blocking connect, calling nextConnector
         // will start the connection establishment. Otherwise, we return null to get
         // the caller to establish the connection.
@@ -747,8 +709,8 @@ public final class OutgoingConnectionFactory
     }
 
     private void
-    finishGetConnection(java.util.List<ConnectorInfo> connectors, 
-                        ConnectorInfo ci, 
+    finishGetConnection(java.util.List<ConnectorInfo> connectors,
+                        ConnectorInfo ci,
                         Ice.ConnectionI connection,
                         ConnectCallback cb)
     {
@@ -761,10 +723,8 @@ public final class OutgoingConnectionFactory
         java.util.Set<ConnectCallback> callbacks = new java.util.HashSet<ConnectCallback>();
         synchronized(this)
         {
-            java.util.Iterator<ConnectorInfo> p = connectors.iterator();
-            while(p.hasNext())
+            for(ConnectorInfo c : connectors)
             {
-                ConnectorInfo c = p.next();
                 java.util.Set<ConnectCallback> cbs = _pending.remove(c);
                 if(cbs != null)
                 {
@@ -793,7 +753,7 @@ public final class OutgoingConnectionFactory
             }
             notifyAll();
         }
-        
+
         boolean compress;
         DefaultsAndOverrides defaultsAndOverrides = _instance.defaultsAndOverrides();
         if(defaultsAndOverrides.overrideCompress)
@@ -827,10 +787,8 @@ public final class OutgoingConnectionFactory
         java.util.Set<ConnectCallback> callbacks = new java.util.HashSet<ConnectCallback>();
         synchronized(this)
         {
-            java.util.Iterator<ConnectorInfo> p = connectors.iterator();
-            while(p.hasNext())
+            for(ConnectorInfo c : connectors)
             {
-                ConnectorInfo c = p.next();
                 java.util.Set<ConnectCallback> cbs = _pending.remove(c);
                 if(cbs != null)
                 {
@@ -855,7 +813,7 @@ public final class OutgoingConnectionFactory
             }
             notifyAll();
         }
-        
+
         for(ConnectCallback cc : callbacks)
         {
             cc.getConnection();
@@ -872,11 +830,10 @@ public final class OutgoingConnectionFactory
         //
         // Add the callback to each connector pending list.
         //
-        java.util.Iterator<ConnectorInfo> p = connectors.iterator();
         boolean found = false;
-        while(p.hasNext())
+        for(ConnectorInfo p : connectors)
         {
-            java.util.Set<ConnectCallback> cbs = _pending.get(p.next());
+            java.util.Set<ConnectCallback> cbs = _pending.get(p);
             if(cbs != null)
             {
                 found = true;
@@ -886,24 +843,22 @@ public final class OutgoingConnectionFactory
                 }
             }
         }
-                
+
         if(found)
         {
             return true;
         }
 
         //
-        // If there's no pending connection for the given connectors, we're 
-        // responsible for its establishment. We add empty pending lists, 
+        // If there's no pending connection for the given connectors, we're
+        // responsible for its establishment. We add empty pending lists,
         // other callbacks to the same connectors will be queued.
         //
-        p = connectors.iterator();
-        while(p.hasNext())
+        for(ConnectorInfo p : connectors)
         {
-            ConnectorInfo obj = p.next();
-            if(!_pending.containsKey(obj))
+            if(!_pending.containsKey(p))
             {
-                _pending.put(obj, new java.util.HashSet<ConnectCallback>());
+                _pending.put(p, new java.util.HashSet<ConnectCallback>());
             }
         }
 
@@ -913,10 +868,9 @@ public final class OutgoingConnectionFactory
     private void
     removeFromPending(ConnectCallback cb, java.util.List<ConnectorInfo> connectors)
     {
-        java.util.Iterator<ConnectorInfo> p = connectors.iterator();
-        while(p.hasNext())
+        for(ConnectorInfo p : connectors)
         {
-            java.util.Set<ConnectCallback> cbs = _pending.get(p.next());
+            java.util.Set<ConnectCallback> cbs = _pending.get(p);
             if(cbs != null)
             {
                 cbs.remove(cb);
@@ -1020,7 +974,7 @@ public final class OutgoingConnectionFactory
             endpoint = e;
         }
 
-        public boolean 
+        public boolean
         equals(Object obj)
         {
             ConnectorInfo r = (ConnectorInfo)obj;
@@ -1039,7 +993,7 @@ public final class OutgoingConnectionFactory
 
     private static class ConnectCallback implements Ice.ConnectionI.StartCallback, EndpointI_connectors
     {
-        ConnectCallback(OutgoingConnectionFactory f, java.util.List<EndpointI> endpoints, boolean more, 
+        ConnectCallback(OutgoingConnectionFactory f, java.util.List<EndpointI> endpoints, boolean more,
                         CreateConnectionCallback cb, Ice.EndpointSelectionType selType)
         {
             _factory = f;
@@ -1049,7 +1003,7 @@ public final class OutgoingConnectionFactory
             _selType = selType;
             _endpointsIter = _endpoints.iterator();
         }
-        
+
         //
         // Methods from ConnectionI.StartCallback
         //
@@ -1093,11 +1047,10 @@ public final class OutgoingConnectionFactory
             {
                 java.util.Collections.shuffle(cons);
             }
-                
-            java.util.Iterator<Connector> q = cons.iterator();
-            while(q.hasNext())
+
+            for(Connector p : cons)
             {
-                _connectors.add(new ConnectorInfo(q.next(), _currentEndpoint));
+                _connectors.add(new ConnectorInfo(p, _currentEndpoint));
             }
 
             if(_endpointsIter.hasNext())
@@ -1107,7 +1060,7 @@ public final class OutgoingConnectionFactory
             else
             {
                 assert(!_connectors.isEmpty());
-                
+
                 //
                 // We now have all the connectors for the given endpoints. We can try to obtain the
                 // connection.
@@ -1116,7 +1069,7 @@ public final class OutgoingConnectionFactory
                 getConnection();
             }
         }
-        
+
         public void
         exception(Ice.LocalException ex)
         {
@@ -1151,7 +1104,7 @@ public final class OutgoingConnectionFactory
             _callback.setConnection(connection, compress);
             _factory.decPendingConnectCount(); // Must be called last.
         }
-        
+
         public void
         setException(Ice.LocalException ex)
         {
@@ -1167,7 +1120,7 @@ public final class OutgoingConnectionFactory
         {
             return _connectors.contains(ci);
         }
-        
+
         public boolean
         removeConnectors(java.util.List<ConnectorInfo> connectors)
         {
@@ -1181,8 +1134,8 @@ public final class OutgoingConnectionFactory
         {
             _factory.removeFromPending(this, _connectors);
         }
-        
-        void 
+
+        void
         getConnectors()
         {
             try
@@ -1224,7 +1177,7 @@ public final class OutgoingConnectionFactory
             try
             {
                 //
-                // If all the connectors have been created, we ask the factory to get a 
+                // If all the connectors have been created, we ask the factory to get a
                 // connection.
                 //
                 Ice.BooleanHolder compress = new Ice.BooleanHolder();
@@ -1234,12 +1187,12 @@ public final class OutgoingConnectionFactory
                     //
                     // A null return value from getConnection indicates that the connection
                     // is being established and that everthing has been done to ensure that
-                    // the callback will be notified when the connection establishment is 
+                    // the callback will be notified when the connection establishment is
                     // done.
-                    // 
+                    //
                     return;
                 }
-                
+
                 _callback.setConnection(connection, compress.value);
                 _factory.decPendingConnectCount(); // Must be called last.
             }

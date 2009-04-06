@@ -6,6 +6,7 @@
 // ICE_LICENSE file included in this distribution.
 //
 // **********************************************************************
+
 package IceGridGUI.LiveDeployment;
 
 import java.awt.Component;
@@ -31,7 +32,7 @@ import IceGridGUI.*;
 //
 public class Root extends ListArrayTreeNode
 {
-    public Root(Coordinator coordinator) 
+    public Root(Coordinator coordinator)
     {
         super(null, "Root", 2);
         _coordinator = coordinator;
@@ -87,7 +88,7 @@ public class Root extends ListArrayTreeNode
                 {
                     amiSuccess(prefix);
                 }
-                
+
                 public void ice_exception(Ice.UserException e)
                 {
                     amiFailure(prefix, "Failed to shutdown " + _replicaName, e);
@@ -95,16 +96,15 @@ public class Root extends ListArrayTreeNode
 
                 public void ice_exception(Ice.LocalException e)
                 {
-                    amiFailure(prefix, "Failed to shutdown " + _replicaName, 
+                    amiFailure(prefix, "Failed to shutdown " + _replicaName,
                                e.toString());
                 }
             };
 
         try
-        {   
-            _coordinator.getMainFrame().setCursor(
-                Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
-            
+        {
+            _coordinator.getMainFrame().setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+
             _coordinator.getAdmin().shutdownRegistry_async(cb, _replicaName);
         }
         catch(Ice.LocalException e)
@@ -113,15 +113,13 @@ public class Root extends ListArrayTreeNode
         }
         finally
         {
-            _coordinator.getMainFrame().setCursor(
-                Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+            _coordinator.getMainFrame().setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
         }
     }
 
-
     public ApplicationDescriptor getApplicationDescriptor(String name)
     {
-        ApplicationInfo app = (ApplicationInfo)_infoMap.get(name);
+        ApplicationInfo app = _infoMap.get(name);
         if(app == null)
         {
             return null;
@@ -139,40 +137,32 @@ public class Root extends ListArrayTreeNode
 
     public Object[] getPatchableApplicationNames()
     {
-        java.util.List result = new java.util.ArrayList();
+        java.util.List<String> result = new java.util.ArrayList<String>();
 
-        java.util.Iterator p = _infoMap.entrySet().iterator();
-        while(p.hasNext())
+        for(java.util.Map.Entry<String, ApplicationInfo> p : _infoMap.entrySet())
         {
-            java.util.Map.Entry entry = (java.util.Map.Entry)p.next();
-
-            ApplicationInfo app = (ApplicationInfo)entry.getValue();
+            ApplicationInfo app = p.getValue();
             if(app.descriptor.distrib.icepatch.length() > 0)
             {
-                result.add(entry.getKey());
+                result.add(p.getKey());
             }
         }
         return result.toArray();
     }
-    
-    public java.util.SortedMap getApplicationMap()
-    {
-        java.util.SortedMap r = new java.util.TreeMap();
-        
-        java.util.Iterator p = _infoMap.entrySet().iterator();
-        while(p.hasNext())
-        {
-            java.util.Map.Entry entry = (java.util.Map.Entry)p.next();
 
-            ApplicationInfo app = (ApplicationInfo)entry.getValue();
-            
-            r.put(entry.getKey(), 
-                  java.text.DateFormat.getDateTimeInstance().format(new java.util.Date(app.updateTime)));
+    public java.util.SortedMap<String, String> getApplicationMap()
+    {
+        java.util.SortedMap<String, String> r = new java.util.TreeMap<String, String>();
+
+        for(java.util.Map.Entry<String, ApplicationInfo> p : _infoMap.entrySet())
+        {
+            ApplicationInfo app = p.getValue();
+
+            r.put(p.getKey(), java.text.DateFormat.getDateTimeInstance().format(new java.util.Date(app.updateTime)));
         }
         return r;
     }
 
-    
     public Editor getEditor()
     {
         if(_editor == null)
@@ -184,13 +174,13 @@ public class Root extends ListArrayTreeNode
     }
 
     public Component getTreeCellRendererComponent(
-            JTree tree,
-            Object value,
-            boolean sel,
-            boolean expanded,
-            boolean leaf,
-            int row,
-            boolean hasFocus) 
+        JTree tree,
+        Object value,
+        boolean sel,
+        boolean expanded,
+        boolean leaf,
+        int row,
+        boolean hasFocus)
     {
         if(_cellRenderer == null)
         {
@@ -198,33 +188,30 @@ public class Root extends ListArrayTreeNode
             // Initialization
             //
             _cellRenderer = new DefaultTreeCellRenderer();
-         
+
             Icon icon = Utils.getIcon("/icons/16x16/registry.png");
             _cellRenderer.setOpenIcon(icon);
             _cellRenderer.setClosedIcon(icon);
         }
-        
-        return _cellRenderer.getTreeCellRendererComponent(
-            tree, value, sel, expanded, leaf, row, hasFocus);
+
+        return _cellRenderer.getTreeCellRendererComponent(tree, value, sel, expanded, leaf, row, hasFocus);
     }
 
-
-    public void applicationInit(String instanceName, String replicaName, java.util.List applications)
+    public void applicationInit(String instanceName, String replicaName, java.util.List<ApplicationInfo> applications)
     {
         closeAllShowLogDialogs();
 
         _instanceName = instanceName;
         _replicaName = replicaName;
         _label = instanceName + " (" + _replicaName + ")";
-        _tree.setRootVisible(true);     
-        
-        java.util.Iterator p = applications.iterator();
-        while(p.hasNext())
+        _tree.setRootVisible(true);
+
+        for(ApplicationInfo p : applications)
         {
-            applicationAdded((ApplicationInfo)p.next());
+            applicationAdded(p);
         }
     }
-    
+
     //
     // Called when the session to the IceGrid Registry is closed
     //
@@ -245,12 +232,12 @@ public class Root extends ListArrayTreeNode
     {
         int shutdown = JOptionPane.showConfirmDialog(
             _coordinator.getMainFrame(),
-            "You are about to install or refresh your" 
+            "You are about to install or refresh your"
             + " application distribution.\n"
-            + " Do you want shut down all servers affected by this update?", 
+            + " Do you want shut down all servers affected by this update?",
             "Patch Confirmation",
             JOptionPane.YES_NO_CANCEL_OPTION);
-       
+
         if(shutdown == JOptionPane.CANCEL_OPTION)
         {
             return;
@@ -268,10 +255,10 @@ public class Root extends ListArrayTreeNode
                 {
                     amiSuccess(prefix);
                 }
-                
+
                 public void ice_exception(Ice.UserException e)
                 {
-                    amiFailure(prefix, "Failed to patch '" 
+                    amiFailure(prefix, "Failed to patch '"
                                + applicationName + "'", e);
                 }
 
@@ -281,14 +268,11 @@ public class Root extends ListArrayTreeNode
                                applicationName + "'", e.toString());
                 }
             };
-        
+
         try
-        {   
-            _coordinator.getMainFrame().setCursor(
-                Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
-            _coordinator.getAdmin().
-                patchApplication_async(cb, applicationName, 
-                                       shutdown == JOptionPane.YES_OPTION);
+        {
+            _coordinator.getMainFrame().setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+            _coordinator.getAdmin().patchApplication_async(cb, applicationName, shutdown == JOptionPane.YES_OPTION);
         }
         catch(Ice.LocalException e)
         {
@@ -296,14 +280,13 @@ public class Root extends ListArrayTreeNode
         }
         finally
         {
-            _coordinator.getMainFrame().setCursor(
-                Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+            _coordinator.getMainFrame().setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
         }
     }
 
     public void showApplicationDetails(String appName)
     {
-        ApplicationInfo app = (ApplicationInfo)_infoMap.get(appName);
+        ApplicationInfo app = _infoMap.get(appName);
         if(app != null)
         {
             if(_applicationDetailsDialog == null)
@@ -321,13 +304,11 @@ public class Root extends ListArrayTreeNode
     public void applicationAdded(ApplicationInfo info)
     {
         _infoMap.put(info.descriptor.name, info);
-        
-        java.util.Iterator p = info.descriptor.nodes.entrySet().iterator();
-        while(p.hasNext())
+
+        for(java.util.Map.Entry<String, NodeDescriptor> p : info.descriptor.nodes.entrySet())
         {
-            java.util.Map.Entry entry = (java.util.Map.Entry)p.next();
-            String nodeName = (String)entry.getKey();
-            NodeDescriptor nodeDesc = (NodeDescriptor)entry.getValue();
+            String nodeName = p.getKey();
+            NodeDescriptor nodeDesc = p.getValue();
 
             Node node = findNode(nodeName);
             if(node == null)
@@ -345,13 +326,13 @@ public class Root extends ListArrayTreeNode
     {
         _infoMap.remove(name);
 
-        java.util.List toRemove = new java.util.LinkedList();
+        java.util.List<Node> toRemove = new java.util.LinkedList<Node>();
         int[] toRemoveIndices = new int[_nodes.size()];
 
         int i = 0;
         for(int index = 0; index < _nodes.size(); ++index)
         {
-            Node node = (Node)_nodes.get(index);
+            Node node = _nodes.get(index);
             if(node.remove(name))
             {
                 toRemove.add(node);
@@ -361,10 +342,10 @@ public class Root extends ListArrayTreeNode
 
         removeNodes(resize(toRemoveIndices, toRemove.size()), toRemove);
     }
-    
+
     public void applicationUpdated(ApplicationUpdateInfo update)
     {
-        ApplicationInfo app = (ApplicationInfo)_infoMap.get(update.descriptor.name);
+        ApplicationInfo app = _infoMap.get(update.descriptor.name);
 
         app.updateTime = update.updateTime;
         app.updateUser = update.updateUser;
@@ -386,44 +367,42 @@ public class Root extends ListArrayTreeNode
 
         appDesc.variables.keySet().removeAll(java.util.Arrays.asList(update.descriptor.removeVariables));
         appDesc.variables.putAll(update.descriptor.variables);
-        boolean variablesChanged = update.descriptor.removeVariables.length > 0 || !update.descriptor.variables.isEmpty();
+        boolean variablesChanged = update.descriptor.removeVariables.length > 0 ||
+            !update.descriptor.variables.isEmpty();
 
         //
         // Update only descriptors (no tree node shown in this view)
         //
-        appDesc.propertySets.keySet().
-            removeAll(java.util.Arrays.asList(update.descriptor.removePropertySets));
+        appDesc.propertySets.keySet().removeAll(java.util.Arrays.asList(update.descriptor.removePropertySets));
         appDesc.propertySets.putAll(update.descriptor.propertySets);
 
-        for(int i = 0; i < update.descriptor.removeReplicaGroups.length; ++i)
+        for(String id : update.descriptor.removeReplicaGroups)
         {
-            for(int j = 0; j < appDesc.replicaGroups.size(); ++j)
+            for(int i = 0; i < appDesc.replicaGroups.size(); ++i)
             {
-                ReplicaGroupDescriptor rgd = (ReplicaGroupDescriptor)appDesc.replicaGroups.get(j);
-                if(rgd.id.equals(update.descriptor.removeReplicaGroups[i]))
+                ReplicaGroupDescriptor rgd = appDesc.replicaGroups.get(i);
+                if(rgd.id.equals(id))
                 {
-                    appDesc.replicaGroups.remove(j);
+                    appDesc.replicaGroups.remove(i);
                     break; // for
                 }
             }
         }
 
-        for(int i = 0; i < update.descriptor.replicaGroups.size(); ++i)
+        for(ReplicaGroupDescriptor newRgd : update.descriptor.replicaGroups)
         {
-            ReplicaGroupDescriptor newRgd = (ReplicaGroupDescriptor)update.descriptor.replicaGroups.get(i);
-
             boolean replaced = false;
-            int j = 0;
-            while(j < appDesc.replicaGroups.size() && !replaced)
+            int i = 0;
+            while(i < appDesc.replicaGroups.size() && !replaced)
             {
-                ReplicaGroupDescriptor oldRgd = (ReplicaGroupDescriptor)appDesc.replicaGroups.get(j);
-                
+                ReplicaGroupDescriptor oldRgd = appDesc.replicaGroups.get(i);
+
                 if(newRgd.id.equals(oldRgd.id))
                 {
-                    appDesc.replicaGroups.set(j, newRgd);
+                    appDesc.replicaGroups.set(i, newRgd);
                     replaced = true;
                 }
-                j++;
+                i++;
             }
 
             if(!replaced)
@@ -431,13 +410,11 @@ public class Root extends ListArrayTreeNode
                 appDesc.replicaGroups.add(newRgd);
             }
         }
-   
-        appDesc.serviceTemplates.keySet().
-            removeAll(java.util.Arrays.asList(update.descriptor.removeServiceTemplates));
+
+        appDesc.serviceTemplates.keySet().removeAll(java.util.Arrays.asList(update.descriptor.removeServiceTemplates));
         appDesc.serviceTemplates.putAll(update.descriptor.serviceTemplates);
-        
-        appDesc.serverTemplates.keySet().
-            removeAll(java.util.Arrays.asList(update.descriptor.removeServerTemplates));
+
+        appDesc.serverTemplates.keySet().removeAll(java.util.Arrays.asList(update.descriptor.removeServerTemplates));
         appDesc.serverTemplates.putAll(update.descriptor.serverTemplates);
 
         //
@@ -445,59 +422,55 @@ public class Root extends ListArrayTreeNode
         //
 
         //
-        // Removal 
+        // Removal
         //
         appDesc.nodes.keySet().removeAll(java.util.Arrays.asList(update.descriptor.removeNodes));
 
-        for(int i = 0; i < update.descriptor.removeNodes.length; ++i)
+        for(String name : update.descriptor.removeNodes)
         {
-            Node node = findNode(update.descriptor.removeNodes[i]);
+            Node node = findNode(name);
             if(node.remove(update.descriptor.name))
             {
-                int index = getIndex(node); 
+                int index = getIndex(node);
                 _nodes.remove(node);
                 _treeModel.nodesWereRemoved(this, new int[]{index}, new Object[]{node});
             }
         }
-        
+
         //
         // Add/update
         //
-        java.util.Iterator p = update.descriptor.nodes.iterator();
-        java.util.Set freshNodes = new java.util.HashSet();
-        while(p.hasNext())
+        java.util.Set<Node> freshNodes = new java.util.HashSet<Node>();
+        for(NodeUpdateDescriptor desc : update.descriptor.nodes)
         {
-            NodeUpdateDescriptor nodeUpdateDesc = (NodeUpdateDescriptor)p.next();
-            
-            String nodeName = nodeUpdateDesc.name;
+            String nodeName = desc.name;
 
             Node node = findNode(nodeName);
             if(node == null)
             {
-                node = new Node(this, appDesc, nodeUpdateDesc);
+                node = new Node(this, appDesc, desc);
                 insertNode(node);
             }
             else
             {
-                node.update(appDesc, nodeUpdateDesc, variablesChanged, 
+                node.update(appDesc, desc, variablesChanged,
                             update.descriptor.serviceTemplates.keySet(), update.descriptor.serverTemplates.keySet());
             }
             freshNodes.add(node);
         }
-        
+
         //
         // Notify non-fresh nodes if needed
         //
-        if(variablesChanged || !update.descriptor.serviceTemplates.isEmpty() || !update.descriptor.serverTemplates.isEmpty())
+        if(variablesChanged || !update.descriptor.serviceTemplates.isEmpty() ||
+           !update.descriptor.serverTemplates.isEmpty())
         {
-            p = _nodes.iterator();
-            while(p.hasNext())
+            for(Node p : _nodes)
             {
-                Node node = (Node)p.next();
-                if(!freshNodes.contains(node))
+                if(!freshNodes.contains(p))
                 {
-                    node.update(appDesc, null, variablesChanged,
-                                update.descriptor.serviceTemplates.keySet(), update.descriptor.serverTemplates.keySet());
+                    p.update(appDesc, null, variablesChanged, update.descriptor.serviceTemplates.keySet(),
+                             update.descriptor.serverTemplates.keySet());
                 }
             }
         }
@@ -505,50 +478,49 @@ public class Root extends ListArrayTreeNode
 
     public void adapterInit(AdapterInfo[] adapters)
     {
-        for(int i = 0; i < adapters.length; ++i)
+        for(AdapterInfo info : adapters)
         {
-            _adapters.put(adapters[i].id, adapters[i]);
-        }       
+            _adapters.put(info.id, info);
+        }
     }
 
     public void adapterAdded(AdapterInfo info)
     {
         _adapters.put(info.id, info);
-    }    
+    }
 
     public void adapterUpdated(AdapterInfo info)
     {
         _adapters.put(info.id, info);
-    }    
+    }
 
     public void adapterRemoved(String id)
     {
         _adapters.remove(id);
-    }    
-    
+    }
+
     public void objectInit(ObjectInfo[] objects)
     {
-        for(int i = 0; i < objects.length; ++i)
+        for(ObjectInfo info : objects)
         {
-            _objects.put(Ice.Util.identityToString(objects[i].proxy.ice_getIdentity()), objects[i]);
+            _objects.put(Ice.Util.identityToString(info.proxy.ice_getIdentity()), info);
         }
     }
 
     public void objectAdded(ObjectInfo info)
     {
         _objects.put(Ice.Util.identityToString(info.proxy.ice_getIdentity()), info);
-    }    
+    }
 
     public void objectUpdated(ObjectInfo info)
     {
         _objects.put(Ice.Util.identityToString(info.proxy.ice_getIdentity()), info);
-    }    
+    }
 
     public void objectRemoved(Ice.Identity id)
     {
         _objects.remove(Ice.Util.identityToString(id));
-    } 
-
+    }
 
     //
     // From the Registry Observer:
@@ -611,7 +583,7 @@ public class Root extends ListArrayTreeNode
         {
             if(node.down())
             {
-                int index = getIndex(node); 
+                int index = getIndex(node);
                 _nodes.remove(node);
                 _treeModel.nodesWereRemoved(this, new int[]{index}, new Object[]{node});
             }
@@ -650,7 +622,7 @@ public class Root extends ListArrayTreeNode
             _popup.addSeparator();
             _popup.add(la.get(SHUTDOWN_REGISTRY));
         }
-        
+
         la.setTarget(this);
         return _popup;
     }
@@ -679,7 +651,7 @@ public class Root extends ListArrayTreeNode
     {
         return _label;
     }
-    
+
     //
     // Check that this node is attached to the tree
     //
@@ -720,12 +692,12 @@ public class Root extends ListArrayTreeNode
         return _instanceName;
     }
 
-    java.util.SortedMap getObjects()
+    java.util.SortedMap<String, ObjectInfo> getObjects()
     {
         return _objects;
     }
 
-    java.util.SortedMap getAdapters()
+    java.util.SortedMap<String, AdapterInfo> getAdapters()
     {
         return _adapters;
     }
@@ -767,7 +739,7 @@ public class Root extends ListArrayTreeNode
 
         String prefix = "Adding well-known object '" + strIdentity + "'...";
         try
-        {   
+        {
             _coordinator.getStatusBar().setText(prefix);
             _coordinator.getMainFrame().setCursor(
                 Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
@@ -820,7 +792,6 @@ public class Root extends ListArrayTreeNode
         return true;
     }
 
-
     void removeObject(String strProxy)
     {
         Ice.ObjectPrx proxy = _coordinator.getCommunicator().stringToProxy(strProxy);
@@ -829,7 +800,7 @@ public class Root extends ListArrayTreeNode
 
         final String prefix = "Removing well-known object '" + strIdentity + "'...";
         _coordinator.getStatusBar().setText(prefix);
-        
+
         AMI_Admin_removeObject cb = new AMI_Admin_removeObject()
             {
                 //
@@ -839,34 +810,31 @@ public class Root extends ListArrayTreeNode
                 {
                     amiSuccess(prefix);
                 }
-                
+
                 public void ice_exception(Ice.UserException e)
                 {
                     amiFailure(prefix, "Failed to remove object '" + strIdentity + "'", e);
                 }
-                
+
                 public void ice_exception(Ice.LocalException e)
                 {
                     amiFailure(prefix, "Failed to remove object '" + strIdentity + "'",
                                e.toString());
                 }
             };
-        
+
         try
-        {   
-            _coordinator.getMainFrame().setCursor(
-                Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+        {
+            _coordinator.getMainFrame().setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
             _coordinator.getAdmin().removeObject_async(cb, identity);
         }
         catch(Ice.LocalException e)
         {
-            failure(prefix, "Failed to remove object '" + strIdentity + "'",
-                    e.toString());
+            failure(prefix, "Failed to remove object '" + strIdentity + "'", e.toString());
         }
         finally
         {
-            _coordinator.getMainFrame().setCursor(
-                Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+            _coordinator.getMainFrame().setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
         }
     }
 
@@ -874,7 +842,7 @@ public class Root extends ListArrayTreeNode
     {
         final String prefix = "Removing adapter '" + adapterId + "'...";
         _coordinator.getStatusBar().setText(prefix);
-        
+
         AMI_Admin_removeAdapter cb = new AMI_Admin_removeAdapter()
             {
                 //
@@ -884,23 +852,22 @@ public class Root extends ListArrayTreeNode
                 {
                     amiSuccess(prefix);
                 }
-                
+
                 public void ice_exception(Ice.UserException e)
                 {
                     amiFailure(prefix, "Failed to remove adapter '" + adapterId + "'", e);
                 }
-                
+
                 public void ice_exception(Ice.LocalException e)
                 {
-                    amiFailure(prefix, "Failed to remove adapter '" + adapterId + "'", 
+                    amiFailure(prefix, "Failed to remove adapter '" + adapterId + "'",
                                e.toString());
                 }
             };
-        
+
         try
-        {   
-            _coordinator.getMainFrame().setCursor(
-                Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+        {
+            _coordinator.getMainFrame().setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
             _coordinator.getAdmin().removeAdapter_async(cb, adapterId);
         }
         catch(Ice.LocalException e)
@@ -909,11 +876,10 @@ public class Root extends ListArrayTreeNode
         }
         finally
         {
-            _coordinator.getMainFrame().setCursor(
-                Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+            _coordinator.getMainFrame().setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
         }
     }
-    
+
     public void retrieveOutput(final boolean stdout)
     {
         getRoot().openShowLogDialog(new ShowLogDialog.FileIteratorFactory()
@@ -939,31 +905,28 @@ public class Root extends ListArrayTreeNode
                 {
                     return "Registry " + _label + " " + (stdout ? "stdout" : "stderr");
                 }
-                
+
                 public String getDefaultFilename()
                 {
                     return _replicaName + (stdout ? ".out" : ".err");
                 }
             });
-    } 
-
+    }
 
     PropertySetDescriptor findNamedPropertySet(String name, String applicationName)
     {
-        ApplicationInfo app = (ApplicationInfo)
-            _infoMap.get(applicationName);
+        ApplicationInfo app = (ApplicationInfo)_infoMap.get(applicationName);
         return (PropertySetDescriptor)app.descriptor.propertySets.get(name);
     }
 
-
     void openShowLogDialog(ShowLogDialog.FileIteratorFactory factory)
     {
-        ShowLogDialog d = (ShowLogDialog)_showLogDialogMap.get(factory.getTitle());
+        ShowLogDialog d = _showLogDialogMap.get(factory.getTitle());
         if(d == null)
         {
-            d = new ShowLogDialog(this, factory, 
-                                  _logMaxLines, _logMaxSize, _logInitialLines, _logMaxReadSize, _logPeriod);
-            
+            d = new ShowLogDialog(this, factory, _logMaxLines, _logMaxSize, _logInitialLines, _logMaxReadSize,
+                                  _logPeriod);
+
             _showLogDialogMap.put(factory.getTitle(), d);
         }
         else
@@ -979,11 +942,9 @@ public class Root extends ListArrayTreeNode
 
     public void closeAllShowLogDialogs()
     {
-        java.util.Iterator p = _showLogDialogMap.values().iterator();
-        while(p.hasNext())
+        for(ShowLogDialog p : _showLogDialogMap.values())
         {
-            ShowLogDialog d = (ShowLogDialog)p.next();
-            d.close(false);
+            p.close(false);
         }
         _showLogDialogMap.clear();
     }
@@ -992,7 +953,6 @@ public class Root extends ListArrayTreeNode
     {
         return _messageSizeMax;
     }
-
 
     public void setLogPrefs(int maxLines, int maxSize, int initialLines, int maxReadSize, int period)
     {
@@ -1004,7 +964,7 @@ public class Root extends ListArrayTreeNode
 
         storeLogPrefs();
     }
-   
+
     private void loadLogPrefs()
     {
         Preferences logPrefs = _coordinator.getPrefs().node("Log");
@@ -1030,12 +990,11 @@ public class Root extends ListArrayTreeNode
         logPrefs.putInt("period", _logPeriod);
     }
 
-
     private Node findNode(String nodeName)
     {
         return (Node)find(nodeName, _nodes);
     }
-    
+
     private void insertNode(Node node)
     {
         String nodeName = node.toString();
@@ -1061,14 +1020,14 @@ public class Root extends ListArrayTreeNode
             _treeModel.nodesWereRemoved(this, toRemoveIndices, toRemove.toArray());
         }
     }
-    
+
     public static int computeMessageSizeMax(int num)
     {
         if(num <= 0)
         {
             num = 1024;
         }
-        
+
         if(num > 0x7fffffff / 1024)
         {
             return 0x7fffffff;
@@ -1079,28 +1038,27 @@ public class Root extends ListArrayTreeNode
         }
     }
 
-  
     private final Coordinator _coordinator;
     private String _instanceName = "";
     private String _replicaName;
 
-    private final java.util.List _nodes = new java.util.LinkedList();
-    private final java.util.List _slaves = new java.util.LinkedList();
+    private final java.util.List<Node> _nodes = new java.util.LinkedList<Node>();
+    private final java.util.List<Slave> _slaves = new java.util.LinkedList<Slave>();
 
     //
     // Maps application name to current application info
     //
-    private final java.util.Map _infoMap = new java.util.TreeMap();
+    private final java.util.Map<String, ApplicationInfo> _infoMap = new java.util.TreeMap<String, ApplicationInfo>();
 
     //
     // Map AdapterId => AdapterInfo
     //
-    private java.util.SortedMap _adapters = new java.util.TreeMap();
+    private java.util.SortedMap<String, AdapterInfo> _adapters = new java.util.TreeMap<String, AdapterInfo>();
 
     //
     // Map stringified identity => ObjectInfo
     //
-    private java.util.SortedMap _objects = new java.util.TreeMap();
+    private java.util.SortedMap<String, ObjectInfo> _objects = new java.util.TreeMap<String, ObjectInfo>();
 
     //
     // 'this' is the root of the tree
@@ -1109,7 +1067,7 @@ public class Root extends ListArrayTreeNode
     private final DefaultTreeModel _treeModel;
 
     private RegistryInfo _info;
-    
+
     private String _label;
 
     private ObjectDialog _addObjectDialog;
@@ -1120,14 +1078,14 @@ public class Root extends ListArrayTreeNode
     //
     final int _messageSizeMax;
 
-    java.util.Map _showLogDialogMap = new java.util.HashMap();
-   
+    java.util.Map<String, ShowLogDialog> _showLogDialogMap = new java.util.HashMap<String, ShowLogDialog>();
+
     int _logMaxLines;
     int _logMaxSize;
     int _logInitialLines;
     int _logMaxReadSize;
     int _logPeriod;
-  
+
     private ApplicationDetailsDialog _applicationDetailsDialog;
 
     static private RegistryEditor _editor;

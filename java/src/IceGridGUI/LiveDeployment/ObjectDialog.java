@@ -6,6 +6,7 @@
 // ICE_LICENSE file included in this distribution.
 //
 // **********************************************************************
+
 package IceGridGUI.LiveDeployment;
 
 import java.awt.BorderLayout;
@@ -40,10 +41,10 @@ class ObjectDialog extends JDialog
     {
         super(root.getCoordinator().getMainFrame(),
               (readOnly ? "" : "New ") + "Dynamic Well-Known Object - IceGrid Admin", true);
- 
+
         setDefaultCloseOperation(JDialog.HIDE_ON_CLOSE);
         _mainFrame = root.getCoordinator().getMainFrame();
-        
+
         _proxy.setLineWrap(true);
 
         if(readOnly)
@@ -56,24 +57,23 @@ class ObjectDialog extends JDialog
         {
             _typeCombo.setEditable(true);
         }
-   
+
         FormLayout layout = new FormLayout("right:pref, 3dlu, pref", "");
         DefaultFormBuilder builder = new DefaultFormBuilder(layout);
         builder.setDefaultDialogBorder();
         builder.setRowGroupingEnabled(true);
         builder.setLineGapSize(LayoutStyle.getCurrent().getLinePad());
-        
+
         builder.append("Proxy");
         builder.nextLine();
         builder.append("");
         builder.nextRow(-2);
         CellConstraints cc = new CellConstraints();
         JScrollPane scrollPane = new JScrollPane(_proxy);
-        builder.add(scrollPane, 
-                    cc.xywh(builder.getColumn(), builder.getRow(), 1, 3));
+        builder.add(scrollPane, cc.xywh(builder.getColumn(), builder.getRow(), 1, 3));
         builder.nextRow(2);
         builder.nextLine();
-        
+
         if(readOnly)
         {
             builder.append("Type", _type);
@@ -83,7 +83,6 @@ class ObjectDialog extends JDialog
             builder.append("Type", _typeCombo);
         }
         builder.nextLine();
-
 
         Container contentPane = getContentPane();
         if(readOnly)
@@ -104,7 +103,7 @@ class ObjectDialog extends JDialog
                         {
                             type = _typeCombo.getSelectedItem().toString();
                         }
-                        
+
                         if(root.addObject(_proxy.getText(), type))
                         {
                             setVisible(false);
@@ -118,7 +117,7 @@ class ObjectDialog extends JDialog
             };
             okButton.addActionListener(okListener);
             getRootPane().setDefaultButton(okButton);
-        
+
             JButton cancelButton = new JButton("Cancel");
             ActionListener cancelListener = new ActionListener()
                 {
@@ -128,12 +127,11 @@ class ObjectDialog extends JDialog
                     }
                 };
             cancelButton.addActionListener(cancelListener);
-        
-            
-            JComponent buttonBar = 
+
+            JComponent buttonBar =
                 ButtonBarFactory.buildOKCancelBar(okButton, cancelButton);
             buttonBar.setBorder(Borders.DIALOG_BORDER);
-            
+
             contentPane.setLayout(new BoxLayout(contentPane, BoxLayout.Y_AXIS));
             contentPane.add(builder.getPanel());
             contentPane.add(buttonBar);

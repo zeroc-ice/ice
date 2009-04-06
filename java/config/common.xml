@@ -21,27 +21,6 @@
     <!-- Load build configuration properties -->
     <property file="${top.dir}/config/build.properties"/>
 
-    <!-- Check which Ice language mapping we're supposed to build, "java2" or "java5" -->
-    <condition property="ice.mapping" value="java5">
-      <not><isset property="ice.mapping"/></not>
-    </condition>
-    <fail message="Invalid ${ice.mapping} value specified in build.properties.">
-      <condition>
-        <and>
-          <not><equals arg1="${ice.mapping}" arg2="java2" trim="true"/></not>
-          <not><equals arg1="${ice.mapping}" arg2="java5" trim="true"/></not>
-        </and>
-      </condition>
-    </fail>
-    <condition property="java2">
-        <equals arg1="${ice.mapping}" arg2="java2"/>
-    </condition>
-
-    <!-- Use the global metadata "java:java2" when using java2 mapping -->
-    <condition property="java2metadata" value="java:java2" else="">
-        <isset property="java2"/>
-    </condition>
-
     <!-- Use -Xlint when requested -->
     <condition property="javac.lint" value="-Xlint:${lint}" else="-Xlint:none">
         <isset property="lint"/>
@@ -241,21 +220,6 @@
             <and>
                 <isset property="ice.bin.dist"/>
                 <equals arg1="${ice.dir}" arg2="/usr"/>
-            </and>
-        </condition>
-
-        <condition property="dist.jar.file" value="${dist.lib.dir}/Ice-java2-${ice.version}.jar">
-            <and>
-                <available file="${dist.lib.dir}/Ice-java2-${ice.version}.jar"/>
-                <isset property="java2"/>
-            </and>
-        </condition>
-
-        <condition property="dist.jar.file" value="${dist.lib.dir}/java2/Ice.jar">
-            <and>
-                <not><isset property="dist.jar.file"/></not>
-                <available file="${dist.lib.dir}/java2/Ice.jar"/>
-                <isset property="java2"/>
             </and>
         </condition>
 

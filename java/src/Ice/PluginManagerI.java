@@ -29,10 +29,8 @@ public final class PluginManagerI implements PluginManager
         java.util.List<Plugin> initializedPlugins = new java.util.ArrayList<Plugin>();
         try
         {
-            java.util.Iterator<Plugin> i = _initOrder.iterator();
-            while(i.hasNext())
+            for(Plugin p : _initOrder)
             {
-                Plugin p = i.next();
                 p.initialize();
                 initializedPlugins.add(p);
             }
@@ -106,20 +104,16 @@ public final class PluginManagerI implements PluginManager
         {
             if(_initialized)
             {
-                java.util.Iterator<java.util.Map.Entry<String, Plugin> > i = _plugins.entrySet().iterator();
-                java.util.Map.Entry<String, Plugin> entry;
-                while(i.hasNext())
+                for(java.util.Map.Entry<String, Plugin> p : _plugins.entrySet())
                 {
-                    entry = i.next();
                     try
                     {
-                        Plugin p = entry.getValue();
-                        p.destroy();
+                        p.getValue().destroy();
                     }
                     catch(RuntimeException ex)
                     {
-                        Ice.Util.getProcessLogger().warning("unexpected exception raised by plug-in `" + 
-                                                            entry.getKey() + "' destruction:\n" + ex.toString());
+                        Ice.Util.getProcessLogger().warning("unexpected exception raised by plug-in `" + p.getKey() +
+                                                            "' destruction:\n" + ex.toString());
                     }
                 }
             }
@@ -156,37 +150,37 @@ public final class PluginManagerI implements PluginManager
         java.util.Map<String, String> plugins = properties.getPropertiesForPrefix(prefix);
 
         final String[] loadOrder = properties.getPropertyAsList("Ice.PluginLoadOrder");
-        for(int i = 0; i < loadOrder.length; ++i)
+        for(String name : loadOrder)
         {
-            if(_plugins.containsKey(loadOrder[i]))
+            if(_plugins.containsKey(name))
             {
                 PluginInitializationException ex = new PluginInitializationException();
-                ex.reason = "plug-in `" + loadOrder[i] + "' already loaded";
+                ex.reason = "plug-in `" + name + "' already loaded";
                 throw ex;
             }
 
-            String key = "Ice.Plugin." + loadOrder[i] + ".java";
+            String key = "Ice.Plugin." + name + ".java";
             boolean hasKey = plugins.containsKey(key);
             if(hasKey)
             {
-                plugins.remove("Ice.Plugin." + loadOrder[i]);
+                plugins.remove("Ice.Plugin." + name);
             }
             else
             {
-                key = "Ice.Plugin." + loadOrder[i];
+                key = "Ice.Plugin." + name;
                 hasKey = plugins.containsKey(key);
             }
             
             if(hasKey)
             {
-                final String value = (String)plugins.get(key);
-                loadPlugin(loadOrder[i], value, cmdArgs);
+                final String value = plugins.get(key);
+                loadPlugin(name, value, cmdArgs);
                 plugins.remove(key);
             }
             else
             {
                 PluginInitializationException ex = new PluginInitializationException();
-                ex.reason = "plug-in `" + loadOrder[i] + "' not defined";
+                ex.reason = "plug-in `" + name + "' not defined";
                 throw ex;
             }
         }

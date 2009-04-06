@@ -6,6 +6,7 @@
 // ICE_LICENSE file included in this distribution.
 //
 // **********************************************************************
+
 package IceGridGUI;
 
 import java.util.prefs.Preferences;
@@ -117,7 +118,7 @@ public class Coordinator
             setEnabled(false);
         }
 
-        public void actionPerformed(ActionEvent e) 
+        public void actionPerformed(ActionEvent e)
         {
             if(_target != null)
             {
@@ -131,10 +132,9 @@ public class Coordinator
             // The only property we're interested in is isEnabled
             //
 
-            java.beans.PropertyChangeListener[] l = getPropertyChangeListeners();
-            for(int i = 0; i < l.length; ++i)
+            for(java.beans.PropertyChangeListener l : getPropertyChangeListeners())
             {
-                l[i].propertyChange(e);
+                l.propertyChange(e);
             }
         }
 
@@ -174,14 +174,14 @@ public class Coordinator
             super(name);
         }
 
-        public void actionPerformed(ActionEvent e) 
+        public void actionPerformed(ActionEvent e)
         {
             if(_target != null)
             {
                 Action a = _target.getActionMap().get("delete-next");
                 if(a != null)
                 {
-                    a.actionPerformed(new ActionEvent(_target, ActionEvent.ACTION_PERFORMED, null)); 
+                    a.actionPerformed(new ActionEvent(_target, ActionEvent.ACTION_PERFORMED, null));
                 }
             }
         }
@@ -192,12 +192,11 @@ public class Coordinator
         }
 
         private JTextComponent _target;
-
     }
 
-    private class FocusListener implements java.beans.PropertyChangeListener 
-    {  
-        public void propertyChange(java.beans.PropertyChangeEvent e) 
+    private class FocusListener implements java.beans.PropertyChangeListener
+    {
+        public void propertyChange(java.beans.PropertyChangeEvent e)
         {
             Object o = e.getNewValue();
             if(o == null)
@@ -250,7 +249,7 @@ public class Coordinator
         private void enableTextEditActions(JTextComponent target)
         {
             boolean editable = target.isEditable() && target.isEnabled();
-                    
+
             _cutText.setEnabled(editable);
             _copyText.setEnabled(true);
             _pasteText.setEnabled(editable);
@@ -282,7 +281,6 @@ public class Coordinator
         }
     }
 
-
     private class MenuBar extends JMenuBar
     {
         private MenuBar()
@@ -292,7 +290,7 @@ public class Coordinator
 
             //
             // File menu
-            // 
+            //
             JMenu fileMenu = new JMenu("File");
             fileMenu.setMnemonic(java.awt.event.KeyEvent.VK_F);
             add(fileMenu);
@@ -311,7 +309,6 @@ public class Coordinator
             _newMenu.add(_appActionsForMenu.get(IceGridGUI.Application.TreeNode.NEW_NODE));
             _newMenu.add(_appActionsForMenu.get(IceGridGUI.Application.TreeNode.NEW_PROPERTY_SET));
             _newMenu.add(_appActionsForMenu.get(IceGridGUI.Application.TreeNode.NEW_REPLICA_GROUP));
-            
 
             //
             // Open sub-menu
@@ -319,7 +316,6 @@ public class Coordinator
             JMenu openMenu = new JMenu("Open");
             openMenu.add(_openApplicationFromFile);
             openMenu.add(_openApplicationFromRegistry);
-            
 
             //
             // New server sub-sub-menu
@@ -330,7 +326,6 @@ public class Coordinator
             _newServerMenu.add(_appActionsForMenu.get(IceGridGUI.Application.TreeNode.NEW_SERVER));
             _newServerMenu.add(_appActionsForMenu.get(IceGridGUI.Application.TreeNode.NEW_SERVER_ICEBOX));
             _newServerMenu.add(_appActionsForMenu.get(IceGridGUI.Application.TreeNode.NEW_SERVER_FROM_TEMPLATE));
-           
 
             //
             // New service sub-sub-menu
@@ -350,7 +345,7 @@ public class Coordinator
             _newTemplateMenu.add(_appActionsForMenu.get(IceGridGUI.Application.TreeNode.NEW_TEMPLATE_SERVER));
             _newTemplateMenu.add(_appActionsForMenu.get(IceGridGUI.Application.TreeNode.NEW_TEMPLATE_SERVER_ICEBOX));
             _newTemplateMenu.add(_appActionsForMenu.get(IceGridGUI.Application.TreeNode.NEW_TEMPLATE_SERVICE));
-            
+
             fileMenu.addSeparator();
             fileMenu.add(_login);
             fileMenu.add(_logout);
@@ -370,7 +365,7 @@ public class Coordinator
                 fileMenu.addSeparator();
                 fileMenu.add(_exit);
             }
-           
+
             //
             // Edit menu
             //
@@ -404,7 +399,7 @@ public class Coordinator
             JMenu toolsMenu = new JMenu("Tools");
             toolsMenu.setMnemonic(java.awt.event.KeyEvent.VK_T);
             add(toolsMenu);
-            
+
             //
             // Application sub-menu
             //
@@ -416,7 +411,7 @@ public class Coordinator
             _appMenu.addSeparator();
             _appMenu.add(_removeApplicationFromRegistry);
             _appMenu.setEnabled(false);
-         
+
             //
             // Node sub-menu
             //
@@ -427,7 +422,7 @@ public class Coordinator
             _nodeMenu.add(_liveActionsForMenu.get(IceGridGUI.LiveDeployment.TreeNode.RETRIEVE_STDERR));
             _nodeMenu.addSeparator();
             _nodeMenu.add(_liveActionsForMenu.get(IceGridGUI.LiveDeployment.TreeNode.SHUTDOWN_NODE));
-          
+
             //
             // Registry sub-menu
             //
@@ -453,17 +448,12 @@ public class Coordinator
             _serverMenu.add(_liveActionsForMenu.get(IceGridGUI.LiveDeployment.TreeNode.ENABLE));
             _serverMenu.add(_liveActionsForMenu.get(IceGridGUI.LiveDeployment.TreeNode.DISABLE));
             _serverMenu.addSeparator();
-            _serverMenu.add(_liveActionsForMenu.get(
-                                IceGridGUI.LiveDeployment.TreeNode.PATCH_SERVER));
+            _serverMenu.add(_liveActionsForMenu.get(IceGridGUI.LiveDeployment.TreeNode.PATCH_SERVER));
             _serverMenu.addSeparator();
-            _serverMenu.add(_liveActionsForMenu.get(
-                                IceGridGUI.LiveDeployment.TreeNode.WRITE_MESSAGE));
-            _serverMenu.add(_liveActionsForMenu.get(
-                                IceGridGUI.LiveDeployment.TreeNode.RETRIEVE_STDOUT));
-            _serverMenu.add(_liveActionsForMenu.get(
-                                IceGridGUI.LiveDeployment.TreeNode.RETRIEVE_STDERR));
-            _serverMenu.add(_liveActionsForMenu.get(
-                                IceGridGUI.LiveDeployment.TreeNode.RETRIEVE_LOG));
+            _serverMenu.add(_liveActionsForMenu.get(IceGridGUI.LiveDeployment.TreeNode.WRITE_MESSAGE));
+            _serverMenu.add(_liveActionsForMenu.get(IceGridGUI.LiveDeployment.TreeNode.RETRIEVE_STDOUT));
+            _serverMenu.add(_liveActionsForMenu.get(IceGridGUI.LiveDeployment.TreeNode.RETRIEVE_STDERR));
+            _serverMenu.add(_liveActionsForMenu.get(IceGridGUI.LiveDeployment.TreeNode.RETRIEVE_LOG));
             _serverMenu.addSeparator();
             _signalMenu = new JMenu("Send Signal");
             _serverMenu.add(_signalMenu);
@@ -475,9 +465,8 @@ public class Coordinator
             _signalMenu.add(_liveActionsForMenu.get(IceGridGUI.LiveDeployment.TreeNode.SIGUSR2));
             _signalMenu.add(_liveActionsForMenu.get(IceGridGUI.LiveDeployment.TreeNode.SIGTERM));
             _serverMenu.addSeparator();
-            _serverMenu.add(_liveActionsForMenu.get(
-                                IceGridGUI.LiveDeployment.TreeNode.OPEN_DEFINITION));
-        
+            _serverMenu.add(_liveActionsForMenu.get(IceGridGUI.LiveDeployment.TreeNode.OPEN_DEFINITION));
+
             //
             // Service sub-menu
             //
@@ -497,12 +486,12 @@ public class Coordinator
             add(helpMenu);
 
             helpMenu.add(_helpContents);
-            
+
             helpMenu.addSeparator();
             helpMenu.add(_about);
         }
     }
-   
+
     private class ToolBar extends JToolBar
     {
         private ToolBar()
@@ -522,7 +511,7 @@ public class Coordinator
             add(button);
 
             addSeparator();
-                    
+
             button = new JButton(_back);
             button.setText(null);
             button.setIcon(Utils.getIcon("/icons/24x24/back.png"));
@@ -533,7 +522,7 @@ public class Coordinator
             add(button);
 
             addSeparator();
-            
+
             button = new JButton(_openApplicationFromRegistry);
             button.setText(null);
             button.setIcon(Utils.getIcon("/icons/24x24/open_from_registry.png"));
@@ -583,7 +572,7 @@ public class Coordinator
             add(_substituteTool);
         }
     }
-    
+
     static private class ReuseConnectionRouter extends Ice._RouterDisp
     {
         public
@@ -617,13 +606,13 @@ public class Coordinator
         }
 
         private final Ice.ObjectPrx _clientProxy;
-    };
+    }
 
     public Ice.Communicator getCommunicator()
     {
         if(_communicator == null)
         {
-            _communicator = Ice.Util.initialize(_initData); 
+            _communicator = Ice.Util.initialize(_initData);
         }
         return _communicator;
     }
@@ -637,7 +626,7 @@ public class Coordinator
     {
         return (Tab)_mainPane.getSelectedComponent();
     }
-    
+
     public Action getBackAction()
     {
         return _back;
@@ -672,17 +661,16 @@ public class Coordinator
     {
         return _discardUpdates;
     }
-    
+
     //
     // Open live application and select application tab
     //
     public ApplicationPane openLiveApplication(String applicationName)
     {
-        ApplicationPane app = (ApplicationPane)_liveApplications.get(applicationName);
+        ApplicationPane app = _liveApplications.get(applicationName);
         if(app == null)
         {
-            ApplicationDescriptor desc = 
-                _liveDeploymentRoot.getApplicationDescriptor(applicationName);
+            ApplicationDescriptor desc = _liveDeploymentRoot.getApplicationDescriptor(applicationName);
             if(desc == null)
             {
                 JOptionPane.showMessageDialog(
@@ -710,7 +698,7 @@ public class Coordinator
                     JOptionPane.ERROR_MESSAGE);
                 return null;
             }
-           
+
             app = new ApplicationPane(root);
             _mainPane.addApplication(app);
             _liveApplications.put(applicationName, app);
@@ -718,12 +706,12 @@ public class Coordinator
         _mainPane.setSelectedComponent(app);
         return app;
     }
-    
+
     public void removeLiveApplication(String name)
     {
         _liveApplications.remove(name);
     }
-    
+
     public void addLiveApplication(IceGridGUI.Application.Root root)
     {
         ApplicationPane app = _mainPane.findApplication(root);
@@ -733,20 +721,18 @@ public class Coordinator
 
     public ApplicationPane getLiveApplication(String name)
     {
-        return (ApplicationPane)_liveApplications.get(name);
+        return _liveApplications.get(name);
     }
-
 
     //
     // From the Application observer:
     //
-    void applicationInit(String instanceName, int serial, java.util.List applications)
-    {   
+    void applicationInit(String instanceName, int serial, java.util.List<ApplicationInfo> applications)
+    {
         assert _latestSerial == -1;
         _latestSerial = serial;
 
-        _liveDeploymentRoot.applicationInit(instanceName, 
-                                            _sessionKeeper.getReplicaName(), applications);
+        _liveDeploymentRoot.applicationInit(instanceName, _sessionKeeper.getReplicaName(), applications);
         //
         // When we get this init, we can't have any live Application yet.
         //
@@ -756,8 +742,7 @@ public class Coordinator
     {
         _liveDeploymentRoot.applicationAdded(info);
         _liveDeploymentPane.refresh();
-        _statusBar.setText(
-            "Last update: new application '" + info.descriptor.name + "'");
+        _statusBar.setText("Last update: new application '" + info.descriptor.name + "'");
         updateSerial(serial);
     }
 
@@ -765,12 +750,10 @@ public class Coordinator
     {
         _liveDeploymentRoot.applicationRemoved(name);
         _liveDeploymentPane.refresh();
-        _statusBar.setText(
-            "Last update: application '" + name + "' was removed");
+        _statusBar.setText("Last update: application '" + name + "' was removed");
 
-        ApplicationPane app = 
-            (ApplicationPane)_liveApplications.get(name);
-        
+        ApplicationPane app = _liveApplications.get(name);
+
         if(app != null)
         {
             if(app.getRoot().kill())
@@ -788,9 +771,8 @@ public class Coordinator
         _liveDeploymentPane.refresh();
 
         _statusBar.setText("Last update: application  '" + update.descriptor.name + "' was updated");
-        
-        ApplicationPane app =
-            (ApplicationPane)_liveApplications.get(update.descriptor.name);
+
+        ApplicationPane app = _liveApplications.get(update.descriptor.name);
 
         if(app != null)
         {
@@ -815,20 +797,20 @@ public class Coordinator
     {
         _liveDeploymentRoot.adapterAdded(info);
         _liveDeploymentPane.refresh();
-    }    
+    }
 
     void adapterUpdated(AdapterInfo info)
     {
         _liveDeploymentRoot.adapterUpdated(info);
         _liveDeploymentPane.refresh();
-    }    
+    }
 
     void adapterRemoved(String id)
     {
         _liveDeploymentRoot.adapterRemoved(id);
         _liveDeploymentPane.refresh();
-    }    
-    
+    }
+
     //
     // From the Object observer:
     //
@@ -842,25 +824,25 @@ public class Coordinator
     {
         _liveDeploymentRoot.objectAdded(info);
         _liveDeploymentPane.refresh();
-    }    
+    }
 
     void objectUpdated(ObjectInfo info)
     {
         _liveDeploymentRoot.objectUpdated(info);
         _liveDeploymentPane.refresh();
-    }    
+    }
 
     void objectRemoved(Ice.Identity id)
     {
         _liveDeploymentRoot.objectRemoved(id);
         _liveDeploymentPane.refresh();
-    } 
-    
+    }
+
     public void accessDenied(AccessDeniedException e)
     {
         JOptionPane.showMessageDialog(
             _mainFrame,
-            "Another session (username = " + e.lockUserId 
+            "Another session (username = " + e.lockUserId
             + ") has exclusive write access to the registry",
             "Access Denied",
             JOptionPane.ERROR_MESSAGE);
@@ -869,8 +851,7 @@ public class Coordinator
     public void pasteApplication()
     {
         Object descriptor = getClipboard();
-        ApplicationDescriptor desc = 
-            IceGridGUI.Application.Root.copyDescriptor((ApplicationDescriptor)descriptor);
+        ApplicationDescriptor desc = IceGridGUI.Application.Root.copyDescriptor((ApplicationDescriptor)descriptor);
 
         IceGridGUI.Application.Root root = new IceGridGUI.Application.Root(this, desc);
         ApplicationPane app = new ApplicationPane(root);
@@ -878,11 +859,11 @@ public class Coordinator
         _mainPane.setSelectedComponent(app);
         root.setSelectedNode(root);
     }
-    
+
     public void removeApplicationFromRegistry(final String name)
     {
         _mainFrame.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
-        
+
         try
         {
             Runnable runnable = new Runnable()
@@ -897,7 +878,7 @@ public class Coordinator
                     {
                         release();
                         getStatusBar().setText(prefix + "failed!");
-                        
+
                         JOptionPane.showMessageDialog(
                             getMainFrame(),
                             message,
@@ -909,7 +890,6 @@ public class Coordinator
                     {
                         getMainFrame().setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
                         boolean asyncRelease = false;
-                        
 
                         final String prefix = "Deleting application '" + name + "'...";
                         AMI_Admin_removeApplication cb = new AMI_Admin_removeApplication()
@@ -921,16 +901,16 @@ public class Coordinator
                                         traceSaveToRegistry("removeApplication for application " + name + ": success");
                                     }
 
-                                    SwingUtilities.invokeLater(new Runnable() 
-                                        {       
-                                            public void run() 
+                                    SwingUtilities.invokeLater(new Runnable()
+                                        {
+                                            public void run()
                                             {
                                                 release();
                                                 getStatusBar().setText(prefix + "done.");
                                             }
                                         });
                                 }
-                                
+
                                 public void ice_exception(final Ice.UserException e)
                                 {
                                     if(_traceSaveToRegistry)
@@ -938,17 +918,17 @@ public class Coordinator
                                         traceSaveToRegistry("removeApplication for application " + name + ": failed");
                                     }
 
-                                    SwingUtilities.invokeLater(new Runnable() 
+                                    SwingUtilities.invokeLater(new Runnable()
                                         {
-                                            public void run() 
+                                            public void run()
                                             {
-                                                handleFailure(prefix, "Delete failed", 
+                                                handleFailure(prefix, "Delete failed",
                                                               "IceGrid exception: " + e.toString());
                                             }
-                                            
+
                                         });
                                 }
-                                
+
                                 public void ice_exception(final Ice.LocalException e)
                                 {
                                     if(_traceSaveToRegistry)
@@ -956,11 +936,11 @@ public class Coordinator
                                         traceSaveToRegistry("removeApplication for application " + name + ": failed");
                                     }
 
-                                    SwingUtilities.invokeLater(new Runnable() 
+                                    SwingUtilities.invokeLater(new Runnable()
                                         {
-                                            public void run() 
+                                            public void run()
                                             {
-                                                handleFailure(prefix, "Delete failed", 
+                                                handleFailure(prefix, "Delete failed",
                                                               "Communication exception: " + e.toString());
                                             }
                                         });
@@ -1011,7 +991,7 @@ public class Coordinator
         {
             JOptionPane.showMessageDialog(
                 _mainFrame,
-                "Could not remove application '" + name + 
+                "Could not remove application '" + name +
                 "' from IceGrid registry:\n" + e.toString(),
                 "Trouble with IceGrid registry",
                 JOptionPane.ERROR_MESSAGE);
@@ -1125,8 +1105,8 @@ public class Coordinator
     {
         assert serial == _latestSerial + 1;
         _latestSerial = serial;
-        
-        if(_writeAccessCount > 0 && 
+
+        if(_writeAccessCount > 0 &&
            _writeSerial <= _latestSerial &&
            _onExclusiveWrite != null)
         {
@@ -1141,7 +1121,7 @@ public class Coordinator
             _mainFrame.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
         }
     }
-  
+
     //
     // From the Registry observer:
     //
@@ -1183,7 +1163,7 @@ public class Coordinator
         _liveDeploymentRoot.updateAdapter(node, updatedInfo);
         _liveDeploymentPane.refresh();
     }
-    
+
     void sessionLost()
     {
         _latestSerial = -1;
@@ -1195,17 +1175,15 @@ public class Coordinator
         //
         // Kill all live applications
         //
-        java.util.Iterator p = _liveApplications.values().iterator();
-        while(p.hasNext())
+        for(ApplicationPane p : _liveApplications.values())
         {
-            ApplicationPane app = (ApplicationPane)p.next();
-            if(app.getRoot().kill())
+            if(p.getRoot().kill())
             {
-                _mainPane.remove(app);
+                _mainPane.remove(p);
             }
         }
         _liveApplications.clear();
-        
+
         _logout.setEnabled(false);
         _openApplicationFromRegistry.setEnabled(false);
         _patchApplication.setEnabled(false);
@@ -1217,18 +1195,18 @@ public class Coordinator
         _releaseExclusiveWriteAccess.setEnabled(false);
         _saveToRegistry.setEnabled(false);
     }
-    
-    AdminSessionPrx login(SessionKeeper.LoginInfo info, 
-                          Component parent, 
+
+    AdminSessionPrx login(SessionKeeper.LoginInfo info,
+                          Component parent,
                           Ice.LongHolder keepAlivePeriodHolder)
-    {   
+    {
         _liveDeploymentRoot.clear();
 
         AdminSessionPrx session = null;
-        
+
         destroyCommunicator();
 
-        Ice.InitializationData initData = _initData;    
+        Ice.InitializationData initData = _initData;
         if(info.routed && info.routerSSLEnabled || !info.routed && info.registrySSLEnabled)
         {
             initData = (Ice.InitializationData)initData.clone();
@@ -1237,7 +1215,7 @@ public class Coordinator
 
             //
             // Transform SSL info into properties
-            //     
+            //
             initData.properties.setProperty("IceSSL.Keystore", info.keystore);
             initData.properties.setProperty("IceSSL.Password", new String(info.keyPassword));
             initData.properties.setProperty("IceSSL.KeystorePassword", new String(info.keystorePassword));
@@ -1246,7 +1224,6 @@ public class Coordinator
             initData.properties.setProperty("IceSSL.TruststorePassword", new String(info.truststorePassword));
         }
 
-      
         //
         // Clear Ice.Default.Router
         // (when info.routed, we don't want to route the router)
@@ -1271,7 +1248,7 @@ public class Coordinator
             //
             // Router
             //
-            
+
             Ice.Identity routerId = new Ice.Identity();
             routerId.category = info.routerInstanceName;
             routerId.name = "router";
@@ -1281,7 +1258,7 @@ public class Coordinator
             {
                 str += ":" + info.routerEndpoints;
             }
-            
+
             try
             {
                 Glacier2.RouterPrx router = Glacier2.RouterPrxHelper.uncheckedCast(_communicator.stringToProxy(str));
@@ -1297,7 +1274,7 @@ public class Coordinator
                     router = Glacier2.RouterPrxHelper.uncheckedCast(router.ice_secure(true));
 
                     s = router.createSessionFromSecureConnection();
-                    
+
                     if(s == null)
                     {
                         JOptionPane.showMessageDialog(
@@ -1307,7 +1284,7 @@ public class Coordinator
                             + "<IceGridInstanceName>/AdminSSLSessionManager in your Glacier2 router configuration",
                             "Login failed",
                             JOptionPane.ERROR_MESSAGE);
-                        
+
                         return null;
                     }
                 }
@@ -1325,13 +1302,13 @@ public class Coordinator
                             + "<IceGridInstanceName>/AdminSessionManager in your Glacier2 router configuration",
                             "Login failed",
                             JOptionPane.ERROR_MESSAGE);
-                        
+
                         return null;
                     }
                 }
-                
+
                 session = AdminSessionPrxHelper.uncheckedCast(s);
-                keepAlivePeriodHolder.value = router.getSessionTimeout() * 1000 / 2;    
+                keepAlivePeriodHolder.value = router.getSessionTimeout() * 1000 / 2;
             }
             catch(Glacier2.PermissionDeniedException e)
             {
@@ -1377,7 +1354,7 @@ public class Coordinator
 
                 return null;
             }
-            
+
             //
             // The client uses the locator only without routing
             //
@@ -1386,8 +1363,8 @@ public class Coordinator
             locatorId.name = "Locator";
             String str = "\"" + _communicator.identityToString(locatorId) + "\"";
             str += ":" + info.registryEndpoints;
-           
-            RegistryPrx currentRegistry = null; 
+
+            RegistryPrx currentRegistry = null;
             IceGrid.LocatorPrx defaultLocator = null;
             try
             {
@@ -1401,9 +1378,9 @@ public class Coordinator
                         JOptionPane.ERROR_MESSAGE);
                     return null;
                 }
- 
+
                 currentRegistry = defaultLocator.getLocalRegistry();
-                
+
                 _communicator.setDefaultLocator(defaultLocator);
             }
             catch(Ice.LocalException e)
@@ -1443,7 +1420,7 @@ public class Coordinator
                 _communicator.setDefaultRouter(Ice.RouterPrxHelper.uncheckedCast(router));
                 registry = RegistryPrxHelper.uncheckedCast(registry.ice_router(_communicator.getDefaultRouter()));
             }
-            
+
             do
             {
                 try
@@ -1451,7 +1428,7 @@ public class Coordinator
                     if(info.registryUseSSL)
                     {
                         registry = RegistryPrxHelper.uncheckedCast(registry.ice_secure(true));
-                        
+
                         session = registry.createAdminSessionFromSecureConnection();
                         assert session != null;
                     }
@@ -1459,7 +1436,7 @@ public class Coordinator
                     {
                         registry = RegistryPrxHelper.uncheckedCast(registry.ice_preferSecure(true));
 
-                        session = registry.createAdminSession(info.registryUsername, 
+                        session = registry.createAdminSession(info.registryUsername,
                                                         new String(info.registryPassword));
                         assert session != null;
                     }
@@ -1505,7 +1482,7 @@ public class Coordinator
                 }
             } while(session == null);
         }
-        
+
         _logout.setEnabled(true);
         _openApplicationFromRegistry.setEnabled(true);
         _patchApplication.setEnabled(true);
@@ -1520,7 +1497,6 @@ public class Coordinator
         return session;
     }
 
-    
     void destroySession(AdminSessionPrx session)
     {
         _liveDeploymentRoot.closeAllShowLogDialogs();
@@ -1535,15 +1511,14 @@ public class Coordinator
             }
             else
             {
-                Glacier2.RouterPrx gr 
-                    = Glacier2.RouterPrxHelper.uncheckedCast(router);
+                Glacier2.RouterPrx gr = Glacier2.RouterPrxHelper.uncheckedCast(router);
 
                 Glacier2.AMI_Router_destroySession cb = new Glacier2.AMI_Router_destroySession()
                     {
                         public void ice_response()
                         {
                         }
-                        
+
                         public void ice_exception(Ice.LocalException ex)
                         {
                         }
@@ -1672,13 +1647,13 @@ public class Coordinator
                     JOptionPane.ERROR_MESSAGE);
                 return null;
             }
-            
+
             try
             {
-                BufferedReader reader = 
+                BufferedReader reader =
                     new BufferedReader(new InputStreamReader(_icegridadminProcess.getInputStream(),
                                                              "US-ASCII"));
-                
+
                 String str = reader.readLine();
                 reader.close();
 
@@ -1715,8 +1690,7 @@ public class Coordinator
         {
             FileParserPrx fileParser = FileParserPrxHelper.checkedCast(
                 getCommunicator().stringToProxy(_fileParser).ice_router(null));
-            return fileParser.parse(file.getAbsolutePath(), 
-                                    _sessionKeeper.getRoutedAdmin());
+            return fileParser.parse(file.getAbsolutePath(), _sessionKeeper.getRoutedAdmin());
         }
         catch(ParseException e)
         {
@@ -1754,9 +1728,7 @@ public class Coordinator
         }
     }
 
-
-    public File saveToFile(boolean ask, IceGridGUI.Application.Root root,
-                           File file)
+    public File saveToFile(boolean ask, IceGridGUI.Application.Root root, File file)
     {
         if(ask || file == null)
         {
@@ -1770,7 +1742,7 @@ public class Coordinator
             }
 
             int result = _saveXMLChooser.showSaveDialog(_mainFrame);
-         
+
             if(file == null || result == JFileChooser.APPROVE_OPTION)
             {
                 _openChooser.setCurrentDirectory(_saveXMLChooser.getCurrentDirectory());
@@ -1822,49 +1794,49 @@ public class Coordinator
         }
         return file;
     }
- 
+
     public JFileChooser getSaveLogChooser()
     {
         return _saveLogChooser;
-    } 
+    }
 
     static private Ice.Properties createProperties(Ice.StringSeqHolder args)
     {
         Ice.Properties properties = Ice.Util.createProperties();
-        
+
         //
         // Set various default values
         //
         properties.setProperty("Ice.Override.ConnectTimeout", "5000");
-        
+
         //
         // For Glacier
         //
         properties.setProperty("Ice.ACM.Client", "0");
-        
+
         //
         // Disable retries
         //
         properties.setProperty("Ice.RetryIntervals", "-1");
-        
+
         return Ice.Util.createProperties(args, properties);
     }
 
     Coordinator(JFrame mainFrame, Ice.StringSeqHolder args, Preferences prefs)
-    {   
+    {
         _mainFrame = mainFrame;
         _prefs = prefs;
         _initData = new Ice.InitializationData();
 
         _initData.logger = new Logger(mainFrame);
         _initData.properties = createProperties(args);
-        
+
         if(args.value.length > 0)
         {
             String msg = "Extra command-line arguments: ";
-            for(int i = 0; i < args.value.length; ++i)
+            for(String arg : args.value)
             {
-                msg += args.value[i] + " ";
+                msg += arg + " ";
             }
             _initData.logger.warning(msg);
         }
@@ -1896,36 +1868,34 @@ public class Coordinator
             //
         }
 
-        _saveXMLChooser = new JFileChooser(
-            _prefs.get("current directory", null));
-        
+        _saveXMLChooser = new JFileChooser(_prefs.get("current directory", null));
+
         _saveXMLChooser.addChoosableFileFilter(new FileFilter()
             {
                 public boolean accept(File f)
                 {
                     return f.isDirectory() || f.getName().endsWith(".xml");
                 }
-                
+
                 public String getDescription()
                 {
                     return ".xml files";
                 }
             });
 
-        _saveLogChooser = new JFileChooser(
-            _prefs.get("current directory", null));
-        
+        _saveLogChooser = new JFileChooser(_prefs.get("current directory", null));
+
         _saveLogChooser.addChoosableFileFilter(new FileFilter()
             {
                 public boolean accept(File f)
                 {
-                    return f.isDirectory() || 
+                    return f.isDirectory() ||
                         f.getName().endsWith(".out") ||
                         f.getName().endsWith(".err") ||
                         f.getName().endsWith(".log") ||
                         f.getName().endsWith(".txt");
                 }
-                
+
                 public String getDescription()
                 {
                     return ".out .err .log .txt files";
@@ -1935,9 +1905,8 @@ public class Coordinator
         javax.swing.UIManager.put("FileChooser.readOnly", Boolean.TRUE);
 
         _openChooser = new JFileChooser(_saveXMLChooser.getCurrentDirectory());
-        
-        _openChooser.addChoosableFileFilter(_saveXMLChooser.getChoosableFileFilters()[1]);
 
+        _openChooser.addChoosableFileFilter(_saveXMLChooser.getChoosableFileFilters()[1]);
 
         final int MENU_MASK = Toolkit.getDefaultToolkit().getMenuShortcutKeyMask();
 
@@ -1946,16 +1915,16 @@ public class Coordinator
         //
         _newApplication = new AbstractAction("Application")
             {
-                public void actionPerformed(ActionEvent e) 
+                public void actionPerformed(ActionEvent e)
                 {
                     newApplication();
                 }
             };
 
-        _newApplicationWithDefaultTemplates = 
+        _newApplicationWithDefaultTemplates =
             new AbstractAction("Application with Default Templates from Registry")
             {
-                public void actionPerformed(ActionEvent e) 
+                public void actionPerformed(ActionEvent e)
                 {
                     newApplicationWithDefaultTemplates();
                 }
@@ -1964,17 +1933,16 @@ public class Coordinator
 
         _login = new AbstractAction("Login...")
             {
-                public void actionPerformed(ActionEvent e) 
+                public void actionPerformed(ActionEvent e)
                 {
                     _sessionKeeper.relog(true);
                 }
             };
-        _login.putValue(Action.SHORT_DESCRIPTION, 
-                        "Log into an IceGrid Registry");
+        _login.putValue(Action.SHORT_DESCRIPTION, "Log into an IceGrid Registry");
 
         _logout = new AbstractAction("Logout")
             {
-                public void actionPerformed(ActionEvent e) 
+                public void actionPerformed(ActionEvent e)
                 {
                     _sessionKeeper.logout(true);
                 }
@@ -1984,7 +1952,7 @@ public class Coordinator
 
         _acquireExclusiveWriteAccess = new AbstractAction("Acquire Exclusive Write Access")
             {
-                public void actionPerformed(ActionEvent e) 
+                public void actionPerformed(ActionEvent e)
                 {
                     try
                     {
@@ -1998,33 +1966,32 @@ public class Coordinator
                     }
                 }
             };
-        _acquireExclusiveWriteAccess.putValue(Action.SHORT_DESCRIPTION, 
+        _acquireExclusiveWriteAccess.putValue(Action.SHORT_DESCRIPTION,
                                               "Acquire exclusive write access on the registry");
         _acquireExclusiveWriteAccess.setEnabled(false);
 
-        
         _releaseExclusiveWriteAccess = new AbstractAction("Release Exclusive Write Access")
             {
-                public void actionPerformed(ActionEvent e) 
+                public void actionPerformed(ActionEvent e)
                 {
                     releaseExclusiveWriteAccess();
                     _acquireExclusiveWriteAccess.setEnabled(true);
                     _releaseExclusiveWriteAccess.setEnabled(false);
                 }
             };
-        _releaseExclusiveWriteAccess.putValue(Action.SHORT_DESCRIPTION, 
+        _releaseExclusiveWriteAccess.putValue(Action.SHORT_DESCRIPTION,
                                               "Release exclusive write access on the registry");
         _releaseExclusiveWriteAccess.setEnabled(false);
 
         _openApplicationFromFile = new AbstractAction("Application from File")
             {
-                public void actionPerformed(ActionEvent e) 
+                public void actionPerformed(ActionEvent e)
                 {
                     int result = _openChooser.showOpenDialog(_mainFrame);
                     if(result == JFileChooser.APPROVE_OPTION)
                     {
                         File file = _openChooser.getSelectedFile();
-                
+
                         ApplicationDescriptor desc = parseFile(file);
 
                         if(desc != null)
@@ -2043,7 +2010,7 @@ public class Coordinator
                                     JOptionPane.ERROR_MESSAGE);
                                 return;
                             }
-                            
+
                             ApplicationPane app = new ApplicationPane(root);
                             _mainPane.addApplication(app);
                             _mainPane.setSelectedComponent(app);
@@ -2054,13 +2021,13 @@ public class Coordinator
             };
         _openApplicationFromFile.putValue(Action.SHORT_DESCRIPTION, "Open application from file");
         _openApplicationFromFile.setEnabled(true);
-        
+
         _openApplicationFromRegistry = new AbstractAction("Application from Registry")
             {
-                public void actionPerformed(ActionEvent e) 
+                public void actionPerformed(ActionEvent e)
                 {
                     Object[] applicationNames = _liveDeploymentRoot.getApplicationNames();
-                    
+
                     if(applicationNames.length == 0)
                     {
                         JOptionPane.showMessageDialog(
@@ -2072,11 +2039,11 @@ public class Coordinator
                     else
                     {
                         String appName = (String)JOptionPane.showInputDialog(
-                            _mainFrame, "Which Application do you want to open?", 
-                            "Open Application from registry",    
+                            _mainFrame, "Which Application do you want to open?",
+                            "Open Application from registry",
                             JOptionPane.QUESTION_MESSAGE, null,
                             applicationNames, applicationNames[0]);
-                        
+
                         if(appName != null)
                         {
                             ApplicationPane app = openLiveApplication(appName);
@@ -2097,7 +2064,7 @@ public class Coordinator
 
         _closeApplication = new AbstractAction("Close Application")
             {
-                public void actionPerformed(ActionEvent e) 
+                public void actionPerformed(ActionEvent e)
                 {
                     Tab tab = getCurrentTab();
                     if(tab.close())
@@ -2111,33 +2078,31 @@ public class Coordinator
 
         if(System.getProperty("os.name").startsWith("Mac OS"))
         {
-            _closeApplication.putValue(Action.ACCELERATOR_KEY, 
+            _closeApplication.putValue(Action.ACCELERATOR_KEY,
                                        KeyStroke.getKeyStroke(KeyEvent.VK_W, MENU_MASK));
         }
         else
         {
-            _closeApplication.putValue(Action.ACCELERATOR_KEY, 
+            _closeApplication.putValue(Action.ACCELERATOR_KEY,
                                        KeyStroke.getKeyStroke(KeyEvent.VK_F4, MENU_MASK));
         }
         _closeApplication.setEnabled(false);
-        
 
         _save = new AbstractAction("Save")
             {
-                public void actionPerformed(ActionEvent e) 
+                public void actionPerformed(ActionEvent e)
                 {
                     getCurrentTab().save();
                 }
             };
         _save.setEnabled(false);
-        _save.putValue(Action.ACCELERATOR_KEY, 
+        _save.putValue(Action.ACCELERATOR_KEY,
                        KeyStroke.getKeyStroke(KeyEvent.VK_S, MENU_MASK));
         _save.putValue(Action.SHORT_DESCRIPTION, "Save");
 
-        
         _saveToRegistry = new AbstractAction("Save to Registry")
             {
-                public void actionPerformed(ActionEvent e) 
+                public void actionPerformed(ActionEvent e)
                 {
                     getCurrentTab().saveToRegistry();
                 }
@@ -2145,10 +2110,9 @@ public class Coordinator
         _saveToRegistry.setEnabled(false);
         _saveToRegistry.putValue(Action.SHORT_DESCRIPTION, "Save to registry");
 
-        
         _saveToFile = new AbstractAction("Save to File")
             {
-                public void actionPerformed(ActionEvent e) 
+                public void actionPerformed(ActionEvent e)
                 {
                     getCurrentTab().saveToFile();
                 }
@@ -2156,22 +2120,19 @@ public class Coordinator
         _saveToFile.setEnabled(false);
         _saveToFile.putValue(Action.SHORT_DESCRIPTION, "Save to file");
 
-        
         _discardUpdates = new AbstractAction("Discard Updates")
             {
-                public void actionPerformed(ActionEvent e) 
+                public void actionPerformed(ActionEvent e)
                 {
                     getCurrentTab().discardUpdates();
                 }
             };
         _discardUpdates.setEnabled(false);
-        _discardUpdates.putValue(Action.SHORT_DESCRIPTION, 
-                                 "Discard updates and reload application");
-
+        _discardUpdates.putValue(Action.SHORT_DESCRIPTION, "Discard updates and reload application");
 
         _exit = new AbstractAction("Exit")
             {
-                public void actionPerformed(ActionEvent e) 
+                public void actionPerformed(ActionEvent e)
                 {
                     exit(0);
                 }
@@ -2180,7 +2141,7 @@ public class Coordinator
 
         _back = new AbstractAction("Go Back to the Previous Node")
             {
-                public void actionPerformed(ActionEvent e) 
+                public void actionPerformed(ActionEvent e)
                 {
                     getCurrentTab().back();
                 }
@@ -2190,7 +2151,7 @@ public class Coordinator
 
         _forward =  new AbstractAction("Go to the Next Node")
             {
-                public void actionPerformed(ActionEvent e) 
+                public void actionPerformed(ActionEvent e)
                 {
                     getCurrentTab().forward();
                 }
@@ -2200,26 +2161,26 @@ public class Coordinator
 
         _helpContents = new AbstractAction("Contents")
             {
-                public void actionPerformed(ActionEvent e) 
+                public void actionPerformed(ActionEvent e)
                 {
                     helpContents();
-                }       
+                }
             };
-        
+
         _about = new AbstractAction("About")
             {
-                public void actionPerformed(ActionEvent e) 
+                public void actionPerformed(ActionEvent e)
                 {
                     about();
                 }
             };
-        
+
         _patchApplication = new AbstractAction("Patch Distribution")
             {
-                public void actionPerformed(ActionEvent e) 
+                public void actionPerformed(ActionEvent e)
                 {
                     Object[] applicationNames = _liveDeploymentRoot.getPatchableApplicationNames();
-                    
+
                     if(applicationNames.length == 0)
                     {
                         JOptionPane.showMessageDialog(
@@ -2231,11 +2192,11 @@ public class Coordinator
                     else
                     {
                         String appName = (String)JOptionPane.showInputDialog(
-                            _mainFrame, "Which Application do you want to patch?", 
-                            "Patch application",         
+                            _mainFrame, "Which Application do you want to patch?",
+                            "Patch application",
                             JOptionPane.QUESTION_MESSAGE, null,
                             applicationNames, applicationNames[0]);
-                        
+
                         if(appName != null)
                         {
                             _liveDeploymentRoot.patch(appName);
@@ -2244,13 +2205,13 @@ public class Coordinator
                 }
             };
         _patchApplication.setEnabled(false);
-        
+
         _showApplicationDetails = new AbstractAction("Show details")
             {
-                public void actionPerformed(ActionEvent e) 
+                public void actionPerformed(ActionEvent e)
                 {
                     Object[] applicationNames = _liveDeploymentRoot.getApplicationNames();
-                    
+
                     if(applicationNames.length == 0)
                     {
                         JOptionPane.showMessageDialog(
@@ -2262,11 +2223,11 @@ public class Coordinator
                     else
                     {
                         String appName = (String)JOptionPane.showInputDialog(
-                            _mainFrame, "Which Application do you to display", 
-                            "Show details",      
+                            _mainFrame, "Which Application do you to display",
+                            "Show details",
                             JOptionPane.QUESTION_MESSAGE, null,
                             applicationNames, applicationNames[0]);
-                        
+
                         if(appName != null)
                         {
                             _liveDeploymentRoot.showApplicationDetails(appName);
@@ -2275,13 +2236,13 @@ public class Coordinator
                 }
             };
         _showApplicationDetails.setEnabled(false);
-    
+
         _removeApplicationFromRegistry = new AbstractAction("Remove from Registry")
             {
-                public void actionPerformed(ActionEvent e) 
+                public void actionPerformed(ActionEvent e)
                 {
                     Object[] applicationNames = _liveDeploymentRoot.getApplicationNames();
-                    
+
                     if(applicationNames.length == 0)
                     {
                         JOptionPane.showMessageDialog(
@@ -2293,11 +2254,11 @@ public class Coordinator
                     else
                     {
                         String appName = (String)JOptionPane.showInputDialog(
-                            _mainFrame, "Which Application do you want to remove?", 
-                            "Remove application",        
+                            _mainFrame, "Which Application do you want to remove?",
+                            "Remove application",
                             JOptionPane.QUESTION_MESSAGE, null,
                             applicationNames, applicationNames[0]);
-                        
+
                         if(appName != null)
                         {
                             removeApplicationFromRegistry(appName);
@@ -2307,44 +2268,35 @@ public class Coordinator
             };
         _removeApplicationFromRegistry.setEnabled(false);
 
-        
         _cut = new ActionWrapper("Cut");
-        _cut.putValue(Action.ACCELERATOR_KEY, 
-                       KeyStroke.getKeyStroke(KeyEvent.VK_X, MENU_MASK));
+        _cut.putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_X, MENU_MASK));
         _cut.putValue(Action.SHORT_DESCRIPTION, "Cut");
-        
+
         _copy = new ActionWrapper("Copy");
-        _copy.putValue(Action.ACCELERATOR_KEY, 
-                       KeyStroke.getKeyStroke(KeyEvent.VK_C, MENU_MASK));
+        _copy.putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_C, MENU_MASK));
         _copy.putValue(Action.SHORT_DESCRIPTION, "Copy");
-        
+
         _paste = new ActionWrapper("Paste");
-        _paste.putValue(Action.ACCELERATOR_KEY, 
-                        KeyStroke.getKeyStroke(KeyEvent.VK_V, MENU_MASK));
+        _paste.putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_V, MENU_MASK));
         _paste.putValue(Action.SHORT_DESCRIPTION, "Paste");
-        
+
         _delete = new ActionWrapper("Delete");
-        _delete.putValue(Action.ACCELERATOR_KEY, 
-                         KeyStroke.getKeyStroke("DELETE"));
+        _delete.putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke("DELETE"));
         _delete.putValue(Action.SHORT_DESCRIPTION, "Delete");
 
         _moveUp = new ActionWrapper("Move Up");
         _moveDown = new ActionWrapper("Move Down");
 
-        _showVarsMenuItem = new
-            JCheckBoxMenuItem(_appActionsForMenu.get(IceGridGUI.Application.TreeNode.SHOW_VARS));
-        _showVarsTool = new 
-            JToggleButton(_appActionsForMenu.get(IceGridGUI.Application.TreeNode.SHOW_VARS));
+        _showVarsMenuItem = new JCheckBoxMenuItem(_appActionsForMenu.get(IceGridGUI.Application.TreeNode.SHOW_VARS));
+        _showVarsTool = new JToggleButton(_appActionsForMenu.get(IceGridGUI.Application.TreeNode.SHOW_VARS));
         _showVarsTool.setIcon(Utils.getIcon("/icons/24x24/show_vars.png"));
         _showVarsTool.setText("");
 
         _substituteMenuItem = new
             JCheckBoxMenuItem(_appActionsForMenu.get(IceGridGUI.Application.TreeNode.SUBSTITUTE_VARS));
-        _substituteTool = new 
-            JToggleButton(_appActionsForMenu.get(IceGridGUI.Application.TreeNode.SUBSTITUTE_VARS));
+        _substituteTool = new JToggleButton(_appActionsForMenu.get(IceGridGUI.Application.TreeNode.SUBSTITUTE_VARS));
         _substituteTool.setIcon(Utils.getIcon("/icons/24x24/substitute.png"));
         _substituteTool.setText("");
-
 
         ButtonGroup group = new ButtonGroup();
         group.add(_showVarsMenuItem);
@@ -2358,27 +2310,23 @@ public class Coordinator
 
         _mainFrame.setJMenuBar(new MenuBar());
 
-        _mainFrame.getContentPane().add(new ToolBar(),
-                                        BorderLayout.PAGE_START);
- 
-        _mainFrame.getContentPane().add((StatusBarI)_statusBar, 
-                                        BorderLayout.PAGE_END);
+        _mainFrame.getContentPane().add(new ToolBar(), BorderLayout.PAGE_START);
 
-        
-        java.awt.KeyboardFocusManager kbm = java.awt.KeyboardFocusManager.
-            getCurrentKeyboardFocusManager();
+        _mainFrame.getContentPane().add((StatusBarI)_statusBar, BorderLayout.PAGE_END);
+
+        java.awt.KeyboardFocusManager kbm = java.awt.KeyboardFocusManager.getCurrentKeyboardFocusManager();
         kbm.addPropertyChangeListener("permanentFocusOwner", new FocusListener());
-        
+
         _liveDeploymentPane = new LiveDeploymentPane(_liveDeploymentRoot);
         _mainPane = new MainPane(this);
-        _mainFrame.getContentPane().add(_mainPane, BorderLayout.CENTER);        
+        _mainFrame.getContentPane().add(_mainPane, BorderLayout.CENTER);
     }
 
     public LiveDeploymentPane getLiveDeploymentPane()
     {
         return _liveDeploymentPane;
     }
-    
+
     public IceGridGUI.LiveDeployment.Root getLiveDeploymentRoot()
     {
         return _liveDeploymentRoot;
@@ -2387,15 +2335,15 @@ public class Coordinator
     private void newApplication()
     {
         ApplicationDescriptor desc =  new ApplicationDescriptor("NewApplication",
-                                                                 new java.util.TreeMap(),
-                                                                 new java.util.LinkedList(),
-                                                                 new java.util.HashMap(),
-                                                                 new java.util.HashMap(),
-                                                                 new java.util.HashMap(),
-                                                                 new IceGrid.DistributionDescriptor(
-                                                                     "", new java.util.LinkedList()),
+                                                                 new java.util.TreeMap<String, String>(),
+                                                                 new java.util.LinkedList<ReplicaGroupDescriptor>(),
+                                                                 new java.util.HashMap<String, TemplateDescriptor>(),
+                                                                 new java.util.HashMap<String, TemplateDescriptor>(),
+                                                                 new java.util.HashMap<String, NodeDescriptor>(),
+                                                                 new DistributionDescriptor(
+                                                                     "", new java.util.LinkedList<String>()),
                                                                 "",
-                                                                new java.util.HashMap());
+                                                                new java.util.HashMap<String, PropertySetDescriptor>());
         IceGridGUI.Application.Root root = new IceGridGUI.Application.Root(this, desc);
         ApplicationPane app = new ApplicationPane(root);
         _mainPane.addApplication(app);
@@ -2462,7 +2410,7 @@ public class Coordinator
                 }
             }
         }
-        
+
         //
         // Otherwise, browser based-help
         //
@@ -2473,17 +2421,17 @@ public class Coordinator
         }
         else
         {
-            BareBonesBrowserLaunch.openURL("http://www.zeroc.com/doc/Ice-" 
+            BareBonesBrowserLaunch.openURL("http://www.zeroc.com/doc/Ice-"
                                            + Ice.Util.stringVersion() + "/IceGridAdmin/index.html");
         }
     }
 
     private void about()
     {
-        String text = "IceGrid Admin version " 
+        String text = "IceGrid Admin version "
             + Ice.Util.stringVersion() + "\n"
             + "Copyright \u00A9 2005-2009 ZeroC, Inc. All rights reserved.\n";
-            
+
         JOptionPane.showMessageDialog(
             _mainFrame,
             text,
@@ -2498,7 +2446,7 @@ public class Coordinator
 
     public Object getClipboard()
     {
-        return _clipboard; 
+        return _clipboard;
     }
 
     void showMainFrame()
@@ -2518,7 +2466,7 @@ public class Coordinator
             File dir = _openChooser.getCurrentDirectory();
             if(dir != null)
             {
-                _prefs.put("current directory", dir.getAbsolutePath()); 
+                _prefs.put("current directory", dir.getAbsolutePath());
             }
         }
 
@@ -2532,7 +2480,7 @@ public class Coordinator
         _mainFrame.dispose();
         Runtime.getRuntime().exit(status);
     }
-    
+
     //
     // Can be called by the shutdown hook thread
     //
@@ -2540,7 +2488,7 @@ public class Coordinator
     {
         if(_communicator != null)
         {
-            try    
+            try
             {
                 _communicator.destroy();
             }
@@ -2593,7 +2541,6 @@ public class Coordinator
                                _mainFrame.getExtendedState() == Frame.MAXIMIZED_BOTH);
     }
 
-
     public AdminSessionPrx getSession()
     {
         return _sessionKeeper.getSession();
@@ -2638,36 +2585,32 @@ public class Coordinator
     {
         boolean[] availableActions = _liveActionsForMenu.setTarget(node);
         _appActionsForMenu.setTarget(null);
-        
+
         _newServerMenu.setEnabled(false);
-        _newServiceMenu.setEnabled(false);        
+        _newServiceMenu.setEnabled(false);
         _newTemplateMenu.setEnabled(false);
 
         _appMenu.setEnabled(true);
-        
-        _nodeMenu.setEnabled(
-            availableActions[IceGridGUI.LiveDeployment.TreeNode.SHUTDOWN_NODE]);
 
-        _registryMenu.setEnabled(
-            availableActions[IceGridGUI.LiveDeployment.TreeNode.SHUTDOWN_REGISTRY]);
+        _nodeMenu.setEnabled(availableActions[IceGridGUI.LiveDeployment.TreeNode.SHUTDOWN_NODE]);
 
-        _signalMenu.setEnabled(
-            availableActions[IceGridGUI.LiveDeployment.TreeNode.SIGHUP]);
+        _registryMenu.setEnabled(availableActions[IceGridGUI.LiveDeployment.TreeNode.SHUTDOWN_REGISTRY]);
 
-        _serverMenu.setEnabled(
-            availableActions[IceGridGUI.LiveDeployment.TreeNode.OPEN_DEFINITION]);
-        
+        _signalMenu.setEnabled(availableActions[IceGridGUI.LiveDeployment.TreeNode.SIGHUP]);
+
+        _serverMenu.setEnabled(availableActions[IceGridGUI.LiveDeployment.TreeNode.OPEN_DEFINITION]);
+
         _serviceMenu.setEnabled(node instanceof IceGridGUI.LiveDeployment.Service &&
 				(availableActions[IceGridGUI.LiveDeployment.TreeNode.RETRIEVE_LOG] ||
 				 availableActions[IceGridGUI.LiveDeployment.TreeNode.START] ||
 				 availableActions[IceGridGUI.LiveDeployment.TreeNode.STOP]));
     }
-        
+
     public void showActions(IceGridGUI.Application.TreeNode node)
     {
         boolean[] availableActions = _appActionsForMenu.setTarget(node);
         _liveActionsForMenu.setTarget(null);
-        
+
         _newServerMenu.setEnabled(
             availableActions[IceGridGUI.Application.TreeNode.NEW_SERVER] ||
             availableActions[IceGridGUI.Application.TreeNode.NEW_SERVER_ICEBOX] ||
@@ -2676,7 +2619,7 @@ public class Coordinator
         _newServiceMenu.setEnabled(
             availableActions[IceGridGUI.Application.TreeNode.NEW_SERVICE] ||
             availableActions[IceGridGUI.Application.TreeNode.NEW_SERVICE_FROM_TEMPLATE]);
-                                  
+
         _newTemplateMenu.setEnabled(
             availableActions[IceGridGUI.Application.TreeNode.NEW_TEMPLATE_SERVER] ||
             availableActions[IceGridGUI.Application.TreeNode.NEW_TEMPLATE_SERVER_ICEBOX] ||
@@ -2690,7 +2633,6 @@ public class Coordinator
         _serviceMenu.setEnabled(false);
     }
 
-    
     public boolean traceObservers()
     {
         return _traceObservers;
@@ -2705,7 +2647,7 @@ public class Coordinator
     {
         return _traceSaveToRegistry;
     }
-    
+
     public void traceSaveToRegistry(String message)
     {
         trace("SaveToRegistry", message);
@@ -2723,7 +2665,6 @@ public class Coordinator
         _initData.logger.trace(category, message);
     }
 
-
     private final Ice.InitializationData _initData;
     private Ice.Communicator _communicator;
 
@@ -2732,14 +2673,14 @@ public class Coordinator
 
     private Preferences _prefs;
     private StatusBarI _statusBar = new StatusBarI();
-    
+
     private IceGridGUI.LiveDeployment.Root _liveDeploymentRoot;
     private LiveDeploymentPane _liveDeploymentPane;
 
     //
     // Maps application-name to ApplicationPane (only for 'live' applications)
     //
-    private java.util.Map _liveApplications = new java.util.HashMap();
+    private java.util.Map<String, ApplicationPane> _liveApplications = new java.util.HashMap<String, ApplicationPane>();
 
     private MainPane _mainPane;
 
@@ -2749,17 +2690,17 @@ public class Coordinator
     //
     private int _latestSerial = -1;
     private int _writeSerial = -1;
-   
+
     private Runnable _onExclusiveWrite;
     private int _writeAccessCount = 0;
 
     private boolean _substitute = false;
-    
+
     private JFrame _mainFrame;
     private final SessionKeeper _sessionKeeper;
 
     private Object _clipboard;
-    
+
     //
     // Actions
     //
@@ -2804,18 +2745,17 @@ public class Coordinator
     //
     // Two sets of actions because the popup's target and the menu/toolbar's target
     // can be different.
-    // 
+    //
     private LiveActions _liveActionsForMenu = new LiveActions();
     private LiveActions _liveActionsForPopup = new LiveActions();
     private ApplicationActions _appActionsForMenu = new ApplicationActions(false);
     private ApplicationActions _appActionsForPopup = new ApplicationActions(true);
-    
-    
+
     private JToggleButton _showVarsTool;
     private JToggleButton _substituteTool;
     private JCheckBoxMenuItem _substituteMenuItem;
     private JCheckBoxMenuItem _showVarsMenuItem;
-    
+
     private JMenu _newMenu;
     private JMenu _newServerMenu;
     private JMenu _newServiceMenu;
@@ -2832,7 +2772,7 @@ public class Coordinator
     private JFileChooser _openChooser;
     private JFileChooser _saveXMLChooser;
     private JFileChooser _saveLogChooser;
-    
+
     private Process _icegridadminProcess;
     private String _fileParser;
 

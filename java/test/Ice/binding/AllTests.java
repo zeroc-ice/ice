@@ -35,7 +35,7 @@ public class AllTests
         void ice_response(String name)
         {
         }
-        
+
         public void
         ice_exception(Ice.LocalException ex)
         {
@@ -100,10 +100,9 @@ public class AllTests
     {
         java.util.List<Ice.Endpoint> endpoints = new java.util.ArrayList<Ice.Endpoint>();
         TestIntfPrx test = null;
-        java.util.Iterator<RemoteObjectAdapterPrx> p = adapters.iterator();
-        while(p.hasNext())
+        for(RemoteObjectAdapterPrx p : adapters)
         {
-            test = p.next().getTestIntf();
+            test = p.getTestIntf();
             Ice.Endpoint[] edpts = test.ice_getEndpoints();
             endpoints.addAll(java.util.Arrays.asList(edpts));
         }
@@ -114,10 +113,9 @@ public class AllTests
     private static void
     deactivate(RemoteCommunicatorPrx communicator, java.util.List<RemoteObjectAdapterPrx> adapters)
     {
-        java.util.Iterator<RemoteObjectAdapterPrx> p = adapters.iterator();
-        while(p.hasNext())
+        for(RemoteObjectAdapterPrx p : adapters)
         {
-            communicator.deactivateObjectAdapter(p.next());
+            communicator.deactivateObjectAdapter(p);
         }
     }
 
@@ -199,10 +197,9 @@ public class AllTests
             // always send the request over the same connection.)
             //
             {
-                java.util.Iterator<RemoteObjectAdapterPrx> p = adapters.iterator();
-                while(p.hasNext())
+                for(RemoteObjectAdapterPrx p : adapters)
                 {
-                    p.next().getTestIntf().ice_ping();
+                    p.getTestIntf().ice_ping();
                 }
 
                 TestIntfPrx test = createTestIntfPrx(adapters);
@@ -212,10 +209,9 @@ public class AllTests
                 for(i = 0; i < nRetry && test.getAdapterName().equals(name); i++);
                 test(i == nRetry);
 
-                p = adapters.iterator();
-                while(p.hasNext())
+                for(RemoteObjectAdapterPrx p : adapters)
                 {
-                    p.next().getTestIntf().ice_getConnection().close(false);
+                    p.getTestIntf().ice_getConnection().close(false);
                 }
             }
 
@@ -277,7 +273,7 @@ public class AllTests
             {
                 count = 60;
             }
-            
+
             int adapterCount = adapters.length;
             while(--count > 0)
             {
@@ -315,16 +311,16 @@ public class AllTests
                     }
                     proxies[i] = createTestIntfPrx(java.util.Arrays.asList((adpts)));
                 }
-            
-                for(i = 0; i < proxies.length; i++)
+
+                for(TestIntfPrx p : proxies)
                 {
-                    proxies[i].getAdapterName_async(new NoOpGetAdapterNameCB());
+                    p.getAdapterName_async(new NoOpGetAdapterNameCB());
                 }
-                for(i = 0; i < proxies.length; i++)
+                for(TestIntfPrx p : proxies)
                 {
                     try
                     {
-                        proxies[i].ice_ping();
+                        p.ice_ping();
                     }
                     catch(Ice.LocalException ex)
                     {
@@ -332,11 +328,11 @@ public class AllTests
                 }
 
                 java.util.Set<Ice.Connection> connections = new java.util.HashSet<Ice.Connection>();
-                for(i = 0; i < proxies.length; i++)
+                for(TestIntfPrx p : proxies)
                 {
-                    if(proxies[i].ice_getCachedConnection() != null)
+                    if(p.ice_getCachedConnection() != null)
                     {
-                        connections.add(proxies[i].ice_getCachedConnection());
+                        connections.add(p.ice_getCachedConnection());
                     }
                 }
                 test(connections.size() <= adapterCount);
@@ -395,10 +391,9 @@ public class AllTests
             // always send the request over the same connection.)
             //
             {
-                java.util.Iterator<RemoteObjectAdapterPrx> p = adapters.iterator();
-                while(p.hasNext())
+                for(RemoteObjectAdapterPrx p : adapters)
                 {
-                    p.next().getTestIntf().ice_ping();
+                    p.getTestIntf().ice_ping();
                 }
 
                 TestIntfPrx test = createTestIntfPrx(adapters);
@@ -408,10 +403,9 @@ public class AllTests
                 for(i = 0; i < nRetry &&  getAdapterNameWithAMI(test).equals(name); i++);
                 test(i == nRetry);
 
-                p = adapters.iterator();
-                while(p.hasNext())
+                for(RemoteObjectAdapterPrx p : adapters)
                 {
-                    p.next().getTestIntf().ice_getConnection().close(false);
+                    p.getTestIntf().ice_getConnection().close(false);
                 }
             }
 

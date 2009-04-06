@@ -6,7 +6,9 @@
 // ICE_LICENSE file included in this distribution.
 //
 // **********************************************************************
+
 package IceGridGUI.Application;
 
 interface Service extends TemplateInstance, DescriptorHolder
-{}
+{
+}

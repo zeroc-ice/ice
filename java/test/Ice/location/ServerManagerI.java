@@ -31,10 +31,8 @@ public class ServerManagerI extends _ServerManagerDisp
     public void
     startServer(Ice.Current current)
     {
-        java.util.Iterator<Ice.Communicator> i = _communicators.iterator();
-        while(i.hasNext())
+        for(Ice.Communicator c : _communicators)
         {
-            Ice.Communicator c = i.next();
             c.waitForShutdown();
             c.destroy();
         }
@@ -77,10 +75,9 @@ public class ServerManagerI extends _ServerManagerDisp
     public void
     shutdown(Ice.Current current)
     {
-        java.util.Iterator<Ice.Communicator> i = _communicators.iterator();
-        while(i.hasNext())
+        for(Ice.Communicator c : _communicators)
         {
-            i.next().destroy();
+            c.destroy();
         }
         current.adapter.getCommunicator().shutdown();
     }

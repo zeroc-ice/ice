@@ -7,9 +7,9 @@
 //
 // **********************************************************************
 
-package test.Ice.custom15;
+package test.Ice.custom;
 
-import test.Ice.custom15.Test.TestIntfPrx;
+import test.Ice.custom.Test.TestIntfPrx;
 
 public class Client extends test.Util.Application
 {
@@ -25,7 +25,7 @@ public class Client extends test.Util.Application
     {
         Ice.InitializationData initData = new Ice.InitializationData();
         initData.properties = Ice.Util.createProperties(argsH);
-        initData.properties.setProperty("Ice.Package.Test", "test.Ice.custom15");
+        initData.properties.setProperty("Ice.Package.Test", "test.Ice.custom");
         return initData;
     }
 

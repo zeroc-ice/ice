@@ -9,7 +9,7 @@
  **********************************************************************
 -->
 
-<project name="test_Freeze_cursor" default="all" basedir=".">
+<project name="test_Freeze_complex" default="all" basedir=".">
 
     <!-- set global properties for this build -->
     <property name="top.dir" value="../../.."/>

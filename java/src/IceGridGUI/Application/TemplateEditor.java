@@ -6,6 +6,7 @@
 // ICE_LICENSE file included in this distribution.
 //
 // **********************************************************************
+
 package IceGridGUI.Application;
 
 import java.awt.event.ActionEvent;
@@ -37,7 +38,7 @@ class TemplateEditor extends Editor
     {
         return (TemplateDescriptor)_target.getDescriptor();
     }
-    
+
     Object getSubDescriptor()
     {
         return getDescriptor().descriptor;
@@ -46,27 +47,26 @@ class TemplateEditor extends Editor
     void writeDescriptor()
     {
         TemplateDescriptor descriptor = getDescriptor();
-        java.util.LinkedList parameters = new java.util.LinkedList();
+        java.util.LinkedList<String> parameters = new java.util.LinkedList<String>();
         descriptor.parameterDefaults = _parameters.get(parameters);
         descriptor.parameters = parameters;
-    }       
-    
+    }
+
     boolean isSimpleUpdate()
     {
         TemplateDescriptor descriptor = getDescriptor();
-        java.util.List parameters = new java.util.LinkedList();
-        java.util.Map defaultValues = _parameters.get(parameters);
+        java.util.List<String> parameters = new java.util.LinkedList<String>();
+        java.util.Map<String, String> defaultValues = _parameters.get(parameters);
 
-        return descriptor.parameters.equals(parameters)
-            && descriptor.parameterDefaults.equals(defaultValues);
+        return descriptor.parameters.equals(parameters) && descriptor.parameterDefaults.equals(defaultValues);
     }
 
     protected void appendProperties(DefaultFormBuilder builder)
-    { 
+    {
         builder.append("Template ID");
         builder.append(_template, 3);
         builder.nextLine();
-        
+
         builder.append("Parameters");
         builder.nextLine();
         builder.append("");
@@ -78,8 +78,7 @@ class TemplateEditor extends Editor
         builder.nextRow(-6);
         JScrollPane scrollPane = new JScrollPane(_parameters);
         CellConstraints cc = new CellConstraints();
-        builder.add(scrollPane, 
-                    cc.xywh(builder.getColumn(), builder.getRow(), 3, 7));
+        builder.add(scrollPane, cc.xywh(builder.getColumn(), builder.getRow(), 3, 7));
         builder.nextRow(6);
         builder.nextLine();
     }
@@ -136,9 +135,9 @@ class TemplateEditor extends Editor
                         e.toString(),
                         "Apply failed",
                         JOptionPane.ERROR_MESSAGE);
-                    return false; 
+                    return false;
                 }
-                
+
                 //
                 // Success
                 //
@@ -155,7 +154,6 @@ class TemplateEditor extends Editor
                 writeDescriptor();
                 ((Communicator)_target).getEnclosingEditable().markModified();
                 root.updated();
-                
             }
             else
             {
@@ -165,7 +163,7 @@ class TemplateEditor extends Editor
                 Object savedDescriptor = ((Communicator)_target).saveDescriptor();
                 Templates parent = (Templates)_target.getParent();
                 writeDescriptor();
-                
+
                 try
                 {
                     parent.tryUpdate((Communicator)_target);
@@ -173,7 +171,7 @@ class TemplateEditor extends Editor
                 catch(UpdateFailedException e)
                 {
                     ((Communicator)_target).restoreDescriptor(savedDescriptor);
-                    
+
                     JOptionPane.showMessageDialog(
                         _target.getCoordinator().getMainFrame(),
                         e.toString(),
@@ -184,7 +182,7 @@ class TemplateEditor extends Editor
                     //
                     return false;
                 }
-                
+
                 //
                 // Success
                 //
@@ -211,7 +209,7 @@ class TemplateEditor extends Editor
             root.enableSelectionListener();
         }
     }
-    
+
     private JTextField _template = new JTextField(20);
     private ParametersField _parameters;
 }

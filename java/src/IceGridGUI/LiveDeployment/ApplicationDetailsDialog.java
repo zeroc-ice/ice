@@ -6,6 +6,7 @@
 // ICE_LICENSE file included in this distribution.
 //
 // **********************************************************************
+
 package IceGridGUI.LiveDeployment;
 
 import java.awt.BorderLayout;
@@ -38,8 +39,7 @@ class ApplicationDetailsDialog extends JDialog
 {
     ApplicationDetailsDialog(final Root root)
     {
-        super(root.getCoordinator().getMainFrame(), 
-              "Application Details - IceGrid Admin", true);
+        super(root.getCoordinator().getMainFrame(), "Application Details - IceGrid Admin", true);
         setDefaultCloseOperation(JDialog.HIDE_ON_CLOSE);
         _mainFrame = root.getCoordinator().getMainFrame();
 
@@ -50,13 +50,13 @@ class ApplicationDetailsDialog extends JDialog
         _updateTime.setEditable(false);
         _updateUser.setEditable(false);
         _revision.setEditable(false);
-        
+
         FormLayout layout = new FormLayout("right:pref, 3dlu, pref", "");
         DefaultFormBuilder builder = new DefaultFormBuilder(layout);
         builder.setDefaultDialogBorder();
         builder.setRowGroupingEnabled(true);
         builder.setLineGapSize(LayoutStyle.getCurrent().getLinePad());
-        
+
         builder.append("Name", _name);
         builder.nextLine();
         builder.append("UUID", _uuid);
@@ -74,7 +74,7 @@ class ApplicationDetailsDialog extends JDialog
 
         Container contentPane = getContentPane();
         contentPane.add(builder.getPanel());
-        
+
         pack();
         setResizable(false);
     }
@@ -101,5 +101,4 @@ class ApplicationDetailsDialog extends JDialog
     private JTextField _updateUser = new JTextField(30);
     private JTextField _revision = new JTextField(30);
     private JFrame _mainFrame;
-
 }

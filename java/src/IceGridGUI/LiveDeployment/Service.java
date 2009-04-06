@@ -6,6 +6,7 @@
 // ICE_LICENSE file included in this distribution.
 //
 // **********************************************************************
+
 package IceGridGUI.LiveDeployment;
 
 import java.awt.Component;
@@ -50,19 +51,19 @@ public class Service extends ListArrayTreeNode
                 actions[STOP] = true;
             }
         }
-        
+
         return actions;
     }
 
     public void start()
     {
         Ice.ObjectPrx serverAdmin = ((Server)_parent).getServerAdmin();
-        
+
         if(serverAdmin != null)
         {
             final String prefix = "Starting service '" + _id + "'...";
             getCoordinator().getStatusBar().setText(prefix);
-            
+
             IceBox.AMI_ServiceManager_startService cb = new IceBox.AMI_ServiceManager_startService()
             {
                 //
@@ -72,7 +73,7 @@ public class Service extends ListArrayTreeNode
                 {
                     amiSuccess(prefix);
                 }
-                
+
                 public void ice_exception(Ice.UserException e)
                 {
                     if(e instanceof IceBox.AlreadyStartedException)
@@ -90,12 +91,12 @@ public class Service extends ListArrayTreeNode
                     amiFailure(prefix, "Failed to start service " + _id, e.toString());
                 }
             };
-            
+
             IceBox.ServiceManagerPrx serviceManager = IceBox.ServiceManagerPrxHelper.
                 uncheckedCast(serverAdmin.ice_facet("IceBox.ServiceManager"));
-        
+
             try
-            {   
+            {
                 serviceManager.startService_async(cb, _id);
             }
             catch(Ice.LocalException e)
@@ -104,16 +105,16 @@ public class Service extends ListArrayTreeNode
             }
         }
     }
-    
+
     public void stop()
     {
         Ice.ObjectPrx serverAdmin = ((Server)_parent).getServerAdmin();
-        
+
         if(serverAdmin != null)
         {
             final String prefix = "Stopping service '" + _id + "'...";
             getCoordinator().getStatusBar().setText(prefix);
-            
+
             IceBox.AMI_ServiceManager_stopService cb = new IceBox.AMI_ServiceManager_stopService()
             {
                 //
@@ -123,7 +124,7 @@ public class Service extends ListArrayTreeNode
                 {
                     amiSuccess(prefix);
                 }
-                
+
                 public void ice_exception(Ice.UserException e)
                 {
                     if(e instanceof IceBox.AlreadyStoppedException)
@@ -141,12 +142,12 @@ public class Service extends ListArrayTreeNode
                     amiFailure(prefix, "Failed to stop service " + _id, e.toString());
                 }
             };
-            
+
             IceBox.ServiceManagerPrx serviceManager = IceBox.ServiceManagerPrxHelper.
                 uncheckedCast(serverAdmin.ice_facet("IceBox.ServiceManager"));
-        
+
             try
-            {   
+            {
                 serviceManager.stopService_async(cb, _id);
             }
             catch(Ice.LocalException e)
@@ -156,13 +157,12 @@ public class Service extends ListArrayTreeNode
         }
     }
 
-
     public void retrieveLog()
     {
         assert _serviceDescriptor.logs.length > 0;
 
         String path = null;
-        
+
         if(_serviceDescriptor.logs.length == 1)
         {
             path = _resolver.substitute(_serviceDescriptor.logs[0]);
@@ -170,54 +170,55 @@ public class Service extends ListArrayTreeNode
         else
         {
             Object[] pathArray = new Object[_serviceDescriptor.logs.length];
-            for(int i = 0; i < _serviceDescriptor.logs.length; ++i)
+            int i = 0;
+            for(String log : _serviceDescriptor.logs)
             {
-                pathArray[i] = _resolver.substitute(_serviceDescriptor.logs[i]);
+                pathArray[i++] = _resolver.substitute(log);
             }
-        
+
             path = (String)JOptionPane.showInputDialog(
-                getCoordinator().getMainFrame(), 
-                "Which log file do you want to retrieve?", 
-                "Retrieve Log File",     
+                getCoordinator().getMainFrame(),
+                "Which log file do you want to retrieve?",
+                "Retrieve Log File",
                 JOptionPane.QUESTION_MESSAGE, null,
                 pathArray, pathArray[0]);
         }
- 
+
         if(path != null)
         {
             final String fPath = path;
-          
+
             getRoot().openShowLogDialog(new ShowLogDialog.FileIteratorFactory()
                 {
                     public FileIteratorPrx open(int count)
-                        throws FileNotAvailableException, ServerNotExistException, NodeUnreachableException, 
+                        throws FileNotAvailableException, ServerNotExistException, NodeUnreachableException,
                         DeploymentException
                     {
                         AdminSessionPrx session = getRoot().getCoordinator().getSession();
                         return session.openServerLog(_parent.getId(), fPath, count);
                     }
-                    
+
                     public String getTitle()
                     {
                         return "Service " + _parent.getId() + "/" + _id + " " + new java.io.File(fPath).getName();
                     }
-                    
+
                     public String getDefaultFilename()
                     {
                         return new java.io.File(fPath).getName();
                     }
                 });
-        }       
+        }
     }
 
     public Component getTreeCellRendererComponent(
-            JTree tree,
-            Object value,
-            boolean sel,
-            boolean expanded,
-            boolean leaf,
-            int row,
-            boolean hasFocus) 
+        JTree tree,
+        Object value,
+        boolean sel,
+        boolean expanded,
+        boolean leaf,
+        int row,
+        boolean hasFocus)
     {
         if(_cellRenderer == null)
         {
@@ -226,9 +227,9 @@ public class Service extends ListArrayTreeNode
             _startedIcon = Utils.getIcon("/icons/16x16/service_running.png");
             _stoppedIcon = Utils.getIcon("/icons/16x16/service.png");
         }
-        
+
         Icon icon = _started ?  _startedIcon : _stoppedIcon;
-        
+
         if(expanded)
         {
             _cellRenderer.setOpenIcon(icon);
@@ -238,9 +239,7 @@ public class Service extends ListArrayTreeNode
             _cellRenderer.setClosedIcon(icon);
         }
 
-
-        return _cellRenderer.getTreeCellRendererComponent(
-            tree, value, sel, expanded, leaf, row, hasFocus);
+        return _cellRenderer.getTreeCellRendererComponent(tree, value, sel, expanded, leaf, row, hasFocus);
     }
 
     public Editor getEditor()
@@ -265,24 +264,21 @@ public class Service extends ListArrayTreeNode
             _popup.addSeparator();
             _popup.add(la.get(RETRIEVE_LOG));
         }
-        
+
         la.setTarget(this);
         return _popup;
     }
 
-
-    Service(Server parent, String serviceName, Utils.Resolver resolver,
-            ServiceInstanceDescriptor descriptor, 
-            ServiceDescriptor serviceDescriptor,
-            PropertySetDescriptor serverInstancePSDescriptor)
+    Service(Server parent, String serviceName, Utils.Resolver resolver, ServiceInstanceDescriptor descriptor,
+            ServiceDescriptor serviceDescriptor, PropertySetDescriptor serverInstancePSDescriptor)
     {
         super(parent, serviceName, 2);
         _resolver = resolver;
-        
+
         _instanceDescriptor = descriptor;
         _serviceDescriptor = serviceDescriptor;
         _serverInstancePSDescriptor = serverInstancePSDescriptor;
-        
+
         _childrenArray[0] = _adapters;
         _childrenArray[1] = _dbEnvs;
 
@@ -292,11 +288,9 @@ public class Service extends ListArrayTreeNode
 
     boolean updateAdapter(AdapterDynamicInfo info)
     {
-        java.util.Iterator p = _adapters.iterator();
-        while(p.hasNext())
+        for(Adapter p : _adapters)
         {
-            Adapter adapter = (Adapter)p.next();
-            if(adapter.update(info))
+            if(p.update(info))
             {
                 return true;
             }
@@ -304,13 +298,13 @@ public class Service extends ListArrayTreeNode
         return false;
     }
 
-    int updateAdapters(java.util.List infoList)
+    int updateAdapters(java.util.List<AdapterDynamicInfo> infoList)
     {
         int result = 0;
-        java.util.Iterator p = _adapters.iterator();
+        java.util.Iterator<Adapter> p = _adapters.iterator();
         while(p.hasNext() && result < infoList.size())
         {
-            Adapter adapter = (Adapter)p.next();
+            Adapter adapter = p.next();
             if(adapter.update(infoList))
             {
                 result++;
@@ -321,11 +315,9 @@ public class Service extends ListArrayTreeNode
 
     void nodeDown()
     {
-        java.util.Iterator p = _adapters.iterator();
-        while(p.hasNext())
+        for(Adapter p : _adapters)
         {
-            Adapter adapter = (Adapter)p.next();
-            adapter.update((AdapterDynamicInfo)null);
+            p.update((AdapterDynamicInfo)null);
         }
     }
 
@@ -352,11 +344,10 @@ public class Service extends ListArrayTreeNode
         }
     }
 
-    
     void showRuntimeProperties()
     {
         Ice.ObjectPrx serverAdmin = ((Server)_parent).getServerAdmin();
-            
+
         if(serverAdmin == null)
         {
             _editor.setBuildId("", this);
@@ -365,22 +356,23 @@ public class Service extends ListArrayTreeNode
         {
             Ice.AMI_PropertiesAdmin_getPropertiesForPrefix cb = new Ice.AMI_PropertiesAdmin_getPropertiesForPrefix()
                 {
-                    public void ice_response(final java.util.Map properties)
+                    public void ice_response(final java.util.Map<String, String> properties)
                     {
-                        SwingUtilities.invokeLater(new Runnable() 
+                        SwingUtilities.invokeLater(new Runnable()
                             {
-                                public void run() 
+                                public void run()
                                 {
-                                    _editor.setRuntimeProperties((java.util.SortedMap)properties, Service.this);
+                                    _editor.setRuntimeProperties((java.util.SortedMap<String, String>)properties,
+                                                                 Service.this);
                                 }
                             });
                     }
-                
+
                     public void ice_exception(final Ice.LocalException e)
                     {
-                        SwingUtilities.invokeLater(new Runnable() 
+                        SwingUtilities.invokeLater(new Runnable()
                             {
-                                public void run() 
+                                public void run()
                                 {
                                     if(e instanceof Ice.ObjectNotExistException)
                                     {
@@ -388,8 +380,8 @@ public class Service extends ListArrayTreeNode
                                     }
                                     else if(e instanceof Ice.FacetNotExistException)
                                     {
-                                        _editor.setBuildId("Error: this icebox Admin object does not provide a 'Properties' facet for this service", 
-                                                           Service.this);
+                                        _editor.setBuildId("Error: this icebox Admin object does not provide a " +
+                                                           "'Properties' facet for this service", Service.this);
                                     }
                                     else
                                     {
@@ -400,11 +392,11 @@ public class Service extends ListArrayTreeNode
                     }
                 };
 
-
             try
-            {    
-                Ice.PropertiesAdminPrx propAdmin = Ice.PropertiesAdminPrxHelper.uncheckedCast(serverAdmin.ice_facet("IceBox.Service." 
-                                                                                                                    + _id + ".Properties"));
+            {
+                Ice.PropertiesAdminPrx propAdmin =
+                    Ice.PropertiesAdminPrxHelper.uncheckedCast(serverAdmin.ice_facet("IceBox.Service." + _id +
+                        ".Properties"));
                 propAdmin.getPropertiesForPrefix_async(cb, "");
             }
             catch(Ice.LocalException e)
@@ -429,26 +421,23 @@ public class Service extends ListArrayTreeNode
         return _instanceDescriptor;
     }
 
-    java.util.SortedMap getProperties()
+    java.util.SortedMap<String, String> getProperties()
     {
-        java.util.List psList = new java.util.LinkedList();
+        java.util.List<Utils.ExpandedPropertySet> psList = new java.util.LinkedList<Utils.ExpandedPropertySet>();
         Node node = (Node)_parent.getParent();
 
         String applicationName = ((Server)_parent).getApplication().name;
 
-        psList.add(node.expand(_serviceDescriptor.propertySet,
-                               applicationName, _resolver));
+        psList.add(node.expand(_serviceDescriptor.propertySet, applicationName, _resolver));
 
         if(_instanceDescriptor != null)
         {
-            psList.add(node.expand(_instanceDescriptor.propertySet, 
-                                   applicationName, _resolver));
-        }          
+            psList.add(node.expand(_instanceDescriptor.propertySet, applicationName, _resolver));
+        }
 
         if(_serverInstancePSDescriptor != null)
         {
-            psList.add(node.expand(_serverInstancePSDescriptor, 
-                                   applicationName, _resolver));
+            psList.add(node.expand(_serverInstancePSDescriptor, applicationName, _resolver));
 
         }
 
@@ -457,45 +446,37 @@ public class Service extends ListArrayTreeNode
 
     private void createAdapters()
     {
-        java.util.Iterator p = _serviceDescriptor.adapters.iterator();
-        while(p.hasNext())
+        for(AdapterDescriptor p : _serviceDescriptor.adapters)
         {
-            AdapterDescriptor descriptor = (AdapterDescriptor)p.next();
-            String adapterName = Utils.substitute(descriptor.name, _resolver);
-            
-            String adapterId = Utils.substitute(descriptor.id, _resolver);
+            String adapterName = Utils.substitute(p.name, _resolver);
+
+            String adapterId = Utils.substitute(p.id, _resolver);
             Ice.ObjectPrx proxy = null;
             if(adapterId.length() > 0)
             {
                 proxy = ((Node)_parent.getParent()).getProxy(adapterId);
             }
-            
-            insertSortedChild(
-                new Adapter(this, adapterName, 
-                            _resolver, adapterId, descriptor, proxy),
-                _adapters, null);
+
+            insertSortedChild(new Adapter(this, adapterName, _resolver, adapterId, p, proxy), _adapters, null);
         }
     }
-    
+
     private void createDbEnvs()
     {
-        java.util.Iterator p = _serviceDescriptor.dbEnvs.iterator();
-        while(p.hasNext())
+        for(DbEnvDescriptor p : _serviceDescriptor.dbEnvs)
         {
-            DbEnvDescriptor descriptor = (DbEnvDescriptor)p.next();
-            String dbEnvName = Utils.substitute(descriptor.name, _resolver);
-            insertSortedChild(
-                new DbEnv(this, dbEnvName, _resolver, descriptor), _dbEnvs, null);
+            String dbEnvName = Utils.substitute(p.name, _resolver);
+            insertSortedChild(new DbEnv(this, dbEnvName, _resolver, p), _dbEnvs, null);
         }
-    }    
+    }
 
     private final ServiceInstanceDescriptor _instanceDescriptor;
     private final ServiceDescriptor _serviceDescriptor;
     private final PropertySetDescriptor _serverInstancePSDescriptor;
     private final Utils.Resolver _resolver;
 
-    private final java.util.List _adapters = new java.util.LinkedList();
-    private final java.util.List _dbEnvs = new java.util.LinkedList();
+    private final java.util.List<Adapter> _adapters = new java.util.LinkedList<Adapter>();
+    private final java.util.List<DbEnv> _dbEnvs = new java.util.LinkedList<DbEnv>();
 
     private boolean _started = false;
 

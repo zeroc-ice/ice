@@ -34,7 +34,7 @@ class Parser
     }
 
     void
-    addBook(java.util.List args)
+    addBook(java.util.List<String> args)
     {
         if(args.size() != 3)
         {
@@ -44,11 +44,11 @@ class Parser
 
         try
         {
-            String isbn = (String)args.get(0);
-            String title = (String)args.get(1);
+            String isbn = args.get(0);
+            String title = args.get(1);
 
             java.util.List<String> authors = new java.util.LinkedList<String>();
-            java.util.StringTokenizer st = new java.util.StringTokenizer((String)args.get(2), ",");
+            java.util.StringTokenizer st = new java.util.StringTokenizer(args.get(2), ",");
             while(st.hasMoreTokens())
             {
                 authors.add(st.nextToken().trim());
@@ -68,7 +68,7 @@ class Parser
     }
 
     void
-    findIsbn(java.util.List args)
+    findIsbn(java.util.List<String> args)
     {
         if(args.size() != 1)
         {
@@ -95,7 +95,7 @@ class Parser
             BookDescriptionSeqHolder first = new BookDescriptionSeqHolder();
             Ice.IntHolder nrows = new Ice.IntHolder();
             BookQueryResultPrxHolder result = new BookQueryResultPrxHolder();
-            _library.queryByIsbn((String)args.get(0), 1, first, nrows, result);
+            _library.queryByIsbn(args.get(0), 1, first, nrows, result);
 
             System.out.println(nrows.value + " results");
             if(nrows.value == 0)
@@ -114,7 +114,7 @@ class Parser
     }
 
     void
-    findAuthors(java.util.List args)
+    findAuthors(java.util.List<String> args)
     {
         if(args.size() != 1)
         {
@@ -141,7 +141,7 @@ class Parser
             BookDescriptionSeqHolder first = new BookDescriptionSeqHolder();
             Ice.IntHolder nrows = new Ice.IntHolder();
             BookQueryResultPrxHolder result = new BookQueryResultPrxHolder();
-            _library.queryByAuthor((String)args.get(0), 1, first, nrows, result);
+            _library.queryByAuthor(args.get(0), 1, first, nrows, result);
 
             System.out.println(nrows.value + " results");
             if(nrows.value == 0)
@@ -160,7 +160,7 @@ class Parser
     }
 
     void
-    findTitle(java.util.List args)
+    findTitle(java.util.List<String> args)
     {
         if(args.size() != 1)
         {
@@ -187,7 +187,7 @@ class Parser
             BookDescriptionSeqHolder first = new BookDescriptionSeqHolder();
             Ice.IntHolder nrows = new Ice.IntHolder();
             BookQueryResultPrxHolder result = new BookQueryResultPrxHolder();
-            _library.queryByTitle((String)args.get(0), 1, first, nrows, result);
+            _library.queryByTitle(args.get(0), 1, first, nrows, result);
 
             System.out.println(nrows.value + " results");
             if(nrows.value == 0)
@@ -264,7 +264,7 @@ class Parser
     }
 
     void
-    rentCurrent(java.util.List args)
+    rentCurrent(java.util.List<String> args)
     {
         if(args.size() != 1)
         {
@@ -276,7 +276,7 @@ class Parser
         {
             if(_current != null)
             {
-                _current.proxy.rentBook((String)args.get(0));
+                _current.proxy.rentBook(args.get(0));
                 System.out.println("the book is now rented by `" + (String)args.get(0) + "'");
                 _current = _current.proxy.describe();
             }

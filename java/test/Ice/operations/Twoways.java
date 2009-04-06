@@ -658,15 +658,15 @@ class Twoways
         {
             int[] lengths = { 0, 1, 2, 126, 127, 128, 129, 253, 254, 255, 256, 257, 1000 };
 
-            for(int l = 0; l < lengths.length; ++l)
+            for(int l : lengths)
             {
-                int[] s = new int[lengths[l]];
-                for(int i = 0; i < lengths[l]; ++i)
+                int[] s = new int[l];
+                for(int i = 0; i < l; ++i)
                 {
                     s[i] = i;
                 }
                 int[] r = p.opIntS(s);
-                test(r.length == lengths[l]);
+                test(r.length == l);
                 for(int j = 0; j < r.length; ++j)
                 {
                     test(r[j] == -j);

@@ -563,10 +563,9 @@ final class UdpEndpointI extends EndpointI
         }
         else
         {
-            java.util.Iterator<String> p = hosts.iterator();
-            while(p.hasNext())
+            for(String host : hosts)
             {
-                endps.add(new UdpEndpointI(_instance, p.next(), _port, _mcastInterface, _mcastTtl,
+                endps.add(new UdpEndpointI(_instance, host, _port, _mcastInterface, _mcastTtl,
                                            _protocolMajor, _protocolMinor, _encodingMajor, _encodingMinor,
                                            _connect, _connectionId, _compress));
             }
@@ -725,11 +724,10 @@ final class UdpEndpointI extends EndpointI
     connectors(java.util.List<java.net.InetSocketAddress> addresses)
     {
         java.util.ArrayList<Connector> connectors = new java.util.ArrayList<Connector>();
-        java.util.Iterator<java.net.InetSocketAddress> p = addresses.iterator();
-        while(p.hasNext())
+        for(java.net.InetSocketAddress p : addresses)
         {
             connectors.add(
-                new UdpConnector(_instance, p.next(), _mcastInterface, _mcastTtl, _protocolMajor, _protocolMinor,
+                new UdpConnector(_instance, p, _mcastInterface, _mcastTtl, _protocolMajor, _protocolMinor,
                                  _encodingMajor, _encodingMinor, _connectionId));
         }
         return connectors;

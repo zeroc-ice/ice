@@ -391,18 +391,15 @@ public final class Instance
                     // Add all facets to OA
                     //
                     java.util.Map<String, Ice.Object> filteredFacets = new java.util.HashMap<String, Ice.Object>();
-                    java.util.Iterator<java.util.Map.Entry<String, Ice.Object> > p = _adminFacets.entrySet().iterator();
-                    while(p.hasNext())
+                    for(java.util.Map.Entry<String, Ice.Object> p : _adminFacets.entrySet())
                     {
-                        java.util.Map.Entry<String, Ice.Object> entry = p.next();
-
-                        if(_adminFacetFilter.isEmpty() || _adminFacetFilter.contains(entry.getKey()))
+                        if(_adminFacetFilter.isEmpty() || _adminFacetFilter.contains(p.getKey()))
                         {
-                            _adminAdapter.addFacet(entry.getValue(), _adminIdentity, entry.getKey());
+                            _adminAdapter.addFacet(p.getValue(), _adminIdentity, p.getKey());
                         }
                         else
                         {
-                            filteredFacets.put(entry.getKey(), entry.getValue());
+                            filteredFacets.put(p.getKey(), p.getValue());
                         }
                     }
                     _adminFacets = filteredFacets;
@@ -1071,10 +1068,9 @@ public final class Instance
             if(unusedProperties.size() != 0)
             {
                 String message = "The following properties were set but never read:";
-                java.util.Iterator<String> p = unusedProperties.iterator();
-                while(p.hasNext())
+                for(String p : unusedProperties)
                 {
-                    message += "\n    " + p.next();
+                    message += "\n    " + p;
                 }
                 _initData.logger.warning(message);
             }
@@ -1086,12 +1082,10 @@ public final class Instance
     {
         final String prefix = "Ice.Package.";
         java.util.Map<String, String> map = _initData.properties.getPropertiesForPrefix(prefix);
-        java.util.Iterator<java.util.Map.Entry<String, String> > p = map.entrySet().iterator();
-        while(p.hasNext())
+        for(java.util.Map.Entry<String, String> p : map.entrySet())
         {
-            java.util.Map.Entry<String, String> e = p.next();
-            String key = e.getKey();
-            String pkg = e.getValue();
+            String key = p.getKey();
+            String pkg = p.getValue();
             if(key.length() == prefix.length())
             {
                 _initData.logger.warning("ignoring invalid property: " + key + "=" + pkg);

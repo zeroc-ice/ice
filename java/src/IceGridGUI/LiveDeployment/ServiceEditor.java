@@ -6,6 +6,7 @@
 // ICE_LICENSE file included in this distribution.
 //
 // **********************************************************************
+
 package IceGridGUI.LiveDeployment;
 
 import java.awt.event.ActionEvent;
@@ -25,7 +26,6 @@ import com.jgoodies.looks.Options;
 import com.jgoodies.looks.HeaderStyle;
 import com.jgoodies.looks.BorderStyle;
 import com.jgoodies.looks.plastic.PlasticLookAndFeel;
-
 
 import IceGrid.*;
 import IceGridGUI.*;
@@ -51,15 +51,14 @@ class ServiceEditor extends CommunicatorEditor
 
         Action refresh = new AbstractAction("Refresh")
             {
-                public void actionPerformed(ActionEvent e) 
+                public void actionPerformed(ActionEvent e)
                 {
                     _buildId.setText("Retrieving...");
                     _properties.clear();
                     _target.showRuntimeProperties();
                 }
             };
-        refresh.putValue(Action.SHORT_DESCRIPTION, 
-                         "Reread the properties from the service");
+        refresh.putValue(Action.SHORT_DESCRIPTION, "Reread the properties from the service");
         _refreshButton = new JButton(refresh);
     }
 
@@ -82,7 +81,7 @@ class ServiceEditor extends CommunicatorEditor
         {
             _buildId.setText("Retrieving...");
             _properties.clear();
-            
+
             //
             // Retrieve all properties in background
             //
@@ -103,7 +102,7 @@ class ServiceEditor extends CommunicatorEditor
 
         builder.append("", _started);
         builder.nextLine();
-        
+
         builder.append("Build Id");
         builder.append(_buildId, _refreshButton);
         builder.nextLine();
@@ -120,8 +119,7 @@ class ServiceEditor extends CommunicatorEditor
         builder.nextRow(-6);
         CellConstraints cc = new CellConstraints();
         JScrollPane scrollPane = new JScrollPane(_properties);
-        builder.add(scrollPane, 
-                    cc.xywh(builder.getColumn(), builder.getRow(), 3, 7));
+        builder.add(scrollPane, cc.xywh(builder.getColumn(), builder.getRow(), 3, 7));
         builder.nextRow(6);
         builder.nextLine();
 
@@ -155,12 +153,12 @@ class ServiceEditor extends CommunicatorEditor
         //
     }
 
-    void setRuntimeProperties(java.util.SortedMap map, Service service)
+    void setRuntimeProperties(java.util.SortedMap<String, String> map, Service service)
     {
         if(service == _target )
         {
             _properties.setSortedMap(map);
-            
+
             String buildString = (String)map.get("BuildId");
             if(buildString == null)
             {
@@ -184,7 +182,7 @@ class ServiceEditor extends CommunicatorEditor
             putClientProperty(PlasticLookAndFeel.BORDER_STYLE_KEY, BorderStyle.SEPARATOR);
             setFloatable(false);
             putClientProperty("JToolBar.isRollover", Boolean.TRUE);
-            
+
             LiveActions la = _coordinator.getLiveActionsForMenu();
 
             add(la.get(TreeNode.START));
@@ -201,4 +199,3 @@ class ServiceEditor extends CommunicatorEditor
     private TableField _properties = new TableField("Name", "Value");
     private JToolBar _toolBar;
 }
-

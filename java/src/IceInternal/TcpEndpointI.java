@@ -399,10 +399,9 @@ final class TcpEndpointI extends EndpointI
         }
         else
         {
-            java.util.Iterator<String> p = hosts.iterator();
-            while(p.hasNext())
+            for(String h : hosts)
             {
-                endps.add(new TcpEndpointI(_instance, p.next(), _port, _timeout, _connectionId, _compress));
+                endps.add(new TcpEndpointI(_instance, h, _port, _timeout, _connectionId, _compress));
             }
         }
         return endps;
@@ -507,10 +506,9 @@ final class TcpEndpointI extends EndpointI
     connectors(java.util.List<java.net.InetSocketAddress> addresses)
     {
         java.util.List<Connector> connectors = new java.util.ArrayList<Connector>();
-        java.util.Iterator<java.net.InetSocketAddress> p = addresses.iterator();
-        while(p.hasNext())
+        for(java.net.InetSocketAddress p : addresses)
         {
-            connectors.add(new TcpConnector(_instance, p.next(), _timeout, _connectionId));
+            connectors.add(new TcpConnector(_instance, p, _timeout, _connectionId));
         }
         return connectors;
     }

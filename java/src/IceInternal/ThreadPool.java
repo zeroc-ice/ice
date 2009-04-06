@@ -267,11 +267,8 @@ public final class ThreadPool
         // wouldn't be possible here anyway, because otherwise the
         // other threads would never terminate.)
         //
-        java.util.Iterator<EventHandlerThread> i = _threads.iterator();
-        while(i.hasNext())
+        for(EventHandlerThread thread : _threads)
         {
-            EventHandlerThread thread = i.next();
-            
             while(true)
             {
                 try
@@ -865,10 +862,8 @@ public final class ThreadPool
                     if(_keys.size() > 0)
                     {
                         trace("after selectNow, there are " + _keys.size() + " selected keys:");
-                        java.util.Iterator<java.nio.channels.SelectionKey> i = _keys.iterator();
-                        while(i.hasNext())
+                        for(java.nio.channels.SelectionKey key : _keys)
                         {
-                            java.nio.channels.SelectionKey key = i.next();
                             trace("  " + keyToString(key));
                         }
                     }

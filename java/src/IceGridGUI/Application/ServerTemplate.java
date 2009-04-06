@@ -6,6 +6,7 @@
 // ICE_LICENSE file included in this distribution.
 //
 // **********************************************************************
+
 package IceGridGUI.Application;
 
 import java.awt.Component;
@@ -25,36 +26,31 @@ import javax.swing.tree.DefaultTreeCellRenderer;
 import IceGrid.*;
 import IceGridGUI.*;
 
-
 class ServerTemplate extends Communicator
 {
     static public TemplateDescriptor
     copyDescriptor(TemplateDescriptor templateDescriptor)
     {
-        TemplateDescriptor copy = (TemplateDescriptor)
-            templateDescriptor.clone();
+        TemplateDescriptor copy = (TemplateDescriptor)templateDescriptor.clone();
 
-        copy.descriptor = PlainServer.copyDescriptor(
-            (ServerDescriptor)copy.descriptor);
+        copy.descriptor = PlainServer.copyDescriptor((ServerDescriptor)copy.descriptor);
         return copy;
     }
-    
+
     public Component getTreeCellRendererComponent(
-            JTree tree,
-            Object value,
-            boolean sel,
-            boolean expanded,
-            boolean leaf,
-            int row,
-            boolean hasFocus) 
+        JTree tree,
+        Object value,
+        boolean sel,
+        boolean expanded,
+        boolean leaf,
+        int row,
+        boolean hasFocus)
     {
         if(_cellRenderer == null)
         {
             _cellRenderer = new DefaultTreeCellRenderer();
-            _plainIcon =
-                Utils.getIcon("/icons/16x16/server_template.png");
-            _iceboxIcon =
-                Utils.getIcon("/icons/16x16/icebox_server_template.png");
+            _plainIcon = Utils.getIcon("/icons/16x16/server_template.png");
+            _iceboxIcon = Utils.getIcon("/icons/16x16/icebox_server_template.png");
         }
 
         if(_templateDescriptor.descriptor instanceof IceBoxDescriptor)
@@ -80,10 +76,8 @@ class ServerTemplate extends Communicator
             }
         }
 
-        return _cellRenderer.getTreeCellRendererComponent(
-            tree, value, sel, expanded, leaf, row, hasFocus);
+        return _cellRenderer.getTreeCellRendererComponent(tree, value, sel, expanded, leaf, row, hasFocus);
     }
-
 
     //
     // Actions
@@ -100,7 +94,7 @@ class ServerTemplate extends Communicator
         else
         {
             Object clipboard = getCoordinator().getClipboard();
-            actions[PASTE] = clipboard != null && 
+            actions[PASTE] = clipboard != null &&
                 ((isIceBox() && (clipboard instanceof ServiceInstanceDescriptor))
                  || (!isIceBox() && (clipboard instanceof Adapter.AdapterCopy
                                      || clipboard instanceof DbEnvDescriptor)));
@@ -118,13 +112,13 @@ class ServerTemplate extends Communicator
 
         return actions;
     }
+
     public void copy()
     {
         getCoordinator().setClipboard(copyDescriptor(_templateDescriptor));
         getCoordinator().getActionsForMenu().get(PASTE).setEnabled(true);
     }
-   
- 
+
     public JPopupMenu getPopupMenu()
     {
         ApplicationActions actions = getCoordinator().getActionsForPopup();
@@ -144,8 +138,7 @@ class ServerTemplate extends Communicator
     {
         if(_editor == null)
         {
-            _editor = (ServerTemplateEditor)getRoot().
-                getEditor(ServerTemplateEditor.class, this);
+            _editor = (ServerTemplateEditor)getRoot().getEditor(ServerTemplateEditor.class, this);
         }
         _editor.show(this);
         return _editor;
@@ -155,7 +148,7 @@ class ServerTemplate extends Communicator
     {
         return new ServerTemplateEditor();
     }
-    
+
     public void destroy()
     {
         ServerTemplates serverTemplates = (ServerTemplates)_parent;
@@ -169,8 +162,7 @@ class ServerTemplate extends Communicator
             serverTemplates.removeDescriptor(_id);
             getRoot().removeServerInstances(_id);
             serverTemplates.removeChild(this);
-            serverTemplates.getEditable().
-                removeElement(_id, _editable, ServerTemplate.class);
+            serverTemplates.getEditable().removeElement(_id, _editable, ServerTemplate.class);
             getRoot().updated();
         }
     }
@@ -190,7 +182,6 @@ class ServerTemplate extends Communicator
         return _templateDescriptor.descriptor;
     }
 
-
     public Object saveDescriptor()
     {
         //
@@ -200,7 +191,7 @@ class ServerTemplate extends Communicator
         clone.descriptor = (ServerDescriptor)_templateDescriptor.descriptor.clone();
         return clone;
     }
-    
+
     public void restoreDescriptor(Object savedDescriptor)
     {
         TemplateDescriptor clone = (TemplateDescriptor)savedDescriptor;
@@ -238,23 +229,22 @@ class ServerTemplate extends Communicator
             assert false;
         }
     }
-    
-    void write(XMLWriter writer) throws java.io.IOException
+
+    void write(XMLWriter writer)
+        throws java.io.IOException
     {
         if(!_ephemeral)
         {
-            java.util.List attributes = new java.util.LinkedList();
+            java.util.List<String[]> attributes = new java.util.LinkedList<String[]>();
             attributes.add(createAttribute("id", _id));
             writer.writeStartTag("server-template", attributes);
-            writeParameters(writer, _templateDescriptor.parameters,
-                            _templateDescriptor.parameterDefaults);
-            
+            writeParameters(writer, _templateDescriptor.parameters, _templateDescriptor.parameterDefaults);
+
             if(_templateDescriptor.descriptor instanceof IceBoxDescriptor)
             {
                 IceBoxDescriptor descriptor = (IceBoxDescriptor)_templateDescriptor.descriptor;
 
-                writer.writeStartTag("icebox", 
-                                     PlainServer.createAttributes(descriptor));
+                writer.writeStartTag("icebox", PlainServer.createAttributes(descriptor));
 
                 if(descriptor.description.length() > 0)
                 {
@@ -262,7 +252,7 @@ class ServerTemplate extends Communicator
                 }
                 PlainServer.writeOptions(writer, descriptor.options);
                 PlainServer.writeEnvs(writer, descriptor.envs);
-        
+
                 writePropertySet(writer, "", "", descriptor.propertySet, descriptor.adapters, descriptor.logs);
                 writeLogs(writer, descriptor.logs, descriptor.propertySet.properties);
                 writeDistribution(writer, descriptor.distrib);
@@ -275,8 +265,7 @@ class ServerTemplate extends Communicator
             {
                 ServerDescriptor descriptor = (ServerDescriptor)_templateDescriptor.descriptor;
 
-                writer.writeStartTag("server", 
-                                     PlainServer.createAttributes(descriptor));
+                writer.writeStartTag("server", PlainServer.createAttributes(descriptor));
 
                 if(descriptor.description.length() > 0)
                 {
@@ -284,7 +273,7 @@ class ServerTemplate extends Communicator
                 }
                 PlainServer.writeOptions(writer, descriptor.options);
                 PlainServer.writeEnvs(writer, descriptor.envs);
-                
+
                 writePropertySet(writer, descriptor.propertySet, descriptor.adapters, descriptor.logs);
                 writeLogs(writer, descriptor.logs, descriptor.propertySet.properties);
                 writeDistribution(writer, descriptor.distrib);
@@ -292,11 +281,10 @@ class ServerTemplate extends Communicator
                 _adapters.write(writer, descriptor.propertySet.properties);
                 _dbEnvs.write(writer);
                 writer.writeEndTag("server");
-            }  
+            }
             writer.writeEndTag("server-template");
         }
     }
-    
 
     boolean isIceBox()
     {
@@ -314,14 +302,13 @@ class ServerTemplate extends Communicator
         if(!_ephemeral)
         {
             _adapters.init(_templateDescriptor.descriptor.adapters);
-            
+
             if(isIceBox())
             {
-                IceBoxDescriptor iceBoxDescriptor = 
-                    (IceBoxDescriptor)_templateDescriptor.descriptor;
-                
+                IceBoxDescriptor iceBoxDescriptor = (IceBoxDescriptor)_templateDescriptor.descriptor;
+
                 _services.init(iceBoxDescriptor.services);
-                
+
                 assert _templateDescriptor.descriptor.dbEnvs.size() == 0;
             }
             else
@@ -340,7 +327,7 @@ class ServerTemplate extends Communicator
     {
         _editable.commit();
     }
-    
+
     Editable getEditable()
     {
         return _editable;
@@ -351,7 +338,7 @@ class ServerTemplate extends Communicator
         return _editable;
     }
 
-    java.util.List findInstances()
+    java.util.List<? extends TemplateInstance> findInstances()
     {
         return getRoot().findServerInstances(_id);
     }
@@ -364,6 +351,6 @@ class ServerTemplate extends Communicator
     static private DefaultTreeCellRenderer _cellRenderer;
     static private Icon _plainIcon;
     static private Icon _iceboxIcon;
-  
+
     static private JPopupMenu _popup;
 }

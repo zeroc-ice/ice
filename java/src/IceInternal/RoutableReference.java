@@ -259,9 +259,9 @@ public class RoutableReference extends Reference
         if(_endpoints.length > 0)
         {
             assert(_adapterId.length() == 0);
-            for(int i = 0; i < _endpoints.length; i++)
+            for(EndpointI endpoint : _endpoints)
             {
-                _endpoints[i].streamWrite(s);
+                endpoint.streamWrite(s);
             }
         }
         else
@@ -284,9 +284,9 @@ public class RoutableReference extends Reference
         s.append(super.toString());
         if(_endpoints.length > 0)
         {
-            for(int i = 0; i < _endpoints.length; i++)
+            for(EndpointI endpoint : _endpoints)
             {
-                String endp = _endpoints[i].toString();
+                String endp = endpoint.toString();
                 if(endp != null && endp.length() > 0)
                 {
                     s.append(':');
@@ -650,11 +650,11 @@ public class RoutableReference extends Reference
         //
         // Filter out unknown endpoints.
         //
-        for(int i = 0; i < allEndpoints.length; i++)
+        for(EndpointI endpoint : allEndpoints)
         {
-            if(!allEndpoints[i].unknown())
+            if(!endpoint.unknown())
             {
-                endpoints.add(allEndpoints[i]);
+                endpoints.add(endpoint);
             }
         }
         
@@ -704,14 +704,14 @@ public class RoutableReference extends Reference
         //
         // Sort the endpoints according to the endpoint selection type.
         //
-        switch(getEndpointSelection().value())
+        switch(getEndpointSelection())
         {
-            case Ice.EndpointSelectionType._Random:
+            case Random:
             {
                 java.util.Collections.shuffle(endpoints);
                 break;
             }
-            case Ice.EndpointSelectionType._Ordered:
+            case Ordered:
             {
                 // Nothing to do.
                 break;

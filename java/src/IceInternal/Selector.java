@@ -248,10 +248,8 @@ public final class Selector
 
         if(!_changes.isEmpty())
         {
-            java.util.Iterator<SelectorHandler> p = _changes.iterator();
-            while(p.hasNext())
+            for(SelectorHandler handler : _changes)
             {
-                SelectorHandler handler = p.next();
                 if(handler._pendingStatus == SocketStatus.Finished)
                 {
                     removeImpl(handler);

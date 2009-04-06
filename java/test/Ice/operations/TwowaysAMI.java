@@ -810,11 +810,8 @@ class TwowaysAMI
     private static class AMI_MyClass_opByteBoolDI extends AMI_MyClass_opByteBoolD
     {
         public void
-        ice_response(java.util.Map _ro, java.util.Map __do)
+        ice_response(java.util.Map<Byte, Boolean> ro, java.util.Map<Byte, Boolean> _do)
         {
-            // TODO: Fix the parameter types and remove these casts below when the Java2 mapping is removed.
-            java.util.Map<Byte, Boolean> ro = (java.util.Map<Byte, Boolean>)_ro;
-            java.util.Map<Byte, Boolean> _do = (java.util.Map<Byte, Boolean>)__do;
             java.util.Map<Byte, Boolean> di1 = new java.util.HashMap<Byte, Boolean>();
             di1.put((byte)10, Boolean.TRUE);
             di1.put((byte)100, Boolean.FALSE);
@@ -845,11 +842,8 @@ class TwowaysAMI
     private static class AMI_MyClass_opShortIntDI extends AMI_MyClass_opShortIntD
     {
         public void
-        ice_response(java.util.Map _ro, java.util.Map __do)
+        ice_response(java.util.Map<Short, Integer> ro, java.util.Map<Short, Integer> _do)
         {
-            // TODO: Fix the parameter types and remove these casts below when the Java2 mapping is removed.
-            java.util.Map<Short, Integer> ro = (java.util.Map<Short, Integer>)_ro;
-            java.util.Map<Short, Integer> _do = (java.util.Map<Short, Integer>)__do;
             java.util.Map<Short, Integer> di1 = new java.util.HashMap<Short, Integer>();
             di1.put((short)110, -1);
             di1.put((short)1100, 123123);
@@ -880,11 +874,8 @@ class TwowaysAMI
     private static class AMI_MyClass_opLongFloatDI extends AMI_MyClass_opLongFloatD
     {
         public void
-        ice_response(java.util.Map _ro, java.util.Map __do)
+        ice_response(java.util.Map<Long, Float> ro, java.util.Map<Long, Float> _do)
         {
-            // TODO: Fix the parameter types and remove these casts below when the Java2 mapping is removed.
-            java.util.Map<Long, Float> ro = (java.util.Map<Long, Float>)_ro;
-            java.util.Map<Long, Float> _do = (java.util.Map<Long, Float>)__do;
             java.util.Map<Long, Float> di1 = new java.util.HashMap<Long, Float>();
             di1.put(999999110L, new Float(-1.1f));
             di1.put(999999111L, new Float(123123.2f));
@@ -915,11 +906,8 @@ class TwowaysAMI
     private static class AMI_MyClass_opStringStringDI extends AMI_MyClass_opStringStringD
     {
         public void
-        ice_response(java.util.Map _ro, java.util.Map __do)
+        ice_response(java.util.Map<String, String> ro, java.util.Map<String, String> _do)
         {
-            // TODO: Fix the parameters and remove the casts below when the Java2 mapping is removed.
-            java.util.Map<String, String> ro = (java.util.Map<String, String>)_ro;
-            java.util.Map<String, String> _do = (java.util.Map<String, String>)__do;
             java.util.Map<String, String> di1 = new java.util.HashMap<String, String>();
             di1.put("foo", "abc -1.1");
             di1.put("bar", "abc 123123.2");
@@ -950,11 +938,8 @@ class TwowaysAMI
     private static class AMI_MyClass_opStringMyEnumDI extends AMI_MyClass_opStringMyEnumD
     {
         public void
-        ice_response(java.util.Map _ro, java.util.Map __do)
+        ice_response(java.util.Map<String, MyEnum> ro, java.util.Map<String, MyEnum> _do)
         {
-            // TODO: Fix the parameters and remove the casts below when the Java2 mapping is removed.
-            java.util.Map<String, MyEnum> ro = (java.util.Map<String, MyEnum>)_ro;
-            java.util.Map<String, MyEnum> _do = (java.util.Map<String, MyEnum>)__do;
             java.util.Map<String, MyEnum> di1 = new java.util.HashMap<String, MyEnum>();
             di1.put("abc", MyEnum.enum1);
             di1.put("", MyEnum.enum2);
@@ -985,13 +970,10 @@ class TwowaysAMI
     private static class AMI_MyClass_opMyStructMyEnumDI extends AMI_MyClass_opMyStructMyEnumD
     {
         public void
-        ice_response(java.util.Map _ro, java.util.Map __do)
+        ice_response(java.util.Map<MyStruct, MyEnum> ro, java.util.Map<MyStruct, MyEnum> _do)
         {
-            // TODO: Fix the parameters and remove the casts below when the Java2 mapping is removed.
             MyStruct s11 = new MyStruct(1, 1);
             MyStruct s12 = new MyStruct(1, 2);
-            java.util.Map<MyStruct, MyEnum> ro = (java.util.Map<MyStruct, MyEnum>)_ro;
-            java.util.Map<MyStruct, MyEnum> _do = (java.util.Map<MyStruct, MyEnum>)__do;
             java.util.Map<MyStruct, MyEnum> di1 = new java.util.HashMap<MyStruct, MyEnum>();
             di1.put(s11, MyEnum.enum1);
             di1.put(s12, MyEnum.enum2);
@@ -1535,14 +1517,14 @@ class TwowaysAMI
         {
             int[] lengths = { 0, 1, 2, 126, 127, 128, 129, 253, 254, 255, 256, 257, 1000 };
 
-            for(int l = 0; l < lengths.length; ++l)
+            for(int l : lengths)
             {
-                int[] s = new int[lengths[l]];
+                int[] s = new int[l];
                 for(int i = 0; i < s.length; ++i)
                 {
                     s[i] = i;
                 }
-                AMI_MyClass_opIntSI cb = new AMI_MyClass_opIntSI(lengths[l]);
+                AMI_MyClass_opIntSI cb = new AMI_MyClass_opIntSI(l);
                 p.opIntS_async(cb, s);
                 cb.check();
             }

@@ -6,6 +6,7 @@
 // ICE_LICENSE file included in this distribution.
 //
 // **********************************************************************
+
 package IceGridGUI;
 
 import java.io.*;
@@ -19,8 +20,7 @@ public class XMLWriter
     {
         try
         {
-            _writer = new BufferedWriter(
-                new OutputStreamWriter(new FileOutputStream(file), "UTF-8"));
+            _writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(file), "UTF-8"));
         }
         catch(UnsupportedEncodingException e)
         {
@@ -30,7 +30,7 @@ public class XMLWriter
         _writer.write("<!-- This file was written by IceGrid Admin -->" + _newline);
     }
 
-    public void writeElement(String name, java.util.List attributes)
+    public void writeElement(String name, java.util.List<String[]> attributes)
         throws IOException
     {
         _writer.write(_indent);
@@ -41,17 +41,16 @@ public class XMLWriter
 
     public void writeElement(String name) throws IOException
     {
-        writeElement(name, (java.util.List)null);
+        writeElement(name, (java.util.List<String[]>)null);
     }
 
     public void writeElement(String name, String content) throws IOException
     {
         _writer.write(_indent);
-        _writer.write("<" + name + ">" + escape(content) + 
-                      "</" + name + ">" + _newline);
+        _writer.write("<" + name + ">" + escape(content) + "</" + name + ">" + _newline);
     }
 
-    public void writeStartTag(String name, java.util.List attributes)
+    public void writeStartTag(String name, java.util.List<String[]> attributes)
         throws IOException
     {
         _writer.write(_indent);
@@ -62,12 +61,14 @@ public class XMLWriter
         increaseIndent();
     }
 
-    public void writeStartTag(String name) throws IOException
+    public void writeStartTag(String name)
+        throws IOException
     {
         writeStartTag(name, null);
     }
 
-    public void writeEndTag(String name) throws IOException
+    public void writeEndTag(String name)
+        throws IOException
     {
         decreaseIndent();
         _writer.write(_indent);
@@ -84,16 +85,14 @@ public class XMLWriter
         _writer.flush();
     }
 
-    private void writeAttributes(java.util.List attributes)
+    private void writeAttributes(java.util.List<String[]> attributes)
         throws IOException
     {
         if(attributes != null)
         {
-            java.util.Iterator p = attributes.iterator();
-            while(p.hasNext())
+            for(String[] p : attributes)
             {
-                String[] pair = (String[])p.next();
-                _writer.write(" " + pair[0] + "=\"" + escape(pair[1]) + "\"");
+                _writer.write(" " + p[0] + "=\"" + escape(p[1]) + "\"");
             }
         }
     }
@@ -123,9 +122,9 @@ public class XMLWriter
         final String allReserved = "<>'\"&";
         boolean hasReserved = false;
         char[] arr = input.toCharArray();
-        for(int i = 0; i < arr.length; i++)
+        for(char c : arr)
         {
-            if(allReserved.indexOf(arr[i]) != -1)
+            if(allReserved.indexOf(c) != -1)
             {
                 hasReserved = true;
                 break;
@@ -163,7 +162,6 @@ public class XMLWriter
         }
         return v;
     }
-
 
     private Writer _writer;
     private String _indent = "";

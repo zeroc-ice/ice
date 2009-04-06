@@ -6,6 +6,7 @@
 // ICE_LICENSE file included in this distribution.
 //
 // **********************************************************************
+
 package IceGridGUI.Application;
 
 import java.awt.Component;
@@ -21,7 +22,7 @@ import IceGrid.*;
 import IceGridGUI.*;
 
 class ServerInstance extends ListTreeNode implements Server, PropertySetParent
-{ 
+{
     static public ServerInstanceDescriptor
     copyDescriptor(ServerInstanceDescriptor sid)
     {
@@ -29,7 +30,7 @@ class ServerInstance extends ListTreeNode implements Server, PropertySetParent
         copy.propertySet = PropertySet.copyDescriptor(copy.propertySet);
         return copy;
     }
-    
+
     //
     // Overrides ListTreeNode
     //
@@ -45,9 +46,9 @@ class ServerInstance extends ListTreeNode implements Server, PropertySetParent
     {
         boolean[] actions = new boolean[ACTION_COUNT];
         actions[COPY] = !_ephemeral;
-        
+
         Object clipboard = getCoordinator().getClipboard();
-        if(clipboard != null && 
+        if(clipboard != null &&
            (clipboard instanceof ServerDescriptor
             || clipboard instanceof ServerInstanceDescriptor
             || (_isIceBox && clipboard instanceof PropertySetDescriptor)))
@@ -60,16 +61,16 @@ class ServerInstance extends ListTreeNode implements Server, PropertySetParent
         {
             actions[SHOW_VARS] = true;
             actions[SUBSTITUTE_VARS] = true;
-            
+
             if(_isIceBox)
             {
                 actions[NEW_PROPERTY_SET] = true;
             }
         }
-        
+
         return actions;
     }
-    
+
     public void copy()
     {
         getCoordinator().setClipboard(copyDescriptor(_descriptor));
@@ -90,13 +91,11 @@ class ServerInstance extends ListTreeNode implements Server, PropertySetParent
 
         ((TreeNode)_parent).paste();
     }
-    
+
     public void newPropertySet()
     {
-        newPropertySet(new PropertySetDescriptor(
-                           new String[0], new java.util.LinkedList()));
+        newPropertySet(new PropertySetDescriptor(new String[0], new java.util.LinkedList<PropertyDescriptor>()));
     }
-
 
     public JPopupMenu getPopupMenu()
     {
@@ -121,8 +120,7 @@ class ServerInstance extends ListTreeNode implements Server, PropertySetParent
     {
         if(_editor == null)
         {
-            _editor = (ServerInstanceEditor)
-                getRoot().getEditor(ServerInstanceEditor.class, this);
+            _editor = (ServerInstanceEditor)getRoot().getEditor(ServerInstanceEditor.class, this);
         }
         _editor.show(this);
         return _editor;
@@ -132,15 +130,15 @@ class ServerInstance extends ListTreeNode implements Server, PropertySetParent
     {
         return new ServerInstanceEditor();
     }
-        
+
     public Component getTreeCellRendererComponent(
-            JTree tree,
-            Object value,
-            boolean sel,
-            boolean expanded,
-            boolean leaf,
-            int row,
-            boolean hasFocus) 
+        JTree tree,
+        Object value,
+        boolean sel,
+        boolean expanded,
+        boolean leaf,
+        int row,
+        boolean hasFocus)
     {
         if(_cellRenderer == null)
         {
@@ -151,20 +149,19 @@ class ServerInstance extends ListTreeNode implements Server, PropertySetParent
 
             _serverIcon = Utils.getIcon("/icons/16x16/server_inactive.png");
             _iceboxServerIcon = Utils.getIcon("/icons/16x16/icebox_server_inactive.png");
-            
+
             _cellRenderer.setLeafIcon(_serverIcon);
             _cellRenderer.setOpenIcon(_iceboxServerIcon);
             _cellRenderer.setClosedIcon(_iceboxServerIcon);
         }
 
-        return _cellRenderer.getTreeCellRendererComponent(
-            tree, value, sel, expanded, leaf, row, hasFocus);
+        return _cellRenderer.getTreeCellRendererComponent(tree, value, sel, expanded, leaf, row, hasFocus);
     }
 
     public void destroy()
     {
         Node node = (Node)_parent;
-        
+
         if(_ephemeral)
         {
             node.removeServer(this);
@@ -177,7 +174,6 @@ class ServerInstance extends ListTreeNode implements Server, PropertySetParent
             getRoot().updated();
         }
     }
-
 
     public Object getDescriptor()
     {
@@ -201,10 +197,8 @@ class ServerInstance extends ListTreeNode implements Server, PropertySetParent
     //
     // Builds the server and all its sub-tree
     //
-    ServerInstance(boolean brandNew, TreeNode parent, String serverId, 
-                   Utils.Resolver resolver, 
-                   ServerInstanceDescriptor instanceDescriptor,
-                   boolean isIceBox) 
+    ServerInstance(boolean brandNew, TreeNode parent, String serverId, Utils.Resolver resolver,
+                   ServerInstanceDescriptor instanceDescriptor, boolean isIceBox)
         throws UpdateFailedException
     {
         super(brandNew, parent, serverId);
@@ -212,8 +206,7 @@ class ServerInstance extends ListTreeNode implements Server, PropertySetParent
         rebuild(resolver, instanceDescriptor, isIceBox);
     }
 
-    ServerInstance(TreeNode parent, String serverId, 
-                   ServerInstanceDescriptor instanceDescriptor)
+    ServerInstance(TreeNode parent, String serverId, ServerInstanceDescriptor instanceDescriptor)
     {
         super(false, parent, serverId);
         _ephemeral = true;
@@ -227,19 +220,18 @@ class ServerInstance extends ListTreeNode implements Server, PropertySetParent
         }
     }
 
-    void write(XMLWriter writer) throws java.io.IOException
+    void write(XMLWriter writer)
+        throws java.io.IOException
     {
         if(!_ephemeral)
         {
-            TemplateDescriptor templateDescriptor 
-                = getRoot().findServerTemplateDescriptor(_descriptor.template);
-            
-            java.util.LinkedList attributes = parameterValuesToAttributes(
+            TemplateDescriptor templateDescriptor = getRoot().findServerTemplateDescriptor(_descriptor.template);
+
+            java.util.LinkedList<String[]> attributes = parameterValuesToAttributes(
                 _descriptor.parameterValues, templateDescriptor.parameters);
             attributes.addFirst(createAttribute("template", _descriptor.template));
-                
-            if(_descriptor.propertySet.references.length == 0 &&
-               _descriptor.propertySet.properties.size() == 0 &&
+
+            if(_descriptor.propertySet.references.length == 0 && _descriptor.propertySet.properties.size() == 0 &&
                _children.size() == 0)
             {
                 writer.writeElement("server-instance", attributes);
@@ -248,11 +240,10 @@ class ServerInstance extends ListTreeNode implements Server, PropertySetParent
             {
                 writer.writeStartTag("server-instance", attributes);
                 writePropertySet(writer, _descriptor.propertySet, null, null);
-                
-                java.util.Iterator p = _children.iterator();
-                while(p.hasNext())
+
+                for(TreeNodeBase p : _children)
                 {
-                    PropertySet ps = (PropertySet)p.next();
+                    PropertySet ps = (PropertySet)p;
                     ps.write(writer);
                 }
 
@@ -260,7 +251,6 @@ class ServerInstance extends ListTreeNode implements Server, PropertySetParent
             }
         }
     }
-
 
     boolean isIceBox()
     {
@@ -276,7 +266,7 @@ class ServerInstance extends ListTreeNode implements Server, PropertySetParent
             getRoot().getTreeModel().nodeStructureChanged(this);
         }
     }
-    
+
     static private class Backup
     {
         Backup(Editable ne)
@@ -285,18 +275,18 @@ class ServerInstance extends ListTreeNode implements Server, PropertySetParent
         }
 
         Editable nodeEditable;
-        java.util.Map parameterValues;
+        java.util.Map<String, String> parameterValues;
     }
 
-    public Object rebuild(java.util.List editables) throws UpdateFailedException
+    public Object rebuild(java.util.List<Editable> editables)
+        throws UpdateFailedException
     {
         Node node = (Node)_parent;
         Backup backup = new Backup(node.getEditable().save());
 
-        TemplateDescriptor templateDescriptor 
-            = getRoot().findServerTemplateDescriptor(_descriptor.template);
+        TemplateDescriptor templateDescriptor = getRoot().findServerTemplateDescriptor(_descriptor.template);
 
-        java.util.Set parameters = new java.util.HashSet(templateDescriptor.parameters);
+        java.util.Set<String> parameters = new java.util.HashSet<String>(templateDescriptor.parameters);
         if(!parameters.equals(_descriptor.parameterValues.keySet()))
         {
             backup.parameterValues = _descriptor.parameterValues;
@@ -304,12 +294,11 @@ class ServerInstance extends ListTreeNode implements Server, PropertySetParent
                 _descriptor.parameterValues, templateDescriptor.parameters);
         }
         ServerInstance newServer = node.createServer(false, _descriptor);
-        
 
         if(_id.equals(newServer.getId()))
         {
             //
-            // A simple update. We can't simply rebuild server because 
+            // A simple update. We can't simply rebuild server because
             // we need to keep a backup
             //
             if(_editable.isModified())
@@ -317,7 +306,7 @@ class ServerInstance extends ListTreeNode implements Server, PropertySetParent
                 newServer.getEditable().markModified();
             }
 
-            node.removeServer(this);        
+            node.removeServer(this);
             try
             {
                 node.insertServer(newServer, true);
@@ -348,7 +337,7 @@ class ServerInstance extends ListTreeNode implements Server, PropertySetParent
                 throw e;
             }
         }
-        
+
         return backup;
     }
 
@@ -356,7 +345,7 @@ class ServerInstance extends ListTreeNode implements Server, PropertySetParent
     {
         Backup backup = (Backup)backupObj;
         Node node = (Node)_parent;
-        
+
         node.getEditable().restore(backup.nodeEditable);
 
         if(backup.parameterValues != null)
@@ -381,21 +370,19 @@ class ServerInstance extends ListTreeNode implements Server, PropertySetParent
         }
     }
 
-
     public void tryAdd(String unsubstitutedId, PropertySetDescriptor descriptor)
         throws UpdateFailedException
     {
         insertPropertySet(new PropertySet(this,
                                           Utils.substitute(unsubstitutedId, _resolver),
                                           unsubstitutedId,
-                                          descriptor), 
+                                          descriptor),
                           true);
         _descriptor.servicePropertySets.put(unsubstitutedId, descriptor);
         _editable.markModified();
     }
 
-    public void tryRename(String oldId, String oldUnresolvedId, 
-                          String newUnsubstitutedId)
+    public void tryRename(String oldId, String oldUnresolvedId, String newUnsubstitutedId)
         throws UpdateFailedException
     {
         PropertySet oldChild = (PropertySet)findChild(oldId);
@@ -406,8 +393,8 @@ class ServerInstance extends ListTreeNode implements Server, PropertySetParent
         try
         {
             insertPropertySet(
-                new PropertySet(this, 
-                                Utils.substitute(newUnsubstitutedId, _resolver), 
+                new PropertySet(this,
+                                Utils.substitute(newUnsubstitutedId, _resolver),
                                 newUnsubstitutedId, descriptor),
                 true);
         }
@@ -423,12 +410,11 @@ class ServerInstance extends ListTreeNode implements Server, PropertySetParent
             }
             throw ex;
         }
-        
+
         _editable.markModified();
         _descriptor.servicePropertySets.remove(oldUnresolvedId);
         _descriptor.servicePropertySets.put(newUnsubstitutedId, descriptor);
     }
-    
 
     public void insertPropertySet(PropertySet nps, boolean fireEvent)
         throws UpdateFailedException
@@ -450,7 +436,7 @@ class ServerInstance extends ListTreeNode implements Server, PropertySetParent
     {
         return _editable;
     }
-    
+
     Object[] getServiceNames()
     {
         assert _isIceBox;
@@ -458,13 +444,12 @@ class ServerInstance extends ListTreeNode implements Server, PropertySetParent
         //
         // Retrieve the list of service instances
         //
-        
-        Communicator.ChildList services = getRoot().
-            findServerTemplate(_descriptor.template).getServices();
-        
+
+        Communicator.ChildList services = getRoot().findServerTemplate(_descriptor.template).getServices();
+
         Object[] result = new Object[services.size()];
         int i = 0;
-        
+
         java.util.Iterator p = services.iterator();
         while(p.hasNext())
         {
@@ -473,13 +458,13 @@ class ServerInstance extends ListTreeNode implements Server, PropertySetParent
 
             if(d.template.length() > 0)
             {
-                TemplateDescriptor templateDescriptor 
-                    = (TemplateDescriptor)getRoot().findServiceTemplateDescriptor(d.template);
+                TemplateDescriptor templateDescriptor =
+                    (TemplateDescriptor)getRoot().findServiceTemplateDescriptor(d.template);
                 assert templateDescriptor != null;
-                Utils.Resolver serviceResolver = new Utils.Resolver(_resolver, 
+                Utils.Resolver serviceResolver = new Utils.Resolver(_resolver,
                                                                     d.parameterValues,
                                                                     templateDescriptor.parameterDefaults);
-                
+
                 ServiceDescriptor serviceDescriptor = (ServiceDescriptor)templateDescriptor.descriptor;
 
                 result[i++] = serviceResolver.substitute(serviceDescriptor.name);
@@ -495,26 +480,22 @@ class ServerInstance extends ListTreeNode implements Server, PropertySetParent
     //
     // Update the server and its children
     //
-    void rebuild(Utils.Resolver resolver,  
-                 ServerInstanceDescriptor instanceDescriptor,
-                 boolean isIceBox) throws UpdateFailedException
+    void rebuild(Utils.Resolver resolver, ServerInstanceDescriptor instanceDescriptor, boolean isIceBox)
+        throws UpdateFailedException
     {
         _resolver = resolver;
         _isIceBox = isIceBox;
         _descriptor = instanceDescriptor;
-        
+
         _children.clear();
 
-        java.util.Iterator p = _descriptor.servicePropertySets.entrySet().iterator();
-        while(p.hasNext())
+        for(java.util.Map.Entry<String, PropertySetDescriptor> p : _descriptor.servicePropertySets.entrySet())
         {
-            java.util.Map.Entry entry = (java.util.Map.Entry)p.next();
-            String unsubstitutedId = (String)entry.getKey();
-
-            insertPropertySet(new PropertySet(this, 
+            String unsubstitutedId = p.getKey();
+            insertPropertySet(new PropertySet(this,
                                               Utils.substitute(unsubstitutedId, _resolver),
                                               unsubstitutedId,
-                                              (PropertySetDescriptor)entry.getValue()),
+                                              p.getValue()),
                               false);
         }
     }
@@ -522,7 +503,7 @@ class ServerInstance extends ListTreeNode implements Server, PropertySetParent
     private void newPropertySet(PropertySetDescriptor descriptor)
     {
         String id = makeNewChildId("Service");
-        
+
         PropertySet ps = new PropertySet(this, id, descriptor);
         try
         {
@@ -534,7 +515,6 @@ class ServerInstance extends ListTreeNode implements Server, PropertySetParent
         }
         getRoot().setSelectedNode(ps);
     }
-
 
     Utils.Resolver getResolver()
     {
@@ -565,7 +545,7 @@ class ServerInstance extends ListTreeNode implements Server, PropertySetParent
     private ServerInstanceEditor _editor;
 
     private Utils.Resolver _resolver;
-    
+
     static private DefaultTreeCellRenderer _cellRenderer;
     static private Icon _serverIcon;
     static private Icon _iceboxServerIcon;

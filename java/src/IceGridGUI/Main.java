@@ -6,6 +6,7 @@
 // ICE_LICENSE file included in this distribution.
 //
 // **********************************************************************
+
 package IceGridGUI;
 
 import java.awt.Dimension;
@@ -24,11 +25,11 @@ import java.util.prefs.Preferences;
 
 public class Main extends JFrame
 {
-    public static void main(final String[] args) 
+    public static void main(final String[] args)
     {
-        SwingUtilities.invokeLater(new Runnable() 
+        SwingUtilities.invokeLater(new Runnable()
             {
-                public void run() 
+                public void run()
                 {
                     createAndShowGUI(args);
                 }
@@ -37,7 +38,7 @@ public class Main extends JFrame
 
     Main(String[] args)
     {
-        super("IceGrid Admin"); 
+        super("IceGrid Admin");
         javax.swing.ImageIcon icon = Utils.getIcon("/icons/16x16/grid.png");
         if(icon != null)
         {
@@ -45,9 +46,9 @@ public class Main extends JFrame
         }
 
         setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
-        addWindowListener(new WindowAdapter() 
+        addWindowListener(new WindowAdapter()
             {
-                public void windowClosing(WindowEvent e) 
+                public void windowClosing(WindowEvent e)
                 {
                     if(_coordinator != null)
                     {
@@ -56,16 +57,14 @@ public class Main extends JFrame
                 }
             });
 
-        _coordinator = 
-            new Coordinator(this, new Ice.StringSeqHolder(args), 
-                            Preferences.userNodeForPackage(getClass()));
-        
+        _coordinator = new Coordinator(this, new Ice.StringSeqHolder(args), Preferences.userNodeForPackage(getClass()));
+
         _coordinator.showMainFrame();
     }
-   
-    private static void createAndShowGUI(String[] args) 
+
+    private static void createAndShowGUI(String[] args)
     {
-        try 
+        try
         {
             if(UIManager.getSystemLookAndFeelClassName().equals("apple.laf.AquaLookAndFeel"))
             {
@@ -76,8 +75,8 @@ public class Main extends JFrame
             {
                 UIManager.setLookAndFeel("com.jgoodies.looks.plastic.PlasticXPLookAndFeel");
             }
-        } 
-        catch(Exception e) 
+        }
+        catch(Exception e)
         {
             System.err.println(e.toString());
         }
@@ -100,5 +99,3 @@ public class Main extends JFrame
 
     private Coordinator _coordinator;
 }
-
-

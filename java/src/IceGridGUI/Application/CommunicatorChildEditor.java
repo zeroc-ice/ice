@@ -6,6 +6,7 @@
 // ICE_LICENSE file included in this distribution.
 //
 // **********************************************************************
+
 package IceGridGUI.Application;
 
 import javax.swing.JOptionPane;
@@ -14,13 +15,16 @@ import IceGrid.*;
 import IceGridGUI.*;
 
 abstract class CommunicatorChildEditor extends Editor
-{  
+{
     abstract void writeDescriptor();
     abstract boolean isSimpleUpdate();
     abstract Communicator.ChildList getChildList();
 
-    void postUpdate() {}
-    
+    void postUpdate()
+    {
+    }
+
+    @SuppressWarnings("unchecked")
     protected boolean applyUpdate(boolean refresh)
     {
         Root root = _target.getRoot();
@@ -30,13 +34,14 @@ abstract class CommunicatorChildEditor extends Editor
             if(_target.isEphemeral())
             {
                 Communicator.ChildList childList = getChildList();
-                
+
                 writeDescriptor();
                 Object descriptor = _target.getDescriptor();
                 _target.destroy(); // just removes the child
-                
+
                 try
                 {
+                    //@SuppressWarnings("unchecked")
                     childList.tryAdd(descriptor);
                 }
                 catch(UpdateFailedException e)
@@ -52,20 +57,21 @@ abstract class CommunicatorChildEditor extends Editor
                     {
                         assert false;
                     }
-                    
+
                     JOptionPane.showMessageDialog(
                         root.getCoordinator().getMainFrame(),
                         e.toString(),
                         "Apply failed",
                         JOptionPane.ERROR_MESSAGE);
-                    
+
                     root.setSelectedNode(_target);
                     return false;
                 }
-                
+
                 //
                 // Success
                 //
+                //@SuppressWarnings("unchecked")
                 _target = childList.findChildWithDescriptor(descriptor);
                 root.updated();
                 if(refresh)
@@ -101,7 +107,7 @@ abstract class CommunicatorChildEditor extends Editor
                         JOptionPane.ERROR_MESSAGE);
                     return false;
                 }
-                
+
                 //
                 // Success
                 //
@@ -112,7 +118,7 @@ abstract class CommunicatorChildEditor extends Editor
                     root.setSelectedNode(_target);
                 }
             }
-            
+
             postUpdate();
 
             if(refresh)
