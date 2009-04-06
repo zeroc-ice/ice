@@ -28,18 +28,14 @@ public:
     {
     }
 
-    bool check()
+    void check()
     {
         IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
         while(!_called)
         {
-            if(!timedWait(IceUtil::Time::seconds(5)))
-            {
-                return false;
-            }
+            wait();
         }
         _called = false;
-        return true;
     }
 
 protected:
@@ -654,7 +650,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
     {
         AMI_Test_SBaseAsObjectIPtr cb = new AMI_Test_SBaseAsObjectI;
         test->SBaseAsObject_async(cb);
-        test(cb->check());
+        cb->check();
     }
     cout << "ok" << endl;
 
@@ -677,7 +673,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
     {
         AMI_Test_SBaseAsSBaseIPtr cb = new AMI_Test_SBaseAsSBaseI;
         test->SBaseAsSBase_async(cb);
-        test(cb->check());
+        cb->check();
     }
     cout << "ok" << endl;
 
@@ -703,7 +699,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
     {
         AMI_Test_SBSKnownDerivedAsSBaseIPtr cb = new AMI_Test_SBSKnownDerivedAsSBaseI;
         test->SBSKnownDerivedAsSBase_async(cb);
-        test(cb->check());
+        cb->check();
     }
     cout << "ok" << endl;
 
@@ -726,7 +722,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
     {
         AMI_Test_SBSKnownDerivedAsSBSKnownDerivedIPtr cb = new AMI_Test_SBSKnownDerivedAsSBSKnownDerivedI;
         test->SBSKnownDerivedAsSBSKnownDerived_async(cb);
-        test(cb->check());
+        cb->check();
     }
     cout << "ok" << endl;
 
@@ -749,7 +745,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
     {
         AMI_Test_SBSUnknownDerivedAsSBaseIPtr cb = new AMI_Test_SBSUnknownDerivedAsSBaseI;
         test->SBSUnknownDerivedAsSBase_async(cb);
-        test(cb->check());
+        cb->check();
     }
     cout << "ok" << endl;
 
@@ -780,7 +776,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
         {
             AMI_Test_SUnknownAsObjectIPtr cb = new AMI_Test_SUnknownAsObjectI;
             test->SUnknownAsObject_async(cb);
-            test(cb->check());
+            cb->check();
         }
         catch(...)
         {
@@ -810,7 +806,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
     {
         AMI_Test_oneElementCycleIPtr cb = new AMI_Test_oneElementCycleI;
         test->oneElementCycle_async(cb);
-        test(cb->check());
+        cb->check();
     }
     cout << "ok" << endl;
 
@@ -840,7 +836,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
     {
         AMI_Test_twoElementCycleIPtr cb = new AMI_Test_twoElementCycleI;
         test->twoElementCycle_async(cb);
-        test(cb->check());
+        cb->check();
     }
     cout << "ok" << endl;
 
@@ -879,7 +875,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
     {
         AMI_Test_D1AsBIPtr cb = new AMI_Test_D1AsBI;
         test->D1AsB_async(cb);
-        test(cb->check());
+        cb->check();
     }
     cout << "ok" << endl;
 
@@ -912,7 +908,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
     {
         AMI_Test_D1AsD1IPtr cb = new AMI_Test_D1AsD1I;
         test->D1AsD1_async(cb);
-        test(cb->check());
+        cb->check();
     }
     cout << "ok" << endl;
 
@@ -949,7 +945,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
     {
         AMI_Test_D2AsBIPtr cb = new AMI_Test_D2AsBI;
         test->D2AsB_async(cb);
-        test(cb->check());
+        cb->check();
     }
     cout << "ok" << endl;
 
@@ -986,7 +982,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
     {
         AMI_Test_paramTest1IPtr cb = new AMI_Test_paramTest1I;
         test->paramTest1_async(cb);
-        test(cb->check());
+        cb->check();
     }
     cout << "ok" << endl;
 
@@ -1039,7 +1035,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
     {
         AMI_Test_returnTest1IPtr cb = new AMI_Test_returnTest1I;
         test->returnTest1_async(cb);
-        test(cb->check());
+        cb->check();
     }
     cout << "ok" << endl;
 
@@ -1063,7 +1059,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
     {
         AMI_Test_returnTest2IPtr cb = new AMI_Test_returnTest2I;
         test->returnTest2_async(cb);
-        test(cb->check());
+        cb->check();
     }
     cout << "ok" << endl;
 
@@ -1129,7 +1125,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
             AMI_Test_returnTest3IPtr cb = new AMI_Test_returnTest3I;
             test->returnTest3_async(cb, d1, d3);
-            test(cb->check());
+            cb->check();
             BPtr b1 = cb->r;
 
             test(b1);
@@ -1222,7 +1218,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
             AMI_Test_returnTest3IPtr cb = new AMI_Test_returnTest3I;
             test->returnTest3_async(cb, d3, d1);
-            test(cb->check());
+            cb->check();
             BPtr b1 = cb->r;
 
             test(b1);
@@ -1287,7 +1283,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
     {
         AMI_Test_paramTest3IPtr cb = new AMI_Test_paramTest3I;
         test->paramTest3_async(cb);
-        test(cb->check());
+        cb->check();
     }
     cout << "ok" << endl;
 
@@ -1320,7 +1316,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
         BPtr b;
         AMI_Test_paramTest4IPtr cb = new AMI_Test_paramTest4I;
         test->paramTest4_async(cb);
-        test(cb->check());
+        cb->check();
     }
     cout << "ok" << endl;
 
@@ -1376,7 +1372,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
             AMI_Test_returnTest3IPtr cb = new AMI_Test_returnTest3I;
             test->returnTest3_async(cb, d3, b2);
-            test(cb->check());
+            cb->check();
             BPtr r = cb->r;
 
             test(r);
@@ -1450,7 +1446,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
             AMI_Test_returnTest3IPtr cb = new AMI_Test_returnTest3I;
             test->returnTest3_async(cb, d3, d12);
-            test(cb->check());
+            cb->check();
             BPtr r = cb->r;
             test(r);
             test(r->ice_id() == "::Test::B");
@@ -1603,7 +1599,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
                 AMI_Test_sequenceTestIPtr cb = new AMI_Test_sequenceTestI;
                 test->sequenceTest_async(cb, ss1, ss2);
-                test(cb->check());
+                cb->check();
                 ss = cb->r;
             }
 
@@ -1719,7 +1715,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
             AMI_Test_dictionaryTestIPtr cb = new AMI_Test_dictionaryTestI;
             test->dictionaryTest_async(cb, bin);
-            test(cb->check());
+            cb->check();
             bout = cb->bout;
             r = cb->r;
 
@@ -1785,7 +1781,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
     {
         AMI_Test_throwBaseAsBaseIPtr cb = new AMI_Test_throwBaseAsBaseI;
         test->throwBaseAsBase_async(cb);
-        test(cb->check());
+        cb->check();
     }
     cout << "ok" << endl;
 
@@ -1821,7 +1817,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
     {
         AMI_Test_throwDerivedAsBaseIPtr cb = new AMI_Test_throwDerivedAsBaseI;
         test->throwDerivedAsBase_async(cb);
-        test(cb->check());
+        cb->check();
     }
     cout << "ok" << endl;
 
@@ -1857,7 +1853,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
     {
         AMI_Test_throwDerivedAsDerivedIPtr cb = new AMI_Test_throwDerivedAsDerivedI;
         test->throwDerivedAsDerived_async(cb);
-        test(cb->check());
+        cb->check();
     }
     cout << "ok" << endl;
 
@@ -1887,7 +1883,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
     {
         AMI_Test_throwUnknownDerivedAsBaseIPtr cb = new AMI_Test_throwUnknownDerivedAsBaseI;
         test->throwUnknownDerivedAsBase_async(cb);
-        test(cb->check());
+        cb->check();
     }
     cout << "ok" << endl;
 
@@ -1910,7 +1906,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
     {
         AMI_Test_useForwardIPtr cb = new AMI_Test_useForwardI;
         test->useForward_async(cb);
-        test(cb->check());
+        cb->check();
     }
     cout << "ok" << endl;
 

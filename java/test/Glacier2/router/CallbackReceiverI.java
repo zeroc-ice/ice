@@ -38,18 +38,14 @@ final class CallbackReceiverI extends _CallbackReceiverDisp
         throw ex;
     }
 
-    synchronized boolean
+    synchronized void
     callbackOK()
     {
         while(!_callback)
         {
             try
             {
-                wait(5000);
-                if(!_callback)
-                {
-                    return false;
-                }
+                wait();
             }
             catch(InterruptedException ex)
             {
@@ -57,7 +53,6 @@ final class CallbackReceiverI extends _CallbackReceiverDisp
         }
 
         _callback = false;
-        return true;
     }
 
     private boolean _callback;

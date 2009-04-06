@@ -29,22 +29,16 @@ public class AllTests
             _called = false;
         }
 
-        public bool check()
+        public void check()
         {
             lock(this)
             {
                 while(!_called)
                 {
-                    Monitor.Wait(this, TimeSpan.FromMilliseconds(30000));
-
-                    if(!_called)
-                    {
-                        return false; // Must be timeout.
-                    }
+                    Monitor.Wait(this);
                 }
                 
                 _called = false;
-                return true;
             }
         }
         
@@ -79,9 +73,9 @@ public class AllTests
             return _pid;
         }
         
-        public bool check()
+        public void check()
         {
-            return callback.check();
+            callback.check();
         }
 
         private int _pid;
@@ -101,9 +95,9 @@ public class AllTests
             test(false);
         }
         
-        public bool check()
+        public void check()
         {
-            return callback.check();
+            callback.check();
         }
 
         private Callback callback = new Callback();
@@ -138,9 +132,9 @@ public class AllTests
             callback.called();
         }
         
-        public bool check()
+        public void check()
         {
-            return callback.check();
+            callback.check();
         }
 
         private Callback callback = new Callback();
@@ -158,9 +152,9 @@ public class AllTests
             @delegate.ice_exception(ex);
         }
         
-        public bool check()
+        public void check()
         {
-            return @delegate.check();
+            @delegate.check();
         }
 
         private AMI_Test_abortI @delegate = new AMI_Test_abortI();
@@ -220,7 +214,7 @@ public class AllTests
                 Console.Out.Flush();
                 AMI_Test_pidI cb = new AMI_Test_pidI();
                 obj.pid_async(cb);
-                test(cb.check());
+                cb.check();
                 int pid = cb.pid();
                 test(pid != oldPid);
                 Console.Out.WriteLine("ok");
@@ -241,7 +235,7 @@ public class AllTests
                     Console.Out.Write("shutting down server #" + i + " with AMI... ");
                     AMI_Test_shutdownI cb = new AMI_Test_shutdownI();
                     obj.shutdown_async(cb);
-                    test(cb.check());
+                    cb.check();
                     Console.Out.WriteLine("ok");
                 }
             }
@@ -275,7 +269,7 @@ public class AllTests
                     Console.Out.Flush();
                     AMI_Test_abortI cb = new AMI_Test_abortI();
                     obj.abort_async(cb);
-                    test(cb.check());
+                    cb.check();
                     Console.Out.WriteLine("ok");
                 }
             }
@@ -309,7 +303,7 @@ public class AllTests
                     Console.Out.Flush();
                     AMI_Test_idempotentAbortI cb = new AMI_Test_idempotentAbortI();
                     obj.idempotentAbort_async(cb);
-                    test(cb.check());
+                    cb.check();
                     Console.Out.WriteLine("ok");
                 }
                 ++i;

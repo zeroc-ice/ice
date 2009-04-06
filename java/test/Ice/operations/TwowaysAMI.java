@@ -65,28 +65,21 @@ class TwowaysAMI
             _called = false;
         }
 
-        public synchronized boolean
+        public synchronized void
         check()
         {
             while(!_called)
             {
                 try
                 {
-                    wait(5000);
+                    wait();
                 }
                 catch(InterruptedException ex)
                 {
-                    continue;
-                }
-
-                if(!_called)
-                {
-                    return false; // Must be timeout.
                 }
             }
 
             _called = false;
-            return true;
         }
 
         public synchronized void
@@ -114,10 +107,10 @@ class TwowaysAMI
             test(false);
         }
 
-        public boolean
+        public void
         check()
         {
-            return callback.check();
+            callback.check();
         }
 
         private Callback callback = new Callback();
@@ -138,10 +131,10 @@ class TwowaysAMI
             callback.called();
         }
 
-        public boolean
+        public void
         check()
         {
-            return callback.check();
+            callback.check();
         }
 
         private Callback callback = new Callback();
@@ -163,10 +156,10 @@ class TwowaysAMI
             test(false);
         }
 
-        public boolean
+        public void
         check()
         {
-            return callback.check();
+            callback.check();
         }
 
         private Callback callback = new Callback();
@@ -187,10 +180,10 @@ class TwowaysAMI
             callback.called();
         }
 
-        public boolean
+        public void
         check()
         {
-            return callback.check();
+            callback.check();
         }
 
         private Callback callback = new Callback();
@@ -212,10 +205,10 @@ class TwowaysAMI
             test(false);
         }
 
-        public boolean
+        public void
         check()
         {
-            return callback.check();
+            callback.check();
         }
 
         private Callback callback = new Callback();
@@ -239,10 +232,10 @@ class TwowaysAMI
             test(false);
         }
 
-        public boolean
+        public void
         check()
         {
-            return callback.check();
+            callback.check();
         }
 
         private Callback callback = new Callback();
@@ -265,10 +258,10 @@ class TwowaysAMI
             test(false);
         }
 
-        public boolean
+        public void
         check()
         {
-            return callback.check();
+            callback.check();
         }
 
         private Callback callback = new Callback();
@@ -290,10 +283,10 @@ class TwowaysAMI
             test(false);
         }
 
-        public boolean
+        public void
         check()
         {
-            return callback.check();
+            callback.check();
         }
 
         private Callback callback = new Callback();
@@ -315,10 +308,10 @@ class TwowaysAMI
             test(false);
         }
 
-        public boolean
+        public void
         check()
         {
-            return callback.check();
+            callback.check();
         }
 
         private Callback callback = new Callback();
@@ -360,10 +353,10 @@ class TwowaysAMI
             test(false);
         }
 
-        public boolean
+        public void
         check()
         {
-            return callback.check();
+            callback.check();
         }
 
         private Callback callback = new Callback();
@@ -399,10 +392,10 @@ class TwowaysAMI
             test(false);
         }
 
-        public boolean
+        public void
         check()
         {
-            return callback.check();
+            callback.check();
         }
 
         private Callback callback = new Callback();
@@ -437,10 +430,10 @@ class TwowaysAMI
             test(false);
         }
 
-        public boolean
+        public void
         check()
         {
-            return callback.check();
+            callback.check();
         }
 
         private Callback callback = new Callback();
@@ -469,10 +462,10 @@ class TwowaysAMI
             test(false);
         }
 
-        public boolean
+        public void
         check()
         {
-            return callback.check();
+            callback.check();
         }
 
         private Callback callback = new Callback();
@@ -513,10 +506,10 @@ class TwowaysAMI
             test(false);
         }
 
-        public boolean
+        public void
         check()
         {
-            return callback.check();
+            callback.check();
         }
 
         private Callback callback = new Callback();
@@ -549,10 +542,10 @@ class TwowaysAMI
             test(false);
         }
 
-        public boolean
+        public void
         check()
         {
-            return callback.check();
+            callback.check();
         }
 
         private Callback callback = new Callback();
@@ -581,10 +574,10 @@ class TwowaysAMI
             test(false);
         }
 
-        public boolean
+        public void
         check()
         {
-            return callback.check();
+            callback.check();
         }
 
         private Callback callback = new Callback();
@@ -623,10 +616,10 @@ class TwowaysAMI
             test(false);
         }
 
-        public boolean
+        public void
         check()
         {
-            return callback.check();
+            callback.check();
         }
 
         private Callback callback = new Callback();
@@ -646,10 +639,10 @@ class TwowaysAMI
             test(false);
         }
 
-        public boolean
+        public void
         check()
         {
-            return callback.check();
+            callback.check();
         }
 
         private Callback callback = new Callback();
@@ -669,10 +662,10 @@ class TwowaysAMI
             test(false);
         }
 
-        public boolean
+        public void
         check()
         {
-            return callback.check();
+            callback.check();
         }
 
         private Callback callback = new Callback();
@@ -712,10 +705,10 @@ class TwowaysAMI
             test(false);
         }
 
-        public boolean
+        public void
         check()
         {
-            return callback.check();
+            callback.check();
         }
 
         private Callback callback = new Callback();
@@ -750,10 +743,10 @@ class TwowaysAMI
             test(false);
         }
 
-        public boolean
+        public void
         check()
         {
-            return callback.check();
+            callback.check();
         }
 
         private Callback callback = new Callback();
@@ -805,10 +798,10 @@ class TwowaysAMI
             test(false);
         }
 
-        public boolean
+        public void
         check()
         {
-            return callback.check();
+            callback.check();
         }
 
         private Callback callback = new Callback();
@@ -840,10 +833,10 @@ class TwowaysAMI
             test(false);
         }
 
-        public boolean
+        public void
         check()
         {
-            return callback.check();
+            callback.check();
         }
 
         private Callback callback = new Callback();
@@ -875,10 +868,10 @@ class TwowaysAMI
             test(false);
         }
 
-        public boolean
+        public void
         check()
         {
-            return callback.check();
+            callback.check();
         }
 
         private Callback callback = new Callback();
@@ -910,10 +903,10 @@ class TwowaysAMI
             test(false);
         }
 
-        public boolean
+        public void
         check()
         {
-            return callback.check();
+            callback.check();
         }
 
         private Callback callback = new Callback();
@@ -945,10 +938,10 @@ class TwowaysAMI
             test(false);
         }
 
-        public boolean
+        public void
         check()
         {
-            return callback.check();
+            callback.check();
         }
 
         private Callback callback = new Callback();
@@ -980,10 +973,10 @@ class TwowaysAMI
             test(false);
         }
 
-        public boolean
+        public void
         check()
         {
-            return callback.check();
+            callback.check();
         }
 
         private Callback callback = new Callback();
@@ -1019,10 +1012,10 @@ class TwowaysAMI
             test(false);
         }
 
-        public boolean
+        public void
         check()
         {
-            return callback.check();
+            callback.check();
         }
 
         private Callback callback = new Callback();
@@ -1052,10 +1045,10 @@ class TwowaysAMI
             test(false);
         }
 
-        public boolean
+        public void
         check()
         {
-            return callback.check();
+            callback.check();
         }
 
         private int _l;
@@ -1082,10 +1075,10 @@ class TwowaysAMI
             test(false);
         }
 
-        public boolean
+        public void
         check()
         {
-            return callback.check();
+            callback.check();
         }
 
         private java.util.Map<String, String> _d;
@@ -1112,10 +1105,10 @@ class TwowaysAMI
             test(false);
         }
 
-        public boolean
+        public void
         check()
         {
-            return callback.check();
+            callback.check();
         }
 
         private java.util.Map<String, String> _d;
@@ -1136,10 +1129,10 @@ class TwowaysAMI
             test(false);
         }
 
-        public boolean
+        public void
         check()
         {
-            return callback.check();
+            callback.check();
         }
 
         private Callback callback = new Callback();
@@ -1159,10 +1152,10 @@ class TwowaysAMI
             test(false);
         }
 
-        public boolean
+        public void
         check()
         {
-            return callback.check();
+            callback.check();
         }
 
         private Callback callback = new Callback();
@@ -1186,7 +1179,7 @@ class TwowaysAMI
             {
                 test(false);
             }
-            test(cb.check());
+            cb.check();
         }
 
         {
@@ -1202,16 +1195,16 @@ class TwowaysAMI
             {
                 test(false);
             }
-            test(cb.check());
+            cb.check();
         }
 
         {
             AMI_MyClass_opVoidI cb = new AMI_MyClass_opVoidI();
             p.opVoid_async(cb);
-            test(cb.check());
+            cb.check();
             // Let's check if we can reuse the same callback object for another call.
             p.opVoid_async(cb);
-            test(cb.check());
+            cb.check();
         }
 
         {
@@ -1240,46 +1233,46 @@ class TwowaysAMI
         {
             AMI_MyClass_opByteI cb = new AMI_MyClass_opByteI();
             p.opByte_async(cb, (byte)0xff, (byte)0x0f);
-            test(cb.check());
+            cb.check();
         }
 
         {
             AMI_MyClass_opBoolI cb = new AMI_MyClass_opBoolI();
             p.opBool_async(cb, true, false);
-            test(cb.check());
+            cb.check();
         }
 
         {
             AMI_MyClass_opShortIntLongI cb = new AMI_MyClass_opShortIntLongI();
             p.opShortIntLong_async(cb, (short)10, 11, 12L);
-            test(cb.check());
+            cb.check();
         }
 
         {
             AMI_MyClass_opFloatDoubleI cb = new AMI_MyClass_opFloatDoubleI();
             p.opFloatDouble_async(cb, 3.14f, 1.1E10);
-            test(cb.check());
+            cb.check();
             // Let's check if we can reuse the same callback object for another call.
             p.opFloatDouble_async(cb, 3.14f, 1.1E10);
-            test(cb.check());
+            cb.check();
         }
 
         {
             AMI_MyClass_opStringI cb = new AMI_MyClass_opStringI();
             p.opString_async(cb, "hello", "world");
-            test(cb.check());
+            cb.check();
         }
 
         {
             AMI_MyClass_opMyEnumI cb = new AMI_MyClass_opMyEnumI();
             p.opMyEnum_async(cb, MyEnum.enum2);
-            test(cb.check());
+            cb.check();
         }
 
         {
             AMI_MyClass_opMyClassI cb = new AMI_MyClass_opMyClassI(communicator);
             p.opMyClass_async(cb, p);
-            test(cb.check());
+            cb.check();
         }
 
         {
@@ -1296,7 +1289,7 @@ class TwowaysAMI
 
             AMI_MyClass_opStructI cb = new AMI_MyClass_opStructI(communicator);
             p.opStruct_async(cb, si1, si2);
-            test(cb.check());
+            cb.check();
         }
 
         {
@@ -1317,7 +1310,7 @@ class TwowaysAMI
 
             AMI_MyClass_opByteSI cb = new AMI_MyClass_opByteSI();
             p.opByteS_async(cb, bsi1, bsi2);
-            test(cb.check());
+            cb.check();
         }
 
         {
@@ -1326,7 +1319,7 @@ class TwowaysAMI
 
             AMI_MyClass_opBoolSI cb = new AMI_MyClass_opBoolSI();
             p.opBoolS_async(cb, bsi1, bsi2);
-            test(cb.check());
+            cb.check();
         }
 
         {
@@ -1336,7 +1329,7 @@ class TwowaysAMI
 
             AMI_MyClass_opShortIntLongSI cb = new AMI_MyClass_opShortIntLongSI();
             p.opShortIntLongS_async(cb, ssi, isi, lsi);
-            test(cb.check());
+            cb.check();
         }
 
         {
@@ -1345,7 +1338,7 @@ class TwowaysAMI
 
             AMI_MyClass_opFloatDoubleSI cb = new AMI_MyClass_opFloatDoubleSI();
             p.opFloatDoubleS_async(cb, fsi, dsi);
-            test(cb.check());
+            cb.check();
         }
 
         {
@@ -1354,7 +1347,7 @@ class TwowaysAMI
 
             AMI_MyClass_opStringSI cb = new AMI_MyClass_opStringSI();
             p.opStringS_async(cb, ssi1, ssi2);
-            test(cb.check());
+            cb.check();
         }
 
         {
@@ -1371,7 +1364,7 @@ class TwowaysAMI
 
             AMI_MyClass_opByteSSI cb = new AMI_MyClass_opByteSSI();
             p.opByteSS_async(cb, bsi1, bsi2);
-            test(cb.check());
+            cb.check();
         }
 
         {
@@ -1388,7 +1381,7 @@ class TwowaysAMI
 
             AMI_MyClass_opFloatDoubleSSI cb = new AMI_MyClass_opFloatDoubleSSI();
             p.opFloatDoubleSS_async(cb, fsi, dsi);
-            test(cb.check());
+            cb.check();
         }
 
         {
@@ -1406,7 +1399,7 @@ class TwowaysAMI
 
             AMI_MyClass_opStringSSI cb = new AMI_MyClass_opStringSSI();
             p.opStringSS_async(cb, ssi1, ssi2);
-            test(cb.check());
+            cb.check();
         }
 
         {
@@ -1448,7 +1441,7 @@ class TwowaysAMI
 
             AMI_MyClass_opStringSSSI cb = new AMI_MyClass_opStringSSSI();
             p.opStringSSS_async(cb, sssi1, sssi2);
-            test(cb.check());
+            cb.check();
         }
 
         {
@@ -1462,7 +1455,7 @@ class TwowaysAMI
 
             AMI_MyClass_opByteBoolDI cb = new AMI_MyClass_opByteBoolDI();
             p.opByteBoolD_async(cb, di1, di2);
-            test(cb.check());
+            cb.check();
         }
 
         {
@@ -1476,7 +1469,7 @@ class TwowaysAMI
 
             AMI_MyClass_opShortIntDI cb = new AMI_MyClass_opShortIntDI();
             p.opShortIntD_async(cb, di1, di2);
-            test(cb.check());
+            cb.check();
         }
 
         {
@@ -1490,7 +1483,7 @@ class TwowaysAMI
 
             AMI_MyClass_opLongFloatDI cb = new AMI_MyClass_opLongFloatDI();
             p.opLongFloatD_async(cb, di1, di2);
-            test(cb.check());
+            cb.check();
         }
 
         {
@@ -1504,7 +1497,7 @@ class TwowaysAMI
 
             AMI_MyClass_opStringStringDI cb = new AMI_MyClass_opStringStringDI();
             p.opStringStringD_async(cb, di1, di2);
-            test(cb.check());
+            cb.check();
         }
 
         {
@@ -1518,7 +1511,7 @@ class TwowaysAMI
 
             AMI_MyClass_opStringMyEnumDI cb = new AMI_MyClass_opStringMyEnumDI();
             p.opStringMyEnumD_async(cb, di1, di2);
-            test(cb.check());
+            cb.check();
         }
 
         {
@@ -1536,7 +1529,7 @@ class TwowaysAMI
 
             AMI_MyClass_opMyStructMyEnumDI cb = new AMI_MyClass_opMyStructMyEnumDI();
             p.opMyStructMyEnumD_async(cb, di1, di2);
-            test(cb.check());
+            cb.check();
         }
 
         {
@@ -1551,7 +1544,7 @@ class TwowaysAMI
                 }
                 AMI_MyClass_opIntSI cb = new AMI_MyClass_opIntSI(lengths[l]);
                 p.opIntS_async(cb, s);
-                test(cb.check());
+                cb.check();
             }
         }
 
@@ -1564,25 +1557,25 @@ class TwowaysAMI
                 test(p.ice_getContext().isEmpty());
                 AMI_MyClass_opContextNotEqualI cb = new AMI_MyClass_opContextNotEqualI(ctx);
                 p.opContext_async(cb);
-                test(cb.check());
+                cb.check();
             }
             {
                 test(p.ice_getContext().isEmpty());
                 AMI_MyClass_opContextEqualI cb = new AMI_MyClass_opContextEqualI(ctx);
                 p.opContext_async(cb, ctx);
-                test(cb.check());
+                cb.check();
             }
             MyClassPrx p2 = MyClassPrxHelper.checkedCast(p.ice_context(ctx));
             test(p2.ice_getContext().equals(ctx));
             {
                 AMI_MyClass_opContextEqualI cb = new AMI_MyClass_opContextEqualI(ctx);
                 p2.opContext_async(cb);
-                test(cb.check());
+                cb.check();
             }
             {
                 AMI_MyClass_opContextEqualI cb = new AMI_MyClass_opContextEqualI(ctx);
                 p2.opContext_async(cb, ctx);
-                test(cb.check());
+                cb.check();
             }
 
             {
@@ -1596,7 +1589,7 @@ class TwowaysAMI
                 {
                     AMI_MyClass_opContextNotEqualI cb = new AMI_MyClass_opContextNotEqualI(dflt);
                     p.opContext_async(cb);
-                    test(cb.check());
+                    cb.check();
                 }
 
                 p2 = MyClassPrxHelper.uncheckedCast(p.ice_context(new java.util.HashMap<String, String>()));
@@ -1604,14 +1597,14 @@ class TwowaysAMI
                     AMI_MyClass_opContextEqualI cb =
                         new AMI_MyClass_opContextEqualI(new java.util.HashMap<String, String>());
                     p2.opContext_async(cb);
-                    test(cb.check());
+                    cb.check();
                 }
 
                 p2 = MyClassPrxHelper.uncheckedCast(p.ice_defaultContext());
                 {
                     AMI_MyClass_opContextEqualI cb = new AMI_MyClass_opContextEqualI(dflt);
                     p2.opContext_async(cb);
-                    test(cb.check());
+                    cb.check();
                 }
 
                 communicator.setDefaultContext(new java.util.HashMap());
@@ -1619,7 +1612,7 @@ class TwowaysAMI
                     AMI_MyClass_opContextNotEqualI cb =
                         new AMI_MyClass_opContextNotEqualI(new java.util.HashMap<String, String>());
                     p2.opContext_async(cb);
-                    test(cb.check());
+                    cb.check();
                 }
 
                 communicator.setDefaultContext(dflt);
@@ -1630,7 +1623,7 @@ class TwowaysAMI
                     tmp.put("a", "b");
                     AMI_MyClass_opContextEqualI cb = new AMI_MyClass_opContextEqualI(tmp);
                     c.opContext_async(cb);
-                    test(cb.check());
+                    cb.check();
                 }
 
                 dflt.put("a", "c");
@@ -1640,7 +1633,7 @@ class TwowaysAMI
                     tmp.put("a", "c");
                     AMI_MyClass_opContextEqualI cb = new AMI_MyClass_opContextEqualI(tmp);
                     c2.opContext_async(cb);
-                    test(cb.check());
+                    cb.check();
                 }
 
                 dflt.clear();
@@ -1649,7 +1642,7 @@ class TwowaysAMI
                     java.util.HashMap<String, String> tmp = new java.util.HashMap<String, String>();
                     AMI_MyClass_opContextEqualI cb = new AMI_MyClass_opContextEqualI(tmp);
                     c3.opContext_async(cb);
-                    test(cb.check());
+                    cb.check();
                 }
 
                 MyClassPrx c4 = MyClassPrxHelper.uncheckedCast(c.ice_defaultContext());
@@ -1658,7 +1651,7 @@ class TwowaysAMI
                     tmp.put("a", "b");
                     AMI_MyClass_opContextEqualI cb = new AMI_MyClass_opContextEqualI(tmp);
                     c4.opContext_async(cb);
-                    test(cb.check());
+                    cb.check();
                 }
 
                 dflt.put("a", "d");
@@ -1670,7 +1663,7 @@ class TwowaysAMI
                     tmp.put("a", "d");
                     AMI_MyClass_opContextEqualI cb = new AMI_MyClass_opContextEqualI(tmp);
                     c5.opContext_async(cb);
-                    test(cb.check());
+                    cb.check();
                 }
 
                 communicator.setDefaultContext(new java.util.HashMap<String, String>());
@@ -1704,7 +1697,7 @@ class TwowaysAMI
                 {
                     AMI_MyClass_opContextEqualI cb = new AMI_MyClass_opContextEqualI(ctx);
                     p3.opContext_async(cb);
-                    test(cb.check());
+                    cb.check();
                 }
 
                 ic.getImplicitContext().put("zero", "ZERO");
@@ -1713,7 +1706,7 @@ class TwowaysAMI
                 {
                     AMI_MyClass_opContextEqualI cb = new AMI_MyClass_opContextEqualI(ctx);
                     p3.opContext_async(cb);
-                    test(cb.check());
+                    cb.check();
                 }
 
                 java.util.Map<String, String> prxContext = new java.util.HashMap<String, String>();
@@ -1730,14 +1723,14 @@ class TwowaysAMI
                 {
                     AMI_MyClass_opContextEqualI cb = new AMI_MyClass_opContextEqualI(prxContext);
                     p3.opContext_async(cb);
-                    test(cb.check());
+                    cb.check();
                 }
 
                 ic.getImplicitContext().setContext(ctx);
                 {
                     AMI_MyClass_opContextEqualI cb = new AMI_MyClass_opContextEqualI(combined);
                     p3.opContext_async(cb);
-                    test(cb.check());
+                    cb.check();
                 }
 
                 ic.destroy();
@@ -1753,7 +1746,7 @@ class TwowaysAMI
             }
             AMI_MyClass_opDoubleMarshalingI cb = new AMI_MyClass_opDoubleMarshalingI();
             p.opDoubleMarshaling_async(cb, d, ds);
-            test(cb.check());
+            cb.check();
         }
 
         {
@@ -1761,7 +1754,7 @@ class TwowaysAMI
             test(derived != null);
             AMI_MyDerivedClass_opDerivedI cb = new AMI_MyDerivedClass_opDerivedI();
             derived.opDerived_async(cb);
-            test(cb.check());
+            cb.check();
         }
     }
 }

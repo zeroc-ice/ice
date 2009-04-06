@@ -27,18 +27,14 @@ public:
     {
     }
 
-    bool check()
+    void check()
     {
         IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
         while(!_called)
         {
-            if(!timedWait(IceUtil::Time::seconds(30)))
-            {
-                return false;
-            }
+            wait();
         }
         _called = false;
-        return true;
     }
 
 protected:
@@ -205,7 +201,7 @@ allTests(const Ice::CommunicatorPtr& communicator, const vector<int>& ports)
             cout << "testing server #" << i << " with AMI... " << flush;
             AMI_Test_pidIPtr cb = new AMI_Test_pidI();
             obj->pid_async(cb);
-            test(cb->check());
+            cb->check();
             int pid = cb->pid();
             test(pid != oldPid);
             cout << "ok" << endl;
@@ -225,7 +221,7 @@ allTests(const Ice::CommunicatorPtr& communicator, const vector<int>& ports)
                 cout << "shutting down server #" << i << " with AMI... " << flush;
                 AMI_Test_shutdownIPtr cb = new AMI_Test_shutdownI;
                 obj->shutdown_async(cb);
-                test(cb->check());
+                cb->check();
                 cout << "ok" << endl;
             }
         }
@@ -253,7 +249,7 @@ allTests(const Ice::CommunicatorPtr& communicator, const vector<int>& ports)
                 cout << "aborting server #" << i << " with AMI... " << flush;
                 AMI_Test_abortIPtr cb = new AMI_Test_abortI;
                 obj->abort_async(cb);
-                test(cb->check());
+                cb->check();
                 cout << "ok" << endl;
             }
         }
@@ -281,7 +277,7 @@ allTests(const Ice::CommunicatorPtr& communicator, const vector<int>& ports)
                 cout << "aborting server #" << i << " and #" << i + 1 << " with idempotent AMI call... " << flush;
                 AMI_Test_idempotentAbortIPtr cb = new AMI_Test_idempotentAbortI;
                 obj->idempotentAbort_async(cb);
-                test(cb->check());
+                cb->check();
                 cout << "ok" << endl;
             }
 

@@ -26,12 +26,8 @@ class CallbackBase:
         self._cond.acquire()
         try:
             while not self._called:
-                self._cond.wait(5.0)
-            if self._called:
-                self._called = False
-                return True
-            else:
-                return False
+                self._cond.wait()
+            self._called = False
         finally:
             self._cond.release()
 
@@ -381,7 +377,7 @@ def allTests(communicator):
     print "base as Object (AMI)... ",
     cb = AMI_Test_SBaseAsObjectI()
     t.SBaseAsObject_async(cb)
-    test(cb.check())
+    cb.check()
     print "ok"
 
     print "base as base... ",
@@ -395,7 +391,7 @@ def allTests(communicator):
     print "base as base (AMI)... ",
     cb = AMI_Test_SBaseAsSBaseI()
     t.SBaseAsSBase_async(cb)
-    test(cb.check())
+    cb.check()
     print "ok"
 
     print "base with known derived as base... ",
@@ -413,7 +409,7 @@ def allTests(communicator):
     print "base with known derived as base (AMI)... ",
     cb = AMI_Test_SBSKnownDerivedAsSBaseI()
     t.SBSKnownDerivedAsSBase_async(cb)
-    test(cb.check())
+    cb.check()
     print "ok"
 
     print "base with known derived as known derived... ",
@@ -427,7 +423,7 @@ def allTests(communicator):
     print "base with known derived as known derived (AMI)... ",
     cb = AMI_Test_SBSKnownDerivedAsSBSKnownDerivedI()
     t.SBSKnownDerivedAsSBSKnownDerived_async(cb)
-    test(cb.check())
+    cb.check()
     print "ok"
 
     print "base with unknown derived as base... ",
@@ -441,7 +437,7 @@ def allTests(communicator):
     print "base with unknown derived as base (AMI)... ",
     cb = AMI_Test_SBSUnknownDerivedAsSBaseI()
     t.SBSUnknownDerivedAsSBase_async(cb)
-    test(cb.check())
+    cb.check()
     print "ok"
 
     print "unknown with Object as Object... ",
@@ -458,7 +454,7 @@ def allTests(communicator):
     try:
         cb = AMI_Test_SUnknownAsObjectI()
         t.SUnknownAsObject_async(cb)
-        test(cb.check())
+        cb.check()
     except Ice.NoObjectFactoryException:
         pass
     except Ice.Exception:
@@ -479,7 +475,7 @@ def allTests(communicator):
     print "one-element cycle (AMI)... ",
     cb = AMI_Test_oneElementCycleI()
     t.oneElementCycle_async(cb)
-    test(cb.check())
+    cb.check()
     print "ok"
 
     print "two-element cycle... ",
@@ -501,7 +497,7 @@ def allTests(communicator):
     print "two-element cycle (AMI)... ",
     cb = AMI_Test_twoElementCycleI()
     t.twoElementCycle_async(cb)
-    test(cb.check())
+    cb.check()
     print "ok"
 
     print "known derived pointer slicing as base... ",
@@ -531,7 +527,7 @@ def allTests(communicator):
     print "known derived pointer slicing as base (AMI)... ",
     cb = AMI_Test_D1AsBI()
     t.D1AsB_async(cb)
-    test(cb.check())
+    cb.check()
     print "ok"
 
     print "known derived pointer slicing as derived... ",
@@ -555,7 +551,7 @@ def allTests(communicator):
     print "known derived pointer slicing as derived (AMI)... ",
     cb = AMI_Test_D1AsD1I()
     t.D1AsD1_async(cb)
-    test(cb.check())
+    cb.check()
     print "ok"
 
     print "unknown derived pointer slicing as base... ",
@@ -583,7 +579,7 @@ def allTests(communicator):
     print "unknown derived pointer slicing as base (AMI)... ",
     cb = AMI_Test_D2AsBI()
     t.D2AsB_async(cb)
-    test(cb.check())
+    cb.check()
     print "ok"
 
     print "param ptr slicing with known first... ",
@@ -610,7 +606,7 @@ def allTests(communicator):
     print "param ptr slicing with known first (AMI)... ",
     cb = AMI_Test_paramTest1I()
     t.paramTest1_async(cb)
-    test(cb.check())
+    cb.check()
     print "ok"
 
     print "param ptr slicing with unknown first... ",
@@ -647,7 +643,7 @@ def allTests(communicator):
     print "return value identity with known first (AMI)... ",
     cb = AMI_Test_returnTest1I()
     t.returnTest1_async(cb)
-    test(cb.check())
+    cb.check()
     print "ok"
 
     print "return value identity with unknown first... ",
@@ -661,7 +657,7 @@ def allTests(communicator):
     print "return value identity with unknown first (AMI)... ",
     cb = AMI_Test_returnTest2I()
     t.returnTest2_async(cb)
-    test(cb.check())
+    cb.check()
     print "ok"
 
     print "return value identity for input params known first... ",
@@ -718,7 +714,7 @@ def allTests(communicator):
 
         cb = AMI_Test_returnTest3I()
         t.returnTest3_async(cb, d1, d3)
-        test(cb.check())
+        cb.check()
         b1 = cb.r
 
         test(b1)
@@ -799,7 +795,7 @@ def allTests(communicator):
 
         cb = AMI_Test_returnTest3I()
         t.returnTest3_async(cb, d3, d1)
-        test(cb.check())
+        cb.check()
         b1 = cb.r
 
         test(b1)
@@ -851,7 +847,7 @@ def allTests(communicator):
     print "remainder unmarshaling (3 instances) (AMI)... ",
     cb = AMI_Test_paramTest3I()
     t.paramTest3_async(cb)
-    test(cb.check())
+    cb.check()
     print "ok"
 
     print "remainder unmarshaling (4 instances)... ",
@@ -874,7 +870,7 @@ def allTests(communicator):
     print "remainder unmarshaling (4 instances) (AMI)... ",
     cb = AMI_Test_paramTest4I()
     t.paramTest4_async(cb)
-    test(cb.check())
+    cb.check()
     print "ok"
 
     print "param ptr slicing, instance marshaled in unknown derived as base... ",
@@ -921,7 +917,7 @@ def allTests(communicator):
 
         cb = AMI_Test_returnTest3I()
         t.returnTest3_async(cb, d3, b2)
-        test(cb.check())
+        cb.check()
         r = cb.r
 
         test(r)
@@ -983,7 +979,7 @@ def allTests(communicator):
 
         cb = AMI_Test_returnTest3I()
         t.returnTest3_async(cb, d3, d12)
-        test(cb.check())
+        cb.check()
         r = cb.r
 
         test(r)
@@ -1114,7 +1110,7 @@ def allTests(communicator):
 
         cb = AMI_Test_sequenceTestI()
         t.sequenceTest_async(cb, ss1, ss2)
-        test(cb.check())
+        cb.check()
         ss = cb.r
 
         test(ss.c1)
@@ -1204,7 +1200,7 @@ def allTests(communicator):
 
         cb = AMI_Test_dictionaryTestI()
         t.dictionaryTest_async(cb, bin)
-        test(cb.check())
+        cb.check()
         bout = cb.bout
         r = cb.r
 
@@ -1254,7 +1250,7 @@ def allTests(communicator):
     print "base exception thrown as base exception (AMI)... ",
     cb = AMI_Test_throwBaseAsBaseI()
     t.throwBaseAsBase_async(cb)
-    test(cb.check())
+    cb.check()
     print "ok"
 
     print "derived exception thrown as base exception... ",
@@ -1280,7 +1276,7 @@ def allTests(communicator):
     print "derived exception thrown as base exception (AMI)... ",
     cb = AMI_Test_throwDerivedAsBaseI()
     t.throwDerivedAsBase_async(cb)
-    test(cb.check())
+    cb.check()
     print "ok"
 
     print "derived exception thrown as derived exception... ",
@@ -1306,7 +1302,7 @@ def allTests(communicator):
     print "derived exception thrown as derived exception (AMI)... ",
     cb = AMI_Test_throwDerivedAsDerivedI()
     t.throwDerivedAsDerived_async(cb)
-    test(cb.check())
+    cb.check()
     print "ok"
 
     print "unknown derived exception thrown as base exception... ",
@@ -1326,7 +1322,7 @@ def allTests(communicator):
     print "unknown derived exception thrown as base exception (AMI)... ",
     cb = AMI_Test_throwUnknownDerivedAsBaseI()
     t.throwUnknownDerivedAsBase_async(cb)
-    test(cb.check())
+    cb.check()
     print "ok"
 
     print "forward-declared class... ",
@@ -1340,7 +1336,7 @@ def allTests(communicator):
     print "forward-declared class (AMI)... ",
     cb = AMI_Test_useForwardI()
     t.useForward_async(cb)
-    test(cb.check())
+    cb.check()
     print "ok"
 
     return t

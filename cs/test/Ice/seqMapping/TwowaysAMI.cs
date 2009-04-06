@@ -30,21 +30,16 @@ public class TwowaysAMI
             _called = false;
         }
 
-        public virtual bool check()
+        public virtual void check()
         {
             lock(this)
             {
                 while(!_called)
                 {
-                    Monitor.Wait(this, TimeSpan.FromMilliseconds(5000));
-
-                    if(!_called)
-                    {
-                        return false; // Must be timeout.
-                    }
+                    Monitor.Wait(this);
                 }
-
-                return true;
+        
+                _called = false;
             }
         }
 
@@ -80,9 +75,9 @@ public class TwowaysAMI
             test(false);
         }
 
-        public virtual bool check()
+        public virtual void check()
         {
-            return callback.check();
+            callback.check();
         }
 
         private byte[] _i;
@@ -108,9 +103,9 @@ public class TwowaysAMI
             test(false);
         }
 
-        public virtual bool check()
+        public virtual void check()
         {
-            return callback.check();
+             callback.check();
         }
 
         private List<byte> _i;
@@ -136,9 +131,9 @@ public class TwowaysAMI
             test(false);
         }
 
-        public virtual bool check()
+        public virtual void check()
         {
-            return callback.check();
+             callback.check();
         }
 
         private LinkedList<byte> _i;
@@ -164,9 +159,9 @@ public class TwowaysAMI
             test(false);
         }
 
-        public virtual bool check()
+        public virtual void check()
         {
-            return callback.check();
+             callback.check();
         }
 
         private Queue<byte> _i;
@@ -192,9 +187,9 @@ public class TwowaysAMI
             test(false);
         }
 
-        public virtual bool check()
+        public virtual void check()
         {
-            return callback.check();
+             callback.check();
         }
 
         private Stack<byte> _i;
@@ -220,9 +215,9 @@ public class TwowaysAMI
             test(false);
         }
 
-        public virtual bool check()
+        public virtual void check()
         {
-            return callback.check();
+             callback.check();
         }
 
         private CByteS _i;
@@ -248,9 +243,9 @@ public class TwowaysAMI
             test(false);
         }
 
-        public virtual bool check()
+        public virtual void check()
         {
-            return callback.check();
+             callback.check();
         }
 
         private bool[] _i;
@@ -276,9 +271,9 @@ public class TwowaysAMI
             test(false);
         }
 
-        public virtual bool check()
+        public virtual void check()
         {
-            return callback.check();
+             callback.check();
         }
 
         private List<bool> _i;
@@ -304,9 +299,9 @@ public class TwowaysAMI
             test(false);
         }
 
-        public virtual bool check()
+        public virtual void check()
         {
-            return callback.check();
+             callback.check();
         }
 
         private LinkedList<bool> _i;
@@ -332,9 +327,9 @@ public class TwowaysAMI
             test(false);
         }
 
-        public virtual bool check()
+        public virtual void check()
         {
-            return callback.check();
+             callback.check();
         }
 
         private Queue<bool> _i;
@@ -360,9 +355,9 @@ public class TwowaysAMI
             test(false);
         }
 
-        public virtual bool check()
+        public virtual void check()
         {
-            return callback.check();
+             callback.check();
         }
 
         private Stack<bool> _i;
@@ -388,9 +383,9 @@ public class TwowaysAMI
             test(false);
         }
 
-        public virtual bool check()
+        public virtual void check()
         {
-            return callback.check();
+             callback.check();
         }
 
         private CBoolS _i;
@@ -416,9 +411,9 @@ public class TwowaysAMI
             test(false);
         }
 
-        public virtual bool check()
+        public virtual void check()
         {
-            return callback.check();
+             callback.check();
         }
 
         private short[] _i;
@@ -444,9 +439,9 @@ public class TwowaysAMI
             test(false);
         }
 
-        public virtual bool check()
+        public virtual void check()
         {
-            return callback.check();
+             callback.check();
         }
 
         private List<short> _i;
@@ -472,9 +467,9 @@ public class TwowaysAMI
             test(false);
         }
 
-        public virtual bool check()
+        public virtual void check()
         {
-            return callback.check();
+             callback.check();
         }
 
         private LinkedList<short> _i;
@@ -500,9 +495,9 @@ public class TwowaysAMI
             test(false);
         }
 
-        public virtual bool check()
+        public virtual void check()
         {
-            return callback.check();
+             callback.check();
         }
 
         private Queue<short> _i;
@@ -528,9 +523,9 @@ public class TwowaysAMI
             test(false);
         }
 
-        public virtual bool check()
+        public virtual void check()
         {
-            return callback.check();
+             callback.check();
         }
 
         private Stack<short> _i;
@@ -556,9 +551,9 @@ public class TwowaysAMI
             test(false);
         }
 
-        public virtual bool check()
+        public virtual void check()
         {
-            return callback.check();
+             callback.check();
         }
 
         private CShortS _i;
@@ -584,9 +579,9 @@ public class TwowaysAMI
             test(false);
         }
 
-        public virtual bool check()
+        public virtual void check()
         {
-            return callback.check();
+             callback.check();
         }
 
         private int[] _i;
@@ -612,9 +607,9 @@ public class TwowaysAMI
             test(false);
         }
 
-        public virtual bool check()
+        public virtual void check()
         {
-            return callback.check();
+             callback.check();
         }
 
         private List<int> _i;
@@ -640,9 +635,9 @@ public class TwowaysAMI
             test(false);
         }
 
-        public virtual bool check()
+        public virtual void check()
         {
-            return callback.check();
+             callback.check();
         }
 
         private LinkedList<int> _i;
@@ -668,9 +663,9 @@ public class TwowaysAMI
             test(false);
         }
 
-        public virtual bool check()
+        public virtual void check()
         {
-            return callback.check();
+             callback.check();
         }
 
         private Queue<int> _i;
@@ -696,9 +691,9 @@ public class TwowaysAMI
             test(false);
         }
 
-        public virtual bool check()
+        public virtual void check()
         {
-            return callback.check();
+             callback.check();
         }
 
         private Stack<int> _i;
@@ -724,9 +719,9 @@ public class TwowaysAMI
             test(false);
         }
 
-        public virtual bool check()
+        public virtual void check()
         {
-            return callback.check();
+             callback.check();
         }
 
         private CIntS _i;
@@ -752,9 +747,9 @@ public class TwowaysAMI
             test(false);
         }
 
-        public virtual bool check()
+        public virtual void check()
         {
-            return callback.check();
+             callback.check();
         }
 
         private long[] _i;
@@ -780,9 +775,9 @@ public class TwowaysAMI
             test(false);
         }
 
-        public virtual bool check()
+        public virtual void check()
         {
-            return callback.check();
+             callback.check();
         }
 
         private List<long> _i;
@@ -808,9 +803,9 @@ public class TwowaysAMI
             test(false);
         }
 
-        public virtual bool check()
+        public virtual void check()
         {
-            return callback.check();
+             callback.check();
         }
 
         private LinkedList<long> _i;
@@ -836,9 +831,9 @@ public class TwowaysAMI
             test(false);
         }
 
-        public virtual bool check()
+        public virtual void check()
         {
-            return callback.check();
+             callback.check();
         }
 
         private Queue<long> _i;
@@ -864,9 +859,9 @@ public class TwowaysAMI
             test(false);
         }
 
-        public virtual bool check()
+        public virtual void check()
         {
-            return callback.check();
+             callback.check();
         }
 
         private Stack<long> _i;
@@ -892,9 +887,9 @@ public class TwowaysAMI
             test(false);
         }
 
-        public virtual bool check()
+        public virtual void check()
         {
-            return callback.check();
+             callback.check();
         }
 
         private CLongS _i;
@@ -920,9 +915,9 @@ public class TwowaysAMI
             test(false);
         }
 
-        public virtual bool check()
+        public virtual void check()
         {
-            return callback.check();
+             callback.check();
         }
 
         private float[] _i;
@@ -948,9 +943,9 @@ public class TwowaysAMI
             test(false);
         }
 
-        public virtual bool check()
+        public virtual void check()
         {
-            return callback.check();
+             callback.check();
         }
 
         private List<float> _i;
@@ -976,9 +971,9 @@ public class TwowaysAMI
             test(false);
         }
 
-        public virtual bool check()
+        public virtual void check()
         {
-            return callback.check();
+             callback.check();
         }
 
         private LinkedList<float> _i;
@@ -1004,9 +999,9 @@ public class TwowaysAMI
             test(false);
         }
 
-        public virtual bool check()
+        public virtual void check()
         {
-            return callback.check();
+             callback.check();
         }
 
         private Queue<float> _i;
@@ -1032,9 +1027,9 @@ public class TwowaysAMI
             test(false);
         }
 
-        public virtual bool check()
+        public virtual void check()
         {
-            return callback.check();
+             callback.check();
         }
 
         private Stack<float> _i;
@@ -1060,9 +1055,9 @@ public class TwowaysAMI
             test(false);
         }
 
-        public virtual bool check()
+        public virtual void check()
         {
-            return callback.check();
+             callback.check();
         }
 
         private CFloatS _i;
@@ -1088,9 +1083,9 @@ public class TwowaysAMI
             test(false);
         }
 
-        public virtual bool check()
+        public virtual void check()
         {
-            return callback.check();
+             callback.check();
         }
 
         private double[] _i;
@@ -1116,9 +1111,9 @@ public class TwowaysAMI
             test(false);
         }
 
-        public virtual bool check()
+        public virtual void check()
         {
-            return callback.check();
+             callback.check();
         }
 
         private List<double> _i;
@@ -1144,9 +1139,9 @@ public class TwowaysAMI
             test(false);
         }
 
-        public virtual bool check()
+        public virtual void check()
         {
-            return callback.check();
+             callback.check();
         }
 
         private LinkedList<double> _i;
@@ -1172,9 +1167,9 @@ public class TwowaysAMI
             test(false);
         }
 
-        public virtual bool check()
+        public virtual void check()
         {
-            return callback.check();
+             callback.check();
         }
 
         private Queue<double> _i;
@@ -1200,9 +1195,9 @@ public class TwowaysAMI
             test(false);
         }
 
-        public virtual bool check()
+        public virtual void check()
         {
-            return callback.check();
+             callback.check();
         }
 
         private Stack<double> _i;
@@ -1228,9 +1223,9 @@ public class TwowaysAMI
             test(false);
         }
 
-        public virtual bool check()
+        public virtual void check()
         {
-            return callback.check();
+             callback.check();
         }
 
         private CDoubleS _i;
@@ -1256,9 +1251,9 @@ public class TwowaysAMI
             test(false);
         }
 
-        public virtual bool check()
+        public virtual void check()
         {
-            return callback.check();
+             callback.check();
         }
 
         private string[] _i;
@@ -1284,9 +1279,9 @@ public class TwowaysAMI
             test(false);
         }
 
-        public virtual bool check()
+        public virtual void check()
         {
-            return callback.check();
+             callback.check();
         }
 
         private List<string> _i;
@@ -1312,9 +1307,9 @@ public class TwowaysAMI
             test(false);
         }
 
-        public virtual bool check()
+        public virtual void check()
         {
-            return callback.check();
+             callback.check();
         }
 
         private LinkedList<string> _i;
@@ -1340,9 +1335,9 @@ public class TwowaysAMI
             test(false);
         }
 
-        public virtual bool check()
+        public virtual void check()
         {
-            return callback.check();
+             callback.check();
         }
 
         private Queue<string> _i;
@@ -1368,9 +1363,9 @@ public class TwowaysAMI
             test(false);
         }
 
-        public virtual bool check()
+        public virtual void check()
         {
-            return callback.check();
+             callback.check();
         }
 
         private Stack<string> _i;
@@ -1396,9 +1391,9 @@ public class TwowaysAMI
             test(false);
         }
 
-        public virtual bool check()
+        public virtual void check()
         {
-            return callback.check();
+             callback.check();
         }
 
         private CStringS _i;
@@ -1431,9 +1426,9 @@ public class TwowaysAMI
             test(false);
         }
 
-        public virtual bool check()
+        public virtual void check()
         {
-            return callback.check();
+             callback.check();
         }
 
         private Ice.Object[] _i;
@@ -1466,9 +1461,9 @@ public class TwowaysAMI
             test(false);
         }
 
-        public virtual bool check()
+        public virtual void check()
         {
-            return callback.check();
+             callback.check();
         }
 
         private List<Ice.Object> _i;
@@ -1501,9 +1496,9 @@ public class TwowaysAMI
             test(false);
         }
 
-        public virtual bool check()
+        public virtual void check()
         {
-            return callback.check();
+             callback.check();
         }
 
         private CObjectS _i;
@@ -1529,9 +1524,9 @@ public class TwowaysAMI
             test(false);
         }
 
-        public virtual bool check()
+        public virtual void check()
         {
-            return callback.check();
+             callback.check();
         }
 
         private Ice.ObjectPrx[] _i;
@@ -1557,9 +1552,9 @@ public class TwowaysAMI
             test(false);
         }
 
-        public virtual bool check()
+        public virtual void check()
         {
-            return callback.check();
+             callback.check();
         }
 
         private List<Ice.ObjectPrx> _i;
@@ -1585,9 +1580,9 @@ public class TwowaysAMI
             test(false);
         }
 
-        public virtual bool check()
+        public virtual void check()
         {
-            return callback.check();
+             callback.check();
         }
 
         private LinkedList<Ice.ObjectPrx> _i;
@@ -1613,9 +1608,9 @@ public class TwowaysAMI
             test(false);
         }
 
-        public virtual bool check()
+        public virtual void check()
         {
-            return callback.check();
+             callback.check();
         }
 
         private Queue<Ice.ObjectPrx> _i;
@@ -1641,9 +1636,9 @@ public class TwowaysAMI
             test(false);
         }
 
-        public virtual bool check()
+        public virtual void check()
         {
-            return callback.check();
+             callback.check();
         }
 
         private Stack<Ice.ObjectPrx> _i;
@@ -1669,9 +1664,9 @@ public class TwowaysAMI
             test(false);
         }
 
-        public virtual bool check()
+        public virtual void check()
         {
-            return callback.check();
+             callback.check();
         }
 
         private CObjectPrxS _i;
@@ -1697,9 +1692,9 @@ public class TwowaysAMI
             test(false);
         }
 
-        public virtual bool check()
+        public virtual void check()
         {
-            return callback.check();
+             callback.check();
         }
 
         private S[] _i;
@@ -1725,9 +1720,9 @@ public class TwowaysAMI
             test(false);
         }
 
-        public virtual bool check()
+        public virtual void check()
         {
-            return callback.check();
+             callback.check();
         }
 
         private List<S> _i;
@@ -1753,9 +1748,9 @@ public class TwowaysAMI
             test(false);
         }
 
-        public virtual bool check()
+        public virtual void check()
         {
-            return callback.check();
+             callback.check();
         }
 
         private LinkedList<S> _i;
@@ -1781,9 +1776,9 @@ public class TwowaysAMI
             test(false);
         }
 
-        public virtual bool check()
+        public virtual void check()
         {
-            return callback.check();
+             callback.check();
         }
 
         private Queue<S> _i;
@@ -1809,9 +1804,9 @@ public class TwowaysAMI
             test(false);
         }
 
-        public virtual bool check()
+        public virtual void check()
         {
-            return callback.check();
+             callback.check();
         }
 
         private Stack<S> _i;
@@ -1837,9 +1832,9 @@ public class TwowaysAMI
             test(false);
         }
 
-        public virtual bool check()
+        public virtual void check()
         {
-            return callback.check();
+             callback.check();
         }
 
         private CStructS _i;
@@ -1872,9 +1867,9 @@ public class TwowaysAMI
             test(false);
         }
 
-        public virtual bool check()
+        public virtual void check()
         {
-            return callback.check();
+             callback.check();
         }
 
         private CV[] _i;
@@ -1907,9 +1902,9 @@ public class TwowaysAMI
             test(false);
         }
 
-        public virtual bool check()
+        public virtual void check()
         {
-            return callback.check();
+             callback.check();
         }
 
         private List<CV> _i;
@@ -1942,9 +1937,9 @@ public class TwowaysAMI
             test(false);
         }
 
-        public virtual bool check()
+        public virtual void check()
         {
-            return callback.check();
+             callback.check();
         }
 
         private CCVS _i;
@@ -1970,9 +1965,9 @@ public class TwowaysAMI
             test(false);
         }
 
-        public virtual bool check()
+        public virtual void check()
         {
-            return callback.check();
+             callback.check();
         }
 
         private CVPrx[] _i;
@@ -1998,9 +1993,9 @@ public class TwowaysAMI
             test(false);
         }
 
-        public virtual bool check()
+        public virtual void check()
         {
-            return callback.check();
+             callback.check();
         }
 
         private List<CVPrx> _i;
@@ -2026,9 +2021,9 @@ public class TwowaysAMI
             test(false);
         }
 
-        public virtual bool check()
+        public virtual void check()
         {
-            return callback.check();
+             callback.check();
         }
 
         private LinkedList<CVPrx> _i;
@@ -2054,9 +2049,9 @@ public class TwowaysAMI
             test(false);
         }
 
-        public virtual bool check()
+        public virtual void check()
         {
-            return callback.check();
+             callback.check();
         }
 
         private Queue<CVPrx> _i;
@@ -2082,9 +2077,9 @@ public class TwowaysAMI
             test(false);
         }
 
-        public virtual bool check()
+        public virtual void check()
         {
-            return callback.check();
+             callback.check();
         }
 
         private Stack<CVPrx> _i;
@@ -2110,9 +2105,9 @@ public class TwowaysAMI
             test(false);
         }
 
-        public virtual bool check()
+        public virtual void check()
         {
-            return callback.check();
+             callback.check();
         }
 
         private CCVPrxS _i;
@@ -2145,9 +2140,9 @@ public class TwowaysAMI
             test(false);
         }
 
-        public virtual bool check()
+        public virtual void check()
         {
-            return callback.check();
+             callback.check();
         }
 
         private CR[] _i;
@@ -2180,9 +2175,9 @@ public class TwowaysAMI
             test(false);
         }
 
-        public virtual bool check()
+        public virtual void check()
         {
-            return callback.check();
+             callback.check();
         }
 
         private List<CR> _i;
@@ -2215,9 +2210,9 @@ public class TwowaysAMI
             test(false);
         }
 
-        public virtual bool check()
+        public virtual void check()
         {
-            return callback.check();
+             callback.check();
         }
 
         private CCRS _i;
@@ -2243,9 +2238,9 @@ public class TwowaysAMI
             test(false);
         }
 
-        public virtual bool check()
+        public virtual void check()
         {
-            return callback.check();
+             callback.check();
         }
 
         private En[] _i;
@@ -2271,9 +2266,9 @@ public class TwowaysAMI
             test(false);
         }
 
-        public virtual bool check()
+        public virtual void check()
         {
-            return callback.check();
+             callback.check();
         }
 
         private List<En> _i;
@@ -2299,9 +2294,9 @@ public class TwowaysAMI
             test(false);
         }
 
-        public virtual bool check()
+        public virtual void check()
         {
-            return callback.check();
+             callback.check();
         }
 
         private LinkedList<En> _i;
@@ -2327,9 +2322,9 @@ public class TwowaysAMI
             test(false);
         }
 
-        public virtual bool check()
+        public virtual void check()
         {
-            return callback.check();
+             callback.check();
         }
 
         private Queue<En> _i;
@@ -2355,9 +2350,9 @@ public class TwowaysAMI
             test(false);
         }
 
-        public virtual bool check()
+        public virtual void check()
         {
-            return callback.check();
+             callback.check();
         }
 
         private Stack<En> _i;
@@ -2383,9 +2378,9 @@ public class TwowaysAMI
             test(false);
         }
 
-        public virtual bool check()
+        public virtual void check()
         {
-            return callback.check();
+             callback.check();
         }
 
         private CEnS _i;
@@ -2411,9 +2406,9 @@ public class TwowaysAMI
             test(false);
         }
 
-        public virtual bool check()
+        public virtual void check()
         {
-            return callback.check();
+             callback.check();
         }
 
         private Custom<int> _i;
@@ -2454,9 +2449,9 @@ public class TwowaysAMI
             test(false);
         }
 
-        public virtual bool check()
+        public virtual void check()
         {
-            return callback.check();
+             callback.check();
         }
 
         private Custom<CV> _i;
@@ -2482,9 +2477,9 @@ public class TwowaysAMI
             test(false);
         }
 
-        public virtual bool check()
+        public virtual void check()
         {
-            return callback.check();
+             callback.check();
         }
 
         private Custom<Custom<int>> _i;
@@ -2532,9 +2527,9 @@ public class TwowaysAMI
             test(false);
         }
 
-        public virtual bool check()
+        public virtual void check()
         {
-            return callback.check();
+             callback.check();
         }
 
         private Custom<Custom<CV>> _i;
@@ -2559,9 +2554,9 @@ public class TwowaysAMI
             test(ex is Ice.OperationNotExistException); // OK, talking to non-C# server.
         }
 
-        public virtual bool check()
+        public virtual void check()
         {
-            return callback.check();
+             callback.check();
         }
 
         private Callback callback = new Callback();
@@ -2585,9 +2580,9 @@ public class TwowaysAMI
             test(ex is Ice.OperationNotExistException); // OK, talking to non-C# server.
         }
 
-        public virtual bool check()
+        public virtual void check()
         {
-            return callback.check();
+             callback.check();
         }
 
         private Callback callback = new Callback();
@@ -2629,9 +2624,9 @@ public class TwowaysAMI
             test(ex is Ice.OperationNotExistException); // OK, talking to non-C# server.
         }
 
-        public virtual bool check()
+        public virtual void check()
         {
-            return callback.check();
+             callback.check();
         }
 
         private Callback callback = new Callback();
@@ -2665,9 +2660,9 @@ public class TwowaysAMI
             test(ex is Ice.OperationNotExistException); // OK, talking to non-C# server.
         }
 
-        public virtual bool check()
+        public virtual void check()
         {
-            return callback.check();
+             callback.check();
         }
 
         private Callback callback = new Callback();
@@ -2687,7 +2682,7 @@ public class TwowaysAMI
 
             AMI_MyClass_opAByteSI cb = new AMI_MyClass_opAByteSI(i);
             p.opAByteS_async(cb, i);
-            test(cb.check());
+            cb.check();
         }
 
         {
@@ -2699,7 +2694,7 @@ public class TwowaysAMI
 
             AMI_MyClass_opLByteSI cb = new AMI_MyClass_opLByteSI(i);
             p.opLByteS_async(cb, i);
-            test(cb.check());
+            cb.check();
         }
 
         {
@@ -2711,7 +2706,7 @@ public class TwowaysAMI
 
             AMI_MyClass_opKByteSI cb = new AMI_MyClass_opKByteSI(i);
             p.opKByteS_async(cb, i);
-            test(cb.check());
+            cb.check();
         }
 
         {
@@ -2723,7 +2718,7 @@ public class TwowaysAMI
 
             AMI_MyClass_opQByteSI cb = new AMI_MyClass_opQByteSI(i);
             p.opQByteS_async(cb, i);
-            test(cb.check());
+            cb.check();
         }
 
         {
@@ -2735,7 +2730,7 @@ public class TwowaysAMI
 
             AMI_MyClass_opSByteSI cb = new AMI_MyClass_opSByteSI(i);
             p.opSByteS_async(cb, i);
-            test(cb.check());
+            cb.check();
         }
 
         {
@@ -2747,7 +2742,7 @@ public class TwowaysAMI
 
             AMI_MyClass_opCByteSI cb = new AMI_MyClass_opCByteSI(i);
             p.opCByteS_async(cb, i);
-            test(cb.check());
+            cb.check();
         }
 
         {
@@ -2759,7 +2754,7 @@ public class TwowaysAMI
 
             AMI_MyClass_opABoolSI cb = new AMI_MyClass_opABoolSI(i);
             p.opABoolS_async(cb, i);
-            test(cb.check());
+            cb.check();
         }
 
         {
@@ -2771,7 +2766,7 @@ public class TwowaysAMI
 
             AMI_MyClass_opLBoolSI cb = new AMI_MyClass_opLBoolSI(i);
             p.opLBoolS_async(cb, i);
-            test(cb.check());
+            cb.check();
         }
 
         {
@@ -2783,7 +2778,7 @@ public class TwowaysAMI
 
             AMI_MyClass_opKBoolSI cb = new AMI_MyClass_opKBoolSI(i);
             p.opKBoolS_async(cb, i);
-            test(cb.check());
+            cb.check();
         }
 
         {
@@ -2795,7 +2790,7 @@ public class TwowaysAMI
 
             AMI_MyClass_opQBoolSI cb = new AMI_MyClass_opQBoolSI(i);
             p.opQBoolS_async(cb, i);
-            test(cb.check());
+            cb.check();
         }
 
         {
@@ -2807,7 +2802,7 @@ public class TwowaysAMI
 
             AMI_MyClass_opSBoolSI cb = new AMI_MyClass_opSBoolSI(i);
             p.opSBoolS_async(cb, i);
-            test(cb.check());
+            cb.check();
         }
 
         {
@@ -2819,7 +2814,7 @@ public class TwowaysAMI
 
             AMI_MyClass_opCBoolSI cb = new AMI_MyClass_opCBoolSI(i);
             p.opCBoolS_async(cb, i);
-            test(cb.check());
+            cb.check();
         }
 
         {
@@ -2831,7 +2826,7 @@ public class TwowaysAMI
 
             AMI_MyClass_opAShortSI cb = new AMI_MyClass_opAShortSI(i);
             p.opAShortS_async(cb, i);
-            test(cb.check());
+            cb.check();
         }
 
         {
@@ -2843,7 +2838,7 @@ public class TwowaysAMI
 
             AMI_MyClass_opLShortSI cb = new AMI_MyClass_opLShortSI(i);
             p.opLShortS_async(cb, i);
-            test(cb.check());
+            cb.check();
         }
 
         {
@@ -2855,7 +2850,7 @@ public class TwowaysAMI
 
             AMI_MyClass_opKShortSI cb = new AMI_MyClass_opKShortSI(i);
             p.opKShortS_async(cb, i);
-            test(cb.check());
+            cb.check();
         }
 
         {
@@ -2867,7 +2862,7 @@ public class TwowaysAMI
 
             AMI_MyClass_opQShortSI cb = new AMI_MyClass_opQShortSI(i);
             p.opQShortS_async(cb, i);
-            test(cb.check());
+            cb.check();
         }
 
         {
@@ -2879,7 +2874,7 @@ public class TwowaysAMI
 
             AMI_MyClass_opSShortSI cb = new AMI_MyClass_opSShortSI(i);
             p.opSShortS_async(cb, i);
-            test(cb.check());
+            cb.check();
         }
 
         {
@@ -2891,7 +2886,7 @@ public class TwowaysAMI
 
             AMI_MyClass_opCShortSI cb = new AMI_MyClass_opCShortSI(i);
             p.opCShortS_async(cb, i);
-            test(cb.check());
+            cb.check();
         }
 
         {
@@ -2903,7 +2898,7 @@ public class TwowaysAMI
 
             AMI_MyClass_opAIntSI cb = new AMI_MyClass_opAIntSI(i);
             p.opAIntS_async(cb, i);
-            test(cb.check());
+            cb.check();
         }
 
         {
@@ -2915,7 +2910,7 @@ public class TwowaysAMI
 
             AMI_MyClass_opLIntSI cb = new AMI_MyClass_opLIntSI(i);
             p.opLIntS_async(cb, i);
-            test(cb.check());
+            cb.check();
         }
 
         {
@@ -2927,7 +2922,7 @@ public class TwowaysAMI
 
             AMI_MyClass_opKIntSI cb = new AMI_MyClass_opKIntSI(i);
             p.opKIntS_async(cb, i);
-            test(cb.check());
+            cb.check();
         }
 
         {
@@ -2939,7 +2934,7 @@ public class TwowaysAMI
 
             AMI_MyClass_opQIntSI cb = new AMI_MyClass_opQIntSI(i);
             p.opQIntS_async(cb, i);
-            test(cb.check());
+            cb.check();
         }
 
         {
@@ -2951,7 +2946,7 @@ public class TwowaysAMI
 
             AMI_MyClass_opSIntSI cb = new AMI_MyClass_opSIntSI(i);
             p.opSIntS_async(cb, i);
-            test(cb.check());
+            cb.check();
         }
 
         {
@@ -2963,7 +2958,7 @@ public class TwowaysAMI
 
             AMI_MyClass_opCIntSI cb = new AMI_MyClass_opCIntSI(i);
             p.opCIntS_async(cb, i);
-            test(cb.check());
+            cb.check();
         }
 
         {
@@ -2975,7 +2970,7 @@ public class TwowaysAMI
 
             AMI_MyClass_opALongSI cb = new AMI_MyClass_opALongSI(i);
             p.opALongS_async(cb, i);
-            test(cb.check());
+            cb.check();
         }
 
         {
@@ -2987,7 +2982,7 @@ public class TwowaysAMI
 
             AMI_MyClass_opLLongSI cb = new AMI_MyClass_opLLongSI(i);
             p.opLLongS_async(cb, i);
-            test(cb.check());
+            cb.check();
         }
 
         {
@@ -2999,7 +2994,7 @@ public class TwowaysAMI
 
             AMI_MyClass_opKLongSI cb = new AMI_MyClass_opKLongSI(i);
             p.opKLongS_async(cb, i);
-            test(cb.check());
+            cb.check();
         }
 
         {
@@ -3011,7 +3006,7 @@ public class TwowaysAMI
 
             AMI_MyClass_opQLongSI cb = new AMI_MyClass_opQLongSI(i);
             p.opQLongS_async(cb, i);
-            test(cb.check());
+            cb.check();
         }
 
         {
@@ -3023,7 +3018,7 @@ public class TwowaysAMI
 
             AMI_MyClass_opSLongSI cb = new AMI_MyClass_opSLongSI(i);
             p.opSLongS_async(cb, i);
-            test(cb.check());
+            cb.check();
         }
 
         {
@@ -3035,7 +3030,7 @@ public class TwowaysAMI
 
             AMI_MyClass_opCLongSI cb = new AMI_MyClass_opCLongSI(i);
             p.opCLongS_async(cb, i);
-            test(cb.check());
+            cb.check();
         }
 
         {
@@ -3047,7 +3042,7 @@ public class TwowaysAMI
 
             AMI_MyClass_opAFloatSI cb = new AMI_MyClass_opAFloatSI(i);
             p.opAFloatS_async(cb, i);
-            test(cb.check());
+            cb.check();
         }
 
         {
@@ -3059,7 +3054,7 @@ public class TwowaysAMI
 
             AMI_MyClass_opLFloatSI cb = new AMI_MyClass_opLFloatSI(i);
             p.opLFloatS_async(cb, i);
-            test(cb.check());
+            cb.check();
         }
 
         {
@@ -3071,7 +3066,7 @@ public class TwowaysAMI
 
             AMI_MyClass_opKFloatSI cb = new AMI_MyClass_opKFloatSI(i);
             p.opKFloatS_async(cb, i);
-            test(cb.check());
+            cb.check();
         }
 
         {
@@ -3083,7 +3078,7 @@ public class TwowaysAMI
 
             AMI_MyClass_opQFloatSI cb = new AMI_MyClass_opQFloatSI(i);
             p.opQFloatS_async(cb, i);
-            test(cb.check());
+            cb.check();
         }
 
         {
@@ -3095,7 +3090,7 @@ public class TwowaysAMI
 
             AMI_MyClass_opSFloatSI cb = new AMI_MyClass_opSFloatSI(i);
             p.opSFloatS_async(cb, i);
-            test(cb.check());
+            cb.check();
         }
 
         {
@@ -3107,7 +3102,7 @@ public class TwowaysAMI
 
             AMI_MyClass_opCFloatSI cb = new AMI_MyClass_opCFloatSI(i);
             p.opCFloatS_async(cb, i);
-            test(cb.check());
+            cb.check();
         }
 
         {
@@ -3119,7 +3114,7 @@ public class TwowaysAMI
 
             AMI_MyClass_opADoubleSI cb = new AMI_MyClass_opADoubleSI(i);
             p.opADoubleS_async(cb, i);
-            test(cb.check());
+            cb.check();
         }
 
         {
@@ -3131,7 +3126,7 @@ public class TwowaysAMI
 
             AMI_MyClass_opLDoubleSI cb = new AMI_MyClass_opLDoubleSI(i);
             p.opLDoubleS_async(cb, i);
-            test(cb.check());
+            cb.check();
         }
 
         {
@@ -3143,7 +3138,7 @@ public class TwowaysAMI
 
             AMI_MyClass_opKDoubleSI cb = new AMI_MyClass_opKDoubleSI(i);
             p.opKDoubleS_async(cb, i);
-            test(cb.check());
+            cb.check();
         }
 
         {
@@ -3155,7 +3150,7 @@ public class TwowaysAMI
 
             AMI_MyClass_opQDoubleSI cb = new AMI_MyClass_opQDoubleSI(i);
             p.opQDoubleS_async(cb, i);
-            test(cb.check());
+            cb.check();
         }
 
         {
@@ -3167,7 +3162,7 @@ public class TwowaysAMI
 
             AMI_MyClass_opSDoubleSI cb = new AMI_MyClass_opSDoubleSI(i);
             p.opSDoubleS_async(cb, i);
-            test(cb.check());
+            cb.check();
         }
 
         {
@@ -3179,7 +3174,7 @@ public class TwowaysAMI
 
             AMI_MyClass_opCDoubleSI cb = new AMI_MyClass_opCDoubleSI(i);
             p.opCDoubleS_async(cb, i);
-            test(cb.check());
+            cb.check();
         }
 
         {
@@ -3191,7 +3186,7 @@ public class TwowaysAMI
 
             AMI_MyClass_opAStringSI cb = new AMI_MyClass_opAStringSI(i);
             p.opAStringS_async(cb, i);
-            test(cb.check());
+            cb.check();
         }
 
         {
@@ -3203,7 +3198,7 @@ public class TwowaysAMI
 
             AMI_MyClass_opLStringSI cb = new AMI_MyClass_opLStringSI(i);
             p.opLStringS_async(cb, i);
-            test(cb.check());
+            cb.check();
         }
 
         {
@@ -3215,7 +3210,7 @@ public class TwowaysAMI
 
             AMI_MyClass_opKStringSI cb = new AMI_MyClass_opKStringSI(i);
             p.opKStringS_async(cb, i);
-            test(cb.check());
+            cb.check();
         }
 
         {
@@ -3227,7 +3222,7 @@ public class TwowaysAMI
 
             AMI_MyClass_opQStringSI cb = new AMI_MyClass_opQStringSI(i);
             p.opQStringS_async(cb, i);
-            test(cb.check());
+            cb.check();
         }
 
         {
@@ -3239,7 +3234,7 @@ public class TwowaysAMI
 
             AMI_MyClass_opSStringSI cb = new AMI_MyClass_opSStringSI(i);
             p.opSStringS_async(cb, i);
-            test(cb.check());
+            cb.check();
         }
 
         {
@@ -3251,7 +3246,7 @@ public class TwowaysAMI
 
             AMI_MyClass_opCStringSI cb = new AMI_MyClass_opCStringSI(i);
             p.opCStringS_async(cb, i);
-            test(cb.check());
+            cb.check();
         }
 
         {
@@ -3263,7 +3258,7 @@ public class TwowaysAMI
 
             AMI_MyClass_opAObjectSI cb = new AMI_MyClass_opAObjectSI(i);
             p.opAObjectS_async(cb, i);
-            test(cb.check());
+            cb.check();
         }
 
         {
@@ -3275,7 +3270,7 @@ public class TwowaysAMI
 
             AMI_MyClass_opLObjectSI cb = new AMI_MyClass_opLObjectSI(i);
             p.opLObjectS_async(cb, i);
-            test(cb.check());
+            cb.check();
         }
 
         {
@@ -3287,7 +3282,7 @@ public class TwowaysAMI
 
             AMI_MyClass_opCObjectSI cb = new AMI_MyClass_opCObjectSI(i);
             p.opCObjectS_async(cb, i);
-            test(cb.check());
+            cb.check();
         }
 
         {
@@ -3299,7 +3294,7 @@ public class TwowaysAMI
 
             AMI_MyClass_opAObjectPrxSI cb = new AMI_MyClass_opAObjectPrxSI(i);
             p.opAObjectPrxS_async(cb, i);
-            test(cb.check());
+            cb.check();
         }
 
         {
@@ -3311,7 +3306,7 @@ public class TwowaysAMI
 
             AMI_MyClass_opLObjectPrxSI cb = new AMI_MyClass_opLObjectPrxSI(i);
             p.opLObjectPrxS_async(cb, i);
-            test(cb.check());
+            cb.check();
         }
 
         {
@@ -3323,7 +3318,7 @@ public class TwowaysAMI
 
             AMI_MyClass_opKObjectPrxSI cb = new AMI_MyClass_opKObjectPrxSI(i);
             p.opKObjectPrxS_async(cb, i);
-            test(cb.check());
+            cb.check();
         }
 
         {
@@ -3335,7 +3330,7 @@ public class TwowaysAMI
 
             AMI_MyClass_opQObjectPrxSI cb = new AMI_MyClass_opQObjectPrxSI(i);
             p.opQObjectPrxS_async(cb, i);
-            test(cb.check());
+            cb.check();
         }
 
         {
@@ -3347,7 +3342,7 @@ public class TwowaysAMI
 
             AMI_MyClass_opSObjectPrxSI cb = new AMI_MyClass_opSObjectPrxSI(i);
             p.opSObjectPrxS_async(cb, i);
-            test(cb.check());
+            cb.check();
         }
 
         {
@@ -3359,7 +3354,7 @@ public class TwowaysAMI
 
             AMI_MyClass_opCObjectPrxSI cb = new AMI_MyClass_opCObjectPrxSI(i);
             p.opCObjectPrxS_async(cb, i);
-            test(cb.check());
+            cb.check();
         }
 
         {
@@ -3371,7 +3366,7 @@ public class TwowaysAMI
 
             AMI_MyClass_opAStructSI cb = new AMI_MyClass_opAStructSI(i);
             p.opAStructS_async(cb, i);
-            test(cb.check());
+            cb.check();
         }
 
         {
@@ -3383,7 +3378,7 @@ public class TwowaysAMI
 
             AMI_MyClass_opLStructSI cb = new AMI_MyClass_opLStructSI(i);
             p.opLStructS_async(cb, i);
-            test(cb.check());
+            cb.check();
         }
 
         {
@@ -3395,7 +3390,7 @@ public class TwowaysAMI
 
             AMI_MyClass_opKStructSI cb = new AMI_MyClass_opKStructSI(i);
             p.opKStructS_async(cb, i);
-            test(cb.check());
+            cb.check();
         }
 
         {
@@ -3407,7 +3402,7 @@ public class TwowaysAMI
 
             AMI_MyClass_opQStructSI cb = new AMI_MyClass_opQStructSI(i);
             p.opQStructS_async(cb, i);
-            test(cb.check());
+            cb.check();
         }
 
         {
@@ -3419,7 +3414,7 @@ public class TwowaysAMI
 
             AMI_MyClass_opSStructSI cb = new AMI_MyClass_opSStructSI(i);
             p.opSStructS_async(cb, i);
-            test(cb.check());
+            cb.check();
         }
 
         {
@@ -3431,7 +3426,7 @@ public class TwowaysAMI
 
             AMI_MyClass_opCStructSI cb = new AMI_MyClass_opCStructSI(i);
             p.opCStructS_async(cb, i);
-            test(cb.check());
+            cb.check();
         }
 
         {
@@ -3443,7 +3438,7 @@ public class TwowaysAMI
 
             AMI_MyClass_opACVSI cb = new AMI_MyClass_opACVSI(i);
             p.opACVS_async(cb, i);
-            test(cb.check());
+            cb.check();
         }
 
         {
@@ -3455,7 +3450,7 @@ public class TwowaysAMI
 
             AMI_MyClass_opLCVSI cb = new AMI_MyClass_opLCVSI(i);
             p.opLCVS_async(cb, i);
-            test(cb.check());
+            cb.check();
         }
 
         {
@@ -3467,7 +3462,7 @@ public class TwowaysAMI
 
             AMI_MyClass_opCCVSI cb = new AMI_MyClass_opCCVSI(i);
             p.opCCVS_async(cb, i);
-            test(cb.check());
+            cb.check();
         }
 
         {
@@ -3479,7 +3474,7 @@ public class TwowaysAMI
 
             AMI_MyClass_opACVPrxSI cb = new AMI_MyClass_opACVPrxSI(i);
             p.opACVPrxS_async(cb, i);
-            test(cb.check());
+            cb.check();
         }
 
         {
@@ -3491,7 +3486,7 @@ public class TwowaysAMI
 
             AMI_MyClass_opLCVPrxSI cb = new AMI_MyClass_opLCVPrxSI(i);
             p.opLCVPrxS_async(cb, i);
-            test(cb.check());
+            cb.check();
         }
 
         {
@@ -3503,7 +3498,7 @@ public class TwowaysAMI
 
             AMI_MyClass_opKCVPrxSI cb = new AMI_MyClass_opKCVPrxSI(i);
             p.opKCVPrxS_async(cb, i);
-            test(cb.check());
+            cb.check();
         }
 
         {
@@ -3515,7 +3510,7 @@ public class TwowaysAMI
 
             AMI_MyClass_opQCVPrxSI cb = new AMI_MyClass_opQCVPrxSI(i);
             p.opQCVPrxS_async(cb, i);
-            test(cb.check());
+            cb.check();
         }
 
         {
@@ -3527,7 +3522,7 @@ public class TwowaysAMI
 
             AMI_MyClass_opSCVPrxSI cb = new AMI_MyClass_opSCVPrxSI(i);
             p.opSCVPrxS_async(cb, i);
-            test(cb.check());
+            cb.check();
         }
 
         {
@@ -3539,7 +3534,7 @@ public class TwowaysAMI
 
             AMI_MyClass_opCCVPrxSI cb = new AMI_MyClass_opCCVPrxSI(i);
             p.opCCVPrxS_async(cb, i);
-            test(cb.check());
+            cb.check();
         }
 
         {
@@ -3551,7 +3546,7 @@ public class TwowaysAMI
 
             AMI_MyClass_opACRSI cb = new AMI_MyClass_opACRSI(i);
             p.opACRS_async(cb, i);
-            test(cb.check());
+            cb.check();
         }
 
         {
@@ -3563,7 +3558,7 @@ public class TwowaysAMI
 
             AMI_MyClass_opLCRSI cb = new AMI_MyClass_opLCRSI(i);
             p.opLCRS_async(cb, i);
-            test(cb.check());
+            cb.check();
         }
 
         {
@@ -3575,7 +3570,7 @@ public class TwowaysAMI
 
             AMI_MyClass_opCCRSI cb = new AMI_MyClass_opCCRSI(i);
             p.opCCRS_async(cb, i);
-            test(cb.check());
+            cb.check();
         }
 
         {
@@ -3587,7 +3582,7 @@ public class TwowaysAMI
 
             AMI_MyClass_opAEnSI cb = new AMI_MyClass_opAEnSI(i);
             p.opAEnS_async(cb, i);
-            test(cb.check());
+            cb.check();
         }
 
         {
@@ -3599,7 +3594,7 @@ public class TwowaysAMI
 
             AMI_MyClass_opLEnSI cb = new AMI_MyClass_opLEnSI(i);
             p.opLEnS_async(cb, i);
-            test(cb.check());
+            cb.check();
         }
 
         {
@@ -3611,7 +3606,7 @@ public class TwowaysAMI
 
             AMI_MyClass_opKEnSI cb = new AMI_MyClass_opKEnSI(i);
             p.opKEnS_async(cb, i);
-            test(cb.check());
+            cb.check();
         }
 
         {
@@ -3623,7 +3618,7 @@ public class TwowaysAMI
 
             AMI_MyClass_opQEnSI cb = new AMI_MyClass_opQEnSI(i);
             p.opQEnS_async(cb, i);
-            test(cb.check());
+            cb.check();
         }
 
         {
@@ -3635,7 +3630,7 @@ public class TwowaysAMI
 
             AMI_MyClass_opSEnSI cb = new AMI_MyClass_opSEnSI(i);
             p.opSEnS_async(cb, i);
-            test(cb.check());
+            cb.check();
         }
 
         {
@@ -3647,7 +3642,7 @@ public class TwowaysAMI
 
             AMI_MyClass_opCEnSI cb = new AMI_MyClass_opCEnSI(i);
             p.opCEnS_async(cb, i);
-            test(cb.check());
+            cb.check();
         }
 
         {
@@ -3659,7 +3654,7 @@ public class TwowaysAMI
 
             AMI_MyClass_opCustomIntSI cb = new AMI_MyClass_opCustomIntSI(i);
             p.opCustomIntS_async(cb, i);
-            test(cb.check());
+            cb.check();
         }
 
         {
@@ -3671,7 +3666,7 @@ public class TwowaysAMI
 
             AMI_MyClass_opCustomCVSI cb = new AMI_MyClass_opCustomCVSI(i);
             p.opCustomCVS_async(cb, i);
-            test(cb.check());
+            cb.check();
         }
 
         {
@@ -3688,7 +3683,7 @@ public class TwowaysAMI
 
             AMI_MyClass_opCustomIntSSI cb = new AMI_MyClass_opCustomIntSSI(i);
             p.opCustomIntSS_async(cb, i);
-            test(cb.check());
+            cb.check();
         }
 
         {
@@ -3705,7 +3700,7 @@ public class TwowaysAMI
 
             AMI_MyClass_opCustomCVSSI cb = new AMI_MyClass_opCustomCVSSI(i);
             p.opCustomCVSS_async(cb, i);
-            test(cb.check());
+            cb.check();
         }
 
         {
@@ -3713,7 +3708,7 @@ public class TwowaysAMI
 
             AMI_MyClass_opSerialSmallCSharpNull cb = new AMI_MyClass_opSerialSmallCSharpNull();
             p.opSerialSmallCSharp_async(cb, i);
-            test(cb.check());
+            cb.check();
         }
 
         {
@@ -3722,7 +3717,7 @@ public class TwowaysAMI
 
             AMI_MyClass_opSerialSmallCSharp cb = new AMI_MyClass_opSerialSmallCSharp();
             p.opSerialSmallCSharp_async(cb, i);
-            test(cb.check());
+            cb.check();
         }
 
         {
@@ -3740,7 +3735,7 @@ public class TwowaysAMI
 
             AMI_MyClass_opSerialLargeCSharp cb = new AMI_MyClass_opSerialLargeCSharp();
             p.opSerialLargeCSharp_async(cb, i);
-            test(cb.check());
+            cb.check();
         }
 
         {
@@ -3752,7 +3747,7 @@ public class TwowaysAMI
 
             AMI_MyClass_opSerialStructCSharp cb = new AMI_MyClass_opSerialStructCSharp();
             p.opSerialStructCSharp_async(cb, i);
-            test(cb.check());
+            cb.check();
         }
     }
 }

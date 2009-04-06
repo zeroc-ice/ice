@@ -42,12 +42,8 @@ class CallbackBase:
         self._cond.acquire()
         try:
             while not self._called:
-                self._cond.wait(5.0)
-            if self._called:
-                self._called = False
-                return True;
-            else:
-                return False
+                self._cond.wait()
+            self._called = False
         finally:
             self._cond.release()
 
@@ -591,33 +587,33 @@ def allTests(communicator):
 
     cb = AMI_Thrower_throwAasAI()
     thrower.throwAasA_async(cb, 1)
-    test(cb.check())
+    cb.check()
     # Let's check if we can reuse the same callback object for another call.
     thrower.throwAasA_async(cb, 1)
-    test(cb.check())
+    cb.check()
 
     cb = AMI_Thrower_throwAorDasAorDI()
     thrower.throwAorDasAorD_async(cb, 1)
-    test(cb.check())
+    cb.check()
 
     cb = AMI_Thrower_throwAorDasAorDI()
     thrower.throwAorDasAorD_async(cb, -1)
-    test(cb.check())
+    cb.check()
 
     cb = AMI_Thrower_throwBasBI()
     thrower.throwBasB_async(cb, 1, 2)
-    test(cb.check())
+    cb.check()
 
     cb = AMI_Thrower_throwCasCI()
     thrower.throwCasC_async(cb, 1, 2, 3)
-    test(cb.check())
+    cb.check()
     # Let's check if we can reuse the same callback object for another call.
     thrower.throwCasC_async(cb, 1, 2, 3)
-    test(cb.check())
+    cb.check()
 
     cb = AMI_Thrower_throwModAI()
     thrower.throwModA_async(cb, 1, 2)
-    test(cb.check())
+    cb.check()
 
     print "ok"
 
@@ -625,15 +621,15 @@ def allTests(communicator):
 
     cb = AMI_Thrower_throwBasAI()
     thrower.throwBasA_async(cb, 1, 2)
-    test(cb.check())
+    cb.check()
 
     cb = AMI_Thrower_throwCasAI()
     thrower.throwCasA_async(cb, 1, 2, 3)
-    test(cb.check())
+    cb.check()
 
     cb = AMI_Thrower_throwCasBI()
     thrower.throwCasB_async(cb, 1, 2, 3)
-    test(cb.check())
+    cb.check()
 
     print "ok"
 
@@ -642,15 +638,15 @@ def allTests(communicator):
 
         cb = AMI_Thrower_throwUndeclaredAI()
         thrower.throwUndeclaredA_async(cb, 1)
-        test(cb.check())
+        cb.check()
 
         cb = AMI_Thrower_throwUndeclaredBI()
         thrower.throwUndeclaredB_async(cb, 1, 2)
-        test(cb.check())
+        cb.check()
 
         cb = AMI_Thrower_throwUndeclaredCI()
         thrower.throwUndeclaredC_async(cb, 1, 2, 3)
-        test(cb.check())
+        cb.check()
 
         print "ok"
 
@@ -660,7 +656,7 @@ def allTests(communicator):
     thrower2 = Test.ThrowerPrx.uncheckedCast(thrower.ice_identity(id))
     cb = AMI_Thrower_throwAasAObjectNotExistI(communicator)
     thrower2.throwAasA_async(cb, 1)
-    test(cb.check())
+    cb.check()
 
     print "ok"
 
@@ -669,7 +665,7 @@ def allTests(communicator):
     thrower2 = Test.ThrowerPrx.uncheckedCast(thrower, "no such facet")
     cb = AMI_Thrower_throwAasAFacetNotExistI()
     thrower2.throwAasA_async(cb, 1)
-    test(cb.check())
+    cb.check()
 
     print "ok"
 
@@ -678,7 +674,7 @@ def allTests(communicator):
     cb = AMI_WrongOperation_noSuchOperationI()
     thrower4 = Test.WrongOperationPrx.uncheckedCast(thrower)
     thrower4.noSuchOperation_async(cb)
-    test(cb.check())
+    cb.check()
 
     print "ok"
 
@@ -686,7 +682,7 @@ def allTests(communicator):
 
     cb = AMI_Thrower_throwLocalExceptionI()
     thrower.throwLocalException_async(cb)
-    test(cb.check())
+    cb.check()
 
     print "ok"
 
@@ -694,7 +690,7 @@ def allTests(communicator):
 
     cb = AMI_Thrower_throwNonIceExceptionI()
     thrower.throwNonIceException_async(cb)
-    test(cb.check())
+    cb.check()
 
     print "ok"
 

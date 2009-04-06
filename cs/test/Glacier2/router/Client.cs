@@ -223,7 +223,7 @@ public class Client
                 Dictionary<string, string> context = new Dictionary<string, string>();
                 context["_fwd"] =  "o";
                 oneway.initiateCallback(onewayR, context);
-                test(callbackReceiverImpl.callbackOK());
+                callbackReceiverImpl.callbackOK();
                 Console.Out.WriteLine("ok");
             }
 
@@ -233,7 +233,7 @@ public class Client
                 Dictionary<string, string> context = new Dictionary<string, string>();
                 context["_fwd"] = "t";
                 twoway.initiateCallback(twowayR, context);
-                test(callbackReceiverImpl.callbackOK());
+                callbackReceiverImpl.callbackOK();
                 Console.Out.WriteLine("ok");
             }
 
@@ -252,7 +252,7 @@ public class Client
                     test(ex.someValue == 3.14);
                     test(ex.someString.Equals("3.14"));
                 }
-                test(callbackReceiverImpl.callbackOK());
+                callbackReceiverImpl.callbackOK();
                 Console.Out.WriteLine("ok");
             }
 
@@ -280,7 +280,7 @@ public class Client
                 CallbackPrx otherCategoryTwoway = CallbackPrxHelper.uncheckedCast(
                     twoway.ice_identity(communicator().stringToIdentity("c2/callback")));
                 otherCategoryTwoway.initiateCallback(twowayR, context);
-                test(callbackReceiverImpl.callbackOK());
+                callbackReceiverImpl.callbackOK();
                 Console.Out.WriteLine("ok");
             }
             
@@ -310,7 +310,7 @@ public class Client
                 CallbackPrx otherCategoryTwoway = CallbackPrxHelper.uncheckedCast(
                     twoway.ice_identity(communicator().stringToIdentity("_userid/callback")));
                 otherCategoryTwoway.initiateCallback(twowayR, context);
-                test(callbackReceiverImpl.callbackOK());
+                callbackReceiverImpl.callbackOK();
                 Console.Out.WriteLine("ok");
             }
             

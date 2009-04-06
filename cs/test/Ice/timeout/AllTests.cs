@@ -28,22 +28,16 @@ public class AllTests
             _called = false;
         }
 
-        public bool check()
+        public void check()
         {
             lock(this)
             {
                 while(!_called)
                 {
-                    Monitor.Wait(this, 5000);
-
-                    if(!_called)
-                    {
-                        return false; // Must be timeout.
-                    }
+                    Monitor.Wait(this);
                 }
 
                 _called = false;
-                return true;
             }
         }
 
@@ -72,9 +66,9 @@ public class AllTests
             test(false);
         }
 
-        public bool check()
+        public void check()
         {
-            return callback.check();
+            callback.check();
         }
 
         private Callback callback = new Callback();
@@ -93,9 +87,9 @@ public class AllTests
             callback.called();
         }
 
-        public bool check()
+        public void check()
         {
-            return callback.check();
+            callback.check();
         }
 
         private Callback callback = new Callback();
@@ -113,9 +107,9 @@ public class AllTests
             test(false);
         }
 
-        public bool check()
+        public void check()
         {
-            return callback.check();
+            callback.check();
         }
 
         private Callback callback = new Callback();
@@ -134,9 +128,9 @@ public class AllTests
             callback.called();
         }
 
-        public bool check()
+        public void check()
         {
-            return callback.check();
+            callback.check();
         }
 
         private Callback callback = new Callback();
@@ -270,7 +264,7 @@ public class AllTests
             Test.TimeoutPrx to = Test.TimeoutPrxHelper.uncheckedCast(obj.ice_timeout(500));
             AMISleepEx cb = new AMISleepEx();
             to.sleep_async(cb, 2000);
-            test(cb.check());
+            cb.check();
         }
         {
             //
@@ -280,7 +274,7 @@ public class AllTests
             Test.TimeoutPrx to = Test.TimeoutPrxHelper.uncheckedCast(obj.ice_timeout(1000));
             AMISleep cb = new AMISleep();
             to.sleep_async(cb, 500);
-            test(cb.check());
+            cb.check();
         }
         Console.Out.WriteLine("ok");
 
@@ -295,7 +289,7 @@ public class AllTests
             byte[] seq = new byte[100000];
             AMISendDataEx cb = new AMISendDataEx();
             to.sendData_async(cb, seq);
-            test(cb.check());
+            cb.check();
         }
         {
             //
@@ -307,7 +301,7 @@ public class AllTests
             byte[] seq = new byte[100000];
             AMISendData cb = new AMISendData();
             to.sendData_async(cb, seq);
-            test(cb.check());
+            cb.check();
         }
         Console.Out.WriteLine("ok");
 

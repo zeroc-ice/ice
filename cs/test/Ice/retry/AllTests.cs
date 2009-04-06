@@ -28,22 +28,16 @@ public class AllTests
             _called = false;
         }
 
-        public bool check()
+        public void check()
         {
             lock(this)
             {
                 while(!_called)
                 {
-                    Monitor.Wait(this, TimeSpan.FromMilliseconds(5000));
-
-                    if(!_called)
-                    {
-                        return false; // Must be timeout.
-                    }
+                    Monitor.Wait(this);
                 }
 
                 _called = false;
-                return true;
             }
         }
 
@@ -72,9 +66,9 @@ public class AllTests
             test(false);
         }
 
-        public bool check()
+        public void check()
         {
-            return callback.check();
+            callback.check();
         }
 
         private Callback callback = new Callback();
@@ -93,9 +87,9 @@ public class AllTests
             callback.called();
         }
 
-        public bool check()
+        public void check()
         {
-            return callback.check();
+            callback.check();
         }
 
         private Callback callback = new Callback();
@@ -149,17 +143,17 @@ public class AllTests
 
         Console.Out.Write("calling regular AMI operation with first proxy... ");
         retry1.op_async(cb1, false);
-        test(cb1.check());
+        cb1.check();
         Console.Out.WriteLine("ok");
 
         Console.Out.Write("calling AMI operation to kill connection with second proxy... ");
         retry2.op_async(cb2, true);
-        test(cb2.check());
+        cb2.check();
         Console.Out.WriteLine("ok");
 
         Console.Out.Write("calling regular AMI operation with first proxy again... ");
         retry1.op_async(cb1, false);
-        test(cb1.check());
+        cb1.check();
         Console.Out.WriteLine("ok");
 
         return retry1;

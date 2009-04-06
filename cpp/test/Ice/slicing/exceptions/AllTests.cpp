@@ -27,18 +27,14 @@ public:
     {
     }
 
-    bool check()
+    void check()
     {
         IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
         while(!_called)
         {
-            if(!timedWait(IceUtil::Time::seconds(5)))
-            {
-                return false;
-            }
+            wait();
         }
         _called = false;
-        return true;
     }
 
 protected:
@@ -495,7 +491,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
     {
         AMI_Test_baseAsBaseIPtr cb = new AMI_Test_baseAsBaseI;
         test->baseAsBase_async(cb);
-        test(cb->check());
+        cb->check();
     }
     cout << "ok" << endl;
 
@@ -522,7 +518,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
     {
         AMI_Test_unknownDerivedAsBaseIPtr cb = new AMI_Test_unknownDerivedAsBaseI;
         test->unknownDerivedAsBase_async(cb);
-        test(cb->check());
+        cb->check();
     }
     cout << "ok" << endl;
 
@@ -550,7 +546,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
     {
         AMI_Test_knownDerivedAsBaseIPtr cb = new AMI_Test_knownDerivedAsBaseI;
         test->knownDerivedAsBase_async(cb);
-        test(cb->check());
+        cb->check();
     }
     cout << "ok" << endl;
 
@@ -578,7 +574,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
     {
         AMI_Test_knownDerivedAsKnownDerivedIPtr cb = new AMI_Test_knownDerivedAsKnownDerivedI;
         test->knownDerivedAsKnownDerived_async(cb);
-        test(cb->check());
+        cb->check();
     }
     cout << "ok" << endl;
 
@@ -605,7 +601,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
     {
         AMI_Test_unknownIntermediateAsBaseIPtr cb = new AMI_Test_unknownIntermediateAsBaseI;
         test->unknownIntermediateAsBase_async(cb);
-        test(cb->check());
+        cb->check();
     }
     cout << "ok" << endl;
 
@@ -633,7 +629,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
     {
         AMI_Test_knownIntermediateAsBaseIPtr cb = new AMI_Test_knownIntermediateAsBaseI;
         test->knownIntermediateAsBase_async(cb);
-        test(cb->check());
+        cb->check();
     }
     cout << "ok" << endl;
 
@@ -662,7 +658,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
     {
         AMI_Test_knownMostDerivedAsBaseIPtr cb = new AMI_Test_knownMostDerivedAsBaseI;
         test->knownMostDerivedAsBase_async(cb);
-        test(cb->check());
+        cb->check();
     }
     cout << "ok" << endl;
 
@@ -690,7 +686,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
     {
         AMI_Test_knownIntermediateAsKnownIntermediateIPtr cb = new AMI_Test_knownIntermediateAsKnownIntermediateI;
         test->knownIntermediateAsKnownIntermediate_async(cb);
-        test(cb->check());
+        cb->check();
     }
     cout << "ok" << endl;
 
@@ -719,7 +715,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
     {
         AMI_Test_knownMostDerivedAsKnownIntermediateIPtr cb = new AMI_Test_knownMostDerivedAsKnownIntermediateI;
         test->knownMostDerivedAsKnownIntermediate_async(cb);
-        test(cb->check());
+        cb->check();
     }
     cout << "ok" << endl;
 
@@ -748,7 +744,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
     {
         AMI_Test_knownMostDerivedAsKnownMostDerivedIPtr cb = new AMI_Test_knownMostDerivedAsKnownMostDerivedI;
         test->knownMostDerivedAsKnownMostDerived_async(cb);
-        test(cb->check());
+        cb->check();
     }
     cout << "ok" << endl;
 
@@ -776,7 +772,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
     {
         AMI_Test_unknownMostDerived1AsBaseIPtr cb = new AMI_Test_unknownMostDerived1AsBaseI;
         test->unknownMostDerived1AsBase_async(cb);
-        test(cb->check());
+        cb->check();
     }
     cout << "ok" << endl;
 
@@ -804,7 +800,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
     {
         AMI_Test_unknownMostDerived1AsKnownIntermediateIPtr cb = new AMI_Test_unknownMostDerived1AsKnownIntermediateI;
         test->unknownMostDerived1AsKnownIntermediate_async(cb);
-        test(cb->check());
+        cb->check();
     }
     cout << "ok" << endl;
 
@@ -831,7 +827,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
     {
         AMI_Test_unknownMostDerived2AsBaseIPtr cb = new AMI_Test_unknownMostDerived2AsBaseI;
         test->unknownMostDerived2AsBase_async(cb);
-        test(cb->check());
+        cb->check();
     }
     cout << "ok" << endl;
 

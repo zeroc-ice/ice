@@ -30,11 +30,11 @@ public:
     virtual void waitCallback(const ::Ice::Current&);
     virtual void callbackWithPayload(const Ice::ByteSeq&, const ::Ice::Current&);
 
-    bool callbackOK();
-    bool waitCallbackOK();
-    bool callbackWithPayloadOK();
+    void callbackOK();
+    void waitCallbackOK();
+    void callbackWithPayloadOK();
     void notifyWaitCallback();
-    bool answerConcurrentCallbacks(unsigned int);
+    void answerConcurrentCallbacks(unsigned int);
 
 private:
 

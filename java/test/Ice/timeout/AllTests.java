@@ -34,28 +34,21 @@ public class AllTests
             _called = false;
         }
 
-        public synchronized boolean
+        public synchronized void
         check()
         {
             while(!_called)
             {
                 try
                 {
-                    wait(5000);
+                    wait();
                 }
                 catch(InterruptedException ex)
                 {
-                    continue;
-                }
-
-                if(!_called)
-                {
-                    return false; // Must be timeout.
                 }
             }
 
             _called = false;
-            return true;
         }
 
         public synchronized void
@@ -83,10 +76,10 @@ public class AllTests
             test(false);
         }
 
-        public boolean
+        public void
         check()
         {
-            return callback.check();
+            callback.check();
         }
 
         private Callback callback = new Callback();
@@ -107,10 +100,10 @@ public class AllTests
             callback.called();
         }
 
-        public boolean
+        public void
         check()
         {
-            return callback.check();
+            callback.check();
         }
 
         private Callback callback = new Callback();
@@ -130,10 +123,10 @@ public class AllTests
             test(false);
         }
 
-        public boolean
+        public void
         check()
         {
-            return callback.check();
+            callback.check();
         }
 
         private Callback callback = new Callback();
@@ -154,10 +147,10 @@ public class AllTests
             callback.called();
         }
 
-        public boolean
+        public void
         check()
         {
-            return callback.check();
+            callback.check();
         }
 
         private Callback callback = new Callback();
@@ -308,7 +301,7 @@ public class AllTests
             TimeoutPrx to = TimeoutPrxHelper.uncheckedCast(obj.ice_timeout(500 * mult));
             AMISleepEx cb = new AMISleepEx();
             to.sleep_async(cb, 2000 * mult);
-            test(cb.check());
+            cb.check();
         }
         {
             //
@@ -318,7 +311,7 @@ public class AllTests
             TimeoutPrx to = TimeoutPrxHelper.uncheckedCast(obj.ice_timeout(1500 * mult));
             AMISleep cb = new AMISleep();
             to.sleep_async(cb, 500 * mult);
-            test(cb.check());
+            cb.check();
         }
         out.println("ok");
 
@@ -341,7 +334,7 @@ public class AllTests
             }
             AMISendDataEx cb = new AMISendDataEx();
             to.sendData_async(cb, seq);
-            test(cb.check());
+            cb.check();
         }
         {
             //
@@ -361,7 +354,7 @@ public class AllTests
             }
             AMISendData cb = new AMISendData();
             to.sendData_async(cb, seq);
-            test(cb.check());
+            cb.check();
         }
         out.println("ok");
 

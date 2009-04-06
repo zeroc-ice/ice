@@ -28,18 +28,14 @@ public:
     {
     }
 
-    bool check()
+    void check()
     {
         IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
         while(!_called)
         {
-            if(!timedWait(IceUtil::Time::seconds(5)))
-            {
-                return false;
-            }
+            wait();
         }
         _called = false;
-        return true;
     }
 
 protected:
@@ -1558,7 +1554,7 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
 
             AMI_TestIntf_opBoolArrayIPtr cb = new AMI_TestIntf_opBoolArrayI(in);
             t->opBoolArray_async(cb, inPair);
-            test(cb->check());
+            cb->check();
         }
 
         {
@@ -1572,7 +1568,7 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
 
             AMI_TestIntf_opByteArrayIPtr cb = new AMI_TestIntf_opByteArrayI(inPair);
             t->opByteArray_async(cb, inPair);
-            test(cb->check());
+            cb->check();
         }
 
         {
@@ -1592,7 +1588,7 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
 
             AMI_TestIntf_opVariableArrayIPtr cb = new AMI_TestIntf_opVariableArrayI(in);
             t->opVariableArray_async(cb, inPair);
-            test(cb->check());
+            cb->check();
         }
 
         {
@@ -1606,7 +1602,7 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
 
             AMI_TestIntf_opBoolRangeIPtr cb = new AMI_TestIntf_opBoolRangeI(in);
             t->opBoolRange_async(cb, inPair);
-            test(cb->check());
+            cb->check();
         }
 
         {
@@ -1620,7 +1616,7 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
 
             AMI_TestIntf_opByteRangeIPtr cb = new AMI_TestIntf_opByteRangeI(in);
             t->opByteRange_async(cb, inPair);
-            test(cb->check());
+            cb->check();
         }
 
         {
@@ -1640,7 +1636,7 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
 
             AMI_TestIntf_opVariableRangeIPtr cb = new AMI_TestIntf_opVariableRangeI(in);
             t->opVariableRange_async(cb, inPair);
-            test(cb->check());
+            cb->check();
         }
 
         {
@@ -1659,7 +1655,7 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
 
             AMI_TestIntf_opBoolRangeTypeIPtr cb = new AMI_TestIntf_opBoolRangeTypeI(in);
             t->opBoolRangeType_async(cb, inPair);
-            test(cb->check());
+            cb->check();
         }
 
         {
@@ -1673,7 +1669,7 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
 
             AMI_TestIntf_opByteRangeTypeIPtr cb = new AMI_TestIntf_opByteRangeTypeI(in);
             t->opByteRangeType_async(cb, inPair);
-            test(cb->check());
+            cb->check();
         }
 
         {
@@ -1700,7 +1696,7 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
 
             AMI_TestIntf_opVariableRangeTypeIPtr cb = new AMI_TestIntf_opVariableRangeTypeI(in);
             t->opVariableRangeType_async(cb, inPair);
-            test(cb->check());
+            cb->check();
         }
 
         {
@@ -1713,7 +1709,7 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
 
             AMI_TestIntf_opBoolSeqIPtr cb = new AMI_TestIntf_opBoolSeqI(in);
             t->opBoolSeq_async(cb, in);
-            test(cb->check());
+            cb->check();
         }
 
         {
@@ -1726,7 +1722,7 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
 
             AMI_TestIntf_opBoolListIPtr cb = new AMI_TestIntf_opBoolListI(in);
             t->opBoolList_async(cb, in);
-            test(cb->check());
+            cb->check();
         }
 
         {
@@ -1739,7 +1735,7 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
 
             AMI_TestIntf_opByteSeqIPtr cb = new AMI_TestIntf_opByteSeqI(in);
             t->opByteSeq_async(cb, in);
-            test(cb->check());
+            cb->check();
         }
 
         {
@@ -1752,7 +1748,7 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
 
             AMI_TestIntf_opByteListIPtr cb = new AMI_TestIntf_opByteListI(in);
             t->opByteList_async(cb, in);
-            test(cb->check());
+            cb->check();
         }
 
         {
@@ -1765,7 +1761,7 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
 
             AMI_TestIntf_opMyByteSeqIPtr cb = new AMI_TestIntf_opMyByteSeqI(in);
             t->opMyByteSeq_async(cb, in);
-            test(cb->check());
+            cb->check();
         }
 
         {
@@ -1778,7 +1774,7 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
 
             AMI_TestIntf_opStringSeqIPtr cb = new AMI_TestIntf_opStringSeqI(in);
             t->opStringSeq_async(cb, in);
-            test(cb->check());
+            cb->check();
         }
 
         {
@@ -1791,7 +1787,7 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
 
             AMI_TestIntf_opStringListIPtr cb = new AMI_TestIntf_opStringListI(in);
             t->opStringList_async(cb, in);
-            test(cb->check());
+            cb->check();
         }
 
         {
@@ -1804,7 +1800,7 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
 
             AMI_TestIntf_opFixedSeqIPtr cb = new AMI_TestIntf_opFixedSeqI(in);
             t->opFixedSeq_async(cb, in);
-            test(cb->check());
+            cb->check();
         }
 
         {
@@ -1817,7 +1813,7 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
 
             AMI_TestIntf_opFixedListIPtr cb = new AMI_TestIntf_opFixedListI(in);
             t->opFixedList_async(cb, in);
-            test(cb->check());
+            cb->check();
         }
 
         {
@@ -1830,7 +1826,7 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
 
             AMI_TestIntf_opVariableSeqIPtr cb = new AMI_TestIntf_opVariableSeqI(in);
             t->opVariableSeq_async(cb, in);
-            test(cb->check());
+            cb->check();
         }
 
         {
@@ -1849,7 +1845,7 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
 
             AMI_TestIntf_opVariableListIPtr cb = new AMI_TestIntf_opVariableListI(in);
             t->opVariableList_async(cb, in);
-            test(cb->check());
+            cb->check();
         }
 
         {
@@ -1862,7 +1858,7 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
 
             AMI_TestIntf_opStringStringDictSeqIPtr cb = new AMI_TestIntf_opStringStringDictSeqI(in);
             t->opStringStringDictSeq_async(cb, in);
-            test(cb->check());
+            cb->check();
         }
 
         {
@@ -1881,7 +1877,7 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
 
             AMI_TestIntf_opStringStringDictListIPtr cb = new AMI_TestIntf_opStringStringDictListI(in);
             t->opStringStringDictList_async(cb, in);
-            test(cb->check());
+            cb->check();
         }
 
         {
@@ -1894,7 +1890,7 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
 
             AMI_TestIntf_opESeqIPtr cb = new AMI_TestIntf_opESeqI(in);
             t->opESeq_async(cb, in);
-            test(cb->check());
+            cb->check();
         }
 
         {
@@ -1907,7 +1903,7 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
 
             AMI_TestIntf_opEListIPtr cb = new AMI_TestIntf_opEListI(in);
             t->opEList_async(cb, in);
-            test(cb->check());
+            cb->check();
         }
 
         {
@@ -1920,7 +1916,7 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
 
             AMI_TestIntf_opCPrxSeqIPtr cb = new AMI_TestIntf_opCPrxSeqI(in);
             t->opCPrxSeq_async(cb, in);
-            test(cb->check());
+            cb->check();
         }
 
         {
@@ -1933,7 +1929,7 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
 
             AMI_TestIntf_opCPrxListIPtr cb = new AMI_TestIntf_opCPrxListI(in);
             t->opCPrxList_async(cb, in);
-            test(cb->check());
+            cb->check();
         }
 
         {
@@ -1946,7 +1942,7 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
 
             AMI_TestIntf_opCSeqIPtr cb = new AMI_TestIntf_opCSeqI(in);
             t->opCSeq_async(cb, in);
-            test(cb->check());
+            cb->check();
         }
     
         {
@@ -1959,7 +1955,7 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
 
             AMI_TestIntf_opCListIPtr cb = new AMI_TestIntf_opCListI(in);
             t->opCList_async(cb, in);
-            test(cb->check());
+            cb->check();
         }
 
         cout << "ok" << endl;
@@ -1989,7 +1985,7 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
         cout << "testing class mapped structs with AMI... " << flush;
         AMI_TestIntf_opClassStructIPtr cb = new AMI_TestIntf_opClassStructI(cs, csseq1);
         t->opClassStruct_async(cb, cs, csseq1);
-        test(cb->check());
+        cb->check();
         cout << "ok" << endl;
     }
 
@@ -2031,7 +2027,7 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
     {
         AMI_Test1_opStringIPtr cb = new AMI_Test1_opStringI(wstr);
         wsc1->opString_async(cb, wstr);
-        test(cb->check());
+        cb->check();
     }
 
     ret = wsc2->opString(wstr, out);
@@ -2042,7 +2038,7 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
     {
         AMI_Test2_opStringIPtr cb = new AMI_Test2_opStringI(wstr);
         wsc2->opString_async(cb, wstr);
-        test(cb->check());
+        cb->check();
     }
 
     Test1::WstringStruct wss1;
@@ -2072,7 +2068,7 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
     {
         AMI_Test1_throwExceptIPtr cb = new AMI_Test1_throwExceptI(wstr);
         wsc1->throwExcept_async(cb, wstr);
-        test(cb->check());
+        cb->check();
     }
 
     try
@@ -2088,7 +2084,7 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
     {
         AMI_Test2_throwExceptIPtr cb = new AMI_Test2_throwExceptI(wstr);
         wsc2->throwExcept_async(cb, wstr);
-        test(cb->check());
+        cb->check();
     }
 
     cout << "ok" << endl;

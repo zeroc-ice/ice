@@ -52,11 +52,7 @@ public:
         Lock sync(*this);
         while(!_response && !_exception)
         {
-            if(!timedWait(IceUtil::Time::seconds(3)))
-            {
-                cerr << "timeout: " << file << ":" << line << endl;
-                test(false); // Timeout
-            }
+            wait();
         }
     }
 

@@ -36,33 +36,20 @@ public class AllTests
             _called = false;
         }
 
-        public synchronized boolean
-        check(boolean wait)
+        public synchronized void
+        check()
         {
-            if(wait)
+            while(!_called)
             {
-                while(!_called)
+                try
                 {
-                    try
-                    {
-                        wait(30000);
-                    }
-                    catch(InterruptedException ex)
-                    {
-                        continue;
-                    }
-
-                    if(!_called)
-                    {
-                        test(false);
-                        return false; // Must be timeout.
-                    }
+                    wait();
                 }
-
-                _called = false;
-                return true;
+                catch(InterruptedException ex)
+                {
+                }
             }
-            return _called;
+            _called = false;
         }
 
         public synchronized void
@@ -71,6 +58,12 @@ public class AllTests
             assert(!_called);
             _called = true;
             notify();
+        }
+
+        public synchronized boolean
+        isCalled()
+        {
+            return _called;
         }
 
         private boolean _called;
@@ -154,20 +147,22 @@ public class AllTests
         public boolean
         response(boolean wait)
         {
-            return response.check(wait);
-        }
-
-        public boolean
-        responseAndSent(boolean wait)
-        {
-            if(sent.check(wait))
-            {               
-                return response.check(wait);
+            if(wait)
+            {
+                response.check();
+                return true;
             }
             else
             {
-                return false;
+                return response.isCalled();
             }
+        }
+
+        public void
+        responseAndSent()
+        {
+            sent.check();
+            response.check();
         }
 
         private Callback response = new Callback();
@@ -194,16 +189,24 @@ public class AllTests
             sent.called();
         }
 
-        public boolean
-        exception(boolean wait)
+        public void
+        exception()
         {
-            return exception.check(wait);
+            exception.check();
         }
 
         public boolean 
         sent(boolean wait)
         {
-            return sent.check(wait);
+            if(wait)
+            {
+                sent.check();
+                return true;
+            }
+            else
+            {
+                return sent.isCalled();
+            }
         }
 
         private Callback exception = new Callback();
@@ -386,12 +389,12 @@ public class AllTests
 
         configuration.connectorsException(new Ice.DNSException());
         test(!background.op_async(cbEx));
-        test(cbEx.exception(true));
+        cbEx.exception();
         configuration.connectorsException(null);
 
         configuration.connectorsException(new Ice.DNSException());
         test(!((BackgroundPrx)background.ice_oneway()).op_async(cbEx));
-        test(cbEx.exception(true));
+        cbEx.exception();
         configuration.connectorsException(null);
 
         try
@@ -407,12 +410,12 @@ public class AllTests
 
         configuration.connectException(new Ice.SocketException());
         test(!background.op_async(cbEx));
-        test(cbEx.exception(true));
+        cbEx.exception();
         configuration.connectException(null);
 
         configuration.connectException(new Ice.SocketException());
         test(!((BackgroundPrx)background.ice_oneway()).op_async(cbEx));
-        test(cbEx.exception(true));
+        cbEx.exception();
         configuration.connectException(null);
 
         OpThread thread1 = new OpThread(background);
@@ -490,12 +493,12 @@ public class AllTests
 
         configuration.initializeException(new Ice.SocketException());
         test(!background.op_async(cbEx));
-        test(cbEx.exception(true));
+        cbEx.exception();
         configuration.initializeException(null);
 
         configuration.initializeException(new Ice.SocketException());
         test(!((BackgroundPrx)background.ice_oneway()).op_async(cbEx));
-        test(cbEx.exception(true));
+        cbEx.exception();
         configuration.initializeException(null);
 
         try
@@ -538,14 +541,14 @@ public class AllTests
         configuration.initializeSocketStatus(IceInternal.SocketStatus.NeedWrite);
         configuration.initializeException(new Ice.SocketException());
         test(!background.op_async(cbEx));
-        test(cbEx.exception(true));
+        cbEx.exception();
         configuration.initializeException(null);
         configuration.initializeSocketStatus(IceInternal.SocketStatus.Finished);
 
         configuration.initializeSocketStatus(IceInternal.SocketStatus.NeedWrite);
         configuration.initializeException(new Ice.SocketException());
         test(!((BackgroundPrx)background.ice_oneway()).op_async(cbEx));
-        test(cbEx.exception(true));
+        cbEx.exception();
         configuration.initializeException(null);
         configuration.initializeSocketStatus(IceInternal.SocketStatus.Finished);
 
@@ -725,12 +728,12 @@ public class AllTests
 
         configuration.readException(new Ice.SocketException());
         test(!background.op_async(cbEx));
-        test(cbEx.exception(true));
+        cbEx.exception();
         configuration.readException(null);
 
         configuration.readException(new Ice.SocketException());
         test(!((BackgroundPrx)background.ice_oneway()).op_async(cbEx));
-        test(cbEx.exception(true));
+        cbEx.exception();
         configuration.readException(null);
 
         if(!background.ice_getCommunicator().getProperties().getProperty("Ice.Default.Protocol").equals("test-ssl"))
@@ -766,14 +769,14 @@ public class AllTests
             configuration.readReady(false);
             configuration.readException(new Ice.SocketException());
             test(!background.op_async(cbEx));
-            test(cbEx.exception(true));
+            cbEx.exception();
             configuration.readException(null);
             configuration.readReady(true);
 
             configuration.readReady(false);
             configuration.readException(new Ice.SocketException());
             test(!((BackgroundPrx)background.ice_oneway()).op_async(cbEx));
-            test(cbEx.exception(true));
+            cbEx.exception();
             configuration.readException(null);
             configuration.readReady(true);
         }
@@ -783,11 +786,11 @@ public class AllTests
         test(!background.op_async(cb));
         OpAMICallback cb2 = new OpAMICallback();
         test(!background.op_async(cb2));
-        test(!cb.responseAndSent(false));
-        test(!cb2.responseAndSent(false));
+        test(!cb.response(false));
+        test(!cb2.response(false));
         ctl.resumeAdapter();
-        test(cb.responseAndSent(true));
-        test(cb2.responseAndSent(true));
+        cb.responseAndSent();
+        cb2.responseAndSent();
 
         try
         {
@@ -954,12 +957,14 @@ public class AllTests
 
         configuration.writeException(new Ice.SocketException());
         test(!background.op_async(cbEx));
-        test(cbEx.exception(true) && !cbEx.sent(false));
+        cbEx.exception();
+        test(!cbEx.sent(false));
         configuration.writeException(null);
 
         configuration.writeException(new Ice.SocketException());
         test(!((BackgroundPrx)background.ice_oneway()).op_async(cbEx));
-        test(cbEx.exception(true) && !cbEx.sent(false));
+        cbEx.exception();
+        test(!cbEx.sent(false));
         configuration.writeException(null);
 
         try
@@ -980,7 +985,7 @@ public class AllTests
         {
             test(cbEx.sent(true));
         }
-        test(cbEx.exception(true));
+        cbEx.exception();
         configuration.readException(null);
 
         try
@@ -1025,7 +1030,8 @@ public class AllTests
         configuration.writeReady(false);
         configuration.writeException(new Ice.SocketException());
         test(!background.op_async(cbEx));
-        test(cbEx.exception(true) && !cbEx.sent(false));
+        cbEx.exception();
+        test(!cbEx.sent(false));
         configuration.writeException(null);
         configuration.writeReady(true);
 
@@ -1033,7 +1039,8 @@ public class AllTests
         configuration.writeReady(false);
         configuration.writeException(new Ice.SocketException());
         test(!((BackgroundPrx)background.ice_oneway()).op_async(cbEx));
-        test(cbEx.exception(true) && !cbEx.sent(false));
+        cbEx.exception();
+        test(!cbEx.sent(false));
         configuration.writeException(null);
         configuration.writeReady(true);
 
@@ -1058,7 +1065,7 @@ public class AllTests
         {
             test(cbEx.sent(true));
         }
-        test(cbEx.exception(true));
+        cbEx.exception();
         configuration.readException(null);
         configuration.readReady(true);
 
@@ -1068,7 +1075,7 @@ public class AllTests
         configuration.readException(new Ice.SocketException());
         test(!background.op_async(cbEx));
         test(cbEx.sent(true));
-        test(cbEx.exception(true));
+        cbEx.exception();
         configuration.readException(null);
         configuration.writeReady(true);
         configuration.readReady(true);
@@ -1094,8 +1101,8 @@ public class AllTests
         test(!cb.response(false));
         test(!cb2.response(false));
         ctl.resumeAdapter();
-        test(cb.responseAndSent(true));
-        test(cb2.responseAndSent(true));
+        cb.responseAndSent();
+        cb2.responseAndSent();
 
         try
         {

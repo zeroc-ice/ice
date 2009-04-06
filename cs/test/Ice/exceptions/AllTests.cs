@@ -29,21 +29,16 @@ public class AllTests
             _called = false;
         }
         
-        public virtual bool check()
+        public virtual void check()
         {
             lock(this)
             {
                 while(!_called)
                 {
-                    Monitor.Wait(this, TimeSpan.FromMilliseconds(5000));
-                    
-                    if(!_called)
-                    {
-                        return false; // Must be timeout.
-                    }
+                    Monitor.Wait(this);
                 }
-                
-                return true;
+
+                _called = false;
             }
         }
         
@@ -92,9 +87,9 @@ public class AllTests
             callback.called();
         }
         
-        public virtual bool check()
+        public virtual void check()
         {
-            return callback.check();
+            callback.check();
         }
         
         private Callback callback;
@@ -134,9 +129,9 @@ public class AllTests
             callback.called();
         }
         
-        public virtual bool check()
+        public virtual void check()
         {
-            return callback.check();
+            callback.check();
         }
         
         private Ice.Communicator communicator;
@@ -167,9 +162,9 @@ public class AllTests
             callback.called();
         }
         
-        public virtual bool check()
+        public virtual void check()
         {
-            return callback.check();
+            callback.check();
         }
         
         private Callback callback = new Callback();
@@ -211,9 +206,9 @@ public class AllTests
             callback.called();
         }
         
-        public virtual bool check()
+        public virtual void check()
         {
-            return callback.check();
+            callback.check();
         }
         
         private Callback callback;
@@ -252,9 +247,9 @@ public class AllTests
             callback.called();
         }
         
-        public virtual bool check()
+        public virtual void check()
         {
-            return callback.check();
+            callback.check();
         }
         
         private Callback callback;
@@ -294,9 +289,9 @@ public class AllTests
             callback.called();
         }
         
-        public virtual bool check()
+        public virtual void check()
         {
-            return callback.check();
+            callback.check();
         }
         
         private Callback callback;
@@ -335,9 +330,9 @@ public class AllTests
             callback.called();
         }
         
-        public virtual bool check()
+        public virtual void check()
         {
-            return callback.check();
+            callback.check();
         }
         
         private Callback callback;
@@ -377,9 +372,9 @@ public class AllTests
             callback.called();
         }
         
-        public virtual bool check()
+        public virtual void check()
         {
-            return callback.check();
+            callback.check();
         }
         
         private Callback callback;
@@ -419,9 +414,9 @@ public class AllTests
             callback.called();
         }
         
-        public virtual bool check()
+        public virtual void check()
         {
-            return callback.check();
+            callback.check();
         }
         
         private Callback callback;
@@ -458,9 +453,9 @@ public class AllTests
             callback.called();
         }
         
-        public virtual bool check()
+        public virtual void check()
         {
-            return callback.check();
+            callback.check();
         }
         
         private Callback callback;
@@ -497,9 +492,9 @@ public class AllTests
             callback.called();
         }
         
-        public virtual bool check()
+        public virtual void check()
         {
-            return callback.check();
+            callback.check();
         }
         
         private Callback callback;
@@ -536,9 +531,9 @@ public class AllTests
             callback.called();
         }
         
-        public virtual bool check()
+        public virtual void check()
         {
-            return callback.check();
+            callback.check();
         }
         
         private Callback callback;
@@ -575,9 +570,9 @@ public class AllTests
             callback.called();
         }
         
-        public virtual bool check()
+        public virtual void check()
         {
-            return callback.check();
+            callback.check();
         }
         
         private Callback callback;
@@ -614,9 +609,9 @@ public class AllTests
             callback.called();
         }
         
-        public virtual bool check()
+        public virtual void check()
         {
-            return callback.check();
+            callback.check();
         }
         
         private Callback callback;
@@ -654,9 +649,9 @@ public class AllTests
             callback.called();
         }
         
-        public virtual bool check()
+        public virtual void check()
         {
-            return callback.check();
+            callback.check();
         }
         
         private Callback callback;
@@ -1105,31 +1100,31 @@ public class AllTests
             {
                 AMI_Thrower_throwAasAI cb = new AMI_Thrower_throwAasAI();
                 thrower.throwAasA_async(cb, 1);
-                test(cb.check());
+                cb.check();
             }
             
             {
                 AMI_Thrower_throwAorDasAorDI cb = new AMI_Thrower_throwAorDasAorDI();
                 thrower.throwAorDasAorD_async(cb, 1);
-                test(cb.check());
+                cb.check();
             }
             
             {
                 AMI_Thrower_throwAorDasAorDI cb = new AMI_Thrower_throwAorDasAorDI();
                 thrower.throwAorDasAorD_async(cb, - 1);
-                test(cb.check());
+                cb.check();
             }
             
             {
                 AMI_Thrower_throwBasBI cb = new AMI_Thrower_throwBasBI();
                 thrower.throwBasB_async(cb, 1, 2);
-                test(cb.check());
+                cb.check();
             }
             
             {
                 AMI_Thrower_throwCasCI cb = new AMI_Thrower_throwCasCI();
                 thrower.throwCasC_async(cb, 1, 2, 3);
-                test(cb.check());
+                cb.check();
             }
             
             Console.WriteLine("ok");
@@ -1140,19 +1135,19 @@ public class AllTests
             {
                 AMI_Thrower_throwBasAI cb = new AMI_Thrower_throwBasAI();
                 thrower.throwBasA_async(cb, 1, 2);
-                test(cb.check());
+                cb.check();
             }
             
             {
                 AMI_Thrower_throwCasAI cb = new AMI_Thrower_throwCasAI();
                 thrower.throwCasA_async(cb, 1, 2, 3);
-                test(cb.check());
+                cb.check();
             }
             
             {
                 AMI_Thrower_throwCasBI cb = new AMI_Thrower_throwCasBI();
                 thrower.throwCasB_async(cb, 1, 2, 3);
-                test(cb.check());
+                cb.check();
             }
             
             Console.WriteLine("ok");
@@ -1165,19 +1160,19 @@ public class AllTests
                 {
                     AMI_Thrower_throwUndeclaredAI cb = new AMI_Thrower_throwUndeclaredAI();
                     thrower.throwUndeclaredA_async(cb, 1);
-                    test(cb.check());
+                    cb.check();
                 }
                 
                 {
                     AMI_Thrower_throwUndeclaredBI cb = new AMI_Thrower_throwUndeclaredBI();
                     thrower.throwUndeclaredB_async(cb, 1, 2);
-                    test(cb.check());
+                    cb.check();
                 }
                 
                 {
                     AMI_Thrower_throwUndeclaredCI cb = new AMI_Thrower_throwUndeclaredCI();
                     thrower.throwUndeclaredC_async(cb, 1, 2, 3);
-                    test(cb.check());
+                    cb.check();
                 }
                 
                 Console.WriteLine("ok");
@@ -1191,7 +1186,7 @@ public class AllTests
                 ThrowerPrx thrower2 = ThrowerPrxHelper.uncheckedCast(thrower.ice_identity(id));
                 AMI_Thrower_throwAasAObjectNotExistI cb = new AMI_Thrower_throwAasAObjectNotExistI(communicator);
                 thrower2.throwAasA_async(cb, 1);
-                test(cb.check());
+                cb.check();
             }
             
             Console.WriteLine("ok");
@@ -1205,7 +1200,7 @@ public class AllTests
                 {
                     AMI_Thrower_throwAasAFacetNotExistI cb = new AMI_Thrower_throwAasAFacetNotExistI();
                     thrower2.throwAasA_async(cb, 1);
-                    test(cb.check());
+                    cb.check();
                 }
             }
             catch(Exception)
@@ -1222,7 +1217,7 @@ public class AllTests
                 AMI_WrongOperation_noSuchOperationI cb = new AMI_WrongOperation_noSuchOperationI();
                 WrongOperationPrx thrower2 = WrongOperationPrxHelper.uncheckedCast(thrower);
                 thrower2.noSuchOperation_async(cb);
-                test(cb.check());
+                cb.check();
             }
             
             Console.WriteLine("ok");
@@ -1233,7 +1228,7 @@ public class AllTests
             {
                 AMI_Thrower_throwLocalExceptionI cb = new AMI_Thrower_throwLocalExceptionI();
                 thrower.throwLocalException_async(cb);
-                test(cb.check());
+                cb.check();
             }
             
             Console.WriteLine("ok");
@@ -1243,7 +1238,7 @@ public class AllTests
             
             AMI_Thrower_throwNonIceExceptionI cb2 = new AMI_Thrower_throwNonIceExceptionI();
             thrower.throwNonIceException_async(cb2);
-            test(cb2.check());
+            cb2.check();
             
             Console.WriteLine("ok");
         }

@@ -27,18 +27,14 @@ public:
     {
     }
 
-    bool check()
+    void check()
     {
         IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
         while(!_called)
         {
-            if(!timedWait(IceUtil::Time::seconds(5)))
-            {
-                return false;
-            }
+            wait();
         }
         _called = false;
-        return true;
     }
 
 protected:
@@ -135,17 +131,17 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
     cout << "calling regular AMI operation with first proxy... " << flush;
     retry1->op_async(cb1, false);
-    test(cb1->check());
+    cb1->check();
     cout << "ok" << endl;
 
     cout << "calling AMI operation to kill connection with second proxy... " << flush;
     retry2->op_async(cb2, true);
-    test(cb2->check());
+    cb2->check();
     cout << "ok" << endl;
 
     cout << "calling regular AMI operation with first proxy again... " << flush;
     retry1->op_async(cb1, false);
-    test(cb1->check());
+    cb1->check();
     cout << "ok" << endl;
 
     return retry1;

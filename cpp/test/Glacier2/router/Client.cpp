@@ -54,10 +54,7 @@ public:
         Lock sync(*this);
         while(!_haveResponse)
         {
-            if(!timedWait(IceUtil::Time::milliSeconds(5000)))
-            {
-                throw TimeoutException(__FILE__, __LINE__);
-            }
+            wait();
         }
         if(_ex.get())
         {
@@ -119,7 +116,7 @@ public:
         // processing other incoming calls and wait to receive the callback.
         //
         callback->initiateWaitCallback(receiver);
-        test(_callbackReceiver->waitCallbackOK());
+        _callbackReceiver->waitCallbackOK();
 
         //
         // Notify the main thread that the callback was received.
@@ -138,7 +135,7 @@ public:
         // requests.
         //
         callback->initiateCallbackWithPayload(receiver);
-        test(_callbackReceiver->callbackWithPayloadOK());
+        _callbackReceiver->callbackWithPayloadOK();
 
         try
         {
@@ -340,7 +337,7 @@ public:
             while(true)
             {
                 cb->initiateCallback(receiver, context);
-                test(_callbackReceiver->callbackOK());
+                _callbackReceiver->callbackOK();
                 IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(1));
             }
         }
@@ -384,7 +381,7 @@ public:
             while(true)
             {
                 cb->initiateCallbackWithPayload(receiver, context);
-                test(_callbackReceiver->callbackWithPayloadOK());
+                _callbackReceiver->callbackWithPayloadOK();
                 IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(10));
             }
         }
@@ -600,7 +597,7 @@ CallbackClient::run(int argc, char* argv[])
         Context context;
         context["_fwd"] = "o";
         oneway->initiateCallback(onewayR, context);
-        test(callbackReceiverImpl->callbackOK());
+        callbackReceiverImpl->callbackOK();
         cout << "ok" << endl;
     }
 
@@ -609,7 +606,7 @@ CallbackClient::run(int argc, char* argv[])
         Context context;
         context["_fwd"] = "t";
         twoway->initiateCallback(twowayR, context);
-        test(callbackReceiverImpl->callbackOK());
+        callbackReceiverImpl->callbackOK();
         cout << "ok" << endl;
     }
 
@@ -629,7 +626,7 @@ CallbackClient::run(int argc, char* argv[])
         twoway->initiateConcurrentCallback_async(cb1, 1, twowayR, context);
         AMI_Callback_initiateConcurrentCallbackIPtr cb2 = new AMI_Callback_initiateConcurrentCallbackI();
         twoway->initiateConcurrentCallback_async(cb2, 2, twowayR, context);
-        test(callbackReceiverImpl->answerConcurrentCallbacks(3));
+        callbackReceiverImpl->answerConcurrentCallbacks(3);
         test(cb0->waitResponse() == 0);
         test(cb1->waitResponse() == 1);
         test(cb2->waitResponse() == 2);
@@ -650,7 +647,7 @@ CallbackClient::run(int argc, char* argv[])
             test(ex.someValue == 3.14);
             test(ex.someString == "3.14");
         }
-        test(callbackReceiverImpl->callbackOK());
+        callbackReceiverImpl->callbackOK();
         cout << "ok" << endl;
     }
 
@@ -676,7 +673,7 @@ CallbackClient::run(int argc, char* argv[])
         CallbackPrx otherCategoryTwoway = CallbackPrx::uncheckedCast(
             twoway->ice_identity(communicator()->stringToIdentity("c2/callback")));
         otherCategoryTwoway->initiateCallback(twowayR, context);
-        test(callbackReceiverImpl->callbackOK());
+        callbackReceiverImpl->callbackOK();
         cout << "ok" << endl;
     }
 
@@ -704,7 +701,7 @@ CallbackClient::run(int argc, char* argv[])
         CallbackPrx otherCategoryTwoway = CallbackPrx::uncheckedCast(
             twoway->ice_identity(communicator()->stringToIdentity("_userid/callback")));
         otherCategoryTwoway->initiateCallback(twowayR, context);
-        test(callbackReceiverImpl->callbackOK());
+        callbackReceiverImpl->callbackOK();
         cout << "ok" << endl;
     }
 
@@ -739,13 +736,13 @@ CallbackClient::run(int argc, char* argv[])
         Context context;
         context["_fwd"] = "t";
         twoway->initiateCallbackWithPayload(twowayR, context);
-        test(callbackReceiverImpl->callbackWithPayloadOK());
+        callbackReceiverImpl->callbackWithPayloadOK();
         twoway->initiateCallbackWithPayload(twowayR, context);
-        test(callbackReceiverImpl->callbackWithPayloadOK());
+        callbackReceiverImpl->callbackWithPayloadOK();
         twoway->initiateCallbackWithPayload(twowayR, context);
-        test(callbackReceiverImpl->callbackWithPayloadOK());
+        callbackReceiverImpl->callbackWithPayloadOK();
         twoway->initiateCallbackWithPayload(twowayR, context);
-        test(callbackReceiverImpl->callbackWithPayloadOK());
+        callbackReceiverImpl->callbackWithPayloadOK();
 
         for(vector<MisbehavedClientPtr>::const_iterator p = clients.begin(); p != clients.end(); ++p)
         {
@@ -796,7 +793,7 @@ CallbackClient::run(int argc, char* argv[])
         Context context;
         context["_fwd"] = "t";
         twoway->initiateCallback(twowayR);
-        test(callbackReceiverImpl->callbackOK());
+        callbackReceiverImpl->callbackOK();
 
         //
         // Kill the stress clients.

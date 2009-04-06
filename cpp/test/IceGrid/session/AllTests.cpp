@@ -141,12 +141,7 @@ public:
 
         while(!_updated)
         {
-            if(!timedWait(IceUtil::Time::seconds(10)))
-            {
-                cerr << "timeout: " << file << ":" << line << endl;
-                ObserverBase::printStack();
-                test(false); // Timeout
-            }
+            wait();
         }
         --_updated;
     }

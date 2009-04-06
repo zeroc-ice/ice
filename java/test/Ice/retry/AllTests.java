@@ -33,28 +33,21 @@ public class AllTests
             _called = false;
         }
 
-        public synchronized boolean
+        public synchronized void
         check()
         {
             while(!_called)
             {
                 try
                 {
-                    wait(5000);
+                    wait();
                 }
                 catch(InterruptedException ex)
                 {
-                    continue;
-                }
-
-                if(!_called)
-                {
-                    return false; // Must be timeout.
                 }
             }
 
             _called = false;
-            return true;
         }
 
         public synchronized void
@@ -82,10 +75,10 @@ public class AllTests
             test(false);
         }
 
-        public boolean
+        public void
         check()
         {
-            return callback.check();
+            callback.check();
         }
 
         private Callback callback = new Callback();
@@ -106,10 +99,10 @@ public class AllTests
             callback.called();
         }
 
-        public boolean
+        public void
         check()
         {
-            return callback.check();
+            callback.check();
         }
 
         private Callback callback = new Callback();
@@ -164,17 +157,17 @@ public class AllTests
 
         out.print("calling regular AMI operation with first proxy... ");
         retry1.op_async(cb1, false);
-        test(cb1.check());
+        cb1.check();
         out.println("ok");
 
         out.print("calling AMI operation to kill connection with second proxy... ");
         retry2.op_async(cb2, true);
-        test(cb2.check());
+        cb2.check();
         out.println("ok");
 
         out.print("calling regular AMI operation with first proxy again... ");
         retry1.op_async(cb1, false);
-        test(cb1.check());
+        cb1.check();
         out.println("ok");
 
         return retry1;

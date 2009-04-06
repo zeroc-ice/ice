@@ -22,12 +22,8 @@ class CallbackBase:
         self._cond.acquire()
         try:
             while not self._called:
-                self._cond.wait(5.0)
-            if self._called:
-                self._called = False
-                return True
-            else:
-                return False
+                self._cond.wait()
+            self._called = False
         finally:
             self._cond.release()
 
@@ -96,17 +92,17 @@ def allTests(communicator):
 
     print "calling regular AMI operation with first proxy...",
     retry1.op_async(cb1, False)
-    test(cb1.check())
+    cb1.check()
     print "ok"
 
     print "calling AMI operation to kill connection with second proxy...",
     retry2.op_async(cb2, True)
-    test(cb2.check())
+    cb2.check()
     print "ok"
 
     print "calling regular AMI operation with first proxy again...",
     retry1.op_async(cb1, False)
-    test(cb1.check())
+    cb1.check()
     print "ok"
 
     return retry1

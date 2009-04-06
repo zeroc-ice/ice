@@ -27,18 +27,14 @@ public:
     {
     }
 
-    bool check()
+    void check()
     {
         IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
         while(!_called)
         {
-            if(!timedWait(IceUtil::Time::seconds(5)))
-            {
-                return false;
-            }
+            wait();
         }
         _called = false;
-        return true;
     }
 
 protected:
@@ -247,7 +243,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
         TimeoutPrx to = TimeoutPrx::uncheckedCast(obj->ice_timeout(500));
         AMISleepExPtr cb = new AMISleepEx;
         to->sleep_async(cb, 2000);
-        test(cb->check());
+        cb->check();
     }
     {
         //
@@ -257,7 +253,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
         TimeoutPrx to = TimeoutPrx::uncheckedCast(obj->ice_timeout(1000));
         AMISleepPtr cb = new AMISleep;
         to->sleep_async(cb, 500);
-        test(cb->check());
+        cb->check();
     }
     cout << "ok" << endl;
 
@@ -271,7 +267,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
         ByteSeq seq(100000);
         AMISendDataExPtr cb = new AMISendDataEx;
         to->sendData_async(cb, seq);
-        test(cb->check());
+        cb->check();
     }
     {
         //
@@ -283,7 +279,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
         ByteSeq seq(100000);
         AMISendDataPtr cb = new AMISendData;
         to->sendData_async(cb, seq);
-        test(cb->check());
+        cb->check();
     }
     cout << "ok" << endl;
 

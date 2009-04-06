@@ -26,24 +26,15 @@ public:
     {
     }
 
-    bool
-    check(bool wait)
+    void
+    check()
     {
-        if(wait)
+        Lock sync(*this);
+        while(!_called)
         {
-            Lock sync(*this);
-            while(!_called)
-            {
-                timedWait(IceUtil::Time::seconds(30));
-                if(!_called)
-                {
-                    return false; // Must be timeout.
-                }
-            }
-            _called = false;
-            return true;
+            wait();
         }
-        return _called;
+        _called = false;
     }
 
     void
@@ -53,6 +44,13 @@ public:
         assert(!_called);
         _called = true;
         notify();
+    }
+
+    bool
+    isCalled()
+    {
+        Lock sync(*this);
+        return _called;
     }
 
 private:
@@ -86,20 +84,22 @@ public:
     bool
     response(bool wait)
     {
-        return _response.check(wait);
-    }
-
-    bool
-    responseAndSent(bool wait)
-    {
-        if(_sent.check(wait))
+        if(wait)
         {
-            return _response.check(wait);
+            _response.check();
+            return true;
         }
         else
         {
-            return false;
+            return _response.isCalled();
         }
+    }
+
+    void
+    responseAndSent()
+    {
+        _sent.check();
+        _response.check();
     }
 
 private:
@@ -144,16 +144,24 @@ public:
         _sent.called();
     }
 
-    bool
-    exception(bool wait)
+    void
+    exception()
     {
-        return _exception.check(wait);
+        _exception.check();
     }
 
     bool
     sent(bool wait)
     {
-        return _sent.check(wait);
+        if(wait)
+        {
+            _sent.check();
+            return true;
+        }
+        else
+        {
+            return _sent.isCalled();
+        }
     }
 
 private:
@@ -393,12 +401,12 @@ connectTests(const ConfigurationPtr& configuration, const Test::BackgroundPrx& b
 
     configuration->connectorsException(new Ice::DNSException(__FILE__, __LINE__));
     test(!background->op_async(cbEx));
-    test(cbEx->exception(true));
+    cbEx->exception();
     configuration->connectorsException(0);
 
     configuration->connectorsException(new Ice::DNSException(__FILE__, __LINE__));
     test(!background->ice_oneway()->op_async(cbEx));
-    test(cbEx->exception(true));
+    cbEx->exception();
     configuration->connectorsException(0);
 
     try
@@ -414,12 +422,12 @@ connectTests(const ConfigurationPtr& configuration, const Test::BackgroundPrx& b
 
     configuration->connectException(new Ice::SocketException(__FILE__, __LINE__));
     test(!background->op_async(cbEx));
-    test(cbEx->exception(true));
+    cbEx->exception();
     configuration->connectException(0);
 
     configuration->connectException(new Ice::SocketException(__FILE__, __LINE__));
     test(!background->ice_oneway()->op_async(cbEx));
-    test(cbEx->exception(true));
+    cbEx->exception();
     configuration->connectException(0);
 
     OpThreadPtr thread1 = new OpThread(background);
@@ -487,12 +495,12 @@ initializeTests(const ConfigurationPtr& configuration,
 
     configuration->initializeException(new Ice::SocketException(__FILE__, __LINE__));
     test(!background->op_async(cbEx));
-    test(cbEx->exception(true));
+    cbEx->exception();
     configuration->initializeException(0);
 
     configuration->initializeException(new Ice::SocketException(__FILE__, __LINE__));
     test(!background->ice_oneway()->op_async(cbEx));
-    test(cbEx->exception(true));
+    cbEx->exception();
     configuration->initializeException(0);
 
     try
@@ -535,14 +543,14 @@ initializeTests(const ConfigurationPtr& configuration,
     configuration->initializeSocketStatus(IceInternal::NeedWrite);
     configuration->initializeException(new Ice::SocketException(__FILE__, __LINE__));
     test(!background->op_async(cbEx));
-    test(cbEx->exception(true));
+    cbEx->exception();
     configuration->initializeException(0);
     configuration->initializeSocketStatus(IceInternal::Finished);
 
     configuration->initializeSocketStatus(IceInternal::NeedWrite);
     configuration->initializeException(new Ice::SocketException(__FILE__, __LINE__));
     test(!background->ice_oneway()->op_async(cbEx));
-    test(cbEx->exception(true));
+    cbEx->exception();
     configuration->initializeException(0);
     configuration->initializeSocketStatus(IceInternal::Finished);
 
@@ -711,12 +719,12 @@ validationTests(const ConfigurationPtr& configuration,
 
     configuration->readException(new Ice::SocketException(__FILE__, __LINE__));
     test(!background->op_async(cbEx));
-    test(cbEx->exception(true));
+    cbEx->exception();
     configuration->readException(0);
 
     configuration->readException(new Ice::SocketException(__FILE__, __LINE__));
     test(!background->ice_oneway()->op_async(cbEx));
-    test(cbEx->exception(true));
+    cbEx->exception();
     configuration->readException(0);
 
     if(background->ice_getCommunicator()->getProperties()->getProperty("Ice.Default.Protocol") != "test-ssl")
@@ -757,14 +765,14 @@ validationTests(const ConfigurationPtr& configuration,
         configuration->readReady(false);
         configuration->readException(new Ice::SocketException(__FILE__, __LINE__));
         test(!background->op_async(cbEx));
-        test(cbEx->exception(true));
+        cbEx->exception();
         configuration->readException(0);
         configuration->readReady(true);
 
         configuration->readReady(false);
         configuration->readException(new Ice::SocketException(__FILE__, __LINE__));
         test(!background->ice_oneway()->op_async(cbEx));
-        test(cbEx->exception(true));
+        cbEx->exception();
         configuration->readException(0);
         configuration->readReady(true);
     }
@@ -777,8 +785,8 @@ validationTests(const ConfigurationPtr& configuration,
     test(!cb->response(false));
     test(!cb2->response(false));
     ctl->resumeAdapter();
-    test(cb->responseAndSent(true));
-    test(cb2->responseAndSent(true));
+    cb->responseAndSent();
+    cb2->responseAndSent();
 
     try
     {
@@ -974,13 +982,15 @@ readWriteTests(const ConfigurationPtr& configuration,
     background->ice_ping();
     configuration->writeException(new Ice::SocketException(__FILE__, __LINE__));
     test(!background->op_async(cbEx));
-    test(cbEx->exception(true) && !cbEx->sent(false));
+    cbEx->exception();
+    test(!cbEx->sent(false));
     configuration->writeException(0);
 
     background->ice_ping();
     configuration->writeException(new Ice::SocketException(__FILE__, __LINE__));
     test(!background->ice_oneway()->op_async(cbEx));
-    test(cbEx->exception(true) && !cbEx->sent(false));
+    cbEx->exception();
+    test(!cbEx->sent(false));
     configuration->writeException(0);
 
     try
@@ -1001,7 +1011,7 @@ readWriteTests(const ConfigurationPtr& configuration,
     {
         test(cbEx->sent(true));
     }
-    test(cbEx->exception(true));
+    cbEx->exception();
     configuration->readException(0);
 
     try
@@ -1046,7 +1056,8 @@ readWriteTests(const ConfigurationPtr& configuration,
     configuration->writeReady(false);
     configuration->writeException(new Ice::SocketException(__FILE__, __LINE__));
     test(!background->op_async(cbEx));
-    test(cbEx->exception(true) && !cbEx->sent(false));
+    cbEx->exception();
+    test(!cbEx->sent(false));
     configuration->writeReady(true);
     configuration->writeException(0);
 
@@ -1054,7 +1065,8 @@ readWriteTests(const ConfigurationPtr& configuration,
     configuration->writeReady(false);
     configuration->writeException(new Ice::SocketException(__FILE__, __LINE__));
     test(!background->ice_oneway()->op_async(cbEx));
-    test(cbEx->exception(true) && !cbEx->sent(false));
+    cbEx->exception();
+    test(!cbEx->sent(false));
     configuration->writeReady(true);
     configuration->writeException(0);
 
@@ -1079,7 +1091,7 @@ readWriteTests(const ConfigurationPtr& configuration,
     {
         test(cbEx->sent(true));
     }
-    test(cbEx->exception(true));
+    cbEx->exception();
     configuration->readReady(true);
     configuration->readException(0);
 
@@ -1089,7 +1101,7 @@ readWriteTests(const ConfigurationPtr& configuration,
     configuration->readException(new Ice::SocketException(__FILE__, __LINE__));
     test(!background->op_async(cbEx));
     test(cbEx->sent(true));
-    test(cbEx->exception(true));
+    cbEx->exception();
     configuration->writeReady(true);
     configuration->readReady(true);
     configuration->readException(0);
@@ -1119,8 +1131,8 @@ readWriteTests(const ConfigurationPtr& configuration,
     test(!cb->response(false));
     test(!cb2->response(false));
     ctl->resumeAdapter();
-    test(cb->responseAndSent(true));
-    test(cb2->responseAndSent(true));
+    cb->responseAndSent();
+    cb2->responseAndSent();
     
     try
     {

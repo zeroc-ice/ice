@@ -32,28 +32,21 @@ class OnewaysAMI
             _called = false;
         }
 
-        public synchronized boolean
+        public synchronized void
         check()
         {
             while(!_called)
             {
                 try
                 {
-                    wait(5000);
+                    wait();
                 }
                 catch(InterruptedException ex)
                 {
-                    continue;
-                }
-
-                if(!_called)
-                {
-                    return false; // Must be timeout.
                 }
             }
 
             _called = false;
-            return true;
         }
         
         public synchronized void
@@ -97,10 +90,10 @@ class OnewaysAMI
             callback.called();
         }
 
-        public boolean
+        public void
         check()
         {
-            return callback.check();
+            callback.check();
         }
 
         private Callback callback = new Callback();
@@ -121,10 +114,10 @@ class OnewaysAMI
             callback.called();
         }
 
-        public boolean
+        public void
         check()
         {
-            return callback.check();
+            callback.check();
         }
 
         private Callback callback = new Callback();
@@ -156,13 +149,13 @@ class OnewaysAMI
             {
                 test(false);
             }
-            test(cb.check());
+            cb.check();
         }
 
         {
             AMI_MyClass_opByteExI cb = new AMI_MyClass_opByteExI();
             p.opByte_async(cb, (byte)0xff, (byte)0x0f);
-            test(cb.check());
+            cb.check();
         }
 
     }

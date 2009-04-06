@@ -25,12 +25,8 @@ class CallbackBase:
         self._cond.acquire()
         try:
             while not self._called:
-                self._cond.wait(5.0)
-            if self._called:
-                self._called = False
-                return True;
-            else:
-                return False
+                self._cond.wait()
+            self._called = False
         finally:
             self._cond.release()
 
@@ -115,7 +111,7 @@ def allTests(communicator, ports):
             print "testing server #%d with AMI... " % i,
             cb = AMI_Test_pidI()
             obj.pid_async(cb)
-            test(cb.check())
+            cb.check()
             pid = cb.pid()
             test(pid != oldPid)
             print "ok"
@@ -130,7 +126,7 @@ def allTests(communicator, ports):
                 print "shutting down server #%d with AMI... " % i,
                 cb = AMI_Test_shutdownI()
                 obj.shutdown_async(cb)
-                test(cb.check())
+                cb.check()
                 print "ok"
         elif j == 1 or i + 1 > len(ports):
             if not ami:
@@ -146,7 +142,7 @@ def allTests(communicator, ports):
                 print "aborting server #%d with AMI... " % i,
                 cb = AMI_Test_abortI()
                 obj.abort_async(cb)
-                test(cb.check())
+                cb.check()
                 print "ok"
         elif j == 2 or j == 3:
             if not ami:
@@ -162,7 +158,7 @@ def allTests(communicator, ports):
                 print "aborting server #%d and #%d with idempotent AMI call... " % (i, i + 1),
                 cb = AMI_Test_idempotentAbortI()
                 obj.idempotentAbort_async(cb)
-                test(cb.check())
+                cb.check()
                 print "ok"
 
             i = i + 1

@@ -27,18 +27,14 @@ public:
     {
     }
 
-    bool check()
+    void check()
     {
         IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
         while(!_called)
         {
-            if(!timedWait(IceUtil::Time::seconds(5)))
-            {
-                return false;
-            }
+            wait();
         }
         _called = false;
-        return true;
     }
 
 protected:
@@ -134,12 +130,12 @@ onewaysAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrx& pro
         {
             test(false);
         }
-        test(cb->check());
+        cb->check();
     }
 
     {
         AMI_MyClass_onewayOpByteExIPtr cb = new AMI_MyClass_onewayOpByteExI();
         p->opByte_async(cb, 0, 0);
-        test(cb->check());
+        cb->check();
     }
 }

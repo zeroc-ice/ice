@@ -52,28 +52,21 @@ public class AllTests
             _called = false;
         }
 
-        public synchronized boolean
+        public synchronized void
         check()
         {
             while(!_called)
             {
                 try
                 {
-                    wait(5000);
+                    wait();
                 }
                 catch(InterruptedException ex)
                 {
-                    continue;
-                }
-
-                if(!_called)
-                {
-                    return false; // Must be timeout.
                 }
             }
 
             _called = false;
-            return true;
         }
         
         public synchronized void
@@ -121,10 +114,10 @@ public class AllTests
             callback.called();
         }
 
-        public boolean
+        public void
         check()
         {
-            return callback.check();
+            callback.check();
         }
 
         private Callback callback = new Callback();
@@ -170,10 +163,10 @@ public class AllTests
             test(false);
         }
 
-        public boolean
+        public void
         check()
         {
-            return callback.check();
+            callback.check();
         }
 
         private Callback callback = new Callback();
@@ -214,10 +207,10 @@ public class AllTests
             test(false);
         }
 
-        public boolean
+        public void
         check()
         {
-            return callback.check();
+            callback.check();
         }
 
         private Callback callback = new Callback();
@@ -261,10 +254,10 @@ public class AllTests
             callback.called();
         }
 
-        public boolean
+        public void
         check()
         {
-            return callback.check();
+            callback.check();
         }
 
         private Callback callback = new Callback();
@@ -305,10 +298,10 @@ public class AllTests
             callback.called();
         }
 
-        public boolean
+        public void
         check()
         {
-            return callback.check();
+            callback.check();
         }
 
         private Callback callback = new Callback();
@@ -350,10 +343,10 @@ public class AllTests
             callback.called();
         }
 
-        public boolean
+        public void
         check()
         {
-            return callback.check();
+            callback.check();
         }
 
         private Callback callback = new Callback();
@@ -394,10 +387,10 @@ public class AllTests
             callback.called();
         }
 
-        public boolean
+        public void
         check()
         {
-            return callback.check();
+            callback.check();
         }
 
         private Callback callback = new Callback();
@@ -439,10 +432,10 @@ public class AllTests
             callback.called();
         }
 
-        public boolean
+        public void
         check()
         {
-            return callback.check();
+            callback.check();
         }
 
         private Callback callback = new Callback();
@@ -484,10 +477,10 @@ public class AllTests
             callback.called();
         }
 
-        public boolean
+        public void
         check()
         {
-            return callback.check();
+            callback.check();
         }
 
         private Callback callback = new Callback();
@@ -519,10 +512,10 @@ public class AllTests
             callback.called();
         }
 
-        public boolean
+        public void
         check()
         {
-            return callback.check();
+            callback.check();
         }
 
         private Callback callback = new Callback();
@@ -554,10 +547,10 @@ public class AllTests
             callback.called();
         }
 
-        public boolean
+        public void
         check()
         {
-            return callback.check();
+            callback.check();
         }
 
         private Callback callback = new Callback();
@@ -589,10 +582,10 @@ public class AllTests
             callback.called();
         }
 
-        public boolean
+        public void
         check()
         {
-            return callback.check();
+            callback.check();
         }
 
         private Callback callback = new Callback();
@@ -624,10 +617,10 @@ public class AllTests
             callback.called();
         }
 
-        public boolean
+        public void
         check()
         {
-            return callback.check();
+            callback.check();
         }
 
         private Callback callback = new Callback();
@@ -659,10 +652,10 @@ public class AllTests
             callback.called();
         }
 
-        public boolean
+        public void
         check()
         {
-            return callback.check();
+            callback.check();
         }
 
         private Callback callback = new Callback();
@@ -694,10 +687,10 @@ public class AllTests
             callback.called();
         }
 
-        public boolean
+        public void
         check()
         {
-            return callback.check();
+            callback.check();
         }
 
         private Callback callback = new Callback();
@@ -730,10 +723,10 @@ public class AllTests
             callback.called();
         }
 
-        public boolean
+        public void
         check()
         {
-            return callback.check();
+            callback.check();
         }
 
         private Callback callback = new Callback();
@@ -1225,37 +1218,37 @@ public class AllTests
             {
                 AMI_Thrower_throwAasAI cb = new AMI_Thrower_throwAasAI();
                 thrower.throwAasA_async(cb, 1);
-                test(cb.check());
+                cb.check();
                 // Let's check if we can reuse the same callback object for another call.
                 thrower.throwAasA_async(cb, 1);
-                test(cb.check());
+                cb.check();
             }
         
             {
                 AMI_Thrower_throwAorDasAorDI cb = new AMI_Thrower_throwAorDasAorDI();
                 thrower.throwAorDasAorD_async(cb, 1);
-                test(cb.check());
+                cb.check();
             }
         
             {
                 AMI_Thrower_throwAorDasAorDI cb = new AMI_Thrower_throwAorDasAorDI();
                 thrower.throwAorDasAorD_async(cb, -1);
-                test(cb.check());
+                cb.check();
             }
         
             {
                 AMI_Thrower_throwBasBI cb = new AMI_Thrower_throwBasBI();
                 thrower.throwBasB_async(cb, 1, 2);
-                test(cb.check());
+                cb.check();
             }
         
             {
                 AMI_Thrower_throwCasCI cb = new AMI_Thrower_throwCasCI();
                 thrower.throwCasC_async(cb, 1, 2, 3);
-                test(cb.check());
+                cb.check();
                 // Let's check if we can reuse the same callback object for another call.
                 thrower.throwCasC_async(cb, 1, 2, 3);
-                test(cb.check());
+                cb.check();
             }
         
             out.println("ok");
@@ -1266,19 +1259,19 @@ public class AllTests
             {
                 AMI_Thrower_throwBasAI cb = new AMI_Thrower_throwBasAI();
                 thrower.throwBasA_async(cb, 1, 2);
-                test(cb.check());
+                cb.check();
             }
 
             {
                 AMI_Thrower_throwCasAI cb = new AMI_Thrower_throwCasAI();
                 thrower.throwCasA_async(cb, 1, 2, 3);
-                test(cb.check());
+                cb.check();
             }
         
             {
                 AMI_Thrower_throwCasBI cb = new AMI_Thrower_throwCasBI();
                 thrower.throwCasB_async(cb, 1, 2, 3);
-                test(cb.check());
+                cb.check();
             }
         
             out.println("ok");
@@ -1291,19 +1284,19 @@ public class AllTests
                 {
                     AMI_Thrower_throwUndeclaredAI cb = new AMI_Thrower_throwUndeclaredAI();
                     thrower.throwUndeclaredA_async(cb, 1);
-                    test(cb.check());
+                    cb.check();
                 }
 
                 {
                     AMI_Thrower_throwUndeclaredBI cb = new AMI_Thrower_throwUndeclaredBI();
                     thrower.throwUndeclaredB_async(cb, 1, 2);
-                    test(cb.check());
+                    cb.check();
                 }
 
                 {
                     AMI_Thrower_throwUndeclaredCI cb = new AMI_Thrower_throwUndeclaredCI();
                     thrower.throwUndeclaredC_async(cb, 1, 2, 3);
-                    test(cb.check());
+                    cb.check();
                 }
         
                 out.println("ok");
@@ -1316,7 +1309,7 @@ public class AllTests
             
                 AMI_Thrower_throwAssertExceptionI cb = new AMI_Thrower_throwAssertExceptionI();
                 thrower.throwAssertException_async(cb);
-                test(cb.check());
+                cb.check();
         
                 out.println("ok");
             }
@@ -1329,7 +1322,7 @@ public class AllTests
                 ThrowerPrx thrower2 = ThrowerPrxHelper.uncheckedCast(thrower.ice_identity(id));
                 AMI_Thrower_throwAasAObjectNotExistI cb = new AMI_Thrower_throwAasAObjectNotExistI(communicator);
                 thrower2.throwAasA_async(cb, 1);
-                test(cb.check());
+                cb.check();
             }
 
             out.println("ok");
@@ -1343,7 +1336,7 @@ public class AllTests
                 {
                     AMI_Thrower_throwAasAFacetNotExistI cb = new AMI_Thrower_throwAasAFacetNotExistI();
                     thrower2.throwAasA_async(cb, 1);
-                    test(cb.check());
+                    cb.check();
                 }
             }
             catch(Throwable ex)
@@ -1361,7 +1354,7 @@ public class AllTests
                 AMI_WrongOperation_noSuchOperationI cb = new AMI_WrongOperation_noSuchOperationI();
                 WrongOperationPrx thrower2 = WrongOperationPrxHelper.uncheckedCast(thrower);
                 thrower2.noSuchOperation_async(cb);
-                test(cb.check());
+                cb.check();
             }
 
             out.println("ok");
@@ -1372,7 +1365,7 @@ public class AllTests
             {
                 AMI_Thrower_throwLocalExceptionI cb = new AMI_Thrower_throwLocalExceptionI();
                 thrower.throwLocalException_async(cb);
-                test(cb.check());
+                cb.check();
             }
         
             out.println("ok");
@@ -1382,7 +1375,7 @@ public class AllTests
         
             AMI_Thrower_throwNonIceExceptionI cb = new AMI_Thrower_throwNonIceExceptionI();
             thrower.throwNonIceException_async(cb);
-            test(cb.check());
+            cb.check();
         
             out.println("ok");
         }

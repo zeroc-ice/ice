@@ -16,7 +16,7 @@ module Test
 {
 
 
-["ami"] class MyClass
+class MyClass
 {
     void shutdown();
 

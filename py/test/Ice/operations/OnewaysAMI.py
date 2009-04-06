@@ -22,12 +22,8 @@ class CallbackBase:
         self._cond.acquire()
         try:
             while not self._called:
-                self._cond.wait(5.0)
-            if self._called:
-                self._called = False
-                return True
-            else:
-                return False
+                self._cond.wait()
+            self._called = False
         finally:
             self._cond.release()
 
@@ -86,11 +82,11 @@ def onewaysAMI(communicator, p):
         indirect.opVoid_async(cb)
     except Ice.Exception:
         test(False)
-    test(cb.check())
+    cb.check()
 
     cb = AMI_MyClass_opByteExI()
     try:
         p.opByte_async(cb, 0, 0)
     except Ice.Exception:
         test(False)
-    test(cb.check())
+    cb.check()

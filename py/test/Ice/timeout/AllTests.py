@@ -27,7 +27,7 @@ class CallbackBase:
     def check(self):
         self._cond.acquire()
         while not self._called:
-            self._cond.wait(5.0)
+            self._cond.wait()
         self._called = False
         return True
 
@@ -149,7 +149,7 @@ def allTests(communicator, collocated):
     to = Test.TimeoutPrx.uncheckedCast(obj.ice_timeout(500))
     cb = AMISleepEx()
     to.sleep_async(cb, 2000)
-    test(cb.check())
+    cb.check()
     #
     # Expect success.
     #
@@ -157,7 +157,7 @@ def allTests(communicator, collocated):
     to = Test.TimeoutPrx.uncheckedCast(obj.ice_timeout(1000))
     cb = AMISleep()
     to.sleep_async(cb, 500)
-    test(cb.check())
+    cb.check()
     print "ok"
 
     print "testing AMI write timeout... ",
@@ -168,7 +168,7 @@ def allTests(communicator, collocated):
     to.holdAdapter(2000)
     cb = AMISendDataEx()
     to.sendData_async(cb, seq)
-    test(cb.check())
+    cb.check()
     #
     # Expect success.
     #
@@ -177,7 +177,7 @@ def allTests(communicator, collocated):
     to.holdAdapter(500)
     cb = AMISendData()
     to.sendData_async(cb, seq)
-    test(cb.check())
+    cb.check()
     print "ok"
 
     print "testing timeout overrides... ",

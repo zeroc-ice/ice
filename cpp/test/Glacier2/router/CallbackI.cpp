@@ -200,7 +200,7 @@ CallbackReceiverI::waitCallback(const Current&)
         Lock sync(*this);
         while(!_finishWaitCallback)
         {
-            test(timedWait(IceUtil::Time::milliSeconds(10000)));
+            wait();
         }
         _finishWaitCallback = false;
     }
@@ -215,54 +215,42 @@ CallbackReceiverI::callbackWithPayload(const Ice::ByteSeq&, const Current&)
     notifyAll();
 }
 
-bool
+void
 CallbackReceiverI::callbackOK()
 {
     Lock sync(*this);
 
     while(!_callback)
     {
-        if(!timedWait(IceUtil::Time::milliSeconds(10000)))
-        {
-            return false;
-        }
+        wait();
     }
 
     _callback = false;
-    return true;
 }
 
-bool
+void
 CallbackReceiverI::waitCallbackOK()
 {
     Lock sync(*this);
     while(!_waitCallback)
     {
-        if(!timedWait(IceUtil::Time::milliSeconds(10000)))
-        {
-            return false;
-        }
+        wait();
     }
 
     _waitCallback = false;
-    return true;
 }
 
-bool
+void
 CallbackReceiverI::callbackWithPayloadOK()
 {
     Lock sync(*this);
 
     while(!_callbackWithPayload)
     {
-        if(!timedWait(IceUtil::Time::milliSeconds(10000)))
-        {
-            return false;
-        }
+        wait();
     }
 
     _callbackWithPayload = false;
-    return true;
 }
 
 void
@@ -273,17 +261,14 @@ CallbackReceiverI::notifyWaitCallback()
     notifyAll();
 };
 
-bool
+void
 CallbackReceiverI::answerConcurrentCallbacks(unsigned int num)
 {
     Lock sync(*this);
 
     while(_callbacks.size() != num)
     {
-        if(!timedWait(IceUtil::Time::milliSeconds(10000)))
-        {
-            return false;
-        }
+        wait();
     }
 
     for(vector<pair<AMD_CallbackReceiver_concurrentCallbackPtr, Int> >::const_iterator p = _callbacks.begin();
@@ -293,7 +278,6 @@ CallbackReceiverI::answerConcurrentCallbacks(unsigned int num)
         p->first->ice_response(p->second);
     }
     _callbacks.clear();
-    return true;
 }
 
 CallbackI::CallbackI()

@@ -243,7 +243,7 @@ public class Client extends test.Util.Application
             java.util.Map<String, String> context = new java.util.HashMap<String, String>();
             context.put("_fwd", "o");
             oneway.initiateCallback(onewayR, context);
-            test(callbackReceiverImpl.callbackOK());
+            callbackReceiverImpl.callbackOK();
             out.println("ok");
         }
 
@@ -253,7 +253,7 @@ public class Client extends test.Util.Application
             java.util.Map<String, String> context = new java.util.HashMap<String, String>();
             context.put("_fwd", "t");
             twoway.initiateCallback(twowayR, context);
-            test(callbackReceiverImpl.callbackOK());
+            callbackReceiverImpl.callbackOK();
             out.println("ok");
         }
 
@@ -272,7 +272,7 @@ public class Client extends test.Util.Application
                 test(ex.someValue == 3.14);
                 test(ex.someString.equals("3.14"));
             }
-            test(callbackReceiverImpl.callbackOK());
+            callbackReceiverImpl.callbackOK();
             out.println("ok");
         }
 
@@ -300,7 +300,7 @@ public class Client extends test.Util.Application
             CallbackPrx otherCategoryTwoway = CallbackPrxHelper.uncheckedCast(
                 twoway.ice_identity(communicator().stringToIdentity("c2/callback")));
             otherCategoryTwoway.initiateCallback(twowayR, context);
-            test(callbackReceiverImpl.callbackOK());
+            callbackReceiverImpl.callbackOK();
             out.println("ok");
         }
         
@@ -330,7 +330,7 @@ public class Client extends test.Util.Application
             CallbackPrx otherCategoryTwoway = CallbackPrxHelper.uncheckedCast(
                 twoway.ice_identity(communicator().stringToIdentity("_userid/callback")));
             otherCategoryTwoway.initiateCallback(twowayR, context);
-            test(callbackReceiverImpl.callbackOK());
+            callbackReceiverImpl.callbackOK();
             out.println("ok");
         }
         
