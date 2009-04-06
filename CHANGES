@@ -1,5 +1,5 @@
 ======================================================================
-CHANGES for Ice 3.3.1
+CHANGES for Ice 3.4.0
 ======================================================================
 
 The entries below contain brief descriptions of the changes in a
@@ -26,15 +26,19 @@ NOTE: Use this section for changes that are NOT included in the 3.3
 branch.
 ======================================================================
 
+
 General Changes
 ===============
 
 These entries apply to all relevant language mappings unless otherwise
 noted.
 
+- Fixed a bug in slice2html that caused incorrect hyperlinks to be
+  generated for the summary of the index sections of a module page.
+
 - Added a new property, Ice.LogFile, which causes the default Ice
   logger to write to a file rather than stderr. The file name is the
-  properties value.
+  property's value.
 
 - Added the following operations to the ObjectAdapter API:
 
@@ -42,12 +46,22 @@ noted.
    - removeDefaultServant
    - findDefaultServant
 
-These methods allow you to use default servants with Ice. Please refer
-to the manual file for more information.
+  These methods provide a simpler way of using default servants in
+  Ice. Please refer to the manual for more information.
 
 - Using the --depend option with Slice compilers that support it no 
   longer outputs dependency info even if the Slice file itself 
   contains errors.
+
+
+Java Changes
+============
+
+- Removed the Java2 mapping. The release notes contain instructions
+  for migrating an application to the Java5 mapping.
+
+- Changed the Slice compiler to emit @SuppressWarning annotations only
+  when necessary.
 
 
 ======================================================================
@@ -60,9 +74,6 @@ General Changes
 
 These entries apply to all relevant language mappings unless otherwise
 noted.
-
-- Fixed a bug in slice2html that caused incorrect hyperlinks to be
-  generated for the summary of the index sections of a module page.
 
 - Fixed a bug where ice_getCachedConnection could throw if called
   shortly after connection establishment failed.
