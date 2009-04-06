@@ -186,7 +186,7 @@ public class SliceTask extends org.apache.tools.ant.Task
         {
         }
 
-        return new java.util.HashMap();
+        return new java.util.HashMap<String, SliceDependency>();
     }
 
     protected void
