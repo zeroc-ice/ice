@@ -23,7 +23,8 @@ Table of Contents
 -----------------
 
   1. New Features
-  2. Upgrading your application from Ice 3.3.0
+  2. Upgrading your application from Ice 3.3
+     - Java mapping changes
   3. Upgrading your application from Ice 3.2 or earlier releases
      - Compatibility
      - Migrating IceStorm databases
@@ -47,7 +48,7 @@ Table of Contents
 1. New Features
 ======================================================================
 
-This section discusses the significant enhancements in Ice 3.3.
+This section discusses the significant enhancements in Ice 3.4.
 
 
 Features added with 3.3.1
@@ -257,8 +258,207 @@ Ice for Python now supports blobjects.
 
 
 ======================================================================
-2. Upgrading your application from Ice 3.3.0
+2. Upgrading your application from Ice 3.3
 ======================================================================
+
+
+Java mapping changes
+====================
+
+The Java2 language mapping, which was deprecated in Ice 3.3, is no
+longer supported. The Slice compiler and Ice API now use the Java5
+language mapping exclusively, therefore upgrading to Ice 3.4 may
+require modifications to your application's source code. The
+subsections below discuss the language mapping features that are
+affected by this change and describe how to modify your application
+accordingly.
+
+
+Metadata
+--------
+
+The global metadata directives "java:java2" and "java:java5" are no
+longer supported and should be removed from your Slice files. The
+Slice compiler now emits a warning about these directives.
+
+Support for the portable metadata syntax has also been removed. This
+syntax allowed Slice definitions to define custom type metadata that
+the Slice compiler would translate to match the desired target
+mapping. For example:
+
+  // Slice
+  ["java:type:{java.util.ArrayList}"] sequence<String> StringList;
+
+The braces surrounding the custom type "java.util.ArrayList" directed
+the Slice compiler to use "java.util.ArrayList<String>" in the Java5
+mapping and "java.util.ArrayList" in the Java2 mapping.
+
+All uses of the portable metadata syntax must be changed to use the
+corresponding Java5 equivalent.
+
+
+Dictionaries
+------------
+
+Since Slice dictionary types now use the Java5 mapping, recompiling
+your Slice files and your application may cause the Java compiler to
+emit "unchecked" warnings. This occurs when your code attempts to
+assign an untyped collection class such as "java.util.Map" to a
+generic type such as "java.util.Map<String, String>". Consider the
+following example:
+
+  // Slice
+  dictionary<string, int> ValueMap;
+
+  interface Table {
+      void setValues(ValueMap m);
+  };
+
+A Java2 application might have used these Slice definitions as shown
+below:
+
+  // Java
+  java.util.Map values = new java.util.HashMap();
+  values.put(...);
+
+  TablePrx proxy = ...;
+  proxy.setValues(values); // Warning
+
+The call to setValues() is an example of an unchecked conversion. We
+recommend that you compile your application using the compiler option
+shown below:
+
+  javac -Xlint:unchecked ...
+
+This option causes the compiler to generate descriptive warnings about
+occurrences of unchecked conversions to help you find and correct the
+offending code.
+
+
+Contexts
+--------
+
+The Slice type Ice::Context is defined as follows:
+
+  // Slice
+  module Ice {
+      dictionary<string, string> Context;
+  };
+
+As a dictionary, the Context type is subject to the same issues
+regarding unchecked conversions described in the "Dictionaries"
+section above. For example, each proxy operation maps to two
+overloaded methods, one that omits the trailing Context parameter and
+one that includes it:
+
+  // Java
+  interface TablePrx {
+      void setValues(java.util.Map<String, Integer> m);  // No context
+
+      void setValues(java.util.Map<String, Integer> m,
+                     java.util.Map<String, String> ctx);
+  }
+
+If your proxy invocations make use of this parameter, you will need to
+change your code to use the generic type shown above in order to
+eliminate unchecked conversion warnings.
+
+
+Enumerations
+------------
+
+The Java2 language mapping for a Slice enumeration generated a class
+whose API differed in several ways from the standard Java5 enum type.
+Consider the following enumeration:
+
+  // Slice
+  enum Color { red, green, blue };
+
+The Java2 language mapping for Color is shown below:
+
+  // Java
+  public final class Color
+  {
+      // Integer constants
+      public static final int _red = 0;
+      public static final int _green = 1;
+      public static final int _blue = 2;
+
+      // Enumerators
+      public static final Color red = ...;
+      public static final Color green = ...;
+      public static final Color blue = ...;
+
+      // Helpers
+      public static Color convert(int val);
+      public static Color convert(String val);
+      public int value();
+
+      ...
+  }
+
+The first step in migrating to the Java5 mapping for enumerations is
+to modify all switch statements that use an enumerator. Before Java
+added native support for enumerations, the switch statement could only
+use the integer value of the enumerator and therefore the Java2
+mapping supplied integer constants for use in case statements. For
+example, here is a switch statement that uses the Java2 mapping:
+
+  // Java
+  Color col = ...;
+  switch(col.value())
+  {
+  case Color._red:
+      ...
+      break;
+  case Color._green:
+      ...
+      break;
+  case Color._blue:
+      ...
+      break;
+  }
+
+The Java5 mapping eliminates the integer constants because Java5
+allows enumerators to be used in case statements. The resulting code
+becomes much easier to read and write:
+
+  // Java
+  Color col = ...;
+  switch(col)
+  {
+  case red:
+      ...
+      break;
+  case green:
+      ...
+      break;
+  case blue:
+      ...
+      break;
+  }
+
+The next step is to replace any uses of the value() or convert()
+methods with their Java5 equivalents. The base class for all Java5
+enumerations (java.lang.Enum) supplies methods with similar
+functionality:
+
+  static Color[] values()          // replaces convert(int)
+  static Color valueOf(String val) // replaces convert(String)
+  int ordinal()                    // replaces value()
+
+For example, here is the Java5 code to convert an integer into its
+equivalent enumerator:
+
+  Color r = Color.values()[0]; // red
+
+Note however that the convert(String) method in the Java2 mapping
+returned null for an invalid argument, whereas the Java5 enum method
+valueOf raises IllegalArgumentException instead.
+
+
+Old
+===
 
 Since Ice 3.3.1 maintains binary compatibility with Ice 3.3.0, it is
 not necessary for you to recompile your Slice files or your program
