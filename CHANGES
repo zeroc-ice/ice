@@ -57,11 +57,21 @@ noted.
 Java Changes
 ============
 
+- A Slice class that implements an interface but does not define or
+  inherit any operations is now mapped to a concrete class.
+
 - Removed the Java2 mapping. The release notes contain instructions
   for migrating an application to the Java5 mapping.
 
 - Changed the Slice compiler to emit @SuppressWarning annotations only
   when necessary.
+
+
+C# Changes
+==========
+
+- A Slice class that implements an interface but does not define or
+  inherit any operations is now mapped to a concrete class.
 
 
 ======================================================================
