@@ -60,6 +60,15 @@ noted.
 Java Changes
 ============
 
+- Ice now supports the ability to load a configuration file as a class
+  path resource. For a path name specified in the ICE_CONFIG
+  environment variable, in the --Ice.Config command-line option, or
+  passed to Properties::load(), Ice first attempts to open the file as
+  a class path resource and, if that fails, tries to open it as a file
+  in the local file system. See the manual for more information.
+
+- A configuration file can now be loaded as a class path resource.
+  
 - A Slice class that implements an interface but does not define or
   inherit any operations is now mapped to a concrete class.
 
