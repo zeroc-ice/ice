@@ -42,13 +42,7 @@ public class HelloApplet extends JApplet
         {
             Ice.InitializationData initData = new Ice.InitializationData();
             initData.properties = Ice.Util.createProperties();
-            initData.properties.setProperty("Ice.ACM.Client", "10");
-            initData.properties.setProperty("Ice.Trace.Network", "3");
-            initData.properties.setProperty("IceSSL.Trace.Security", "3");
-            initData.properties.setProperty("IceSSL.Password", "password");
-            initData.properties.setProperty("IceSSL.Keystore", "client.jks");
-            initData.properties.setProperty("IceSSL.Truststore", "client.jks");
-            initData.properties.setProperty("Ice.Plugin.IceSSL", "IceSSL.PluginFactory");
+            initData.properties.load("config.applet");
             _communicator = Ice.Util.initialize(initData);
         }
         catch(Throwable ex)

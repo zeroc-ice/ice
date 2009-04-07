@@ -1087,52 +1087,19 @@ class Instance
         throws java.io.IOException
     {
         //
-        // We resolve the path as follows:
+        // This method wraps a call to IceInternal.Util.openResource. If the first call fails and
+        // IceSSL.DefaultDir is defined, prepend the default directory and try again.
         //
-        // 1. Try to open it as a class path resource
-        // 2. Try to open it in the file system
-        // 3. Prepend the value of IceSSL.DefaultDir (if defined) and try to open
-        //    it in the file system
-        //
+        java.io.InputStream stream = IceInternal.Util.openResource(getClass().getClassLoader(), path);
+        if(stream == null && _defaultDir.length() > 0)
+        {
+            stream = IceInternal.Util.openResource(getClass().getClassLoader(),
+                                                   _defaultDir + java.io.File.separator + path);
+        }
 
-        //
-        // Calling getResourceAsStream on the class loader means all paths are absolute,
-        // whereas calling it on the class requires you to prepend "/" to the path in
-        // order to make it absolute, otherwise the path is interpreted relative to the
-        // class.
-        //
-        // getResourceAsStream returns null if the resource can't be found.
-        //
-        java.io.InputStream stream = getClass().getClassLoader().getResourceAsStream(path);
         if(stream != null)
         {
             stream = new java.io.BufferedInputStream(stream);
-        }
-        else
-        {
-            try
-            {
-                java.io.File f = new java.io.File(path);
-                if(f.exists())
-                {
-                    stream = new java.io.BufferedInputStream(new java.io.FileInputStream(f));
-                }
-                else
-                {
-                    if(_defaultDir.length() > 0)
-                    {
-                        f = new java.io.File(_defaultDir + java.io.File.separator + path);
-                        if(f.exists())
-                        {
-                            stream = new java.io.BufferedInputStream(new java.io.FileInputStream(f));
-                        }
-                    }
-                }
-            }
-            catch(java.lang.SecurityException ex)
-            {
-                // Ignore - a security manager may forbid access to the local file system.
-            }
         }
 
         return stream;

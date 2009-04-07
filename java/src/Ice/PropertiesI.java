@@ -32,49 +32,31 @@ public final class PropertiesI implements Properties
     public synchronized String
     getProperty(String key)
     {
-        String result = null;
         PropertyValue pv = _properties.get(key);
-        if(pv == null)
+        if(pv != null)
         {
-            try
-            {
-                result = System.getProperty(key, "");
-            }
-            catch(java.lang.SecurityException ex)
-            {
-                result = "";
-            }
+            pv.used = true;
+            return pv.value;
         }
         else
         {
-            pv.used = true;
-            result = pv.value;
+            return "";
         }
-        return result;
     }
 
     public synchronized String
     getPropertyWithDefault(String key, String value)
     {
-        String result = null;
         PropertyValue pv = _properties.get(key);
-        if(pv == null)
+        if(pv != null)
         {
-            try
-            {
-                result = System.getProperty(key, value);
-            }
-            catch(java.lang.SecurityException ex)
-            {
-                result = value;
-            }
+            pv.used = true;
+            return pv.value;
         }
         else
         {
-            pv.used = true;
-            result = pv.value;
+            return value;
         }
-        return result;
     }
 
     public int
@@ -86,38 +68,23 @@ public final class PropertiesI implements Properties
     public synchronized int
     getPropertyAsIntWithDefault(String key, int value)
     {
-        String result = null;
         PropertyValue pv = _properties.get(key);
-        if(pv == null)
-        {
-            try
-            {
-                result = System.getProperty(key);
-            }
-            catch(java.lang.SecurityException ex)
-            {
-            }
-        }
-        else
+        if(pv != null)
         {
             pv.used = true;
-            result = pv.value;
-        }
-        if(result == null)
-        {
-            return value;
+
+            try
+            {
+                return Integer.parseInt(pv.value);
+            }
+            catch(NumberFormatException ex)
+            {
+                Ice.Util.getProcessLogger().warning("numeric property " + key +
+                                                    " set to non-numeric value, defaulting to " + value);
+            }
         }
 
-        try
-        {
-            return Integer.parseInt(result);
-        }
-        catch(NumberFormatException ex)
-        {
-            Ice.Util.getProcessLogger().warning("numeric property " + key +
-                                                " set to non-numeric value, defaulting to " + value);
-            return value;
-        }
+        return value;
     }
 
     public String[]
@@ -134,38 +101,27 @@ public final class PropertiesI implements Properties
             value = new String[0];
         }
 
-        String result = null;
         PropertyValue pv = _properties.get(key);
-        if(pv == null)
-        {
-            try
-            {
-                result = System.getProperty(key);
-            }
-            catch(java.lang.SecurityException ex)
-            {
-            }
-            if(result == null)
-            {
-                return value;
-            }
-        }
-        else
+        if(pv != null)
         {
             pv.used = true;
-            result = pv.value;
-        }
 
-        String[] arr = splitString(result, ", \t\r\n");
-        if(arr == null)
-        {
-            Ice.Util.getProcessLogger().warning("mismatched quotes in property " + key
-                                                + "'s value, returning default value");
-            return value;
+            String[] result = splitString(pv.value, ", \t\r\n");
+            if(result == null)
+            {
+                Ice.Util.getProcessLogger().warning("mismatched quotes in property " + key
+                                                    + "'s value, returning default value");
+                return value;
+            }
+            if(result.length == 0)
+            {
+                result = value;
+            }
+            return result;
         }
         else
         {
-            return arr;
+            return value;
         }
     }
 
@@ -332,8 +288,14 @@ public final class PropertiesI implements Properties
     {
         try
         {
-            java.io.FileInputStream fis = new java.io.FileInputStream(file);
-            java.io.InputStreamReader isr = new java.io.InputStreamReader(fis, "UTF-8");
+            java.io.InputStream is = IceInternal.Util.openResource(getClass().getClassLoader(), file);
+            if(is == null)
+            {
+                FileException fe = new FileException();
+                fe.path = file;
+                throw fe;
+            }
+            java.io.InputStreamReader isr = new java.io.InputStreamReader(is, "UTF-8");
             java.io.BufferedReader br = new java.io.BufferedReader(isr);
             parse(br);
         }
@@ -657,7 +619,8 @@ public final class PropertiesI implements Properties
     //
     // Split string helper; returns null for unmatched quotes
     //
-    private String[] splitString(String str, String delim)
+    private String[]
+    splitString(String str, String delim)
     {
         java.util.List<String> l = new java.util.ArrayList<String>();
         char[] arr = new char[str.length()];
