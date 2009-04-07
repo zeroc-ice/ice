@@ -89,8 +89,19 @@ Slice::Preprocessor::normalizeIncludePath(const string& path)
 
     replace(result.begin(), result.end(), '\\', '/');
 
+    string::size_type startReplace = 0;
+#ifdef _WIN32
+    //
+    // For UNC paths we need to ensure they are in the format that is
+    // used by MCPP. IE. "//MACHINE/PATH"
+    //
+    if(result.find("//") == 0)
+    {
+        startReplace = 2;
+    }
+#endif
     string::size_type pos;
-    while((pos = result.find("//")) != string::npos)
+    while((pos = result.find("//", startReplace)) != string::npos)
     {
         result.replace(pos, 2, "/");
     }

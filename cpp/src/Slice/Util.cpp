@@ -26,8 +26,9 @@ static string
 normalizePath(const string& path)
 {
     string result = path;
+
     replace(result.begin(), result.end(), '\\', '/');
-    string::size_type pos;
+
     string::size_type startReplace = 0;
 #ifdef _WIN32
     //
@@ -39,6 +40,7 @@ normalizePath(const string& path)
         startReplace = 2;
     }
 #endif
+    string::size_type pos;
     while((pos = result.find("//", startReplace)) != string::npos)
     {
         result.replace(pos, 2, "/");
