@@ -76,10 +76,10 @@ namespace IceSSL
         //
         // Only for use by EndpointI.
         //
-        internal ConnectorI(Instance instance, IPEndPoint addr, int timeout, string connectionId)
+        internal ConnectorI(Instance instance, string host, IPEndPoint addr, int timeout, string connectionId)
         {
             _instance = instance;
-            _host = addr.Address.ToString();
+            _host = host;
             _logger = instance.communicator().getLogger();
             _addr = addr;
             _timeout = timeout;
