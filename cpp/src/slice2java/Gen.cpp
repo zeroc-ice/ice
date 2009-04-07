@@ -1732,7 +1732,7 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
     else
     {
         out << sp << nl << "public ";
-        if(p->isAbstract())
+        if(p->allOperations().size() > 0) // Don't use isAbstract() - see bug 3739
         {
             out << "abstract ";
         }
@@ -1858,7 +1858,7 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
     //
     // Default factory for non-abstract classes.
     //
-    if(!p->isAbstract() && !p->isLocal())
+    if(!p->isInterface() && p->allOperations().size() == 0 && !p->isLocal())
     {
         out << sp;
         out << nl << "private static class __F implements Ice.ObjectFactory";

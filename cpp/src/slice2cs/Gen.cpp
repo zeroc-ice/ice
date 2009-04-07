@@ -1400,7 +1400,7 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
     else
     {
         _out << nl << "public ";
-        if(p->isAbstract())
+        if(p->allOperations().size() > 0) // Don't use isAbstract() here - see bug 3739
         {
             _out << "abstract ";
         }
