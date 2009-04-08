@@ -47,7 +47,6 @@ ICE_SRCS	= Ice_LocalException_ice.py \
 
 GLACIER2_SRCS	= Glacier2_RouterF_ice.py \
 		  Glacier2_Router_ice.py \
-		  Glacier2_SessionF_ice.py \
 		  Glacier2_Session_ice.py \
 		  Glacier2_PermissionsVerifierF_ice.py \
 		  Glacier2_PermissionsVerifier_ice.py \
@@ -189,9 +188,6 @@ Glacier2_RouterF_ice.py: $(slicedir)/Glacier2/RouterF.ice
 
 Glacier2_Router_ice.py: $(slicedir)/Glacier2/Router.ice
 	$(SLICE2PY) $(SLICE2PYFLAGS) --prefix Glacier2_ $(slicedir)/Glacier2/Router.ice
-
-Glacier2_SessionF_ice.py: $(slicedir)/Glacier2/SessionF.ice
-	$(SLICE2PY) $(SLICE2PYFLAGS) --prefix Glacier2_ $(slicedir)/Glacier2/SessionF.ice
 
 Glacier2_Session_ice.py: $(slicedir)/Glacier2/Session.ice
 	$(SLICE2PY) $(SLICE2PYFLAGS) --prefix Glacier2_ $(slicedir)/Glacier2/Session.ice

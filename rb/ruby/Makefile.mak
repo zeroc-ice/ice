@@ -50,7 +50,6 @@ ICE_SRCS	= Ice\LocalException.rb \
 #
 GLACIER2_SRCS	= Glacier2\RouterF.rb \
 		  Glacier2\Router.rb \
-		  Glacier2\SessionF.rb \
 		  Glacier2\Session.rb \
 		  Glacier2\PermissionsVerifierF.rb \
 		  Glacier2\PermissionsVerifier.rb \

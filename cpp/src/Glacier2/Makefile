@@ -46,7 +46,6 @@ SLICE_SRCS	= $(SDIR)/PermissionsVerifierF.ice \
 		  $(SDIR)/Router.ice \
 		  $(SDIR)/RouterF.ice \
 		  $(SDIR)/Session.ice \
-		  $(SDIR)/SessionF.ice \
 		  $(SDIR)/SSLInfo.ice
 
 HDIR		= $(headerdir)/Glacier2

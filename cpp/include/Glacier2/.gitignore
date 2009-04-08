@@ -6,5 +6,4 @@ PermissionsVerifier.h
 Router.h
 RouterF.h
 Session.h
-SessionF.h
 SSLInfo.h

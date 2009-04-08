@@ -14,7 +14,6 @@ SLICEFILES = ..\..\slice\Freeze\BackgroundSaveEvictor.ice \
              ..\..\slice\Glacier2\Router.ice \
              ..\..\slice\Glacier2\RouterF.ice \
              ..\..\slice\Glacier2\Session.ice \
-             ..\..\slice\Glacier2\SessionF.ice \
              ..\..\slice\Glacier2\SSLInfo.ice \
              ..\..\slice\Ice\BuiltinSequences.ice \
              ..\..\slice\Ice\Communicator.ice \

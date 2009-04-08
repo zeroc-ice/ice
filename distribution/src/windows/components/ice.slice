@@ -12,7 +12,6 @@ Glacier2/PermissionsVerifierF
 Glacier2/Router
 Glacier2/RouterF
 Glacier2/Session
-Glacier2/SessionF
 Glacier2/SSLInfo
 Ice/BuiltinSequences
 Ice/Communicator

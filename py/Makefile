@@ -11,7 +11,7 @@ top_srcdir	= .
 
 include $(top_srcdir)/config/Make.rules
 
-SUBDIRS		= python modules
+SUBDIRS		= modules python
 
 install:: install-common
 	@if test ! -d $(install_pythondir) ; \

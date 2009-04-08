@@ -83,7 +83,6 @@ clean::
 	-del /q PermissionsVerifier.cpp $(HDIR)\PermissionsVerifier.h
 	-del /q RouterF.cpp $(HDIR)\RouterF.h
 	-del /q Router.cpp $(HDIR)\Router.h
-	-del /q SessionF.cpp $(HDIR)\SessionF.h
 	-del /q Session.cpp $(HDIR)\Session.h
 	-del /q SSLInfo.cpp $(HDIR)\SSLInfo.h
 	-del /q Glacier2Router.res Glacier2.res

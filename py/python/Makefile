@@ -53,7 +53,6 @@ ICE_SRCS	= Ice_LocalException_ice.py \
 
 GLACIER2_SRCS	= Glacier2_RouterF_ice.py \
 		  Glacier2_Router_ice.py \
-		  Glacier2_SessionF_ice.py \
 		  Glacier2_Session_ice.py \
 		  Glacier2_PermissionsVerifierF_ice.py \
 		  Glacier2_PermissionsVerifier_ice.py \

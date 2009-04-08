@@ -20,12 +20,10 @@ PermissionsVerifier.cpp: $(slicedir)/Glacier2/PermissionsVerifier.ice $(slicedir
 Router.cpp: $(slicedir)/Glacier2/Router.ice $(slicedir)/Ice/Router.ice $(slicedir)/Ice/BuiltinSequences.ice $(slicedir)/Glacier2/Session.ice $(slicedir)/Ice/Identity.ice $(slicedir)/Glacier2/SSLInfo.ice
 RouterF.cpp: $(slicedir)/Glacier2/RouterF.ice
 Session.cpp: $(slicedir)/Glacier2/Session.ice $(slicedir)/Ice/BuiltinSequences.ice $(slicedir)/Ice/Identity.ice $(slicedir)/Glacier2/SSLInfo.ice
-SessionF.cpp: $(slicedir)/Glacier2/SessionF.ice
 SSLInfo.cpp: $(slicedir)/Glacier2/SSLInfo.ice $(slicedir)/Ice/BuiltinSequences.ice
 ../../../slice/Glacier2/PermissionsVerifierF.ice: $(SLICE2CPP) $(SLICEPARSERLIB)
 ../../../slice/Glacier2/PermissionsVerifier.ice: $(SLICE2CPP) $(SLICEPARSERLIB)
 ../../../slice/Glacier2/Router.ice: $(SLICE2CPP) $(SLICEPARSERLIB)
 ../../../slice/Glacier2/RouterF.ice: $(SLICE2CPP) $(SLICEPARSERLIB)
 ../../../slice/Glacier2/Session.ice: $(SLICE2CPP) $(SLICEPARSERLIB)
-../../../slice/Glacier2/SessionF.ice: $(SLICE2CPP) $(SLICEPARSERLIB)
 ../../../slice/Glacier2/SSLInfo.ice: $(SLICE2CPP) $(SLICEPARSERLIB)
