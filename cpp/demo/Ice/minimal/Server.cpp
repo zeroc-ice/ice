@@ -7,71 +7,39 @@
 //
 // **********************************************************************
 
-#include <IceUtil/IceUtil.h>
 #include <Ice/Ice.h>
 #include <HelloI.h>
 
 using namespace std;
 
-static Ice::CommunicatorPtr communicator;
-
-static void 
-onCtrlC(int)
-{
-    if(communicator)
-    {
-        try
-        {
-            communicator->shutdown();
-        }
-        catch(const Ice::CommunicatorDestroyedException&)
-        {
-            //
-            // This might occur if we receive more than one signal.
-            //
-        }
-    }
-}
-
 int
-main(int argc, char* argv[])
+main()
 {
-    int status = EXIT_SUCCESS;
-
-    IceUtil::CtrlCHandler ctrCHandler(onCtrlC);
+    Ice::CommunicatorPtr communicator;
 
     try
     {
-        communicator = Ice::initialize(argc, argv);
-        if(argc > 1)
-        {
-            cerr << argv[0] << ": too many arguments" << endl;
-            return EXIT_FAILURE;
-        }
+        communicator = Ice::initialize();
         Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapterWithEndpoints("Hello", "tcp -p 10000");
-        Demo::HelloPtr hello = new HelloI;
-        adapter->add(hello, communicator->stringToIdentity("hello"));
+        adapter->add(new HelloI, communicator->stringToIdentity("hello"));
         adapter->activate();
         communicator->waitForShutdown();
+        communicator->destroy();
     }
     catch(const Ice::Exception& ex)
     {
         cerr << ex << endl;
-        status = EXIT_FAILURE;
-    }
-
-    if(communicator)
-    {
-        try
+        if(communicator)
         {
-            communicator->destroy();
+            try
+            {
+                communicator->destroy();
+            }
+            catch(const Ice::Exception& ex)
+            {
+                cerr << ex << endl;
+            }
         }
-        catch(const Ice::Exception& ex)
-        {
-            cerr << ex << endl;
-            status = EXIT_FAILURE;
-        }
+        exit(1);
     }
-
-    return status;
 }

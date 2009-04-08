@@ -7,57 +7,23 @@
 //
 // **********************************************************************
 
-using System;
-using System.Reflection;
-
-[assembly: CLSCompliant(true)]
-
-[assembly: AssemblyTitle("IceMinimalServer")]
-[assembly: AssemblyDescription("Ice minimal demo server")]
-[assembly: AssemblyCompany("ZeroC, Inc.")]
-
 public class Server
 {
-    public static void Main(string[] args)
+    public static void Main()
     {
-        int status = 0;
-        Ice.Communicator communicator = null;
-
         try
         {
-            communicator = Ice.Util.initialize(ref args);
-            if(args.Length > 0)
-            {
-                Console.Error.WriteLine("too many arguments");
-                System.Environment.Exit(1);
-            }
+            Ice.Communicator communicator = Ice.Util.initialize();
             Ice.ObjectAdapter adapter = communicator.createObjectAdapterWithEndpoints("Hello", "tcp -p 10000");
             adapter.add(new HelloI(), communicator.stringToIdentity("hello"));
             adapter.activate();
             communicator.waitForShutdown();
+            communicator.destroy();
         }
         catch(System.Exception ex)
         {
-            Console.Error.WriteLine(ex);
-            status = 1;
-        }
-
-        if(communicator != null)
-        {
-            try
-            {
-                communicator.destroy();
-            }
-            catch(System.Exception ex)
-            {
-                Console.Error.WriteLine(ex);
-                status = 1;
-            }
-        }
-
-        if(status != 0)
-        {
-            System.Environment.Exit(status);
+            System.Console.Error.WriteLine(ex);
+            System.Environment.Exit(1);
         }
     }
 }

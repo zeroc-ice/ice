@@ -8,63 +8,22 @@
 // **********************************************************************
 
 using Demo;
-using System;
-using System.Reflection;
-
-[assembly: CLSCompliant(true)]
-
-[assembly: AssemblyTitle("IceMinimalClient")]
-[assembly: AssemblyDescription("Ice minimal demo client")]
-[assembly: AssemblyCompany("ZeroC, Inc.")]
 
 public class Client
 {
-    public static void Main(string[] args)
+    public static void Main()
     {
-        int status = 0;
-        Ice.Communicator communicator = null;
-
         try
         {
-            communicator = Ice.Util.initialize(ref args);
-            if(args.Length > 0)
-            {
-                System.Console.Error.WriteLine("too many arguments");
-                System.Environment.Exit(1);
-            }
+            Ice.Communicator communicator = Ice.Util.initialize();
             HelloPrx hello = HelloPrxHelper.checkedCast(communicator.stringToProxy("hello:tcp -p 10000"));
-            if(hello == null)
-            {
-                Console.Error.WriteLine("invalid proxy");
-                status = 1;
-            }
-            else
-            {
-                hello.sayHello();
-            }
+            hello.sayHello();
+            communicator.destroy();
         }
         catch(System.Exception ex)
         {
-            Console.Error.WriteLine(ex);
-            status = 1;
-        }
-
-        if(communicator != null)
-        {
-            try
-            {
-                communicator.destroy();
-            }
-            catch(System.Exception ex)
-            {
-                Console.Error.WriteLine(ex);
-                status = 1;
-            }
-        }
-
-        if(status != 0)
-        {
-            System.Environment.Exit(status);
+            System.Console.Error.WriteLine(ex);
+            System.Environment.Exit(1);
         }
     }
 }
