@@ -286,9 +286,10 @@ public final class PropertiesI implements Properties
     public void
     load(String file)
     {
+        java.io.InputStream is = null;
         try
         {
-            java.io.InputStream is = IceInternal.Util.openResource(getClass().getClassLoader(), file);
+            is = IceInternal.Util.openResource(getClass().getClassLoader(), file);
             if(is == null)
             {
                 FileException fe = new FileException();
@@ -305,6 +306,20 @@ public final class PropertiesI implements Properties
             fe.path = file;
             fe.initCause(ex); // Exception chaining
             throw fe;
+        }
+        finally
+        {
+            if(is != null)
+            {
+                try
+                {
+                    is.close();
+                }
+                catch(Throwable ex)
+                {
+                    // Ignore.
+                }
+            }
         }
     }
 

@@ -258,6 +258,17 @@ class Instance
                             e.initCause(ex);
                             throw e;
                         }
+                        finally
+                        {
+                            try
+                            {
+                                in.close();
+                            }
+                            catch(java.io.IOException e)
+                            {
+                                // Ignore.
+                            }
+                        }
                     }
                     rand.setSeed(seed);
                 }
