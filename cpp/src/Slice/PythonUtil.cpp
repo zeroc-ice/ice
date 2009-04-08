@@ -394,6 +394,7 @@ Slice::Python::CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
     ClassDefPtr base;
     OperationList ops = p->operations();
     OperationList::iterator oli;
+    bool isAbstract = p->isInterface() || p->allOperations().size() > 0; // Don't use isAbstract() - see bug 3739
 
     //
     // Define the class.
@@ -448,13 +449,13 @@ Slice::Python::CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
     }
     _out << "):";
     _out.inc();
-    if(!base && !p->hasDataMembers() && !p->isAbstract())
+    if(!base && !p->hasDataMembers() && !isAbstract)
     {
         _out << nl << "pass";
     }
     else
     {
-        if(p->isAbstract())
+        if(isAbstract)
         {
             _out << nl << "if __builtin__.type(self) == _M_" << abs << ':';
             _out.inc();
@@ -715,7 +716,7 @@ Slice::Python::CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
     DataMemberList members = p->dataMembers();
     _out << sp << nl << "_M_" << type << " = IcePy.defineClass('" << scoped << "', " << name << ", ";
     writeMetaData(p->getMetaData());
-    _out << ", " << (p->isAbstract() ? "True" : "False") << ", ";
+    _out << ", " << (isAbstract ? "True" : "False") << ", ";
     if(!base)
     {
         _out << "None";

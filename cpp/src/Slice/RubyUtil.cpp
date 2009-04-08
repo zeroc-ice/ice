@@ -594,8 +594,8 @@ Slice::Ruby::CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
     _out << nl << "end";
     _classHistory.insert(scoped); // Avoid redundant declarations.
 
-    _out << sp << nl << "T_" << name << ".defineClass(" << name << ", "
-         << (p->isAbstract() ? "true" : "false") << ", ";
+    bool isAbstract = p->isInterface() || p->allOperations().size() > 0; // Don't use isAbstract() here - see bug 3739
+    _out << sp << nl << "T_" << name << ".defineClass(" << name << ", " << (isAbstract ? "true" : "false") << ", ";
     if(!base)
     {
         _out << "nil";
