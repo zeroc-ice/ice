@@ -61,6 +61,12 @@ noted.
   contains errors.
 
 
+C++ Changes
+============
+
+- Fixed crash if Application::main() or Service::main() were called with argc == 0.
+
+
 Java Changes
 ============
 

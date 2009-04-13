@@ -280,12 +280,20 @@ Ice::Application::main(int argc, char* argv[], const char* configFile)
         }
         catch(const std::exception& ex)
         {
-            cerr << argv[0] << ": " << ex.what() << endl;
+	    if(argv[0])
+	    {
+		cerr << argv[0] << ": ";
+	    }
+	    cerr << ex.what() << endl;
             return EXIT_FAILURE;
         }
         catch(...)
         {
-            cerr << argv[0] << ": unknown exception" << endl;
+	    if(argv[0])
+	    {
+		cerr << argv[0] << ": ";
+	    }
+            cerr << "unknown exception" << endl;
             return EXIT_FAILURE;
         }
     }
@@ -297,7 +305,11 @@ Ice::Application::main(int argc, char* argv[], const InitializationData& initDat
 {
     if(_communicator != 0)
     {
-        cerr << argv[0] << ": only one instance of the Application class can be used" << endl;
+	if(argv[0])
+	{
+	    cerr << argv[0] << ": ";
+	}
+        cerr << "only one instance of the Application class can be used" << endl;
         return EXIT_FAILURE;
     }
     int status;
@@ -322,7 +334,11 @@ Ice::Application::main(int argc, char* argv[], const InitializationData& initDat
         }
         catch(const CtrlCHandlerException&)
         {
-            cerr << argv[0] << ": only one instance of the Application class can be used" << endl;
+	    if(argv[0])
+	    {
+		cerr << argv[0] << ": ";
+	    }
+            cerr << "only one instance of the Application class can be used" << endl;
             status = EXIT_FAILURE;
         }
     }
@@ -539,7 +555,7 @@ Ice::Application::mainInternal(int argc, char* argv[], const InitializationData&
         }
 
         _interrupted = false;
-        _appName = argv[0];
+	_appName = argv[0] ? argv[0] : "";
 
         //
         // We parse the properties here to extract Ice.ProgramName.

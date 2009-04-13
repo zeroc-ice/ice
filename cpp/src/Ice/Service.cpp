@@ -382,7 +382,7 @@ Ice::Service::interrupt()
 int
 Ice::Service::main(int& argc, char* argv[], const InitializationData& initializationData)
 {
-    _name = argv[0];
+    _name = argv[0] ? argv[0] : "";
 
     //
     // We parse the properties here to extract Ice.ProgramName and
@@ -656,7 +656,11 @@ Ice::Service::main(int& argc, char* argv[], const InitializationData& initializa
             }
             else
             {
-                cerr << argv[0] << ": --pidfile must be followed by an argument" << endl;
+		if(argv[0])
+		{
+		    cerr << argv[0] << ": ";
+		}
+                cerr << "--pidfile must be followed by an argument" << endl;
                 return EXIT_FAILURE;
             }
 
@@ -674,13 +678,21 @@ Ice::Service::main(int& argc, char* argv[], const InitializationData& initializa
 
     if(!closeFiles && !daemonize)
     {
-        cerr << argv[0] << ": --noclose must be used with --daemon" << endl;
+	if(argv[0])
+        {
+	    cerr << argv[0] << ": ";
+	}
+        cerr << "--noclose must be used with --daemon" << endl;
         return EXIT_FAILURE;
     }
 
     if(pidFile.size() > 0 && !daemonize)
     {
-        cerr << argv[0] << ": --pidfile <file> must be used with --daemon" << endl;
+	if(argv[0])
+        {
+	    cerr << argv[0] << ": ";
+	}
+        cerr << "--pidfile <file> must be used with --daemon" << endl;
         return EXIT_FAILURE;
     }
 
@@ -1227,7 +1239,10 @@ Ice::Service::syserror(const string& msg)
     }
     else
     {
-        cerr << _name << ": ";
+	if(!_name.empty())
+	{
+	    cerr << _name << ": ";
+	}
         if(!msg.empty())
         {
             cerr << msg << endl;
@@ -1248,7 +1263,11 @@ Ice::Service::error(const string& msg)
     }
     else
     {
-        cerr << _name << ": error: " << msg << endl;
+	if(!_name.empty())
+	{
+	    cerr << _name << ": ";
+	}
+	cerr << "error: " << msg << endl;
     }
 }
 
@@ -1261,7 +1280,11 @@ Ice::Service::warning(const string& msg)
     }
     else
     {
-        cerr << _name << ": warning: " << msg << endl;
+	if(!_name.empty())
+	{
+	    cerr << _name << ": ";
+	}
+        cerr << "warning: " << msg << endl;
     }
 }
 
@@ -1749,7 +1772,11 @@ Ice::Service::runDaemon(int argc, char* argv[], const InitializationData& initDa
     pid_t pid = fork();
     if(pid < 0)
     {
-        cerr << argv[0] << ": " << strerror(errno) << endl;
+	if(argv[0])
+	{
+	    cerr << argv[0] << ": ";
+	}
+	cerr << strerror(errno) << endl;
         return EXIT_FAILURE;
     }
 
@@ -1778,7 +1805,11 @@ Ice::Service::runDaemon(int argc, char* argv[], const InitializationData& initDa
                     continue;
                 }
 
-                cerr << argv[0] << ": " << strerror(errno) << endl;
+		if(argv[0])
+		{
+		    cerr << argv[0] << ": ";
+		}
+                cerr << strerror(errno) << endl;
                 _exit(EXIT_FAILURE);
             }
             break;
@@ -1801,14 +1832,21 @@ Ice::Service::runDaemon(int argc, char* argv[], const InitializationData& initDa
                         continue;
                     }
 
-                    cerr << argv[0] << ": I/O error while reading error message from child:\n"
-                         << strerror(errno) << endl;
+		    if(argv[0])
+		    {
+			cerr << ": ";
+		    }
+                    cerr << "I/O error while reading error message from child:\n" << strerror(errno) << endl;
                     _exit(EXIT_FAILURE);
                 }
                 pos += n;
                 break;
             }
-            cerr << argv[0] << ": failure occurred in daemon";
+	    if(argv[0])
+	    {
+		cerr << argv[0] << ": ";
+	    }
+            cerr << "failure occurred in daemon";
             if(strlen(msg) > 0)
             {
                 cerr << ':' << endl << msg;
