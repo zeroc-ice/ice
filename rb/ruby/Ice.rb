@@ -257,7 +257,7 @@ module Ice
         
         def main(args, configFile=nil, initData=nil)
             if @@_communicator
-                print $0 + ": only one instance of the Application class can be used"
+                Ice::getProcessLogger().error($0 + ": only one instance of the Application class can be used")
                 return false
             end
             if @@_signalPolicy == HandleSignals
@@ -295,8 +295,7 @@ module Ice
 
                 status = run(args)
             rescue => ex
-                puts $!.inspect
-                puts ex.backtrace.join("\n")
+                Ice::getProcessLogger().error($!.inspect + "\n" + ex.backtrace.join("\n"))
                 status = 1
             end
 
@@ -330,8 +329,7 @@ module Ice
                 begin
                     @@_communicator.destroy()
                 rescue => ex
-                    puts $!
-                    puts ex.backtrace.join("\n")
+                    Ice::getProcessLogger().error($!.inspect + "\n" + ex.backtrace.join("\n"))
                     status = 1
                 end
 
@@ -367,7 +365,7 @@ module Ice
                     @@_ctrlCHandler.setCallback(@@_destroyOnInterruptCallbackProc)
                 }
             else
-                puts @@_appName + ": warning: interrupt method called on Application configured to not handle interrupts."
+                Ice::getProcessLogger().error(@@_appName + ": warning: interrupt method called on Application configured to not handle interrupts.")
             end
         end
 
@@ -385,7 +383,7 @@ module Ice
                     @@_ctrlCHandler.setCallback(nil)
                 }
             else
-                puts @@_appName + ": warning: interrupt method called on Application configured to not handle interrupts."
+                Ice::getProcessLogger().error(@@_appName + ": warning: interrupt method called on Application configured to not handle interrupts.")
             end
         end
 
@@ -399,7 +397,7 @@ module Ice
                     @@_ctrlCHandler.setCallback(@@_callbackOnInterruptCallbackProc)
                 }
             else
-                puts @@_appName + ": warning: interrupt method called on Application configured to not handle interrupts."
+                Ice::getProcessLogger().error(@@_appName + ": warning: interrupt method called on Application configured to not handle interrupts.")
             end
         end
 
@@ -414,7 +412,7 @@ module Ice
                     # else, we were already holding signals
                 }
             else
-                puts @@_appName + ": warning: interrupt method called on Application configured to not handle interrupts."
+                Ice::getProcessLogger().error(@@_appName + ": warning: interrupt method called on Application configured to not handle interrupts.")
             end
         end
 
@@ -435,7 +433,7 @@ module Ice
                     # Else nothing to release.
                 }
             else
-                puts @@_appName + ": warning: interrupt method called on Application configured to not handle interrupts."
+                Ice::getProcessLogger().error(@@_appName + ": warning: interrupt method called on Application configured to not handle interrupts.")
             end
         end
 
@@ -477,9 +475,7 @@ module Ice
             begin
                 @@_communicator.destroy()
             rescue => ex
-                puts $!
-                puts @@_appName + " (while destroying in response to signal " + sig + "):"
-                puts ex.backtrace.join("\n")
+                Ice::getProcessLogger().error($!.inspect + "\n" + @@_appName + " (while destroying in response to signal " + sig + "):\n" + ex.backtrace.join("\n"))
             end
             @@_mutex.synchronize {
                 @@_callbackInProcess = false
@@ -504,9 +500,7 @@ module Ice
             begin
                 @@_application.interruptCallback(sig)
             rescue => ex
-                puts $!
-                puts @@_appName + " (while interrupting in response to signal " + sig + "):"
-                puts ex.backtrace.join("\n")
+                Ice::getProcessLogger().error($!.inspect + "\n" + @@_appName + " (while interrupting in response to signal " + sig + "):\n" + ex.backtrace.join("\n"))
             end
             @@_mutex.synchronize {
                 @@_callbackInProcess = false

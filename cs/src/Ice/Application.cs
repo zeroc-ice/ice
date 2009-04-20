@@ -67,12 +67,12 @@ namespace Ice
                 }
                 catch(Ice.Exception ex)
                 {
-                    Console.Error.WriteLine(_appName + ":\n" + ex);
+                    Util.getProcessLogger().error(_appName + ":\n" + ex);
                     return 1;
                 }
                 catch(System.Exception ex)
                 {
-                    Console.Error.WriteLine(_appName + ": unknown exception:\n" + ex);
+                    Util.getProcessLogger().error(_appName + ": unknown exception:\n" + ex);
                     return 1;
                 }
             }
@@ -83,7 +83,7 @@ namespace Ice
         {
             if(_communicator != null)
             {
-                Console.Error.WriteLine(_appName + ": only one instance of the Application class can be used");
+                Util.getProcessLogger().error(_appName + ": only one instance of the Application class can be used");
                 return 1;
             }
 
@@ -150,7 +150,7 @@ namespace Ice
             }
             else
             {
-                Console.Error.WriteLine(_appName +
+                Util.getProcessLogger().error(_appName +
                             ": warning: interrupt method called on Application configured to not handle interrupts.");
             }
         }
@@ -171,7 +171,7 @@ namespace Ice
             }
             else
             {
-                Console.Error.WriteLine(_appName +
+                Util.getProcessLogger().error(_appName +
                             ": warning: interrupt method called on Application configured to not handle interrupts.");
             }
         }
@@ -192,7 +192,7 @@ namespace Ice
             }
             else
             {
-                Console.Error.WriteLine(_appName +
+                Util.getProcessLogger().error(_appName +
                             ": warning: interrupt method called on Application configured to not handle interrupts.");
             }
         }
@@ -213,7 +213,7 @@ namespace Ice
             }
             else
             {
-                Console.Error.WriteLine(_appName +
+                Util.getProcessLogger().error(_appName +
                             ": warning: interrupt method called on Application configured to not handle interrupts.");
             }
         }
@@ -235,7 +235,7 @@ namespace Ice
             }
             else
             {
-                Console.Error.WriteLine(_appName +
+                Util.getProcessLogger().error(_appName +
                             ": warning: interrupt method called on Application configured to not handle interrupts.");
             }
         }
@@ -264,7 +264,7 @@ namespace Ice
             }
             else
             {
-                Console.Error.WriteLine(_appName +
+                Util.getProcessLogger().error(_appName +
                             ": warning: interrupt method called on Application configured to not handle interrupts.");
             }
         }
@@ -326,12 +326,12 @@ namespace Ice
             }
             catch(Ice.Exception ex)
             {
-                Console.Error.WriteLine(_appName + ":\n" + ex);
+                Util.getProcessLogger().error(_appName + ":\n" + ex);
                 status = 1;
             }
             catch(System.Exception ex)
             {
-                Console.Error.WriteLine(_appName + ": unknown exception:\n" + ex);
+                Util.getProcessLogger().error(_appName + ": unknown exception:\n" + ex);
                 status = 1;
             }
 
@@ -375,12 +375,12 @@ namespace Ice
                 }
                 catch(Ice.Exception ex)
                 {
-                    Console.Error.WriteLine(_appName + ":\n" + ex);
+                    Util.getProcessLogger().error(_appName + ":\n" + ex);
                     status = 1;
                 }
                 catch(System.Exception ex)
                 {
-                    Console.Error.WriteLine(_appName + ": unknown exception:\n" + ex);
+                    Util.getProcessLogger().error(_appName + ": unknown exception:\n" + ex);
                     status = 1;
                 }
                 _communicator = null;
@@ -474,7 +474,8 @@ namespace Ice
             }
             catch(System.Exception ex)
             {
-                Console.Error.WriteLine(_appName + " (while destroying in response to signal " + sig + "):\n" + ex);
+                Util.getProcessLogger().error(
+                    _appName + " (while destroying in response to signal " + sig + "):\n" + ex);
             }
 
             lock(_mutex)
@@ -512,7 +513,8 @@ namespace Ice
             }
             catch(System.Exception ex)
             {
-                Console.Error.WriteLine(_appName + " (while shutting down in response to signal " + sig + "):\n" + ex);
+                Util.getProcessLogger().error(
+                    _appName + " (while shutting down in response to signal " + sig + "):\n" + ex);
             }
 
             lock(_mutex)
@@ -547,7 +549,8 @@ namespace Ice
             }
             catch(System.Exception ex)
             {
-                Console.Error.WriteLine(_appName + " (while interrupting in response to signal " + sig + "):\n" + ex);
+                Util.getProcessLogger().error(
+                    _appName + " (while interrupting in response to signal " + sig + "):\n" + ex);
             }
 
             lock(_mutex)
@@ -649,7 +652,7 @@ namespace Ice
                     // The class Mono.Unix.Native.Stdlib requires libMonoPosixHelper.so. Mono raises
                     // DllNotFoundException if it cannot be found in the shared library search path.
                     //
-                    Console.Error.WriteLine("Ice.Application: warning: unable to initialize signals");
+                    Util.getProcessLogger().error("Ice.Application: warning: unable to initialize signals");
                 }
                 catch(System.Exception)
                 {

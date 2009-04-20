@@ -722,7 +722,7 @@ class Application(object):
 
     def main(self, args, configFile=None, initData=None):
         if Application._communicator:
-            print args[0] + ": only one instance of the Application class can be used"
+            getProcessLogger().error(args[0] + ": only one instance of the Application class can be used")
             return 1
 
         #
@@ -735,7 +735,7 @@ class Application(object):
                 initData.properties = createProperties(None, initData.properties)
                 initData.properties.load(configFile)
             except:
-                traceback.print_exc()
+                getProcessLogger().error(traceback.format_exc())
                 return 1
         initData.properties = createProperties(args, initData.properties)
 
@@ -774,7 +774,7 @@ class Application(object):
 
             status = self.run(args)
         except:
-            traceback.print_exc()
+            getProcessLogger().error(traceback.format_exc())
             status = 1
 
         #
@@ -804,7 +804,7 @@ class Application(object):
             try:
                 Application._communicator.destroy()
             except:
-                traceback.print_exc()
+                getProcessLogger().error(traceback.format_exc())
                 status = 1
 
             Application._communicator = None
@@ -841,8 +841,8 @@ class Application(object):
             self._ctrlCHandler.setCallback(self.destroyOnInterruptCallback)
             self._condVar.release()
         else:
-            print Application._appName + \
-                ": warning: interrupt method called on Application configured to not handle interrupts."
+            getProcessLogger().error(Application._appName + \
+                ": warning: interrupt method called on Application configured to not handle interrupts.")
     destroyOnInterrupt = classmethod(destroyOnInterrupt)
 
     def shutdownOnInterrupt(self):
@@ -854,8 +854,8 @@ class Application(object):
             self._ctrlCHandler.setCallback(self.shutdownOnInterruptCallback)
             self._condVar.release()
         else:
-            print Application._appName + \
-                ": warning: interrupt method called on Application configured to not handle interrupts."
+            getProcessLogger().error(Application._appName + \
+                ": warning: interrupt method called on Application configured to not handle interrupts.")
     shutdownOnInterrupt = classmethod(shutdownOnInterrupt)
 
     def ignoreInterrupt(self):
@@ -867,8 +867,8 @@ class Application(object):
             self._ctrlCHandler.setCallback(None)
             self._condVar.release()
         else:
-            print Application._appName + \
-                ": warning: interrupt method called on Application configured to not handle interrupts."
+            getProcessLogger().error(Application._appName + \
+                ": warning: interrupt method called on Application configured to not handle interrupts.")
     ignoreInterrupt = classmethod(ignoreInterrupt)
 
     def callbackOnInterrupt(self):
@@ -880,8 +880,8 @@ class Application(object):
             self._ctrlCHandler.setCallback(self.callbackOnInterruptCallback)
             self._condVar.release()
         else:
-            print Application._appName + \
-                ": warning: interrupt method called on Application configured to not handle interrupts."
+            getProcessLogger().error(Application._appName + \
+                ": warning: interrupt method called on Application configured to not handle interrupts.")
     callbackOnInterrupt = classmethod(callbackOnInterrupt)
 
     def holdInterrupt(self):
@@ -894,8 +894,8 @@ class Application(object):
             # else, we were already holding signals
             self._condVar.release()
         else:
-            print Application._appName + \
-                ": warning: interrupt method called on Application configured to not handle interrupts."
+            getProcessLogger().error(Application._appName + \
+                ": warning: interrupt method called on Application configured to not handle interrupts.")
     holdInterrupt = classmethod(holdInterrupt)
 
     def releaseInterrupt(self):
@@ -914,8 +914,8 @@ class Application(object):
             # Else nothing to release.
             self._condVar.release()
         else:
-            print Application._appName + \
-                ": warning: interrupt method called on Application configured to not handle interrupts."
+            getProcessLogger().error(Application._appName + \
+                ": warning: interrupt method called on Application configured to not handle interrupts.")
     releaseInterrupt = classmethod(releaseInterrupt)
 
     def interrupted(self):
@@ -958,8 +958,8 @@ class Application(object):
         try:
             self._communicator.destroy()
         except:
-            print self._appName + " (while destroying in response to signal " + str(sig) + "):"
-            traceback.print_exc()
+            getProcessLogger().error(self._appName + " (while destroying in response to signal " + str(sig) + "):" + \
+                                     traceback.format_exc())
 
         self._condVar.acquire()
         self._callbackInProcess = False
@@ -983,8 +983,8 @@ class Application(object):
         try:
             self._communicator.shutdown()
         except:
-            print self._appName + " (while shutting down in response to signal " + str(sig) + "):"
-            traceback.print_exc()
+            getProcessLogger().error(self._appName + " (while shutting down in response to signal " + str(sig) + \
+                                     "):" + traceback.format_exc())
 
         self._condVar.acquire()
         self._callbackInProcess = False
@@ -1010,8 +1010,8 @@ class Application(object):
         try:
             self._application.interruptCallback(sig)
         except:
-            print self._appName + " (while interrupting in response to signal " + str(sig) + "):"
-            traceback.print_exc()
+            getProcessLogger().error(self._appName + " (while interrupting in response to signal " + str(sig) + \
+                                     "):" + traceback.format_exc())
 
         self._condVar.acquire()
         self._callbackInProcess = False

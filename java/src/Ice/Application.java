@@ -50,14 +50,12 @@ public abstract class Application
             }
             catch(LocalException ex)
             {
-                System.err.println(appName + ": " + ex);
-                ex.printStackTrace();
+                error(appName, ex);
                 return 1;
             }
             catch(java.lang.Exception ex)
             {
-                System.err.println(appName + ": unknown exception");
-                ex.printStackTrace();
+                error(appName + ": unknown exception", ex);
                 return 1;
             }
         }
@@ -69,7 +67,7 @@ public abstract class Application
     {
         if(_communicator != null)
         {
-            System.err.println(appName + ": only one instance of the Application class can be used");
+            Util.getProcessLogger().error(appName + ": only one instance of the Application class can be used");
             return 1;
         }
 
@@ -117,14 +115,12 @@ public abstract class Application
         }
         catch(LocalException ex)
         {
-            System.err.println(_appName + ": " + ex);
-            ex.printStackTrace();
+            error(_appName, ex);
             status = 1;
         }
         catch(java.lang.Exception ex)
         {
-            System.err.println(_appName + ": unknown exception");
-            ex.printStackTrace();
+            error(_appName + ": unknown exception", ex);
             status = 1;
         }
         catch(java.lang.Error err)
@@ -132,8 +128,7 @@ public abstract class Application
             //
             // We catch Error to avoid hangs in some non-fatal situations
             //
-            System.err.println(_appName + ": Java error");
-            err.printStackTrace();
+            error(_appName + ": Java error", err);
             status = 1;
         }
 
@@ -179,14 +174,12 @@ public abstract class Application
             }
             catch(LocalException ex)
             {
-                System.err.println(_appName + ": " + ex);
-                ex.printStackTrace();
+                error(_appName, ex);
                 status = 1;
             }
             catch(java.lang.Exception ex)
             {
-                System.err.println(_appName + ": unknown exception");
-                ex.printStackTrace();
+                error(_appName + ": unknown exception", ex);
                 status = 1;
             }
             _communicator = null;
@@ -256,7 +249,7 @@ public abstract class Application
         }
         else
         {
-            System.err.println(_appName + 
+            Util.getProcessLogger().error(_appName + 
                         ": warning: interrupt method called on Application configured to not handle interrupts.");
         }
     }
@@ -288,7 +281,7 @@ public abstract class Application
         }
         else
         {
-            System.err.println(_appName + 
+            Util.getProcessLogger().error(_appName + 
                         ": warning: interrupt method called on Application configured to not handle interrupts.");
         }
     }
@@ -318,7 +311,7 @@ public abstract class Application
         }
         else
         {
-            System.err.println(_appName + 
+            Util.getProcessLogger().error(_appName + 
                         ": warning: interrupt method called on Application configured to not handle interrupts.");
         }
     }
@@ -335,7 +328,7 @@ public abstract class Application
         }
         else
         {
-            System.err.println(_appName + 
+            Util.getProcessLogger().error(_appName + 
                         ": warning: interrupt method called on Application configured to not handle interrupts.");
         }
     }
@@ -530,6 +523,17 @@ public abstract class Application
         }
 
         private Thread _hook;
+    }
+
+    private void
+    error(String msg, java.lang.Throwable ex)
+    {
+        java.io.StringWriter sw = new java.io.StringWriter();
+        java.io.PrintWriter pw = new java.io.PrintWriter(sw);
+        ex.printStackTrace(pw);
+        pw.flush();
+        String s = msg + ":\n" + sw.toString();
+        Util.getProcessLogger().error(s);
     }
 
     private static String _appName;
