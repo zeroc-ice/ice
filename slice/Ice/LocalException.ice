@@ -778,15 +778,6 @@ local exception UnmarshalOutOfBoundsException extends MarshalException
 
 /**
  *
- * This exception indicates an illegal indirection during unmarshaling.
- *
- **/
-local exception IllegalIndirectionException extends MarshalException
-{
-};
-
-/**
- *
  * This exception is raised if no suitable object factory was found during
  * unmarshaling of a Slice class instance.
  *

@@ -554,17 +554,6 @@ Ice::UnmarshalOutOfBoundsException::ice_print(ostream& out) const
 }
 
 void
-Ice::IllegalIndirectionException::ice_print(ostream& out) const
-{
-    Exception::ice_print(out);
-    out << ":\nprotocol error: encountered illegal protocol indirection";
-    if(!reason.empty())
-    {
-        out << ":\n" << reason;
-    }
-}
-
-void
 Ice::NoObjectFactoryException::ice_print(ostream& out) const
 {
     Exception::ice_print(out);
