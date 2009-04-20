@@ -269,7 +269,11 @@ Slice::Preprocessor::printMakefileDependencies(Language lang, const vector<strin
     char* err = mcpp_get_mem_buffer(Err);
     if(err)
     {
-        emitRaw(err);
+        vector<string> messages = filterMcppWarnings(err);
+        for(vector<string>::const_iterator i = messages.begin(); i != messages.end(); ++i)
+        {
+            emitRaw(i->c_str());
+        }
     }
 
     if(status != 0)
