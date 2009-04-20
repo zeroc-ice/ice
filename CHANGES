@@ -64,7 +64,11 @@ noted.
 C++ Changes
 ============
 
-- Fixed crash if Application::main() or Service::main() were called with argc == 0.
+- The system logger (enabled when Ice.UseSyslog is set) now uses the 
+  value of Ice.ProgramName as the log identifier prefix.
+
+- Fixed crash if Application::main() or Service::main() were called 
+  with argc == 0.
 
 
 Java Changes

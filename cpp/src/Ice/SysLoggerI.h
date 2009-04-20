@@ -20,6 +20,9 @@ class SysLoggerI : public Logger, public ::IceUtil::Mutex
 {
 public:
 
+    SysLoggerI(const std::string&);
+    ~SysLoggerI();
+
     virtual void print(const std::string&);
     virtual void trace(const std::string&, const std::string&);
     virtual void warning(const std::string&);

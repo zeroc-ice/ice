@@ -14,6 +14,18 @@ using namespace std;
 using namespace Ice;
 using namespace IceInternal;
 
+Ice::SysLoggerI::SysLoggerI(const string& prefix)
+{
+    int logopt = LOG_PID | LOG_CONS;
+    int facility = LOG_USER;
+    openlog(prefix.c_str(), logopt, facility);
+}
+
+Ice::SysLoggerI::~SysLoggerI()
+{
+    closelog();
+}
+
 void
 Ice::SysLoggerI::print(const string& message)
 {

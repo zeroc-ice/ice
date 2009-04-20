@@ -936,7 +936,7 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const Initi
                 {
                     throw InitializationException(__FILE__, __LINE__, "Both syslog and file logger cannot be enabled.");
                 }
-                _initData.logger = new SysLoggerI;
+                _initData.logger = new SysLoggerI(_initData.properties->getProperty("Ice.ProgramName"));
             }
 #endif
             else if(!logfile.empty())
