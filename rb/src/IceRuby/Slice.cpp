@@ -60,7 +60,6 @@ IceRuby_loadSlice(int argc, VALUE* argv, VALUE self)
         opts.addOpt("", "ice");
         opts.addOpt("", "checksum");
         opts.addOpt("", "all");
-        opts.addOpt("", "case-sensitive");
 
         vector<string> files;
         try
@@ -85,7 +84,6 @@ IceRuby_loadSlice(int argc, VALUE* argv, VALUE self)
         vector<string> includePaths;
         bool debug = false;
         bool ice = true; // This must be true so that we can create Ice::Identity when necessary.
-        bool caseSensitive = false;
         bool all = false;
         bool checksum = false;
         if(opts.isSet("D"))
@@ -113,7 +111,6 @@ IceRuby_loadSlice(int argc, VALUE* argv, VALUE self)
             }
         }
         debug = opts.isSet("d") || opts.isSet("debug");
-        caseSensitive = opts.isSet("case-sensitive");
         all = opts.isSet("all");
         checksum = opts.isSet("checksum");
 
@@ -130,7 +127,7 @@ IceRuby_loadSlice(int argc, VALUE* argv, VALUE self)
                 throw RubyException(rb_eArgError, "Slice preprocessing failed for `%s'", cmd.c_str());
             }
 
-            UnitPtr u = Slice::Unit::createUnit(ignoreRedefs, all, ice, caseSensitive);
+            UnitPtr u = Slice::Unit::createUnit(ignoreRedefs, all, ice);
             int parseStatus = u->parse(file, cppHandle, debug);
 
             if(!icecpp.close() || parseStatus == EXIT_FAILURE)

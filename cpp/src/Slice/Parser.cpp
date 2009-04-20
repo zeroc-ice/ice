@@ -485,7 +485,7 @@ Slice::Container::createModule(const string& name)
 
     for(ContainedList::const_iterator p = matches.begin(); p != matches.end(); ++p)
     {
-        bool differsOnlyInCase = !_unit->caseSensitive() && matches.front()->name() != name;
+        bool differsOnlyInCase = matches.front()->name() != name;
         ModulePtr module = ModulePtr::dynamicCast(*p);
         if(module)
         {
@@ -540,7 +540,7 @@ Slice::Container::createClassDef(const string& name, bool intf, const ClassList&
             return 0;
         }
 
-        bool differsOnlyInCase = !_unit->caseSensitive() && matches.front()->name() != name;
+        bool differsOnlyInCase = matches.front()->name() != name;
         ClassDefPtr def = ClassDefPtr::dynamicCast(*p);
         if(def)
         {
@@ -565,7 +565,7 @@ Slice::Container::createClassDef(const string& name, bool intf, const ClassList&
                 _unit->error(msg);
             }
         }
-        else if(!_unit->caseSensitive() && differsOnlyInCase)
+        else if(differsOnlyInCase)
         {
             string msg = intf ? "interface" : "class";
             msg = " definition `" + name + "' differs only in capitalization from ";
@@ -645,7 +645,7 @@ Slice::Container::createClassDecl(const string& name, bool intf, bool local)
             return 0;
         }
         
-        bool differsOnlyInCase = !_unit->caseSensitive() && matches.front()->name() != name;
+        bool differsOnlyInCase = matches.front()->name() != name;
         if(differsOnlyInCase)
         {
             string msg = "class declaration `" + name + "' differs only in capitalization from ";
@@ -727,7 +727,7 @@ Slice::Container::createException(const string& name, const ExceptionPtr& base, 
             msg += "' as exception";
             _unit->error(msg);
         }
-        else if(!_unit->caseSensitive())
+        else
         {
             string msg = "exception `" + name + "' differs only in capitalization from ";
             msg += matches.front()->kindOf() + " `" + matches.front()->name() + "'";
@@ -778,7 +778,7 @@ Slice::Container::createStruct(const string& name, bool local, NodeType nt)
             msg += "' as struct";
             _unit->error(msg);
         }
-        else if(!_unit->caseSensitive())
+        else
         {
             string msg = "struct `" + name + "' differs only in capitalization from ";
             msg += matches.front()->kindOf() + " `" + matches.front()->name() + "'";
@@ -833,7 +833,7 @@ Slice::Container::createSequence(const string& name, const TypePtr& type, const 
             msg += "' as sequence";
             _unit->error(msg);
         }
-        else if(!_unit->caseSensitive())
+        else
         {
             string msg = "sequence `" + name + "' differs only in capitalization from ";
             msg += matches.front()->kindOf() + " `" + matches.front()->name() + "'";
@@ -898,7 +898,7 @@ Slice::Container::createDictionary(const string& name, const TypePtr& keyType, c
             msg += "' as dictionary";
             _unit->error(msg);
         }
-        else if(!_unit->caseSensitive())
+        else
         {
             string msg = "dictionary `" + name + "' differs only in capitalization from ";
             msg += matches.front()->kindOf() + " `" + matches.front()->name() + "'";
@@ -969,7 +969,7 @@ Slice::Container::createEnum(const string& name, bool local, NodeType nt)
             msg += "' as enumeration";
             _unit->error(msg);
         }
-        else if(!_unit->caseSensitive())
+        else
         {
             string msg = "enumeration `" + name + "' differs only in capitalization from ";
             msg += matches.front()->kindOf() + " `" + matches.front()->name() + "'";
@@ -1012,7 +1012,7 @@ Slice::Container::createEnumerator(const string& name)
             msg += "' as enumerator";
             _unit->error(msg);
         }
-        else if(!_unit->caseSensitive())
+        else
         {
             string msg = "enumerator `" + name + "' differs only in capitalization from ";
             msg += matches.front()->kindOf() + " `" + matches.front()->name() + "'";
@@ -1052,7 +1052,7 @@ Slice::Container::createConst(const string name, const TypePtr& constType, const
             msg += "' as constant";
             _unit->error(msg);
         }
-        else if(!_unit->caseSensitive())
+        else
         {
             string msg = "constant `" + name + "' differs only in capitalization from ";
             msg += matches.front()->kindOf() + " `" + matches.front()->name() + "'";
@@ -1164,7 +1164,7 @@ Slice::Container::lookupTypeNoBuiltin(const string& scoped, bool printError)
                 continue; // Ignore class definitions.
             }
 
-            if(printError && !_unit->caseSensitive() && matches.front()->scoped() != (thisScope() + sc))
+            if(printError && matches.front()->scoped() != (thisScope() + sc))
             {
                 string msg = (*p)->kindOf() + " name `" + scoped;
                 msg += "' is capitalized inconsistently with its previous name: `";
@@ -1201,7 +1201,7 @@ Slice::Container::lookupTypeNoBuiltin(const string& scoped, bool printError)
                 continue; // Ignore class definitions.
             }
 
-            if(printError && !_unit->caseSensitive() && matches.front()->scoped() != (thisScope() + sc))
+            if(printError && matches.front()->scoped() != (thisScope() + sc))
             {
                 string msg = (*p)->kindOf() + " name `" + scoped;
                 msg += "' is capitalized inconsistently with its previous name: `";
@@ -1290,7 +1290,7 @@ Slice::Container::lookupContained(const string& scoped, bool printError)
         {
             results.push_back(*p);
 
-            if(printError && !_unit->caseSensitive() && (*p)->scoped() != (thisScope() + sc))
+            if(printError && (*p)->scoped() != (thisScope() + sc))
             {
                 string msg = (*p)->kindOf() + " name `" + scoped;
                 msg += "' is capitalized inconsistently with its previous name: `" + (*p)->scoped() + "'";
@@ -2013,7 +2013,7 @@ Slice::Container::checkIntroduced(const string& scoped, ContainedPtr namedThing)
         // We've previously introduced the first component to the current scope,
         // check that it has not changed meaning.
         //
-        if(!_unit->caseSensitive() && it->second != namedThing)
+        if(it->second != namedThing)
         {
             _unit->error("`" + firstComponent + "' has changed meaning");
             return false;
@@ -2039,19 +2039,18 @@ Slice::Container::nameIsLegal(const string& newName, const char* newConstruct)
             _unit->error(msg);
             return false;
         }
-        if(!_unit->caseSensitive())
+
+        string name = IceUtilInternal::toLower(newName);
+        string thisName = IceUtilInternal::toLower(module->name());
+        if(name == thisName)
         {
-            string name = IceUtilInternal::toLower(newName);
-            string thisName = IceUtilInternal::toLower(module->name());
-            if(name == thisName)
-            {
-                string msg = newConstruct;
-                msg += " name `" + name + "' cannot differ only in capitalization from its immediately enclosing "
-                       "module name `" + module->name() + "'";
-                _unit->error(msg);
-                return false;
-            }
+            string msg = newConstruct;
+            msg += " name `" + name + "' cannot differ only in capitalization from its immediately enclosing "
+                   "module name `" + module->name() + "'";
+            _unit->error(msg);
+            return false;
         }
+
         module = ModulePtr::dynamicCast(module->container()); // Get enclosing module for test below.
     }
 
@@ -2068,19 +2067,18 @@ Slice::Container::nameIsLegal(const string& newName, const char* newConstruct)
             _unit->error(msg);
             return false;
         }
-        if(!_unit->caseSensitive())
+
+        string name = IceUtilInternal::toLower(newName);
+        string thisName = IceUtilInternal::toLower(module->name());
+        if(name == thisName)
         {
-            string name = IceUtilInternal::toLower(newName);
-            string thisName = IceUtilInternal::toLower(module->name());
-            if(name == thisName)
-            {
-                string msg = newConstruct;
-                msg += " name `" + name + "' cannot differ only in capitalization from enclosing module `"
-                       + module->name() + "' (first defined at " + module->file() + ":" + module->line() + ")";
-                _unit->error(msg);
-                return false;
-            }
+            string msg = newConstruct;
+            msg += " name `" + name + "' cannot differ only in capitalization from enclosing module `"
+                   + module->name() + "' (first defined at " + module->file() + ":" + module->line() + ")";
+            _unit->error(msg);
+            return false;
         }
+
         module = ModulePtr::dynamicCast(module->container());
     }
 
@@ -2568,8 +2566,7 @@ Slice::ClassDecl::checkPairIntersections(const StringPartitionList& l, const str
                         unit->error(msg);
                         reported.insert(*s1);
                     }
-                    else if(!unit->caseSensitive() &&
-                            !CICompare()(*s1, *s2) && !CICompare()(*s2, *s1) &&
+                    else if(!CICompare()(*s1, *s2) && !CICompare()(*s2, *s1) &&
                             reported.find(*s1) == reported.end() && reported.find(*s2) == reported.end())
                     {
                         string msg = "ambiguous multiple inheritance: `" + name;
@@ -2616,7 +2613,7 @@ Slice::ClassDef::createOperation(const string& name,
                 return p;
             }
         }
-        if(!_unit->caseSensitive() && matches.front()->name() != name)
+        if(matches.front()->name() != name)
         {
             string msg = "operation `" + name + "' differs only in capitalization from ";
             msg += matches.front()->kindOf() + " `" + matches.front()->name() + "'";
@@ -2638,17 +2635,15 @@ Slice::ClassDef::createOperation(const string& name,
         _unit->error(msg);
         return 0;
     }
-    if(!_unit->caseSensitive())
+
+    string newName = IceUtilInternal::toLower(name);
+    string thisName = IceUtilInternal::toLower(this->name());
+    if(newName == thisName)
     {
-        string newName = IceUtilInternal::toLower(name);
-        string thisName = IceUtilInternal::toLower(this->name());
-        if(newName == thisName)
-        {
-            string msg = "operation `" + name + "' differs only in capitalization from enclosing ";
-            msg += isInterface() ? "interface" : "class";
-            msg += " name `" + this->name() + "'";
-            _unit->error(msg);
-        }
+        string msg = "operation `" + name + "' differs only in capitalization from enclosing ";
+        msg += isInterface() ? "interface" : "class";
+        msg += " name `" + this->name() + "'";
+        _unit->error(msg);
     }
 
     //
@@ -2677,16 +2672,14 @@ Slice::ClassDef::createOperation(const string& name,
                 _unit->error(msg);
                 return 0;
             }
-            if(!_unit->caseSensitive())
+
+            string baseName = IceUtilInternal::toLower((*q)->name());
+            string newName = IceUtilInternal::toLower(name);
+            if(baseName == newName)
             {
-                string baseName = IceUtilInternal::toLower((*q)->name());
-                string newName = IceUtilInternal::toLower(name);
-                if(baseName == newName)
-                {
-                    string msg = "operation `" + name + "' differs only in capitalization from " + (*q)->kindOf();
-                    msg += " `" + (*q)->name() + "', which is defined in a base interface or class";
-                    _unit->error(msg);
-                }
+                string msg = "operation `" + name + "' differs only in capitalization from " + (*q)->kindOf();
+                msg += " `" + (*q)->name() + "', which is defined in a base interface or class";
+                _unit->error(msg);
             }
         }
     }
@@ -2747,7 +2740,7 @@ Slice::ClassDef::createDataMember(const string& name, const TypePtr& type)
                 return p;
             }
         }
-        if(!_unit->caseSensitive() && matches.front()->name() != name)
+        if(matches.front()->name() != name)
         {
             string msg = "data member `" + name + "' differs only in capitalization from ";
             msg += matches.front()->kindOf() + " `" + matches.front()->name() + "'";
@@ -2773,16 +2766,14 @@ Slice::ClassDef::createDataMember(const string& name, const TypePtr& type)
         _unit->error(msg);
         return 0;
     }
-    if(!_unit->caseSensitive())
+
+    string newName = IceUtilInternal::toLower(name);
+    string thisName = IceUtilInternal::toLower(this->name());
+    if(newName == thisName)
     {
-        string newName = IceUtilInternal::toLower(name);
-        string thisName = IceUtilInternal::toLower(this->name());
-        if(newName == thisName)
-        {
-            string msg = "data member `" + name + "' differs only in capitalization from enclosing class name `";
-            msg += this->name() + "'";
-            _unit->error(msg);
-        }
+        string msg = "data member `" + name + "' differs only in capitalization from enclosing class name `";
+        msg += this->name() + "'";
+        _unit->error(msg);
     }
 
     //
@@ -2811,16 +2802,14 @@ Slice::ClassDef::createDataMember(const string& name, const TypePtr& type)
                 _unit->error(msg);
                 return 0;
             }
-            if(!_unit->caseSensitive())
+
+            string baseName = IceUtilInternal::toLower((*q)->name());
+            string newName = IceUtilInternal::toLower(name);
+            if(baseName == newName)
             {
-                string baseName = IceUtilInternal::toLower((*q)->name());
-                string newName = IceUtilInternal::toLower(name);
-                if(baseName == newName)
-                {
-                    string msg = "data member `" + name + "' differs only in capitalization from " + (*q)->kindOf();
-                    msg += " `" + (*q)->name() + "', which is defined in a base interface or class";
-                    _unit->error(msg);
-                }
+                string msg = "data member `" + name + "' differs only in capitalization from " + (*q)->kindOf();
+                msg += " `" + (*q)->name() + "', which is defined in a base interface or class";
+                _unit->error(msg);
             }
         }
     }
@@ -3222,7 +3211,7 @@ Slice::Exception::createDataMember(const string& name, const TypePtr& type)
                 return p;
             }
         }
-        if(!_unit->caseSensitive() && matches.front()->name() != name)
+        if(matches.front()->name() != name)
         {
             string msg = "exception member `" + name + "' differs only in capitalization from ";
             msg += "exception member `" + matches.front()->name() + "'";
@@ -3247,16 +3236,14 @@ Slice::Exception::createDataMember(const string& name, const TypePtr& type)
         _unit->error(msg);
         return 0;
     }
-    if(!_unit->caseSensitive())
+
+    string newName = IceUtilInternal::toLower(name);
+    string thisName = IceUtilInternal::toLower(this->name());
+    if(newName == thisName)
     {
-        string newName = IceUtilInternal::toLower(name);
-        string thisName = IceUtilInternal::toLower(this->name());
-        if(newName == thisName)
-        {
-            string msg = "exception member `" + name + "' differs only in capitalization ";
-            msg += "from enclosing exception name `" + this->name() + "'";
-            _unit->error(msg);
-        }
+        string msg = "exception member `" + name + "' differs only in capitalization ";
+        msg += "from enclosing exception name `" + this->name() + "'";
+        _unit->error(msg);
     }
 
     //
@@ -3276,16 +3263,14 @@ Slice::Exception::createDataMember(const string& name, const TypePtr& type)
                 _unit->error(msg);
                 return 0;
             }
-            if(!_unit->caseSensitive())
+
+            string baseName = IceUtilInternal::toLower((*r)->name());
+            string newName = IceUtilInternal::toLower(name);
+            if(baseName == newName)
             {
-                string baseName = IceUtilInternal::toLower((*r)->name());
-                string newName = IceUtilInternal::toLower(name);
-                if(baseName == newName)
-                {
-                    string msg = "exception member `" + name + "' differs only in capitalization from exception member `";
-                    msg += (*r)->name() + "', which is defined in a base exception";
-                    _unit->error(msg);
-                }
+                string msg = "exception member `" + name + "' differs only in capitalization from exception member `";
+                msg += (*r)->name() + "', which is defined in a base exception";
+                _unit->error(msg);
             }
         }
     }
@@ -3530,7 +3515,7 @@ Slice::Struct::createDataMember(const string& name, const TypePtr& type)
                 return p;
             }
         }
-        if(!_unit->caseSensitive() && matches.front()->name() != name)
+        if(matches.front()->name() != name)
         {
             string msg = "member `" + name + "' differs only in capitalization from ";
             msg += "member `" + matches.front()->name() + "'";
@@ -3555,16 +3540,14 @@ Slice::Struct::createDataMember(const string& name, const TypePtr& type)
         _unit->error(msg);
         return 0;
     }
-    if(!_unit->caseSensitive())
+
+    string newName = IceUtilInternal::toLower(name);
+    string thisName = IceUtilInternal::toLower(this->name());
+    if(newName == thisName)
     {
-        string newName = IceUtilInternal::toLower(name);
-        string thisName = IceUtilInternal::toLower(this->name());
-        if(newName == thisName)
-        {
-            string msg = "struct member `" + name + "' differs only in capitalization from enclosing struct name `";
-            msg += this->name() + "'";
-            _unit->error(msg);
-        }
+        string msg = "struct member `" + name + "' differs only in capitalization from enclosing struct name `";
+        msg += this->name() + "'";
+        _unit->error(msg);
     }
 
     //
@@ -4453,7 +4436,7 @@ Slice::Operation::createParamDecl(const string& name, const TypePtr& type, bool 
                 return p;
             }
         }
-        if(!_unit->caseSensitive() && matches.front()->name() != name)
+        if(matches.front()->name() != name)
         {
             string msg = "parameter `" + name + "' differs only in capitalization from ";
             msg += "parameter `" + matches.front()->name() + "'";
@@ -4478,16 +4461,14 @@ Slice::Operation::createParamDecl(const string& name, const TypePtr& type, bool 
         _unit->error(msg);
         return 0;
     }
-    if(!_unit->caseSensitive())
+
+    string newName = IceUtilInternal::toLower(name);
+    string thisName = IceUtilInternal::toLower(this->name());
+    if(newName == thisName)
     {
-        string newName = IceUtilInternal::toLower(name);
-        string thisName = IceUtilInternal::toLower(this->name());
-        if(newName == thisName)
-        {
-            string msg = "parameter `" + name + "' differs only in capitalization from operation name `";
-            msg += this->name() + "'";
-            _unit->error(msg);
-        }
+        string msg = "parameter `" + name + "' differs only in capitalization from operation name `";
+        msg += this->name() + "'";
+        _unit->error(msg);
     }
 
     //
@@ -4924,10 +4905,9 @@ Slice::DataMember::DataMember(const ContainerPtr& container, const string& name,
 // ----------------------------------------------------------------------
 
 UnitPtr
-Slice::Unit::createUnit(bool ignRedefs, bool all, bool allowIcePrefix, bool caseSensitive,
-                        const StringList& defaultGlobalMetadata)
+Slice::Unit::createUnit(bool ignRedefs, bool all, bool allowIcePrefix, const StringList& defaultGlobalMetadata)
 {
-    return new Unit(ignRedefs, all, allowIcePrefix, caseSensitive, defaultGlobalMetadata);
+    return new Unit(ignRedefs, all, allowIcePrefix, defaultGlobalMetadata);
 }
 
 bool
@@ -4942,11 +4922,6 @@ Slice::Unit::allowIcePrefix() const
     return _allowIcePrefix;
 }
 
-bool
-Slice::Unit::caseSensitive() const
-{
-    return _caseSensitive;
-}
 void
 Slice::Unit::setComment(const string& comment)
 {
@@ -5250,22 +5225,14 @@ Slice::Unit::findDefinitionContext(const string& file) const
 void
 Slice::Unit::addContent(const ContainedPtr& contained)
 {
-    string scoped = contained->scoped();
-    if(!caseSensitive())
-    {
-        scoped = IceUtilInternal::toLower(scoped);
-    }
+    string scoped = IceUtilInternal::toLower(contained->scoped());
     _contentMap[scoped].push_back(contained);
 }
 
 void
 Slice::Unit::removeContent(const ContainedPtr& contained)
 {
-    string scoped = contained->scoped();
-    if(!caseSensitive())
-    {
-        scoped = IceUtilInternal::toLower(scoped);
-    }
+    string scoped = IceUtilInternal::toLower(contained->scoped());
     map<string, ContainedList>::iterator p = _contentMap.find(scoped);
     assert(p != _contentMap.end());
     ContainedList::iterator q;
@@ -5286,12 +5253,7 @@ Slice::Unit::findContents(const string& scoped) const
     assert(!scoped.empty());
     assert(scoped[0] == ':');
 
-    string name = scoped;
-    if(!_unit->caseSensitive())
-    {
-        name = IceUtilInternal::toLower(name);
-    }
-
+    string name = IceUtilInternal::toLower(scoped);
     map<string, ContainedList>::const_iterator p = _contentMap.find(name);
     if(p != _contentMap.end())
     {
@@ -5546,14 +5508,12 @@ Slice::Unit::builtin(Builtin::Kind kind)
     return builtin;
 }
 
-Slice::Unit::Unit(bool ignRedefs, bool all, bool allowIcePrefix, bool caseSensitive,
-                  const StringList& defaultGlobalMetadata) :
+Slice::Unit::Unit(bool ignRedefs, bool all, bool allowIcePrefix, const StringList& defaultGlobalMetadata) :
     SyntaxTreeBase(0),
     Container(0),
     _ignRedefs(ignRedefs),
     _all(all),
     _allowIcePrefix(allowIcePrefix),
-    _caseSensitive(caseSensitive),
     _defaultGlobalMetaData(defaultGlobalMetadata),
     _errors(0)
 

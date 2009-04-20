@@ -217,7 +217,6 @@ usage(const char* n)
         "-d, --debug           Print debug messages.\n"
         "--ice                 Permit `Ice' prefix (for building Ice source code only)\n"
         ;
-    // Note: --case-sensitive is intentionally not shown here!
 }
 
 void
@@ -1498,7 +1497,6 @@ main(int argc, char* argv[])
     opts.addOpt("", "output-dir", IceUtilInternal::Options::NeedArg);
     opts.addOpt("d", "debug");
     opts.addOpt("", "ice");
-    opts.addOpt("", "case-sensitive");
      
     vector<string> args;
     try
@@ -1899,8 +1897,6 @@ main(int argc, char* argv[])
 
     bool ice = opts.isSet("ice");
 
-    bool caseSensitive = opts.isSet("case-sensitive");
-
     if(dicts.empty() && indices.empty())
     {
         getErrorStream() << argv[0] << ": error: no Freeze types specified" << endl;
@@ -1915,7 +1911,7 @@ main(int argc, char* argv[])
         return EXIT_FAILURE;
     }
 
-    UnitPtr u = Unit::createUnit(true, false, ice, caseSensitive);
+    UnitPtr u = Unit::createUnit(true, false, ice);
 
     StringList includes;
 

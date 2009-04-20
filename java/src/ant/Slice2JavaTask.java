@@ -267,14 +267,6 @@ public class Slice2JavaTask extends SliceTask
             }
 
             //
-            // Add --case-sensitive
-            //
-            if(_caseSensitive)
-            {
-                cmd.append(" --case-sensitive");
-            }
-
-            //
             // Add files to be translated
             //
             for(File f : buildList)
@@ -317,14 +309,6 @@ public class Slice2JavaTask extends SliceTask
             if(_ice)
             {
                 cmd.append(" --ice");
-            }
-
-            //
-            // Add --case-sensitive
-            //
-            if(_caseSensitive)
-            {
-                cmd.append(" --case-sensitive");
             }
 
             //

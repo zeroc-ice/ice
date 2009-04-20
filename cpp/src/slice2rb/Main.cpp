@@ -65,7 +65,6 @@ usage(const char* n)
         "--all                Generate code for Slice definitions in included files.\n"
         "--checksum           Generate checksums for Slice definitions.\n"
         ;
-    // Note: --case-sensitive is intentionally not shown here!
 }
 
 int
@@ -83,7 +82,6 @@ main(int argc, char* argv[])
     opts.addOpt("", "ice");
     opts.addOpt("", "all");
     opts.addOpt("", "checksum");
-    opts.addOpt("", "case-sensitive");
      
     vector<string> args;
     try
@@ -144,8 +142,6 @@ main(int argc, char* argv[])
 
     bool checksum = opts.isSet("checksum");
 
-    bool caseSensitive = opts.isSet("case-sensitive");
-
     if(args.empty())
     {
         getErrorStream() << argv[0] << ": error: no input file" << endl;
@@ -186,7 +182,7 @@ main(int argc, char* argv[])
         }
         else
         {
-            UnitPtr u = Unit::createUnit(false, all, ice, caseSensitive);
+            UnitPtr u = Unit::createUnit(false, all, ice);
             int parseStatus = u->parse(*i, cppHandle, debug);
 
             if(!icecpp.close())

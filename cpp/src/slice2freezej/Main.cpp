@@ -1142,7 +1142,6 @@ usage(const char* n)
         "--ice                     Permit `Ice' prefix (for building Ice source code only)\n"
         "--meta META               Define global metadata directive META.\n"
         ;
-    // Note: --case-sensitive is intentionally not shown here!
 }
 
 int
@@ -1164,7 +1163,6 @@ main(int argc, char* argv[])
     opts.addOpt("d", "debug");
     opts.addOpt("", "ice");
     opts.addOpt("", "meta", IceUtilInternal::Options::NeedArg, "", IceUtilInternal::Options::Repeat);
-    opts.addOpt("", "case-sensitive");
      
     vector<string> args;
     try
@@ -1428,8 +1426,6 @@ main(int argc, char* argv[])
     vector<string> v = opts.argVec("meta");
     copy(v.begin(), v.end(), back_inserter(globalMetadata));
 
-    bool caseSensitive = opts.isSet("case-sensitive");
-
     if(dicts.empty() && indices.empty())
     {
         getErrorStream() << argv[0] << ": error: no Freeze types specified" << endl;
@@ -1437,7 +1433,7 @@ main(int argc, char* argv[])
         return EXIT_FAILURE;
     }
 
-    UnitPtr u = Unit::createUnit(true, false, ice, caseSensitive, globalMetadata);
+    UnitPtr u = Unit::createUnit(true, false, ice, globalMetadata);
 
     int status = EXIT_SUCCESS;
 

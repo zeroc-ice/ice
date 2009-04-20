@@ -52,7 +52,6 @@ usage(const char* n)
         "--checksum              Generate checksums for Slice definitions.\n"
         "--stream                Generate marshaling support for public stream API.\n"
         ;
-    // Note: --case-sensitive is intentionally not shown here!
 }
 
 int
@@ -74,7 +73,6 @@ main(int argc, char* argv[])
     opts.addOpt("", "ice");
     opts.addOpt("", "checksum");
     opts.addOpt("", "stream");
-    opts.addOpt("", "case-sensitive");
 
     vector<string> args;
     try
@@ -143,8 +141,6 @@ main(int argc, char* argv[])
 
     bool stream = opts.isSet("stream");
 
-    bool caseSensitive = opts.isSet("case-sensitive");
-
     if(args.empty())
     {
         getErrorStream() << argv[0] << ": error: no input file" << endl;
@@ -176,7 +172,7 @@ main(int argc, char* argv[])
                 return EXIT_FAILURE;
             }
 
-            UnitPtr u = Unit::createUnit(false, false, ice, caseSensitive);
+            UnitPtr u = Unit::createUnit(false, false, ice);
             int parseStatus = u->parse(*i, cppHandle, debug);
             u->destroy();
 
@@ -221,7 +217,7 @@ main(int argc, char* argv[])
             }
             else
             {
-                UnitPtr p = Unit::createUnit(false, false, ice, caseSensitive);
+                UnitPtr p = Unit::createUnit(false, false, ice);
                 int parseStatus = p->parse(*i, cppHandle, debug);
 
                 if(!icecpp.close())

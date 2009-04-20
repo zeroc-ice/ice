@@ -339,7 +339,6 @@ parseSlice(const string& argStr, vector<Slice::UnitPtr>& units, bool& suppressWa
     opts.addOpt("I", "", IceUtilInternal::Options::NeedArg, "", IceUtilInternal::Options::Repeat);
     opts.addOpt("d", "debug");
     opts.addOpt("", "ice");
-    opts.addOpt("", "case-sensitive");
     opts.addOpt("w");
 
     vector<string> files;
@@ -366,7 +365,6 @@ parseSlice(const string& argStr, vector<Slice::UnitPtr>& units, bool& suppressWa
     vector<string> cppArgs;
     bool debug = false;
     bool ice = true; // This must be true so that we can create Ice::Identity when necessary.
-    bool caseSensitive = false;
     if(opts.isSet("D"))
     {
         vector<string> optargs = opts.argVec("D");
@@ -392,7 +390,6 @@ parseSlice(const string& argStr, vector<Slice::UnitPtr>& units, bool& suppressWa
         }
     }
     debug = opts.isSet("d") || opts.isSet("debug");
-    caseSensitive = opts.isSet("case-sensitive");
     suppressWarnings = opts.isSet("w");
 
     bool ignoreRedefs = false;
@@ -400,7 +397,7 @@ parseSlice(const string& argStr, vector<Slice::UnitPtr>& units, bool& suppressWa
 
     for(vector<string>::iterator p = files.begin(); p != files.end(); ++p)
     {
-        Slice::UnitPtr unit = Slice::Unit::createUnit(ignoreRedefs, all, ice, caseSensitive);
+        Slice::UnitPtr unit = Slice::Unit::createUnit(ignoreRedefs, all, ice);
         Slice::Preprocessor icecpp("icecpp", *p, cppArgs);
         FILE* cppHandle = icecpp.preprocess(false);
 
@@ -484,7 +481,7 @@ createProfile(const string& name, const string& config, const string& options, c
     // types as well as create types such as Ice::Identity.
     //
     {
-        Slice::UnitPtr unit = Slice::Unit::createUnit(false, false, true, false);
+        Slice::UnitPtr unit = Slice::Unit::createUnit(false, false, true);
 
         //
         // Create the Slice definition for Ice::Identity if it doesn't exist. The PHP class will

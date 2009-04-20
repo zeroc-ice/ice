@@ -85,7 +85,6 @@ usage(const char* n)
         "-w                    Suppress duplicate warnings during migration.\n"
         "-f FILE               Execute the transformation descriptors in the file FILE.\n"
         ;
-    // Note: --case-sensitive is intentionally not shown here!
 }
 
 static Slice::TypePtr
@@ -228,7 +227,6 @@ run(int argc, char** argv, const Ice::CommunicatorPtr& communicator)
     vector<string> oldSlice;
     vector<string> newSlice;
     bool evictor;
-    bool caseSensitive;
     string keyTypeNames;
     string valueTypeNames;
     string dbEnvName, dbName, dbEnvNameNew;
@@ -254,7 +252,6 @@ run(int argc, char** argv, const Ice::CommunicatorPtr& communicator)
     opts.addOpt("e");
     opts.addOpt("", "key", IceUtilInternal::Options::NeedArg);
     opts.addOpt("", "value", IceUtilInternal::Options::NeedArg);
-    opts.addOpt("", "case-sensitive");
 
     vector<string> args;
     try
@@ -354,7 +351,6 @@ run(int argc, char** argv, const Ice::CommunicatorPtr& communicator)
     {
         valueTypeNames = opts.optArg("value");
     }
-    caseSensitive = opts.isSet("case-sensitive");
 
     if(outputFile.empty())
     {
@@ -419,14 +415,14 @@ run(int argc, char** argv, const Ice::CommunicatorPtr& communicator)
         return EXIT_FAILURE;
     }
 
-    Slice::UnitPtr oldUnit = Slice::Unit::createUnit(true, true, ice, caseSensitive);
+    Slice::UnitPtr oldUnit = Slice::Unit::createUnit(true, true, ice);
     FreezeScript::Destroyer<Slice::UnitPtr> oldD(oldUnit);
     if(!FreezeScript::parseSlice(argv[0], oldUnit, oldSlice, oldCppArgs, debug))
     {
         return EXIT_FAILURE;
     }
 
-    Slice::UnitPtr newUnit = Slice::Unit::createUnit(true, true, ice, caseSensitive);
+    Slice::UnitPtr newUnit = Slice::Unit::createUnit(true, true, ice);
     FreezeScript::Destroyer<Slice::UnitPtr> newD(newUnit);
     if(!FreezeScript::parseSlice(argv[0], newUnit, newSlice, newCppArgs, debug))
     {

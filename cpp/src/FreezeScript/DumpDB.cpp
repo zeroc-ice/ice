@@ -104,7 +104,6 @@ usage(const char* n)
         "-c, --catalog         Display information about the databases in an\n"
         "                      environment, or about a particular database.\n"
         ;
-    // Note: --case-sensitive is intentionally not shown here!
 }
 
 static void
@@ -136,7 +135,6 @@ run(int argc, char** argv, const Ice::CommunicatorPtr& communicator)
     string keyTypeName;
     string valueTypeName;
     string selectExpr;
-    bool caseSensitive;
     string dbEnvName, dbName;
 
     IceUtilInternal::Options opts;
@@ -155,7 +153,6 @@ run(int argc, char** argv, const Ice::CommunicatorPtr& communicator)
     opts.addOpt("", "value", IceUtilInternal::Options::NeedArg);
     opts.addOpt("", "select", IceUtilInternal::Options::NeedArg);
     opts.addOpt("c", "catalog");
-    opts.addOpt("", "case-sensitive");
 
     vector<string> args;
     try
@@ -293,7 +290,6 @@ run(int argc, char** argv, const Ice::CommunicatorPtr& communicator)
     {
         selectExpr = opts.optArg("select");
     }
-    caseSensitive = opts.isSet("case-sensitive");
 
     if(outputFile.empty() && args.size() != 2)
     {
@@ -321,7 +317,7 @@ run(int argc, char** argv, const Ice::CommunicatorPtr& communicator)
         return EXIT_FAILURE;
     }
 
-    Slice::UnitPtr unit = Slice::Unit::createUnit(true, true, ice, caseSensitive);
+    Slice::UnitPtr unit = Slice::Unit::createUnit(true, true, ice);
     FreezeScript::Destroyer<Slice::UnitPtr> unitD(unit);
     if(!FreezeScript::parseSlice(argv[0], unit, slice, cppArgs, debug))
     {

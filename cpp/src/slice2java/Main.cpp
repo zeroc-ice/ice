@@ -59,7 +59,6 @@ usage(const char* n)
         "--stream                Generate marshaling support for public stream API.\n"
         "--meta META             Define global metadata directive META.\n"
         ;
-    // Note: --case-sensitive is intentionally not shown here!
 }
 
 int
@@ -84,7 +83,6 @@ main(int argc, char* argv[])
     opts.addOpt("", "checksum", IceUtilInternal::Options::NeedArg);
     opts.addOpt("", "stream");
     opts.addOpt("", "meta", IceUtilInternal::Options::NeedArg, "", IceUtilInternal::Options::Repeat);
-    opts.addOpt("", "case-sensitive");
 
     vector<string>args;
     try
@@ -160,8 +158,6 @@ main(int argc, char* argv[])
     vector<string> v = opts.argVec("meta");
     copy(v.begin(), v.end(), back_inserter(globalMetadata));
 
-    bool caseSensitive = opts.isSet("case-sensitive");
-
     if(args.empty())
     {
         getErrorStream() << argv[0] << ": error: no input file" << endl;
@@ -200,7 +196,7 @@ main(int argc, char* argv[])
                 return EXIT_FAILURE;
             }
 
-            UnitPtr u = Unit::createUnit(false, false, ice, caseSensitive);
+            UnitPtr u = Unit::createUnit(false, false, ice);
             int parseStatus = u->parse(*i, cppHandle, debug);
             u->destroy();
 
@@ -256,7 +252,7 @@ main(int argc, char* argv[])
             }
             else
             {
-                UnitPtr p = Unit::createUnit(false, false, ice, caseSensitive, globalMetadata);
+                UnitPtr p = Unit::createUnit(false, false, ice, globalMetadata);
                 int parseStatus = p->parse(*i, cppHandle, debug, Ice);
 
                 if(!icecpp.close())

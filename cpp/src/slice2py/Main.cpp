@@ -379,7 +379,6 @@ usage(const char* n)
         "--checksum           Generate checksums for Slice definitions.\n"
         "--prefix PREFIX      Prepend filenames of Python modules with PREFIX.\n"
         ;
-    // Note: --case-sensitive is intentionally not shown here!
 }
 
 int
@@ -399,7 +398,6 @@ main(int argc, char* argv[])
     opts.addOpt("", "no-package");
     opts.addOpt("", "checksum");
     opts.addOpt("", "prefix", IceUtilInternal::Options::NeedArg);
-    opts.addOpt("", "case-sensitive");
      
     vector<string> args;
     try
@@ -464,8 +462,6 @@ main(int argc, char* argv[])
 
     string prefix = opts.optArg("prefix");
 
-    bool caseSensitive = opts.isSet("case-sensitive");
-
     if(args.empty())
     {
         getErrorStream() << argv[0] << ": error: no input file" << endl;
@@ -506,7 +502,7 @@ main(int argc, char* argv[])
         }
         else
         {
-            UnitPtr u = Unit::createUnit(false, all, ice, caseSensitive);
+            UnitPtr u = Unit::createUnit(false, all, ice);
             int parseStatus = u->parse(*i, cppHandle, debug);
 
             if(!icecpp.close())

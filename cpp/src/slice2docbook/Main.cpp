@@ -52,7 +52,6 @@ usage(const char* n)
         "-d, --debug          Print debug messages.\n"
         "--ice                Permit `Ice' prefix (for building Ice source code only)\n"
         ;
-    // Note: --case-sensitive is intentionally not shown here!
 }
 
 int
@@ -71,7 +70,6 @@ main(int argc, char* argv[])
     opts.addOpt("", "sort-fields");
     opts.addOpt("d", "debug");
     opts.addOpt("", "ice");
-    opts.addOpt("", "case-sensitive");
 
     vector<string> args;
     try
@@ -134,8 +132,6 @@ main(int argc, char* argv[])
 
     bool ice = opts.isSet("ice");
 
-    bool caseSensitive = opts.isSet("case-sensitive");
-
     if(args.empty())
     {
         getErrorStream() << argv[0] << ": error: no docbook file specified" << endl;
@@ -163,7 +159,7 @@ main(int argc, char* argv[])
         return EXIT_FAILURE;
     }
 
-    UnitPtr p = Unit::createUnit(true, false, ice, caseSensitive);
+    UnitPtr p = Unit::createUnit(true, false, ice);
 
     int status = EXIT_SUCCESS;
 

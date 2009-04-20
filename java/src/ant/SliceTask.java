@@ -38,7 +38,6 @@ import java.io.BufferedWriter;
  *
  *   dependencyfile - The file in which dependencies are stored (default: ".depend").
  *   outputdir - The value for the --output-dir translator option.
- *   casesensitive - Enables the --case-sensitive translator option.
  *   ice - Enables the --ice translator option.
  *
  * Nested elements:
@@ -59,7 +58,6 @@ public class SliceTask extends org.apache.tools.ant.Task
         _dependencyFile = null;
         _outputDir = null;
         _outputDirString = null;
-        _caseSensitive = false;
         _ice = false;
         _includePath = null;
     }
@@ -79,12 +77,6 @@ public class SliceTask extends org.apache.tools.ant.Task
         {
             _outputDirString = '"' + _outputDirString + '"';
         }
-    }
-
-    public void
-    setCaseSensitive(boolean c)
-    {
-        _caseSensitive = c;
     }
 
     public void
@@ -536,7 +528,6 @@ public class SliceTask extends org.apache.tools.ant.Task
     protected File _dependencyFile;
     protected File _outputDir;
     protected String _outputDirString;
-    protected boolean _caseSensitive;
     protected boolean _ice;
     protected Path _includePath;
     protected java.util.List<FileSet> _fileSets = new java.util.LinkedList<FileSet>();

@@ -70,7 +70,6 @@ IcePy_loadSlice(PyObject* /*self*/, PyObject* args)
     opts.addOpt("", "ice");
     opts.addOpt("", "checksum");
     opts.addOpt("", "all");
-    opts.addOpt("", "case-sensitive");
 
     vector<string> files;
     try
@@ -98,7 +97,6 @@ IcePy_loadSlice(PyObject* /*self*/, PyObject* args)
     Ice::StringSeq includePaths;
     bool debug = false;
     bool ice = true; // This must be true so that we can create Ice::Identity when necessary.
-    bool caseSensitive = false;
     bool all = false;
     bool checksum = false;
     if(opts.isSet("D"))
@@ -126,7 +124,6 @@ IcePy_loadSlice(PyObject* /*self*/, PyObject* args)
         }
     }
     debug = opts.isSet("d") || opts.isSet("debug");
-    caseSensitive = opts.isSet("case-sensitive");
     all = opts.isSet("all");
     checksum = opts.isSet("checksum");
 
@@ -144,7 +141,7 @@ IcePy_loadSlice(PyObject* /*self*/, PyObject* args)
             return 0;
         }
 
-        UnitPtr u = Slice::Unit::createUnit(ignoreRedefs, all, ice, caseSensitive);
+        UnitPtr u = Slice::Unit::createUnit(ignoreRedefs, all, ice);
         int parseStatus = u->parse(file, cppHandle, debug);
 
         if(!icecpp.close() || parseStatus == EXIT_FAILURE)
