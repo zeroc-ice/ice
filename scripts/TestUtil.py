@@ -721,9 +721,9 @@ def getCommandLine(exe, config):
             print >>output, "-d64",
         if not config.ipv6:
             print >>output, "-Djava.net.preferIPv4Stack=true",
-        print >>output,  exe,
+        print >>output, exe,
     elif config.lang == "py":
-        print >>output, "python", exe,
+        print >>output, sys.executable, exe,
     elif config.lang == "php" and config.type == "client":
         print >>output, phpCmd, "-c tmp.ini -f", exe, " -- ",
     elif config.lang == "cpp" and config.valgrind:
@@ -1255,13 +1255,13 @@ def runTests(start, expanded, num = 0, script = False):
 
             global keepGoing
             if script:
-                print "if ! python %s %s; then" % (os.path.join(dir, "run.py"), args)
+                print "if ! %s %s %s; then" % (sys.executable, os.path.join(dir, "run.py"), args)
                 print "  echo 'test in %s failed'" % os.path.abspath(dir)
                 if not keepGoing:
                     print "  exit 1"
                 print "fi"
             else:
-                status = os.system("python " + os.path.join(dir, "run.py " + args))
+                status = os.system(sys.executable + " " +  os.path.join(dir, "run.py " + args))
 
                 if status:
                     if(num > 0):
