@@ -279,7 +279,7 @@ final class TransceiverI implements IceInternal.Transceiver
     {
         if(buf.size() > messageSizeMax)
         {
-            throw new Ice.MemoryLimitException();
+            IceInternal.Ex.throwMemoryLimitException(buf.size(), messageSizeMax);
         }
     }
 

@@ -109,7 +109,7 @@ public:
         //
         if(!_unlimited && sz > _messageSizeMax)
         {
-            throwMemoryLimitException(__FILE__, __LINE__);
+            IceInternal::Ex::throwMemoryLimitException(__FILE__, __LINE__, sz, _messageSizeMax);
         }
         
         b.resize(sz);
@@ -629,7 +629,6 @@ private:
     // ordering.
     //
     void throwUnmarshalOutOfBoundsException(const char*, int);
-    void throwMemoryLimitException(const char*, int);
     void throwNegativeSizeException(const char*, int);
     void throwUnsupportedEncodingException(const char*, int, Ice::Byte, Ice::Byte);
     void throwEncapsulationException(const char*, int);

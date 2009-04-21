@@ -403,7 +403,7 @@ namespace IceInternal
         {
             if(buf.size() > messageSizeMax)
             {
-                throw new Ice.MemoryLimitException();
+                Ex.throwMemoryLimitException(buf.size(), messageSizeMax);
             }
         }
 

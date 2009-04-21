@@ -150,7 +150,7 @@ public class BasicStream
         //
         if(!_unlimited && sz > _messageSizeMax)
         {
-            throw new Ice.MemoryLimitException();
+            Ex.throwMemoryLimitException(sz, _messageSizeMax);
         }
 
         _buf.resize(sz, reading);
@@ -2136,7 +2136,7 @@ public class BasicStream
     {
         if(!_unlimited && _buf.b != null && _buf.b.position() + n > _messageSizeMax)
         {
-            throw new Ice.MemoryLimitException();
+            Ex.throwMemoryLimitException(_buf.b.position() + n, _messageSizeMax);
         }
         _buf.expand(n);
     }

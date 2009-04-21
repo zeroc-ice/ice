@@ -2119,12 +2119,6 @@ IceInternal::BasicStream::throwUnmarshalOutOfBoundsException(const char* file, i
 }
 
 void
-IceInternal::BasicStream::throwMemoryLimitException(const char* file, int line)
-{
-    throw MemoryLimitException(file, line);
-}
-
-void
 IceInternal::BasicStream::throwNegativeSizeException(const char* file, int line)
 {
     throw NegativeSizeException(file, line);

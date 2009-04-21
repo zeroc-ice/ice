@@ -208,7 +208,7 @@ namespace IceInternal
             //
             if(!_unlimited && sz > _messageSizeMax)
             {
-                throw new Ice.MemoryLimitException("Message size > Ice.MessageSizeMax");
+                Ex.throwMemoryLimitException(sz, _messageSizeMax);
             }
 
             _buf.resize(sz, reading);
@@ -2698,7 +2698,7 @@ namespace IceInternal
         {
             if(!_unlimited && _buf.b != null && _buf.b.position() + n > _messageSizeMax)
             {   
-                throw new Ice.MemoryLimitException("Message larger than Ice.MessageSizeMax");
+                Ex.throwMemoryLimitException(_buf.b.position() + n, _messageSizeMax);
             }
             _buf.expand(n);
         }

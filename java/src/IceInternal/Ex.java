@@ -18,4 +18,9 @@ public class Ex
                     actualType, expectedType);
     }
 
+    public static void throwMemoryLimitException(int requested, int maximum)
+    {
+        throw new Ice.MemoryLimitException("requested " + requested + " bytes, maximum allowed is " + maximum +
+                                           " bytes (see Ice.MessageSizeMax)");
+    }
 }

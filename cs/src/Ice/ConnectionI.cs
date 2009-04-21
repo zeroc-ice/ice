@@ -594,7 +594,9 @@ namespace Ice
                         if(IceInternal.Protocol.requestBatchHdr.Length + lastRequest.Length >
                            _instance.messageSizeMax())
                         {
-                            throw new MemoryLimitException();
+                            IceInternal.Ex.throwMemoryLimitException(
+                                IceInternal.Protocol.requestBatchHdr.Length + lastRequest.Length,
+                                _instance.messageSizeMax());
                         }
 
                         //
@@ -2248,7 +2250,7 @@ namespace Ice
             }
             if(size > _instance.messageSizeMax())
             {
-                throw new Ice.MemoryLimitException();
+                IceInternal.Ex.throwMemoryLimitException(size, _instance.messageSizeMax());
             }
             if(size > stream.size())
             {

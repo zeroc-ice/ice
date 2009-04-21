@@ -512,7 +512,7 @@ namespace IceInternal
         {
             if(buf.size() > messageSizeMax)
             {
-                throw new Ice.MemoryLimitException();
+                Ex.throwMemoryLimitException(buf.size(), messageSizeMax);
             }
             int packetSize = System.Math.Min(_maxPacketSize, _sndSize - _udpOverhead);
             if(packetSize < buf.size())

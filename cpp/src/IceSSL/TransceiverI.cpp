@@ -499,7 +499,7 @@ IceSSL::TransceiverI::checkSendSize(const IceInternal::Buffer& buf, size_t messa
 {
     if(buf.b.size() > messageSizeMax)
     {
-        throw MemoryLimitException(__FILE__, __LINE__);
+        IceInternal::Ex::throwMemoryLimitException(__FILE__, __LINE__, buf.b.size(), messageSizeMax);
     }
 }
 

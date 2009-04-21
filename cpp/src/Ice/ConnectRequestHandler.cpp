@@ -173,7 +173,8 @@ ConnectRequestHandler::finishBatchRequest(BasicStream* os)
             if(!_batchAutoFlush && 
                _batchStream.b.size() + _batchRequestsSize > _reference->getInstance()->messageSizeMax())
             {
-                throw Ice::MemoryLimitException(__FILE__, __LINE__);
+                Ex::throwMemoryLimitException(__FILE__, __LINE__, _batchStream.b.size() + _batchRequestsSize,
+                                              _reference->getInstance()->messageSizeMax());
             }
 
             _batchRequestsSize += _batchStream.b.size();

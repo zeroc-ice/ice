@@ -98,7 +98,8 @@ public class ConnectRequestHandler
                 if(!_batchAutoFlush &&
                    _batchStream.size() + _batchRequestsSize > _reference.getInstance().messageSizeMax())
                 {
-                    throw new Ice.MemoryLimitException();
+                    Ex.throwMemoryLimitException(_batchStream.size() + _batchRequestsSize,
+                                                 _reference.getInstance().messageSizeMax());
                 }
 
                 _requests.add(new Request(_batchStream));

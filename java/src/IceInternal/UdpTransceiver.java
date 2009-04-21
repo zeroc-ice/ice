@@ -234,7 +234,7 @@ final class UdpTransceiver implements Transceiver
     {
         if(buf.size() > messageSizeMax)
         {
-            throw new Ice.MemoryLimitException();
+            Ex.throwMemoryLimitException(buf.size(), messageSizeMax);
         }
         final int packetSize = java.lang.Math.min(_maxPacketSize, _sndSize - _udpOverhead);
         if(packetSize < buf.size())

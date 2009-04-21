@@ -94,7 +94,8 @@ namespace IceInternal
                     if(!_batchAutoFlush &&
                        _batchStream.size() + _batchRequestsSize > _reference.getInstance().messageSizeMax())
                     {
-                        throw new Ice.MemoryLimitException();
+                        Ex.throwMemoryLimitException(_batchStream.size() + _batchRequestsSize,
+                                                     _reference.getInstance().messageSizeMax());
                     }
                     _requests.AddLast(new Request(_batchStream));
                     return;

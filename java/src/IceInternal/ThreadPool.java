@@ -807,7 +807,7 @@ public final class ThreadPool
         }
         if(size > _instance.messageSizeMax())
         {
-            throw new Ice.MemoryLimitException();
+            Ex.throwMemoryLimitException(size, _instance.messageSizeMax());
         }
         if(size > stream.size())
         {

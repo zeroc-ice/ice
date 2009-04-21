@@ -722,7 +722,8 @@ Ice::ConnectionI::finishBatchRequest(BasicStream* os, bool compress)
             //
             if(sizeof(requestBatchHdr) + lastRequest.size() >  _instance->messageSizeMax())
             {
-                throw MemoryLimitException(__FILE__, __LINE__);
+                Ex::throwMemoryLimitException(__FILE__, __LINE__, sizeof(requestBatchHdr) + lastRequest.size(),
+                                              _instance->messageSizeMax());
             }
 
             //

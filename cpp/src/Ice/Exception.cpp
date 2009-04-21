@@ -32,6 +32,14 @@ throwUOE(const string& expectedType, const string& actualType)
                                          actualType, expectedType);
 }
 
+void
+throwMemoryLimitException(const char* file, int line, size_t requested, size_t maximum)
+{
+    ostringstream s;
+    s << "requested " << requested << " bytes, maximum allowed is " << maximum << " bytes (see Ice.MessageSizeMax)";
+    throw Ice::MemoryLimitException(file, line, s.str());
+}
+
 }
 
 }

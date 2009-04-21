@@ -33,6 +33,10 @@ General Changes
 These entries apply to all relevant language mappings unless otherwise
 noted.
 
+- The reason member of MemoryLimitException now contains the size of
+  the request that caused the exception as well as the value of the
+  maximum message size.
+
 - The Ice::Application helper classes now use the process logger to
   emit errors rather than just writing directly to stderr.
 

@@ -271,7 +271,7 @@ IceInternal::UdpTransceiver::checkSendSize(const Buffer& buf, size_t messageSize
 {
     if(buf.b.size() > messageSizeMax)
     {
-        throw MemoryLimitException(__FILE__, __LINE__);
+        Ex::throwMemoryLimitException(__FILE__, __LINE__, buf.b.size(), messageSizeMax);
     }
     const int packetSize = min(_maxPacketSize, _sndSize - _udpOverhead);
     if(packetSize < static_cast<int>(buf.b.size()))

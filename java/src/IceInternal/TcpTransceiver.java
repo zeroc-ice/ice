@@ -224,7 +224,7 @@ final class TcpTransceiver implements Transceiver
     {
         if(buf.size() > messageSizeMax)
         {
-            throw new Ice.MemoryLimitException();
+            Ex.throwMemoryLimitException(buf.size(), messageSizeMax);
         }
     }
 

@@ -730,7 +730,7 @@ IceInternal::ThreadPool::read(const EventHandlerPtr& handler)
     }
     if(size > static_cast<Int>(_instance->messageSizeMax()))
     {
-        throw MemoryLimitException(__FILE__, __LINE__);
+        Ex::throwMemoryLimitException(__FILE__, __LINE__, size, _instance->messageSizeMax());
     }
     if(size > static_cast<Int>(stream.b.size()))
     {

@@ -588,7 +588,9 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
                     //
                     if(IceInternal.Protocol.requestBatchHdr.length + lastRequest.length >  _instance.messageSizeMax())
                     {
-                        throw new MemoryLimitException();
+                        IceInternal.Ex.throwMemoryLimitException(
+                            IceInternal.Protocol.requestBatchHdr.length + lastRequest.length,
+                            _instance.messageSizeMax());
                     }
 
                     //

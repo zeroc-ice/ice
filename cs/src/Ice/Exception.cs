@@ -19,6 +19,12 @@ namespace IceInternal
                         "expected element of type `" + expectedType + "' but received '" + actualType,
                         actualType, expectedType);
         }
+
+        public static void throwMemoryLimitException(int requested, int maximum)
+        {
+            throw new Ice.MemoryLimitException("requested " + requested + " bytes, maximum allowed is " + maximum +
+                                               " bytes (see Ice.MessageSizeMax)"); 
+        }
     }
 }
 
