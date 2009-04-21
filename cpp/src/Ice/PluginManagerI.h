@@ -26,6 +26,7 @@ class PluginManagerI : public PluginManager, public IceUtil::Mutex
 public:
 
     virtual void initializePlugins();
+    virtual StringSeq getPlugins();
     virtual PluginPtr getPlugin(const std::string&);
     virtual void addPlugin(const std::string&, const PluginPtr&);
     virtual void destroy();

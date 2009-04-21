@@ -68,6 +68,20 @@ Ice::PluginManagerI::initializePlugins()
     _initialized = true;
 }
 
+StringSeq
+Ice::PluginManagerI::getPlugins()
+{
+    IceUtil::Mutex::Lock sync(*this);
+
+    StringSeq names;
+    map<string, PluginPtr>::iterator r;
+    for(r = _plugins.begin(); r != _plugins.end(); ++r)
+    {
+        names.push_back((*r).first);
+    }
+    return names;
+}
+
 PluginPtr
 Ice::PluginManagerI::getPlugin(const string& name)
 {

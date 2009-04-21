@@ -33,6 +33,9 @@ General Changes
 These entries apply to all relevant language mappings unless otherwise
 noted.
 
+- Added getPlugins method to PluginManager which returns a list of the
+  names of all the plugins installed.
+
 - The reason member of MemoryLimitException now contains the size of
   the request that caused the exception as well as the value of the
   maximum message size.

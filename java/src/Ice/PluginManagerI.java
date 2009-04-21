@@ -60,6 +60,17 @@ public final class PluginManagerI implements PluginManager
         _initialized = true;
     }
 
+    public synchronized String[]
+    getPlugins()
+    {
+        java.util.ArrayList<String> names = new java.util.ArrayList<String>();
+        for(java.util.Map.Entry<String, Plugin> p : _plugins.entrySet())
+        {
+            names.add(p.getKey());
+        }
+        return names.toArray(new String[0]);
+    }
+
     public synchronized Plugin
     getPlugin(String name)
     {

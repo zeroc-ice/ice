@@ -13,6 +13,7 @@
 [["cpp:header-ext:h"]]
 
 #include <Ice/LoggerF.ice>
+#include <Ice/BuiltinSequences.ice>
 
 module Ice
 {
@@ -66,6 +67,17 @@ local interface PluginManager
      *
      **/
     void initializePlugins();
+
+    /**
+     *
+     * Get a list of plugins installed.
+     *
+     * @return The names of the plugins installed.
+     *
+     * @see getPlugin
+     *
+     **/
+    StringSeq getPlugins();
 
     /**
      *

@@ -68,6 +68,19 @@ namespace Ice
             _initialized = true;
         }
 
+        public string[] getPlugins()
+        {
+            lock(this)
+            {
+                ArrayList names = new ArrayList();
+                foreach(DictionaryEntry entry in _plugins)
+                {
+                    names.Add(entry.Key);
+                }
+                return (string[])names.ToArray(typeof(string));
+            }
+        }
+
         public Plugin getPlugin(string name)
         {
             lock(this)
