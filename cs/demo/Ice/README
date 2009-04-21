@@ -47,6 +47,10 @@ Demos in this directory:
   A demo to illustrate how nested callbacks work, and how the size of
   the thread pool affects the maximum nesting depth.
 
+- plugin
+
+  A demo to illustrate how to write and use Ice plugins.
+
 - serialize
 
   This demo illistrates how to transfer serializable .NET objects 

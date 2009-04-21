@@ -1,0 +1,13 @@
+This demo illustrates how to write and configure a simple Ice plugin
+as well as a Ice Logger plugin.
+
+To run the demo, first start the server:
+
+$ java Server
+
+In a separate window, start the client:
+
+$ java Client
+
+Look in the client and sever config files to see the plugin
+configuration.

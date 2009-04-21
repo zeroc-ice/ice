@@ -24,7 +24,8 @@ SUBDIRS		= minimal \
 		  converter \
 		  async \
 		  multicast \
-		  nrvo
+		  nrvo \
+		  plugin
 
 !if "$(BCPLUSPLUS)" != "yes" && "$(CPP_COMPILER)" != "VC80_EXPRESS" &&  "$(CPP_COMPILER)" != "VC90_EXPRESS"
 SUBDIRS		= $(SUBDIRS) MFC

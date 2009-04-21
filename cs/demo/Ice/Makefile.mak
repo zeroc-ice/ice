@@ -23,7 +23,8 @@ SUBDIRS		= bidir \
 		  value \
 		  async \
 		  multicast \
-		  serialize
+		  serialize \
+		  plugin
 
 $(EVERYTHING)::
 	@for %i in ( $(SUBDIRS) ) do \

@@ -61,6 +61,10 @@ Demos in this directory:
   A demo that shows how Ice takes advantage of NRVO (Named Return
   Value Optimization) which is included in modern C++ compilers.
 
+- plugin
+
+  A demo to illustrate how to write and use Ice plugins.
+
 - session
 
   This demo shows how to use sessions to clean up client-specific
