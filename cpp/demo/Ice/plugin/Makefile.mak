@@ -54,7 +54,7 @@ $(SERVER): $(OBJS) $(SOBJS)
 $(LOGGERLIBNAME) : $(LOGGERDLLNAME)
 
 $(LOGGERDLLNAME): $(LOBJS)
-	$(LINK) $(LD_DLLFLAGS) $(PDBFLAGS) $(SETARGV) $(LOBJS) $(PREOUT)$@ $(PRELIBS)$(LINKWITH)
+	$(LINK) $(LD_DLLFLAGS) $(PDBFLAGS) $(SETARGV) $(LOBJS) $(PREOUT)$@ $(PRELIBS)$(LIBS)
 	@if exist $@.manifest echo ^ ^ ^ Embedding manifest using $(MT) && \
 	    $(MT) -nologo -manifest $@.manifest -outputresource:$@;#2 && del /q $@.manifest
 	@if exist $(LOGGERDLLNAME:.dll=.exp) del /q $(LOGGERDLLNAME:.dll=.exp)

@@ -154,6 +154,18 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Ice.serialize.client", "Ice
 		{0B41ADFF-7802-4A36-8374-C32DE33BABCD} = {0B41ADFF-7802-4A36-8374-C32DE33BABCD}
 	EndProjectSection
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Ice.plugin.client", "Ice\plugin\Ice.plugin.client.csproj", "{228BEDFA-0000-0000-0000-000000000000}"
+	ProjectSection(ProjectDependencies) = postProject
+		{0B41ADFF-7802-4A36-DDFB-C32DE33B0290} = {0B41ADFF-7802-4A36-DDFB-C32DE33B0290}
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Ice.plugin.logger", "Ice\plugin\Ice.plugin.logger.csproj", "{8D371651-BFA4-43C9-B143-77F0CCDEB310}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Ice.plugin.server", "Ice\plugin\Ice.plugin.server.csproj", "{0B41ADFF-7802-4A36-DDFB-C32DE33B0290}"
+	ProjectSection(ProjectDependencies) = postProject
+		{8D371651-BFA4-43C9-B143-77F0CCDEB310} = {8D371651-BFA4-43C9-B143-77F0CCDEB310}
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -336,6 +348,18 @@ Global
 		{228B2AFC-57DC-4E1F-8335-D0CABCDA987B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{228B2AFC-57DC-4E1F-8335-D0CABCDA987B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{228B2AFC-57DC-4E1F-8335-D0CABCDA987B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{228BEDFA-0000-0000-0000-000000000000}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{228BEDFA-0000-0000-0000-000000000000}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{228BEDFA-0000-0000-0000-000000000000}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{228BEDFA-0000-0000-0000-000000000000}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8D371651-BFA4-43C9-B143-77F0CCDEB310}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8D371651-BFA4-43C9-B143-77F0CCDEB310}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8D371651-BFA4-43C9-B143-77F0CCDEB310}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8D371651-BFA4-43C9-B143-77F0CCDEB310}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0B41ADFF-7802-4A36-DDFB-C32DE33B0290}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0B41ADFF-7802-4A36-DDFB-C32DE33B0290}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0B41ADFF-7802-4A36-DDFB-C32DE33B0290}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0B41ADFF-7802-4A36-DDFB-C32DE33B0290}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

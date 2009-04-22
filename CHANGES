@@ -33,6 +33,9 @@ General Changes
 These entries apply to all relevant language mappings unless otherwise
 noted.
 
+- Added example demo/Ice/plugin to show how to write a simple Ice
+  Plugin as will as a Logger Plugin.
+
 - Added getPlugins method to PluginManager which returns a list of the
   names of all the plugins installed.
 
