@@ -1,11 +1,4 @@
 #
-# The server creates one single object adapter with the name
-# "Hello". The following line sets the endpoints for this
-# adapter.
-#
-Hello.Endpoints=tcp -p 10000:udp -p 10000
-
-#
 # Warn about connection exceptions
 #
 Ice.Warn.Connections=1
@@ -34,7 +27,7 @@ Ice.Trace.Network=1
 Ice.Plugin.Logger=LoggerPlugin:createLogger
 
 #
-# Tracing Plugin Configuration
+# Hello Plugin Configuration
 #
-#Ice.Plugin.IceSSL=IceSSL:createIceSSL
-
+Ice.Plugin.Hello=HelloPlugin:createHello
+Hello.Endpoints=tcp -p 10000

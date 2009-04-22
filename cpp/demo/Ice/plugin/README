@@ -9,6 +9,9 @@ In a separate window, start the client:
 
 $ client
 
-Look in the client and sever config files to see the plugin
-configuration.
+Both the client and server use a custom logger which is loaded as
+a logger plugin. The server also uses a plugin to implement the
+servant for this demo.
 
+Please look in the client and sever configuration files to see the
+plugin configuration.

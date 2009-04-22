@@ -15,21 +15,26 @@ SERVER		= server
 LOGGERFILENAME	= $(call mklibfilename,LoggerPlugin)
 LOGGERSONAME	= $(call mksoname,LoggerPlugin,$(SOVERSION))
 
-TARGETS		= $(CLIENT) $(SERVER) $(LOGGERFILENAME) $(LOGGERSONAME)
+HELLOFILENAME	= $(call mklibfilename,HelloPlugin)
+HELLOSONAME	= $(call mksoname,HelloPlugin,$(SOVERSION))
+
+TARGETS		= $(CLIENT) $(SERVER) $(LOGGERFILENAME) $(LOGGERSONAME) $(HELLOFILENAME) $(HELLOSONAME)
 
 OBJS		= Hello.o
 
 COBJS		= Client.o
 
-SOBJS		= HelloI.o \
-		  Server.o
+SOBJS		= Server.o
 
-LOBJS		= LoggerI.o
+LOBJS		= LoggerPluginI.o
+
+HOBJS		= HelloPluginI.o
 
 SRCS		= $(OBJS:.o=.cpp) \
 		  $(COBJS:.o=.cpp) \
 		  $(SOBJS:.o=.cpp) \
-		  $(LOBJS:.o=.cpp)
+		  $(LOBJS:.o=.cpp) \
+		  $(HOBJS:.o=.cpp)
 
 SLICE_SRCS	= Hello.ice
 
@@ -41,15 +46,24 @@ $(CLIENT): $(OBJS) $(COBJS)
 	rm -f $@
 	$(CXX) $(LDFLAGS) -o $@ $(OBJS) $(COBJS) $(LIBS)
 
-$(SERVER): $(OBJS) $(SOBJS)
+$(SERVER): $(SOBJS)
 	rm -f $@
 	$(CXX) $(LDFLAGS) -o $@ $(OBJS) $(SOBJS) $(LIBS)
 
 $(LOGGERFILENAME): $(LOBJS)
 	rm -f $@
-	$(call mkshlib,$@,$(SONAME),$(LOBJS),$(LINKWITH))
+	$(call mkshlib,$@,$(SONAME),$(LOBJS),$(LIBS))
 
 $(LOGGERSONAME): $(LOGGERFILENAME)
 	rm -f $@
 	ln -s $(LOGGERFILENAME) $@
+
+$(HELLOFILENAME): $(OBJS) $(HOBJS)
+	rm -f $@
+	$(call mkshlib,$@,$(SONAME),$(OBJS) $(HOBJS),$(LIBS))
+
+$(HELLOSONAME): $(HELLOFILENAME)
+	rm -f $@
+	ln -s $(HELLOFILENAME) $@
+
 include .depend

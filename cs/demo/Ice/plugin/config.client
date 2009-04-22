@@ -31,8 +31,3 @@ Ice.Trace.Network=1
 # Logger Plugin Configuration
 #
 Ice.Plugin.Logger=LoggerPlugin:LoggerPluginFactoryI
-
-#
-# Tracing Plugin Configuration
-#
-#Ice.Plugin.Logger=LoggerPlugin:LoggerPluginFactoryI

@@ -32,12 +32,7 @@ public class Client extends Ice.Application
     {
         System.out.println(
             "usage:\n" +
-            "t: send greeting as twoway\n" +
-            "o: send greeting as oneway\n" +
-            "O: send greeting as batch oneway\n" +
-            "d: send greeting as datagram\n" +
-            "D: send greeting as batch datagram\n" +
-            "f: flush all batch requests\n" +
+            "t: send greeting\n" +
             "s: shutdown server\n" +
             "x: exit\n" +
             "?: help\n");
@@ -59,17 +54,12 @@ public class Client extends Ice.Application
         //
         setInterruptHook(new ShutdownHook());
 
-        HelloPrx twoway = HelloPrxHelper.checkedCast(communicator().propertyToProxy("Hello.Proxy"));
-        if(twoway == null)
+        HelloPrx hello = HelloPrxHelper.checkedCast(communicator().propertyToProxy("Hello.Proxy"));
+        if(hello == null)
         {
             System.err.println("invalid proxy");
             return 1;
         }
-        HelloPrx oneway = (HelloPrx)twoway.ice_oneway();
-        HelloPrx batchOneway = (HelloPrx)twoway.ice_batchOneway();
-        HelloPrx datagram = (HelloPrx)twoway.ice_datagram();
-        HelloPrx batchDatagram = (HelloPrx)twoway.ice_batchDatagram();
-
         menu();
 
         java.io.BufferedReader in = new java.io.BufferedReader(new java.io.InputStreamReader(System.in));
@@ -88,31 +78,11 @@ public class Client extends Ice.Application
                 }
                 if(line.equals("t"))
                 {
-                    twoway.sayHello();
-                }
-                else if(line.equals("o"))
-                {
-                    oneway.sayHello();
-                }
-                else if(line.equals("O"))
-                {
-                    batchOneway.sayHello();
-                }
-                else if(line.equals("d"))
-                {
-                    datagram.sayHello();
-                }
-                else if(line.equals("D"))
-                {
-                    batchDatagram.sayHello();
-                }
-                else if(line.equals("f"))
-                {
-                    communicator().flushBatchRequests();
+                    hello.sayHello();
                 }
                 else if(line.equals("s"))
                 {
-                    twoway.shutdown();
+                    hello.shutdown();
                 }
                 else if(line.equals("x"))
                 {

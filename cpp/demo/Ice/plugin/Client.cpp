@@ -13,11 +13,11 @@
 using namespace std;
 using namespace Demo;
 
-class HelloClient : public Ice::Application
+class PluginClient : public Ice::Application
 {
 public:
 
-    HelloClient();
+    PluginClient();
 
     virtual int run(int, char*[]);
 
@@ -29,11 +29,11 @@ private:
 int
 main(int argc, char* argv[])
 {
-    HelloClient app;
+    PluginClient app;
     return app.main(argc, argv, "config.client");
 }
 
-HelloClient::HelloClient() :
+PluginClient::PluginClient() :
     //
     // Since this is an interactive demo we don't want any signal
     // handling.
@@ -43,7 +43,7 @@ HelloClient::HelloClient() :
 }
 
 int
-HelloClient::run(int argc, char* argv[])
+PluginClient::run(int argc, char* argv[])
 {
     if(argc > 1)
     {
@@ -51,16 +51,12 @@ HelloClient::run(int argc, char* argv[])
         return EXIT_FAILURE;
     }
 
-    HelloPrx twoway = HelloPrx::checkedCast(communicator()->propertyToProxy("Hello.Proxy"));
-    if(!twoway)
+    HelloPrx hello = HelloPrx::checkedCast(communicator()->propertyToProxy("Hello.Proxy"));
+    if(!hello)
     {
         cerr << argv[0] << ": invalid proxy" << endl;
         return EXIT_FAILURE;
     }
-    HelloPrx oneway = twoway->ice_oneway();
-    HelloPrx batchOneway = twoway->ice_batchOneway();
-    HelloPrx datagram = twoway->ice_datagram();
-    HelloPrx batchDatagram = twoway->ice_batchDatagram();
 
     menu();
 
@@ -73,31 +69,11 @@ HelloClient::run(int argc, char* argv[])
             cin >> c;
             if(c == 't')
             {
-                twoway->sayHello();
-            }
-            else if(c == 'o')
-            {
-                oneway->sayHello();
-            }
-            else if(c == 'O')
-            {
-                batchOneway->sayHello();
-            }
-            else if(c == 'd')
-            {
-                datagram->sayHello();
-            }
-            else if(c == 'D')
-            {
-                batchDatagram->sayHello();
-            }
-            else if(c == 'f')
-            {
-                communicator()->flushBatchRequests();
+                hello->sayHello();
             }
             else if(c == 's')
             {
-                twoway->shutdown();
+                hello->shutdown();
             }
             else if(c == 'x')
             {
@@ -124,16 +100,11 @@ HelloClient::run(int argc, char* argv[])
 }
 
 void
-HelloClient::menu()
+PluginClient::menu()
 {
     cout <<
         "usage:\n"
-        "t: send greeting as twoway\n"
-        "o: send greeting as oneway\n"
-        "O: send greeting as batch oneway\n"
-        "d: send greeting as datagram\n"
-        "D: send greeting as batch datagram\n"
-        "f: flush all batch requests\n"
+        "t: send greeting\n"
         "s: shutdown server\n"
         "x: exit\n"
         "?: help\n";

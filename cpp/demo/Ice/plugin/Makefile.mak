@@ -15,21 +15,27 @@ SERVER		= server.exe
 LOGGERLIBNAME   = loggerplugin$(LIBSUFFIX).lib
 LOGGERDLLNAME   = loggerplugin$(LIBSUFFIX).dll
 
-TARGETS		= $(CLIENT) $(SERVER) $(LOGGERDLLNAME)
+HELLOLIBNAME   	= helloplugin$(LIBSUFFIX).lib
+HELLODLLNAME   	= helloplugin$(LIBSUFFIX).dll
+
+TARGETS		= $(CLIENT) $(SERVER) $(LOGGERDLLNAME) $(HELLODLLNAME)
 
 OBJS		= Hello.obj
 
 COBJS		= Client.obj
 
-SOBJS		= HelloI.obj \
-		  Server.obj
+SOBJS		= Server.obj
 
-LOBJS		= LoggerI.obj
+LOBJS		= LoggerPluginI.obj
+
+HOBJS		= HelloI.obj \
+		  HelloPluginI.obj
 
 SRCS		= $(OBJS:.obj=.cpp) \
 		  $(COBJS:.obj=.cpp) \
 		  $(SOBJS:.obj=.cpp) \
-		  $(LOBJS:.obj=.cpp)
+		  $(LOBJS:.obj=.cpp) \
+		  $(HOBJS:.obj=.cpp)
 
 !include $(top_srcdir)/config/Make.rules.mak
 
@@ -39,6 +45,7 @@ CPPFLAGS	= -I. $(CPPFLAGS) -DWIN32_LEAN_AND_MEAN
 CPDBFLAGS        = /pdb:$(CLIENT:.exe=.pdb)
 SPDBFLAGS        = /pdb:$(SERVER:.exe=.pdb)
 LPDBFLAGS        = /pdb:$(LOGGERDLLNAME:.dll=.pdb)
+HPDBFLAGS        = /pdb:$(HELLODLLNAME:.dll=.pdb)
 !endif
 
 $(CLIENT): $(OBJS) $(COBJS)
@@ -46,7 +53,7 @@ $(CLIENT): $(OBJS) $(COBJS)
 	@if exist $@.manifest echo ^ ^ ^ Embedding manifest using $(MT) && \
 	    $(MT) -nologo -manifest $@.manifest -outputresource:$@;#1 && del /q $@.manifest
 
-$(SERVER): $(OBJS) $(SOBJS)
+$(SERVER): $(SOBJS)
 	$(LINK) $(LD_EXEFLAGS) $(SPDBFLAGS) $(SETARGV) $(OBJS) $(SOBJS) $(PREOUT)$@ $(PRELIBS)$(LIBS)
 	@if exist $@.manifest echo ^ ^ ^ Embedding manifest using $(MT) && \
 	    $(MT) -nologo -manifest $@.manifest -outputresource:$@;#1 && del /q $@.manifest
@@ -54,7 +61,15 @@ $(SERVER): $(OBJS) $(SOBJS)
 $(LOGGERLIBNAME) : $(LOGGERDLLNAME)
 
 $(LOGGERDLLNAME): $(LOBJS)
-	$(LINK) $(LD_DLLFLAGS) $(PDBFLAGS) $(SETARGV) $(LOBJS) $(PREOUT)$@ $(PRELIBS)$(LIBS)
+	$(LINK) $(LD_DLLFLAGS) $(LPDBFLAGS) $(SETARGV) $(LOBJS) $(PREOUT)$@ $(PRELIBS)$(LIBS)
+	@if exist $@.manifest echo ^ ^ ^ Embedding manifest using $(MT) && \
+	    $(MT) -nologo -manifest $@.manifest -outputresource:$@;#2 && del /q $@.manifest
+	@if exist $(LOGGERDLLNAME:.dll=.exp) del /q $(LOGGERDLLNAME:.dll=.exp)
+
+$(HELLOLIBNAME) : $(HELLODLLNAME)
+
+$(HELLODLLNAME): $(OBJS) $(HOBJS)
+	$(LINK) $(LD_DLLFLAGS) $(HPDBFLAGS) $(SETARGV) $(HOBJS) $(PREOUT)$@ $(PRELIBS)$(LIBS)
 	@if exist $@.manifest echo ^ ^ ^ Embedding manifest using $(MT) && \
 	    $(MT) -nologo -manifest $@.manifest -outputresource:$@;#2 && del /q $@.manifest
 	@if exist $(LOGGERDLLNAME:.dll=.exp) del /q $(LOGGERDLLNAME:.dll=.exp)

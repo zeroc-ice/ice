@@ -627,6 +627,18 @@ Package=<4>
 
 ###############################################################################
 
+Project: "Ice.plugin.hello.dll"=.\Ice\plugin\Ice.plugin.hello.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
 Project: "Ice.plugin.logger.dll"=.\Ice\plugin\Ice.plugin.logger.dsp - Package Owner=<4>
 
 Package=<5>
@@ -635,6 +647,9 @@ Package=<5>
 
 Package=<4>
 {{{
+    Begin Project Dependency
+    Project_Dep_Name Ice.plugin.hello.dll
+    End Project Dependency
 }}}
 
 ###############################################################################
@@ -1315,6 +1330,9 @@ Package=<4>
     End Project Dependency
     Begin Project Dependency
     Project_Dep_Name Ice.plugin.client.exe
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name Ice.plugin.hello.dll
     End Project Dependency
     Begin Project Dependency
     Project_Dep_Name Ice.plugin.logger.dll

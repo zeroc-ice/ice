@@ -7,17 +7,10 @@
 //
 // **********************************************************************
 
-#ifndef HELLO_I_H
-#define HELLO_I_H
-
-#include <Hello.h>
-
-class HelloI : public Demo::Hello
+public class HelloPluginFactoryI : Ice.PluginFactory
 {
-public:
-
-    virtual void sayHello(const Ice::Current&);
-    virtual void shutdown(const Ice::Current&);
-};
-
-#endif
+    public Ice.Plugin create(Ice.Communicator communicator, string name, string[] args)
+    {
+        return new HelloPluginI(communicator);
+    }
+}

@@ -26,11 +26,6 @@ public class Client
             Console.Write(
                 "usage:\n" +
                 "t: send greeting as twoway\n" +
-                "o: send greeting as oneway\n" +
-                "O: send greeting as batch oneway\n" +
-                "d: send greeting as datagram\n" +
-                "D: send greeting as batch datagram\n" +
-                "f: flush all batch requests\n" +
                 "s: shutdown server\n" +
                 "x: exit\n" +
                 "?: help\n");
@@ -44,16 +39,12 @@ public class Client
                 return 1;
             }
 
-            HelloPrx twoway = HelloPrxHelper.checkedCast(communicator().propertyToProxy("Hello.Proxy"));
-            if(twoway == null)
+            HelloPrx hello = HelloPrxHelper.checkedCast(communicator().propertyToProxy("Hello.Proxy"));
+            if(hello == null)
             {
                 Console.Error.WriteLine("invalid proxy");
                 return 1;
             }
-            HelloPrx oneway = (HelloPrx)twoway.ice_oneway();
-            HelloPrx batchOneway = (HelloPrx)twoway.ice_batchOneway();
-            HelloPrx datagram = (HelloPrx)twoway.ice_datagram();
-            HelloPrx batchDatagram =(HelloPrx)twoway.ice_batchDatagram();
 
             menu();
 
@@ -71,31 +62,11 @@ public class Client
                     }
                     if(line.Equals("t"))
                     {
-                        twoway.sayHello();
-                    }
-                    else if(line.Equals("o"))
-                    {
-                        oneway.sayHello();
-                    }
-                    else if(line.Equals("O"))
-                    {
-                        batchOneway.sayHello();
-                    }
-                    else if(line.Equals("d"))
-                    {
-                        datagram.sayHello();
-                    }
-                    else if(line.Equals("D"))
-                    {
-                        batchDatagram.sayHello();
-                    }
-                    else if(line.Equals("f"))
-                    {
-                        communicator().flushBatchRequests();
+                        hello.sayHello();
                     }
                     else if(line.Equals("s"))
                     {
-                        twoway.shutdown();
+                        hello.shutdown();
                     }
                     else if(line.Equals("x"))
                     {

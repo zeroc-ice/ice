@@ -1,24 +1,24 @@
-# Microsoft Developer Studio Project File - Name="Ice.plugin.logger.dll" - Package Owner=<4>
+# Microsoft Developer Studio Project File - Name="Ice.plugin.hello.dll" - Package Owner=<4>
 # Microsoft Developer Studio Generated Build File, Format Version 6.00
 # ** DO NOT EDIT **
 
 # TARGTYPE "Win32 (x86) Dynamic-Link Library" 0x0102
 
-CFG=Ice.plugin.logger.dll - Win32 Debug
+CFG=Ice.plugin.hello.dll - Win32 Debug
 !MESSAGE This is not a valid makefile. To build this project using NMAKE,
 !MESSAGE use the Export Makefile command and run
 !MESSAGE 
-!MESSAGE NMAKE /f "Ice.plugin.logger.mak".
+!MESSAGE NMAKE /f "Ice.plugin.hello.mak".
 !MESSAGE 
 !MESSAGE You can specify a configuration when running NMAKE
 !MESSAGE by defining the macro CFG on the command line. For example:
 !MESSAGE 
-!MESSAGE NMAKE /f "Ice.plugin.logger.mak" CFG="Ice.plugin.logger.dll - Win32 Debug"
+!MESSAGE NMAKE /f "Ice.plugin.hello.mak" CFG="Ice.plugin.hello.dll - Win32 Debug"
 !MESSAGE 
 !MESSAGE Possible choices for configuration are:
 !MESSAGE 
-!MESSAGE "Ice.plugin.logger.dll - Win32 Release" (based on "Win32 (x86) Dynamic-Link Library")
-!MESSAGE "Ice.plugin.logger.dll - Win32 Debug" (based on "Win32 (x86) Dynamic-Link Library")
+!MESSAGE "Ice.plugin.hello.dll - Win32 Release" (based on "Win32 (x86) Dynamic-Link Library")
+!MESSAGE "Ice.plugin.hello.dll - Win32 Debug" (based on "Win32 (x86) Dynamic-Link Library")
 !MESSAGE 
 
 # Begin Project
@@ -29,7 +29,7 @@ CPP=cl.exe
 MTL=midl.exe
 RSC=rc.exe
 
-!IF  "$(CFG)" == "Ice.plugin.logger.dll - Win32 Release"
+!IF  "$(CFG)" == "Ice.plugin.hello.dll - Win32 Release"
 
 # PROP BASE Use_MFC 0
 # PROP BASE Use_Debug_Libraries 0
@@ -54,9 +54,9 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LINK32=link.exe
 # ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /dll /machine:I386
-# ADD LINK32 Ice.lib IceUtil.lib setargv.obj /nologo /dll /pdb:none /machine:I386 /out:"loggerplugin.dll" /libpath:"../../../lib" /FIXED:no /IGNORE:4089
+# ADD LINK32 Ice.lib IceUtil.lib setargv.obj /nologo /dll /pdb:none /machine:I386 /out:"helloplugin.dll" /libpath:"../../../lib" /FIXED:no /IGNORE:4089
 
-!ELSEIF  "$(CFG)" == "Ice.plugin.logger.dll - Win32 Debug"
+!ELSEIF  "$(CFG)" == "Ice.plugin.hello.dll - Win32 Debug"
 
 # PROP BASE Use_MFC 0
 # PROP BASE Use_Debug_Libraries 1
@@ -81,35 +81,82 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LINK32=link.exe
 # ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /dll /debug /machine:I386 /pdbtype:sept
-# ADD LINK32 Iced.lib IceUtild.lib setargv.obj /nologo /dll /debug /machine:I386 /out:"loggerplugind.dll" /pdbtype:sept /libpath:"../../../lib" /FIXED:no
+# ADD LINK32 Iced.lib IceUtild.lib setargv.obj /nologo /dll /debug /machine:I386 /out:"helloplugind.dll" /pdbtype:sept /libpath:"../../../lib" /FIXED:no
 # SUBTRACT LINK32 /pdb:none
 # Begin Special Build Tool
 OutDir=.\Debug
 SOURCE="$(InputPath)"
-PostBuild_Cmds=copy $(OutDir)\loggerplugind.* .
+PostBuild_Cmds=copy $(OutDir)\helloplugind.* .
 # End Special Build Tool
 
 !ENDIF 
 
 # Begin Target
 
-# Name "Ice.plugin.logger.dll - Win32 Release"
-# Name "Ice.plugin.logger.dll - Win32 Debug"
+# Name "Ice.plugin.hello.dll - Win32 Release"
+# Name "Ice.plugin.hello.dll - Win32 Debug"
 # Begin Group "Source Files"
 
 # PROP Default_Filter "cpp;c;cxx;rc;def;r;odl;idl;hpj;bat"
 # Begin Source File
 
-SOURCE=.\LoggerPluginI.cpp
+SOURCE=.\Hello.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\HelloPluginI.cpp
 # End Source File
 # End Group
 # Begin Group "Header Files"
 
 # PROP Default_Filter "h;hpp;hxx;hm;inl"
+# Begin Source File
+
+SOURCE=.\Hello.h
+# End Source File
 # End Group
 # Begin Group "Resource Files"
 
 # PROP Default_Filter "ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe"
+# Begin Source File
+
+SOURCE=.\Hello.ice
+
+!IF  "$(CFG)" == "Ice.plugin.client.exe - Win32 Release"
+
+USERDEP__HELLO="..\..\..\bin\slice2cpp.exe"     "..\..\..\lib\slice.lib"
+# Begin Custom Build
+InputPath=.\Hello.ice
+
+BuildCmds= \
+        ..\..\..\bin\slice2cpp.exe Hello.ice
+
+"Hello.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+
+"Hello.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+# End Custom Build
+
+!ELSEIF  "$(CFG)" == "Ice.plugin.client.exe - Win32 Debug"
+
+USERDEP__HELLO="..\..\..\bin\slice2cpp.exe"     "..\..\..\lib\sliced.lib"
+# Begin Custom Build
+InputPath=.\Hello.ice
+
+BuildCmds= \
+        ..\..\..\bin\slice2cpp.exe Hello.ice
+
+"Hello.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+
+"Hello.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+# End Custom Build
+
+!ENDIF
+
+# End Source File
 # End Group
 # Begin Source File
 

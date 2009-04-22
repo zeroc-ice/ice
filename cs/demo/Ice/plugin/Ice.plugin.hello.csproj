@@ -3,21 +3,21 @@
     <ProjectType>Local</ProjectType>
     <ProductVersion>8.0.50727</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>{0B41ADFF-7802-4A36-DDFB-C32DE33B0290}</ProjectGuid>
+    <ProjectGuid>{8D371651-BFA4-43C9-B143-77F0CCEEBB10}</ProjectGuid>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ApplicationIcon>
     </ApplicationIcon>
     <AssemblyKeyContainerName>
     </AssemblyKeyContainerName>
-    <AssemblyName>server</AssemblyName>
+    <AssemblyName>HelloPlugin</AssemblyName>
     <AssemblyOriginatorKeyFile>
     </AssemblyOriginatorKeyFile>
     <DefaultClientScript>JScript</DefaultClientScript>
     <DefaultHTMLPageLayout>Grid</DefaultHTMLPageLayout>
     <DefaultTargetSchema>IE50</DefaultTargetSchema>
     <DelaySign>false</DelaySign>
-    <OutputType>Exe</OutputType>
+    <OutputType>Library</OutputType>
     <RootNamespace>
     </RootNamespace>
     <RunPostBuildEvent>OnBuildSuccess</RunPostBuildEvent>
@@ -85,13 +85,13 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="generated\Hello.cs">
-      <SubType>Code</SubType>
-    </Compile>
     <Compile Include="HelloI.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Server.cs">
+    <Compile Include="HelloPluginI.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="HelloPluginFactoryI.cs">
       <SubType>Code</SubType>
     </Compile>
   </ItemGroup>
@@ -104,5 +104,17 @@
     </PreBuildEvent>
     <PostBuildEvent>
     </PostBuildEvent>
+  </PropertyGroup>
+  <Target Name="CompileSlice" Inputs="Hello.ice" Outputs="generated\Hello.cs">
+    <Exec Condition="Exists('..\..\..\slice')" Command="..\..\..\bin\slice2cs.exe --output-dir generated Hello.ice" />
+    <Exec Condition="Exists('..\..\..\..\slice')" Command="..\..\..\..\cpp\bin\slice2cs.exe --output-dir generated Hello.ice" />
+  </Target>
+  <Target Name="AfterClean">
+    <Delete Files="generated\Hello.cs" />
+  </Target>
+  <PropertyGroup>
+    <CompileDependsOn>
+      CompileSlice;$(CompileDependsOn)
+    </CompileDependsOn>
   </PropertyGroup>
 </Project>

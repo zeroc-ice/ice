@@ -9,12 +9,13 @@
 
 top_srcdir	= ..\..\..
 
-TARGETS		= client.exe server.exe LoggerPlugin.dll
+TARGETS		= client.exe server.exe LoggerPlugin.dll HelloPlugin.dll
 TARGETS_CONFIG	= $(TARGETS:.exe=.exe.config)
 
 C_SRCS		= Client.cs
-S_SRCS		= HelloI.cs Server.cs
+S_SRCS		= Server.cs
 L_SRCS		= LoggerI.cs LoggerPluginFactoryI.cs
+H_SRCS		= HelloI.cs HelloPluginI.cs HelloPluginFactoryI.cs
 
 GEN_SRCS	= $(GDIR)\Hello.cs
 
@@ -31,10 +32,13 @@ SLICE2CSFLAGS	= $(SLICE2CSFLAGS) --ice -I. -I$(slicedir)
 client.exe: $(C_SRCS) $(GEN_SRCS)
 	$(MCS) $(MCSFLAGS) -out:$@ -r:$(refdir)\Ice.dll $(C_SRCS) $(GEN_SRCS)
 
-server.exe: $(S_SRCS) $(GEN_SRCS)
+server.exe: $(S_SRCS)
 	$(MCS) $(MCSFLAGS) -out:$@ -r:$(refdir)\Ice.dll $(S_SRCS) $(GEN_SRCS)
 
 LoggerPlugin.dll: $(L_SRCS)
 	$(MCS) $(MCSFLAGS) -target:library -out:$@ -r:$(refdir)\Ice.dll $(L_SRCS)
+
+HelloPlugin.dll: $(H_SRCS) $(GEN_SRCS)
+	$(MCS) $(MCSFLAGS) -target:library -out:$@ -r:$(refdir)\Ice.dll $(H_SRCS)
 
 !include .depend

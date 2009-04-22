@@ -28,9 +28,6 @@ public class Server
                 return 1;
             }
 
-            Ice.ObjectAdapter adapter = communicator().createObjectAdapter("Hello");
-            adapter.add(new HelloI(), communicator().stringToIdentity("hello"));
-            adapter.activate();
             communicator().waitForShutdown();
             return 0;
         }
