@@ -753,7 +753,7 @@ namespace Ice
         //
         public ObjectAdapterI(IceInternal.Instance instance, Communicator communicator,
                               IceInternal.ObjectAdapterFactory objectAdapterFactory, string name, 
-                              string endpointInfo, RouterPrx router, bool noConfig)
+                              RouterPrx router, bool noConfig)
         {
             _deactivated = false;
             instance_ = instance;
@@ -799,7 +799,7 @@ namespace Ice
             //
             // Make sure named adapter has configuration.
             //
-            if(endpointInfo.Length == 0 && router == null && noProps)
+            if(router == null && noProps)
             {
                 //
                 // These need to be set to prevent warnings/asserts in the destructor.
@@ -912,15 +912,8 @@ namespace Ice
                     // Parse the endpoints, but don't store them in the adapter. The connection
                     // factory might change it, for example, to fill in the real port number.
                     //
-                    List<IceInternal.EndpointI> endpoints;
-                    if(endpointInfo.Length == 0)
-                    {
-                        endpoints = parseEndpoints(properties.getProperty(_name + ".Endpoints"), true);
-                    }
-                    else
-                    {
-                        endpoints = parseEndpoints(endpointInfo, true);
-                    }
+                    List<IceInternal.EndpointI> endpoints = 
+                        parseEndpoints(properties.getProperty(_name + ".Endpoints"), true);
                     foreach(IceInternal.EndpointI endp in endpoints)
                     {
                         IceInternal.IncomingConnectionFactory factory =
@@ -1378,10 +1371,21 @@ namespace Ice
             "AdapterId",
             "Endpoints",
             "Locator",
+            "Locator.EndpointSelection",
+            "Locator.ConnectionCached",
+            "Locator.PreferSecure",
+            "Locator.CollocationOptimized",
+            "Locator.Router",
             "PublishedEndpoints",
             "RegisterProcess",
             "ReplicaGroupId",
             "Router",
+            "Router.EndpointSelection",
+            "Router.ConnectionCached",
+            "Router.PreferSecure",
+            "Router.CollocationOptimized",
+            "Router.Locator",
+            "Router.LocatorCacheTimeout",
             "ProxyOptions",
             "ThreadPool.Size",
             "ThreadPool.SizeMax",

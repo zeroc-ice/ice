@@ -759,7 +759,7 @@ Ice::ObjectAdapterI::getServantManager() const
 
 Ice::ObjectAdapterI::ObjectAdapterI(const InstancePtr& instance, const CommunicatorPtr& communicator,
                                     const ObjectAdapterFactoryPtr& objectAdapterFactory, const string& name,
-                                    const string& endpointInfo, const RouterPrx& router, bool noConfig) :
+                                    const RouterPrx& router, bool noConfig) :
     _deactivated(false),
     _instance(instance),
     _communicator(communicator),
@@ -799,7 +799,7 @@ Ice::ObjectAdapterI::ObjectAdapterI(const InstancePtr& instance, const Communica
     //
     // Make sure named adapter has some configuration
     //
-    if(endpointInfo.empty() && router == 0 && noProps)
+    if(router == 0 && noProps)
     {
         InitializationException ex(__FILE__, __LINE__);
         ex.reason = "object adapter `" + _name + "' requires configuration";
@@ -891,16 +891,7 @@ Ice::ObjectAdapterI::ObjectAdapterI(const InstancePtr& instance, const Communica
             // The connection factory might change it, for example, to
             // fill in the real port number.
             //
-            vector<EndpointIPtr> endpoints;
-            if(endpointInfo.empty())
-            {
-                endpoints = parseEndpoints(properties->getProperty(_name + ".Endpoints"), true);
-            }
-            else
-            {
-                endpoints = parseEndpoints(endpointInfo, true);
-            }
-
+            vector<EndpointIPtr> endpoints = parseEndpoints(properties->getProperty(_name + ".Endpoints"), true);
             for(vector<EndpointIPtr>::iterator p = endpoints.begin(); p != endpoints.end(); ++p)
             {
                 IncomingConnectionFactoryPtr factory = new IncomingConnectionFactory(instance, *p, this);
@@ -1327,10 +1318,21 @@ Ice::ObjectAdapterI::filterProperties(StringSeq& unknownProps)
         "AdapterId",
         "Endpoints",
         "Locator",
+        "Locator.EndpointSelection",
+        "Locator.ConnectionCached",
+        "Locator.PreferSecure",
+        "Locator.CollocationOptimized",
+        "Locator.Router",
         "PublishedEndpoints",
         "RegisterProcess",
         "ReplicaGroupId",
         "Router",
+        "Router.EndpointSelection",
+        "Router.ConnectionCached",
+        "Router.PreferSecure",
+        "Router.CollocationOptimized",
+        "Router.Locator",
+        "Router.LocatorCacheTimeout",
         "ProxyOptions",
         "ThreadPool.Size",
         "ThreadPool.SizeMax",
@@ -1369,7 +1371,11 @@ Ice::ObjectAdapterI::filterProperties(StringSeq& unknownProps)
                 valid = true;
                 break;
             }
+            else
+            {
+            }
         }
+
 
         if(!valid && addUnknown)
         {

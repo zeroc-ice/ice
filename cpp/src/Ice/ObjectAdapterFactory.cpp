@@ -128,8 +128,7 @@ IceInternal::ObjectAdapterFactory::destroy()
 }
 
 ObjectAdapterPtr
-IceInternal::ObjectAdapterFactory::createObjectAdapter(const string& name, const string& endpoints, 
-                                                       const RouterPrx& router)
+IceInternal::ObjectAdapterFactory::createObjectAdapter(const string& name, const RouterPrx& router)
 {
     IceUtil::Monitor<IceUtil::RecMutex>::Lock sync(*this);
 
@@ -144,23 +143,16 @@ IceInternal::ObjectAdapterFactory::createObjectAdapter(const string& name, const
         throw AlreadyRegisteredException(__FILE__, __LINE__, "object adapter", name);
     }
 
-    if(name.empty() && (!endpoints.empty() || router != 0))
-    {
-        InitializationException ex(__FILE__, __LINE__);
-        ex.reason = "Cannot configure endpoints or router with nameless object adapter";
-        throw ex;
-    }
-
     ObjectAdapterIPtr adapter;
     if(name.empty())
     {
         string uuid = IceUtil::generateUUID();
-        adapter = new ObjectAdapterI(_instance, _communicator, this, uuid, "", 0, true);
+        adapter = new ObjectAdapterI(_instance, _communicator, this, uuid, 0, true);
         _adapters.insert(make_pair(uuid, adapter));
     }
     else
     {
-        adapter = new ObjectAdapterI(_instance, _communicator, this, name, endpoints, router, false);
+        adapter = new ObjectAdapterI(_instance, _communicator, this, name, router, false);
         _adapters.insert(make_pair(name, adapter));
     }
     return adapter;

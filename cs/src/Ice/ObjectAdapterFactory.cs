@@ -130,7 +130,7 @@ namespace IceInternal
             }
         }
         
-        public Ice.ObjectAdapter createObjectAdapter(string name, string endpoints, Ice.RouterPrx router)
+        public Ice.ObjectAdapter createObjectAdapter(string name, Ice.RouterPrx router)
         {
             lock(this)
             {
@@ -148,22 +148,15 @@ namespace IceInternal
                     throw ex;
                 }
 
-                if(name.Length == 0 && (endpoints.Length != 0 || router != null))
-                {
-                    Ice.InitializationException ex = new Ice.InitializationException();
-                    ex.reason = "Cannot configure endpoints or router with nameless object adapter";
-                    throw ex;
-                }
-                
                 if(name.Length == 0)
                 {
                     string uuid = Ice.Util.generateUUID();
-                    adapter = new Ice.ObjectAdapterI(instance_, _communicator, this, uuid, "", null, true);
+                    adapter = new Ice.ObjectAdapterI(instance_, _communicator, this, uuid, null, true);
                     _adapters[uuid] = adapter;
                 }
                 else
                 {
-                    adapter = new Ice.ObjectAdapterI(instance_, _communicator, this, name, endpoints, router, false);
+                    adapter = new Ice.ObjectAdapterI(instance_, _communicator, this, name, router, false);
                     _adapters[name] = adapter;
                 }
                 return adapter;

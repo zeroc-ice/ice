@@ -91,7 +91,7 @@ public:
 private:
 
     ObjectAdapterI(const IceInternal::InstancePtr&, const CommunicatorPtr&, 
-                   const IceInternal::ObjectAdapterFactoryPtr&, const std::string&, const std::string&,
+                   const IceInternal::ObjectAdapterFactoryPtr&, const std::string&, 
                    const RouterPrx&, bool);
     virtual ~ObjectAdapterI();
     friend class IceInternal::ObjectAdapterFactory;

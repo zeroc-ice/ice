@@ -26,7 +26,7 @@ public:
     bool isShutdown() const;
     void destroy();
 
-    ::Ice::ObjectAdapterPtr createObjectAdapter(const std::string&, const std::string&, const Ice::RouterPrx&);
+    ::Ice::ObjectAdapterPtr createObjectAdapter(const std::string&, const Ice::RouterPrx&);
     ::Ice::ObjectAdapterPtr findObjectAdapter(const ::Ice::ObjectPrx&);
     void removeObjectAdapter(const ::std::string&);
     void flushBatchRequests() const;

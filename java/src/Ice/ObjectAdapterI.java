@@ -747,7 +747,7 @@ public final class ObjectAdapterI implements ObjectAdapter
     //
     public
     ObjectAdapterI(IceInternal.Instance instance, Communicator communicator,
-                   IceInternal.ObjectAdapterFactory objectAdapterFactory, String name, String endpointInfo,
+                   IceInternal.ObjectAdapterFactory objectAdapterFactory, String name,
                    RouterPrx router, boolean noConfig)
     {
         _deactivated = false;
@@ -791,7 +791,7 @@ public final class ObjectAdapterI implements ObjectAdapter
         //
         // Make sure named adapter has some configuration.
         //
-        if(endpointInfo.length() == 0 && router == null && noProps)
+        if(router == null && noProps)
         {
             //
             // These need to be set to prevent finalizer from complaining.
@@ -907,15 +907,8 @@ public final class ObjectAdapterI implements ObjectAdapter
                 // Parse the endpoints, but don't store them in the adapter. The connection
                 // factory might change it, for example, to fill in the real port number.
                 //
-                java.util.List<IceInternal.EndpointI> endpoints;
-                if(endpointInfo.length() == 0)
-                {
-                    endpoints = parseEndpoints(properties.getProperty(_name + ".Endpoints"), true);
-                }
-                else
-                {
-                    endpoints = parseEndpoints(endpointInfo, true);
-                }
+                java.util.List<IceInternal.EndpointI> endpoints =
+                    parseEndpoints(properties.getProperty(_name + ".Endpoints"), true);
                 for(int i = 0; i < endpoints.size(); ++i)
                 {
                     IceInternal.EndpointI endp = endpoints.get(i);
@@ -1382,10 +1375,21 @@ public final class ObjectAdapterI implements ObjectAdapter
         "AdapterId",
         "Endpoints",
         "Locator",
+        "Locator.EndpointSelection",
+        "Locator.ConnectionCached",
+        "Locator.PreferSecure",
+        "Locator.CollocationOptimized",
+        "Locator.Router",
         "PublishedEndpoints",
         "RegisterProcess",
         "ReplicaGroupId",
         "Router",
+        "Router.EndpointSelection",
+        "Router.ConnectionCached",
+        "Router.PreferSecure",
+        "Router.CollocationOptimized",
+        "Router.Locator",
+        "Router.LocatorCacheTimeout",
         "ProxyOptions",
         "ThreadPool.Size",
         "ThreadPool.SizeMax",

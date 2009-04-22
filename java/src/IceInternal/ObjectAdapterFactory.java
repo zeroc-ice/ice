@@ -146,7 +146,7 @@ public final class ObjectAdapterFactory
     }
     
     public synchronized Ice.ObjectAdapter
-    createObjectAdapter(String name, String endpoints, Ice.RouterPrx router)
+    createObjectAdapter(String name, Ice.RouterPrx router)
     {
         if(_instance == null)
         {
@@ -159,22 +159,15 @@ public final class ObjectAdapterFactory
             throw new Ice.AlreadyRegisteredException("object adapter", name);
         }
 
-        if(name.length() == 0 && (endpoints.length() != 0 || router != null))
-        {
-            Ice.InitializationException ex = new Ice.InitializationException();
-            ex.reason = "Cannot configure endpoints or router with nameless object adapter";
-            throw ex;
-        }
-
         if(name.length() == 0)
         {
             String uuid = java.util.UUID.randomUUID().toString();
-            adapter = new Ice.ObjectAdapterI(_instance, _communicator, this, uuid, "", null, true);
+            adapter = new Ice.ObjectAdapterI(_instance, _communicator, this, uuid, null, true);
             _adapters.put(uuid, adapter);
         }
         else
         {
-            adapter = new Ice.ObjectAdapterI(_instance, _communicator, this, name, endpoints, router, false);
+            adapter = new Ice.ObjectAdapterI(_instance, _communicator, this, name, router, false);
             _adapters.put(name, adapter);
         }
         return adapter;

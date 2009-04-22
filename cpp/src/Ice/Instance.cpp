@@ -581,7 +581,7 @@ IceInternal::Instance::getAdmin()
             //
             // Create OA
             //
-            _adminAdapter = _objectAdapterFactory->createObjectAdapter(adminOA, "", 0);
+            _adminAdapter = _objectAdapterFactory->createObjectAdapter(adminOA, 0);
 
             //
             // Add all facets to OA

@@ -651,10 +651,6 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
         {
             // Expected.
         }
-        //
-        // Properties must remain unaffected if an exception occurs.
-        //
-        test(communicator->getProperties()->getProperty("TestAdapter0.Endpoints") == "default");
         first->deactivate();
     }
     cout << "ok" << endl;

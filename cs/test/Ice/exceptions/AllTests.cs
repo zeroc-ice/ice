@@ -698,7 +698,6 @@ public class AllTests
             {
                 // Expected
             }
-            test(communicator.getProperties().getProperty("TestAdapter0.Endpoints").Equals("default"));
             first.deactivate();
             Console.WriteLine("ok");
         }

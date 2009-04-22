@@ -429,7 +429,7 @@ namespace IceInternal
                         //
                         // Create OA
                         //
-                        _adminAdapter = _objectAdapterFactory.createObjectAdapter(adminOA, "", null);
+                        _adminAdapter = _objectAdapterFactory.createObjectAdapter(adminOA, null);
                 
                         //
                         // Add all facets to OA

@@ -61,17 +61,49 @@ namespace Ice
 
         public ObjectAdapter createObjectAdapter(string name)
         {
-            return instance_.objectAdapterFactory().createObjectAdapter(name, "", null);
+            return instance_.objectAdapterFactory().createObjectAdapter(name, null);
         }
         
         public ObjectAdapter createObjectAdapterWithEndpoints(string name, string endpoints)
         {
-            return instance_.objectAdapterFactory().createObjectAdapter(name, endpoints, null);
+            if(name.Length == 0)
+            {
+                Ice.InitializationException ex = new Ice.InitializationException();
+                ex.reason = "Cannot configure endpoints with nameless object adapter";
+                throw ex;
+            }
+
+            getProperties().setProperty(name + ".Endpoints", endpoints);
+            return instance_.objectAdapterFactory().createObjectAdapter(name, null);
         }
         
         public ObjectAdapter createObjectAdapterWithRouter(string name, RouterPrx router)
         {
-            return instance_.objectAdapterFactory().createObjectAdapter(name, "", router);
+            if(name.Length == 0)
+            {
+                Ice.InitializationException ex = new Ice.InitializationException();
+                ex.reason = "Cannot configure router with nameless object adapter";
+                throw ex;
+            }
+
+            //
+            // We set the proxy properties here, although we still use the proxy supplied.
+            //
+            getProperties().setProperty(name + ".Router", proxyToString(router));
+            if(router.ice_getLocator() != null)
+            {
+                ObjectPrx locator = router.ice_getLocator();
+                getProperties().setProperty(name + ".Router.Locator", proxyToString(locator));
+            }
+            getProperties().setProperty(name + ".Router.CollocationOptimized",
+                                        router.ice_isCollocationOptimized() ? "0" : "1");
+            getProperties().setProperty(name + ".Router.ConnectionCached", router.ice_isConnectionCached() ? "0" : "1");
+            getProperties().setProperty(name + ".Router.PreferSecure", router.ice_isPreferSecure() ? "0" : "1");
+            getProperties().setProperty(name + ".Router.EndpointSelection",
+                        router.ice_getEndpointSelection() == EndpointSelectionType.Random ? "Random" : "Ordered");
+            getProperties().setProperty(name + ".Router.LocatorCacheTimeout", "" + router.ice_getLocatorCacheTimeout());
+
+            return instance_.objectAdapterFactory().createObjectAdapter(name, router);
         }
         
         public void addObjectFactory(ObjectFactory factory, string id)

@@ -20,6 +20,7 @@
 #include <Ice/DefaultsAndOverrides.h>
 #include <Ice/TraceLevels.h>
 #include <Ice/GC.h>
+#include <Ice/Router.h>
 
 using namespace std;
 using namespace Ice;
@@ -158,19 +159,52 @@ Ice::CommunicatorI::identityToString(const Identity& ident) const
 ObjectAdapterPtr
 Ice::CommunicatorI::createObjectAdapter(const string& name)
 {
-    return _instance->objectAdapterFactory()->createObjectAdapter(name, "", 0);
+    return _instance->objectAdapterFactory()->createObjectAdapter(name, 0);
 }
 
 ObjectAdapterPtr
 Ice::CommunicatorI::createObjectAdapterWithEndpoints(const string& name, const string& endpoints)
 {
-    return _instance->objectAdapterFactory()->createObjectAdapter(name, endpoints, 0);
+    if(name.empty())
+    {
+        InitializationException ex(__FILE__, __LINE__);
+        ex.reason = "Cannot configure endpoints with nameless object adapter";
+        throw ex;
+    }
+    getProperties()->setProperty(name + ".Endpoints", endpoints);
+    return _instance->objectAdapterFactory()->createObjectAdapter(name, 0);
 }
 
 ObjectAdapterPtr
 Ice::CommunicatorI::createObjectAdapterWithRouter(const string& name, const RouterPrx& router)
 {
-    return _instance->objectAdapterFactory()->createObjectAdapter(name, "", router);
+    if(name.empty())
+    {
+        InitializationException ex(__FILE__, __LINE__);
+        ex.reason = "Cannot configure router with nameless object adapter";
+        throw ex;
+    }
+
+    //
+    // We set the proxy properties here, although we still use the proxy supplied.
+    //
+    getProperties()->setProperty(name + ".Router", proxyToString(router));
+    if(router->ice_getLocator() != 0)
+    {
+        ObjectPrx locator = ::IceInternal::upCast(router->ice_getLocator().get());
+        getProperties()->setProperty(name + ".Router.Locator", proxyToString(locator));
+    }
+    getProperties()->setProperty(name + ".Router.CollocationOptimized", 
+                                 router->ice_isCollocationOptimized() ? "0" : "1");
+    getProperties()->setProperty(name + ".Router.ConnectionCached", router->ice_isConnectionCached() ? "0" : "1");
+    getProperties()->setProperty(name + ".Router.PreferSecure", router->ice_isPreferSecure() ? "0" : "1");
+    getProperties()->setProperty(name + ".Router.EndpointSelection", 
+                                 router->ice_getEndpointSelection() == Random ? "Random" : "Ordered");
+    ostringstream s;
+    s << router->ice_getLocatorCacheTimeout();
+    getProperties()->setProperty(name + ".Router.LocatorCacheTimeout", s.str());
+
+    return _instance->objectAdapterFactory()->createObjectAdapter(name, router);
 }
 
 void

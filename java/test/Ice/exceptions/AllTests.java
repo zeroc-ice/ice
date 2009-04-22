@@ -769,7 +769,6 @@ public class AllTests
             {
                 // Expected
             }
-            test(communicator.getProperties().getProperty("TestAdapter0.Endpoints").equals("default"));
             first.deactivate();
             out.println("ok");
         }
