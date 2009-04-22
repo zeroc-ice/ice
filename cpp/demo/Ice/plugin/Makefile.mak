@@ -28,8 +28,7 @@ SOBJS		= Server.obj
 
 LOBJS		= LoggerPluginI.obj
 
-HOBJS		= HelloI.obj \
-		  HelloPluginI.obj
+HOBJS		= HelloPluginI.obj
 
 SRCS		= $(OBJS:.obj=.cpp) \
 		  $(COBJS:.obj=.cpp) \
@@ -69,7 +68,7 @@ $(LOGGERDLLNAME): $(LOBJS)
 $(HELLOLIBNAME) : $(HELLODLLNAME)
 
 $(HELLODLLNAME): $(OBJS) $(HOBJS)
-	$(LINK) $(LD_DLLFLAGS) $(HPDBFLAGS) $(SETARGV) $(HOBJS) $(PREOUT)$@ $(PRELIBS)$(LIBS)
+	$(LINK) $(LD_DLLFLAGS) $(HPDBFLAGS) $(SETARGV) $(OBJS) $(HOBJS) $(PREOUT)$@ $(PRELIBS)$(LIBS)
 	@if exist $@.manifest echo ^ ^ ^ Embedding manifest using $(MT) && \
 	    $(MT) -nologo -manifest $@.manifest -outputresource:$@;#2 && del /q $@.manifest
 	@if exist $(LOGGERDLLNAME:.dll=.exp) del /q $(LOGGERDLLNAME:.dll=.exp)

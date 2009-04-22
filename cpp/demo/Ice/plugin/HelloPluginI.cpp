@@ -51,6 +51,11 @@ public:
          adapter->activate();
      }
 
+     void
+     destroy()
+     {
+     }
+
 private:
 
     Ice::CommunicatorPtr _communicator;
