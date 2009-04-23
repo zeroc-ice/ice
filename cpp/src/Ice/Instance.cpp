@@ -800,7 +800,8 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const Initi
 
         if(!_initData.properties)
         {
-            _initData.properties = createProperties();
+            StringSeq args;
+            _initData.properties = createProperties(args);
         }
 
         if(!oneOffDone)
