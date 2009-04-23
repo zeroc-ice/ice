@@ -68,7 +68,7 @@ public final class ThreadPool
         }
                 
         int sizeWarn = _instance.initializationData().properties.getPropertyAsInt( _prefix + ".SizeWarn");
-        if(sizeWarn < size)
+        if(sizeWarn != 0 && sizeWarn < size)
         {
             String s = _prefix + ".SizeWarn < " + _prefix + ".Size; adjusted SizeWarn to Size (" + size + ")";
             _instance.initializationData().logger.warning(s);
