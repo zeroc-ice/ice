@@ -63,7 +63,13 @@ IceInternal::ThreadPool::ThreadPool(const InstancePtr& instance, const string& p
     }           
     
     int sizeWarn = _instance->initializationData().properties->getPropertyAsInt(_prefix + ".SizeWarn");
-    if(sizeWarn > sizeMax)
+    if(sizeWarn < size)
+    {
+        Warning out(_instance->initializationData().logger);
+        out << _prefix << ".SizeWarn < " << _prefix << ".Size; adjusted SizeWarn to Size (" << size << ")";
+        sizeWarn = size;
+    }
+    else if(sizeWarn > sizeMax)
     {
         Warning out(_instance->initializationData().logger);
         out << _prefix << ".SizeWarn > " << _prefix << ".SizeMax; adjusted SizeWarn to SizeMax (" << sizeMax << ")";
