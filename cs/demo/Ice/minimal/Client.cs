@@ -11,11 +11,11 @@ using Demo;
 
 public class Client
 {
-    public static void Main()
+    public static void Main(string[] args)
     {
         try
         {
-            Ice.Communicator communicator = Ice.Util.initialize();
+            Ice.Communicator communicator = Ice.Util.initialize(ref args);
             HelloPrx hello = HelloPrxHelper.checkedCast(communicator.stringToProxy("hello:tcp -p 10000"));
             hello.sayHello();
             communicator.destroy();

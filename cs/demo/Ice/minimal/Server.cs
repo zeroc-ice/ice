@@ -9,11 +9,11 @@
 
 public class Server
 {
-    public static void Main()
+    public static void Main(string[] args)
     {
         try
         {
-            Ice.Communicator communicator = Ice.Util.initialize();
+            Ice.Communicator communicator = Ice.Util.initialize(ref args);
             Ice.ObjectAdapter adapter = communicator.createObjectAdapterWithEndpoints("Hello", "tcp -p 10000");
             adapter.add(new HelloI(), communicator.stringToIdentity("hello"));
             adapter.activate();

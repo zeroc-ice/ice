@@ -14,7 +14,7 @@ Ice.loadSlice('Hello.ice')
 import Demo
 
 try:
-    communicator = Ice.initialize()
+    communicator = Ice.initialize(sys.argv)
     hello = Demo.HelloPrx.checkedCast(communicator.stringToProxy("hello:tcp -p 10000"))
     hello.sayHello()
     communicator.destroy()

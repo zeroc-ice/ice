@@ -18,7 +18,7 @@ class HelloI(Demo.Hello):
         print "Hello World!"
 
 try:
-    communicator = Ice.initialize()
+    communicator = Ice.initialize(sys.argv)
     adapter = communicator.createObjectAdapterWithEndpoints("Hello", "tcp -p 10000")
     adapter.add(HelloI(), communicator.stringToIdentity("hello"))
     adapter.activate()

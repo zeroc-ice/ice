@@ -33,4 +33,4 @@ print "ok"
 
 import signal
 server.kill(signal.SIGINT)
-server.waitTestSuccess()
+#server.waitTestSuccess()

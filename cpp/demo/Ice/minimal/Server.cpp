@@ -13,13 +13,13 @@
 using namespace std;
 
 int
-main()
+main(int argc, char* argv[])
 {
     Ice::CommunicatorPtr communicator;
 
     try
     {
-        communicator = Ice::initialize();
+        communicator = Ice::initialize(argc, argv);
         Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapterWithEndpoints("Hello", "tcp -p 10000");
         adapter->add(new HelloI, communicator->stringToIdentity("hello"));
         adapter->activate();

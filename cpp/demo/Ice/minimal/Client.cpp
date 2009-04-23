@@ -14,13 +14,13 @@ using namespace std;
 using namespace Demo;
 
 int
-main()
+main(int argc, char* argv[])
 {
     Ice::CommunicatorPtr communicator;
 
     try
     {
-        communicator = Ice::initialize();
+        communicator = Ice::initialize(argc, argv);
         HelloPrx hello = HelloPrx::checkedCast(communicator->stringToProxy("hello:tcp -p 10000"));
         hello->sayHello();
         communicator->destroy();
