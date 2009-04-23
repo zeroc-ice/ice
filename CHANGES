@@ -33,6 +33,10 @@ General Changes
 These entries apply to all relevant language mappings unless otherwise
 noted.
 
+- The value of the thread pool SizeWarn property is now 0 by default
+  rather than 80% os Size. This means that by default warnings about
+  thread pool growth will now be disabled.
+
 - Added example demo/Ice/plugin to show how to write a simple Ice
   Plugin as will as a Logger Plugin.
 

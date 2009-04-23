@@ -67,8 +67,7 @@ public final class ThreadPool
             sizeMax = size;
         }
                 
-        int sizeWarn = _instance.initializationData().properties.getPropertyAsIntWithDefault(
-                                                                _prefix + ".SizeWarn", sizeMax * 80 / 100);
+        int sizeWarn = _instance.initializationData().properties.getPropertyAsInt( _prefix + ".SizeWarn");
         if(sizeWarn > sizeMax)
         {
             String s = _prefix + ".SizeWarn > " + _prefix + ".SizeMax; adjusted SizeWarn to SizeMax (" + sizeMax + ")";
