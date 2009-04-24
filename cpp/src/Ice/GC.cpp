@@ -141,7 +141,8 @@ IceInternal::GCShared::__gcDecRef()
 //
 
 
-IceInternal::GC::GC(int interval, StatsCallback cb)
+IceInternal::GC::GC(int interval, StatsCallback cb) :
+    Thread("Ice garbage collector thread")
 {
     StaticMutex::Lock sync(numCollectorsMutex);
     if(numCollectors++ > 0)

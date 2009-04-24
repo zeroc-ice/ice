@@ -33,7 +33,9 @@ WaitItem::setExpirationTime(const IceUtil::Time& time)
     _expiration = time;
 }
 
-WaitQueue::WaitQueue() : _destroyed(false)
+WaitQueue::WaitQueue() :
+    Thread("IceGrid wait queue thread"),
+    _destroyed(false)
 {
 }
 

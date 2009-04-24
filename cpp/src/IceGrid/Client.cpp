@@ -45,6 +45,7 @@ class SessionKeepAliveThread : public IceUtil::Thread, public IceUtil::Monitor<I
 public:
 
     SessionKeepAliveThread(const AdminSessionPrx& session, long timeout) :
+        IceUtil::Thread("IceGrid admin session keepalive thread"),
         _session(session),
         _timeout(IceUtil::Time::seconds(timeout)),
         _destroy(false)

@@ -112,6 +112,7 @@ private:
     public:
 
         StatusThread(ServiceStatusManager* manager) :
+            Thread("Ice service status manager thread"),
             _manager(manager)
         {
         }

@@ -112,6 +112,15 @@ IceUtil::Thread::Thread() :
 {
 }
 
+IceUtil::Thread::Thread(const string& name) :
+    _name(name),
+    _started(false),
+    _running(false),
+    _handle(0),
+    _id(0)
+{
+}
+
 IceUtil::Thread::~Thread()
 {
 }
@@ -151,6 +160,10 @@ WINAPI startHook(void* arg)
     }
     catch(...)
     {
+        if(!thread->name().empty())
+        {
+            cerr << thread->name() << " terminating" << endl;
+        }
 #if defined(_MSC_VER) && (_MSC_VER < 1300)
         terminate();
 #else
@@ -255,6 +268,12 @@ IceUtil::Thread::_done()
     _running = false;
 }
 
+const string&
+IceUtil::Thread::name() const
+{
+    return _name;
+}
+
 #else
 
 IceUtil::ThreadControl::ThreadControl(pthread_t thread) :
@@ -340,6 +359,13 @@ IceUtil::Thread::Thread() :
 {
 }
 
+IceUtil::Thread::Thread(const string& name) :
+    _name(name),
+    _started(false),
+    _running(false)
+{
+}
+
 IceUtil::Thread::~Thread()
 {
 }
@@ -369,6 +395,10 @@ startHook(void* arg)
     }
     catch(...)
     {
+        if(!thread->name().empty())
+        {
+            cerr << thread->name() << " terminating" << endl;
+        }
         std::terminate();
     }
 
@@ -493,6 +523,12 @@ IceUtil::Thread::_done()
 {
     IceUtil::Mutex::Lock lock(_stateMutex);
     _running = false;
+}
+
+const string&
+IceUtil::Thread::name() const
+{
+    return _name;
 }
 
 #endif

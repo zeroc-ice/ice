@@ -50,6 +50,7 @@ class TerminationListenerThread : public IceUtil::Thread
 public:
 
     TerminationListenerThread(Activator& activator) :
+        IceUtil::Thread("IceGrid termination listener thread"),
         _activator(activator)
     {
     }

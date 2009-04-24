@@ -80,7 +80,9 @@ class UpdateUtilizationAverageThread : public IceUtil::Thread
 {
 public:
 
-    UpdateUtilizationAverageThread(PlatformInfo& platform) : _platform(platform)
+    UpdateUtilizationAverageThread(PlatformInfo& platform) : 
+        IceUtil::Thread("IceGrid update utilization average thread"),
+        _platform(platform)
     { 
     }
 

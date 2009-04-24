@@ -13,7 +13,9 @@
 using namespace std;
 using namespace IceUtil;
 
-Timer::Timer() : _destroyed(false)
+Timer::Timer() :
+    Thread("IceUtil timer thread"),
+    _destroyed(false)
 {
     __setNoDelete(true);
     start();

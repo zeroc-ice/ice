@@ -267,6 +267,7 @@ IceInternal::SelectorThread::run()
 }
 
 IceInternal::SelectorThread::HelperThread::HelperThread(const SelectorThreadPtr& selectorThread) :
+    IceUtil::Thread("Ice selector thread"),
     _selectorThread(selectorThread)
 {
 }

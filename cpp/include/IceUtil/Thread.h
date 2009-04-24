@@ -104,6 +104,7 @@ class ICE_UTIL_API Thread : virtual public IceUtil::Shared
 public:
 
     Thread();
+    Thread(const std::string&);
     virtual ~Thread();
 
     virtual void run() = 0;
@@ -127,7 +128,13 @@ public:
     //
     void _done();
 
+    //
+    // Get the thread name
+    //
+    const std::string& name() const;
+
 protected:
+    const std::string _name;
     Mutex _stateMutex;
     bool _started;
     bool _running;

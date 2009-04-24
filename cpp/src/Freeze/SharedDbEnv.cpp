@@ -620,6 +620,7 @@ Freeze::SharedDbEnv::cleanup()
 
 
 Freeze::CheckpointThread::CheckpointThread(SharedDbEnv& dbEnv, const Time& checkpointPeriod, Int kbyte, Int trace) : 
+    Thread("Freeze checkpoint thread"),
     _dbEnv(dbEnv), 
     _done(false), 
     _checkpointPeriod(checkpointPeriod), 

@@ -14,6 +14,7 @@ using namespace std;
 using namespace IceGrid;
 
 ReapThread::ReapThread() :
+    Thread("Icegrid reaper thread"),
     _terminated(false)
 {
 }
