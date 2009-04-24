@@ -47,52 +47,57 @@ Ice::LoggerI::~LoggerI()
 void
 Ice::LoggerI::print(const string& message)
 {
-    write(message);
+    write(message, false);
 }
 
 void
 Ice::LoggerI::trace(const string& category, const string& message)
 {
-    string s = "[ " + IceUtil::Time::now().toDateTime() + " " + _prefix;
+    string s = "-- " + IceUtil::Time::now().toDateTime() + " " + _prefix;
     if(!category.empty())
     {
         s += category + ": ";
     }
-    s += message + " ]";
+    s += message;
 
-    string::size_type idx = 0;
-    while((idx = s.find("\n", idx)) != string::npos)
-    {
-        s.insert(idx + 1, "  ");
-        ++idx;
-    }
-
-    write(s);
+    write(s, true);
 }
 
 void
 Ice::LoggerI::warning(const string& message)
 {
-    write(IceUtil::Time::now().toDateTime() + " " + _prefix + "warning: " + message);
+    write("-! " + IceUtil::Time::now().toDateTime() + " " + _prefix + "warning: " + message, true);
 }
 
 void
 Ice::LoggerI::error(const string& message)
 {
-    write(IceUtil::Time::now().toDateTime() + " " + _prefix + "error: " + message);
+    write("!! " + IceUtil::Time::now().toDateTime() + " " + _prefix + "error: " + message, true);
 }
 
 void
-Ice::LoggerI::write(const string& message)
+Ice::LoggerI::write(const string& message, bool indent)
 {
     IceUtil::StaticMutex::Lock sync(outputMutex);
 
+    string s = message;
+
+    if(indent)
+    {
+        string::size_type idx = 0;
+        while((idx = s.find("\n", idx)) != string::npos)
+        {
+            s.insert(idx + 1, "   ");
+            ++idx;
+        }
+    }
+
     if(_out.is_open())
     {
-        _out << message << endl;
+        _out << s << endl;
     }
     else
     {
-        cerr << message << endl;
+        cerr << s << endl;
     }
 }

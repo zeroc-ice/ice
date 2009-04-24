@@ -54,12 +54,13 @@ namespace Ice
         
         public void print(string message)
         {
-            write(message);
+            System.Text.StringBuilder s = new System.Text.StringBuilder(message);
+            write(s, false);
         }
         
         public void trace(string category, string message)
         {
-            System.Text.StringBuilder s = new System.Text.StringBuilder("[ ");
+            System.Text.StringBuilder s = new System.Text.StringBuilder("-- ");
             s.Append(System.DateTime.Now.ToString(_date));
             s.Append(' ');
             s.Append(System.DateTime.Now.ToString(_time));
@@ -68,14 +69,12 @@ namespace Ice
             s.Append(category);
             s.Append(": ");
             s.Append(message);
-            s.Append(" ]");
-            s.Replace("\n", "\n  ");
-            write(s.ToString());
+            write(s, true);
         }
         
         public void warning(string message)
         {
-            System.Text.StringBuilder s = new System.Text.StringBuilder();
+            System.Text.StringBuilder s = new System.Text.StringBuilder("-! ");
             s.Append(System.DateTime.Now.ToString(_date));
             s.Append(' ');
             s.Append(System.DateTime.Now.ToString(_time));
@@ -83,12 +82,12 @@ namespace Ice
             s.Append(_prefix);
             s.Append("warning: ");
             s.Append(message);
-            write(s.ToString());
+            write(s, true);
         }
         
         public void error(string message)
         {
-            System.Text.StringBuilder s = new System.Text.StringBuilder();
+            System.Text.StringBuilder s = new System.Text.StringBuilder("!! ");
             s.Append(System.DateTime.Now.ToString(_date));
             s.Append(' ');
             s.Append(System.DateTime.Now.ToString(_time));
@@ -96,13 +95,18 @@ namespace Ice
             s.Append(_prefix);
             s.Append("error: ");
             s.Append(message);
-            write(s.ToString());
+            write(s, true);
         }
 
-        private void write(string message)
+        private void write(System.Text.StringBuilder message, bool indent)
         {
             lock(_globalMutex)
             {
+                if(indent)
+                {
+                    message.Replace("\n", "\n   ");
+                }
+
                 if(_out == null)
                 {
                     System.Console.Error.WriteLine(message);

@@ -33,6 +33,9 @@ General Changes
 These entries apply to all relevant language mappings unless otherwise
 noted.
 
+- Changed the format of the default logger output. Traces are now 
+  prepended by '--', warnings by '-!' and errors by '!!'.
+
 - All permutations of Ice.initialize() will now recognize the value of
   ICE_CONFIG envirnment variable as long as an already created 
   property set has not been passed in the InitializationData or an 

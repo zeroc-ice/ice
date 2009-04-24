@@ -31,7 +31,7 @@ public:
 
 private:
 
-    void write(const std::string&);
+    void write(const std::string&, bool);
 
     std::string _prefix;
     std::fstream _out;

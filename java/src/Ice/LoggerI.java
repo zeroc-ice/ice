@@ -54,14 +54,16 @@ public class LoggerI implements Logger
     public void
     print(String message)
     {
-        write(message + _lineSeparator);
+        StringBuilder s = new StringBuilder(256);
+        s.append(message);
+        write(s, false);
     }
 
     public void
     trace(String category, String message)
     {
         StringBuilder s = new StringBuilder(256);
-        s.append("[ ");
+        s.append("-- ");
         s.append(_date.format(new java.util.Date()));
         s.append(_time.format(new java.util.Date()));
         s.append(' ');
@@ -69,21 +71,14 @@ public class LoggerI implements Logger
         s.append(category);
         s.append(": ");
         s.append(message);
-        s.append(" ]");
-        int idx = 0;
-        while((idx = s.indexOf("\n", idx)) != -1)
-        {
-            s.insert(idx + 1, "  ");
-            ++idx;
-        }
-        s.append(_lineSeparator);
-        write(s.toString());
+        write(s, true);
     }
 
     public void
     warning(String message)
     {
         StringBuilder s = new StringBuilder(256);
+        s.append("-! ");
         s.append(_date.format(new java.util.Date()));
         s.append(_time.format(new java.util.Date()));
         s.append(' ');
@@ -92,14 +87,14 @@ public class LoggerI implements Logger
         s.append(Thread.currentThread().getName());
         s.append(": ");
         s.append(message);
-        s.append(_lineSeparator);
-        write(s.toString());
+        write(s, true);
     }
 
     public void
     error(String message)
     {
         StringBuilder s = new StringBuilder(256);
+        s.append("!! ");
         s.append(_date.format(new java.util.Date()));
         s.append(_time.format(new java.util.Date()));
         s.append(' ');
@@ -108,22 +103,32 @@ public class LoggerI implements Logger
         s.append(Thread.currentThread().getName());
         s.append(": ");
         s.append(message);
-        s.append(_lineSeparator);
-        write(s.toString());
+        write(s, true);
     }
 
     private void
-    write(String message)
+    write(StringBuilder message, boolean indent)
     {
+        if(indent)
+        {
+            int idx = 0;
+            while((idx = message.indexOf("\n", idx)) != -1)
+            {
+                message.insert(idx + 1, "   ");
+                ++idx;
+            }
+        }
+        message.append(_lineSeparator);
+
         if(_out == null)
         {
-            System.err.print(message);
+            System.err.print(message.toString());
         }
         else
         {
             try
             {
-                _out.write(message.getBytes());
+                _out.write(message.toString().getBytes());
             }
             catch(java.io.IOException ex)
             {
