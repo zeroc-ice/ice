@@ -604,7 +604,7 @@ Ice::ObjectAdapterI::refreshPublishedEndpoints()
         // Restore the old published endpoints.
         //
         _publishedEndpoints = oldPublishedEndpoints;
-        ex.ice_throw();
+        throw;
     }
 }
 
