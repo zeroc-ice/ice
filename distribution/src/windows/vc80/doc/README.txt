@@ -311,10 +311,10 @@ PDB (.pdb) files in the GAC. Unfortunately, you cannot do this using
 Explorer, so you have to do it from the command line. Open a command
 shell window and navigate to C:\WINDOWS\assembly\GAC_MSIL\Ice.
 (Assuming C:\WINDOWS is your system root.) Doing a directory listing
-there, you will find a directory named @dotnetver@__<UUID>, for
+there, you will find a directory named @ver@.0__<UUID>, for
 example:
 
-  @dotnetver@__cdd571ade22f2f16
+  @ver@.0__cdd571ade22f2f16
 
 Change to that directory (making sure that you use the correct version
 number for this release of Ice). In this directory, you will see the
