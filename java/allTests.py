@@ -29,6 +29,7 @@ from scripts import *
 # List of all basic tests.
 #
 tests = [
+    ("Slice/generation", ["once"]),
     ("Slice/keyword", ["once"]),
     ("IceUtil/inputUtil", ["once"]),
     ("Ice/proxy", ["core"]),
