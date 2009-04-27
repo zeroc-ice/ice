@@ -154,8 +154,8 @@ Freeze::BackgroundSaveEvictorI::BackgroundSaveEvictorI(const ObjectAdapterPtr& a
                                                        const ServantInitializerPtr& initializer,
                                                        const vector<IndexPtr>& indices,
                                                        bool createDb) :
-    Thread("Freeze background save evictor thread"),
     EvictorI<BackgroundSaveEvictorElement>(adapter, envName, dbEnv, filename, FacetTypeMap(), initializer, indices, createDb),
+    Thread("Freeze background save evictor thread"),
     _currentEvictorSize(0),
     _savingThreadDone(false)
 {

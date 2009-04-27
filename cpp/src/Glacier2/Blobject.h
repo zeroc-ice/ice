@@ -26,7 +26,7 @@ public:
 
 protected:
 
-    void invoke(Ice::ObjectPrx&, const Ice::AMD_Array_Object_ice_invokePtr&, 
+    void invoke(Ice::ObjectPrx&, const Ice::AMD_Object_ice_invokePtr&, 
                 const std::pair<const Ice::Byte*, const Ice::Byte*>&, const Ice::Current&);
 
     const InstancePtr _instance;

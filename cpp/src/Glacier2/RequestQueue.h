@@ -31,7 +31,7 @@ class Request : public IceUtil::Shared
 public:
 
     Request(const Ice::ObjectPrx&, const std::pair<const Ice::Byte*, const Ice::Byte*>&, const Ice::Current&, bool,
-            const Ice::Context&, const Ice::AMD_Array_Object_ice_invokePtr&);
+            const Ice::Context&, const Ice::AMD_Object_ice_invokePtr&);
     
     bool invoke(const InstancePtr&, const Ice::ConnectionPtr&);
     bool override(const RequestPtr&) const;
@@ -46,7 +46,7 @@ private:
     const bool _forwardContext;
     const Ice::Context _sslContext;
     const std::string _override;
-    const Ice::AMD_Array_Object_ice_invokePtr _amdCB;
+    const Ice::AMD_Object_ice_invokePtr _amdCB;
 };
 
 class RequestQueue : public IceUtil::Mutex, public IceUtil::Shared

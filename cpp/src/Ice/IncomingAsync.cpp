@@ -24,7 +24,6 @@ using namespace IceInternal;
 
 IceUtil::Shared* IceInternal::upCast(IncomingAsync* p) { return p; }
 IceUtil::Shared* IceInternal::upCast(AMD_Object_ice_invoke* p) { return p; }
-IceUtil::Shared* IceInternal::upCast(AMD_Array_Object_ice_invoke* p) { return p; }
 
 IceInternal::IncomingAsync::IncomingAsync(Incoming& in) :
     IncomingBase(in),
@@ -265,30 +264,7 @@ IceAsync::Ice::AMD_Object_ice_invoke::ice_response(bool ok, const vector<Byte>& 
 }
 
 void
-IceAsync::Ice::AMD_Object_ice_invoke::ice_exception(const std::exception& ex)
-{
-    if(__validateException(ex))
-    {
-        __exception(ex);
-    }
-}
-
-void
-IceAsync::Ice::AMD_Object_ice_invoke::ice_exception()
-{
-    if(__validateException())
-    {
-        __exception();
-    }
-}
-
-IceAsync::Ice::AMD_Array_Object_ice_invoke::AMD_Array_Object_ice_invoke(Incoming& in) :
-    IncomingAsync(in)
-{
-}
-
-void
-IceAsync::Ice::AMD_Array_Object_ice_invoke::ice_response(bool ok, const pair<const Byte*, const Byte*>& outParams)
+IceAsync::Ice::AMD_Object_ice_invoke::ice_response(bool ok, const pair<const Byte*, const Byte*>& outParams)
 {
     if(__validateResponse(ok))
     {
@@ -306,8 +282,8 @@ IceAsync::Ice::AMD_Array_Object_ice_invoke::ice_response(bool ok, const pair<con
 }
 
 void
-IceAsync::Ice::AMD_Array_Object_ice_invoke::ice_exception(const std::exception& ex)
-{ 
+IceAsync::Ice::AMD_Object_ice_invoke::ice_exception(const std::exception& ex)
+{
     if(__validateException(ex))
     {
         __exception(ex);
@@ -315,7 +291,7 @@ IceAsync::Ice::AMD_Array_Object_ice_invoke::ice_exception(const std::exception& 
 }
 
 void
-IceAsync::Ice::AMD_Array_Object_ice_invoke::ice_exception()
+IceAsync::Ice::AMD_Object_ice_invoke::ice_exception()
 {
     if(__validateException())
     {

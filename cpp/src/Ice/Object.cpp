@@ -431,7 +431,7 @@ Ice::BlobjectArrayAsync::__dispatch(Incoming& in, const Current& current)
     is->readBlob(inParams.first, sz);
     inParams.second = inParams.first + sz;
     is->endReadEncaps();
-    AMD_Array_Object_ice_invokePtr cb = new ::IceAsync::Ice::AMD_Array_Object_ice_invoke(in);
+    AMD_Object_ice_invokePtr cb = new ::IceAsync::Ice::AMD_Object_ice_invoke(in);
     try
     {
         ice_invoke_async(cb, inParams, current);

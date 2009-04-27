@@ -91,6 +91,9 @@ noted.
 C++ Changes
 ============
 
+- Removed AMD_Array_Object_ice_invoke class and instead add ice_response
+  method to AMD_Object_ice_invoke that uses the array type.
+
 - The system logger (enabled when Ice.UseSyslog is set) now uses the 
   value of Ice.ProgramName as the log identifier prefix.
 

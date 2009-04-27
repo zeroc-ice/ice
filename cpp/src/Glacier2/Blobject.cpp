@@ -30,7 +30,7 @@ class AMI_Array_Object_ice_invokeTwowayI : public AMI_Array_Object_ice_invoke
 {
 public:
 
-    AMI_Array_Object_ice_invokeTwowayI(const AMD_Array_Object_ice_invokePtr& amdCB,
+    AMI_Array_Object_ice_invokeTwowayI(const AMD_Object_ice_invokePtr& amdCB,
                                        const InstancePtr& instance,
                                        const ConnectionPtr& connection) :
         _amdCB(amdCB),
@@ -72,7 +72,7 @@ public:
 
 private:
 
-    const AMD_Array_Object_ice_invokePtr _amdCB;
+    const AMD_Object_ice_invokePtr _amdCB;
     const InstancePtr _instance;
     const ConnectionPtr _connection;
 };
@@ -81,7 +81,7 @@ class AMI_Array_Object_ice_invokeOnewayI : public AMI_Array_Object_ice_invoke, p
 {
 public:
 
-    AMI_Array_Object_ice_invokeOnewayI(const AMD_Array_Object_ice_invokePtr& amdCB,
+    AMI_Array_Object_ice_invokeOnewayI(const AMD_Object_ice_invokePtr& amdCB,
                                        const InstancePtr& instance,
                                        const ConnectionPtr& connection) :
         _amdCB(amdCB),
@@ -129,7 +129,7 @@ public:
 
 private:
 
-    const AMD_Array_Object_ice_invokePtr _amdCB;
+    const AMD_Object_ice_invokePtr _amdCB;
     const InstancePtr _instance;
     const ConnectionPtr _connection;
 };
@@ -167,7 +167,7 @@ Glacier2::Blobject::~Blobject()
 }
 
 void
-Glacier2::Blobject::invoke(ObjectPrx& proxy, const AMD_Array_Object_ice_invokePtr& amdCB, 
+Glacier2::Blobject::invoke(ObjectPrx& proxy, const AMD_Object_ice_invokePtr& amdCB, 
                            const std::pair<const Ice::Byte*, const Ice::Byte*>& inParams, const Current& current)
 {
     //

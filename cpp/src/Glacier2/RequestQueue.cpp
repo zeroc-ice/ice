@@ -25,7 +25,7 @@ class AMI_Array_Object_ice_invokeI : public AMI_Array_Object_ice_invoke
 {
 public:
     
-    AMI_Array_Object_ice_invokeI(const AMD_Array_Object_ice_invokePtr& amdCB,
+    AMI_Array_Object_ice_invokeI(const AMD_Object_ice_invokePtr& amdCB,
                                  const InstancePtr& instance,
                                  const ConnectionPtr& connection) :
         _amdCB(amdCB),
@@ -73,7 +73,7 @@ public:
 
 private:
 
-    const AMD_Array_Object_ice_invokePtr _amdCB;
+    const AMD_Object_ice_invokePtr _amdCB;
     const InstancePtr _instance;
     const ConnectionPtr _connection;
 };
@@ -82,7 +82,7 @@ private:
 
 Glacier2::Request::Request(const ObjectPrx& proxy, const std::pair<const Byte*, const Byte*>& inParams,
                            const Current& current, bool forwardContext, const Ice::Context& sslContext,
-                           const AMD_Array_Object_ice_invokePtr& amdCB) :
+                           const AMD_Object_ice_invokePtr& amdCB) :
     _proxy(proxy),
     _inParams(inParams.first, inParams.second),
     _current(current),

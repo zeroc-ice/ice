@@ -1499,7 +1499,7 @@ IceInternal::RoutableReference::getConnectionNoRouterInfo(const GetConnectionCal
             {
                 try
                 {
-                    throw;
+                    exc.ice_throw();
                 }
                 catch(const Ice::NoEndpointException& ex)
                 {

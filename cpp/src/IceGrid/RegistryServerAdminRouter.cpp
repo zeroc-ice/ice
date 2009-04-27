@@ -21,7 +21,7 @@ class AMICallback : public AMI_Array_Object_ice_invoke
 {
 public:
 
-    AMICallback(const AMD_Array_Object_ice_invokePtr& cb) :
+    AMICallback(const AMD_Object_ice_invokePtr& cb) :
         _cb(cb)
     {
     }
@@ -37,7 +37,7 @@ public:
     }
     
 private:
-    AMD_Array_Object_ice_invokePtr _cb;
+    AMD_Object_ice_invokePtr _cb;
 };
 
 }
@@ -48,7 +48,7 @@ IceGrid::RegistryServerAdminRouter::RegistryServerAdminRouter(const DatabasePtr&
 }
 
 void
-IceGrid::RegistryServerAdminRouter::ice_invoke_async(const AMD_Array_Object_ice_invokePtr& cb, 
+IceGrid::RegistryServerAdminRouter::ice_invoke_async(const AMD_Object_ice_invokePtr& cb, 
                                                      const pair<const Byte*, const Byte*>& inParams,
                                                      const Current& current)
 {

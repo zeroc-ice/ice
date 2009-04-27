@@ -70,14 +70,6 @@ class ICE_API AMD_Object_ice_invoke : virtual public IceUtil::Shared
 public:
     
     virtual void ice_response(bool, const std::vector<Ice::Byte>&) = 0;
-    virtual void ice_exception(const std::exception&) = 0;
-    virtual void ice_exception() = 0;
-};
-
-class ICE_API AMD_Array_Object_ice_invoke : virtual public IceUtil::Shared
-{
-public:
-    
     virtual void ice_response(bool, const std::pair<const Ice::Byte*, const Ice::Byte*>&) = 0;
     virtual void ice_exception(const std::exception&) = 0;
     virtual void ice_exception() = 0;
@@ -98,17 +90,6 @@ public:
     AMD_Object_ice_invoke(IceInternal::Incoming&);
     
     virtual void ice_response(bool, const std::vector< ::Ice::Byte>&);
-    virtual void ice_exception(const std::exception&);
-    virtual void ice_exception();
-};
-
-class ICE_API AMD_Array_Object_ice_invoke : public ::Ice::AMD_Array_Object_ice_invoke, 
-                                            public IceInternal::IncomingAsync
-{
-public:
-    
-    AMD_Array_Object_ice_invoke(IceInternal::Incoming&);
-    
     virtual void ice_response(bool, const std::pair<const ::Ice::Byte*, const ::Ice::Byte*>&);
     virtual void ice_exception(const std::exception&);
     virtual void ice_exception();
