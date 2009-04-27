@@ -596,7 +596,7 @@ Ice::ObjectAdapterI::refreshPublishedEndpoints()
         dummy.name = "dummy";
         updateLocatorRegistry(locatorInfo, createDirectProxy(dummy), registerProcess);
     }
-    catch(const Ice::LocalException& ex)
+    catch(const Ice::LocalException&)
     {
         IceUtil::Monitor<IceUtil::RecMutex>::Lock sync(*this);
 
