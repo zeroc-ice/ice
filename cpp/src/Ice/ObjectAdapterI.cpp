@@ -370,7 +370,7 @@ Ice::ObjectAdapterI::destroy()
 
     if(objectAdapterFactory)
     {
-        objectAdapterFactory->removeObjectAdapter(_name);
+        objectAdapterFactory->removeObjectAdapter(this);
     }
 }
 

@@ -14,6 +14,8 @@
 #include <IceUtil/RecMutex.h>
 #include <IceUtil/Monitor.h>
 
+#include <set>
+
 namespace IceInternal
 {
 
@@ -28,7 +30,7 @@ public:
 
     ::Ice::ObjectAdapterPtr createObjectAdapter(const std::string&, const Ice::RouterPrx&);
     ::Ice::ObjectAdapterPtr findObjectAdapter(const ::Ice::ObjectPrx&);
-    void removeObjectAdapter(const ::std::string&);
+    void removeObjectAdapter(const ::Ice::ObjectAdapterPtr&);
     void flushBatchRequests() const;
 
 private:
@@ -39,7 +41,8 @@ private:
 
     InstancePtr _instance;
     ::Ice::CommunicatorPtr _communicator;
-    std::map<std::string, ::Ice::ObjectAdapterIPtr> _adapters;
+    std::set<std::string> _adapterNamesInUse;
+    std::list<Ice::ObjectAdapterIPtr> _adapters;
     bool _waitForShutdown;
 };
 

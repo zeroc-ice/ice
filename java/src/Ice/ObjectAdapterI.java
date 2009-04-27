@@ -377,7 +377,7 @@ public final class ObjectAdapterI implements ObjectAdapter
 
         if(objectAdapterFactory != null)
         {
-            objectAdapterFactory.removeObjectAdapter(_name);
+            objectAdapterFactory.removeObjectAdapter(this);
         }
     }
 

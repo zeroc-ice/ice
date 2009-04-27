@@ -357,7 +357,7 @@ namespace Ice
 
             if(objectAdapterFactory != null)
             {
-                objectAdapterFactory.removeObjectAdapter(_name);
+                objectAdapterFactory.removeObjectAdapter(this);
             }
         }
 

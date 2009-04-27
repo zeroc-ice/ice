@@ -14,7 +14,7 @@ public final class ObjectAdapterFactory
     public void
     shutdown()
     {
-        java.util.Map<String, Ice.ObjectAdapterI> adapters;
+        java.util.List<Ice.ObjectAdapterI> adapters;
         synchronized(this)
         {
             //
@@ -40,7 +40,7 @@ public final class ObjectAdapterFactory
         //
         if(adapters != null)
         {
-            for(Ice.ObjectAdapterI adapter : adapters.values())
+            for(Ice.ObjectAdapterI adapter : adapters)
             {
                 adapter.deactivate();
             }
@@ -50,7 +50,7 @@ public final class ObjectAdapterFactory
     public void
     waitForShutdown()
     {
-        java.util.Map<String, Ice.ObjectAdapterI> adapters;
+        java.util.List<Ice.ObjectAdapterI> adapters;
         synchronized(this)
         {
             //
@@ -90,7 +90,7 @@ public final class ObjectAdapterFactory
         //
         if(adapters != null)
         {
-            for(Ice.ObjectAdapterI adapter : adapters.values())
+            for(Ice.ObjectAdapterI adapter : adapters)
             {
                 adapter.waitForDeactivate();
             }
@@ -120,7 +120,7 @@ public final class ObjectAdapterFactory
         //
         waitForShutdown();
 
-        java.util.Map<String, Ice.ObjectAdapterI> adapters;
+        java.util.List<Ice.ObjectAdapterI> adapters;
         synchronized(this)
         {
             adapters = _adapters;
@@ -138,7 +138,7 @@ public final class ObjectAdapterFactory
         //
         if(adapters != null)
         {
-            for(Ice.ObjectAdapterI adapter : adapters.values())
+            for(Ice.ObjectAdapterI adapter : adapters)
             {
                 adapter.destroy();
             }
@@ -153,23 +153,22 @@ public final class ObjectAdapterFactory
             throw new Ice.ObjectAdapterDeactivatedException();
         }
 
-        Ice.ObjectAdapterI adapter = _adapters.get(name);
-        if(adapter != null)
-        {
-            throw new Ice.AlreadyRegisteredException("object adapter", name);
-        }
-
+        Ice.ObjectAdapterI adapter = null;
         if(name.length() == 0)
         {
             String uuid = java.util.UUID.randomUUID().toString();
             adapter = new Ice.ObjectAdapterI(_instance, _communicator, this, uuid, null, true);
-            _adapters.put(uuid, adapter);
         }
         else
         {
+            if(_adapterNamesInUse.contains(name))
+            {
+                throw new Ice.AlreadyRegisteredException("object adapter", name);
+            }
+            _adapterNamesInUse.add(name);
             adapter = new Ice.ObjectAdapterI(_instance, _communicator, this, name, router, false);
-            _adapters.put(name, adapter);
         }
+        _adapters.add(adapter);
         return adapter;
     }
 
@@ -184,7 +183,7 @@ public final class ObjectAdapterFactory
                 return null;
             }
 
-            adapters = new java.util.ArrayList<Ice.ObjectAdapterI>(_adapters.values());
+            adapters = _adapters;
         }
 
         for(Ice.ObjectAdapterI adapter : adapters)
@@ -206,14 +205,15 @@ public final class ObjectAdapterFactory
     }
 
     public synchronized void
-    removeObjectAdapter(String name)
+    removeObjectAdapter(Ice.ObjectAdapter adapter)
     {
         if(_instance == null)
         {
             return;
         }
 
-        _adapters.remove(name);
+        _adapters.remove(adapter);
+        _adapterNamesInUse.remove(adapter.getName());
     }
 
     public void
@@ -227,7 +227,7 @@ public final class ObjectAdapterFactory
                 return;
             }
 
-            adapters = new java.util.ArrayList<Ice.ObjectAdapterI>(_adapters.values());
+            adapters = _adapters;
         }
 
         for(Ice.ObjectAdapterI adapter : adapters)
@@ -260,6 +260,7 @@ public final class ObjectAdapterFactory
 
     private Instance _instance;
     private Ice.Communicator _communicator;
-    private java.util.Map<String, Ice.ObjectAdapterI> _adapters = new java.util.HashMap<String, Ice.ObjectAdapterI>();
+    private java.util.Set<String> _adapterNamesInUse = new java.util.HashSet<String>();
+    private java.util.List<Ice.ObjectAdapterI> _adapters = new java.util.LinkedList<Ice.ObjectAdapterI>();
     private boolean _waitForShutdown;
 }
