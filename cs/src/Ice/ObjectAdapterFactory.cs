@@ -155,8 +155,8 @@ namespace IceInternal
                         ex.id = name;
                         throw ex;
                     }
-                    _adapterNamesInUse.Add(name);
                     adapter = new Ice.ObjectAdapterI(instance_, _communicator, this, name, router, false);
+                    _adapterNamesInUse.Add(name);
                 }
                 _adapters.Add(adapter);
                 return adapter;

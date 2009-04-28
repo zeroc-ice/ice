@@ -146,8 +146,8 @@ IceInternal::ObjectAdapterFactory::createObjectAdapter(const string& name, const
         {
             throw AlreadyRegisteredException(__FILE__, __LINE__, "object adapter", name);
         }
-        _adapterNamesInUse.insert(name);
         adapter = new ObjectAdapterI(_instance, _communicator, this, name, router, false);
+        _adapterNamesInUse.insert(name);
     }
 
     _adapters.push_back(adapter);

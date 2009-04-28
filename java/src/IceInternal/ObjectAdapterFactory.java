@@ -165,8 +165,8 @@ public final class ObjectAdapterFactory
             {
                 throw new Ice.AlreadyRegisteredException("object adapter", name);
             }
-            _adapterNamesInUse.add(name);
             adapter = new Ice.ObjectAdapterI(_instance, _communicator, this, name, router, false);
+            _adapterNamesInUse.add(name);
         }
         _adapters.add(adapter);
         return adapter;
