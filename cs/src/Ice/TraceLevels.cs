@@ -19,6 +19,7 @@ namespace IceInternal
             retryCat = "Retry";
             locationCat = "Locator";
             slicingCat = "Slicing";
+            threadPoolCat = "ThreadPool";
             
             string keyBase = "Ice.Trace.";
             
@@ -27,6 +28,7 @@ namespace IceInternal
             retry = properties.getPropertyAsInt(keyBase + retryCat);
             location = properties.getPropertyAsInt(keyBase + locationCat);
             slicing = properties.getPropertyAsInt(keyBase + slicingCat);
+            threadPool = properties.getPropertyAsInt(keyBase + threadPoolCat);
         }
         
         public readonly int network;
@@ -39,6 +41,8 @@ namespace IceInternal
         public readonly string locationCat;
         public readonly int slicing;
         public readonly string slicingCat;
+        public readonly int threadPool;
+        public readonly string threadPoolCat;
     }
 
 }

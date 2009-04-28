@@ -18,6 +18,7 @@ public final class TraceLevels
         retryCat = "Retry";
         locationCat = "Locator";
         slicingCat = "Slicing";
+        threadPoolCat = "ThreadPool";
 
         final String keyBase = "Ice.Trace.";
 
@@ -26,6 +27,7 @@ public final class TraceLevels
         retry = properties.getPropertyAsInt(keyBase + retryCat);
         location = properties.getPropertyAsInt(keyBase + locationCat);
         slicing = properties.getPropertyAsInt(keyBase + slicingCat);
+        threadPool = properties.getPropertyAsInt(keyBase + threadPoolCat);
     }
 
     final public int network;
@@ -37,5 +39,7 @@ public final class TraceLevels
     final public int location;
     final public String locationCat;
     final public int slicing;
+    final public String threadPoolCat;
+    final public int threadPool;
     final public String slicingCat;
 }

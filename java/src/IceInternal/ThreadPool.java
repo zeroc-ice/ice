@@ -84,6 +84,13 @@ public final class ThreadPool
         _size = size;
         _sizeMax = sizeMax;
         _sizeWarn = sizeWarn;
+
+        if(_instance.traceLevels().threadPool >= 1)
+        {
+            String s = "creating " + _prefix + ": Size = " + _size + ", SizeMax = " + _sizeMax + ", SizeWarn = " +
+                       _sizeWarn;
+            _instance.initializationData().logger.trace(_instance.traceLevels().threadPoolCat, s);
+        }
         
         try
         {
@@ -240,6 +247,12 @@ public final class ThreadPool
                     assert(_inUse <= _running);
                     if(_inUse < _sizeMax && _inUse == _running)
                     {
+                        if(_instance.traceLevels().threadPool >= 1)
+                        {
+                            String s = "growing " + _prefix + ": Size = " + (_running + 1);
+                            _instance.initializationData().logger.trace(_instance.traceLevels().threadPoolCat, s);
+                        }
+
                         try
                         {
                             EventHandlerThread thread = new EventHandlerThread(_programNamePrefix + _prefix + "-" +
@@ -684,6 +697,13 @@ public final class ThreadPool
                                 //
                                 if(load + 1 < _running)
                                 {
+                                    if(_instance.traceLevels().threadPool >= 1)
+                                    {
+                                        String s = "shrinking " + _prefix + ": Size = " + (_running - 1);
+                                        _instance.initializationData().logger.trace(
+                                            _instance.traceLevels().threadPoolCat, s);
+                                    }
+
                                     assert(_inUse > 0);
                                     --_inUse;
                                 

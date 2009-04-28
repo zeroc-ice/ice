@@ -96,6 +96,13 @@ namespace IceInternal
             _sizeMax = sizeMax;
             _sizeWarn = sizeWarn;
 
+            if(_instance.traceLevels().threadPool >= 1)
+            {
+                string s = "creating " + _prefix + ": Size = " + _size + ", SizeMax = " + _sizeMax + ", SizeWarn = " + 
+                           _sizeWarn;
+                _instance.initializationData().logger.trace(_instance.traceLevels().threadPoolCat, s);
+            }
+
             try
             {
                 _threads = new List<WorkerThread>();
@@ -262,6 +269,12 @@ namespace IceInternal
                         Debug.Assert(_inUse <= _running);
                         if(_inUse < _sizeMax && _inUse == _running)
                         {
+                            if(_instance.traceLevels().threadPool >= 1)
+                            {
+                                string s = "growing " + _prefix + ": Size = " + (_running + 1);
+                                _instance.initializationData().logger.trace(_instance.traceLevels().threadPoolCat, s);
+                            }
+
                             try
                             {
                                 WorkerThread thread = new WorkerThread(this, _programNamePrefix + _prefix + "-" +
@@ -375,6 +388,13 @@ namespace IceInternal
                                     int load = (int)(_load + 0.5);
                                     if(load + 1 < _running)
                                     {
+                                        if(_instance.traceLevels().threadPool >= 1)
+                                        {
+                                            string s = "shrinking " + _prefix + ": Size = " + (_running - 1);
+                                            _instance.initializationData().logger.trace(
+                                                _instance.traceLevels().threadPoolCat, s);
+                                        }
+
                                         Debug.Assert(_inUse > 0);
                                         --_inUse;
 

@@ -33,6 +33,10 @@ General Changes
 These entries apply to all relevant language mappings unless otherwise
 noted.
 
+- Added new property, Ice.Trace.ThreadPool, that when set >= 1 enables
+  tracing of thread pool creation as the growing/shrinking of dynamic
+  thread pools.
+
 - Changed the format of the default logger output. Traces are now 
   prepended by '--', warnings by '-!' and errors by '!!'.
 

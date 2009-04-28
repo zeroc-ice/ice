@@ -18,6 +18,7 @@
 #include <Ice/Protocol.h>
 #include <Ice/ObjectAdapterFactory.h>
 #include <Ice/Properties.h>
+#include <Ice/TraceLevels.h>
 
 using namespace std;
 using namespace Ice;
@@ -88,6 +89,13 @@ IceInternal::ThreadPool::ThreadPool(const InstancePtr& instance, const string& p
         stackSize = 0;
     }
     const_cast<size_t&>(_stackSize) = static_cast<size_t>(stackSize);
+
+    if(_instance->traceLevels()->threadPool >= 1)
+    {
+        Trace out(_instance->initializationData().logger, _instance->traceLevels()->threadPoolCat);
+        out << "creating " << _prefix << ": Size = " << _size << ", SizeMax = " << _sizeMax << ", SizeWarn = "
+            << _sizeWarn;
+    }
 
     __setNoDelete(true);
     try
@@ -246,6 +254,12 @@ IceInternal::ThreadPool::promoteFollower(EventHandler* handler)
             assert(_inUse <= _running);
             if(_inUse < _sizeMax && _inUse == _running)
             {
+                if(_instance->traceLevels()->threadPool >= 1)
+                {
+                    Trace out(_instance->initializationData().logger, _instance->traceLevels()->threadPoolCat);
+                    out << "growing " << _prefix << ": Size = " << (_running + 1);
+                }
+
                 try
                 {
                     IceUtil::ThreadPtr thread = new EventHandlerThread(this);
@@ -615,6 +629,13 @@ IceInternal::ThreadPool::run()
                         //
                         if(load + 1 < _running)
                         {
+                             if(_instance->traceLevels()->threadPool >= 1)
+                             {
+                                Trace out(_instance->initializationData().logger,
+                                          _instance->traceLevels()->threadPoolCat);
+                                out << "shrinking " << _prefix << ": Size = " << (_running - 1);
+                            }
+
                             assert(_inUse > 0);
                             --_inUse;
                         

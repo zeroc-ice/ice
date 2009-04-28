@@ -40,6 +40,9 @@ public:
 
     const int gc;
     const char* gcCat;
+
+    const int threadPool;
+    const char* threadPoolCat;
 };
 
 }
