@@ -233,7 +233,7 @@ class TypedUpcall : virtual public Upcall
 {
 public:
 
-    TypedUpcall(const OperationPtr&, const Ice::AMD_Array_Object_ice_invokePtr&, const Ice::CommunicatorPtr&);
+    TypedUpcall(const OperationPtr&, const Ice::AMD_Object_ice_invokePtr&, const Ice::CommunicatorPtr&);
 
     virtual void dispatch(PyObject*, const pair<const Ice::Byte*, const Ice::Byte*>&, const Ice::Current&);
     virtual void response(PyObject*);
@@ -244,7 +244,7 @@ private:
     bool validateException(PyObject*) const;
 
     OperationPtr _op;
-    Ice::AMD_Array_Object_ice_invokePtr _callback;
+    Ice::AMD_Object_ice_invokePtr _callback;
     Ice::CommunicatorPtr _communicator;
 };
 
@@ -255,7 +255,7 @@ class BlobjectUpcall : virtual public Upcall
 {
 public:
 
-    BlobjectUpcall(bool, const Ice::AMD_Array_Object_ice_invokePtr&);
+    BlobjectUpcall(bool, const Ice::AMD_Object_ice_invokePtr&);
 
     virtual void dispatch(PyObject*, const pair<const Ice::Byte*, const Ice::Byte*>&, const Ice::Current&);
     virtual void response(PyObject*);
@@ -264,7 +264,7 @@ public:
 private:
 
     bool _amd;
-    Ice::AMD_Array_Object_ice_invokePtr _callback;
+    Ice::AMD_Object_ice_invokePtr _callback;
 };
 
 //
@@ -277,7 +277,7 @@ public:
 
     TypedServantWrapper(PyObject*);
 
-    virtual void ice_invoke_async(const Ice::AMD_Array_Object_ice_invokePtr&,
+    virtual void ice_invoke_async(const Ice::AMD_Object_ice_invokePtr&,
                                   const pair<const Ice::Byte*, const Ice::Byte*>&,
                                   const Ice::Current&);
 
@@ -297,7 +297,7 @@ public:
 
     BlobjectServantWrapper(PyObject*, bool);
 
-    virtual void ice_invoke_async(const Ice::AMD_Array_Object_ice_invokePtr&,
+    virtual void ice_invoke_async(const Ice::AMD_Object_ice_invokePtr&,
                                   const pair<const Ice::Byte*, const Ice::Byte*>&,
                                   const Ice::Current&);
 
@@ -1759,7 +1759,7 @@ IcePy::AsyncSentBlobjectInvocation::ice_sent()
 //
 // TypedUpcall
 //
-IcePy::TypedUpcall::TypedUpcall(const OperationPtr& op, const Ice::AMD_Array_Object_ice_invokePtr& callback,
+IcePy::TypedUpcall::TypedUpcall(const OperationPtr& op, const Ice::AMD_Object_ice_invokePtr& callback,
                                 const Ice::CommunicatorPtr& communicator) :
     _op(op), _callback(callback), _communicator(communicator)
 {
@@ -2069,7 +2069,7 @@ IcePy::TypedUpcall::validateException(PyObject* ex) const
 //
 // BlobjectUpcall
 //
-IcePy::BlobjectUpcall::BlobjectUpcall(bool amd, const Ice::AMD_Array_Object_ice_invokePtr& callback) :
+IcePy::BlobjectUpcall::BlobjectUpcall(bool amd, const Ice::AMD_Object_ice_invokePtr& callback) :
     _amd(amd), _callback(callback)
 {
 }
@@ -2386,7 +2386,7 @@ IcePy::TypedServantWrapper::TypedServantWrapper(PyObject* servant) :
 }
 
 void
-IcePy::TypedServantWrapper::ice_invoke_async(const Ice::AMD_Array_Object_ice_invokePtr& cb,
+IcePy::TypedServantWrapper::ice_invoke_async(const Ice::AMD_Object_ice_invokePtr& cb,
                                              const pair<const Ice::Byte*, const Ice::Byte*>& inParams,
                                              const Ice::Current& current)
 {
@@ -2459,7 +2459,7 @@ IcePy::BlobjectServantWrapper::BlobjectServantWrapper(PyObject* servant, bool am
 }
 
 void
-IcePy::BlobjectServantWrapper::ice_invoke_async(const Ice::AMD_Array_Object_ice_invokePtr& cb,
+IcePy::BlobjectServantWrapper::ice_invoke_async(const Ice::AMD_Object_ice_invokePtr& cb,
                                                 const pair<const Ice::Byte*, const Ice::Byte*>& inParams,
                                                 const Ice::Current& current)
 {
