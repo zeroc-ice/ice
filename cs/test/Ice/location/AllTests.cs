@@ -656,7 +656,7 @@ public class AllTests
         adapter.setLocator(locator);
 
         Ice.Identity id = new Ice.Identity();
-        id.name = Ice.Util.generateUUID();
+        id.name = Guid.NewGuid().ToString();
         registry.addObject(adapter.add(new HelloI(), id));
         adapter.activate();
 

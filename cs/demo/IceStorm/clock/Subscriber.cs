@@ -168,7 +168,7 @@ public class Subscriber
             Ice.Identity subId = new Ice.Identity(id, "");
             if(subId.name == null)
             {
-                subId.name = Ice.Util.generateUUID();
+                subId.name = Guid.NewGuid().ToString();
             }
             Ice.ObjectPrx subscriber = adapter.add(new ClockI(), subId);
             

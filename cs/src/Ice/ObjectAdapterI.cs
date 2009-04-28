@@ -396,7 +396,7 @@ namespace Ice
         {
             Identity ident = new Identity();
             ident.category = "";
-            ident.name = Util.generateUUID();
+            ident.name = Guid.NewGuid().ToString();
             
             return addFacet(obj, ident, facet);
         }

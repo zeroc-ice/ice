@@ -22,7 +22,7 @@ public class DirectoryI : DirectoryDisp_
         // Create an identity. The root directory has the fixed identity "RootDir"
         //
         _id = new Ice.Identity();
-        _id.name = _parent != null ? Ice.Util.generateUUID() : "RootDir";
+        _id.name = _parent != null ? System.Guid.NewGuid().ToString() : "RootDir";
     }
 
     // Slice Node::name() operation

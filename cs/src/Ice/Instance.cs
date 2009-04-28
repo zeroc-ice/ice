@@ -418,7 +418,7 @@ namespace IceInternal
                         {
                             if(instanceName.Length == 0)
                             {
-                                instanceName = Ice.Util.generateUUID();
+                                instanceName = System.Guid.NewGuid().ToString();
                             }
                             _adminIdentity = new Ice.Identity("admin", instanceName);
                             //

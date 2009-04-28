@@ -185,7 +185,7 @@ namespace FilesystemI
             }
             else
             {
-                _id.name = Util.generateUUID();
+                _id.name = Guid.NewGuid().ToString();
             }
         }
 

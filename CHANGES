@@ -104,6 +104,9 @@ C++ Changes
 Java Changes
 ============
 
+- Ice.Util.generateUUID has been deprecated. In its place 
+  java.util.UUID.randomUUID().toString() should be used instead.
+
 - Ice now supports the ability to load a configuration file as a class
   path resource. For a path name specified in the ICE_CONFIG
   environment variable, in the --Ice.Config command-line option, or
@@ -134,6 +137,9 @@ Java Changes
 
 C# Changes
 ==========
+
+- Ice.Util.generateUUID has been deprecated. In its place 
+  System.Guid.NewGuid.ToString() should be used instead.
 
 
 Python Changes

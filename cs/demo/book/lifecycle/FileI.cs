@@ -82,7 +82,7 @@ namespace FilesystemI
             _parent = parent;
             _destroyed = false;
             _id = new Identity();
-            _id.name = Util.generateUUID();
+            _id.name = Guid.NewGuid().ToString();
         }
 
         private string _name;

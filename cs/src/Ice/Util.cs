@@ -173,6 +173,7 @@ namespace Ice
             }
         }
 
+        [Obsolete("This method is deprecated, use System.Guid instead.")]
         public static string generateUUID()
         {
             return Guid.NewGuid().ToString().ToUpper();

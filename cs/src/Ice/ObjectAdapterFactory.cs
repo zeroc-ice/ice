@@ -143,7 +143,7 @@ namespace IceInternal
                 Ice.ObjectAdapterI adapter = null;
                 if(name.Length == 0)
                 {
-                    string uuid = Ice.Util.generateUUID();
+                    string uuid = System.Guid.NewGuid().ToString();
                     adapter = new Ice.ObjectAdapterI(instance_, _communicator, this, uuid, null, true);
                 }
                 else

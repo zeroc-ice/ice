@@ -24,7 +24,7 @@ public class FileI : FileDisp_
         // Create an identity
         //
         _id = new Ice.Identity();
-        _id.name = Ice.Util.generateUUID();
+        _id.name = System.Guid.NewGuid().ToString();
     }
 
     // Slice Node::name() operation
