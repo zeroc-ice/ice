@@ -843,19 +843,19 @@ Glacier2::SessionRouterI::createSessionFromSecureConnection_async(
 
         if(_instance->properties()->getPropertyAsInt("Glacier2.AddSSLContext") > 0)
         {
-            sslCtx["SSL.Active"] = "1";
-            sslCtx["SSL.Cipher"] = sslinfo.cipher;
+            sslCtx["_SSL.Active"] = "1";
+            sslCtx["_SSL.Cipher"] = sslinfo.cipher;
             ostringstream os;
             os << sslinfo.remotePort;
-            sslCtx["SSL.Remote.Port"] = os.str();
-            sslCtx["SSL.Remote.Host"] = sslinfo.remoteHost;
+            sslCtx["_SSL.Remote.Port"] = os.str();
+            sslCtx["_SSL.Remote.Host"] = sslinfo.remoteHost;
             os.str("");
             os << sslinfo.localPort;
-            sslCtx["SSL.Local.Port"] = os.str();
-            sslCtx["SSL.Local.Host"] = sslinfo.localHost;
+            sslCtx["_SSL.Local.Port"] = os.str();
+            sslCtx["_SSL.Local.Host"] = sslinfo.localHost;
             if(info.certs.size() > 0)
             {
-                sslCtx["SSL.PeerCert"] = info.certs[0]->encode();
+                sslCtx["_SSL.PeerCert"] = info.certs[0]->encode();
             }
         }
     }
