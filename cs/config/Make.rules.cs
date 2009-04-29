@@ -184,6 +184,22 @@ clean::
 
 endif
 
+$(TARGETS_CONFIG):
+	@echo "Generating $@..."
+	@echo -e \
+"<configuration>\n \
+<system.diagnostics>\n   \
+<trace autoflush=\"true\" indentsize=\"4\">\n     \
+<listeners>\n       \
+<add name=\"Console\"\n            \
+type=\"System.Diagnostics.ConsoleTraceListener\"/>\n     \
+</listeners>\n   \
+</trace>\n   \
+<switches>\n     \
+<add name=\"IceLogger\" value=\"Info\"/>\n   \
+</switches>\n \
+</system.diagnostics>\n\
+</configuration>" >$@
 
 GEN_SRCS = $(subst .ice,.cs,$(addprefix $(GDIR)/,$(notdir $(SLICE_SRCS))))
 CGEN_SRCS = $(subst .ice,.cs,$(addprefix $(GDIR)/,$(notdir $(SLICE_C_SRCS))))
@@ -207,6 +223,10 @@ all:: $(TARGETS)
 
 ifneq ($(POLICY_TARGET),)
 all:: $(bindir)/$(POLICY_TARGET)
+endif
+
+ifneq ($(TARGETS_CONFIG),)
+all:: $(TARGETS_CONFIG)
 endif
 
 depend:: $(SLICE_SRCS) $(SLICE_C_SRCS) $(SLICE_S_SRCS) $(SLICE_AMD_SRCS) $(SLICE_SAMD_SRCS)
@@ -249,6 +269,11 @@ endif
 ifneq ($(SLICE_SAMD_SRCS),)
 clean::
 	-rm -f $(SAMD_GEN_SRCS)
+endif
+
+ifneq ($(TARGETS_CONFIG),)
+clean::
+	-rm -f $(TARGETS_CONFIG)
 endif
 
 install::

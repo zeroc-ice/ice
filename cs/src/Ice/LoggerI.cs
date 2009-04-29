@@ -7,10 +7,13 @@
 //
 // **********************************************************************
 
+#define TRACE
+
 namespace Ice
 {
 
     using System.Globalization;
+    using System.Diagnostics;
 
     public sealed class LoggerI : Logger
     {
@@ -26,36 +29,23 @@ namespace Ice
 
             if(file.Length != 0)
             {
-                try
-                {
-                    _out = System.IO.File.AppendText(file);
-                }
-                catch(System.IO.IOException)
-                {
-                    throw new Ice.InitializationException("FileLogger: cannot open " + file);
-                }
-                _out.AutoFlush = true;
+                Trace.Listeners.Add(new TextWriterTraceListener(file));
+            }
+
+            if(IceInternal.AssemblyUtil.runtime_ == IceInternal.AssemblyUtil.Runtime.Mono)
+            {
+                //
+                // COMPILERFIX: With Mono if a write is not done before the TraceSwitch
+                // members are accessed then the ConsoleTraceListener double prints.
+                //
+                Trace.Write("");
             }
         }
 
-        ~LoggerI()
-        {
-            if(_out != null)
-            {
-                try
-                {
-                    _out.Close();
-                }
-                catch(System.Exception)
-                {
-                }
-            }
-        }
-        
         public void print(string message)
         {
             System.Text.StringBuilder s = new System.Text.StringBuilder(message);
-            write(s, false);
+            write(s, false, _switch.TraceInfo);
         }
         
         public void trace(string category, string message)
@@ -69,7 +59,7 @@ namespace Ice
             s.Append(category);
             s.Append(": ");
             s.Append(message);
-            write(s, true);
+            write(s, true, _switch.TraceInfo);
         }
         
         public void warning(string message)
@@ -82,7 +72,7 @@ namespace Ice
             s.Append(_prefix);
             s.Append("warning: ");
             s.Append(message);
-            write(s, true);
+            write(s, true, _switch.TraceWarning);
         }
         
         public void error(string message)
@@ -95,10 +85,10 @@ namespace Ice
             s.Append(_prefix);
             s.Append("error: ");
             s.Append(message);
-            write(s, true);
+            write(s, true, _switch.TraceError);
         }
 
-        private void write(System.Text.StringBuilder message, bool indent)
+        private void write(System.Text.StringBuilder message, bool indent, bool condition)
         {
             lock(_globalMutex)
             {
@@ -107,26 +97,20 @@ namespace Ice
                     message.Replace("\n", "\n   ");
                 }
 
-                if(_out == null)
-                {
-                    System.Console.Error.WriteLine(message);
-                }
-                else
-                {
-                    _out.WriteLine(message);
-                }
+                Trace.WriteLineIf(condition, message);
             }
         }
         
         internal string _prefix = "";
         internal string _date = null;
         internal string _time = null;
-        internal System.IO.StreamWriter _out = null;
 
         internal static object _globalMutex;
         static LoggerI()
         {
             _globalMutex = new object();
         }
+
+        internal static TraceSwitch _switch = new TraceSwitch("IceLogger", "Ice Logger Switch");
     }
 }

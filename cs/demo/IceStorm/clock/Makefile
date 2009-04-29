@@ -10,6 +10,7 @@
 top_srcdir	= ../../..
 
 TARGETS		= publisher.exe subscriber.exe
+TARGETS_CONFIG  = $(TARGETS:.exe=.exe.config)
 
 C_SRCS		= Publisher.cs
 S_SRCS		= Subscriber.cs

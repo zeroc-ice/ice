@@ -13,6 +13,7 @@ PKG		= IceBox
 LIBNAME		= $(PKG).dll
 ICEBOXNET	= $(bindir)/iceboxnet.exe
 TARGETS		= $(ICEBOXNET) $(bindir)/$(LIBNAME)
+TARGETS_CONFIG  = $(ICEBOXNET:.exe=.exe.config)
 POLICY_TARGET	= $(POLICY).dll
 
 L_SRCS		= AssemblyInfo.cs
@@ -44,6 +45,7 @@ install:: all
 
 install:: all
 	$(call installprogram,$(ICEBOXNET),$(install_bindir))
+	$(call installdata,$(ICEBOXNET:.exe=.exe.config),$(install_bindir))
 	$(call installmdb,$(ICEBOXNET).mdb)
 
 ifeq ($(GACINSTALL),yes)
