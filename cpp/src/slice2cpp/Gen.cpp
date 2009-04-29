@@ -963,10 +963,42 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
         dllExport = _dllExport;
     }
 
-    H << sp;
-    H << nl << dllExport << "bool operator==(const " << name << "&) const;";
-    H << nl << dllExport << "bool operator<(const " << name << "&) const;";
-    H << nl << "bool operator!=(const " << name << "& __rhs) const";
+    H << sp << nl << "bool" << nl << scoped.substr(2) << "::operator==(const " << name << "& __rhs) const";
+    H << sb;
+    H << nl << "if(this == &__rhs)";
+    H << sb;
+    H << nl << "return true;";
+    H << eb;
+    for(pi = params.begin(); pi != params.end(); ++pi)
+    {
+        H << nl << "if(" << *pi << " != __rhs." << *pi << ')';
+        H << sb;
+        H << nl << "return false;";
+        H << eb;
+    }
+    H << nl << "return true;";
+    H << eb;
+    H << sp << nl << "bool" << nl << scoped.substr(2) << "::operator<(const " << name << "& __rhs) const";
+    H << sb;
+    H << nl << "if(this == &__rhs)";
+    H << sb;
+    H << nl << "return false;";
+    H << eb;
+    for(pi = params.begin(); pi != params.end(); ++pi)
+    {
+        H << nl << "if(" << *pi << " < __rhs." << *pi << ')';
+        H << sb;
+        H << nl << "return true;";
+        H << eb;
+        H << nl << "else if(__rhs." << *pi << " < " << *pi << ')';
+        H << sb;
+        H << nl << "return false;";
+        H << eb;
+    }
+    H << nl << "return false;";
+    H << eb;
+
+    H << sp << nl << "bool operator!=(const " << name << "& __rhs) const";
     H << sb;
     H << nl << "return !operator==(__rhs);";
     H << eb;
@@ -982,41 +1014,6 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
     H << sb;
     H << nl << "return !operator<(__rhs);";
     H << eb;
-
-    C << sp << nl << "bool" << nl << scoped.substr(2) << "::operator==(const " << name << "& __rhs) const";
-    C << sb;
-    C << nl << "if(this == &__rhs)";
-    C << sb;
-    C << nl << "return true;";
-    C << eb;
-    for(pi = params.begin(); pi != params.end(); ++pi)
-    {
-        C << nl << "if(" << *pi << " != __rhs." << *pi << ')';
-        C << sb;
-        C << nl << "return false;";
-        C << eb;
-    }
-    C << nl << "return true;";
-    C << eb;
-    C << sp << nl << "bool" << nl << scoped.substr(2) << "::operator<(const " << name << "& __rhs) const";
-    C << sb;
-    C << nl << "if(this == &__rhs)";
-    C << sb;
-    C << nl << "return false;";
-    C << eb;
-    for(pi = params.begin(); pi != params.end(); ++pi)
-    {
-        C << nl << "if(" << *pi << " < __rhs." << *pi << ')';
-        C << sb;
-        C << nl << "return true;";
-        C << eb;
-        C << nl << "else if(__rhs." << *pi << " < " << *pi << ')';
-        C << sb;
-        C << nl << "return false;";
-        C << eb;
-    }
-    C << nl << "return false;";
-    C << eb;
 
     if(!p->isLocal())
     {
@@ -3237,8 +3234,8 @@ Slice::Gen::ObjectDeclVisitor::visitClassDecl(const ClassDeclPtr& p)
     string name = fixKwd(p->name());
 
     H << sp << nl << "class " << name << ';';
-    H << nl << _dllExport << "bool operator==(const " << name << "&, const " << name << "&);";
-    H << nl << _dllExport << "bool operator<(const " << name << "&, const " << name << "&);";
+    H << nl << "bool operator==(const " << name << "&, const " << name << "&);";
+    H << nl << "bool operator<(const " << name << "&, const " << name << "&);";
 }
 
 void
@@ -3983,49 +3980,42 @@ Slice::Gen::ObjectVisitor::visitClassDefEnd(const ClassDefPtr& p)
 
     if(p->isLocal())
     {
-        C << sp;
-        C << nl << "bool" << nl << scope.substr(2) << "operator==(const " << scoped
-          << "& l, const " << scoped << "& r)";
-        C << sb;
-        C << nl << "return static_cast<const ::Ice::LocalObject&>(l) == static_cast<const ::Ice::LocalObject&>(r);";
-        C << eb;
-        C << sp;
-        C << sp;
-        C << nl << "bool" << nl << scope.substr(2) << "operator<(const " << scoped
-          << "& l, const " << scoped << "& r)";
-        C << sb;
-        C << nl << "return static_cast<const ::Ice::LocalObject&>(l) < static_cast<const ::Ice::LocalObject&>(r);";
-        C << eb;
+        H << sp;
+        H << nl << "inline bool operator==(const " << fixKwd(p->name()) << "& l, const " << fixKwd(p->name()) << "& r)";
+        H << sb;
+        H << nl << "return static_cast<const ::Ice::LocalObject&>(l) == static_cast<const ::Ice::LocalObject&>(r);";
+        H << eb;
+        H << sp;
+        H << nl << "inline bool operator<(const " << fixKwd(p->name()) << "& l, const " << fixKwd(p->name()) << "& r)";
+        H << sb;
+        H << nl << "return static_cast<const ::Ice::LocalObject&>(l) < static_cast<const ::Ice::LocalObject&>(r);";
+        H << eb;
     }
     else
     {
-        string name = p->name();
-
         C << sp << nl << "void "
 	  << (_dllExport.empty() ? "" : "ICE_DECLSPEC_EXPORT ");
-        C << nl << scope.substr(2) << "__patch__" << name << "Ptr(void* __addr, ::Ice::ObjectPtr& v)";
+        C << nl << scope.substr(2) << "__patch__" << p->name() << "Ptr(void* __addr, ::Ice::ObjectPtr& v)";
         C << sb;
-        C << nl << scope << name << "Ptr* p = static_cast< " << scope << name << "Ptr*>(__addr);";
+        C << nl << scope << p->name() << "Ptr* p = static_cast< " << scope << p->name() << "Ptr*>(__addr);";
         C << nl << "assert(p);";
-        C << nl << "*p = " << scope << name << "Ptr::dynamicCast(v);";
+        C << nl << "*p = " << scope << p->name() << "Ptr::dynamicCast(v);";
         C << nl << "if(v && !*p)";
         C << sb;
         C << nl << "IceInternal::Ex::throwUOE(" << scoped << "::ice_staticId(), v->ice_id());";
         C << eb;
         C << eb;
 
-        C << sp;
-        C << nl << "bool" << nl << scope.substr(2) << "operator==(const " << scoped
-          << "& l, const " << scoped << "& r)";
-        C << sb;
-        C << nl << "return static_cast<const ::Ice::Object&>(l) == static_cast<const ::Ice::Object&>(r);";
-        C << eb;
-        C << sp;
-        C << nl << "bool" << nl << scope.substr(2) << "operator<(const " << scoped
-          << "& l, const " << scoped << "& r)";
-        C << sb;
-        C << nl << "return static_cast<const ::Ice::Object&>(l) < static_cast<const ::Ice::Object&>(r);";
-        C << eb;
+        H << sp;
+        H << nl << "inline bool operator==(const " << fixKwd(p->name()) << "& l, const " << fixKwd(p->name()) << "& r)";
+        H << sb;
+        H << nl << "return static_cast<const ::Ice::Object&>(l) == static_cast<const ::Ice::Object&>(r);";
+        H << eb;
+        H << sp;
+        H << nl << "inline bool operator<(const " << fixKwd(p->name()) << "& l, const " << fixKwd(p->name()) << "& r)";
+        H << sb;
+        H << nl << "return static_cast<const ::Ice::Object&>(l) < static_cast<const ::Ice::Object&>(r);";
+        H << eb;
     }
 
     _useWstring = resetUseWstring(_useWstringHist);
