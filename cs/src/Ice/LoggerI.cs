@@ -106,11 +106,19 @@ namespace Ice
         internal string _time = null;
 
         internal static object _globalMutex;
+        internal static TraceSwitch _switch;
         static LoggerI()
         {
             _globalMutex = new object();
+            if(IceInternal.AssemblyUtil.runtime_ == IceInternal.AssemblyUtil.Runtime.Mono)
+            {
+                _switch = new TraceSwitch("IceLogger", "Ice Logger Switch");
+            }
+            else
+            {
+                _switch = new TraceSwitch("IceLogger", "Ice Logger Switch", "Info");
+            }
         }
 
-        internal static TraceSwitch _switch = new TraceSwitch("IceLogger", "Ice Logger Switch");
     }
 }
