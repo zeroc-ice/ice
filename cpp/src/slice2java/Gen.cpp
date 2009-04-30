@@ -2256,7 +2256,7 @@ Slice::Gen::TypesVisitor::visitStructStart(const StructPtr& p)
         out << nl << " **/";
     }
 
-    out << nl << "public final class " << name << " implements java.lang.Cloneable, java.io.Serializable";
+    out << nl << "public class " << name << " implements java.lang.Cloneable, java.io.Serializable";
     out << sb;
 
     return true;

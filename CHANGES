@@ -122,6 +122,8 @@ C++ Changes
 Java Changes
 ============
 
+- The generated classes for Slice structs are no longer declared final.
+
 - Ice.Util.generateUUID has been deprecated. In its place 
   java.util.UUID.randomUUID().toString() should be used instead.
 
