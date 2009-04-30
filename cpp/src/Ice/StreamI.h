@@ -85,6 +85,8 @@ public:
 
     virtual void readPendingObjects();
 
+    virtual void rewind();
+
 private:
 
     Ice::CommunicatorPtr _communicator;
@@ -157,6 +159,8 @@ public:
     virtual void writePendingObjects();
 
     virtual void finished(std::vector< Ice::Byte >&);
+
+    virtual void reset(bool);
 
 private:
 

@@ -235,6 +235,13 @@ public class InputStreamI implements InputStream
     }
 
     public void
+    rewind()
+    {
+        _is.clear();
+        _is.getBuffer().b.position(0);
+    }
+
+    public void
     destroy()
     {
         if(_is != null)

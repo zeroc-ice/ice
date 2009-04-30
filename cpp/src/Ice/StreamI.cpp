@@ -327,6 +327,13 @@ Ice::InputStreamI::readPendingObjects()
     _is->readPendingObjects();
 }
 
+void
+Ice::InputStreamI::rewind()
+{
+    _is->clear();
+    _is->i = _is->b.begin();
+}
+
 //
 // OutputStreamI
 //
@@ -630,6 +637,23 @@ Ice::OutputStreamI::finished(vector<Byte>& bytes)
 {
     vector<Byte>(_os->b.begin(), _os->b.end()).swap(bytes);
 }
+
+void
+Ice::OutputStreamI::reset(bool clearBuffer)
+{
+    _os->clear();
+    
+    if(clearBuffer)
+    {
+        _os->b.clear();
+    }
+    else
+    {
+        _os->b.reset();
+    }
+    
+    _os->i = _os->b.begin();
+}       
 
 //
 // ObjectReader

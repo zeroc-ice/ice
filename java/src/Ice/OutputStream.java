@@ -58,5 +58,8 @@ public interface OutputStream
     void writePendingObjects();
 
     byte[] finished();
+
+    void reset(boolean clearBuffer);
+
     void destroy();
 }

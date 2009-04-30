@@ -204,6 +204,12 @@ namespace Ice
             _is.readPendingObjects();
         }
 
+        public void rewind()
+        {
+            _is.clear();
+            _is.getBuffer().b.position(0);
+        }
+
         public void destroy()
         {
             if(_is != null)
@@ -387,6 +393,22 @@ namespace Ice
             buf.b.get(result);
 
             return result;
+        }
+
+        public void reset(bool clearBuffer)
+        {
+            _os.clear();
+
+            IceInternal.Buffer buf = _os.getBuffer();
+            if(clearBuffer)
+            {
+                buf.clear();
+            }
+            else
+            {
+                buf.reset();
+            }
+            buf.b.position(0);
         }
 
         public void destroy()

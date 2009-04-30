@@ -135,6 +135,21 @@ namespace IceInternal
             _sliceObjects = true;
         }
 
+        public virtual void clear()
+        {
+            _readEncapsStack = null;
+            _writeEncapsStack = null;
+            _seqDataStack = null;
+
+            if(_objectList != null)
+            {
+                _objectList.Clear();
+            }
+            _objectList = null;
+            _sliceObjects = true;
+
+        }
+
         public virtual Instance instance()
         {
             return instance_;

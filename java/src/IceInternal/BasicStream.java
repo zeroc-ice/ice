@@ -72,6 +72,21 @@ public class BasicStream
         _sliceObjects = true;
     }
 
+    public void
+    clear()
+    {
+        _readEncapsStack = null;
+        _writeEncapsStack = null;
+        _seqDataStack = null;
+        
+        if(_objectList != null)
+        {
+            _objectList.clear();
+        }
+        _objectList = null;
+        _sliceObjects = true;
+    }
+
     public Instance
     instance()
     {

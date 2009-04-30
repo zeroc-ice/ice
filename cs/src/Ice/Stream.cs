@@ -71,6 +71,8 @@ namespace Ice
 
         void readPendingObjects();
 
+        void rewind();
+
         void destroy();
     }
 
@@ -125,6 +127,9 @@ namespace Ice
         void writePendingObjects();
 
         byte[] finished();
+
+        void reset(bool clearBuffer);
+
         void destroy();
     }
 

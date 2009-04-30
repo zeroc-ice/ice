@@ -72,6 +72,8 @@ IceInternal::BasicStream::clear()
     }
 
     delete _objectList;
+    _objectList = 0;
+    _sliceObjects = true;
 }
 
 void*

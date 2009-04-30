@@ -209,6 +209,23 @@ public class OutputStreamI implements OutputStream
     }
 
     public void
+    reset(boolean clearBuffer)
+    {
+        _os.clear();
+
+        IceInternal.Buffer buf = _os.getBuffer();
+        if(clearBuffer)
+        {
+            buf.clear();
+        }
+        else
+        {
+            buf.reset();
+        }
+        buf.b.position(0);
+    }
+
+    public void
     destroy()
     {
         if(_os != null)

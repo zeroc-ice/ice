@@ -61,5 +61,7 @@ public interface InputStream
 
     void readPendingObjects();
 
+    void rewind();
+
     void destroy();
 }
