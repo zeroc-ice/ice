@@ -85,6 +85,16 @@ public final class ThreadPool
         _sizeMax = sizeMax;
         _sizeWarn = sizeWarn;
 
+        int stackSize = _instance.initializationData().properties.getPropertyAsInt( _prefix + ".StackSize");
+        if(stackSize < 0)
+        {
+            String s = _prefix + ".StackSize < 0; Size adjusted to JRE default";
+            _instance.initializationData().logger.warning(s);
+            stackSize = 0;
+        }
+
+        _stackSize = stackSize;
+
         if(_instance.traceLevels().threadPool >= 1)
         {
             String s = "creating " + _prefix + ": Size = " + _size + ", SizeMax = " + _sizeMax + ", SizeWarn = " +
@@ -287,17 +297,7 @@ public final class ThreadPool
         //
         for(EventHandlerThread thread : _threads)
         {
-            while(true)
-            {
-                try
-                {
-                    thread.join();
-                    break;
-                }
-                catch(InterruptedException ex)
-                {
-                }
-            }
+            thread.join(true);
         }
 
         //
@@ -649,13 +649,9 @@ public final class ThreadPool
 
                                     if(!thread.isAlive())
                                     {
-                                        try
+                                        if(thread.join(false))
                                         {
-                                            thread.join();
                                             i.remove();
-                                        }
-                                        catch(InterruptedException ex)
-                                        {
                                         }
                                     }
                                 }
@@ -967,11 +963,44 @@ public final class ThreadPool
     private java.util.LinkedList<EventHandler> _finished = new java.util.LinkedList<EventHandler>();
     private int _timeout;
 
-    private final class EventHandlerThread extends Thread
+    private final class EventHandlerThread implements Runnable
     {
         EventHandlerThread(String name)
         {
-            super(name);
+            _name = name;
+        }
+
+        public boolean 
+        isAlive()
+        {
+            return _thread.isAlive();
+        }
+
+        public boolean
+        join(boolean wait)
+        {
+            while(true)
+            {
+                try
+                {
+                    _thread.join();
+                    return true;
+                }
+                catch(InterruptedException ex)
+                {
+                    if(!wait)
+                    {
+                        return false;
+                    }
+                }
+            }
+        }
+
+        public void
+        start()
+        {
+            _thread = new Thread(null, this, _name, _stackSize);
+            _thread.start();
         }
 
         public void
@@ -996,7 +1025,7 @@ public final class ThreadPool
                 java.io.PrintWriter pw = new java.io.PrintWriter(sw);
                 ex.printStackTrace(pw);
                 pw.flush();
-                String s = "exception in `" + _prefix + "' thread " + getName() + ":\n" + sw.toString();
+                String s = "exception in `" + _prefix + "' thread " + _name + ":\n" + sw.toString();
                 _instance.initializationData().logger.error(s);
                 promote = true;
             }
@@ -1025,12 +1054,17 @@ public final class ThreadPool
                 _instance.initializationData().threadHook.stop();
             }
         }
+
+        private String _name;
+        private Thread _thread;
     }
 
     private final int _size; // Number of threads that are pre-created.
     private final int _sizeMax; // Maximum number of threads.
     private final int _sizeWarn; // If _inUse reaches _sizeWarn, a "low on threads" warning will be printed.
     private final boolean _serialize; // True if requests need to be serialized over the connection.
+
+    private final int _stackSize;
 
     private java.util.List<EventHandlerThread> _threads; // All threads, running or not.
     private int _threadIndex; // For assigning thread names.

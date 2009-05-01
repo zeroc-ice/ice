@@ -96,6 +96,16 @@ namespace IceInternal
             _sizeMax = sizeMax;
             _sizeWarn = sizeWarn;
 
+            int stackSize = _instance.initializationData().properties.getPropertyAsInt(_prefix + ".StackSize");
+            if(stackSize < 0)
+            {
+                string s = _prefix + ".StackSize < 0; Size adjusted to OS default";
+                _instance.initializationData().logger.warning(s);
+                stackSize = 0;
+            }
+
+            _stackSize = stackSize;
+
             if(_instance.traceLevels().threadPool >= 1)
             {
                 string s = "creating " + _prefix + ": Size = " + _size + ", SizeMax = " + _sizeMax + ", SizeWarn = " + 
@@ -459,7 +469,14 @@ namespace IceInternal
 
             public void Start()
             {
-                _thread = new Thread(new ThreadStart(Run));
+                if(_threadPool._stackSize == 0)
+                {
+                    _thread = new Thread(new ThreadStart(Run));
+                }
+                else
+                {
+                    _thread = new Thread(new ThreadStart(Run), _threadPool._stackSize);
+                }
                 _thread.IsBackground = true;
                 _thread.Name = _name;
                 _thread.Start();
@@ -505,6 +522,8 @@ namespace IceInternal
         private readonly int _sizeMax; // Maximum number of threads.
         private readonly int _sizeWarn; // If _inUse reaches _sizeWarn, a "low on threads" warning will be printed.
         private readonly bool _serialize; // True if requests need to be serialized over the connection.
+
+        private readonly int _stackSize;
 
         private List<WorkerThread> _threads; // All threads, running or not.
         private int _threadIndex; // For assigning thread names.

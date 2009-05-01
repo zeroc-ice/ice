@@ -33,6 +33,11 @@ General Changes
 These entries apply to all relevant language mappings unless otherwise
 noted.
 
+- Added extra network tracing to show the list of local interfaces
+  currently available when an endpoint is using a wildcard host and
+  the published endpoints for an object adapter. Both of these traces
+  will be shown when Ice.Trace.Network >= 3.
+
 - Renamed the context entries added by Glacier2 for secure sessions
   when Glacier2.AddSSLContext is set as follows:
 
@@ -122,6 +127,8 @@ C++ Changes
 Java Changes
 ============
 
+- The StackSize thread pool configuration property is now used.
+
 - The generated classes for Slice structs are no longer declared final.
 
 - Ice.Util.generateUUID has been deprecated. In its place 
@@ -157,6 +164,8 @@ Java Changes
 
 C# Changes
 ==========
+
+- The StackSize thread pool configuration property is now used.
 
 - The default Ice logger now uses System.Diagnostics.Trace to 
   output messages. Please see manual and Trace documentation for

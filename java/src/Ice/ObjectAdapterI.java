@@ -1184,7 +1184,7 @@ public final class ObjectAdapterI implements ObjectAdapter
                 s += endpoint.toString();
                 first = false;
             }
-            _instance.initializationData().logger.trace(_instance.traceLevels().networkCat, s;
+            _instance.initializationData().logger.trace(_instance.traceLevels().networkCat, s);
         }
         return endpoints;
     }
