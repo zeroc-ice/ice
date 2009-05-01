@@ -392,7 +392,7 @@ final class TcpEndpointI extends EndpointI
     expand()
     {
         java.util.List<EndpointI> endps = new java.util.ArrayList<EndpointI>();
-        java.util.List<String> hosts = Network.getHostsForEndpointExpand(_host, _instance.protocolSupport());
+        java.util.List<String> hosts = Network.getHostsForEndpointExpand(_host, _instance.protocolSupport(), false);
         if(hosts == null || hosts.isEmpty())
         {
             endps.add(this);

@@ -291,6 +291,7 @@ IceInternal::UdpTransceiver::UdpTransceiver(const InstancePtr& instance, const s
     _traceLevels(instance->traceLevels()),
     _logger(instance->initializationData().logger),
     _stats(instance->initializationData().stats),
+    _protocolSupport(instance->protocolSupport()),
     _incoming(false),
     _addr(addr),
     _connect(true),
@@ -334,6 +335,7 @@ IceInternal::UdpTransceiver::UdpTransceiver(const InstancePtr& instance, const s
     _traceLevels(instance->traceLevels()),
     _logger(instance->initializationData().logger),
     _stats(instance->initializationData().stats),
+    _protocolSupport(instance->protocolSupport()),
     _incoming(true),
     _addr(getAddressForServer(host, port, instance->protocolSupport())),
     _connect(connect),
@@ -399,6 +401,23 @@ IceInternal::UdpTransceiver::UdpTransceiver(const InstancePtr& instance, const s
         {
             Trace out(_logger, _traceLevels->networkCat);
             out << "starting to receive udp packets\n" << toString();
+
+            if(_traceLevels->network >= 3)
+            {
+                vector<string> interfaces = getHostsForEndpointExpand(inetAddrToString(_addr), _protocolSupport, true);
+                if(!interfaces.empty())
+                {
+                    out << "\nlocal interfaces: ";
+                    for(unsigned int i = 0; i < interfaces.size(); ++i)
+                    {
+                        if(i != 0)
+                        {
+                            out << ", ";
+                        }
+                        out << interfaces[i];
+                    }
+                }
+            }
         }
     }
     catch(...)

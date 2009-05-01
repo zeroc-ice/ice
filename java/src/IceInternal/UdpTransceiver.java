@@ -257,6 +257,7 @@ final class UdpTransceiver implements Transceiver
         _traceLevels = instance.traceLevels();
         _logger = instance.initializationData().logger;
         _stats = instance.initializationData().stats;
+        _protocolSupport = instance.protocolSupport();
         _connect = true;
         _warn = instance.initializationData().properties.getPropertyAsInt("Ice.Warn.Datagrams") > 0;
         _addr = addr;
@@ -294,6 +295,7 @@ final class UdpTransceiver implements Transceiver
         _traceLevels = instance.traceLevels();
         _logger = instance.initializationData().logger;
         _stats = instance.initializationData().stats;
+        _protocolSupport = instance.protocolSupport();
         _connect = connect;
         _warn = instance.initializationData().properties.getPropertyAsInt("Ice.Warn.Datagrams") > 0;
 
@@ -344,6 +346,25 @@ final class UdpTransceiver implements Transceiver
             if(_traceLevels.network >= 1)
             {
                 String s = "starting to receive udp packets\n" + toString();
+                if(_traceLevels.network >= 3)
+                {
+                    java.util.List<String> interfaces = 
+                        Network.getHostsForEndpointExpand(_addr.getAddress().getHostAddress(), _protocolSupport, true);
+                    if(!interfaces.isEmpty())
+                    {
+                        s += "\nlocal interfaces: ";
+                        boolean first = true;
+                        for(String iface : interfaces)
+                        {
+                            if(!first)
+                            {
+                                s += ", ";
+                            }
+                            s += iface;
+                            first = false;
+                        }
+                    }
+                }
                 _logger.trace(_traceLevels.networkCat, s);
             }
         }
@@ -519,6 +540,7 @@ final class UdpTransceiver implements Transceiver
     private TraceLevels _traceLevels;
     private Ice.Logger _logger;
     private Ice.Stats _stats;
+    private int _protocolSupport;
     private boolean _connect;
     private final boolean _warn;
     private int _rcvSize;

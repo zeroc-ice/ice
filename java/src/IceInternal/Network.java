@@ -916,7 +916,7 @@ public final class Network
     }
 
     public static java.util.ArrayList<String>
-    getHostsForEndpointExpand(String host, int protocolSupport)
+    getHostsForEndpointExpand(String host, int protocolSupport, boolean includeLoopback)
     {
         boolean wildcard = (host == null || host.length() == 0);
         if(!wildcard)
@@ -952,7 +952,7 @@ public final class Network
                 }
             }
             
-            if(hosts.isEmpty())
+            if(includeLoopback || hosts.isEmpty())
             {
                 if(protocolSupport != EnableIPv6)
                 {

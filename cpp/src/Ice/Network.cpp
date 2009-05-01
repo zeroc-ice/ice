@@ -1768,7 +1768,7 @@ IceInternal::setPort(struct sockaddr_storage& addr, int port)
 }
 
 vector<string>
-IceInternal::getHostsForEndpointExpand(const string& host, ProtocolSupport protocolSupport)
+IceInternal::getHostsForEndpointExpand(const string& host, ProtocolSupport protocolSupport, bool includeLoopback)
 {
     vector<string> hosts;
     if(host.empty() || isWildcard(host, protocolSupport))
@@ -1787,7 +1787,7 @@ IceInternal::getHostsForEndpointExpand(const string& host, ProtocolSupport proto
             }
         }
 
-        if(hosts.empty())
+        if(hosts.empty() || includeLoopback)
         {
             if(protocolSupport != EnableIPv6)
             {

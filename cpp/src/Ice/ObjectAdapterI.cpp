@@ -1119,29 +1119,43 @@ ObjectAdapterI::parsePublishedEndpoints()
     //
     string endpts = _communicator->getProperties()->getProperty(_name + ".PublishedEndpoints");
     vector<EndpointIPtr> endpoints = parseEndpoints(endpts, false);
-    if(!endpoints.empty())
+    if(endpoints.empty())
     {
-        return endpoints;
+        //
+        // If the PublishedEndpoints property isn't set, we compute the published enpdoints
+        // from the OA endpoints.
+        //
+        transform(_incomingConnectionFactories.begin(), _incomingConnectionFactories.end(), 
+                  back_inserter(endpoints), Ice::constMemFun(&IncomingConnectionFactory::endpoint));
+    
+        //
+        // Expand any endpoints that may be listening on INADDR_ANY to include actual
+        // addresses in the published endpoints.
+        //
+        vector<EndpointIPtr> expandedEndpoints;
+        for(unsigned int i = 0; i < endpoints.size(); ++i)
+        {
+            vector<EndpointIPtr> endps = endpoints[i]->expand();
+            expandedEndpoints.insert(expandedEndpoints.end(), endps.begin(), endps.end());
+        }
+        endpoints = expandedEndpoints;
     }
 
-    //
-    // If the PublishedEndpoints property isn't set, we compute the published enpdoints
-    // from the OA endpoints.
-    //
-    transform(_incomingConnectionFactories.begin(), _incomingConnectionFactories.end(), 
-              back_inserter(endpoints), Ice::constMemFun(&IncomingConnectionFactory::endpoint));
-    
-    //
-    // Expand any endpoints that may be listening on INADDR_ANY to include actual
-    // addresses in the published endpoints.
-    //
-    vector<EndpointIPtr> expandedEndpoints;
-    for(unsigned int i = 0; i < endpoints.size(); ++i)
+    if(_instance->traceLevels()->network >= 3)
     {
-        vector<EndpointIPtr> endps = endpoints[i]->expand();
-        expandedEndpoints.insert(expandedEndpoints.end(), endps.begin(), endps.end());
+        Trace out(_instance->initializationData().logger, _instance->traceLevels()->networkCat);
+        out << "published endpoints for object adapter \`" << getName() << "\':\n";
+        for(unsigned int i = 0; i < endpoints.size(); ++i)
+        {
+            if(i > 0)
+            {
+                out << ":";
+            }
+            out << endpoints[i]->toString();
+        }
     }
-    return expandedEndpoints;
+
+    return endpoints;
 }
 
 void

@@ -1147,31 +1147,46 @@ public final class ObjectAdapterI implements ObjectAdapter
         //
         String endpts = _instance.initializationData().properties.getProperty(_name + ".PublishedEndpoints");
         java.util.List<IceInternal.EndpointI> endpoints = parseEndpoints(endpts, false);
-        if(!endpoints.isEmpty())
+        if(endpoints.isEmpty())
         {
-            return endpoints;
+            //
+            // If the PublishedEndpoints property isn't set, we compute the published enpdoints
+            // from the OA endpoints.
+            //
+            for(int i = 0; i < _incomingConnectionFactories.size(); ++i)
+            {
+                IceInternal.IncomingConnectionFactory factory = _incomingConnectionFactories.get(i);
+                endpoints.add(factory.endpoint());
+            }
+
+            //
+            // Expand any endpoints that may be listening on INADDR_ANY to
+            // include actual addresses in the published endpoints.
+            //
+            java.util.List<IceInternal.EndpointI> expandedEndpoints = new java.util.ArrayList<IceInternal.EndpointI>();
+            for(IceInternal.EndpointI p : endpoints)
+            {
+                expandedEndpoints.addAll(p.expand());
+            }
+            endpoints = expandedEndpoints;
         }
 
-        //
-        // If the PublishedEndpoints property isn't set, we compute the published enpdoints
-        // from the OA endpoints.
-        //
-        for(int i = 0; i < _incomingConnectionFactories.size(); ++i)
+        if(_instance.traceLevels().network >= 3)
         {
-            IceInternal.IncomingConnectionFactory factory = _incomingConnectionFactories.get(i);
-            endpoints.add(factory.endpoint());
+            String s = "published endpoints for object adapter `" + _name + "':\n";
+            boolean first = true;
+            for(IceInternal.EndpointI endpoint : endpoints)
+            {
+                if(!first)
+                {
+                    s += ":";
+                }
+                s += endpoint.toString();
+                first = false;
+            }
+            _instance.initializationData().logger.trace(_instance.traceLevels().networkCat, s;
         }
-
-        //
-        // Expand any endpoints that may be listening on INADDR_ANY to
-        // include actual addresses in the published endpoints.
-        //
-        java.util.List<IceInternal.EndpointI> expandedEndpoints = new java.util.ArrayList<IceInternal.EndpointI>();
-        for(IceInternal.EndpointI p : endpoints)
-        {
-            expandedEndpoints.addAll(p.expand());
-        }
-        return expandedEndpoints;
+        return endpoints;
     }
 
     private void

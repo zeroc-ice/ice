@@ -39,6 +39,26 @@ class TcpAcceptor implements Acceptor
         if(_traceLevels.network >= 1)
         {
             String s = "accepting tcp connections at " + toString();
+            if(_traceLevels.network >= 3)
+            {
+                java.util.List<String> interfaces = 
+                    Network.getHostsForEndpointExpand(_addr.getAddress().getHostAddress(),
+                                                      _instance.protocolSupport(), true);
+                if(!interfaces.isEmpty())
+                {
+                    s += "\nlocal interfaces: ";
+                    boolean first = true;
+                    for(String iface : interfaces)
+                    {
+                        if(!first)
+                        {
+                            s += ", ";
+                        }
+                        s += iface;
+                        first = false;
+                    }
+                }
+            }
             _logger.trace(_traceLevels.networkCat, s);
         }
     }

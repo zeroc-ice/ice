@@ -39,6 +39,26 @@ final class AcceptorI implements IceInternal.Acceptor
         if(_instance.networkTraceLevel() >= 1)
         {
             String s = "accepting ssl connections at " + toString();
+            if(_instance.networkTraceLevel() >= 3)
+            {
+                java.util.List<String> interfaces = 
+                    IceInternal.Network.getHostsForEndpointExpand(_addr.getAddress().getHostAddress(), 
+                                                                  _instance.protocolSupport(), true);
+                if(!interfaces.isEmpty())
+                {
+                    s += "\nlocal interfaces: ";
+                    boolean first = true;
+                    for(String iface : interfaces)
+                    {
+                        if(!first)
+                        {
+                            s += ", ";
+                        }
+                        s += iface;
+                        first = false;
+                    }
+                }
+            }
             _logger.trace(_instance.networkTraceCategory(), s);
         }
     }

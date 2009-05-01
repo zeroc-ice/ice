@@ -19,6 +19,7 @@
 #include <Ice/LoggerF.h>
 #include <Ice/StatsF.h>
 #include <Ice/Transceiver.h>
+#include <Ice/Protocol.h>
 #include <IceUtil/Mutex.h>
 
 #ifndef _WIN32
@@ -61,6 +62,7 @@ private:
     const TraceLevelsPtr _traceLevels;
     const Ice::LoggerPtr _logger;
     const Ice::StatsPtr _stats;
+    const ProtocolSupport _protocolSupport;
     const bool _incoming;
     const struct sockaddr_storage _addr;
     struct sockaddr_storage _mcastAddr;

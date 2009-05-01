@@ -393,7 +393,7 @@ final class EndpointI extends IceInternal.EndpointI
     {
         java.util.ArrayList<IceInternal.EndpointI> endps = new java.util.ArrayList<IceInternal.EndpointI>();
         java.util.ArrayList<String> hosts =
-            IceInternal.Network.getHostsForEndpointExpand(_host, _instance.protocolSupport());
+            IceInternal.Network.getHostsForEndpointExpand(_host, _instance.protocolSupport(), false);
         if(hosts == null || hosts.isEmpty())
         {
             endps.add(this);

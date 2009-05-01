@@ -60,6 +60,26 @@ IceSSL::AcceptorI::listen()
     {
         Trace out(_logger, _instance->networkTraceCategory());
         out << "accepting ssl connections at " << toString();
+
+        if(_instance->networkTraceLevel() >= 3)
+        {
+            vector<string> interfaces = 
+                IceInternal::getHostsForEndpointExpand(IceInternal::inetAddrToString(_addr), 
+                                                       _instance->protocolSupport(), true);
+            if(!interfaces.empty())
+            {
+                out << "\nlocal interfaces: ";
+                for(unsigned int i = 0; i < interfaces.size(); ++i)
+                {
+                    if(i != 0)
+                    {
+                        out << ", ";
+                    }
+                    out << interfaces[i];
+                }
+            }
+        }
+
     }
 }
 

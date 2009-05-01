@@ -10,6 +10,7 @@
 namespace IceSSL
 {
     using System;
+    using System.Collections.Generic;
     using System.Diagnostics;
     using System.IO;
     using System.Net;
@@ -53,6 +54,25 @@ namespace IceSSL
             if(_instance.networkTraceLevel() >= 1)
             {
                 string s = "accepting ssl connections at " + ToString();
+                if(_instance.networkTraceLevel() >= 3)
+                {
+                    List<string> interfaces = IceInternal.Network.getHostsForEndpointExpand(_addr.Address.ToString(),
+                                                                                 _instance.protocolSupport(), true);
+                    if(interfaces.Count != 0)
+                    {
+                        s += "\nlocal interfaces: ";
+                        bool first = true;
+                        foreach(string iface in interfaces)
+                        {
+                            if(!first)
+                            {
+                                s += ", ";
+                            }
+                            s += iface;
+                            first = false;
+                        }
+                    }
+                }
                 _logger.trace(_instance.networkTraceCategory(), s);
             }
         }

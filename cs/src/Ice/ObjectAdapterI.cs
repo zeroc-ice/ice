@@ -1163,30 +1163,45 @@ namespace Ice
             //
             string endpts = instance_.initializationData().properties.getProperty(_name + ".PublishedEndpoints");
             List<IceInternal.EndpointI> endpoints = parseEndpoints(endpts, false);
-            if(endpoints.Count > 0)
+            if(endpoints.Count == 0)
             {
-                return endpoints;
+                //
+                // If the PublishedEndpoints property isn't set, we compute the published enpdoints
+                // from the OA endpoints.
+                //
+                foreach(IceInternal.IncomingConnectionFactory factory in _incomingConnectionFactories)
+                {
+                    endpoints.Add(factory.endpoint());
+                }
+
+                //
+                // Expand any endpoints that may be listening on INADDR_ANY to
+                // include actual addresses in the published endpoints.
+                //
+                List<IceInternal.EndpointI> expandedEndpoints = new List<IceInternal.EndpointI>();
+                foreach(IceInternal.EndpointI endp in endpoints)
+                {
+                    expandedEndpoints.AddRange(endp.expand());
+                }
+                endpoints = expandedEndpoints;
             }
 
-            //
-            // If the PublishedEndpoints property isn't set, we compute the published enpdoints
-            // from the OA endpoints.
-            //
-            foreach(IceInternal.IncomingConnectionFactory factory in _incomingConnectionFactories)
-            {
-                endpoints.Add(factory.endpoint());
-            }
-
-            //
-            // Expand any endpoints that may be listening on INADDR_ANY to
-            // include actual addresses in the published endpoints.
-            //
-            List<IceInternal.EndpointI> expandedEndpoints = new List<IceInternal.EndpointI>();
-            foreach(IceInternal.EndpointI endp in endpoints)
-            {
-                expandedEndpoints.AddRange(endp.expand());
-            }
-            return expandedEndpoints;
+            if(instance_.traceLevels().network >= 3)
+             {
+                 string s = "published endpoints for object adapter `" + _name + "':\n";
+                 bool first = true;
+                 foreach(IceInternal.EndpointI endpoint in endpoints)
+                 {
+                     if(!first)
+                     {
+                         s += ":";
+                     }
+                     s += endpoint.ToString();
+                     first = false;
+                 }
+                 instance_.initializationData().logger.trace(instance_.traceLevels().networkCat, s);
+             }
+             return endpoints;
         }
 
         private void updateLocatorRegistry(IceInternal.LocatorInfo locatorInfo, ObjectPrx proxy, bool registerProcess)

@@ -614,7 +614,7 @@ namespace IceInternal
         expand()
         {
             List<EndpointI> endps = new List<EndpointI>();
-            List<string> hosts = IceInternal.Network.getHostsForEndpointExpand(_host, instance_.protocolSupport());
+            List<string> hosts = Network.getHostsForEndpointExpand(_host, instance_.protocolSupport(), false);
             if(hosts == null || hosts.Count == 0)
             {
                 endps.Add(this);

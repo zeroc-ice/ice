@@ -394,7 +394,7 @@ namespace IceInternal
         public override List<EndpointI> expand()
         {
             List<EndpointI> endps = new List<EndpointI>();
-            List<string> hosts = IceInternal.Network.getHostsForEndpointExpand(_host, _instance.protocolSupport());
+            List<string> hosts = Network.getHostsForEndpointExpand(_host, _instance.protocolSupport(), false);
             if(hosts == null || hosts.Count == 0)
             {
                 endps.Add(this);

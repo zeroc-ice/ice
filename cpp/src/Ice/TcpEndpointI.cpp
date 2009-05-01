@@ -333,7 +333,7 @@ vector<EndpointIPtr>
 IceInternal::TcpEndpointI::expand() const
 {
     vector<EndpointIPtr> endps;
-    vector<string> hosts = getHostsForEndpointExpand(_host, _instance->protocolSupport());
+    vector<string> hosts = getHostsForEndpointExpand(_host, _instance->protocolSupport(), false);
     if(hosts.empty())
     {
         endps.push_back(const_cast<TcpEndpointI*>(this));

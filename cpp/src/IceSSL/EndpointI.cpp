@@ -332,7 +332,7 @@ vector<IceInternal::EndpointIPtr>
 IceSSL::EndpointI::expand() const
 {
     vector<IceInternal::EndpointIPtr> endps;
-    vector<string> hosts = IceInternal::getHostsForEndpointExpand(_host, _instance->protocolSupport());
+    vector<string> hosts = IceInternal::getHostsForEndpointExpand(_host, _instance->protocolSupport(), false);
     if(hosts.empty())
     {
         endps.push_back(const_cast<EndpointI*>(this));

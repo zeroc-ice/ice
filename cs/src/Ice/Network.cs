@@ -966,7 +966,7 @@ namespace IceInternal
             }
         }
 
-        public static List<string> getHostsForEndpointExpand(string host, int protocol)
+        public static List<string> getHostsForEndpointExpand(string host, int protocol, bool includeLoopback)
         {
             bool wildcard = host.Length == 0;
             if(!wildcard)
@@ -993,7 +993,7 @@ namespace IceInternal
                     }
                 }
                 
-                if(hosts.Count == 0)
+                if(includeLoopback || hosts.Count == 0)
                 {
                     if(protocol != EnableIPv6)
                     {

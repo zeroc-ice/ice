@@ -556,7 +556,8 @@ final class UdpEndpointI extends EndpointI
     expand()
     {
         java.util.ArrayList<EndpointI> endps = new java.util.ArrayList<EndpointI>();
-        java.util.ArrayList<String> hosts = Network.getHostsForEndpointExpand(_host, _instance.protocolSupport());
+        java.util.ArrayList<String> hosts =
+            Network.getHostsForEndpointExpand(_host, _instance.protocolSupport(), false);
         if(hosts == null || hosts.isEmpty())
         {
             endps.add(this);

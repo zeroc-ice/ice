@@ -393,7 +393,8 @@ namespace IceSSL
         public override List<IceInternal.EndpointI> expand()
         {
             List<IceInternal.EndpointI> endps = new List<IceInternal.EndpointI>();
-            List<string> hosts = IceInternal.Network.getHostsForEndpointExpand(_host, _instance.protocolSupport());
+            List<string> hosts = 
+                IceInternal.Network.getHostsForEndpointExpand(_host, _instance.protocolSupport(), false);
             if(hosts == null || hosts.Count == 0)
             {
                 endps.Add(this);

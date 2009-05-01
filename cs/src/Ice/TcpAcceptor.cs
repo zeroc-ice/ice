@@ -11,6 +11,7 @@ namespace IceInternal
 {
 
     using System;
+    using System.Collections.Generic;
     using System.Diagnostics;
     using System.Net;
     using System.Net.Sockets;
@@ -51,6 +52,25 @@ namespace IceInternal
             if(_traceLevels.network >= 1)
             {
                 string s = "accepting tcp connections at " + ToString();
+                if(_traceLevels.network >= 3)
+                {
+                    List<string> interfaces =
+                        Network.getHostsForEndpointExpand(_addr.Address.ToString(), instance_.protocolSupport(), true);
+                    if(interfaces.Count != 0)
+                    {
+                        s += "\nlocal interfaces: ";
+                        bool first = true;
+                        foreach(string iface in interfaces)
+                        {
+                            if(!first)
+                            {
+                                s += ", ";
+                            }
+                            s += iface;
+                            first = false;
+                        }
+                    }
+                }
                 _logger.trace(_traceLevels.networkCat, s);
             }
         }
