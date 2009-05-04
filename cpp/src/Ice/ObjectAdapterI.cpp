@@ -1144,7 +1144,7 @@ ObjectAdapterI::parsePublishedEndpoints()
     if(_instance->traceLevels()->network >= 3)
     {
         Trace out(_instance->initializationData().logger, _instance->traceLevels()->networkCat);
-        out << "published endpoints for object adapter \`" << getName() << "\':\n";
+        out << "published endpoints for object adapter `" << getName() << "':\n";
         for(unsigned int i = 0; i < endpoints.size(); ++i)
         {
             if(i > 0)
