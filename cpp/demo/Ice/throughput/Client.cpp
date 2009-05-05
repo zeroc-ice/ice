@@ -123,7 +123,7 @@ ThroughputClient::run(int argc, char* argv[])
             throughput->recvStructSeq();
             throughput->recvFixedSeq();
 
-            throughput->echoByteSeq(emptyBytesBuf);
+            throughput->echoByteSeq(emptyBytes);
             throughput->echoStringSeq(emptyStrings);
             throughput->echoStructSeq(emptyStructs);
             throughput->echoFixedSeq(emptyFixed);
@@ -279,7 +279,7 @@ ThroughputClient::run(int argc, char* argv[])
                         
                                 case 'e':
                                 {
-                                    throughput->echoByteSeq(byteSeq);
+                                    throughput->echoByteSeq(byteArr);
                                     break;
                                 }
                             }

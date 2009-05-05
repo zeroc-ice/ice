@@ -43,8 +43,8 @@ interface Throughput
     void endWarmup();
 
     void sendByteSeq(["cpp:array"] ByteSeq seq);
-    ByteSeq recvByteSeq();
-    ByteSeq echoByteSeq(ByteSeq seq);
+    ["amd", "cpp:array"] ByteSeq recvByteSeq();
+    ["amd", "cpp:array"] ByteSeq echoByteSeq(["cpp:array"] ByteSeq seq);
 
     void sendStringSeq(StringSeq seq);
     StringSeq recvStringSeq();

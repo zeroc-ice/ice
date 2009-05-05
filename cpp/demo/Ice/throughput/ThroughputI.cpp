@@ -55,23 +55,29 @@ ThroughputI::sendByteSeq(const std::pair<const Ice::Byte*, const Ice::Byte*>&, c
 {
 }
 
-Demo::ByteSeq
-ThroughputI::recvByteSeq(const Ice::Current&)
+void
+ThroughputI::recvByteSeq_async(const Demo::AMD_Throughput_recvByteSeqPtr& cb, const Ice::Current&)
 {
+    std::pair<const Ice::Byte*, const Ice::Byte*> ret;
     if(_warmup)
     {
-        return Demo::ByteSeq();
+        Demo::ByteSeq empty(1);
+        ret.first = &empty[0];
+        ret.second = ret.first + empty.size();
     }
     else
     {
-        return _byteSeq;
+        ret.first = &_byteSeq[0];
+        ret.second = ret.first + _byteSeq.size();
     }
+    cb->ice_response(ret);
 }
 
-Demo::ByteSeq
-ThroughputI::echoByteSeq(const Demo::ByteSeq& seq, const Ice::Current&)
+void
+ThroughputI::echoByteSeq_async(const Demo::AMD_Throughput_echoByteSeqPtr& cb, 
+                         const std::pair<const Ice::Byte*, const Ice::Byte*>& seq, const Ice::Current&)
 {
-    return seq;
+    cb->ice_response(seq);
 }
 
 void
