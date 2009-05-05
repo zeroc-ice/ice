@@ -56,9 +56,6 @@ def isSparc():
     else:
         return False
 
-def isHpUx():
-   return sys.platform == "hp-ux11"
-
 def isAIX():
    return sys.platform in ['aix4', 'aix5']
   
@@ -154,9 +151,7 @@ def configurePaths():
     else:
         libDir = os.path.join(getIceDir("cpp"), "lib")
         if iceHome and x64: 
-            if isHpUx():
-                libDir = os.path.join(libDir, "pa20_64")
-	    elif isSolaris():
+	    if isSolaris():
 		if isSparc():
 		    libDir = os.path.join(libDir, "sparcv9")
 		else:
@@ -196,9 +191,6 @@ def addLdPath(libpath, env = None):
         env = os.environ
     if isWin32():
         addPathToEnv("PATH", libpath, env)
-    elif isHpUx():
-        addPathToEnv("SHLIB_PATH", libpath, env)
-        addPathToEnv("LD_LIBRARY_PATH", libpath, env)
     elif isDarwin():
         addPathToEnv("DYLD_LIBRARY_PATH", libpath, env)
     elif isAIX():
@@ -978,9 +970,7 @@ def simpleTest(exe, options = ""):
 def getCppBinDir():
     binDir = os.path.join(getIceDir("cpp"), "bin")
     if iceHome and x64:
-        if isHpUx():
-            binDir = os.path.join(binDir, "pa20_64")
-        elif isSolaris():
+        if isSolaris():
             if isSparc():
                 binDir = os.path.join(binDir, "sparcv9")
             else:

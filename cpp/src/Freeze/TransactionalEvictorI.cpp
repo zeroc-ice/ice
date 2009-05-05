@@ -557,14 +557,6 @@ Freeze::TransactionalEvictorI::dispatch(Request& request)
                         
                         return dispatchStatus;
                     }
-#ifdef __HP_aCC
-		    // COMPILER BUG
-		    catch(const std::exception&)
-		    {
-			ctx->rollback();
-                        throw;
-		    }
-#endif
                     catch(...)
                     {
                         //

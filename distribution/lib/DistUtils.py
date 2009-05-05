@@ -16,7 +16,6 @@ from stat import *
 #
 languages = { \
     'SunOS' : ['cpp', 'java'], \
-    'HP-UX' : ['cpp'], \
     'Darwin' : ['cpp', 'java', 'py'], \
     'Linux' : ['cpp', 'java', 'cs', 'py', 'rb', 'php'], \
 }
@@ -26,13 +25,11 @@ languages = { \
 # location.
 #
 bzip2 = { \
-    'HP-UX' : '/usr/local', \
 }
 
 berkeleydb = { \
     'SunOS' : '/opt/db', \
     'Darwin' : '/opt/db', \
-    'HP-UX' : '/opt/db', \
 }
 
 berkeleydbjar = { \
@@ -41,18 +38,15 @@ berkeleydbjar = { \
 
 expat = { \
     'SunOS' : '/usr/sfw', \
-    'HP-UX' : '/usr/local', \
     'Darwin' : '/opt/expat', \
 }
 
 openssl = { \
     'SunOS' : '/usr/sfw', \
-    'HP-UX' : '/opt/openssl', \
 }
 
 mcpp = { 
     'SunOS' : '/opt/mcpp', \
-    'HP-UX' : '/opt/mcpp', \
     'Darwin' : '/opt/mcpp' 
 }
 
@@ -836,10 +830,6 @@ class Darwin(Platform):
                 os.system('install_name_tool -change ' + oldName + ' ' + newName + ' ' + f)
 
         print "ok"
-
-class HPUX(Platform):
-    def __init__(self, uname, arch, languages):
-        Platform.__init__(self, uname, "hpux", None, languages, "", "sl")
 
 class Linux(Platform):
     def __init__(self, uname, arch, languages):

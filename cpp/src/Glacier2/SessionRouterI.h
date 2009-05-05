@@ -15,7 +15,6 @@
 #include <Ice/Ice.h>
 #include <Glacier2/PermissionsVerifierF.h>
 #include <Glacier2/Router.h>
-#include <Glacier2/Instance.h>
 #include <set>
 #include <IceUtil/DisableWarnings.h>
 
@@ -33,6 +32,9 @@ typedef IceUtil::Handle<FilterManager> FilterManagerPtr;
 
 class CreateSession;
 typedef IceUtil::Handle<CreateSession> CreateSessionPtr;
+
+class Instance;
+typedef IceUtil::Handle<Instance> InstancePtr;
     
 class CreateSession : public IceUtil::Shared
 {

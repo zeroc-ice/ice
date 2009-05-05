@@ -101,9 +101,6 @@ def configurePaths():
     if iceHome and x64: 
         if isWin32():
             binDir = os.path.join(binDir, "x64")
-        elif isHpUx():
-            libDir = os.path.join(libDir, "pa20_64")
-            binDir = os.path.join(binDir, "pa20_64")
         elif isSolaris():
             if isSparc():
                 libDir = os.path.join(libDir, "sparcv9")
@@ -198,9 +195,6 @@ def getIceDir(subdir = None):
 
 def isWin32():
     return sys.platform == "win32"
-
-def isHpUx():
-   return sys.platform == "hp-ux11"
 
 def isSolaris():
     return sys.platform == "sunos5"
@@ -504,11 +498,6 @@ def cleanDbDir(path):
 def addLdPath(libpath):
     if isWin32():
         addenv("PATH", libpath)
-    elif isHpUx():
-        if x64:
-            addenv("LD_LIBRARY_PATH", libpath)
-        else:
-            addenv("SHLIB_PATH", libpath)
     elif isDarwin():
         addenv("DYLD_LIBRARY_PATH", libpath)
     elif isAIX():

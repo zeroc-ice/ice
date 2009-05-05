@@ -33,6 +33,8 @@ General Changes
 These entries apply to all relevant language mappings unless otherwise
 noted.
 
+- HP-UX is no longer a supported platform for Ice.
+
 - Added extra network tracing to show the list of local interfaces
   currently available when an endpoint is using a wildcard host and
   the published endpoints for an object adapter. Both of these traces

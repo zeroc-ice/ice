@@ -8,6 +8,7 @@
 // **********************************************************************
 
 #include <Glacier2/RequestQueue.h>
+#include <Glacier2/Instance.h>
 #include <Glacier2/SessionRouterI.h>
 #include <set>
 

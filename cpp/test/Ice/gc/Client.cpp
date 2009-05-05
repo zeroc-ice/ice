@@ -614,10 +614,6 @@ MyApplication::run(int argc, char* argv[])
 
     cout << "ok" << endl;
     
-#if defined(_AIX)
-    cout << "The following test may take a long time (like one full minute); please be patient." << endl;
-#endif   
-
     cout << "testing for race conditions... " << flush;
     string seedfile = argv[1];
     ofstream file(seedfile.c_str());

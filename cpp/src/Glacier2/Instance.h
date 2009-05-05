@@ -17,12 +17,10 @@
 
 #include <Glacier2/RequestQueue.h>
 #include <Glacier2/ProxyVerifier.h>
+#include <Glacier2/SessionRouterI.h>
 
 namespace Glacier2
 {
-
-class SessionRouterI;
-typedef IceUtil::Handle<SessionRouterI> SessionRouterIPtr;
 
 class Instance : public IceUtil::Shared
 {
@@ -31,20 +29,16 @@ public:
     Instance(const Ice::CommunicatorPtr&, const Ice::ObjectAdapterPtr&, const Ice::ObjectAdapterPtr&);
     ~Instance();
 
-    //
-    // COMPILERFIX: returning const& is necessary on HP-UX (otherwise, it crashes in the Blobject
-    // constructor).
-    //
-    const Ice::CommunicatorPtr& communicator() const { return _communicator; }
-    const Ice::ObjectAdapterPtr& clientObjectAdapter() const { return _clientAdapter; }
-    const Ice::ObjectAdapterPtr& serverObjectAdapter() const { return _serverAdapter; }
-    const Ice::PropertiesPtr& properties() const { return _properties; }
-    const Ice::LoggerPtr& logger() const { return _logger; }
+    Ice::CommunicatorPtr communicator() const { return _communicator; }
+    Ice::ObjectAdapterPtr clientObjectAdapter() const { return _clientAdapter; }
+    Ice::ObjectAdapterPtr serverObjectAdapter() const { return _serverAdapter; }
+    Ice::PropertiesPtr properties() const { return _properties; }
+    Ice::LoggerPtr logger() const { return _logger; }
 
-    const RequestQueueThreadPtr& clientRequestQueueThread() const { return _clientRequestQueueThread; }
-    const RequestQueueThreadPtr& serverRequestQueueThread() const { return _serverRequestQueueThread; }
-    const ProxyVerifierPtr& proxyVerifier() const { return _proxyVerifier; }
-    const SessionRouterIPtr& sessionRouter() const { return _sessionRouter; }
+    RequestQueueThreadPtr clientRequestQueueThread() const { return _clientRequestQueueThread; }
+    RequestQueueThreadPtr serverRequestQueueThread() const { return _serverRequestQueueThread; }
+    ProxyVerifierPtr proxyVerifier() const { return _proxyVerifier; }
+    SessionRouterIPtr sessionRouter() const { return _sessionRouter; }
 
     void destroy();
     

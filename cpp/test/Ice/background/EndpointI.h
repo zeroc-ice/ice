@@ -53,7 +53,7 @@ private:
     EndpointI(const IceInternal::EndpointIPtr&);
     friend class EndpointFactory;
 
-#if defined(__SUNPRO_CC) || defined(__HP_aCC)
+#if defined(__SUNPRO_CC)
     //
     // COMPILERFIX: prevent the compiler from emitting a warning about
     // hidding these operators.
