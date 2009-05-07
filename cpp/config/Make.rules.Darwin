@@ -34,6 +34,8 @@ ifneq ($(embedded_runpath_prefix),)
     endif
 endif
 
+LDPLATFORMFLAGS		+= -rdynamic
+
 ifdef ice_src_dist
     shlibldflags	= $(CXXFLAGS) -L$(libdir)
 else

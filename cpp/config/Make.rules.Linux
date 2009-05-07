@@ -120,6 +120,8 @@ ifeq ($(CXX),c++)
       LDPLATFORMFLAGS      = -Wl,--enable-new-dtags
    endif
 
+   LDPLATFORMFLAGS	+= -rdynamic
+
 endif
 
 ifeq ($(CXX),icpc)
