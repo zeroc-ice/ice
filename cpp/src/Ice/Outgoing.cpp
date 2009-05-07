@@ -58,6 +58,9 @@ IceInternal::LocalExceptionWrapper::throwWrapper(const std::exception& ex)
         }
         stringstream s;
         s << *le;
+#ifdef __GNUC__
+        s << "\n" << le->ice_stackTrace();
+#endif
         throw LocalExceptionWrapper(UnknownLocalException(__FILE__, __LINE__, s.str()), false);
     }
     string msg = "std::exception: ";

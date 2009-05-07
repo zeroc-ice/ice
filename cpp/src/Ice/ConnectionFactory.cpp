@@ -1429,6 +1429,10 @@ IceInternal::IncomingConnectionFactory::message(BasicStream&, const ThreadPoolPt
             {
                 Warning out(_instance->initializationData().logger);
                 out << "connection exception:\n" << ex << '\n' << _acceptor->toString();
+#ifdef __GNUC__
+                out << "\n" << ex.ice_stackTrace();
+#endif
+
             }
             return;
         }
@@ -1454,6 +1458,9 @@ IceInternal::IncomingConnectionFactory::message(BasicStream&, const ThreadPoolPt
             {
                 Warning out(_instance->initializationData().logger);
                 out << "connection exception:\n" << ex << '\n' << _acceptor->toString();
+#ifdef __GNUC__
+                out << "\n" << ex.ice_stackTrace();
+#endif
             }
             return;
         }
@@ -1531,6 +1538,9 @@ IceInternal::IncomingConnectionFactory::connectionStartFailed(const Ice::Connect
     {
         Warning out(_instance->initializationData().logger);
         out << "connection exception:\n" << ex << '\n' << _acceptor->toString();
+#ifdef __GNUC__
+        out << "\n" << ex.ice_stackTrace();
+#endif
     }
         
     //

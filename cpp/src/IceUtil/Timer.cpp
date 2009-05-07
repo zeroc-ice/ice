@@ -184,6 +184,14 @@ Timer::run()
             {
                 token.task->runTimerTask();
             }
+            catch(const IceUtil::Exception& e)
+            {
+                cerr << "IceUtil::Timer::run(): uncaught exception:\n" << e.what();
+#ifdef __GNUC__
+                cerr << "\n" << e.ice_stackTrace();
+#endif
+                cerr << endl;
+            } 
             catch(const std::exception& e)
             {
                 cerr << "IceUtil::Timer::run(): uncaught exception:\n" << e.what() << endl;

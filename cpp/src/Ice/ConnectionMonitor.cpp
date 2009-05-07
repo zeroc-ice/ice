@@ -105,6 +105,9 @@ IceInternal::ConnectionMonitor::runTimerTask()
 
             Error out(_instance->initializationData().logger);
             out << "exception in connection monitor:\n" << ex;
+#ifdef __GNUC__
+            out << "\n" << ex.ice_stackTrace();
+#endif
         }
         catch(...)
         {

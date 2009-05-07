@@ -965,6 +965,12 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
         catch(const Ice::UnknownUserException&)
         {
         }
+        catch(const Ice::Exception& ex)
+        {
+            cout << ex << endl;
+            cout << ex.ice_stackTrace() << endl;
+            test(false);
+        }
         catch(...)
         {
             test(false);

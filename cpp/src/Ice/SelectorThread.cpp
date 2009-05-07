@@ -36,6 +36,9 @@ IceInternal::SelectorThread::SelectorThread(const InstancePtr& instance) :
         {
             Error out(_instance->initializationData().logger);
             out << "cannot create thread for selector thread:\n" << ex;
+#ifdef __GNUC__
+            out << "\n" << ex.ice_stackTrace();
+#endif
         }
         _thread = 0;
         __setNoDelete(false);
@@ -156,6 +159,9 @@ IceInternal::SelectorThread::run()
         {
             Error out(_instance->initializationData().logger);
             out << "exception in selector thread:\n" << ex;
+#ifdef __GNUC__
+            out << "\n" << ex.ice_stackTrace();
+#endif
             continue;
         }
 
@@ -229,6 +235,15 @@ IceInternal::SelectorThread::run()
                 {
                     status = cb->socketReady();
                 }
+            }
+            catch(const Ice::Exception& ex)
+            {
+                Error out(_instance->initializationData().logger);
+                out << "exception in selector thread while calling socketReady():\n" << ex.what();
+#ifdef __GNUC__
+                out << "\n" << ex.ice_stackTrace();
+#endif
+                status = Finished;
             }
             catch(const std::exception& ex)
             {

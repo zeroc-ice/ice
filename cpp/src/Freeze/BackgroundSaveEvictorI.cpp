@@ -1215,6 +1215,16 @@ Freeze::BackgroundSaveEvictorI::run()
             }
         }
     }
+    catch(const Ice::Exception& ex)
+    {
+        Error out(_communicator->getLogger());
+        out << "Saving thread killed by exception: " << ex.what();
+#ifdef __GNUC__
+        out << "\n" << ex.ice_stackTrace();
+#endif
+        out.flush();
+        handleFatalError(this, _communicator);
+    }
     catch(const std::exception& ex)
     {
         Error out(_communicator->getLogger());

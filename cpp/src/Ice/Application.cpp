@@ -123,6 +123,14 @@ destroyOnInterruptCallback(int signal)
         assert(_communicator != 0);
         _communicator->destroy();
     }
+    catch(const Ice::Exception& ex)
+    {
+        Error out(getProcessLogger());
+        out << _appName << " (while destroying in response to signal " << signal << "): " << ex.what();
+#ifdef __GNUC__
+        out << "\n" << ex.ice_stackTrace();
+#endif
+    }
     catch(const std::exception& ex)
     {
         Error out(getProcessLogger());
@@ -178,6 +186,15 @@ shutdownOnInterruptCallback(int signal)
         assert(_communicator != 0);
         _communicator->shutdown();
     }
+    catch(const Ice::Exception& ex)
+    {
+        Error out(getProcessLogger());
+        out << _appName << " (while shutting down in response to signal " << signal << "): std::exception: "
+            << ex.what();
+#ifdef __GNUC__
+        out << "\n" << ex.ice_stackTrace();
+#endif
+    }
     catch(const std::exception& ex)
     {
         Error out(getProcessLogger());
@@ -230,6 +247,15 @@ callbackOnInterruptCallback(int signal)
     {
         assert(_application != 0);
         _application->interruptCallback(signal);
+    }
+    catch(const Ice::Exception& ex)
+    {
+        Error out(getProcessLogger());
+        out << _appName << " (while interrupting in response to signal " << signal << "): std::exception: "
+             << ex.what();
+#ifdef __GNUC__
+        out << "\n" << ex.ice_stackTrace();
+#endif
     }
     catch(const std::exception& ex)
     {
@@ -289,6 +315,19 @@ Ice::Application::main(int argc, char* argv[], const char* configFile)
         {
             initData.properties = createProperties();
             initData.properties->load(configFile);
+        }
+        catch(const Ice::Exception& ex)
+        {
+            Error out(getProcessLogger());
+	    if(argv[0])
+	    {
+		out << argv[0] << ": ";
+	    }
+	    out << ex.what();
+#ifdef __GNUC__
+            out << "\n" << ex.ice_stackTrace();
+#endif
+            return EXIT_FAILURE;
         }
         catch(const std::exception& ex)
         {
@@ -607,6 +646,15 @@ Ice::Application::mainInternal(int argc, char* argv[], const InitializationData&
 
         status = run(argc, argv);
     }
+    catch(const Ice::Exception& ex)
+    {
+        Error out(getProcessLogger());
+        out << ": " << ex.what();
+#ifdef __GNUC__
+        out << "\n" << ex.ice_stackTrace();
+#endif
+        status = EXIT_FAILURE;
+    }
     catch(const std::exception& ex)
     {
         Error out(getProcessLogger());
@@ -669,6 +717,15 @@ Ice::Application::mainInternal(int argc, char* argv[], const InitializationData&
         try
         {
             _communicator->destroy();
+        }
+        catch(const Ice::Exception& ex)
+        {
+            Error out(getProcessLogger());
+            out << _appName << ": " << ex.what();
+#ifdef __GNUC__
+            out << "\n" << ex.ice_stackTrace();
+#endif
+            status = EXIT_FAILURE;
         }
         catch(const std::exception& ex)
         {

@@ -113,6 +113,9 @@ IceInternal::ThreadPool::ThreadPool(const InstancePtr& instance, const string& p
         {
             Error out(_instance->initializationData().logger);
             out << "cannot create thread for `" << _prefix << "':\n" << ex;
+#ifdef __GNUC__
+            out << "\n" << ex.ice_stackTrace();
+#endif
         }
 
         destroy();
@@ -271,6 +274,9 @@ IceInternal::ThreadPool::promoteFollower(EventHandler* handler)
                 {
                     Error out(_instance->initializationData().logger);
                     out << "cannot create thread for `" << _prefix << "':\n" << ex;
+#ifdef __GNUC__
+                    out << "\n" << ex.ice_stackTrace();
+#endif
                 }
             }
         }
@@ -327,6 +333,9 @@ IceInternal::ThreadPool::run()
         {
             Error out(_instance->initializationData().logger);
             out << "exception in `" << _prefix << "':\n" << ex; 
+#ifdef __GNUC__
+            out << "\n" << ex.ice_stackTrace();
+#endif
             continue;
         }
 
@@ -437,6 +446,9 @@ IceInternal::ThreadPool::run()
             {
                 Error out(_instance->initializationData().logger);
                 out << "exception in `" << _prefix << "' while calling execute():\n" << ex;
+#ifdef __GNUC__
+                out << "\n" << ex.ice_stackTrace();
+#endif
             }
             
             //
@@ -467,6 +479,9 @@ IceInternal::ThreadPool::run()
                     Error out(_instance->initializationData().logger);
                     out << "exception in `" << _prefix << "' while calling finished():\n"
                         << ex << '\n' << handler->toString();
+#ifdef __GNUC__
+                    out << "\n" << ex.ice_stackTrace();
+#endif
                 }
 
                 //
@@ -545,6 +560,9 @@ IceInternal::ThreadPool::run()
                     Error out(_instance->initializationData().logger);
                     out << "exception in `" << _prefix << "' while calling message():\n"
                         << ex << '\n' << handler->toString();
+#ifdef __GNUC__
+                    out << "\n" << ex.ice_stackTrace();
+#endif
                 }
                 
                 //
@@ -806,6 +824,15 @@ IceInternal::ThreadPool::EventHandlerThread::run()
     try
     {
         promote = _pool->run();
+    }
+    catch(const Ice::Exception& ex)
+    {
+        Error out(_pool->_instance->initializationData().logger);
+        out << "exception in `" << _pool->_prefix << "':\n" << ex.what();
+#ifdef __GNUC__
+        out << "\n" << ex.ice_stackTrace();
+#endif
+        promote = true;
     }
     catch(const std::exception& ex)
     {

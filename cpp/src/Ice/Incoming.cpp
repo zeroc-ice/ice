@@ -77,6 +77,9 @@ IceInternal::IncomingBase::__warning(const Exception& ex) const
 {
     ostringstream str;
     str << ex;
+#ifdef __GNUC__
+    str << "\n" << ex.ice_stackTrace();
+#endif
     __warning(str.str());
 }
 

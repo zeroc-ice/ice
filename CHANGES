@@ -116,6 +116,10 @@ noted.
 C++ Changes
 ============
 
+- Added ice_stackTrace() method to Exception classes, which returns the 
+  exception stack trace on platforms/compiler that support it. 
+  Currently this is only supported with GCC compiler.
+
 - Removed AMD_Array_Object_ice_invoke class and instead add ice_response
   method to AMD_Object_ice_invoke that uses the array type.
 

@@ -1032,6 +1032,9 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const Initi
         {
             Error out(_initData.logger);
             out << "cannot create thread for timer:\n" << ex;
+#ifdef __GNUC__
+            out << "\n" << ex.ice_stackTrace();
+#endif
             throw;
         }
         
@@ -1043,6 +1046,9 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const Initi
         {
             Error out(_initData.logger);
             out << "cannot create thread for endpoint host resolver:\n" << ex;
+#ifdef __GNUC__
+            out << "\n" << ex.ice_stackTrace();
+#endif
             throw;
         }
 

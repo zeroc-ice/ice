@@ -29,14 +29,17 @@ public:
     virtual const char* what() const throw();
     virtual Exception* ice_clone() const;
     virtual void ice_throw() const;
+
     const char* ice_file() const;
     int ice_line() const;
+    const std::string& ice_stackTrace() const;
     
 private:
     
     const char* _file;
     int _line;
     static const char* _name;
+    const std::string _stackTrace;
     mutable ::std::string _str; // Initialized lazily in what().
 };
 
