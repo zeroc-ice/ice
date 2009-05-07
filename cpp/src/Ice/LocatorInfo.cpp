@@ -514,7 +514,8 @@ IceInternal::LocatorInfo::Request::exception(const Ice::Exception& ex)
 IceInternal::LocatorInfo::LocatorInfo(const LocatorPrx& locator, const LocatorTablePtr& table, bool background) :
     _locator(locator),
     _table(table),
-    _background(background)
+    _background(background),
+    _waitForRegistry(false)
 {
     assert(_locator);
     assert(_table);
@@ -523,7 +524,7 @@ IceInternal::LocatorInfo::LocatorInfo(const LocatorPrx& locator, const LocatorTa
 void
 IceInternal::LocatorInfo::destroy()
 {
-    IceUtil::Mutex::Lock sync(*this);
+    IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
 
     _locatorRegistry = 0;
     _table->clear();
@@ -559,19 +560,42 @@ IceInternal::LocatorInfo::getLocator() const
 LocatorRegistryPrx
 IceInternal::LocatorInfo::getLocatorRegistry()
 {
-    IceUtil::Mutex::Lock sync(*this);
-    
-    if(!_locatorRegistry) // Lazy initialization.
+    LocatorPrx locator;
     {
-        _locatorRegistry = _locator->getRegistry();
+        IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
+
+        while(_waitForRegistry)
+        {
+            wait();
+        }
+
+        if(_locatorRegistry)
+        {
+            return _locatorRegistry;
+        }
+
+        _waitForRegistry = true;
+        locator = _locator;
+    }
+
+    //
+    // Do not make locator calls from within sync.
+    //
+    LocatorRegistryPrx locatorRegistry = locator->getRegistry();
+    
+    {
+        IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
 
         //
         // The locator registry can't be located.
         //
-        _locatorRegistry = LocatorRegistryPrx::uncheckedCast(_locatorRegistry->ice_locator(0));
-    }
+        _locatorRegistry = LocatorRegistryPrx::uncheckedCast(locatorRegistry->ice_locator(0));
+
+        _waitForRegistry = false;
+        notifyAll();
     
-    return _locatorRegistry;
+        return _locatorRegistry;
+    }
 }
 
 vector<EndpointIPtr>
@@ -845,7 +869,7 @@ IceInternal::LocatorInfo::trace(const string& msg, const ReferencePtr& ref, cons
 IceInternal::LocatorInfo::RequestPtr
 IceInternal::LocatorInfo::getAdapterRequest(const ReferencePtr& ref)
 {
-    IceUtil::Mutex::Lock sync(*this);
+    IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
     if(ref->getInstance()->traceLevels()->location >= 1)
     {
         Trace out(ref->getInstance()->initializationData().logger, ref->getInstance()->traceLevels()->locationCat);
@@ -866,7 +890,7 @@ IceInternal::LocatorInfo::getAdapterRequest(const ReferencePtr& ref)
 IceInternal::LocatorInfo::RequestPtr
 IceInternal::LocatorInfo::getObjectRequest(const ReferencePtr& ref)
 {
-    IceUtil::Mutex::Lock sync(*this);
+    IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
     if(ref->getInstance()->traceLevels()->location >= 1)
     {
         Trace out(ref->getInstance()->initializationData().logger, ref->getInstance()->traceLevels()->locationCat);
@@ -912,7 +936,7 @@ IceInternal::LocatorInfo::finishRequest(const ReferencePtr& ref,
             _table->removeAdapterEndpoints(ref->getAdapterId());
         }
 
-        IceUtil::Mutex::Lock sync(*this);
+        IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
         assert(_adapterRequests.find(ref->getAdapterId()) != _adapterRequests.end());
         _adapterRequests.erase(ref->getAdapterId());
     }
@@ -927,7 +951,7 @@ IceInternal::LocatorInfo::finishRequest(const ReferencePtr& ref,
             _table->removeObjectReference(ref->getIdentity());
         }
 
-        IceUtil::Mutex::Lock sync(*this);
+        IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
         assert(_objectRequests.find(ref->getIdentity()) != _objectRequests.end());
         _objectRequests.erase(ref->getIdentity());
     }
