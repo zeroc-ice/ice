@@ -184,9 +184,15 @@ C# Changes
 Python Changes
 ==============
 
+- Changed the way sequences are unmarshaled to protect against
+  malicious messages with faked very large sequence count values.
+
 
 Ruby Changes
 ============
+
+- Changed the way sequences are unmarshaled to protect against
+  malicious messages with faked very large sequence count values.
 
 
 PHP Changes

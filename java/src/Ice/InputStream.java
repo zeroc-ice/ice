@@ -59,6 +59,12 @@ public interface InputStream
     void skipEncapsulation();
     void endEncapsulation();
 
+    void startSeq(int numElements, int minSize);
+    void checkSeq();
+    void checkFixedSeq(int numElements, int minSize);
+    void endSeq(int sz);
+    void endElement();
+
     void readPendingObjects();
 
     void rewind();

@@ -975,10 +975,27 @@ IcePy::SequenceInfo::unmarshal(const Ice::InputStreamPtr& is, const UnmarshalCal
         throw AbortMarshaling();
     }
 
+    if(variableLength)
+    {
+        is->startSeq(sz, minWireSize);
+    }
+    else
+    {
+        is->checkFixedSeq(sz, minWireSize);
+    }
     for(Ice::Int i = 0; i < sz; ++i)
     {
         void* cl = reinterpret_cast<void*>(i);
         elementType->unmarshal(is, sm, result.get(), cl);
+        if(variableLength)
+        {
+            is->checkSeq();
+            is->endElement();
+        }
+    }
+    if(variableLength)
+    {
+        is->endSeq(sz);
     }
 
     cb->unmarshaled(result.get(), target, closure);
@@ -3030,7 +3047,9 @@ IcePy_defineSequence(PyObject*, PyObject* args)
     char* id;
     PyObject* meta;
     PyObject* elementType;
-    if(!PyArg_ParseTuple(args, STRCAST("sOO"), &id, &meta, &elementType))
+    int variableLength;
+    int minWireSize;
+    if(!PyArg_ParseTuple(args, STRCAST("sOOii"), &id, &meta, &elementType, &variableLength, &minWireSize))
     {
         return 0;
     }
@@ -3048,6 +3067,8 @@ IcePy_defineSequence(PyObject*, PyObject* args)
     info->id = id;
     info->mapping = new SequenceInfo::SequenceMapping(metaData);
     info->elementType = getType(elementType);
+    info->variableLength = variableLength ? true : false;
+    info->minWireSize = minWireSize;
 
     return createType(info);
 }

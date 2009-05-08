@@ -396,7 +396,20 @@ namespace IceInternal
             //
             // Do not make locator calls from within sync.
             //
-            Ice.LocatorRegistryPrx locatorRegistry = _locator.getRegistry();
+            Ice.LocatorRegistryPrx locatorRegistry = null;
+            try
+            {
+                locatorRegistry = locator.getRegistry();
+            }
+            catch(Ice.LocalException)
+            {
+                lock(this)
+                {
+                    Monitor.PulseAll(this);
+                }
+
+                throw;
+            }
 
             lock(this)
             {

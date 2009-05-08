@@ -393,7 +393,19 @@ public final class LocatorInfo
         //
         // Do not make locator calls from within sync.
         //
-        Ice.LocatorRegistryPrx locatorRegistry = locator.getRegistry();
+        Ice.LocatorRegistryPrx locatorRegistry = null;
+        try
+        {
+            locatorRegistry = locator.getRegistry();
+        }
+        catch(Ice.LocalException ex)
+        {
+            synchronized(this)
+            {
+                notifyAll();
+            }
+            throw ex;
+        }
 
         synchronized(this)
         {

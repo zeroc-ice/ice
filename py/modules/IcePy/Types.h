@@ -239,6 +239,8 @@ public:
     std::string id;
     SequenceMappingPtr mapping;
     TypeInfoPtr elementType;
+    bool variableLength;
+    int minWireSize;
 
 private:
 

@@ -581,7 +581,18 @@ IceInternal::LocatorInfo::getLocatorRegistry()
     //
     // Do not make locator calls from within sync.
     //
-    LocatorRegistryPrx locatorRegistry = locator->getRegistry();
+    LocatorRegistryPrx locatorRegistry;
+    try
+    {
+        locatorRegistry = locator->getRegistry();
+    }
+    catch(const Ice::Exception&)
+    {
+        IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
+        notifyAll();
+
+        throw;
+    }
     
     {
         IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
