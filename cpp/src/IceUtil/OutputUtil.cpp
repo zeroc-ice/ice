@@ -90,6 +90,15 @@ IceUtilInternal::OutputBase::~OutputBase()
 void
 IceUtilInternal::OutputBase::open(const char* s)
 {
+    //
+    // Remove any existing file first. This prevents file name
+    // mismatches on case-insensitive OSs.
+    //
+#ifdef _WIN32
+    _unlink(s);
+#else
+    unlink(s);
+#endif
     _fout.open(s);
 }
 
