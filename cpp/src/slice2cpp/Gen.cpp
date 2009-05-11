@@ -963,7 +963,7 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
         dllExport = _dllExport;
     }
 
-    H << sp << nl << "bool" << nl << scoped.substr(2) << "::operator==(const " << name << "& __rhs) const";
+    H << sp << nl << "bool operator==(const " << name << "& __rhs) const";
     H << sb;
     H << nl << "if(this == &__rhs)";
     H << sb;
@@ -978,7 +978,7 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
     }
     H << nl << "return true;";
     H << eb;
-    H << sp << nl << "bool" << nl << scoped.substr(2) << "::operator<(const " << name << "& __rhs) const";
+    H << sp << nl << "bool operator<(const " << name << "& __rhs) const";
     H << sb;
     H << nl << "if(this == &__rhs)";
     H << sb;
