@@ -1377,7 +1377,7 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
     emitAttributes(p);
     if(p->isInterface())
     {
-        _out << nl << "public interface " << fixId(name) << " : ";
+        _out << nl << "public partial interface " << fixId(name) << " : ";
         if(p->isLocal())
         {
             _out << name << "OperationsNC_";
@@ -1404,7 +1404,7 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
         {
             _out << "abstract ";
         }
-        _out << "class " << fixId(name);
+        _out << "partial class " << fixId(name);
 
         bool baseWritten = false;
 
@@ -1745,7 +1745,7 @@ Slice::Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
     emitDeprecate(p, 0, _out, "type");
 
     emitAttributes(p);
-    _out << nl << "public class " << name << " : ";
+    _out << nl << "public partial class " << name << " : ";
     if(base)
     {
         _out << fixId(base->scoped());
@@ -2177,11 +2177,11 @@ Slice::Gen::TypesVisitor::visitStructStart(const StructPtr& p)
     emitAttributes(p);
     if(isValueType(p))
     {
-        _out << nl << "public struct " << name;
+        _out << nl << "public partial struct " << name;
     }
     else
     {
-        _out << nl << "public class " << name << " : _System.ICloneable";
+        _out << nl << "public partial class " << name << " : _System.ICloneable";
     }
     _out << sb;
 

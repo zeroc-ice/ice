@@ -129,6 +129,9 @@ noted.
 C++ Changes
 ============
 
+- The generated types for Slice classes, interfaces, structs and
+  exceptions are now declared as partial.
+
 - Added ice_stackTrace() method to Exception classes, which returns the 
   exception stack trace on platforms/compiler that support it. 
   Currently this is only supported with GCC compiler.
