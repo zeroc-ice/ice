@@ -33,6 +33,19 @@ General Changes
 These entries apply to all relevant language mappings unless otherwise
 noted.
 
+- The following properties were deprecated in Ice 3.2 and have been 
+  removed:
+
+  Glacier2.AddUserToAllowCategories
+  Glacier2.AllowCategories
+  Ice.UseEventLog
+
+- The following APIs were deprecated in Ice 3.2 and have been removed:
+
+  Communicator::setDefaultContext
+  Communicator::getDefaultContext
+  ObjectPrx:ice_defaultContext
+
 - HP-UX is no longer a supported platform for Ice.
 
 - Added extra network tracing to show the list of local interfaces

@@ -793,74 +793,6 @@ communicatorFindObjectFactory(CommunicatorObject* self, PyObject* args)
 extern "C"
 #endif
 static PyObject*
-communicatorSetDefaultContext(CommunicatorObject* self, PyObject* args)
-{
-    PyErr_Warn(PyExc_DeprecationWarning, STRCAST("setDefaultContext is deprecated, use per-proxy contexts or implicit contexts (if applicable) instead."));
-
-    PyObject* dict;
-    if(!PyArg_ParseTuple(args, STRCAST("O!"), &PyDict_Type, &dict))
-    {
-        return 0;
-    }
-
-    Ice::Context ctx;
-    if(!dictionaryToContext(dict, ctx))
-    {
-        return 0;
-    }
-
-    try
-    {
-        (*self->communicator)->setDefaultContext(ctx);
-    }
-    catch(const Ice::Exception& ex)
-    {
-        setPythonException(ex);
-        return 0;
-
-    }
-
-    Py_INCREF(Py_None);
-    return Py_None;
-}
-
-#ifdef WIN32
-extern "C"
-#endif
-static PyObject*
-communicatorGetDefaultContext(CommunicatorObject* self)
-{
-    PyErr_Warn(PyExc_DeprecationWarning, STRCAST("getDefaultContext is deprecated, use per-proxy contexts or implicit contexts (if applicable) instead."));
-
-    Ice::Context ctx;
-    try
-    {
-        ctx = (*self->communicator)->getDefaultContext();
-    }
-    catch(const Ice::Exception& ex)
-    {
-        setPythonException(ex);
-        return 0;
-    }
-
-    PyObjectHandle dict = PyDict_New();
-    if(!dict.get())
-    {
-        return 0;
-    }
-
-    if(!contextToDictionary(ctx, dict.get()))
-    {
-        return 0;
-    }
-
-    return dict.release();
-}
-
-#ifdef WIN32
-extern "C"
-#endif
-static PyObject*
 communicatorGetImplicitContext(CommunicatorObject* self)
 {
     Ice::ImplicitContextPtr implicitContext = (*self->communicator)->getImplicitContext();
@@ -1202,10 +1134,6 @@ static PyMethodDef CommunicatorMethods[] =
         PyDoc_STR(STRCAST("addObjectFactory(factory, id) -> None")) },
     { STRCAST("findObjectFactory"), reinterpret_cast<PyCFunction>(communicatorFindObjectFactory), METH_VARARGS,
         PyDoc_STR(STRCAST("findObjectFactory(id) -> Ice.ObjectFactory")) },
-    { STRCAST("setDefaultContext"), reinterpret_cast<PyCFunction>(communicatorSetDefaultContext), METH_VARARGS,
-        PyDoc_STR(STRCAST("setDefaultContext(ctx) -> None")) },
-    { STRCAST("getDefaultContext"), reinterpret_cast<PyCFunction>(communicatorGetDefaultContext), METH_NOARGS,
-        PyDoc_STR(STRCAST("getDefaultContext() -> Ice.Context")) },
     { STRCAST("getImplicitContext"), reinterpret_cast<PyCFunction>(communicatorGetImplicitContext), METH_NOARGS,
       PyDoc_STR(STRCAST("getImplicitContext() -> Ice.ImplicitContext")) },
     { STRCAST("getProperties"), reinterpret_cast<PyCFunction>(communicatorGetProperties), METH_NOARGS,

@@ -62,13 +62,6 @@ namespace IceInternal
             return context_;
         }
 
-        public Reference defaultContext()
-        {
-            Reference r = instance_.referenceFactory().copy(this);
-            r.context_ = instance_.getDefaultContext();
-            return r;
-        }
-
         public Ice.Communicator getCommunicator()
         {
             return communicator_;
@@ -409,7 +402,6 @@ namespace IceInternal
         protected Reference(Instance instance,
                             Ice.Communicator communicator,
                             Ice.Identity identity,
-                            Dictionary<string, string> context,
                             string facet,
                             Mode mode,
                             bool secure)
@@ -425,7 +417,7 @@ namespace IceInternal
             communicator_ = communicator;
             mode_ = mode;
             identity_ = identity;
-            context_ = context == null ? _emptyContext : context;
+            context_ = _emptyContext;
             facet_ = facet;
             secure_ = secure;
             hashInitialized_ = false;
@@ -441,12 +433,11 @@ namespace IceInternal
         public FixedReference(Instance instance,
                               Ice.Communicator communicator,
                               Ice.Identity identity,
-                              Dictionary<string, string> context,
                               string facet,
                               Reference.Mode mode,
                               bool secure,
                               Ice.ConnectionI connection)
-            : base(instance, communicator, identity, context, facet, mode, secure)
+            : base(instance, communicator, identity, facet, mode, secure)
         {
             _fixedConnection = connection;
         }
@@ -1256,7 +1247,6 @@ namespace IceInternal
         public RoutableReference(Instance instance,
                                  Ice.Communicator communicator,
                                  Ice.Identity identity,
-                                 Dictionary<string, string> context,
                                  string facet,
                                  Reference.Mode mode,
                                  bool secure,
@@ -1269,7 +1259,7 @@ namespace IceInternal
                                  bool preferSecure,
                                  Ice.EndpointSelectionType endpointSelection,
                                  int locatorCacheTimeout)
-            : base(instance, communicator, identity, context, facet, mode, secure)
+            : base(instance, communicator, identity, facet, mode, secure)
         {
             _endpoints = endpoints;
             _adapterId = adapterId;

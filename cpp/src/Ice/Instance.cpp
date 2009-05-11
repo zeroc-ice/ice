@@ -43,13 +43,9 @@
 
 #include <stdio.h>
 
-#ifdef _WIN32
-#   include <Ice/EventLoggerI.h>
-#else
-#   include <Ice/SysLoggerI.h>
-#endif
-
 #ifndef _WIN32
+#   include <Ice/SysLoggerI.h>
+
 #   include <signal.h>
 #   include <syslog.h>
 #   include <pwd.h>
@@ -389,33 +385,6 @@ IceInternal::Instance::flushBatchRequests()
     connectionFactory->flushBatchRequests();
     adapterFactory->flushBatchRequests();
 }
-
-void
-IceInternal::Instance::setDefaultContext(const Context& ctx)
-{
-    IceUtil::RecMutex::Lock sync(*this);
-    
-    if(_state == StateDestroyed)
-    {
-        throw CommunicatorDestroyedException(__FILE__, __LINE__);
-    }
-
-    _defaultContext = new SharedContext(ctx); 
-}
-
-SharedContextPtr
-IceInternal::Instance::getDefaultContext() const
-{
-    IceUtil::RecMutex::Lock sync(*this);
-    
-    if(_state == StateDestroyed)
-    {
-        throw CommunicatorDestroyedException(__FILE__, __LINE__);
-    }
-
-    return _defaultContext;
-}
-
 
 Identity
 IceInternal::Instance::stringToIdentity(const string& s) const
@@ -788,7 +757,6 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const Initi
     _messageSizeMax(0),
     _clientACM(0),
     _serverACM(0),
-    _defaultContext(new SharedContext),
     _implicitContext(0)
 {
     try
@@ -918,19 +886,7 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const Initi
         if(!_initData.logger)
         {
             string logfile = _initData.properties->getProperty("Ice.LogFile");
-#ifdef _WIN32
-            //
-            // DEPRECATED PROPERTY: Ice.UseEventLog is deprecated.
-            //
-            if(_initData.properties->getPropertyAsInt("Ice.UseEventLog") > 0)
-            {
-                if(!logfile.empty())
-                {
-                    throw InitializationException(__FILE__, __LINE__, "Both event and file logger cannot be enabled.");
-                }
-                _initData.logger = new EventLoggerI(_initData.properties->getProperty("Ice.ProgramName"));
-            }
-#else
+#ifndef _WIN32
             if(_initData.properties->getPropertyAsInt("Ice.UseSyslog") > 0)
             {
                 if(!logfile.empty())
@@ -939,8 +895,9 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const Initi
                 }
                 _initData.logger = new SysLoggerI(_initData.properties->getProperty("Ice.ProgramName"));
             }
+            else
 #endif
-            else if(!logfile.empty())
+            if(!logfile.empty())
             {
                 _initData.logger = new LoggerI(_initData.properties->getProperty("Ice.ProgramName"), logfile);
             }

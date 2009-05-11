@@ -109,8 +109,7 @@ OBJS		= Acceptor.o \
 		  UnknownEndpointI.o
 
 SRCS		= $(OBJS:.o=.cpp) \
-		  DLLMain.cpp \
-		  EventLoggerI.cpp
+		  DLLMain.cpp
 
 SLICE_SRCS	= $(SDIR)/BuiltinSequences.ice \
 		  $(SDIR)/CommunicatorF.ice \
@@ -181,7 +180,7 @@ $(HDIR)/BuiltinSequences.h BuiltinSequences.cpp: $(SDIR)/BuiltinSequences.ice $(
 
 # The dummy EventLoggerMsg.h is necessary to get correct dependencies
 # for windows
-EventLoggerI.cpp: EventLoggerMsg.h
+Service.cpp: EventLoggerMsg.h
 
 EventLoggerMsg.h:
 	-touch EventLoggerMsg.h

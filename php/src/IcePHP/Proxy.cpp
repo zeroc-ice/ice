@@ -165,7 +165,6 @@ static function_entry _proxyMethods[] =
     {"ice_getContext",             PHP_FN(Ice_ObjectPrx_ice_getContext),             0},
     {"ice_newContext",             PHP_FN(Ice_ObjectPrx_ice_context),                0},
     {"ice_context",                PHP_FN(Ice_ObjectPrx_ice_context),                0},
-    {"ice_defaultContext",         PHP_FN(Ice_ObjectPrx_ice_defaultContext),         0},
     {"ice_getFacet",               PHP_FN(Ice_ObjectPrx_ice_getFacet),               0},
     {"ice_newFacet",               PHP_FN(Ice_ObjectPrx_ice_facet),                  0},
     {"ice_facet",                  PHP_FN(Ice_ObjectPrx_ice_facet),                  0},
@@ -709,32 +708,6 @@ ZEND_FUNCTION(Ice_ObjectPrx_ice_context)
     try
     {
         Ice::ObjectPrx prx = _this->getProxy()->ice_context(ctx);
-        if(!createProxy(return_value, prx, _this->getClass() TSRMLS_CC))
-        {
-            RETURN_NULL();
-        }
-    }
-    catch(const IceUtil::Exception& ex)
-    {
-        throwException(ex TSRMLS_CC);
-        RETURN_NULL();
-    }
-}
-
-ZEND_FUNCTION(Ice_ObjectPrx_ice_defaultContext)
-{
-    if(ZEND_NUM_ARGS() != 0)
-    {
-        WRONG_PARAM_COUNT;
-    }
-
-    ice_object* obj = static_cast<ice_object*>(zend_object_store_get_object(getThis() TSRMLS_CC));
-    assert(obj->ptr);
-    Proxy* _this = static_cast<Proxy*>(obj->ptr);
-
-    try
-    {
-        Ice::ObjectPrx prx = _this->getProxy()->ice_defaultContext();
         if(!createProxy(return_value, prx, _this->getClass() TSRMLS_CC))
         {
             RETURN_NULL();

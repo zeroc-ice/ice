@@ -288,12 +288,6 @@ class CommunicatorI(Communicator):
     def findObjectFactory(self, id):
         return self._impl.findObjectFactory(id)
 
-    def setDefaultContext(self, ctx):
-        return self._impl.setDefaultContext(ctx)
-
-    def getDefaultContext(self):
-        return self._impl.getDefaultContext()
-
     def getImplicitContext(self):
         context = self._impl.getImplicitContext()
         if context == None:

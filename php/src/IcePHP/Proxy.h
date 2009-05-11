@@ -29,7 +29,6 @@ ZEND_FUNCTION(Ice_ObjectPrx_ice_getIdentity);
 ZEND_FUNCTION(Ice_ObjectPrx_ice_identity);
 ZEND_FUNCTION(Ice_ObjectPrx_ice_getContext);
 ZEND_FUNCTION(Ice_ObjectPrx_ice_context);
-ZEND_FUNCTION(Ice_ObjectPrx_ice_defaultContext);
 ZEND_FUNCTION(Ice_ObjectPrx_ice_getFacet);
 ZEND_FUNCTION(Ice_ObjectPrx_ice_facet);
 ZEND_FUNCTION(Ice_ObjectPrx_ice_getAdapterId);
@@ -94,7 +93,6 @@ ZEND_FUNCTION(Ice_Connection_toString);
     ZEND_FE(Ice_ObjectPrx_ice_identity,                 NULL) \
     ZEND_FE(Ice_ObjectPrx_ice_getContext,               NULL) \
     ZEND_FE(Ice_ObjectPrx_ice_context,                  NULL) \
-    ZEND_FE(Ice_ObjectPrx_ice_defaultContext,           NULL) \
     ZEND_FE(Ice_ObjectPrx_ice_getFacet,                 NULL) \
     ZEND_FE(Ice_ObjectPrx_ice_facet,                    NULL) \
     ZEND_FE(Ice_ObjectPrx_ice_getAdapterId,             NULL) \

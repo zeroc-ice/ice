@@ -1308,96 +1308,6 @@ twowaysAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrx& p)
 
         {
             //
-            // Test that default context is obtained correctly from communicator.
-            //
-/* DEPRECATED
-            Ice::Context dflt;
-            dflt["a"] = "b";
-            communicator->setDefaultContext(dflt);
-            {
-                AMI_MyClass_opContextNotEqualIPtr cb = new AMI_MyClass_opContextNotEqualI(dflt);
-                p->opContext_async(cb);
-                cb->check();
-            }
-
-            Test::MyClassPrx p2 = Test::MyClassPrx::uncheckedCast(p->ice_context(Ice::Context()));
-            {
-                AMI_MyClass_opContextEqualIPtr cb = new AMI_MyClass_opContextEqualI(Ice::Context());
-                p2->opContext_async(cb);
-                cb->check();
-            }
-
-            p2 = Test::MyClassPrx::uncheckedCast(p->ice_defaultContext());
-            {
-                AMI_MyClass_opContextEqualIPtr cb = new AMI_MyClass_opContextEqualI(dflt);
-                p2->opContext_async(cb);
-                cb->check();
-            }
-
-            communicator->setDefaultContext(Ice::Context());
-            {
-                AMI_MyClass_opContextNotEqualIPtr cb = new AMI_MyClass_opContextNotEqualI(Ice::Context());
-                p2->opContext_async(cb);
-                cb->check();
-            }
-
-            communicator->setDefaultContext(dflt);
-            Test::MyClassPrx c = Test::MyClassPrx::checkedCast(
-                                    communicator->stringToProxy("test:default -p 12010"));
-            {
-                Ice::Context tmp;
-                tmp["a"] = "b";
-                AMI_MyClass_opContextEqualIPtr cb = new AMI_MyClass_opContextEqualI(tmp);
-                c->opContext_async(cb);
-                cb->check();
-            }
-
-            dflt["a"] = "c";
-            Test::MyClassPrx c2 = Test::MyClassPrx::uncheckedCast(c->ice_context(dflt));
-            {
-                Ice::Context tmp;
-                tmp["a"] = "c";
-                AMI_MyClass_opContextEqualIPtr cb = new AMI_MyClass_opContextEqualI(tmp);
-                c2->opContext_async(cb);
-                cb->check();
-            }
-
-            dflt.clear();
-            Test::MyClassPrx c3 = Test::MyClassPrx::uncheckedCast(c2->ice_context(dflt));
-            {
-                Ice::Context tmp;
-                AMI_MyClass_opContextEqualIPtr cb = new AMI_MyClass_opContextEqualI(tmp);
-                c3->opContext_async(cb);
-                cb->check();
-            }
-
-            Test::MyClassPrx c4 = Test::MyClassPrx::uncheckedCast(c2->ice_defaultContext());
-            {
-                Ice::Context tmp;
-                tmp["a"] = "b";
-                AMI_MyClass_opContextEqualIPtr cb = new AMI_MyClass_opContextEqualI(tmp);
-                c4->opContext_async(cb);
-                cb->check();
-            }
-
-            dflt["a"] = "d";
-            communicator->setDefaultContext(dflt);
-
-            Test::MyClassPrx c5 = Test::MyClassPrx::uncheckedCast(c->ice_defaultContext());
-            {
-                Ice::Context tmp;
-                tmp["a"] = "d";
-                AMI_MyClass_opContextEqualIPtr cb = new AMI_MyClass_opContextEqualI(tmp);
-                c5->opContext_async(cb);
-                cb->check();
-            }
-
-            communicator->setDefaultContext(Ice::Context());
-*/
-        }
-
-        {
-            //
             // Test implicit context propagation
             //
             
@@ -1465,8 +1375,6 @@ twowaysAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrx& p)
                 ic->destroy();
             }
         }
-
-
     }
 
     {

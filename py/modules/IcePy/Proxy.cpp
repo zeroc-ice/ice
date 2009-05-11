@@ -409,30 +409,6 @@ proxyIceContext(ProxyObject* self, PyObject* args)
 extern "C"
 #endif
 static PyObject*
-proxyIceDefaultContext(ProxyObject* self)
-{
-    PyErr_Warn(PyExc_DeprecationWarning, STRCAST("ice_defaultContext is deprecated."));
-    assert(self->proxy);
-
-    Ice::ObjectPrx newProxy;
-    try
-    {
-        newProxy = (*self->proxy)->ice_defaultContext();
-    }
-    catch(const Ice::Exception& ex)
-    {
-        setPythonException(ex);
-        return 0;
-    }
-
-    PyTypeObject* type = self->ob_type; // Necessary to prevent GCC's strict-alias warnings.
-    return createProxy(newProxy, *self->communicator, reinterpret_cast<PyObject*>(type));
-}
-
-#ifdef WIN32
-extern "C"
-#endif
-static PyObject*
 proxyIceGetFacet(ProxyObject* self)
 {
     assert(self->proxy);
@@ -1931,8 +1907,6 @@ static PyMethodDef ProxyMethods[] =
         PyDoc_STR(STRCAST("ice_getContext() -> dict")) },
     { STRCAST("ice_context"), reinterpret_cast<PyCFunction>(proxyIceContext), METH_VARARGS,
         PyDoc_STR(STRCAST("ice_context(dict) -> Ice.ObjectPrx")) },
-    { STRCAST("ice_defaultContext"), reinterpret_cast<PyCFunction>(proxyIceDefaultContext), METH_NOARGS,
-        PyDoc_STR(STRCAST("ice_defaultContext() -> Ice.ObjectPrx")) },
     { STRCAST("ice_getFacet"), reinterpret_cast<PyCFunction>(proxyIceGetFacet), METH_NOARGS,
         PyDoc_STR(STRCAST("ice_getFacet() -> string")) },
     { STRCAST("ice_facet"), reinterpret_cast<PyCFunction>(proxyIceFacet), METH_VARARGS,

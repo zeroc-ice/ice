@@ -313,39 +313,6 @@ namespace IceInternal
             return _serverACM;
         }
         
-        public void setDefaultContext(Dictionary<string, string> ctx)
-        {
-            lock(this)
-            {
-                if(_state == StateDestroyed)
-                {
-                    throw new Ice.CommunicatorDestroyedException();
-                }
-        
-                if(ctx == null || ctx.Count == 0)
-                {
-                    _defaultContext = _emptyContext;
-                }
-                else
-                {
-                    _defaultContext = new Dictionary<string, string>(ctx);
-                }
-            }
-        }
-
-        public Dictionary<string, string> getDefaultContext()
-        {
-            lock(this)
-            {
-                if(_state == StateDestroyed)
-                {
-                    throw new Ice.CommunicatorDestroyedException();
-                }
-                
-                return new Dictionary<string, string>(_defaultContext);
-            }
-        }
-
         public Ice.ImplicitContextI getImplicitContext()
         {
             return _implicitContext;
@@ -775,8 +742,6 @@ namespace IceInternal
                 
                 _pluginManager = new Ice.PluginManagerI(communicator);
 
-                _defaultContext = _emptyContext;
-                
                 _outgoingConnectionFactory = new OutgoingConnectionFactory(this);
                 
                 _servantFactoryManager = new ObjectFactoryManager();
@@ -1129,13 +1094,11 @@ namespace IceInternal
         private RetryQueue _retryQueue;
         private EndpointFactoryManager _endpointFactoryManager;
         private Ice.PluginManager _pluginManager;
-        private Dictionary<string, string> _defaultContext;
         private Ice.ObjectAdapter _adminAdapter;
         private Dictionary<string, Ice.Object> _adminFacets = new Dictionary<string, Ice.Object>();
         private IceUtilInternal.Set _adminFacetFilter = new IceUtilInternal.Set();
         private Ice.Identity _adminIdentity;
 
-        private static Dictionary<string, string> _emptyContext = new Dictionary<string, string>();
         private static bool _printProcessIdDone = false;
 
         private static bool _oneOffDone = false;

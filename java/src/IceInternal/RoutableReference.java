@@ -584,7 +584,6 @@ public class RoutableReference extends Reference
     RoutableReference(Instance instance,
                       Ice.Communicator communicator,
                       Ice.Identity identity,
-                      java.util.Map<String, String> context,
                       String facet,
                       int mode,
                       boolean secure,
@@ -598,7 +597,7 @@ public class RoutableReference extends Reference
                       Ice.EndpointSelectionType endpointSelection,
                       int locatorCacheTimeout)
     {
-        super(instance, communicator, identity, context, facet, mode, secure);
+        super(instance, communicator, identity, facet, mode, secure);
         _endpoints = endpoints;
         _adapterId = adapterId;
         _locatorInfo = locatorInfo;

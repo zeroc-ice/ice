@@ -59,8 +59,6 @@ public:
     const InstancePtr& getInstance() const { return _instance; }
     const SharedContextPtr& getContext() const { return _context; }
 
-    ReferencePtr defaultContext() const;
-
     Ice::CommunicatorPtr getCommunicator() const;
 
     virtual std::vector<EndpointIPtr> getEndpoints() const = 0;
@@ -130,8 +128,7 @@ public:
 
 protected:
 
-    Reference(const InstancePtr&, const Ice::CommunicatorPtr&, const Ice::Identity&, const SharedContextPtr&,
-              const std::string&, Mode, bool);
+    Reference(const InstancePtr&, const Ice::CommunicatorPtr&, const Ice::Identity&, const std::string&, Mode, bool);
     Reference(const Reference&);
 
     void hashInit() const;
@@ -161,8 +158,8 @@ class FixedReference : public Reference
 {
 public:
 
-    FixedReference(const InstancePtr&, const Ice::CommunicatorPtr&, const Ice::Identity&, const SharedContextPtr&, 
-                   const std::string&, Mode, bool, const Ice::ConnectionIPtr&);
+    FixedReference(const InstancePtr&, const Ice::CommunicatorPtr&, const Ice::Identity&, const std::string&, Mode,
+                   bool, const Ice::ConnectionIPtr&);
 
     virtual std::vector<EndpointIPtr> getEndpoints() const;
     virtual std::string getAdapterId() const;
@@ -211,9 +208,9 @@ class RoutableReference : public Reference
 {
 public:
 
-    RoutableReference(const InstancePtr&, const Ice::CommunicatorPtr&, const Ice::Identity&, const SharedContextPtr&,
-                      const std::string&, Mode, bool, const std::vector<EndpointIPtr>&, const std::string&,
-                      const LocatorInfoPtr&, const RouterInfoPtr&, bool, bool, bool, Ice::EndpointSelectionType, int);
+    RoutableReference(const InstancePtr&, const Ice::CommunicatorPtr&, const Ice::Identity&, const std::string&, Mode,
+                      bool, const std::vector<EndpointIPtr>&, const std::string&, const LocatorInfoPtr&,
+                      const RouterInfoPtr&, bool, bool, bool, Ice::EndpointSelectionType, int);
 
     virtual std::vector<EndpointIPtr> getEndpoints() const;
     virtual std::string getAdapterId() const;

@@ -268,35 +268,6 @@ public final class Instance
         return _serverACM;
     }
 
-    public synchronized void
-    setDefaultContext(java.util.Map<String, String> ctx)
-    {
-        if(_state == StateDestroyed)
-        {
-            throw new Ice.CommunicatorDestroyedException();
-        }
-
-        if(ctx == null || ctx.isEmpty())
-        {
-            _defaultContext = _emptyContext;
-        }
-        else
-        {
-            _defaultContext = new java.util.HashMap<String, String>(ctx);
-        }
-    }
-
-    public synchronized java.util.Map<String, String>
-    getDefaultContext()
-    {
-        if(_state == StateDestroyed)
-        {
-            throw new Ice.CommunicatorDestroyedException();
-        }
-
-        return new java.util.HashMap<String, String>(_defaultContext);
-    }
-
     public Ice.ImplicitContextI
     getImplicitContext()
     {
@@ -731,8 +702,6 @@ public final class Instance
 
             _pluginManager = new Ice.PluginManagerI(communicator);
            
-            _defaultContext = _emptyContext;
-          
             _outgoingConnectionFactory = new OutgoingConnectionFactory(this);
 
             _servantFactoryManager = new ObjectFactoryManager();
@@ -1133,14 +1102,11 @@ public final class Instance
     private Timer _timer;
     private EndpointFactoryManager _endpointFactoryManager;
     private Ice.PluginManager _pluginManager;
-    private java.util.Map<String, String> _defaultContext;
 
     private Ice.ObjectAdapter _adminAdapter;
     private java.util.Map<String, Ice.Object> _adminFacets = new java.util.HashMap<String, Ice.Object>();
     private java.util.Set<String> _adminFacetFilter = new java.util.HashSet<String>();
     private Ice.Identity _adminIdentity;
-
-    private static java.util.Map<String, String> _emptyContext = new java.util.HashMap<String, String>();
 
     private static boolean _oneOffDone = false;
 }

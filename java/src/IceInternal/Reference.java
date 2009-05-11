@@ -60,15 +60,6 @@ public abstract class Reference implements Cloneable
         return _context;
     }
 
-    public final Reference
-    defaultContext()
-    {
-        Reference r = _instance.referenceFactory().copy(this);
-        r._context = _instance.getDefaultContext();
-        return r;
-
-    }
-
     public final Ice.Communicator 
     getCommunicator()
     {
@@ -424,7 +415,6 @@ public abstract class Reference implements Cloneable
     Reference(Instance instance,
               Ice.Communicator communicator,
               Ice.Identity identity,
-              java.util.Map<String, String> context,
               String facet,
               int mode,
               boolean secure)
@@ -441,7 +431,7 @@ public abstract class Reference implements Cloneable
         _mode = mode;
         _secure = secure;
         _identity = identity;
-        _context = context == null ? _emptyContext : context;
+        _context = _emptyContext;
         _facet = facet;
         _hashInitialized = false;
         _overrideCompress = false;

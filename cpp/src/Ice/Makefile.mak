@@ -40,7 +40,6 @@ OBJS		= Acceptor.obj \
 		  Endpoint.obj \
 		  EndpointI.obj \
 		  EventHandler.obj \
-		  EventLoggerI.obj \
 		  Exception.obj \
 		  FacetMap.obj \
 		  FactoryTable.obj \
@@ -146,7 +145,7 @@ $(HDIR)\BuiltinSequences.h BuiltinSequences.cpp: $(SDIR)\BuiltinSequences.ice $(
 	$(SLICE2CPP) $(SLICE2CPPFLAGS) --stream $(SDIR)\BuiltinSequences.ice
 	move BuiltinSequences.h $(HDIR)
 
-EventLoggerI.obj: EventLoggerMsg.h
+Service.obj: EventLoggerMsg.h
 
 EventLoggerMsg.h EventLoggerMsg.rc: EventLoggerMsg.mc
 	mc EventLoggerMsg.mc

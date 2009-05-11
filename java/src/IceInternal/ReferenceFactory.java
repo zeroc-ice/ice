@@ -47,7 +47,6 @@ public final class ReferenceFactory
         FixedReference ref = new FixedReference(_instance, 
                                                 _communicator, 
                                                 ident, 
-                                                _instance.getDefaultContext(),
                                                 "", // Facet
                                                 Reference.ModeTwoway,
                                                 false,
@@ -791,7 +790,6 @@ public final class ReferenceFactory
         return updateCache(new RoutableReference(_instance, 
                                                  _communicator,
                                                  ident,
-                                                 _instance.getDefaultContext(), 
                                                  facet,
                                                  mode,
                                                  secure,

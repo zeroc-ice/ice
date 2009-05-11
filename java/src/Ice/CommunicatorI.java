@@ -169,24 +169,6 @@ public final class CommunicatorI implements Communicator
         _instance.setDefaultLocator(locator);
     }
 
-    /**
-     * @deprecated
-     **/
-    public java.util.Map<String, String>
-    getDefaultContext()
-    {
-        return _instance.getDefaultContext();
-    }
-
-    /**
-     * @deprecated
-     **/
-    public void
-    setDefaultContext(java.util.Map<String, String> ctx)
-    {
-        _instance.setDefaultContext(ctx);
-    }
-
     public ImplicitContext
     getImplicitContext()
     {

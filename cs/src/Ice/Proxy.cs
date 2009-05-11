@@ -49,8 +49,6 @@ namespace Ice
         
         Dictionary<string, string> ice_getContext();
         ObjectPrx ice_context(Dictionary<string, string> newContext);
-        [Obsolete("This method is deprecated.")]
-        ObjectPrx ice_defaultContext();
         
         string ice_getFacet();
         ObjectPrx ice_facet(string newFacet);
@@ -378,11 +376,6 @@ namespace Ice
         public ObjectPrx ice_context(Dictionary<string, string> newContext)
         {
             return newInstance(_reference.changeContext(newContext));
-        }
-
-        public ObjectPrx ice_defaultContext()
-        {
-            return newInstance(_reference.defaultContext());
         }
 
         public string ice_getFacet()

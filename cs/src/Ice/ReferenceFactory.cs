@@ -54,7 +54,6 @@ namespace IceInternal
             FixedReference r = new FixedReference(instance_, 
                                                   _communicator, 
                                                   ident,
-                                                  instance_.getDefaultContext(),
                                                   "", // Facet
                                                   Reference.Mode.ModeTwoway,
                                                   false,
@@ -782,7 +781,6 @@ namespace IceInternal
             return updateCache(new RoutableReference(instance_, 
                                                      _communicator,
                                                      ident,
-                                                     instance_.getDefaultContext(), 
                                                      facet,
                                                      mode,
                                                      secure,

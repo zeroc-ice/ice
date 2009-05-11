@@ -377,43 +377,6 @@ IceRuby_Communicator_findObjectFactory(VALUE self, VALUE id)
 
 extern "C"
 VALUE
-IceRuby_Communicator_getDefaultContext(VALUE self)
-{
-    rb_warning("getDefaultContext is deprecated; use per-proxy contexts or implicit contexts (if applicable) instead.");
-
-    ICE_RUBY_TRY
-    {
-        Ice::CommunicatorPtr p = getCommunicator(self);
-        Ice::Context ctx = p->getDefaultContext();
-        return contextToHash(ctx);
-    }
-    ICE_RUBY_CATCH
-    return Qnil;
-}
-
-extern "C"
-VALUE
-IceRuby_Communicator_setDefaultContext(VALUE self, VALUE context)
-{
-    rb_warning("setDefaultContext is deprecated; use per-proxy contexts or implicit contexts (if applicable) instead.");
-
-    ICE_RUBY_TRY
-    {
-        Ice::Context ctx;
-        if(!hashToContext(context, ctx))
-        {
-            throw RubyException(rb_eTypeError, "argument must be a hash");
-        }
-
-        Ice::CommunicatorPtr p = getCommunicator(self);
-        p->setDefaultContext(ctx);
-    }
-    ICE_RUBY_CATCH
-    return Qnil;
-}
-
-extern "C"
-VALUE
 IceRuby_Communicator_getImplicitContext(VALUE self)
 {
     ICE_RUBY_TRY
@@ -566,8 +529,6 @@ IceRuby::initCommunicator(VALUE iceModule)
     rb_define_method(_communicatorClass, "identityToString", CAST_METHOD(IceRuby_Communicator_identityToString), 1);
     rb_define_method(_communicatorClass, "addObjectFactory", CAST_METHOD(IceRuby_Communicator_addObjectFactory), 2);
     rb_define_method(_communicatorClass, "findObjectFactory", CAST_METHOD(IceRuby_Communicator_findObjectFactory), 1);
-    rb_define_method(_communicatorClass, "getDefaultContext", CAST_METHOD(IceRuby_Communicator_getDefaultContext), 0);
-    rb_define_method(_communicatorClass, "setDefaultContext", CAST_METHOD(IceRuby_Communicator_setDefaultContext), 1);
     rb_define_method(_communicatorClass, "getImplicitContext", CAST_METHOD(IceRuby_Communicator_getImplicitContext), 0);
     rb_define_method(_communicatorClass, "getProperties", CAST_METHOD(IceRuby_Communicator_getProperties), 0);
     rb_define_method(_communicatorClass, "getLogger", CAST_METHOD(IceRuby_Communicator_getLogger), 0);

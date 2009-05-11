@@ -46,14 +46,6 @@ struct RandomNumberGenerator : public std::unary_function<ptrdiff_t, ptrdiff_t>
 
 }
 
-ReferencePtr
-IceInternal::Reference::defaultContext() const
-{
-    ReferencePtr r = _instance->referenceFactory()->copy(this);
-    r->_context = _instance->getDefaultContext();
-    return r;
-}
-
 CommunicatorPtr
 IceInternal::Reference::getCommunicator() const
 {
@@ -411,7 +403,6 @@ public:
 IceInternal::Reference::Reference(const InstancePtr& instance, 
                                   const CommunicatorPtr& communicator, 
                                   const Identity& id,
-				  const SharedContextPtr& context, 
                                   const string& facet, 
                                   Mode mode,
                                   bool secure) :
@@ -421,7 +412,7 @@ IceInternal::Reference::Reference(const InstancePtr& instance,
     _mode(mode),
     _secure(secure),
     _identity(id),
-    _context(context),
+    _context(new SharedContext),
     _facet(facet),
     _overrideCompress(false),
     _compress(false)
@@ -488,12 +479,11 @@ IceUtil::Shared* IceInternal::upCast(IceInternal::FixedReference* p) { return p;
 IceInternal::FixedReference::FixedReference(const InstancePtr& instance, 
                                             const CommunicatorPtr& communicator, 
                                             const Identity& id,
-					    const SharedContextPtr& context,
                                             const string& facet, 
                                             Mode mode,
                                             bool secure,
 					    const ConnectionIPtr& fixedConnection) :
-    Reference(instance, communicator, id, context, facet, mode, secure),
+    Reference(instance, communicator, id, facet, mode, secure),
     _fixedConnection(fixedConnection)
 {
 }
@@ -785,7 +775,6 @@ IceUtil::Shared* IceInternal::upCast(IceInternal::RoutableReference* p) { return
 IceInternal::RoutableReference::RoutableReference(const InstancePtr& instance, 
                                                   const CommunicatorPtr& communicator,
 						  const Identity& id, 
-                                                  const SharedContextPtr& context, 
                                                   const string& facet,
 						  Mode mode, 
                                                   bool secure, 
@@ -798,7 +787,7 @@ IceInternal::RoutableReference::RoutableReference(const InstancePtr& instance,
                                                   bool preferSecure, 
 						  EndpointSelectionType endpointSelection,
                                                   int locatorCacheTimeout) :
-    Reference(instance, communicator, id, context, facet, mode, secure),
+    Reference(instance, communicator, id, facet, mode, secure),
     _endpoints(endpoints),
     _adapterId(adapterId),
     _locatorInfo(locatorInfo),

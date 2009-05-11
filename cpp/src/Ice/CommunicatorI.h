@@ -44,9 +44,6 @@ public:
     virtual void addObjectFactory(const ObjectFactoryPtr&, const std::string&);
     virtual ObjectFactoryPtr findObjectFactory(const std::string&) const;
 
-    virtual Context getDefaultContext() const;
-    virtual void setDefaultContext(const Context&);
-
     virtual ImplicitContextPtr getImplicitContext() const;
 
     virtual PropertiesPtr getProperties() const;

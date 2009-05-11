@@ -498,10 +498,7 @@ generated from the section label.
 
     <section name="Glacier2">
         <property name="AddSSLContext" />
-        <property name="AddUserToAllowCategories" deprecated="true"
-            deprecatedBy="Glacier2.Filter.Category.AcceptUser" />
         <property name="Admin" class="deprecatedobjectadapter" />
-        <property name="AllowCategories" deprecated="true" deprecatedBy="Glacier2.Filter.Category.Accept" />
         <property name="Client" class="objectadapter"/>
         <property name="Client.AlwaysBatch" />
         <property name="Client.Buffered" />

@@ -654,50 +654,6 @@ class Twoways
                 r = p2.opContext(ctx);
                 test(Ice.CollectionComparer.Equals(r, ctx));
             }
-            {
-                //
-                // Test that default context is obtained correctly from communicator.
-                //
-/* DEPRECATED
-                Dictionary<string, string> dflt = new Dictionary<string, string>();
-                dflt["a"] = "b";
-                communicator.setDefaultContext(dflt);
-                test(!p.opContext().Equals(dflt));
-
-                Test.MyClassPrx p2 = Test.MyClassPrxHelper.uncheckedCast(p.ice_context(new Ice.Context()));
-                test(p2.opContext().Count == 0);
-
-                p2 = Test.MyClassPrxHelper.uncheckedCast(p.ice_defaultContext());
-                test(p2.opContext().Equals(dflt));
-
-                communicator.setDefaultContext(new Dictionary<string, string>());
-                test(p2.opContext().Count != 0);
-
-                communicator.setDefaultContext(dflt);
-                Test.MyClassPrx c = Test.MyClassPrxHelper.checkedCast(
-                                        communicator.stringToProxy("test:default -p 12010"));
-                test(c.opContext().Equals(dflt));
-
-                dflt["a"] = "c";
-                Test.MyClassPrx c2 = Test.MyClassPrxHelper.uncheckedCast(c.ice_context(dflt));
-                test(c2.opContext()["a"].Equals("c"));
-
-                dflt.Clear();
-                Test.MyClassPrx c3 = Test.MyClassPrxHelper.uncheckedCast(c2.ice_context(dflt));
-                test(c3.opContext()["a"] == null);
-
-                Test.MyClassPrx c4 = Test.MyClassPrxHelper.uncheckedCast(c2.ice_defaultContext());
-                test(c4.opContext()["a"].Equals("b"));
-
-                dflt["a"] = "d";
-                communicator.setDefaultContext(dflt);
-
-                Test.MyClassPrx c5 = Test.MyClassPrxHelper.uncheckedCast(c2.ice_defaultContext());
-                test(c5.opContext()["a"].Equals("d"));
-
-                communicator.setDefaultContext(new Dictionary<string, string>());
-*/
-            }
         }
         {
             //

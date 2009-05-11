@@ -697,50 +697,6 @@ class Twoways
                 r = p2.opContext(ctx);
                 test(r.equals(ctx));
             }
-            {
-                //
-                // Test that default context is obtained correctly from communicator.
-                //
-/* DEPRECATED
-                java.util.HashMap dflt = new java.util.HashMap();
-                dflt.put("a", "b");
-                communicator.setDefaultContext(dflt);
-                test(!p.opContext().equals(dflt));
-
-                MyClassPrx p2 = MyClassPrxHelper.uncheckedCast(p.ice_context(new java.util.HashMap()));
-                test(p2.opContext().isEmpty());
-
-                p2 = MyClassPrxHelper.uncheckedCast(p.ice_defaultContext());
-                test(p2.opContext().equals(dflt));
-
-                communicator.setDefaultContext(new java.util.HashMap());
-                test(!p2.opContext().isEmpty());
-
-                communicator.setDefaultContext(dflt);
-                MyClassPrx c = MyClassPrxHelper.checkedCast(
-                                        communicator.stringToProxy("test:default -p 12010"));
-                test(c.opContext().equals(dflt));
-
-                dflt.put("a", "c");
-                MyClassPrx c2 = MyClassPrxHelper.uncheckedCast(c.ice_context(dflt));
-                test(c2.opContext().get("a").equals("c"));
-
-                dflt.clear();
-                MyClassPrx c3 = MyClassPrxHelper.uncheckedCast(c2.ice_context(dflt));
-                test(c3.opContext().get("a") == null);
-
-                MyClassPrx c4 = MyClassPrxHelper.uncheckedCast(c2.ice_defaultContext());
-                test(c4.opContext().get("a").equals("b"));
-
-                dflt.put("a", "d");
-                communicator.setDefaultContext(dflt);
-
-                MyClassPrx c5 = MyClassPrxHelper.uncheckedCast(c2.ice_defaultContext());
-                test(c5.opContext().get("a").equals("d"));
-
-                communicator.setDefaultContext(new java.util.HashMap());
-*/
-            }
         }
         {
             //

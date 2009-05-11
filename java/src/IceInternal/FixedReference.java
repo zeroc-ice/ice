@@ -15,13 +15,12 @@ public class FixedReference extends Reference
     FixedReference(Instance instance,
                    Ice.Communicator communicator,
                    Ice.Identity identity,
-                   java.util.Map<String, String> context,
                    String facet,
                    int mode,
                    boolean secure,
                    Ice.ConnectionI connection)
     {
-        super(instance, communicator, identity, context, facet, mode, secure);
+        super(instance, communicator, identity, facet, mode, secure);
         _fixedConnection = connection;
     }
 

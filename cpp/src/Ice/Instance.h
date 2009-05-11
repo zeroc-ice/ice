@@ -34,7 +34,6 @@
 #include <Ice/DynamicLibraryF.h>
 #include <Ice/PluginF.h>
 #include <Ice/Initialize.h>
-#include <Ice/SharedContext.h>
 #include <Ice/ImplicitContextI.h>
 #include <Ice/FacetMap.h>
 #include <Ice/Process.h>
@@ -81,8 +80,6 @@ public:
     Ice::Int clientACM() const;
     Ice::Int serverACM() const;
     void flushBatchRequests();
-    void setDefaultContext(const ::Ice::Context&);
-    SharedContextPtr getDefaultContext() const;
     Ice::Identity stringToIdentity(const std::string&) const;
     std::string identityToString(const Ice::Identity&) const;
 
@@ -141,7 +138,6 @@ private:
     EndpointFactoryManagerPtr _endpointFactoryManager;
     DynamicLibraryListPtr _dynamicLibraryList;
     Ice::PluginManagerPtr _pluginManager;
-    SharedContextPtr _defaultContext;
     const Ice::ImplicitContextIPtr _implicitContext;
     Ice::ObjectAdapterPtr _adminAdapter;
     Ice::FacetMap _adminFacets;

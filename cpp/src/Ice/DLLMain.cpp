@@ -7,7 +7,6 @@
 //
 // **********************************************************************
 
-#include <Ice/EventLoggerI.h>
 #include <Ice/ImplicitContextI.h>
 #include <Ice/Service.h>
 
@@ -37,7 +36,6 @@ ice_DLL_Main(HINSTANCE hDLL, DWORD reason, LPVOID reserved)
 
     if(reason == DLL_PROCESS_ATTACH)
     {
-        Ice::EventLoggerI::setModuleHandle(hDLL);
         Ice::Service::setModuleHandle(hDLL);
     }
     else if(reason == DLL_THREAD_DETACH)

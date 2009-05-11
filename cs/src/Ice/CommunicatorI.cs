@@ -151,16 +151,6 @@ namespace Ice
             instance_.setDefaultLocator(locator);
         }
         
-        public Dictionary<string, string> getDefaultContext()
-        {
-            return instance_.getDefaultContext();
-        }
-        
-        public void setDefaultContext(Dictionary<string, string> ctx)
-        {
-            instance_.setDefaultContext(ctx);
-        }
-
         public ImplicitContext getImplicitContext()
         {
             return instance_.getImplicitContext();

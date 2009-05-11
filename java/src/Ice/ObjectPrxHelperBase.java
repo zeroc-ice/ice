@@ -307,15 +307,6 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
         return newInstance(_reference.changeContext(newContext));
     }
 
-    /**
-     * @deprecated
-     **/
-    public final ObjectPrx
-    ice_defaultContext()
-    {
-        return newInstance(_reference.defaultContext());
-    }
-
     public final String
     ice_getFacet()
     {
