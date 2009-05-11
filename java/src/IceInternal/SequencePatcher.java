@@ -33,6 +33,16 @@ public class SequencePatcher implements Patcher, Ice.ReadObjectCallback
                 throw new ClassCastException("expected element of type " + _cls.getName() + " but received " +
                                              v.getClass().getName());
             }
+
+            try
+            {
+                throw new Ice.InitializationException();
+            }
+            catch(Ice.InitializationException ex)
+            {
+                ex.printStackTrace();
+                assert(false);
+            }
         }
 
         _seq[_index] = v;

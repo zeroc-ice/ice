@@ -31,7 +31,7 @@
          <load-balancing type="round-robin" n-replicas="1"/>
          <object identity="hello" type="::Demo::Hello"/>
       </replica-group>
-      <node name="localhost">
+      <node name="node1">
          <server-instance template="Glacier2" instance-name="DemoGlacier2" client-endpoints="tcp -h localhost -p 4063" server-endpoints="tcp">
             <properties>
                <property name="Glacier2.SessionManager" value="DemoIceGrid/AdminSessionManager"/>

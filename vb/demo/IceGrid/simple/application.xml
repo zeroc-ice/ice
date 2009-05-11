@@ -13,7 +13,7 @@
 
   <application name="Simple">
 
-    <node name="localhost">
+    <node name="node1">
 
       <server id="SimpleServer" exe="./server.exe" activation="on-demand">
 	<adapter name="Hello" endpoints="tcp">

@@ -13,7 +13,7 @@
 
   <application name="Session">
 
-    <node name="localhost">
+    <node name="node1">
       <server id="SessionServer" exe="./server" activation="session">
 	<adapter name="Hello" endpoints="tcp">
 	  <allocatable identity="hello" property="Identity"/>

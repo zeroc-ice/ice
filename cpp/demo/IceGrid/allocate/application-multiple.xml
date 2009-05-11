@@ -22,7 +22,7 @@
       </server>
     </server-template>
 
-    <node name="localhost">
+    <node name="node1">
       <server-instance template="AllocateServer" index="1"/>
       <server-instance template="AllocateServer" index="2"/>
     </node>

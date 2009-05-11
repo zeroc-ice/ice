@@ -64,8 +64,8 @@ We recommend using the IceGrid GUI to make this change. Follow the
 instructions in "Using the IceGrid GUI" to start the application and
 log into the registry.
 
-  - In the Live Deployment tab, open "localhost", right-click on
-    "IceBox", and select "Open Definition".
+  - In the Live Deployment tab, open "node1", right-click on "IceBox",
+    and select "Open Definition".
 
   - In the "Server Properties" pane, scroll down to the field "Path to
     Executable" and change it to "iceboxd".

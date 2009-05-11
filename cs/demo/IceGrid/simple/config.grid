@@ -23,7 +23,7 @@ IceGrid.Registry.AdminSSLPermissionsVerifier=DemoIceGrid/NullSSLPermissionsVerif
 #
 # IceGrid node configuration.
 #
-IceGrid.Node.Name=localhost
+IceGrid.Node.Name=node1
 IceGrid.Node.Endpoints=default
 IceGrid.Node.Data=db/node
 IceGrid.Node.CollocateRegistry=1

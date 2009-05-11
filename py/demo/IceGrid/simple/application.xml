@@ -13,7 +13,7 @@
 
   <application name="Simple">
 
-    <node name="localhost">
+    <node name="node1">
       <server id="SimpleServer" exe="python" activation="on-demand">
         <option>Server.py</option>
 	<adapter name="Hello" endpoints="tcp">

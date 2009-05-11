@@ -13,7 +13,7 @@
 
   <application name="Allocate">
 
-    <node name="localhost">
+    <node name="node1">
       <server id="AllocateServer" exe="./server" activation="on-demand">
 	<adapter name="Hello" endpoints="tcp">
 	  <allocatable identity="hello" type="::Demo::Hello" property="Identity"/>
