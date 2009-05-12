@@ -15,6 +15,9 @@ public interface Object
 
     java.lang.Object clone() throws java.lang.CloneNotSupportedException;
 
+     /**
+      * @deprecated This method is deprecated, use hashCode instead.
+      **/
     int ice_hash();
 
     boolean ice_isA(String s);

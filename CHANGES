@@ -149,6 +149,12 @@ C++ Changes
 Java Changes
 ============
 
+- The following APIs are deprecated and will be removed in a future 
+  release.
+
+  Object::ice_hash()
+  ObjectPrx::ice_getHash()
+
 - The StackSize thread pool configuration property is now used.
 
 - The generated classes for Slice structs are no longer declared final.
@@ -187,6 +193,12 @@ Java Changes
 C# Changes
 ==========
 
+- The following APIs are deprecated and will be removed in a future 
+  release.
+
+  Object::ice_hash()
+  ObjectPrx::ice_getHash()
+
 - The StackSize thread pool configuration property is now used.
 
 - The default Ice logger now uses System.Diagnostics.Trace to 
@@ -206,6 +218,11 @@ Python Changes
 
 Ruby Changes
 ============
+
+- The following API as been deprecated and will be removed in a
+  future release.
+
+  ObjectPrx::ice_getHash()
 
 - Changed the way sequences are unmarshaled to protect against
   malicious messages with faked very large sequence count values.

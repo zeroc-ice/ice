@@ -1547,7 +1547,10 @@ Slice::Gen::TieVisitor::visitClassDefStart(const ClassDefPtr& p)
 
     if(p->isLocal())
     {
-        out << sp << nl << "public int" << nl << "ice_hash()";
+        out << sp << nl << "/**";
+        out << nl << " * @deprecated This method is deprecated, use hashCode instead.";
+        out << nl << " **/";
+        out << nl << "public int" << nl << "ice_hash()";
         out << sb;
         out << nl << "return hashCode();";
         out << eb;

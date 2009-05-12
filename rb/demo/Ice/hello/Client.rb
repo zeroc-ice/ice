@@ -60,6 +60,8 @@ class Client < Ice::Application
             return 1
         end
 
+        twoway.hash()
+
         oneway = twoway.ice_oneway()
         batchOneway = twoway.ice_batchOneway()
         datagram = twoway.ice_datagram()

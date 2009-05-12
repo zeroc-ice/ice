@@ -4877,7 +4877,8 @@ Slice::Gen::TieVisitor::visitClassDefStart(const ClassDefPtr& p)
     _out << nl << "_ice_delegate = (" << name << opIntfName << "_)del;";
     _out << eb;
 
-    _out << sp << nl << "public ";
+    _out << sp << nl <<"[Obsolete(\"This method is deprecated, use GetHashCode instead.\")]";
+    _out << nl << "public ";
     if(!p->isInterface() || !p->isLocal())
     {
         _out << "override ";

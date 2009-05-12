@@ -17,6 +17,7 @@ namespace Ice
 {
     public interface ObjectPrx
     {
+        [Obsolete("This method is deprecated, use GetHashCode instead.")]
         int ice_getHash();
 
         Communicator ice_getCommunicator();

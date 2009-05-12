@@ -17,6 +17,9 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
         return _reference.hashCode();
     }
 
+    /**
+     * @deprecated
+     **/
     public final int
     ice_getHash()
     {

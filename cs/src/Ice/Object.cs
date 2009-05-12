@@ -7,6 +7,7 @@
 //
 // **********************************************************************
 
+using System;
 using System.Collections;
 using System.Diagnostics;
 
@@ -33,6 +34,7 @@ namespace Ice
 
     public interface Object : System.ICloneable
     {
+        [Obsolete("This method is deprecated, use GetHashCode instead.")]
         int ice_hash();
 
         bool ice_isA(string s);

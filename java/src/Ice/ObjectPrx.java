@@ -11,6 +11,9 @@ package Ice;
 
 public interface ObjectPrx
 {
+    /**
+     * @deprecated This method is deprecated, use hashCode instead.
+     **/
     int ice_getHash();
 
     Communicator ice_getCommunicator();

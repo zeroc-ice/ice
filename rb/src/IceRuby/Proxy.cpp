@@ -225,6 +225,21 @@ extern "C"
 VALUE
 IceRuby_ObjectPrx_ice_getHash(VALUE self)
 {
+    rb_warning("ice_getHash is deprecated, use hash instead.");
+
+    ICE_RUBY_TRY
+    {
+        Ice::ObjectPrx p = getProxy(self);
+        return INT2FIX(p->ice_getHash());
+    }
+    ICE_RUBY_CATCH
+    return Qnil;
+}
+
+extern "C"
+VALUE
+IceRuby_ObjectPrx_hash(VALUE self)
+{
     ICE_RUBY_TRY
     {
         Ice::ObjectPrx p = getProxy(self);
@@ -1357,7 +1372,7 @@ IceRuby::initProxy(VALUE iceModule)
     rb_define_method(_proxyClass, "ice_getConnection", CAST_METHOD(IceRuby_ObjectPrx_ice_getConnection), 0);
     rb_define_method(_proxyClass, "ice_getCachedConnection", CAST_METHOD(IceRuby_ObjectPrx_ice_getCachedConnection), 0);
 
-    rb_define_method(_proxyClass, "hash", CAST_METHOD(IceRuby_ObjectPrx_ice_getHash), 0);
+    rb_define_method(_proxyClass, "hash", CAST_METHOD(IceRuby_ObjectPrx_hash), 0);
     rb_define_method(_proxyClass, "to_s", CAST_METHOD(IceRuby_ObjectPrx_ice_toString), 0);
     rb_define_method(_proxyClass, "inspect", CAST_METHOD(IceRuby_ObjectPrx_ice_toString), 0);
     rb_define_method(_proxyClass, "<=>", CAST_METHOD(IceRuby_ObjectPrx_cmp), 1);

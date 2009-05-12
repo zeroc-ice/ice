@@ -31,6 +31,9 @@ public abstract class ObjectImpl implements Object, java.lang.Cloneable, java.io
         return o;
     }
 
+    /**
+     * @deprecated
+     **/
     public int
     ice_hash()
     {
