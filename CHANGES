@@ -33,6 +33,9 @@ General Changes
 These entries apply to all relevant language mappings unless otherwise
 noted.
 
+- Fixed bug in slice compilers that would cause a crash if slice file
+  had double slashes in its path.
+
 - The following properties were deprecated in Ice 3.2 and have been 
   removed:
 

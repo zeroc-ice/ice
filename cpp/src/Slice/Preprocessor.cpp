@@ -46,7 +46,7 @@ extern "C" char* mcpp_get_mem_buffer(Outdest od);
 
 Slice::Preprocessor::Preprocessor(const string& path, const string& fileName, const vector<string>& args) :
     _path(path),
-    _fileName(fileName),
+    _fileName(fullPath(fileName)),
     _args(args),
     _cppHandle(0)
 {
