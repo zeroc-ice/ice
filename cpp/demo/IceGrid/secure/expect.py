@@ -34,9 +34,21 @@ if Util.defaultHost:
 else:
     args = ''
 
+icecaPath = ""
+if os.environ.get("ICE_HOME", "") != "":
+    icecaPath = os.environ["ICE_HOME"]
+elif os.path.isdir(os.path.join(path[0], "cpp")):
+    icecaPath = os.path.join(path[0], "cpp")
+
+command = 'python -u makecerts.py'
+if icecaPath != "":
+    command += " --iceca=" + os.path.join(icecaPath, "bin", "iceca")
+
+print command
+
 print "creating certificates...",
 sys.stdout.flush()
-makecerts = Util.spawn('python -u makecerts.py --iceca=' + os.path.join(Util.getIceDir("cpp"), "bin", "iceca"))
+makecerts = Util.spawn(command)
 makecerts.expect("Do you want to keep this as the CA subject name?")
 makecerts.sendline("y")
 makecerts.expect("Enter the email address of the CA:")
