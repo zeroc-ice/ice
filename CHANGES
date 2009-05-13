@@ -33,6 +33,11 @@ General Changes
 These entries apply to all relevant language mappings unless otherwise
 noted.
 
+- Added new main() functions to Ice::Application class which take a
+  set of properties as well as command line arguments and config file.
+  The properties in the passed set will override any properties read
+  from command line arguments or config file.
+
 - Fixed bug in slice compilers that would cause a crash if slice file
   had double slashes in its path.
 

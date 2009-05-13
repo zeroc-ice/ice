@@ -255,7 +255,7 @@ module Ice
             @@_signalPolicy = signalPolicy
         end
         
-        def main(args, configFile=nil, initData=nil)
+        def main(args, configFile=nil, initData=nil, overrideProps=nil)
             if @@_communicator
                 Ice::getProcessLogger().error($0 + ": only one instance of the Application class can be used")
                 return false
@@ -277,6 +277,14 @@ module Ice
                     initData.properties = Ice::createProperties
                     initData.properties.load(configFile)
                 end
+                initData.properties = Ice::createProperties(args, initData.properties)
+                if overrideProps
+                    props = overrideProps.getPropertiesForPrefix("")
+                    for key, value in props
+                        initData.properties.setProperty(key, value)
+                    end
+                end
+
                 @@_application = self
                 @@_communicator = Ice::initialize(args, initData)
                 @@_destroyed = false

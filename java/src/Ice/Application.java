@@ -34,11 +34,17 @@ public abstract class Application
     public final int
     main(String appName, String[] args)
     {
-        return main(appName, args, new InitializationData());
+        return mainInternal(appName, args, new InitializationData(), null);
     }
 
     public final int
     main(String appName, String[] args, String configFile)
+    {
+        return main(appName, args, configFile, null);
+    }
+
+    public final int
+    main(String appName, String[] args, String configFile, Properties overrideProps)
     {
         InitializationData initData = new InitializationData();
         if(configFile != null)
@@ -59,141 +65,13 @@ public abstract class Application
                 return 1;
             }
         }
-        return main(appName, args, initData);
+        return mainInternal(appName, args, initData, overrideProps);
     }
 
     public final int
     main(String appName, String[] args, InitializationData initializationData)
     {
-        if(_communicator != null)
-        {
-            Util.getProcessLogger().error(appName + ": only one instance of the Application class can be used");
-            return 1;
-        }
-
-        _appName = appName;
-
-        //
-        // We parse the properties here to extract Ice.ProgramName.
-        // 
-        InitializationData initData;
-        if(initializationData != null)
-        {
-            initData = (InitializationData)initializationData.clone();
-        }
-        else
-        {
-            initData = new InitializationData();
-        }
-        StringSeqHolder argHolder = new StringSeqHolder(args);
-        initData.properties = Util.createProperties(argHolder, initData.properties);
-
-        //
-        // If the process logger is the default logger, we replace it with a
-        // a logger which is using the program name for the prefix.
-        //
-        if(Util.getProcessLogger() instanceof LoggerI)
-        {
-            Util.setProcessLogger(new LoggerI(initData.properties.getProperty("Ice.ProgramName"), ""));
-        }
-
-        int status = 0;
-
-        try
-        {
-            _communicator = Util.initialize(argHolder, initData);
-
-            //
-            // The default is to destroy when a signal is received.
-            //
-            if(_signalPolicy == SignalPolicy.HandleSignals)
-            {
-                destroyOnInterrupt();
-            }
-
-            status = run(argHolder.value);
-        }
-        catch(LocalException ex)
-        {
-            error(_appName, ex);
-            status = 1;
-        }
-        catch(java.lang.Exception ex)
-        {
-            error(_appName + ": unknown exception", ex);
-            status = 1;
-        }
-        catch(java.lang.Error err)
-        {
-            //
-            // We catch Error to avoid hangs in some non-fatal situations
-            //
-            error(_appName + ": Java error", err);
-            status = 1;
-        }
-
-        // This clears any set interrupt.
-        if(_signalPolicy == SignalPolicy.HandleSignals)
-        {
-            defaultInterrupt();
-        }
-
-        synchronized(_mutex)
-        {
-            while(_callbackInProgress)
-            {
-                try
-                {
-                    _mutex.wait();
-                }
-                catch(java.lang.InterruptedException ex)
-                {
-                }
-            }
-
-            if(_destroyed)
-            {
-                _communicator = null;
-            }
-            else
-            {
-                _destroyed = true;
-                //
-                // And _communicator != null, meaning will be
-                // destroyed next, _destroyed = true also ensures that
-                // any remaining callback won't do anything
-                //
-            }
-        }
-
-        if(_communicator != null)
-        {
-            try
-            {
-                _communicator.destroy();
-            }
-            catch(LocalException ex)
-            {
-                error(_appName, ex);
-                status = 1;
-            }
-            catch(java.lang.Exception ex)
-            {
-                error(_appName + ": unknown exception", ex);
-                status = 1;
-            }
-            _communicator = null;
-        }
-
-        synchronized(_mutex)
-        {
-            if(_appHook != null)
-            {
-                _appHook.done();
-            }
-        }
-
-        return status;
+        return mainInternal(appName, args, initializationData, null);
     }
 
     public abstract int
@@ -340,6 +218,148 @@ public abstract class Application
         {
             return _interrupted;
         }
+    }
+
+    private int
+    mainInternal(String appName, String[] args, InitializationData initializationData, Properties overrideProps)
+    {
+        if(_communicator != null)
+        {
+            Util.getProcessLogger().error(appName + ": only one instance of the Application class can be used");
+            return 1;
+        }
+
+        _appName = appName;
+
+        //
+        // We parse the properties here to extract Ice.ProgramName.
+        // 
+        InitializationData initData;
+        if(initializationData != null)
+        {
+            initData = (InitializationData)initializationData.clone();
+        }
+        else
+        {
+            initData = new InitializationData();
+        }
+        StringSeqHolder argHolder = new StringSeqHolder(args);
+        initData.properties = Util.createProperties(argHolder, initData.properties);
+        if(overrideProps != null)
+        {
+            java.util.Map<String, String> props = overrideProps.getPropertiesForPrefix("");
+            for(java.util.Map.Entry<String, String> p : props.entrySet())
+            {
+                initData.properties.setProperty(p.getKey(), p.getValue());
+            }
+        }
+
+        //
+        // If the process logger is the default logger, we replace it with a
+        // a logger which is using the program name for the prefix.
+        //
+        if(Util.getProcessLogger() instanceof LoggerI)
+        {
+            Util.setProcessLogger(new LoggerI(initData.properties.getProperty("Ice.ProgramName"), ""));
+        }
+
+        int status = 0;
+
+        try
+        {
+            _communicator = Util.initialize(argHolder, initData);
+
+            //
+            // The default is to destroy when a signal is received.
+            //
+            if(_signalPolicy == SignalPolicy.HandleSignals)
+            {
+                destroyOnInterrupt();
+            }
+
+            status = run(argHolder.value);
+        }
+        catch(LocalException ex)
+        {
+            error(_appName, ex);
+            status = 1;
+        }
+        catch(java.lang.Exception ex)
+        {
+            error(_appName + ": unknown exception", ex);
+            status = 1;
+        }
+        catch(java.lang.Error err)
+        {
+            //
+            // We catch Error to avoid hangs in some non-fatal situations
+            //
+            error(_appName + ": Java error", err);
+            status = 1;
+        }
+
+        // This clears any set interrupt.
+        if(_signalPolicy == SignalPolicy.HandleSignals)
+        {
+            defaultInterrupt();
+        }
+
+        synchronized(_mutex)
+        {
+            while(_callbackInProgress)
+            {
+                try
+                {
+                    _mutex.wait();
+                }
+                catch(java.lang.InterruptedException ex)
+                {
+                }
+            }
+
+            if(_destroyed)
+            {
+                _communicator = null;
+            }
+            else
+            {
+                _destroyed = true;
+                //
+                // And _communicator != null, meaning will be
+                // destroyed next, _destroyed = true also ensures that
+                // any remaining callback won't do anything
+                //
+            }
+        }
+
+        if(_communicator != null)
+        {
+            try
+            {
+                _communicator.destroy();
+            }
+            catch(LocalException ex)
+            {
+                error(_appName, ex);
+                status = 1;
+            }
+            catch(java.lang.Exception ex)
+            {
+                error(_appName + ": unknown exception", ex);
+                status = 1;
+            }
+            _communicator = null;
+        }
+
+        synchronized(_mutex)
+        {
+            if(_appHook != null)
+            {
+                _appHook.done();
+            }
+        }
+
+        return status;
     }
 
     private static void

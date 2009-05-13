@@ -9,8 +9,8 @@
 
 namespace Ice
 {
-
     using System;
+    using System.Collections.Generic;
     using System.Diagnostics;
     using System.Reflection;
     using System.Runtime.InteropServices;
@@ -52,10 +52,15 @@ namespace Ice
         //
         public int main(string[] args)
         {
-            return main(args, new InitializationData());
+            return mainInternal(args, new InitializationData(), null);
         }
 
         public int main(string[] args, string configFile)
+        {
+            return main(args, configFile, null);
+        }
+
+        public int main(string[] args, string configFile, Properties overrideProps)
         {
             InitializationData initData = new InitializationData();
             if(configFile != null)
@@ -76,41 +81,12 @@ namespace Ice
                     return 1;
                 }
             }
-            return main(args, initData);
+            return mainInternal(args, initData, overrideProps);
         }
 
         public int main(string[] args, InitializationData initData)
         {
-            if(_communicator != null)
-            {
-                Util.getProcessLogger().error(_appName + ": only one instance of the Application class can be used");
-                return 1;
-            }
-
-            int status;
-
-            if(_signalPolicy == SignalPolicy.HandleSignals)
-            {
-                if(IceInternal.AssemblyUtil.platform_ == IceInternal.AssemblyUtil.Platform.Windows)
-                {
-                    _signals = new WindowsSignals();
-                }
-                else
-                {
-                    _signals = new MonoSignals();
-                }
-                _signals.register(_handler);
-
-                status = mainInternal(args, initData);
-
-                _signals = null;
-            }
-            else
-            {
-                status = mainInternal(args, initData);
-            }
-
-            return status;
+            return mainInternal(args, initData, null);
         }
 
         //
@@ -277,7 +253,41 @@ namespace Ice
             }
         }
 
-        private int mainInternal(string[] args, InitializationData initializationData)
+        private int mainInternal(string[] args, InitializationData initData, Properties overrideProps)
+        {
+            if(_communicator != null)
+            {
+                Util.getProcessLogger().error(_appName + ": only one instance of the Application class can be used");
+                return 1;
+            }
+
+            int status;
+
+            if(_signalPolicy == SignalPolicy.HandleSignals)
+            {
+                if(IceInternal.AssemblyUtil.platform_ == IceInternal.AssemblyUtil.Platform.Windows)
+                {
+                    _signals = new WindowsSignals();
+                }
+                else
+                {
+                    _signals = new MonoSignals();
+                }
+                _signals.register(_handler);
+
+                status = executeRun(args, initData, overrideProps);
+
+                _signals = null;
+            }
+            else
+            {
+                status = executeRun(args, initData, overrideProps);
+            }
+
+            return status;
+        }
+
+        private int executeRun(string[] args, InitializationData initializationData, Properties overrideProps)
         {
             int status = 0;
 
@@ -296,6 +306,14 @@ namespace Ice
                     initData = new InitializationData();
                 }
                 initData.properties = Util.createProperties(ref args, initData.properties);
+                if(overrideProps != null)
+                {
+                    Dictionary<string, string> oprops = overrideProps.getPropertiesForPrefix("");
+                    foreach(KeyValuePair<string,string> entry in oprops)
+                    {
+                        initData.properties.setProperty(entry.Key, entry.Value);
+                    }
+                }
 
                 //
                 // If the process logger is the default logger, we replace it with a
