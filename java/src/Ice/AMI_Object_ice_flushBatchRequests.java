@@ -23,7 +23,6 @@ public abstract class AMI_Object_ice_flushBatchRequests extends IceInternal.Batc
             // requests were queued with the connection, they would be lost without being noticed.
             //
             Ice._ObjectDel delegate = null;
-            int cnt = -1; // Don't retry.
             Ice.ObjectPrxHelperBase proxy = (Ice.ObjectPrxHelperBase)prx;
             try
             {
@@ -32,7 +31,7 @@ public abstract class AMI_Object_ice_flushBatchRequests extends IceInternal.Batc
             }
             catch(Ice.LocalException ex)
             {
-                cnt = proxy.__handleException(delegate, ex, null, cnt);
+                proxy.__handleException(delegate, ex, null, -1); // Don't retry
             }
         }
         catch(Ice.LocalException ex)

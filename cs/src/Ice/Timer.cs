@@ -15,6 +15,7 @@
 
 namespace IceInternal
 {
+    using System;
     using System.Diagnostics;
     using System.Threading;
     using System.Collections.Generic;
@@ -272,13 +273,39 @@ namespace IceInternal
                 return 0;
             }
 
+	    public override bool Equals(object o)
+	    {
+		Token t = null;
+
+		try
+		{
+		    t = (Token)o;
+		}
+		catch(InvalidCastException)
+		{
+		    return false;
+		}
+
+	        if(this == t)
+		{
+		    return true;
+		}
+
+		return CompareTo(t) == 0;
+	    }
+
+	    public override int GetHashCode()
+	    {
+	        return id ^ (int)scheduledTime;
+	    }
+
             public long scheduledTime;
             public int id; // Since we can't compare references, we need to use another id.
             public long delay;
             public TimerTask task;
         }
 
-        private IDictionary<Token, object> _tokens = new SortedDictionary<Token, object>();
+        private IDictionary<Token, object> _tokens = new Dictionary<Token, object>();
         private IDictionary<TimerTask, Token> _tasks = new Dictionary<TimerTask, Token>();
         private Instance _instance;
         private long _wakeUpTime = System.Int64.MaxValue;

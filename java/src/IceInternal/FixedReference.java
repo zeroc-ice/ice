@@ -267,5 +267,12 @@ public class FixedReference extends Reference
         return _fixedConnection.equals(rhs._fixedConnection);
     }
 
+    public int
+    hashCode()
+    {
+        return super.hashCode();
+    }
+
+
     private Ice.ConnectionI _fixedConnection;
 }

@@ -55,6 +55,12 @@ public final class RouterInfo
         return false;
     }
 
+    public int
+    hashCode()
+    {
+        return _router.hashCode();
+    }
+
     public Ice.RouterPrx
     getRouter()
     {

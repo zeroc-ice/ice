@@ -355,6 +355,12 @@ public final class LocatorInfo
         return false;
     }
 
+    public int
+    hashCode()
+    {
+         return _locator.hashCode();
+    }
+
     public Ice.LocatorPrx
     getLocator()
     {
