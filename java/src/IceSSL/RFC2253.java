@@ -183,8 +183,8 @@ class RFC2253
         // First the OID case.
         //
         if(Character.isDigit(state.data.charAt(state.pos)) ||
-           (state.data.length() - state.pos >= 4 && (state.data.substring(state.pos, state.pos + 4) == "oid." ||
-                                                   state.data.substring(state.pos, state.pos + 4) == "OID.")))
+           (state.data.length() - state.pos >= 4 && (state.data.substring(state.pos, state.pos + 4).equals("oid.") ||
+                                                   state.data.substring(state.pos, state.pos + 4).equals("OID."))))
         {
             if(!Character.isDigit(state.data.charAt(state.pos)))
             {
