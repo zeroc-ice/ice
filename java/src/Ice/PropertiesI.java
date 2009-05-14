@@ -11,7 +11,7 @@ package Ice;
 
 public final class PropertiesI implements Properties
 {
-    class PropertyValue
+    static class PropertyValue
     {
         public PropertyValue(PropertyValue v)
         {

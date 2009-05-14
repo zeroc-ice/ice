@@ -951,7 +951,7 @@ class Instance
                                 {
                                     sb.append(", ");
                                 }
-                                sb.append(dnsNames.get(j).toString());
+                                sb.append(dnsNames.get(j));
                             }
                         }
                         if(!ipAddresses.isEmpty())
@@ -963,7 +963,7 @@ class Instance
                                 {
                                     sb.append(", ");
                                 }
-                                sb.append(ipAddresses.get(j).toString());
+                                sb.append(ipAddresses.get(j));
                             }
                         }
                         if(_securityTraceLevel >= 1)

@@ -345,27 +345,28 @@ final class UdpTransceiver implements Transceiver
 
             if(_traceLevels.network >= 1)
             {
-                String s = "starting to receive udp packets\n" + toString();
+                StringBuffer s = new StringBuffer("starting to receive udp packets\n");
+		s.append(toString());
                 if(_traceLevels.network >= 3)
                 {
                     java.util.List<String> interfaces = 
                         Network.getHostsForEndpointExpand(_addr.getAddress().getHostAddress(), _protocolSupport, true);
                     if(!interfaces.isEmpty())
                     {
-                        s += "\nlocal interfaces: ";
+                        s.append("\nlocal interfaces: ");
                         boolean first = true;
                         for(String iface : interfaces)
                         {
                             if(!first)
                             {
-                                s += ", ";
+                                s.append(", ");
                             }
-                            s += iface;
+                            s.append(iface);
                             first = false;
                         }
                     }
                 }
-                _logger.trace(_traceLevels.networkCat, s);
+                _logger.trace(_traceLevels.networkCat, s.toString());
             }
         }
         catch(Ice.LocalException ex)
@@ -502,7 +503,7 @@ final class UdpTransceiver implements Transceiver
                     Class<?>[] types = new Class<?>[]{ Integer.TYPE, Object.class };
                     m = socketImpl.getClass().getDeclaredMethod("setOption", types);
                     m.setAccessible(true);
-                    Object[] args = new Object[]{ new Integer(java.net.SocketOptions.IP_MULTICAST_IF2), intf };
+                    Object[] args = new Object[]{ Integer.valueOf(java.net.SocketOptions.IP_MULTICAST_IF2), intf };
                     m.invoke(socketImpl, args);
                 }
 
@@ -511,7 +512,7 @@ final class UdpTransceiver implements Transceiver
                     Class<?>[] types = new Class<?>[]{ Integer.TYPE };
                     m = java.net.DatagramSocketImpl.class.getDeclaredMethod("setTimeToLive", types);
                     m.setAccessible(true);
-                    Object[] args = new Object[]{ new Integer(ttl) };
+                    Object[] args = new Object[]{ Integer.valueOf(ttl) };
                     m.invoke(socketImpl, args);
                 }
             }

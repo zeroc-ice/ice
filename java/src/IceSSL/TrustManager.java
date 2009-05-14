@@ -124,13 +124,13 @@ class TrustManager
                 {
                     if(_traceLevel > 1)
                     {
-                        String s = "trust manager matching PDNs:\n";
+                        StringBuffer s = new StringBuffer("trust manager matching PDNs:\n");
                         boolean addSemi = false;
                         for(java.util.List<RFC2253.RDNPair> rdnSet : matchSet)
                         {
                             if(addSemi)
                             {
-                                s += ';';
+                                s.append(';');
                             }
                             addSemi = true;
                             boolean addComma = false;
@@ -138,15 +138,15 @@ class TrustManager
                             {
                                 if(addComma)
                                 {
-                                    s += ',';
+                                    s.append(',');
                                 }
                                 addComma = true;
-                                s += rdn.key;
-                                s += '=';
-                                s += rdn.value;
+                                s.append(rdn.key);
+                                s.append('=');
+                                s.append(rdn.value);
                             }
                         }
-                        _communicator.getLogger().trace("Security", s);
+                        _communicator.getLogger().trace("Security", s.toString());
                     }
                     if(match(matchSet, dn))
                     {
@@ -250,20 +250,20 @@ class TrustManager
             new java.util.LinkedList<java.util.List<RFC2253.RDNPair> >();
         for(java.util.List<RFC2253.RDNPair> dn : l)
         {
-            String v = new String();
+            StringBuffer v = new StringBuffer();
             boolean first = true;
             for(RFC2253.RDNPair pair : dn)
             {
                 if(!first)
                 {
-                    v += ",";
+                    v.append(",");
                 }
                 first = false;
-                v += pair.key;
-                v += "=";
-                v += pair.value;
+                v.append(pair.key);
+                v.append("=");
+                v.append(pair.value);
             }
-            javax.security.auth.x500.X500Principal princ = new javax.security.auth.x500.X500Principal(v);
+            javax.security.auth.x500.X500Principal princ = new javax.security.auth.x500.X500Principal(v.toString());
             String subjectName = princ.getName(javax.security.auth.x500.X500Principal.RFC2253);
             result.add(RFC2253.parseStrict(subjectName));
         }

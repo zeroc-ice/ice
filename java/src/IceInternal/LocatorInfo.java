@@ -17,7 +17,7 @@ public final class LocatorInfo
         void setException(Ice.LocalException ex);
     }
 
-    private class RequestCallback
+    private static class RequestCallback
     {
         public void 
         response(LocatorInfo locatorInfo, Ice.ObjectPrx proxy)

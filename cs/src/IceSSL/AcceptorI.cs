@@ -17,6 +17,7 @@ namespace IceSSL
     using System.Net.Security;
     using System.Net.Sockets;
     using System.Security.Cryptography.X509Certificates;
+    using System.Text;
 
     class AcceptorI : IceInternal.Acceptor
     {
@@ -53,27 +54,28 @@ namespace IceSSL
 
             if(_instance.networkTraceLevel() >= 1)
             {
-                string s = "accepting ssl connections at " + ToString();
+                StringBuilder s = new StringBuilder("accepting ssl connections at ");
+		s.Append(ToString());
                 if(_instance.networkTraceLevel() >= 3)
                 {
                     List<string> interfaces = IceInternal.Network.getHostsForEndpointExpand(_addr.Address.ToString(),
                                                                                  _instance.protocolSupport(), true);
                     if(interfaces.Count != 0)
                     {
-                        s += "\nlocal interfaces: ";
+                        s.Append("\nlocal interfaces: ");
                         bool first = true;
                         foreach(string iface in interfaces)
                         {
                             if(!first)
                             {
-                                s += ", ";
+                                s.Append(", ");
                             }
-                            s += iface;
+                            s.Append(iface);
                             first = false;
                         }
                     }
                 }
-                _logger.trace(_instance.networkTraceCategory(), s);
+                _logger.trace(_instance.networkTraceCategory(), s.ToString());
             }
         }
 

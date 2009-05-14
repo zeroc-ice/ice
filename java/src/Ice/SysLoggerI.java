@@ -100,13 +100,13 @@ public final class SysLoggerI implements Logger
     //
     // Syslog facilities facilities (as defined in syslog.h)
     // 
-    private final int LOG_USER = 1;
+    private final static int LOG_USER = 1;
 
     //
     // Syslog priorities (as defined in syslog.h)
     // 
-    private final int LOG_ERR = 3;
-    private final int LOG_WARNING = 4;
-    private final int LOG_INFO = 6;
+    private final static int LOG_ERR = 3;
+    private final static int LOG_WARNING = 4;
+    private final static int LOG_INFO = 6;
 }
 

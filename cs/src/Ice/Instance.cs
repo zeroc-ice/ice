@@ -13,6 +13,7 @@ namespace IceInternal
     using System.Collections;
     using System.Collections.Generic;
     using System.Diagnostics;
+    using System.Text;
 
     public sealed class Instance
     {
@@ -1054,12 +1055,13 @@ namespace IceInternal
                 ArrayList unusedProperties = ((Ice.PropertiesI)_initData.properties).getUnusedProperties();
                 if(unusedProperties.Count != 0)
                 {
-                    string message = "The following properties were set but never read:";
+                    StringBuilder message = new StringBuilder("The following properties were set but never read:");
                     foreach(string s in unusedProperties)
                     {
-                        message += "\n    " + s;
+                        message.Append("\n    ");
+			message.Append(s);
                     }
-                    _initData.logger.warning(message);
+                    _initData.logger.warning(message.ToString());
                 }
             }
 

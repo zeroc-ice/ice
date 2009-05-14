@@ -162,7 +162,7 @@ class RFC2253
             throw new ParseException("invalid attribute type (expected end of state.data)");
         }
 
-        String result = new String();
+        StringBuffer result = new StringBuffer();
 
         //
         // RFC 1779.
@@ -188,7 +188,7 @@ class RFC2253
         {
             if(!Character.isDigit(state.data.charAt(state.pos)))
             {
-                result += state.data.substring(state.pos, state.pos + 4);
+                result.append(state.data.substring(state.pos, state.pos + 4));
                 state.pos += 4;
             }
 
@@ -197,13 +197,13 @@ class RFC2253
                 // 1*DIGIT
                 while(state.pos < state.data.length() && Character.isDigit(state.data.charAt(state.pos)))
                 {
-                    result += state.data.charAt(state.pos);
+                    result.append(state.data.charAt(state.pos));
                     ++state.pos;
                 }
                 // "." 1*DIGIT
                 if(state.pos < state.data.length() && state.data.charAt(state.pos) == '.')
                 {
-                    result += state.data.charAt(state.pos);
+                    result.append(state.data.charAt(state.pos));
                     ++state.pos;
                     // 1*DIGIT must follow "."
                     if(state.pos < state.data.length() && !Character.isDigit(state.data.charAt(state.pos)))
@@ -225,7 +225,7 @@ class RFC2253
             // KEYCHAR* otherwise it will not accept "O" as a valid
             // attribute type.
             //
-            result += state.data.charAt(state.pos);
+            result.append(state.data.charAt(state.pos));
             ++state.pos;
             // 1* KEYCHAR
             while(state.pos < state.data.length() &&
@@ -234,7 +234,7 @@ class RFC2253
                    Character.isLowerCase(state.data.charAt(state.pos)) ||
                    state.data.charAt(state.pos) == '-'))
             {
-                result += state.data.charAt(state.pos);
+                result.append(state.data.charAt(state.pos));
                 ++state.pos;
             }
         }
@@ -242,7 +242,7 @@ class RFC2253
         {
             throw new ParseException("invalid attribute type");
         }
-        return result;
+        return result.toString();
     }
 
     private static String
@@ -250,19 +250,19 @@ class RFC2253
         throws ParseException
     {
         eatWhite(state);
-        String result = new String();
         if(state.pos >= state.data.length())
         {
-            return result;
+            return "";
         }
 
         //
         // RFC 2253
         // # hexString
         //
+        StringBuffer result = new StringBuffer();
         if(state.data.charAt(state.pos) == '#')
         {
-            result += state.data.charAt(state.pos);
+            result.append(state.data.charAt(state.pos));
             ++state.pos;
             while(true)
             {
@@ -271,7 +271,7 @@ class RFC2253
                 {
                     break;
                 }
-                result += h;
+                result.append(h);
             }
         }
         //
@@ -281,7 +281,7 @@ class RFC2253
         //
         else if(state.data.charAt(state.pos) == '"')
         {
-            result += state.data.charAt(state.pos);
+            result.append(state.data.charAt(state.pos));
             ++state.pos;
             while(true)
             {
@@ -292,20 +292,20 @@ class RFC2253
                 // final terminating "
                 if(state.data.charAt(state.pos) == '"')
                 {
-                    result += state.data.charAt(state.pos);
+                    result.append(state.data.charAt(state.pos));
                     ++state.pos;
                     break;
                 }
                 // any character except '\'
                 else if(state.data.charAt(state.pos) != '\\')
                 {
-                    result += state.data.charAt(state.pos);
+                    result.append(state.data.charAt(state.pos));
                     ++state.pos;
                 }
                 // pair '\'
                 else
                 {
-                    result += parsePair(state);
+                    result.append(parsePair(state));
                 }
             }
         }
@@ -320,11 +320,11 @@ class RFC2253
             {
                 if(state.data.charAt(state.pos) == '\\')
                 {
-                    result += parsePair(state);
+                    result.append(parsePair(state));
                 }
                 else if(special.indexOf(state.data.charAt(state.pos)) == -1 && state.data.charAt(state.pos) != '"')
                 {
-                    result += state.data.charAt(state.pos);
+                    result.append(state.data.charAt(state.pos));
                     ++state.pos;
                 }
                 else
@@ -333,7 +333,7 @@ class RFC2253
                 }
             }
         }
-        return result;
+        return result.toString();
     }
 
     //
@@ -344,7 +344,7 @@ class RFC2253
     parsePair(ParseState state)
         throws ParseException
     {
-        String result = new String();
+        String result = "";
 
         assert(state.data.charAt(state.pos) == '\\');
         result += state.data.charAt(state.pos);
@@ -373,7 +373,7 @@ class RFC2253
     parseHexPair(ParseState state, boolean allowEmpty)
         throws ParseException
     {
-        String result = new String();
+        String result = "";
         if(state.pos < state.data.length() && hexvalid.indexOf(state.data.charAt(state.pos)) != -1)
         {
             result += state.data.charAt(state.pos);

@@ -780,12 +780,15 @@ public final class ObjectAdapterI implements ObjectAdapter
         //
         if(unknownProps.size() != 0 && properties.getPropertyAsIntWithDefault("Ice.Warn.UnknownProperties", 1) > 0)
         {
-            String message = "found unknown properties for object adapter `" + _name + "':";
+            StringBuffer message = new StringBuffer("found unknown properties for object adapter `");
+	    message.append(_name);
+	    message.append("':");
             for(String p : unknownProps)
             {
-                message += "\n    " + p;
+		message.append("\n    ");
+		message.append(p);
             }
-            _instance.initializationData().logger.warning(message);
+            _instance.initializationData().logger.warning(message.toString());
         }
 
         //
@@ -1173,18 +1176,20 @@ public final class ObjectAdapterI implements ObjectAdapter
 
         if(_instance.traceLevels().network >= 3)
         {
-            String s = "published endpoints for object adapter `" + _name + "':\n";
+            StringBuffer s = new StringBuffer("published endpoints for object adapter `");
+	    s.append(_name);
+	    s.append("':\n");
             boolean first = true;
             for(IceInternal.EndpointI endpoint : endpoints)
             {
                 if(!first)
                 {
-                    s += ":";
+		    s.append(":");
                 }
-                s += endpoint.toString();
+                s.append(endpoint.toString());
                 first = false;
             }
-            _instance.initializationData().logger.trace(_instance.traceLevels().networkCat, s);
+            _instance.initializationData().logger.trace(_instance.traceLevels().networkCat, s.toString());
         }
         return endpoints;
     }

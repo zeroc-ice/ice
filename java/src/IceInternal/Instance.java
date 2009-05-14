@@ -1037,12 +1037,13 @@ public final class Instance
             java.util.List<String> unusedProperties = ((Ice.PropertiesI)_initData.properties).getUnusedProperties();
             if(unusedProperties.size() != 0)
             {
-                String message = "The following properties were set but never read:";
+                StringBuffer message = new StringBuffer("The following properties were set but never read:");
                 for(String p : unusedProperties)
                 {
-                    message += "\n    " + p;
+		    message.append("\n    ");
+		    message.append(p);
                 }
-                _initData.logger.warning(message);
+                _initData.logger.warning(message.toString());
             }
         }
     }

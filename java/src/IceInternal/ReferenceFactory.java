@@ -418,12 +418,14 @@ public final class ReferenceFactory
             else if(unknownEndpoints.size() != 0 &&
                    _instance.initializationData().properties.getPropertyAsIntWithDefault("Ice.Warn.Endpoints", 1) > 0)
             {
-                String msg = "Proxy contains unknown endpoints:";
+                StringBuffer msg = new StringBuffer("Proxy contains unknown endpoints:");
                 for(String e : unknownEndpoints)
                 {
-                    msg += " `" + e + "'";
+		    msg.append(" `");
+		    msg.append(e);
+		    msg.append("'");
                 }
-                _instance.initializationData().logger.warning(msg);
+                _instance.initializationData().logger.warning(msg.toString());
             }
 
             EndpointI[] endp = new EndpointI[endpoints.size()];
@@ -687,12 +689,15 @@ public final class ReferenceFactory
 
         if(unknownProps.size() != 0)
         {
-            String message = "found unknown properties for proxy '" + prefix + "':";
+            StringBuffer message = new StringBuffer("found unknown properties for proxy '");
+	    message.append(prefix);
+	    message.append("':");
             for(String s : unknownProps)
             {
-                message += "\n    " + s;
+		message.append("\n    ");
+		message.append(s);
             }
-            _instance.initializationData().logger.warning(message);
+            _instance.initializationData().logger.warning(message.toString());
         }
     }
 

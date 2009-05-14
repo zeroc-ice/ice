@@ -10,6 +10,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Text;
 
 namespace IceInternal
 {
@@ -423,13 +424,15 @@ namespace IceInternal
                         instance_.initializationData().properties.getPropertyAsIntWithDefault(
                                                                                 "Ice.Warn.Endpoints", 1) > 0)
                 {
-                    string msg = "Proxy contains unknown endpoints:";
+                    StringBuilder msg = new StringBuilder("Proxy contains unknown endpoints:");
                     int sz = unknownEndpoints.Count;
                     for(int idx = 0; idx < sz; ++idx)
                     {
-                        msg += " `" + (string)unknownEndpoints[idx] + "'";
+                        msg.Append(" `");
+			msg.Append((string)unknownEndpoints[idx]);
+			msg.Append("'");
                     }
-                    instance_.initializationData().logger.warning(msg);
+                    instance_.initializationData().logger.warning(msg.ToString());
                 }
 
                 EndpointI[] ep = (EndpointI[])endpoints.ToArray(typeof(EndpointI));
@@ -674,12 +677,15 @@ namespace IceInternal
 
             if(unknownProps.Count != 0)
             {
-                string message = "found unknown properties for proxy '" + prefix + "':";
+                StringBuilder message = new StringBuilder("found unknown properties for proxy '");
+		message.Append(prefix);
+		message.Append("':");
                 foreach(string s in unknownProps)
                 {
-                    message += "\n    " + s;
+                    message.Append("\n    ");
+		    message.Append(s);
                 }
-                instance_.initializationData().logger.warning(message);
+                instance_.initializationData().logger.warning(message.ToString());
             }
         }
 

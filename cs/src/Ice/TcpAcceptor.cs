@@ -15,6 +15,7 @@ namespace IceInternal
     using System.Diagnostics;
     using System.Net;
     using System.Net.Sockets;
+    using System.Text;
 
     class TcpAcceptor : Acceptor
     {
@@ -51,27 +52,28 @@ namespace IceInternal
 
             if(_traceLevels.network >= 1)
             {
-                string s = "accepting tcp connections at " + ToString();
+                StringBuilder s = new StringBuilder("accepting tcp connections at ");
+		s.Append(ToString());
                 if(_traceLevels.network >= 3)
                 {
                     List<string> interfaces =
                         Network.getHostsForEndpointExpand(_addr.Address.ToString(), instance_.protocolSupport(), true);
                     if(interfaces.Count != 0)
                     {
-                        s += "\nlocal interfaces: ";
+                        s.Append("\nlocal interfaces: ");
                         bool first = true;
                         foreach(string iface in interfaces)
                         {
                             if(!first)
                             {
-                                s += ", ";
+                                s.Append(", ");
                             }
-                            s += iface;
+                            s.Append(iface);
                             first = false;
                         }
                     }
                 }
-                _logger.trace(_traceLevels.networkCat, s);
+                _logger.trace(_traceLevels.networkCat, s.ToString());
             }
         }
 

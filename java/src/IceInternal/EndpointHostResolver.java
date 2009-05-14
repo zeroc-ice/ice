@@ -108,7 +108,7 @@ public class EndpointHostResolver
         _queue.clear();
     }
     
-    class ResolveEntry
+    static class ResolveEntry
     {
         String host;
         int port;

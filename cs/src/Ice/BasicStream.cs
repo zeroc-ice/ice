@@ -489,8 +489,8 @@ namespace IceInternal
                 e.minor = Protocol.encodingMinor;
                 throw e;
             }
-            _readEncapsStack.encodingMajor = eMajor;
-            _readEncapsStack.encodingMinor = eMinor;
+            // _readEncapsStack.encodingMajor = eMajor; // Currently unused
+            // _readEncapsStack.encodingMinor = eMinor; // Currently unused
         }
 
         public virtual void endReadEncaps()
@@ -2126,7 +2126,7 @@ namespace IceInternal
             }
 
             string mostDerivedId = readTypeId();
-            string id = string.Copy(mostDerivedId);
+            string id = mostDerivedId;
 
             while(true)
             {
@@ -2879,8 +2879,8 @@ namespace IceInternal
             internal int start;
             internal int sz;
 
-            internal byte encodingMajor;
-            internal byte encodingMinor;
+            // internal byte encodingMajor; // Currently unused
+            // internal byte encodingMinor; // Currently unused
 
             internal Hashtable patchMap;
             internal Hashtable unmarshaledMap;

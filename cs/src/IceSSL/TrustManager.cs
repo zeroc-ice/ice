@@ -14,6 +14,7 @@ namespace IceSSL
     using System.Collections.Generic;
     using System.Diagnostics;
     using System.Security.Cryptography.X509Certificates;
+    using System.Text;
 
     sealed class TrustManager
     {
@@ -141,13 +142,13 @@ namespace IceSSL
                     {
                         if(traceLevel_ > 0)
                         {
-                            string s = "trust manager matching PDNs:\n";
+                            StringBuilder s = new StringBuilder("trust manager matching PDNs:\n");
                             bool addSemi = false;
                             foreach(ArrayList rdnSet in matchSet)
                             {
                                 if(addSemi)
                                 {
-                                    s += ';';
+                                    s.Append(';');
                                 }
                                 addSemi = true;
                                 bool addComma = false;
@@ -155,15 +156,15 @@ namespace IceSSL
                                 {
                                     if(addComma)
                                     {
-                                        s += ',';
+                                        s.Append(',');
                                     }
                                     addComma = true;
-                                    s += rdn.key;
-                                    s += '=';
-                                    s += rdn.value;
+                                    s.Append(rdn.key);
+                                    s.Append('=');
+                                    s.Append(rdn.value);
                                 }
                             }
-                            communicator_.getLogger().trace("Security", s);
+                            communicator_.getLogger().trace("Security", s.ToString());
                         }
                         if(match(matchSet, dn))
                         {

@@ -38,7 +38,8 @@ final class AcceptorI implements IceInternal.Acceptor
 
         if(_instance.networkTraceLevel() >= 1)
         {
-            String s = "accepting ssl connections at " + toString();
+            StringBuffer s = new StringBuffer("accepting ssl connections at ");
+	    s.append(toString());
             if(_instance.networkTraceLevel() >= 3)
             {
                 java.util.List<String> interfaces = 
@@ -46,20 +47,20 @@ final class AcceptorI implements IceInternal.Acceptor
                                                                   _instance.protocolSupport(), true);
                 if(!interfaces.isEmpty())
                 {
-                    s += "\nlocal interfaces: ";
+                    s.append("\nlocal interfaces: ");
                     boolean first = true;
                     for(String iface : interfaces)
                     {
                         if(!first)
                         {
-                            s += ", ";
+                            s.append(", ");
                         }
-                        s += iface;
+                        s.append(iface);
                         first = false;
                     }
                 }
             }
-            _logger.trace(_instance.networkTraceCategory(), s);
+            _logger.trace(_instance.networkTraceCategory(), s.toString());
         }
     }
 

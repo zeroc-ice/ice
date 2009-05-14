@@ -13,6 +13,7 @@ namespace Ice
     using System.Collections;
     using System.Collections.Generic;
     using System.Diagnostics;
+    using System.Text;
 
     public sealed class ObjectAdapterI : ObjectAdapter
     {
@@ -788,12 +789,15 @@ namespace Ice
             //
             if(unknownProps.Count != 0 && properties.getPropertyAsIntWithDefault("Ice.Warn.UnknownProperties", 1) > 0)
             {
-                string message = "found unknown properties for object adapter `" + _name + "':";
+                StringBuilder message = new StringBuilder("found unknown properties for object adapter `");
+		message.Append(_name);
+		message.Append("':");
                 foreach(string s in unknownProps)
                 {
-                    message += "\n    " + s;
+                    message.Append("\n    ");
+		    message.Append(s);
                 }
-                instance_.initializationData().logger.warning(message);
+                instance_.initializationData().logger.warning(message.ToString());
             }
 
             //
@@ -1188,18 +1192,20 @@ namespace Ice
 
             if(instance_.traceLevels().network >= 3)
              {
-                 string s = "published endpoints for object adapter `" + _name + "':\n";
+                 StringBuilder s = new StringBuilder("published endpoints for object adapter `");
+		 s.Append(_name);
+		 s.Append("':\n");
                  bool first = true;
                  foreach(IceInternal.EndpointI endpoint in endpoints)
                  {
                      if(!first)
                      {
-                         s += ":";
+                         s.Append(":");
                      }
-                     s += endpoint.ToString();
+                     s.Append(endpoint.ToString());
                      first = false;
                  }
-                 instance_.initializationData().logger.trace(instance_.traceLevels().networkCat, s);
+                 instance_.initializationData().logger.trace(instance_.traceLevels().networkCat, s.ToString());
              }
              return endpoints;
         }

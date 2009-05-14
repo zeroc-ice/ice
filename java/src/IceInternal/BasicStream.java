@@ -442,8 +442,8 @@ public class BasicStream
             e.minor = Protocol.encodingMinor;
             throw e;
         }
-        _readEncapsStack.encodingMajor = eMajor;
-        _readEncapsStack.encodingMinor = eMinor;
+        // _readEncapsStack.encodingMajor = eMajor; // Currently unused
+        // _readEncapsStack.encodingMinor = eMinor; // Currently unused
     }
 
     public void
@@ -645,7 +645,7 @@ public class BasicStream
         }
         else
         {
-            index = new Integer(++_writeEncapsStack.typeIdIndex);
+            index = Integer.valueOf(++_writeEncapsStack.typeIdIndex);
             _writeEncapsStack.typeIdMap.put(id, index);
             writeBool(false);
             writeString(id);
@@ -668,7 +668,7 @@ public class BasicStream
         final boolean isIndex = readBool();
         if(isIndex)
         {
-            index = new Integer(readSize());
+            index = Integer.valueOf(readSize());
             id = _readEncapsStack.typeIdMap.get(index);
             if(id == null)
             {
@@ -678,7 +678,7 @@ public class BasicStream
         else
         {
             id = readString();
-            index = new Integer(++_readEncapsStack.typeIdIndex);
+            index = Integer.valueOf(++_readEncapsStack.typeIdIndex);
             _readEncapsStack.typeIdMap.put(index, id);
         }
         return id;
@@ -1433,7 +1433,7 @@ public class BasicStream
                     // create a new index, and insert it into the
                     // to-be-marshaled map.
                     //
-                    q = new Integer(++_writeEncapsStack.writeIndex);
+                    q = Integer.valueOf(++_writeEncapsStack.writeIndex);
                     _writeEncapsStack.toBeMarshaledMap.put(v, q);
                 }
                 p = q;
@@ -1483,7 +1483,7 @@ public class BasicStream
 
             if(index < 0)
             {
-                Integer i = new Integer(-index);
+                Integer i = Integer.valueOf(-index);
                 java.util.LinkedList<Patcher> patchlist = _readEncapsStack.patchMap.get(i);
                 if(patchlist == null)
                 {
@@ -1510,7 +1510,7 @@ public class BasicStream
         }
 
         String mostDerivedId = readTypeId();
-        String id = new String(mostDerivedId);
+        String id = mostDerivedId;
 
         while(true)
         {
@@ -1588,7 +1588,7 @@ public class BasicStream
                 }
             }
 
-            Integer i = new Integer(index);
+            Integer i = Integer.valueOf(index);
             _readEncapsStack.unmarshaledMap.put(i, v);
 
             //
@@ -2012,7 +2012,7 @@ public class BasicStream
             //
             bos.write((int)'B');
             bos.write((int)'Z');
-            java.lang.Object[] args = new java.lang.Object[]{ bos, new Integer(compressionLevel) };
+            java.lang.Object[] args = new java.lang.Object[]{ bos, Integer.valueOf(compressionLevel) };
             java.io.OutputStream os = (java.io.OutputStream)_bzOutputStreamCtor.newInstance(args);
             os.write(data, offset + headerSize, uncompressedLen);
             os.close();
@@ -2451,8 +2451,8 @@ public class BasicStream
         int start;
         int sz;
 
-        byte encodingMajor;
-        byte encodingMinor;
+        // byte encodingMajor; // Currently unused
+        // byte encodingMinor; // Currently unused
 
         java.util.TreeMap<Integer, java.util.LinkedList<Patcher> > patchMap;
         java.util.TreeMap<Integer, Ice.Object> unmarshaledMap;

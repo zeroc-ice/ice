@@ -15,6 +15,7 @@ namespace IceSSL
     using System;
     using System.Collections;
     using System.Diagnostics;
+    using System.Text;
 
     class RFC2253
     {
@@ -122,13 +123,13 @@ namespace IceSSL
             //
             // Unescape the entire string.
             //
-            string result = "";
+            StringBuilder result = new StringBuilder();
             if(data[0] == '#')
             {
                 int pos = 1;
                 while(pos < data.Length)
                 {
-                    result += unescapeHex(data, pos);
+                    result.Append(unescapeHex(data, pos));
                     pos += 2;
                 }
             }
@@ -139,7 +140,7 @@ namespace IceSSL
                 {
                     if(data[pos] != '\\')
                     {
-                        result += data[pos];
+                        result.Append(data[pos]);
                         ++pos;
                     }
                     else
@@ -151,18 +152,18 @@ namespace IceSSL
                         }
                         if(special.IndexOf(data[pos]) != -1 || data[pos] != '\\' || data[pos] != '"')
                         {
-                            result += data[pos];
+                            result.Append(data[pos]);
                             ++pos;
                             }
                         else
                         {
-                            result += unescapeHex(data, pos);
+                            result.Append(unescapeHex(data, pos));
                             pos += 2;
                         }
                     }
                 }
             }
-            return result;
+            return result.ToString();
         }
         
         private static int
@@ -334,19 +335,19 @@ namespace IceSSL
         parseAttributeValue(string data, ref int pos)
         {
             eatWhite(data, ref pos);
-            string result = "";
             if(pos >= data.Length)
             {
-                return result;
+                return "";
             }
 
             //
             // RFC 2253
             // # hexstring
             //
+            StringBuilder result = new StringBuilder();
             if(data[pos] == '#')
             {
-                result += data[pos];
+                result.Append(data[pos]);
                 ++pos;
                 while(true)
                 {
@@ -355,7 +356,7 @@ namespace IceSSL
                     {
                         break;
                     }
-                    result += h;
+                    result.Append(h);
                 }
             }
             //
@@ -365,7 +366,7 @@ namespace IceSSL
             //
             else if(data[pos] == '"')
             {
-                result += data[pos];
+                result.Append(data[pos]);
                 ++pos;
                 while(true)
                 {
@@ -376,20 +377,20 @@ namespace IceSSL
                     // final terminating "
                     if(data[pos] == '"')
                     {
-                        result += data[pos];
+                        result.Append(data[pos]);
                         ++pos;
                         break;
                     }
                     // any character except '\'
                     else if(data[pos] != '\\')
                     {
-                        result += data[pos];
+                        result.Append(data[pos]);
                         ++pos;
                     }
                     // pair '\'
                     else
                     {
-                        result += parsePair(data, ref pos);
+                        result.Append(parsePair(data, ref pos));
                     }
                 }
             }
@@ -404,11 +405,11 @@ namespace IceSSL
                 {
                     if(data[pos] == '\\')
                     {
-                        result += parsePair(data, ref pos);
+                        result.Append(parsePair(data, ref pos));
                     }
                     else if(special.IndexOf(data[pos]) == -1 && data[pos] != '"')
                     {
-                        result += data[pos];
+                        result.Append(data[pos]);
                         ++pos;
                     }
                     else
@@ -417,7 +418,7 @@ namespace IceSSL
                     }
                 }
             }
-            return result;
+            return result.ToString();
         }
 
         //

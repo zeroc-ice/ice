@@ -38,7 +38,8 @@ class TcpAcceptor implements Acceptor
 
         if(_traceLevels.network >= 1)
         {
-            String s = "accepting tcp connections at " + toString();
+            StringBuffer s = new StringBuffer("accepting tcp connections at ");
+	    s.append(toString());
             if(_traceLevels.network >= 3)
             {
                 java.util.List<String> interfaces = 
@@ -46,20 +47,20 @@ class TcpAcceptor implements Acceptor
                                                       _instance.protocolSupport(), true);
                 if(!interfaces.isEmpty())
                 {
-                    s += "\nlocal interfaces: ";
+		    s.append("\nlocal interfaces: ");
                     boolean first = true;
                     for(String iface : interfaces)
                     {
                         if(!first)
                         {
-                            s += ", ";
+			    s.append(", ");
                         }
-                        s += iface;
+                        s.append(iface);
                         first = false;
                     }
                 }
             }
-            _logger.trace(_traceLevels.networkCat, s);
+            _logger.trace(_traceLevels.networkCat, s.toString());
         }
     }
 

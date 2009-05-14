@@ -16,6 +16,7 @@ namespace IceInternal
     using System.Net;
     using System.Net.Sockets;
     using System.Threading;
+    using System.Text;
 
     sealed class UdpTransceiver : Transceiver
     {
@@ -635,27 +636,28 @@ namespace IceInternal
 
                 if(_traceLevels.network >= 1)
                 {
-                    string s = "starting to receive udp packets\n" + ToString();
+                    StringBuilder s = new StringBuilder("starting to receive udp packets\n");
+		    s.Append(ToString());
                     if(_traceLevels.network >= 3)
                     {
                         List<string> interfaces =
                             Network.getHostsForEndpointExpand(_addr.Address.ToString(), _protocolSupport, true);
                         if(interfaces.Count != 0)
                         {
-                            s += "\nlocal interfaces: ";
+                            s.Append("\nlocal interfaces: ");
                             bool first = true;
                             foreach(string iface in interfaces)
                             {
                                 if(!first)
                                 {
-                                    s += ", ";
+				    s.Append(", ");
                                 }
-                                s += iface;
+                                s.Append(iface);
                                 first = false;
                             }
                         }
                     }
-                    _logger.trace(_traceLevels.networkCat, s);
+                    _logger.trace(_traceLevels.networkCat, s.ToString());
                 }
             }
             catch(Ice.LocalException)
