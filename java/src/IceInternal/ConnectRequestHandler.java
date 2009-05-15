@@ -374,7 +374,7 @@ public class ConnectRequestHandler
         {
             assert(_connection != null && !_initialized);
             
-            if(_batchRequestInProgress)
+            while(_batchRequestInProgress)
             {
                 try
                 {

@@ -338,7 +338,7 @@ namespace IceInternal
             {
                 Debug.Assert(_connection != null && !_initialized);
 
-                if(_batchRequestInProgress)
+                while(_batchRequestInProgress)
                 {
                     Monitor.Wait(this);
                 }

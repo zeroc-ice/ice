@@ -1299,7 +1299,7 @@ Slice::Gen::writeChecksumClass(const string& checksumClass, const string& dir, c
     //
     // Use a static initializer to populate the checksum map.
     //
-    out << sp << nl << "public static java.util.Map<String, String> checksums;";
+    out << sp << nl << "public static final java.util.Map<String, String> checksums;";
     out << sp << nl << "static";
     out << sb;
     out << nl << "java.util.Map<String, String> map = new java.util.HashMap<String, String>();";
