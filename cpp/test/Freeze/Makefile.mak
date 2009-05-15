@@ -13,8 +13,7 @@ top_srcdir	= ..\..
 
 SUBDIRS		= dbmap \
 		  complex \
-		  evictor \
-		  oldevictor
+		  evictor
 
 $(EVERYTHING)::
 	@for %i in ( $(SUBDIRS) ) do \

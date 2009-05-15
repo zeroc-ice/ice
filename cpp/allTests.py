@@ -62,7 +62,6 @@ tests = [
     ("Freeze/dbmap", ["once"]),
     ("Freeze/complex", ["once"]),
     ("Freeze/evictor", ["core"]),
-    ("Freeze/oldevictor", ["core"]),
     ("IceStorm/single", ["service"]),
     ("IceStorm/federation", ["service"]),
     ("IceStorm/federation2", ["service"]),

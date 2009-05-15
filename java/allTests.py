@@ -62,7 +62,6 @@ tests = [
     ("Freeze/dbmap", ["once"]),
     ("Freeze/complex", ["once"]),
     ("Freeze/evictor", ["core"]),
-    ("Freeze/oldevictor", ["core"]),
     ("Glacier2/router", ["service"]),
     ("IceGrid/simple", ["service"]),
     ("IceSSL/configuration", ["once"]),

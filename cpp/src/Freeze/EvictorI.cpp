@@ -160,7 +160,6 @@ Freeze::EvictorIBase::EvictorIBase(const ObjectAdapterPtr& adapter,
     _trace = _communicator->getProperties()->getPropertyAsInt("Freeze.Trace.Evictor");
     _txTrace = _communicator->getProperties()->getPropertyAsInt("Freeze.Trace.Transaction");
     _deadlockWarning = (_communicator->getProperties()->getPropertyAsInt("Freeze.Warn.Deadlocks") != 0);
-    _useNonmutating = (_communicator->getProperties()->getPropertyAsInt("Freeze.Evictor.UseNonmutating") != 0);
 }
 
 

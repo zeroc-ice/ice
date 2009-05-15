@@ -423,8 +423,7 @@ Freeze::TransactionalEvictorI::dispatch(Request& request)
 
     int operationAttributes = sample->ice_operationAttributes(current.operation);
                 
-    bool readOnly = (_useNonmutating && current.mode == Nonmutating) 
-        || (!_useNonmutating && (operationAttributes & 0x1) == 0);
+    bool readOnly = (operationAttributes & 0x1) == 0;
                 
     int txMode = (operationAttributes & 0x6) >> 1;
                 

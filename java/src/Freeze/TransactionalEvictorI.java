@@ -350,8 +350,7 @@ class TransactionalEvictorI extends EvictorI implements TransactionalEvictor
 
                 int operationAttributes = sample.ice_operationAttributes(current.operation);
                 
-                boolean readOnly = (_useNonmutating && current.mode == Ice.OperationMode.Nonmutating) 
-                    || (!_useNonmutating && (operationAttributes & 0x1) == 0);
+                boolean readOnly = (operationAttributes & 0x1) == 0;
                 
                 int txMode = (operationAttributes & 0x6) >> 1;
                 

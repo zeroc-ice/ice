@@ -145,8 +145,6 @@ protected:
 
     bool _deadlockWarning;
 
-    bool _useNonmutating;
-
 private:
 
     Ice::ObjectPtr _pingObject;

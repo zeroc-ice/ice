@@ -550,7 +550,6 @@ generated from the section label.
         <property name="Evictor.[any].SavePeriod" />
         <property name="Evictor.[any].SaveSizeTrigger" />
         <property name="Evictor.[any].StreamTimeout" />
-        <property name="Evictor.UseNonmutating" />
         <property name="Map.[any].BtreeMinKey" />
         <property name="Map.[any].Checksum" />
         <property name="Map.[any].PageSize" />

@@ -55,7 +55,10 @@ noted.
   ObjectPrx:ice_defaultContext
 
 - Support for the nonmutating slice keyword which was previously 
-  deprecated has been removed.
+  deprecated has been removed. As a result the following property has
+  already been removed.
+
+  Freeze.UseNonmutating
 
 - HP-UX is no longer a supported platform for Ice.
 

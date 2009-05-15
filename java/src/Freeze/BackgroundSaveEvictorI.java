@@ -856,8 +856,7 @@ class BackgroundSaveEvictorI extends EvictorI implements BackgroundSaveEvictor, 
             
                 boolean enqueue = false;
             
-                if((_useNonmutating && current.mode != Ice.OperationMode.Nonmutating) ||
-                   (!_useNonmutating && (servant.ice_operationAttributes(current.operation) & 0x1) != 0))
+                if((servant.ice_operationAttributes(current.operation) & 0x1) != 0)
                 {
                     synchronized(element)
                     {

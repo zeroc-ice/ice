@@ -306,9 +306,6 @@
             <fileset dir="test/Freeze/evictor">
                 <include name="Test.ice" />
             </fileset>
-            <fileset dir="test/Freeze/oldevictor">
-                <include name="Test.ice" />
-            </fileset>
         </slice2java>
 
         <!-- test/Freeze/complex -->

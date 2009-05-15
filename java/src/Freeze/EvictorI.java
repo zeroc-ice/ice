@@ -338,7 +338,6 @@ abstract class EvictorI implements Evictor
         _trace = _communicator.getProperties().getPropertyAsInt("Freeze.Trace.Evictor");
         _txTrace = _communicator.getProperties().getPropertyAsInt("Freeze.Trace.Transaction");
         _deadlockWarning = _communicator.getProperties().getPropertyAsInt("Freeze.Warn.Deadlocks") != 0;
-        _useNonmutating = _communicator.getProperties().getPropertyAsInt("Freeze.Evictor.UseNonmutating") != 0;
         
         _errorPrefix = "Freeze Evictor DbEnv(\"" + envName + "\") Db(\"" + _filename + "\"): ";
 
@@ -605,8 +604,6 @@ abstract class EvictorI implements Evictor
     
     protected boolean _deadlockWarning;    
     
-    protected boolean _useNonmutating;
-
     protected DeactivateController _deactivateController = new DeactivateController();
 
     private Ice.Object _pingObject = new PingObject();
