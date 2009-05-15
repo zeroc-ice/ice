@@ -54,6 +54,9 @@ noted.
   Communicator::getDefaultContext
   ObjectPrx:ice_defaultContext
 
+- Support for the nonmutating slice keyword which was previously 
+  deprecated has been removed.
+
 - HP-UX is no longer a supported platform for Ice.
 
 - Added extra network tracing to show the list of local interfaces

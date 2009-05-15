@@ -27,18 +27,18 @@ exception EvictorDeactivatedException
 
 class Servant
 {
-    nonmutating int getValue();
-    ["amd"] nonmutating int slowGetValue();
+    ["cpp:const"] idempotent int getValue();
+    ["amd", "cpp:const"] idempotent int slowGetValue();
 
     void setValue(int value);
 
     ["ami", "amd"] void setValueAsync(int value);
-    nonmutating void releaseAsync();
+    ["cpp:const"] idempotent void releaseAsync();
 
-    nonmutating void addFacet(string name, string data) throws AlreadyRegisteredException;
-    nonmutating void removeFacet(string name) throws NotRegisteredException;
+    ["cpp:const"] idempotent void addFacet(string name, string data) throws AlreadyRegisteredException;
+    ["cpp:const"] idempotent void removeFacet(string name) throws NotRegisteredException;
 
-    nonmutating int getTransientValue();
+    ["cpp:const"] idempotent int getTransientValue();
     void setTransientValue(int value);
     void keepInCache();
     void release() throws NotRegisteredException;
@@ -50,7 +50,7 @@ class Servant
 
 class Facet extends Servant
 {
-    nonmutating string getData();
+    ["cpp:const"] idempotent string getData();
     void setData(string data);
 
     string data;

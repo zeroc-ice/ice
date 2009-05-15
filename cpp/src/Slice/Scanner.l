@@ -441,7 +441,6 @@ initScanner()
     keywordMap["const"] = ICE_CONST;
     keywordMap["false"] = ICE_FALSE;
     keywordMap["true"] = ICE_TRUE;
-    keywordMap["nonmutating"] = ICE_NONMUTATING;
     keywordMap["idempotent"] = ICE_IDEMPOTENT;
 }
 

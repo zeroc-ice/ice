@@ -1,9 +1,7 @@
-/* A Bison parser, made by GNU Bison 2.3.  */
+/* A Bison parser, made by GNU Bison 1.875c.  */
 
-/* Skeleton interface for Bison's Yacc-like parsers in C
-
-   Copyright (C) 1984, 1989, 1990, 2000, 2001, 2002, 2003, 2004, 2005, 2006
-   Free Software Foundation, Inc.
+/* Skeleton parser for Yacc-like parsing with Bison,
+   Copyright (C) 1984, 1989, 1990, 2000, 2001, 2002, 2003 Free Software Foundation, Inc.
 
    This program is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -17,21 +15,13 @@
 
    You should have received a copy of the GNU General Public License
    along with this program; if not, write to the Free Software
-   Foundation, Inc., 51 Franklin Street, Fifth Floor,
-   Boston, MA 02110-1301, USA.  */
+   Foundation, Inc., 59 Temple Place - Suite 330,
+   Boston, MA 02111-1307, USA.  */
 
-/* As a special exception, you may create a larger work that contains
-   part or all of the Bison parser skeleton and distribute that work
-   under terms of your choice, so long as that work isn't itself a
-   parser generator using the skeleton or a modified version thereof
-   as a parser skeleton.  Alternatively, if you modify or redistribute
-   the parser skeleton itself, you may (at your option) remove this
-   special exception, which will cause the skeleton and the resulting
-   Bison output files to be licensed under the GNU General Public
-   License without this special exception.
-
-   This special exception was added by the Free Software Foundation in
-   version 2.2 of Bison.  */
+/* As a special exception, when this file is copied by Bison into a
+   Bison output file, you may use that output file without restriction.
+   This special exception was added by the Free Software Foundation
+   in version 1.24 of Bison.  */
 
 /* Tokens.  */
 #ifndef YYTOKENTYPE
@@ -66,23 +56,21 @@
      ICE_CONST = 282,
      ICE_FALSE = 283,
      ICE_TRUE = 284,
-     ICE_NONMUTATING = 285,
-     ICE_IDEMPOTENT = 286,
-     ICE_SCOPE_DELIMITER = 287,
-     ICE_IDENTIFIER = 288,
-     ICE_STRING_LITERAL = 289,
-     ICE_INTEGER_LITERAL = 290,
-     ICE_FLOATING_POINT_LITERAL = 291,
-     ICE_IDENT_OP = 292,
-     ICE_KEYWORD_OP = 293,
-     ICE_METADATA_OPEN = 294,
-     ICE_METADATA_CLOSE = 295,
-     ICE_GLOBAL_METADATA_OPEN = 296,
-     ICE_GLOBAL_METADATA_CLOSE = 297,
-     BAD_CHAR = 298
+     ICE_IDEMPOTENT = 285,
+     ICE_SCOPE_DELIMITER = 286,
+     ICE_IDENTIFIER = 287,
+     ICE_STRING_LITERAL = 288,
+     ICE_INTEGER_LITERAL = 289,
+     ICE_FLOATING_POINT_LITERAL = 290,
+     ICE_IDENT_OP = 291,
+     ICE_KEYWORD_OP = 292,
+     ICE_METADATA_OPEN = 293,
+     ICE_METADATA_CLOSE = 294,
+     ICE_GLOBAL_METADATA_OPEN = 295,
+     ICE_GLOBAL_METADATA_CLOSE = 296,
+     BAD_CHAR = 297
    };
 #endif
-/* Tokens.  */
 #define ICE_MODULE 258
 #define ICE_CLASS 259
 #define ICE_INTERFACE 260
@@ -110,30 +98,31 @@
 #define ICE_CONST 282
 #define ICE_FALSE 283
 #define ICE_TRUE 284
-#define ICE_NONMUTATING 285
-#define ICE_IDEMPOTENT 286
-#define ICE_SCOPE_DELIMITER 287
-#define ICE_IDENTIFIER 288
-#define ICE_STRING_LITERAL 289
-#define ICE_INTEGER_LITERAL 290
-#define ICE_FLOATING_POINT_LITERAL 291
-#define ICE_IDENT_OP 292
-#define ICE_KEYWORD_OP 293
-#define ICE_METADATA_OPEN 294
-#define ICE_METADATA_CLOSE 295
-#define ICE_GLOBAL_METADATA_OPEN 296
-#define ICE_GLOBAL_METADATA_CLOSE 297
-#define BAD_CHAR 298
+#define ICE_IDEMPOTENT 285
+#define ICE_SCOPE_DELIMITER 286
+#define ICE_IDENTIFIER 287
+#define ICE_STRING_LITERAL 288
+#define ICE_INTEGER_LITERAL 289
+#define ICE_FLOATING_POINT_LITERAL 290
+#define ICE_IDENT_OP 291
+#define ICE_KEYWORD_OP 292
+#define ICE_METADATA_OPEN 293
+#define ICE_METADATA_CLOSE 294
+#define ICE_GLOBAL_METADATA_OPEN 295
+#define ICE_GLOBAL_METADATA_CLOSE 296
+#define BAD_CHAR 297
 
 
 
 
-#if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
+#if ! defined (YYSTYPE) && ! defined (YYSTYPE_IS_DECLARED)
 typedef int YYSTYPE;
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */
 # define YYSTYPE_IS_DECLARED 1
 # define YYSTYPE_IS_TRIVIAL 1
 #endif
+
+
 
 
 

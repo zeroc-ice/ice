@@ -76,7 +76,6 @@ slice_error(const char* s)
 %token ICE_CONST
 %token ICE_FALSE
 %token ICE_TRUE
-%token ICE_NONMUTATING
 %token ICE_IDEMPOTENT
 
 //
@@ -715,47 +714,6 @@ operation_preamble
         $$ = 0;
     }
 }
-| ICE_NONMUTATING return_type ICE_IDENT_OP
-{
-    TypePtr returnType = TypePtr::dynamicCast($2);
-    string name = StringTokPtr::dynamicCast($3)->v;
-    ClassDefPtr cl = ClassDefPtr::dynamicCast(unit->currentContainer());
-    if(cl)
-    {
-	OperationPtr op = cl->createOperation(name, returnType, Operation::Nonmutating);
-	if(op)
-	{
-	    cl->checkIntroduced(name, op);
-	    unit->pushContainer(op);
-	    static bool firstWarning = true;  
-	    
-	    string msg = "the keyword 'nonmutating' is deprecated";
-	    if(firstWarning)
-	    {
-		msg += ";\n";
-		msg += "You should use instead 'idempotent' plus:\n";
-		msg += " - Freeze metadata ([\"freeze:read\"], [\"freeze:write\"]) if you implement your objects with a Freeze evictor\n";
-		msg += " - [\"nonmutating\"], if you need to maintain compatibility with operations that expect ";
-		msg += "'Nonmutating' as operation-mode. With this metadata, the generated code sends ";
-		msg += "'Nonmutating' instead of 'Idempotent'\n";
-		msg += " - [\"cpp:const\"], to get a const member function on the generated C++ servant base class";
-
-		firstWarning = false;
-	    }
-	    
-	    unit->warning(msg); 
-	    $$ = op;
-	}
-	else
-	{
-	    $$ = 0;
-	}
-    }
-    else
-    {
-        $$ = 0;
-    }
-}
 | ICE_IDEMPOTENT return_type ICE_IDENT_OP
 {
     TypePtr returnType = TypePtr::dynamicCast($2);
@@ -802,30 +760,6 @@ operation_preamble
     else
     {
         $$ = 0;
-    }
-}
-| ICE_NONMUTATING return_type ICE_KEYWORD_OP
-{
-    TypePtr returnType = TypePtr::dynamicCast($2);
-    string name = StringTokPtr::dynamicCast($3)->v;
-    ClassDefPtr cl = ClassDefPtr::dynamicCast(unit->currentContainer());
-    if(cl)
-    {
-	OperationPtr op = cl->createOperation(name, returnType, Operation::Nonmutating);
-	if(op)
-	{
-	    unit->pushContainer(op);
-	    unit->error("keyword `" + name + "' cannot be used as operation name");
-	    $$ = op; // Dummy
-	}
-	else
-	{
-	    $$ = 0;
-	}
-    }
-    else
-    {
-    	$$ = 0;
     }
 }
 | ICE_IDEMPOTENT return_type ICE_KEYWORD_OP
@@ -1785,9 +1719,6 @@ keyword
 {
 }
 | ICE_TRUE
-{
-}
-| ICE_NONMUTATING
 {
 }
 | ICE_IDEMPOTENT
