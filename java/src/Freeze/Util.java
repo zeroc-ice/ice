@@ -12,40 +12,40 @@ package Freeze;
 public class Util
 {
     public static BackgroundSaveEvictor
-    createBackgroundSaveEvictor(Ice.ObjectAdapter adapter, String envName, String filename, ServantInitializer initializer,
-                                Index[] indices, boolean createDb)
-    {
-        return new BackgroundSaveEvictorI(adapter, envName, filename, initializer, indices, createDb);
-    } 
-
-    public static BackgroundSaveEvictor
-    createBackgroundSaveEvictor(Ice.ObjectAdapter adapter, String envName, com.sleepycat.db.Environment dbEnv, String filename, 
+    createBackgroundSaveEvictor(Ice.ObjectAdapter adapter, String envName, String filename,
                                 ServantInitializer initializer, Index[] indices, boolean createDb)
     {
-        return new BackgroundSaveEvictorI(adapter, envName, dbEnv, filename, initializer, indices, createDb);
-    } 
+        return new BackgroundSaveEvictorI(adapter, envName, filename, initializer, indices, createDb);
+    }
 
+    public static BackgroundSaveEvictor
+    createBackgroundSaveEvictor(Ice.ObjectAdapter adapter, String envName, com.sleepycat.db.Environment dbEnv,
+                                String filename, ServantInitializer initializer, Index[] indices, boolean createDb)
+    {
+        return new BackgroundSaveEvictorI(adapter, envName, dbEnv, filename, initializer, indices, createDb);
+    }
 
     public static TransactionalEvictor
-    createTransactionalEvictor(Ice.ObjectAdapter adapter, String envName, String filename, java.util.Map facetTypes,
-                               ServantInitializer initializer, Index[] indices, boolean createDb)
+    createTransactionalEvictor(Ice.ObjectAdapter adapter, String envName, String filename,
+                               java.util.Map<String, String> facetTypes, ServantInitializer initializer,
+                               Index[] indices, boolean createDb)
     {
         return new TransactionalEvictorI(adapter, envName, filename, facetTypes, initializer, indices, createDb);
-    } 
+    }
 
     public static TransactionalEvictor
-    createTransactionalEvictor(Ice.ObjectAdapter adapter, String envName, com.sleepycat.db.Environment dbEnv, String filename, 
-                               java.util.Map facetTypes, ServantInitializer initializer, Index[] indices, boolean createDb)
+    createTransactionalEvictor(Ice.ObjectAdapter adapter, String envName, com.sleepycat.db.Environment dbEnv,
+                               String filename, java.util.Map<String, String> facetTypes,
+                               ServantInitializer initializer, Index[] indices, boolean createDb)
     {
         return new TransactionalEvictorI(adapter, envName, dbEnv, filename, facetTypes, initializer, indices, createDb);
     }
 
-    
     public static Connection
     createConnection(Ice.Communicator communicator, String envName)
     {
         return new ConnectionI(communicator, envName, null);
-    } 
+    }
 
     public static Connection
     createConnection(Ice.Communicator communicator, String envName, com.sleepycat.db.Environment dbEnv)
@@ -53,16 +53,17 @@ public class Util
         return new ConnectionI(communicator, envName, dbEnv);
     }
 
-    public static String catalogName()
+    public static String
+    catalogName()
     {
         return _catalogName;
     }
-    
-    public static String catalogIndexListName()
+
+    public static String
+    catalogIndexListName()
     {
         return _catalogIndexListName;
     }
-
 
     public static com.sleepycat.db.Transaction
     getTxn(Transaction tx)
@@ -84,8 +85,9 @@ public class Util
         _fatalErrorCallback = cb;
         return result;
     }
-    
-    static synchronized void handleFatalError(BackgroundSaveEvictor evictor, Ice.Communicator communicator, RuntimeException ex)
+
+    static synchronized void
+    handleFatalError(BackgroundSaveEvictor evictor, Ice.Communicator communicator, RuntimeException ex)
     {
         if(_fatalErrorCallback != null)
         {

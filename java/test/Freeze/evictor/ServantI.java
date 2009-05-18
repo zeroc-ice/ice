@@ -21,7 +21,6 @@ public class ServantI implements _ServantOperations
         }
     }
 
-
     static class DelayedResponse extends Thread
     {
         DelayedResponse(AMD_Servant_slowGetValue cb, int val)
@@ -47,7 +46,6 @@ public class ServantI implements _ServantOperations
         private AMD_Servant_slowGetValue _cb;
         private int _val;
     }
-
 
     ServantI(Servant tie)
     {

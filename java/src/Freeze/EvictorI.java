@@ -20,13 +20,15 @@ abstract class EvictorI implements Evictor
     //
     class DeactivateController
     {
-        synchronized void activate()
+        synchronized void
+        activate()
         {
             assert !_activated;
             _activated = true;
         }
 
-        synchronized void lock()
+        synchronized void
+        lock()
         {
             assert _activated;
 
@@ -37,7 +39,8 @@ abstract class EvictorI implements Evictor
             _guardCount++;
         }
 
-        synchronized void unlock()
+        synchronized void
+        unlock()
         {
             assert _activated;
 
@@ -51,13 +54,15 @@ abstract class EvictorI implements Evictor
                 notifyAll();
             }
         }
-        
-        synchronized boolean deactivated()
+
+        synchronized boolean
+        deactivated()
         {
             return !_activated || _deactivated;
         }
-        
-        synchronized boolean deactivate()
+
+        synchronized boolean
+        deactivate()
         {
             assert _activated;
 
@@ -65,7 +70,7 @@ abstract class EvictorI implements Evictor
             {
                 return false;
             }
-            
+
             if(_deactivating)
             {
                 //
@@ -91,9 +96,8 @@ abstract class EvictorI implements Evictor
                 {
                     if(_trace >= 1)
                     {
-                        _communicator.getLogger().trace(
-                        "Freeze.Evictor",  "Waiting for " + _guardCount +
-                        " threads to complete before starting deactivation.");
+                        _communicator.getLogger().trace("Freeze.Evictor",  "Waiting for " + _guardCount +
+                            " threads to complete before starting deactivation.");
                     }
 
                     try
@@ -114,7 +118,8 @@ abstract class EvictorI implements Evictor
             }
         }
 
-        synchronized void deactivationComplete()
+        synchronized void
+        deactivationComplete()
         {
             if(_trace >= 1)
             {
@@ -134,7 +139,6 @@ abstract class EvictorI implements Evictor
 
     static final String defaultDb = "$default";
     static final String indexPrefix = "$index:";
-
 
     public Ice.ObjectPrx
     add(Ice.Object servant, Ice.Identity ident)
@@ -161,7 +165,7 @@ abstract class EvictorI implements Evictor
         // Special ice_ping() handling
         //
         if(current.operation != null && current.operation.equals("ice_ping"))
-        {         
+        {
             if(hasFacet(current.id, current.facet))
             {
                 if(_trace >= 3)
@@ -170,6 +174,7 @@ abstract class EvictorI implements Evictor
                         "Freeze.Evictor", "ice_ping found \"" + _communicator.identityToString(current.id) +
                         "\" with facet \"" + current.facet + "\"");
                 }
+
                 cookie.value = null;
                 return _pingObject;
             }
@@ -181,7 +186,7 @@ abstract class EvictorI implements Evictor
                         "Freeze.Evictor", "ice_ping raises FacetNotExistException for \"" +
                         _communicator.identityToString(current.id)  + "\" with facet \"" + current.facet + "\"");
                 }
-                
+
                 throw new Ice.FacetNotExistException();
             }
             else
@@ -192,13 +197,13 @@ abstract class EvictorI implements Evictor
                         "Freeze.Evictor", "ice_ping will raise ObjectNotExistException for \"" +
                         _communicator.identityToString(current.id)  + "\" with facet \"" + current.facet + "\"");
                 }
-                
+
                 return null;
             }
         }
-        
+
         Ice.Object result = locateImpl(current, cookie);
-        
+
         if(result == null)
         {
             if(hasAnotherFacet(current.id, current.facet))
@@ -222,12 +227,12 @@ abstract class EvictorI implements Evictor
             {
                 return;
             }
-        
+
             //
             // Update the evictor size.
             //
             _evictorSize = evictorSize;
-        
+
             //
             // Evict as many elements as necessary.
             //
@@ -238,14 +243,13 @@ abstract class EvictorI implements Evictor
             _deactivateController.unlock();
         }
     }
-        
+
     synchronized public int
     getSize()
-    {   
+    {
         return _evictorSize;
     }
 
-   
     public EvictorIterator
     getIterator(String facet, int batchSize)
     {
@@ -268,53 +272,38 @@ abstract class EvictorI implements Evictor
     abstract protected boolean hasAnotherFacet(Ice.Identity ident, String facet);
 
     abstract protected Object createEvictorElement(Ice.Identity ident, ObjectRecord rec, ObjectStore store);
-  
+
     abstract protected Ice.Object locateImpl(Ice.Current current, Ice.LocalObjectHolder cookie);
-   
+
     abstract protected void evict();
-
-
-    synchronized protected void
-    finalize()
-    {
-        if(!_deactivateController.deactivated())
-        {
-            _communicator.getLogger().warning("Freeze evictor " + toString() + " has not been deactivated");
-            deactivate("");
-        }
-    }
 
     protected void
     closeDbEnv()
     {
         assert _dbEnv != null;
-        java.util.Iterator p = _storeMap.values().iterator();
-        while(p.hasNext())
+        for(ObjectStore store : _storeMap.values())
         {
-            ObjectStore store = (ObjectStore)p.next();
             store.close();
         }
         _dbEnv.close();
         _dbEnv = null;
     }
 
-
     protected synchronized ObjectStore
     findStore(String facet, boolean createIt)
     {
-        ObjectStore os = (ObjectStore)_storeMap.get(facet);
+        ObjectStore os = _storeMap.get(facet);
 
         if(os == null && createIt)
         {
-            String facetType = (String)_facetTypes.get(facet);
-            os = new ObjectStore(facet, facetType, true, this, new java.util.LinkedList(), false);
-            
+            String facetType = _facetTypes.get(facet);
+            os = new ObjectStore(facet, facetType, true, this, new java.util.LinkedList<Index>(), false);
             _storeMap.put(facet, os);
         }
         return os;
     }
 
-    protected void 
+    protected void
     initialize(Ice.Identity ident, String facet, Ice.Object servant)
     {
         if(_initializer != null)
@@ -323,37 +312,39 @@ abstract class EvictorI implements Evictor
         }
     }
 
-    protected EvictorI(Ice.ObjectAdapter adapter, String envName, com.sleepycat.db.Environment dbEnv, String filename, 
-                       java.util.Map facetTypes, ServantInitializer initializer, Index[] indices, boolean createDb)
+    protected
+    EvictorI(Ice.ObjectAdapter adapter, String envName, com.sleepycat.db.Environment dbEnv, String filename,
+             java.util.Map<String, String> facetTypes, ServantInitializer initializer, Index[] indices,
+             boolean createDb)
     {
         _adapter = adapter;
         _communicator = adapter.getCommunicator();
         _initializer = initializer;
         _filename = filename;
         _createDb = createDb;
-        _facetTypes = facetTypes == null ? new java.util.HashMap() : new java.util.HashMap(facetTypes);
-       
+        _facetTypes = facetTypes == null ? new java.util.HashMap<String, String>() :
+            new java.util.HashMap<String, String>(facetTypes);
+
         _dbEnv = SharedDbEnv.get(_communicator, envName, dbEnv);
 
         _trace = _communicator.getProperties().getPropertyAsInt("Freeze.Trace.Evictor");
         _txTrace = _communicator.getProperties().getPropertyAsInt("Freeze.Trace.Transaction");
         _deadlockWarning = _communicator.getProperties().getPropertyAsInt("Freeze.Warn.Deadlocks") != 0;
-        
+
         _errorPrefix = "Freeze Evictor DbEnv(\"" + envName + "\") Db(\"" + _filename + "\"): ";
 
         String propertyPrefix = "Freeze.Evictor." + envName + '.' + _filename;
-        
+
         boolean populateEmptyIndices =
-            _communicator.getProperties().getPropertyAsIntWithDefault(propertyPrefix + 
-                                                                      ".PopulateEmptyIndices", 0) != 0;
-        
+            _communicator.getProperties().getPropertyAsIntWithDefault(propertyPrefix + ".PopulateEmptyIndices", 0) != 0;
+
         //
         // Instantiate all Dbs in 2 steps:
         // (1) iterate over the indices and create ObjectStore with indices
         // (2) open ObjectStores without indices
         //
 
-        java.util.List dbs = allDbs();
+        java.util.List<String> dbs = allDbs();
         //
         // Add default db in case it's not there
         //
@@ -364,10 +355,10 @@ abstract class EvictorI implements Evictor
             for(int i = 0; i < indices.length; ++i)
             {
                 String facet = indices[i].facet();
-                
+
                 if(_storeMap.get(facet) == null)
                 {
-                    java.util.List storeIndices = new java.util.LinkedList();
+                    java.util.List<Index> storeIndices = new java.util.LinkedList<Index>();
                     for(int j = i; j < indices.length; ++j)
                     {
                         if(indices[j].facet().equals(facet))
@@ -375,40 +366,38 @@ abstract class EvictorI implements Evictor
                             storeIndices.add(indices[j]);
                         }
                     }
-                    
-                    String facetType = (String)_facetTypes.get(facet);
-                    ObjectStore store = new ObjectStore(facet, facetType,_createDb, this, storeIndices, 
+
+                    String facetType = _facetTypes.get(facet);
+                    ObjectStore store = new ObjectStore(facet, facetType,_createDb, this, storeIndices,
                                                         populateEmptyIndices);
                     _storeMap.put(facet, store);
                 }
             }
         }
-        
-        java.util.Iterator p = dbs.iterator();
-        while(p.hasNext())
+
+        for(String facet : dbs)
         {
-            String facet = (String) p.next();
             if(facet.equals(defaultDb))
             {
                 facet = "";
             }
-            
+
             if(_storeMap.get(facet) == null)
             {
-                String facetType = (String)_facetTypes.get(facet);
+                String facetType = _facetTypes.get(facet);
 
-                ObjectStore store = new ObjectStore(facet, facetType, _createDb, this, new java.util.LinkedList(),
-                                                    populateEmptyIndices);
-                
+                ObjectStore store = new ObjectStore(facet, facetType, _createDb, this,
+                                                    new java.util.LinkedList<Index>(), populateEmptyIndices);
+
                 _storeMap.put(facet, store);
             }
         }
         _deactivateController.activate();
     }
 
-
-    protected EvictorI(Ice.ObjectAdapter adapter, String envName, String filename, java.util.Map facetTypes,
-                       ServantInitializer initializer, Index[] indices, boolean createDb)
+    protected
+    EvictorI(Ice.ObjectAdapter adapter, String envName, String filename, java.util.Map<String, String> facetTypes,
+             ServantInitializer initializer, Index[] indices, boolean createDb)
     {
         this(adapter, envName, null, filename, facetTypes, initializer, indices, createDb);
     }
@@ -465,7 +454,7 @@ abstract class EvictorI implements Evictor
     deadlockWarning()
     {
         return _deadlockWarning;
-    }    
+    }
 
     final int
     trace()
@@ -473,11 +462,11 @@ abstract class EvictorI implements Evictor
         return _trace;
     }
 
-    private java.util.List
+    private java.util.List<String>
     allDbs()
     {
-        java.util.List result = new java.util.LinkedList();
-        
+        java.util.List<String> result = new java.util.LinkedList<String>();
+
         com.sleepycat.db.Database db = null;
         com.sleepycat.db.Cursor dbc = null;
 
@@ -503,7 +492,7 @@ abstract class EvictorI implements Evictor
                     // Assumes Berkeley-DB encodes the db names in UTF-8!
                     //
                     String dbName = new String(key.getData(), 0, key.getSize(), "UTF8");
-                
+
                     if(!dbName.startsWith(indexPrefix))
                     {
                         result.add(dbName);
@@ -576,17 +565,12 @@ abstract class EvictorI implements Evictor
             throw e;
         }
     }
-   
 
-    
     protected int _evictorSize = 10;
 
-    //
-    // Map of string (facet) to ObjectStore
-    //
-    protected final java.util.Map _storeMap = new java.util.HashMap();
-    private final java.util.Map _facetTypes;
-   
+    protected final java.util.Map<String, ObjectStore> _storeMap = new java.util.HashMap<String, ObjectStore>();
+    private final java.util.Map<String, String> _facetTypes;
+
     protected final Ice.ObjectAdapter _adapter;
     protected final Ice.Communicator _communicator;
 
@@ -601,11 +585,10 @@ abstract class EvictorI implements Evictor
     protected int _txTrace = 0;
 
     protected String _errorPrefix;
-    
-    protected boolean _deadlockWarning;    
-    
+
+    protected boolean _deadlockWarning;
+
     protected DeactivateController _deactivateController = new DeactivateController();
 
     private Ice.Object _pingObject = new PingObject();
-    
 }

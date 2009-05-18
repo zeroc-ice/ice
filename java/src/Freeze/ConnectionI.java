@@ -9,9 +9,8 @@
 
 package Freeze;
 
-class ConnectionI implements Connection
+public class ConnectionI implements Connection
 {
-
     public Transaction
     beginTransaction()
     {
@@ -37,7 +36,7 @@ class ConnectionI implements Connection
         {
             throw new DatabaseException("Closed connection");
         }
-        
+
         try
         {
             _dbEnv.getEnv().removeDatabase(dbTxn(), mapName + "." + indexName, null);
@@ -60,11 +59,40 @@ class ConnectionI implements Connection
         }
     }
 
-
     public void
     close()
     {
-        close(false);
+        if(_transaction != null)
+        {
+            try
+            {
+                _transaction.rollback();
+            }
+            catch(Freeze.DatabaseException dx)
+            {
+                //
+                // Ignored
+                //
+            }
+        }
+
+        java.util.Iterator<Map> p = _mapList.iterator();
+        while(p.hasNext())
+        {
+            p.next().close();
+        }
+
+        if(_dbEnv != null)
+        {
+            try
+            {
+                _dbEnv.close();
+            }
+            finally
+            {
+                _dbEnv = null;
+            }
+        }
     }
 
     public Ice.Communicator
@@ -81,68 +109,26 @@ class ConnectionI implements Connection
 
     protected void
     finalize()
+        throws Throwable
     {
-        close(true);
-    }
-
-    void
-    close(boolean finalizing)
-    {
-        if(_transaction != null)
-        {
-            if(finalizing)
-            {
-                _communicator.getLogger().warning
-                    ("Finalizing Connection on DbEnv \"" +  _envName + "\" with active transaction");
-            }
-            
-            try
-            {
-                _transaction.rollback();
-            }
-            catch(Freeze.DatabaseException dx)
-            {
-                //
-                // Ignored
-                //
-            }
-        }
-
-        
-        synchronized(this)
-        {
-            java.util.Iterator p = _mapList.iterator();
-            while(p.hasNext())
-            {
-                ((Map) p.next()).close(finalizing);
-            }
-        }
-        
-
         if(_dbEnv != null)
         {
-            try
-            {
-                _dbEnv.close();
-            }
-            finally
-            {
-                _dbEnv = null;
-            }
+            _logger.warning("leaked Connection for DbEnv \"" + _envName + "\"");
         }
+        super.finalize();
     }
 
     ConnectionI(SharedDbEnv dbEnv)
     {
         _dbEnv = dbEnv;
         _communicator = dbEnv.getCommunicator();
+        _logger = _communicator.getLogger();
         _envName = dbEnv.getEnvName();
         _trace = _communicator.getProperties().getPropertyAsInt("Freeze.Trace.Map");
         _txTrace = _communicator.getProperties().getPropertyAsInt("Freeze.Trace.Transaction");
-        
+
         Ice.Properties properties = _communicator.getProperties();
         _deadlockWarning = properties.getPropertyAsInt("Freeze.Warn.Deadlocks") > 0;
-        _closeInFinalizeWarning = properties.getPropertyAsIntWithDefault("Freeze.Warn.CloseInFinalize", 1) > 0; 
     }
 
     ConnectionI(Ice.Communicator communicator, String envName, com.sleepycat.db.Environment dbEnv)
@@ -150,31 +136,26 @@ class ConnectionI implements Connection
         this(SharedDbEnv.get(communicator, envName, dbEnv));
     }
 
-
-    //
-    // The synchronization is only needed only during finalization
-    //
-
-    synchronized void
+    public void
     closeAllIterators()
     {
-        java.util.Iterator p = _mapList.iterator();
+        java.util.Iterator<Map> p = _mapList.iterator();
         while(p.hasNext())
         {
-            ((Map) p.next()).closeAllIterators();
+            p.next().closeAllIterators();
         }
     }
 
-    synchronized java.util.Iterator
+    public java.util.Iterator
     registerMap(Map map)
     {
         _mapList.addFirst(map);
-        java.util.Iterator p = _mapList.iterator();
+        java.util.Iterator<Map> p = _mapList.iterator();
         p.next();
         return p;
     }
 
-    synchronized void
+    public void
     unregisterMap(java.util.Iterator p)
     {
         p.remove();
@@ -186,7 +167,7 @@ class ConnectionI implements Connection
         _transaction = null;
     }
 
-    com.sleepycat.db.Transaction
+    public com.sleepycat.db.Transaction
     dbTxn()
     {
         if(_transaction == null)
@@ -199,61 +180,55 @@ class ConnectionI implements Connection
         }
     }
 
-    SharedDbEnv
+    public SharedDbEnv
     dbEnv()
     {
         return _dbEnv;
     }
 
-    String
+    public String
     envName()
     {
         return _envName;
     }
 
-    Ice.Communicator
+    public Ice.Communicator
     communicator()
     {
         return _communicator;
     }
 
-    final int
+    public final int
     trace()
     {
         return _trace;
     }
 
-    final int
+    public final int
     txTrace()
     {
         return _txTrace;
     }
 
-    final boolean
+    public final boolean
     deadlockWarning()
     {
         return _deadlockWarning;
     }
 
-    final boolean
-    closeInFinalizeWarning()
-    {
-        return _closeInFinalizeWarning;
-    }
-
-    private String errorPrefix()
+    private String
+    errorPrefix()
     {
         return "DbEnv(\"" + _envName + "\"): ";
     }
 
-
     private Ice.Communicator _communicator;
+    private Ice.Logger _logger;
     private SharedDbEnv _dbEnv;
     private String _envName;
     private TransactionI _transaction;
-    private LinkedList _mapList = new Freeze.LinkedList();
+    private LinkedList<Map> _mapList = new LinkedList<Map>();
     private int _trace;
     private int _txTrace;
     private boolean _deadlockWarning;
-    private boolean _closeInFinalizeWarning;
 }

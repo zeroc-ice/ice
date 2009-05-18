@@ -34,20 +34,20 @@ public class Client
         try
         {
             Parser parser = new Parser();
-        
+
             System.out.print("testing database expressions... ");
-            java.util.Iterator p = m.entrySet().iterator();
+            java.util.Iterator<java.util.Map.Entry<Key, Node>> p = m.entrySet().iterator();
             while(p.hasNext())
             {
-                java.util.Map.Entry e = (java.util.Map.Entry)p.next();
+                java.util.Map.Entry<Key, Node> e = p.next();
 
-                Key key = (Key)e.getKey();
+                Key key = e.getKey();
 
                 //
                 // Verify the stored record is correct.
                 //
-                test(key.result == ((Node)e.getValue()).calc());
-            
+                test(key.result == e.getValue().calc());
+
                 //
                 // Verify that the expression & result again.
                 //
@@ -61,17 +61,17 @@ public class Client
             e.printStackTrace();
             test(false);
         }
-        
+
         m.close();
 
         return 0;
     }
-    
+
     private int
     populate(String dbName)
         throws DatabaseException
     {
-        String[] expressions = 
+        String[] expressions =
         {
             "2",
             "10",
@@ -79,13 +79,13 @@ public class Client
             "5*(2+3)",
             "10+(10+(20+(8*(2*(3*2+4+5+6)))))"
         };
-        
+
         ComplexDict m = new ComplexDict(_connection, dbName, true);
 
         try
         {
             Parser parser = new Parser();
-        
+
             System.out.print("populating the database... ");
             for(String expr : expressions)
             {
@@ -103,11 +103,11 @@ public class Client
             e.printStackTrace();
             test(false);
         }
-        
+
         m.close();
         return 0;
     }
-    
+
     static void
     usage(String name)
     {
@@ -127,7 +127,7 @@ public class Client
         _communicator.addObjectFactory(factory, "::Complex::NumberNode");
         _communicator.addObjectFactory(factory, "::Complex::AddNode");
         _communicator.addObjectFactory(factory, "::Complex::MultiplyNode");
-        
+
         if(args.length != 0 && args[0].equals("populate"))
         {
             return populate(dbName);
@@ -137,16 +137,15 @@ public class Client
             return validate(dbName);
         }
         usage(progName);
-        
+
         return 0;
     }
-    
+
     private void
     close()
     {
         _connection.close();
     }
-
 
     private
     Client(Ice.Communicator communicator, String envName)
@@ -154,7 +153,6 @@ public class Client
         _communicator = communicator;
         _connection = Freeze.Util.createConnection(communicator, envName);
     }
-
 
     static public void
     main(String[] args)
@@ -178,7 +176,7 @@ public class Client
                         usage(progName);
                         System.exit(1);
                     }
-                    
+
                     envName = args[i+1];
                     envName += "/";
                     envName += "db";
@@ -240,5 +238,4 @@ public class Client
 
     private Ice.Communicator _communicator;
     private Freeze.Connection _connection;
-
 }

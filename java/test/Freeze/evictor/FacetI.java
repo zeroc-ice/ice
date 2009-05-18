@@ -22,7 +22,7 @@ public class FacetI extends ServantI implements _FacetOperations
         super(tie, remoteEvictor, evictor, value);
         ((Facet)_tie).data = data;
     }
-    
+
     public String
     getData(Ice.Current current)
     {

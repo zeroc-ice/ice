@@ -7,10 +7,10 @@
 //
 // **********************************************************************
 
-package Freeze;
+package Freeze.MapInternal;
 
-public interface KeyCodec
+interface KeyCodec<K>
 {
-    public abstract byte[] encodeKey(Object o, Ice.Communicator communicator);
-    public abstract Object decodeKey(byte[] b, Ice.Communicator communicator);
+    public abstract byte[] encodeKey(K k, Ice.Communicator communicator);
+    public abstract K decodeKey(byte[] b, Ice.Communicator communicator);
 }

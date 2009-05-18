@@ -17,11 +17,10 @@ public final class RemoteEvictorFactoryI extends _RemoteEvictorFactoryDisp
         _envName = envName;
     }
 
-    
     public RemoteEvictorPrx
     createEvictor(String name, boolean transactional, Ice.Current current)
     {
-        RemoteEvictorI remoteEvictor = 
+        RemoteEvictorI remoteEvictor =
             new RemoteEvictorI(current.adapter.getCommunicator(), _envName, name, transactional);
         return RemoteEvictorPrxHelper.
             uncheckedCast(current.adapter.add(remoteEvictor, current.adapter.getCommunicator().stringToIdentity(name)));

@@ -50,7 +50,7 @@ class EvictorElement
     //
     // Protected by EvictorI
     //
-    java.util.Iterator evictPosition = null;
+    java.util.Iterator<EvictorElement> evictPosition = null;
     int usageCount = -1;
     int keepCount = 0;
     boolean stale = false;

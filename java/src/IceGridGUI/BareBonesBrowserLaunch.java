@@ -26,10 +26,9 @@ public class BareBonesBrowserLaunch {
         String osName = System.getProperty("os.name");
         try {
             if (osName.startsWith("Mac OS")) {
-                Class macUtils = Class.forName("com.apple.mrj.MRJFileUtils");
-                Method openURL = macUtils.getDeclaredMethod("openURL",
-                                                            new Class[] {String.class});
-                openURL.invoke(null, new Object[] {url});
+                Class<?> macUtils = Class.forName("com.apple.mrj.MRJFileUtils");
+                Method openURL = macUtils.getDeclaredMethod("openURL", String.class);
+                openURL.invoke(null, url);
             }
             else if (osName.startsWith("Windows"))
                 Runtime.getRuntime().exec("rundll32 url.dll,FileProtocolHandler " + url);

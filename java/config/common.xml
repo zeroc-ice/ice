@@ -192,7 +192,7 @@
     </condition>
 
     <path id="db.classpath">
-        <pathelement path="${db.jar.file}"/>
+        <pathelement location="${db.jar.file}"/>
     </path>
 
     <target name="config-init-warn" if="ice.warn.duplicate.translator">
@@ -238,7 +238,27 @@
         </condition>
 
         <path id="ice.classpath">
-            <fileset file="${dist.jar.file}"/>
+            <pathelement location="${dist.jar.file}"/>
+        </path>
+
+        <!-- Set freeze.classpath with the distribution Freeze.jar file -->
+        <condition property="freeze.jar.file" value="${dist.lib.dir}/Freeze-${ice.version}.jar">
+            <and>
+                <not><isset property="freeze.jar.file"/></not>
+                <available file="${dist.lib.dir}/Freeze-${ice.version}.jar"/>
+            </and>
+        </condition>
+
+        <condition property="freeze.jar.file" value="${dist.lib.dir}/Freeze.jar">
+            <and>
+                <not><isset property="freeze.jar.file"/></not>
+                <available file="${dist.lib.dir}/Freeze.jar"/>
+            </and>
+        </condition>
+
+        <path id="freeze.classpath">
+            <pathelement location="${freeze.jar.file}"/>
+            <path refid="db.classpath"/>
         </path>
 
         <condition property="certs.dir" value="${ice.top.dir}/certs" else="${ice.top.dir}/../certs">

@@ -55,7 +55,7 @@ class LibraryI extends _LibraryDisp
             //
             // Add the isbn number to the authors map.
             //
-            String[] isbnSeq = (String[])_authors.get(description.authors);
+            String[] isbnSeq = _authors.get(description.authors);
             int length = (isbnSeq == null) ? 0 : isbnSeq.length;
             String[] newIsbnSeq = new String[length+1];
 
@@ -111,7 +111,7 @@ class LibraryI extends _LibraryDisp
             // Lookup all books that match the given authors, and
             // return them to the caller.
             //
-            String[] isbnSeq = (String[])_authors.get(authors);
+            String[] isbnSeq = _authors.get(authors);
 
             int length = (isbnSeq == null) ? 0 : isbnSeq.length;
             BookPrx[] books = new BookPrx[length];
@@ -156,7 +156,7 @@ class LibraryI extends _LibraryDisp
     {
         try
         {
-            String[] isbnSeq = (String[])_authors.get(description.authors);
+            String[] isbnSeq = _authors.get(description.authors);
 
             assert isbnSeq != null;
             

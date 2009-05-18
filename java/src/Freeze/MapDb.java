@@ -14,19 +14,18 @@ package Freeze;
 // share the very same MapDb object; SharedDbEnv manages these shared MapDb objects.
 //
 
-class MapDb
-{   
-
-    MapDb(ConnectionI connection, String dbName, String key, String value,
-          java.util.Comparator comparator, Map.Index[] indices, java.util.Map indexComparators,
-          boolean createDb)
-    {   
+public class MapDb
+{
+    public
+    MapDb(ConnectionI connection, String dbName, String key, String value, java.util.Comparator comparator,
+          MapIndex[] indices, boolean createDb)
+    {
         _communicator = connection.communicator();
         _dbName = dbName;
         _errorPrefix = "Freeze DB DbEnv(\"" + connection.dbEnv().getEnvName() + "\") Db(\"" + dbName + "\"): ";
         _indices = indices;
         _trace = connection.trace();
-      
+
         Catalog catalog = new Catalog(connection, Util.catalogName(), true);
         CatalogData catalogData = (CatalogData)catalog.get(_dbName);
         if(catalogData != null)
@@ -44,10 +43,9 @@ class MapDb
             _key = key;
             _value = value;
         }
-            
+
         com.sleepycat.db.DatabaseConfig config = new com.sleepycat.db.DatabaseConfig();
-           
-           
+
         config.setAllowCreate(createDb);
         config.setType(com.sleepycat.db.DatabaseType.BTREE);
 
@@ -57,7 +55,7 @@ class MapDb
         }
         Ice.Properties properties = _communicator.getProperties();
         String propPrefix = "Freeze.Map." + _dbName + ".";
-                
+
         int btreeMinKey = properties.getPropertyAsInt(propPrefix + "BtreeMinKey");
         if(btreeMinKey > 2)
         {
@@ -68,26 +66,24 @@ class MapDb
             }
             config.setBtreeMinKey(btreeMinKey);
         }
-                
+
         boolean checksum = properties.getPropertyAsInt(propPrefix + "Checksum") > 0;
         if(checksum)
         {
             if(_trace >= 1)
             {
-                _communicator.getLogger().trace(
-                    "Freeze.Map", "Turning checksum on for \"" + _dbName + "\"");
+                _communicator.getLogger().trace("Freeze.Map", "Turning checksum on for \"" + _dbName + "\"");
             }
-                    
+
             config.setChecksum(true);
         }
-                
+
         int pageSize = properties.getPropertyAsInt(propPrefix + "PageSize");
         if(pageSize > 0)
         {
             if(_trace >= 1)
             {
-                _communicator.getLogger().trace(
-                    "Freeze.Map", "Setting \"" + _dbName + "\"'s pagesize to " + pageSize);
+                _communicator.getLogger().trace("Freeze.Map", "Setting \"" + _dbName + "\"'s pagesize to " + pageSize);
             }
             config.setPageSize(pageSize);
         }
@@ -109,36 +105,29 @@ class MapDb
                     tx = null;
                     tx = connection.beginTransaction();
                 }
-                   
+
                 com.sleepycat.db.Transaction txn = Util.getTxn(tx);
-    
+
                 _db = connection.dbEnv().getEnv().openDatabase(txn, _dbName, null, config);
-                    
+
                 String[] oldIndices = null;
                 java.util.List<String> newIndices = new java.util.LinkedList<String>();
-                    
+
                 CatalogIndexList catalogIndexList = new CatalogIndexList(connection, Util.catalogIndexListName(), true);
-                    
+
                 if(createDb)
                 {
-                    oldIndices = (String[])catalogIndexList.get(_dbName);
+                    oldIndices = catalogIndexList.get(_dbName);
                 }
-                    
-                    
+
                 if(_indices != null)
                 {
-                    for(int i = 0; i < _indices.length; ++i)
+                    for(MapIndex i : _indices)
                     {
-                        String indexName = _indices[i].name();
-                            
-                        java.util.Comparator indexComparator = null;
-                        if(indexComparators != null)
-                        {
-                            indexComparator = (java.util.Comparator)indexComparators.get(indexName);
-                        }
-                            
-                        _indices[i].associate(_dbName, _db, txn, createDb, indexComparator);
-                            
+                        String indexName = i.name();
+
+                        i.associate(_dbName, _db, txn, createDb);
+
                         if(createDb)
                         {
                             if(oldIndices != null)
@@ -153,7 +142,7 @@ class MapDb
                         }
                     }
                 }
-                    
+
                 if(catalogData == null)
                 {
                     catalogData = new CatalogData();
@@ -162,29 +151,28 @@ class MapDb
                     catalogData.value = value;
                     catalog.put(_dbName, catalogData);
                 }
-                    
+
                 if(createDb)
                 {
                     boolean indexRemoved = false;
-                        
+
                     if(oldIndices != null)
                     {
                         //
                         // Remove old indices and write the new ones
                         //
-                        for(int i = 0; i < oldIndices.length; ++i)
+                        for(String index : oldIndices)
                         {
-                            String index = oldIndices[i];
                             if(index != null)
                             {
                                 if(_trace >= 1)
                                 {
-                                    _communicator.getLogger().trace(
-                                        "Freeze.Map", "removing old index \"" + index + "\" on Db \"" +  _dbName + "\"");
+                                    _communicator.getLogger().trace("Freeze.Map", "removing old index \"" + index +
+                                                                    "\" on Db \"" +  _dbName + "\"");
                                 }
-                                    
+
                                 indexRemoved = true;
-                                    
+
                                 try
                                 {
                                     connection.removeMapIndex(_dbName, index);
@@ -192,21 +180,21 @@ class MapDb
                                 catch(IndexNotFoundException ife)
                                 {
                                     // Ignored
-                                        
+
                                     if(_trace >= 1)
                                     {
-                                        _communicator.getLogger().trace(
-                                            "Freeze.Map", "index \"" + index + "\" on Db \"" + _dbName + "\" does not exist");
+                                        _communicator.getLogger().trace("Freeze.Map", "index \"" + index +
+                                                                        "\" on Db \"" + _dbName + "\" does not exist");
                                     }
                                 }
                             }
                         }
                     }
-                        
+
                     int oldSize = oldIndices == null ? 0 : oldIndices.length;
-                        
+
                     if(indexRemoved || newIndices.size() != oldSize)
-                    {   
+                    {
                         if(newIndices.size() == 0)
                         {
                             catalogIndexList.remove(_dbName);
@@ -215,7 +203,6 @@ class MapDb
                                 _communicator.getLogger().trace(
                                     "Freeze.Map", "Removed catalogIndexList entry for Db \"" + _dbName + "\"");
                             }
-                                
                         }
                         else
                         {
@@ -253,12 +240,11 @@ class MapDb
             catch(com.sleepycat.db.DeadlockException dx)
             {
                 if(ownTx)
-                { 
+                {
                     if(connection.deadlockWarning())
                     {
-                        connection.communicator().getLogger().warning(
-                            "Deadlock in Freeze.Shared.Shared on Db \"" 
-                            + _dbName + "\"; retrying ...");
+                        connection.communicator().getLogger().warning("Deadlock in Freeze.Shared.Shared on Db \"" +
+                                                                      _dbName + "\"; retrying ...");
                     }
                     tx = null;
                 }
@@ -293,23 +279,22 @@ class MapDb
             }
         }
     }
- 
 
     //
     // The constructor for catalogs
     //
 
-    MapDb(Ice.Communicator communicator, String envName, String dbName, String key, String value, 
+    MapDb(Ice.Communicator communicator, String envName, String dbName, String key, String value,
           com.sleepycat.db.Environment dbEnv)
         throws com.sleepycat.db.DatabaseException
-    {   
+    {
         _communicator = communicator;
         _dbName = dbName;
         _errorPrefix = "Freeze DB DbEnv(\"" + envName + "\") Db(\"" + dbName + "\"): ";
         _key = key;
         _value = value;
         _trace = _communicator.getProperties().getPropertyAsInt("Freeze.Trace.Map");
-        
+
         if(_trace >= 1)
         {
             _communicator.getLogger().trace("Freeze.Map", "opening Db \"" + _dbName + "\"");
@@ -336,7 +321,8 @@ class MapDb
         }
     }
 
-    void close()
+    public void
+    close()
     {
         if(_trace >= 1)
         {
@@ -365,9 +351,8 @@ class MapDb
         }
     }
 
-
     void
-    connectIndices(Map.Index[] indices)
+    connectIndices(MapIndex[] indices)
     {
         if(indices != null)
         {
@@ -385,22 +370,21 @@ class MapDb
     {
         if(_indices != null)
         {
-            for(int i = 0; i < _indices.length; ++i)
+            for(MapIndex i : _indices)
             {
-                _indices[i].close();
+                i.close();
             }
             _indices = null;
         }
     }
 
-
-    com.sleepycat.db.Database
+    public com.sleepycat.db.Database
     db()
     {
         return _db;
     }
 
-    String 
+    public String
     dbName()
     {
         return _dbName;
@@ -411,14 +395,12 @@ class MapDb
     {
         if(!key.equals(_key))
         {
-            throw new DatabaseException(_errorPrefix + _dbName + "'s key type is " + _key +
-                                        ", not " + key);
+            throw new DatabaseException(_errorPrefix + _dbName + "'s key type is " + _key + ", not " + key);
         }
-        
+
         if(!value.equals(_value))
         {
-            throw new DatabaseException(_errorPrefix + _dbName + "'s value type is " + _value +
-                                        ", not " + value);
+            throw new DatabaseException(_errorPrefix + _dbName + "'s value type is " + _value + ", not " + value);
         }
     }
 
@@ -429,5 +411,5 @@ class MapDb
     private String _key;
     private String _value;
     private final int _trace;
-    private Map.Index[] _indices;
+    private MapIndex[] _indices;
 }

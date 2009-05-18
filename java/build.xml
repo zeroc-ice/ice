@@ -169,10 +169,9 @@
         <depend srcdir="${generated.dir}:${src.dir}" destdir="${lib.dir}" cache="${cache.dir}"/>
         <javac srcdir="${generated.dir}:${src.dir}" destdir="${lib.dir}"
             source="1.5" debug="${debug}"
-            excludes="IceGridGUI/**"
+            excludes="IceGridGUI/**,Freeze/**,ant/**"
             includes="**"
-            deprecation="on"
-            classpathref="db.classpath">
+            deprecation="on">
             <compilerarg value="${javac.lint}"/>
         </javac>
     </target>
@@ -187,7 +186,27 @@
             <exclude name="*.jar"/>
             <manifest>
                 <attribute name="Built-By" value="ZeroC, Inc."/>
-                <attribute name="Class-Path" value="Freeze.jar"/>
+            </manifest>
+        </jar>
+    </target>
+
+    <target name="freeze-compile" depends="ice-compile">
+        <mkdir dir="${lib.dir}"/>
+        <javac srcdir="${generated.dir}:${src.dir}" destdir="${lib.dir}"
+            source="1.5" debug="${debug}"
+            includes="Freeze/**"
+            deprecation="on"
+            classpathref="db.classpath">
+            <compilerarg value="${javac.lint}"/>
+        </javac>
+    </target>
+
+    <target name="freeze-jar" depends="freeze-compile">
+        <jar jarfile="${lib.dir}/Freeze.jar" basedir="${lib.dir}">
+            <include name="Freeze/**"/>
+            <manifest>
+                <attribute name="Built-By" value="ZeroC, Inc."/>
+                <attribute name="Class-Path" value="db.jar db-${db.version}.jar /usr/share/java/db-${db.version}.jar ../db.jar"/>
             </manifest>
         </jar>
     </target>
@@ -196,7 +215,6 @@
         <mkdir dir="${generated.test.dir}"/>
         <!-- Create the output directory for generated code -->
         <slice2java outputdir="${generated.test.dir}" dependencyfile="${generated.test.dir}/.depend.Test">
-            <meta value="${java2metadata}"/>
             <includepath>
                 <pathelement path="${slice.dir}" />
             </includepath>
@@ -302,7 +320,6 @@
             <includepath>
                 <pathelement path="${slice.dir}" />
             </includepath>
-            <meta value="${java2metadata}"/>
             <fileset dir="test/Freeze/evictor">
                 <include name="Test.ice" />
             </fileset>
@@ -310,7 +327,6 @@
 
         <!-- test/Freeze/complex -->
         <slice2freezej outputdir="${generated.test.dir}" dependencyfile="${generated.test.dir}/.depend.Test">
-	    <meta value="${java2metadata}"/>
             <dict name="test.Freeze.complex.Complex.ComplexDict" key="Complex::Key" value="Complex::Node"/>
             <fileset dir="test/Freeze/complex">
                 <include name="Complex.ice" />
@@ -319,12 +335,10 @@
 
         <!-- test/Freeze/dbmap -->
         <slice2freezej outputdir="${generated.test.dir}" dependencyfile="${generated.test.dir}/.depend.Test">
-	    <meta value="${java2metadata}"/>
             <dict name="test.Freeze.dbmap.ByteIntMap" key="byte" value="int"/>
             <dictindex name="test.Freeze.dbmap.ByteIntMap"/>
         </slice2freezej>
         <slice2freezej ice="on" outputdir="${generated.test.dir}">
-	    <meta value="${java2metadata}"/>
             <includepath>
                 <pathelement path="${slice.dir}" />
             </includepath>
@@ -332,7 +346,6 @@
             <dict name="test.Freeze.dbmap.IntIdentityMap" key="int" value="Ice::Identity"/>
         </slice2freezej>
         <slice2freezej ice="on" outputdir="${generated.test.dir}">
-	    <meta value="${java2metadata}"/>
            <includepath>
                 <pathelement path="${slice.dir}" />
             </includepath>
@@ -341,7 +354,6 @@
            <dictindex name="test.Freeze.dbmap.IntIdentityMapWithIndex" member="category"/>  
         </slice2freezej>
         <slice2freezej ice="on" outputdir="${generated.test.dir}">
-	    <meta value="${java2metadata}"/>
            <includepath>
                 <pathelement path="${slice.dir}" />
             </includepath>
@@ -351,7 +363,6 @@
         </slice2freezej>
 
         <slice2java stream="on" outputdir="${generated.test.dir}" dependencyfile="${generated.test.dir}/.depend.Test">
-            <meta value="${java2metadata}"/>
             <includepath>
                 <pathelement path="${slice.dir}" />
             </includepath>
@@ -364,7 +375,6 @@
         </slice2java>
 
         <slice2java checksum="test.Ice.checksum.Test.SliceChecksums" outputdir="${generated.test.dir}" dependencyfile="${generated.test.dir}/.depend.Test">
-            <meta value="${java2metadata}"/>
             <includepath>
                 <pathelement path="${slice.dir}" />
             </includepath>
@@ -375,7 +385,6 @@
         </slice2java>
 
         <slice2java outputdir="${generated.test.dir}" dependencyfile="${generated.test.dir}/.depend.Test">
-            <meta value="${java2metadata}"/>
             <includepath>
                 <pathelement path="${slice.dir}" />
                 <pathelement path="test/Ice/packagemd" />
@@ -388,7 +397,6 @@
         </slice2java>
 
         <slice2java checksum="test.Ice.checksum.server.Test.SliceChecksums" outputdir="${generated.test.dir}" dependencyfile="${generated.test.dir}/.depend.Test">
-            <meta value="${java2metadata}"/>
             <includepath>
                 <pathelement path="${slice.dir}" />
             </includepath>
@@ -399,12 +407,12 @@
         </slice2java>
     </target>
 
-    <target name="test-compile" depends="ice-compile,test-generate">
+    <target name="test-compile" depends="freeze-compile,test-generate">
         <mkdir dir="${lib.dir}"/>
         <mkdir dir="${cache.dir}"/>
         <depend srcdir="." destdir="${lib.dir}" cache="${cache.dir}"/>
         <javac srcdir=".:${generated.test.dir}" destdir="${lib.dir}" source="1.5" debug="${debug}" deprecation="on"
-            classpathref="db.classpath">
+            classpathref="freeze.classpath">
             <exclude name="${generated.test.dir}/**"/>
 	    <include name="test/**"/>
             <exclude name="test/Ice/translator/"/>
@@ -415,20 +423,9 @@
     <target name="test-jar" depends="test-compile">
         <jar jarfile="${lib.dir}/IceTest.jar" basedir="${lib.dir}">
             <include name="test/**"/>
-            <exclude name="test/Freeze/**"/>
             <manifest>
                 <attribute name="Built-By" value="ZeroC, Inc."/>
                 <attribute name="Class-Path" value="Ice.jar"/>
-            </manifest>
-        </jar>
-    </target>
-
-    <target name="freeze-jar" depends="ice-compile">
-        <jar jarfile="${lib.dir}/Freeze.jar" basedir="${lib.dir}">
-            <include name="Freeze/**"/>
-            <manifest>
-                <attribute name="Built-By" value="ZeroC, Inc."/>
-                <attribute name="Class-Path" value="db.jar db-${db.version}.jar /usr/share/java/db-${db.version}.jar ../db.jar"/>
             </manifest>
         </jar>
     </target>

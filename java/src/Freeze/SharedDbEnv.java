@@ -9,7 +9,7 @@
 
 package Freeze;
 
-class SharedDbEnv implements com.sleepycat.db.ErrorHandler, Runnable
+public class SharedDbEnv implements com.sleepycat.db.ErrorHandler, Runnable
 {
     public static SharedDbEnv
     get(Ice.Communicator communicator, String envName, com.sleepycat.db.Environment dbEnv)
@@ -20,12 +20,12 @@ class SharedDbEnv implements com.sleepycat.db.ErrorHandler, Runnable
 
         synchronized(_map) 
         {
-            result = (SharedDbEnv)_map.get(key);
+            result = _map.get(key);
             if(result == null)
             {
                 result = new SharedDbEnv(key, dbEnv);
       
-                Object previousValue = _map.put(key, result);
+                SharedDbEnv previousValue = _map.put(key, result);
                 assert(previousValue == null);
             }
             else
@@ -40,9 +40,9 @@ class SharedDbEnv implements com.sleepycat.db.ErrorHandler, Runnable
     //
     // Returns a shared map Db; the caller should NOT close this Db.
     //
-    MapDb getSharedMapDb(String dbName, String key, String value,
-                         java.util.Comparator comparator, Map.Index[] indices, java.util.Map indexComparators,
-                         boolean createDb)
+    public MapDb
+    getSharedMapDb(String dbName, String key, String value, java.util.Comparator comparator, MapIndex[] indices,
+                   boolean createDb)
     {
         if(dbName.equals(_catalog.dbName()))
         {
@@ -64,14 +64,14 @@ class SharedDbEnv implements com.sleepycat.db.ErrorHandler, Runnable
 
                 try
                 {
-                    db = new MapDb(insertConnection, dbName, key, value, comparator, indices, indexComparators, createDb);
+                    db = new MapDb(insertConnection, dbName, key, value, comparator, indices, createDb);
                 }
                 finally
                 {
                     insertConnection.close();
                 }
 
-                Object previousValue = _sharedDbMap.put(dbName, db);
+                MapDb previousValue = _sharedDbMap.put(dbName, db);
                 assert(previousValue == null);
             }
             else
@@ -86,7 +86,8 @@ class SharedDbEnv implements com.sleepycat.db.ErrorHandler, Runnable
     //
     // Tell SharedDbEnv to close and remove this Shared Db from the map
     //
-    void removeSharedMapDb(String dbName)
+    public void
+    removeSharedMapDb(String dbName)
     {
         synchronized(_sharedDbMap) 
         {
@@ -126,7 +127,7 @@ class SharedDbEnv implements com.sleepycat.db.ErrorHandler, Runnable
                 //
                 // Remove from map
                 //
-                Object value = _map.remove(_key);
+                SharedDbEnv value = _map.remove(_key);
                 assert(value == this);
 
                 //
@@ -188,11 +189,9 @@ class SharedDbEnv implements com.sleepycat.db.ErrorHandler, Runnable
         _key.communicator.getLogger().error("Freeze database error in DbEnv \"" + _key.envName + "\": " + message);
     }
 
-
     //
     // EvictorContext factory/manager
     //
-    
 
     //
     // Create an evictor context associated with the calling thread
@@ -200,9 +199,9 @@ class SharedDbEnv implements com.sleepycat.db.ErrorHandler, Runnable
     synchronized TransactionalEvictorContext
     createCurrent()
     {
-        Object k = Thread.currentThread();
+        Thread t = Thread.currentThread();
 
-        TransactionalEvictorContext ctx = (TransactionalEvictorContext)_ctxMap.get(k);
+        TransactionalEvictorContext ctx = _ctxMap.get(t);
         assert ctx == null;
       
         ctx = new TransactionalEvictorContext(this);
@@ -210,7 +209,7 @@ class SharedDbEnv implements com.sleepycat.db.ErrorHandler, Runnable
         {
             _refCount++; // owned by the underlying ConnectionI
         }
-        _ctxMap.put(k, ctx);
+        _ctxMap.put(t, ctx);
         
         return ctx;
     }
@@ -218,8 +217,8 @@ class SharedDbEnv implements com.sleepycat.db.ErrorHandler, Runnable
     synchronized TransactionalEvictorContext
     getCurrent()
     {
-        Object k = Thread.currentThread();
-        return (TransactionalEvictorContext)_ctxMap.get(k);
+        Thread t = Thread.currentThread();
+        return _ctxMap.get(t);
     }
 
     synchronized void
@@ -245,20 +244,20 @@ class SharedDbEnv implements com.sleepycat.db.ErrorHandler, Runnable
             }
         }
 
-        Object k = Thread.currentThread();
+        Thread t = Thread.currentThread();
 
         if(txi != null)
         {
-            TransactionalEvictorContext ctx = (TransactionalEvictorContext)_ctxMap.get(k);
+            TransactionalEvictorContext ctx = _ctxMap.get(t);
             if(ctx == null || !tx.equals(ctx.transaction()))
             {
                 ctx = new TransactionalEvictorContext(txi, getCommunicator());
-                _ctxMap.put(k, ctx);
+                _ctxMap.put(t, ctx);
             }
         }
         else
         {
-            _ctxMap.put(k, null);
+            _ctxMap.put(t, null);
         }
     }
     
@@ -357,7 +356,8 @@ class SharedDbEnv implements com.sleepycat.db.ErrorHandler, Runnable
                 }  
             }
 
-            _catalog = new MapDb(_key.communicator, _key.envName, Util.catalogName(), "string", "::Freeze::CatalogData", _dbEnv);
+            _catalog = new MapDb(_key.communicator, _key.envName, Util.catalogName(), "string",
+                                 "::Freeze::CatalogData", _dbEnv);
             _catalogIndexList = new MapDb(_key.communicator, _key.envName, Util.catalogIndexListName(),
                                           "string", "::Ice::StringSeq", _dbEnv);
         }
@@ -499,7 +499,8 @@ class SharedDbEnv implements com.sleepycat.db.ErrorHandler, Runnable
             }
         }
         
-        public int hashCode()
+        public int
+        hashCode()
         {
             return envName.hashCode() ^ communicator.hashCode();
         }
@@ -517,12 +518,10 @@ class SharedDbEnv implements com.sleepycat.db.ErrorHandler, Runnable
     private int _kbyte = 0;
     private Thread _thread;
 
-    private java.util.Map _ctxMap = new java.util.HashMap();
+    private java.util.Map<Thread, TransactionalEvictorContext> _ctxMap =
+        new java.util.HashMap<Thread, TransactionalEvictorContext>();
 
     private java.util.Map<String, MapDb> _sharedDbMap = new java.util.HashMap<String, MapDb>();
 
-    //
-    // Hash map of (MapKey, SharedDbEnv)
-    //
-    private static java.util.Map _map = new java.util.HashMap();
+    private static java.util.Map<MapKey, SharedDbEnv> _map = new java.util.HashMap<MapKey, SharedDbEnv>();
 }

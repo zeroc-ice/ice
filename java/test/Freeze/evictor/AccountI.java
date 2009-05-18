@@ -19,7 +19,8 @@ public class AccountI extends Account
     }
 
     public void
-    deposit(int amount, Ice.Current current) throws InsufficientFundsException
+    deposit(int amount, Ice.Current current)
+        throws InsufficientFundsException
     {
         //
         // No need to synchronize since everything occurs within its own transaction
@@ -72,19 +73,22 @@ public class AccountI extends Account
 
         class ResponseThread extends Thread
         {
-            synchronized void response()
+            synchronized void
+            response()
             {
                 _response = true;
                 notify();
             }
 
-            synchronized void exception(Ice.UserException e)
+            synchronized void
+            exception(Ice.UserException e)
             {
                 _exception = e;
                 notify();
             }
 
-            public synchronized void run()
+            public synchronized void
+            run()
             {
                 if(_response == false && _exception == null)
                 {
@@ -131,7 +135,7 @@ public class AccountI extends Account
 
         ResponseThread thread = new ResponseThread();
         thread.setDaemon(true);
-  
+
         test(_evictor.getCurrentTransaction() != null);
 
         try
@@ -159,17 +163,20 @@ public class AccountI extends Account
         thread.response();
     }
 
-    public AccountI(int initialBalance, Freeze.TransactionalEvictor evictor)
+    public
+    AccountI(int initialBalance, Freeze.TransactionalEvictor evictor)
     {
         super(initialBalance);
         _evictor = evictor;
     }
 
-    public AccountI()
+    public
+    AccountI()
     {
     }
 
-    public void init(Freeze.TransactionalEvictor evictor)
+    public void
+    init(Freeze.TransactionalEvictor evictor)
     {
         assert _evictor == null;
         _evictor = evictor;

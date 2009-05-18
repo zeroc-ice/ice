@@ -557,7 +557,6 @@ generated from the section label.
         <property name="Trace.Evictor" />
         <property name="Trace.Map" />
         <property name="Trace.Transaction" />
-        <property name="Warn.CloseInFinalize" />
         <property name="Warn.Deadlocks" />
         <property name="Warn.Rollback" />
     </section>

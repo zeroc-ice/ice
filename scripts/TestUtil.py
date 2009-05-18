@@ -144,6 +144,7 @@ def configurePaths():
     if iceHome == "/usr":
         javaDir = os.path.join("/", "usr", "share", "java")
         addClasspath(os.path.join(javaDir, "Ice.jar"))
+        addClasspath(os.path.join(javaDir, "Freeze.jar"))
         return # That's it, we're done!
     
     if isWin32():
@@ -167,6 +168,7 @@ def configurePaths():
     else:
         javaDir = os.path.join(getIceDir("java"), "lib")
 	addClasspath(os.path.join(javaDir, "Ice.jar"))
+	addClasspath(os.path.join(javaDir, "Freeze.jar"))
     addClasspath(os.path.join(javaDir))
     
     # 

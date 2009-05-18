@@ -35,21 +35,21 @@ class Parser
     }
 
     void
-    addBook(java.util.List args)
+    addBook(java.util.List<String> args)
     {
         if(args.size() != 3)
         {
             error("`add' requires at exactly three arguments (type `help' for more info)");
             return;
         }
-        
+
         try
         {
             BookDescription desc = new BookDescription();
-            desc.isbn = (String)args.get(0);
-            desc.title = (String)args.get(1);
-            desc.authors = (String)args.get(2);
-            
+            desc.isbn = args.get(0);
+            desc.title = args.get(1);
+            desc.authors = args.get(2);
+
             BookPrx book = _library.createBook(desc);
             System.out.println("added new book with isbn " + desc.isbn);
         }
@@ -68,20 +68,20 @@ class Parser
     }
 
     void
-    findIsbn(java.util.List args)
+    findIsbn(java.util.List<String> args)
     {
         if(args.size() != 1)
         {
             error("`isbn' requires exactly one argument (type `help' for more info)");
             return;
         }
-        
+
         try
         {
             _foundBooks = null;
             _current = 0;
 
-            BookPrx book = _library.findByIsbn((String)args.get(0));
+            BookPrx book = _library.findByIsbn(args.get(0));
             if(book == null)
             {
                 System.out.println("no book with that ISBN number exists.");
@@ -104,17 +104,17 @@ class Parser
     }
 
     void
-    findAuthors(java.util.List args)
+    findAuthors(java.util.List<String> args)
     {
         if(args.size() != 1)
         {
             error("`authors' requires exactly one argument (type `help' for more info)");
             return;
         }
-        
+
         try
         {
-            _foundBooks = _library.findByAuthors((String)args.get(0));
+            _foundBooks = _library.findByAuthors(args.get(0));
             _current = 0;
             System.out.println("number of books found: " + _foundBooks.length);
             printCurrent();
@@ -138,7 +138,7 @@ class Parser
         }
         printCurrent();
     }
-    
+
     void
     printCurrent()
     {
@@ -181,7 +181,7 @@ class Parser
     }
 
     void
-    rentCurrent(java.util.List args)
+    rentCurrent(java.util.List<String> args)
     {
         if(args.size() != 1)
         {
@@ -193,8 +193,8 @@ class Parser
         {
             if(_foundBooks != null && _current != _foundBooks.length)
             {
-                _foundBooks[_current].rentBook((String)args.get(0));
-                System.out.println("the book is now rented by `" + (String)args.get(0) + "'");
+                _foundBooks[_current].rentBook(args.get(0));
+                System.out.println("the book is now rented by `" + args.get(0) + "'");
             }
             else
             {
@@ -274,7 +274,7 @@ class Parser
     }
 
     void
-    setEvictorSize(java.util.List args)
+    setEvictorSize(java.util.List<String> args)
     {
         if(args.size() != 1)
         {
@@ -282,7 +282,7 @@ class Parser
             return;
         }
 
-        String s = (String)args.get(0);
+        String s = args.get(0);
         try
         {
             _library.setEvictorSize(Integer.parseInt(s));

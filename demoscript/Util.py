@@ -33,7 +33,6 @@ from scripts import Expect
 keepGoing = False
 iceHome = None
 x64 = False
-java2 = False
 preferIPv4 = False
 demoErrors = []
 
@@ -83,10 +82,8 @@ def configurePaths():
     #
     if iceHome == "/usr":
         javaDir = os.path.join("/", "usr", "share", "java")
-        if java2:
-            addenv("CLASSPATH", os.path.join(javaDir, "Ice-java2.jar"))
-        else:
-            addenv("CLASSPATH", os.path.join(javaDir, "Ice.jar"))
+        addenv("CLASSPATH", os.path.join(javaDir, "Ice.jar"))
+        addenv("CLASSPATH", os.path.join(javaDir, "Freeze.jar"))
         addenv("CLASSPATH", "classes")
         return # That's it, we're done!
 
@@ -124,6 +121,7 @@ def configurePaths():
     javaDir = getIceDir("java")
 
     addenv("CLASSPATH", os.path.join(javaDir, "lib", "Ice.jar"))
+    addenv("CLASSPATH", os.path.join(javaDir, "lib", "Freeze.jar"))
     if not iceHome:
         addenv("CLASSPATH", os.path.join(javaDir, "lib"))
     addenv("CLASSPATH", os.path.join("classes"))
@@ -331,7 +329,7 @@ def run(demos, protobufDemos = [], root = False):
     try:
         opts, args = getopt.getopt(sys.argv[1:], "lr:R:", [
                 "filter=", "rfilter=", "start=", "loop", "fast", "trace=", "debug", "host=", "mode=",
-                "continue", "ice-home=", "x64", "java2", "preferIPv4", "env", "noenv", "script", "protobuf"])
+                "continue", "ice-home=", "x64", "preferIPv4", "env", "noenv", "script", "protobuf"])
     except getopt.GetoptError:
         usage()
 
@@ -518,7 +516,7 @@ def processCmdLine():
 	print "usage: " + sys.argv[0] + " --x64 --preferIPv4 --env --noenv --fast --trace=output --debug --host host --mode=[debug|release] --ice-home=<dir>"
 	sys.exit(2)
     try:
-	opts, args = getopt.getopt(sys.argv[1:], "", ["env", "noenv", "x64", "java2", "preferIPv4", "fast", "trace=", "debug", "host=", "mode=", "ice-home="])
+	opts, args = getopt.getopt(sys.argv[1:], "", ["env", "noenv", "x64", "preferIPv4", "fast", "trace=", "debug", "host=", "mode=", "ice-home="])
     except getopt.GetoptError:
 	usage()
 
@@ -527,7 +525,6 @@ def processCmdLine():
     global tracefile
     global buildmode
     global x64
-    global java2
     global preferIPv4
     global debug
     global host
@@ -537,7 +534,6 @@ def processCmdLine():
     trace = False
     buildmode = None
     x64 = False
-    java2 = False
     tracefile = None
     env = False
     noenv = False
@@ -560,8 +556,6 @@ def processCmdLine():
 	    fast = True
 	if o == "--x64":
 	    x64 = True
-	if o == "--java2":
-	    java2 = True
 	if o == "--preferIPv4":
 	    preferIPv4 = True
         if o == "--ice-home":

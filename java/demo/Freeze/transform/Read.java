@@ -23,54 +23,44 @@ class Read extends Ice.Application
 
         Connection connection = Util.createConnection(communicator(), "db");
 
-        final java.util.Comparator less =
-        new java.util.Comparator()
+        final java.util.Comparator<String> less = new java.util.Comparator<String>()
         {
-            public int compare(Object o1, Object o2)
+            public int compare(String s1, String s2)
             {
-                if(o1 == o2)
+                if(s1 == s2)
                 {
                     return 0;
                 }
-                else if(o1 == null)
+                else if(s1 == null)
                 {
-                    return -((Comparable)o2).compareTo(o1);
+                    return -s2.compareTo(s1);
                 }
                 else
                 {
-                    return ((Comparable)o1).compareTo(o2);
+                    return s1.compareTo(s2);
                 }
             }
         };
 
-        java.util.Map indexComparators = new java.util.HashMap();
-        indexComparators.put("phoneNumber", less);
-
         try
         {
+            Contacts.IndexComparators indexComparators = new Contacts.IndexComparators(less);
             Contacts contacts = new Contacts(connection, "contacts", false, less, indexComparators);
-            
+
             System.out.println("All contacts (default order)");
-            java.util.Iterator p = contacts.entrySet().iterator();
-            while(p.hasNext())
+            for(java.util.Map.Entry<String, ContactData> entry : contacts.entrySet())
             {
-                java.util.Map.Entry entry = (java.util.Map.Entry)p.next();
-                System.out.println((String)entry.getKey() + ":\t\t"
-                                   + ((ContactData)entry.getValue()).phoneNumber);
+                System.out.println(entry.getKey() + ":\t\t" + entry.getValue().phoneNumber);
             }
-            
+
             System.out.println("\nAll contacts (ordered by phone number)");
-            java.util.SortedMap phoneNumberMap = contacts.mapForIndex("phoneNumber");
-            p = phoneNumberMap.values().iterator();
-            while(p.hasNext())
+            java.util.SortedMap<String, java.util.Set<java.util.Map.Entry<String, ContactData>>> phoneNumberMap =
+                contacts.mapForPhoneNumber();
+            for(java.util.Set<java.util.Map.Entry<String, ContactData>> entries : phoneNumberMap.values())
             {
-                java.util.Set entries = (java.util.Set)p.next();
-                java.util.Iterator q = entries.iterator();
-                while(q.hasNext())
+                for(java.util.Map.Entry<String, ContactData> entry : entries)
                 {
-                    java.util.Map.Entry entry = (java.util.Map.Entry)q.next();
-                    System.out.println((String)entry.getKey() + ":\t\t"
-                                       + ((ContactData)entry.getValue()).phoneNumber);
+                    System.out.println(entry.getKey() + ":\t\t" + entry.getValue().phoneNumber);
                 }
             }
         }
@@ -78,7 +68,7 @@ class Read extends Ice.Application
         {
             connection.close();
         }
-    
+
         return 0;
     }
 

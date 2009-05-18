@@ -39,10 +39,11 @@ public class Client extends test.Util.Application
     {
         ReadThread(ServantPrx[] servants)
         {
-            _servants = servants;    
-        } 
+            _servants = servants;
+        }
 
-        public void run()
+        public void
+        run()
         {
             int loops = 10;
             while(loops-- > 0)
@@ -60,14 +61,14 @@ public class Client extends test.Util.Application
                 {
                     test(false);
                 }
-                
+
                 for(int i = 1; i < _servants.length; ++i)
                 {
                     test(_servants[i].getValue() == i);
                 }
             }
         }
-        
+
         private ServantPrx[] _servants;
     }
 
@@ -81,7 +82,7 @@ public class Client extends test.Util.Application
         {
             _servants = servants;
         }
-        
+
         public void
         run()
         {
@@ -131,13 +132,13 @@ public class Client extends test.Util.Application
         {
             return _state;
         }
-        
+
         synchronized boolean
         validEx()
         {
             return _state == StateDeactivating || _state == StateDeactivated;
         }
-        
+
         synchronized void
         setEvictorState(int s)
         {
@@ -148,9 +149,8 @@ public class Client extends test.Util.Application
         private int _state = StateRunning;
     }
 
-
     static class AddForeverThread extends Thread
-    {   
+    {
         AddForeverThread(RemoteEvictorPrx evictor, int prefix)
         {
             _evictor = evictor;
@@ -161,7 +161,7 @@ public class Client extends test.Util.Application
         run()
         {
             int index = 0;
-            
+
             for(;;)
             {
                 try
@@ -221,13 +221,13 @@ public class Client extends test.Util.Application
         {
             return _state;
         }
-        
+
         synchronized boolean
         validEx()
         {
             return _state == StateDeactivating || _state == StateDeactivated;
         }
-        
+
         synchronized void
         setEvictorState(int s)
         {
@@ -239,16 +239,15 @@ public class Client extends test.Util.Application
         private int _state = StateRunning;
     }
 
-
     static class CreateDestroyThread extends Thread
     {
-        CreateDestroyThread(RemoteEvictorPrx evictor, int id, int size) 
+        CreateDestroyThread(RemoteEvictorPrx evictor, int id, int size)
         {
             _evictor = evictor;
             _id = "" + id;
             _size = size;
         }
-                   
+
         public void
         run()
         {
@@ -265,12 +264,12 @@ public class Client extends test.Util.Application
                             //
                             // Create when odd, destroy when even.
                             //
-                            
+
                             if(loops % 2 == 0)
                             {
                                 ServantPrx servant = _evictor.getServant(id);
                                 servant.destroy();
-                                
+
                                 //
                                 // Twice
                                 //
@@ -287,7 +286,7 @@ public class Client extends test.Util.Application
                             else
                             {
                                 ServantPrx servant = _evictor.createServant(id, i);
-                                
+
                                 //
                                 // Twice
                                 //
@@ -352,17 +351,17 @@ public class Client extends test.Util.Application
             for(int i = 0; i < 1000; i++)
             {
                 //
-                // Transfer 100 at random between two distinct accounts 
+                // Transfer 100 at random between two distinct accounts
                 //
                 AccountPrx from = _accounts[Math.abs(_random.nextInt() % _accounts.length)];
-                
+
                 AccountPrx to = null;
                 do
                 {
                     to = _accounts[Math.abs(_random.nextInt() % _accounts.length)];
                 }
                 while(from == to);
-                
+
                 try
                 {
                     //
@@ -370,25 +369,25 @@ public class Client extends test.Util.Application
                     //
                     switch(transferOp)
                     {
-                        case 0:
-                        {
-                            from.transfer(100, to);
-                            break;
-                        }
-                        case 1:
-                        {
-                            from.transfer2(100, to);
-                            break;
-                        }
-                        case 2:
-                        {
-                            from.transfer3(100, to);
-                            break;
-                        }
-                        default:
-                        {
-                            test(false);
-                        }
+                    case 0:
+                    {
+                        from.transfer(100, to);
+                        break;
+                    }
+                    case 1:
+                    {
+                        from.transfer2(100, to);
+                        break;
+                    }
+                    case 2:
+                    {
+                        from.transfer3(100, to);
+                        break;
+                    }
+                    default:
+                    {
+                        test(false);
+                    }
                     }
                     transferOp++;
                     transferOp = transferOp % 3;
@@ -406,7 +405,7 @@ public class Client extends test.Util.Application
                     //
                     test(false);
                 }
-                
+
                 /*
                 if(i % 100 == 0)
                 {
@@ -420,7 +419,7 @@ public class Client extends test.Util.Application
         private final AccountPrx[] _accounts;
         private final java.util.Random _random;
     }
-    
+
     private int
     run(String[] args, PrintWriter out, boolean transactional, boolean shutdown)
         throws AlreadyRegisteredException, NotRegisteredException, EvictorDeactivatedException
@@ -442,12 +441,12 @@ public class Client extends test.Util.Application
         out.flush();
 
         final int size = 5;
-        
+
         RemoteEvictorPrx evictor = factory.createEvictor("Test", transactional);
         evictor.setSize(size);
 
         //
-        // Create some servants 
+        // Create some servants
         //
         ServantPrx[] servants = new ServantPrx[size];
         for(int i = 0; i < size; i++)
@@ -455,7 +454,7 @@ public class Client extends test.Util.Application
             String id = "" + i;
             servants[i] = evictor.createServant(id, i);
             servants[i].ice_ping();
-            
+
             FacetPrx facet1 = FacetPrxHelper.uncheckedCast(servants[i], "facet1");
             try
             {
@@ -496,7 +495,7 @@ public class Client extends test.Util.Application
             test(facet2 != null);
             test(facet2.getData().equals("moreData"));
         }
-        
+
         //
         // Mutate servants.
         //
@@ -510,7 +509,7 @@ public class Client extends test.Util.Application
             test(facet2 != null);
             facet2.setValue(100 * i + 100);
         }
-        
+
         for(int i = 0; i < size; i++)
         {
             test(servants[i].getValue() == i + 100);
@@ -521,7 +520,7 @@ public class Client extends test.Util.Application
             test(facet2 != null);
             test(facet2.getValue() == 100 * i + 100);
         }
-        
+
         //
         // Evict and verify values.
         //
@@ -540,10 +539,10 @@ public class Client extends test.Util.Application
 
         if(!transactional)
         {
-            // 
+            //
             // Test saving while busy
             //
-            
+
             AMI_Servant_setValueAsyncI setCB = new AMI_Servant_setValueAsyncI();
             for(int i = 0; i < size; i++)
             {
@@ -551,7 +550,7 @@ public class Client extends test.Util.Application
                 // Start a mutating operation so that the object is not idle.
                 //
                 servants[i].setValueAsync_async(setCB, i + 300);
-                
+
                 test(servants[i].getValue() == i + 100);
                 //
                 // This operation modifies the object state but is not saved
@@ -559,7 +558,7 @@ public class Client extends test.Util.Application
                 //
                 servants[i].setValue(i + 200);
                 test(servants[i].getValue() == i + 200);
-                
+
                 //
                 // Force the response to setValueAsync
                 //
@@ -570,7 +569,7 @@ public class Client extends test.Util.Application
 
         //
         // Add duplicate facet and catch corresponding exception
-        // 
+        //
         for(int i = 0; i < size; i++)
         {
             try
@@ -582,10 +581,10 @@ public class Client extends test.Util.Application
             {
             }
         }
-        
+
         //
         // Remove a facet that does not exist
-        // 
+        //
         try
         {
             servants[0].removeFacet("facet3");
@@ -606,7 +605,7 @@ public class Client extends test.Util.Application
 
         evictor.setSize(0);
         evictor.setSize(size);
-        
+
         //
         // Destroy servants and verify ObjectNotExistException.
         //
@@ -632,7 +631,6 @@ public class Client extends test.Util.Application
             {
                 // Expected
             }
-
         }
 
         //
@@ -642,7 +640,7 @@ public class Client extends test.Util.Application
 
         //
         // Recreate servants, set transient value
-        //  
+        //
         for(int i = 0; i < size; i++)
         {
             String id = "" + i;
@@ -665,7 +663,6 @@ public class Client extends test.Util.Application
             test(servants[i].getTransientValue() == -1);
         }
 
-       
         if(!transactional)
         {
             //
@@ -680,7 +677,7 @@ public class Client extends test.Util.Application
             evictor.saveNow();
             evictor.setSize(0);
             evictor.setSize(size);
-            
+
             //
             // Check the transient value
             //
@@ -688,7 +685,7 @@ public class Client extends test.Util.Application
             {
                 test(servants[i].getTransientValue() == i);
             }
-            
+
             //
             // Again, after one release
             //
@@ -703,7 +700,7 @@ public class Client extends test.Util.Application
             {
                 test(servants[i].getTransientValue() == i);
             }
-            
+
             //
             // Again, after a second release
             //
@@ -714,12 +711,12 @@ public class Client extends test.Util.Application
             evictor.saveNow();
             evictor.setSize(0);
             evictor.setSize(size);
-            
+
             for(int i = 0; i < size; i++)
             {
                 test(servants[i].getTransientValue() == -1);
             }
-            
+
             //
             // Release one more time
             //
@@ -756,7 +753,7 @@ public class Client extends test.Util.Application
                 threads[i] = new TransferThread(accounts, i);
                 threads[i].start();
             }
-            
+
             for(int i = 0; i < threadCount; i++)
             {
                 try
@@ -768,13 +765,13 @@ public class Client extends test.Util.Application
                     break; // for
                 }
             }
-      
+
             //
             // Check that the total balance did not change!
             //
             test(totalBalance == servants[0].getTotalBalance());
         }
-        
+
         //
         // Deactivate and recreate evictor, to ensure that servants
         // are restored properly after database close and reopen.
@@ -788,7 +785,6 @@ public class Client extends test.Util.Application
             servants[i] = evictor.getServant(id);
             test(servants[i].getValue() == i);
         }
-        
 
         //
         // Test concurrent lookups with a smaller evictor
@@ -796,17 +792,17 @@ public class Client extends test.Util.Application
         //
         evictor.setSize(size / 2);
         servants[0].destroy();
-        
+
         {
             int threadCount = size * 2;
-            
+
             Thread[] threads = new Thread[threadCount];
             for(int i = 0; i < threadCount; i++)
             {
                 threads[i] = new ReadThread(servants);
                 threads[i].start();
             }
-            
+
             for(int i = 0; i < threadCount; i++)
             {
                 for(;;)
@@ -822,27 +818,27 @@ public class Client extends test.Util.Application
                 }
             }
         }
-        
+
         //
         // Clean up.
         //
         evictor.destroyAllServants("");
         evictor.destroyAllServants("facet1");
         evictor.destroyAllServants("facet2");
-        
+
         //
         // CreateDestroy threads
         //
         {
             int threadCount = size;
-            
+
             Thread[] threads = new Thread[threadCount];
             for(int i = 0; i < threadCount; i++)
             {
                 threads[i] = new CreateDestroyThread(evictor, i, size);
                 threads[i].start();
             }
-            
+
             for(int i = 0; i < threadCount; i++)
             {
                 for(;;)
@@ -857,11 +853,11 @@ public class Client extends test.Util.Application
                     }
                 }
             }
-            
+
             //
             // Verify all destroyed
-            // 
-            for(int i = 0; i < size; i++)   
+            //
+            for(int i = 0; i < size; i++)
             {
                 try
                 {
@@ -874,31 +870,31 @@ public class Client extends test.Util.Application
                 }
             }
         }
-        
+
         //
         // Recreate servants.
-        //  
+        //
         servants = new ServantPrx[size];
         for(int i = 0; i < size; i++)
         {
             String id = "" + i;
             servants[i] = evictor.createServant(id, i);
         }
-        
+
         //
         // Deactivate in the middle of remote AMD operations
         // (really testing Ice here)
         //
         {
             int threadCount = size;
-            
+
             Thread[] threads = new Thread[threadCount];
             for(int i = 0; i < threadCount; i++)
             {
                 threads[i] = new ReadForeverThread(servants);
                 threads[i].start();
             }
-            
+
             try
             {
                 Thread.currentThread().sleep(500);
@@ -918,7 +914,7 @@ public class Client extends test.Util.Application
                 ReadForeverThread t = (ReadForeverThread)threads[i];
                 t.setEvictorState(StateDeactivated);
             }
-            
+
             for(int i = 0; i < threadCount; i++)
             {
                 for(;;)
@@ -934,26 +930,26 @@ public class Client extends test.Util.Application
                 }
             }
         }
-        
+
         //
         // Resurrect
         //
         evictor = factory.createEvictor("Test", transactional);
         evictor.destroyAllServants("");
-        
+
         //
         // Deactivate in the middle of adds
         //
         {
             int threadCount = size;
-            
+
             Thread[] threads = new Thread[threadCount];
             for(int i = 0; i < threadCount; i++)
             {
                 threads[i] = new AddForeverThread(evictor, i);
                 threads[i].start();
             }
-            
+
             try
             {
                 Thread.currentThread().sleep(500);
@@ -989,8 +985,7 @@ public class Client extends test.Util.Application
                 }
             }
         }
-        
-        
+
         //
         // Clean up.
         //
@@ -999,7 +994,7 @@ public class Client extends test.Util.Application
         evictor.deactivate();
 
         out.println("ok");
-        
+
         if(shutdown)
         {
             factory.shutdown();
@@ -1039,7 +1034,8 @@ public class Client extends test.Util.Application
         return status;
     }
 
-    protected Ice.InitializationData getInitData(Ice.StringSeqHolder argsH)
+    protected Ice.InitializationData
+    getInitData(Ice.StringSeqHolder argsH)
     {
         Ice.InitializationData initData = new Ice.InitializationData();
         initData.properties = Ice.Util.createProperties(argsH);
@@ -1047,7 +1043,8 @@ public class Client extends test.Util.Application
         return initData;
     }
 
-    public static void main(String[] args)
+    public static void
+    main(String[] args)
     {
         Client c = new Client();
         int status = c.main("Client", args);

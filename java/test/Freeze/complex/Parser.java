@@ -71,10 +71,10 @@ public class Parser
             {
                 throw new ParseError("Expected number");
             }
-            
+
             NumberNode number = new NumberNodeI(Integer.parseInt(_token));
             Node result = number;
-            
+
             //
             // expr?
             //
@@ -90,7 +90,7 @@ public class Parser
                     Node right = expr();
                     result = new AddNodeI(number, right);
                 }
-                
+
                 //
                 // expr '*' expr
                 //
@@ -132,12 +132,12 @@ public class Parser
         }
 
         StringBuilder buf = new StringBuilder(128);
-        
+
         //
         // Get the next character
         //
         char c = _buf.charAt(_pos);
-        
+
         //
         // '(', ')', '+' and '*' are tokens.
         //
@@ -156,7 +156,7 @@ public class Parser
                 buf.append(_buf.charAt(_pos++));
             }
         }
-        
+
         _token = buf.toString();
     }
 

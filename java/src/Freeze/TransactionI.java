@@ -29,7 +29,7 @@ class TransactionI implements Transaction
 
             if(_txTrace >= 1)
             {
-                txnId = Long.toHexString((_txn.getId() & 0x7FFFFFFF) + 0x80000000L); 
+                txnId = Long.toHexString((_txn.getId() & 0x7FFFFFFF) + 0x80000000L);
             }
 
             _txn.commit();
@@ -37,8 +37,8 @@ class TransactionI implements Transaction
 
             if(_txTrace >= 1)
             {
-                _connection.communicator().getLogger().trace("Freeze.Transaction", _errorPrefix + "committed transaction " +
-                                                             txnId);
+                _connection.communicator().getLogger().trace("Freeze.Transaction", _errorPrefix +
+                                                             "committed transaction " + txnId);
             }
         }
         catch(com.sleepycat.db.DeadlockException e)
@@ -97,18 +97,18 @@ class TransactionI implements Transaction
         try
         {
             _connection.closeAllIterators();
-         
+
             if(_txTrace >= 1)
             {
-                txnId = Long.toHexString((_txn.getId() & 0x7FFFFFFF) + 0x80000000L); 
+                txnId = Long.toHexString((_txn.getId() & 0x7FFFFFFF) + 0x80000000L);
             }
 
             _txn.abort();
 
             if(_txTrace >= 1)
             {
-                _connection.communicator().getLogger().trace("Freeze.Transaction", _errorPrefix + "rolled back transaction " +
-                                                             txnId);
+                _connection.communicator().getLogger().trace("Freeze.Transaction", _errorPrefix +
+                                                             "rolled back transaction " + txnId);
             }
         }
         catch(com.sleepycat.db.DeadlockException e)
@@ -152,7 +152,7 @@ class TransactionI implements Transaction
             postCompletion(false, deadlock);
         }
     }
- 
+
     public Connection
     getConnection()
     {
@@ -168,13 +168,13 @@ class TransactionI implements Transaction
         try
         {
             _txn = _connection.dbEnv().getEnv().beginTransaction(null, null);
-            
+
             if(_txTrace >= 1)
             {
-                String txnId = Long.toHexString((_txn.getId() & 0x7FFFFFFF) + 0x80000000L); 
+                String txnId = Long.toHexString((_txn.getId() & 0x7FFFFFFF) + 0x80000000L);
 
-                _connection.communicator().getLogger().trace("Freeze.Transaction", _errorPrefix + "started transaction " +
-                                                             txnId);
+                _connection.communicator().getLogger().trace("Freeze.Transaction", _errorPrefix +
+                                                             "started transaction " + txnId);
             }
         }
         catch(com.sleepycat.db.DatabaseException e)
@@ -192,13 +192,13 @@ class TransactionI implements Transaction
         }
     }
 
-    void 
+    void
     setPostCompletionCallback(PostCompletionCallback cb)
     {
         _postCompletionCallback = cb;
     }
 
-    void 
+    void
     adoptConnection()
     {
         _ownConnection = true;
@@ -209,13 +209,12 @@ class TransactionI implements Transaction
     {
         return _connection;
     }
-    
+
     com.sleepycat.db.Transaction
     dbTxn()
     {
         return _txn;
     }
-
 
     private void
     postCompletion(boolean committed, boolean deadlock)

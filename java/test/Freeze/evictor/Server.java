@@ -11,7 +11,7 @@ package test.Freeze.evictor;
 import test.Freeze.evictor.Test.*;
 
 public class Server extends test.Util.Application
-{ 
+{
     static class AccountFactory implements Ice.ObjectFactory
     {
         public Ice.Object
@@ -74,7 +74,7 @@ public class Server extends test.Util.Application
 
         RemoteEvictorFactoryI factory = new RemoteEvictorFactoryI("db");
         adapter.add(factory, communicator.stringToIdentity("factory"));
-    
+
         adapter.activate();
 
         communicator.waitForShutdown();
@@ -82,7 +82,8 @@ public class Server extends test.Util.Application
         return 0;
     }
 
-    protected Ice.InitializationData getInitData(Ice.StringSeqHolder argsH)
+    protected Ice.InitializationData
+    getInitData(Ice.StringSeqHolder argsH)
     {
         Ice.InitializationData initData = new Ice.InitializationData();
         initData.properties = Ice.Util.createProperties(argsH);
@@ -91,7 +92,8 @@ public class Server extends test.Util.Application
         return initData;
     }
 
-    public static void main(String[] args)
+    public static void
+    main(String[] args)
     {
         Server c = new Server();
         int status = c.main("Server", args);

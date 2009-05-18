@@ -20,22 +20,22 @@ class BackgroundSaveEvictorI extends EvictorI implements BackgroundSaveEvictor, 
     // Clean object; can become modified or destroyed
     //
     static final byte clean = 0;
-    
+
     //
     // New object; can become clean, dead or destroyed
     //
     static final byte created = 1;
-    
+
     //
     // Modified object; can become clean or destroyed
     //
     static final byte modified = 2;
-    
+
     //
     // Being saved. Can become dead or created
     //
     static final byte destroyed = 3;
-    
+
     //
     // Exists only in the SaveAsyncEvictor; for example the object was created
     // and later destroyed (without a save in between), or it was
@@ -58,7 +58,8 @@ class BackgroundSaveEvictorI extends EvictorI implements BackgroundSaveEvictor, 
             assert timeout > 0;
         }
 
-        public synchronized void run()
+        public synchronized void
+        run()
         {
             while(!_done)
             {
@@ -91,7 +92,7 @@ class BackgroundSaveEvictorI extends EvictorI implements BackgroundSaveEvictor, 
                     if(IceInternal.Time.currentMonotonicTimeMillis() - startTime >= _timeout)
                     {
                         _communicator.getLogger().error(_errorPrefix +
-                                                        "Fatal error: streaming watch dog thread timed out.");
+                                                        "Fatal error: streaming watch dog thread timed out");
 
                         Util.handleFatalError(BackgroundSaveEvictorI.this, _communicator, null);
                     }
@@ -99,19 +100,22 @@ class BackgroundSaveEvictorI extends EvictorI implements BackgroundSaveEvictor, 
             }
         }
 
-        synchronized void activate()
+        synchronized void
+        activate()
         {
             _active = true;
             notify();
         }
-        
-        synchronized void deactivate()
+
+        synchronized void
+        deactivate()
         {
             _active = false;
             notify();
         }
 
-        synchronized void terminate()
+        synchronized void
+        terminate()
         {
             _done = true;
             notify();
@@ -122,23 +126,21 @@ class BackgroundSaveEvictorI extends EvictorI implements BackgroundSaveEvictor, 
         private boolean _active = false;
     }
 
-    
-    BackgroundSaveEvictorI(Ice.ObjectAdapter adapter, String envName, String filename, 
+    BackgroundSaveEvictorI(Ice.ObjectAdapter adapter, String envName, String filename,
                            ServantInitializer initializer, Index[] indices, boolean createDb)
     {
         this(adapter, envName, null, filename, initializer, indices, createDb);
     }
 
-    
-    BackgroundSaveEvictorI(Ice.ObjectAdapter adapter, String envName, com.sleepycat.db.Environment dbEnv, 
+    BackgroundSaveEvictorI(Ice.ObjectAdapter adapter, String envName, com.sleepycat.db.Environment dbEnv,
                            String filename, ServantInitializer initializer, Index[] indices, boolean createDb)
     {
         super(adapter, envName, dbEnv, filename, null, initializer, indices, createDb);
 
-        String propertyPrefix = "Freeze.Evictor." + envName + '.' + filename; 
-        
-        // 
-        // By default, we save every minute or when the size of the modified 
+        String propertyPrefix = "Freeze.Evictor." + envName + '.' + filename;
+
+        //
+        // By default, we save every minute or when the size of the modified
         // queue reaches 10.
         //
 
@@ -158,12 +160,12 @@ class BackgroundSaveEvictorI extends EvictorI implements BackgroundSaveEvictor, 
         {
             _maxTxSize = 100;
         }
-                
+
         //
         // Start threads
         //
         String savingThreadName;
-        
+
         String programName = _communicator.getProperties().getProperty("Ice.ProgramName");
         if(programName.length() > 0)
         {
@@ -191,13 +193,12 @@ class BackgroundSaveEvictorI extends EvictorI implements BackgroundSaveEvictor, 
         _thread = new Thread(this, savingThreadName);
         _thread.start();
     }
-    
-    
+
     public Ice.ObjectPrx
     addFacet(Ice.Object servant, Ice.Identity ident, String facet)
     {
         checkIdentity(ident);
-       
+
         if(facet == null)
         {
             facet = "";
@@ -211,42 +212,41 @@ class BackgroundSaveEvictorI extends EvictorI implements BackgroundSaveEvictor, 
             if(store == null)
             {
                 NotFoundException ex = new NotFoundException();
-                ex.message = _errorPrefix + "addFacet: could not open database for facet '"
-                    + facet + "'";
+                ex.message = _errorPrefix + "addFacet: could not open database for facet '" + facet + "'";
                 throw ex;
             }
 
             boolean alreadyThere = false;
-            
+
             for(;;)
             {
                 //
                 // Create a new entry
                 //
-                
+
                 EvictorElement element = new EvictorElement(ident, store);
                 element.status = dead;
                 element.rec = new ObjectRecord();
                 element.rec.stats = new Statistics();
-                
+
                 Object o = store.cache().putIfAbsent(ident, element);
-                
+
                 if(o != null)
                 {
                     element = (EvictorElement)o;
                 }
-                
+
                 synchronized(this)
-                {           
+                {
                     if(element.stale)
                     {
                         //
                         // Try again
-                        // 
+                        //
                         continue;
                     }
                     fixEvictPosition(element);
-                    
+
                     synchronized(element)
                     {
                         switch(element.status)
@@ -257,12 +257,12 @@ class BackgroundSaveEvictorI extends EvictorI implements BackgroundSaveEvictor, 
                             {
                                 alreadyThere = true;
                                 break;
-                            }  
+                            }
                             case destroyed:
                             {
                                 element.status = modified;
                                 element.rec.servant = servant;
-                                
+
                                 //
                                 // No need to push it on the modified queue, as a destroyed object
                                 // is either already on the queue or about to be saved. When saved,
@@ -274,12 +274,12 @@ class BackgroundSaveEvictorI extends EvictorI implements BackgroundSaveEvictor, 
                             {
                                 element.status = created;
                                 ObjectRecord rec = element.rec;
-                                
+
                                 rec.servant = servant;
                                 rec.stats.creationTime = IceInternal.Time.currentMonotonicTimeMillis();
                                 rec.stats.lastSaveTime = 0;
                                 rec.stats.avgSaveTime = 0;
-                                
+
                                 addToModifiedQueue(element);
                                 break;
                             }
@@ -293,7 +293,7 @@ class BackgroundSaveEvictorI extends EvictorI implements BackgroundSaveEvictor, 
                 }
                 break; // for(;;)
             }
-            
+
             if(alreadyThere)
             {
                 Ice.AlreadyRegisteredException ex = new Ice.AlreadyRegisteredException();
@@ -305,7 +305,7 @@ class BackgroundSaveEvictorI extends EvictorI implements BackgroundSaveEvictor, 
                 }
                 throw ex;
             }
-            
+
             if(_trace >= 1)
             {
                 String objString = "object \"" + _communicator.identityToString(ident) + "\"";
@@ -313,11 +313,11 @@ class BackgroundSaveEvictorI extends EvictorI implements BackgroundSaveEvictor, 
                 {
                     objString += " with facet \"" + facet + "\"";
                 }
-                
+
                 _communicator.getLogger().trace("Freeze.Evictor", "added " + objString + " to Db \"" + _filename +
                                                 "\"");
             }
-            
+
             Ice.ObjectPrx obj = _adapter.createProxy(ident);
             if(facet.length() > 0)
             {
@@ -346,10 +346,10 @@ class BackgroundSaveEvictorI extends EvictorI implements BackgroundSaveEvictor, 
         {
             ObjectStore store = findStore(facet, false);
             Ice.Object servant = null;
-            
+
             if(store != null)
             {
-         	for(;;)
+                 for(;;)
                 {
                     //
                     // Retrieve object
@@ -363,10 +363,10 @@ class BackgroundSaveEvictorI extends EvictorI implements BackgroundSaveEvictor, 
                             {
                                 //
                                 // Try again
-                                // 
+                                //
                                 continue;
                             }
-			
+
                             fixEvictPosition(element);
                             synchronized(element)
                             {
@@ -398,7 +398,7 @@ class BackgroundSaveEvictorI extends EvictorI implements BackgroundSaveEvictor, 
                                         // (at which point it becomes clean)
                                         //
                                         break;
-                                    }  
+                                    }
                                     case destroyed:
                                     case dead:
                                     {
@@ -411,11 +411,11 @@ class BackgroundSaveEvictorI extends EvictorI implements BackgroundSaveEvictor, 
                                     }
                                 }
                             }
-			
+
                             if(element.keepCount > 0)
                             {
                                 assert servant != null;
-			    
+
                                 element.keepCount = 0;
                                 //
                                 // Add to front of evictor queue
@@ -432,10 +432,10 @@ class BackgroundSaveEvictorI extends EvictorI implements BackgroundSaveEvictor, 
                             }
                         }
                     }
-                    break; // for(;;)  
+                    break; // for(;;)
                 }
             }
-	    
+
             if(servant == null)
             {
                 Ice.NotRegisteredException ex = new Ice.NotRegisteredException();
@@ -447,7 +447,7 @@ class BackgroundSaveEvictorI extends EvictorI implements BackgroundSaveEvictor, 
                 }
                 throw ex;
             }
-	
+
             if(_trace >= 1)
             {
                 String objString = "object \"" + _communicator.identityToString(ident) + "\"";
@@ -455,7 +455,7 @@ class BackgroundSaveEvictorI extends EvictorI implements BackgroundSaveEvictor, 
                 {
                     objString += " with facet \"" + facet + "\"";
                 }
-	    
+
                 _communicator.getLogger().trace("Freeze.Evictor", "removed " + objString + " from Db \"" + _filename +
                                                 "\"");
             }
@@ -466,7 +466,6 @@ class BackgroundSaveEvictorI extends EvictorI implements BackgroundSaveEvictor, 
             _deactivateController.unlock();
         }
     }
-       
 
     public void
     keep(Ice.Identity ident)
@@ -487,7 +486,7 @@ class BackgroundSaveEvictorI extends EvictorI implements BackgroundSaveEvictor, 
         try
         {
             boolean notThere = false;
-        
+
             ObjectStore store = findStore(facet, false);
             if(store == null)
             {
@@ -503,7 +502,7 @@ class BackgroundSaveEvictorI extends EvictorI implements BackgroundSaveEvictor, 
                         notThere = true;
                         break;
                     }
-                
+
                     synchronized(this)
                     {
                         if(element.stale)
@@ -513,7 +512,7 @@ class BackgroundSaveEvictorI extends EvictorI implements BackgroundSaveEvictor, 
                             //
                             continue;
                         }
-                    
+
                         synchronized(element)
                         {
                             if(element.status == destroyed || element.status == dead)
@@ -522,11 +521,11 @@ class BackgroundSaveEvictorI extends EvictorI implements BackgroundSaveEvictor, 
                                 break;
                             }
                         }
-                    
+
                         //
                         // Found!
                         //
-                    
+
                         if(element.keepCount == 0)
                         {
                             if(element.usageCount < 0)
@@ -553,7 +552,7 @@ class BackgroundSaveEvictorI extends EvictorI implements BackgroundSaveEvictor, 
                     }
                 }
             }
-            
+
             if(notThere)
             {
                 Ice.NotRegisteredException ex = new Ice.NotRegisteredException();
@@ -597,11 +596,11 @@ class BackgroundSaveEvictorI extends EvictorI implements BackgroundSaveEvictor, 
             {
                 synchronized(this)
                 {
-                    EvictorElement element = (EvictorElement) store.cache().getIfPinned(ident);
+                    EvictorElement element = (EvictorElement)store.cache().getIfPinned(ident);
                     if(element != null)
                     {
                         assert !element.stale;
-                        if(element.keepCount > 0) 
+                        if(element.keepCount > 0)
                         {
                             if(--element.keepCount == 0)
                             {
@@ -628,7 +627,7 @@ class BackgroundSaveEvictorI extends EvictorI implements BackgroundSaveEvictor, 
                     }
                 }
             }
-            
+
             Ice.NotRegisteredException ex = new Ice.NotRegisteredException();
             ex.kindOfObject = "servant";
             ex.id = _communicator.identityToString(ident);
@@ -636,7 +635,7 @@ class BackgroundSaveEvictorI extends EvictorI implements BackgroundSaveEvictor, 
             {
                 ex.id += " -f " + IceUtilInternal.StringUtil.escapeString(facet, "");
             }
-        
+
             throw ex;
         }
         finally
@@ -644,7 +643,7 @@ class BackgroundSaveEvictorI extends EvictorI implements BackgroundSaveEvictor, 
             _deactivateController.unlock();
         }
     }
-    
+
     public boolean
     hasFacet(Ice.Identity ident, String facet)
     {
@@ -659,19 +658,19 @@ class BackgroundSaveEvictorI extends EvictorI implements BackgroundSaveEvictor, 
         {
 
             ObjectStore store = findStore(facet, false);
-        
+
             if(store == null)
             {
                 return false;
             }
 
             synchronized(this)
-            {        
+            {
                 EvictorElement element = (EvictorElement)store.cache().getIfPinned(ident);
                 if(element != null)
                 {
-                    assert !element.stale;    
-                
+                    assert !element.stale;
+
                     synchronized(element)
                     {
                         return element.status != dead && element.status != destroyed;
@@ -686,7 +685,6 @@ class BackgroundSaveEvictorI extends EvictorI implements BackgroundSaveEvictor, 
         }
     }
 
-   
     protected boolean
     hasAnotherFacet(Ice.Identity ident, String facet)
     {
@@ -694,36 +692,33 @@ class BackgroundSaveEvictorI extends EvictorI implements BackgroundSaveEvictor, 
         try
         {
             //
-            // If the object exists in another store, throw FacetNotExistException 
+            // If the object exists in another store, throw FacetNotExistException
             // instead of returning null (== ObjectNotExistException)
-            // 
-            java.util.Map storeMapCopy;
+            //
+            java.util.Map<String, ObjectStore> storeMapCopy;
             synchronized(this)
             {
-                storeMapCopy = new java.util.HashMap(_storeMap);
-            }           
-        
-            java.util.Iterator p = storeMapCopy.entrySet().iterator();
-            while(p.hasNext())
+                storeMapCopy = new java.util.HashMap<String, ObjectStore>(_storeMap);
+            }
+
+            for(java.util.Map.Entry<String, ObjectStore> entry : storeMapCopy.entrySet())
             {
-                java.util.Map.Entry entry = (java.util.Map.Entry) p.next();
-            
                 //
                 // Do not check facet
                 //
                 if(!facet.equals(entry.getKey()))
                 {
-                    ObjectStore store = (ObjectStore)entry.getValue();
+                    ObjectStore store = entry.getValue();
                     boolean inCache = false;
-                
+
                     synchronized(this)
                     {
                         EvictorElement element = (EvictorElement)store.cache().getIfPinned(ident);
                         if(element != null)
                         {
                             inCache = true;
-                            assert !element.stale;    
-                        
+                            assert !element.stale;
+
                             synchronized(element)
                             {
                                 if(element.status != dead && element.status != destroyed)
@@ -740,7 +735,7 @@ class BackgroundSaveEvictorI extends EvictorI implements BackgroundSaveEvictor, 
                             return true;
                         }
                     }
-                }   
+                }
             }
             return false;
         }
@@ -750,22 +745,20 @@ class BackgroundSaveEvictorI extends EvictorI implements BackgroundSaveEvictor, 
         }
     }
 
-
-    protected Object 
+    protected Object
     createEvictorElement(Ice.Identity ident, ObjectRecord rec, ObjectStore store)
     {
         EvictorElement elt = new EvictorElement(ident, store);
         elt.rec = rec;
         return elt;
     }
-    
+
     protected Ice.Object
     locateImpl(Ice.Current current, Ice.LocalObjectHolder cookie)
     {
         _deactivateController.lock();
         try
         {
-
             cookie.value = null;
 
             ObjectStore store = findStore(current.facet, false);
@@ -794,7 +787,7 @@ class BackgroundSaveEvictorI extends EvictorI implements BackgroundSaveEvictor, 
                 }
 
                 synchronized(this)
-                {        
+                {
                     if(element.stale)
                     {
                         //
@@ -805,8 +798,7 @@ class BackgroundSaveEvictorI extends EvictorI implements BackgroundSaveEvictor, 
 
                     synchronized(element)
                     {
-                        if(element.status == destroyed || 
-                           element.status == dead)
+                        if(element.status == destroyed || element.status == dead)
                         {
                             if(_trace >= 2)
                             {
@@ -836,7 +828,7 @@ class BackgroundSaveEvictorI extends EvictorI implements BackgroundSaveEvictor, 
                         return element.rec.servant;
                     }
                 }
-            } 
+            }
         }
         finally
         {
@@ -853,9 +845,9 @@ class BackgroundSaveEvictorI extends EvictorI implements BackgroundSaveEvictor, 
             if(cookie != null)
             {
                 EvictorElement element = (EvictorElement)cookie;
-            
+
                 boolean enqueue = false;
-            
+
                 if((servant.ice_operationAttributes(current.operation) & 0x1) != 0)
                 {
                     synchronized(element)
@@ -864,27 +856,27 @@ class BackgroundSaveEvictorI extends EvictorI implements BackgroundSaveEvictor, 
                         {
                             //
                             // Assume this operation updated the object
-                            // 
+                            //
                             element.status = modified;
                             enqueue = true;
                         }
                     }
                 }
-            
+
                 synchronized(this)
                 {
                     //
-                    // Only elements with a usageCount == 0 can become stale and we own 
+                    // Only elements with a usageCount == 0 can become stale and we own
                     // one count!
-                    // 
+                    //
                     assert !element.stale;
                     assert element.usageCount >= 1;
-                
+
                     //
                     // Decrease the usage count of the evictor queue element.
                     //
                     element.usageCount--;
-                
+
                     if(enqueue)
                     {
                         addToModifiedQueue(element);
@@ -904,7 +896,7 @@ class BackgroundSaveEvictorI extends EvictorI implements BackgroundSaveEvictor, 
             _deactivateController.unlock();
         }
     }
-   
+
     public void
     deactivate(String category)
     {
@@ -922,11 +914,11 @@ class BackgroundSaveEvictorI extends EvictorI implements BackgroundSaveEvictor, 
                     //
                     _evictorSize = 0;
                     evict();
-                    
+
                     _savingThreadDone = true;
                     notifyAll();
                 }
-                
+
                 try
                 {
                     _thread.join();
@@ -934,20 +926,20 @@ class BackgroundSaveEvictorI extends EvictorI implements BackgroundSaveEvictor, 
                 catch(InterruptedException ex)
                 {
                 }
-                
+
                 if(_watchDogThread != null)
                 {
                     _watchDogThread.terminate();
-                    
+
                     try
                     {
                         _watchDogThread.join();
                     }
                     catch(InterruptedException ex)
                     {
-                    }   
+                    }
                 }
-                
+
                 closeDbEnv();
             }
             finally
@@ -956,7 +948,6 @@ class BackgroundSaveEvictorI extends EvictorI implements BackgroundSaveEvictor, 
             }
         }
     }
-    
 
     public void
     run()
@@ -965,11 +956,11 @@ class BackgroundSaveEvictorI extends EvictorI implements BackgroundSaveEvictor, 
         {
             for(;;)
             {
-                java.util.List allObjects;
-                java.util.List deadObjects = new java.util.LinkedList();
+                java.util.List<EvictorElement> allObjects;
+                java.util.List<EvictorElement> deadObjects = new java.util.LinkedList<EvictorElement>();
 
                 int saveNowThreadsSize = 0;
-                
+
                 synchronized(this)
                 {
                     while(!_savingThreadDone &&
@@ -996,16 +987,16 @@ class BackgroundSaveEvictorI extends EvictorI implements BackgroundSaveEvictor, 
                         {
                         }
                     }
-                    
+
                     saveNowThreadsSize = _saveNowThreads.size();
-                    
+
                     if(_savingThreadDone)
                     {
                         assert(_modifiedQueue.size() == 0);
                         assert(saveNowThreadsSize == 0);
                         break; // for(;;)
                     }
-                    
+
                     //
                     // Check first if there is something to do!
                     //
@@ -1018,35 +1009,35 @@ class BackgroundSaveEvictorI extends EvictorI implements BackgroundSaveEvictor, 
                         }
                         continue; // for(;;)
                     }
-                    
+
                     allObjects = _modifiedQueue;
-                    _modifiedQueue = new java.util.ArrayList();
+                    _modifiedQueue = new java.util.ArrayList<EvictorElement>();
                 }
-                
+
                 int size = allObjects.size();
-                
-                java.util.List streamedObjectQueue = new java.util.ArrayList();
-                
+
+                java.util.List<StreamedObject> streamedObjectQueue = new java.util.ArrayList<StreamedObject>();
+
                 long streamStart = IceInternal.Time.currentMonotonicTimeMillis();
-                
+
                 //
                 // Stream each element
                 //
                 for(int i = 0; i < size; i++)
                 {
-                    EvictorElement element = (EvictorElement)allObjects.get(i);
-                    
+                    EvictorElement element = allObjects.get(i);
+
                     boolean tryAgain;
-                    
+
                     do
                     {
                         tryAgain = false;
                         Ice.Object servant = null;
-                        
+
                         synchronized(element)
                         {
                             byte status = element.status;
-                            
+
                             switch(status)
                             {
                                 case created:
@@ -1054,7 +1045,7 @@ class BackgroundSaveEvictorI extends EvictorI implements BackgroundSaveEvictor, 
                                 {
                                     servant = element.rec.servant;
                                     break;
-                                }   
+                                }
                                 case destroyed:
                                 {
                                     streamedObjectQueue.add(stream(element, streamStart));
@@ -1062,7 +1053,7 @@ class BackgroundSaveEvictorI extends EvictorI implements BackgroundSaveEvictor, 
                                     element.status = dead;
                                     deadObjects.add(element);
                                     break;
-                                }   
+                                }
                                 case dead:
                                 {
                                     deadObjects.add(element);
@@ -1077,7 +1068,7 @@ class BackgroundSaveEvictorI extends EvictorI implements BackgroundSaveEvictor, 
                                 }
                             }
                         }
-                        
+
                         if(servant != null)
                         {
                             //
@@ -1098,7 +1089,7 @@ class BackgroundSaveEvictorI extends EvictorI implements BackgroundSaveEvictor, 
                                 synchronized(element)
                                 {
                                     byte status = element.status;
-                                    
+
                                     switch(status)
                                     {
                                         case created:
@@ -1119,11 +1110,11 @@ class BackgroundSaveEvictorI extends EvictorI implements BackgroundSaveEvictor, 
                                         case destroyed:
                                         {
                                             streamedObjectQueue.add(stream(element, streamStart));
-                                            
+
                                             element.status = dead;
                                             deadObjects.add(element);
                                             break;
-                                        }   
+                                        }
                                         case dead:
                                         {
                                             deadObjects.add(element);
@@ -1142,18 +1133,18 @@ class BackgroundSaveEvictorI extends EvictorI implements BackgroundSaveEvictor, 
                         }
                     } while(tryAgain);
                 }
-                
+
                 if(_trace >= 1)
                 {
                     long now = IceInternal.Time.currentMonotonicTimeMillis();
                     _communicator.getLogger().trace("Freeze.Evictor", "streamed " + streamedObjectQueue.size() +
                                                     " objects in " + (now - streamStart) + " ms");
                 }
-                
+
                 //
                 // Now let's save all these streamed objects to disk using a transaction
                 //
-                
+
                 //
                 // Each time we get a deadlock, we reduce the number of objects to save
                 // per transaction
@@ -1163,20 +1154,20 @@ class BackgroundSaveEvictorI extends EvictorI implements BackgroundSaveEvictor, 
                 {
                     txSize = _maxTxSize;
                 }
-                
+
                 boolean tryAgain;
-                
+
                 do
                 {
                     tryAgain = false;
-                    
+
                     while(streamedObjectQueue.size() > 0)
                     {
                         if(txSize > streamedObjectQueue.size())
                         {
                             txSize = streamedObjectQueue.size();
                         }
-                        
+
                         long saveStart = IceInternal.Time.currentMonotonicTimeMillis();
                         String txnId = null;
 
@@ -1186,20 +1177,20 @@ class BackgroundSaveEvictorI extends EvictorI implements BackgroundSaveEvictor, 
 
                             if(_txTrace >= 1)
                             {
-                                txnId = Long.toHexString((tx.getId() & 0x7FFFFFFF) + 0x80000000L); 
+                                txnId = Long.toHexString((tx.getId() & 0x7FFFFFFF) + 0x80000000L);
 
                                 _communicator.getLogger().trace("Freeze.Evictor", _errorPrefix +
                                                                 "started transaction " + txnId + " in saving thread");
                             }
 
                             try
-                            {   
+                            {
                                 for(int i = 0; i < txSize; i++)
                                 {
-                                    StreamedObject obj = (StreamedObject) streamedObjectQueue.get(i);
+                                    StreamedObject obj =  streamedObjectQueue.get(i);
                                     obj.store.save(obj.key, obj.value, obj.status, tx);
                                 }
-                                
+
                                 com.sleepycat.db.Transaction toCommit = tx;
                                 tx = null;
                                 toCommit.commit();
@@ -1222,12 +1213,12 @@ class BackgroundSaveEvictorI extends EvictorI implements BackgroundSaveEvictor, 
                                     }
                                 }
                             }
-                            
+
                             for(int i = 0; i < txSize; i++)
                             {
                                 streamedObjectQueue.remove(0);
                             }
-                            
+
                             if(_trace >= 1)
                             {
                                 long now = IceInternal.Time.currentMonotonicTimeMillis();
@@ -1239,10 +1230,11 @@ class BackgroundSaveEvictorI extends EvictorI implements BackgroundSaveEvictor, 
                         {
                             if(_deadlockWarning)
                             {
-                                _communicator.getLogger().warning("Deadlock in Freeze.BackgroundSaveEvictorI.run while writing " +
-                                                                  "into Db \"" + _filename + "\"; retrying...");
+                                _communicator.getLogger().warning(
+                                    "Deadlock in Freeze.BackgroundSaveEvictorI.run while writing " +
+                                    "into Db \"" + _filename + "\"; retrying...");
                             }
-                            
+
                             tryAgain = true;
                             txSize = (txSize + 1)/2;
                         }
@@ -1253,27 +1245,24 @@ class BackgroundSaveEvictorI extends EvictorI implements BackgroundSaveEvictor, 
                             ex.message = _errorPrefix + "saving: " + dx.getMessage();
                             throw ex;
                         }
-                    } 
+                    }
                 } while(tryAgain);
-                
+
                 synchronized(this)
-                {  
+                {
                     //
                     // Release usage count
                     //
                     for(int i = 0; i < allObjects.size(); i++)
-                    {    
-                        EvictorElement element = (EvictorElement) allObjects.get(i);
+                    {
+                        EvictorElement element = allObjects.get(i);
                         assert element.usageCount > 0;
                         element.usageCount--;
                     }
                     allObjects.clear();
 
-                    java.util.Iterator p = deadObjects.iterator();
-                    while(p.hasNext())
+                    for(EvictorElement element : deadObjects)
                     {
-                        EvictorElement element = (EvictorElement) p.next();
-
                         //
                         // Can be stale when there are duplicates on the deadObjects list
                         //
@@ -1323,19 +1312,19 @@ class BackgroundSaveEvictorI extends EvictorI implements BackgroundSaveEvictor, 
     {
         assert Thread.holdsLock(this);
 
-        java.util.Iterator p = _evictorList.riterator();
+        java.util.Iterator<EvictorElement> p = _evictorList.riterator();
         while(p.hasNext() && _currentEvictorSize > _evictorSize)
         {
             //
             // Get the last unused element from the evictor queue.
             //
-            EvictorElement element = (EvictorElement)p.next();
+            EvictorElement element = p.next();
             if(element.usageCount == 0)
             {
                 //
                 // Fine, servant is not in use (and not in the modifiedQueue)
                 //
-                
+
                 assert !element.stale;
                 assert element.keepCount == 0;
                 assert element.evictPosition != null;
@@ -1351,8 +1340,8 @@ class BackgroundSaveEvictorI extends EvictorI implements BackgroundSaveEvictor, 
 
                     _communicator.getLogger().trace("Freeze.Evictor", "evicting " + objString + " from the queue; " +
                                                     "number of elements in the queue: " + _currentEvictorSize);
-                }       
-                
+                }
+
                 //
                 // Remove last unused element from the evictor queue.
                 //
@@ -1360,7 +1349,7 @@ class BackgroundSaveEvictorI extends EvictorI implements BackgroundSaveEvictor, 
                 element.store.cache().unpin(element.identity);
                 p.remove();
                 element.evictPosition = null;
-                _currentEvictorSize--;  
+                _currentEvictorSize--;
             }
         }
     }
@@ -1374,7 +1363,7 @@ class BackgroundSaveEvictorI extends EvictorI implements BackgroundSaveEvictor, 
 
     synchronized private void
     saveNow()
-    {   
+    {
         Thread myself = Thread.currentThread();
 
         _saveNowThreads.add(myself);
@@ -1392,7 +1381,7 @@ class BackgroundSaveEvictorI extends EvictorI implements BackgroundSaveEvictor, 
         while(_saveNowThreads.contains(myself));
     }
 
-    private void 
+    private void
     fixEvictPosition(EvictorElement element)
     {
         assert Thread.holdsLock(this);
@@ -1404,7 +1393,7 @@ class BackgroundSaveEvictorI extends EvictorI implements BackgroundSaveEvictor, 
             if(element.usageCount < 0)
             {
                 assert element.evictPosition == null;
-                
+
                 //
                 // New object
                 //
@@ -1432,7 +1421,7 @@ class BackgroundSaveEvictorI extends EvictorI implements BackgroundSaveEvictor, 
 
         assert !element.stale;
         assert element.keepCount == 0;
-        
+
         element.evictPosition.remove();
         _currentEvictorSize--;
         element.stale = true;
@@ -1446,7 +1435,7 @@ class BackgroundSaveEvictorI extends EvictorI implements BackgroundSaveEvictor, 
 
         element.usageCount++;
         _modifiedQueue.add(element);
-        
+
         if(_saveSizeTrigger >= 0 && _modifiedQueue.size() >= _saveSizeTrigger)
         {
             notifyAll();
@@ -1459,13 +1448,13 @@ class BackgroundSaveEvictorI extends EvictorI implements BackgroundSaveEvictor, 
         assert Thread.holdsLock(element);
 
         assert element.status != dead;
-    
+
         StreamedObject obj = new StreamedObject();
 
         obj.status = element.status;
         obj.store = element.store;
         obj.key = ObjectStore.marshalKey(element.identity, _communicator);
-        
+
         if(element.status != destroyed)
         {
             updateStats(element.rec.stats, streamStart);
@@ -1473,7 +1462,7 @@ class BackgroundSaveEvictorI extends EvictorI implements BackgroundSaveEvictor, 
         }
         return obj;
     }
-    
+
     static private class EvictorElement
     {
         EvictorElement(Ice.Identity identity, ObjectStore store)
@@ -1481,25 +1470,24 @@ class BackgroundSaveEvictorI extends EvictorI implements BackgroundSaveEvictor, 
             this.identity = identity;
             this.store = store;
         }
-        
+
         final ObjectStore store;
         final Ice.Identity identity;
-        
+
         //
         // Protected by SaveAsyncEvictor
         //
-        java.util.Iterator evictPosition = null;
+        java.util.Iterator<EvictorElement> evictPosition = null;
         int usageCount = -1;
         int keepCount = 0;
         boolean stale = false;
-        
+
         //
         // Protected by this
         //
         ObjectRecord rec = null;
         byte status = clean;
     }
-
 
     static private class StreamedObject
     {
@@ -1508,11 +1496,11 @@ class BackgroundSaveEvictorI extends EvictorI implements BackgroundSaveEvictor, 
         byte status = dead;
         ObjectStore store = null;
     }
-    
+
     //
     // List of EvictorElement with stable iterators
     //
-    private final Freeze.LinkedList _evictorList = new Freeze.LinkedList();
+    private final Freeze.LinkedList<EvictorElement> _evictorList = new Freeze.LinkedList<EvictorElement>();
     private int _currentEvictorSize = 0;
 
     //
@@ -1520,16 +1508,16 @@ class BackgroundSaveEvictorI extends EvictorI implements BackgroundSaveEvictor, 
     // Each element in the queue "owns" a usage count, to ensure the
     // elements containing them remain in the map.
     //
-    private java.util.List _modifiedQueue = new java.util.ArrayList();
-    
-    private boolean              _savingThreadDone = false;
-    private WatchDogThread       _watchDogThread = null;
+    private java.util.List<EvictorElement> _modifiedQueue = new java.util.ArrayList<EvictorElement>();
+
+    private boolean _savingThreadDone = false;
+    private WatchDogThread _watchDogThread = null;
 
     //
     // Threads that have requested a "saveNow" and are waiting for
     // its completion
     //
-    private final java.util.List _saveNowThreads = new java.util.ArrayList();
+    private final java.util.List<Thread> _saveNowThreads = new java.util.ArrayList<Thread>();
 
     private int _saveSizeTrigger;
     private int _maxTxSize;

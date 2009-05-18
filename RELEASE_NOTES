@@ -24,7 +24,8 @@ Table of Contents
 
   1. New Features
   2. Upgrading your application from Ice 3.3
-     - Java mapping changes
+     - Java language mapping changes
+     - Changes to the Java API for Freeze maps
   3. Upgrading your application from Ice 3.2 or earlier releases
      - Compatibility
      - Migrating IceStorm databases
@@ -262,8 +263,8 @@ Ice for Python now supports blobjects.
 ======================================================================
 
 
-Java mapping changes
-====================
+Java language mapping changes
+=============================
 
 The Java2 language mapping, which was deprecated in Ice 3.3, is no
 longer supported. The Slice compiler and Ice API now use the Java5
@@ -455,6 +456,162 @@ equivalent enumerator:
 Note however that the convert(String) method in the Java2 mapping
 returned null for an invalid argument, whereas the Java5 enum method
 valueOf raises IllegalArgumentException instead.
+
+
+Changes to the Java API for Freeze maps
+=======================================
+
+The Java API for Freeze maps has been revised to used Java5 generic
+types and enhanced to provide additional functionality. This section
+describes these changes in detail and explains how to migrate your
+Freeze application to the API in Ice 3.4.
+
+
+General changes
+---------------
+
+The Freeze API is now entirely type-safe, which means compiling your
+application against Ice 3.4 is likely to generate unchecked conversion
+warnings. The generated class for a Freeze map now implements the
+java.util.SortedMap<K, V> interface, where K is the key type and V is
+the value type. As a result, applications that relied on the untyped
+SortedMap API (where all keys and values were treated as instances of
+java.lang.Object) will encounter compiler warnings in Ice 3.4.
+
+For example, an application might have iterated over the entries in a
+map as follows:
+
+// Old API
+Object key = new Integer(5);
+Object value = new Address(...);
+myMap.put(key, value);
+java.util.Iterator i = myMap.entrySet().iterator();
+while (i.hasNext()) {
+    java.util.Map.Entry e = (java.util.Map.Entry)i.next();
+    Integer myKey = (Integer)e.getKey();
+    Address myValue = (Address)e.getValue();
+    ...
+}
+
+This code will continue to work, but the new API is both type-safe
+and self-documenting:
+
+// New API
+int key = 5;
+Address value = new Address(...);
+myMap.put(key, value); // The key is autoboxed to Integer.
+for (java.util.Map.Entry<Integer, Address> e : myMap.entrySet()) {
+    Integer myKey = e.getKey();
+    Address myValue = e.getValue();
+    ...
+}
+
+Although migrating to the new API may require some effort, the
+benefits are worthwhile because your code will be easier to read and
+less prone to defects. You can also take advantage of the "autoboxing"
+features in Java5 that automatically convert values of primitive types
+(such as int) into their object equivalents (such as Integer).
+
+Please refer to the Ice manual for complete details on the new API.
+
+
+Enhancements
+------------
+
+Java6 introduced the java.util.NavigableMap interface, which extends
+java.util.SortedMap to add some useful new methods. Although the
+Freeze map API cannot implement java.util.NavigableMap directly
+because Freeze must remain compatible with Java5, we have added the
+Freeze.NavigableMap interface to provide much of the same
+functionality. A generated Freeze map class implements NavigableMap,
+as do the sub map views returned by map methods such as headMap.
+The NavigableMap interface is described in the Ice manual, and you can
+also refer to the Java6 API documentation.
+
+
+Backward compatibility
+----------------------
+
+The Freeze Map API related to indices underwent some significant
+changes in order to improve type safety and avoid unchecked
+conversion warnings. These changes may cause compilation failures in a
+Freeze application.
+
+In the previous API, index comparator objects were supplied to the
+Freeze map constructor in a map (in Java5 syntax, this comparators map
+would have the type java.util.Map<String, java.util.Comparator>) in
+which the index name was the key. As part of our efforts to improve
+type safety, we also wanted to use the fully-specified type for each
+index comparator (such as java.util.Comparator<Integer>). However,
+given that each index could potentially use a different key type, it
+is not possible to retain the previous API while remaining type-safe.
+
+Consequently, the index comparators are now supplied as data members
+of a static nested class of the Freeze map named IndexComparators. If
+your application supplied custom comparators for indices, you will
+need to revise your code to use IndexComparators instead. For example:
+
+// Old API
+java.util.Map indexComparators = new java.util.HashMap();
+indexComparators.put("index", new MyComparator());
+MyMap map = new MyMap(..., indexComparators);
+
+// New API
+MyMap.IndexComparators indexComparators =
+    new MyMap.IndexComparators();
+indexComparators.valueComparator = new MyComparator();
+MyMap map = new MyMap(..., indexComparators);
+
+We also encourage you to modify the definition of your comparator
+classes to use the Java5 syntax, as shown in the example below:
+
+// Old comparator
+class IntComparator implements java.util.Comparator
+{
+    public int compare(Object o1, Object o2)
+    {
+        return ((Integer)o1).compareTo(o2);
+    }
+}
+
+// New comparator
+class IntComparator implements java.util.Comparator<Integer>
+{
+    public int compare(Integer i1, Integer i2)
+    {
+        return i1.compareTo(i2);
+    }
+}
+
+The second API change that might cause compilation failures is the
+removal of the following methods:
+
+    java.util.SortedMap headMapForIndex(String name, Object key);
+    java.util.SortedMap tailMapForIndex(String name, Object key);
+    java.util.SortedMap subMapForIndex(String name, Object from,
+                                       Object to);
+    java.util.SortedMap mapForIndex(String name);
+
+Again, this API cannot be retained in a type-safe fashion, therefore
+slice2freezej now generates equivalent (and type-safe) methods for
+each index in the Freeze map class.
+
+Please refer to the Ice manual for complete details on the new API.
+
+
+Finalizers
+----------
+
+In previous releases, Freeze for Java used finalizers to close objects
+such as maps and connections that the application neglected to close.
+Most of these finalizers have been removed in Ice 3.4, and the only
+remaining finalizers simply log warning messages to alert you to the
+fact that connections and iterators are not being closed explicitly.
+Note that, given the uncertain nature of Java finalizers, it is quite
+likely that the remaining finalizers will not be executed.
+
+
+
 
 
 Old

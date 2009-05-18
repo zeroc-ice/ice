@@ -12,7 +12,7 @@ import Demo.*;
 class Client extends Ice.Application
 {
     void
-    IntIntMapTest(Freeze.Map m, boolean fast)
+    IntIntMapTest(Freeze.Map<Integer, Integer> m, boolean fast)
     {
         //
         // Populate the database.
@@ -23,14 +23,14 @@ class Client extends Ice.Application
         {
             for(int i = 0; i < _repetitions; ++i)
             {
-                m.fastPut(new Integer(i), new Integer(i));
+                m.fastPut(i, i);
             }
         }
         else
         {
             for(int i = 0; i < _repetitions; ++i)
             {
-                m.put(new Integer(i), new Integer(i));
+                m.put(i, i);
             }
         }
         tx.commit();
@@ -47,7 +47,7 @@ class Client extends Ice.Application
         _watch.start();
         for(int i = 0; i < _repetitions; ++i)
         {
-            Integer n = (Integer)m.get(new Integer(i));
+            Integer n = m.get(i);
             test(n.intValue() == i);
         }
         total = _watch.stop();
@@ -65,19 +65,18 @@ class Client extends Ice.Application
             _watch.start();
             for(int i = 0; i < _repetitions; ++i)
             {
-                java.util.Iterator p = indexedM.findByValue(i);
+                java.util.Iterator<java.util.Map.Entry<Integer, Integer>> p = indexedM.findByValue(i);
                 test(p.hasNext());
-                java.util.Map.Entry e = (java.util.Map.Entry)p.next();
-                test(((Integer)e.getKey()).intValue() == i);
+                java.util.Map.Entry<Integer, Integer> e = p.next();
+                test(e.getKey().intValue() == i);
                 m.closeAllIterators();
             }
             total = _watch.stop();
             perRecord = total / _repetitions;
-            
+
             System.out.println("\ttime for " + _repetitions + " indexed reads: " + total + "ms");
             System.out.println("\ttime per indexed read: " + perRecord + "ms");
         }
-
 
         //
         // Remove each record.
@@ -88,14 +87,14 @@ class Client extends Ice.Application
         {
             for(int i = 0; i < _repetitions; ++i)
             {
-                test(m.fastRemove(new Integer(i)));
+                test(m.fastRemove(i));
             }
         }
         else
         {
             for(int i = 0; i < _repetitions; ++i)
             {
-                Integer n = (Integer)m.remove(new Integer(i));
+                Integer n = m.remove(i);
                 test(n.intValue() == i);
             }
         }
@@ -163,7 +162,7 @@ class Client extends Ice.Application
         public String
         toString()
         {
-            return new Integer((_max - _min)+1).toString();
+            return new Integer((_max - _min) + 1).toString();
         }
 
         private int _min;
@@ -172,20 +171,19 @@ class Client extends Ice.Application
     }
 
     void
-    generatedRead(Freeze.Map m, int reads, Generator gen)
+    generatedRead(Freeze.Map<Integer, Integer> m, int reads, Generator gen)
     {
         _watch.start();
         for(int i = 0; i < reads; ++i)
         {
             int key = gen.next();
-            Integer n = (Integer)m.get(new Integer(key));
+            Integer n = m.get(key);
             test(n.intValue() == key);
         }
         double total = _watch.stop();
         double perRecord = total / reads;
 
-        System.out.println("\ttime for " + reads + " reads of " + gen + " records: " +
-                           total + "ms");
+        System.out.println("\ttime for " + reads + " reads of " + gen + " records: " + total + "ms");
         System.out.println("\ttime per read: " + perRecord + "ms");
 
         if(m instanceof IndexedIntIntMap)
@@ -195,23 +193,23 @@ class Client extends Ice.Application
             for(int i = 0; i < reads; ++i)
             {
                 int val = gen.next();
-                java.util.Iterator p = indexedM.findByValue(val);
+                java.util.Iterator<java.util.Map.Entry<Integer, Integer>> p = indexedM.findByValue(val);
                 test(p.hasNext());
-                java.util.Map.Entry e = (java.util.Map.Entry)p.next();
-                test(((Integer)e.getKey()).intValue() == val);
+                java.util.Map.Entry<Integer, Integer> e = p.next();
+                test(e.getKey().intValue() == val);
                 m.closeAllIterators();
             }
             total = _watch.stop();
             perRecord = total / reads;
-            
-            System.out.println("\ttime for " + reads + " reverse (indexed) reads of " + gen + " records: " +
-                               total + "ms");
+
+            System.out.println("\ttime for " + reads + " reverse (indexed) reads of " + gen + " records: " + total +
+                               "ms");
             System.out.println("\ttime per reverse (indexed) read: " + perRecord + "ms");
         }
     }
 
     void
-    IntIntMapReadTest(Freeze.Map m)
+    IntIntMapReadTest(Freeze.Map<Integer, Integer> m)
     {
         //
         // Populate the database.
@@ -220,7 +218,7 @@ class Client extends Ice.Application
         Freeze.Transaction tx = _connection.beginTransaction();
         for(int i = 0; i < _repetitions; ++i)
         {
-            m.fastPut(new Integer(i), new Integer(i));
+            m.fastPut(i, i);
         }
         tx.commit();
         double total = _watch.stop();
@@ -252,7 +250,7 @@ class Client extends Ice.Application
         _watch.start();
         for(int i = 0; i < _repetitions; ++i)
         {
-            test(m.fastRemove(new Integer(i)));
+            test(m.fastRemove(i));
         }
         total = _watch.stop();
         perRecord = total / _repetitions;
@@ -265,7 +263,7 @@ class Client extends Ice.Application
     }
 
     void
-    Struct1Struct2MapTest(Freeze.Map m)
+    Struct1Struct2MapTest(Freeze.Map<Struct1, Struct2> m)
     {
         //
         // Populate the database.
@@ -295,7 +293,7 @@ class Client extends Ice.Application
         for(int i = 0; i < _repetitions; ++i)
         {
             s1.l = i;
-            Struct2 ns2 = (Struct2)m.get(s1);
+            Struct2 ns2 = m.get(s1);
             test(ns2.s.equals(new Integer(i).toString()));
         }
         total = _watch.stop();
@@ -304,7 +302,6 @@ class Client extends Ice.Application
         System.out.println("\ttime for " + _repetitions + " reads: " + total + "ms");
         System.out.println("\ttime per read: " + perRecord + "ms");
 
-        
         //
         // Optional index test
         //
@@ -316,20 +313,20 @@ class Client extends Ice.Application
             for(int i = 0; i < _repetitions; ++i)
             {
                 String s = (new Integer(i)).toString();
-                java.util.Iterator p = indexedM.findByS(s);
+                java.util.Iterator<java.util.Map.Entry<Struct1, Struct2>> p = indexedM.findByS(s);
                 test(p.hasNext());
-                java.util.Map.Entry e = (java.util.Map.Entry)p.next();
-                test(((Struct1)e.getKey()).l == i);
+                java.util.Map.Entry<Struct1, Struct2> e = p.next();
+                test(e.getKey().l == i);
                 m.closeAllIterators();
             }
 
             for(int i = 0; i < _repetitions; ++i)
             {
                 s1.l = i;
-                java.util.Iterator p = indexedM.findByS1(s1);
+                java.util.Iterator<java.util.Map.Entry<Struct1, Struct2>> p = indexedM.findByS1(s1);
                 test(p.hasNext());
-                java.util.Map.Entry e = (java.util.Map.Entry)p.next();
-                test(((Struct1)e.getKey()).l == i);
+                java.util.Map.Entry<Struct1, Struct2> e = p.next();
+                test(e.getKey().l == i);
                 m.closeAllIterators();
             }
             total = _watch.stop();
@@ -360,7 +357,7 @@ class Client extends Ice.Application
     }
 
     void
-    Struct1Class1MapTest(Freeze.Map m)
+    Struct1Class1MapTest(Freeze.Map<Struct1, Class1> m)
     {
         //
         // Populate the database.
@@ -389,7 +386,7 @@ class Client extends Ice.Application
         for(int i = 0; i < _repetitions; ++i)
         {
             s1.l = i;
-            Class1 nc1 = (Class1)m.get(s1);
+            Class1 nc1 = m.get(s1);
             test(nc1.s.equals(new Integer(i).toString()));
         }
         total = _watch.stop();
@@ -397,7 +394,6 @@ class Client extends Ice.Application
 
         System.out.println("\ttime for " + _repetitions + " reads: " + total + "ms");
         System.out.println("\ttime per read: " + perRecord + "ms");
-
 
         //
         // Optional index test
@@ -410,10 +406,10 @@ class Client extends Ice.Application
             for(int i = 0; i < _repetitions; ++i)
             {
                 String s = (new Integer(i)).toString();
-                java.util.Iterator p = indexedM.findByS(s);
+                java.util.Iterator<java.util.Map.Entry<Struct1, Class1>> p = indexedM.findByS(s);
                 test(p.hasNext());
-                java.util.Map.Entry e = (java.util.Map.Entry)p.next();
-                test(((Struct1)e.getKey()).l == i);
+                java.util.Map.Entry<Struct1, Class1> e = p.next();
+                test(e.getKey().l == i);
                 m.closeAllIterators();
             }
 
@@ -445,7 +441,7 @@ class Client extends Ice.Application
     }
 
     void
-    Struct1ObjectMapTest(Freeze.Map m)
+    Struct1ObjectMapTest(Freeze.Map<Struct1, Ice.Object> m)
     {
         //
         // Populate the database.
@@ -460,7 +456,7 @@ class Client extends Ice.Application
         for(int i = 0; i < _repetitions; ++i)
         {
             s1.l = i;
-            Object o;
+            Ice.Object o;
             if((i % 2) == 0)
             {
                 o = c2;
@@ -489,7 +485,7 @@ class Client extends Ice.Application
         {
             s1.l = i;
 
-            Object o = m.get(s1);
+            Ice.Object o = m.get(s1);
 
             Class1 nc1;
             if((i % 2) == 0)
@@ -530,7 +526,7 @@ class Client extends Ice.Application
 
         m.close();
     }
-    
+
     public int
     run(String[] args)
     {
@@ -559,7 +555,7 @@ class Client extends Ice.Application
 
         System.out.println("Struct1Struct2Map with index");
         Struct1Struct2MapTest(new IndexedStruct1Struct2Map(_connection, "IndexedStruct1Struct2", true));
-        
+
         System.out.println("Struct1Class1Map");
         Struct1Class1MapTest(new Struct1Class1Map(_connection, "Struct1Class1", true));
 

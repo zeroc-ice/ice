@@ -44,7 +44,6 @@ public final class RemoteEvictorI extends _RemoteEvictorDisp
         private Freeze.Evictor _evictor;
     }
 
-
     RemoteEvictorI(Ice.Communicator communicator, String envName, String category, boolean transactional)
     {
         _envName = envName;
@@ -71,7 +70,7 @@ public final class RemoteEvictorI extends _RemoteEvictorDisp
         }
 
         initializer.init(this, _evictor);
-        
+
         _evictorAdapter.addServantLocator(_evictor, category);
         _evictorAdapter.activate();
     }
@@ -141,12 +140,12 @@ public final class RemoteEvictorI extends _RemoteEvictorDisp
         _evictorAdapter.destroy();
         current.adapter.remove(current.adapter.getCommunicator().stringToIdentity(_category));
     }
-    
+
     public void
     destroyAllServants(String facet, Ice.Current current)
     {
         //
-        // Only for test purpose: don't use such a small value in 
+        // Only for test purpose: don't use such a small value in
         // a real application!
         //
         int batchSize = 2;
@@ -158,11 +157,11 @@ public final class RemoteEvictorI extends _RemoteEvictorDisp
         }
     }
 
-    final public String 
+    final public String
     envName()
     {
         return _envName;
-    }    
+    }
 
     private final String _envName;
     private String _category;

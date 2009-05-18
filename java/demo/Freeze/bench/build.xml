@@ -56,7 +56,7 @@
             <exclude name="${generated.dir}/**"/>
             <classpath>
                 <path refid="ice.classpath"/>
-                <path refid="db.classpath"/>
+                <path refid="freeze.classpath"/>
             </classpath>
 	    <compilerarg value="${javac.lint}"/>
         </javac>
