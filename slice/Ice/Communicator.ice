@@ -192,9 +192,9 @@ local interface Communicator
      * adapter are taken from the property <tt><em>name</em>.Endpoints</tt>.</p>
      *
      * <p>It is legal to create an object adapter with the empty string as
-     * its name. Such an object adapter cannot be accessed remotely and, therefore,
-     * is accessible only for collocated invocations that originate from the
-     * the same communicator as is used by the adapter.</p>
+     * its name. Such an object adapter is accessible via bidirectional
+     * connections or by collocated invocations
+     * that originate from the the same communicator as is used by the adapter.</p>
      *
      * <p>Attempts to create a named object adapter for which no endpoint or
      * router configuration can be found raise [InitializationException].
