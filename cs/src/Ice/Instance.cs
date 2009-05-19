@@ -665,7 +665,7 @@ namespace IceInternal
                     {
                         if(logfile.Length != 0)
                         {
-                            throw new Ice.InitializationException("Both syslog and file logger cannot be enabled.");
+                            throw new Ice.InitializationException("Ice.LogFile and Ice.UseSyslog cannot both be set.");
                         }
                         _initData.logger = new Ice.SysLoggerI(_initData.properties.getProperty("Ice.ProgramName"));
                     }
