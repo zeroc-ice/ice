@@ -62,7 +62,7 @@ usage(const char* n)
 }
 
 int
-main(int argc, char* argv[])
+compile(int argc, char* argv[])
 {
     IceUtilInternal::Options opts;
     opts.addOpt("h", "help");
@@ -353,4 +353,41 @@ main(int argc, char* argv[])
     }
 
     return status;
+}
+
+int
+main(int argc, char* argv[])
+{
+    try
+    {
+        return compile(argc, argv);
+    }
+    catch(const IceUtil::Exception& ex)
+    {
+        cerr << ex.what() << endl;
+#ifdef __GNUC__
+        cerr << ex.ice_stackTrace() << endl;
+#endif
+        return EXIT_FAILURE;
+    }
+    catch(const std::exception& ex)
+    {
+        cerr << ex.what() << endl;
+        return EXIT_FAILURE;
+    }
+    catch(const std::string& msg)
+    {
+        cerr << msg << endl;
+        return EXIT_FAILURE;
+    }
+    catch(const char* msg)
+    {
+        cerr << msg << endl;
+        return EXIT_FAILURE;
+    }
+    catch(...)
+    {
+        cerr << "unknown exception" << endl;
+        return EXIT_FAILURE;
+    }
 }
