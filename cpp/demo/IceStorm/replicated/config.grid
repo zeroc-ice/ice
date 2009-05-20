@@ -20,8 +20,6 @@ IceGrid.Registry.AdminPermissionsVerifier=DemoIceGrid/NullPermissionsVerifier
 IceGrid.Registry.SSLPermissionsVerifier=DemoIceGrid/NullSSLPermissionsVerifier
 IceGrid.Registry.AdminSSLPermissionsVerifier=DemoIceGrid/NullSSLPermissionsVerifier
 
-IceGrid.Registry.DefaultTemplates=/home/dwayne/src/ice/cpp/config/templates.xml
-
 #
 # IceGrid node configuration.
 #
