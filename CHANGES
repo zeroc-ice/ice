@@ -33,6 +33,9 @@ General Changes
 These entries apply to all relevant language mappings unless otherwise
 noted.
 
+- Slice files are now allowed to be in UTF-8 format and include UTF-8
+  BOM at start of file and include UTF-8 characters in comments.
+
 - Added new main() functions to Ice::Application class which take a
   set of properties as well as command line arguments and config file.
   The properties in the passed set will override any properties read
