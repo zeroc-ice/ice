@@ -57,7 +57,7 @@
        <object identity="DemoIceStorm/TopicManager" type="::IceStorm::TopicManager"/>
      </replica-group>
 
-     <node name="localhost">
+     <node name="node1">
        <server-instance template="IceStorm" index="1" instance-name="DemoIceStorm"/>
        <server-instance template="IceStorm" index="2" instance-name="DemoIceStorm"/>
        <server-instance template="IceStorm" index="3" instance-name="DemoIceStorm"/>
