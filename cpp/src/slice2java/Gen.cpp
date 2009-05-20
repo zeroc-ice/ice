@@ -2259,7 +2259,11 @@ Slice::Gen::TypesVisitor::visitStructStart(const StructPtr& p)
         out << nl << " **/";
     }
 
-    out << nl << "public class " << name << " implements java.lang.Cloneable, java.io.Serializable";
+    out << nl << "public class " << name << " implements java.lang.Cloneable";
+    if(!p->isLocal())
+    {
+        out << ", java.io.Serializable";
+    }
     out << sb;
 
     return true;
@@ -2779,7 +2783,11 @@ Slice::Gen::TypesVisitor::visitEnum(const EnumPtr& p)
         out << nl << " **/";
     }
 
-    out << nl << "public enum " << name << " implements java.io.Serializable";
+    out << nl << "public enum " << name;
+    if(!p->isLocal())
+    {
+        out << " implements java.io.Serializable";
+    }
     out << sb;
 
     for(en = enumerators.begin(); en != enumerators.end(); ++en)
