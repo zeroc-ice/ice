@@ -22,25 +22,33 @@ namespace
 //
 // AMI callback class for twoway requests
 //
-class AMI_Array_Object_ice_invokeI : public AMI_Array_Object_ice_invoke
+class AMI_Array_Object_ice_invokeI : public AMI_Array_Object_ice_invoke, public Ice::AMISentCallback
 {
 public:
     
     AMI_Array_Object_ice_invokeI(const AMD_Object_ice_invokePtr& amdCB,
                                  const InstancePtr& instance,
-                                 const ConnectionPtr& connection) :
+                                 const ConnectionPtr& connection,
+                                 bool oneway) :
         _amdCB(amdCB),
         _instance(instance),
-        _connection(connection)
+        _connection(connection),
+        _oneway(oneway)
     {
     }
     
     virtual void
     ice_response(bool ok, const pair<const Byte*, const Byte*>& outParams)
     {
-        if(_amdCB)
+        _amdCB->ice_response(ok, outParams);
+    }
+
+    virtual void
+    ice_sent()
+    {
+        if(_oneway)
         {
-            _amdCB->ice_response(ok, outParams);
+            _amdCB->ice_response(true, pair<const Byte*, const Byte*>(0, 0));
         }
     }
 
@@ -77,6 +85,7 @@ private:
     const AMD_Object_ice_invokePtr _amdCB;
     const InstancePtr _instance;
     const ConnectionPtr _connection;
+    const bool _oneway;
 };
 
 }
@@ -92,10 +101,9 @@ Glacier2::Request::Request(const ObjectPrx& proxy, const std::pair<const Byte*, 
     _amdCB(amdCB)
 {
     //
-    // If this is not a twoway call, we can finish the AMD call right
-    // away.
+    // If this is a batch call, we can finish the AMD call right away.
     //
-    if(!_proxy->ice_isTwoway())
+    if(_proxy->ice_isBatchOneway() || _proxy->ice_isBatchDatagram())
     {
         _amdCB->ice_response(true, pair<const Byte*, const Byte*>(0, 0));
     }
@@ -153,39 +161,37 @@ Glacier2::Request::invoke(const InstancePtr& instance, const Ice::ConnectionPtr&
     }
     else
     {
-        AMI_Array_Object_ice_invokePtr amiCB;
-        if(_proxy->ice_isTwoway())
-        {
-            amiCB = new AMI_Array_Object_ice_invokeI(_amdCB, instance, connection);
-        }
-        else
-        {
-            amiCB = new AMI_Array_Object_ice_invokeI(0, instance, connection);
-        }
+        AMI_Array_Object_ice_invokePtr amiCB =
+            new AMI_Array_Object_ice_invokeI(_amdCB, instance, connection, !_proxy->ice_isTwoway());
         
+        bool sent;
         if(_forwardContext)
         { 
             if(_sslContext.size() > 0)
             {
                 Ice::Context ctx = _current.ctx;
                 ctx.insert(_sslContext.begin(), _sslContext.end());
-                _proxy->ice_invoke_async(amiCB, _current.operation, _current.mode, inPair, ctx);
+                sent = _proxy->ice_invoke_async(amiCB, _current.operation, _current.mode, inPair, ctx);
             }
             else
             {
-                _proxy->ice_invoke_async(amiCB, _current.operation, _current.mode, inPair, _current.ctx);
+                sent = _proxy->ice_invoke_async(amiCB, _current.operation, _current.mode, inPair, _current.ctx);
             }
         }
         else
         {
             if(_sslContext.size() > 0)
             {
-                _proxy->ice_invoke_async(amiCB, _current.operation, _current.mode, inPair, _sslContext);
+                sent = _proxy->ice_invoke_async(amiCB, _current.operation, _current.mode, inPair, _sslContext);
             }
             else
             {
-                _proxy->ice_invoke_async(amiCB, _current.operation, _current.mode, inPair);
+                sent = _proxy->ice_invoke_async(amiCB, _current.operation, _current.mode, inPair);
             }
+        }
+        if(sent && !_proxy->ice_isTwoway())
+        {
+            _amdCB->ice_response(true, pair<const Byte*, const Byte*>(0, 0));
         }
         return false; // Not a batch invocation.
     }
