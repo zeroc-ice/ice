@@ -1,0 +1,190 @@
+======================================================================
+Requirements
+======================================================================
+
+Visual Studio & Windows Version
+-------------------------------
+
+Ice Visual Studio Extension has been extensively tested on:
+
+- Visual Studio 2008 & Windows XP x86 and x64
+- Visual Studio 2008 & Windows Vista x86 and x64
+- Visual Studio 2008 & Windows 2008 x86 and x64
+
+- Visual Studio 2005 & Windows XP x86 and x64
+- Visual Studio 2005 & Windows Vista x86 and x64
+- Visual Studio 2005 & Windows 2008 x86 and x64
+
+
+Compiler
+--------
+
+Ice Visual Studio Extension requires:
+
+- Microsoft Visual Studio 2008
+
+- Visual Studio 2008 SDK Version 1.0
+
+  http://www.microsoft.com/downloads/details.aspx?FamilyID=30402623-93ca-479a-867c-04dc45164f5b&displaylang=en
+
+
+======================================================================
+Compilation
+======================================================================
+
+Unpack the archive. The sources are contained in the
+IceVisualStudioExtension-@ver@ subdirectory.
+
+1) In a Visual Studio 2008 command prompt, change to the distribution
+   directory.
+
+   > cd IceVisualStudioExtension-@ver@
+
+2) Open config\Make.rules.mak and review the comments that describe the
+   settings you can modify.
+
+3) Run nmake:
+
+   > nmake /f Makefile.mak
+
+
+The Plug-in DLL is placed into the IceVisualStudio-@ver@ bin directory.
+The library names are
+
+    * bin\IceVisualStudioAddIn-VS90.dll (for Visual Studio 2008)
+
+    * bin\IceVisualStudioAddin-VS80.dll (for Visual Studio 2005)
+
+
+======================================================================
+Installation
+======================================================================
+
+Simply run "nmake install". This installs IceVisualStudioExtension
+in the directory specified by the "prefix" variable in
+config/Make.rules.mak
+
+   > nmake /f Makefile.mak install
+
+
+======================================================================
+Configuration
+======================================================================
+
+1) In a Visual Studio 2008 command prompt, change to the installation
+   bin subdirectory.
+
+   > cd c:\IceVisualStudioExtension-@ver@\bin
+
+2) Export and register the extension DLL for COM use.
+
+   For Visual Studio 2008:
+
+     > tlbexp IceVisualStudioAddin-VS90.dll
+     > regasm /codebase IceVisualStudioAddIn-VS90.dll
+
+   For Visual Studio 2005:
+
+     > tlbexp IceVisualStudioAddin-VS80.dll
+     > regasm /codebase IceVisualStudioAddIn-VS80.dll
+
+   * Note: If you are installing the plug-in on a 64 jit platform you
+     must use the 32-bit versions of tlbexp and regasm.
+
+3) Add keys to the Windows registry.
+
+   To add keys to the Windows registry, you must import the
+   registry file from the conf subdirectory into the Windows
+   registry.
+
+   For Visual Studio 2008:
+
+     Import file 'C:\IceVisualStudioExtension-@ver@\conf\extender-VS90.reg'
+     into your Windows registry.
+
+   For Visual Studio 2005:
+
+     Import file 'C:\IceVisualStudioExtension-@ver@\conf\extender-VS80.reg'
+     into your Windows registry.
+
+   * Note: If you are installing the plug-in on a 64-bit platform you
+     must use the 32-bit versions of regedit to import the registry
+     files. The 32-bit versions of regedit on 64-bit platforms is named
+     regedt32 and is located in the directory c:\Windows\SysWow64.
+
+4) Set up an Addin file
+
+   Add-ins are added to Visual Studio by placing a '.Addin' file into one of
+   the directories that Visual Studio searches for Add-ins. The file
+   contains the plug-in configuration in XML format.
+
+   You can view the list of directories that Visual Studio searches for
+   add-in files with
+
+    'Tools -> Options -> Enviroment -> Add-in/Macros Security'
+
+   The .Addin file is typically placed into the Visual Studio user
+   Addins sub-directory.
+
+   For a Windows Vista default installation, the directory is
+
+	C:\Users\username\Documents\Visual Studio 2008\Addins
+
+   For Windows XP default installation, the directory is:
+
+    C:\Document and Settings\username\Visual Studio 2008\Addins
+
+  Once you have chosen the directory, you must copy the corresponding
+  '.Addin' file to that directory.
+
+  For Visual Studio 2008:
+
+   > cd C:\Users\username\Documents\Visual Studio 2008\Addins
+   > copy C:\IceVisualStudioExtension-@ver@\conf\Ice-VS90.AddIn
+
+  For Visual Studio 2005:
+
+   > cd C:\Users\username\Documents\Visual Studio 2005\Addins
+   > copy C:\IceVisualStudioExtension-@ver@\conf\Ice-VS80.Addin
+
+5) Install item templates.
+
+   To be able to add new items from the standard "New Item" dialog you
+   should install the correspoding item templates.
+
+   For C++ Visual Studio item templates are installed in directory:
+  
+   C:\Program Files\Microsoft Visual Studio 9.0\VC\vcprojectitems 
+
+   You should copy slice template and configuration files here.
+
+   > cd c:\IceVisualStudioExtension-@ver@\templates\vc
+   > xcopy /e * C:\Program Files\Microsoft Visual Studio 9.0\VC\vcprojectitems
+
+
+   For c# Visual Studio item templates are installed in directory:
+
+
+   C:\Program Files\Microsoft Visual Studio 9.0\VC#\CSharpProjectItems
+
+   You should copy slice template and configuration files here.
+
+   > cd c:\IceVisualStudioExtension-@ver@\templates\cs
+   > xcopy /e * C:\Program Files\Microsoft Visual Studio 9.0\VC#\CSharpProjectItems
+
+   * The commands show avobe are for visual studio 2008 for Visual 
+   Studio 2005 just update the path to "Microsoft Visual Studio 8.0"
+
+   * In 64 bit platforms you should copy files to visual studio folder 
+   in c:\Program Files (x86) not in C:\Program Files.
+   
+
+6) This completes the configuration. The plug-in will be available
+   once you restart Visual Studio.
+
+
+======================================================================
+Usage
+======================================================================
+
+See the README.txt file in this directory for usage instructions.

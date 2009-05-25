@@ -1,0 +1,1888 @@
+// **********************************************************************
+//
+// Copyright (c) 2003-2009 ZeroC, Inc. All rights reserved.
+//
+// This copy of Ice is licensed to you under the terms described in the
+// ICE_LICENSE file included in this distribution.
+//
+// **********************************************************************
+
+using System;
+using System.Text;
+using System.IO;
+using System.Diagnostics;
+using System.Collections.Generic;
+using Extensibility;
+using EnvDTE;
+using EnvDTE80;
+using Microsoft.VisualStudio.CommandBars;
+using Microsoft.VisualStudio.VCProjectEngine;
+using Microsoft.VisualStudio.VCProject;
+using Microsoft.VisualStudio.Shell;
+using Microsoft.VisualStudio.Shell.Interop;
+using System.Resources;
+using System.Reflection;
+using VSLangProj;
+using System.Globalization;
+using Microsoft.VisualStudio.OLE.Interop;
+using System.Runtime.InteropServices;
+
+
+namespace Ice.VisualStudio
+{
+    [ComVisible(false)]
+    public class Builder : IVsUpdateSolutionEvents
+    {
+        public DTE getCurrentDTE()
+        {
+            return _applicationObject.DTE;
+        }
+
+        public void init(DTE2 application, AddIn addInInstance)
+        {
+            _applicationObject = application;
+            _addInInstance = addInInstance;
+
+            //
+            // Subscribe to solution events.
+            //
+            _solutionEvents = application.Events.SolutionEvents;
+            _solutionEvents.Opened += new _dispSolutionEvents_OpenedEventHandler(solutionOpened);
+            _solutionEvents.BeforeClosing += new _dispSolutionEvents_BeforeClosingEventHandler(beforeClosing);
+            _solutionEvents.ProjectAdded += new _dispSolutionEvents_ProjectAddedEventHandler(projectAdded);
+            _solutionEvents.ProjectRemoved += new _dispSolutionEvents_ProjectRemovedEventHandler(projectRemoved);
+            _solutionEvents.ProjectRenamed += new _dispSolutionEvents_ProjectRenamedEventHandler(projectRenamed);
+
+            _buildEvents = _applicationObject.Events.BuildEvents;
+            _buildEvents.OnBuildBegin += new _dispBuildEvents_OnBuildBeginEventHandler(buildBegin);
+
+            //
+            // Subscribe to active configuration changed.
+            //
+            _serviceProvider = new ServiceProvider((Microsoft.VisualStudio.OLE.Interop.IServiceProvider)_applicationObject.DTE);
+            IVsSolutionBuildManager vsSlnBldMgr = (IVsSolutionBuildManager)_serviceProvider.GetService(typeof(SVsSolutionBuildManager));
+            vsSlnBldMgr.AdviseUpdateSolutionEvents(this, out _cookie);
+            initErrorListProvider();
+            setupCommandBars();
+        }
+        
+        public void disconnect()
+        {
+            object tmp = null;
+            if(_iceToolsCmbPopup != null)
+            {
+                _iceToolsCmbPopup.Delete(tmp);
+            }
+            
+            if(_iceProjectCmbPopup != null)
+            {
+                _iceProjectCmbPopup.Delete(tmp);
+            }
+                    
+
+            if(_cookie != 0)
+            {
+                IVsSolutionBuildManager buildManager = _serviceProvider.GetService(typeof(SVsSolutionBuildManager)) as IVsSolutionBuildManager;
+                if(buildManager != null)
+                {
+                    buildManager.UnadviseUpdateSolutionEvents(_cookie);
+                }
+                _cookie = 0;
+            }
+                        
+            _solutionEvents.Opened -= new _dispSolutionEvents_OpenedEventHandler(solutionOpened);
+            _solutionEvents.BeforeClosing -= new _dispSolutionEvents_BeforeClosingEventHandler(beforeClosing);
+            _solutionEvents.ProjectAdded -= new _dispSolutionEvents_ProjectAddedEventHandler(projectAdded);
+            _solutionEvents.ProjectRemoved -= new _dispSolutionEvents_ProjectRemovedEventHandler(projectRemoved);
+            _solutionEvents.ProjectRenamed -= new _dispSolutionEvents_ProjectRenamedEventHandler(projectRenamed);
+            _solutionEvents = null;
+
+            _buildEvents.OnBuildBegin -= new _dispBuildEvents_OnBuildBeginEventHandler(buildBegin);
+            _buildEvents = null;
+            
+            if(_dependenciesMap != null)
+            {
+                _dependenciesMap.Clear();
+                _dependenciesMap = null;
+            }
+            
+            _errorCount = 0;
+            if(_errors != null)
+            {
+                _errors.Clear();
+                _errors = null;
+            }
+            
+            if(_fileTracker != null)
+            {
+                _fileTracker.clear();
+                _fileTracker = null;
+            }
+        }
+
+
+        //
+        // Called when active configuration has changed.
+        //
+        public int OnActiveProjectCfgChange(IVsHierarchy pIVsHierarchy)
+        {
+            // Note this gets called for each project, and once with pIVsHierarchy
+            // set to null. We only want to process this once, so do this when invoked
+            // with pIVsHierarchy == null
+            if(pIVsHierarchy == null)
+            {
+                Project project = getSelectedProject();
+                if(project == null)
+                {
+                    return 0;
+                }
+                if(!Util.isCppProject(project))
+                {
+                    return 0;
+                }
+                refreshPropertiesBrowser();
+            }
+            return 0;
+        }
+
+        public int UpdateSolution_Cancel()
+        {
+            return 0;
+        }
+
+        public int UpdateSolution_StartUpdate(ref int a)
+        {
+            return 0;
+        }
+
+        public int UpdateSolution_Begin(ref int a)
+        {
+            return 0;
+        }
+
+        public int UpdateSolution_Done(int a, int b, int c)
+        {
+            return 0;
+        }
+
+        public void refreshPropertiesBrowser()
+        {
+            if(_serviceProvider == null)
+            {
+                return;
+            }
+            IVsUIShell shell = (IVsUIShell)_serviceProvider.GetService(typeof(IVsUIShell));
+            if(shell == null)
+            {
+                return;
+            }
+            shell.RefreshPropertyBrowser(0);
+        }
+
+        private void setupCommandBars()
+        {
+            CommandBar menuBarCommandBar = ((CommandBars)_applicationObject.CommandBars)["MenuBar"];
+
+            Command addSliceBuilderCmd = null;
+            try
+            {
+                addSliceBuilderCmd = _applicationObject.Commands.Item(_addInInstance.ProgID + ".AddSliceBuilder", -1);
+            }
+            catch (ArgumentException)
+            {
+                object[] contextGUIDS = new object[] { };
+                addSliceBuilderCmd = ((Commands2)_applicationObject.Commands).AddNamedCommand2(_addInInstance, "AddSliceBuilder",
+                                "Add Slice Builder",
+                                "Add Slice builder to this project.",
+                                true, -1, ref contextGUIDS,
+                               (int)vsCommandStatus.vsCommandStatusSupported +
+                               (int)vsCommandStatus.vsCommandStatusEnabled,
+                               (int)vsCommandStyle.vsCommandStylePictAndText,
+                               vsCommandControlType.vsCommandControlTypeButton);
+            }
+
+            Command removeSliceBuilderCmd = null;
+            try
+            {
+                removeSliceBuilderCmd = _applicationObject.Commands.Item(_addInInstance.ProgID + ".RemoveSliceBuilder", -1);
+            }
+            catch(ArgumentException)
+            {
+                object[] contextGUIDS = new object[] { };
+                removeSliceBuilderCmd = ((Commands2)_applicationObject.Commands).AddNamedCommand2(_addInInstance, "RemoveSliceBuilder", 
+                                "Remove Slice Builder",
+                                "Remove Slice builder from this project.",
+                                true, -1, ref contextGUIDS,
+                               (int)vsCommandStatus.vsCommandStatusSupported +
+                               (int)vsCommandStatus.vsCommandStatusEnabled,
+                               (int)vsCommandStyle.vsCommandStylePictAndText,
+                               vsCommandControlType.vsCommandControlTypeButton);
+            }
+
+            
+
+            if(addSliceBuilderCmd == null || removeSliceBuilderCmd == null)
+            {
+                System.Windows.Forms.MessageBox.Show("Error initializing Ice Visual Studio Extension.\n" +
+                                                     "Cannot create required commands",
+                                                     "Ice Visual Studio Extension",
+                                                     System.Windows.Forms.MessageBoxButtons.OK,
+                                                     System.Windows.Forms.MessageBoxIcon.Error);
+                return;
+            }
+
+            CommandBar toolsCmdBar = ((CommandBars)_applicationObject.CommandBars)["Tools"];
+            CommandBarControl toolsCmdBarControl = (CommandBarControl)toolsCmdBar.Parent;
+
+            _iceToolsCmbPopup = (CommandBarPopup)toolsCmdBar.Controls.Add(MsoControlType.msoControlPopup,
+                                                                          System.Type.Missing,
+                                                                          System.Type.Missing,
+                                                                          toolsCmdBar.Controls.Count + 1,
+                                                                          true);
+
+            _iceToolsCmbPopup.Caption = "Ice";
+            _iceToolsCmbPopup.Visible = true;
+
+
+            addSliceBuilderCmd.AddControl(_iceToolsCmbPopup.CommandBar, 1);
+            removeSliceBuilderCmd.AddControl(_iceToolsCmbPopup.CommandBar, 2);
+
+            CommandBar projectCmdBar = projectCommandBar();
+            _iceProjectCmbPopup = (CommandBarPopup)projectCmdBar.Controls.Add(MsoControlType.msoControlPopup,
+                                                                              System.Type.Missing,
+                                                                              System.Type.Missing,
+                                                                              projectCmdBar.Controls.Count + 1,
+                                                                              true);
+
+            _iceProjectCmbPopup.Caption = "Ice";
+            _iceProjectCmbPopup.Visible = true;
+
+            addSliceBuilderCmd.AddControl(_iceProjectCmbPopup.CommandBar, 1);
+            removeSliceBuilderCmd.AddControl(_iceProjectCmbPopup.CommandBar, 2);
+        }
+
+        public void beforeClosing()
+        {
+            clearErrors();
+            removeDocumentEvents();
+            if(_dependenciesMap != null)
+            {
+                _dependenciesMap.Clear();
+                _dependenciesMap = null;
+            }
+            trackFiles();
+        }
+
+        private void trackFiles()
+        {
+            if(_fileTracker == null)
+            {
+                return;
+            }
+            foreach(Project p in _applicationObject.Solution.Projects)
+            {
+                if(p == null)
+                {
+                    continue;
+                }
+                if(!Util.isSliceBuilderEnabled(p))
+                {
+                    continue;
+                }
+                _fileTracker.reap(p, this);
+            }
+        }
+
+        public void solutionOpened()
+        {
+            _dependenciesMap = new Dictionary<string, Dictionary<string, List<string>>>();
+            _fileTracker = new FileTracker();
+            initDocumentEvents();
+            foreach(Project p in _applicationObject.Solution.Projects)
+            {
+                _dependenciesMap[p.Name] = new Dictionary<string, List<string>>();
+                updateDependencies(p);
+                buildProject(p, false);
+            }
+            if(hasErrors())
+            {
+                bringErrorsToFront();
+            }
+        }
+
+        private void removeCppGeneratedFiles(Project project)
+        {
+            removeCppGeneratedItems(project.ProjectItems);
+        }
+
+        public void addBuilderToProject(Project project)
+        {
+            ComponentList sliceIncludes = new ComponentList(Util.getProjectProperty(project, Util.PropertyNames.IceIncludePath));
+            sliceIncludes.Add(Util.getIceHome(project) + "\\slice");
+            sliceIncludes.Add(".");
+
+            Util.setProjectProperty(project, Util.PropertyNames.IceIncludePath, sliceIncludes.ToString());
+            if(Util.isCppProject(project))
+            {
+                Util.addIceCppConfigurations(project);
+                ComponentList components = new ComponentList("Ice; IceUtil");
+                Util.addIceCppLibs(project, components);
+                Util.setProjectProperty(project, Util.PropertyNames.Ice, true.ToString());
+                buildCppProject(project, false);
+            }
+            else if(Util.isCSharpProject(project))
+            {
+                if(Util.isSilverlightProject(project))
+                {
+                    Util.addCSharpReference(project, "IceSL");
+                }
+                else
+                {
+                    Util.addCSharpReference(project, "Ice");
+                }
+                buildCSharpProject(project, false);
+                Util.setProjectProperty(project, Util.PropertyNames.Ice, true.ToString());
+            }
+            if(hasErrors(project))
+            {
+                bringErrorsToFront();
+            }
+        }
+
+        public void removeBuilderFromProject(Project project)
+        {
+            cleanProject(project);
+            if(Util.isCppProject(project))
+            {
+                Util.removeIceCppConfigurations(project);
+                Util.removeIceCppLibs(project);
+                Util.setProjectProperty(project, Util.PropertyNames.Ice, false.ToString());
+            }
+            else if(Util.isCSharpProject(project))
+            {
+                if(Util.isSilverlightProject(project))
+                {
+                    Util.removeCSharpReference(project, "IceSL");
+                }
+                else
+                {
+                    foreach(string component in Util.ComponentNames.cSharpNames)
+                    {
+                        Util.removeCSharpReference(project, component);
+                    }
+                }
+                Util.setProjectProperty(project, Util.PropertyNames.Ice, false.ToString());
+            }
+        }
+
+        public void documentSaved(Document document)
+        {
+            Project project = null;
+            try
+            {
+                project = document.ProjectItem.ContainingProject;
+            }
+            catch(COMException)
+            {
+                // Expected when documents are create during project initialization
+                // and the ProjectItem is not yet available.
+                return;
+            }
+            if(!Util.isSliceBuilderEnabled(project))
+            {
+                return;
+            }
+            if(!document.Name.EndsWith(".ice"))
+            {
+                return;
+            }
+
+            string projectDir = System.IO.Path.GetDirectoryName(project.FullName);
+            _fileTracker.reap(project, this);
+            clearErrors(project);
+
+            updateDependencies(project, document.FullName, getSliceCompilerArgs(project, true));
+
+            if(Util.isCppProject(project))
+            {
+                buildCppProjectItem(project, document.ProjectItem, false);
+            }
+            else if(Util.isCSharpProject(project))
+            {
+                buildCSharpProjectItem(project, document.ProjectItem, false);
+            }
+
+            string relativeName = Util.relativePath(projectDir, document.FullName);
+            Dictionary<string, List<string>> dependenciesMap = _dependenciesMap[project.Name];
+
+            //
+            // Run slice custom tool in all files that depends on the saved file
+            //
+            foreach(KeyValuePair<string, List<string>> dependencies in dependenciesMap)
+            {
+                foreach(string name in dependencies.Value)
+                {
+                    if(String.IsNullOrEmpty(name))
+                    {
+                        continue;
+                    }
+
+                    if(!name.Equals(relativeName))
+                    {
+                        continue;
+                    }
+
+                    ProjectItem item = Util.findItem(dependencies.Key, project.ProjectItems);
+                    if(item == null)
+                    {
+                        continue;
+                    }
+
+                    if(Util.isCppProject(project))
+                    {
+                        buildCppProjectItem(project, item, false);
+                    }
+                    else if(Util.isCSharpProject(project))
+                    {
+                        buildCSharpProjectItem(project, item, false);
+                    }
+                }
+            }
+            if(hasErrors(project))
+            {
+                bringErrorsToFront();
+            }
+        }
+
+        public void projectAdded(Project project)
+        {
+            updateDependencies(project);
+        }
+
+        public void projectRemoved(Project project)
+        {
+            _dependenciesMap.Remove(project.Name);
+        }
+
+        public void projectRenamed(Project project, string oldName)
+        {
+            _dependenciesMap.Remove(oldName);
+            updateDependencies(project);
+        }
+
+        public void cleanProject(Project project)
+        {
+            if(project == null)
+            {
+                return;
+            }
+            clearErrors(project);
+            _fileTracker.reap(project, this);
+
+            if(Util.isCSharpProject(project))
+            {
+                removeCSharpGeneratedItems(project, project.ProjectItems);
+            }
+            else if(Util.isCppProject(project))
+            {
+                removeCppGeneratedItems(project.ProjectItems);
+            }
+        }
+
+        public void removeCSharpGeneratedItems(Project project, ProjectItems items)
+        {
+            if(project == null)
+            {
+                return;
+            }
+            if(items == null)
+            {
+                return;
+            }
+
+            foreach(ProjectItem i in items)
+            {
+                if(i == null)
+                {
+                    continue;
+                }
+
+                if(Util.isProjectItemFolder(i))
+                {
+                    removeCSharpGeneratedItems(project, i.ProjectItems);
+                }
+                else if(Util.isProjectItemFile(i))
+                {
+                    removeCSharpGeneratedItems(i);
+                }
+            }
+        }
+
+        private void buildProject(Project project, bool building)
+        {
+            if(project == null)
+            {
+                return;
+            }
+
+            if(!Util.isSliceBuilderEnabled(project))
+            {
+                return;
+            }
+
+            writeBuildOutput("------ Slice compilation started: Project: " + project.Name + " ------\n");
+            _fileTracker.reap(project, this);
+            if(Util.isCSharpProject(project))
+            {
+                buildCSharpProject(project, building);
+            }
+            else if(Util.isCppProject(project))
+            {
+                buildCppProject(project, building);
+            }
+            if(!hasErrors(project))
+            {
+                writeBuildOutput("------ Slice compilation succeded: Project: " + project.Name + " ------\n");
+            }
+        }
+
+        public void buildCppProject(Project project, bool building)
+        {
+            buildCppProject(project, project.ProjectItems, building);
+        }
+
+        public void buildCppProject(Project project, ProjectItems items, bool building)
+        {
+            foreach(ProjectItem i in items)
+            {
+                if(i == null)
+                {
+                    continue;
+                }
+
+                if(Util.isProjectItemFilter(i))
+                {
+                    buildCppProject(project, i.ProjectItems, building);
+                }
+                else if(Util.isProjectItemFile(i))
+                {
+                    buildCppProjectItem(project, i, building);
+                }
+            }
+        }
+
+        public void buildCppProjectItem(Project project, ProjectItem item, bool building)
+        {
+            if(project == null)
+            {
+                return;
+            }
+
+            if(item == null)
+            {
+                return;
+            }
+
+            if(item.Name == null)
+            {
+                return;
+            }
+
+            if(!item.Name.EndsWith(".ice"))
+            {
+                return;
+            }
+
+            FileInfo iceFileInfo = new FileInfo(item.Properties.Item("FullPath").Value.ToString());
+            FileInfo hFileInfo = new FileInfo(getCppGeneratedFileName(iceFileInfo.FullName, Path.GetDirectoryName(project.FileName), "h"));
+            FileInfo cppFileInfo = new FileInfo(Path.ChangeExtension(hFileInfo.FullName, "cpp"));
+
+            string output = Path.GetDirectoryName(cppFileInfo.FullName);
+            buildCppProjectItem(project, output, iceFileInfo, cppFileInfo, hFileInfo, building);
+        }
+                
+        public void buildCppProjectItem(Project project, String output, FileInfo ice, FileInfo cpp, FileInfo h, 
+                                        bool building)
+        {
+            bool updated = false;
+
+            if(!h.Exists || !cpp.Exists)
+            {
+                if(!Directory.Exists(output))
+                {
+                    Directory.CreateDirectory(output);
+                }
+                updated = true;
+            }
+            else if(ice.LastWriteTime > h.LastWriteTime || ice.LastWriteTime > cpp.LastWriteTime)
+            {
+                if(!Directory.Exists(output))
+                {
+                    Directory.CreateDirectory(output);
+                }
+                updated = true;
+            }
+            else
+            {
+                //
+                // Now check it any of the dependencies has changed.
+                //
+                //
+                string relativeName = Util.relativePath(Path.GetDirectoryName(project.FileName), ice.FullName);
+                Dictionary<string, List<string>> dependenciesMap = _dependenciesMap[project.Name];
+                if(dependenciesMap.ContainsKey(ice.FullName))
+                {
+                    List<string> fileDependencies = dependenciesMap[ice.FullName];
+                    foreach(string name in fileDependencies)
+                    {
+                        FileInfo dependency = new FileInfo(Path.Combine(Path.GetDirectoryName(project.FileName), name));
+                        if(!dependency.Exists)
+                        {
+                            continue;
+                        }
+                        
+                        if(dependency.LastWriteTime > ice.LastWriteTime)
+                        {
+                            updated = true;
+                            break;
+                        }
+                    }
+                }
+            }
+            
+            if(updated)
+            {
+                updateDependencies(project, ice.FullName, getSliceCompilerArgs(project, true));
+                if (!runSliceCompiler(project, ice.FullName, output, building))
+                {
+                    _fileTracker.trackFile(project, ice.FullName, h.FullName);
+                    _fileTracker.trackFile(project, ice.FullName, cpp.FullName);
+                    addCppGeneratedFiles(project, cpp, h);
+                }
+            }
+        }
+                
+        public void addCppGeneratedFiles(Project project, FileInfo cpp, FileInfo h)
+        {
+            if(project == null)
+            {
+                return;
+            }
+
+            string projectDir = Path.GetDirectoryName(project.FileName);
+            VCProject vcProject = (VCProject)project.Object;
+
+            VCFile file = Util.findVCFile((IVCCollection)vcProject.Files, cpp.Name, cpp.FullName);
+            
+            if (file == null)
+            {
+                vcProject.AddFile(cpp.FullName);
+            }
+            
+            file = Util.findVCFile((IVCCollection)vcProject.Files, h.Name, h.FullName);            
+            if(file == null)
+            {
+                vcProject.AddFile(h.FullName);
+            }
+        }
+
+        public void buildCSharpProject(Project project, bool building)
+        {
+            string projectDir = Path.GetDirectoryName(project.FileName);
+            buildCSharpProject(project, projectDir, project.ProjectItems, building);
+        }
+
+        public void buildCSharpProject(Project project, string projectDir, ProjectItems items, bool building)
+        {
+            foreach(ProjectItem i in items)
+            {
+                if(i == null)
+                {
+                    continue;
+                }
+
+                if(Util.isProjectItemFolder(i))
+                {
+                    buildCSharpProject(project, projectDir, i.ProjectItems, building);
+                }
+                else if(Util.isProjectItemFile(i))
+                {
+                    buildCSharpProjectItem(project, i, building);
+                }
+            }
+        }
+
+        public String getCppGeneratedFileName(String file, String projectDir, string extension)
+        {
+            String fileName = Path.GetFileName(file);
+            if(String.IsNullOrEmpty(file) || String.IsNullOrEmpty(projectDir) || String.IsNullOrEmpty(extension))
+            {
+                return "";
+            }
+
+            if(!Path.GetDirectoryName(file).Substring(0, projectDir.Length).ToUpper().Equals(projectDir.ToUpper()))
+            {
+                return Path.Combine(projectDir, Path.ChangeExtension(fileName, extension));
+            }
+            else
+            {
+                return Path.Combine(Path.GetDirectoryName(file), Path.ChangeExtension(fileName, extension));
+            }
+        }
+
+        public string getCSharpGeneratedFileName(Project project, ProjectItem item, string extension)
+        {
+            if(project == null)
+            {
+                return "";
+            }
+
+            if(item == null)
+            {
+                return "";
+            }
+
+            if(!item.Name.EndsWith(".ice"))
+            {
+                return "";
+            }
+
+            string projectDir = Path.GetDirectoryName(project.FileName);
+            string generatedDir = Path.GetDirectoryName(Util.normalizePath(Util.getPathRelativeToProject(item)));
+            string path = System.IO.Path.Combine(projectDir, generatedDir);
+            return System.IO.Path.Combine(path, Path.ChangeExtension(item.Name, extension));
+        }
+
+        public void buildCSharpProjectItem(Project project, ProjectItem item, bool building)
+        {
+            if(project == null)
+            {
+                return;
+            }
+
+            if(item == null)
+            {
+                return;
+            }
+
+            if(item.Name == null)
+            {
+                return;
+            }
+
+            if(!item.Name.EndsWith(".ice"))
+            {
+                return;
+            }
+
+            FileInfo iceFileInfo = new FileInfo(item.Properties.Item("FullPath").Value.ToString());
+            FileInfo generatedFileInfo = new FileInfo(getCSharpGeneratedFileName(project, item, "cs"));
+
+            if(!generatedFileInfo.Exists)
+            {
+                updateDependencies(project, iceFileInfo.FullName, getSliceCompilerArgs(project, true));
+                runSliceCompiler(project, iceFileInfo.FullName, generatedFileInfo.DirectoryName, building);
+            }
+            else if(iceFileInfo.LastWriteTime > generatedFileInfo.LastWriteTime)
+            {
+                updateDependencies(project, iceFileInfo.FullName, getSliceCompilerArgs(project, true));
+                runSliceCompiler(project, iceFileInfo.FullName, generatedFileInfo.DirectoryName, building);
+            }
+            else
+            {
+                //
+                // Now check it any of the dependencies has changed.
+                //
+                //
+                string relativeName = Util.relativePath(Path.GetDirectoryName(project.FileName), iceFileInfo.FullName);
+                Dictionary<string, List<string>> dependenciesMap = _dependenciesMap[project.Name];
+                List<string> fileDependencies = dependenciesMap[iceFileInfo.FullName];
+                foreach (string name in fileDependencies)
+                {
+                    FileInfo dependency = new FileInfo(Path.Combine(Path.GetDirectoryName(project.FileName), name));
+                    if (!dependency.Exists)
+                    {
+                        continue;
+                    }
+
+                    if (dependency.LastWriteTime > iceFileInfo.LastWriteTime)
+                    {
+                        updateDependencies(project, iceFileInfo.FullName, getSliceCompilerArgs(project, true));
+                        runSliceCompiler(project, iceFileInfo.FullName, generatedFileInfo.DirectoryName, building);
+                        break;
+                    }
+                }
+            }
+
+            if(File.Exists(generatedFileInfo.FullName))
+            {
+                ProjectItem generatedItem = Util.findItem(generatedFileInfo.FullName, project.ProjectItems);
+                if(generatedItem == null)
+                {
+                    project.ProjectItems.AddFromFile(generatedFileInfo.FullName);
+                    _fileTracker.trackFile(project, iceFileInfo.FullName, generatedFileInfo.FullName);
+                }
+            }
+        }
+
+        private string quoteArg(string arg)
+        {
+            return "\"" + arg + "\"";
+        }
+
+        private string getSliceCompilerArgs(Project project, bool depend)
+        {
+            string iceHome = Util.getIceHome(project);
+            ComponentList includes = new ComponentList(Util.getProjectProperty(project, Util.PropertyNames.IceIncludePath));
+            ComponentList macros = new ComponentList(Util.getProjectProperty(project, Util.PropertyNames.IceMacros));
+            bool tie = Util.getProjectPropertyAsBool(project, Util.PropertyNames.IceTie);
+            bool ice = Util.getProjectPropertyAsBool(project, Util.PropertyNames.IcePrefix);
+            bool streaming = Util.getProjectPropertyAsBool(project, Util.PropertyNames.IceStreaming);
+
+
+            string sliceCompiler = iceHome + "\\bin\\";
+            if(Util.isCSharpProject(project))
+            {
+                if(Util.isSilverlightProject(project))
+                {
+                    sliceCompiler += Util.SliceTranslator.slice2sl;
+                }
+                else
+                {
+                    sliceCompiler += Util.SliceTranslator.slice2cs;
+                }
+            }
+            else if(Util.isCppProject(project))
+            {
+                sliceCompiler += Util.SliceTranslator.slice2cpp;
+            }
+
+            string args = quoteArg(sliceCompiler) + " ";
+
+            if(depend)
+            {
+                args += "--depend ";
+            }
+
+            foreach(string i in includes)
+            {
+                if(string.IsNullOrEmpty(i))
+                {
+                    continue;
+                }
+                args += "-I" + quoteArg(i) + " ";
+            }
+
+            foreach(string m in macros)
+            {
+                if(String.IsNullOrEmpty(m))
+                {
+                    continue;
+                }
+                args += "-D" + m + " ";
+            }
+
+            if(tie && Util.isCSharpProject(project) && !Util.isSilverlightProject(project))
+            {
+                args += "--tie ";
+            }
+
+            if(ice)
+            {
+                args += "--ice ";
+            }
+
+            if(streaming)
+            {
+                args += "--stream ";
+            }
+
+            return args;
+        }
+
+        public void updateDependencies(Project project)
+        {
+            _dependenciesMap[project.Name] = new Dictionary<string, List<string>>();
+            updateDependencies(project, project.ProjectItems, getSliceCompilerArgs(project, true));
+        }
+
+        public void cleanDependencies(Project project, string file)
+        {
+            if(project == null || file == null)
+            {
+                return;
+            }
+            if(String.IsNullOrEmpty(project.Name))
+            {
+                return;
+            }
+            if(!_dependenciesMap.ContainsKey(project.Name))
+            {
+                return;
+            }
+
+            Dictionary<string, List<string>> projectDependencies = _dependenciesMap[project.Name];
+            if(!projectDependencies.ContainsKey(file))
+            {
+                return;
+            }
+            projectDependencies.Remove(file);
+            _dependenciesMap[project.Name] = projectDependencies;
+        }
+
+        public void updateDependencies(Project project, ProjectItems items, string args)
+        {
+            foreach(ProjectItem item in items)
+            {
+                if(item == null)
+                {
+                    continue;
+                }
+
+                if(Util.isProjectItemFolder(item))
+                {
+                    updateDependencies(project, item.ProjectItems, args);
+                }
+                else if(Util.isProjectItemFile(item))
+                {
+                    if(!item.Name.EndsWith(".ice"))
+                    {
+                        continue;
+                    }
+
+                    string fullPath = item.Properties.Item("FullPath").Value.ToString();
+                    updateDependencies(project, fullPath, args);
+                }
+            }
+        }
+
+        public void updateDependencies(Project project, string file, string args)
+        {
+            ProcessStartInfo processInfo;
+            System.Diagnostics.Process process;
+
+            args += quoteArg(file);
+            args = "/c " + quoteArg(args);
+
+            processInfo = new ProcessStartInfo("cmd.exe", args);
+            processInfo.CreateNoWindow = true;
+            processInfo.UseShellExecute = false;
+            processInfo.RedirectStandardError = true;
+            processInfo.RedirectStandardOutput = true;
+            processInfo.WorkingDirectory = Path.GetDirectoryName(project.FileName);
+
+            writeBuildOutput("cmd.exe " + args + "\n");
+
+            process = System.Diagnostics.Process.Start(processInfo);
+            process.WaitForExit();
+
+            parseErrors(project, file, process.StandardError);
+
+            if(hasErrors(project))
+            {
+                bringErrorsToFront();
+                return;
+            }
+            else
+            {
+                List<string> dependencies = new List<string>();
+                TextReader output = process.StandardOutput;
+                string line = null;
+
+                if(!_dependenciesMap.ContainsKey(project.Name))
+                {
+                    _dependenciesMap[project.Name] = new Dictionary<string,List<string>>();
+                }
+
+                Dictionary<string, List<string>> projectDeps = _dependenciesMap[project.Name];
+                while ((line = output.ReadLine()) != null)
+                {
+                    if(!String.IsNullOrEmpty(line))
+                    {
+                        if(line.EndsWith(" \\"))
+                        {
+                            line = line.Substring(0, line.Length - 2);
+                        }
+                        line = line.Trim();
+                        if(line.EndsWith(".ice") &&
+                           System.IO.Path.GetFileName(line) != System.IO.Path.GetFileName(file))
+                        {
+                            line = line.Replace('/', '\\');
+                            dependencies.Add(line);
+                        }
+                    }
+                }
+                projectDeps[file] = dependencies;
+                _dependenciesMap[project.Name] = projectDeps;
+            }
+            process.Close();
+        }
+
+        public void initDocumentEvents()
+        {
+            //Csharp project item events.
+            _csProjectItemsEvents = (EnvDTE.ProjectItemsEvents)_applicationObject.Events.GetObject("CSharpProjectItemsEvents");
+            if (_csProjectItemsEvents != null)
+            {
+                _csProjectItemsEvents.ItemAdded += new _dispProjectItemsEvents_ItemAddedEventHandler(csharpItemAdded);
+                _csProjectItemsEvents.ItemRemoved += new _dispProjectItemsEvents_ItemRemovedEventHandler(csharpItemRemoved);
+                _csProjectItemsEvents.ItemRenamed += new _dispProjectItemsEvents_ItemRenamedEventHandler(csharpItemRenamed);
+            }
+
+            //Cpp projec item events.
+            _vcProjectItemsEvents = (VCProjectEngineEvents)_applicationObject.Events.GetObject("VCProjectEngineEventsObject");
+            if (_vcProjectItemsEvents != null)
+            {
+                _vcProjectItemsEvents.ItemAdded += new _dispVCProjectEngineEvents_ItemAddedEventHandler(cppItemAdded);
+                _vcProjectItemsEvents.ItemRemoved += new _dispVCProjectEngineEvents_ItemRemovedEventHandler(cppItemRemoved);
+                _vcProjectItemsEvents.ItemRenamed += new _dispVCProjectEngineEvents_ItemRenamedEventHandler(cppItemRenamed);
+            }
+
+            //Visual Studio document events.
+            _docEvents = _applicationObject.Events.get_DocumentEvents(null);
+            if (_docEvents != null)
+            {
+                _docEvents.DocumentSaved += new _dispDocumentEvents_DocumentSavedEventHandler(documentSaved);
+            }
+        }
+
+        public void removeDocumentEvents()
+        {
+            //Csharp project item events.
+            if (_csProjectItemsEvents != null)
+            {
+                _csProjectItemsEvents.ItemAdded -= new _dispProjectItemsEvents_ItemAddedEventHandler(csharpItemAdded);
+                _csProjectItemsEvents.ItemRemoved -= new _dispProjectItemsEvents_ItemRemovedEventHandler(csharpItemRemoved);
+                _csProjectItemsEvents.ItemRenamed -= new _dispProjectItemsEvents_ItemRenamedEventHandler(csharpItemRenamed);
+                _csProjectItemsEvents = null;
+            }
+
+            //Cpp projec item events.
+            if (_vcProjectItemsEvents != null)
+            {
+                _vcProjectItemsEvents.ItemAdded -= new _dispVCProjectEngineEvents_ItemAddedEventHandler(cppItemAdded);
+                _vcProjectItemsEvents.ItemRemoved -= new _dispVCProjectEngineEvents_ItemRemovedEventHandler(cppItemRemoved);
+                _vcProjectItemsEvents.ItemRenamed -= new _dispVCProjectEngineEvents_ItemRenamedEventHandler(cppItemRenamed);
+                _vcProjectItemsEvents = null;
+            }
+
+            //Visual Studio document events.
+            if (_docEvents != null)
+            {
+                _docEvents.DocumentSaved -= new _dispDocumentEvents_DocumentSavedEventHandler(documentSaved);
+                _docEvents = null;
+            }
+        }
+
+        public Project getSelectedProject()
+        {
+            return Util.getSelectedProject(_applicationObject.DTE);
+        }
+
+        private void cppItemRenamed(object obj, object parent, string oldName)
+        {
+            if(obj == null)
+            {
+                return;
+            }
+            VCFile file = obj as VCFile;
+            if(file == null)
+            {
+                return;
+            }
+            if(!file.Name.EndsWith(".ice"))
+            {
+                return;
+            }
+            Array projects = (Array)_applicationObject.ActiveSolutionProjects;
+            if(projects == null)
+            {
+                return;
+            }
+            Project project = projects.GetValue(0) as Project;
+            if(project == null)
+            {
+                return;
+            }
+            if (!Util.isSliceBuilderEnabled(project))
+            {
+                return;
+            }
+            _fileTracker.reap(project, this);
+            ProjectItem item = Util.findItem(file.FullPath, project.ProjectItems);
+
+            string fullPath = file.FullPath;
+            if(Util.isCppProject(project))
+            {
+                string cppPath = Path.ChangeExtension(fullPath, ".cpp");
+                string hPath = Path.ChangeExtension(cppPath, ".h");
+                if(File.Exists(cppPath) || Util.hasItemNamed(project.ProjectItems, Path.GetFileName(cppPath)))
+                {
+                    System.Windows.Forms.MessageBox.Show("A file named '" + Path.GetFileName(cppPath) + "' already exists.\n" +
+                                                         "If you want to add '" + Path.GetFileName(fullPath) + "' first remove " +
+                                                         " '" + Path.GetFileName(cppPath) + "' and '" + Path.GetFileName(hPath) + "' from your project.",
+                                                         "Ice Visual Studio Extension",
+                                                         System.Windows.Forms.MessageBoxButtons.OK,
+                                                         System.Windows.Forms.MessageBoxIcon.Error);
+                    item.Name = oldName;
+                    return;
+                }
+
+                if(File.Exists(hPath) || Util.hasItemNamed(project.ProjectItems, Path.GetFileName(hPath)))
+                {
+                    System.Windows.Forms.MessageBox.Show("A file named '" + Path.GetFileName(hPath) + "' already exists.\n" +
+                                                         "If you want to add '" + Path.GetFileName(fullPath) + "' first remove " +
+                                                         " '" + Path.GetFileName(cppPath) + "' and '" + Path.GetFileName(hPath) + "' from your project.",
+                                                         "Ice Visual Studio Extension",
+                                                         System.Windows.Forms.MessageBoxButtons.OK,
+                                                         System.Windows.Forms.MessageBoxIcon.Error);
+                    item.Name = oldName;
+                    return;
+                }
+            }
+            buildCppProjectItem(project, item, false);
+        }
+
+        private void cppItemRemoved(object obj, object parent)
+        {
+            if(obj == null)
+            {
+                return;
+            }
+
+            VCFile file = obj as VCFile;
+            if(file == null)
+            {
+                return;
+            }
+
+            if(!file.Name.EndsWith(".ice"))
+            {
+                return;
+            }
+
+            Array projects = (Array)_applicationObject.ActiveSolutionProjects;
+            if(projects == null)
+            {
+                return;
+            }
+            
+
+            Project project = projects.GetValue(0) as Project;
+            if(project == null)
+            {
+                return;
+            }
+            if (!Util.isSliceBuilderEnabled(project))
+            {
+                return;
+            }
+            removeCppGeneratedItems(project, file.FullPath);
+        }
+
+        void cppItemAdded(object obj, object parent)
+        {
+            if(obj == null)
+            {
+                return;
+            }
+            VCFile file = obj as VCFile;
+            if(file == null)
+            {
+                return;
+            }
+            if(!file.Name.EndsWith(".ice"))
+            {
+                return;
+            }
+
+            string fullPath = file.FullPath;
+            Array projects = (Array)_applicationObject.ActiveSolutionProjects;
+            if(projects == null)
+            {
+                return;
+            }
+            if(projects.Length <= 0)
+            {
+                return;
+            }
+            Project project = projects.GetValue(0) as Project;
+            if(project == null)
+            {
+                return;
+            }
+            if(!Util.isSliceBuilderEnabled(project))
+            {
+                return;
+            }
+            ProjectItem item = Util.findItem(fullPath, project.ProjectItems);
+            if(item == null)
+            {
+                return;
+            }
+            if(Util.isCppProject(project))
+            {
+                string cppPath = Path.ChangeExtension(fullPath, ".cpp");
+                string hPath = Path.ChangeExtension(cppPath, ".h");
+                if(File.Exists(cppPath) || Util.hasItemNamed(project.ProjectItems, Path.GetFileName(cppPath)))
+                {
+                    System.Windows.Forms.MessageBox.Show("A file named '" + Path.GetFileName(cppPath) + "' already exists.\n" +
+                                                         "If you want to add '" + Path.GetFileName(fullPath) + "' first remove " +
+                                                         " '" + Path.GetFileName(cppPath) + "' and '" + Path.GetFileName(hPath) + "'.",
+                                                         "Ice Visual Studio Extension",
+                                                         System.Windows.Forms.MessageBoxButtons.OK,
+                                                         System.Windows.Forms.MessageBoxIcon.Error);
+                    item.Remove();
+                    return;
+                }
+
+                if(File.Exists(hPath) || Util.hasItemNamed(project.ProjectItems, Path.GetFileName(hPath)))
+                {
+                    System.Windows.Forms.MessageBox.Show("A file named '" + Path.GetFileName(hPath) + "' already exists.\n" +
+                                         "If you want to add '" + Path.GetFileName(fullPath) + "' first remove " +
+                                         " '" + Path.GetFileName(cppPath) + "' and '" + Path.GetFileName(hPath) + "'.",
+                                         "Ice Visual Studio Extension",
+                                         System.Windows.Forms.MessageBoxButtons.OK,
+                                         System.Windows.Forms.MessageBoxIcon.Error);
+                    item.Remove();
+                    return;
+                }
+            }
+            buildCppProjectItem(project, Util.findItem(fullPath, project.ProjectItems), false);
+        }
+
+        private void csharpItemRenamed(ProjectItem item, string oldName)
+        {
+            if(item == null || _fileTracker == null || String.IsNullOrEmpty(oldName) || item.ContainingProject == null)
+            {
+                return;
+            }
+            if (!Util.isSliceBuilderEnabled(item.ContainingProject))
+            {
+                return;
+            }
+            if(!oldName.EndsWith(".ice") || !Util.isProjectItemFile(item))
+            {
+                return;
+            }
+
+
+            //Ged rid of generated files, for the .ice removed file.
+            _fileTracker.reap(item.ContainingProject, this);
+
+            string fullPath = item.Properties.Item("FullPath").Value.ToString();
+            if(Util.isCSharpProject(item.ContainingProject))
+            {
+                string csPath = Path.ChangeExtension(fullPath, ".cs");
+                if(File.Exists(csPath) || Util.hasItemNamed(item.ContainingProject.ProjectItems, Path.GetFileName(csPath)))
+                {
+                    System.Windows.Forms.MessageBox.Show("A file named '" + Path.GetFileName(csPath) + "' already exists.\n" + 
+                                                         oldName + " could not be renamed to '" + item.Name + "'.",
+                                                         "Ice Visual Studio Extension",
+                                                         System.Windows.Forms.MessageBoxButtons.OK,
+                                                         System.Windows.Forms.MessageBoxIcon.Error);
+                    item.Name = oldName;
+                    return;
+                }
+            }
+            buildCSharpProjectItem(item.ContainingProject, item, false);
+        }
+
+        private void csharpItemRemoved(ProjectItem item)
+        {
+            if(item == null || _fileTracker == null)
+            {
+                return;
+            }
+            if(String.IsNullOrEmpty(item.Name) ||  item.ContainingProject == null)
+            {
+                return;
+            }
+            if(!Util.isSliceBuilderEnabled(item.ContainingProject))
+            {
+                return;
+            }
+            if(!item.Name.EndsWith(".ice"))
+            {
+                return;
+            }
+            removeCSharpGeneratedItems(item);
+        }
+
+        private void csharpItemAdded(ProjectItem item)
+        {
+            if(item == null)
+            {
+                return;
+            }
+
+            if(String.IsNullOrEmpty(item.Name) || item.ContainingProject == null)
+            {
+                return;
+            }
+
+            if (!Util.isSliceBuilderEnabled(item.ContainingProject))
+            {
+                return;
+            }
+
+            if(!item.Name.EndsWith(".ice"))
+            {
+                return;
+            }
+
+            string fullPath = item.Properties.Item("FullPath").Value.ToString();
+            Project project = item.ContainingProject;
+            if(project == null)
+            {
+                return;
+            }
+
+            string parentPath = Path.GetDirectoryName(fullPath);
+            string csPath = Path.ChangeExtension(fullPath, ".cs");
+
+            //
+            // Item is in project folder.
+            //
+            if(parentPath.Equals(Path.GetDirectoryName(project.FileName), StringComparison.CurrentCultureIgnoreCase))
+            {
+                if(File.Exists(csPath) || Util.hasItemNamed(project.ProjectItems, Path.GetFileName(csPath)))
+                {
+                    System.Windows.Forms.MessageBox.Show("A file named '" + Path.GetFileName(csPath) + "' already exists.\n" +
+                                                         "If you want to add '" + Path.GetFileName(fullPath) + "' first remove " +
+                                                         " '" + Path.GetFileName(csPath) + "'.",
+                                                         "Ice Visual Studio Extension",
+                                                         System.Windows.Forms.MessageBoxButtons.OK,
+                                                         System.Windows.Forms.MessageBoxIcon.Error);
+                    item.Remove();
+                    return;
+                }
+            }
+            else // Item is in a subfolder.
+            {
+                ProjectItem folder = Util.findItem(parentPath, project.ProjectItems);
+                if(File.Exists(csPath) || Util.hasItemNamed(folder.ProjectItems, Path.GetFileName(csPath)))
+                {
+                    System.Windows.Forms.MessageBox.Show("A file named '" + Path.GetFileName(csPath) + "' already exists.\n" +
+                                                         "If you want to add a file '" + Path.GetFileName(fullPath) + 
+                                                         "' first remove '" + Path.GetFileName(csPath) + "'.",
+                                                         "Ice Visual Studio Extension",
+                                                         System.Windows.Forms.MessageBoxButtons.OK,
+                                                         System.Windows.Forms.MessageBoxIcon.Error);
+                    item.Remove();
+                    return;
+                }
+            }
+            buildCSharpProjectItem(project, item, false);
+        }
+
+        private void removeCSharpGeneratedItems(ProjectItem item)
+        {
+            if(item == null)
+            {
+                return;
+            }
+
+            if(item.Name == null)
+            {
+                return;
+            }
+
+            if(!item.Name.EndsWith(".ice"))
+            {
+                return;
+            }
+
+            FileInfo generatedFileInfo = new FileInfo(getCSharpGeneratedFileName(item.ContainingProject, item, "cs"));
+            ProjectItem generatedItem = Util.findItem(generatedFileInfo.FullName, item.ContainingProject.ProjectItems);
+            if(generatedItem != null)
+            {
+                generatedItem.Delete();
+            }
+
+            if(generatedFileInfo.Exists)
+            {
+                File.Delete(generatedFileInfo.FullName);
+            }
+        }
+
+        private void removeCppGeneratedItems(ProjectItems items)
+        {
+            foreach(ProjectItem i in items)
+            {
+                if(Util.isProjectItemFile(i))
+                {
+                    string path = i.Properties.Item("FullPath").Value.ToString();
+                    if(!String.IsNullOrEmpty(path))
+                    {
+                        if(path.EndsWith(".ice"))
+                        {
+                            removeCppGeneratedItems(i);
+                        }
+                    }
+                }
+                else if(Util.isProjectItemFilter(i))
+                {
+                    removeCppGeneratedItems(i.ProjectItems);
+                }
+            }
+        }
+
+        private void removeCppGeneratedItems(ProjectItem item)
+        {
+            if(item == null)
+            {
+                return;
+            }
+
+            if(item.Name == null)
+            {
+                return;
+            }
+
+            if(!item.Name.EndsWith(".ice"))
+            {
+                return;
+            }
+            removeCppGeneratedItems(item.ContainingProject, item.Properties.Item("FullPath").Value.ToString());
+        }
+
+        public void removeCppGeneratedItems(Project project, String slice)
+        {
+            String projectDir = Path.GetDirectoryName(project.FileName);
+            FileInfo hFileInfo = new FileInfo(getCppGeneratedFileName(slice, projectDir, "h"));
+            FileInfo cppFileInfo = new FileInfo(Path.ChangeExtension(hFileInfo.FullName, "cpp"));
+
+            ProjectItem generated = Util.findItem(hFileInfo.FullName, project.ProjectItems);
+            if (generated != null)
+            {
+                generated.Delete();
+                generated = null;
+            }
+
+            if (hFileInfo.Exists)
+            {
+                File.Delete(hFileInfo.FullName);
+            }
+
+            generated = Util.findItem(cppFileInfo.FullName, project.ProjectItems);
+            if (generated != null)
+            {
+                generated.Delete();
+                generated = null;
+            }
+
+            if (cppFileInfo.Exists)
+            {
+                File.Delete(cppFileInfo.FullName);
+            }
+        }
+
+
+        private bool runSliceCompiler(Project project, string file, string outputDir, bool building)
+        {
+            string args = getSliceCompilerArgs(project, false);
+            if(!String.IsNullOrEmpty(outputDir))
+            {
+                args += "--output-dir \"" + outputDir + "\" ";
+            }
+
+            args += quoteArg(file);
+            args = "/c " + quoteArg(args);
+            ProcessStartInfo processInfo = new ProcessStartInfo("cmd.exe", args);
+            processInfo.CreateNoWindow = true;
+            processInfo.UseShellExecute = false;
+            processInfo.RedirectStandardError = true;
+            processInfo.WorkingDirectory = System.IO.Path.GetDirectoryName(project.FileName);
+
+            writeBuildOutput("cmd.exe " + args + "\n");
+            System.Diagnostics.Process process = System.Diagnostics.Process.Start(processInfo);
+
+            process.WaitForExit();
+
+            bool hasErrors = parseErrors(project, file, process.StandardError);
+            process.Close();
+            if(building && hasErrors)
+            {
+                writeBuildOutput("0>------ Slice compilation failed. Build canceled.\n");
+                _applicationObject.DTE.ExecuteCommand("Build.Cancel", "");
+            }
+            return hasErrors;
+        }
+
+        private bool parseErrors(Project project, string file, TextReader strer)
+        {
+            bool hasErrors = false;
+            string errorMessage = strer.ReadLine();
+            bool firstLine = true;
+            while (!String.IsNullOrEmpty(errorMessage))
+            {
+                int i = errorMessage.IndexOf(':');
+                if(i == -1)
+                {
+                    if(firstLine)
+                    {
+                        errorMessage += strer.ReadToEnd();
+                        writeBuildOutput(errorMessage + "\n");
+                        addError(project, "", TaskErrorCategory.Error, 1, 1, errorMessage);
+                        hasErrors = true;
+                        break;
+                    }
+                    errorMessage = strer.ReadLine();
+                    continue;
+                }
+                firstLine = false;
+                i = errorMessage.IndexOf(':', i + 1);
+                if(i == -1)
+                {
+                    errorMessage = strer.ReadLine();
+                    continue;
+                }
+                string f = errorMessage.Substring(0, i);
+                if(String.IsNullOrEmpty(f))
+                {
+                    errorMessage = strer.ReadLine();
+                    continue;
+                }
+
+                if(!File.Exists(f))
+                {
+                    errorMessage = strer.ReadLine();
+                    continue;
+                }
+
+                //
+                // Get only errors from this file.
+                //
+                if(Path.GetFullPath(f.ToUpper()).Equals(Path.GetFullPath(file.ToUpper())))
+                {
+                    errorMessage = errorMessage.Substring(i + 1, errorMessage.Length - i - 1);
+                    i = errorMessage.IndexOf(':');
+                    string n = errorMessage.Substring(0, i);
+                    int l;
+                    try
+                    {
+                        l = Int16.Parse(n);
+                    }
+                    catch (Exception)
+                    {
+                        l = 0;
+                    }
+
+                    errorMessage = errorMessage.Substring(i + 1, errorMessage.Length - i - 1).Trim();
+                    if(errorMessage.Equals("warning: End of input with no newline, supplemented newline"))
+                    {
+                        errorMessage = strer.ReadLine();
+                        continue;
+                    }
+
+                    if(!String.IsNullOrEmpty(errorMessage))
+                    {
+                        TaskErrorCategory category = TaskErrorCategory.Error;
+                        if(errorMessage.Substring(0, "warning:".Length).Equals("warning:"))
+                        {
+                            category = TaskErrorCategory.Warning;
+                        }
+                        writeBuildOutput(errorMessage + "\n");
+                        addError(project, file, category, l, 1, errorMessage);
+                        hasErrors = true;
+                    }
+                }
+                errorMessage = strer.ReadLine();
+            }
+            return hasErrors;
+        }
+
+        public CommandBar projectCommandBar()
+        {
+            return findCommandBar(new Guid("{D309F791-903F-11D0-9EFC-00A0C911004F}"), 1026);
+        }
+
+        public CommandBar solutionCommandBar()
+        {
+            return findCommandBar(new Guid("{D309F791-903F-11D0-9EFC-00A0C911004F}"), 1043);
+        }
+
+        public CommandBar itemCommandBar()
+        {
+            return findCommandBar(new Guid("{D309F791-903F-11D0-9EFC-00A0C911004F}"), 1072);
+        }
+
+        public CommandBar folderCommandBar()
+        {
+            return findCommandBar(new Guid("{D309F791-903F-11D0-9EFC-00A0C911004F}"), 1073);
+        }
+
+        public CommandBar findCommandBar(Guid guidCmdGroup, uint menuID)
+        {
+            // Retrieve IVsProfferComands via DTE's IOleServiceProvider interface
+            IOleServiceProvider sp = (IOleServiceProvider)_applicationObject;
+            Guid guidSvc = typeof(IVsProfferCommands).GUID;
+            object objService;
+            sp.QueryService(ref guidSvc, ref guidSvc, out objService);
+            IVsProfferCommands vsProfferCmds = (IVsProfferCommands)objService;
+            return vsProfferCmds.FindCommandBar(IntPtr.Zero, ref guidCmdGroup, menuID) as CommandBar;
+        }
+
+        [ComImport,Guid("6D5140C1-7436-11CE-8034-00AA006009FA"),
+         InterfaceTypeAttribute(ComInterfaceType.InterfaceIsIUnknown)]
+        internal interface IOleServiceProvider 
+        {
+            [PreserveSig]
+            int QueryService([In]ref Guid guidService, [In]ref Guid riid, 
+                             [MarshalAs(UnmanagedType.Interface)] out System.Object obj);
+        }
+
+        private void buildBegin(vsBuildScope scope, vsBuildAction action)
+        {
+            if(action == vsBuildAction.vsBuildActionBuild || action == vsBuildAction.vsBuildActionRebuildAll)
+            {
+                switch(scope)
+                {
+                    case vsBuildScope.vsBuildScopeProject:
+                    {
+                        Project project = getSelectedProject();
+                        if(project != null)
+                        {
+                            clearErrors(project);
+                            if(action == vsBuildAction.vsBuildActionRebuildAll)
+                            {
+                                cleanProject(project);
+                            }
+                            buildProject(project, true);
+                        }
+                        break;
+                    }
+                    default:
+                    {
+                        foreach(Project p in _applicationObject.Solution.Projects)
+                        {
+                            if(p != null)
+                            {
+                                clearErrors(p);
+                                if(action == vsBuildAction.vsBuildActionRebuildAll)
+                                {
+                                    cleanProject(p);
+                                }
+                                buildProject(p, true);
+                            }
+                        }
+                        break;
+                    }
+                }
+                if(hasErrors())
+                {
+                    bringErrorsToFront();
+                }
+            }
+            else if(action == vsBuildAction.vsBuildActionClean)
+            {
+                switch (scope)
+                {
+                    case vsBuildScope.vsBuildScopeProject:
+                    {
+                        Project project = getSelectedProject();
+                        if(project != null)
+                        {
+                            cleanProject(project);
+                        }
+                        break;
+                    }
+                    default:
+                    {
+                        foreach(Project p in _applicationObject.Solution.Projects)
+                        {
+                            if(p != null)
+                            {
+                                cleanProject(p);
+                            }
+                        }
+                        break;
+                    }
+                }
+            }
+        }
+
+        //
+        // Initialize slice builder error list provider
+        //
+        private void initErrorListProvider()
+        {
+            _errors = new List<ErrorTask>();
+            _errorListProvider = new Microsoft.VisualStudio.Shell.ErrorListProvider(_serviceProvider);
+            _errorListProvider.ProviderName = "Slice Error Provider";
+            _errorListProvider.ProviderGuid = new Guid("B8DA84E8-7AE3-4c71-8E43-F273A20D40D1");
+            _errorListProvider.Show();
+        }
+
+        //
+        // Remove all errors from slice builder error list provider
+        //
+        private void clearErrors()
+        {
+            _errorCount = 0;
+            _errors.Clear();
+            _errorListProvider.Tasks.Clear();
+        }
+
+        private void clearErrors(Project project)
+        {
+            if (project == null || _errors == null)
+            {
+                return;
+            }
+
+            List<ErrorTask> remove = new List<ErrorTask>();
+            foreach(ErrorTask error in _errors)
+            {
+                ProjectItem item = Util.findItem(error.Document, project.ProjectItems);
+                if (item == null)
+                {
+                    continue;
+                }
+                if (_errorListProvider.Tasks.Contains(error))
+                {
+                    remove.Add(error);
+                    _errorListProvider.Tasks.Remove(error);
+                }
+            }
+            foreach (ErrorTask error in remove)
+            {
+                _errors.Remove(error);
+            }
+        
+        }
+        //
+        // Add a error to slice builder error list provider.
+        //
+        private void addError(Project project, string file, TaskErrorCategory category, int line, int column, string text)
+        {
+            IVsSolution ivSSolution = Connect.getIVsSolution();
+            IVsHierarchy hierarchy = null;
+            if(ivSSolution != null)
+            {
+                ivSSolution.GetProjectOfUniqueName(project.UniqueName, out hierarchy);
+            }
+
+            ErrorTask errorTask = new ErrorTask();
+            errorTask.ErrorCategory = category;
+            // Visual Studio uses indexes starting at 0 
+            // while the automation model uses indexes starting at 1
+            errorTask.Line = line - 1;
+            errorTask.Column = column - 1;
+            if(hierarchy != null)
+            {
+                errorTask.HierarchyItem = hierarchy;
+            }
+            errorTask.Navigate += new EventHandler(errorTaskNavigate);
+            errorTask.Document = file;
+            errorTask.Category = TaskCategory.BuildCompile;
+            errorTask.Text = text;
+            _errors.Add(errorTask);
+            _errorListProvider.Tasks.Add(errorTask);
+            if(category == TaskErrorCategory.Error)
+            {
+                _errorCount++;
+            }
+        }
+
+        //
+        // True if there was any errors in last slice compilation.
+        //
+        private bool hasErrors()
+        {
+            return _errorCount > 0;
+        }
+
+        private bool hasErrors(Project project)
+        {
+            if (project == null || _errors == null)
+            {
+                return false;
+            }
+
+            bool errors = false;
+            foreach (ErrorTask error in _errors)
+            {
+                ProjectItem item = Util.findItem(error.Document, project.ProjectItems);
+                if (item == null)
+                {
+                    continue;
+                }
+                errors = true;
+            }
+            return errors;
+        }
+
+        private OutputWindowPane buildOutput()
+        {
+            if(_output == null)
+            {
+                OutputWindow window = (OutputWindow)_applicationObject.Windows.Item(EnvDTE.Constants.vsWindowKindOutput).Object;
+                _output = window.OutputWindowPanes.Item("Build");
+            }
+            return _output;
+        }
+
+        private void writeBuildOutput(string message)
+        {
+            OutputWindowPane pane = buildOutput();
+            if(pane == null)
+            {
+                return;
+            }
+            pane.Activate();
+            pane.OutputString(message);
+        }
+
+        //
+        // Force the error list to show.
+        //
+        private void bringErrorsToFront()
+        {
+            if(_errorListProvider == null)
+            {
+                return;
+            }
+            _errorListProvider.BringToFront();
+            _errorListProvider.ForceShowErrors();
+        }
+
+        //
+        // Navigate to a file when the error is clicked.
+        //
+        private void errorTaskNavigate(object sender, EventArgs e)
+        {
+            ErrorTask task;
+            try
+            {
+                task = (ErrorTask)sender;
+                task.Line += 1;
+                _errorListProvider.Navigate(task, new Guid(EnvDTE.Constants.vsViewKindTextView));
+                task.Line -= 1;
+            }
+            catch(Exception)
+            {
+            }
+        }
+
+        private DTE2 _applicationObject;
+        private AddIn _addInInstance;
+        private SolutionEvents _solutionEvents;
+        private BuildEvents _buildEvents;
+        private DocumentEvents _docEvents = null;
+        private ProjectItemsEvents _csProjectItemsEvents;
+        private VCProjectEngineEvents _vcProjectItemsEvents;
+        private ServiceProvider _serviceProvider;
+        private uint _cookie;
+        private ErrorListProvider _errorListProvider;
+        private List<ErrorTask> _errors;
+        private int _errorCount = 0;
+        private FileTracker _fileTracker;
+        private Dictionary<string, Dictionary<string, List<string>>> _dependenciesMap;
+        private OutputWindowPane _output;
+
+        private CommandBarPopup _iceToolsCmbPopup;
+        private CommandBarPopup _iceProjectCmbPopup;
+    }
+}
