@@ -62,6 +62,17 @@ protected:
     // Generate dispatch and marshalling methods for a class or interface.
     //
     void writeDispatchAndMarshalling(::IceUtilInternal::Output&, const ClassDefPtr&, bool);
+
+    //
+    // Write doc comments.
+    //
+    StringList splitComment(const ContainedPtr&);
+    void writeDocComment(::IceUtilInternal::Output&, const ContainedPtr&, const std::string&, const std::string& = "");
+    void writeDocCommentOp(::IceUtilInternal::Output&, const OperationPtr&);
+
+    enum ParamDir { InParam, OutParam };
+    void writeDocCommentAsync(::IceUtilInternal::Output&, const OperationPtr&, ParamDir, const std::string& = "");
+    void writeDocCommentParam(::IceUtilInternal::Output&, const OperationPtr&, ParamDir);
 };
 
 class Gen : private ::IceUtil::noncopyable

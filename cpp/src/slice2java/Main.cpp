@@ -226,7 +226,7 @@ compile(int argc, char* argv[])
             FileTracker::instance()->setSource(*i);
 
             Preprocessor icecpp(argv[0], *i, cppArgs);
-            FILE* cppHandle = icecpp.preprocess(false);
+            FILE* cppHandle = icecpp.preprocess(true);
 
             if(cppHandle == 0)
             {

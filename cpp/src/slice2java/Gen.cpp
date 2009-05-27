@@ -542,9 +542,13 @@ Slice::JavaVisitor::writeDispatchAndMarshalling(Output& out, const ClassDefPtr& 
         if(generateOperation)
         {
             out << sp;
-            if(!deprecateReason.empty())
+            if(amd)
             {
-                out << nl << "/** @deprecated **/";
+                writeDocCommentAsync(out, op, InParam);
+            }
+            else
+            {
+                writeDocComment(out, op, deprecateReason);
             }
             out << nl << "public final " << typeToString(ret, TypeModeReturn, package, op->getMetaData())
                 << nl << opName << spar << params << epar;
@@ -1196,6 +1200,349 @@ Slice::JavaVisitor::writeDispatchAndMarshalling(Output& out, const ClassDefPtr& 
 
 }
 
+StringList
+Slice::JavaVisitor::splitComment(const ContainedPtr& p)
+{
+    StringList result;
+
+    string comment = p->comment();
+    string::size_type pos = 0;
+    string::size_type nextPos;
+    while((nextPos = comment.find_first_of('\n', pos)) != string::npos)
+    {
+        result.push_back(string(comment, pos, nextPos - pos));
+        pos = nextPos + 1;
+    }
+    string lastLine = string(comment, pos);
+    if(lastLine.find_first_not_of(" \t\n\r") != string::npos)
+    {
+        result.push_back(lastLine);
+    }
+
+    //
+    // Strip out @see sections.
+    //
+    const string seeTag = "@see";
+    StringList::const_iterator i = result.begin();
+    while(i != result.end())
+    {
+        if(i->find(seeTag) != string::npos)
+        {
+            i = result.erase(i);
+            while(i != result.end() && (*i)[0] != '@')
+            {
+                i = result.erase(i);
+            }
+        }
+        else
+        {
+            ++i;
+        }
+    }
+
+    //
+    // Strip square brackets from comments with hyperlinks such as [ObjectAdapter].
+    //
+    StringList::iterator j;
+    for(j = result.begin(); j != result.end(); ++j)
+    {
+        pos = j->find('[', 0);
+        while(pos != string::npos)
+        {
+            //
+            // Don't erase escaped opening bracket: \[, erase
+            // the backslash instead.
+            //
+            if(pos != 0 && (*j)[pos - 1] == '\\')
+            {
+                *j = j->erase(pos - 1, 1);
+                pos = j->find('[', pos);
+                continue;
+            }
+
+            *j = j->erase(pos, 1);              //  Erase [
+            pos = j->find(']', pos);
+            if(pos != string::npos)
+            {
+                *j = j->erase(pos, 1);          // Erase ]
+                pos = j->find('[', pos);
+            }
+        }
+    }
+
+    //
+    // Strip HTML tags.
+    //
+    for(j = result.begin(); j != result.end(); ++j)
+    {
+        pos = j->find('<', 0);
+        while(pos != string::npos)
+        {
+            nextPos = j->find('>', pos + 1);
+            if(pos != string::npos)
+            {
+                *j = j->erase(pos, nextPos - pos + 1);
+                pos = j->find('<', pos);
+            }
+        }
+    }
+
+
+    return result;
+}
+
+void
+Slice::JavaVisitor::writeDocComment(Output& out, const ContainedPtr& p,
+                                    const string& deprecateReason, const string& extraParam)
+{
+    StringList lines = splitComment(p);
+    if(lines.empty())
+    {
+        if(!deprecateReason.empty())
+        {
+            out << nl << "/**";
+            out << nl << " * @deprecated " << deprecateReason;
+            out << nl << " **/";
+        }
+        return;
+    }
+
+    out << nl << "/**";
+
+    bool doneExtraParam = false;
+    for(StringList::const_iterator i = lines.begin(); i != lines.end(); ++i)
+    {
+        //
+        // @param must precede @return, so emit any extra parameter
+        // when @return is seen.
+        //
+        if(i->find("@return") != string::npos && !extraParam.empty())
+        {
+            out << nl << " * " << extraParam;
+            doneExtraParam = true;
+        }
+        out << nl << " * " << *i;
+    }
+
+    if(!doneExtraParam && !extraParam.empty())
+    {
+        //
+        // Above code doesn't emit the comment for the extra parameter
+        // if the operation returns a void or doesn't have an @return.
+        //
+        out << nl << " * " << extraParam;
+    }
+
+    if(!deprecateReason.empty())
+    {
+        out << nl << " * @deprecated " << deprecateReason;
+    }
+
+    out << nl << " **/";
+}
+
+void
+Slice::JavaVisitor::writeDocCommentOp(Output& out, const OperationPtr& p)
+{
+    ContainerPtr container = p->container();
+    ContainedPtr contained = ContainedPtr::dynamicCast(container);
+    string deprecateReason = getDeprecateReason(p, contained, "operation");
+
+    StringList lines = splitComment(p);
+
+    if(lines.empty() && deprecateReason.empty())
+    {
+        return;
+    }
+
+
+    out << sp << nl << "/**";
+
+    //
+    // Output the leading comment block up until the first @tag.
+    //
+    bool done = false;
+    for(StringList::const_iterator i = lines.begin(); i != lines.end() && !done; ++i)
+    {
+        if((*i)[0] == '@')
+        {
+            done = true;
+        }
+        else
+        {
+            out << nl << " * " << *i;
+        }
+    }
+
+    if(!deprecateReason.empty())
+    {
+        out << nl << " * @deprecated " << deprecateReason;
+    }
+
+    out << nl << " **/";
+}
+
+void
+Slice::JavaVisitor::writeDocCommentAsync(Output& out, const OperationPtr& p, ParamDir paramType,
+                                         const string& extraParam)
+{
+    ContainerPtr container = p->container();
+    ClassDefPtr contained = ClassDefPtr::dynamicCast(container);
+    string deprecateReason = getDeprecateReason(p, contained, "operation");
+
+    StringList lines = splitComment(p);
+    if(lines.empty() && deprecateReason.empty())
+    {
+        return;
+    }
+
+    out << nl << "/**";
+
+    if(paramType == OutParam)
+    {
+        out << nl << " * ice_response indicates that";
+        out << nl << " * the operation completed successfully.";
+
+        //
+        // Find the comment for the return value (if any) and rewrite that as an @param comment.
+        //
+        const string returnTag = "@return";
+        bool doneReturn = false;
+        bool foundReturn = false;
+        for(StringList::const_iterator i = lines.begin(); i != lines.end() && !doneReturn; ++i)
+        {
+            if(!foundReturn)
+            {
+                if(i->find(returnTag) != string::npos)
+                {
+                    foundReturn = true;
+                    out << nl << " * @param __ret (return value)" << i->substr(returnTag.length());
+                }
+            }
+            else
+            {
+                if((*i)[0] == '@')
+                {
+                    doneReturn = true;
+                }
+                else
+                {
+                    out << nl << " * " << *i;
+                }
+            }
+        }
+    }
+    else
+    {
+        //
+        // Output the leading comment block up until the first @tag.
+        //
+        bool done = false;
+        for(StringList::const_iterator i = lines.begin(); i != lines.end() && !done; ++i)
+        {
+            if((*i)[0] == '@')
+            {
+                done = true;
+            }
+            else
+            {
+                out << nl << " * " << *i;
+            }
+        }
+    }
+
+    //
+    // Write the comments for the parameters.
+    //
+    writeDocCommentParam(out, p, paramType);
+
+    if(!extraParam.empty())
+    {
+        out << nl << " * " << extraParam;
+    }
+
+    if(paramType == InParam)
+    {
+        if(!deprecateReason.empty())
+        {
+            out << nl << " * @deprecated " << deprecateReason;
+        }
+    }
+
+    out << nl << " **/";
+}
+
+void
+Slice::JavaVisitor::writeDocCommentParam(Output& out, const OperationPtr& p, ParamDir paramType)
+{
+    //
+    // Collect the names of the in- or -out parameters to be documented.
+    //
+    ParamDeclList tmp = p->parameters();
+    vector<string> params;
+    for(ParamDeclList::const_iterator i = tmp.begin(); i != tmp.end(); ++i)
+    {
+        if((*i)->isOutParam() && paramType == OutParam)
+        {
+            params.push_back((*i)->name());
+        }
+        else if(!(*i)->isOutParam() && paramType == InParam)
+        {
+            params.push_back((*i)->name());
+        }
+    }
+
+    //
+    // Print a comment for the callback parameter.
+    //
+    if(paramType == InParam)
+    {
+        out << nl << " * @param __cb The callback object for the operation.";
+    }
+
+    //
+    // Print the comments for all the parameters that appear in the parameter list.
+    //
+    const string paramTag = "@param";
+    StringList lines = splitComment(p);
+    StringList::const_iterator i = lines.begin();
+    while(i != lines.end())
+    {
+        string line = *i++;
+        if(line.find(paramTag) != string::npos)
+        {
+            string::size_type paramNamePos = line.find_first_not_of(" \t\n\r", paramTag.length());
+            if(paramNamePos != string::npos)
+            {
+                string::size_type paramNameEndPos = line.find_first_of(" \t", paramNamePos);
+                string paramName = line.substr(paramNamePos, paramNameEndPos - paramNamePos);
+                if(std::find(params.begin(), params.end(), paramName) != params.end())
+                {
+                    out << nl << " * " << line;
+                    StringList::const_iterator j;
+                    if (i == lines.end())
+                    {
+                        break;
+                    }
+                    j = i++;
+                    while(j != lines.end())
+                    {
+                        if((*j)[0] != '@')
+                        {
+                            i = j;
+                            out << nl << " * " << *j++;
+                        }
+                        else
+                        {
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
 Slice::Gen::Gen(const string& name, const string& base, const vector<string>& includePaths, const string& dir) :
     _base(base),
     _includePaths(includePaths),
@@ -1418,18 +1765,25 @@ Slice::Gen::OpsVisitor::writeOperations(const ClassDefPtr& p, bool noCurrent)
             ret = op->returnType();
         }
 
-        string deprecateReason = getDeprecateReason(*r, p, "operation");
-
         string retS = typeToString(ret, TypeModeReturn, package, op->getMetaData());
         ExceptionList throws = op->throws();
         throws.sort();
         throws.unique();
         out << sp;
-        if(!deprecateReason.empty())
+
+        string deprecateReason = getDeprecateReason(*r, p, "operation");
+        string extraCurrent;
+        if(!noCurrent && !p->isLocal())
         {
-            out << nl << "/**";
-            out << nl << " * @deprecated " << deprecateReason;
-            out << nl << " **/";
+            extraCurrent = "@param __current The Current object for the invocation.";
+        }
+        if(amd)
+        {
+            writeDocCommentAsync(out, *r, InParam, extraCurrent);
+        }
+        else
+        {
+            writeDocComment(out, *r, deprecateReason, extraCurrent);
         }
         out << nl << retS << ' ' << (amd ? opname + "_async" : fixKwd(opname)) << spar << params;
         if(!noCurrent && !p->isLocal())
@@ -1706,9 +2060,11 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
     //
     // Slice interfaces map to Java interfaces.
     //
+    out << sp;
+    writeDocComment(out, p, getDeprecateReason(p, 0, p->isInterface() ? "interface" : "class"));
     if(p->isInterface())
     {
-        out << sp << nl << "public interface " << fixKwd(name) << " extends ";
+        out << nl << "public interface " << fixKwd(name) << " extends ";
         out.useCurrentPosAsIndent();
         if(p->isLocal())
         {
@@ -1734,7 +2090,7 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
     }
     else
     {
-        out << sp << nl << "public ";
+        out << nl << "public ";
         if(p->allOperations().size() > 0) // Don't use isAbstract() - see bug 3739
         {
             out << "abstract ";
@@ -1920,13 +2276,7 @@ Slice::Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
 
     out << sp;
 
-    string deprecateReason = getDeprecateReason(p, 0, "type");
-    if(!deprecateReason.empty())
-    {
-        out << nl << "/**";
-        out << nl << " * @deprecated " << deprecateReason;
-        out << nl << " **/";
-    }
+    writeDocComment(out, p, getDeprecateReason(p, 0, "type"));
 
     out << nl << "public class " << name << " extends ";
 
@@ -2251,13 +2601,7 @@ Slice::Gen::TypesVisitor::visitStructStart(const StructPtr& p)
 
     out << sp;
 
-    string deprecateReason = getDeprecateReason(p, 0, "type");
-    if(!deprecateReason.empty())
-    {
-        out << nl << "/**";
-        out << nl << " * @deprecated " << deprecateReason;
-        out << nl << " **/";
-    }
+    writeDocComment(out, p, getDeprecateReason(p, 0, "type"));
 
     out << nl << "public class " << name << " implements java.lang.Cloneable";
     if(!p->isLocal())
@@ -2604,12 +2948,7 @@ Slice::Gen::TypesVisitor::visitDataMember(const DataMemberPtr& p)
     out << sp;
 
     string deprecateReason = getDeprecateReason(p, contained, "member");
-    if(!deprecateReason.empty())
-    {
-        out << nl << "/**";
-        out << nl << " * @deprecated " << deprecateReason;
-        out << nl << " **/";
-    }
+    writeDocComment(out, p, deprecateReason);
 
     //
     // Access visibility for class data members can be controlled by metadata.
@@ -2655,12 +2994,7 @@ Slice::Gen::TypesVisitor::visitDataMember(const DataMemberPtr& p)
         // Getter.
         //
         out << sp;
-        if(!deprecateReason.empty())
-        {
-            out << nl << "/**";
-            out << nl << " * @deprecated " << deprecateReason;
-            out << nl << " **/";
-        }
+        writeDocComment(out, p, deprecateReason);
         out << nl << "public " << s;
         out << nl << "get" << capName << "()";
         out << sb;
@@ -2671,12 +3005,7 @@ Slice::Gen::TypesVisitor::visitDataMember(const DataMemberPtr& p)
         // Setter.
         //
         out << sp;
-        if(!deprecateReason.empty())
-        {
-            out << nl << "/**";
-            out << nl << " * @deprecated " << deprecateReason;
-            out << nl << " **/";
-        }
+        writeDocComment(out, p, deprecateReason);
         out << nl << "public void";
         out << nl << "set" << capName << '(' << s << " _" << name << ')';
         out << sb;
@@ -2775,13 +3104,7 @@ Slice::Gen::TypesVisitor::visitEnum(const EnumPtr& p)
 
     out << sp;
 
-    string deprecateReason = getDeprecateReason(p, 0, "type");
-    if(!deprecateReason.empty())
-    {
-        out << nl << "/**";
-        out << nl << " * @deprecated " << deprecateReason;
-        out << nl << " **/";
-    }
+    writeDocComment(out, p, getDeprecateReason(p, 0, "type"));
 
     out << nl << "public enum " << name;
     if(!p->isLocal())
@@ -2796,6 +3119,8 @@ Slice::Gen::TypesVisitor::visitEnum(const EnumPtr& p)
         {
             out << ',';
         }
+        out << nl;
+        writeDocComment(out, *en, getDeprecateReason(*en, 0, "enumerator"));
         out << nl << fixKwd((*en)->name());
     }
     out << ';';
@@ -2891,7 +3216,9 @@ Slice::Gen::TypesVisitor::visitConst(const ConstPtr& p)
     open(absolute);
 
     Output& out = output();
-    out << sp << nl << "public interface " << name;
+    out << sp;
+    writeDocComment(out, p, getDeprecateReason(p, 0, "constant"));
+    out << nl << "public interface " << name;
     out << sb;
     out << nl << typeToString(type, TypeModeIn, package) << " value = ";
 
@@ -3202,7 +3529,9 @@ Slice::Gen::HelperVisitor::visitClassDefStart(const ClassDefPtr& p)
     // proxy interface, and provides static helper methods for use
     // by applications (e.g., checkedCast, etc.)
     //
-    out << sp << nl << "public final class " << name << "PrxHelper extends Ice.ObjectPrxHelperBase implements " << name
+    out << sp;
+    writeDocComment(out, p, getDeprecateReason(p, 0, p->isInterface() ? "interface" : "class"));
+    out << nl << "public final class " << name << "PrxHelper extends Ice.ObjectPrxHelperBase implements " << name
         << "Prx";
 
     out << sb;
@@ -3236,10 +3565,7 @@ Slice::Gen::HelperVisitor::visitClassDefStart(const ClassDefPtr& p)
         // context parameter
         //
         out << sp;
-        if(!deprecateReason.empty())
-        {
-            out << nl << "/** @deprecated **/";
-        }
+        writeDocComment(out, op, deprecateReason);
         out << nl << "public " << retS << nl << opName << spar << params << epar;
         writeThrowsClause(package, throws);
         out << sb;
@@ -3252,10 +3578,7 @@ Slice::Gen::HelperVisitor::visitClassDefStart(const ClassDefPtr& p)
         out << eb;
 
         out << sp;
-        if(!deprecateReason.empty())
-        {
-            out << nl << "/** @deprecated **/";
-        }
+        writeDocComment(out, op, deprecateReason, "@param __ctx The Context map to send with the invocation.");
         out << nl << "public " << retS << nl << opName << spar << params << contextParam << epar;
         writeThrowsClause(package, throws);
         out << sb;
@@ -3327,20 +3650,14 @@ Slice::Gen::HelperVisitor::visitClassDefStart(const ClassDefPtr& p)
             // context parameter
             //
             out << sp;
-            if(!deprecateReason.empty())
-            {
-                out << nl << "/** @deprecated **/";
-            }
+            writeDocCommentAsync(out, op, InParam);
             out << nl << "public boolean" << nl << op->name() << "_async" << spar << paramsAMI << epar;
             out << sb;
             out << nl << "return " << opName << "_async" << spar << argsAMI << "null" << "false" << epar << ';';
             out << eb;
 
             out << sp;
-            if(!deprecateReason.empty())
-            {
-                out << nl << "/** @deprecated **/";
-            }
+            writeDocCommentAsync(out, op, InParam, "@param __ctx The Context map to send with the invocation.");
             out << nl << "public boolean" << nl << op->name() << "_async" << spar << paramsAMI << contextParam << epar;
             out << sb;
             out << nl << "return " << opName << "_async" << spar << argsAMI << "__ctx" << "true" << epar << ';';
@@ -3837,7 +4154,9 @@ Slice::Gen::ProxyVisitor::visitClassDefStart(const ClassDefPtr& p)
     //
     // Generate a Java interface as the user-visible type
     //
-    out << sp << nl << "public interface " << name << "Prx extends ";
+    out << sp;
+    writeDocComment(out, p, getDeprecateReason(p, 0, p->isInterface() ? "interface" : "class"));
+    out << nl << "public interface " << name << "Prx extends ";
     if(bases.empty())
     {
         out << "Ice.ObjectPrx";
@@ -3894,21 +4213,14 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
     // context parameter.
     //
     out << sp;
-    if(!deprecateReason.empty())
-    {
-        out << nl << "/**";
-        out << nl << " * @deprecated " << deprecateReason;
-        out << nl << " **/";
-    }
+    writeDocComment(out, p, deprecateReason);
+
     out << nl << "public " << retS << ' ' << name << spar << params << epar;
     writeThrowsClause(package, throws);
     out << ';';
-    if(!deprecateReason.empty())
-    {
-        out << nl << "/**";
-        out << nl << " * @deprecated " << deprecateReason;
-        out << nl << " **/";
-    }
+
+    out << sp;
+    writeDocComment(out, p, deprecateReason, "@param __ctx The Context map to send with the invocation.");
 
     string contextParam = "java.util.Map<String, String> __ctx";
 
@@ -3925,19 +4237,10 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
         // context parameter.
         //
         out << sp;
-        if(!deprecateReason.empty())
-        {
-            out << nl << "/**";
-            out << nl << " * @deprecated " << deprecateReason;
-            out << nl << " **/";
-        }
+        writeDocCommentAsync(out, p, InParam);
         out << nl << "public boolean " << p->name() << "_async" << spar << paramsAMI << epar << ';';
-        if(!deprecateReason.empty())
-        {
-            out << nl << "/**";
-            out << nl << " * @deprecated " << deprecateReason;
-            out << nl << " **/";
-        }
+        out << sp;
+        writeDocCommentAsync(out, p, InParam, "@param __ctx The Context map to send with the invocation.");
         out << nl << "public boolean " << p->name() << "_async" << spar << paramsAMI << contextParam << epar << ';';
     }
 }
@@ -4422,7 +4725,9 @@ Slice::Gen::DispatcherVisitor::visitClassDefStart(const ClassDefPtr& p)
 
     Output& out = output();
 
-    out << sp << nl << "public abstract class _" << name << "Disp extends Ice.ObjectImpl implements " << fixKwd(name);
+    out << sp;
+    writeDocComment(out, p, getDeprecateReason(p, 0, p->isInterface() ? "interface" : "class"));
+    out << nl << "public abstract class _" << name << "Disp extends Ice.ObjectImpl implements " << fixKwd(name);
     out << sb;
 
     out << sp << nl << "protected void" << nl << "ice_copyStateFrom(Ice.Object __obj)";
@@ -4913,14 +5218,26 @@ Slice::Gen::AsyncVisitor::visitOperation(const OperationPtr& p)
 
         vector<string> paramsInvoke = getParamsAsync(p, classPkg, false);
 
+        writeDocCommentOp(out, p);
         out << sp << nl << "public abstract class " << classNameAMI << '_' << name
             << " extends IceInternal.OutgoingAsync";
         out << sb;
         out << sp;
+        writeDocCommentAsync(out, p, OutParam);
         out << nl << "public abstract void ice_response" << spar << params << epar << ';';
+        out << sp << nl << "/**";
+        out << nl << " * ice_exception indicates to the caller that";
+        out << nl << " * the operation completed with an exception.";
+        out << nl << " * @param ex The Ice run-time exception to be raised.";
+        out << nl << " **/";
         out << nl << "public abstract void ice_exception(Ice.LocalException ex);";
         if(!throws.empty())
         {
+            out << sp << nl << "/**";
+            out << nl << " * ice_exception indicates to the caller that";
+            out << nl << " * the operation completed with an exception.";
+            out << nl << " * @param ex The user exception to be raised.";
+            out << nl << " **/";
             out << nl << "public abstract void ice_exception(Ice.UserException ex);";
         }
         
@@ -5098,10 +5415,19 @@ Slice::Gen::AsyncVisitor::visitOperation(const OperationPtr& p)
 
             Output& out = output();
             
+            writeDocCommentOp(out, p);
             out << sp << nl << "public interface " << classNameAMD << '_' << name;
             out << sb;
-            out << sp << nl << "void ice_response" << spar << paramsAMD << epar << ';';
-            out << sp << nl << "void ice_exception(java.lang.Exception ex);";
+            out << sp;
+            writeDocCommentAsync(out, p, OutParam);
+            out << nl << "void ice_response" << spar << paramsAMD << epar << ';';
+            out << sp;
+            out << nl << "/**";
+            out << nl << " * ice_exception indicates to the Ice run time that";
+            out << nl << " * the operation completed with an exception.";
+            out << nl << " * @param ex The exception to be raised.";
+            out << nl << " **/";
+            out << nl << "void ice_exception(java.lang.Exception ex);";
             out << eb;
             
             close();
