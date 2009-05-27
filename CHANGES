@@ -149,9 +149,6 @@ noted.
 C++ Changes
 ============
 
-- The generated types for Slice classes, interfaces, structs and
-  exceptions are now declared as partial.
-
 - Added ice_stackTrace() method to Exception classes, which returns the 
   exception stack trace on platforms/compiler that support it. 
   Currently this is only supported with GCC compiler.
@@ -169,6 +166,10 @@ C++ Changes
 Java Changes
 ============
 
+- slice2java now preserves javadoc comments that apprear in the Slice
+  source and writes them through to the corresponding APIs in the
+  generated code.
+
 - The following APIs are deprecated and will be removed in a future 
   release.
 
@@ -179,8 +180,8 @@ Java Changes
 
 - The generated classes for Slice structs are no longer declared final.
 
-- Ice.Util.generateUUID has been deprecated. In its place 
-  java.util.UUID.randomUUID().toString() should be used instead.
+- Ice.Util.generateUUID has been deprecated. Use
+  java.util.UUID.randomUUID().toString() instead.
 
 - Ice now supports the ability to load a configuration file as a class
   path resource. For a path name specified in the ICE_CONFIG
@@ -213,6 +214,9 @@ Java Changes
 C# Changes
 ==========
 
+- The generated types for Slice classes, interfaces, structs and
+  exceptions are now declared as partial.
+
 - The following APIs are deprecated and will be removed in a future 
   release.
 
@@ -225,8 +229,8 @@ C# Changes
   output messages. Please see manual and Trace documentation for
   more information.
 
-- Ice.Util.generateUUID has been deprecated. In its place 
-  System.Guid.NewGuid.ToString() should be used instead.
+- Ice.Util.generateUUID has been deprecated. Use
+  System.Guid.NewGuid.ToString() instead.
 
 
 Python Changes
