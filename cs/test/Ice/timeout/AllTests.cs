@@ -156,7 +156,6 @@ public class AllTests
             to.ice_getConnection().close(true); // Force a reconnect.
             try
             {
-                System.Console.WriteLine(communicator.proxyToString(to));
                 to.op();
                 test(false);
             }
