@@ -1223,7 +1223,7 @@ Slice::JavaVisitor::splitComment(const ContainedPtr& p)
     // Strip out @see sections.
     //
     const string seeTag = "@see";
-    StringList::const_iterator i = result.begin();
+    StringList::iterator i = result.begin();
     while(i != result.end())
     {
         if(i->find(seeTag) != string::npos)
