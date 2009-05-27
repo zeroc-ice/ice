@@ -39,6 +39,7 @@ OBJS		= Acceptor.obj \
 		  EndpointFactory.obj \
 		  Endpoint.obj \
 		  EndpointI.obj \
+		  EndpointTypes.obj \
 		  EventHandler.obj \
 		  Exception.obj \
 		  FacetMap.obj \
@@ -66,6 +67,7 @@ OBJS		= Acceptor.obj \
 		  ObjectFactoryManager.obj \
 		  ObjectFactory.obj \
 		  Object.obj \
+		  OpaqueEndpointI.obj \
 		  OutgoingAsync.obj \
 		  Outgoing.obj \
 		  PluginManagerI.obj \
@@ -104,8 +106,7 @@ OBJS		= Acceptor.obj \
 		  Transceiver.obj \
 		  UdpConnector.obj \
 		  UdpEndpointI.obj \
-		  UdpTransceiver.obj \
-		  UnknownEndpointI.obj
+		  UdpTransceiver.obj
 
 SRCS		= $(OBJS:.obj=.cpp)
 
@@ -168,6 +169,8 @@ clean::
 	-del /q Connection.cpp $(HDIR)\Connection.h
 	-del /q Current.cpp $(HDIR)\Current.h
 	-del /q Endpoint.cpp $(HDIR)\Endpoint.h
+	-del /q EndpointF.cpp $(HDIR)\EndpointF.h
+	-del /q EndpointTypes.cpp $(HDIR)\EndpointTypes.h
 	-del /q FacetMap.cpp $(HDIR)\FacetMap.h
 	-del /q ImplicitContextF.cpp $(HDIR)\ImplicitContextF.h	
 	-del /q ImplicitContext.cpp $(HDIR)\ImplicitContext.h	

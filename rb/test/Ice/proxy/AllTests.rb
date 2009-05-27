@@ -598,5 +598,31 @@ def allTests(communicator)
     end
     puts "ok"
 
+    print "testing endpoint information..."
+
+    p1 = communicator.stringToProxy("test -t:tcp -h tcphost -p 10000 -t 1200 -z:udp -h udphost -p 10001 --interface eth0 --ttl 5:opaque -t 100 -v ABCD");
+    endps = p1.ice_getEndpoints();
+
+    test(endps[0].is_a?(Ice::TcpEndpoint));
+    tcpEndpoint = endps[0];
+    test(tcpEndpoint.host() == "tcphost");
+    test(tcpEndpoint.port() == 10000);
+    test(tcpEndpoint.timeout() == 1200);
+    test(tcpEndpoint.compress());
+
+    test(endps[1].is_a?(Ice::UdpEndpoint));
+    udpEndpoint = endps[1];
+    test(udpEndpoint.host() == "udphost");
+    test(udpEndpoint.port() == 10001);
+    test(udpEndpoint.mcastInterface() == "eth0");
+    test(udpEndpoint.mcastTtl() == 5);
+    test(udpEndpoint.timeout() == -1);
+    test(!udpEndpoint.compress());
+
+    test(endps[2].is_a?(Ice::OpaqueEndpoint));
+
+    puts "ok"
+
+
     return cl
 end

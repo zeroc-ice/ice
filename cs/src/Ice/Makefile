@@ -57,6 +57,7 @@ SRCS		= Acceptor.cs \
 		  ObjectAdapterI.cs \
 		  Object.cs \
 		  ObjectFactoryManager.cs \
+		  OpaqueEndpointI.cs \
 		  Options.cs \
 		  OutgoingAsync.cs \
 		  Outgoing.cs \
@@ -101,7 +102,6 @@ SRCS		= Acceptor.cs \
 		  UdpEndpointI.cs \
 		  UdpConnector.cs \
 		  UdpTransceiver.cs \
-		  UnknownEndpointI.cs \
 		  UserExceptionFactory.cs \
 		  Util.cs \
 		  ValueWriter.cs \
@@ -112,6 +112,7 @@ SLICE_SRCS	= $(SDIR)/BuiltinSequences.ice \
 		  $(SDIR)/Connection.ice \
 		  $(SDIR)/Current.ice \
 		  $(SDIR)/Endpoint.ice \
+		  $(SDIR)/EndpointTypes.ice \
 		  $(SDIR)/FacetMap.ice \
 		  $(SDIR)/Identity.ice \
 		  $(SDIR)/ImplicitContext.ice \

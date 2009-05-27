@@ -192,6 +192,7 @@ import Ice_Communicator_ice
 import Ice_Current_ice
 import Ice_ImplicitContext_ice
 import Ice_Endpoint_ice
+import Ice_EndpointTypes_ice
 import Ice_Identity_ice
 import Ice_LocalException_ice
 import Ice_Locator_ice
@@ -207,7 +208,12 @@ import Ice_ServantLocator_ice
 #
 del Endpoint
 Endpoint =  IcePy.Endpoint
-
+del TcpEndpoint
+TcpEndpoint =  IcePy.TcpEndpoint
+del UdpEndpoint
+UdpEndpoint =  IcePy.UdpEndpoint
+del OpaqueEndpoint
+OpaqueEndpoint =  IcePy.OpaqueEndpoint
 
 class ThreadNotification(object):
     def __init__(self):
@@ -446,6 +452,12 @@ class ObjectAdapterI(ObjectAdapter):
 
     def refreshPublishedEndpoints(self):
         self._impl.refreshPublishedEndpoints()
+
+    def getEndpoints(self):
+        return self._impl.getEndpoints()
+
+    def getPublishedEndpoints(self):
+        return self._impl.getPublishedEndpoints()
 
 #
 # Logger wrapper.

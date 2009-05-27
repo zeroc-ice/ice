@@ -49,7 +49,9 @@ ICE_SRCS	= Ice_LocalException_ice.py \
 		  Ice_Connection_ice.py \
 		  Ice_ConnectionF_ice.py \
 		  Ice_SliceChecksumDict_ice.py \
-		  Ice_Endpoint_ice.py
+		  Ice_Endpoint_ice.py \
+		  Ice_EndpointF_ice.py \
+		  Ice_EndpointTypes_ice.py
 
 GLACIER2_SRCS	= Glacier2_RouterF_ice.py \
 		  Glacier2_Router_ice.py \

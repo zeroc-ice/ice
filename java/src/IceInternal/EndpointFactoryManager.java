@@ -83,7 +83,7 @@ public final class EndpointFactoryManager
                 java.nio.ByteBuffer buf = bs.getBuffer();
                 buf.position(0);
                 short type = bs.readShort();
-                EndpointI ue = new IceInternal.UnknownEndpointI(type, bs);
+                EndpointI ue = new IceInternal.OpaqueEndpointI(type, bs);
                 System.err.println("Normal: " + e);
                 System.err.println("Opaque: " + ue);
                 return e;
@@ -97,7 +97,7 @@ public final class EndpointFactoryManager
         //
         if(protocol.equals("opaque"))
         {
-            EndpointI ue = new UnknownEndpointI(s.substring(m.end()));
+            EndpointI ue = new OpaqueEndpointI(s.substring(m.end()));
             for(int i = 0; i < _factories.size(); i++)
             {
                 EndpointFactory f = _factories.get(i);
@@ -135,7 +135,7 @@ public final class EndpointFactoryManager
                 return f.read(s);
             }
         }
-        return new UnknownEndpointI(type, s);
+        return new OpaqueEndpointI(type, s);
     }
 
     void

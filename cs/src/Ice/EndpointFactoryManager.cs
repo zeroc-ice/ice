@@ -93,7 +93,7 @@ namespace IceInternal
                         Buffer buf = bs.getBuffer();
                         buf.b.position(0);
                         short type = bs.readShort();
-                        EndpointI ue = new IceInternal.UnknownEndpointI(type, bs);
+                        EndpointI ue = new IceInternal.OpaqueEndpointI(type, bs);
                         System.Console.Error.WriteLine("Normal: " + e);
                         System.Console.Error.WriteLine("Opaque: " + ue);
                         return e;
@@ -107,7 +107,7 @@ namespace IceInternal
                 //
                 if(protocol.Equals("opaque"))
                 {
-                    EndpointI ue = new UnknownEndpointI(s.Substring(m.Index + m.Length));
+                    EndpointI ue = new OpaqueEndpointI(s.Substring(m.Index + m.Length));
                     for(int i = 0; i < _factories.Count; i++)
                     {
                         EndpointFactory f = (EndpointFactory)_factories[i];
@@ -147,7 +147,7 @@ namespace IceInternal
                     }
                 }
                 
-                return new UnknownEndpointI(type, s);
+                return new OpaqueEndpointI(type, s);
             }
         }
         

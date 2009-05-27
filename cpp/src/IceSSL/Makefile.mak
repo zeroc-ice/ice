@@ -17,6 +17,7 @@ TARGETS		= $(LIBNAME) $(DLLNAME)
 OBJS		= AcceptorI.obj \
 		  Certificate.obj \
                   ConnectorI.obj \
+                  Endpoint.obj \
                   EndpointI.obj \
                   Instance.obj \
                   PluginI.obj \
@@ -28,10 +29,12 @@ OBJS		= AcceptorI.obj \
 SRCS		= $(OBJS:.obj=.cpp)
 
 HDIR		= $(headerdir)\IceSSL
+SDIR		= $(slicedir)\IceSSL
 
 !include $(top_srcdir)/config/Make.rules.mak
 
 CPPFLAGS	= -I.. $(CPPFLAGS) -DICE_SSL_API_EXPORTS -DFD_SETSIZE=1024 -DWIN32_LEAN_AND_MEAN
+SLICE2CPPFLAGS	= --ice --include-dir IceSSL --dll-export ICE_SSL_API $(SLICE2CPPFLAGS)
 
 LINKWITH        = $(OPENSSL_LIBS) $(LIBS)
 !if "$(BCPLUSPLUS)" != "yes"
@@ -58,6 +61,7 @@ $(DLLNAME): $(OBJS) IceSSL.res
 	@if exist $(DLLNAME:.dll=.exp) del /q $(DLLNAME:.dll=.exp)
 
 clean::
+	-del /q Endpoint.cpp $(HDIR)\Endpoint.h
 	-del /q IceSSL.res
 
 install:: all

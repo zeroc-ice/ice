@@ -496,10 +496,28 @@ IceInternal::UdpEndpointI::secure() const
     return false;
 }
 
-bool
-IceInternal::UdpEndpointI::unknown() const
+string
+IceInternal::UdpEndpointI::host() const
 {
-    return false;
+    return _host;
+}
+
+Ice::Int
+IceInternal::UdpEndpointI::port() const
+{
+    return _port;
+}
+
+string
+IceInternal::UdpEndpointI::mcastInterface() const
+{
+    return _mcastInterface;
+}
+
+Ice::Int
+IceInternal::UdpEndpointI::mcastTtl() const
+{
+    return _mcastTtl;
 }
 
 TransceiverPtr

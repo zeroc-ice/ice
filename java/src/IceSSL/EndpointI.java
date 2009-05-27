@@ -9,7 +9,7 @@
 
 package IceSSL;
 
-final class EndpointI extends IceInternal.EndpointI
+final class EndpointI extends IceInternal.EndpointI implements IceSSL.SslEndpoint
 {
     final static short TYPE = 2;
 
@@ -330,12 +330,21 @@ final class EndpointI extends IceInternal.EndpointI
     }
 
     //
-    // Return true if the endpoint type is unknown.
+    // Get the host name.
     //
-    public boolean
-    unknown()
+    public String
+    host()
     {
-        return false;
+        return _host;
+    }
+
+    //
+    // Get the port number.
+    //
+    public int
+    port()
+    {
+        return _port;
     }
 
     //

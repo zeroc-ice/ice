@@ -15,7 +15,7 @@ namespace IceInternal
     using System.Collections.Generic;
     using System.Net;
 
-    sealed class UdpEndpointI : EndpointI
+    sealed class UdpEndpointI : EndpointI, Ice.UdpEndpoint
     {
         internal const short TYPE = 3;
         
@@ -554,15 +554,39 @@ namespace IceInternal
         {
             return false;
         }
-        
+
         //
-        // Return true if the endpoint type is unknown.
+        // Get the host name.
         //
-        public override bool unknown()
+        public string host()
         {
-            return false;
+            return _host;
+        }
+
+        //
+        // Get the port number.
+        //
+        public int port()
+        {
+            return _port;
         }
         
+        //
+        // Get the multicast interface.
+        //
+        public string mcastInterface()
+        {
+            return _mcastInterface;
+        }
+
+        //
+        // Get the multicast time-to-live.
+        //
+        public int mcastTtl()
+        {
+            return _mcastTtl;
+        }
+
         //
         // Return a server side transceiver for this endpoint, or null if a
         // transceiver can only be created by an acceptor. In case a

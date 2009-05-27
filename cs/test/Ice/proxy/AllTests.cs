@@ -630,6 +630,32 @@ public class AllTests
 
         Console.Out.WriteLine("ok");
 
+        Console.Out.Write("testing endpoint information... ");
+        Console.Out.Flush();
+
+        p1 = communicator.stringToProxy("test -t:tcp -h tcphost -p 10000 -t 1200 -z:udp -h udphost -p 10001 --interface eth0 --ttl 5:opaque -t 100 -v ABCD");
+        Ice.Endpoint[] endps = p1.ice_getEndpoints();
+
+        test(endps[0] is Ice.TcpEndpoint);
+        Ice.TcpEndpoint tcpEndpoint = (Ice.TcpEndpoint)endps[0];
+        test(tcpEndpoint.host() == "tcphost");
+        test(tcpEndpoint.port() == 10000);
+        test(tcpEndpoint.timeout() == 1200);
+        test(tcpEndpoint.compress());
+
+        test(endps[1] is Ice.UdpEndpoint);
+        Ice.UdpEndpoint udpEndpoint = (Ice.UdpEndpoint)endps[1];
+        test(udpEndpoint.host() == "udphost");
+        test(udpEndpoint.port() == 10001);
+        test(udpEndpoint.mcastInterface() == "eth0");
+        test(udpEndpoint.mcastTtl() == 5);
+        test(udpEndpoint.timeout() == -1);
+        test(!udpEndpoint.compress());
+
+        test(endps[2] is Ice.OpaqueEndpoint);
+
+        Console.Out.WriteLine("ok");
+
         return cl;
     }
 }

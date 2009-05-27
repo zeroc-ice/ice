@@ -642,6 +642,32 @@ public class AllTests
         }
         out.println("ok");
 
+        out.print("testing endpoint information... ");
+        out.flush();
+
+        Ice.ObjectPrx p = communicator.stringToProxy("test -t:tcp -h tcphost -p 10000 -t 1200 -z:udp -h udphost -p 10001 --interface eth0 --ttl 5:opaque -t 100 -v ABCD");
+        Ice.Endpoint[] endps = p.ice_getEndpoints();
+
+        test(endps[0] instanceof Ice.TcpEndpoint);
+        Ice.TcpEndpoint tcpEndpoint = (Ice.TcpEndpoint)endps[0];
+        test(tcpEndpoint.host().equals("tcphost"));
+        test(tcpEndpoint.port() == 10000);
+        test(tcpEndpoint.timeout() == 1200);
+        test(tcpEndpoint.compress());
+
+        test(endps[1] instanceof Ice.UdpEndpoint);
+        Ice.UdpEndpoint udpEndpoint = (Ice.UdpEndpoint)endps[1];
+        test(udpEndpoint.host().equals("udphost"));
+        test(udpEndpoint.port() == 10001);
+        test(udpEndpoint.mcastInterface().equals("eth0"));
+        test(udpEndpoint.mcastTtl() == 5);
+        test(udpEndpoint.timeout() == -1);
+        test(!udpEndpoint.compress());
+
+        test(endps[2] instanceof Ice.OpaqueEndpoint);
+
+        out.println("ok");
+
         return cl;
     }
 }

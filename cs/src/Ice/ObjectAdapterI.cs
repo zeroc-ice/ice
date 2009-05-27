@@ -600,6 +600,27 @@ namespace Ice
             }
         }
 
+        public Endpoint[] getEndpoints()
+        {
+            lock(this)
+            {
+                List<Endpoint> endpoints = new List<Endpoint>();
+                foreach(IceInternal.IncomingConnectionFactory factory in _incomingConnectionFactories)
+                {
+                    endpoints.Add(factory.endpoint());
+                }
+                return endpoints.ToArray();
+            }
+        }
+
+        public Endpoint[] getPublishedEndpoints()
+        {
+            lock(this)
+            {
+                return _publishedEndpoints.ToArray();
+            }
+        }
+
         public bool isLocal(ObjectPrx proxy)
         {
             //

@@ -14,12 +14,16 @@
 #include <Ice/Locator.h>
 #include <Ice/Proxy.h>
 #include <Ice/Router.h>
+#include <Ice/Endpoint.h>
 
 using namespace std;
 using namespace IceRuby;
 
 static VALUE _connectionClass;
 static VALUE _endpointClass;
+static VALUE _tcpEndpointClass;
+static VALUE _udpEndpointClass;
+static VALUE _opaqueEndpointClass;
 static VALUE _proxyClass;
 
 // **********************************************************************
@@ -155,9 +159,30 @@ IceRuby_Endpoint_free(Ice::EndpointPtr* p)
 static VALUE
 createEndpoint(const Ice::EndpointPtr& p)
 {
-    return Data_Wrap_Struct(_endpointClass, 0, IceRuby_Endpoint_free, new Ice::EndpointPtr(p));
+    volatile VALUE type;
+    if(Ice::TcpEndpointPtr::dynamicCast(p))
+    {
+        type = _tcpEndpointClass;
+    }
+    else if(Ice::UdpEndpointPtr::dynamicCast(p))
+    {
+        type = _udpEndpointClass;
+    }
+    else if(Ice::OpaqueEndpointPtr::dynamicCast(p))
+    {
+        type = _opaqueEndpointClass;
+    }
+    else
+    {
+        type = _endpointClass;
+    }
+    return Data_Wrap_Struct(type, 0, IceRuby_Endpoint_free, new Ice::EndpointPtr(p));
 }
 
+
+//
+// Ice::Endpoint::toString
+//
 extern "C"
 VALUE
 IceRuby_Endpoint_toString(VALUE self)
@@ -169,6 +194,187 @@ IceRuby_Endpoint_toString(VALUE self)
 
         string s = (*p)->toString();
         return createString(s);
+    }
+    ICE_RUBY_CATCH
+    return Qnil;
+}
+
+//
+// Ice::Endpoint::timeout
+//
+extern "C"
+VALUE
+IceRuby_Endpoint_timeout(VALUE self)
+{
+    ICE_RUBY_TRY
+    {
+        Ice::EndpointPtr* p = reinterpret_cast<Ice::EndpointPtr*>(DATA_PTR(self));
+        assert(p);
+
+        Ice::Int t = (*p)->timeout();
+        return INT2FIX(t);
+    }
+    ICE_RUBY_CATCH
+    return Qnil;
+}
+
+//
+// Ice::Endpoint::compress
+//
+extern "C"
+VALUE
+IceRuby_Endpoint_compress(VALUE self)
+{
+    ICE_RUBY_TRY
+    {
+        Ice::EndpointPtr* p = reinterpret_cast<Ice::EndpointPtr*>(DATA_PTR(self));
+        assert(p);
+
+        return (*p)->compress() ? Qtrue : Qfalse;
+    }
+    ICE_RUBY_CATCH
+    return Qnil;
+}
+
+//
+// Ice::TcpEndpoint::host
+//
+extern "C"
+VALUE
+IceRuby_TcpEndpoint_host(VALUE self)
+{
+    ICE_RUBY_TRY
+    {
+        Ice::EndpointPtr* p = reinterpret_cast<Ice::EndpointPtr*>(DATA_PTR(self));
+        assert(p);
+        Ice::TcpEndpointPtr q = Ice::TcpEndpointPtr::dynamicCast(*p);
+        assert(q);
+
+        string s = q->host();
+        return createString(s);
+    }
+    ICE_RUBY_CATCH
+    return Qnil;
+}
+
+extern "C"
+VALUE
+IceRuby_TcpEndpoint_port(VALUE self)
+{
+    ICE_RUBY_TRY
+    {
+        Ice::EndpointPtr* p = reinterpret_cast<Ice::EndpointPtr*>(DATA_PTR(self));
+        assert(p);
+        Ice::TcpEndpointPtr q = Ice::TcpEndpointPtr::dynamicCast(*p);
+        assert(q);
+
+        Ice::Int t = q->port();
+        return INT2FIX(t);
+    }
+    ICE_RUBY_CATCH
+    return Qnil;
+}
+
+//
+// Ice::UdpEndpoint::host
+//
+extern "C"
+VALUE
+IceRuby_UdpEndpoint_host(VALUE self)
+{
+    ICE_RUBY_TRY
+    {
+        Ice::EndpointPtr* p = reinterpret_cast<Ice::EndpointPtr*>(DATA_PTR(self));
+        assert(p);
+        Ice::UdpEndpointPtr q = Ice::UdpEndpointPtr::dynamicCast(*p);
+        assert(q);
+
+        string s = q->host();
+        return createString(s);
+    }
+    ICE_RUBY_CATCH
+    return Qnil;
+}
+
+//
+// Ice::UdpEndpoint::port
+//
+extern "C"
+VALUE
+IceRuby_UdpEndpoint_port(VALUE self)
+{
+    ICE_RUBY_TRY
+    {
+        Ice::EndpointPtr* p = reinterpret_cast<Ice::EndpointPtr*>(DATA_PTR(self));
+        assert(p);
+        Ice::UdpEndpointPtr q = Ice::UdpEndpointPtr::dynamicCast(*p);
+        assert(q);
+
+        Ice::Int t = q->port();
+        return INT2FIX(t);
+    }
+    ICE_RUBY_CATCH
+    return Qnil;
+}
+
+//
+// Ice::UdpEndpoint::mcastInterface
+//
+extern "C"
+VALUE
+IceRuby_UdpEndpoint_mcastInterface(VALUE self)
+{
+    ICE_RUBY_TRY
+    {
+        Ice::EndpointPtr* p = reinterpret_cast<Ice::EndpointPtr*>(DATA_PTR(self));
+        assert(p);
+        Ice::UdpEndpointPtr q = Ice::UdpEndpointPtr::dynamicCast(*p);
+        assert(q);
+
+        string s = q->mcastInterface();
+        return createString(s);
+    }
+    ICE_RUBY_CATCH
+    return Qnil;
+}
+
+//
+// Ice::UdpEndpoint::mcastTtl
+//
+extern "C"
+VALUE
+IceRuby_UdpEndpoint_mcastTtl(VALUE self)
+{
+    ICE_RUBY_TRY
+    {
+        Ice::EndpointPtr* p = reinterpret_cast<Ice::EndpointPtr*>(DATA_PTR(self));
+        assert(p);
+        Ice::UdpEndpointPtr q = Ice::UdpEndpointPtr::dynamicCast(*p);
+        assert(q);
+
+        Ice::Int t = q->mcastTtl();
+        return INT2FIX(t);
+    }
+    ICE_RUBY_CATCH
+    return Qnil;
+}
+
+//
+// Ice::OpaqueEndpoint::rawBytes
+//
+extern "C"
+VALUE
+IceRuby_OpaqueEndpoint_rawBytes(VALUE self)
+{
+    ICE_RUBY_TRY
+    {
+        Ice::EndpointPtr* p = reinterpret_cast<Ice::EndpointPtr*>(DATA_PTR(self));
+        assert(p);
+        Ice::OpaqueEndpointPtr q = Ice::OpaqueEndpointPtr::dynamicCast(*p);
+        assert(q);
+
+        Ice::ByteSeq b = q->rawBytes();
+        return callRuby(rb_str_new, reinterpret_cast<const char*>(&b[0]), static_cast<long>(b.size()));
     }
     ICE_RUBY_CATCH
     return Qnil;
@@ -551,7 +757,10 @@ IceRuby_ObjectPrx_ice_endpoints(VALUE self, VALUE seq)
             }
             for(long i = 0; i < RARRAY(arr)->len; ++i)
             {
-                if(callRuby(rb_obj_is_instance_of, RARRAY(arr)->ptr[i], _endpointClass) == Qfalse)
+                if(callRuby(rb_obj_is_instance_of, RARRAY(arr)->ptr[i], _endpointClass) == Qfalse &&
+                   callRuby(rb_obj_is_instance_of, RARRAY(arr)->ptr[i], _tcpEndpointClass) == Qfalse &&
+                   callRuby(rb_obj_is_instance_of, RARRAY(arr)->ptr[i], _udpEndpointClass) == Qfalse &&
+                   callRuby(rb_obj_is_instance_of, RARRAY(arr)->ptr[i], _opaqueEndpointClass) == Qfalse)
                 {
                     throw RubyException(rb_eTypeError, "array element is not an Ice::Endpoint");
                 }
@@ -1306,14 +1515,65 @@ IceRuby::initProxy(VALUE iceModule)
     //
     // Endpoint.
     //
-    _endpointClass = rb_define_class_under(iceModule, "EndpointI", rb_cObject);
+    _endpointClass = rb_define_class_under(iceModule, "Endpoint", rb_cObject);
 
     //
     // Instance methods.
     //
     rb_define_method(_endpointClass, "toString", CAST_METHOD(IceRuby_Endpoint_toString), 0);
+    rb_define_method(_endpointClass, "timeout", CAST_METHOD(IceRuby_Endpoint_timeout), 0);
+    rb_define_method(_endpointClass, "compress", CAST_METHOD(IceRuby_Endpoint_compress), 0);
     rb_define_method(_endpointClass, "to_s", CAST_METHOD(IceRuby_Endpoint_toString), 0);
     rb_define_method(_endpointClass, "inspect", CAST_METHOD(IceRuby_Endpoint_toString), 0);
+
+    //
+    // TcpEndpoint.
+    //
+    _tcpEndpointClass = rb_define_class_under(iceModule, "TcpEndpoint", rb_cObject);
+
+    //
+    // Instance methods.
+    //
+    rb_define_method(_tcpEndpointClass, "toString", CAST_METHOD(IceRuby_Endpoint_toString), 0);
+    rb_define_method(_tcpEndpointClass, "timeout", CAST_METHOD(IceRuby_Endpoint_timeout), 0);
+    rb_define_method(_tcpEndpointClass, "compress", CAST_METHOD(IceRuby_Endpoint_compress), 0);
+    rb_define_method(_tcpEndpointClass, "host", CAST_METHOD(IceRuby_TcpEndpoint_host), 0);
+    rb_define_method(_tcpEndpointClass, "port", CAST_METHOD(IceRuby_TcpEndpoint_port), 0);
+    rb_define_method(_tcpEndpointClass, "to_s", CAST_METHOD(IceRuby_Endpoint_toString), 0);
+    rb_define_method(_tcpEndpointClass, "inspect", CAST_METHOD(IceRuby_Endpoint_toString), 0);
+
+    //
+    // UdpEndpoint.
+    //
+    _udpEndpointClass = rb_define_class_under(iceModule, "UdpEndpoint", rb_cObject);
+
+    //
+    // Instance methods.
+    //
+    rb_define_method(_udpEndpointClass, "toString", CAST_METHOD(IceRuby_Endpoint_toString), 0);
+    rb_define_method(_udpEndpointClass, "timeout", CAST_METHOD(IceRuby_Endpoint_timeout), 0);
+    rb_define_method(_udpEndpointClass, "compress", CAST_METHOD(IceRuby_Endpoint_compress), 0);
+    rb_define_method(_udpEndpointClass, "host", CAST_METHOD(IceRuby_UdpEndpoint_host), 0);
+    rb_define_method(_udpEndpointClass, "port", CAST_METHOD(IceRuby_UdpEndpoint_port), 0);
+    rb_define_method(_udpEndpointClass, "mcastInterface", CAST_METHOD(IceRuby_UdpEndpoint_mcastInterface), 0);
+    rb_define_method(_udpEndpointClass, "mcastTtl", CAST_METHOD(IceRuby_UdpEndpoint_mcastTtl), 0);
+    rb_define_method(_udpEndpointClass, "to_s", CAST_METHOD(IceRuby_Endpoint_toString), 0);
+    rb_define_method(_udpEndpointClass, "inspect", CAST_METHOD(IceRuby_Endpoint_toString), 0);
+
+    //
+    // OpaqueEndpoint.
+    //
+    _opaqueEndpointClass = rb_define_class_under(iceModule, "OpaqueEndpoint", rb_cObject);
+
+    //
+    // Instance methods.
+    //
+    rb_define_method(_opaqueEndpointClass, "toString", CAST_METHOD(IceRuby_Endpoint_toString), 0);
+    rb_define_method(_opaqueEndpointClass, "timeout", CAST_METHOD(IceRuby_Endpoint_timeout), 0);
+    rb_define_method(_opaqueEndpointClass, "compress", CAST_METHOD(IceRuby_Endpoint_compress), 0);
+    rb_define_method(_opaqueEndpointClass, "rawBytes", CAST_METHOD(IceRuby_OpaqueEndpoint_rawBytes), 0);
+    rb_define_method(_opaqueEndpointClass, "to_s", CAST_METHOD(IceRuby_Endpoint_toString), 0);
+    rb_define_method(_opaqueEndpointClass, "inspect", CAST_METHOD(IceRuby_Endpoint_toString), 0);
 
     //
     // ObjectPrx.

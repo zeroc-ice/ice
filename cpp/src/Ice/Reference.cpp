@@ -12,6 +12,7 @@
 #include <Ice/LocalException.h>
 #include <Ice/Instance.h>
 #include <Ice/EndpointI.h>
+#include <Ice/OpaqueEndpointI.h>
 #include <Ice/BasicStream.h>
 #include <Ice/RouterInfo.h>
 #include <Ice/Router.h>
@@ -1816,6 +1817,17 @@ IceInternal::RoutableReference::RoutableReference(const RoutableReference& r) :
 {
 }
 
+struct EndpointIsOpaque : public unary_function<EndpointIPtr, bool>
+{
+public:
+
+    bool
+    operator()(EndpointIPtr p) const
+    {
+        return dynamic_cast<OpaqueEndpointI*>(p.get()) != 0;
+    }
+};
+
 vector<EndpointIPtr>
 IceInternal::RoutableReference::filterEndpoints(const vector<EndpointIPtr>& allEndpoints) const
 {
@@ -1824,8 +1836,7 @@ IceInternal::RoutableReference::filterEndpoints(const vector<EndpointIPtr>& allE
     //
     // Filter out unknown endpoints.
     //
-    endpoints.erase(remove_if(endpoints.begin(), endpoints.end(), Ice::constMemFun(&EndpointI::unknown)),
-		    endpoints.end());
+    endpoints.erase(remove_if(endpoints.begin(), endpoints.end(), EndpointIsOpaque()), endpoints.end());
 
     //
     // Filter out endpoints according to the mode of the reference.

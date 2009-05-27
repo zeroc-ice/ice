@@ -16,24 +16,27 @@
 namespace IceInternal
 {
 
-class UnknownEndpointI : public EndpointI
+class OpaqueEndpointI : public EndpointI, public Ice::OpaqueEndpoint
 {
 public:
 
-    UnknownEndpointI(const ::std::string&);
-    UnknownEndpointI(Ice::Short, BasicStream*);
+    OpaqueEndpointI(const ::std::string&);
+    OpaqueEndpointI(Ice::Short, BasicStream*);
 
-    virtual void streamWrite(BasicStream*) const;
+    // From OpaqueEndpoint
     virtual std::string toString() const;
-    virtual Ice::Short type() const;
     virtual Ice::Int timeout() const;
-    virtual EndpointIPtr timeout(Ice::Int) const;
-    virtual EndpointIPtr connectionId(const ::std::string&) const;
     virtual bool compress() const;
-    virtual EndpointIPtr compress(bool) const;
     virtual bool datagram() const;
     virtual bool secure() const;
-    virtual bool unknown() const;
+    virtual Ice::ByteSeq rawBytes() const;
+
+    // From EndpointI
+    virtual void streamWrite(BasicStream*) const;
+    virtual Ice::Short type() const;
+    virtual EndpointIPtr timeout(Ice::Int) const;
+    virtual EndpointIPtr connectionId(const ::std::string&) const;
+    virtual EndpointIPtr compress(bool) const;
     virtual TransceiverPtr transceiver(EndpointIPtr&) const;
     virtual std::vector<ConnectorPtr> connectors() const;
     virtual void connectors_async(const EndpointI_connectorsPtr&) const;

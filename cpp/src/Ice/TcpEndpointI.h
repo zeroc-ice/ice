@@ -18,7 +18,7 @@ namespace IceInternal
 
 const Ice::Short TcpEndpointType = 1;
 
-class TcpEndpointI : public EndpointI
+class TcpEndpointI : public EndpointI, public Ice::TcpEndpoint
 {
 public:
 
@@ -26,17 +26,21 @@ public:
     TcpEndpointI(const InstancePtr&, const std::string&, bool);
     TcpEndpointI(BasicStream*);
 
-    virtual void streamWrite(BasicStream*) const;
+    // From TcpEndpoint
     virtual std::string toString() const;
-    virtual Ice::Short type() const;
     virtual Ice::Int timeout() const;
-    virtual EndpointIPtr timeout(Ice::Int) const;
-    virtual EndpointIPtr connectionId(const ::std::string&) const;
     virtual bool compress() const;
-    virtual EndpointIPtr compress(bool) const;
     virtual bool datagram() const;
     virtual bool secure() const;
-    virtual bool unknown() const;
+    virtual std::string host() const;
+    virtual Ice::Int port() const;
+
+    // From EndpointI
+    virtual void streamWrite(BasicStream*) const;
+    virtual Ice::Short type() const;
+    virtual EndpointIPtr timeout(Ice::Int) const;
+    virtual EndpointIPtr connectionId(const ::std::string&) const;
+    virtual EndpointIPtr compress(bool) const;
     virtual TransceiverPtr transceiver(EndpointIPtr&) const;
     virtual std::vector<ConnectorPtr> connectors() const;
     virtual void connectors_async(const EndpointI_connectorsPtr&) const;

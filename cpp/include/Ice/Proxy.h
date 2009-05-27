@@ -17,7 +17,8 @@
 #include <Ice/ConnectionIF.h>
 #include <Ice/RequestHandlerF.h>
 #include <Ice/EndpointIF.h>
-#include <Ice/Endpoint.h>
+#include <Ice/EndpointF.h>
+#include <Ice/EndpointTypes.h>
 #include <Ice/ObjectF.h>
 #include <Ice/ObjectAdapterF.h>
 #include <Ice/ReferenceF.h>

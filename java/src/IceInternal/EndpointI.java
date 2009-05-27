@@ -69,11 +69,6 @@ abstract public class EndpointI implements Ice.Endpoint, java.lang.Comparable<En
     public abstract boolean secure();
 
     //
-    // Return true if the endpoint type is unknown.
-    //
-    public abstract boolean unknown();
-
-    //
     // Return a server side transceiver for this endpoint, or null if a
     // transceiver can only be created by an acceptor. In case a
     // transceiver is created, this operation also returns a new

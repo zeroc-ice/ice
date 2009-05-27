@@ -608,6 +608,27 @@ Ice::ObjectAdapterI::refreshPublishedEndpoints()
     }
 }
 
+EndpointSeq
+Ice::ObjectAdapterI::getEndpoints() const
+{
+    IceUtil::Monitor<IceUtil::RecMutex>::Lock sync(*this);
+
+    EndpointSeq endpoints;
+    transform(_incomingConnectionFactories.begin(), _incomingConnectionFactories.end(), 
+              back_inserter(endpoints), Ice::constMemFun(&IncomingConnectionFactory::endpoint));
+    return endpoints;
+}
+
+EndpointSeq
+Ice::ObjectAdapterI::getPublishedEndpoints() const
+{
+    IceUtil::Monitor<IceUtil::RecMutex>::Lock sync(*this);
+
+    EndpointSeq endpoints;
+    copy(_publishedEndpoints.begin(), _publishedEndpoints.end(), back_inserter(endpoints));
+    return endpoints;
+}
+
 bool
 Ice::ObjectAdapterI::isLocal(const ObjectPrx& proxy) const
 {

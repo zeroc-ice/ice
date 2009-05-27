@@ -295,10 +295,16 @@ IceSSL::EndpointI::secure() const
     return true;
 }
 
-bool
-IceSSL::EndpointI::unknown() const
+string
+IceSSL::EndpointI::host() const
 {
-    return false;
+    return _host;
+}
+
+Ice::Int
+IceSSL::EndpointI::port() const
+{
+    return _port;
 }
 
 IceInternal::TransceiverPtr

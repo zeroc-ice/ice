@@ -13,7 +13,7 @@ namespace IceInternal
     using System.Collections.Generic;
     using System.Net;
 
-    sealed class TcpEndpointI : EndpointI
+    sealed class TcpEndpointI : EndpointI, Ice.TcpEndpoint
     {
         internal const short TYPE = 1;
 
@@ -339,11 +339,19 @@ namespace IceInternal
         }
 
         //
-        // Return true if the endpoint type is unknown.
+        // Get the host name.
         //
-        public override bool unknown()
+        public string host()
         {
-            return false;
+            return _host;
+        }
+
+        //
+        // Get the port number.
+        //
+        public int port()
+        {
+            return _port;
         }
 
         //

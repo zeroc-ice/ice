@@ -18,6 +18,7 @@ TARGETS		= $(call mklibtargets,$(libdir)/$(LIBFILENAME),$(libdir)/$(SONAME),$(li
 OBJS		= AcceptorI.o \
 		  Certificate.o \
                   ConnectorI.o \
+		  Endpoint.o \
                   EndpointI.o \
                   Instance.o \
                   PluginI.o \
@@ -28,11 +29,15 @@ OBJS		= AcceptorI.o \
 
 SRCS		= $(OBJS:.o=.cpp)
 
+SLICE_SRCS	= $(SDIR)/Endpoint.ice
+
 HDIR		= $(headerdir)/IceSSL
+SDIR            = $(slicedir)/IceSSL
 
 include $(top_srcdir)/config/Make.rules
 
 CPPFLAGS	:= -I.. $(CPPFLAGS) -DICE_SSL_API_EXPORTS $(OPENSSL_FLAGS)
+SLICE2CPPFLAGS	:= --ice --include-dir IceSSL --dll-export ICE_SSL_API $(SLICE2CPPFLAGS)
 
 LINKWITH        := $(BZIP2_RPATH_LINK) -lIce -lIceUtil $(OPENSSL_LIBS) $(CXXLIBS)
 

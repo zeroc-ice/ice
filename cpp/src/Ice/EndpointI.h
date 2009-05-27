@@ -101,11 +101,6 @@ public:
     virtual bool secure() const = 0;
 
     //
-    // Return true if the endpoint type is unknown.
-    //
-    virtual bool unknown() const = 0;
-
-    //
     // Return a server side transceiver for this endpoint, or null if a
     // transceiver can only be created by an acceptor. In case a
     // transceiver is created, this operation also returns a new

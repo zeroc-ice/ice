@@ -11,9 +11,14 @@
 #define TEST_ICE
 
 #include <Ice/BuiltinSequences.ice>
+#include <Ice/Endpoint.ice>
 
 module Test
 {
+
+local interface TestEndpoint extends Ice::Endpoint
+{
+};
 
 interface Background
 {

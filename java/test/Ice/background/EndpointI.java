@@ -8,7 +8,9 @@
 // **********************************************************************
 package test.Ice.background;
 
-final class EndpointI extends IceInternal.EndpointI
+import test.Ice.background.Test.TestEndpoint;
+
+final class EndpointI extends IceInternal.EndpointI implements TestEndpoint
 {
     final static short TYPE_BASE = 100;
 
@@ -138,15 +140,6 @@ final class EndpointI extends IceInternal.EndpointI
     secure()
     {
         return _endpoint.secure();
-    }
-
-    //
-    // Return true if the endpoint type is unknown.
-    //
-    public boolean
-    unknown()
-    {
-        return _endpoint.unknown();
     }
 
     //

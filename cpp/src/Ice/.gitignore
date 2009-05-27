@@ -8,6 +8,8 @@ ConnectionF.cpp
 Connection.cpp
 Current.cpp
 Endpoint.cpp
+EndpointF.cpp
+EndpointTypes.cpp
 FacetMap.cpp
 Identity.cpp
 ImplicitContextF.cpp
@@ -41,6 +43,8 @@ ConnectionF.h
 Connection.h
 Current.h
 Endpoint.h
+EndpointF.h
+EndpointTypes.h
 FacetMap.h
 Identity.h
 ImplicitContextF.h

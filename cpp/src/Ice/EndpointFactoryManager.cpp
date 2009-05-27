@@ -9,7 +9,7 @@
 
 #include <Ice/EndpointFactoryManager.h>
 #include <Ice/Endpoint.h>
-#include <Ice/UnknownEndpointI.h>
+#include <Ice/OpaqueEndpointI.h>
 #include <Ice/BasicStream.h>
 #include <Ice/LocalException.h>
 #include <Ice/Instance.h>
@@ -118,7 +118,7 @@ IceInternal::EndpointFactoryManager::create(const string& str, bool oaEndpoint) 
         bs.i = bs.b.begin();
         short type;
         bs.read(type);
-        EndpointIPtr ue = new IceInternal::UnknownEndpointI(type, &bs);
+        EndpointIPtr ue = new IceInternal::OpaqueEndpointI(type, &bs);
         cerr << "Normal: " << e->toString() << endl;
         cerr << "Opaque: " << ue->toString() << endl;
         return e;
@@ -131,7 +131,7 @@ IceInternal::EndpointFactoryManager::create(const string& str, bool oaEndpoint) 
     //
     if(protocol == "opaque")
     {
-        EndpointIPtr ue = new UnknownEndpointI(str.substr(end));
+        EndpointIPtr ue = new OpaqueEndpointI(str.substr(end));
         factory = get(ue->type());
         if(factory)
         {
@@ -165,7 +165,7 @@ IceInternal::EndpointFactoryManager::read(BasicStream* s) const
         return factory->read(s);
     }
 
-    return new UnknownEndpointI(type, s);
+    return new OpaqueEndpointI(type, s);
 }
 
 void

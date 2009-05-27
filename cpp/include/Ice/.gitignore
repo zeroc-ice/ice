@@ -8,6 +8,8 @@ ConnectionF.h
 Connection.h
 Current.h
 Endpoint.h
+EndpointF.h
+EndpointTypes.h
 FacetMap.h
 Identity.h
 ImplicitContextF.h

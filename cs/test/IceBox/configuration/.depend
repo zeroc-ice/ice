@@ -1,1 +1,1 @@
-Test.cs: ./Test.ice $(slicedir)/Ice/BuiltinSequences.ice
+Test.cs: $(slicedir)/Ice/BuiltinSequences.ice

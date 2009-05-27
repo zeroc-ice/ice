@@ -295,10 +295,16 @@ IceInternal::TcpEndpointI::secure() const
     return false;
 }
 
-bool
-IceInternal::TcpEndpointI::unknown() const
+string
+IceInternal::TcpEndpointI::host() const
 {
-    return false;
+    return _host;
+}
+
+Ice::Int
+IceInternal::TcpEndpointI::port() const
+{
+    return _port;
 }
 
 TransceiverPtr

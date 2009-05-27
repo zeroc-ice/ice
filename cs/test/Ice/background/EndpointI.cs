@@ -10,7 +10,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 
-internal class EndpointI : IceInternal.EndpointI
+internal class EndpointI : IceInternal.EndpointI, Test.TestEndpoint
 {
     internal static short TYPE_BASE = 100;
 
@@ -129,14 +129,6 @@ internal class EndpointI : IceInternal.EndpointI
     public override bool secure()
     {
         return _endpoint.secure();
-    }
-
-    //
-    // Return true if the endpoint type is unknown.
-    //
-    public override bool unknown()
-    {
-        return _endpoint.unknown();
     }
 
     //

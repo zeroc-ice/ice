@@ -18,6 +18,7 @@ TARGETS		= $(call mklibtargets,$(libdir)/$(LIBFILENAME),$(libdir)/$(SONAME),$(li
 OBJS		= Communicator.o \
 		  Connection.o \
 		  Current.o \
+		  Endpoint.o \
 		  ImplicitContext.o \
 		  Init.o \
 		  Logger.o \

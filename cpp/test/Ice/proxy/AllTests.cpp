@@ -739,5 +739,31 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
     cout << "ok" << endl;
 
+    cout << "testing endpoint information... " << flush;
+
+    p1 = communicator->stringToProxy("test -t:tcp -h tcphost -p 10000 -t 1200 -z:udp -h udphost -p 10001 --interface eth0 --ttl 5:opaque -t 100 -v ABCD");
+    Ice::EndpointSeq endps = p1->ice_getEndpoints();
+
+    Ice::TcpEndpointPtr tcpEndpoint = Ice::TcpEndpointPtr::dynamicCast(endps[0]);
+    test(tcpEndpoint);
+    test(tcpEndpoint->host() == "tcphost");
+    test(tcpEndpoint->port() == 10000);
+    test(tcpEndpoint->timeout() == 1200);
+    test(tcpEndpoint->compress());
+
+    Ice::UdpEndpointPtr udpEndpoint = Ice::UdpEndpointPtr::dynamicCast(endps[1]);
+    test(udpEndpoint);
+    test(udpEndpoint->host() == "udphost");
+    test(udpEndpoint->port() == 10001);
+    test(udpEndpoint->mcastInterface() == "eth0");
+    test(udpEndpoint->mcastTtl() == 5);
+    test(udpEndpoint->timeout() == -1);
+    test(!udpEndpoint->compress());
+
+    Ice::OpaqueEndpointPtr opaqueEndpoint = Ice::OpaqueEndpointPtr::dynamicCast(endps[2]);
+    test(opaqueEndpoint);
+
+    cout << "ok" << endl;
+
     return cl;
 }

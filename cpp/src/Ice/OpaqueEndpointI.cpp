@@ -7,7 +7,7 @@
 //
 // **********************************************************************
 
-#include <Ice/UnknownEndpointI.h>
+#include <Ice/OpaqueEndpointI.h>
 #include <Ice/BasicStream.h>
 #include <Ice/Exception.h>
 #include <Ice/Instance.h>
@@ -17,7 +17,7 @@ using namespace std;
 using namespace Ice;
 using namespace IceInternal;
 
-IceInternal::UnknownEndpointI::UnknownEndpointI(const string& str)
+IceInternal::OpaqueEndpointI::OpaqueEndpointI(const string& str)
 {
     const string delim = " \t\n\r";
 
@@ -117,7 +117,7 @@ IceInternal::UnknownEndpointI::UnknownEndpointI(const string& str)
     }
 }
 
-IceInternal::UnknownEndpointI::UnknownEndpointI(Short type, BasicStream* s) :
+IceInternal::OpaqueEndpointI::OpaqueEndpointI(Short type, BasicStream* s) :
     _type(type)
 {
     s->startReadEncaps();
@@ -127,7 +127,7 @@ IceInternal::UnknownEndpointI::UnknownEndpointI(Short type, BasicStream* s) :
 }
 
 void
-IceInternal::UnknownEndpointI::streamWrite(BasicStream* s) const
+IceInternal::OpaqueEndpointI::streamWrite(BasicStream* s) const
 {
     s->write(_type);
     s->startWriteEncaps();
@@ -136,7 +136,7 @@ IceInternal::UnknownEndpointI::streamWrite(BasicStream* s) const
 }
 
 string
-IceInternal::UnknownEndpointI::toString() const
+IceInternal::OpaqueEndpointI::toString() const
 {
     ostringstream s;
     string val = Base64::encode(_rawBytes);
@@ -145,104 +145,104 @@ IceInternal::UnknownEndpointI::toString() const
 }
 
 Short
-IceInternal::UnknownEndpointI::type() const
+IceInternal::OpaqueEndpointI::type() const
 {
     return _type;
 }
 
 Int
-IceInternal::UnknownEndpointI::timeout() const
+IceInternal::OpaqueEndpointI::timeout() const
 {
     return -1;
 }
 
 EndpointIPtr
-IceInternal::UnknownEndpointI::timeout(Int) const
+IceInternal::OpaqueEndpointI::timeout(Int) const
 {
-    return const_cast<UnknownEndpointI*>(this);
+    return const_cast<OpaqueEndpointI*>(this);
 }
 
 EndpointIPtr
-IceInternal::UnknownEndpointI::connectionId(const string&) const
+IceInternal::OpaqueEndpointI::connectionId(const string&) const
 {
-    return const_cast<UnknownEndpointI*>(this);
+    return const_cast<OpaqueEndpointI*>(this);
 }
 
 bool
-IceInternal::UnknownEndpointI::compress() const
+IceInternal::OpaqueEndpointI::compress() const
 {
     return false;
 }
 
 EndpointIPtr
-IceInternal::UnknownEndpointI::compress(bool) const
+IceInternal::OpaqueEndpointI::compress(bool) const
 {
-    return const_cast<UnknownEndpointI*>(this);
+    return const_cast<OpaqueEndpointI*>(this);
 }
 
 bool
-IceInternal::UnknownEndpointI::datagram() const
+IceInternal::OpaqueEndpointI::datagram() const
 {
     return false;
 }
 
 bool
-IceInternal::UnknownEndpointI::secure() const
+IceInternal::OpaqueEndpointI::secure() const
 {
     return false;
 }
 
-bool
-IceInternal::UnknownEndpointI::unknown() const
+Ice::ByteSeq
+IceInternal::OpaqueEndpointI::rawBytes() const
 {
-    return true;
+    return _rawBytes;
 }
 
 TransceiverPtr
-IceInternal::UnknownEndpointI::transceiver(EndpointIPtr& endp) const
+IceInternal::OpaqueEndpointI::transceiver(EndpointIPtr& endp) const
 {
-    endp = const_cast<UnknownEndpointI*>(this);
+    endp = const_cast<OpaqueEndpointI*>(this);
     return 0;
 }
 
 vector<ConnectorPtr>
-IceInternal::UnknownEndpointI::connectors() const
+IceInternal::OpaqueEndpointI::connectors() const
 {
     vector<ConnectorPtr> ret;
     return ret;
 }
 
 void
-IceInternal::UnknownEndpointI::connectors_async(const EndpointI_connectorsPtr& callback) const
+IceInternal::OpaqueEndpointI::connectors_async(const EndpointI_connectorsPtr& callback) const
 {
     callback->connectors(vector<ConnectorPtr>());
 }
 
 AcceptorPtr
-IceInternal::UnknownEndpointI::acceptor(EndpointIPtr& endp, const string&) const
+IceInternal::OpaqueEndpointI::acceptor(EndpointIPtr& endp, const string&) const
 {
-    endp = const_cast<UnknownEndpointI*>(this);
+    endp = const_cast<OpaqueEndpointI*>(this);
     return 0;
 }
 
 vector<EndpointIPtr>
-IceInternal::UnknownEndpointI::expand() const
+IceInternal::OpaqueEndpointI::expand() const
 {
     vector<EndpointIPtr> endps;
-    endps.push_back(const_cast<UnknownEndpointI*>(this));
+    endps.push_back(const_cast<OpaqueEndpointI*>(this));
     return endps;
 }
 
 bool
-IceInternal::UnknownEndpointI::equivalent(const EndpointIPtr&) const
+IceInternal::OpaqueEndpointI::equivalent(const EndpointIPtr&) const
 {
     return false;
 }
 
 bool
-IceInternal::UnknownEndpointI::operator==(const EndpointI& r) const
+IceInternal::OpaqueEndpointI::operator==(const EndpointI& r) const
 {
-    const UnknownEndpointI* p = dynamic_cast<const UnknownEndpointI*>(&r);
+    const OpaqueEndpointI* p = dynamic_cast<const OpaqueEndpointI*>(&r);
     if(!p)
     {
         return false;
@@ -267,15 +267,15 @@ IceInternal::UnknownEndpointI::operator==(const EndpointI& r) const
 }
 
 bool
-IceInternal::UnknownEndpointI::operator!=(const EndpointI& r) const
+IceInternal::OpaqueEndpointI::operator!=(const EndpointI& r) const
 {
     return !operator==(r);
 }
 
 bool
-IceInternal::UnknownEndpointI::operator<(const EndpointI& r) const
+IceInternal::OpaqueEndpointI::operator<(const EndpointI& r) const
 {
-    const UnknownEndpointI* p = dynamic_cast<const UnknownEndpointI*>(&r);
+    const OpaqueEndpointI* p = dynamic_cast<const OpaqueEndpointI*>(&r);
     if(!p)
     {
         return type() < r.type();

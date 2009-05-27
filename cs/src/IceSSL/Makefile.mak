@@ -26,13 +26,17 @@ SRCS		= AcceptorI.cs \
 		  TrustManager.cs \
 		  Util.cs
 
-SDIR		= $(slicedir)\Ice
+GEN_SRCS	= $(GDIR)\Endpoint.cs
+
+SDIR		= $(slicedir)\IceSSL
 GDIR		= generated
 
 !include $(top_srcdir)\config\Make.rules.mak.cs
 
 MCSFLAGS	= $(MCSFLAGS) -target:library -out:$(TARGETS) -warnaserror-
 MCSFLAGS	= $(MCSFLAGS) -keyfile:$(KEYFILE)
+
+SLICE2CSFLAGS   = $(SLICE2CSFLAGS) --ice -I$(slicedir)
 
 $(TARGETS):: $(SRCS)
 	$(MCS) $(MCSFLAGS) -r:$(refdir)\Ice.dll $(SRCS)

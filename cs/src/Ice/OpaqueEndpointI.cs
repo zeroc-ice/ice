@@ -13,9 +13,9 @@ namespace IceInternal
     using System.Collections;
     using System.Collections.Generic;
 
-    sealed class UnknownEndpointI : EndpointI
+    sealed class OpaqueEndpointI : EndpointI, Ice.OpaqueEndpoint
     {
-        public UnknownEndpointI(string str)
+        public OpaqueEndpointI(string str)
         {
             int topt = 0;
             int vopt = 0;
@@ -105,7 +105,7 @@ namespace IceInternal
             calcHashValue();
         }
 
-        public UnknownEndpointI(short type, BasicStream s)
+        public OpaqueEndpointI(short type, BasicStream s)
         {
             _type = type;
             s.startReadEncaps();
@@ -135,7 +135,7 @@ namespace IceInternal
             string val = IceUtilInternal.Base64.encode(_rawBytes);
             return "opaque -t " + _type + " -v " + val;
         }
-        
+
         //
         // Return the endpoint type
         //
@@ -205,13 +205,13 @@ namespace IceInternal
         {
             return false;
         }
-        
+
         //
-        // Return true if the endpoint type is unknown.
+        // Return the raw encoded endpoint.
         //
-        public override bool unknown()
+        public byte[] rawBytes()
         {
-            return true;
+            return _rawBytes;
         }
         
         //
@@ -290,11 +290,11 @@ namespace IceInternal
         
         public override int CompareTo(System.Object obj)
         {
-            UnknownEndpointI p = null;
+            OpaqueEndpointI p = null;
             
             try
             {
-                p = (UnknownEndpointI) obj;
+                p = (OpaqueEndpointI) obj;
             }
             catch(System.InvalidCastException)
             {

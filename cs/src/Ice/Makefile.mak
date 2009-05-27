@@ -57,6 +57,7 @@ SRCS		= Acceptor.cs \
 		  ObjectAdapterI.cs \
 		  Object.cs \
 		  ObjectFactoryManager.cs \
+		  OPaqueEndpointI.cs \
 		  Options.cs \
 		  OutgoingAsync.cs \
 		  Outgoing.cs \
@@ -101,7 +102,6 @@ SRCS		= Acceptor.cs \
 		  UdpConnector.cs \
 		  UdpEndpointI.cs \
 		  UdpTransceiver.cs \
-		  UnknownEndpointI.cs \
 		  UserExceptionFactory.cs \
 		  Util.cs \
 		  ValueWriter.cs \
@@ -112,6 +112,7 @@ GEN_SRCS	= $(GDIR)\BuiltinSequences.cs \
 		  $(GDIR)\Connection.cs \
 		  $(GDIR)\Current.cs \
 		  $(GDIR)\Endpoint.cs \
+		  $(GDIR)\EndpointTypes.cs \
 		  $(GDIR)\FacetMap.cs \
 		  $(GDIR)\Identity.cs \
 		  $(GDIR)\ImplicitContext.cs \

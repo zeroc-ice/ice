@@ -647,11 +647,11 @@ public class RoutableReference extends Reference
         java.util.List<EndpointI> endpoints = new java.util.ArrayList<EndpointI>();
 
         //
-        // Filter out unknown endpoints.
+        // Filter out opaque endpoints.
         //
         for(EndpointI endpoint : allEndpoints)
         {
-            if(!endpoint.unknown())
+            if(!(endpoint instanceof Ice.OpaqueEndpoint))
             {
                 endpoints.add(endpoint);
             }

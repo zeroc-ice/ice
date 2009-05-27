@@ -33,6 +33,9 @@ General Changes
 These entries apply to all relevant language mappings unless otherwise
 noted.
 
+- Added ability to get information from endpoints such as host and
+  port without having to parse the stringified endpoint.
+
 - Slice files are now allowed to be in UTF-8 format and include UTF-8
   BOM at start of file and include UTF-8 characters in comments.
 

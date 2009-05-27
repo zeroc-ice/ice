@@ -13,6 +13,7 @@
 #include <ObjectAdapter.h>
 #include <Communicator.h>
 #include <Current.h>
+#include <Endpoint.h>
 #include <Operation.h>
 #include <Proxy.h>
 #include <Types.h>
@@ -1464,6 +1465,76 @@ adapterRefreshPublishedEndpoints(ObjectAdapterObject* self)
     return Py_None;
 }
 
+#ifdef WIN32
+extern "C"
+#endif
+static PyObject*
+adapterGetEndpoints(ObjectAdapterObject* self)
+{
+    assert(self->adapter);
+
+    Ice::EndpointSeq endpoints;
+    try
+    {
+        endpoints = (*self->adapter)->getEndpoints();
+    }
+    catch(const Ice::Exception& ex)
+    {
+        setPythonException(ex);
+        return 0;
+    } 
+
+    int count = static_cast<int>(endpoints.size());
+    PyObjectHandle result = PyTuple_New(count);
+    int i = 0;
+    for(Ice::EndpointSeq::const_iterator p = endpoints.begin(); p != endpoints.end(); ++p, ++i)
+    {
+        PyObjectHandle endp = createEndpoint(*p);
+        if(!endp.get())
+        {
+            return 0;
+        }
+        PyTuple_SET_ITEM(result.get(), i, endp.release()); // PyTuple_SET_ITEM steals a reference.
+    }
+
+    return result.release();
+}
+
+#ifdef WIN32
+extern "C"
+#endif 
+static PyObject*
+adapterGetPublishedEndpoints(ObjectAdapterObject* self)
+{
+    assert(self->adapter);
+        
+    Ice::EndpointSeq endpoints;
+    try
+    { 
+        endpoints = (*self->adapter)->getPublishedEndpoints();
+    } 
+    catch(const Ice::Exception& ex)
+    { 
+        setPythonException(ex);
+        return 0;
+    }
+
+    int count = static_cast<int>(endpoints.size());
+    PyObjectHandle result = PyTuple_New(count);
+    int i = 0;
+    for(Ice::EndpointSeq::const_iterator p = endpoints.begin(); p != endpoints.end(); ++p, ++i)
+    {
+        PyObjectHandle endp = createEndpoint(*p);
+        if(!endp.get())
+        {
+            return 0;
+        }
+        PyTuple_SET_ITEM(result.get(), i, endp.release()); // PyTuple_SET_ITEM steals a reference.
+    }
+
+    return result.release();
+}
+
 static PyMethodDef AdapterMethods[] =
 {
     { STRCAST("getName"), reinterpret_cast<PyCFunction>(adapterGetName), METH_NOARGS,
@@ -1526,6 +1597,10 @@ static PyMethodDef AdapterMethods[] =
         PyDoc_STR(STRCAST("setLocator(proxy) -> None")) },
     { STRCAST("refreshPublishedEndpoints"), reinterpret_cast<PyCFunction>(adapterRefreshPublishedEndpoints), METH_NOARGS,
         PyDoc_STR(STRCAST("refreshPublishedEndpoints() -> None")) },
+    { STRCAST("getEndpoints"), reinterpret_cast<PyCFunction>(adapterGetEndpoints), METH_NOARGS,
+        PyDoc_STR(STRCAST("getEndpoints() -> None")) },
+    { STRCAST("getPublishedEndpoints"), reinterpret_cast<PyCFunction>(adapterGetPublishedEndpoints), METH_NOARGS,
+        PyDoc_STR(STRCAST("getPublishedEndpoints() -> None")) },
     { 0, 0 } /* sentinel */
 };
 

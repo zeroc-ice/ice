@@ -77,6 +77,9 @@ public:
 
     virtual void setLocator(const LocatorPrx&);
     virtual void refreshPublishedEndpoints();
+
+    virtual EndpointSeq getEndpoints() const;
+    virtual EndpointSeq getPublishedEndpoints() const;
     
     bool isLocal(const ObjectPrx&) const;
 

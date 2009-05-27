@@ -102,12 +102,6 @@ EndpointI::secure() const
     return _endpoint->secure();
 }
 
-bool
-EndpointI::unknown() const
-{
-    return _endpoint->unknown();
-}
-
 IceInternal::TransceiverPtr
 EndpointI::transceiver(IceInternal::EndpointIPtr& endpoint) const
 {

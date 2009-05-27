@@ -595,6 +595,24 @@ public final class ObjectAdapterI implements ObjectAdapter
         }
     }
 
+    public synchronized Endpoint[]
+    getEndpoints()
+    {
+        java.util.List<Endpoint> endpoints = new java.util.ArrayList<Endpoint>();
+        for(int i = 0; i < _incomingConnectionFactories.size(); ++i)
+        {
+            IceInternal.IncomingConnectionFactory factory = _incomingConnectionFactories.get(i);
+            endpoints.add(factory.endpoint());
+        }
+        return endpoints.toArray(new Endpoint[0]);
+    }
+
+    public synchronized Endpoint[]
+    getPublishedEndpoints()
+    {
+        return _publishedEndpoints.toArray(new Endpoint[0]);
+    }
+
     public boolean
     isLocal(ObjectPrx proxy)
     {

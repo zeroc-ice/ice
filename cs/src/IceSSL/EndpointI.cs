@@ -13,7 +13,7 @@ namespace IceSSL
     using System.Collections.Generic;
     using System.Net;
 
-    sealed class EndpointI : IceInternal.EndpointI
+    sealed class EndpointI : IceInternal.EndpointI, SslEndpoint
     {
         internal const short TYPE = 2;
 
@@ -338,11 +338,19 @@ namespace IceSSL
         }
 
         //
-        // Return true if the endpoint type is unknown.
+        // Get the host name.
         //
-        public override bool unknown()
+        public string host()
         {
-            return false;
+            return _host;
+        }
+
+        //
+        // Get the port number.
+        //
+        public int port()
+        {
+            return _port;
         }
 
         //

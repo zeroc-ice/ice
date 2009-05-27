@@ -1311,7 +1311,7 @@ namespace IceInternal
             //
             for(int i = 0; i < allEndpoints.Length; i++)
             {
-                if(!allEndpoints[i].unknown())
+                if(!(allEndpoints[i] is Ice.OpaqueEndpoint))
                 {
                     endpoints.Add(allEndpoints[i]);
                 }

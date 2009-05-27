@@ -9,10 +9,10 @@
 
 package IceInternal;
 
-final class UnknownEndpointI extends EndpointI
+final class OpaqueEndpointI extends EndpointI implements Ice.OpaqueEndpoint
 {
     public
-    UnknownEndpointI(String str)
+    OpaqueEndpointI(String str)
     {
         int topt = 0;
         int vopt = 0;
@@ -101,7 +101,7 @@ final class UnknownEndpointI extends EndpointI
     }
 
     public
-    UnknownEndpointI(short type, BasicStream s)
+    OpaqueEndpointI(short type, BasicStream s)
     {
         _type = type;
         s.startReadEncaps();
@@ -212,14 +212,14 @@ final class UnknownEndpointI extends EndpointI
     }
 
     //
-    // Return true if the endpoint type is unknown.
+    // Get the encoded endpoint.
     //
-    public boolean
-    unknown()
+    public byte[]
+    rawBytes()
     {
-        return true;
+        return _rawBytes;
     }
-    
+
     //
     // Return a server side transceiver for this endpoint, or null if a
     // transceiver can only be created by an acceptor. In case a
@@ -312,11 +312,11 @@ final class UnknownEndpointI extends EndpointI
     public int
     compareTo(EndpointI obj) // From java.lang.Comparable
     {
-        UnknownEndpointI p = null;
+        OpaqueEndpointI p = null;
 
         try
         {
-            p = (UnknownEndpointI)obj;
+            p = (OpaqueEndpointI)obj;
         }
         catch(ClassCastException ex)
         {

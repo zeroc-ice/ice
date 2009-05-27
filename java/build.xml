@@ -59,6 +59,7 @@
                 <include name="Communicator.ice" />
                 <include name="Current.ice" />
                 <include name="Endpoint.ice" />
+                <include name="EndpointTypes.ice" />
                 <include name="FacetMap.ice" />
                 <include name="ImplicitContext.ice" />
                 <include name="Identity.ice" />
@@ -107,6 +108,16 @@
             <fileset dir="${slice.dir}/Ice" includes="BuiltinSequences.ice"/>
             <dict name="Freeze.CatalogIndexList" key="string" value="Ice::StringSeq"/>
         </slice2freezej>
+
+        <slice2java ice="on" outputdir="${generated.dir}"
+            dependencyfile="${generated.dir}/.depend.IceSSL">
+            <includepath>
+                <pathelement path="${slice.dir}" />
+            </includepath>
+            <fileset dir="${slice.dir}/IceSSL">
+                <include name="Endpoint.ice" />
+            </fileset>
+        </slice2java>
 
         <!-- Generate Slice checksums for the Ice services. -->
 

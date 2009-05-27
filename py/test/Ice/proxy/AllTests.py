@@ -607,17 +607,28 @@ def allTests(communicator, collocated):
 
     print "ok"
 
-    return cl
+    print "testing endpoint information...",
 
-    #
-    # Test that the proxy with an SSL endpoint and a nonsense
-    # endpoint (which the server doesn't understand either) can be
-    # sent over the wire and returned by the server without losing
-    # the opaque endpoints.
-    #
-    p2 = derived.echo(p1);
-    pstr = communicator.proxyToString(p2);
-    test(pstr == "test -t:opaque -t 2 -v CTEyNy4wLjAuMREnAAD/////AA==:opaque -t 99 -v abch");
+    p1 = communicator.stringToProxy("test -t:tcp -h tcphost -p 10000 -t 1200 -z:udp -h udphost -p 10001 --interface eth0 --ttl 5:opaque -t 100 -v ABCD");
+    endps = p1.ice_getEndpoints();
+
+    test(isinstance(endps[0], Ice.TcpEndpoint));
+    tcpEndpoint = endps[0];
+    test(tcpEndpoint.host() == "tcphost");
+    test(tcpEndpoint.port() == 10000);
+    test(tcpEndpoint.timeout() == 1200);
+    test(tcpEndpoint.compress());
+
+    test(isinstance(endps[1], Ice.UdpEndpoint));
+    udpEndpoint = endps[1];
+    test(udpEndpoint.host() == "udphost");
+    test(udpEndpoint.port() == 10001);
+    test(udpEndpoint.mcastInterface() == "eth0");
+    test(udpEndpoint.mcastTtl() == 5);
+    test(udpEndpoint.timeout() == -1);
+    test(not udpEndpoint.compress());
+
+    test(isinstance(endps[2], Ice.OpaqueEndpoint));
 
     print "ok"
 

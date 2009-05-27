@@ -35,10 +35,11 @@ OBJS		= Acceptor.o \
 		  Direct.o \
                   DispatchInterceptor.o \
 		  DynamicLibrary.o \
+		  Endpoint.o \
 		  EndpointFactoryManager.o \
 		  EndpointFactory.o \
-		  Endpoint.o \
 		  EndpointI.o \
+		  EndpointTypes.o \
 		  EventHandler.o \
 		  Exception.o \
 		  FacetMap.o \
@@ -66,6 +67,7 @@ OBJS		= Acceptor.o \
 		  ObjectFactoryManager.o \
 		  ObjectFactory.o \
 		  Object.o \
+		  OpaqueEndpointI.o \
 		  OutgoingAsync.o \
 		  Outgoing.o \
 		  PluginManagerI.o \
@@ -105,8 +107,7 @@ OBJS		= Acceptor.o \
 		  Transceiver.o \
 		  UdpConnector.o \
 		  UdpEndpointI.o \
-		  UdpTransceiver.o \
-		  UnknownEndpointI.o
+		  UdpTransceiver.o
 
 SRCS		= $(OBJS:.o=.cpp) \
 		  DLLMain.cpp
@@ -118,6 +119,8 @@ SLICE_SRCS	= $(SDIR)/BuiltinSequences.ice \
 		  $(SDIR)/Connection.ice \
 		  $(SDIR)/Current.ice \
 		  $(SDIR)/Endpoint.ice \
+		  $(SDIR)/EndpointF.ice \
+		  $(SDIR)/EndpointTypes.ice \
 		  $(SDIR)/FacetMap.ice \
 		  $(SDIR)/Identity.ice \
 		  $(SDIR)/ImplicitContextF.ice \

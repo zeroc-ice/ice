@@ -17,6 +17,7 @@
 #include <Ice/LocatorF.ice>
 #include <Ice/Identity.ice>
 #include <Ice/FacetMap.ice>
+#include <Ice/Endpoint.ice>
 
 module Ice
 {
@@ -598,6 +599,30 @@ local interface ObjectAdapter
      *
      **/
     void refreshPublishedEndpoints();
+
+    /**
+     *
+     * Get the set of endpoints configured with this object adapter.
+     *
+     * @return The set of endpoints.
+     *
+     * @see Endpoint
+     *
+     **/
+    ["cpp:const"] EndpointSeq getEndpoints();
+
+    /**
+     *
+     * Get the set of endpoints that proxies created by this object
+     * adapter will contain.
+     *
+     * @return The set of published endpoints.
+     *
+     * @see refreshPublishedEndpoints
+     * @see Endpoint
+     *
+     **/
+    ["cpp:const"] EndpointSeq getPublishedEndpoints();
 };
 
 };

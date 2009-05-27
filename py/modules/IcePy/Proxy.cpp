@@ -17,6 +17,7 @@
 #include <Connection.h>
 #include <Util.h>
 #include <Operation.h>
+#include <Endpoint.h>
 #include <Ice/Communicator.h>
 #include <Ice/LocalException.h>
 #include <Ice/Locator.h>
@@ -29,14 +30,6 @@ using namespace IcePy;
 namespace IcePy
 {
 
-extern PyTypeObject EndpointType;
-
-struct EndpointObject
-{
-    PyObject_HEAD
-    Ice::EndpointPtr* endpoint;
-};
-
 struct ProxyObject
 {
     PyObject_HEAD
@@ -44,67 +37,6 @@ struct ProxyObject
     Ice::CommunicatorPtr* communicator;
 };
 
-}
-
-//
-// Endpoint implementation.
-//
-static EndpointObject*
-allocateEndpoint(const Ice::EndpointPtr& endpoint)
-{
-    EndpointObject* p = PyObject_New(EndpointObject, &EndpointType);
-    if(!p)
-    {
-        return 0;
-    }
-    p->endpoint = new Ice::EndpointPtr(endpoint);
-
-    return p;
-}
-
-#ifdef WIN32
-extern "C"
-#endif
-static EndpointObject*
-endpointNew(PyObject* /*arg*/)
-{
-    PyErr_Format(PyExc_RuntimeError, STRCAST("An endpoint cannot be created directly"));
-    return 0;
-}
-
-#ifdef WIN32
-extern "C"
-#endif
-static void
-endpointDealloc(EndpointObject* self)
-{
-    delete self->endpoint;
-    PyObject_Del(self);
-}
-
-#ifdef WIN32
-extern "C"
-#endif
-static PyObject*
-endpointToString(EndpointObject*);
-
-#ifdef WIN32
-extern "C"
-#endif
-static PyObject*
-endpointRepr(EndpointObject* self)
-{
-    return endpointToString(self);
-}
-
-#ifdef WIN32
-extern "C"
-#endif
-static PyObject*
-endpointToString(EndpointObject* self)
-{
-    string str = (*self->endpoint)->toString();
-    return createString(str);
 }
 
 //
@@ -541,7 +473,7 @@ proxyIceGetEndpoints(ProxyObject* self)
     int i = 0;
     for(Ice::EndpointSeq::const_iterator p = endpoints.begin(); p != endpoints.end(); ++p, ++i)
     {
-        PyObjectHandle endp = reinterpret_cast<PyObject*>(allocateEndpoint(*p));
+        PyObjectHandle endp = createEndpoint(*p);
         if(!endp.get())
         {
             return 0;
@@ -583,9 +515,12 @@ proxyIceEndpoints(ProxyObject* self, PyObject* args)
             PyErr_Format(PyExc_ValueError, STRCAST("expected element of type Ice.Endpoint"));
             return 0;
         }
-        EndpointObject* o = reinterpret_cast<EndpointObject*>(p);
-        assert(*o->endpoint);
-        seq.push_back(*o->endpoint);
+        Ice::EndpointPtr endp = getEndpoint(p);
+        if(!endp)
+        {
+            return 0;
+        }
+        seq.push_back(endp);
     }
 
     Ice::ObjectPrx newProxy;
@@ -1878,13 +1813,6 @@ proxyUncheckedCast(PyObject* /*self*/, PyObject* args)
     }
 }
 
-static PyMethodDef EndpointMethods[] =
-{
-    { STRCAST("toString"), reinterpret_cast<PyCFunction>(endpointToString), METH_NOARGS,
-        PyDoc_STR(STRCAST("toString() -> string")) },
-    { 0, 0 } /* sentinel */
-};
-
 static PyMethodDef ProxyMethods[] =
 {
     { STRCAST("ice_getCommunicator"), reinterpret_cast<PyCFunction>(proxyIceGetCommunicator), METH_NOARGS,
@@ -1999,54 +1927,6 @@ static PyMethodDef ProxyMethods[] =
 namespace IcePy
 {
 
-PyTypeObject EndpointType =
-{
-    /* The ob_type field must be initialized in the module init function
-     * to be portable to Windows without using C++. */
-    PyObject_HEAD_INIT(0)
-    0,                               /* ob_size */
-    STRCAST("Ice.Endpoint"),         /* tp_name */
-    sizeof(EndpointObject),          /* tp_basicsize */
-    0,                               /* tp_itemsize */
-    /* methods */
-    (destructor)endpointDealloc,     /* tp_dealloc */
-    0,                               /* tp_print */
-    0,                               /* tp_getattr */
-    0,                               /* tp_setattr */
-    0,                               /* tp_compare */
-    (reprfunc)endpointRepr,          /* tp_repr */
-    0,                               /* tp_as_number */
-    0,                               /* tp_as_sequence */
-    0,                               /* tp_as_mapping */
-    0,                               /* tp_hash */
-    0,                               /* tp_call */
-    0,                               /* tp_str */
-    0,                               /* tp_getattro */
-    0,                               /* tp_setattro */
-    0,                               /* tp_as_buffer */
-    Py_TPFLAGS_DEFAULT,              /* tp_flags */
-    0,                               /* tp_doc */
-    0,                               /* tp_traverse */
-    0,                               /* tp_clear */
-    0,                               /* tp_richcompare */
-    0,                               /* tp_weaklistoffset */
-    0,                               /* tp_iter */
-    0,                               /* tp_iternext */
-    EndpointMethods,                 /* tp_methods */
-    0,                               /* tp_members */
-    0,                               /* tp_getset */
-    0,                               /* tp_base */
-    0,                               /* tp_dict */
-    0,                               /* tp_descr_get */
-    0,                               /* tp_descr_set */
-    0,                               /* tp_dictoffset */
-    0,                               /* tp_init */
-    0,                               /* tp_alloc */
-    (newfunc)endpointNew,            /* tp_new */
-    0,                               /* tp_free */
-    0,                               /* tp_is_gc */
-};
-
 PyTypeObject ProxyType =
 {
     /* The ob_type field must be initialized in the module init function
@@ -2111,15 +1991,6 @@ IcePy::initProxy(PyObject* module)
         return false;
     }
 
-    if(PyType_Ready(&EndpointType) < 0)
-    {
-        return false;
-    }
-    PyTypeObject* endpointType = &EndpointType; // Necessary to prevent GCC's strict-alias warnings.
-    if(PyModule_AddObject(module, STRCAST("Endpoint"), reinterpret_cast<PyObject*>(endpointType)) < 0)
-    {
-        return false;
-    }
     return true;
 }
 
