@@ -757,10 +757,7 @@ IceRuby_ObjectPrx_ice_endpoints(VALUE self, VALUE seq)
             }
             for(long i = 0; i < RARRAY(arr)->len; ++i)
             {
-                if(callRuby(rb_obj_is_instance_of, RARRAY(arr)->ptr[i], _endpointClass) == Qfalse &&
-                   callRuby(rb_obj_is_instance_of, RARRAY(arr)->ptr[i], _tcpEndpointClass) == Qfalse &&
-                   callRuby(rb_obj_is_instance_of, RARRAY(arr)->ptr[i], _udpEndpointClass) == Qfalse &&
-                   callRuby(rb_obj_is_instance_of, RARRAY(arr)->ptr[i], _opaqueEndpointClass) == Qfalse)
+                if(callRuby(rb_obj_is_kind_of, RARRAY(arr)->ptr[i], _endpointClass) == Qfalse)
                 {
                     throw RubyException(rb_eTypeError, "array element is not an Ice::Endpoint");
                 }
@@ -1529,51 +1526,36 @@ IceRuby::initProxy(VALUE iceModule)
     //
     // TcpEndpoint.
     //
-    _tcpEndpointClass = rb_define_class_under(iceModule, "TcpEndpoint", rb_cObject);
+    _tcpEndpointClass = rb_define_class_under(iceModule, "TcpEndpoint", _endpointClass);
 
     //
     // Instance methods.
     //
-    rb_define_method(_tcpEndpointClass, "toString", CAST_METHOD(IceRuby_Endpoint_toString), 0);
-    rb_define_method(_tcpEndpointClass, "timeout", CAST_METHOD(IceRuby_Endpoint_timeout), 0);
-    rb_define_method(_tcpEndpointClass, "compress", CAST_METHOD(IceRuby_Endpoint_compress), 0);
     rb_define_method(_tcpEndpointClass, "host", CAST_METHOD(IceRuby_TcpEndpoint_host), 0);
     rb_define_method(_tcpEndpointClass, "port", CAST_METHOD(IceRuby_TcpEndpoint_port), 0);
-    rb_define_method(_tcpEndpointClass, "to_s", CAST_METHOD(IceRuby_Endpoint_toString), 0);
-    rb_define_method(_tcpEndpointClass, "inspect", CAST_METHOD(IceRuby_Endpoint_toString), 0);
 
     //
     // UdpEndpoint.
     //
-    _udpEndpointClass = rb_define_class_under(iceModule, "UdpEndpoint", rb_cObject);
+    _udpEndpointClass = rb_define_class_under(iceModule, "UdpEndpoint", _endpointClass);
 
     //
     // Instance methods.
     //
-    rb_define_method(_udpEndpointClass, "toString", CAST_METHOD(IceRuby_Endpoint_toString), 0);
-    rb_define_method(_udpEndpointClass, "timeout", CAST_METHOD(IceRuby_Endpoint_timeout), 0);
-    rb_define_method(_udpEndpointClass, "compress", CAST_METHOD(IceRuby_Endpoint_compress), 0);
     rb_define_method(_udpEndpointClass, "host", CAST_METHOD(IceRuby_UdpEndpoint_host), 0);
     rb_define_method(_udpEndpointClass, "port", CAST_METHOD(IceRuby_UdpEndpoint_port), 0);
     rb_define_method(_udpEndpointClass, "mcastInterface", CAST_METHOD(IceRuby_UdpEndpoint_mcastInterface), 0);
     rb_define_method(_udpEndpointClass, "mcastTtl", CAST_METHOD(IceRuby_UdpEndpoint_mcastTtl), 0);
-    rb_define_method(_udpEndpointClass, "to_s", CAST_METHOD(IceRuby_Endpoint_toString), 0);
-    rb_define_method(_udpEndpointClass, "inspect", CAST_METHOD(IceRuby_Endpoint_toString), 0);
 
     //
     // OpaqueEndpoint.
     //
-    _opaqueEndpointClass = rb_define_class_under(iceModule, "OpaqueEndpoint", rb_cObject);
+    _opaqueEndpointClass = rb_define_class_under(iceModule, "OpaqueEndpoint", _endpointClass);
 
     //
     // Instance methods.
     //
-    rb_define_method(_opaqueEndpointClass, "toString", CAST_METHOD(IceRuby_Endpoint_toString), 0);
-    rb_define_method(_opaqueEndpointClass, "timeout", CAST_METHOD(IceRuby_Endpoint_timeout), 0);
-    rb_define_method(_opaqueEndpointClass, "compress", CAST_METHOD(IceRuby_Endpoint_compress), 0);
     rb_define_method(_opaqueEndpointClass, "rawBytes", CAST_METHOD(IceRuby_OpaqueEndpoint_rawBytes), 0);
-    rb_define_method(_opaqueEndpointClass, "to_s", CAST_METHOD(IceRuby_Endpoint_toString), 0);
-    rb_define_method(_opaqueEndpointClass, "inspect", CAST_METHOD(IceRuby_Endpoint_toString), 0);
 
     //
     // ObjectPrx.
