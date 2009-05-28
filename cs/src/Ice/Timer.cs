@@ -305,7 +305,7 @@ namespace IceInternal
             public TimerTask task;
         }
 
-        private IDictionary<Token, object> _tokens = new Dictionary<Token, object>();
+        private IDictionary<Token, object> _tokens = new SortedDictionary<Token, object>();
         private IDictionary<TimerTask, Token> _tasks = new Dictionary<TimerTask, Token>();
         private Instance _instance;
         private long _wakeUpTime = System.Int64.MaxValue;
