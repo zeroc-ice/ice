@@ -96,7 +96,7 @@ sys.stdout.flush()
 
 # Copy files
 for f in os.listdir(os.path.join(archDir, "vsplugin")):
-    if f != "action.vbs" and f != "installer.aip" and !f.endswith(".csproj") and !f.endswith("addin-vs90.sln"):
+    if f != "action.vbs" and f != "installer.aip" and f.endswith(".csproj") != True and f.endswith(".sln") != True:
         copy(os.path.join(archDir, "vsplugin", f), f)
 
 move(os.path.join(archDir, "distribution"), distFilesDir) # Move the distribution directory to the top-level
@@ -116,6 +116,15 @@ for root, dirnames, filesnames in os.walk('.'):
     
     for d in dirnames:
         os.chmod(os.path.join(root, d), S_IRWXU | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH) # rwxr-xr-x
+
+rmFiles = []
+for root, dirnames, filesnames in os.walk('.'):
+    for f in filesnames:
+        for m in ["*.sln", "*.csproj"]:
+            if fnmatch.fnmatch(f, m):
+                rmFiles.append(os.path.join("src", f))
+
+for f in rmFiles: remove(f)
 
 print "ok"
 
