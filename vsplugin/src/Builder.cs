@@ -391,8 +391,6 @@ namespace Ice.VisualStudio
             _fileTracker.reap(project, this);
             clearErrors(document.FullName);
 
-            updateDependencies(project, document.FullName, getSliceCompilerArgs(project, true));
-
             if(Util.isCppProject(project))
             {
                 buildCppProjectItem(project, document.ProjectItem, false);

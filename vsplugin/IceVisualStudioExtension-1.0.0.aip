@@ -2,13 +2,13 @@
 <DOCUMENT type="Advanced Installer" CreateVersion="7.0.1" version="7.0.1" modules="enterprise" RootPath="." Language="en">
   <COMPONENT cid="caphyon.advinst.msicomp.MsiPropsComponent">
     <ROW Property="ALLUSERS" Value="2"/>
-    <ROW Property="ARPCOMMENTS" Value="Ice Extension for Visual Studio" ValueLocId="*"/>
-    <ROW Property="BannerBitmap" MultiBuildValue="DefaultBuild:default_banner.bmp" Type="1"/>
-    <ROW Property="DialogBitmap" MultiBuildValue="DefaultBuild:default_dialog.bmp" Type="1"/>
+    <ROW Property="ARPURLINFOABOUT" Value="htpp://www.zeroc.com"/>
+    <ROW Property="BannerBitmap" MultiBuildValue="DefaultBuild:installer_header.bmp" Type="1"/>
+    <ROW Property="DialogBitmap" MultiBuildValue="DefaultBuild:installer_main.bmp" Type="1"/>
     <ROW Property="Manufacturer" Value="ZeroC, Inc." ValueLocId="*"/>
     <ROW Property="ProductCode" Value="1033:{70A9E114-4FC7-487A-83FE-5EF9FD71EBAF} " Type="16"/>
     <ROW Property="ProductLanguage" Value="1033"/>
-    <ROW Property="ProductName" Value="Ice Visual Studio Extension" ValueLocId="*"/>
+    <ROW Property="ProductName" Value="Ice Visual Studio Extension 1.0.0" ValueLocId="*"/>
     <ROW Property="ProductVersion" Value="1.0.0"/>
     <ROW Property="SecureCustomProperties" Value="OLDPRODUCTS;AI_NEWERPRODUCTFOUND"/>
     <ROW Property="UpgradeCode" Value="{D9EE4DC4-8DE2-4A0E-91CD-5FB1005F7DCE}"/>
@@ -52,6 +52,7 @@
     <ROW Component="Slice_1" ComponentId="{3F02BCB6-5D24-4ED2-9774-9ACF1E32A58D}" Directory_="Slice_1_DIR" Attributes="0"/>
     <ROW Component="Slice_2" ComponentId="{F76013A2-D1DC-415E-9137-5D5BF61B7C6E}" Directory_="Slice_2_DIR" Attributes="0"/>
     <ROW Component="Slice_3" ComponentId="{45B9E014-D49A-472C-92A3-4E62C2DA9A36}" Directory_="Slice_3_DIR" Attributes="0"/>
+    <ROW Component="TextFiles" ComponentId="{0195EF30-F9A0-4091-98F7-D65E27A5678C}" Directory_="APPDIR" Attributes="0" KeyPath="README.txt"/>
     <ROW Component="newslice.ice" ComponentId="{1644D2E8-7614-43E8-B0B5-4A30EE5FC678}" Directory_="VS_80_CPP_TEMPLATE_DIR_MOD" Attributes="0" KeyPath="newslice.ice" Type="0"/>
     <ROW Component="newslice.ice_1" ComponentId="{DD4BEFF7-E544-486B-85E6-2A6D3B66C27C}" Directory_="VS_80_CS_TEMPLATE_DIR_MOD" Attributes="0" KeyPath="newslice.ice_1" Type="0"/>
     <ROW Component="newslice.ice_2" ComponentId="{536686F2-E8DB-4756-B83C-ACD2897F46AA}" Directory_="VS_90_CPP_TEMPLATE_DIR_MOD" Attributes="0" KeyPath="newslice.ice_2" Type="0"/>
@@ -62,13 +63,17 @@
     <ROW Component="slice.vsdir_3" ComponentId="{DEBBE04A-F746-44DE-905D-B0D2F0744462}" Directory_="Slice_3_DIR" Attributes="0" KeyPath="slice.vsdir_6" Type="0"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiFeatsComponent">
-    <ROW Feature="VS80" Title="Visual Studio 2005 Addin" Description="Visual Studio 2005 Addin" Display="3" Level="0" Directory_="APPDIR" Attributes="0" Components="IceVisualStudioAddin_VS80.dll AddinConfig_VS80 SliceUserTemplate_VS80 slice.vsdir newslice.ice slice.vsdir_1 newslice.ice_1"/>
-    <ROW Feature="VS90" Title="Visual Studio 2008 Addin" Description="Visual Studio 2008 plug-in" Display="5" Level="0" Directory_="APPDIR" Attributes="0" Components="IceVisualStudioAddin_VS90.dll AddinConfig_VS90 SliceUserTemplate_VS90 slice.vsdir_2 newslice.ice_2 slice.vsdir_3 newslice.ice_3 Slice Slice_1 Slice_2 Slice_3"/>
+    <ROW Feature="Feature" Title="main" Description="Description" Display="0" Level="1" Directory_="APPDIR" Attributes="0" Components="TextFiles"/>
+    <ROW Feature="VS80" Title="Visual Studio 2005 Add-in" Description="Visual Studio 2005 Add-in" Display="3" Level="0" Directory_="APPDIR" Attributes="0" Components="IceVisualStudioAddin_VS80.dll AddinConfig_VS80 SliceUserTemplate_VS80 slice.vsdir newslice.ice slice.vsdir_1 newslice.ice_1"/>
+    <ROW Feature="VS90" Title="Visual Studio 2008 Add-in" Description="Visual Studio 2008 Add-in" Display="5" Level="0" Directory_="APPDIR" Attributes="0" Components="IceVisualStudioAddin_VS90.dll AddinConfig_VS90 SliceUserTemplate_VS90 slice.vsdir_2 newslice.ice_2 slice.vsdir_3 newslice.ice_3 Slice Slice_1 Slice_2 Slice_3"/>
     <ATTRIBUTE name="CurrentFeature" value="VS90"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiFilesComponent">
     <ROW File="IceVisualStudioAddin_VS80.dll" Component_="IceVisualStudioAddin_VS80.dll" FileName="IceVis~2.dll|IceVisualStudioAddin-VS80.dll" Attributes="0" SourcePath="bin\IceVisualStudioAddin-VS80.dll" SelfReg="false" Sequence="3"/>
     <ROW File="IceVisualStudioAddin_VS90.dll" Component_="IceVisualStudioAddin_VS90.dll" FileName="IceVis~1.dll|IceVisualStudioAddin-VS90.dll" Attributes="0" SourcePath="bin\IceVisualStudioAddin-VS90.dll" SelfReg="false" Sequence="1"/>
+    <ROW File="LICENSE.txt" Component_="TextFiles" FileName="LICENSE.txt" Attributes="0" SourcePath="..\distribution\src\windows\vsplugin\LICENSE.txt" SelfReg="false" Sequence="19"/>
+    <ROW File="README.txt" Component_="TextFiles" FileName="README.txt" Attributes="0" SourcePath="..\distribution\src\windows\vsplugin\README.txt" SelfReg="false" Sequence="17"/>
+    <ROW File="SOURCES.txt" Component_="TextFiles" FileName="SOURCES.txt" Attributes="0" SourcePath="..\distribution\src\windows\vsplugin\SOURCES.txt" SelfReg="false" Sequence="18"/>
     <ROW File="Slice.zip" Component_="SliceUserTemplate_VS90" FileName="Slice.zip" Attributes="0" SourcePath="templates\Slice.zip" SelfReg="false" Sequence="2"/>
     <ROW File="Slice.zip_1" Component_="SliceUserTemplate_VS80" FileName="Slice.zip" Attributes="0" SourcePath="templates\Slice.zip" SelfReg="false" Sequence="4"/>
     <ROW File="newslice.ice" Component_="newslice.ice" FileName="newslice.ice" Attributes="0" SourcePath="templates\cpp\newslice.ice" SelfReg="false" Sequence="6"/>
@@ -93,6 +98,7 @@
     <ROW Path="&lt;AI_DICTS&gt;ui_en.ail"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.FragmentComponent">
+    <ROW Fragment="LicenseAgreementDlg.aip" Path="&lt;AI_FRAGS&gt;LicenseAgreementDlg.aip"/>
     <ROW Fragment="Sequences.aip" Path="&lt;AI_FRAGS&gt;Sequences.aip"/>
     <ROW Fragment="SetupTypeDlg.aip" Path="&lt;AI_FRAGS&gt;SetupTypeDlg.aip"/>
     <ROW Fragment="StaticUIStrings.aip" Path="&lt;AI_FRAGS&gt;StaticUIStrings.aip"/>
@@ -116,8 +122,8 @@
   <COMPONENT cid="caphyon.advinst.msicomp.MsiBinaryComponent">
     <ROW Name="action.vbs" SourcePath="action.vbs"/>
     <ROW Name="aicustact.dll" SourcePath="&lt;AI_CUSTACTS&gt;aicustact.dll"/>
-    <ROW Name="default_banner.bmp" SourcePath="&lt;AI_RES&gt;default-banner.bmp"/>
-    <ROW Name="default_dialog.bmp" SourcePath="&lt;AI_RES&gt;default-dialog.bmp"/>
+    <ROW Name="installer_header.bmp" SourcePath="..\distribution\src\windows\installer-header.bmp"/>
+    <ROW Name="installer_main.bmp" SourcePath="..\distribution\src\windows\installer-main.bmp"/>
     <ROW Name="xmlCfg.dll" SourcePath="&lt;AI_CUSTACTS&gt;xmlCfg.dll"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiConditionComponent">
@@ -127,16 +133,20 @@
     <ROW Feature_="VS90" Level="0" Condition="NOT VS_90_INSTALL_DIR"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiControlComponent">
+    <ROW Dialog_="LicenseAgreementDlg" Control="BannerBitmap" Type="Bitmap" X="0" Y="0" Width="370" Height="44" Attributes="1048577" Text="[BannerBitmap]" Control_Next="AgreementText" MsiKey="LicenseAgreementDlg#BannerBitmap"/>
+    <ROW Dialog_="LicenseAgreementDlg" Control="AgreementText" Type="FileScrollableText" X="20" Y="60" Width="330" Height="120" Attributes="7" Text="..\distribution\src\windows\vsplugin\LICENSE.rtf" Control_Next="Buttons" TextLocId="Control.Text.LicenseAgreementDlg#AgreementText"/>
     <ATTRIBUTE name="FixedSizeBitmaps" value="2"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiControlEventComponent">
-    <ROW Dialog_="WelcomeDlg" Control_="Next" Event="NewDialog" Argument="SetupTypeDlg" Condition="AI_INSTALL" Ordering="1"/>
+    <ROW Dialog_="WelcomeDlg" Control_="Next" Event="NewDialog" Argument="LicenseAgreementDlg" Condition="AI_INSTALL" Ordering="1"/>
     <ROW Dialog_="MaintenanceTypeDlg" Control_="Back" Event="NewDialog" Argument="MaintenanceWelcomeDlg" Condition="AI_MAINT" Ordering="1"/>
     <ROW Dialog_="MaintenanceWelcomeDlg" Control_="Next" Event="NewDialog" Argument="MaintenanceTypeDlg" Condition="AI_MAINT" Ordering="2"/>
     <ROW Dialog_="VerifyReadyDlg" Control_="Back" Event="NewDialog" Argument="PatchWelcomeDlg" Condition="AI_PATCH" Ordering="1"/>
     <ROW Dialog_="PatchWelcomeDlg" Control_="Next" Event="NewDialog" Argument="VerifyReadyDlg" Condition="AI_PATCH" Ordering="3"/>
-    <ROW Dialog_="SetupTypeDlg" Control_="Back" Event="NewDialog" Argument="WelcomeDlg" Condition="AI_INSTALL" Ordering="1"/>
+    <ROW Dialog_="SetupTypeDlg" Control_="Back" Event="NewDialog" Argument="LicenseAgreementDlg" Condition="AI_INSTALL" Ordering="1"/>
     <ROW Dialog_="SetupTypeDlg" Control_="Next" Event="NewDialog" Argument="VerifyReadyDlg" Condition="AI_INSTALL" Ordering="1"/>
+    <ROW Dialog_="LicenseAgreementDlg" Control_="Back" Event="NewDialog" Argument="WelcomeDlg" Condition="AI_INSTALL" Ordering="1"/>
+    <ROW Dialog_="LicenseAgreementDlg" Control_="Next" Event="NewDialog" Argument="SetupTypeDlg" Condition="AI_INSTALL AND IAgree = &quot;Yes&quot;" Ordering="1"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiCreateFolderComponent">
     <ROW Directory_="Addins_DIR" Component_="AddinConfig_VS90"/>
@@ -179,7 +189,7 @@
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiRegLocatorComponent">
     <ROW Signature_="AppSearchSign" Root="2" Key="SOFTWARE\Microsoft\VisualStudio\9.0\Projects\{7D6034C3-AFB8-05CB-2A75-DAA65E89BE83}\AddItemTemplates\TemplateDirs\{F1C25864-3097-11D2-A5C5-00C04F7968B4}\/1" Name="TemplatesDir" Type="2"/>
-    <ROW Signature_="AppSearchSign_1" Root="3" Key="SOFTWARE\Microsoft\VisualStudio\9.0\Projects\{57108857-CA30-464f-B3D1-375A345CE63C}\AddItemTemplates\TemplateDirs\{FAE04EC1-301F-11D3-BF4B-00C04F79EFBC}\/1" Name="TemplatesDir" Type="2"/>
+    <ROW Signature_="AppSearchSign_1" Root="2" Key="SOFTWARE\Microsoft\VisualStudio\9.0\Projects\{57108857-CA30-464f-B3D1-375A345CE63C}\AddItemTemplates\TemplateDirs\{FAE04EC1-301F-11D3-BF4B-00C04F79EFBC}\/1" Name="TemplatesDir" Type="2"/>
     <ROW Signature_="AppSearchSign_2" Root="2" Key="SOFTWARE\Microsoft\VisualStudio\8.0\Projects\{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}\AddItemTemplates\TemplateDirs\{F1C25864-3097-11D2-A5C5-00C04F7968B4}\/1" Name="TemplatesDir" Type="2"/>
     <ROW Signature_="AppSearchSign_3" Root="2" Key="SOFTWARE\Microsoft\VisualStudio\8.0\Projects\{FAE04EC0-301F-11d3-BF4B-00C04F79EFBC}\AddItemTemplates\TemplateDirs\{FAE04EC1-301F-11D3-BF4B-00C04F79EFBC}\/1" Name="TemplatesDir" Type="2"/>
     <ROW Signature_="AppSearchSign_4" Root="2" Key="SOFTWARE\Microsoft\VisualStudio\8.0" Name="InstallDir" Type="2"/>
