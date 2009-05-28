@@ -38,8 +38,8 @@ MCSFLAGS	= $(MCSFLAGS) -keyfile:$(KEYFILE)
 
 SLICE2CSFLAGS   = $(SLICE2CSFLAGS) --ice -I$(slicedir)
 
-$(TARGETS):: $(SRCS)
-	$(MCS) $(MCSFLAGS) -r:$(refdir)\Ice.dll $(SRCS)
+$(TARGETS):: $(SRCS) $(GEN_SRCS)
+	$(MCS) $(MCSFLAGS) -r:$(refdir)\Ice.dll $(SRCS) $(GEN_SRCS)
 
 !if "$(DEBUG)" == "yes"
 clean::
