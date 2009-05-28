@@ -54,13 +54,14 @@ if len(args) > 1:
 if len(args) == 1:
     tag = args[0]
 
+
 cwd = os.getcwd()
-os.chdir(os.path.dirname(__file__))
+os.chdir(cwd)
 
 #
-# Get ChatDemo version.
+# Get version.
 #
-config = open(os.path.join("vsplugin", "config", "Make.rules"), "r")
+config = open(os.path.join("vsplugin", "config", "Make.rules.mak"), "r")
 version = re.search("VERSION\s*=\s*([0-9\.]*)", config.read()).group(1)
 config.close()
 
@@ -95,8 +96,8 @@ sys.stdout.flush()
 
 # Copy files
 for f in os.listdir(os.path.join(archDir, "vsplugin")):
-    if f != "action.vbs" and f != "installer.aip":
-        copy(os.path.join(archDir, "IceVisualStudioExtension", f), f)
+    if f != "action.vbs" and f != "installer.aip" and !f.endswith(".csproj") and !f.endswith("addin-vs90.sln"):
+        copy(os.path.join(archDir, "vsplugin", f), f)
 
 move(os.path.join(archDir, "distribution"), distFilesDir) # Move the distribution directory to the top-level
 
