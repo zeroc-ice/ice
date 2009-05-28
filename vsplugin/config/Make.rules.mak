@@ -31,22 +31,22 @@ VS				= VS90
 #
 # Set the location of the Visual Studio 2008
 #
-#VS90_HOME			= C:\Program Files\Microsoft Visual Studio 9.0
-VS90_HOME			= C:\Program Files (x86)\Microsoft Visual Studio 9.0
+VS90_HOME			= C:\Program Files\Microsoft Visual Studio 9.0
+#VS90_HOME			= C:\Program Files (x86)\Microsoft Visual Studio 9.0
 
 #
 # Set the location of the Visual Studio 2005,  This is only required if you are
 # building the extension for Visual Studio 2005
 #
-#VS80_HOME			= C:\Program Files\Microsoft Visual Studio 8
-VS80_HOME 			= C:\Program Files (x86)\Microsoft Visual Studio 8
+VS80_HOME			= C:\Program Files\Microsoft Visual Studio 8
+#VS80_HOME 			= C:\Program Files (x86)\Microsoft Visual Studio 8
 
 #
 # Set the location of the Visual Studio 2008 SDK
 #
 
-#VSSDK_HOME			= C:\Program Files\Microsoft Visual Studio 2008 SDK
-VSSDK_HOME			= C:\Program Files (x86)\Microsoft Visual Studio 2008 SDK
+VSSDK_HOME			= C:\Program Files\Microsoft Visual Studio 2008 SDK
+#VSSDK_HOME			= C:\Program Files (x86)\Microsoft Visual Studio 2008 SDK
 
 #
 # Set the key file used to sign assemblies.

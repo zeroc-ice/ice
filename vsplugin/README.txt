@@ -20,11 +20,10 @@ Activating the plug-in for a project
 ------------------------------------
 
 After installing the plug-in, right-click on the project in
-Solution Explorer and choose "Ice -> Add Slice Builder".
+Solution Explorer and choose "Ice Configuration..." or go to "Ice Configuration..."
+in "Tools" menu
 
-Once the builder is enabled, you can configure build properties
-in the project properties window. To view the project properties,
-choose "View -> Properties Window".
+This will open a dialog where you could configure Ice build properties.
 
 
 Project properties
@@ -35,21 +34,21 @@ Project properties
     The extension expects the same directory layout as that of an
     Ice binary distribution.
 
-  * Ice Components: The list of Ice libraries to link with
-
-  * Slice Include Path: The list of directories to search for included
-    Slice files (-I option)
+  * Enable Ice: Permit Slice identifiers with an "Ice" prefix (--ice option)
+  
+  * Enable Tie: Generate tie classes (--tie option).
+    This property only applies to .NET projects.
 
   * Enable Streaming: Generate code to support the dynamic streaming
     API (--stream option)
 
-  * Enable Tie: Generate tie classes (--tie option).
-
-    This property only applies to .NET projects.
-
-  * Enable Ice: Permit Slice identifiers with an "Ice" prefix (--ice option)
-
+  * Slice Include Path: The list of directories to search for included
+    Slice files (-I option)
+    
   * Preprocessor Macros: List of macro definitions passed to the Slice compiler
+  
+  * Ice Components: The list of Ice libraries to link with
+  
 
 
 Adding Slice files to a project
@@ -58,8 +57,7 @@ Adding Slice files to a project
 You could use "Add -> New Item..." dialog to add slice files to a project once
 the extension has been installed.
 
-There will be a new category "Slice" whith a new template "Slice source"
-
+There will be a new template "Slice source"
 
 To add an existing Slice file to a project, use "Add -> Existing Item..."
 

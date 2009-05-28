@@ -56,6 +56,28 @@ namespace Ice.VisualStudio
             _buildEvents = _applicationObject.Events.BuildEvents;
             _buildEvents.OnBuildBegin += new _dispBuildEvents_OnBuildBeginEventHandler(buildBegin);
 
+            foreach (Command c in _applicationObject.Commands)
+            {
+                if (c.Name.Equals("Project.AddNewItem"))
+                {
+                    _addNewItemEvent = application.Events.get_CommandEvents(c.Guid, c.ID);
+                    _addNewItemEvent.AfterExecute += new _dispCommandEvents_AfterExecuteEventHandler(afterAddNewItem);
+                    break;
+                }
+            }
+
+            foreach (Command c in _applicationObject.Commands)
+            {
+                if (c.Name.Equals("Project.AddExistingItem"))
+                {
+                    _addExistingItemEvent = application.Events.get_CommandEvents(c.Guid, c.ID);
+                    _addExistingItemEvent.AfterExecute += new _dispCommandEvents_AfterExecuteEventHandler(afterAddExistingItem);
+                    break;
+                }
+            }
+            
+            
+            
             //
             // Subscribe to active configuration changed.
             //
@@ -65,21 +87,27 @@ namespace Ice.VisualStudio
             initErrorListProvider();
             setupCommandBars();
         }
+
+        void afterAddNewItem(string Guid, int ID, object obj, object CustomOut)
+        {
+            foreach (ProjectItem i in _deleted)
+            {
+                i.Delete();
+            }
+            _deleted.Clear();
+        }
+
+        void afterAddExistingItem(string Guid, int ID, object obj, object CustomOut)
+        {
+            foreach (ProjectItem i in _deleted)
+            {
+                i.Remove();
+            }
+            _deleted.Clear();
+        }
         
         public void disconnect()
         {
-            object tmp = null;
-            if(_iceToolsCmbPopup != null)
-            {
-                _iceToolsCmbPopup.Delete(tmp);
-            }
-            
-            if(_iceProjectCmbPopup != null)
-            {
-                _iceProjectCmbPopup.Delete(tmp);
-            }
-                    
-
             if(_cookie != 0)
             {
                 IVsSolutionBuildManager buildManager = _serviceProvider.GetService(typeof(SVsSolutionBuildManager)) as IVsSolutionBuildManager;
@@ -88,6 +116,11 @@ namespace Ice.VisualStudio
                     buildManager.UnadviseUpdateSolutionEvents(_cookie);
                 }
                 _cookie = 0;
+            }
+            
+            if(_iceConfigurationCmd != null)
+            {
+                _iceConfigurationCmd.Delete();
             }
                         
             _solutionEvents.Opened -= new _dispSolutionEvents_OpenedEventHandler(solutionOpened);
@@ -183,45 +216,25 @@ namespace Ice.VisualStudio
         {
             CommandBar menuBarCommandBar = ((CommandBars)_applicationObject.CommandBars)["MenuBar"];
 
-            Command addSliceBuilderCmd = null;
+            _iceConfigurationCmd = null;
             try
             {
-                addSliceBuilderCmd = _applicationObject.Commands.Item(_addInInstance.ProgID + ".AddSliceBuilder", -1);
+                _iceConfigurationCmd = _applicationObject.Commands.Item(_addInInstance.ProgID + ".IceConfiguration", -1);
             }
             catch (ArgumentException)
             {
                 object[] contextGUIDS = new object[] { };
-                addSliceBuilderCmd = ((Commands2)_applicationObject.Commands).AddNamedCommand2(_addInInstance, "AddSliceBuilder",
-                                "Add Slice Builder",
-                                "Add Slice builder to this project.",
+                _iceConfigurationCmd = ((Commands2)_applicationObject.Commands).AddNamedCommand2(_addInInstance, "IceConfiguration",
+                                "Ice Configuration...",
+                                "Ice Configuration...",
                                 true, -1, ref contextGUIDS,
                                (int)vsCommandStatus.vsCommandStatusSupported +
                                (int)vsCommandStatus.vsCommandStatusEnabled,
                                (int)vsCommandStyle.vsCommandStylePictAndText,
                                vsCommandControlType.vsCommandControlTypeButton);
-            }
+            }            
 
-            Command removeSliceBuilderCmd = null;
-            try
-            {
-                removeSliceBuilderCmd = _applicationObject.Commands.Item(_addInInstance.ProgID + ".RemoveSliceBuilder", -1);
-            }
-            catch(ArgumentException)
-            {
-                object[] contextGUIDS = new object[] { };
-                removeSliceBuilderCmd = ((Commands2)_applicationObject.Commands).AddNamedCommand2(_addInInstance, "RemoveSliceBuilder", 
-                                "Remove Slice Builder",
-                                "Remove Slice builder from this project.",
-                                true, -1, ref contextGUIDS,
-                               (int)vsCommandStatus.vsCommandStatusSupported +
-                               (int)vsCommandStatus.vsCommandStatusEnabled,
-                               (int)vsCommandStyle.vsCommandStylePictAndText,
-                               vsCommandControlType.vsCommandControlTypeButton);
-            }
-
-            
-
-            if(addSliceBuilderCmd == null || removeSliceBuilderCmd == null)
+            if(_iceConfigurationCmd == null)
             {
                 System.Windows.Forms.MessageBox.Show("Error initializing Ice Visual Studio Extension.\n" +
                                                      "Cannot create required commands",
@@ -232,33 +245,10 @@ namespace Ice.VisualStudio
             }
 
             CommandBar toolsCmdBar = ((CommandBars)_applicationObject.CommandBars)["Tools"];
-            CommandBarControl toolsCmdBarControl = (CommandBarControl)toolsCmdBar.Parent;
-
-            _iceToolsCmbPopup = (CommandBarPopup)toolsCmdBar.Controls.Add(MsoControlType.msoControlPopup,
-                                                                          System.Type.Missing,
-                                                                          System.Type.Missing,
-                                                                          toolsCmdBar.Controls.Count + 1,
-                                                                          true);
-
-            _iceToolsCmbPopup.Caption = "Ice";
-            _iceToolsCmbPopup.Visible = true;
-
-
-            addSliceBuilderCmd.AddControl(_iceToolsCmbPopup.CommandBar, 1);
-            removeSliceBuilderCmd.AddControl(_iceToolsCmbPopup.CommandBar, 2);
-
+            _iceConfigurationCmd.AddControl(toolsCmdBar, toolsCmdBar.Controls.Count + 1);
+          
             CommandBar projectCmdBar = projectCommandBar();
-            _iceProjectCmbPopup = (CommandBarPopup)projectCmdBar.Controls.Add(MsoControlType.msoControlPopup,
-                                                                              System.Type.Missing,
-                                                                              System.Type.Missing,
-                                                                              projectCmdBar.Controls.Count + 1,
-                                                                              true);
-
-            _iceProjectCmbPopup.Caption = "Ice";
-            _iceProjectCmbPopup.Visible = true;
-
-            addSliceBuilderCmd.AddControl(_iceProjectCmbPopup.CommandBar, 1);
-            removeSliceBuilderCmd.AddControl(_iceProjectCmbPopup.CommandBar, 2);
+            _iceConfigurationCmd.AddControl(projectCmdBar, projectCmdBar.Controls.Count + 1);   
         }
 
         public void beforeClosing()
@@ -399,7 +389,7 @@ namespace Ice.VisualStudio
 
             string projectDir = System.IO.Path.GetDirectoryName(project.FullName);
             _fileTracker.reap(project, this);
-            clearErrors(project);
+            clearErrors(document.FullName);
 
             updateDependencies(project, document.FullName, getSliceCompilerArgs(project, true));
 
@@ -608,10 +598,10 @@ namespace Ice.VisualStudio
 
             if(!h.Exists || !cpp.Exists)
             {
-                if(!Directory.Exists(output))
-                {
-                    Directory.CreateDirectory(output);
-                }
+                updated = true;
+            }
+            else if(Util.findItem(h.FullName, project.ProjectItems) == null || Util.findItem(cpp.FullName, project.ProjectItems) == null)
+            {
                 updated = true;
             }
             else if(ice.LastWriteTime > h.LastWriteTime || ice.LastWriteTime > cpp.LastWriteTime)
@@ -652,6 +642,11 @@ namespace Ice.VisualStudio
             
             if(updated)
             {
+                if (!Directory.Exists(output))
+                {
+                    Directory.CreateDirectory(output);
+                }
+
                 updateDependencies(project, ice.FullName, getSliceCompilerArgs(project, true));
                 if (!runSliceCompiler(project, ice.FullName, output, building))
                 {
@@ -1156,11 +1151,6 @@ namespace Ice.VisualStudio
                 return;
             }
 
-            if(!file.Name.EndsWith(".ice"))
-            {
-                return;
-            }
-
             Array projects = (Array)_applicationObject.ActiveSolutionProjects;
             if(projects == null)
             {
@@ -1175,6 +1165,11 @@ namespace Ice.VisualStudio
             }
             if (!Util.isSliceBuilderEnabled(project))
             {
+                return;
+            }
+            if (!file.Name.EndsWith(".ice"))
+            {
+                _fileTracker.reap(project, this);
                 return;
             }
             removeCppGeneratedItems(project, file.FullPath);
@@ -1232,7 +1227,7 @@ namespace Ice.VisualStudio
                                                          "Ice Visual Studio Extension",
                                                          System.Windows.Forms.MessageBoxButtons.OK,
                                                          System.Windows.Forms.MessageBoxIcon.Error);
-                    item.Remove();
+                    _deleted.Add(item);
                     return;
                 }
 
@@ -1244,7 +1239,7 @@ namespace Ice.VisualStudio
                                          "Ice Visual Studio Extension",
                                          System.Windows.Forms.MessageBoxButtons.OK,
                                          System.Windows.Forms.MessageBoxIcon.Error);
-                    item.Remove();
+                    _deleted.Add(item);
                     return;
                 }
             }
@@ -1354,7 +1349,7 @@ namespace Ice.VisualStudio
                                                          "Ice Visual Studio Extension",
                                                          System.Windows.Forms.MessageBoxButtons.OK,
                                                          System.Windows.Forms.MessageBoxIcon.Error);
-                    item.Remove();
+                    _deleted.Add(item);
                     return;
                 }
             }
@@ -1369,7 +1364,7 @@ namespace Ice.VisualStudio
                                                          "Ice Visual Studio Extension",
                                                          System.Windows.Forms.MessageBoxButtons.OK,
                                                          System.Windows.Forms.MessageBoxIcon.Error);
-                    item.Remove();
+                    _deleted.Add(item);
                     return;
                 }
             }
@@ -1398,11 +1393,6 @@ namespace Ice.VisualStudio
             if(generatedItem != null)
             {
                 generatedItem.Delete();
-            }
-
-            if(generatedFileInfo.Exists)
-            {
-                File.Delete(generatedFileInfo.FullName);
             }
         }
 
@@ -1457,24 +1447,13 @@ namespace Ice.VisualStudio
             if (generated != null)
             {
                 generated.Delete();
-                generated = null;
             }
 
-            if (hFileInfo.Exists)
-            {
-                File.Delete(hFileInfo.FullName);
-            }
 
             generated = Util.findItem(cppFileInfo.FullName, project.ProjectItems);
             if (generated != null)
             {
                 generated.Delete();
-                generated = null;
-            }
-
-            if (cppFileInfo.Exists)
-            {
-                File.Delete(cppFileInfo.FullName);
             }
         }
 
@@ -1651,6 +1630,10 @@ namespace Ice.VisualStudio
                             }
                             buildProject(project, true);
                         }
+                        if(hasErrors(project))
+                        {
+                            bringErrorsToFront();
+                        }
                         break;
                     }
                     default:
@@ -1667,12 +1650,12 @@ namespace Ice.VisualStudio
                                 buildProject(p, true);
                             }
                         }
+                        if (hasErrors())
+                        {
+                            bringErrorsToFront();
+                        }
                         break;
                     }
-                }
-                if(hasErrors())
-                {
-                    bringErrorsToFront();
                 }
             }
             else if(action == vsBuildAction.vsBuildActionClean)
@@ -1733,14 +1716,37 @@ namespace Ice.VisualStudio
             }
 
             List<ErrorTask> remove = new List<ErrorTask>();
-            foreach(ErrorTask error in _errors)
+            foreach (ErrorTask error in _errors)
             {
-                ProjectItem item = Util.findItem(error.Document, project.ProjectItems);
-                if (item == null)
+                if (!error.HierarchyItem.Equals(getProjectHierarchy(project)))
                 {
                     continue;
                 }
-                if (_errorListProvider.Tasks.Contains(error))
+                if (!_errorListProvider.Tasks.Contains(error))
+                {
+                    continue;
+                }
+                remove.Add(error);
+                _errorListProvider.Tasks.Remove(error);
+            }
+            foreach (ErrorTask error in remove)
+            {
+                _errors.Remove(error);
+            }
+
+        }
+
+        private void clearErrors(String file)
+        {
+            if (file == null || _errors == null)
+            {
+                return;
+            }
+
+            List<ErrorTask> remove = new List<ErrorTask>();
+            foreach (ErrorTask error in _errors)
+            {
+                if (error.Document.Equals(file, StringComparison.CurrentCultureIgnoreCase))
                 {
                     remove.Add(error);
                     _errorListProvider.Tasks.Remove(error);
@@ -1750,19 +1756,26 @@ namespace Ice.VisualStudio
             {
                 _errors.Remove(error);
             }
-        
+
         }
+        
+        private IVsHierarchy getProjectHierarchy(Project project)
+        {
+            IVsSolution ivSSolution = Connect.getIVsSolution();
+            IVsHierarchy hierarchy = null;
+            if (ivSSolution != null)
+            {
+                ivSSolution.GetProjectOfUniqueName(project.UniqueName, out hierarchy);
+            }
+            return hierarchy;
+        }
+        
         //
         // Add a error to slice builder error list provider.
         //
         private void addError(Project project, string file, TaskErrorCategory category, int line, int column, string text)
         {
-            IVsSolution ivSSolution = Connect.getIVsSolution();
-            IVsHierarchy hierarchy = null;
-            if(ivSSolution != null)
-            {
-                ivSSolution.GetProjectOfUniqueName(project.UniqueName, out hierarchy);
-            }
+            IVsHierarchy hierarchy = getProjectHierarchy(project);
 
             ErrorTask errorTask = new ErrorTask();
             errorTask.ErrorCategory = category;
@@ -1804,12 +1817,11 @@ namespace Ice.VisualStudio
             bool errors = false;
             foreach (ErrorTask error in _errors)
             {
-                ProjectItem item = Util.findItem(error.Document, project.ProjectItems);
-                if (item == null)
+                if(error.HierarchyItem.Equals(getProjectHierarchy(project)))
                 {
-                    continue;
+                    errors = true;
+                    break;
                 }
-                errors = true;
             }
             return errors;
         }
@@ -1881,8 +1893,10 @@ namespace Ice.VisualStudio
         private FileTracker _fileTracker;
         private Dictionary<string, Dictionary<string, List<string>>> _dependenciesMap;
         private OutputWindowPane _output;
-
-        private CommandBarPopup _iceToolsCmbPopup;
-        private CommandBarPopup _iceProjectCmbPopup;
+        
+        private CommandEvents _addNewItemEvent;
+        private CommandEvents _addExistingItemEvent;
+        private List<ProjectItem> _deleted = new List<ProjectItem>();
+        private Command _iceConfigurationCmd;
     }
 }

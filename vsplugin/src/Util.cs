@@ -12,6 +12,7 @@ using System.Text;
 using System.Collections.Generic;
 using System.ComponentModel;
 using EnvDTE;
+using System.Windows.Forms;
 using System.Runtime.InteropServices;
 using System.IO;
 using System.Diagnostics;
@@ -256,6 +257,11 @@ namespace Ice.VisualStudio
         [ComVisible(false)]
         public class ComponentNames
         {
+            public static readonly string[] silverlightNames =
+            {
+                "IceSL"
+            };
+            
             public static readonly string[] cppNames =
             {
                 "Freeze", "Glacier2", "Ice", "IceBox", "IceGrid", "IcePatch2", 
@@ -726,6 +732,10 @@ namespace Ice.VisualStudio
 
         public static ProjectItem findItem(string path, ProjectItems items)
         {
+            if(String.IsNullOrEmpty(path))
+            {
+                return null;
+            }
             ProjectItem item = null;
             foreach(ProjectItem i in items)
             {
@@ -963,9 +973,32 @@ namespace Ice.VisualStudio
             }
         }
 
-        public static void setIceHome(Project project, string iceHome)
+        public static void setIceHome(Project project, string value)
         {
-            setProjectProperty(project, Util.PropertyNames.IceHome, iceHome);
+            if (Util.isSilverlightProject(project))
+            {
+                if (!File.Exists(value + "\\bin\\slice2sl.exe") || !Directory.Exists(value + "\\slice\\Ice"))
+                {
+                    System.Windows.Forms.MessageBox.Show("Could not locate Ice for Silverlight installation in '"
+                                                         + value + "' directory.\n",
+                                                         "Ice Visual Studio Extension", MessageBoxButtons.OK,
+                                                         MessageBoxIcon.Error);
+                    return;
+                }
+            }
+            else
+            {
+                if (!File.Exists(value + "\\bin\\slice2cpp.exe") || !File.Exists(value + "\\bin\\slice2cs.exe") ||
+                   !Directory.Exists(value + "\\slice\\Ice"))
+                {
+                    System.Windows.Forms.MessageBox.Show("Could not locate Ice installation in '"
+                                                         + value + "' directory.\n",
+                                                         "Ice Visual Studio Extension", MessageBoxButtons.OK,
+                                                         MessageBoxIcon.Error);
+                    return;
+                }
+            }
+            setProjectProperty(project, Util.PropertyNames.IceHome, value);
         }
 
         public static bool getProjectPropertyAsBool(Project project, string name)
@@ -1099,29 +1132,61 @@ namespace Ice.VisualStudio
             return components;
         }
 
-        public static ComponentList getIceCSharpComponents(Project project)
+        public static ComponentList getIceSilverlightComponents(Project project)
         {
             ComponentList components = new ComponentList();
-            if(project == null)
+            if (project == null)
             {
                 return components;
             }
 
             string iceHome = Util.getIceHome(project);
             VSLangProj.VSProject vsProject = (VSLangProj.VSProject)project.Object;
-            foreach(Reference r in vsProject.References)
+            foreach (Reference r in vsProject.References)
             {
-                if(!Path.GetDirectoryName(r.Path).ToUpper().Contains(iceHome.ToUpper()))
+                if (!Path.GetDirectoryName(r.Path).ToUpper().Contains(iceHome.ToUpper()))
+                {
+                    continue; //Not in Ice Home
+                }
+
+                string iceComponent = Array.Find(Util.ComponentNames.silverlightNames, delegate(string name)
+                {
+                    return name.Equals(r.Name);
+                });
+
+                if (String.IsNullOrEmpty(iceComponent))
+                {
+                    continue;
+                }
+
+                components.Add(r.Name);
+            }
+            return components;
+        }
+
+        public static ComponentList getIceCSharpComponents(Project project)
+        {
+            ComponentList components = new ComponentList();
+            if (project == null)
+            {
+                return components;
+            }
+
+            string iceHome = Util.getIceHome(project);
+            VSLangProj.VSProject vsProject = (VSLangProj.VSProject)project.Object;
+            foreach (Reference r in vsProject.References)
+            {
+                if (!Path.GetDirectoryName(r.Path).ToUpper().Contains(iceHome.ToUpper()))
                 {
                     continue; //Not in Ice Home
                 }
 
                 string iceComponent = Array.Find(Util.ComponentNames.cSharpNames, delegate(string name)
-                                                                                    {
-                                                                                        return name.Equals(r.Name);
-                                                                                    });
+                {
+                    return name.Equals(r.Name);
+                });
 
-                if(String.IsNullOrEmpty(iceComponent))
+                if (String.IsNullOrEmpty(iceComponent))
                 {
                     continue;
                 }

@@ -21,27 +21,23 @@ PDBS			= $(top_srcdir)\bin\$(PKG).pdb
 SRCS		=  AssemblyInfo.cs \
 		  Builder.cs \
 		  Connect.cs \
-                  CppProjectExtender.cs \
-		  CSharpProjectExtender.cs \
-		  Editors.cs \
-		  ExtenderProvider.cs \
-		  FileTracker.cs \
-		  IncludeDirForm.cs \
-		  IncludeDirForm.Designer.cs \
-		  LibraryReferencesForm.cs \
-		  LibraryReferencesForm.Designer.cs \
-		  PreprocessorMacrosForm.cs \
-		  PreprocessorMacrosForm.Designer.cs \
-		  ProductReferencesForm.cs \
-		  ProductReferencesForm.Designer.cs \
-		  ProjectExtender.cs \
-		  SilverlightProjectExtender.cs \
+ 		  FileTracker.cs \
+		  IceCppConfigurationDialog.cs \
+		  IceCppConfigurationDialog.Designer.cs \
+		  IceCsharpConfigurationDialog.cs \
+		  IceCsharpConfigurationDialog.Designer.cs \
+		  IceSilverlightConfigurationDialog.cs \
+		  IceSilverlightConfigurationDialog.Designer.cs \
 		  Util.cs
+
+RESOURCES = /resource:IceCppConfigurationDialog.resx \
+		   /resource:IceCsharpConfigurationDialog.resx \
+		   /resource:IceSilverlightConfigurationDialog.resx
 
 MCSFLAGS	= $(MCSFLAGS) -out:$(TARGETS)
 
 $(TARGETS):: $(SRCS)
-	$(MCS) $(MCSFLAGS) $(SRCS)
+	$(MCS) $(MCSFLAGS) $(RESOURCES) $(SRCS)
 
 install::$(TARGETS)
 	@if not exist $(prefix) \
@@ -54,7 +50,6 @@ install::$(TARGETS)
 
 	copy $(TARGETS) $(install_bindir)\$(PKG).dll
 	copy ..\config\Ice-$(PKG_PREFIX).AddIn $(install_configdir)\Ice-$(PKG_PREFIX).AddIn
-	copy ..\config\extender-$(PKG_PREFIX).reg $(install_configdir)\extender-$(PKG_PREFIX).reg
 	
 clean::
 	del /q $(TARGETS) $(PDBS)

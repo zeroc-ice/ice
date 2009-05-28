@@ -76,43 +76,7 @@ Configuration
 
    > cd c:\IceVisualStudioExtension-@ver@\bin
 
-2) Export and register the extension DLL for COM use.
-
-   For Visual Studio 2008:
-
-     > tlbexp IceVisualStudioAddin-VS90.dll
-     > regasm /codebase IceVisualStudioAddIn-VS90.dll
-
-   For Visual Studio 2005:
-
-     > tlbexp IceVisualStudioAddin-VS80.dll
-     > regasm /codebase IceVisualStudioAddIn-VS80.dll
-
-   * Note: If you are installing the plug-in on a 64 jit platform you
-     must use the 32-bit versions of tlbexp and regasm.
-
-3) Add keys to the Windows registry.
-
-   To add keys to the Windows registry, you must import the
-   registry file from the conf subdirectory into the Windows
-   registry.
-
-   For Visual Studio 2008:
-
-     Import file 'C:\IceVisualStudioExtension-@ver@\conf\extender-VS90.reg'
-     into your Windows registry.
-
-   For Visual Studio 2005:
-
-     Import file 'C:\IceVisualStudioExtension-@ver@\conf\extender-VS80.reg'
-     into your Windows registry.
-
-   * Note: If you are installing the plug-in on a 64-bit platform you
-     must use the 32-bit versions of regedit to import the registry
-     files. The 32-bit versions of regedit on 64-bit platforms is named
-     regedt32 and is located in the directory c:\Windows\SysWow64.
-
-4) Set up an Addin file
+2) Set up an Addin file
 
    Add-ins are added to Visual Studio by placing a '.Addin' file into one of
    the directories that Visual Studio searches for Add-ins. The file
@@ -147,7 +111,7 @@ Configuration
    > cd C:\Users\username\Documents\Visual Studio 2005\Addins
    > copy C:\IceVisualStudioExtension-@ver@\conf\Ice-VS80.Addin
 
-5) Install item templates.
+3) Install item templates.
 
    To be able to add new items from the standard "New Item" dialog you
    should install the correspoding item templates.
@@ -173,13 +137,13 @@ Configuration
    > xcopy /e * C:\Program Files\Microsoft Visual Studio 9.0\VC#\CSharpProjectItems
 
    * The commands show avobe are for visual studio 2008 for Visual 
-   Studio 2005 just update the path to "Microsoft Visual Studio 8.0"
+   Studio 2005 just update the path to "Microsoft Visual Studio 8"
 
-   * In 64 bit platforms you should copy files to visual studio folder 
-   in c:\Program Files (x86) not in C:\Program Files.
-   
+   * In 64 bit platforms you should copy template files to visual studio folder 
+   in c:\Program Files (x86)\Microsoft Visual Studio 9.0\... not in
+   C:\Program Files\Microsoft Visual Studio 9.0\... .
 
-6) This completes the configuration. The plug-in will be available
+4) This completes the configuration. The plug-in will be available
    once you restart Visual Studio.
 
 

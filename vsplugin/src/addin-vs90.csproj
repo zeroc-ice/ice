@@ -12,8 +12,9 @@
     <AssemblyName>IceVisualStudioAddin-VS90</AssemblyName>
     <RootNamespace>Ice.VisualStudio</RootNamespace>
     <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
-    <SignAssembly>true</SignAssembly>
-    <AssemblyOriginatorKeyFile>TestKey.pfx</AssemblyOriginatorKeyFile>
+    <SignAssembly>false</SignAssembly>
+    <AssemblyOriginatorKeyFile>
+    </AssemblyOriginatorKeyFile>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -72,37 +73,25 @@
     <Compile Include="Connect.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="CppProjectExtender.cs" />
-    <Compile Include="CSharpProjectExtender.cs" />
-    <Compile Include="Editors.cs" />
-    <Compile Include="ExtenderProvider.cs" />
     <Compile Include="FileTracker.cs" />
-    <Compile Include="IncludeDirForm.cs">
+    <Compile Include="IceCppConfigurationDialog.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="IncludeDirForm.designer.cs">
-      <DependentUpon>IncludeDirForm.cs</DependentUpon>
+    <Compile Include="IceCppConfigurationDialog.designer.cs">
+      <DependentUpon>IceCppConfigurationDialog.cs</DependentUpon>
     </Compile>
-    <Compile Include="LibraryReferencesForm.cs">
+    <Compile Include="IceCsharpConfigurationDialog.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="LibraryReferencesForm.designer.cs">
-      <DependentUpon>LibraryReferencesForm.cs</DependentUpon>
+    <Compile Include="IceCsharpConfigurationDialog.Designer.cs">
+      <DependentUpon>IceCsharpConfigurationDialog.cs</DependentUpon>
     </Compile>
-    <Compile Include="PreprocessorMacrosForm.cs">
+    <Compile Include="IceSilverlightConfigurationDialog.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="PreprocessorMacrosForm.designer.cs">
-      <DependentUpon>PreprocessorMacrosForm.cs</DependentUpon>
+    <Compile Include="IceSilverlightConfigurationDialog.designer.cs">
+      <DependentUpon>IceSilverlightConfigurationDialog.cs</DependentUpon>
     </Compile>
-    <Compile Include="ProductReferencesForm.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="ProductReferencesForm.designer.cs">
-      <DependentUpon>ProductReferencesForm.cs</DependentUpon>
-    </Compile>
-    <Compile Include="ProjectExtender.cs" />
-    <Compile Include="SilverlightProjectExtender.cs" />
     <Compile Include="Util.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -140,25 +129,14 @@
     </COMReference>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Ice-VS90.AddIn" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="extender-vs80.reg" />
-    <None Include="extender-vs90.reg" />
-    <None Include="TestKey.pfx" />
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="IncludeDirForm.resx">
-      <DependentUpon>IncludeDirForm.cs</DependentUpon>
+    <EmbeddedResource Include="IceCppConfigurationDialog.resx">
+      <DependentUpon>IceCppConfigurationDialog.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="LibraryReferencesForm.resx">
-      <DependentUpon>LibraryReferencesForm.cs</DependentUpon>
+    <EmbeddedResource Include="IceCsharpConfigurationDialog.resx">
+      <DependentUpon>IceCsharpConfigurationDialog.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="PreprocessorMacrosForm.resx">
-      <DependentUpon>PreprocessorMacrosForm.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="ProductReferencesForm.resx">
-      <DependentUpon>ProductReferencesForm.cs</DependentUpon>
+    <EmbeddedResource Include="IceSilverlightConfigurationDialog.resx">
+      <DependentUpon>IceSilverlightConfigurationDialog.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSHARP.Targets" />
@@ -170,7 +148,7 @@
   </PropertyGroup>
   <ProjectExtensions>
     <VisualStudio>
-      <UserProperties IceHome="C:\Ice-3.3.1-VC90" />
+      <UserProperties IceStreaming="True" IceTie="False" Ice="False" IceIncludePath="C:\Ice-3.3.1-VC90\slice; ." IceHome="C:\Ice-3.3.1-VC90" />
     </VisualStudio>
   </ProjectExtensions>
 </Project>

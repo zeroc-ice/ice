@@ -63,7 +63,7 @@ namespace Ice.VisualStudio
         {
             if(neededText == vsCommandStatusTextWanted.vsCommandStatusTextWantedNone)
             {
-                if(commandName == "Ice.VisualStudio.Connect.AddSliceBuilder")
+                if(commandName == "Ice.VisualStudio.Connect.IceConfiguration")
                 {
                     Builder builder = getBuilder();
                     if(builder == null)
@@ -77,37 +77,12 @@ namespace Ice.VisualStudio
                         status = (vsCommandStatus)vsCommandStatus.vsCommandStatusSupported;
                         return;
                     }
-                    if(Util.isSliceBuilderEnabled(project))
+                    if(!Util.isCppProject(project) && !Util.isCSharpProject(project))
                     {
                         status = (vsCommandStatus)vsCommandStatus.vsCommandStatusSupported;
+                        return;                    
                     }
-                    else
-                    {
-                        status = (vsCommandStatus)vsCommandStatus.vsCommandStatusSupported | vsCommandStatus.vsCommandStatusEnabled;
-                    }
-                }
-                else if(commandName == "Ice.VisualStudio.Connect.RemoveSliceBuilder")
-                {
-                    Builder builder = getBuilder();
-                    if(builder == null)
-                    {
-                        status = (vsCommandStatus)vsCommandStatus.vsCommandStatusSupported;
-                        return;
-                    }
-                    Project project = builder.getSelectedProject();
-                    if(project == null)
-                    {
-                        status = (vsCommandStatus)vsCommandStatus.vsCommandStatusSupported;
-                        return;
-                    }
-                    if(Util.isSliceBuilderEnabled(project))
-                    {
-                        status = (vsCommandStatus)vsCommandStatus.vsCommandStatusSupported | vsCommandStatus.vsCommandStatusEnabled;
-                    }
-                    else
-                    {
-                        status = (vsCommandStatus)vsCommandStatus.vsCommandStatusSupported;
-                    }
+                    status = (vsCommandStatus)vsCommandStatus.vsCommandStatusSupported | vsCommandStatus.vsCommandStatusEnabled;
                 }
             }
         }
@@ -123,25 +98,28 @@ namespace Ice.VisualStudio
 
             if(executeOption == vsCommandExecOption.vsCommandExecOptionDoDefault)
             {
-                if(commandName == "Ice.VisualStudio.Connect.AddSliceBuilder")
+                if(commandName == "Ice.VisualStudio.Connect.IceConfiguration")
                 {
-                    builder.addBuilderToProject(builder.getSelectedProject());
+                    Project project = builder.getSelectedProject();
+                    if(Util.isCSharpProject(project))
+                    {
+                        if(Util.isSilverlightProject(project))
+                        {
+                            IceSilverlightConfigurationDialog dialog = new IceSilverlightConfigurationDialog(project);
+                            dialog.ShowDialog();
+                        }
+                        else
+                        {
+                            IceCsharpConfigurationDialog dialog = new IceCsharpConfigurationDialog(project);
+                            dialog.ShowDialog();
+                        }
+                    }
+                    else if(Util.isCppProject(project))
+                    {
+                        IceCppConfigurationDialog dialog = new IceCppConfigurationDialog(project);
+                        dialog.ShowDialog();
+                    }
                     handled = true;
-                }
-                else if(commandName == "Ice.VisualStudio.Connect.RemoveSliceBuilder")
-                {
-                    builder.removeBuilderFromProject(builder.getSelectedProject());
-                    handled = true; 
-                }
-            }
-            if(handled)
-            {
-                ServiceProvider serviceProvider = new ServiceProvider(
-                (Microsoft.VisualStudio.OLE.Interop.IServiceProvider)_applicationObject.DTE);
-                IVsUIShell shell = (IVsUIShell) serviceProvider.GetService(typeof(IVsUIShell));
-                if(shell != null)
-                {
-                    shell.RefreshPropertyBrowser(0);
                 }
             }
         }
