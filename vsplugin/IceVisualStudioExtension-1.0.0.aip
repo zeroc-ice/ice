@@ -4,6 +4,7 @@
     <ROW Property="ALLUSERS" Value="2"/>
     <ROW Property="ARPURLINFOABOUT" Value="htpp://www.zeroc.com"/>
     <ROW Property="BannerBitmap" MultiBuildValue="DefaultBuild:installer_header.bmp" Type="1"/>
+    <ROW Property="CTRLS" Value="1"/>
     <ROW Property="DialogBitmap" MultiBuildValue="DefaultBuild:installer_main.bmp" Type="1"/>
     <ROW Property="Manufacturer" Value="ZeroC, Inc." ValueLocId="*"/>
     <ROW Property="ProductCode" Value="1033:{70A9E114-4FC7-487A-83FE-5EF9FD71EBAF} " Type="16"/>
@@ -12,6 +13,7 @@
     <ROW Property="ProductVersion" Value="1.0.0"/>
     <ROW Property="SecureCustomProperties" Value="OLDPRODUCTS;AI_NEWERPRODUCTFOUND"/>
     <ROW Property="UpgradeCode" Value="{D9EE4DC4-8DE2-4A0E-91CD-5FB1005F7DCE}"/>
+    <ROW Property="VIEWREADME" Value="1" Type="4"/>
     <ROW Property="VS_80_CPP_TEMPLATE_DIR_MOD" Value="C:\Program Files\Microsoft Visual Studio 8\VC\vcprojectitems"/>
     <ROW Property="VS_80_CS_TEMPLATE_DIR_MOD" Value="C:\Program Files\Microsoft Visual Studio 8\VC#\CSharpProjectItems"/>
     <ROW Property="VS_90_CPP_TEMPLATE_DIR_MOD" Value="C:\Program Files\Microsoft Visual Studio 9.0\VC\vcprojectitems"/>
@@ -24,10 +26,10 @@
     <ROW Directory="ItemTemplates_1_DIR" Directory_Parent="Templates_1_DIR" DefaultDir="ItemTe~1|ItemTemplates"/>
     <ROW Directory="ItemTemplates_DIR" Directory_Parent="Templates_DIR" DefaultDir="ItemTe~1|ItemTemplates"/>
     <ROW Directory="PersonalFolder" Directory_Parent="TARGETDIR" DefaultDir="Person~1|PersonalFolder" IsPseudoRoot="1"/>
-    <ROW Directory="Slice_1_DIR" Directory_Parent="VS_80_CS_TEMPLATE_DIR_MOD" DefaultDir="Slice"/>
-    <ROW Directory="Slice_2_DIR" Directory_Parent="VS_90_CPP_TEMPLATE_DIR_MOD" DefaultDir="Slice"/>
-    <ROW Directory="Slice_3_DIR" Directory_Parent="VS_90_CS_TEMPLATE_DIR_MOD" DefaultDir="Slice"/>
-    <ROW Directory="Slice_DIR" Directory_Parent="VS_80_CPP_TEMPLATE_DIR_MOD" DefaultDir="Slice"/>
+    <ROW Directory="Slice_1_DIR" Directory_Parent="VS_90_CS_TEMPLATE_DIR_MOD" DefaultDir="Slice"/>
+    <ROW Directory="Slice_2_DIR" Directory_Parent="VS_80_CS_TEMPLATE_DIR_MOD" DefaultDir="Slice"/>
+    <ROW Directory="Slice_3_DIR" Directory_Parent="VS_80_CPP_TEMPLATE_DIR_MOD" DefaultDir="Slice"/>
+    <ROW Directory="Slice_DIR" Directory_Parent="VS_90_CPP_TEMPLATE_DIR_MOD" DefaultDir="Slice"/>
     <ROW Directory="TARGETDIR" DefaultDir="SourceDir"/>
     <ROW Directory="Templates_1_DIR" Directory_Parent="Visual_Studio_2005_DIR" DefaultDir="Templa~1|Templates"/>
     <ROW Directory="Templates_DIR" Directory_Parent="Visual_Studio_2008_DIR" DefaultDir="Templa~1|Templates"/>
@@ -40,54 +42,62 @@
     <ROW Directory="Visual_Studio_2005_DIR" Directory_Parent="PersonalFolder" DefaultDir="Visual~2|Visual Studio 2005"/>
     <ROW Directory="Visual_Studio_2008_DIR" Directory_Parent="PersonalFolder" DefaultDir="Visual~1|Visual Studio 2008"/>
     <ROW Directory="bin_DIR" Directory_Parent="APPDIR" DefaultDir="bin"/>
+    <ROW Directory="icon_DIR" Directory_Parent="APPDIR" DefaultDir="icon"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiCompsComponent">
     <ROW Component="AddinConfig_VS80" ComponentId="{30C73CEB-6BDB-4E7D-B609-DBC797D81C6D}" Directory_="Addins_1_DIR" Attributes="0"/>
     <ROW Component="AddinConfig_VS90" ComponentId="{A32FA995-8CF6-488C-880C-6F89926A5DBA}" Directory_="Addins_DIR" Attributes="0"/>
+    <ROW Component="ContentType" ComponentId="{0FED9F63-0917-4B8F-B040-454F673BF9D3}" Directory_="APPDIR" Attributes="4" KeyPath="ContentType"/>
+    <ROW Component="CppTemplateDir_VS80" ComponentId="{800A636F-096F-480F-B45C-44FF7D98469B}" Directory_="Slice_3_DIR" Attributes="0" KeyPath="slice.vsdir_5" Type="0"/>
+    <ROW Component="CppTemplateDir_VS90" ComponentId="{ACB61DF9-26A9-4C9C-8786-5D12BCC1420B}" Directory_="Slice_DIR" Attributes="0" KeyPath="slice.vsdir_1" Type="0"/>
+    <ROW Component="CppTemplateFiles_VS80" ComponentId="{056ED68B-E48B-452F-AB69-2BB18105782D}" Directory_="VS_80_CPP_TEMPLATE_DIR_MOD" Attributes="0" KeyPath="newslice.ico_3" Type="0"/>
+    <ROW Component="CppTemplateFiles_VS90" ComponentId="{37142146-160A-4AD3-A773-0EF615812014}" Directory_="VS_90_CPP_TEMPLATE_DIR_MOD" Attributes="0" KeyPath="newslice.ico_1" Type="0"/>
+    <ROW Component="CsTemplateDir_VS80" ComponentId="{5F2CAD2B-6857-42B7-83B9-358E891151FA}" Directory_="Slice_2_DIR" Attributes="0" KeyPath="slice.vsdir_4" Type="0"/>
+    <ROW Component="CsTemplateDir_VS90" ComponentId="{297C179B-2BB6-4D04-903C-20FB93FFB824}" Directory_="Slice_1_DIR" Attributes="0" KeyPath="slice.vsdir_3" Type="0"/>
+    <ROW Component="CsTemplateFiles_VS80" ComponentId="{9DB21C8B-1985-4D86-9AED-7A9CC1B7CDAC}" Directory_="VS_80_CS_TEMPLATE_DIR_MOD" Attributes="0" KeyPath="newslice.ico_4" Type="0"/>
+    <ROW Component="CsTemplateFiles_VS90" ComponentId="{BFB1D451-6F2E-4CF3-A315-57547DEF9D5C}" Directory_="VS_90_CS_TEMPLATE_DIR_MOD" Attributes="0" KeyPath="newslice.ice_1" Type="0"/>
     <ROW Component="IceVisualStudioAddin_VS80.dll" ComponentId="{8FC82422-5AE5-46A6-ABC3-E096F307CE3A}" Directory_="bin_DIR" Attributes="0" KeyPath="IceVisualStudioAddin_VS80.dll"/>
     <ROW Component="IceVisualStudioAddin_VS90.dll" ComponentId="{6B6ED6AD-1F34-4541-9DE1-4D22094771BD}" Directory_="bin_DIR" Attributes="0" KeyPath="IceVisualStudioAddin_VS90.dll"/>
-    <ROW Component="Slice" ComponentId="{C66F939D-C526-4B6E-A444-F445E0E6A550}" Directory_="Slice_DIR" Attributes="0"/>
+    <ROW Component="IconDir" ComponentId="{0E70E590-66C1-4C7B-AD8C-E90D98A8B061}" Directory_="icon_DIR" Attributes="0"/>
+    <ROW Component="IconFile" ComponentId="{37AA7F38-0769-4441-8B56-450723AABF8F}" Directory_="icon_DIR" Attributes="0" KeyPath="newslice.ico"/>
+    <ROW Component="PerceivedType" ComponentId="{4EB4DF78-96F2-441C-99CD-D55AAED7339E}" Directory_="APPDIR" Attributes="4" KeyPath="PerceivedType"/>
+    <ROW Component="Predeterminado" ComponentId="{594F2679-9791-467A-8D4F-0EE4CBFD3B0B}" Directory_="APPDIR" Attributes="4" KeyPath="Predeterminado"/>
     <ROW Component="SliceUserTemplate_VS80" ComponentId="{2CA5CFC0-2123-48D0-AA75-3C3EE1FFEDE2}" Directory_="Visual_C_1_DIR" Attributes="0" KeyPath="Slice.zip_1"/>
     <ROW Component="SliceUserTemplate_VS90" ComponentId="{3D185379-978B-4E0A-9E31-CF40B55733F9}" Directory_="Visual_C_DIR" Attributes="0" KeyPath="Slice.zip" Type="0"/>
-    <ROW Component="Slice_1" ComponentId="{3F02BCB6-5D24-4ED2-9774-9ACF1E32A58D}" Directory_="Slice_1_DIR" Attributes="0"/>
-    <ROW Component="Slice_2" ComponentId="{F76013A2-D1DC-415E-9137-5D5BF61B7C6E}" Directory_="Slice_2_DIR" Attributes="0"/>
-    <ROW Component="Slice_3" ComponentId="{45B9E014-D49A-472C-92A3-4E62C2DA9A36}" Directory_="Slice_3_DIR" Attributes="0"/>
+    <ROW Component="Slice_File_.ice" ComponentId="{DB18F4A5-E1F4-4AB8-8CCA-23FB07C922E5}" Directory_="APPDIR" Attributes="4" KeyPath="Slice_File_.ice"/>
     <ROW Component="TextFiles" ComponentId="{0195EF30-F9A0-4091-98F7-D65E27A5678C}" Directory_="APPDIR" Attributes="0" KeyPath="README.txt"/>
-    <ROW Component="newslice.ice" ComponentId="{1644D2E8-7614-43E8-B0B5-4A30EE5FC678}" Directory_="VS_80_CPP_TEMPLATE_DIR_MOD" Attributes="0" KeyPath="newslice.ice" Type="0"/>
-    <ROW Component="newslice.ice_1" ComponentId="{DD4BEFF7-E544-486B-85E6-2A6D3B66C27C}" Directory_="VS_80_CS_TEMPLATE_DIR_MOD" Attributes="0" KeyPath="newslice.ice_1" Type="0"/>
-    <ROW Component="newslice.ice_2" ComponentId="{536686F2-E8DB-4756-B83C-ACD2897F46AA}" Directory_="VS_90_CPP_TEMPLATE_DIR_MOD" Attributes="0" KeyPath="newslice.ice_2" Type="0"/>
-    <ROW Component="newslice.ice_3" ComponentId="{D106C2FE-6578-42CE-9257-5DAFBEABDF15}" Directory_="VS_90_CS_TEMPLATE_DIR_MOD" Attributes="0" KeyPath="newslice.ice_3" Type="0"/>
-    <ROW Component="slice.vsdir" ComponentId="{F65DE1CC-85D1-4779-964E-664CAC2FF0AE}" Directory_="Slice_DIR" Attributes="0" KeyPath="slice.vsdir" Type="0"/>
-    <ROW Component="slice.vsdir_1" ComponentId="{9BC4BB8B-5856-4347-A0F5-59B958B1B3B9}" Directory_="Slice_1_DIR" Attributes="0" KeyPath="slice.vsdir_2" Type="0"/>
-    <ROW Component="slice.vsdir_2" ComponentId="{2316F583-161C-472B-B79A-5B32ACB2D476}" Directory_="Slice_2_DIR" Attributes="0" KeyPath="slice.vsdir_4" Type="0"/>
-    <ROW Component="slice.vsdir_3" ComponentId="{DEBBE04A-F746-44DE-905D-B0D2F0744462}" Directory_="Slice_3_DIR" Attributes="0" KeyPath="slice.vsdir_6" Type="0"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiFeatsComponent">
-    <ROW Feature="Feature" Title="main" Description="Description" Display="0" Level="1" Directory_="APPDIR" Attributes="0" Components="TextFiles"/>
-    <ROW Feature="VS80" Title="Visual Studio 2005 Add-in" Description="Visual Studio 2005 Add-in" Display="3" Level="0" Directory_="APPDIR" Attributes="0" Components="IceVisualStudioAddin_VS80.dll AddinConfig_VS80 SliceUserTemplate_VS80 slice.vsdir newslice.ice slice.vsdir_1 newslice.ice_1"/>
-    <ROW Feature="VS90" Title="Visual Studio 2008 Add-in" Description="Visual Studio 2008 Add-in" Display="5" Level="0" Directory_="APPDIR" Attributes="0" Components="IceVisualStudioAddin_VS90.dll AddinConfig_VS90 SliceUserTemplate_VS90 slice.vsdir_2 newslice.ice_2 slice.vsdir_3 newslice.ice_3 Slice Slice_1 Slice_2 Slice_3"/>
-    <ATTRIBUTE name="CurrentFeature" value="VS90"/>
+    <ROW Feature="Feature" Title="main" Description="Description" Display="0" Level="1" Directory_="APPDIR" Attributes="0" Components="TextFiles IconDir IconFile Slice_File_.ice Predeterminado PerceivedType ContentType"/>
+    <ROW Feature="VS80" Title="Visual Studio 2005 Add-in" Description="Visual Studio 2005 Add-in" Display="3" Level="0" Directory_="APPDIR" Attributes="0" Components="IceVisualStudioAddin_VS80.dll AddinConfig_VS80 SliceUserTemplate_VS80 CsTemplateDir_VS80 CppTemplateDir_VS80 CppTemplateFiles_VS80 CsTemplateFiles_VS80"/>
+    <ROW Feature="VS90" Title="Visual Studio 2008 Add-in" Description="Visual Studio 2008 Add-in" Display="5" Level="0" Directory_="APPDIR" Attributes="0" Components="IceVisualStudioAddin_VS90.dll AddinConfig_VS90 SliceUserTemplate_VS90 CppTemplateFiles_VS90 CppTemplateDir_VS90 CsTemplateFiles_VS90 CsTemplateDir_VS90"/>
+    <ATTRIBUTE name="CurrentFeature" value="VS80"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiFilesComponent">
     <ROW File="IceVisualStudioAddin_VS80.dll" Component_="IceVisualStudioAddin_VS80.dll" FileName="IceVis~2.dll|IceVisualStudioAddin-VS80.dll" Attributes="0" SourcePath="bin\IceVisualStudioAddin-VS80.dll" SelfReg="false" Sequence="3"/>
     <ROW File="IceVisualStudioAddin_VS90.dll" Component_="IceVisualStudioAddin_VS90.dll" FileName="IceVis~1.dll|IceVisualStudioAddin-VS90.dll" Attributes="0" SourcePath="bin\IceVisualStudioAddin-VS90.dll" SelfReg="false" Sequence="1"/>
-    <ROW File="LICENSE.txt" Component_="TextFiles" FileName="LICENSE.txt" Attributes="0" SourcePath="..\distribution\src\windows\vsplugin\LICENSE.txt" SelfReg="false" Sequence="19"/>
-    <ROW File="README.txt" Component_="TextFiles" FileName="README.txt" Attributes="0" SourcePath="..\distribution\src\windows\vsplugin\README.txt" SelfReg="false" Sequence="17"/>
-    <ROW File="SOURCES.txt" Component_="TextFiles" FileName="SOURCES.txt" Attributes="0" SourcePath="..\distribution\src\windows\vsplugin\SOURCES.txt" SelfReg="false" Sequence="18"/>
+    <ROW File="LICENSE.txt" Component_="TextFiles" FileName="LICENSE.txt" Attributes="0" SourcePath="..\distribution\src\windows\vsplugin\LICENSE.txt" SelfReg="false" Sequence="7"/>
+    <ROW File="README.txt" Component_="TextFiles" FileName="README.txt" Attributes="0" SourcePath="..\distribution\src\windows\vsplugin\README.txt" SelfReg="false" Sequence="5"/>
+    <ROW File="SOURCES.txt" Component_="TextFiles" FileName="SOURCES.txt" Attributes="0" SourcePath="..\distribution\src\windows\vsplugin\SOURCES.txt" SelfReg="false" Sequence="6"/>
     <ROW File="Slice.zip" Component_="SliceUserTemplate_VS90" FileName="Slice.zip" Attributes="0" SourcePath="templates\Slice.zip" SelfReg="false" Sequence="2"/>
     <ROW File="Slice.zip_1" Component_="SliceUserTemplate_VS80" FileName="Slice.zip" Attributes="0" SourcePath="templates\Slice.zip" SelfReg="false" Sequence="4"/>
-    <ROW File="newslice.ice" Component_="newslice.ice" FileName="newslice.ice" Attributes="0" SourcePath="templates\cpp\newslice.ice" SelfReg="false" Sequence="6"/>
-    <ROW File="newslice.ice_1" Component_="newslice.ice_1" FileName="newslice.ice" Attributes="0" SourcePath="templates\cs\newslice.ice" SelfReg="false" Sequence="9"/>
-    <ROW File="newslice.ice_2" Component_="newslice.ice_2" FileName="newslice.ice" Attributes="0" SourcePath="templates\cpp\newslice.ice" SelfReg="false" Sequence="12"/>
-    <ROW File="newslice.ice_3" Component_="newslice.ice_3" FileName="newslice.ice" Attributes="0" SourcePath="templates\cs\newslice.ice" SelfReg="false" Sequence="15"/>
-    <ROW File="slice.vsdir" Component_="slice.vsdir" FileName="slice~1.vsd|slice.vsdir" Attributes="0" SourcePath="templates\cpp\Slice\slice.vsdir" SelfReg="false" Sequence="5"/>
-    <ROW File="slice.vsdir_1" Component_="newslice.ice" FileName="slice~1.vsd|slice.vsdir" Attributes="0" SourcePath="templates\cpp\slice.vsdir" SelfReg="false" Sequence="7"/>
-    <ROW File="slice.vsdir_2" Component_="slice.vsdir_1" FileName="slice~1.vsd|slice.vsdir" Attributes="0" SourcePath="templates\cs\Slice\slice.vsdir" SelfReg="false" Sequence="8"/>
-    <ROW File="slice.vsdir_3" Component_="newslice.ice_1" FileName="slice~1.vsd|slice.vsdir" Attributes="0" SourcePath="templates\cs\slice.vsdir" SelfReg="false" Sequence="10"/>
-    <ROW File="slice.vsdir_4" Component_="slice.vsdir_2" FileName="slice~1.vsd|slice.vsdir" Attributes="0" SourcePath="templates\cpp\Slice\slice.vsdir" SelfReg="false" Sequence="11"/>
-    <ROW File="slice.vsdir_5" Component_="newslice.ice_2" FileName="slice~1.vsd|slice.vsdir" Attributes="0" SourcePath="templates\cpp\slice.vsdir" SelfReg="false" Sequence="13"/>
-    <ROW File="slice.vsdir_6" Component_="slice.vsdir_3" FileName="slice~1.vsd|slice.vsdir" Attributes="0" SourcePath="templates\cs\Slice\slice.vsdir" SelfReg="false" Sequence="14"/>
-    <ROW File="slice.vsdir_7" Component_="newslice.ice_3" FileName="slice~1.vsd|slice.vsdir" Attributes="0" SourcePath="templates\cs\slice.vsdir" SelfReg="false" Sequence="16"/>
+    <ROW File="newslice.ice" Component_="CppTemplateFiles_VS90" FileName="newslice.ice" Attributes="0" SourcePath="templates\vs\newslice.ice" SelfReg="false" Sequence="10"/>
+    <ROW File="newslice.ice_1" Component_="CsTemplateFiles_VS90" FileName="newslice.ice" Attributes="0" SourcePath="templates\vs\newslice.ice" SelfReg="false" Sequence="13"/>
+    <ROW File="newslice.ice_2" Component_="CsTemplateFiles_VS80" FileName="newslice.ice" Attributes="0" SourcePath="templates\vs\newslice.ice" SelfReg="false" Sequence="21"/>
+    <ROW File="newslice.ice_3" Component_="CppTemplateFiles_VS80" FileName="newslice.ice" Attributes="0" SourcePath="templates\vs\newslice.ice" SelfReg="false" Sequence="23"/>
+    <ROW File="newslice.ico" Component_="IconFile" FileName="newslice.ico" Attributes="0" SourcePath="icon\newslice.ico" SelfReg="false" Sequence="8"/>
+    <ROW File="newslice.ico_1" Component_="CppTemplateFiles_VS90" FileName="newslice.ico" Attributes="0" SourcePath="icon\newslice.ico" SelfReg="false" Sequence="9"/>
+    <ROW File="newslice.ico_2" Component_="CsTemplateFiles_VS90" FileName="newslice.ico" Attributes="0" SourcePath="icon\newslice.ico" SelfReg="false" Sequence="16"/>
+    <ROW File="newslice.ico_3" Component_="CppTemplateFiles_VS80" FileName="newslice.ico" Attributes="0" SourcePath="icon\newslice.ico" SelfReg="false" Sequence="19"/>
+    <ROW File="newslice.ico_4" Component_="CsTemplateFiles_VS80" FileName="newslice.ico" Attributes="0" SourcePath="icon\newslice.ico" SelfReg="false" Sequence="20"/>
+    <ROW File="slice.vsdir" Component_="CppTemplateFiles_VS90" FileName="slice~1.vsd|slice.vsdir" Attributes="0" SourcePath="templates\vs\slice.vsdir" SelfReg="false" Sequence="11"/>
+    <ROW File="slice.vsdir_1" Component_="CppTemplateDir_VS90" FileName="slice~1.vsd|slice.vsdir" Attributes="0" SourcePath="templates\vs\Slice\slice.vsdir" SelfReg="false" Sequence="12"/>
+    <ROW File="slice.vsdir_2" Component_="CsTemplateFiles_VS90" FileName="slice~1.vsd|slice.vsdir" Attributes="0" SourcePath="templates\vs\slice.vsdir" SelfReg="false" Sequence="14"/>
+    <ROW File="slice.vsdir_3" Component_="CsTemplateDir_VS90" FileName="slice~1.vsd|slice.vsdir" Attributes="0" SourcePath="templates\vs\Slice\slice.vsdir" SelfReg="false" Sequence="15"/>
+    <ROW File="slice.vsdir_4" Component_="CsTemplateDir_VS80" FileName="slice~1.vsd|slice.vsdir" Attributes="0" SourcePath="templates\vs\Slice\slice.vsdir" SelfReg="false" Sequence="17"/>
+    <ROW File="slice.vsdir_5" Component_="CppTemplateDir_VS80" FileName="slice~1.vsd|slice.vsdir" Attributes="0" SourcePath="templates\vs\slice.vsdir" SelfReg="false" Sequence="18"/>
+    <ROW File="slice.vsdir_6" Component_="CsTemplateFiles_VS80" FileName="slice~1.vsd|slice.vsdir" Attributes="0" SourcePath="templates\vs\slice.vsdir" SelfReg="false" Sequence="22"/>
+    <ROW File="slice.vsdir_7" Component_="CppTemplateFiles_VS80" FileName="slice~1.vsd|slice.vsdir" Attributes="0" SourcePath="templates\vs\slice.vsdir" SelfReg="false" Sequence="24"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.BuildComponent">
     <ROW BuildKey="DefaultBuild" BuildName="DefaultBuild" BuildOrder="1" BuildType="1" Languages="en" InstallationType="4"/>
@@ -135,6 +145,7 @@
   <COMPONENT cid="caphyon.advinst.msicomp.MsiControlComponent">
     <ROW Dialog_="LicenseAgreementDlg" Control="BannerBitmap" Type="Bitmap" X="0" Y="0" Width="370" Height="44" Attributes="1048577" Text="[BannerBitmap]" Control_Next="AgreementText" MsiKey="LicenseAgreementDlg#BannerBitmap"/>
     <ROW Dialog_="LicenseAgreementDlg" Control="AgreementText" Type="FileScrollableText" X="20" Y="60" Width="330" Height="120" Attributes="7" Text="..\distribution\src\windows\vsplugin\LICENSE.rtf" Control_Next="Buttons" TextLocId="Control.Text.LicenseAgreementDlg#AgreementText"/>
+    <ROW Dialog_="VerifyReadyDlg" Control="Description" Type="Text" X="25" Y="23" Width="280" Height="15" Attributes="196611" Text="The [Wizard] is ready to begin the installation" Control_Next="BannerLine" TextLocId="Control.Text.VerifyReadyDlg#Description" MsiKey="VerifyReadyDlg#Description"/>
     <ATTRIBUTE name="FixedSizeBitmaps" value="2"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiControlEventComponent">
@@ -150,17 +161,15 @@
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiCreateFolderComponent">
     <ROW Directory_="Addins_DIR" Component_="AddinConfig_VS90"/>
-    <ROW Directory_="Slice_DIR" Component_="Slice"/>
     <ROW Directory_="Addins_1_DIR" Component_="AddinConfig_VS80"/>
-    <ROW Directory_="Slice_1_DIR" Component_="Slice_1"/>
-    <ROW Directory_="Slice_2_DIR" Component_="Slice_2"/>
-    <ROW Directory_="Slice_3_DIR" Component_="Slice_3"/>
+    <ROW Directory_="icon_DIR" Component_="IconDir"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiCustActComponent">
     <ROW Action="AI_DOWNGRADE" Type="19" Target="4010"/>
     <ROW Action="AI_PREPARE_UPGRADE" Type="65" Source="aicustact.dll" Target="PrepareUpgrade"/>
     <ROW Action="AI_RESTORE_LOCATION" Type="65" Source="aicustact.dll" Target="RestoreLocation"/>
     <ROW Action="AI_STORE_LOCATION" Type="51" Source="ARPINSTALLLOCATION" Target="[APPDIR]"/>
+    <ROW Action="AI_ViewReadme" Type="1" Source="aicustact.dll" Target="[#README.txt]"/>
     <ROW Action="AI_XmlConfig" Type="11265" Source="xmlCfg.dll" Target="OnXmlConfig" WithoutSeq="true"/>
     <ROW Action="AI_XmlInstall" Type="1" Source="xmlCfg.dll" Target="OnXmlInstall"/>
     <ROW Action="AI_XmlRemove" Type="11265" Source="xmlCfg.dll" Target="OnXmlRemove" WithoutSeq="true"/>
@@ -194,6 +203,12 @@
     <ROW Signature_="AppSearchSign_3" Root="2" Key="SOFTWARE\Microsoft\VisualStudio\8.0\Projects\{FAE04EC0-301F-11d3-BF4B-00C04F79EFBC}\AddItemTemplates\TemplateDirs\{FAE04EC1-301F-11D3-BF4B-00C04F79EFBC}\/1" Name="TemplatesDir" Type="2"/>
     <ROW Signature_="AppSearchSign_4" Root="2" Key="SOFTWARE\Microsoft\VisualStudio\8.0" Name="InstallDir" Type="2"/>
     <ROW Signature_="AppSearchSign_5" Root="2" Key="SOFTWARE\Microsoft\VisualStudio\9.0" Name="InstallDir" Type="2"/>
+  </COMPONENT>
+  <COMPONENT cid="caphyon.advinst.msicomp.MsiRegsComponent">
+    <ROW Registry="ContentType" Root="0" Key=".ice" Name="ContentType" Value="text/plain" Component_="ContentType"/>
+    <ROW Registry="PerceivedType" Root="0" Key=".ice" Name="PerceivedType" Value="text" Component_="PerceivedType"/>
+    <ROW Registry="Predeterminado" Root="0" Key=".ice\DefaultIcon" Value="[#newslice.ico]" Component_="Predeterminado"/>
+    <ROW Registry="Slice_File_.ice" Root="0" Key=".ice" Value="Slice File (.ice)" Component_="Slice_File_.ice"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiUpgradeComponent">
     <ROW UpgradeCode="[|UpgradeCode]" VersionMax="[|ProductVersion]" Attributes="1025" ActionProperty="OLDPRODUCTS"/>

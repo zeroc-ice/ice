@@ -26,6 +26,10 @@ Ice Visual Studio Extension requires:
 - Visual Studio 2008 SDK Version 1.0
 
   http://www.microsoft.com/downloads/details.aspx?FamilyID=30402623-93ca-479a-867c-04dc45164f5b&displaylang=en
+  
+- Microsoft Visual Studio 2005
+
+  This is only required if you plan to build the extension for Visual Studio 2005
 
 
 ======================================================================
@@ -122,7 +126,7 @@ Configuration
 
    You should copy slice template and configuration files here.
 
-   > cd c:\IceVisualStudioExtension-@ver@\templates\vc
+   > cd c:\IceVisualStudioExtension-@ver@\templates\vs
    > xcopy /e * C:\Program Files\Microsoft Visual Studio 9.0\VC\vcprojectitems
 
 
@@ -133,7 +137,7 @@ Configuration
 
    You should copy slice template and configuration files here.
 
-   > cd c:\IceVisualStudioExtension-@ver@\templates\cs
+   > cd c:\IceVisualStudioExtension-@ver@\templates\vs
    > xcopy /e * C:\Program Files\Microsoft Visual Studio 9.0\VC#\CSharpProjectItems
 
    * The commands show avobe are for visual studio 2008 for Visual 

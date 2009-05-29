@@ -7,15 +7,25 @@
 #
 # **********************************************************************
 
-DEBUG = yes
-OPTIMIZE = no
-
 #
 # Select an installation base directory. The directory will be created
 # if it does not exist.
 #
 
 prefix					= C:\IceVisualStudioExtension-$(VERSION)
+
+#
+# Define DEBUG as yes if you want to build with debug information and
+# assertions enabled.
+#
+
+DEBUG			= yes
+
+#
+# Define OPTIMIZE as yes if you want to build with optimization.
+#
+
+OPTIMIZE		= yes
 
 
 #
@@ -27,12 +37,6 @@ prefix					= C:\IceVisualStudioExtension-$(VERSION)
 !if "$(VS)" == ""
 VS				= VS90
 !endif
-
-#
-# Set the location of the Visual Studio 2008
-#
-VS90_HOME			= C:\Program Files\Microsoft Visual Studio 9.0
-#VS90_HOME			= C:\Program Files (x86)\Microsoft Visual Studio 9.0
 
 #
 # Set the location of the Visual Studio 2005,  This is only required if you are
@@ -63,7 +67,7 @@ KEYFILE				= $(top_srcdir)\config\IceDevKey.snk
 EVERYTHING      = all install clean
 
 !if "$(VS)" == "VS90"
-VS_HOME = $(VS90_HOME)
+VS_HOME = $(VSINSTALLDIR)
 PKG_PREFIX = $(VS)
 !else
 VS_HOME = $(VS80_HOME)
@@ -104,11 +108,11 @@ MCSFLAGS = $(MCSFLAGS) -define:VS90
 !endif
 
 MCSFLAGS = $(MCSFLAGS) /reference:"C:\Windows\Microsoft.NET\Framework\v2.0.50727\mscorlib.dll"
-MCSFLAGS = $(MCSFLAGS) /reference:"$(VS90_HOME)\Common7\IDE\PublicAssemblies\EnvDTE.dll"
-MCSFLAGS = $(MCSFLAGS) /reference:"$(VS90_HOME)\Common7\IDE\PublicAssemblies\EnvDTE80.dll"
-MCSFLAGS = $(MCSFLAGS) /reference:"$(VS90_HOME)\Visual Studio Tools for Office\PIA\Office11\Extensibility.dll"
-MCSFLAGS = $(MCSFLAGS) /reference:"$(VS90_HOME)\Common7\IDE\PublicAssemblies\Microsoft.VisualStudio.CommandBars.dll"
-MCSFLAGS = $(MCSFLAGS) /reference:"$(VS90_HOME)\Common7\IDE\PublicAssemblies\VSLangProj.dll"
+MCSFLAGS = $(MCSFLAGS) /reference:"$(VSINSTALLDIR)\Common7\IDE\PublicAssemblies\EnvDTE.dll"
+MCSFLAGS = $(MCSFLAGS) /reference:"$(VSINSTALLDIR)\Common7\IDE\PublicAssemblies\EnvDTE80.dll"
+MCSFLAGS = $(MCSFLAGS) /reference:"$(VSINSTALLDIR)\Visual Studio Tools for Office\PIA\Office11\Extensibility.dll"
+MCSFLAGS = $(MCSFLAGS) /reference:"$(VSINSTALLDIR)\Common7\IDE\PublicAssemblies\Microsoft.VisualStudio.CommandBars.dll"
+MCSFLAGS = $(MCSFLAGS) /reference:"$(VSINSTALLDIR)\Common7\IDE\PublicAssemblies\VSLangProj.dll"
 
 MCSFLAGS = $(MCSFLAGS) /reference:"$(VS_HOME)\Common7\IDE\PublicAssemblies\Microsoft.VisualStudio.VCProject.dll"
 MCSFLAGS = $(MCSFLAGS) /reference:"$(VS_HOME)\Common7\IDE\PublicAssemblies\Microsoft.VisualStudio.VCProjectEngine.dll"
