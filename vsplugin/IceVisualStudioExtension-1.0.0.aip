@@ -2,6 +2,7 @@
 <DOCUMENT type="Advanced Installer" CreateVersion="7.0.1" version="7.0.1" modules="enterprise" RootPath="." Language="en">
   <COMPONENT cid="caphyon.advinst.msicomp.MsiPropsComponent">
     <ROW Property="ALLUSERS" Value="2"/>
+    <ROW Property="ARPPRODUCTICON" Value="vsplugin.exe" Type="8"/>
     <ROW Property="ARPURLINFOABOUT" Value="htpp://www.zeroc.com"/>
     <ROW Property="BannerBitmap" MultiBuildValue="DefaultBuild:installer_header.bmp" Type="1"/>
     <ROW Property="CTRLS" Value="1"/>
@@ -95,7 +96,7 @@
     <ROW File="slice.vsdir_2" Component_="CsTemplateFiles_VS90" FileName="slice~1.vsd|slice.vsdir" Attributes="0" SourcePath="templates\vs\slice.vsdir" SelfReg="false" Sequence="14"/>
     <ROW File="slice.vsdir_3" Component_="CsTemplateDir_VS90" FileName="slice~1.vsd|slice.vsdir" Attributes="0" SourcePath="templates\vs\Slice\slice.vsdir" SelfReg="false" Sequence="15"/>
     <ROW File="slice.vsdir_4" Component_="CsTemplateDir_VS80" FileName="slice~1.vsd|slice.vsdir" Attributes="0" SourcePath="templates\vs\Slice\slice.vsdir" SelfReg="false" Sequence="17"/>
-    <ROW File="slice.vsdir_5" Component_="CppTemplateDir_VS80" FileName="slice~1.vsd|slice.vsdir" Attributes="0" SourcePath="templates\vs\slice.vsdir" SelfReg="false" Sequence="18"/>
+    <ROW File="slice.vsdir_5" Component_="CppTemplateDir_VS80" FileName="slice~1.vsd|slice.vsdir" Attributes="0" SourcePath="templates\vs\Slice\slice.vsdir" SelfReg="false" Sequence="18"/>
     <ROW File="slice.vsdir_6" Component_="CsTemplateFiles_VS80" FileName="slice~1.vsd|slice.vsdir" Attributes="0" SourcePath="templates\vs\slice.vsdir" SelfReg="false" Sequence="22"/>
     <ROW File="slice.vsdir_7" Component_="CppTemplateFiles_VS80" FileName="slice~1.vsd|slice.vsdir" Attributes="0" SourcePath="templates\vs\slice.vsdir" SelfReg="false" Sequence="24"/>
   </COMPONENT>
@@ -180,6 +181,9 @@
     <ROW Action="SET_TARGETDIR_TO_APPDIR" Type="51" Source="TARGETDIR" Target="[APPDIR]"/>
     <ROW Action="action.vbs" Type="6" Source="action.vbs"/>
   </COMPONENT>
+  <COMPONENT cid="caphyon.advinst.msicomp.MsiIconsComponent">
+    <ROW Name="vsplugin.exe" SourcePath="icon\vsplugin.ico" Index="0"/>
+  </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiInstExSeqComponent">
     <ROW Action="AI_DOWNGRADE" Condition="AI_NEWERPRODUCTFOUND AND (UILevel &lt;&gt; 5)" Sequence="210"/>
     <ROW Action="AI_RESTORE_LOCATION" Condition="APPDIR=&quot;&quot;" Sequence="749"/>
@@ -208,7 +212,7 @@
     <ROW Registry="ContentType" Root="0" Key=".ice" Name="ContentType" Value="text/plain" Component_="ContentType"/>
     <ROW Registry="PerceivedType" Root="0" Key=".ice" Name="PerceivedType" Value="text" Component_="PerceivedType"/>
     <ROW Registry="Predeterminado" Root="0" Key=".ice\DefaultIcon" Value="[#newslice.ico]" Component_="Predeterminado"/>
-    <ROW Registry="Slice_File_.ice" Root="0" Key=".ice" Value="Slice File (.ice)" Component_="Slice_File_.ice"/>
+    <ROW Registry="Slice_File_.ice" Root="0" Key=".ice" Value="Slice File" Component_="Slice_File_.ice"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiUpgradeComponent">
     <ROW UpgradeCode="[|UpgradeCode]" VersionMax="[|ProductVersion]" Attributes="1025" ActionProperty="OLDPRODUCTS"/>
