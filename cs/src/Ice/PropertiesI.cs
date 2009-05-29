@@ -11,6 +11,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Text.RegularExpressions;
+using Microsoft.Win32;
 
 namespace Ice
 {
@@ -294,18 +295,50 @@ namespace Ice
         
         public void load(string file)
         {
-            try
+            if(IceInternal.AssemblyUtil.platform_ == IceInternal.AssemblyUtil.Platform.Windows &&
+               (file.StartsWith("HKLM\\") || file.StartsWith("HKCU\\")))
             {
-                using(System.IO.StreamReader sr = new System.IO.StreamReader(file))
+                RegistryKey key;
+                if(file.StartsWith("HKLM\\"))
                 {
-                    parse(sr);
+                    key = Registry.LocalMachine;
+                }
+                else
+                {
+                    key = Registry.CurrentUser;
+                }
+                RegistryKey iceKey = key.OpenSubKey(file.Substring(5));
+                if(iceKey == null)
+                {
+                    Ice.InitializationException ex = new Ice.InitializationException();
+                    ex.reason = "Could not open Windows registry key `" + file + "'";
+                    throw ex;
+                }
+
+                foreach(string propKey in iceKey.GetValueNames())
+                {
+                    RegistryValueKind kind = iceKey.GetValueKind(propKey);
+                    if(kind == RegistryValueKind.String)
+                    {
+                        setProperty(propKey, iceKey.GetValue(propKey).ToString());
+                    }
                 }
             }
-            catch(System.IO.IOException ex)
+            else
             {
-                Ice.FileException fe = new Ice.FileException(ex);
-                fe.path = file;
-                throw fe;
+                try
+                {
+                    using(System.IO.StreamReader sr = new System.IO.StreamReader(file))
+                    {
+                        parse(sr);
+                    }
+                }
+                catch(System.IO.IOException ex)
+                {
+                    Ice.FileException fe = new Ice.FileException(ex);
+                    fe.path = file;
+                    throw fe;
+                }
             }
         }
         

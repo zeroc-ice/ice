@@ -33,6 +33,16 @@ General Changes
 These entries apply to all relevant language mappings unless otherwise
 noted.
 
+- Added the ability to read properties from the Windows registry. This
+  is done by setting Ice.Config property to a value such as the
+  following:
+
+    HKLM\Software\MyCompany\IceProperties
+
+  This will read all the string values from the specified key in
+  HKEY_LOCAL_MACHINE and set them as Ice properties. You can can also
+  use HKEY_CURRENT_USER by specifying HKCU rather than HKLM.
+
 - Added ability to get information from endpoints such as host and
   port without having to parse the stringified endpoint.
 

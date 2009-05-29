@@ -286,38 +286,86 @@ public final class PropertiesI implements Properties
     public void
     load(String file)
     {
-        java.io.InputStream is = null;
-        try
+        if(System.getProperty("os.name").startsWith("Windows") &&
+           (file.startsWith("HKLM\\") || file.startsWith("HKCU\\")))
         {
-            is = IceInternal.Util.openResource(getClass().getClassLoader(), file);
-            if(is == null)
+            String regQuery = "reg query " + file;
+            try
+            {
+                java.lang.Process process = Runtime.getRuntime().exec(regQuery);
+                process.waitFor();
+                if(process.exitValue() != 0)
+                {
+                    InitializationException ie = new InitializationException();
+                    ie.reason = "Could not read Windows registry key `" + file + "'";
+                    throw ie;
+                }
+
+                java.io.InputStream is = process.getInputStream();
+                java.io.StringWriter sw = new java.io.StringWriter();
+                int c;
+                while((c = is.read()) != -1)
+                {
+                    sw.write(c);
+                }
+                String[] result = sw.toString().split("\n");
+
+                for(String line : result)
+                {
+                    int pos = line.indexOf("REG_SZ");
+                    if(pos != -1)
+                    {
+                        setProperty(line.substring(0, pos).trim(), line.substring(pos + 6, line.length()).trim());
+                    }
+                }
+            }
+            catch(Ice.LocalException ex)
+            {
+                throw ex;
+            }
+            catch(Exception ex)
+            {
+                InitializationException ie = new InitializationException();
+                ie.reason = "Could not read Windows registry key `" + file + "'";
+                ie.initCause(ex); // Exception chaining
+                throw ie;
+            }
+        }
+        else
+        {
+            java.io.InputStream is = null;
+            try
+            {
+                is = IceInternal.Util.openResource(getClass().getClassLoader(), file);
+                if(is == null)
+                {
+                    FileException fe = new FileException();
+                    fe.path = file;
+                    throw fe;
+                }
+                java.io.InputStreamReader isr = new java.io.InputStreamReader(is, "UTF-8");
+                java.io.BufferedReader br = new java.io.BufferedReader(isr);
+                parse(br);
+            }
+            catch(java.io.IOException ex)
             {
                 FileException fe = new FileException();
                 fe.path = file;
+                fe.initCause(ex); // Exception chaining
                 throw fe;
             }
-            java.io.InputStreamReader isr = new java.io.InputStreamReader(is, "UTF-8");
-            java.io.BufferedReader br = new java.io.BufferedReader(isr);
-            parse(br);
-        }
-        catch(java.io.IOException ex)
-        {
-            FileException fe = new FileException();
-            fe.path = file;
-            fe.initCause(ex); // Exception chaining
-            throw fe;
-        }
-        finally
-        {
-            if(is != null)
+            finally
             {
-                try
+                if(is != null)
                 {
-                    is.close();
-                }
-                catch(Throwable ex)
-                {
-                    // Ignore.
+                    try
+                    {
+                        is.close();
+                    }
+                    catch(Throwable ex)
+                    {
+                        // Ignore.
+                    }
                 }
             }
         }

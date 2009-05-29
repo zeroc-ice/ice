@@ -285,19 +285,73 @@ Ice::PropertiesI::parseIceCommandLineOptions(const StringSeq& options)
 void
 Ice::PropertiesI::load(const std::string& file)
 {
-    ifstream in(file.c_str());
-    if(!in)
+#ifdef _WIN32
+    if(file.find("HKLM\\") == 0 || file.find("HKCU\\") == 0)
     {
-        FileException ex(__FILE__, __LINE__);
-        ex.path = file;
-        ex.error = getSystemErrno();
-        throw ex;
-    }
+        HKEY key;
+        if(file.find("HKLM\\") == 0)
+        {
+            key = HKEY_LOCAL_MACHINE;
+        }
+        else
+        {
+            key = HKEY_CURRENT_USER;
+        }
 
-    string line;
-    while(getline(in, line))
+        HKEY iceKey;
+        if(RegOpenKey(key, file.substr(5).c_str(), &iceKey) != ERROR_SUCCESS)
+        {
+            InitializationException ex(__FILE__, __LINE__);
+            ex.reason = "Could not open Windows registry key `" + file + "'";
+            throw ex;
+        }
+
+        DWORD numValues;
+        if(RegQueryInfoKey(iceKey, NULL, NULL, NULL, NULL, NULL, NULL, &numValues, NULL, NULL, NULL, NULL) ==
+           ERROR_SUCCESS)
+        {
+            if(numValues > 0)
+            {
+                for(DWORD i = 0; i < numValues; ++i)
+                {
+                    char keyBuf[256];
+                    DWORD keyBufSize = sizeof(keyBuf);
+                    if(RegEnumValue(iceKey, i, keyBuf, &keyBufSize, NULL, NULL, NULL, NULL) == ERROR_SUCCESS)
+                    {
+                        char valueBuf[256];
+                        DWORD valueBufSize = sizeof(valueBuf);
+                        DWORD keyType;
+                        if(RegQueryValueEx(iceKey, keyBuf, 0, &keyType, (BYTE*)valueBuf, &valueBufSize) ==
+                           ERROR_SUCCESS)
+                        {
+                            if(keyType == REG_SZ)
+                            {
+                                setProperty(keyBuf, valueBuf);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        RegCloseKey(iceKey);
+    }
+    else
+#endif
     {
-        parseLine(line, _converter);
+        ifstream in(file.c_str());
+        if(!in)
+        {
+            FileException ex(__FILE__, __LINE__);
+            ex.path = file;
+            ex.error = getSystemErrno();
+            throw ex;
+        }
+
+        string line;
+        while(getline(in, line))
+        {
+            parseLine(line, _converter);
+        }
     }
 }
 
