@@ -115,6 +115,10 @@ Configuration
    > cd C:\Users\username\Documents\Visual Studio 2005\Addins
    > copy C:\IceVisualStudioExtension-@ver@\conf\Ice-VS80.Addin
 
+  If you have not installed the addin in the default location you should
+  edit the .Addin file and update the value of the "assembley" element
+  corresponding with your installation path.
+
 3) Install item templates.
 
    To be able to add new items from the standard "New Item" dialog you

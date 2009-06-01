@@ -35,7 +35,7 @@ Project properties
     Ice binary distribution.
 
   * Enable Ice: Permit Slice identifiers with an "Ice" prefix (--ice option)
-  
+
   * Enable Tie: Generate tie classes (--tie option).
     This property only applies to .NET projects.
 
@@ -44,11 +44,11 @@ Project properties
 
   * Slice Include Path: The list of directories to search for included
     Slice files (-I option)
-    
+
   * Preprocessor Macros: List of macro definitions passed to the Slice compiler
-  
+
   * Ice Components: The list of Ice libraries to link with
-  
+
 
 
 Adding Slice files to a project
