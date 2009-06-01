@@ -43,7 +43,7 @@ class SessionKeepAliveThread : public IceUtil::Thread, public IceUtil::Monitor<I
 public:
 
     SessionKeepAliveThread(const InternalRegistryPrx& registry, const Ice::LoggerPtr& logger) : 
-        Thread("IceGrid session keepalive thread"),
+        IceUtil::Thread("IceGrid session keepalive thread"),
         _registry(registry),
         _logger(logger),
         _state(InProgress),

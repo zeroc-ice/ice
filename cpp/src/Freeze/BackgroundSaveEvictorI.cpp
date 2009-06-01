@@ -87,7 +87,7 @@ handleFatalError(const Freeze::BackgroundSaveEvictorPtr& evictor, const Ice::Com
 //
 
 Freeze::WatchDogThread::WatchDogThread(long timeout, BackgroundSaveEvictorI& evictor) :
-    Thread("Freeze background save evictor watchdog thread"),
+    IceUtil::Thread("Freeze background save evictor watchdog thread"),
     _timeout(IceUtil::Time::milliSeconds(timeout)),
     _evictor(evictor),
     _done(false),
@@ -155,7 +155,7 @@ Freeze::BackgroundSaveEvictorI::BackgroundSaveEvictorI(const ObjectAdapterPtr& a
                                                        const vector<IndexPtr>& indices,
                                                        bool createDb) :
     EvictorI<BackgroundSaveEvictorElement>(adapter, envName, dbEnv, filename, FacetTypeMap(), initializer, indices, createDb),
-    Thread("Freeze background save evictor thread"),
+    IceUtil::Thread("Freeze background save evictor thread"),
     _currentEvictorSize(0),
     _savingThreadDone(false)
 {

@@ -1173,7 +1173,7 @@ Glacier2::SessionRouterI::finishCreateSession(const ConnectionPtr& connection, c
 
 Glacier2::SessionRouterI::SessionThread::SessionThread(const SessionRouterIPtr& sessionRouter,
                                                        const IceUtil::Time& sessionTimeout) :
-    Thread("Glacier2 session thread"),
+    IceUtil::Thread("Glacier2 session thread"),
     _sessionRouter(sessionRouter),
     _sessionTimeout(sessionTimeout)
 {

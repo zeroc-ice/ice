@@ -806,7 +806,7 @@ IceInternal::ThreadPool::read(const EventHandlerPtr& handler)
 }
 
 IceInternal::ThreadPool::EventHandlerThread::EventHandlerThread(const ThreadPoolPtr& pool) :
-    Thread(pool->_prefix + " thread"),
+    IceUtil::Thread(pool->_prefix + " thread"),
     _pool(pool)
 {
 }

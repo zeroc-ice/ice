@@ -30,7 +30,7 @@ IceInternal::EndpointI::connectors(const vector<struct sockaddr_storage>& addrs)
 }
 
 IceInternal::EndpointHostResolver::EndpointHostResolver(const InstancePtr& instance) :
-    Thread("Ice endpoint host resolver thread"),
+    IceUtil::Thread("Ice endpoint host resolver thread"),
     _instance(instance),
     _destroyed(false)
 {

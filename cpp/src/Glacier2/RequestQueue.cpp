@@ -290,7 +290,7 @@ Glacier2::RequestQueue::flushRequests(set<Ice::ObjectPrx>& batchProxies)
 }
 
 Glacier2::RequestQueueThread::RequestQueueThread(const IceUtil::Time& sleepTime) :
-    Thread("Glacier2 request queue thread"),
+    IceUtil::Thread("Glacier2 request queue thread"),
     _sleepTime(sleepTime),
     _destroy(false),
     _sleep(false)
