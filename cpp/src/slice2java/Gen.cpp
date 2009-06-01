@@ -1480,15 +1480,15 @@ Slice::JavaVisitor::writeDocCommentParam(Output& out, const OperationPtr& p, Par
     //
     ParamDeclList tmp = p->parameters();
     vector<string> params;
-    for(ParamDeclList::const_iterator i = tmp.begin(); i != tmp.end(); ++i)
+    for(ParamDeclList::const_iterator q = tmp.begin(); q != tmp.end(); ++q)
     {
-        if((*i)->isOutParam() && paramType == OutParam)
+        if((*q)->isOutParam() && paramType == OutParam)
         {
-            params.push_back((*i)->name());
+            params.push_back((*q)->name());
         }
-        else if(!(*i)->isOutParam() && paramType == InParam)
+        else if(!(*q)->isOutParam() && paramType == InParam)
         {
-            params.push_back((*i)->name());
+            params.push_back((*q)->name());
         }
     }
 
