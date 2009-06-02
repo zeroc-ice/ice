@@ -12,7 +12,7 @@
 # if it does not exist.
 #
 
-prefix					= C:\IceVisualStudioExtension-$(VERSION)
+prefix			= C:\IceVisualStudioExtension-$(VERSION)
 
 #
 # Define DEBUG as yes if you want to build with debug information and
@@ -35,29 +35,29 @@ OPTIMIZE		= yes
 #
 
 !if "$(VS)" == ""
-VS				= VS90
+VS			= VS90
 !endif
 
 #
 # Set the location of the Visual Studio 2005,  This is only required if you are
 # building the extension for Visual Studio 2005
 #
-VS80_HOME			= C:\Program Files\Microsoft Visual Studio 8
-#VS80_HOME 			= C:\Program Files (x86)\Microsoft Visual Studio 8
+VS80_HOME		= C:\Program Files\Microsoft Visual Studio 8
+#VS80_HOME 		 = C:\Program Files (x86)\Microsoft Visual Studio 8
 
 #
 # Set the location of the Visual Studio 2008 SDK
 #
 
-VSSDK_HOME			= C:\Program Files\Microsoft Visual Studio 2008 SDK
-#VSSDK_HOME			= C:\Program Files (x86)\Microsoft Visual Studio 2008 SDK
+VSSDK_HOME		= C:\Program Files\Microsoft Visual Studio 2008 SDK
+#VSSDK_HOME		 = C:\Program Files (x86)\Microsoft Visual Studio 2008 SDK
 
 #
 # Set the key file used to sign assemblies.
 #
 
 !if "$(KEYFILE)" == ""
-KEYFILE				= $(top_srcdir)\config\IceDevKey.snk
+KEYFILE			= $(top_srcdir)\config\IceDevKey.snk
 !endif
 
 # ----------------------------------------------------------------------
