@@ -253,7 +253,7 @@
     <ROW XmlElement="27" ParentElement="18" Name="CommandLineSafe" Order="8" Flags="30" Text="1"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.XmlFileComponent">
-    <ROW XmlFile="Ice_VS80.AddIn" FileName="Ice-VS~1.Add|Ice-VS80.AddIn" DirProperty="Addins_1_DIR" Component="AddinConfig_VS90" RootElement="14" Flags="88" Version="1.0" Encoding="UTF-16" IndentUnits="2"/>
+    <ROW XmlFile="Ice_VS80.AddIn" FileName="Ice-VS~1.Add|Ice-VS80.AddIn" DirProperty="Addins_1_DIR" Component="AddinConfig_VS80" RootElement="14" Flags="88" Version="1.0" Encoding="UTF-16" IndentUnits="2"/>
     <ROW XmlFile="Ice_VS90.AddIn" FileName="Ice-VS~1.Add|Ice-VS90.AddIn" DirProperty="Addins_DIR" Component="AddinConfig_VS90" RootElement="0" Flags="88" Version="1.0" Encoding="UTF-16" IndentUnits="2"/>
   </COMPONENT>
 </DOCUMENT>
