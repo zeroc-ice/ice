@@ -1,9 +1,9 @@
 // **********************************************************************
 //
-// Copyright (c) 2009 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2009 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
-// LICENSE file included in this distribution.
+// ICE_LICENSE file included in this distribution.
 //
 // **********************************************************************
 
@@ -48,60 +48,95 @@ namespace Ice.VisualStudio
 
         public void reap(Project project, Builder builder)
         {
-            if(project == null)
+            lock(this)
             {
-                return;
-            }
-
-            if(!_files.ContainsKey(project.Name))
-            {
-                return;
-            }
-
-            Dictionary<string, List<string>> projectFiles = _files[project.Name];
-            foreach(KeyValuePair<string, List<string>> i in projectFiles)
-            {
-                ProjectItem item = Util.findItem(i.Key, project.ProjectItems);
-                if(item == null) //Slice file not longer in the project.
+                if(_reaping)
                 {
-                    //Remove generated files for the slice.
-                    List<string> removed = new List<string>();
-                    foreach(string f in i.Value)
+                    return;
+                }
+                _reaping = true;
+            }
+        
+            try
+            {
+                if(project == null)
+                {
+                    return;
+                }
+
+                if(!_files.ContainsKey(project.Name))
+                {
+                    return;
+                }
+
+                Dictionary<string, List<string>> projectFiles = _files[project.Name];
+                List<String> removedSlice = new List<String>();
+                foreach(KeyValuePair<string, List<string>> i in projectFiles)
+                {
+                    ProjectItem item = Util.findItem(i.Key, project.ProjectItems);
+                    if(item == null) //Slice file not longer in the project.
                     {
-                        ProjectItem generatedItem = Util.findItem(f, project.ProjectItems);
-                        if(generatedItem == null)
+                        //Remove generated files for the slice.
+                        List<String> removedFiles = new List<string>();
+                        removedSlice.Add(i.Key);
+                        List<ProjectItem> generated = new List<ProjectItem>();
+                        foreach(string f in i.Value)
                         {
-                            continue;
+                            ProjectItem generatedItem = Util.findItem(f, project.ProjectItems);
+                            if(generatedItem == null)
+                            {
+                                continue;
+                            }
+                            generated.Add(generatedItem);
+                            removedFiles.Add(f);
                         }
 
-                        generatedItem.Delete();
-
-                        if(File.Exists(f))
+                        foreach(ProjectItem generatedItem in generated)
                         {
-                            try
+                            if(generatedItem == null)
                             {
-                                File.Delete(f);
+                                continue;
                             }
-                            catch(IOException)
+                            generatedItem.Delete();
+                        }
+                        foreach(String f in removedFiles)
+                        {
+                            if(File.Exists(f))
                             {
+                                try
+                                {
+                                    File.Delete(f);
+                                }
+                                catch(IOException)
+                                {
+                                }
                             }
                         }
-                        removed.Add(f);
                     }
+                }
 
-                    foreach(String f in removed)
+                foreach (String slice in removedSlice)
+                {
+                    if (String.IsNullOrEmpty(slice))
                     {
-                        if(String.IsNullOrEmpty(f))
-                        {
-                            continue;
-                        }
-                        i.Value.Remove(f); //Remove the file from FileTracker
-                        builder.cleanDependencies(project, f);
+                        continue;
                     }
+                    projectFiles.Remove(slice);
+                }
+            }
+            catch(Exception)
+            {
+            }
+            finally
+            {
+                lock(this)
+                {
+                    _reaping = false;
                 }
             }
         }
 
         private Dictionary<string, Dictionary<string, List<string>>> _files;
+        private bool _reaping = false;
     }
 }

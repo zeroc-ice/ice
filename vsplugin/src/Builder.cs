@@ -358,7 +358,8 @@ namespace Ice.VisualStudio
                     {
                         continue;
                     }
-
+                    String f = item.Properties.Item("FullPath").Value.ToString();
+                    clearErrors(f);
                     if(Util.isCppProject(project))
                     {
                         buildCppProjectItem(project, item, false, false);
@@ -712,16 +713,19 @@ namespace Ice.VisualStudio
             {
                 updateDependencies(project, iceFileInfo.FullName, getSliceCompilerArgs(project, true));
                 runSliceCompiler(project, iceFileInfo.FullName, generatedFileInfo.DirectoryName, building);
+                _fileTracker.trackFile(project, iceFileInfo.FullName, generatedFileInfo.FullName);
             }
             else if(!generatedFileInfo.Exists)
             {
                 updateDependencies(project, iceFileInfo.FullName, getSliceCompilerArgs(project, true));
                 runSliceCompiler(project, iceFileInfo.FullName, generatedFileInfo.DirectoryName, building);
+                _fileTracker.trackFile(project, iceFileInfo.FullName, generatedFileInfo.FullName);
             }
             else if(iceFileInfo.LastWriteTime > generatedFileInfo.LastWriteTime)
             {
                 updateDependencies(project, iceFileInfo.FullName, getSliceCompilerArgs(project, true));
                 runSliceCompiler(project, iceFileInfo.FullName, generatedFileInfo.DirectoryName, building);
+                _fileTracker.trackFile(project, iceFileInfo.FullName, generatedFileInfo.FullName);
             }
             else
             {
@@ -744,6 +748,7 @@ namespace Ice.VisualStudio
                     {
                         updateDependencies(project, iceFileInfo.FullName, getSliceCompilerArgs(project, true));
                         runSliceCompiler(project, iceFileInfo.FullName, generatedFileInfo.DirectoryName, building);
+                        _fileTracker.trackFile(project, iceFileInfo.FullName, generatedFileInfo.FullName);
                         break;
                     }
                 }
@@ -755,7 +760,6 @@ namespace Ice.VisualStudio
                 if(generatedItem == null)
                 {
                     project.ProjectItems.AddFromFile(generatedFileInfo.FullName);
-                    _fileTracker.trackFile(project, iceFileInfo.FullName, generatedFileInfo.FullName);
                 }
             }
         }
