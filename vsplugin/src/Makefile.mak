@@ -11,28 +11,29 @@ top_srcdir	= ..
 
 !include $(top_srcdir)\config\Make.rules.mak
 
-PRODUCT    = IceVisualStudioAddin
+PRODUCT    	= IceVisualStudioAddin
 PKG		= $(PRODUCT)-$(PKG_PREFIX)
 
 INSTALL_SUBDIRS	= $(install_bindir) $(install_configdir)
 
 TARGETS		= $(top_srcdir)\bin\$(PKG).dll
-PDBS			= $(top_srcdir)\bin\$(PKG).pdb
-SRCS		=  AssemblyInfo.cs \
-		  Builder.cs \
-		  Connect.cs \
- 		  FileTracker.cs \
-		  IceCppConfigurationDialog.cs \
-		  IceCppConfigurationDialog.Designer.cs \
-		  IceCsharpConfigurationDialog.cs \
-		  IceCsharpConfigurationDialog.Designer.cs \
-		  IceSilverlightConfigurationDialog.cs \
-		  IceSilverlightConfigurationDialog.Designer.cs \
-		  Util.cs
+PDBS		= $(top_srcdir)\bin\$(PKG).pdb
 
-RESOURCES = /resource:IceCppConfigurationDialog.resx \
-		   /resource:IceCsharpConfigurationDialog.resx \
-		   /resource:IceSilverlightConfigurationDialog.resx
+SRCS		=  AssemblyInfo.cs \
+		   Builder.cs \
+		   Connect.cs \
+ 		   FileTracker.cs \
+		   IceCppConfigurationDialog.cs \
+		   IceCppConfigurationDialog.Designer.cs \
+		   IceCsharpConfigurationDialog.cs \
+		   IceCsharpConfigurationDialog.Designer.cs \
+		   IceSilverlightConfigurationDialog.cs \
+		   IceSilverlightConfigurationDialog.Designer.cs \
+		   Util.cs
+
+RESOURCES 	= /resource:IceCppConfigurationDialog.resx \
+	   	  /resource:IceCsharpConfigurationDialog.resx \
+	   	  /resource:IceSilverlightConfigurationDialog.resx
 
 MCSFLAGS	= $(MCSFLAGS) -out:$(TARGETS)
 
@@ -52,6 +53,6 @@ install::$(TARGETS)
 	copy ..\config\Ice-$(PKG_PREFIX).AddIn $(install_configdir)\Ice-$(PKG_PREFIX).AddIn
 	
 clean::
-	del /q $(TARGETS) $(PDBS)
+	-del /q $(TARGETS) $(PDBS)
 
 all::$(TARGETS)
