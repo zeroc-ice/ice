@@ -69,7 +69,7 @@ EVERYTHING      = all install clean
 !if "$(VS)" == "VS2008"
 VS_HOME = $(VSINSTALLDIR)
 PKG_PREFIX = $(VS)
-!else if "$(VS)" == "VS2008"
+!else if "$(VS)" == "VS2005"
 VS_HOME = $(VS2005_HOME)
 PKG_PREFIX = $(VS)
 !else
