@@ -54,6 +54,10 @@ namespace Ice.VisualStudio
 
             if(_builder == null)
             {
+                EnvDTE.Properties props = _applicationObject.get_Properties("Projects", "VCGeneral");
+                EnvDTE.Property prop = props.Item("ShowNoMatchingRuleDlg");
+                prop.Value = false;
+                
                 _builder = new Builder();
                 _builder.init(_applicationObject, _addInInstance);
             }

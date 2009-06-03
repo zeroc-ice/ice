@@ -30,20 +30,20 @@ OPTIMIZE		= yes
 
 #
 # Set the target Visual Studio Version  Supported Versions are:
-#	VS90 - Visual Studio 2008
-#	VS80 - Visual Studio 2005
+#	VS2008 - Visual Studio 2008
+#	VS2005 - Visual Studio 2005
 #
 
 !if "$(VS)" == ""
-VS			= VS90
+VS			= VS2008
 !endif
 
 #
 # Set the location of the Visual Studio 2005,  This is only required if you are
 # building the extension for Visual Studio 2005
 #
-VS80_HOME		= C:\Program Files\Microsoft Visual Studio 8
-#VS80_HOME 		 = C:\Program Files (x86)\Microsoft Visual Studio 8
+VS2005_HOME		= C:\Program Files\Microsoft Visual Studio 8
+#VS2005_HOME 		 = C:\Program Files (x86)\Microsoft Visual Studio 8
 
 #
 # Set the location of the Visual Studio 2008 SDK
@@ -66,11 +66,11 @@ KEYFILE			= $(top_srcdir)\config\IceDevKey.snk
 
 EVERYTHING      = all install clean
 
-!if "$(VS)" == "VS90"
+!if "$(VS)" == "VS2005"
 VS_HOME = $(VSINSTALLDIR)
 PKG_PREFIX = $(VS)
 !else
-VS_HOME = $(VS80_HOME)
+VS_HOME = $(VS2005_HOME)
 PKG_PREFIX = $(VS)
 !endif
 
@@ -103,8 +103,8 @@ MCSFLAGS 		= $(MCSFLAGS) -debug -define:DEBUG
 MCSFLAGS 		= $(MCSFLAGS) -optimize+
 !endif
 
-!if "$(VS)" == "VS90"
-MCSFLAGS = $(MCSFLAGS) -define:VS90
+!if "$(VS)" == "VS2008"
+MCSFLAGS = $(MCSFLAGS) -define:VS2008
 !endif
 
 MCSFLAGS = $(MCSFLAGS) /reference:"C:\Windows\Microsoft.NET\Framework\v2.0.50727\mscorlib.dll"

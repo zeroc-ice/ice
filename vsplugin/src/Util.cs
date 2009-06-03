@@ -278,7 +278,7 @@ namespace Ice.VisualStudio
         public static string getIceHome(Project project)
         {
             const string iceSilverlightHome = "C:\\IceSL-0.3.3";
-#if VS90
+#if VS2008
             const string defaultIceHome = "C:\\Ice-3.3.1-VC90";
 #else
             const string defaultIceHome = "C:\\Ice-3.3.1";

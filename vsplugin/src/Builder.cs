@@ -566,7 +566,8 @@ namespace Ice.VisualStudio
                             continue;
                         }
                         
-                        if(dependency.LastWriteTime > ice.LastWriteTime)
+                        if(dependency.LastWriteTime > cpp.LastWriteTime ||
+                           dependency.LastWriteTime > h.LastWriteTime)
                         {
                             updated = true;
                             break;
@@ -583,6 +584,7 @@ namespace Ice.VisualStudio
                 }
 
                 updateDependencies(project, ice.FullName, getSliceCompilerArgs(project, true));
+
                 if (!runSliceCompiler(project, ice.FullName, output, building))
                 {
                     _fileTracker.trackFile(project, ice.FullName, h.FullName);
@@ -744,7 +746,7 @@ namespace Ice.VisualStudio
                         continue;
                     }
 
-                    if (dependency.LastWriteTime > iceFileInfo.LastWriteTime)
+                    if (dependency.LastWriteTime > generatedFileInfo.LastWriteTime)
                     {
                         updateDependencies(project, iceFileInfo.FullName, getSliceCompilerArgs(project, true));
                         runSliceCompiler(project, iceFileInfo.FullName, generatedFileInfo.DirectoryName, building);

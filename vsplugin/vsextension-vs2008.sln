@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 10.00
 # Visual Studio 2008
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "addin-vs90", "src\addin-vs90.csproj", "{DB79C06D-CC17-4B29-B4BE-EAE5C8FED3E5}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "addin-vs2008", "src\addin-vs2008.csproj", "{DB79C06D-CC17-4B29-B4BE-EAE5C8FED3E5}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -24,9 +24,9 @@ Global
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
-		SliceIncludePathProperty = 
-		IceMacrosProperty = 
-		IceHomeProperty = c:\Ice-3.3.1-VC90
 		SliceBuilder = True
+		IceHomeProperty = c:\Ice-3.3.1-VC90
+		IceMacrosProperty = 
+		SliceIncludePathProperty = 
 	EndGlobalSection
 EndGlobal

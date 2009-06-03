@@ -9,7 +9,7 @@
     <StartupObject>
     </StartupObject>
     <NoStandardLibraries>false</NoStandardLibraries>
-    <AssemblyName>IceVisualStudioAddin-VS80</AssemblyName>
+    <AssemblyName>IceVisualStudioAddin-VS2005</AssemblyName>
     <RootNamespace>Ice.VisualStudio</RootNamespace>
     <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
     <SignAssembly>true</SignAssembly>
@@ -21,7 +21,7 @@
     <Optimize>false</Optimize>
     <OutputPath>..\bin\</OutputPath>
     <EnableUnmanagedDebugging>false</EnableUnmanagedDebugging>
-    <DefineConstants>TRACE;DEBUG;VS80</DefineConstants>
+    <DefineConstants>TRACE;DEBUG;VS2005</DefineConstants>
     <WarningLevel>4</WarningLevel>
     <IncrementalBuild>false</IncrementalBuild>
   </PropertyGroup>
@@ -30,7 +30,7 @@
     <Optimize>true</Optimize>
     <OutputPath>..\bin\</OutputPath>
     <EnableUnmanagedDebugging>false</EnableUnmanagedDebugging>
-    <DefineConstants>TRACE</DefineConstants>
+    <DefineConstants>TRACE;VS2005</DefineConstants>
     <WarningLevel>4</WarningLevel>
     <IncrementalBuild>false</IncrementalBuild>
   </PropertyGroup>
@@ -133,7 +133,7 @@
   </PropertyGroup>
   <ProjectExtensions>
     <VisualStudio>
-      <UserProperties IceHome="C:\Ice-3.3.1-VC90" SliceIncludePathProperty="" IceMacrosProperty="" IceHomeProperty="c:\Ice-3.3.1-VC90" IceTieProperty="0" IceStreamingProperty="0" IceOutputDirectoryProperty="./IceAddin/generated" SliceBuilder="True" IceIncludePath="C:\Ice-3.3.1-VC90\slice; ." Ice="False" IceTie="False" />
+      <UserProperties IceTie="False" Ice="False" IceIncludePath="C:\Ice-3.3.1-VC90\slice; ." SliceBuilder="True" IceOutputDirectoryProperty="./IceAddin/generated" IceStreamingProperty="0" IceTieProperty="0" IceHomeProperty="c:\Ice-3.3.1-VC90" IceMacrosProperty="" SliceIncludePathProperty="" IceHome="C:\Ice-3.3.1-VC90" />
     </VisualStudio>
   </ProjectExtensions>
 </Project>
