@@ -60,7 +60,8 @@ namespace Ice.VisualStudio
 
                 chkStreaming.Checked = Util.getProjectPropertyAsBool(_project, Util.PropertyNames.IceStreaming);
 
-                IncludePathList list = new IncludePathList(Util.getProjectProperty(_project, Util.PropertyNames.IceIncludePath));
+                IncludePathList list =
+                    new IncludePathList(Util.getProjectProperty(_project, Util.PropertyNames.IceIncludePath));
                 foreach (String s in list)
                 {
                     includeDirList.Items.Add(s.Trim());
@@ -72,8 +73,7 @@ namespace Ice.VisualStudio
                 {
                     if(String.IsNullOrEmpty(selectedComponents.Find(delegate(string d)
                                                     {
-                                                        return d.Equals(s,
-                                                                        StringComparison.CurrentCultureIgnoreCase);
+                                                        return d.Equals(s, StringComparison.CurrentCultureIgnoreCase);
                                                     })))
                     {
                         checkComponent(s, false);

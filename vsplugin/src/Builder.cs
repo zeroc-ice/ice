@@ -71,18 +71,19 @@ namespace Ice.VisualStudio
                 if (c.Name.Equals("Project.AddExistingItem"))
                 {
                     _addExistingItemEvent = application.Events.get_CommandEvents(c.Guid, c.ID);
-                    _addExistingItemEvent.AfterExecute += new _dispCommandEvents_AfterExecuteEventHandler(afterAddExistingItem);
+                    _addExistingItemEvent.AfterExecute += 
+                        new _dispCommandEvents_AfterExecuteEventHandler(afterAddExistingItem);
                     break;
                 }
             }
             
-            
-            
             //
             // Subscribe to active configuration changed.
             //
-            _serviceProvider = new ServiceProvider((Microsoft.VisualStudio.OLE.Interop.IServiceProvider)_applicationObject.DTE);
-            IVsSolutionBuildManager vsSlnBldMgr = (IVsSolutionBuildManager)_serviceProvider.GetService(typeof(SVsSolutionBuildManager));
+            _serviceProvider =
+                new ServiceProvider((Microsoft.VisualStudio.OLE.Interop.IServiceProvider)_applicationObject.DTE);
+            IVsSolutionBuildManager vsSlnBldMgr = 
+                (IVsSolutionBuildManager)_serviceProvider.GetService(typeof(SVsSolutionBuildManager));
             initErrorListProvider();
             setupCommandBars();
         }
@@ -149,19 +150,22 @@ namespace Ice.VisualStudio
             _iceConfigurationCmd = null;
             try
             {
-                _iceConfigurationCmd = _applicationObject.Commands.Item(_addInInstance.ProgID + ".IceConfiguration", -1);
+                _iceConfigurationCmd =
+                    _applicationObject.Commands.Item(_addInInstance.ProgID + ".IceConfiguration", -1);
             }
             catch (ArgumentException)
             {
                 object[] contextGUIDS = new object[] { };
-                _iceConfigurationCmd = ((Commands2)_applicationObject.Commands).AddNamedCommand2(_addInInstance, "IceConfiguration",
+                _iceConfigurationCmd = 
+                    ((Commands2)_applicationObject.Commands).AddNamedCommand2(_addInInstance, 
+                                "IceConfiguration",
                                 "Ice Configuration...",
                                 "Ice Configuration...",
                                 true, -1, ref contextGUIDS,
-                               (int)vsCommandStatus.vsCommandStatusSupported +
-                               (int)vsCommandStatus.vsCommandStatusEnabled,
-                               (int)vsCommandStyle.vsCommandStylePictAndText,
-                               vsCommandControlType.vsCommandControlTypeButton);
+                                (int)vsCommandStatus.vsCommandStatusSupported +
+                                (int)vsCommandStatus.vsCommandStatusEnabled,
+                                (int)vsCommandStyle.vsCommandStylePictAndText,
+                                vsCommandControlType.vsCommandControlTypeButton);
             }            
 
             if(_iceConfigurationCmd == null)
@@ -236,7 +240,8 @@ namespace Ice.VisualStudio
 
         public void addBuilderToProject(Project project)
         {
-            ComponentList sliceIncludes = new ComponentList(Util.getProjectProperty(project, Util.PropertyNames.IceIncludePath));
+            ComponentList sliceIncludes = 
+                new ComponentList(Util.getProjectProperty(project, Util.PropertyNames.IceIncludePath));
             sliceIncludes.Add(Util.getIceHome(project) + "\\slice");
             sliceIncludes.Add(".");
 
@@ -334,7 +339,8 @@ namespace Ice.VisualStudio
             {
                 relativeName = Util.relativePath(projectDir, document.FullName);
             }
-            Dictionary<string, List<string>> dependenciesMap = new Dictionary<string,List<string>>(_dependenciesMap[project.Name]);
+            Dictionary<string, List<string>> dependenciesMap = 
+                new Dictionary<string,List<string>>(_dependenciesMap[project.Name]);
 
             //
             // Run slice custom tool in all files that depends on the saved file
@@ -516,7 +522,8 @@ namespace Ice.VisualStudio
             }
 
             FileInfo iceFileInfo = new FileInfo(item.Properties.Item("FullPath").Value.ToString());
-            FileInfo hFileInfo = new FileInfo(getCppGeneratedFileName(Path.GetDirectoryName(project.FullName), iceFileInfo.FullName, "h"));
+            FileInfo hFileInfo = new FileInfo(getCppGeneratedFileName(Path.GetDirectoryName(project.FullName),
+                                              iceFileInfo.FullName, "h"));
             FileInfo cppFileInfo = new FileInfo(Path.ChangeExtension(hFileInfo.FullName, "cpp"));
 
             string output = Path.GetDirectoryName(cppFileInfo.FullName);
@@ -536,7 +543,8 @@ namespace Ice.VisualStudio
             {
                 updated = true;
             }
-            else if(Util.findItem(h.FullName, project.ProjectItems) == null || Util.findItem(cpp.FullName, project.ProjectItems) == null)
+            else if(Util.findItem(h.FullName, project.ProjectItems) == null || 
+                    Util.findItem(cpp.FullName, project.ProjectItems) == null)
             {
                 updated = true;
             }
@@ -560,7 +568,8 @@ namespace Ice.VisualStudio
                     List<string> fileDependencies = dependenciesMap[ice.FullName];
                     foreach(string name in fileDependencies)
                     {
-                        FileInfo dependency = new FileInfo(Path.Combine(Path.GetDirectoryName(project.FileName), name));
+                        FileInfo dependency =
+                            new FileInfo(Path.Combine(Path.GetDirectoryName(project.FileName), name));
                         if(!dependency.Exists)
                         {
                             continue;
@@ -624,7 +633,8 @@ namespace Ice.VisualStudio
             buildCSharpProject(project, projectDir, project.ProjectItems, building, force);
         }
 
-        public void buildCSharpProject(Project project, string projectDir, ProjectItems items, bool building, bool force)
+        public void buildCSharpProject(Project project, string projectDir, ProjectItems items, bool building,
+                                       bool force)
         {
             foreach(ProjectItem i in items)
             {
@@ -774,7 +784,8 @@ namespace Ice.VisualStudio
         private string getSliceCompilerArgs(Project project, bool depend)
         {
             string iceHome = Util.getIceHome(project);
-            ComponentList includes = new ComponentList(Util.getProjectProperty(project, Util.PropertyNames.IceIncludePath));
+            ComponentList includes = 
+                new ComponentList(Util.getProjectProperty(project, Util.PropertyNames.IceIncludePath));
             ComponentList macros = new ComponentList(Util.getProjectProperty(project, Util.PropertyNames.IceMacros));
             bool tie = Util.getProjectPropertyAsBool(project, Util.PropertyNames.IceTie);
             bool ice = Util.getProjectPropertyAsBool(project, Util.PropertyNames.IcePrefix);
@@ -962,21 +973,29 @@ namespace Ice.VisualStudio
         public void initDocumentEvents()
         {
             //Csharp project item events.
-            _csProjectItemsEvents = (EnvDTE.ProjectItemsEvents)_applicationObject.Events.GetObject("CSharpProjectItemsEvents");
+            _csProjectItemsEvents = 
+                (EnvDTE.ProjectItemsEvents)_applicationObject.Events.GetObject("CSharpProjectItemsEvents");
             if (_csProjectItemsEvents != null)
             {
-                _csProjectItemsEvents.ItemAdded += new _dispProjectItemsEvents_ItemAddedEventHandler(csharpItemAdded);
-                _csProjectItemsEvents.ItemRemoved += new _dispProjectItemsEvents_ItemRemovedEventHandler(csharpItemRemoved);
-                _csProjectItemsEvents.ItemRenamed += new _dispProjectItemsEvents_ItemRenamedEventHandler(csharpItemRenamed);
+                _csProjectItemsEvents.ItemAdded +=
+                    new _dispProjectItemsEvents_ItemAddedEventHandler(csharpItemAdded);
+                _csProjectItemsEvents.ItemRemoved +=
+                    new _dispProjectItemsEvents_ItemRemovedEventHandler(csharpItemRemoved);
+                _csProjectItemsEvents.ItemRenamed +=
+                    new _dispProjectItemsEvents_ItemRenamedEventHandler(csharpItemRenamed);
             }
 
-            //Cpp projec item events.
-            _vcProjectItemsEvents = (VCProjectEngineEvents)_applicationObject.Events.GetObject("VCProjectEngineEventsObject");
+            //Cpp project item events.
+            _vcProjectItemsEvents = 
+                (VCProjectEngineEvents)_applicationObject.Events.GetObject("VCProjectEngineEventsObject");
             if (_vcProjectItemsEvents != null)
             {
-                _vcProjectItemsEvents.ItemAdded += new _dispVCProjectEngineEvents_ItemAddedEventHandler(cppItemAdded);
-                _vcProjectItemsEvents.ItemRemoved += new _dispVCProjectEngineEvents_ItemRemovedEventHandler(cppItemRemoved);
-                _vcProjectItemsEvents.ItemRenamed += new _dispVCProjectEngineEvents_ItemRenamedEventHandler(cppItemRenamed);
+                _vcProjectItemsEvents.ItemAdded +=
+                    new _dispVCProjectEngineEvents_ItemAddedEventHandler(cppItemAdded);
+                _vcProjectItemsEvents.ItemRemoved +=
+                    new _dispVCProjectEngineEvents_ItemRemovedEventHandler(cppItemRemoved);
+                _vcProjectItemsEvents.ItemRenamed +=
+                    new _dispVCProjectEngineEvents_ItemRenamedEventHandler(cppItemRenamed);
             }
 
             //Visual Studio document events.
@@ -992,18 +1011,24 @@ namespace Ice.VisualStudio
             //Csharp project item events.
             if (_csProjectItemsEvents != null)
             {
-                _csProjectItemsEvents.ItemAdded -= new _dispProjectItemsEvents_ItemAddedEventHandler(csharpItemAdded);
-                _csProjectItemsEvents.ItemRemoved -= new _dispProjectItemsEvents_ItemRemovedEventHandler(csharpItemRemoved);
-                _csProjectItemsEvents.ItemRenamed -= new _dispProjectItemsEvents_ItemRenamedEventHandler(csharpItemRenamed);
+                _csProjectItemsEvents.ItemAdded -= 
+                    new _dispProjectItemsEvents_ItemAddedEventHandler(csharpItemAdded);
+                _csProjectItemsEvents.ItemRemoved -= 
+                    new _dispProjectItemsEvents_ItemRemovedEventHandler(csharpItemRemoved);
+                _csProjectItemsEvents.ItemRenamed -=
+                    new _dispProjectItemsEvents_ItemRenamedEventHandler(csharpItemRenamed);
                 _csProjectItemsEvents = null;
             }
 
-            //Cpp projec item events.
+            //Cpp project item events.
             if (_vcProjectItemsEvents != null)
             {
-                _vcProjectItemsEvents.ItemAdded -= new _dispVCProjectEngineEvents_ItemAddedEventHandler(cppItemAdded);
-                _vcProjectItemsEvents.ItemRemoved -= new _dispVCProjectEngineEvents_ItemRemovedEventHandler(cppItemRemoved);
-                _vcProjectItemsEvents.ItemRenamed -= new _dispVCProjectEngineEvents_ItemRenamedEventHandler(cppItemRenamed);
+                _vcProjectItemsEvents.ItemAdded -= 
+                    new _dispVCProjectEngineEvents_ItemAddedEventHandler(cppItemAdded);
+                _vcProjectItemsEvents.ItemRemoved -=
+                    new _dispVCProjectEngineEvents_ItemRemovedEventHandler(cppItemRemoved);
+                _vcProjectItemsEvents.ItemRenamed -=
+                    new _dispVCProjectEngineEvents_ItemRenamedEventHandler(cppItemRenamed);
                 _vcProjectItemsEvents = null;
             }
 
@@ -1059,9 +1084,11 @@ namespace Ice.VisualStudio
                 string hPath = Path.ChangeExtension(cppPath, ".h");
                 if(File.Exists(cppPath) || Util.hasItemNamed(project.ProjectItems, Path.GetFileName(cppPath)))
                 {
-                    System.Windows.Forms.MessageBox.Show("A file named '" + Path.GetFileName(cppPath) + "' already exists.\n" +
-                                                         "If you want to add '" + Path.GetFileName(fullPath) + "' first remove " +
-                                                         " '" + Path.GetFileName(cppPath) + "' and '" + Path.GetFileName(hPath) + "' from your project.",
+                    System.Windows.Forms.MessageBox.Show("A file named '" + Path.GetFileName(cppPath) + 
+                                                         "' already exists.\n" + "If you want to add '" + 
+                                                         Path.GetFileName(fullPath) + "' first remove " + " '" + 
+                                                         Path.GetFileName(cppPath) + "' and '" +
+                                                         Path.GetFileName(hPath) + "' from your project.",
                                                          "Ice Visual Studio Extension",
                                                          System.Windows.Forms.MessageBoxButtons.OK,
                                                          System.Windows.Forms.MessageBoxIcon.Error);
@@ -1071,9 +1098,11 @@ namespace Ice.VisualStudio
 
                 if(File.Exists(hPath) || Util.hasItemNamed(project.ProjectItems, Path.GetFileName(hPath)))
                 {
-                    System.Windows.Forms.MessageBox.Show("A file named '" + Path.GetFileName(hPath) + "' already exists.\n" +
-                                                         "If you want to add '" + Path.GetFileName(fullPath) + "' first remove " +
-                                                         " '" + Path.GetFileName(cppPath) + "' and '" + Path.GetFileName(hPath) + "' from your project.",
+                    System.Windows.Forms.MessageBox.Show("A file named '" + Path.GetFileName(hPath) +
+                                                         "' already exists.\n" + "If you want to add '" +
+                                                         Path.GetFileName(fullPath) + "' first remove " +
+                                                         " '" + Path.GetFileName(cppPath) + "' and '" +
+                                                         Path.GetFileName(hPath) + "' from your project.",
                                                          "Ice Visual Studio Extension",
                                                          System.Windows.Forms.MessageBoxButtons.OK,
                                                          System.Windows.Forms.MessageBoxIcon.Error);
@@ -1170,9 +1199,11 @@ namespace Ice.VisualStudio
                 string hPath = Path.ChangeExtension(cppPath, ".h");
                 if(File.Exists(cppPath) || Util.hasItemNamed(project.ProjectItems, Path.GetFileName(cppPath)))
                 {
-                    System.Windows.Forms.MessageBox.Show("A file named '" + Path.GetFileName(cppPath) + "' already exists.\n" +
-                                                         "If you want to add '" + Path.GetFileName(fullPath) + "' first remove " +
-                                                         " '" + Path.GetFileName(cppPath) + "' and '" + Path.GetFileName(hPath) + "'.",
+                    System.Windows.Forms.MessageBox.Show("A file named '" + Path.GetFileName(cppPath) +
+                                                         "' already exists.\n" + "If you want to add '" +
+                                                         Path.GetFileName(fullPath) + "' first remove " +
+                                                         " '" + Path.GetFileName(cppPath) + "' and '" +
+                                                         Path.GetFileName(hPath) + "'.",
                                                          "Ice Visual Studio Extension",
                                                          System.Windows.Forms.MessageBoxButtons.OK,
                                                          System.Windows.Forms.MessageBoxIcon.Error);
@@ -1182,12 +1213,14 @@ namespace Ice.VisualStudio
 
                 if(File.Exists(hPath) || Util.hasItemNamed(project.ProjectItems, Path.GetFileName(hPath)))
                 {
-                    System.Windows.Forms.MessageBox.Show("A file named '" + Path.GetFileName(hPath) + "' already exists.\n" +
-                                         "If you want to add '" + Path.GetFileName(fullPath) + "' first remove " +
-                                         " '" + Path.GetFileName(cppPath) + "' and '" + Path.GetFileName(hPath) + "'.",
-                                         "Ice Visual Studio Extension",
-                                         System.Windows.Forms.MessageBoxButtons.OK,
-                                         System.Windows.Forms.MessageBoxIcon.Error);
+                    System.Windows.Forms.MessageBox.Show("A file named '" + Path.GetFileName(hPath) +
+                                                         "' already exists.\n" + "If you want to add '" +
+                                                         Path.GetFileName(fullPath) + "' first remove " +
+                                                         " '" + Path.GetFileName(cppPath) + "' and '" +
+                                                         Path.GetFileName(hPath) + "'.",
+                                                         "Ice Visual Studio Extension",
+                                                         System.Windows.Forms.MessageBoxButtons.OK,
+                                                         System.Windows.Forms.MessageBoxIcon.Error);
                     _deleted.Add(item);
                     return;
                 }
@@ -1218,10 +1251,12 @@ namespace Ice.VisualStudio
             if(Util.isCSharpProject(item.ContainingProject))
             {
                 string csPath = Path.ChangeExtension(fullPath, ".cs");
-                if(File.Exists(csPath) || Util.hasItemNamed(item.ContainingProject.ProjectItems, Path.GetFileName(csPath)))
+                if(File.Exists(csPath) || 
+                   Util.hasItemNamed(item.ContainingProject.ProjectItems, Path.GetFileName(csPath)))
                 {
-                    System.Windows.Forms.MessageBox.Show("A file named '" + Path.GetFileName(csPath) + "' already exists.\n" + 
-                                                         oldName + " could not be renamed to '" + item.Name + "'.",
+                    System.Windows.Forms.MessageBox.Show("A file named '" + Path.GetFileName(csPath) +
+                                                         "' already exists.\n" + oldName +
+                                                         " could not be renamed to '" + item.Name + "'.",
                                                          "Ice Visual Studio Extension",
                                                          System.Windows.Forms.MessageBoxButtons.OK,
                                                          System.Windows.Forms.MessageBoxIcon.Error);
@@ -1287,8 +1322,9 @@ namespace Ice.VisualStudio
 
             if(File.Exists(csPath) || csItem != null)
             {
-                System.Windows.Forms.MessageBox.Show("A file named '" + Path.GetFileName(csPath) + "' already exists.\n" +
-                                                     "If you want to add '" + Path.GetFileName(fullPath) + "' first remove " +
+                System.Windows.Forms.MessageBox.Show("A file named '" + Path.GetFileName(csPath) +
+                                                     "' already exists.\n" + "If you want to add '" +
+                                                     Path.GetFileName(fullPath) + "' first remove " +
                                                      " '" + Path.GetFileName(csPath) + "'.",
                                                      "Ice Visual Studio Extension",
                                                      System.Windows.Forms.MessageBoxButtons.OK,
@@ -1691,7 +1727,8 @@ namespace Ice.VisualStudio
         //
         // Add a error to slice builder error list provider.
         //
-        private void addError(Project project, string file, TaskErrorCategory category, int line, int column, string text)
+        private void addError(Project project, string file, TaskErrorCategory category, int line, int column,
+                              string text)
         {
             IVsHierarchy hierarchy = getProjectHierarchy(project);
 
@@ -1748,7 +1785,8 @@ namespace Ice.VisualStudio
         {
             if(_output == null)
             {
-                OutputWindow window = (OutputWindow)_applicationObject.Windows.Item(EnvDTE.Constants.vsWindowKindOutput).Object;
+                OutputWindow window = 
+                    (OutputWindow)_applicationObject.Windows.Item(EnvDTE.Constants.vsWindowKindOutput).Object;
                 _output = window.OutputWindowPanes.Item("Build");
             }
             return _output;

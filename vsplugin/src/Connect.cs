@@ -63,7 +63,8 @@ namespace Ice.VisualStudio
             }
         }
 
-        public void QueryStatus(string commandName, vsCommandStatusTextWanted neededText, ref vsCommandStatus status, ref object commandText)
+        public void QueryStatus(string commandName, vsCommandStatusTextWanted neededText, ref vsCommandStatus status,
+                                ref object commandText)
         {
             if(neededText == vsCommandStatusTextWanted.vsCommandStatusTextWantedNone)
             {
@@ -86,12 +87,14 @@ namespace Ice.VisualStudio
                         status = (vsCommandStatus)vsCommandStatus.vsCommandStatusSupported;
                         return;                    
                     }
-                    status = (vsCommandStatus)vsCommandStatus.vsCommandStatusSupported | vsCommandStatus.vsCommandStatusEnabled;
+                    status = (vsCommandStatus)vsCommandStatus.vsCommandStatusSupported |
+                                              vsCommandStatus.vsCommandStatusEnabled;
                 }
             }
         }
 
-        public void Exec(string commandName, vsCommandExecOption executeOption, ref object varIn, ref object varOut, ref bool handled)
+        public void Exec(string commandName, vsCommandExecOption executeOption, ref object varIn, ref object varOut,
+                         ref bool handled)
         {
             handled = false;
             Builder builder = getBuilder();
@@ -152,5 +155,5 @@ namespace Ice.VisualStudio
         private DTE2 _applicationObject;
         private AddIn _addInInstance;
         private static Builder _builder;
-	}
+    }
 }
