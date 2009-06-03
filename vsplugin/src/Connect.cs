@@ -52,14 +52,17 @@ namespace Ice.VisualStudio
             _applicationObject = (DTE2)application;
             _addInInstance = (AddIn)addInInst;
 
-            if(_builder == null)
+            if(connectMode == ext_ConnectMode.ext_cm_Startup)
             {
-                EnvDTE.Properties props = _applicationObject.get_Properties("Projects", "VCGeneral");
-                EnvDTE.Property prop = props.Item("ShowNoMatchingRuleDlg");
-                prop.Value = false;
-                
-                _builder = new Builder();
-                _builder.init(_applicationObject, _addInInstance);
+                if(_builder == null)
+                {
+                    EnvDTE.Properties props = _applicationObject.get_Properties("Projects", "VCGeneral");
+                    EnvDTE.Property prop = props.Item("ShowNoMatchingRuleDlg");
+                    prop.Value = false;
+                    
+                    _builder = new Builder();
+                    _builder.init(_applicationObject, _addInInstance);
+                }
             }
         }
 

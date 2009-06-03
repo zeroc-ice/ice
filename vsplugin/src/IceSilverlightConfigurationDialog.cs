@@ -52,6 +52,8 @@ namespace Ice.VisualStudio
         {
             if (_project != null)
             {
+                System.Windows.Forms.Cursor c = Cursor.Current;
+                Cursor = Cursors.WaitCursor;
                 includeDirList.Items.Clear();
                 txtIceHome.Text = Util.getIceHome(_project);
                 txtMacros.Text = Util.getProjectProperty(_project, Util.PropertyNames.IceMacros);
@@ -82,6 +84,7 @@ namespace Ice.VisualStudio
                         checkComponent(s, true);
                     }
                 }
+                Cursor = c;
             }
         
         }
@@ -166,22 +169,31 @@ namespace Ice.VisualStudio
 
         private void chkIcePrefix_CheckedChanged(object sender, EventArgs e)
         {
+            System.Windows.Forms.Cursor c = Cursor.Current;
+            Cursor = Cursors.WaitCursor;
             Util.setProjectProperty(_project, Util.PropertyNames.IcePrefix, chkIcePrefix.Checked.ToString());
+            Cursor = c;
         }
 
         private void chkStreaming_CheckedChanged(object sender, EventArgs e)
         {
+            System.Windows.Forms.Cursor c = Cursor.Current;
+            Cursor = Cursors.WaitCursor;
             Util.setProjectProperty(_project, Util.PropertyNames.IceStreaming, chkStreaming.Checked.ToString());
+            Cursor = c;
         }
         
         private void saveSliceIncludes()
         {
+            System.Windows.Forms.Cursor c = Cursor.Current;
+            Cursor = Cursors.WaitCursor;
             IncludePathList paths = new IncludePathList();
             foreach (String s in includeDirList.Items)
             {
                 paths.Add(s.Trim());
             }
             Util.setProjectProperty(_project, Util.PropertyNames.IceIncludePath, paths.ToString());
+            Cursor = c;
         }
 
         private void btnAddInclude_Click(object sender, EventArgs e)
@@ -211,6 +223,8 @@ namespace Ice.VisualStudio
         {
             if (includeDirList.SelectedIndex != -1)
             {
+                System.Windows.Forms.Cursor c = Cursor.Current;
+                Cursor = Cursors.WaitCursor;
                 int selected = includeDirList.SelectedIndex;
                 includeDirList.Items.RemoveAt(selected);
                 if(includeDirList.Items.Count > 0)
@@ -222,6 +236,7 @@ namespace Ice.VisualStudio
                     includeDirList.SelectedIndex = selected;
                 }
                 saveSliceIncludes();
+                Cursor = c;
             }
         }
 
@@ -230,11 +245,14 @@ namespace Ice.VisualStudio
             int index = includeDirList.SelectedIndex;
             if (index > 0)
             {
+                System.Windows.Forms.Cursor c = Cursor.Current;
+                Cursor = Cursors.WaitCursor;
                 string current = includeDirList.SelectedItem.ToString();
                 includeDirList.Items.RemoveAt(index);
                 includeDirList.Items.Insert(index - 1, current);
                 includeDirList.SelectedIndex = index - 1;
                 saveSliceIncludes();
+                Cursor = c;
             }
         }
 
@@ -243,11 +261,14 @@ namespace Ice.VisualStudio
             int index = includeDirList.SelectedIndex;
             if (index < includeDirList.Items.Count - 1)
             {
+                System.Windows.Forms.Cursor c = Cursor.Current;
+                Cursor = Cursors.WaitCursor;
                 string current = includeDirList.SelectedItem.ToString();
                 includeDirList.Items.RemoveAt(index);
                 includeDirList.Items.Insert(index + 1, current);
                 includeDirList.SelectedIndex = index + 1;
                 saveSliceIncludes();
+                Cursor = c;
             }
         }
 
@@ -262,6 +283,8 @@ namespace Ice.VisualStudio
 
         private void chkIce_CheckedChanged(object sender, EventArgs e)
         {
+            System.Windows.Forms.Cursor c = Cursor.Current;
+            Cursor = Cursors.WaitCursor;
             if (chkIceSl.Checked)
             {
                 Util.addCSharpReference(_project, "IceSL");
@@ -270,6 +293,7 @@ namespace Ice.VisualStudio
             {
                 Util.removeCSharpReference(_project, "IceSL");
             }
+            Cursor = c;
         }
         
         private bool _initialized = false;
