@@ -20,8 +20,9 @@ Activating the plug-in for a project
 ------------------------------------
 
 After installing the plug-in, right-click on the project in
-Solution Explorer and choose "Ice Configuration..." or go to "Ice Configuration..."
-in the "Tools" menu. This opens a dialog where you can configure Ice build properties.
+Solution Explorer and choose "Ice Configuration..." or go to 
+"Ice Configuration..." in the "Tools" menu. This opens a dialog where
+you can configure Ice build properties.
 
 
 Project properties
@@ -34,11 +35,14 @@ Project properties
 
   * Slice Compiler Options
 
-    Tick the correspond check boxes to add --ice, --stream, or --tie (.NET only).
+    Tick the correspond check boxes to add --ice, --stream, or --tie
+    (.NET only).
 
-  * Preprocessor Macros: List of macro definitions passed to the Slice compiler
+  * Preprocessor Macros: List of macro definitions passed to the Slice
+    compiler
 
-    Enter preprocess macros separated by semicolons, for example, enter
+    Enter preprocess macros separated by semicolons. For example, 
+    enter
 
     FOO;BAR=99
 
@@ -51,27 +55,27 @@ Project properties
   * Slice Include Path: The list of directories to search for included
     Slice files (-I option)
 
-  * Ice Components: The list of Ice libraries to link with
-
+  * Ice Components: The list of Ice libraries with which to link
 
 
 Adding Slice files to a project
 -------------------------------
 
-Use "Add -> New Item..." to create a Slice file to a project. Use "Slice source"
-as the file type. To add an existing Slice file, use "Add -> Existing Item...".
+Use "Add -> New Item..." to create a Slice file to a project. Use
+"Slice source" as the file type. To add an existing Slice file, use
+"Add -> Existing Item...".
 
 
 Generating code
 ---------------
 
-The extension compiles a Slice file whenever you save the file. The extension
-tracks dependencies among Slice files and recompiles only those files that
-require it after a change.
+The extension compiles a Slice file whenever you save the file. The
+extension tracks dependencies among Slice files and recompiles only
+those files that require it after a change.
 
-Generated files are automatically added to the project. For example, for Demo.ice,
-the extension for C++ adds Demo.cpp and Demo.h to the project, whereas the extension
-for C# adds Demo.cs to the project.
+Generated files are automatically added to the project. For example,
+for Demo.ice, the extension for C++ adds Demo.cpp and Demo.h to the
+project, whereas the extension for C# adds Demo.cs to the project.
 
-Slice Compilation errors are displayed in the Visual Studio
-"Output" and "Error List" panels.
+Slice Compilation errors are displayed in the Visual Studio "Output"
+and "Error List" panels.
