@@ -69,9 +69,11 @@ EVERYTHING      = all install clean
 !if "$(VS)" == "VS2008"
 VS_HOME = $(VSINSTALLDIR)
 PKG_PREFIX = $(VS)
-!else
+!else if "$(VS)" == "VS2008"
 VS_HOME = $(VS2005_HOME)
 PKG_PREFIX = $(VS)
+!else
+!error Invalid setting for VS: $(VS)
 !endif
 
 bindir = ..\bin
