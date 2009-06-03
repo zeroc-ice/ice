@@ -7,17 +7,18 @@ Visual Studio & Windows Version
 
 Ice Visual Studio Extension has been extensively tested on:
 
-- Visual Studio 2008 & Windows XP x86 and x64
-- Visual Studio 2008 & Windows Vista x86 and x64
-- Visual Studio 2008 & Windows 2008 x86 and x64
+ - Windows XP SP2 x86
+ - Windows Vista x86 and x64
+ - Windows 2008 Server x86 and x64
 
-- Visual Studio 2005 & Windows XP x86 and x64
-- Visual Studio 2005 & Windows Vista x86 and x64
-- Visual Studio 2005 & Windows 2008 x86 and x64
+using
+
+ - Visual Studio 2005
+ - Visual Studio 2008
 
 
-Compiler
---------
+Compilers
+---------
 
 Ice Visual Studio Extension requires:
 
@@ -29,7 +30,8 @@ Ice Visual Studio Extension requires:
   
 - Microsoft Visual Studio 2005
 
-  This is only required if you plan to build the extension for Visual Studio 2005
+  This is only required if you plan to build the extension for Visual
+  Studio 2005.
 
 
 ======================================================================
@@ -44,20 +46,19 @@ IceVisualStudioExtension-@ver@ subdirectory.
 
    > cd IceVisualStudioExtension-@ver@
 
-2) Open config\Make.rules.mak and review the comments that describe the
-   settings you can modify.
+2) Open config\Make.rules.mak and review the comments that describe
+   the settings you can modify.
 
 3) Run nmake:
 
    > nmake /f Makefile.mak
 
+The Plug-in DLL is placed into the IceVisualStudio-@ver@\bin 
+directory. The library names are
 
-The Plug-in DLL is placed into the IceVisualStudio-@ver@ bin directory.
-The library names are
+   - bin\IceVisualStudioAddIn-VS90.dll (for Visual Studio 2008)
 
-    * bin\IceVisualStudioAddIn-VS90.dll (for Visual Studio 2008)
-
-    * bin\IceVisualStudioAddin-VS80.dll (for Visual Studio 2005)
+   - bin\IceVisualStudioAddin-VS80.dll (for Visual Studio 2005)
 
 
 ======================================================================
@@ -66,7 +67,7 @@ Installation
 
 Simply run "nmake install". This installs IceVisualStudioExtension
 in the directory specified by the "prefix" variable in
-config/Make.rules.mak
+config\Make.rules.mak.
 
    > nmake /f Makefile.mak install
 
@@ -82,28 +83,28 @@ Configuration
 
 2) Set up an Addin file
 
-   Add-ins are added to Visual Studio by placing a '.Addin' file into one of
-   the directories that Visual Studio searches for Add-ins. The file
-   contains the plug-in configuration in XML format.
+   Add-ins are added to Visual Studio by placing a .Addin file into
+   one of the directories that Visual Studio searches for Add-ins. The
+   file contains the plug-in configuration in XML format.
 
-   You can view the list of directories that Visual Studio searches for
-   add-in files with
+   You can view the list of directories that Visual Studio searches
+   for add-in files with
 
     'Tools -> Options -> Enviroment -> Add-in/Macros Security'
 
-   The .Addin file is typically placed into the Visual Studio user
+   The .Addin file is typically placed into the Visual Studio user's
    Addins sub-directory.
 
-   For a Windows Vista default installation, the directory is
+   For a Windows Vista default installation, the directory is:
 
-	C:\Users\username\Documents\Visual Studio 2008\Addins
+     C:\Users\username\Documents\Visual Studio 2008\Addins
 
-   For Windows XP default installation, the directory is:
+   For a Windows XP default installation, the directory is:
 
-    C:\Document and Settings\username\Visual Studio 2008\Addins
+     C:\Document and Settings\username\Visual Studio 2008\Addins
 
   Once you have chosen the directory, you must copy the corresponding
-  '.Addin' file to that directory.
+  .Addin file to that directory.
 
   For Visual Studio 2008:
 
@@ -115,43 +116,47 @@ Configuration
    > cd C:\Users\username\Documents\Visual Studio 2005\Addins
    > copy C:\IceVisualStudioExtension-@ver@\conf\Ice-VS80.Addin
 
-  If you have not installed the addin in the default location you should
-  edit the .Addin file and update the value of the "assembley" element
-  corresponding with your installation path.
+  If you have not installed the addin in the default location you 
+  must edit the .Addin file and update the value of the "assembley"
+  element corresponding with your installation path.
 
 3) Install item templates.
 
    To be able to add new items from the standard "New Item" dialog you
-   should install the correspoding item templates.
+   must install the corresponding item templates.
 
-   For C++ Visual Studio item templates are installed in directory:
+   For C++, item templates are installed in:
   
-   C:\Program Files\Microsoft Visual Studio 9.0\VC\vcprojectitems 
+     C:\Program Files\Microsoft Visual Studio 9.0\VC\vcprojectitems 
 
-   You should copy slice template and configuration files here.
+   Copy the slice template and configuration files here.
 
-   > cd c:\IceVisualStudioExtension-@ver@\templates\vs
+   > cd C:\IceVisualStudioExtension-@ver@\templates\vs
    > xcopy /e * C:\Program Files\Microsoft Visual Studio 9.0\VC\vcprojectitems
 
+   For C#, item templates are installed in:
 
-   For c# Visual Studio item templates are installed in directory:
+     C:\Program Files\Microsoft Visual Studio 9.0\VC#\CSharpProjectItems
 
+   Copy the slice template and configuration files here.
 
-   C:\Program Files\Microsoft Visual Studio 9.0\VC#\CSharpProjectItems
-
-   You should copy slice template and configuration files here.
-
-   > cd c:\IceVisualStudioExtension-@ver@\templates\vs
+   > cd C:\IceVisualStudioExtension-@ver@\templates\vs
    > xcopy /e * C:\Program Files\Microsoft Visual Studio 9.0\VC#\CSharpProjectItems
 
-   * The commands show avobe are for visual studio 2008 for Visual 
-   Studio 2005 just update the path to "Microsoft Visual Studio 8"
+   The commands shown above are for Visual Studio 2008. For Visual 
+   Studio 2005 just change the path to use "Microsoft Visual Studio 8"
+   instead.
 
-   * In 64 bit platforms you should copy template files to visual studio folder 
-   in c:\Program Files (x86)\Microsoft Visual Studio 9.0\... not in
-   C:\Program Files\Microsoft Visual Studio 9.0\... .
+   On 64 bit platforms you should copy template files to Visual
+   Studio folder in: 
+   
+     C:\Program Files (x86)\...
+   
+   rather than
 
-4) This completes the configuration. The plug-in will be available
+     C:\Program Files\...
+
+4) This completes the configuration. The plug-in will now be available
    once you restart Visual Studio.
 
 
