@@ -56,9 +56,9 @@ IceVisualStudioExtension-@ver@ subdirectory.
 The Plug-in DLL is placed into the IceVisualStudio-@ver@\bin 
 directory. The library names are
 
-   - bin\IceVisualStudioAddIn-VS90.dll (for Visual Studio 2008)
+   - bin\IceVisualStudioAddin-VS2008.dll (for Visual Studio 2008)
 
-   - bin\IceVisualStudioAddin-VS80.dll (for Visual Studio 2005)
+   - bin\IceVisualStudioAddin-VS2005.dll (for Visual Studio 2005)
 
 
 ======================================================================
@@ -109,12 +109,12 @@ Configuration
   For Visual Studio 2008:
 
    > cd C:\Users\username\Documents\Visual Studio 2008\Addins
-   > copy C:\IceVisualStudioExtension-@ver@\conf\Ice-VS90.AddIn
+   > copy C:\IceVisualStudioExtension-@ver@\conf\Ice-VS2008.AddIn
 
   For Visual Studio 2005:
 
    > cd C:\Users\username\Documents\Visual Studio 2005\Addins
-   > copy C:\IceVisualStudioExtension-@ver@\conf\Ice-VS80.Addin
+   > copy C:\IceVisualStudioExtension-@ver@\conf\Ice-VS2005.Addin
 
   If you have not installed the addin in the default location you 
   must edit the .Addin file and update the value of the "assembley"
