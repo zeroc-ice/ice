@@ -1,20 +1,20 @@
 
-Dim vs80CsPath
-Dim vs80CppPath
+Dim vs2005CsPath
+Dim vs2005CppPath
 
-Dim vs90CsPath
-Dim vs90CppPath
-
-
-vs90CsPath = Session.Property("VS_90_CS_TEMPLATE_DIR")
-vs90CppPath = Session.Property("VS_90_CPP_TEMPLATE_DIR")
-
-vs80CsPath = Session.Property("VS_80_CS_TEMPLATE_DIR")
-vs80CppPath = Session.Property("VS_80_CPP_TEMPLATE_DIR")
+Dim vs2008CsPath
+Dim vs2008CppPath
 
 
-Session.Property("VS_90_CS_TEMPLATE_DIR_MOD") = Replace(vs90CsPath, "\.\", "\")
-Session.Property("VS_90_CPP_TEMPLATE_DIR_MOD") = Replace(vs90CppPath, "\.\", "\")
+vs2008CsPath = Session.Property("VS_2008_CS_TEMPLATE_DIR")
+vs2008CppPath = Session.Property("VS_2008_CPP_TEMPLATE_DIR")
 
-Session.Property("VS_80_CS_TEMPLATE_DIR_MOD") = Replace(vs80CsPath, "\.\", "\")
-Session.Property("VS_80_CPP_TEMPLATE_DIR_MOD") = Replace(vs80CppPath, "\.\", "\")
+vs2005CsPath = Session.Property("VS_2005_CS_TEMPLATE_DIR")
+vs2005CppPath = Session.Property("VS_2005_CPP_TEMPLATE_DIR")
+
+
+Session.Property("VS_2008_CS_TEMPLATE_DIR_MOD") = Replace(vs2008CsPath, "\.\", "\")
+Session.Property("VS_2008_CPP_TEMPLATE_DIR_MOD") = Replace(vs2008CppPath, "\.\", "\")
+
+Session.Property("VS_2005_CS_TEMPLATE_DIR_MOD") = Replace(vs2005CsPath, "\.\", "\")
+Session.Property("VS_2005_CPP_TEMPLATE_DIR_MOD") = Replace(vs2005CppPath, "\.\", "\")
