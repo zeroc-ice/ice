@@ -390,7 +390,8 @@ namespace Ice.VisualStudio
             ComponentList includes = new ComponentList(additionalIncludeDirectories);
             string includeDir = includes.Find(delegate(string d)
                                                 {
-                                                    return d.Equals(iceIncludeDir, StringComparison.CurrentCultureIgnoreCase);
+                                                    return d.Equals(iceIncludeDir, 
+                                                                    StringComparison.CurrentCultureIgnoreCase);
                                                 });
 
             if(!String.IsNullOrEmpty(includeDir))
@@ -541,7 +542,8 @@ namespace Ice.VisualStudio
             ComponentList libs = new ComponentList(additionalLibraryDirectories);
             if(String.IsNullOrEmpty(libs.Find(delegate(string d)
                                                 {
-                                                    return d.Equals(iceLibDir, StringComparison.CurrentCultureIgnoreCase);
+                                                    return d.Equals(iceLibDir, 
+                                                                    StringComparison.CurrentCultureIgnoreCase);
                                                 })))
             {
                 libs.Add(iceLibDir);
@@ -588,7 +590,8 @@ namespace Ice.VisualStudio
             }
 
             string iceIncludeDir = Util.getIceHome(project) + "\\slice";
-            ComponentList includes = new ComponentList(Util.getProjectProperty(project, Util.PropertyNames.IceIncludePath));
+            ComponentList includes = 
+                new ComponentList(Util.getProjectProperty(project, Util.PropertyNames.IceIncludePath));
             includes.Add(iceIncludeDir);
             includes.Add(".");
             Util.setProjectProperty(project, Util.PropertyNames.IceIncludePath, includes.ToString());
@@ -602,7 +605,8 @@ namespace Ice.VisualStudio
             }
 
             string iceIncludeDir = Util.getIceHome(project) + "\\slice";
-            ComponentList includes = new ComponentList(Util.getProjectProperty(project, Util.PropertyNames.IceIncludePath));
+            ComponentList includes = 
+                new ComponentList(Util.getProjectProperty(project, Util.PropertyNames.IceIncludePath));
             includes.Remove(iceIncludeDir);
             includes.Remove(".");
             Util.setProjectProperty(project, Util.PropertyNames.IceIncludePath, includes.ToString());
@@ -824,8 +828,10 @@ namespace Ice.VisualStudio
 
         public static string relativePath(string mainDirPath, string absoluteFilePath)
         {
-            string[] firstPathParts = mainDirPath.Trim(Path.DirectorySeparatorChar).Split(Path.DirectorySeparatorChar);
-            string[] secondPathParts = absoluteFilePath.Trim(Path.DirectorySeparatorChar).Split(Path.DirectorySeparatorChar);
+            string[] firstPathParts = 
+                mainDirPath.Trim(Path.DirectorySeparatorChar).Split(Path.DirectorySeparatorChar);
+            string[] secondPathParts =
+                absoluteFilePath.Trim(Path.DirectorySeparatorChar).Split(Path.DirectorySeparatorChar);
 
             int sameCounter = 0;
             for(int i = 0; i < Math.Min(firstPathParts.Length, secondPathParts.Length); i++)
@@ -897,7 +903,8 @@ namespace Ice.VisualStudio
                 return null;
             }
 
-            UIHierarchy uiHierarchy = (EnvDTE.UIHierarchy)dte.Windows.Item(EnvDTE.Constants.vsWindowKindSolutionExplorer).Object;
+            UIHierarchy uiHierarchy = 
+                (EnvDTE.UIHierarchy)dte.Windows.Item(EnvDTE.Constants.vsWindowKindSolutionExplorer).Object;
             if(uiHierarchy == null)
             {
                 return null;
@@ -923,7 +930,8 @@ namespace Ice.VisualStudio
             }
 
             string oldIceHome = Util.getIceHome(project).ToUpper();
-            if(Path.GetFullPath(oldIceHome).Equals(Path.GetFullPath(iceHome), StringComparison.CurrentCultureIgnoreCase))
+            if(Path.GetFullPath(oldIceHome).Equals(Path.GetFullPath(iceHome),
+                                                   StringComparison.CurrentCultureIgnoreCase))
             {
                 return;
             }
@@ -1070,7 +1078,8 @@ namespace Ice.VisualStudio
                     continue;
                 }
 
-                VCCLCompilerTool compilerTool = (VCCLCompilerTool)(((IVCCollection)conf.Tools).Item("VCCLCompilerTool"));
+                VCCLCompilerTool compilerTool = 
+                    (VCCLCompilerTool)(((IVCCollection)conf.Tools).Item("VCCLCompilerTool"));
                 VCLinkerTool linkerTool = (VCLinkerTool)(((IVCCollection)conf.Tools).Item("VCLinkerTool"));
                 if(linkerTool == null || compilerTool == null)
                 {
@@ -1212,7 +1221,8 @@ namespace Ice.VisualStudio
             {
                 if(conf != null)
                 {
-                    VCCLCompilerTool compilerTool = (VCCLCompilerTool)(((IVCCollection)conf.Tools).Item("VCCLCompilerTool"));
+                    VCCLCompilerTool compilerTool =
+                        (VCCLCompilerTool)(((IVCCollection)conf.Tools).Item("VCCLCompilerTool"));
                     VCLinkerTool linkerTool = (VCLinkerTool)(((IVCCollection)conf.Tools).Item("VCLinkerTool"));
                     Util.addIceCppLibraryDir(linkerTool, project);
                     Util.addCppIncludes(compilerTool, project);
@@ -1236,7 +1246,8 @@ namespace Ice.VisualStudio
             {
                 if(conf != null)
                 {
-                    VCCLCompilerTool compilerTool = (VCCLCompilerTool)(((IVCCollection)conf.Tools).Item("VCCLCompilerTool"));
+                    VCCLCompilerTool compilerTool =
+                        (VCCLCompilerTool)(((IVCCollection)conf.Tools).Item("VCCLCompilerTool"));
                     VCLinkerTool linkerTool = (VCLinkerTool)(((IVCCollection)conf.Tools).Item("VCLinkerTool"));
 
                     Util.removeIceCppLibraryDir(linkerTool, project);
@@ -1261,7 +1272,8 @@ namespace Ice.VisualStudio
             {
                 if(conf != null)
                 {
-                    VCCLCompilerTool compilerTool = (VCCLCompilerTool)(((IVCCollection)conf.Tools).Item("VCCLCompilerTool"));
+                    VCCLCompilerTool compilerTool = 
+                        (VCCLCompilerTool)(((IVCCollection)conf.Tools).Item("VCCLCompilerTool"));
                     VCLinkerTool linkerTool = (VCLinkerTool)(((IVCCollection)conf.Tools).Item("VCLinkerTool"));
 
                     bool debug = false;
@@ -1307,7 +1319,8 @@ namespace Ice.VisualStudio
             {
                 if(conf != null)
                 {
-                    VCCLCompilerTool compilerTool = (VCCLCompilerTool)(((IVCCollection)conf.Tools).Item("VCCLCompilerTool"));
+                    VCCLCompilerTool compilerTool = 
+                        (VCCLCompilerTool)(((IVCCollection)conf.Tools).Item("VCCLCompilerTool"));
                     VCLinkerTool linkerTool = (VCLinkerTool)(((IVCCollection)conf.Tools).Item("VCLinkerTool"));
 
                     bool debug = false;
