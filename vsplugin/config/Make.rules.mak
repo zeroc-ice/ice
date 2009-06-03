@@ -66,7 +66,7 @@ KEYFILE			= $(top_srcdir)\config\IceDevKey.snk
 
 EVERYTHING      = all install clean
 
-!if "$(VS)" == "VS2005"
+!if "$(VS)" == "VS2008"
 VS_HOME = $(VSINSTALLDIR)
 PKG_PREFIX = $(VS)
 !else
