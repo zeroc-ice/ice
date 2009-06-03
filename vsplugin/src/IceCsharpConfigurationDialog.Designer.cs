@@ -162,8 +162,8 @@ namespace Ice.VisualStudio
             this.lblInfo.Name = "lblInfo";
             this.lblInfo.Size = new System.Drawing.Size(473, 17);
             this.lblInfo.TabIndex = 7;
-            this.lblInfo.Text = "Enter preprocessor macros (\';\' separated) for example enter FOO; BAR to define -D" +
-                "FOO -DBAR";
+            this.lblInfo.Text = "Enter macros, separated by \';\'. For example, " +
+                                "enter \'FOO; BAR=5\' define -DFOO -DBAR=5";
             // 
             // txtMacros
             // 

@@ -4,7 +4,7 @@ Extension.
 For installation instructions, please refer to the INSTALL.txt file.
 
 If you would like to install the Ice Visual Studio Extension without
-compiling any source code, you can use the binary distributions
+compiling any source code, you can use the binary distribution
 available at ZeroC's web site (http://www.zeroc.com).
 
 
@@ -21,9 +21,7 @@ Activating the plug-in for a project
 
 After installing the plug-in, right-click on the project in
 Solution Explorer and choose "Ice Configuration..." or go to "Ice Configuration..."
-in "Tools" menu
-
-This will open a dialog where you could configure Ice build properties.
+in the "Tools" menu. This opens a dialog where you can configure Ice build properties.
 
 
 Project properties
@@ -34,18 +32,24 @@ Project properties
     The extension expects the same directory layout as that of an
     Ice binary distribution.
 
-  * Enable Ice: Permit Slice identifiers with an "Ice" prefix (--ice option)
+  * Slice Compiler Options
 
-  * Enable Tie: Generate tie classes (--tie option).
-    This property only applies to .NET projects.
+    Tick the correspond check boxes to add --ice, --stream, or --tie (.NET only).
 
-  * Enable Streaming: Generate code to support the dynamic streaming
-    API (--stream option)
+  * Preprocessor Macros: List of macro definitions passed to the Slice compiler
+
+    Enter preprocess macros separated by semicolons, for example, enter
+
+    FOO;BAR=99
+
+    to pass
+
+    -DFOO -DBAR=99
+
+    to the Slice compiler.
 
   * Slice Include Path: The list of directories to search for included
     Slice files (-I option)
-
-  * Preprocessor Macros: List of macro definitions passed to the Slice compiler
 
   * Ice Components: The list of Ice libraries to link with
 
@@ -54,26 +58,20 @@ Project properties
 Adding Slice files to a project
 -------------------------------
 
-You could use "Add -> New Item..." dialog to add slice files to a project once
-the extension has been installed.
-
-There will be a new template "Slice source"
-
-To add an existing Slice file to a project, use "Add -> Existing Item..."
+Use "Add -> New Item..." to create a Slice file to a project. Use "Slice source"
+as the file type. To add an existing Slice file, use "Add -> Existing Item...".
 
 
 Generating code
 ---------------
 
-The extension compiles a Slice file whenever you save the file. If
-you save a file that is included by other Slice files, the including
-files are compiled as well.
+The extension compiles a Slice file whenever you save the file. The extension
+tracks dependencies among Slice files and recompiles only those files that
+require it after a change.
 
-The generated code is placed in the same directory as the corresponding
-Slice file.
-
-For example for Demo.ice, you will see Demo.cpp and Demo.h automatically
-added to your C++ project, or Demo.cs to your .NET project. 
+Generated files are automatically added to the project. For example, for Demo.ice,
+the extension for C++ adds Demo.cpp and Demo.h to the project, whereas the extension
+for C# adds Demo.cs to the project.
 
 Slice Compilation errors are displayed in the Visual Studio
 "Output" and "Error List" panels.
