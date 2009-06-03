@@ -2,6 +2,8 @@
 <DOCUMENT type="Advanced Installer" CreateVersion="7.0.1" version="7.0.1" modules="enterprise" RootPath="." Language="en">
   <COMPONENT cid="caphyon.advinst.msicomp.MsiPropsComponent">
     <ROW Property="ALLUSERS" Value="2"/>
+    <ROW Property="ARPCOMMENTS" Value="Ice extension for Visual Studio 2005 and Visual Studio 2008." ValueLocId="*"/>
+    <ROW Property="ARPCONTACT" Value="support@zeroc.com"/>
     <ROW Property="ARPPRODUCTICON" Value="vsplugin.exe" Type="8"/>
     <ROW Property="ARPURLINFOABOUT" Value="htpp://www.zeroc.com"/>
     <ROW Property="BannerBitmap" MultiBuildValue="DefaultBuild:installer_header.bmp" Type="1"/>
@@ -204,7 +206,7 @@
     <ROW Condition="( VS_2005_INSTALL_DIR ) OR ( VS_2008_INSTALL_DIR )" Description="Unable to find a valid Visual Studio Installation"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiRegLocatorComponent">
-    <ROW Signature_="AppSearchSign" Root="2" Key="SOFTWARE\Microsoft\VisualStudio\9.0\Projects\{7D6034C3-AFB8-05CB-2A75-DAA65E89BE83}\AddItemTemplates\TemplateDirs\{F1C25864-3097-11D2-A5C5-00C04F7968B4}\/1" Name="TemplatesDir" Type="2"/>
+    <ROW Signature_="AppSearchSign" Root="2" Key="SOFTWARE\Microsoft\VisualStudio\9.0\Projects\{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}\AddItemTemplates\TemplateDirs\{F1C25864-3097-11D2-A5C5-00C04F7968B4}\/1" Name="TemplatesDir" Type="2"/>
     <ROW Signature_="AppSearchSign_1" Root="2" Key="SOFTWARE\Microsoft\VisualStudio\9.0\Projects\{57108857-CA30-464f-B3D1-375A345CE63C}\AddItemTemplates\TemplateDirs\{FAE04EC1-301F-11D3-BF4B-00C04F79EFBC}\/1" Name="TemplatesDir" Type="2"/>
     <ROW Signature_="AppSearchSign_2" Root="2" Key="SOFTWARE\Microsoft\VisualStudio\8.0\Projects\{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}\AddItemTemplates\TemplateDirs\{F1C25864-3097-11D2-A5C5-00C04F7968B4}\/1" Name="TemplatesDir" Type="2"/>
     <ROW Signature_="AppSearchSign_3" Root="2" Key="SOFTWARE\Microsoft\VisualStudio\8.0\Projects\{FAE04EC0-301F-11d3-BF4B-00C04F79EFBC}\AddItemTemplates\TemplateDirs\{FAE04EC1-301F-11D3-BF4B-00C04F79EFBC}\/1" Name="TemplatesDir" Type="2"/>
