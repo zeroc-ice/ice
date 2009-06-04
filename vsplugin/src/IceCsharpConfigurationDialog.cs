@@ -46,6 +46,7 @@ namespace Ice.VisualStudio
                 chkEnableBuilder.Checked = enabled;
                 load();
                 _initialized = true;
+                _changed = false;
             }
         }
         
@@ -185,6 +186,14 @@ namespace Ice.VisualStudio
 
         private void btnCancel_Click(object sender, EventArgs e)
         {
+            if(_changed)
+            {
+                System.Windows.Forms.Cursor c = Cursor.Current;
+                Cursor = Cursors.WaitCursor;
+                Builder builder = Connect.getBuilder();
+                builder.buildCSharpProject(_project, false, true);
+                Cursor = c;
+            }
             Close();
         }
 
@@ -198,17 +207,16 @@ namespace Ice.VisualStudio
             {
                 Util.updateIceHome(_project, dialog.SelectedPath);
                 load();
+                _changed = true;
             }
         }
-        
-        
-        private Project _project;
 
         private void chkIcePrefix_CheckedChanged(object sender, EventArgs e)
         {
             System.Windows.Forms.Cursor c = Cursor.Current;
             Cursor = Cursors.WaitCursor;
             Util.setProjectProperty(_project, Util.PropertyNames.IcePrefix, chkIcePrefix.Checked.ToString());
+            _changed = true;
             Cursor = c;
         }
 
@@ -217,6 +225,7 @@ namespace Ice.VisualStudio
             System.Windows.Forms.Cursor c = Cursor.Current;
             Cursor = Cursors.WaitCursor;
             Util.setProjectProperty(_project, Util.PropertyNames.IceTie, chkTie.Checked.ToString());
+            _changed = true;
             Cursor = c;
         }
 
@@ -225,6 +234,7 @@ namespace Ice.VisualStudio
             System.Windows.Forms.Cursor c = Cursor.Current;
             Cursor = Cursors.WaitCursor;
             Util.setProjectProperty(_project, Util.PropertyNames.IceStreaming, chkStreaming.Checked.ToString());
+            _changed = true;
             Cursor = c;
         }
         
@@ -238,6 +248,7 @@ namespace Ice.VisualStudio
                 paths.Add(s.Trim());
             }
             Util.setProjectProperty(_project, Util.PropertyNames.IceIncludePath, paths.ToString());
+            _changed = true;
             Cursor = c;
         }
 
@@ -328,6 +339,7 @@ namespace Ice.VisualStudio
                 System.Windows.Forms.Cursor c = Cursor.Current;
                 Cursor = Cursors.WaitCursor;
                 Util.setProjectProperty(_project, Util.PropertyNames.IceMacros, txtMacros.Text);
+                _changed = true;
                 Cursor = c;
             }
         }
@@ -344,6 +356,7 @@ namespace Ice.VisualStudio
             {
                 Util.removeCSharpReference(_project, "Glacier2");
             }
+            _changed = true;
             Cursor = c;
         }
 
@@ -359,6 +372,7 @@ namespace Ice.VisualStudio
             {
                 Util.removeCSharpReference(_project, "Ice");
             }
+            _changed = true;
             Cursor = c;
         }
 
@@ -374,6 +388,7 @@ namespace Ice.VisualStudio
             {
                 Util.removeCSharpReference(_project, "IceBox");
             }
+            _changed = true;
             Cursor = c;
         }
 
@@ -389,6 +404,7 @@ namespace Ice.VisualStudio
             {
                 Util.removeCSharpReference(_project, "IceGrid");
             }
+            _changed = true;
             Cursor = c;
         }
 
@@ -404,6 +420,7 @@ namespace Ice.VisualStudio
             {
                 Util.removeCSharpReference(_project, "IcePatch2");
             }
+            _changed = true;
             Cursor = c;
         }
 
@@ -419,6 +436,7 @@ namespace Ice.VisualStudio
             {
                 Util.removeCSharpReference(_project, "IceSSL");
             }
+            _changed = true;
             Cursor = c;
         }
 
@@ -434,9 +452,12 @@ namespace Ice.VisualStudio
             {
                 Util.removeCSharpReference(_project, "IceStorm");
             }
+            _changed = true;
             Cursor = c;
         }
         
+        private bool _changed = false;
         private bool _initialized = false;
+        private Project _project;
     }
 }

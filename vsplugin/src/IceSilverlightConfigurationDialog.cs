@@ -148,6 +148,14 @@ namespace Ice.VisualStudio
 
         private void btnCancel_Click(object sender, EventArgs e)
         {
+            if (_changed)
+            {
+                System.Windows.Forms.Cursor c = Cursor.Current;
+                Cursor = Cursors.WaitCursor;
+                Builder builder = Connect.getBuilder();
+                builder.buildCSharpProject(_project, false, true);
+                Cursor = c;
+            }
             Close();
         }
 
@@ -161,17 +169,16 @@ namespace Ice.VisualStudio
             {
                 Util.updateIceHome(_project, dialog.SelectedPath);
                 load();
+                _changed = true;
             }
         }
-        
-        
-        private Project _project;
 
         private void chkIcePrefix_CheckedChanged(object sender, EventArgs e)
         {
             System.Windows.Forms.Cursor c = Cursor.Current;
             Cursor = Cursors.WaitCursor;
             Util.setProjectProperty(_project, Util.PropertyNames.IcePrefix, chkIcePrefix.Checked.ToString());
+            _changed = true;
             Cursor = c;
         }
 
@@ -180,6 +187,7 @@ namespace Ice.VisualStudio
             System.Windows.Forms.Cursor c = Cursor.Current;
             Cursor = Cursors.WaitCursor;
             Util.setProjectProperty(_project, Util.PropertyNames.IceStreaming, chkStreaming.Checked.ToString());
+            _changed = true;
             Cursor = c;
         }
         
@@ -193,6 +201,7 @@ namespace Ice.VisualStudio
                 paths.Add(s.Trim());
             }
             Util.setProjectProperty(_project, Util.PropertyNames.IceIncludePath, paths.ToString());
+            _changed = true;
             Cursor = c;
         }
 
@@ -277,6 +286,7 @@ namespace Ice.VisualStudio
             if(txtMacros.Modified)
             {
                 Util.setProjectProperty(_project, Util.PropertyNames.IceMacros, txtMacros.Text);
+                _changed = true;
             }
         }
 
@@ -293,9 +303,12 @@ namespace Ice.VisualStudio
             {
                 Util.removeCSharpReference(_project, "IceSL");
             }
+            _changed = true;
             Cursor = c;
         }
         
         private bool _initialized = false;
+        private bool _changed = false;
+        private Project _project;
     }
 }

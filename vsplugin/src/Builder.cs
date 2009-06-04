@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2009 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2009 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // LICENSE file included in this distribution.
@@ -445,7 +445,7 @@ namespace Ice.VisualStudio
             }
         }
 
-        private void buildProject(Project project, bool building, bool force)
+        public void buildProject(Project project, bool building, bool force)
         {
             if(project == null)
             {
@@ -591,13 +591,14 @@ namespace Ice.VisualStudio
                     Directory.CreateDirectory(output);
                 }
 
-                updateDependencies(project, ice.FullName, getSliceCompilerArgs(project, true));
-
-                if (!runSliceCompiler(project, ice.FullName, output, building))
+                if(updateDependencies(project, ice.FullName, getSliceCompilerArgs(project, true)))
                 {
-                    _fileTracker.trackFile(project, ice.FullName, h.FullName);
-                    _fileTracker.trackFile(project, ice.FullName, cpp.FullName);
-                    addCppGeneratedFiles(project, cpp, h);
+                    if(runSliceCompiler(project, ice.FullName, output, building))
+                    {
+                        _fileTracker.trackFile(project, ice.FullName, h.FullName);
+                        _fileTracker.trackFile(project, ice.FullName, cpp.FullName);
+                        addCppGeneratedFiles(project, cpp, h);
+                    }
                 }
             }
         }
@@ -720,23 +721,18 @@ namespace Ice.VisualStudio
             FileInfo iceFileInfo = new FileInfo(item.Properties.Item("FullPath").Value.ToString());
             FileInfo generatedFileInfo = new FileInfo(getCSharpGeneratedFileName(project, item, "cs"));
 
+            bool updated = false;
             if(force)
             {
-                updateDependencies(project, iceFileInfo.FullName, getSliceCompilerArgs(project, true));
-                runSliceCompiler(project, iceFileInfo.FullName, generatedFileInfo.DirectoryName, building);
-                _fileTracker.trackFile(project, iceFileInfo.FullName, generatedFileInfo.FullName);
+                updated = true;
             }
             else if(!generatedFileInfo.Exists)
             {
-                updateDependencies(project, iceFileInfo.FullName, getSliceCompilerArgs(project, true));
-                runSliceCompiler(project, iceFileInfo.FullName, generatedFileInfo.DirectoryName, building);
-                _fileTracker.trackFile(project, iceFileInfo.FullName, generatedFileInfo.FullName);
+                updated = true;
             }
             else if(iceFileInfo.LastWriteTime > generatedFileInfo.LastWriteTime)
             {
-                updateDependencies(project, iceFileInfo.FullName, getSliceCompilerArgs(project, true));
-                runSliceCompiler(project, iceFileInfo.FullName, generatedFileInfo.DirectoryName, building);
-                _fileTracker.trackFile(project, iceFileInfo.FullName, generatedFileInfo.FullName);
+                updated = true;
             }
             else
             {
@@ -757,20 +753,28 @@ namespace Ice.VisualStudio
 
                     if (dependency.LastWriteTime > generatedFileInfo.LastWriteTime)
                     {
-                        updateDependencies(project, iceFileInfo.FullName, getSliceCompilerArgs(project, true));
-                        runSliceCompiler(project, iceFileInfo.FullName, generatedFileInfo.DirectoryName, building);
-                        _fileTracker.trackFile(project, iceFileInfo.FullName, generatedFileInfo.FullName);
+                        updated = true;
                         break;
                     }
                 }
             }
-
-            if(File.Exists(generatedFileInfo.FullName))
+            if(updated)
             {
-                ProjectItem generatedItem = Util.findItem(generatedFileInfo.FullName, project.ProjectItems);
-                if(generatedItem == null)
+                if(updateDependencies(project, iceFileInfo.FullName, getSliceCompilerArgs(project, true)))
                 {
-                    project.ProjectItems.AddFromFile(generatedFileInfo.FullName);
+                    if(runSliceCompiler(project, iceFileInfo.FullName, generatedFileInfo.DirectoryName, building))
+                    {
+                        _fileTracker.trackFile(project, iceFileInfo.FullName, generatedFileInfo.FullName);
+                    }
+
+                    if (File.Exists(generatedFileInfo.FullName))
+                    {
+                        ProjectItem generatedItem = Util.findItem(generatedFileInfo.FullName, project.ProjectItems);
+                        if (generatedItem == null)
+                        {
+                            project.ProjectItems.AddFromFile(generatedFileInfo.FullName);
+                        }
+                    }
                 }
             }
         }
@@ -821,7 +825,8 @@ namespace Ice.VisualStudio
                 {
                     continue;
                 }
-                args += "-I" + quoteArg(i) + " ";
+                String include = i.Replace("\\", "\\\\");
+                args += "-I" + quoteArg(include) + " ";
             }
 
             foreach(string m in macros)
@@ -907,7 +912,7 @@ namespace Ice.VisualStudio
             }
         }
 
-        public void updateDependencies(Project project, string file, string args)
+        public bool updateDependencies(Project project, string file, string args)
         {
             ProcessStartInfo processInfo;
             System.Diagnostics.Process process;
@@ -927,12 +932,11 @@ namespace Ice.VisualStudio
             process = System.Diagnostics.Process.Start(processInfo);
             process.WaitForExit();
 
-            parseErrors(project, file, process.StandardError);
-
-            if(hasErrors(project))
+            if(parseErrors(project, file, process.StandardError))
             {
                 bringErrorsToFront();
-                return;
+                process.Close();
+                return false;
             }
             else
             {
@@ -967,6 +971,7 @@ namespace Ice.VisualStudio
                 _dependenciesMap[project.Name] = projectDeps;
             }
             process.Close();
+            return true;
         }
 
         public void initDocumentEvents()
@@ -1149,6 +1154,7 @@ namespace Ice.VisualStudio
                 _fileTracker.reap(project, this);
                 return;
             }
+            clearErrors(file.FullPath);
             removeCppGeneratedItems(project, file.FullPath);
         }
 
@@ -1284,6 +1290,7 @@ namespace Ice.VisualStudio
             {
                 return;
             }
+            clearErrors(item.Properties.Item("FullPath").Value.ToString());
             removeCSharpGeneratedItems(item);
         }
 
@@ -1449,7 +1456,7 @@ namespace Ice.VisualStudio
                 writeBuildOutput("0>------ Slice compilation failed. Build canceled.\n");
                 _applicationObject.DTE.ExecuteCommand("Build.Cancel", "");
             }
-            return hasErrors;
+            return !hasErrors;
         }
 
         private bool parseErrors(Project project, string file, TextReader strer)
@@ -1473,6 +1480,7 @@ namespace Ice.VisualStudio
                     errorMessage = strer.ReadLine();
                     continue;
                 }
+                writeBuildOutput(errorMessage + "\n");
                 firstLine = false;
                 i = errorMessage.IndexOf(':', i + 1);
                 if(i == -1)
@@ -1525,7 +1533,6 @@ namespace Ice.VisualStudio
                         {
                             category = TaskErrorCategory.Warning;
                         }
-                        writeBuildOutput(errorMessage + "\n");
                         addError(project, file, category, l, 1, errorMessage);
                         hasErrors = true;
                     }
