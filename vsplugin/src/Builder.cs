@@ -243,7 +243,6 @@ namespace Ice.VisualStudio
             ComponentList sliceIncludes = 
                 new ComponentList(Util.getProjectProperty(project, Util.PropertyNames.IceIncludePath));
             sliceIncludes.Add(Util.getIceHome(project) + "\\slice");
-            sliceIncludes.Add(".");
 
             Util.setProjectProperty(project, Util.PropertyNames.IceIncludePath, sliceIncludes.ToString());
             if(Util.isCppProject(project))
