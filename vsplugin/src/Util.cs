@@ -582,7 +582,7 @@ namespace Ice.VisualStudio
             }
         }
 
-        public static void addSiceIncludeDirs(Project project)
+        public static void addSliceIncludeDirs(Project project)
         {
             if(project == null)
             {
@@ -593,7 +593,6 @@ namespace Ice.VisualStudio
             ComponentList includes = 
                 new ComponentList(Util.getProjectProperty(project, Util.PropertyNames.IceIncludePath));
             includes.Add(iceIncludeDir);
-            includes.Add(".");
             Util.setProjectProperty(project, Util.PropertyNames.IceIncludePath, includes.ToString());
         }
 
@@ -608,7 +607,6 @@ namespace Ice.VisualStudio
             ComponentList includes = 
                 new ComponentList(Util.getProjectProperty(project, Util.PropertyNames.IceIncludePath));
             includes.Remove(iceIncludeDir);
-            includes.Remove(".");
             Util.setProjectProperty(project, Util.PropertyNames.IceIncludePath, includes.ToString());
         }
 
@@ -951,7 +949,7 @@ namespace Ice.VisualStudio
             Util.removeSliceIncludeDirs(project);
             Util.removeIceCppConfigurations(project);
             Util.setIceHome(project, iceHome);
-            Util.addSiceIncludeDirs(project);
+            Util.addSliceIncludeDirs(project);
             Util.addIceCppConfigurations(project);
         }
 
@@ -970,7 +968,7 @@ namespace Ice.VisualStudio
 
             Util.setIceHome(project, iceHome);
 
-            Util.addSiceIncludeDirs(project);
+            Util.addSliceIncludeDirs(project);
             foreach(string s in components)
             {
                 if(String.IsNullOrEmpty(s))
