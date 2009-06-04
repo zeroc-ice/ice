@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2009 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2009 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // LICENSE file included in this distribution.
@@ -456,8 +456,12 @@ namespace Ice.VisualStudio
             {
                 return;
             }
-
-            writeBuildOutput("------ Slice compilation started: Project: " + project.Name + " ------\n");
+            
+            bool consoleOutput = Util.getProjectPropertyAsBool(project, Util.PropertyNames.ConsoleOutput);
+            if(consoleOutput)
+            {
+                writeBuildOutput("------ Slice compilation started: Project: " + project.Name + " ------\n");
+            }
             _fileTracker.reap(project, this);
             if(Util.isCSharpProject(project))
             {
@@ -467,7 +471,7 @@ namespace Ice.VisualStudio
             {
                 buildCppProject(project, building, force);
             }
-            if(!hasErrors(project))
+            if(consoleOutput && !hasErrors(project))
             {
                 writeBuildOutput("------ Slice compilation succeded: Project: " + project.Name + " ------\n");
             }
@@ -914,6 +918,7 @@ namespace Ice.VisualStudio
 
         public bool updateDependencies(Project project, string file, string args)
         {
+            bool consoleOutput = Util.getProjectPropertyAsBool(project, Util.PropertyNames.ConsoleOutput);
             ProcessStartInfo processInfo;
             System.Diagnostics.Process process;
 
@@ -927,12 +932,15 @@ namespace Ice.VisualStudio
             processInfo.RedirectStandardOutput = true;
             processInfo.WorkingDirectory = Path.GetDirectoryName(project.FileName);
 
-            writeBuildOutput("cmd.exe " + args + "\n");
-
+            if(consoleOutput)
+            {
+                writeBuildOutput("cmd.exe " + args + "\n");
+            }
+            
             process = System.Diagnostics.Process.Start(processInfo);
             process.WaitForExit();
 
-            if(parseErrors(project, file, process.StandardError))
+            if(parseErrors(project, file, process.StandardError, consoleOutput))
             {
                 bringErrorsToFront();
                 process.Close();
@@ -1430,6 +1438,7 @@ namespace Ice.VisualStudio
 
         private bool runSliceCompiler(Project project, string file, string outputDir, bool building)
         {
+            bool consoleOutput = Util.getProjectPropertyAsBool(project, Util.PropertyNames.ConsoleOutput);
             string args = getSliceCompilerArgs(project, false);
             if(!String.IsNullOrEmpty(outputDir))
             {
@@ -1444,22 +1453,28 @@ namespace Ice.VisualStudio
             processInfo.RedirectStandardError = true;
             processInfo.WorkingDirectory = System.IO.Path.GetDirectoryName(project.FileName);
 
-            writeBuildOutput("cmd.exe " + args + "\n");
+            if(consoleOutput)
+            {
+                writeBuildOutput("cmd.exe " + args + "\n");
+            }
             System.Diagnostics.Process process = System.Diagnostics.Process.Start(processInfo);
 
             process.WaitForExit();
 
-            bool hasErrors = parseErrors(project, file, process.StandardError);
+            bool hasErrors = parseErrors(project, file, process.StandardError, consoleOutput);
             process.Close();
             if(building && hasErrors)
             {
-                writeBuildOutput("0>------ Slice compilation failed. Build canceled.\n");
+                if(consoleOutput)
+                {
+                    writeBuildOutput("0>------ Slice compilation failed. Build canceled.\n");
+                }
                 _applicationObject.DTE.ExecuteCommand("Build.Cancel", "");
             }
             return !hasErrors;
         }
 
-        private bool parseErrors(Project project, string file, TextReader strer)
+        private bool parseErrors(Project project, string file, TextReader strer, bool consoleOutput)
         {
             bool hasErrors = false;
             string errorMessage = strer.ReadLine();
@@ -1472,7 +1487,10 @@ namespace Ice.VisualStudio
                     if(firstLine)
                     {
                         errorMessage += strer.ReadToEnd();
-                        writeBuildOutput(errorMessage + "\n");
+                        if(consoleOutput)
+                        {
+                            writeBuildOutput(errorMessage + "\n");
+                        }
                         addError(project, "", TaskErrorCategory.Error, 1, 1, errorMessage);
                         hasErrors = true;
                         break;
@@ -1480,7 +1498,10 @@ namespace Ice.VisualStudio
                     errorMessage = strer.ReadLine();
                     continue;
                 }
-                writeBuildOutput(errorMessage + "\n");
+                if(consoleOutput)
+                {
+                    writeBuildOutput(errorMessage + "\n");
+                }
                 firstLine = false;
                 i = errorMessage.IndexOf(':', i + 1);
                 if(i == -1)

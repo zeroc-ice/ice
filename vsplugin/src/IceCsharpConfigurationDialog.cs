@@ -455,6 +455,14 @@ namespace Ice.VisualStudio
             _changed = true;
             Cursor = c;
         }
+
+        private void chkConsole_CheckedChanged(object sender, EventArgs e)
+        {
+            System.Windows.Forms.Cursor c = Cursor.Current;
+            Cursor = Cursors.WaitCursor;
+            Util.setProjectProperty(_project, Util.PropertyNames.ConsoleOutput, chkConsole.Checked.ToString());
+            Cursor = c;
+        }
         
         private bool _changed = false;
         private bool _initialized = false;

@@ -65,6 +65,7 @@ namespace Ice.VisualStudio
             this.btnSelectIceHome = new System.Windows.Forms.Button();
             this.txtIceHome = new System.Windows.Forms.TextBox();
             this.toolTip = new System.Windows.Forms.ToolTip(this.components);
+            this.chkConsole = new System.Windows.Forms.CheckBox();
             this.groupBox1.SuspendLayout();
             this.groupBox2.SuspendLayout();
             this.groupBox3.SuspendLayout();
@@ -162,8 +163,8 @@ namespace Ice.VisualStudio
             this.lblInfo.Name = "lblInfo";
             this.lblInfo.Size = new System.Drawing.Size(473, 17);
             this.lblInfo.TabIndex = 7;
-            this.lblInfo.Text = "Enter macros, separated by \';\'. For example, " +
-                                "enter \'FOO; BAR=5\' define -DFOO -DBAR=5";
+            this.lblInfo.Text = "Enter macros, separated by \';\'. For example, enter \'FOO; BAR=5\' define -DFOO -DBA" +
+                "R=5";
             // 
             // txtMacros
             // 
@@ -276,6 +277,7 @@ namespace Ice.VisualStudio
             // 
             // groupBox4
             // 
+            this.groupBox4.Controls.Add(this.chkConsole);
             this.groupBox4.Controls.Add(this.chkIcePrefix);
             this.groupBox4.Controls.Add(this.chkStreaming);
             this.groupBox4.Controls.Add(this.chkTie);
@@ -359,6 +361,17 @@ namespace Ice.VisualStudio
             this.txtIceHome.Size = new System.Drawing.Size(386, 20);
             this.txtIceHome.TabIndex = 0;
             // 
+            // chkConsole
+            // 
+            this.chkConsole.AutoSize = true;
+            this.chkConsole.Location = new System.Drawing.Point(294, 19);
+            this.chkConsole.Name = "chkConsole";
+            this.chkConsole.Size = new System.Drawing.Size(99, 17);
+            this.chkConsole.TabIndex = 4;
+            this.chkConsole.Text = "Console Output";
+            this.chkConsole.UseVisualStyleBackColor = true;
+            this.chkConsole.CheckedChanged += new System.EventHandler(this.chkConsole_CheckedChanged);
+            // 
             // IceCsharpConfigurationDialog
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -420,5 +433,6 @@ namespace Ice.VisualStudio
         private System.Windows.Forms.Button btnSelectIceHome;
         private System.Windows.Forms.TextBox txtIceHome;
         private System.Windows.Forms.ToolTip toolTip;
+        private System.Windows.Forms.CheckBox chkConsole;
     }
 }
