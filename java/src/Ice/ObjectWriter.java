@@ -9,8 +9,16 @@
 
 package Ice;
 
+/**
+ * Base class for writing Slice classes to an output stream.
+ **/
 public abstract class ObjectWriter extends ObjectImpl
 {
+    /**
+     * Writes the state of this Slice class to an output stream.
+     *
+     * @param out The stream to write to.
+     **/
     public abstract void write(OutputStream out);
 
     public void

@@ -9,13 +9,22 @@
 
 package Ice;
 
-//
-// This class wraps a proxy and supplies the necessary methods to allow
-// it to be used as a key in a hashed collection. Only the proxy's
-// identity is used in comparisons.
-//
+/**
+ * This class wraps a proxy to allow it to be used the key for a hashed collection.
+ * The <code>hashCode</code> and <code>equals</code> methods are based on the object identity
+ * of the proxy.
+ *
+ * @see ProxyIdentityCompare
+ * @see ProxyIdentityAndFacetCompare
+ * @see ProxyIdentityFacetKey
+ **/
 public class ProxyIdentityKey
 {
+    /**
+     * Initializes this class with the passed proxy.
+     *
+     * @param proxy The proxy for this instance.
+     **/
     public
     ProxyIdentityKey(Ice.ObjectPrx proxy)
     {
@@ -28,12 +37,24 @@ public class ProxyIdentityKey
         _hashCode = _identity.hashCode();
     }
 
+    /**
+     * Computes a hash value based on the object identity of the proxy.
+     *
+     * @return The hash value.
+     **/
     public int
     hashCode()
     {
         return _hashCode;
     }
 
+    /**
+     * Compares this proxy with the passed object for equality.
+     *
+     * @param obj The object to compare this proxy with.
+     * @return <code>true</code> if the passed object is a proxy with the same object
+     * identity; <code>false</code>, otherwise.
+     **/
     public boolean
     equals(java.lang.Object obj)
     {

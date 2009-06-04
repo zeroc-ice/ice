@@ -9,18 +9,33 @@
 
 package Ice;
 
+/**
+ * Holder class for strings that are in- or inout-parameters.
+ **/
 public final class StringHolder
 {
+    /**
+     * Instantiates the class with a <code>null</code> string.
+     **/
     public
     StringHolder()
     {
     }
 
+    /**
+     * Instantiates the class with the passed value.
+     *
+     * @param value The <code>String</code> value stored by this holder.
+     **/
     public
     StringHolder(String value)
     {
         this.value = value;
     }
 
+
+    /**
+     * The <code>String</code> value stored by this holder.
+     **/
     public String value;
 }

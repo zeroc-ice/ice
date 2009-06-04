@@ -9,18 +9,32 @@
 
 package Ice;
 
+/**
+ * Holder class for booleans that are in- or inout-parameters.
+ **/
 public final class BooleanHolder
 {
+    /**
+     * Instantiates the class with the value <code>false</code>.
+     **/
     public
     BooleanHolder()
     {
     }
 
+    /**
+     * Instantiates the class with the passed value.
+     *
+     * @param value The <code>boolean</code> value stored by this holder.
+     **/
     public
     BooleanHolder(boolean value)
     {
         this.value = value;
     }
 
+    /**
+     * The <code>boolean</code> value stored by this holder.
+     **/
     public boolean value;
 }

@@ -9,13 +9,22 @@
 
 package Ice;
 
-//
-// This class wraps a proxy and supplies the necessary methods to allow
-// it to be used as a key in a hashed collection. The proxy's identity
-// and facet are used in comparisons.
-//
+/**
+ * This class wraps a proxy to allow it to be used the key for a hashed collection.
+ * The <code>hashCode</code> and <code>equals</code> methods are based on the object identity and
+ * the facet of the proxy.
+ *
+ * @see ProxyIdentityAndFacetCompare
+ * @see ProxyIdentityCompare
+ * @see ProxyIdentityKey
+ **/
 public class ProxyIdentityFacetKey
 {
+    /**
+     * Initializes this class with the passed proxy.
+     *
+     * @param proxy The proxy for this instance.
+     **/
     public
     ProxyIdentityFacetKey(Ice.ObjectPrx proxy)
     {
@@ -31,12 +40,24 @@ public class ProxyIdentityFacetKey
         _hashCode = h;
     }
 
+    /**
+     * Computes a hash value based on the object identity and the facet of the proxy.
+     *
+     * @return The hash value.
+     **/
     public int
     hashCode()
     {
         return _hashCode;
     }
 
+    /**
+     * Compares this proxy with the passed object for equality.
+     *
+     * @param obj The object to compare this proxy with.
+     * @return <code>true</code> if the passed object is a proxy with the same object
+     * identity and facet as this proxy; <code>false</code>, otherwise.
+     **/
     public boolean
     equals(java.lang.Object obj)
     {
@@ -54,6 +75,11 @@ public class ProxyIdentityFacetKey
         return false;
     }
 
+    /**
+     * Returns the proxy stored by this class.
+     *
+     * @return The proxy stored by this class.
+     **/
     public Ice.ObjectPrx
     getProxy()
     {

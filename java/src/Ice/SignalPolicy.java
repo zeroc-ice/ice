@@ -9,27 +9,24 @@
 
 package Ice;
 
-public final class SignalPolicy
+/**
+ * The signal policy for Ice.Application signal handling.
+ *
+ * @see Ice.Application
+ **/
+public enum SignalPolicy
 {
-    private static SignalPolicy[] _values = new SignalPolicy[4];
+    /**
+     * If a signal is received, Ice.Application reacts to the signal
+     * by calling <code>destroy</code> or <code>shutdown</code> on
+     * the communicator, or by calling a custom shutdown hook installed
+     * by the application.
+     **/
+    HandleSignals,
 
-    public static final int _HandleSignals = 0;
-    public static final SignalPolicy HandleSignals = new SignalPolicy(_HandleSignals);
-    public static final int _NoSignalHandling = 1;
-    public static final SignalPolicy NoSignalHandling = new SignalPolicy(_NoSignalHandling);
-
-    public int
-    value()
-    {
-        return _value;
-    }
-
-    private
-    SignalPolicy(int val)
-    {
-        _value = val;
-        _values[val] = this;
-    }
-
-    private int _value;
+    /**
+     * Any signal that is received is not intercepted and takes the default
+     * action.
+     **/
+    NoSignalHandling
 }

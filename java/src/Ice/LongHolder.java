@@ -9,18 +9,30 @@
 
 package Ice;
 
+/**
+ * Holder class for longs that are in- or inout-parameters.
+ **/
 public final class LongHolder
 {
+    /**
+     * Instantiates the class with the value zero.
+     **/
     public
     LongHolder()
     {
     }
 
+    /**
+     * Instantiates the class with the passed value.
+     **/
     public
     LongHolder(long value)
     {
         this.value = value;
     }
 
+    /**
+     * The <code>int</code> value stored by this holder.
+     **/
     public long value;
 }

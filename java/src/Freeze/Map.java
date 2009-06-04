@@ -9,39 +9,67 @@
 
 package Freeze;
 
+/**
+ * Interface for Freeze maps.
+ *
+ * @see Connection
+ **/
 public interface Map<K, V> extends NavigableMap<K, V>
 {
-    //
-    // Faster alternative to the standard put() method because it
-    // doesn't read and decode the old value.
-    //
+    /**
+     * Alternative to <code>java.util.SortedMap.put</code>. This version
+     * is more efficient because it does not decode and return the
+     * old value.
+     **/
     void fastPut(K key, V value);
 
+    /**
+     * Closes the database associated with this map, as well as all open iterators.
+     * A map must be closed when it is no longer needed, either directly, or by
+     * closing the <code>Connection</code> associated with this map.
+     **/
     void close();
 
-    //
-    // Close all iterators for this map. Returns the number of
-    // iterators that were closed.
-    //
+    /**
+     * Closes all iterators for this map.
+     *
+     * @return The number of iterators that were closed.
+     **/
     int closeAllIterators();
 
-    //
-    // Close this map and destroy the underlying Berkeley DB database.
-    //
+    /**
+     * Closes this map and destroys the underlying Berkeley DB database along with any indexes.
+     **/
     void destroy();
 
     /**
-     *
-     * The entry iterator allows clients to explicitly close the iterator
-     * and free resources allocated for the iterator as soon as possible.
-     *
+     * An <code>EntryIterator</code> allows the application to explicitly
+     * close an iterator and free resources allocated for the iterator
+     * in a timely fashion.
      **/
     public interface EntryIterator<T> extends java.util.Iterator<T>
     {
+        /**
+         * Closes this iterator, reclaiming associated resources.
+         **/
         void close();
-        void destroy(); // an alias for close
+
+        /**
+         * Closes this iterator, reclaiming associated resources. This
+         * method is an alias for <code>close</code>.
+         **/
+        void destroy();
     }
 
+    /**
+     * Returns the connection associated with this map.
+     *
+     * @return The connection associated with this map.
+     **/
     Connection getConnection();
+
+    /**
+     * Closes the database for this map.
+     **/
     void closeDb();
 }

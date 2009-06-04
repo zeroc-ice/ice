@@ -9,9 +9,25 @@
 
 package Ice;
 
+/**
+ * Base class for dynamic dispatch servants. A server application
+ * derives a concrete servant class from <code>Blobject</code. that
+ * implements the <code>ice_invoke</code> method.
+ **/
 public abstract class Blobject extends Ice.ObjectImpl
 {
-    // Returns true if ok, false if user exception.
+    /**
+     * Dispatch an incoming request.
+     *
+     * @param inParams The encoded in-parameters for the operation.
+     * @param outParams The encoded out-paramaters and return value
+     * for the operation. The return value follows any out-parameters.
+     * @return If the operation completed successfully, the return value
+     * is <code>true</code>. If the operation raises a user exception,
+     * the return value is <code>false</code>; in this case, <code>outParams</code>
+     * must contain the encoded user exception. If the operation raises an
+     * Ice run-time exception, it must throw it directly.
+     **/
     public abstract boolean
     ice_invoke(byte[] inParams, ByteSeqHolder outParams, Current current);
 

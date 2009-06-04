@@ -9,8 +9,29 @@
 
 package Ice;
 
+/**
+ * Base class that allows a server intercept incoming requests.
+ * The application must derive a concrete class from <code>DispatchInterceptor</code>
+ * that implements the <code>dispatch</code> operation. An instance of this derived
+ * class can be registered with an object adapter like any other servant.
+ * <p>
+ * A dispatch interceptor is useful particularly to automatically retry requests
+ * that have failed due to a recoverable error condition.
+ **/
 public abstract class DispatchInterceptor extends ObjectImpl
 {
+    /**
+     * Called by the Ice run time to dispatch an incoming request. The implementation
+     * of <code>dispatch</code> must dispatch the request to the actual servant.
+     *
+     * @param request The details of the incoming request.
+     * @return For synchronous dispatch, the return value must be whatever is
+     * returned <code>ice_dispatch</code>. For asynchronous dispatch, the return
+     * value must be <code>DispatchAsync</code>.
+     *
+     * @see Request
+     * @see DispatchStatus
+     **/
     public abstract DispatchStatus
     dispatch(Request request);
    

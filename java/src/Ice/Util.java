@@ -11,24 +11,70 @@ package Ice;
 
 public final class Util
 {
+    /**
+     * Creates a new empty property set.
+     *
+     * @return A new empty property set.
+     **/
     public static Properties
     createProperties()
     {
         return new PropertiesI();
     }
 
+    /**
+     * Creates a property set initialized from an argument vector.
+     *
+     * @param args A command-line argument vector, possibly containing
+     * options to set properties. If the command-line options include
+     * a <code>--Ice.Config</code> option, the corresponding configuration
+     * files are parsed. If the same property is set in a configuration
+     * file and in the argument vector, the argument vector takes precedence.
+     * <p>
+     * This method modifies the argument vector by removing any Ice-related options.
+     *
+     * @return A property set initialized with the property settings
+     * that were removed from <code>args</code>.
+     **/
     public static Properties
     createProperties(StringSeqHolder args)
     {
         return new PropertiesI(args, null);
     }
 
+    /**
+     * Creates a property set initialized from an argument vector.
+     *
+     * @param args A command-line argument vector, possibly containing
+     * options to set properties. If the command-line options include
+     * a <code>--Ice.Config</code> option, the corresponding configuration
+     * files are parsed. If the same property is set in a configuration
+     * file and in the argument vector, the argument vector takes precedence.
+     * <p>
+     * This method modifies the argument vector by removing any Ice-related options.
+     * @param defaults Default values for the property set. Settings in configuration
+     * files and <code>args</code> override these defaults.
+     *
+     * @return An initalized property set.
+     **/
     public static Properties
     createProperties(StringSeqHolder args, Properties defaults)
     {
         return new PropertiesI(args, defaults);
     }
 
+    /**
+     * Creates a property set initialized from an argument vector.
+     *
+     * @param args A command-line argument vector, possibly containing
+     * options to set properties. If the command-line options include
+     * a <code>--Ice.Config</code> option, the corresponding configuration
+     * files are parsed. If the same property is set in a configuration
+     * file and in the argument vector, the argument vector takes precedence.
+     *
+     * @return A property set initialized with the property settings
+     * in <code>args</code>.
+     **/
     public static Properties
     createProperties(String[] args)
     {
@@ -36,6 +82,19 @@ public final class Util
         return createProperties(argsH);
     }
 
+    /**
+     * Creates a property set initialized from an argument vector.
+     *
+     * @param args A command-line argument vector, possibly containing
+     * options to set properties. If the command-line options include
+     * a <code>--Ice.Config</code> option, the corresponding configuration
+     * files are parsed. If the same property is set in a configuration
+     * file and in the argument vector, the argument vector takes precedence.
+     * @param defaults Default values for the property set. Settings in configuration
+     * files and <code>args</code> override these defaults.
+     *
+     * @return An initalized property set.
+     **/
     public static Properties
     createProperties(String[] args, Properties defaults)
     {
@@ -43,12 +102,29 @@ public final class Util
         return createProperties(argsH, defaults);
     }
 
+    /**
+     * Creates a communicator.
+     *
+     * @param args A command-line argument vector. Any Ice-related options
+     * in this vector are used to intialize the communicator.
+     * This method modifies the argument vector by removing any Ice-related options.
+     *
+     * @return The initialized communicator.
+     **/
     public static Communicator
     initialize(StringSeqHolder args)
     {
         return initialize(args, null);
     }
 
+    /**
+     * Creates a communicator.
+     *
+     * @param args A command-line argument vector. Any Ice-related options
+     * in this vector are used to intialize the communicator.
+     *
+     * @return The initialized communicator.
+     **/
     public static Communicator
     initialize(String[] args)
     {
@@ -56,6 +132,20 @@ public final class Util
         return initialize(argsH);
     }
 
+    /**
+     * Creates a communicator.
+     *
+     * @param args A command-line argument vector. Any Ice-related options
+     * in this vector are used to intialize the communicator.
+     * This method modifies the argument vector by removing any Ice-related options.
+     *
+     * @param initData Additional intialization data. Property settings in <code>args</code>
+     * override property settings in <code>initData</code>.
+     *
+     * @return The initialized communicator.
+     *
+     * @see InitializationData
+     **/
     public static Communicator
     initialize(StringSeqHolder args, InitializationData initData)
     {
@@ -74,6 +164,19 @@ public final class Util
         return result;
     }
 
+    /**
+     * Creates a communicator.
+     *
+     * @param args A command-line argument vector. Any Ice-related options
+     * in this vector are used to intialize the communicator.
+     *
+     * @param initData Additional intialization data. Property settings in <code>args</code>
+     * override property settings in <code>initData</code>.
+     *
+     * @return The initialized communicator.
+     *
+     * @see InitializationData
+     **/
     public static Communicator
     initialize(String[] args, InitializationData initData)
     {
@@ -81,6 +184,15 @@ public final class Util
         return initialize(argsH, initData);
     }
 
+    /**
+     * Creates a communicator.
+     *
+     * @param initData Additional intialization data.
+     *
+     * @return The initialized communicator.
+     *
+     * @see InitializationData
+     **/
     public static Communicator
     initialize(InitializationData initData)
     {
@@ -98,12 +210,22 @@ public final class Util
         return result;
     }
 
+    /**
+     * Creates a communicator using a default configuration.
+     **/
     public static Communicator
     initialize()
     {
         return initialize(new InitializationData());
     }
 
+    /**
+     * Converts a string to an object identity.
+     *
+     * @param s The string to convert.
+     *
+     * @return The converted object identity.
+     **/
     public static Identity
     stringToIdentity(String s)
     {
@@ -175,6 +297,13 @@ public final class Util
         return ident;
     }
 
+    /**
+     * Converts an object identity to a string.
+     *
+     * @param ident The object identity to convert.
+     *
+     * @return The string representation of the object identity.
+     **/
     public static String
     identityToString(Identity ident)
     {
@@ -198,6 +327,19 @@ public final class Util
     	return java.util.UUID.randomUUID().toString();
     }
 
+    /**
+     * Compares the object identities of two proxies.
+     *
+     * @param lhs A proxy.
+     * @param rhs A proxy.
+     * @return -1 if the identity in <code>lhs</code> compares
+     * less than the identity in <code>rhs</code>; 0 if the identities
+     * compare equal; 1, otherwise.
+     *
+     * @see ProxyIdentityKey
+     * @see ProxyIdentityAndFacetKey
+     * @see ProxyIdentityAndFacetCompare
+     **/
     public static int
     proxyIdentityCompare(ObjectPrx lhs, ObjectPrx rhs)
     {
@@ -226,6 +368,19 @@ public final class Util
         }
     }
 
+    /**
+     * Compares the object identities and facets of two proxies.
+     *
+     * @param lhs A proxy.
+     * @param rhs A proxy.
+     * @return -1 if the identity and facet in <code>lhs</code> compare
+     * less than the identity and facet in <code>rhs</code>; 0 if the identities
+     * and facets compare equal; 1, otherwise.
+     *
+     * @see ProxyIdentityAndFacetKey
+     * @see ProxyIdentityKey
+     * @see ProxyIdentityCompare
+     **/
     public static int
     proxyIdentityAndFacetCompare(ObjectPrx lhs, ObjectPrx rhs)
     {
@@ -273,18 +428,36 @@ public final class Util
         }
     }
 
+    /**
+     * Creates an input stream for dynamic invocation and dispatch.
+     *
+     * @param communicator The communicator for the stream.
+     * @param bytes An encoded request or reply.
+     * @return The input stream.
+     **/
     public static InputStream
     createInputStream(Communicator communicator, byte[] bytes)
     {
         return new InputStreamI(communicator, bytes);
     }
 
+    /**
+     * Creates an output stream for dynamic invocation and dispatch.
+     *
+     * @param communicator The communicator for the stream.
+     * @return The output stream.
+     **/
     public static OutputStream
     createOutputStream(Communicator communicator)
     {
         return new OutputStreamI(communicator);
     }
 
+    /**
+     * Returns the process-wide logger.
+     *
+     * The process-wide logger.
+     **/
     public static Logger
     getProcessLogger()
     {
@@ -302,6 +475,11 @@ public final class Util
         }
     }
 
+    /**
+     * Changes the process-wide logger.
+     *
+     * @param The new process-wide logger.
+     **/
     public static void
     setProcessLogger(Logger logger)
     {
@@ -311,12 +489,26 @@ public final class Util
         }
     }
 
+    /**
+     * Returns the Ice version in the form <code>A.B.C,</code>, where <code>A</code> indicates the
+     * major version, <code>B</code> indicates the minor version, and <code>C</code> indicates the
+     * patch level.
+     *
+     * @return The Ice version.
+     **/
     public static String
     stringVersion()
     {
         return "3.3.1"; // "A.B.C", with A=major, B=minor, C=patch
     }
 
+    /**
+     * Returns the Ice version as an integer in the form <code>A.BB.CC</code>, where <code>A</code>
+     * indicates the major version, <code>BB</code> indicates the minor version, and <code>CC</code>
+     * indicates the patch level. For example, for Ice 3.3.1, the returned value is 30301.
+     *
+     * @return The Ice version.
+     **/
     public static int
     intVersion()
     {

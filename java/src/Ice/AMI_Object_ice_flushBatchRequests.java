@@ -9,8 +9,19 @@
 
 package Ice;
 
+/**
+ * Callback object for <code>ObjectPrx.ice_flushBatchRequests_async</code>.
+ **/
 public abstract class AMI_Object_ice_flushBatchRequests extends IceInternal.BatchOutgoingAsync
 {
+    /**
+     * Indicates to the caller that a call to <code>ice_flushBatchRequests_async</code>
+     * raised an Ice run-time exception.
+     *
+     * @param ex The run-time exception that was raised.
+     *
+     * @see ObjectPrx.ice_flushBatchRequests_async
+     **/
     public abstract void ice_exception(LocalException ex);
 
     public final boolean __invoke(Ice.ObjectPrx prx)

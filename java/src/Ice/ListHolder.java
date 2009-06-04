@@ -9,18 +9,32 @@
 
 package Ice;
 
+/**
+ * Holder class for lists that are in- or inout-parameters.
+ **/
 public final class ListHolder
 {
+    /**
+     * Instantiates the class with a <code>null</code> <code>List</code>.
+     **/
     public
     ListHolder()
     {
     }
 
+    /**
+     * Instantiates the class with the passed <code>List</code>.
+     *
+     * @param value The <code>List</code> stored by this holder.
+     **/
     public
     ListHolder(java.util.List value)
     {
         this.value = value;
     }
 
+    /**
+     * The <code>List</code> stored by this holder.
+     **/
     public java.util.List value;
 }

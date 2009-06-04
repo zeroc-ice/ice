@@ -9,13 +9,19 @@
 
 package Ice;
 
-//
-// If you are attempting to deserialize a Slice type that includes a
-// proxy, you must instantiate (or subclass) Ice.ObjectInputStream and
-// supply a communicator for use in reconstructing the proxy.
-//
+/**
+ * For desrialization of Slice types that contain a proxy, the application
+ * must instantiate (of subclass) <code>ObjectInputStream</code> and supply
+ * a communicator that is used to reconstruct the proxy.
+ **/
 public class ObjectInputStream extends java.io.ObjectInputStream
 {
+    /**
+     * Instantiates this class for the specified communicator and input stream.
+     *
+     * @param communicator The communicator to use to deserialize proxies.
+     * @param stream The input stream to read from.
+     **/
     public
     ObjectInputStream(Communicator communicator, java.io.InputStream stream)
         throws java.io.IOException
@@ -24,6 +30,9 @@ public class ObjectInputStream extends java.io.ObjectInputStream
         _communicator = communicator;
     }
 
+    /**
+     * Returns the communicator for this stream.
+     **/
     public Communicator
     getCommunicator()
     {

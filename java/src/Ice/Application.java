@@ -9,40 +9,111 @@
 
 package Ice;
 
+/**
+ * Utility base class that makes it easy to to correctly initialize and finalize
+ * the Ice run time, as well as handle signals. Unless the application specifies
+ * a logger, <Application> installs a per-process logger that logs to the standard
+ * error output.
+ * <p>
+ * Applications must create a derived class that implements the <code>run</code> method.
+ * <p>
+ * A program can contain only one instance of this class.
+ *
+ * @see run
+ * @see Communicator
+ * @see Logger
+ **/
 public abstract class Application
 {
-
+    /**
+     * Initializes an instance that calls <code>Communicator.shutdown</code> if
+     * a signal is received.
+     **/
     public
     Application()
     {
     }
 
+    /**
+     * Initializes an instance that handles signals according to the signal
+     * policy.
+     *
+     * @param signalPolicy Determines how to respond to signals.
+     *
+     * @see SignalPolicy
+     **/
     public
     Application(SignalPolicy signalPolicy)
     {
         _signalPolicy = signalPolicy;
     }
 
-    //
-    // This main() must be called by the global main(). main()
-    // initializes the Communicator, calls run(), and destroys
-    // the Communicator upon return from run(). It thereby handles
-    // all exceptions properly, i.e., error messages are printed
-    // if exceptions propagate to main(), and the Communicator is
-    // always destroyed, regardless of exceptions.
-    //
+    /**
+     * The application must call <code>main</code> after it has
+     * instantiated the derived class. <code>main</code> creates
+     * a communicator, establishes the specified signal policy, and,
+     * once <code>run</code> returns, destroys the communicator.
+     * <p>
+     * The method prints an error message for any exception that propagates
+     * out of <code>run</code> and ensures that the communicator is
+     * destroyed correctly even if <code>run</code> completes abnormally.
+     *
+     * @param appName The name of the application. This parameter is used to initialize
+     * the value of the <code>Ice.ProgramName</code> property.
+     * @param args The arguments for the application (as passed to <code>Main(String[])</code>
+     * by the operating system.
+     * @return The value returned by <code>run</code>. If <code>run</code> terminates with an exception,
+     * the return value is non-zero.
+     **/
     public final int
     main(String appName, String[] args)
     {
         return mainInternal(appName, args, new InitializationData(), null);
     }
 
+    /**
+     * The application must call <code>main</code> after it has
+     * instantiated the derived class. <code>main</code> creates
+     * a communicator, establishes the specified signal policy, and,
+     * once <code>run</code> returns, destroys the communicator.
+     * <p>
+     * The method prints an error message for any exception that propagates
+     * out of <code>run</code> and ensures that the communicator is
+     * destroyed correctly even if <code>run</code> completes abnormally.
+     *
+     * @param appName The name of the application. This parameter is used to initialize
+     * the value of the <code>Ice.ProgramName</code> property.
+     * @param configFile The configuration file with which to initialize
+     * Ice properties.
+     * @return The value returned by <code>run</code>. If <code>run</code> terminates with an exception,
+     * the return value is non-zero.
+     **/
     public final int
     main(String appName, String[] args, String configFile)
     {
         return main(appName, args, configFile, null);
     }
 
+    /**
+     * The application must call <code>main</code> after it has
+     * instantiated the derived class. <code>main</code> creates
+     * a communicator, establishes the specified signal policy, and,
+     * once <code>run</code> returns, destroys the communicator.
+     * <p>
+     * The method prints an error message for any exception that propagates
+     * out of <code>run</code> and ensures that the communicator is
+     * destroyed correctly even if <code>run</code> completes abnormally.
+     *
+     * @param appName The name of the application. This parameter is used to initialize
+     * the value of the <code>Ice.ProgramName</code> property.
+     * @param args The arguments for the application (as passed to <code>Main(String[])</code>.
+     * @param configFile The configuration file with which to initialize Ice properties.
+     * @param overrideProps Property values that override any settings in <code>configFile</code.
+     * @return The value returned by <code>run</code>. If <code>run</code> terminates with an exception,
+     * the return value is non-zero.
+     *
+     * @see Properties
+     **/
     public final int
     main(String appName, String[] args, String configFile, Properties overrideProps)
     {
@@ -68,38 +139,81 @@ public abstract class Application
         return mainInternal(appName, args, initData, overrideProps);
     }
 
+    /**
+     * The application must call <code>main</code> after it has
+     * instantiated the derived class. <code>main</code> creates
+     * a communicator, establishes the specified signal policy, and,
+     * once <code>run</code> returns, destroys the communicator.
+     * <p>
+     * The method prints an error message for any exception that propagates
+     * out of <code>run</code> and ensures that the communicator is
+     * destroyed correctly even if <code>run</code> completes abnormally.
+     *
+     * @param appName The name of the application. This parameter is used to initialize
+     * the value of the <code>Ice.ProgramName</code> property.
+     * @param args The arguments for the application (as passed to <code>Main(String[])</code>.
+     * @param initializationData Additional data used to initialize the communicator.
+     * @return The value returned by <code>run</code>. If <code>run</code> terminates with an exception,
+     * the return value is non-zero.
+     *
+     * @see InitializationData
+     **/
     public final int
     main(String appName, String[] args, InitializationData initializationData)
     {
         return mainInternal(appName, args, initializationData, null);
     }
 
+    /**
+     * Called once the communicator has been initialized. The derived class must
+     * implement <code>run</code>, which is the application's starting method.
+     *
+     * @param args The argument vector for the application. <code>Application</code>
+     * scans the argument vector passed to <code>main</code> for options that are
+     * specific to the Ice run time and removes them; therefore, the vector passed
+     * to <code>run</code> is free from Ice-related options and contains only options
+     * and arguments that are application-specific.
+     *
+     * @param args The argument vector for the application, minus any Ice-specific options.
+     * @return The <code>run</code> method should return zero for successful termination, and
+     * non-zero otherwise. <code>Application.main</code> returns the value returned by <code>run</code>.
+     **/
     public abstract int
     run(String[] args);
 
-    //
-    // Return the application name, i.e., argv[0].
-    //
+    /**
+     * Returns the value of <code>appName</code> that is passed to <code>main</code> (which is also the
+     * the value of <code>Ice.ProgramName</code>). This method is useful mainly for error messages that
+     * include the application name. Because <appName> is a static method, it is available from anywhere
+     * in the program.
+     *
+     * @return The name of the application.
+     **/
     public static String
     appName()
     {
         return _appName;
     }
 
-    //
-    // One limitation of this class is that there can only be one
-    // Application instance, with one global Communicator, accessible
-    // with this communicator() operation. This limitiation is due to
-    // how the signal handling functions below operate. If you require
-    // multiple Communicators, then you cannot use this Application
-    // framework class.
-    //
+    /**
+     * Returns the communicator for the application. Because <communicator> is a static method,
+     * it permits access to the communicator from anywhere in the program. Note that, as a consequence,
+     * you cannot  more than one instance of <code>Application</code> in a program.
+     *
+     * @return The communicator for the application.
+     **/
     public static Communicator
     communicator()
     {
         return _communicator;
     }
 
+    /**
+     * Instructs <code>Application</code> to call <code>Communicator.destroy</code> on receipt of a signal.
+     * This is default signal handling policy established by the default constructor.
+     *
+     * @see Communicator.destroy
+     **/
     public static void
     destroyOnInterrupt()
     {
@@ -132,6 +246,11 @@ public abstract class Application
         }
     }
     
+    /**
+     * Instructs <code>Application</code> to call <code>Communicator.shutdown</code> on receipt of a signal.
+     *
+     * @see Communicator.shutdown
+     **/
     public static void
     shutdownOnInterrupt()
     {
@@ -164,15 +283,17 @@ public abstract class Application
         }
     }
 
-    //
-    // Install a custom shutdown hook. This hook is registered as a
-    // shutdown hook and should do whatever is necessary to terminate
-    // the application. Note that this runs as a shutdown hook so the
-    // code must obey the same rules as a shutdown hook (specifically
-    // don't call exit!). The shutdown and destroy shutdown interrupts
-    // are cleared. This hook is automatically unregistered after
-    // Application.run() returns.
-    //
+    /**
+     * Installs a custom shutdown hook. The implementation of the shutdown
+     * hook can do whatever cleanup is necessary to shut down the application.
+     * The hook is unregistered once <code>run</code> returns.
+     * Note that the hook must obey the rules for shutdown hooks; specifically,
+     * it must not call <code>exit</code>.
+     *
+     * @param newHook The thread to run on shutdown.
+     *
+     * @see java.lang.Runtime.addShutdownHook
+     **/
     public static void
     setInterruptHook(java.lang.Thread newHook) // Pun intended.
     {
@@ -194,9 +315,10 @@ public abstract class Application
         }
     }
     
-    //
-    // This clears any shutdown hooks including any custom hook.
-    //
+    /**
+     * Clears any shutdownn hooks, including any hook established with <code>destroyOnInterrupt</code> or
+     * <code>shutdownOnInterrupt</code>.
+     **/
     public static void
     defaultInterrupt()
     {
@@ -211,6 +333,12 @@ public abstract class Application
         }
     }
 
+    /**
+     * Determines whether the application shut down intentionally or was forced to shut down by the JVM. This
+     * is useful for logging purposes.
+     *
+     * @return <code>true</code> if a shutdown hook caused the communicator to shut down; false otherwise.
+     **/
     public static boolean
     interrupted()
     {

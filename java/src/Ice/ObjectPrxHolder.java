@@ -9,18 +9,32 @@
 
 package Ice;
 
+/**
+ * Holder class for proxies that are in- or inout-parameters.
+ **/
 public final class ObjectPrxHolder
 {
+    /**
+     * Instantiates the class with a <code>null</code> proxy.
+     **/
     public
     ObjectPrxHolder()
     {
     }
 
+    /**
+     * Instantiates the class with the passed proxy.
+     *
+     * @param value The proxy stored this holder.
+     **/
     public
     ObjectPrxHolder(ObjectPrx value)
     {
         this.value = value;
     }
 
+    /**
+     * The proxy stored by this holder.
+     **/
     public ObjectPrx value;
 }

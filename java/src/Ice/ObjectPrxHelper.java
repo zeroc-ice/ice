@@ -11,18 +11,45 @@ package Ice;
 
 public class ObjectPrxHelper extends ObjectPrxHelperBase
 {
+    /**
+     * Casts a proxy to <code>::Ice::ObjectPrx</code>. This call contacts
+     * the server and will throw an Ice run-time exception if the target
+     * object does not exist or the server cannot be reached.
+     *
+     * @param b The proxy to cast to <code>::Ice::ObjectPrx</code>.
+     * @return <code>b</code>.
+     **/
     public static ObjectPrx
     checkedCast(Ice.ObjectPrx b)
     {
         return b;
     }
 
+    /**
+     * Casts a proxy to <code>::Ice::ObjectPrx</code>. This call contacts
+     * the server and throws an Ice run-time exception if the target
+     * object does not exist or the server cannot be reached.
+     *
+     * @param b The proxy to cast to <code>::Ice::ObjectPrx</code>.
+     * @param ctx The <code>Context</code> map for the invocation.
+     * @return <code>b</code>.
+     **/
     public static ObjectPrx
     checkedCast(Ice.ObjectPrx b, java.util.Map<String, String> ctx)
     {
         return b;
     }
 
+    /**
+     * Creates a new proxy that is identical to the passed proxy, except
+     * for its facet. This call contacts
+     * the server and throws an Ice run-time exception if the target
+     * object does not exist, the specified facet does not exist, or the server cannot be reached.
+     *
+     * @param b The proxy to cast to <code>::Ice::ObjectPrx</code>.
+     * @param f The facet for the new proxy.
+     * @return The new proxy with the specified facet.
+     **/
     public static ObjectPrx
     checkedCast(Ice.ObjectPrx b, String f)
     {
@@ -45,6 +72,17 @@ public class ObjectPrxHelper extends ObjectPrxHelperBase
         return d;
     }
 
+    /**
+     * Creates a new proxy that is identical to the passed proxy, except
+     * for its facet. This call contacts
+     * the server and throws an Ice run-time exception if the target
+     * object does not exist, the specified facet does not exist, or the server cannot be reached.
+     *
+     * @param b The proxy to cast to <code>::Ice::ObjectPrx</code>.
+     * @param f The facet for the new proxy.
+     * @param ctx The <code>Context</code> map for the invocation.
+     * @return The new proxy with the specified facet.
+     **/
     public static ObjectPrx
     checkedCast(Ice.ObjectPrx b, String f, java.util.Map<String, String> ctx)
     {
@@ -67,12 +105,27 @@ public class ObjectPrxHelper extends ObjectPrxHelperBase
         return d;
     }
 
+    /**
+     * Casts a proxy to <code>::Ice::ObjectPrx</code>. This call does
+     * not contact the server and always succeeds.
+     *
+     * @param b The proxy to cast to <code>::Ice::ObjectPrx</code>.
+     * @return <code>b</code>.
+     **/
     public static ObjectPrx
     uncheckedCast(Ice.ObjectPrx b)
     {
         return b;
     }
 
+    /**
+     * Creates a new proxy that is identical to the passed proxy, except
+     * for its facet. This call does not contact the server and always succeeds.
+     *
+     * @param b The proxy to cast to <code>::Ice::ObjectPrx</code>.
+     * @param f The facet for the new proxy.
+     * @return The new proxy with the specified facet.
+     **/
     public static ObjectPrx
     uncheckedCast(Ice.ObjectPrx b, String f)
     {

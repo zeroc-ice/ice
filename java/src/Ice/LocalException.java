@@ -9,8 +9,16 @@
 
 package Ice;
 
+/**
+ * Base class for all Ice run-time exceptions.
+ **/
 public abstract class LocalException extends RuntimeException implements Cloneable
 {
+    /**
+     * Creates a copy of this exception.
+     *
+     * @return The copy of this exception.
+     **/
     public java.lang.Object clone()
     {
         java.lang.Object o = null;
@@ -25,9 +33,19 @@ public abstract class LocalException extends RuntimeException implements Cloneab
         return o;
     }
 
+    /**
+     * Returns the name of this exception.
+     *
+     * @return The name of this exception.
+     **/
     public abstract String
     ice_name();
 
+    /**
+     * Returns a string representation of this exception.
+     *
+     * @return A string representation of this exception.
+     **/
     public String
     toString()
     {

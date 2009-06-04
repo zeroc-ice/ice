@@ -9,8 +9,20 @@
 
 package Ice;
 
+/**
+ * Base class for extracting objects from an input stream.
+ **/
 public abstract class ObjectReader extends ObjectImpl
 {
+    /**
+     * Reads the state of this Slice class from an input stream.
+     *
+     * @param in The input stream to read from.
+     * @param rid If <code>true</code>, extraction begins by reading a Slice type ID
+     * first. If <code>false</code>, the leading type ID is not read. This is used
+     * by the unmarshaling code in case the type ID has already been read as part
+     * of other unmarshaling activities.
+     **/
     public abstract void read(InputStream in, boolean rid);
 
     public void

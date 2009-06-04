@@ -9,13 +9,25 @@
 
 package Ice;
 
+/**
+ * Base class for all Slice classes.
+ **/
 public abstract class ObjectImpl implements Object, java.lang.Cloneable, java.io.Serializable
 {
+    /**
+     * Instantiates an Ice object.
+     **/
     public
     ObjectImpl()
     {
     }
 
+    /**
+     * Returns a copy of the object. The cloned object contains field-for-field copies
+     * of the state.
+     *
+     * @return The cloned object.
+     **/
     public java.lang.Object
     clone()
     {
@@ -45,12 +57,27 @@ public abstract class ObjectImpl implements Object, java.lang.Cloneable, java.io
         "::Ice::Object"
     };
 
+    /**
+     * Tests whether this object supports a specific Slice interface.
+     *
+     * @param s The type ID of the Slice interface to test against.
+     * @return The return value is <code>true</code> if <code>s</code> is
+     * <code>::Ice::Object</code>.
+     **/
     public boolean
     ice_isA(String s)
     {
         return s.equals(__ids[0]);
     }
 
+    /**
+     * Tests whether this object supports a specific Slice interface.
+     *
+     * @param s The type ID of the Slice interface to test against.
+     * @param current The current object for the invocation.
+     * @return The return value is <code>true</code> if <code>s</code> is
+     * <code>::Ice::Object</code>.
+     **/
     public boolean
     ice_isA(String s, Current current)
     {
@@ -70,12 +97,20 @@ public abstract class ObjectImpl implements Object, java.lang.Cloneable, java.io
         return DispatchStatus.DispatchOK;
     }
 
+    /**
+     * Tests whether this object can be reached.
+     **/
     public void
     ice_ping()
     {
         // Nothing to do.
     }
 
+    /**
+     * Tests whether this object can be reached.
+     *
+     * @param current The current object for the invocation.
+     **/
     public void
     ice_ping(Current current)
     {
@@ -90,12 +125,23 @@ public abstract class ObjectImpl implements Object, java.lang.Cloneable, java.io
         return DispatchStatus.DispatchOK;
     }
 
+    /**
+     * Returns the Slice type IDs of the interfaces supported by this object.
+     *
+     * @return An array whose only element is <code>::Ice::Object</code>.
+     **/
     public String[]
     ice_ids()
     {
         return __ids;
     }
 
+    /**
+     * Returns the Slice type IDs of the interfaces supported by this object.
+     *
+     * @param current The current object for the invocation.
+     * @return An array whose only element is <code>::Ice::Object</code>.
+     **/
     public String[]
     ice_ids(Current current)
     {
@@ -112,12 +158,23 @@ public abstract class ObjectImpl implements Object, java.lang.Cloneable, java.io
         return DispatchStatus.DispatchOK;
     }
 
+    /**
+     * Returns the Slice type ID of the most-derived interface supported by this object.
+     *
+     * @return The return value is always <code>::Ice::Object</code.>
+     **/
     public String
     ice_id()
     {
         return __ids[0];
     }
 
+    /**
+     * Returns the Slice type ID of the most-derived interface supported by this object.
+     *
+     * @param current The current object for the invocation.
+     * @return The return value is always <code>::Ice::Object</code.>
+     **/
     public String
     ice_id(Current current)
     {
@@ -134,22 +191,61 @@ public abstract class ObjectImpl implements Object, java.lang.Cloneable, java.io
         return DispatchStatus.DispatchOK;
     }
 
+    /**
+     * Returns the Slice type ID of the most-derived interface supported by this object.
+     *
+     * @return The return value is always <code>::Ice::Object</code>.
+     **/
     public static String
     ice_staticId()
     {
         return __ids[0];
     }
 
+    /**
+     * Returns the Freeze metadata attributes for an operation.
+     *
+     * @param The name of the operation.
+     * @return The least significant bit indicates whether the operation is a read
+     * or write operation. If the bit is set, the operation is a write operation.
+     * The expression <code>ice_operationAttributes("op") & 0x1</code> is true if
+     * the operation has a <code>["freeze:write"]</code> metadata directive.
+     * <p>
+     * The second- and third least significant bit indicate the transactional mode
+     * of the operation. The expression <code>ice_operationAttributes("op") & 0x6 >> 1</code>
+     * indicates the transactional mode as follows:
+     * <dl>
+     *   <dt>0</dt>
+     *   <dd><code>["freeze:read:supports"]</code></dd>
+     *   <dt>1</dt>
+     *   <dd><code>["freeze:read:mandatory"]</code> or <code>["freeze:write:mandatory"]</code></dd>
+     *   <dt>2</dt>
+     *   <dd><code>["freeze:read:required"]</code> or <code>["freeze:write:required"]</code></dd>
+     *   <dt>3</dt>
+     *   <dd><code>["freeze:read:never"]</code></dd>
+     * </dl>
+     *
+     * @see Freeze:TransactionalEvictor
+     **/
     public int ice_operationAttributes(String operation)
     {
         return 0;
     }
 
+    /**
+     * The Ice run time invokes this method prior to marshaling an object's data members. This allows a subclass
+     * to override this method in order to validate its data members. This default implementation does nothing.
+     **/
     public void
     ice_preMarshal()
     {
     }
 
+    /**
+     * This Ice run time invokes this method vafter unmarshaling an object's data members. This allows a
+     * subclass to override this method in order to perform additional initialization. This default
+     * implementation does nothing.
+     **/
     public void
     ice_postUnmarshal()
     {
@@ -163,6 +259,19 @@ public abstract class ObjectImpl implements Object, java.lang.Cloneable, java.io
         "ice_ping"
     };
 
+    /**
+     * Dispatches an invocation to a servant. This method is used by dispatch interceptors to forward an invocation
+     * to a servant (or to another interceptor).
+     *
+     * @param request The details of the invocation.
+     * @param cb The callback object for asynchchronous dispatch. For synchronous dispatch, the callback object must
+     * be <code>null</code>.
+     * @return The dispatch status for the operation.
+     *
+     * @see DispatchInterceptor
+     * @see DispatchInterceptorAsyncCallback
+     * @see DispatchStatus
+     **/
     public DispatchStatus
     ice_dispatch(Request request, DispatchInterceptorAsyncCallback cb)
     {

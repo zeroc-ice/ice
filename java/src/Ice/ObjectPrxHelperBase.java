@@ -9,8 +9,16 @@
 
 package Ice;
 
+/**
+ * Base class for all proxies.
+ **/
 public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
 {
+    /**
+     * Returns a hash code for this proxy.
+     *
+     * @return The hash code.
+     **/
     public final int
     hashCode()
     {
@@ -26,27 +34,55 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
         return _reference.hashCode();
     }
 
+    /**
+     * Returns the communicator that created this proxy.
+     *
+     * @return The communicator that created this proxy.
+     **/
     public final Communicator ice_getCommunicator()
     {
         return _reference.getCommunicator();
     }
 
+    /**
+     * Returns the stringified form of this proxy.
+     *
+     * @return The stringified proxy.
+     **/
     public final String toString()
     {
         return _reference.toString();
     }
 
+    /**
+     * Returns the stringified form of this proxy.
+     *
+     * @return The stringified proxy.
+     **/
     public final String ice_toString()
     {
         return toString();
     }
 
+    /**
+     * Tests whether this proxy supports a given interface.
+     *
+     * @param __id The Slice type ID of an interface.
+     * @return <code>true</code> if this proxy supports the specified interface; <code>false</code>, otherwise.
+     **/
     public final boolean
     ice_isA(String __id)
     {
         return ice_isA(__id, null, false);
     }
 
+    /**
+     * Tests whether this proxy supports a given interface.
+     *
+     * @param __id The Slice type ID of an interface.
+     * @param __context The <code>Context</code> map for the invocation.
+     * @return <code>true</code> if this proxy supports the specified interface; <code>false</code>, otherwise.
+     **/
     public final boolean
     ice_isA(String __id, java.util.Map<String, String> __context)
     {
@@ -82,12 +118,20 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
         }
     }
 
+    /**
+     * Tests whether the target object of this proxy can be reached.
+     **/
     public final void
     ice_ping()
     {
         ice_ping(null, false);
     }
 
+    /**
+     * Tests whether the target object of this proxy can be reached.
+     *
+     * @param __context The <code>Context</code> map for the invocation.
+     **/
     public final void
     ice_ping(java.util.Map<String, String> __context)
     {
@@ -123,12 +167,25 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
         }
     }
 
+    /**
+     * Returns the Slice type IDs of the interfaces supported by the target object of this proxy.
+     *
+     * @return The Slice type Ids of the interfaces supported by the target object, in base-to-derived
+     * order. The first element of the return array is always <code>::Ice::Object</code>.
+     **/
     public final String[]
     ice_ids()
     {
         return ice_ids(null, false);
     }
 
+    /**
+     * Returns the Slice type IDs of the interfaces supported by the target object of this proxy.
+     *
+     * @param __context The <code>Context</code> map for the invocation.
+     * @return The Slice type Ids of the interfaces supported by the target object, in base-to-derived
+     * order. The first element of the return array is always <code>::Ice::Object</code>.
+     **/
     public final String[]
     ice_ids(java.util.Map<String, String> __context)
     {
@@ -164,12 +221,23 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
         }
     }
 
+    /**
+     * Returns the Slice type ID of the most-derived interface supported by the target object of this proxy.
+     *
+     * @return The Slice type ID of the most-derived interface.
+     **/
     public final String
     ice_id()
     {
         return ice_id(null, false);
     }
 
+    /**
+     * Returns the Slice type ID of the most-derived interface supported by the target object of this proxy.
+     *
+     * @param __context The <code>Context</code> map for the invocation.
+     * @return The Slice type ID of the most-derived interface.
+     **/
     public final String
     ice_id(java.util.Map<String, String> __context)
     {
@@ -205,12 +273,45 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
         }
     }
 
+    /**
+     * Invoke an operation dynamically.
+     *
+     * @param operation The name of the operation to invoke.
+     * @param mode The operation mode (normal or idempotent).
+     * @param inParams The encoded in-parameters for the operation.
+     * @param outParams The encoded out-paramaters and return value
+     * for the operation. The return value follows any out-parameters.
+     * @return If the operation completed successfully, the return value
+     * is <code>true</code>. If the operation raises a user exception,
+     * the return value is <code>false</code>; in this case, <code>outParams</code>
+     * contains the encoded user exception. If the operation raised an
+     * it throws it directly.
+     *
+     * @see Blobject
+     * @see OperationMode
+     **/
     public final boolean
     ice_invoke(String operation, OperationMode mode, byte[] inParams, ByteSeqHolder outParams)
     {
         return ice_invoke(operation, mode, inParams, outParams, null, false);
     }
 
+    /**
+     * Invoke an operation dynamically.
+     *
+     * @param operation The name of the operation to invoke.
+     * @param mode The operation mode (normal or idempotent).
+     * @param inParams The encoded in-parameters for the operation.
+     * @param outParams The encoded out-paramaters and return value
+     * for the operation. The return value follows any out-parameters.
+     * @param __context The context map for the invocation.
+     * @return If the operation was invoked synchronously (because there
+     * was no need to queue the request, the return value is <code>true</code>;
+     * otherwise, if the invocation was queued, the return value is <code>false</code>.
+     *
+     * @see Blobject
+     * @see OperationMode
+     **/
     public final boolean
     ice_invoke(String operation, OperationMode mode, byte[] inParams, ByteSeqHolder outParams,
                java.util.Map<String, String> context)
@@ -254,6 +355,22 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
         }
     }
 
+    /**
+     * Invokes an operation dynamically and asynchronously.
+     *
+     * @param cb The callback object to notify when the operation completes.
+     * @param operation The name of the operation to invoke.
+     * @param mode The operation mode (normal or idempotent).
+     * @param inParams The encoded in-parameters for the operation.
+     * @return If the operation completed successfully, the return value
+     * is <code>true</code>. If the operation raises a user exception,
+     * the return value is <code>false</code>; in this case, <code>outParams</code>
+     * contains the encoded user exception. If the operation raised an
+     * it throws it directly.
+     *
+     * @see AMI_Object_ice_invoke
+     * @see OperationMode
+     **/
     public final boolean
     ice_invoke_async(AMI_Object_ice_invoke cb, String operation, OperationMode mode, byte[] inParams)
     {
@@ -261,6 +378,23 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
         return cb.__invoke(this, operation, mode, inParams, null);
     }
 
+    /**
+     * Invokes an operation dynamically and asynchronously.
+     *
+     * @param cb The callback object to notify when the operation completes.
+     * @param operation The name of the operation to invoke.
+     * @param mode The operation mode (normal or idempotent).
+     * @param inParams The encoded in-parameters for the operation.
+     * @param __context The context map for the invocation.
+     * @return If the operation completed successfully, the return value
+     * is <code>true</code>. If the operation raises a user exception,
+     * the return value is <code>false</code>; in this case, <code>outParams</code>
+     * contains the encoded user exception. If the operation raised an
+     * it throws it directly.
+     *
+     * @see AMI_Object_ice_invoke
+     * @see OperationMode
+     **/
     public final boolean
     ice_invoke_async(AMI_Object_ice_invoke cb, String operation, OperationMode mode, byte[] inParams,
                      java.util.Map<String, String> context)
@@ -273,12 +407,23 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
         return cb.__invoke(this, operation, mode, inParams, context);
     }
     
+    /**
+     * Returns the identity embedded in this proxy.
+     *
+     * @return The identity of the target object.
+     **/
     public final Identity
     ice_getIdentity()
     {
         return _reference.getIdentity();
     }
 
+    /**
+     * Creates a new proxy that is identical to this proxy, except for the identity.
+     *
+     * @param newIdentity The identity for the new proxy.
+     * @return The proxy with the new identity.
+     **/
     public final ObjectPrx
     ice_identity(Identity newIdentity)
     {
@@ -298,24 +443,47 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
         }
     }
 
+    /**
+     * Returns the per-proxy context for this proxy.
+     *
+     * @return The per-proxy context. If the proxy does not have a per-proxy (implicit) context, the return value
+     * is <code>null</code>.
+     **/
     public final java.util.Map<String, String>
     ice_getContext()
     {
         return _reference.getContext();
     }
 
+    /**
+     * Creates a new proxy that is identical to this proxy, except for the per-proxy context.
+     *
+     * @param newContext The context for the new proxy.
+     * @return The proxy with the new per-proxy context.
+     **/
     public final ObjectPrx
     ice_context(java.util.Map<String, String> newContext)
     {
         return newInstance(_reference.changeContext(newContext));
     }
 
+    /**
+     * Returns the facet for this proxy.
+     *
+     * @return The facet for this proxy. If the proxy uses the default facet, the return value is the empty string.
+     **/
     public final String
     ice_getFacet()
     {
         return _reference.getFacet();
     }
 
+    /**
+     * Creates a new proxy that is identical to this proxy, except for the facet.
+     *
+     * @param newFacet The facet for the new proxy.
+     * @return The proxy with the new facet.
+     **/
     public final ObjectPrx
     ice_facet(String newFacet)
     {
@@ -336,12 +504,23 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
         }
     }
 
+    /**
+     * Returns the adapter ID for this proxy.
+     *
+     * @return The adapter ID. If the proxy does not have an adapter ID, the return value is the empty string.
+     **/
     public final String
     ice_getAdapterId()
     {
         return _reference.getAdapterId();
     }
 
+    /**
+     * Creates a new proxy that is identical to this proxy, except for the adapter ID.
+     *
+     * @param newAdapterId The adapter ID for the new proxy.
+     * @return The proxy with the new adapter ID.
+     **/
     public final ObjectPrx
     ice_adapterId(String newAdapterId)
     {
@@ -360,12 +539,25 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
         }
     }
 
+    /**
+     * Returns the endpoints used by this proxy.
+     *
+     * @return The endpoints used by this proxy.
+     *
+     * @see Endpoint
+     **/
     public final Endpoint[]
     ice_getEndpoints()
     {
         return _reference.getEndpoints();
     }
 
+    /**
+     * Creates a new proxy that is identical to this proxy, except for the endpoints.
+     *
+     * @param newEndpoints The endpoints for the new proxy.
+     * @return The proxy with the new endpoints.
+     **/
     public final ObjectPrx
     ice_endpoints(Endpoint[] newEndpoints)
     {
@@ -381,12 +573,26 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
         }
     }
 
+    /**
+     * Returns the locator cache timeout of this proxy.
+     *
+     * @return The locator cache timeout value (in seconds).
+     *
+     * @see Locator
+     **/
     public final int
     ice_getLocatorCacheTimeout()
     {
         return _reference.getLocatorCacheTimeout();
     }
 
+    /**
+     * Creates a new proxy that is identical to this proxy, except for the locator cache timeout.
+     *
+     * @param newTimeout The new locator cache timeout (in seconds).
+     *
+     * @see Locator
+     **/
     public final ObjectPrx
     ice_locatorCacheTimeout(int newTimeout)
     {
@@ -400,12 +606,23 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
         }
     }
 
+    /**
+     * Returns whether this proxy caches connections.
+     *
+     * @return <code>true</code> if this proxy caches connections; <code>false</code>, otherwise.
+     **/
     public final boolean
     ice_isConnectionCached()
     {
         return _reference.getCacheConnection();
     }
 
+    /**
+     * Creates a new proxy that is identical to this proxy, except for connection caching.
+     *
+     * @param newCache <code>true</code> if the new proxy should cache connections; <code>false</code>, otherwise.
+     * @return The new proxy with the specified caching policy.
+     **/
     public final ObjectPrx
     ice_connectionCached(boolean newCache)
     {
@@ -419,12 +636,27 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
         }
     }
 
+    /**
+     * Returns how this proxy selects endpoints (randomly or ordered).
+     *
+     * @return The endpoint selection policy.
+     *
+     * @see EndpointSelectionType
+     **/
     public final Ice.EndpointSelectionType
     ice_getEndpointSelection()
     {
         return _reference.getEndpointSelection();
     }
 
+    /**
+     * Creates a new proxy that is identical to this proxy, except for the endpoint selection policy.
+     *
+     * @param newType The new endpoint selection policy.
+     * @return The new proxy with the specified endpoint selection policy.
+     *
+     * @see EndpointSelectionType
+     **/
     public final ObjectPrx
     ice_endpointSelection(Ice.EndpointSelectionType newType)
     {
@@ -438,12 +670,24 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
         }
     }
 
+    /**
+     * Returns whether this proxy uses only secure endpoints.
+     *
+     * @return <code>true</code> if all endpoints for this proxy are secure; <code>false</code>, otherwise.
+     **/
     public final boolean
     ice_isSecure()
     {
         return _reference.getSecure();
     }
 
+    /**
+     * Creates a new proxy that is identical to this proxy, except for its endpoints.
+     *
+     * @param If <code>b</code> is <code>true</code>, only endpoints that use a secure transport are
+     * retained for the new proxy. If <code>b</code> is false, the returned proxy is identical to this proxy.
+     * @return The new proxy with possible different endpoints.k
+     **/
     public final ObjectPrx
     ice_secure(boolean b)
     {
@@ -457,12 +701,26 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
         }
     }
 
+    /**
+     * Returns whether this proxy prefers secure endpoints.
+     *
+     * @return <code>true</code> if the proxy always attempts to invoke via secure endpoints before it
+     * attempts to use insecure endpoints; <code>false</code>, otherwise;
+     **/
     public final boolean
     ice_isPreferSecure()
     {
         return _reference.getPreferSecure();
     }
 
+    /**
+     * Creates a new proxy that is identical to this proxy, except for its endpoint selection policy.
+     *
+     * @param b If <code>b</code> is <code>true</code>, the new proxy will use secure endpoints for invocations
+     * and only use insecure endpoints if an invocation cannot be made via secure endpoints. If <code>b</code> is
+     * <code>false</code>, the proxy prefers insecure endpoints to secure ones.
+     * @return The new proxy with the new endpoint selection policy.
+     **/
     public final ObjectPrx
     ice_preferSecure(boolean b)
     {
@@ -476,6 +734,12 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
         }
     }
 
+    /**
+     * Returns the router for this proxy.
+     *
+     * @return The router for the proxy. If no router is configured for the proxy, the return value
+     * is <code>null</code>.
+     **/
     public final Ice.RouterPrx
     ice_getRouter()
     {
@@ -483,6 +747,12 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
         return ri != null ? ri.getRouter() : null;
     }
 
+    /**
+     * Creates a new proxy that is identical to this proxy, except for the router.
+     *
+     * @param router The router for the new proxy.
+     * @return The new proxy with the specified router.
+     **/
     public final ObjectPrx
     ice_router(Ice.RouterPrx router)
     {
@@ -497,6 +767,11 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
         }
     }
 
+    /**
+     * Returns the locator for this proxy.
+     *
+     * @return The locator for this proxy. If no locator is configured, the return value is <code>null</code>.
+     **/
     public final Ice.LocatorPrx
     ice_getLocator()
     {
@@ -504,6 +779,12 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
         return ri != null ? ri.getLocator() : null;
     }
 
+    /**
+     * Creates a new proxy that is identical to this proxy, except for the locator.
+     *
+     * @param The locator for the new proxy.
+     * @return The new proxy with the specified locator.
+     **/
     public final ObjectPrx
     ice_locator(Ice.LocatorPrx locator)
     {
@@ -518,12 +799,23 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
         }
     }
 
+    /**
+     * Returns whether this proxy uses collocation optimization.
+     *
+     * @return <code>true</code> if the proxy uses collocation optimization; <code>false</code>, otherwise.
+     **/
     public final boolean
     ice_isCollocationOptimized()
     {
         return _reference.getCollocationOptimized();
     }
 
+    /**
+     * Creates a new proxy that is identical to this proxy, except for collocation optimization.
+     *
+     * @param b <code>true</code> if the new proxy enables collocation optimization; <code>false</code>, otherwise.
+     * @return The new proxy the specified collocation optimization.
+     **/
     public final ObjectPrx
     ice_collocationOptimized(boolean b)
     {
@@ -537,6 +829,11 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
         }
     }
 
+    /**
+     * Creates a new proxy that is identical to this proxy, but uses twoway invocations.
+     *
+     * @return A new proxy that uses twoway invocations.
+     **/
     public final ObjectPrx
     ice_twoway()
     {
@@ -550,12 +847,21 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
         }
     }
 
+    /**
+     * Returns whether this proxy uses twoway invocations.
+     * @return <code>true</code> if this proxy uses twoway invocations; <code>false</code>, otherwise.
+     **/
     public final boolean
     ice_isTwoway()
     {
         return _reference.getMode() == IceInternal.Reference.ModeTwoway;
     }
 
+    /**
+     * Creates a new proxy that is identical to this proxy, but uses oneway invocations.
+     *
+     * @return A new proxy that uses oneway invocations.
+     **/
     public final ObjectPrx
     ice_oneway()
     {
@@ -569,12 +875,21 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
         }
     }
 
+    /**
+     * Returns whether this proxy uses oneway invocations.
+     * @return <code>true</code> if this proxy uses oneway invocations; <code>false</code>, otherwise.
+     **/
     public final boolean
     ice_isOneway()
     {
         return _reference.getMode() == IceInternal.Reference.ModeOneway;
     }
 
+    /**
+     * Creates a new proxy that is identical to this proxy, but uses batch oneway invocations.
+     *
+     * @return A new proxy that uses batch oneway invocations.
+     **/
     public final ObjectPrx
     ice_batchOneway()
     {
@@ -588,12 +903,21 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
         }
     }
 
+    /**
+     * Returns whether this proxy uses batch oneway invocations.
+     * @return <code>true</code> if this proxy uses batch oneway invocations; <code>false</code>, otherwise.
+     **/
     public final boolean
     ice_isBatchOneway()
     {
         return _reference.getMode() == IceInternal.Reference.ModeBatchOneway;
     }
 
+    /**
+     * Creates a new proxy that is identical to this proxy, but uses datagram invocations.
+     *
+     * @return A new proxy that uses datagram invocations.
+     **/
     public final ObjectPrx
     ice_datagram()
     {
@@ -607,12 +931,21 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
         }
     }
 
+    /**
+     * Returns whether this proxy uses datagram invocations.
+     * @return <code>true</code> if this proxy uses datagram invocations; <code>false</code>, otherwise.
+     **/
     public final boolean
     ice_isDatagram()
     {
         return _reference.getMode() == IceInternal.Reference.ModeDatagram;
     }
 
+    /**
+     * Creates a new proxy that is identical to this proxy, but uses batch datagram invocations.
+     *
+     * @return A new proxy that uses batch datagram invocations.
+     **/
     public final ObjectPrx
     ice_batchDatagram()
     {
@@ -626,12 +959,22 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
         }
     }
 
+    /**
+     * Returns whether this proxy uses batch datagram invocations.
+     * @return <code>true</code> if this proxy uses batch datagram invocations; <code>false</code>, otherwise.
+     **/
     public final boolean
     ice_isBatchDatagram()
     {
         return _reference.getMode() == IceInternal.Reference.ModeBatchDatagram;
     }
 
+    /**
+     * Creates a new proxy that is identical to this proxy, except for compression.
+     *
+     * @param co <code>true</code> enables compression for the new proxy; <code>false</code>disables compression.
+     * @return A new proxy with the specified compression setting.
+     **/
     public final ObjectPrx
     ice_compress(boolean co)
     {
@@ -646,6 +989,12 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
         }
     }
 
+    /**
+     * Creates a new proxy that is identical to this proxy, except for its timeout setting.
+     *
+     * @param t The timeout for the new proxy in milliseconds.
+     * @return A new proxy with the specified timeout.
+     **/
     public final ObjectPrx
     ice_timeout(int t)
     {
@@ -660,6 +1009,14 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
         }
     }
 
+    /**
+     * Creates a new proxy that is identical to this proxy, except for its connection ID.
+     *
+     * @param connectionId The connection ID for the new proxy. An empty string removes the
+     * connection ID.
+     * 
+     * @return A new proxy with the specified connection ID.
+     **/
     public final ObjectPrx
     ice_connectionId(String id)
     {
@@ -674,6 +1031,16 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
         }
     }
 
+    /**
+     * Returns the <code>Connection</code> for this proxy. If the proxy does not yet have an established connection,
+     * it first attempts to create a connection.
+     *
+     * @return The <code>Connection</code> for this proxy.
+     * @throws CollocationOptimizationException If the proxy uses collocation optimization and denotes a
+     * collocated object.
+     *
+     * @see Connection
+     **/
     public final Connection
     ice_getConnection()
     {
@@ -694,6 +1061,17 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
         }
     }
 
+    /**
+     * Returns the cached <code>Connection</code> for this proxy. If the proxy does not yet have an established
+     * connection, it does not attempt to create a connection.
+     *
+     * @return The cached <code>Connection</code> for this proxy (<code>null</code> if the proxy does not have
+     * an established connection).
+     * @throws CollocationOptimizationException If the proxy uses collocation optimization and denotes a
+     * collocated object.
+     *
+     * @see Connection
+     **/
     public final Connection
     ice_getCachedConnection()
     {
@@ -717,6 +1095,9 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
         return null;
     }
 
+    /**
+     * Flushes any pending batched requests for this communicator. The call blocks until the flush is complete.
+     **/
     public void
     ice_flushBatchRequests()
     {
@@ -738,12 +1119,26 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
         }
     }
 
+    /**
+     * Asynchronously flushes any pending batched requests for this communicator. The call does not block.
+     *
+     * @param cb The callback object to notify the application when the flush is complete.
+     * @return <code>true</code> if the requests were flushed immediately without blocking; <code>false</code>
+     * if the requests could not be flushed immediately.
+     **/
     public boolean
     ice_flushBatchRequests_async(AMI_Object_ice_flushBatchRequests cb)
     {
         return cb.__invoke(this);
     }
 
+    /**
+     * Returns whether this proxy equals the passed object. Two proxies are equal if they are equal in all respects,
+     * that is, if their object identity, endpoints timeout settings, and so on are all equal.
+     *
+     * @param r The object to compare this proxy with.
+     * @return <code>true</code> if this proxy is equal to <code>r</code>; <code>false</code>, otherwise.
+     **/
     public final boolean
     equals(java.lang.Object r)
     {

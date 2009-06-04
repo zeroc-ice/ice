@@ -9,9 +9,31 @@
 
 package Ice;
 
+/**
+ * Callback object for <code>Blobject</code> AMI invocations.
+ *
+ * @see Blobject
+ **/
 public abstract class AMI_Object_ice_invoke extends IceInternal.OutgoingAsync
 {
+    /**
+     * The Ice run time calls <code>ice_response</code> when an asynchronous operation invocation
+     * completes successfully or raises a user exception.
+     *
+     * @param ok Indicates the result of the invocation. If <code>true</code>, the operation
+     * completed succesfully; if <code>false</code>, the operation raised a user exception.
+     * @param outParams Contains the encoded out-parameters of the operation (if any) if <code>ok</code>
+     * is <code>true</code>; otherwise, if <code>ok</code> is <code>false</code>, contains the
+     * encoded user exception raised by the operation.
+     **/
     public abstract void ice_response(boolean ok, byte[] outParams);
+
+    /**
+     * The Ice run time calls <code>ice_exception</code> when an asynchronous operation invocation
+     * raises an Ice run-time exception.
+     *
+     * @param ex The encoded Ice run-time exception raised by the operation.
+     **/
     public abstract void ice_exception(LocalException ex);
 
     public final boolean __invoke(Ice.ObjectPrx prx, String operation, OperationMode mode,
