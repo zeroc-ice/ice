@@ -868,6 +868,12 @@ namespace Ice.VisualStudio
             {
                 args += "--depend ";
             }
+            
+            String preCompiledHeader = Util.getPrecompileHeader(project);
+            if(!String.IsNullOrEmpty(preCompiledHeader))
+            {
+                args += "--add-header=" + preCompiledHeader + " ";
+            }
 
             foreach(string i in includes)
             {

@@ -1055,6 +1055,37 @@ namespace Ice.VisualStudio
             project.Globals[name] = value;
             project.Globals.set_VariablePersists(name, true);
         }
+        
+        public static String getPrecompileHeader(Project project)
+        {
+            ConfigurationManager configManager = project.ConfigurationManager;
+            Configuration activeConfig = (Configuration)configManager.ActiveConfiguration;
+
+            VCProject vcProject = (VCProject)project.Object;
+            IVCCollection configurations = (IVCCollection)vcProject.Configurations;
+            VCProjectEngine vcProjectEngine = (VCProjectEngine)configurations.VCProjectEngine;
+            IVCCollection platforms = (IVCCollection)vcProjectEngine.Platforms;
+            VCPlatform win32Platform = (VCPlatform)platforms.Item("Win32");
+            String preCompiledHeader = "";
+            foreach(VCConfiguration conf in configurations)
+            {
+                if(conf.Name != (activeConfig.ConfigurationName + "|" + activeConfig.PlatformName))
+                {
+                    continue;
+                }
+                VCCLCompilerTool compilerTool = (VCCLCompilerTool)(((IVCCollection)conf.Tools).Item("VCCLCompilerTool"));
+                if(compilerTool == null)
+                {
+                    break;
+                }
+                if(compilerTool.UsePrecompiledHeader == pchOption.pchCreateUsingSpecific ||
+                   compilerTool.UsePrecompiledHeader == pchOption.pchUseUsingSpecific)
+                {
+                    preCompiledHeader = compilerTool.PrecompiledHeaderThrough;
+                }
+            }
+            return preCompiledHeader;
+        }
 
         public static ComponentList getIceCppComponents(Project project)
         {
