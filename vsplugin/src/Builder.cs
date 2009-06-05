@@ -881,9 +881,17 @@ namespace Ice.VisualStudio
                 {
                     continue;
                 }
-                String include = i.Replace("\\", "\\\\");
-                args += "-I" + quoteArg(include) + " ";
+                String include = i;
+                if(include.EndsWith("\\") &&
+                    include.Split(new char[]{'\\'}, StringSplitOptions.RemoveEmptyEntries).Length == 1)
+                {
+                    include += ".";
+                }
+               include = include.Replace("\\", "\\\\");
+               args += "-I" + quoteArg(include) + " ";
             }
+
+
 
             foreach(string m in macros)
             {
