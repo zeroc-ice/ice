@@ -87,11 +87,22 @@ namespace Ice.VisualStudio
                         return;
                     }
                     Project project = builder.getSelectedProject();
+
+                    if(project == null)
+                    {
+                       ProjectItem item = Util.getSelectedProjectItem(_applicationObject.DTE);
+                       if(item != null)
+                       {
+                           project = item.ContainingProject;
+                       }
+                    }
+
                     if(project == null)
                     {
                         status = (vsCommandStatus)vsCommandStatus.vsCommandStatusSupported;
                         return;
                     }
+
                     if(!Util.isCppProject(project) && !Util.isCSharpProject(project))
                     {
                         status = (vsCommandStatus)vsCommandStatus.vsCommandStatusSupported;
@@ -118,6 +129,21 @@ namespace Ice.VisualStudio
                 if(commandName == "Ice.VisualStudio.Connect.IceConfiguration")
                 {
                     Project project = builder.getSelectedProject();
+                    if(project == null)
+                    {
+                       ProjectItem item = Util.getSelectedProjectItem(_applicationObject.DTE);
+                       if(item != null)
+                       {
+                           project = item.ContainingProject;
+                       }
+                    }
+
+                    if(project == null)
+                    {
+                        handled = false;
+                        return;
+                    }
+
                     if(Util.isCSharpProject(project))
                     {
                         if(Util.isSilverlightProject(project))
