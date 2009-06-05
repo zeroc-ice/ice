@@ -514,7 +514,7 @@ namespace Ice.VisualStudio
                 }
                 else
                 {
-                    writeBuildOutput("------ Slice compilation succeded: Project: " + project.Name + " ------\n");
+                    writeBuildOutput("------ Slice compilation succeeded: Project: " + project.Name + " ------\n");
                 }
             }
         }
@@ -1692,7 +1692,7 @@ namespace Ice.VisualStudio
                         {
                             bringErrorsToFront();
                             _applicationObject.DTE.ExecuteCommand("Build.Cancel", "");
-                            writeBuildOutput("------ Slice compilation contains errors. Build canceled.\n");
+                            writeBuildOutput("------ Slice compilation contains errors. Build canceled. ------\n");
                         }
                         break;
                     }
@@ -1718,7 +1718,7 @@ namespace Ice.VisualStudio
                         {
                             bringErrorsToFront();
                             _applicationObject.DTE.ExecuteCommand("Build.Cancel", "");
-                            writeBuildOutput("------ Slice compilation contains errors. Build canceled.\n");
+                            writeBuildOutput("------ Slice compilation contains errors. Build canceled. ------\n");
                         }
                         break;
                     }
