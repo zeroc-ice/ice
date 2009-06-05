@@ -63,7 +63,8 @@ namespace Ice.VisualStudio
                 chkIcePrefix.Checked = Util.getProjectPropertyAsBool(_project, Util.PropertyNames.IcePrefix);
                 chkTie.Checked = Util.getProjectPropertyAsBool(_project, Util.PropertyNames.IceTie);
                 chkStreaming.Checked = Util.getProjectPropertyAsBool(_project, Util.PropertyNames.IceStreaming);
-
+                chkConsole.Checked = Util.getProjectPropertyAsBool(_project, Util.PropertyNames.ConsoleOutput);
+                
                 IncludePathList list =
                     new IncludePathList(Util.getProjectProperty(_project, Util.PropertyNames.IceIncludePath));
                 foreach (String s in list)
@@ -142,6 +143,9 @@ namespace Ice.VisualStudio
             Cursor = Cursors.WaitCursor;
             if(_initialized)
             {
+                _initialized = false;
+                setEnabled(false);
+                chkEnableBuilder.Enabled = false;
                 Builder builder = Connect.getBuilder();
                 if(chkEnableBuilder.Checked)
                 {
@@ -152,8 +156,10 @@ namespace Ice.VisualStudio
                     builder.removeBuilderFromProject(_project);
                 }
                 load();
+                setEnabled(chkEnableBuilder.Checked);
+                chkEnableBuilder.Enabled = true;
+                _initialized = true;
             }
-            setEnabled(chkEnableBuilder.Checked);
             Cursor = c;
         }
         
@@ -166,7 +172,7 @@ namespace Ice.VisualStudio
             chkIcePrefix.Enabled = enabled;
             chkTie.Enabled = enabled;
             chkStreaming.Enabled = enabled;
-
+            chkConsole.Enabled = enabled;
             includeDirList.Enabled = enabled;
             btnAddInclude.Enabled = enabled;
             btnRemoveInclude.Enabled = enabled;
@@ -191,6 +197,7 @@ namespace Ice.VisualStudio
                 System.Windows.Forms.Cursor c = Cursor.Current;
                 Cursor = Cursors.WaitCursor;
                 Builder builder = Connect.getBuilder();
+                builder.cleanProject(_project);
                 builder.buildCSharpProject(_project, false, true);
                 Cursor = c;
             }
@@ -346,114 +353,56 @@ namespace Ice.VisualStudio
 
         private void chkGlacier2_CheckedChanged(object sender, EventArgs e)
         {
+            componentChanged("Glacier2");
+        }
+        
+        private void componentChanged(string name)
+        {
             System.Windows.Forms.Cursor c = Cursor.Current;
             Cursor = Cursors.WaitCursor;
-            if (chkGlacier2.Checked)
+            if(_initialized)
             {
-                Util.addCSharpReference(_project, "Glacier2");
+                if(chkGlacier2.Checked)
+                {
+                    Util.addCSharpReference(_project, name);
+                }
+                else
+                {
+                    Util.removeCSharpReference(_project, name);
+                }
+                _changed = true;
             }
-            else
-            {
-                Util.removeCSharpReference(_project, "Glacier2");
-            }
-            _changed = true;
-            Cursor = c;
+            Cursor = c;        
         }
 
         private void chkIce_CheckedChanged(object sender, EventArgs e)
         {
-            System.Windows.Forms.Cursor c = Cursor.Current;
-            Cursor = Cursors.WaitCursor;
-            if (chkIce.Checked)
-            {
-                Util.addCSharpReference(_project, "Ice");
-            }
-            else
-            {
-                Util.removeCSharpReference(_project, "Ice");
-            }
-            _changed = true;
-            Cursor = c;
+            componentChanged("Ice");
         }
 
         private void chkIceBox_CheckedChanged(object sender, EventArgs e)
         {
-            System.Windows.Forms.Cursor c = Cursor.Current;
-            Cursor = Cursors.WaitCursor;
-            if (chkIceBox.Checked)
-            {
-                Util.addCSharpReference(_project, "IceBox");
-            }
-            else
-            {
-                Util.removeCSharpReference(_project, "IceBox");
-            }
-            _changed = true;
-            Cursor = c;
+            componentChanged("IceBox");
         }
 
         private void chkIceGrid_CheckedChanged(object sender, EventArgs e)
         {
-            System.Windows.Forms.Cursor c = Cursor.Current;
-            Cursor = Cursors.WaitCursor;
-            if (chkIceGrid.Checked)
-            {
-                Util.addCSharpReference(_project, "IceGrid");
-            }
-            else
-            {
-                Util.removeCSharpReference(_project, "IceGrid");
-            }
-            _changed = true;
-            Cursor = c;
+            componentChanged("IceGrid");
         }
 
         private void chkIcePatch2_CheckedChanged(object sender, EventArgs e)
         {
-            System.Windows.Forms.Cursor c = Cursor.Current;
-            Cursor = Cursors.WaitCursor;
-            if (chkIcePatch2.Checked)
-            {
-                Util.addCSharpReference(_project, "IcePatch2");
-            }
-            else
-            {
-                Util.removeCSharpReference(_project, "IcePatch2");
-            }
-            _changed = true;
-            Cursor = c;
+            componentChanged("IcePatch2");
         }
 
         private void chkIceSSL_CheckedChanged(object sender, EventArgs e)
         {
-            System.Windows.Forms.Cursor c = Cursor.Current;
-            Cursor = Cursors.WaitCursor;
-            if (chkIceSSL.Checked)
-            {
-                Util.addCSharpReference(_project, "IceSSL");
-            }
-            else
-            {
-                Util.removeCSharpReference(_project, "IceSSL");
-            }
-            _changed = true;
-            Cursor = c;
+            componentChanged("IceSSL");
         }
 
         private void chkIceStorm_CheckedChanged(object sender, EventArgs e)
         {
-            System.Windows.Forms.Cursor c = Cursor.Current;
-            Cursor = Cursors.WaitCursor;
-            if (chkIceStorm.Checked)
-            {
-                Util.addCSharpReference(_project, "IceStorm");
-            }
-            else
-            {
-                Util.removeCSharpReference(_project, "IceStorm");
-            }
-            _changed = true;
-            Cursor = c;
+            componentChanged("IceStorm");
         }
 
         private void chkConsole_CheckedChanged(object sender, EventArgs e)

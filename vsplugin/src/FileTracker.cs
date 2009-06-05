@@ -15,7 +15,6 @@ using System.Runtime.InteropServices;
 
 namespace Ice.VisualStudio
 {
-    [ComVisible(false)]
     public class FileTracker
     {
         public FileTracker()
@@ -56,7 +55,7 @@ namespace Ice.VisualStudio
                 }
                 _reaping = true;
             }
-        
+
             try
             {
                 if(project == null)

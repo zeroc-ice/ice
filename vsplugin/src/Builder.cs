@@ -30,7 +30,6 @@ using System.Runtime.InteropServices;
 
 namespace Ice.VisualStudio
 {
-    [ComVisible(false)]
     public class Builder
     {
         public DTE getCurrentDTE()
@@ -48,17 +47,17 @@ namespace Ice.VisualStudio
             //
             _solutionEvents = application.Events.SolutionEvents;
             _solutionEvents.Opened += new _dispSolutionEvents_OpenedEventHandler(solutionOpened);
-            _solutionEvents.BeforeClosing += new _dispSolutionEvents_BeforeClosingEventHandler(beforeClosing);
+            _solutionEvents.AfterClosing += new _dispSolutionEvents_AfterClosingEventHandler(afterClosing);
             _solutionEvents.ProjectAdded += new _dispSolutionEvents_ProjectAddedEventHandler(projectAdded);
             _solutionEvents.ProjectRemoved += new _dispSolutionEvents_ProjectRemovedEventHandler(projectRemoved);
             _solutionEvents.ProjectRenamed += new _dispSolutionEvents_ProjectRenamedEventHandler(projectRenamed);
 
             _buildEvents = _applicationObject.Events.BuildEvents;
             _buildEvents.OnBuildBegin += new _dispBuildEvents_OnBuildBeginEventHandler(buildBegin);
-
-            foreach (Command c in _applicationObject.Commands)
+            _buildEvents.OnBuildDone += new _dispBuildEvents_OnBuildDoneEventHandler(buildDone);
+            foreach(Command c in _applicationObject.Commands)
             {
-                if (c.Name.Equals("Project.AddNewItem"))
+                if(c.Name.Equals("Project.AddNewItem"))
                 {
                     _addNewItemEvent = application.Events.get_CommandEvents(c.Guid, c.ID);
                     _addNewItemEvent.AfterExecute += new _dispCommandEvents_AfterExecuteEventHandler(afterAddNewItem);
@@ -66,9 +65,9 @@ namespace Ice.VisualStudio
                 }
             }
 
-            foreach (Command c in _applicationObject.Commands)
+            foreach(Command c in _applicationObject.Commands)
             {
-                if (c.Name.Equals("Project.AddExistingItem"))
+                if(c.Name.Equals("Project.AddExistingItem"))
                 {
                     _addExistingItemEvent = application.Events.get_CommandEvents(c.Guid, c.ID);
                     _addExistingItemEvent.AfterExecute += 
@@ -88,33 +87,66 @@ namespace Ice.VisualStudio
             setupCommandBars();
         }
 
+        public IVsSolution getIVsSolution()
+        {
+            return (IVsSolution) _serviceProvider.GetService(typeof(IVsSolution));
+        }
+
+        void buildDone(vsBuildScope Scope, vsBuildAction Action)
+        {
+            _building = false;
+        }
+        
+        public bool isBuilding()
+        {
+            return _building;
+        }
+        
+        private bool _building = false;
+
         void afterAddNewItem(string Guid, int ID, object obj, object CustomOut)
         {
-            foreach (ProjectItem i in _deleted)
+            foreach(ProjectItem i in _deleted)
             {
-                i.Delete();
+                if(i == null)
+                {
+                    continue;
+                }
+                String fullPath = i.Properties.Item("FullPath").Value.ToString();
+                if(File.Exists(fullPath))
+                {
+                    i.Delete();
+                }
+                else
+                {
+                    i.Remove();
+                }
             }
             _deleted.Clear();
         }
 
         void afterAddExistingItem(string Guid, int ID, object obj, object CustomOut)
         {
-            foreach (ProjectItem i in _deleted)
+            foreach(ProjectItem i in _deleted)
             {
+                if(i == null)
+                {
+                    continue;
+                }
                 i.Remove();
             }
             _deleted.Clear();
         }
         
         public void disconnect()
-        {            
+        {
             if(_iceConfigurationCmd != null)
             {
                 _iceConfigurationCmd.Delete();
             }
-                        
+            
             _solutionEvents.Opened -= new _dispSolutionEvents_OpenedEventHandler(solutionOpened);
-            _solutionEvents.BeforeClosing -= new _dispSolutionEvents_BeforeClosingEventHandler(beforeClosing);
+            _solutionEvents.AfterClosing -= new _dispSolutionEvents_AfterClosingEventHandler(afterClosing);
             _solutionEvents.ProjectAdded -= new _dispSolutionEvents_ProjectAddedEventHandler(projectAdded);
             _solutionEvents.ProjectRemoved -= new _dispSolutionEvents_ProjectRemovedEventHandler(projectRemoved);
             _solutionEvents.ProjectRenamed -= new _dispSolutionEvents_ProjectRenamedEventHandler(projectRenamed);
@@ -153,7 +185,7 @@ namespace Ice.VisualStudio
                 _iceConfigurationCmd =
                     _applicationObject.Commands.Item(_addInInstance.ProgID + ".IceConfiguration", -1);
             }
-            catch (ArgumentException)
+            catch(ArgumentException)
             {
                 object[] contextGUIDS = new object[] { };
                 _iceConfigurationCmd = 
@@ -166,7 +198,7 @@ namespace Ice.VisualStudio
                                 (int)vsCommandStatus.vsCommandStatusEnabled,
                                 (int)vsCommandStyle.vsCommandStylePictAndText,
                                 vsCommandControlType.vsCommandControlTypeButton);
-            }            
+            }
 
             if(_iceConfigurationCmd == null)
             {
@@ -180,12 +212,12 @@ namespace Ice.VisualStudio
 
             CommandBar toolsCmdBar = ((CommandBars)_applicationObject.CommandBars)["Tools"];
             _iceConfigurationCmd.AddControl(toolsCmdBar, toolsCmdBar.Controls.Count + 1);
-          
+
             CommandBar projectCmdBar = projectCommandBar();
             _iceConfigurationCmd.AddControl(projectCmdBar, projectCmdBar.Controls.Count + 1);   
         }
 
-        public void beforeClosing()
+        public void afterClosing()
         {
             clearErrors();
             removeDocumentEvents();
@@ -383,7 +415,10 @@ namespace Ice.VisualStudio
 
         public void projectAdded(Project project)
         {
-            updateDependencies(project);
+            if(Util.isSliceBuilderEnabled(project))
+            {
+                updateDependencies(project, false);
+            }
         }
 
         public void projectRemoved(Project project)
@@ -394,7 +429,7 @@ namespace Ice.VisualStudio
         public void projectRenamed(Project project, string oldName)
         {
             _dependenciesMap.Remove(oldName);
-            updateDependencies(project);
+            updateDependencies(project, false);
         }
 
         public void cleanProject(Project project)
@@ -456,7 +491,7 @@ namespace Ice.VisualStudio
             {
                 return;
             }
-            
+
             bool consoleOutput = Util.getProjectPropertyAsBool(project, Util.PropertyNames.ConsoleOutput);
             if(consoleOutput)
             {
@@ -471,9 +506,16 @@ namespace Ice.VisualStudio
             {
                 buildCppProject(project, building, force);
             }
-            if(consoleOutput && !hasErrors(project))
+            if(consoleOutput)
             {
-                writeBuildOutput("------ Slice compilation succeded: Project: " + project.Name + " ------\n");
+                if(hasErrors())
+                {
+                    writeBuildOutput("------ Slice compilation failed: Project: " + project.Name + " ------\n");
+                }
+                else
+                {
+                    writeBuildOutput("------ Slice compilation succeded: Project: " + project.Name + " ------\n");
+                }
             }
         }
 
@@ -590,12 +632,12 @@ namespace Ice.VisualStudio
             
             if(updated)
             {
-                if (!Directory.Exists(output))
+                if(!Directory.Exists(output))
                 {
                     Directory.CreateDirectory(output);
                 }
 
-                if(updateDependencies(project, ice.FullName, getSliceCompilerArgs(project, true)))
+                if(updateDependencies(project, ice.FullName, getSliceCompilerArgs(project, true), building))
                 {
                     if(runSliceCompiler(project, ice.FullName, output, building))
                     {
@@ -619,7 +661,7 @@ namespace Ice.VisualStudio
 
             VCFile file = Util.findVCFile((IVCCollection)vcProject.Files, cpp.Name, cpp.FullName);
             
-            if (file == null)
+            if(file == null)
             {
                 vcProject.AddFile(cpp.FullName);
             }
@@ -665,7 +707,7 @@ namespace Ice.VisualStudio
                 return "";
             }
   
-            if (!fullPath.EndsWith(".ice"))
+            if(!fullPath.EndsWith(".ice"))
             {
                 return "";
             }
@@ -747,15 +789,15 @@ namespace Ice.VisualStudio
                 string relativeName = Util.relativePath(Path.GetDirectoryName(project.FileName), iceFileInfo.FullName);
                 Dictionary<string, List<string>> dependenciesMap = _dependenciesMap[project.Name];
                 List<string> fileDependencies = dependenciesMap[iceFileInfo.FullName];
-                foreach (string name in fileDependencies)
+                foreach(string name in fileDependencies)
                 {
                     FileInfo dependency = new FileInfo(Path.Combine(Path.GetDirectoryName(project.FileName), name));
-                    if (!dependency.Exists)
+                    if(!dependency.Exists)
                     {
                         continue;
                     }
 
-                    if (dependency.LastWriteTime > generatedFileInfo.LastWriteTime)
+                    if(dependency.LastWriteTime > generatedFileInfo.LastWriteTime)
                     {
                         updated = true;
                         break;
@@ -764,17 +806,17 @@ namespace Ice.VisualStudio
             }
             if(updated)
             {
-                if(updateDependencies(project, iceFileInfo.FullName, getSliceCompilerArgs(project, true)))
+                if(updateDependencies(project, iceFileInfo.FullName, getSliceCompilerArgs(project, true), building))
                 {
                     if(runSliceCompiler(project, iceFileInfo.FullName, generatedFileInfo.DirectoryName, building))
                     {
                         _fileTracker.trackFile(project, iceFileInfo.FullName, generatedFileInfo.FullName);
                     }
 
-                    if (File.Exists(generatedFileInfo.FullName))
+                    if(File.Exists(generatedFileInfo.FullName))
                     {
                         ProjectItem generatedItem = Util.findItem(generatedFileInfo.FullName, project.ProjectItems);
-                        if (generatedItem == null)
+                        if(generatedItem == null)
                         {
                             project.ProjectItems.AddFromFile(generatedFileInfo.FullName);
                         }
@@ -786,6 +828,25 @@ namespace Ice.VisualStudio
         private string quoteArg(string arg)
         {
             return "\"" + arg + "\"";
+        }
+        
+        private string getSliceCompilerPath(Project project)
+        {
+            String compiler = Util.SliceTranslator.slice2cpp;
+            String iceHome = Util.getIceHome(project);
+            if(Util.isCSharpProject(project))
+            {
+                if(Util.isSilverlightProject(project))
+                {
+                    compiler = Util.SliceTranslator.slice2sl;
+                }
+                else
+                {
+                    compiler = Util.SliceTranslator.slice2cs;
+                }
+            }
+            iceHome = Path.Combine(iceHome, "bin");
+            return Path.Combine(iceHome, compiler);
         }
 
         private string getSliceCompilerArgs(Project project, bool depend)
@@ -799,22 +860,7 @@ namespace Ice.VisualStudio
             bool streaming = Util.getProjectPropertyAsBool(project, Util.PropertyNames.IceStreaming);
 
 
-            string sliceCompiler = iceHome + "\\bin\\";
-            if(Util.isCSharpProject(project))
-            {
-                if(Util.isSilverlightProject(project))
-                {
-                    sliceCompiler += Util.SliceTranslator.slice2sl;
-                }
-                else
-                {
-                    sliceCompiler += Util.SliceTranslator.slice2cs;
-                }
-            }
-            else if(Util.isCppProject(project))
-            {
-                sliceCompiler += Util.SliceTranslator.slice2cpp;
-            }
+            string sliceCompiler = getSliceCompilerPath(project);
 
             string args = quoteArg(sliceCompiler) + " ";
 
@@ -860,10 +906,10 @@ namespace Ice.VisualStudio
             return args;
         }
 
-        public void updateDependencies(Project project)
+        public void updateDependencies(Project project, bool building)
         {
             _dependenciesMap[project.Name] = new Dictionary<string, List<string>>();
-            updateDependencies(project, project.ProjectItems, getSliceCompilerArgs(project, true));
+            updateDependencies(project, project.ProjectItems, getSliceCompilerArgs(project, true), building);
         }
 
         public void cleanDependencies(Project project, string file)
@@ -890,7 +936,7 @@ namespace Ice.VisualStudio
             _dependenciesMap[project.Name] = projectDependencies;
         }
 
-        public void updateDependencies(Project project, ProjectItems items, string args)
+        public void updateDependencies(Project project, ProjectItems items, string args, bool building)
         {
             foreach(ProjectItem item in items)
             {
@@ -901,7 +947,7 @@ namespace Ice.VisualStudio
 
                 if(Util.isProjectItemFolder(item))
                 {
-                    updateDependencies(project, item.ProjectItems, args);
+                    updateDependencies(project, item.ProjectItems, args, building);
                 }
                 else if(Util.isProjectItemFile(item))
                 {
@@ -911,12 +957,12 @@ namespace Ice.VisualStudio
                     }
 
                     string fullPath = item.Properties.Item("FullPath").Value.ToString();
-                    updateDependencies(project, fullPath, args);
+                    updateDependencies(project, fullPath, args, building);
                 }
             }
         }
 
-        public bool updateDependencies(Project project, string file, string args)
+        public bool updateDependencies(Project project, string file, string args, bool building)
         {
             bool consoleOutput = Util.getProjectPropertyAsBool(project, Util.PropertyNames.ConsoleOutput);
             ProcessStartInfo processInfo;
@@ -932,10 +978,19 @@ namespace Ice.VisualStudio
             processInfo.RedirectStandardOutput = true;
             processInfo.WorkingDirectory = Path.GetDirectoryName(project.FileName);
 
+            String compiler = getSliceCompilerPath(project);
+            if(!File.Exists(compiler))
+            {
+                addError(project, file, TaskErrorCategory.Error, 0, 0, compiler +
+                                            " not found. Review 'Ice Home' setting.");
+                return false;
+            }
+
             if(consoleOutput)
             {
                 writeBuildOutput("cmd.exe " + args + "\n");
             }
+
             
             process = System.Diagnostics.Process.Start(processInfo);
             process.WaitForExit();
@@ -987,7 +1042,7 @@ namespace Ice.VisualStudio
             //Csharp project item events.
             _csProjectItemsEvents = 
                 (EnvDTE.ProjectItemsEvents)_applicationObject.Events.GetObject("CSharpProjectItemsEvents");
-            if (_csProjectItemsEvents != null)
+            if(_csProjectItemsEvents != null)
             {
                 _csProjectItemsEvents.ItemAdded +=
                     new _dispProjectItemsEvents_ItemAddedEventHandler(csharpItemAdded);
@@ -1000,7 +1055,7 @@ namespace Ice.VisualStudio
             //Cpp project item events.
             _vcProjectItemsEvents = 
                 (VCProjectEngineEvents)_applicationObject.Events.GetObject("VCProjectEngineEventsObject");
-            if (_vcProjectItemsEvents != null)
+            if(_vcProjectItemsEvents != null)
             {
                 _vcProjectItemsEvents.ItemAdded +=
                     new _dispVCProjectEngineEvents_ItemAddedEventHandler(cppItemAdded);
@@ -1012,7 +1067,7 @@ namespace Ice.VisualStudio
 
             //Visual Studio document events.
             _docEvents = _applicationObject.Events.get_DocumentEvents(null);
-            if (_docEvents != null)
+            if(_docEvents != null)
             {
                 _docEvents.DocumentSaved += new _dispDocumentEvents_DocumentSavedEventHandler(documentSaved);
             }
@@ -1021,7 +1076,7 @@ namespace Ice.VisualStudio
         public void removeDocumentEvents()
         {
             //Csharp project item events.
-            if (_csProjectItemsEvents != null)
+            if(_csProjectItemsEvents != null)
             {
                 _csProjectItemsEvents.ItemAdded -= 
                     new _dispProjectItemsEvents_ItemAddedEventHandler(csharpItemAdded);
@@ -1033,7 +1088,7 @@ namespace Ice.VisualStudio
             }
 
             //Cpp project item events.
-            if (_vcProjectItemsEvents != null)
+            if(_vcProjectItemsEvents != null)
             {
                 _vcProjectItemsEvents.ItemAdded -= 
                     new _dispVCProjectEngineEvents_ItemAddedEventHandler(cppItemAdded);
@@ -1045,7 +1100,7 @@ namespace Ice.VisualStudio
             }
 
             //Visual Studio document events.
-            if (_docEvents != null)
+            if(_docEvents != null)
             {
                 _docEvents.DocumentSaved -= new _dispDocumentEvents_DocumentSavedEventHandler(documentSaved);
                 _docEvents = null;
@@ -1082,7 +1137,7 @@ namespace Ice.VisualStudio
             {
                 return;
             }
-            if (!Util.isSliceBuilderEnabled(project))
+            if(!Util.isSliceBuilderEnabled(project))
             {
                 return;
             }
@@ -1153,11 +1208,11 @@ namespace Ice.VisualStudio
             {
                 return;
             }
-            if (!Util.isSliceBuilderEnabled(project))
+            if(!Util.isSliceBuilderEnabled(project))
             {
                 return;
             }
-            if (!file.Name.EndsWith(".ice"))
+            if(!file.Name.EndsWith(".ice"))
             {
                 _fileTracker.reap(project, this);
                 return;
@@ -1247,7 +1302,7 @@ namespace Ice.VisualStudio
             {
                 return;
             }
-            if (!Util.isSliceBuilderEnabled(item.ContainingProject))
+            if(!Util.isSliceBuilderEnabled(item.ContainingProject))
             {
                 return;
             }
@@ -1314,7 +1369,7 @@ namespace Ice.VisualStudio
                 return;
             }
 
-            if (!Util.isSliceBuilderEnabled(item.ContainingProject))
+            if(!Util.isSliceBuilderEnabled(item.ContainingProject))
             {
                 return;
             }
@@ -1422,22 +1477,37 @@ namespace Ice.VisualStudio
             FileInfo cppFileInfo = new FileInfo(Path.ChangeExtension(hFileInfo.FullName, "cpp"));
 
             ProjectItem generated = Util.findItem(hFileInfo.FullName, project.ProjectItems);
-            if (generated != null)
+            if(generated != null)
             {
-                generated.Delete();
+                if(File.Exists(hFileInfo.FullName))
+                {
+                    generated.Delete();
+                }
+                else
+                {
+                    generated.Remove();
+                }
             }
 
 
             generated = Util.findItem(cppFileInfo.FullName, project.ProjectItems);
-            if (generated != null)
+            if(generated != null)
             {
-                generated.Delete();
+                if(File.Exists(hFileInfo.FullName))
+                {
+                    generated.Delete();
+                }
+                else
+                {
+                    generated.Remove();
+                }
             }
         }
 
 
         private bool runSliceCompiler(Project project, string file, string outputDir, bool building)
         {
+            
             bool consoleOutput = Util.getProjectPropertyAsBool(project, Util.PropertyNames.ConsoleOutput);
             string args = getSliceCompilerArgs(project, false);
             if(!String.IsNullOrEmpty(outputDir))
@@ -1452,6 +1522,16 @@ namespace Ice.VisualStudio
             processInfo.UseShellExecute = false;
             processInfo.RedirectStandardError = true;
             processInfo.WorkingDirectory = System.IO.Path.GetDirectoryName(project.FileName);
+            
+
+
+            String compiler = getSliceCompilerPath(project);
+            if(!File.Exists(compiler))
+            {
+                addError(project, file, TaskErrorCategory.Error, 0, 0, compiler +
+                                            " not found. Review 'Ice Home' setting.");
+                return false;
+            }
 
             if(consoleOutput)
             {
@@ -1463,14 +1543,6 @@ namespace Ice.VisualStudio
 
             bool hasErrors = parseErrors(project, file, process.StandardError, consoleOutput);
             process.Close();
-            if(building && hasErrors)
-            {
-                if(consoleOutput)
-                {
-                    writeBuildOutput("0>------ Slice compilation failed. Build canceled.\n");
-                }
-                _applicationObject.DTE.ExecuteCommand("Build.Cancel", "");
-            }
             return !hasErrors;
         }
 
@@ -1535,7 +1607,7 @@ namespace Ice.VisualStudio
                     {
                         l = Int16.Parse(n);
                     }
-                    catch (Exception)
+                    catch(Exception)
                     {
                         l = 0;
                     }
@@ -1595,6 +1667,7 @@ namespace Ice.VisualStudio
 
         private void buildBegin(vsBuildScope scope, vsBuildAction action)
         {
+            _building = true;
             if(action == vsBuildAction.vsBuildActionBuild || action == vsBuildAction.vsBuildActionRebuildAll)
             {
                 switch(scope)
@@ -1604,6 +1677,10 @@ namespace Ice.VisualStudio
                         Project project = getSelectedProject();
                         if(project != null)
                         {
+                            if(!Util.isSliceBuilderEnabled(project))
+                            {
+                                break;
+                            }
                             clearErrors(project);
                             if(action == vsBuildAction.vsBuildActionRebuildAll)
                             {
@@ -1614,16 +1691,22 @@ namespace Ice.VisualStudio
                         if(hasErrors(project))
                         {
                             bringErrorsToFront();
+                            _applicationObject.DTE.ExecuteCommand("Build.Cancel", "");
+                            writeBuildOutput("------ Slice compilation contains errors. Build canceled.\n");
                         }
                         break;
                     }
                     default:
                     {
+                        clearErrors();
                         foreach(Project p in _applicationObject.Solution.Projects)
                         {
                             if(p != null)
                             {
-                                clearErrors(p);
+                                if(!Util.isSliceBuilderEnabled(p))
+                                {
+                                    continue;
+                                }
                                 if(action == vsBuildAction.vsBuildActionRebuildAll)
                                 {
                                     cleanProject(p);
@@ -1631,9 +1714,11 @@ namespace Ice.VisualStudio
                                 buildProject(p, true, false);
                             }
                         }
-                        if (hasErrors())
+                        if(hasErrors())
                         {
                             bringErrorsToFront();
+                            _applicationObject.DTE.ExecuteCommand("Build.Cancel", "");
+                            writeBuildOutput("------ Slice compilation contains errors. Build canceled.\n");
                         }
                         break;
                     }
@@ -1641,7 +1726,7 @@ namespace Ice.VisualStudio
             }
             else if(action == vsBuildAction.vsBuildActionClean)
             {
-                switch (scope)
+                switch(scope)
                 {
                     case vsBuildScope.vsBuildScopeProject:
                     {
@@ -1691,49 +1776,50 @@ namespace Ice.VisualStudio
 
         private void clearErrors(Project project)
         {
-            if (project == null || _errors == null)
+            if(project == null || _errors == null)
             {
                 return;
             }
 
             List<ErrorTask> remove = new List<ErrorTask>();
-            foreach (ErrorTask error in _errors)
+            foreach(ErrorTask error in _errors)
             {
-                if (!error.HierarchyItem.Equals(getProjectHierarchy(project)))
+                if(!error.HierarchyItem.Equals(getProjectHierarchy(project)))
                 {
                     continue;
                 }
-                if (!_errorListProvider.Tasks.Contains(error))
+                if(!_errorListProvider.Tasks.Contains(error))
                 {
                     continue;
                 }
                 remove.Add(error);
                 _errorListProvider.Tasks.Remove(error);
             }
-            foreach (ErrorTask error in remove)
+
+            foreach(ErrorTask error in remove)
             {
                 _errors.Remove(error);
             }
-
         }
 
         private void clearErrors(String file)
         {
-            if (file == null || _errors == null)
+            if(file == null || _errors == null)
             {
                 return;
             }
 
             List<ErrorTask> remove = new List<ErrorTask>();
-            foreach (ErrorTask error in _errors)
+            foreach(ErrorTask error in _errors)
             {
-                if (error.Document.Equals(file, StringComparison.CurrentCultureIgnoreCase))
+                if(error.Document.Equals(file, StringComparison.CurrentCultureIgnoreCase))
                 {
                     remove.Add(error);
                     _errorListProvider.Tasks.Remove(error);
                 }
             }
-            foreach (ErrorTask error in remove)
+
+            foreach(ErrorTask error in remove)
             {
                 _errors.Remove(error);
             }
@@ -1742,9 +1828,9 @@ namespace Ice.VisualStudio
         
         private IVsHierarchy getProjectHierarchy(Project project)
         {
-            IVsSolution ivSSolution = Connect.getIVsSolution();
+            IVsSolution ivSSolution = getIVsSolution();
             IVsHierarchy hierarchy = null;
-            if (ivSSolution != null)
+            if(ivSSolution != null)
             {
                 ivSSolution.GetProjectOfUniqueName(project.UniqueName, out hierarchy);
             }
@@ -1791,13 +1877,13 @@ namespace Ice.VisualStudio
 
         private bool hasErrors(Project project)
         {
-            if (project == null || _errors == null)
+            if(project == null || _errors == null)
             {
                 return false;
             }
 
             bool errors = false;
-            foreach (ErrorTask error in _errors)
+            foreach(ErrorTask error in _errors)
             {
                 if(error.HierarchyItem.Equals(getProjectHierarchy(project)))
                 {

@@ -62,6 +62,7 @@ namespace Ice.VisualStudio
                 chkIcePrefix.Checked = Util.getProjectPropertyAsBool(_project, Util.PropertyNames.IcePrefix);
 
                 chkStreaming.Checked = Util.getProjectPropertyAsBool(_project, Util.PropertyNames.IceStreaming);
+                chkConsole.Checked = Util.getProjectPropertyAsBool(_project, Util.PropertyNames.ConsoleOutput);
 
                 IncludePathList list =
                     new IncludePathList(Util.getProjectProperty(_project, Util.PropertyNames.IceIncludePath));
@@ -151,7 +152,10 @@ namespace Ice.VisualStudio
             System.Windows.Forms.Cursor c = Cursor.Current;
             Cursor = Cursors.WaitCursor;
             if(_initialized)
-            {                
+            {
+                _initialized = false;
+                setEnabled(false);
+                chkEnableBuilder.Enabled = false;
                 Builder builder = Connect.getBuilder();
                 if(chkEnableBuilder.Checked)
                 {
@@ -163,6 +167,8 @@ namespace Ice.VisualStudio
                 }
                 load();
                 setEnabled(chkEnableBuilder.Checked);
+                chkEnableBuilder.Enabled = true;
+                _initialized = true;
             }
             Cursor = c;
         }
@@ -176,7 +182,7 @@ namespace Ice.VisualStudio
             chkIcePrefix.Enabled = enabled;
             
             chkStreaming.Enabled = enabled;
-
+            chkConsole.Enabled = enabled;
             includeDirList.Enabled = enabled;
             btnAddInclude.Enabled = enabled;
             btnRemoveInclude.Enabled = enabled;
@@ -203,6 +209,7 @@ namespace Ice.VisualStudio
                 System.Windows.Forms.Cursor c = Cursor.Current;
                 Cursor = Cursors.WaitCursor;
                 Builder builder = Connect.getBuilder();
+                builder.cleanProject(_project);
                 builder.buildCppProject(_project, false, true);
                 Cursor = c;
             }
@@ -393,15 +400,18 @@ namespace Ice.VisualStudio
         {
             System.Windows.Forms.Cursor c = Cursor.Current;
             Cursor = Cursors.WaitCursor;
-            if (isChecked)
+            if(_initialized)
             {
-                Util.addIceCppLibs(_project, new ComponentList(name));
+                if(isChecked)
+                {
+                    Util.addIceCppLibs(_project, new ComponentList(name));
+                }
+                else
+                {
+                    Util.removeIceCppLibs(_project, new ComponentList(name));
+                }
+                _changed = true;
             }
-            else
-            {
-                Util.removeIceCppLibs(_project, new ComponentList(name));
-            }
-            _changed = true;
             Cursor = c;
         }
 

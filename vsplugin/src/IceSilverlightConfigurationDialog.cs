@@ -60,7 +60,8 @@ namespace Ice.VisualStudio
 
                 chkIcePrefix.Checked = Util.getProjectPropertyAsBool(_project, Util.PropertyNames.IcePrefix);
                 chkStreaming.Checked = Util.getProjectPropertyAsBool(_project, Util.PropertyNames.IceStreaming);
-
+                chkConsole.Checked = Util.getProjectPropertyAsBool(_project, Util.PropertyNames.ConsoleOutput);
+                
                 IncludePathList list =
                     new IncludePathList(Util.getProjectProperty(_project, Util.PropertyNames.IceIncludePath));
                 foreach (String s in list)
@@ -110,6 +111,9 @@ namespace Ice.VisualStudio
             Cursor = Cursors.WaitCursor;
             if(_initialized)
             {
+                _initialized = false;
+                setEnabled(false);
+                chkEnableBuilder.Enabled = false;
                 Builder builder = Connect.getBuilder();
                 if(chkEnableBuilder.Checked)
                 {
@@ -120,8 +124,10 @@ namespace Ice.VisualStudio
                     builder.removeBuilderFromProject(_project);
                 }
                 load();
+                chkEnableBuilder.Enabled = true;
+                setEnabled(chkEnableBuilder.Checked);
+                _initialized = true;
             }
-            setEnabled(chkEnableBuilder.Checked);
             Cursor = c;
         }
         
@@ -133,7 +139,8 @@ namespace Ice.VisualStudio
 
             chkIcePrefix.Enabled = enabled;
             chkStreaming.Enabled = enabled;
-
+            chkConsole.Enabled = enabled;
+            
             includeDirList.Enabled = enabled;
             btnAddInclude.Enabled = enabled;
             btnRemoveInclude.Enabled = enabled;
@@ -153,6 +160,7 @@ namespace Ice.VisualStudio
                 System.Windows.Forms.Cursor c = Cursor.Current;
                 Cursor = Cursors.WaitCursor;
                 Builder builder = Connect.getBuilder();
+                builder.cleanProject(_project);
                 builder.buildCSharpProject(_project, false, true);
                 Cursor = c;
             }
@@ -285,8 +293,11 @@ namespace Ice.VisualStudio
         {
             if(txtMacros.Modified)
             {
-                Util.setProjectProperty(_project, Util.PropertyNames.IceMacros, txtMacros.Text);
-                _changed = true;
+                if(_initialized)
+                {
+                    Util.setProjectProperty(_project, Util.PropertyNames.IceMacros, txtMacros.Text);
+                    _changed = true;
+                }
             }
         }
 
@@ -295,15 +306,18 @@ namespace Ice.VisualStudio
         {
             System.Windows.Forms.Cursor c = Cursor.Current;
             Cursor = Cursors.WaitCursor;
-            if (chkIceSl.Checked)
+            if(_initialized)
             {
-                Util.addCSharpReference(_project, "IceSL");
+                if (chkIceSl.Checked)
+                {
+                    Util.addCSharpReference(_project, "IceSL");
+                }
+                else
+                {
+                    Util.removeCSharpReference(_project, "IceSL");
+                }
+                _changed = true;
             }
-            else
-            {
-                Util.removeCSharpReference(_project, "IceSL");
-            }
-            _changed = true;
             Cursor = c;
         }
 

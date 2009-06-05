@@ -33,7 +33,6 @@ using Microsoft.CSharp;
 
 namespace Ice.VisualStudio
 {
-    [ComVisible(false)]
     public class IceComponentConverter : TypeConverter
     {
         public override bool CanConvertFrom(ITypeDescriptorContext context, Type t)
@@ -73,7 +72,6 @@ namespace Ice.VisualStudio
         }
     }
 
-    [ComVisible(false)]
     public class IncludePathConverter : TypeConverter
     {
         public override bool CanConvertFrom(ITypeDescriptorContext context, Type t)
@@ -114,7 +112,6 @@ namespace Ice.VisualStudio
 
     }
 
-    [ComVisible(false)]
     [TypeConverter(typeof(Ice.VisualStudio.IceComponentConverter))]
     public class ComponentList : List<string>
     {
@@ -208,8 +205,6 @@ namespace Ice.VisualStudio
         }
     }
 
-    [ComVisible(false)]
-    [TypeConverter(typeof(Ice.VisualStudio.IncludePathConverter))]
     public class IncludePathList : ComponentList
     {
         public IncludePathList()
@@ -227,10 +222,8 @@ namespace Ice.VisualStudio
         }
     }
 
-    [ComVisible(false)]
     public class Util
     {
-        [ComVisible(false)]
         public class SliceTranslator
         {
             public const string slice2cs = "slice2cs.exe";
@@ -240,8 +233,7 @@ namespace Ice.VisualStudio
 
         //
         // Property names used to persist project configuration.
-        //        
-        [ComVisible(false)]
+        //
         public class PropertyNames
         {
             public const string Ice = "Ice";
@@ -255,7 +247,6 @@ namespace Ice.VisualStudio
             public const string ConsoleOutput = "ConsoleOutput";
         }
 
-        [ComVisible(false)]
         public class ComponentNames
         {
             public static readonly string[] silverlightNames =
@@ -414,6 +405,13 @@ namespace Ice.VisualStudio
             {
                 VSLangProj.VSProject vsProject = (VSLangProj.VSProject)project.Object;
                 vsProject.References.Add(reference);
+            }
+            else
+            {
+                System.Windows.Forms.MessageBox.Show("Could not locate '" + component + ".dll'. Review you 'Ice Home' setting.",
+                                         "Ice Visual Studio Extension", MessageBoxButtons.OK,
+                                         MessageBoxIcon.Error);
+                return;
             }
         }
 
@@ -982,9 +980,9 @@ namespace Ice.VisualStudio
 
         public static void setIceHome(Project project, string value)
         {
-            if (Util.isSilverlightProject(project))
+            if(Util.isSilverlightProject(project))
             {
-                if (!File.Exists(value + "\\bin\\slice2sl.exe") || !Directory.Exists(value + "\\slice\\Ice"))
+                if(!File.Exists(value + "\\bin\\slice2sl.exe") || !Directory.Exists(value + "\\slice\\Ice"))
                 {
                     System.Windows.Forms.MessageBox.Show("Could not locate Ice for Silverlight installation in '"
                                                          + value + "' directory.\n",
@@ -995,7 +993,7 @@ namespace Ice.VisualStudio
             }
             else
             {
-                if (!File.Exists(value + "\\bin\\slice2cpp.exe") || !File.Exists(value + "\\bin\\slice2cs.exe") ||
+                if(!File.Exists(value + "\\bin\\slice2cpp.exe") || !File.Exists(value + "\\bin\\slice2cs.exe") ||
                    !Directory.Exists(value + "\\slice\\Ice"))
                 {
                     System.Windows.Forms.MessageBox.Show("Could not locate Ice installation in '"
@@ -1143,16 +1141,16 @@ namespace Ice.VisualStudio
         public static ComponentList getIceSilverlightComponents(Project project)
         {
             ComponentList components = new ComponentList();
-            if (project == null)
+            if(project == null)
             {
                 return components;
             }
 
             string iceHome = Util.getIceHome(project);
             VSLangProj.VSProject vsProject = (VSLangProj.VSProject)project.Object;
-            foreach (Reference r in vsProject.References)
+            foreach(Reference r in vsProject.References)
             {
-                if (!Path.GetDirectoryName(r.Path).ToUpper().Contains(iceHome.ToUpper()))
+                if(!Path.GetDirectoryName(r.Path).ToUpper().Contains(iceHome.ToUpper()))
                 {
                     continue; //Not in Ice Home
                 }
@@ -1162,7 +1160,7 @@ namespace Ice.VisualStudio
                     return name.Equals(r.Name);
                 });
 
-                if (String.IsNullOrEmpty(iceComponent))
+                if(String.IsNullOrEmpty(iceComponent))
                 {
                     continue;
                 }
@@ -1175,16 +1173,16 @@ namespace Ice.VisualStudio
         public static ComponentList getIceCSharpComponents(Project project)
         {
             ComponentList components = new ComponentList();
-            if (project == null)
+            if(project == null)
             {
                 return components;
             }
 
             string iceHome = Util.getIceHome(project);
             VSLangProj.VSProject vsProject = (VSLangProj.VSProject)project.Object;
-            foreach (Reference r in vsProject.References)
+            foreach(Reference r in vsProject.References)
             {
-                if (!Path.GetDirectoryName(r.Path).ToUpper().Contains(iceHome.ToUpper()))
+                if(!Path.GetDirectoryName(r.Path).ToUpper().Contains(iceHome.ToUpper()))
                 {
                     continue; //Not in Ice Home
                 }
@@ -1194,7 +1192,7 @@ namespace Ice.VisualStudio
                     return name.Equals(r.Name);
                 });
 
-                if (String.IsNullOrEmpty(iceComponent))
+                if(String.IsNullOrEmpty(iceComponent))
                 {
                     continue;
                 }

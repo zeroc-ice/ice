@@ -27,7 +27,6 @@ using System.Runtime.InteropServices;
 
 namespace Ice.VisualStudio
 {
-    [ComVisible(true)]
     public class Connect : IDTExtensibility2, IDTCommandTarget
     {
 
@@ -41,11 +40,6 @@ namespace Ice.VisualStudio
             return _builder.getCurrentDTE();
         }
 
-        public static IVsSolution getIVsSolution()
-        {
-            return (IVsSolution)Package.GetGlobalService(typeof(IVsSolution));
-        }
-
 
         public void OnConnection(object application, ext_ConnectMode connectMode, object addInInst, ref Array custom)
         {
@@ -56,16 +50,24 @@ namespace Ice.VisualStudio
             {
                 if(_builder == null)
                 {
+
+                    //
+                    // This property is set to false to avoid VC++ "not maching rule" dialog
+                    //
                     EnvDTE.Properties props = _applicationObject.get_Properties("Projects", "VCGeneral");
                     EnvDTE.Property prop = props.Item("ShowNoMatchingRuleDlg");
                     prop.Value = false;
-                    
+
                     _builder = new Builder();
                     _builder.init(_applicationObject, _addInInstance);
                 }
             }
         }
 
+
+        //
+        // VS call this method to retrive the status of AddIn commands.
+        //
         public void QueryStatus(string commandName, vsCommandStatusTextWanted neededText, ref vsCommandStatus status,
                                 ref object commandText)
         {
@@ -79,6 +81,11 @@ namespace Ice.VisualStudio
                         status = (vsCommandStatus)vsCommandStatus.vsCommandStatusSupported;
                         return;
                     }
+                    if(builder.isBuilding())
+                    {
+                        status = (vsCommandStatus)vsCommandStatus.vsCommandStatusSupported;
+                        return;
+                    }
                     Project project = builder.getSelectedProject();
                     if(project == null)
                     {
@@ -88,7 +95,7 @@ namespace Ice.VisualStudio
                     if(!Util.isCppProject(project) && !Util.isCSharpProject(project))
                     {
                         status = (vsCommandStatus)vsCommandStatus.vsCommandStatusSupported;
-                        return;                    
+                        return;
                     }
                     status = (vsCommandStatus)vsCommandStatus.vsCommandStatusSupported |
                                               vsCommandStatus.vsCommandStatusEnabled;
