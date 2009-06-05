@@ -1058,6 +1058,10 @@ namespace Ice.VisualStudio
         
         public static String getPrecompileHeader(Project project)
         {
+            if(!Util.isCppProject(project))
+            {
+                return "";
+            }
             ConfigurationManager configManager = project.ConfigurationManager;
             Configuration activeConfig = (Configuration)configManager.ActiveConfiguration;
 
