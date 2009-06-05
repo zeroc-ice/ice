@@ -1307,7 +1307,11 @@ namespace Ice.VisualStudio
                     return;
                 }
             }
-            buildCppProjectItem(project, item, false, true);
+
+	    // Recalculate all depedndencies on a add.
+	    updateDependencies(project, false);
+            clearErrors(project);
+	    buildProject(project, false, false);
         }
 
         private void csharpItemRenamed(ProjectItem item, string oldName)
@@ -1325,8 +1329,7 @@ namespace Ice.VisualStudio
                 return;
             }
 
-
-            //Ged rid of generated files, for the .ice removed file.
+            //Get rid of generated files, for the .ice removed file.
             _fileTracker.reap(item.ContainingProject, this);
 
             string fullPath = item.Properties.Item("FullPath").Value.ToString();
@@ -1415,7 +1418,11 @@ namespace Ice.VisualStudio
                 _deleted.Add(item);
                 return;
             }
-            buildCSharpProjectItem(project, item, false, true);
+
+	    // Recalculate all depedndencies on a add.
+	    updateDependencies(project, false);
+            clearErrors(project);
+	    buildProject(project, false, false);
         }
 
         private void removeCSharpGeneratedItems(ProjectItem item)
