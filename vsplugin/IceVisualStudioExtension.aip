@@ -3,7 +3,7 @@
   <COMPONENT cid="caphyon.advinst.msicomp.MsiPropsComponent">
     <ROW Property="ALLUSERS" Value="2"/>
     <ROW Property="ARPCOMMENTS" Value="Ice extension for Visual Studio 2005 and Visual Studio 2008." ValueLocId="*"/>
-    <ROW Property="ARPCONTACT" Value="support@zeroc.com"/>
+    <ROW Property="ARPCONTACT" Value="info@zeroc.com"/>
     <ROW Property="ARPPRODUCTICON" Value="vsplugin.exe" Type="8"/>
     <ROW Property="ARPURLINFOABOUT" Value="htpp://www.zeroc.com"/>
     <ROW Property="BannerBitmap" MultiBuildValue="DefaultBuild:installer_header.bmp" Type="1"/>
