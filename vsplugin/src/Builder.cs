@@ -1706,94 +1706,107 @@ namespace Ice.VisualStudio
             return !hasErrors;
         }
 
-        private bool parseErrors(Project project, string file, TextReader strer, bool consoleOutput)
-        {
-            bool hasErrors = false;
-            string errorMessage = strer.ReadLine();
-            bool firstLine = true;
-            while (!String.IsNullOrEmpty(errorMessage))
-            {
-                int i = errorMessage.IndexOf(':');
-                if(i == -1)
-                {
-                    if(firstLine)
-                    {
-                        errorMessage += strer.ReadToEnd();
-                        if(consoleOutput)
-                        {
-                            writeBuildOutput(errorMessage + "\n");
-                        }
-                        addError(project, "", TaskErrorCategory.Error, 1, 1, errorMessage);
-                        hasErrors = true;
-                        break;
-                    }
-                    errorMessage = strer.ReadLine();
-                    continue;
-                }
-                if(consoleOutput)
-                {
-                    writeBuildOutput(errorMessage + "\n");
-                }
-                firstLine = false;
-                i = errorMessage.IndexOf(':', i + 1);
-                if(i == -1)
-                {
-                    errorMessage = strer.ReadLine();
-                    continue;
-                }
-                string f = errorMessage.Substring(0, i);
-                if(String.IsNullOrEmpty(f))
-                {
-                    errorMessage = strer.ReadLine();
-                    continue;
-                }
+private bool parseErrors(Project project, string file, TextReader
+strer, bool consoleOutput)
+       {
+           bool hasErrors = false;
+           string errorMessage = strer.ReadLine();
+           bool firstLine = true;
+           while (!String.IsNullOrEmpty(errorMessage))
+           {
+               int i = errorMessage.IndexOf(':');
+               if(i == -1)
+               {
+                   if(firstLine)
+                   {
+                       errorMessage += strer.ReadToEnd();
+                       if(consoleOutput)
+                       {
+                           writeBuildOutput(errorMessage + "\n");
+                       }
+                       addError(project, "", TaskErrorCategory.Error,
+1, 1, errorMessage);
+                       hasErrors = true;
+                       break;
+                   }
+                   errorMessage = strer.ReadLine();
+                   continue;
+               }
+               if(consoleOutput)
+               {
+                   writeBuildOutput(errorMessage + "\n");
+               }
+               firstLine = false;
+               i = errorMessage.IndexOf(':', i + 1);
+               if(i == -1)
+               {
+                   errorMessage = strer.ReadLine();
+                   continue;
+               }
+               string f = errorMessage.Substring(0, i);
+               if(String.IsNullOrEmpty(f))
+               {
+                   errorMessage = strer.ReadLine();
+                   continue;
+               }
 
-                if(!File.Exists(f))
-                {
-                    errorMessage = strer.ReadLine();
-                    continue;
-                }
+               if(!File.Exists(f))
+               {
+                   errorMessage = strer.ReadLine();
+                   continue;
+               }
 
-                //
-                // Get only errors from this file.
-                //
-                if(Path.GetFullPath(f.ToUpper()).Equals(Path.GetFullPath(file.ToUpper())))
-                {
-                    errorMessage = errorMessage.Substring(i + 1, errorMessage.Length - i - 1);
-                    i = errorMessage.IndexOf(':');
-                    string n = errorMessage.Substring(0, i);
-                    int l;
-                    try
-                    {
-                        l = Int16.Parse(n);
-                    }
-                    catch(Exception)
-                    {
-                        l = 0;
-                    }
+               //
+               // Get only errors from this file or files outside the project.
+               //
+               bool currentFile = Path.GetFullPath(f).Equals(Path.GetFullPath(file),
+                                                             StringComparison.CurrentCultureIgnoreCase);
 
-                    errorMessage = errorMessage.Substring(i + 1, errorMessage.Length - i - 1).Trim();
-                    if(errorMessage.Equals("warning: End of input with no newline, supplemented newline"))
-                    {
-                        errorMessage = strer.ReadLine();
-                        continue;
-                    }
+               bool found = Util.findItem(f, project.ProjectItems) != null;
+               if(currentFile || !found)
+               {
+                   errorMessage = errorMessage.Substring(i + 1, errorMessage.Length - i - 1);
+                   i = errorMessage.IndexOf(':');
+                   string n = errorMessage.Substring(0, i);
+                   int l;
+                   try
+                   {
+                       l = Int16.Parse(n);
+                   }
+                   catch(Exception)
+                   {
+                       l = 0;
+                   }
 
-                    if(!String.IsNullOrEmpty(errorMessage))
-                    {
-                        TaskErrorCategory category = TaskErrorCategory.Error;
-                        if(errorMessage.Substring(0, "warning:".Length).Equals("warning:"))
-                        {
-                            category = TaskErrorCategory.Warning;
-                        }
-                        addError(project, file, category, l, 1, errorMessage);
-                        hasErrors = true;
-                    }
-                }
-                errorMessage = strer.ReadLine();
-            }
-            return hasErrors;
-        }
+                   errorMessage = errorMessage.Substring(i + 1, errorMessage.Length - i - 1).Trim();
+                   if(errorMessage.Equals("warning: End of input with no newline, supplemented newline"))
+                   {
+                       errorMessage = strer.ReadLine();
+                       continue;
+                   }
+
+                   if(!String.IsNullOrEmpty(errorMessage))
+                   {
+                       TaskErrorCategory category = TaskErrorCategory.Error;
+                       if(errorMessage.Substring(0, "warning:".Length).Equals("warning:"))
+                       {
+                           category = TaskErrorCategory.Warning;
+                       }
+                       if(found)
+                       {
+                           addError(project, file, category, l, 1, errorMessage);
+                       }
+                       else
+                       {
+                           addError(project, file, category, l, 1, "from file: " + f + "\n" + errorMessage);
+                       }
+                       hasErrors = true;
+                   }
+               }
+               errorMessage = strer.ReadLine();
+           }
+           return hasErrors;
+       }
 
         public CommandBar projectCommandBar()
         {
