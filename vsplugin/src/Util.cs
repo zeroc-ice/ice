@@ -1086,7 +1086,10 @@ namespace Ice.VisualStudio
             {
                 if(projectDir.Substring(0, value.Length).Equals(value, StringComparison.CurrentCultureIgnoreCase))
                 {
-                    value = relativePath(projectDir, value);
+                    if(projectDir.Substring(value.Length, 1).Equals("\\", StringComparison.CurrentCultureIgnoreCase))
+                    {
+                       value = relativePath(projectDir, value);
+                    }
                 }
             }
             setProjectProperty(project, Util.PropertyNames.IceHome, value);
