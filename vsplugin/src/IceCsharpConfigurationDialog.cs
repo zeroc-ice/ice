@@ -198,7 +198,7 @@ namespace Ice.VisualStudio
                 Cursor = Cursors.WaitCursor;
                 Builder builder = Connect.getBuilder();
                 builder.cleanProject(_project);
-                builder.buildCSharpProject(_project, false, true);
+                builder.buildCSharpProject(_project, true);
                 Cursor = c;
             }
             Close();

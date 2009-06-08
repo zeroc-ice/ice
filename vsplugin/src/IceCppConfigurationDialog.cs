@@ -210,7 +210,7 @@ namespace Ice.VisualStudio
                 Cursor = Cursors.WaitCursor;
                 Builder builder = Connect.getBuilder();
                 builder.cleanProject(_project);
-                builder.buildCppProject(_project, false, true);
+                builder.buildCppProject(_project, true);
                 Cursor = c;
             }
             Close();
