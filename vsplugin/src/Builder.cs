@@ -1174,335 +1174,379 @@ namespace Ice.VisualStudio
 
         private void cppItemRenamed(object obj, object parent, string oldName)
         {
-            if(obj == null)
+            try
             {
-                return;
-            }
-            VCFile file = obj as VCFile;
-            if(file == null)
-            {
-                return;
-            }
-            if(!file.Name.EndsWith(".ice"))
-            {
-                return;
-            }
-            Array projects = (Array)_applicationObject.ActiveSolutionProjects;
-            if(projects == null)
-            {
-                return;
-            }
-            Project project = projects.GetValue(0) as Project;
-            if(project == null)
-            {
-                return;
-            }
-            if(!Util.isSliceBuilderEnabled(project))
-            {
-                return;
-            }
-            _fileTracker.reap(project, this);
-            ProjectItem item = Util.findItem(file.FullPath, project.ProjectItems);
-
-            string fullPath = file.FullPath;
-            if(Util.isCppProject(project))
-            {
-                string cppPath = Path.ChangeExtension(fullPath, ".cpp");
-                string hPath = Path.ChangeExtension(cppPath, ".h");
-                if(File.Exists(cppPath) || Util.hasItemNamed(project.ProjectItems, Path.GetFileName(cppPath)))
+                if(obj == null)
                 {
-                    System.Windows.Forms.MessageBox.Show("A file named '" + Path.GetFileName(cppPath) + 
-                                                         "' already exists.\n" + "If you want to add '" + 
-                                                         Path.GetFileName(fullPath) + "' first remove " + " '" + 
-                                                         Path.GetFileName(cppPath) + "' and '" +
-                                                         Path.GetFileName(hPath) + "' from your project.",
-                                                         "Ice Visual Studio Extension",
-                                                         System.Windows.Forms.MessageBoxButtons.OK,
-                                                         System.Windows.Forms.MessageBoxIcon.Error);
-                    item.Name = oldName;
                     return;
                 }
-
-                if(File.Exists(hPath) || Util.hasItemNamed(project.ProjectItems, Path.GetFileName(hPath)))
+                VCFile file = obj as VCFile;
+                if(file == null)
                 {
-                    System.Windows.Forms.MessageBox.Show("A file named '" + Path.GetFileName(hPath) +
-                                                         "' already exists.\n" + "If you want to add '" +
-                                                         Path.GetFileName(fullPath) + "' first remove " +
-                                                         " '" + Path.GetFileName(cppPath) + "' and '" +
-                                                         Path.GetFileName(hPath) + "' from your project.",
-                                                         "Ice Visual Studio Extension",
-                                                         System.Windows.Forms.MessageBoxButtons.OK,
-                                                         System.Windows.Forms.MessageBoxIcon.Error);
-                    item.Name = oldName;
                     return;
                 }
-            }
+                if(!file.Name.EndsWith(".ice"))
+                {
+                    return;
+                }
+                Array projects = (Array)_applicationObject.ActiveSolutionProjects;
+                if(projects == null)
+                {
+                    return;
+                }
+                Project project = projects.GetValue(0) as Project;
+                if(project == null)
+                {
+                    return;
+                }
+                if(!Util.isSliceBuilderEnabled(project))
+                {
+                    return;
+                }
+                _fileTracker.reap(project, this);
+                ProjectItem item = Util.findItem(file.FullPath, project.ProjectItems);
 
-	    // Recalculate all depedndencies on a rename.
-	    updateDependencies(project);
-	    clearErrors(project);
-	    buildProject(project, false);
+                string fullPath = file.FullPath;
+                if(Util.isCppProject(project))
+                {
+                    string cppPath = Path.ChangeExtension(fullPath, ".cpp");
+                    string hPath = Path.ChangeExtension(cppPath, ".h");
+                    if(File.Exists(cppPath) || Util.hasItemNamed(project.ProjectItems, Path.GetFileName(cppPath)))
+                    {
+                        System.Windows.Forms.MessageBox.Show("A file named '" + Path.GetFileName(cppPath) + 
+                                                             "' already exists.\n" + "If you want to add '" + 
+                                                             Path.GetFileName(fullPath) + "' first remove " + " '" + 
+                                                             Path.GetFileName(cppPath) + "' and '" +
+                                                             Path.GetFileName(hPath) + "' from your project.",
+                                                             "Ice Visual Studio Extension",
+                                                             System.Windows.Forms.MessageBoxButtons.OK,
+                                                             System.Windows.Forms.MessageBoxIcon.Error);
+                        item.Name = oldName;
+                        return;
+                    }
+    
+                    if(File.Exists(hPath) || Util.hasItemNamed(project.ProjectItems, Path.GetFileName(hPath)))
+                    {
+                        System.Windows.Forms.MessageBox.Show("A file named '" + Path.GetFileName(hPath) +
+                                                             "' already exists.\n" + "If you want to add '" +
+                                                             Path.GetFileName(fullPath) + "' first remove " +
+                                                             " '" + Path.GetFileName(cppPath) + "' and '" +
+                                                             Path.GetFileName(hPath) + "' from your project.",
+                                                             "Ice Visual Studio Extension",
+                                                             System.Windows.Forms.MessageBoxButtons.OK,
+                                                             System.Windows.Forms.MessageBoxIcon.Error);
+                        item.Name = oldName;
+                        return;
+                    }
+                }
+
+	        // Recalculate all depedndencies on a rename.
+	        updateDependencies(project);
+	        clearErrors(project);
+	        buildProject(project, false);
+            }
+            catch(Exception ex)
+            {
+                writeBuildOutput(ex.ToString());
+            }
         }
 
         private void cppItemRemoved(object obj, object parent)
         {
-            if(obj == null)
+            try
             {
-                return;
-            }
+                if(obj == null)
+                {
+                    return;
+                }
 
-            VCFile file = obj as VCFile;
-            if(file == null)
-            {
-                return;
-            }
+                VCFile file = obj as VCFile;
+                if(file == null)
+                {
+                    return;
+                }
 
-            Array projects = (Array)_applicationObject.ActiveSolutionProjects;
-            if(projects == null)
-            {
-                return;
-            }
+                Array projects = (Array)_applicationObject.ActiveSolutionProjects;
+                if(projects == null)
+                {
+                    return;
+                }
             
-            if(projects.Length <= 0)
-            {
-                return;
-            }
-            Project project = projects.GetValue(0) as Project;
-            if(project == null)
-            {
-                return;
-            }
-            if(!Util.isSliceBuilderEnabled(project))
-            {
-                return;
-            }
-            if(!file.Name.EndsWith(".ice"))
-            {
-                _fileTracker.reap(project, this);
-                return;
-            }
-            clearErrors(file.FullPath);
-            removeCppGeneratedItems(project, file.FullPath);
+                if(projects.Length <= 0)
+                {
+                    return;
+                }
+                Project project = projects.GetValue(0) as Project;
+                if(project == null)
+                {
+                    return;
+                }
+                if(!Util.isSliceBuilderEnabled(project))
+                {
+                    return;
+                }
+                if(!file.Name.EndsWith(".ice"))
+                {
+                    _fileTracker.reap(project, this);
+                    return;
+                }
+                clearErrors(file.FullPath);
+                removeCppGeneratedItems(project, file.FullPath);
 
-	    //
-	    // It appears that file is not actually removed from disk at this
-	    // point. Thus we need to delay dependency update until the next build.
-	    //
-	    if(!_updateList.Contains(project.Name))
-	    {
-	        _updateList.Add(project.Name);
-	    }
+    	        //
+	        // It appears that file is not actually removed from disk at this
+	        // point. Thus we need to delay dependency update until the next build.
+	        //
+	        if(!_updateList.Contains(project.Name))
+	        {
+	            _updateList.Add(project.Name);
+	        }
+            }
+            catch(Exception ex)
+            {
+                writeBuildOutput(ex.ToString());
+            }
         }
 
         void cppItemAdded(object obj, object parent)
         {
-            if(obj == null)
+            try
             {
-                return;
-            }
-            VCFile file = obj as VCFile;
-            if(file == null)
-            {
-                return;
-            }
-            if(!file.Name.EndsWith(".ice"))
-            {
-                return;
-            }
-
-            string fullPath = file.FullPath;
-            Array projects = (Array)_applicationObject.ActiveSolutionProjects;
-            if(projects == null)
-            {
-                return;
-            }
-            if(projects.Length <= 0)
-            {
-                return;
-            }
-            Project project = projects.GetValue(0) as Project;
-            if(project == null)
-            {
-                return;
-            }
-            if(!Util.isSliceBuilderEnabled(project))
-            {
-                return;
-            }
-            ProjectItem item = Util.findItem(fullPath, project.ProjectItems);
-            if(item == null)
-            {
-                return;
-            }
-            if(Util.isCppProject(project))
-            {
-                string cppPath = getCppGeneratedFileName(Path.GetDirectoryName(project.FullName), file.FullPath, "cpp");
-                string hPath = Path.ChangeExtension(cppPath, ".h");
-                if(File.Exists(cppPath) || Util.hasItemNamed(project.ProjectItems, Path.GetFileName(cppPath)))
+                if(obj == null)
                 {
-                    System.Windows.Forms.MessageBox.Show("A file named '" + Path.GetFileName(cppPath) +
-                                                         "' already exists.\n" + "If you want to add '" +
-                                                         Path.GetFileName(fullPath) + "' first remove " +
-                                                         " '" + Path.GetFileName(cppPath) + "' and '" +
-                                                         Path.GetFileName(hPath) + "'.",
-                                                         "Ice Visual Studio Extension",
-                                                         System.Windows.Forms.MessageBoxButtons.OK,
-                                                         System.Windows.Forms.MessageBoxIcon.Error);
-                    _deleted.Add(item);
+                    return;
+                }
+                VCFile file = obj as VCFile;
+                if(file == null)
+                {
+                    return;
+                }
+                if(!file.Name.EndsWith(".ice"))
+                {
                     return;
                 }
 
-                if(File.Exists(hPath) || Util.hasItemNamed(project.ProjectItems, Path.GetFileName(hPath)))
+                string fullPath = file.FullPath;
+                Array projects = (Array)_applicationObject.ActiveSolutionProjects;
+                if(projects == null)
                 {
-                    System.Windows.Forms.MessageBox.Show("A file named '" + Path.GetFileName(hPath) +
-                                                         "' already exists.\n" + "If you want to add '" +
-                                                         Path.GetFileName(fullPath) + "' first remove " +
-                                                         " '" + Path.GetFileName(cppPath) + "' and '" +
-                                                         Path.GetFileName(hPath) + "'.",
-                                                         "Ice Visual Studio Extension",
-                                                         System.Windows.Forms.MessageBoxButtons.OK,
-                                                         System.Windows.Forms.MessageBoxIcon.Error);
-                    _deleted.Add(item);
                     return;
                 }
-            }
+                if(projects.Length <= 0)
+                {
+                    return;
+                }
+                Project project = projects.GetValue(0) as Project;
+                if(project == null)
+                {
+                    return;
+                }
+                if(!Util.isSliceBuilderEnabled(project))
+                {
+                    return;
+                }
+                ProjectItem item = Util.findItem(fullPath, project.ProjectItems);
+                if(item == null)
+                {
+                    return;
+                }
+                if(Util.isCppProject(project))
+                {
+                    string cppPath = 
+                        getCppGeneratedFileName(Path.GetDirectoryName(project.FullName), file.FullPath, "cpp");
+                    string hPath = Path.ChangeExtension(cppPath, ".h");
+                    if(File.Exists(cppPath) || Util.hasItemNamed(project.ProjectItems, Path.GetFileName(cppPath)))
+                    {
+                        System.Windows.Forms.MessageBox.Show("A file named '" + Path.GetFileName(cppPath) +
+                                                             "' already exists.\n" + "If you want to add '" +
+                                                             Path.GetFileName(fullPath) + "' first remove " +
+                                                             " '" + Path.GetFileName(cppPath) + "' and '" +
+                                                             Path.GetFileName(hPath) + "'.",
+                                                             "Ice Visual Studio Extension",
+                                                             System.Windows.Forms.MessageBoxButtons.OK,
+                                                             System.Windows.Forms.MessageBoxIcon.Error);
+                        _deleted.Add(item);
+                        return;
+                    }
 
-	    // Recalculate all depedndencies on a add.
-	    updateDependencies(project);
-            clearErrors(project);
-	    buildProject(project, false);
+                    if(File.Exists(hPath) || Util.hasItemNamed(project.ProjectItems, Path.GetFileName(hPath)))
+                    {
+                        System.Windows.Forms.MessageBox.Show("A file named '" + Path.GetFileName(hPath) +
+                                                             "' already exists.\n" + "If you want to add '" +
+                                                             Path.GetFileName(fullPath) + "' first remove " +
+                                                             " '" + Path.GetFileName(cppPath) + "' and '" +
+                                                             Path.GetFileName(hPath) + "'.",
+                                                             "Ice Visual Studio Extension",
+                                                             System.Windows.Forms.MessageBoxButtons.OK,
+                                                             System.Windows.Forms.MessageBoxIcon.Error);
+                        _deleted.Add(item);
+                        return;
+                    }
+                }
+
+    	        // Recalculate all depedndencies on a add.
+	        updateDependencies(project);
+                clearErrors(project);
+	        buildProject(project, false);
+            }
+            catch(Exception ex)
+            {
+                writeBuildOutput(ex.ToString());
+            }
         }
 
         private void csharpItemRenamed(ProjectItem item, string oldName)
         {
-            if(item == null || _fileTracker == null || String.IsNullOrEmpty(oldName) || item.ContainingProject == null)
+            try
             {
-                return;
-            }
-            if(!Util.isSliceBuilderEnabled(item.ContainingProject))
-            {
-                return;
-            }
-            if(!oldName.EndsWith(".ice") || !Util.isProjectItemFile(item))
-            {
-                return;
-            }
-
-            //Get rid of generated files, for the .ice removed file.
-            _fileTracker.reap(item.ContainingProject, this);
-
-            string fullPath = item.Properties.Item("FullPath").Value.ToString();
-            if(Util.isCSharpProject(item.ContainingProject))
-            {
-                string csPath = Path.ChangeExtension(fullPath, ".cs");
-                if(File.Exists(csPath) || 
-                   Util.hasItemNamed(item.ContainingProject.ProjectItems, Path.GetFileName(csPath)))
+                if(item == null || _fileTracker == null || String.IsNullOrEmpty(oldName) || 
+                   item.ContainingProject == null)
                 {
-                    System.Windows.Forms.MessageBox.Show("A file named '" + Path.GetFileName(csPath) +
-                                                         "' already exists.\n" + oldName +
-                                                         " could not be renamed to '" + item.Name + "'.",
-                                                         "Ice Visual Studio Extension",
-                                                         System.Windows.Forms.MessageBoxButtons.OK,
-                                                         System.Windows.Forms.MessageBoxIcon.Error);
-                    item.Name = oldName;
                     return;
                 }
-            }
+                if(!Util.isSliceBuilderEnabled(item.ContainingProject))
+                {
+                    return;
+                }
+                if(!oldName.EndsWith(".ice") || !Util.isProjectItemFile(item))
+                {
+                    return;
+                }
 
-	    // Recalculate all depedndencies on a rename.
-	    updateDependencies(item.ContainingProject);
-	    clearErrors(item.ContainingProject);
-	    buildProject(item.ContainingProject, false);
+                //Get rid of generated files, for the .ice removed file.
+                _fileTracker.reap(item.ContainingProject, this);
+
+                string fullPath = item.Properties.Item("FullPath").Value.ToString();
+                if(Util.isCSharpProject(item.ContainingProject))
+                {
+                    string csPath = Path.ChangeExtension(fullPath, ".cs");
+                    if(File.Exists(csPath) || 
+                       Util.hasItemNamed(item.ContainingProject.ProjectItems, Path.GetFileName(csPath)))
+                    {
+                        System.Windows.Forms.MessageBox.Show("A file named '" + Path.GetFileName(csPath) +
+                                                             "' already exists.\n" + oldName +
+                                                             " could not be renamed to '" + item.Name + "'.",
+                                                             "Ice Visual Studio Extension",
+                                                             System.Windows.Forms.MessageBoxButtons.OK,
+                                                             System.Windows.Forms.MessageBoxIcon.Error);
+                        item.Name = oldName;
+                        return;
+                    }
+                }
+
+	        // Recalculate all depedndencies on a rename.
+	        updateDependencies(item.ContainingProject);
+	        clearErrors(item.ContainingProject);
+	        buildProject(item.ContainingProject, false);
+            }
+            catch(Exception ex)
+            {
+                writeBuildOutput(ex.ToString());
+            }
         }
 
         private void csharpItemRemoved(ProjectItem item)
         {
-            if(item == null || _fileTracker == null)
+            try
             {
-                return;
-            }
-            if(String.IsNullOrEmpty(item.Name) ||  item.ContainingProject == null)
-            {
-                return;
-            }
-            if(!Util.isSliceBuilderEnabled(item.ContainingProject))
-            {
-                return;
-            }
-            if(!item.Name.EndsWith(".ice"))
-            {
-                return;
-            }
-	    string fullName = item.Properties.Item("FullPath").Value.ToString();
-            clearErrors(fullName);
-            removeCSharpGeneratedItems(item);
+                if(item == null || _fileTracker == null)
+                {
+                    return;
+                }
+                if(String.IsNullOrEmpty(item.Name) ||  item.ContainingProject == null)
+                {
+                    return;
+                }
+                if(!Util.isSliceBuilderEnabled(item.ContainingProject))
+                {
+                    return;
+                }
+                if(!item.Name.EndsWith(".ice"))
+                {
+                    return;
+                }
+    	        string fullName = item.Properties.Item("FullPath").Value.ToString();
+                clearErrors(fullName);
+                removeCSharpGeneratedItems(item);
 
-	    // Recalculate depedndencies on a remove.
-	    Project project = item.ContainingProject;
-	    Dictionary<string, List<string>> projectDeps = _dependenciesMap[project.Name];
-	    foreach(ProjectItem i in project.ProjectItems)
-	    {
-		if(i.Name.EndsWith(".ice")  && i != item)
-		{
-		    string path = i.Properties.Item("FullPath").Value.ToString();
-	            if(updateDependencies(item.ContainingProject, i, path, getSliceCompilerArgs(project, true)))
+	        // Recalculate depedndencies on a remove.
+	        Project project = item.ContainingProject;
+	        Dictionary<string, List<string>> projectDeps = _dependenciesMap[project.Name];
+	        foreach(ProjectItem i in project.ProjectItems)
+	        {
+    		    if(i.Name.EndsWith(".ice")  && i != item)
 		    {
-	                clearErrors(path);
-	    	        buildCSharpProjectItem(item.ContainingProject, i, false);
+		        string path = i.Properties.Item("FullPath").Value.ToString();
+	                if(updateDependencies(item.ContainingProject, i, path, getSliceCompilerArgs(project, true)))
+		        {
+	                    clearErrors(path);
+	    	            buildCSharpProjectItem(item.ContainingProject, i, false);
+		        }
 		    }
-		}
-	    }
+	        }
+            }
+            catch(Exception ex)
+            {
+                writeBuildOutput(ex.ToString());
+            }
         }
 
         private void csharpItemAdded(ProjectItem item)
         {
-            if(item == null)
+            try
             {
-                return;
-            }
+                if(item == null)
+                {
+                    return;
+                }
+    
+                if(String.IsNullOrEmpty(item.Name) || item.ContainingProject == null)
+                {
+                    return;
+                }
 
-            if(String.IsNullOrEmpty(item.Name) || item.ContainingProject == null)
+                if(!Util.isSliceBuilderEnabled(item.ContainingProject))
+                {
+                    return;
+                }
+
+                if(!item.Name.EndsWith(".ice"))
+                {
+                    return;
+                }
+
+                string fullPath = item.Properties.Item("FullPath").Value.ToString();
+                Project project = item.ContainingProject;
+                if(project == null)
+                {
+                    return;
+                }
+
+                String csPath = getCSharpGeneratedFileName(project, item, "cs");
+                ProjectItem csItem = Util.findItem(csPath, project.ProjectItems);
+    
+                if(File.Exists(csPath) || csItem != null)
+                {
+                    System.Windows.Forms.MessageBox.Show("A file named '" + Path.GetFileName(csPath) +
+                                                         "' already exists.\n" + "If you want to add '" +
+                                                         Path.GetFileName(fullPath) + "' first remove " +
+                                                         " '" + Path.GetFileName(csPath) + "'.",
+                                                         "Ice Visual Studio Extension",
+                                                         System.Windows.Forms.MessageBoxButtons.OK,
+                                                         System.Windows.Forms.MessageBoxIcon.Error);
+                    _deleted.Add(item);
+                    return;
+                }
+
+        	// Recalculate all depedndencies on a add.
+    	        updateDependencies(project);
+                clearErrors(project);
+	        buildProject(project, false);
+            }
+            catch(Exception ex)
             {
-                return;
+                writeBuildOutput(ex.ToString());
             }
-
-            if(!Util.isSliceBuilderEnabled(item.ContainingProject))
-            {
-                return;
-            }
-
-            if(!item.Name.EndsWith(".ice"))
-            {
-                return;
-            }
-
-            string fullPath = item.Properties.Item("FullPath").Value.ToString();
-            Project project = item.ContainingProject;
-            if(project == null)
-            {
-                return;
-            }
-
-            String csPath = getCSharpGeneratedFileName(project, item, "cs");
-            ProjectItem csItem = Util.findItem(csPath, project.ProjectItems);
-
-            if(File.Exists(csPath) || csItem != null)
-            {
-                System.Windows.Forms.MessageBox.Show("A file named '" + Path.GetFileName(csPath) +
-                                                     "' already exists.\n" + "If you want to add '" +
-                                                     Path.GetFileName(fullPath) + "' first remove " +
-                                                     " '" + Path.GetFileName(csPath) + "'.",
-                                                     "Ice Visual Studio Extension",
-                                                     System.Windows.Forms.MessageBoxButtons.OK,
-                                                     System.Windows.Forms.MessageBoxIcon.Error);
-                _deleted.Add(item);
-                return;
-            }
-
-	    // Recalculate all depedndencies on a add.
-	    updateDependencies(project);
-            clearErrors(project);
-	    buildProject(project, false);
         }
 
         private void removeCSharpGeneratedItems(ProjectItem item)
@@ -1783,88 +1827,95 @@ namespace Ice.VisualStudio
 
         private void buildBegin(vsBuildScope scope, vsBuildAction action)
         {
-            _building = true;
-            if(action == vsBuildAction.vsBuildActionBuild || action == vsBuildAction.vsBuildActionRebuildAll)
+            try
             {
-                switch(scope)
+                _building = true;
+                if(action == vsBuildAction.vsBuildActionBuild || action == vsBuildAction.vsBuildActionRebuildAll)
                 {
-                    case vsBuildScope.vsBuildScopeProject:
+                    switch(scope)
                     {
-                        Project project = getSelectedProject();
-                        if(project != null)
+                        case vsBuildScope.vsBuildScopeProject:
                         {
-                            if(!Util.isSliceBuilderEnabled(project))
+                            Project project = getSelectedProject();
+                            if(project != null)
                             {
-                                break;
+                                if(!Util.isSliceBuilderEnabled(project))
+                                {
+                                    break;
+                                }
+                                clearErrors(project);
+                                if(action == vsBuildAction.vsBuildActionRebuildAll)
+                                {
+                                    cleanProject(project);
+                                }
+                                buildProject(project, false);
                             }
-                            clearErrors(project);
-                            if(action == vsBuildAction.vsBuildActionRebuildAll)
+                            if(hasErrors(project))
+                            {
+                                bringErrorsToFront();
+                                _applicationObject.DTE.ExecuteCommand("Build.Cancel", "");
+                                writeBuildOutput("------ Slice compilation contains errors. Build canceled. ------\n");
+                            }
+                            break;
+                        }
+                        default:
+                        {
+                            clearErrors();
+                            foreach(Project p in _applicationObject.Solution.Projects)
+                            {
+                                if(p != null)
+                                {
+                                    if(!Util.isSliceBuilderEnabled(p))
+                                    {
+                                        continue;
+                                    }
+                                    if(action == vsBuildAction.vsBuildActionRebuildAll)
+                                    {
+                                        cleanProject(p);
+                                    }
+                                    buildProject(p, false);
+                                }
+                            }
+                            if(hasErrors())
+                            {
+                                bringErrorsToFront();
+                                _applicationObject.DTE.ExecuteCommand("Build.Cancel", "");
+                                writeBuildOutput("------ Slice compilation contains errors. Build canceled. ------\n");
+                            }
+                            break;
+                        }
+                    }
+                }
+                else if(action == vsBuildAction.vsBuildActionClean)
+                {
+                    switch(scope)
+                    {
+                        case vsBuildScope.vsBuildScopeProject:
+                        {
+                            Project project = getSelectedProject();
+                            if(project != null)
                             {
                                 cleanProject(project);
                             }
-                            buildProject(project, false);
+                            break;
                         }
-                        if(hasErrors(project))
+                        default:
                         {
-                            bringErrorsToFront();
-                            _applicationObject.DTE.ExecuteCommand("Build.Cancel", "");
-                            writeBuildOutput("------ Slice compilation contains errors. Build canceled. ------\n");
-                        }
-                        break;
-                    }
-                    default:
-                    {
-                        clearErrors();
-                        foreach(Project p in _applicationObject.Solution.Projects)
-                        {
-                            if(p != null)
+                            foreach(Project p in _applicationObject.Solution.Projects)
                             {
-                                if(!Util.isSliceBuilderEnabled(p))
-                                {
-                                    continue;
-                                }
-                                if(action == vsBuildAction.vsBuildActionRebuildAll)
+                                if(p != null)
                                 {
                                     cleanProject(p);
                                 }
-                                buildProject(p, false);
                             }
+                            break;
                         }
-                        if(hasErrors())
-                        {
-                            bringErrorsToFront();
-                            _applicationObject.DTE.ExecuteCommand("Build.Cancel", "");
-                            writeBuildOutput("------ Slice compilation contains errors. Build canceled. ------\n");
-                        }
-                        break;
                     }
                 }
             }
-            else if(action == vsBuildAction.vsBuildActionClean)
+            catch(Exception ex)
             {
-                switch(scope)
-                {
-                    case vsBuildScope.vsBuildScopeProject:
-                    {
-                        Project project = getSelectedProject();
-                        if(project != null)
-                        {
-                            cleanProject(project);
-                        }
-                        break;
-                    }
-                    default:
-                    {
-                        foreach(Project p in _applicationObject.Solution.Projects)
-                        {
-                            if(p != null)
-                            {
-                                cleanProject(p);
-                            }
-                        }
-                        break;
-                    }
-                }
+                writeBuildOutput(ex.ToString());
             }
         }
 
