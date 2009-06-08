@@ -286,7 +286,6 @@ namespace Ice.VisualStudio
         {
             ComponentList sliceIncludes = 
                 new ComponentList(Util.getProjectProperty(project, Util.PropertyNames.IceIncludePath));
-            sliceIncludes.Add(Util.getIceHome(project) + "\\slice");
 
             Util.setProjectProperty(project, Util.PropertyNames.IceIncludePath, sliceIncludes.ToString());
             if(Util.isCppProject(project))
@@ -887,7 +886,6 @@ namespace Ice.VisualStudio
             bool ice = Util.getProjectPropertyAsBool(project, Util.PropertyNames.IcePrefix);
             bool streaming = Util.getProjectPropertyAsBool(project, Util.PropertyNames.IceStreaming);
 
-
             string sliceCompiler = getSliceCompilerPath(project);
 
             string args = quoteArg(sliceCompiler) + " ";
@@ -905,6 +903,8 @@ namespace Ice.VisualStudio
                     args += "--add-header=" + preCompiledHeader + " ";
                 }
 	    }
+
+	    args += "-I\"" + Util.getIceHome(project) + "\\slice\" "; 
 
             foreach(string i in includes)
             {

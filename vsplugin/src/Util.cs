@@ -654,34 +654,6 @@ namespace Ice.VisualStudio
             }
         }
 
-        public static void addSliceIncludeDirs(Project project)
-        {
-            if(project == null)
-            {
-                return;
-            }
-
-            string iceIncludeDir = Util.getIceHome(project) + "\\slice";
-            ComponentList includes = 
-                new ComponentList(Util.getProjectProperty(project, Util.PropertyNames.IceIncludePath));
-            includes.Add(iceIncludeDir);
-            Util.setProjectProperty(project, Util.PropertyNames.IceIncludePath, includes.ToString());
-        }
-
-        public static void removeSliceIncludeDirs(Project project)
-        {
-            if(project == null)
-            {
-                return;
-            }
-
-            string iceIncludeDir = Util.getIceHome(project) + "\\slice";
-            ComponentList includes = 
-                new ComponentList(Util.getProjectProperty(project, Util.PropertyNames.IceIncludePath));
-            includes.Remove(iceIncludeDir);
-            Util.setProjectProperty(project, Util.PropertyNames.IceIncludePath, includes.ToString());
-        }
-
         public static bool isSliceBuilderEnabled(Project project)
         {
             return Util.getProjectPropertyAsBool(project, Util.PropertyNames.Ice);
@@ -1018,16 +990,13 @@ namespace Ice.VisualStudio
 
         private static void updateIceHomeCppProject(Project project, string iceHome)
         {
-            Util.removeSliceIncludeDirs(project);
             Util.removeIceCppConfigurations(project);
             Util.setIceHome(project, iceHome);
-            Util.addSliceIncludeDirs(project);
             Util.addIceCppConfigurations(project);
         }
 
         private static void updateIceHomeCSharpProject(Project project, string iceHome)
         {
-            Util.removeSliceIncludeDirs(project);
             ComponentList components = Util.getIceCSharpComponents(project);
             foreach(string s in components)
             {
@@ -1040,7 +1009,6 @@ namespace Ice.VisualStudio
 
             Util.setIceHome(project, iceHome);
 
-            Util.addSliceIncludeDirs(project);
             foreach(string s in components)
             {
                 if(String.IsNullOrEmpty(s))
@@ -1069,7 +1037,8 @@ namespace Ice.VisualStudio
                 if(!File.Exists(value + "\\bin\\slice2cpp.exe") || !File.Exists(value + "\\bin\\slice2cs.exe") ||
                    !Directory.Exists(value + "\\slice\\Ice"))
                 {
-                    if(!File.Exists(value + "\\cpp\\bin\\slice2cpp.exe") || !File.Exists(value + "\\cpp\\bin\\slice2cs.exe") ||
+                    if(!File.Exists(value + "\\cpp\\bin\\slice2cpp.exe") || 
+		       !File.Exists(value + "\\cpp\\bin\\slice2cs.exe") ||
                        !Directory.Exists(value + "\\slice\\Ice"))
                     {
                         System.Windows.Forms.MessageBox.Show("Could not locate Ice installation in '"
