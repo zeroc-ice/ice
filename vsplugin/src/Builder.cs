@@ -1644,6 +1644,21 @@ namespace Ice.VisualStudio
 
             bool hasErrors = parseErrors(project, file, process.StandardError, consoleOutput);
             process.Close();
+            if(hasErrors)
+            {
+                if (Util.isCppProject(project))
+                {
+                    removeCppGeneratedItems(project, file);
+                }
+                else if (Util.isCSharpProject(project))
+                {
+                    ProjectItem item = Util.findItem(file, project.ProjectItems);
+                    if(item != null)
+                    {
+                        removeCSharpGeneratedItems(item);
+                    }
+                }
+            }
             return !hasErrors;
         }
 
