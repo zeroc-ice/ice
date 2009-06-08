@@ -20,9 +20,6 @@ Project properties
 
   * Ice Home: The directory where Ice is installed
 
-    The extension expects the same directory layout as that of an
-    Ice binary distribution.
-
   * Slice Compiler Options
 
     Tick the correspond check boxes to add --ice, --stream, or --tie
@@ -69,3 +66,12 @@ project, whereas the extension for C# adds Demo.cs to the project.
 
 Slice Compilation errors are displayed in the Visual Studio "Output"
 and "Error List" panels.
+
+VC++ Pre-compiled headers
+-------------------------
+
+For c++ projects the pre-compiler headers is detect automatically and
+slice compiler will add the relevant --add-header command line option.
+
+If you change the pre-compiler header setting of a projec you should
+rebuild the project.
