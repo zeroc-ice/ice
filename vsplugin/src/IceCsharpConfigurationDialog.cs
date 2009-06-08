@@ -207,7 +207,7 @@ namespace Ice.VisualStudio
         private void btnSelectIceHome_Click(object sender, EventArgs e)
         {
             FolderBrowserDialog dialog = new FolderBrowserDialog();
-            dialog.SelectedPath = Util.getIceHome(_project);
+            dialog.SelectedPath = Util.getAbsoluteIceHome(_project);
             dialog.Description = "Select Ice Home Installation Directory";
             DialogResult result = dialog.ShowDialog();
             if (result == DialogResult.OK)
@@ -353,16 +353,16 @@ namespace Ice.VisualStudio
 
         private void chkGlacier2_CheckedChanged(object sender, EventArgs e)
         {
-            componentChanged("Glacier2");
+            componentChanged("Glacier2", chkGlacier2.Checked);
         }
         
-        private void componentChanged(string name)
+        private void componentChanged(string name, bool value)
         {
             System.Windows.Forms.Cursor c = Cursor.Current;
             Cursor = Cursors.WaitCursor;
             if(_initialized)
             {
-                if(chkGlacier2.Checked)
+                if(value)
                 {
                     Util.addCSharpReference(_project, name);
                 }
@@ -377,32 +377,32 @@ namespace Ice.VisualStudio
 
         private void chkIce_CheckedChanged(object sender, EventArgs e)
         {
-            componentChanged("Ice");
+            componentChanged("Ice", chkIce.Checked);
         }
 
         private void chkIceBox_CheckedChanged(object sender, EventArgs e)
         {
-            componentChanged("IceBox");
+            componentChanged("IceBox", chkIceBox.Checked);
         }
 
         private void chkIceGrid_CheckedChanged(object sender, EventArgs e)
         {
-            componentChanged("IceGrid");
+            componentChanged("IceGrid", chkIceGrid.Checked);
         }
 
         private void chkIcePatch2_CheckedChanged(object sender, EventArgs e)
         {
-            componentChanged("IcePatch2");
+            componentChanged("IcePatch2", chkIcePatch2.Checked);
         }
 
         private void chkIceSSL_CheckedChanged(object sender, EventArgs e)
         {
-            componentChanged("IceSSL");
+            componentChanged("IceSSL", chkIceSSL.Checked);
         }
 
         private void chkIceStorm_CheckedChanged(object sender, EventArgs e)
         {
-            componentChanged("IceStorm");
+            componentChanged("IceStorm", chkIceStorm.Checked);
         }
 
         private void chkConsole_CheckedChanged(object sender, EventArgs e)

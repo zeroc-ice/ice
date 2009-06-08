@@ -833,7 +833,6 @@ namespace Ice.VisualStudio
         private string getSliceCompilerPath(Project project)
         {
             String compiler = Util.SliceTranslator.slice2cpp;
-            String iceHome = Util.getIceHome(project);
             if(Util.isCSharpProject(project))
             {
                 if(Util.isSilverlightProject(project))
@@ -845,13 +844,21 @@ namespace Ice.VisualStudio
                     compiler = Util.SliceTranslator.slice2cs;
                 }
             }
-            iceHome = Path.Combine(iceHome, "bin");
+
+            String iceHome = Util.getAbsoluteIceHome(project);
+            if(Directory.Exists(Path.Combine(iceHome, "cpp")))
+            {
+                iceHome = Path.Combine(iceHome, "cpp/bin");
+            }
+            else
+            {
+                iceHome = Path.Combine(iceHome, "bin");
+            }
             return Path.Combine(iceHome, compiler);
         }
 
         private string getSliceCompilerArgs(Project project, bool depend)
         {
-            string iceHome = Util.getIceHome(project);
             ComponentList includes = 
                 new ComponentList(Util.getProjectProperty(project, Util.PropertyNames.IceIncludePath));
             ComponentList macros = new ComponentList(Util.getProjectProperty(project, Util.PropertyNames.IceMacros));

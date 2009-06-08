@@ -281,6 +281,17 @@ namespace Ice.VisualStudio
             }
             return Util.getProjectProperty(project, Util.PropertyNames.IceHome, defaultIceHome);
         }
+        
+        public static string getAbsoluteIceHome(Project project)
+        {
+            string iceHome = Util.getIceHome(project);
+            if(!Path.IsPathRooted(iceHome))
+            {
+                iceHome = Path.Combine(Path.GetDirectoryName(project.FileName), iceHome);
+                iceHome = Path.GetFullPath(iceHome);
+            }
+            return iceHome;
+        }
 
         public static string getPathRelativeToProject(ProjectItem item)
         {
@@ -328,7 +339,17 @@ namespace Ice.VisualStudio
                 return;
             }
 
-            string iceIncludeDir = Util.getIceHome(project) + "\\include";
+            string iceHome = Util.getAbsoluteIceHome(project);
+            string iceIncludeDir = "";
+            if(Directory.Exists(iceHome + "\\cpp\\include"))
+            {
+                iceIncludeDir = Util.getIceHome(project) + "\\cpp\\include";
+            }
+            else
+            {
+                iceIncludeDir = Util.getIceHome(project) + "\\include";
+            }
+
             string additionalIncludeDirectories = tool.AdditionalIncludeDirectories;
             if(String.IsNullOrEmpty(additionalIncludeDirectories))
             {
@@ -371,11 +392,20 @@ namespace Ice.VisualStudio
                 return;
             }
 
-            string iceIncludeDir = Util.getIceHome(project) + "\\include";
+            string iceHome = Util.getAbsoluteIceHome(project);
+            string iceIncludeDir = "";
+            if(Directory.Exists(iceHome + "\\cpp\\include"))
+            {
+                iceIncludeDir = Util.getIceHome(project) + "\\cpp\\include";
+            }
+            else
+            {
+                iceIncludeDir = Util.getIceHome(project) + "\\include";
+            }
+            
             string additionalIncludeDirectories = tool.AdditionalIncludeDirectories;
             if(String.IsNullOrEmpty(additionalIncludeDirectories))
             {
-                tool.AdditionalIncludeDirectories = iceIncludeDir + ";.";
                 return;
             }
 
@@ -400,11 +430,28 @@ namespace Ice.VisualStudio
                 return;
             }
 
-            string reference = Path.Combine(Util.getIceHome(project) + "\\bin\\", component + ".dll");
+            string iceHome = Util.getAbsoluteIceHome(project);
+            string reference = "";
+            if(Directory.Exists(iceHome + "\\cs"))
+            {
+                reference = iceHome + "\\cs\\bin\\" + component + ".dll";                
+            }
+            else
+            {
+                reference = iceHome + "\\bin\\" + component + ".dll";
+            }
+
             if(File.Exists(reference))
             {
                 VSLangProj.VSProject vsProject = (VSLangProj.VSProject)project.Object;
-                vsProject.References.Add(reference);
+                try
+                {
+                    vsProject.References.Add(reference);
+                }
+                catch(COMException ex)
+                {
+                    Console.WriteLine(ex);
+                }
             }
             else
             {
@@ -436,9 +483,17 @@ namespace Ice.VisualStudio
                 return;
             }
 
-            string iceHome = Util.getIceHome(project);
+            string iceHome = Util.getAbsoluteIceHome(project);
+            if(Directory.Exists(iceHome + "\\cs\\bin"))
+            {
+                iceHome += "\\cs\\bin";
+            }
+            else
+            {
+                iceHome += "\\bin";
+            }
             Reference reference = Util.findReference((VSProject)project.Object,
-                                                     Path.Combine(iceHome + "\\bin\\", component + ".dll"));
+                                                     Path.Combine(iceHome, component + ".dll"));
             if(reference != null)
             {
                 reference.Remove();
@@ -530,7 +585,16 @@ namespace Ice.VisualStudio
                 return;
             }
 
-            string iceLibDir = Util.getIceHome(project) + "\\lib";
+            string iceHome = Util.getAbsoluteIceHome(project);
+            string iceLibDir = "";
+            if(Directory.Exists(iceHome + "\\cpp\\lib"))
+            {
+                iceLibDir = Util.getIceHome(project) + "\\cpp\\lib";
+            }
+            else
+            {
+                iceLibDir = Util.getIceHome(project) + "\\lib";
+            }
             string additionalLibraryDirectories = tool.AdditionalLibraryDirectories;
             if(String.IsNullOrEmpty(additionalLibraryDirectories))
             {
@@ -558,7 +622,16 @@ namespace Ice.VisualStudio
                 return;
             }
 
-            string iceLibDir = Util.getIceHome(project) + "\\lib";
+            string iceHome = Util.getAbsoluteIceHome(project);
+            string iceLibDir = "";
+            if(Directory.Exists(iceHome + "\\cpp\\lib"))
+            {
+                iceLibDir = Util.getIceHome(project) + "\\cpp\\lib";
+            }
+            else
+            {
+                iceLibDir = Util.getIceHome(project) + "\\lib";
+            }
             string additionalLibraryDirectories = tool.AdditionalLibraryDirectories;
 
             if(String.IsNullOrEmpty(additionalLibraryDirectories))
@@ -996,11 +1069,24 @@ namespace Ice.VisualStudio
                 if(!File.Exists(value + "\\bin\\slice2cpp.exe") || !File.Exists(value + "\\bin\\slice2cs.exe") ||
                    !Directory.Exists(value + "\\slice\\Ice"))
                 {
-                    System.Windows.Forms.MessageBox.Show("Could not locate Ice installation in '"
+                    if(!File.Exists(value + "\\cpp\\bin\\slice2cpp.exe") || !File.Exists(value + "\\cpp\\bin\\slice2cs.exe") ||
+                       !Directory.Exists(value + "\\slice\\Ice"))
+                    {
+                        System.Windows.Forms.MessageBox.Show("Could not locate Ice installation in '"
                                                          + value + "' directory.\n",
                                                          "Ice Visual Studio Extension", MessageBoxButtons.OK,
                                                          MessageBoxIcon.Error);
-                    return;
+
+                        return;
+                    }
+                }
+            }
+            string projectDir = Path.GetDirectoryName(project.FileName);
+            if(projectDir.Length > value.Length)
+            {
+                if(projectDir.Substring(0, value.Length).Equals(value, StringComparison.CurrentCultureIgnoreCase))
+                {
+                    value = relativePath(projectDir, value);
                 }
             }
             setProjectProperty(project, Util.PropertyNames.IceHome, value);
@@ -1213,7 +1299,7 @@ namespace Ice.VisualStudio
                 return components;
             }
 
-            string iceHome = Util.getIceHome(project);
+            string iceHome = Util.getAbsoluteIceHome(project);
             VSLangProj.VSProject vsProject = (VSLangProj.VSProject)project.Object;
             foreach(Reference r in vsProject.References)
             {

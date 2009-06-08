@@ -170,7 +170,7 @@ namespace Ice.VisualStudio
         private void btnSelectIceHome_Click(object sender, EventArgs e)
         {
             FolderBrowserDialog dialog = new FolderBrowserDialog();
-            dialog.SelectedPath = Util.getIceHome(_project);
+            dialog.SelectedPath = Util.getAbsoluteIceHome(_project);
             dialog.Description = "Select Ice Home Installation Directory";
             DialogResult result = dialog.ShowDialog();
             if (result == DialogResult.OK)
