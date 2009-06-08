@@ -1652,11 +1652,14 @@ namespace Ice.VisualStudio
 
         private bool runSliceCompiler(Project project, string file, string outputDir)
         {
-            
             bool consoleOutput = Util.getProjectPropertyAsBool(project, Util.PropertyNames.ConsoleOutput);
             string args = getSliceCompilerArgs(project, false);
             if(!String.IsNullOrEmpty(outputDir))
             {
+                if(outputDir.EndsWith("\\"))
+                {
+                    outputDir = outputDir.Replace("\\", "\\\\");
+                }
                 args += "--output-dir \"" + outputDir + "\" ";
             }
 
@@ -1667,7 +1670,6 @@ namespace Ice.VisualStudio
             processInfo.UseShellExecute = false;
             processInfo.RedirectStandardError = true;
             processInfo.WorkingDirectory = System.IO.Path.GetDirectoryName(project.FileName);
-            
 
 
             String compiler = getSliceCompilerPath(project);
