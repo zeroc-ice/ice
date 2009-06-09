@@ -96,7 +96,7 @@ sys.stdout.flush()
 
 # Copy files
 for f in os.listdir(os.path.join(archDir, "vsplugin")):
-    if f != "action.vbs" and f != "installer.aip" and f.endswith(".csproj") != True and f.endswith(".sln") != True:
+    if f != "action.vbs" and f != "IceVisualStudioExtension.aip" and f.endswith(".csproj") != True and f.endswith(".sln") != True:
         copy(os.path.join(archDir, "vsplugin", f), f)
 
 move(os.path.join(archDir, "distribution"), distFilesDir) # Move the distribution directory to the top-level
