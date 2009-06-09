@@ -173,6 +173,14 @@ Slice::Preprocessor::preprocess(bool keepComments)
         for(vector<string>::const_iterator i = messages.begin(); i != messages.end(); ++i)
         {
             emitRaw(i->c_str());
+
+	    //
+	    // MCPP FIX: mcpp does not always return non-zero exit status when there is an error.
+	    //
+	    if(i->find("error:") != string::npos)
+	    {
+	        status = 1;
+	    }
         }
     }
 
