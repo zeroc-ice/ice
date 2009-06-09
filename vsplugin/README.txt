@@ -32,8 +32,8 @@ Project properties
 
   * Slice Compiler Options
 
-    Tick the correspond check boxes to add --ice, --stream, or --tie
-    (.NET only).
+    Tick the corresponding check boxes to pass --tie (.NET only), --ice, or --stream
+    options to the Slice compiler.
 
   * Preprocessor Macros: List of macro definitions passed to the Slice
     compiler
@@ -52,7 +52,7 @@ Project properties
   * Slice Include Path: The list of directories to search for included
     Slice files (-I option)
 
-  * Ice Components: The list of Ice libraries with which to link
+  * Ice Components: The list of Ice libraries to link with
 
 
 Adding Slice files to a project
@@ -67,8 +67,8 @@ Generating code
 ---------------
 
 The extension compiles a Slice file whenever you save the file. The
-extension tracks dependencies among Slice files and recompiles only
-those files that require it after a change.
+extension tracks dependencies among Slice files in the project
+and recompiles only those files that require it after a change.
 
 Generated files are automatically added to the project. For example,
 for Demo.ice, the extension for C++ adds Demo.cpp and Demo.h to the
@@ -80,8 +80,9 @@ and "Error List" panels.
 VC++ Pre-compiled headers
 -------------------------
 
-For c++ projects the pre-compiler headers is detect automatically and
-slice compiler will add the relevant --add-header command line option.
+For C++ projects, pre-compiled headers are detected automatically.
+(The extension automatically passes the required --add-header option
+to slice2cpp.)
 
-If you change the pre-compiler header setting of a projec you should
+If you change the pre-compiled header setting of a project, you must
 rebuild the project.
