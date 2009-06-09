@@ -1640,11 +1640,10 @@ namespace Ice.VisualStudio
                 }
             }
 
-
             generated = Util.findItem(cppFileInfo.FullName, project.ProjectItems);
             if(generated != null)
             {
-                if(File.Exists(hFileInfo.FullName))
+                if(File.Exists(cppFileInfo.FullName))
                 {
                     generated.Delete();
                 }
@@ -1654,7 +1653,6 @@ namespace Ice.VisualStudio
                 }
             }
         }
-
 
         private bool runSliceCompiler(Project project, string file, string outputDir)
         {
@@ -1698,11 +1696,11 @@ namespace Ice.VisualStudio
             process.Close();
             if(hasErrors)
             {
-                if (Util.isCppProject(project))
+                if(Util.isCppProject(project))
                 {
                     removeCppGeneratedItems(project, file);
                 }
-                else if (Util.isCSharpProject(project))
+                else if(Util.isCSharpProject(project))
                 {
                     ProjectItem item = Util.findItem(file, project.ProjectItems);
                     if(item != null)
@@ -1762,36 +1760,36 @@ namespace Ice.VisualStudio
                     continue;
                 }
  
-                //
-                // Get only errors from this file or files outside the project.
-                //
-                bool currentFile = Path.GetFullPath(f).Equals(Path.GetFullPath(file),
-                                                              StringComparison.CurrentCultureIgnoreCase);
  
-                bool found = Util.findItem(f, project.ProjectItems) != null;
-                if(currentFile || !found)
+                errorMessage = errorMessage.Substring(i + 1, errorMessage.Length - i - 1);
+                i = errorMessage.IndexOf(':');
+                string n = errorMessage.Substring(0, i);
+                int l;
+                try
                 {
-                    errorMessage = errorMessage.Substring(i + 1, errorMessage.Length - i - 1);
-                    i = errorMessage.IndexOf(':');
-                    string n = errorMessage.Substring(0, i);
-                    int l;
-                    try
-                    {
-                        l = Int16.Parse(n);
-                    }
-                    catch(Exception)
-                    {
-                        l = 0;
-                    }
- 
-                    errorMessage = errorMessage.Substring(i + 1, errorMessage.Length - i - 1).Trim();
-                    if(errorMessage.Equals("warning: End of input with no newline, supplemented newline"))
-                    {
-                        errorMessage = strer.ReadLine();
-                        continue;
-                    }
- 
-                    if(!String.IsNullOrEmpty(errorMessage))
+                    l = Int16.Parse(n);
+                }
+                catch(Exception)
+                {
+                    l = 0;
+                }
+
+                errorMessage = errorMessage.Substring(i + 1, errorMessage.Length - i - 1).Trim();
+                if(errorMessage.Equals("warning: End of input with no newline, supplemented newline"))
+                {
+                    errorMessage = strer.ReadLine();
+                    continue;
+                }
+
+                if(!String.IsNullOrEmpty(errorMessage))
+                {
+                    //
+                    // Display only errors from this file or files outside the project.
+                    //
+                    bool currentFile = Path.GetFullPath(f).Equals(Path.GetFullPath(file),
+                                                                  StringComparison.CurrentCultureIgnoreCase);
+                    bool found = Util.findItem(f, project.ProjectItems) != null;
+                    if(currentFile || !found)
                     {
                         TaskErrorCategory category = TaskErrorCategory.Error;
                         if(errorMessage.Substring(0, "warning:".Length).Equals("warning:"))
@@ -1806,8 +1804,8 @@ namespace Ice.VisualStudio
                         {
                             addError(project, file, category, l, 1, "from file: " + f + "\n" + errorMessage);
                         }
-                        hasErrors = true;
                     }
+                    hasErrors = true;
                 }
                 errorMessage = strer.ReadLine();
             }
