@@ -181,6 +181,42 @@ namespace Ice.VisualStudio
             }
         }
 
+        private void txtIceHome_KeyPress(object sender, KeyPressEventArgs e)
+        {
+            if(e.KeyChar == (char)Keys.Return)
+            {
+                updateIceHome();
+                e.Handled = true;
+            }
+        }
+
+        private void txtIceHome_LostFocus(object sender, EventArgs e)
+        {
+            updateIceHome();
+        }
+
+        private void updateIceHome()
+        {
+            if(!_iceHomeUpdating)
+            {
+                _iceHomeUpdating = true;
+                if (!txtIceHome.Text.Equals(Util.getProjectProperty(_project, Util.PropertyNames.IceHome)))
+                {
+                    String path = txtIceHome.Text;
+                    if(!Path.IsPathRooted(path))
+                    {
+                        path = Path.Combine(Path.GetDirectoryName(_project.FileName), path);
+                        path = Path.GetFullPath(path);
+                    }
+                    Util.updateIceHome(_project, path);
+                    load();
+                    _changed = true;
+                    txtIceHome.Modified = false;
+                }
+                _iceHomeUpdating = false;
+            }
+        }
+
         private void chkIcePrefix_CheckedChanged(object sender, EventArgs e)
         {
             System.Windows.Forms.Cursor c = Cursor.Current;
@@ -332,5 +368,6 @@ namespace Ice.VisualStudio
         private bool _initialized = false;
         private bool _changed = false;
         private Project _project;
+        private bool _iceHomeUpdating = false;
     }
 }

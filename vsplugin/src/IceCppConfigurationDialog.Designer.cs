@@ -178,7 +178,6 @@ namespace Ice.VisualStudio
             this.txtMacros.Size = new System.Drawing.Size(474, 40);
             this.txtMacros.TabIndex = 6;
             this.txtMacros.LostFocus += new System.EventHandler(this.txtMacros_LostFocus);
-            
             // 
             // groupBox3
             // 
@@ -385,9 +384,11 @@ namespace Ice.VisualStudio
             // 
             this.txtIceHome.Location = new System.Drawing.Point(10, 20);
             this.txtIceHome.Name = "txtIceHome";
-            this.txtIceHome.ReadOnly = true;
             this.txtIceHome.Size = new System.Drawing.Size(386, 20);
             this.txtIceHome.TabIndex = 0;
+            this.txtIceHome.LostFocus += new System.EventHandler(txtIceHome_LostFocus);
+            this.txtIceHome.KeyPress += new System.Windows.Forms.KeyPressEventHandler(txtIceHome_KeyPress);
+
             // 
             // grouDllExportSymbol
             // 
@@ -405,7 +406,7 @@ namespace Ice.VisualStudio
             this.txtDllExportSymbol.Name = "txtDllExportSymbol";
             this.txtDllExportSymbol.Size = new System.Drawing.Size(474, 20);
             this.txtDllExportSymbol.TabIndex = 1;
-            this.txtDllExportSymbol.LostFocus += new System.EventHandler(txtDllExportSymbol_LostFocus);
+            this.txtDllExportSymbol.LostFocus += new System.EventHandler(this.txtDllExportSymbol_LostFocus);
             // 
             // IceCppConfigurationDialog
             // 
@@ -440,7 +441,7 @@ namespace Ice.VisualStudio
             this.ResumeLayout(false);
             this.PerformLayout();
 
-        }
+       } 
 
         #endregion
 

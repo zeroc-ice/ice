@@ -55,6 +55,7 @@ namespace Ice.VisualStudio
             {
                 includeDirList.Items.Clear();
                 txtIceHome.Text = Util.getIceHome(_project);
+                txtIceHome.Modified = false;
                 txtMacros.Text = Util.getProjectProperty(_project, Util.PropertyNames.IceMacros);
 
                 chkIcePrefix.Checked = Util.getProjectPropertyAsBool(_project, Util.PropertyNames.IcePrefix);
@@ -227,6 +228,43 @@ namespace Ice.VisualStudio
                 Util.updateIceHome(_project, dialog.SelectedPath);
                 load();
                 _changed = true;
+            }
+        }
+
+        private void txtIceHome_KeyPress(object sender, KeyPressEventArgs e)
+        {
+            if (e.KeyChar == (char)Keys.Return)
+            {
+                updateIceHome();
+                e.Handled = true;
+            }
+        }
+        
+        private void txtIceHome_LostFocus(object sender, EventArgs e)
+        {
+        
+            updateIceHome();
+        }
+        
+        private void updateIceHome()
+        {
+            if(!_iceHomeUpdating)
+            {
+                _iceHomeUpdating = true;
+                if(!txtIceHome.Text.Equals(Util.getProjectProperty(_project, Util.PropertyNames.IceHome)))
+                {
+                    String path = txtIceHome.Text;
+                    if(!Path.IsPathRooted(path))
+                    {
+                        path = Path.Combine(Path.GetDirectoryName(_project.FileName), path);
+                        path = Path.GetFullPath(path);
+                    }
+                    Util.updateIceHome(_project, path);
+                    load();
+                    _changed = true;
+                    txtIceHome.Modified = false;
+                }
+                _iceHomeUpdating = false;
             }
         }
 
@@ -435,5 +473,6 @@ namespace Ice.VisualStudio
         private bool _initialized = false;
         private bool _changed = false;
         private Project _project;
+        private bool _iceHomeUpdating = false;
     }
 }

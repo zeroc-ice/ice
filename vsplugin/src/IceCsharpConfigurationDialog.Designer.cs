@@ -57,6 +57,7 @@ namespace Ice.VisualStudio
             this.chkGlacier2 = new System.Windows.Forms.CheckBox();
             this.chkIce = new System.Windows.Forms.CheckBox();
             this.groupBox4 = new System.Windows.Forms.GroupBox();
+            this.chkConsole = new System.Windows.Forms.CheckBox();
             this.chkIcePrefix = new System.Windows.Forms.CheckBox();
             this.chkStreaming = new System.Windows.Forms.CheckBox();
             this.chkTie = new System.Windows.Forms.CheckBox();
@@ -65,7 +66,6 @@ namespace Ice.VisualStudio
             this.btnSelectIceHome = new System.Windows.Forms.Button();
             this.txtIceHome = new System.Windows.Forms.TextBox();
             this.toolTip = new System.Windows.Forms.ToolTip(this.components);
-            this.chkConsole = new System.Windows.Forms.CheckBox();
             this.groupBox1.SuspendLayout();
             this.groupBox2.SuspendLayout();
             this.groupBox3.SuspendLayout();
@@ -288,6 +288,17 @@ namespace Ice.VisualStudio
             this.groupBox4.TabStop = false;
             this.groupBox4.Text = "Slice Compiler Options";
             // 
+            // chkConsole
+            // 
+            this.chkConsole.AutoSize = true;
+            this.chkConsole.Location = new System.Drawing.Point(294, 19);
+            this.chkConsole.Name = "chkConsole";
+            this.chkConsole.Size = new System.Drawing.Size(99, 17);
+            this.chkConsole.TabIndex = 4;
+            this.chkConsole.Text = "Console Output";
+            this.chkConsole.UseVisualStyleBackColor = true;
+            this.chkConsole.CheckedChanged += new System.EventHandler(this.chkConsole_CheckedChanged);
+            // 
             // chkIcePrefix
             // 
             this.chkIcePrefix.AutoSize = true;
@@ -357,20 +368,10 @@ namespace Ice.VisualStudio
             // 
             this.txtIceHome.Location = new System.Drawing.Point(10, 20);
             this.txtIceHome.Name = "txtIceHome";
-            this.txtIceHome.ReadOnly = true;
             this.txtIceHome.Size = new System.Drawing.Size(386, 20);
             this.txtIceHome.TabIndex = 0;
-            // 
-            // chkConsole
-            // 
-            this.chkConsole.AutoSize = true;
-            this.chkConsole.Location = new System.Drawing.Point(294, 19);
-            this.chkConsole.Name = "chkConsole";
-            this.chkConsole.Size = new System.Drawing.Size(99, 17);
-            this.chkConsole.TabIndex = 4;
-            this.chkConsole.Text = "Console Output";
-            this.chkConsole.UseVisualStyleBackColor = true;
-            this.chkConsole.CheckedChanged += new System.EventHandler(this.chkConsole_CheckedChanged);
+            this.txtIceHome.LostFocus += new System.EventHandler(txtIceHome_LostFocus);
+            this.txtIceHome.KeyPress += new System.Windows.Forms.KeyPressEventHandler(txtIceHome_KeyPress);
             // 
             // IceCsharpConfigurationDialog
             // 
