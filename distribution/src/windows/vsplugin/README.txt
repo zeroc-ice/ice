@@ -70,8 +70,9 @@ and "Error List" panels.
 VC++ Pre-compiled headers
 -------------------------
 
-For c++ projects the pre-compiler headers is detect automatically and
-slice compiler will add the relevant --add-header command line option.
+For C++ projects, pre-compiled headers are detected automatically.
+(The extension automatically passes the required --add-header option
+to slice2cpp.)
 
-If you change the pre-compiler header setting of a projec you should
+If you change the pre-compiled header setting of a project, you must
 rebuild the project.
