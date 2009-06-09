@@ -32,8 +32,8 @@ Project properties
 
   * Slice Compiler Options
 
-    Tick the corresponding check boxes to pass --tie (.NET only), --ice, or --stream
-    options to the Slice compiler.
+    Tick the corresponding check boxes to pass --tie (.NET only),
+    --ice, or --stream options to the Slice compiler.
 
   * Preprocessor Macros: List of macro definitions passed to the Slice
     compiler
