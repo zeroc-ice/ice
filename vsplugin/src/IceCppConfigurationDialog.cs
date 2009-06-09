@@ -34,8 +34,6 @@ namespace Ice.VisualStudio
             toolTip.SetToolTip(btnSelectIceHome, "Ice Installation Directory.");
             toolTip.SetToolTip(chkStreaming, "Geneate Streaming API (--stream).");
             toolTip.SetToolTip(chkIcePrefix, "Allow Ice prefix (--ice).");
-            
-            toolTip.SetToolTip(btnClose, "Close without save configuration changes.");
 
             if(_project != null)
             {
@@ -87,6 +85,7 @@ namespace Ice.VisualStudio
                         checkComponent(s, true);
                     }
                 }
+                txtDllExportSymbol.Text = Util.getProjectProperty(_project, Util.PropertyNames.IceDllExport);
             }
             Cursor = c;        
         }
@@ -200,6 +199,7 @@ namespace Ice.VisualStudio
             chkIceSSL.Enabled = enabled;
             chkIceStorm.Enabled = enabled;
             chkIceUtil.Enabled = enabled;
+            txtDllExportSymbol.Enabled = enabled;
         }
 
         private void btnCancel_Click(object sender, EventArgs e)
@@ -423,13 +423,17 @@ namespace Ice.VisualStudio
             Cursor = c;
         }
         
+        private void txtDllExportSymbol_LostFocus(object sender, EventArgs e)
+        {
+            if(txtDllExportSymbol.Modified)
+            {
+                Util.setProjectProperty(_project, Util.PropertyNames.IceDllExport, txtDllExportSymbol.Text);
+                _changed = true;
+            }
+        }
+        
         private bool _initialized = false;
         private bool _changed = false;
         private Project _project;
-
-        private void txtIceHome_TextChanged(object sender, EventArgs e)
-        {
-
-        }
     }
 }

@@ -897,11 +897,17 @@ namespace Ice.VisualStudio
             
 	    if(Util.isCppProject(project))
 	    {
-                String preCompiledHeader = Util.getPrecompileHeader(project);
-                if(!String.IsNullOrEmpty(preCompiledHeader))
-                {
-                    args += "--add-header=" + preCompiledHeader + " ";
-                }
+	        String dllExportSymbol = Util.getProjectProperty(project, Util.PropertyNames.IceDllExport);
+	        if(!String.IsNullOrEmpty(dllExportSymbol))
+	        {
+	            args += "--dll-export=" + dllExportSymbol + " ";
+	        }
+	    
+            String preCompiledHeader = Util.getPrecompileHeader(project);
+            if(!String.IsNullOrEmpty(preCompiledHeader))
+            {
+                args += "--add-header=" + preCompiledHeader + " ";
+            }
 	    }
 
 	    args += "-I\"" + Util.getIceHome(project) + "\\slice\" "; 

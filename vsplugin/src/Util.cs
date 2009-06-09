@@ -243,7 +243,8 @@ namespace Ice.VisualStudio
             public const string IceIncludePath = "IceIncludePath";
             public const string IceStreaming = "IceStreaming";
             public const string IceTie = "IceTie";
-            public const string IcePrefix= "IcePrefix";
+            public const string IcePrefix = "IcePrefix";
+            public const string IceDllExport = "IceDllExport";
             public const string ConsoleOutput = "ConsoleOutput";
         }
 

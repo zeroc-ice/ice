@@ -59,6 +59,7 @@ namespace Ice.VisualStudio
             this.chkGlacier2 = new System.Windows.Forms.CheckBox();
             this.chkIce = new System.Windows.Forms.CheckBox();
             this.groupBox4 = new System.Windows.Forms.GroupBox();
+            this.chkConsole = new System.Windows.Forms.CheckBox();
             this.chkIcePrefix = new System.Windows.Forms.CheckBox();
             this.chkStreaming = new System.Windows.Forms.CheckBox();
             this.btnClose = new System.Windows.Forms.Button();
@@ -66,12 +67,14 @@ namespace Ice.VisualStudio
             this.btnSelectIceHome = new System.Windows.Forms.Button();
             this.txtIceHome = new System.Windows.Forms.TextBox();
             this.toolTip = new System.Windows.Forms.ToolTip(this.components);
-            this.chkConsole = new System.Windows.Forms.CheckBox();
+            this.grouDllExportSymbol = new System.Windows.Forms.GroupBox();
+            this.txtDllExportSymbol = new System.Windows.Forms.TextBox();
             this.groupBox1.SuspendLayout();
             this.groupBox2.SuspendLayout();
             this.groupBox3.SuspendLayout();
             this.groupBox4.SuspendLayout();
             this.groupBox5.SuspendLayout();
+            this.grouDllExportSymbol.SuspendLayout();
             this.SuspendLayout();
             // 
             // chkEnableBuilder
@@ -175,6 +178,7 @@ namespace Ice.VisualStudio
             this.txtMacros.Size = new System.Drawing.Size(474, 40);
             this.txtMacros.TabIndex = 6;
             this.txtMacros.LostFocus += new System.EventHandler(this.txtMacros_LostFocus);
+            
             // 
             // groupBox3
             // 
@@ -312,6 +316,17 @@ namespace Ice.VisualStudio
             this.groupBox4.TabStop = false;
             this.groupBox4.Text = "Slice Compiler Options";
             // 
+            // chkConsole
+            // 
+            this.chkConsole.AutoSize = true;
+            this.chkConsole.Location = new System.Drawing.Point(211, 19);
+            this.chkConsole.Name = "chkConsole";
+            this.chkConsole.Size = new System.Drawing.Size(99, 17);
+            this.chkConsole.TabIndex = 3;
+            this.chkConsole.Text = "Console Output";
+            this.chkConsole.UseVisualStyleBackColor = true;
+            this.chkConsole.CheckedChanged += new System.EventHandler(this.chkConsole_CheckedChanged);
+            // 
             // chkIcePrefix
             // 
             this.chkIcePrefix.AutoSize = true;
@@ -337,7 +352,7 @@ namespace Ice.VisualStudio
             // btnClose
             // 
             this.btnClose.DialogResult = System.Windows.Forms.DialogResult.Cancel;
-            this.btnClose.Location = new System.Drawing.Point(423, 481);
+            this.btnClose.Location = new System.Drawing.Point(423, 525);
             this.btnClose.Name = "btnClose";
             this.btnClose.Size = new System.Drawing.Size(75, 23);
             this.btnClose.TabIndex = 5;
@@ -374,23 +389,31 @@ namespace Ice.VisualStudio
             this.txtIceHome.Size = new System.Drawing.Size(386, 20);
             this.txtIceHome.TabIndex = 0;
             // 
-            // chkConsole
+            // grouDllExportSymbol
             // 
-            this.chkConsole.AutoSize = true;
-            this.chkConsole.Location = new System.Drawing.Point(211, 19);
-            this.chkConsole.Name = "chkConsole";
-            this.chkConsole.Size = new System.Drawing.Size(99, 17);
-            this.chkConsole.TabIndex = 3;
-            this.chkConsole.Text = "Console Output";
-            this.chkConsole.UseVisualStyleBackColor = true;
-            this.chkConsole.CheckedChanged += new System.EventHandler(this.chkConsole_CheckedChanged);
+            this.grouDllExportSymbol.Controls.Add(this.txtDllExportSymbol);
+            this.grouDllExportSymbol.Location = new System.Drawing.Point(12, 469);
+            this.grouDllExportSymbol.Name = "grouDllExportSymbol";
+            this.grouDllExportSymbol.Size = new System.Drawing.Size(487, 43);
+            this.grouDllExportSymbol.TabIndex = 7;
+            this.grouDllExportSymbol.TabStop = false;
+            this.grouDllExportSymbol.Text = "Dll Export Symbol";
+            // 
+            // txtDllExportSymbol
+            // 
+            this.txtDllExportSymbol.Location = new System.Drawing.Point(6, 16);
+            this.txtDllExportSymbol.Name = "txtDllExportSymbol";
+            this.txtDllExportSymbol.Size = new System.Drawing.Size(474, 20);
+            this.txtDllExportSymbol.TabIndex = 1;
+            this.txtDllExportSymbol.LostFocus += new System.EventHandler(txtDllExportSymbol_LostFocus);
             // 
             // IceCppConfigurationDialog
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.CancelButton = this.btnClose;
-            this.ClientSize = new System.Drawing.Size(515, 516);
+            this.ClientSize = new System.Drawing.Size(515, 554);
+            this.Controls.Add(this.grouDllExportSymbol);
             this.Controls.Add(this.groupBox5);
             this.Controls.Add(this.btnClose);
             this.Controls.Add(this.groupBox4);
@@ -412,6 +435,8 @@ namespace Ice.VisualStudio
             this.groupBox4.PerformLayout();
             this.groupBox5.ResumeLayout(false);
             this.groupBox5.PerformLayout();
+            this.grouDllExportSymbol.ResumeLayout(false);
+            this.grouDllExportSymbol.PerformLayout();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -448,5 +473,7 @@ namespace Ice.VisualStudio
         private System.Windows.Forms.CheckBox chkFreeze;
         private System.Windows.Forms.CheckBox chkIceUtil;
         private System.Windows.Forms.CheckBox chkConsole;
+        private System.Windows.Forms.GroupBox grouDllExportSymbol;
+        private System.Windows.Forms.TextBox txtDllExportSymbol;
     }
 }
