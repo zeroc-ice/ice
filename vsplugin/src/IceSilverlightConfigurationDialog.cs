@@ -155,7 +155,19 @@ namespace Ice.VisualStudio
 
         private void btnCancel_Click(object sender, EventArgs e)
         {
-            if (_changed)
+            if(!_changed)
+            {
+                if(txtMacros.Modified)
+                {
+                    _changed = true;
+                }
+                else if(txtIceHome.Modified)
+                {
+                    _changed = true;
+                }
+            }
+
+            if(_changed)
             {
                 System.Windows.Forms.Cursor c = Cursor.Current;
                 Cursor = Cursors.WaitCursor;
