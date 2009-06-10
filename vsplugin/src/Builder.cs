@@ -263,7 +263,7 @@ namespace Ice.VisualStudio
         public void solutionOpened()
         {
             _dependenciesMap = new Dictionary<string, Dictionary<string, List<string>>>();
-	    _updateList = new List<String>();
+            _updateList = new List<String>();
             _fileTracker = new FileTracker();
             initDocumentEvents();
             foreach(Project p in _applicationObject.Solution.Projects)
@@ -520,7 +520,7 @@ namespace Ice.VisualStudio
             }
             if(consoleOutput)
             {
-                if(hasErrors())
+                if(hasErrors(project))
                 {
                     writeBuildOutput("------ Slice compilation failed: Project: " + project.Name + " ------\n");
                 }
@@ -2071,8 +2071,11 @@ namespace Ice.VisualStudio
             {
                 if(error.HierarchyItem.Equals(getProjectHierarchy(project)))
                 {
-                    errors = true;
-                    break;
+                    if(error.ErrorCategory == TaskErrorCategory.Error)
+                    {
+                        errors = true;
+                        break;
+                    }
                 }
             }
             return errors;
