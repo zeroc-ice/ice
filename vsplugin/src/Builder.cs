@@ -1740,15 +1740,13 @@ namespace Ice.VisualStudio
                 {
                     writeBuildOutput(errorMessage + "\n");
                 }
-                errorMessage = errorMessage.Trim();
-                //
-                // Ignore second line warning from mcpp
-                //
-                if(errorMessage.StartsWith("from "))
+
+                if(errorMessage.StartsWith("    ")) // Still the same mcpp warning
                 {
                     errorMessage = strer.ReadLine();
                     continue;
                 }
+                errorMessage = errorMessage.Trim();
                 firstLine = false;
                 i = errorMessage.IndexOf(':', i + 1);
                 if(i == -1)
