@@ -114,9 +114,9 @@ namespace Ice.VisualStudio
                     }
                 }
 
-                foreach (String slice in removedSlice)
+                foreach(String slice in removedSlice)
                 {
-                    if (String.IsNullOrEmpty(slice))
+                    if(String.IsNullOrEmpty(slice))
                     {
                         continue;
                     }
