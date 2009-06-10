@@ -936,7 +936,7 @@ namespace Ice.VisualStudio
                 {
                     continue;
                 }
-                args += "-D" + m + " ";
+                args += "-D" + m.Trim() + " ";
             }
 
             if(tie && Util.isCSharpProject(project) && !Util.isSilverlightProject(project))

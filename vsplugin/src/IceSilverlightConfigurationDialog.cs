@@ -341,36 +341,10 @@ namespace Ice.VisualStudio
 
         private void txtMacros_LostFocus(object sender, EventArgs e)
         {
-            bool valid = true;
-            const string macroInvalidChar = " ;='\"$";
             if(txtMacros.Modified)
             {
-                List<String> macros = new List<String>(txtMacros.Text.Split(new char[] { ';' }, StringSplitOptions.RemoveEmptyEntries));
-                foreach(String m in macros)
-                {
-                    String macro = m.Trim();
-                    for(int i = 0; i < macroInvalidChar.Length; ++i)
-                    {
-                        if(macro.Contains(macroInvalidChar.Substring(i, 1)))
-                        {
-                            valid = false;
-                        }
-                    }
-                }
-                if(valid)
-                {
-                    Util.setProjectProperty(_project, Util.PropertyNames.IceMacros, txtMacros.Text);
-                    _changed = true;
-                }
-                else
-                {
-                    System.Windows.Forms.MessageBox.Show("Invalid macro definition '" + txtMacros.Text + "'.\n" +
-                                                         "Macro definitions cannot contain any of the following characters:\n ''', '\"', '$', ' ', '='",
-                                                         "Ice Visual Studio Extension", MessageBoxButtons.OK,
-                                                         MessageBoxIcon.Error);
-                    txtMacros.Text = Util.getProjectProperty(_project, Util.PropertyNames.IceMacros);
-                    txtMacros.Focus();
-                }
+                Util.setProjectProperty(_project, Util.PropertyNames.IceMacros, txtMacros.Text);
+                _changed = true;
             }
         }
 
