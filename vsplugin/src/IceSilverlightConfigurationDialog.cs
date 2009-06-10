@@ -50,7 +50,7 @@ namespace Ice.VisualStudio
         
         private void load()
         {
-            if (_project != null)
+            if(_project != null)
             {
                 System.Windows.Forms.Cursor c = Cursor.Current;
                 Cursor = Cursors.WaitCursor;
@@ -64,14 +64,14 @@ namespace Ice.VisualStudio
                 
                 IncludePathList list =
                     new IncludePathList(Util.getProjectProperty(_project, Util.PropertyNames.IceIncludePath));
-                foreach (String s in list)
+                foreach(String s in list)
                 {
                     includeDirList.Items.Add(s.Trim());
                 }
 
 
                 ComponentList selectedComponents = Util.getIceSilverlightComponents(_project);
-                foreach (String s in Util.ComponentNames.silverlightNames)
+                foreach(String s in Util.ComponentNames.silverlightNames)
                 {
                     if(String.IsNullOrEmpty(selectedComponents.Find(delegate(string d)
                                                     {
@@ -185,7 +185,7 @@ namespace Ice.VisualStudio
             dialog.SelectedPath = Util.getAbsoluteIceHome(_project);
             dialog.Description = "Select Ice Home Installation Directory";
             DialogResult result = dialog.ShowDialog();
-            if (result == DialogResult.OK)
+            if(result == DialogResult.OK)
             {
                 Util.updateIceHome(_project, dialog.SelectedPath);
                 load();
@@ -253,7 +253,7 @@ namespace Ice.VisualStudio
             System.Windows.Forms.Cursor c = Cursor.Current;
             Cursor = Cursors.WaitCursor;
             IncludePathList paths = new IncludePathList();
-            foreach (String s in includeDirList.Items)
+            foreach(String s in includeDirList.Items)
             {
                 paths.Add(s.Trim());
             }
@@ -288,7 +288,7 @@ namespace Ice.VisualStudio
 
         private void btnRemoveInclude_Click(object sender, EventArgs e)
         {
-            if (includeDirList.SelectedIndex != -1)
+            if(includeDirList.SelectedIndex != -1)
             {
                 System.Windows.Forms.Cursor c = Cursor.Current;
                 Cursor = Cursors.WaitCursor;
@@ -310,7 +310,7 @@ namespace Ice.VisualStudio
         private void btnMoveIncludeUp_Click(object sender, EventArgs e)
         {
             int index = includeDirList.SelectedIndex;
-            if (index > 0)
+            if(index > 0)
             {
                 System.Windows.Forms.Cursor c = Cursor.Current;
                 Cursor = Cursors.WaitCursor;
@@ -326,7 +326,7 @@ namespace Ice.VisualStudio
         private void btnMoveIncludeDown_Click(object sender, EventArgs e)
         {
             int index = includeDirList.SelectedIndex;
-            if (index < includeDirList.Items.Count - 1)
+            if(index < includeDirList.Items.Count - 1)
             {
                 System.Windows.Forms.Cursor c = Cursor.Current;
                 Cursor = Cursors.WaitCursor;
@@ -355,7 +355,7 @@ namespace Ice.VisualStudio
             Cursor = Cursors.WaitCursor;
             if(_initialized)
             {
-                if (chkIceSl.Checked)
+                if(chkIceSl.Checked)
                 {
                     Util.addCSharpReference(_project, "IceSL");
                 }

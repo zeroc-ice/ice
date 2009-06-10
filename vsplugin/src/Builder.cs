@@ -2161,7 +2161,7 @@ namespace Ice.VisualStudio
         private Dictionary<string, Dictionary<string, List<string>>> _dependenciesMap;
         private List<String> _updateList;
         private OutputWindowPane _output;
-        
+
         private CommandEvents _addNewItemEvent;
         private CommandEvents _addExistingItemEvent;
         private List<ProjectItem> _deleted = new List<ProjectItem>();

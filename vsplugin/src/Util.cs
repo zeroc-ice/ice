@@ -1041,7 +1041,7 @@ namespace Ice.VisualStudio
                    !Directory.Exists(value + "\\slice\\Ice"))
                 {
                     if(!File.Exists(value + "\\cpp\\bin\\slice2cpp.exe") || 
-		       !File.Exists(value + "\\cpp\\bin\\slice2cs.exe") ||
+                       !File.Exists(value + "\\cpp\\bin\\slice2cs.exe") ||
                        !Directory.Exists(value + "\\slice\\Ice"))
                     {
                         System.Windows.Forms.MessageBox.Show("Could not locate Ice installation in '"

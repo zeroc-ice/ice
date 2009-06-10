@@ -52,7 +52,7 @@ namespace Ice.VisualStudio
         
         private void load()
         {
-            if (_project != null)
+            if(_project != null)
             {
                 System.Windows.Forms.Cursor c = Cursor.Current;
                 Cursor = Cursors.WaitCursor;
@@ -67,14 +67,14 @@ namespace Ice.VisualStudio
                 
                 IncludePathList list =
                     new IncludePathList(Util.getProjectProperty(_project, Util.PropertyNames.IceIncludePath));
-                foreach (String s in list)
+                foreach(String s in list)
                 {
                     includeDirList.Items.Add(s.Trim());
                 }
 
 
                 ComponentList selectedComponents = Util.getIceCSharpComponents(_project);
-                foreach (String s in Util.ComponentNames.cSharpNames)
+                foreach(String s in Util.ComponentNames.cSharpNames)
                 {
                     if(String.IsNullOrEmpty(selectedComponents.Find(delegate(string d)
                                                     {
@@ -298,7 +298,7 @@ namespace Ice.VisualStudio
             System.Windows.Forms.Cursor c = Cursor.Current;
             Cursor = Cursors.WaitCursor;
             IncludePathList paths = new IncludePathList();
-            foreach (String s in includeDirList.Items)
+            foreach(String s in includeDirList.Items)
             {
                 paths.Add(s.Trim());
             }
@@ -358,7 +358,7 @@ namespace Ice.VisualStudio
         private void btnMoveIncludeUp_Click(object sender, EventArgs e)
         {
             int index = includeDirList.SelectedIndex;
-            if (index > 0)
+            if(index > 0)
             {
                 System.Windows.Forms.Cursor c = Cursor.Current;
                 Cursor = Cursors.WaitCursor;
@@ -374,7 +374,7 @@ namespace Ice.VisualStudio
         private void btnMoveIncludeDown_Click(object sender, EventArgs e)
         {
             int index = includeDirList.SelectedIndex;
-            if (index < includeDirList.Items.Count - 1)
+            if(index < includeDirList.Items.Count - 1)
             {
                 System.Windows.Forms.Cursor c = Cursor.Current;
                 Cursor = Cursors.WaitCursor;
