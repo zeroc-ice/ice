@@ -1714,7 +1714,9 @@ Slice::Gen::OpsVisitor::writeOperations(const ClassDefPtr& p, bool noCurrent)
     //
     // Generate the operations interface
     //
-    out << sp << nl << "public interface " << '_' << name << opIntfName;
+    out << sp;
+    writeDocComment(out, p, getDeprecateReason(p, 0, p->isInterface() ? "interface" : "class"));
+    out << nl << "public interface " << '_' << name << opIntfName;
     if((bases.size() == 1 && bases.front()->isAbstract()) || bases.size() > 1)
     {
         out << " extends ";
