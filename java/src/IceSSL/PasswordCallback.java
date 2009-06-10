@@ -9,28 +9,37 @@
 
 package IceSSL;
 
-//
-// A password callback is an alternate way of supplying the plug-in with
-// passwords that avoids using plaintext configuration properties.
-//
+/**
+ * A password callback is an alternate way to supply the plug-in with
+ * passwords; this avoids using plain text configuration properties.
+ **/
 public interface PasswordCallback
 {
-    //
-    // Obtain the password for the key. If an alias was selected using
-    // the IceSSL.Alias property, the value of the property is provided.
-    // The return value must not be null.
-    //
+    /**
+     * Returns the password for the key. If an alias was selected
+     * by setting the <code>IceSSL.Alias</code> property, <code>alias</code>
+     * contains the property's value.
+     *
+     * @param alias The value of the property <code>IceSSL.Alias</code>, if that
+     * property is set; <code>null</code>, otherwise.
+     * @return The password for the key. The return value must not be <code>null</code>.
+     * 
+     **/
     char[] getPassword(String alias);
 
-    //
-    // Obtain the password for validating the truststore. Return null
-    // to skip truststore validation.
-    //
+    /**
+     * Returns the password for validating the truststore.
+     *
+     * @return The password. To skip truststore validation,
+     * return <code>null</code>.
+     **/
     char[] getTruststorePassword();
 
-    //
-    // Obtain the password for validating the keystore. Return null
-    // to skip keystore validation.
-    //
+    /**
+     * Returns the password for validating the keystore.
+     *
+     * @return The password. To skip keystore validation,
+     * return <code>null</code>.
+     **/
     char[] getKeystorePassword();
 }

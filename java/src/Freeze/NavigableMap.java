@@ -112,7 +112,15 @@ public interface NavigableMap<K, V> extends java.util.SortedMap<K, V>
     /**
      * Returns a reverse order <code>Set</code> view of the keys contained in this map. The set's iterator
      * returns the keys in descending order. The set is backed by the map, so changes to the map are reflected
-     * in the set, and vice-versa. If the map is modified while an iteration over the set is in progress
+     * in the set and vice versa.
+     * <p>
+     * Insertions cannot be made via the returned set and must be made on the main map.
+     * <p>
+     * <code>remove</code> and <code>fastRemove</code> on the returned set or on an iterator for the returned
+     * set are supported, but only if this map does not have an index; otherwise, attempts to remove an element
+     * raise <code>UnsupportedOperationException</code>.
+     * <p>
+     * If the map is modified while an iteration over the set is in progress
      * (except through the iterator's own <code>remove</code> or <code>fastRemove</code> operation), the results
      * of the iteration are undefined.
      *
@@ -122,8 +130,16 @@ public interface NavigableMap<K, V> extends java.util.SortedMap<K, V>
 
     /**
      * Returns a reverse order view of the mappings contained in this map.
-     * The descending map is backed by this map, so changes to the map are reflected in the descending map,
-     * and vice-versa. If either map is modified while an iteration over a collection view of either map is
+     * The descending map is backed by this map, so changes to the map are reflected in the descending map
+     * and vice versa.
+     *<p>
+     * Insertions cannot be made via the descending map and must be made on the main map.
+     * <p>
+     * <code>remove</code> and <code>fastRemove</code> on the descending map or on an iterator for the descending
+     * map are supported, but only if this map does not have an index; otherwise, attempts to remove an entry
+     * raise <code>UnsupportedOperationException</code>.
+     * <p>
+     * If either map is modified while an iteration over either map is
      * in progress (except through the iterator's own <code>remove</code> or <code>fastRemove</code>operation),
      * the results of the iteration are undefined. 
      *
@@ -134,8 +150,14 @@ public interface NavigableMap<K, V> extends java.util.SortedMap<K, V>
     /**
      * Returns a view of the portion of this map whose keys are strictly less than <code>toKey</code>, or less than
      * or equal to <code>toKey</code> if <code>inclusive</code> is true.
-     * The returned map is backed by this map, so changes in the returned map are reflected in this map,
-     * and vice-versa. The returned map supports all optional map operations that this map supports. 
+     * The returned map is backed by this map, so changes to this map are reflected in the returned map
+     * and vice versa.
+     *<p>
+     * Insertions cannot be made via the returned map and must be made on the main map.
+     * <p>
+     * <code>remove</code> and <code>fastRemove</code> on the returned map or on an iterator for the returned
+     * map are supported, but only if this map does not have an index; otherwise, attempts to remove an entry
+     * raise <code>UnsupportedOperationException</code>.
      * <p>
      * The returned map throws an <code>IllegalArgumentException</code> on an attempt to insert a key
      * outside its range.
@@ -151,8 +173,12 @@ public interface NavigableMap<K, V> extends java.util.SortedMap<K, V>
     /**
      * Returns a view of the portion of this map whose keys are strictly greater than <code>fromKey</code>, or greater
      * than or equal to <code>fromKey</code> if <code>inclusive</code> is true.
-     * The returned map is backed by this map, so changes in the returned map are reflected in this map,
-     * and vice-versa. The returned map supports all optional map operations that this map supports. 
+     *<p>
+     * Insertions cannot be made via the returned map and must be made on the main map.
+     * <p>
+     * <code>remove</code> and <code>fastRemove</code> on the returned map or on an iterator for the returned
+     * map are supported, but only if this map does not have an index; otherwise, attempts to remove an entry
+     * raise <code>UnsupportedOperationException</code>.
      * <p>
      * The returned map throws an <code>IllegalArgumentException</code> on an attempt to insert a key
      * outside its range.
@@ -169,11 +195,15 @@ public interface NavigableMap<K, V> extends java.util.SortedMap<K, V>
      * Returns a view of the portion of this map whose keys range from <code>fromKey</code> to <code>toKey</code>.
      * If <code>fromKey</code> and <code>toKey</code> are equal, the returned map is empty unless
      * <code>fromExclusive</code> and <code>toExclusive</code> are both <code>true</code>.
-     * The returned map is backed by this map, so changes in the returned map are reflected in this map, and
-     * vice-versa. The returned map supports all optional map operations that this map supports. 
+     *<p>
+     * Insertions cannot be made via the returned map and must be made on the main map.
+     * <p>
+     * <code>remove</code> and <code>fastRemove</code> on the returned map or on an iterator for the returned
+     * map are supported, but only if this map does not have an index; otherwise, attempts to remove an entry
+     * raise <code>UnsupportedOperationException</code>.
      * <p>
      * The returned map throws an <code>IllegalArgumentException</code> on an attempt to insert a key
-     * outside its range, or to construct a submap either of whose endpoints lie outside its range.
+     * outside its range.
      *
      * @param fromKey Low endpoint of the keys in the returned map.
      * @param fromInclusive <code>true</code> if the low endpoint is to be included in the returned view;

@@ -176,9 +176,13 @@ C++ Changes
 Java Changes
 ============
 
-- slice2java now preserves javadoc comments that apprear in the Slice
+- slice2java now preserves javadoc comments that appear in the Slice
   source and writes them through to the corresponding APIs in the
   generated code.
+
+- Ice.jar and Freeze.jar now include source files. This allows
+  IDEs such Eclipse to browse the Ice source code and to display
+  javadoc comments.
 
 - The following APIs are deprecated and will be removed in a future 
   release.

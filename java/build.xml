@@ -199,6 +199,18 @@
                 <attribute name="Built-By" value="ZeroC, Inc."/>
             </manifest>
         </jar>
+        <jar jarfile="${lib.dir}/Ice.jar" basedir="${src.dir}" update="yes">
+            <include name="**/*.java"/>
+            <exclude name="Freeze/**"/>
+            <exclude name="IceGridGUI/**"/>
+            <exclude name="test/**"/>
+            <exclude name="ant/**"/>
+            <exclude name="*/.jar"/>
+        </jar>
+        <jar jarfile="${lib.dir}/Ice.jar" basedir="${generated.dir}" update="yes">
+            <include name="**/*.java"/>
+            <exclude name="Freeze/**"/>
+        </jar>
     </target>
 
     <target name="freeze-compile" depends="ice-compile">
@@ -219,6 +231,12 @@
                 <attribute name="Built-By" value="ZeroC, Inc."/>
                 <attribute name="Class-Path" value="db.jar db-${db.version}.jar /usr/share/java/db-${db.version}.jar ../db.jar"/>
             </manifest>
+        </jar>
+        <jar jarfile="${lib.dir}/Freeze.jar" basedir="${src.dir}" update="yes">
+            <include name="Freeze/**"/>
+        </jar>
+        <jar jarfile="${lib.dir}/Freeze.jar" basedir="${generated.dir}" update="yes">
+            <include name="Freeze/**"/>
         </jar>
     </target>
 

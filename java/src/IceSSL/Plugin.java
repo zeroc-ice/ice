@@ -9,66 +9,86 @@
 
 package IceSSL;
 
+/**
+ * Interface that allows applications to interact with the IceSSL plug-in.
+ **/
 public interface Plugin extends Ice.Plugin
 {
-    //
-    // Establish the SSL context. This must be done before the
-    // plug-in is initialized, therefore the application must define
-    // the property Ice.InitPlugins=0, set the context, and finally
-    // invoke initializePlugins on the PluginManager.
-    //
-    // When the application supplies its own SSL context, the
-    // plug-in skips its normal property-based configuration.
-    //
+    /**
+     * Establishes the SSL context. The context must be established before
+     * plug-in is initialized. Therefore, the application must set
+     * the property <code>Ice.InitPlugins</code> to zero, call
+     * <code>setContext</code> to set the context, and finally
+     * invoke <code>initializePlugins</code> on the <code>PluginManager</code>.
+     * <p>
+     * If an application supplies its own SSL context, the
+     * plug-in skips its normal property-based configuration.
+     *
+     * @param context The SSL context for the plug-in.
+     **/
     void setContext(javax.net.ssl.SSLContext context);
 
-    //
-    // Obtain the SSL context. Use caution when modifying this value.
-    // Changes made to this value have no effect on existing connections.
-    //
+    /**
+     * Returns the SSL context. Use caution when modifying the returned
+     * value: changes made to this value do not affect existing connections.
+     *
+     * @return The SSL context for the plug-in.
+     **/
     javax.net.ssl.SSLContext getContext();
 
-    //
-    // Establish the certificate verifier object. This should be
-    // done before any connections are established.
-    //
+    /**
+     * Establishes the certificate verifier. This must be
+     * done before any connections are established.
+     *
+     * @param verifier The certificate verifier.
+     **/
     void setCertificateVerifier(CertificateVerifier verifier);
 
-    //
-    // Obtain the certificate verifier object. Returns null if no
-    // verifier is set.
-    //
+    /**
+     * Returns the certificate verifier.
+     *
+     * @return The certificate verifier (<code>null</code> if not set).
+     **/
     CertificateVerifier getCertificateVerifier();
 
-    //
-    // Establish the password callback object. This should be
-    // done before the plug-in is initialized.
-    //
+    /**
+     * Establishes the password callback. This must be
+     * done before the plug-in is initialized.
+     *
+     * @param callback The password callback.
+     **/
     void setPasswordCallback(PasswordCallback callback);
 
-    //
-    // Obtain the password callback object. Returns null if no
-    // callback is set.
-    //
+    /**
+     * Returns the password callback.
+     *
+     * @return The password callback (<code>null</code> if not set).
+     **/
     PasswordCallback getPasswordCallback();
 
-    //
-    // Supplies an input stream for the keystore. Calling this method
-    // causes IceSSL to ignore the IceSSL.Keystore property.
-    //
+    /**
+     * Supplies an input stream for the keystore. Calling this method
+     * causes IceSSL to ignore the <code>IceSSL.Keystore</code> property.
+     *
+     * @param stream The input stream for the keystore.
+     **/
     void setKeystoreStream(java.io.InputStream stream);
 
-    //
-    // Supplies an input stream for the truststore. Calling this method
-    // causes IceSSL to ignore the IceSSL.Truststore property. It is
-    // legal to supply the same input stream as setKeystoreStream, in
-    // which case IceSSL uses the certificates contained in the keystore.
-    //
+    /**
+     * Supplies an input stream for the truststore. Calling this method
+     * causes IceSSL to ignore the <code>IceSSL.Truststore</code> property. It is
+     * legal to supply the same input stream as the one for <code>setKeystoreStream</code>,
+     * in which case IceSSL uses the certificates contained in the keystore.
+     *
+     * @param stream The input stream for the truststore.
+     **/
     void setTruststoreStream(java.io.InputStream stream);
 
-    //
-    // Add an input stream for the random number seed. You may call
-    // this method multiple times if necessary.
-    //
+    /**
+     * Adds an input stream for the random number seed. You may call
+     * this method multiple times if necessary.
+     *
+     * @param stream The input stream for the random number seed.
+     **/
     void addSeedStream(java.io.InputStream stream);
 }
