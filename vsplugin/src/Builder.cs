@@ -396,7 +396,8 @@ namespace Ice.VisualStudio
                         continue;
                     }
 
-                    if(!Path.GetFullPath(name).Equals(Path.GetFullPath(relativeName), StringComparison.CurrentCultureIgnoreCase))
+                    if(!Path.GetFullPath(name).Equals(
+                                Path.GetFullPath(relativeName), StringComparison.CurrentCultureIgnoreCase))
                     {
                         continue;
                     }
