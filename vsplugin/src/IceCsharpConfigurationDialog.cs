@@ -310,7 +310,7 @@ namespace Ice.VisualStudio
         private void btnAddInclude_Click(object sender, EventArgs e)
         {
             FolderBrowserDialog dialog = new FolderBrowserDialog();
-            string projectDir = Path.GetDirectoryName(_project.FileName);
+            string projectDir = Path.GetFullPath(Path.GetDirectoryName(_project.FileName));
             dialog.SelectedPath = projectDir;
             dialog.Description = "Slice Include Directory";
             DialogResult result = dialog.ShowDialog();
