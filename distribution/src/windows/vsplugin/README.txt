@@ -18,15 +18,21 @@ you can configure Ice build properties.
 Project properties
 ------------------
 
-  * Ice Home: The directory where Ice is installed
+  * Ice Home
+  
+    Set the directory where Ice is installed.
 
   * Slice Compiler Options
 
     Tick the corresponding check boxes to pass --tie (.NET only),
     --ice, or --stream options to the Slice compiler.
 
-  * Preprocessor Macros: List of macro definitions passed to the Slice
-    compiler
+    Tick "Console Output" if you want compiler output to appear in 
+    Output window.
+
+  * Preprocessor Macros
+  
+    Define a list of macro definitions passed to the Slice compiler.
 
     Enter preprocess macros separated by semicolons. For example, 
     enter
@@ -39,10 +45,18 @@ Project properties
 
     to the Slice compiler.
 
-  * Slice Include Path: The list of directories to search for included
-    Slice files (-I option)
+  * Slice Include Path
+  
+    Set the list of directories to search for included Slice files
+    (-I option).
 
-  * Ice Components: The list of Ice libraries to link with
+  * Ice Components
+  
+    Set the list of Ice libraries to link with.
+
+  * DLL Export Symbol (C++ only)
+
+    Set the symbol to use for DLL exports (--dll-export option).
 
 
 Adding Slice files to a project
@@ -66,6 +80,7 @@ project, whereas the extension for C# adds Demo.cs to the project.
 
 Slice Compilation errors are displayed in the Visual Studio "Output"
 and "Error List" panels.
+
 
 VC++ Pre-compiled headers
 -------------------------

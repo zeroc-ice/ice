@@ -398,7 +398,7 @@ namespace Ice.VisualStudio
             this.grouDllExportSymbol.Size = new System.Drawing.Size(487, 43);
             this.grouDllExportSymbol.TabIndex = 7;
             this.grouDllExportSymbol.TabStop = false;
-            this.grouDllExportSymbol.Text = "Dll Export Symbol";
+            this.grouDllExportSymbol.Text = "DLL Export Symbol";
             // 
             // txtDllExportSymbol
             // 
