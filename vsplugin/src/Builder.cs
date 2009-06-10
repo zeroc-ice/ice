@@ -263,7 +263,7 @@ namespace Ice.VisualStudio
         public void solutionOpened()
         {
             _dependenciesMap = new Dictionary<string, Dictionary<string, List<string>>>();
-            _updateList = new List<String>();
+	    _updateList = new List<String>();
             _fileTracker = new FileTracker();
             initDocumentEvents();
             foreach(Project p in _applicationObject.Solution.Projects)
@@ -396,7 +396,7 @@ namespace Ice.VisualStudio
                         continue;
                     }
 
-                    if(!name.Equals(relativeName, StringComparison.CurrentCultureIgnoreCase))
+                    if(!Path.GetFullPath(name).Equals(Path.GetFullPath(relativeName), StringComparison.CurrentCultureIgnoreCase))
                     {
                         continue;
                     }
@@ -1058,13 +1058,13 @@ namespace Ice.VisualStudio
                 bringErrorsToFront();
                 process.Close();
                 if(Util.isCppProject(project))
-		{
-            	    removeCppGeneratedItems(project, file);
-		}
+                {
+                    removeCppGeneratedItems(project, file);
+                }
                 else if(Util.isCSharpProject(project))
-		{
-            	    removeCSharpGeneratedItems(item);
-		}
+                {
+                    removeCSharpGeneratedItems(item);
+                }
                 return false;
             }
             else
@@ -1440,10 +1440,10 @@ namespace Ice.VisualStudio
                     }
                 }
 
-	        // Recalculate all depedndencies on a rename.
-	        updateDependencies(item.ContainingProject);
-	        clearErrors(item.ContainingProject);
-	        buildProject(item.ContainingProject, false);
+                // Recalculate all depedndencies on a rename.
+                updateDependencies(item.ContainingProject);
+                clearErrors(item.ContainingProject);
+                buildProject(item.ContainingProject, false);
             }
             catch(Exception ex)
             {
@@ -1740,6 +1740,15 @@ namespace Ice.VisualStudio
                 {
                     writeBuildOutput(errorMessage + "\n");
                 }
+                errorMessage = errorMessage.Trim();
+                //
+                // Ignore second line warning from mcpp
+                //
+                if(errorMessage.StartsWith("from "))
+                {
+                    errorMessage = strer.ReadLine();
+                    continue;
+                }
                 firstLine = false;
                 i = errorMessage.IndexOf(':', i + 1);
                 if(i == -1)
@@ -1796,6 +1805,10 @@ namespace Ice.VisualStudio
                         {
                             category = TaskErrorCategory.Warning;
                         }
+                        else
+                        {
+                            hasErrors = true;
+                        }
                         if(found)
                         {
                             addError(project, file, category, l, 1, errorMessage);
@@ -1805,7 +1818,6 @@ namespace Ice.VisualStudio
                             addError(project, file, category, l, 1, "from file: " + f + "\n" + errorMessage);
                         }
                     }
-                    hasErrors = true;
                 }
                 errorMessage = strer.ReadLine();
             }
@@ -2148,7 +2160,7 @@ namespace Ice.VisualStudio
         private int _errorCount = 0;
         private FileTracker _fileTracker;
         private Dictionary<string, Dictionary<string, List<string>>> _dependenciesMap;
-	private List<String> _updateList;
+        private List<String> _updateList;
         private OutputWindowPane _output;
         
         private CommandEvents _addNewItemEvent;
