@@ -37,11 +37,11 @@ Project properties
     Enter preprocess macros separated by semicolons. For example, 
     enter
 
-    FOO;BAR=99
+    FOO;BAR
 
     to pass
 
-    -DFOO -DBAR=99
+    -DFOO -DBAR
 
     to the Slice compiler.
 
