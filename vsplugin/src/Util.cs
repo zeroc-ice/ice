@@ -456,9 +456,10 @@ namespace Ice.VisualStudio
             }
             else
             {
-                System.Windows.Forms.MessageBox.Show("Could not locate '" + component + ".dll'. Review you 'Ice Home' setting.",
-                                         "Ice Visual Studio Extension", MessageBoxButtons.OK,
-                                         MessageBoxIcon.Error);
+                System.Windows.Forms.MessageBox.Show("Could not locate '" + component + 
+                                                     ".dll'. Review you 'Ice Home' setting.",
+                                                     "Ice Visual Studio Extension", MessageBoxButtons.OK,
+                                                     MessageBoxIcon.Error);
                 return;
             }
         }
@@ -793,7 +794,8 @@ namespace Ice.VisualStudio
                 else if(Util.isProjectItemFile(i))
                 {
                     string fullPath = i.Properties.Item("FullPath").Value.ToString();
-                    if(Path.GetFullPath(fullPath).Equals(Path.GetFullPath(path), StringComparison.CurrentCultureIgnoreCase))
+                    if(Path.GetFullPath(fullPath).Equals(
+                           Path.GetFullPath(path), StringComparison.CurrentCultureIgnoreCase))
                     {
                         item = i;
                         break;
@@ -1063,7 +1065,8 @@ namespace Ice.VisualStudio
 
         public static bool getProjectPropertyAsBool(Project project, string name)
         {
-            return Util.getProjectProperty(project, name).Equals(true.ToString(), StringComparison.CurrentCultureIgnoreCase);
+            return Util.getProjectProperty(project, name).Equals(
+                                        true.ToString(), StringComparison.CurrentCultureIgnoreCase);
         }
 
         public static string getProjectProperty(Project project, string name)
@@ -1132,7 +1135,8 @@ namespace Ice.VisualStudio
                 {
                     continue;
                 }
-                VCCLCompilerTool compilerTool = (VCCLCompilerTool)(((IVCCollection)conf.Tools).Item("VCCLCompilerTool"));
+                VCCLCompilerTool compilerTool = 
+                    (VCCLCompilerTool)(((IVCCollection)conf.Tools).Item("VCCLCompilerTool"));
                 if(compilerTool == null)
                 {
                     break;
