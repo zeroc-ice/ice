@@ -793,7 +793,7 @@ namespace Ice.VisualStudio
                 else if(Util.isProjectItemFile(i))
                 {
                     string fullPath = i.Properties.Item("FullPath").Value.ToString();
-                    if(Path.GetFullPath(fullPath.ToUpper()).Equals(Path.GetFullPath(path.ToUpper())))
+                    if(Path.GetFullPath(fullPath).Equals(Path.GetFullPath(path), StringComparison.CurrentCultureIgnoreCase))
                     {
                         item = i;
                         break;
@@ -802,7 +802,7 @@ namespace Ice.VisualStudio
                 else if(Util.isProjectItemFolder(i))
                 {
                     string p = Path.GetDirectoryName(i.Properties.Item("FullPath").Value.ToString());
-                    if(p.Equals(path, StringComparison.CurrentCultureIgnoreCase))
+                    if(p.Equals(Path.GetFullPath(path), StringComparison.CurrentCultureIgnoreCase))
                     {
                         item = i;
                         break;
@@ -816,10 +816,10 @@ namespace Ice.VisualStudio
                 }
                 else if(Util.isProjectItemFilter(i))
                 {
-                    string p = Path.Combine(Path.GetDirectoryName(i.ContainingProject.FileName),
-                                            Util.normalizePath(Util.getPathRelativeToProject(i)));
+                    string p = Path.GetFullPath(Path.Combine(Path.GetDirectoryName(i.ContainingProject.FileName),
+                                            Util.normalizePath(Util.getPathRelativeToProject(i))));
 
-                    if(p.ToUpper() == path.ToUpper())
+                    if(p.Equals(Path.GetFullPath(path), StringComparison.CurrentCultureIgnoreCase))
                     {
                         item = i;
                         break;
@@ -879,7 +879,7 @@ namespace Ice.VisualStudio
             int sameCounter = 0;
             for(int i = 0; i < Math.Min(firstPathParts.Length, secondPathParts.Length); i++)
             {
-                if(!firstPathParts[i].ToLower().Equals(secondPathParts[i].ToLower()))
+                if(!firstPathParts[i].Equals(secondPathParts[i], StringComparison.CurrentCultureIgnoreCase))
                 {
                     break;
                 }
@@ -1051,23 +1051,19 @@ namespace Ice.VisualStudio
                     }
                 }
             }
-            string projectDir = Path.GetDirectoryName(project.FileName);
-            if(projectDir.Length > value.Length)
+            string projectDir = Path.GetFullPath(Path.GetDirectoryName(project.FileName));
+            value = Path.GetFullPath(value);
+            if(value.StartsWith(projectDir + "\\", StringComparison.CurrentCultureIgnoreCase))
             {
-                if(projectDir.Substring(0, value.Length).Equals(value, StringComparison.CurrentCultureIgnoreCase))
-                {
-                    if(projectDir.Substring(value.Length, 1).Equals("\\", StringComparison.CurrentCultureIgnoreCase))
-                    {
-                       value = relativePath(projectDir, value);
-                    }
-                }
+                value = relativePath(projectDir, value);
             }
+
             setProjectProperty(project, Util.PropertyNames.IceHome, value);
         }
 
         public static bool getProjectPropertyAsBool(Project project, string name)
         {
-            return Util.getProjectProperty(project, name).ToUpper().Equals(true.ToString().ToUpper());
+            return Util.getProjectProperty(project, name).Equals(true.ToString(), StringComparison.CurrentCultureIgnoreCase);
         }
 
         public static string getProjectProperty(Project project, string name)

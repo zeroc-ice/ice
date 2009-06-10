@@ -221,7 +221,7 @@ namespace Ice.VisualStudio
             dialog.SelectedPath = Util.getAbsoluteIceHome(_project);
             dialog.Description = "Select Ice Home Installation Directory";
             DialogResult result = dialog.ShowDialog();
-            if (result == DialogResult.OK)
+            if(result == DialogResult.OK)
             {
                 Util.updateIceHome(_project, dialog.SelectedPath);
                 load();
@@ -248,7 +248,8 @@ namespace Ice.VisualStudio
             if(!_iceHomeUpdating)
             {
                 _iceHomeUpdating = true;
-                if(!txtIceHome.Text.Equals(Util.getProjectProperty(_project, Util.PropertyNames.IceHome)))
+                if(!txtIceHome.Text.Equals(Util.getProjectProperty(_project, Util.PropertyNames.IceHome),
+                                           StringComparison.CurrentCultureIgnoreCase))
                 {
                     String path = txtIceHome.Text;
                     if(!Path.IsPathRooted(path))
@@ -313,11 +314,12 @@ namespace Ice.VisualStudio
             dialog.SelectedPath = projectDir;
             dialog.Description = "Slice Include Directory";
             DialogResult result = dialog.ShowDialog();
-            if (result == DialogResult.OK)
+            if(result == DialogResult.OK)
             {
                 System.Windows.Forms.Cursor c = Cursor.Current;
                 Cursor = Cursors.WaitCursor;
-                if (!dialog.SelectedPath.Contains(projectDir))
+                String selectedPath = Path.GetFullPath(dialog.SelectedPath);
+                if(selectedPath.StartsWith(projectDir + "\\", StringComparison.CurrentCultureIgnoreCase))
                 {
                     includeDirList.Items.Add(dialog.SelectedPath);
                 }
@@ -334,7 +336,7 @@ namespace Ice.VisualStudio
 
         private void btnRemoveInclude_Click(object sender, EventArgs e)
         {
-            if (includeDirList.SelectedIndex != -1)
+            if(includeDirList.SelectedIndex != -1)
             {
                 System.Windows.Forms.Cursor c = Cursor.Current;
                 Cursor = Cursors.WaitCursor;
@@ -388,13 +390,36 @@ namespace Ice.VisualStudio
 
         private void txtMacros_LostFocus(object sender, EventArgs e)
         {
+            bool valid = true;
+            const string macroInvalidChar = " ;='\"$";
             if(txtMacros.Modified)
             {
-                System.Windows.Forms.Cursor c = Cursor.Current;
-                Cursor = Cursors.WaitCursor;
-                Util.setProjectProperty(_project, Util.PropertyNames.IceMacros, txtMacros.Text);
-                _changed = true;
-                Cursor = c;
+                List<String> macros = new List<String>(txtMacros.Text.Split(new char[] { ';' }, StringSplitOptions.RemoveEmptyEntries));
+                foreach(String m in macros)
+                {
+                    String macro = m.Trim();
+                    for(int i = 0; i < macroInvalidChar.Length; ++i)
+                    {
+                        if(macro.Contains(macroInvalidChar.Substring(i, 1)))
+                        {
+                            valid = false;
+                        }
+                    }
+                }
+                if(valid)
+                {
+                    Util.setProjectProperty(_project, Util.PropertyNames.IceMacros, txtMacros.Text);
+                    _changed = true;
+                }
+                else
+                {
+                    System.Windows.Forms.MessageBox.Show("Invalid macro definition '" + txtMacros.Text + "'.\n" +
+                                                         "Macro definitions cannot contain any of the following characters:\n ''', '\"', '$', ' ', '='",
+                                                         "Ice Visual Studio Extension", MessageBoxButtons.OK,
+                                                         MessageBoxIcon.Error); txtMacros.Text = Util.getProjectProperty(_project, Util.PropertyNames.IceMacros);
+                    txtMacros.Text = Util.getProjectProperty(_project, Util.PropertyNames.IceMacros);
+                    txtMacros.Focus();
+                }
             }
         }
 

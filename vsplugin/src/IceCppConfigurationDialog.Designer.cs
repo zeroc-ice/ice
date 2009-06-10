@@ -167,8 +167,7 @@ namespace Ice.VisualStudio
             this.lblInfo.Name = "lblInfo";
             this.lblInfo.Size = new System.Drawing.Size(473, 17);
             this.lblInfo.TabIndex = 7;
-            this.lblInfo.Text = "Enter macros, separated by \';\'. For example, enter \'FOO; BAR=5\' for -DFOO -DBAR=5" +
-                "";
+            this.lblInfo.Text = "Enter macros, separated by \';\'. For example, enter \'FOO; BAR\' for -DFOO -DBAR";
             // 
             // txtMacros
             // 
@@ -386,9 +385,8 @@ namespace Ice.VisualStudio
             this.txtIceHome.Name = "txtIceHome";
             this.txtIceHome.Size = new System.Drawing.Size(386, 20);
             this.txtIceHome.TabIndex = 0;
-            this.txtIceHome.LostFocus += new System.EventHandler(txtIceHome_LostFocus);
-            this.txtIceHome.KeyPress += new System.Windows.Forms.KeyPressEventHandler(txtIceHome_KeyPress);
-
+            this.txtIceHome.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.txtIceHome_KeyPress);
+            this.txtIceHome.LostFocus += new System.EventHandler(this.txtIceHome_LostFocus);
             // 
             // grouDllExportSymbol
             // 

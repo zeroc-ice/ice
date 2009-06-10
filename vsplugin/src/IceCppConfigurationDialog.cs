@@ -267,7 +267,8 @@ namespace Ice.VisualStudio
             if(!_iceHomeUpdating)
             {
                 _iceHomeUpdating = true;
-                if(!txtIceHome.Text.Equals(Util.getProjectProperty(_project, Util.PropertyNames.IceHome)))
+                if(!txtIceHome.Text.Equals(Util.getProjectProperty(_project, Util.PropertyNames.IceHome),
+                                           StringComparison.CurrentCultureIgnoreCase))
                 {
                     String path = txtIceHome.Text;
                     if(!Path.IsPathRooted(path))
@@ -327,7 +328,8 @@ namespace Ice.VisualStudio
             {
                 System.Windows.Forms.Cursor c = Cursor.Current;
                 Cursor = Cursors.WaitCursor;
-                if (!dialog.SelectedPath.Contains(projectDir))
+                String selectedPath = Path.GetFullPath(dialog.SelectedPath);
+                if(selectedPath.StartsWith(projectDir + "\\", StringComparison.CurrentCultureIgnoreCase))
                 {
                     includeDirList.Items.Add(dialog.SelectedPath);
                 }
@@ -398,10 +400,37 @@ namespace Ice.VisualStudio
 
         private void txtMacros_LostFocus(object sender, EventArgs e)
         {
+            bool valid = true;
+            const string macroInvalidChar = " ;='\"$";
             if(txtMacros.Modified)
             {
-                Util.setProjectProperty(_project, Util.PropertyNames.IceMacros, txtMacros.Text);
-                _changed = true;
+                List<String> macros = new List<String>(txtMacros.Text.Split(new char[] {';'}, StringSplitOptions.RemoveEmptyEntries));
+                foreach(String m in macros)
+                {
+                    String macro = m.Trim();
+                    for(int i = 0; i < macroInvalidChar.Length; ++i)
+                    {
+                        if(macro.Contains(macroInvalidChar.Substring(i, 1)))
+                        {
+                            valid = false;
+                        }
+                        
+                    }
+                }
+                if(valid)
+                {
+                    Util.setProjectProperty(_project, Util.PropertyNames.IceMacros, txtMacros.Text);
+                    _changed = true;
+                }
+                else
+                {
+                    System.Windows.Forms.MessageBox.Show("Invalid macro definition '" + txtMacros.Text + "'.\n" +
+                                                         "Macro definitions cannot contain any of the following characters:\n ''', '\"', '$', ' ', '='",
+                                                         "Ice Visual Studio Extension", MessageBoxButtons.OK,
+                                                         MessageBoxIcon.Error); txtMacros.Text = Util.getProjectProperty(_project, Util.PropertyNames.IceMacros);
+                    txtMacros.Text = Util.getProjectProperty(_project, Util.PropertyNames.IceMacros);
+                    txtMacros.Focus();       
+                }
             }
         }
 
