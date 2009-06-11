@@ -305,8 +305,6 @@ namespace Ice.VisualStudio
         
         private void saveSliceIncludes()
         {
-            System.Windows.Forms.Cursor c = Cursor.Current;
-            Cursor = Cursors.WaitCursor;
             IncludePathList paths = new IncludePathList();
             foreach(String s in includeDirList.Items)
             {
@@ -314,7 +312,6 @@ namespace Ice.VisualStudio
             }
             Util.setProjectProperty(_project, Util.PropertyNames.IceIncludePath, paths.ToString());
             _changed = true;
-            Cursor = c;
         }
 
         private void btnAddInclude_Click(object sender, EventArgs e)

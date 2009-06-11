@@ -250,8 +250,6 @@ namespace Ice.VisualStudio
         
         private void saveSliceIncludes()
         {
-            System.Windows.Forms.Cursor c = Cursor.Current;
-            Cursor = Cursors.WaitCursor;
             IncludePathList paths = new IncludePathList();
             foreach(String s in includeDirList.Items)
             {
@@ -259,7 +257,6 @@ namespace Ice.VisualStudio
             }
             Util.setProjectProperty(_project, Util.PropertyNames.IceIncludePath, paths.ToString());
             _changed = true;
-            Cursor = c;
         }
 
         private void btnAddInclude_Click(object sender, EventArgs e)
@@ -269,10 +266,12 @@ namespace Ice.VisualStudio
             dialog.SelectedPath = projectDir;
             dialog.Description = "Slice Include Directory";
             DialogResult result = dialog.ShowDialog();
-            if(result == DialogResult.OK)
+            if (result == DialogResult.OK)
             {
+                System.Windows.Forms.Cursor c = Cursor.Current;
+                Cursor = Cursors.WaitCursor;
                 String selectedPath = Path.GetFullPath(dialog.SelectedPath);
-                if(selectedPath.StartsWith(projectDir + "\\", StringComparison.CurrentCultureIgnoreCase))
+                if (selectedPath.StartsWith(projectDir + "\\", StringComparison.CurrentCultureIgnoreCase))
                 {
                     includeDirList.Items.Add(dialog.SelectedPath);
                 }
@@ -280,9 +279,10 @@ namespace Ice.VisualStudio
                 {
                     includeDirList.Items.Add(Util.relativePath(projectDir, dialog.SelectedPath));
                 }
-                
+
                 includeDirList.SelectedIndex = includeDirList.Items.Count - 1;
                 saveSliceIncludes();
+                Cursor = c;
             }
         }
 

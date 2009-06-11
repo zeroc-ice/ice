@@ -122,7 +122,6 @@ namespace Ice.VisualStudio
             // 
             // btnAddInclude
             // 
-            this.btnAddInclude.DialogResult = System.Windows.Forms.DialogResult.Cancel;
             this.btnAddInclude.Location = new System.Drawing.Point(405, 19);
             this.btnAddInclude.Name = "btnAddInclude";
             this.btnAddInclude.Size = new System.Drawing.Size(75, 23);

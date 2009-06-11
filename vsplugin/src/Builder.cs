@@ -378,10 +378,6 @@ namespace Ice.VisualStudio
             }
 
             string relativeName = document.FullName;
-            if(!Path.IsPathRooted(relativeName))
-            {
-                relativeName = Path.GetFullPath(relativeName);
-            }
 
             Dictionary<string, List<string>> dependenciesMap = 
                 new Dictionary<string,List<string>>(_dependenciesMap[project.Name]);
@@ -399,7 +395,12 @@ namespace Ice.VisualStudio
                     }
 
                     String fullName = Path.GetFullPath(Path.Combine(projectDir, name));
-                    if(!fullName.Equals(Path.GetFullPath(relativeName), StringComparison.CurrentCultureIgnoreCase))
+                    if(!Path.IsPathRooted(relativeName))
+                    {
+                        relativeName = Path.GetFullPath(relativeName);
+                    }
+                    if(!fullName.Equals(
+                                Path.GetFullPath(relativeName), StringComparison.CurrentCultureIgnoreCase))
                     {
                         continue;
                     }
@@ -630,6 +631,7 @@ namespace Ice.VisualStudio
                 //
                 // Now check it any of the dependencies has changed.
                 //
+                string relativeName = Util.relativePath(Path.GetDirectoryName(project.FileName), ice.FullName);
                 Dictionary<string, List<string>> dependenciesMap = _dependenciesMap[project.Name];
                 if(dependenciesMap.ContainsKey(ice.FullName))
                 {
@@ -808,6 +810,8 @@ namespace Ice.VisualStudio
                 //
                 // Now check it any of the dependencies has changed.
                 //
+                //
+                string relativeName = Util.relativePath(Path.GetDirectoryName(project.FileName), iceFileInfo.FullName);
                 Dictionary<string, List<string>> dependenciesMap = _dependenciesMap[project.Name];
                 List<string> fileDependencies = dependenciesMap[iceFileInfo.FullName];
                 foreach(string name in fileDependencies)
@@ -878,7 +882,7 @@ namespace Ice.VisualStudio
             return Path.Combine(iceHome, compiler);
         }
         
-        private string getSliceCompilerVersion(Project project)
+        private string getSliceCompilerVesrion(Project project)
         {
             System.Diagnostics.Process process;
             String args = "/c" + quoteArg(getSliceCompilerPath(project)) + " -v";
@@ -1065,67 +1069,52 @@ namespace Ice.VisualStudio
             process = System.Diagnostics.Process.Start(processInfo);
             process.WaitForExit();
             
-            StreamReader errorReader = process.StandardError;
-            if(Util.isSilverlightProject(project))
-            {
-                string version = getSliceCompilerVersion(project);
-                List<String> tokens = new List<string>(version.Split(new char[] { '.' },
-                                                                     StringSplitOptions.RemoveEmptyEntries));
-
-                int major = Int32.Parse(tokens[0]);
-                int minor = Int32.Parse(tokens[1]);
-                if(major == 0 && minor <= 3)
-                {
-                    errorReader = process.StandardOutput;
-                }
-            }
-
-            if(parseErrors(project, file, errorReader, consoleOutput))
+            if(parseErrors(project, file, process.StandardError, consoleOutput))
             {
                 bringErrorsToFront();
                 process.Close();
-                if(Util.isCppProject(project))
+                if (Util.isCppProject(project))
                 {
                     removeCppGeneratedItems(project, file);
                 }
-                else if(Util.isCSharpProject(project))
+                else if (Util.isCSharpProject(project))
                 {
                     removeCSharpGeneratedItems(item);
                 }
                 return false;
             }
-            else
+
+            List<string> dependencies = new List<string>();
+            TextReader output = process.StandardOutput;
+            
+            string line = null;
+
+            if(!_dependenciesMap.ContainsKey(project.Name))
             {
-                List<string> dependencies = new List<string>();
-                TextReader output = process.StandardOutput;
-                string line = null;
+                _dependenciesMap[project.Name] = new Dictionary<string,List<string>>();
+            }
 
-                if(!_dependenciesMap.ContainsKey(project.Name))
+            Dictionary<string, List<string>> projectDeps = _dependenciesMap[project.Name];
+            while ((line = output.ReadLine()) != null)
+            {
+                if(!String.IsNullOrEmpty(line))
                 {
-                    _dependenciesMap[project.Name] = new Dictionary<string,List<string>>();
-                }
-
-                Dictionary<string, List<string>> projectDeps = _dependenciesMap[project.Name];
-                while ((line = output.ReadLine()) != null)
-                {
-                    if(!String.IsNullOrEmpty(line))
+                    if(line.EndsWith(" \\"))
                     {
-                        if(line.EndsWith(" \\"))
-                        {
-                            line = line.Substring(0, line.Length - 2);
-                        }
-                        line = line.Trim();
-                        if(line.EndsWith(".ice") &&
-                           System.IO.Path.GetFileName(line) != System.IO.Path.GetFileName(file))
-                        {
-                            line = line.Replace('/', '\\');
-                            dependencies.Add(line);
-                        }
+                        line = line.Substring(0, line.Length - 2);
+                    }
+                    line = line.Trim();
+                    if(line.EndsWith(".ice") &&
+                       System.IO.Path.GetFileName(line) != System.IO.Path.GetFileName(file))
+                    {
+                        line = line.Replace('/', '\\');
+                        dependencies.Add(line);
                     }
                 }
-                projectDeps[file] = dependencies;
-                _dependenciesMap[project.Name] = projectDeps;
             }
+            projectDeps[file] = dependencies;
+            _dependenciesMap[project.Name] = projectDeps;
+
             process.Close();
             return true;
         }
@@ -1721,22 +1710,26 @@ namespace Ice.VisualStudio
 
             process.WaitForExit();
 
-            StreamReader errorReader = process.StandardError;
+            bool standardError = true;
             if(Util.isSilverlightProject(project))
             {
-                string version = getSliceCompilerVersion(project);
+                string version = getSliceCompilerVesrion(project);
                 List<String> tokens = new List<string>(version.Split(new char[]{'.'}, 
                                                                      StringSplitOptions.RemoveEmptyEntries));
-
-                int major = Int32.Parse(tokens[0]);
+                                                                     
+                int mayor = Int32.Parse(tokens[0]);
                 int minor = Int32.Parse(tokens[1]);
-                if(major == 0 && minor <= 3)
+                if(mayor == 0 && minor <= 3)
                 {
-                    errorReader = process.StandardOutput;
+                    standardError = false;
                 }
             }
 
-            bool hasErrors = parseErrors(project, file, process.StandardOutput, consoleOutput);
+            bool hasErrors = parseErrors(project, file, process.StandardError, consoleOutput);
+            if(!standardError)
+            {
+                hasErrors = hasErrors || parseErrors(project, file, process.StandardOutput, consoleOutput);
+            }
             process.Close();
             if(hasErrors)
             {

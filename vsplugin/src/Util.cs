@@ -437,6 +437,10 @@ namespace Ice.VisualStudio
             {
                 reference = iceHome + "\\cs\\bin\\" + component + ".dll";                
             }
+            else if(Directory.Exists(iceHome + "\\sl"))
+            {
+                reference = iceHome + "\\sl\\bin\\" + component + ".dll";
+            }
             else
             {
                 reference = iceHome + "\\bin\\" + component + ".dll";
@@ -489,6 +493,10 @@ namespace Ice.VisualStudio
             if(Directory.Exists(iceHome + "\\cs\\bin"))
             {
                 iceHome += "\\cs\\bin";
+            }
+            else if(Directory.Exists(iceHome + "\\sl\\bin"))
+            {
+                iceHome += "\\sl\\bin";
             }
             else
             {
@@ -1028,11 +1036,14 @@ namespace Ice.VisualStudio
             {
                 if(!File.Exists(value + "\\bin\\slice2sl.exe") || !Directory.Exists(value + "\\slice\\Ice"))
                 {
-                    System.Windows.Forms.MessageBox.Show("Could not locate Ice for Silverlight installation in '"
-                                                         + value + "' directory.\n",
-                                                         "Ice Visual Studio Extension", MessageBoxButtons.OK,
-                                                         MessageBoxIcon.Error);
-                    return;
+                    if(!File.Exists(value + "\\cpp\\bin\\slice2sl.exe") || !Directory.Exists(value + "\\sl\\slice\\Ice"))
+                    {
+                        System.Windows.Forms.MessageBox.Show("Could not locate Ice for Silverlight installation in '"
+                                                             + value + "' directory.\n",
+                                                             "Ice Visual Studio Extension", MessageBoxButtons.OK,
+                                                             MessageBoxIcon.Error);
+                        return;
+                    }
                 }
             }
             else
@@ -1055,7 +1066,7 @@ namespace Ice.VisualStudio
             }
             string projectDir = Path.GetFullPath(Path.GetDirectoryName(project.FileName));
             value = Path.GetFullPath(value);
-            if(value.StartsWith(projectDir + "\\", StringComparison.CurrentCultureIgnoreCase))
+            if(projectDir.StartsWith(value +"\\", StringComparison.CurrentCultureIgnoreCase))
             {
                 value = relativePath(projectDir, value);
             }
@@ -1240,11 +1251,20 @@ namespace Ice.VisualStudio
                 return components;
             }
 
-            string iceHome = Util.getIceHome(project);
+            string iceHome = Util.getAbsoluteIceHome(project);
             VSLangProj.VSProject vsProject = (VSLangProj.VSProject)project.Object;
             foreach(Reference r in vsProject.References)
             {
-                if(!Path.GetDirectoryName(r.Path).ToUpper().Contains(iceHome.ToUpper()))
+                if(r == null)
+                {
+                    continue;
+                }
+                if(String.IsNullOrEmpty(r.Path))
+                {
+                    continue;
+                }
+                if(!Path.GetDirectoryName(r.Path).StartsWith(iceHome + "\\", 
+                                                             StringComparison.CurrentCultureIgnoreCase))
                 {
                     continue; //Not in Ice Home
                 }
