@@ -66,13 +66,16 @@ protected:
     //
     // Write doc comments.
     //
-    StringList splitComment(const ContainedPtr&);
-    void writeDocComment(::IceUtilInternal::Output&, const ContainedPtr&, const std::string&, const std::string& = "");
-    void writeDocCommentOp(::IceUtilInternal::Output&, const OperationPtr&);
+    static std::string convertScoped(const std::string&);
+    static StringList splitComment(const ContainedPtr&);
+    static void writeDocComment(::IceUtilInternal::Output&, const ContainedPtr&,
+                                const std::string&, const std::string& = "");
+    static void writeDocCommentOp(::IceUtilInternal::Output&, const OperationPtr&);
 
     enum ParamDir { InParam, OutParam };
-    void writeDocCommentAsync(::IceUtilInternal::Output&, const OperationPtr&, ParamDir, const std::string& = "");
-    void writeDocCommentParam(::IceUtilInternal::Output&, const OperationPtr&, ParamDir);
+    static void writeDocCommentAsync(::IceUtilInternal::Output&, const OperationPtr&,
+                                     ParamDir, const std::string& = "");
+    static void writeDocCommentParam(::IceUtilInternal::Output&, const OperationPtr&, ParamDir);
 };
 
 class Gen : private ::IceUtil::noncopyable

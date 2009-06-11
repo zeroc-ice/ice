@@ -13,6 +13,7 @@
 #include <Slice/Util.h>
 #include <IceUtil/Functional.h>
 #include <IceUtil/Iterator.h>
+#include <IceUtil/StringUtil.h>
 #include <cstring>
 
 #include <limits>
@@ -1200,6 +1201,39 @@ Slice::JavaVisitor::writeDispatchAndMarshalling(Output& out, const ClassDefPtr& 
 
 }
 
+//
+// Turn scoped identifiers such as "::A::B" and "B::C::D"
+// into "A.B" and "B.C.D", respectively.
+//
+string
+Slice::JavaVisitor::convertScoped(const string& s)
+{
+    //
+    // Strip surrounding white space.
+    //
+    string result = IceUtilInternal::trim(s);
+
+    //
+    // Delete leading "::", if any.
+    //
+    if(result.size() > 1 && result[0] == ':' && result[1] == ':')
+    {
+        result = result.substr(2);
+    }
+
+    //
+    // Replace "::" with "."
+    //
+    string::size_type pos = result.find("::");
+    while(pos != string::npos)
+    {
+        result = result.replace(pos, 2, ".");
+        pos = result.find("::", pos);
+    }
+
+    return result;
+}
+
 StringList
 Slice::JavaVisitor::splitComment(const ContainedPtr& p)
 {
@@ -1220,24 +1254,18 @@ Slice::JavaVisitor::splitComment(const ContainedPtr& p)
     }
 
     //
-    // Strip out @see sections.
+    // Rewrite @see sections to replace "::" with "."
     //
     const string seeTag = "@see";
     StringList::iterator i = result.begin();
     while(i != result.end())
     {
-        if(i->find(seeTag) != string::npos)
+        string::size_type pos = i->find(seeTag);
+        if(pos != string::npos)
         {
-            i = result.erase(i);
-            while(i != result.end() && (*i)[0] != '@')
-            {
-                i = result.erase(i);
-            }
+            *i = seeTag + " " + convertScoped(i->substr(pos + seeTag.size()));
         }
-        else
-        {
-            ++i;
-        }
+        ++i;
     }
 
     //
