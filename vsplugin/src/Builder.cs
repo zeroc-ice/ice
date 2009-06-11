@@ -881,6 +881,23 @@ namespace Ice.VisualStudio
             }
             return Path.Combine(iceHome, compiler);
         }
+        
+        private string getSliceCompilerVersion(Project project)
+        {
+            System.Diagnostics.Process process;
+            String args = "/c" + quoteArg(getSliceCompilerPath(project)) + " -v";
+            ProcessStartInfo processInfo = new ProcessStartInfo("cmd.exe", args);
+            processInfo.CreateNoWindow = true;
+            processInfo.UseShellExecute = false;
+            processInfo.RedirectStandardError = true;
+            processInfo.RedirectStandardOutput = true;
+            processInfo.WorkingDirectory = Path.GetDirectoryName(project.FileName);
+
+            process = System.Diagnostics.Process.Start(processInfo);
+            process.WaitForExit();
+            String version = process.StandardOutput.ReadLine();
+            return version;
+        }
 
         private string getSliceCompilerArgs(Project project, bool depend)
         {
@@ -1051,8 +1068,23 @@ namespace Ice.VisualStudio
             
             process = System.Diagnostics.Process.Start(processInfo);
             process.WaitForExit();
+            
+            StreamReader errorReader = process.StandardError;
+            if(Util.isSilverlightProject(project))
+            {
+                string version = getSliceCompilerVersion(project);
+                List<String> tokens = new List<string>(version.Split(new char[] { '.' },
+                                                                     StringSplitOptions.RemoveEmptyEntries));
 
-            if(parseErrors(project, file, process.StandardError, consoleOutput))
+                int major = Int32.Parse(tokens[0]);
+                int minor = Int32.Parse(tokens[1]);
+                if(major == 0 && minor <= 3)
+                {
+                    errorReader = process.StandardOutput;
+                }
+            }
+
+            if(parseErrors(project, file, errorReader, consoleOutput))
             {
                 bringErrorsToFront();
                 process.Close();
@@ -1672,6 +1704,7 @@ namespace Ice.VisualStudio
             ProcessStartInfo processInfo = new ProcessStartInfo("cmd.exe", args);
             processInfo.CreateNoWindow = true;
             processInfo.UseShellExecute = false;
+            processInfo.RedirectStandardOutput = true;
             processInfo.RedirectStandardError = true;
             processInfo.WorkingDirectory = System.IO.Path.GetDirectoryName(project.FileName);
 
@@ -1692,7 +1725,22 @@ namespace Ice.VisualStudio
 
             process.WaitForExit();
 
-            bool hasErrors = parseErrors(project, file, process.StandardError, consoleOutput);
+            StreamReader errorReader = process.StandardError;
+            if(Util.isSilverlightProject(project))
+            {
+                string version = getSliceCompilerVersion(project);
+                List<String> tokens = new List<string>(version.Split(new char[]{'.'}, 
+                                                                     StringSplitOptions.RemoveEmptyEntries));
+
+                int major = Int32.Parse(tokens[0]);
+                int minor = Int32.Parse(tokens[1]);
+                if(major == 0 && minor <= 3)
+                {
+                    errorReader = process.StandardOutput;
+                }
+            }
+
+            bool hasErrors = parseErrors(project, file, process.StandardOutput, consoleOutput);
             process.Close();
             if(hasErrors)
             {
