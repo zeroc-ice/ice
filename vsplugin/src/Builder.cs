@@ -751,22 +751,28 @@ namespace Ice.VisualStudio
 
         public void buildCSharpProject(Project project, bool force)
         {
+            buildCSharpProject(project, force, null);
+        }
+        
+        public void buildCSharpProject(Project project, bool force, ProjectItem excludeItem)
+        {
             string projectDir = Path.GetDirectoryName(project.FileName);
-            buildCSharpProject(project, projectDir, project.ProjectItems, force);
+            buildCSharpProject(project, projectDir, project.ProjectItems, force, excludeItem);
         }
 
-        public void buildCSharpProject(Project project, string projectDir, ProjectItems items, bool force)
+        public void buildCSharpProject(Project project, string projectDir, ProjectItems items, bool force, 
+                                       ProjectItem excludeItem)
         {
             foreach(ProjectItem i in items)
             {
-                if(i == null)
+                if(i == null || i == excludeItem)
                 {
                     continue;
                 }
 
                 if(Util.isProjectItemFolder(i))
                 {
-                    buildCSharpProject(project, projectDir, i.ProjectItems, force);
+                    buildCSharpProject(project, projectDir, i.ProjectItems, force, excludeItem);
                 }
                 else if(Util.isProjectItemFile(i))
                 {
@@ -1566,11 +1572,9 @@ namespace Ice.VisualStudio
                 removeCSharpGeneratedItems(item);
                 _fileTracker.reap(item.ContainingProject, this);
                 // Recalculate depedndencies on a remove.
-                if(updateDependencies(item.ContainingProject, item))
-                {
-                    clearErrors(item.ContainingProject);
-                    buildCSharpProject(item.ContainingProject, false);
-                }
+                updateDependencies(item.ContainingProject, item);
+                clearErrors(item.ContainingProject);
+                buildCSharpProject(item.ContainingProject, false, item);
             }
             catch(Exception ex)
             {
