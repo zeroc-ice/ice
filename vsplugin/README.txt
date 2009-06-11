@@ -42,11 +42,11 @@ Project properties
 
   * Extra Compiler Options
   
-    Add extra slice compiler options that are not explicitly supported
+    Add extra Slice compiler options that are not explicitly supported
     above.
 
     These options are entered the same as they would be passed on 
-    the command line to the slice compiler. For example, preprocessor
+    the command line to the Slice compiler. For example, preprocessor
     macros can be defined by entering the following:
 
     -DFOO -DBAR
