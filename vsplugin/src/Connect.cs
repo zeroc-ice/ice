@@ -172,8 +172,11 @@ namespace Ice.VisualStudio
             if(disconnectMode == ext_DisconnectMode.ext_dm_HostShutdown ||
                disconnectMode == ext_DisconnectMode.ext_dm_UserClosed)
             {
-                _builder.disconnect();
-                _builder = null;
+                if(_builder != null)
+                {
+                    _builder.disconnect();
+                    _builder = null;
+                }
             }
         }
 
