@@ -378,6 +378,10 @@ namespace Ice.VisualStudio
             }
 
             string relativeName = document.FullName;
+            if(!Path.IsPathRooted(relativeName))
+            {
+                relativeName = Path.GetFullPath(relativeName);
+            }
 
             Dictionary<string, List<string>> dependenciesMap = 
                 new Dictionary<string,List<string>>(_dependenciesMap[project.Name]);
@@ -395,12 +399,7 @@ namespace Ice.VisualStudio
                     }
 
                     String fullName = Path.GetFullPath(Path.Combine(projectDir, name));
-                    if(!Path.IsPathRooted(relativeName))
-                    {
-                        relativeName = Path.GetFullPath(relativeName);
-                    }
-                    if(!fullName.Equals(
-                                Path.GetFullPath(relativeName), StringComparison.CurrentCultureIgnoreCase))
+                    if(!fullName.Equals(Path.GetFullPath(relativeName), StringComparison.CurrentCultureIgnoreCase))
                     {
                         continue;
                     }
@@ -631,7 +630,6 @@ namespace Ice.VisualStudio
                 //
                 // Now check it any of the dependencies has changed.
                 //
-                string relativeName = Util.relativePath(Path.GetDirectoryName(project.FileName), ice.FullName);
                 Dictionary<string, List<string>> dependenciesMap = _dependenciesMap[project.Name];
                 if(dependenciesMap.ContainsKey(ice.FullName))
                 {
@@ -810,8 +808,6 @@ namespace Ice.VisualStudio
                 //
                 // Now check it any of the dependencies has changed.
                 //
-                //
-                string relativeName = Util.relativePath(Path.GetDirectoryName(project.FileName), iceFileInfo.FullName);
                 Dictionary<string, List<string>> dependenciesMap = _dependenciesMap[project.Name];
                 List<string> fileDependencies = dependenciesMap[iceFileInfo.FullName];
                 foreach(string name in fileDependencies)
@@ -1784,7 +1780,7 @@ namespace Ice.VisualStudio
                     }
                     if(consoleOutput)
                     {
-                        writeBuildOutput(errorMessage);
+                        writeBuildOutput(errorMessage + "\n");
                     }
                     addError(project, file, TaskErrorCategory.Error, 0, 0, errorMessage.Replace("error:", ""));
                     break;
