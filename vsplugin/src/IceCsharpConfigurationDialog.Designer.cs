@@ -46,8 +46,7 @@ namespace Ice.VisualStudio
             this.btnAddInclude = new System.Windows.Forms.Button();
             this.includeDirList = new System.Windows.Forms.ListBox();
             this.groupBox2 = new System.Windows.Forms.GroupBox();
-            this.lblInfo = new System.Windows.Forms.Label();
-            this.txtMacros = new System.Windows.Forms.TextBox();
+            this.txtExtraOptions = new System.Windows.Forms.TextBox();
             this.groupBox3 = new System.Windows.Forms.GroupBox();
             this.chkIceStorm = new System.Windows.Forms.CheckBox();
             this.chkIceSSL = new System.Windows.Forms.CheckBox();
@@ -91,7 +90,7 @@ namespace Ice.VisualStudio
             this.groupBox1.Controls.Add(this.btnRemoveInclude);
             this.groupBox1.Controls.Add(this.btnAddInclude);
             this.groupBox1.Controls.Add(this.includeDirList);
-            this.groupBox1.Location = new System.Drawing.Point(12, 138);
+            this.groupBox1.Location = new System.Drawing.Point(12, 209);
             this.groupBox1.Name = "groupBox1";
             this.groupBox1.Size = new System.Drawing.Size(487, 169);
             this.groupBox1.TabIndex = 1;
@@ -148,31 +147,22 @@ namespace Ice.VisualStudio
             // 
             // groupBox2
             // 
-            this.groupBox2.Controls.Add(this.lblInfo);
-            this.groupBox2.Controls.Add(this.txtMacros);
-            this.groupBox2.Location = new System.Drawing.Point(12, 313);
+            this.groupBox2.Controls.Add(this.txtExtraOptions);
+            this.groupBox2.Location = new System.Drawing.Point(12, 138);
             this.groupBox2.Name = "groupBox2";
-            this.groupBox2.Size = new System.Drawing.Size(487, 82);
+            this.groupBox2.Size = new System.Drawing.Size(487, 65);
             this.groupBox2.TabIndex = 2;
             this.groupBox2.TabStop = false;
-            this.groupBox2.Text = "Preprocessor Macros";
+            this.groupBox2.Text = "Extra Compiler Options";
             // 
-            // lblInfo
+            // txtExtraOptions
             // 
-            this.lblInfo.Location = new System.Drawing.Point(7, 13);
-            this.lblInfo.Name = "lblInfo";
-            this.lblInfo.Size = new System.Drawing.Size(473, 17);
-            this.lblInfo.TabIndex = 7;
-            this.lblInfo.Text = "Enter macros, separated by \';\'. For example, enter \'FOO; BAR\' define -DFOO -DBAR";
-            // 
-            // txtMacros
-            // 
-            this.txtMacros.Location = new System.Drawing.Point(6, 33);
-            this.txtMacros.Multiline = true;
-            this.txtMacros.Name = "txtMacros";
-            this.txtMacros.Size = new System.Drawing.Size(474, 40);
-            this.txtMacros.TabIndex = 6;
-            this.txtMacros.LostFocus += new System.EventHandler(this.txtMacros_LostFocus);
+            this.txtExtraOptions.Location = new System.Drawing.Point(6, 19);
+            this.txtExtraOptions.Multiline = true;
+            this.txtExtraOptions.Name = "txtExtraOptions";
+            this.txtExtraOptions.Size = new System.Drawing.Size(474, 40);
+            this.txtExtraOptions.TabIndex = 6;
+            this.txtExtraOptions.LostFocus += new System.EventHandler(this.txtExtraOptions_LostFocus);
             // 
             // groupBox3
             // 
@@ -183,7 +173,7 @@ namespace Ice.VisualStudio
             this.groupBox3.Controls.Add(this.chkIceBox);
             this.groupBox3.Controls.Add(this.chkGlacier2);
             this.groupBox3.Controls.Add(this.chkIce);
-            this.groupBox3.Location = new System.Drawing.Point(12, 401);
+            this.groupBox3.Location = new System.Drawing.Point(12, 384);
             this.groupBox3.Name = "groupBox3";
             this.groupBox3.Size = new System.Drawing.Size(487, 47);
             this.groupBox3.TabIndex = 3;
@@ -334,7 +324,7 @@ namespace Ice.VisualStudio
             // btnClose
             // 
             this.btnClose.DialogResult = System.Windows.Forms.DialogResult.Cancel;
-            this.btnClose.Location = new System.Drawing.Point(423, 461);
+            this.btnClose.Location = new System.Drawing.Point(424, 437);
             this.btnClose.Name = "btnClose";
             this.btnClose.Size = new System.Drawing.Size(75, 23);
             this.btnClose.TabIndex = 5;
@@ -377,7 +367,7 @@ namespace Ice.VisualStudio
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.CancelButton = this.btnClose;
-            this.ClientSize = new System.Drawing.Size(515, 496);
+            this.ClientSize = new System.Drawing.Size(512, 469);
             this.Controls.Add(this.groupBox5);
             this.Controls.Add(this.btnClose);
             this.Controls.Add(this.groupBox4);
@@ -414,8 +404,7 @@ namespace Ice.VisualStudio
         private System.Windows.Forms.Button btnAddInclude;
         private System.Windows.Forms.ListBox includeDirList;
         private System.Windows.Forms.GroupBox groupBox2;
-        private System.Windows.Forms.Label lblInfo;
-        private System.Windows.Forms.TextBox txtMacros;
+        private System.Windows.Forms.TextBox txtExtraOptions;
         private System.Windows.Forms.GroupBox groupBox3;
         private System.Windows.Forms.CheckBox chkIceStorm;
         private System.Windows.Forms.CheckBox chkIceSSL;

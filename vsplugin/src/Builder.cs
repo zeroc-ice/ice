@@ -886,7 +886,7 @@ namespace Ice.VisualStudio
         {
             ComponentList includes = 
                 new ComponentList(Util.getProjectProperty(project, Util.PropertyNames.IceIncludePath));
-            ComponentList macros = new ComponentList(Util.getProjectProperty(project, Util.PropertyNames.IceMacros));
+            string extraOpts = Util.getProjectProperty(project, Util.PropertyNames.IceExtraOptions).Trim();
             bool tie = Util.getProjectPropertyAsBool(project, Util.PropertyNames.IceTie);
             bool ice = Util.getProjectPropertyAsBool(project, Util.PropertyNames.IcePrefix);
             bool streaming = Util.getProjectPropertyAsBool(project, Util.PropertyNames.IceStreaming);
@@ -933,13 +933,9 @@ namespace Ice.VisualStudio
                args += "-I" + quoteArg(include) + " ";
             }
 
-            foreach(string m in macros)
+            if(extraOpts.Length != 0)
             {
-                if(String.IsNullOrEmpty(m))
-                {
-                    continue;
-                }
-                args += "-D" + m.Trim() + " ";
+                args += extraOpts + " ";
             }
 
             if(tie && Util.isCSharpProject(project) && !Util.isSilverlightProject(project))
