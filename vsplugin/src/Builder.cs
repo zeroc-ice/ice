@@ -378,10 +378,7 @@ namespace Ice.VisualStudio
             }
 
             string relativeName = document.FullName;
-            if(relativeName.ToUpper().Contains(projectDir.ToUpper()))
-            {
-                relativeName = Util.relativePath(projectDir, document.FullName);
-            }
+
             Dictionary<string, List<string>> dependenciesMap = 
                 new Dictionary<string,List<string>>(_dependenciesMap[project.Name]);
 
@@ -397,7 +394,12 @@ namespace Ice.VisualStudio
                         continue;
                     }
 
-                    if(!Path.GetFullPath(name).Equals(
+                    String fullName = Path.GetFullPath(Path.Combine(projectDir, name));
+                    if(!Path.IsPathRooted(relativeName))
+                    {
+                        relativeName = Path.GetFullPath(relativeName);
+                    }
+                    if(!fullName.Equals(
                                 Path.GetFullPath(relativeName), StringComparison.CurrentCultureIgnoreCase))
                     {
                         continue;
@@ -998,7 +1000,7 @@ namespace Ice.VisualStudio
                     continue;
                 }
 
-                if(Util.isProjectItemFolder(item))
+                if(Util.isProjectItemFolder(item) || Util.isProjectItemFilter(item))
                 {
                     if(!updateDependencies(project, item.ProjectItems, args))
                     {
