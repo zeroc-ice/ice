@@ -1717,8 +1717,30 @@ namespace Ice.VisualStudio
             bool hasErrors = false;
             string errorMessage = strer.ReadLine();
             bool firstLine = true;
-            while (!String.IsNullOrEmpty(errorMessage))
+            string sliceCompiler = getSliceCompilerPath(project);
+            while(!String.IsNullOrEmpty(errorMessage))
             {
+                if(errorMessage.StartsWith(sliceCompiler))
+                {
+                    hasErrors = true;
+                    String message = strer.ReadLine();
+                    while(!String.IsNullOrEmpty(message))
+                    {
+                        message = message.Trim();
+                        if(message.StartsWith("Usage:", StringComparison.CurrentCultureIgnoreCase))
+                        {
+                            break;
+                        }
+                        errorMessage += "\n" + message;
+                        message = strer.ReadLine();
+                    }
+                    if(consoleOutput)
+                    {
+                        writeBuildOutput(errorMessage);
+                    }
+                    addError(project, file, TaskErrorCategory.Error, 0, 0, errorMessage.Replace("error:", ""));
+                    break;
+                }
                 int i = errorMessage.IndexOf(':');
                 if(i == -1)
                 {
@@ -1798,7 +1820,7 @@ namespace Ice.VisualStudio
                     if(currentFile || !found)
                     {
                         TaskErrorCategory category = TaskErrorCategory.Error;
-                        if(errorMessage.Substring(0, "warning:".Length).Equals("warning:"))
+                        if(errorMessage.StartsWith("warning:", StringComparison.CurrentCultureIgnoreCase))
                         {
                             category = TaskErrorCategory.Warning;
                         }
