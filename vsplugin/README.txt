@@ -40,33 +40,29 @@ Project properties
     Tick "Console Output" if you want compiler output to appear in 
     Output window.
 
-  * Preprocessor Macros
+  * Extra Compiler Options
   
-    Define a list of macro definitions passed to the Slice compiler.
+    Add extra slice compiler options that are not explicitly supported
+    above.
 
-    Enter preprocess macros separated by semicolons. For example, 
-    enter
-
-    FOO;BAR
-
-    to pass
+    These options are entered the same as they would be passed on 
+    the command line to the slice compiler. For example, preprocessor
+    macros can be defined by entering the following:
 
     -DFOO -DBAR
-
-    to the Slice compiler.
 
   * Slice Include Path
   
     Set the list of directories to search for included Slice files
     (-I option).
 
-  * Ice Components
-  
-    Set the list of Ice libraries to link with.
-
   * DLL Export Symbol (C++ only)
 
     Set the symbol to use for DLL exports (--dll-export option).
+
+  * Ice Components
+  
+    Set the list of Ice libraries to link with.
 
 
 Adding Slice files to a project

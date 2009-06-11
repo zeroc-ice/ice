@@ -239,7 +239,7 @@ namespace Ice.VisualStudio
             public const string Ice = "Ice";
             public const string IceHome = "IceHome";
             public const string ComponentList = "ComponentList";
-            public const string IceMacros = "IceMacros";
+            public const string IceExtraOptions = "IceExtraOptions";
             public const string IceIncludePath = "IceIncludePath";
             public const string IceStreaming = "IceStreaming";
             public const string IceTie = "IceTie";

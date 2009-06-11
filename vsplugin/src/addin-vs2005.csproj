@@ -133,7 +133,7 @@
   </PropertyGroup>
   <ProjectExtensions>
     <VisualStudio>
-      <UserProperties IceTie="False" Ice="False" IceIncludePath="C:\Ice-3.3.1-VC90\slice; ." SliceBuilder="True" IceOutputDirectoryProperty="./IceAddin/generated" IceStreamingProperty="0" IceTieProperty="0" IceHomeProperty="c:\Ice-3.3.1-VC90" IceMacrosProperty="" SliceIncludePathProperty="" IceHome="C:\Ice-3.3.1-VC90" />
+      <UserProperties IceTie="False" Ice="False" IceIncludePath="C:\Ice-3.3.1-VC90\slice; ." SliceBuilder="True" IceOutputDirectoryProperty="./IceAddin/generated" IceStreamingProperty="0" IceTieProperty="0" IceHomeProperty="c:\Ice-3.3.1-VC90" IceExtraOptionsProperty="" SliceIncludePathProperty="" IceHome="C:\Ice-3.3.1-VC90" />
     </VisualStudio>
   </ProjectExtensions>
 </Project>

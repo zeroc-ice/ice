@@ -58,7 +58,7 @@ namespace Ice.VisualStudio
                 Cursor = Cursors.WaitCursor;
                 includeDirList.Items.Clear();
                 txtIceHome.Text = Util.getIceHome(_project);
-                txtMacros.Text = Util.getProjectProperty(_project, Util.PropertyNames.IceMacros);
+                txtExtraOptions.Text = Util.getProjectProperty(_project, Util.PropertyNames.IceExtraOptions);
 
                 chkIcePrefix.Checked = Util.getProjectPropertyAsBool(_project, Util.PropertyNames.IcePrefix);
                 chkTie.Checked = Util.getProjectPropertyAsBool(_project, Util.PropertyNames.IceTie);
@@ -179,7 +179,7 @@ namespace Ice.VisualStudio
             btnMoveIncludeUp.Enabled = enabled;
             btnMoveIncludeDown.Enabled = enabled;
 
-            txtMacros.Enabled = enabled;
+            txtExtraOptions.Enabled = enabled;
 
             chkGlacier2.Enabled = enabled;
             chkIce.Enabled = enabled;
@@ -194,7 +194,7 @@ namespace Ice.VisualStudio
         {
             if(!_changed)
             {
-                if(txtMacros.Modified)
+                if(txtExtraOptions.Modified)
                 {
                     _changed = true;
                 }
@@ -388,11 +388,11 @@ namespace Ice.VisualStudio
         }
 
 
-        private void txtMacros_LostFocus(object sender, EventArgs e)
+        private void txtExtraOptions_LostFocus(object sender, EventArgs e)
         {
-            if(txtMacros.Modified)
+            if(txtExtraOptions.Modified)
             {
-                Util.setProjectProperty(_project, Util.PropertyNames.IceMacros, txtMacros.Text);
+                Util.setProjectProperty(_project, Util.PropertyNames.IceExtraOptions, txtExtraOptions.Text);
                 _changed = true;
             }
         }
