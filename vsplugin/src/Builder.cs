@@ -385,69 +385,9 @@ namespace Ice.VisualStudio
                 return;
             }
 
-            string projectDir = System.IO.Path.GetDirectoryName(project.FullName);
             _fileTracker.reap(project, this);
-            clearErrors(document.FullName);
-
-            if(Util.isCppProject(project))
-            {
-                buildCppProjectItem(project, document.ProjectItem, false);
-            }
-            else if(Util.isCSharpProject(project))
-            {
-                buildCSharpProjectItem(project, document.ProjectItem, false);
-            }
-            
-            updateBrokenDependencies(project);
-            
-            string relativeName = document.FullName;
-            if(!Path.IsPathRooted(relativeName))
-            {
-                relativeName = Path.GetFullPath(relativeName);
-            }
-
-            Dictionary<string, List<string>> dependenciesMap =
-                new Dictionary<string, List<string>>(_dependenciesMap[project.Name]);
-
-            //
-            // Run slice custom tool in all files that depends on the saved file
-            //
-            foreach(KeyValuePair<string, List<string>> dependencies in dependenciesMap)
-            {
-                foreach(string name in dependencies.Value)
-                {
-                    if(String.IsNullOrEmpty(name))
-                    {
-                        continue;
-                    }
-
-                    String fullName = Path.GetFullPath(Path.Combine(projectDir, name));
-                    if(!fullName.Equals(Path.GetFullPath(relativeName), StringComparison.CurrentCultureIgnoreCase))
-                    {
-                        continue;
-                    }
-
-                    ProjectItem item = Util.findItem(dependencies.Key, project.ProjectItems);
-                    if(item == null)
-                    {
-                        continue;
-                    }
-                    String f = item.Properties.Item("FullPath").Value.ToString();
-                    clearErrors(f);
-                    if(Util.isCppProject(project))
-                    {
-                        buildCppProjectItem(project, item, false);
-                    }
-                    else if(Util.isCSharpProject(project))
-                    {
-                        buildCSharpProjectItem(project, item, false);
-                    }
-                }
-            }
-            if(hasErrors(project))
-            {
-                bringErrorsToFront();
-            }
+            clearErrors(project);
+            buildProject(project, false);
         }
         
         public void updateBrokenDependencies(Project project)
