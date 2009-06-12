@@ -196,6 +196,12 @@ namespace Ice.VisualStudio
                 _dependenciesMap.Clear();
                 _dependenciesMap = null;
             }
+            
+            if(_dependenciesBrokenMap != null)
+            {
+                _dependenciesBrokenMap.Clear();
+                _dependenciesBrokenMap = null;
+            }
 
             if(_updateList != null)
             {
@@ -268,6 +274,12 @@ namespace Ice.VisualStudio
                 _dependenciesMap.Clear();
                 _dependenciesMap = null;
             }
+            
+            if(_dependenciesBrokenMap != null)
+            {
+                _dependenciesBrokenMap.Clear();
+                _dependenciesBrokenMap = null;
+            }
 
             if(_updateList != null)
             {
@@ -300,12 +312,14 @@ namespace Ice.VisualStudio
         public void solutionOpened()
         {
             _dependenciesMap = new Dictionary<string, Dictionary<string, List<string>>>();
+            _dependenciesBrokenMap = new Dictionary<string,List<string>>();
             _updateList = new List<String>();
             _fileTracker = new FileTracker();
             initDocumentEvents();
             foreach(Project p in _applicationObject.Solution.Projects)
             {
                 _dependenciesMap[p.Name] = new Dictionary<string, List<string>>();
+                _dependenciesBrokenMap[p.Name] = new List<string>();
                 buildProject(p, true);
             }
             if(hasErrors())
@@ -385,17 +399,17 @@ namespace Ice.VisualStudio
             {
                 project = document.ProjectItem.ContainingProject;
             }
-            catch(COMException)
+            catch (COMException)
             {
                 // Expected when documents are create during project initialization
                 // and the ProjectItem is not yet available.
                 return;
             }
-            if(!Util.isSliceBuilderEnabled(project))
+            if (!Util.isSliceBuilderEnabled(project))
             {
                 return;
             }
-            if(!document.Name.EndsWith(".ice"))
+            if (!document.Name.EndsWith(".ice"))
             {
                 return;
             }
@@ -403,68 +417,86 @@ namespace Ice.VisualStudio
             string projectDir = System.IO.Path.GetDirectoryName(project.FullName);
             _fileTracker.reap(project, this);
             clearErrors(document.FullName);
-            bool success = updateDependencies(project);
-            
-            if(success)
+
+            if(Util.isCppProject(project))
             {
-                if(Util.isCppProject(project))
-                {
-                    buildCppProjectItem(project, document.ProjectItem, false);
-                }
-                else if(Util.isCSharpProject(project))
-                {
-                    buildCSharpProjectItem(project, document.ProjectItem, false);
-                }
+                buildCppProjectItem(project, document.ProjectItem, false);
+            }
+            else if(Util.isCSharpProject(project))
+            {
+                buildCSharpProjectItem(project, document.ProjectItem, false);
+            }
+            
+            updateBrokenDependencies(project);
+            
+            string relativeName = document.FullName;
+            if(!Path.IsPathRooted(relativeName))
+            {
+                relativeName = Path.GetFullPath(relativeName);
+            }
 
-                string relativeName = document.FullName;
+            Dictionary<string, List<string>> dependenciesMap =
+                new Dictionary<string, List<string>>(_dependenciesMap[project.Name]);
 
-                Dictionary<string, List<string>> dependenciesMap = 
-                    new Dictionary<string,List<string>>(_dependenciesMap[project.Name]);
-
-                //
-                // Run slice custom tool in all files that depends on the saved file
-                //
-                foreach(KeyValuePair<string, List<string>> dependencies in dependenciesMap)
+            //
+            // Run slice custom tool in all files that depends on the saved file
+            //
+            foreach(KeyValuePair<string, List<string>> dependencies in dependenciesMap)
+            {
+                foreach(string name in dependencies.Value)
                 {
-                    foreach(string name in dependencies.Value)
+                    if(String.IsNullOrEmpty(name))
                     {
-                        if(String.IsNullOrEmpty(name))
-                        {
-                            continue;
-                        }
+                        continue;
+                    }
 
-                        String fullName = Path.GetFullPath(Path.Combine(projectDir, name));
-                        if(!Path.IsPathRooted(relativeName))
-                        {
-                            relativeName = Path.GetFullPath(relativeName);
-                        }
-                        if(!fullName.Equals(
-                                    Path.GetFullPath(relativeName), StringComparison.CurrentCultureIgnoreCase))
-                        {
-                            continue;
-                        }
+                    String fullName = Path.GetFullPath(Path.Combine(projectDir, name));
+                    if(!fullName.Equals(Path.GetFullPath(relativeName), StringComparison.CurrentCultureIgnoreCase))
+                    {
+                        continue;
+                    }
 
-                        ProjectItem item = Util.findItem(dependencies.Key, project.ProjectItems);
-                        if(item == null)
-                        {
-                            continue;
-                        }
-                        String f = item.Properties.Item("FullPath").Value.ToString();
-                        clearErrors(f);
-                        if(Util.isCppProject(project))
-                        {
-                            buildCppProjectItem(project, item, false);
-                        }
-                        else if(Util.isCSharpProject(project))
-                        {
-                            buildCSharpProjectItem(project, item, false);
-                        }
+                    ProjectItem item = Util.findItem(dependencies.Key, project.ProjectItems);
+                    if(item == null)
+                    {
+                        continue;
+                    }
+                    String f = item.Properties.Item("FullPath").Value.ToString();
+                    clearErrors(f);
+                    if(Util.isCppProject(project))
+                    {
+                        buildCppProjectItem(project, item, false);
+                    }
+                    else if(Util.isCSharpProject(project))
+                    {
+                        buildCSharpProjectItem(project, item, false);
                     }
                 }
             }
             if(hasErrors(project))
             {
                 bringErrorsToFront();
+            }
+        }
+        
+        public void updateBrokenDependencies(Project project)
+        {
+            if(_dependenciesBrokenMap.ContainsKey(project.Name))
+            {
+                List<String> broken = new List<string>();
+                foreach (string d in _dependenciesBrokenMap[project.Name])
+                {
+                    broken.Add(d);
+                }
+                foreach(String d in broken)
+                {
+                    ProjectItem item = Util.findItem(d, project.ProjectItems);
+                    if (item != null)
+                    {
+                        clearErrors(d);
+                        updateDependencies(project, item, d, getSliceCompilerArgs(project, true));
+                    }
+                }
             }
         }
 
@@ -478,12 +510,26 @@ namespace Ice.VisualStudio
 
         public void projectRemoved(Project project)
         {
-            _dependenciesMap.Remove(project.Name);
+            if(_dependenciesMap.ContainsKey(project.Name))
+            {
+                _dependenciesMap.Remove(project.Name);
+            }
+            if(_dependenciesBrokenMap.ContainsKey(project.Name))
+            {
+                _dependenciesBrokenMap.Remove(project.Name);
+            }
         }
 
         public void projectRenamed(Project project, string oldName)
         {
-            _dependenciesMap.Remove(oldName);
+            if(_dependenciesMap.ContainsKey(oldName))
+            {
+                _dependenciesMap.Remove(oldName);
+            }
+            if(_dependenciesBrokenMap.ContainsKey(oldName))
+            {
+                _dependenciesBrokenMap.Remove(oldName);
+            }
             updateDependencies(project);
         }
 
@@ -1127,6 +1173,10 @@ namespace Ice.VisualStudio
             {
                 addError(project, file, TaskErrorCategory.Error, 0, 0, compiler +
                                             " not found. Review 'Ice Home' setting.");
+                if(!_dependenciesBrokenMap[project.Name].Contains(file))
+                {
+                    _dependenciesBrokenMap[project.Name].Add(file);
+                }
                 return false;
             }
 
@@ -1150,7 +1200,16 @@ namespace Ice.VisualStudio
                 {
                     removeCSharpGeneratedItems(item);
                 }
+                if(!_dependenciesBrokenMap[project.Name].Contains(file))
+                {
+                    _dependenciesBrokenMap[project.Name].Add(file);
+                }
                 return false;
+            }
+            
+            if(_dependenciesBrokenMap[project.Name].Contains(file))
+            {
+                _dependenciesBrokenMap[project.Name].Remove(file);
             }
 
             List<string> dependencies = new List<string>();
@@ -1161,6 +1220,11 @@ namespace Ice.VisualStudio
             if(!_dependenciesMap.ContainsKey(project.Name))
             {
                 _dependenciesMap[project.Name] = new Dictionary<string,List<string>>();
+            }
+            
+            if(!_dependenciesBrokenMap.ContainsKey(project.Name))
+            {
+                _dependenciesBrokenMap[project.Name] = new List<string>();
             }
 
             Dictionary<string, List<string>> projectDeps = _dependenciesMap[project.Name];
@@ -1341,8 +1405,7 @@ namespace Ice.VisualStudio
                     }
                 }
 
-                // Recalculate all depedndencies on a rename.
-                updateDependencies(project);
+                updateDependenciesOnRename(project, item, fullPath, oldName);
                 clearErrors(project);
                 buildProject(project, false);
             }
@@ -1351,6 +1414,55 @@ namespace Ice.VisualStudio
                 writeBuildOutput(ex.ToString());
             }
         }
+        
+        private void removeDependencies(Project project, String path)
+        {
+            if(_dependenciesMap.ContainsKey(project.Name))
+            {
+                if(_dependenciesMap[project.Name].ContainsKey(path))
+                {
+                    _dependenciesMap[project.Name].Remove(path);
+                }
+            }
+        }
+        
+        private void updateDependenciesOnFile(Project project, String path)
+        {
+            if (_dependenciesMap.ContainsKey(project.Name))
+            {
+                Dictionary<string, List<string>> dependencies = _dependenciesMap[project.Name];
+                string projectDir = Path.GetDirectoryName(project.FileName);
+                foreach (KeyValuePair<string, List<string>> k in dependencies)
+                {
+                    foreach(string s in k.Value)
+                    {
+                        String dependencyFullPath = Path.GetFullPath(Path.Combine(projectDir, s));
+                        if(path.Equals(dependencyFullPath, StringComparison.CurrentCultureIgnoreCase))
+                        {
+                            _dependenciesBrokenMap[project.Name].Add(k.Key);
+                        }
+                    }
+                }
+            }
+            updateBrokenDependencies(project);
+        }
+
+        private void updateDependenciesOnRename(Project project, ProjectItem item, String fullPath, String oldName)
+        {
+            string oldPath = Path.GetFullPath(Path.Combine(Path.GetDirectoryName(fullPath), oldName));
+            removeDependencies(project, oldPath);
+            updateDependencies(project, item, fullPath, getSliceCompilerArgs(project, true));
+            updateDependenciesOnFile(project, oldPath);
+        }
+
+        private void updateDependenciesOnDelete(Project project, ProjectItem item, String fullPath, String oldName)
+        {
+            string oldPath = Path.GetFullPath(Path.Combine(Path.GetDirectoryName(fullPath), oldName));
+            removeDependencies(project, oldPath);
+            updateDependenciesOnFile(project, oldPath);
+        }
+        
+        
 
         private void cppItemRemoved(object obj, object parent)
         {
@@ -1396,7 +1508,8 @@ namespace Ice.VisualStudio
 
                 //
                 // It appears that file is not actually removed from disk at this
-                // point. Thus we need to delay dependency update until the next build.
+                // point. Thus we need to delay dependency update until after delete,
+                // or after remove command has been executed.
                 //
                 if(!_updateList.Contains(project.Name))
                 {
@@ -1536,7 +1649,7 @@ namespace Ice.VisualStudio
                 }
 
                 // Recalculate all depedndencies on a rename.
-                updateDependencies(item.ContainingProject);
+                updateDependenciesOnRename(item.ContainingProject, item, fullPath, oldName);
                 clearErrors(item.ContainingProject);
                 buildProject(item.ContainingProject, false);
             }
@@ -1572,7 +1685,7 @@ namespace Ice.VisualStudio
                 removeCSharpGeneratedItems(item);
                 _fileTracker.reap(item.ContainingProject, this);
                 // Recalculate depedndencies on a remove.
-                updateDependencies(item.ContainingProject, item);
+                updateDependenciesOnDelete(item.ContainingProject, item, fullName, item.Name);                
                 clearErrors(item.ContainingProject);
                 buildCSharpProject(item.ContainingProject, false, item);
             }
@@ -1926,17 +2039,17 @@ namespace Ice.VisualStudio
                     bool currentFile = Path.GetFullPath(f).Equals(Path.GetFullPath(file),
                                                                   StringComparison.CurrentCultureIgnoreCase);
                     bool found = Util.findItem(f, project.ProjectItems) != null;
+                    TaskErrorCategory category = TaskErrorCategory.Error;
+                    if(errorMessage.StartsWith("warning:", StringComparison.CurrentCultureIgnoreCase))
+                    {
+                        category = TaskErrorCategory.Warning;
+                    }
+                    else
+                    {
+                        hasErrors = true;
+                    }
                     if(currentFile || !found)
                     {
-                        TaskErrorCategory category = TaskErrorCategory.Error;
-                        if(errorMessage.StartsWith("warning:", StringComparison.CurrentCultureIgnoreCase))
-                        {
-                            category = TaskErrorCategory.Warning;
-                        }
-                        else
-                        {
-                            hasErrors = true;
-                        }
                         if(found)
                         {
                             addError(project, file, category, l, 1, errorMessage);
@@ -2288,6 +2401,7 @@ namespace Ice.VisualStudio
         private int _errorCount = 0;
         private FileTracker _fileTracker;
         private Dictionary<string, Dictionary<string, List<string>>> _dependenciesMap;
+        private Dictionary<string, List<string>> _dependenciesBrokenMap;
         private List<String> _updateList;
         private OutputWindowPane _output;
 
