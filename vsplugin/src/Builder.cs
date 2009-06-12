@@ -1796,6 +1796,7 @@ namespace Ice.VisualStudio
             process.Close();
             if(hasErrors)
             {
+                bringErrorsToFront();
                 if(Util.isCppProject(project))
                 {
                     removeCppGeneratedItems(project, file);
