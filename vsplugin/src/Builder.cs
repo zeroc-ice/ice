@@ -451,6 +451,11 @@ namespace Ice.VisualStudio
 
         public void buildProject(Project project, bool force)
         {
+            buildProject(project, force, null);
+        }
+
+        public void buildProject(Project project, bool force, ProjectItem excludeItem)
+        {
             if(project == null)
             {
                 return;
@@ -469,7 +474,7 @@ namespace Ice.VisualStudio
             _fileTracker.reap(project, this);
             if(Util.isCSharpProject(project))
             {
-                buildCSharpProject(project, force);
+                buildCSharpProject(project, force, excludeItem);
             }
             else if(Util.isCppProject(project))
             {
@@ -1484,7 +1489,7 @@ namespace Ice.VisualStudio
 
                 removeDependency(item.ContainingProject, fullName);
                 clearErrors(item.ContainingProject);
-                buildProject(item.ContainingProject, false);
+                buildProject(item.ContainingProject, false, item);
             }
             catch(Exception ex)
             {
