@@ -99,8 +99,9 @@ namespace Ice.VisualStudio
                 if(project != null)
                 {
                     removeDependency(project, _deletedFile);
-                    updateDependenciesOnFile(project, _deletedFile);
                     _deletedFile = null;
+                    clearErrors(project);
+                    buildProject(project, false);
                 }
             }
         }
@@ -1540,7 +1541,6 @@ namespace Ice.VisualStudio
                     }
                 }
 
-                // Do a full project build on add in case add fixes errors in other files.
                 clearErrors(project);
                 buildProject(project, false);
             }
@@ -1589,7 +1589,6 @@ namespace Ice.VisualStudio
                     }
                 }
 
-                // Do a full project build on rename
                 clearErrors(item.ContainingProject);
                 buildProject(item.ContainingProject, false);
             }
@@ -1625,9 +1624,9 @@ namespace Ice.VisualStudio
                 removeCSharpGeneratedItems(item);
                 _fileTracker.reap(item.ContainingProject, this);
 
-                // Recalculate dependencies on a remove.
                 removeDependency(item.ContainingProject, fullName);
-                updateDependenciesOnFile(item.ContainingProject, fullName);
+                clearErrors(item.ContainingProject);
+                buildProject(item.ContainingProject, false);
             }
             catch(Exception ex)
             {
@@ -1682,7 +1681,6 @@ namespace Ice.VisualStudio
                     return;
                 }
 
-                // Do a full project build on add in case add fixes errors in other files.
                 clearErrors(project);
                 buildProject(project, false);
             }
