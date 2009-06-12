@@ -1064,9 +1064,9 @@ namespace Ice.VisualStudio
                     }
                 }
             }
-            string projectDir = Path.GetFullPath(Path.GetDirectoryName(project.FileName));
+            string projectDir = Path.GetFullPath(Path.GetDirectoryName(project.FileName)) + "\\";
             value = Path.GetFullPath(value);
-            if(projectDir.StartsWith(value +"\\", StringComparison.CurrentCultureIgnoreCase))
+            if(projectDir.StartsWith(value + "\\", StringComparison.CurrentCultureIgnoreCase))
             {
                 value = relativePath(projectDir, value);
             }
