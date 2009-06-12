@@ -180,12 +180,6 @@ namespace Ice.VisualStudio
                 _dependenciesMap = null;
             }
             
-            if(_dependenciesBrokenMap != null)
-            {
-                _dependenciesBrokenMap.Clear();
-                _dependenciesBrokenMap = null;
-            }
-
             _errorCount = 0;
             if(_errors != null)
             {
@@ -252,12 +246,6 @@ namespace Ice.VisualStudio
                 _dependenciesMap = null;
             }
             
-            if(_dependenciesBrokenMap != null)
-            {
-                _dependenciesBrokenMap.Clear();
-                _dependenciesBrokenMap = null;
-            }
-
             trackFiles();
         }
 
@@ -284,13 +272,11 @@ namespace Ice.VisualStudio
         public void solutionOpened()
         {
             _dependenciesMap = new Dictionary<string, Dictionary<string, List<string>>>();
-            _dependenciesBrokenMap = new Dictionary<string,List<string>>();
             _fileTracker = new FileTracker();
             initDocumentEvents();
             foreach(Project p in _applicationObject.Solution.Projects)
             {
                 _dependenciesMap[p.Name] = new Dictionary<string, List<string>>();
-                _dependenciesBrokenMap[p.Name] = new List<string>();
                 buildProject(p, true);
             }
             if(hasErrors())
@@ -390,27 +376,6 @@ namespace Ice.VisualStudio
             buildProject(project, false);
         }
         
-        public void updateBrokenDependencies(Project project)
-        {
-            if(_dependenciesBrokenMap.ContainsKey(project.Name))
-            {
-                List<String> broken = new List<string>();
-                foreach (string d in _dependenciesBrokenMap[project.Name])
-                {
-                    broken.Add(d);
-                }
-                foreach(String d in broken)
-                {
-                    ProjectItem item = Util.findItem(d, project.ProjectItems);
-                    if (item != null)
-                    {
-                        clearErrors(d);
-                        updateDependencies(project, item, d, getSliceCompilerArgs(project, true));
-                    }
-                }
-            }
-        }
-
         public void projectAdded(Project project)
         {
             if(Util.isSliceBuilderEnabled(project))
@@ -425,10 +390,6 @@ namespace Ice.VisualStudio
             {
                 _dependenciesMap.Remove(project.Name);
             }
-            if(_dependenciesBrokenMap.ContainsKey(project.Name))
-            {
-                _dependenciesBrokenMap.Remove(project.Name);
-            }
         }
 
         public void projectRenamed(Project project, string oldName)
@@ -436,10 +397,6 @@ namespace Ice.VisualStudio
             if(_dependenciesMap.ContainsKey(oldName))
             {
                 _dependenciesMap.Remove(oldName);
-            }
-            if(_dependenciesBrokenMap.ContainsKey(oldName))
-            {
-                _dependenciesBrokenMap.Remove(oldName);
             }
             updateDependencies(project);
         }
@@ -1076,10 +1033,6 @@ namespace Ice.VisualStudio
             {
                 addError(project, file, TaskErrorCategory.Error, 0, 0, compiler +
                                             " not found. Review 'Ice Home' setting.");
-                if(!_dependenciesBrokenMap[project.Name].Contains(file))
-                {
-                    _dependenciesBrokenMap[project.Name].Add(file);
-                }
                 return false;
             }
 
@@ -1103,18 +1056,9 @@ namespace Ice.VisualStudio
                 {
                     removeCSharpGeneratedItems(item);
                 }
-                if(!_dependenciesBrokenMap[project.Name].Contains(file))
-                {
-                    _dependenciesBrokenMap[project.Name].Add(file);
-                }
                 return false;
             }
             
-            if(_dependenciesBrokenMap[project.Name].Contains(file))
-            {
-                _dependenciesBrokenMap[project.Name].Remove(file);
-            }
-
             List<string> dependencies = new List<string>();
             TextReader output = process.StandardOutput;
             
@@ -1125,11 +1069,6 @@ namespace Ice.VisualStudio
                 _dependenciesMap[project.Name] = new Dictionary<string,List<string>>();
             }
             
-            if(!_dependenciesBrokenMap.ContainsKey(project.Name))
-            {
-                _dependenciesBrokenMap[project.Name] = new List<string>();
-            }
-
             Dictionary<string, List<string>> projectDeps = _dependenciesMap[project.Name];
             while ((line = output.ReadLine()) != null)
             {
@@ -1329,27 +1268,6 @@ namespace Ice.VisualStudio
             }
         }
         
-        private void updateDependenciesOnFile(Project project, String path)
-        {
-            if (_dependenciesMap.ContainsKey(project.Name))
-            {
-                Dictionary<string, List<string>> dependencies = _dependenciesMap[project.Name];
-                string projectDir = Path.GetDirectoryName(project.FileName);
-                foreach (KeyValuePair<string, List<string>> k in dependencies)
-                {
-                    foreach(string s in k.Value)
-                    {
-                        String dependencyFullPath = Path.GetFullPath(Path.Combine(projectDir, s));
-                        if(path.Equals(dependencyFullPath, StringComparison.CurrentCultureIgnoreCase))
-                        {
-                            _dependenciesBrokenMap[project.Name].Add(k.Key);
-                        }
-                    }
-                }
-            }
-            updateBrokenDependencies(project);
-        }
-
         private void cppItemRemoved(object obj, object parent)
         {
             try
@@ -2280,7 +2198,6 @@ namespace Ice.VisualStudio
         private int _errorCount = 0;
         private FileTracker _fileTracker;
         private Dictionary<string, Dictionary<string, List<string>>> _dependenciesMap;
-        private Dictionary<string, List<string>> _dependenciesBrokenMap;
         private string _deletedFile;
         private OutputWindowPane _output;
 
