@@ -270,8 +270,17 @@ namespace Ice.VisualStudio
             {
                 System.Windows.Forms.Cursor c = Cursor.Current;
                 Cursor = Cursors.WaitCursor;
-                String selectedPath = Path.GetFullPath(dialog.SelectedPath) + "\\";
-                if(!selectedPath.StartsWith(projectDir + "\\", StringComparison.CurrentCultureIgnoreCase))
+                String selectedPath = Path.GetFullPath(dialog.SelectedPath);
+                if(!selectedPath.EndsWith("\\"))
+                {
+                    selectedPath += "\\";
+                }
+                if(!projectDir.EndsWith("\\"))
+                {
+                    projectDir += "\\";
+                }
+
+                if(!selectedPath.StartsWith(projectDir, StringComparison.CurrentCultureIgnoreCase))
                 {
                     includeDirList.Items.Add(dialog.SelectedPath);
                 }
