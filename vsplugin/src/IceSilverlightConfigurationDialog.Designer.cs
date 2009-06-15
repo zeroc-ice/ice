@@ -262,7 +262,7 @@ namespace Ice.VisualStudio
             this.includeInfo.Name = "includeInfo";
             this.includeInfo.Size = new System.Drawing.Size(317, 13);
             this.includeInfo.TabIndex = 12;
-            this.includeInfo.Text = "Select checkboxes for absolute paths, deselect for relaltive paths.";
+            this.includeInfo.Text = "Select checkboxes for absolute paths, deselect for relative paths.";
             // 
             // IceSilverlightConfigurationDialog
             // 
