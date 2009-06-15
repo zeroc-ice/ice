@@ -55,7 +55,7 @@ Project properties
   
     Set the list of directories to search for included Slice files
     (-I option). The checkbox for each path controls whether the path is passed
-    to the -I option as an absolute path, or as path relative to the project directory.
+    to the -I option as an absolute path, or as a path relative to the project directory.
 
   * DLL Export Symbol (C++ only)
 
