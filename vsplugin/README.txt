@@ -34,8 +34,8 @@ Project properties
 
   * Slice Compiler Options
 
-    Tick the corresponding check boxes to pass --tie (.NET only),
-    --ice, or --stream options to the Slice compiler.
+    Tick the corresponding check boxes to pass options such as --ice,
+    --stream or --tie (.NET only) to the Slice compiler.
 
     Tick "Console Output" if you want compiler output to appear in 
     Output window.
