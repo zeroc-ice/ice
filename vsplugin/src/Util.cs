@@ -160,7 +160,7 @@ namespace Ice.VisualStudio
 
         public ComponentList(string value)
         {
-            init(value, ';');
+            init(value, '|');
         }
 
         public ComponentList(string value, char separator)
@@ -183,7 +183,7 @@ namespace Ice.VisualStudio
 
         public override string ToString()
         {
-            return ToString(';');
+            return ToString('|');
         }
 
         public string ToString(char separator)
