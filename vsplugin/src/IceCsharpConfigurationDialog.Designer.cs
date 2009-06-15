@@ -44,7 +44,7 @@ namespace Ice.VisualStudio
             this.btnMoveIncludeUp = new System.Windows.Forms.Button();
             this.btnRemoveInclude = new System.Windows.Forms.Button();
             this.btnAddInclude = new System.Windows.Forms.Button();
-            this.includeDirList = new System.Windows.Forms.ListBox();
+            this.includeDirList = new System.Windows.Forms.CheckedListBox();
             this.groupBox2 = new System.Windows.Forms.GroupBox();
             this.txtExtraOptions = new System.Windows.Forms.TextBox();
             this.groupBox3 = new System.Windows.Forms.GroupBox();
@@ -56,6 +56,7 @@ namespace Ice.VisualStudio
             this.chkGlacier2 = new System.Windows.Forms.CheckBox();
             this.chkIce = new System.Windows.Forms.CheckBox();
             this.groupBox4 = new System.Windows.Forms.GroupBox();
+            this.chkChecksum = new System.Windows.Forms.CheckBox();
             this.chkConsole = new System.Windows.Forms.CheckBox();
             this.chkIcePrefix = new System.Windows.Forms.CheckBox();
             this.chkStreaming = new System.Windows.Forms.CheckBox();
@@ -65,7 +66,7 @@ namespace Ice.VisualStudio
             this.btnSelectIceHome = new System.Windows.Forms.Button();
             this.txtIceHome = new System.Windows.Forms.TextBox();
             this.toolTip = new System.Windows.Forms.ToolTip(this.components);
-            this.chkChecksum = new System.Windows.Forms.CheckBox();
+            this.includeInfo = new System.Windows.Forms.Label();
             this.groupBox1.SuspendLayout();
             this.groupBox2.SuspendLayout();
             this.groupBox3.SuspendLayout();
@@ -86,6 +87,7 @@ namespace Ice.VisualStudio
             // 
             // groupBox1
             // 
+            this.groupBox1.Controls.Add(this.includeInfo);
             this.groupBox1.Controls.Add(this.btnMoveIncludeDown);
             this.groupBox1.Controls.Add(this.btnMoveIncludeUp);
             this.groupBox1.Controls.Add(this.btnRemoveInclude);
@@ -143,8 +145,9 @@ namespace Ice.VisualStudio
             this.includeDirList.FormattingEnabled = true;
             this.includeDirList.Location = new System.Drawing.Point(6, 22);
             this.includeDirList.Name = "includeDirList";
-            this.includeDirList.Size = new System.Drawing.Size(390, 134);
+            this.includeDirList.Size = new System.Drawing.Size(390, 124);
             this.includeDirList.TabIndex = 7;
+            this.includeDirList.ItemCheck += new System.Windows.Forms.ItemCheckEventHandler(this.includeDirList_ItemCheck);
             // 
             // groupBox2
             // 
@@ -279,6 +282,17 @@ namespace Ice.VisualStudio
             this.groupBox4.TabStop = false;
             this.groupBox4.Text = "Slice Compiler Options";
             // 
+            // chkChecksum
+            // 
+            this.chkChecksum.AutoSize = true;
+            this.chkChecksum.Location = new System.Drawing.Point(213, 19);
+            this.chkChecksum.Name = "chkChecksum";
+            this.chkChecksum.Size = new System.Drawing.Size(76, 17);
+            this.chkChecksum.TabIndex = 5;
+            this.chkChecksum.Text = "Checksum";
+            this.chkChecksum.UseVisualStyleBackColor = true;
+            this.chkChecksum.CheckedChanged += new System.EventHandler(this.chkChecksum_CheckedChanged);
+            // 
             // chkConsole
             // 
             this.chkConsole.AutoSize = true;
@@ -311,17 +325,6 @@ namespace Ice.VisualStudio
             this.chkStreaming.Text = "Streaming";
             this.chkStreaming.UseVisualStyleBackColor = true;
             this.chkStreaming.CheckedChanged += new System.EventHandler(this.chkStreaming_CheckedChanged);
-            // 
-            // chkChecksum
-            // 
-            this.chkChecksum.AutoSize = true;
-            this.chkChecksum.Location = new System.Drawing.Point(213, 19);
-            this.chkChecksum.Name = "chkChecksum";
-            this.chkChecksum.Size = new System.Drawing.Size(76, 17);
-            this.chkChecksum.TabIndex = 5;
-            this.chkChecksum.Text = "Checksum";
-            this.chkChecksum.UseVisualStyleBackColor = true;
-            this.chkChecksum.CheckedChanged += new System.EventHandler(this.chkChecksum_CheckedChanged);
             // 
             // chkTie
             // 
@@ -375,6 +378,15 @@ namespace Ice.VisualStudio
             this.txtIceHome.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.txtIceHome_KeyPress);
             this.txtIceHome.LostFocus += new System.EventHandler(this.txtIceHome_LostFocus);
             // 
+            // includeInfo
+            // 
+            this.includeInfo.AutoSize = true;
+            this.includeInfo.Location = new System.Drawing.Point(3, 149);
+            this.includeInfo.Name = "includeInfo";
+            this.includeInfo.Size = new System.Drawing.Size(317, 13);
+            this.includeInfo.TabIndex = 12;
+            this.includeInfo.Text = "Select checkboxes for absolute paths, deselect for relaltive paths.";
+            // 
             // IceCsharpConfigurationDialog
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -394,6 +406,7 @@ namespace Ice.VisualStudio
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
             this.Text = "Ice Configuration";
             this.groupBox1.ResumeLayout(false);
+            this.groupBox1.PerformLayout();
             this.groupBox2.ResumeLayout(false);
             this.groupBox2.PerformLayout();
             this.groupBox3.ResumeLayout(false);
@@ -415,7 +428,7 @@ namespace Ice.VisualStudio
         private System.Windows.Forms.Button btnMoveIncludeUp;
         private System.Windows.Forms.Button btnRemoveInclude;
         private System.Windows.Forms.Button btnAddInclude;
-        private System.Windows.Forms.ListBox includeDirList;
+        private System.Windows.Forms.CheckedListBox includeDirList;
         private System.Windows.Forms.GroupBox groupBox2;
         private System.Windows.Forms.TextBox txtExtraOptions;
         private System.Windows.Forms.GroupBox groupBox3;
@@ -437,5 +450,6 @@ namespace Ice.VisualStudio
         private System.Windows.Forms.ToolTip toolTip;
         private System.Windows.Forms.CheckBox chkConsole;
         private System.Windows.Forms.CheckBox chkChecksum;
+        private System.Windows.Forms.Label includeInfo;
     }
 }

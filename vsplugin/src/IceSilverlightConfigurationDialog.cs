@@ -33,6 +33,7 @@ namespace Ice.VisualStudio
             toolTip.SetToolTip(txtIceHome, "Ice Installation Directory.");
             toolTip.SetToolTip(btnSelectIceHome, "Ice Installation Directory.");
             toolTip.SetToolTip(chkIcePrefix, "Allow Ice prefix (--ice).");
+            toolTip.SetToolTip(chkConsole, "Enable console output.");
             
             toolTip.SetToolTip(btnClose, "Close without save configuration changes.");
 
@@ -65,8 +66,11 @@ namespace Ice.VisualStudio
                 foreach(String s in list)
                 {
                     includeDirList.Items.Add(s.Trim());
+                    if(Path.IsPathRooted(s.Trim()))
+                    {
+                        includeDirList.SetItemCheckState(includeDirList.Items.Count - 1, CheckState.Checked);
+                    }
                 }
-
 
                 ComponentList selectedComponents = Util.getIceSilverlightComponents(_project);
                 foreach(String s in Util.ComponentNames.silverlightNames)
@@ -258,26 +262,13 @@ namespace Ice.VisualStudio
             {
                 System.Windows.Forms.Cursor c = Cursor.Current;
                 Cursor = Cursors.WaitCursor;
-                String selectedPath = Path.GetFullPath(dialog.SelectedPath);
-                if(!selectedPath.EndsWith("\\"))
-                {
-                    selectedPath += "\\";
-                }
-                if(!projectDir.EndsWith("\\"))
-                {
-                    projectDir += "\\";
-                }
-
-                if(!selectedPath.StartsWith(projectDir, StringComparison.CurrentCultureIgnoreCase))
-                {
-                    includeDirList.Items.Add(dialog.SelectedPath);
-                }
-                else
-                {
-                    includeDirList.Items.Add(Util.relativePath(projectDir, dialog.SelectedPath));
-                }
-
+                string path = Util.relativePath(projectDir, Path.GetFullPath(dialog.SelectedPath));
+                includeDirList.Items.Add(path);
                 includeDirList.SelectedIndex = includeDirList.Items.Count - 1;
+                if(Path.IsPathRooted(path))
+                {
+                    includeDirList.SetItemCheckState(includeDirList.SelectedIndex, CheckState.Checked);
+                }
                 saveSliceIncludes();
                 Cursor = c;
             }
@@ -334,6 +325,27 @@ namespace Ice.VisualStudio
                 saveSliceIncludes();
                 Cursor = c;
             }
+        }
+
+        private void includeDirList_ItemCheck(object sender, ItemCheckEventArgs e)
+        {
+            string path = null;
+            if(e.NewValue == CheckState.Unchecked)
+            {
+               path = Util.relativePath(Path.GetDirectoryName(_project.FileName),
+                                        includeDirList.Items[e.Index].ToString());
+            }
+            else if(e.NewValue == CheckState.Checked)
+            {
+               path = includeDirList.Items[e.Index].ToString();
+               if(!Path.IsPathRooted(path))
+               {
+                   path = Path.GetFullPath(Path.Combine(Path.GetDirectoryName(_project.FileName), path));
+               }
+            }
+            includeDirList.Items[e.Index] = path;
+            saveSliceIncludes();
+            _changed = true;
         }
 
         private void txtExtraOptions_LostFocus(object sender, EventArgs e)
