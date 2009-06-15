@@ -30,11 +30,12 @@ namespace Ice.VisualStudio
             //
             // Set the toolTip messages.
             //
-            toolTip.SetToolTip(txtIceHome, "Ice Installation Directory.");
-            toolTip.SetToolTip(btnSelectIceHome, "Ice Installation Directory.");
-            toolTip.SetToolTip(chkStreaming, "Geneate Streaming API (--stream).");
-            toolTip.SetToolTip(chkIcePrefix, "Allow Ice prefix (--ice).");
-            toolTip.SetToolTip(chkTie, "Generate Tie Classes (--tie).");
+            toolTip.SetToolTip(txtIceHome, "Ice installation directory.");
+            toolTip.SetToolTip(btnSelectIceHome, "Ice installation directory.");
+            toolTip.SetToolTip(chkStreaming, "Generate marshaling support for stream API (--stream).");
+            toolTip.SetToolTip(chkChecksum, "Generate checksums for Slice definitions (--checksum).");
+            toolTip.SetToolTip(chkIcePrefix, "Permit Ice prefixes (--ice).");
+            toolTip.SetToolTip(chkTie, "Generate TIE classes (--tie).");
             
             toolTip.SetToolTip(btnClose, "Close without save configuration changes.");
 
@@ -63,6 +64,7 @@ namespace Ice.VisualStudio
                 chkIcePrefix.Checked = Util.getProjectPropertyAsBool(_project, Util.PropertyNames.IcePrefix);
                 chkTie.Checked = Util.getProjectPropertyAsBool(_project, Util.PropertyNames.IceTie);
                 chkStreaming.Checked = Util.getProjectPropertyAsBool(_project, Util.PropertyNames.IceStreaming);
+                chkChecksum.Checked = Util.getProjectPropertyAsBool(_project, Util.PropertyNames.IceChecksum);
                 chkConsole.Checked = Util.getProjectPropertyAsBool(_project, Util.PropertyNames.ConsoleOutput);
                 
                 IncludePathList list =
@@ -172,6 +174,7 @@ namespace Ice.VisualStudio
             chkIcePrefix.Enabled = enabled;
             chkTie.Enabled = enabled;
             chkStreaming.Enabled = enabled;
+            chkChecksum.Enabled = enabled;
             chkConsole.Enabled = enabled;
             includeDirList.Enabled = enabled;
             btnAddInclude.Enabled = enabled;
@@ -289,6 +292,15 @@ namespace Ice.VisualStudio
             System.Windows.Forms.Cursor c = Cursor.Current;
             Cursor = Cursors.WaitCursor;
             Util.setProjectProperty(_project, Util.PropertyNames.IceStreaming, chkStreaming.Checked.ToString());
+            _changed = true;
+            Cursor = c;
+        }
+        
+        private void chkChecksum_CheckedChanged(object sender, EventArgs e)
+        {
+            System.Windows.Forms.Cursor c = Cursor.Current;
+            Cursor = Cursors.WaitCursor;
+            Util.setProjectProperty(_project, Util.PropertyNames.IceChecksum, chkChecksum.Checked.ToString());
             _changed = true;
             Cursor = c;
         }

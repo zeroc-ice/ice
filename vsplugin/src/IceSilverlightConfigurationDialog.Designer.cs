@@ -52,7 +52,6 @@ namespace Ice.VisualStudio
             this.groupBox4 = new System.Windows.Forms.GroupBox();
             this.chkConsole = new System.Windows.Forms.CheckBox();
             this.chkIcePrefix = new System.Windows.Forms.CheckBox();
-            this.chkStreaming = new System.Windows.Forms.CheckBox();
             this.btnClose = new System.Windows.Forms.Button();
             this.groupBox5 = new System.Windows.Forms.GroupBox();
             this.btnSelectIceHome = new System.Windows.Forms.Button();
@@ -183,7 +182,6 @@ namespace Ice.VisualStudio
             // 
             this.groupBox4.Controls.Add(this.chkConsole);
             this.groupBox4.Controls.Add(this.chkIcePrefix);
-            this.groupBox4.Controls.Add(this.chkStreaming);
             this.groupBox4.Location = new System.Drawing.Point(12, 88);
             this.groupBox4.Name = "groupBox4";
             this.groupBox4.Size = new System.Drawing.Size(487, 44);
@@ -194,7 +192,7 @@ namespace Ice.VisualStudio
             // chkConsole
             // 
             this.chkConsole.AutoSize = true;
-            this.chkConsole.Location = new System.Drawing.Point(211, 19);
+            this.chkConsole.Location = new System.Drawing.Point(86, 19);
             this.chkConsole.Name = "chkConsole";
             this.chkConsole.Size = new System.Drawing.Size(99, 17);
             this.chkConsole.TabIndex = 4;
@@ -212,17 +210,6 @@ namespace Ice.VisualStudio
             this.chkIcePrefix.Text = "Ice (--ice)";
             this.chkIcePrefix.UseVisualStyleBackColor = true;
             this.chkIcePrefix.CheckedChanged += new System.EventHandler(this.chkIcePrefix_CheckedChanged);
-            // 
-            // chkStreaming
-            // 
-            this.chkStreaming.AutoSize = true;
-            this.chkStreaming.Location = new System.Drawing.Point(86, 19);
-            this.chkStreaming.Name = "chkStreaming";
-            this.chkStreaming.Size = new System.Drawing.Size(119, 17);
-            this.chkStreaming.TabIndex = 1;
-            this.chkStreaming.Text = "Streaming (--stream)";
-            this.chkStreaming.UseVisualStyleBackColor = true;
-            this.chkStreaming.CheckedChanged += new System.EventHandler(this.chkStreaming_CheckedChanged);
             // 
             // btnClose
             // 
@@ -312,7 +299,6 @@ namespace Ice.VisualStudio
         private System.Windows.Forms.CheckBox chkIceSl;
         private System.Windows.Forms.GroupBox groupBox4;
         private System.Windows.Forms.CheckBox chkIcePrefix;
-        private System.Windows.Forms.CheckBox chkStreaming;
         private System.Windows.Forms.Button btnClose;
         private System.Windows.Forms.GroupBox groupBox5;
         private System.Windows.Forms.Button btnSelectIceHome;

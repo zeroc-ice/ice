@@ -882,6 +882,7 @@ namespace Ice.VisualStudio
             bool tie = Util.getProjectPropertyAsBool(project, Util.PropertyNames.IceTie);
             bool ice = Util.getProjectPropertyAsBool(project, Util.PropertyNames.IcePrefix);
             bool streaming = Util.getProjectPropertyAsBool(project, Util.PropertyNames.IceStreaming);
+            bool checksum = Util.getProjectPropertyAsBool(project, Util.PropertyNames.IceChecksum);
 
             string sliceCompiler = getSliceCompilerPath(project);
 
@@ -943,6 +944,11 @@ namespace Ice.VisualStudio
             if(streaming)
             {
                 args += "--stream ";
+            }
+
+            if(checksum)
+            {
+                args += "--checksum ";
             }
 
             return args;

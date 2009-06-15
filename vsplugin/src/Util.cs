@@ -242,6 +242,7 @@ namespace Ice.VisualStudio
             public const string IceExtraOptions = "ZerocIce_ExtraOptions";
             public const string IceIncludePath = "ZerocIce_IncludePath";
             public const string IceStreaming = "ZerocIce_Streaming";
+            public const string IceChecksum = "ZerocIce_Checksum";
             public const string IceTie = "ZerocIce_Tie";
             public const string IcePrefix = "ZerocIce_Prefix";
             public const string IceDllExport = "ZerocIce_DllExport";

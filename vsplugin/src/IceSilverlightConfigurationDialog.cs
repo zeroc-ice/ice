@@ -32,7 +32,6 @@ namespace Ice.VisualStudio
             //
             toolTip.SetToolTip(txtIceHome, "Ice Installation Directory.");
             toolTip.SetToolTip(btnSelectIceHome, "Ice Installation Directory.");
-            toolTip.SetToolTip(chkStreaming, "Geneate Streaming API (--stream).");
             toolTip.SetToolTip(chkIcePrefix, "Allow Ice prefix (--ice).");
             
             toolTip.SetToolTip(btnClose, "Close without save configuration changes.");
@@ -59,7 +58,6 @@ namespace Ice.VisualStudio
                 txtExtraOptions.Text = Util.getProjectProperty(_project, Util.PropertyNames.IceExtraOptions);
 
                 chkIcePrefix.Checked = Util.getProjectPropertyAsBool(_project, Util.PropertyNames.IcePrefix);
-                chkStreaming.Checked = Util.getProjectPropertyAsBool(_project, Util.PropertyNames.IceStreaming);
                 chkConsole.Checked = Util.getProjectPropertyAsBool(_project, Util.PropertyNames.ConsoleOutput);
                 
                 IncludePathList list =
@@ -138,7 +136,6 @@ namespace Ice.VisualStudio
             btnSelectIceHome.Enabled = enabled;
 
             chkIcePrefix.Enabled = enabled;
-            chkStreaming.Enabled = enabled;
             chkConsole.Enabled = enabled;
             
             includeDirList.Enabled = enabled;
@@ -239,15 +236,6 @@ namespace Ice.VisualStudio
             Cursor = c;
         }
 
-        private void chkStreaming_CheckedChanged(object sender, EventArgs e)
-        {
-            System.Windows.Forms.Cursor c = Cursor.Current;
-            Cursor = Cursors.WaitCursor;
-            Util.setProjectProperty(_project, Util.PropertyNames.IceStreaming, chkStreaming.Checked.ToString());
-            _changed = true;
-            Cursor = c;
-        }
-        
         private void saveSliceIncludes()
         {
             IncludePathList paths = new IncludePathList();

@@ -58,6 +58,7 @@ namespace Ice.VisualStudio
             this.chkGlacier2 = new System.Windows.Forms.CheckBox();
             this.chkIce = new System.Windows.Forms.CheckBox();
             this.groupBox4 = new System.Windows.Forms.GroupBox();
+            this.chkChecksum = new System.Windows.Forms.CheckBox();
             this.chkConsole = new System.Windows.Forms.CheckBox();
             this.chkIcePrefix = new System.Windows.Forms.CheckBox();
             this.chkStreaming = new System.Windows.Forms.CheckBox();
@@ -294,6 +295,7 @@ namespace Ice.VisualStudio
             // 
             // groupBox4
             // 
+            this.groupBox4.Controls.Add(this.chkChecksum);
             this.groupBox4.Controls.Add(this.chkConsole);
             this.groupBox4.Controls.Add(this.chkIcePrefix);
             this.groupBox4.Controls.Add(this.chkStreaming);
@@ -304,10 +306,21 @@ namespace Ice.VisualStudio
             this.groupBox4.TabStop = false;
             this.groupBox4.Text = "Slice Compiler Options";
             // 
+            // chkChecksum
+            // 
+            this.chkChecksum.AutoSize = true;
+            this.chkChecksum.Location = new System.Drawing.Point(211, 19);
+            this.chkChecksum.Name = "chkChecksum";
+            this.chkChecksum.Size = new System.Drawing.Size(140, 17);
+            this.chkChecksum.TabIndex = 4;
+            this.chkChecksum.Text = "Checksum (--checksum)";
+            this.chkChecksum.UseVisualStyleBackColor = true;
+            this.chkChecksum.CheckedChanged += new System.EventHandler(this.chkChecksum_CheckedChanged);
+            // 
             // chkConsole
             // 
             this.chkConsole.AutoSize = true;
-            this.chkConsole.Location = new System.Drawing.Point(211, 19);
+            this.chkConsole.Location = new System.Drawing.Point(357, 19);
             this.chkConsole.Name = "chkConsole";
             this.chkConsole.Size = new System.Drawing.Size(99, 17);
             this.chkConsole.TabIndex = 3;
@@ -463,5 +476,6 @@ namespace Ice.VisualStudio
         private System.Windows.Forms.CheckBox chkConsole;
         private System.Windows.Forms.GroupBox grouDllExportSymbol;
         private System.Windows.Forms.TextBox txtDllExportSymbol;
+        private System.Windows.Forms.CheckBox chkChecksum;
     }
 }

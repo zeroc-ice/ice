@@ -65,6 +65,7 @@ namespace Ice.VisualStudio
             this.btnSelectIceHome = new System.Windows.Forms.Button();
             this.txtIceHome = new System.Windows.Forms.TextBox();
             this.toolTip = new System.Windows.Forms.ToolTip(this.components);
+            this.chkChecksum = new System.Windows.Forms.CheckBox();
             this.groupBox1.SuspendLayout();
             this.groupBox2.SuspendLayout();
             this.groupBox3.SuspendLayout();
@@ -266,6 +267,7 @@ namespace Ice.VisualStudio
             // 
             // groupBox4
             // 
+            this.groupBox4.Controls.Add(this.chkChecksum);
             this.groupBox4.Controls.Add(this.chkConsole);
             this.groupBox4.Controls.Add(this.chkIcePrefix);
             this.groupBox4.Controls.Add(this.chkStreaming);
@@ -280,7 +282,7 @@ namespace Ice.VisualStudio
             // chkConsole
             // 
             this.chkConsole.AutoSize = true;
-            this.chkConsole.Location = new System.Drawing.Point(294, 19);
+            this.chkConsole.Location = new System.Drawing.Point(299, 19);
             this.chkConsole.Name = "chkConsole";
             this.chkConsole.Size = new System.Drawing.Size(99, 17);
             this.chkConsole.TabIndex = 4;
@@ -293,31 +295,42 @@ namespace Ice.VisualStudio
             this.chkIcePrefix.AutoSize = true;
             this.chkIcePrefix.Location = new System.Drawing.Point(10, 19);
             this.chkIcePrefix.Name = "chkIcePrefix";
-            this.chkIcePrefix.Size = new System.Drawing.Size(70, 17);
+            this.chkIcePrefix.Size = new System.Drawing.Size(41, 17);
             this.chkIcePrefix.TabIndex = 2;
-            this.chkIcePrefix.Text = "Ice (--ice)";
+            this.chkIcePrefix.Text = "Ice";
             this.chkIcePrefix.UseVisualStyleBackColor = true;
             this.chkIcePrefix.CheckedChanged += new System.EventHandler(this.chkIcePrefix_CheckedChanged);
             // 
             // chkStreaming
             // 
             this.chkStreaming.AutoSize = true;
-            this.chkStreaming.Location = new System.Drawing.Point(169, 19);
+            this.chkStreaming.Location = new System.Drawing.Point(125, 19);
             this.chkStreaming.Name = "chkStreaming";
-            this.chkStreaming.Size = new System.Drawing.Size(119, 17);
+            this.chkStreaming.Size = new System.Drawing.Size(73, 17);
             this.chkStreaming.TabIndex = 1;
-            this.chkStreaming.Text = "Streaming (--stream)";
+            this.chkStreaming.Text = "Streaming";
             this.chkStreaming.UseVisualStyleBackColor = true;
             this.chkStreaming.CheckedChanged += new System.EventHandler(this.chkStreaming_CheckedChanged);
+            // 
+            // chkChecksum
+            // 
+            this.chkChecksum.AutoSize = true;
+            this.chkChecksum.Location = new System.Drawing.Point(213, 19);
+            this.chkChecksum.Name = "chkChecksum";
+            this.chkChecksum.Size = new System.Drawing.Size(76, 17);
+            this.chkChecksum.TabIndex = 5;
+            this.chkChecksum.Text = "Checksum";
+            this.chkChecksum.UseVisualStyleBackColor = true;
+            this.chkChecksum.CheckedChanged += new System.EventHandler(this.chkChecksum_CheckedChanged);
             // 
             // chkTie
             // 
             this.chkTie.AutoSize = true;
-            this.chkTie.Location = new System.Drawing.Point(91, 19);
+            this.chkTie.Location = new System.Drawing.Point(71, 19);
             this.chkTie.Name = "chkTie";
-            this.chkTie.Size = new System.Drawing.Size(67, 17);
+            this.chkTie.Size = new System.Drawing.Size(41, 17);
             this.chkTie.TabIndex = 0;
-            this.chkTie.Text = "Tie (--tie)";
+            this.chkTie.Text = "Tie";
             this.chkTie.UseVisualStyleBackColor = true;
             this.chkTie.CheckedChanged += new System.EventHandler(this.chkTie_CheckedChanged);
             // 
@@ -423,5 +436,6 @@ namespace Ice.VisualStudio
         private System.Windows.Forms.TextBox txtIceHome;
         private System.Windows.Forms.ToolTip toolTip;
         private System.Windows.Forms.CheckBox chkConsole;
+        private System.Windows.Forms.CheckBox chkChecksum;
     }
 }
