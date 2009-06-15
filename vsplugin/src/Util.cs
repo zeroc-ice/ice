@@ -236,16 +236,16 @@ namespace Ice.VisualStudio
         //
         public class PropertyNames
         {
-            public const string Ice = "Ice";
-            public const string IceHome = "IceHome";
-            public const string ComponentList = "ComponentList";
-            public const string IceExtraOptions = "IceExtraOptions";
-            public const string IceIncludePath = "IceIncludePath";
-            public const string IceStreaming = "IceStreaming";
-            public const string IceTie = "IceTie";
-            public const string IcePrefix = "IcePrefix";
-            public const string IceDllExport = "IceDllExport";
-            public const string ConsoleOutput = "ConsoleOutput";
+            public const string Ice = "ZerocIce_Enabled";
+            public const string IceHome = "ZerocIce_Home";
+            public const string ComponentList = "ZerocIce_ComponentList";
+            public const string IceExtraOptions = "ZerocIce_ExtraOptions";
+            public const string IceIncludePath = "ZerocIce_IncludePath";
+            public const string IceStreaming = "ZerocIce_Streaming";
+            public const string IceTie = "ZerocIce_Tie";
+            public const string IcePrefix = "ZerocIce_Prefix";
+            public const string IceDllExport = "ZerocIce_DllExport";
+            public const string ConsoleOutput = "ZerocIce_ConsoleOutput";
         }
 
         public class ComponentNames
