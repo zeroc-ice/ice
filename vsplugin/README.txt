@@ -35,7 +35,7 @@ Project properties
   * Slice Compiler Options
 
     Tick the corresponding check boxes to pass options such as --ice,
-    --stream or --tie (.NET only) to the Slice compiler.
+    --stream, --checksum, or --tie (.NET only) to the Slice compiler.
 
     Tick "Console Output" if you want compiler output to appear in 
     Output window.
@@ -54,7 +54,8 @@ Project properties
   * Slice Include Path
   
     Set the list of directories to search for included Slice files
-    (-I option).
+    (-I option). The checkboxe for each path controls whether the path is passed
+    to the -I option as an absolute path, or as path relative to the project directory.
 
   * DLL Export Symbol (C++ only)
 
