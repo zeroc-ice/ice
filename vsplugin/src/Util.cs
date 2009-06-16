@@ -194,6 +194,10 @@ namespace Ice.VisualStudio
                 sb.Append(this[cont]);
                 if(cont < this.Count - 1)
                 {
+                    if(!separator.Equals(' '))
+                    {
+                        sb.Append(' ');
+                    }
                     sb.Append(separator);
                     if(!separator.Equals(' '))
                     {

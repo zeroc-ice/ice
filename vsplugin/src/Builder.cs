@@ -276,7 +276,6 @@ namespace Ice.VisualStudio
             initDocumentEvents();
             foreach(Project p in _applicationObject.Solution.Projects)
             {
-                Util.updateIceHome(p, Util.getIceHomeRaw(p), true);
                 _dependenciesMap[p.Name] = new Dictionary<string, List<string>>();
                 buildProject(p, true);
             }
@@ -293,6 +292,10 @@ namespace Ice.VisualStudio
 
         public void addBuilderToProject(Project project)
         {
+            ComponentList sliceIncludes = 
+                new ComponentList(Util.getProjectProperty(project, Util.PropertyNames.IceIncludePath));
+
+            Util.setProjectProperty(project, Util.PropertyNames.IceIncludePath, sliceIncludes.ToString());
             if(Util.isCppProject(project))
             {
                 Util.addIceCppConfigurations(project);
@@ -842,7 +845,7 @@ namespace Ice.VisualStudio
                 }
             }
 
-            String iceHome = Util.getIceHome(project);
+            String iceHome = Util.getAbsoluteIceHome(project);
             if(Directory.Exists(Path.Combine(iceHome, "cpp")))
             {
                 iceHome = Path.Combine(iceHome, "cpp\\bin");
@@ -913,19 +916,23 @@ namespace Ice.VisualStudio
                 {
                     continue;
                 }
-                String include = Util.subEnvironmentVars(i);
+                String include = i;
                 if(include.EndsWith("\\") &&
-                    include.Split(new char[]{'\\'}, StringSplitOptions.RemoveEmptyEntries).Length == 1)
+                   include.Split(new char[]{'\\'}, StringSplitOptions.RemoveEmptyEntries).Length == 1)
                 {
                     include += ".";
                 }
-               include = include.Replace("\\", "\\\\");
-               args += "-I" + quoteArg(include) + " ";
+                
+                if(include.EndsWith("\\") && !include.EndsWith("\\\\"))
+                {
+                   include += "\\";
+                }
+                args += "-I" + quoteArg(include) + " ";
             }
 
             if(extraOpts.Length != 0)
             {
-                args += Util.subEnvironmentVars(extraOpts) + " ";
+                args += extraOpts + " ";
             }
 
             if(tie && Util.isCSharpProject(project) && !Util.isSilverlightProject(project))

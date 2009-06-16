@@ -40,7 +40,7 @@ namespace Ice.VisualStudio
             this.components = new System.ComponentModel.Container();
             this.chkEnableBuilder = new System.Windows.Forms.CheckBox();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
-            this.btnEdit = new System.Windows.Forms.Button();
+            this.btnEditInclude = new System.Windows.Forms.Button();
             this.includeInfo = new System.Windows.Forms.Label();
             this.btnMoveIncludeDown = new System.Windows.Forms.Button();
             this.btnMoveIncludeUp = new System.Windows.Forms.Button();
@@ -92,7 +92,7 @@ namespace Ice.VisualStudio
             // 
             // groupBox1
             // 
-            this.groupBox1.Controls.Add(this.btnEdit);
+            this.groupBox1.Controls.Add(this.btnEditInclude);
             this.groupBox1.Controls.Add(this.includeInfo);
             this.groupBox1.Controls.Add(this.btnMoveIncludeDown);
             this.groupBox1.Controls.Add(this.btnMoveIncludeUp);
@@ -106,15 +106,15 @@ namespace Ice.VisualStudio
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "Slice Include Path";
             // 
-            // btnEdit
+            // btnEditInclude
             // 
-            this.btnEdit.Location = new System.Drawing.Point(405, 46);
-            this.btnEdit.Name = "btnEdit";
-            this.btnEdit.Size = new System.Drawing.Size(75, 23);
-            this.btnEdit.TabIndex = 13;
-            this.btnEdit.Text = "Edit";
-            this.btnEdit.UseVisualStyleBackColor = true;
-            this.btnEdit.Click += new System.EventHandler(this.btnEdit_Click);
+            this.btnEditInclude.Location = new System.Drawing.Point(405, 46);
+            this.btnEditInclude.Name = "btnEditInclude";
+            this.btnEditInclude.Size = new System.Drawing.Size(75, 23);
+            this.btnEditInclude.TabIndex = 13;
+            this.btnEditInclude.Text = "Edit";
+            this.btnEditInclude.UseVisualStyleBackColor = true;
+            this.btnEditInclude.Click += new System.EventHandler(this.btnEdit_Click);
             // 
             // includeInfo
             // 
@@ -504,6 +504,6 @@ namespace Ice.VisualStudio
         private System.Windows.Forms.TextBox txtDllExportSymbol;
         private System.Windows.Forms.CheckBox chkChecksum;
         private System.Windows.Forms.Label includeInfo;
-        private System.Windows.Forms.Button btnEdit;
+        private System.Windows.Forms.Button btnEditInclude;
     }
 }

@@ -182,6 +182,7 @@ namespace Ice.VisualStudio
             chkConsole.Enabled = enabled;
             includeDirList.Enabled = enabled;
             btnAddInclude.Enabled = enabled;
+            btnEditInclude.Enabled = enabled;
             btnRemoveInclude.Enabled = enabled;
             btnMoveIncludeUp.Enabled = enabled;
             btnMoveIncludeDown.Enabled = enabled;
@@ -319,33 +320,15 @@ namespace Ice.VisualStudio
 
         private void btnAddInclude_Click(object sender, EventArgs e)
         {
-            FolderBrowserDialog dialog = new FolderBrowserDialog();
-            string projectDir = Path.GetFullPath(Path.GetDirectoryName(_project.FileName));
-            dialog.SelectedPath = projectDir;
-            dialog.Description = "Slice Include Directory";
-            DialogResult result = dialog.ShowDialog();
-            if(result == DialogResult.OK)
-            {
-                System.Windows.Forms.Cursor c = Cursor.Current;
-                Cursor = Cursors.WaitCursor;
-                string path = dialog.SelectedPath;
-                if(!Util.containsEnvironmentVars(path))
-                {
-                    path = Util.relativePath(projectDir, Path.GetFullPath(path));
-                }
-                includeDirList.Items.Add(path);
-                includeDirList.SelectedIndex = includeDirList.Items.Count - 1;
-                if(Path.IsPathRooted(path))
-                {
-                    includeDirList.SetItemCheckState(includeDirList.SelectedIndex, CheckState.Checked);
-                }
-                saveSliceIncludes();
-                Cursor = c;
-            }
+            endEditIncludeDir(false);
+            includeDirList.Items.Add("");
+            includeDirList.SelectedIndex = includeDirList.Items.Count - 1;
+            beginEditIncludeDir();
         }
 
         private void btnRemoveInclude_Click(object sender, EventArgs e)
         {
+            endEditIncludeDir(false);
             if(includeDirList.SelectedIndex != -1)
             {
                 System.Windows.Forms.Cursor c = Cursor.Current;
@@ -367,6 +350,7 @@ namespace Ice.VisualStudio
 
         private void btnMoveIncludeUp_Click(object sender, EventArgs e)
         {
+            endEditIncludeDir(false);
             int index = includeDirList.SelectedIndex;
             if(index > 0)
             {
@@ -379,10 +363,12 @@ namespace Ice.VisualStudio
                 saveSliceIncludes();
                 Cursor = c;
             }
+            resetIncludeDirChecks();
         }
 
         private void btnMoveIncludeDown_Click(object sender, EventArgs e)
         {
+            endEditIncludeDir(false);
             int index = includeDirList.SelectedIndex;
             if(index < includeDirList.Items.Count - 1)
             {
@@ -395,6 +381,30 @@ namespace Ice.VisualStudio
                 saveSliceIncludes();
                 Cursor = c;
             }
+            resetIncludeDirChecks();
+        }
+
+        private void resetIncludeDirChecks()
+        {
+            _initialized = false;
+            for(int i = 0; i < includeDirList.Items.Count; i++)
+            {
+                String path = includeDirList.Items[i].ToString();
+                if(String.IsNullOrEmpty(path))
+                {
+                    continue;
+                }
+
+                if(Path.IsPathRooted(path))
+                {
+                    includeDirList.SetItemCheckState(i, CheckState.Checked);
+                }
+                else
+                {
+                    includeDirList.SetItemCheckState(i, CheckState.Unchecked);
+                }
+            }
+            _initialized = true;
         }
 
         private void includeDirList_ItemCheck(object sender, ItemCheckEventArgs e)
@@ -489,10 +499,135 @@ namespace Ice.VisualStudio
             Util.setProjectProperty(_project, Util.PropertyNames.ConsoleOutput, chkConsole.Checked.ToString());
             Cursor = c;
         }
+
+        private void btnEdit_Click(object sender, EventArgs e)
+        {
+            beginEditIncludeDir();
+        }
+
+        private void includeDirList_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            endEditIncludeDir(false);
+        }
+
+        private void beginEditIncludeDir()
+        {
+            endEditIncludeDir(false);
+            CancelButton = null;
+            if(includeDirList.SelectedIndex != -1)
+            {
+                int index = includeDirList.SelectedIndex;
+                _txtIncludeDir = new TextBox();
+                _txtIncludeDir.Text = includeDirList.Items[includeDirList.SelectedIndex].ToString();
+
+                includeDirList.SelectionMode = SelectionMode.One;
+
+                Rectangle rect = includeDirList.GetItemRectangle(includeDirList.SelectedIndex);
+                _txtIncludeDir.Location = new Point(includeDirList.Location.X + 2,
+                                                    includeDirList.Location.Y + rect.Y);
+                _txtIncludeDir.Width = includeDirList.Width - 50;
+                _txtIncludeDir.Parent = includeDirList;
+                _txtIncludeDir.KeyDown += new KeyEventHandler(includeDirKeyDown);
+                groupBox1.Controls.Add(_txtIncludeDir);
+
+                _btnSelectInclude = new Button();
+                _btnSelectInclude.Text = "...";
+                _btnSelectInclude.Location = new Point(includeDirList.Location.X + _txtIncludeDir.Width,
+                                                       includeDirList.Location.Y + rect.Y);
+                _btnSelectInclude.Width = 49;
+                _btnSelectInclude.Height = _txtIncludeDir.Height;
+                _btnSelectInclude.Click += new EventHandler(selectIncludeClicked);
+                groupBox1.Controls.Add(_btnSelectInclude);
+
+
+                _txtIncludeDir.Show();
+                _txtIncludeDir.BringToFront();
+                _txtIncludeDir.Focus();
+
+                _btnSelectInclude.Show();
+                _btnSelectInclude.BringToFront();
+            }
+        }
+
+        private void endEditIncludeDir(bool saveChanges)
+        {
+            String path;
+            lock(this)
+            {
+                CancelButton = btnClose;
+                if(_txtIncludeDir == null || _btnSelectInclude == null)
+                {
+                    return;
+                }
+                path = _txtIncludeDir.Text;
+
+                this.groupBox1.Controls.Remove(_txtIncludeDir);
+                _txtIncludeDir = null;
+
+                this.groupBox1.Controls.Remove(_btnSelectInclude);
+                _btnSelectInclude = null;
+
+                if (String.IsNullOrEmpty(path))
+                {
+                    return;
+                }
+            }
+
+            if(includeDirList.SelectedIndex != -1 && saveChanges)
+            {
+                if(!path.Equals(includeDirList.Items[includeDirList.SelectedIndex].ToString(),
+                                               StringComparison.CurrentCultureIgnoreCase))
+                {
+                    includeDirList.Items[includeDirList.SelectedIndex] = path;
+                    if(Path.IsPathRooted(path))
+                    {
+                        includeDirList.SetItemCheckState(includeDirList.SelectedIndex, CheckState.Checked);
+                    }
+                    else
+                    {
+                        includeDirList.SetItemCheckState(includeDirList.SelectedIndex, CheckState.Unchecked);
+                    }
+                    saveSliceIncludes();
+                }
+            }
+        }
+
+        private void includeDirKeyDown(object sender, KeyEventArgs e)
+        {
+            if(e.KeyCode.Equals(Keys.Escape))
+            {
+                endEditIncludeDir(false);
+            }
+            if(e.KeyCode.Equals(Keys.Enter))
+            {
+                endEditIncludeDir(true);
+            }
+        }
+
+        private void selectIncludeClicked(object sender, EventArgs e)
+        {
+            FolderBrowserDialog dialog = new FolderBrowserDialog();
+            string projectDir = Path.GetFullPath(Path.GetDirectoryName(_project.FileName));
+            dialog.SelectedPath = projectDir;
+            dialog.Description = "Slice Include Directory";
+            DialogResult result = dialog.ShowDialog();
+            if(result == DialogResult.OK)
+            {
+                string path = dialog.SelectedPath;
+                if(!Util.containsEnvironmentVars(path))
+                {
+                    path = Util.relativePath(projectDir, Path.GetFullPath(path));
+                }
+                _txtIncludeDir.Text = path;
+            }
+            endEditIncludeDir(true);
+        }
         
         private bool _changed = false;
         private bool _initialized = false;
         private Project _project;
         private bool _iceHomeUpdating = false;
+        private TextBox _txtIncludeDir = null;
+        private Button _btnSelectInclude = null;
     }
 }
