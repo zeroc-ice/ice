@@ -1468,5 +1468,39 @@ namespace Ice.VisualStudio
         {
            return Connect.getCurrentDTE();
         }
+
+        public static string subEnvironmentVars(string s)
+        {
+            string result = s;
+            int beg = 0;
+            int end;
+            while((beg = result.IndexOf("$(", beg)) != -1 && beg < result.Length -1)
+            {
+                end = result.IndexOf(")", beg + 1);
+                if(end == -1)
+                {
+                    break;
+                }
+                string variable = result.Substring(beg + 2, end - beg - 2);
+                string value = System.Environment.GetEnvironmentVariable(variable);
+                if(value == null)
+                {
+                    value = "";
+                }
+                result = result.Replace("$(" + variable + ")", value);
+                beg += value.Length;
+            }
+            return result;
+        }
+
+        public static bool containsEnvironmentVars(string s)
+        {
+            int pos = s.IndexOf("$(");
+            if(pos != -1)
+            {
+               return s.IndexOf(')', pos) != -1;
+            }
+            return false;
+        }
     }
 }

@@ -912,7 +912,7 @@ namespace Ice.VisualStudio
                 {
                     continue;
                 }
-                String include = i;
+                String include = Util.subEnvironmentVars(i);
                 if(include.EndsWith("\\") &&
                     include.Split(new char[]{'\\'}, StringSplitOptions.RemoveEmptyEntries).Length == 1)
                 {
@@ -924,7 +924,7 @@ namespace Ice.VisualStudio
 
             if(extraOpts.Length != 0)
             {
-                args += extraOpts + " ";
+                args += Util.subEnvironmentVars(extraOpts) + " ";
             }
 
             if(tie && Util.isCSharpProject(project) && !Util.isSilverlightProject(project))
