@@ -289,7 +289,7 @@ namespace Ice.VisualStudio
             }
             return Util.getProjectProperty(project, Util.PropertyNames.IceHome, defaultIceHome);
         }
-        
+
         public static string getAbsoluteIceHome(Project project)
         {
             string iceHome = Util.getIceHome(project);
@@ -300,7 +300,7 @@ namespace Ice.VisualStudio
             }
             return iceHome;
         }
-
+        
         public static string getPathRelativeToProject(ProjectItem item)
         {
             StringBuilder path = new StringBuilder();
@@ -347,7 +347,7 @@ namespace Ice.VisualStudio
                 return;
             }
 
-            string iceHome = Util.getAbsoluteIceHome(project);
+            string iceHome = Util.getIceHome(project);
             string iceIncludeDir = "";
             if(Directory.Exists(iceHome + "\\cpp\\include"))
             {
@@ -400,7 +400,7 @@ namespace Ice.VisualStudio
                 return;
             }
 
-            string iceHome = Util.getAbsoluteIceHome(project);
+            string iceHome = Util.getIceHome(project);
             string iceIncludeDir = "";
             if(Directory.Exists(iceHome + "\\cpp\\include"))
             {
@@ -438,7 +438,7 @@ namespace Ice.VisualStudio
                 return;
             }
 
-            string iceHome = Util.getAbsoluteIceHome(project);
+            string iceHome = Util.getIceHome(project);
             string reference = "";
             if(Directory.Exists(iceHome + "\\cs"))
             {
@@ -496,7 +496,7 @@ namespace Ice.VisualStudio
                 return;
             }
 
-            string iceHome = Util.getAbsoluteIceHome(project);
+            string iceHome = Util.getIceHome(project);
             if(Directory.Exists(iceHome + "\\cs\\bin"))
             {
                 iceHome += "\\cs\\bin";
@@ -602,7 +602,7 @@ namespace Ice.VisualStudio
                 return;
             }
 
-            string iceHome = Util.getAbsoluteIceHome(project);
+            string iceHome = Util.getIceHome(project);
             string iceLibDir = "";
             if(Directory.Exists(iceHome + "\\cpp\\lib"))
             {
@@ -639,7 +639,7 @@ namespace Ice.VisualStudio
                 return;
             }
 
-            string iceHome = Util.getAbsoluteIceHome(project);
+            string iceHome = Util.getIceHome(project);
             string iceLibDir = "";
             if(Directory.Exists(iceHome + "\\cpp\\lib"))
             {
@@ -1259,7 +1259,7 @@ namespace Ice.VisualStudio
                 return components;
             }
 
-            string iceHome = Util.getAbsoluteIceHome(project);
+            string iceHome = Util.getIceHome(project);
             VSLangProj.VSProject vsProject = (VSLangProj.VSProject)project.Object;
             foreach(Reference r in vsProject.References)
             {
@@ -1300,7 +1300,7 @@ namespace Ice.VisualStudio
                 return components;
             }
 
-            string iceHome = Util.getAbsoluteIceHome(project);
+            string iceHome = Util.getIceHome(project);
             VSLangProj.VSProject vsProject = (VSLangProj.VSProject)project.Object;
             foreach(Reference r in vsProject.References)
             {

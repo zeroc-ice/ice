@@ -841,7 +841,7 @@ namespace Ice.VisualStudio
                 }
             }
 
-            String iceHome = Util.getAbsoluteIceHome(project);
+            String iceHome = Util.getIceHome(project);
             if(Directory.Exists(Path.Combine(iceHome, "cpp")))
             {
                 iceHome = Path.Combine(iceHome, "cpp/bin");
