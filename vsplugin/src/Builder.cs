@@ -292,10 +292,6 @@ namespace Ice.VisualStudio
 
         public void addBuilderToProject(Project project)
         {
-            ComponentList sliceIncludes = 
-                new ComponentList(Util.getProjectProperty(project, Util.PropertyNames.IceIncludePath));
-
-            Util.setProjectProperty(project, Util.PropertyNames.IceIncludePath, sliceIncludes.ToString());
             if(Util.isCppProject(project))
             {
                 Util.addIceCppConfigurations(project);
@@ -877,7 +873,7 @@ namespace Ice.VisualStudio
         private string getSliceCompilerArgs(Project project, bool depend)
         {
             ComponentList includes = 
-                new ComponentList(Util.getProjectProperty(project, Util.PropertyNames.IceIncludePath));
+                new ComponentList(Util.getProjectProperty(project, Util.PropertyNames.IceIncludePath), '|');
             string extraOpts = Util.getProjectProperty(project, Util.PropertyNames.IceExtraOptions).Trim();
             bool tie = Util.getProjectPropertyAsBool(project, Util.PropertyNames.IceTie);
             bool ice = Util.getProjectPropertyAsBool(project, Util.PropertyNames.IcePrefix);
