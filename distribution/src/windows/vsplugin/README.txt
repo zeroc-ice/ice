@@ -25,7 +25,7 @@ Project properties
   * Slice Compiler Options
 
     Tick the corresponding check boxes to pass options such as --ice,
-    --stream or --tie (.NET only) to the Slice compiler.
+    --stream, --checksum, or --tie (.NET only) to the Slice compiler.
 
     Tick "Console Output" if you want compiler output to appear in 
     Output window.
@@ -44,7 +44,9 @@ Project properties
   * Slice Include Path
   
     Set the list of directories to search for included Slice files
-    (-I option).
+    (-I option). The checkbox for each path controls whether the path
+    is passed to the -I option as an absolute path, or as a path 
+    relative to the project directory.
 
   * DLL Export Symbol (C++ only)
 
@@ -53,6 +55,14 @@ Project properties
   * Ice Components
   
     Set the list of Ice libraries to link with.
+
+Environment Variables
+---------------------
+
+The "Ice Home", "Extra Compiler Options" and "Slice Include Path"
+settings all allow environment variables to be specified. To do this
+the environment variable must be entered using $(VAR) as the format.
+For example, for the "Ice Home" you could use $(ICE_HOME).
 
 
 Adding Slice files to a project

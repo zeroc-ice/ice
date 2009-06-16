@@ -276,6 +276,7 @@ namespace Ice.VisualStudio
             initDocumentEvents();
             foreach(Project p in _applicationObject.Solution.Projects)
             {
+                Util.updateIceHome(p, Util.getIceHomeRaw(p), true);
                 _dependenciesMap[p.Name] = new Dictionary<string, List<string>>();
                 buildProject(p, true);
             }
@@ -292,10 +293,6 @@ namespace Ice.VisualStudio
 
         public void addBuilderToProject(Project project)
         {
-            ComponentList sliceIncludes = 
-                new ComponentList(Util.getProjectProperty(project, Util.PropertyNames.IceIncludePath));
-
-            Util.setProjectProperty(project, Util.PropertyNames.IceIncludePath, sliceIncludes.ToString());
             if(Util.isCppProject(project))
             {
                 Util.addIceCppConfigurations(project);
@@ -845,10 +842,10 @@ namespace Ice.VisualStudio
                 }
             }
 
-            String iceHome = Util.getAbsoluteIceHome(project);
+            String iceHome = Util.getIceHome(project);
             if(Directory.Exists(Path.Combine(iceHome, "cpp")))
             {
-                iceHome = Path.Combine(iceHome, "cpp/bin");
+                iceHome = Path.Combine(iceHome, "cpp\\bin");
             }
             else
             {
@@ -877,7 +874,7 @@ namespace Ice.VisualStudio
         private string getSliceCompilerArgs(Project project, bool depend)
         {
             ComponentList includes = 
-                new ComponentList(Util.getProjectProperty(project, Util.PropertyNames.IceIncludePath));
+                new ComponentList(Util.getProjectProperty(project, Util.PropertyNames.IceIncludePath), '|');
             string extraOpts = Util.getProjectProperty(project, Util.PropertyNames.IceExtraOptions).Trim();
             bool tie = Util.getProjectPropertyAsBool(project, Util.PropertyNames.IceTie);
             bool ice = Util.getProjectPropertyAsBool(project, Util.PropertyNames.IcePrefix);
@@ -916,7 +913,7 @@ namespace Ice.VisualStudio
                 {
                     continue;
                 }
-                String include = i;
+                String include = Util.subEnvironmentVars(i);
                 if(include.EndsWith("\\") &&
                     include.Split(new char[]{'\\'}, StringSplitOptions.RemoveEmptyEntries).Length == 1)
                 {
@@ -928,7 +925,7 @@ namespace Ice.VisualStudio
 
             if(extraOpts.Length != 0)
             {
-                args += extraOpts + " ";
+                args += Util.subEnvironmentVars(extraOpts) + " ";
             }
 
             if(tie && Util.isCSharpProject(project) && !Util.isSilverlightProject(project))

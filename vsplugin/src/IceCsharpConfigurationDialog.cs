@@ -59,7 +59,7 @@ namespace Ice.VisualStudio
                 System.Windows.Forms.Cursor c = Cursor.Current;
                 Cursor = Cursors.WaitCursor;
                 includeDirList.Items.Clear();
-                txtIceHome.Text = Util.getIceHome(_project);
+                txtIceHome.Text = Util.getIceHomeRaw(_project);
                 txtExtraOptions.Text = Util.getProjectProperty(_project, Util.PropertyNames.IceExtraOptions);
 
                 chkIcePrefix.Checked = Util.getProjectPropertyAsBool(_project, Util.PropertyNames.IcePrefix);
@@ -230,7 +230,7 @@ namespace Ice.VisualStudio
             DialogResult result = dialog.ShowDialog();
             if(result == DialogResult.OK)
             {
-                Util.updateIceHome(_project, dialog.SelectedPath);
+                Util.updateIceHome(_project, dialog.SelectedPath, false);
                 load();
                 _changed = true;
             }
@@ -258,13 +258,7 @@ namespace Ice.VisualStudio
                 if(!txtIceHome.Text.Equals(Util.getProjectProperty(_project, Util.PropertyNames.IceHome),
                                            StringComparison.CurrentCultureIgnoreCase))
                 {
-                    String path = txtIceHome.Text;
-                    if(!Path.IsPathRooted(path))
-                    {
-                        path = Path.Combine(Path.GetDirectoryName(_project.FileName), path);
-                        path = Path.GetFullPath(path);
-                    }
-                    Util.updateIceHome(_project, path);
+                    Util.updateIceHome(_project, txtIceHome.Text, false);
                     load();
                     _changed = true;
                     txtIceHome.Modified = false;
@@ -334,7 +328,11 @@ namespace Ice.VisualStudio
             {
                 System.Windows.Forms.Cursor c = Cursor.Current;
                 Cursor = Cursors.WaitCursor;
-                string path = Util.relativePath(projectDir, Path.GetFullPath(dialog.SelectedPath));
+                string path = dialog.SelectedPath;
+                if(!Util.containsEnvironmentVars(path))
+                {
+                    path = Util.relativePath(projectDir, Path.GetFullPath(path));
+                }
                 includeDirList.Items.Add(path);
                 includeDirList.SelectedIndex = includeDirList.Items.Count - 1;
                 if(Path.IsPathRooted(path))
@@ -401,19 +399,20 @@ namespace Ice.VisualStudio
 
         private void includeDirList_ItemCheck(object sender, ItemCheckEventArgs e)
         {
-            string path = null;
-            if(e.NewValue == CheckState.Unchecked)
+            string path = includeDirList.Items[e.Index].ToString();
+            if(!Util.containsEnvironmentVars(path))
             {
-               path = Util.relativePath(Path.GetDirectoryName(_project.FileName),
-                                        includeDirList.Items[e.Index].ToString());
-            }
-            else if(e.NewValue == CheckState.Checked)
-            {
-               path = includeDirList.Items[e.Index].ToString();
-               if(!Path.IsPathRooted(path))
-               {
-                   path = Path.GetFullPath(Path.Combine(Path.GetDirectoryName(_project.FileName), path));
-               }
+                if(e.NewValue == CheckState.Unchecked)
+                {
+                   path = Util.relativePath(Path.GetDirectoryName(_project.FileName), path);
+                }
+                else if(e.NewValue == CheckState.Checked)
+                {
+                   if(!Path.IsPathRooted(path))
+                   {
+                       path = Path.GetFullPath(Path.Combine(Path.GetDirectoryName(_project.FileName), path));
+                   }
+                }
             }
             includeDirList.Items[e.Index] = path;
             saveSliceIncludes();
