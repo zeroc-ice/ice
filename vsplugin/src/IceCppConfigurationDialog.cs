@@ -493,17 +493,7 @@ namespace Ice.VisualStudio
         
         private void beginEditIncludeDir()
         {
-            if(_txtIncludeDir != null)
-            {
-                this.Controls.Remove(_txtIncludeDir);
-                _txtIncludeDir = null;
-            }
-
-            if(_btnSelectInclude != null)
-            {
-                this.Controls.Remove(_btnSelectInclude);
-                _btnSelectInclude = null;
-            }
+            endEditIncludeDir(false);
 
             if(includeDirList.SelectedIndex != -1)
             {
@@ -513,23 +503,28 @@ namespace Ice.VisualStudio
                 Point p = new Point(includeDirList.Left, includeDirList.Top);
                 includeDirList.SelectionMode = SelectionMode.One;
                 Rectangle rect = includeDirList.GetItemRectangle(includeDirList.SelectedIndex);
-                p = includeDirList.PointToScreen(new Point(rect.X, rect.Y));
-                _txtIncludeDir.SetBounds(p.X - includeDirList.Width + 10,
+                p = new Point(rect.X, rect.Y);
+                //p = includeDirList.PointToScreen(p);
+                //p = this.PointToClient(p);
+                /*_txtIncludeDir.SetBounds(p.X - includeDirList.Width + 10,
                               p.Y - includeDirList.Height + 5,
                               includeDirList.Width - 50,
-                              4);
-
+                              4);*/
+                              
+                _txtIncludeDir.Location = new Point(includeDirList.Location.X + 2, 
+                                                    includeDirList.Location.Y + p.Y);
+                _txtIncludeDir.Width = includeDirList.Width - 50;
+                _txtIncludeDir.Parent = includeDirList;
 
                 _btnSelectInclude = new Button();
                 _btnSelectInclude.Text = "...";
-                _btnSelectInclude.SetBounds(p.X - includeDirList.Width + _txtIncludeDir.Width + 5,
-                                 p.Y - includeDirList.Height + 4,
-                                 50,
-                                 22);
+                _btnSelectInclude.Location = new Point(includeDirList.Location.X + _txtIncludeDir.Width,
+                                                       includeDirList.Location.Y + p.Y);
+                _btnSelectInclude.Width = 49;
 
                 _btnSelectInclude.Click += new EventHandler(selectIncludeClicked);
-                this.Controls.Add(_txtIncludeDir);
-                this.Controls.Add(_btnSelectInclude);
+                this.groupBox1.Controls.Add(_txtIncludeDir);
+                this.groupBox1.Controls.Add(_btnSelectInclude);
                 _txtIncludeDir.Show();
                 _txtIncludeDir.BringToFront();
                 _txtIncludeDir.Focus();
@@ -562,13 +557,13 @@ namespace Ice.VisualStudio
             }
             if(_txtIncludeDir != null)
             {
-                this.Controls.Remove(_txtIncludeDir);
+                this.groupBox1.Controls.Remove(_txtIncludeDir);
                 _txtIncludeDir = null;
             }
 
             if(_btnSelectInclude != null)
             {
-                this.Controls.Remove(_btnSelectInclude);
+                this.groupBox1.Controls.Remove(_btnSelectInclude);
                 _btnSelectInclude = null;
             }
         }
@@ -620,6 +615,11 @@ namespace Ice.VisualStudio
         private void btnEdit_Click(object sender, EventArgs e)
         {
             beginEditIncludeDir();
+        }
+
+        private void includeDirList_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            endEditIncludeDir(false);
         }
     }
 }

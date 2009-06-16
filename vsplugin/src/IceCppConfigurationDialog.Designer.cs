@@ -40,6 +40,7 @@ namespace Ice.VisualStudio
             this.components = new System.ComponentModel.Container();
             this.chkEnableBuilder = new System.Windows.Forms.CheckBox();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
+            this.btnEdit = new System.Windows.Forms.Button();
             this.includeInfo = new System.Windows.Forms.Label();
             this.btnMoveIncludeDown = new System.Windows.Forms.Button();
             this.btnMoveIncludeUp = new System.Windows.Forms.Button();
@@ -70,7 +71,6 @@ namespace Ice.VisualStudio
             this.toolTip = new System.Windows.Forms.ToolTip(this.components);
             this.grouDllExportSymbol = new System.Windows.Forms.GroupBox();
             this.txtDllExportSymbol = new System.Windows.Forms.TextBox();
-            this.btnEdit = new System.Windows.Forms.Button();
             this.groupBox1.SuspendLayout();
             this.groupBox2.SuspendLayout();
             this.groupBox3.SuspendLayout();
@@ -105,6 +105,16 @@ namespace Ice.VisualStudio
             this.groupBox1.TabIndex = 1;
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "Slice Include Path";
+            // 
+            // btnEdit
+            // 
+            this.btnEdit.Location = new System.Drawing.Point(405, 46);
+            this.btnEdit.Name = "btnEdit";
+            this.btnEdit.Size = new System.Drawing.Size(75, 23);
+            this.btnEdit.TabIndex = 13;
+            this.btnEdit.Text = "Edit";
+            this.btnEdit.UseVisualStyleBackColor = true;
+            this.btnEdit.Click += new System.EventHandler(this.btnEdit_Click);
             // 
             // includeInfo
             // 
@@ -162,8 +172,8 @@ namespace Ice.VisualStudio
             this.includeDirList.Name = "includeDirList";
             this.includeDirList.Size = new System.Drawing.Size(390, 124);
             this.includeDirList.TabIndex = 7;
+            this.includeDirList.SelectedIndexChanged += new System.EventHandler(this.includeDirList_SelectedIndexChanged);
             this.includeDirList.ItemCheck += new System.Windows.Forms.ItemCheckEventHandler(this.includeDirList_ItemCheck);
-            
             // 
             // groupBox2
             // 
@@ -423,16 +433,6 @@ namespace Ice.VisualStudio
             this.txtDllExportSymbol.Size = new System.Drawing.Size(474, 20);
             this.txtDllExportSymbol.TabIndex = 1;
             this.txtDllExportSymbol.LostFocus += new System.EventHandler(this.txtDllExportSymbol_LostFocus);
-            // 
-            // btnEdit
-            // 
-            this.btnEdit.Location = new System.Drawing.Point(405, 46);
-            this.btnEdit.Name = "btnEdit";
-            this.btnEdit.Size = new System.Drawing.Size(75, 23);
-            this.btnEdit.TabIndex = 13;
-            this.btnEdit.Text = "Edit";
-            this.btnEdit.UseVisualStyleBackColor = true;
-            this.btnEdit.Click += new System.EventHandler(this.btnEdit_Click);
             // 
             // IceCppConfigurationDialog
             // 
