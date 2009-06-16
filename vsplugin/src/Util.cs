@@ -984,8 +984,7 @@ namespace Ice.VisualStudio
             }
 
             string oldIceHome = Util.getIceHome(project).ToUpper();
-            if(Path.GetFullPath(oldIceHome).Equals(Path.GetFullPath(iceHome),
-                                                   StringComparison.CurrentCultureIgnoreCase))
+            if(oldIceHome.Equals(iceHome, StringComparison.CurrentCultureIgnoreCase))
             {
                 return;
             }
@@ -1037,7 +1036,8 @@ namespace Ice.VisualStudio
             {
                 if(!File.Exists(value + "\\bin\\slice2sl.exe") || !Directory.Exists(value + "\\slice\\Ice"))
                 {
-                    if(!File.Exists(value + "\\cpp\\bin\\slice2sl.exe") || !Directory.Exists(value + "\\sl\\slice\\Ice"))
+                    if(!File.Exists(value + "\\cpp\\bin\\slice2sl.exe") ||
+                       !Directory.Exists(value + "\\sl\\slice\\Ice"))
                     {
                         System.Windows.Forms.MessageBox.Show("Could not locate Ice for Silverlight installation in '"
                                                              + value + "' directory.\n",
@@ -1065,11 +1065,12 @@ namespace Ice.VisualStudio
                     }
                 }
             }
+
             string projectDir = Path.GetFullPath(Path.GetDirectoryName(project.FileName)) + "\\";
-            value = Path.GetFullPath(value);
-            if(projectDir.StartsWith(value + "\\", StringComparison.CurrentCultureIgnoreCase))
+            string fullPath = Path.GetFullPath(value);
+            if(projectDir.StartsWith(fullPath + "\\", StringComparison.CurrentCultureIgnoreCase))
             {
-                value = relativePath(projectDir, value);
+                value = relativePath(projectDir, fullPath);
             }
 
             setProjectProperty(project, Util.PropertyNames.IceHome, value);

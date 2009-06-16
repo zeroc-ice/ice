@@ -216,13 +216,7 @@ namespace Ice.VisualStudio
                 if(!txtIceHome.Text.Equals(Util.getProjectProperty(_project, Util.PropertyNames.IceHome), 
                                            StringComparison.CurrentCultureIgnoreCase))
                 {
-                    String path = txtIceHome.Text;
-                    if(!Path.IsPathRooted(path))
-                    {
-                        path = Path.Combine(Path.GetDirectoryName(_project.FileName), path);
-                        path = Path.GetFullPath(path);
-                    }
-                    Util.updateIceHome(_project, path);
+                    Util.updateIceHome(_project, txtIceHome.Text);
                     load();
                     _changed = true;
                     txtIceHome.Modified = false;
