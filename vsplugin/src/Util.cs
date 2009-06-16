@@ -495,20 +495,6 @@ namespace Ice.VisualStudio
             }
         }
 
-        public static Reference findReference(VSProject project, string path)
-        {
-            Reference value = null;
-            foreach(Reference r in project.References)
-            {
-                if(r.Path.Equals(path, StringComparison.CurrentCultureIgnoreCase))
-                {
-                    value = r;
-                    break;
-                }
-            }
-            return value;
-        }
-
         public static void removeCSharpReference(Project project, string component)
         {
             if(project == null || String.IsNullOrEmpty(component))
@@ -516,24 +502,13 @@ namespace Ice.VisualStudio
                 return;
             }
 
-            string iceHome = Util.getIceHome(project);
-            if(Directory.Exists(iceHome + "\\cs\\bin"))
+            foreach(Reference r in ((VSProject)project.Object).References)
             {
-                iceHome += "\\cs\\bin";
-            }
-            else if(Directory.Exists(iceHome + "\\sl\\bin"))
-            {
-                iceHome += "\\sl\\bin";
-            }
-            else
-            {
-                iceHome += "\\bin";
-            }
-            Reference reference = Util.findReference((VSProject)project.Object,
-                                                     Path.Combine(iceHome, component + ".dll"));
-            if(reference != null)
-            {
-                reference.Remove();
+                if(Path.GetFileName(r.Path).Equals(component + ".dll", StringComparison.OrdinalIgnoreCase))
+                {
+                    r.Remove();
+                    break;
+                }
             }
         }
 
@@ -1278,24 +1253,9 @@ namespace Ice.VisualStudio
                 return components;
             }
 
-            string iceHome = Util.getIceHome(project);
             VSLangProj.VSProject vsProject = (VSLangProj.VSProject)project.Object;
             foreach(Reference r in vsProject.References)
             {
-                if(r == null)
-                {
-                    continue;
-                }
-                if(String.IsNullOrEmpty(r.Path))
-                {
-                    continue;
-                }
-                if(!Path.GetDirectoryName(r.Path).StartsWith(iceHome + "\\", 
-                                                             StringComparison.CurrentCultureIgnoreCase))
-                {
-                    continue; //Not in Ice Home
-                }
-
                 string iceComponent = Array.Find(Util.ComponentNames.silverlightNames, delegate(string name)
                 {
                     return name.Equals(r.Name);
@@ -1319,15 +1279,9 @@ namespace Ice.VisualStudio
                 return components;
             }
 
-            string iceHome = Util.getIceHome(project);
             VSLangProj.VSProject vsProject = (VSLangProj.VSProject)project.Object;
             foreach(Reference r in vsProject.References)
             {
-                if(!Path.GetDirectoryName(r.Path).ToUpper().Contains(iceHome.ToUpper()))
-                {
-                    continue; //Not in Ice Home
-                }
-
                 string iceComponent = Array.Find(Util.ComponentNames.cSharpNames, delegate(string name)
                 {
                     return name.Equals(r.Name);
