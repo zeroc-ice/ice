@@ -40,6 +40,7 @@ namespace Ice.VisualStudio
             this.components = new System.ComponentModel.Container();
             this.chkEnableBuilder = new System.Windows.Forms.CheckBox();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
+            this.includeInfo = new System.Windows.Forms.Label();
             this.btnMoveIncludeDown = new System.Windows.Forms.Button();
             this.btnMoveIncludeUp = new System.Windows.Forms.Button();
             this.btnRemoveInclude = new System.Windows.Forms.Button();
@@ -69,7 +70,7 @@ namespace Ice.VisualStudio
             this.toolTip = new System.Windows.Forms.ToolTip(this.components);
             this.grouDllExportSymbol = new System.Windows.Forms.GroupBox();
             this.txtDllExportSymbol = new System.Windows.Forms.TextBox();
-            this.includeInfo = new System.Windows.Forms.Label();
+            this.btnEdit = new System.Windows.Forms.Button();
             this.groupBox1.SuspendLayout();
             this.groupBox2.SuspendLayout();
             this.groupBox3.SuspendLayout();
@@ -91,6 +92,7 @@ namespace Ice.VisualStudio
             // 
             // groupBox1
             // 
+            this.groupBox1.Controls.Add(this.btnEdit);
             this.groupBox1.Controls.Add(this.includeInfo);
             this.groupBox1.Controls.Add(this.btnMoveIncludeDown);
             this.groupBox1.Controls.Add(this.btnMoveIncludeUp);
@@ -104,9 +106,18 @@ namespace Ice.VisualStudio
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "Slice Include Path";
             // 
+            // includeInfo
+            // 
+            this.includeInfo.AutoSize = true;
+            this.includeInfo.Location = new System.Drawing.Point(7, 146);
+            this.includeInfo.Name = "includeInfo";
+            this.includeInfo.Size = new System.Drawing.Size(315, 13);
+            this.includeInfo.TabIndex = 12;
+            this.includeInfo.Text = "Select checkboxes for absolute paths, deselect for relative paths.";
+            // 
             // btnMoveIncludeDown
             // 
-            this.btnMoveIncludeDown.Location = new System.Drawing.Point(405, 106);
+            this.btnMoveIncludeDown.Location = new System.Drawing.Point(405, 127);
             this.btnMoveIncludeDown.Name = "btnMoveIncludeDown";
             this.btnMoveIncludeDown.Size = new System.Drawing.Size(75, 23);
             this.btnMoveIncludeDown.TabIndex = 11;
@@ -116,7 +127,7 @@ namespace Ice.VisualStudio
             // 
             // btnMoveIncludeUp
             // 
-            this.btnMoveIncludeUp.Location = new System.Drawing.Point(405, 76);
+            this.btnMoveIncludeUp.Location = new System.Drawing.Point(405, 100);
             this.btnMoveIncludeUp.Name = "btnMoveIncludeUp";
             this.btnMoveIncludeUp.Size = new System.Drawing.Size(75, 23);
             this.btnMoveIncludeUp.TabIndex = 10;
@@ -126,7 +137,7 @@ namespace Ice.VisualStudio
             // 
             // btnRemoveInclude
             // 
-            this.btnRemoveInclude.Location = new System.Drawing.Point(405, 47);
+            this.btnRemoveInclude.Location = new System.Drawing.Point(405, 73);
             this.btnRemoveInclude.Name = "btnRemoveInclude";
             this.btnRemoveInclude.Size = new System.Drawing.Size(75, 23);
             this.btnRemoveInclude.TabIndex = 9;
@@ -152,6 +163,7 @@ namespace Ice.VisualStudio
             this.includeDirList.Size = new System.Drawing.Size(390, 124);
             this.includeDirList.TabIndex = 7;
             this.includeDirList.ItemCheck += new System.Windows.Forms.ItemCheckEventHandler(this.includeDirList_ItemCheck);
+            
             // 
             // groupBox2
             // 
@@ -412,14 +424,15 @@ namespace Ice.VisualStudio
             this.txtDllExportSymbol.TabIndex = 1;
             this.txtDllExportSymbol.LostFocus += new System.EventHandler(this.txtDllExportSymbol_LostFocus);
             // 
-            // includeInfo
+            // btnEdit
             // 
-            this.includeInfo.AutoSize = true;
-            this.includeInfo.Location = new System.Drawing.Point(7, 146);
-            this.includeInfo.Name = "includeInfo";
-            this.includeInfo.Size = new System.Drawing.Size(317, 13);
-            this.includeInfo.TabIndex = 12;
-            this.includeInfo.Text = "Select checkboxes for absolute paths, deselect for relative paths.";
+            this.btnEdit.Location = new System.Drawing.Point(405, 46);
+            this.btnEdit.Name = "btnEdit";
+            this.btnEdit.Size = new System.Drawing.Size(75, 23);
+            this.btnEdit.TabIndex = 13;
+            this.btnEdit.Text = "Edit";
+            this.btnEdit.UseVisualStyleBackColor = true;
+            this.btnEdit.Click += new System.EventHandler(this.btnEdit_Click);
             // 
             // IceCppConfigurationDialog
             // 
@@ -491,5 +504,6 @@ namespace Ice.VisualStudio
         private System.Windows.Forms.TextBox txtDllExportSymbol;
         private System.Windows.Forms.CheckBox chkChecksum;
         private System.Windows.Forms.Label includeInfo;
+        private System.Windows.Forms.Button btnEdit;
     }
 }
