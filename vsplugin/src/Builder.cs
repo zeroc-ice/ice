@@ -276,6 +276,7 @@ namespace Ice.VisualStudio
             initDocumentEvents();
             foreach(Project p in _applicationObject.Solution.Projects)
             {
+                Util.updateIceHome(p, Util.getIceHomeRaw(p), true);
                 _dependenciesMap[p.Name] = new Dictionary<string, List<string>>();
                 buildProject(p, true);
             }
@@ -844,7 +845,7 @@ namespace Ice.VisualStudio
             String iceHome = Util.getIceHome(project);
             if(Directory.Exists(Path.Combine(iceHome, "cpp")))
             {
-                iceHome = Path.Combine(iceHome, "cpp/bin");
+                iceHome = Path.Combine(iceHome, "cpp\\bin");
             }
             else
             {

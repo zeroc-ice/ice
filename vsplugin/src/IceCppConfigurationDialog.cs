@@ -56,7 +56,7 @@ namespace Ice.VisualStudio
             if(_project != null)
             {
                 includeDirList.Items.Clear();
-                txtIceHome.Text = Util.getIceHome(_project);
+                txtIceHome.Text = Util.getIceHomeRaw(_project);
                 txtIceHome.Modified = false;
                 txtExtraOptions.Text = Util.getProjectProperty(_project, Util.PropertyNames.IceExtraOptions);
 
@@ -248,7 +248,7 @@ namespace Ice.VisualStudio
             DialogResult result = dialog.ShowDialog();
             if(result == DialogResult.OK)
             {
-                Util.updateIceHome(_project, dialog.SelectedPath);
+                Util.updateIceHome(_project, dialog.SelectedPath, false);
                 load();
                 _changed = true;
             }
@@ -277,7 +277,7 @@ namespace Ice.VisualStudio
                 if(!txtIceHome.Text.Equals(Util.getProjectProperty(_project, Util.PropertyNames.IceHome),
                                            StringComparison.CurrentCultureIgnoreCase))
                 {
-                    Util.updateIceHome(_project, txtIceHome.Text);
+                    Util.updateIceHome(_project, txtIceHome.Text, false);
                     load();
                     _changed = true;
                     txtIceHome.Modified = false;
