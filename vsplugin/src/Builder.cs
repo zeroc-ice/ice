@@ -125,20 +125,15 @@ namespace Ice.VisualStudio
 
         void afterAddNewItem(string Guid, int ID, object obj, object CustomOut)
         {
-            foreach(ProjectItem i in _deleted)
+            foreach(String path in _deleted)
             {
-                if(i == null)
+                if(path == null)
                 {
                     continue;
                 }
-                String fullPath = i.Properties.Item("FullPath").Value.ToString();
-                if(File.Exists(fullPath))
+                if(File.Exists(path))
                 {
-                    i.Delete();
-                }
-                else
-                {
-                    i.Remove();
+                    File.Delete(path);
                 }
             }
             _deleted.Clear();
@@ -146,14 +141,6 @@ namespace Ice.VisualStudio
 
         void afterAddExistingItem(string Guid, int ID, object obj, object CustomOut)
         {
-            foreach(ProjectItem i in _deleted)
-            {
-                if(i == null)
-                {
-                    continue;
-                }
-                i.Remove();
-            }
             _deleted.Clear();
         }
         
@@ -1461,7 +1448,8 @@ namespace Ice.VisualStudio
                                                              "Ice Visual Studio Extension",
                                                              System.Windows.Forms.MessageBoxButtons.OK,
                                                              System.Windows.Forms.MessageBoxIcon.Error);
-                        _deleted.Add(item);
+                        _deleted.Add(fullPath);
+                        item.Remove();
                         return;
                     }
 
@@ -1475,7 +1463,8 @@ namespace Ice.VisualStudio
                                                              "Ice Visual Studio Extension",
                                                              System.Windows.Forms.MessageBoxButtons.OK,
                                                              System.Windows.Forms.MessageBoxIcon.Error);
-                        _deleted.Add(item);
+                        _deleted.Add(fullPath);
+                        item.Remove();
                         return;
                     }
                 }
@@ -1616,7 +1605,8 @@ namespace Ice.VisualStudio
                                                          "Ice Visual Studio Extension",
                                                          System.Windows.Forms.MessageBoxButtons.OK,
                                                          System.Windows.Forms.MessageBoxIcon.Error);
-                    _deleted.Add(item);
+                    _deleted.Add(fullPath);
+                    item.Remove();
                     return;
                 }
 
@@ -2286,7 +2276,7 @@ namespace Ice.VisualStudio
         private CommandEvents _addExistingItemEvent;
         private CommandEvents _editRemoveEvent;
         private CommandEvents _editDeleteEvent;
-        private List<ProjectItem> _deleted = new List<ProjectItem>();
+        private List<String> _deleted = new List<String>();
         private Command _iceConfigurationCmd;
     }
 }
