@@ -629,17 +629,22 @@ namespace Ice.VisualStudio
                 {
                     if(runSliceCompiler(project, ice.FullName, output))
                     {
-                        _fileTracker.trackFile(project, ice.FullName, h.FullName);
-                        _fileTracker.trackFile(project, ice.FullName, cpp.FullName);
-                        addCppGeneratedFiles(project, cpp, h);
+                        addCppGeneratedFiles(project, ice, cpp, h);
                         success = true;
                     }
                 }
             }
+            else
+            {
+                //
+                // Make sure generated files are part of project.
+                //
+                addCppGeneratedFiles(project, ice, cpp, h);
+            }
             return !updated | success;
         }
 
-        public void addCppGeneratedFiles(Project project, FileInfo cpp, FileInfo h)
+        public void addCppGeneratedFiles(Project project, FileInfo ice, FileInfo cpp, FileInfo h)
         {
             if(project == null)
             {
@@ -649,17 +654,24 @@ namespace Ice.VisualStudio
             string projectDir = Path.GetDirectoryName(project.FileName);
             VCProject vcProject = (VCProject)project.Object;
 
-            VCFile file = Util.findVCFile((IVCCollection)vcProject.Files, cpp.Name, cpp.FullName);
-
-            if(file == null)
+            if(File.Exists(cpp.FullName))
             {
-                vcProject.AddFile(cpp.FullName);
+                _fileTracker.trackFile(project, ice.FullName, h.FullName);
+                VCFile file = Util.findVCFile((IVCCollection)vcProject.Files, cpp.Name, cpp.FullName);
+                if(file == null)
+                {
+                    vcProject.AddFile(cpp.FullName);
+                }
             }
 
-            file = Util.findVCFile((IVCCollection)vcProject.Files, h.Name, h.FullName);            
-            if(file == null)
+            if(File.Exists(h.FullName))
             {
-                vcProject.AddFile(h.FullName);
+                _fileTracker.trackFile(project, ice.FullName, cpp.FullName);
+                VCFile file = Util.findVCFile((IVCCollection)vcProject.Files, h.Name, h.FullName);            
+                if(file == null)
+                {
+                    vcProject.AddFile(h.FullName);
+                }
             }
         }
 
@@ -812,21 +824,33 @@ namespace Ice.VisualStudio
                 {
                     if(runSliceCompiler(project, iceFileInfo.FullName, generatedFileInfo.DirectoryName))
                     {
-                        _fileTracker.trackFile(project, iceFileInfo.FullName, generatedFileInfo.FullName);
+                        addCSharpGeneratedFiles(project, iceFileInfo, generatedFileInfo);
                         success = true;
-                    }
-
-                    if(File.Exists(generatedFileInfo.FullName))
-                    {
-                        ProjectItem generatedItem = Util.findItem(generatedFileInfo.FullName, project.ProjectItems);
-                        if(generatedItem == null)
-                        {
-                            project.ProjectItems.AddFromFile(generatedFileInfo.FullName);
-                        }
                     }
                 }
             }
+            else
+            {
+                //
+                // Make sure generated files are part of project.
+                //
+                addCSharpGeneratedFiles(project, iceFileInfo, generatedFileInfo);
+            }
             return !updated | success;
+        }
+
+        private void addCSharpGeneratedFiles(Project project, FileInfo ice, FileInfo file)
+        {
+            if(File.Exists(file.FullName))
+            {
+                _fileTracker.trackFile(project, ice.FullName, file.FullName);
+
+                ProjectItem generatedItem = Util.findItem(file.FullName, project.ProjectItems);
+                if(generatedItem == null)
+                {
+                    project.ProjectItems.AddFromFile(file.FullName);
+                }
+            }
         }
 
         private string quoteArg(string arg)
