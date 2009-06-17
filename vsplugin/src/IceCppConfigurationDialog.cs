@@ -433,8 +433,10 @@ namespace Ice.VisualStudio
                 }
             }
             includeDirList.Items[e.Index] = path;
-            saveSliceIncludes();
-            _changed = true;
+            if(_initialized)
+            {
+                saveSliceIncludes();
+            }
         }
 
         private void txtExtraOptions_LostFocus(object sender, EventArgs e)
