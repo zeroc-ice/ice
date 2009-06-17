@@ -27,6 +27,50 @@ namespace Ice.VisualStudio
             _files.Clear();
         }
 
+        public bool hasGeneratedFile(Project project, String generated)
+        {
+            if(project == null)
+            {
+                return false;
+            }
+
+            if(String.IsNullOrEmpty(project.Name))
+            {
+                return false;
+            }
+
+            if(!_files.ContainsKey(project.Name))
+            {
+                return false;
+            }
+
+            bool found = false;
+            Dictionary<String, List<String>> projectFiles = _files[project.Name];
+
+            foreach(KeyValuePair<String, List<String>> k in projectFiles)
+            {
+                if(Path.GetFileName(k.Key).Equals(Path.GetFileName(Path.ChangeExtension(generated, ".ice")),
+                                                StringComparison.CurrentCultureIgnoreCase))
+                {
+                    foreach(String path in k.Value)
+                    {
+                        if(Path.GetFullPath(path).Equals(Path.GetFullPath(generated), 
+                                                        StringComparison.CurrentCultureIgnoreCase))
+                        {
+                            found = true;
+                            break;
+                        }
+                    }
+                    if(found)
+                    {
+                        break;
+                    }
+                }
+            }
+
+            return found;
+        }
+
         public void trackFile(Project project, String slice, String generated)
         {
             if(!_files.ContainsKey(project.Name))

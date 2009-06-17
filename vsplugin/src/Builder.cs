@@ -346,6 +346,17 @@ namespace Ice.VisualStudio
             }
         }
 
+        private void documentOpened(Document document)
+        {
+            if(_fileTracker.hasGeneratedFile(document.ProjectItem.ContainingProject, document.FullName))
+            {
+                if(!document.ReadOnly)
+                {
+                    document.ReadOnly = true;
+                }
+            }
+        }
+
         public void documentSaved(Document document)
         {
             Project project = null;
@@ -1139,6 +1150,7 @@ namespace Ice.VisualStudio
             if(_docEvents != null)
             {
                 _docEvents.DocumentSaved += new _dispDocumentEvents_DocumentSavedEventHandler(documentSaved);
+                _docEvents.DocumentOpened += new _dispDocumentEvents_DocumentOpenedEventHandler(documentOpened);
             }
         }
 
@@ -1172,6 +1184,7 @@ namespace Ice.VisualStudio
             if(_docEvents != null)
             {
                 _docEvents.DocumentSaved -= new _dispDocumentEvents_DocumentSavedEventHandler(documentSaved);
+                _docEvents.DocumentOpened -= new _dispDocumentEvents_DocumentOpenedEventHandler(documentOpened);
                 _docEvents = null;
             }
         }
