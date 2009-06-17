@@ -285,7 +285,7 @@ namespace Ice.VisualStudio
                     Util.updateIceHome(p, Util.getIceHomeRaw(p), true);
                 }
                 _dependenciesMap[p.Name] = new Dictionary<string, List<string>>();
-                buildProject(p, true, vsBuildScope.vsBuildScopeProject);
+                buildProject(p, true, vsBuildScope.vsBuildScopeSolution);
             }
             if(hasErrors())
             {
@@ -595,10 +595,6 @@ namespace Ice.VisualStudio
             bool updated = false;
             bool success = false;
             
-            if(force)
-            {
-                updated = true;
-            }
             if(!h.Exists || !cpp.Exists)
             {
                 updated = true;
@@ -622,38 +618,41 @@ namespace Ice.VisualStudio
                 // Now check it any of the dependencies has changed.
                 //
                 string relativeName = Util.relativePath(Path.GetDirectoryName(project.FileName), ice.FullName);
-                Dictionary<string, List<string>> dependenciesMap = _dependenciesMap[project.Name];
-                if(dependenciesMap.ContainsKey(ice.FullName))
+                if(_dependenciesMap.ContainsKey(project.Name))
                 {
-                    List<string> fileDependencies = dependenciesMap[ice.FullName];
-                    foreach(string name in fileDependencies)
+                    Dictionary<string, List<string>> dependenciesMap = _dependenciesMap[project.Name];
+                    if(dependenciesMap.ContainsKey(ice.FullName))
                     {
-                        FileInfo dependency =
-                            new FileInfo(Path.Combine(Path.GetDirectoryName(project.FileName), name));
-                        if(!dependency.Exists)
+                        List<string> fileDependencies = dependenciesMap[ice.FullName];
+                        foreach(string name in fileDependencies)
                         {
-                            updated = true;
-                            break;
-                        }
-                        
-                        if(dependency.LastWriteTime > cpp.LastWriteTime ||
-                           dependency.LastWriteTime > h.LastWriteTime)
-                        {
-                            updated = true;
-                            break;
+                            FileInfo dependency =
+                                new FileInfo(Path.Combine(Path.GetDirectoryName(project.FileName), name));
+                            if(!dependency.Exists)
+                            {
+                                updated = true;
+                                break;
+                            }
+                            
+                            if(dependency.LastWriteTime > cpp.LastWriteTime ||
+                               dependency.LastWriteTime > h.LastWriteTime)
+                            {
+                                updated = true;
+                                break;
+                            }
                         }
                     }
                 }
             }
             
-            if(updated)
+            if(updated || force)
             {
                 if(!Directory.Exists(output))
                 {
                     Directory.CreateDirectory(output);
                 }
 
-                if(updateDependencies(project, null, ice.FullName, getSliceCompilerArgs(project, true)))
+                if(updateDependencies(project, null, ice.FullName, getSliceCompilerArgs(project, true)) && updated)
                 {
                     if(runSliceCompiler(project, ice.FullName, output))
                     {
@@ -809,11 +808,7 @@ namespace Ice.VisualStudio
             FileInfo generatedFileInfo = new FileInfo(getCSharpGeneratedFileName(project, item, "cs"));
             bool success = false;
             bool updated = false;
-            if(force)
-            {
-                updated = true;
-            }
-            else if(!generatedFileInfo.Exists)
+            if(!generatedFileInfo.Exists)
             {
                 updated = true;
             }
@@ -846,9 +841,9 @@ namespace Ice.VisualStudio
                     }
                 }
             }
-            if(updated)
+            if(updated || force)
             {
-                if(updateDependencies(project, item, iceFileInfo.FullName, getSliceCompilerArgs(project, true)))
+                if(updateDependencies(project, item, iceFileInfo.FullName, getSliceCompilerArgs(project, true)) && updated)
                 {
                     if(runSliceCompiler(project, iceFileInfo.FullName, generatedFileInfo.DirectoryName))
                     {
