@@ -101,7 +101,7 @@ namespace Ice.VisualStudio
                     removeDependency(project, _deletedFile);
                     _deletedFile = null;
                     clearErrors(project);
-                    buildProject(project, false);
+                    buildProject(project, false, vsBuildScope.vsBuildScopeProject);
                 }
             }
         }
@@ -285,7 +285,7 @@ namespace Ice.VisualStudio
                     Util.updateIceHome(p, Util.getIceHomeRaw(p), true);
                 }
                 _dependenciesMap[p.Name] = new Dictionary<string, List<string>>();
-                buildProject(p, true);
+                buildProject(p, true, vsBuildScope.vsBuildScopeProject);
             }
             if(hasErrors())
             {
@@ -388,7 +388,7 @@ namespace Ice.VisualStudio
 
             _fileTracker.reap(project, this);
             clearErrors(project);
-            buildProject(project, false);
+            buildProject(project, false, vsBuildScope.vsBuildScopeProject);
         }
         
         public void projectAdded(Project project)
@@ -464,12 +464,12 @@ namespace Ice.VisualStudio
             }
         }
 
-        public void buildProject(Project project, bool force)
+        public void buildProject(Project project, bool force, vsBuildScope scope)
         {
-            buildProject(project, force, null);
+            buildProject(project, force, null, scope);
         }
 
-        public void buildProject(Project project, bool force, ProjectItem excludeItem)
+        public void buildProject(Project project, bool force, ProjectItem excludeItem, vsBuildScope scope)
         {
             if(project == null)
             {
@@ -479,6 +479,23 @@ namespace Ice.VisualStudio
             if(!Util.isSliceBuilderEnabled(project))
             {
                 return;
+            }
+
+            if(vsBuildScope.vsBuildScopeProject == scope)
+            {
+                BuildDependencies dependencies = _applicationObject.Solution.SolutionBuild.BuildDependencies;
+                for(int i = 0; i < dependencies.Count; ++i)
+                {
+                    BuildDependency dp = dependencies.Item(i + 1);
+                    if(dp.Project.Equals(project))
+                    {
+                        System.Array projects = dp.RequiredProjects as System.Array;
+                        foreach(Project p in projects)
+                        {
+                            buildProject(p, force, vsBuildScope.vsBuildScopeProject);
+                        }
+                    }
+                }
             }
 
             bool consoleOutput = Util.getProjectPropertyAsBool(project, Util.PropertyNames.ConsoleOutput);
@@ -1305,7 +1322,7 @@ namespace Ice.VisualStudio
 
                 // Do a full build on a rename
                 clearErrors(project);
-                buildProject(project, false);
+                buildProject(project, false, vsBuildScope.vsBuildScopeProject);
             }
             catch(Exception ex)
             {
@@ -1456,7 +1473,7 @@ namespace Ice.VisualStudio
                 }
 
                 clearErrors(project);
-                buildProject(project, false);
+                buildProject(project, false, vsBuildScope.vsBuildScopeProject);
             }
             catch(Exception ex)
             {
@@ -1504,7 +1521,7 @@ namespace Ice.VisualStudio
                 }
 
                 clearErrors(item.ContainingProject);
-                buildProject(item.ContainingProject, false);
+                buildProject(item.ContainingProject, false, vsBuildScope.vsBuildScopeProject);
             }
             catch(Exception ex)
             {
@@ -1540,7 +1557,7 @@ namespace Ice.VisualStudio
 
                 removeDependency(item.ContainingProject, fullName);
                 clearErrors(item.ContainingProject);
-                buildProject(item.ContainingProject, false, item);
+                buildProject(item.ContainingProject, false, item, vsBuildScope.vsBuildScopeProject);
             }
             catch(Exception ex)
             {
@@ -1596,7 +1613,7 @@ namespace Ice.VisualStudio
                 }
 
                 clearErrors(project);
-                buildProject(project, false);
+                buildProject(project, false, vsBuildScope.vsBuildScopeProject);
             }
             catch(Exception ex)
             {
@@ -1971,7 +1988,7 @@ namespace Ice.VisualStudio
                                 {
                                     cleanProject(project);
                                 }
-                                buildProject(project, false);
+                                buildProject(project, false, scope);
                             }
                             if(hasErrors(project))
                             {
@@ -1996,7 +2013,7 @@ namespace Ice.VisualStudio
                                     {
                                         cleanProject(p);
                                     }
-                                    buildProject(p, false);
+                                    buildProject(p, false, scope);
                                 }
                             }
                             if(hasErrors())
