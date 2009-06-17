@@ -276,7 +276,14 @@ namespace Ice.VisualStudio
             initDocumentEvents();
             foreach(Project p in _applicationObject.Solution.Projects)
             {
-                Util.updateIceHome(p, Util.getIceHomeRaw(p), true);
+                //
+                // Update Ice Home if expansion does not match old setting.
+                //
+                if(!Util.subEnvironmentVars(Util.getIceHomeRaw(p)).Equals(Util.getIceHome(p), 
+                                                                          StringComparison.CurrentCultureIgnoreCase))
+                {
+                    Util.updateIceHome(p, Util.getIceHomeRaw(p), true);
+                }
                 _dependenciesMap[p.Name] = new Dictionary<string, List<string>>();
                 buildProject(p, true);
             }
