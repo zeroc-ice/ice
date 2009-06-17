@@ -569,7 +569,7 @@ namespace Ice.VisualStudio
             {
                 return true;
             }
-
+// 
             if(item.Name == null)
             {
                 return true;
@@ -617,9 +617,9 @@ namespace Ice.VisualStudio
                 //
                 // Now check it any of the dependencies has changed.
                 //
-                string relativeName = Util.relativePath(Path.GetDirectoryName(project.FileName), ice.FullName);
                 if(_dependenciesMap.ContainsKey(project.Name))
                 {
+                    string relativeName = Util.relativePath(Path.GetDirectoryName(project.FileName), ice.FullName);
                     Dictionary<string, List<string>> dependenciesMap = _dependenciesMap[project.Name];
                     if(dependenciesMap.ContainsKey(ice.FullName))
                     {
@@ -822,22 +822,25 @@ namespace Ice.VisualStudio
                 // Now check it any of the dependencies has changed.
                 //
                 //
-                string relativeName = Util.relativePath(Path.GetDirectoryName(project.FileName), iceFileInfo.FullName);
-                Dictionary<string, List<string>> dependenciesMap = _dependenciesMap[project.Name];
-                List<string> fileDependencies = dependenciesMap[iceFileInfo.FullName];
-                foreach(string name in fileDependencies)
+                if(_dependenciesMap.ContainsKey(project.Name))
                 {
-                    FileInfo dependency = new FileInfo(Path.Combine(Path.GetDirectoryName(project.FileName), name));
-                    if(!dependency.Exists)
+                    string relativeName = Util.relativePath(Path.GetDirectoryName(project.FileName), iceFileInfo.FullName);
+                    Dictionary<string, List<string>> dependenciesMap = _dependenciesMap[project.Name];
+                    List<string> fileDependencies = dependenciesMap[iceFileInfo.FullName];
+                    foreach(string name in fileDependencies)
                     {
-                        updated = true;
-                        break;
-                    }
-
-                    if(dependency.LastWriteTime > generatedFileInfo.LastWriteTime)
-                    {
-                        updated = true;
-                        break;
+                        FileInfo dependency = new FileInfo(Path.Combine(Path.GetDirectoryName(project.FileName), name));
+                        if(!dependency.Exists)
+                        {
+                            updated = true;
+                            break;
+                        }
+    
+                        if(dependency.LastWriteTime > generatedFileInfo.LastWriteTime)
+                        {
+                            updated = true;
+                            break;
+                        }
                     }
                 }
             }
