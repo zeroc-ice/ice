@@ -271,25 +271,32 @@ namespace Ice.VisualStudio
 
         public void solutionOpened()
         {
-            _dependenciesMap = new Dictionary<string, Dictionary<string, List<string>>>();
-            _fileTracker = new FileTracker();
-            initDocumentEvents();
-            foreach(Project p in _applicationObject.Solution.Projects)
+            try
             {
-                //
-                // Update Ice Home if expansion does not match old setting.
-                //
-                if(!Util.subEnvironmentVars(Util.getIceHomeRaw(p)).Equals(Util.getIceHome(p), 
-                                                                          StringComparison.CurrentCultureIgnoreCase))
+                _dependenciesMap = new Dictionary<string, Dictionary<string, List<string>>>();
+                _fileTracker = new FileTracker();
+                initDocumentEvents();
+                foreach(Project p in _applicationObject.Solution.Projects)
                 {
-                    Util.updateIceHome(p, Util.getIceHomeRaw(p), true);
+                    //
+                    // Update Ice Home if expansion does not match old setting.
+                    //
+                    if(!Util.subEnvironmentVars(Util.getIceHomeRaw(p)).Equals(Util.getIceHome(p), 
+                                                                          StringComparison.CurrentCultureIgnoreCase))
+                    {
+                        Util.updateIceHome(p, Util.getIceHomeRaw(p), true);
+                    }
+                    _dependenciesMap[p.Name] = new Dictionary<string, List<string>>();
+                    buildProject(p, true, vsBuildScope.vsBuildScopeSolution);
                 }
-                _dependenciesMap[p.Name] = new Dictionary<string, List<string>>();
-                buildProject(p, true, vsBuildScope.vsBuildScopeSolution);
+                if(hasErrors())
+                {
+                    bringErrorsToFront();
+                }
             }
-            if(hasErrors())
+            catch(Exception ex)
             {
-                bringErrorsToFront();
+                writeBuildOutput(ex.ToString() + "\n");
             }
         }
 
@@ -619,7 +626,6 @@ namespace Ice.VisualStudio
                 //
                 if(_dependenciesMap.ContainsKey(project.Name))
                 {
-                    string relativeName = Util.relativePath(Path.GetDirectoryName(project.FileName), ice.FullName);
                     Dictionary<string, List<string>> dependenciesMap = _dependenciesMap[project.Name];
                     if(dependenciesMap.ContainsKey(ice.FullName))
                     {
@@ -824,29 +830,33 @@ namespace Ice.VisualStudio
                 //
                 if(_dependenciesMap.ContainsKey(project.Name))
                 {
-                    string relativeName = Util.relativePath(Path.GetDirectoryName(project.FileName), iceFileInfo.FullName);
                     Dictionary<string, List<string>> dependenciesMap = _dependenciesMap[project.Name];
-                    List<string> fileDependencies = dependenciesMap[iceFileInfo.FullName];
-                    foreach(string name in fileDependencies)
+                    if(dependenciesMap.ContainsKey(iceFileInfo.FullName))
                     {
-                        FileInfo dependency = new FileInfo(Path.Combine(Path.GetDirectoryName(project.FileName), name));
-                        if(!dependency.Exists)
+                        List<string> fileDependencies = dependenciesMap[iceFileInfo.FullName];
+                        foreach(string name in fileDependencies)
                         {
-                            updated = true;
-                            break;
-                        }
+                            FileInfo dependency =
+                                new FileInfo(Path.Combine(Path.GetDirectoryName(project.FileName), name));
+                            if(!dependency.Exists)
+                            {
+                                updated = true;
+                                break;
+                            }
     
-                        if(dependency.LastWriteTime > generatedFileInfo.LastWriteTime)
-                        {
-                            updated = true;
-                            break;
+                            if(dependency.LastWriteTime > generatedFileInfo.LastWriteTime)
+                            {
+                                updated = true;
+                                break;
+                            }
                         }
                     }
                 }
             }
             if(updated || force)
             {
-                if(updateDependencies(project, item, iceFileInfo.FullName, getSliceCompilerArgs(project, true)) && updated)
+                if(updateDependencies(project, item, iceFileInfo.FullName, getSliceCompilerArgs(project, true)) && 
+                   updated)
                 {
                     if(runSliceCompiler(project, iceFileInfo.FullName, generatedFileInfo.DirectoryName))
                     {
