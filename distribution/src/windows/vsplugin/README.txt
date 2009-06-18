@@ -14,6 +14,11 @@ Solution Explorer and choose "Ice Configuration..." or go to
 "Ice Configuration..." in the "Tools" menu. This opens a dialog where
 you can configure Ice build properties.
 
+Note that after adding new configurations or platforms to your
+project, it might necessary to disable and then re-enable the plug-in
+in order for the new configuration/platform to get the correct Ice
+settings.
+
 
 Project properties
 ------------------
