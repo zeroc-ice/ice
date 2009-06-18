@@ -154,7 +154,7 @@ namespace Ice.VisualStudio
             chkIceSl.Enabled = enabled;
         }
 
-        private void btnCancel_Click(object sender, EventArgs e)
+        private void formClosing(object sender, EventArgs e)
         {
             if(!_changed)
             {
@@ -174,9 +174,13 @@ namespace Ice.VisualStudio
                 Cursor = Cursors.WaitCursor;
                 Builder builder = Connect.getBuilder();
                 builder.cleanProject(_project);
-                builder.buildCSharpProject(_project, true);
+                builder.buildCppProject(_project, true);
                 Cursor = c;
             }
+        }
+
+        private void btnCancel_Click(object sender, EventArgs e)
+        {
             Close();
         }
 

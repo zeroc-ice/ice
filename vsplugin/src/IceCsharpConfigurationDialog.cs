@@ -196,7 +196,7 @@ namespace Ice.VisualStudio
             chkIceStorm.Enabled = enabled;
         }
 
-        private void btnCancel_Click(object sender, EventArgs e)
+        private void formClosing(object sender, EventArgs e)
         {
             if(!_changed)
             {
@@ -209,15 +209,20 @@ namespace Ice.VisualStudio
                     _changed = true;
                 }
             }
+
             if(_changed)
             {
                 System.Windows.Forms.Cursor c = Cursor.Current;
                 Cursor = Cursors.WaitCursor;
                 Builder builder = Connect.getBuilder();
                 builder.cleanProject(_project);
-                builder.buildCSharpProject(_project, true);
+                builder.buildCppProject(_project, true);
                 Cursor = c;
             }
+        }
+
+        private void btnCancel_Click(object sender, EventArgs e)
+        {
             Close();
         }
 

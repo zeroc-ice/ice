@@ -211,7 +211,7 @@ namespace Ice.VisualStudio
             txtDllExportSymbol.Enabled = enabled;
         }
 
-        private void btnCancel_Click(object sender, EventArgs e)
+        private void formClosing(object sender, EventArgs e)
         {
             if(!_changed)
             {
@@ -238,6 +238,10 @@ namespace Ice.VisualStudio
                 builder.buildCppProject(_project, true);
                 Cursor = c;
             }
+        }
+
+        private void btnCancel_Click(object sender, EventArgs e)
+        {
             Close();
         }
 
