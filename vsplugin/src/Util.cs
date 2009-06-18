@@ -508,7 +508,7 @@ namespace Ice.VisualStudio
             }
         }
 
-        public static void addIceCppLibraryDir(VCLinkerTool tool, Project project)
+        public static void addIceCppLibraryDir(VCLinkerTool tool, Project project, bool x64)
         {
             if(tool == null || project == null)
             {
@@ -524,7 +524,12 @@ namespace Ice.VisualStudio
             else
             {
                 iceLibDir = Util.getIceHome(project) + "\\lib";
+                if(x64)
+                {
+                    iceLibDir += "\\x64";
+                }
             }
+
             string additionalLibraryDirectories = tool.AdditionalLibraryDirectories;
             if(String.IsNullOrEmpty(additionalLibraryDirectories))
             {
@@ -1228,17 +1233,24 @@ namespace Ice.VisualStudio
 
             VCProject vcProject = (VCProject)project.Object;
             IVCCollection configurations = (IVCCollection)vcProject.Configurations;
-            VCProjectEngine vcProjectEngine = (VCProjectEngine)configurations.VCProjectEngine;
-            IVCCollection platforms = (IVCCollection)vcProjectEngine.Platforms;
-            VCPlatform win32Platform = (VCPlatform)platforms.Item("Win32");
             foreach(VCConfiguration conf in configurations)
             {
                 if(conf != null)
                 {
+                    bool x64 = false;
+                    String platformName = conf.Platform.ToString();
+                    if(platformName.Equals("x64", StringComparison.CurrentCultureIgnoreCase))
+                    {
+                        x64 = true;
+                    }
+                    else if(platformName.Equals("Itanium", StringComparison.CurrentCultureIgnoreCase))
+                    {
+                        x64 = true;
+                    }
                     VCCLCompilerTool compilerTool =
                         (VCCLCompilerTool)(((IVCCollection)conf.Tools).Item("VCCLCompilerTool"));
                     VCLinkerTool linkerTool = (VCLinkerTool)(((IVCCollection)conf.Tools).Item("VCLinkerTool"));
-                    Util.addIceCppLibraryDir(linkerTool, project);
+                    Util.addIceCppLibraryDir(linkerTool, project, x64);
                     Util.addCppIncludes(compilerTool, project);
                 }
             }
