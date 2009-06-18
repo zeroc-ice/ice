@@ -334,18 +334,18 @@ namespace Ice.VisualStudio
             // chkChecksum
             // 
             this.chkChecksum.AutoSize = true;
-            this.chkChecksum.Location = new System.Drawing.Point(211, 19);
+            this.chkChecksum.Location = new System.Drawing.Point(181, 19);
             this.chkChecksum.Name = "chkChecksum";
-            this.chkChecksum.Size = new System.Drawing.Size(140, 17);
+            this.chkChecksum.Size = new System.Drawing.Size(76, 17);
             this.chkChecksum.TabIndex = 4;
-            this.chkChecksum.Text = "Checksum (--checksum)";
+            this.chkChecksum.Text = "Checksum";
             this.chkChecksum.UseVisualStyleBackColor = true;
             this.chkChecksum.CheckedChanged += new System.EventHandler(this.chkChecksum_CheckedChanged);
             // 
             // chkConsole
             // 
             this.chkConsole.AutoSize = true;
-            this.chkConsole.Location = new System.Drawing.Point(357, 19);
+            this.chkConsole.Location = new System.Drawing.Point(275, 19);
             this.chkConsole.Name = "chkConsole";
             this.chkConsole.Size = new System.Drawing.Size(99, 17);
             this.chkConsole.TabIndex = 3;
@@ -358,9 +358,9 @@ namespace Ice.VisualStudio
             this.chkIcePrefix.AutoSize = true;
             this.chkIcePrefix.Location = new System.Drawing.Point(10, 19);
             this.chkIcePrefix.Name = "chkIcePrefix";
-            this.chkIcePrefix.Size = new System.Drawing.Size(70, 17);
+            this.chkIcePrefix.Size = new System.Drawing.Size(41, 17);
             this.chkIcePrefix.TabIndex = 2;
-            this.chkIcePrefix.Text = "Ice (--ice)";
+            this.chkIcePrefix.Text = "Ice";
             this.chkIcePrefix.UseVisualStyleBackColor = true;
             this.chkIcePrefix.CheckedChanged += new System.EventHandler(this.chkIcePrefix_CheckedChanged);
             // 
@@ -369,9 +369,9 @@ namespace Ice.VisualStudio
             this.chkStreaming.AutoSize = true;
             this.chkStreaming.Location = new System.Drawing.Point(86, 19);
             this.chkStreaming.Name = "chkStreaming";
-            this.chkStreaming.Size = new System.Drawing.Size(119, 17);
+            this.chkStreaming.Size = new System.Drawing.Size(73, 17);
             this.chkStreaming.TabIndex = 1;
-            this.chkStreaming.Text = "Streaming (--stream)";
+            this.chkStreaming.Text = "Streaming";
             this.chkStreaming.UseVisualStyleBackColor = true;
             this.chkStreaming.CheckedChanged += new System.EventHandler(this.chkStreaming_CheckedChanged);
             // 

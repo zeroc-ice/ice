@@ -230,9 +230,9 @@ namespace Ice.VisualStudio
             this.chkIcePrefix.AutoSize = true;
             this.chkIcePrefix.Location = new System.Drawing.Point(10, 19);
             this.chkIcePrefix.Name = "chkIcePrefix";
-            this.chkIcePrefix.Size = new System.Drawing.Size(70, 17);
+            this.chkIcePrefix.Size = new System.Drawing.Size(41, 17);
             this.chkIcePrefix.TabIndex = 2;
-            this.chkIcePrefix.Text = "Ice (--ice)";
+            this.chkIcePrefix.Text = "Ice";
             this.chkIcePrefix.UseVisualStyleBackColor = true;
             this.chkIcePrefix.CheckedChanged += new System.EventHandler(this.chkIcePrefix_CheckedChanged);
             // 
