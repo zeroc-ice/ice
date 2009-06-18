@@ -554,6 +554,7 @@ namespace Ice.VisualStudio
         {
             "\\lib",
             "\\cpp\\lib",
+            "\\cpp\\lib\\x64",
         };
 
         public static void removeIceCppLibraryDir(VCLinkerTool tool, Project project)
@@ -1239,11 +1240,8 @@ namespace Ice.VisualStudio
                 {
                     bool x64 = false;
                     String platformName = conf.Platform.ToString();
-                    if(platformName.Equals("x64", StringComparison.CurrentCultureIgnoreCase))
-                    {
-                        x64 = true;
-                    }
-                    else if(platformName.Equals("Itanium", StringComparison.CurrentCultureIgnoreCase))
+                    if(platformName.Equals("x64", StringComparison.CurrentCultureIgnoreCase) ||
+                       platformName.Equals("Itanium", StringComparison.CurrentCultureIgnoreCase))
                     {
                         x64 = true;
                     }
