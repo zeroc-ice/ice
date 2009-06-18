@@ -37,8 +37,6 @@ namespace Ice.VisualStudio
             toolTip.SetToolTip(chkIcePrefix, "Permit Ice prefixes (--ice).");
             toolTip.SetToolTip(chkTie, "Generate TIE classes (--tie).");
             toolTip.SetToolTip(chkConsole, "Enable console output.");
-            
-            toolTip.SetToolTip(btnClose, "Close without save configuration changes.");
 
             if(_project != null)
             {

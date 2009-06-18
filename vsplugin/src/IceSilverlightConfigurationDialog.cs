@@ -34,8 +34,7 @@ namespace Ice.VisualStudio
             toolTip.SetToolTip(btnSelectIceHome, "Ice Installation Directory.");
             toolTip.SetToolTip(chkIcePrefix, "Allow Ice prefix (--ice).");
             toolTip.SetToolTip(chkConsole, "Enable console output.");
-            
-            toolTip.SetToolTip(btnClose, "Close without save configuration changes.");
+
 
             if(_project != null)
             {
