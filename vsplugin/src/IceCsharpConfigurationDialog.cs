@@ -553,7 +553,12 @@ namespace Ice.VisualStudio
 
         private void endEditIncludeDir(bool saveChanges)
         {
-            String path;
+            String path = null;
+            if(includeDirList.SelectedIndex != -1)
+            {
+                path = includeDirList.Items[includeDirList.SelectedIndex].ToString();
+            }
+            
             lock(this)
             {
                 CancelButton = btnClose;
@@ -561,21 +566,24 @@ namespace Ice.VisualStudio
                 {
                     return;
                 }
-                path = _txtIncludeDir.Text;
-
+                if(saveChanges)
+                {
+                    path = _txtIncludeDir.Text;
+                }
+                
                 this.groupBox1.Controls.Remove(_txtIncludeDir);
                 _txtIncludeDir = null;
-
+                
                 this.groupBox1.Controls.Remove(_btnSelectInclude);
                 _btnSelectInclude = null;
-
-                if (String.IsNullOrEmpty(path))
-                {
-                    return;
-                }
             }
 
-            if(includeDirList.SelectedIndex != -1 && saveChanges)
+            if(String.IsNullOrEmpty(path))
+            {
+                includeDirList.Items.RemoveAt(includeDirList.SelectedIndex);
+                saveSliceIncludes();
+            }
+            else if(includeDirList.SelectedIndex != -1 && saveChanges)
             {
                 if(!path.Equals(includeDirList.Items[includeDirList.SelectedIndex].ToString(),
                                                StringComparison.CurrentCultureIgnoreCase))
