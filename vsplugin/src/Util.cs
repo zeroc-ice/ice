@@ -1066,9 +1066,6 @@ namespace Ice.VisualStudio
 
             VCProject vcProject = (VCProject)project.Object;
             IVCCollection configurations = (IVCCollection)vcProject.Configurations;
-            VCProjectEngine vcProjectEngine = (VCProjectEngine)configurations.VCProjectEngine;
-            IVCCollection platforms = (IVCCollection)vcProjectEngine.Platforms;
-            VCPlatform win32Platform = (VCPlatform)platforms.Item("Win32");
             String preCompiledHeader = "";
             foreach(VCConfiguration conf in configurations)
             {
@@ -1099,10 +1096,6 @@ namespace Ice.VisualStudio
 
             VCProject vcProject = (VCProject)project.Object;
             IVCCollection configurations = (IVCCollection)vcProject.Configurations;
-            VCProjectEngine vcProjectEngine = (VCProjectEngine)configurations.VCProjectEngine;
-            IVCCollection platforms = (IVCCollection)vcProjectEngine.Platforms;
-            VCPlatform win32Platform = (VCPlatform)platforms.Item("Win32");
-
             foreach(VCConfiguration conf in configurations)
             {
                 if(conf.Name != (activeConfig.ConfigurationName + "|" + activeConfig.PlatformName))
@@ -1239,7 +1232,8 @@ namespace Ice.VisualStudio
                 if(conf != null)
                 {
                     bool x64 = false;
-                    String platformName = conf.Platform.ToString();
+                    VCPlatform platform = (VCPlatform)conf.Platform;
+                    String platformName = platform.Name;
                     if(platformName.Equals("x64", StringComparison.CurrentCultureIgnoreCase) ||
                        platformName.Equals("Itanium", StringComparison.CurrentCultureIgnoreCase))
                     {
