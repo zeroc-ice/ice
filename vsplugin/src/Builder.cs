@@ -15,6 +15,7 @@ using System.Collections.Generic;
 using Extensibility;
 using EnvDTE;
 using EnvDTE80;
+using Microsoft.VisualStudio;
 using Microsoft.VisualStudio.CommandBars;
 using Microsoft.VisualStudio.VCProjectEngine;
 using Microsoft.VisualStudio.VCProject;
@@ -30,7 +31,7 @@ using System.Runtime.InteropServices;
 
 namespace Ice.VisualStudio
 {
-    public class Builder
+    public class Builder 
     {
         public DTE getCurrentDTE()
         {
@@ -225,6 +226,7 @@ namespace Ice.VisualStudio
 
         public void afterClosing()
         {
+            _configurationSubscribers.Clear();
             clearErrors();
             removeDocumentEvents();
             if(_dependenciesMap != null)
@@ -275,6 +277,10 @@ namespace Ice.VisualStudio
                     }
                     _dependenciesMap[p.Name] = new Dictionary<string, List<string>>();
                     buildProject(p, true, vsBuildScope.vsBuildScopeSolution);
+                    if(Util.isCppProject(p))
+                    {
+                        adviseProjectConfigurationEvents(p);
+                    }
                 }
                 if(hasErrors())
                 {
@@ -284,6 +290,65 @@ namespace Ice.VisualStudio
             catch(Exception ex)
             {
                 writeBuildOutput(ex.ToString() + "\n");
+            }
+        }
+        
+        private void adviseProjectConfigurationEvents(Project project)
+        {
+            try
+            {
+                IVsHierarchy projectHierachy = getProjectHierarchy(project);
+                if(projectHierachy != null)
+                {
+                    object cfgProviderObject;
+                    projectHierachy.GetProperty(VSConstants.VSITEMID_ROOT,
+                                                (int)__VSHPROPID.VSHPROPID_ConfigurationProvider, 
+                                                out cfgProviderObject);
+                    IVsCfgProvider2 configProvider = cfgProviderObject as IVsCfgProvider2;
+                    uint cookie;
+                    ConfigurationSubscriber subscriber = new ConfigurationSubscriber(project);
+                    configProvider.AdviseCfgProviderEvents(subscriber, out cookie);
+                    subscriber.setCookie(cookie);
+                    _configurationSubscribers[project.Name] = subscriber;
+                }
+            }
+            catch(Exception ex)
+            {
+                writeBuildOutput(ex.ToString() + "\n");
+            }
+        }
+        
+        private void unadviseProjectConfigurationEvents(Project project)
+        {
+            if(project == null)
+            {
+                return;
+            }
+            if(String.IsNullOrEmpty(project.Name))
+            {
+                return;
+            }
+            if(_configurationSubscribers.ContainsKey(project.Name))
+            {
+                try
+                {
+                    ConfigurationSubscriber subscriber = _configurationSubscribers[project.Name];
+                    IVsHierarchy projectHierachy = getProjectHierarchy(project);
+                    if(projectHierachy != null)
+                    {
+                        object cfgProviderObject;
+                        projectHierachy.GetProperty(VSConstants.VSITEMID_ROOT,
+                                                    (int)__VSHPROPID.VSHPROPID_ConfigurationProvider,
+                                                    out cfgProviderObject);
+                        IVsCfgProvider2 configProvider = cfgProviderObject as IVsCfgProvider2;
+                        configProvider.UnadviseCfgProviderEvents(subscriber.getCookie());
+                    }
+                    _configurationSubscribers.Remove(project.Name);
+                }
+                catch(Exception ex)
+                {
+                    writeBuildOutput(ex.ToString() + "\n");
+                }
             }
         }
 
@@ -387,6 +452,10 @@ namespace Ice.VisualStudio
         
         public void projectAdded(Project project)
         {
+            if(Util.isCppProject(project))
+            {
+                adviseProjectConfigurationEvents(project);
+            }
             if(Util.isSliceBuilderEnabled(project))
             {
                 updateDependencies(project);
@@ -398,6 +467,7 @@ namespace Ice.VisualStudio
             if(_dependenciesMap.ContainsKey(project.Name))
             {
                 _dependenciesMap.Remove(project.Name);
+                unadviseProjectConfigurationEvents(project);
             }
         }
 
@@ -2255,6 +2325,78 @@ namespace Ice.VisualStudio
             }
         }
 
+        public class ConfigurationSubscriber : IVsCfgProviderEvents
+        {
+            public ConfigurationSubscriber(Project project)
+            {
+                _project = project;
+            }
+            
+            //IVsCfgProviderEvents interface 
+            public int OnPlatformNameDeleted(string name)
+            {
+                return 0;
+            }
+            
+            public int OnPlatformNameAdded(string name)
+            {
+                if(_project == null)
+                {
+                    return 0;
+                }
+                if(Util.isSliceBuilderEnabled(_project) && Util.isCppProject(_project))
+                {
+                    Util.addIceCppConfigurations(_project);
+                    ComponentList components = Util.getIceCppComponents(_project);
+                    Util.addIceCppLibs(_project, components);
+                }
+                return 0;
+            }
+            
+            public int OnPlatformNameRenamed(string name, string oldName)
+            {
+                return 0;
+            }
+
+            public int OnCfgNameDeleted(string name)
+            {
+                return 0;
+            }
+
+            public int OnCfgNameAdded(string name)
+            {
+                if(_project == null)
+                {
+                    return 0;
+                }
+                if(Util.isSliceBuilderEnabled(_project) && Util.isCppProject(_project))
+                {
+                    Util.addIceCppConfigurations(_project);
+                    ComponentList components = Util.getIceCppComponents(_project);
+                    Util.addIceCppLibs(_project, components);
+                }
+                return 0;
+            }
+            
+            public int OnCfgNameRenamed(string name, string oldName)
+            {
+                return 0;
+            }
+            
+            public void setCookie(uint cookie)
+            {
+                _cookie = cookie;
+            }
+            
+            public uint getCookie()
+            {
+                return _cookie;
+            }
+            
+            private Project _project;
+            uint _cookie;
+        }
+
         private DTE2 _applicationObject;
         private AddIn _addInInstance;
         private SolutionEvents _solutionEvents;
@@ -2278,5 +2420,7 @@ namespace Ice.VisualStudio
         private CommandEvents _editDeleteEvent;
         private List<String> _deleted = new List<String>();
         private Command _iceConfigurationCmd;
+        private Dictionary<String, ConfigurationSubscriber> _configurationSubscribers = 
+                                                new Dictionary<String, ConfigurationSubscriber>();
     }
 }

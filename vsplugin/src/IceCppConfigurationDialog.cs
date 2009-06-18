@@ -489,7 +489,7 @@ namespace Ice.VisualStudio
 
         private void chkIceUtil_CheckedChanged(object sender, EventArgs e)
         {
-            componentChanged("IceUtil", chkFreeze.Checked);
+            componentChanged("IceUtil", chkIceUtil.Checked);
         }
 
         private void chkFreeze_CheckedChanged(object sender, EventArgs e)

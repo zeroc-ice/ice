@@ -222,6 +222,7 @@ namespace Ice.VisualStudio
             this.chkIceUtil.TabStop = false;
             this.chkIceUtil.Text = "IceUtil";
             this.chkIceUtil.UseVisualStyleBackColor = true;
+            this.chkIceUtil.CheckedChanged += new System.EventHandler(this.chkIceUtil_CheckedChanged);
             // 
             // chkFreeze
             // 
