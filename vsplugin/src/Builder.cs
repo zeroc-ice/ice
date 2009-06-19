@@ -699,44 +699,20 @@ namespace Ice.VisualStudio
             if(File.Exists(cpp.FullName))
             {
                 _fileTracker.trackFile(project, ice.FullName, h.FullName);
-                VCFilter filter = Util.findVCFilter((IVCCollection)vcProject.Filters, "Source Files");
-                if(filter != null)
+                VCFile file = Util.findVCFile((IVCCollection)vcProject.Files, cpp.Name, cpp.FullName);
+                if(file == null)
                 {
-                    VCFile file = Util.findVCFile((IVCCollection)filter.Files, cpp.Name, cpp.FullName);
-                    if(file == null)
-                    {
-                        filter.AddFile(cpp.FullName);
-                    }
-                }
-                else
-                {
-                    VCFile file = Util.findVCFile((IVCCollection)vcProject.Files, cpp.Name, cpp.FullName);
-                    if(file == null)
-                    {
-                        vcProject.AddFile(cpp.FullName);
-                    }
+                    vcProject.AddFile(cpp.FullName);
                 }
             }
 
             if(File.Exists(h.FullName))
             {
                 _fileTracker.trackFile(project, ice.FullName, cpp.FullName);
-                VCFilter filter = Util.findVCFilter((IVCCollection)vcProject.Filters, "Header Files");
-                if(filter != null)
+                VCFile file = Util.findVCFile((IVCCollection)vcProject.Files, h.Name, h.FullName);            
+                if(file == null)
                 {
-                    VCFile file = Util.findVCFile((IVCCollection)filter.Files, h.Name, h.FullName);
-                    if(file == null)
-                    {
-                        filter.AddFile(h.FullName);
-                    }
-                }
-                else
-                {
-                    VCFile file = Util.findVCFile((IVCCollection)vcProject.Files, h.Name, h.FullName);            
-                    if(file == null)
-                    {
-                        vcProject.AddFile(h.FullName);
-                    }
+                    vcProject.AddFile(h.FullName);
                 }
             }
         }
