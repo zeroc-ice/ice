@@ -155,6 +155,25 @@ Configuration
 
      C:\Program Files\...
 
+   For C# you should also install a user template, this made slice file template
+   available for all C# project subtypes.
+
+   C# user templates are installed in:
+
+   For a Windows Vista default installation, the directory is:
+
+     C:\Users\username\Documents\Visual Studio 2008\Templates\ItemTemplates\Visual C#
+
+   For a Windows XP default installation, the directory is:
+
+     C:\Document and Settings\username\My Documents\Visual Studio 2008\Templates\ItemTemplates\Visual C#
+
+   You should copy Slice.zip file that is in templates subdirectory of this distribution
+   to the C# template directory.
+
+   > cd C:\Users\username\Documents\Visual Studio 2008\Templates\ItemTemplates\Visual C#
+   > copy C:\IceVisualStudioExtension-@ver@\templates\Slice.zip .
+
 4) This completes the configuration. The plug-in is available
    once you restart Visual Studio.
 
