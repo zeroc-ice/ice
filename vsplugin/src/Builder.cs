@@ -73,7 +73,7 @@ namespace Ice.VisualStudio
                     _editDeleteEvent = application.Events.get_CommandEvents(c.Guid, c.ID);
                     _editDeleteEvent.AfterExecute += new _dispCommandEvents_AfterExecuteEventHandler(editDeleteEvent);
                 }
-                if (c.Name.Equals("Project.AddExistingItem"))
+                else if (c.Name.Equals("Project.AddExistingItem"))
                 {
                     _addExistingItemEvent = application.Events.get_CommandEvents(c.Guid, c.ID);
                     _addExistingItemEvent.AfterExecute +=
@@ -112,7 +112,7 @@ namespace Ice.VisualStudio
             return (IVsSolution) _serviceProvider.GetService(typeof(IVsSolution));
         }
 
-        void buildDone(vsBuildScope Scope, vsBuildAction Action)
+        public void buildDone(vsBuildScope Scope, vsBuildAction Action)
         {
             _building = false;
         }
@@ -122,9 +122,8 @@ namespace Ice.VisualStudio
             return _building;
         }
         
-        private bool _building = false;
 
-        void afterAddNewItem(string Guid, int ID, object obj, object CustomOut)
+        public void afterAddNewItem(string Guid, int ID, object obj, object CustomOut)
         {
             foreach(String path in _deleted)
             {
@@ -140,7 +139,7 @@ namespace Ice.VisualStudio
             _deleted.Clear();
         }
 
-        void afterAddExistingItem(string Guid, int ID, object obj, object CustomOut)
+        public void afterAddExistingItem(string Guid, int ID, object obj, object CustomOut)
         {
             _deleted.Clear();
         }
@@ -393,11 +392,11 @@ namespace Ice.VisualStudio
                 // and the ProjectItem is not yet available.
                 return;
             }
-            if (!Util.isSliceBuilderEnabled(project))
+            if(!Util.isSliceBuilderEnabled(project))
             {
                 return;
             }
-            if (!document.Name.EndsWith(".ice"))
+            if(!document.Name.EndsWith(".ice"))
             {
                 return;
             }
@@ -585,7 +584,7 @@ namespace Ice.VisualStudio
             {
                 return true;
             }
-// 
+
             if(item.Name == null)
             {
                 return true;
@@ -1136,11 +1135,11 @@ namespace Ice.VisualStudio
             {
                 bringErrorsToFront();
                 process.Close();
-                if (Util.isCppProject(project))
+                if(Util.isCppProject(project))
                 {
                     removeCppGeneratedItems(project, file);
                 }
-                else if (Util.isCSharpProject(project))
+                else if(Util.isCSharpProject(project))
                 {
                     removeCSharpGeneratedItems(item);
                 }
@@ -1262,7 +1261,7 @@ namespace Ice.VisualStudio
         public Project getActiveProject()
         {
             Array projects = (Array)_applicationObject.ActiveSolutionProjects;
-            if (projects == null)
+            if(projects == null)
             {
                 return null;
             }
@@ -1960,11 +1959,6 @@ namespace Ice.VisualStudio
             return findCommandBar(new Guid("{D309F791-903F-11D0-9EFC-00A0C911004F}"), 1026);
         }
 
-        public CommandBar solutionCommandBar()
-        {
-            return findCommandBar(new Guid("{D309F791-903F-11D0-9EFC-00A0C911004F}"), 1043);
-        }
-
         public CommandBar findCommandBar(Guid guidCmdGroup, uint menuID)
         {
             // Retrieve IVsProfferComands via DTE's IOleServiceProvider interface
@@ -2300,5 +2294,6 @@ namespace Ice.VisualStudio
         private CommandEvents _editDeleteEvent;
         private List<String> _deleted = new List<String>();
         private Command _iceConfigurationCmd;
+        private bool _building = false;
     }
 }

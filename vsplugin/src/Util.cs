@@ -196,7 +196,7 @@ namespace Ice.VisualStudio
             public static readonly string[] cSharpNames =
             {
                 "Glacier2", "Ice", "IceBox", "IceGrid", "IcePatch2", 
-                "IceSSL", "IceStorm", "IceUtil"
+                "IceSSL", "IceStorm"
             };
         }
 
@@ -1181,9 +1181,9 @@ namespace Ice.VisualStudio
             foreach(Reference r in vsProject.References)
             {
                 string iceComponent = Array.Find(Util.ComponentNames.silverlightNames, delegate(string name)
-                {
-                    return name.Equals(r.Name);
-                });
+                                                                                        {
+                                                                                            return name.Equals(r.Name);
+                                                                                        });
 
                 if(String.IsNullOrEmpty(iceComponent))
                 {
