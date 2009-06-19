@@ -553,8 +553,8 @@ namespace Ice.VisualStudio
         private static readonly string[] _cppLibDirs =
         {
             "\\lib",
+            "\\lib\\x64",
             "\\cpp\\lib",
-            "\\cpp\\lib\\x64",
         };
 
         public static void removeIceCppLibraryDir(VCLinkerTool tool, Project project)
