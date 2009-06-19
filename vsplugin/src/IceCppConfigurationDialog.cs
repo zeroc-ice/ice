@@ -340,8 +340,11 @@ namespace Ice.VisualStudio
 
         private void btnRemoveInclude_Click(object sender, EventArgs e)
         {
-            endEditIncludeDir(false);
-            if(includeDirList.SelectedIndex != -1)
+            if(_editingIncludes)
+            {
+                endEditIncludeDir(false);
+            }
+            else if(includeDirList.SelectedIndex != -1)
             {
                 System.Windows.Forms.Cursor c = Cursor.Current;
                 Cursor = Cursors.WaitCursor;
@@ -382,7 +385,7 @@ namespace Ice.VisualStudio
         {
             endEditIncludeDir(false);
             int index = includeDirList.SelectedIndex;
-            if(index < includeDirList.Items.Count - 1)
+            if(index < includeDirList.Items.Count - 1 && index > -1)
             {
                 System.Windows.Forms.Cursor c = Cursor.Current;
                 Cursor = Cursors.WaitCursor;
@@ -391,9 +394,9 @@ namespace Ice.VisualStudio
                 includeDirList.Items.Insert(index + 1, current);
                 includeDirList.SelectedIndex = index + 1;
                 saveSliceIncludes();
+                resetIncludeDirChecks();
                 Cursor = c;
             }
-            resetIncludeDirChecks();
         }
 
         private void resetIncludeDirChecks()
