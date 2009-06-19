@@ -181,7 +181,6 @@ namespace Ice.VisualStudio
         
         private void setEnabled(bool enabled)
         {
-            Util.setProjectProperty(_project, Util.PropertyNames.Ice, enabled.ToString());
             txtIceHome.Enabled = enabled;
             btnSelectIceHome.Enabled = enabled;
 

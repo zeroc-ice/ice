@@ -327,8 +327,8 @@ namespace Ice.VisualStudio
                         Util.addCSharpReference(project, component);
                     }
                 }
-                buildCSharpProject(project, true);
                 Util.setProjectProperty(project, Util.PropertyNames.Ice, true.ToString());
+                buildCSharpProject(project, true);
             }
             if(hasErrors(project))
             {
@@ -434,6 +434,10 @@ namespace Ice.VisualStudio
         public void cleanProject(Project project)
         {
             if(project == null)
+            {
+                return;
+            }
+            if(!Util.isSliceBuilderEnabled(project))
             {
                 return;
             }
