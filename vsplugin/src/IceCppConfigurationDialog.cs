@@ -335,6 +335,7 @@ namespace Ice.VisualStudio
             endEditIncludeDir(false);
             includeDirList.Items.Add("");
             includeDirList.SelectedIndex = includeDirList.Items.Count - 1;
+            _editingIndex = includeDirList.SelectedIndex;
             beginEditIncludeDir();
         }
 
@@ -421,6 +422,10 @@ namespace Ice.VisualStudio
 
         private void includeDirList_ItemCheck(object sender, ItemCheckEventArgs e)
         {
+            if(_editingIncludes)
+            {
+                return;
+            }
             string path = includeDirList.Items[e.Index].ToString();
             if(!Util.containsEnvironmentVars(path))
             {
@@ -535,7 +540,11 @@ namespace Ice.VisualStudio
 
         private void btnEdit_Click(object sender, EventArgs e)
         {
-            beginEditIncludeDir();
+            if(includeDirList.SelectedIndex != -1)
+            {
+                _editingIndex = includeDirList.SelectedIndex;
+                beginEditIncludeDir();
+            }
         }
 
         private void includeDirList_SelectedIndexChanged(object sender, EventArgs e)
@@ -546,10 +555,10 @@ namespace Ice.VisualStudio
         private void beginEditIncludeDir()
         {
             endEditIncludeDir(false);
+            _editingIncludes = true;
             CancelButton = null;
-            if(includeDirList.SelectedIndex != -1)
+            if(_editingIndex != -1)
             {
-                int index = includeDirList.SelectedIndex;
                 _txtIncludeDir = new TextBox();
                 _txtIncludeDir.Text = includeDirList.Items[includeDirList.SelectedIndex].ToString();
 
@@ -584,10 +593,16 @@ namespace Ice.VisualStudio
         
         private void endEditIncludeDir(bool saveChanges)
         {
-            String path = null;
-            if(includeDirList.SelectedIndex != -1)
+            _initialized = false;
+            if(!_editingIncludes)
             {
-                path = includeDirList.Items[includeDirList.SelectedIndex].ToString();
+                return;
+            }
+            _editingIncludes = false;
+            String path = null;
+            if(_editingIndex > -1 && _editingIndex < includeDirList.Items.Count)
+            {
+                path = includeDirList.Items[_editingIndex].ToString();
             }
             
             lock(this)
@@ -595,6 +610,7 @@ namespace Ice.VisualStudio
                 CancelButton = btnClose;
                 if(_txtIncludeDir == null || _btnSelectInclude == null)
                 {
+                    _editingIndex = -1;
                     return;
                 }
                 if(saveChanges)
@@ -611,26 +627,33 @@ namespace Ice.VisualStudio
 
             if(String.IsNullOrEmpty(path))
             {
-                includeDirList.Items.RemoveAt(includeDirList.SelectedIndex);
-                saveSliceIncludes();
+                if(_editingIndex != -1)
+                {
+                    includeDirList.Items.RemoveAt(_editingIndex);
+                    includeDirList.SelectedIndex = includeDirList.Items.Count - 1;
+                    _editingIndex = -1;
+                    saveSliceIncludes();
+                }
             }
-            else if(includeDirList.SelectedIndex != -1 && saveChanges)
+            else if(_editingIndex != -1 && saveChanges)
             {
-                if(!path.Equals(includeDirList.Items[includeDirList.SelectedIndex].ToString(),
+                if(!path.Equals(includeDirList.Items[_editingIndex].ToString(),
                                                StringComparison.CurrentCultureIgnoreCase))
                 {
-                    includeDirList.Items[includeDirList.SelectedIndex] = path;
+                    includeDirList.Items[_editingIndex] = path;
                     if(Path.IsPathRooted(path))
                     {
-                        includeDirList.SetItemCheckState(includeDirList.SelectedIndex, CheckState.Checked);
+                        includeDirList.SetItemCheckState(_editingIndex, CheckState.Checked);
                     }
                     else
                     {
-                        includeDirList.SetItemCheckState(includeDirList.SelectedIndex, CheckState.Unchecked);
+                        includeDirList.SetItemCheckState(_editingIndex, CheckState.Unchecked);
                     }
                     saveSliceIncludes();
                 }
             }
+            _editingIndex = -1;
+            resetIncludeDirChecks();
         }
 
         private void includeDirKeyDown(object sender, KeyEventArgs e)
@@ -663,7 +686,9 @@ namespace Ice.VisualStudio
             }
             endEditIncludeDir(true);
         }
-        
+
+        private int _editingIndex = -1;
+        private bool _editingIncludes;        
         private bool _initialized = false;
         private bool _changed = false;
         private Project _project;
