@@ -168,8 +168,7 @@ Configuration
 
      C:\Document and Settings\username\My Documents\Visual Studio 2008\Templates\ItemTemplates\Visual C#
 
-   You should copy Slice.zip file that is in templates subdirectory of this distribution
-   to the C# template directory.
+   Copy templates\Slice.zip to the C# template directory. For example:
 
    > cd C:\Users\username\Documents\Visual Studio 2008\Templates\ItemTemplates\Visual C#
    > copy C:\IceVisualStudioExtension-@ver@\templates\Slice.zip .
