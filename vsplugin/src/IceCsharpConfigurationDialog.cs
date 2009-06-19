@@ -582,7 +582,6 @@ namespace Ice.VisualStudio
                 CancelButton = btnClose;
                 if(_txtIncludeDir == null || _btnSelectInclude == null)
                 {
-                    _editingIndex = -1;
                     return;
                 }
                 if(saveChanges)
@@ -628,7 +627,6 @@ namespace Ice.VisualStudio
                     saveSliceIncludes();
                 }
             }
-            _editingIndex = -1;
             resetIncludeDirChecks();
         }
 
