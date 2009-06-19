@@ -84,8 +84,8 @@ Adding Slice files to a project
 -------------------------------
 
 Use "Add -> New Item..." to create a Slice file and add it to a project.
-Use "Slice source" as the file type. To add an existing Slice file, use
-"Add -> Existing Item...".
+Use "Slice File (.ice)" as the file type. To add an existing Slice file,
+use "Add -> Existing Item...".
 
 
 Generating code
