@@ -5,7 +5,7 @@ Requirements
 Visual Studio & Windows Version
 -------------------------------
 
-Ice Visual Studio Extension has been extensively tested on:
+Ice Visual Studio Extension has been extensively tested on
 
  - Windows XP SP2 x86
  - Windows Vista x86 and x64
@@ -20,7 +20,7 @@ using
 Compilers
 ---------
 
-Ice Visual Studio Extension requires:
+The Ice Visual Studio Extension requires:
 
 - Microsoft Visual Studio 2008
 
@@ -53,7 +53,7 @@ IceVisualStudioExtension-@ver@ subdirectory.
 
    > nmake /f Makefile.mak
 
-The Plug-in DLL is placed into the IceVisualStudio-@ver@\bin 
+The plug-in DLL is placed into the IceVisualStudio-@ver@\bin 
 directory. The library names are
 
    - bin\IceVisualStudioAddin-VS2008.dll (for Visual Studio 2008)
@@ -101,7 +101,7 @@ Configuration
 
    For a Windows XP default installation, the directory is:
 
-     C:\Document and Settings\username\Visual Studio 2008\Addins
+     C:\Document and Settings\username\My Documents\Visual Studio 2008\Addins
 
   Once you have chosen the directory, you must copy the corresponding
   .Addin file to that directory.
@@ -116,20 +116,20 @@ Configuration
    > cd C:\Users\username\Documents\Visual Studio 2005\Addins
    > copy C:\IceVisualStudioExtension-@ver@\conf\Ice-VS2005.Addin
 
-  If you have not installed the addin in the default location you 
-  must edit the .Addin file and update the value of the "assembley"
-  element corresponding with your installation path.
+  If you have not installed the add-in in the default location, you 
+  must edit the .Addin file and update the value of the "Assembly"
+  element with your installation path.
 
 3) Install item templates.
 
-   To be able to add new items from the standard "New Item" dialog you
+   To be able to add new items from the standard "New Item" dialog, you
    must install the corresponding item templates.
 
    For C++, item templates are installed in:
   
      C:\Program Files\Microsoft Visual Studio 9.0\VC\vcprojectitems 
 
-   Copy the slice template and configuration files here.
+   Copy the Slice template and configuration files:
 
    > cd C:\IceVisualStudioExtension-@ver@\templates\vs
    > xcopy /e * C:\Program Files\Microsoft Visual Studio 9.0\VC\vcprojectitems
@@ -138,25 +138,25 @@ Configuration
 
      C:\Program Files\Microsoft Visual Studio 9.0\VC#\CSharpProjectItems
 
-   Copy the slice template and configuration files here.
+   Copy the slice template and configuration files:
 
    > cd C:\IceVisualStudioExtension-@ver@\templates\vs
    > xcopy /e * C:\Program Files\Microsoft Visual Studio 9.0\VC#\CSharpProjectItems
 
    The commands shown above are for Visual Studio 2008. For Visual 
-   Studio 2005 just change the path to use "Microsoft Visual Studio 8"
+   Studio 2005, change the path to use "Microsoft Visual Studio 8"
    instead.
 
-   On 64 bit platforms you should copy template files to Visual
+   On 64-bit platforms, you must the copy the template files to the Visual
    Studio folder in: 
    
      C:\Program Files (x86)\...
    
-   rather than
+   instead of
 
      C:\Program Files\...
 
-4) This completes the configuration. The plug-in will now be available
+4) This completes the configuration. The plug-in is available
    once you restart Visual Studio.
 
 
