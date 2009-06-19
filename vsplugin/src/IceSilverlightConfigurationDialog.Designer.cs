@@ -180,6 +180,7 @@ namespace Ice.VisualStudio
             this.txtExtraOptions.Size = new System.Drawing.Size(474, 40);
             this.txtExtraOptions.TabIndex = 6;
             this.txtExtraOptions.LostFocus += new System.EventHandler(this.txtExtraOptions_LostFocus);
+            this.txtExtraOptions.Enter += new System.EventHandler(this.txtExtraOptions_Focus);
             // 
             // groupBox3
             // 
@@ -276,6 +277,7 @@ namespace Ice.VisualStudio
             this.txtIceHome.TabIndex = 0;
             this.txtIceHome.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.txtIceHome_KeyPress);
             this.txtIceHome.LostFocus += new System.EventHandler(this.txtIceHome_LostFocus);
+            this.txtIceHome.Enter += new System.EventHandler(this.txtIceHome_Focus);
             // 
             // IceSilverlightConfigurationDialog
             // 

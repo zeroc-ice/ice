@@ -52,10 +52,9 @@ namespace Ice.VisualStudio
         
         private void load()
         {
+            Cursor = Cursors.WaitCursor;
             if(_project != null)
             {
-                System.Windows.Forms.Cursor c = Cursor.Current;
-                Cursor = Cursors.WaitCursor;
                 includeDirList.Items.Clear();
                 txtIceHome.Text = Util.getIceHomeRaw(_project);
                 txtExtraOptions.Text = Util.getProjectProperty(_project, Util.PropertyNames.IceExtraOptions);
@@ -92,59 +91,66 @@ namespace Ice.VisualStudio
                         checkComponent(s, true);
                     }
                 }
-                Cursor = c;
-            }      
+            }
+            Cursor = Cursors.Default;  
         }
 
         private void checkComponent(String component, bool check)
         {
+            if(_editingIncludes)
+            {
+                endEditIncludeDir(false);
+            }
             switch (component)
             {
-            case "Glacier2":
-            {
-                chkGlacier2.Checked = check;
-                break;
-            }
-            case "Ice":
-            {
-                chkIce.Checked = check;
-                break;
-            }
-            case "IceBox":
-            {
-                chkIceBox.Checked = check;
-                break;
-            }
-            case "IceGrid":
-            {
-                chkIceGrid.Checked = check;
-                break;
-            }
-            case "IcePatch2":
-            {
-                chkIcePatch2.Checked = check;
-                break;
-            }
-            case "IceSSL":
-            {
-                chkIceSSL.Checked = check;
-                break;
-            }
-            case "IceStorm":
-            {
-                chkIceStorm.Checked = check;
-                break;
-            }
-            default:
-            {
-                break;
-            }
+                case "Glacier2":
+                {
+                    chkGlacier2.Checked = check;
+                    break;
+                }
+                case "Ice":
+                {
+                    chkIce.Checked = check;
+                    break;
+                }
+                case "IceBox":
+                {
+                    chkIceBox.Checked = check;
+                    break;
+                }
+                case "IceGrid":
+                {
+                    chkIceGrid.Checked = check;
+                    break;
+                }
+                case "IcePatch2":
+                {
+                    chkIcePatch2.Checked = check;
+                    break;
+                }
+                case "IceSSL":
+                {
+                    chkIceSSL.Checked = check;
+                    break;
+                }
+                case "IceStorm":
+                {
+                    chkIceStorm.Checked = check;
+                    break;
+                }
+                default:
+                {
+                    break;
+                }
             }
         }
         private void chkEnableBuilder_CheckedChanged(object sender, EventArgs e)
         {
-            System.Windows.Forms.Cursor c = Cursor.Current;
             Cursor = Cursors.WaitCursor;
+            if(_editingIncludes)
+            {
+                endEditIncludeDir(false);
+            }
             if(_initialized)
             {
                 _initialized = false;
@@ -164,7 +170,7 @@ namespace Ice.VisualStudio
                 chkEnableBuilder.Enabled = true;
                 _initialized = true;
             }
-            Cursor = c;
+            Cursor = Cursors.Default;
         }
         
         private void setEnabled(bool enabled)
@@ -197,6 +203,11 @@ namespace Ice.VisualStudio
 
         private void formClosing(object sender, EventArgs e)
         {
+            Cursor = Cursors.WaitCursor;
+            if(_editingIncludes)
+            {
+                endEditIncludeDir(false);
+            }
             if(!_changed)
             {
                 if(txtExtraOptions.Modified)
@@ -209,15 +220,13 @@ namespace Ice.VisualStudio
                 }
             }
 
-            if(_changed)
+            if(_changed && Util.isSliceBuilderEnabled(_project))
             {
-                System.Windows.Forms.Cursor c = Cursor.Current;
-                Cursor = Cursors.WaitCursor;
                 Builder builder = Connect.getBuilder();
                 builder.cleanProject(_project);
-                builder.buildCSharpProject(_project, true);
-                Cursor = c;
+                builder.buildProject(_project, true, vsBuildScope.vsBuildScopeProject);
             }
+            Cursor = Cursors.Default;
         }
 
         private void btnCancel_Click(object sender, EventArgs e)
@@ -227,6 +236,10 @@ namespace Ice.VisualStudio
 
         private void btnSelectIceHome_Click(object sender, EventArgs e)
         {
+            if(_editingIncludes)
+            {
+                endEditIncludeDir(false);
+            }
             FolderBrowserDialog dialog = new FolderBrowserDialog();
             dialog.SelectedPath = Util.getAbsoluteIceHome(_project);
             dialog.Description = "Select Ice Home Installation Directory";
@@ -245,6 +258,14 @@ namespace Ice.VisualStudio
             {
                 updateIceHome();
                 e.Handled = true;
+            }
+        }
+
+        private void txtIceHome_Focus(object sender, EventArgs e)
+        {
+            if(_editingIncludes)
+            {
+                endEditIncludeDir(false);
             }
         }
 
@@ -272,43 +293,54 @@ namespace Ice.VisualStudio
 
         private void chkIcePrefix_CheckedChanged(object sender, EventArgs e)
         {
-            System.Windows.Forms.Cursor c = Cursor.Current;
             Cursor = Cursors.WaitCursor;
+            if(_editingIncludes)
+            {
+                endEditIncludeDir(false);
+            }
             Util.setProjectProperty(_project, Util.PropertyNames.IcePrefix, chkIcePrefix.Checked.ToString());
             _changed = true;
-            Cursor = c;
+            Cursor = Cursors.Default;
         }
 
         private void chkTie_CheckedChanged(object sender, EventArgs e)
         {
-            System.Windows.Forms.Cursor c = Cursor.Current;
             Cursor = Cursors.WaitCursor;
+            if(_editingIncludes)
+            {
+                endEditIncludeDir(false);
+            }
             Util.setProjectProperty(_project, Util.PropertyNames.IceTie, chkTie.Checked.ToString());
             _changed = true;
-            Cursor = c;
+            Cursor = Cursors.Default;
         }
 
         private void chkStreaming_CheckedChanged(object sender, EventArgs e)
         {
-            System.Windows.Forms.Cursor c = Cursor.Current;
             Cursor = Cursors.WaitCursor;
+            if(_editingIncludes)
+            {
+                endEditIncludeDir(false);
+            }
             Util.setProjectProperty(_project, Util.PropertyNames.IceStreaming, chkStreaming.Checked.ToString());
             _changed = true;
-            Cursor = c;
+            Cursor = Cursors.Default;
         }
         
         private void chkChecksum_CheckedChanged(object sender, EventArgs e)
         {
-            System.Windows.Forms.Cursor c = Cursor.Current;
             Cursor = Cursors.WaitCursor;
+            if(_editingIncludes)
+            {
+                endEditIncludeDir(false);
+            }
             Util.setProjectProperty(_project, Util.PropertyNames.IceChecksum, chkChecksum.Checked.ToString());
             _changed = true;
-            Cursor = c;
+            Cursor = Cursors.Default;
         }
         
         private void saveSliceIncludes()
         {
-            System.Windows.Forms.Cursor c = Cursor.Current;
             Cursor = Cursors.WaitCursor;
             IncludePathList paths = new IncludePathList();
             foreach(String s in includeDirList.Items)
@@ -317,12 +349,15 @@ namespace Ice.VisualStudio
             }
             Util.setProjectProperty(_project, Util.PropertyNames.IceIncludePath, paths.ToString());
             _changed = true;
-            Cursor = c;
+            Cursor = Cursors.Default;
         }
 
         private void btnAddInclude_Click(object sender, EventArgs e)
         {
-            endEditIncludeDir(false);
+            if(_editingIncludes)
+            {
+                endEditIncludeDir(false);
+            }
             includeDirList.Items.Add("");
             includeDirList.SelectedIndex = includeDirList.Items.Count - 1;
             _editingIndex = includeDirList.SelectedIndex;
@@ -331,15 +366,17 @@ namespace Ice.VisualStudio
 
         private void btnRemoveInclude_Click(object sender, EventArgs e)
         {
+            Cursor = Cursors.WaitCursor;
+            int index = includeDirList.SelectedIndex;
             if(_editingIncludes)
             {
+                index = _editingIndex;
                 endEditIncludeDir(false);
             }
-            else if(includeDirList.SelectedIndex != -1)
+            
+            if(index > -1 && index < includeDirList.Items.Count)
             {
-                System.Windows.Forms.Cursor c = Cursor.Current;
-                Cursor = Cursors.WaitCursor;
-                int selected = includeDirList.SelectedIndex;
+                int selected = index;
                 includeDirList.Items.RemoveAt(selected);
                 if(includeDirList.Items.Count > 0)
                 {
@@ -350,44 +387,48 @@ namespace Ice.VisualStudio
                     includeDirList.SelectedIndex = selected;
                 }
                 saveSliceIncludes();
-                Cursor = c;
             }
+            Cursor = Cursors.Default;
         }
 
         private void btnMoveIncludeUp_Click(object sender, EventArgs e)
         {
-            endEditIncludeDir(false);
+            Cursor = Cursors.WaitCursor;
+            if(_editingIncludes)
+            {
+                endEditIncludeDir(false);
+            }
             int index = includeDirList.SelectedIndex;
             if(index > 0)
             {
-                System.Windows.Forms.Cursor c = Cursor.Current;
-                Cursor = Cursors.WaitCursor;
                 string current = includeDirList.SelectedItem.ToString();
                 includeDirList.Items.RemoveAt(index);
                 includeDirList.Items.Insert(index - 1, current);
                 includeDirList.SelectedIndex = index - 1;
                 saveSliceIncludes();
-                Cursor = c;
             }
             resetIncludeDirChecks();
+            Cursor = Cursors.Default;
         }
 
         private void btnMoveIncludeDown_Click(object sender, EventArgs e)
         {
-            endEditIncludeDir(false);
+            Cursor = Cursors.WaitCursor;
+            if(_editingIncludes)
+            {
+                endEditIncludeDir(false);
+            }
             int index = includeDirList.SelectedIndex;
             if(index < includeDirList.Items.Count - 1 && index > -1)
             {
-                System.Windows.Forms.Cursor c = Cursor.Current;
-                Cursor = Cursors.WaitCursor;
                 string current = includeDirList.SelectedItem.ToString();
                 includeDirList.Items.RemoveAt(index);
                 includeDirList.Items.Insert(index + 1, current);
                 includeDirList.SelectedIndex = index + 1;
                 saveSliceIncludes();
                 resetIncludeDirChecks();
-                Cursor = c;
             }
+            Cursor = Cursors.Default;
         }
 
         private void resetIncludeDirChecks()
@@ -441,6 +482,14 @@ namespace Ice.VisualStudio
             }
         }
 
+        private void txtExtraOptions_Focus(object sender, EventArgs e)
+        {
+            if(_editingIncludes)
+            {
+                endEditIncludeDir(false);
+            }
+        }
+
         private void txtExtraOptions_LostFocus(object sender, EventArgs e)
         {
             if(txtExtraOptions.Modified)
@@ -449,16 +498,14 @@ namespace Ice.VisualStudio
                 _changed = true;
             }
         }
-
-        private void chkGlacier2_CheckedChanged(object sender, EventArgs e)
-        {
-            componentChanged("Glacier2", chkGlacier2.Checked);
-        }
         
         private void componentChanged(string name, bool value)
         {
-            System.Windows.Forms.Cursor c = Cursor.Current;
             Cursor = Cursors.WaitCursor;
+            if(_editingIncludes)
+            {
+                endEditIncludeDir(false);
+            }
             if(_initialized)
             {
                 if(value)
@@ -471,7 +518,12 @@ namespace Ice.VisualStudio
                 }
                 _changed = true;
             }
-            Cursor = c;        
+            Cursor = Cursors.Default;        
+        }
+
+        private void chkGlacier2_CheckedChanged(object sender, EventArgs e)
+        {
+            componentChanged("Glacier2", chkGlacier2.Checked);
         }
 
         private void chkIce_CheckedChanged(object sender, EventArgs e)
@@ -506,10 +558,13 @@ namespace Ice.VisualStudio
 
         private void chkConsole_CheckedChanged(object sender, EventArgs e)
         {
-            System.Windows.Forms.Cursor c = Cursor.Current;
             Cursor = Cursors.WaitCursor;
+            if(_editingIncludes)
+            {
+                endEditIncludeDir(false);
+            }
             Util.setProjectProperty(_project, Util.PropertyNames.ConsoleOutput, chkConsole.Checked.ToString());
-            Cursor = c;
+            Cursor = Cursors.Default;
         }
 
         private void btnEdit_Click(object sender, EventArgs e)
@@ -523,12 +578,18 @@ namespace Ice.VisualStudio
 
         private void includeDirList_SelectedIndexChanged(object sender, EventArgs e)
         {
-            endEditIncludeDir(false);
+            if(_editingIncludes)
+            {
+                endEditIncludeDir(false);
+            }
         }
 
         private void beginEditIncludeDir()
         {
-            endEditIncludeDir(false);
+            if(_editingIncludes)
+            {
+                endEditIncludeDir(false);
+            }
             _editingIncludes = true;
             CancelButton = null;
             if(_editingIndex != -1)
