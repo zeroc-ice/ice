@@ -616,6 +616,10 @@ namespace Ice.VisualStudio
                 if(saveChanges)
                 {
                     path = _txtIncludeDir.Text;
+                    if(path != null)
+                    {
+                        path = path.Trim();
+                    }
                 }
                 
                 this.groupBox1.Controls.Remove(_txtIncludeDir);

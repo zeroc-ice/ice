@@ -796,6 +796,14 @@ namespace Ice.VisualStudio
 
         public static string relativePath(string mainDirPath, string absoluteFilePath)
         {
+            if(absoluteFilePath != null)
+            {
+                absoluteFilePath = absoluteFilePath.Trim();
+            }
+            if(mainDirPath != null)
+            {
+                mainDirPath = mainDirPath.Trim();
+            }
             if(String.IsNullOrEmpty(absoluteFilePath) || String.IsNullOrEmpty(mainDirPath))
             {
                 return "";
