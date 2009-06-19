@@ -1318,7 +1318,7 @@ namespace Ice.VisualStudio
 
         public static void removeIceCppLibs(Project project)
         {
-            Util.removeIceCppLibs(project, new ComponentList(Util.ComponentNames.cSharpNames));
+            Util.removeIceCppLibs(project, new ComponentList(Util.ComponentNames.cppNames));
         }
 
         public static void removeIceCppLibs(Project project, ComponentList components)
