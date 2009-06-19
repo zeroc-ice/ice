@@ -1,6 +1,5 @@
 Source Code
 -----------
 
-The source distributions of Ice Visual Studio Extension used to 
-build this distribution can be downloaded at no cost from 
+The source code used to build this distribution is available for download at
 http://www.zeroc.com/vsplugin/download.html.

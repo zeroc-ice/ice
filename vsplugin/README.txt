@@ -25,7 +25,7 @@ Solution Explorer and choose "Ice Configuration..." or go to
 you can configure Ice build properties.
 
 Note that after adding new configurations or platforms to your
-project, it might necessary to disable and then re-enable the plug-in
+project, it may be necessary to disable and then re-enable the plug-in
 in order for the new configuration/platform to get the correct Ice
 settings.
 
@@ -50,9 +50,9 @@ Project properties
     Add extra Slice compiler options that are not explicitly supported
     above.
 
-    These options are entered the same as they would be passed on 
-    the command line to the Slice compiler. For example, preprocessor
-    macros can be defined by entering the following:
+    These options must be entered the same as they would be on the command
+    line to the Slice compiler. For example, preprocessor macros can be
+    defined by entering the following:
 
     -DFOO -DBAR
 
@@ -83,8 +83,8 @@ For example, for the "Ice Home" you could use $(ICE_HOME).
 Adding Slice files to a project
 -------------------------------
 
-Use "Add -> New Item..." to create a Slice file to a project. Use
-"Slice source" as the file type. To add an existing Slice file, use
+Use "Add -> New Item..." to create a Slice file and add it to a project.
+Use "Slice source" as the file type. To add an existing Slice file, use
 "Add -> Existing Item...".
 
 
