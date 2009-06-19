@@ -779,6 +779,20 @@ namespace Ice.VisualStudio
             return vcFile;
         }
 
+        public static VCFilter findVCFilter(IVCCollection filters, string name)
+        {
+            VCFilter vcFilter = null;
+            foreach(VCFilter filter in filters)
+            {
+                if(filter.Name == name)
+                {
+                    vcFilter = filter;
+                    break;
+                }
+            }
+            return vcFilter;
+        }
+
         public static string normalizePath(string path)
         {
             path = path.Replace('/', '\\');
