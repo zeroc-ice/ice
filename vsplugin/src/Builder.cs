@@ -298,7 +298,13 @@ namespace Ice.VisualStudio
             if(Util.isCppProject(project))
             {
                 Util.addIceCppConfigurations(project);
-                ComponentList components = new ComponentList("Ice; IceUtil");
+                ComponentList components = 
+                    new ComponentList(Util.getProjectProperty(project, Util.PropertyNames.IceComponents));
+                if(components.Count == 0)
+                {
+                    components.Add("Ice");
+                    components.Add("IceUtil");
+                }
                 Util.addIceCppLibs(project, components);
                 Util.setProjectProperty(project, Util.PropertyNames.Ice, true.ToString());
                 buildCppProject(project, true);
@@ -311,7 +317,16 @@ namespace Ice.VisualStudio
                 }
                 else
                 {
-                    Util.addCSharpReference(project, "Ice");
+                    ComponentList components = 
+                        new ComponentList(Util.getProjectProperty(project, Util.PropertyNames.IceComponents));
+                    if(components.Count == 0)
+                    {
+                        components.Add("Ice");
+                    }
+                    foreach(string component in components)
+                    {
+                        Util.addCSharpReference(project, component);
+                    }
                 }
                 buildCSharpProject(project, true);
                 Util.setProjectProperty(project, Util.PropertyNames.Ice, true.ToString());
@@ -328,7 +343,8 @@ namespace Ice.VisualStudio
             if(Util.isCppProject(project))
             {
                 Util.removeIceCppConfigurations(project);
-                Util.removeIceCppLibs(project);
+                ComponentList libs = Util.removeIceCppLibs(project);
+                Util.setProjectProperty(project, Util.PropertyNames.IceComponents, libs.ToString());
                 Util.setProjectProperty(project, Util.PropertyNames.Ice, false.ToString());
             }
             else if(Util.isCSharpProject(project))
@@ -339,9 +355,14 @@ namespace Ice.VisualStudio
                 }
                 else
                 {
+                    ComponentList refs = new ComponentList();
                     foreach(string component in Util.ComponentNames.cSharpNames)
                     {
-                        Util.removeCSharpReference(project, component);
+                        if(Util.removeCSharpReference(project, component))
+                        {
+                            refs.Add(component);
+                        }
+                        Util.setProjectProperty(project, Util.PropertyNames.IceComponents, refs.ToString());
                     }
                 }
                 Util.setProjectProperty(project, Util.PropertyNames.Ice, false.ToString());

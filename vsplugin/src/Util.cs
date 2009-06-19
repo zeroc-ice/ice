@@ -169,7 +169,7 @@ namespace Ice.VisualStudio
             public const string Ice = "ZerocIce_Enabled";
             public const string IceHome = "ZerocIce_Home";
             public const string IceHomeExpanded = "ZerocIce_HomeExpanded";
-            public const string ComponentList = "ZerocIce_ComponentList";
+            public const string IceComponents = "ZerocIce_Components";
             public const string IceExtraOptions = "ZerocIce_ExtraOptions";
             public const string IceIncludePath = "ZerocIce_IncludePath";
             public const string IceStreaming = "ZerocIce_Streaming";
@@ -413,11 +413,11 @@ namespace Ice.VisualStudio
                                                  MessageBoxIcon.Error);
         }
 
-        public static void removeCSharpReference(Project project, string component)
+        public static bool removeCSharpReference(Project project, string component)
         {
             if(project == null || String.IsNullOrEmpty(component))
             {
-                return;
+                return false;
             }
 
             foreach(Reference r in ((VSProject)project.Object).References)
@@ -425,9 +425,10 @@ namespace Ice.VisualStudio
                 if(Path.GetFileName(r.Path).Equals(component + ".dll", StringComparison.OrdinalIgnoreCase))
                 {
                     r.Remove();
-                    break;
+                    return true;
                 }
             }
+            return false;
         }
 
         public static void addCppLib(VCLinkerTool tool, string component, bool debug)
@@ -469,28 +470,16 @@ namespace Ice.VisualStudio
             }
         }
 
-        public static void removeCppLib(VCLinkerTool tool, string component, bool debug)
+        public static bool removeCppLib(VCLinkerTool tool, string component, bool debug)
         {
             if(tool == null)
             {
-                return;
+                return false;
             }
 
             if(String.IsNullOrEmpty(tool.AdditionalDependencies))
             {
-                return;
-            }
-
-            string iceComponent = Array.Find(Util.ComponentNames.cppNames,
-                                            delegate(string v)
-                                                {
-                                                    return v.Equals(component, StringComparison.OrdinalIgnoreCase);
-                                                });
-
-            if(String.IsNullOrEmpty(iceComponent))
-            {
-                //Not an Ice Lib.
-                return;
+                return false;
             }
 
             string libName = component;
@@ -505,7 +494,9 @@ namespace Ice.VisualStudio
             {
                 components.Remove(libName);
                 tool.AdditionalDependencies = components.ToString(' ');
+                return true;
             }
+            return false;
         }
 
         public static void addIceCppLibraryDir(VCLinkerTool tool, Project project, bool x64)
@@ -1316,16 +1307,17 @@ namespace Ice.VisualStudio
             }
         }
 
-        public static void removeIceCppLibs(Project project)
+        public static ComponentList removeIceCppLibs(Project project)
         {
-            Util.removeIceCppLibs(project, new ComponentList(Util.ComponentNames.cppNames));
+            return Util.removeIceCppLibs(project, new ComponentList(Util.ComponentNames.cppNames));
         }
 
-        public static void removeIceCppLibs(Project project, ComponentList components)
+        public static ComponentList removeIceCppLibs(Project project, ComponentList components)
         {
+            ComponentList removed = new ComponentList();
             if(!isCppProject(project))
             {
-                return;
+                return removed;
             }
 
             VCProject vcProject = (VCProject)project.Object;
@@ -1356,11 +1348,15 @@ namespace Ice.VisualStudio
                     {
                         if(s != null)
                         {
-                            Util.removeCppLib(linkerTool, s, debug);
+                            if(Util.removeCppLib(linkerTool, s, debug)  && !removed.Contains(s))
+                            {
+                                removed.Add(s);
+                            }
                         }
                     }
                 }
             }
+            return removed;
         }
 
         public static DTE getCurrentDTE()
