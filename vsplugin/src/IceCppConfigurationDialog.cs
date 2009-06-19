@@ -596,6 +596,7 @@ namespace Ice.VisualStudio
             _initialized = false;
             if(!_editingIncludes)
             {
+                _initialized = true;
                 return;
             }
             _editingIncludes = false;
@@ -610,6 +611,7 @@ namespace Ice.VisualStudio
                 CancelButton = btnClose;
                 if(_txtIncludeDir == null || _btnSelectInclude == null)
                 {
+                    _initialized = true;
                     return;
                 }
                 if(saveChanges)
