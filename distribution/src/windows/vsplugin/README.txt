@@ -67,10 +67,10 @@ Project properties
 Environment Variables
 ---------------------
 
-The "Ice Home", "Extra Compiler Options" and "Slice Include Path"
-settings all allow environment variables to be specified. To do this
+The "Ice Home", "Extra Compiler Options", and "Slice Include Path"
+settings allow environment variables to be specified. To do this
 the environment variable must be entered using $(VAR) as the format.
-For example, for the "Ice Home" you could use $(ICE_HOME).
+For example, for "Ice Home" you could use $(ICE_HOME).
 
 
 Adding Slice files to a project
