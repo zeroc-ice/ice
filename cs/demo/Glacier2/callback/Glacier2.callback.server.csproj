@@ -75,20 +75,17 @@
     <ErrorReport>prompt</ErrorReport>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Ice">
-      <Name>Ice</Name>
+    <Reference Include="Ice, Version=3.3.1.0, Culture=neutral, PublicKeyToken=1f998c50fec78381, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\bin\Ice.dll</HintPath>
-      <Private>False</Private>
     </Reference>
     <Reference Include="System">
       <Name>System</Name>
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Callback.cs" />
     <Compile Include="CallbackI.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="generated\Callback.cs">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Server.cs">
@@ -96,6 +93,7 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
+    <None Include="Callback.ice" />
     <None Include="README" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
@@ -105,16 +103,9 @@
     <PostBuildEvent>
     </PostBuildEvent>
   </PropertyGroup>
-  <Target Name="CompileSlice" Inputs="Callback.ice" Outputs="generated\Callback.cs">
-    <Exec Condition="Exists('..\..\..\slice')" Command="..\..\..\bin\slice2cs.exe --output-dir generated Callback.ice" />
-    <Exec Condition="Exists('..\..\..\..\slice')" Command="..\..\..\..\cpp\bin\slice2cs.exe --output-dir generated Callback.ice" />
-  </Target>
-  <Target Name="AfterClean">
-    <Delete Files="generated\Callback.cs" />
-  </Target>
-  <PropertyGroup>
-    <CompileDependsOn>
-      CompileSlice;$(CompileDependsOn)
-    </CompileDependsOn>
-  </PropertyGroup>
+  <ProjectExtensions>
+    <VisualStudio>
+      <UserProperties ZerocIce_ConsoleOutput="True" ZerocIce_Enabled="True" ZerocIce_Home="..\..\..\.." ZerocIce_HomeExpanded="..\..\..\.." />
+    </VisualStudio>
+  </ProjectExtensions>
 </Project>

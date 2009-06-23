@@ -75,28 +75,26 @@
     <ErrorReport>prompt</ErrorReport>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Ice">
-      <Name>Ice</Name>
+    <Reference Include="Ice, Version=3.3.1.0, Culture=neutral, PublicKeyToken=1f998c50fec78381, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\bin\Ice.dll</HintPath>
-      <Private>False</Private>
     </Reference>
     <Reference Include="System">
       <Name>System</Name>
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="generated\Throughput.cs">
-      <SubType>Code</SubType>
-    </Compile>
     <Compile Include="Server.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="Throughput.cs" />
     <Compile Include="ThroughputI.cs">
       <SubType>Code</SubType>
     </Compile>
   </ItemGroup>
   <ItemGroup>
     <None Include="README" />
+    <None Include="Throughput.ice" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
@@ -105,16 +103,9 @@
     <PostBuildEvent>
     </PostBuildEvent>
   </PropertyGroup>
-  <Target Name="CompileSlice" Inputs="Throughput.ice" Outputs="generated\Throughput.cs">
-    <Exec Condition="Exists('..\..\..\slice')" Command="..\..\..\bin\slice2cs.exe --output-dir generated Throughput.ice" />
-    <Exec Condition="Exists('..\..\..\..\slice')" Command="..\..\..\..\cpp\bin\slice2cs.exe --output-dir generated Throughput.ice" />
-  </Target>
-  <Target Name="AfterClean">
-    <Delete Files="generated\Throughput.cs" />
-  </Target>
-  <PropertyGroup>
-    <CompileDependsOn>
-      CompileSlice;$(CompileDependsOn)
-    </CompileDependsOn>
-  </PropertyGroup>
+  <ProjectExtensions>
+    <VisualStudio>
+      <UserProperties ZerocIce_HomeExpanded="..\..\..\.." ZerocIce_Home="..\..\..\.." ZerocIce_Enabled="True" ZerocIce_ConsoleOutput="True" />
+    </VisualStudio>
+  </ProjectExtensions>
 </Project>

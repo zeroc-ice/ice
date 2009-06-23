@@ -94,7 +94,7 @@
     <None Include="README" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="bidirSlice.csproj">
+    <ProjectReference Include="Ice.bidir.slice.csproj">
       <Project>{B406A516-462C-431E-9C3A-78CF34817875}</Project>
       <Name>bidirSlice</Name>
     </ProjectReference>
@@ -109,4 +109,9 @@
     <PostBuildEvent>
     </PostBuildEvent>
   </PropertyGroup>
+  <ProjectExtensions>
+    <VisualStudio>
+      <UserProperties ZerocIce_HomeExpanded="C:\Ice-3.3.1" ZerocIce_Home="C:\Ice-3.3.1" />
+    </VisualStudio>
+  </ProjectExtensions>
 </Project>

@@ -95,7 +95,7 @@
     <None Include="README" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="callbackSlice.csproj">
+    <ProjectReference Include="Ice.callback.slice.csproj">
       <Project>{A84E3CA4-D56A-408B-BEA0-F1829F87A967}</Project>
       <Name>callbackSlice</Name>
     </ProjectReference>
@@ -110,4 +110,9 @@
     <PostBuildEvent>
     </PostBuildEvent>
   </PropertyGroup>
+  <ProjectExtensions>
+    <VisualStudio>
+      <UserProperties ZerocIce_HomeExpanded="C:\Ice-3.3.1" ZerocIce_Home="C:\Ice-3.3.1" />
+    </VisualStudio>
+  </ProjectExtensions>
 </Project>

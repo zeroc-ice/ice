@@ -97,7 +97,7 @@
     <None Include="README" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="helloIceBoxSlice.csproj">
+    <ProjectReference Include="IceBox.hello.slice.csproj">
       <Project>{9D898733-2836-4D69-854E-7C93C8C1CFAF}</Project>
       <Name>helloIceBoxSlice</Name>
     </ProjectReference>
@@ -112,4 +112,9 @@
     <PostBuildEvent>
     </PostBuildEvent>
   </PropertyGroup>
+  <ProjectExtensions>
+    <VisualStudio>
+      <UserProperties ZerocIce_HomeExpanded="C:\Ice-3.3.1" ZerocIce_Home="C:\Ice-3.3.1" />
+    </VisualStudio>
+  </ProjectExtensions>
 </Project>

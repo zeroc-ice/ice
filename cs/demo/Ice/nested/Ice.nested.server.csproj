@@ -75,19 +75,16 @@
     <ErrorReport>prompt</ErrorReport>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Ice">
-      <Name>Ice</Name>
+    <Reference Include="Ice, Version=3.3.1.0, Culture=neutral, PublicKeyToken=1f998c50fec78381, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\bin\Ice.dll</HintPath>
-      <Private>False</Private>
     </Reference>
     <Reference Include="System">
       <Name>System</Name>
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="generated\Nested.cs">
-      <SubType>Code</SubType>
-    </Compile>
+    <Compile Include="Nested.cs" />
     <Compile Include="NestedI.cs">
       <SubType>Code</SubType>
     </Compile>
@@ -96,6 +93,7 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
+    <None Include="Nested.ice" />
     <None Include="README" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
@@ -105,16 +103,9 @@
     <PostBuildEvent>
     </PostBuildEvent>
   </PropertyGroup>
-  <Target Name="CompileSlice" Inputs="Nested.ice" Outputs="generated\Nested.cs">
-    <Exec Condition="Exists('..\..\..\slice')" Command="..\..\..\bin\slice2cs.exe --output-dir generated Nested.ice" />
-    <Exec Condition="Exists('..\..\..\..\slice')" Command="..\..\..\..\cpp\bin\slice2cs.exe --output-dir generated Nested.ice" />
-  </Target>
-  <Target Name="AfterClean">
-    <Delete Files="generated\Nested.cs" />
-  </Target>
-  <PropertyGroup>
-    <CompileDependsOn>
-      CompileSlice;$(CompileDependsOn)
-    </CompileDependsOn>
-  </PropertyGroup>
+  <ProjectExtensions>
+    <VisualStudio>
+      <UserProperties ZerocIce_HomeExpanded="..\..\..\.." ZerocIce_Home="..\..\..\.." ZerocIce_Enabled="True" ZerocIce_ConsoleOutput="True" />
+    </VisualStudio>
+  </ProjectExtensions>
 </Project>

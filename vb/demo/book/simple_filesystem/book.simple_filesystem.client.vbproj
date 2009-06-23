@@ -91,7 +91,7 @@
     <None Include="README" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="simpleFSSlice.csproj">
+    <ProjectReference Include="book.simple_filesystem.slice.csproj">
       <Project>{73CD4F2C-BF98-404C-B29E-BE0F53A2D19B}</Project>
       <Name>simpleFSSlice</Name>
     </ProjectReference>
@@ -106,4 +106,9 @@
     <PostBuildEvent>
     </PostBuildEvent>
   </PropertyGroup>
+  <ProjectExtensions>
+    <VisualStudio>
+      <UserProperties ZerocIce_HomeExpanded="C:\Ice-3.3.1" ZerocIce_Home="C:\Ice-3.3.1" />
+    </VisualStudio>
+  </ProjectExtensions>
 </Project>

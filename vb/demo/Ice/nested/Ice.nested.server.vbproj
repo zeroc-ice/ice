@@ -94,7 +94,7 @@
     <None Include="README" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="nestedSlice.csproj">
+    <ProjectReference Include="Ice.nested.slice.csproj">
       <Project>{DDDA5239-7397-4D62-8A31-C1811EF568C6}</Project>
       <Name>nestedSlice</Name>
     </ProjectReference>
@@ -109,4 +109,9 @@
     <PostBuildEvent>
     </PostBuildEvent>
   </PropertyGroup>
+  <ProjectExtensions>
+    <VisualStudio>
+      <UserProperties ZerocIce_HomeExpanded="C:\Ice-3.3.1" ZerocIce_Home="C:\Ice-3.3.1" />
+    </VisualStudio>
+  </ProjectExtensions>
 </Project>

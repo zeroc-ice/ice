@@ -94,7 +94,7 @@
     <None Include="README" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="minimalSlice.csproj">
+    <ProjectReference Include="Ice.minimal.slice.csproj">
       <Project>{88969902-914A-4FB0-A7A4-72AD07EA102F}</Project>
       <Name>minimalSlice</Name>
     </ProjectReference>
@@ -109,4 +109,9 @@
     <PostBuildEvent>
     </PostBuildEvent>
   </PropertyGroup>
+  <ProjectExtensions>
+    <VisualStudio>
+      <UserProperties ZerocIce_HomeExpanded="C:\Ice-3.3.1" ZerocIce_Home="C:\Ice-3.3.1" />
+    </VisualStudio>
+  </ProjectExtensions>
 </Project>

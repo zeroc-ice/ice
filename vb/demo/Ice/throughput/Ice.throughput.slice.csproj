@@ -28,15 +28,17 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Ice">
-      <Name>Ice</Name>
+    <Reference Include="Ice, Version=3.3.1.0, Culture=neutral, PublicKeyToken=1f998c50fec78381, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\..\cs\bin\Ice.dll</HintPath>
-      <Private>False</Private>
     </Reference>
     <Reference Include="System" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="generated\Throughput.cs" />
+    <None Include="Throughput.ice" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Throughput.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Properties\" />
@@ -55,16 +57,9 @@
     <PostBuildEvent>
     </PostBuildEvent>
   </PropertyGroup>
-  <Target Name="CompileSlice" Inputs="Throughput.ice" Outputs="generated\Throughput.cs">
-    <Exec Condition="Exists('..\..\..\slice')" Command="..\..\..\bin\slice2cs.exe --output-dir generated Throughput.ice" />
-    <Exec Condition="Exists('..\..\..\..\slice')" Command="..\..\..\..\cpp\bin\slice2cs.exe --output-dir generated Throughput.ice" />
-  </Target>
-  <Target Name="AfterClean">
-    <Delete Files="generated\Throughput.cs" />
-  </Target>
-  <PropertyGroup>
-    <CompileDependsOn>
-      CompileSlice;$(CompileDependsOn)
-    </CompileDependsOn>
-  </PropertyGroup>
+  <ProjectExtensions>
+    <VisualStudio>
+      <UserProperties ZerocIce_ConsoleOutput="True" ZerocIce_Enabled="True" ZerocIce_Home="..\..\..\.." ZerocIce_HomeExpanded="..\..\..\.." />
+    </VisualStudio>
+  </ProjectExtensions>
 </Project>

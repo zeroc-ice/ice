@@ -99,7 +99,7 @@
     <None Include="README" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="glacier2callbackSlice.csproj">
+    <ProjectReference Include="Glacier2.callback.slice.csproj">
       <Project>{218F2A2E-2CC5-4D61-B312-87B6EBB0FDC2}</Project>
       <Name>glacier2callbackSlice</Name>
     </ProjectReference>
@@ -114,4 +114,9 @@
     <PostBuildEvent>
     </PostBuildEvent>
   </PropertyGroup>
+  <ProjectExtensions>
+    <VisualStudio>
+      <UserProperties ZerocIce_HomeExpanded="C:\Ice-3.3.1" ZerocIce_Home="C:\Ice-3.3.1" />
+    </VisualStudio>
+  </ProjectExtensions>
 </Project>

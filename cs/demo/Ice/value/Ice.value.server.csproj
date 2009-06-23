@@ -75,10 +75,9 @@
     <ErrorReport>prompt</ErrorReport>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Ice">
-      <Name>Ice</Name>
+    <Reference Include="Ice, Version=3.3.1.0, Culture=neutral, PublicKeyToken=1f998c50fec78381, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\bin\Ice.dll</HintPath>
-      <Private>False</Private>
     </Reference>
     <Reference Include="System">
       <Name>System</Name>
@@ -86,9 +85,6 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="DerivedPrinterI.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="generated\Value.cs">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="InitialI.cs">
@@ -100,9 +96,11 @@
     <Compile Include="Server.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="Value.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="README" />
+    <None Include="Value.ice" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
@@ -111,16 +109,9 @@
     <PostBuildEvent>
     </PostBuildEvent>
   </PropertyGroup>
-  <Target Name="CompileSlice" Inputs="Value.ice" Outputs="generated\Value.cs">
-    <Exec Condition="Exists('..\..\..\slice')" Command="..\..\..\bin\slice2cs.exe --output-dir generated Value.ice" />
-    <Exec Condition="Exists('..\..\..\..\slice')" Command="..\..\..\..\cpp\bin\slice2cs.exe --output-dir generated Value.ice" />
-  </Target>
-  <Target Name="AfterClean">
-    <Delete Files="generated\Value.cs" />
-  </Target>
-  <PropertyGroup>
-    <CompileDependsOn>
-      CompileSlice;$(CompileDependsOn)
-    </CompileDependsOn>
-  </PropertyGroup>
+  <ProjectExtensions>
+    <VisualStudio>
+      <UserProperties ZerocIce_HomeExpanded="..\..\..\.." ZerocIce_Home="..\..\..\.." ZerocIce_Enabled="True" ZerocIce_ConsoleOutput="True" />
+    </VisualStudio>
+  </ProjectExtensions>
 </Project>

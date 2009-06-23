@@ -100,7 +100,7 @@
     <None Include="README" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="valueSlice.csproj">
+    <ProjectReference Include="Ice.value.slice.csproj">
       <Project>{CAE58DC4-A0E6-4CCE-A1DA-64AA8D77B4AC}</Project>
       <Name>valueSlice</Name>
     </ProjectReference>
@@ -115,4 +115,9 @@
     <PostBuildEvent>
     </PostBuildEvent>
   </PropertyGroup>
+  <ProjectExtensions>
+    <VisualStudio>
+      <UserProperties ZerocIce_HomeExpanded="C:\Ice-3.3.1" ZerocIce_Home="C:\Ice-3.3.1" />
+    </VisualStudio>
+  </ProjectExtensions>
 </Project>

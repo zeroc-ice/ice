@@ -94,7 +94,7 @@
     <None Include="README" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="throughputSlice.csproj">
+    <ProjectReference Include="Ice.throughput.slice.csproj">
       <Project>{992E54B2-1EB6-4EA8-A73D-4B02E501CD81}</Project>
       <Name>throughputSlice</Name>
     </ProjectReference>
@@ -109,4 +109,9 @@
     <PostBuildEvent>
     </PostBuildEvent>
   </PropertyGroup>
+  <ProjectExtensions>
+    <VisualStudio>
+      <UserProperties ZerocIce_HomeExpanded="C:\Ice-3.3.1" ZerocIce_Home="C:\Ice-3.3.1" />
+    </VisualStudio>
+  </ProjectExtensions>
 </Project>

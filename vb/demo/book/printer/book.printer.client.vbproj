@@ -91,7 +91,7 @@
     <None Include="README" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="printerSlice.csproj">
+    <ProjectReference Include="book.printer.slice.csproj">
       <Project>{5114D39A-6EC0-4869-B43A-A85FDF899D12}</Project>
       <Name>printerSlice</Name>
     </ProjectReference>
@@ -106,4 +106,9 @@
     <PostBuildEvent>
     </PostBuildEvent>
   </PropertyGroup>
+  <ProjectExtensions>
+    <VisualStudio>
+      <UserProperties ZerocIce_HomeExpanded="C:\Ice-3.3.1" ZerocIce_Home="C:\Ice-3.3.1" />
+    </VisualStudio>
+  </ProjectExtensions>
 </Project>
