@@ -14,7 +14,7 @@ Public Class DirectoryI
         '
         Dim myId As Ice.Identity = New Ice.Identity
         If Not _parent Is Nothing Then
-            myId.name = Ice.Util.generateUUID()
+            myId.name = System.Guid.NewGuid().ToString()
         Else
             myId.name = "RootDir"
         End If

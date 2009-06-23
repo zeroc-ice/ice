@@ -27,7 +27,7 @@ Module BidirC
 
             Dim adapter As Ice.ObjectAdapter = communicator().createObjectAdapter("")
             Dim ident As Ice.Identity = New Ice.Identity
-            ident.name = Ice.Util.generateUUID()
+            ident.name = System.Guid.NewGuid().ToString()
             ident.category = ""
             adapter.add(New CallbackReceiverI, ident)
             adapter.activate()

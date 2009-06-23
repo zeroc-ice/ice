@@ -14,7 +14,7 @@ Public Class FileI
         ' Create an identity
         '
         Dim myId As Ice.Identity = New Ice.Identity
-        myId.name = Ice.Util.generateUUID()
+        myId.name = System.Guid.NewGuid().ToString()
 
         ' Add the identity to the object adapter
         '

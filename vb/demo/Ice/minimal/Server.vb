@@ -19,7 +19,7 @@ Module MinimalS
             communicator.destroy()
         Catch ex As System.Exception
             System.Console.Error.WriteLine(ex)
-            System.Environment.Exit(status)
+            System.Environment.Exit(-1)
         End Try
     End Sub
 
