@@ -11,7 +11,7 @@ top_srcdir	= .
 
 !include $(top_srcdir)\config\Make.rules.mak
 
-SUBDIRS		= src
+SUBDIRS		= src lib demo test
 
 install:: install-common
 	@if not exist $(install_libdir) \

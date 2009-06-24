@@ -19,6 +19,7 @@ SUBDIRS		= IceUtil \
 		  slice2freezej \
 		  slice2docbook \
 		  slice2java \
+		  slice2php \
 		  slice2py \
 		  slice2rb \
 		  slice2html \

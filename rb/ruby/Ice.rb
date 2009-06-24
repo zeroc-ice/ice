@@ -560,7 +560,7 @@ module Ice
 
     def Ice.proxyIdentityAndFacetCompare(lhs, rhs)
         n = proxyIdentityCompare(lhs, rhs)
-        if n == 0
+        if n == 0 && lhs && rhs
             n = lhs.ice_getFacet() <=> rhs.ice_getFacet()
         end
         return n

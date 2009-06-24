@@ -26,6 +26,7 @@ OBJS		= Scanner.o \
 		  PythonUtil.o \
 		  DotNetNames.o \
 		  RubyUtil.o \
+		  PHPUtil.o \
 		  Util.o \
 		  FileTracker.o \
 		  MD5.o \

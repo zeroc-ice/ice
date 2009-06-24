@@ -183,6 +183,29 @@ You can verify that the Ice extension is installed properly by
 examining the output of the "php -m" command, or by calling the
 phpinfo() function from a script.
 
+Your application will also need to include at least some of the Ice
+for PHP run-time source files (installed in /usr/share/Ice-@ver@/php).
+To make these files available to your application, you can either
+modify PHP's include path or copy the necessary files to a directory
+that is already in the interpreter's include path. You can determine
+the current include path by executing the following command:
+
+% php -i | grep include_path
+
+If you want to make the Ice run-time files available to all PHP
+applications on the host, you can modify the include_path setting in
+php.ini to add the installation directory:
+
+include_path = /usr/share/Ice-@ver@/php:...
+
+Another option is to modify the include path from within your
+script prior to including any Ice run-time file:
+
+// PHP
+ini_set('include_path',
+  ini_get('include_path') . PATH_SEPARATOR . '/usr/share/Ice-@ver@/php')
+require 'Ice.php'; // Load the core Ice run time definitions.
+
 On SuSE Linux Enterprise Server 10, you need to install php5 version
 5.1.2-29.22 or greater (as long as the greater version maintains
 binary compatibility). Note that php5 5.1.2-29.22 is not binary

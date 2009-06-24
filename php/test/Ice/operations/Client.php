@@ -15,7 +15,9 @@ if(!extension_loaded("ice"))
     echo "\nerror: Ice extension is not loaded.\n\n";
     exit(1);
 }
-Ice_loadProfileWithArgs($argv);
+
+require 'Ice.php';
+require 'Test.php';
 
 function test($b)
 {
@@ -28,8 +30,6 @@ function test($b)
 
 function twoways($communicator, $p)
 {
-    global $ICE;
-
     {
         $p->opVoid();
     }
@@ -103,9 +103,9 @@ function twoways($communicator, $p)
     {
         $r = $p->opMyClass($p, $c1, $c2);
         // TODO: Identity tests
-        test($c1->ice_getIdentity() == $ICE->stringToIdentity("test"));
-        test($c2->ice_getIdentity() == $ICE->stringToIdentity("noSuchIdentity"));
-        test($r->ice_getIdentity() == $ICE->stringToIdentity("test"));
+        test($c1->ice_getIdentity() == $communicator->stringToIdentity("test"));
+        test($c2->ice_getIdentity() == $communicator->stringToIdentity("noSuchIdentity"));
+        test($r->ice_getIdentity() == $communicator->stringToIdentity("test"));
         $r->opVoid();
         $c1->opVoid();
         try
@@ -417,26 +417,26 @@ function twoways($communicator, $p)
     }
 }
 
-function allTests()
+function allTests($communicator)
 {
-    global $ICE;
-
     $ref = "test:default -p 12010";
-    $base = $ICE->stringToProxy($ref);
+    $base = $communicator->stringToProxy($ref);
     $cl = $base->ice_checkedCast("::Test::MyClass");
     $derived = $cl->ice_checkedCast("::Test::MyDerivedClass");
 
     echo "testing twoway operations... ";
     flush();
-    twoways($ICE, $cl);
-    twoways($ICE, $derived);
+    twoways($communicator, $cl);
+    twoways($communicator, $derived);
     $derived->opDerived();
     echo "ok\n";
 
     return $cl;
 }
 
-$myClass = allTests();
+$communicator = Ice_initialize();
+
+$myClass = allTests($communicator);
 
 echo "testing server shutdown... ";
 flush();
@@ -450,6 +450,8 @@ catch(Ice_LocalException $ex)
 {
     echo "ok\n";
 }
+
+$communicator->destroy();
 
 exit();
 ?>

@@ -6,7 +6,10 @@ if(!extension_loaded("ice"))
     echo "\nerror: Ice extension is not loaded.\n\n";
     exit(1);
 }
-Ice_loadProfileWithArgs($argv);
+
+require 'Ice.php';
+require 'Forward.php';
+require 'ClientPrivate.php';
 
 function test($b)
 {
@@ -17,11 +20,9 @@ function test($b)
     }
 }
 
-function allTests()
+function allTests($communicator)
 {
-    global $ICE;
-
-    $obj = $ICE->stringToProxy("Test:default -p 12010");
+    $obj = $communicator->stringToProxy("Test:default -p 12010");
     $test = $obj->ice_checkedCast("::Test::TestIntf");
 
     echo "testing base as Object... ";
@@ -799,7 +800,9 @@ function allTests()
     return $test;
 }
 
-$test = allTests();
+$communicator = Ice_initialize(&$argv);
+$test = allTests($communicator);
 $test->shutdown();
+$communicator->destroy();
 exit();
 ?>

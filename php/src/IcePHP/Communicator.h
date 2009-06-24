@@ -7,63 +7,69 @@
 //
 // **********************************************************************
 
-#ifndef ICE_PHP_COMMUNICATOR_H
-#define ICE_PHP_COMMUNICATOR_H
+#ifndef ICEPHP_COMMUNICATOR_H
+#define ICEPHP_COMMUNICATOR_H
 
 #include <Config.h>
+#include <Ice/CommunicatorF.h>
 
 //
-// Ice_Communicator class methods.
-//
-extern "C"
-{
-ZEND_FUNCTION(Ice_Communicator___construct);
-ZEND_FUNCTION(Ice_Communicator_getProperty);
-ZEND_FUNCTION(Ice_Communicator_setProperty);
-ZEND_FUNCTION(Ice_Communicator_stringToProxy);
-ZEND_FUNCTION(Ice_Communicator_proxyToString);
-ZEND_FUNCTION(Ice_Communicator_propertyToProxy);
-ZEND_FUNCTION(Ice_Communicator_stringToIdentity);
-ZEND_FUNCTION(Ice_Communicator_identityToString);
-ZEND_FUNCTION(Ice_Communicator_addObjectFactory);
-ZEND_FUNCTION(Ice_Communicator_findObjectFactory);
-ZEND_FUNCTION(Ice_Communicator_flushBatchRequests);
-}
-
-#define ICE_PHP_COMMUNICATOR_FUNCTIONS \
-    ZEND_FE(Ice_Communicator___construct,            NULL) \
-    ZEND_FE(Ice_Communicator_getProperty,            NULL) \
-    ZEND_FE(Ice_Communicator_setProperty,            NULL) \
-    ZEND_FE(Ice_Communicator_stringToProxy,          NULL) \
-    ZEND_FE(Ice_Communicator_proxyToString,          NULL) \
-    ZEND_FE(Ice_Communicator_propertyToProxy,        NULL) \
-    ZEND_FE(Ice_Communicator_stringToIdentity,       NULL) \
-    ZEND_FE(Ice_Communicator_identityToString,       NULL) \
-    ZEND_FE(Ice_Communicator_addObjectFactory,       NULL) \
-    ZEND_FE(Ice_Communicator_findObjectFactory,      NULL) \
-    ZEND_FE(Ice_Communicator_flushBatchRequests,     NULL)
-
-//
-// Ice_Identity global functions.
+// Global functions.
 //
 extern "C"
 {
-ZEND_FUNCTION(Ice_stringToIdentity);
-ZEND_FUNCTION(Ice_identityToString);
+ZEND_FUNCTION(Ice_initialize);
+ZEND_FUNCTION(Ice_register);
+ZEND_FUNCTION(Ice_unregister);
+ZEND_FUNCTION(Ice_find);
+ZEND_FUNCTION(Ice_getProperties);
 }
 
-#define ICE_PHP_IDENTITY_FUNCTIONS \
-    ZEND_FE(Ice_stringToIdentity,   NULL) \
-    ZEND_FE(Ice_identityToString,   NULL)
+#define ICEPHP_COMMUNICATOR_FUNCTIONS \
+    ZEND_FE(Ice_initialize, NULL) \
+    ZEND_FE(Ice_register, NULL) \
+    ZEND_FE(Ice_unregister, NULL) \
+    ZEND_FE(Ice_find, NULL) \
+    ZEND_FE(Ice_getProperties, NULL)
+
+#ifdef ICEPHP_USE_NAMESPACES
+#   define ICEPHP_COMMUNICATOR_NS_FUNCTIONS \
+    ZEND_NS_FALIAS("Ice", initialize, Ice_initialize, NULL) \
+    ZEND_NS_FALIAS("Ice", register, Ice_register, NULL) \
+    ZEND_NS_FALIAS("Ice", unregister, Ice_unregister, NULL) \
+    ZEND_NS_FALIAS("Ice", find, Ice_find, NULL) \
+    ZEND_NS_FALIAS("Ice", getProperties, Ice_getProperties, NULL)
+#else
+#   define ICEPHP_COMMUNICATOR_NS_FUNCTIONS
+#endif
 
 namespace IcePHP
 {
 
 bool communicatorInit(TSRMLS_D);
+bool communicatorShutdown(TSRMLS_D);
+bool communicatorRequestInit(TSRMLS_D);
+bool communicatorRequestShutdown(TSRMLS_D);
 
-bool createCommunicator(TSRMLS_D);
-Ice::CommunicatorPtr getCommunicator(TSRMLS_D);
-zval* getCommunicatorZval(TSRMLS_D);
+//
+// Class entry.
+//
+extern zend_class_entry* communicatorClassEntry;
+
+//
+// The CommunicatorInfo class represents a communicator that is in use by a PHP request.
+//
+class CommunicatorInfo : public IceUtil::Shared
+{
+public:
+
+    virtual void getZval(zval* TSRMLS_DC) = 0;
+    virtual void addRef(TSRMLS_D) = 0;
+    virtual void decRef(TSRMLS_D) = 0;
+
+    virtual Ice::CommunicatorPtr getCommunicator() const = 0;
+};
+typedef IceUtil::Handle<CommunicatorInfo> CommunicatorInfoPtr;
 
 } // End of namespace IcePHP
 

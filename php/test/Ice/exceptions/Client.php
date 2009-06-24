@@ -8,6 +8,9 @@
 //
 // **********************************************************************
 
+require 'Ice.php';
+require 'Test.php';
+
 error_reporting(E_ALL | E_STRICT);
 
 if(!extension_loaded("ice"))
@@ -15,7 +18,6 @@ if(!extension_loaded("ice"))
     echo "\nerror: Ice extension is not loaded.\n\n";
     exit(1);
 }
-Ice_loadProfileWithArgs($argv);
 
 function test($b)
 {
@@ -26,14 +28,12 @@ function test($b)
     }
 }
 
-function allTests()
+function allTests($communicator)
 {
-    global $ICE;
-
     echo "testing stringToProxy... ";
     flush();
     $ref = "thrower:default -p 12010";
-    $base = $ICE->stringToProxy($ref);
+    $base = $communicator->stringToProxy($ref);
     test($base != null);
     echo "ok\n";
 
@@ -206,7 +206,7 @@ function allTests()
     echo "catching object not exist exception... ";
     flush();
 
-    $id = Ice_stringToIdentity("does not exist");
+    $id = $communicator->stringToIdentity("does not exist");
     try
     {
         $thrower2 = $thrower->ice_identity($id)->ice_uncheckedCast("::Test::Thrower");
@@ -285,7 +285,9 @@ function allTests()
     return $thrower;
 }
 
-$thrower = allTests();
+$communicator = Ice_initialize(&$argv);
+$thrower = allTests($communicator);
 $thrower->shutdown();
+$communicator->destroy();
 exit();
 ?>

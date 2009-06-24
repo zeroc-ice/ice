@@ -15,7 +15,9 @@ if(!extension_loaded("ice"))
     echo "\nerror: Ice extension is not loaded.\n\n";
     exit(1);
 }
-Ice_loadProfileWithArgs($argv);
+
+require 'Ice.php';
+require 'Key.php';
 
 function test($b)
 {
@@ -28,28 +30,28 @@ function test($b)
 
 class echoI extends and_echo
 {
-    function _else($a, &$b)
+    public function _else($a, $b)
     {
     }
 }
 
 class enddeclareI extends and_enddeclare
 {
-    function _else($a, &$b)
+    function _else($a, $b)
     {
     }
+
     function _continue($a, $b)
     {
     }
+
     function _do()
     {
     }
 }
 
-function allTests()
+function allTests($communicator)
 {
-    global $ICE;
-
     echo "testing type names... ";
     flush();
     $a = and_array::_as;
@@ -63,11 +65,12 @@ function allTests()
     test($b->_throw == 0);
     test($b->_use == 0);
     test($b->_var == 0);
-    $c = $ICE->stringToProxy("test:tcp -p 10000")->ice_uncheckedCast("::and::function");
-    $d = $ICE->stringToProxy("test:tcp -p 10000")->ice_uncheckedCast("::and::die");
-    $e = $ICE->stringToProxy("test:tcp -p 10000")->ice_uncheckedCast("::and::echo");
+    $p = $communicator->stringToProxy("test:tcp -p 10000");
+    $c = and_functionPrxHelper::uncheckedCast($p);
+    $d = and_diePrxHelper::uncheckedCast($p);
+    $e = and_echoPrxHelper::uncheckedCast($p);
     $e1 = new echoI();
-    $f = $ICE->stringToProxy("test:tcp -p 10000")->ice_uncheckedCast("::and::enddeclare");
+    $f = and_enddeclarePrxHelper::uncheckedCast($p);
     $f1 = new enddeclareI();
     $g = new and_endif();
     $h = new and_endwhile();
@@ -76,7 +79,9 @@ function allTests()
     echo "ok\n";
 }
 
-allTests();
+$communicator = Ice_initialize(&$argv);
+allTests($communicator);
+$communicator->destroy();
 
 exit();
 ?>

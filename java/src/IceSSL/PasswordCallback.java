@@ -23,7 +23,7 @@ public interface PasswordCallback
      * @param alias The value of the property <code>IceSSL.Alias</code>, if that
      * property is set; <code>null</code>, otherwise.
      * @return The password for the key. The return value must not be <code>null</code>.
-     * 
+     *
      **/
     char[] getPassword(String alias);
 

@@ -39,6 +39,12 @@ embedded_runpath_prefix  ?= /opt/Ice-$(VERSION_MAJOR).$(VERSION_MINOR)
 #
 
 #
+# Determines whether the extension uses PHP namespaces (requires
+# PHP 5.3 or later).
+#
+#USE_NAMESPACES          ?= yes
+
+#
 # If you've built PHP yourself then set PHP_HOME to contain the
 # installation directory; the rest of the PHP-related settings
 # should be correct.
@@ -85,7 +91,7 @@ PHP_FLAGS ?= -I$(PHP_INCLUDE_DIR) -I$(PHP_INCLUDE_DIR)/main -I$(PHP_INCLUDE_DIR)
 #
 ice_language     = php
 ice_require_cpp  = yes
-slice_translator = slice2cpp
+slice_translator = slice2php
 
 ifeq ($(shell test -f $(top_srcdir)/config/Make.common.rules && echo 0),0)
     include $(top_srcdir)/config/Make.common.rules
@@ -94,7 +100,8 @@ else
 endif
 
 libdir			= $(top_srcdir)/lib
-install_libdir		= $(prefix)/$(libsubdir)
+install_phpdir		= $(prefix)/php
+install_libdir		= $(prefix)/php
 
 #
 # Platform specific definitions
@@ -104,7 +111,7 @@ ifeq ($(shell test -f $(top_srcdir)/config/Make.rules.$(UNAME) && echo 0),0)
 else
     configdir = $(top_srcdir)/../cpp/config
 endif 
-include	 $(configdir)/Make.rules.$(UNAME)
+include	$(configdir)/Make.rules.$(UNAME)
 
 ifdef ice_src_dist
     ifeq ($(ice_cpp_dir), $(ice_dir)/cpp)
@@ -121,12 +128,28 @@ endif
 ICE_LIBS = $(ICE_LIB_DIR) -lIce -lSlice -lIceUtil
 
 ifneq ($(embedded_runpath_prefix),)
-   runpath_libdir	 := $(embedded_runpath_prefix)/lib$(lp64suffix)
+    runpath_libdir      := $(embedded_runpath_prefix)/lib$(lp64suffix)
 endif
 
 CPPFLAGS		=
 ICECPPFLAGS		= -I$(slicedir)
+SLICE2PHPFLAGS		= $(ICECPPFLAGS)
 LDFLAGS			= $(LDPLATFORMFLAGS) $(CXXFLAGS) -L$(libdir)
+
+ifeq ("$(USE_NAMESPACES)","yes")
+    CPPFLAGS            := $(CPPFLAGS) -DICEPHP_USE_NAMESPACES
+    SLICE2PHPFLAGS      := $(SLICE2PHPFLAGS) -n
+endif
+
+ifdef ice_src_dist
+    ifeq ($(ice_cpp_dir), $(ice_dir)/cpp)
+        SLICE2PHP = $(ice_cpp_dir)/bin/slice2php
+    else
+        SLICE2PHP = $(ice_cpp_dir)/$(binsubdir)/slice2php
+    endif
+else
+    SLICE2PHP = $(ice_dir)/$(binsubdir)/slice2php
+endif
 
 ifeq ($(installphplib),)
     installphplib	= $(INSTALL) $(1) $(2); \
@@ -141,9 +164,13 @@ mkphplibname		= $(subst lib,,$(call mklibname,$(1)))
 EVERYTHING		= all depend clean install
 
 .SUFFIXES:
-.SUFFIXES:		.cpp .o .py
+.SUFFIXES:		.cpp .o .py .php
 
 all:: $(SRCS)
+
+%.php: $(SDIR)/%.ice
+	rm -f $(*F).php
+	$(SLICE2PHP) $(SLICE2PHPFLAGS) $<
 
 .cpp.o:
 	$(CXX) -c $(CPPFLAGS) $(CXXFLAGS) $<
@@ -154,11 +181,7 @@ clean::
 
 all:: $(SRCS) $(TARGETS)
 
-depend:: $(SRCS) $(SLICE_SRCS)
-	-rm -f .depend
-	if test -n "$(SRCS)" ; then \
-	    $(CXX) -DMAKEDEPEND -M $(CXXFLAGS) $(CPPFLAGS) $(SRCS) | $(ice_dir)/config/makedepend.py >> .depend; \
-	fi
+depend::
 
 ifneq ($(TEMPLATE_REPOSITORY),)
 clean::

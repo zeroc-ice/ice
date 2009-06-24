@@ -24,7 +24,7 @@ development tools to build Ice applications:
 
  - in C++, using Visual Studio 6.0
  - in Ruby, using Ruby 1.8.6
- - in PHP, using PHP 5.2.6
+ - in PHP, using PHP 5.2.10
 
 If you want to develop Ice applications in another programming 
 language, or with another C++ compiler, please download the 
@@ -200,22 +200,17 @@ OpenSSL, such as C++ and Python.
 Running the PHP demos
 ---------------------
 
-Two PHP demos are provided in the demophp directory.
+PHP demos are provided in the demophp directory.
 
-To run the PHP demos, you need PHP 5.2.6. It can be downloaded from:
+You will need PHP 5.2.10 to run the demos. It can be downloaded from:
 
   http://www.php.net/downloads.php
 
-The example in demophp\Ice\hello demonstrates the use of the Ice
-extension for PHP in a dynamic Web page, whereas the example in
-demophp\Ice\value requires PHP's command line interpreter. Both
-examples require that an Ice server be available; a matching server
-from any of the other language mappings can be used. A README file is
-provided in each of the example directories.
-
-Note that you must modify the php.ini files in each demo directory to
-match your PHP installation and ensure that the Ice extension for PHP
-is loaded properly.
+The examples in demophp\Ice\hello and demophp\Glacier2\hello
+demonstrate using the Ice extension for PHP in a dynamic Web page,
+whereas the example in demophp\Ice\value requires PHP's command-line
+interpreter. A README file is provided in each of the example
+directories.
 
 
 Using IcePHP with Apache
@@ -338,44 +333,27 @@ appropriate changes as you follow the instructions.
    for Apache to fail at startup are missing DLLs (see step 4) or
    insufficient access rights (see step 5).
 
-7) Apache's executable has a relatively small default stack size. You
-   can determine its current stack size with the following commands:
+7) Your application will also need to include at least some of the Ice
+   for PHP run-time source files (installed in C:\Ice\php). To make
+   these files available to your application, you can either modify
+   PHP's include path or copy the necessary files to a directory that
+   is already in the interpreter's include path. You can determine the
+   current include path by loading the phpinfo.php page in your
+   browser and searching for an entry named "include_path".
 
-   > cd \Program Files\Apache Software Foundation\Apache2.2\bin
-   > dumpbin /all httpd.exe | find "stack"
+   If you want to make the Ice run-time files available to all PHP
+   applications on the host, you can modify the include_path setting
+   in php.ini to add the installation directory:
 
-   The relevant output line is shown below:
+   include_path = C:\Ice\php;...
 
-     40000 size of stack reserve
+   Another option is to modify the include path from within your
+   script prior to including any Ice run-time file:
 
-   The default size is 0x40000 (262,144) bytes, which is too small to
-   effectively use the Ice extension. Attempting to load even a
-   trivial Slice file causes Apache to fail during startup with a
-   stack overflow error.
-
-   To increase the stack size, make sure that the Apache service is
-   not running and use the editbin utility to modify the executable.
-   Note that the new stack size is given in decimal:
-
-   > editbin /stack:1048576 httpd.exe
-
-   Now execute dumpbin again to verify that the change was made:
-
-   > dumpbin /all httpd.exe | find "stack"
-
-   The new output line is shown below:
-
-     100000 size of stack reserve
-
-8) In order to load Slice definitions for a PHP script, you must
-   modify php.ini and then restart Apache. For example, the "hello"
-   demo in C:\Ice\demophp\Ice\hello requires the following addition to
-   php.ini:
-
-   ice.slice = C:\Ice\demophp\Ice\hello\Hello.ice
-
-   Be aware that specifying a relative path for a Slice file means
-   the path is relative to the Apache installation directory.
+   // PHP
+   ini_set('include_path', 
+     ini_get('include_path') . PATH_SEPARATOR . 'C:/Ice/php')
+   require 'Ice.php'; // Load the core Ice run time definitions.
 
 
 Binary compatibility

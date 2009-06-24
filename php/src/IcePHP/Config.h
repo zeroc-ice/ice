@@ -21,7 +21,6 @@
 #endif
 
 #include <Ice/Ice.h>
-#include <Slice/Parser.h>
 
 #ifdef _WIN32
 #   undef WIN32_LEAN_AND_MEAN
@@ -60,6 +59,13 @@ extern zend_module_entry ice_module_entry;
 #include "TSRM.h"
 #endif
 
+//
+// The PHP header files define a macro named "inline".
+//
+#ifdef inline
+#   undef inline
+#endif
+
 ZEND_MINIT_FUNCTION(ice);
 ZEND_MSHUTDOWN_FUNCTION(ice);
 ZEND_RINIT_FUNCTION(ice);
@@ -67,17 +73,37 @@ ZEND_RSHUTDOWN_FUNCTION(ice);
 ZEND_MINFO_FUNCTION(ice);
 
 ZEND_BEGIN_MODULE_GLOBALS(ice)
-    zval* communicator;
-    void* marshalerMap;
-    void* profile;
-    void* properties;
-    void* objectFactoryMap;
+    void* communicatorMap;
+    void* idToClassInfoMap;
+    void* nameToClassInfoMap;
+    void* proxyInfoMap;
+    void* exceptionInfoMap;
 ZEND_END_MODULE_GLOBALS(ice)
 
 #ifdef ZTS
-#define ICE_G(v) TSRMG(ice_globals_id, zend_ice_globals*, v)
+#   define ICE_G(v) TSRMG(ice_globals_id, zend_ice_globals*, v)
 #else
-#define ICE_G(v) (ice_globals.v)
+#   define ICE_G(v) (ice_globals.v)
+#endif
+
+#ifndef Z_ADDREF_P
+#   ifndef ZVAL_ADDREF
+#       error "Unknown PHP version"
+#   endif
+#   define Z_ADDREF_P(zv) ZVAL_ADDREF(zv)
+#endif
+
+#ifndef ZEND_MN
+#   define ZEND_MN(name) ZEND_FN(name)
+#endif
+
+#ifdef STRCAST
+#   error "STRCAST already defined!"
+#endif
+#if PHP_MAJOR_VERSION > 5 || (PHP_MAJOR_VERSION == 5 && PHP_MINOR_VERSION >= 3)
+#   define STRCAST(s) s
+#else
+#   define STRCAST(s) const_cast<char*>(s)
 #endif
 
 #endif

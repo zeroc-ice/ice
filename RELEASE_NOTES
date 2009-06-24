@@ -26,6 +26,7 @@ Table of Contents
   2. Upgrading your application from Ice 3.3
      - Java language mapping changes
      - Changes to the Java API for Freeze maps
+     - PHP changes
   3. Upgrading your application from Ice 3.2 or earlier releases
      - Compatibility
      - Migrating IceStorm databases
@@ -611,11 +612,366 @@ Note that, given the uncertain nature of Java finalizers, it is quite
 likely that the remaining finalizers will not be executed.
 
 
+PHP changes
+===========
+
+The Ice extension for PHP has undergone many changes in this release.
+The subsections below describe these changes in detail.
 
 
+Static translation
+------------------
 
-Old
-===
+In prior releases, Slice files were deployed with the application and
+loaded at Web server startup by the Ice extension. Before each page
+request, the extension directed the PHP interpreter to parse the code
+that was generated from the Slice definitions.
+
+In this release, Slice files must be translated using a new compiler
+(slice2php). This change offers several advantages:
+
+* Applications may have more opportunities to improve performance
+  through the use of opcode caching.
+
+* It is no longer necessary to restart the Web server when you make
+  changes to your Slice definitions, which is especially useful during
+  development.
+
+* Errors in your Slice files can now be discovered in your development
+  environment, rather than waiting until the Web server reports a
+  failure and then reviewing the server log to determine the problem.
+
+* The development process becomes simpler because you can easily
+  examine the generated code if you have questions about the API or
+  language mapping rules.
+
+* PHP scripts can now use all of the Ice local exceptions. In prior
+  releases, only a subset of the local exception types were available,
+  and all others were mapped to Ice_UnknownLocalException. See the
+  section "Local exceptions" below for more information.
+
+All of the Slice files for Ice and Ice services are translated during
+an Ice build and available for inclusion in your application. At a
+minimum, you must include the file Ice.php:
+
+// PHP
+require 'Ice.php';
+
+Ice.php contains definitions for core Ice types and includes a minimal
+set of generated files. To use an Ice service such as IceStorm,
+include the appropriate generated file:
+
+// PHP
+require 'Ice.php';
+require 'IceStorm/IceStorm.php';
+
+
+Deployment
+----------
+
+With the transition to static code generation, you no longer need to
+deploy Slice files with your application. Instead, you will need to
+deploy the PHP code generated from your Slice definitions, along with
+Ice.php, the generated code for the Ice core, and the generated code
+for any Ice services your application might use.
+
+
+Communicators
+-------------
+
+In prior releases, each PHP page request could access a single Ice
+communicator via the $ICE global variable. The configuration of this
+communicator was derived from the profile that the script loaded via
+the Ice_loadProfile function. The communicator was created on demand
+when $ICE was first used and destroyed automatically at the end of the
+page request.
+
+In this release, a PHP script must create its own communicator using
+an API that is similar to other Ice language mappings:
+
+  function Ice_initialize()
+  function Ice_initialize($args)
+  function Ice_initialize($initData)
+  function Ice_initialize($args, $initData)
+
+Ice_initialize creates a new communicator using the configuration
+provided in the optional arguments. $args is an array of strings
+representing command-line options, and $initData is an instance of
+Ice_InitializationData.
+
+An application that requires no configuration can initialize a
+communicator as follows:
+
+// PHP
+$communicator = Ice_initialize();
+
+More elaborate configuration scenarios are described in the section
+"Configuration" below.
+
+A script may optionally destroy its communicator:
+
+// PHP
+$communicator->destroy();
+
+At the completion of a page request, Ice by default automatically
+destroys any communicator that was not explicitly destroyed.
+
+
+Registered communicators
+------------------------
+
+Applications may benefit from the ability to use a communicator
+instance in multiple page requests. Reusing a communicator allows the
+application to minimize the overhead associated with the communicator
+lifecycle, including such activities as opening and closing
+connections to Ice servers.
+
+This release includes new APIs for registering a communicator in order
+to prevent Ice from destroying it automatically at the completion of a
+page request. For example, a session-based application can create a
+communicator, establish a Glacier2 session, and register the
+communicator. In subsequent page requests, the PHP session can
+retrieve its communicator instance and continue using the Glacier2
+session.
+
+The Ice manual provides more information on this feature, and a new
+sample program can be found in Glacier2/hello.
+
+
+Configuration
+-------------
+
+Prior releases supported four INI settings in PHP's configuration
+file:
+
+  * ice.config
+  * ice.options
+  * ice.profiles
+  * ice.slice
+
+The ice.slice directive is no longer supported since Slice definitions
+are now compiled statically. The remaining options are still supported
+but their semantics are slightly different. They no longer represent
+the configuration of a communicator; instead, they define property
+sets that a script can retrieve and use to initialize a communicator.
+
+The global INI directives ice.config and ice.options configure the
+default property set. The ice.profiles directive can optionally
+nominate a separate file that defines any number of named profiles,
+each of which configures a property set.
+
+As before, the profiles use an INI file syntax:
+
+[Name1]
+config=file1
+options="--Ice.Trace.Network=2 ..."
+
+[Name2]
+config=file2
+options="--Ice.Trace.Locator=1 ..."
+
+A new directive, ice.hide_profiles, overwrites the value of the
+ice.profiles directive as a security measure. This directive has
+a default value of 1, meaning it is enabled by default.
+
+A script can obtain a property set using the new function
+Ice_getProperties. Called without an argument (or with an empty
+string), the function returns the default property set:
+
+// PHP
+$props = Ice_getProperties();
+
+Alternatively, you can pass the name of the desired profile:
+
+// PHP
+$props = Ice_getProperties("Name1");
+
+The returned object is an instance of Ice_Properties, which supports
+the standard Ice API.
+
+For users migrating from an earlier release, you can replace a call to
+Ice_loadProfile as follows:
+
+// PHP - Old API
+Ice_loadProfile('Name1');
+
+// PHP - New API
+$initData = new Ice_InitializationData;
+$initData->properties = Ice_getProperties('Name1');
+$ICE = Ice_initialize($initData);
+
+(Note that it is not necessary to use the symbol $ICE for your
+communicator. However, using this symbol may ease your migration to
+this release.)
+
+Ice_loadProfile also installed the PHP definitions corresponding to
+your Slice types. In this release you will need to add 'require'
+statements to include your generated code.
+
+Finally, if you wish to manually configure a communicator, you can
+create a property set using Ice_createProperties:
+
+  function Ice_createProperties($args=null, $defaultProperties=null)
+
+$args is an array of strings representing command-line options, and
+$defaultProperties is an instance of Ice_Properties that supplies
+default values for properties.
+
+As an example, an application can configure a communicator as shown
+below:
+
+// PHP
+$initData = new Ice_InitializationData;
+$initData->properties = Ice_createProperties();
+$initData->properties->setProperty("Ice.Trace.Network", "1");
+...
+$ICE = Ice_initialize($initData);
+
+
+Namespaces
+----------
+
+This release includes optional support for PHP namespaces, which was
+introduced in PHP 5.3. Support for PHP namespaces is disabled by
+default; to enable it, you must build the Ice extension from source
+code with USE_NAMESPACES=yes (see Make.rules or Make.rules.mak in
+the php/config subdirectory). Note that the extension only supports
+one mapping style at a time; installing a namespace-enabled version
+of the extension requires all Ice applications on the target Web
+server to use namespaces.
+
+With namespace support enabled, you must modify your script to
+include a different version of the core Ice types:
+
+// PHP
+require 'Ice_ns.php'; // Namespace version of Ice.php
+
+You must also recompile your Slice files using the -n option to
+generate namespace-compatible code:
+
+% slice2php -n MySliceFile.ice
+
+This mapping translates Slice modules into PHP namespaces instead of
+using the "flattened" (underscore) naming scheme. For example,
+Ice_Properties becomes \Ice\Properties in the namespace mapping.
+However, applications can still refer to global Ice functions by their
+traditional names (such as Ice_initialize) or by their namespace
+equivalents (\Ice\initialize).
+
+
+Local exceptions
+----------------
+
+As mentioned earlier, prior releases of Ice for PHP only supported a
+limited subset of the standard local exceptions (refer to
+Ice/LocalException.ice for the definitions of these exceptions).
+An occurrence of an unsupported local exception was mapped to
+Ice_UnknownLocalException.
+
+This release adds support for all local exceptions, which allows an
+application to more easily react to certain types of errors:
+
+// PHP
+try
+{
+    $proxy->sayHello();
+}
+catch(Ice_ConnectionLostException $ex)
+{
+    // Handle connection loss
+}
+catch(Ice_LocalException $ex)
+{
+    // Handle other errors
+}
+
+This change represents a potential backward compatibility issue:
+applications that previously caught Ice_UnknownLocalException may
+need to be modified to catch the intended exception instead.
+
+
+Downcasting
+-----------
+
+In prior releases, to downcast a proxy you had to invoke the
+ice_checkedCast or ice_uncheckedCast method on a proxy and supply
+a type ID:
+
+// PHP
+$hello = $proxy->ice_checkedCast("::Demo::Hello");
+
+This API is likely to cause run-time errors because no validation is
+performed on the type ID string. For example, renaming the Hello
+interface to Greeting requires that you not only change all
+occurrences of Demo_Hello to Demo_Greeting, but also fix any type IDs
+that your code might have embedded. The PHP interpreter does not
+provide any assistance if you forget to make this change, and you will
+only discover it when that particular line of code is executed and
+fails.
+
+To improve this situation, a minimal class is now generated for each
+proxy type. The purpose of this class is to supply checkedCast and
+uncheckedCast static methods:
+
+class Demo_HelloPrx
+{
+    public static function checkedCast($proxy, $facetOrCtx=null,
+                                       $ctx=null);
+
+    public static function uncheckedCast($proxy, $facet=null);
+}
+
+Now your application can downcast a proxy as follows:
+
+// PHP
+$hello = Demo_HelloPrx::checkedCast($proxy);
+
+You can continue to use ice_checkedCast and ice_uncheckedCast but we
+recommend migrating your application to the new methods.
+
+
+Other API changes
+-----------------
+
+This section describes additional changes to the Ice API in this
+release:
+
+- The global variable $ICE is no longer defined. An application must
+  now initialize its own communicator as described above in the
+  "Communicators" section.
+
+- Removed the following communicator methods:
+
+  $ICE->setProperty()
+  $ICE->getProperty()
+
+  The equivalent methods are:
+
+  $communicator->getProperties()->setProperty()
+  $communicator->getProperties()->getProperty()
+
+- Removed the following global functions:
+
+  Ice_stringToIdentity()
+  Ice_identityToString()
+
+  The equivalent methods are:
+
+  $communicator->stringToIdentity()
+  $communicator->identityToString()
+
+- These functions have also been removed:
+
+  Ice_loadProfile()
+  Ice_loadProfileWithArgs()
+  Ice_dumpProfile()
+
+  Refer to the "Configuration" section above for more information.
+
+
+================
+OLD
+================
 
 Since Ice 3.3.1 maintains binary compatibility with Ice 3.3.0, it is
 not necessary for you to recompile your Slice files or your program

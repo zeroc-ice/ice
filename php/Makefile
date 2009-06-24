@@ -11,13 +11,13 @@ top_srcdir	= .
 
 include $(top_srcdir)/config/Make.rules
 
-SUBDIRS		= src
+SUBDIRS		= src lib demo test
 
 install:: install-common
-	@if test ! -d $(install_libdir) ; \
+	@if test ! -d $(install_phpdir) ; \
 	then \
-	    echo "Creating $(install_libdir)..." ; \
-	    $(call mkdir,$(install_libdir)) ; \
+	    echo "Creating $(install_phpdir)..." ; \
+	    $(call mkdir,$(install_phpdir)) ; \
 	fi
 
 $(EVERYTHING)::

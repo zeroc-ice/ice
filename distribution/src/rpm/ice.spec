@@ -247,9 +247,16 @@ Tools for developing Ice applications in Python.
 %package php
 Summary: The Ice runtime for PHP
 Group: System Environment/Libraries
-Requires: ice = %{version}-%{release}
+Requires: ice-libs = %{version}-%{release}
 %description php
 The Ice runtime for PHP.
+
+%package php-devel
+Summary: Tools for developing Ice applications in PHP
+Group: Development/Tools
+Requires: ice-php = %{version}-%{release}
+%description php-devel
+Tools for developing Ice applications in PHP.
 %endif
 
 
@@ -283,7 +290,7 @@ make %{makeopts} OPTIMIZE=yes embedded_runpath_prefix=""
 %endif
 
 #
-# We build java5 all the time, since we include the GUI and
+# We build java all the time, since we include the GUI and
 # ant-ice.jar in a non-noarch package.
 #
 cd $RPM_BUILD_DIR/Ice-%{version}/java
@@ -291,11 +298,7 @@ export CLASSPATH=`build-classpath db-%{dbversion} jgoodies-forms-%{formsversion}
 JGOODIES_FORMS=`find-jar jgoodies-forms-%{formsversion}`
 JGOODIES_LOOKS=`find-jar jgoodies-looks-%{looksversion}`
 
-ant -Dice.mapping=java5 -Dbuild.suffix=java5 -Djgoodies.forms=$JGOODIES_FORMS -Djgoodies.looks=$JGOODIES_LOOKS jar
-
-%ifarch noarch
-ant -Dice.mapping=java2 -Dbuild.suffix=java2 jar
-%endif
+ant -Djgoodies.forms=$JGOODIES_FORMS -Djgoodies.looks=$JGOODIES_LOOKS jar
 
 # 
 # We build mono all the time because we include iceboxnet.exe in an
@@ -360,14 +363,18 @@ make prefix=$RPM_BUILD_ROOT install
 mkdir -p $RPM_BUILD_ROOT%{_sysconfdir}/php.d
 cp -p $RPM_BUILD_DIR/Ice-rpmbuild-%{version}/ice.ini $RPM_BUILD_ROOT%{_sysconfdir}/php.d
 mkdir -p $RPM_BUILD_ROOT%{_libdir}/php/modules
-mv $RPM_BUILD_ROOT/%_lib/IcePHP.so $RPM_BUILD_ROOT%{_libdir}/php/modules
+mv $RPM_BUILD_ROOT/php/IcePHP.so $RPM_BUILD_ROOT%{_libdir}/php/modules
+mkdir -p $RPM_BUILD_ROOT%{_datadir}/php
+mv $RPM_BUILD_ROOT/php/* $RPM_BUILD_ROOT%{_datadir}/php
 %endif
 
 %if "%{dist}" == ".sles10"
 mkdir -p $RPM_BUILD_ROOT%{_sysconfdir}/php5/conf.d
 cp -p $RPM_BUILD_DIR/Ice-rpmbuild-%{version}/ice.ini $RPM_BUILD_ROOT%{_sysconfdir}/php5/conf.d
 mkdir -p $RPM_BUILD_ROOT%{_libdir}/php5/extensions
-mv $RPM_BUILD_ROOT/%_lib/IcePHP.so $RPM_BUILD_ROOT%{_libdir}/php5/extensions
+mv $RPM_BUILD_ROOT/php/IcePHP.so $RPM_BUILD_ROOT%{_libdir}/php5/extensions
+mkdir -p $RPM_BUILD_ROOT%{_datadir}/php5
+mv $RPM_BUILD_ROOT/php/* $RPM_BUILD_ROOT%{_datadir}/php5
 %endif
 
 #
@@ -386,7 +393,7 @@ rm -f $RPM_BUILD_ROOT%{_bindir}/slice2rb
 # IceGridGUI
 #
 mkdir -p $RPM_BUILD_ROOT%{_javadir}
-cp -p $RPM_BUILD_DIR/Ice-%{version}/java/libjava5/IceGridGUI.jar $RPM_BUILD_ROOT%{_javadir}/IceGridGUI-%{version}.jar
+cp -p $RPM_BUILD_DIR/Ice-%{version}/java/lib/IceGridGUI.jar $RPM_BUILD_ROOT%{_javadir}/IceGridGUI-%{version}.jar
 ln -s IceGridGUI-%{version}.jar $RPM_BUILD_ROOT%{_javadir}/IceGridGUI.jar 
 cp -p $RPM_BUILD_DIR/Ice-%{version}/java/bin/icegridgui.rpm $RPM_BUILD_ROOT%{_bindir}/icegridgui
 mkdir -p $RPM_BUILD_ROOT%{_defaultdocdir}/%{name}-%{version}/help
@@ -395,7 +402,7 @@ cp -Rp $RPM_BUILD_DIR/Ice-%{version}/java/resources/IceGridAdmin $RPM_BUILD_ROOT
 #
 # ant-ice.jar
 #
-cp -p $RPM_BUILD_DIR/Ice-%{version}/java/libjava5/ant-ice.jar $RPM_BUILD_ROOT%{_javadir}/ant-ice-%{version}.jar
+cp -p $RPM_BUILD_DIR/Ice-%{version}/java/lib/ant-ice.jar $RPM_BUILD_ROOT%{_javadir}/ant-ice-%{version}.jar
 ln -s ant-ice-%{version}.jar $RPM_BUILD_ROOT%{_javadir}/ant-ice.jar 
 
 
@@ -468,14 +475,11 @@ cp -p $RPM_BUILD_DIR/Ice-rpmbuild-%{version}/SOURCES.Linux $RPM_BUILD_ROOT%{_def
 # Java install (using jpackage conventions)
 # 
 cd $RPM_BUILD_DIR/Ice-%{version}/java
-ant -Dice.mapping=java5 -Dbuild.suffix=java5 -Dprefix=$RPM_BUILD_ROOT install
-ant -Dice.mapping=java2 -Dbuild.suffix=java2 -Dprefix=$RPM_BUILD_ROOT install
+ant -Dprefix=$RPM_BUILD_ROOT install
 
 mkdir -p $RPM_BUILD_ROOT%{_javadir}
 mv $RPM_BUILD_ROOT/lib/Ice.jar $RPM_BUILD_ROOT%{_javadir}/Ice-%{version}.jar
 ln -s  Ice-%{version}.jar $RPM_BUILD_ROOT%{_javadir}/Ice.jar 
-mv $RPM_BUILD_ROOT/lib/java2/Ice.jar $RPM_BUILD_ROOT%{_javadir}/Ice-java2-%{version}.jar
-ln -s Ice-java2-%{version}.jar $RPM_BUILD_ROOT%{_javadir}/Ice-java2.jar
 
 
 %if %{mono}
@@ -568,8 +572,6 @@ rm -rf $RPM_BUILD_ROOT
 %defattr(-, root, root, -)
 %{_javadir}/Ice-%{version}.jar
 %{_javadir}/Ice.jar
-%{_javadir}/Ice-java2-%{version}.jar
-%{_javadir}/Ice-java2.jar
 %endif
 
 #
@@ -775,6 +777,7 @@ fi
 
 %files php
 %defattr(-, root, root, -)
+%{_datadir}/Ice-%{version}/php
 
 %if "%{dist}" == ".rhel4" || "%{dist}" == ".rhel5"
 %{_libdir}/php/modules/IcePHP.so
@@ -785,6 +788,10 @@ fi
 %{_libdir}/php5/extensions
 %config(noreplace) %{_sysconfdir}/php5/conf.d/ice.ini
 %endif
+
+%files php-devel
+%defattr(-, root, root, -)
+%{_bindir}/slice2php
 %endif
 
 

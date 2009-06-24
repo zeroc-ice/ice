@@ -1,32 +1,29 @@
 This directory contains a PHP/HTML implementation of the Ice hello
-client. The procedure for installing this script depends on your Web
-server environment. For example, if you're using PHP as a Web server
-module, then you'll need to install this script in your document root
-directory.
+client.
 
-Alternatively, if you're using CGI, then you will need to make this
-script executable, add a line at the top of the script to indicate the
-path to the PHP CGI binary, and copy the script to your cgi-bin
-directory. On Unix platforms, the line at the top of the file should
-look something like the one below, where /opt/php5 is the PHP5
-installation directory:
+Follow these steps to install the demo:
 
-#! /opt/php5/bin/php
+1) Install the Ice extension and run-time files as described in the
+   top-level INSTALL or README file that accompanied your Ice
+   distribution. Restart the Web server if necessary.
 
-Next, the PHP configuration must be modified to load the Slice
-definitions required by this example. In php.ini, set this directive:
+2) Install the following files in your Web server's document
+   directory:
 
-ice.slice=/opt/icephp/demo/Ice/hello/Hello.ice
+   * client.php
+   * Hello.php
 
-For a Linux RPM installation, this directive can be added to
-/etc/php.d/ice.ini.
+   The file Hello.php is generated from Hello.ice when you run make or
+   nmake in this directory. Verify that the files have appropriate
+   access rights.
 
-Finally, start the hello server on the Web server host and try out the
-script. You can use a hello server from any language mapping.
+3) In a command window on the Web server host, start a hello server.
+   You can use a server from any Ice language mapping.
 
-Note that support for secure invocations via SSL are disabled by
-default. If you have configured SSL for the Ice extension, edit
-hello.php and set the have_ssl variable to true.
+4) Start a Web browser and open the client.php page to begin using the
+   demo. Note that support for secure invocations via SSL are disabled
+   by default. If you have configured SSL for the Ice extension, edit
+   client.php and set the have_ssl variable to true.
 
 
 =========================================================================

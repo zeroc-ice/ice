@@ -10,18 +10,16 @@
 #ifndef TEST_ICE
 #define TEST_ICE
 
-#include <Ice/Router.ice>
-#include <Ice/Locator.ice>
-#include <Ice/Current.ice>
-
 module Test
 {
+
+dictionary<string, string> Context;
 
 class MyClass
 {
     void shutdown();
 
-    Ice::Context getContext();
+    Context getContext();
 };
 
 class MyDerivedClass extends MyClass

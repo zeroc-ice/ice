@@ -25,6 +25,7 @@ OBJS		= Scanner.obj \
 		  PythonUtil.obj \
 		  DotNetNames.obj \
 		  RubyUtil.obj \
+		  PHPUtil.obj \
 		  Util.obj \
 		  FileTracker.obj \
 		  MD5.obj \

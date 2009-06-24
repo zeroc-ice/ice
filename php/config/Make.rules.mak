@@ -23,17 +23,25 @@ OPTIMIZE		= yes
 
 #
 # Specify your C++ compiler. Supported values are:
-# VC60
+# VC60, VC90, VC90_EXPRESS
 #
 !if "$(CPP_COMPILER)" == ""
 CPP_COMPILER            = VC60
 !endif
 
 #
+# Determines whether the extension uses PHP namespaces (requires
+# PHP 5.3 or later).
+#
+!if "$(USE_NAMESPACES)" == ""
+USE_NAMESPACES		= no
+!endif
+
+#
 # Set PHP_HOME to your PHP source directory.
 #
 !if "$(PHP_HOME)" == ""
-PHP_HOME		= C:\php-5.2.6
+PHP_HOME		= C:\php-5.2.9
 !endif
 
 #
@@ -41,6 +49,13 @@ PHP_HOME		= C:\php-5.2.6
 #
 !if "$(PHP_BIN_HOME)" == ""
 PHP_BIN_HOME		= C:\Program Files\PHP
+!endif
+
+#
+# Set PHP_ZTS to "no" (or comment it out) to disable Zend Thread Safety.
+#
+!if "$(PHP_ZTS)" == ""
+PHP_ZTS			= yes
 !endif
 
 #
@@ -65,7 +80,7 @@ STLPORT_HOME            = C:\Ice-$(VERSION)-ThirdParty-VC60
 #
 ice_language     = php
 ice_require_cpp  = yes
-slice_translator = slice2cpp.exe
+slice_translator = slice2php.exe
 
 !if exist ($(top_srcdir)\..\config\Make.common.rules.mak)
 !include $(top_srcdir)\..\config\Make.common.rules.mak
@@ -73,11 +88,11 @@ slice_translator = slice2cpp.exe
 !include $(top_srcdir)\config\Make.common.rules.mak
 !endif
 
-bindir			= $(top_srcdir)\bin
 libdir			= $(top_srcdir)\lib
-install_bindir		= $(prefix)\bin
+install_phpdir		= $(prefix)\php
+install_libdir		= $(prefix)\php
 
-!if "$(CPP_COMPILER)" != "VC60"
+!if "$(CPP_COMPILER)" != "VC60" && "$(CPP_COMPILER)" != "VC90" && "$(CPP_COMPILER)" != "VC90_EXPRESS"
 !error Invalid setting for CPP_COMPILER: $(CPP_COMPILER)
 !endif
 
@@ -110,24 +125,49 @@ ICE_LDFLAGS		= /LIBPATH:"$(ice_dir)\lib"
 
 slicedir                = $(ice_dir)\slice
 
+!if "$(PHP_ZTS)" == "yes"
+PHP_LIB_PREFIX		= php5ts
+!else
+PHP_LIB_PREFIX		= php5
+!endif
+
 !if "$(OPTIMIZE)" != "yes"
 PHP_LDFLAGS		= /LIBPATH:"$(PHP_BIN_HOME)"
-PHP_LIBS		= php5ts_debug.lib
+PHP_LIBS		= $(PHP_LIB_PREFIX)_debug.lib
 PHP_ZEND_DEBUG		= 1
 !else
 PHP_LDFLAGS		= /LIBPATH:"$(PHP_BIN_HOME)\dev"
-PHP_LIBS		= php5ts.lib
+PHP_LIBS		= $(PHP_LIB_PREFIX).lib
 PHP_ZEND_DEBUG		= 0
 !endif
 
-PHP_CPPFLAGS		= -I"$(PHP_HOME)" -I"$(PHP_HOME)\main" -I"$(PHP_HOME)\TSRM" -I"$(PHP_HOME)\Zend" -DPHP_WIN32 -DZEND_WIN32 -DZEND_DEBUG=$(PHP_ZEND_DEBUG) -DZTS -DWIN32
+PHP_CPPFLAGS		= -I"$(PHP_HOME)" -I"$(PHP_HOME)\main" -I"$(PHP_HOME)\TSRM" -I"$(PHP_HOME)\Zend" -DPHP_WIN32 -DZEND_WIN32 -DZEND_DEBUG=$(PHP_ZEND_DEBUG) -DWIN32
+!if "$(PHP_ZTS)" == "yes"
+PHP_CPPFLAGS		= $(PHP_CPPFLAGS) -DZTS
+!endif
 
 ICECPPFLAGS		= -I$(slicedir)
+SLICE2PHPFLAGS		= $(ICECPPFLAGS)
+
+!if "$(USE_NAMESPACES)" == "yes"
+CPPFLAGS		= $(CPPFLAGS) -DICEPHP_USE_NAMESPACES
+SLICE2PHPFLAGS		= $(SLICE2PHPFLAGS) -n
+!endif
+
+!if "$(ice_src_dist)" != ""
+!if "$(ice_cpp_dir)" == "$(ice_dir)\cpp"
+SLICE2PHP		= "$(ice_cpp_dir)\bin\slice2php.exe"
+!else
+SLICE2PHP		= "$(ice_cpp_dir)\bin$(x64suffix)\slice2php.exe"
+!endif
+!else
+SLICE2PHP		= "$(ice_dir)\bin$(x64suffix)\slice2php.exe"
+!endif
 
 EVERYTHING		= all clean install
 
 .SUFFIXES:
-.SUFFIXES:		.cpp .obj .rb
+.SUFFIXES:		.cpp .obj .php
 
 all:: $(SRCS)
 

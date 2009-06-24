@@ -15,7 +15,9 @@ if(!extension_loaded("ice"))
     echo "\nerror: Ice extension is not loaded.\n\n";
     exit(1);
 }
-Ice_loadProfileWithArgs($argv);
+
+require 'Ice.php';
+require 'Test.php';
 
 function test($b)
 {
@@ -51,12 +53,10 @@ function deactivate($com, $adapters)
     }
 }
 
-function allTests()
+function allTests($communicator)
 {
-    global $ICE;
-
     $ref = "communicator:default -p 12010";
-    $com = $ICE->stringToProxy($ref)->ice_uncheckedCast("::Test::RemoteCommunicator");
+    $com = $communicator->stringToProxy($ref)->ice_uncheckedCast("::Test::RemoteCommunicator");
 
     echo "testing binding with single endpoint... ";
     flush();
@@ -430,7 +430,7 @@ function allTests()
     }
     echo "ok" . "\n";
 
-    if(strlen($ICE->getProperty("Ice.Plugin.IceSSL")) > 0)
+    if(strlen($communicator->getProperties()->getProperty("Ice.Plugin.IceSSL")) > 0)
     {
         echo "testing unsecure vs. secure endpoints... ";
         flush();
@@ -489,6 +489,8 @@ function allTests()
     $com->shutdown();
 }
 
-allTests();
+$communicator = Ice_initialize(&$argv);
+allTests($communicator);
+$communicator->destroy();
 exit();
 ?>

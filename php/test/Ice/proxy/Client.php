@@ -15,7 +15,9 @@ if(!extension_loaded("ice"))
     echo "\nerror: Ice extension is not loaded.\n\n";
     exit(1);
 }
-Ice_loadProfileWithArgs($argv);
+
+require 'Ice.php';
+require 'Test.php';
 
 function test($b)
 {
@@ -26,216 +28,214 @@ function test($b)
     }
 }
 
-function allTests()
+function allTests($communicator)
 {
-    global $ICE;
-
     echo "testing stringToProxy... ";
     flush();
     $ref = "test:default -p 12010";
-    $base = $ICE->stringToProxy($ref);
+    $base = $communicator->stringToProxy($ref);
     test($base != null);
 
-    $b1 = $ICE->stringToProxy("test");
+    $b1 = $communicator->stringToProxy("test");
     test($b1->ice_getIdentity()->name == "test" && $b1->ice_getIdentity()->category == "" &&
          $b1->ice_getAdapterId() == "" && $b1->ice_getFacet() == "");
-    $b1 = $ICE->stringToProxy("test ");
+    $b1 = $communicator->stringToProxy("test ");
     test($b1->ice_getIdentity()->name == "test" && $b1->ice_getIdentity()->category == "" &&
          $b1->ice_getFacet() == "");
-    $b1 = $ICE->stringToProxy(" test ");
+    $b1 = $communicator->stringToProxy(" test ");
     test($b1->ice_getIdentity()->name == "test" && $b1->ice_getIdentity()->category == "" &&
          $b1->ice_getFacet() == "");
-    $b1 = $ICE->stringToProxy(" test");
+    $b1 = $communicator->stringToProxy(" test");
     test($b1->ice_getIdentity()->name == "test" && $b1->ice_getIdentity()->category == "" &&
          $b1->ice_getFacet() == "");
-    $b1 = $ICE->stringToProxy("'test -f facet'");
+    $b1 = $communicator->stringToProxy("'test -f facet'");
     test($b1->ice_getIdentity()->name == "test -f facet" && $b1->ice_getIdentity()->category == "" &&
          $b1->ice_getFacet() == "");
     try
     {
-        $b1 = $ICE->stringToProxy("\"test -f facet'");
+        $b1 = $communicator->stringToProxy("\"test -f facet'");
         test(false);
     }
-    catch(Ice_UnknownLocalException $ex) //catch(Ice_ProxyParseException $ex)
+    catch(Ice_ProxyParseException $ex)
     {
     }
-    $b1 = $ICE->stringToProxy("\"test -f facet\"");
+    $b1 = $communicator->stringToProxy("\"test -f facet\"");
     test($b1->ice_getIdentity()->name == "test -f facet" && $b1->ice_getIdentity()->category == "" &&
          $b1->ice_getFacet() == "");
-    $b1 = $ICE->stringToProxy("\"test -f facet@test\"");
+    $b1 = $communicator->stringToProxy("\"test -f facet@test\"");
     test($b1->ice_getIdentity()->name == "test -f facet@test" && $b1->ice_getIdentity()->category == "" &&
          $b1->ice_getFacet() == "");
-    $b1 = $ICE->stringToProxy("\"test -f facet@test @test\"");
+    $b1 = $communicator->stringToProxy("\"test -f facet@test @test\"");
     test($b1->ice_getIdentity()->name == "test -f facet@test @test" && $b1->ice_getIdentity()->category == "" &&
          $b1->ice_getFacet() == "");
     try
     {
-        $b1 = $ICE->stringToProxy("test test");
+        $b1 = $communicator->stringToProxy("test test");
         test(false);
     }
-    catch(Ice_UnknownLocalException $ex) //catch(Ice_ProxyParseException $ex)
+    catch(Ice_ProxyParseException $ex)
     {
     }
-    $b1 = $ICE->stringToProxy("test\\040test");
+    $b1 = $communicator->stringToProxy("test\\040test");
     test($b1->ice_getIdentity()->name == "test test" && $b1->ice_getIdentity()->category == "");
     try
     {
-        $b1 = $ICE->stringToProxy("test\\777");
+        $b1 = $communicator->stringToProxy("test\\777");
         test(false);
     }
-    catch(Ice_UnknownLocalException $ex) //catch(Ice_IdentityParseException $ex)
+    catch(Ice_IdentityParseException $ex)
     {
     }
-    $b1 = $ICE->stringToProxy("test\\40test");
+    $b1 = $communicator->stringToProxy("test\\40test");
     test($b1->ice_getIdentity()->name == "test test");
 
     // Test some octal and hex corner cases.
-    $b1 = $ICE->stringToProxy("test\\4test");
+    $b1 = $communicator->stringToProxy("test\\4test");
     test($b1->ice_getIdentity()->name == "test\4test");
-    $b1 = $ICE->stringToProxy("test\\04test");
+    $b1 = $communicator->stringToProxy("test\\04test");
     test($b1->ice_getIdentity()->name == "test\4test");
-    $b1 = $ICE->stringToProxy("test\\004test");
+    $b1 = $communicator->stringToProxy("test\\004test");
     test($b1->ice_getIdentity()->name == "test\4test");
-    $b1 = $ICE->stringToProxy("test\\1114test");
+    $b1 = $communicator->stringToProxy("test\\1114test");
     test($b1->ice_getIdentity()->name == "test\1114test");
 
-    $b1 = $ICE->stringToProxy("test\\b\\f\\n\\r\\t\\'\\\"\\\\test");
+    $b1 = $communicator->stringToProxy("test\\b\\f\\n\\r\\t\\'\\\"\\\\test");
     test($b1->ice_getIdentity()->name == "test\x08\x0c\n\r\t'\"\\test" && $b1->ice_getIdentity()->category == "");
 
-    $b1 = $ICE->stringToProxy("category/test");
+    $b1 = $communicator->stringToProxy("category/test");
     test($b1->ice_getIdentity()->name == "test" && $b1->ice_getIdentity()->category == "category" &&
          $b1->ice_getAdapterId() == "");
 
-    $b1 = $ICE->stringToProxy("test@adapter");
+    $b1 = $communicator->stringToProxy("test@adapter");
     test($b1->ice_getIdentity()->name == "test" && $b1->ice_getIdentity()->category == "" &&
          $b1->ice_getAdapterId() == "adapter");
     try
     {
-        $b1 = $ICE->stringToProxy("id@adapter test");
+        $b1 = $communicator->stringToProxy("id@adapter test");
         test(false);
     }
-    catch(Ice_UnknownLocalException $ex) //catch(Ice_ProxyParseException $ex)
+    catch(Ice_ProxyParseException $ex)
     {
     }
-    $b1 = $ICE->stringToProxy("category/test@adapter");
+    $b1 = $communicator->stringToProxy("category/test@adapter");
     test($b1->ice_getIdentity()->name == "test" && $b1->ice_getIdentity()->category == "category" &&
          $b1->ice_getAdapterId() == "adapter");
-    $b1 = $ICE->stringToProxy("category/test@adapter:tcp");
+    $b1 = $communicator->stringToProxy("category/test@adapter:tcp");
     test($b1->ice_getIdentity()->name == "test" && $b1->ice_getIdentity()->category == "category" &&
          $b1->ice_getAdapterId() == "adapter:tcp");
-    $b1 = $ICE->stringToProxy("'category 1/test'@adapter");
+    $b1 = $communicator->stringToProxy("'category 1/test'@adapter");
     test($b1->ice_getIdentity()->name == "test" && $b1->ice_getIdentity()->category == "category 1" &&
          $b1->ice_getAdapterId() == "adapter");
-    $b1 = $ICE->stringToProxy("'category/test 1'@adapter");
+    $b1 = $communicator->stringToProxy("'category/test 1'@adapter");
     test($b1->ice_getIdentity()->name == "test 1" && $b1->ice_getIdentity()->category == "category" &&
          $b1->ice_getAdapterId() == "adapter");
-    $b1 = $ICE->stringToProxy("'category/test'@'adapter 1'");
+    $b1 = $communicator->stringToProxy("'category/test'@'adapter 1'");
     test($b1->ice_getIdentity()->name == "test" && $b1->ice_getIdentity()->category == "category" &&
          $b1->ice_getAdapterId() == "adapter 1");
-    $b1 = $ICE->stringToProxy("\"category \\/test@foo/test\"@adapter");
+    $b1 = $communicator->stringToProxy("\"category \\/test@foo/test\"@adapter");
     test($b1->ice_getIdentity()->name == "test" && $b1->ice_getIdentity()->category == "category /test@foo" &&
          $b1->ice_getAdapterId() == "adapter");
-    $b1 = $ICE->stringToProxy("\"category \\/test@foo/test\"@\"adapter:tcp\"");
+    $b1 = $communicator->stringToProxy("\"category \\/test@foo/test\"@\"adapter:tcp\"");
     test($b1->ice_getIdentity()->name == "test" && $b1->ice_getIdentity()->category == "category /test@foo" &&
          $b1->ice_getAdapterId() == "adapter:tcp");
 
-    $b1 = $ICE->stringToProxy("id -f facet");
+    $b1 = $communicator->stringToProxy("id -f facet");
     test($b1->ice_getIdentity()->name == "id" && $b1->ice_getIdentity()->category == "" &&
          $b1->ice_getFacet() == "facet");
-    $b1 = $ICE->stringToProxy("id -f 'facet x'");
+    $b1 = $communicator->stringToProxy("id -f 'facet x'");
     test($b1->ice_getIdentity()->name == "id" && $b1->ice_getIdentity()->category == "" &&
          $b1->ice_getFacet() == "facet x");
-    $b1 = $ICE->stringToProxy("id -f \"facet x\"");
+    $b1 = $communicator->stringToProxy("id -f \"facet x\"");
     test($b1->ice_getIdentity()->name == "id" && $b1->ice_getIdentity()->category == "" &&
          $b1->ice_getFacet() == "facet x");
     try
     {
-        $b1 = $ICE->stringToProxy("id -f \"facet x");
+        $b1 = $communicator->stringToProxy("id -f \"facet x");
         test(false);
     }
-    catch(Ice_UnknownLocalException $ex) //catch(Ice_ProxyParseException $ex)
+    catch(Ice_ProxyParseException $ex)
     {
     }
     try
     {
-        $b1 = $ICE->stringToProxy("id -f \'facet x");
+        $b1 = $communicator->stringToProxy("id -f \'facet x");
         test(false);
     }
-    catch(Ice_UnknownLocalException $ex) //catch(Ice_ProxyParseException $ex)
+    catch(Ice_ProxyParseException $ex)
     {
     }
-    $b1 = $ICE->stringToProxy("test -f facet:tcp");
+    $b1 = $communicator->stringToProxy("test -f facet:tcp");
     test($b1->ice_getIdentity()->name == "test" && $b1->ice_getIdentity()->category == "" &&
          $b1->ice_getFacet() == "facet" && $b1->ice_getAdapterId() == "");
-    $b1 = $ICE->stringToProxy("test -f \"facet:tcp\"");
+    $b1 = $communicator->stringToProxy("test -f \"facet:tcp\"");
     test($b1->ice_getIdentity()->name == "test" && $b1->ice_getIdentity()->category == "" &&
          $b1->ice_getFacet() == "facet:tcp" && $b1->ice_getAdapterId() == "");
-    $b1 = $ICE->stringToProxy("test -f facet@test");
+    $b1 = $communicator->stringToProxy("test -f facet@test");
     test($b1->ice_getIdentity()->name == "test" && $b1->ice_getIdentity()->category == "" &&
          $b1->ice_getFacet() == "facet" && $b1->ice_getAdapterId() == "test");
-    $b1 = $ICE->stringToProxy("test -f 'facet@test'");
+    $b1 = $communicator->stringToProxy("test -f 'facet@test'");
     test($b1->ice_getIdentity()->name == "test" && $b1->ice_getIdentity()->category == "" &&
          $b1->ice_getFacet() == "facet@test" && $b1->ice_getAdapterId() == "");
-    $b1 = $ICE->stringToProxy("test -f 'facet@test'@test");
+    $b1 = $communicator->stringToProxy("test -f 'facet@test'@test");
     test($b1->ice_getIdentity()->name == "test" && $b1->ice_getIdentity()->category == "" &&
          $b1->ice_getFacet() == "facet@test" && $b1->ice_getAdapterId() == "test");
     try
     {
-        $b1 = $ICE->stringToProxy("test -f facet@test @test");
+        $b1 = $communicator->stringToProxy("test -f facet@test @test");
         test(false);
     }
-    catch(Ice_UnknownLocalException $ex) //catch(Ice_ProxyParseException $ex)
+    catch(Ice_ProxyParseException $ex)
     {
     }
-    $b1 = $ICE->stringToProxy("test");
+    $b1 = $communicator->stringToProxy("test");
     test($b1->ice_isTwoway());
-    $b1 = $ICE->stringToProxy("test -t");
+    $b1 = $communicator->stringToProxy("test -t");
     test($b1->ice_isTwoway());
-    $b1 = $ICE->stringToProxy("test -o");
+    $b1 = $communicator->stringToProxy("test -o");
     test($b1->ice_isOneway());
-    $b1 = $ICE->stringToProxy("test -O");
+    $b1 = $communicator->stringToProxy("test -O");
     test($b1->ice_isBatchOneway());
-    $b1 = $ICE->stringToProxy("test -d");
+    $b1 = $communicator->stringToProxy("test -d");
     test($b1->ice_isDatagram());
-    $b1 = $ICE->stringToProxy("test -D");
+    $b1 = $communicator->stringToProxy("test -D");
     test($b1->ice_isBatchDatagram());
-    $b1 = $ICE->stringToProxy("test");
+    $b1 = $communicator->stringToProxy("test");
     test(!$b1->ice_isSecure());
-    $b1 = $ICE->stringToProxy("test -s");
+    $b1 = $communicator->stringToProxy("test -s");
     test($b1->ice_isSecure());
 
     try
     {
-        $b1 = $ICE->stringToProxy("test:tcp@adapterId");
+        $b1 = $communicator->stringToProxy("test:tcp@adapterId");
         test(false);
     }
-    catch(Ice_UnknownLocalException $ex) //catch(Ice_EndpointParseException $ex)
+    catch(Ice_EndpointParseException $ex)
     {
     }
     // This is an unknown endpoint warning, not a parse exception.
     //
     //try
     //{
-    //   $b1 = $ICE->stringToProxy("test -f the:facet:tcp");
+    //   $b1 = $communicator->stringToProxy("test -f the:facet:tcp");
     //   test(false);
     //}
-    //catch(Ice_EndpointParseException $ex) //catch(Ice_UnknownLocalException $ex)
+    //catch(Ice_EndpointParseException $ex)
     //{
     //}
     try
     {
-        $b1 = $ICE->stringToProxy("test::tcp");
+        $b1 = $communicator->stringToProxy("test::tcp");
         test(false);
     }
-    catch(Ice_UnknownLocalException $ex) //catch(Ice_EndpointParseException $ex)
+    catch(Ice_EndpointParseException $ex)
     {
     }
     echo "ok\n";
 
     echo "testing propertyToProxy... ";
     $propertyPrefix = "Foo.Proxy";
-    $ICE->setProperty($propertyPrefix, "test:default -p 12010");
-    $b1 = $ICE->propertyToProxy($propertyPrefix);
+    $communicator->getProperties()->setProperty($propertyPrefix, "test:default -p 12010");
+    $b1 = $communicator->propertyToProxy($propertyPrefix);
     test($b1->ice_getIdentity()->name == "test" && $b1->ice_getIdentity()->category == "" &&
          $b1->ice_getAdapterId() == "" && $b1->ice_getFacet() == "");
 
@@ -247,86 +247,86 @@ function allTests()
     //
     // $property = $propertyPrefix . ".Locator";
     // test(!$b1->ice_getLocator());
-    // $ICE->setProperty($property, "locator:default -p 10000");
-    // $b1 = $ICE->propertyToProxy($propertyPrefix);
+    // $communicator->getProperties()->setProperty($property, "locator:default -p 10000");
+    // $b1 = $communicator->propertyToProxy($propertyPrefix);
     // test(!$b1->ice_getLocator());
-    // $ICE->setProperty($property, "");
+    // $communicator->getProperties()->setProperty($property, "");
 
     // $property = $propertyPrefix . ".LocatorCacheTimeout";
     // test($b1->ice_getLocatorCacheTimeout() == 0);
-    // $ICE->setProperty($property, "1");
-    // $b1 = $ICE->propertyToProxy($propertyPrefix);
+    // $communicator->getProperties()->setProperty($property, "1");
+    // $b1 = $communicator->propertyToProxy($propertyPrefix);
     // test($b1->ice_getLocatorCacheTimeout() == 0);
-    // $ICE->setProperty($property, "");
+    // $communicator->getProperties()->setProperty($property, "");
 
     // Now retest with an indirect proxy.
-    $ICE->setProperty($propertyPrefix, "test");
+    $communicator->getProperties()->setProperty($propertyPrefix, "test");
     $property = $propertyPrefix . ".Locator";
-    $ICE->setProperty($property, "locator:default -p 10000");
-    $b1 = $ICE->propertyToProxy($propertyPrefix);
+    $communicator->getProperties()->setProperty($property, "locator:default -p 10000");
+    $b1 = $communicator->propertyToProxy($propertyPrefix);
     test($b1->ice_getLocator() && $b1->ice_getLocator()->ice_getIdentity()->name == "locator");
-    $ICE->setProperty($property, "");
+    $communicator->getProperties()->setProperty($property, "");
 
     $property = $propertyPrefix . ".LocatorCacheTimeout";
     test($b1->ice_getLocatorCacheTimeout() == -1);
-    $ICE->setProperty($property, "1");
-    $b1 = $ICE->propertyToProxy($propertyPrefix);
+    $communicator->getProperties()->setProperty($property, "1");
+    $b1 = $communicator->propertyToProxy($propertyPrefix);
     test($b1->ice_getLocatorCacheTimeout() == 1);
-    $ICE->setProperty($property, "");
+    $communicator->getProperties()->setProperty($property, "");
 
     // This cannot be tested so easily because the $property is cached
-    // on $ICE initialization.
+    // on communicator initialization.
     //
-    //$ICE->setProperty("Ice.Default.LocatorCacheTimeout", "60");
-    //$b1 = $ICE->propertyToProxy($propertyPrefix);
+    //$communicator->getProperties()->setProperty("Ice.Default.LocatorCacheTimeout", "60");
+    //$b1 = $communicator->propertyToProxy($propertyPrefix);
     //test($b1->ice_getLocatorCacheTimeout() == 60);
-    //$ICE->setProperty("Ice.Default.LocatorCacheTimeout", "");
+    //$communicator->getProperties()->setProperty("Ice.Default.LocatorCacheTimeout", "");
 
-    $ICE->setProperty($propertyPrefix, "test:default -p 12010");
+    $communicator->getProperties()->setProperty($propertyPrefix, "test:default -p 12010");
 
     $property = $propertyPrefix . ".Router";
     test(!$b1->ice_getRouter());
-    $ICE->setProperty($property, "router:default -p 10000");
-    $b1 = $ICE->propertyToProxy($propertyPrefix);
+    $communicator->getProperties()->setProperty($property, "router:default -p 10000");
+    $b1 = $communicator->propertyToProxy($propertyPrefix);
     test($b1->ice_getRouter() && $b1->ice_getRouter()->ice_getIdentity()->name == "router");
-    $ICE->setProperty($property, "");
+    $communicator->getProperties()->setProperty($property, "");
 
     $property = $propertyPrefix . ".PreferSecure";
     test(!$b1->ice_isPreferSecure());
-    $ICE->setProperty($property, "1");
-    $b1 = $ICE->propertyToProxy($propertyPrefix);
+    $communicator->getProperties()->setProperty($property, "1");
+    $b1 = $communicator->propertyToProxy($propertyPrefix);
     test($b1->ice_isPreferSecure());
-    $ICE->setProperty($property, "");
+    $communicator->getProperties()->setProperty($property, "");
 
     $property = $propertyPrefix . ".ConnectionCached";
     test($b1->ice_isConnectionCached());
-    $ICE->setProperty($property, "0");
-    $b1 = $ICE->propertyToProxy($propertyPrefix);
+    $communicator->getProperties()->setProperty($property, "0");
+    $b1 = $communicator->propertyToProxy($propertyPrefix);
     test(!$b1->ice_isConnectionCached());
-    $ICE->setProperty($property, "");
+    $communicator->getProperties()->setProperty($property, "");
 
     $property = $propertyPrefix . ".EndpointSelection";
     test($b1->ice_getEndpointSelection() == Ice_EndpointSelectionType::Random);
-    $ICE->setProperty($property, "Random");
-    $b1 = $ICE->propertyToProxy($propertyPrefix);
+    $communicator->getProperties()->setProperty($property, "Random");
+    $b1 = $communicator->propertyToProxy($propertyPrefix);
     test($b1->ice_getEndpointSelection() == Ice_EndpointSelectionType::Random);
-    $ICE->setProperty($property, "Ordered");
-    $b1 = $ICE->propertyToProxy($propertyPrefix);
+    $communicator->getProperties()->setProperty($property, "Ordered");
+    $b1 = $communicator->propertyToProxy($propertyPrefix);
     test($b1->ice_getEndpointSelection() == Ice_EndpointSelectionType::Ordered);
-    $ICE->setProperty($property, "");
+    $communicator->getProperties()->setProperty($property, "");
 
     //$property = $propertyPrefix . ".CollocationOptimized";
     //test($b1->ice_isCollocationOptimized());
-    //$ICE->setProperty($property, "0");
-    //$b1 = $ICE->propertyToProxy($propertyPrefix);
+    //$communicator->getProperties()->setProperty($property, "0");
+    //$b1 = $communicator->propertyToProxy($propertyPrefix);
     //test(!$b1->ice_isCollocationOptimized());
-    //$ICE->setProperty($property, "");
+    //$communicator->getProperties()->setProperty($property, "");
 
     echo "ok\n";
 
     echo "testing proxy methods... ";
     flush();
-    test($ICE->identityToString($base->ice_identity($ICE->stringToIdentity("other"))->ice_getIdentity()) == "other");
+    test($communicator->identityToString($base->ice_identity($communicator->stringToIdentity("other"))->ice_getIdentity()) == "other");
     test($base->ice_facet("facet")->ice_getFacet() == "facet");
     test($base->ice_adapterId("id")->ice_getAdapterId() == "id");
     test($base->ice_twoway()->ice_isTwoway());
@@ -340,7 +340,7 @@ function allTests()
 
     echo "testing ice_getCommunicator... ";
     flush();
-    test($base->ice_getCommunicator() === $ICE);
+    test($base->ice_getCommunicator() === $communicator);
     echo "ok\n";
 
     echo "testing checked cast... ";
@@ -372,138 +372,139 @@ function allTests()
     try
     {
         // Invalid -x option
-        $p = $ICE->stringToProxy("id:opaque -t 99 -v abc -x abc");
+        $p = $communicator->stringToProxy("id:opaque -t 99 -v abc -x abc");
         test(false);
     }
-    catch(Ice_UnknownLocalException $ex) //catch(Ice_EndpointParseException $ex)
+    catch(Ice_EndpointParseException $ex)
     {
     }
 
     try
     {
         // Missing -t and -v
-        $p = $ICE->stringToProxy("id:opaque");
+        $p = $communicator->stringToProxy("id:opaque");
         test(false);
     }
-    catch(Ice_UnknownLocalException $ex) //catch(Ice_EndpointParseException $ex)
+    catch(Ice_EndpointParseException $ex)
     {
     }
 
     try
     {
         // Repeated -t
-        $p = $ICE->stringToProxy("id:opaque -t 1 -t 1 -v abc");
+        $p = $communicator->stringToProxy("id:opaque -t 1 -t 1 -v abc");
         test(false);
     }
-    catch(Ice_UnknownLocalException $ex) //catch(Ice_EndpointParseException $ex)
+    catch(Ice_EndpointParseException $ex)
     {
     }
 
     try
     {
         // Repeated -v
-        $p = $ICE->stringToProxy("id:opaque -t 1 -v abc -v abc");
+        $p = $communicator->stringToProxy("id:opaque -t 1 -v abc -v abc");
         test(false);
     }
-    catch(Ice_UnknownLocalException $ex) //catch(Ice_EndpointParseException $ex)
+    catch(Ice_EndpointParseException $ex)
     {
     }
 
     try
     {
         // Missing -t
-        $p = $ICE->stringToProxy("id:opaque -v abc");
+        $p = $communicator->stringToProxy("id:opaque -v abc");
         test(false);
     }
-    catch(Ice_UnknownLocalException $ex) //catch(Ice_EndpointParseException $ex)
+    catch(Ice_EndpointParseException $ex)
     {
     }
 
     try
     {
         // Missing -v
-        $p = $ICE->stringToProxy("id:opaque -t 1");
+        $p = $communicator->stringToProxy("id:opaque -t 1");
         test(false);
     }
-    catch(Ice_UnknownLocalException $ex) //catch(Ice_EndpointParseException $ex)
+    catch(Ice_EndpointParseException $ex)
     {
     }
 
     try
     {
         // Missing arg for -t
-        $p = $ICE->stringToProxy("id:opaque -t -v abc");
+        $p = $communicator->stringToProxy("id:opaque -t -v abc");
         test(false);
     }
-    catch(Ice_UnknownLocalException $ex) //catch(Ice_EndpointParseException $ex)
+    catch(Ice_EndpointParseException $ex)
     {
     }
 
     try
     {
         // Missing arg for -v
-        $p = $ICE->stringToProxy("id:opaque -t 1 -v");
+        $p = $communicator->stringToProxy("id:opaque -t 1 -v");
         test(false);
     }
-    catch(Ice_UnknownLocalException $ex) //catch(Ice_EndpointParseException $ex)
+    catch(Ice_EndpointParseException $ex)
     {
     }
 
     try
     {
         // Not a number for -t
-        $p = $ICE->stringToProxy("id:opaque -t x -v abc");
+        $p = $communicator->stringToProxy("id:opaque -t x -v abc");
         test(false);
     }
-    catch(Ice_UnknownLocalException $ex) //catch(Ice_EndpointParseException $ex)
+    catch(Ice_EndpointParseException $ex)
     {
     }
 
     try
     {
         // < 0 for -t
-        $p = $ICE->stringToProxy("id:opaque -t -1 -v abc");
+        $p = $communicator->stringToProxy("id:opaque -t -1 -v abc");
         test(false);
     }
-    catch(Ice_UnknownLocalException $ex) //catch(Ice_EndpointParseException $ex)
+    catch(Ice_EndpointParseException $ex)
     {
     }
 
     try
     {
         // Invalid char for -v
-        $p = $ICE->stringToProxy("id:opaque -t 99 -v x?c");
+        $p = $communicator->stringToProxy("id:opaque -t 99 -v x?c");
         test(false);
     }
-    catch(Ice_UnknownLocalException $ex) //catch(Ice_EndpointParseException $ex)
+    catch(Ice_EndpointParseException $ex)
     {
     }
 
     // Legal TCP endpoint expressed as opaque endpoint
-    $p1 = $ICE->stringToProxy("test:opaque -t 1 -v CTEyNy4wLjAuMeouAAAQJwAAAA==");
-    $pstr = $ICE->proxyToString($p1);
+    $p1 = $communicator->stringToProxy("test:opaque -t 1 -v CTEyNy4wLjAuMeouAAAQJwAAAA==");
+    $pstr = $communicator->proxyToString($p1);
     test($pstr == "test -t:tcp -h 127.0.0.1 -p 12010 -t 10000");
     
     // Working?
-    if($ICE->getProperty("Ice.IPv6") == "" || $ICE->getProperty("Ice.IPv6") == "0")
+    if($communicator->getProperties()->getProperty("Ice.IPv6") == "" ||
+       $communicator->getProperties()->getProperty("Ice.IPv6") == "0")
     {
-        $ssl = $ICE->getProperty("Ice.Default.Protocol") == "ssl";
+        $ssl = $communicator->getProperties()->getProperty("Ice.Default.Protocol") == "ssl";
         if(!$ssl)
         {
             $p1->ice_ping();
         }
 
         // Two legal TCP endpoints expressed as opaque endpoints
-        $p1 = $ICE->stringToProxy("test:opaque -t 1 -v CTEyNy4wLjAuMeouAAAQJwAAAA==:opaque -t 1 -v CTEyNy4wLjAuMusuAAAQJwAAAA==");
-        $pstr = $ICE->proxyToString($p1);
+        $p1 = $communicator->stringToProxy("test:opaque -t 1 -v CTEyNy4wLjAuMeouAAAQJwAAAA==:opaque -t 1 -v CTEyNy4wLjAuMusuAAAQJwAAAA==");
+        $pstr = $communicator->proxyToString($p1);
         test($pstr == "test -t:tcp -h 127.0.0.1 -p 12010 -t 10000:tcp -h 127.0.0.2 -p 12011 -t 10000");
 
         //
         // Test that an SSL endpoint and a nonsense endpoint get written
         // back out as an opaque endpoint.
         //
-        $p1 = $ICE->stringToProxy("test:opaque -t 2 -v CTEyNy4wLjAuMREnAAD/////AA==:opaque -t 99 -v abch");
-        $pstr = $ICE->proxyToString($p1);
+        $p1 = $communicator->stringToProxy("test:opaque -t 2 -v CTEyNy4wLjAuMREnAAD/////AA==:opaque -t 99 -v abch");
+        $pstr = $communicator->proxyToString($p1);
         if(!$ssl)
         {
             test($pstr == "test -t:opaque -t 2 -v CTEyNy4wLjAuMREnAAD/////AA==:opaque -t 99 -v abch");
@@ -523,8 +524,13 @@ function allTests()
             $p1->ice_ping();
             test(false);
         }
-        catch(Ice_UnknownLocalException $ex)
+        catch(Ice_NoEndpointException $ex)
         {
+            test(!$ssl);
+        }
+        catch(Ice_ConnectionRefusedException $ex)
+        {
+            test($ssl);
         }
 
         //
@@ -534,7 +540,7 @@ function allTests()
         // the opaque endpoints.
         //
         $p2 = $derived->_echo($p1);
-        $pstr = $ICE->proxyToString($p2);
+        $pstr = $communicator->proxyToString($p2);
         if(!$ssl)
         {
             test($pstr == "test -t:opaque -t 2 -v CTEyNy4wLjAuMREnAAD/////AA==:opaque -t 99 -v abch");
@@ -549,8 +555,10 @@ function allTests()
     return $cl;
 }
 
-$myClass = allTests();
+$communicator = Ice_initialize(&$argv);
+$myClass = allTests($communicator);
 $myClass->shutdown();
+$communicator->destroy();
 
 exit();
 ?>

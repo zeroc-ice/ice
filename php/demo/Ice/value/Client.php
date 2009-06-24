@@ -8,7 +8,10 @@
 //
 // **********************************************************************
 
-Ice_loadProfile();
+require 'Ice.php';
+require 'Value.php';
+
+$ICE = Ice_initialize();
 
 class PrinterI extends Demo_Printer
 {
@@ -57,7 +60,7 @@ class ObjectFactory implements Ice_ObjectFactory
 try
 {
     $base = $ICE->stringToProxy("initial:default -p 10000");
-    $initial = $base->ice_checkedCast("::Demo::Initial");
+    $initial = Demo_InitialPrxHelper::checkedCast($base);
 
     echo "\n";
     echo "Let's first transfer a simple object, for a class without\n";
@@ -125,7 +128,7 @@ try
     fgets(STDIN);
 
     $derivedAsBase = $initial->getDerivedPrinter();
-    echo "==> The type ID of the received object is \"",get_class($derivedAsBase),"\"\n";
+    echo "==> The class of the received object is \"",get_class($derivedAsBase),"\"\n";
     assert($derivedAsBase instanceof Demo_Printer);
 
     echo "\n";
@@ -141,7 +144,7 @@ try
     assert($derivedAsBase instanceof Demo_DerivedPrinter);
     $derived = $derivedAsBase;
     echo "==> dynamic_cast<> to derived object succeeded\n";
-    echo "==> The type ID of the received object is \"",get_class($derived),"\"\n";
+    echo "==> The class of the received object is \"",get_class($derived),"\"\n";
 
     echo "\n";
     echo "Let's print the message contained in the derived object, and\n";

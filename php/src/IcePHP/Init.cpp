@@ -8,9 +8,13 @@
 // **********************************************************************
 
 #include <Communicator.h>
-#include <Marshal.h>
-#include <Profile.h>
+#include <Connection.h>
+#include <Endpoint.h>
+#include <Logger.h>
+#include <Operation.h>
+#include <Properties.h>
 #include <Proxy.h>
+#include <Types.h>
 #include <Util.h>
 
 using namespace std;
@@ -19,14 +23,18 @@ using namespace IcePHP;
 ZEND_DECLARE_MODULE_GLOBALS(ice)
 
 //
-// Entries for all object methods and global functions.
+// Entries for all global functions.
 //
 function_entry ice_functions[] =
 {
-    ICE_PHP_COMMUNICATOR_FUNCTIONS
-    ICE_PHP_IDENTITY_FUNCTIONS
-    ICE_PHP_PROXY_FUNCTIONS
-    ICE_PHP_PROFILE_FUNCTIONS
+    ICEPHP_COMMUNICATOR_FUNCTIONS
+    ICEPHP_COMMUNICATOR_NS_FUNCTIONS
+    ICEPHP_OPERATION_FUNCTIONS
+    ICEPHP_PROPERTIES_FUNCTIONS
+    ICEPHP_PROPERTIES_NS_FUNCTIONS
+    ICEPHP_TYPE_FUNCTIONS
+    ICEPHP_UTIL_FUNCTIONS
+    ICEPHP_UTIL_NS_FUNCTIONS
     {0, 0, 0}
 };
 
@@ -53,16 +61,17 @@ PHP_INI_BEGIN()
   PHP_INI_ENTRY("ice.config", "", PHP_INI_SYSTEM, 0)
   PHP_INI_ENTRY("ice.options", "", PHP_INI_SYSTEM, 0)
   PHP_INI_ENTRY("ice.profiles", "", PHP_INI_SYSTEM, 0)
-  PHP_INI_ENTRY("ice.slice", "", PHP_INI_SYSTEM, 0)
+  PHP_INI_ENTRY("ice.hide_profiles", "1", PHP_INI_SYSTEM, 0)
 PHP_INI_END()
 
 extern "C"
 int initIceGlobals(zend_ice_globals* g)
 {
-    g->communicator = 0;
-    g->marshalerMap = 0;
-    g->profile = 0;
-    g->properties = 0;
+    g->communicatorMap = 0;
+    g->idToClassInfoMap = 0;
+    g->nameToClassInfoMap = 0;
+    g->proxyInfoMap = 0;
+    g->exceptionInfoMap = 0;
     return SUCCESS;
 }
 
@@ -71,17 +80,37 @@ ZEND_MINIT_FUNCTION(ice)
     REGISTER_INI_ENTRIES();
     ZEND_INIT_MODULE_GLOBALS(ice, initIceGlobals, 0);
 
-    if(!profileInit(TSRMLS_C))
-    {
-        return FAILURE;
-    }
-
     if(!communicatorInit(TSRMLS_C))
     {
         return FAILURE;
     }
 
+    if(!propertiesInit(TSRMLS_C))
+    {
+        return FAILURE;
+    }
+
     if(!proxyInit(TSRMLS_C))
+    {
+        return FAILURE;
+    }
+
+    if(!typesInit(TSRMLS_C))
+    {
+        return FAILURE;
+    }
+
+    if(!loggerInit(TSRMLS_C))
+    {
+        return FAILURE;
+    }
+
+    if(!endpointInit(TSRMLS_C))
+    {
+        return FAILURE;
+    }
+
+    if(!connectionInit(TSRMLS_C))
     {
         return FAILURE;
     }
@@ -95,7 +124,7 @@ ZEND_MSHUTDOWN_FUNCTION(ice)
 
     int status = SUCCESS;
 
-    if(!profileShutdown(TSRMLS_C))
+    if(!communicatorShutdown(TSRMLS_C))
     {
         status = FAILURE;
     }
@@ -105,18 +134,14 @@ ZEND_MSHUTDOWN_FUNCTION(ice)
 
 ZEND_RINIT_FUNCTION(ice)
 {
-    ICE_G(communicator) = 0;
-    ICE_G(marshalerMap) = new MarshalerMap;
-    ICE_G(profile) = 0;
-    ICE_G(properties) = 0;
-    ICE_G(objectFactoryMap) = new ObjectFactoryMap;
+    ICE_G(communicatorMap) = 0;
 
-    //
-    // Create the global variable "ICE" to hold the communicator for this request. The
-    // communicator won't actually be created until the script uses this global variable
-    // for the first time.
-    //
-    if(!createCommunicator(TSRMLS_C))
+    if(!communicatorRequestInit(TSRMLS_C))
+    {
+        return FAILURE;
+    }
+
+    if(!typesRequestInit(TSRMLS_C))
     {
         return FAILURE;
     }
@@ -126,20 +151,15 @@ ZEND_RINIT_FUNCTION(ice)
 
 ZEND_RSHUTDOWN_FUNCTION(ice)
 {
-    //
-    // Invoke destroy() on each registered factory.
-    //
-    ObjectFactoryMap* ofm = static_cast<ObjectFactoryMap*>(ICE_G(objectFactoryMap));
-    for(ObjectFactoryMap::iterator p = ofm->begin(); p != ofm->end(); ++p)
+    if(!communicatorRequestShutdown(TSRMLS_C))
     {
-        zval* factory = p->second;
-        zend_call_method_with_0_params(&factory, 0, 0, "destroy", 0);
-        zval_ptr_dtor(&factory);
+        return FAILURE;
     }
-    delete ofm;
 
-    delete static_cast<MarshalerMap*>(ICE_G(marshalerMap));
-    delete static_cast<Ice::PropertiesPtr*>(ICE_G(properties));
+    if(!typesRequestShutdown(TSRMLS_C))
+    {
+        return FAILURE;
+    }
 
     return SUCCESS;
 }

@@ -15,10 +15,14 @@ SONAME          = $(LIBNAME)
 TARGETS		= $(libdir)/$(LIBNAME)
 
 OBJS		= Communicator.o \
+		  Connection.o \
+		  Endpoint.o \
 		  Init.o \
-		  Marshal.o \
-		  Profile.o \
+		  Logger.o \
+		  Operation.o \
+		  Properties.o \
 		  Proxy.o \
+		  Types.o \
 		  Util.o
 
 SRCS		= $(OBJS:.o=.cpp)
@@ -35,5 +39,11 @@ $(libdir)/$(LIBNAME): $(OBJS)
 
 install:: all
 	$(call installphplib,$(libdir)/$(LIBNAME),$(install_libdir))
+
+depend:: $(SRCS)
+	-rm -f .depend
+	if test -n "$(SRCS)" ; then \
+	    $(CXX) -DMAKEDEPEND -M $(CXXFLAGS) $(CPPFLAGS) $(SRCS) | $(ice_dir)/config/makedepend.py >> .depend; \
+	fi
 
 include .depend

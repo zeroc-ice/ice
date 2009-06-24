@@ -15,7 +15,9 @@ if(!extension_loaded("ice"))
     echo "\nerror: Ice extension is not loaded.\n\n";
     exit(1);
 }
-Ice_loadProfileWithArgs($argv);
+
+require 'Ice.php';
+require 'Test.php';
 
 class BI extends Test_B
 {
@@ -29,7 +31,7 @@ class BI extends Test_B
         return $this->_postUnmarshalInvoked;
     }
 
-    var $_postUnmarshalInvoked = false;
+    private $_postUnmarshalInvoked = false;
 }
 
 class CI extends Test_C
@@ -44,7 +46,7 @@ class CI extends Test_C
         return $this->_postUnmarshalInvoked;
     }
 
-    var $_postUnmarshalInvoked = false;
+    private $_postUnmarshalInvoked = false;
 }
 
 class DI extends Test_D
@@ -59,7 +61,7 @@ class DI extends Test_D
         return $this->_postUnmarshalInvoked;
     }
 
-    var $_postUnmarshalInvoked = false;
+    private $_postUnmarshalInvoked = false;
 }
 
 class EI extends Test_E
@@ -93,6 +95,12 @@ class FI extends Test_F
 class II extends Ice_ObjectImpl implements Test_I
 {
 }
+
+interface Foo1 {}
+interface Foo2 {}
+interface Foo3 {}
+class Foo4 extends Ice_ObjectImpl implements Foo3, Foo2, Foo1 {}
+class Foo5 extends Foo4 implements Test_I {}
 
 class JI extends Ice_ObjectImpl implements Test_J
 {
@@ -155,14 +163,12 @@ function test($b)
     }
 }
 
-function allTests()
+function allTests($communicator)
 {
-    global $ICE;
-
     echo "testing stringToProxy... ";
     flush();
     $ref = "initial:default -p 12010";
-    $base = $ICE->stringToProxy($ref);
+    $base = $communicator->stringToProxy($ref);
     test($base != null);
     echo "ok\n";
 
@@ -329,7 +335,8 @@ function allTests()
 
     echo "setting I... ";
     flush();
-    $initial->setI($i);
+    //$initial->setI($i);
+    $initial->setI(new Foo5);
     $initial->setI($j);
     $initial->setI($h);
     echo "ok\n";
@@ -337,7 +344,7 @@ function allTests()
     echo "testing UnexpectedObjectException... ";
     flush();
     $ref = "uoet:default -p 12010";
-    $base = $ICE->stringToProxy($ref);
+    $base = $communicator->stringToProxy($ref);
     test($base != null);
     $uoet = $base->ice_uncheckedCast("::Test::UnexpectedObjectExceptionTest");
     test($uoet != null);
@@ -360,16 +367,18 @@ function allTests()
     return $initial;
 }
 
+$communicator = Ice_initialize(&$argv);
 $factory = new MyObjectFactory();
-$ICE->addObjectFactory($factory, "::Test::B");
-$ICE->addObjectFactory($factory, "::Test::C");
-$ICE->addObjectFactory($factory, "::Test::D");
-$ICE->addObjectFactory($factory, "::Test::E");
-$ICE->addObjectFactory($factory, "::Test::F");
-$ICE->addObjectFactory($factory, "::Test::I");
-$ICE->addObjectFactory($factory, "::Test::J");
-$ICE->addObjectFactory($factory, "::Test::H");
-$initial = allTests();
+$communicator->addObjectFactory($factory, "::Test::B");
+$communicator->addObjectFactory($factory, "::Test::C");
+$communicator->addObjectFactory($factory, "::Test::D");
+$communicator->addObjectFactory($factory, "::Test::E");
+$communicator->addObjectFactory($factory, "::Test::F");
+$communicator->addObjectFactory($factory, "::Test::I");
+$communicator->addObjectFactory($factory, "::Test::J");
+$communicator->addObjectFactory($factory, "::Test::H");
+$initial = allTests($communicator);
 $initial->shutdown();
+$communicator->destroy();
 exit();
 ?>

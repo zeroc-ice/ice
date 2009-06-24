@@ -8,86 +8,97 @@
 // **********************************************************************
 
 #include <Util.h>
-#include <IceUtil/DisableWarnings.h>
+#include <IceUtil/UUID.h>
+#include <Slice/PHPUtil.h>
 #include <algorithm>
 #include <ctype.h>
 
 using namespace std;
 using namespace IcePHP;
+using namespace Slice::PHP;
 
-static string
-lookupKwd(const string& name)
+#ifdef _WIN32
+extern "C"
+#endif
+static void
+dtor_wrapper(void* p)
 {
-    string lower = lowerCase(name); // PHP is case insensitive.
-
-    //
-    // Keyword list. *Must* be kept in alphabetical order.
-    //
-    static const string keywordList[] = 
-    {       
-        "abstract", "and", "array", "as", "break", "case", "catch", "class", "clone", "const", "continue", "declare",
-        "default", "die", "do", "echo", "else", "elseif", "empty", "enddeclare", "endfor", "endforeach", "endif",
-        "endswitch", "endwhile", "eval", "exit", "extends", "final", "for", "foreach", "function", "global", "if",
-        "implements", "include", "include_once", "interface", "isset", "list", "new", "or", "print", "private",
-        "protected", "public", "require", "require_once", "return", "static", "switch", "this", "throw", "try",
-        "unset", "use", "var", "while", "xor"
-    };
-    bool found =  binary_search(&keywordList[0],
-                                &keywordList[sizeof(keywordList) / sizeof(*keywordList)],
-                                lower);
-    return found ? "_" + name : name;
+    zval_ptr_dtor(static_cast<zval**>(p));
 }
 
-//
-// Split a scoped name into its components and return the components as a list of (unscoped) identifiers.
-//
-static vector<string>
-splitScopedName(const string& scoped)
+void*
+IcePHP::createWrapper(zend_class_entry* ce, size_t sz TSRMLS_DC)
 {
-    assert(scoped[0] == ':');
-    vector<string> ids;
-    string::size_type next = 0;
-    string::size_type pos;
-    while((pos = scoped.find("::", next)) != string::npos)
+    zend_object* obj;
+    zval* tmp;
+
+    obj = static_cast<zend_object*>(emalloc(sz));
+    obj->ce = ce;
+    obj->guards = 0;
+
+    obj->properties = static_cast<HashTable*>(emalloc(sizeof(HashTable)));
+    zend_hash_init(obj->properties, 0, 0, dtor_wrapper, 0);
+    zend_hash_copy(obj->properties, &ce->default_properties, (copy_ctor_func_t)zval_add_ref, &tmp, sizeof(zval*));
+
+    return obj;
+}
+
+void*
+IcePHP::extractWrapper(zval* zv TSRMLS_DC)
+{
+    if(!zv)
     {
-        pos += 2;
-        if(pos != scoped.size())
-        {
-            string::size_type endpos = scoped.find("::", pos);
-            if(endpos != string::npos)
-            {
-                ids.push_back(scoped.substr(pos, endpos - pos));
-            }
-        }
-        next = pos;
-    }
-    if(next != scoped.size())
-    {
-        ids.push_back(scoped.substr(next));
-    }
-    else
-    {
-        ids.push_back("");
+        runtimeError("method %s() must be invoked on an object" TSRMLS_CC, get_active_function_name(TSRMLS_C));
+        return 0;
     }
 
-    return ids;
+    zend_object* obj = static_cast<zend_object*>(zend_object_store_get_object(zv TSRMLS_CC));
+    if(!obj)
+    {
+        runtimeError("no object found in %s()" TSRMLS_CC, get_active_function_name(TSRMLS_C));
+        return 0;
+    }
+
+    return obj;
+}
+
+zend_class_entry*
+IcePHP::idToClass(const string& id TSRMLS_DC)
+{
+#ifdef ICEPHP_USE_NAMESPACES
+    string cls = scopedToName(id, true);
+#else
+    string cls = scopedToName(id, false);
+#endif
+
+    return nameToClass(cls TSRMLS_CC);
+}
+
+zend_class_entry*
+IcePHP::nameToClass(const string& name TSRMLS_DC)
+{
+    zend_class_entry** result;
+    if(zend_lookup_class(STRCAST(name.c_str()), name.length(), &result TSRMLS_CC) == FAILURE)
+    {
+        return 0;
+    }
+    return *result;
 }
 
 bool
 IcePHP::createIdentity(zval* zv, const Ice::Identity& id TSRMLS_DC)
 {
-    zend_class_entry* cls = findClass("Ice_Identity" TSRMLS_CC);
+    zend_class_entry* cls = idToClass("::Ice::Identity" TSRMLS_CC);
     assert(cls);
 
     if(object_init_ex(zv, cls) != SUCCESS)
     {
-        php_error_docref(0 TSRMLS_CC, E_ERROR, "unable to initialize Ice::Identity");
+        runtimeError("unable to initialize Ice::Identity" TSRMLS_CC);
         return false;
     }
 
-    zend_update_property_string(cls, zv, "name", sizeof("name") - 1, const_cast<char*>(id.name.c_str()) TSRMLS_CC);
-    zend_update_property_string(cls, zv, "category", sizeof("category") - 1,
-                                const_cast<char*>(id.category.c_str()) TSRMLS_CC);
+    zend_update_property_string(cls, zv, "name", sizeof("name") - 1, STRCAST(id.name.c_str()) TSRMLS_CC);
+    zend_update_property_string(cls, zv, "category", sizeof("category") - 1, STRCAST(id.category.c_str()) TSRMLS_CC);
 
     return true;
 }
@@ -97,17 +108,17 @@ IcePHP::extractIdentity(zval* zv, Ice::Identity& id TSRMLS_DC)
 {
     if(Z_TYPE_P(zv) != IS_OBJECT)
     {
-        php_error_docref(0 TSRMLS_CC, E_ERROR, "value does not contain an object");
+        invalidArgument("value does not contain an object" TSRMLS_CC);
         return false;
     }
 
-    zend_class_entry* cls = findClass("Ice_Identity" TSRMLS_CC);
+    zend_class_entry* cls = idToClass("::Ice::Identity" TSRMLS_CC);
     assert(cls);
 
     zend_class_entry* ce = Z_OBJCE_P(zv);
     if(ce != cls)
     {
-        php_error_docref(0 TSRMLS_CC, E_ERROR, "expected an identity but received %s", ce->name);
+        invalidArgument("expected an identity but received %s" TSRMLS_CC, ce->name);
         return false;
     }
 
@@ -118,7 +129,7 @@ IcePHP::extractIdentity(zval* zv, Ice::Identity& id TSRMLS_DC)
     void* nameData;
     if(zend_hash_find(Z_OBJPROP_P(zv), "name", sizeof("name"), &nameData) == FAILURE)
     {
-        php_error_docref(0 TSRMLS_CC, E_ERROR, "identity value does not contain member `name'");
+        invalidArgument("identity value does not contain member `name'" TSRMLS_CC);
         return false;
     }
     zend_hash_find(Z_OBJPROP_P(zv), "category", sizeof("category"), &categoryData);
@@ -128,16 +139,14 @@ IcePHP::extractIdentity(zval* zv, Ice::Identity& id TSRMLS_DC)
     if(Z_TYPE_PP(nameVal) != IS_STRING)
     {
         string s = zendTypeToString(Z_TYPE_PP(nameVal));
-        php_error_docref(0 TSRMLS_CC, E_ERROR, "expected a string value for identity member `name' but received %s",
-                         s.c_str());
+        invalidArgument("expected a string value for identity member `name' but received %s" TSRMLS_CC, s.c_str());
         return false;
     }
 
     if(categoryVal && Z_TYPE_PP(categoryVal) != IS_STRING && Z_TYPE_PP(categoryVal) != IS_NULL)
     {
         string s = zendTypeToString(Z_TYPE_PP(categoryVal));
-        php_error_docref(0 TSRMLS_CC, E_ERROR,
-                         "expected a string value for identity member `category' but received %s", s.c_str());
+        invalidArgument("expected a string value for identity member `category' but received %s" TSRMLS_CC, s.c_str());
         return false;
     }
 
@@ -155,28 +164,28 @@ IcePHP::extractIdentity(zval* zv, Ice::Identity& id TSRMLS_DC)
 }
 
 bool
-IcePHP::createContext(zval* zv, const Ice::Context& ctx TSRMLS_DC)
+IcePHP::createStringMap(zval* zv, const map<string, string>& ctx TSRMLS_DC)
 {
     array_init(zv);
-    for(Ice::Context::const_iterator p = ctx.begin(); p != ctx.end(); ++p)
+    for(map<string, string>::const_iterator p = ctx.begin(); p != ctx.end(); ++p)
     {
-        zval* val;
-        MAKE_STD_ZVAL(val);
-        ZVAL_STRINGL(val, const_cast<char*>(p->second.c_str()), p->second.length(), 1);
-        add_assoc_zval_ex(zv, const_cast<char*>(p->first.c_str()), p->first.length() + 1, val);
+        if(add_assoc_stringl_ex(zv, const_cast<char*>(p->first.c_str()), p->first.length() + 1,
+                                const_cast<char*>(p->second.c_str()), p->second.length(), 1) == FAILURE)
+        {
+            return false;
+        }
     }
 
     return true;
 }
 
 bool
-IcePHP::extractContext(zval* zv, Ice::Context& ctx TSRMLS_DC)
+IcePHP::extractStringMap(zval* zv, map<string, string>& ctx TSRMLS_DC)
 {
     if(Z_TYPE_P(zv) != IS_ARRAY)
     {
         string s = zendTypeToString(Z_TYPE_P(zv));
-        php_error_docref(0 TSRMLS_CC, E_ERROR, "expected an array for the context argument but received %s",
-                         s.c_str());
+        invalidArgument("expected an associative array but received %s" TSRMLS_CC, s.c_str());
         return false;
     }
 
@@ -202,13 +211,13 @@ IcePHP::extractContext(zval* zv, Ice::Context& ctx TSRMLS_DC)
         //
         if(keyType != HASH_KEY_IS_STRING)
         {
-            php_error_docref(0 TSRMLS_CC, E_ERROR, "context key must be a string");
+            invalidArgument("array key must be a string" TSRMLS_CC);
             return false;
         }
 
         if(Z_TYPE_PP(val) != IS_STRING)
         {
-            php_error_docref(0 TSRMLS_CC, E_ERROR, "context value must be a string");
+            invalidArgument("array value must be a string" TSRMLS_CC);
             return false;
         }
 
@@ -220,384 +229,288 @@ IcePHP::extractContext(zval* zv, Ice::Context& ctx TSRMLS_DC)
     return true;
 }
 
-#ifdef _WIN32
-extern "C"
-#endif
+bool
+IcePHP::createStringArray(zval* zv, const Ice::StringSeq& seq TSRMLS_DC)
+{
+    array_init(zv);
+    for(Ice::StringSeq::const_iterator p = seq.begin(); p != seq.end(); ++p)
+    {
+        if(add_next_index_stringl(zv, STRCAST(p->c_str()), p->length(), 1) == FAILURE)
+        {
+            return false;
+        }
+    }
+
+    return true;
+}
+
+bool
+IcePHP::extractStringArray(zval* zv, Ice::StringSeq& seq TSRMLS_DC)
+{
+    if(Z_TYPE_P(zv) != IS_ARRAY)
+    {
+        string s = zendTypeToString(Z_TYPE_P(zv));
+        invalidArgument("expected an array of strings but received %s" TSRMLS_CC, s.c_str());
+        return false;
+    }
+
+    HashTable* arr = Z_ARRVAL_P(zv);
+    void* data;
+    HashPosition pos;
+
+    zend_hash_internal_pointer_reset_ex(arr, &pos);
+    while(zend_hash_get_current_data_ex(arr, &data, &pos) != FAILURE)
+    {
+        zval** val = reinterpret_cast<zval**>(data);
+
+        if(Z_TYPE_PP(val) != IS_STRING)
+        {
+            invalidArgument("array element must be a string" TSRMLS_CC);
+            return false;
+        }
+
+        string s(Z_STRVAL_PP(val), Z_STRLEN_PP(val));
+        seq.push_back(s);
+
+        zend_hash_move_forward_ex(arr, &pos);
+    }
+
+    return true;
+}
+
 static void
-dtor_wrapper(void* p)
+setStringMember(zval* obj, const string& name, const string& val TSRMLS_DC)
 {
-    zval_ptr_dtor(static_cast<zval**>(p));
+    zend_class_entry* cls = Z_OBJCE_P(obj);
+    assert(cls);
+    zend_update_property_stringl(cls, obj, const_cast<char*>(name.c_str()), static_cast<int>(name.size()),
+                                 const_cast<char*>(val.c_str()), static_cast<int>(val.size()) TSRMLS_CC);
 }
 
-ice_object*
-IcePHP::newObject(zend_class_entry* ce TSRMLS_DC)
+static bool
+convertLocalException(const Ice::LocalException& ex, zval* zex TSRMLS_DC)
 {
-    ice_object* obj;
-    zval* tmp;
+    zend_class_entry* cls = Z_OBJCE_P(zex);
+    assert(cls);
 
-    obj = static_cast<ice_object*>(emalloc(sizeof(ice_object)));
-    obj->zobj.ce = ce;
-    obj->zobj.guards = 0;
-    obj->ptr = 0;
-
-    obj->zobj.properties = static_cast<HashTable*>(emalloc(sizeof(HashTable)));
-    zend_hash_init(obj->zobj.properties, 0, 0, dtor_wrapper, 0);
-    zend_hash_copy(obj->zobj.properties, &ce->default_properties, (copy_ctor_func_t) zval_add_ref, &tmp,
-                   sizeof(zval*));
-
-    return obj;
-}
-
-ice_object*
-IcePHP::getObject(zval* zv TSRMLS_DC)
-{
-    if(!zv)
-    {
-        php_error_docref(0 TSRMLS_CC, E_ERROR, "method %s() must be invoked on an object",
-                         get_active_function_name(TSRMLS_C));
-        return 0;
-    }
-
-    ice_object* obj = static_cast<ice_object*>(zend_object_store_get_object(zv TSRMLS_CC));
-    if(!obj)
-    {
-        php_error_docref(0 TSRMLS_CC, E_ERROR, "no object found in %s()", get_active_function_name(TSRMLS_C));
-        return 0;
-    }
-
-    return obj;
-}
-
-void
-IcePHP::throwException(const IceUtil::Exception& ex TSRMLS_DC)
-{
+    //
+    // Transfer data members from Ice exception to PHP object.
+    //
     try
     {
-        try
+        ex.ice_throw();
+    }
+    catch(const Ice::InitializationException& e)
+    {
+        setStringMember(zex, "reason", e.reason TSRMLS_CC);
+    }
+    catch(const Ice::PluginInitializationException& e)
+    {
+        setStringMember(zex, "reason", e.reason TSRMLS_CC);
+    }
+    catch(const Ice::AlreadyRegisteredException& e)
+    {
+        setStringMember(zex, "kindOfObject", e.kindOfObject TSRMLS_CC);
+        setStringMember(zex, "id", e.id TSRMLS_CC);
+    }
+    catch(const Ice::NotRegisteredException& e)
+    {
+        setStringMember(zex, "kindOfObject", e.kindOfObject TSRMLS_CC);
+        setStringMember(zex, "id", e.id TSRMLS_CC);
+    }
+    catch(const Ice::TwowayOnlyException& e)
+    {
+        setStringMember(zex, "operation", e.operation TSRMLS_CC);
+    }
+    catch(const Ice::UnknownException& e)
+    {
+        setStringMember(zex, "unknown", e.unknown TSRMLS_CC);
+    }
+    catch(const Ice::ObjectAdapterDeactivatedException& e)
+    {
+        setStringMember(zex, "name", e.name TSRMLS_CC);
+    }
+    catch(const Ice::ObjectAdapterIdInUseException& e)
+    {
+        setStringMember(zex, "id", e.id TSRMLS_CC);
+    }
+    catch(const Ice::NoEndpointException& e)
+    {
+        setStringMember(zex, "proxy", e.proxy TSRMLS_CC);
+    }
+    catch(const Ice::EndpointParseException& e)
+    {
+        setStringMember(zex, "str", e.str TSRMLS_CC);
+    }
+    catch(const Ice::IdentityParseException& e)
+    {
+        setStringMember(zex, "str", e.str TSRMLS_CC);
+    }
+    catch(const Ice::ProxyParseException& e)
+    {
+        setStringMember(zex, "str", e.str TSRMLS_CC);
+    }
+    catch(const Ice::IllegalIdentityException& e)
+    {
+        zval* id;
+        MAKE_STD_ZVAL(id);
+        if(!createIdentity(id, e.id TSRMLS_CC))
         {
-            ex.ice_throw();
+            zval_ptr_dtor(&id);
+            return false;
         }
-        catch(const Ice::TwowayOnlyException& e)
+        zend_update_property(cls, zex, "id", sizeof("id") - 1, id TSRMLS_CC);
+    }
+    catch(const Ice::RequestFailedException& e)
+    {
+        zval* id;
+        MAKE_STD_ZVAL(id);
+        if(!createIdentity(id, e.id TSRMLS_CC))
         {
-            string name = e.ice_name();
-            zend_class_entry* cls = findClassScoped(name TSRMLS_CC);
-            if(!cls)
-            {
-                throw;
-            }
-
-            zval* zex;
-            MAKE_STD_ZVAL(zex);
-            if(object_init_ex(zex, cls) != SUCCESS)
-            {
-                php_error_docref(0 TSRMLS_CC, E_ERROR, "unable to create exception %s", cls->name);
-                return;
-            }
-
-            //
-            // Set the unknown member.
-            //
-            zend_update_property_string(cls, zex, "operation", sizeof("operation") - 1,
-                                        const_cast<char*>(e.operation.c_str()) TSRMLS_CC);
-
-            //
-            // Throw the exception.
-            //
-            zend_throw_exception_object(zex TSRMLS_CC);
+            zval_ptr_dtor(&id);
+            return false;
         }
-        catch(const Ice::UnknownException& e)
-        {
-            string name = e.ice_name();
-            zend_class_entry* cls = findClassScoped(name TSRMLS_CC);
-            if(!cls)
-            {
-                throw;
-            }
+        zend_update_property(cls, zex, "id", sizeof("id") - 1, id TSRMLS_CC);
+        setStringMember(zex, "facet", e.facet TSRMLS_CC);
+        setStringMember(zex, "operation", e.operation TSRMLS_CC);
+    }
+    catch(const Ice::FileException& e)
+    {
+        zend_update_property_long(cls, zex, "error", sizeof("error") - 1, e.error TSRMLS_CC);
+        setStringMember(zex, "path", e.path TSRMLS_CC);
+    }
+    catch(const Ice::SyscallException& e) // This must appear after all subclasses of SyscallException.
+    {
+        zend_update_property_long(cls, zex, "error", sizeof("error") - 1, e.error TSRMLS_CC);
+    }
+    catch(const Ice::DNSException& e)
+    {
+        zend_update_property_long(cls, zex, "error", sizeof("error") - 1, e.error TSRMLS_CC);
+        setStringMember(zex, "host", e.host TSRMLS_CC);
+    }
+    catch(const Ice::UnsupportedProtocolException& e)
+    {
+        zend_update_property_long(cls, zex, "badMajor", sizeof("badMajor") - 1, e.badMajor TSRMLS_CC);
+        zend_update_property_long(cls, zex, "badMinor", sizeof("badMinor") - 1, e.badMinor TSRMLS_CC);
+        zend_update_property_long(cls, zex, "major", sizeof("major") - 1, e.major TSRMLS_CC);
+        zend_update_property_long(cls, zex, "minor", sizeof("minor") - 1, e.minor TSRMLS_CC);
+    }
+    catch(const Ice::UnsupportedEncodingException& e)
+    {
+        zend_update_property_long(cls, zex, "badMajor", sizeof("badMajor") - 1, e.badMajor TSRMLS_CC);
+        zend_update_property_long(cls, zex, "badMinor", sizeof("badMinor") - 1, e.badMinor TSRMLS_CC);
+        zend_update_property_long(cls, zex, "major", sizeof("major") - 1, e.major TSRMLS_CC);
+        zend_update_property_long(cls, zex, "minor", sizeof("minor") - 1, e.minor TSRMLS_CC);
+    }
+    catch(const Ice::NoObjectFactoryException& e)
+    {
+        setStringMember(zex, "reason", e.reason TSRMLS_CC);
+        setStringMember(zex, "type", e.type TSRMLS_CC);
+    }
+    catch(const Ice::UnexpectedObjectException& e)
+    {
+        setStringMember(zex, "reason", e.reason TSRMLS_CC);
+        setStringMember(zex, "type", e.type TSRMLS_CC);
+        setStringMember(zex, "expectedType", e.expectedType TSRMLS_CC);
+    }
+    catch(const Ice::ProtocolException& e) // This must appear after all subclasses of ProtocolException.
+    {
+        setStringMember(zex, "reason", e.reason TSRMLS_CC);
+    }
+    catch(const Ice::FeatureNotSupportedException& e)
+    {
+        setStringMember(zex, "unsupportedFeature", e.unsupportedFeature TSRMLS_CC);
+    }
+    catch(const Ice::SecurityException& e)
+    {
+        setStringMember(zex, "reason", e.reason TSRMLS_CC);
+    }
+    catch(const Ice::LocalException&)
+    {
+        //
+        // Nothing to do.
+        //
+    }
 
-            zval* zex;
-            MAKE_STD_ZVAL(zex);
-            if(object_init_ex(zex, cls) != SUCCESS)
-            {
-                php_error_docref(0 TSRMLS_CC, E_ERROR, "unable to create exception %s", cls->name);
-                return;
-            }
+    return true;
+}
 
-            //
-            // Set the unknown member.
-            //
-            zend_update_property_string(cls, zex, "unknown", sizeof("unknown") - 1,
-                                        const_cast<char*>(e.unknown.c_str()) TSRMLS_CC);
+zval*
+IcePHP::convertException(const Ice::Exception& ex TSRMLS_DC)
+{
+    zval* zex;
+    MAKE_STD_ZVAL(zex);
+    AutoDestroy destroy(zex);
 
-            //
-            // Throw the exception.
-            //
-            zend_throw_exception_object(zex TSRMLS_CC);
-        }
-        catch(const Ice::RequestFailedException& e)
-        {
-            string name = e.ice_name();
-            zend_class_entry* cls = findClassScoped(name TSRMLS_CC);
-            if(!cls)
-            {
-                throw;
-            }
+    ostringstream ostr;
+    ostr << ex;
+    string str = ostr.str();
 
-            zval* zex;
-            MAKE_STD_ZVAL(zex);
-            if(object_init_ex(zex, cls) != SUCCESS)
-            {
-                php_error_docref(0 TSRMLS_CC, E_ERROR, "unable to create exception %s", cls->name);
-                return;
-            }
-
-            //
-            // Set the id member.
-            //
-            zval* id;
-            MAKE_STD_ZVAL(id);
-            if(!createIdentity(id, e.id TSRMLS_CC))
-            {
-                return;
-            }
-            zend_update_property(cls, zex, "id", sizeof("id") - 1, id TSRMLS_CC);
-
-            //
-            // Set the facet member.
-            //
-            zval* facet;
-            MAKE_STD_ZVAL(facet);
-            ZVAL_STRINGL(facet, const_cast<char*>(e.facet.c_str()), e.facet.length(), 1);
-            zend_update_property(cls, zex, "facet", sizeof("facet") - 1, facet TSRMLS_CC);
-
-            //
-            // Set the operation member.
-            //
-            zend_update_property_string(cls, zex, "operation", sizeof("operation") - 1,
-                                        const_cast<char*>(e.operation.c_str()) TSRMLS_CC);
-
-            //
-            // Throw the exception.
-            //
-            zend_throw_exception_object(zex TSRMLS_CC);
-        }
-        catch(const Ice::NoObjectFactoryException& e)
-        {
-            string name = e.ice_name();
-            zend_class_entry* cls = findClassScoped(name TSRMLS_CC);
-            if(!cls)
-            {
-                throw;
-            }
-
-            zval* zex;
-            MAKE_STD_ZVAL(zex);
-            if(object_init_ex(zex, cls) != SUCCESS)
-            {
-                php_error_docref(0 TSRMLS_CC, E_ERROR, "unable to create exception %s", cls->name);
-                return;
-            }
-
-            //
-            // Set the reason member.
-            //
-            zend_update_property_string(cls, zex, "reason", sizeof("reason") - 1,
-                                        const_cast<char*>(e.reason.c_str()) TSRMLS_CC);
-
-            //
-            // Set the type member.
-            //
-            zend_update_property_string(cls, zex, "type", sizeof("type") - 1, const_cast<char*>(e.type.c_str())
-                                        TSRMLS_CC);
-
-            //
-            // Throw the exception.
-            //
-            zend_throw_exception_object(zex TSRMLS_CC);
-        }
-        catch(const Ice::UnexpectedObjectException& e)
-        {
-            string name = e.ice_name();
-            zend_class_entry* cls = findClassScoped(name TSRMLS_CC);
-            if(!cls)
-            {
-                throw;
-            }
-
-            zval* zex;
-            MAKE_STD_ZVAL(zex);
-            if(object_init_ex(zex, cls) != SUCCESS)
-            {
-                php_error_docref(0 TSRMLS_CC, E_ERROR, "unable to create exception %s", cls->name);
-                return;
-            }
-
-            //
-            // Set the reason member.
-            //
-            zend_update_property_string(cls, zex, "reason", sizeof("reason") - 1,
-                                        const_cast<char*>(e.reason.c_str()) TSRMLS_CC);
-
-            //
-            // Set the type and exptected type members.
-            //
-            zend_update_property_string(cls, zex, "type", sizeof("type") - 1, const_cast<char*>(e.type.c_str())
-                                        TSRMLS_CC);
-            zend_update_property_string(cls, zex, "expectedType", sizeof("expectedType") - 1,
-                                        const_cast<char*>(e.expectedType.c_str()) TSRMLS_CC);
-
-            //
-            // Throw the exception.
-            //
-            zend_throw_exception_object(zex TSRMLS_CC);
-        }
-        catch(const Ice::MarshalException& e)
-        {
-            string name = e.ice_name();
-            zend_class_entry* cls = findClassScoped(name TSRMLS_CC);
-            if(!cls)
-            {
-                throw;
-            }
-
-            zval* zex;
-            MAKE_STD_ZVAL(zex);
-            if(object_init_ex(zex, cls) != SUCCESS)
-            {
-                php_error_docref(0 TSRMLS_CC, E_ERROR, "unable to create exception %s", cls->name);
-                return;
-            }
-
-            //
-            // Set the reason member.
-            //
-            zend_update_property_string(cls, zex, "reason", sizeof("reason") - 1,
-                                        const_cast<char*>(e.reason.c_str()) TSRMLS_CC);
-
-            //
-            // Throw the exception.
-            //
-            zend_throw_exception_object(zex TSRMLS_CC);
-        }
+    try
+    {
+        ex.ice_throw();
     }
     catch(const Ice::LocalException& e)
     {
-        zval* zex;
-        MAKE_STD_ZVAL(zex);
-
-        //
-        // See if we have a PHP class for the exception, otherwise raise UnknownLocalException.
-        //
-        string name = e.ice_name();
-        zend_class_entry* cls = findClassScoped(name TSRMLS_CC);
+        zend_class_entry* cls = idToClass(e.ice_name() TSRMLS_CC);
         if(cls)
         {
             if(object_init_ex(zex, cls) != SUCCESS)
             {
-                php_error_docref(0 TSRMLS_CC, E_ERROR, "unable to create exception %s", cls->name);
-                return;
+                runtimeError("unable to create exception %s" TSRMLS_CC, cls->name);
+                return 0;
+            }
+            if(!convertLocalException(e, zex TSRMLS_CC))
+            {
+                return 0;
             }
         }
         else
         {
-            cls = findClass("Ice_UnknownLocalException" TSRMLS_CC);
-            if(!cls)
-            {
-                php_error_docref(0 TSRMLS_CC, E_ERROR, "unable to find class Ice_UnknownLocalException");
-                return;
-            }
-
+            cls = idToClass("Ice::UnknownLocalException" TSRMLS_CC);
+            assert(cls);
             if(object_init_ex(zex, cls) != SUCCESS)
             {
-                php_error_docref(0 TSRMLS_CC, E_ERROR, "unable to create exception %s", cls->name);
-                return;
+                runtimeError("unable to create exception %s" TSRMLS_CC, cls->name);
+                return 0;
             }
-
-            //
-            // Set the unknown member.
-            //
-            ostringstream ostr;
-            e.ice_print(ostr);
-            string str = ostr.str();
-            zend_update_property_string(cls, zex, "unknown", sizeof("unknown") - 1,
-                                        const_cast<char*>(str.c_str()) TSRMLS_CC);
+            setStringMember(zex, "unknown", str TSRMLS_CC);
         }
-
-        //
-        // Throw the exception.
-        //
-        zend_throw_exception_object(zex TSRMLS_CC);
     }
     catch(const Ice::UserException&)
     {
-        assert(false);
+        zend_class_entry* cls = idToClass("Ice::UnknownUserException" TSRMLS_CC);
+        assert(cls);
+        if(object_init_ex(zex, cls) != SUCCESS)
+        {
+            runtimeError("unable to create exception %s" TSRMLS_CC, cls->name);
+            return 0;
+        }
+        setStringMember(zex, "unknown", str TSRMLS_CC);
     }
-    catch(const IceUtil::Exception& e)
+    catch(const Ice::Exception&)
     {
-        ostringstream ostr;
-        e.ice_print(ostr);
-        php_error_docref(0 TSRMLS_CC, E_ERROR, "exception: %s", ostr.str().c_str());
+        zend_class_entry* cls = idToClass("Ice::UnknownException" TSRMLS_CC);
+        assert(cls);
+        if(object_init_ex(zex, cls) != SUCCESS)
+        {
+            runtimeError("unable to create exception %s" TSRMLS_CC, cls->name);
+            return 0;
+        }
+        setStringMember(zex, "unknown", str TSRMLS_CC);
     }
+
+    return destroy.release();
 }
 
-zend_class_entry*
-IcePHP::findClass(const string& flat TSRMLS_DC)
+void
+IcePHP::throwException(const Ice::Exception& ex TSRMLS_DC)
 {
-    zend_class_entry** result;
-    string lower = lowerCase(flat);
-    if(zend_lookup_class(const_cast<char*>(lower.c_str()), lower.length(), &result TSRMLS_CC) == FAILURE)
+    zval* zex = convertException(ex TSRMLS_CC);
+    if(zex)
     {
-        return 0;
+        zend_throw_exception_object(zex TSRMLS_CC);
     }
-    return *result;
-}
-
-zend_class_entry*
-IcePHP::findClassScoped(const string& scoped TSRMLS_DC)
-{
-    return findClass(flatten(scoped) TSRMLS_CC);
-}
-
-string
-IcePHP::lowerCase(const string& s)
-{
-    string result(s);
-    transform(result.begin(), result.end(), result.begin(), ::tolower);
-    return result;
-}
-
-string
-IcePHP::flatten(const string& scoped)
-{
-    string result = scoped;
-    if(result.find("::") == 0)
-    {
-        result.erase(0, 2);
-    }
-
-    string::size_type pos;
-    while((pos = result.find("::")) != string::npos)
-    {
-        result.replace(pos, 2, "_");
-    }
-
-    return fixIdent(result);
-}
-
-string
-IcePHP::fixIdent(const string& ident)
-{
-    if(ident[0] != ':')
-    {
-        return lookupKwd(ident);
-    }
-    vector<string> ids = splitScopedName(ident);
-    transform(ids.begin(), ids.end(), ids.begin(), ptr_fun(lookupKwd));
-    stringstream result;
-    for(vector<string>::const_iterator i = ids.begin(); i != ids.end(); ++i)
-    {
-        result << "::" + *i;
-    }
-    return result.str();
 }
 
 std::string
@@ -643,36 +556,128 @@ IcePHP::zendTypeToString(int type)
     return result;
 }
 
-bool
-IcePHP::isNativeKey(const Slice::TypePtr& type)
+static void
+throwError(const string& name, const string& msg TSRMLS_DC)
 {
-    //
-    // PHP's native associative array supports only integer and string types for the key.
-    // For Slice dictionaries that meet this criteria, we use the native array type.
-    //
-    Slice::BuiltinPtr b = Slice::BuiltinPtr::dynamicCast(type);
-    if(b)
-    {
-        switch(b->kind())
-        {
-        case Slice::Builtin::KindByte:
-        case Slice::Builtin::KindBool: // We allow bool even though PHP doesn't support it directly.
-        case Slice::Builtin::KindShort:
-        case Slice::Builtin::KindInt:
-        case Slice::Builtin::KindLong:
-        case Slice::Builtin::KindString:
-            return true;
+    zval* ex;
+    MAKE_STD_ZVAL(ex);
+    AutoDestroy destroy(ex);
 
-        case Slice::Builtin::KindFloat:
-        case Slice::Builtin::KindDouble:
-        case Slice::Builtin::KindObject:
-        case Slice::Builtin::KindObjectProxy:
-        case Slice::Builtin::KindLocalObject:
-            break;
+    zend_class_entry* cls;
+    {
+        zend_class_entry** p;
+        if(zend_lookup_class(STRCAST(name.c_str()), name.size(), &p TSRMLS_CC) == FAILURE)
+        {
+            assert(false);
         }
+        cls = *p;
+    }
+    if(object_init_ex(ex, cls) == FAILURE)
+    {
+        assert(false);
     }
 
-    return false;
+    //
+    // Invoke constructor.
+    //
+    if(!invokeMethod(ex, ZEND_CONSTRUCTOR_FUNC_NAME, msg TSRMLS_CC))
+    {
+        assert(false);
+    }
+
+    zend_throw_exception_object(ex TSRMLS_CC);
+    destroy.release();
+}
+
+void
+IcePHP::runtimeError(const char* fmt TSRMLS_DC, ...)
+{
+    va_list args;
+    char msg[1024];
+
+#if ZTS
+    va_start(args, TSRMLS_C);
+#else
+    va_start(args, fmt);
+#endif
+
+#if defined(_MSC_VER) && (_MSC_VER >= 1500)
+    vsprintf_s(msg, fmt, args);
+#else
+    vsprintf(msg, fmt, args);
+#endif
+
+    va_end(args);
+
+    throwError("RuntimeException", msg TSRMLS_CC);
+}
+
+void
+IcePHP::invalidArgument(const char* fmt TSRMLS_DC, ...)
+{
+    va_list args;
+    char msg[1024];
+
+#if ZTS
+    va_start(args, TSRMLS_C);
+#else
+    va_start(args, fmt);
+#endif
+
+#if defined(_MSC_VER) && (_MSC_VER >= 1500)
+    vsprintf_s(msg, fmt, args);
+#else
+    vsprintf(msg, fmt, args);
+#endif
+
+    va_end(args);
+
+    throwError("InvalidArgumentException", msg TSRMLS_CC);
+}
+
+static bool
+invokeMethodHelper(zval* obj, const string& name, zval* param TSRMLS_DC)
+{
+    assert(zend_hash_exists(&Z_OBJCE_P(obj)->function_table, STRCAST(name.c_str()), name.size() + 1));
+    zval ret, method;
+    INIT_ZVAL(ret);
+    INIT_ZVAL(method);
+    ZVAL_STRING(&method, STRCAST(name.c_str()), 1);
+    zend_uint numParams = param ? 1 : 0;
+    zval** params = param ? &param : 0;
+    int status = 0;
+    zend_try
+    {
+        status = call_user_function(0, &obj, &method, &ret, numParams, params TSRMLS_CC);
+    }
+    zend_catch
+    {
+        status = FAILURE;
+    }
+    zend_end_try();
+    zval_dtor(&method);
+    zval_dtor(&ret);
+    if(status == FAILURE || EG(exception))
+    {
+        return false;
+    }
+    return true;
+}
+
+bool
+IcePHP::invokeMethod(zval* obj, const string& name TSRMLS_DC)
+{
+    return invokeMethodHelper(obj, name, 0 TSRMLS_CC);
+}
+
+bool
+IcePHP::invokeMethod(zval* obj, const string& name, const string& arg TSRMLS_DC)
+{
+    zval* param;
+    MAKE_STD_ZVAL(param);
+    ZVAL_STRINGL(param, STRCAST(arg.c_str()), arg.size(), 1);
+    AutoDestroy destroy(param);
+    return invokeMethodHelper(obj, name, param TSRMLS_CC);
 }
 
 bool
@@ -697,4 +702,35 @@ IcePHP::checkClass(zend_class_entry* ce, zend_class_entry* base)
     }
 
     return false;
+}
+
+ZEND_FUNCTION(Ice_stringVersion)
+{
+    if(ZEND_NUM_ARGS() > 0)
+    {
+        WRONG_PARAM_COUNT;
+    }
+
+    RETURN_STRINGL(STRCAST(ICE_STRING_VERSION), strlen(ICE_STRING_VERSION), 1);
+}
+
+ZEND_FUNCTION(Ice_intVersion)
+{
+    if(ZEND_NUM_ARGS() > 0)
+    {
+        WRONG_PARAM_COUNT;
+    }
+
+    RETURN_LONG(ICE_INT_VERSION);
+}
+
+ZEND_FUNCTION(Ice_generateUUID)
+{
+    if(ZEND_NUM_ARGS() > 0)
+    {
+        WRONG_PARAM_COUNT;
+    }
+
+    string uuid = IceUtil::generateUUID();
+    RETURN_STRINGL(STRCAST(uuid.c_str()), uuid.size(), 1);
 }

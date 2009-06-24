@@ -6,7 +6,7 @@ Requirements
 
   * 5.1.2 (SLES 10)
   * 5.1.6 (RHEL)
-  * 5.2.6 (source builds)
+  * 5.2.x or 5.3.x (source builds)
 
   You can download PHP from
 
@@ -32,7 +32,8 @@ Follow the steps below to build Ice for PHP:
 2. Edit config/Make.rules and review the build settings. For example,
    you may want to enable OPTIMIZE. If your PHP installation resides
    in a non-standard location, modify the PHP_HOME setting to contain
-   the installation directory.
+   the installation directory. If you are using PHP 5.3 or later and
+   wish to use PHP namespaces, set USE_NAMESPACES=yes.
 
 3. If you have not built Ice for C++ from the cpp subdirectory, then
    set the ICE_HOME environment variable to the directory containing 
@@ -53,20 +54,20 @@ Building PHP with the Ice extension (Windows)
 ======================================================================
 
 Compiling PHP from source code on Windows is a tedious process,
-therefore we recommend that you download the binary distribution
-for PHP and use it along with the precompiled dynamic Ice extension
-included in the Ice installer for Visual C++ 6.0.
+therefore we recommend that you download a binary distribution of PHP
+and use it along with the precompiled dynamic Ice extension included
+in the Ice installer for Visual C++ 6.0 (VC6).
 
 If you prefer to build the Ice extension yourself, you must first
 understand the C run time dependency issues. Specifically, the Ice
 extension must use the same C run time as PHP5. Since the binary
 distribution of PHP5 available from php.net depends on the Visual C++
 6.0 run time DLL (MSVCRT), you must also build the Ice extension using
-Visual C++ 6.0 if you want to use Ice with this PHP distribution. This
-is why the precompiled Ice extension is included in the Ice installer
-for Visual C++ 6.0, as attempting to use an Ice extension that was
-built with a newer compiler together with the binary PHP distribution
-results in undefined behavior.
+VC6 if you want to use Ice with this PHP distribution. This is why the
+precompiled Ice extension is included in the Ice installer for VC6, as
+attempting to use an Ice extension that was built with a newer
+compiler together with the binary PHP distribution results in
+undefined behavior.
 
 To use a later version of Visual C++, you must obtain (or build) PHP5
 with the desired compiler, and use the same compiler to build the Ice
@@ -79,7 +80,15 @@ Follow these instructions to build the Ice extension:
    the distribution.
 
 2) Download and extract the PHP5 sources (Ice for PHP requires the PHP
-   header files).
+   header files). If you are using PHP 5.3, change to the PHP5 source
+   directory and run the following commands:
+
+   > buildconf
+   > configure
+
+   You do not need to actually build PHP from source, but these two
+   steps are necessary to generate header files that are required by
+   the Ice extension.
 
 3) Open a command window.
 
@@ -97,14 +106,17 @@ Follow these instructions to build the Ice extension:
    necessary changes. In particular, you may need to change the values
    of PHP_HOME and PHP_BIN_HOME to refer to your PHP source and binary
    installations, respectively. If you compiled PHP from source, you
-   should also review the setting of PHP_LIBDIR.
+   should also review the setting of PHP_LIBDIR. If you are using PHP
+   5.3 or later and wish to use PHP namespaces, set
+   USE_NAMESPACES=yes. Finally, if you are using a non-thread-safe PHP
+   installation, set PHP_ZTS=no.
 
 7) Start NMAKE:
 
    nmake /f Makefile.mak
 
 8) Upon successful completion, the Ice for PHP extension is created as
-   bin\php_ice.dll (Release) or bin\php_iced.dll (Debug).
+   lib\php_ice.dll (Release) or lib\php_iced.dll (Debug).
 
 
 ======================================================================
@@ -216,8 +228,9 @@ Dependencies
 
 PHP will need to be able to locate the Ice run-time libraries "Ice",
 "Slice", "IceUtil" and "bzip2" (Windows) or "libbz2" (Unix). On
-Windows, the STLport library is also necessary. In general, these
-libraries must reside in a directory of the user's PATH.
+Windows, the STLport library is also necessary when using VC6. In
+general, these libraries must reside in a directory of the user's
+PATH.
 
 For Web servers, the libraries may need to reside in a system
 directory. For example, on Linux you can add the directory containing
@@ -244,14 +257,33 @@ will also need access to the shared libraries for IceSSL and OpenSSL.
 
 
 ======================================================================
+Source Files
+======================================================================
+
+In addition to the binary Ice extension module, you will also need to
+make the Ice for PHP source files available to your scripts. These
+files are located in the "lib" subdirectory and consist of the Ice run
+time definitions (Ice.php or Ice_ns.php) along with PHP source files
+generated from the Slice files included in the Ice distribution.
+
+The Ice extension makes no assumptions about the location of these
+files, so you can install them anywhere you like. For example, you can
+simply include them in the same directory as your application scripts.
+Alternatively, if you prefer to install them in a common directory,
+you may need to modify PHP's include_path directive so that the PHP
+interpreter is able to locate these files.
+
+
+======================================================================
 Permissions
 ======================================================================
 
 The Web server normally runs in a special user account that may not
-necessarily have access to the Ice extension, its dependent libraries,
-and other resources such as Ice configuration files, Slice files, and
-PHP scripts. It is very important that you review the permissions of
-these files and verify that the Web server has sufficient access.
+necessarily have access to the Ice extension, its dependent libraries
+and PHP source files, and other resources such as Ice configuration
+and your application scripts. It is very important that you review the
+permissions of these files and verify that the Web server has
+sufficient access.
 
 For example, on Windows the Apache server typically runs as a service
 in the "Local System" account. You will need to modify the access
@@ -270,39 +302,6 @@ On Linux, Apache typically runs in the "apache" account, so you will
 either need to change the owner or group of the libraries and other
 resources, or modify their permissions to make them sufficiently
 accessible.
-
-
-======================================================================
-Apache Notes (Windows)
-======================================================================
-
-Apache's executable has a relatively small default stack size. You can
-determine its current stack size with the following commands:
-
-  cd \Program Files\Apache Software Foundation\Apache2.2\bin
-  dumpbin /all httpd.exe | find "stack"
-
-The relevant output line is shown below:
-
-  40000 size of stack reserve
-
-The default size is 0x40000 bytes, which is too small to effectively
-use the Ice extension. Attempting to load even a trivial Slice file
-causes Apache to fail during startup with a stack overflow error.
-
-To increase the stack size, use the editbin utility. Note that the
-new stack size is given in decimal:
-
-  editbin /stack:1048576 httpd.exe
-
-Now execute dumpbin again to verify that the change was made:
-
-  dumpbin /all httpd.exe | find "stack"
-
-The new output line is shown below:
-
-  100000 size of stack reserve
-
 
 
 ======================================================================

@@ -29,6 +29,7 @@ tests = [
     ("Ice/exceptions", ["core"]),
     ("Ice/inheritance", ["core"]),
     ("Ice/binding", ["core"]),
+    ("Ice/checksum", ["core"]),
     ("Ice/facets", ["core"]),
     ("Ice/objects", ["core"]),
     ("Ice/slicing/exceptions", ["core"]),

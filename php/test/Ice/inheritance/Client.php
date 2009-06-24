@@ -15,7 +15,9 @@ if(!extension_loaded("ice"))
     echo "\nerror: Ice extension is not loaded.\n\n";
     exit(1);
 }
-Ice_loadProfileWithArgs($argv);
+
+require 'Ice.php';
+require 'Test.php';
 
 function test($b)
 {
@@ -26,14 +28,12 @@ function test($b)
     }
 }
 
-function allTests()
+function allTests($communicator)
 {
-    global $ICE;
-
     echo "testing stringToProxy... ";
     flush();
     $ref = "initial:default -p 12010";
-    $base = $ICE->stringToProxy($ref);
+    $base = $communicator->stringToProxy($ref);
     test($base != null);
     echo "ok\n";
 
@@ -235,7 +235,9 @@ function allTests()
     return $initial;
 }
 
-$initial = allTests();
+$communicator = Ice_initialize(&$argv);
+$initial = allTests($communicator);
 $initial->shutdown();
+$communicator->destroy();
 exit();
 ?>
