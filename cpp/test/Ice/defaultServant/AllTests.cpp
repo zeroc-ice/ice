@@ -43,7 +43,9 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
     string names[] = { "foo", "bar", "x", "y", "abcdefg" };
 
-    for(int idx = 0; idx < 5; ++idx)
+    int idx;
+
+    for(idx = 0; idx < 5; ++idx)
     {
         identity.name = names[idx];
         MyObjectPrx prx = MyObjectPrx::uncheckedCast(oa->createProxy(identity));
@@ -96,7 +98,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
     }
 
     identity.category = "bar";
-    for(int idx = 0; idx < 5; idx++)
+    for(idx = 0; idx < 5; idx++)
     {
         identity.name = names[idx];
         prx = MyObjectPrx::uncheckedCast(oa->createProxy(identity));
@@ -146,7 +148,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
     r = oa->findDefaultServant("");
     test(r == servant);
 
-    for(int idx = 0; idx < 5; ++idx)
+    for(idx = 0; idx < 5; ++idx)
     {
         identity.name = names[idx];
         prx = MyObjectPrx::uncheckedCast(oa->createProxy(identity));
