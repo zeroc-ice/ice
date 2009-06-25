@@ -942,7 +942,14 @@ CodeVisitor::visitConst(const ConstPtr& p)
 
     _out << sp << nl << "if(!defined('" << escapeName(abs) << "'))";
     _out << sb;
-    _out << sp << nl << "define('" << name << "', ";
+    if(_ns)
+    {
+        _out << sp << nl << "define(__NAMESPACE__ . '\\\\" << name << "', ";
+    }
+    else
+    {
+        _out << sp << nl << "define('" << name << "', ";
+    }
 
     Slice::BuiltinPtr b = Slice::BuiltinPtr::dynamicCast(valueType);
     Slice::EnumPtr en = Slice::EnumPtr::dynamicCast(valueType);

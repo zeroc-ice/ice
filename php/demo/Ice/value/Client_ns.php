@@ -38,12 +38,12 @@ class ObjectFactory implements Ice\ObjectFactory
 {
     function create($type)
     {
-        if($type == "::Demo::Printer")
+        if($type == Demo\Printer::ice_staticId())
         {
             return new PrinterI;
         }
 
-        if($type == "::Demo::DerivedPrinter")
+        if($type == Demo\DerivedPrinter::ice_staticId())
         {
             return new DerivedPrinterI;
         }
@@ -97,7 +97,7 @@ try
     fgets(STDIN);
 
     $factory = new ObjectFactory;
-    $ICE->addObjectFactory($factory, "::Demo::Printer");
+    $ICE->addObjectFactory($factory, Demo\Printer::ice_staticId());
 
     $initial->getPrinter($printer, $printerProxy);
     echo "==> ",$printer->message,"\n";
@@ -138,7 +138,7 @@ try
     echo "[press enter]\n";
     fgets(STDIN);
 
-    $ICE->addObjectFactory($factory, "::Demo::DerivedPrinter");
+    $ICE->addObjectFactory($factory, Demo\DerivedPrinter::ice_staticId());
 
     $derivedAsBase = $initial->getDerivedPrinter();
     assert($derivedAsBase instanceof Demo\DerivedPrinter);

@@ -203,7 +203,7 @@ script prior to including any Ice run-time file:
 
 // PHP
 ini_set('include_path',
-  ini_get('include_path') . PATH_SEPARATOR . '/usr/share/Ice-@ver@/php')
+  ini_get('include_path') . PATH_SEPARATOR . '/usr/share/Ice-@ver@/php');
 require 'Ice.php'; // Load the core Ice run time definitions.
 
 On SuSE Linux Enterprise Server 10, you need to install php5 version

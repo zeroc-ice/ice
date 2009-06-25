@@ -8,7 +8,8 @@
 //
 // **********************************************************************
 
-require 'Ice.php';
+$NS = function_exists("Ice\\initialize");
+require ($NS ? 'Ice_ns.php' : 'Ice.php');
 require 'Test.php';
 
 error_reporting(E_ALL | E_STRICT);
@@ -30,6 +31,8 @@ function test($b)
 
 function allTests($communicator)
 {
+    global $NS;
+
     echo "testing stringToProxy... ";
     flush();
     $ref = "thrower:default -p 12010";
@@ -52,8 +55,13 @@ function allTests($communicator)
         $thrower->throwAasA(1);
         test(false);
     }
-    catch(Test_A $ex)
+    catch(Exception $ex)
     {
+        $clsA = $NS ? "Test\\A" : "Test_A";
+        if(!($ex instanceof $clsA))
+        {
+            throw $ex;
+        }
         test($ex->aMem == 1);
     }
 
@@ -62,8 +70,13 @@ function allTests($communicator)
         $thrower->throwAorDasAorD(1);
         test(false);
     }
-    catch(Test_A $ex)
+    catch(Exception $ex)
     {
+        $clsA = $NS ? "Test\\A" : "Test_A";
+        if(!($ex instanceof $clsA))
+        {
+            throw $ex;
+        }
         test($ex->aMem == 1);
     }
 
@@ -72,8 +85,13 @@ function allTests($communicator)
         $thrower->throwAorDasAorD(-1);
         test(false);
     }
-    catch(Test_D $ex)
+    catch(Exception $ex)
     {
+        $clsD = $NS ? "Test\\D" : "Test_D";
+        if(!($ex instanceof $clsD))
+        {
+            throw $ex;
+        }
         test($ex->dMem == -1);
     }
 
@@ -82,8 +100,13 @@ function allTests($communicator)
         $thrower->throwBasB(1, 2);
         test(false);
     }
-    catch(Test_B $ex)
+    catch(Exception $ex)
     {
+        $clsB = $NS ? "Test\\B" : "Test_B";
+        if(!($ex instanceof $clsB))
+        {
+            throw $ex;
+        }
         test($ex->aMem == 1);
         test($ex->bMem == 2);
     }
@@ -93,8 +116,13 @@ function allTests($communicator)
         $thrower->throwCasC(1, 2, 3);
         test(false);
     }
-    catch(Test_C $ex)
+    catch(Exception $ex)
     {
+        $clsC = $NS ? "Test\\C" : "Test_C";
+        if(!($ex instanceof $clsC))
+        {
+            throw $ex;
+        }
         test($ex->aMem == 1);
         test($ex->bMem == 2);
         test($ex->cMem == 3);
@@ -110,8 +138,13 @@ function allTests($communicator)
         $thrower->throwBasB(1, 2);
         test(false);
     }
-    catch(Test_A $ex)
+    catch(Exception $ex)
     {
+        $clsA = $NS ? "Test\\A" : "Test_A";
+        if(!($ex instanceof $clsA))
+        {
+            throw $ex;
+        }
         test($ex->aMem == 1);
     }
 
@@ -120,8 +153,13 @@ function allTests($communicator)
         $thrower->throwCasC(1, 2, 3);
         test(false);
     }
-    catch(Test_B $ex)
+    catch(Exception $ex)
     {
+        $clsB = $NS ? "Test\\B" : "Test_B";
+        if(!($ex instanceof $clsB))
+        {
+            throw $ex;
+        }
         test($ex->aMem == 1);
         test($ex->bMem == 2);
     }
@@ -136,8 +174,13 @@ function allTests($communicator)
         $thrower->throwBasA(1, 2);
         test(false);
     }
-    catch(Test_B $ex)
+    catch(Exception $ex)
     {
+        $clsB = $NS ? "Test\\B" : "Test_B";
+        if(!($ex instanceof $clsB))
+        {
+            throw $ex;
+        }
         test($ex->aMem == 1);
         test($ex->bMem == 2);
     }
@@ -147,8 +190,13 @@ function allTests($communicator)
         $thrower->throwCasA(1, 2, 3);
         test(false);
     }
-    catch(Test_C $ex)
+    catch(Exception $ex)
     {
+        $clsC = $NS ? "Test\\C" : "Test_C";
+        if(!($ex instanceof $clsC))
+        {
+            throw $ex;
+        }
         test($ex->aMem == 1);
         test($ex->bMem == 2);
         test($ex->cMem == 3);
@@ -159,8 +207,13 @@ function allTests($communicator)
         $thrower->throwCasB(1, 2, 3);
         test(false);
     }
-    catch(Test_C $ex)
+    catch(Exception $ex)
     {
+        $clsC = $NS ? "Test\\C" : "Test_C";
+        if(!($ex instanceof $clsC))
+        {
+            throw $ex;
+        }
         test($ex->aMem == 1);
         test($ex->bMem == 2);
         test($ex->cMem == 3);
@@ -178,8 +231,13 @@ function allTests($communicator)
             $thrower->throwUndeclaredA(1);
             test(false);
         }
-        catch(Ice_UnknownUserException $ex)
+        catch(Exception $ex)
         {
+            $uue = $NS ? "Ice\\UnknownUserException" : "Ice_UnknownUserException";
+            if(!($ex instanceof $uue))
+            {
+                throw $ex;
+            }
         }
 
         try
@@ -187,8 +245,13 @@ function allTests($communicator)
             $thrower->throwUndeclaredB(1, 2);
             test(false);
         }
-        catch(Ice_UnknownUserException $ex)
+        catch(Exception $ex)
         {
+            $uue = $NS ? "Ice\\UnknownUserException" : "Ice_UnknownUserException";
+            if(!($ex instanceof $uue))
+            {
+                throw $ex;
+            }
         }
 
         try
@@ -196,8 +259,13 @@ function allTests($communicator)
             $thrower->throwUndeclaredC(1, 2, 3);
             test(false);
         }
-        catch(Ice_UnknownUserException $ex)
+        catch(Exception $ex)
         {
+            $uue = $NS ? "Ice\\UnknownUserException" : "Ice_UnknownUserException";
+            if(!($ex instanceof $uue))
+            {
+                throw $ex;
+            }
         }
 
         echo "ok\n";
@@ -213,8 +281,13 @@ function allTests($communicator)
         $thrower2->throwAasA(1);
         test(false);
     }
-    catch(Ice_ObjectNotExistException $ex)
+    catch(Exception $ex)
     {
+        $one = $NS ? "Ice\\ObjectNotExistException" : "Ice_ObjectNotExistException";
+        if(!($ex instanceof $one))
+        {
+            throw $ex;
+        }
         test($ex->id == $id);
     }
 
@@ -230,8 +303,13 @@ function allTests($communicator)
             $thrower2->ice_ping();
             test(false);
         }
-        catch(Ice_FacetNotExistException $ex)
+        catch(Exception $ex)
         {
+            $fne = $NS ? "Ice\\FacetNotExistException" : "Ice_FacetNotExistException";
+            if(!($ex instanceof $fne))
+            {
+                throw $ex;
+            }
             test($ex->facet == "no such facet");
         }
     }
@@ -247,8 +325,13 @@ function allTests($communicator)
         $thrower2->noSuchOperation();
         test(false);
     }
-    catch(Ice_OperationNotExistException $ex)
+    catch(Exception $ex)
     {
+        $one = $NS ? "Ice\\OperationNotExistException" : "Ice_OperationNotExistException";
+        if(!($ex instanceof $one))
+        {
+            throw $ex;
+        }
         test($ex->operation = "noSuchOperation");
     }
 
@@ -262,8 +345,13 @@ function allTests($communicator)
         $thrower->throwLocalException();
         test(false);
     }
-    catch(Ice_UnknownLocalException $ex)
+    catch(Exception $ex)
     {
+        $ule = $NS ? "Ice\\UnknownLocalException" : "Ice_UnknownLocalException";
+        if(!($ex instanceof $ule))
+        {
+            throw $ex;
+        }
     }
 
     echo "ok\n";
@@ -276,8 +364,13 @@ function allTests($communicator)
         $thrower->throwNonIceException();
         test(false);
     }
-    catch(Ice_UnknownException $ex)
+    catch(Exception $ex)
     {
+        $ue = $NS ? "Ice\\UnknownException" : "Ice_UnknownException";
+        if(!($ex instanceof $ue))
+        {
+            throw $ex;
+        }
     }
 
     echo "ok\n";

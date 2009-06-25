@@ -16,7 +16,8 @@ if(!extension_loaded("ice"))
     exit(1);
 }
 
-require 'Ice.php';
+$NS = function_exists("Ice\\initialize");
+require ($NS ? 'Ice_ns.php' : 'Ice.php');
 require 'Test.php';
 require 'CTypes.php';
 
@@ -37,7 +38,7 @@ function allTests($communicator)
     $base = $communicator->stringToProxy($ref);
     test($base);
 
-    $checksum = Test_ChecksumPrxHelper::checkedCast($base);
+    $checksum = $base->ice_checkedCast("::Test::Checksum");
     test($checksum);
 
     //

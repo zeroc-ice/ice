@@ -7,7 +7,8 @@ if(!extension_loaded("ice"))
     exit(1);
 }
 
-require 'Ice.php';
+$NS = function_exists("Ice\\initialize");
+require ($NS ? 'Ice_ns.php' : 'Ice.php');
 require 'Forward.php';
 require 'ClientPrivate.php';
 
@@ -22,6 +23,11 @@ function test($b)
 
 function allTests($communicator)
 {
+    global $NS;
+
+    $d1cls = $NS ? "Test\\D1" : "Test_D1";
+    $d3cls = $NS ? "Test\\D3" : "Test_D3";
+
     $obj = $communicator->stringToProxy("Test:default -p 12010");
     $test = $obj->ice_checkedCast("::Test::TestIntf");
 
@@ -30,7 +36,7 @@ function allTests($communicator)
     {
         $o = $test->SBaseAsObject();
         test($o != null);
-        test(get_class($o) == "Test_SBase");
+        test(get_class($o) == ($NS ? "Test\\SBase" : "Test_SBase"));
         test($o->sb == "SBase.sb");
     }
     echo "ok\n";
@@ -48,7 +54,7 @@ function allTests($communicator)
     {
         $sb = $test->SBSKnownDerivedAsSBase();
         test($sb->sb == "SBSKnownDerived.sb");
-        test(get_class($sb) == "Test_SBSKnownDerived");
+        test(get_class($sb) == ($NS ? "Test\\SBSKnownDerived" : "Test_SBSKnownDerived"));
         test($sb->sbskd == "SBSKnownDerived.sbskd");
     }
     echo "ok\n";
@@ -77,9 +83,13 @@ function allTests($communicator)
             $o = $test->SUnknownAsObject();
             test(false);
         }
-        catch(Ice_NoObjectFactoryException $e)
+        catch(Exception $b)
         {
-            test(get_class($e) == "Ice_NoObjectFactoryException");
+            $excls = $NS ? "Ice\\NoObjectFactoryException" : "Ice_NoObjectFactoryException";
+            if(!($b instanceof $excls))
+            {
+                throw $ex;
+            }
         }
     }
     echo "ok\n";
@@ -89,7 +99,7 @@ function allTests($communicator)
     {
         $b = $test->oneElementCycle();
         test($b != null);
-        test(get_class($b) == "Test_B");
+        test(get_class($b) == ($NS ? "Test\\B" : "Test_B"));
         test($b->sb == "B1.sb");
         test($b->pb === $b); // Object identity comparison
 
@@ -105,12 +115,12 @@ function allTests($communicator)
     {
         $b1 = $test->twoElementCycle();
         test($b1 != null);
-        test(get_class($b1) == "Test_B");
+        test(get_class($b1) == ($NS ? "Test\\B" : "Test_B"));
         test($b1->sb == "B1.sb");
 
         $b2 = $b1->pb;
         test($b2 != null);
-        test(get_class($b2) == "Test_B");
+        test(get_class($b2) == ($NS ? "Test\\B" : "Test_B"));
         test($b2->sb == "B2.sb");
         test($b2->pb === $b1); // Object identity comparison
 
@@ -126,7 +136,7 @@ function allTests($communicator)
     {
         $b1 = $test->D1AsB();
         test($b1 != null);
-        test(get_class($b1) == "Test_D1");
+        test(get_class($b1) == ($NS ? "Test\\D1" : "Test_D1"));
         test($b1->sb == "D1.sb");
         test($b1->pb != null);
         test($b1->pb !== $b1); // Object identity comparison
@@ -140,7 +150,7 @@ function allTests($communicator)
         test($b2 != null);
         test($b2->pb === $b1); // Object identity comparison
         test($b2->sb == "D2.sb");
-        test(get_class($b2) == "Test_B");
+        test(get_class($b2) == ($NS ? "Test\\B" : "Test_B"));
 
         //
         // Break cyclic dependencies - helps in detecting leaks.
@@ -154,14 +164,14 @@ function allTests($communicator)
     {
         $d1 = $test->D1AsD1();
         test($d1 != null);
-        test(get_class($d1) == "Test_D1");
+        test(get_class($d1) == ($NS ? "Test\\D1" : "Test_D1"));
         test($d1->sb == "D1.sb");
         test($d1->pb != null);
         test($d1->pb !== $d1); // Object identity comparison
 
         $b2 = $d1->pb;
         test($b2 != null);
-        test(get_class($b2) == "Test_B");
+        test(get_class($b2) == ($NS ? "Test\\B" : "Test_B"));
         test($b2->sb == "D2.sb");
         test($b2->pb === $d1); // Object identity comparison
 
@@ -177,14 +187,14 @@ function allTests($communicator)
     {
         $b2 = $test->D2AsB();
         test($b2 != null);
-        test(get_class($b2) == "Test_B");
+        test(get_class($b2) == ($NS ? "Test\\B" : "Test_B"));
         test($b2->sb == "D2.sb");
         test($b2->pb != null);
         test($b2->pb !== $b2); // Object identity comparison
 
         $b1 = $b2->pb;
         test($b1 != null);
-        test(get_class($b1) == "Test_D1");
+        test(get_class($b1) == ($NS ? "Test\\D1" : "Test_D1"));
         test($b1->sb == "D1.sb");
         test($b1->pb === $b2); // Object identity comparison
         $d1 = $b1;
@@ -206,7 +216,7 @@ function allTests($communicator)
         $test->paramTest1($b1, $b2);
 
         test($b1 != null);
-        test(get_class($b1) == "Test_D1");
+        test(get_class($b1) == ($NS ? "Test\\D1" : "Test_D1"));
         test($b1->sb == "D1.sb");
         test($b1->pb === $b2); // Object identity comparison
         $d1 = $b1;
@@ -215,7 +225,7 @@ function allTests($communicator)
         test($d1->pd1 === $b2); // Object identity comparison
 
         test($b2 != null);
-        test(get_class($b2) == "Test_B"); // No factory, must be sliced
+        test(get_class($b2) == ($NS ? "Test\\B" : "Test_B")); // No factory, must be sliced
         test($b2->sb == "D2.sb");
         test($b2->pb === $b1); // Object identity comparison
 
@@ -232,7 +242,7 @@ function allTests($communicator)
         $test->paramTest2($b2, $b1);
 
         test($b1 != null);
-        test(get_class($b1) == "Test_D1");
+        test(get_class($b1) == ($NS ? "Test\\D1" : "Test_D1"));
         test($b1->sb == "D1.sb");
         test($b1->pb === $b2); // Object identity comparison
         $d1 = $b1;
@@ -241,7 +251,7 @@ function allTests($communicator)
         test($d1->pd1 === $b2); // Object identity comparison
 
         test($b2 != null);
-        test(get_class($b2) == "Test_B"); // No factory, must be sliced
+        test(get_class($b2) == ($NS ? "Test\\B" : "Test_B")); // No factory, must be sliced
         test($b2->sb == "D2.sb");
         test($b2->pb === $b1); // Object identity comparison
 
@@ -281,10 +291,10 @@ function allTests($communicator)
     echo "testing return value identity for input params known first... ";
     flush();
     {
-        $d1 = new Test_D1;
+        $d1 = $NS ? eval("return new Test\\D1;") : eval("return new Test_D1;");
         $d1->sb = "D1.sb";
         $d1->sd1 = "D1.sd1";
-        $d3 = new Test_D3;
+        $d3 = $NS ? eval("return new Test\\D3;") : eval("return new Test_D3;");
         $d3->pb = $d1;
         $d3->sb = "D3.sb";
         $d3->sd3 = "D3.sd3";
@@ -296,7 +306,7 @@ function allTests($communicator)
 
         test($b1 != null);
         test($b1->sb == "D1.sb");
-        test(get_class($b1) == "Test_D1");
+        test(get_class($b1) == ($NS ? "Test\\D1" : "Test_D1"));
         $p1 = $b1;
         test($p1 != null);
         test($p1->sd1 == "D1.sd1");
@@ -305,9 +315,9 @@ function allTests($communicator)
         $b2 = $b1->pb;
         test($b2 != null);
         test($b2->sb == "D3.sb");
-        test(get_class($b2) == "Test_B"); // Sliced by server
+        test(get_class($b2) == ($NS ? "Test\\B" : "Test_B")); // Sliced by server
         test($b2->pb === $b1); // Object identity comparison
-        test(!($b2 instanceof Test_D3));
+        test(!($b2 instanceof $d3cls));
 
         test($b1 !== $d1);
         test($b1 !== $d3);
@@ -327,10 +337,10 @@ function allTests($communicator)
     echo "testing return value identity for input params unknown first... ";
     flush();
     {
-        $d1 = new Test_D1;
+        $d1 = $NS ? eval("return new Test\\D1;") : eval("return new Test_D1;");
         $d1->sb = "D1.sb";
         $d1->sd1 = "D1.sd1";
-        $d3 = new Test_D3;
+        $d3 = $NS ? eval("return new Test\\D3;") : eval("return new Test_D3;");
         $d3->pb = $d1;
         $d3->sb = "D3.sb";
         $d3->sd3 = "D3.sd3";
@@ -342,16 +352,16 @@ function allTests($communicator)
 
         test($b1 != null);
         test($b1->sb == "D3.sb");
-        test(get_class($b1) == "Test_B"); // Sliced by server
-        test(!($b1 instanceof Test_D3));
+        test(get_class($b1) == ($NS ? "Test\\B" : "Test_B")); // Sliced by server
+        test(!($b1 instanceof $d3cls));
 
         $b2 = $b1->pb;
         test($b2 != null);
         test($b2->sb == "D1.sb");
-        test(get_class($b2) == "Test_D1");
+        test(get_class($b2) == ($NS ? "Test\\D1" : "Test_D1"));
         test($b2->pb === $b1); // Object identity comparison
         $p3 = $b2;
-        test($p3 instanceof Test_D1);
+        test($p3 instanceof $d1cls);
         test($p3->sd1 == "D1.sd1");
         test($p3->pd1 === $b1); // Object identity comparison
 
@@ -373,10 +383,10 @@ function allTests($communicator)
     echo "testing return value identity for input params unknown first... ";
     flush();
     {
-        $d1 = new Test_D1;
+        $d1 = $NS ? eval("return new Test\\D1;") : eval("return new Test_D1;");
         $d1->sb = "D1.sb";
         $d1->sd1 = "D1.sd1";
-        $d3 = new Test_D3;
+        $d3 = $NS ? eval("return new Test\\D3;") : eval("return new Test_D3;");
         $d3->pb = $d1;
         $d3->sb = "D3.sb";
         $d3->sd3 = "D3.sd3";
@@ -388,16 +398,16 @@ function allTests($communicator)
 
         test($b1 != null);
         test($b1->sb == "D3.sb");
-        test(get_class($b1) == "Test_B"); // Sliced by server
-        test(!($b1 instanceof Test_D3));
+        test(get_class($b1) == ($NS ? "Test\\B" : "Test_B")); // Sliced by server
+        test(!($b1 instanceof $d3cls));
 
         $b2 = $b1->pb;
         test($b2 != null);
         test($b2->sb == "D1.sb");
-        test(get_class($b2) == "Test_D1");
+        test(get_class($b2) == ($NS ? "Test\\D1" : "Test_D1"));
         test($b2->pb === $b1); // Object identity comparison
         $p3 = $b2;
-        test($p3 instanceof Test_D1);
+        test($p3 instanceof $d1cls);
         test($p3->sd1 == "D1.sd1");
         test($p3->pd1 === $b1); // Object identity comparison
 
@@ -426,17 +436,17 @@ function allTests($communicator)
         test($p1 != null);
         test($p1->sb == "D2.sb (p1 1)");
         test($p1->pb == null);
-        test(get_class($p1) == "Test_B");
+        test(get_class($p1) == ($NS ? "Test\\B" : "Test_B"));
 
         test($p2 != null);
         test($p2->sb == "D2.sb (p2 1)");
         test($p2->pb == null);
-        test(get_class($p2) == "Test_B");
+        test(get_class($p2) == ($NS ? "Test\\B" : "Test_B"));
 
         test($ret != null);
         test($ret->sb == "D1.sb (p2 2)");
         test($ret->pb === null);
-        test(get_class($ret) == "Test_D1");
+        test(get_class($ret) == ($NS ? "Test\\D1" : "Test_D1"));
     }
     echo "ok\n";
 
@@ -448,36 +458,36 @@ function allTests($communicator)
         test($b != null);
         test($b->sb == "D4.sb (1)");
         test($b->pb == null);
-        test(get_class($b) == "Test_B");
+        test(get_class($b) == ($NS ? "Test\\B" : "Test_B"));
 
         test($ret != null);
         test($ret->sb == "B.sb (2)");
         test($ret->pb === null);
-        test(get_class($ret) == "Test_B");
+        test(get_class($ret) == ($NS ? "Test\\B" : "Test_B"));
     }
     echo "ok\n";
 
     echo "testing parameter pointer slicing with first instance marshaled in unknown derived as base... ";
     flush();
     {
-        $b1 = new Test_B;
+        $b1 = $NS ? eval("return new Test\\B;") : eval("return new Test_B;");
         $b1->sb = "B.sb(1)";
         $b1->pb = $b1;
 
-        $d3 = new Test_D3;
+        $d3 = $NS ? eval("return new Test\\D3;") : eval("return new Test_D3;");
         $d3->sb = "D3.sb";
         $d3->pb = $d3;
         $d3->sd3 = "D3.sd3";
         $d3->pd3 = $b1;
 
-        $b2 = new Test_B;
+        $b2 = $NS ? eval("return new Test\\B;") : eval("return new Test_B;");
         $b2->sb = "B.sb(2)";
         $b2->pb = $b1;
 
         $r = $test->returnTest3($d3, $b2);
 
         test($r != null);
-        test(get_class($r) == "Test_B");
+        test(get_class($r) == ($NS ? "Test\\B" : "Test_B"));
         test($r->sb == "D3.sb");
         test($r->pb === $r);
 
@@ -494,20 +504,20 @@ function allTests($communicator)
     echo "testing parameter pointer slicing with first instance marshaled in unknown derived as derived... ";
     flush();
     {
-        $d11 = new Test_D1;
+        $d11 = $NS ? eval("return new Test\\D1;") : eval("return new Test_D1;");
         $d11->sb = "D1.sb(1)";
         $d11->pb = $d11;
         $d11->pd1 = null;
         $d11->sd1 = "D1.sd1(1)";
 
-        $d3 = new Test_D3;
+        $d3 = $NS ? eval("return new Test\\D3;") : eval("return new Test_D3;");
         $d3->sb = "D3.sb";
         $d3->pb = $d3;
         $d3->sd3 = "D3.sd3";
         $d3->pd1 = null;
         $d3->pd3 = $d11;
 
-        $d12 = new Test_D1;
+        $d12 = $NS ? eval("return new Test\\D1;") : eval("return new Test_D1;");
         $d12->sb = "D1.sb(2)";
         $d12->pb = $d12;
         $d12->sd1 = "D1.sd1(2)";
@@ -515,7 +525,7 @@ function allTests($communicator)
 
         $r = $test->returnTest3($d3, $d12);
         test($r != null);
-        test(get_class($r) == "Test_B");
+        test(get_class($r) == ($NS ? "Test\\B" : "Test_B"));
         test($r->sb == "D3.sb");
         test($r->pb === $r);
 
@@ -535,31 +545,31 @@ function allTests($communicator)
     {
         $ss = null;
         {
-            $ss1b = new Test_B;
+            $ss1b = $NS ? eval("return new Test\\B;") : eval("return new Test_B;");
             $ss1b->sb = "B.sb";
             $ss1b->pb = $ss1b;
 
-            $ss1d1 = new Test_D1;
+            $ss1d1 = $NS ? eval("return new Test\\D1;") : eval("return new Test_D1;");
             $ss1d1->sb = "D1.sb";
             $ss1d1->sd1 = "D1.sd1";
             $ss1d1->pb = $ss1b;
 
-            $ss1d3 = new Test_D3;
+            $ss1d3 = $NS ? eval("return new Test\\D3;") : eval("return new Test_D3;");
             $ss1d3->sb = "D3.sb";
             $ss1d3->sd3 = "D3.sd3";
             $ss1d3->pb = $ss1b;
             $ss1d3->pd3 = null;
 
-            $ss2b = new Test_B;
+            $ss2b = $NS ? eval("return new Test\\B;") : eval("return new Test_B;");
             $ss2b->sb = "B.sb";
             $ss2b->pb = $ss1b;
 
-            $ss2d1 = new Test_D1;
+            $ss2d1 = $NS ? eval("return new Test\\D1;") : eval("return new Test_D1;");
             $ss2d1->sb = "D1.sb";
             $ss2d1->sd1 = "D1.sd1";
             $ss2d1->pb = $ss2b;
 
-            $ss2d3 = new Test_D3;
+            $ss2d3 = $NS ? eval("return new Test\\D3;") : eval("return new Test_D3;");
             $ss2d3->sb = "D3.sb";
             $ss2d3->sd3 = "D3.sd3";
             $ss2d3->pb = $ss2b;
@@ -571,10 +581,10 @@ function allTests($communicator)
             $ss2d1->pd1 = $ss1d3;
             $ss2d3->pd3 = $ss1d1;
 
-            $ss1 = new Test_SS1;
+            $ss1 = $NS ? eval("return new Test\\SS1;") : eval("return new Test_SS1;");
             $ss1->s = array($ss1b, $ss1d1, $ss1d3);
 
-            $ss2 = new Test_SS2;
+            $ss2 = $NS ? eval("return new Test\\SS2;") : eval("return new Test_SS2;");
             $ss2->s = array($ss2b, $ss2d1, $ss2d3);
 
             $ss = $test->sequenceTest($ss1, $ss2);
@@ -607,13 +617,13 @@ function allTests($communicator)
         test($ss2d1->pb === $ss2b);
         test($ss2d3->pb === $ss2b);
 
-        test(get_class($ss1b) == "Test_B");
-        test(get_class($ss1d1) == "Test_D1");
-        test(get_class($ss1d3) == "Test_B");
+        test(get_class($ss1b) == ($NS ? "Test\\B" : "Test_B"));
+        test(get_class($ss1d1) == ($NS ? "Test\\D1" : "Test_D1"));
+        test(get_class($ss1d3) == ($NS ? "Test\\B" : "Test_B"));
 
-        test(get_class($ss2b) == "Test_B");
-        test(get_class($ss2d1) == "Test_D1");
-        test(get_class($ss2d3) == "Test_B");
+        test(get_class($ss2b) == ($NS ? "Test\\B" : "Test_B"));
+        test(get_class($ss2d1) == ($NS ? "Test\\D1" : "Test_D1"));
+        test(get_class($ss2d3) == ($NS ? "Test\\B" : "Test_B"));
 
         //
         // Break cyclic dependencies - helps in detecting leaks.
@@ -628,7 +638,7 @@ function allTests($communicator)
         $bin = array();
         for($i = 0; $i < 10; $i++)
         {
-            $d1 = new Test_D1;
+            $d1 = $NS ? eval("return new Test\\D1;") : eval("return new Test_D1;");
             $d1->sb = sprintf("D1.%d", $i);
             $d1->pb = $d1;
             $d1->sd1 = $d1->sb;
@@ -666,7 +676,7 @@ function allTests($communicator)
             {
                 test($b->pb === $r[($i - 1) * 20]);
             }
-            test($b instanceof Test_D1);
+            test($b instanceof $d1cls);
             $d1 = $b;
             test($d1->sd1 == $s);
             test($d1->pd1 === $d1);
@@ -693,9 +703,14 @@ function allTests($communicator)
             $test->throwBaseAsBase();
             test(false);
         }
-        catch(Test_BaseException $e)
+        catch(Exception $e)
         {
-            test(get_class($e) == "Test_BaseException");
+            $excls = $NS ? "Test\\BaseException" : "Test_BaseException";
+            if(!($e instanceof $excls))
+            {
+                throw $ex;
+            }
+            test(get_class($e) == ($NS ? "Test\\BaseException" : "Test_BaseException"));
             test($e->sbe == "sbe");
             test($e->pb != null);
             test($e->pb->sb == "sb");
@@ -717,9 +732,14 @@ function allTests($communicator)
             $test->throwDerivedAsBase();
             test(false);
         }
-        catch(Test_DerivedException $e)
+        catch(Exception $e)
         {
-            test(get_class($e) == "Test_DerivedException");
+            $excls = $NS ? "Test\\DerivedException" : "Test_DerivedException";
+            if(!($e instanceof $excls))
+            {
+                throw $ex;
+            }
+            test(get_class($e) == ($NS ? "Test\\DerivedException" : "Test_DerivedException"));
             test($e->sbe == "sbe");
             test($e->pb != null);
             test($e->pb->sb == "sb1");
@@ -749,9 +769,14 @@ function allTests($communicator)
             $test->throwDerivedAsDerived();
             test(false);
         }
-        catch(Test_DerivedException $e)
+        catch(Exception $e)
         {
-            test(get_class($e) == "Test_DerivedException");
+            $excls = $NS ? "Test\\DerivedException" : "Test_DerivedException";
+            if(!($e instanceof $excls))
+            {
+                throw $ex;
+            }
+            test(get_class($e) == ($NS ? "Test\\DerivedException" : "Test_DerivedException"));
             test($e->sbe == "sbe");
             test($e->pb != null);
             test($e->pb->sb == "sb1");
@@ -781,9 +806,14 @@ function allTests($communicator)
             $test->throwUnknownDerivedAsBase();
             test(false);
         }
-        catch(Test_BaseException $e)
+        catch(Exception $e)
         {
-            test(get_class($e) == "Test_BaseException");
+            $excls = $NS ? "Test\\BaseException" : "Test_BaseException";
+            if(!($e instanceof $excls))
+            {
+                throw $ex;
+            }
+            test(get_class($e) == ($NS ? "Test\\BaseException" : "Test_BaseException"));
             test($e->sbe == "sbe");
             test($e->pb != null);
             test($e->pb->sb == "sb d2");

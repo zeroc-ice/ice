@@ -16,8 +16,26 @@ if(!extension_loaded("ice"))
     exit(1);
 }
 
-require 'Ice.php';
+$NS = function_exists("Ice\\initialize");
+require ($NS ? 'Ice_ns.php' : 'Ice.php');
 require 'Test.php';
+
+if($NS)
+{
+    $code = <<<EOT
+        abstract class Test_B extends Test\B {}
+        abstract class Test_C extends Test\C {}
+        abstract class Test_D extends Test\D {}
+        abstract class Test_E extends Test\E {}
+        abstract class Test_F extends Test\F {}
+        interface Test_I extends Test\I {}
+        interface Test_J extends Test\J {}
+        class Test_H extends Test\H {}
+        class Ice_ObjectImpl extends Ice\ObjectImpl {}
+        interface Ice_ObjectFactory extends Ice\ObjectFactory {}
+EOT;
+    eval($code);
+}
 
 class BI extends Test_B
 {
@@ -96,12 +114,6 @@ class II extends Ice_ObjectImpl implements Test_I
 {
 }
 
-interface Foo1 {}
-interface Foo2 {}
-interface Foo3 {}
-class Foo4 extends Ice_ObjectImpl implements Foo3, Foo2, Foo1 {}
-class Foo5 extends Foo4 implements Test_I {}
-
 class JI extends Ice_ObjectImpl implements Test_J
 {
 }
@@ -165,6 +177,8 @@ function test($b)
 
 function allTests($communicator)
 {
+    global $NS;
+
     echo "testing stringToProxy... ";
     flush();
     $ref = "initial:default -p 12010";
@@ -335,8 +349,7 @@ function allTests($communicator)
 
     echo "setting I... ";
     flush();
-    //$initial->setI($i);
-    $initial->setI(new Foo5);
+    $initial->setI($i);
     $initial->setI($j);
     $initial->setI($h);
     echo "ok\n";
@@ -353,14 +366,15 @@ function allTests($communicator)
         $uoet->op();
         test(false);
     }
-    catch(Ice_UnexpectedObjectException $ex)
-    {
-        test($ex->type == "::Test::AlsoEmpty");
-        test($ex->expectedType == "::Test::Empty");
-    }
     catch(Exception $ex)
     {
-        echo $ex.getTraceAsString();
+        $uoe = $NS ? "Ice\\UnexpectedObjectException" : "Ice_UnexpectedObjectException";
+        if(!($ex instanceof $uoe))
+        {
+            throw $ex;
+        }
+        test($ex->type == "::Test::AlsoEmpty");
+        test($ex->expectedType == "::Test::Empty");
     }
     echo "ok\n";
 

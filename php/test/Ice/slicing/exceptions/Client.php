@@ -7,7 +7,8 @@ if(!extension_loaded("ice"))
     exit(1);
 }
 
-require 'Ice.php';
+$NS = function_exists("Ice\\initialize");
+require ($NS ? 'Ice_ns.php' : 'Ice.php');
 require 'Test.php';
 
 function test($b)
@@ -21,6 +22,8 @@ function test($b)
 
 function allTests($communicator)
 {
+    global $NS;
+
     $obj = $communicator->stringToProxy("Test:default -p 12010");
     $test = $obj->ice_checkedCast("::Test::TestIntf");
 
@@ -32,10 +35,15 @@ function allTests($communicator)
             $test->baseAsBase();
             test(false);
         }
-        catch(Test_Base $b)
+        catch(Exception $b)
         {
+            $excls = $NS ? "Test\\Base" : "Test_Base";
+            if(!($b instanceof $excls))
+            {
+                throw $ex;
+            }
             test($b->b == "Base.b");
-            test(get_class($b) == "Test_Base");
+            test(get_class($b) == ($NS ? "Test\\Base" : "Test_Base"));
         }
     }
     echo "ok\n";
@@ -48,10 +56,15 @@ function allTests($communicator)
             $test->unknownDerivedAsBase();
             test(false);
         }
-        catch(Test_Base $b)
+        catch(Exception $b)
         {
+            $excls = $NS ? "Test\\Base" : "Test_Base";
+            if(!($b instanceof $excls))
+            {
+                throw $ex;
+            }
             test($b->b == "UnknownDerived.b");
-            test(get_class($b) == "Test_Base");
+            test(get_class($b) == ($NS ? "Test\\Base" : "Test_Base"));
         }
     }
     echo "ok\n";
@@ -64,11 +77,16 @@ function allTests($communicator)
             $test->knownDerivedAsBase();
             test(false);
         }
-        catch(Test_KnownDerived $k)
+        catch(Exception $k)
         {
+            $excls = $NS ? "Test\\KnownDerived" : "Test_KnownDerived";
+            if(!($k instanceof $excls))
+            {
+                throw $ex;
+            }
             test($k->b == "KnownDerived.b");
             test($k->kd == "KnownDerived.kd");
-            test(get_class($k) == "Test_KnownDerived");
+            test(get_class($k) == ($NS ? "Test\\KnownDerived" : "Test_KnownDerived"));
         }
     }
     echo "ok\n";
@@ -81,11 +99,16 @@ function allTests($communicator)
             $test->knownDerivedAsKnownDerived();
             test(false);
         }
-        catch(Test_KnownDerived $k)
+        catch(Exception $k)
         {
+            $excls = $NS ? "Test\\KnownDerived" : "Test_KnownDerived";
+            if(!($k instanceof $excls))
+            {
+                throw $ex;
+            }
             test($k->b == "KnownDerived.b");
             test($k->kd == "KnownDerived.kd");
-            test(get_class($k) == "Test_KnownDerived");
+            test(get_class($k) == ($NS ? "Test\\KnownDerived" : "Test_KnownDerived"));
         }
     }
     echo "ok\n";
@@ -98,10 +121,15 @@ function allTests($communicator)
             $test->unknownIntermediateAsBase();
             test(false);
         }
-        catch(Test_Base $b)
+        catch(Exception $b)
         {
+            $excls = $NS ? "Test\\Base" : "Test_Base";
+            if(!($b instanceof $excls))
+            {
+                throw $ex;
+            }
             test($b->b == "UnknownIntermediate.b");
-            test(get_class($b) == "Test_Base");
+            test(get_class($b) == ($NS ? "Test\\Base" : "Test_Base"));
         }
     }
     echo "ok\n";
@@ -114,11 +142,16 @@ function allTests($communicator)
             $test->knownIntermediateAsBase();
             test(false);
         }
-        catch(Test_KnownIntermediate $ki)
+        catch(Exception $ki)
         {
+            $excls = $NS ? "Test\\KnownIntermediate" : "Test_KnownIntermediate";
+            if(!($ki instanceof $excls))
+            {
+                throw $ex;
+            }
             test($ki->b == "KnownIntermediate.b");
             test($ki->ki == "KnownIntermediate.ki");
-            test(get_class($ki) == "Test_KnownIntermediate");
+            test(get_class($ki) == ($NS ? "Test\\KnownIntermediate" : "Test_KnownIntermediate"));
         }
     }
     echo "ok\n";
@@ -131,12 +164,17 @@ function allTests($communicator)
             $test->knownMostDerivedAsBase();
             test(false);
         }
-        catch(Test_KnownMostDerived $kmd)
+        catch(Exception $kmd)
         {
+            $excls = $NS ? "Test\\KnownMostDerived" : "Test_KnownMostDerived";
+            if(!($kmd instanceof $excls))
+            {
+                throw $ex;
+            }
             test($kmd->b == "KnownMostDerived.b");
             test($kmd->ki == "KnownMostDerived.ki");
             test($kmd->kmd == "KnownMostDerived.kmd");
-            test(get_class($kmd) == "Test_KnownMostDerived");
+            test(get_class($kmd) == ($NS ? "Test\\KnownMostDerived" : "Test_KnownMostDerived"));
         }
     }
     echo "ok\n";
@@ -149,11 +187,16 @@ function allTests($communicator)
             $test->knownIntermediateAsKnownIntermediate();
             test(false);
         }
-        catch(Test_KnownIntermediate $ki)
+        catch(Exception $ki)
         {
+            $excls = $NS ? "Test\\KnownIntermediate" : "Test_KnownIntermediate";
+            if(!($ki instanceof $excls))
+            {
+                throw $ex;
+            }
             test($ki->b == "KnownIntermediate.b");
             test($ki->ki == "KnownIntermediate.ki");
-            test(get_class($ki) == "Test_KnownIntermediate");
+            test(get_class($ki) == ($NS ? "Test\\KnownIntermediate" : "Test_KnownIntermediate"));
         }
     }
     echo "ok\n";
@@ -166,12 +209,17 @@ function allTests($communicator)
             $test->knownMostDerivedAsKnownIntermediate();
             test(false);
         }
-        catch(Test_KnownMostDerived $kmd)
+        catch(Exception $kmd)
         {
+            $excls = $NS ? "Test\\KnownMostDerived" : "Test_KnownMostDerived";
+            if(!($kmd instanceof $excls))
+            {
+                throw $ex;
+            }
             test($kmd->b == "KnownMostDerived.b");
             test($kmd->ki == "KnownMostDerived.ki");
             test($kmd->kmd == "KnownMostDerived.kmd");
-            test(get_class($kmd) == "Test_KnownMostDerived");
+            test(get_class($kmd) == ($NS ? "Test\\KnownMostDerived" : "Test_KnownMostDerived"));
         }
     }
     echo "ok\n";
@@ -184,12 +232,17 @@ function allTests($communicator)
             $test->knownMostDerivedAsKnownMostDerived();
             test(false);
         }
-        catch(Test_KnownMostDerived $kmd)
+        catch(Exception $kmd)
         {
+            $excls = $NS ? "Test\\KnownMostDerived" : "Test_KnownMostDerived";
+            if(!($kmd instanceof $excls))
+            {
+                throw $ex;
+            }
             test($kmd->b == "KnownMostDerived.b");
             test($kmd->ki == "KnownMostDerived.ki");
             test($kmd->kmd == "KnownMostDerived.kmd");
-            test(get_class($kmd) == "Test_KnownMostDerived");
+            test(get_class($kmd) == ($NS ? "Test\\KnownMostDerived" : "Test_KnownMostDerived"));
         }
     }
     echo "ok\n";
@@ -202,11 +255,16 @@ function allTests($communicator)
             $test->unknownMostDerived1AsBase();
             test(false);
         }
-        catch(Test_KnownIntermediate $ki)
+        catch(Exception $ki)
         {
+            $excls = $NS ? "Test\\KnownIntermediate" : "Test_KnownIntermediate";
+            if(!($ki instanceof $excls))
+            {
+                throw $ex;
+            }
             test($ki->b == "UnknownMostDerived1.b");
             test($ki->ki == "UnknownMostDerived1.ki");
-            test(get_class($ki) == "Test_KnownIntermediate");
+            test(get_class($ki) == ($NS ? "Test\\KnownIntermediate" : "Test_KnownIntermediate"));
         }
     }
     echo "ok\n";
@@ -219,11 +277,16 @@ function allTests($communicator)
             $test->unknownMostDerived1AsKnownIntermediate();
             test(false);
         }
-        catch(Test_KnownIntermediate $ki)
+        catch(Exception $ki)
         {
+            $excls = $NS ? "Test\\KnownIntermediate" : "Test_KnownIntermediate";
+            if(!($ki instanceof $excls))
+            {
+                throw $ex;
+            }
             test($ki->b == "UnknownMostDerived1.b");
             test($ki->ki == "UnknownMostDerived1.ki");
-            test(get_class($ki) == "Test_KnownIntermediate");
+            test(get_class($ki) == ($NS ? "Test\\KnownIntermediate" : "Test_KnownIntermediate"));
         }
     }
     echo "ok\n";
@@ -236,10 +299,15 @@ function allTests($communicator)
             $test->unknownMostDerived2AsBase();
             test(false);
         }
-        catch(Test_Base $b)
+        catch(Exception $b)
         {
+            $excls = $NS ? "Test\\Base" : "Test_Base";
+            if(!($b instanceof $excls))
+            {
+                throw $ex;
+            }
             test($b->b == "UnknownMostDerived2.b");
-            test(get_class($b) == "Test_Base");
+            test(get_class($b) == ($NS ? "Test\\Base" : "Test_Base"));
         }
     }
     echo "ok\n";

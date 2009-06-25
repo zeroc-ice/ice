@@ -16,7 +16,8 @@ if(!extension_loaded("ice"))
     exit(1);
 }
 
-require 'Ice.php';
+$NS = function_exists("Ice\\initialize");
+require ($NS ? 'Ice_ns.php' : 'Ice.php');
 require 'Test.php';
 
 function test($b)
@@ -30,6 +31,11 @@ function test($b)
 
 function allTests($communicator)
 {
+    global $NS;
+
+    $random = $NS ? constant("Ice\\EndpointSelectionType::Random") : constant("Ice_EndpointSelectionType::Random");
+    $ordered = $NS ? constant("Ice\\EndpointSelectionType::Ordered") : constant("Ice_EndpointSelectionType::Ordered");
+
     echo "testing stringToProxy... ";
     flush();
     $ref = "test:default -p 12010";
@@ -56,8 +62,13 @@ function allTests($communicator)
         $b1 = $communicator->stringToProxy("\"test -f facet'");
         test(false);
     }
-    catch(Ice_ProxyParseException $ex)
+    catch(Exception $ex)
     {
+        $ppe = $NS ? "Ice\\ProxyParseException" : "Ice_ProxyParseException";
+        if(!($ex instanceof $ppe))
+        {
+            throw $ex;
+        }
     }
     $b1 = $communicator->stringToProxy("\"test -f facet\"");
     test($b1->ice_getIdentity()->name == "test -f facet" && $b1->ice_getIdentity()->category == "" &&
@@ -73,8 +84,13 @@ function allTests($communicator)
         $b1 = $communicator->stringToProxy("test test");
         test(false);
     }
-    catch(Ice_ProxyParseException $ex)
+    catch(Exception $ex)
     {
+        $ppe = $NS ? "Ice\\ProxyParseException" : "Ice_ProxyParseException";
+        if(!($ex instanceof $ppe))
+        {
+            throw $ex;
+        }
     }
     $b1 = $communicator->stringToProxy("test\\040test");
     test($b1->ice_getIdentity()->name == "test test" && $b1->ice_getIdentity()->category == "");
@@ -83,8 +99,13 @@ function allTests($communicator)
         $b1 = $communicator->stringToProxy("test\\777");
         test(false);
     }
-    catch(Ice_IdentityParseException $ex)
+    catch(Exception $ex)
     {
+        $ipe = $NS ? "Ice\\IdentityParseException" : "Ice_IdentityParseException";
+        if(!($ex instanceof $ipe))
+        {
+            throw $ex;
+        }
     }
     $b1 = $communicator->stringToProxy("test\\40test");
     test($b1->ice_getIdentity()->name == "test test");
@@ -114,8 +135,13 @@ function allTests($communicator)
         $b1 = $communicator->stringToProxy("id@adapter test");
         test(false);
     }
-    catch(Ice_ProxyParseException $ex)
+    catch(Exception $ex)
     {
+        $ppe = $NS ? "Ice\\ProxyParseException" : "Ice_ProxyParseException";
+        if(!($ex instanceof $ppe))
+        {
+            throw $ex;
+        }
     }
     $b1 = $communicator->stringToProxy("category/test@adapter");
     test($b1->ice_getIdentity()->name == "test" && $b1->ice_getIdentity()->category == "category" &&
@@ -153,16 +179,26 @@ function allTests($communicator)
         $b1 = $communicator->stringToProxy("id -f \"facet x");
         test(false);
     }
-    catch(Ice_ProxyParseException $ex)
+    catch(Exception $ex)
     {
+        $ppe = $NS ? "Ice\\ProxyParseException" : "Ice_ProxyParseException";
+        if(!($ex instanceof $ppe))
+        {
+            throw $ex;
+        }
     }
     try
     {
         $b1 = $communicator->stringToProxy("id -f \'facet x");
         test(false);
     }
-    catch(Ice_ProxyParseException $ex)
+    catch(Exception $ex)
     {
+        $ppe = $NS ? "Ice\\ProxyParseException" : "Ice_ProxyParseException";
+        if(!($ex instanceof $ppe))
+        {
+            throw $ex;
+        }
     }
     $b1 = $communicator->stringToProxy("test -f facet:tcp");
     test($b1->ice_getIdentity()->name == "test" && $b1->ice_getIdentity()->category == "" &&
@@ -184,8 +220,13 @@ function allTests($communicator)
         $b1 = $communicator->stringToProxy("test -f facet@test @test");
         test(false);
     }
-    catch(Ice_ProxyParseException $ex)
+    catch(Exception $ex)
     {
+        $ppe = $NS ? "Ice\\ProxyParseException" : "Ice_ProxyParseException";
+        if(!($ex instanceof $ppe))
+        {
+            throw $ex;
+        }
     }
     $b1 = $communicator->stringToProxy("test");
     test($b1->ice_isTwoway());
@@ -209,8 +250,13 @@ function allTests($communicator)
         $b1 = $communicator->stringToProxy("test:tcp@adapterId");
         test(false);
     }
-    catch(Ice_EndpointParseException $ex)
+    catch(Exception $ex)
     {
+        $epe = $NS ? "Ice\\EndpointParseException" : "Ice_EndpointParseException";
+        if(!($ex instanceof $epe))
+        {
+            throw $ex;
+        }
     }
     // This is an unknown endpoint warning, not a parse exception.
     //
@@ -227,8 +273,13 @@ function allTests($communicator)
         $b1 = $communicator->stringToProxy("test::tcp");
         test(false);
     }
-    catch(Ice_EndpointParseException $ex)
+    catch(Exception $ex)
     {
+        $epe = $NS ? "Ice\\EndpointParseException" : "Ice_EndpointParseException";
+        if(!($ex instanceof $epe))
+        {
+            throw $ex;
+        }
     }
     echo "ok\n";
 
@@ -306,13 +357,13 @@ function allTests($communicator)
     $communicator->getProperties()->setProperty($property, "");
 
     $property = $propertyPrefix . ".EndpointSelection";
-    test($b1->ice_getEndpointSelection() == Ice_EndpointSelectionType::Random);
+    test($b1->ice_getEndpointSelection() == $random);
     $communicator->getProperties()->setProperty($property, "Random");
     $b1 = $communicator->propertyToProxy($propertyPrefix);
-    test($b1->ice_getEndpointSelection() == Ice_EndpointSelectionType::Random);
+    test($b1->ice_getEndpointSelection() == $random);
     $communicator->getProperties()->setProperty($property, "Ordered");
     $b1 = $communicator->propertyToProxy($propertyPrefix);
-    test($b1->ice_getEndpointSelection() == Ice_EndpointSelectionType::Ordered);
+    test($b1->ice_getEndpointSelection() == $ordered);
     $communicator->getProperties()->setProperty($property, "");
 
     //$property = $propertyPrefix . ".CollocationOptimized";
@@ -375,8 +426,13 @@ function allTests($communicator)
         $p = $communicator->stringToProxy("id:opaque -t 99 -v abc -x abc");
         test(false);
     }
-    catch(Ice_EndpointParseException $ex)
+    catch(Exception $ex)
     {
+        $epe = $NS ? "Ice\\EndpointParseException" : "Ice_EndpointParseException";
+        if(!($ex instanceof $epe))
+        {
+            throw $ex;
+        }
     }
 
     try
@@ -385,8 +441,13 @@ function allTests($communicator)
         $p = $communicator->stringToProxy("id:opaque");
         test(false);
     }
-    catch(Ice_EndpointParseException $ex)
+    catch(Exception $ex)
     {
+        $epe = $NS ? "Ice\\EndpointParseException" : "Ice_EndpointParseException";
+        if(!($ex instanceof $epe))
+        {
+            throw $ex;
+        }
     }
 
     try
@@ -395,8 +456,13 @@ function allTests($communicator)
         $p = $communicator->stringToProxy("id:opaque -t 1 -t 1 -v abc");
         test(false);
     }
-    catch(Ice_EndpointParseException $ex)
+    catch(Exception $ex)
     {
+        $epe = $NS ? "Ice\\EndpointParseException" : "Ice_EndpointParseException";
+        if(!($ex instanceof $epe))
+        {
+            throw $ex;
+        }
     }
 
     try
@@ -405,8 +471,13 @@ function allTests($communicator)
         $p = $communicator->stringToProxy("id:opaque -t 1 -v abc -v abc");
         test(false);
     }
-    catch(Ice_EndpointParseException $ex)
+    catch(Exception $ex)
     {
+        $epe = $NS ? "Ice\\EndpointParseException" : "Ice_EndpointParseException";
+        if(!($ex instanceof $epe))
+        {
+            throw $ex;
+        }
     }
 
     try
@@ -415,8 +486,13 @@ function allTests($communicator)
         $p = $communicator->stringToProxy("id:opaque -v abc");
         test(false);
     }
-    catch(Ice_EndpointParseException $ex)
+    catch(Exception $ex)
     {
+        $epe = $NS ? "Ice\\EndpointParseException" : "Ice_EndpointParseException";
+        if(!($ex instanceof $epe))
+        {
+            throw $ex;
+        }
     }
 
     try
@@ -425,8 +501,13 @@ function allTests($communicator)
         $p = $communicator->stringToProxy("id:opaque -t 1");
         test(false);
     }
-    catch(Ice_EndpointParseException $ex)
+    catch(Exception $ex)
     {
+        $epe = $NS ? "Ice\\EndpointParseException" : "Ice_EndpointParseException";
+        if(!($ex instanceof $epe))
+        {
+            throw $ex;
+        }
     }
 
     try
@@ -435,8 +516,13 @@ function allTests($communicator)
         $p = $communicator->stringToProxy("id:opaque -t -v abc");
         test(false);
     }
-    catch(Ice_EndpointParseException $ex)
+    catch(Exception $ex)
     {
+        $epe = $NS ? "Ice\\EndpointParseException" : "Ice_EndpointParseException";
+        if(!($ex instanceof $epe))
+        {
+            throw $ex;
+        }
     }
 
     try
@@ -445,8 +531,13 @@ function allTests($communicator)
         $p = $communicator->stringToProxy("id:opaque -t 1 -v");
         test(false);
     }
-    catch(Ice_EndpointParseException $ex)
+    catch(Exception $ex)
     {
+        $epe = $NS ? "Ice\\EndpointParseException" : "Ice_EndpointParseException";
+        if(!($ex instanceof $epe))
+        {
+            throw $ex;
+        }
     }
 
     try
@@ -455,8 +546,13 @@ function allTests($communicator)
         $p = $communicator->stringToProxy("id:opaque -t x -v abc");
         test(false);
     }
-    catch(Ice_EndpointParseException $ex)
+    catch(Exception $ex)
     {
+        $epe = $NS ? "Ice\\EndpointParseException" : "Ice_EndpointParseException";
+        if(!($ex instanceof $epe))
+        {
+            throw $ex;
+        }
     }
 
     try
@@ -465,8 +561,13 @@ function allTests($communicator)
         $p = $communicator->stringToProxy("id:opaque -t -1 -v abc");
         test(false);
     }
-    catch(Ice_EndpointParseException $ex)
+    catch(Exception $ex)
     {
+        $epe = $NS ? "Ice\\EndpointParseException" : "Ice_EndpointParseException";
+        if(!($ex instanceof $epe))
+        {
+            throw $ex;
+        }
     }
 
     try
@@ -475,8 +576,13 @@ function allTests($communicator)
         $p = $communicator->stringToProxy("id:opaque -t 99 -v x?c");
         test(false);
     }
-    catch(Ice_EndpointParseException $ex)
+    catch(Exception $ex)
     {
+        $epe = $NS ? "Ice\\EndpointParseException" : "Ice_EndpointParseException";
+        if(!($ex instanceof $epe))
+        {
+            throw $ex;
+        }
     }
 
     // Legal TCP endpoint expressed as opaque endpoint
@@ -524,13 +630,22 @@ function allTests($communicator)
             $p1->ice_ping();
             test(false);
         }
-        catch(Ice_NoEndpointException $ex)
+        catch(Exception $ex)
         {
-            test(!$ssl);
-        }
-        catch(Ice_ConnectionRefusedException $ex)
-        {
-            test($ssl);
+            $nee = $NS ? "Ice\\NoEndpointException" : "Ice_NoEndpointException";
+            $cre = $NS ? "Ice\\ConnectionRefusedException" : "Ice_ConnectionRefusedException";
+            if($ex instanceof $nee)
+            {
+                test(!$ssl);
+            }
+            elseif($ex instanceof $cre)
+            {
+                test($ssl);
+            }
+            else
+            {
+                throw $ex;
+            }
         }
 
         //

@@ -10,7 +10,7 @@ Follow these steps to install the demo:
 2) Install the following files in your Web server's document
    directory:
 
-   * client.php
+   * client.php (or client_ns.php, if using PHP namespaces)
    * Hello.php
 
    The file Hello.php is generated from Hello.ice when you run make or
@@ -20,7 +20,7 @@ Follow these steps to install the demo:
 3) In a command window on the Web server host, start a hello server.
    You can use a server from any Ice language mapping.
 
-4) Start a Web browser and open the client.php page to begin using the
+4) Start a Web browser and open the client page to begin using the
    demo. Note that support for secure invocations via SSL are disabled
    by default. If you have configured SSL for the Ice extension, edit
    client.php and set the have_ssl variable to true.
@@ -52,11 +52,11 @@ the following:
 
   (add the -P option to make this setting persistent across reboots)
 
-- Make sure any .ice file used by your PHP scripts can be read by 
+- Make sure any .php file used by your application can be read by 
   httpd. The enclosing directory also needs to be accessible. For
   example:
 
-  # chcon -R -t httpd_sys_content_t /opt/MyApp/slice 
+  # chcon -R -t httpd_sys_content_t /opt/MyApp
 
 For more information on SELinux in Red Hat Enterprise Linux 4, refer
 to the link below:

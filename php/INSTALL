@@ -271,7 +271,15 @@ files, so you can install them anywhere you like. For example, you can
 simply include them in the same directory as your application scripts.
 Alternatively, if you prefer to install them in a common directory,
 you may need to modify PHP's include_path directive so that the PHP
-interpreter is able to locate these files.
+interpreter is able to locate these files. Another option is to modify
+the include path from within your script prior to including any Ice
+run-time file. Here is an example that assumes Ice is installed in
+/opt:
+
+// PHP
+ini_set('include_path',
+  ini_get('include_path') . PATH_SEPARATOR . '/opt/Ice-@ver@/php');
+require 'Ice.php'; // Load the core Ice run time definitions.
 
 
 ======================================================================

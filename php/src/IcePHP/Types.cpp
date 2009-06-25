@@ -89,6 +89,9 @@ static void
 addClassInfoByName(const ClassInfoPtr& p TSRMLS_DC)
 {
     assert(!getClassInfoByName(p->name TSRMLS_CC));
+#ifdef ICEPHP_USE_NAMESPACES
+    assert(name[0] == '\\');
+#endif
 
     ClassInfoMap* m = reinterpret_cast<ClassInfoMap*>(ICE_G(nameToClassInfoMap));
     if(!m)
@@ -162,8 +165,21 @@ IcePHP::getClassInfoByName(const string& name TSRMLS_DC)
 {
     if(ICE_G(nameToClassInfoMap))
     {
+        string s = name;
+
+#ifdef ICEPHP_USE_NAMESPACES
+        //
+        // PHP's class definition (zend_class_entry) does not use a leading backslash
+        // in the class name.
+        //
+        if(s[0] != '\\')
+        {
+            s.insert(0, "\\");
+        }
+#endif
+
         ClassInfoMap* m = reinterpret_cast<ClassInfoMap*>(ICE_G(nameToClassInfoMap));
-        ClassInfoMap::iterator p = m->find(name);
+        ClassInfoMap::iterator p = m->find(s);
         if(p != m->end())
         {
             return p->second;
