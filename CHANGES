@@ -176,6 +176,10 @@ C++ Changes
 Java Changes
 ============
 
+- Fixed a bug that caused UnmarshalOutOfBoundsException during an
+  attempt to unmarshal an exception or class if Ice.jar is installed
+  in the JVM's extension directory.
+
 - slice2java now preserves javadoc comments that appear in the Slice
   source and writes them through to the corresponding APIs in the
   generated code.
