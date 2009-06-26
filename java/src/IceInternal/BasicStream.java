@@ -2358,9 +2358,58 @@ public class BasicStream
     getConcreteClass(String className)
         throws LinkageError
     {
+        Class<?> c = null;
+
+        //
+        // Calling Class.forName() doesn't always work. For example, if Ice.jar is installed
+        // as an extension (in $JAVA_HOME/jre/lib/ext), calling Class.forName(name) uses the
+        // extension class loader, which will not look in CLASSPATH for the target class.
+        //
+        // First we try using the system class loader (which knows about CLASSPATH). Next we
+        // try the current thread's class loader, and finally we fall back to Class.forName().
+        //
         try
         {
-            Class<?> c = Class.forName(className);
+            try
+            {
+                c = getConcreteClass(className, ClassLoader.getSystemClassLoader());
+            }
+            catch(SecurityException ex)
+            {
+            }
+
+            if(c == null)
+            {
+                try
+                {
+                    c = getConcreteClass(className, Thread.currentThread().getContextClassLoader());
+                }
+                catch(SecurityException ex)
+                {
+                }
+            }
+
+            if(c == null)
+            {
+                c = Class.forName(className);
+            }
+        }
+        catch(ClassNotFoundException ex)
+        {
+            // Ignore
+        }
+
+        return c;
+    }
+
+    private Class<?>
+    getConcreteClass(String className, ClassLoader cl)
+        throws LinkageError
+    {
+        try
+        {
+            Class<?> c = cl.loadClass(className);
+
             //
             // Ensure the class is instantiable. The constants are
             // defined in the JVM specification (0x200 = interface,
