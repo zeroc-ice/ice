@@ -481,7 +481,13 @@ public class ServiceManagerI extends _ServiceManagerDisp
         info.args = args;
         try
         {
-            Class<?> c = Class.forName(className);
+            Class<?> c = IceInternal.Util.findClass(className);
+            if(c == null)
+            {
+                FailureException e = new FailureException();
+                e.reason = "ServiceManager: class " + className + " not found";
+                throw e;
+            }
             java.lang.Object obj = c.newInstance();
             try
             {
@@ -493,13 +499,6 @@ public class ServiceManagerI extends _ServiceManagerDisp
                 e.reason = "ServiceManager: class " + className + " does not implement IceBox.Service";
                 throw e;
             }
-        }
-        catch(ClassNotFoundException ex)
-        {
-            FailureException e = new FailureException();
-            e.reason = "ServiceManager: class " + className + " not found";
-            e.initCause(ex);
-            throw e;
         }
         catch(IllegalAccessException ex)
         {

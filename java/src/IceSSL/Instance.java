@@ -109,7 +109,7 @@ class Instance
             Class<?> cls = null;
             try
             {
-                cls = Class.forName(certVerifierClass);
+                cls = IceInternal.Util.findClass(certVerifierClass);
             }
             catch(Throwable ex)
             {
@@ -148,7 +148,7 @@ class Instance
             Class<?> cls = null;
             try
             {
-                cls = Class.forName(passwordCallbackClass);
+                cls = IceInternal.Util.findClass(passwordCallbackClass);
             }
             catch(Throwable ex)
             {

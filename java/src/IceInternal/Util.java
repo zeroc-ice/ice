@@ -59,4 +59,68 @@ public final class Util
 
         return stream;
     }
+
+    public static Class<?>
+    findClass(String className)
+        throws LinkageError
+    {
+        Class<?> c = null;
+
+        //
+        // Calling Class.forName() doesn't always work. For example, if Ice.jar is installed
+        // as an extension (in $JAVA_HOME/jre/lib/ext), calling Class.forName(name) uses the
+        // extension class loader, which will not look in CLASSPATH for the target class.
+        //
+        // First we try using the system class loader (which knows about CLASSPATH). Next we
+        // try the current thread's class loader, and finally we fall back to Class.forName().
+        //
+        try
+        {
+            try
+            {
+                c = findClass(className, ClassLoader.getSystemClassLoader());
+            }
+            catch(SecurityException ex)
+            {
+            }
+
+            if(c == null)
+            {
+                try
+                {
+                    c = findClass(className, Thread.currentThread().getContextClassLoader());
+                }
+                catch(SecurityException ex)
+                {
+                }
+            }
+
+            if(c == null)
+            {
+                c = Class.forName(className);
+            }
+        }
+        catch(ClassNotFoundException ex)
+        {
+            // Ignore
+        }
+
+        return c;
+    }
+
+    private static Class<?>
+    findClass(String className, ClassLoader cl)
+        throws LinkageError
+    {
+        try
+        {
+            return cl.loadClass(className);
+        }
+        catch(ClassNotFoundException ex)
+        {
+            // Ignore
+        }
+
+        return null;
+    }
 }

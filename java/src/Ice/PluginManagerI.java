@@ -311,7 +311,13 @@ public final class PluginManagerI implements PluginManager
         PluginFactory pluginFactory = null;
         try
         {
-            Class<?> c = Class.forName(className);
+            Class<?> c = IceInternal.Util.findClass(className);
+            if(c == null)
+            {
+                PluginInitializationException e = new PluginInitializationException();
+                e.reason = "class " + className + " not found";
+                throw e;
+            }
             java.lang.Object obj = c.newInstance();
             try
             {
@@ -324,13 +330,6 @@ public final class PluginManagerI implements PluginManager
                 e.initCause(ex);
                 throw e;
             }
-        }
-        catch(ClassNotFoundException ex)
-        {
-            PluginInitializationException e = new PluginInitializationException();
-            e.reason = "class " + className + " not found";
-            e.initCause(ex);
-            throw e;
         }
         catch(IllegalAccessException ex)
         {

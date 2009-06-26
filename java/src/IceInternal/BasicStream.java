@@ -820,12 +820,14 @@ public class BasicStream
         try
         {
             InputStreamWrapper w = new InputStreamWrapper(sz, this);
-            java.io.ObjectInputStream in = new java.io.ObjectInputStream(w);
+            ObjectInputStream in = new ObjectInputStream(w);
             return (java.io.Serializable)in.readObject();
         }
         catch(java.lang.Exception ex)
         {
-            throw new Ice.MarshalException("cannot deserialize object: " + ex);
+            Ice.MarshalException e = new Ice.MarshalException("cannot deserialize object");
+            e.initCause(ex);
+            throw e;
         }
     }
 
@@ -2358,58 +2360,10 @@ public class BasicStream
     getConcreteClass(String className)
         throws LinkageError
     {
-        Class<?> c = null;
+        Class<?> c = Util.findClass(className);
 
-        //
-        // Calling Class.forName() doesn't always work. For example, if Ice.jar is installed
-        // as an extension (in $JAVA_HOME/jre/lib/ext), calling Class.forName(name) uses the
-        // extension class loader, which will not look in CLASSPATH for the target class.
-        //
-        // First we try using the system class loader (which knows about CLASSPATH). Next we
-        // try the current thread's class loader, and finally we fall back to Class.forName().
-        //
-        try
+        if(c != null)
         {
-            try
-            {
-                c = getConcreteClass(className, ClassLoader.getSystemClassLoader());
-            }
-            catch(SecurityException ex)
-            {
-            }
-
-            if(c == null)
-            {
-                try
-                {
-                    c = getConcreteClass(className, Thread.currentThread().getContextClassLoader());
-                }
-                catch(SecurityException ex)
-                {
-                }
-            }
-
-            if(c == null)
-            {
-                c = Class.forName(className);
-            }
-        }
-        catch(ClassNotFoundException ex)
-        {
-            // Ignore
-        }
-
-        return c;
-    }
-
-    private Class<?>
-    getConcreteClass(String className, ClassLoader cl)
-        throws LinkageError
-    {
-        try
-        {
-            Class<?> c = cl.loadClass(className);
-
             //
             // Ensure the class is instantiable. The constants are
             // defined in the JVM specification (0x200 = interface,
@@ -2420,10 +2374,6 @@ public class BasicStream
             {
                 return c;
             }
-        }
-        catch(ClassNotFoundException ex)
-        {
-            // Ignore
         }
 
         return null;
@@ -2597,14 +2547,20 @@ public class BasicStream
         {
             Class<?> cls;
             Class<?>[] types = new Class<?>[1];
-            cls = Class.forName("org.apache.tools.bzip2.CBZip2InputStream");
-            types[0] = java.io.InputStream.class;
-            _bzInputStreamCtor = cls.getDeclaredConstructor(types);
-            cls = Class.forName("org.apache.tools.bzip2.CBZip2OutputStream");
-            types = new Class[2];
-            types[0] = java.io.OutputStream.class;
-            types[1] = Integer.TYPE;
-            _bzOutputStreamCtor = cls.getDeclaredConstructor(types);
+            cls = Util.findClass("org.apache.tools.bzip2.CBZip2InputStream");
+            if(cls != null)
+            {
+                types[0] = java.io.InputStream.class;
+                _bzInputStreamCtor = cls.getDeclaredConstructor(types);
+            }
+            cls = Util.findClass("org.apache.tools.bzip2.CBZip2OutputStream");
+            if(cls != null)
+            {
+                types = new Class[2];
+                types[0] = java.io.OutputStream.class;
+                types[1] = Integer.TYPE;
+                _bzOutputStreamCtor = cls.getDeclaredConstructor(types);
+            }
         }
         catch(Exception ex)
         {

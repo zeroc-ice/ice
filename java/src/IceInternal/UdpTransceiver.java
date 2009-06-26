@@ -455,8 +455,14 @@ final class UdpTransceiver implements Transceiver
     {
         try
         {
-            java.lang.reflect.Constructor<?> c =
-                Class.forName("java.net.PlainDatagramSocketImpl").getDeclaredConstructor((Class<?>[])null);
+            Class<?> cls;
+
+            cls = Util.findClass("java.net.PlainDatagramSocketImpl");
+            if(cls == null)
+            {
+                throw new Ice.SocketException();
+            }
+            java.lang.reflect.Constructor<?> c = cls.getDeclaredConstructor((Class<?>[])null);
             c.setAccessible(true);
             java.net.DatagramSocketImpl socketImpl = (java.net.DatagramSocketImpl)c.newInstance((Object[])null);
 
@@ -464,13 +470,16 @@ final class UdpTransceiver implements Transceiver
             // We have to invoke the protected create() method on the PlainDatagramSocketImpl object so
             // that this hack works properly when IPv6 is enabled on Windows.
             //
-            java.lang.reflect.Method m =
-                Class.forName("java.net.PlainDatagramSocketImpl").getDeclaredMethod("create", (Class<?>[])null);
+            java.lang.reflect.Method m = cls.getDeclaredMethod("create", (Class<?>[])null);
             m.setAccessible(true);
             m.invoke(socketImpl);
 
-            java.lang.reflect.Field channelFd = 
-                Class.forName("sun.nio.ch.DatagramChannelImpl").getDeclaredField("fd");
+            cls = Util.findClass("sun.nio.ch.DatagramChannelImpl");
+            if(cls == null)
+            {
+                throw new Ice.SocketException();
+            }
+            java.lang.reflect.Field channelFd = cls.getDeclaredField("fd");
             channelFd.setAccessible(true);
 
             java.lang.reflect.Field socketFd = java.net.DatagramSocketImpl.class.getDeclaredField("fd");

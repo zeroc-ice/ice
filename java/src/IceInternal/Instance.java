@@ -1063,11 +1063,15 @@ public final class Instance
             }
             String module = key.substring(prefix.length());
             String className = pkg + "." + module + "._Marker";
+            Class<?> cls = null;
             try
             {
-                Class.forName(className);
+                cls = Util.findClass(className);
             }
             catch(java.lang.Exception ex)
+            {
+            }
+            if(cls == null)
             {
                 _initData.logger.warning("unable to validate package: " + key + "=" + pkg);
             }
