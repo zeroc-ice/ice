@@ -31,6 +31,7 @@ public class Collocated
             adapter.addServantLocator(new ServantLocatorI("category"), "category");
             adapter.addServantLocator(new ServantLocatorI(""), "");
             adapter.add(new TestI(), communicator().stringToIdentity("asm"));
+            adapter.add(new TestActivationI(), communicator().stringToIdentity("test/activation"));
 
             AllTests.allTests(communicator(), true);
 

@@ -13,9 +13,9 @@ TARGETS		= client.exe server.exe serveramd.exe collocated.exe
 TARGETS_CONFIG	= $(TARGETS:.exe=.exe.config)
 
 C_SRCS		= Client.cs AllTests.cs
-S_SRCS		= Server.cs CookieI.cs ServantLocatorI.cs TestI.cs
-COL_SRCS	= Collocated.cs AllTests.cs CookieI.cs ServantLocatorI.cs TestI.cs
-SAMD_SRCS	= Server.cs CookieI.cs ServantLocatorI.cs TestAMDI.cs
+S_SRCS		= Server.cs CookieI.cs ServantLocatorI.cs TestI.cs TestActivationI.cs
+COL_SRCS	= Collocated.cs AllTests.cs CookieI.cs ServantLocatorI.cs TestI.cs TestActivationI.cs
+SAMD_SRCS	= Server.cs CookieI.cs ServantLocatorI.cs TestAMDI.cs TestActivationI.cs
 
 GEN_SRCS	= $(GDIR)\Test.cs
 GEN_AMD_SRCS	= $(GDIR)\TestAMD.cs

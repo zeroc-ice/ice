@@ -12,7 +12,7 @@ import os, sys, traceback, time
 
 import Ice
 Ice.loadSlice('TestAMD.ice')
-import Test, TestAMDI
+import Test, TestAMDI, TestActivationAMDI
 
 class TestServer(Ice.Application):
     def run(self, args):
@@ -23,6 +23,7 @@ class TestServer(Ice.Application):
         adapter.addServantLocator(TestAMDI.ServantLocatorI("category"), "category")
         adapter.addServantLocator(TestAMDI.ServantLocatorI(""), "")
         adapter.add(TestAMDI.TestI(), self.communicator().stringToIdentity("asm"))
+        adapter.add(TestActivationAMDI.TestActivationAMDI(), self.communicator().stringToIdentity("test/activation"))
 
         adapter.activate()
         adapter.waitForDeactivate()

@@ -259,6 +259,23 @@ public sealed class ServantManager
             _locatorMap[category] = locator;
         }
     }
+
+    public Ice.ServantLocator removeServantLocator(string category)
+    {
+        lock(this)
+        {
+            Debug.Assert(instance_ != null); // Must not be called after destruction.
+            
+            Ice.ServantLocator l;
+            _locatorMap.TryGetValue(category, out l);
+            if(l != null)
+            {
+                _locatorMap.Remove(category);
+                l.deactivate(category);
+            }
+            return l;
+        }
+    }
     
     public Ice.ServantLocator findServantLocator(string category)
     {

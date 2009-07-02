@@ -283,6 +283,33 @@ public class AllTests
         testExceptions(obj, collocated);
         Console.Out.WriteLine("ok");
 
+        Console.Out.Write("testing servant locator removal... ");
+        Console.Out.Flush();
+        @base = communicator.stringToProxy("test/activation:default -p 12010");
+        TestActivationPrx activation = TestActivationPrxHelper.checkedCast(@base);
+        activation.activateServantLocator(false);
+        try
+        {
+            obj.ice_ping();
+            test(false);
+        }
+        catch(ObjectNotExistException)
+        {
+            Console.Out.WriteLine("ok");
+        }
+        Console.Out.Write("testing servant locator addition... ");
+        Console.Out.Flush();
+        activation.activateServantLocator(true);
+        try
+        {
+            obj.ice_ping();
+            Console.Out.WriteLine("ok");
+        }
+        catch(System.Exception)
+        {
+            test(false);
+        }
+
         return obj;
     }
 }

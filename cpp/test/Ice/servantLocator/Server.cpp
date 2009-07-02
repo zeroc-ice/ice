@@ -47,6 +47,25 @@ protected:
     }
 };
 
+class TestActivationI : public Test::TestActivation
+{
+public:
+
+    void activateServantLocator(bool activate, const Ice::Current& current)
+    {
+        if(activate)
+        {
+            current.adapter->addServantLocator(new ServantLocatorI(""), "");
+            current.adapter->addServantLocator(new ServantLocatorI("category"), "category");
+        }
+        else
+        {
+            current.adapter->removeServantLocator("");
+            current.adapter->removeServantLocator("category");
+        }
+    }
+};
+
 class TestServer : public Application
 {
 public:
@@ -72,6 +91,7 @@ TestServer::run(int argc, char* argv[])
     adapter->addServantLocator(new ServantLocatorI(""), "");
     adapter->addServantLocator(new ServantLocatorI("category"), "category");
     adapter->add(new TestI, communicator()->stringToIdentity("asm"));
+    adapter->add(new TestActivationI, communicator()->stringToIdentity("test/activation"));
     adapter->activate();
     adapter->waitForDeactivate();
     return EXIT_SUCCESS;

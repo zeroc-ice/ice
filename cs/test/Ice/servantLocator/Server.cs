@@ -30,7 +30,7 @@ public class Server
             adapter.addServantLocator(new ServantLocatorI("category"), "category");
             adapter.addServantLocator(new ServantLocatorI(""), "");
             adapter.add(new TestI(), communicator().stringToIdentity("asm"));
-
+            adapter.add(new TestActivationI(), communicator().stringToIdentity("test/activation"));
             adapter.activate();
             adapter.waitForDeactivate();
             return 0;

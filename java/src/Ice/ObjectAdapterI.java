@@ -512,6 +512,14 @@ public final class ObjectAdapterI implements ObjectAdapter
     }
 
     public synchronized ServantLocator
+    removeServantLocator(String prefix)
+    {
+        checkForDeactivation();
+
+        return _servantManager.removeServantLocator(prefix);
+    }
+
+    public synchronized ServantLocator
     findServantLocator(String prefix)
     {
         checkForDeactivation();

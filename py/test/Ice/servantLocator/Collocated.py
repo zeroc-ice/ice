@@ -12,7 +12,7 @@ import os, sys, traceback, time
 
 import Ice
 Ice.loadSlice('Test.ice')
-import Test, TestI, AllTests
+import Test, TestI, AllTests, TestActivationI
 
 class TestServer(Ice.Application):
     def run(self, args):
@@ -24,6 +24,7 @@ class TestServer(Ice.Application):
         adapter.addServantLocator(TestI.ServantLocatorI("category"), "category")
         adapter.addServantLocator(TestI.ServantLocatorI(""), "")
         adapter.add(TestI.TestI(), self.communicator().stringToIdentity("asm"))
+        adapter.add(TestActivationI.TestActivationI(), self.communicator().stringToIdentity("test/activation"))
 
         AllTests.allTests(self.communicator(), False)
 

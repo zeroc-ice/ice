@@ -43,6 +43,7 @@ public:
     bool hasServant(const Ice::Identity&) const;
 
     void addServantLocator(const Ice::ServantLocatorPtr& locator, const std::string&);
+    Ice::ServantLocatorPtr removeServantLocator(const std::string&);
     Ice::ServantLocatorPtr findServantLocator(const std::string&) const;
 
 private:

@@ -506,6 +506,16 @@ namespace Ice
                 _servantManager.addServantLocator(locator, prefix);
             }
         }
+
+        public ServantLocator removeServantLocator(string prefix)
+        {
+            lock(this)
+            {
+                checkForDeactivation();
+                
+                return _servantManager.removeServantLocator(prefix);
+            }
+        }
         
         public ServantLocator findServantLocator(string prefix)
         {

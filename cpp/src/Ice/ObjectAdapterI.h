@@ -69,6 +69,7 @@ public:
 
 
     virtual void addServantLocator(const ServantLocatorPtr&, const std::string&);
+    virtual ServantLocatorPtr removeServantLocator(const std::string&);
     virtual ServantLocatorPtr findServantLocator(const std::string&) const;
 
     virtual ObjectPrx createProxy(const Identity&) const;

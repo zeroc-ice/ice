@@ -195,4 +195,26 @@ def allTests(communicator, collocated):
     testExceptions(obj, collocated)
     print "ok"
 
+    print "testing servant locator removal...",
+    sys.stdout.flush()
+    base = communicator.stringToProxy("test/activation:default -p 12010")
+    activation = Test.TestActivationPrx.checkedCast(base)
+    activation.activateServantLocator(False)
+    try:
+        base = communicator.stringToProxy("category/finished:default -p 12010")
+        obj.ice_ping()
+        test(False)
+    except Ice.ObjectNotExistException:
+        pass
+    print "ok"
+
+    print "testing servant locator addition...",
+    sys.stdout.flush()
+    activation.activateServantLocator(True)
+    try:
+        obj.ice_ping()
+    except:
+        test(False)
+    print "ok"
+    
     return obj

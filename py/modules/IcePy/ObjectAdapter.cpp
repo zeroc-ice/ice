@@ -100,6 +100,8 @@ IcePy::ServantLocatorWrapper::ServantLocatorWrapper(PyObject* locator) :
 
 IcePy::ServantLocatorWrapper::~ServantLocatorWrapper()
 {
+    AdoptThread adoptThread; // Ensure the current thread is able to call into Python.
+    Py_DECREF(_locator);
 }
 
 Ice::ObjectPtr
@@ -241,8 +243,6 @@ IcePy::ServantLocatorWrapper::deactivate(const string& category)
 
         ex.raise();
     }
-
-    Py_DECREF(_locator);
 }
 
 PyObject*
@@ -1253,7 +1253,6 @@ adapterAddServantLocator(ObjectAdapterObject* self, PyObject* args)
     {
         return 0;
     }
-
     assert(self->adapter);
     try
     {
@@ -1267,6 +1266,47 @@ adapterAddServantLocator(ObjectAdapterObject* self, PyObject* args)
 
     Py_INCREF(Py_None);
     return Py_None;
+}
+
+#ifdef WIN32
+extern "C"
+#endif
+static PyObject*
+adapterRemoveServantLocator(ObjectAdapterObject* self, PyObject* args)
+{
+    PyObject* categoryObj;
+    if(!PyArg_ParseTuple(args, STRCAST("O"), &categoryObj))
+    {
+        return 0;
+    }
+
+    string category;
+    if(!getStringArg(categoryObj, "category", category))
+    {
+        return 0;
+    }
+
+    assert(self->adapter);
+    Ice::ServantLocatorPtr locator;
+    try
+    {
+        locator = (*self->adapter)->removeServantLocator(category);
+    }
+    catch(const Ice::Exception& ex)
+    {
+        setPythonException(ex);
+        return 0;
+    }
+
+    if(!locator)
+    {
+        Py_INCREF(Py_None);
+        return Py_None;
+    }
+
+    ServantLocatorWrapperPtr wrapper = ServantLocatorWrapperPtr::dynamicCast(locator);
+    assert(wrapper);
+    return wrapper->getObject();
 }
 
 #ifdef WIN32
@@ -1585,6 +1625,8 @@ static PyMethodDef AdapterMethods[] =
         PyDoc_STR(STRCAST("findDefaultServant(category) -> Ice.Object")) },
     { STRCAST("addServantLocator"), reinterpret_cast<PyCFunction>(adapterAddServantLocator), METH_VARARGS,
         PyDoc_STR(STRCAST("addServantLocator(Ice.ServantLocator, category) -> None")) },
+    { STRCAST("removeServantLocator"), reinterpret_cast<PyCFunction>(adapterRemoveServantLocator), METH_VARARGS,
+        PyDoc_STR(STRCAST("removeServantLocator(category) -> Ice.ServantLocator")) },
     { STRCAST("findServantLocator"), reinterpret_cast<PyCFunction>(adapterFindServantLocator), METH_VARARGS,
         PyDoc_STR(STRCAST("findServantLocator(category) -> Ice.ServantLocator")) },
     { STRCAST("createProxy"), reinterpret_cast<PyCFunction>(adapterCreateProxy), METH_VARARGS,

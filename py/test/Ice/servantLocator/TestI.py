@@ -72,7 +72,7 @@ class ServantLocatorI(Ice.ServantLocator):
 
     def __del__(self):
         test(self._deactivated)
-
+        
     def locate(self, current):
         test(not self._deactivated)
 

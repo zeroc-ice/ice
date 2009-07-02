@@ -484,11 +484,31 @@ local interface ObjectAdapter
      * not belong to any specific category.
      *
      * @see Identity
+     * @see removeServantLocator
      * @see findServantLocator
      * @see ServantLocator
      *
      **/
     void addServantLocator(ServantLocator locator, string category);
+
+    /**
+     *
+     * Remove a Servant Locator installed with this object adapter.
+     *
+     * @param category The category for which the Servant Locator can
+     * locate servants, or an empty string if the Servant Locator does
+     * not belong to any specific category.
+     *
+     * @return The Servant Locator, or null if no Servant Locator was
+     * found for the given category.
+     *
+     * @see Identity
+     * @see addServantLocator
+     * @see findServantLocator
+     * @see ServantLocator
+     *
+     **/
+    ServantLocator removeServantLocator(string category);
 
     /**
      *
@@ -503,6 +523,7 @@ local interface ObjectAdapter
      *
      * @see Identity
      * @see addServantLocator
+     * @see removeServantLocator
      * @see ServantLocator
      *
      **/

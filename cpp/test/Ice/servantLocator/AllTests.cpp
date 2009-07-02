@@ -307,6 +307,30 @@ allTests(const CommunicatorPtr& communicator, bool collocated)
     testExceptions(obj, collocated);
     cout << "ok" << endl;
 
+    cout << "testing servant locator removal... " << flush;
+    base = communicator->stringToProxy("test/activation:default -p 12010");
+    TestActivationPrx activation = TestActivationPrx::checkedCast(base);
+    activation->activateServantLocator(false);
+    try
+    {
+        obj->ice_ping();
+        test(false);
+    }
+    catch(Ice::ObjectNotExistException&)
+    {
+        cout << "ok" << endl;
+    }
+    cout << "testing servant locator addition... " << flush;
+    activation->activateServantLocator(true);
+    try
+    {
+        obj->ice_ping();
+        cout << "ok" << endl;
+    }
+    catch(...)
+    {
+        test(false);
+    }
     return obj;
 }
 

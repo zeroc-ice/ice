@@ -14,6 +14,9 @@ import java.io.PrintWriter;
 import test.Ice.servantLocator.Test.TestImpossibleException;
 import test.Ice.servantLocator.Test.TestIntfPrx;
 import test.Ice.servantLocator.Test.TestIntfPrxHelper;
+import test.Ice.servantLocator.Test.TestActivationPrx;
+import test.Ice.servantLocator.Test.TestActivationPrxHelper;
+
 import Ice.ObjectNotExistException;
 import Ice.ObjectPrx;
 import Ice.UnknownException;
@@ -285,6 +288,33 @@ public class AllTests
         obj = TestIntfPrxHelper.checkedCast(base);
         testExceptions(obj, collocated);
         out.println("ok");
+
+        out.print("testing servant locator removal... ");
+        out.flush();
+        base = communicator.stringToProxy("test/activation:default -p 12010");
+        TestActivationPrx activation = TestActivationPrxHelper.checkedCast(base);
+        activation.activateServantLocator(false);
+        try
+        {
+            obj.ice_ping();
+            test(false);
+        }
+        catch(ObjectNotExistException ex)
+        {
+            out.println("ok");
+        }
+        out.print("testing servant locator addition... ");
+        out.flush();
+        activation.activateServantLocator(true);
+        try
+        {
+            obj.ice_ping();
+            out.println("ok");
+        }
+        catch(Exception ex)
+        {
+            test(false);
+        }
 
         return obj;
     }

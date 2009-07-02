@@ -227,6 +227,19 @@ public final class ServantManager
     }
 
     public synchronized Ice.ServantLocator
+    removeServantLocator(String category)
+    {
+        assert(_instance != null); // Must not be called after destruction.
+
+        Ice.ServantLocator l = _locatorMap.remove(category);
+        if(l != null)
+        {
+            l.deactivate(category);
+        }
+        return l;
+    }
+
+    public synchronized Ice.ServantLocator
     findServantLocator(String category)
     {
         //

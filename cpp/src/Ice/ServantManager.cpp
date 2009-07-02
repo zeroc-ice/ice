@@ -341,6 +341,40 @@ IceInternal::ServantManager::addServantLocator(const ServantLocatorPtr& locator,
 }
 
 ServantLocatorPtr
+IceInternal::ServantManager::removeServantLocator(const string& category)
+{
+    IceUtil::Mutex::Lock sync(*this);
+
+    assert(_instance); // Must not be called after destruction.
+
+    map<string, ServantLocatorPtr>::iterator p = _locatorMap.end();
+    if(_locatorMapHint != p)
+    {
+        if(_locatorMapHint->first == category)
+        {
+            p = _locatorMapHint;
+        }
+    }
+
+    if(p == _locatorMap.end())
+    {
+        p = _locatorMap.find(category);
+    }
+
+    ServantLocatorPtr locator;
+
+    if(p != _locatorMap.end())
+    {
+        locator = p->second;
+        locator->deactivate(p->first);
+        _locatorMap.erase(p);
+        _locatorMapHint = _locatorMap.begin();
+    }
+
+    return locator;
+}
+
+ServantLocatorPtr
 IceInternal::ServantManager::findServantLocator(const string& category) const
 {
     IceUtil::Mutex::Lock sync(*this);

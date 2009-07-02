@@ -42,6 +42,11 @@ local class Cookie
     ["cpp:const"] string message();
 };
 
+interface TestActivation
+{
+    void activateServantLocator(bool activate);
+};
+
 };
 
 #endif

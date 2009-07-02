@@ -432,6 +432,9 @@ class ObjectAdapterI(ObjectAdapter):
     def addServantLocator(self, locator, category):
         self._impl.addServantLocator(locator, category)
 
+    def removeServantLocator(self, category):
+        return self._impl.removeServantLocator(category)
+
     def findServantLocator(self, category):
         return self._impl.findServantLocator(category)
 
