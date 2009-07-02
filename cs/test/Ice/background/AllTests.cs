@@ -711,6 +711,7 @@ public class AllTests
         //
         // First send small requests to test without auto-flushing.
         //
+        backgroundBatchOneway.ice_ping();
         backgroundBatchOneway.ice_getConnection().close(false);
         try
         {
@@ -731,6 +732,7 @@ public class AllTests
         //
         // Send bigger requests to test with auto-flushing.
         //
+        backgroundBatchOneway.ice_ping();
         backgroundBatchOneway.ice_getConnection().close(false);
         try
         {
@@ -752,6 +754,7 @@ public class AllTests
         // Then try the same thing with async flush.
         //
 
+        backgroundBatchOneway.ice_ping();
         backgroundBatchOneway.ice_getConnection().close(false);
         try
         {
@@ -770,6 +773,7 @@ public class AllTests
         backgroundBatchOneway.ice_flushBatchRequests_async(new FlushBatchRequestsCallback());
         backgroundBatchOneway.ice_getConnection().close(false);
 
+        backgroundBatchOneway.ice_ping();
         backgroundBatchOneway.ice_getConnection().close(false);
         try
         {

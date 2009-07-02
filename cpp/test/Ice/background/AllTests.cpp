@@ -845,6 +845,7 @@ validationTests(const ConfigurationPtr& configuration,
     //
     // First send small requests to test without auto-flushing.
     //
+    backgroundBatchOneway->ice_ping();
     backgroundBatchOneway->ice_getConnection()->close(false);
     try
     {
@@ -873,6 +874,7 @@ validationTests(const ConfigurationPtr& configuration,
     //
     // Send bigger requests to test with auto-flushing.
     //
+    backgroundBatchOneway->ice_ping();
     backgroundBatchOneway->ice_getConnection()->close(false);
     try
     {
@@ -902,6 +904,7 @@ validationTests(const ConfigurationPtr& configuration,
     // Then try the same thing with async flush.
     //
 
+    backgroundBatchOneway->ice_ping();
     backgroundBatchOneway->ice_getConnection()->close(false);
     try
     {
@@ -921,6 +924,7 @@ validationTests(const ConfigurationPtr& configuration,
     backgroundBatchOneway->ice_flushBatchRequests_async(fcb);
     backgroundBatchOneway->ice_getConnection()->close(false);
 
+    backgroundBatchOneway->ice_ping();
     backgroundBatchOneway->ice_getConnection()->close(false);
     try
     {
