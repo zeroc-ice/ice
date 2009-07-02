@@ -57,6 +57,7 @@ public class ConnectRequestHandler
 
     public void
     prepareBatchRequest(BasicStream os)
+        throws LocalExceptionWrapper
     {
         synchronized(this)
         {

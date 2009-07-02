@@ -74,5 +74,35 @@ class BatchOneways
         }
 
         batch.ice_getConnection().flushBatchRequests();
+
+        Test.MyClassPrx batch2 = Test.MyClassPrxHelper.uncheckedCast(p.ice_batchOneway());
+
+        batch.ice_ping();
+        batch2.ice_ping();
+        batch.ice_flushBatchRequests();
+        batch.ice_getConnection().close(false);
+        batch.ice_ping();
+        batch2.ice_ping();
+
+        batch.ice_ping();
+        batch.ice_getConnection().close(false);
+        try
+        {
+            batch.ice_ping();
+            test(false);
+        }
+        catch(Ice.CloseConnectionException ex)
+        {
+        }
+        try
+        {
+            batch2.ice_ping();
+            test(false);
+        }
+        catch(Ice.CloseConnectionException ex)
+        {
+        }
+        batch.ice_ping();
+        batch2.ice_ping();
     }
 }

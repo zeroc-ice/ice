@@ -63,4 +63,34 @@ batchOneways(const Test::MyClassPrx& p)
     }
     
     batch->ice_getConnection()->flushBatchRequests();
+
+    Test::MyClassPrx batch2 = Test::MyClassPrx::uncheckedCast(p->ice_batchOneway());
+
+    batch->ice_ping();
+    batch2->ice_ping();
+    batch->ice_flushBatchRequests();
+    batch->ice_getConnection()->close(false);
+    batch->ice_ping();
+    batch2->ice_ping();
+
+    batch->ice_ping();
+    batch->ice_getConnection()->close(false);
+    try
+    {
+        batch->ice_ping();
+        test(false);
+    }
+    catch(const Ice::CloseConnectionException&)
+    {
+    }
+    try
+    {
+        batch2->ice_ping();
+        test(false);
+    }
+    catch(const Ice::CloseConnectionException&)
+    {
+    }
+    batch->ice_ping();
+    batch2->ice_ping();
 }

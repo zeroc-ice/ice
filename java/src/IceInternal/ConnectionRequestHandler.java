@@ -13,6 +13,7 @@ public class ConnectionRequestHandler implements RequestHandler
 {
     public void
     prepareBatchRequest(BasicStream out)
+        throws LocalExceptionWrapper
     {
         _connection.prepareBatchRequest(out);
     }

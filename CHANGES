@@ -33,6 +33,12 @@ General Changes
 These entries apply to all relevant language mappings unless otherwise
 noted.
 
+- A batch invocation will now only throw if the connection associated
+  to the proxy failed and there were batch requests queued at the time
+  of the failure. If there were no batch requests queued, the batch
+  invocation won't throw but will instead try to obtain a new
+  connection.
+
 - Added the ability to read properties from the Windows registry. This
   is done by setting Ice.Config property to a value such as the
   following:

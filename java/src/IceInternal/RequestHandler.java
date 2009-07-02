@@ -11,7 +11,8 @@ package IceInternal;
 
 public interface RequestHandler
 {
-    void prepareBatchRequest(BasicStream out);
+    void prepareBatchRequest(BasicStream out)
+        throws LocalExceptionWrapper;
     void finishBatchRequest(BasicStream out);
     void abortBatchRequest();
 

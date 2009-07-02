@@ -459,6 +459,7 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
 
     public synchronized void
     prepareBatchRequest(IceInternal.BasicStream os)
+        throws IceInternal.LocalExceptionWrapper
     {
         //
         // Wait if flushing is currently in progress.
@@ -476,7 +477,19 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
 
         if(_exception != null)
         {
-            throw _exception;
+            //
+            // If there were no batch requests queued when the connection failed, we can safely 
+            // retry with a new connection. Otherwise, we must throw to notify the caller that 
+            // some previous batch requests were not sent.
+            //
+            if(_batchStream.isEmpty())
+            {
+                throw new IceInternal.LocalExceptionWrapper(_exception, true);
+            }
+            else
+            {
+                throw _exception;
+            }
         }
 
         assert(_state > StateNotValidated);

@@ -477,7 +477,19 @@ namespace Ice
 
                 if(_exception != null)
                 {
-                    throw _exception;
+                    //
+                    // If there were no batch requests queued when the connection failed, we can safely 
+                    // retry with a new connection. Otherwise, we must throw to notify the caller that 
+                    // some previous batch requests were not sent.
+                    //
+                    if(_batchStream.isEmpty())
+                    {
+                        throw new IceInternal.LocalExceptionWrapper(_exception, true);
+                    }
+                    else
+                    {
+                        throw _exception;
+                    }
                 }
 
                 Debug.Assert(_state > StateNotValidated);

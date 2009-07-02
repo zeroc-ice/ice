@@ -604,7 +604,19 @@ Ice::ConnectionI::prepareBatchRequest(BasicStream* os)
 
     if(_exception.get())
     {
-        _exception->ice_throw();
+        //
+        // If there were no batch requests queued when the connection failed, we can safely 
+        // retry with a new connection. Otherwise, we must throw to notify the caller that 
+        // some previous batch requests were not sent.
+        //
+        if(_batchStream.b.empty())
+        {
+            throw LocalExceptionWrapper(*_exception.get(), true);
+        }
+        else
+        {
+            _exception->ice_throw();
+        }
     }
 
     assert(_state > StateNotValidated);
