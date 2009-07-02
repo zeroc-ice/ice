@@ -2094,27 +2094,33 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
     writeDocComment(out, p, getDeprecateReason(p, 0, p->isInterface() ? "interface" : "class"));
     if(p->isInterface())
     {
-        out << nl << "public interface " << fixKwd(name) << " extends ";
-        out.useCurrentPosAsIndent();
-        if(p->isLocal())
+        out << nl << "public interface " << fixKwd(name);
+        if(!p->isLocal())
         {
-            out << "_" << name << "OperationsNC";
-        }
-        else
-        {
+            out << " extends ";
+            out.useCurrentPosAsIndent();
             out << "Ice.Object";
             out << "," << nl << '_' << name;
             out << "Operations, _" << name << "OperationsNC";
         }
-      
-        if(!bases.empty())
+        else
         {
-            ClassList::const_iterator q = bases.begin();
-            while(q != bases.end())
+            if(!bases.empty())
             {
-                out << ',' << nl << getAbsolute(*q, package);
-                q++;
+                out << " extends ";
             }
+            out.useCurrentPosAsIndent();
+        }
+      
+        ClassList::const_iterator q = bases.begin();
+        if(p->isLocal() && q != bases.end())
+        {
+            out << getAbsolute(*q++, package);
+        }
+        while(q != bases.end())
+        {
+            out << ',' << nl << getAbsolute(*q, package);
+            q++;
         }
         out.restoreIndent();
     }
@@ -2155,8 +2161,8 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
             if(!p->isLocal())
             {
                 implements.push_back("_" + name + "Operations");
+                implements.push_back("_" + name + "OperationsNC");
             }
-            implements.push_back("_" + name + "OperationsNC");
         }
         if(!bases.empty())
         {
@@ -2196,6 +2202,53 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
     }
 
     out << sb;
+
+    //
+    // For local classes and interfaces, we don't use the OperationsNC interface.
+    // Instead, we generated the operation signatures directly into the class
+    // or interface.
+    //
+    if(p->isLocal())
+    {
+        OperationList ops = p->operations();
+        OperationList::const_iterator r;
+        for(r = ops.begin(); r != ops.end(); ++r)
+        {
+            OperationPtr op = *r;
+            ContainerPtr container = op->container();
+            ClassDefPtr cl = ClassDefPtr::dynamicCast(container);
+            string opname = op->name();
+
+            TypePtr ret;
+            vector<string> params = getParams(op, package);
+            ret = op->returnType();
+
+            string retS = typeToString(ret, TypeModeReturn, package, op->getMetaData());
+            ExceptionList throws = op->throws();
+            throws.sort();
+            throws.unique();
+            out << sp;
+
+            writeDocComment(out, *r, getDeprecateReason(*r, p, "operation"));
+            out << nl;
+            if(!p->isInterface())
+            {
+                out << "public abstract ";
+            }
+            out << retS << ' ' << fixKwd(opname) << spar << params << epar;
+            if(op->hasMetaData("UserException"))
+            {
+                out.inc();
+                out << nl << "throws Ice.UserException";
+                out.dec();
+            }
+            else
+            {
+                writeThrowsClause(package, throws);
+            }
+            out << ';';
+        }
+    }
 
     if(!p->isInterface() && !allDataMembers.empty())
     {

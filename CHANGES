@@ -176,6 +176,10 @@ C++ Changes
 Java Changes
 ============
 
+- slice2java no longer generates a <name>OperationsNC interface for
+  local interfaces and classes. This makes the code easier to browse
+  with IDEs.
+
 - Fixed a bug that caused UnmarshalOutOfBoundsException during an
   attempt to unmarshal an exception or class if Ice.jar is installed
   in the JVM's extension directory.
@@ -231,6 +235,10 @@ Java Changes
 
 C# Changes
 ==========
+
+- slice2sc no longer generates a <name>OperationsNC interface for
+  local interfaces and classes. This makes the code easier to browse
+  with IDEs.
 
 - The generated types for Slice classes, interfaces, structs and
   exceptions are now declared as partial.

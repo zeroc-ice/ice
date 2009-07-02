@@ -1377,24 +1377,21 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
     emitAttributes(p);
     if(p->isInterface())
     {
-        _out << nl << "public partial interface " << fixId(name) << " : ";
-        if(p->isLocal())
+        _out << nl << "public partial interface " << fixId(name);
+        if(!p->isLocal())
         {
-            _out << name << "OperationsNC_";
-        }
-        else
-        {
-            _out << "Ice.Object, ";
+            _out << " : Ice.Object, ";
             _out << name << "Operations_, " << name << "OperationsNC_";
         }
-        if(!bases.empty())
+        ClassList::const_iterator q = bases.begin();
+        if(p->isLocal() && q != bases.end())
         {
-            ClassList::const_iterator q = bases.begin();
-            while(q != bases.end())
-            {
-                _out << ", " << fixId((*q)->scoped());
-                q++;
-            }
+            _out << " : " << fixId((*q++)->scoped());
+        }
+        while(q != bases.end())
+        {
+            _out << ", " << fixId((*q)->scoped());
+            q++;
         }
     }
     else
@@ -1422,7 +1419,7 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
             baseWritten = true;
             bases.pop_front();
         }
-        if(p->isAbstract())
+        if(p->isAbstract() && !p->isLocal())
         {
             if(baseWritten)
             {
@@ -1437,9 +1434,10 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
             if(!p->isLocal())
             {
                 _out << name << "Operations_, ";
+                _out << name << "OperationsNC_";
             }
-            _out << name << "OperationsNC_";
         }
+
         for(ClassList::const_iterator q = bases.begin(); q != bases.end(); ++q)
         {
             if((*q)->isAbstract())
@@ -1472,6 +1470,13 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
             _out << sp << nl << "#region Slice data members and operations";
         }
         else if(p->hasOperations())
+        {
+            _out << sp << nl << "#region Slice operations";
+        }
+    }
+    else
+    {
+        if(p->isLocal() && p->hasOperations())
         {
             _out << sp << nl << "#region Slice operations";
         }
@@ -1556,6 +1561,13 @@ Slice::Gen::TypesVisitor::visitClassDefEnd(const ClassDefPtr& p)
 
         writeInheritedOperations(p);
     }
+    else
+    {
+        if(p->isLocal() && p->hasOperations())
+        {
+            _out << sp << nl << "#endregion"; // Slice operations"
+        }
+    }
 
     if(!p->isInterface() && !p->isLocal())
     {
@@ -1570,7 +1582,12 @@ Slice::Gen::TypesVisitor::visitOperation(const OperationPtr& p)
 {
 
     ClassDefPtr classDef = ClassDefPtr::dynamicCast(p->container());
-    if(classDef->isInterface())
+
+    //
+    // Non-local classes and interfaces get the operations from their
+    // Operations base interfaces.
+    //
+    if(classDef->isInterface() && !classDef->isLocal())
     {
         return;
     }
@@ -1600,11 +1617,19 @@ Slice::Gen::TypesVisitor::visitOperation(const OperationPtr& p)
     }
 
     _out << sp;
-    emitAttributes(p);
-    _out << nl << "public ";
-    if(isLocal)
+    if(classDef->isInterface() && classDef->isLocal())
     {
-        _out << "abstract ";
+        _out << nl;
+    }
+
+    emitAttributes(p);
+    if(!classDef->isInterface())
+    {
+        _out << nl << "public ";
+        if(isLocal)
+        {
+            _out << "abstract ";
+        }
     }
     _out << retS << " " << name << spar << params << epar;
     if(isLocal)
@@ -3044,11 +3069,16 @@ Slice::Gen::OpsVisitor::visitClassDefStart(const ClassDefPtr& p)
 void
 Slice::Gen::OpsVisitor::writeOperations(const ClassDefPtr& p, bool noCurrent)
 {
+    if(p->isLocal())
+    {
+        return; // Local interfaces and classes don't have an Operations interface.
+    }
+
     string name = p->name();
     string scoped = fixId(p->scoped());
     ClassList bases = p->bases();
     string opIntfName = "Operations";
-    if(noCurrent || p->isLocal())
+    if(noCurrent)
     {
         opIntfName += "NC";
     }
