@@ -136,16 +136,20 @@ namespace IceInternal
                     //
                     if(selType == Ice.EndpointSelectionType.Random)
                     {
-                        for(int j = 0; j < cons.Count - 2; ++j)
-                        {
-                            int r = rand_.Next(cons.Count - j) + j;
-                            Debug.Assert(r >= j && r < cons.Count);
-                            if(r != j)
+                        lock(rand_)
+                        {       
+                            for(int j = 0; j < cons.Count - 1; ++j)
                             {
-                                Connector tmp = cons[j];
-                                cons[j] = cons[r];
-                                cons[r] = tmp;
+                                int r = rand_.Next(cons.Count - j) + j;
+                                Debug.Assert(r >= j && r < cons.Count);
+                                if(r != j)
+                                {
+                                    Connector tmp = cons[j];
+                                    cons[j] = cons[r];
+                                    cons[r] = tmp;
+                                }
                             }
+
                         }
                     }
 
@@ -1043,15 +1047,18 @@ namespace IceInternal
                 //
                 if(_selType == Ice.EndpointSelectionType.Random)
                 {
-                    for(int j = 0; j < cons.Count - 2; ++j)
+                    lock(rand_)
                     {
-                        int r = OutgoingConnectionFactory.rand_.Next(cons.Count - j) + j;
-                        Debug.Assert(r >= j && r < cons.Count);
-                        if(r != j)
+                        for(int j = 0; j < cons.Count - 1; ++j)
                         {
-                            Connector tmp = cons[j];
-                            cons[j] = cons[r];
-                            cons[r] = tmp;
+                            int r = OutgoingConnectionFactory.rand_.Next(cons.Count - j) + j;
+                            Debug.Assert(r >= j && r < cons.Count);
+                            if(r != j)
+                            {
+                                Connector tmp = cons[j];
+                                cons[j] = cons[r];
+                                cons[r] = tmp;
+                            }
                         }
                     }
                 }

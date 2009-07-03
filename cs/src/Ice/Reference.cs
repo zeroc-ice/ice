@@ -1367,15 +1367,18 @@ namespace IceInternal
             {
                 case Ice.EndpointSelectionType.Random:
                 {
-                    for(int i = 0; i < endpoints.Count - 2; ++i)
+                    lock(rand_)
                     {
-                        int r = rand_.Next(endpoints.Count - i) + i;
-                        Debug.Assert(r >= i && r < endpoints.Count);
-                        if(r != i)
+                        for(int i = 0; i < endpoints.Count - 1; ++i)
                         {
-                            object tmp = endpoints[i];
-                            endpoints[i] = endpoints[r];
-                            endpoints[r] = tmp;
+                            int r = rand_.Next(endpoints.Count - i) + i;
+                            Debug.Assert(r >= i && r < endpoints.Count);
+                            if(r != i)
+                            {
+                                object tmp = endpoints[i];
+                                endpoints[i] = endpoints[r];
+                                endpoints[r] = tmp;
+                            }
                         }
                     }
                     break;

@@ -242,6 +242,11 @@ Java Changes
 C# Changes
 ==========
 
+- Fixed bug where random endpoint selection would only work for
+  proxies with more than 2 endpoints.
+
+- Fixed thread safety issue in random endpoint selection.
+
 - slice2sc no longer generates a <name>OperationsNC interface for
   local interfaces and classes. This makes the code easier to browse
   with IDEs.
