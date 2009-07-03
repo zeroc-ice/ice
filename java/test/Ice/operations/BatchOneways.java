@@ -84,6 +84,9 @@ class BatchOneways
         batch.ice_ping();
         batch2.ice_ping();
 
+        batch.ice_getConnection();
+        batch2.ice_getConnection();
+
         batch.ice_ping();
         batch.ice_getConnection().close(false);
         try
