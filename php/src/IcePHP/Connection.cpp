@@ -68,7 +68,7 @@ ZEND_METHOD(Ice_Connection, close)
     assert(_this);
 
     zend_bool b;
-    if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "b", &b TSRMLS_CC) != SUCCESS)
+    if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, const_cast<char*>("b"), &b TSRMLS_CC) != SUCCESS)
     {
         RETURN_NULL();
     }

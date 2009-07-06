@@ -671,8 +671,8 @@ ZEND_FUNCTION(IcePHP_defineOperation)
     zval* returnType;
     zval* exceptions;
 
-    if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "oslla!a!o!a!", &cls, &name, &nameLen, &mode, &sendMode,
-                             &inParams, &outParams, &returnType, &exceptions) == FAILURE)
+    if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, const_cast<char*>("oslla!a!o!a!"), &cls, &name, &nameLen, &mode,
+                             &sendMode, &inParams, &outParams, &returnType, &exceptions) == FAILURE)
     {
         return;
     }

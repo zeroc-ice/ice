@@ -97,6 +97,9 @@ ZEND_END_MODULE_GLOBALS(ice)
 #   define ZEND_MN(name) ZEND_FN(name)
 #endif
 
+//
+// Newer versions of PHP use const char* instead of char* in most APIs.
+//
 #ifdef STRCAST
 #   error "STRCAST already defined!"
 #endif

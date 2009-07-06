@@ -2364,7 +2364,7 @@ ZEND_FUNCTION(IcePHP_defineEnum)
     int idLen;
     zval* enumerators;
 
-    if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "sa", &id, &idLen, &enumerators) == FAILURE)
+    if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, const_cast<char*>("sa"), &id, &idLen, &enumerators) == FAILURE)
     {
         return;
     }
@@ -2427,7 +2427,8 @@ ZEND_FUNCTION(IcePHP_defineStruct)
     int nameLen;
     zval* members;
 
-    if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "ssa", &id, &idLen, &name, &nameLen, &members) == FAILURE)
+    if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, const_cast<char*>("ssa"), &id, &idLen, &name, &nameLen,
+                             &members) == FAILURE)
     {
         return;
     }
@@ -2453,8 +2454,8 @@ ZEND_FUNCTION(IcePHP_defineSequence)
     zend_bool variableLength;
     long minWireSize;
 
-    if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "sobl", &id, &idLen, &element, &variableLength,
-                             &minWireSize) == FAILURE)
+    if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, const_cast<char*>("sobl"), &id, &idLen, &element,
+                             &variableLength, &minWireSize) == FAILURE)
     {
         return;
     }
@@ -2478,7 +2479,7 @@ ZEND_FUNCTION(IcePHP_defineDictionary)
     zval* key;
     zval* value;
 
-    if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "soo", &id, &idLen, &key, &value) == FAILURE)
+    if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, const_cast<char*>("soo"), &id, &idLen, &key, &value) == FAILURE)
     {
         return;
     }
@@ -2498,7 +2499,7 @@ ZEND_FUNCTION(IcePHP_defineProxy)
 {
     zval* cls;
 
-    if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "o", &cls) == FAILURE)
+    if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, const_cast<char*>("o"), &cls) == FAILURE)
     {
         return;
     }
@@ -2544,7 +2545,7 @@ ZEND_FUNCTION(IcePHP_declareClass)
     char* id;
     int idLen;
 
-    if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "s", &id, &idLen) == FAILURE)
+    if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, const_cast<char*>("s"), &id, &idLen) == FAILURE)
     {
         return;
     }
@@ -2572,8 +2573,8 @@ ZEND_FUNCTION(IcePHP_defineClass)
     zval* interfaces;
     zval* members;
 
-    if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "ssbo!a!a!", &id, &idLen, &name, &nameLen, &isAbstract, &base,
-                             &interfaces, &members) == FAILURE)
+    if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, const_cast<char*>("ssbo!a!a!"), &id, &idLen, &name, &nameLen,
+                             &isAbstract, &base, &interfaces, &members) == FAILURE)
     {
         return;
     }
@@ -2685,8 +2686,8 @@ ZEND_FUNCTION(IcePHP_defineException)
     zval* base;
     zval* members;
 
-    if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "sso!a!", &id, &idLen, &name, &nameLen, &base, &members) ==
-        FAILURE)
+    if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, const_cast<char*>("sso!a!"), &id, &idLen, &name, &nameLen,
+                             &base, &members) == FAILURE)
     {
         return;
     }
@@ -2744,7 +2745,7 @@ ZEND_FUNCTION(IcePHP_stringify)
     zval* v;
     zval* t;
 
-    if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "zz", &v, &t) == FAILURE)
+    if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, const_cast<char*>("zz"), &v, &t) == FAILURE)
     {
         return;
     }
@@ -2772,7 +2773,7 @@ ZEND_FUNCTION(IcePHP_stringifyException)
     zval* v;
     zval* t;
 
-    if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "oo", &v, &t) == FAILURE)
+    if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, const_cast<char*>("oo"), &v, &t) == FAILURE)
     {
         return;
     }

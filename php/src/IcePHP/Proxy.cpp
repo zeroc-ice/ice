@@ -163,7 +163,7 @@ ZEND_METHOD(Ice_ObjectPrx, ice_identity)
 
     zval *zid;
 
-    if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "O", &zid, cls) == FAILURE)
+    if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, const_cast<char*>("O"), &zid, cls) == FAILURE)
     {
         RETURN_NULL();
     }
@@ -206,7 +206,7 @@ ZEND_METHOD(Ice_ObjectPrx, ice_context)
 {
     zval* arr = 0;
 
-    if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "a", &arr) == FAILURE)
+    if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, const_cast<char*>("a"), &arr) == FAILURE)
     {
         RETURN_NULL();
     }
@@ -264,7 +264,7 @@ ZEND_METHOD(Ice_ObjectPrx, ice_facet)
     char* name;
     int len;
 
-    if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "s", &name, &len) == FAILURE)
+    if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, const_cast<char*>("s"), &name, &len) == FAILURE)
     {
         RETURN_NULL();
     }
@@ -316,7 +316,7 @@ ZEND_METHOD(Ice_ObjectPrx, ice_adapterId)
     char* id;
     int len;
 
-    if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "s", &id, &len) == FAILURE)
+    if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, const_cast<char*>("s"), &id, &len) == FAILURE)
     {
         RETURN_NULL();
     }
@@ -377,7 +377,7 @@ ZEND_METHOD(Ice_ObjectPrx, ice_endpoints)
 
     zval* zv;
 
-    if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "a", &zv) == FAILURE)
+    if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, const_cast<char*>("a"), &zv) == FAILURE)
     {
         RETURN_NULL();
     }
@@ -452,7 +452,7 @@ ZEND_METHOD(Ice_ObjectPrx, ice_locatorCacheTimeout)
     assert(_this);
 
     long l;
-    if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "l", &l) != SUCCESS)
+    if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, const_cast<char*>("l"), &l) != SUCCESS)
     {
         RETURN_NULL();
     }
@@ -499,7 +499,7 @@ ZEND_METHOD(Ice_ObjectPrx, ice_connectionCached)
     assert(_this);
 
     zend_bool b;
-    if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "b", &b) != SUCCESS)
+    if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, const_cast<char*>("b"), &b) != SUCCESS)
     {
         RETURN_NULL();
     }
@@ -546,7 +546,7 @@ ZEND_METHOD(Ice_ObjectPrx, ice_endpointSelection)
     assert(_this);
 
     long l;
-    if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "l", &l) != SUCCESS)
+    if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, const_cast<char*>("l"), &l) != SUCCESS)
     {
         RETURN_NULL();
     }
@@ -600,7 +600,7 @@ ZEND_METHOD(Ice_ObjectPrx, ice_secure)
     assert(_this);
 
     zend_bool b;
-    if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "b", &b TSRMLS_CC) != SUCCESS)
+    if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, const_cast<char*>("b"), &b TSRMLS_CC) != SUCCESS)
     {
         RETURN_NULL();
     }
@@ -647,7 +647,7 @@ ZEND_METHOD(Ice_ObjectPrx, ice_preferSecure)
     assert(_this);
 
     zend_bool b;
-    if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "b", &b TSRMLS_CC) != SUCCESS)
+    if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, const_cast<char*>("b"), &b TSRMLS_CC) != SUCCESS)
     {
         RETURN_NULL();
     }
@@ -712,7 +712,8 @@ ZEND_METHOD(Ice_ObjectPrx, ice_router)
     assert(_this);
 
     zval* zprx;
-    if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "O!", &zprx, proxyClassEntry TSRMLS_CC) != SUCCESS)
+    if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, const_cast<char*>("O!"), &zprx, proxyClassEntry TSRMLS_CC) !=
+        SUCCESS)
     {
         RETURN_NULL();
     }
@@ -793,7 +794,8 @@ ZEND_METHOD(Ice_ObjectPrx, ice_locator)
     assert(_this);
 
     zval* zprx;
-    if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "O!", &zprx, proxyClassEntry TSRMLS_CC) != SUCCESS)
+    if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, const_cast<char*>("O!"), &zprx, proxyClassEntry TSRMLS_CC) !=
+        SUCCESS)
     {
         RETURN_NULL();
     }
@@ -1066,7 +1068,7 @@ ZEND_METHOD(Ice_ObjectPrx, ice_compress)
     assert(_this);
 
     zend_bool b;
-    if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "b", &b) != SUCCESS)
+    if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, const_cast<char*>("b"), &b) != SUCCESS)
     {
         RETURN_NULL();
     }
@@ -1093,7 +1095,7 @@ ZEND_METHOD(Ice_ObjectPrx, ice_timeout)
     try
     {
         long l;
-        if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "l", &l) != SUCCESS)
+        if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, const_cast<char*>("l"), &l) != SUCCESS)
         {
             RETURN_NULL();
         }
@@ -1119,7 +1121,7 @@ ZEND_METHOD(Ice_ObjectPrx, ice_connectionId)
     {
         char* id;
         int idLen;
-        if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "s", &id, &idLen) != SUCCESS)
+        if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, const_cast<char*>("s"), &id, &idLen) != SUCCESS)
         {
             RETURN_NULL();
         }
@@ -1227,12 +1229,12 @@ do_cast(INTERNAL_FUNCTION_PARAMETERS, bool check)
     int facetLen;
     zval* arr = 0;
 
-    if(zend_parse_parameters_ex(ZEND_PARSE_PARAMS_QUIET, ZEND_NUM_ARGS() TSRMLS_CC, "s|s!a!", &id, &idLen, &facet,
-                                &facetLen, &arr) == FAILURE)
+    if(zend_parse_parameters_ex(ZEND_PARSE_PARAMS_QUIET, ZEND_NUM_ARGS() TSRMLS_CC, const_cast<char*>("s|s!a!"), &id,
+                                &idLen, &facet, &facetLen, &arr) == FAILURE)
     {
         facet = 0;
-        if(zend_parse_parameters_ex(ZEND_PARSE_PARAMS_QUIET, ZEND_NUM_ARGS() TSRMLS_CC, "s|a!", &id, &idLen, &arr) ==
-                                    FAILURE)
+        if(zend_parse_parameters_ex(ZEND_PARSE_PARAMS_QUIET, ZEND_NUM_ARGS() TSRMLS_CC, const_cast<char*>("s|a!"), &id,
+                                    &idLen, &arr) == FAILURE)
         {
             php_error(E_ERROR, "%s() requires a type id followed by an optional facet and/or context",
                       get_active_function_name(TSRMLS_C));

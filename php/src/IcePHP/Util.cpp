@@ -97,8 +97,10 @@ IcePHP::createIdentity(zval* zv, const Ice::Identity& id TSRMLS_DC)
         return false;
     }
 
-    zend_update_property_string(cls, zv, "name", sizeof("name") - 1, STRCAST(id.name.c_str()) TSRMLS_CC);
-    zend_update_property_string(cls, zv, "category", sizeof("category") - 1, STRCAST(id.category.c_str()) TSRMLS_CC);
+    zend_update_property_string(cls, zv, const_cast<char*>("name"), sizeof("name") - 1, STRCAST(id.name.c_str())
+                                TSRMLS_CC);
+    zend_update_property_string(cls, zv, const_cast<char*>("category"), sizeof("category") - 1,
+                                STRCAST(id.category.c_str()) TSRMLS_CC);
 
     return true;
 }
@@ -127,12 +129,12 @@ IcePHP::extractIdentity(zval* zv, Ice::Identity& id TSRMLS_DC)
     //
     void* categoryData = 0;
     void* nameData;
-    if(zend_hash_find(Z_OBJPROP_P(zv), "name", sizeof("name"), &nameData) == FAILURE)
+    if(zend_hash_find(Z_OBJPROP_P(zv), STRCAST("name"), sizeof("name"), &nameData) == FAILURE)
     {
         invalidArgument("identity value does not contain member `name'" TSRMLS_CC);
         return false;
     }
-    zend_hash_find(Z_OBJPROP_P(zv), "category", sizeof("category"), &categoryData);
+    zend_hash_find(Z_OBJPROP_P(zv), STRCAST("category"), sizeof("category"), &categoryData);
     zval** categoryVal = reinterpret_cast<zval**>(categoryData);
     zval** nameVal = reinterpret_cast<zval**>(nameData);
 
@@ -359,7 +361,7 @@ convertLocalException(const Ice::LocalException& ex, zval* zex TSRMLS_DC)
             zval_ptr_dtor(&id);
             return false;
         }
-        zend_update_property(cls, zex, "id", sizeof("id") - 1, id TSRMLS_CC);
+        zend_update_property(cls, zex, const_cast<char*>("id"), sizeof("id") - 1, id TSRMLS_CC);
     }
     catch(const Ice::RequestFailedException& e)
     {
@@ -370,37 +372,41 @@ convertLocalException(const Ice::LocalException& ex, zval* zex TSRMLS_DC)
             zval_ptr_dtor(&id);
             return false;
         }
-        zend_update_property(cls, zex, "id", sizeof("id") - 1, id TSRMLS_CC);
+        zend_update_property(cls, zex, const_cast<char*>("id"), sizeof("id") - 1, id TSRMLS_CC);
         setStringMember(zex, "facet", e.facet TSRMLS_CC);
         setStringMember(zex, "operation", e.operation TSRMLS_CC);
     }
     catch(const Ice::FileException& e)
     {
-        zend_update_property_long(cls, zex, "error", sizeof("error") - 1, e.error TSRMLS_CC);
+        zend_update_property_long(cls, zex, const_cast<char*>("error"), sizeof("error") - 1, e.error TSRMLS_CC);
         setStringMember(zex, "path", e.path TSRMLS_CC);
     }
     catch(const Ice::SyscallException& e) // This must appear after all subclasses of SyscallException.
     {
-        zend_update_property_long(cls, zex, "error", sizeof("error") - 1, e.error TSRMLS_CC);
+        zend_update_property_long(cls, zex, const_cast<char*>("error"), sizeof("error") - 1, e.error TSRMLS_CC);
     }
     catch(const Ice::DNSException& e)
     {
-        zend_update_property_long(cls, zex, "error", sizeof("error") - 1, e.error TSRMLS_CC);
+        zend_update_property_long(cls, zex, const_cast<char*>("error"), sizeof("error") - 1, e.error TSRMLS_CC);
         setStringMember(zex, "host", e.host TSRMLS_CC);
     }
     catch(const Ice::UnsupportedProtocolException& e)
     {
-        zend_update_property_long(cls, zex, "badMajor", sizeof("badMajor") - 1, e.badMajor TSRMLS_CC);
-        zend_update_property_long(cls, zex, "badMinor", sizeof("badMinor") - 1, e.badMinor TSRMLS_CC);
-        zend_update_property_long(cls, zex, "major", sizeof("major") - 1, e.major TSRMLS_CC);
-        zend_update_property_long(cls, zex, "minor", sizeof("minor") - 1, e.minor TSRMLS_CC);
+        zend_update_property_long(cls, zex, const_cast<char*>("badMajor"), sizeof("badMajor") - 1, e.badMajor
+                                  TSRMLS_CC);
+        zend_update_property_long(cls, zex, const_cast<char*>("badMinor"), sizeof("badMinor") - 1, e.badMinor
+                                  TSRMLS_CC);
+        zend_update_property_long(cls, zex, const_cast<char*>("major"), sizeof("major") - 1, e.major TSRMLS_CC);
+        zend_update_property_long(cls, zex, const_cast<char*>("minor"), sizeof("minor") - 1, e.minor TSRMLS_CC);
     }
     catch(const Ice::UnsupportedEncodingException& e)
     {
-        zend_update_property_long(cls, zex, "badMajor", sizeof("badMajor") - 1, e.badMajor TSRMLS_CC);
-        zend_update_property_long(cls, zex, "badMinor", sizeof("badMinor") - 1, e.badMinor TSRMLS_CC);
-        zend_update_property_long(cls, zex, "major", sizeof("major") - 1, e.major TSRMLS_CC);
-        zend_update_property_long(cls, zex, "minor", sizeof("minor") - 1, e.minor TSRMLS_CC);
+        zend_update_property_long(cls, zex, const_cast<char*>("badMajor"), sizeof("badMajor") - 1, e.badMajor
+                                  TSRMLS_CC);
+        zend_update_property_long(cls, zex, const_cast<char*>("badMinor"), sizeof("badMinor") - 1, e.badMinor
+                                  TSRMLS_CC);
+        zend_update_property_long(cls, zex, const_cast<char*>("major"), sizeof("major") - 1, e.major TSRMLS_CC);
+        zend_update_property_long(cls, zex, const_cast<char*>("minor"), sizeof("minor") - 1, e.minor TSRMLS_CC);
     }
     catch(const Ice::NoObjectFactoryException& e)
     {

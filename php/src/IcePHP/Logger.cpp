@@ -55,7 +55,7 @@ ZEND_METHOD(Ice_Logger, print)
     char* m;
     int mLen;
 
-    if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "s", &m, &mLen) == FAILURE)
+    if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, const_cast<char*>("s"), &m, &mLen) == FAILURE)
     {
         RETURN_NULL();
     }
@@ -82,7 +82,7 @@ ZEND_METHOD(Ice_Logger, trace)
     char* m;
     int mLen;
 
-    if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "ss", &c, &cLen, &m, &mLen) == FAILURE)
+    if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, const_cast<char*>("ss"), &c, &cLen, &m, &mLen) == FAILURE)
     {
         RETURN_NULL();
     }
@@ -108,7 +108,7 @@ ZEND_METHOD(Ice_Logger, warning)
     char* m;
     int mLen;
 
-    if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "s", &m, &mLen) == FAILURE)
+    if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, const_cast<char*>("s"), &m, &mLen) == FAILURE)
     {
         RETURN_NULL();
     }
@@ -133,7 +133,7 @@ ZEND_METHOD(Ice_Logger, error)
     char* m;
     int mLen;
 
-    if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "s", &m, &mLen) == FAILURE)
+    if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, const_cast<char*>("s"), &m, &mLen) == FAILURE)
     {
         RETURN_NULL();
     }

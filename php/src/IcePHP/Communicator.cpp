@@ -201,7 +201,7 @@ ZEND_METHOD(Ice_Communicator, stringToProxy)
 
     char* str;
     int strLen;
-    if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "s", &str, &strLen) != SUCCESS)
+    if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, const_cast<char*>("s"), &str, &strLen) != SUCCESS)
     {
         RETURN_NULL();
     }
@@ -228,7 +228,7 @@ ZEND_METHOD(Ice_Communicator, proxyToString)
     assert(_this);
 
     zval* zv;
-    if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "O!", &zv, proxyClassEntry) != SUCCESS)
+    if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, const_cast<char*>("O!"), &zv, proxyClassEntry) != SUCCESS)
     {
         RETURN_NULL();
     }
@@ -263,7 +263,7 @@ ZEND_METHOD(Ice_Communicator, propertyToProxy)
 
     char* str;
     int strLen;
-    if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "s", &str, &strLen) != SUCCESS)
+    if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, const_cast<char*>("s"), &str, &strLen) != SUCCESS)
     {
         RETURN_NULL();
     }
@@ -291,7 +291,7 @@ ZEND_METHOD(Ice_Communicator, stringToIdentity)
 
     char* str;
     int strLen;
-    if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "s", &str, &strLen) != SUCCESS)
+    if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, const_cast<char*>("s"), &str, &strLen) != SUCCESS)
     {
         RETURN_NULL();
     }
@@ -321,7 +321,7 @@ ZEND_METHOD(Ice_Communicator, identityToString)
     assert(identityClass);
 
     zval* zv;
-    if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "O", &zv, identityClass) != SUCCESS)
+    if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, const_cast<char*>("O"), &zv, identityClass) != SUCCESS)
     {
         RETURN_NULL();
     }
@@ -354,8 +354,8 @@ ZEND_METHOD(Ice_Communicator, addObjectFactory)
     zval* factory;
     char* id;
     int idLen;
-    if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "Os!", &factory, factoryClass, &id, &idLen TSRMLS_CC) !=
-        SUCCESS)
+    if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, const_cast<char*>("Os!"), &factory, factoryClass, &id,
+                             &idLen TSRMLS_CC) != SUCCESS)
     {
         RETURN_NULL();
     }
@@ -379,7 +379,7 @@ ZEND_METHOD(Ice_Communicator, findObjectFactory)
 
     char* id;
     int idLen;
-    if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "s!", &id, &idLen TSRMLS_CC) != SUCCESS)
+    if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, const_cast<char*>("s!"), &id, &idLen TSRMLS_CC) != SUCCESS)
     {
         RETURN_NULL();
     }
@@ -490,7 +490,8 @@ ZEND_METHOD(Ice_Communicator, setDefaultRouter)
     assert(_this);
 
     zval* zv;
-    if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "O!", &zv, proxyClassEntry TSRMLS_CC) != SUCCESS)
+    if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, const_cast<char*>("O!"), &zv, proxyClassEntry TSRMLS_CC) !=
+        SUCCESS)
     {
         RETURN_NULL();
     }
@@ -567,7 +568,8 @@ ZEND_METHOD(Ice_Communicator, setDefaultLocator)
     assert(_this);
 
     zval* zv;
-    if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "O!", &zv, proxyClassEntry TSRMLS_CC) != SUCCESS)
+    if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, const_cast<char*>("O!"), &zv, proxyClassEntry TSRMLS_CC) !=
+        SUCCESS)
     {
         RETURN_NULL();
     }
@@ -840,8 +842,8 @@ ZEND_FUNCTION(Ice_register)
     char* s;
     int sLen;
     long expires = 0;
-    if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "Os|l", &comm, communicatorClassEntry, &s, &sLen, &expires
-                             TSRMLS_CC) != SUCCESS)
+    if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, const_cast<char*>("Os|l"), &comm, communicatorClassEntry, &s,
+                             &sLen, &expires TSRMLS_CC) != SUCCESS)
     {
         RETURN_NULL();
     }
@@ -901,7 +903,7 @@ ZEND_FUNCTION(Ice_unregister)
 {
     char* s;
     int sLen;
-    if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "s", &s, &sLen TSRMLS_CC) != SUCCESS)
+    if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, const_cast<char*>("s"), &s, &sLen TSRMLS_CC) != SUCCESS)
     {
         RETURN_NULL();
     }
@@ -936,7 +938,7 @@ ZEND_FUNCTION(Ice_find)
 {
     char* s;
     int sLen;
-    if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "s", &s, &sLen TSRMLS_CC) != SUCCESS)
+    if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, const_cast<char*>("s"), &s, &sLen TSRMLS_CC) != SUCCESS)
     {
         RETURN_NULL();
     }
@@ -984,7 +986,7 @@ ZEND_FUNCTION(Ice_getProperties)
 {
     char* s = 0;
     int sLen;
-    if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "|s", &s, &sLen TSRMLS_CC) != SUCCESS)
+    if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, const_cast<char*>("|s"), &s, &sLen TSRMLS_CC) != SUCCESS)
     {
         RETURN_NULL();
     }
@@ -1240,14 +1242,14 @@ IcePHP::communicatorInit(TSRMLS_D)
     //
     // Create the profiles from configuration settings.
     //
-    const char* config = INI_STR("ice.config");
-    const char* options = INI_STR("ice.options");
+    const char* config = INI_STR(const_cast<char*>("ice.config"));
+    const char* options = INI_STR(const_cast<char*>("ice.options"));
     if(!createProfile(_defaultProfileName, config, options TSRMLS_CC))
     {
         return false;
     }
 
-    const char* profiles = INI_STR("ice.profiles");
+    const char* profiles = INI_STR(const_cast<char*>("ice.profiles"));
     if(strlen(profiles) > 0)
     {
         if(!parseProfiles(profiles TSRMLS_CC))
@@ -1255,7 +1257,7 @@ IcePHP::communicatorInit(TSRMLS_D)
             return false;
         }
 
-        if(INI_BOOL("ice.hide_profiles"))
+        if(INI_BOOL(const_cast<char*>("ice.hide_profiles")))
         {
             memset(const_cast<char*>(profiles), '*', strlen(profiles));
             //
@@ -1487,7 +1489,7 @@ IcePHP::ObjectFactoryI::create(const string& id)
 
         zend_try
         {
-            zend_call_method_with_1_params(&factory, 0, 0, "create", &obj, arg);
+            zend_call_method_with_1_params(&factory, 0, 0, const_cast<char*>("create"), &obj, arg);
         }
         zend_catch
         {

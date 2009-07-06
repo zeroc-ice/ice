@@ -76,7 +76,7 @@ ZEND_METHOD(Ice_Properties, getProperty)
     char* name;
     int nameLen;
 
-    if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "s", &name, &nameLen) == FAILURE)
+    if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, const_cast<char*>("s"), &name, &nameLen) == FAILURE)
     {
         RETURN_NULL();
     }
@@ -104,7 +104,8 @@ ZEND_METHOD(Ice_Properties, getPropertyWithDefault)
     char* def;
     int defLen;
 
-    if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "ss!", &name, &nameLen, &def, &defLen) == FAILURE)
+    if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, const_cast<char*>("ss!"), &name, &nameLen, &def, &defLen) ==
+        FAILURE)
     {
         RETURN_NULL();
     }
@@ -136,7 +137,7 @@ ZEND_METHOD(Ice_Properties, getPropertyAsInt)
     char* name;
     int nameLen;
 
-    if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "s", &name, &nameLen) == FAILURE)
+    if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, const_cast<char*>("s"), &name, &nameLen) == FAILURE)
     {
         RETURN_NULL();
     }
@@ -163,7 +164,7 @@ ZEND_METHOD(Ice_Properties, getPropertyAsIntWithDefault)
     int nameLen;
     long def;
 
-    if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "sl", &name, &nameLen, &def) == FAILURE)
+    if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, const_cast<char*>("sl"), &name, &nameLen, &def) == FAILURE)
     {
         RETURN_NULL();
     }
@@ -189,7 +190,7 @@ ZEND_METHOD(Ice_Properties, getPropertyAsList)
     char* name;
     int nameLen;
 
-    if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "s", &name, &nameLen) == FAILURE)
+    if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, const_cast<char*>("s"), &name, &nameLen) == FAILURE)
     {
         RETURN_NULL();
     }
@@ -219,7 +220,7 @@ ZEND_METHOD(Ice_Properties, getPropertyAsListWithDefault)
     int nameLen;
     zval* def;
 
-    if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "sa!", &name, &nameLen, &def) == FAILURE)
+    if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, const_cast<char*>("sa!"), &name, &nameLen, &def) == FAILURE)
     {
         RETURN_NULL();
     }
@@ -254,7 +255,7 @@ ZEND_METHOD(Ice_Properties, getPropertiesForPrefix)
     char* p;
     int pLen;
 
-    if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "s!", &p, &pLen) == FAILURE)
+    if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, const_cast<char*>("s!"), &p, &pLen) == FAILURE)
     {
         RETURN_NULL();
     }
@@ -290,7 +291,8 @@ ZEND_METHOD(Ice_Properties, setProperty)
     char* val;
     int valLen;
 
-    if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "ss!", &name, &nameLen, &val, &valLen) == FAILURE)
+    if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, const_cast<char*>("ss!"), &name, &nameLen, &val, &valLen) ==
+        FAILURE)
     {
         RETURN_NULL();
     }
@@ -347,7 +349,7 @@ ZEND_METHOD(Ice_Properties, parseCommandLineOptions)
     int pLen;
     zval* opts;
 
-    if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "s!a!", &p, &pLen, &opts) == FAILURE)
+    if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, const_cast<char*>("s!a!"), &p, &pLen, &opts) == FAILURE)
     {
         RETURN_NULL();
     }
@@ -385,7 +387,7 @@ ZEND_METHOD(Ice_Properties, parseIceCommandLineOptions)
 {
     zval* opts;
 
-    if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "a!", &opts) == FAILURE)
+    if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, const_cast<char*>("a!"), &opts) == FAILURE)
     {
         RETURN_NULL();
     }
@@ -419,7 +421,7 @@ ZEND_METHOD(Ice_Properties, load)
     char* f;
     int fLen;
 
-    if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "s", &f, &fLen) == FAILURE)
+    if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, const_cast<char*>("s"), &f, &fLen) == FAILURE)
     {
         RETURN_NULL();
     }
@@ -533,8 +535,8 @@ ZEND_FUNCTION(Ice_createProperties)
     zval* arglist = 0;
     zval* defaultsObj = 0;
 
-    if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "|a!O!", &arglist, &defaultsObj, propertiesClassEntry) ==
-        FAILURE)
+    if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, const_cast<char*>("|a!O!"), &arglist, &defaultsObj,
+                             propertiesClassEntry) == FAILURE)
     {
         RETURN_NULL();
     }
