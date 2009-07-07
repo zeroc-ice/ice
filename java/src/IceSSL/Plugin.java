@@ -19,7 +19,7 @@ public interface Plugin extends Ice.Plugin
      * plug-in is initialized. Therefore, the application must set
      * the property <code>Ice.InitPlugins</code> to zero, call
      * <code>setContext</code> to set the context, and finally
-     * invoke <code>initializePlugins</code> on the <code>PluginManager</code>.
+     * invoke {@link PluginManager#initializePlugins}.
      * <p>
      * If an application supplies its own SSL context, the
      * plug-in skips its normal property-based configuration.
@@ -77,7 +77,7 @@ public interface Plugin extends Ice.Plugin
     /**
      * Supplies an input stream for the truststore. Calling this method
      * causes IceSSL to ignore the <code>IceSSL.Truststore</code> property. It is
-     * legal to supply the same input stream as the one for <code>setKeystoreStream</code>,
+     * legal to supply the same input stream as the one for {@link #setKeystoreStream},
      * in which case IceSSL uses the certificates contained in the keystore.
      *
      * @param stream The input stream for the truststore.

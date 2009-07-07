@@ -32,7 +32,7 @@ public final class LongHolder
     }
 
     /**
-     * The <code>int</code> value stored by this holder.
+     * The <code>long</code> value stored by this holder.
      **/
     public long value;
 }

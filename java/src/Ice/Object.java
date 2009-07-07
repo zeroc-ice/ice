@@ -34,7 +34,7 @@ public interface Object
      * Tests whether this object supports a specific Slice interface.
      *
      * @param s The type ID of the Slice interface to test against.
-     * @param current The <code>Current</code> object for the invocation.
+     * @param current The {@link Current} object for the invocation.
      * @return <code>true</code> if this object has the interface
      * specified by <code>s</code> or derives from the interface
      * specified by <code>s</code>.
@@ -49,7 +49,7 @@ public interface Object
     /**
      * Tests whether this object can be reached.
      *
-     * @param current The <code>Current</code> object for the invocation.
+     * @param current The {@link Current} object for the invocation.
      **/
     void ice_ping(Current current);
 
@@ -64,7 +64,7 @@ public interface Object
     /**
      * Returns the Slice type IDs of the interfaces supported by this object.
      *
-     * @param current The <code>Current</code> object for the invocation.
+     * @param current The {@link Current} object for the invocation.
      * @return The Slice type Ids of the interfaces supported by this object, in base-to-derived
      * order. The first element of the return array is always <code>::Ice::Object</code>.
      **/
@@ -80,7 +80,7 @@ public interface Object
     /**
      * Returns the Slice type ID of the most-derived interface supported by this object.
      *
-     * @param current The <code>Current</code> object for the invocation.
+     * @param current The {@link Current} object for the invocation.
      * @return The Slice type ID of the most-derived interface.
      **/
     String ice_id(Current current);
@@ -108,7 +108,7 @@ public interface Object
      *   <dd><code>["freeze:read:never"]</code></dd>
      * </dl>
      *
-     * @see Freeze:TransactionalEvictor
+     * @see Freeze.TransactionalEvictor
      **/
     int ice_operationAttributes(String operation);
 

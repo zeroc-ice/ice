@@ -161,7 +161,7 @@ public abstract class ObjectImpl implements Object, java.lang.Cloneable, java.io
     /**
      * Returns the Slice type ID of the most-derived interface supported by this object.
      *
-     * @return The return value is always <code>::Ice::Object</code.>
+     * @return The return value is always <code>::Ice::Object</code>.
      **/
     public String
     ice_id()
@@ -173,7 +173,7 @@ public abstract class ObjectImpl implements Object, java.lang.Cloneable, java.io
      * Returns the Slice type ID of the most-derived interface supported by this object.
      *
      * @param current The current object for the invocation.
-     * @return The return value is always <code>::Ice::Object</code.>
+     * @return The return value is always {@link IceObject}.
      **/
     public String
     ice_id(Current current)
@@ -194,7 +194,7 @@ public abstract class ObjectImpl implements Object, java.lang.Cloneable, java.io
     /**
      * Returns the Slice type ID of the most-derived interface supported by this object.
      *
-     * @return The return value is always <code>::Ice::Object</code>.
+     * @return The return value is always {@link IceObject}.
      **/
     public static String
     ice_staticId()
@@ -225,7 +225,7 @@ public abstract class ObjectImpl implements Object, java.lang.Cloneable, java.io
      *   <dd><code>["freeze:read:never"]</code></dd>
      * </dl>
      *
-     * @see Freeze:TransactionalEvictor
+     * @see Freeze.TransactionalEvictor
      **/
     public int ice_operationAttributes(String operation)
     {

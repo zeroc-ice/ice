@@ -1032,10 +1032,10 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
     }
 
     /**
-     * Returns the <code>Connection</code> for this proxy. If the proxy does not yet have an established connection,
+     * Returns the {@link Connection} for this proxy. If the proxy does not yet have an established connection,
      * it first attempts to create a connection.
      *
-     * @return The <code>Connection</code> for this proxy.
+     * @return The {@link Connection} for this proxy.
      * @throws CollocationOptimizationException If the proxy uses collocation optimization and denotes a
      * collocated object.
      *
@@ -1062,10 +1062,10 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
     }
 
     /**
-     * Returns the cached <code>Connection</code> for this proxy. If the proxy does not yet have an established
+     * Returns the cached {@link Connection} for this proxy. If the proxy does not yet have an established
      * connection, it does not attempt to create a connection.
      *
-     * @return The cached <code>Connection</code> for this proxy (<code>null</code> if the proxy does not have
+     * @return The cached {@link Connection} for this proxy (<code>null</code> if the proxy does not have
      * an established connection).
      * @throws CollocationOptimizationException If the proxy uses collocation optimization and denotes a
      * collocated object.

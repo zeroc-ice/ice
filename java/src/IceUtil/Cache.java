@@ -36,9 +36,9 @@ public class Cache
      *
      * @return If the cache contains an entry for the key, the return value
      * is the object corresponding to the key; otherwise, the return value
-     * is null. <code>getIfPinned</code> does not call load.
+     * is null. <code>getIfPinned</code> does not call {@link Store#load}.
      *
-     * @see Store.load
+     * @see Store#load
      **/
     public Object
     getIfPinned(Object key)
@@ -97,7 +97,7 @@ public class Cache
 
     /**
      * Adds a key-value pair to the cache.
-     * This version of <code>pin</code> does not call <code>Store.load</code> to retrieve
+     * This version of <code>pin</code> does not call {@link Store#load} to retrieve
      * an entry from backing store if an entry for the given key is not yet in the cache. This
      * is useful to add a newly-created object to the cache.
      *
@@ -128,13 +128,13 @@ public class Cache
     /**
      * Returns an object from the cache.
      * If no entry with the given key is in the cache, <code>pin</code> calls
-     * <code>load</code> to retrieve the corresponding value (if any) from the
+     * {@link Store#load} to retrieve the corresponding value (if any) from the
      * backing store.
      *
      * @param key The key for the entry to retrieve.
      * @return Returns the value for the corresponding key if the cache
      * contains an entry for the key. Otherwise, <code>pin(Object)</code> calls
-     * <code>Store.load</code> and the return value is whatever is returned by
+     * {@link Store#load} and the return value is whatever is returned by
      * <code>load</code>; if <code>load</code> throws an exception, that exception
      * is thrown by <code>pin(Object)</code>.
      **/
@@ -151,7 +151,7 @@ public class Cache
      * @return If the cache already contains an entry for the given key,
      * <code>putIfAbsent</code> returns the original value for that key.
      * If no entry is for the given key is in the cache, <code>putIfAbsent</code>
-     * calls <code>load</code> to retrieve the corresponding entry (if any) from
+     * calls {@link Store#load} to retrieve the corresponding entry (if any) from
      * the backings store and returns the value returned by <code>load</code>.
      * If the cache does not contain an entry for the given key and <code>load</code>
      * does not return a value for the key, <code>putIfAbsent</code> adds the new entry

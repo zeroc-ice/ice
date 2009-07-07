@@ -23,9 +23,9 @@ public interface Request
     boolean isCollocated();
 
     /**
-     * Returns the <code>Current</code> object for this the request.
+     * Returns the {@link Current} object for this the request.
      *
-     * @return The <code>Current</code> object for this request.
+     * @return The {@link Current} object for this request.
      **/
     Current getCurrent();
 }

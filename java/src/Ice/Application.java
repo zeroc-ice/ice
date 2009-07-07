@@ -15,18 +15,18 @@ package Ice;
  * a logger, <Application> installs a per-process logger that logs to the standard
  * error output.
  * <p>
- * Applications must create a derived class that implements the <code>run</code> method.
+ * Applications must create a derived class that implements the {@link #run} method.
  * <p>
  * A program can contain only one instance of this class.
  *
- * @see run
+ * @see #run
  * @see Communicator
  * @see Logger
  **/
 public abstract class Application
 {
     /**
-     * Initializes an instance that calls <code>Communicator.shutdown</code> if
+     * Initializes an instance that calls {@link Communicator#shutdown} if
      * a signal is received.
      **/
     public
@@ -52,7 +52,7 @@ public abstract class Application
      * The application must call <code>main</code> after it has
      * instantiated the derived class. <code>main</code> creates
      * a communicator, establishes the specified signal policy, and,
-     * once <code>run</code> returns, destroys the communicator.
+     * once {@link #run} returns, destroys the communicator.
      * <p>
      * The method prints an error message for any exception that propagates
      * out of <code>run</code> and ensures that the communicator is
@@ -75,10 +75,10 @@ public abstract class Application
      * The application must call <code>main</code> after it has
      * instantiated the derived class. <code>main</code> creates
      * a communicator, establishes the specified signal policy, and,
-     * once <code>run</code> returns, destroys the communicator.
+     * once {@link run} returns, destroys the communicator.
      * <p>
      * The method prints an error message for any exception that propagates
-     * out of <code>run</code> and ensures that the communicator is
+     * out of <code>#run</code> and ensures that the communicator is
      * destroyed correctly even if <code>run</code> completes abnormally.
      *
      * @param appName The name of the application. This parameter is used to initialize
@@ -98,7 +98,7 @@ public abstract class Application
      * The application must call <code>main</code> after it has
      * instantiated the derived class. <code>main</code> creates
      * a communicator, establishes the specified signal policy, and,
-     * once <code>run</code> returns, destroys the communicator.
+     * once {@link #run} returns, destroys the communicator.
      * <p>
      * The method prints an error message for any exception that propagates
      * out of <code>run</code> and ensures that the communicator is
@@ -143,7 +143,7 @@ public abstract class Application
      * The application must call <code>main</code> after it has
      * instantiated the derived class. <code>main</code> creates
      * a communicator, establishes the specified signal policy, and,
-     * once <code>run</code> returns, destroys the communicator.
+     * once {@link #run} returns, destroys the communicator.
      * <p>
      * The method prints an error message for any exception that propagates
      * out of <code>run</code> and ensures that the communicator is
@@ -209,10 +209,10 @@ public abstract class Application
     }
 
     /**
-     * Instructs <code>Application</code> to call <code>Communicator.destroy</code> on receipt of a signal.
+     * Instructs <code>Application</code> to call {@link Communicator#destroy} on receipt of a signal.
      * This is default signal handling policy established by the default constructor.
      *
-     * @see Communicator.destroy
+     * @see Communicator#destroy
      **/
     public static void
     destroyOnInterrupt()
@@ -247,9 +247,9 @@ public abstract class Application
     }
     
     /**
-     * Instructs <code>Application</code> to call <code>Communicator.shutdown</code> on receipt of a signal.
+     * Instructs <code>Application</code> to call {@link Communicator#shutdown} on receipt of a signal.
      *
-     * @see Communicator.shutdown
+     * @see Communicator#shutdown
      **/
     public static void
     shutdownOnInterrupt()
@@ -286,13 +286,13 @@ public abstract class Application
     /**
      * Installs a custom shutdown hook. The implementation of the shutdown
      * hook can do whatever cleanup is necessary to shut down the application.
-     * The hook is unregistered once <code>run</code> returns.
+     * The hook is unregistered once {@link #run} returns.
      * Note that the hook must obey the rules for shutdown hooks; specifically,
      * it must not call <code>exit</code>.
      *
      * @param newHook The thread to run on shutdown.
      *
-     * @see java.lang.Runtime.addShutdownHook
+     * @see java.lang.Runtime#addShutdownHook
      **/
     public static void
     setInterruptHook(java.lang.Thread newHook) // Pun intended.
@@ -316,8 +316,8 @@ public abstract class Application
     }
     
     /**
-     * Clears any shutdownn hooks, including any hook established with <code>destroyOnInterrupt</code> or
-     * <code>shutdownOnInterrupt</code>.
+     * Clears any shutdownn hooks, including any hook established with {@link #destroyOnInterrupt}code> or
+     * {@link #shutdownOnInterrupt}.
      **/
     public static void
     defaultInterrupt()

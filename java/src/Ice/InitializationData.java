@@ -12,7 +12,7 @@ package Ice;
 /**
  * A class that encapsulates data to initialize a communicator.
  *
- * @see Communicator.intialize
+ * @see Communicator#intialize
  * @see Properties
  * @see Logger
  * @see Stats

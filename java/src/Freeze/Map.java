@@ -26,7 +26,7 @@ public interface Map<K, V> extends NavigableMap<K, V>
     /**
      * Closes the database associated with this map, as well as all open iterators.
      * A map must be closed when it is no longer needed, either directly, or by
-     * closing the <code>Connection</code> associated with this map.
+     * closing the {@link Connection} associated with this map.
      **/
     void close();
 
@@ -56,7 +56,7 @@ public interface Map<K, V> extends NavigableMap<K, V>
 
         /**
          * Closes this iterator, reclaiming associated resources. This
-         * method is an alias for <code>close</code>.
+         * method is an alias for {@link #close}.
          **/
         void destroy();
     }

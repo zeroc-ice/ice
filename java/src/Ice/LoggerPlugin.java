@@ -12,7 +12,7 @@ package Ice;
 /**
  * Class to support custom loggers. Applications using a custom logger
  * instantiate a <code>LoggerPlugin</code> with a custom logger and
- * return the instance from their <code>PluginFactory</code> implementation.
+ * return the instance from their {@link PluginFactory} implementation.
  *
  * @see PluginFactory
  * @see Plugin

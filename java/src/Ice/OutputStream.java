@@ -165,7 +165,7 @@ public interface OutputStream
      * Writes a Slice class to the stream.
      *
      * @param v The class to write. This method writes the index of a Slice class; the state of the class is
-     * written once <code>writePendingObjects</code> is called.
+     * written once {@link #writePendingObjects} is called.
      **/
     void writeObject(Ice.Object v);
 
@@ -205,7 +205,7 @@ public interface OutputStream
 
     /**
      * Writes the state of Slice classes whose index was previously
-     * written with <code>writeObject</code> to the stream.
+     * written with {@link #writeObject} to the stream.
      **/
     void writePendingObjects();
 

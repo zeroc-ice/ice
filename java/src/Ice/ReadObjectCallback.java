@@ -13,7 +13,7 @@ package Ice;
  * Callback class to inform an application when a Slice class has been unmarshaled
  * from an input stream.
  *
- * @see InputStream.readObject
+ * @see InputStream#readObject
  **/
 public interface ReadObjectCallback
 {

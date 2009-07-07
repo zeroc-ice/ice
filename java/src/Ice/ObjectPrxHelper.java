@@ -12,11 +12,11 @@ package Ice;
 public class ObjectPrxHelper extends ObjectPrxHelperBase
 {
     /**
-     * Casts a proxy to <code>::Ice::ObjectPrx</code>. This call contacts
+     * Casts a proxy to {@link Ice.ObjectPrx}. This call contacts
      * the server and will throw an Ice run-time exception if the target
      * object does not exist or the server cannot be reached.
      *
-     * @param b The proxy to cast to <code>::Ice::ObjectPrx</code>.
+     * @param b The proxy to cast to @{link Ice.ObjectPrx}.
      * @return <code>b</code>.
      **/
     public static ObjectPrx
@@ -26,11 +26,11 @@ public class ObjectPrxHelper extends ObjectPrxHelperBase
     }
 
     /**
-     * Casts a proxy to <code>::Ice::ObjectPrx</code>. This call contacts
+     * Casts a proxy to {@link Ice.ObjectPrx}. This call contacts
      * the server and throws an Ice run-time exception if the target
      * object does not exist or the server cannot be reached.
      *
-     * @param b The proxy to cast to <code>::Ice::ObjectPrx</code>.
+     * @param b The proxy to cast to {@link Ice.ObjectPrx}.
      * @param ctx The <code>Context</code> map for the invocation.
      * @return <code>b</code>.
      **/
@@ -46,7 +46,7 @@ public class ObjectPrxHelper extends ObjectPrxHelperBase
      * the server and throws an Ice run-time exception if the target
      * object does not exist, the specified facet does not exist, or the server cannot be reached.
      *
-     * @param b The proxy to cast to <code>::Ice::ObjectPrx</code>.
+     * @param b The proxy to cast to {@link Ice.ObjectPrx}.
      * @param f The facet for the new proxy.
      * @return The new proxy with the specified facet.
      **/
@@ -78,7 +78,7 @@ public class ObjectPrxHelper extends ObjectPrxHelperBase
      * the server and throws an Ice run-time exception if the target
      * object does not exist, the specified facet does not exist, or the server cannot be reached.
      *
-     * @param b The proxy to cast to <code>::Ice::ObjectPrx</code>.
+     * @param b The proxy to cast to {@link Ice.ObjectPrx}.
      * @param f The facet for the new proxy.
      * @param ctx The <code>Context</code> map for the invocation.
      * @return The new proxy with the specified facet.
@@ -106,10 +106,10 @@ public class ObjectPrxHelper extends ObjectPrxHelperBase
     }
 
     /**
-     * Casts a proxy to <code>::Ice::ObjectPrx</code>. This call does
+     * Casts a proxy to {@link Ice.ObjectPrx}. This call does
      * not contact the server and always succeeds.
      *
-     * @param b The proxy to cast to <code>::Ice::ObjectPrx</code>.
+     * @param b The proxy to cast to {@link Ice.ObjectPrx}.
      * @return <code>b</code>.
      **/
     public static ObjectPrx
@@ -122,7 +122,7 @@ public class ObjectPrxHelper extends ObjectPrxHelperBase
      * Creates a new proxy that is identical to the passed proxy, except
      * for its facet. This call does not contact the server and always succeeds.
      *
-     * @param b The proxy to cast to <code>::Ice::ObjectPrx</code>.
+     * @param b The proxy to cast to {@link Ice.ObjectPrx}.
      * @param f The facet for the new proxy.
      * @return The new proxy with the specified facet.
      **/

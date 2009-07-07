@@ -23,7 +23,7 @@ public class PluginFactory implements Ice.PluginFactory
      *
      * @return The new plug-in. <code>null</code> can be returned to indicate
      * that a general error occurred. Alterntively, <code>create</code> can throw
-     * <code>PluginInitializationException</code> to provide more detailed information.
+     * {@link PluginInitializationException} to provide more detailed information.
      **/
     public Ice.Plugin
     create(Ice.Communicator communicator, String name, String[] args)

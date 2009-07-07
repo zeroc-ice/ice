@@ -10,7 +10,7 @@
 package Ice;
 
 /**
- * Callback object for <code>Blobject</code> AMI invocations.
+ * Callback object for {@link Blobject} AMI invocations.
  *
  * @see Blobject
  **/

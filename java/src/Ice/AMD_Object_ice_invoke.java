@@ -33,8 +33,8 @@ public interface AMD_Object_ice_invoke
      * with a run-time exception.
      *
      * @param ex The encoded Ice run-time exception. Note that, if <code>ex</code>
-     * is a user exception, the caller receives <code>UnknownUserException</code>.
-     * Use <code>ice_response</code> to raise user exceptions.
+     * is a user exception, the caller receives {@link UnknownUserException}.
+     * Use {@link #ice_response} to raise user exceptions.
      **/
 
     void ice_exception(java.lang.Exception ex);
