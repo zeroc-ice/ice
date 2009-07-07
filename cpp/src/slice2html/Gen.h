@@ -103,6 +103,16 @@ private:
     static ::std::string _logoURL;
     static ::std::string _searchAction;
     static ContainedList _symbols;
+
+    //
+    // TODO:
+    // Members below exist to emit warnings for old-style javadoc comments (using [...] instead of {@link ...}),
+    // and to emit warnings for old-style scoped names (X::Y::Z instead of X.Y#Z).
+    // Once we remove support for the old style comments, we also need to remove these members.
+    //
+    ::std::set< ::std::string> _warnOldCommentFiles;
+    ::std::string toSliceID(const ::std::string&, const ::std::string&);
+    void warnOldStyleIdent(const ::std::string&, const ::std::string&);
 };
 
 class StartPageGenerator : private GeneratorBase

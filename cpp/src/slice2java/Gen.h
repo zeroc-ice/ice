@@ -66,7 +66,6 @@ protected:
     //
     // Write doc comments.
     //
-    static std::string convertScoped(const std::string&);
     static StringList splitComment(const ContainedPtr&);
     static void writeDocComment(::IceUtilInternal::Output&, const ContainedPtr&,
                                 const std::string&, const std::string& = "");

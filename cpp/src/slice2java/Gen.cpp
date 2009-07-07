@@ -1201,39 +1201,6 @@ Slice::JavaVisitor::writeDispatchAndMarshalling(Output& out, const ClassDefPtr& 
 
 }
 
-//
-// Turn scoped identifiers such as "::A::B" and "B::C::D"
-// into "A.B" and "B.C.D", respectively.
-//
-string
-Slice::JavaVisitor::convertScoped(const string& s)
-{
-    //
-    // Strip surrounding white space.
-    //
-    string result = IceUtilInternal::trim(s);
-
-    //
-    // Delete leading "::", if any.
-    //
-    if(result.size() > 1 && result[0] == ':' && result[1] == ':')
-    {
-        result = result.substr(2);
-    }
-
-    //
-    // Replace "::" with "."
-    //
-    string::size_type pos = result.find("::");
-    while(pos != string::npos)
-    {
-        result = result.replace(pos, 2, ".");
-        pos = result.find("::", pos);
-    }
-
-    return result;
-}
-
 StringList
 Slice::JavaVisitor::splitComment(const ContainedPtr& p)
 {
@@ -1252,69 +1219,6 @@ Slice::JavaVisitor::splitComment(const ContainedPtr& p)
     {
         result.push_back(lastLine);
     }
-
-    //
-    // Rewrite @see sections to replace "::" with "."
-    //
-    const string seeTag = "@see";
-    StringList::iterator i = result.begin();
-    while(i != result.end())
-    {
-        string::size_type pos = i->find(seeTag);
-        if(pos != string::npos)
-        {
-            *i = seeTag + " " + convertScoped(i->substr(pos + seeTag.size()));
-        }
-        ++i;
-    }
-
-    //
-    // Strip square brackets from comments with hyperlinks such as [ObjectAdapter].
-    //
-    StringList::iterator j;
-    for(j = result.begin(); j != result.end(); ++j)
-    {
-        pos = j->find('[', 0);
-        while(pos != string::npos)
-        {
-            //
-            // Don't erase escaped opening bracket: \[, erase
-            // the backslash instead.
-            //
-            if(pos != 0 && (*j)[pos - 1] == '\\')
-            {
-                *j = j->erase(pos - 1, 1);
-                pos = j->find('[', pos);
-                continue;
-            }
-
-            *j = j->erase(pos, 1);              //  Erase [
-            pos = j->find(']', pos);
-            if(pos != string::npos)
-            {
-                *j = j->erase(pos, 1);          // Erase ]
-                pos = j->find('[', pos);
-            }
-        }
-    }
-
-    //
-    // Strip HTML tags.
-    //
-    for(j = result.begin(); j != result.end(); ++j)
-    {
-        pos = j->find('<', 0);
-        while(pos != string::npos)
-        {
-            nextPos = j->find('>', pos + 1);
-            if(pos != string::npos)
-            {
-                *j = j->erase(pos, nextPos - pos + 1);
-                pos = j->find('<', pos);
-            }
-        }
-    }
-
 
     return result;
 }

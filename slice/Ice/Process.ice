@@ -33,7 +33,7 @@ interface Process
      *
      * Initiate a graceful shut-down.
      *
-     * @see Communicator::shutdown
+     * @see Communicator#shutdown
      *
      **/
     ["ami"] void shutdown();

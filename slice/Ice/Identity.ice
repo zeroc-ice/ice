@@ -17,11 +17,11 @@ module Ice
 
 /**
  *
- * The identity of an Ice object. An empty [name] denotes a null
+ * The identity of an Ice object. An empty {@link Identity#name} denotes a null
  * object.
  *
  * @see ServantLocator
- * @see ObjectAdapter::addServantLocator
+ * @see ObjectAdapter#addServantLocator
  *
  **/
 struct Identity

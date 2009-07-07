@@ -30,8 +30,8 @@ exception ParseException
     
 /**
  *
- * <tt>icegridadmin</tt> provides a [FileParser]
- * object to transform XML files into [ApplicationDescriptor]
+ * <tt>icegridadmin</tt> provides a {@link FileParser}
+ * object to transform XML files into {@link ApplicationDescriptor}
  * objects.
  *
  **/

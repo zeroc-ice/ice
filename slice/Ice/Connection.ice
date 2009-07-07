@@ -53,7 +53,7 @@ local interface Connection
      * @return A proxy that matches the given identity and uses this
      * connection.
      *
-     * @see setAdapter
+     * @see #setAdapter
      *
      **/
     ["cpp:const"] Object* createProxy(Identity id);
@@ -73,8 +73,8 @@ local interface Connection
      * activated. When the object adapter is deactivated, it is
      * automatically removed from the connection.
      *
-     * @see createProxy
-     * @see setAdapter
+     * @see #createProxy
+     * @see #setAdapter
      *
      **/
     void setAdapter(ObjectAdapter adapter);
@@ -87,7 +87,7 @@ local interface Connection
      * @return The object adapter that dispatches requests for the
      * connection, or null if no adapter is set.
      *
-     * @see setAdapter
+     * @see #setAdapter
      *
      **/
     ["cpp:const"] ObjectAdapter getAdapter();

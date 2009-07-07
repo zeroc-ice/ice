@@ -20,9 +20,9 @@ module Ice
 /**
  *
  * A simple collection of properties, represented as a dictionary of
- * key/value pairs. Both key and value are [string]s.
+ * key/value pairs. Both key and value are strings.
  *
- * @see Properties::getPropertiesForPrefix
+ * @see Properties#getPropertiesForPrefix
  *
  **/
 dictionary<string, string> PropertyDict;
@@ -31,7 +31,7 @@ dictionary<string, string> PropertyDict;
  *
  * A property set used to configure Ice and Ice applications.
  * Properties are key/value pairs, with both keys and values
- * being [string]s. By convention, property keys should have the form
+ * being strings. By convention, property keys should have the form
  * <em>application-name</em>\[.<em>category</em>\[.<em>sub-category</em>]].<em>name</em>.
  *
  **/
@@ -46,7 +46,7 @@ local interface Properties
      *
      * @return The property value.
      *
-     * @see setProperty
+     * @see #setProperty
      *
      **/
     string getProperty(string key);
@@ -63,7 +63,7 @@ local interface Properties
      *
      * @return The property value or the default value.
      *
-     * @see setProperty
+     * @see #setProperty
      *
      **/
     string getPropertyWithDefault(string key, string value);
@@ -77,7 +77,7 @@ local interface Properties
      *
      * @return The property value interpreted as an integer.
      *
-     * @see setProperty
+     * @see #setProperty
      *
      **/
     int getPropertyAsInt(string key);
@@ -95,7 +95,7 @@ local interface Properties
      * @return The property value interpreted as an integer, or the
      * default value.
      *
-     * @see setProperty
+     * @see #setProperty
      *
      **/
     int getPropertyAsIntWithDefault(string key, int value);
@@ -115,7 +115,7 @@ local interface Properties
      *
      * @return The property value interpreted as a list of strings.
      *
-     * @see setProperty
+     * @see #setProperty
      *
      **/
     StringSeq getPropertyAsList(string key);
@@ -137,7 +137,7 @@ local interface Properties
      * @return The property value interpreted as list of strings, or the
      * default value.
      *
-     * @see setProperty
+     * @see #setProperty
      *
      **/
     StringSeq getPropertyAsListWithDefault(string key, StringSeq value);
@@ -162,7 +162,7 @@ local interface Properties
      * @param key The property key.
      * @param value The property value.
      *
-     * @see getProperty
+     * @see #getProperty
      *
      **/
     void setProperty(string key, string value);

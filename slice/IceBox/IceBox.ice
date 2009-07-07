@@ -79,7 +79,7 @@ exception NoSuchServiceException
 
 /**
  *
- * An application service managed by a [ServiceManager].
+ * An application service managed by a {@link ServiceManager}.
  *
  **/
 local interface Service
@@ -87,11 +87,11 @@ local interface Service
     /**
      *
      * Start the service. The given communicator is created by the
-     * [ServiceManager] for use by the service. This communicator may
+     * {@link ServiceManager} for use by the service. This communicator may
      * also be used by other services, depending on the service
      * configuration.
      *
-     * <p class="Note">The [ServiceManager] owns this communicator, and is
+     * <p class="Note">The {@link ServiceManager} owns this communicator, and is
      * responsible for destroying it.
      *
      * @param name The service's name, as determined by the
@@ -102,7 +102,7 @@ local interface Service
      * @param args The service arguments that were not converted into
      * properties.
      *
-     * @throws FailureException Raised if [start] failed.
+     * @throws FailureException Raised if {@link #start} failed.
      *
      **/
     void start(string name, Ice::Communicator communicator, Ice::StringSeq args);
@@ -133,7 +133,7 @@ interface ServiceObserver
 
 /**
  *
- * Administers a set of [Service] instances.
+ * Administers a set of {@link Service} instances.
  *
  * @see Service
  *
@@ -182,7 +182,7 @@ interface ServiceManager
 
     /**
      *
-     * Shut down all services. This causes [Service::stop] to be
+     * Shut down all services. This causes {@link Service#stop} to be
      * invoked on all configured services.
      *
      **/

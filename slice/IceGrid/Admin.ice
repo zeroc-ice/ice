@@ -297,7 +297,7 @@ struct RegistryInfo
 
 /**
  *
- * A sequence of [RegistryInfo] structures.
+ * A sequence of {@link RegistryInfo} structures.
  *
  **/
 sequence<RegistryInfo> RegistryInfoSeq;
@@ -350,7 +350,7 @@ struct ApplicationInfo
 
 /**
  *
- * A sequence of [ApplicationInfo] structures.
+ * A sequence of {@link ApplicationInfo} structures.
  *
  **/
 ["java:type:java.util.LinkedList<ApplicationInfo>"] sequence<ApplicationInfo> ApplicationInfoSeq;
@@ -844,7 +844,7 @@ interface Admin
     /**
      *
      * Add an object to the object registry. IceGrid will get the
-     * object type by calling [ice_id] on the given proxy. The object
+     * object type by calling <tt>ice_id</tt> on the given proxy. The object
      * must be reachable.
      *
      * @param obj The object to be added to the registry.
@@ -1168,11 +1168,11 @@ interface ObjectObserver;
  *
  * Used by administrative clients to view,
  * update, and receive observer updates from the IceGrid
- * registry. Admin sessions are created either with the [Registry]
- * object or the registry admin [Glacier2::SessionManager] object.
+ * registry. Admin sessions are created either with the {@link Registry}
+ * object or the registry admin {@link Glacier2.SessionManager} object.
  * 
  * @see Registry
- * @see Glacier2::SessionManager
+ * @see Glacier2.SessionManager
  *
  **/
 interface AdminSession extends Glacier2::Session
@@ -1182,7 +1182,7 @@ interface AdminSession extends Glacier2::Session
      * Keep the session alive. Clients should call this operation
      * regularly to prevent the server from reaping the session.
      *
-     * @see Registry::getSessionTimeout
+     * @see Registry#getSessionTimeout
      *
      **/
     idempotent void keepAlive();

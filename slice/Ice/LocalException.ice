@@ -127,8 +127,8 @@ local exception NotRegisteredException
  * The operation can only be invoked with a twoway request.
  *
  * This exception is raised if an attempt is made to invoke an
- * operation with [ice_oneway], [ice_batchOneway], [ice_datagram],
- * or [ice_batchDatagram] and the operation has a return value,
+ * operation with <tt>ice_oneway</tt>, <tt>ice_batchOneway</tt>, <tt>ice_datagram</tt>,
+ * or <tt>ice_batchDatagram</tt> and the operation has a return value,
  * out-parameters, or an exception specification.
  *
  **/
@@ -147,10 +147,10 @@ local exception TwowayOnlyException
  * An attempt was made to clone a class that does not support
  * cloning.
  *
- * This exception is raised if [ice_clone] is called on
+ * This exception is raised if <tt>ice_clone</tt> is called on
  * a class that is derived from an abstract Slice class (that is,
  * a class containing operations), and the derived class does not
- * provide an implementation of the [ice_clone] operation (C++ only).
+ * provide an implementation of the <tt>ice_clone</tt> operation (C++ only).
  *
  **/
 local exception CloneNotImplementedException
@@ -182,10 +182,10 @@ local exception UnknownException
  * This exception is raised if an operation call on a server raises a
  * local exception. Because local exceptions are not transmitted by
  * the Ice protocol, the client receives all local exceptions raised
- * by the server as [UnknownLocalException]. The only exception to this
- * rule are all exceptions derived from [RequestFailedException],
+ * by the server as {@link UnknownLocalException}. The only exception to this
+ * rule are all exceptions derived from {@link RequestFailedException},
  * which are transmitted by the Ice protocol even though they are
- * declared [local].
+ * declared <tt>local</tt>.
  *
  **/
 local exception UnknownLocalException extends UnknownException
@@ -201,7 +201,7 @@ local exception UnknownLocalException extends UnknownException
  * <tt>throws</tt> clause. Such undeclared exceptions are
  * not transmitted from the server to the client by the Ice
  * protocol, but instead the client just gets an
- * [UnknownUserException]. This is necessary in order to not violate
+ * {@link UnknownUserException}. This is necessary in order to not violate
  * the contract established by an operation's signature: Only local
  * exceptions and user exceptions declared in the
  * <tt>throws</tt> clause can be raised.
@@ -223,9 +223,9 @@ local exception VersionMismatchException
 
 /**
  *
- * This exception is raised if the [Communicator] has been destroyed.
+ * This exception is raised if the {@link Communicator} has been destroyed.
  *
- * @see Communicator::destroy
+ * @see Communicator#destroy
  *
  **/
 local exception CommunicatorDestroyedException
@@ -235,10 +235,10 @@ local exception CommunicatorDestroyedException
 /**
  *
  * This exception is raised if an attempt is made to use a deactivated
- * [ObjectAdapter].
+ * {@link ObjectAdapter}.
  *
- * @see ObjectAdapter::deactivate
- * @see Communicator::shutdown
+ * @see ObjectAdapter#deactivate
+ * @see Communicator#shutdown
  *
  **/
 local exception ObjectAdapterDeactivatedException
@@ -253,9 +253,9 @@ local exception ObjectAdapterDeactivatedException
 
 /**
  *
- * This exception is raised if an [ObjectAdapter] cannot be activated.
+ * This exception is raised if an {@link ObjectAdapter} cannot be activated.
  *
- * This happens if the [Locator] detects another active [ObjectAdapter] with
+ * This happens if the {@link Locator} detects another active {@link ObjectAdapter} with
  * the same adapter id.
  *
  **/
@@ -367,9 +367,9 @@ local exception IllegalIdentityException
 /**
  *
  * This exception is raised if a request failed. This exception, and
- * all exceptions derived from [RequestFailedException], are
+ * all exceptions derived from {@link RequestFailedException}, are
  * transmitted by the Ice protocol, even though they are declared
- * [local].
+ * <tt>local</tt>.
  *
  **/
 local exception RequestFailedException
@@ -419,7 +419,7 @@ local exception OperationNotExistException extends RequestFailedException
  *
  * This exception is raised if a system error occurred in the server
  * or client process. There are many possible causes for such a system
- * exception. For details on the cause, [SyscallException::error]
+ * exception. For details on the cause, {@link SyscallException#error}
  * should be inspected.
  *
  **/
@@ -488,7 +488,7 @@ local exception ConnectionLostException extends SocketException
 /**
  *
  * This exception indicates a DNS problem. For details on the cause,
- * [DNSException::error] should be inspected.
+ * {@link DNSException#error} should be inspected.
  *
  **/
 local exception DNSException
@@ -709,9 +709,9 @@ local exception CloseConnectionException extends ProtocolException
 /**
  *
  * This exception is raised by an operation call if the application
- * forcefully closes the connection [Connection::close].
+ * forcefully closes the connection {@link Connection#close}.
  *
- * @see Connection::close
+ * @see Connection#close
  *
  **/
 local exception ForcedCloseConnectionException extends ProtocolException
@@ -782,8 +782,8 @@ local exception UnmarshalOutOfBoundsException extends MarshalException
  * unmarshaling of a Slice class instance.
  *
  * @see ObjectFactory
- * @see Communicator::addObjectFactory
- * @see Communicator::findObjectFactory
+ * @see Communicator#addObjectFactory
+ * @see Communicator#findObjectFactory
  *
  **/
 local exception NoObjectFactoryException extends MarshalException
@@ -804,7 +804,7 @@ local exception NoObjectFactoryException extends MarshalException
  * This can happen if client and server are compiled with mismatched Slice
  * definitions or if a class of the wrong type is passed as a parameter
  * or return value using dynamic invocation. This exception can also be
- * raised if [IceStorm] is used to send Slice class instances and
+ * raised if {@link IceStorm} is used to send Slice class instances and
  * an operation is subscribed to the wrong topic.
  *
  **/

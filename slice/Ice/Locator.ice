@@ -73,7 +73,7 @@ interface LocatorRegistry;
  * lookup adapters and objects. It is also used by servers to get the
  * locator registry proxy.
  *
- * <p class="Note">The [Locator] interface is intended to be used by
+ * <p class="Note">The {@link Locator} interface is intended to be used by
  * Ice internals and by locator implementations. Regular user code
  * should not attempt to use any functionality of this interface
  * directly.
@@ -127,7 +127,7 @@ interface Locator
  * The Ice locator registry interface. This interface is used by
  * servers to register adapter endpoints with the locator.
  *
- * <p class="Note"> The [LocatorRegistry] interface is intended to be used
+ * <p class="Note"> The {@link LocatorRegistry} interface is intended to be used
  * by Ice internals and by locator implementations. Regular user
  * code should not attempt to use any functionality of this interface
  * directly.
@@ -150,7 +150,7 @@ interface LocatorRegistry
      * registered adapters to set their active proxy and the
      * adapter is not registered with the locator.
      *
-     * @throws AdapterAlreadyActive Raised if an adapter with the same
+     * @throws AdapterAlreadyActiveException Raised if an adapter with the same
      * id is already active.
      *
      **/
@@ -174,7 +174,7 @@ interface LocatorRegistry
      * set their active proxy and the adapter is not registered with
      * the locator.
      *
-     * @throws AdapterAlreadyActive Raised if an adapter with the same
+     * @throws AdapterAlreadyActiveException Raised if an adapter with the same
      * id is already active.
      *
      * @throws InvalidReplicaGroupIdException Raised if the given

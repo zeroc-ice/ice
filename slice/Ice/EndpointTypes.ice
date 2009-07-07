@@ -25,11 +25,11 @@ module Ice
 enum EndpointSelectionType
 {
     /**
-     * [Random] causes the endpoints to be arranged in a random order.
+     * <tt>Random</tt> causes the endpoints to be arranged in a random order.
      */
     Random,
     /**
-     * [Ordered] forces the Ice run time to use the endpoints in the
+     * <tt>Ordered</tt> forces the Ice run time to use the endpoints in the
      * order they appeared in the proxy.
      */
     Ordered

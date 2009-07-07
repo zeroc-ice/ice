@@ -22,6 +22,8 @@ SLICEFILES = ..\..\slice\Freeze\BackgroundSaveEvictor.ice \
              ..\..\slice\Ice\ConnectionF.ice \
              ..\..\slice\Ice\Current.ice \
              ..\..\slice\Ice\Endpoint.ice \
+             ..\..\slice\Ice\EndpointF.ice \
+             ..\..\slice\Ice\EndpointTypes.ice \
              ..\..\slice\Ice\FacetMap.ice \
              ..\..\slice\Ice\Identity.ice \
              ..\..\slice\Ice\ImplicitContext.ice \
@@ -61,5 +63,6 @@ SLICEFILES = ..\..\slice\Freeze\BackgroundSaveEvictor.ice \
              ..\..\slice\IceGrid\UserAccountMapper.ice \
              ..\..\slice\IcePatch2\FileInfo.ice \
              ..\..\slice\IcePatch2\FileServer.ice \
+             ..\..\slice\IceSSL\Endpoint.ice \
              ..\..\slice\IceStorm\IceStorm.ice 
 

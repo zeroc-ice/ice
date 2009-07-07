@@ -48,7 +48,7 @@ local interface Logger
      *
      * @param message The warning message to log.
      *
-     * @see error
+     * @see #error
      *
      **/
     void warning(string message);
@@ -59,7 +59,7 @@ local interface Logger
      *
      * @param message The error message to log.
      *
-     * @see warning
+     * @see #warning
      *
      **/
     void error(string message);

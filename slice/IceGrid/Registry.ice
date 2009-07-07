@@ -35,7 +35,7 @@ interface Registry
      * Create a client session.
      *
      * @see Session
-     * @see Glacier2::PermissionsVerifier
+     * @see Glacier2.PermissionsVerifier
      *
      * @return A proxy for the newly created session.
      *
@@ -56,7 +56,7 @@ interface Registry
      * Create an administrative session.
      *
      * @see Session
-     * @see Glacier2::PermissionsVerifier
+     * @see Glacier2.PermissionsVerifier
      *
      * @return A proxy for the newly created session.
      *
@@ -77,7 +77,7 @@ interface Registry
      * Create a client session from a secure connection.
      *
      * @see Session
-     * @see Glacier2::SSLPermissionsVerifier
+     * @see Glacier2.SSLPermissionsVerifier
      *
      * @return A proxy for the newly created session.
      *
@@ -98,7 +98,7 @@ interface Registry
      * Create an administrative session from a secure connection.
      *
      * @see Session
-     * @see Glacier2::SSLPermissionsVerifier
+     * @see Glacier2.SSLPermissionsVerifier
      *
      * @return A proxy for the newly created session.
      *
@@ -116,8 +116,8 @@ interface Registry
      * doesn't call the session keepAlive method in the time interval
      * defined by this timeout, IceGrid might reap the session.
      *
-     * @see Session::keepAlive
-     * @see AdminSession::keepAlive
+     * @see Session#keepAlive
+     * @see AdminSession#keepAlive
      *
      * @return The timeout (in seconds).
      *

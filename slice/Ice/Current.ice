@@ -21,9 +21,9 @@ module Ice
 
 /**
  *
- * A request context. [Context] is used to transmit metadata about a
+ * A request context. <tt>Context</tt> is used to transmit metadata about a
  * request from the server to the client, such as Quality-of-Service
- * (QoS) parameters. Each operation on the client has a [Context] as
+ * (QoS) parameters. Each operation on the client has a <tt>Context</tt> as
  * its implicit final parameter.
  *
  **/
@@ -31,7 +31,7 @@ dictionary<string, string> Context;
 
 /**
  *
- * The [OperationMode] determines the retry behavior an
+ * The {@link OperationMode} determines the retry behavior an
  * invocation in case of a (potentially) recoverable error.
  *
  **/
@@ -42,18 +42,18 @@ dictionary<string, string> Context;
 enum OperationMode
 {
     /**
-     * Ordinary operations have [Normal] mode.  These operations
+     * Ordinary operations have <tt>Normal</tt> mode.  These operations
      * modify object state; invoking such an operation twice in a row
      * has different semantics than invoking it once. The Ice run time
      * guarantees that it will not violate at-most-once semantics for
-     * [Normal] operations.
+     * <tt>Normal</tt> operations.
      */
     Normal,
 
     /**
-     * Operations that use the Slice [nonmutating] keyword must not
+     * Operations that use the Slice <tt>nonmutating</tt> keyword must not
      * modify object state. For C++, nonmutating operations generate
-     * [const] member functions in the skeleton. In addition, the Ice
+     * <tt>const</tt> member functions in the skeleton. In addition, the Ice
      * run time will attempt to transparently recover from certain
      * run-time errors by re-issuing a failed request and propagate
      * the failure to the application only if the second attempt
@@ -68,7 +68,7 @@ enum OperationMode
     \Nonmutating,
 
     /**
-     * Operations that use the Slice [idempotent] keyword can modify
+     * Operations that use the Slice <tt>idempotent</tt> keyword can modify
      * object state, but invoking an operation twice in a row must
      * result in the same object state as invoking it once.  For
      * example, <tt>x = 1</tt> is an idempotent statement,
@@ -83,8 +83,8 @@ enum OperationMode
 /**
  *
  * Information about the current method invocation for servers. Each
- * operation on the server has a [Current] as its implicit final
- * parameter. [Current] is mostly used for Ice services. Most
+ * operation on the server has a <tt>Current</tt> as its implicit final
+ * parameter. <tt>Current</tt> is mostly used for Ice services. Most
  * applications ignore this parameter.
  *
  **/

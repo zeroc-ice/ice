@@ -24,10 +24,10 @@ module Glacier2
  * This exception is raised if an attempt to create a new session
  * failed.
  *
- * @see Router::createSession
- * @see Router::createSessionFromSecureConnection
- * @see SessionManager::create
- * @see SSLSessionManager::create
+ * @see Router#createSession
+ * @see Router#createSessionFromSecureConnection
+ * @see SessionManager#create
+ * @see SSLSessionManager#create
  *
  **/
 exception CannotCreateSessionException
@@ -43,7 +43,7 @@ exception CannotCreateSessionException
 /**
  *
  * A client-visible session object, which is tied to the lifecycle of
- * a [Router].
+ * a {@link Router}.
  *
  * @see Router
  * @see SessionManager
@@ -54,7 +54,7 @@ interface Session
     /**
      *
      * Destroy the session. This is called automatically when the
-     * [Router] is destroyed.
+     * {@link Router} is destroyed.
      *
      **/
     ["ami"] void destroy();
@@ -64,7 +64,7 @@ interface Session
  *
  * An object for managing the set of identity constraints for specific
  * parts of object identity on a
- * [Session]. 
+ * {@link Session}. 
  *
  * @see Session
  * @see SessionControl
@@ -106,7 +106,7 @@ interface StringSet
 /**
  *
  * An object for managing the set of object identity constraints on a
- * [Session]. 
+ * {@link Session}. 
  *
  * @see Session
  * @see SessionControl
@@ -148,7 +148,7 @@ interface IdentitySet
 /**
  *
  * An administrative session control object, which is tied to the
- * lifecycle of a [Session].
+ * lifecycle of a {@link Session}.
  *
  * @see Session
  *
@@ -205,8 +205,8 @@ interface SessionControl
 /**
  *
  * The session manager for username/password authenticated users that
- * is responsible for managing [Session] objects. New session objects
- * are created by the [Router] object calling on an application-provided
+ * is responsible for managing {@link Session} objects. New session objects
+ * are created by the {@link Router} object calling on an application-provided
  * session manager. If no session manager is provided by the application,
  * no client-visible sessions are passed to the client.
  *
@@ -237,8 +237,8 @@ interface SessionManager
 /**
  *
  * The session manager for SSL authenticated users that is
- * responsible for managing [Session] objects. New session objects are
- * created by the [Router] object calling on an application-provided
+ * responsible for managing {@link Session} objects. New session objects are
+ * created by the {@link Router} object calling on an application-provided
  * session manager. If no session manager is provided by the
  * application, no client-visible sessions are passed to the client.
  *

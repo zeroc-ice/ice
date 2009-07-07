@@ -14,11 +14,14 @@
 
 #include <Ice/Endpoint.ice>
 
+/**
+ * IceSSL provides a secure transport for Ice.
+ **/
 module IceSSL
 {
 
 /**
- * SSL Endpoint
+ * Provides access to the address details of an SSL endpoint.
  **/
 local interface SslEndpoint extends Ice::Endpoint
 {

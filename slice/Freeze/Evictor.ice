@@ -48,7 +48,7 @@ local interface ServantInitializer
      *
      * @param servant The servant to initialize.
      *
-     * @see Ice::Identity
+     * @see Ice.Identity
      *
      **/
     void initialize(Ice::ObjectAdapter adapter, Ice::Identity identity, string facet, Object servant);
@@ -149,7 +149,7 @@ local interface Evictor extends Ice::ServantLocator
      * @throws EvictorDeactivatedException Raised if a the evictor has
      * been deactivated.
      *
-     * @see getSize
+     * @see #getSize
      *
      **/
     void setSize(int sz);
@@ -163,7 +163,7 @@ local interface Evictor extends Ice::ServantLocator
      * @throws EvictorDeactivatedException Raised if a the evictor has
      * been deactivated.
      *
-     * @see setSize
+     * @see #setSize
      *
      **/
     int getSize();
@@ -182,7 +182,7 @@ local interface Evictor extends Ice::ServantLocator
      * @return A proxy that matches the given identity and this evictor's
      * object adapter.
      *
-     * @throws ::Ice::AlreadyRegisteredException Raised if the evictor already has
+     * @throws Ice.AlreadyRegisteredException Raised if the evictor already has
      * an object with this identity.
      *
      * @throws DatabaseException Raised if a database failure occurred.
@@ -190,17 +190,17 @@ local interface Evictor extends Ice::ServantLocator
      * @throws EvictorDeactivatedException Raised if the evictor has
      * been deactivated.
      *
-     * @see addFacet
-     * @see remove
-     * @see removeFacet
+     * @see #addFacet
+     * @see #remove
+     * @see #removeFacet
      *
      **/
     Object* add(Object servant, Ice::Identity id);
 
     /**
      *
-     * Like [add], but with a facet. Calling <tt>add(servant, id)</tt>
-     * is equivalent to calling [addFacet] with an empty
+     * Like {@link #add}, but with a facet. Calling <tt>add(servant, id)</tt>
+     * is equivalent to calling {@link #addFacet} with an empty
      * facet.
      *
      * @param servant The servant to add.
@@ -214,7 +214,7 @@ local interface Evictor extends Ice::ServantLocator
      * @return A proxy that matches the given identity and this evictor's
      * object adapter.
      *
-     * @throws ::Ice::AlreadyRegisteredException Raised if the evictor already has
+     * @throws Ice.AlreadyRegisteredException Raised if the evictor already has
      * an object with this identity.
      *
      * @throws DatabaseException Raised if a database failure occurred.
@@ -222,9 +222,9 @@ local interface Evictor extends Ice::ServantLocator
      * @throws EvictorDeactivatedException Raised if the evictor has
      * been deactivated.
      *
-     * @see add
-     * @see remove
-     * @see removeFacet
+     * @see #add
+     * @see #remove
+     * @see #removeFacet
      *
      **/
     Object* addFacet(Object servant, Ice::Identity id, string facet);
@@ -242,7 +242,7 @@ local interface Evictor extends Ice::ServantLocator
      *
      * @return The removed servant.
      *
-     * @throws ::Ice::NotRegisteredException Raised if this identity was not 
+     * @throws Ice.NotRegisteredException Raised if this identity was not 
      * registered with the evictor.
      *
      * @throws DatabaseException Raised if a database failure occurred.
@@ -250,16 +250,16 @@ local interface Evictor extends Ice::ServantLocator
      * @throws EvictorDeactivatedException Raised if the evictor has
      * been deactivated.
      *
-     * @see add
-     * @see removeFacet
+     * @see #add
+     * @see #removeFacet
      *
      **/
     Object remove(Ice::Identity id);
 
     /**
      *
-     * Like [remove], but with a facet. Calling <tt>remove(id)</tt> 
-     * is equivalent to calling [removeFacet] with an empty facet.
+     * Like {@link #remove}, but with a facet. Calling <tt>remove(id)</tt> 
+     * is equivalent to calling {@link #removeFacet} with an empty facet.
      *
      * @param id The identity of the Ice object.
      *
@@ -268,7 +268,7 @@ local interface Evictor extends Ice::ServantLocator
      *
      * @return The removed servant.
      *
-     * @throws ::Ice::NotRegisteredException Raised if this identity was not 
+     * @throws Ice.NotRegisteredException Raised if this identity was not 
      * registered with the evictor.
      *
      * @throws DatabaseException Raised if a database failure occurred.
@@ -277,8 +277,8 @@ local interface Evictor extends Ice::ServantLocator
      * been deactivated.
      *
      *
-     * @see remove
-     * @see addFacet
+     * @see #remove
+     * @see #addFacet
      *
      **/
     Object removeFacet(Ice::Identity id, string facet);
@@ -301,8 +301,8 @@ local interface Evictor extends Ice::ServantLocator
 
     /**
      * 
-     * Like [hasObject], but with a facet. Calling <tt>hasObject(id)</tt>
-     * is equivalent to calling [hasFacet] with an empty
+     * Like {@link #hasObject}, but with a facet. Calling <tt>hasObject(id)</tt>
+     * is equivalent to calling {@link #hasFacet] with an empty
      * facet.
      *
      * @return true if the identity is managed by the evictor for the

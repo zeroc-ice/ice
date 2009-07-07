@@ -52,13 +52,13 @@ local interface Communicator
 {
     /**
      *
-     * Destroy the communicator. This operation calls [shutdown]
-     * implicitly.  Calling [destroy] cleans up memory, and shuts down
+     * Destroy the communicator. This operation calls {@link #shutdown}
+     * implicitly.  Calling {@link #destroy} cleans up memory, and shuts down
      * this communicator's client functionality and destroys all object
-     * adapters. Subsequent calls to [destroy] are ignored.
+     * adapters. Subsequent calls to {@link #destroy} are ignored.
      *
-     * @see shutdown
-     * @see ObjectAdapter::destroy
+     * @see #shutdown
+     * @see ObjectAdapter#destroy
      *
      **/
     void destroy();
@@ -67,40 +67,40 @@ local interface Communicator
      *
      * Shuts down this communicator's server functionality, which
      * includes the deactivation of all object adapters. (Attempts to use
-     * a deactivated object adapter raise [ObjectAdapterDeactivatedException].)
-     * Subsequent calls to [shutdown] are ignored.</p>
+     * a deactivated object adapter raise {@link ObjectAdapterDeactivatedException}.)
+     * Subsequent calls to {@link #shutdown} are ignored.</p>
      *
-     * <p class="Note"> After [shutdown] returns, no new requests are
+     * <p class="Note"> After {@link #shutdown} returns, no new requests are
      * processed. However, requests that have been started before
-     * [shutdown] was called might still be active. You can use
-     * [waitForShutdown] to wait for the completion of all
+     * {@link #shutdown} was called might still be active. You can use
+     * {@link #waitForShutdown} to wait for the completion of all
      * requests.
      *
-     * @see destroy
-     * @see waitForShutdown
-     * @see ObjectAdapter::deactivate
+     * @see #destroy
+     * @see #waitForShutdown
+     * @see ObjectAdapter#deactivate
      *
      **/
     void shutdown();
 
     /**
      *
-     * Wait until the application has called [shutdown] (or [destroy]).
+     * Wait until the application has called {@link #shutdown} (or {@link #destroy}).
      * On the server side, this operation blocks the calling thread
      * until all currently-executing operations have completed.
      * On the client side, the operation simply block until another
-     * thread has called [shutdown] or [destroy].
+     * thread has called {@link #shutdown} or {@link #destroy}.
      *
      * <p>A typical use of this operation is to call it
      * from the main thread, which then waits until some other thread
-     * calls [shutdown]. After shut-down is complete, the main thread
+     * calls {@link #shutdown}. After shut-down is complete, the main thread
      * returns and can do some cleanup work before it finally calls
-     * [destroy] to shut down the client functionality, and then
+     * {@link #destroy} to shut down the client functionality, and then
      * exits the application.
      *
-     * @see shutdown
-     * @see destroy
-     * @see ObjectAdapter::waitForDeactivate
+     * @see #shutdown
+     * @see #destroy
+     * @see ObjectAdapter#waitForDeactivate
      *
      **/
     void waitForShutdown();
@@ -111,7 +111,7 @@ local interface Communicator
      *
      * @return True if the communicator has been shut down; false otherwise.
      *
-     * @see shutdown
+     * @see #shutdown
      *
      **/
     ["cpp:const"] bool isShutdown();
@@ -124,13 +124,13 @@ local interface Communicator
      * having an identity with a name "MyObject" and a category
      * "MyCategory", with the server running on host "some_host", port
      * 10000. If the string does not parse correctly, the operation
-     * throws [ProxyParseException].
+     * throws {@link ProxyParseException}.
      *
      * @param str The string to convert into a proxy.
      *
      * @return The proxy.
      *
-     * @see proxyToString
+     * @see #proxyToString
      *
      **/
     ["cpp:const"] Object* stringToProxy(string str);
@@ -143,7 +143,7 @@ local interface Communicator
      *
      * @return The "stringified" proxy.
      *
-     * @see stringToProxy
+     * @see #stringToProxy
      *
      **/
     ["cpp:const"] string proxyToString(Object* obj);
@@ -168,7 +168,7 @@ local interface Communicator
      *
      * @return The identity.
      *
-     * @see identityToString
+     * @see #identityToString
      *
      **/
     ["cpp:const"] Identity stringToIdentity(string str);
@@ -181,7 +181,7 @@ local interface Communicator
      *
      * @return The "stringified" identity.
      *
-     * @see stringToIdentity
+     * @see #stringToIdentity
      *
      **/
     ["cpp:const"] string identityToString(Identity ident);
@@ -197,13 +197,13 @@ local interface Communicator
      * that originate from the the same communicator as is used by the adapter.</p>
      *
      * <p>Attempts to create a named object adapter for which no endpoint or
-     * router configuration can be found raise [InitializationException].
+     * router configuration can be found raise {@link InitializationException}.
      *
      * @param name The object adapter name.
      *
      * @return The new object adapter.
      *
-     * @see createObjectAdapterWithEndpoints
+     * @see #createObjectAdapterWithEndpoints
      * @see ObjectAdapter
      * @see Properties
      *
@@ -214,11 +214,11 @@ local interface Communicator
      *
      * Create a new object adapter with endpoints. This operation sets
      * the property <tt><em>name</em>.Endpoints</tt>,
-     * and then calls [createObjectAdapter]. It is provided as a
+     * and then calls {@link createObjectAdapter}. It is provided as a
      * convenience function.</p>
      *
      * <p>Calling this operation with an empty name or empty endpoint string
-     * raises [InitializationException].
+     * raises {@link InitializationException}.
      * 
      * @param name The object adapter name.
      *
@@ -226,7 +226,7 @@ local interface Communicator
      *
      * @return The new object adapter.
      *
-     * @see createObjectAdapter
+     * @see #createObjectAdapter
      * @see ObjectAdapter
      * @see Properties
      *
@@ -244,7 +244,7 @@ local interface Communicator
      *
      * @return The new object adapter.
      *
-     * @see createObjectAdapter
+     * @see #createObjectAdapter
      * @see ObjectAdapter
      * @see Properties
      *
@@ -255,7 +255,7 @@ local interface Communicator
      *
      * Add a servant factory to this communicator. Installing a
      * factory with an id for which a factory is already registered
-     * throws [AlreadyRegisteredException].</p>
+     * throws {@link AlreadyRegisteredException}.</p>
      *
      * <p>When unmarshaling an Ice object, the Ice run-time reads the
      * most-derived type id off the wire and attempts to create an
@@ -263,7 +263,7 @@ local interface Communicator
      * either because no factory was found, or because all factories
      * returned nil, the object is sliced to the next most-derived type
      * and the process repeats. If no factory is found that can create an
-     * instance, the Ice run-time throws [NoObjectFactoryException].</p>
+     * instance, the Ice run-time throws {@link NoObjectFactoryException}.</p>
      *
      * <p>The following order is used to locate a factory for a type:</p>
      *
@@ -289,7 +289,7 @@ local interface Communicator
      * @param id The type id for which the factory can create instances, or
      * an empty string for the default factory.
      *
-     * @see findObjectFactory
+     * @see #findObjectFactory
      * @see ObjectFactory
      *
      **/
@@ -305,7 +305,7 @@ local interface Communicator
      * @return The servant factory, or null if no servant factory was
      * found for the given id.
      *
-     * @see addObjectFactory
+     * @see #addObjectFactory
      * @see ObjectFactory
      *
      **/
@@ -361,7 +361,7 @@ local interface Communicator
      *
      * @return The default router for this communicator.
      *
-     * @see setDefaultRouter
+     * @see #setDefaultRouter
      * @see Router
      *
      **/
@@ -375,12 +375,12 @@ local interface Communicator
      * operation has no effect on existing proxies.</p>
      *
      * <p class="Note">You can also set a router for an individual proxy
-     * by calling the operation [ice_router] on the proxy.
+     * by calling the operation <tt>ice_router</tt> on the proxy.
      *
      * @param rtr The default router to use for this communicator.
      *
-     * @see getDefaultRouter
-     * @see createObjectAdapterWithRouter
+     * @see #getDefaultRouter
+     * @see #createObjectAdapterWithRouter
      * @see Router
      *
      **/
@@ -392,7 +392,7 @@ local interface Communicator
      *
      * @return The default locator for this communicator.
      *
-     * @see setDefaultLocator
+     * @see #setDefaultLocator
      * @see Locator
      *
      **/
@@ -407,15 +407,15 @@ local interface Communicator
      * object adapters.</p>
      *
      * <p class="Note"> You can also set a locator for an individual proxy
-     * by calling the operation [ice_locator] on the proxy, or for an
-     * object adapter by calling the operation [setLocator] on the
+     * by calling the operation <tt>ice_locator</tt> on the proxy, or for an
+     * object adapter by calling the operation {@link setLocator} on the
      * object adapter.
      *
      * @param loc The default locator to use for this communicator.
      *
-     * @see getDefaultLocator
+     * @see #getDefaultLocator
      * @see Locator
-     * @see ObjectAdapter::setLocator
+     * @see ObjectAdapter#setLocator
      *
      **/
     void setDefaultLocator(Locator* loc);
@@ -457,7 +457,7 @@ local interface Communicator
      *
      * Add a new facet to the Admin object.
      * Adding a servant with a facet that is already registered 
-     * throws [AlreadyRegisteredException].
+     * throws {@link AlreadyRegisteredException}.
      *
      * @param servant The servant that implements the new Admin facet.
      * @param facet The new Admin facet.
@@ -469,7 +469,7 @@ local interface Communicator
      *
      * Remove the following facet to the Admin object.
      * Removing a facet that was not previously registered throws 
-     * [NotRegisteredException].
+     * {@link NotRegisteredException}.
      *
      * @param facet The Admin facet.
      * @return The servant associated with this Admin facet

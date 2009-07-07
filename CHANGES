@@ -33,6 +33,26 @@ General Changes
 These entries apply to all relevant language mappings unless otherwise
 noted.
 
+- slice2html comments now use a syntax that matches the javadoc syntax.
+  Instead of
+
+      module::interface::operation
+
+  slice2html now expects
+
+      module.interface#operation
+
+  Similarly, the link syntax now follows the javadoc syntax. Instead of
+
+      [module::interface::operation]
+
+  slice2html now expects
+
+      {@link module.interface#operation}
+
+  The old syntax is still supported; slice2html prints a warning for each
+  source file in which it encounters the old syntax.
+
 - A batch invocation will now only throw if the connection associated
   to the proxy failed and there were batch requests queued at the time
   of the failure. If there were no batch requests queued, the batch
@@ -186,10 +206,6 @@ Java Changes
   local interfaces and classes. This makes the code easier to browse
   with IDEs.
 
-- Fixed a bug that caused UnmarshalOutOfBoundsException during an
-  attempt to unmarshal an exception or class if Ice.jar is installed
-  in the JVM's extension directory.
-
 - slice2java now preserves javadoc comments that appear in the Slice
   source and writes them through to the corresponding APIs in the
   generated code.
@@ -197,6 +213,10 @@ Java Changes
 - Ice.jar and Freeze.jar now include source files. This allows IDEs
   such as Eclipse to browse the Ice source code and to display javadoc
   comments.
+
+- Fixed a bug that caused UnmarshalOutOfBoundsException during an
+  attempt to unmarshal an exception or class if Ice.jar is installed
+  in the JVM's extension directory.
 
 - The following APIs are deprecated and will be removed in a future 
   release.

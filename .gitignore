@@ -16,6 +16,7 @@
 *.ncb
 *.opt
 *.user
+*.res
 .gdb_history
 .DS_Store
 core

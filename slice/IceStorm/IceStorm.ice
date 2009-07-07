@@ -58,7 +58,7 @@ struct LinkInfo
 
 /**
  *
- * A sequence of [LinkInfo] objects.
+ * A sequence of {@link LinkInfo} objects.
  *
  **/
 sequence<LinkInfo> LinkInfoSeq;
@@ -67,7 +67,7 @@ sequence<LinkInfo> LinkInfoSeq;
  *
  * This dictionary represents quality of service parameters.
  *
- * @see Topic::subscribe
+ * @see Topic#subscribe
  *
  */
 dictionary<string, string> QoS;
@@ -146,7 +146,7 @@ interface Topic
      *
      * @return The name of the topic.
      *
-     * @see TopicManager::create
+     * @see TopicManager#create
      *
      **/
     ["nonmutating", "cpp:const"] idempotent string getName();
@@ -154,7 +154,7 @@ interface Topic
     /**
      *
      * Get a proxy to a publisher object for this topic. To publish
-     * data to a topic, the publisher calls [getPublisher] and then
+     * data to a topic, the publisher calls {@link #getPublisher} and then
      * casts to the topic type. An unchecked cast must be used on this
      * proxy. If a replicated IceStorm deployment is used this call
      * may return a replicated proxy.
@@ -168,7 +168,7 @@ interface Topic
      *
      * Get a non-replicated proxy to a publisher object for this
      * topic. To publish data to a topic, the publisher calls
-     * [getPublisher] and then casts to the topic type. An unchecked
+     * {@link #getPublisher} and then casts to the topic type. An unchecked
      * cast must be used on this proxy.
      *
      * @return A proxy to publish data on this topic.
@@ -192,7 +192,7 @@ interface Topic
      *
      * @return The per-subscriber publisher object.
      *
-     * @see unsubscribe
+     * @see #unsubscribe
      *
      **/
     ["deprecate:subscribe is deprecated, use subscribeAndGetPublisher instead"]
@@ -216,7 +216,7 @@ interface Topic
      * @throws BadQoS Raised if the requested quality of service
      * is unavailable or invalid.
      *
-     * @see unsubscribe
+     * @see #unsubscribe
      *
      **/
     Object* subscribeAndGetPublisher(QoS theQoS, Object* subscriber)
@@ -228,7 +228,7 @@ interface Topic
      *
      * @param subscriber The proxy of an existing subscriber.
      *
-     * @see subscribe
+     * @see #subscribe
      *
      **/
     idempotent void unsubscribe(Object* subscriber);
@@ -327,7 +327,7 @@ interface TopicManager
     /**
      *
      * Create a new topic. The topic name must be unique, otherwise
-     * [TopicExists] is raised.
+     * {@link TopicExists} is raised.
      *
      * @param name The name of the topic.
      *

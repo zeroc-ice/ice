@@ -31,8 +31,8 @@ module Glacier2
  * This exception is raised if a client is denied the ability to create
  * a session with the router.
  *
- * @see Router::createSession
- * @see Router::createSessionFromSecureConnection
+ * @see Router#createSession
+ * @see Router#createSessionFromSecureConnection
  *
  **/
 exception PermissionDeniedException
@@ -50,7 +50,7 @@ exception PermissionDeniedException
  * This exception is raised if a client tries to destroy a session
  * with a router, but no session exists for the client.
  *
- * @see Router::destroySession
+ * @see Router#destroySession
  *
  **/
 exception SessionNotExistException
@@ -59,7 +59,7 @@ exception SessionNotExistException
 
 /**
  *
- * The Glacier2 specialization of the [Ice::Router]
+ * The Glacier2 specialization of the {@link Ice.Router}
  * interface.
  *
  **/
@@ -79,7 +79,7 @@ interface Router extends Ice::Router
     /**
      *
      * Create a per-client session with the router. If a
-     * [SessionManager] has been installed, a proxy to a [Session]
+     * {@link SessionManager} has been installed, a proxy to a {@link Session}
      * object is returned to the client. Otherwise, null is returned
      * and only an internal session (i.e., not visible to the client)
      * is created.
@@ -95,7 +95,7 @@ interface Router extends Ice::Router
      * @see PermissionsVerifier
      *
      * @return A proxy for the newly created session, or null if no
-     * [SessionManager] has been installed.
+     * {@link SessionManager} has been installed.
      *
      * @param userId The user id for which to check the password.
      *
@@ -116,8 +116,8 @@ interface Router extends Ice::Router
      *
      * Create a per-client session with the router. The user is
      * authenticated through the SSL certificates that have been
-     * associated with the connection. If a [SessionManager] has been
-     * installed, a proxy to a [Session] object is returned to the
+     * associated with the connection. If a {@link SessionManager} has been
+     * installed, a proxy to a {@link Session} object is returned to the
      * client. Otherwise, null is returned and only an internal
      * session (i.e., not visible to the client) is created.
      *
@@ -132,7 +132,7 @@ interface Router extends Ice::Router
      * @see PermissionsVerifier
      *
      * @return A proxy for the newly created session, or null if no
-     * [SessionManager] has been installed.
+     * {@link SessionManager} has been installed.
      *
      * @throws PermissionDeniedException Raised if the user cannot be
      * authenticated or if the user is not allowed access.

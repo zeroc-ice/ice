@@ -317,7 +317,7 @@ interface ObjectObserver
      * serial number allows observers to make sure that their internal state
      * is synchronized with the registry.
      *
-     * @param objects The objects registered with the [Admin]
+     * @param objects The objects registered with the {@link Admin}
      * interface (not through the deployment mechanism).
      *
      **/
@@ -326,7 +326,7 @@ interface ObjectObserver
     /**
      *
      * The <tt>objectAdded</tt> operation is called to notify an observer when an
-     * object was added to the [Admin] interface.
+     * object was added to the {@link Admin} interface.
      *
      **/
     void objectAdded(ObjectInfo info);
@@ -334,7 +334,7 @@ interface ObjectObserver
     /**
      *
      * <tt>objectUpdated</tt> is called to notify an observer when
-     * an object registered with the [Admin] interface was updated.
+     * an object registered with the {@link Admin} interface was updated.
      *
      **/
     void objectUpdated(ObjectInfo info);
@@ -342,7 +342,7 @@ interface ObjectObserver
     /**
      *
      * <tt>objectRemoved</tt> is called to notify an observer when
-     * an object registered with the [Admin] interface was removed.
+     * an object registered with the {@link Admin} interface was removed.
      *
      **/
     void objectRemoved(Ice::Identity id);

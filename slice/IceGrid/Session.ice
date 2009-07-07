@@ -22,11 +22,11 @@ module IceGrid
  *
  * A session object is used by IceGrid clients to allocate and
  * release objects. Client sessions are either created with the
- * [Registry] object or the registry client [Glacier2::SessionManager]
+ * {@link Registry} object or the registry client {@link Glacier2.SessionManager}
  * object.
  *
  * @see Registry
- * @see Glacier2::SessionManager
+ * @see Glacier2.SessionManager
  * 
  **/
 interface Session extends Glacier2::Session
@@ -36,7 +36,7 @@ interface Session extends Glacier2::Session
      * Keep the session alive. Clients should call this operation
      * regularly to prevent the server from reaping the session.
      *
-     * @see Registry::getSessionTimeout
+     * @see Registry#getSessionTimeout
      *
      **/
     idempotent void keepAlive();
@@ -57,8 +57,8 @@ interface Session extends Glacier2::Session
      * @throws AllocationException Raised if the object can't be
      * allocated.
      *
-     * @see setAllocationTimeout
-     * @see releaseObject
+     * @see #setAllocationTimeout
+     * @see #releaseObject
      *
      **/
     ["ami", "amd"] Object* allocateObjectById(Ice::Identity id)
@@ -78,8 +78,8 @@ interface Session extends Glacier2::Session
      *
      * @throws AllocationException Raised if the object could not be allocated.
      *
-     * @see setAllocationTimeout
-     * @see releaseObject
+     * @see #setAllocationTimeout
+     * @see #releaseObject
      *
      **/
     ["ami", "amd"] Object* allocateObjectByType(string type)
@@ -98,8 +98,8 @@ interface Session extends Glacier2::Session
      * released. This might happen if the object isn't allocatable or
      * isn't allocated by the session.
      *
-     * @see allocateObjectById
-     * @see allocateObjectByType
+     * @see #allocateObjectById
+     * @see #allocateObjectByType
      *
      **/
     void releaseObject(Ice::Identity id)
@@ -113,8 +113,8 @@ interface Session extends Glacier2::Session
      *
      * @param timeout The timeout in milliseconds.
      *
-     * @see allocateObjectById
-     * @see allocateObjectByType
+     * @see #allocateObjectById
+     * @see #allocateObjectByType
      *
      **/
     idempotent void setAllocationTimeout(int timeout);

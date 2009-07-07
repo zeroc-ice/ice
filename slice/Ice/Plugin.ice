@@ -24,7 +24,7 @@ module Ice
  * communicator, such as support for a protocol.
  *
  * The communicator loads its plug-ins in two stages: the first stage
- * creates the plug-ins, and the second stage invokes [initialize] on
+ * creates the plug-ins, and the second stage invokes {@link Plugin.initialize} on
  * each one.
  *
  **/
@@ -58,7 +58,7 @@ local interface PluginManager
      * Initialize the configured plug-ins. The communicator automatically initializes
      * the plug-ins by default, but an application may need to interact directly with
      * a plug-in prior to initialization. In this case, the application must set
-     * <tt>Ice.InitPlugins=0</tt> and then invoke [initializePlugins]
+     * <tt>Ice.InitPlugins=0</tt> and then invoke {@link #initializePlugins}
      * manually. The plug-ins are initialized in the order in which they are loaded.
      * If a plug-in raises an exception during initialization, the communicator
      * invokes destroy on the plug-ins that have already been initialized.
@@ -74,7 +74,7 @@ local interface PluginManager
      *
      * @return The names of the plugins installed.
      *
-     * @see getPlugin
+     * @see #getPlugin
      *
      **/
     StringSeq getPlugins();

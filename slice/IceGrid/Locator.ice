@@ -22,8 +22,8 @@ interface Query;
 
 /**
  *
- * The IceGrid locator interface provides access to the [Query]
- * and [Registry] object of the IceGrid registry.
+ * The IceGrid locator interface provides access to the {@link Query}
+ * and {@link Registry} object of the IceGrid registry.
  *
  * @see Query
  * @see Registry

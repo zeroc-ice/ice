@@ -34,8 +34,8 @@ sequence<Ice::ByteSeq> ByteSeqSeq;
 
 /**
  *
- * The [partition] argument for
- * [FileServer::getFileInfoSeq] was not in the range 0-255.
+ * The <tt>partition</tt> argument for
+ * {@link FileServer#getFileInfoSeq} was not in the range 0-255.
  *
  **/
 exception PartitionOutOfRangeException
@@ -44,7 +44,7 @@ exception PartitionOutOfRangeException
 
 /**
  *
- * This exception is raised if [FileServer::getFileCompressed] cannot read the
+ * This exception is raised if {@link FileServer#getFileCompressed} cannot read the
  * contents of a file.
  *
  **/
@@ -67,13 +67,13 @@ interface FileServer
 {
     /**
      *
-     * Return the [FileInfoSeq] for the specified partition. If the
+     * Return the {@link FileInfoSeq} for the specified partition. If the
      * partion number is out of range, the operation throws
-     * [PartitionOutOfRangException].
+     * {@link PartitionOutOfRangException}.
      *
      * @param partition The partition number in the range 0-255.
      *
-     * @return A sequence containing the [FileInfo] structures for
+     * @return A sequence containing the {@link FileInfo} structures for
      * files in the specified partition.
      *
      **/
@@ -106,7 +106,7 @@ interface FileServer
     /**
      *
      * Read the specified file. If the read operation fails, the
-     * operation throws [FileAccessException]. This operation may only
+     * operation throws {@link FileAccessException}. This operation may only
      * return fewer bytes than requested in case there was an
      * end-of-file condition.
      *
