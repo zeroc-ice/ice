@@ -32,7 +32,7 @@ exception InsufficientFundsException
 {
 };
 
-class Account
+["cpp:virtual"]class Account
 {
     int getBalance();
     ["freeze:write"] void transfer(int amount, Account* toAccount) throws InsufficientFundsException;
@@ -56,7 +56,7 @@ class Account
 sequence<Account*> AccountPrxSeq;
 sequence<Ice::Identity> AccountIdSeq;
 
-["freeze:write"] class Servant
+["freeze:write", "cpp:virtual"] class Servant
 {
     ["freeze:read", "cpp:const"] idempotent int getValue();
     ["amd", "freeze:read", "cpp:const"] idempotent int slowGetValue();
@@ -83,7 +83,7 @@ sequence<Ice::Identity> AccountIdSeq;
     AccountIdSeq accounts;
 };
 
-["freeze:write"] class Facet extends Servant
+["freeze:write", "cpp:virtual"] class Facet extends Servant
 {
     ["freeze:read", "cpp:const"] idempotent string getData();
     idempotent void setData(string data);

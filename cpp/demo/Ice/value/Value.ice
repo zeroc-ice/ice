@@ -24,7 +24,7 @@ class Printer
     void printBackwards();
 };
 
-class DerivedPrinter extends Printer
+["cpp:virtual"]class DerivedPrinter extends Printer
 {
     string derivedMessage;
     void printUppercase();

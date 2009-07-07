@@ -3292,6 +3292,7 @@ Slice::Gen::ObjectVisitor::visitClassDefStart(const ClassDefPtr& p)
     DataMemberList dataMembers = p->dataMembers();
     DataMemberList allDataMembers = p->allDataMembers();
 
+
     H << sp << nl << "class " << _dllExport << name << " : ";
     H.useCurrentPosAsIndent();
     if(bases.empty())
@@ -3308,9 +3309,15 @@ Slice::Gen::ObjectVisitor::visitClassDefStart(const ClassDefPtr& p)
     else
     {
         ClassList::const_iterator q = bases.begin();
+        bool virtualInheritance = p->hasMetaData("cpp:virtual") || p->isInterface();
         while(q != bases.end())
         {
-            H << "virtual public " << fixKwd((*q)->scoped());
+            if(virtualInheritance || (*q)->isInterface())
+            {
+                H << "virtual ";
+            }
+
+            H << "public " << fixKwd((*q)->scoped());
             if(++q != bases.end())
             {
                 H << ',' << nl;
@@ -4510,7 +4517,7 @@ Slice::Gen::ObjectVisitor::emitGCClearCode(const TypePtr& p, const string& prefi
 }
 
 bool
-Slice::Gen::ObjectVisitor::emitVirtualBaseInitializers(const ClassDefPtr& p)
+Slice::Gen::ObjectVisitor::emitVirtualBaseInitializers(const ClassDefPtr& p, bool virtualInheritance)
 {
     DataMemberList allDataMembers = p->allDataMembers();
     if(allDataMembers.empty())
@@ -4518,12 +4525,15 @@ Slice::Gen::ObjectVisitor::emitVirtualBaseInitializers(const ClassDefPtr& p)
         return false;
     }
 
-    ClassList bases = p->bases();
-    if(!bases.empty() && !bases.front()->isInterface())
+    if(virtualInheritance)
     {
-        if(emitVirtualBaseInitializers(bases.front()))
+        ClassList bases = p->bases();
+        if(!bases.empty() && !bases.front()->isInterface())
         {
-            C << ',';
+            if(emitVirtualBaseInitializers(bases.front(), virtualInheritance))
+            {
+                C << ',';
+            }
         }
     }
 
@@ -4581,7 +4591,7 @@ Slice::Gen::ObjectVisitor::emitOneShotConstructor(const ClassDefPtr& p)
         ClassDefPtr base;
         if(!bases.empty() && !bases.front()->isInterface())
         {
-            if(emitVirtualBaseInitializers(bases.front()))
+            if(emitVirtualBaseInitializers(bases.front(), p->hasMetaData("cpp:virtual")))
             {
                 if(!dataMembers.empty())
                 {
@@ -6023,6 +6033,10 @@ Slice::Gen::MetaDataVisitor::validate(const SyntaxTreeBasePtr& cont, const Strin
                     }
                 }
                 if(StructPtr::dynamicCast(cont) && ss.find("class") == 0)
+                {
+                    continue;
+                }
+                if(ClassDefPtr::dynamicCast(cont) && ss.find("virtual") == 0)
                 {
                     continue;
                 }
