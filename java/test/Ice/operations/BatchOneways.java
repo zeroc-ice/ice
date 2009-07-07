@@ -75,7 +75,7 @@ class BatchOneways
 
         batch.ice_getConnection().flushBatchRequests();
 
-        Test.MyClassPrx batch2 = Test.MyClassPrxHelper.uncheckedCast(p.ice_batchOneway());
+        MyClassPrx batch2 = MyClassPrxHelper.uncheckedCast(p.ice_batchOneway());
 
         batch.ice_ping();
         batch2.ice_ping();
