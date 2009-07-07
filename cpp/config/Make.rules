@@ -219,13 +219,11 @@ ifdef ice_src_dist
     SLICE2CPP		= $(bindir)/slice2cpp
     SLICE2XSD		= $(bindir)/slice2xsd
     SLICE2FREEZE	= $(bindir)/slice2freeze
-    SLICE2DOCBOOK	= $(bindir)/slice2docbook
 else
     SLICEPARSERLIB	= $(ice_dir)/$(libsubdir)/$(call mklibfilename,Slice,$(VERSION))
     SLICE2CPP		= $(ice_dir)/$(binsubdir)/slice2cpp
     SLICE2XSD		= $(ice_dir)/$(binsubdir)/slice2xsd
     SLICE2FREEZE	= $(ice_dir)/$(binsubdir)/slice2freeze
-    SLICE2DOCBOOK	= $(ice_dir)/$(binsubdir)/slice2docbook
 endif
 
 EVERYTHING		= all depend clean install 

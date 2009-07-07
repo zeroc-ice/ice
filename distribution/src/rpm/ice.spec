@@ -614,7 +614,6 @@ rm -rf $RPM_BUILD_ROOT
 %{_bindir}/icepatch2calc
 %{_bindir}/icepatch2client
 %{_bindir}/icestormadmin
-%{_bindir}/slice2docbook
 %{_bindir}/slice2html
 %{_bindir}/icegridadmin
 %{_bindir}/icegridgui
