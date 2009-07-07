@@ -19,14 +19,14 @@ module Filesystem
         PersistentDirectory* parent;
     };
 
-    class PersistentFile extends PersistentNode implements File
+    ["cpp:virtual"]class PersistentFile extends PersistentNode implements File
     {
         Lines text;
     };
 
     dictionary<string, NodeDesc> NodeDict;
 
-    class PersistentDirectory extends PersistentNode implements Directory
+    ["cpp:virtual"]class PersistentDirectory extends PersistentNode implements Directory
     {
         ["freeze:write"]
         void removeNode(string name);

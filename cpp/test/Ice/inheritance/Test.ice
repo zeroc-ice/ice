@@ -41,7 +41,7 @@ interface IB2 extends MA::IA
     IB2* ib2op(IB2* p);
 };
 
-class CB extends MA::CA
+["cpp:virtual"]class CB extends MA::CA
 {
     CB* cbop(CB* p);
 };
@@ -56,12 +56,12 @@ interface IC extends MB::IB1, MB::IB2
     IC* icop(IC* p);
 };
 
-class CC extends MB::CB
+["cpp:virtual"]class CC extends MB::CB
 {
     CC* ccop(CC* p);
 };
 
-class CD extends CC implements MB::IB1, MB::IB2
+["cpp:virtual"]class CD extends CC implements MB::IB1, MB::IB2
 {
     CD* cdop(CD* p);
 };
