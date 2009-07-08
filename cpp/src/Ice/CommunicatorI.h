@@ -66,7 +66,7 @@ public:
 
 private:
 
-    CommunicatorI(const InitializationData&);
+    CommunicatorI(const InitializationData&, char** argv = 0);
     virtual ~CommunicatorI();
 
     //
@@ -75,7 +75,8 @@ private:
     //
     void finishSetup(int&, char*[]);
 
-    friend ICE_API CommunicatorPtr initialize(int&, char*[], const InitializationData&, Int);
+    friend ICE_API CommunicatorPtr initialize(int&, char**&, const InitializationData&, Int);
+    friend ICE_API CommunicatorPtr initialize(int, const char*[], int&, char**&, const InitializationData&, Int);
     friend ICE_API CommunicatorPtr initialize(StringSeq&, const InitializationData&, Int);
     friend ICE_API CommunicatorPtr initialize(const InitializationData&, Int);
     friend ICE_API ::IceInternal::InstancePtr IceInternal::getInstance(const ::Ice::CommunicatorPtr&);
@@ -87,6 +88,8 @@ private:
     // Communicator's destructor is invoked.
     //
     const ::IceInternal::DynamicLibraryListPtr _dynamicLibraryList;
+
+    char** _argv;
 };
 
 }

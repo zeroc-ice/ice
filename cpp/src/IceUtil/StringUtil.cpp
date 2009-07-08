@@ -719,3 +719,30 @@ IceUtilInternal::removeWhitespace(const std::string& s)
     }
     return result;
 }
+
+char**
+IceUtilInternal::dupArgv(const char* argv[])
+{
+    int argc;
+    char** copy;
+
+    if(argv == 0)
+    {
+        return 0;
+    }
+
+    for(argc = 0; argv[argc] != 0; argc++);
+
+    copy = (char**) malloc((argc + 1) * sizeof(char*));
+    if(copy == 0)
+    {
+        return 0;
+    }
+
+    for(argc = 0; argv[argc] != 0; argc++)
+    {
+        copy[argc] = strdup(argv[argc]);
+    }
+    copy[argc] = 0;
+    return copy;
+}
