@@ -741,7 +741,11 @@ IceUtilInternal::dupArgv(const char* argv[])
 
     for(argc = 0; argv[argc] != 0; argc++)
     {
+#if defined(_MSC_VER) && (_MSC_VER >= 1400)
+        copy[argc] = _strdup(argv[argc]);
+#else
         copy[argc] = strdup(argv[argc]);
+#endif
     }
     copy[argc] = 0;
     return copy;
