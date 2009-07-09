@@ -77,11 +77,6 @@ ICE_UTIL_API std::string toUpper(const std::string&);
 //
 ICE_UTIL_API std::string removeWhitespace(const std::string&);
 
-//
-// Duplicate argv argument vector
-//
-ICE_UTIL_API char** dupArgv(const char*[]);
-
 }
 
 #endif

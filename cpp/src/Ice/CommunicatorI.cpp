@@ -298,7 +298,7 @@ Ice::CommunicatorI::removeAdminFacet(const string& facet)
     return _instance->removeAdminFacet(facet);
 }
 
-Ice::CommunicatorI::CommunicatorI(const InitializationData& initData, char** argv) : _argv(argv)
+Ice::CommunicatorI::CommunicatorI(const InitializationData& initData)
 {
     __setNoDelete(true);
     try
@@ -358,16 +358,6 @@ Ice::CommunicatorI::~CommunicatorI()
         Warning out(_instance->initializationData().logger);
         out << "Ice::Communicator::destroy() has not been called";
     }
-    if(_argv)
-    {
-        for(int i = 0; _argv[i] != 0; ++i)
-        {
-            free(_argv[i]);
-        }
-        free(_argv);
-        _argv = 0;
-    }
-
 }
 
 void

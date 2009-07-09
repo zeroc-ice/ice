@@ -64,10 +64,7 @@ struct InitializationData
     ThreadNotificationPtr threadHook;
 };
 
-ICE_API CommunicatorPtr initialize(int&, char**&, const InitializationData& = InitializationData(),
-                                   Int = ICE_INT_VERSION);
-
-ICE_API CommunicatorPtr initialize(int, const char*[], int&, char**&, const InitializationData& = InitializationData(),
+ICE_API CommunicatorPtr initialize(int&, char*[], const InitializationData& = InitializationData(),
                                    Int = ICE_INT_VERSION);
 
 ICE_API CommunicatorPtr initialize(Ice::StringSeq&, const InitializationData& = InitializationData(),

@@ -9,7 +9,6 @@
 
 #include <IceUtil/DisableWarnings.h>
 #include <IceUtil/ArgVector.h>
-#include <IceUtil/StringUtil.h>
 #include <Ice/GC.h>
 #include <Ice/CommunicatorI.h>
 #include <Ice/PropertiesI.h>
@@ -151,31 +150,16 @@ inline void checkIceVersion(Int version)
 }
 
 CommunicatorPtr
-Ice::initialize(int& argc, char**& argv, const InitializationData& initializationData, Int version)
+Ice::initialize(int& argc, char* argv[], const InitializationData& initializationData, Int version)
 {
-    int argcCopy = argc;
-    CommunicatorPtr result = initialize(argcCopy, const_cast<const char**>(argv), argc, argv, initializationData, version);
-    return result;
-}
-
-CommunicatorPtr
-Ice::initialize(int argc, const char* argv[], int& newArgc, char**& newArgv, const InitializationData& initializationData, Int version)
-{
-
     checkIceVersion(version);
 
     InitializationData initData = initializationData;
-    int argcCopy = argc;
-    char** argvCopy = IceUtilInternal::dupArgv(argv);
-    initData.properties = createProperties(argcCopy, argvCopy, initData.properties, initData.stringConverter);
+    initData.properties = createProperties(argc, argv, initData.properties, initData.stringConverter);
 
     CommunicatorI* communicatorI = new CommunicatorI(initData);
     CommunicatorPtr result = communicatorI; // For exception safety.
-    communicatorI->finishSetup(argcCopy, argvCopy);
-
-    newArgc = argcCopy;
-    newArgv = argvCopy;
-
+    communicatorI->finishSetup(argc, argv);
     return result;
 }
 
