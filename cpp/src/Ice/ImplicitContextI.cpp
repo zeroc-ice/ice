@@ -8,7 +8,8 @@
 // **********************************************************************
 
 #include <Ice/ImplicitContextI.h>
-#include <IceUtil/StaticMutex.h>
+#include <IceUtil/Mutex.h>
+#include <IceUtil/MutexPtrLock.h>
 
 using namespace std;
 using namespace Ice;
@@ -82,7 +83,7 @@ public:
     //
     typedef std::vector<bool> IndexInUse;
     static IndexInUse* _indexInUse;
-    static IceUtil::StaticMutex _mutex;
+    static IceUtil::Mutex* _mutex;
 
     static long _nextId;
 
@@ -255,7 +256,30 @@ SharedImplicitContext::combine(const Context& proxyCtx, Context& ctx) const
 
 long PerThreadImplicitContext::_nextId;
 PerThreadImplicitContext::IndexInUse* PerThreadImplicitContext::_indexInUse;
-IceUtil::StaticMutex PerThreadImplicitContext::_mutex = ICE_STATIC_MUTEX_INITIALIZER;
+IceUtil::Mutex* PerThreadImplicitContext::_mutex = 0;
+
+namespace
+{
+
+class Init
+{
+public:
+
+    Init()
+    {
+        PerThreadImplicitContext::_mutex = new IceUtil::Mutex;
+    }
+
+    ~Init()
+    {
+        delete PerThreadImplicitContext::_mutex;
+        PerThreadImplicitContext::_mutex = 0;
+    }
+};
+
+Init init;
+
+}
 
 #ifdef _WIN32
 DWORD PerThreadImplicitContext::_key;
@@ -265,7 +289,7 @@ pthread_key_t PerThreadImplicitContext::_key;
 
 PerThreadImplicitContext::PerThreadImplicitContext()
 {
-    IceUtil::StaticMutex::Lock lock(_mutex);
+    IceUtilInternal::MutexPtrLock<IceUtil::Mutex> lock(_mutex);
     _id = _nextId++;
     if(_id == 0)
     {
@@ -311,7 +335,7 @@ PerThreadImplicitContext::PerThreadImplicitContext()
 
 PerThreadImplicitContext::~PerThreadImplicitContext()
 {
-    IceUtil::StaticMutex::Lock lock(_mutex);
+    IceUtilInternal::MutexPtrLock<IceUtil::Mutex> lock(_mutex);
     (*_indexInUse)[_index] = false;
 
     if(find(_indexInUse->begin(), _indexInUse->end(), true) == _indexInUse->end())

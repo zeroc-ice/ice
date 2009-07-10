@@ -89,5 +89,14 @@ tests = [
     ("Glacier2/staticFiltering", ["service", "noipv6"]),
     ]
 
+#
+# Run priority tests only if running as root on Unix.
+#
+if TestUtil.isWin32() or os.getuid() == 0:
+    tests += [
+        ("IceUtil/priority", ["core", "nodarwin"]),
+        ("Ice/threadPoolPriority", ["core", "nodarwin"])
+        ]
+
 if __name__ == "__main__":
     TestUtil.run(tests)

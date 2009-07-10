@@ -114,12 +114,6 @@ private:
 #   define ICE_STATIC_MUTEX_INITIALIZER { PTHREAD_MUTEX_INITIALIZER }
 #endif
 
-
-// A "shared" global mutex that can be used for very simple tasks
-// which should not lock any other mutexes.
-//
-extern ICE_UTIL_API StaticMutex globalMutex;
-
 //
 // For performance reasons the following functions are inlined.
 //

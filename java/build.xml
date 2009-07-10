@@ -325,6 +325,9 @@
             <fileset dir="test/Ice/throughput">
                 <include name="Throughput.ice" />
             </fileset>
+            <fileset dir="test/Ice/threadPoolPriority">
+		<include name="Test.ice" />
+            </fileset>
             <fileset dir="test/Freeze/complex">
                 <include name="Complex.ice" />
             </fileset>

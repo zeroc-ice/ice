@@ -16,6 +16,8 @@
 #include <Ice/LocalException.h>
 #include <Ice/StreamI.h>
 #include <Ice/LoggerI.h>
+#include <IceUtil/Mutex.h>
+#include <IceUtil/MutexPtrLock.h>
 
 using namespace std;
 using namespace Ice;
@@ -208,13 +210,36 @@ Ice::createOutputStream(const CommunicatorPtr& communicator)
     return new OutputStreamI(communicator);
 }
 
-static IceUtil::StaticMutex processLoggerMutex = ICE_STATIC_MUTEX_INITIALIZER;
+static IceUtil::Mutex* processLoggerMutex = 0;
 static Ice::LoggerPtr processLogger;
+
+namespace
+{
+
+class Init
+{
+public:
+
+    Init()
+    {
+        processLoggerMutex = new IceUtil::Mutex;
+    }
+
+    ~Init()
+    {
+        delete processLoggerMutex;
+        processLoggerMutex = 0;
+    }
+};
+
+Init init;
+
+}
 
 LoggerPtr
 Ice::getProcessLogger()
 {
-    IceUtil::StaticMutex::Lock lock(processLoggerMutex);
+    IceUtilInternal::MutexPtrLock<IceUtil::Mutex> lock(processLoggerMutex);
 
     if(processLogger == 0)
     {
@@ -229,8 +254,8 @@ Ice::getProcessLogger()
 void
 Ice::setProcessLogger(const LoggerPtr& logger)
 {
-   IceUtil::StaticMutex::Lock lock(processLoggerMutex);
-   processLogger = logger;   
+   IceUtilInternal::MutexPtrLock<IceUtil::Mutex> lock(processLoggerMutex);
+   processLogger = logger;
 }
 
 InstancePtr

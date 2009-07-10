@@ -15,7 +15,8 @@
 
 #include <Freeze/ObjectStore.h>
 
-
+#include <IceUtil/Mutex.h>
+#include <IceUtil/MutexPtrLock.h>
 
 #include <typeinfo>
 
@@ -51,17 +52,39 @@ Freeze::createBackgroundSaveEvictor(const ObjectAdapterPtr& adapter,
     return new BackgroundSaveEvictorI(adapter, envName, &dbEnv, filename, initializer, indices, createDb);
 }
 
+namespace
+{
+
 //
 // Fatal error callback
 //
 
-static Freeze::FatalErrorCallback fatalErrorCallback = 0;
-static IceUtil::StaticMutex fatalErrorCallbackMutex = ICE_STATIC_MUTEX_INITIALIZER;
+Freeze::FatalErrorCallback fatalErrorCallback = 0;
+IceUtil::Mutex* fatalErrorCallbackMutex = 0;
+
+class Init
+{
+public:
+
+    Init()
+    {
+        fatalErrorCallbackMutex = new IceUtil::Mutex;
+    }
+
+    ~Init()
+    {
+        delete fatalErrorCallbackMutex;
+        fatalErrorCallbackMutex = 0;
+    }
+};
+Init init;
+
+}
 
 FatalErrorCallback 
 Freeze::registerFatalErrorCallback(FatalErrorCallback cb)
 {
-    IceUtil::StaticMutex::Lock lock(fatalErrorCallbackMutex);
+    IceUtilInternal::MutexPtrLock<IceUtil::Mutex> lock(fatalErrorCallbackMutex);
     FatalErrorCallback result = fatalErrorCallback;
     fatalErrorCallback = cb;
     return result;
@@ -70,7 +93,7 @@ Freeze::registerFatalErrorCallback(FatalErrorCallback cb)
 static void 
 handleFatalError(const Freeze::BackgroundSaveEvictorPtr& evictor, const Ice::CommunicatorPtr& communicator)
 {
-    IceUtil::StaticMutex::Lock lock(fatalErrorCallbackMutex);
+    IceUtilInternal::MutexPtrLock<IceUtil::Mutex> lock(fatalErrorCallbackMutex);
     if(fatalErrorCallback != 0)
     {
         fatalErrorCallback(evictor, communicator);

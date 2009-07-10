@@ -10,7 +10,8 @@
 #include <IceUtil/Options.h>
 #include <IceUtil/StringUtil.h>
 #include <IceUtil/CtrlCHandler.h>
-#include <IceUtil/StaticMutex.h>
+#include <IceUtil/Mutex.h>
+#include <IceUtil/MutexPtrLock.h>
 #include <Slice/Preprocessor.h>
 #include <Slice/FileTracker.h>
 #include <Slice/JavaUtil.h>
@@ -25,15 +26,38 @@ using namespace Slice;
 using namespace IceUtil;
 using namespace IceUtilInternal;
 
-static IceUtil::StaticMutex _mutex = ICE_STATIC_MUTEX_INITIALIZER;
-static bool _interrupted = false;
+namespace
+{
+
+IceUtil::Mutex* mutex = 0;
+bool interrupted = false;
+
+class Init
+{
+public:
+
+    Init()
+    {
+        mutex = new IceUtil::Mutex;
+    }
+
+    ~Init()
+    {
+        delete mutex;
+        mutex = 0;
+    }
+};
+
+Init init;
+
+}
 
 void
 interruptedCallback(int signal)
 {
-    IceUtil::StaticMutex::Lock lock(_mutex);
+    IceUtilInternal::MutexPtrLock<IceUtil::Mutex> lock(mutex);
 
-    _interrupted = true;
+    interrupted = true;
 }
 
 struct DictIndex
@@ -1595,9 +1619,9 @@ compile(int argc, char* argv[])
         }
 
         {
-            IceUtil::StaticMutex::Lock lock(_mutex);
+            IceUtilInternal::MutexPtrLock<IceUtil::Mutex> sync(mutex);
 
-            if(_interrupted)
+            if(interrupted)
             {
                 return EXIT_FAILURE;
             }
@@ -1690,9 +1714,9 @@ compile(int argc, char* argv[])
     u->destroy();
 
     {
-        IceUtil::StaticMutex::Lock lock(_mutex);
+        IceUtilInternal::MutexPtrLock<IceUtil::Mutex> sync(mutex);
 
-        if(_interrupted)
+        if(interrupted)
         {
             FileTracker::instance()->cleanup();
             return EXIT_FAILURE;

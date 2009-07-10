@@ -728,6 +728,10 @@ public final class Instance
             try
             {
                 _timer = new Timer(this);
+                if(initializationData().properties.getProperty("Ice.ThreadPriority") != "")
+                {
+                    _timer.setPriority(Util.getThreadPriorityProperty(initializationData().properties, "Ice"));
+                }
             }
             catch(RuntimeException ex)
             {

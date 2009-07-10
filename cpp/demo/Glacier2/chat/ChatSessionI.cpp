@@ -27,21 +27,44 @@ public:
     void leave(const Demo::ChatCallbackPrx&);
     void message(const string&) const;
 
+    static IceUtil::Mutex* _instanceMutex;
 private:
     
     list<Demo::ChatCallbackPrx> _members;
 
     static ChatRoomPtr _instance;
-    static IceUtil::StaticMutex _instanceMutex;
 };
 
 ChatRoomPtr ChatRoom::_instance;
-IceUtil::StaticMutex ChatRoom::_instanceMutex = ICE_STATIC_MUTEX_INITIALIZER;
+IceUtil::Mutex* ChatRoom::_instanceMutex = 0;
+
+namespace
+{
+
+class Init
+{
+public:
+
+    Init()
+    {
+        ChatRoom::_instanceMutex = new IceUtil::Mutex;
+    }
+
+    ~Init()
+    {
+        delete ChatRoom::_instanceMutex;
+        ChatRoom::_instanceMutex = 0;
+    }
+};
+
+Init init;
+
+}
 
 ChatRoomPtr&
 ChatRoom::instance()
 {
-    IceUtil::StaticMutex::Lock sync(_instanceMutex);
+    IceUtil::Mutex::Lock sync(*_instanceMutex);
     if(!_instance)
     {
         _instance = new ChatRoom;

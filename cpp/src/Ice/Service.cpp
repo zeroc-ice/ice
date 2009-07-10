@@ -136,8 +136,6 @@ private:
 
 static ServiceStatusManager* serviceStatusManager;
 
-static IceUtil::StaticMutex outputMutex = ICE_STATIC_MUTEX_INITIALIZER;
-
 class SMEventLoggerI : public Ice::Logger
 {
 public:

@@ -26,7 +26,12 @@ using namespace std;
 
 #ifndef _WIN32
 
-static char myPid[2];
+namespace
+{
+
+char myPid[2];
+
+}
 
 namespace IceUtilInternal
 {
@@ -45,7 +50,8 @@ public:
         myPid[1] = p & 0xFF;
     }
 };
-static PidInitializer pidInitializer;
+
+PidInitializer pidInitializer;
 
 };
 #endif

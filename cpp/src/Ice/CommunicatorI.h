@@ -11,7 +11,6 @@
 #define ICE_COMMUNICATOR_I_H
 
 #include <IceUtil/RecMutex.h>
-#include <IceUtil/StaticMutex.h>
 
 #include <Ice/DynamicLibraryF.h>
 #include <Ice/Initialize.h>

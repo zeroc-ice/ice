@@ -58,6 +58,7 @@ tests = [
     ("Ice/udp", ["core"]),
     ("Ice/serialize", ["core"]),
     ("Ice/defaultServant", ["core"]),
+    ("Ice/threadPoolPriority", ["core"]),
     ("IceBox/configuration", ["core", "noipv6"]),
     ("Freeze/dbmap", ["once"]),
     ("Freeze/complex", ["once"]),

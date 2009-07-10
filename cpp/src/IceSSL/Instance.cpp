@@ -19,7 +19,8 @@
 #include <Ice/Properties.h>
 #include <Ice/ProtocolPluginFacade.h>
 
-#include <IceUtil/StaticMutex.h>
+#include <IceUtil/Mutex.h>
+#include <IceUtil/MutexPtrLock.h>
 #include <IceUtil/StringUtil.h>
 
 #include <openssl/rand.h>
@@ -33,9 +34,32 @@ using namespace IceSSL;
 
 IceUtil::Shared* IceInternal::upCast(IceSSL::Instance* p) { return p; }
 
-static IceUtil::StaticMutex staticMutex = ICE_STATIC_MUTEX_INITIALIZER;
-static int instanceCount = 0;
-static IceUtil::Mutex* locks = 0;
+namespace
+{
+
+IceUtil::Mutex* staticMutex = 0;
+int instanceCount = 0;
+IceUtil::Mutex* locks = 0;
+
+class Init
+{
+public:
+
+    Init()
+    {
+        staticMutex = new IceUtil::Mutex;
+    }
+
+    ~Init()
+    {
+        delete staticMutex;
+        staticMutex = 0;
+    }
+};
+
+Init init;
+
+}
 
 extern "C"
 {
@@ -136,7 +160,7 @@ IceSSL::Instance::Instance(const CommunicatorPtr& communicator) :
     //
     // Initialize OpenSSL if necessary.
     //
-    IceUtil::StaticMutex::Lock sync(staticMutex);
+    IceUtilInternal::MutexPtrLock<IceUtil::Mutex> sync(staticMutex);
     instanceCount++;
 
     if(instanceCount == 1)
@@ -246,7 +270,7 @@ IceSSL::Instance::~Instance()
     //
     // Clean up OpenSSL resources.
     //
-    IceUtil::StaticMutex::Lock sync(staticMutex);
+    IceUtilInternal::MutexPtrLock<IceUtil::Mutex> sync(staticMutex);
 
     if(--instanceCount == 0)
     {

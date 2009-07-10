@@ -22,6 +22,15 @@ Timer::Timer() :
     __setNoDelete(false);
 }
 
+Timer::Timer(int priority) :
+    Thread("IceUtil timer thread"),
+    _destroyed(false)
+{
+    __setNoDelete(true);
+    start(0, priority);
+    __setNoDelete(false);
+}
+
 void
 Timer::destroy()
 {

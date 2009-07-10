@@ -17,7 +17,8 @@ SUBDIRS		= condvar \
 		  inputUtil \
                   uuid \
                   ctrlCHandler \
-		  timer
+		  timer \
+		  priority
 
 $(EVERYTHING)::
 	@for subdir in $(SUBDIRS); \

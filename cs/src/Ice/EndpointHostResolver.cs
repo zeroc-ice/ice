@@ -20,9 +20,17 @@ namespace IceInternal
         internal EndpointHostResolver(Instance instance)
         {
             _instance = instance;
-
             _thread = new HelperThread(this);
-            _thread.Start();
+            if(instance.initializationData().properties.getProperty("Ice.ThreadPriority") != "")
+            {
+                ThreadPriority priority = IceInternal.Util.stringToThreadPriority(
+                                           instance.initializationData().properties.getProperty("Ice.ThreadPriority"));
+                _thread.Start(priority);
+            }
+            else
+            {
+                _thread.Start(ThreadPriority.Normal);
+            }
         }
 
         public void resolve(string host, int port, EndpointI endpoint, EndpointI_connectors callback)
@@ -148,11 +156,12 @@ namespace IceInternal
                 _thread.Join();
             }
 
-            public void Start()
+            public void Start(ThreadPriority priority)
             {
                 _thread = new Thread(new ThreadStart(Run));
                 _thread.IsBackground = true;
                 _thread.Name = _name;
+                _thread.Priority = priority;
                 _thread.Start();
             }
 

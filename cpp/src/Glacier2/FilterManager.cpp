@@ -23,7 +23,7 @@ using namespace Ice;
 // Parse a space delimited string into a sequence of strings.
 //
 
-static void 
+static void
 stringToSeq(const string& str, vector<string>& seq)
 {
     IceUtilInternal::splitString(str, " \t", seq);

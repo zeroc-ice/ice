@@ -16,7 +16,8 @@
 #include <Ice/Instance.h>
 #include <Ice/Properties.h>
 #include <Ice/ReplyStatus.h>
-#include <IceUtil/StaticMutex.h>
+#include <IceUtil/Mutex.h>
+#include <IceUtil/MutexPtrLock.h>
 
 using namespace std;
 using namespace Ice;
@@ -24,6 +25,31 @@ using namespace IceInternal;
 
 IceUtil::Shared* IceInternal::upCast(IncomingAsync* p) { return p; }
 IceUtil::Shared* IceInternal::upCast(AMD_Object_ice_invoke* p) { return p; }
+
+namespace
+{
+
+IceUtil::Mutex* globalMutex = 0;
+
+class Init
+{
+public:
+
+    Init()
+    {
+        globalMutex = new IceUtil::Mutex;
+    }
+
+    ~Init()
+    {
+        delete globalMutex;
+        globalMutex = 0;
+    }
+};
+
+Init init;
+
+}
 
 IceInternal::IncomingAsync::IncomingAsync(Incoming& in) :
     IncomingBase(in),
@@ -43,7 +69,7 @@ IceInternal::IncomingAsync::__deactivate(Incoming& in)
 {
     assert(_retriable);
     {
-        IceUtil::StaticMutex::Lock lock(IceUtil::globalMutex);
+        IceUtilInternal::MutexPtrLock<IceUtil::Mutex> lock(globalMutex);
         if(!_active)
         {
             //
@@ -154,7 +180,7 @@ IceInternal::IncomingAsync::__validateResponse(bool ok)
         return false;
     }
     
-    IceUtil::StaticMutex::Lock lock(IceUtil::globalMutex);
+    IceUtilInternal::MutexPtrLock<IceUtil::Mutex> lock(globalMutex);
     if(_active)
     {
         _active = false;
@@ -191,7 +217,7 @@ IceInternal::IncomingAsync::__validateException(const std::exception& ex)
         return false;
     }
     
-    IceUtil::StaticMutex::Lock lock(IceUtil::globalMutex);
+    IceUtilInternal::MutexPtrLock<IceUtil::Mutex> lock(globalMutex);
     if(_active)
     {
         _active = false;
@@ -227,7 +253,7 @@ IceInternal::IncomingAsync::__validateException()
         return false;
     }
     
-    IceUtil::StaticMutex::Lock lock(IceUtil::globalMutex);
+    IceUtilInternal::MutexPtrLock<IceUtil::Mutex> lock(globalMutex);
     if(_active)
     {
         _active = false;

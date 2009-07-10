@@ -14,7 +14,8 @@
 #include <IceUtil/Options.h>
 #include <IceUtil/OutputUtil.h>
 #include <IceUtil/StringUtil.h>
-#include <IceUtil/StaticMutex.h>
+#include <IceUtil/Mutex.h>
+#include <IceUtil/MutexPtrLock.h>
 #include <Slice/Checksum.h>
 #include <Slice/Preprocessor.h>
 #include <Slice/FileTracker.h>
@@ -1447,18 +1448,41 @@ printHeader(IceUtilInternal::Output& out)
     out << "\n// Ice version " << ICE_STRING_VERSION;
 }
 
-static IceUtil::StaticMutex _mutex = ICE_STATIC_MUTEX_INITIALIZER;
-static bool _interrupted = false;
-
-void
-interruptedCallback(int signal)
+namespace
 {
-    IceUtil::StaticMutex::Lock lock(_mutex);
 
-    _interrupted = true;
+IceUtil::Mutex* mutex = 0;
+bool interrupted = false;
+
+class Init
+{
+public:
+
+    Init()
+    {
+        mutex = new IceUtil::Mutex;
+    }
+
+    ~Init()
+    {
+        delete mutex;
+        mutex = 0;
+    }
+};
+
+Init init;
+
 }
 
-void
+static void
+interruptedCallback(int signal)
+{
+    IceUtilInternal::MutexPtrLock<IceUtil::Mutex> sync(mutex);
+
+    interrupted = true;
+}
+
+static void
 usage(const char* n)
 {
     cerr << "Usage: " << n << " [options] slice-files...\n";
@@ -1670,9 +1694,9 @@ main(int argc, char* argv[])
         }
 
         {
-            IceUtil::StaticMutex::Lock lock(_mutex);
+            IceUtilInternal::MutexPtrLock<IceUtil::Mutex> sync(mutex);
 
-            if(_interrupted)
+            if(interrupted)
             {
                 FileTracker::instance()->cleanup();
                 return EXIT_FAILURE;
@@ -1682,3 +1706,4 @@ main(int argc, char* argv[])
 
     return status;
 }
+

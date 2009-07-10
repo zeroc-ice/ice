@@ -8,13 +8,37 @@
 // **********************************************************************
 
 #include <Ice/SliceChecksums.h>
-#include <IceUtil/StaticMutex.h>
+#include <IceUtil/Mutex.h>
+#include <IceUtil/MutexPtrLock.h>
 
 using namespace std;
 using namespace Ice;
 
 static SliceChecksumDict* _sliceChecksums = 0;
-static IceUtil::StaticMutex _mutex = ICE_STATIC_MUTEX_INITIALIZER;
+namespace
+{
+
+IceUtil::Mutex* _mutex = 0;
+
+class Init
+{
+public:
+
+    Init()
+    {
+        _mutex = new IceUtil::Mutex;
+    }
+
+    ~Init()
+    {
+        delete _mutex;
+        _mutex = 0;
+    }
+};
+
+Init init;
+
+}
 
 class SliceChecksumDictDestroyer
 {
@@ -31,7 +55,7 @@ static SliceChecksumDictDestroyer destroyer;
 SliceChecksumDict
 Ice::sliceChecksums()
 {
-    IceUtil::StaticMutex::Lock lock(_mutex);
+    IceUtilInternal::MutexPtrLock<IceUtil::Mutex> lock(_mutex);
     if(_sliceChecksums == 0)
     {
         _sliceChecksums = new SliceChecksumDict();
@@ -41,7 +65,7 @@ Ice::sliceChecksums()
 
 IceInternal::SliceChecksumInit::SliceChecksumInit(const char* checksums[])
 {
-    IceUtil::StaticMutex::Lock lock(_mutex);
+    IceUtilInternal::MutexPtrLock<IceUtil::Mutex> lock(_mutex);
     if(_sliceChecksums == 0)
     {
         _sliceChecksums = new SliceChecksumDict();

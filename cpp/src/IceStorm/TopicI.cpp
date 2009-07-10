@@ -529,7 +529,7 @@ TopicImpl::getNonReplicatedPublisher() const
 #if defined(_MSC_VER) && (_MSC_VER < 1300)
 namespace
 {
-static vector<SubscriberPtr>::iterator
+vector<SubscriberPtr>::iterator
 find(vector<SubscriberPtr>::iterator start, vector<SubscriberPtr>::iterator end, const Ice::Identity& ident)
 {
     while(start != end)
@@ -547,7 +547,7 @@ find(vector<SubscriberPtr>::iterator start, vector<SubscriberPtr>::iterator end,
 
 namespace
 {
-static void
+void
 trace(Ice::Trace& out, const InstancePtr& instance, const vector<SubscriberPtr>& s)
 {
     out << '[';

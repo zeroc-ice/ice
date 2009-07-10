@@ -14,17 +14,17 @@ using namespace std;
 using namespace Ice;
 using namespace Glacier2;
 
-static const string serverForwardContext = "Glacier2.Server.ForwardContext";
-static const string clientForwardContext = "Glacier2.Client.ForwardContext";
-static const string serverAlwaysBatch = "Glacier2.Server.AlwaysBatch";
-static const string clientAlwaysBatch = "Glacier2.Client.AlwaysBatch";
-static const string serverTraceRequest = "Glacier2.Server.Trace.Request";
-static const string clientTraceRequest = "Glacier2.Client.Trace.Request";
-static const string serverTraceOverride = "Glacier2.Server.Trace.Override";
-static const string clientTraceOverride = "Glacier2.Client.Trace.Override";
-
 namespace
 {
+
+const string serverForwardContext = "Glacier2.Server.ForwardContext";
+const string clientForwardContext = "Glacier2.Client.ForwardContext";
+const string serverAlwaysBatch = "Glacier2.Server.AlwaysBatch";
+const string clientAlwaysBatch = "Glacier2.Client.AlwaysBatch";
+const string serverTraceRequest = "Glacier2.Server.Trace.Request";
+const string clientTraceRequest = "Glacier2.Client.Trace.Request";
+const string serverTraceOverride = "Glacier2.Server.Trace.Override";
+const string clientTraceOverride = "Glacier2.Client.Trace.Override";
 
 class AMI_Array_Object_ice_invokeTwowayI : public AMI_Array_Object_ice_invoke
 {

@@ -8,7 +8,8 @@
 // **********************************************************************
 
 #include <IceUtil/Time.h>
-#include <IceUtil/StaticMutex.h>
+#include <IceUtil/Mutex.h>
+#include <IceUtil/MutexPtrLock.h>
 #include <IceUtil/RecMutex.h>
 #include <Ice/GC.h>
 #include <Ice/GCShared.h>
@@ -16,14 +17,34 @@
 
 using namespace IceUtil;
 
-namespace 
+namespace
 {
-StaticMutex numCollectorsMutex = ICE_STATIC_MUTEX_INITIALIZER;
+
+Mutex* numCollectorsMutex = 0;
 int numCollectors = 0;
 typedef std::set<IceInternal::GCShared*> GCObjectSet;
 GCObjectSet gcObjects; // Set of pointers to all existing classes with class data members.
 
 RecMutex gcRecMutex;
+
+class Init
+{
+public:
+
+    Init()
+    {
+        numCollectorsMutex = new IceUtil::Mutex;
+    }
+
+    ~Init()
+    {
+        delete numCollectorsMutex;
+        numCollectorsMutex = 0;
+    }
+};
+
+Init init;
+
 }
 
 
@@ -144,7 +165,7 @@ IceInternal::GCShared::__gcDecRef()
 IceInternal::GC::GC(int interval, StatsCallback cb) :
     Thread("Ice garbage collector thread")
 {
-    StaticMutex::Lock sync(numCollectorsMutex);
+    IceUtilInternal::MutexPtrLock<IceUtil::Mutex> sync(numCollectorsMutex);
     if(numCollectors++ > 0)
     {
         abort(); // Enforce singleton.
@@ -158,7 +179,7 @@ IceInternal::GC::GC(int interval, StatsCallback cb) :
 
 IceInternal::GC::~GC()
 {
-    StaticMutex::Lock sync(numCollectorsMutex);
+    IceUtilInternal::MutexPtrLock<IceUtil::Mutex> sync(numCollectorsMutex);
     --numCollectors;
 }
 

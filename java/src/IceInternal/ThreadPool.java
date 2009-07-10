@@ -95,6 +95,14 @@ public final class ThreadPool
 
         _stackSize = stackSize;
 
+        _hasPriority = _instance.initializationData().properties.getProperty(_prefix + ".ThreadPriority") != "";
+        _priority = Util.getThreadPriorityProperty(_instance.initializationData().properties, _prefix);
+        if(!_hasPriority)
+        {
+            _hasPriority = _instance.initializationData().properties.getProperty("Ice.ThreadPriority") != "";
+            _priority = Util.getThreadPriorityProperty(_instance.initializationData().properties, "Ice");
+        }
+
         if(_instance.traceLevels().threadPool >= 1)
         {
             String s = "creating " + _prefix + ": Size = " + _size + ", SizeMax = " + _sizeMax + ", SizeWarn = " +
@@ -110,7 +118,14 @@ public final class ThreadPool
                 EventHandlerThread thread = new EventHandlerThread(_programNamePrefix + _prefix + "-" +
                                                                    _threadIndex++);
                 _threads.add(thread);
-                thread.start();
+                if(_hasPriority)
+                {
+                    thread.start(_priority);
+                }
+                else
+                {
+                    thread.start(java.lang.Thread.NORM_PRIORITY);
+                }
                 ++_running;
             }
         }
@@ -268,7 +283,14 @@ public final class ThreadPool
                             EventHandlerThread thread = new EventHandlerThread(_programNamePrefix + _prefix + "-" +
                                                                                _threadIndex++);
                             _threads.add(thread);
-                            thread.start();
+                            if(_hasPriority)
+                            {
+                                thread.start(_priority);
+                            }
+                            else
+                            {
+                                thread.start(java.lang.Thread.NORM_PRIORITY);
+                            }
                             ++_running;
                         }
                         catch(RuntimeException ex)
@@ -997,9 +1019,10 @@ public final class ThreadPool
         }
 
         public void
-        start()
+        start(int priority)
         {
             _thread = new Thread(null, this, _name, _stackSize);
+            _thread.setPriority(priority);
             _thread.start();
         }
 
@@ -1075,4 +1098,6 @@ public final class ThreadPool
     private boolean _promote;
 
     private final boolean _warnUdp;
+    private int _priority;
+    private boolean _hasPriority = false;
 }

@@ -14,6 +14,8 @@ namespace IceInternal
     using System.Collections.Generic;
     using System.Diagnostics;
     using System.Text;
+    using System.Threading;
+    using System;
 
     public sealed class Instance
     {
@@ -469,7 +471,8 @@ namespace IceInternal
                             _initData.logger.trace(_traceLevels.locationCat, s.ToString());
                         }
                         
-                        throw new Ice.InitializationException("Locator knows nothing about server '" + serverId + "'");
+                        throw new Ice.InitializationException("Locator knows nothing about server '" + serverId +
+                                                              "'");
                     }
                     catch(Ice.LocalException ex)
                     {
@@ -753,7 +756,16 @@ namespace IceInternal
 
                 try
                 {
-                    _timer = new Timer(this);
+                    if(initializationData().properties.getProperty("Ice.ThreadPriority") != "")
+                    {
+                        ThreadPriority priority = IceInternal.Util.stringToThreadPriority(
+                                                    initializationData().properties.getProperty("Ice.ThreadPriority"));
+                        _timer = new Timer(this, priority);
+                    }
+                    else
+                    {
+                        _timer = new Timer(this);
+                    }
                 }
                 catch(System.Exception ex)
                 {
@@ -1059,7 +1071,7 @@ namespace IceInternal
                     foreach(string s in unusedProperties)
                     {
                         message.Append("\n    ");
-			message.Append(s);
+                        message.Append(s);
                     }
                     _initData.logger.warning(message.ToString());
                 }

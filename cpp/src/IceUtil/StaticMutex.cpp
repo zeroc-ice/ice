@@ -74,4 +74,3 @@ void IceUtil::StaticMutex::initialize() const
 }
 #endif
 
-IceUtil::StaticMutex IceUtil::globalMutex = ICE_STATIC_MUTEX_INITIALIZER;

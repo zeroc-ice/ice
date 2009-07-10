@@ -40,6 +40,8 @@
 #include <Ice/PropertiesI.h>
 #include <IceUtil/UUID.h>
 #include <Ice/Communicator.h>
+#include <IceUtil/Mutex.h>
+#include <IceUtil/MutexPtrLock.h>
 
 #include <stdio.h>
 
@@ -56,16 +58,39 @@ using namespace std;
 using namespace Ice;
 using namespace IceInternal;
 
-static IceUtil::StaticMutex staticMutex = ICE_STATIC_MUTEX_INITIALIZER;
-static bool oneOffDone = false;
-static int instanceCount = 0;
-static bool printProcessIdDone = false;
-static string identForOpenlog;
-
 namespace IceUtil
 {
 
 extern bool ICE_DECLSPEC_IMPORT nullHandleAbort;
+
+}
+
+namespace
+{
+
+IceUtil::Mutex* staticMutex = 0;
+bool oneOffDone = false;
+int instanceCount = 0;
+bool printProcessIdDone = false;
+string identForOpenlog;
+
+class Init
+{
+public:
+
+    Init()
+    {
+        staticMutex = new IceUtil::Mutex;
+    }
+
+    ~Init()
+    {
+        delete staticMutex;
+        staticMutex = 0;
+    }
+};
+
+Init init;
 
 }
 
@@ -256,7 +281,6 @@ SelectorThreadPtr
 IceInternal::Instance::selectorThread()
 {
     IceUtil::RecMutex::Lock sync(*this);
-
     if(_state == StateDestroyed)
     {
         throw CommunicatorDestroyedException(__FILE__, __LINE__);
@@ -303,7 +327,6 @@ IceInternal::Instance::timer()
     {
         throw CommunicatorDestroyedException(__FILE__, __LINE__);
     }
-
     assert(_timer);
     return _timer;
 }
@@ -762,125 +785,123 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const Initi
     try
     {
         __setNoDelete(true);
-
-        IceUtil::StaticMutex::Lock sync(staticMutex);
-        instanceCount++;
-
-        if(!_initData.properties)
         {
-            StringSeq args;
-            _initData.properties = createProperties(args);
-        }
-
-        if(!oneOffDone)
-        {
-            //
-            // StdOut and StdErr redirection
-            //
-            string stdOutFilename = _initData.properties->getProperty("Ice.StdOut");
-            string stdErrFilename = _initData.properties->getProperty("Ice.StdErr");
-            
-            if(stdOutFilename != "")
+            IceUtilInternal::MutexPtrLock<IceUtil::Mutex> sync(staticMutex);
+            instanceCount++;
+    
+            if(!_initData.properties)
             {
-#ifdef _LARGEFILE64_SOURCE
-                FILE* file = freopen64(stdOutFilename.c_str(), "a", stdout);
-#else
-		FILE* file = freopen(stdOutFilename.c_str(), "a", stdout);
-#endif
-                if(file == 0)
+                _initData.properties = createProperties();
+            }
+    
+            if(!oneOffDone)
+            {
+                //
+                // StdOut and StdErr redirection
+                //
+                string stdOutFilename = _initData.properties->getProperty("Ice.StdOut");
+                string stdErrFilename = _initData.properties->getProperty("Ice.StdErr");
+                
+                if(stdOutFilename != "")
                 {
-                    FileException ex(__FILE__, __LINE__);
-                    ex.path = stdOutFilename;
-                    ex.error = getSystemErrno();
-                    throw ex;
-                }
-            }
-            
-            if(stdErrFilename != "")
-            {
 #ifdef _LARGEFILE64_SOURCE
-                FILE* file = freopen64(stdErrFilename.c_str(), "a", stderr);
+                    FILE* file = freopen64(stdOutFilename.c_str(), "a", stdout);
 #else
-                FILE* file = freopen(stdErrFilename.c_str(), "a", stderr);
+                    FILE* file = freopen(stdOutFilename.c_str(), "a", stdout);
 #endif
-                if(file == 0)
-                {
-                    FileException ex(__FILE__, __LINE__);
-                    ex.path = stdErrFilename;
-                    ex.error = getSystemErrno();
-                    throw ex;
+                    if(file == 0)
+                    {
+                        FileException ex(__FILE__, __LINE__);
+                        ex.path = stdOutFilename;
+                        ex.error = getSystemErrno();
+                        throw ex;
+                    }
                 }
-            }
-
-            if(_initData.properties->getPropertyAsInt("Ice.NullHandleAbort") > 0)
-            {
-                IceUtil::nullHandleAbort = true;
-            }
-            
+                
+                if(stdErrFilename != "")
+                {
+#ifdef _LARGEFILE64_SOURCE
+                    FILE* file = freopen64(stdErrFilename.c_str(), "a", stderr);
+#else
+                    FILE* file = freopen(stdErrFilename.c_str(), "a", stderr);
+#endif
+                    if(file == 0)
+                    {
+                        FileException ex(__FILE__, __LINE__);
+                        ex.path = stdErrFilename;
+                        ex.error = getSystemErrno();
+                        throw ex;
+                    }
+                }
+    
+                if(_initData.properties->getPropertyAsInt("Ice.NullHandleAbort") > 0)
+                {
+                    IceUtil::nullHandleAbort = true;
+                }
+                
 #ifndef _WIN32
-            string newUser = _initData.properties->getProperty("Ice.ChangeUser");
-            if(!newUser.empty())
-            {
-                struct passwd* pw = getpwnam(newUser.c_str());
-                if(!pw)
+                string newUser = _initData.properties->getProperty("Ice.ChangeUser");
+                if(!newUser.empty())
                 {
-                    SyscallException ex(__FILE__, __LINE__);
-                    ex.error = getSystemErrno();
-                    throw ex;
+                    struct passwd* pw = getpwnam(newUser.c_str());
+                    if(!pw)
+                    {
+                        SyscallException ex(__FILE__, __LINE__);
+                        ex.error = getSystemErrno();
+                        throw ex;
+                    }
+                    
+                    if(setgid(pw->pw_gid) == -1)
+                    {
+                        SyscallException ex(__FILE__, __LINE__);
+                        ex.error = getSystemErrno();
+                        throw ex;
+                    }
+                    
+                    if(setuid(pw->pw_uid) == -1)
+                    {
+                        SyscallException ex(__FILE__, __LINE__);
+                        ex.error = getSystemErrno();
+                        throw ex;
+                    }
                 }
-                
-                if(setgid(pw->pw_gid) == -1)
-                {
-                    SyscallException ex(__FILE__, __LINE__);
-                    ex.error = getSystemErrno();
-                    throw ex;
-                }
-                
-                if(setuid(pw->pw_uid) == -1)
-                {
-                    SyscallException ex(__FILE__, __LINE__);
-                    ex.error = getSystemErrno();
-                    throw ex;
-                }
-            }
 #endif
-            oneOffDone = true;
-        }   
-        
-        if(instanceCount == 1)
-        {                   
+                oneOffDone = true;
+            }   
             
+            if(instanceCount == 1)
+            {                   
+                
 #ifdef _WIN32
-            WORD version = MAKEWORD(1, 1);
-            WSADATA data;
-            if(WSAStartup(version, &data) != 0)
-            {
-                SocketException ex(__FILE__, __LINE__);
-                ex.error = getSocketErrno();
-                throw ex;
-            }
-#endif
-            
-#ifndef _WIN32
-            struct sigaction action;
-            action.sa_handler = SIG_IGN;
-            sigemptyset(&action.sa_mask);
-            action.sa_flags = 0;
-            sigaction(SIGPIPE, &action, 0);
-            
-            if(_initData.properties->getPropertyAsInt("Ice.UseSyslog") > 0)
-            {
-                identForOpenlog = _initData.properties->getProperty("Ice.ProgramName");
-                if(identForOpenlog.empty())
+                WORD version = MAKEWORD(1, 1);
+                WSADATA data;
+                if(WSAStartup(version, &data) != 0)
                 {
-                    identForOpenlog = "<Unknown Ice Program>";
+                    SocketException ex(__FILE__, __LINE__);
+                    ex.error = getSocketErrno();
+                    throw ex;
                 }
-                openlog(identForOpenlog.c_str(), LOG_PID, LOG_USER);
-            }
 #endif
+                
+#ifndef _WIN32
+                struct sigaction action;
+                action.sa_handler = SIG_IGN;
+                sigemptyset(&action.sa_mask);
+                action.sa_flags = 0;
+                sigaction(SIGPIPE, &action, 0);
+                
+                if(_initData.properties->getPropertyAsInt("Ice.UseSyslog") > 0)
+                {
+                    identForOpenlog = _initData.properties->getProperty("Ice.ProgramName");
+                    if(identForOpenlog.empty())
+                    {
+                        identForOpenlog = "<Unknown Ice Program>";
+                    }
+                    openlog(identForOpenlog.c_str(), LOG_PID, LOG_USER);
+                }
+#endif
+            }
         }
-        
-        sync.release();
         
 
         if(!_initData.logger)
@@ -983,7 +1004,16 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const Initi
 
         try
         {
-            _timer = new IceUtil::Timer;
+            bool hasPriority = _initData.properties->getProperty("Ice.ThreadPriority") != "";
+            int priority = _initData.properties->getPropertyAsInt("Ice.ThreadPriority");
+            if(hasPriority)
+            {
+                _timer = new IceUtil::Timer(priority);
+            }
+            else
+            {
+                _timer = new IceUtil::Timer;
+            }
         }
         catch(const IceUtil::Exception& ex)
         {
@@ -1037,7 +1067,7 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const Initi
     catch(...)
     {
         {
-            IceUtil::StaticMutex::Lock sync(staticMutex);
+            IceUtilInternal::MutexPtrLock<IceUtil::Mutex> sync(staticMutex);
             --instanceCount;
         }
         destroy();
@@ -1068,7 +1098,7 @@ IceInternal::Instance::~Instance()
     assert(!_dynamicLibraryList);
     assert(!_pluginManager);
 
-    IceUtil::StaticMutex::Lock sync(staticMutex);
+    IceUtilInternal::MutexPtrLock<IceUtil::Mutex> sync(staticMutex);
     if(--instanceCount == 0)
     {
 #ifdef _WIN32
@@ -1126,8 +1156,8 @@ IceInternal::Instance::finishSetup(int& argc, char* argv[])
     {
         //
         // Safe double-check locking (no dependent variable!)
-        // 
-        IceUtil::StaticMutex::Lock sync(staticMutex);
+        //
+        IceUtilInternal::MutexPtrLock<IceUtil::Mutex> sync(staticMutex);
         printProcessId = !printProcessIdDone;
         
         //

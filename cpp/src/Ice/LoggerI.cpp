@@ -7,16 +7,40 @@
 //
 // **********************************************************************
 
-#include <IceUtil/StaticMutex.h>
 #include <IceUtil/Time.h>
 #include <Ice/LoggerI.h>
+#include <IceUtil/Mutex.h>
+#include <IceUtil/MutexPtrLock.h>
 #include <Ice/LocalException.h>
 
 using namespace std;
 using namespace Ice;
 using namespace IceInternal;
 
-static IceUtil::StaticMutex outputMutex = ICE_STATIC_MUTEX_INITIALIZER;
+namespace
+{
+
+IceUtil::Mutex* outputMutex = 0;
+
+class Init
+{
+public:
+
+    Init()
+    {
+        outputMutex = new IceUtil::Mutex;
+    }
+
+    ~Init()
+    {
+        delete outputMutex;
+        outputMutex = 0;
+    }
+};
+
+Init init;
+
+}
 
 Ice::LoggerI::LoggerI(const string& prefix, const string& file)
 {
@@ -78,7 +102,7 @@ Ice::LoggerI::error(const string& message)
 void
 Ice::LoggerI::write(const string& message, bool indent)
 {
-    IceUtil::StaticMutex::Lock sync(outputMutex);
+    IceUtilInternal::MutexPtrLock<IceUtil::Mutex> sync(outputMutex);
 
     string s = message;
 

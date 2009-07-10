@@ -13,6 +13,8 @@
 #include <IceUtil/Thread.h>
 #include <IceUtil/StringUtil.h>
 #include <IceUtil/UUID.h>
+#include <IceUtil/Mutex.h>
+#include <IceUtil/MutexPtrLock.h>
 #include <Ice/Ice.h>
 #include <Ice/SliceChecksums.h>
 #include <IceGrid/Parser.h>
@@ -37,8 +39,31 @@ using namespace IceGrid;
 
 class Client;
 
-static IceUtil::StaticMutex _staticMutex = ICE_STATIC_MUTEX_INITIALIZER;
-static Client* _globalClient = 0;
+namespace
+{
+
+IceUtil::Mutex* _staticMutex = 0;
+Client* _globalClient = 0;
+
+class Init
+{
+public:
+
+    Init()
+    {
+        _staticMutex = new IceUtil::Mutex;
+    }
+
+    ~Init()
+    {
+        delete _staticMutex;
+        _staticMutex = 0;
+    }
+};
+
+Init init;
+
+}
 
 class SessionKeepAliveThread : public IceUtil::Thread, public IceUtil::Monitor<IceUtil::Mutex>
 {
@@ -148,9 +173,10 @@ private:
     ParserPtr _parser;
 };
 
-static void interruptCallback(int signal)
+static void
+interruptCallback(int signal)
 {
-    IceUtil::StaticMutex::Lock lock(_staticMutex);
+    IceUtilInternal::MutexPtrLock<IceUtil::Mutex> lock(_staticMutex);
     if(_globalClient)
     {
         _globalClient->interrupted();
@@ -193,7 +219,7 @@ Client::main(int argc, char* argv[])
         _communicator = Ice::initialize(argc, argv);
         
         {
-            IceUtil::StaticMutex::Lock sync(_staticMutex);
+            IceUtilInternal::MutexPtrLock<IceUtil::Mutex> sync(_staticMutex);
             _globalClient = this;
         }
         _ctrlCHandler.setCallback(interruptCallback);
@@ -251,7 +277,7 @@ Client::main(int argc, char* argv[])
 
     _ctrlCHandler.setCallback(0);
     {
-        IceUtil::StaticMutex::Lock sync(_staticMutex);
+        IceUtilInternal::MutexPtrLock<IceUtil::Mutex> sync(_staticMutex);
         _globalClient = 0;
     }
 

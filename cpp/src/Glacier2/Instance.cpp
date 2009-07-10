@@ -13,10 +13,15 @@
 using namespace std;
 using namespace Glacier2;
 
-static const string serverSleepTime = "Glacier2.Server.SleepTime";
-static const string clientSleepTime = "Glacier2.Client.SleepTime";
-static const string serverBuffered = "Glacier2.Server.Buffered";
-static const string clientBuffered = "Glacier2.Client.Buffered";
+namespace
+{
+
+const string serverSleepTime = "Glacier2.Server.SleepTime";
+const string clientSleepTime = "Glacier2.Client.SleepTime";
+const string serverBuffered = "Glacier2.Server.Buffered";
+const string clientBuffered = "Glacier2.Client.Buffered";
+
+}
 
 Glacier2::Instance::Instance(const Ice::CommunicatorPtr& communicator, const Ice::ObjectAdapterPtr& clientAdapter, 
                              const Ice::ObjectAdapterPtr& serverAdapter) :

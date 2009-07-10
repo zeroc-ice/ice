@@ -123,4 +123,31 @@ public final class Util
 
         return null;
     }
+
+    public static int
+    getThreadPriorityProperty(Ice.Properties properties, String prefix)
+    {
+        String pri = properties.getProperty(prefix + ".ThreadPriority");
+        if(pri.equals("MIN_PRIORITY") || pri.equals("java.lang.Thread.MIN_PRIORITY"))
+        {
+            return java.lang.Thread.MIN_PRIORITY;
+        }
+        else if(pri.equals("NORM_PRIORITY") || pri.equals("java.lang.Thread.NORM_PRIORITY"))
+        {
+            return java.lang.Thread.NORM_PRIORITY;
+        }
+        else if(pri.equals("MAX_PRIORITY") || pri.equals("java.lang.Thread.MAX_PRIORITY"))
+        {
+            return java.lang.Thread.MAX_PRIORITY;
+        }
+
+        try
+        {
+            return Integer.parseInt(pri);
+        }
+        catch(NumberFormatException ex)
+        {
+        }
+        return java.lang.Thread.NORM_PRIORITY;
+    }
 }

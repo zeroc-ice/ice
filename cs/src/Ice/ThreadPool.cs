@@ -44,6 +44,8 @@ namespace IceInternal
             _inUse = 0;
             _load = 1.0;
             _serialize = _instance.initializationData().properties.getPropertyAsInt(_prefix + ".Serialize") > 0;
+            _hasPriority = false;
+            _priority = ThreadPriority.Normal;
 
             string programName = _instance.initializationData().properties.getProperty("Ice.ProgramName");
             if(programName.Length > 0)
@@ -106,6 +108,14 @@ namespace IceInternal
 
             _stackSize = stackSize;
 
+            _hasPriority = _instance.initializationData().properties.getProperty(_prefix + ".ThreadPriority") != "";
+            _priority = IceInternal.Util.stringToThreadPriority(_instance.initializationData().properties.getProperty(_prefix + ".ThreadPriority"));
+            if(!_hasPriority)
+            {
+                _hasPriority = _instance.initializationData().properties.getProperty("Ice.ThreadPriority") != "";
+                _priority = IceInternal.Util.stringToThreadPriority(_instance.initializationData().properties.getProperty("Ice.ThreadPriority"));
+            }
+
             if(_instance.traceLevels().threadPool >= 1)
             {
                 string s = "creating " + _prefix + ": Size = " + _size + ", SizeMax = " + _sizeMax + ", SizeWarn = " + 
@@ -120,7 +130,14 @@ namespace IceInternal
                 {
                     WorkerThread thread = new WorkerThread(this, _programNamePrefix + _prefix + "-" + _threadIndex++);
                     _threads.Add(thread);
-                    thread.Start();
+                    if(_hasPriority)
+                    {
+                        thread.Start(_priority);
+                    }
+                    else
+                    {
+                        thread.Start(ThreadPriority.Normal);
+                    }
                     ++_running;
                 }
             }
@@ -289,7 +306,14 @@ namespace IceInternal
                             {
                                 WorkerThread thread = new WorkerThread(this, _programNamePrefix + _prefix + "-" +
                                                                        _threadIndex++);
-                                thread.Start();
+                                if(_hasPriority)
+                                {
+	                                thread.Start(_priority);
+                                }
+                                else
+                                {
+                                    thread.Start(ThreadPriority.Normal);
+                                }
                                 _threads.Add(thread);
                                 ++_running;
                             }
@@ -467,7 +491,7 @@ namespace IceInternal
                 _thread.Join();
             }
 
-            public void Start()
+            public void Start(ThreadPriority priority)
             {
                 if(_threadPool._stackSize == 0)
                 {
@@ -479,6 +503,7 @@ namespace IceInternal
                 }
                 _thread.IsBackground = true;
                 _thread.Name = _name;
+                _thread.Priority = priority;
                 _thread.Start();
             }
 
@@ -516,6 +541,8 @@ namespace IceInternal
 
             private string _name;
             private Thread _thread;
+            private ThreadPriority _priority;
+            private bool _hasPriority = false;
         }
 
         private readonly int _size; // Number of threads that are pre-created.
@@ -530,6 +557,8 @@ namespace IceInternal
         private int _running; // Number of running threads.
         private int _inUse; // Number of threads that are currently in use.
         private double _load; // Current load in number of threads.
+        private bool _hasPriority = false;
+        private ThreadPriority _priority;
     }
 
 }

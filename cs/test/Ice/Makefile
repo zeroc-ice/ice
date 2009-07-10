@@ -29,12 +29,13 @@ SUBDIRS		= application \
 		  retry \
 		  timeout \
 		  servantLocator \
-                  interceptor \
-                  dictMapping \
-                  seqMapping \
-                  background \
+		  interceptor \
+		  dictMapping \
+		  seqMapping \
+		  background \
 		  udp \
-		  defaultServant
+		  defaultServant \
+		  threadPoolPriority
 
 $(EVERYTHING)::
 	@for subdir in $(SUBDIRS); \

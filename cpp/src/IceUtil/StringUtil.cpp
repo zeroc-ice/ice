@@ -14,7 +14,10 @@
 using namespace std;
 using namespace IceUtil;
 
-static string
+namespace
+{
+
+string
 toOctalString(unsigned int n)
 {
     string s;
@@ -38,7 +41,7 @@ toOctalString(unsigned int n)
 // that should be escaped can be passed in special. If b is any of these
 // characters, b is preceded by a backslash in s.
 //
-static void
+void
 encodeChar(string::value_type b, string& s, const string& special)
 {
     switch(b)
@@ -126,6 +129,8 @@ encodeChar(string::value_type b, string& s, const string& special)
     }
 }
 
+}
+
 //
 // Add escape sequences (such as "\n", or "\007") to make a string
 // readable in ASCII. Any characters that appear in special are
@@ -152,7 +157,10 @@ IceUtilInternal::escapeString(const string& s, const string& special)
     return result;
 }
 
-static char
+namespace
+{
+
+char
 checkChar(char c)
 {
     if(!(static_cast<unsigned char>(c) >= 32 && static_cast<unsigned char>(c) <= 126))
@@ -168,7 +176,7 @@ checkChar(char c)
 // nextStart is set to the index of the first character following the decoded
 // character or escape sequence.
 //
-static char
+char
 decodeChar(const string& s, string::size_type start, string::size_type end, string::size_type& nextStart)
 {
     assert(start < end);
@@ -267,12 +275,15 @@ decodeChar(const string& s, string::size_type start, string::size_type end, stri
 // Remove escape sequences from s and append the result to sb.
 // Return true if successful, false otherwise.
 //
-static void decodeString(const string& s, string::size_type start, string::size_type end, string& sb)
+void
+decodeString(const string& s, string::size_type start, string::size_type end, string& sb)
 {
     while(start < end)
     {
         sb.push_back(decodeChar(s, start, end, start));
     }
+}
+
 }
 
 //

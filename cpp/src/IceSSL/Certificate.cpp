@@ -8,7 +8,8 @@
 // **********************************************************************
 
 #include <IceUtil/DisableWarnings.h>
-#include <IceUtil/StaticMutex.h>
+#include <IceUtil/Mutex.h>
+#include <IceUtil/MutexPtrLock.h>
 #include <IceSSL/Plugin.h>
 #include <IceSSL/Util.h>
 #include <IceSSL/RFC2253.h>
@@ -80,6 +81,31 @@ CertificateEncodingException::ice_throw() const
     throw *this;
 }
 
+namespace
+{
+
+IceUtil::Mutex* mutex = 0;
+
+class Init
+{
+public:
+
+    Init()
+    {
+        mutex = new IceUtil::Mutex;
+    }
+
+    ~Init()
+    {
+        delete mutex;
+        mutex = 0;
+    }
+};
+
+Init init;
+
+}
+
 static IceUtil::Time
 ASMUtcTimeToIceUtilTime(const ASN1_UTCTIME* s)
 {
@@ -119,8 +145,7 @@ ASMUtcTimeToIceUtilTime(const ASN1_UTCTIME* s)
     //
     time_t tzone;
     {
-        static IceUtil::StaticMutex mutex = ICE_STATIC_MUTEX_INITIALIZER;
-        IceUtil::StaticMutex::Lock sync(mutex);
+        IceUtilInternal::MutexPtrLock<IceUtil::Mutex> sync(mutex);
         time_t now = time(0);
         tzone = mktime(localtime(&now)) - mktime(gmtime(&now));
     }

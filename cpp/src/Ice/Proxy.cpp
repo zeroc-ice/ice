@@ -32,10 +32,15 @@ using namespace std;
 using namespace Ice;
 using namespace IceInternal;
 
-static const string ice_ping_name = "ice_ping";
-static const string ice_ids_name = "ice_ids";
-static const string ice_id_name = "ice_id";
-static const string ice_isA_name = "ice_isA";
+namespace
+{
+
+const string ice_ping_name = "ice_ping";
+const string ice_ids_name = "ice_ids";
+const string ice_id_name = "ice_id";
+const string ice_isA_name = "ice_isA";
+
+}
 
 ::Ice::ObjectPrx
 IceInternal::checkedCastImpl(const ObjectPrx& b, const string& f, const string& typeId, const Context* context)

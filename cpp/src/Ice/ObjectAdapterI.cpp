@@ -861,12 +861,13 @@ Ice::ObjectAdapterI::ObjectAdapterI(const InstancePtr& instance, const Communica
     {
         int threadPoolSize = properties->getPropertyAsInt(_name + ".ThreadPool.Size");
         int threadPoolSizeMax = properties->getPropertyAsInt(_name + ".ThreadPool.SizeMax");
+        bool hasPriority = properties->getProperty(_name + ".ThreadPool.ThreadPriority") != "";
 
         //
         // Create the per-adapter thread pool, if necessary. This is done before the creation of the incoming
         // connection factory as the thread pool is needed during creation for the call to incFdsInUse.
         //
-        if(threadPoolSize > 0 || threadPoolSizeMax > 0)
+        if(threadPoolSize > 0 || threadPoolSizeMax > 0 || hasPriority)
         {
             _threadPool = new ThreadPool(_instance, _name + ".ThreadPool", 0);
         }
@@ -925,6 +926,7 @@ Ice::ObjectAdapterI::ObjectAdapterI(const InstancePtr& instance, const Communica
             vector<EndpointIPtr> endpoints = parseEndpoints(properties->getProperty(_name + ".Endpoints"), true);
             for(vector<EndpointIPtr>::iterator p = endpoints.begin(); p != endpoints.end(); ++p)
             {
+
                 IncomingConnectionFactoryPtr factory = new IncomingConnectionFactory(instance, *p, this);
                  factory->initialize(_name);
                 _incomingConnectionFactories.push_back(factory);
@@ -1383,7 +1385,8 @@ Ice::ObjectAdapterI::filterProperties(StringSeq& unknownProps)
         "ThreadPool.SizeMax",
         "ThreadPool.SizeWarn",
         "ThreadPool.StackSize",
-        "ThreadPool.Serialize"
+        "ThreadPool.Serialize",
+        "ThreadPool.ThreadPriority"
     };
 
     //

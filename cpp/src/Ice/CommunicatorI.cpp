@@ -20,6 +20,8 @@
 #include <Ice/DefaultsAndOverrides.h>
 #include <Ice/TraceLevels.h>
 #include <Ice/GC.h>
+#include <IceUtil/Mutex.h>
+#include <IceUtil/MutexPtrLock.h>
 #include <Ice/Router.h>
 
 using namespace std;
@@ -45,12 +47,37 @@ struct GarbageCollectorStats
     IceUtil::Time time;
 };
 
-static int communicatorCount = 0;
-static IceUtil::StaticMutex gcMutex = ICE_STATIC_MUTEX_INITIALIZER;
-static GarbageCollectorStats gcStats;
-static int gcTraceLevel;
-static string gcTraceCat;
-static int gcInterval;
+namespace
+{
+
+int communicatorCount = 0;
+IceUtil::Mutex* gcMutex = 0;
+GarbageCollectorStats gcStats;
+int gcTraceLevel;
+string gcTraceCat;
+int gcInterval;
+bool gcHasPriority;
+int gcThreadPriority;
+
+class Init
+{
+public:
+
+    Init()
+    {
+        gcMutex = new IceUtil::Mutex;
+    }
+
+    ~Init()
+    {
+        delete gcMutex;
+        gcMutex = 0;
+    }
+};
+
+Init init;
+
+}
 
 static void
 printGCStats(const IceInternal::GCStats& stats)
@@ -74,7 +101,7 @@ Ice::CommunicatorI::destroy()
 {
     if(_instance && _instance->destroy())
     {
-        IceUtil::StaticMutex::Lock sync(gcMutex);
+        IceUtilInternal::MutexPtrLock<IceUtil::Mutex> sync(gcMutex);
 
         //
         // Wait for the collector thread to stop if this is the last communicator
@@ -267,7 +294,6 @@ Ice::CommunicatorI::getImplicitContext() const
     return _instance->getImplicitContext();
 }
 
-
 PluginManagerPtr
 Ice::CommunicatorI::getPluginManager() const
 {
@@ -319,13 +345,15 @@ Ice::CommunicatorI::CommunicatorI(const InitializationData& initData)
         // collector can continue to log messages even if the first communicator that
         // is created isn't the last communicator to be destroyed.
         //
-        IceUtil::StaticMutex::Lock sync(gcMutex);
+        IceUtilInternal::MutexPtrLock<IceUtil::Mutex> sync(gcMutex);
         static bool gcOnce = true;
         if(gcOnce)
         {
             gcTraceLevel = _instance->traceLevels()->gc;
             gcTraceCat = _instance->traceLevels()->gcCat;
             gcInterval = _instance->initializationData().properties->getPropertyAsInt("Ice.GC.Interval");
+            gcHasPriority = _instance->initializationData().properties->getProperty("Ice.ThreadPriority") != "";
+            gcThreadPriority = _instance->initializationData().properties->getPropertyAsInt("Ice.ThreadPriority");
             gcOnce = false;
         }
         if(++communicatorCount == 1)
@@ -333,7 +361,14 @@ Ice::CommunicatorI::CommunicatorI(const InitializationData& initData)
             IceUtil::Handle<IceInternal::GC> collector  = new IceInternal::GC(gcInterval, printGCStats);
             if(gcInterval > 0)
             {
-                collector->start();
+                if(gcHasPriority)
+                {
+                    collector->start(0, gcThreadPriority);
+                }
+                else
+                {
+                    collector->start();
+                }
             }
 
             //

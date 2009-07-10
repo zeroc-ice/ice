@@ -9,13 +9,35 @@
 
 #include <SimpleEvictor.h>
 #include <ItemI.h>
+#include <IceUtil/Mutex.h>
 
 using namespace std;
 using namespace IceUtil;
 
 namespace
 {
+
 int cacheMisses = 0;
+IceUtil::Mutex* globalMutex = 0;
+
+class Init
+{
+public:
+
+    Init()
+    {
+        globalMutex = new IceUtil::Mutex;
+    }
+
+    ~Init()
+    {
+        delete globalMutex;
+        globalMutex = 0;
+    }
+};
+
+Init init;
+
 }
 
 SimpleEvictor::SimpleEvictor(CurrentDatabase& currentDb, int size) :
@@ -30,7 +52,7 @@ SimpleEvictor::add(const Ice::Current& current, Ice::LocalObjectPtr& cookie)
     cookie = 0;
 
     {
-        StaticMutex::Lock lock(globalMutex);
+        IceUtil::Mutex::Lock lock(*globalMutex);
         cacheMisses++;
         if(cacheMisses % 1000 == 0)
         {

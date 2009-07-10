@@ -1226,7 +1226,11 @@ def runTests(start, expanded, num = 0, script = False):
             if isVista() and "novista" in config:
                 print "%s*** test not supported under Vista%s" % (prefix, suffix)
                 continue
-
+            
+            if isDarwin() and "nodarwing" in config:
+                print "%s*** test not supported under Darwin%s" % (prefix, suffix)
+                continue
+            
             if not isWin32() and "win32only" in config:
                 print "%s*** test only supported under Win32%s" % (prefix, suffix)
                 continue

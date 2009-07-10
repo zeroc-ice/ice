@@ -8,13 +8,35 @@
 // **********************************************************************
 
 #include <Evictor.h>
+#include <IceUtil/Mutex.h>
 
 using namespace std;
 using namespace IceUtil;
 
 namespace
 {
+
 int cacheMisses = 0;
+IceUtil::Mutex* globalMutex = 0;
+
+class Init
+{
+public:
+
+    Init()
+    {
+        globalMutex = new IceUtil::Mutex;
+    }
+
+    ~Init()
+    {
+        delete globalMutex;
+        globalMutex = 0;
+    }
+};
+
+Init init;
+
 }
 
 //
@@ -32,7 +54,7 @@ EvictorEntryPtr
 EvictorCache::load(const Ice::Identity& itemId)
 {
     {
-        StaticMutex::Lock lock(globalMutex);
+        IceUtil::Mutex::Lock lock(*globalMutex);
         cacheMisses++;
         if(cacheMisses % 1000 == 0)
         {

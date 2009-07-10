@@ -12,7 +12,7 @@ top_srcdir	= ..\..
 !include $(top_srcdir)\config\Make.rules.mak
 
 SUBDIRS		= proxy \
-                  operations \
+		  operations \
 		  exceptions \
 		  inheritance \
 		  facets \
@@ -30,11 +30,12 @@ SUBDIRS		= proxy \
 		  retry \
 		  timeout \
 		  servantLocator \
-                  interceptor \
-                  stringConverter \
+		  interceptor \
+		  stringConverter \
 		  background \
 		  udp \
-		  defaultServant
+		  defaultServant \
+		  threadPoolPriority
 
 $(EVERYTHING)::
 	@for %i in ( $(SUBDIRS) ) do \

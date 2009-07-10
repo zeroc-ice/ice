@@ -259,6 +259,7 @@ generated from the section label.
         <suffix name="SizeWarn" />
         <suffix name="StackSize" />
         <suffix name="Serialize" />
+        <suffix name="ThreadPriority" />
     </class>
 
     <class name="objectadapter" prefix-only="true">
@@ -343,6 +344,7 @@ generated from the section label.
         <property name="StdOut" />
         <property name="ThreadPool.Client" class="threadpool" />
         <property name="ThreadPool.Server" class="threadpool" />
+        <property name="ThreadPriority"/>
         <property name="Trace.GC" />
         <property name="Trace.Location" deprecated="true" deprecatedBy="Ice.Trace.Locator" />
         <property name="Trace.Locator" />

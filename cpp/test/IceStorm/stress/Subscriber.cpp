@@ -15,7 +15,8 @@
 #include <IceUtil/Time.h>
 #include <IceUtil/Random.h>
 #include <Event.h>
-
+#include <IceUtil/Mutex.h>
+#include <IceUtil/MutexPtrLock.h>
 #include <TestCommon.h>
 
 using namespace std;
@@ -130,7 +131,7 @@ public:
     ErraticEventI(const CommunicatorPtr& communicator, int total) :
         EventI(communicator, total), _done(false)
     {
-        IceUtil::StaticMutex::Lock sync(_remainingMutex);
+        IceUtilInternal::MutexPtrLock<IceUtil::Mutex> sync(_remainingMutex);
         ++_remaining;
     }
 
@@ -149,7 +150,7 @@ public:
             current.adapter->deactivate();
             _count = _total;
             {
-                IceUtil::StaticMutex::Lock sync(_remainingMutex);
+                IceUtilInternal::MutexPtrLock<IceUtil::Mutex> sync(_remainingMutex);
                 --_remaining;
                 if(_remaining == 0)
                 {
@@ -159,15 +160,39 @@ public:
         }
     }
 
+    static IceUtil::Mutex* _remainingMutex;
+
 private:
 
-    static IceUtil::StaticMutex _remainingMutex;
     static int _remaining;
     bool _done;
 };
 
-IceUtil::StaticMutex ErraticEventI::_remainingMutex = ICE_STATIC_MUTEX_INITIALIZER;
+IceUtil::Mutex* ErraticEventI::_remainingMutex = 0;
 int ErraticEventI::_remaining = 0;
+
+namespace
+{
+
+class Init
+{
+public:
+
+    Init()
+    {
+        ErraticEventI::_remainingMutex = new IceUtil::Mutex;
+    }
+
+    ~Init()
+    {
+        delete ErraticEventI::_remainingMutex;
+        ErraticEventI::_remainingMutex = 0;
+    }
+};
+
+Init init;
+
+}
 
 struct Subscription
 {

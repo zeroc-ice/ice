@@ -39,10 +39,15 @@ Ice::Object::ice_hash() const
     return static_cast<Int>(reinterpret_cast<Long>(this) >> 4);
 }
 
-static const string __Ice__Object_ids[] =
+namespace
+{
+
+const string __Ice__Object_ids[] =
 {
     "::Ice::Object"
 };
+
+}
 
 bool
 Ice::Object::ice_isA(const string& s, const Current&) const
@@ -300,7 +305,10 @@ Ice::__patch__ObjectPtr(void* __addr, ObjectPtr& v)
     *p = v;
 }
 
-static string
+namespace
+{
+
+string
 operationModeToString(OperationMode mode)
 {
     switch(mode)
@@ -318,6 +326,8 @@ operationModeToString(OperationMode mode)
     ostringstream os;
     os << "unknown value (" << mode << ")";
     return os.str();
+}
+
 }
 
 void

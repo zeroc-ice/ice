@@ -50,6 +50,7 @@ tests = [
     ("Ice/background", ["core"]),
     ("Ice/udp", ["core"]),
     ("Ice/defaultServant", ["core"]),
+    ("Ice/threadPoolPriority", ["core", "nomono"]),
     ("IceBox/configuration", ["core", "noipv6"]),
     ("Glacier2/router", ["service"]),
     ("IceGrid/simple", ["service"]),

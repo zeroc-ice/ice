@@ -9,7 +9,8 @@
 
 #include <FreezeScript/Parser.h>
 #include <FreezeScript/GrammarUtil.h>
-#include <IceUtil/StaticMutex.h>
+#include <IceUtil/Mutex.h>
+#include <IceUtil/MutexPtrLock.h>
 
 using namespace std;
 
@@ -64,9 +65,33 @@ FreezeScript::ErrorReporterPtr FreezeScript::parseErrorReporter;
 FreezeScript::NodePtr FreezeScript::parseResult;
 int FreezeScript::parseLine;
 
-static string _input;
-static string::size_type _pos;
-static IceUtil::StaticMutex _parserMutex = ICE_STATIC_MUTEX_INITIALIZER;
+namespace
+{
+
+string _input;
+string::size_type _pos;
+
+IceUtil::Mutex* _parserMutex = 0;
+
+class Init
+{
+public:
+
+    Init()
+    {
+        _parserMutex = new IceUtil::Mutex;
+    }
+
+    ~Init()
+    {
+        delete _parserMutex;
+        _parserMutex = 0;
+    }
+};
+
+Init init;
+
+}
 
 //
 // parseExpression
@@ -77,7 +102,7 @@ FreezeScript::parseExpression(const string& expr, const DataFactoryPtr& factory,
     //
     // The bison grammar is not thread-safe.
     //
-    IceUtil::StaticMutex::Lock sync(_parserMutex);
+    IceUtilInternal::MutexPtrLock<IceUtil::Mutex> sync(_parserMutex);
 
     parseDataFactory = factory;
     parseErrorReporter = errorReporter;

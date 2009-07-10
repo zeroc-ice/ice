@@ -12,12 +12,34 @@
 
 using namespace std;
 
-static IceUtil::StaticMutex outputMutex = ICE_STATIC_MUTEX_INITIALIZER;
+namespace
+{
+IceUtil::Mutex* outputMutex = 0;
+
+class Init
+{
+public:
+
+    Init()
+    {
+        outputMutex = new IceUtil::Mutex;
+    }
+
+    ~Init()
+    {
+        delete outputMutex;
+        outputMutex = 0;
+    }
+};
+
+Init init;
+
+}
 
 void
 mtprint(const string& data)
 {
-    IceUtil::StaticMutex::Lock sync(outputMutex);
+    IceUtil::Mutex::Lock sync(*outputMutex);
     cout << data << flush;
 }
 

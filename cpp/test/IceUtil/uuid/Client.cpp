@@ -11,7 +11,8 @@
 #include <IceUtil/Random.h>
 #include <IceUtil/Time.h>
 #include <IceUtil/Thread.h>
-#include <IceUtil/StaticMutex.h>
+#include <IceUtil/Mutex.h>
+#include <IceUtil/MutexPtrLock.h>
 #include <TestCommon.h>
 #include <set>
 #include <vector>
@@ -19,8 +20,30 @@
 using namespace IceUtil;
 using namespace std;
 
+namespace
+{
 
-static StaticMutex staticMutex = ICE_STATIC_MUTEX_INITIALIZER;
+Mutex* staticMutex = 0;
+
+class Init
+{
+public:
+
+    Init()
+    {
+        staticMutex = new IceUtil::Mutex;
+    }
+
+    ~Init()
+    {
+        delete staticMutex;
+        staticMutex = 0;
+    }
+};
+
+Init init;
+
+}
 
 inline void usage(const char* myName)
 {
@@ -44,7 +67,7 @@ public:
         {
             T item = _func();
 
-            StaticMutex::Lock lock(staticMutex);
+            IceUtilInternal::MutexPtrLock<IceUtil::Mutex> lock(staticMutex);
 #if defined(_MSC_VER) && (_MSC_VER < 1300)
             pair<ItemSet::iterator, bool> ok = _itemSet.insert(item);
 #else
@@ -100,7 +123,7 @@ struct GenerateRandomString
         return s;
     }
 };
-IceUtil::StaticMutex lock;
+
 struct GenerateRandomInt
 {
 public:

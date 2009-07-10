@@ -44,7 +44,6 @@ throwMemoryLimitException(const char* file, int line, size_t requested, size_t m
 
 }
 
-
 bool
 Ice::UserException::__usesClasses() const
 {

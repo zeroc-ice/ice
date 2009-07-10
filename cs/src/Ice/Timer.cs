@@ -12,7 +12,7 @@
 // the C++ & Java timers and it's not clear what is the cost of
 // scheduling and cancelling timers.
 //
-
+    
 namespace IceInternal
 {
     using System;
@@ -125,19 +125,33 @@ namespace IceInternal
         //
         // Only for use by Instance.
         //
+        internal Timer(IceInternal.Instance instance, ThreadPriority priority)
+        {
+            init(instance, priority, true);
+        }
+
         internal Timer(IceInternal.Instance instance)
         {
+            init(instance, ThreadPriority.Normal, false);
+        }
+
+        internal void init(IceInternal.Instance instance, ThreadPriority priority, bool hasPriority)
+        {
             _instance = instance;
-            
+
             string threadName = _instance.initializationData().properties.getProperty("Ice.ProgramName");
             if(threadName.Length > 0)
             {
                 threadName += "-";
             }
-            
+
             _thread = new Thread(new ThreadStart(Run));
             _thread.IsBackground = true;
             _thread.Name = threadName + "Ice.Timer";
+            if(hasPriority)
+            {
+                _thread.Priority = priority;
+            }
             _thread.Start();
         }
 

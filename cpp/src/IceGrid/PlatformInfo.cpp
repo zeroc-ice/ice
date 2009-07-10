@@ -66,12 +66,12 @@ getLocalizedPerfName(int idx, const Ice::LoggerPtr& logger)
 
     if(err != ERROR_SUCCESS)
     {
-	Ice::Warning out(logger);
-	out << "Unable to lookup the performance counter name:\n";
-	out << pdhErrorToString(err);
-	out << "\nThis usually occurs when you do not have sufficient privileges";
-         
-	throw Ice::SyscallException(__FILE__, __LINE__, err);
+        Ice::Warning out(logger);
+        out << "Unable to lookup the performance counter name:\n";
+        out << pdhErrorToString(err);
+        out << "\nThis usually occurs when you do not have sufficient privileges";
+
+        throw Ice::SyscallException(__FILE__, __LINE__, err);
     }
     return string(&localized[0]);
 }

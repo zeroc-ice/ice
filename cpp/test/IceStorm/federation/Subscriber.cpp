@@ -11,7 +11,8 @@
 #include <Ice/Ice.h>
 #include <IceStorm/IceStorm.h>
 #include <Event.h>
-
+#include <IceUtil/Mutex.h>
+#include <IceUtil/MutexPtrLock.h>
 #include <TestCommon.h>
 
 using namespace std;
@@ -31,7 +32,7 @@ public:
     virtual void
     pub(const string& data, const Ice::Current&)
     {
-        IceUtil::StaticMutex::Lock sync(_countMutex);
+        IceUtilInternal::MutexPtrLock<IceUtil::Mutex> sync(_countMutex);
 
         if(++_count == 30 + 40 + 30)
         {
@@ -39,18 +40,42 @@ public:
         }
     }
 
+    static IceUtil::Mutex* _countMutex;
+
 private:
 
     CommunicatorPtr _communicator;
 
     static int _count;
-    static IceUtil::StaticMutex _countMutex;
 };
 
 typedef IceUtil::Handle<EventI> EventIPtr;
 
 int EventI::_count = 0;
-IceUtil::StaticMutex EventI::_countMutex = ICE_STATIC_MUTEX_INITIALIZER;
+IceUtil::Mutex* EventI::_countMutex = 0;
+
+namespace
+{
+
+class Init
+{
+public:
+
+    Init()
+    {
+        EventI::_countMutex = new IceUtil::Mutex;
+    }
+
+    ~Init()
+    {
+        delete EventI::_countMutex;
+        EventI::_countMutex = 0;
+    }
+};
+
+Init init;
+
+}
 
 void
 usage(const char* appName)

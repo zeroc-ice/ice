@@ -37,6 +37,10 @@ public class SelectorThread
         try
         {
             _thread = new HelperThread();
+            if(_instance.initializationData().properties.getProperty("Ice.ThreadPriority") != "")
+            {
+                _thread.setPriority(Util.getThreadPriorityProperty(_instance.initializationData().properties, "Ice"));
+            }
             _thread.start();
         }
         catch(RuntimeException ex)

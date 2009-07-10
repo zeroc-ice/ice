@@ -40,7 +40,9 @@ IceInternal::ThreadPool::ThreadPool(const InstancePtr& instance, const string& p
     _inUse(0),
     _load(1.0),
     _promote(true),
-    _warnUdp(_instance->initializationData().properties->getPropertyAsInt("Ice.Warn.Datagrams") > 0)
+    _warnUdp(_instance->initializationData().properties->getPropertyAsInt("Ice.Warn.Datagrams") > 0),
+    _hasPriority(false),
+    _priority(0)
 {
     //
     // We use just one thread as the default. This is the fastest
@@ -90,6 +92,15 @@ IceInternal::ThreadPool::ThreadPool(const InstancePtr& instance, const string& p
     }
     const_cast<size_t&>(_stackSize) = static_cast<size_t>(stackSize);
 
+
+    const_cast<bool&>(_hasPriority) = _instance->initializationData().properties->getProperty(_prefix + ".ThreadPriority") != "";
+    const_cast<int&>(_priority) = _instance->initializationData().properties->getPropertyAsInt(_prefix + ".ThreadPriority");
+    if(!_hasPriority)
+    {
+        const_cast<bool&>(_hasPriority) = _instance->initializationData().properties->getProperty("Ice.ThreadPriority") != "";
+        const_cast<int&>(_priority) = _instance->initializationData().properties->getPropertyAsInt("Ice.ThreadPriority");
+    }
+
     if(_instance->traceLevels()->threadPool >= 1)
     {
         Trace out(_instance->initializationData().logger, _instance->traceLevels()->threadPoolCat);
@@ -103,7 +114,14 @@ IceInternal::ThreadPool::ThreadPool(const InstancePtr& instance, const string& p
         for(int i = 0 ; i < _size ; ++i)
         {
             IceUtil::ThreadPtr thread = new EventHandlerThread(this);
-            thread->start(_stackSize);
+            if(_hasPriority)
+            {
+                thread->start(_stackSize, _priority);
+            }
+            else
+            {
+                thread->start(_stackSize);
+            }
             _threads.push_back(thread);
             ++_running;
         }
@@ -266,7 +284,14 @@ IceInternal::ThreadPool::promoteFollower(EventHandler* handler)
                 try
                 {
                     IceUtil::ThreadPtr thread = new EventHandlerThread(this);
-                    thread->start(_stackSize);
+                    if(_hasPriority)
+                    {
+                        thread->start(_stackSize, _priority);
+                    }
+                    else
+                    {
+                        thread->start(_stackSize);
+                    }
                     _threads.push_back(thread);
                     ++_running;
                 }

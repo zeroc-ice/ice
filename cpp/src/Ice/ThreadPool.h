@@ -93,6 +93,9 @@ private:
     bool _promote;
 
     const bool _warnUdp;
+
+    const bool _hasPriority;
+    const int _priority;
 };
 
 }

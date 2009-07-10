@@ -36,7 +36,8 @@ OBJS		= ArgVector.o \
 		  Time.o \
 		  Timer.o \
 		  UUID.o \
-		  Unicode.o
+		  Unicode.o \
+		  MutexProtocol.o
 
 SRCS		= $(OBJS:.o=.cpp)
 

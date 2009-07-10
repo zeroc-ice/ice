@@ -22,7 +22,10 @@
 using namespace std;
 using namespace Slice;
 
-static string
+namespace
+{
+
+string
 normalizePath(const string& path)
 {
     string result = path;
@@ -77,6 +80,8 @@ normalizePath(const string& path)
         }
     }
     return result;
+}
+
 }
 
 string
@@ -186,7 +191,12 @@ Slice::changeInclude(const string& orig, const vector<string>& includePaths)
     return result;
 }
 
-static ostream* errorStream = &cerr;
+namespace
+{
+
+ostream* errorStream = &cerr;
+
+}
 
 void
 Slice::setErrorStream(ostream& stream)

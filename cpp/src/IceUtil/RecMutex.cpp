@@ -12,10 +12,26 @@
 
 using namespace std;
 
-#ifdef _WIN32
-
 IceUtil::RecMutex::RecMutex() :
     _count(0)
+{
+#ifdef _WIN32
+    init(PrioNone);
+#else
+    init(getDefaultMutexProtocol());
+#endif
+}
+
+IceUtil::RecMutex::RecMutex(const IceUtil::MutexProtocol protocol) :
+    _count(0)
+{
+    init(protocol);
+}
+
+#ifdef _WIN32
+
+void
+IceUtil::RecMutex::init(const MutexProtocol)
 {
     InitializeCriticalSection(&_mutex);
 }
@@ -76,42 +92,57 @@ IceUtil::RecMutex::lock(LockState& state) const
 
 #else
 
-IceUtil::RecMutex::RecMutex() :
-    _count(0)
+void
+IceUtil::RecMutex::init(const MutexProtocol protocol)
 {
     int rc;
-
-#if defined(__linux) && !defined(__USE_UNIX98)
-    const pthread_mutexattr_t attr = { PTHREAD_MUTEX_RECURSIVE_NP };
-#else
     pthread_mutexattr_t attr;
     rc = pthread_mutexattr_init(&attr);
+    assert(rc == 0);
     if(rc != 0)
     {
-        throw ThreadSyscallException(__FILE__, __LINE__, rc);
-    }
-    rc = pthread_mutexattr_settype(&attr, PTHREAD_MUTEX_RECURSIVE);
-    if(rc != 0)
-    {
-        throw ThreadSyscallException(__FILE__, __LINE__, rc);
-    }
-#endif
-    
-    rc = pthread_mutex_init(&_mutex, &attr);
-    if(rc != 0)
-    {
+        pthread_mutexattr_destroy(&attr);
         throw ThreadSyscallException(__FILE__, __LINE__, rc);
     }
 
 #if defined(__linux) && !defined(__USE_UNIX98)
-// Nothing to do
+    rc = pthread_mutexattr_settype(&attr, PTHREAD_MUTEX_RECURSIVE_NP);
 #else
+    rc = pthread_mutexattr_settype(&attr, PTHREAD_MUTEX_RECURSIVE);
+#endif
+    assert(rc == 0);
+    if(rc != 0)
+    {
+        pthread_mutexattr_destroy(&attr);
+        throw ThreadSyscallException(__FILE__, __LINE__, rc);
+    }
+
+#if defined(_POSIX_THREAD_PRIO_INHERIT) && _POSIX_THREAD_PRIO_INHERIT > 0
+    if(PrioInherit == protocol)
+    {
+        rc = pthread_mutexattr_setprotocol(&attr, PTHREAD_PRIO_INHERIT);
+        assert(rc == 0);
+        if(rc != 0)
+        {
+            throw ThreadSyscallException(__FILE__, __LINE__, rc);
+        }
+    }
+#endif
+
+    rc = pthread_mutex_init(&_mutex, &attr);
+    assert(rc == 0);
+    if(rc != 0)
+    {
+        pthread_mutexattr_destroy(&attr);
+        throw ThreadSyscallException(__FILE__, __LINE__, rc);
+    }
+
     rc = pthread_mutexattr_destroy(&attr);
+    assert(rc == 0);
     if(rc != 0)
     {
         throw ThreadSyscallException(__FILE__, __LINE__, rc);
     }
-#endif
 }
 
 IceUtil::RecMutex::~RecMutex()

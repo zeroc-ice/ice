@@ -46,7 +46,7 @@ struct RandomNumberGenerator : public std::unary_function<ptrdiff_t, ptrdiff_t>
         return IceUtilInternal::random(static_cast<int>(d));
     }
 };
-    
+
 }
 
 bool
@@ -1629,6 +1629,7 @@ IceInternal::IncomingConnectionFactory::initialize(const string& adapterName)
             try
             {
                 _acceptor->close();
+                _acceptor = 0;
             }
             catch(const LocalException&)
             {

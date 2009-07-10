@@ -30,11 +30,12 @@ SUBDIRS		= proxy \
 		  retry \
 		  timeout \
 		  servantLocator \
-                  interceptor \
-                  stringConverter \
-	  	  background \
+		  interceptor \
+		  stringConverter \
+		  background \
 		  udp \
-		  defaultServant
+		  defaultServant \
+		  threadPoolPriority
 
 $(EVERYTHING)::
 	@for subdir in $(SUBDIRS); \

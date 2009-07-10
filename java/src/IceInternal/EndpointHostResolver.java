@@ -14,9 +14,25 @@ public class EndpointHostResolver
     EndpointHostResolver(Instance instance)
     {
         _instance = instance;
-
-        _thread = new HelperThread();
-        _thread.start();
+        try
+        {
+            _thread = new HelperThread();
+            if(_instance.initializationData().properties.getProperty("Ice.ThreadPriority") != "")
+            {
+                _thread.setPriority(Util.getThreadPriorityProperty(_instance.initializationData().properties, "Ice"));
+            }
+            _thread.start();
+        }
+        catch(RuntimeException ex)
+        {
+            java.io.StringWriter sw = new java.io.StringWriter();
+            java.io.PrintWriter pw = new java.io.PrintWriter(sw);
+            ex.printStackTrace(pw);
+            pw.flush();
+            String s = "cannot create thread for endpoint host resolver thread:\n" + sw.toString();
+            _instance.initializationData().logger.error(s);
+            throw ex;
+        }
     }
 
     synchronized public void

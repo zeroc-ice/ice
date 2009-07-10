@@ -175,7 +175,7 @@ public:
 
     ~WLockT()
     {
-        if (_acquired)
+        if(_acquired)
         {
             _mutex.unlock();
         }

@@ -13,12 +13,17 @@
 using namespace std;
 using namespace IceSSL;
 
+namespace
+{
+
 //
 // See RFC 2253 and RFC 1779.
 //
 
-static string special = ",=+<>#;";
-static string hexvalid = "0123456789abcdefABCDEF";
+string special = ",=+<>#;";
+string hexvalid = "0123456789abcdefABCDEF";
+
+}
 
 static char unescapeHex(const string&, size_t);
 static pair<string,string> parseNameComponent(const string&, size_t&);
@@ -150,7 +155,7 @@ IceSSL::RFC2253::unescape(const string& data)
 
     return result;
 }
-        
+
 static int
 hexToInt(char v)
 {

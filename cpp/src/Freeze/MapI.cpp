@@ -1598,7 +1598,7 @@ extern "C"
     }
 }
 
-static int 
+static int
 callback(Db* secondary, const Dbt* key, const Dbt* value, Dbt* result)
 {
     void* indexObj = secondary->get_app_private();

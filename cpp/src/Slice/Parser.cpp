@@ -35,9 +35,15 @@ extern int slice_debug;
 // read + supports must be 0 (the default)
 //
 
-static string readWriteAttribute[] = { "read", "write" };
-static string txAttribute[] = { "supports", "mandatory", "required", "never" };
+namespace
+{
+
+string readWriteAttribute[] = { "read", "write" };
+string txAttribute[] = { "supports", "mandatory", "required", "never" };
 enum { Supports, Mandatory, Required, Never };
+
+}
+
 
 
 namespace Slice

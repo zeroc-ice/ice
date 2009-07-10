@@ -9,7 +9,7 @@
 
 #include <Ice/Application.h>
 #include <Ice/LoggerI.h>
-#include <IceUtil/StaticMutex.h>
+#include <IceUtil/Mutex.h>
 #include <IceUtil/CtrlCHandler.h>
 #include <IceUtil/Cond.h>
 #include <IceUtil/ArgVector.h>
@@ -25,29 +25,54 @@ using namespace IceUtilInternal;
 // _mutex and _condVar are used to synchronize the main thread and
 // the CtrlCHandler thread
 //
-static StaticMutex _mutex = ICE_STATIC_MUTEX_INITIALIZER;
-static auto_ptr<Cond> _condVar;
+
+namespace
+{
+
+Mutex* mutex = 0;
+
+class Init
+{
+public:
+
+    Init()
+    {
+        mutex = new IceUtil::Mutex;
+    }
+
+    ~Init()
+    {
+        delete mutex;
+        mutex = 0;
+    }
+};
+
+Init init;
+
+auto_ptr<Cond> _condVar;
 
 //
 // Variables than can change while run() and communicator->destroy() are running!
 //
-static bool _callbackInProgress = false;
-static bool _destroyed = false;
-static bool _interrupted = false;
-static bool _released = false;
-static CtrlCHandlerCallback _previousCallback = 0;
+bool _callbackInProgress = false;
+bool _destroyed = false;
+bool _interrupted = false;
+bool _released = false;
+CtrlCHandlerCallback _previousCallback = 0;
 
 //
 // Variables that are immutable during run() and until communicator->destroy() has returned;
 // before and after run(), and once communicator->destroy() has returned, we assume that 
 // only the main thread and CtrlCHandler threads are running.
 //
-static string _appName;
-static Application* _application;
-static CommunicatorPtr _communicator;
-static CtrlCHandler* _ctrlCHandler = 0;
-static bool _nohup = false;
-static SignalPolicy _signalPolicy = HandleSignals;
+string _appName;
+Application* _application;
+CommunicatorPtr _communicator;
+CtrlCHandler* _ctrlCHandler = 0;
+bool _nohup = false;
+SignalPolicy _signalPolicy = HandleSignals;
+
+}
 
 #ifdef _WIN32
 const DWORD SIGHUP = CTRL_LOGOFF_EVENT;
@@ -72,7 +97,7 @@ holdInterruptCallback(int signal)
 {
     CtrlCHandlerCallback callback = 0;
     {
-        StaticMutex::Lock lock(_mutex);
+        IceUtil::Mutex::Lock lock(*mutex);
         while(!_released)
         {
             _condVar->wait(lock);
@@ -99,7 +124,7 @@ static void
 destroyOnInterruptCallback(int signal)
 {
     {
-        StaticMutex::Lock lock(_mutex);
+        IceUtil::Mutex::Lock lock(*mutex);
         if(_destroyed)
         {
             //
@@ -153,7 +178,7 @@ destroyOnInterruptCallback(int signal)
     }
 
     {
-        StaticMutex::Lock lock(_mutex);
+        IceUtil::Mutex::Lock lock(*mutex);
         _callbackInProgress = false;
     }
     _condVar->signal();
@@ -163,7 +188,7 @@ static void
 shutdownOnInterruptCallback(int signal)
 {
     {
-        StaticMutex::Lock lock(_mutex);
+        IceUtil::Mutex::Lock lock(*mutex);
         if(_destroyed)
         {
             //
@@ -218,7 +243,7 @@ shutdownOnInterruptCallback(int signal)
     }
 
     {
-        StaticMutex::Lock lock(_mutex);
+        IceUtil::Mutex::Lock lock(*mutex);
         _callbackInProgress = false;
     }
     _condVar->signal();
@@ -228,7 +253,7 @@ static void
 callbackOnInterruptCallback(int signal)
 {
     {
-        StaticMutex::Lock lock(_mutex);
+        IceUtil::Mutex::Lock lock(*mutex);
         if(_destroyed)
         {
             //
@@ -280,7 +305,7 @@ callbackOnInterruptCallback(int signal)
     }
 
     {
-        StaticMutex::Lock lock(_mutex);
+        IceUtil::Mutex::Lock lock(*mutex);
         _callbackInProgress = false;
     }
     _condVar->signal();
@@ -417,7 +442,7 @@ Ice::Application::destroyOnInterrupt()
     {
         if(_ctrlCHandler != 0)
         {
-            StaticMutex::Lock lock(_mutex); // we serialize all the interrupt-setting
+            IceUtil::Mutex::Lock lock(*mutex); // we serialize all the interrupt-setting
             if(_ctrlCHandler->getCallback() == holdInterruptCallback)
             {
                 _released = true;
@@ -440,7 +465,7 @@ Ice::Application::shutdownOnInterrupt()
     {
         if(_ctrlCHandler != 0)
         {
-            StaticMutex::Lock lock(_mutex); // we serialize all the interrupt-setting
+            IceUtil::Mutex::Lock lock(*mutex); // we serialize all the interrupt-setting
             if(_ctrlCHandler->getCallback() == holdInterruptCallback)
             {
                 _released = true;
@@ -463,7 +488,7 @@ Ice::Application::ignoreInterrupt()
     {
         if(_ctrlCHandler != 0)
         {
-            StaticMutex::Lock lock(_mutex); // we serialize all the interrupt-setting
+            IceUtil::Mutex::Lock lock(*mutex); // we serialize all the interrupt-setting
             if(_ctrlCHandler->getCallback() == holdInterruptCallback)
             {
                 _released = true;
@@ -486,7 +511,7 @@ Ice::Application::callbackOnInterrupt()
     {
         if(_ctrlCHandler != 0)
         {
-            StaticMutex::Lock lock(_mutex); // we serialize all the interrupt-setting
+            IceUtil::Mutex::Lock lock(*mutex); // we serialize all the interrupt-setting
             if(_ctrlCHandler->getCallback() == holdInterruptCallback)
             {
                 _released = true;
@@ -509,7 +534,7 @@ Ice::Application::holdInterrupt()
     {
         if(_ctrlCHandler != 0)
         {
-            StaticMutex::Lock lock(_mutex); // we serialize all the interrupt-setting
+            IceUtil::Mutex::Lock lock(*mutex); // we serialize all the interrupt-setting
             if(_ctrlCHandler->getCallback() != holdInterruptCallback)
             {
                 _previousCallback = _ctrlCHandler->getCallback();
@@ -533,7 +558,7 @@ Ice::Application::releaseInterrupt()
     {
         if(_ctrlCHandler != 0)
         {
-            StaticMutex::Lock lock(_mutex); // we serialize all the interrupt-setting
+            IceUtil::Mutex::Lock lock(*mutex); // we serialize all the interrupt-setting
             if(_ctrlCHandler->getCallback() == holdInterruptCallback)
             {
                 //
@@ -560,7 +585,7 @@ Ice::Application::releaseInterrupt()
 bool
 Ice::Application::interrupted()
 {
-    StaticMutex::Lock lock(_mutex);
+    IceUtil::Mutex::Lock lock(*mutex);
     return _interrupted;
 }
 
@@ -720,7 +745,7 @@ Ice::Application::executeRun(int argc, char* argv[], const InitializationData& i
     }
 
     {
-        StaticMutex::Lock lock(_mutex);
+        IceUtil::Mutex::Lock lock(*mutex);
         while(_callbackInProgress)
         {
             _condVar->wait(lock);

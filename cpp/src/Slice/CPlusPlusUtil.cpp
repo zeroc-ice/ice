@@ -1033,7 +1033,10 @@ Slice::writeUnmarshalCode(Output& out, const ParamDeclList& params, const TypePt
     }
 }
 
-static void
+namespace
+{
+
+void
 writeRangeAllocateCode(Output& out, const TypePtr& type, const string& fixedName, const StringList& metaData,
                               bool inParam)
 {
@@ -1061,6 +1064,8 @@ writeRangeAllocateCode(Output& out, const TypePtr& type, const string& fixedName
             out << nl << typeToString(seq, false, md, false) << " ___" << fixedName << ";";
         }
     }
+}
+
 }
 
 void

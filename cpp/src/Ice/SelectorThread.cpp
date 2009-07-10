@@ -11,6 +11,7 @@
 #include <Ice/SelectorThread.h>
 #include <Ice/Network.h>
 #include <Ice/Instance.h>
+#include <Ice/PropertiesI.h>
 #include <Ice/LoggerUtil.h>
 
 using namespace std;
@@ -29,7 +30,16 @@ IceInternal::SelectorThread::SelectorThread(const InstancePtr& instance) :
     try
     {
         _thread = new HelperThread(this);
-        _thread->start();
+        bool hasPriority = _instance->initializationData().properties->getProperty("Ice.ThreadPriority") != "";
+        int priority = _instance->initializationData().properties->getPropertyAsInt("Ice.ThreadPriority");
+        if(hasPriority)
+        {
+            _thread->start(0, priority);
+        }
+        else
+        {
+            _thread->start();
+        }
     }
     catch(const IceUtil::Exception& ex)
     {

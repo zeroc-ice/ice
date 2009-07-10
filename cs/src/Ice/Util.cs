@@ -7,9 +7,11 @@
 //
 // **********************************************************************
 
+using System;
+using System.Threading;
+
 namespace Ice
 {
-    using System;
 
     public interface ThreadNotification
     {
@@ -317,6 +319,39 @@ namespace IceInternal
         public static ProtocolPluginFacade getProtocolPluginFacade(Ice.Communicator communicator)
         {
             return new ProtocolPluginFacadeI(communicator);
+        }
+
+        public static System.Threading.ThreadPriority stringToThreadPriority(string s)
+        {
+            if(String.IsNullOrEmpty(s))
+            {
+                return ThreadPriority.Normal;
+            }
+            if(s.StartsWith("ThreadPriority."))
+            {
+                s = s.Substring("ThreadPriority.".Length, s.Length);
+            }
+            if(s.Equals("Lowest"))
+            {
+                return ThreadPriority.Lowest;
+            }
+            else if(s.Equals("BelowNormal"))
+            {
+                return ThreadPriority.BelowNormal;
+            }
+            else if(s.Equals("Normal"))
+            {
+                return ThreadPriority.Normal;
+            }
+            else if(s.Equals("AboveNormal"))
+            {
+                return ThreadPriority.AboveNormal;
+            }
+            else if(s.Equals("Highest"))
+            {
+                return ThreadPriority.Highest;
+            }
+            return ThreadPriority.Normal;
         }
     }
 }

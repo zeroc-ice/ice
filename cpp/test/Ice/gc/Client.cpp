@@ -8,7 +8,8 @@
 // **********************************************************************
 
 #include <IceUtil/Thread.h>
-#include <IceUtil/StaticMutex.h>
+#include <IceUtil/Mutex.h>
+#include <IceUtil/MutexPtrLock.h>
 #include <Ice/Ice.h>
 #include <TestCommon.h>
 #include <Test.h>
@@ -17,27 +18,50 @@
 using namespace std;
 using namespace Test;
 
-static int num = 0;
-static ::IceUtil::StaticMutex numMutex = ICE_STATIC_MUTEX_INITIALIZER;
+namespace
+{
+
+int num = 0;
+::IceUtil::Mutex* numMutex = 0;
+
+class Init
+{
+public:
+
+    Init()
+    {
+        numMutex = new IceUtil::Mutex;
+    }
+
+    ~Init()
+    {
+        delete numMutex;
+        numMutex = 0;
+    }
+};
+
+Init init;
+
+}
 
 static void
 incNum()
 {
-    ::IceUtil::StaticMutex::Lock lock(numMutex);
+    IceUtilInternal::MutexPtrLock<IceUtil::Mutex> lock(numMutex);
     ++num;
 }
 
 static void
 decNum()
 {
-    ::IceUtil::StaticMutex::Lock lock(numMutex);
+    IceUtilInternal::MutexPtrLock<IceUtil::Mutex> lock(numMutex);
     --num;
 }
 
 static int
 getNum()
 {
-    ::IceUtil::StaticMutex::Lock lock(numMutex);
+    IceUtilInternal::MutexPtrLock<IceUtil::Mutex> lock(numMutex);
     return num;
 }
 

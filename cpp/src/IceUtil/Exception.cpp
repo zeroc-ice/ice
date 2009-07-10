@@ -8,7 +8,8 @@
 // **********************************************************************
 
 #include <IceUtil/Exception.h>
-#include <IceUtil/StaticMutex.h>
+#include <IceUtil/MutexPtrLock.h>
+#include <IceUtil/Mutex.h>
 #include <IceUtil/StringUtil.h>
 #include <ostream>
 #include <cstdlib>
@@ -19,6 +20,31 @@
 #endif
 
 using namespace std;
+
+namespace
+{
+
+IceUtil::Mutex* globalMutex = 0;
+
+class Init
+{
+public:
+
+    Init()
+    {
+        globalMutex = new IceUtil::Mutex;
+    }
+
+    ~Init()
+    {
+        delete globalMutex;
+        globalMutex = 0;
+    }
+};
+
+Init init;
+
+}
 
 namespace IceUtil
 {
@@ -198,7 +224,7 @@ IceUtil::Exception::what() const throw()
 {
     try
     {
-        StaticMutex::Lock lock(globalMutex);
+        IceUtilInternal::MutexPtrLock<IceUtil::Mutex> lock(globalMutex);
         {
             if(_str.empty())
             {
@@ -374,4 +400,3 @@ IceUtil::SyscallException::error() const
 {
     return _error;
 }
-

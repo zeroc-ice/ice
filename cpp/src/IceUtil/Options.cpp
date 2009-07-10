@@ -436,7 +436,7 @@ IceUtilInternal::Options::split(const string& line)
                             case '6':
                             case '7':
                             {
-                                static string octalDigits = "01234567";
+                                static const string octalDigits = "01234567";
                                 unsigned short us = 0;
                                 string::size_type j;
                                 for(j = i;

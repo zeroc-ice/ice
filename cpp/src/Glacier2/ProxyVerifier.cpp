@@ -37,7 +37,7 @@ struct Range
     long end;
 };
 
-static void 
+static void
 parseGroup(const string& parameter, vector<int>& validPorts, vector<Range>& ranges)
 {
     istringstream istr(parameter);

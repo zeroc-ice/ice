@@ -12,7 +12,8 @@
 #endif
 
 #include <IceUtil/CtrlCHandler.h>
-#include <IceUtil/StaticMutex.h>
+#include <IceUtil/MutexPtrLock.h>
+#include <IceUtil/Mutex.h>
 
 #ifndef _WIN32
 #   include <signal.h>
@@ -21,8 +22,33 @@
 using namespace std;
 using namespace IceUtil;
 
-static CtrlCHandlerCallback _callback = 0;
-static const CtrlCHandler* _handler = 0;
+namespace
+{
+
+CtrlCHandlerCallback _callback = 0;
+const CtrlCHandler* _handler = 0;
+
+IceUtil::Mutex* globalMutex = 0;
+
+class Init
+{
+public:
+
+    Init()
+    {
+        globalMutex = new IceUtil::Mutex;
+    }
+
+    ~Init()
+    {
+        delete globalMutex;
+        globalMutex = 0;
+    }
+};
+
+Init init;
+
+}
 
 CtrlCHandlerException::CtrlCHandlerException(const char* file, int line) :
     Exception(file, line)
@@ -52,14 +78,14 @@ CtrlCHandlerException::ice_throw() const
 void 
 CtrlCHandler::setCallback(CtrlCHandlerCallback callback)
 {
-    StaticMutex::Lock lock(globalMutex);
+    IceUtilInternal::MutexPtrLock<IceUtil::Mutex> lock(globalMutex);
     _callback = callback;
 }
 
 CtrlCHandlerCallback 
 CtrlCHandler::getCallback() const
 {
-    StaticMutex::Lock lock(globalMutex);
+    IceUtilInternal::MutexPtrLock<IceUtil::Mutex> lock(globalMutex);
     return _callback;
 }
 
@@ -78,8 +104,10 @@ static BOOL WINAPI handlerRoutine(DWORD dwCtrlType)
 
 CtrlCHandler::CtrlCHandler(CtrlCHandlerCallback callback)
 {
-    StaticMutex::Lock lock(globalMutex);
-    if(_handler != 0)
+    IceUtilInternal::MutexPtrLock<IceUtil::Mutex> lock(globalMutex);
+    bool handler = _handler != 0;
+
+    if(handler)
     {
         throw CtrlCHandlerException(__FILE__, __LINE__);
     }
@@ -88,6 +116,7 @@ CtrlCHandler::CtrlCHandler(CtrlCHandlerCallback callback)
         _callback = callback;
         _handler = this;
         lock.release();
+
         SetConsoleCtrlHandler(handlerRoutine, TRUE);
     }
 }
@@ -96,7 +125,7 @@ CtrlCHandler::~CtrlCHandler()
 {
     SetConsoleCtrlHandler(handlerRoutine, FALSE);
     {
-        StaticMutex::Lock lock(globalMutex);
+        IceUtilInternal::MutexPtrLock<IceUtil::Mutex> lock(globalMutex);
         _handler = 0;
     }
 }
@@ -155,14 +184,22 @@ sigwaitThread(void*)
     }
     return 0;
 }
+
 }
 
-static pthread_t _tid;
+namespace
+{
+
+pthread_t _tid;
+
+}
 
 CtrlCHandler::CtrlCHandler(CtrlCHandlerCallback callback)
 {
-    StaticMutex::Lock lock(globalMutex);
-    if(_handler != 0)
+    IceUtilInternal::MutexPtrLock<IceUtil::Mutex> lock(globalMutex);
+    bool handler = _handler != 0;
+
+    if(handler)
     {
         throw CtrlCHandlerException(__FILE__, __LINE__);
     }
@@ -170,6 +207,7 @@ CtrlCHandler::CtrlCHandler(CtrlCHandlerCallback callback)
     {
         _callback = callback;
         _handler = this;
+
         lock.release();
         
         // We block these CTRL+C like signals in the main thread,
@@ -209,7 +247,7 @@ CtrlCHandler::~CtrlCHandler()
     assert(status == PTHREAD_CANCELED);
 #endif
     {
-        StaticMutex::Lock lock(globalMutex);
+        IceUtilInternal::MutexPtrLock<IceUtil::Mutex> lock(globalMutex);
         _handler = 0;
     }
 }

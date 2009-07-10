@@ -25,7 +25,9 @@
 #include <IceUtil/Handle.h>
 #include <IceUtil/Lock.h>
 #include <IceUtil/Monitor.h>
+#include <IceUtil/MutexProtocol.h>
 #include <IceUtil/Mutex.h>
+#include <IceUtil/MutexPtrLock.h>
 #include <IceUtil/RWRecMutex.h>
 #include <IceUtil/RecMutex.h>
 #include <IceUtil/Shared.h>

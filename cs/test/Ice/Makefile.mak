@@ -12,7 +12,7 @@ top_srcdir	= ..\..
 !include $(top_srcdir)/config/Make.rules.mak.cs
 
 SUBDIRS         = application \
-		  adapterDeactivation \
+                  adapterDeactivation \
                   exceptions \
                   facets \
                   faultTolerance \
@@ -28,13 +28,14 @@ SUBDIRS         = application \
                   stream \
                   retry \
                   timeout \
-		  servantLocator \
+                  servantLocator \
                   interceptor \
                   dictMapping \
                   seqMapping \
                   background \
-		  udp \
-		  defaultServant
+                  udp \
+                  defaultServant \
+                  threadPoolPriority
 
 $(EVERYTHING)::
 	@for %i in ( $(SUBDIRS) ) do \

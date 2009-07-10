@@ -10,7 +10,6 @@
 #include <IceUtil/Thread.h>
 #include <IceUtil/Time.h>
 #include <IceUtil/Monitor.h>
-#include <IceUtil/StaticMutex.h>
 #include <IceUtil/Options.h>
 
 #include <iostream>
