@@ -541,8 +541,6 @@ namespace IceInternal
 
             private string _name;
             private Thread _thread;
-            private ThreadPriority _priority;
-            private bool _hasPriority = false;
         }
 
         private readonly int _size; // Number of threads that are pre-created.
