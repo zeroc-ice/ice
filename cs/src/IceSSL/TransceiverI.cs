@@ -483,7 +483,7 @@ namespace IceSSL
                 _initializeResult = null;
 
                 _info = Util.populateConnectionInfo(_stream, _fd, _chain, _adapterName, _adapterName != null);
-                _instance.verifyPeer(_info, _fd, _adapterName != null);
+                _instance.verifyPeer(_info, _fd, _host, _adapterName != null);
 
                 if(_instance.networkTraceLevel() >= 1)
                 {
@@ -579,30 +579,10 @@ namespace IceSSL
 
             if((errors & (int)SslPolicyErrors.RemoteCertificateNameMismatch) > 0)
             {
-                if(_adapterName == null)
-                {
-                    if(!_instance.checkCertName())
-                    {
-                        errors ^= (int)SslPolicyErrors.RemoteCertificateNameMismatch;
-                        message = message + "\nremote certificate name mismatch (ignored)";
-                    }
-                    else
-                    {
-                        if(_instance.securityTraceLevel() >= 1)
-                        {
-                            _logger.trace(_instance.securityTraceCategory(),
-                                          "SSL certificate validation failed - remote certificate name mismatch");
-                        }
-                        return false;
-                    }
-                }
-                else
-                {
-                    //
-                    // This condition is not expected in a server.
-                    //
-                    Debug.Assert(false);
-                }
+                //
+                // Ignore this error here; we'll check the peer certificate in verifyPeer().
+                //
+                errors ^= (int)SslPolicyErrors.RemoteCertificateNameMismatch;
             }
 
             if((errors & (int)SslPolicyErrors.RemoteCertificateChainErrors) > 0)

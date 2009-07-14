@@ -17,6 +17,7 @@ namespace IceSSL
     using System.Security.Authentication;
     using System.Security.Cryptography;
     using System.Security.Cryptography.X509Certificates;
+    using System.Text;
 
     internal class Instance
     {
@@ -373,8 +374,200 @@ namespace IceSSL
             communicator().getLogger().trace(_securityTraceCategory, s.ToString());
         }
 
-        internal void verifyPeer(ConnectionInfo info, System.Net.Sockets.Socket fd, bool incoming)
+        internal void verifyPeer(ConnectionInfo info, System.Net.Sockets.Socket fd, string address, bool incoming)
         {
+            //
+            // For an outgoing connection, we compare the proxy address (if any) against
+            // fields in the server's certificate (if any).
+            //
+            if(info.certs != null && info.certs.Length > 0 && address.Length > 0)
+            {
+                //
+                // Extract the IP addresses and the DNS names from the subject
+                // alternative names.
+                //
+                List<string> dnsNames = null;
+                List<string> ipAddresses = null;
+
+                //
+                // Search for "subject alternative name" extensions. The OID value
+                // of interest is 2.5.29.17 and the encoded data has the following
+                // ASN.1 syntax:
+                //
+                // GeneralNames ::= SEQUENCE SIZE (1..MAX) OF GeneralName
+                //
+                // GeneralName ::= CHOICE {
+                //    otherName                       [0]     OtherName,
+                //    rfc822Name                      [1]     IA5String,
+                //    dNSName                         [2]     IA5String,
+                //    x400Address                     [3]     ORAddress,
+                //    directoryName                   [4]     Name,
+                //    ediPartyName                    [5]     EDIPartyName,
+                //    uniformResourceIdentifier       [6]     IA5String,
+                //    iPAddress                       [7]     OCTET STRING,
+                //    registeredID                    [8]     OBJECT IDENTIFIER
+                // }
+                //
+                foreach(X509Extension ext in info.certs[0].Extensions)
+                {
+                    if(ext.Oid.Value.Equals("2.5.29.17") && ext.RawData.Length > 0)
+                    {
+                        byte[] data = ext.RawData;
+                        if(data.Length < 2 || data[0] != 0x30) // ASN.1 sequence
+                        {
+                            continue;
+                        }
+
+                        int seqLen, pos;
+                        if(!decodeASN1Length(data, 1, out seqLen, out pos))
+                        {
+                            continue;
+                        }
+
+                        while(pos < data.Length)
+                        {
+                            int tag = data[pos];
+
+                            int len;
+                            if(!decodeASN1Length(data, pos + 1, out len, out pos))
+                            {
+                                break;
+                            }
+
+                            if(tag == 0x82)
+                            {
+                                //
+                                // Extract DNS name.
+                                //
+                                StringBuilder b = new StringBuilder();
+                                for(int j = pos; j < pos + len; ++j)
+                                {
+                                    b.Append((char)data[j]);
+                                }
+                                if(dnsNames == null)
+                                {
+                                    dnsNames = new List<string>();
+                                }
+                                dnsNames.Add(b.ToString().ToLower());
+                            }
+                            else if(tag == 0x87)
+                            {
+                                //
+                                // Extract IP address.
+                                //
+                                char sep = len == 4 ? '.' : ':';
+                                StringBuilder b = new StringBuilder();
+                                for(int j = pos; j < pos + len; ++j)
+                                {
+                                    if(j > pos)
+                                    {
+                                        b.Append(sep);
+                                    }
+                                    b.Append(data[j].ToString());
+                                }
+                                if(ipAddresses == null)
+                                {
+                                    ipAddresses = new List<string>();
+                                }
+                                ipAddresses.Add(b.ToString().ToLower());
+                            }
+
+                            pos += len;
+                        }
+                    }
+                }
+
+                //
+                // Compare the peer's address against the common name as well as
+                // the dnsName and ipAddress values in the subject alternative name.
+                //
+                string dn = info.certs[0].Subject;
+                string addrLower = address.ToLower();
+                bool certNameOK = false;
+                {
+                    string cn = "cn=" + addrLower;
+                    int pos = dn.ToLower().IndexOf(cn);
+                    if(pos >= 0)
+                    {
+                        //
+                        // Ensure we match the entire common name.
+                        //
+                        certNameOK = (pos + cn.Length == dn.Length) || (dn[pos + cn.Length] == ',');
+                    }
+                }
+
+                //
+                // Compare the peer's address against the the dnsName and ipAddress
+                // values in the subject alternative name.
+                //
+                if(!certNameOK && ipAddresses != null)
+                {
+                    certNameOK = ipAddresses.Contains(addrLower);
+                }
+                if(!certNameOK && dnsNames != null)
+                {
+                    certNameOK = dnsNames.Contains(addrLower);
+                }
+
+                //
+                // Log a message if the name comparison fails. If CheckCertName is defined,
+                // we also raise an exception to abort the connection. Don't log a message if
+                // CheckCertName is not defined and a verifier is present.
+                //
+                if(!certNameOK && (_checkCertName || (_securityTraceLevel >= 1 && _verifier == null)))
+                {
+                    StringBuilder sb = new StringBuilder();
+                    sb.Append("IceSSL: ");
+                    if(!_checkCertName)
+                    {
+                        sb.Append("ignoring ");
+                    }
+                    sb.Append("certificate validation failure:\npeer certificate does not have `");
+                    sb.Append(address);
+                    sb.Append("' as its commonName or in its subjectAltName extension");
+                    if(dn.Length > 0)
+                    {
+                        sb.Append("\nSubject DN: ");
+                        sb.Append(dn);
+                    }
+                    if(dnsNames != null)
+                    {
+                        sb.Append("\nDNS names found in certificate: ");
+                        for(int j = 0; j < dnsNames.Count; ++j)
+                        {
+                            if(j > 0)
+                            {
+                                sb.Append(", ");
+                            }
+                            sb.Append(dnsNames[j]);
+                        }
+                    }
+                    if(ipAddresses != null)
+                    {
+                        sb.Append("\nIP addresses found in certificate: ");
+                        for(int j = 0; j < ipAddresses.Count; ++j)
+                        {
+                            if(j > 0)
+                            {
+                                sb.Append(", ");
+                            }
+                            sb.Append(ipAddresses[j]);
+                        }
+                    }
+                    string msg = sb.ToString();
+                    if(_securityTraceLevel >= 1)
+                    {
+                        _logger.trace(_securityTraceCategory, msg);
+                    }
+                    if(_checkCertName)
+                    {
+                        Ice.SecurityException ex = new Ice.SecurityException();
+                        ex.reason = msg;
+                        throw ex;
+                    }
+                }
+            }
+
             if(_verifyDepthMax > 0 && info.certs != null && info.certs.Length > _verifyDepthMax)
             {
                 string msg = (incoming ? "incoming" : "outgoing") + " connection rejected:\n" +
@@ -864,6 +1057,41 @@ namespace IceSSL
                 result.AppendChar(ch);
             }
             return result;
+        }
+
+        private static bool decodeASN1Length(byte[] data, int start, out int len, out int next)
+        {
+            len = 0;
+            next = 0;
+
+            if(start + 1 > data.Length)
+            {
+                return false;
+            }
+
+            len = data[start];
+            int len2 = 0;
+            if(len > 0x80) // Composed length
+            {
+                len2 = len - 0x80;
+                if(start + len2 + 1 > data.Length)
+                {
+                    return false;
+                }
+                len = 0;
+                for(int i = 0; i < len2; i++)
+                {
+                    len *= 256;
+                    len += data[start + i + 1];
+                }
+            }
+            else if(len == 0x80) // Undefined length encoding
+            {
+                return false;
+            }
+
+            next = start + len2 + 1;
+            return (next + len <= data.Length);
         }
 
         private Ice.Logger _logger;

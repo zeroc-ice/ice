@@ -386,6 +386,107 @@ public class AllTests
                 // the server's certificate has the value "Server" and we can't use "Server" as a host
                 // name in an endpoint (it almost certainly wouldn't resolve correctly).
                 //
+
+                //
+                // Test IceSSL.CheckCertName. The test certificates for the server contain "127.0.0.1"
+                // as the common name or as a subject alternative name, so we only perform this test when
+                // the default host is "127.0.0.1".
+                //
+                if(defaultHost.Equals("127.0.0.1"))
+                {
+                    //
+                    // Test subject alternative name.
+                    //
+                    {
+                        initData = createClientProps(defaultProperties, testDir, defaultHost);
+                        initData.properties.setProperty("IceSSL.CertFile", defaultDir + "/c_rsa_nopass_ca1.pfx");
+                        initData.properties.setProperty("IceSSL.Password", "password");
+                        initData.properties.setProperty("IceSSL.CheckCertName", "1");
+                        comm = Ice.Util.initialize(ref args, initData);
+
+                        fact = Test.ServerFactoryPrxHelper.checkedCast(comm.stringToProxy(factoryRef));
+                        test(fact != null);
+                        d = createServerProps(defaultProperties, testDir, defaultHost);
+                        d["IceSSL.CertFile"] = defaultDir + "/s_rsa_nopass_ca1.pfx";
+                        d["IceSSL.Password"] = "password";
+                        d["IceSSL.CheckCertName"] = "1";
+                        store.Add(caCert1);
+                        server = fact.createServer(d);
+                        try
+                        {
+                            server.ice_ping();
+                        }
+                        catch(Ice.LocalException)
+                        {
+                            test(false);
+                        }
+                        fact.destroyServer(server);
+                        store.Remove(caCert1);
+                        comm.destroy();
+                    }
+                    //
+                    // Test common name.
+                    //
+                    {
+                        initData = createClientProps(defaultProperties, testDir, defaultHost);
+                        initData.properties.setProperty("IceSSL.CertFile", defaultDir + "/c_rsa_nopass_ca1.pfx");
+                        initData.properties.setProperty("IceSSL.Password", "password");
+                        initData.properties.setProperty("IceSSL.CheckCertName", "1");
+                        comm = Ice.Util.initialize(ref args, initData);
+
+                        fact = Test.ServerFactoryPrxHelper.checkedCast(comm.stringToProxy(factoryRef));
+                        test(fact != null);
+                        d = createServerProps(defaultProperties, testDir, defaultHost);
+                        d["IceSSL.CertFile"] = defaultDir + "/s_rsa_nopass_ca1_cn1.pfx";
+                        d["IceSSL.Password"] = "password";
+                        d["IceSSL.CheckCertName"] = "1";
+                        store.Add(caCert1);
+                        server = fact.createServer(d);
+                        try
+                        {
+                            server.ice_ping();
+                        }
+                        catch(Ice.LocalException)
+                        {
+                            test(false);
+                        }
+                        fact.destroyServer(server);
+                        store.Remove(caCert1);
+                        comm.destroy();
+                    }
+                    //
+                    // Test common name again. The certificate used in this test has "127.0.0.11" as its
+                    // common name, therefore the address "127.0.0.1" must NOT match.
+                    //
+                    {
+                        initData = createClientProps(defaultProperties, testDir, defaultHost);
+                        initData.properties.setProperty("IceSSL.CertFile", defaultDir + "/c_rsa_nopass_ca1.pfx");
+                        initData.properties.setProperty("IceSSL.Password", "password");
+                        initData.properties.setProperty("IceSSL.CheckCertName", "1");
+                        comm = Ice.Util.initialize(ref args, initData);
+
+                        fact = Test.ServerFactoryPrxHelper.checkedCast(comm.stringToProxy(factoryRef));
+                        test(fact != null);
+                        d = createServerProps(defaultProperties, testDir, defaultHost);
+                        d["IceSSL.CertFile"] = defaultDir + "/s_rsa_nopass_ca1_cn2.pfx";
+                        d["IceSSL.Password"] = "password";
+                        d["IceSSL.CheckCertName"] = "1";
+                        store.Add(caCert1);
+                        server = fact.createServer(d);
+                        try
+                        {
+                            server.ice_ping();
+                            test(false);
+                        }
+                        catch(Ice.LocalException)
+                        {
+                            // Expected.
+                        }
+                        fact.destroyServer(server);
+                        store.Remove(caCert1);
+                        comm.destroy();
+                    }
+                }
             }
             Console.Out.WriteLine("ok");
 

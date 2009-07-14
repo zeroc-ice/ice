@@ -12,12 +12,12 @@ import os, sys, shutil
 
 for toplevel in [".", "..", "../..", "../../..", "../../../..", "../../../../.."]:
     toplevel = os.path.normpath(toplevel)
-    if os.path.exists(os.path.join(toplevel, "config", "TestUtil.py")):
+    if os.path.exists(os.path.join(toplevel, "scripts", "TestUtil.py")):
         break
 else:
     raise "can't find toplevel directory!"
 
-sys.path.append(os.path.join(toplevel, "config"))
+sys.path.append(toplevel)
 from scripts import *
 
 #
@@ -62,6 +62,8 @@ certs = [\
     "s_rsa_nopass_ca1_exp", \
     "s_rsa_nopass_ca1", \
     "s_rsa_nopass_ca2", \
+    "s_rsa_nopass_ca1_cn1", \
+    "s_rsa_nopass_ca1_cn2", \
 ]
 
 for x in certs:
