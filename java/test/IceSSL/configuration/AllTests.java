@@ -434,36 +434,101 @@ public class AllTests
             comm.destroy();
 
             //
-            // Test IceSSL.CheckCertName. The test certificate for the server contains "server"
-            // and "127.0.0.1" in its subjectAltName, so we only perform this test when the
-            // default host is "127.0.0.1".
+            // Test IceSSL.CheckCertName. The test certificates for the server contain "127.0.0.1"
+            // as the common name or as a subject alternative name, so we only perform this test when
+            // the default host is "127.0.0.1".
             //
             if(defaultHost.equals("127.0.0.1"))
             {
-                initData = createClientProps(defaultProperties, defaultDir, defaultHost);
-                initData.properties.setProperty("IceSSL.Keystore", "c_rsa_ca1.jks");
-                initData.properties.setProperty("IceSSL.Password", "password");
-                initData.properties.setProperty("IceSSL.Truststore", "cacert1.jks");
-                initData.properties.setProperty("IceSSL.CheckCertName", "1");
-                comm = Ice.Util.initialize(args, initData);
+                //
+                // Test subject alternative name.
+                //
+                {
+                    initData = createClientProps(defaultProperties, defaultDir, defaultHost);
+                    initData.properties.setProperty("IceSSL.Keystore", "c_rsa_ca1.jks");
+                    initData.properties.setProperty("IceSSL.Password", "password");
+                    initData.properties.setProperty("IceSSL.Truststore", "cacert1.jks");
+                    initData.properties.setProperty("IceSSL.CheckCertName", "1");
+                    comm = Ice.Util.initialize(args, initData);
 
-                fact = ServerFactoryPrxHelper.checkedCast(comm.stringToProxy(factoryRef));
-                test(fact != null);
-                d = createServerProps(defaultProperties, defaultDir, defaultHost);
-                d.put("IceSSL.Keystore", "s_rsa_ca1.jks");
-                d.put("IceSSL.Password", "password");
-                d.put("IceSSL.Truststore", "cacert1.jks");
-                server = fact.createServer(d);
-                try
-                {
-                    server.ice_ping();
+                    fact = ServerFactoryPrxHelper.checkedCast(comm.stringToProxy(factoryRef));
+                    test(fact != null);
+                    d = createServerProps(defaultProperties, defaultDir, defaultHost);
+                    d.put("IceSSL.Keystore", "s_rsa_ca1.jks");
+                    d.put("IceSSL.Password", "password");
+                    d.put("IceSSL.Truststore", "cacert1.jks");
+                    server = fact.createServer(d);
+                    try
+                    {
+                        server.ice_ping();
+                    }
+                    catch(Ice.LocalException ex)
+                    {
+                        test(false);
+                    }
+                    fact.destroyServer(server);
+                    comm.destroy();
                 }
-                catch(Ice.LocalException ex)
+                //
+                // Test common name.
+                //
                 {
-                    test(false);
+                    initData = createClientProps(defaultProperties, defaultDir, defaultHost);
+                    initData.properties.setProperty("IceSSL.Keystore", "c_rsa_ca1.jks");
+                    initData.properties.setProperty("IceSSL.Password", "password");
+                    initData.properties.setProperty("IceSSL.Truststore", "cacert1.jks");
+                    initData.properties.setProperty("IceSSL.CheckCertName", "1");
+                    comm = Ice.Util.initialize(args, initData);
+
+                    fact = ServerFactoryPrxHelper.checkedCast(comm.stringToProxy(factoryRef));
+                    test(fact != null);
+                    d = createServerProps(defaultProperties, defaultDir, defaultHost);
+                    d.put("IceSSL.Keystore", "s_rsa_ca1_cn1.jks");
+                    d.put("IceSSL.Password", "password");
+                    d.put("IceSSL.Truststore", "cacert1.jks");
+                    server = fact.createServer(d);
+                    try
+                    {
+                        server.ice_ping();
+                    }
+                    catch(Ice.LocalException ex)
+                    {
+                        test(false);
+                    }
+                    fact.destroyServer(server);
+                    comm.destroy();
                 }
-                fact.destroyServer(server);
-                comm.destroy();
+                //
+                // Test common name again. The certificate used in this test has "127.0.0.11" as its
+                // common name, therefore the address "127.0.0.1" must NOT match.
+                //
+                {
+                    initData = createClientProps(defaultProperties, defaultDir, defaultHost);
+                    initData.properties.setProperty("IceSSL.Keystore", "c_rsa_ca1.jks");
+                    initData.properties.setProperty("IceSSL.Password", "password");
+                    initData.properties.setProperty("IceSSL.Truststore", "cacert1.jks");
+                    initData.properties.setProperty("IceSSL.CheckCertName", "1");
+                    comm = Ice.Util.initialize(args, initData);
+
+                    fact = ServerFactoryPrxHelper.checkedCast(comm.stringToProxy(factoryRef));
+                    test(fact != null);
+                    d = createServerProps(defaultProperties, defaultDir, defaultHost);
+                    d.put("IceSSL.Keystore", "s_rsa_ca1_cn2.jks");
+                    d.put("IceSSL.Password", "password");
+                    d.put("IceSSL.Truststore", "cacert1.jks");
+                    server = fact.createServer(d);
+                    try
+                    {
+                        server.ice_ping();
+                        test(false);
+                    }
+                    catch(Ice.LocalException ex)
+                    {
+                        // Expected.
+                    }
+                    fact.destroyServer(server);
+                    comm.destroy();
+                }
             }
         }
         out.println("ok");

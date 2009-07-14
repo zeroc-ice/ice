@@ -33,11 +33,18 @@ General Changes
 These entries apply to all relevant language mappings unless otherwise
 noted.
 
+- IceSSL now compares the host name or IP address in a proxy endpoint
+  (if any) against the common name of the server's certificate when
+  the property IceSSL.CheckCertName is enabled. This is in addition to
+  the existing behavior that compared the host name or IP address
+  against the DNS names and IP addresses in the server certificate's
+  subject alternative name extension.
+
 - slice2docbook is no longer supported and has been removed from
   the distribution.
 
-- slice2html comments now use a syntax that matches the javadoc syntax.
-  Instead of
+- slice2html comments now use a syntax that matches the javadoc
+  syntax. Instead of
 
       module::interface::operation
 
@@ -45,7 +52,8 @@ noted.
 
       module.interface#operation
 
-  Similarly, the link syntax now follows the javadoc syntax. Instead of
+  Similarly, the link syntax now follows the javadoc syntax. Instead
+  of
 
       [module::interface::operation]
 
@@ -53,24 +61,24 @@ noted.
 
       {@link module.interface#operation}
 
-  The old syntax is still supported; slice2html prints a warning for each
-  source file in which it encounters the old syntax.
+  The old syntax is still supported; slice2html prints a warning for
+  each source file in which it encounters the old syntax.
 
 - A batch invocation will now only throw if the connection associated
-  to the proxy failed and there were batch requests queued at the time
-  of the failure. If there were no batch requests queued, the batch
-  invocation won't throw but will instead try to obtain a new
+  with the proxy failed and there were batch requests queued at the
+  time of the failure. If there were no batch requests queued, the
+  batch invocation won't throw but will instead try to obtain a new
   connection.
 
 - Added the ability to read properties from the Windows registry. This
-  is done by setting Ice.Config property to a value such as the
+  is done by setting the Ice.Config property to a value such as the
   following:
 
     HKLM\Software\MyCompany\IceProperties
 
   This will read all the string values from the specified key in
-  HKEY_LOCAL_MACHINE and set them as Ice properties. You can can also
-  use HKEY_CURRENT_USER by specifying HKCU rather than HKLM.
+  HKEY_LOCAL_MACHINE and set them as Ice properties. You can also use
+  HKEY_CURRENT_USER by specifying HKCU instead of HKLM.
 
 - Added ability to get information from endpoints such as host and
   port without having to parse the stringified endpoint.
@@ -79,12 +87,13 @@ noted.
   BOM at start of file and include UTF-8 characters in comments.
 
 - Added new main() functions to Ice::Application class which take a
-  set of properties as well as command line arguments and config file.
-  The properties in the passed set will override any properties read
-  from command line arguments or config file.
+  set of properties as well as command line arguments and a
+  configuration file. The properties in the passed set will override
+  any properties read from command-line arguments or the configuration
+  file.
 
-- Fixed bug in slice compilers that would cause a crash if slice file
-  had double slashes in its path.
+- Fixed bug in Slice compilers that would cause a crash if a Slice
+  file had double slashes in its path.
 
 - The following properties were deprecated in Ice 3.2 and have been 
   removed:
@@ -99,9 +108,8 @@ noted.
   Communicator::getDefaultContext
   ObjectPrx:ice_defaultContext
 
-- Support for the nonmutating slice keyword which was previously 
-  deprecated has been removed. As a result the following property has
-  already been removed.
+- Support for the deprecated Slice keyword 'nonmutating' has been
+  removed. As a result the following property has also been removed:
 
   Freeze.UseNonmutating
 
@@ -134,21 +142,21 @@ noted.
   prepended by '--', warnings by '-!' and errors by '!!'.
 
 - All permutations of Ice.initialize() will now recognize the value of
-  the ICE_CONFIG environment variable as long as an already created 
+  the ICE_CONFIG environment variable as long as an already-created
   property set has not been passed in the InitializationData or an 
   Ice.Config argument/property has not been set. Previously if the
   no argument version of initialize was used, ICE_CONFIG was ignored
   in C++, .NET and Java but used in Python and Ruby.
 
 - The value of the thread pool SizeWarn property is now 0 by default
-  rather than 80% os Size. This means that by default warnings about
+  rather than 80% of Size. This means that by default warnings about
   thread pool growth will now be disabled.
 
 - Added example demo/Ice/plugin to show how to write a simple Ice
-  Plugin as will as a Logger Plugin.
+  plug-in as well as a Logger plug-in.
 
 - Added getPlugins method to PluginManager which returns a list of the
-  names of all the plugins installed.
+  names of all installed plug-ins.
 
 - The reason member of MemoryLimitException now contains the size of
   the request that caused the exception as well as the value of the
@@ -162,7 +170,7 @@ noted.
   change affects the Java, C#, Python, and Ruby language mappings.
 
 - It is now possible to use an UNC path as an include directive for
-  the slice compilers.
+  the Slice compilers.
 
 - Fixed a bug in slice2html that caused incorrect hyperlinks to be
   generated for the summary of the index sections of a module page.
@@ -188,12 +196,13 @@ noted.
 C++ Changes
 ============
 
-- Added ice_stackTrace() method to Exception classes, which returns the 
-  exception stack trace on platforms/compilers that support it. 
-  Currently this is only supported with GCC compiler.
+- Added ice_stackTrace() method to Exception classes, which returns
+  the exception stack trace on platforms/compilers that support it.
+  Currently this is only supported with the GCC compiler.
 
-- Removed AMD_Array_Object_ice_invoke class and instead add ice_response
-  method to AMD_Object_ice_invoke that uses the array type.
+- Removed AMD_Array_Object_ice_invoke class and instead added an
+  ice_response method to AMD_Object_ice_invoke that uses the array
+  type.
 
 - The system logger (enabled when Ice.UseSyslog is set) now uses the 
   value of Ice.ProgramName as the log identifier prefix.
@@ -265,12 +274,20 @@ Java Changes
 C# Changes
 ==========
 
+- IceSSL's behavior with respect to the IceSSL.CheckCertName property
+  is now consistent with that of C++ and Java. Specifically, IceSSL
+  compares the host name or IP address in a proxy endpoint (if any)
+  against the common name and subject alternative names of the
+  server's certificate. In prior releases, IceSSL relied on .NET to
+  perform the validation of the common name but no comparison was made
+  with the subject alternative names.
+
 - Fixed bug where random endpoint selection would only work for
-  proxies with more than 2 endpoints.
+  proxies with more than two endpoints.
 
 - Fixed thread safety issue in random endpoint selection.
 
-- slice2sc no longer generates a <name>OperationsNC interface for
+- slice2cs no longer generates a <name>OperationsNC interface for
   local interfaces and classes. This makes the code easier to browse
   with IDEs.
 

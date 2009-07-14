@@ -58,8 +58,7 @@ public:
             vector<pair<int, string> > subjectAltNames = info.certs[0]->getSubjectAlternativeNames();
             vector<string> ipAddresses;
             vector<string> dnsNames;
-            for(vector<pair<int, string> >::const_iterator p = subjectAltNames.begin();
-                p != subjectAltNames.end(); ++p)
+            for(vector<pair<int, string> >::const_iterator p = subjectAltNames.begin(); p != subjectAltNames.end(); ++p)
             {
                 if(p->first == 7)
                 {
@@ -501,36 +500,101 @@ allTests(const CommunicatorPtr& communicator, const string& testDir)
         comm->destroy();
 
         //
-        // Test IceSSL.CheckCertName. The test certificate for the server contains "server"
-        // and "127.0.0.1" in its subjectAltName, so we only perform this test when the
-        // default host is "127.0.0.1".
+        // Test IceSSL.CheckCertName. The test certificates for the server contain "127.0.0.1"
+        // as the common name or as a subject alternative name, so we only perform this test when
+        // the default host is "127.0.0.1".
         //
         if(defaultHost == "127.0.0.1")
         {
-            initData.properties = createClientProps(defaultProperties, defaultDir, defaultHost);
-            initData.properties->setProperty("IceSSL.CertAuthFile", "cacert1.pem");
-            initData.properties->setProperty("IceSSL.CertFile", "c_rsa_nopass_ca1_pub.pem");
-            initData.properties->setProperty("IceSSL.KeyFile", "c_rsa_nopass_ca1_priv.pem");
-            initData.properties->setProperty("IceSSL.CheckCertName", "1");
-            comm = initialize(initData);
+            //
+            // Test subject alternative name.
+            //
+            {
+                initData.properties = createClientProps(defaultProperties, defaultDir, defaultHost);
+                initData.properties->setProperty("IceSSL.CertAuthFile", "cacert1.pem");
+                initData.properties->setProperty("IceSSL.CertFile", "c_rsa_nopass_ca1_pub.pem");
+                initData.properties->setProperty("IceSSL.KeyFile", "c_rsa_nopass_ca1_priv.pem");
+                initData.properties->setProperty("IceSSL.CheckCertName", "1");
+                comm = initialize(initData);
 
-            fact = Test::ServerFactoryPrx::checkedCast(comm->stringToProxy(factoryRef));
-            test(fact);
-            d = createServerProps(defaultProperties, defaultDir, defaultHost);
-            d["IceSSL.CertAuthFile"] = "cacert1.pem";
-            d["IceSSL.CertFile"] = "s_rsa_nopass_ca1_pub.pem";
-            d["IceSSL.KeyFile"] = "s_rsa_nopass_ca1_priv.pem";
-            server = fact->createServer(d);
-            try
-            {
-                server->ice_ping();
+                fact = Test::ServerFactoryPrx::checkedCast(comm->stringToProxy(factoryRef));
+                test(fact);
+                d = createServerProps(defaultProperties, defaultDir, defaultHost);
+                d["IceSSL.CertAuthFile"] = "cacert1.pem";
+                d["IceSSL.CertFile"] = "s_rsa_nopass_ca1_pub.pem";
+                d["IceSSL.KeyFile"] = "s_rsa_nopass_ca1_priv.pem";
+                server = fact->createServer(d);
+                try
+                {
+                    server->ice_ping();
+                }
+                catch(const LocalException&)
+                {
+                    test(false);
+                }
+                fact->destroyServer(server);
+                comm->destroy();
             }
-            catch(const LocalException&)
+            //
+            // Test common name.
+            //
             {
-                test(false);
+                initData.properties = createClientProps(defaultProperties, defaultDir, defaultHost);
+                initData.properties->setProperty("IceSSL.CertAuthFile", "cacert1.pem");
+                initData.properties->setProperty("IceSSL.CertFile", "c_rsa_nopass_ca1_pub.pem");
+                initData.properties->setProperty("IceSSL.KeyFile", "c_rsa_nopass_ca1_priv.pem");
+                initData.properties->setProperty("IceSSL.CheckCertName", "1");
+                comm = initialize(initData);
+
+                fact = Test::ServerFactoryPrx::checkedCast(comm->stringToProxy(factoryRef));
+                test(fact);
+                d = createServerProps(defaultProperties, defaultDir, defaultHost);
+                d["IceSSL.CertAuthFile"] = "cacert1.pem";
+                d["IceSSL.CertFile"] = "s_rsa_nopass_ca1_cn1_pub.pem";
+                d["IceSSL.KeyFile"] = "s_rsa_nopass_ca1_cn1_priv.pem";
+                server = fact->createServer(d);
+                try
+                {
+                    server->ice_ping();
+                }
+                catch(const LocalException&)
+                {
+                    test(false);
+                }
+                fact->destroyServer(server);
+                comm->destroy();
             }
-            fact->destroyServer(server);
-            comm->destroy();
+            //
+            // Test common name again. The certificate used in this test has "127.0.0.11" as its
+            // common name, therefore the address "127.0.0.1" must NOT match.
+            //
+            {
+                initData.properties = createClientProps(defaultProperties, defaultDir, defaultHost);
+                initData.properties->setProperty("IceSSL.CertAuthFile", "cacert1.pem");
+                initData.properties->setProperty("IceSSL.CertFile", "c_rsa_nopass_ca1_pub.pem");
+                initData.properties->setProperty("IceSSL.KeyFile", "c_rsa_nopass_ca1_priv.pem");
+                initData.properties->setProperty("IceSSL.CheckCertName", "1");
+                comm = initialize(initData);
+
+                fact = Test::ServerFactoryPrx::checkedCast(comm->stringToProxy(factoryRef));
+                test(fact);
+                d = createServerProps(defaultProperties, defaultDir, defaultHost);
+                d["IceSSL.CertAuthFile"] = "cacert1.pem";
+                d["IceSSL.CertFile"] = "s_rsa_nopass_ca1_cn2_pub.pem";
+                d["IceSSL.KeyFile"] = "s_rsa_nopass_ca1_cn2_priv.pem";
+                server = fact->createServer(d);
+                try
+                {
+                    server->ice_ping();
+                    test(false);
+                }
+                catch(const LocalException&)
+                {
+                    // Expected.
+                }
+                fact->destroyServer(server);
+                comm->destroy();
+            }
         }
     }
     cout << "ok" << endl;

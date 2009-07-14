@@ -870,33 +870,23 @@ class Instance
     void
     verifyPeer(ConnectionInfo info, java.nio.channels.SelectableChannel fd, String address, boolean incoming)
     {
-        if(_verifyDepthMax > 0 && info.certs != null && info.certs.length > _verifyDepthMax)
+        //
+        // For an outgoing connection, we compare the proxy address (if any) against
+        // fields in the server's certificate (if any).
+        //
+        if(info.certs != null && info.certs.length > 0 && address.length() > 0)
         {
-            String msg = (incoming ? "incoming" : "outgoing") + " connection rejected:\n" +
-                "length of peer's certificate chain (" + info.certs.length + ") exceeds maximum of " +
-                _verifyDepthMax + "\n" +
-                IceInternal.Network.fdToString(fd);
-            if(_securityTraceLevel >= 1)
-            {
-                _logger.trace(_securityTraceCategory, msg);
-            }
-            Ice.SecurityException ex = new Ice.SecurityException();
-            ex.reason = msg;
-            throw ex;
-        }
+            java.security.cert.X509Certificate cert = (java.security.cert.X509Certificate)info.certs[0];
 
-        //
-        // Extract the IP addresses and the DNS names from the subject
-        // alternative names.
-        //
-        if(info.certs != null)
-        {
+            //
+            // Extract the IP addresses and the DNS names from the subject
+            // alternative names.
+            //
+            java.util.ArrayList<String> ipAddresses = new java.util.ArrayList<String>();
+            java.util.ArrayList<String> dnsNames = new java.util.ArrayList<String>();
             try
             {
-                java.util.Collection<java.util.List<?> > subjectAltNames =
-                    ((java.security.cert.X509Certificate)info.certs[0]).getSubjectAlternativeNames();
-                java.util.ArrayList<String> ipAddresses = new java.util.ArrayList<String>();
-                java.util.ArrayList<String> dnsNames = new java.util.ArrayList<String>();
+                java.util.Collection<java.util.List<?> > subjectAltNames = cert.getSubjectAlternativeNames();
                 if(subjectAltNames != null)
                 {
                     for(java.util.List<?> l : subjectAltNames)
@@ -913,76 +903,120 @@ class Instance
                         }
                     }
                 }
-
-                //
-                // Compare the peer's address against the dnsName and ipAddress values.
-                // This is only relevant for an outgoing connection.
-                //
-                if(address.length() > 0)
-                {
-                    boolean certNameOK = ipAddresses.contains(address);
-                    if(!certNameOK)
-                    {
-                        certNameOK = dnsNames.contains(address.toLowerCase());
-                    }
-
-                    //
-                    // Log a message if the name comparison fails. If CheckCertName is defined,
-                    // we also raise an exception to abort the connection. Don't log a message if
-                    // CheckCertName is not defined and a verifier is present.
-                    //
-                    if(!certNameOK && (_checkCertName || (_securityTraceLevel >= 1 && _verifier == null)))
-                    {
-                        StringBuilder sb = new StringBuilder(128);
-                        sb.append("IceSSL: ");
-                        if(!_checkCertName)
-                        {
-                            sb.append("ignoring ");
-                        }
-                        sb.append("certificate validation failure:\npeer certificate does not contain `");
-                        sb.append(address);
-                        sb.append("' in its subjectAltName extension");
-                        if(!dnsNames.isEmpty())
-                        {
-                            sb.append("\nDNS names found in certificate: ");
-                            for(int j = 0; j < dnsNames.size(); ++j)
-                            {
-                                if(j > 0)
-                                {
-                                    sb.append(", ");
-                                }
-                                sb.append(dnsNames.get(j));
-                            }
-                        }
-                        if(!ipAddresses.isEmpty())
-                        {
-                            sb.append("\nIP addresses found in certificate: ");
-                            for(int j = 0; j < ipAddresses.size(); ++j)
-                            {
-                                if(j > 0)
-                                {
-                                    sb.append(", ");
-                                }
-                                sb.append(ipAddresses.get(j));
-                            }
-                        }
-                        if(_securityTraceLevel >= 1)
-                        {
-                            _logger.trace(_securityTraceCategory, sb.toString());
-                        }
-                        if(_checkCertName)
-                        {
-                            Ice.SecurityException ex = new Ice.SecurityException();
-                            ex.reason = sb.toString();
-                            throw ex;
-                        }
-                    }
-                }
             }
             catch(java.security.cert.CertificateParsingException ex)
             {
                 assert(false);
             }
+
+            //
+            // Compare the peer's address against the common name as well as
+            // the dnsName and ipAddress values in the subject alternative name.
+            //
+            boolean certNameOK = false;
+            String dn = "";
+            String addrLower = address.toLowerCase();
+            {
+                javax.security.auth.x500.X500Principal principal = cert.getSubjectX500Principal();
+                dn = principal.getName(javax.security.auth.x500.X500Principal.CANONICAL);
+                //
+                // Canonical format is already in lower case.
+                //
+                String cn = "cn=" + addrLower;
+                int pos = dn.indexOf(cn);
+                if(pos >= 0)
+                {
+                    //
+                    // Ensure we match the entire common name.
+                    //
+                    certNameOK = (pos + cn.length() == dn.length()) || (dn.charAt(pos + cn.length()) == ',');
+                }
+            }
+
+            //
+            // Compare the peer's address against the the dnsName and ipAddress
+            // values in the subject alternative name.
+            //
+            if(!certNameOK)
+            {
+                certNameOK = ipAddresses.contains(addrLower);
+            }
+            if(!certNameOK)
+            {
+                certNameOK = dnsNames.contains(addrLower);
+            }
+
+            //
+            // Log a message if the name comparison fails. If CheckCertName is defined,
+            // we also raise an exception to abort the connection. Don't log a message if
+            // CheckCertName is not defined and a verifier is present.
+            //
+            if(!certNameOK && (_checkCertName || (_securityTraceLevel >= 1 && _verifier == null)))
+            {
+                StringBuilder sb = new StringBuilder(128);
+                sb.append("IceSSL: ");
+                if(!_checkCertName)
+                {
+                    sb.append("ignoring ");
+                }
+                sb.append("certificate validation failure:\npeer certificate does not have `");
+                sb.append(address);
+                sb.append("' as its commonName or in its subjectAltName extension");
+                if(dn.length() > 0)
+                {
+                    sb.append("\nSubject DN: ");
+                    sb.append(dn);
+                }
+                if(!dnsNames.isEmpty())
+                {
+                    sb.append("\nDNS names found in certificate: ");
+                    for(int j = 0; j < dnsNames.size(); ++j)
+                    {
+                        if(j > 0)
+                        {
+                            sb.append(", ");
+                        }
+                        sb.append(dnsNames.get(j));
+                    }
+                }
+                if(!ipAddresses.isEmpty())
+                {
+                    sb.append("\nIP addresses found in certificate: ");
+                    for(int j = 0; j < ipAddresses.size(); ++j)
+                    {
+                        if(j > 0)
+                        {
+                            sb.append(", ");
+                        }
+                        sb.append(ipAddresses.get(j));
+                    }
+                }
+                if(_securityTraceLevel >= 1)
+                {
+                    _logger.trace(_securityTraceCategory, sb.toString());
+                }
+                if(_checkCertName)
+                {
+                    Ice.SecurityException ex = new Ice.SecurityException();
+                    ex.reason = sb.toString();
+                    throw ex;
+                }
+            }
+        }
+
+        if(_verifyDepthMax > 0 && info.certs != null && info.certs.length > _verifyDepthMax)
+        {
+            String msg = (incoming ? "incoming" : "outgoing") + " connection rejected:\n" +
+                "length of peer's certificate chain (" + info.certs.length + ") exceeds maximum of " +
+                _verifyDepthMax + "\n" +
+                IceInternal.Network.fdToString(fd);
+            if(_securityTraceLevel >= 1)
+            {
+                _logger.trace(_securityTraceCategory, msg);
+            }
+            Ice.SecurityException ex = new Ice.SecurityException();
+            ex.reason = msg;
+            throw ex;
         }
 
         if(!_trustManager.verify(info))

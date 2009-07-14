@@ -10,6 +10,7 @@
 #include <IceUtil/DisableWarnings.h>
 #include <IceUtil/Mutex.h>
 #include <IceUtil/MutexPtrLock.h>
+#include <IceUtil/StringUtil.h>
 #include <IceSSL/Plugin.h>
 #include <IceSSL/Util.h>
 #include <IceSSL/RFC2253.h>

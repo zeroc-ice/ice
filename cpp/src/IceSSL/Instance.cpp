@@ -389,7 +389,7 @@ IceSSL::Instance::initialize()
                     {
                         ERR_clear_error();
                         err = SSL_CTX_load_verify_locations(_ctx, file, dir);
-                        if(err || !passwordError())
+                        if(err)
                         {
                             break;
                         }
@@ -459,7 +459,7 @@ IceSSL::Instance::initialize()
                         {
                             ERR_clear_error();
                             err = SSL_CTX_use_certificate_chain_file(_ctx, file.c_str());
-                            if(err || !passwordError())
+                            if(err)
                             {
                                 break;
                             }
@@ -524,7 +524,7 @@ IceSSL::Instance::initialize()
                         {
                             ERR_clear_error();
                             err = SSL_CTX_use_PrivateKey_file(_ctx, file.c_str(), SSL_FILETYPE_PEM);
-                            if(err || !passwordError())
+                            if(err)
                             {
                                 break;
                             }
@@ -789,11 +789,15 @@ IceSSL::Instance::verifyPeer(SSL* ssl, SOCKET fd, const string& address, const s
     }
 
     //
-    // Extract the IP addresses and the DNS names from the subject
-    // alternative names.
+    // For an outgoing connection, we compare the proxy address (if any) against
+    // fields in the server's certificate (if any).
     //
-    if(cert)
+    if(cert && !address.empty())
     {
+        //
+        // Extract the IP addresses and the DNS names from the subject
+        // alternative names.
+        //
         vector<pair<int, string> > subjectAltNames = cert->getSubjectAlternativeNames();
         vector<string> ipAddresses;
         vector<string> dnsNames;
@@ -801,95 +805,101 @@ IceSSL::Instance::verifyPeer(SSL* ssl, SOCKET fd, const string& address, const s
         {
             if(p->first == 7)
             {
-                ipAddresses.push_back(p->second);
+                ipAddresses.push_back(IceUtilInternal::toLower(p->second));
             }
             else if(p->first == 2)
             {
-                dnsNames.push_back(p->second);
+                dnsNames.push_back(IceUtilInternal::toLower(p->second));
             }
         }
 
         //
-        // Compare the peer's address against the dnsName and ipAddress values.
-        // This is only relevant for an outgoing connection.
+        // Compare the peer's address against the common name.
         //
-        if(!address.empty())
+        bool certNameOK = false;
+        string dn;
+        string addrLower = IceUtilInternal::toLower(address);
         {
-            bool certNameOK = false;
-
-            for(vector<string>::const_iterator p = ipAddresses.begin(); p != ipAddresses.end() && !certNameOK; ++p)
+            DistinguishedName d = cert->getSubjectDN();
+            dn = IceUtilInternal::toLower(string(d));
+            string cn = "cn=" + addrLower;
+            string::size_type pos = dn.find(cn);
+            if(pos != string::npos)
             {
-                if(address == *p)
+                //
+                // Ensure we match the entire common name.
+                //
+                certNameOK = (pos + cn.size() == dn.size()) || (dn[pos + cn.size()] == ',');
+            }
+        }
+
+        //
+        // Compare the peer's address against the the dnsName and ipAddress
+        // values in the subject alternative name.
+        //
+        if(!certNameOK)
+        {
+            certNameOK = find(ipAddresses.begin(), ipAddresses.end(), addrLower) != ipAddresses.end();
+        }
+        if(!certNameOK)
+        {
+            certNameOK = find(dnsNames.begin(), dnsNames.end(), addrLower) != dnsNames.end();
+        }
+
+        //
+        // Log a message if the name comparison fails. If CheckCertName is defined,
+        // we also raise an exception to abort the connection. Don't log a message if
+        // CheckCertName is not defined and a verifier is present.
+        //
+        if(!certNameOK && (_checkCertName || (_securityTraceLevel >= 1 && !_verifier)))
+        {
+            ostringstream ostr;
+            ostr << "IceSSL: ";
+            if(!_checkCertName)
+            {
+                ostr << "ignoring ";
+            }
+            ostr << "certificate validation failure:\npeer certificate does not have `" << address
+                 << "' as its commonName or in its subjectAltName extension";
+            if(!dn.empty())
+            {
+                ostr << "\nSubject DN: " << dn;
+            }
+            if(!dnsNames.empty())
+            {
+                ostr << "\nDNS names found in certificate: ";
+                for(vector<string>::const_iterator p = dnsNames.begin(); p != dnsNames.end(); ++p)
                 {
-                    certNameOK = true;
-                    break;
+                    if(p != dnsNames.begin())
+                    {
+                        ostr << ", ";
+                    }
+                    ostr << *p;
                 }
             }
-
-            if(!certNameOK && !dnsNames.empty())
+            if(!ipAddresses.empty())
             {
-                string host = IceUtilInternal::toLower(address);
-                for(vector<string>::const_iterator p = dnsNames.begin(); p != dnsNames.end() && !certNameOK; ++p)
+                ostr << "\nIP addresses found in certificate: ";
+                for(vector<string>::const_iterator p = ipAddresses.begin(); p != ipAddresses.end(); ++p)
                 {
-                    string s = IceUtilInternal::toLower(*p);
-                    if(host == s)
+                    if(p != ipAddresses.begin())
                     {
-                        certNameOK = true;
+                        ostr << ", ";
                     }
+                    ostr << *p;
                 }
             }
-
-            //
-            // Log a message if the name comparison fails. If CheckCertName is defined,
-            // we also raise an exception to abort the connection. Don't log a message if
-            // CheckCertName is not defined and a verifier is present.
-            //
-            if(!certNameOK && (_checkCertName || (_securityTraceLevel >= 1 && !_verifier)))
+            string msg = ostr.str();
+            if(_securityTraceLevel >= 1)
             {
-                ostringstream ostr;
-                ostr << "IceSSL: ";
-                if(!_checkCertName)
-                {
-                    ostr << "ignoring ";
-                }
-                ostr << "certificate validation failure:\npeer certificate does not contain `"
-                     << address << "' in its subjectAltName extension";
-                if(!dnsNames.empty())
-                {
-                    ostr << "\nDNS names found in certificate: ";
-                    for(vector<string>::const_iterator p = dnsNames.begin(); p != dnsNames.end(); ++p)
-                    {
-                        if(p != dnsNames.begin())
-                        {
-                            ostr << ", ";
-                        }
-                        ostr << *p;
-                    }
-                }
-                if(!ipAddresses.empty())
-                {
-                    ostr << "\nIP addresses found in certificate: ";
-                    for(vector<string>::const_iterator p = ipAddresses.begin(); p != ipAddresses.end(); ++p)
-                    {
-                        if(p != ipAddresses.begin())
-                        {
-                            ostr << ", ";
-                        }
-                        ostr << *p;
-                    }
-                }
-                string msg = ostr.str();
-                if(_securityTraceLevel >= 1)
-                {
-                    Trace out(_logger, _securityTraceCategory);
-                    out << msg;
-                }
-                if(_checkCertName)
-                {
-                    SecurityException ex(__FILE__, __LINE__);
-                    ex.reason = msg;
-                    throw ex;
-                }
+                Trace out(_logger, _securityTraceCategory);
+                out << msg;
+            }
+            if(_checkCertName)
+            {
+                SecurityException ex(__FILE__, __LINE__);
+                ex.reason = msg;
+                throw ex;
             }
         }
     }
