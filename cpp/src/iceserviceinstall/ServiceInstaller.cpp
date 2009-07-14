@@ -232,8 +232,11 @@ IceServiceInstaller::install(const PropertiesPtr& properties)
         }
     }
 
-    grantPermissions(_configFile);
-
+    if(!_configFile.find("HKLM\\") == 0 && !_configFile.find("HKCU\\") == 0)
+    {
+         grantPermissions(_configFile);
+    }
+    
     string eventLog = properties->getProperty("EventLog");
     if(eventLog == "")
     {
@@ -276,17 +279,24 @@ IceServiceInstaller::install(const PropertiesPtr& properties)
 
     deps += '\0'; // must be double-null terminated
 
-    //
-    // Get the full path of config file
-    //
-    char fullPath[MAX_PATH];
-    if(GetFullPathName(_configFile.c_str(), MAX_PATH, fullPath, 0) > MAX_PATH)
-    {
-        throw "Could not compute the full path of " + _configFile;
-    }
-
     string command = "\"" + imagePath + "\" --service " + _serviceName
-        + " --Ice.Config=\"" + fullPath + "\"";
+        + " --Ice.Config=\"";
+    //
+    // Get the full path of config file.
+    //
+    if(!_configFile.find("HKLM\\") == 0 && !_configFile.find("HKCU\\") == 0)
+    {
+        char fullPath[MAX_PATH];
+        if(GetFullPathName(_configFile.c_str(), MAX_PATH, fullPath, 0) > MAX_PATH)
+        {
+            throw "Could not compute the full path of " + _configFile;
+        }
+        command += string(fullPath) + "\"";
+    }
+    else
+    {
+        command += _configFile + "\"";
+    }
 
     bool autoStart = properties->getPropertyAsIntWithDefault("AutoStart", 1) != 0;
     string password = properties->getProperty("Password");
