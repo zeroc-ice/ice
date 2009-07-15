@@ -531,6 +531,12 @@ IceInternal::FixedReference::getLocatorCacheTimeout() const
     return 0;
 }
 
+string
+IceInternal::FixedReference::getConnectionId() const
+{
+    return string();
+}
+
 ReferencePtr
 IceInternal::FixedReference::changeEndpoints(const vector<EndpointIPtr>& newEndpoints) const
 {
@@ -856,6 +862,12 @@ int
 IceInternal::RoutableReference::getLocatorCacheTimeout() const
 {
     return _locatorCacheTimeout;
+}
+
+string
+IceInternal::RoutableReference::getConnectionId() const
+{
+    return _connectionId;
 }
 
 ReferencePtr

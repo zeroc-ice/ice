@@ -78,6 +78,12 @@ public class FixedReference extends Reference
         return 0;
     }
 
+    public String
+    getConnectionId()
+    {
+        return "";
+    }
+
     public Reference
     changeEndpoints(EndpointI[] newEndpoints)
     {

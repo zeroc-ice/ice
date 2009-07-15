@@ -561,6 +561,26 @@ proxyIceGetLocatorCacheTimeout(ProxyObject* self)
 extern "C"
 #endif
 static PyObject*
+proxyIceGetConnectionId(ProxyObject* self)
+{
+    assert(self->proxy);
+
+    try
+    {
+        string connectionId = (*self->proxy)->ice_getConnectionId();
+        return createString(connectionId);
+    }
+    catch(const Ice::Exception& ex)
+    {
+        setPythonException(ex);
+        return 0;
+    }
+}
+
+#ifdef WIN32
+extern "C"
+#endif
+static PyObject*
 proxyIceLocatorCacheTimeout(ProxyObject* self, PyObject* args)
 {
     int timeout;
@@ -1849,6 +1869,8 @@ static PyMethodDef ProxyMethods[] =
         PyDoc_STR(STRCAST("ice_endpoints(tuple) -> proxy")) },
     { STRCAST("ice_getLocatorCacheTimeout"), reinterpret_cast<PyCFunction>(proxyIceGetLocatorCacheTimeout),
         METH_NOARGS, PyDoc_STR(STRCAST("ice_getLocatorCacheTimeout() -> int")) },
+    { STRCAST("ice_getConnectionId"), reinterpret_cast<PyCFunction>(proxyIceGetConnectionId),
+        METH_NOARGS, PyDoc_STR(STRCAST("ice_getConnectionId() -> string")) },
     { STRCAST("ice_locatorCacheTimeout"), reinterpret_cast<PyCFunction>(proxyIceLocatorCacheTimeout), METH_VARARGS,
         PyDoc_STR(STRCAST("ice_locatorCacheTimeout(int) -> Ice.ObjectPrx")) },
     { STRCAST("ice_isConnectionCached"), reinterpret_cast<PyCFunction>(proxyIceIsConnectionCached), METH_NOARGS,

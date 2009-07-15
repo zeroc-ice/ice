@@ -376,6 +376,10 @@ public class AllTests
         test(compObj.ice_connectionId("id2").equals(compObj.ice_connectionId("id2")));
         test(!compObj.ice_connectionId("id1").equals(compObj.ice_connectionId("id2")));
 
+        test(compObj.ice_connectionId("id1").ice_getConnectionId().equals("id1"));
+        test(compObj.ice_connectionId("id2").ice_getConnectionId().equals("id2"));
+
+
         test(compObj.ice_compress(true).equals(compObj.ice_compress(true)));
         test(!compObj.ice_compress(false).equals(compObj.ice_compress(true)));
 

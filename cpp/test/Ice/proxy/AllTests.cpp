@@ -401,6 +401,9 @@ allTests(const Ice::CommunicatorPtr& communicator)
     test(compObj->ice_connectionId("id1") < compObj->ice_connectionId("id2"));
     test(!(compObj->ice_connectionId("id2") < compObj->ice_connectionId("id1")));
 
+    test(compObj->ice_connectionId("id1")->ice_getConnectionId() == "id1");
+    test(compObj->ice_connectionId("id2")->ice_getConnectionId() == "id2");
+
     test(compObj->ice_compress(true) == compObj->ice_compress(true));
     test(compObj->ice_compress(false) != compObj->ice_compress(true));
     test(compObj->ice_compress(false) < compObj->ice_compress(true));

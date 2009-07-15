@@ -354,6 +354,8 @@ def allTests(communicator, collocated):
     test(compObj.ice_connectionId("id1") != compObj.ice_connectionId("id2"))
     test(compObj.ice_connectionId("id1") < compObj.ice_connectionId("id2"))
     test(not (compObj.ice_connectionId("id2") < compObj.ice_connectionId("id1")))
+    test(compObj.ice_connectionId("id1").ice_getConnectionId() == "id1");
+    test(compObj.ice_connectionId("id2").ice_getConnectionId() == "id2");
 
     test(compObj.ice_compress(True) == compObj.ice_compress(True))
     test(compObj.ice_compress(False) != compObj.ice_compress(True))

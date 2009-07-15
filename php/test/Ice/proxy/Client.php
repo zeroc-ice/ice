@@ -387,6 +387,9 @@ function allTests($communicator)
     test($base->ice_batchDatagram()->ice_isBatchDatagram());
     test($base->ice_secure(true)->ice_isSecure());
     test(!$base->ice_secure(false)->ice_isSecure());
+    test($base->ice_connectionId("id1")->ice_getConnectionId() == "id1");
+    test($base->ice_connectionId("id2")->ice_getConnectionId() == "id2");
+
     echo "ok\n";
 
     echo "testing ice_getCommunicator... ";

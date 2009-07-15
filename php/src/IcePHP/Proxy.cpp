@@ -446,6 +446,28 @@ ZEND_METHOD(Ice_ObjectPrx, ice_getLocatorCacheTimeout)
     }
 }
 
+ZEND_METHOD(Ice_ObjectPrx, ice_getConnectionId)
+{
+    if(ZEND_NUM_ARGS() != 0)
+    {
+        WRONG_PARAM_COUNT;
+    }
+
+    ProxyPtr _this = Wrapper<ProxyPtr>::value(getThis() TSRMLS_CC);
+    assert(_this);
+
+    try
+    {
+        string connectionId = _this->proxy->ice_getConnectionId();
+        ZVAL_STRINGL(return_value, STRCAST(connectionId.c_str()), connectionId.length(), 1);
+    }
+    catch(const IceUtil::Exception& ex)
+    {
+        throwException(ex TSRMLS_CC);
+        RETURN_NULL();
+    }
+}
+
 ZEND_METHOD(Ice_ObjectPrx, ice_locatorCacheTimeout)
 {
     ProxyPtr _this = Wrapper<ProxyPtr>::value(getThis() TSRMLS_CC);
@@ -1527,6 +1549,7 @@ static function_entry _proxyMethods[] =
     ZEND_ME(Ice_ObjectPrx, ice_getEndpoints, NULL, ZEND_ACC_PUBLIC)
     ZEND_ME(Ice_ObjectPrx, ice_endpoints, NULL, ZEND_ACC_PUBLIC)
     ZEND_ME(Ice_ObjectPrx, ice_getLocatorCacheTimeout, NULL, ZEND_ACC_PUBLIC)
+    ZEND_ME(Ice_ObjectPrx, ice_getConnectionId, NULL, ZEND_ACC_PUBLIC)
     ZEND_ME(Ice_ObjectPrx, ice_locatorCacheTimeout, NULL, ZEND_ACC_PUBLIC)
     ZEND_ME(Ice_ObjectPrx, ice_isConnectionCached, NULL, ZEND_ACC_PUBLIC)
     ZEND_ME(Ice_ObjectPrx, ice_connectionCached, NULL, ZEND_ACC_PUBLIC)

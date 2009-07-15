@@ -219,7 +219,9 @@ public:
 
     ::Ice::ObjectPrx ice_compress(bool) const;
     ::Ice::ObjectPrx ice_timeout(int) const;
+
     ::Ice::ObjectPrx ice_connectionId(const ::std::string&) const;
+    ::std::string ice_getConnectionId() const;
 
     ::Ice::ConnectionPtr ice_getConnection();
     ::Ice::ConnectionPtr ice_getCachedConnection() const;

@@ -263,6 +263,14 @@ public interface ObjectPrx
     int ice_getLocatorCacheTimeout();
 
     /**
+     * Returns the connection id of this proxy.
+     *
+     * @return The connection id.
+     *
+     **/
+    String ice_getConnectionId();
+
+    /**
      * Creates a new proxy that is identical to this proxy, except for the locator cache timeout.
      *
      * @param newTimeout The new locator cache timeout (in seconds).

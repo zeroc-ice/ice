@@ -788,6 +788,20 @@ IceRuby_ObjectPrx_ice_getLocatorCacheTimeout(VALUE self)
 
 extern "C"
 VALUE
+IceRuby_ObjectPrx_ice_getConnectionId(VALUE self)
+{
+    ICE_RUBY_TRY
+    {
+        Ice::ObjectPrx p = getProxy(self);
+        string connectionId = p->ice_getConnectionId();
+        return createString(connectionId);
+    }
+    ICE_RUBY_CATCH
+    return Qnil;
+}
+
+extern "C"
+VALUE
 IceRuby_ObjectPrx_ice_locatorCacheTimeout(VALUE self, VALUE timeout)
 {
     ICE_RUBY_TRY
@@ -1584,6 +1598,7 @@ IceRuby::initProxy(VALUE iceModule)
     rb_define_method(_proxyClass, "ice_endpoints", CAST_METHOD(IceRuby_ObjectPrx_ice_endpoints), 1);
     rb_define_method(_proxyClass, "ice_getLocatorCacheTimeout",
                      CAST_METHOD(IceRuby_ObjectPrx_ice_getLocatorCacheTimeout), 0);
+    rb_define_method(_proxyClass, "ice_getConnectionId", CAST_METHOD(IceRuby_ObjectPrx_ice_getConnectionId), 0);
     rb_define_method(_proxyClass, "ice_locatorCacheTimeout", CAST_METHOD(IceRuby_ObjectPrx_ice_locatorCacheTimeout), 1);
     rb_define_method(_proxyClass, "ice_isConnectionCached", CAST_METHOD(IceRuby_ObjectPrx_ice_isConnectionCached), 0);
     rb_define_method(_proxyClass, "ice_connectionCached", CAST_METHOD(IceRuby_ObjectPrx_ice_connectionCached), 1);

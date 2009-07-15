@@ -587,6 +587,18 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
     }
 
     /**
+     * Returns the connection id of this proxy.
+     *
+     * @return The connection id.
+     *
+     **/
+    public final String
+    ice_getConnectionId()
+    {
+        return _reference.getConnectionId();
+    }
+
+    /**
      * Creates a new proxy that is identical to this proxy, except for the locator cache timeout.
      *
      * @param newTimeout The new locator cache timeout (in seconds).

@@ -758,6 +758,12 @@ IceProxy::Ice::Object::ice_connectionId(const string& id) const
     }
 }
 
+string
+IceProxy::Ice::Object::ice_getConnectionId() const
+{
+    return _reference->getConnectionId();
+}
+
 ConnectionPtr
 IceProxy::Ice::Object::ice_getConnection()
 {

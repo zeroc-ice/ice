@@ -98,6 +98,7 @@ namespace Ice
         ObjectPrx ice_compress(bool co);
         ObjectPrx ice_timeout(int t);
         ObjectPrx ice_connectionId(string connectionId);
+        string ice_getConnectionId();
 
         void ice_flushBatchRequests();
         bool ice_flushBatchRequests_async(AMI_Object_ice_flushBatchRequests cb);
@@ -706,6 +707,11 @@ namespace Ice
             {
                 return newInstance(@ref);
             }
+        }
+
+        public string ice_getConnectionId()
+        {
+            return _reference.getConnectionId();
         }
 
         public Connection ice_getConnection()

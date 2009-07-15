@@ -75,6 +75,7 @@ public abstract class Reference implements Cloneable
     public abstract boolean getPreferSecure();
     public abstract Ice.EndpointSelectionType getEndpointSelection();
     public abstract int getLocatorCacheTimeout();
+    public abstract String getConnectionId();
 
     //
     // The change* methods (here and in derived classes) create

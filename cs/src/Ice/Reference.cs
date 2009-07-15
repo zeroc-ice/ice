@@ -76,6 +76,7 @@ namespace IceInternal
         public abstract bool getPreferSecure();
         public abstract Ice.EndpointSelectionType getEndpointSelection();
         public abstract int getLocatorCacheTimeout();
+        public abstract String getConnectionId();
 
         //
         // The change* methods (here and in derived classes) create
@@ -487,6 +488,11 @@ namespace IceInternal
             return 0;
         }
 
+        public override string getConnectionId()
+        {
+            return "";
+        }
+
         public override Reference changeEndpoints(EndpointI[] newEndpoints)
         {
             throw new Ice.FixedProxyException();
@@ -712,6 +718,11 @@ namespace IceInternal
         public override int getLocatorCacheTimeout()
         {
             return _locatorCacheTimeout;
+        }
+
+        public override string getConnectionId()
+        {
+            return _connectionId;
         }
 
         public override Reference changeCompress(bool newCompress)

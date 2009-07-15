@@ -370,6 +370,8 @@ public class AllTests
 
         test(compObj.ice_connectionId("id2").Equals(compObj.ice_connectionId("id2")));
         test(!compObj.ice_connectionId("id1").Equals(compObj.ice_connectionId("id2")));
+        test(compObj.ice_connectionId("id1").ice_getConnectionId().Equals("id1"));
+        test(compObj.ice_connectionId("id2").ice_getConnectionId().Equals("id2"));
 
         test(compObj.ice_compress(true).Equals(compObj.ice_compress(true)));
         test(!compObj.ice_compress(false).Equals(compObj.ice_compress(true)));

@@ -71,6 +71,7 @@ public:
     virtual bool getPreferSecure() const = 0;
     virtual Ice::EndpointSelectionType getEndpointSelection() const = 0;
     virtual int getLocatorCacheTimeout() const = 0;
+    virtual std::string getConnectionId() const = 0;
 
     //
     // The change* methods (here and in derived classes) create
@@ -169,6 +170,7 @@ public:
     virtual bool getPreferSecure() const;
     virtual Ice::EndpointSelectionType getEndpointSelection() const;
     virtual int getLocatorCacheTimeout() const;
+    virtual std::string getConnectionId() const;
 
     virtual ReferencePtr changeEndpoints(const std::vector<EndpointIPtr>&) const;
     virtual ReferencePtr changeAdapterId(const std::string&) const;
@@ -222,6 +224,7 @@ public:
     virtual bool getPreferSecure() const;
     virtual Ice::EndpointSelectionType getEndpointSelection() const;
     virtual int getLocatorCacheTimeout() const;
+    virtual std::string getConnectionId() const;
 
     virtual ReferencePtr changeCompress(bool) const;
     virtual ReferencePtr changeEndpoints(const std::vector<EndpointIPtr>&) const;

@@ -65,6 +65,12 @@ public class RoutableReference extends Reference
         return _locatorCacheTimeout;
     }
 
+    public final String
+    getConnectionId()
+    {
+        return _connectionId;
+    }
+
     public Reference
     changeCompress(boolean newCompress)
     {
