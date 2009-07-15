@@ -10,7 +10,7 @@
 package Ice;
 
 /**
- * Holder class for bytes that are in- or inout-parameters.
+ * Holder class for bytes that are out- or inout-parameters.
  **/
 public final class ByteHolder
 {

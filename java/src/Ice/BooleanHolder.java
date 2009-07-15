@@ -10,7 +10,7 @@
 package Ice;
 
 /**
- * Holder class for booleans that are in- or inout-parameters.
+ * Holder class for booleans that are out- or inout-parameters.
  **/
 public final class BooleanHolder
 {

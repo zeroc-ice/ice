@@ -10,7 +10,7 @@
 package Ice;
 
 /**
- * Holder class for floats that are in- or inout-parameters.
+ * Holder class for floats that are out- or inout-parameters.
  **/
 public final class FloatHolder
 {

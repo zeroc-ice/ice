@@ -10,7 +10,7 @@
 package Ice;
 
 /**
- * Holder class for strings that are in- or inout-parameters.
+ * Holder class for strings that are out- or inout-parameters.
  **/
 public final class StringHolder
 {

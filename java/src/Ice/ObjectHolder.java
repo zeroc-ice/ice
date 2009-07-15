@@ -10,7 +10,7 @@
 package Ice;
 
 /**
- * Holder class for Ice objects that are in- or inout-parameters.
+ * Holder class for Ice objects that are out- or inout-parameters.
  **/
 public final class ObjectHolder
 {

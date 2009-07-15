@@ -11,7 +11,7 @@ package Ice;
 
 public final class DoubleHolder
 /**
- * Holder class for doubles that are in- or inout-parameters.
+ * Holder class for doubles that are out- or inout-parameters.
  **/
 {
     /**

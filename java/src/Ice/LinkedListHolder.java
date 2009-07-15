@@ -10,7 +10,7 @@
 package Ice;
 
 /**
- * Holder class for linked lists that are in- or inout-parameters.
+ * Holder class for linked lists that are out- or inout-parameters.
  **/
 public final class LinkedListHolder
 {
