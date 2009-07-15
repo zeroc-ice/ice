@@ -75,7 +75,7 @@ local exception AlreadyRegisteredException
     /**
      *
      * The kind of object that is registered already: "servant",
-     * "servant locator", "facet", "object factory", "plug-in",
+     * "servant locator", "object factory", "plug-in",
      * "object adapter", "object", or "user exception factory".
      *
      **/
@@ -108,7 +108,7 @@ local exception NotRegisteredException
     /**
      *
      * The kind of object that could not be removed: "servant",
-     * "facet", "object factory", "plug-in", "object adapter",
+     * "object factory", "plug-in", "object adapter",
      * "object", or "user exception factory".
      *
      **/
