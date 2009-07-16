@@ -10,15 +10,15 @@
 package Ice;
 
 /**
- * Holder class for Ice objects that are out- or inout-parameters.
+ * Holder base class for Ice objects that are in- or inout-parameters.
  **/
-public final class ObjectHolder extends ObjectHolderBase<Ice.Object>
+public abstract class ObjectHolderBase<T extends Ice.Object> implements ReadObjectCallback, IceInternal.Patcher
 {
     /**
      * Instantiates the class with a <code>null</code> value.
      **/
     public
-    ObjectHolder()
+    ObjectHolderBase()
     {
     }
 
@@ -26,31 +26,24 @@ public final class ObjectHolder extends ObjectHolderBase<Ice.Object>
      * Instantiates the class with the passed Ice object.
      **/
     public
-    ObjectHolder(Ice.Object value)
+    ObjectHolderBase(T obj)
     {
-        super(value);
+        this.value = obj;
     }
 
     /**
      * Sets the Ice object of this holder to the passed instance.
      *
-     * @param v The new object for this holder.
+     * @param obj The new object for this holder.
      **/
     public void
-    patch(Ice.Object v)
+    invoke(Ice.Object obj)
     {
-        value = v;
+        patch(obj);
     }
 
     /**
-     * Returns the Slice type ID of the most-derived Slice type supported
-     * by this instance.
-     *
-     * @return The Slice type ID.
+     * The Ice object stored by this holder.
      **/
-    public String
-    type()
-    {
-        return Ice.ObjectImpl.ice_staticId();
-    }
+    public T value;
 }

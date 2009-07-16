@@ -214,6 +214,10 @@ C++ Changes
 Java Changes
 ============
 
+- A holder class generated for a Slice class or interface now extends
+  the generic base class Ice.ObjectHolderBase and implements the
+  streaming interface Ice.ReadObjectCallback.
+
 - slice2java no longer generates a <name>OperationsNC interface for
   local interfaces and classes. This makes the code easier to browse
   with IDEs.

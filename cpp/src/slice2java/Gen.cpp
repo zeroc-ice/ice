@@ -3427,6 +3427,12 @@ Slice::Gen::HolderVisitor::writeHolder(const TypePtr& p)
     Output& out = output();
     string typeS = typeToString(p, TypeModeIn, getPackage(contained));
     out << sp << nl << "public final class " << name << "Holder";
+    BuiltinPtr builtin = BuiltinPtr::dynamicCast(p);
+    ClassDeclPtr cl = ClassDeclPtr::dynamicCast(p);
+    if(!p->isLocal() && ((builtin && builtin->kind() == Builtin::KindObject) || cl))
+    {
+        out << " extends Ice.ObjectHolderBase<" << typeS << ">";
+    }
     out << sb;
     out << sp << nl << "public" << nl << name << "Holder()";
     out << sb;
@@ -3435,52 +3441,43 @@ Slice::Gen::HolderVisitor::writeHolder(const TypePtr& p)
     out << sb;
     out << nl << "this.value = value;";
     out << eb;
-    if(!p->isLocal())
+    if(!p->isLocal() && ((builtin && builtin->kind() == Builtin::KindObject) || cl))
     {
-        BuiltinPtr builtin = BuiltinPtr::dynamicCast(p);
-        if((builtin && builtin->kind() == Builtin::KindObject) || ClassDeclPtr::dynamicCast(p))
+        out << sp << nl << "public void";
+        out << nl << "patch(Ice.Object v)";
+        out << sb;
+        out << nl << "try";
+        out << sb;
+        out << nl << "value = (" << typeS << ")v;";
+        out << eb;
+        out << nl << "catch(ClassCastException ex)";
+        out << sb;
+        out << nl << "IceInternal.Ex.throwUOE(type(), v.ice_id());";
+        out << eb;
+        out << eb;
+        out << sp << nl << "public String" << nl << "type()";
+        out << sb;
+        if(cl)
         {
-            out << sp << nl << "public class Patcher implements IceInternal.Patcher";
-            if(_stream)
+            if(cl->isInterface())
             {
-                out << ", Ice.ReadObjectCallback";
+                out << nl << "return _" << cl->name() << "Disp.ice_staticId();";
             }
-            out << sb;
-            out << nl << "public void";
-            out << nl << "patch(Ice.Object v)";
-            out << sb;
-            out << nl << "try";
-            out << sb;
-            out << nl << "value = (" << typeS << ")v;";
-            out << eb;
-            out << nl << "catch(ClassCastException ex)";
-            out << sb;
-            out << nl << "IceInternal.Ex.throwUOE(type(), v.ice_id());";
-            out << eb;
-            out << eb;
-
-            out << sp << nl << "public String" << nl << "type()";
-            out << sb;
-            out << nl << "return \"" << p->typeId() << "\";";
-            out << eb;
-
-            if(_stream)
+            else
             {
-                out << sp << nl << "public void" << nl << "invoke(Ice.Object v)";
-                out << sb;
-                out << nl << "patch(v);";
-                out << eb;
+                out << nl << "return " << typeS << ".ice_staticId();";
             }
-            out << eb;
-
-            out << sp << nl << "public Patcher";
-            out << nl << "getPatcher()";
-            out << sb;
-            out << nl << "return new Patcher();";
-            out << eb;
         }
+        else
+        {
+            out << nl << "return \"" << p->typeId() << "\";";
+        }
+        out << eb;
     }
-    out << sp << nl << "public " << typeS << " value;";
+    else
+    {
+        out << sp << nl << "public " << typeS << " value;";
+    }
     out << eb;
     close();
 }
@@ -3854,7 +3851,7 @@ Slice::Gen::HelperVisitor::visitClassDefStart(const ClassDefPtr& p)
 
         out2 << sp << nl << "public static void" << nl << "read(Ice.InputStream __inS, " << name << "Holder __h)";
         out2 << sb;
-        out2 << nl << "__inS.readObject(__h.getPatcher());";
+        out2 << nl << "__inS.readObject(__h);";
         out2 << eb;
 
         out2 << eb;
@@ -4451,7 +4448,7 @@ Slice::Gen::DelegateMVisitor::visitClassDefStart(const ClassDefPtr& p)
                 if((builtin && builtin->kind() == Builtin::KindObject) || ClassDeclPtr::dynamicCast(ret))
                 {
                     out << nl << retS << "Holder __ret = new " << retS << "Holder();";
-                    out << nl << "__is.readObject(__ret.getPatcher());";
+                    out << nl << "__is.readObject(__ret);";
                 }
                 else
                 {
@@ -5323,7 +5320,7 @@ Slice::Gen::AsyncVisitor::visitOperation(const OperationPtr& p)
                 BuiltinPtr builtin = BuiltinPtr::dynamicCast(paramType);
                 if((builtin && builtin->kind() == Builtin::KindObject) || ClassDeclPtr::dynamicCast(paramType))
                 {
-                    out << nl << "__is.readObject(" << paramName << ".getPatcher());";
+                    out << nl << "__is.readObject(" << paramName << ");";
                 }
                 else
                 {
@@ -5336,7 +5333,7 @@ Slice::Gen::AsyncVisitor::visitOperation(const OperationPtr& p)
                 BuiltinPtr builtin = BuiltinPtr::dynamicCast(ret);
                 if((builtin && builtin->kind() == Builtin::KindObject) || ClassDeclPtr::dynamicCast(ret))
                 {
-                    out << nl << "__is.readObject(__ret.getPatcher());";
+                    out << nl << "__is.readObject(__ret);";
                 }
                 else
                 {

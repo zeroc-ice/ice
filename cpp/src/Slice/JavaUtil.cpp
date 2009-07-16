@@ -801,7 +801,7 @@ Slice::JavaGenerator::writeMarshalUnmarshalCode(Output& out,
                     {
                         if(holder)
                         {
-                            out << nl << stream << ".readObject(" << param << ".getPatcher());";
+                            out << nl << stream << ".readObject(" << param << ");";
                         }
                         else
                         {
@@ -868,7 +868,7 @@ Slice::JavaGenerator::writeMarshalUnmarshalCode(Output& out,
                 string typeS = typeToString(type, TypeModeIn, package);
                 if(holder)
                 {
-                    out << nl << stream << ".readObject(" << param << ".getPatcher());";
+                    out << nl << stream << ".readObject(" << param << ");";
                 }
                 else
                 {
@@ -1747,7 +1747,7 @@ Slice::JavaGenerator::writeStreamMarshalUnmarshalCode(Output& out,
                     {
                         if(holder)
                         {
-                            out << nl << stream << ".readObject((Ice.ReadObjectCallback)" << param << ".getPatcher());";
+                            out << nl << stream << ".readObject(" << param << ");";
                         }
                         else
                         {
@@ -1814,7 +1814,7 @@ Slice::JavaGenerator::writeStreamMarshalUnmarshalCode(Output& out,
                 string typeS = typeToString(type, TypeModeIn, package);
                 if(holder)
                 {
-                    out << nl << stream << ".readObject(" << param << ".getPatcher());";
+                    out << nl << stream << ".readObject(" << param << ");";
                 }
                 else
                 {
