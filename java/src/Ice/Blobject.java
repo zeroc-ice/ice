@@ -22,6 +22,7 @@ public abstract class Blobject extends Ice.ObjectImpl
      * @param inParams The encoded in-parameters for the operation.
      * @param outParams The encoded out-paramaters and return value
      * for the operation. The return value follows any out-parameters.
+     * @param current The Current object to pass to the operation.
      * @return If the operation completed successfully, the return value
      * is <code>true</code>. If the operation raises a user exception,
      * the return value is <code>false</code>; in this case, <code>outParams</code>

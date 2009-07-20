@@ -35,9 +35,21 @@ protected:
     virtual std::vector<std::string> getArgsAsyncCB(const OperationPtr&);
 
     void emitAttributes(const ContainedPtr&);
-    ::std::string getParamAttributes(const ParamDeclPtr&);
+    std::string getParamAttributes(const ParamDeclPtr&);
 
-    ::std::string writeValue(const TypePtr&);
+    std::string writeValue(const TypePtr&);
+
+    std::string toCsIdent(const std::string&);
+    std::string editMarkup(const std::string&);
+    StringList splitIntoLines(const std::string&);
+    void splitComment(const ContainedPtr&, StringList&, StringList&);
+    StringList getSummary(const ContainedPtr&);
+    void writeDocComment(const ContainedPtr&, const std::string&, const std::string& = "");
+    void writeDocCommentOp(const OperationPtr&);
+
+    enum ParamDir { InParam, OutParam };
+    void writeDocCommentAsync(const OperationPtr&, ParamDir, const std::string& = "");
+    void writeDocCommentParam(const OperationPtr&, ParamDir);
 
     ::IceUtilInternal::Output& _out;
 };
@@ -232,7 +244,7 @@ private:
 
     private:
 
-        typedef ::std::set< ::std::string> NameSet;
+        typedef std::set<std::string> NameSet;
         void writeInheritedOperationsWithOpNames(const ClassDefPtr&, NameSet&);
     };
 

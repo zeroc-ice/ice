@@ -295,6 +295,16 @@ C# Changes
   local interfaces and classes. This makes the code easier to browse
   with IDEs.
 
+- slice2cs now converts javadoc comments in Slice files into Visual C#
+  XML documentation comments. This allows you to generate
+  an <assembly>.xml file from the documenation comments by passing the
+  /doc option to Visual C#. The comments in the <assembly>.xml file
+  are shown as Visual C# tooltips if the <assembly>.xml file is installed
+  in the same directory as the <assembly>.dll file.
+
+  The build for Ice now generates the <assembly>.xml file for each assembly
+  and installs it, so Visual C# displays tooltips for Ice APIs.
+
 - The generated types for Slice classes, interfaces, structs and
   exceptions are now declared as partial.
 

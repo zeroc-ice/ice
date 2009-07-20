@@ -13,68 +13,83 @@ namespace IceSSL
     using System.Diagnostics;
     using System.Security.Cryptography.X509Certificates;
 
-    //
-    // ConnectionInfo contains information that may be of use to a
-    // CertificateVerifier or an application that wants information
-    // about its peer.
-    //
+    /// <summary>
+    /// This class provides information about a connection to applications
+    /// that require information about a peer, for example, to implement
+    /// a CertificateVerifier.
+    /// </summary>
     public sealed class ConnectionInfo
     {
-        //
-        // The certificate chain. This may be null if the peer did not
-        // supply a certificate. The peer's certificate (if any) is the
-        // first one in the chain.
-        //
+        /// <summary>
+        /// The certificate chain. This may be null if the peer did not
+        /// supply a certificate. The peer's certificate (if any) is the
+        /// first one in the chain.
+        /// </summary>
         public System.Security.Cryptography.X509Certificates.X509Certificate2[] certs;
 
-        //
-        // The name of the negotiated cipher.
-        //
+        /// <summary>
+        /// The name of the negotiated cipher.
+        /// </summary>
         public string cipher;
 
-        //
-        // The local TCP/IP host & port.
-        //
+        /// <summary>
+        /// The local TCP host and port.
+        /// </summary>
         public System.Net.IPEndPoint localAddr;
 
-        //
-        // The remote TCP/IP host & port.
-        //
+        /// <summary>
+        /// The remote TCP host and port.
+        /// </summary>
         public System.Net.IPEndPoint remoteAddr;
 
-        //
-        // If the connection is incoming this bool is true, false
-        // otherwise.
-        //
+        /// <summary>
+        /// True if the connection is incoming; false otherwise.
+        /// </summary>
         public bool incoming;
         
-        //
-        // The name of the object adapter that hosts this endpoint, if
-        // any.
-        //
+        /// <summary>
+        /// The name of the object adapter that hosts this endpoint, if
+        /// any.
+        /// </summary>
         public string adapterName;
     }
 
+    /// <summary>
+    /// Indicates that a connection is not an SSL connection.
+    /// </summary>
     public class ConnectionInvalidException : Ice.LocalException
     {
         #region Slice data members
 
+        /// <summary>
+        /// The reason why the connection is considered invalid.
+        /// </summary>
         public string reason;
 
         #endregion
 
         #region Constructors
 
+        /// <summary>
+        /// Creates an instance with an empty reason code field.
+        /// </summary>
         public ConnectionInvalidException()
         {
         }
 
+        /// <summary>
+        /// Creates an instance with specified reason code field.
+        /// </summary>
         public ConnectionInvalidException(System.Exception ex__) : base(ex__)
         {
         }
 
         #endregion
 
+        /// <summary>
+        /// Returns the name of this exception.
+        /// </summary>
+        /// <returns>Returns "Ice::ConnectionInvalidException".</returns>
         public override string ice_name()
         {
             return "IceSSL::ConnectionInvalidException";

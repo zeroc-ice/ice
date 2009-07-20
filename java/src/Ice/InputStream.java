@@ -28,7 +28,7 @@ public interface InputStream
      * Determines the behavior of the stream when extract Slice objects.
      * A Slice object is "sliced" when a factory cannot be found for a Slice type ID.
      *
-     * @param If <code>true</code> (the default), slicing is enabled; if <code>false</code>,
+     * @param slice If <code>true</code> (the default), slicing is enabled; if <code>false</code>,
      * slicing is disabled. If slicing is disabled and the stream encounters a Slice type ID
      * during decoding for which no object factory is installed, it raises {@link NoObjectFactoryException}.
      **/
@@ -171,7 +171,7 @@ public interface InputStream
      * Extracts the index of a Slice class from the stream.
      *
      * @param cb The callback to notify the application when the extracted instance is available.
-     * The Ice run time extracts Slice classes stages. The Ice run time calls {@link ReadObjectCallback#invoke}
+     * The Ice run time extracts Slice classes in stages. The Ice run time calls {@link ReadObjectCallback#invoke}
      * when the corresponding instance has been fully unmarshaled.
      *
      * @see ReadObjectCallback
@@ -246,7 +246,7 @@ public interface InputStream
     void checkFixedSeq(int numElements, int minSize);
 
     /**
-     * Indicates that the a sequence has been unmarshaled.
+     * Indicates that a sequence has been unmarshaled.
      **/
     void endSeq(int sz);
 
@@ -258,7 +258,7 @@ public interface InputStream
     /**
      * Indicates that unmarshaling is complete, except for any Slice objects. The application must call this method
      * only if the stream actually contains Slice objects. Calling <code>readPendingObjects</code> triggers the
-     * calls to {@link ReadObjectCallback#invoke} that inform the application that unmarshaling of a Slice
+     * calls to {@link ReadObjectCallback#invoke} that informs the application that unmarshaling of a Slice
      * object is complete.
      **/
     void readPendingObjects();

@@ -21,7 +21,7 @@ public interface ThreadNotification
 {
     /**
      * The Ice run time calls <code>start</code> for each new
-     * thread it creates. The call is made by newly-started thread.
+     * thread it creates. The call is made by the newly-started thread.
      **/
     void start();
 

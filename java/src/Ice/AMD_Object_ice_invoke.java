@@ -22,7 +22,7 @@ public interface AMD_Object_ice_invoke
      *
      * @param ok <code>true</code> indicates that the operation
      * completed successfully; <code>false</code> indicates that the
-     * operation raised user exception.
+     * operation raised a user exception.
      * @param outParams The encoded out-parameters for the operation or,
      * if <code>ok</code> is <code>false</code>, the encoded user exception.
      **/
@@ -36,6 +36,5 @@ public interface AMD_Object_ice_invoke
      * is a user exception, the caller receives {@link UnknownUserException}.
      * Use {@link #ice_response} to raise user exceptions.
      **/
-
     void ice_exception(java.lang.Exception ex);
 }

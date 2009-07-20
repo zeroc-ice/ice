@@ -92,6 +92,8 @@ enum LoadSample
      *
      * @param type The object type.
      *
+     * @param sample The sampling interval.
+     *
      * @return The proxy or null, if no such object has been found.
      *
      **/

@@ -12,15 +12,36 @@ using System.Threading;
 
 namespace Ice
 {
-
+    /// <summary>
+    /// Interface for thread notification hooks. Applications can derive
+    /// a class tat implements the start and stop
+    /// methods to intercept creation and destruction of threads created
+    /// by the Ice run time.
+    /// </summary>
     public interface ThreadNotification
     {
+        /// <summary>
+        /// The Ice run time calls start for each new
+        /// thread it creates. The call is made by the newly-started thread.
+        /// </summary>
         void start();
+
+        /// <summary>
+        /// The Ice run time calls stop before it destroys
+        /// a thread. The call is made by thread that is about to be
+        /// destroyed.
+        /// </summary>
         void stop();
     }
 
+    /// <summary>
+    /// A class that encpasulates data to initalize a communicator.
+    /// </summary>
     public class InitializationData : ICloneable
     {
+        /// <summary>
+        /// Creates and returns a copy of this object.
+        /// </summary>
         public System.Object Clone()
         {
             //
@@ -29,34 +50,96 @@ namespace Ice
             return MemberwiseClone();
         }
 
+        /// <summary>
+        /// The properties for the communicator.
+        /// </summary>
         public Properties properties;
+
+        /// <summary>
+        /// The logger for the communicator.
+        /// </summary>
         public Logger logger;
+
+        /// <summary>
+        /// The Stats instance for the communicator.
+        /// </summary>
         public Stats stats;
+
+        /// <summary>
+        /// The thread hook for the communicator.
+        /// </summary>
         public ThreadNotification threadHook;
     }
 
+    /// <summary>
+    /// Utility methods for the Ice run time.
+    /// </summary>
     public sealed class Util
     {
+        /// <summary>
+        /// Creates a new empty property set.
+        /// </summary>
+        /// <returns>A new empty property set.</returns>
         public static Properties createProperties()
         {
             return new PropertiesI();
         }
 
+        /// <summary>
+        /// Creates a property set initialized from an argument vector.
+        /// </summary>
+        /// <param name="args">A command-line argument vector, possibly containing
+        /// options to set properties. If the command-line options include
+        /// a --Ice.Config option, the corresponding configuration
+        /// files are parsed. If the same property is set in a configuration
+        /// file and in the argument vector, the argument vector takes precedence.
+        /// This method modifies the argument vector by removing any Ice-related options.</param>
+        /// <returns>A property set initialized with the property settings
+        /// that were removed from args.</returns>
         public static Properties createProperties(ref string[] args)
         {
             return new PropertiesI(ref args, null);
         }
 
+        /// <summary>
+        /// Creates a property set initialized from an argument vector.
+        /// </summary>
+        /// <param name="args">A command-line argument vector, possibly containing
+        /// options to set properties. If the command-line options include
+        /// a --Ice.Config option, the corresponding configuration
+        /// files are parsed. If the same property is set in a configuration
+        /// file and in the argument vector, the argument vector takes precedence.
+        /// This method modifies the argument vector by removing any Ice-related options.</param>
+        /// <param name="defaults">Default values for the property set. Settings in configuration
+        /// files and args override these defaults.</param>
+        /// <returns>A property set initialized with the property settings
+        /// that were removed from args.</returns>
         public static Properties createProperties(ref string[] args, Properties defaults)
         {
             return new PropertiesI(ref args, defaults);
         }
 
+        /// <summary>
+        /// Creates a communicator.
+        /// </summary>
+        /// <param name="args">A command-line argument vector. Any Ice-related options
+        /// in this vector are used to intialize the communicator.
+        /// This method modifies the argument vector by removing any Ice-related options.</param>
+        /// <returns>The initialized communicator.</returns>
         public static Communicator initialize(ref string[] args)
         {
             return initialize(ref args, null);
         }
 
+        /// <summary>
+        /// Creates a communicator.
+        /// </summary>
+        /// <param name="args">A command-line argument vector. Any Ice-related options
+        /// in this vector are used to intialize the communicator.
+        /// This method modifies the argument vector by removing any Ice-related options.</param>
+        /// <param name="initData">Additional intialization data. Property settings in args
+        /// override property settings in initData.</param>
+        /// <returns>The initialized communicator.</returns>
         public static Communicator initialize(ref string[] args, InitializationData initData)
         {
             if(initData == null)
@@ -75,6 +158,11 @@ namespace Ice
             return result;
         }
 
+        /// <summary>
+        /// Creates a communicator.
+        /// </summary>
+        /// <param name="initData">Additional intialization data.</param>
+        /// <returns>The initialized communicator.</returns>
         public static Communicator initialize(InitializationData initData)
         {
             if(initData == null)
@@ -92,11 +180,19 @@ namespace Ice
             return result;
         }
 
+        /// <summary>
+        /// Creates a communicator using a default configuration.
+        /// </summary>
         public static Communicator initialize()
         {
             return initialize(null);
         }
 
+        /// <summary>
+        /// Converts a string to an object identity.
+        /// </summary>
+        /// <param name="s">The string to convert.</param>
+        /// <returns>The converted object identity.</returns>
         public static Identity stringToIdentity(string s)
         {
             Identity ident = new Identity();
@@ -162,6 +258,11 @@ namespace Ice
             return ident;
         }
 
+        /// <summary>
+        /// Converts an object identity to a string.
+        /// </summary>
+        /// <param name="ident">The object identity to convert.</param>
+        /// <returns>The string representation of the object identity.</returns>
         public static string identityToString(Identity ident)
         {
             if(ident.category == null || ident.category.Length == 0)
@@ -175,12 +276,23 @@ namespace Ice
             }
         }
 
-        [Obsolete("This method is deprecated, use System.Guid instead.")]
+        /// <summary>
+        /// This method is deprecated. Use System.Guid instead.
+        /// </summary>
+        [Obsolete("This method is deprecated. Use System.Guid instead.")]
         public static string generateUUID()
         {
             return Guid.NewGuid().ToString().ToUpper();
         }
 
+        /// <summary>
+        /// Compares the object identities of two proxies.
+        /// </summary>
+        /// <param name="lhs">A proxy.</param>
+        /// <param name="rhs">A proxy.</param>
+        /// <returns>-1 if the identity in lhs compares
+        /// less than the identity in rhs; 0 if the identities
+        /// compare equal; 1, otherwise.</returns>
         public static int
         proxyIdentityCompare(ObjectPrx lhs, ObjectPrx rhs)
         {
@@ -210,6 +322,14 @@ namespace Ice
             }
         }
 
+        /// <summary>
+        /// Compares the object identities and facets of two proxies.
+        /// </summary>
+        /// <param name="lhs">A proxy.</param>
+        /// <param name="rhs">A proxy.</param>
+        /// <returns>-1 if the identity and facet in lhs compare
+        /// less than the identity and facet in rhs; 0 if the identities
+        /// and facets compare equal; 1, otherwise.</returns>
         public static int proxyIdentityAndFacetCompare(ObjectPrx lhs, ObjectPrx rhs)
         {
             if(lhs == null && rhs == null)
@@ -261,16 +381,31 @@ namespace Ice
             }
         }
 
+        /// <summary>
+        /// Creates an input stream for dynamic invocation and dispatch.
+        /// </summary>
+        /// <param name="communicator">The communicator for the stream.</param>
+        /// <param name="bytes">An encoded request or reply.</param>
+        /// <returns>The input stream.</returns>
         public static InputStream createInputStream(Communicator communicator, byte[] bytes)
         {
             return new InputStreamI(communicator, bytes);
         }
 
+        /// <summary>
+        /// Creates an output stream for dynamic invocation and dispatch.
+        /// </summary>
+        /// <param name="communicator">The communicator for the stream.</param>
+        /// <returns>The output stream.</returns>
         public static OutputStream createOutputStream(Communicator communicator)
         {
             return new OutputStreamI(communicator);
         }
 
+        /// <summary>
+        /// Returns the process-wide logger.
+        /// </summary>
+        /// <returns>The process-wide logger.</returns>
         public static Logger getProcessLogger()
         {
             lock(_processLoggerMutex)
@@ -283,6 +418,10 @@ namespace Ice
             }
         }
 
+        /// <summary>
+        /// Changes the process-wide logger.
+        /// </summary>
+        /// <param name="logger">The new process-wide logger.</param>
         public static void setProcessLogger(Logger logger)
         {
             lock(_processLoggerMutex)
@@ -291,11 +430,23 @@ namespace Ice
             }
         }
 
+        /// <summary>
+        /// Returns the Ice version in the form A.B.C, where A indicates the
+        /// major version, B indicates the minor version, and C indicates the
+        /// patch level.
+        /// </summary>
+        /// <returns>The Ice version.</returns>
         public static string stringVersion()
         {
             return "3.3.1"; // "A.B.C", with A=major, B=minor, C=patch
         }
 
+        /// <summary>
+        /// Returns the Ice version as an integer in the form A.BB.CC, where A
+        /// indicates the major version, BB indicates the minor version, and CC
+        /// indicates the patch level. For example, for Ice 3.3.1, the returned value is 30301.
+        /// </summary>
+        /// <returns>The Ice version.</returns>
         public static int intVersion()
         {
             return 30301; // AABBCC, with AA=major, BB=minor, CC=patch

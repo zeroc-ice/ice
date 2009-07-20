@@ -22,7 +22,7 @@ public class PluginFactory implements Ice.PluginFactory
      * @param args The arguments that are specified in the plug-in's configuration.
      *
      * @return The new plug-in. <code>null</code> can be returned to indicate
-     * that a general error occurred. Alterntively, <code>create</code> can throw
+     * that a general error occurred. Alternatively, <code>create</code> can throw
      * {@link PluginInitializationException} to provide more detailed information.
      **/
     public Ice.Plugin

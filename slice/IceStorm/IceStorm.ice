@@ -185,7 +185,7 @@ interface Topic
      *
      * <p class="Deprecated">This operation is deprecated as of version 3.2.
      *
-     * @param qos The quality of service parameters for this
+     * @param theQoS The quality of service parameters for this
      * subscription.
      *
      * @param subscriber The subscriber's proxy.
@@ -203,7 +203,7 @@ interface Topic
      * Subscribe with the given <tt>qos</tt> to this topic.  A
      * per-subscriber publisher object is returned.
      *
-     * @param qos The quality of service parameters for this
+     * @param theQoS The quality of service parameters for this
      * subscription.
      *
      * @param subscriber The subscriber's proxy.
@@ -252,7 +252,7 @@ interface Topic
      *
      * Destroy the link from this topic to the given topic <tt>linkTo</tt>.
      *
-     * @param link The topic to destroy the link to.
+     * @param linkTo The topic to destroy the link to.
      *
      * @throws NoSuchLink Raised if a link to the topic does not exist.
      *

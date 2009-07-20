@@ -677,9 +677,6 @@ interface Admin
      *
      * @param id The server id.
      *
-     * @return True if the server was successfully started, false
-     * otherwise.
-     *
      * @throws ServerNotExistException Raised if the server doesn't
      * exist.
      *
@@ -806,7 +803,7 @@ interface Admin
      * Get the adapter information for the replica group or adapter
      * with the given id.
      *
-     * @param adapterId The adapter id.
+     * @param id The adapter id.
      *
      * @return A sequence of adapter information structures. If the
      * given id refers to an adapter, this sequence will contain only
@@ -825,11 +822,12 @@ interface Admin
      *
      * Remove the adapter with the given id.
      *
+     * @param id The adapter id.
      * @throws AdapterNotExistException Raised if the adapter doesn't
      * exist.
      *
      **/
-    ["ami"] void removeAdapter(string adapterId)
+    ["ami"] void removeAdapter(string id)
         throws AdapterNotExistException, DeploymentException;
 
     /**
@@ -1135,7 +1133,7 @@ interface FileIterator
      * received. The server will ensure that the returned message
      * doesn't exceed the given size.
      * 
-     * @param The lines read from the file. If there was nothing to
+     * @param lines The lines read from the file. If there was nothing to
      * read from the file since the last call to read, an empty
      * sequence is returned. The last line of the sequence is always
      * incomplete (and therefore no '\n' should be added when writing
@@ -1224,7 +1222,7 @@ interface AdminSession extends Glacier2::Session
      *
      * @param appObs The application observer.
      *
-     * @param adapterObs The adapter observer.
+     * @param adptObs The adapter observer.
      *
      * @param objObs The object observer.
      *

@@ -16,50 +16,129 @@ namespace Ice
     using System.Runtime.InteropServices;
     using System.Threading;
 
-    public enum SignalPolicy { HandleSignals, NoSignalHandling }
+    /// <summary>
+    /// The signal policy for Ice.Application signal handling.
+    /// </summary>
+    public enum SignalPolicy
+    {
+        /// <summary>
+        /// If a signal is received, Ice.Application reacts to the signal
+        /// by calling Communicator.destroy or Communicator.shutdown,
+        /// or by calling a custom shutdown hook installed by the application.
+        /// </summary>
+        HandleSignals,
 
+        /// <summary>
+        /// Any signal that is received is not intercepted and takes the default action.
+        /// </summary>
+        NoSignalHandling
+    }
+
+    /// <summary>
+    /// Utility base class that makes it easy to to correctly initialize and finalize
+    /// the Ice run time, as well as handle signals. Unless the application specifies
+    /// a logger, Application installs a per-process logger that logs to the standard
+    /// error output.
+    /// Applications must create a derived class that implements the run method.
+    /// A program can contain only one instance of this class.
+    /// </summary>
     public abstract class Application
     {
+        /// <summary>
+        /// Called once the communicator has been initialized. The derived class must
+        /// implement run, which is the application's starting method.
+        /// </summary>
+        /// <param name="args">The argument vector for the application. Application
+        /// scans the argument vector passed to main for options that are
+        /// specific to the Ice run time and removes them; therefore, the vector passed
+        /// to run is free from Ice-related options and contains only options
+        /// and arguments that are application-specific.</param>
+        /// <returns>The run method should return zero for successful termination, and
+        /// non-zero otherwise. Application.main returns the value returned by run.</returns>
         public abstract int run(string[] args);
 
-        //
-        // Override this method to provide a custom application interrupt
-        // hook. You must call callbackOnInterrupt for this method
-        // to be called. Note that the interruptCallback can be called
-        // concurrently with any other thread (including main) in your
-        // application--take appropriate concurrency precautions.
-        //
+        /// <summary>
+        /// Override this method to provide a custom application interrupt
+        /// hook. You must call callbackOnInterrupt for this method
+        /// to be called. Note that the interruptCallback can be called
+        /// concurrently with any other thread (including main) in your
+        /// application--take appropriate concurrency precautions.
+        /// </summary>
+        /// <param name="sig">The cause of the interrupt.</param>
         public virtual void interruptCallback(int sig)
         {
         }
 
+        /// <summary>
+        /// Initializes an instance that calls Communicator.shutdown if a signal is received.
+        /// </summary>
         public Application()
         {
         }
 
+        /// <summary>
+        /// Initializes an instance that handles signals according to the signal policy.
+        /// </summary>
+        /// <param name="signalPolicy">Determines how to respond to signals.</param>
         public Application(SignalPolicy signalPolicy)
         {
             _signalPolicy = signalPolicy;
         }
 
-        //
-        // This main() must be called by the global Main(). main()
-        // initializes the Communicator, calls run(), and destroys
-        // the Communicator upon return from run(). It thereby handles
-        // all exceptions properly, i.e., error messages are printed
-        // if exceptions propagate to main(), and the Communicator is
-        // always destroyed, regardless of exceptions.
-        //
+        /// <summary>
+        /// The application must call main after it has
+        /// instantiated the derived class. main creates
+        /// a communicator, establishes the specified signal policy, and,
+        /// once run returns, destroys the communicator.
+        /// The method prints an error message for any exception that propagates
+        /// out of run and ensures that the communicator is
+        /// destroyed correctly even if run completes abnormally.
+        /// </summary>
+        /// <param name="args">The arguments for the application (as passed to Main(string[])
+        /// by the operating system.</param>
+        /// <returns>The value returned by run. If run terminates with an exception,
+        /// the return value is non-zero.</returns>
         public int main(string[] args)
         {
             return mainInternal(args, new InitializationData(), null);
         }
 
+        /// <summary>
+        /// The application must call main after it has
+        /// instantiated the derived class. main creates
+        /// a communicator, establishes the specified signal policy, and,
+        /// once run returns, destroys the communicator.
+        /// The method prints an error message for any exception that propagates
+        /// out of run and ensures that the communicator is
+        /// destroyed correctly even if run completes abnormally.
+        /// </summary>
+        /// <param name="args">The arguments for the application (as passed to Main(string[])
+        /// by the operating system.</param>
+        /// <param name="configFile">The configuration file with which to initialize
+        /// Ice properties.</param>
+        /// <returns>The value returned by run. If run terminates with an exception,
+        /// the return value is non-zero.</returns>
         public int main(string[] args, string configFile)
         {
             return main(args, configFile, null);
         }
 
+        /// <summary>
+        /// The application must call main after it has
+        /// instantiated the derived class. main creates
+        /// a communicator, establishes the specified signal policy, and,
+        /// once run returns, destroys the communicator.
+        /// The method prints an error message for any exception that propagates
+        /// out of run and ensures that the communicator is
+        /// destroyed correctly even if run completes abnormally.
+        /// </summary>
+        /// <param name="args">The arguments for the application (as passed to Main(string[])
+        /// by the operating system.</param>
+        /// <param name="configFile">The configuration file with which to initialize
+        /// Ice properties.</param>
+        /// <param name="overrideProps">Property values that override any settings in configFile.</param>
+        /// <returns>The value returned by run. If run terminates with an exception,
+        /// the return value is non-zero.</returns>
         public int main(string[] args, string configFile, Properties overrideProps)
         {
             InitializationData initData = new InitializationData();
@@ -84,32 +163,52 @@ namespace Ice
             return mainInternal(args, initData, overrideProps);
         }
 
+        /// <summary>
+        /// The application must call main after it has
+        /// instantiated the derived class. main creates
+        /// a communicator, establishes the specified signal policy, and,
+        /// once run returns, destroys the communicator.
+        /// The method prints an error message for any exception that propagates
+        /// out of run and ensures that the communicator is
+        /// destroyed correctly even if run completes abnormally.
+        /// </summary>
+        /// <param name="args">The arguments for the application (as passed to Main(string[])
+        /// by the operating system.</param>
+        /// <param name="initData">Additional data used to initialize the communicator.</param>
+        /// <returns>The value returned by run. If run terminates with an exception,
+        /// the return value is non-zero.</returns>
         public int main(string[] args, InitializationData initData)
         {
             return mainInternal(args, initData, null);
         }
 
-        //
-        // Return the application name.
-        //
+        /// <summary>
+        /// Returns the application name (which is also the value of Ice.ProgramName.
+        /// This method is useful mainly for error messages that
+        /// include the application name. Because appName is a static method, it is available from anywhere
+        /// in the program.
+        /// </summary>
+        /// <returns>The name of the application.</returns>
         public static string appName()
         {
             return _appName;
         }
 
-        //
-        // One limitation of this class is that there can only be one
-        // Application instance, with one global Communicator, accessible
-        // with this communicator() operation. This limitiation is due to
-        // how the signal handling functions below operate. If you require
-        // multiple Communicators, then you cannot use this Application
-        // framework class.
-        //
+        /// <summary>
+        /// Returns the communicator for the application. Because communicator is a static method,
+        /// it permits access to the communicator from anywhere in the program. Note that, as a consequence,
+        /// you cannot have more than one instance of Application in a program.
+        /// </summary>
+        /// <returns>The communicator for the application.</returns>
         public static Communicator communicator()
         {
             return _communicator;
         }
 
+        /// <summary>
+        /// Instructs Application to call Communicator.destroy on receipt of a signal.
+        /// This is default signal handling policy established by the default constructor.
+        /// </summary>
         public static void destroyOnInterrupt()
         {
             if(_signalPolicy == SignalPolicy.HandleSignals)
@@ -131,6 +230,9 @@ namespace Ice
             }
         }
 
+        /// <summary>
+        /// Instructs Application to call Communicator.shutdown on receipt of a signal.
+        /// </summary>
         public static void shutdownOnInterrupt()
         {
             if(_signalPolicy == SignalPolicy.HandleSignals)
@@ -152,6 +254,9 @@ namespace Ice
             }
         }
 
+        /// <summary>
+        /// Instructs Application to ignore signals.
+        /// </summary>
         public static void ignoreInterrupt()
         {
             if(_signalPolicy == SignalPolicy.HandleSignals)
@@ -173,6 +278,10 @@ namespace Ice
             }
         }
 
+        /// <summary>
+        /// Instructs Application to call interruptCallback on receipt of a signal.
+        /// The derived class can intercept signals by overriding interruptCallback.
+        /// </summary>
         public static void callbackOnInterrupt()
         {
             if(_signalPolicy == SignalPolicy.HandleSignals)
@@ -194,6 +303,9 @@ namespace Ice
             }
         }
 
+        /// <summary>
+        /// Instructs Application to call to hold signals.
+        /// </summary>
         public static void holdInterrupt()
         {
             if(_signalPolicy == SignalPolicy.HandleSignals)
@@ -216,6 +328,10 @@ namespace Ice
             }
         }
 
+        /// <summary>
+        /// Instructs Application respond to signals. If a signal arrived since the last call
+        /// to holdInterrupt, it is delivered once you call releaseInterrupt.
+        /// </summary>
         public static void releaseInterrupt()
         {
             if(_signalPolicy == SignalPolicy.HandleSignals)
@@ -245,6 +361,11 @@ namespace Ice
             }
         }
 
+        /// <summary>
+        /// Determines whether the application shut down intentionally or was forced to shut down due to a signal.
+        /// This is useful for logging purposes.
+        /// </summary>
+        /// <returns>True if a signal caused the communicator to shut down; false otherwise.</returns>
         public static bool interrupted()
         {
             lock(_mutex)

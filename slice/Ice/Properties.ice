@@ -149,6 +149,7 @@ local interface Properties
      * <em>prefix</em> is an empty string,
      * then all properties are returned.
      *
+     * @param prefix The prefix to search for (empty string if none).
      * @return The matching property set.
      *
      **/
@@ -259,6 +260,7 @@ interface PropertiesAdmin
      * <em>prefix</em> is an empty string,
      * then all properties are returned.
      *
+     * @param prefix The prefix to search for (empty string if none).
      * @return The matching property set.
      *
      **/

@@ -14,8 +14,20 @@ namespace Ice
     using System.Collections.Generic;
     using System.Diagnostics;
 
+    /// <summary>
+    /// Applications implement this interface to provide a plug-in factory
+    /// to the Ice run time.
+    /// </summary>
     public interface PluginFactory
     {
+        /// <summary>
+        /// Called by the Ice run time to create a new plug-in.
+        /// </summary>
+        ///
+        /// <param name="communicator">The communicator that is in the process of being initialized.</param>
+        /// <param name="name">The name of the plug-in.</param>
+        /// <param name="args">The arguments that are specified in the plug-ins configuration.</param>
+        /// <returns>The plug-in that was created by this method.</returns>
         Plugin create(Communicator communicator, string name, string[] args);
     }
 

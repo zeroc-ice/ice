@@ -204,9 +204,29 @@ namespace IceInternal
 namespace Ice
 {
 
+    /// <summary>
+    /// Callback interface for Blobject AMD servants.
+    /// </summary>
     public interface AMD_Object_ice_invoke
     {
+        /// <summary>
+        /// Indicates to the Ice run time that an operation
+        /// completed.
+        /// </summary>
+        /// <param name="ok">True indicates that the operation
+        /// completed successfully; false indicates that the
+        /// operation raised a user exception.</param>
+        /// <param name="outParams">The encoded out-parameters for the operation or,
+        /// if ok is false, the encoded user exception.</param>
         void ice_response(bool ok, byte[] outParams);
+
+        /// <summary>
+        /// Indicates to the Ice run time that an operation completed
+        /// with a run-time exception.
+        /// </summary>
+        /// <param name="ex">The encoded Ice run-time exception. Note that, if ex
+        /// is a user exception, the caller receives UnknownUserException.
+        /// Use ice_response to raise user exceptions.</param>
         void ice_exception(System.Exception ex);
     }
 

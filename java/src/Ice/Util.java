@@ -9,6 +9,9 @@
 
 package Ice;
 
+/**
+ * Utility methods for the Ice run time.
+ **/
 public final class Util
 {
     /**
@@ -456,7 +459,7 @@ public final class Util
     /**
      * Returns the process-wide logger.
      *
-     * The process-wide logger.
+     * @return The process-wide logger.
      **/
     public static Logger
     getProcessLogger()
@@ -478,7 +481,7 @@ public final class Util
     /**
      * Changes the process-wide logger.
      *
-     * @param The new process-wide logger.
+     * @param logger The new process-wide logger.
      **/
     public static void
     setProcessLogger(Logger logger)
@@ -490,7 +493,7 @@ public final class Util
     }
 
     /**
-     * Returns the Ice version in the form <code>A.B.C,</code>, where <code>A</code> indicates the
+     * Returns the Ice version in the form <code>A.B.C</code>, where <code>A</code> indicates the
      * major version, <code>B</code> indicates the minor version, and <code>C</code> indicates the
      * patch level.
      *

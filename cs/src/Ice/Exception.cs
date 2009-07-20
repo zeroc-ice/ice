@@ -30,17 +30,43 @@ namespace IceInternal
 
 namespace Ice
 {
-
+    /// <summary>
+    /// Base class for Ice exceptions.
+    /// </summary>
     public abstract class Exception : System.Exception, System.ICloneable
     {
+        /// <summary>
+        /// Creates and returns a copy of this exception.
+        /// </summary>
+        /// <returns>A copy of this exception.</returns>
         public object Clone()
         {
             return MemberwiseClone();
         }
 
+        /// <summary>
+        /// Creates a default-initialized exception.
+        /// </summary>
         public Exception() {}
+
+        /// <summary>
+        /// Creates a default-initialized exception and sets the InnerException
+        /// property to the passed exception.
+        /// </summary>
+        /// <param name="ex">The inner exception.</param>
         public Exception(System.Exception ex) : base("", ex) {}
+
+        /// <summary>
+        /// Returns the name of this exception.
+        /// </summary>
+        /// <returns>The name of this exception.</returns>
         public abstract string ice_name();
+
+        /// <summary>
+        /// Returns a string representation of this exception, including
+        /// any inner exceptions.
+        /// </summary>
+        /// <returns>The string representation of this exception.</returns>
         public override string ToString()
         {
             //
@@ -78,22 +104,59 @@ namespace Ice
         }
     }
 
+    /// <summary>
+    /// Base class for local exceptions.
+    /// </summary>
     public abstract class LocalException : Exception
     {
+        /// <summary>
+        /// Creates a default-initialized local exception.
+        /// </summary>
         public LocalException() {}
+
+        /// <summary>
+        /// Creates a default-initialized local exception and sets the InnerException
+        /// property to the passed exception.
+        /// </summary>
+        /// <param name="ex">The inner exception.</param>
         public LocalException(System.Exception ex) : base(ex) {}
     }
 
+    /// <summary>
+    /// Base class for Ice run-time exceptions.
+    /// </summary>
     public abstract class SystemException : Exception
     {
+        /// <summary>
+        /// Creates a default-initialized run-time exception.
+        /// </summary>
         public SystemException() {}
+
+        /// <summary>
+        /// Creates a default-initialized run-time exception and sets the InnerException
+        /// property to the passed exception.
+        /// </summary>
+        /// <param name="ex">The inner exception.</param>
         public SystemException(System.Exception ex) : base(ex) {}
     }
 
+    /// <summary>
+    /// Base class for Slice user exceptions.
+    /// </summary>
     public abstract class UserException : Exception
     {
+        /// <summary>
+        /// Creates a default-initialized user exception.
+        /// </summary>
         public UserException() {}
+
+        /// <summary>
+        /// Creates a default-initialized user exception and sets the InnerException
+        /// property to the passed exception.
+        /// </summary>
+        /// <param name="ex">The inner exception.</param>
         public UserException(System.Exception ex) : base(ex) {}
+
         public abstract void write__(IceInternal.BasicStream os__);
         public abstract void read__(IceInternal.BasicStream is__, bool rid__);
 

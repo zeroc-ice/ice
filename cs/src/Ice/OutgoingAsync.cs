@@ -608,14 +608,47 @@ namespace Ice
 {
     using System.Collections.Generic;
 
+    /// <summary>
+    /// Callback interface for AMI invocations. This is useful
+    /// for applications that send asynchronous invocations that
+    /// might not be sent for some time and, therefore, are
+    /// queued in the Ice run time for transmission.
+    /// The Ice run time calls ice_sent if an
+    /// an AMI invocation cannot be written to transport and was
+    /// queued for later transmission. Applications that need to
+    /// implement flow control for AMI invocations can implement
+    /// this interface on the corresponding AMI callback object.
+    /// </summary>
     public interface AMISentCallback
     {
+        /// <summary>
+        /// Indicates to the caller of an AMI operation that
+        /// the invocation was queued for later transmission.
+        /// </summary>
         void ice_sent();
     };
 
+    /// <summary>
+    /// Callback object for Blobject AMI invocations.
+    /// </summary>
     public abstract class AMI_Object_ice_invoke : IceInternal.OutgoingAsync
     {
+         /// <summary>
+         /// The Ice run time calls <code>ice_response</code> when an asynchronous operation invocation
+         /// completes successfully or raises a user exception.
+         /// </summary>
+         /// <param name="ok">Indicates the result of the invocation. If true, the operation
+         /// completed succesfully; if false, the operation raised a user exception.</param>
+         /// <param name="outParams">Contains the encoded out-parameters of the operation (if any) if ok
+         /// is true; otherwise, if ok is false, contains the
+         /// encoded user exception raised by the operation.</param>
         public abstract void ice_response(bool ok, byte[] outParams);
+
+        /// <summary>
+        /// The Ice run time calls ice_exception when an asynchronous operation invocation
+        /// raises an Ice run-time exception.
+        /// </summary>
+        /// <param name="ex">The encoded Ice run-time exception raised by the operation.</param>
         public abstract override void ice_exception(Ice.Exception ex);
 
         public bool invoke__(Ice.ObjectPrx prx, string operation, OperationMode mode,
@@ -656,8 +689,16 @@ namespace Ice
         }
     }
 
+    /// <summary>
+    /// Callback object for ObjectPrx.ice_flushBatchRequests_async.
+    /// </summary>
     public abstract class AMI_Object_ice_flushBatchRequests : IceInternal.BatchOutgoingAsync
     {
+        /// <summary>
+        /// Indicates to the caller that a call to <code>ice_flushBatchRequests_async</code>
+        /// raised an Ice run-time exception.
+        /// </summary>
+        /// <param name="ex">The run-time exception that was raised.</param>
         public abstract override void ice_exception(Ice.Exception ex);
 
         public bool invoke__(Ice.ObjectPrx prx)

@@ -9,6 +9,9 @@
 
 package Ice;
 
+/**
+ * The base interface for servants.
+ **/
 public interface Object
 {
     boolean equals(java.lang.Object rhs);
@@ -56,8 +59,8 @@ public interface Object
     /**
      * Returns the Slice type IDs of the interfaces supported by this object.
      *
-     * @return The Slice type Ids of the interfaces supported by this object, in base-to-derived
-     * order. The first element of the return array is always <code>::Ice::Object</code>.
+     * @return The Slice type IDs of the interfaces supported by this object, in base-to-derived
+     * order. The first element of the returned array is always <code>::Ice::Object</code>.
      **/
     String[] ice_ids();
 
@@ -65,8 +68,8 @@ public interface Object
      * Returns the Slice type IDs of the interfaces supported by this object.
      *
      * @param current The {@link Current} object for the invocation.
-     * @return The Slice type Ids of the interfaces supported by this object, in base-to-derived
-     * order. The first element of the return array is always <code>::Ice::Object</code>.
+     * @return The Slice type IDs of the interfaces supported by this object, in base-to-derived
+     * order. The first element of the returned array is always <code>::Ice::Object</code>.
      **/
     String[] ice_ids(Current current);
 
@@ -119,7 +122,7 @@ public interface Object
     void ice_preMarshal();
 
     /**
-     * This Ice run time invokes this method vafter unmarshaling an object's data members. This allows a
+     * The Ice run time invokes this method vafter unmarshaling an object's data members. This allows a
      * subclass to override this method in order to perform additional initialization.
      **/
     void ice_postUnmarshal();

@@ -240,7 +240,7 @@ local interface Communicator
      * 
      * @param name The object adapter name.
      *
-     * @param router The router.
+     * @param rtr The router.
      *
      * @return The new object adapter.
      *

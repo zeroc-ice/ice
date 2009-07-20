@@ -12,13 +12,19 @@ using System;
 namespace Ice
 {
 
-    [Obsolete("This interface is deprecated, use System.Object (or nothing) instead.")]
+    /// <summary>
+    /// This interface is deprecated. use System.Object (or nothing) instead.
+    /// </summary>
+    [Obsolete("This interface is deprecated. Use System.Object (or nothing) instead.")]
     public interface LocalObject : System.ICloneable
     {
         int ice_hash();
     }
 
-    [Obsolete("This class is deprecated, use System.Object (or nothing) instead.")]
+    /// <summary>
+    /// This class is deprecated. Use System.Object (or nothing) instead.
+    /// </summary>
+    [Obsolete("This class is deprecated. Use System.Object (or nothing) instead.")]
     public abstract class LocalObjectImpl : LocalObject
     {
         public virtual int

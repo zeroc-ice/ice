@@ -81,10 +81,6 @@ interface Registry
      *
      * @return A proxy for the newly created session.
      *
-     * @param userId The user id.
-     *
-     * @param password The password for the given user id.
-     *
      * @throws PermissionDeniedException Raised if the password for
      * the given user id is not correct, or if the user is not allowed
      * access.

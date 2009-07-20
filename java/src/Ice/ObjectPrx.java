@@ -69,16 +69,16 @@ public interface ObjectPrx
     /**
      * Returns the Slice type IDs of the interfaces supported by the target object of this proxy.
      *
-     * @return The Slice type Ids of the interfaces supported by the target object, in base-to-derived
-     * order. The first element of the return array is always <code>::Ice::Object</code>.
+     * @return The Slice type IDs of the interfaces supported by the target object, in base-to-derived
+     * order. The first element of the returned array is always <code>::Ice::Object</code>.
      **/
     String[] ice_ids();
 
     /**
      * Returns the Slice type IDs of the interfaces supported by the target object of this proxy.
      *
-     * @return The Slice type Ids of the interfaces supported by the target object, in base-to-derived
-     * order. The first element of the return array is always <code>::Ice::Object</code>.
+     * @return The Slice type IDs of the interfaces supported by the target object, in base-to-derived
+     * order. The first element of the returned array is always <code>::Ice::Object</code>.
      *
      * @param __context The context map for the invocation.
      **/
@@ -100,7 +100,7 @@ public interface ObjectPrx
     String ice_id(java.util.Map<String, String> __context);
 
     /**
-     * Invoke an operation dynamically.
+     * Invokes an operation dynamically.
      *
      * @param operation The name of the operation to invoke.
      * @param mode The operation mode (normal or idempotent).
@@ -110,7 +110,7 @@ public interface ObjectPrx
      * @return If the operation completed successfully, the return value
      * is <code>true</code>. If the operation raises a user exception,
      * the return value is <code>false</code>; in this case, <code>outParams</code>
-     * contains the encoded user exception. If the operation raised an
+     * contains the encoded user exception. If the operation raises a run-time exception,
      * it throws it directly.
      *
      * @see Blobject
@@ -119,7 +119,7 @@ public interface ObjectPrx
     boolean ice_invoke(String operation, OperationMode mode, byte[] inParams, ByteSeqHolder outParams);
 
     /**
-     * Invoke an operation dynamically.
+     * Invokes an operation dynamically.
      *
      * @param operation The name of the operation to invoke.
      * @param mode The operation mode (normal or idempotent).
@@ -147,7 +147,7 @@ public interface ObjectPrx
      * @return If the operation completed successfully, the return value
      * is <code>true</code>. If the operation raises a user exception,
      * the return value is <code>false</code>; in this case, <code>outParams</code>
-     * contains the encoded user exception. If the operation raised an
+     * contains the encoded user exception. If the operation raises a run-time exception,
      * it throws it directly.
      *
      * @see AMI_Object_ice_invoke
@@ -162,11 +162,11 @@ public interface ObjectPrx
      * @param operation The name of the operation to invoke.
      * @param mode The operation mode (normal or idempotent).
      * @param inParams The encoded in-parameters for the operation.
-     * @param __context The context map for the invocation.
+     * @param context The context map for the invocation.
      * @return If the operation completed successfully, the return value
      * is <code>true</code>. If the operation raises a user exception,
      * the return value is <code>false</code>; in this case, <code>outParams</code>
-     * contains the encoded user exception. If the operation raised an
+     * contains the encoded user exception. If the operation raises a run-time exception,
      * it throws it directly.
      *
      * @see AMI_Object_ice_invoke
@@ -316,16 +316,17 @@ public interface ObjectPrx
     /**
      * Returns whether this proxy uses only secure endpoints.
      *
-     * @return <code>true</code> if all endpoints for this proxy are secure; <code>false</code>, otherwise.
+     * @return <code>True</code> if this proxy communicates only via secure endpoints; <code>false</code>, otherwise.
      **/
     boolean ice_isSecure();
 
     /**
-     * Creates a new proxy that is identical to this proxy, except for its endpoints.
+     * Creates a new proxy that is identical to this proxy, except for how it selects endpoints.
      *
-     * @param If <code>b</code> is <code>true</code>, only endpoints that use a secure transport are
-     * retained for the new proxy. If <code>b</code> is false, the returned proxy is identical to this proxy.
-     * @return The new proxy with possible different endpoints.k
+     * @param b If <code>b</code> is <code>true</code>, only endpoints that use a secure transport are
+     * used by the new proxy. If <code>b</code> is false, the returned proxy uses both secure and insecure
+     * endpoints.
+     * @return The new proxy with the specified selection policy.
      **/
     ObjectPrx ice_secure(boolean b);
 
@@ -333,7 +334,7 @@ public interface ObjectPrx
      * Returns whether this proxy prefers secure endpoints.
      *
      * @return <code>true</code> if the proxy always attempts to invoke via secure endpoints before it
-     * attempts to use insecure endpoints; <code>false</code>, otherwise;
+     * attempts to use insecure endpoints; <code>false</code>, otherwise.
      **/
     boolean ice_isPreferSecure();
 
@@ -373,7 +374,7 @@ public interface ObjectPrx
     /**
      * Creates a new proxy that is identical to this proxy, except for the locator.
      *
-     * @param The locator for the new proxy.
+     * @param locator The locator for the new proxy.
      * @return The new proxy with the specified locator.
      **/
     ObjectPrx ice_locator(Ice.LocatorPrx locator);

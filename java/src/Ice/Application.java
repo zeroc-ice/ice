@@ -108,7 +108,7 @@ public abstract class Application
      * the value of the <code>Ice.ProgramName</code> property.
      * @param args The arguments for the application (as passed to <code>Main(String[])</code>.
      * @param configFile The configuration file with which to initialize Ice properties.
-     * @param overrideProps Property values that override any settings in <code>configFile</code.
+     * @param overrideProps Property values that override any settings in <code>configFile</code>.
      * @return The value returned by <code>run</code>. If <code>run</code> terminates with an exception,
      * the return value is non-zero.
      *
@@ -174,7 +174,6 @@ public abstract class Application
      * to <code>run</code> is free from Ice-related options and contains only options
      * and arguments that are application-specific.
      *
-     * @param args The argument vector for the application, minus any Ice-specific options.
      * @return The <code>run</code> method should return zero for successful termination, and
      * non-zero otherwise. <code>Application.main</code> returns the value returned by <code>run</code>.
      **/
@@ -198,7 +197,7 @@ public abstract class Application
     /**
      * Returns the communicator for the application. Because <communicator> is a static method,
      * it permits access to the communicator from anywhere in the program. Note that, as a consequence,
-     * you cannot  more than one instance of <code>Application</code> in a program.
+     * you cannot have more than one instance of <code>Application</code> in a program.
      *
      * @return The communicator for the application.
      **/

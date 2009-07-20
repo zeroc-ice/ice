@@ -170,8 +170,8 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
     /**
      * Returns the Slice type IDs of the interfaces supported by the target object of this proxy.
      *
-     * @return The Slice type Ids of the interfaces supported by the target object, in base-to-derived
-     * order. The first element of the return array is always <code>::Ice::Object</code>.
+     * @return The Slice type IDs of the interfaces supported by the target object, in base-to-derived
+     * order. The first element of the returned array is always <code>::Ice::Object</code>.
      **/
     public final String[]
     ice_ids()
@@ -183,8 +183,8 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
      * Returns the Slice type IDs of the interfaces supported by the target object of this proxy.
      *
      * @param __context The <code>Context</code> map for the invocation.
-     * @return The Slice type Ids of the interfaces supported by the target object, in base-to-derived
-     * order. The first element of the return array is always <code>::Ice::Object</code>.
+     * @return The Slice type IDs of the interfaces supported by the target object, in base-to-derived
+     * order. The first element of the returned array is always <code>::Ice::Object</code>.
      **/
     public final String[]
     ice_ids(java.util.Map<String, String> __context)

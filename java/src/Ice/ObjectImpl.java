@@ -192,9 +192,9 @@ public abstract class ObjectImpl implements Object, java.lang.Cloneable, java.io
     }
 
     /**
-     * Returns the Slice type ID of the most-derived interface supported by this object.
+     * Returns the Slice type ID of the interface supported by this object.
      *
-     * @return The return value is always {@link IceObject}.
+     * @return The return value is always ::Ice::Object.
      **/
     public static String
     ice_staticId()

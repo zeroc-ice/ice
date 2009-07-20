@@ -9,6 +9,9 @@
 
 package Ice;
 
+/**
+ * Base class for all proxy helpers.
+ **/
 public class ObjectPrxHelper extends ObjectPrxHelperBase
 {
     /**

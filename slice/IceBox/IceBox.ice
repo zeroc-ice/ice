@@ -172,7 +172,7 @@ interface ServiceManager
     
     /**
      *
-     * Registers a new observer with the ServiceManager
+     * Registers a new observer with the ServiceManager.
      * 
      * @param observer The new observer
      *

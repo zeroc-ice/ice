@@ -18,7 +18,7 @@ package Ice;
 public interface OutputStream
 {
     /**
-     * Returns the communicator for this input stream.
+     * Returns the communicator for this output stream.
      *
      * @return The communicator.
      **/
@@ -54,6 +54,11 @@ public interface OutputStream
      **/
     void writeByteSeq(byte[] v);
 
+    /**
+     * Writes a serializable Java object to the stream.
+     *
+     * @param o The serializable object to write.
+     **/
     void writeSerializable(java.io.Serializable o);
 
     /**
@@ -212,7 +217,7 @@ public interface OutputStream
     /**
      * Indicates that marshaling of a request or reply is finished.
      *
-     * @return The byte sequence containing the encode request or reply.
+     * @return The byte sequence containing the encoded request or reply.
      **/
     byte[] finished();
 

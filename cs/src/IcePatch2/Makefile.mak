@@ -26,6 +26,7 @@ GDIR		= generated
 
 MCSFLAGS	= $(MCSFLAGS) -target:library -out:$(TARGETS)
 MCSFLAGS	= $(MCSFLAGS) -keyfile:$(KEYFILE)
+MCSFLAGS	= $(MCSFLAGS) /doc:$(bindir)\$(PKG).xml /nowarn:1591
 
 SLICE2CSFLAGS	= $(SLICE2CSFLAGS) -I$(slicedir) --ice
 
@@ -34,11 +35,12 @@ $(TARGETS):: $(SRCS) $(GEN_SRCS)
 
 !if "$(DEBUG)" == "yes"
 clean::
-	del /q $(bindir)\$(PKG).pdb
+	del /q $(bindir)\$(PKG).pdb $(bindir)\$(PKG).xml
 !endif
 
 install:: all
 	copy $(bindir)\$(LIBNAME) $(install_bindir)
+	copy $(bindir)\$(PKG).xml $(install_bindir)
 	copy $(bindir)\$(POLICY) $(install_bindir)
 	copy $(bindir)\$(POLICY_TARGET) $(install_bindir)
 !if "$(DEBUG)" == "yes"

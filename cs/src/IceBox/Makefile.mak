@@ -29,6 +29,7 @@ EXE_MCSFLAGS	= $(MCSFLAGS) -target:exe
 
 LIB_MCSFLAGS	= $(MCSFLAGS) -target:library -out:$(LIBNAME)
 LIB_MCSFLAGS	= $(LIB_MCSFLAGS) -keyfile:$(KEYFILE)
+LIB_MCSFLAGS	= $(LIB_MCSFLAGS) /doc:$(bindir)\$(PKG).xml /nowarn:1591
 
 SLICE2CSFLAGS	= $(SLICE2CSFLAGS) --checksum --ice -I. -I$(slicedir)
 
@@ -61,12 +62,13 @@ $(ICEBOXNET:.exe=.exe.config):
 
 !if "$(DEBUG)" == "yes"
 clean::
-	del /q $(bindir)\$(PKG).pdb
+	del /q $(bindir)\$(PKG).pdb $(bindir)\$(PKG).xml
 	del /q $(bindir)\iceboxnet.pdb
 !endif
 
 install:: all
 	copy $(LIBNAME) $(install_bindir)
+	copy $(bindir)\$(PKG).xml $(install_bindir)
 	copy $(bindir)\$(POLICY) $(install_bindir)
 	copy $(bindir)\$(POLICY_TARGET) $(install_bindir)
 !if "$(DEBUG)" == "yes"
