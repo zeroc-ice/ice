@@ -196,6 +196,9 @@ noted.
 C++ Changes
 ============
 
+- Fixed a bug where an SSL connection was rejected because of a
+  certificate validation failure even if IceSSL.VerifyPeer=0.
+
 - Added ice_stackTrace() method to Exception classes, which returns
   the exception stack trace on platforms/compilers that support it.
   Currently this is only supported with the GCC compiler.
@@ -213,6 +216,9 @@ C++ Changes
 
 Java Changes
 ============
+
+- Fixed a bug where an outgoing SSL connection was allowed even though
+  certificate validation failed.
 
 - A holder class generated for a Slice class or interface now extends
   the generic base class Ice.ObjectHolderBase and implements the
