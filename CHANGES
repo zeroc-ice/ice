@@ -217,6 +217,10 @@ C++ Changes
 Java Changes
 ============
 
+- The translator no longer generates one-shot constructors for class,
+  struct and exception types if doing so would exceed Java's limit of
+  255 parameters for a method.
+
 - Fixed a bug where an outgoing SSL connection was allowed even though
   certificate validation failed.
 

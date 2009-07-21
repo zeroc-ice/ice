@@ -2168,37 +2168,43 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
         }
         out << eb;
 
-        out << sp << nl << "public " << fixKwd(name) << spar;
-        vector<string> paramDecl;
-        for(d = allDataMembers.begin(); d != allDataMembers.end(); ++d)
+        //
+        // A method cannot have more than 255 parameters (including the implicit "this" argument).
+        //
+        if(allDataMembers.size() < 255)
         {
-            string memberName = fixKwd((*d)->name());
-            string memberType = typeToString((*d)->type(), TypeModeMember, package, (*d)->getMetaData());
-            paramDecl.push_back(memberType + " " + memberName);
-        }
-        out << paramDecl << epar;
-        out << sb;
-        if(baseClass && allDataMembers.size() != members.size())
-        {
-            out << nl << "super" << spar;
-            vector<string> baseParamNames;
-            DataMemberList baseDataMembers = baseClass->allDataMembers();
-            for(d = baseDataMembers.begin(); d != baseDataMembers.end(); ++d)
+            out << sp << nl << "public " << fixKwd(name) << spar;
+            vector<string> paramDecl;
+            for(d = allDataMembers.begin(); d != allDataMembers.end(); ++d)
             {
-                baseParamNames.push_back(fixKwd((*d)->name()));
+                string memberName = fixKwd((*d)->name());
+                string memberType = typeToString((*d)->type(), TypeModeMember, package, (*d)->getMetaData());
+                paramDecl.push_back(memberType + " " + memberName);
             }
-            out << baseParamNames << epar << ';';
+            out << paramDecl << epar;
+            out << sb;
+            if(baseClass && allDataMembers.size() != members.size())
+            {
+                out << nl << "super" << spar;
+                vector<string> baseParamNames;
+                DataMemberList baseDataMembers = baseClass->allDataMembers();
+                for(d = baseDataMembers.begin(); d != baseDataMembers.end(); ++d)
+                {
+                    baseParamNames.push_back(fixKwd((*d)->name()));
+                }
+                out << baseParamNames << epar << ';';
+            }
+            vector<string> paramNames;
+            for(d = members.begin(); d != members.end(); ++d)
+            {
+                paramNames.push_back(fixKwd((*d)->name()));
+            }
+            for(vector<string>::const_iterator i = paramNames.begin(); i != paramNames.end(); ++i)
+            {
+                out << nl << "this." << *i << " = " << *i << ';';
+            }
+            out << eb;
         }
-        vector<string> paramNames;
-        for(d = members.begin(); d != members.end(); ++d)
-        {
-            paramNames.push_back(fixKwd((*d)->name()));
-        }
-        for(vector<string>::const_iterator i = paramNames.begin(); i != paramNames.end(); ++i)
-        {
-            out << nl << "this." << *i << " = " << *i << ';';
-        }
-        out << eb;
     }
 
     //
@@ -2298,37 +2304,43 @@ Slice::Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
         }
         out << eb;
 
-        out << sp << nl << "public " << name << spar;
-        vector<string> paramDecl;
-        for(d = allDataMembers.begin(); d != allDataMembers.end(); ++d)
+        //
+        // A method cannot have more than 255 parameters (including the implicit "this" argument).
+        //
+        if(allDataMembers.size() < 255)
         {
-            string memberName = fixKwd((*d)->name());
-            string memberType = typeToString((*d)->type(), TypeModeMember, package, (*d)->getMetaData());
-            paramDecl.push_back(memberType + " " + memberName);
-        }
-        out << paramDecl << epar;
-        out << sb;
-        if(base && allDataMembers.size() != members.size())
-        {
-            out << nl << "super" << spar;
-            vector<string> baseParamNames;
-            DataMemberList baseDataMembers = base->allDataMembers();
-            for(d = baseDataMembers.begin(); d != baseDataMembers.end(); ++d)
+            out << sp << nl << "public " << name << spar;
+            vector<string> paramDecl;
+            for(d = allDataMembers.begin(); d != allDataMembers.end(); ++d)
             {
-                baseParamNames.push_back(fixKwd((*d)->name()));
+                string memberName = fixKwd((*d)->name());
+                string memberType = typeToString((*d)->type(), TypeModeMember, package, (*d)->getMetaData());
+                paramDecl.push_back(memberType + " " + memberName);
             }
-            out << baseParamNames << epar << ';';
+            out << paramDecl << epar;
+            out << sb;
+            if(base && allDataMembers.size() != members.size())
+            {
+                out << nl << "super" << spar;
+                vector<string> baseParamNames;
+                DataMemberList baseDataMembers = base->allDataMembers();
+                for(d = baseDataMembers.begin(); d != baseDataMembers.end(); ++d)
+                {
+                    baseParamNames.push_back(fixKwd((*d)->name()));
+                }
+                out << baseParamNames << epar << ';';
+            }
+            vector<string> paramNames;
+            for(d = members.begin(); d != members.end(); ++d)
+            {
+                paramNames.push_back(fixKwd((*d)->name()));
+            }
+            for(vector<string>::const_iterator i = paramNames.begin(); i != paramNames.end(); ++i)
+            {
+                out << nl << "this." << *i << " = " << *i << ';';
+            }
+            out << eb;
         }
-        vector<string> paramNames;
-        for(d = members.begin(); d != members.end(); ++d)
-        {
-            paramNames.push_back(fixKwd((*d)->name()));
-        }
-        for(vector<string>::const_iterator i = paramNames.begin(); i != paramNames.end(); ++i)
-        {
-            out << nl << "this." << *i << " = " << *i << ';';
-        }
-        out << eb;
     }
 
     out << sp << nl << "public String" << nl << "ice_name()";
@@ -2618,23 +2630,29 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
     out << sb;
     out << eb;
 
-    vector<string> paramDecl;
-    vector<string> paramNames;
-    for(d = members.begin(); d != members.end(); ++d)
+    //
+    // A method cannot have more than 255 parameters (including the implicit "this" argument).
+    //
+    if(members.size() < 255)
     {
-        string memberName = fixKwd((*d)->name());
-        string memberType = typeToString((*d)->type(), TypeModeMember, package, (*d)->getMetaData());
-        paramDecl.push_back(memberType + " " + memberName);
-        paramNames.push_back(memberName);
-    }
+        vector<string> paramDecl;
+        vector<string> paramNames;
+        for(d = members.begin(); d != members.end(); ++d)
+        {
+            string memberName = fixKwd((*d)->name());
+            string memberType = typeToString((*d)->type(), TypeModeMember, package, (*d)->getMetaData());
+            paramDecl.push_back(memberType + " " + memberName);
+            paramNames.push_back(memberName);
+        }
 
-    out << sp << nl << "public " << name << spar << paramDecl << epar;
-    out << sb;
-    for(vector<string>::const_iterator i = paramNames.begin(); i != paramNames.end(); ++i)
-    {
-        out << nl << "this." << *i << " = " << *i << ';';
+        out << sp << nl << "public " << name << spar << paramDecl << epar;
+        out << sb;
+        for(vector<string>::const_iterator i = paramNames.begin(); i != paramNames.end(); ++i)
+        {
+            out << nl << "this." << *i << " = " << *i << ';';
+        }
+        out << eb;
     }
-    out << eb;
 
     out << sp << nl << "public boolean" << nl << "equals(java.lang.Object rhs)";
     out << sb;
