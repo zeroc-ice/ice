@@ -11,8 +11,9 @@ package IceSSL;
 
 final class X509TrustManagerI implements javax.net.ssl.X509TrustManager
 {
-    X509TrustManagerI(javax.net.ssl.X509TrustManager delegate)
+    X509TrustManagerI(Instance instance, javax.net.ssl.X509TrustManager delegate)
     {
+        _instance = instance;
         _delegate = delegate;
     }
 
@@ -20,9 +21,19 @@ final class X509TrustManagerI implements javax.net.ssl.X509TrustManager
     checkClientTrusted(java.security.cert.X509Certificate[] chain, String authType)
         throws java.security.cert.CertificateException
     {
-        if(!authType.equals("DH_anon") && _delegate != null)
+        //
+        // Do not invoke the wrapped trust manager for anonymous ciphers.
+        //
+        if(!authType.equals("DH_anon"))
         {
-            _delegate.checkClientTrusted(chain, authType);
+            try
+            {
+                _delegate.checkClientTrusted(chain, authType);
+            }
+            catch(java.security.cert.CertificateException ex)
+            {
+                _instance.trustManagerFailure(true, ex);
+            }
         }
     }
 
@@ -30,21 +41,28 @@ final class X509TrustManagerI implements javax.net.ssl.X509TrustManager
     checkServerTrusted(java.security.cert.X509Certificate[] chain, String authType)
         throws java.security.cert.CertificateException
     {
-        if(!authType.equals("DH_anon") && _delegate != null)
+        //
+        // Do not invoke the wrapped trust manager for anonymous ciphers.
+        //
+        if(!authType.equals("DH_anon"))
         {
-            _delegate.checkServerTrusted(chain, authType);
+            try
+            {
+                _delegate.checkServerTrusted(chain, authType);
+            }
+            catch(java.security.cert.CertificateException ex)
+            {
+                _instance.trustManagerFailure(false, ex);
+            }
         }
     }
 
     public java.security.cert.X509Certificate[]
     getAcceptedIssuers()
     {
-        if(_delegate != null)
-        {
-            return _delegate.getAcceptedIssuers();
-        }
-        return null;
+        return _delegate.getAcceptedIssuers();
     }
 
+    private Instance _instance;
     private javax.net.ssl.X509TrustManager _delegate;
 }

@@ -227,6 +227,32 @@ public class AllTests
             comm.destroy();
 
             //
+            // Test IceSSL.VerifyPeer=0. This should succeed even though the client
+            // does not trust the server's certificate.
+            //
+            initData = createClientProps(defaultProperties, defaultDir, defaultHost);
+            initData.properties.setProperty("IceSSL.VerifyPeer", "0");
+            comm = Ice.Util.initialize(args, initData);
+            fact = ServerFactoryPrxHelper.checkedCast(comm.stringToProxy(factoryRef));
+            test(fact != null);
+            d = createServerProps(defaultProperties, defaultDir, defaultHost);
+            d.put("IceSSL.Keystore", "s_rsa_ca1.jks");
+            d.put("IceSSL.Password", "password");
+            d.put("IceSSL.Truststore", "cacert1.jks");
+            d.put("IceSSL.VerifyPeer", "0");
+            server = fact.createServer(d);
+            try
+            {
+                server.ice_ping();
+            }
+            catch(Ice.LocalException ex)
+            {
+                test(false);
+            }
+            fact.destroyServer(server);
+            comm.destroy();
+
+            //
             // Test IceSSL.VerifyPeer=1. This should fail because the server
             // does not supply a certificate.
             //

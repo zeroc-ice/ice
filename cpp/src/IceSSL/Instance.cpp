@@ -313,6 +313,11 @@ IceSSL::Instance::initialize()
         _verifyDepthMax = properties->getPropertyAsIntWithDefault(propPrefix + "VerifyDepthMax", 2);
 
         //
+        // VerifyPeer determines whether certificate validation failures abort a connection.
+        //
+        _verifyPeer = properties->getPropertyAsIntWithDefault(propPrefix + "VerifyPeer", 2);
+
+        //
         // Create an SSL context if the application hasn't supplied one.
         //
         if(!_ctx)
@@ -646,9 +651,8 @@ IceSSL::Instance::initialize()
         // Determine whether a certificate is required from the peer.
         //
         {
-            int verifyPeer = properties->getPropertyAsIntWithDefault(propPrefix + "VerifyPeer", 2);
             int sslVerifyMode;
-            switch(verifyPeer)
+            switch(_verifyPeer)
             {
             case 0:
                 sslVerifyMode = SSL_VERIFY_NONE;
@@ -769,16 +773,28 @@ IceSSL::Instance::verifyPeer(SSL* ssl, SOCKET fd, const string& address, const s
     long result = SSL_get_verify_result(ssl);
     if(result != X509_V_OK)
     {
-        ostringstream ostr;
-        ostr << "IceSSL: certificate verification failed:\n" << X509_verify_cert_error_string(result);
-        string msg = ostr.str();
-        if(_securityTraceLevel >= 1)
+        if(_verifyPeer == 0)
         {
-            _logger->trace(_securityTraceCategory, msg);
+            if(_securityTraceLevel >= 1)
+            {
+                ostringstream ostr;
+                ostr << "IceSSL: ignoring certificate verification failure:\n" << X509_verify_cert_error_string(result);
+                _logger->trace(_securityTraceCategory, ostr.str());
+            }
         }
-        SecurityException ex(__FILE__, __LINE__);
-        ex.reason = msg;
-        throw ex;
+        else
+        {
+            ostringstream ostr;
+            ostr << "IceSSL: certificate verification failed:\n" << X509_verify_cert_error_string(result);
+            string msg = ostr.str();
+            if(_securityTraceLevel >= 1)
+            {
+                _logger->trace(_securityTraceCategory, msg);
+            }
+            SecurityException ex(__FILE__, __LINE__);
+            ex.reason = msg;
+            throw ex;
+        }
     }
 
     X509* rawCert = SSL_get_peer_certificate(ssl);

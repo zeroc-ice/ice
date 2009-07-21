@@ -94,6 +94,11 @@ class Instance
         _verifyDepthMax = properties.getPropertyAsIntWithDefault(prefix + "VerifyDepthMax", 2);
 
         //
+        // VerifyPeer determines whether certificate validation failures abort a connection.
+        //
+        _verifyPeer = communicator().getProperties().getPropertyAsIntWithDefault("IceSSL.VerifyPeer", 2);
+
+        //
         // Check for a certificate verifier.
         //
         final String certVerifierClass = properties.getProperty(prefix + "CertVerifier");
@@ -436,16 +441,15 @@ class Instance
                 }
 
                 //
-                // Collect the trust managers.
+                // Load the truststore.
                 //
-                javax.net.ssl.TrustManager[] trustManagers = null;
+                java.security.KeyStore ts = null;
                 if(_truststoreStream != null || truststorePath.length() > 0)
                 {
                     //
                     // If the trust store and the key store are the same input
                     // stream or file, don't create another key store.
                     //
-                    java.security.KeyStore ts;
                     if((_truststoreStream != null && _truststoreStream == _keystoreStream) ||
                        (truststorePath.length() > 0 && truststorePath.equals(keystorePath)))
                     {
@@ -519,28 +523,26 @@ class Instance
                             }
                         }
                     }
+                }
 
+                //
+                // Collect the trust managers.
+                //
+                javax.net.ssl.TrustManager[] trustManagers = null;
+                {
                     String algorithm = javax.net.ssl.TrustManagerFactory.getDefaultAlgorithm();
                     javax.net.ssl.TrustManagerFactory tmf = javax.net.ssl.TrustManagerFactory.getInstance(algorithm);
                     tmf.init(ts);
                     trustManagers = tmf.getTrustManagers();
+                    assert(trustManagers != null);
                 }
 
                 //
-                // The default TrustManager implementation in IBM's JDK does not accept
-                // anonymous ciphers, so we have to install our own.
+                // Wrap each trust manager.
                 //
-                if(trustManagers == null)
+                for(int i = 0; i < trustManagers.length; ++i)
                 {
-                    trustManagers = new javax.net.ssl.TrustManager[1];
-                    trustManagers[0] = new X509TrustManagerI(null);
-                }
-                else
-                {
-                    for(int i = 0; i < trustManagers.length; ++i)
-                    {
-                        trustManagers[i] = new X509TrustManagerI((javax.net.ssl.X509TrustManager)trustManagers[i]);
-                    }
+                    trustManagers[i] = new X509TrustManagerI(this, (javax.net.ssl.X509TrustManager)trustManagers[i]);
                 }
 
                 //
@@ -745,13 +747,12 @@ class Instance
 
         if(incoming)
         {
-            int verifyPeer = communicator().getProperties().getPropertyAsIntWithDefault("IceSSL.VerifyPeer", 2);
-            if(verifyPeer == 0)
+            if(_verifyPeer == 0)
             {
                 engine.setWantClientAuth(false);
                 engine.setNeedClientAuth(false);
             }
-            else if(verifyPeer == 1)
+            else if(_verifyPeer == 1)
             {
                 engine.setWantClientAuth(true);
             }
@@ -1036,14 +1037,38 @@ class Instance
         {
             String msg = (incoming ? "incoming" : "outgoing") + " connection rejected by certificate verifier\n" +
                 IceInternal.Network.fdToString(fd);
-
-            if(_securityTraceLevel > 0)
+            if(_securityTraceLevel >= 1)
             {
                 _logger.trace(_securityTraceCategory, msg);
             }
-
             Ice.SecurityException ex = new Ice.SecurityException();
             ex.reason = msg;
+            throw ex;
+        }
+    }
+
+    void
+    trustManagerFailure(boolean incoming, java.security.cert.CertificateException ex)
+        throws java.security.cert.CertificateException
+    {
+        if(_verifyPeer == 0)
+        {
+            if(_securityTraceLevel >= 1)
+            {
+                String msg = "ignoring peer verification failure";
+                if(_securityTraceLevel > 1)
+                {
+                    java.io.StringWriter sw = new java.io.StringWriter();
+                    java.io.PrintWriter pw = new java.io.PrintWriter(sw);
+                    ex.printStackTrace(pw);
+                    pw.flush();
+                    msg += ":\n" + sw.toString();
+                }
+                _logger.trace(_securityTraceCategory, msg);
+            }
+        }
+        else
+        {
             throw ex;
         }
     }
@@ -1170,6 +1195,7 @@ class Instance
     private String[] _protocols;
     private boolean _checkCertName;
     private int _verifyDepthMax;
+    private int _verifyPeer;
     private CertificateVerifier _verifier;
     private PasswordCallback _passwordCallback;
     private TrustManager _trustManager;

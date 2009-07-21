@@ -215,12 +215,16 @@ allTests(const CommunicatorPtr& communicator, const string& testDir)
     {
         //
         // Test IceSSL.VerifyPeer=0. Client does not have a certificate,
-        // but it still verifies the server's.
+        // but it still verifies the server's. The createClientProps
+        // function defines IceSSL.DefaultDir, which allows OpenSSL in the
+        // client to find the CA certificate. We remove that property here
+        // to verify that the connection can still proceed without any
+        // CA certificate.
         //
         InitializationData initData;
         initData.properties = createClientProps(defaultProperties, defaultDir, defaultHost);
         initData.properties->setProperty("IceSSL.VerifyPeer", "0");
-        initData.properties->setProperty("IceSSL.CertAuthFile", "cacert1.pem");
+        initData.properties->setProperty("IceSSL.DefaultDir", "");
         CommunicatorPtr comm = initialize(initData);
         Test::ServerFactoryPrx fact = Test::ServerFactoryPrx::checkedCast(comm->stringToProxy(factoryRef));
         test(fact);
@@ -307,8 +311,10 @@ allTests(const CommunicatorPtr& communicator, const string& testDir)
         //
         // Test IceSSL.VerifyPeer=1. Client has a certificate.
         //
+        initData.properties = createClientProps(defaultProperties, defaultDir, defaultHost);
         initData.properties->setProperty("IceSSL.CertFile", "c_rsa_nopass_ca1_pub.pem");
         initData.properties->setProperty("IceSSL.KeyFile", "c_rsa_nopass_ca1_priv.pem");
+        initData.properties->setProperty("IceSSL.VerifyPeer", "0");
         comm = initialize(initData);
         fact = Test::ServerFactoryPrx::checkedCast(comm->stringToProxy(factoryRef));
         test(fact);
@@ -394,12 +400,16 @@ allTests(const CommunicatorPtr& communicator, const string& testDir)
         comm->destroy();
 
         //
-        // Test IceSSL.VerifyPeer=1. This should fail because the
-        // client doesn't trust the server's CA.
+        // Test IceSSL.VerifyPeer=1. This should fail because the client doesn't
+        // trust the server's CA. We disable IceSSL.DefaultDir in the client so that
+        // OpenSSL can't search for the server's CA certificate.
         //
-        initData.properties->setProperty("IceSSL.CertAuthFile", "cacert2.pem");
-        initData.properties->setProperty("IceSSL.CertFile", "c_rsa_nopass_ca2_pub.pem");
-        initData.properties->setProperty("IceSSL.KeyFile", "c_rsa_nopass_ca2_priv.pem");
+        initData.properties = createClientProps(defaultProperties, defaultDir, defaultHost);
+        initData.properties->setProperty("IceSSL.DefaultDir", "");
+        initData.properties->setProperty("IceSSL.CertAuthFile", defaultDir + "/cacert2.pem");
+        initData.properties->setProperty("IceSSL.CertFile", defaultDir + "/c_rsa_nopass_ca2_pub.pem");
+        initData.properties->setProperty("IceSSL.KeyFile", defaultDir + "/c_rsa_nopass_ca2_priv.pem");
+        initData.properties->setProperty("IceSSL.VerifyPeer", "0");
         comm = initialize(initData);
         fact = Test::ServerFactoryPrx::checkedCast(comm->stringToProxy(factoryRef));
         test(fact);
@@ -433,19 +443,25 @@ allTests(const CommunicatorPtr& communicator, const string& testDir)
         comm->destroy();
 
         //
-        // Test IceSSL.VerifyPeer=1. This should fail because the
-        // server doesn't trust the client's CA.
+        // Test IceSSL.VerifyPeer=1. This should fail because the server doesn't
+        // trust the client's CA. The IceSSL.DefaultDir setting in the client
+        // allows OpenSSL to find the server's CA certificate. We have to disable
+        // IceSSL.DefaultDir in the server so that it can't find the client's CA
+        // certificate.
         //
-        initData.properties->setProperty("IceSSL.CertAuthFile", "cacert1.pem");
+        initData.properties = createClientProps(defaultProperties, defaultDir, defaultHost);
+        initData.properties->setProperty("IceSSL.CertAuthFile", "cacert2.pem");
         initData.properties->setProperty("IceSSL.CertFile", "c_rsa_nopass_ca2_pub.pem");
         initData.properties->setProperty("IceSSL.KeyFile", "c_rsa_nopass_ca2_priv.pem");
+        initData.properties->setProperty("IceSSL.VerifyPeer", "0");
         comm = initialize(initData);
         fact = Test::ServerFactoryPrx::checkedCast(comm->stringToProxy(factoryRef));
         test(fact);
         d = createServerProps(defaultProperties, defaultDir, defaultHost);
-        d["IceSSL.CertAuthFile"] = "cacert1.pem";
-        d["IceSSL.CertFile"] = "s_rsa_nopass_ca1_pub.pem";
-        d["IceSSL.KeyFile"] = "s_rsa_nopass_ca1_priv.pem";
+        d.erase("IceSSL.DefaultDir");
+        d["IceSSL.CertAuthFile"] = defaultDir + "/cacert1.pem";
+        d["IceSSL.CertFile"] = defaultDir + "/s_rsa_nopass_ca1_pub.pem";
+        d["IceSSL.KeyFile"] = defaultDir + "/s_rsa_nopass_ca1_priv.pem";
         d["IceSSL.VerifyPeer"] = "1";
         server = fact->createServer(d);
         try

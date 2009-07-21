@@ -75,6 +75,7 @@ private:
     std::string _defaultDir;
     bool _checkCertName;
     int _verifyDepthMax;
+    int _verifyPeer;
     std::string _password;
 #ifndef OPENSSL_NO_DH
     DHParamsPtr _dhParams;
