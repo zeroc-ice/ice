@@ -254,7 +254,10 @@ compile(int argc, char* argv[])
 
             if(cppHandle == 0)
             {
-                FileTracker::instance()->setOutput(os.str(), true);
+                if(listGenerated)
+                {
+                    FileTracker::instance()->setOutput(os.str(), true);
+                }
                 status = EXIT_FAILURE;
                 break;
             }
@@ -288,7 +291,10 @@ compile(int argc, char* argv[])
                 if(parseStatus == EXIT_FAILURE)
                 {
                     p->destroy();
-                    FileTracker::instance()->setOutput(os.str(), true);
+                    if(listGenerated)
+                    {
+                        FileTracker::instance()->setOutput(os.str(), true);
+                    }
                     status = EXIT_FAILURE;
                 }
                 else
@@ -317,7 +323,10 @@ compile(int argc, char* argv[])
                             ChecksumMap m = createChecksums(p);
                             copy(m.begin(), m.end(), inserter(checksums, checksums.begin()));
                         }
-                        FileTracker::instance()->setOutput(os.str(), false);
+                        if(listGenerated)
+                        {
+                            FileTracker::instance()->setOutput(os.str(), false);
+                        }
                     }
                     catch(const Slice::FileException& ex)
                     {
@@ -326,8 +335,11 @@ compile(int argc, char* argv[])
                         //
                         FileTracker::instance()->cleanup();
                         p->destroy();
-                        os << argv[0] << ": error: " << ex.reason() << endl;
-                        FileTracker::instance()->setOutput(os.str(), true);
+                        getErrorStream() << argv[0] << ": error: " << ex.reason() << endl;
+                        if(listGenerated)
+                        {
+                            FileTracker::instance()->setOutput(os.str(), true);
+                        }
                         status = EXIT_FAILURE;
                         break;
                     }
