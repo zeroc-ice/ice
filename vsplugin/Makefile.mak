@@ -1,0 +1,22 @@
+# **********************************************************************
+#
+# Copyright (c) 2009 ZeroC, Inc. All rights reserved.
+#
+# This copy of Ice is licensed to you under the terms described in the
+# LICENSE file included in this distribution.
+#
+# **********************************************************************
+
+top_srcdir	= .
+
+!include $(top_srcdir)\config\Make.rules.mak
+
+SUBDIRS		= src
+
+$(EVERYTHING)::
+	@for %i in ( $(SUBDIRS) ) do \
+	    @echo "making $@ in %i" && \
+	    cmd /c "cd %i && $(MAKE) -nologo -f Makefile.mak $@" || exit 1
+
+
+clean::

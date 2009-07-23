@@ -1,0 +1,5 @@
+Source Code
+-----------
+
+The source code used to build this distribution is available for download at
+http://www.zeroc.com/vsplugin.html.
