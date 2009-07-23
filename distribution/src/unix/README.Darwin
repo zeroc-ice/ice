@@ -127,19 +127,21 @@ below:
 
 $ export CLASSPATH=<Ice installation directory>/lib/Ice.jar:$CLASSPATH
 
-To use the Java2 version of Ice instead, modify your CLASSPATH as
-follows:
+If you intend to use Freeze for Java, you must include Freeze.jar in
+your CLASSPATH along with Ice.jar:
 
-$ export CLASSPATH=<Ice installation directory>/lib/java2/Ice.jar:$CLASSPATH
+$ export CLASSPATH=<Ice installation directory>/lib/Freeze.jar:$CLASSPATH
 
-Note that the Freeze component of Ice for Java requires Berkeley DB.
-Ice.jar contains a manifest that automatically loads the Berkeley DB classes
-(db.jar), however the JVM requires that the directory containing the 
-Berkeley DB libraries be listed in java.library.path, therefore you must add
-this directory to DYLD_LIBRARY_PATH.
+Note that Freeze requires Berkeley DB. Freeze.jar contains a manifest
+that automatically loads the Berkeley DB classes (db.jar), which means
+you do not need to include this file in your CLASSPATH when executing
+a Freeze application. However the JVM does require that the directory
+containing Berkeley DB's native libraries be listed in
+java.library.path, therefore you must add this directory to your
+DYLD_LIBRARY_PATH.
 
-When building a Java application that uses Freeze, you also need
-to add the Berkeley DB jar file to your CLASSPATH:
+When building a Java application that uses Freeze, you will need to
+add the Berkeley DB JAR file to your CLASSPATH:
 
 $ export CLASSPATH=<Ice installation directory>/lib/db.jar:$CLASSPATH
 
@@ -161,6 +163,16 @@ system. These tasks require one of the following:
    simply invoke the translator without an absolute path, relying on
    the translators being in a directory in your PATH for successful
    execution.
+
+Ice for Java supports protocol compression using the bzip2 classes
+included with ant. Compression is automatically enabled if these
+classes are present in your CLASSPATH. You can either add ant.jar to
+your CLASSPATH, or download only the bzip2 classes from
+
+  http://www.kohsuke.org/bzip2/
+
+Note that these classes are a pure Java implementation of the bzip2
+algorithm and therefore add significant latency to Ice requests.
 
    
 Python

@@ -72,20 +72,21 @@ the nptl libpthread when building Ice applications.
 Java
 ----
 
-To use Ice for Java with the Java5 mapping, add Ice.jar to your
-CLASSPATH, as shown in the following bash command:
+To use Ice for Java, you must add Ice.jar to your CLASSPATH, as shown
+below:
 
 $ export CLASSPATH=/usr/share/java/Ice.jar:$CLASSPATH
 
-To use Ice for Java with the Java2 mapping, modify your CLASSPATH as
-follows:
+If you intend to use Freeze for Java, you must include Freeze.jar in
+your CLASSPATH along with Ice.jar:
 
-$ export CLASSPATH=/usr/share/java/Ice-java2.jar:$CLASSPATH
+$ export CLASSPATH=/usr/share/java/Freeze.jar:$CLASSPATH
 
-Note that the Freeze component of Ice for Java requires Berkeley DB.
-Ice.jar and Ice-java2.jar contain manifests that automatically load
-the Berkeley DB classes (db-4.6.21.jar), however the JVM requires that
-the directory containing the Berkeley DB libraries be listed in
+Note that Freeze requires Berkeley DB. Freeze.jar contains a manifest
+that automatically loads the Berkeley DB classes (db-4.6.21.jar),
+which means you do not need to include this file in your CLASSPATH
+when executing a Freeze application. However the JVM does require that
+the directory containing Berkeley DB's native libraries be listed in
 java.library.path, therefore you must add this directory to your
 LD_LIBRARY_PATH. Assuming you are using the RPM installation of
 Berkeley DB, the bash command is shown below:
@@ -97,10 +98,20 @@ are installed in /usr/lib64, so use this setting instead:
 
 $ export LD_LIBRARY_PATH=/usr/lib64:$LD_LIBRARY_PATH
 
-When building a Java application that uses Freeze, you also need
-to add the Berkeley DB jar file to your CLASSPATH:
+When building a Java application that uses Freeze, you will need to
+add the Berkeley DB JAR file to your CLASSPATH:
 
 $ export CLASSPATH=/usr/share/java/db-4.6.21.jar:$CLASSPATH
+
+Ice for Java supports protocol compression using the bzip2 classes
+included with ant. Compression is automatically enabled if these
+classes are present in your CLASSPATH. You can either add ant.jar to
+your CLASSPATH, or download only the bzip2 classes from
+
+  http://www.kohsuke.org/bzip2/
+
+Note that these classes are a pure Java implementation of the bzip2
+algorithm and therefore add significant latency to Ice requests.
 
 When using the Ice for Java SSL plugin (IceSSL), you may experience
 occasional hangs. The most likely reason is that your system's entropy
@@ -115,9 +126,9 @@ command-line option shown below:
 
 $ java -Djava.security.egd=file:/dev/urandom MyClass ...
 
-On Linux systems with IPv6 enabled, you may experience occasional hangs 
-the first time an Ice object adapter is activated within a JVM. A 
-work-around is to disable IPv6 support by setting the Java property 
+On Linux systems with IPv6 enabled, you may experience occasional
+hangs the first time an Ice object adapter is activated within a JVM.
+A work-around is to disable IPv6 support by setting the Java property
 java.net.preferIPv4Stack to true. For example:
 
 $ java -Djava.net.preferIPv4Stack=true MyClass ...
@@ -174,12 +185,12 @@ Enterprise Server).  This file contains the line shown below:
 
 extension=IcePHP.so
 
-You can modify this file to include additional configuration 
+You can modify this file to include additional configuration
 directives, such as those used by the Ice extension.
 
 At run time, the PHP interpreter requires the Ice shared libraries.
 
-You can verify that the Ice extension is installed properly by 
+You can verify that the Ice extension is installed properly by
 examining the output of the "php -m" command, or by calling the
 phpinfo() function from a script.
 
@@ -234,15 +245,15 @@ the following:
 
 - Allow httpd to open network connections:
 
-  # setsebool httpd_can_network_connect=1 
+  # setsebool httpd_can_network_connect=1
 
   (add the -P option to make this setting persistent across reboots)
 
-- Make sure any .ice file used by your PHP scripts can be read by 
+- Make sure any .ice file used by your PHP scripts can be read by
   httpd. The enclosing directory also needs to be accessible. For
   example:
 
-  # chcon -R -t httpd_sys_content_t /opt/MyApp/slice 
+  # chcon -R -t httpd_sys_content_t /opt/MyApp/slice
 
 For more information on SELinux in Red Hat Enterprise Linux 4, refer
 to the link below:
@@ -254,7 +265,7 @@ to the link below:
 /etc/init.d scripts
 ======================================================================
 
-The ice-servers RPM includes the following sample /etc/init.d scripts 
+The ice-servers RPM includes the following sample /etc/init.d scripts
 and associated configuration files:
 
 - /etc/init.d/icegridregistry and /etc/icegridregistry.conf
@@ -267,16 +278,16 @@ directories for the icegridregistry and icegridnode data
 (/var/lib/ice/icegrid/registry and /var/lib/ice/icegrid/node1).
 
 By default, all these services are off at all runlevels. You need
-to manually switch on one or more runlevels, for example: 
+to manually switch on one or more runlevels, for example:
 
 #
-# On a Red Hat Enterprise Linux system, configure the icegridregistry 
+# On a Red Hat Enterprise Linux system, configure the icegridregistry
 # to start at runlevel 3 and 5:
 #
 chkconfig --level 35 icegridregistry on
 
 #
-# On a SuSE Linux Enterprise Server system, configure the 
+# On a SuSE Linux Enterprise Server system, configure the
 # icegridregistry to start at runlevel 3 and 5:
 #
 chkconfig icegridregistry 35
@@ -328,7 +339,7 @@ more information.
 Binary compatibility
 ======================================================================
 
-Ice patch releases are binary compatible. For example, Ice version 
+Ice patch releases are binary compatible. For example, Ice version
 @mmver@.1 is compatible with @mmver@.0: you can run an application built
 against Ice @mmver@.0 with Ice @mmver@.1 (or later) without having to
 recompile or relink this application.

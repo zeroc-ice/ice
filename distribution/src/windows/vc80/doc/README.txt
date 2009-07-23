@@ -6,7 +6,7 @@ COM/DCOM/COM+. It is easy to learn, yet provides a powerful network
 infrastructure for demanding technical applications. It features an
 object-oriented specification language, easy to use C++, .NET, Java,
 Python, Ruby, and PHP mappings, a highly efficient protocol,
-asynchronous method invocation and dispatch, dynamic transport 
+asynchronous method invocation and dispatch, dynamic transport
 plug-ins, TCP/IP and UDP/IP support, SSL-based security, a firewall
 solution, and much more.
 
@@ -19,7 +19,7 @@ sales@zeroc.com for more information on licensing Ice.
 About this distribution
 -----------------------
 
-This binary distribution provides all Ice run time services and 
+This binary distribution provides all Ice run time services and
 development tools to build Ice applications:
 
  - in C++, using Visual Studio 2005 SP1 or Visual C++ 2005 Express
@@ -29,18 +29,18 @@ development tools to build Ice applications:
  - in Python, using Python 2.5.2
 
 If you want to develop Ice applications in Ruby or in PHP, or with
-another C++ compiler, please download the appropriate Ice binary 
+another C++ compiler, please download the appropriate Ice binary
 distribution from the ZeroC web site at
 
   http://www.zeroc.com/download.html
 
 You only need the development environment for your target programming
 language to use this distribution. For example if you want to build
-Ice applications in Java, you need to install a JDK, but do not need 
+Ice applications in Java, you need to install a JDK, but do not need
 to install Visual Studio or Python.
 
 This file describes how to setup Visual Studio for Ice (when building
-C++ applications), and provides instructions for building and running 
+C++ applications), and provides instructions for building and running
 the sample programs.
 
 
@@ -65,6 +65,30 @@ relevant for your system:
 
   http://support.microsoft.com/?id=896256
   http://support.microsoft.com/?id=895980
+
+
+Protocol compression
+--------------------
+
+The Ice for Java and Ice for .NET run times implement protocol
+compression by dynamically loading third-party bzip2 libraries. Ice
+disables the protocol compression feature if it is unable to load the
+bzip2 library successfully.
+
+In the case of Java, the bzip2 classes are included in the Apache
+Ant JAR file (ant.jar). To use protocol compression, you must either
+include ant.jar in your CLASSPATH, or you can download just the
+bzip2-related classes at the link below:
+
+  http://www.kohsuke.org/bzip2/
+
+Note that these classes are a pure Java implementation of the bzip2
+algorithm and therefore add significant latency to Ice requests.
+
+For .NET, Ice attempts to load the native library bzip2.dll from a
+directory in your PATH. This DLL is included in your Ice distribution
+and can be found in <Ice installation root directory>\bin (or in
+<Ice installation root directory>\bin\bin\x64 for a 64-bit system).
 
 
 Managed code in Ice for .NET
@@ -103,7 +127,7 @@ With a suitable Java installation, you can execute the application
 by double-clicking on this file.
 
 
-Python Compatibility
+Python compatibility
 --------------------
 
 The binary distributions of Python 2.5.x for Windows available from
@@ -114,7 +138,7 @@ compiler, however we have tested the Ice extension extensively and
 have not encountered any compatibility issues.
 
 If you distribute an Ice for Python application, you must include the
-DLLs for the extension, the Ice run time, and the Visual C++ 8 SP1 
+DLLs for the extension, the Ice run time, and the Visual C++ 8 SP1
 run time. An appendix in the Ice manual provides more information on
 distributing Ice applications. The link below describes the process
 of deploying the Visual C++ 8.0 run time:
@@ -122,7 +146,7 @@ of deploying the Visual C++ 8.0 run time:
   http://msdn2.microsoft.com/en-us/library/ms235291(VS.80).aspx
 
 Make sure to download and install the Visual C++ 8.0 SP1 run time:
-  
+
   (x86) http://www.microsoft.com/downloads/details.aspx?familyid=200B2FD9-AE1A-4A14-984D-389C36F85647&displaylang=en
   (x64) http://www.microsoft.com/downloads/details.aspx?familyid=EB4EBE2D-33C0-4A47-9DD4-B9A6D7BD44DA&displaylang=en
 
@@ -166,7 +190,7 @@ Visual C++ 2005 Express and SP1 is available for download from:
 
 In addition to the steps listed above for setting up Visual Studio
 2005, users of Visual C++ 2005 Express Edition must also install
-the Platform SDK. The Platform SDK is available at the following 
+the Platform SDK. The Platform SDK is available at the following
 link:
 
   http://www.microsoft.com/Downloads/details.aspx?familyid=0BAF2B35-C656-4969-ACE8-E4C0C0716ADB&displaylang=en
@@ -350,15 +374,15 @@ Before running the demos you must modify your CLASSPATH as follows:
 
 set CLASSPATH=<Ice installation root directory>\lib\Ice.jar;classes;%CLASSPATH%
 
-If you prefer to use Ice for Java with the Java2 mapping, modify your
-CLASSPATH as shown below:
+Some of the demos use Freeze for Java. To run these demos you must
+also include Freeze.jar in your CLASSPATH:
 
-set CLASSPATH=<Ice installation root directory>\lib\java2\Ice.jar;classes;%CLASSPATH%
+set CLASSPATH=<Ice installation root directory>\lib\Freeze.jar;%CLASSPATH%
 
-In addition, the JVM requires the directory containing the Berkeley DB
-libraries to be listed in java.library.path, therefore the Ice bin
-directory must be in your PATH in order to use the Java demos that
-depend on the Freeze component of Ice.
+Furthermore, to use a Freeze demo the JVM requires that the directory
+containing Berkeley DB's native libraries be included in
+java.library.path. Setting PATH as shown above satisfies this
+requirement.
 
 To run a demo, open a Command Prompt, change to the desired demo
 directory, and enter the following command to run the server:
@@ -419,7 +443,7 @@ detects a bzip2.dll format mismatch during start-up.)
 Binary compatibility
 --------------------
 
-Ice patch releases are binary compatible. For example, Ice version 
+Ice patch releases are binary compatible. For example, Ice version
 @mmver@.1 is compatible with @mmver@.0: you can run an application built
 against Ice @mmver@.0 with Ice @mmver@.1 (or later) without having to
 recompile or relink this application.
@@ -448,5 +472,5 @@ Acknowledgments
 This product includes software developed by the OpenSSL Project for
 use in the OpenSSL Toolkit (http://www.openssl.org/).
 
-This product includes cryptographic software written by Eric Young 
+This product includes cryptographic software written by Eric Young
 (eay@cryptsoft.com).

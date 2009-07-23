@@ -24,10 +24,10 @@ About this distribution
 This distribution is a binary release of Ice @ver@ for Solaris 10 on
 SPARC and includes the following components:
 
-- The Ice run time, including executables for the Ice services and 
+- The Ice run time, including executables for the Ice services and
   Slice files.
 
-- Run time libraries for C++ and Java. These libraries enable you to 
+- Run time libraries for C++ and Java. These libraries enable you to
   execute Ice applications.
 
 - Tools and libraries for developing Ice applications.
@@ -46,7 +46,7 @@ Requirements
 This binary distribution was compiled on Solaris 10 using Sun CC
 version 5.9 with Patch 124863-01.
 
-The following Solaris 10 binary packages are required to use 
+The following Solaris 10 binary packages are required to use
 this distribution:
 
 - bzip2 (Sun package SUNWbzip)
@@ -81,13 +81,13 @@ Berkeley DB license is provided in the file THIRD_PARTY_LICENSE.
 Ice extension for Python
 ======================================================================
 
-Ice for Python is fully supported on Solaris. However it is not 
+Ice for Python is fully supported on Solaris. However it is not
 included in this distribution because there is no suitable binary
-distribution for Python itself available from Sun or 
-www.sunfreeware.com. 
+distribution for Python itself available from Sun or
+www.sunfreeware.com.
 
 If you want to use Ice for Python on Solaris, you can build a source
-distribution available at 
+distribution available at
 
   http://www.zeroc.com/download.html
 
@@ -107,11 +107,11 @@ the bash command below:
 $ export PATH=<Ice installation directory>/bin:$PATH
 
 In you want to use the 64-bit version of these services and tools,
-use 'bin/sparcv9' instead of 'bin': 
+use 'bin/sparcv9' instead of 'bin':
 
 $ export PATH=<Ice installation directory>/bin/sparcv9:$PATH
 
-Ice shared libraries and executables in this distribution contain 
+Ice shared libraries and executables in this distribution contain
 /opt/Ice-@mmver@/lib as the embedded runpath (the runpath for 64-bit
 libraries and executables is /opt/Ice-@mmver@/lib/sparcv9). In order
 to run Ice services and tools, you can do one of the following:
@@ -119,13 +119,13 @@ to run Ice services and tools, you can do one of the following:
  - Create a symbolic link /opt/Ice-@mmver@ that points to your Ice
    installation:
 
-   $ ln -s <Ice installation directory> /opt/Ice-@mmver@ 
+   $ ln -s <Ice installation directory> /opt/Ice-@mmver@
 
- - Add the Ice lib directory to your LD_LIBRARY_PATH and 
+ - Add the Ice lib directory to your LD_LIBRARY_PATH and
    LD_LIBRARY_PATH_64 environment variables:
 
    $ export LD_LIBRARY_PATH=<Ice installation directory>/lib:$LD_LIBRARY_PATH
-   
+
    $ export LD_LIBRARY_PATH_64=<Ice installation directory>/lib/sparcv9:$LD_LIBRARY_PATH_64
 
 
@@ -153,21 +153,22 @@ below:
 
 $ export CLASSPATH=<Ice installation directory>/lib/Ice.jar:$CLASSPATH
 
-To use Ice for Java with the Java2 mapping, modify your CLASSPATH as
-follows:
+If you intend to use Freeze for Java, you must include Freeze.jar in
+your CLASSPATH along with Ice.jar:
 
-$ export CLASSPATH=<Ice installation directory>/lib/java2/Ice.jar:$CLASSPATH
+$ export CLASSPATH=<Ice installation directory>/lib/Freeze.jar:$CLASSPATH
 
-Note that the Freeze component of Ice for Java requires Berkeley DB.
-Ice.jar contains a manifest that automatically loads the Berkeley DB
-classes (db.jar), however the JVM requires that the directory
-containing the Berkeley DB libraries be listed in java.library.path.
-Modifying your LD_LIBRARY_PATH (or LD_LIBRARY_PATH_64, if you use a
-64-bit JVM) as described in the "General" section above satisfies this
-requirement.
+Note that Freeze requires Berkeley DB. Freeze.jar contains a manifest
+that automatically loads the Berkeley DB classes (db.jar), which means
+you do not need to include this file in your CLASSPATH when executing
+a Freeze application. However the JVM does require that the directory
+containing Berkeley DB's native libraries be listed in
+java.library.path. Modifying your LD_LIBRARY_PATH (or
+LD_LIBRARY_PATH_64, if you use a 64-bit JVM) as described in the
+"General" section above satisfies this requirement.
 
-When building a Java application that uses Freeze, you also need
-to add the Berkeley DB jar file to your CLASSPATH:
+When building a Java application that uses Freeze, you will need to
+add the Berkeley DB JAR file to your CLASSPATH:
 
 $ export CLASSPATH=<Ice installation directory>/lib/db.jar:$CLASSPATH
 
@@ -189,6 +190,16 @@ system. These tasks require one of the following:
    simply invoke the translator without an absolute path, relying on
    the translators being in a directory in your PATH for successful
    execution.
+
+Ice for Java supports protocol compression using the bzip2 classes
+included with ant. Compression is automatically enabled if these
+classes are present in your CLASSPATH. You can either add ant.jar to
+your CLASSPATH, or download only the bzip2 classes from
+
+  http://www.kohsuke.org/bzip2/
+
+Note that these classes are a pure Java implementation of the bzip2
+algorithm and therefore add significant latency to Ice requests.
 
 
 ======================================================================
@@ -224,7 +235,7 @@ more information.
 Binary compatibility
 ======================================================================
 
-Ice patch releases are binary compatible. For example, Ice version 
+Ice patch releases are binary compatible. For example, Ice version
 @mmver@.1 is compatible with @mmver@.0: you can run an application built
 against Ice @mmver@.0 with Ice @mmver@.1 (or later) without having to
 recompile or relink this application.
