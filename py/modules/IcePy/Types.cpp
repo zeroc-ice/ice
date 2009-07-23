@@ -388,7 +388,7 @@ IcePy::PrimitiveInfo::validate(PyObject* p)
     case PrimitiveInfo::KindFloat:
     case PrimitiveInfo::KindDouble:
     {
-        if(!PyFloat_Check(p))
+        if(!PyInt_Check(p) && !PyLong_Check(p) && !PyFloat_Check(p))
         {
             return false;
         }
@@ -516,6 +516,14 @@ IcePy::PrimitiveInfo::marshal(PyObject* p, const Ice::OutputStreamPtr& os, Objec
         {
             val = static_cast<float>(PyFloat_AS_DOUBLE(p));
         }
+        else if(PyInt_Check(p))
+        {
+            val = static_cast<float>(PyInt_AS_LONG(p));
+        }
+        else if(PyLong_Check(p))
+        {
+            val = static_cast<float>(PyLong_AsLongLong(p));
+        }
         else
         {
             assert(false); // validate() should have caught this.
@@ -530,6 +538,14 @@ IcePy::PrimitiveInfo::marshal(PyObject* p, const Ice::OutputStreamPtr& os, Objec
         if(PyFloat_Check(p))
         {
             val = PyFloat_AS_DOUBLE(p);
+        }
+        else if(PyInt_Check(p))
+        {
+            val = static_cast<double>(PyInt_AS_LONG(p));
+        }
+        else if(PyLong_Check(p))
+        {
+            val = static_cast<double>(PyLong_AsLongLong(p));
         }
         else
         {
@@ -1339,6 +1355,14 @@ IcePy::SequenceInfo::marshalPrimitiveSequence(const PrimitiveInfoPtr& pi, PyObje
             {
                 val = static_cast<float>(PyFloat_AS_DOUBLE(item));
             }
+            else if(PyInt_Check(item))
+            {
+                val = static_cast<float>(PyInt_AS_LONG(item));
+            }
+            else if(PyLong_Check(item))
+            {
+                val = static_cast<float>(PyLong_AsLongLong(item));
+            }
             else
             {
                 PyErr_Format(PyExc_ValueError, STRCAST("invalid value for element %d of sequence<float>"),
@@ -1368,6 +1392,14 @@ IcePy::SequenceInfo::marshalPrimitiveSequence(const PrimitiveInfoPtr& pi, PyObje
             if(PyFloat_Check(item))
             {
                 val = PyFloat_AS_DOUBLE(item);
+            }
+            else if(PyInt_Check(item))
+            {
+                val = static_cast<double>(PyInt_AS_LONG(item));
+            }
+            else if(PyLong_Check(item))
+            {
+                val = static_cast<double>(PyLong_AsLongLong(item));
             }
             else
             {

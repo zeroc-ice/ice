@@ -340,6 +340,9 @@ C# Changes
 Python Changes
 ==============
 
+- Integer values are now accepted where floating point values are
+  expected.
+
 - Changed the way sequences are unmarshaled to protect against
   malicious messages with faked very large sequence count values.
 
@@ -358,6 +361,9 @@ Ruby Changes
 
 PHP Changes
 ===========
+
+- Integer values are now accepted where floating point values are
+  expected.
 
 - Added slice2php and removed dynamic Slice translation.
 

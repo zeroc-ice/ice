@@ -385,7 +385,7 @@ IcePHP::PrimitiveInfo::validate(zval* zv TSRMLS_DC)
     }
     case PrimitiveInfo::KindFloat:
     {
-        if(Z_TYPE_P(zv) != IS_DOUBLE)
+        if(Z_TYPE_P(zv) != IS_DOUBLE && Z_TYPE_P(zv) != IS_LONG)
         {
             string s = zendTypeToString(Z_TYPE_P(zv));
             invalidArgument("expected float value but received %s" TSRMLS_CC, s.c_str());
@@ -395,7 +395,7 @@ IcePHP::PrimitiveInfo::validate(zval* zv TSRMLS_DC)
     }
     case PrimitiveInfo::KindDouble:
     {
-        if(Z_TYPE_P(zv) != IS_DOUBLE)
+        if(Z_TYPE_P(zv) != IS_DOUBLE && Z_TYPE_P(zv) != IS_LONG)
         {
             string s = zendTypeToString(Z_TYPE_P(zv));
             invalidArgument("expected double value but received %s" TSRMLS_CC, s.c_str());
@@ -475,15 +475,37 @@ IcePHP::PrimitiveInfo::marshal(zval* zv, const Ice::OutputStreamPtr& os, ObjectM
     }
     case PrimitiveInfo::KindFloat:
     {
-        assert(Z_TYPE_P(zv) == IS_DOUBLE); // validate() should have caught this.
-        double val = Z_DVAL_P(zv);
+        double val;
+        if(Z_TYPE_P(zv) == IS_DOUBLE)
+        {
+            val = Z_DVAL_P(zv);
+        }
+        else if(Z_TYPE_P(zv) == IS_LONG)
+        {
+            val = static_cast<double>(Z_LVAL_P(zv));
+        }
+        else
+        {
+            assert(false); // validate() should have caught this.
+        }
         os->writeFloat(static_cast<Ice::Float>(val));
         break;
     }
     case PrimitiveInfo::KindDouble:
     {
-        assert(Z_TYPE_P(zv) == IS_DOUBLE); // validate() should have caught this.
-        double val = Z_DVAL_P(zv);
+        double val;
+        if(Z_TYPE_P(zv) == IS_DOUBLE)
+        {
+            val = Z_DVAL_P(zv);
+        }
+        else if(Z_TYPE_P(zv) == IS_LONG)
+        {
+            val = static_cast<double>(Z_LVAL_P(zv));
+        }
+        else
+        {
+            assert(false); // validate() should have caught this.
+        }
         os->writeDouble(val);
         break;
     }
@@ -1153,7 +1175,19 @@ IcePHP::SequenceInfo::marshalPrimitiveSequence(const PrimitiveInfoPtr& pi, zval*
             {
                 throw AbortMarshaling();
             }
-            double d = Z_DVAL_P(*val);
+            double d;
+            if(Z_TYPE_P(*val) == IS_DOUBLE)
+            {
+                d = Z_DVAL_P(*val);
+            }
+            else if(Z_TYPE_P(*val) == IS_LONG)
+            {
+                d = static_cast<double>(Z_LVAL_P(*val));
+            }
+            else
+            {
+                assert(false); // validate() should have caught this.
+            }
             seq[i++] = static_cast<Ice::Float>(d);
             zend_hash_move_forward_ex(arr, &pos);
         }
@@ -1172,7 +1206,19 @@ IcePHP::SequenceInfo::marshalPrimitiveSequence(const PrimitiveInfoPtr& pi, zval*
             {
                 throw AbortMarshaling();
             }
-            double d = Z_DVAL_P(*val);
+            double d;
+            if(Z_TYPE_P(*val) == IS_DOUBLE)
+            {
+                d = Z_DVAL_P(*val);
+            }
+            else if(Z_TYPE_P(*val) == IS_LONG)
+            {
+                d = static_cast<double>(Z_LVAL_P(*val));
+            }
+            else
+            {
+                assert(false); // validate() should have caught this.
+            }
             seq[i++] = d;
             zend_hash_move_forward_ex(arr, &pos);
         }
