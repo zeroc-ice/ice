@@ -861,6 +861,7 @@ Slice::JavaVisitor::writeDispatchAndMarshalling(Output& out, const ClassDefPtr& 
         allOpNames.unique();
 
         StringList::const_iterator q;
+        OperationList::iterator r;
 
         out << sp << nl << "private final static String[] __all =";
         out << sb;
@@ -875,7 +876,24 @@ Slice::JavaVisitor::writeDispatchAndMarshalling(Output& out, const ClassDefPtr& 
         }
         out << eb << ';';
 
-        out << sp << nl << "public Ice.DispatchStatus" << nl
+        out << sp;
+        for(r = allOps.begin(); r != allOps.end(); ++r)
+        {
+            //
+            // Suppress deprecation warnings if this method dispatches to a deprecated operation.
+            //
+            OperationPtr op = *r;
+            ContainerPtr container = op->container();
+            ClassDefPtr cl = ClassDefPtr::dynamicCast(container);
+            assert(cl);
+            string deprecateReason = getDeprecateReason(op, cl, "operation");
+            if(!deprecateReason.empty())
+            {
+                out << nl << "@SuppressWarnings(\"deprecation\")";
+                break;
+            }
+        }
+        out << nl << "public Ice.DispatchStatus" << nl
             << "__dispatch(IceInternal.Incoming in, Ice.Current __current)";
         out << sb;
         out << nl << "int pos = java.util.Arrays.binarySearch(__all, __current.operation);";
@@ -954,7 +972,7 @@ Slice::JavaVisitor::writeDispatchAndMarshalling(Output& out, const ClassDefPtr& 
         //
     
         map<string, int> attributesMap;
-        for(OperationList::iterator r = allOps.begin(); r != allOps.end(); ++r)
+        for(r = allOps.begin(); r != allOps.end(); ++r)
         {
             int attributes = (*r)->attributes();
             if(attributes != 0)
@@ -1224,8 +1242,8 @@ Slice::JavaVisitor::splitComment(const ContainedPtr& p)
 }
 
 void
-Slice::JavaVisitor::writeDocComment(Output& out, const ContainedPtr& p,
-                                    const string& deprecateReason, const string& extraParam)
+Slice::JavaVisitor::writeDocComment(Output& out, const ContainedPtr& p, const string& deprecateReason,
+                                    const string& extraParam)
 {
     StringList lines = splitComment(p);
     if(lines.empty())
@@ -3666,6 +3684,13 @@ Slice::Gen::HelperVisitor::visitClassDefStart(const ClassDefPtr& p)
             out << eb;
 
             out << sp;
+            if(!deprecateReason.empty())
+            {
+                //
+                // Prevent a compiler warning about the use of the deprecated AMI callback object.
+                //
+                out << nl << "/** @deprecated **/";
+            }
             out << nl << "private boolean" << nl << opName << "_async" << spar << paramsAMI
                 << contextParam << explicitContextParam << epar;
             out << sb;
