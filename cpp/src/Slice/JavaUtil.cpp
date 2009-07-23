@@ -170,14 +170,6 @@ Slice::JavaOutput::printHeader()
 const string Slice::JavaGenerator::_getSetMetaData = "java:getset";
 
 Slice::JavaGenerator::JavaGenerator(const string& dir) :
-    _featureProfile(Slice::Ice),
-    _dir(dir),
-    _out(0)
-{
-}
-
-Slice::JavaGenerator::JavaGenerator(const string& dir, Slice::FeatureProfile profile) :
-    _featureProfile(profile),
     _dir(dir),
     _out(0)
 {
@@ -512,32 +504,25 @@ Slice::JavaGenerator::typeToString(const TypePtr& type,
     {
         if(mode == TypeModeOut)
         {
-            if(_featureProfile == Slice::IceE)
+            //
+            // Only use the type's generated holder if the instance and
+            // formal types match.
+            //
+            string instanceType, formalType;
+            getDictionaryTypes(dict, "", metaData, instanceType, formalType);
+            string origInstanceType, origFormalType;
+            getDictionaryTypes(dict, "", StringList(), origInstanceType, origFormalType);
+            if(formalType == origFormalType && instanceType == origInstanceType)
             {
                 return getAbsolute(dict, package, "", "Holder");
             }
-            else
-            {
-                //
-                // Only use the type's generated holder if the instance and
-                // formal types match.
-                //
-                string instanceType, formalType;
-                getDictionaryTypes(dict, "", metaData, instanceType, formalType);
-                string origInstanceType, origFormalType;
-                getDictionaryTypes(dict, "", StringList(), origInstanceType, origFormalType);
-                if(formalType == origFormalType && instanceType == origInstanceType)
-                {
-                    return getAbsolute(dict, package, "", "Holder");
-                }
 
-                //
-                // The custom type may or may not be compatible with the type used
-                // in the generated holder. We use a generic holder that holds a value of the
-                // formal custom type.
-                //
-                return string("Ice.Holder<") + formalType + " >";
-            }
+            //
+            // The custom type may or may not be compatible with the type used
+            // in the generated holder. We use a generic holder that holds a value of the
+            // formal custom type.
+            //
+            return string("Ice.Holder<") + formalType + " >";
         }
         else
         {
@@ -552,48 +537,41 @@ Slice::JavaGenerator::typeToString(const TypePtr& type,
     {
         if(mode == TypeModeOut)
         {
-            if(_featureProfile == Slice::IceE)
+            BuiltinPtr builtin = BuiltinPtr::dynamicCast(seq->type());
+            if(builtin && builtin->kind() == Builtin::KindByte)
+            {
+                string prefix = "java:serializable:";
+                string meta;
+                if(seq->findMetaData(prefix, meta))
+                {
+                    return string("Ice.Holder<") + meta.substr(prefix.size()) + " >";
+                }
+                prefix = "java:protobuf:";
+                if(seq->findMetaData(prefix, meta))
+                {
+                    return string("Ice.Holder<") + meta.substr(prefix.size()) + " >";
+                }
+            }
+
+            //
+            // Only use the type's generated holder if the instance and
+            // formal types match.
+            //
+            string instanceType, formalType;
+            getSequenceTypes(seq, "", metaData, instanceType, formalType);
+            string origInstanceType, origFormalType;
+            getSequenceTypes(seq, "", StringList(), origInstanceType, origFormalType);
+            if(formalType == origFormalType && instanceType == origInstanceType)
             {
                 return getAbsolute(seq, package, "", "Holder");
             }
-            else
-            {
-                BuiltinPtr builtin = BuiltinPtr::dynamicCast(seq->type());
-                if(builtin && builtin->kind() == Builtin::KindByte)
-                {
-                    string prefix = "java:serializable:";
-                    string meta;
-                    if(seq->findMetaData(prefix, meta))
-                    {
-                        return string("Ice.Holder<") + meta.substr(prefix.size()) + " >";
-                    }
-                    prefix = "java:protobuf:";
-                    if(seq->findMetaData(prefix, meta))
-                    {
-                        return string("Ice.Holder<") + meta.substr(prefix.size()) + " >";
-                    }
-                }
 
-                //
-                // Only use the type's generated holder if the instance and
-                // formal types match.
-                //
-                string instanceType, formalType;
-                getSequenceTypes(seq, "", metaData, instanceType, formalType);
-                string origInstanceType, origFormalType;
-                getSequenceTypes(seq, "", StringList(), origInstanceType, origFormalType);
-                if(formalType == origFormalType && instanceType == origInstanceType)
-                {
-                    return getAbsolute(seq, package, "", "Holder");
-                }
-
-                //
-                // The custom type may or may not be compatible with the type used
-                // in the generated holder. We use a generic holder that holds a value of the
-                // formal custom type.
-                //
-                return string("Ice.Holder<") + formalType + " >";
-            }
+            //
+            // The custom type may or may not be compatible with the type used
+            // in the generated holder. We use a generic holder that holds a value of the
+            // formal custom type.
+            //
+            return string("Ice.Holder<") + formalType + " >";
         }
         else
         {
@@ -791,28 +769,25 @@ Slice::JavaGenerator::writeMarshalUnmarshalCode(Output& out,
             }
             case Builtin::KindObject:
             {
-                if(_featureProfile != Slice::IceE)
+                if(marshal)
                 {
-                    if(marshal)
+                    out << nl << stream << ".writeObject(" << v << ");";
+                }
+                else
+                {
+                    if(holder)
                     {
-                        out << nl << stream << ".writeObject(" << v << ");";
+                        out << nl << stream << ".readObject(" << param << ");";
                     }
                     else
                     {
-                        if(holder)
+                        if(patchParams.empty())
                         {
-                            out << nl << stream << ".readObject(" << param << ");";
+                            out << nl << stream << ".readObject(new Patcher());";
                         }
                         else
                         {
-                            if(patchParams.empty())
-                            {
-                                out << nl << stream << ".readObject(new Patcher());";
-                            }
-                            else
-                            {
-                                out << nl << stream << ".readObject(" << patchParams << ");";
-                            }
+                            out << nl << stream << ".readObject(" << patchParams << ");";
                         }
                     }
                 }
@@ -857,29 +832,26 @@ Slice::JavaGenerator::writeMarshalUnmarshalCode(Output& out,
     ClassDeclPtr cl = ClassDeclPtr::dynamicCast(type);
     if(cl)
     {
-        if(_featureProfile != Slice::IceE)
+        if(marshal)
         {
-            if(marshal)
+            out << nl << stream << ".writeObject(" << v << ");";
+        }
+        else
+        {
+            string typeS = typeToString(type, TypeModeIn, package);
+            if(holder)
             {
-                out << nl << stream << ".writeObject(" << v << ");";
+                out << nl << stream << ".readObject(" << param << ");";
             }
             else
             {
-                string typeS = typeToString(type, TypeModeIn, package);
-                if(holder)
+                if(patchParams.empty())
                 {
-                    out << nl << stream << ".readObject(" << param << ");";
+                    out << nl << stream << ".readObject(new Patcher());";
                 }
                 else
                 {
-                    if(patchParams.empty())
-                    {
-                        out << nl << stream << ".readObject(new Patcher());";
-                    }
-                    else
-                    {
-                        out << nl << stream << ".readObject(" << patchParams << ");";
-                    }
+                    out << nl << stream << ".readObject(" << patchParams << ");";
                 }
             }
         }
@@ -959,30 +931,27 @@ Slice::JavaGenerator::writeDictionaryMarshalUnmarshalCode(Output& out,
 
     string instanceType;
 
-    if(_featureProfile != Slice::IceE)
+    //
+    // We have to determine whether it's possible to use the
+    // type's generated helper class for this marshal/unmarshal
+    // task. Since the user may have specified a custom type in
+    // metadata, it's possible that the helper class is not
+    // compatible and therefore we'll need to generate the code
+    // in-line instead.
+    //
+    // Specifically, there may be "local" metadata (i.e., from
+    // a data member or parameter definition) that overrides the
+    // original type. We'll compare the mapped types with and
+    // without local metadata to determine whether we can use
+    // the helper.
+    //
+    string formalType;
+    getDictionaryTypes(dict, "", metaData, instanceType, formalType);
+    string origInstanceType, origFormalType;
+    getDictionaryTypes(dict, "", StringList(), origInstanceType, origFormalType);
+    if((formalType != origFormalType) || (!marshal && instanceType != origInstanceType))
     {
-        //
-        // We have to determine whether it's possible to use the
-        // type's generated helper class for this marshal/unmarshal
-        // task. Since the user may have specified a custom type in
-        // metadata, it's possible that the helper class is not
-        // compatible and therefore we'll need to generate the code
-        // in-line instead.
-        //
-        // Specifically, there may be "local" metadata (i.e., from
-        // a data member or parameter definition) that overrides the
-        // original type. We'll compare the mapped types with and
-        // without local metadata to determine whether we can use
-        // the helper.
-        //
-        string formalType;
-        getDictionaryTypes(dict, "", metaData, instanceType, formalType);
-        string origInstanceType, origFormalType;
-        getDictionaryTypes(dict, "", StringList(), origInstanceType, origFormalType);
-        if((formalType != origFormalType) || (!marshal && instanceType != origInstanceType))
-        {
-            useHelper = false;
-        }
+        useHelper = false;
     }
 
     //
@@ -1162,30 +1131,27 @@ Slice::JavaGenerator::writeSequenceMarshalUnmarshalCode(Output& out,
     bool customType = false;
     string instanceType;
 
-    if(_featureProfile != Slice::IceE)
+    //
+    // We have to determine whether it's possible to use the
+    // type's generated helper class for this marshal/unmarshal
+    // task. Since the user may have specified a custom type in
+    // metadata, it's possible that the helper class is not
+    // compatible and therefore we'll need to generate the code
+    // in-line instead.
+    //
+    // Specifically, there may be "local" metadata (i.e., from
+    // a data member or parameter definition) that overrides the
+    // original type. We'll compare the mapped types with and
+    // without local metadata to determine whether we can use
+    // the helper.
+    //
+    string formalType;
+    customType = getSequenceTypes(seq, "", metaData, instanceType, formalType);
+    string origInstanceType, origFormalType;
+    getSequenceTypes(seq, "", StringList(), origInstanceType, origFormalType);
+    if((formalType != origFormalType) || (!marshal && instanceType != origInstanceType))
     {
-        //
-        // We have to determine whether it's possible to use the
-        // type's generated helper class for this marshal/unmarshal
-        // task. Since the user may have specified a custom type in
-        // metadata, it's possible that the helper class is not
-        // compatible and therefore we'll need to generate the code
-        // in-line instead.
-        //
-        // Specifically, there may be "local" metadata (i.e., from
-        // a data member or parameter definition) that overrides the
-        // original type. We'll compare the mapped types with and
-        // without local metadata to determine whether we can use
-        // the helper.
-        //
-        string formalType;
-        customType = getSequenceTypes(seq, "", metaData, instanceType, formalType);
-        string origInstanceType, origFormalType;
-        getSequenceTypes(seq, "", StringList(), origInstanceType, origFormalType);
-        if((formalType != origFormalType) || (!marshal && instanceType != origInstanceType))
-        {
-            useHelper = false;
-        }
+        useHelper = false;
     }
 
     //
@@ -1216,7 +1182,7 @@ Slice::JavaGenerator::writeSequenceMarshalUnmarshalCode(Output& out,
         //
         // Stop if the inner sequence type has a custom, serializable or protobuf type.
         //
-        if(hasTypeMetaData(s) && _featureProfile != Slice::IceE)
+        if(hasTypeMetaData(s))
         {
             break;
         }
@@ -1737,28 +1703,25 @@ Slice::JavaGenerator::writeStreamMarshalUnmarshalCode(Output& out,
             }
             case Builtin::KindObject:
             {
-                if(_featureProfile != Slice::IceE)
+                if(marshal)
                 {
-                    if(marshal)
+                    out << nl << stream << ".writeObject(" << v << ");";
+                }
+                else
+                {
+                    if(holder)
                     {
-                        out << nl << stream << ".writeObject(" << v << ");";
+                        out << nl << stream << ".readObject(" << param << ");";
                     }
                     else
                     {
-                        if(holder)
+                        if(patchParams.empty())
                         {
-                            out << nl << stream << ".readObject(" << param << ");";
+                            out << nl << stream << ".readObject(new Patcher());";
                         }
                         else
                         {
-                            if(patchParams.empty())
-                            {
-                                out << nl << stream << ".readObject(new Patcher());";
-                            }
-                            else
-                            {
-                                out << nl << stream << ".readObject(" << patchParams << ");";
-                            }
+                            out << nl << stream << ".readObject(" << patchParams << ");";
                         }
                     }
                 }
@@ -1803,29 +1766,26 @@ Slice::JavaGenerator::writeStreamMarshalUnmarshalCode(Output& out,
     ClassDeclPtr cl = ClassDeclPtr::dynamicCast(type);
     if(cl)
     {
-        if(_featureProfile != Slice::IceE)
+        if(marshal)
         {
-            if(marshal)
+            out << nl << stream << ".writeObject(" << v << ");";
+        }
+        else
+        {
+            string typeS = typeToString(type, TypeModeIn, package);
+            if(holder)
             {
-                out << nl << stream << ".writeObject(" << v << ");";
+                out << nl << stream << ".readObject(" << param << ");";
             }
             else
             {
-                string typeS = typeToString(type, TypeModeIn, package);
-                if(holder)
+                if(patchParams.empty())
                 {
-                    out << nl << stream << ".readObject(" << param << ");";
+                    out << nl << stream << ".readObject(new Patcher());";
                 }
                 else
                 {
-                    if(patchParams.empty())
-                    {
-                        out << nl << stream << ".readObject(new Patcher());";
-                    }
-                    else
-                    {
-                        out << nl << stream << ".readObject(" << patchParams << ");";
-                    }
+                    out << nl << stream << ".readObject(" << patchParams << ");";
                 }
             }
         }
@@ -2565,12 +2525,6 @@ Slice::JavaGenerator::getDictionaryTypes(const DictionaryPtr& dict,
 {
     bool customType = false;
 
-    if(_featureProfile == Slice::IceE)
-    {
-        instanceType = formalType = "java.util.Hashtable";
-        return customType;
-    }
-
     //
     // Collect metadata for a custom type.
     //
@@ -2628,12 +2582,6 @@ Slice::JavaGenerator::getSequenceTypes(const SequencePtr& seq,
                                        string& formalType) const
 {
     bool customType = false;
-
-    if(_featureProfile == Slice::IceE)
-    {
-        instanceType = formalType = typeToString(seq->type(), TypeModeIn, package) + "[]";
-        return customType;
-    }
 
     //
     // Collect metadata for a custom type.

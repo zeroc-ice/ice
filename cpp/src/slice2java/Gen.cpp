@@ -3951,36 +3951,34 @@ Slice::Gen::HelperVisitor::visitSequence(const SequencePtr& p)
     // indicates the use of a generic type.
     //
     bool suppressUnchecked = false;
-    if(_featureProfile != Slice::IceE)
-    {
-        string instanceType, formalType;
-        bool customType = getSequenceTypes(p, "", StringList(), instanceType, formalType);
 
-        if(!customType)
+    string instanceType, formalType;
+    bool customType = getSequenceTypes(p, "", StringList(), instanceType, formalType);
+
+    if(!customType)
+    {
+        //
+        // Determine sequence depth.
+        //
+        int depth = 0;
+        TypePtr origContent = p->type();
+        SequencePtr s = SequencePtr::dynamicCast(origContent);
+        while(s)
         {
             //
-            // Determine sequence depth.
+            // Stop if the inner sequence type has a custom, serializable or protobuf type.
             //
-            int depth = 0;
-            TypePtr origContent = p->type();
-            SequencePtr s = SequencePtr::dynamicCast(origContent);
-            while(s)
+            if(hasTypeMetaData(s))
             {
-                //
-                // Stop if the inner sequence type has a custom, serializable or protobuf type.
-                //
-                if(hasTypeMetaData(s))
-                {
-                    break;
-                }
-                depth++;
-                origContent = s->type();
-                s = SequencePtr::dynamicCast(origContent);
+                break;
             }
-
-            string origContentS = typeToString(origContent, TypeModeIn, package);
-            suppressUnchecked = origContentS.find('<') != string::npos;
+            depth++;
+            origContent = s->type();
+            s = SequencePtr::dynamicCast(origContent);
         }
+
+        string origContentS = typeToString(origContent, TypeModeIn, package);
+        suppressUnchecked = origContentS.find('<') != string::npos;
     }
 
     open(helper);
