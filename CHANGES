@@ -196,6 +196,9 @@ noted.
 C++ Changes
 ============
 
+- Fixed a bug where globally scoped garbage collected class pointers
+  could cause a crash on application termination.
+
 - Fixed a bug where an SSL connection was rejected because of a
   certificate validation failure even if IceSSL.VerifyPeer=0.
 
