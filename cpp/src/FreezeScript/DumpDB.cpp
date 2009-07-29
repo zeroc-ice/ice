@@ -77,7 +77,7 @@ private:
 }
 
 static void
-usage(const char* n)
+usage(const string& n)
 {
     cerr << "Usage:\n";
     cerr << "\n";
@@ -123,7 +123,7 @@ printCatalogData(const string& dbName, const Freeze::CatalogData& data)
 }
 
 static int
-run(int argc, char** argv, const Ice::CommunicatorPtr& communicator)
+run(Ice::StringSeq& args, const Ice::CommunicatorPtr& communicator)
 {
     vector<string> cppArgs;
     bool debug;
@@ -136,7 +136,7 @@ run(int argc, char** argv, const Ice::CommunicatorPtr& communicator)
     string valueTypeName;
     string selectExpr;
     string dbEnvName, dbName;
-
+    const string appName = args[0];
     IceUtilInternal::Options opts;
     opts.addOpt("h", "help");
     opts.addOpt("v", "version");
@@ -154,24 +154,24 @@ run(int argc, char** argv, const Ice::CommunicatorPtr& communicator)
     opts.addOpt("", "select", IceUtilInternal::Options::NeedArg);
     opts.addOpt("c", "catalog");
 
-    vector<string> args;
+    vector<string> noArgs;
     try
     {
 #if defined(__BCPLUSPLUS__) && (__BCPLUSPLUS__ >= 0x0600)
         IceUtil::DummyBCC dummy;
 #endif
-        args = opts.parse(argc, (const char**)argv);
+        noArgs = opts.parse(args);
     }
     catch(const IceUtilInternal::BadOptException& e)
     {
-        cerr << argv[0] << ": " << e.reason << endl;
-        usage(argv[0]);
+        cerr << appName << ": " << e.reason << endl;
+        usage(appName);
         return EXIT_FAILURE;
     }
 
     if(opts.isSet("h"))
     {
-        usage(argv[0]);
+        usage(appName);
         return EXIT_SUCCESS;
     }
     if(opts.isSet("version"))
@@ -183,19 +183,19 @@ run(int argc, char** argv, const Ice::CommunicatorPtr& communicator)
     {
         if(args.empty())
         {
-            cerr << argv[0] << ": no database environment specified." << endl;
-            usage(argv[0]);
+            cerr << appName << ": no database environment specified." << endl;
+            usage(appName);
             return EXIT_FAILURE;
         }
-        else if(args.size() > 2)
+        else if(noArgs.size() > 2)
         {
-            usage(argv[0]);
+            usage(appName);
             return EXIT_FAILURE;
         }
         try
         {
-            FreezeScript::CatalogDataMap catalog = FreezeScript::readCatalog(communicator, args[0]);
-            if(args.size() == 1)
+            FreezeScript::CatalogDataMap catalog = FreezeScript::readCatalog(communicator, noArgs[0]);
+            if(noArgs.size() == 1)
             {
                 if(catalog.empty())
                 {
@@ -213,10 +213,10 @@ run(int argc, char** argv, const Ice::CommunicatorPtr& communicator)
             }
             else
             {
-                FreezeScript::CatalogDataMap::const_iterator p = catalog.find(args[1]);
+                FreezeScript::CatalogDataMap::const_iterator p = catalog.find(noArgs[1]);
                 if(p == catalog.end())
                 {
-                    cerr << argv[0] << ": database `" << args[1] << "' not found in environment `" << args[0] << "'."
+                    cerr << appName << ": database `" << noArgs[1] << "' not found in environment `" << noArgs[0] << "'."
                          << endl;
                     return EXIT_FAILURE;
                 }
@@ -229,7 +229,7 @@ run(int argc, char** argv, const Ice::CommunicatorPtr& communicator)
         }
         catch(const FreezeScript::FailureException& ex)
         {
-            cerr << argv[0] << ": " << ex.reason() << endl;
+            cerr << appName << ": " << ex.reason() << endl;
             return EXIT_FAILURE;
         }
     }
@@ -291,35 +291,35 @@ run(int argc, char** argv, const Ice::CommunicatorPtr& communicator)
         selectExpr = opts.optArg("select");
     }
 
-    if(outputFile.empty() && args.size() != 2)
+    if(outputFile.empty() && noArgs.size() != 2)
     {
-        usage(argv[0]);
+        usage(appName);
         return EXIT_FAILURE;
     }
 
-    if(!args.empty())
+    if(!noArgs.empty())
     {
-        dbEnvName = args[0];
+        dbEnvName = noArgs[0];
     }
-    if(args.size() == 2)
+    if(noArgs.size() == 2)
     {
-        dbName = args[1];
+        dbName = noArgs[1];
     }
     else
     {
-        usage(argv[0]);
+        usage(appName);
         return EXIT_FAILURE;
     }
 
     if(!inputFile.empty() && !selectExpr.empty())
     {
-        cerr << argv[0] << ": an input file cannot be specified with --select" << endl;
+        cerr << appName << ": an input file cannot be specified with --select" << endl;
         return EXIT_FAILURE;
     }
 
     Slice::UnitPtr unit = Slice::Unit::createUnit(true, true, ice);
     FreezeScript::Destroyer<Slice::UnitPtr> unitD(unit);
-    if(!FreezeScript::parseSlice(argv[0], unit, slice, cppArgs, debug))
+    if(!FreezeScript::parseSlice(appName, unit, slice, cppArgs, debug))
     {
         return EXIT_FAILURE;
     }
@@ -337,8 +337,8 @@ run(int argc, char** argv, const Ice::CommunicatorPtr& communicator)
 
         if((!keyTypeName.empty() && valueTypeName.empty()) || (keyTypeName.empty() && !valueTypeName.empty()))
         {
-            cerr << argv[0] << ": a key type and a value type must be specified" << endl;
-            usage(argv[0]);
+            cerr << appName << ": a key type and a value type must be specified" << endl;
+            usage(appName);
             return EXIT_FAILURE;
         }
         else if(!evictor && keyTypeName.empty() && valueTypeName.empty())
@@ -349,7 +349,7 @@ run(int argc, char** argv, const Ice::CommunicatorPtr& communicator)
                 FreezeScript::CatalogDataMap::iterator p = catalog.find(dbName);
                 if(p == catalog.end())
                 {
-                    cerr << argv[0] << ": database `" << dbName << "' not found in catalog." << endl;
+                    cerr << appName << ": database `" << dbName << "' not found in catalog." << endl;
                     cerr << "Current catalog databases:" << endl;
                     for(p = catalog.begin(); p != catalog.end(); ++p)
                     {
@@ -372,7 +372,7 @@ run(int argc, char** argv, const Ice::CommunicatorPtr& communicator)
             }
             catch(const FreezeScript::FailureException& ex)
             {
-                cerr << argv[0] << ": " << ex.reason() << endl;
+                cerr << appName << ": " << ex.reason() << endl;
                 return EXIT_FAILURE;
             }
         }
@@ -389,7 +389,7 @@ run(int argc, char** argv, const Ice::CommunicatorPtr& communicator)
         l = unit->lookupType(keyTypeName, false);
         if(l.empty())
         {
-            cerr << argv[0] << ": unknown key type `" << keyTypeName << "'" << endl;
+            cerr << appName << ": unknown key type `" << keyTypeName << "'" << endl;
             return EXIT_FAILURE;
         }
         keyType = l.front();
@@ -397,7 +397,7 @@ run(int argc, char** argv, const Ice::CommunicatorPtr& communicator)
         l = unit->lookupType(valueTypeName, false);
         if(l.empty())
         {
-            cerr << argv[0] << ": unknown value type `" << valueTypeName << "'" << endl;
+            cerr << appName << ": unknown value type `" << valueTypeName << "'" << endl;
             return EXIT_FAILURE;
         }
         valueType = l.front();
@@ -419,7 +419,7 @@ run(int argc, char** argv, const Ice::CommunicatorPtr& communicator)
             ofstream of(outputFile.c_str());
             if(!of.good())
             {
-                cerr << argv[0] << ": unable to open file `" << outputFile << "'" << endl;
+                cerr << appName << ": unable to open file `" << outputFile << "'" << endl;
                 return EXIT_FAILURE;
             }
             of << descriptors << endl;
@@ -543,7 +543,7 @@ run(int argc, char** argv, const Ice::CommunicatorPtr& communicator)
     }
     catch(const DbException& ex)
     {
-        cerr << argv[0] << ": database error: " << ex.what() << endl;
+        cerr << appName << ": database error: " << ex.what() << endl;
         status = EXIT_FAILURE;
     }
     catch(...)
@@ -558,7 +558,7 @@ run(int argc, char** argv, const Ice::CommunicatorPtr& communicator)
         }
         catch(const DbException& ex)
         {
-            cerr << argv[0] << ": database error: " << ex.what() << endl;
+            cerr << appName << ": database error: " << ex.what() << endl;
         }
         throw;
     }
@@ -573,7 +573,7 @@ run(int argc, char** argv, const Ice::CommunicatorPtr& communicator)
     }
     catch(const DbException& ex)
     {
-        cerr << argv[0] << ": database error: " << ex.what() << endl;
+        cerr << appName << ": database error: " << ex.what() << endl;
         status = EXIT_FAILURE;
     }
 
@@ -581,19 +581,23 @@ run(int argc, char** argv, const Ice::CommunicatorPtr& communicator)
 }
 
 int
-main(int argc, char* argv[])
+mainInternal(Ice::StringSeq& args)
 {
+    assert(args.size() > 0);
+    const string appName = args[0];
     Ice::CommunicatorPtr communicator;
     int status = EXIT_SUCCESS;
     try
     {
-        communicator = Ice::initialize(argc, argv);
-        status = run(argc, argv, communicator);
+        Ice::InitializationData initData;
+        initData.properties = Ice::createProperties();
+        communicator = Ice::initialize(args, initData);
+        status = run(args, communicator);
     }
     catch(const FreezeScript::FailureException& ex)
     {
         string reason = ex.reason();
-        cerr << argv[0] << ": " << reason;
+        cerr << appName << ": " << reason;
         if(reason[reason.size() - 1] != '\n')
         {
             cerr << endl;
@@ -602,7 +606,7 @@ main(int argc, char* argv[])
     }
     catch(const IceUtil::Exception& ex)
     {
-        cerr << argv[0] << ": " << ex << endl;
+        cerr << appName << ": " << ex << endl;
         return EXIT_FAILURE;
     }
 
@@ -612,6 +616,22 @@ main(int argc, char* argv[])
     }
 
     return status;
+}
+
+#ifdef _WIN32
+
+int
+wmain(int argc, wchar_t* argv[])
+
+#else
+
+int
+main(int argc, char* argv[])
+
+#endif
+{
+    Ice::StringSeq args = Ice::argsToStringSeq(argc, argv);
+    return mainInternal(args);
 }
 
 //

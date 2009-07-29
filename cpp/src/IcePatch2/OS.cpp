@@ -22,11 +22,6 @@ using namespace std;
 using namespace OS;
 
 #ifdef _WIN32
-int
-OS::osstat(const string& path, structstat* buf)
-{
-    return ::_wstat(IceUtil::stringToWstring(path).c_str(), buf);
-}
 
 int
 OS::remove(const string& path)
@@ -77,12 +72,6 @@ OS::getcwd(string& cwd)
 }
 
 #else
-
-int
-OS::osstat(const string& path, structstat* buf)
-{
-    return ::stat(path.c_str(), buf);
-}
 
 int
 OS::remove(const string& path)

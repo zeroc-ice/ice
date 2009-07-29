@@ -8,9 +8,9 @@
 // **********************************************************************
 
 #include <IceUtil/Timer.h>
+#include <IceUtil/FileUtil.h>
 #include <Ice/Ice.h>
 #include <IcePatch2/Util.h>
-#include <IcePatch2/OS.h>
 #include <IcePatch2/ClientUtil.h>
 #include <IceGrid/NodeI.h>
 #include <IceGrid/Activator.h>
@@ -1153,8 +1153,7 @@ NodeI::removeServer(const ServerIPtr& server, const std::string& application)
             _serversByApplication.erase(p);
             
             string appDir = _dataDir + "/distrib/" + application;
-            OS::structstat buf;
-            if(OS::osstat(appDir, &buf) != -1 && S_ISDIR(buf.st_mode))
+            if(IceUtilInternal::directoryExists(appDir))
             {
                 try
                 {

@@ -299,39 +299,114 @@ Ice::PropertiesI::load(const std::string& file)
         }
 
         HKEY iceKey;
-        if(RegOpenKey(key, file.substr(5).c_str(), &iceKey) != ERROR_SUCCESS)
+        if(RegOpenKeyExW(key, IceUtil::stringToWstring(file.substr(5)).c_str(), 0, KEY_QUERY_VALUE, &iceKey) != ERROR_SUCCESS)
         {
             InitializationException ex(__FILE__, __LINE__);
             ex.reason = "Could not open Windows registry key `" + file + "'";
             throw ex;
         }
 
+        DWORD maxValueNameLen;
+        DWORD maxValueLen;
         DWORD numValues;
-        if(RegQueryInfoKey(iceKey, NULL, NULL, NULL, NULL, NULL, NULL, &numValues, NULL, NULL, NULL, NULL) ==
-           ERROR_SUCCESS)
+        try
         {
-            if(numValues > 0)
+            if(RegQueryInfoKey(iceKey, NULL, NULL, NULL, NULL, NULL, NULL, &numValues, &maxValueNameLen, &maxValueLen,
+                               NULL, NULL) == ERROR_SUCCESS && numValues > 0)
             {
+                auto_ptr<wchar_t> keyBuf(new wchar_t[maxValueNameLen + 1]);
+                auto_ptr<wchar_t> valueBuf(new wchar_t[maxValueLen + 1]);
                 for(DWORD i = 0; i < numValues; ++i)
                 {
-                    char keyBuf[256];
-                    DWORD keyBufSize = sizeof(keyBuf);
-                    if(RegEnumValue(iceKey, i, keyBuf, &keyBufSize, NULL, NULL, NULL, NULL) == ERROR_SUCCESS)
+                    DWORD keyBufSize = (maxValueNameLen + 1) * sizeof(wchar_t);
+                    DWORD valueBufSize = (maxValueLen + 1) * sizeof(wchar_t) ;
+                    unsigned int err = RegEnumValueW(iceKey, i, keyBuf.get(), &keyBufSize, NULL, NULL, NULL, NULL);
+                    if(err != ERROR_SUCCESS)
                     {
-                        char valueBuf[256];
-                        DWORD valueBufSize = sizeof(valueBuf);
-                        DWORD keyType;
-                        if(RegQueryValueEx(iceKey, keyBuf, 0, &keyType, (BYTE*)valueBuf, &valueBufSize) ==
-                           ERROR_SUCCESS)
+                        getProcessLogger()->warning("Could not read Windows registry property name, key path: \"" +
+                                                    file + "\"");
+                        continue;
+                    }
+                    keyBuf.get()[keyBufSize] = L'\0';
+
+                    DWORD keyType;
+                    err = RegQueryValueExW(iceKey, keyBuf.get(), 0, &keyType, (BYTE*)valueBuf.get(), &valueBufSize);
+                    if(err != ERROR_SUCCESS)
+                    {
+                        getProcessLogger()->warning("Could not read Windows registry property value, property name: `" +
+                                                    IceUtil::wstringToString(wstring(keyBuf.get())) + "' key path: `" +
+                                                    file + "'");
+                        continue;
+                    }
+                    valueBuf.get()[valueBufSize] = L'\0';
+
+                    switch(keyType)
+                    {
+                        case REG_SZ:
                         {
-                            if(keyType == REG_SZ)
+                            string name = IceUtil::wstringToString(wstring(keyBuf.get()));
+                            string value = IceUtil::wstringToString(wstring(valueBuf.get()));
+                            if(_converter)
                             {
-                                setProperty(keyBuf, valueBuf);
+                                string tmp;
+                                _converter->fromUTF8(reinterpret_cast<const Byte*>(name.data()),
+                                                    reinterpret_cast<const Byte*>(name.data() + name.size()), tmp);
+                                name.swap(tmp);
+
+                                _converter->fromUTF8(reinterpret_cast<const Byte*>(value.data()),
+                                                    reinterpret_cast<const Byte*>(value.data() + value.size()), tmp);
+                                value.swap(tmp);
                             }
+                            setProperty(name, value);
+                            break;
+                        }
+                        case REG_EXPAND_SZ:
+                        {
+                            unsigned int sz = ExpandEnvironmentStringsW(valueBuf.get(), 0, 0);
+                            auto_ptr<wchar_t> expandValue;
+                            if(sz > 0)
+                            {
+                                valueBufSize = sz;
+                                expandValue = auto_ptr<wchar_t>(new wchar_t[sz + 1]);
+                                sz = ExpandEnvironmentStringsW(valueBuf.get(), expandValue.get(), sz);
+                            }
+
+                            if(sz == 0 || sz > valueBufSize || expandValue.get() == 0)
+                            {
+                                getProcessLogger()->warning("Could not expand variables in property value: `" + 
+                                                            IceUtil::wstringToString(wstring(valueBuf.get())) + 
+                                                            "' key path: `" + file + "'");
+                                continue;
+                            }
+
+                            string name = IceUtil::wstringToString(wstring(keyBuf.get()));
+                            string value = IceUtil::wstringToString(wstring(expandValue.get()));
+                            if(_converter)
+                            {
+                                string tmp;
+                                _converter->fromUTF8(reinterpret_cast<const Byte*>(name.data()),
+                                                    reinterpret_cast<const Byte*>(name.data() + name.size()), tmp);
+                                name.swap(tmp);
+
+                                _converter->fromUTF8(reinterpret_cast<const Byte*>(value.data()),
+                                                    reinterpret_cast<const Byte*>(value.data() + value.size()), tmp);
+                                value.swap(tmp);
+                            }
+                            setProperty(name, value);
+                            break;
+                        }
+                        default:
+                        {
+                            break;
                         }
                     }
                 }
             }
+        }
+        catch(...)
+        {
+            RegCloseKey(iceKey);
+            throw;
         }
         RegCloseKey(iceKey);
     }
@@ -652,11 +727,28 @@ Ice::PropertiesI::loadConfig()
 
     if(value.empty() || value == "1")
     {
-        const char* s = getenv("ICE_CONFIG");
-        if(s && *s != '\0')
+ #ifdef _WIN32
+        DWORD ret = GetEnvironmentVariableW(L"ICE_CONFIG", 0, 0);
+        if(ret > 0)
         {
-            value = s;
+            auto_ptr<wchar_t> v(new wchar_t[ret]);
+            ret = GetEnvironmentVariableW(L"ICE_CONFIG", v.get(), ret);
+            value = (ret > 0 && ret < sizeof(v.get()) / sizeof(wchar_t)) ? IceUtil::wstringToString(v.get()) : string("");
+            if(_converter)
+            {
+                string tmp;
+                _converter->fromUTF8(reinterpret_cast<const Byte*>(value.data()),
+                                        reinterpret_cast<const Byte*>(value.data() + value.size()), tmp);
+                value.swap(tmp);
+            }
         }
+#else
+       const char* s = getenv("ICE_CONFIG");
+       if(s && *s != '\0')
+       {
+           value = s;
+       }
+#endif
     }
 
     if(!value.empty())

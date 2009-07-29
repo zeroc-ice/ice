@@ -8,19 +8,13 @@
 // **********************************************************************
 
 #include <IceSSL/Util.h>
+#include <IceUtil/FileUtil.h>
 #include <Ice/LocalException.h>
 #include <Ice/Network.h>
 
 #ifdef _WIN32
 #   include <direct.h>
 #   include <sys/types.h>
-#   include <sys/stat.h>
-#   ifdef _MSC_VER
-#     define S_ISDIR(mode) ((mode) & _S_IFDIR)
-#     define S_ISREG(mode) ((mode) & _S_IFREG)
-#   endif
-#else
-#   include <sys/stat.h>
 #endif
 
 #include <openssl/err.h>
@@ -286,13 +280,8 @@ IceSSL::checkPath(string& path, const string& defaultDir, bool dir)
     // argument is modified and true is returned. Otherwise
     // false is returned.
     //
-#ifdef _WIN32
-    struct _stat st;
-    int err = ::_stat(path.c_str(), &st);
-#else
-    struct stat st;
-    int err = ::stat(path.c_str(), &st);
-#endif
+    IceUtilInternal::structstat st;
+    int err = IceUtilInternal::stat(path, &st);
     if(err == 0)
     {
         return dir ? S_ISDIR(st.st_mode) != 0 : S_ISREG(st.st_mode) != 0;
@@ -302,11 +291,10 @@ IceSSL::checkPath(string& path, const string& defaultDir, bool dir)
     {
 #ifdef _WIN32
         string s = defaultDir + "\\" + path;
-        err = ::_stat(s.c_str(), &st);
 #else
         string s = defaultDir + "/" + path;
-        err = ::stat(s.c_str(), &st);
 #endif
+        err = ::IceUtilInternal::stat(s.c_str(), &st);
         if(err == 0 && ((!dir && S_ISREG(st.st_mode)) || (dir && S_ISDIR(st.st_mode))))
         {
             path = s;

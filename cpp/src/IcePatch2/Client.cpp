@@ -333,9 +333,19 @@ Client::usage(const string& appName)
     cerr << options << endl;
 }
 
+#ifdef _WIN32
+
+int
+wmain(int argc, wchar_t* argv[])
+
+#else
+
 int
 main(int argc, char* argv[])
+
+#endif
 {
     Client app;
-    return app.main(argc, argv);
+    int rc = app.main(argc, argv);
+    return rc;
 }

@@ -719,6 +719,16 @@ Ice::Service::main(int& argc, char* argv[], const InitializationData& initializa
     return run(argc, argv, initData);
 }
 
+#ifdef _WIN32
+
+int
+Ice::Service::main(int& argc, wchar_t* argv[], const InitializationData& initializationData)
+{
+    return main(Ice::argsToStringSeq(argc, argv, initializationData.stringConverter), initializationData);
+}
+
+#endif
+
 int
 Ice::Service::main(StringSeq& args, const InitializationData& initData)
 {

@@ -11,7 +11,6 @@
 #define ICE_PATCH2_OS_H
 
 #include <Ice/Config.h>
-#include <sys/stat.h>
 #include <fcntl.h>
 #include <stdio.h>
 
@@ -26,26 +25,6 @@
 namespace OS
 {
 
-#ifdef _WIN32
-
-typedef struct _stat structstat;
-#ifdef _MSC_VER
-#   define O_RDONLY _O_RDONLY
-#   define O_BINARY _O_BINARY
-
-#   define S_ISDIR(mode) ((mode) & _S_IFDIR)
-#   define S_ISREG(mode) ((mode) & _S_IFREG)
-#endif
-
-#else
-
-typedef struct stat structstat;
-#   define O_BINARY 0
-
-#endif
-
-// BUGFIX: aCC errors if this is stat.
-ICE_PATCH2_API int osstat(const std::string&, structstat*);
 ICE_PATCH2_API int remove(const std::string&);
 ICE_PATCH2_API int rename(const std::string&, const std::string&);
 ICE_PATCH2_API int rmdir(const std::string&);

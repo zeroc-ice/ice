@@ -10,6 +10,7 @@
 #include <IceUtil/UUID.h>
 #include <IceUtil/Timer.h>
 #include <IceUtil/StringUtil.h>
+#include <IceUtil/FileUtil.h>
 #include <Ice/Ice.h>
 #include <Ice/Locator.h>
 #include <Ice/Service.h>
@@ -33,14 +34,7 @@
 #ifdef _WIN32
 #   include <direct.h>
 #   include <sys/types.h>
-#   include <sys/stat.h>
 #   include <winsock2.h>
-#   ifdef _MSC_VER
-#      define S_ISDIR(mode) ((mode) & _S_IFDIR)
-#      define S_ISREG(mode) ((mode) & _S_IFREG)
-#   endif
-#else
-#   include <sys/stat.h>
 #endif
 
 using namespace std;
@@ -369,9 +363,7 @@ NodeService::startImpl(int argc, char* argv[])
     }
     else
     {
-#ifdef _WIN32
-        struct _stat filestat;
-        if(::_stat(dataPath.c_str(), &filestat) != 0 || !S_ISDIR(filestat.st_mode))
+        if(!IceUtilInternal::directoryExists(dataPath))
         {
             ostringstream os;
             FileException ex(__FILE__, __LINE__);
@@ -380,20 +372,7 @@ NodeService::startImpl(int argc, char* argv[])
             os << ex;
             error("property `IceGrid.Node.Data' is set to an invalid path:\n" + os.str());
             return false;
-        }            
-#else
-        struct stat filestat;
-        if(::stat(dataPath.c_str(), &filestat) != 0 || !S_ISDIR(filestat.st_mode))
-        {
-            ostringstream os;
-            FileException ex(__FILE__, __LINE__);
-            ex.path = dataPath;
-            ex.error = getSystemErrno();
-            os << ex;
-            error("property `IceGrid.Node.Data' is set to an invalid path:\n" + os.str());
-            return false;
-        }            
-#endif
+        }
 
         //
         // Creates subdirectories.
@@ -832,9 +811,19 @@ NodeService::usage(const string& appName)
     print("Usage: " + appName + " [options]\n" + options);
 }
 
+#ifdef _WIN32
+
+int
+wmain(int argc, wchar_t* argv[])
+
+#else
+
 int
 main(int argc, char* argv[])
+
+#endif
 {
     NodeService svc;
-    return svc.main(argc, argv);
+    int rc = svc.main(argc, argv);
+    return rc;
 }
