@@ -481,8 +481,8 @@ Ice::Application::destroyOnInterrupt()
     }
     else
     {
-        Error out(getProcessLogger());
-        out << _appName << ": warning: interrupt method called on Application configured to not handle interrupts.";
+        Warning out(getProcessLogger());
+        out << _appName << ": interrupt method called on Application configured to not handle interrupts.";
     }
 }
 
@@ -504,8 +504,8 @@ Ice::Application::shutdownOnInterrupt()
     }
     else
     {
-        Error out(getProcessLogger());
-        out << _appName << ": warning: interrupt method called on Application configured to not handle interrupts."; 
+        Warning out(getProcessLogger());
+        out << _appName << ": interrupt method called on Application configured to not handle interrupts."; 
     }
 }
 
@@ -527,8 +527,8 @@ Ice::Application::ignoreInterrupt()
     }
     else
     {
-        Error out(getProcessLogger());
-        out << _appName << ": warning: interrupt method called on Application configured to not handle interrupts.";
+        Warning out(getProcessLogger());
+        out << _appName << ": interrupt method called on Application configured to not handle interrupts.";
     }
 }
 
@@ -550,8 +550,8 @@ Ice::Application::callbackOnInterrupt()
     }
     else
     {
-        Error out(getProcessLogger());
-        out << _appName << ": warning: interrupt method called on Application configured to not handle interrupts.";
+        Warning out(getProcessLogger());
+        out << _appName << ": interrupt method called on Application configured to not handle interrupts.";
     }
 }
 
@@ -574,8 +574,8 @@ Ice::Application::holdInterrupt()
     }
     else
     {
-        Error out(getProcessLogger());
-        out << _appName << ": warning: interrupt method called on Application configured to not handle interrupts.";
+        Warning out(getProcessLogger());
+        out << _appName << ": interrupt method called on Application configured to not handle interrupts.";
     }
 }
 
@@ -605,8 +605,8 @@ Ice::Application::releaseInterrupt()
     }
     else
     {
-        Error out(getProcessLogger());
-        out << _appName << ": warning: interrupt method called on Application configured to not handle interrupts.";
+        Warning out(getProcessLogger());
+        out << _appName << ": interrupt method called on Application configured to not handle interrupts.";
     }
 }
 

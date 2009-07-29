@@ -225,8 +225,8 @@ namespace Ice
             }
             else
             {
-                Util.getProcessLogger().error(_appName +
-                            ": warning: interrupt method called on Application configured to not handle interrupts.");
+                Util.getProcessLogger().warning(_appName +
+                            ": interrupt method called on Application configured to not handle interrupts.");
             }
         }
 
@@ -249,8 +249,8 @@ namespace Ice
             }
             else
             {
-                Util.getProcessLogger().error(_appName +
-                            ": warning: interrupt method called on Application configured to not handle interrupts.");
+                Util.getProcessLogger().warning(_appName +
+                            ": interrupt method called on Application configured to not handle interrupts.");
             }
         }
 
@@ -273,8 +273,8 @@ namespace Ice
             }
             else
             {
-                Util.getProcessLogger().error(_appName +
-                            ": warning: interrupt method called on Application configured to not handle interrupts.");
+                Util.getProcessLogger().warning(_appName +
+                            ": interrupt method called on Application configured to not handle interrupts.");
             }
         }
 
@@ -298,8 +298,8 @@ namespace Ice
             }
             else
             {
-                Util.getProcessLogger().error(_appName +
-                            ": warning: interrupt method called on Application configured to not handle interrupts.");
+                Util.getProcessLogger().warning(_appName +
+                            ": interrupt method called on Application configured to not handle interrupts.");
             }
         }
 
@@ -323,8 +323,8 @@ namespace Ice
             }
             else
             {
-                Util.getProcessLogger().error(_appName +
-                            ": warning: interrupt method called on Application configured to not handle interrupts.");
+                Util.getProcessLogger().warning(_appName +
+                            ": interrupt method called on Application configured to not handle interrupts.");
             }
         }
 
@@ -356,8 +356,8 @@ namespace Ice
             }
             else
             {
-                Util.getProcessLogger().error(_appName +
-                            ": warning: interrupt method called on Application configured to not handle interrupts.");
+                Util.getProcessLogger().warning(_appName +
+                            ": interrupt method called on Application configured to not handle interrupts.");
             }
         }
 
@@ -791,7 +791,7 @@ namespace Ice
                     // The class Mono.Unix.Native.Stdlib requires libMonoPosixHelper.so. Mono raises
                     // DllNotFoundException if it cannot be found in the shared library search path.
                     //
-                    Util.getProcessLogger().error("Ice.Application: warning: unable to initialize signals");
+                    Util.getProcessLogger().warning("unable to initialize signals");
                 }
                 catch(System.Exception)
                 {

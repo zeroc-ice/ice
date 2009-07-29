@@ -240,8 +240,8 @@ public abstract class Application
         }
         else
         {
-            Util.getProcessLogger().error(_appName + 
-                        ": warning: interrupt method called on Application configured to not handle interrupts.");
+            Util.getProcessLogger().warning(_appName + 
+                        ": interrupt method called on Application configured to not handle interrupts.");
         }
     }
     
@@ -277,8 +277,8 @@ public abstract class Application
         }
         else
         {
-            Util.getProcessLogger().error(_appName + 
-                        ": warning: interrupt method called on Application configured to not handle interrupts.");
+            Util.getProcessLogger().warning(_appName + 
+                        ": interrupt method called on Application configured to not handle interrupts.");
         }
     }
 
@@ -309,8 +309,8 @@ public abstract class Application
         }
         else
         {
-            Util.getProcessLogger().error(_appName + 
-                        ": warning: interrupt method called on Application configured to not handle interrupts.");
+            Util.getProcessLogger().warning(_appName + 
+                        ": interrupt method called on Application configured to not handle interrupts.");
         }
     }
     
@@ -327,8 +327,8 @@ public abstract class Application
         }
         else
         {
-            Util.getProcessLogger().error(_appName + 
-                        ": warning: interrupt method called on Application configured to not handle interrupts.");
+            Util.getProcessLogger().warning(_appName + 
+                        ": interrupt method called on Application configured to not handle interrupts.");
         }
     }
 
