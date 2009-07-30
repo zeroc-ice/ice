@@ -286,6 +286,14 @@ PriorityInversionTest::run()
 #ifdef _WIN32
     return; //Priority inversion is not supported by WIN32
 #else
+    try
+    {
+        IceUtil::Mutex m;
+    }
+    catch(const IceUtil::ThreadSyscallException&)
+    {
+        return; // Mutex protocol PrioInherit not supported
+    }
     cores = sysconf(_SC_NPROCESSORS_ONLN);
     high = 45;
     medium = 35;

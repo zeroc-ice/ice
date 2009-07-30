@@ -245,6 +245,6 @@ public:
 //
 // The default Mutex protocol
 //
-#define ICE_DEFAULT_MUTEX_PROTOCOL PrioInherit
+#define ICE_DEFAULT_MUTEX_PROTOCOL PrioNone
 
 #endif
