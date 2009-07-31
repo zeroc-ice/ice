@@ -61,6 +61,19 @@ Init init;
 
 }
 
+class AMI_ChatCallback_messageI : public Demo::AMI_ChatCallback_message
+{
+public:
+
+    virtual void ice_response()
+    {
+    }
+
+    virtual void ice_exception(const Ice::Exception&)
+    {
+    }
+};
+
 ChatRoomPtr&
 ChatRoom::instance()
 {
@@ -77,7 +90,7 @@ void
 ChatRoom::enter(const ChatCallbackPrx& callback)
 {
     Lock sync(*this);
-    _members.push_back(ChatCallbackPrx::uncheckedCast(callback->ice_oneway()));
+    _members.push_back(callback);
 }
 
 void
@@ -103,13 +116,7 @@ ChatRoom::message(const string& data) const
     Lock sync(*this);
     for(list<ChatCallbackPrx>::const_iterator p = _members.begin(); p != _members.end(); ++p)
     {
-        try
-        {
-            (*p)->message(data);
-        }
-        catch(const Ice::LocalException&)
-        {
-        }
+        (*p)->message_async(new AMI_ChatCallback_messageI(), data);
     }
 }
 

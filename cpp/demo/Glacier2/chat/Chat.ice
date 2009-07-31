@@ -17,7 +17,7 @@ module Demo
 
 interface ChatCallback
 {
-    void message(string data);
+    ["ami"] void message(string data);
 };
 
 interface ChatSession extends Glacier2::Session
