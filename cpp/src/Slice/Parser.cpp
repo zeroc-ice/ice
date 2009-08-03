@@ -5521,7 +5521,9 @@ Slice::Unit::Unit(bool ignRedefs, bool all, bool allowIcePrefix, const StringLis
     _all(all),
     _allowIcePrefix(allowIcePrefix),
     _defaultGlobalMetaData(defaultGlobalMetadata),
-    _errors(0)
+    _errors(0),
+    _currentLine(0),
+    _currentIncludeLevel(0)
 
 {
     _unit = this;
