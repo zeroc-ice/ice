@@ -30,15 +30,20 @@ public:
 private:
 
     bool match(const std::list< DistinguishedName> &, const DistinguishedName&) const;
-    std::list<DistinguishedName> parse(const std::string&) const;
+    void parse(const std::string&, std::list<DistinguishedName>&, std::list<DistinguishedName>&) const;
 
     const Ice::CommunicatorPtr _communicator;
     int _traceLevel;
 
-    std::list<DistinguishedName> _all;
-    std::list<DistinguishedName> _client;
-    std::list<DistinguishedName> _allServer;
-    std::map<std::string, std::list<DistinguishedName> > _server;
+    std::list<DistinguishedName> _rejectAll;
+    std::list<DistinguishedName> _rejectClient;
+    std::list<DistinguishedName> _rejectAllServer;
+    std::map<std::string, std::list<DistinguishedName> > _rejectServer;
+
+    std::list<DistinguishedName> _acceptAll;
+    std::list<DistinguishedName> _acceptClient;
+    std::list<DistinguishedName> _acceptAllServer;
+    std::map<std::string, std::list<DistinguishedName> > _acceptServer;
 };
 
 }

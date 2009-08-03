@@ -483,15 +483,15 @@ generated from the section label.
         <property name="Protocols" />
         <property name="Random" />
         <property name="Trace.Security" />
+        <property name="TrustOnly" />
+        <property name="TrustOnly.Client" />
+        <property name="TrustOnly.Server" />
+        <property name="TrustOnly.Server.[any]" />
         <property name="Truststore" />
         <property name="TruststorePassword" />
         <property name="TruststoreType" />
         <property name="VerifyDepthMax" />
         <property name="VerifyPeer" />
-        <property name="TrustOnly" />
-        <property name="TrustOnly.Client" />
-        <property name="TrustOnly.Server" />
-        <property name="TrustOnly.Server.[any]" />
     </section>
 
     <section name="IceStormAdmin">

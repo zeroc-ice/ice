@@ -21,17 +21,29 @@ class TrustManager
         try
         {
             key = "IceSSL.TrustOnly";
-            _all = parse(properties.getProperty(key));
+            parse(properties.getProperty(key), _rejectAll, _acceptAll);
             key = "IceSSL.TrustOnly.Client";
-            _client = parse(properties.getProperty(key));
+            parse(properties.getProperty(key), _rejectClient, _acceptClient);
             key = "IceSSL.TrustOnly.Server";
-            _allServer = parse(properties.getProperty(key));
+            parse(properties.getProperty(key), _rejectAllServer, _acceptAllServer);
             java.util.Map<String, String> dict = properties.getPropertiesForPrefix("IceSSL.TrustOnly.Server.");
             for(java.util.Map.Entry<String, String> p : dict.entrySet())
             {
                 key = p.getKey();
                 String name = key.substring("IceSSL.TrustOnly.Server.".length());
-                _server.put(name, parse(p.getValue()));
+                java.util.List<java.util.List<RFC2253.RDNPair> > reject =
+                    new java.util.LinkedList<java.util.List<RFC2253.RDNPair> >();
+                java.util.List<java.util.List<RFC2253.RDNPair> > accept =
+                    new java.util.LinkedList<java.util.List<RFC2253.RDNPair> >();
+                parse(p.getValue(), reject, accept);
+                if(!reject.isEmpty())
+                {
+                    _rejectServer.put(name, reject);
+                }
+                if(!accept.isEmpty())
+                {
+                    _acceptServer.put(name, accept);
+                }
             }
         }
         catch(RFC2253.ParseException e)
@@ -45,40 +57,68 @@ class TrustManager
     boolean
     verify(ConnectionInfo info)
     {
-        java.util.List<java.util.List<java.util.List<RFC2253.RDNPair> > > trustset =
-            new java.util.LinkedList<java.util.List<java.util.List<RFC2253.RDNPair> > >();
-        if(!_all.isEmpty())
-        {
-            trustset.add(_all);
-        }
+        java.util.List<java.util.List<java.util.List<RFC2253.RDNPair> > >
+            reject = new java.util.LinkedList<java.util.List<java.util.List<RFC2253.RDNPair> > >(),
+            accept = new java.util.LinkedList<java.util.List<java.util.List<RFC2253.RDNPair> > >();
 
+        if(!_rejectAll.isEmpty())
+        {
+            reject.add(_rejectAll);
+        }
         if(info.incoming)
         {
-            if(!_allServer.isEmpty())
+            if(!_rejectAllServer.isEmpty())
             {
-                trustset.add(_allServer);
+                reject.add(_rejectAllServer);
             }
             if(info.adapterName.length() > 0)
             {
-                java.util.List<java.util.List<RFC2253.RDNPair> > p = _server.get(info.adapterName);
+                java.util.List<java.util.List<RFC2253.RDNPair> > p = _rejectServer.get(info.adapterName);
                 if(p != null)
                 {
-                    trustset.add(p);
+                    reject.add(p);
                 }
             }
         }
         else
         {
-            if(!_client.isEmpty())
+            if(!_rejectClient.isEmpty())
             {
-                trustset.add(_client);
+                reject.add(_rejectClient);
+            }
+        }
+
+        if(!_acceptAll.isEmpty())
+        {
+            accept.add(_acceptAll);
+        }
+        if(info.incoming)
+        {
+            if(!_acceptAllServer.isEmpty())
+            {
+                accept.add(_acceptAllServer);
+            }
+            if(info.adapterName.length() > 0)
+            {
+                java.util.List<java.util.List<RFC2253.RDNPair> > p = _acceptServer.get(info.adapterName);
+                if(p != null)
+                {
+                    accept.add(p);
+                }
+            }
+        }
+        else
+        {
+            if(!_acceptClient.isEmpty())
+            {
+                accept.add(_acceptClient);
             }
         }
 
         //
         // If there is nothing to match against, then we accept the cert.
         //
-        if(trustset.isEmpty())
+        if(reject.isEmpty() && accept.isEmpty())
         {
             return true;
         }
@@ -118,34 +158,31 @@ class TrustManager
                 java.util.List<RFC2253.RDNPair> dn = RFC2253.parseStrict(subjectName);
 
                 //
-                // Try matching against everything in the trust set.
+                // Fail if we match anything in the reject set.
                 //
-                for(java.util.List<java.util.List<RFC2253.RDNPair>> matchSet : trustset)
+                for(java.util.List<java.util.List<RFC2253.RDNPair>> matchSet : reject)
                 {
                     if(_traceLevel > 1)
                     {
-                        StringBuffer s = new StringBuffer("trust manager matching PDNs:\n");
-                        boolean addSemi = false;
-                        for(java.util.List<RFC2253.RDNPair> rdnSet : matchSet)
-                        {
-                            if(addSemi)
-                            {
-                                s.append(';');
-                            }
-                            addSemi = true;
-                            boolean addComma = false;
-                            for(RFC2253.RDNPair rdn : rdnSet)
-                            {
-                                if(addComma)
-                                {
-                                    s.append(',');
-                                }
-                                addComma = true;
-                                s.append(rdn.key);
-                                s.append('=');
-                                s.append(rdn.value);
-                            }
-                        }
+                        StringBuilder s = new StringBuilder("trust manager rejecting PDNs:\n");
+                        stringify(matchSet, s);
+                        _communicator.getLogger().trace("Security", s.toString());
+                    }
+                    if(match(matchSet, dn))
+                    {
+                        return false;
+                    }
+                }
+
+                //
+                // Succeed if we match anything in the accept set.
+                //
+                for(java.util.List<java.util.List<RFC2253.RDNPair>> matchSet : accept)
+                {
+                    if(_traceLevel > 1)
+                    {
+                        StringBuilder s = new StringBuilder("trust manager accepting PDNs:\n");
+                        stringify(matchSet, s);
                         _communicator.getLogger().trace("Security", s.toString());
                     }
                     if(match(matchSet, dn))
@@ -159,6 +196,11 @@ class TrustManager
                 _communicator.getLogger().warning(
                     "IceSSL: unable to parse certificate DN `" + subjectName + "'\nreason: " + e.reason);
             }
+
+            //
+            // At this point we accept the connection if there are no explicit accept rules.
+            //
+            return accept.isEmpty();
         }
 
         return false;
@@ -202,8 +244,9 @@ class TrustManager
         return true;
     }
 
-    java.util.List<java.util.List<RFC2253.RDNPair> >
-    parse(String value)
+    void
+    parse(String value, java.util.List<java.util.List<RFC2253.RDNPair> > reject,
+          java.util.List<java.util.List<RFC2253.RDNPair> > accept)
         throws RFC2253.ParseException
     {
         //
@@ -229,7 +272,7 @@ class TrustManager
         // This means that the user input, unless it uses the
         // unfriendly OID format, will not directly match the
         // principal.
-        // 
+        //
         // Two possible solutions:
         //
         // Have the RFC2253 parser convert anything that is not CN, L,
@@ -245,14 +288,12 @@ class TrustManager
         // DNs on ';' which cannot be blindly split because of quotes,
         // \ and such.
         //
-        java.util.List<java.util.List<RFC2253.RDNPair> > l = RFC2253.parse(value);
-        java.util.List<java.util.List<RFC2253.RDNPair> > result =
-            new java.util.LinkedList<java.util.List<RFC2253.RDNPair> >();
-        for(java.util.List<RFC2253.RDNPair> dn : l)
+        java.util.List<RFC2253.RDNEntry> l = RFC2253.parse(value);
+        for(RFC2253.RDNEntry e : l)
         {
-            StringBuffer v = new StringBuffer();
+            StringBuilder v = new StringBuilder();
             boolean first = true;
-            for(RFC2253.RDNPair pair : dn)
+            for(RFC2253.RDNPair pair : e.rdn)
             {
                 if(!first)
                 {
@@ -265,17 +306,61 @@ class TrustManager
             }
             javax.security.auth.x500.X500Principal princ = new javax.security.auth.x500.X500Principal(v.toString());
             String subjectName = princ.getName(javax.security.auth.x500.X500Principal.RFC2253);
-            result.add(RFC2253.parseStrict(subjectName));
+            if(e.negate)
+            {
+                reject.add(RFC2253.parseStrict(subjectName));
+            }
+            else
+            {
+                accept.add(RFC2253.parseStrict(subjectName));
+            }
         }
-        return result;
+    }
+
+    private static void
+    stringify(java.util.List<java.util.List<RFC2253.RDNPair>> matchSet, StringBuilder s)
+    {
+        boolean addSemi = false;
+        for(java.util.List<RFC2253.RDNPair> rdnSet : matchSet)
+        {
+            if(addSemi)
+            {
+                s.append(';');
+            }
+            addSemi = true;
+            boolean addComma = false;
+            for(RFC2253.RDNPair rdn : rdnSet)
+            {
+                if(addComma)
+                {
+                    s.append(',');
+                }
+                addComma = true;
+                s.append(rdn.key);
+                s.append('=');
+                s.append(rdn.value);
+            }
+        }
     }
 
     private Ice.Communicator _communicator;
     private int _traceLevel;
 
-    private java.util.List<java.util.List<RFC2253.RDNPair> > _all;
-    private java.util.List<java.util.List<RFC2253.RDNPair> > _client;
-    private java.util.List<java.util.List<RFC2253.RDNPair> > _allServer;
-    private java.util.Map<String, java.util.List<java.util.List<RFC2253.RDNPair> > > _server =
+    private java.util.List<java.util.List<RFC2253.RDNPair> > _rejectAll =
+        new java.util.LinkedList<java.util.List<RFC2253.RDNPair> >();
+    private java.util.List<java.util.List<RFC2253.RDNPair> > _rejectClient =
+        new java.util.LinkedList<java.util.List<RFC2253.RDNPair> >();
+    private java.util.List<java.util.List<RFC2253.RDNPair> > _rejectAllServer =
+        new java.util.LinkedList<java.util.List<RFC2253.RDNPair> >();
+    private java.util.Map<String, java.util.List<java.util.List<RFC2253.RDNPair> > > _rejectServer =
+        new java.util.HashMap<String, java.util.List<java.util.List<RFC2253.RDNPair> > >();
+
+    private java.util.List<java.util.List<RFC2253.RDNPair> > _acceptAll =
+        new java.util.LinkedList<java.util.List<RFC2253.RDNPair> >();
+    private java.util.List<java.util.List<RFC2253.RDNPair> > _acceptClient =
+        new java.util.LinkedList<java.util.List<RFC2253.RDNPair> >();
+    private java.util.List<java.util.List<RFC2253.RDNPair> > _acceptAllServer =
+        new java.util.LinkedList<java.util.List<RFC2253.RDNPair> >();
+    private java.util.Map<String, java.util.List<java.util.List<RFC2253.RDNPair> > > _acceptServer =
         new java.util.HashMap<String, java.util.List<java.util.List<RFC2253.RDNPair> > >();
 }

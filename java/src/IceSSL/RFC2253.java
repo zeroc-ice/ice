@@ -40,24 +40,40 @@ class RFC2253
         String value;
     }
 
+    static class RDNEntry
+    {
+        java.util.List<RDNPair> rdn = new java.util.LinkedList<RDNPair>();
+        boolean negate = false;
+    }
+
     static private class ParseState
     {
         String data;
         int pos;
     }
 
-    public static java.util.List<java.util.List<RDNPair> >
+    public static java.util.List<RDNEntry>
     parse(String data)
         throws ParseException
     {
-        java.util.List<java.util.List<RDNPair> > results = new java.util.LinkedList<java.util.List<RDNPair> >();
-        java.util.List<RDNPair> current = new java.util.LinkedList<RDNPair>();
+        java.util.List<RDNEntry> results = new java.util.LinkedList<RDNEntry>();
+        RDNEntry current = new RDNEntry();
         ParseState state = new ParseState();
         state.data = data;
         state.pos = 0;
         while(state.pos < state.data.length())
         {
-            current.add(parseNameComponent(state));
+            eatWhite(state);
+            if(state.pos < state.data.length() && state.data.charAt(state.pos) == '!')
+            {
+                if(!current.rdn.isEmpty())
+                {
+                    throw new ParseException("negation symbol '!' must appear at start of list");
+                }
+                ++state.pos;
+                current.negate = true;
+            }
+            current.rdn.add(parseNameComponent(state));
             eatWhite(state);
             if(state.pos < state.data.length() && state.data.charAt(state.pos) == ',')
             {
@@ -67,14 +83,14 @@ class RFC2253
             {
                 ++state.pos;
                 results.add(current);
-                current = new java.util.LinkedList<RDNPair>();
+                current = new RDNEntry();
             }
             else if(state.pos < state.data.length())
             {
                 throw new ParseException("expected ',' or ';' at `" + state.data.substring(state.pos) + "'");
             }
         }
-        if(!current.isEmpty())
+        if(!current.rdn.isEmpty())
         {
             results.add(current);
         }

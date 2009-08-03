@@ -32,19 +32,26 @@ namespace RFC2253
 {
 
 typedef std::list< std::pair<std::string, std::string> > RDNSeq;
-typedef std::list<RDNSeq> RDNSeqSeq;
+
+struct RDNEntry
+{
+    RDNSeq rdn;
+    bool negate;
+};
+typedef std::list<RDNEntry> RDNEntrySeq;
 
 //
-// This method separates DNs with the ';' character and returns
-// a list of list of RDN pairs. Any failure in parsing results in a
-// ParseException being thrown.
+// This function separates DNs with the ';' character. A list of RDN
+// pairs may optionally be prefixed with '!' to indicate a negation.
+// The function returns a list of RDNEntry structures. Any failure in
+// parsing results in a ParseException being thrown.
 //
-RDNSeqSeq parse(const std::string&);
+RDNEntrySeq parse(const std::string&);
 
 //
 // RDNs are separated with ',' and ';'.
 //
-// This method returns a list of RDN pairs. Any failure in parsing
+// This function returns a list of RDN pairs. Any failure in parsing
 // results in a ParseException being thrown.
 //
 RDNSeq parseStrict(const std::string&);

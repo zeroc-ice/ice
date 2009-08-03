@@ -14,6 +14,7 @@ namespace IceSSL
 {
     using System;
     using System.Collections;
+    using System.Collections.Generic;
     using System.Diagnostics;
     using System.Text;
 
@@ -43,17 +44,32 @@ namespace IceSSL
         {
             internal string key;
             internal string value;
-        };
+        }
 
-        internal static ArrayList
-        parse(string data)
+        internal class RDNEntry
         {
-            ArrayList results = new ArrayList();
-            ArrayList current = new ArrayList();
+            internal List<RDNPair> rdn = new List<RDNPair>();
+            internal bool negate = false;
+        }
+
+        internal static List<RDNEntry> parse(string data)
+        {
+            List<RDNEntry> results = new List<RDNEntry>();
+            RDNEntry current = new RDNEntry();
             int pos = 0;
             while(pos < data.Length)
             {
-                current.Add(parseNameComponent(data, ref pos));
+                eatWhite(data, ref pos);
+                if(pos < data.Length && data[pos] == '!')
+                {
+                    if(current.rdn.Count > 0)
+                    {
+                        throw new ParseException("negation symbol '!' must appear at start of list");
+                    }
+                    ++pos;
+                    current.negate = true;
+                }
+                current.rdn.Add(parseNameComponent(data, ref pos));
                 eatWhite(data, ref pos);
                 if(pos < data.Length && data[pos] == ',')
                 {
@@ -63,14 +79,14 @@ namespace IceSSL
                 {
                     ++pos;
                     results.Add(current);
-                    current = new ArrayList();
+                    current = new RDNEntry();
                 }
                 else if(pos < data.Length)
                 {
                     throw new ParseException("expected ',' or ';' at `" + data.Substring(pos) + "'");
                 }
             }
-            if(current.Count > 0)
+            if(current.rdn.Count > 0)
             {
                 results.Add(current);
             }
@@ -78,17 +94,15 @@ namespace IceSSL
             return results;
         }
 
-        internal static ArrayList
-        parseStrict(string data)
+        internal static List<RDNPair> parseStrict(string data)
         {
-            ArrayList results = new ArrayList();
+            List<RDNPair> results = new List<RDNPair>();
             int pos = 0;
             while(pos < data.Length)
             {
                 results.Add(parseNameComponent(data, ref pos));
                 eatWhite(data, ref pos);
-                if(pos < data.Length &&
-                   (data[pos] == ',' || data[pos] == ';'))
+                if(pos < data.Length && (data[pos] == ',' || data[pos] == ';'))
                 {
                     ++pos;
                 }
@@ -99,9 +113,8 @@ namespace IceSSL
             }
             return results;
         }
-        
-        public static string
-        unescape(string data)
+
+        public static string unescape(string data)
         {
             if(data.Length == 0)
             {
@@ -119,7 +132,7 @@ namespace IceSSL
                 //
                 return data.Substring(1, data.Length - 2);
             }
-            
+
             //
             // Unescape the entire string.
             //
@@ -165,9 +178,8 @@ namespace IceSSL
             }
             return result.ToString();
         }
-        
-        private static int
-        hexToInt(char v)
+
+        private static int hexToInt(char v)
         {
             if(v >= '0' && v <= '9')
             {
@@ -183,9 +195,8 @@ namespace IceSSL
             }
             throw new ParseException("unescape: invalid hex pair");
         }
-        
-        private static char
-        unescapeHex(string data, int pos)
+
+        private static char unescapeHex(string data, int pos)
         {
             Debug.Assert(pos < data.Length);
             if(pos + 2 >= data.Length)
@@ -195,8 +206,7 @@ namespace IceSSL
             return (char)(hexToInt(data[pos]) * 16 + hexToInt(data[pos + 1]));
         }
 
-        private static RDNPair
-        parseNameComponent(string data, ref int pos)
+        private static RDNPair parseNameComponent(string data, ref int pos)
         {
             RDNPair result = parseAttributeTypeAndValue(data, ref pos);
             while(pos < data.Length)
@@ -219,8 +229,7 @@ namespace IceSSL
             return result;
         }
 
-        private static RDNPair
-        parseAttributeTypeAndValue(string data, ref int pos)
+        private static RDNPair parseAttributeTypeAndValue(string data, ref int pos)
         {
             RDNPair p = new RDNPair();
             p.key = parseAttributeType(data, ref pos);
@@ -239,8 +248,7 @@ namespace IceSSL
             return p;
         }
 
-        private static string
-        parseAttributeType(string data, ref int pos)
+        private static string parseAttributeType(string data, ref int pos)
         {
             eatWhite(data, ref pos);
             if(pos >= data.Length)
@@ -265,7 +273,7 @@ namespace IceSSL
             //
             // Here we must also check for "oid." and "OID." before parsing
             // according to the ALPHA KEYCHAR* rule.
-            // 
+            //
             // First the OID case.
             //
             if(Char.IsDigit(data[pos]) ||
@@ -303,8 +311,7 @@ namespace IceSSL
                     }
                 }
             }
-            else if(Char.IsUpper(data[pos]) ||
-                    Char.IsLower(data[pos]))
+            else if(Char.IsUpper(data[pos]) || Char.IsLower(data[pos]))
             {
                 //
                 // The grammar is wrong in this case. It should be ALPHA
@@ -331,8 +338,7 @@ namespace IceSSL
             return result;
         }
 
-        private static string
-        parseAttributeValue(string data, ref int pos)
+        private static string parseAttributeValue(string data, ref int pos)
         {
             eatWhite(data, ref pos);
             if(pos >= data.Length)
@@ -425,8 +431,7 @@ namespace IceSSL
         // RFC2253:
         // pair       = "\" ( special | "\" | QUOTATION | hexpair )
         //
-        private static string
-        parsePair(string data, ref int pos)
+        private static string parsePair(string data, ref int pos)
         {
             string result = "";
 
@@ -453,8 +458,7 @@ namespace IceSSL
         // RFC 2253
         // hexpair    = hexchar hexchar
         //
-        private static string
-        parseHexPair(string data, ref int pos, bool allowEmpty)
+        private static string parseHexPair(string data, ref int pos, bool allowEmpty)
         {
             string result = "";
             if(pos < data.Length && hexvalid.IndexOf(data[pos]) != -1)
@@ -486,8 +490,7 @@ namespace IceSSL
         // and '+', between attributeType and '=', and between '=' and
         // attributeValue.  These space characters are ignored when parsing.
         //
-        private static void
-        eatWhite(string data, ref int pos)
+        private static void eatWhite(string data, ref int pos)
         {
             while(pos < data.Length && data[pos] == ' ')
             {

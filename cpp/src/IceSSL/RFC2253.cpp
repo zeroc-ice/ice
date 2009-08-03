@@ -34,15 +34,26 @@ static string parsePair(const string&, size_t&);
 static string parseHexPair(const string&, size_t&, bool);
 static void eatWhite(const string&, size_t&);
 
-IceSSL::RFC2253::RDNSeqSeq
+IceSSL::RFC2253::RDNEntrySeq
 IceSSL::RFC2253::parse(const string& data)
 {
-    RDNSeqSeq results;
-    RDNSeq current;
+    RDNEntrySeq results;
+    RDNEntry current;
+    current.negate = false;
     size_t pos = 0;
     while(pos < data.size())
     {
-        current.push_back(parseNameComponent(data, pos));
+        eatWhite(data, pos);
+        if(pos < data.size() && data[pos] == '!')
+        {
+            if(!current.rdn.empty())
+            {
+                throw ParseException(__FILE__, __LINE__, "negation symbol '!' must appear at start of list");
+            }
+            ++pos;
+            current.negate = true;
+        }
+        current.rdn.push_back(parseNameComponent(data, pos));
         eatWhite(data, pos);
         if(pos < data.size() && data[pos] == ',')
         {
@@ -52,14 +63,15 @@ IceSSL::RFC2253::parse(const string& data)
         {
             ++pos;
             results.push_back(current);
-            current.clear();
+            current.rdn.clear();
+            current.negate = false;
         }
         else if(pos < data.size())
         {
             throw ParseException(__FILE__, __LINE__, "expected ',' or ';' at `" + data.substr(pos) + "'");
         }
     }
-    if(!current.empty())
+    if(!current.rdn.empty())
     {
         results.push_back(current);
     }
