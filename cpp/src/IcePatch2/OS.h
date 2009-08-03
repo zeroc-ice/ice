@@ -22,6 +22,9 @@
 #   endif
 #endif
 
+namespace IceInternal
+{
+
 namespace OS
 {
 
@@ -33,6 +36,8 @@ ICE_PATCH2_API int mkdir(const std::string&, int);
 ICE_PATCH2_API FILE* fopen(const std::string&, const std::string&);
 ICE_PATCH2_API int open(const std::string&, int);
 ICE_PATCH2_API int getcwd(std::string&);
+
+}
 
 }
 

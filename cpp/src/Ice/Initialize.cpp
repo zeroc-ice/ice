@@ -137,6 +137,9 @@ Ice::createProperties(int& argc, char* argv[], const PropertiesPtr& defaults, co
     return properties;
 }
 
+namespace IceInternal
+{
+
 inline void checkIceVersion(Int version)
 {
 #ifndef ICE_IGNORE_VERSION
@@ -180,10 +183,12 @@ inline void checkIceVersion(Int version)
 #endif
 }
 
+}
+
 CommunicatorPtr
 Ice::initialize(int& argc, char* argv[], const InitializationData& initializationData, Int version)
 {
-    checkIceVersion(version);
+    IceInternal::checkIceVersion(version);
 
     InitializationData initData = initializationData;
     initData.properties = createProperties(argc, argv, initData.properties, initData.stringConverter);
@@ -211,7 +216,7 @@ Ice::initialize(const InitializationData& initData, Int version)
     // We can't simply call the other initialize() because this one does NOT read
     // the config file, while the other one always does.
     //
-    checkIceVersion(version);
+    IceInternal::checkIceVersion(version);
 
     CommunicatorI* communicatorI = new CommunicatorI(initData);
     CommunicatorPtr result = communicatorI; // For exception safety.
