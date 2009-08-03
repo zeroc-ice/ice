@@ -1489,7 +1489,8 @@ IcePHP::ObjectFactoryI::create(const string& id)
 
         zend_try
         {
-            zend_call_method_with_1_params(&factory, 0, 0, const_cast<char*>("create"), &obj, arg);
+            const char* func = "create";
+            zend_call_method(&factory, 0, 0, const_cast<char*>(func), strlen(func), &obj, 1, arg, 0 TSRMLS_CC);
         }
         zend_catch
         {
