@@ -81,7 +81,7 @@ public class FixedReference extends Reference
     public String
     getConnectionId()
     {
-        return "";
+        throw new Ice.FixedProxyException();
     }
 
     public Reference
