@@ -199,6 +199,9 @@ IcePatch2::Patcher::~Patcher()
 {
 }
 
+namespace
+{
+
 class PatcherGetFileInfoSeqCB : public GetFileInfoSeqCB
 {
 public:
@@ -290,6 +293,8 @@ private:
 };
 
 typedef IceUtil::Handle<AMIGetFileInfoSeq> AMIGetFileInfoSeqPtr;
+
+}
 
 bool
 IcePatch2::Patcher::prepare()
@@ -714,6 +719,9 @@ IcePatch2::Patcher::updateFiles(const FileInfoSeq& files)
     return result;
 }
 
+namespace
+{
+
 class AMIGetFileCompressed : public AMI_FileServer_getFileCompressed, public IceUtil::Monitor<IceUtil::Mutex>
 {
 public:
@@ -773,6 +781,8 @@ private:
 };
 
 typedef IceUtil::Handle<AMIGetFileCompressed> AMIGetFileCompressedPtr;
+
+}
 
 bool
 IcePatch2::Patcher::updateFilesInternal(const FileInfoSeq& files, const DecompressorPtr& decompressor)
