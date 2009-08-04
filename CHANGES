@@ -223,6 +223,9 @@ C++ Changes
 Java Changes
 ============
 
+- The Freeze classes are now stored in a separate JAR file named
+  Freeze.jar.
+
 - The translator no longer generates one-shot constructors for class,
   struct and exception types if doing so would exceed Java's limit of
   255 parameters for a method.

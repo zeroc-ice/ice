@@ -26,6 +26,7 @@ Table of Contents
   2. Upgrading your application from Ice 3.3
      - Java language mapping changes
      - Changes to the Java API for Freeze maps
+     - Freeze packaging
      - PHP changes
   3. Upgrading your application from Ice 3.2 or earlier releases
      - Compatibility
@@ -610,6 +611,15 @@ remaining finalizers simply log warning messages to alert you to the
 fact that connections and iterators are not being closed explicitly.
 Note that, given the uncertain nature of Java finalizers, it is quite
 likely that the remaining finalizers will not be executed.
+
+
+Freeze packaging
+================
+
+All Freeze-related classes are now stored in a separate JAR file named
+Freeze.jar. As a result, you may need to update your build scripts,
+deployment configuration, and run-time environment to include this
+additional JAR file.
 
 
 PHP changes
