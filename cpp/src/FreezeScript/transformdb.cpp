@@ -29,8 +29,9 @@ using namespace std;
 #endif
 
 static void
-usage(const std::string& n)
+usage(const char* n)
 {
+ 
     cerr << "Usage:\n";
     cerr << "\n";
     cerr << n << " -o FILE [-i] [slice-options] [type-options]\n";
@@ -211,7 +212,7 @@ transformDb(bool evictor,  const Ice::CommunicatorPtr& communicator,
 }
 
 static int
-run(Ice::StringSeq args, const Ice::CommunicatorPtr& communicator)
+run(int argc, char** argv, const Ice::CommunicatorPtr& communicator)
 {
     vector<string> oldCppArgs;
     vector<string> newCppArgs;
@@ -252,25 +253,24 @@ run(Ice::StringSeq args, const Ice::CommunicatorPtr& communicator)
     opts.addOpt("", "key", IceUtilInternal::Options::NeedArg);
     opts.addOpt("", "value", IceUtilInternal::Options::NeedArg);
 
-    const string appName = args[0];
-    vector<string> noArgs;
+    vector<string> args;
     try
     {
 #if defined(__BCPLUSPLUS__) && (__BCPLUSPLUS__ >= 0x0600)
         IceUtil::DummyBCC dummy;
 #endif
-        noArgs = opts.parse(args);
+        args = opts.parse(argc, (const char**)argv);
     }
     catch(const IceUtilInternal::BadOptException& e)
     {
-        cerr << appName << ": " << e.reason << endl;
-        usage(appName);
+        cerr << argv[0] << ": " << e.reason << endl;
+        usage(argv[0]);
         return EXIT_FAILURE;
     }
 
     if(opts.isSet("help"))
     {
-        usage(appName);
+        usage(argv[0]);
         return EXIT_SUCCESS;
     }
     if(opts.isSet("version"))
@@ -354,77 +354,77 @@ run(Ice::StringSeq args, const Ice::CommunicatorPtr& communicator)
 
     if(outputFile.empty())
     {
-        if(noArgs.size() == 2)
+        if(args.size() == 2)
         {
             allDb = true;
         }
-        else if(noArgs.size() != 3)
+        else if(args.size() != 3)
         {
-            usage(appName);
+            usage(argv[0]);
             return EXIT_FAILURE;
         }
     }
     else
     {
-        if(noArgs.size() == 1)
+        if(args.size() == 1)
         {
             allDb = true;
         }
-        else if(noArgs.size() != 0)
+        else if(args.size() != 0)
         {
-            usage(appName);
+            usage(argv[0]);
             return EXIT_FAILURE;
         }
     }
 
     if(allDb && (!keyTypeNames.empty() || !valueTypeNames.empty()))
     {
-        usage(appName);
+        usage(argv[0]);
         return EXIT_FAILURE;
     }
 
     if(inputFile.empty() && !allDb && !evictor && (keyTypeNames.empty() || valueTypeNames.empty()))
     {
-        usage(appName);
+        usage(argv[0]);
         return EXIT_FAILURE;
     }
 
-    if(noArgs.size() > 0)
+    if(args.size() > 0)
     {
-        dbEnvName = noArgs[0];
+        dbEnvName = args[0];
     }
-    if(noArgs.size() > 1)
+    if(args.size() > 1)
     {
         if(allDb)
         {
-            dbEnvNameNew = noArgs[1];
+            dbEnvNameNew = args[1];
         }
         else
         {
-            dbName = noArgs[1];
+            dbName = args[1];
         }
     }
-    if(noArgs.size() > 2)
+    if(args.size() > 2)
     {
-        dbEnvNameNew = noArgs[2];
+        dbEnvNameNew = args[2];
     }
-    if(noArgs.size() > 3)
+    if(args.size() > 3)
     {
-        cerr << appName << ": too many arguments" << endl;
-        usage(appName);
+        cerr << argv[0] << ": too many arguments" << endl;
+        usage(argv[0]);
         return EXIT_FAILURE;
     }
 
     Slice::UnitPtr oldUnit = Slice::Unit::createUnit(true, true, ice);
     FreezeScript::Destroyer<Slice::UnitPtr> oldD(oldUnit);
-    if(!FreezeScript::parseSlice(appName, oldUnit, oldSlice, oldCppArgs, debug))
+    if(!FreezeScript::parseSlice(argv[0], oldUnit, oldSlice, oldCppArgs, debug))
     {
         return EXIT_FAILURE;
     }
 
     Slice::UnitPtr newUnit = Slice::Unit::createUnit(true, true, ice);
     FreezeScript::Destroyer<Slice::UnitPtr> newD(newUnit);
-    if(!FreezeScript::parseSlice(appName, newUnit, newSlice, newCppArgs, debug))
+    if(!FreezeScript::parseSlice(argv[0], newUnit, newSlice, newCppArgs, debug))
     {
         return EXIT_FAILURE;
     }
@@ -447,12 +447,12 @@ run(Ice::StringSeq args, const Ice::CommunicatorPtr& communicator)
         }
         catch(const FreezeScript::FailureException& ex)
         {
-            cerr << appName << ": " << ex.reason() << endl;
+            cerr << argv[0] << ": " << ex.reason() << endl;
             return EXIT_FAILURE;
         }
         if(catalog.empty())
         {
-            cerr << appName << ": no databases in environment `" << dbEnvName << "'" << endl;
+            cerr << argv[0] << ": no databases in environment `" << dbEnvName << "'" << endl;
             return EXIT_FAILURE;
         }
     }
@@ -499,25 +499,25 @@ run(Ice::StringSeq args, const Ice::CommunicatorPtr& communicator)
                 Slice::TypePtr oldKeyType = findType(oldUnit, keyName);
                 if(!oldKeyType)
                 {
-                    cerr << appName << ": type `" << keyName << "' from database `" << p->first
+                    cerr << argv[0] << ": type `" << keyName << "' from database `" << p->first
                          << "' not found in old Slice definitions" << endl;
                 }
                 Slice::TypePtr newKeyType = findType(newUnit, keyName);
                 if(!newKeyType)
                 {
-                    cerr << appName << ": type `" << keyName << "' from database `" << p->first
+                    cerr << argv[0] << ": type `" << keyName << "' from database `" << p->first
                          << "' not found in new Slice definitions" << endl;
                 }
                 Slice::TypePtr oldValueType = findType(oldUnit, valueName);
                 if(!oldValueType)
                 {
-                    cerr << appName << ": type `" << valueName << "' from database `" << p->first
+                    cerr << argv[0] << ": type `" << valueName << "' from database `" << p->first
                          << "' not found in old Slice definitions" << endl;
                 }
                 Slice::TypePtr newValueType = findType(newUnit, valueName);
                 if(!newValueType)
                 {
-                    cerr << appName << ": type `" << valueName << "' from database `" << p->first
+                    cerr << argv[0] << ": type `" << valueName << "' from database `" << p->first
                          << "' not found in new Slice definitions" << endl;
                 }
 
@@ -553,14 +553,14 @@ run(Ice::StringSeq args, const Ice::CommunicatorPtr& communicator)
 
                 if(keyTypeNames.empty() || valueTypeNames.empty())
                 {
-                    usage(appName);
+                    usage(argv[0]);
                     return EXIT_FAILURE;
                 }
 
                 pos = keyTypeNames.find(',');
                 if(pos == 0 || pos == keyTypeNames.size())
                 {
-                    usage(appName);
+                    usage(argv[0]);
                     return EXIT_FAILURE;
                 }
                 if(pos == string::npos)
@@ -577,7 +577,7 @@ run(Ice::StringSeq args, const Ice::CommunicatorPtr& communicator)
                 pos = valueTypeNames.find(',');
                 if(pos == 0 || pos == valueTypeNames.size())
                 {
-                    usage(appName);
+                    usage(argv[0]);
                     return EXIT_FAILURE;
                 }
                 if(pos == string::npos)
@@ -598,22 +598,22 @@ run(Ice::StringSeq args, const Ice::CommunicatorPtr& communicator)
             Slice::TypePtr oldKeyType = findType(oldUnit, oldKeyName);
             if(!oldKeyType)
             {
-                cerr << appName << ": type `" << oldKeyName << "' not found in old Slice definitions" << endl;
+                cerr << argv[0] << ": type `" << oldKeyName << "' not found in old Slice definitions" << endl;
             }
             Slice::TypePtr newKeyType = findType(newUnit, newKeyName);
             if(!newKeyType)
             {
-                cerr << appName << ": type `" << newKeyName << "' not found in new Slice definitions" << endl;
+                cerr << argv[0] << ": type `" << newKeyName << "' not found in new Slice definitions" << endl;
             }
             Slice::TypePtr oldValueType = findType(oldUnit, oldValueName);
             if(!oldValueType)
             {
-                cerr << appName << ": type `" << oldValueName << "' not found in old Slice definitions" << endl;
+                cerr << argv[0] << ": type `" << oldValueName << "' not found in old Slice definitions" << endl;
             }
             Slice::TypePtr newValueType = findType(newUnit, newValueName);
             if(!newValueType)
             {
-                cerr << appName << ": type `" << newValueName << "' not found in new Slice definitions" << endl;
+                cerr << argv[0] << ": type `" << newValueName << "' not found in new Slice definitions" << endl;
             }
 
             //
@@ -633,7 +633,7 @@ run(Ice::StringSeq args, const Ice::CommunicatorPtr& communicator)
         {
             for(vector<string>::const_iterator p = analyzeErrors.begin(); p != analyzeErrors.end(); ++p)
             {
-                cerr << appName << ": " << *p << endl;
+                cerr << argv[0] << ": " << *p << endl;
             }
         }
 
@@ -664,7 +664,7 @@ run(Ice::StringSeq args, const Ice::CommunicatorPtr& communicator)
             ofstream of(outputFile.c_str());
             if(!of.good())
             {
-                cerr << appName << ": unable to open file `" << outputFile << "'" << endl;
+                cerr << argv[0] << ": unable to open file `" << outputFile << "'" << endl;
                 return EXIT_FAILURE;
             }
             of << descriptors;
@@ -693,7 +693,7 @@ run(Ice::StringSeq args, const Ice::CommunicatorPtr& communicator)
 
     if(dbEnvName == dbEnvNameNew)
     {
-        cerr << appName << ": database environment names must be different" << endl;
+        cerr << argv[0] << ": database environment names must be different" << endl;
         return EXIT_FAILURE;
     }
 
@@ -779,7 +779,7 @@ run(Ice::StringSeq args, const Ice::CommunicatorPtr& communicator)
     }
     catch(const DbException& ex)
     {
-        cerr << appName << ": database error: " << ex.what() << endl;
+        cerr << argv[0] << ": database error: " << ex.what() << endl;
         status = EXIT_FAILURE;
     }
     catch(...)
@@ -819,7 +819,7 @@ run(Ice::StringSeq args, const Ice::CommunicatorPtr& communicator)
         }
         catch(const DbException& ex)
         {
-            cerr << appName << ": database error: " << ex.what() << endl;
+            cerr << argv[0] << ": database error: " << ex.what() << endl;
         }
         throw;
     }
@@ -851,7 +851,7 @@ run(Ice::StringSeq args, const Ice::CommunicatorPtr& communicator)
         }
         catch(const DbException& ex)
         {
-            cerr << appName << ": database error: " << ex.what() << endl;
+            cerr << argv[0] << ": database error: " << ex.what() << endl;
             status = EXIT_FAILURE;
         }
     }
@@ -884,23 +884,19 @@ run(Ice::StringSeq args, const Ice::CommunicatorPtr& communicator)
 }
 
 int
-mainInternal(Ice::StringSeq& args)
+main(int argc, char* argv[])
 {
-    assert(args.size() > 0);
-    const string appName = args[0];
     Ice::CommunicatorPtr communicator;
     int status = EXIT_SUCCESS;
     try
     {
-        Ice::InitializationData initData;
-        initData.properties = Ice::createProperties();
-        communicator = Ice::initialize(args, initData);
-        status = run(args, communicator);
+        communicator = Ice::initialize(argc, argv);
+        status = run(argc, argv, communicator);
     }
     catch(const FreezeScript::FailureException& ex)
     {
         string reason = ex.reason();
-        cerr << appName << ": " << reason;
+        cerr << argv[0] << ": " << reason;
         if(reason[reason.size() - 1] != '\n')
         {
             cerr << endl;
@@ -909,17 +905,17 @@ mainInternal(Ice::StringSeq& args)
     }
     catch(const IceUtil::Exception& ex)
     {
-        cerr << appName << ": " << ex << endl;
+        cerr << argv[0] << ": " << ex << endl;
         status = EXIT_FAILURE;
     }
     catch(const std::exception& ex)
     {
-        cerr << appName << ": " << ex.what() << endl;
+        cerr << argv[0] << ": " << ex.what() << endl;
         status = EXIT_FAILURE;
     }
     catch(...)
     {
-        cerr << appName << ": unknown exception" << endl;
+        cerr << argv[0] << ": unknown exception" << endl;
         status = EXIT_FAILURE;
     }
 
@@ -930,20 +926,3 @@ mainInternal(Ice::StringSeq& args)
 
     return status;
 }
-
-#ifdef _WIN32
-
-int
-wmain(int argc, wchar_t* argv[])
-
-#else
-
-int
-main(int argc, char* argv[])
-
-#endif
-{
-    Ice::StringSeq args = Ice::argsToStringSeq(argc, argv);
-    return mainInternal(args);
-}
-

@@ -36,16 +36,6 @@ public:
     int main(int, char*[], const char*);
     int main(int, char*[], const char*, const Ice::PropertiesPtr&);
     int main(int, char*[], const Ice::InitializationData&);
-
-#ifdef _WIN32
-
-    int main(int, wchar_t*[]);
-    int main(int, wchar_t*[], const char*);
-    int main(int, wchar_t*[], const char*, const Ice::PropertiesPtr&);
-    int main(int, wchar_t*[], const Ice::InitializationData&);
-
-#endif
-
     int main(const StringSeq&);
     int main(const StringSeq&, const char*);
     int main(const StringSeq&, const char*, const Ice::PropertiesPtr&);

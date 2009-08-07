@@ -9,7 +9,6 @@
 
 #include <IceUtil/DisableWarnings.h>
 #include <IceUtil/UUID.h>
-#include <IceUtil/FileUtil.h>
 #include <Ice/Ice.h>
 #include <Ice/Network.h>
 #include <Ice/ProtocolPluginFacade.h> // Just to get the hostname
@@ -43,6 +42,7 @@
 #include <openssl/des.h> // For crypt() passwords
 
 #include <sys/types.h>
+#include <sys/stat.h>
 
 #ifdef _WIN32
 #   include <direct.h>
@@ -201,7 +201,8 @@ RegistryI::startImpl()
     }
     else
     {
-        if(!IceUtilInternal::directoryExists(dbPath))
+        struct stat filestat;
+        if(stat(dbPath.c_str(), &filestat) != 0 || !S_ISDIR(filestat.st_mode))
         {
             Error out(_communicator->getLogger());
             SyscallException ex(__FILE__, __LINE__);

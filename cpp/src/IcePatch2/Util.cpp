@@ -18,7 +18,6 @@
 #include <IceUtil/DisableWarnings.h>
 #include <IceUtil/IceUtil.h>
 #include <IceUtil/StringUtil.h>
-#include <IceUtil/FileUtil.h>
 #define ICE_PATCH2_API_EXPORTS
 #include <IcePatch2/Util.h>
 #include <openssl/sha.h>
@@ -417,8 +416,8 @@ IcePatch2::remove(const string& pa)
 {
     const string path = simplify(pa);
 
-    IceUtilInternal::structstat buf;
-    if(IceUtilInternal::stat(path, &buf) == -1)
+    OS::structstat buf;
+    if(OS::osstat(path, &buf) == -1)
     {
         throw "cannot stat `" + path + "':\n" + IceUtilInternal::lastErrorToString();
     }
@@ -448,8 +447,8 @@ IcePatch2::removeRecursive(const string& pa)
 {
     const string path = simplify(pa);
 
-    IceUtilInternal::structstat buf;
-    if(IceUtilInternal::stat(path, &buf) == -1)
+    OS::structstat buf;
+    if(OS::osstat(path, &buf) == -1)
     {
         throw "cannot stat `" + path + "':\n" + IceUtilInternal::lastErrorToString();
     }
@@ -630,8 +629,8 @@ IcePatch2::createDirectoryRecursive(const string& pa)
 
     if(!isRoot(path + "/"))
     {
-        IceUtilInternal::structstat buf;
-        if(IceUtilInternal::stat(path, &buf) != -1)
+        OS::structstat buf;
+        if(OS::osstat(path, &buf) != -1)
         {
             if(S_ISDIR(buf.st_mode))
             {
@@ -730,8 +729,8 @@ IcePatch2::decompressFile(const string& pa)
         //
         // The BZ2_bzReadOpen/BZ2_bzRead/BZ2_bzReadClose functions fail with BCC
         //
-        IceUtilInternal::structstat buf;
-        if(IceUtilInternal::stat(pathBZ2, &buf) == -1)
+        OS::structstat buf;
+        if(OS::osstat(pathBZ2, &buf) == -1)
         {
             throw "cannot stat `" + pathBZ2 + "':\n" + IceUtilInternal::lastErrorToString();
         }
@@ -855,8 +854,8 @@ IcePatch2::setFileFlags(const string& pa, const FileInfo& info)
 {
 #ifndef _WIN32 // Windows doesn't support the executable flag
     const string path = simplify(pa);
-    IceUtilInternal::structstat buf;
-    if(IceUtilInternal::stat(path, &buf) == -1)
+    OS::structstat buf;
+    if(OS::osstat(path, &buf) == -1)
     {
         throw "cannot stat `" + path + "':\n" + IceUtilInternal::lastErrorToString();
     }
@@ -890,8 +889,8 @@ getFileInfoSeqInt(const string& basePath, const string& relPath, int compress, G
         }
         else
         {
-            IceUtilInternal::structstat buf;
-            if(IceUtilInternal::stat(getWithoutSuffix(path), &buf) == -1)
+            OS::structstat buf;
+            if(OS::osstat(getWithoutSuffix(path), &buf) == -1)
             {
                 if(errno == ENOENT)
                 {
@@ -921,8 +920,8 @@ getFileInfoSeqInt(const string& basePath, const string& relPath, int compress, G
     else
     {
 
-        IceUtilInternal::structstat buf;
-        if(IceUtilInternal::stat(path, &buf) == -1)
+        OS::structstat buf;
+        if(OS::osstat(path, &buf) == -1)
         {
             throw "cannot stat `" + path + "':\n" + IceUtilInternal::lastErrorToString();
         }
@@ -971,7 +970,7 @@ getFileInfoSeqInt(const string& basePath, const string& relPath, int compress, G
             info.executable = buf.st_mode & S_IXUSR;
 #endif
 
-            IceUtilInternal::structstat bufBZ2;
+            OS::structstat bufBZ2;
             const string pathBZ2 = path + ".bz2";
             bool doCompress = false;
             if(buf.st_size != 0 && compress > 0)
@@ -981,7 +980,7 @@ getFileInfoSeqInt(const string& basePath, const string& relPath, int compress, G
                 // compress == 1: Compress if necessary.
                 // compress >= 2: Always compress.
                 //
-                if(compress >= 2 || IceUtilInternal::stat(pathBZ2, &bufBZ2) == -1 || buf.st_mtime >= bufBZ2.st_mtime)
+                if(compress >= 2 || OS::osstat(pathBZ2, &bufBZ2) == -1 || buf.st_mtime >= bufBZ2.st_mtime)
                 {
                     if(cb && !cb->compress(relPath))
                     {
@@ -1192,7 +1191,7 @@ getFileInfoSeqInt(const string& basePath, const string& relPath, int compress, G
 
                         rename(pathBZ2Temp, pathBZ2);
 
-                        if(IceUtilInternal::stat(pathBZ2, &bufBZ2) == -1)
+                        if(OS::osstat(pathBZ2, &bufBZ2) == -1)
                         {
                             throw "cannot stat `" + pathBZ2 + "':\n" + IceUtilInternal::lastErrorToString();
                         }

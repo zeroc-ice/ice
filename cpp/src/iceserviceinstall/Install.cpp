@@ -35,7 +35,7 @@ private:
 };
 
 int
-main(int argc, wchar_t* argv[])
+main(int argc, char* argv[])
 {
     Install app;
     int status = app.main(argc, argv);

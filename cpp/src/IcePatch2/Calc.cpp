@@ -101,7 +101,7 @@ public:
 };
 
 void
-usage(const string& appName)
+usage(const char* appName)
 {
     cerr << "Usage: " << appName << " [options] DIR [FILES...]\n";
     cerr <<     
@@ -116,10 +116,8 @@ usage(const string& appName)
 }
 
 int
-mainInternal(const Ice::StringSeq& args)
+main(int argc, char* argv[])
 {
-    assert(args.size() > 0);
-    const string appName = args[0];
     string dataDir;
     StringSeq fileSeq;
     int compress = 1;
@@ -134,24 +132,24 @@ mainInternal(const Ice::StringSeq& args)
     opts.addOpt("V", "verbose");
     opts.addOpt("i", "case-insensitive");
     
-    vector<string> noArgs;
+    vector<string> args;
     try
     {
 #if defined(__BCPLUSPLUS__) && (__BCPLUSPLUS__ >= 0x0600)
         IceUtil::DummyBCC dummy;
 #endif
-        noArgs = opts.parse(args);
+        args = opts.parse(argc, (const char**)argv);
     }
     catch(const IceUtilInternal::BadOptException& e)
     {
         cerr << e.reason << endl;
-        usage(appName);
+        usage(argv[0]);
         return EXIT_FAILURE;
     }
 
     if(opts.isSet("help"))
     {
-        usage(appName);
+        usage(argv[0]);
         return EXIT_SUCCESS;
     }
     if(opts.isSet("version"))
@@ -163,8 +161,8 @@ mainInternal(const Ice::StringSeq& args)
     bool dontCompress = opts.isSet("no-compress");
     if(doCompress && dontCompress)
     {
-        cerr << appName << ": only one of -z and -Z are mutually exclusive" << endl;
-        usage(appName);
+        cerr << argv[0] << ": only one of -z and -Z are mutually exclusive" << endl;
+        usage(argv[0]);
         return EXIT_FAILURE;
     }
     if(doCompress)
@@ -180,15 +178,15 @@ mainInternal(const Ice::StringSeq& args)
 
     if(args.empty())
     {
-        cerr << appName << ": no data directory specified" << endl;
-        usage(appName);
+        cerr << argv[0] << ": no data directory specified" << endl;
+        usage(argv[0]);
         return EXIT_FAILURE;
     }
-    dataDir = simplify(noArgs[0]);
+    dataDir = simplify(args[0]);
 
-    for(vector<string>::size_type i = 1; i < noArgs.size(); ++i)
+    for(vector<string>::size_type i = 1; i < args.size(); ++i)
     {
-        fileSeq.push_back(simplify(noArgs[i]));
+        fileSeq.push_back(simplify(args[i]));
     }
 
     try
@@ -310,30 +308,14 @@ mainInternal(const Ice::StringSeq& args)
     }
     catch(const string& ex)
     {
-        cerr << appName << ": " << ex << endl;
+        cerr << argv[0] << ": " << ex << endl;
         return EXIT_FAILURE;
     }
     catch(const char* ex)
     {
-        cerr << appName << ": " << ex << endl;
+        cerr << argv[0] << ": " << ex << endl;
         return EXIT_FAILURE;
     }
 
     return EXIT_SUCCESS;
-}
-
-#ifdef _WIN32
-
-int
-wmain(int argc, wchar_t* argv[])
-
-#else
-
-int
-main(int argc, char* argv[])
-
-#endif
-{
-    int rc = mainInternal(Ice::argsToStringSeq(argc, argv));
-    return rc;
 }

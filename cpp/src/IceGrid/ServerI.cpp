@@ -7,9 +7,7 @@
 //
 // **********************************************************************
 
-#include <IceUtil/FileUtil.h>
 #include <Ice/Ice.h>
-#include <Ice/Instance.h>
 #include <IceGrid/ServerI.h>
 #include <IceGrid/TraceLevels.h>
 #include <IceGrid/Activator.h>
@@ -23,6 +21,7 @@
 #include <IceUtil/FileUtil.h>
 
 #include <sys/types.h>
+#include <sys/stat.h>
 
 #ifdef _WIN32
 #  include <direct.h>
@@ -98,9 +97,8 @@ chownRecursive(const string& path, uid_t uid, gid_t gid)
         {
             name = path + "/" + name;
 
-
-            IceUtilInternal::structstat buf;
-            if(IceUtilInternal::stat(name, &buf) == -1)
+            OS::structstat buf;
+            if(OS::osstat(name, &buf) == -1)
             {
                 throw "cannot stat `" + name + "':\n" + IceUtilInternal::lastErrorToString();
             }
@@ -278,11 +276,6 @@ private:
 
 struct EnvironmentEval : std::unary_function<string, string>
 {
-    EnvironmentEval(const Ice::StringConverterPtr& converter)
-    {
-        this->converter = converter;
-    }
-    
     string
     operator()(const std::string& value)
     {
@@ -297,7 +290,7 @@ struct EnvironmentEval : std::unary_function<string, string>
         string::size_type beg = 0;
         string::size_type end;
 #ifdef _WIN32
-        wchar_t buf[32767];
+        char buf[32767];
         while((beg = v.find("%", beg)) != string::npos && beg < v.size() - 1)
         {
             end = v.find("%", beg + 1);
@@ -306,15 +299,8 @@ struct EnvironmentEval : std::unary_function<string, string>
                 break;
             }
             string variable = v.substr(beg + 1, end - beg - 1);
-            DWORD ret = GetEnvironmentVariableW(IceUtil::stringToWstring(variable).c_str(), buf, sizeof(buf));
-            string valstr = (ret > 0 && ret < sizeof(buf)) ? IceUtil::wstringToString(buf) : string("");
-            if(converter)
-            {
-                string tmp;
-                converter->fromUTF8(reinterpret_cast<const Ice::Byte*>(valstr.data()),
-                                    reinterpret_cast<const Ice::Byte*>(valstr.data() + valstr.size()), tmp);
-                valstr.swap(tmp);
-            }
+            DWORD ret = GetEnvironmentVariable(variable.c_str(), buf, sizeof(buf));
+            string valstr = (ret > 0 && ret < sizeof(buf)) ? string(buf) : string("");
             v.replace(beg, end - beg + 1, valstr);
             beg += valstr.size();
         }
@@ -350,8 +336,6 @@ struct EnvironmentEval : std::unary_function<string, string>
 #endif
         return value.substr(0, assignment) + "=" + v;
     }
-
-    Ice::StringConverterPtr converter;
 };
 
 }
@@ -1446,10 +1430,8 @@ ServerI::activate()
         copy(desc->options.begin(), desc->options.end(), back_inserter(options));
         options.push_back("--Ice.Config=" + escapeProperty(_serverDir + "/config/config"));
 
-        Ice::StringConverterPtr converter =
-                            IceInternal::getInstance(_node->getCommunicator())->initializationData().stringConverter;
         Ice::StringSeq envs;
-        transform(desc->envs.begin(), desc->envs.end(), back_inserter(envs), EnvironmentEval(converter));
+        transform(desc->envs.begin(), desc->envs.end(), back_inserter(envs), EnvironmentEval());
 
         //
         // Clear the adapters direct proxy (this is usefull if the server

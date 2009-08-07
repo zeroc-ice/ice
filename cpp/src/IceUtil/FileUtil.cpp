@@ -8,7 +8,6 @@
 // **********************************************************************
 
 #include <IceUtil/FileUtil.h>
-#include <IceUtil/Unicode.h>
 
 using namespace std;
 
@@ -50,46 +49,5 @@ IceUtilInternal::isAbsolutePath(const string& path)
     }
 
     return path[i] == '/';
-#endif
-}
-
-//
-// Detemine if a directory exists.
-//
-bool
-IceUtilInternal::directoryExists(const string& path)
-{
-    IceUtilInternal::structstat st;
-    if(IceUtilInternal::stat(path, &st) != 0 || !S_ISDIR(st.st_mode))
-    {
-        return false;
-    }
-    return true;
-}
-
-//
-// Determine if a regular file exists.
-//
-bool
-IceUtilInternal::fileExists(const string& path)
-{
-    IceUtilInternal::structstat st;
-    if(IceUtilInternal::stat(path, &st) != 0 || !S_ISREG(st.st_mode))
-    {
-        return false;
-    }
-    return true;
-}
-
-//
-// Stat
-//
-int
-IceUtilInternal::stat(const string& path, structstat* buffer)
-{
-#ifdef _WIN32
-    return _wstat(IceUtil::stringToWstring(path).c_str(), buffer);
-#else
-    return stat(path.c_str(), buffer);
 #endif
 }

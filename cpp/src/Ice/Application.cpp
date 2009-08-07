@@ -384,34 +384,6 @@ Ice::Application::main(int argc, char* argv[], const char* configFile, const Ice
     return mainInternal(argc, argv, initData, overrideProps);
 }
 
-#ifdef _WIN32
-
-int
-Ice::Application::main(int argc, wchar_t* argv[])
-{
-    return main(argsToStringSeq(argc, argv));
-}
-
-int
-Ice::Application::main(int argc, wchar_t* argv[], const char* config)
-{
-    return main(argsToStringSeq(argc, argv), config);
-}
-
-int
-Ice::Application::main(int argc, wchar_t* argv[], const char* config, const Ice::PropertiesPtr& properties)
-{
-    return main(argsToStringSeq(argc, argv), config, properties);
-}
-
-int
-Ice::Application::main(int argc, wchar_t* argv[], const Ice::InitializationData& initData)
-{
-    return main(argsToStringSeq(argc, argv, initData.stringConverter), initData);
-}
-
-#endif
-
 int
 Ice::Application::main(int argc, char* argv[], const InitializationData& initData)
 {

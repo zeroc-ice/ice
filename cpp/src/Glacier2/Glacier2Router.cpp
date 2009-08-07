@@ -621,17 +621,8 @@ Glacier2::RouterService::usage(const string& appName)
     print("Usage: " + appName + " [options]\n" + options);
 }
 
-#ifdef _WIN32
-
-int
-wmain(int argc, wchar_t* argv[])
-
-#else
-
 int
 main(int argc, char* argv[])
-
-#endif
 {
     Glacier2::RouterService svc;
     return svc.main(argc, argv);
