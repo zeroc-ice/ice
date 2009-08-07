@@ -1345,7 +1345,7 @@ IceInternal::IncomingConnectionFactory::read(BasicStream&)
     return false;
 }
 
-namespace
+namespace IceInternal
 {
 
 class PromoteFollower
@@ -1385,7 +1385,7 @@ IceInternal::IncomingConnectionFactory::message(BasicStream&, const ThreadPoolPt
         // If _threadPool is null, then this class doesn't do
         // anything.
         //
-        PromoteFollower promote(threadPool);
+        IceInternal::PromoteFollower promote(threadPool);
 
         if(_state != StateActive)
         {

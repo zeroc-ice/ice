@@ -56,9 +56,6 @@ PidInitializer pidInitializer;
 };
 #endif
 
-namespace
-{
-
 // Helper char to hex functions
 //
 inline void halfByteToHex(unsigned char hb, char*& hexBuffer)
@@ -80,8 +77,6 @@ inline void bytesToHex(unsigned char* bytes, size_t len, char*& hexBuffer)
         halfByteToHex((bytes[i] & 0xF0) >> 4, hexBuffer);
         halfByteToHex((bytes[i] & 0x0F), hexBuffer);
     }
-}
-
 }
 
 string

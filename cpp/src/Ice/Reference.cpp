@@ -1830,9 +1830,6 @@ IceInternal::RoutableReference::RoutableReference(const RoutableReference& r) :
 {
 }
 
-namespace
-{
-
 struct EndpointIsOpaque : public unary_function<EndpointIPtr, bool>
 {
 public:
@@ -1843,8 +1840,6 @@ public:
         return dynamic_cast<OpaqueEndpointI*>(p.get()) != 0;
     }
 };
-
-}
 
 vector<EndpointIPtr>
 IceInternal::RoutableReference::filterEndpoints(const vector<EndpointIPtr>& allEndpoints) const

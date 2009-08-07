@@ -14,10 +14,9 @@
 using namespace std;
 using namespace Ice;
 
+static SliceChecksumDict* _sliceChecksums = 0;
 namespace
 {
-
-SliceChecksumDict* _sliceChecksums = 0;
 
 IceUtil::Mutex* _mutex = 0;
 
@@ -39,6 +38,8 @@ public:
 
 Init init;
 
+}
+
 class SliceChecksumDictDestroyer
 {
 public:
@@ -49,10 +50,7 @@ public:
         _sliceChecksums = 0;
     }
 };
-
-SliceChecksumDictDestroyer destroyer;
-
-}
+static SliceChecksumDictDestroyer destroyer;
 
 SliceChecksumDict
 Ice::sliceChecksums()
