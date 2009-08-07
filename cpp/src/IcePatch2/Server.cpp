@@ -125,7 +125,7 @@ IcePatch2::PatcherService::start(int argc, char* argv[])
         if(!IceUtilInternal::isAbsolutePath(dataDir))
         {
             string cwd;
-            if(IceInternal::OS::getcwd(cwd) != 0)
+            if(OS::getcwd(cwd) != 0)
             {
                 throw "cannot get the current directory:\n" + IceUtilInternal::lastErrorToString();
             }

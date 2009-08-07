@@ -19,48 +19,48 @@
 #endif
 
 using namespace std;
-using namespace IceInternal::OS;
+using namespace OS;
 
 #ifdef _WIN32
 
 int
-IceInternal::OS::remove(const string& path)
+OS::remove(const string& path)
 {
     return ::_wremove(IceUtil::stringToWstring(path).c_str());
 }
 
 int
-IceInternal::OS::rename(const string& from, const string& to)
+OS::rename(const string& from, const string& to)
 {
     return ::_wrename(IceUtil::stringToWstring(from).c_str(), IceUtil::stringToWstring(to).c_str());
 }
 
 int
-IceInternal::OS::rmdir(const string& path)
+OS::rmdir(const string& path)
 {
     return ::_wrmdir(IceUtil::stringToWstring(path).c_str());
 }
 
 int
-IceInternal::OS::mkdir(const string& path, int)
+OS::mkdir(const string& path, int)
 {
     return ::_wmkdir(IceUtil::stringToWstring(path).c_str());
 }
 
 FILE*
-IceInternal::OS::fopen(const string& path, const string& mode)
+OS::fopen(const string& path, const string& mode)
 {
     return ::_wfopen(IceUtil::stringToWstring(path).c_str(), IceUtil::stringToWstring(mode).c_str());
 }
 
 int
-IceInternal::OS::open(const string& path, int flags)
+OS::open(const string& path, int flags)
 {
     return ::_wopen(IceUtil::stringToWstring(path).c_str(), flags);
 }
 
 int
-IceInternal::OS::getcwd(string& cwd)
+OS::getcwd(string& cwd)
 {
     wchar_t cwdbuf[_MAX_PATH];
     if(_wgetcwd(cwdbuf, _MAX_PATH) == NULL)
@@ -74,43 +74,43 @@ IceInternal::OS::getcwd(string& cwd)
 #else
 
 int
-IceInternal::OS::remove(const string& path)
+OS::remove(const string& path)
 {
     return ::remove(path.c_str());
 }
 
 int
-IceInternal::OS::rename(const string& from, const string& to)
+OS::rename(const string& from, const string& to)
 {
     return ::rename(from.c_str(), to.c_str());
 }
 
 int
-IceInternal::OS::rmdir(const string& path)
+OS::rmdir(const string& path)
 {
     return ::rmdir(path.c_str());
 }
 
 int
-IceInternal::OS::mkdir(const string& path, int perm)
+OS::mkdir(const string& path, int perm)
 {
     return ::mkdir(path.c_str(), perm);
 }
 
 FILE*
-IceInternal::OS::fopen(const string& path, const string& mode)
+OS::fopen(const string& path, const string& mode)
 {
     return ::fopen(path.c_str(), mode.c_str());
 }
 
 int
-IceInternal::OS::open(const string& path, int flags)
+OS::open(const string& path, int flags)
 {
     return ::open(path.c_str(), flags);
 }
 
 int
-IceInternal::OS::getcwd(string& cwd)
+OS::getcwd(string& cwd)
 {
     char cwdbuf[PATH_MAX];
     if(::getcwd(cwdbuf, PATH_MAX) == NULL)
