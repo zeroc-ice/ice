@@ -403,9 +403,9 @@ IcePatch2::rename(const string& fromPa, const string& toPa)
     const string fromPath = simplify(fromPa);
     const string toPath = simplify(toPa);
 
-    OS::remove(toPath); // We ignore errors, as the file we are renaming to might not exist.
+    IceInternal::OS::remove(toPath); // We ignore errors, as the file we are renaming to might not exist.
 
-    if(OS::rename(fromPath ,toPath) == -1)
+    if(IceInternal::OS::rename(fromPath ,toPath) == -1)
     {
         throw "cannot rename `" + fromPath + "' to  `" + toPath + "': " + IceUtilInternal::lastErrorToString();
     }
@@ -416,15 +416,15 @@ IcePatch2::remove(const string& pa)
 {
     const string path = simplify(pa);
 
-    OS::structstat buf;
-    if(OS::osstat(path, &buf) == -1)
+    IceInternal::OS::structstat buf;
+    if(IceInternal::OS::osstat(path, &buf) == -1)
     {
         throw "cannot stat `" + path + "':\n" + IceUtilInternal::lastErrorToString();
     }
 
     if(S_ISDIR(buf.st_mode))
     {
-        if(OS::rmdir(path) == -1)
+        if(IceInternal::OS::rmdir(path) == -1)
         {
             if(errno == EACCES)
             {
@@ -435,7 +435,7 @@ IcePatch2::remove(const string& pa)
     }
     else
     {
-        if(OS::remove(path) == -1)
+        if(IceInternal::OS::remove(path) == -1)
         {
             throw "cannot remove file `" + path + "':\n" + IceUtilInternal::lastErrorToString();
         }
@@ -447,8 +447,8 @@ IcePatch2::removeRecursive(const string& pa)
 {
     const string path = simplify(pa);
 
-    OS::structstat buf;
-    if(OS::osstat(path, &buf) == -1)
+    IceInternal::OS::structstat buf;
+    if(IceInternal::OS::osstat(path, &buf) == -1)
     {
         throw "cannot stat `" + path + "':\n" + IceUtilInternal::lastErrorToString();
     }
@@ -463,7 +463,7 @@ IcePatch2::removeRecursive(const string& pa)
 
         if(!isRoot(path))
         {
-            if(OS::rmdir(path) == -1)
+            if(IceInternal::OS::rmdir(path) == -1)
             {
                 throw "cannot remove directory `" + path + "':\n" + IceUtilInternal::lastErrorToString();
             }
@@ -471,7 +471,7 @@ IcePatch2::removeRecursive(const string& pa)
     }
     else
     {
-        if(OS::remove(path) == -1)
+        if(IceInternal::OS::remove(path) == -1)
         {
             throw "cannot remove file `" + path + "':\n" + IceUtilInternal::lastErrorToString();
         }
@@ -607,7 +607,7 @@ IcePatch2::createDirectory(const string& pa)
 {
     const string path = simplify(pa);
 
-    if(OS::mkdir(path, 0777) == -1)
+    if(IceInternal::OS::mkdir(path, 0777) == -1)
     {
         if(errno != EEXIST)
         {
@@ -629,8 +629,8 @@ IcePatch2::createDirectoryRecursive(const string& pa)
 
     if(!isRoot(path + "/"))
     {
-        OS::structstat buf;
-        if(OS::osstat(path, &buf) != -1)
+        IceInternal::OS::structstat buf;
+        if(IceInternal::OS::osstat(path, &buf) != -1)
         {
             if(S_ISDIR(buf.st_mode))
             {
@@ -638,7 +638,7 @@ IcePatch2::createDirectoryRecursive(const string& pa)
             }
         }
 
-        if(OS::mkdir(path, 0777) == -1)
+        if(IceInternal::OS::mkdir(path, 0777) == -1)
         {
             if(errno != EEXIST)
             {
@@ -653,7 +653,7 @@ IcePatch2::compressBytesToFile(const string& pa, const ByteSeq& bytes, Int pos)
 {
     const string path = simplify(pa);
 
-    FILE* stdioFile = OS::fopen(path, "wb");
+    FILE* stdioFile = IceInternal::OS::fopen(path, "wb");
     if(!stdioFile)
     {
         throw "cannot open `" + path + "' for writing:\n" + IceUtilInternal::lastErrorToString();
@@ -713,13 +713,13 @@ IcePatch2::decompressFile(const string& pa)
 
     try
     {
-        fp = OS::fopen(path, "wb");
+        fp = IceInternal::OS::fopen(path, "wb");
         if(!fp)
         {
             throw "cannot open `" + path + "' for writing:\n" + IceUtilInternal::lastErrorToString();
         }
         
-        stdioFileBZ2 = OS::fopen(pathBZ2, "rb");
+        stdioFileBZ2 = IceInternal::OS::fopen(pathBZ2, "rb");
         if(!stdioFileBZ2)
         {
             throw "cannot open `" + pathBZ2 + "' for reading:\n" + IceUtilInternal::lastErrorToString();
@@ -854,8 +854,8 @@ IcePatch2::setFileFlags(const string& pa, const FileInfo& info)
 {
 #ifndef _WIN32 // Windows doesn't support the executable flag
     const string path = simplify(pa);
-    OS::structstat buf;
-    if(OS::osstat(path, &buf) == -1)
+    IceInternal::OS::structstat buf;
+    if(IceInternal::OS::osstat(path, &buf) == -1)
     {
         throw "cannot stat `" + path + "':\n" + IceUtilInternal::lastErrorToString();
     }
@@ -889,8 +889,8 @@ getFileInfoSeqInt(const string& basePath, const string& relPath, int compress, G
         }
         else
         {
-            OS::structstat buf;
-            if(OS::osstat(getWithoutSuffix(path), &buf) == -1)
+            IceInternal::OS::structstat buf;
+            if(IceInternal::OS::osstat(getWithoutSuffix(path), &buf) == -1)
             {
                 if(errno == ENOENT)
                 {
@@ -920,8 +920,8 @@ getFileInfoSeqInt(const string& basePath, const string& relPath, int compress, G
     else
     {
 
-        OS::structstat buf;
-        if(OS::osstat(path, &buf) == -1)
+        IceInternal::OS::structstat buf;
+        if(IceInternal::OS::osstat(path, &buf) == -1)
         {
             throw "cannot stat `" + path + "':\n" + IceUtilInternal::lastErrorToString();
         }
@@ -970,7 +970,7 @@ getFileInfoSeqInt(const string& basePath, const string& relPath, int compress, G
             info.executable = buf.st_mode & S_IXUSR;
 #endif
 
-            OS::structstat bufBZ2;
+            IceInternal::OS::structstat bufBZ2;
             const string pathBZ2 = path + ".bz2";
             bool doCompress = false;
             if(buf.st_size != 0 && compress > 0)
@@ -980,7 +980,7 @@ getFileInfoSeqInt(const string& basePath, const string& relPath, int compress, G
                 // compress == 1: Compress if necessary.
                 // compress >= 2: Always compress.
                 //
-                if(compress >= 2 || OS::osstat(pathBZ2, &bufBZ2) == -1 || buf.st_mtime >= bufBZ2.st_mtime)
+                if(compress >= 2 || IceInternal::OS::osstat(pathBZ2, &bufBZ2) == -1 || buf.st_mtime >= bufBZ2.st_mtime)
                 {
                     if(cb && !cb->compress(relPath))
                     {
@@ -1023,7 +1023,7 @@ getFileInfoSeqInt(const string& basePath, const string& relPath, int compress, G
                     //
                     if(doCompress)
                     {
-                        int fd = OS::open(path.c_str(), O_BINARY|O_RDONLY);
+                        int fd = IceInternal::OS::open(path.c_str(), O_BINARY|O_RDONLY);
                         if(fd == -1)
                         {
                             throw "cannot open `" + path + "' for reading:\n" + IceUtilInternal::lastErrorToString();
@@ -1055,7 +1055,7 @@ getFileInfoSeqInt(const string& basePath, const string& relPath, int compress, G
                         close(fd);
 
                         const string pathBZ2Temp = path + ".bz2temp";
-                        FILE* stdioFile = OS::fopen(pathBZ2Temp, "wb");
+                        FILE* stdioFile = IceInternal::OS::fopen(pathBZ2Temp, "wb");
                         if(fwrite(&compressedBytes[0], compressedLen, 1, stdioFile) != 1)
                         {
                             fclose(stdioFile);
@@ -1069,7 +1069,7 @@ getFileInfoSeqInt(const string& basePath, const string& relPath, int compress, G
                     }
 #endif
 
-                    int fd = OS::open(path.c_str(), O_BINARY|O_RDONLY);
+                    int fd = IceInternal::OS::open(path.c_str(), O_BINARY|O_RDONLY);
                     if(fd == -1)
                     {
                         throw "cannot open `" + path + "' for reading:\n" + IceUtilInternal::lastErrorToString();
@@ -1082,7 +1082,7 @@ getFileInfoSeqInt(const string& basePath, const string& relPath, int compress, G
                     BZFILE* bzFile = 0;
                     if(doCompress)
                     {
-                        stdioFile = OS::fopen(simplify(pathBZ2Temp), "wb");
+                        stdioFile = IceInternal::OS::fopen(simplify(pathBZ2Temp), "wb");
                         if(!stdioFile)
                         {
 #if defined(_MSC_VER) && (_MSC_VER >= 1400)
@@ -1191,7 +1191,7 @@ getFileInfoSeqInt(const string& basePath, const string& relPath, int compress, G
 
                         rename(pathBZ2Temp, pathBZ2);
 
-                        if(OS::osstat(pathBZ2, &bufBZ2) == -1)
+                        if(IceInternal::OS::osstat(pathBZ2, &bufBZ2) == -1)
                         {
                             throw "cannot stat `" + pathBZ2 + "':\n" + IceUtilInternal::lastErrorToString();
                         }
@@ -1244,7 +1244,7 @@ IcePatch2::saveFileInfoSeq(const string& pa, const FileInfoSeq& infoSeq)
     {
         const string path = simplify(pa + '/' + checksumFile);
         
-        FILE* fp = OS::fopen(path, "w");
+        FILE* fp = IceInternal::OS::fopen(path, "w");
         if(!fp)
         {
             throw "cannot open `" + path + "' for writing:\n" + IceUtilInternal::lastErrorToString();
@@ -1286,7 +1286,7 @@ IcePatch2::loadFileInfoSeq(const string& pa, FileInfoSeq& infoSeq)
     {
         const string path = simplify(pa + '/' + checksumFile);
 
-        FILE* fp = OS::fopen(path, "r");
+        FILE* fp = IceInternal::OS::fopen(path, "r");
         if(!fp)
         {
             throw "cannot open `" + path + "' for reading:\n" + IceUtilInternal::lastErrorToString();
@@ -1313,7 +1313,7 @@ IcePatch2::loadFileInfoSeq(const string& pa, FileInfoSeq& infoSeq)
     {
         const string pathLog = simplify(pa + '/' + logFile);
 
-        FILE* fp = OS::fopen(pathLog, "r");
+        FILE* fp = IceInternal::OS::fopen(pathLog, "r");
         if(fp != 0)
         {
             FileInfoSeq remove;

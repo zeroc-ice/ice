@@ -195,7 +195,7 @@ main(int argc, char* argv[])
         string absDataDir = dataDir;
     
         string cwd;
-        if(OS::getcwd(cwd) != 0)
+        if(IceInternal::OS::getcwd(cwd) != 0)
         {
             throw "cannot get the current directory:\n" + IceUtilInternal::lastErrorToString();
         }

@@ -108,6 +108,9 @@ Ice::createProperties(int& argc, char* argv[], const PropertiesPtr& defaults, co
     return properties;
 }
 
+namespace
+{
+
 inline void checkIceVersion(Int version)
 {
 #ifndef ICE_IGNORE_VERSION
@@ -149,6 +152,8 @@ inline void checkIceVersion(Int version)
     
 #   endif    
 #endif
+}
+
 }
 
 CommunicatorPtr

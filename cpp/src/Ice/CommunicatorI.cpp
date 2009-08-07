@@ -35,6 +35,9 @@ IceUtil::Handle<IceInternal::GC> theCollector = 0;
 
 }
 
+namespace
+{
+
 struct GarbageCollectorStats
 {
     GarbageCollectorStats() :
@@ -46,9 +49,6 @@ struct GarbageCollectorStats
     int collected;
     IceUtil::Time time;
 };
-
-namespace
-{
 
 int communicatorCount = 0;
 IceUtil::Mutex* gcMutex = 0;
@@ -77,9 +77,7 @@ public:
 
 Init init;
 
-}
-
-static void
+void
 printGCStats(const IceInternal::GCStats& stats)
 {
     if(gcTraceLevel)
@@ -94,6 +92,8 @@ printGCStats(const IceInternal::GCStats& stats)
         gcStats.collected += stats.collected;
         gcStats.time += stats.time;
     }
+}
+
 }
 
 void

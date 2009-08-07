@@ -97,8 +97,8 @@ chownRecursive(const string& path, uid_t uid, gid_t gid)
         {
             name = path + "/" + name;
 
-            OS::structstat buf;
-            if(OS::osstat(name, &buf) == -1)
+            IceInternal::OS::structstat buf;
+            if(IceInternal::OS::osstat(name, &buf) == -1)
             {
                 throw "cannot stat `" + name + "':\n" + IceUtilInternal::lastErrorToString();
             }

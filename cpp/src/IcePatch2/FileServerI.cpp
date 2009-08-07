@@ -92,7 +92,7 @@ IcePatch2::FileServerI::getFileCompressed_async(const AMD_FileServer_getFileComp
         return;
     }
 
-    int fd = OS::open(_dataDir + '/' + path + ".bz2", O_RDONLY|O_BINARY);
+    int fd = IceInternal::OS::open(_dataDir + '/' + path + ".bz2", O_RDONLY|O_BINARY);
     if(fd == -1)
     {
         FileAccessException ex;

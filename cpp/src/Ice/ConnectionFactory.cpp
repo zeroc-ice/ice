@@ -1345,6 +1345,9 @@ IceInternal::IncomingConnectionFactory::read(BasicStream&)
     return false;
 }
 
+namespace
+{
+
 class PromoteFollower
 {
 public:
@@ -1363,6 +1366,8 @@ private:
 
     const ThreadPoolPtr _threadPool;
 };
+
+}
 
 void
 IceInternal::IncomingConnectionFactory::message(BasicStream&, const ThreadPoolPtr& threadPool)
