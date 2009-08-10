@@ -1,17 +1,17 @@
 #include "winver.h"
 
 VS_VERSION_INFO VERSIONINFO
- FILEVERSION 3,3,1,0
- PRODUCTVERSION 3,3,1,0
+ FILEVERSION 3,4,51,0
+ PRODUCTVERSION 3,4,51,0
  FILEFLAGSMASK VS_FFI_FILEFLAGSMASK
 #ifdef _DEBUG
  FILEFLAGS VS_FF_DEBUG
- #define INTERNALNAME "icessl33d\0"
- #define ORIGINALFILENAME "icessl33d.dll\0"
+ #define INTERNALNAME "icessl34bd\0"
+ #define ORIGINALFILENAME "icessl34bd.dll\0"
 #else
  FILEFLAGS 0x0L
- #define INTERNALNAME "icessl33\0"
- #define ORIGINALFILENAME "icessl33.dll\0"
+ #define INTERNALNAME "icessl34b\0"
+ #define ORIGINALFILENAME "icessl34b.dll\0"
 #endif
  FILEOS 0x4L
  FILETYPE VFT_DLL
@@ -23,12 +23,12 @@ BEGIN
         BEGIN
             VALUE "CompanyName", "ZeroC, Inc.\0"
             VALUE "FileDescription", "IceSSL DLL\0"
-            VALUE "FileVersion", "3.3.1\0"
+            VALUE "FileVersion", "3.4b\0"
             VALUE "InternalName", INTERNALNAME
             VALUE "LegalCopyright", "Copyright (c) 2003-2009 ZeroC, Inc.  All rights reserved.\0"
             VALUE "OriginalFilename", ORIGINALFILENAME
             VALUE "ProductName", "Ice\0"
-            VALUE "ProductVersion", "3.3.1\0"
+            VALUE "ProductVersion", "3.4b\0"
         END
     END
     BLOCK "VarFileInfo"

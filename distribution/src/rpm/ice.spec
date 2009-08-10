@@ -44,7 +44,7 @@
 %endif
 
 Name: ice
-Version: 3.3.1
+Version: 3.4b
 Summary: Files common to all Ice packages 
 Release: 1%{?dist}
 License: GPL with exceptions
@@ -56,8 +56,8 @@ Source1: Ice-rpmbuild-%{version}.tar.gz
 
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
-%define soversion 33
-%define dotnetversion 3.3.1
+%define soversion 34b
+%define dotnetversion 3.4..51
 %define dotnetpolicyversion 3.3
 
 %define formsversion 1.2.0

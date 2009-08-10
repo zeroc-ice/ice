@@ -6,7 +6,7 @@ IceBox.ServiceManager.Endpoints=tcp -p 9993
 #
 # The IceStorm service
 #
-IceBox.Service.IceStorm=IceStormService,33:createIceStorm --Ice.Config=config.s3
+IceBox.Service.IceStorm=IceStormService,34b:createIceStorm --Ice.Config=config.s3
 
 #
 # Warn about connection exceptions

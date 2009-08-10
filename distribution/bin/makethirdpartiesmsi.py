@@ -16,7 +16,7 @@ resources = os.path.join(os.path.abspath(os.path.dirname(sys.argv[0])), "..", "s
 sys.path.append(resources)
 import components
 
-iceVersion = '3.3.1'
+iceVersion = '3.4b'
 
 #
 # Current default third party library versions.

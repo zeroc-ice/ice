@@ -12,7 +12,7 @@ import getopt, os, re, shutil, string, sys, zipfile, fileinput
 import logging, cStringIO, glob
 import textwrap
 
-iceVersion = '3.3.1'
+iceVersion = '3.4b'
 looksVersion = '2.1.4'
 formsVersion = '1.2.0'
 
