@@ -5453,6 +5453,13 @@ Slice::Unit::parse(const string& filename, FILE* file, bool debug, Slice::Featur
     pushContainer(this);
     pushDefinitionContext();
 
+    //
+    // MCPP Fix: mcpp doesn't always output the first #line when mcpp_lib_main is 
+    // called repeatedly. We scan a fake #line here to ensure the top definition 
+    // context is correctly initialized.
+    //
+    scanPosition(string("#line 1 " + _topLevelFile).c_str());
+    
     slice_in = file;
     int status = slice_parse();
     if(_errors)
