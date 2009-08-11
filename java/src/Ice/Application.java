@@ -68,6 +68,10 @@ public abstract class Application
     public final int
     main(String appName, String[] args)
     {
+        if(Util.getProcessLogger() instanceof LoggerI)
+        {
+            Util.setProcessLogger(new LoggerI(appName, ""));
+        }
         return mainInternal(appName, args, new InitializationData(), null);
     }
 
@@ -117,6 +121,11 @@ public abstract class Application
     public final int
     main(String appName, String[] args, String configFile, Properties overrideProps)
     {
+        if(Util.getProcessLogger() instanceof LoggerI)
+        {
+            Util.setProcessLogger(new LoggerI(appName, ""));
+        }
+
         InitializationData initData = new InitializationData();
         if(configFile != null)
         {
@@ -127,12 +136,12 @@ public abstract class Application
             }
             catch(LocalException ex)
             {
-                error(appName, ex);
+                error("", ex);
                 return 1;
             }
             catch(java.lang.Exception ex)
             {
-                error(appName + ": unknown exception", ex);
+                error("unknown exception", ex);
                 return 1;
             }
         }
@@ -161,6 +170,10 @@ public abstract class Application
     public final int
     main(String appName, String[] args, InitializationData initializationData)
     {
+        if(Util.getProcessLogger() instanceof LoggerI)
+        {
+            Util.setProcessLogger(new LoggerI(appName, ""));
+        }
         return mainInternal(appName, args, initializationData, null);
     }
 
@@ -240,8 +253,8 @@ public abstract class Application
         }
         else
         {
-            Util.getProcessLogger().warning(_appName + 
-                        ": interrupt method called on Application configured to not handle interrupts.");
+            Util.getProcessLogger().warning(
+                "interrupt method called on Application configured to not handle interrupts.");
         }
     }
     
@@ -277,8 +290,8 @@ public abstract class Application
         }
         else
         {
-            Util.getProcessLogger().warning(_appName + 
-                        ": interrupt method called on Application configured to not handle interrupts.");
+            Util.getProcessLogger().warning(
+                "interrupt method called on Application configured to not handle interrupts.");
         }
     }
 
@@ -309,8 +322,8 @@ public abstract class Application
         }
         else
         {
-            Util.getProcessLogger().warning(_appName + 
-                        ": interrupt method called on Application configured to not handle interrupts.");
+            Util.getProcessLogger().warning(
+                "interrupt method called on Application configured to not handle interrupts.");
         }
     }
     
@@ -327,8 +340,8 @@ public abstract class Application
         }
         else
         {
-            Util.getProcessLogger().warning(_appName + 
-                        ": interrupt method called on Application configured to not handle interrupts.");
+            Util.getProcessLogger().warning(
+                "interrupt method called on Application configured to not handle interrupts.");
         }
     }
 
@@ -352,7 +365,7 @@ public abstract class Application
     {
         if(_communicator != null)
         {
-            Util.getProcessLogger().error(appName + ": only one instance of the Application class can be used");
+            Util.getProcessLogger().error("only one instance of the Application class can be used");
             return 1;
         }
 
@@ -385,7 +398,7 @@ public abstract class Application
         // If the process logger is the default logger, we replace it with a
         // a logger which is using the program name for the prefix.
         //
-        if(Util.getProcessLogger() instanceof LoggerI)
+        if(!initData.properties.getProperty("Ice.ProgramName").equals("") && Util.getProcessLogger() instanceof LoggerI)
         {
             Util.setProcessLogger(new LoggerI(initData.properties.getProperty("Ice.ProgramName"), ""));
         }
@@ -408,12 +421,12 @@ public abstract class Application
         }
         catch(LocalException ex)
         {
-            error(_appName, ex);
+            error("", ex);
             status = 1;
         }
         catch(java.lang.Exception ex)
         {
-            error(_appName + ": unknown exception", ex);
+            error("unknown exception", ex);
             status = 1;
         }
         catch(java.lang.Error err)
@@ -421,7 +434,7 @@ public abstract class Application
             //
             // We catch Error to avoid hangs in some non-fatal situations
             //
-            error(_appName + ": Java error", err);
+            error("Java error", err);
             status = 1;
         }
 
@@ -467,12 +480,12 @@ public abstract class Application
             }
             catch(LocalException ex)
             {
-                error(_appName, ex);
+                error("", ex);
                 status = 1;
             }
             catch(java.lang.Exception ex)
             {
-                error(_appName + ": unknown exception", ex);
+                error("unknown exception", ex);
                 status = 1;
             }
             _communicator = null;
@@ -679,8 +692,14 @@ public abstract class Application
         java.io.PrintWriter pw = new java.io.PrintWriter(sw);
         ex.printStackTrace(pw);
         pw.flush();
-        String s = msg + ":\n" + sw.toString();
-        Util.getProcessLogger().error(s);
+        if(msg.equals(""))
+        {
+            Util.getProcessLogger().error(sw.toString());
+        }
+        else
+        {
+            Util.getProcessLogger().error(msg + ":\n" + sw.toString());
+        }
     }
 
     private static String _appName;

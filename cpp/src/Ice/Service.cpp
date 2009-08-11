@@ -849,12 +849,15 @@ Ice::Service::run(int& argc, char* argv[], const InitializationData& initData)
         error("service caught unhandled C++ exception");
     }
 
-    try
+    if(_communicator)
     {
-        _communicator->destroy();
-    }
-    catch(...)
-    {
+        try
+        {
+            _communicator->destroy();
+        }
+        catch(...)
+        {
+        }
     }
 
     return status;
@@ -1627,6 +1630,7 @@ Ice::Service::serviceMain(int argc, char* argv[])
 
     try
     {
+        assert(_communicator);
         _communicator->destroy();
     }
     catch(...)
@@ -2105,12 +2109,15 @@ Ice::Service::runDaemon(int argc, char* argv[], const InitializationData& initDa
         close(fds[1]);
     }
 
-    try
+    if(_communicator)
     {
-        _communicator->destroy();
-    }
-    catch(...)
-    {
+        try
+        {
+            _communicator->destroy();
+        }
+        catch(...)
+        {
+        }
     }
 
     return status;

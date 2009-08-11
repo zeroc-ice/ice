@@ -100,6 +100,10 @@ namespace Ice
         /// the return value is non-zero.</returns>
         public int main(string[] args)
         {
+            if(Util.getProcessLogger() is LoggerI)
+            {
+                Util.setProcessLogger(new LoggerI(_appName, ""));
+            }
             return mainInternal(args, new InitializationData(), null);
         }
 
@@ -141,6 +145,11 @@ namespace Ice
         /// the return value is non-zero.</returns>
         public int main(string[] args, string configFile, Properties overrideProps)
         {
+            if(Util.getProcessLogger() is LoggerI)
+            {
+                Util.setProcessLogger(new LoggerI(_appName, ""));
+            }
+
             InitializationData initData = new InitializationData();
             if(configFile != null)
             {
@@ -151,12 +160,12 @@ namespace Ice
                 }
                 catch(Ice.Exception ex)
                 {
-                    Util.getProcessLogger().error(_appName + ":\n" + ex);
+                    Util.getProcessLogger().error(ex.ToString());
                     return 1;
                 }
                 catch(System.Exception ex)
                 {
-                    Util.getProcessLogger().error(_appName + ": unknown exception:\n" + ex);
+                    Util.getProcessLogger().error("unknown exception:\n" + ex);
                     return 1;
                 }
             }
@@ -179,6 +188,10 @@ namespace Ice
         /// the return value is non-zero.</returns>
         public int main(string[] args, InitializationData initData)
         {
+            if(Util.getProcessLogger() is LoggerI)
+            {
+                Util.setProcessLogger(new LoggerI(_appName, ""));
+            }
             return mainInternal(args, initData, null);
         }
 
@@ -225,8 +238,8 @@ namespace Ice
             }
             else
             {
-                Util.getProcessLogger().warning(_appName +
-                            ": interrupt method called on Application configured to not handle interrupts.");
+                Util.getProcessLogger().warning(
+                    "interrupt method called on Application configured to not handle interrupts.");
             }
         }
 
@@ -249,8 +262,8 @@ namespace Ice
             }
             else
             {
-                Util.getProcessLogger().warning(_appName +
-                            ": interrupt method called on Application configured to not handle interrupts.");
+                Util.getProcessLogger().warning(
+                            "interrupt method called on Application configured to not handle interrupts.");
             }
         }
 
@@ -273,8 +286,8 @@ namespace Ice
             }
             else
             {
-                Util.getProcessLogger().warning(_appName +
-                            ": interrupt method called on Application configured to not handle interrupts.");
+                Util.getProcessLogger().warning(
+                            "interrupt method called on Application configured to not handle interrupts.");
             }
         }
 
@@ -298,8 +311,8 @@ namespace Ice
             }
             else
             {
-                Util.getProcessLogger().warning(_appName +
-                            ": interrupt method called on Application configured to not handle interrupts.");
+                Util.getProcessLogger().warning(
+                            "interrupt method called on Application configured to not handle interrupts.");
             }
         }
 
@@ -323,8 +336,8 @@ namespace Ice
             }
             else
             {
-                Util.getProcessLogger().warning(_appName +
-                            ": interrupt method called on Application configured to not handle interrupts.");
+                Util.getProcessLogger().warning(
+                            "interrupt method called on Application configured to not handle interrupts.");
             }
         }
 
@@ -356,8 +369,8 @@ namespace Ice
             }
             else
             {
-                Util.getProcessLogger().warning(_appName +
-                            ": interrupt method called on Application configured to not handle interrupts.");
+                Util.getProcessLogger().warning(
+                            "interrupt method called on Application configured to not handle interrupts.");
             }
         }
 
@@ -378,7 +391,7 @@ namespace Ice
         {
             if(_communicator != null)
             {
-                Util.getProcessLogger().error(_appName + ": only one instance of the Application class can be used");
+                Util.getProcessLogger().error("only one instance of the Application class can be used");
                 return 1;
             }
 
@@ -440,7 +453,7 @@ namespace Ice
                 // If the process logger is the default logger, we replace it with a
                 // a logger which is using the program name for the prefix.
                 //
-                if(Util.getProcessLogger() is LoggerI)
+                if(initData.properties.getProperty("Ice.ProgramName").Length > 0 && Util.getProcessLogger() is LoggerI)
                 {
                     Util.setProcessLogger(new LoggerI(initData.properties.getProperty("Ice.ProgramName"), ""));
                 }
@@ -465,12 +478,12 @@ namespace Ice
             }
             catch(Ice.Exception ex)
             {
-                Util.getProcessLogger().error(_appName + ":\n" + ex);
+                Util.getProcessLogger().error(ex.ToString());
                 status = 1;
             }
             catch(System.Exception ex)
             {
-                Util.getProcessLogger().error(_appName + ": unknown exception:\n" + ex);
+                Util.getProcessLogger().error("unknown exception:\n" + ex);
                 status = 1;
             }
 
@@ -514,12 +527,12 @@ namespace Ice
                 }
                 catch(Ice.Exception ex)
                 {
-                    Util.getProcessLogger().error(_appName + ":\n" + ex);
+                    Util.getProcessLogger().error(ex.ToString());
                     status = 1;
                 }
                 catch(System.Exception ex)
                 {
-                    Util.getProcessLogger().error(_appName + ": unknown exception:\n" + ex);
+                    Util.getProcessLogger().error("unknown exception:\n" + ex);
                     status = 1;
                 }
                 _communicator = null;
@@ -613,8 +626,7 @@ namespace Ice
             }
             catch(System.Exception ex)
             {
-                Util.getProcessLogger().error(
-                    _appName + " (while destroying in response to signal " + sig + "):\n" + ex);
+                Util.getProcessLogger().error("(while destroying in response to signal " + sig + "):\n" + ex);
             }
 
             lock(_mutex)
@@ -652,8 +664,7 @@ namespace Ice
             }
             catch(System.Exception ex)
             {
-                Util.getProcessLogger().error(
-                    _appName + " (while shutting down in response to signal " + sig + "):\n" + ex);
+                Util.getProcessLogger().error("(while shutting down in response to signal " + sig + "):\n" + ex);
             }
 
             lock(_mutex)
@@ -688,8 +699,7 @@ namespace Ice
             }
             catch(System.Exception ex)
             {
-                Util.getProcessLogger().error(
-                    _appName + " (while interrupting in response to signal " + sig + "):\n" + ex);
+                Util.getProcessLogger().error("(while interrupting in response to signal " + sig + "):\n" + ex);
             }
 
             lock(_mutex)

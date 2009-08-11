@@ -151,7 +151,7 @@ destroyOnInterruptCallback(int signal)
     catch(const Ice::Exception& ex)
     {
         Error out(getProcessLogger());
-        out << _appName << " (while destroying in response to signal " << signal << "): " << ex.what();
+        out << "(while destroying in response to signal " << signal << "): " << ex.what();
 #ifdef __GNUC__
         out << "\n" << ex.ice_stackTrace();
 #endif
@@ -159,22 +159,22 @@ destroyOnInterruptCallback(int signal)
     catch(const std::exception& ex)
     {
         Error out(getProcessLogger());
-        out << _appName << " (while destroying in response to signal " << signal << "): " << ex.what();
+        out << "(while destroying in response to signal " << signal << "): " << ex.what();
     }
     catch(const std::string& msg)
     {
         Error out(getProcessLogger());
-        out << _appName << " (while destroying in response to signal " << signal << "): " << msg;
+        out << "(while destroying in response to signal " << signal << "): " << msg;
     }
     catch(const char* msg)
     {
         Error out(getProcessLogger());
-        out << _appName << " (while destroying in response to signal " << signal << "): " << msg;
+        out << "(while destroying in response to signal " << signal << "): " << msg;
     }
     catch(...)
     {
         Error out(getProcessLogger());
-        out << _appName << " (while destroying in response to signal " << signal << "): unknown exception";
+        out << "(while destroying in response to signal " << signal << "): unknown exception";
     }
 
     {
@@ -214,8 +214,7 @@ shutdownOnInterruptCallback(int signal)
     catch(const Ice::Exception& ex)
     {
         Error out(getProcessLogger());
-        out << _appName << " (while shutting down in response to signal " << signal << "): std::exception: "
-            << ex.what();
+        out << "(while shutting down in response to signal " << signal << "): std::exception: " << ex.what();
 #ifdef __GNUC__
         out << "\n" << ex.ice_stackTrace();
 #endif
@@ -223,23 +222,22 @@ shutdownOnInterruptCallback(int signal)
     catch(const std::exception& ex)
     {
         Error out(getProcessLogger());
-        out << _appName << " (while shutting down in response to signal " << signal << "): std::exception: "
-            << ex.what();
+        out << "(while shutting down in response to signal " << signal << "): std::exception: " << ex.what();
     }
     catch(const std::string& msg)
     {
         Error out(getProcessLogger());
-        out << _appName << " (while shutting down in response to signal " << signal << "): " << msg;
+        out << "(while shutting down in response to signal " << signal << "): " << msg;
     }
     catch(const char* msg)
     {
         Error out(getProcessLogger());
-        out << _appName << " (while shutting down in response to signal " << signal << "): " << msg;
+        out << "(while shutting down in response to signal " << signal << "): " << msg;
     }
     catch(...)
     {
         Error out(getProcessLogger());
-        out << _appName << " (while shutting down in response to signal " << signal << "): unknown exception";
+        out << "(while shutting down in response to signal " << signal << "): unknown exception";
     }
 
     {
@@ -276,8 +274,7 @@ callbackOnInterruptCallback(int signal)
     catch(const Ice::Exception& ex)
     {
         Error out(getProcessLogger());
-        out << _appName << " (while interrupting in response to signal " << signal << "): std::exception: "
-             << ex.what();
+        out << "(while interrupting in response to signal " << signal << "): std::exception: " << ex.what();
 #ifdef __GNUC__
         out << "\n" << ex.ice_stackTrace();
 #endif
@@ -285,23 +282,22 @@ callbackOnInterruptCallback(int signal)
     catch(const std::exception& ex)
     {
         Error out(getProcessLogger());
-        out << _appName << " (while interrupting in response to signal " << signal << "): std::exception: "
-             << ex.what();
+        out << "(while interrupting in response to signal " << signal << "): std::exception: " << ex.what();
     }
     catch(const std::string& msg)
     {
         Error out(getProcessLogger());
-        out << _appName << " (while interrupting in response to signal " << signal << "): " << msg;
+        out << "(while interrupting in response to signal " << signal << "): " << msg;
     }
     catch(const char* msg)
     {
         Error out(getProcessLogger());
-        out << _appName << " (while interrupting in response to signal " << signal << "): " << msg;
+        out << "(while interrupting in response to signal " << signal << "): " << msg;
     }
     catch(...)
     {
         Error out(getProcessLogger());
-        out << _appName << " (while interrupting in response to signal " << signal << "): unknown exception";
+        out << "(while interrupting in response to signal " << signal << "): unknown exception";
     }
 
     {
@@ -323,6 +319,10 @@ Ice::Application::~Application()
 int
 Ice::Application::main(int argc, char* argv[])
 {
+    if(argc > 0 && argv[0] && LoggerIPtr::dynamicCast(getProcessLogger()))
+    {
+        setProcessLogger(new LoggerI(argv[0], ""));
+    }
     return mainInternal(argc, argv, InitializationData(), 0);
 }
 
@@ -339,6 +339,11 @@ Ice::Application::main(int argc, char* argv[], const char* configFile, const Ice
     // We don't call the main below to avoid a deprecated warning
     //
 
+    if(argc > 0 && argv[0] && LoggerIPtr::dynamicCast(getProcessLogger()))
+    {
+        setProcessLogger(new LoggerI(argv[0], ""));
+    }
+
     InitializationData initData;
     if(configFile)
     {
@@ -350,10 +355,6 @@ Ice::Application::main(int argc, char* argv[], const char* configFile, const Ice
         catch(const Ice::Exception& ex)
         {
             Error out(getProcessLogger());
-	    if(argv[0])
-	    {
-		out << argv[0] << ": ";
-	    }
 	    out << ex.what();
 #ifdef __GNUC__
             out << "\n" << ex.ice_stackTrace();
@@ -363,20 +364,12 @@ Ice::Application::main(int argc, char* argv[], const char* configFile, const Ice
         catch(const std::exception& ex)
         {
             Error out(getProcessLogger());
-	    if(argv[0])
-	    {
-		out << argv[0] << ": ";
-	    }
 	    out << ex.what();
             return EXIT_FAILURE;
         }
         catch(...)
         {
             Error out(getProcessLogger());
-	    if(argv[0])
-	    {
-		out << argv[0] << ": ";
-	    }
             out << "unknown exception";
             return EXIT_FAILURE;
         }
@@ -387,6 +380,10 @@ Ice::Application::main(int argc, char* argv[], const char* configFile, const Ice
 int
 Ice::Application::main(int argc, char* argv[], const InitializationData& initData)
 {
+    if(argc > 0 && argv[0] && LoggerIPtr::dynamicCast(getProcessLogger()))
+    {
+        setProcessLogger(new LoggerI(argv[0], ""));
+    }
     return mainInternal(argc, argv, initData, 0);
 }
 
@@ -454,7 +451,7 @@ Ice::Application::destroyOnInterrupt()
     else
     {
         Warning out(getProcessLogger());
-        out << _appName << ": interrupt method called on Application configured to not handle interrupts.";
+        out << "interrupt method called on Application configured to not handle interrupts.";
     }
 }
 
@@ -477,7 +474,7 @@ Ice::Application::shutdownOnInterrupt()
     else
     {
         Warning out(getProcessLogger());
-        out << _appName << ": interrupt method called on Application configured to not handle interrupts."; 
+        out << "interrupt method called on Application configured to not handle interrupts."; 
     }
 }
 
@@ -500,7 +497,7 @@ Ice::Application::ignoreInterrupt()
     else
     {
         Warning out(getProcessLogger());
-        out << _appName << ": interrupt method called on Application configured to not handle interrupts.";
+        out << "interrupt method called on Application configured to not handle interrupts.";
     }
 }
 
@@ -523,7 +520,7 @@ Ice::Application::callbackOnInterrupt()
     else
     {
         Warning out(getProcessLogger());
-        out << _appName << ": interrupt method called on Application configured to not handle interrupts.";
+        out << "interrupt method called on Application configured to not handle interrupts.";
     }
 }
 
@@ -547,7 +544,7 @@ Ice::Application::holdInterrupt()
     else
     {
         Warning out(getProcessLogger());
-        out << _appName << ": interrupt method called on Application configured to not handle interrupts.";
+        out << "interrupt method called on Application configured to not handle interrupts.";
     }
 }
 
@@ -578,7 +575,7 @@ Ice::Application::releaseInterrupt()
     else
     {
         Warning out(getProcessLogger());
-        out << _appName << ": interrupt method called on Application configured to not handle interrupts.";
+        out << "interrupt method called on Application configured to not handle interrupts.";
     }
 }
 
@@ -596,10 +593,6 @@ Ice::Application::mainInternal(int argc, char* argv[], const InitializationData&
     if(_communicator != 0)
     {
         Error out(getProcessLogger());
-	if(argv[0])
-	{
-	    out << argv[0] << ": ";
-	}
         out << "only one instance of the Application class can be used";
         return EXIT_FAILURE;
     }
@@ -626,10 +619,6 @@ Ice::Application::mainInternal(int argc, char* argv[], const InitializationData&
         catch(const CtrlCHandlerException&)
         {
             Error out(getProcessLogger());
-	    if(argv[0])
-	    {
-		out << argv[0] << ": ";
-	    }
             out << "only one instance of the CtrlCHandler class can be used";
             status = EXIT_FAILURE;
         }
@@ -673,10 +662,10 @@ Ice::Application::executeRun(int argc, char* argv[], const InitializationData& i
         }
 
         //
-        // If the process logger is the default logger, we replace it with a
+        // If the process logger is the default logger, we now replace it with a
         // a logger which is using the program name for the prefix.
         //
-        if(LoggerIPtr::dynamicCast(getProcessLogger()))
+        if(initData.properties->getProperty("Ice.ProgramName") != "" && LoggerIPtr::dynamicCast(getProcessLogger()))
         {
             setProcessLogger(new LoggerI(initData.properties->getProperty("Ice.ProgramName"), ""));
         }
@@ -703,7 +692,7 @@ Ice::Application::executeRun(int argc, char* argv[], const InitializationData& i
     catch(const Ice::Exception& ex)
     {
         Error out(getProcessLogger());
-        out << ": " << ex.what();
+        out << ex.what();
 #ifdef __GNUC__
         out << "\n" << ex.ice_stackTrace();
 #endif
@@ -712,25 +701,25 @@ Ice::Application::executeRun(int argc, char* argv[], const InitializationData& i
     catch(const std::exception& ex)
     {
         Error out(getProcessLogger());
-        out << ": " << ex.what();
+        out << ex.what();
         status = EXIT_FAILURE;
     }
     catch(const std::string& msg)
     {
         Error out(getProcessLogger());
-        out << _appName << ": " << msg;
+        out << msg;
         status = EXIT_FAILURE;
     }
     catch(const char* msg)
     {
         Error out(getProcessLogger());
-        out << _appName << ": " << msg;
+        out << msg;
         status = EXIT_FAILURE;
     }
     catch(...)
     {
         Error out(getProcessLogger());
-        out << _appName << ": unknown exception";
+        out << "unknown exception";
         status = EXIT_FAILURE;
     }
 
@@ -775,7 +764,7 @@ Ice::Application::executeRun(int argc, char* argv[], const InitializationData& i
         catch(const Ice::Exception& ex)
         {
             Error out(getProcessLogger());
-            out << _appName << ": " << ex.what();
+            out << ex.what();
 #ifdef __GNUC__
             out << "\n" << ex.ice_stackTrace();
 #endif
@@ -784,13 +773,13 @@ Ice::Application::executeRun(int argc, char* argv[], const InitializationData& i
         catch(const std::exception& ex)
         {
             Error out(getProcessLogger());
-            out << _appName << ": " << ex.what();
+            out << ex.what();
             status = EXIT_FAILURE;
         }
         catch(...)
         {
             Error out(getProcessLogger());
-            out << _appName << ": unknown exception";
+            out << "unknown exception";
             status = EXIT_FAILURE;
         }
         _communicator = 0;
