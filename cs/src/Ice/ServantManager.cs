@@ -271,7 +271,6 @@ public sealed class ServantManager
             if(l != null)
             {
                 _locatorMap.Remove(category);
-                l.deactivate(category);
             }
             return l;
         }
@@ -325,30 +324,41 @@ public sealed class ServantManager
     //
     public void destroy()
     {
+        Dictionary<string, Ice.ServantLocator> locatorMap = null;
+        Ice.Logger logger = null;
         lock(this)
         {
             Debug.Assert(instance_ != null); // Must not be called after destruction.
-            
+            logger = instance_.initializationData().logger;
             _servantMapMap.Clear();
             
-            foreach(KeyValuePair<string, Ice.ServantLocator> p in _locatorMap)
+            try
             {
-                Ice.ServantLocator locator = p.Value;
-                try
-                {
-                    locator.deactivate(p.Key);
-                }
-                catch(System.Exception ex)
-                {
-                    string s = "exception during locator deactivation:\n" + "object adapter: `"
-                               + _adapterName + "'\n" + "locator category: `" + p.Key + "'\n" + ex;
-                    instance_.initializationData().logger.error(s);
-                }
+                locatorMap = new Dictionary<string, Ice.ServantLocator>(_locatorMap);
             }
-            
+            catch(System.Exception ex)
+            {
+                string s = "exception during servant manager destroy:\n" + "object adapter: `"
+                            + _adapterName + "'\n" + ex;
+                logger.error(s);
+            }
             _locatorMap.Clear();
-
             instance_ = null;
+        }
+
+        foreach(KeyValuePair<string, Ice.ServantLocator> p in locatorMap)
+        {
+            Ice.ServantLocator locator = p.Value;
+            try
+            {
+                locator.deactivate(p.Key);
+            }
+            catch(System.Exception ex)
+            {
+                string s = "exception during locator deactivation:\n" + "object adapter: `"
+                            + _adapterName + "'\n" + "locator category: `" + p.Key + "'\n" + ex;
+                logger.error(s);
+            }
         }
     }
     

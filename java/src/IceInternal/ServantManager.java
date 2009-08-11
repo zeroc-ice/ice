@@ -229,13 +229,10 @@ public final class ServantManager
     public synchronized Ice.ServantLocator
     removeServantLocator(String category)
     {
+        Ice.ServantLocator l = null;
         assert(_instance != null); // Must not be called after destruction.
-
-        Ice.ServantLocator l = _locatorMap.remove(category);
-        if(l != null)
-        {
-            l.deactivate(category);
-        }
+    
+        l = _locatorMap.remove(category);
         return l;
     }
 
@@ -266,15 +263,26 @@ public final class ServantManager
     //
     // Only for use by Ice.ObjectAdapterI.
     //
-    public synchronized void
+    public void
     destroy()
     {
-        assert(_instance != null); // Must not be called after destruction.
-
-        _servantMapMap.clear();
-
-        for(java.util.Map.Entry<String, Ice.ServantLocator> p : _locatorMap.entrySet())
+        Object[] locatorMap = null;
+        Ice.Logger logger = null;
+        synchronized(this)
         {
+            assert(_instance != null); // Must not be called after destruction.
+            logger = _instance.initializationData().logger;
+            _servantMapMap.clear();
+            _locatorMap.clear();
+            locatorMap = _locatorMap.entrySet().toArray();
+            _instance = null;
+        }
+
+        for(int i = 0; i < locatorMap.length; ++i)
+        {
+            @SuppressWarnings("unchecked")
+            java.util.Map.Entry<String, Ice.ServantLocator> p =
+                                                    (java.util.Map.Entry<String, Ice.ServantLocator>)locatorMap[i];
             Ice.ServantLocator locator = p.getValue();
             try
             {
@@ -288,13 +296,9 @@ public final class ServantManager
                 pw.flush();
                 String s = "exception during locator deactivation:\n" + "object adapter: `" + _adapterName + "'\n" +
                     "locator category: `" + p.getKey() + "'\n" + sw.toString();
-                _instance.initializationData().logger.error(s);
+                logger.error(s);
             }
         }
-
-        _locatorMap.clear();
-
-        _instance = null;
     }
 
     private Instance _instance;

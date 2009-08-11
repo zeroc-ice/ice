@@ -61,8 +61,10 @@ public:
         }
         else
         {
-            current.adapter->removeServantLocator("");
-            current.adapter->removeServantLocator("category");
+            ServantLocatorPtr locator = current.adapter->removeServantLocator("");
+            locator->deactivate("");
+            locator = current.adapter->removeServantLocator("category");
+            locator->deactivate("category");
         }
     }
 };

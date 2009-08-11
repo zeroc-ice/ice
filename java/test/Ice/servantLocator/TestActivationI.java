@@ -22,8 +22,10 @@ public final class TestActivationI extends _TestActivationDisp
         }
         else
         {
-            current.adapter.removeServantLocator("");
-            current.adapter.removeServantLocator("category");
+            Ice.ServantLocator locator = current.adapter.removeServantLocator("");
+            locator.deactivate("");
+            locator = current.adapter.removeServantLocator("category");
+            locator.deactivate("category");
         }
     }
 }

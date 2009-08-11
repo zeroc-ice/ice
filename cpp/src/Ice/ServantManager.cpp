@@ -366,7 +366,6 @@ IceInternal::ServantManager::removeServantLocator(const string& category)
     if(p != _locatorMap.end())
     {
         locator = p->second;
-        locator->deactivate(p->first);
         _locatorMap.erase(p);
         _locatorMapHint = _locatorMap.begin();
     }
@@ -438,45 +437,46 @@ IceInternal::ServantManager::destroy()
 {
     ServantMapMap servantMapMap;
     map<string, ServantLocatorPtr> locatorMap;
+    Ice::LoggerPtr logger;
 
     {
         IceUtil::Mutex::Lock sync(*this);
         
         assert(_instance); // Must not be called after destruction.
         
+        logger = _instance->initializationData().logger;
         servantMapMap.swap(_servantMapMap);
         _servantMapMapHint = _servantMapMap.end();
         
-        for(map<string, ServantLocatorPtr>::const_iterator p = _locatorMap.begin(); p != _locatorMap.end(); ++p)
-        {
-            try
-            {
-                p->second->deactivate(p->first);
-            }
-            catch(const Exception& ex)
-            {
-                Error out(_instance->initializationData().logger);
-                out << "exception during locator deactivation:\n"
-                    << "object adapter: `" << _adapterName << "'\n"
-                    << "locator category: `" << p->first << "'\n"
-                    << ex;
-#ifdef __GNUC__
-                out << "\n" << ex.ice_stackTrace();
-#endif
-            }
-            catch(...)
-            {
-                Error out(_instance->initializationData().logger);
-                out << "unknown exception during locator deactivation:\n"
-                    << "object adapter: `" << _adapterName << "'\n"
-                    << "locator category: `" << p->first << "'";
-            }
-        }
-        
         locatorMap.swap(_locatorMap);
         _locatorMapHint = _locatorMap.end();
-        
         _instance = 0;
+    }
+
+    for(map<string, ServantLocatorPtr>::const_iterator p = locatorMap.begin(); p != locatorMap.end(); ++p)
+    {
+        try
+        {
+            p->second->deactivate(p->first);
+        }
+        catch(const Exception& ex)
+        {
+            Error out(logger);
+            out << "exception during locator deactivation:\n"
+                << "object adapter: `" << _adapterName << "'\n"
+                << "locator category: `" << p->first << "'\n"
+                << ex;
+#ifdef __GNUC__
+            out << "\n" << ex.ice_stackTrace();
+#endif
+        }
+        catch(...)
+        {
+            Error out(logger);
+            out << "unknown exception during locator deactivation:\n"
+                << "object adapter: `" << _adapterName << "'\n"
+                << "locator category: `" << p->first << "'";
+        }
     }
 
     //
