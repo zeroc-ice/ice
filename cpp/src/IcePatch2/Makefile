@@ -23,8 +23,7 @@ TARGETS         = $(LIBTARGETS) $(SERVER) $(CLIENT) $(CALC)
 OBJS		= Util.o \
 		  ClientUtil.o \
 		  FileInfo.o \
-		  FileServer.o \
-		  OS.o
+		  FileServer.o
 
 SOBJS		= Server.o \
 		  FileServerI.o

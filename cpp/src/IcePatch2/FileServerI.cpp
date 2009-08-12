@@ -12,7 +12,6 @@
 #include <IceUtil/ScopedArray.h>
 #include <IceUtil/Unicode.h>
 #include <IcePatch2/FileServerI.h>
-#include <OS.h>
 
 #ifdef _WIN32
 #   include <io.h>
@@ -92,7 +91,7 @@ IcePatch2::FileServerI::getFileCompressed_async(const AMD_FileServer_getFileComp
         return;
     }
 
-    int fd = IceInternal::OS::open(_dataDir + '/' + path + ".bz2", O_RDONLY|O_BINARY);
+    int fd = IceUtilInternal::open(_dataDir + '/' + path + ".bz2", O_RDONLY|O_BINARY);
     if(fd == -1)
     {
         FileAccessException ex;

@@ -12,7 +12,6 @@
 #include <IceUtil/StringUtil.h>
 #include <IceUtil/FileUtil.h>
 #include <IcePatch2/Util.h>
-#include <OS.h>
 
 #ifdef __BCPLUSPLUS__
 #  include <iterator>
@@ -195,7 +194,7 @@ main(int argc, char* argv[])
         string absDataDir = dataDir;
     
         string cwd;
-        if(IceInternal::OS::getcwd(cwd) != 0)
+        if(IceUtilInternal::getcwd(cwd) != 0)
         {
             throw "cannot get the current directory:\n" + IceUtilInternal::lastErrorToString();
         }

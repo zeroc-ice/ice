@@ -15,7 +15,6 @@
 #include <IcePatch2/Util.h>
 #include <IcePatch2/FileServerI.h>
 #include <list>
-#include <OS.h>
 
 #ifdef __BCPLUSPLUS__
 #  include <iterator>
@@ -459,7 +458,7 @@ IcePatch2::Patcher::prepare()
     sort(_updateFlags.begin(), _updateFlags.end(), FileInfoLess());
                 
     string pathLog = simplify(_dataDir + '/' + logFile);
-    _log = IceInternal::OS::fopen(pathLog, "w");
+    _log = IceUtilInternal::fopen(pathLog, "w");
     if(!_log)
     {
         throw "cannot open `" + pathLog + "' for writing:\n" + IceUtilInternal::lastErrorToString();
@@ -620,7 +619,7 @@ IcePatch2::Patcher::init(const FileServerPrx& server)
     if(!IceUtilInternal::isAbsolutePath(_dataDir))
     {
         string cwd;
-        if(IceInternal::OS::getcwd(cwd) != 0)
+        if(IceUtilInternal::getcwd(cwd) != 0)
         {
             throw "cannot get the current directory:\n" + IceUtilInternal::lastErrorToString();
         }
@@ -823,7 +822,7 @@ IcePatch2::Patcher::updateFilesInternal(const FileInfoSeq& files, const Decompre
             if(p->size == 0)
             {
                 string path = simplify(_dataDir + '/' + p->path);
-                FILE* fp = IceInternal::OS::fopen(path, "wb");
+                FILE* fp = IceUtilInternal::fopen(path, "wb");
                 if(fp == 0)
                 {
                     throw "cannot open `" + path +"' for writing:\n" + IceUtilInternal::lastErrorToString();
@@ -848,7 +847,7 @@ IcePatch2::Patcher::updateFilesInternal(const FileInfoSeq& files, const Decompre
                 {
                 }
                 
-                FILE* fileBZ2 = IceInternal::OS::fopen(pathBZ2, "wb");
+                FILE* fileBZ2 = IceUtilInternal::fopen(pathBZ2, "wb");
                 if(fileBZ2 == 0)
                 {
                     throw "cannot open `" + pathBZ2 + "' for writing:\n" + IceUtilInternal::lastErrorToString();

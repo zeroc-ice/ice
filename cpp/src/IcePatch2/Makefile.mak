@@ -21,8 +21,7 @@ TARGETS         = $(LIBNAME) $(DLLNAME) $(SERVER) $(CLIENT) $(CALC)
 OBJS		= Util.obj \
 		  ClientUtil.obj \
 		  FileInfo.obj \
-		  FileServer.obj \
-		  OS.obj
+		  FileServer.obj
 
 SOBJS		= Server.obj \
 		  FileServerI.obj

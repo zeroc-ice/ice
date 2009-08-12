@@ -17,7 +17,6 @@
 #include <IceGrid/DescriptorHelper.h>
 
 #include <IcePatch2/Util.h>
-#include <IcePatch2/OS.h>
 #include <IceUtil/FileUtil.h>
 
 #include <sys/types.h>
@@ -97,8 +96,8 @@ chownRecursive(const string& path, uid_t uid, gid_t gid)
         {
             name = path + "/" + name;
 
-            IceInternal::OS::structstat buf;
-            if(IceInternal::OS::osstat(name, &buf) == -1)
+            IceUtilInternal::structstat buf;
+            if(IceUtilInternal::stat(name, &buf) == -1)
             {
                 throw "cannot stat `" + name + "':\n" + IceUtilInternal::lastErrorToString();
             }

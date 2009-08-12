@@ -13,7 +13,6 @@
 #include <Ice/Service.h>
 #include <IcePatch2/FileServerI.h>
 #include <IcePatch2/Util.h>
-#include <OS.h>
 
 using namespace std;
 using namespace Ice;
@@ -125,7 +124,7 @@ IcePatch2::PatcherService::start(int argc, char* argv[])
         if(!IceUtilInternal::isAbsolutePath(dataDir))
         {
             string cwd;
-            if(IceInternal::OS::getcwd(cwd) != 0)
+            if(IceUtilInternal::getcwd(cwd) != 0)
             {
                 throw "cannot get the current directory:\n" + IceUtilInternal::lastErrorToString();
             }
