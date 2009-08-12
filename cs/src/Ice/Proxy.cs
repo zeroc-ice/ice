@@ -635,7 +635,7 @@ namespace Ice
                 {
                     checkTwowayOnly__("ice_ids");
                     del__ = getDelegate__(false);
-                    return del__.ice_ids(context__);
+                    return (string[])del__.ice_ids(context__).Clone();
                 }
                 catch(IceInternal.LocalExceptionWrapper ex__)
                 {
@@ -815,7 +815,7 @@ namespace Ice
         /// </summary>
         public Identity ice_getIdentity()
         {
-            return _reference.getIdentity();
+            return (Identity)_reference.getIdentity().Clone();
         }
 
         /// <summary>
@@ -848,7 +848,7 @@ namespace Ice
         /// is null.</returns>
         public Dictionary<string, string> ice_getContext()
         {
-            return _reference.getContext();
+	    return new Dictionary<string, string>(_reference.getContext());
         }
 
         /// <summary>
@@ -933,7 +933,7 @@ namespace Ice
         /// <returns>The endpoints used by this proxy.</returns>
         public Endpoint[] ice_getEndpoints()
         {
-            return _reference.getEndpoints();
+            return (Endpoint[])_reference.getEndpoints().Clone();
         }
 
         /// <summary>

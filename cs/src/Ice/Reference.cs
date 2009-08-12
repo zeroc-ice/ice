@@ -445,7 +445,7 @@ namespace IceInternal
 
         public override EndpointI[] getEndpoints()
         {
-            return new EndpointI[0];
+            return _emptyEndpoints;
         }
 
         public override string getAdapterId()
@@ -671,6 +671,7 @@ namespace IceInternal
         }
 
         private Ice.ConnectionI _fixedConnection;
+        private static EndpointI[] _emptyEndpoints = new EndpointI[0];
     }
 
     public class RoutableReference : Reference

@@ -27,7 +27,7 @@ public class FixedReference extends Reference
     public EndpointI[]
     getEndpoints()
     {
-        return new EndpointI[0];
+        return _emptyEndpoints;
     }
 
     public String
@@ -279,6 +279,6 @@ public class FixedReference extends Reference
         return super.hashCode();
     }
 
-
     private Ice.ConnectionI _fixedConnection;
+    private static EndpointI[] _emptyEndpoints = new EndpointI[0];
 }

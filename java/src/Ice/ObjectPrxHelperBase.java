@@ -208,7 +208,7 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
             {
                 __checkTwowayOnly("ice_ids");
                 __del = __getDelegate(false);
-                return __del.ice_ids(__context);
+                return __del.ice_ids(__context).clone();
             }
             catch(IceInternal.LocalExceptionWrapper __ex)
             {
@@ -415,7 +415,7 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
     public final Identity
     ice_getIdentity()
     {
-        return _reference.getIdentity();
+        return (Identity)_reference.getIdentity().clone();
     }
 
     /**
@@ -452,7 +452,7 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
     public final java.util.Map<String, String>
     ice_getContext()
     {
-        return _reference.getContext();
+        return new java.util.HashMap<String, String>(_reference.getContext());
     }
 
     /**
@@ -549,7 +549,7 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
     public final Endpoint[]
     ice_getEndpoints()
     {
-        return _reference.getEndpoints();
+        return _reference.getEndpoints().clone();
     }
 
     /**
