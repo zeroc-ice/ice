@@ -7,9 +7,15 @@
 //
 // **********************************************************************
 
+#include <IceUtil/DisableWarnings.h>
 #include <IceUtil/FileUtil.h>
 #include <IceUtil/Unicode.h>
+#include <climits>
 
+#ifdef __BCPLUSPLUS__
+#  include <dir.h>
+#  include <io.h>
+#endif
 using namespace std;
 
 //
