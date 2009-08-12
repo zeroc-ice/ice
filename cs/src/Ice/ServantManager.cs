@@ -331,17 +331,8 @@ public sealed class ServantManager
             Debug.Assert(instance_ != null); // Must not be called after destruction.
             logger = instance_.initializationData().logger;
             _servantMapMap.Clear();
-            
-            try
-            {
-                locatorMap = new Dictionary<string, Ice.ServantLocator>(_locatorMap);
-            }
-            catch(System.Exception ex)
-            {
-                string s = "exception during servant manager destroy:\n" + "object adapter: `"
-                            + _adapterName + "'\n" + ex;
-                logger.error(s);
-            }
+
+            locatorMap = new Dictionary<string, Ice.ServantLocator>(_locatorMap);
             _locatorMap.Clear();
             instance_ = null;
         }

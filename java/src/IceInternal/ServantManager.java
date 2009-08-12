@@ -266,23 +266,21 @@ public final class ServantManager
     public void
     destroy()
     {
-        Object[] locatorMap = null;
+        java.util.Map<String, Ice.ServantLocator> locatorMap = new java.util.HashMap<String, Ice.ServantLocator>();
         Ice.Logger logger = null;
         synchronized(this)
         {
             assert(_instance != null); // Must not be called after destruction.
             logger = _instance.initializationData().logger;
             _servantMapMap.clear();
+           
+            locatorMap.putAll(_locatorMap);
             _locatorMap.clear();
-            locatorMap = _locatorMap.entrySet().toArray();
             _instance = null;
         }
 
-        for(int i = 0; i < locatorMap.length; ++i)
+        for(java.util.Map.Entry<String, Ice.ServantLocator> p : locatorMap.entrySet())
         {
-            @SuppressWarnings("unchecked")
-            java.util.Map.Entry<String, Ice.ServantLocator> p =
-                                                    (java.util.Map.Entry<String, Ice.ServantLocator>)locatorMap[i];
             Ice.ServantLocator locator = p.getValue();
             try
             {
