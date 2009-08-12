@@ -20,38 +20,19 @@ namespace
 {
 
 //
-// AMI callback class for twoway requests
+// AMI base callback class for twoway/oneway requests
 //
-class AMI_Array_Object_ice_invokeI : public AMI_Array_Object_ice_invoke, public Ice::AMISentCallback
+class IceInvokeI : public AMI_Array_Object_ice_invoke
 {
 public:
     
-    AMI_Array_Object_ice_invokeI(const AMD_Object_ice_invokePtr& amdCB,
-                                 const InstancePtr& instance,
-                                 const ConnectionPtr& connection,
-                                 bool oneway) :
+    IceInvokeI(const AMD_Object_ice_invokePtr& amdCB, const InstancePtr& instance, const ConnectionPtr& connection) :
         _amdCB(amdCB),
         _instance(instance),
-        _connection(connection),
-        _oneway(oneway)
+        _connection(connection)
     {
     }
     
-    virtual void
-    ice_response(bool ok, const pair<const Byte*, const Byte*>& outParams)
-    {
-        _amdCB->ice_response(ok, outParams);
-    }
-
-    virtual void
-    ice_sent()
-    {
-        if(_oneway)
-        {
-            _amdCB->ice_response(true, pair<const Byte*, const Byte*>(0, 0));
-        }
-    }
-
     virtual void
     ice_exception(const Exception& ex)
     {
@@ -80,12 +61,49 @@ public:
         }
     }
 
-private:
+protected:
 
     const AMD_Object_ice_invokePtr _amdCB;
     const InstancePtr _instance;
     const ConnectionPtr _connection;
-    const bool _oneway;
+};
+
+class TwowayIceInvokeI : public IceInvokeI
+{
+public:
+    
+    TwowayIceInvokeI(const AMD_Object_ice_invokePtr& amdCB, const InstancePtr& instance, const ConnectionPtr& con) :
+        IceInvokeI(amdCB, instance, con)
+    {
+    }
+
+    virtual void
+    ice_response(bool ok, const pair<const Byte*, const Byte*>& outParams)
+    {
+        _amdCB->ice_response(ok, outParams);
+    }
+};
+
+class OnewayIceInvokeI : public IceInvokeI, public Ice::AMISentCallback
+{
+public:
+    
+    OnewayIceInvokeI(const AMD_Object_ice_invokePtr& amdCB, const InstancePtr& instance, const ConnectionPtr& con) :
+        IceInvokeI(amdCB, instance, con)
+    {
+    }
+
+    virtual void
+    ice_response(bool ok, const pair<const Byte*, const Byte*>& outParams)
+    {
+        assert(false);
+    }
+
+    virtual void
+    ice_sent()
+    {
+        _amdCB->ice_response(true, pair<const Byte*, const Byte*>(0, 0));
+    }
 };
 
 }
@@ -161,8 +179,15 @@ Glacier2::Request::invoke(const InstancePtr& instance, const Ice::ConnectionPtr&
     }
     else
     {
-        AMI_Array_Object_ice_invokePtr amiCB =
-            new AMI_Array_Object_ice_invokeI(_amdCB, instance, connection, !_proxy->ice_isTwoway());
+        AMI_Array_Object_ice_invokePtr amiCB;
+        if(_proxy->ice_isTwoway())
+        {
+            amiCB = new TwowayIceInvokeI(_amdCB, instance, connection);
+        }
+        else
+        {
+            amiCB = new OnewayIceInvokeI(_amdCB, instance, connection);
+        }
         
         bool sent;
         if(_forwardContext)
