@@ -119,6 +119,34 @@ $(warning Ignoring ICE_HOME environment variable to build current source tree.)
 	else
 	    ice_cpp_dir = $(ice_dir)/cpp
 	endif
+
+    endif
+    ifeq ($(shell test -d $(top_srcdir)/ice/$(ice_language) && echo 0),0)
+        ice_dir = $(top_srcdir)/ice
+        ice_src_dist = 1
+
+        #
+        # When building a source distribution, if ICE_HOME is specified, it takes precedence over 
+        # the source tree for building the language mappings. For example, this can be used to 
+        # build the Python language mapping using the translators from the distribution specified
+        # by ICE_HOME.
+        #
+	ifneq ($(ICE_HOME),)
+	    ifdef slice_translator
+		ifneq ($(shell test -f $(ICE_HOME)/$(binsubdir)/$(slice_translator) && echo 0), 0)
+$(error Unable to find $(slice_translator) in $(ICE_HOME)/$(binsubdir), please verify ICE_HOME is properly configured and Ice is correctly installed.)
+		endif
+		ifeq ($(shell test -f $(ice_dir)/cpp/bin/$(slice_translator) && echo 0), 0)
+$(warning Found $(slice_translator) in both ICE_HOME/bin and $(ice_dir)/cpp/bin, ICE_HOME/bin/$(slice_translator) will be used!)
+		endif
+		ice_cpp_dir = $(ICE_HOME)
+	    else
+$(warning Ignoring ICE_HOME environment variable to build current source tree.)
+		ice_cpp_dir = $(ice_dir)/cpp
+	    endif
+	else
+	    ice_cpp_dir = $(ice_dir)/cpp
+	endif
     endif
 endif
 

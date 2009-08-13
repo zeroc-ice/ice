@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2009 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2009 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // LICENSE file included in this distribution.
@@ -18,7 +18,7 @@ using System.Runtime.CompilerServices;
 [assembly: AssemblyCompany("ZeroC, Inc.")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyProduct("Ice Extension for Visual Studio")]
-[assembly: AssemblyCopyright("Copyright (c) 2009 ZeroC, Inc.")]
+[assembly: AssemblyCopyright("Copyright (c) 2003-2009 ZeroC, Inc.")]
 [assembly: AssemblyTrademark("Ice")]
 [assembly: AssemblyCulture("")]
 [assembly: AssemblyVersion("1.0.0")]

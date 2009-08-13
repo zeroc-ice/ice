@@ -82,6 +82,15 @@
             <not><isset property="ice.bin.dist"/></not>
         </and>
     </condition>
+    <condition property="ice.dir" value="${ice.top.dir}/ice">
+        <and>
+            <!-- Don't just look for ${ice.top.dir}/../java - we want to make sure we are really
+                 in a source distribution. -->
+            <not><isset property="ice.dir"/></not>
+            <available file="${ice.top.dir}/ice/java/src/Ice/Util.java"/>
+            <not><isset property="ice.bin.dist"/></not>
+        </and>
+    </condition>
     <!-- When building a source distribution, we allow using either the
          translators from a binary distribution or the local translators, -->
     <condition property="ice.cpp.dir" value="${ice.home}">

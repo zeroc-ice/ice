@@ -1,6 +1,16 @@
 #!/usr/bin/env python
+# **********************************************************************
+#
+# Copyright (c) 2003-2009 ZeroC, Inc. All rights reserved.
+#
+# This copy of Ice is licensed to you under the terms described in the
+# ICE_LICENSE file included in this distribution.
+#
+# **********************************************************************
 
-import os, sys, getopt, FixUtil
+import os, sys, getopt
+sys.path.append(os.path.join(os.path.dirname(__file__), "..", "lib"))
+import FixUtil
 
 def usage():
     print "Usage: " + sys.argv[0] + " version"
@@ -27,7 +37,7 @@ if len(args) != 1:
     sys.exit(1)
 
 version = args[0]
-ice_dir = os.path.normpath(os.path.join(os.path.dirname(__file__)))
+ice_dir = os.path.normpath(os.path.join(os.path.dirname(__file__), "..", ".."))
 
 FixUtil.checkVersion(version)
 
