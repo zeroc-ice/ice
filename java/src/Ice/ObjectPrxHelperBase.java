@@ -208,7 +208,7 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
             {
                 __checkTwowayOnly("ice_ids");
                 __del = __getDelegate(false);
-                return __del.ice_ids(__context).clone();
+                return __del.ice_ids(__context);
             }
             catch(IceInternal.LocalExceptionWrapper __ex)
             {

@@ -635,7 +635,7 @@ namespace Ice
                 {
                     checkTwowayOnly__("ice_ids");
                     del__ = getDelegate__(false);
-                    return (string[])del__.ice_ids(context__).Clone();
+                    return del__.ice_ids(context__);
                 }
                 catch(IceInternal.LocalExceptionWrapper ex__)
                 {
