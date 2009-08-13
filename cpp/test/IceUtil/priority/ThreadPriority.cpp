@@ -64,32 +64,32 @@ ThreadPriorityTest::ThreadPriorityTest() :
         test(t1->getPriority() == THREAD_PRIORITY_IDLE);
 
         t1 = new PriorityTestThread();
-        t1->start(128, THREAD_PRIORITY_LOWEST);
+        c = t1->start(128, THREAD_PRIORITY_LOWEST);
         c.join();
         test(t1->getPriority() == THREAD_PRIORITY_LOWEST);
 
         t1 = new PriorityTestThread();
-        t1->start(128, THREAD_PRIORITY_BELOW_NORMAL);
+        c = t1->start(128, THREAD_PRIORITY_BELOW_NORMAL);
         c.join();
         test(t1->getPriority() == THREAD_PRIORITY_BELOW_NORMAL);
 
         t1 = new PriorityTestThread();
-        t1->start(128, THREAD_PRIORITY_NORMAL);
+        c = t1->start(128, THREAD_PRIORITY_NORMAL);
         c.join();
         test(t1->getPriority() == THREAD_PRIORITY_NORMAL);
 
         t1 = new PriorityTestThread();
-        t1->start(128, THREAD_PRIORITY_ABOVE_NORMAL);
+        c = t1->start(128, THREAD_PRIORITY_ABOVE_NORMAL);
         c.join();
         test(t1->getPriority() == THREAD_PRIORITY_ABOVE_NORMAL);
 
         t1 = new PriorityTestThread();
-        t1->start(128, THREAD_PRIORITY_HIGHEST);
+        c = t1->start(128, THREAD_PRIORITY_HIGHEST);
         c.join();
         test(t1->getPriority() == THREAD_PRIORITY_HIGHEST);
 
         t1 = new PriorityTestThread();
-        t1->start(128, THREAD_PRIORITY_TIME_CRITICAL);
+        c = t1->start(128, THREAD_PRIORITY_TIME_CRITICAL);
         c.join();
         test(t1->getPriority() == THREAD_PRIORITY_TIME_CRITICAL);
     }
