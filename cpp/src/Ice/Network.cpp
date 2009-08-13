@@ -276,14 +276,14 @@ getAddressImpl(const string& host, int port, ProtocolSupport protocol, bool serv
     //
     if(host.empty())
     {
-        if(protocol != EnableIPv4)
+        if(protocol == EnableIPv6)
         {
             sockaddr_in6* addrin6 = reinterpret_cast<sockaddr_in6*>(&addr);
             addrin6->sin6_family = AF_INET6;
             addrin6->sin6_port = htons(port);
             addrin6->sin6_addr = server ? in6addr_any : in6addr_loopback;
         }
-        if(protocol != EnableIPv6)
+        else
         {
             sockaddr_in* addrin = reinterpret_cast<sockaddr_in*>(&addr);
             addrin->sin_family = AF_INET;
