@@ -133,12 +133,12 @@ SubscriberMap.h SubscriberMap.cpp: ../IceStorm/SubscriberRecord.ice $(slicedir)/
 	SubscriberMap ../IceStorm/SubscriberRecord.ice
 
 # Needed for migration.
-V32FormatDB.h V32FormatDB.cpp: ../IceStorm/V32Format.ice $(SLICE2FREEZE) $(SLICEPARSERLIB)
+../IceStorm/V32FormatDB.h V32FormatDB.cpp: ../IceStorm/V32Format.ice $(SLICE2FREEZE) $(SLICEPARSERLIB)
 	rm -f V32FormatDB.h V32FormatDB.cpp
 	$(SLICE2FREEZECMD) --dict IceStorm::V32Format,Ice::Identity,IceStorm::LinkRecordSeq \
 	V32FormatDB ../IceStorm/V32Format.ice
 
-V31FormatDB.h V31FormatDB.cpp: ../IceStorm/V31Format.ice $(SLICE2FREEZE) $(SLICEPARSERLIB)
+../IceStorm/V31FormatDB.h V31FormatDB.cpp: ../IceStorm/V31Format.ice $(SLICE2FREEZE) $(SLICEPARSERLIB)
 	rm -f V31FormatDB.h V31FormatDB.cpp
 	$(SLICE2FREEZECMD) --dict IceStorm::V31Format,string,IceStorm::LinkRecordDict \
 	V31FormatDB ../IceStorm/V31Format.ice
