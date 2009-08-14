@@ -179,7 +179,7 @@ PlatformInfo::PlatformInfo(const string& prefix,
     if(sysctl(ncpu, 2, &_nProcessors, &sz, 0, 0) == -1)
     {
         Ice::SyscallException ex(__FILE__, __LINE__);
-        ex.error = getSystemErrno();
+        ex.error = IceInternal::getSystemErrno();
         throw ex;
     }
 #elif defined(__hpux)

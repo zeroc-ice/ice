@@ -64,11 +64,16 @@ typedef double Double;
 
 }
 
+namespace IceInternal
+{
+
 // TODO: Should not be inline, this is not performance critical.
 #ifdef _WIN32
 inline int getSystemErrno() { return GetLastError(); }
 #else
 inline int getSystemErrno() { return errno; }
 #endif
+
+}
 
 #endif

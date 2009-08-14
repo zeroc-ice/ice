@@ -19,7 +19,7 @@
 using namespace std;
 
 //
-// Detemine if path is an absolute path
+// Determine if path is an absolute path
 //
 bool
 IceUtilInternal::isAbsolutePath(const string& path)
@@ -60,7 +60,7 @@ IceUtilInternal::isAbsolutePath(const string& path)
 }
 
 //
-// Detemine if a directory exists.
+// Determine if a directory exists.
 //
 bool
 IceUtilInternal::directoryExists(const string& path)

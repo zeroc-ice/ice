@@ -1875,7 +1875,7 @@ Ice::Service::runDaemon(int argc, char* argv[], const InitializationData& initDa
         if(setsid() == -1)
         {
             SyscallException ex(__FILE__, __LINE__);
-            ex.error = getSystemErrno();
+            ex.error = IceInternal::getSystemErrno();
             throw ex;
         }
 
@@ -1892,7 +1892,7 @@ Ice::Service::runDaemon(int argc, char* argv[], const InitializationData& initDa
         if(pid < 0)
         {
             SyscallException ex(__FILE__, __LINE__);
-            ex.error = getSystemErrno();
+            ex.error = IceInternal::getSystemErrno();
             throw ex;
         }
         if(pid != 0)
@@ -1908,7 +1908,7 @@ Ice::Service::runDaemon(int argc, char* argv[], const InitializationData& initDa
             if(chdir("/") != 0)
             {
                 SyscallException ex(__FILE__, __LINE__);
-                ex.error = getSystemErrno();
+                ex.error = IceInternal::getSystemErrno();
                 throw ex;
             }
         }
@@ -1926,7 +1926,7 @@ Ice::Service::runDaemon(int argc, char* argv[], const InitializationData& initDa
             if(fdMax <= 0)
             {
                 SyscallException ex(__FILE__, __LINE__);
-                ex.error = getSystemErrno();
+                ex.error = IceInternal::getSystemErrno();
                 throw ex;
             }
 

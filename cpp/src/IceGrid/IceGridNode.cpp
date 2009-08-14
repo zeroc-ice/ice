@@ -376,7 +376,7 @@ NodeService::startImpl(int argc, char* argv[])
             ostringstream os;
             FileException ex(__FILE__, __LINE__);
             ex.path = dataPath;
-            ex.error = getSystemErrno();
+            ex.error = IceInternal::getSystemErrno();
             os << ex;
             error("property `IceGrid.Node.Data' is set to an invalid path:\n" + os.str());
             return false;
@@ -388,7 +388,7 @@ NodeService::startImpl(int argc, char* argv[])
             ostringstream os;
             FileException ex(__FILE__, __LINE__);
             ex.path = dataPath;
-            ex.error = getSystemErrno();
+            ex.error = IceInternal::getSystemErrno();
             os << ex;
             error("property `IceGrid.Node.Data' is set to an invalid path:\n" + os.str());
             return false;

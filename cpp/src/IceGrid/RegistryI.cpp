@@ -206,7 +206,7 @@ RegistryI::startImpl()
         {
             Error out(_communicator->getLogger());
             SyscallException ex(__FILE__, __LINE__);
-            ex.error = getSystemErrno();
+            ex.error = IceInternal::getSystemErrno();
             out << "property `IceGrid.Registry.Data' is set to an invalid path:\n" << ex;
             return false;
         }
