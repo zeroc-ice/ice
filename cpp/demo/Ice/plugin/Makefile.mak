@@ -52,7 +52,7 @@ $(CLIENT): $(OBJS) $(COBJS)
 	@if exist $@.manifest echo ^ ^ ^ Embedding manifest using $(MT) && \
 	    $(MT) -nologo -manifest $@.manifest -outputresource:$@;#1 && del /q $@.manifest
 
-$(SERVER): $(SOBJS)
+$(SERVER): $(OBJS) $(SOBJS)
 	$(LINK) $(LD_EXEFLAGS) $(SPDBFLAGS) $(SETARGV) $(OBJS) $(SOBJS) $(PREOUT)$@ $(PRELIBS)$(LIBS)
 	@if exist $@.manifest echo ^ ^ ^ Embedding manifest using $(MT) && \
 	    $(MT) -nologo -manifest $@.manifest -outputresource:$@;#1 && del /q $@.manifest
