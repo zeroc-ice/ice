@@ -218,11 +218,11 @@ run(SOCKET fd)
     req[offset++] = 0; // context
 
     // encapsulation for the sendByteSeq request data.
-    putInt(req, offset, 50011);
+    putInt(req, offset, seq + 11);
     req[offset++] = Protocol::encodingMajor;
     req[offset++] = Protocol::encodingMinor;
     req[offset++] = (char)255; // number of elements.
-    putInt(req, offset, 50000);
+    putInt(req, offset, seq);
 
     int requestId = 1;
     char reply[25];

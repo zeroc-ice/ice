@@ -167,7 +167,7 @@ public class Client
 	req[offset++] = 0; // context
 	
         // encapsulation for the sendByteSeq request data.
-	putInt(ref req, ref offset, 50011);
+	putInt(ref req, ref offset, seq + 11);
 	req[offset++] = Protocol.encodingMajor;
 	req[offset++] = Protocol.encodingMinor;
 	req[offset++] = 255; // size

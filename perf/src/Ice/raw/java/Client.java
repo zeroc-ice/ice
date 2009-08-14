@@ -119,7 +119,7 @@ public class Client
 	reqBuf.put((byte)0); // mode
 	reqBuf.put((byte)0); // context
 	// encapsulation
-	reqBuf.putInt(50011);
+	reqBuf.putInt(seq + 11);
 	reqBuf.put(Protocol.encodingMajor).put(Protocol.encodingMinor);
 	reqBuf.put((byte)255);
 	reqBuf.putInt(seq);
