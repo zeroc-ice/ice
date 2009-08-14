@@ -111,8 +111,10 @@ the bash command below:
 $ export PATH=<Ice installation directory>/bin:$PATH
 
 In you want to use the 64-bit version of these services and tools,
-use 'bin/amd64' instead of 'bin':
+add 'bin/amd64' as well, making sure it appears before 'bin' in
+your PATH:
 
+$ export PATH=<Ice installation directory>/bin:$PATH
 $ export PATH=<Ice installation directory>/bin/amd64:$PATH
 
 Ice shared libraries and executables in this distribution contain
