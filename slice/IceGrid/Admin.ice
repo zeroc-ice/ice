@@ -610,7 +610,7 @@ interface Admin
 
     /**
      *
-     * Get a proxy to the server's admin object
+     * Get a proxy to the server's admin object.
      *
      * @param id The server id.
      *
