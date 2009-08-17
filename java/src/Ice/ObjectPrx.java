@@ -127,9 +127,11 @@ public interface ObjectPrx
      * @param outParams The encoded out-paramaters and return value
      * for the operation. The return value follows any out-parameters.
      * @param __context The context map for the invocation.
-     * @return If the operation was invoked synchronously (because there
-     * was no need to queue the request, the return value is <code>true</code>;
-     * otherwise, if the invocation was queued, the return value is <code>false</code>.
+     * @return If the operation completed successfully, the return value
+     * is <code>true</code>. If the operation raises a user exception,
+     * the return value is <code>false</code>; in this case, <code>outParams</code>
+     * contains the encoded user exception. If the operation raises a run-time exception,
+     * it throws it directly.
      *
      * @see Blobject
      * @see OperationMode
@@ -144,11 +146,9 @@ public interface ObjectPrx
      * @param operation The name of the operation to invoke.
      * @param mode The operation mode (normal or idempotent).
      * @param inParams The encoded in-parameters for the operation.
-     * @return If the operation completed successfully, the return value
-     * is <code>true</code>. If the operation raises a user exception,
-     * the return value is <code>false</code>; in this case, <code>outParams</code>
-     * contains the encoded user exception. If the operation raises a run-time exception,
-     * it throws it directly.
+     * @return If the operation was invoked synchronously (because there
+     * was no need to queue the request), the return value is <code>true</code>;
+     * otherwise, if the invocation was queued, the return value is <code>false</code>.
      *
      * @see AMI_Object_ice_invoke
      * @see OperationMode
@@ -163,11 +163,9 @@ public interface ObjectPrx
      * @param mode The operation mode (normal or idempotent).
      * @param inParams The encoded in-parameters for the operation.
      * @param context The context map for the invocation.
-     * @return If the operation completed successfully, the return value
-     * is <code>true</code>. If the operation raises a user exception,
-     * the return value is <code>false</code>; in this case, <code>outParams</code>
-     * contains the encoded user exception. If the operation raises a run-time exception,
-     * it throws it directly.
+     * @return If the operation was invoked synchronously (because there
+     * was no need to queue the request), the return value is <code>true</code>;
+     * otherwise, if the invocation was queued, the return value is <code>false</code>.
      *
      * @see AMI_Object_ice_invoke
      * @see OperationMode

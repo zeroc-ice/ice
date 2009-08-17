@@ -133,11 +133,9 @@ namespace Ice
         /// <param name="operation">The name of the operation to invoke.</param>
         /// <param name="mode">The operation mode (normal or idempotent).</param>
         /// <param name="inParams">The encoded in-parameters for the operation.</param>
-        /// <returns> If the operation completed successfully, the return value
-        /// is true. If the operation raises a user exception,
-        /// the return value is false; in this case, outParams
-        /// contains the encoded user exception. If the operation raises a run-time exception,
-        /// it throws it directly.</returns>
+	/// <returns> If the operation was invoked synchronously (because there
+	/// was no need to queue the request), the return value is true;
+	/// otherwise, if the invocation was queued, the return value is false.</returns>
         bool ice_invoke_async(AMI_Object_ice_invoke cb, string operation, OperationMode mode, byte[] inParams);
 
         /// <summary>
@@ -148,11 +146,9 @@ namespace Ice
         /// <param name="mode">The operation mode (normal or idempotent).</param>
         /// <param name="inParams">The encoded in-parameters for the operation.</param>
         /// <param name="context">The context dictionary for the invocation.</param>
-        /// <returns> If the operation completed successfully, the return value
-        /// is true. If the operation raises a user exception,
-        /// the return value is false; in this case, outParams
-        /// contains the encoded user exception. If the operation raises a run-time exception,
-        /// it throws it directly.</returns>
+	/// <returns> If the operation was invoked synchronously (because there
+	/// was no need to queue the request), the return value is true;
+	/// otherwise, if the invocation was queued, the return value is false.</returns>
         bool ice_invoke_async(AMI_Object_ice_invoke cb, string operation, OperationMode mode, byte[] inParams,
             Dictionary<string, string> context);
 
@@ -774,11 +770,9 @@ namespace Ice
         /// <param name="operation">The name of the operation to invoke.</param>
         /// <param name="mode">The operation mode (normal or idempotent).</param>
         /// <param name="inParams">The encoded in-parameters for the operation.</param>
-        /// <returns> If the operation completed successfully, the return value
-        /// is true. If the operation raises a user exception,
-        /// the return value is false; in this case, outParams
-        /// contains the encoded user exception. If the operation raises a run-time exception,
-        /// it throws it directly.</returns>
+	/// <returns> If the operation was invoked synchronously (because there
+	/// was no need to queue the request), the return value is true;
+	/// otherwise, if the invocation was queued, the return value is false.</returns>
         public bool ice_invoke_async(AMI_Object_ice_invoke cb, string operation, OperationMode mode, byte[] inParams)
         {
             checkTwowayOnly__("ice_invoke_async");
@@ -793,11 +787,9 @@ namespace Ice
         /// <param name="mode">The operation mode (normal or idempotent).</param>
         /// <param name="inParams">The encoded in-parameters for the operation.</param>
         /// <param name="context">The context dictionary for the invocation.</param>
-        /// <returns> If the operation completed successfully, the return value
-        /// is true. If the operation raises a user exception,
-        /// the return value is false; in this case, outParams
-        /// contains the encoded user exception. If the operation raises a run-time exception,
-        /// it throws it directly.</returns>
+	/// <returns> If the operation was invoked synchronously (because there
+	/// was no need to queue the request), the return value is true;
+	/// otherwise, if the invocation was queued, the return value is false.</returns>
         public bool ice_invoke_async(AMI_Object_ice_invoke cb, string operation, OperationMode mode, byte[] inParams,
                                      Dictionary<string, string> context)
         {
