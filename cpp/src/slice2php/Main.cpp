@@ -1485,8 +1485,8 @@ interruptedCallback(int signal)
 static void
 usage(const char* n)
 {
-    cerr << "Usage: " << n << " [options] slice-files...\n";
-    cerr <<        
+    getErrorStream() << "Usage: " << n << " [options] slice-files...\n";
+    getErrorStream() <<        
         "Options:\n"
         "-h, --help           Show this message.\n"
         "-v, --version        Display the Ice version.\n"
@@ -1505,7 +1505,7 @@ usage(const char* n)
 }
 
 int
-main(int argc, char* argv[])
+compile(int argc, char* argv[])
 {
     IceUtilInternal::Options opts;
     opts.addOpt("h", "help");
@@ -1531,7 +1531,7 @@ main(int argc, char* argv[])
     }
     catch(const IceUtilInternal::BadOptException& e)
     {
-        cerr << argv[0] << ": error: " << e.reason << endl;
+        getErrorStream() << argv[0] << ": error: " << e.reason << endl;
         usage(argv[0]);
         return EXIT_FAILURE;
     }
@@ -1544,7 +1544,7 @@ main(int argc, char* argv[])
 
     if(opts.isSet("version"))
     {
-        cerr << ICE_STRING_VERSION << endl;
+        getErrorStream() << ICE_STRING_VERSION << endl;
         return EXIT_SUCCESS;
     }
 
@@ -1705,5 +1705,42 @@ main(int argc, char* argv[])
     }
 
     return status;
+}
+
+int
+main(int argc, char* argv[])
+{
+    try
+    {
+        return compile(argc, argv);
+    }
+    catch(const IceUtil::Exception& ex)
+    {
+        getErrorStream() << argv[0] << ": error:" << ex.what() << endl;
+#ifdef __GNUC__
+        getErrorStream() << ex.ice_stackTrace() << endl;
+#endif
+        return EXIT_FAILURE;
+    }
+    catch(const std::exception& ex)
+    {
+        getErrorStream() << argv[0] << ": error:" << ex.what() << endl;
+        return EXIT_FAILURE;
+    }
+    catch(const std::string& msg)
+    {
+        getErrorStream() << argv[0] << ": error:" << msg << endl;
+        return EXIT_FAILURE;
+    }
+    catch(const char* msg)
+    {
+        getErrorStream() << argv[0] << ": error:" << msg << endl;
+        return EXIT_FAILURE;
+    }
+    catch(...)
+    {
+        getErrorStream() << argv[0] << ": error:" << "unknown exception" << endl;
+        return EXIT_FAILURE;
+    }
 }
 

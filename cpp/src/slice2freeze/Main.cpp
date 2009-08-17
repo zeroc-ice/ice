@@ -192,8 +192,8 @@ struct IndexType
 void
 usage(const char* n)
 {
-    cerr << "Usage: " << n << " [options] file-base [slice-files...]\n";
-    cerr <<
+    getErrorStream() << "Usage: " << n << " [options] file-base [slice-files...]\n";
+    getErrorStream() <<
         "Options:\n"
         "-h, --help            Show this message.\n"
         "-v, --version         Display the Ice version.\n"
@@ -1532,7 +1532,7 @@ compile(int argc, char* argv[])
     }
     catch(const IceUtilInternal::BadOptException& e)
     {
-        cerr << argv[0] << ": error: " << e.reason << endl;
+        getErrorStream() << argv[0] << ": error: " << e.reason << endl;
         usage(argv[0]);
         return EXIT_FAILURE;
     }
@@ -1545,7 +1545,7 @@ compile(int argc, char* argv[])
 
     if(opts.isSet("version"))
     {
-        cerr << ICE_STRING_VERSION << endl;
+        getErrorStream() << ICE_STRING_VERSION << endl;
         return EXIT_SUCCESS;
     }
 
@@ -2057,30 +2057,30 @@ main(int argc, char* argv[])
     }
     catch(const IceUtil::Exception& ex)
     {
-        cerr << ex.what() << endl;
+        getErrorStream() << argv[0] << ": error:" << ex.what() << endl;
 #ifdef __GNUC__
-        cerr << ex.ice_stackTrace() << endl;
+        getErrorStream() << ex.ice_stackTrace() << endl;
 #endif
         return EXIT_FAILURE;
     }
     catch(const std::exception& ex)
     {
-        cerr << ex.what() << endl;
+        getErrorStream() << argv[0] << ": error:" << ex.what() << endl;
         return EXIT_FAILURE;
     }
     catch(const std::string& msg)
     {
-        cerr << msg << endl;
+        getErrorStream() << argv[0] << ": error:" << msg << endl;
         return EXIT_FAILURE;
     }
     catch(const char* msg)
     {
-        cerr << msg << endl;
+        getErrorStream() << argv[0] << ": error:" << msg << endl;
         return EXIT_FAILURE;
     }
     catch(...)
     {
-        cerr << "unknown exception" << endl;
+        getErrorStream() << argv[0] << ": error:" << "unknown exception" << endl;
         return EXIT_FAILURE;
     }
 }
