@@ -62,24 +62,37 @@ fractional_constant	(\+|-)?(([[:digit:]]*\.[[:digit:]]+)|([[:digit:]]+\.))
 exponent_part		(e|E)(\+|-)?[[:digit:]]+
 floating_literal	(({fractional_constant}{exponent_part}?)|((\+|-)?[[:digit:]]+{exponent_part}))[fF]?
 
+%s BOMSCAN
 %s MAINSCAN
 
 %%
 
 ^"#"[[:blank:]]*[[:digit:]]+[[:blank:]]*$ {
-    unit->scanPosition(yytext);
+    if(unit->scanPosition(yytext))
+    {
+        BEGIN(BOMSCAN);
+    }
 }
 
 ^"#"[[:blank:]]*[[:digit:]]+[[:blank:]]+"\""[^\"]*"\"".*$ {
-    unit->scanPosition(yytext);
+    if(unit->scanPosition(yytext))
+    {
+        BEGIN(BOMSCAN);
+    }
 }
 
 ^"#"[[:blank:]]*"line"[[:blank:]]+[[:digit:]]+[[:blank:]]*$ {
-    unit->scanPosition(yytext);
+    if(unit->scanPosition(yytext))
+    {
+        BEGIN(BOMSCAN);
+    }
 }
 
 ^"#"[[:blank:]]*"line"[[:blank:]]+[[:digit:]]+[[:blank:]]+"\""[^\"]*"\"".*$ {
-    unit->scanPosition(yytext);
+    if(unit->scanPosition(yytext))
+    {
+        BEGIN(BOMSCAN);
+    }
 }
 
 "//" {
@@ -406,7 +419,7 @@ floating_literal	(({fractional_constant}{exponent_part}?)|((\+|-)?[[:digit:]]+{e
     }
 }
 
-<INITIAL>^"\357\273\277" {
+<BOMSCAN>^"\357\273\277" {
     // Ignore UTF-8 BOM, rule only active when parsing start of file.
     
     BEGIN(MAINSCAN);

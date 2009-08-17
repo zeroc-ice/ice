@@ -5005,7 +5005,7 @@ Slice::Unit::nextLine()
     _currentLine++;
 }
 
-void
+bool
 Slice::Unit::scanPosition(const char* s)
 {
     assert(*s == '#');
@@ -5104,6 +5104,11 @@ Slice::Unit::scanPosition(const char* s)
         dc->setFilename(currentFile);
         _definitionContextMap.insert(make_pair(currentFile, dc));
     }
+
+    //
+    // Return code indicates whether starting parse of a new file.
+    //
+    return _currentLine == 0;
 }
 
 int

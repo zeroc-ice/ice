@@ -942,7 +942,7 @@ public:
     int currentLine() const;
 
     void nextLine();
-    void scanPosition(const char*);
+    bool scanPosition(const char*);
     int currentIncludeLevel() const;
 
     void addGlobalMetaData(const StringList&);
