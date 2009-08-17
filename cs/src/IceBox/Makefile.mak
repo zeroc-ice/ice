@@ -62,7 +62,7 @@ $(ICEBOXNET:.exe=.exe.config):
 
 !if "$(DEBUG)" == "yes"
 clean::
-	del /q $(bindir)\$(PKG).pdb $(bindir)\$(PKG).xml
+	del /q $(bindir)\$(PKG).pdb
 	del /q $(bindir)\iceboxnet.pdb
 !endif
 

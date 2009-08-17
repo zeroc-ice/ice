@@ -35,7 +35,7 @@ $(TARGETS):: $(SRCS) $(GEN_SRCS)
 
 !if "$(DEBUG)" == "yes"
 clean::
-	del /q $(bindir)\$(PKG).pdb $(bindir)\$(PKG).xml
+	del /q $(bindir)\$(PKG).pdb
 !endif
 
 install:: all
