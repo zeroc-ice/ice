@@ -72,7 +72,7 @@ public abstract class Application
         {
             Util.setProcessLogger(new LoggerI(appName, ""));
         }
-        return mainInternal(appName, args, new InitializationData(), null);
+        return main(appName, args, new InitializationData());
     }
 
     /**
@@ -94,32 +94,6 @@ public abstract class Application
      **/
     public final int
     main(String appName, String[] args, String configFile)
-    {
-        return main(appName, args, configFile, null);
-    }
-
-    /**
-     * The application must call <code>main</code> after it has
-     * instantiated the derived class. <code>main</code> creates
-     * a communicator, establishes the specified signal policy, and,
-     * once {@link #run} returns, destroys the communicator.
-     * <p>
-     * The method prints an error message for any exception that propagates
-     * out of <code>run</code> and ensures that the communicator is
-     * destroyed correctly even if <code>run</code> completes abnormally.
-     *
-     * @param appName The name of the application. This parameter is used to initialize
-     * the value of the <code>Ice.ProgramName</code> property.
-     * @param args The arguments for the application (as passed to <code>Main(String[])</code>.
-     * @param configFile The configuration file with which to initialize Ice properties.
-     * @param overrideProps Property values that override any settings in <code>configFile</code>.
-     * @return The value returned by <code>run</code>. If <code>run</code> terminates with an exception,
-     * the return value is non-zero.
-     *
-     * @see Properties
-     **/
-    public final int
-    main(String appName, String[] args, String configFile, Properties overrideProps)
     {
         if(Util.getProcessLogger() instanceof LoggerI)
         {
@@ -145,7 +119,7 @@ public abstract class Application
                 return 1;
             }
         }
-        return mainInternal(appName, args, initData, overrideProps);
+        return main(appName, args, initData);
     }
 
     /**
@@ -174,7 +148,136 @@ public abstract class Application
         {
             Util.setProcessLogger(new LoggerI(appName, ""));
         }
-        return mainInternal(appName, args, initializationData, null);
+
+        if(_communicator != null)
+        {
+            Util.getProcessLogger().error("only one instance of the Application class can be used");
+            return 1;
+        }
+
+        _appName = appName;
+
+        //
+        // We parse the properties here to extract Ice.ProgramName.
+        // 
+        InitializationData initData;
+        if(initializationData != null)
+        {
+            initData = (InitializationData)initializationData.clone();
+        }
+        else
+        {
+            initData = new InitializationData();
+        }
+        StringSeqHolder argHolder = new StringSeqHolder(args);
+        initData.properties = Util.createProperties(argHolder, initData.properties);
+
+        //
+        // If the process logger is the default logger, we replace it with a
+        // a logger which is using the program name for the prefix.
+        //
+        if(!initData.properties.getProperty("Ice.ProgramName").equals("") && Util.getProcessLogger() instanceof LoggerI)
+        {
+            Util.setProcessLogger(new LoggerI(initData.properties.getProperty("Ice.ProgramName"), ""));
+        }
+
+        int status = 0;
+
+        try
+        {
+            _communicator = Util.initialize(argHolder, initData);
+
+            //
+            // The default is to destroy when a signal is received.
+            //
+            if(_signalPolicy == SignalPolicy.HandleSignals)
+            {
+                destroyOnInterrupt();
+            }
+
+            status = run(argHolder.value);
+        }
+        catch(LocalException ex)
+        {
+            error("", ex);
+            status = 1;
+        }
+        catch(java.lang.Exception ex)
+        {
+            error("unknown exception", ex);
+            status = 1;
+        }
+        catch(java.lang.Error err)
+        {
+            //
+            // We catch Error to avoid hangs in some non-fatal situations
+            //
+            error("Java error", err);
+            status = 1;
+        }
+
+        // This clears any set interrupt.
+        if(_signalPolicy == SignalPolicy.HandleSignals)
+        {
+            defaultInterrupt();
+        }
+
+        synchronized(_mutex)
+        {
+            while(_callbackInProgress)
+            {
+                try
+                {
+                    _mutex.wait();
+                }
+                catch(java.lang.InterruptedException ex)
+                {
+                }
+            }
+
+            if(_destroyed)
+            {
+                _communicator = null;
+            }
+            else
+            {
+                _destroyed = true;
+                //
+                // And _communicator != null, meaning will be
+                // destroyed next, _destroyed = true also ensures that
+                // any remaining callback won't do anything
+                //
+            }
+        }
+
+        if(_communicator != null)
+        {
+            try
+            {
+                _communicator.destroy();
+            }
+            catch(LocalException ex)
+            {
+                error("", ex);
+                status = 1;
+            }
+            catch(java.lang.Exception ex)
+            {
+                error("unknown exception", ex);
+                status = 1;
+            }
+            _communicator = null;
+        }
+
+        synchronized(_mutex)
+        {
+            if(_appHook != null)
+            {
+                _appHook.done();
+            }
+        }
+
+        return status;
     }
 
     /**
@@ -358,148 +461,6 @@ public abstract class Application
         {
             return _interrupted;
         }
-    }
-
-    private int
-    mainInternal(String appName, String[] args, InitializationData initializationData, Properties overrideProps)
-    {
-        if(_communicator != null)
-        {
-            Util.getProcessLogger().error("only one instance of the Application class can be used");
-            return 1;
-        }
-
-        _appName = appName;
-
-        //
-        // We parse the properties here to extract Ice.ProgramName.
-        // 
-        InitializationData initData;
-        if(initializationData != null)
-        {
-            initData = (InitializationData)initializationData.clone();
-        }
-        else
-        {
-            initData = new InitializationData();
-        }
-        StringSeqHolder argHolder = new StringSeqHolder(args);
-        initData.properties = Util.createProperties(argHolder, initData.properties);
-        if(overrideProps != null)
-        {
-            java.util.Map<String, String> props = overrideProps.getPropertiesForPrefix("");
-            for(java.util.Map.Entry<String, String> p : props.entrySet())
-            {
-                initData.properties.setProperty(p.getKey(), p.getValue());
-            }
-        }
-
-        //
-        // If the process logger is the default logger, we replace it with a
-        // a logger which is using the program name for the prefix.
-        //
-        if(!initData.properties.getProperty("Ice.ProgramName").equals("") && Util.getProcessLogger() instanceof LoggerI)
-        {
-            Util.setProcessLogger(new LoggerI(initData.properties.getProperty("Ice.ProgramName"), ""));
-        }
-
-        int status = 0;
-
-        try
-        {
-            _communicator = Util.initialize(argHolder, initData);
-
-            //
-            // The default is to destroy when a signal is received.
-            //
-            if(_signalPolicy == SignalPolicy.HandleSignals)
-            {
-                destroyOnInterrupt();
-            }
-
-            status = run(argHolder.value);
-        }
-        catch(LocalException ex)
-        {
-            error("", ex);
-            status = 1;
-        }
-        catch(java.lang.Exception ex)
-        {
-            error("unknown exception", ex);
-            status = 1;
-        }
-        catch(java.lang.Error err)
-        {
-            //
-            // We catch Error to avoid hangs in some non-fatal situations
-            //
-            error("Java error", err);
-            status = 1;
-        }
-
-        // This clears any set interrupt.
-        if(_signalPolicy == SignalPolicy.HandleSignals)
-        {
-            defaultInterrupt();
-        }
-
-        synchronized(_mutex)
-        {
-            while(_callbackInProgress)
-            {
-                try
-                {
-                    _mutex.wait();
-                }
-                catch(java.lang.InterruptedException ex)
-                {
-                }
-            }
-
-            if(_destroyed)
-            {
-                _communicator = null;
-            }
-            else
-            {
-                _destroyed = true;
-                //
-                // And _communicator != null, meaning will be
-                // destroyed next, _destroyed = true also ensures that
-                // any remaining callback won't do anything
-                //
-            }
-        }
-
-        if(_communicator != null)
-        {
-            try
-            {
-                _communicator.destroy();
-            }
-            catch(LocalException ex)
-            {
-                error("", ex);
-                status = 1;
-            }
-            catch(java.lang.Exception ex)
-            {
-                error("unknown exception", ex);
-                status = 1;
-            }
-            _communicator = null;
-        }
-
-        synchronized(_mutex)
-        {
-            if(_appHook != null)
-            {
-                _appHook.done();
-            }
-        }
-
-        return status;
     }
 
     private static void

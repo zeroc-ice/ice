@@ -34,11 +34,9 @@ public:
     //
     int main(int, char*[]);
     int main(int, char*[], const char*);
-    int main(int, char*[], const char*, const Ice::PropertiesPtr&);
     int main(int, char*[], const Ice::InitializationData&);
     int main(const StringSeq&);
     int main(const StringSeq&, const char*);
-    int main(const StringSeq&, const char*, const Ice::PropertiesPtr&);
     int main(const StringSeq&, const Ice::InitializationData&);
 
     virtual int run(int, char*[]) = 0;
@@ -100,8 +98,7 @@ public:
 
 private:
 
-    int mainInternal(int, char*[], const Ice::InitializationData&, const Ice::PropertiesPtr&);
-    int executeRun(int, char*[], const Ice::InitializationData&, const Ice::PropertiesPtr&);
+    int mainInternal(int, char*[], const Ice::InitializationData&);
 
 #if defined(__SUNPRO_CC)
 //

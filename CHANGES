@@ -89,12 +89,6 @@ noted.
 - Slice files are now allowed to be in UTF-8 format and include UTF-8
   BOM at start of file and include UTF-8 characters in comments.
 
-- Added new main() functions to Ice::Application class which take a
-  set of properties as well as command line arguments and a
-  configuration file. The properties in the passed set will override
-  any properties read from command-line arguments or the configuration
-  file.
-
 - Fixed bug in Slice compilers that would cause a crash if a Slice
   file had double slashes in its path.
 

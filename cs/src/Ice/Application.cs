@@ -104,7 +104,7 @@ namespace Ice
             {
                 Util.setProcessLogger(new LoggerI(_appName, ""));
             }
-            return mainInternal(args, new InitializationData(), null);
+            return main(args, new InitializationData());
         }
 
         /// <summary>
@@ -123,27 +123,6 @@ namespace Ice
         /// <returns>The value returned by run. If run terminates with an exception,
         /// the return value is non-zero.</returns>
         public int main(string[] args, string configFile)
-        {
-            return main(args, configFile, null);
-        }
-
-        /// <summary>
-        /// The application must call main after it has
-        /// instantiated the derived class. main creates
-        /// a communicator, establishes the specified signal policy, and,
-        /// once run returns, destroys the communicator.
-        /// The method prints an error message for any exception that propagates
-        /// out of run and ensures that the communicator is
-        /// destroyed correctly even if run completes abnormally.
-        /// </summary>
-        /// <param name="args">The arguments for the application (as passed to Main(string[])
-        /// by the operating system.</param>
-        /// <param name="configFile">The configuration file with which to initialize
-        /// Ice properties.</param>
-        /// <param name="overrideProps">Property values that override any settings in configFile.</param>
-        /// <returns>The value returned by run. If run terminates with an exception,
-        /// the return value is non-zero.</returns>
-        public int main(string[] args, string configFile, Properties overrideProps)
         {
             if(Util.getProcessLogger() is LoggerI)
             {
@@ -169,7 +148,7 @@ namespace Ice
                     return 1;
                 }
             }
-            return mainInternal(args, initData, overrideProps);
+            return main(args, initData);
         }
 
         /// <summary>
@@ -192,7 +171,37 @@ namespace Ice
             {
                 Util.setProcessLogger(new LoggerI(_appName, ""));
             }
-            return mainInternal(args, initData, null);
+
+            if(_communicator != null)
+            {
+                Util.getProcessLogger().error("only one instance of the Application class can be used");
+                return 1;
+            }
+
+            int status;
+
+            if(_signalPolicy == SignalPolicy.HandleSignals)
+            {
+                if(IceInternal.AssemblyUtil.platform_ == IceInternal.AssemblyUtil.Platform.Windows)
+                {
+                    _signals = new WindowsSignals();
+                }
+                else
+                {
+                    _signals = new MonoSignals();
+                }
+                _signals.register(_handler);
+
+                status = mainInternal(args, initData);
+
+                _signals = null;
+            }
+            else
+            {
+                status = mainInternal(args, initData);
+            }
+
+            return status;
         }
 
         /// <summary>
@@ -387,41 +396,7 @@ namespace Ice
             }
         }
 
-        private int mainInternal(string[] args, InitializationData initData, Properties overrideProps)
-        {
-            if(_communicator != null)
-            {
-                Util.getProcessLogger().error("only one instance of the Application class can be used");
-                return 1;
-            }
-
-            int status;
-
-            if(_signalPolicy == SignalPolicy.HandleSignals)
-            {
-                if(IceInternal.AssemblyUtil.platform_ == IceInternal.AssemblyUtil.Platform.Windows)
-                {
-                    _signals = new WindowsSignals();
-                }
-                else
-                {
-                    _signals = new MonoSignals();
-                }
-                _signals.register(_handler);
-
-                status = executeRun(args, initData, overrideProps);
-
-                _signals = null;
-            }
-            else
-            {
-                status = executeRun(args, initData, overrideProps);
-            }
-
-            return status;
-        }
-
-        private int executeRun(string[] args, InitializationData initializationData, Properties overrideProps)
+        private int mainInternal(string[] args, InitializationData initializationData)
         {
             int status = 0;
 
@@ -440,14 +415,6 @@ namespace Ice
                     initData = new InitializationData();
                 }
                 initData.properties = Util.createProperties(ref args, initData.properties);
-                if(overrideProps != null)
-                {
-                    Dictionary<string, string> oprops = overrideProps.getPropertiesForPrefix("");
-                    foreach(KeyValuePair<string,string> entry in oprops)
-                    {
-                        initData.properties.setProperty(entry.Key, entry.Value);
-                    }
-                }
 
                 //
                 // If the process logger is the default logger, we replace it with a

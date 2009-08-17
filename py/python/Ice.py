@@ -729,7 +729,7 @@ class Application(object):
             raise RuntimeError("Ice.Application is an abstract class")
         Application._signalPolicy = signalPolicy
 
-    def main(self, args, configFile=None, initData=None, overrideProps=None):
+    def main(self, args, configFile=None, initData=None):
         if Application._communicator:
             getProcessLogger().error(args[0] + ": only one instance of the Application class can be used")
             return 1
@@ -747,10 +747,6 @@ class Application(object):
                 getProcessLogger().error(traceback.format_exc())
                 return 1
         initData.properties = createProperties(args, initData.properties)
-        if overrideProps != None:
-            props = overrideProps.getPropertiesForPrefix('')
-            for key, value in props.iteritems():
-                initData.properties.setProperty(key, value)
 
         #
         #  If the process logger is the default logger, we replace it with a

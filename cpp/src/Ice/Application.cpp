@@ -323,17 +323,11 @@ Ice::Application::main(int argc, char* argv[])
     {
         setProcessLogger(new LoggerI(argv[0], ""));
     }
-    return mainInternal(argc, argv, InitializationData(), 0);
+    return main(argc, argv, InitializationData());
 }
 
 int
 Ice::Application::main(int argc, char* argv[], const char* configFile)
-{
-    return main(argc, argv, configFile, 0);
-}
-
-int
-Ice::Application::main(int argc, char* argv[], const char* configFile, const Ice::PropertiesPtr& overrideProps)
 {
     //
     // We don't call the main below to avoid a deprecated warning
@@ -374,7 +368,7 @@ Ice::Application::main(int argc, char* argv[], const char* configFile, const Ice
             return EXIT_FAILURE;
         }
     }
-    return mainInternal(argc, argv, initData, overrideProps);
+    return main(argc, argv, initData);
 }
 
 int
@@ -384,7 +378,46 @@ Ice::Application::main(int argc, char* argv[], const InitializationData& initDat
     {
         setProcessLogger(new LoggerI(argv[0], ""));
     }
-    return mainInternal(argc, argv, initData, 0);
+
+    if(_communicator != 0)
+    {
+        Error out(getProcessLogger());
+        out << "only one instance of the Application class can be used";
+        return EXIT_FAILURE;
+    }
+    int status;
+
+    if(_signalPolicy == HandleSignals)
+    {
+        try
+        {
+            //
+            // The ctrlCHandler must be created before starting any thread, in particular
+            // before initializing the communicator.
+            //
+            CtrlCHandler ctrCHandler;
+            _ctrlCHandler = &ctrCHandler;
+
+            status = mainInternal(argc, argv, initData);
+
+            //
+            // Set _ctrlCHandler to 0 only once communicator->destroy() has completed.
+            // 
+            _ctrlCHandler = 0;
+        }
+        catch(const CtrlCHandlerException&)
+        {
+            Error out(getProcessLogger());
+            out << "only one instance of the CtrlCHandler class can be used";
+            status = EXIT_FAILURE;
+        }
+    }
+    else
+    {
+        status = mainInternal(argc, argv, initData);
+    }
+   
+    return status;
 }
 
 int
@@ -399,13 +432,6 @@ Ice::Application::main(const StringSeq& args, const char* configFile)
 {
     ArgVector av(args);
     return main(av.argc, av.argv, configFile);
-}
-
-int
-Ice::Application::main(const StringSeq& args, const char* configFile, const Ice::PropertiesPtr& overrideProps)
-{
-    ArgVector av(args);
-    return main(av.argc, av.argv, configFile, overrideProps);
 }
 
 int
@@ -587,53 +613,7 @@ Ice::Application::interrupted()
 }
 
 int
-Ice::Application::mainInternal(int argc, char* argv[], const InitializationData& initData,
-                               const Ice::PropertiesPtr& overrideProps)
-{
-    if(_communicator != 0)
-    {
-        Error out(getProcessLogger());
-        out << "only one instance of the Application class can be used";
-        return EXIT_FAILURE;
-    }
-    int status;
-
-    if(_signalPolicy == HandleSignals)
-    {
-        try
-        {
-            //
-            // The ctrlCHandler must be created before starting any thread, in particular
-            // before initializing the communicator.
-            //
-            CtrlCHandler ctrCHandler;
-            _ctrlCHandler = &ctrCHandler;
-
-            status = executeRun(argc, argv, initData, overrideProps);
-
-            //
-            // Set _ctrlCHandler to 0 only once communicator->destroy() has completed.
-            // 
-            _ctrlCHandler = 0;
-        }
-        catch(const CtrlCHandlerException&)
-        {
-            Error out(getProcessLogger());
-            out << "only one instance of the CtrlCHandler class can be used";
-            status = EXIT_FAILURE;
-        }
-    }
-    else
-    {
-        status = executeRun(argc, argv, initData, overrideProps);
-    }
-   
-    return status;
-}
-
-int
-Ice::Application::executeRun(int argc, char* argv[], const InitializationData& initializationData, 
-                             const Ice::PropertiesPtr& overrideProps)
+Ice::Application::mainInternal(int argc, char* argv[], const InitializationData& initializationData)
 {
     int status;
 
@@ -652,14 +632,6 @@ Ice::Application::executeRun(int argc, char* argv[], const InitializationData& i
         // 
         InitializationData initData = initializationData;
         initData.properties = createProperties(argc, argv, initData.properties, initData.stringConverter);
-        if(overrideProps)
-        {
-            Ice::PropertyDict props = overrideProps->getPropertiesForPrefix("");
-            for(PropertyDict::const_iterator p = props.begin(); p != props.end(); ++p)
-            {
-                initData.properties->setProperty(p->first, p->second);
-            }
-        }
 
         //
         // If the process logger is the default logger, we now replace it with a
