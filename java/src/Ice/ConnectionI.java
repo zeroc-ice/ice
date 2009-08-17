@@ -1944,7 +1944,7 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
                         if(info.invokeNum < 0)
                         {
                             info.invokeNum = 0;
-                            throw new NegativeSizeException();
+                            throw new UnmarshalOutOfBoundsException();
                         }
                         info.servantManager = _servantManager;
                         info.adapter = _adapter;

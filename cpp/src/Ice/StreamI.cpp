@@ -602,7 +602,7 @@ Ice::OutputStreamI::writeSize(Int sz)
 {
     if(sz < 0)
     {
-        throw NegativeSizeException(__FILE__, __LINE__);
+        throw MarshalException(__FILE__, __LINE__);
     }
 
     _os->writeSize(sz);

@@ -617,17 +617,6 @@ Ice::EncapsulationException::ice_print(ostream& out) const
 }
 
 void
-Ice::NegativeSizeException::ice_print(ostream& out) const
-{
-    Exception::ice_print(out);
-    out << ":\nprotocol error: negative size for sequence, dictionary, etc.";
-    if(!reason.empty())
-    {
-        out << ":\n" << reason;
-    }
-}
-
-void
 Ice::PluginInitializationException::ice_print(ostream& out) const
 {
     Exception::ice_print(out);

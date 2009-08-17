@@ -2286,7 +2286,7 @@ Ice::ConnectionI::parseMessage(BasicStream& stream, Int& invokeNum, Int& request
                     if(invokeNum < 0)
                     {
                         invokeNum = 0;
-                        throw NegativeSizeException(__FILE__, __LINE__);
+                        throw UnmarshalOutOfBoundsException(__FILE__, __LINE__);
                     }
                     servantManager = _servantManager;
                     adapter = _adapter;

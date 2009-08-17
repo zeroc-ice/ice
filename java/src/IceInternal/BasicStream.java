@@ -420,12 +420,12 @@ public class BasicStream
         // readSize()/writeSize(), it could be 1 or 5 bytes.
         //
         int sz = readInt();
-        if(sz < 0)
+        if(sz < 6)
         {
-            throw new Ice.NegativeSizeException();
+            throw new Ice.UnmarshalOutOfBoundsException();
         }
 
-        if(sz - 4 > _buf.b.limit())
+        if(sz - 4 > _buf.b.remaining())
         {
             throw new Ice.UnmarshalOutOfBoundsException();
         }
@@ -484,9 +484,9 @@ public class BasicStream
     skipEmptyEncaps()
     {
         int sz = readInt();
-        if(sz < 0)
+        if(sz < 6)
         {
-            throw new Ice.NegativeSizeException();
+            throw new Ice.UnmarshalOutOfBoundsException();
         }
 
         if(sz != 6)
@@ -526,9 +526,9 @@ public class BasicStream
     skipEncaps()
     {
         int sz = readInt();
-        if(sz < 0)
+        if(sz < 6)
         {
-            throw new Ice.NegativeSizeException();
+            throw new Ice.UnmarshalOutOfBoundsException();
         }
         try
         {
@@ -556,9 +556,9 @@ public class BasicStream
     public void startReadSlice()
     {
         int sz = readInt();
-        if(sz < 0)
+        if(sz < 4)
         {
-            throw new Ice.NegativeSizeException();
+            throw new Ice.UnmarshalOutOfBoundsException();
         }
         _readSlice = _buf.b.position();
     }
@@ -570,9 +570,9 @@ public class BasicStream
     public void skipSlice()
     {
         int sz = readInt();
-        if(sz < 0)
+        if(sz < 4)
         {
-            throw new Ice.NegativeSizeException();
+            throw new Ice.UnmarshalOutOfBoundsException();
         }
         try
         {
@@ -611,7 +611,7 @@ public class BasicStream
                 int v = _buf.b.getInt();
                 if(v < 0)
                 {
-                    throw new Ice.NegativeSizeException();
+                    throw new Ice.UnmarshalOutOfBoundsException();
                 }
                 return v;
             }

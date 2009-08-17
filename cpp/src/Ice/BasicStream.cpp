@@ -325,9 +325,9 @@ IceInternal::BasicStream::skipEncaps()
 {
     Int sz;
     read(sz);
-    if(sz < 0)
+    if(sz < 6)
     {
-        throw NegativeSizeException(__FILE__, __LINE__);
+        throw UnmarshalOutOfBoundsException(__FILE__, __LINE__);
     }
     if(i - sizeof(Int) + sz > b.end())
     {
@@ -368,9 +368,9 @@ IceInternal::BasicStream::startReadSlice()
 {
     Int sz;
     read(sz);
-    if(sz < 0)
+    if(sz < 4)
     {
-        throw NegativeSizeException(__FILE__, __LINE__);
+        throw UnmarshalOutOfBoundsException(__FILE__, __LINE__);
     }
     _readSlice = i - b.begin();
 }
@@ -385,9 +385,9 @@ IceInternal::BasicStream::skipSlice()
 {
     Int sz;
     read(sz);
-    if(sz < 0)
+    if(sz < 4)
     {
-        throw NegativeSizeException(__FILE__, __LINE__);
+        throw UnmarshalOutOfBoundsException(__FILE__, __LINE__);
     }
     i += sz - sizeof(Int);
     if(i > b.end())
@@ -2121,12 +2121,6 @@ void
 IceInternal::BasicStream::throwUnmarshalOutOfBoundsException(const char* file, int line)
 {
     throw UnmarshalOutOfBoundsException(file, line);
-}
-
-void
-IceInternal::BasicStream::throwNegativeSizeException(const char* file, int line)
-{
-    throw NegativeSizeException(file, line);
 }
 
 void

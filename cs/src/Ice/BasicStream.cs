@@ -467,12 +467,12 @@ namespace IceInternal
             // readSize()/writeSize(), it could be 1 or 5 bytes.
             //
             int sz = readInt();
-            if(sz < 0)
+            if(sz < 6)
             {
-                throw new Ice.NegativeSizeException();
+                throw new Ice.UnmarshalOutOfBoundsException();
             }
 
-            if(sz - 4 > _buf.b.limit())
+            if(sz - 4 > _buf.b.remaining())
             {
                 throw new Ice.UnmarshalOutOfBoundsException();
             }
@@ -529,11 +529,6 @@ namespace IceInternal
         public virtual void skipEmptyEncaps()
         {
             int sz = readInt();
-            if(sz < 0)
-            {
-                throw new Ice.NegativeSizeException();
-            }
-
             if(sz != 6)
             {
                 throw new Ice.EncapsulationException();
@@ -568,9 +563,9 @@ namespace IceInternal
         public virtual void skipEncaps()
         {
             int sz = readInt();
-            if(sz < 0)
+            if(sz < 6)
             {
-                throw new Ice.NegativeSizeException();
+                throw new Ice.UnmarshalOutOfBoundsException();
             }
             try
             {
@@ -597,9 +592,9 @@ namespace IceInternal
         public virtual void startReadSlice()
         {
             int sz = readInt();
-            if(sz < 0)
+            if(sz < 4)
             {
-                throw new Ice.NegativeSizeException();
+                throw new Ice.UnmarshalOutOfBoundsException();
             }
             _readSlice = _buf.b.position();
         }
@@ -611,9 +606,9 @@ namespace IceInternal
         public virtual void skipSlice()
         {
             int sz = readInt();
-            if(sz < 0)
+            if(sz < 4)
             {
-                throw new Ice.NegativeSizeException();
+                throw new Ice.UnmarshalOutOfBoundsException();
             }
             try
             {
@@ -654,7 +649,7 @@ namespace IceInternal
                     int v = _buf.b.getInt();
                     if(v < 0)
                     {
-                        throw new Ice.NegativeSizeException();
+                        throw new Ice.UnmarshalOutOfBoundsException();
                     }
                     return v;
                 }

@@ -355,7 +355,7 @@ namespace Ice
         {
             if(sz < 0)
             {
-                throw new NegativeSizeException();
+                throw new MarshalException();
             }
 
             _os.writeSize(sz);

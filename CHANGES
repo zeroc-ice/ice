@@ -33,6 +33,9 @@ General Changes
 These entries apply to all relevant language mappings unless otherwise
 noted.
 
+- Ice.NegativeSizeException has been removed. The run time now throws
+  MarshalException or UnmarshalOutOfBoundsException instead.
+
 - The IceSSL.TrustOnly properties support a new syntax that allows you
   to reject a peer whose distinguished name matches certain criteria.
 

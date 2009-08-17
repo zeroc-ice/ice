@@ -2382,7 +2382,7 @@ namespace Ice
                             if(message.invokeNum < 0)
                             {
                                 message.invokeNum = 0;
-                                throw new NegativeSizeException();
+                                throw new UnmarshalOutOfBoundsException();
                             }
                             message.servantManager = _servantManager;
                             message.adapter = _adapter;

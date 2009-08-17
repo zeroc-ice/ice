@@ -858,16 +858,6 @@ local exception EncapsulationException extends MarshalException
 
 /**
  *
- * This exception is raised if a negative size
- * (for example, a negative sequence size) is received.
- *
- **/
-local exception NegativeSizeException extends MarshalException
-{
-};
-
-/**
- *
  * This exception is raised if an unsupported feature is used. The
  * unsupported feature string contains the name of the unsupported
  * feature

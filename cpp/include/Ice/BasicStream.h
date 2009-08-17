@@ -225,9 +225,9 @@ public:
         //
         Ice::Int sz;
         read(sz);
-        if(sz < 0)
+        if(sz < 6)
         {
-            throwNegativeSizeException(__FILE__, __LINE__);
+            throwUnmarshalOutOfBoundsException(__FILE__, __LINE__);
         }
         if(i - sizeof(Ice::Int) + sz > b.end())
         {
@@ -283,11 +283,6 @@ public:
     {
         Ice::Int sz;
         read(sz);
-        if(sz < 0)
-        {
-            throwNegativeSizeException(__FILE__, __LINE__);
-        }
-
         if(sz != static_cast<Ice::Int>(sizeof(Ice::Int)) + 2)
         {
             throwEncapsulationException(__FILE__, __LINE__);
@@ -359,7 +354,7 @@ public:
             read(v);
             if(v < 0)
             {
-                throwNegativeSizeException(__FILE__, __LINE__);
+                throwUnmarshalOutOfBoundsException(__FILE__, __LINE__);
             }
         }
         else
@@ -629,7 +624,6 @@ private:
     // ordering.
     //
     void throwUnmarshalOutOfBoundsException(const char*, int);
-    void throwNegativeSizeException(const char*, int);
     void throwUnsupportedEncodingException(const char*, int, Ice::Byte, Ice::Byte);
     void throwEncapsulationException(const char*, int);
 
