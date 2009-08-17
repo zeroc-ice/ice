@@ -1172,7 +1172,7 @@ Slice::CsVisitor::editMarkup(const string& s)
                 if(endIdent != string::npos)
                 {
                     string ident = result.substr(startIdent, endIdent - startIdent);
-                    string::size_type endComment = result.find('@', endIdent);
+                    string::size_type endComment = result.find_first_of("@<", endIdent);
                     string comment = result.substr(endIdent + 1,
                                                    endComment == string::npos ? endComment : endComment - endIdent - 1);
                     result.erase(startIdent, endComment == string::npos ? string::npos : endComment - startIdent);
@@ -1193,7 +1193,7 @@ Slice::CsVisitor::editMarkup(const string& s)
     if(pos != string::npos)
     {
         result.erase(pos, returnTag.size() + 1);
-        string::size_type endComment = result.find('@', pos);
+        string::size_type endComment = result.find_first_of("@<", pos);
         string comment = result.substr(pos, endComment == string::npos ? endComment : endComment - pos);
         result.erase(pos, endComment == string::npos ? string::npos : endComment - pos);
         string newComment = "<returns>" + comment + "</returns>\n";
@@ -1217,7 +1217,7 @@ Slice::CsVisitor::editMarkup(const string& s)
                 if(endIdent != string::npos)
                 {
                     string ident = result.substr(startIdent, endIdent - startIdent);
-                    string::size_type endComment = result.find('@', endIdent);
+                    string::size_type endComment = result.find_first_of("@<", endIdent);
                     string comment = result.substr(endIdent + 1,
                                                    endComment == string::npos ? endComment : endComment - endIdent - 1);
                     result.erase(startIdent, endComment == string::npos ? string::npos : endComment - startIdent);
