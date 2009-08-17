@@ -4,8 +4,8 @@
 client
 server
 libLoggerPlugin.so
-libLoggerPlugin.so.33
+libLoggerPlugin.so.34b
 libHelloPlugin.so
-libHelloPlugin.so.33
+libHelloPlugin.so.34b
 Hello.cpp
 Hello.h
