@@ -162,7 +162,7 @@ endif
 ifneq ($(POLICY_TARGET),)
 
 $(bindir)/$(POLICY_TARGET):
-	@echo <<EOF " \
+	@echo -e " \
 <configuration> \n \
   <runtime> \n \
     <assemblyBinding xmlns=\"urn:schemas-microsoft-com:asm.v1\"> \n \
@@ -173,8 +173,7 @@ $(bindir)/$(POLICY_TARGET):
       </dependentAssembly> \n \
     </assemblyBinding> \n \
   </runtime> \n \
-</configuration>" \
-EOF >$(POLICY)
+</configuration>" >$(POLICY)
 	$(AL) /link:$(POLICY) /version:0.0.0.0 /out:$(POLICY_TARGET) /keyfile:$(KEYFILE)
 	chmod a+r $(POLICY)
 	chmod a+rx $(POLICY_TARGET)
@@ -187,7 +186,7 @@ endif
 
 $(TARGETS_CONFIG):
 	@echo "Generating $@..."
-	@echo <<EOF \
+	@echo -e \
 "<configuration>\n \
 <system.diagnostics>\n   \
 <trace autoflush=\"true\" indentsize=\"4\">\n     \
@@ -200,8 +199,7 @@ type=\"System.Diagnostics.ConsoleTraceListener\"/>\n     \
 <add name=\"IceLogger\" value=\"Info\"/>\n   \
 </switches>\n \
 </system.diagnostics>\n\
-</configuration>" \
-EOF >$@
+</configuration>" >$@
 
 GEN_SRCS = $(subst .ice,.cs,$(addprefix $(GDIR)/,$(notdir $(SLICE_SRCS))))
 CGEN_SRCS = $(subst .ice,.cs,$(addprefix $(GDIR)/,$(notdir $(SLICE_C_SRCS))))
