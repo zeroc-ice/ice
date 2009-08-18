@@ -338,7 +338,6 @@ namespace IceInternal
             _locator = locator;
             _table = table;
             _background = background;
-            _waitForRegistry = false;
         }
         
         public void destroy()
@@ -376,40 +375,18 @@ namespace IceInternal
 
         public Ice.LocatorRegistryPrx getLocatorRegistry()
         {
-            Ice.LocatorPrx locator = null;
             lock(this)
             {
-                while(_waitForRegistry)
-                {
-                    Monitor.Wait(this);
-                }
-
                 if(_locatorRegistry != null)
                 {
                     return _locatorRegistry;
                 }
-
-                _waitForRegistry = true;
-                locator = _locator;
             }
 
             //
             // Do not make locator calls from within sync.
             //
-            Ice.LocatorRegistryPrx locatorRegistry = null;
-            try
-            {
-                locatorRegistry = locator.getRegistry();
-            }
-            catch(Ice.LocalException)
-            {
-                lock(this)
-                {
-                    Monitor.PulseAll(this);
-                }
-
-                throw;
-            }
+            Ice.LocatorRegistryPrx locatorRegistry = _locator.getRegistry();
 
             lock(this)
             {
@@ -417,10 +394,6 @@ namespace IceInternal
                 // The locator registry can't be located.
                 //
                 _locatorRegistry = Ice.LocatorRegistryPrxHelper.uncheckedCast(locatorRegistry.ice_locator(null));
-
-                _waitForRegistry = false;
-                Monitor.PulseAll(this);
-                
                 return _locatorRegistry;
             }
         }
@@ -821,7 +794,6 @@ namespace IceInternal
         private Ice.LocatorRegistryPrx _locatorRegistry;
         private readonly LocatorTable _table;
         private readonly bool _background;
-        private bool _waitForRegistry;
         
         private Dictionary<string, Request> _adapterRequests = new Dictionary<string, Request>();
         private Dictionary<Ice.Identity, Request> _objectRequests = new Dictionary<Ice.Identity, Request>();

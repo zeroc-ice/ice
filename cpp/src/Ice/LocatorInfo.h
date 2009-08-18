@@ -73,7 +73,7 @@ private:
     std::map<Ice::Identity, std::pair<IceUtil::Time, ReferencePtr> > _objectMap;
 };
 
-class LocatorInfo : public IceUtil::Shared, public IceUtil::Monitor<IceUtil::Mutex>
+class LocatorInfo : public IceUtil::Shared, public IceUtil::Mutex
 {
 public:
 
@@ -175,7 +175,6 @@ private:
     Ice::LocatorRegistryPrx _locatorRegistry;
     const LocatorTablePtr _table;
     const bool _background;
-    bool _waitForRegistry;
 
     std::map<std::string, RequestPtr> _adapterRequests;
     std::map<Ice::Identity, RequestPtr> _objectRequests;
