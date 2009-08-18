@@ -329,7 +329,6 @@ public final class LocatorInfo
         _locator = locator;
         _table = table;
         _background = background;
-        _waitForRegistry = false;
     }
 
     synchronized public void
@@ -373,45 +372,18 @@ public final class LocatorInfo
     public Ice.LocatorRegistryPrx
     getLocatorRegistry()
     {
-        Ice.LocatorPrx locator = null;
         synchronized(this)
         {
-            while(_waitForRegistry)
-            {
-                try
-                {
-                    wait();
-                }
-                catch(InterruptedException ex)
-                {
-                }
-            }
-
             if(_locatorRegistry != null)
             {
                 return _locatorRegistry;
             }
-
-            _waitForRegistry = true;
-            locator = _locator;
         }
 
         //
         // Do not make locator calls from within sync.
         //
-        Ice.LocatorRegistryPrx locatorRegistry = null;
-        try
-        {
-            locatorRegistry = locator.getRegistry();
-        }
-        catch(Ice.LocalException ex)
-        {
-            synchronized(this)
-            {
-                notifyAll();
-            }
-            throw ex;
-        }
+        Ice.LocatorRegistryPrx locatorRegistry = _locator.getRegistry();
 
         synchronized(this)
         {
@@ -419,10 +391,6 @@ public final class LocatorInfo
             // The locator registry can't be located.
             //
             _locatorRegistry = Ice.LocatorRegistryPrxHelper.uncheckedCast(locatorRegistry.ice_locator(null));
-
-            _waitForRegistry = false;
-            notifyAll();
-
             return _locatorRegistry;
         }
     }
@@ -841,7 +809,6 @@ public final class LocatorInfo
     private Ice.LocatorRegistryPrx _locatorRegistry;
     private final LocatorTable _table;
     private final boolean _background;
-    private boolean _waitForRegistry;
 
     private java.util.Map<String, Request> _adapterRequests = new java.util.HashMap<String, Request>();
     private java.util.Map<Ice.Identity, Request> _objectRequests = new java.util.HashMap<Ice.Identity, Request>();

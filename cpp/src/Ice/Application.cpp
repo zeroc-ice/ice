@@ -319,10 +319,6 @@ Ice::Application::~Application()
 int
 Ice::Application::main(int argc, char* argv[])
 {
-    if(argc > 0 && argv[0] && LoggerIPtr::dynamicCast(getProcessLogger()))
-    {
-        setProcessLogger(new LoggerI(argv[0], ""));
-    }
     return main(argc, argv, InitializationData());
 }
 

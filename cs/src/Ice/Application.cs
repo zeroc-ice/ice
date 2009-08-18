@@ -100,10 +100,6 @@ namespace Ice
         /// the return value is non-zero.</returns>
         public int main(string[] args)
         {
-            if(Util.getProcessLogger() is LoggerI)
-            {
-                Util.setProcessLogger(new LoggerI(_appName, ""));
-            }
             return main(args, new InitializationData());
         }
 

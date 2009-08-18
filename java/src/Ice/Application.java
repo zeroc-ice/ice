@@ -68,10 +68,6 @@ public abstract class Application
     public final int
     main(String appName, String[] args)
     {
-        if(Util.getProcessLogger() instanceof LoggerI)
-        {
-            Util.setProcessLogger(new LoggerI(appName, ""));
-        }
         return main(appName, args, new InitializationData());
     }
 
