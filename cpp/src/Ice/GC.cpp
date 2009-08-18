@@ -19,11 +19,11 @@ using namespace IceUtil;
 namespace 
 {
 
-static Mutex* numCollectorsMutex = 0;
-static int numCollectors = 0;
+Mutex* numCollectorsMutex = 0;
+int numCollectors = 0;
 typedef std::set<IceInternal::GCShared*> GCObjectSet;
-static GCObjectSet* gcObjects = 0; // Set of pointers to all existing classes with class data members.
-static RecMutex* gcRecMutex = 0;
+GCObjectSet* gcObjects = 0; // Set of pointers to all existing classes with class data members.
+RecMutex* gcRecMutex = 0;
 
 class Init
 {
