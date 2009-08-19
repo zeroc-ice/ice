@@ -776,7 +776,14 @@ string
 Glacier2::SessionRouterI::getCategoryForClient(const Ice::Current& current) const
 {
     // Forward to the per-client router.
-    return getRouter(current.con, current.id)->getServerProxy(current)->ice_getIdentity().category;
+    if(_instance->serverObjectAdapter())
+    {
+        return getRouter(current.con, current.id)->getServerProxy(current)->ice_getIdentity().category;
+    }
+    else
+    {
+        return "";
+    }
 }
 
 void

@@ -69,7 +69,9 @@ interface Router extends Ice::Router
      *
      * This category must be used in the identities of all of the client's
      * callback objects. This is necessary in order for the router to
-     * forward callback requests to the intended client.
+     * forward callback requests to the intended client. If the Glacier2
+     * server endpoints are not set, the returned category is an empty 
+     * string.
      *
      * @return The category.
      *
