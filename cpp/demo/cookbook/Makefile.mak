@@ -7,23 +7,11 @@
 #
 # **********************************************************************
 
-top_srcdir	= ..
+top_srcdir	= ..\..
 
-!include $(top_srcdir)/config/Make.rules.mak
+!include $(top_srcdir)\config\Make.rules.mak
 
-SUBDIRS		= IceUtil \
-		  Ice \
-		  IceBox \
-		  Glacier2 \
-		  Freeze \
-		  IceStorm \
-		  IceGrid \
-		  book \
-		  cookbook
-
-!if "$(BCPLUSPLUS)" != "yes" && "$(CPP_COMPILER)" != "VC80_EXPRESS" && "$(CPP_COMPILER)" != "VC90_EXPRESS"
-SUBDIRS		= $(SUBDIRS) IcePatch2
-!endif
+SUBDIRS		= compression
 
 $(EVERYTHING)::
 	@for %i in ( $(SUBDIRS) ) do \

@@ -64,6 +64,7 @@ demos = [
     "book/simple_filesystem",
     "book/printer",
     "book/lifecycle",
+    "cookbook/compression",
 ]
 
 if __name__ == "__main__":

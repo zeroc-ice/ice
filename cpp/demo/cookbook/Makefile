@@ -7,19 +7,11 @@
 #
 # **********************************************************************
 
-top_srcdir	= ..
+top_srcdir	= ../..
 
 include $(top_srcdir)/config/Make.rules
 
-SUBDIRS		= IceUtil \
-		  Ice \
-		  Freeze \
-		  IceStorm \
-		  IceBox \
-		  Glacier2 \
-		  IceGrid \
-		  book \
-		  cookbook
+SUBDIRS		= compression
 
 $(EVERYTHING)::
 	@for subdir in $(SUBDIRS); \

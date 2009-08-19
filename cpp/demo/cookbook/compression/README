@@ -1,0 +1,16 @@
+The client and server in this directory can be used to evaluate the
+performance of protocol compression for various types of input data.
+
+To use the programs, start the server:
+
+$ ./server
+
+In a separate window, start the client and pass it the name of a
+file to send:
+
+$ ./client datafile
+
+The article uses The Autobiography of Benjamin Franklin as its input
+data. You can download the full text of that book here:
+
+http://etext.lib.virginia.edu/toc/modeng/public/Fra2Aut.html
