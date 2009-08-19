@@ -24,7 +24,5 @@ from demoscript.Ice import invoke
 
 server = Util.spawn('java Server --Ice.PrintAdapterReady')
 server.expect('.* ready')
-client = Util.spawn('java Client')
-client.expect('.*==>')
 
-invoke.run(client, server)
+invoke.run('java Client', server)

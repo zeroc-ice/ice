@@ -7,3 +7,7 @@ $ server.exe
 In a separate window, start the client:
 
 $ client.exe
+
+To run the client using asynchronous calls use:
+
+$ client.exe --async

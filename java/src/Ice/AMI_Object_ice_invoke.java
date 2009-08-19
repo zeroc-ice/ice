@@ -43,7 +43,10 @@ public abstract class AMI_Object_ice_invoke extends IceInternal.OutgoingAsync
         try
         {
             __prepare(prx, operation, mode, context);
-            __os.writeBlob(inParams);
+            if(inParams != null)
+            {
+                __os.writeBlob(inParams);
+            }
             __os.endWriteEncaps();
             return __send();
         }

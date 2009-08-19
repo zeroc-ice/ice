@@ -12,8 +12,7 @@ import sys
 from demoscript import *
 from scripts import Expect
 
-def run(client, server):
-    print "testing...",
+def runDemo(client, server):
     sys.stdout.flush()
     client.sendline('1')
     server.expect("Printing string `The streaming API works!'")
@@ -44,10 +43,27 @@ def run(client, server):
         server.expect("Printing class: s\\.name=blue, s\\.value=blue")
         client.sendline('8')
         client.expect("Got string `hello' and class: s\\.name=green, s\\.value=green")
+
+def run(clientStr, server):
+    print "testing...",
+    client = Util.spawn(clientStr)
+    client.expect('==>')
+
+    runDemo(client, server)
+
+    client.sendline('x')
+    client.waitTestSuccess()
     print "ok"
+
+    print "testing async...",
+    client = Util.spawn(clientStr + ' --async')
+    client.expect('==>')
+
+    runDemo(client, server)
 
     client.sendline('s')
     server.waitTestSuccess()
 
     client.sendline('x')
     client.waitTestSuccess()
+    print "ok"

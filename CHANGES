@@ -224,6 +224,8 @@ C++ Changes
 Java Changes
 ============
 
+- Fixed a bug in the implementation of ice_invoke_async.
+
 - The Freeze classes are now stored in a separate JAR file named
   Freeze.jar.
 
