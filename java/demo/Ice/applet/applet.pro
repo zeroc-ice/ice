@@ -23,6 +23,7 @@
 # enable obfuscation but it would make things like stack traces
 # much harder to read.
 -dontobfuscate
+-dontoptimize
 
 -keepclassmembers class * implements java.io.Serializable {
     static final long serialVersionUID;

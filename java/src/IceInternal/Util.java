@@ -78,7 +78,11 @@ public final class Util
         {
             try
             {
-                c = findClass(className, ClassLoader.getSystemClassLoader());
+                ClassLoader cl = ClassLoader.getSystemClassLoader();
+                if(cl != null)
+                {
+                    c = findClass(className, cl);
+                }
             }
             catch(SecurityException ex)
             {
