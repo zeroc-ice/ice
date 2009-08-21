@@ -1,3 +1,4 @@
+
 // **********************************************************************
 //
 // Copyright (c) 2003-2009 ZeroC, Inc. All rights reserved.
@@ -14,8 +15,34 @@
 #include <Ice/Instance.h>
 
 using namespace std;
-using namespace Ice;
-using namespace IceInternal;
+
+ostringstream&
+Ice::LoggerOutputBase::__str()
+{
+    return _str;
+}
+
+Ice::LoggerOutputBase&
+Ice::operator<<(Ice::LoggerOutputBase& out, ios_base& (*val)(ios_base&))
+{
+    out.__str() << val;
+    return out;
+}
+
+Ice::LoggerOutputBase&
+Ice::operator<<(Ice::LoggerOutputBase& out, const std::exception& ex)
+{
+#ifdef __GNUC__
+    const ::IceUtil::Exception* exception = dynamic_cast<const ::IceUtil::Exception*>(&ex);
+    if(exception)
+    {
+        out.__str() << exception->what() << '\n' << exception->ice_stackTrace();
+        return out;
+    }
+#endif
+    out.__str() << ex.what();
+    return out;
+}
 
 Ice::Print::Print(const LoggerPtr& logger) :
     _logger(logger)
@@ -30,25 +57,12 @@ Ice::Print::~Print()
 void
 Ice::Print::flush()
 {
-    string s = _str.str();
+    string s = __str().str();
     if(!s.empty())
     {
         _logger->print(s);
     }
-    _str.str("");
-}
-
-ostringstream&
-Ice::Print::__str()
-{
-    return _str;
-}
-
-Print&
-Ice::operator<<(Print& out, ios_base& (*val)(ios_base&))
-{
-    out.__str() << val;
-    return out;
+    __str().str("");
 }
 
 Ice::Warning::Warning(const LoggerPtr& logger) :
@@ -64,25 +78,12 @@ Ice::Warning::~Warning()
 void
 Ice::Warning::flush()
 {
-    string s = _str.str();
+    string s = __str().str();
     if(!s.empty())
     {
         _logger->warning(s);
     }
-    _str.str("");
-}
-
-ostringstream&
-Ice::Warning::__str()
-{
-    return _str;
-}
-
-Warning&
-Ice::operator<<(Warning& out, ios_base& (*val)(ios_base&))
-{
-    out.__str() << val;
-    return out;
+    __str().str("");
 }
 
 Ice::Error::Error(const LoggerPtr& logger) :
@@ -98,25 +99,12 @@ Ice::Error::~Error()
 void
 Ice::Error::flush()
 {
-    string s = _str.str();
+    string s = __str().str();
     if(!s.empty())
     {
         _logger->error(s);
     }
-    _str.str("");
-}
-
-ostringstream&
-Ice::Error::__str()
-{
-    return _str;
-}
-
-Error&
-Ice::operator<<(Error& out, ios_base& (*val)(ios_base&))
-{
-    out.__str() << val;
-    return out;
+    __str().str("");
 }
 
 Ice::Trace::Trace(const LoggerPtr& logger, const string& category) :
@@ -133,25 +121,12 @@ Ice::Trace::~Trace()
 void
 Ice::Trace::flush()
 {
-    string s = _str.str();
+    string s = __str().str();
     if(!s.empty())
     {
         _logger->trace(_category, s);
     }
-    _str.str("");
-}
-
-ostringstream&
-Ice::Trace::__str()
-{
-    return _str;
-}
-
-Trace&
-Ice::operator<<(Trace& out, ios_base& (*val)(ios_base&))
-{
-    out.__str() << val;
-    return out;
+    __str().str("");
 }
 
 Ice::LoggerPlugin::LoggerPlugin(const CommunicatorPtr& communicator, const LoggerPtr& logger)

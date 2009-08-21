@@ -35,7 +35,7 @@ namespace IceInternal
 
         }
 
-        public void queue(AsyncCallback callback)
+        public void queue(ThreadPoolWorkItem callback)
         {
             lock(this)
             {
@@ -65,7 +65,7 @@ namespace IceInternal
 
         public void run()
         {
-            LinkedList<AsyncCallback> queue = new LinkedList<AsyncCallback>();
+            LinkedList<ThreadPoolWorkItem> queue = new LinkedList<ThreadPoolWorkItem>();
             while(true)
             {
                 lock(this)
@@ -80,16 +80,16 @@ namespace IceInternal
                         Monitor.Wait(this);
                     }
 
-                    LinkedList<AsyncCallback> tmp = queue;
+                    LinkedList<ThreadPoolWorkItem> tmp = queue;
                     queue = _queue;
                     _queue = tmp;
                 }
 
-                foreach(AsyncCallback cb in queue)
+                foreach(ThreadPoolWorkItem cb in queue)
                 {
                     try
                     {
-                        cb(null);
+                        cb();
                     }
                     catch(Ice.LocalException ex)
                     {
@@ -108,7 +108,7 @@ namespace IceInternal
 
         private Instance _instance;
         private bool _destroyed;
-        private LinkedList<AsyncCallback> _queue = new LinkedList<AsyncCallback>();
+        private LinkedList<ThreadPoolWorkItem> _queue = new LinkedList<ThreadPoolWorkItem>();
 
         private sealed class HelperThread
         {

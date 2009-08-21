@@ -21,6 +21,12 @@ class ThreadPool;
 ICE_API IceUtil::Shared* upCast(ThreadPool*);
 typedef Handle<ThreadPool> ThreadPoolPtr;
 
+class ThreadPoolWorkItem;
+ICE_API IceUtil::Shared* upCast(ThreadPoolWorkItem*);
+typedef Handle<ThreadPoolWorkItem> ThreadPoolWorkItemPtr;
+
+class ThreadPoolCurrent;
+
 }
 
 #endif

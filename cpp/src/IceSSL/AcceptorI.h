@@ -20,18 +20,28 @@
 #   include <sys/socket.h> // For struct sockaddr_storage
 #endif
 
+#include <vector>
+
 namespace IceSSL
 {
 
 class EndpointI;
 
-class AcceptorI : public IceInternal::Acceptor
+class AcceptorI : public IceInternal::Acceptor, public IceInternal::NativeInfo
 {
 public:
 
-    virtual SOCKET fd();
+    virtual IceInternal::NativeInfoPtr getNativeInfo();
+#ifdef ICE_USE_IOCP
+    virtual IceInternal::AsyncInfo* getAsyncInfo(IceInternal::SocketOperation);
+#endif
+
     virtual void close();
     virtual void listen();
+#ifdef ICE_USE_IOCP
+    virtual void startAccept();
+    virtual void finishAccept();
+#endif
     virtual IceInternal::TransceiverPtr accept();
     virtual std::string toString() const;
 
@@ -47,8 +57,13 @@ private:
     const std::string _adapterName;
     const Ice::LoggerPtr _logger;
     const struct sockaddr_storage _addr;
-    SOCKET _fd;
     int _backlog;
+#ifdef ICE_USE_IOCP
+    SOCKET _acceptFd;
+    int _acceptError;
+    std::vector<char> _acceptBuf;
+    IceInternal::AsyncInfo _info;
+#endif
 };
 
 }

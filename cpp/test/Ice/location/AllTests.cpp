@@ -263,7 +263,7 @@ allTests(const Ice::CommunicatorPtr& communicator, const string& ref)
     test(++count == locator->getRequestCount());
     communicator->stringToProxy("test@TestAdapter")->ice_locatorCacheTimeout(1)->ice_ping(); // 1s timeout.
     test(count == locator->getRequestCount());
-    IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(1200));
+    IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(1300));
     communicator->stringToProxy("test@TestAdapter")->ice_locatorCacheTimeout(1)->ice_ping(); // 1s timeout.
     test(++count == locator->getRequestCount());
 
@@ -272,7 +272,7 @@ allTests(const Ice::CommunicatorPtr& communicator, const string& ref)
     test(count == locator->getRequestCount());
     communicator->stringToProxy("test")->ice_locatorCacheTimeout(1)->ice_ping(); // 1s timeout
     test(count == locator->getRequestCount());
-    IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(1200));
+    IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(1300));
     communicator->stringToProxy("test")->ice_locatorCacheTimeout(1)->ice_ping(); // 1s timeout
     count += 2;
     test(count == locator->getRequestCount());
@@ -306,11 +306,52 @@ allTests(const Ice::CommunicatorPtr& communicator, const string& ref)
     hello->ice_ping();
     test(++count == locator->getRequestCount());
     int i;
+
+    class ResponseCounter : public IceUtil::Monitor<IceUtil::Mutex>
+    {
+    public:
+        
+        ResponseCounter(int expected) : _expected(expected)
+        {
+        }
+        
+        void response()
+        {
+            Lock sync(*this);
+            if(--_expected == 0)
+            {
+                notifyAll();
+            }
+        }
+        
+        void waitForAllResponses()
+        {
+            Lock sync(*this);
+            while(_expected > 0)
+            {
+                wait();
+            }
+        }
+        
+        void reset(int expected)
+        {
+            _expected = expected;
+        }
+    private:
+
+        int _expected;
+    };
+
+    ResponseCounter counter(1000);
     for(i = 0; i < 1000; i++)
     {
         class AMICallback : public Test::AMI_Hello_sayHello
         {
         public:
+            AMICallback(ResponseCounter& c) : _counter(c)
+            {
+            }
+
             virtual void
             ice_exception(const Ice::Exception&)
             {
@@ -320,11 +361,16 @@ allTests(const Ice::CommunicatorPtr& communicator, const string& ref)
             virtual void
             ice_response()
             {
+                _counter.response();
             }
+
+        private:
+
+            ResponseCounter& _counter;
         };
-        hello->sayHello_async(new AMICallback());
+        hello->sayHello_async(new AMICallback(counter));
     }
-    hello->ice_ping();
+    counter.waitForAllResponses();
     test(locator->getRequestCount() > count && locator->getRequestCount() < count + 999);
     if(locator->getRequestCount() > count + 800)
     {
@@ -332,14 +378,20 @@ allTests(const Ice::CommunicatorPtr& communicator, const string& ref)
     }
     count = locator->getRequestCount();
     hello = hello->ice_adapterId("unknown");
+    counter.reset(1000);
     for(i = 0; i < 1000; i++)
     {
         class AMICallback : public Test::AMI_Hello_sayHello
         {
         public:
+            AMICallback(ResponseCounter& c) : _counter(c)
+            {
+            }
+
             virtual void
             ice_exception(const Ice::Exception& ex)
             {
+                _counter.response();
                 test(dynamic_cast<const Ice::NotRegisteredException*>(&ex));
             }
 
@@ -348,17 +400,14 @@ allTests(const Ice::CommunicatorPtr& communicator, const string& ref)
             {
                 test(false);
             }
+
+        private:
+
+            ResponseCounter& _counter;
         };
-        hello->sayHello_async(new AMICallback());
+        hello->sayHello_async(new AMICallback(counter));
     }
-    try
-    {
-        hello->ice_ping();
-        test(false);
-    }
-    catch(const Ice::NotRegisteredException&)
-    {
-    }
+    counter.waitForAllResponses();
     // Take into account the retries.
     test(locator->getRequestCount() > count && locator->getRequestCount() < count + 1999);
     if(locator->getRequestCount() > count + 800)

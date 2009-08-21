@@ -669,6 +669,7 @@ public final class OutgoingConnectionFactory
         // is necessary to support the interruption of the connection initialization and validation
         // in case the communicator is destroyed.
         //
+        Ice.ConnectionI connection = null;
 	try
 	{
             if(_destroyed)
@@ -676,23 +677,7 @@ public final class OutgoingConnectionFactory
                 throw new Ice.CommunicatorDestroyedException();
             }
 
-	    Ice.ConnectionI connection = new Ice.ConnectionI(_instance, transceiver, ci.endpoint.compress(false),null);
-
-            java.util.List<Ice.ConnectionI> connectionList = _connections.get(ci);
-            if(connectionList == null)
-            {
-                connectionList = new java.util.LinkedList<Ice.ConnectionI>();
-                _connections.put(ci, connectionList);
-            }
-            connectionList.add(connection);
-            connectionList = _connectionsByEndpoint.get(ci.endpoint);
-            if(connectionList == null)
-            {
-                connectionList = new java.util.LinkedList<Ice.ConnectionI>();
-                _connectionsByEndpoint.put(ci.endpoint, connectionList);
-            }
-            connectionList.add(connection);
-            return connection;
+            connection = new Ice.ConnectionI(_instance, transceiver, ci.endpoint.compress(false),null);
 	}
 	catch(Ice.LocalException ex)
 	{
@@ -706,6 +691,22 @@ public final class OutgoingConnectionFactory
 	    }
             throw ex;
 	}
+
+        java.util.List<Ice.ConnectionI> connectionList = _connections.get(ci);
+        if(connectionList == null)
+        {
+            connectionList = new java.util.LinkedList<Ice.ConnectionI>();
+            _connections.put(ci, connectionList);
+        }
+        connectionList.add(connection);
+        connectionList = _connectionsByEndpoint.get(ci.endpoint);
+        if(connectionList == null)
+        {
+            connectionList = new java.util.LinkedList<Ice.ConnectionI>();
+            _connectionsByEndpoint.put(ci.endpoint, connectionList);
+        }
+        connectionList.add(connection);
+        return connection;
     }
 
     private void

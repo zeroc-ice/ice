@@ -636,7 +636,7 @@ namespace IceInternal
             return true;
         }
 
-        public static IAsyncResult doBeginConnectAsync(Socket fd, EndPoint addr, AsyncCallback callback)
+        public static IAsyncResult doConnectAsync(Socket fd, EndPoint addr, AsyncCallback callback, object state)
         {
         repeatConnect:
             try
@@ -649,7 +649,7 @@ namespace IceInternal
                 //
                 IPAddress any = fd.AddressFamily == AddressFamily.InterNetworkV6 ? IPAddress.IPv6Any : IPAddress.Any;
                 fd.Bind(new IPEndPoint(any, 0));
-                return fd.BeginConnect(addr, callback, fd);
+                return fd.BeginConnect(addr, callback, state);
             }
             catch(SocketException ex)
             {
@@ -671,14 +671,12 @@ namespace IceInternal
             }
         }
 
-        public static Socket doEndConnectAsync(IAsyncResult result)
+        public static void doFinishConnectAsync(Socket fd, IAsyncResult result)
         {
             //
             // Note: we don't close the socket if there's an exception. It's the responsibility
             // of the caller to do so.
             //
-
-            Socket fd = (Socket)result.AsyncState;
             try
             {
                 fd.EndConnect(result);
@@ -714,7 +712,6 @@ namespace IceInternal
                     throw new Ice.ConnectionRefusedException();
                 }
             }
-            return fd;
         }
 
         public static IPEndPoint getAddress(string host, int port, int protocol)
@@ -1007,14 +1004,21 @@ namespace IceInternal
             }
             return hosts;
         }
-
+        
         public static string fdToString(Socket socket)
         {
-            if(socket == null)
+            try
+            {
+                if(socket == null)
+                {
+                    return "<closed>";
+                }
+                return addressesToString(getLocalAddress(socket), getRemoteAddress(socket));
+            }
+            catch(ObjectDisposedException)
             {
                 return "<closed>";
             }
-            return addressesToString(getLocalAddress(socket), getRemoteAddress(socket));
         }
 
         public static string
@@ -1076,7 +1080,6 @@ namespace IceInternal
             }
             catch(SocketException)
             {
-                remoteEndpoint = null;
             }
             return remoteEndpoint;
         }

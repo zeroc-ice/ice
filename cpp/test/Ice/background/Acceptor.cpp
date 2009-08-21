@@ -12,10 +12,10 @@
 
 using namespace std;
 
-SOCKET
-Acceptor::fd()
+IceInternal::NativeInfoPtr
+Acceptor::getNativeInfo()
 {
-    return _acceptor->fd();
+    return _acceptor->getNativeInfo();
 }
 
 void
@@ -29,6 +29,20 @@ Acceptor::listen()
 {
     _acceptor->listen();
 }
+
+#ifdef ICE_USE_IOCP
+void 
+Acceptor::startAccept()
+{
+    _acceptor->startAccept();
+}
+
+void
+Acceptor::finishAccept()
+{
+    _acceptor->finishAccept();
+}
+#endif
 
 IceInternal::TransceiverPtr
 Acceptor::accept()

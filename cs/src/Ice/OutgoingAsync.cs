@@ -87,7 +87,7 @@ namespace IceInternal
             
             try
             {
-                os__.instance().clientThreadPool().execute(delegate(bool unused)
+                os__.instance().clientThreadPool().execute(delegate()
                                                            {
                                                                exception__(ex);
                                                            });

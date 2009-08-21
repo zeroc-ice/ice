@@ -56,23 +56,7 @@ class BackgroundControllerI extends _BackgroundControllerDisp
     public void
     initializeSocketStatus(int status, Ice.Current current)
     {
-        switch(status)
-        {
-        case IceInternal.SocketStatus._Finished:
-            _configuration.initializeSocketStatus(IceInternal.SocketStatus.Finished);
-            break;
-        case IceInternal.SocketStatus._NeedConnect:
-            _configuration.initializeSocketStatus(IceInternal.SocketStatus.NeedConnect);
-            break;
-        case IceInternal.SocketStatus._NeedRead:
-            _configuration.initializeSocketStatus(IceInternal.SocketStatus.NeedRead);
-            break;
-        case IceInternal.SocketStatus._NeedWrite:
-            _configuration.initializeSocketStatus(IceInternal.SocketStatus.NeedWrite);
-            break;
-        default:
-            assert(false);
-        }
+        _configuration.initializeSocketStatus(status);
     }
 
     public void

@@ -51,7 +51,6 @@ private:
     struct sockaddr_storage _addr;
     const Ice::Int _timeout;
     const std::string _connectionId;
-    SOCKET _fd;
 };
 
 }

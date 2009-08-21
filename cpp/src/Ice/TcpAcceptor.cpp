@@ -16,15 +16,28 @@
 #include <Ice/Exception.h>
 #include <Ice/Properties.h>
 
+#ifdef ICE_USE_IOCP
+#  include <Mswsock.h>
+#endif
+
 using namespace std;
 using namespace Ice;
 using namespace IceInternal;
 
-SOCKET
-IceInternal::TcpAcceptor::fd()
+NativeInfoPtr
+IceInternal::TcpAcceptor::getNativeInfo()
 {
-    return _fd;
+    return this;
 }
+
+#ifdef ICE_USE_IOCP
+AsyncInfo*
+IceInternal::TcpAcceptor::getAsyncInfo(SocketOperation op)
+{
+    assert(op == SocketOperationRead);
+    return &_info;
+}
+#endif
 
 void
 IceInternal::TcpAcceptor::close()
@@ -78,19 +91,86 @@ IceInternal::TcpAcceptor::listen()
     }
 }
 
+#ifdef ICE_USE_IOCP
+void
+IceInternal::TcpAcceptor::startAccept()
+{
+    LPFN_ACCEPTEX AcceptEx = NULL; // a pointer to the 'AcceptEx()' function
+    GUID GuidAcceptEx = WSAID_ACCEPTEX; // The Guid
+    DWORD dwBytes;
+    if(WSAIoctl(_fd, 
+                SIO_GET_EXTENSION_FUNCTION_POINTER,
+                &GuidAcceptEx,
+                sizeof(GuidAcceptEx),
+                &AcceptEx,
+                sizeof(AcceptEx),
+                &dwBytes,
+                NULL, 
+                NULL) == SOCKET_ERROR)
+    {
+        SocketException ex(__FILE__, __LINE__);
+        ex.error = getSocketErrno();
+        throw ex;
+    }        
+
+    assert(_acceptFd == INVALID_SOCKET);
+    _acceptFd = createSocket(false, _addr.ss_family);
+    const int sz = static_cast<int>(_acceptBuf.size() / 2);
+    if(!AcceptEx(_fd, _acceptFd, &_acceptBuf[0], 0, sz, sz, &_info.count, &_info))
+    {
+        if(WSAGetLastError() != WSA_IO_PENDING)
+        {
+            SocketException ex(__FILE__, __LINE__);
+            ex.error = getSocketErrno();
+            throw ex;
+        }
+    }
+}
+
+void
+IceInternal::TcpAcceptor::finishAccept()
+{
+    if(_info.count == SOCKET_ERROR || _fd == INVALID_SOCKET)
+    {
+        closeSocketNoThrow(_acceptFd);
+        _acceptFd = INVALID_SOCKET;
+        _acceptError = _info.error;
+    }
+}
+#endif
+
 TransceiverPtr
 IceInternal::TcpAcceptor::accept()
 {
-    SOCKET fd = doAccept(_fd);
-    setBlock(fd, false);
-    setTcpBufSize(fd, _instance->initializationData().properties, _logger);
+    SOCKET fd;
+#ifndef ICE_USE_IOCP
+    fd = doAccept(_fd);
+#else
+    if(_acceptFd == INVALID_SOCKET)
+    {
+        SocketException ex(__FILE__, __LINE__);
+        ex.error = _acceptError;
+        throw ex;        
+    }
 
+    if(setsockopt(_acceptFd, SOL_SOCKET, SO_UPDATE_ACCEPT_CONTEXT, (char*)&_acceptFd, sizeof(_acceptFd)) == 
+       SOCKET_ERROR)
+    {
+        closeSocketNoThrow(_acceptFd);
+        _acceptFd = INVALID_SOCKET;
+        SocketException ex(__FILE__, __LINE__);
+        ex.error = getSocketErrno();
+        throw ex;        
+    }
+
+    fd = _acceptFd;
+    _acceptFd = INVALID_SOCKET;
+#endif
     if(_traceLevels->network >= 1)
     {
         Trace out(_logger, _traceLevels->networkCat);
         out << "accepted tcp connection\n" << fdToString(fd);
     }
-
     return new TcpTransceiver(_instance, fd, true);
 }
 
@@ -111,6 +191,10 @@ IceInternal::TcpAcceptor::TcpAcceptor(const InstancePtr& instance, const string&
     _traceLevels(instance->traceLevels()),
     _logger(instance->initializationData().logger),
     _addr(getAddressForServer(host, port, instance->protocolSupport()))
+#ifdef ICE_USE_IOCP
+    , _acceptFd(INVALID_SOCKET),
+    _info(SocketOperationRead)
+#endif
 {
 #ifdef SOMAXCONN
     _backlog = instance->initializationData().properties->getPropertyAsIntWithDefault("Ice.TCP.Backlog", SOMAXCONN);
@@ -118,41 +202,39 @@ IceInternal::TcpAcceptor::TcpAcceptor(const InstancePtr& instance, const string&
     _backlog = instance->initializationData().properties->getPropertyAsIntWithDefault("Ice.TCP.Backlog", 511);
 #endif
 
-    try
-    {
-        _fd = createSocket(false, _addr.ss_family);
-        setBlock(_fd, false);
-        setTcpBufSize(_fd, _instance->initializationData().properties, _logger);
-#ifndef _WIN32
-        //
-        // Enable SO_REUSEADDR on Unix platforms to allow re-using the
-        // socket even if it's in the TIME_WAIT state. On Windows,
-        // this doesn't appear to be necessary and enabling
-        // SO_REUSEADDR would actually not be a good thing since it
-        // allows a second process to bind to an address even it's
-        // already bound by another process.
-        //
-        // TODO: using SO_EXCLUSIVEADDRUSE on Windows would probably
-        // be better but it's only supported by recent Windows
-        // versions (XP SP2, Windows Server 2003).
-        //
-        setReuseAddress(_fd, true);
+    _fd = createSocket(false, _addr.ss_family);
+#ifdef ICE_USE_IOCP
+    _acceptBuf.resize((sizeof(sockaddr_storage) + 16) * 2);
 #endif
-        if(_traceLevels->network >= 2)
-        {
-            Trace out(_logger, _traceLevels->networkCat);
-            out << "attempting to bind to tcp socket " << toString();
-        }
-        const_cast<struct sockaddr_storage&>(_addr) = doBind(_fd, _addr);
-    }
-    catch(...)
+    setBlock(_fd, false);
+    setTcpBufSize(_fd, _instance->initializationData().properties, _logger);
+#ifndef _WIN32
+    //
+    // Enable SO_REUSEADDR on Unix platforms to allow re-using the
+    // socket even if it's in the TIME_WAIT state. On Windows,
+    // this doesn't appear to be necessary and enabling
+    // SO_REUSEADDR would actually not be a good thing since it
+    // allows a second process to bind to an address even it's
+    // already bound by another process.
+    //
+    // TODO: using SO_EXCLUSIVEADDRUSE on Windows would probably
+    // be better but it's only supported by recent Windows
+    // versions (XP SP2, Windows Server 2003).
+    //
+    setReuseAddress(_fd, true);
+#endif
+    if(_traceLevels->network >= 2)
     {
-        _fd = INVALID_SOCKET;
-        throw;
+        Trace out(_logger, _traceLevels->networkCat);
+        out << "attempting to bind to tcp socket " << toString();
     }
+    const_cast<struct sockaddr_storage&>(_addr) = doBind(_fd, _addr);
 }
 
 IceInternal::TcpAcceptor::~TcpAcceptor()
 {
     assert(_fd == INVALID_SOCKET);
+#ifdef ICE_USE_IOCP
+    assert(_acceptFd == INVALID_SOCKET);
+#endif
 }

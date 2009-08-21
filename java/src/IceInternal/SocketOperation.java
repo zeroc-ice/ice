@@ -7,22 +7,14 @@
 //
 // **********************************************************************
 
-#ifndef ICE_SELECTOR_F_H
-#define ICE_SELECTOR_F_H
+package IceInternal;
 
-namespace IceInternal
+import java.nio.channels.SelectionKey;
+
+public class SocketOperation
 {
-
-enum SocketStatus
-{
-    Finished,
-    NeedConnect,
-    NeedRead,
-    NeedWrite
-};
-
-template<class T> class Selector;
-
-};
-
-#endif
+    public static final int None = 0;
+    public static final int Read = SelectionKey.OP_READ;
+    public static final int Write = SelectionKey.OP_WRITE;
+    public static final int Connect = SelectionKey.OP_CONNECT;
+}

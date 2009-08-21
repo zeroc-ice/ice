@@ -45,6 +45,7 @@ public class Client
             test(false);
         }
         Console.WriteLine("ok");
+
         priority.shutdown();
         return 0;
     }

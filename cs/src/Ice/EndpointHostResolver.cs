@@ -167,29 +167,14 @@ namespace IceInternal
 
             public void Run()
             {
-                if(_resolver._instance.initializationData().threadHook != null)
-                {
-                    _resolver._instance.initializationData().threadHook.start();
-                }
-
                 try
                 {
                     _resolver.run();
                 }
-                catch(Ice.LocalException ex)
+                catch(System.Exception ex)
                 {
                     string s = "exception in endpoint host resolver thread " + _name + ":\n" + ex;
                     _resolver._instance.initializationData().logger.error(s);
-                }
-                catch(System.Exception ex)
-                {
-                    string s = "unknown exception in endpoint host resolver thread " + _name + ":\n" + ex;
-                    _resolver._instance.initializationData().logger.error(s);
-                }
-
-                if(_resolver._instance.initializationData().threadHook != null)
-                {
-                    _resolver._instance.initializationData().threadHook.stop();
                 }
             }
 

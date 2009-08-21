@@ -14,3 +14,4 @@ using namespace Ice;
 using namespace IceInternal;
 
 IceUtil::Shared* IceInternal::upCast(Transceiver* p) { return p; }
+

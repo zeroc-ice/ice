@@ -172,13 +172,15 @@ public:
     //
     // Operations from EventHandler
     //
-    virtual bool datagram() const;
-    virtual bool readable() const;
-    virtual bool read(BasicStream&);
-    virtual void message(BasicStream&, const ThreadPoolPtr&);
-    virtual void finished(const ThreadPoolPtr&);
-    virtual void exception(const Ice::LocalException&);
+
+#ifdef ICE_USE_IOCP
+    virtual bool startAsync(SocketOperation);
+    virtual bool finishAsync(SocketOperation);
+#endif
+    virtual void message(ThreadPoolCurrent&);
+    virtual void finished(ThreadPoolCurrent&);
     virtual std::string toString() const;
+    virtual NativeInfoPtr getNativeInfo();
 
     virtual void connectionStartCompleted(const Ice::ConnectionIPtr&);
     virtual void connectionStartFailed(const Ice::ConnectionIPtr&, const Ice::LocalException&);
@@ -194,10 +196,13 @@ private:
     {
         StateActive,
         StateHolding,
-        StateClosed
+        StateClosed,
+        StateFinished
     };
 
     void setState(State);
+
+    const InstancePtr _instance;
 
     AcceptorPtr _acceptor;
     const TransceiverPtr _transceiver;

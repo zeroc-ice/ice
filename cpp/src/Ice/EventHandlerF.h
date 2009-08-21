@@ -21,10 +21,6 @@ class EventHandler;
 ICE_API IceUtil::Shared* upCast(EventHandler*);
 typedef Handle<EventHandler> EventHandlerPtr;
 
-class ThreadPoolWorkItem;
-ICE_API IceUtil::Shared* upCast(ThreadPoolWorkItem*);
-typedef Handle<ThreadPoolWorkItem> ThreadPoolWorkItemPtr;
-
 }
 
 #endif

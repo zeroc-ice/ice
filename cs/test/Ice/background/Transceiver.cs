@@ -12,25 +12,19 @@ using System.Net.Sockets;
 
 internal class Transceiver : IceInternal.Transceiver
 {
-    public bool restartable()
-    {
-        return _transceiver.restartable();
-    }
-
-    public bool initialize(AsyncCallback callback)
+    public int initialize()
     {
         _configuration.checkInitializeException();
-        bool done = _transceiver.initialize(callback);
-        if(done)
+        if(!_initialized)
         {
-            if(_initialized)
+            int s = _transceiver.initialize();
+            if(s != IceInternal.SocketOperation.None)
             {
-                throw new Ice.SocketException();
+                return s;
             }
-
             _initialized = true;
         }
-        return done;
+        return IceInternal.SocketOperation.None;
     }
 
     public void close()
@@ -70,51 +64,31 @@ internal class Transceiver : IceInternal.Transceiver
         return _transceiver.read(buf);
     }
 
-    public IAsyncResult beginRead(IceInternal.Buffer buf, AsyncCallback callback, object state)
+    public bool startRead(IceInternal.Buffer buf, AsyncCallback callback, object state)
     {
-        if(!_initialized)
-        {
-            throw new Ice.SocketException();
-        }
-
         if(_configuration.readReady())
         {
             _configuration.checkReadException(); // Only raise if we're configured to read now.
         }
-        return _transceiver.beginRead(buf, callback, state);
+        return _transceiver.startRead(buf, callback, state);
     }
 
-    public void endRead(IceInternal.Buffer buf, IAsyncResult result)
+    public void finishRead(IceInternal.Buffer buf)
     {
-        if(!_initialized)
-        {
-            throw new Ice.SocketException();
-        }
-
         _configuration.checkReadException();
-        _transceiver.endRead(buf, result);
+        _transceiver.finishRead(buf);
     }
 
-    public IAsyncResult beginWrite(IceInternal.Buffer buf, AsyncCallback callback, object state)
+    public bool startWrite(IceInternal.Buffer buf, AsyncCallback callback, object state)
     {
-        if(!_initialized)
-        {
-            throw new Ice.SocketException();
-        }
-
         _configuration.checkWriteException();
-        return _transceiver.beginWrite(buf, callback, state);
+        return _transceiver.startWrite(buf, callback, state);
     }
 
-    public void endWrite(IceInternal.Buffer buf, IAsyncResult result)
+    public void finishWrite(IceInternal.Buffer buf)
     {
-        if(!_initialized)
-        {
-            throw new Ice.SocketException();
-        }
-
         _configuration.checkWriteException();
-        _transceiver.endWrite(buf, result);
+        _transceiver.finishWrite(buf);
     }
 
     public string type()

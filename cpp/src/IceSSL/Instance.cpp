@@ -54,6 +54,12 @@ public:
     {
         delete staticMutex;
         staticMutex = 0;
+
+        if(locks)
+        {
+            delete[] locks;
+            locks = 0;
+        }
     }
 };
 
@@ -70,6 +76,7 @@ extern "C"
 void
 IceSSL_opensslLockCallback(int mode, int n, const char* file, int line)
 {
+    assert(locks);
     if(mode & CRYPTO_LOCK)
     {
         locks[n].lock();
@@ -170,9 +177,12 @@ IceSSL::Instance::Instance(const CommunicatorPtr& communicator) :
         //
         // Create the mutexes and set the callbacks.
         //
-        locks = new IceUtil::Mutex[CRYPTO_num_locks()];
-        CRYPTO_set_locking_callback(IceSSL_opensslLockCallback);
-        CRYPTO_set_id_callback(IceSSL_opensslThreadIdCallback);
+        if(!locks)
+        {
+            locks = new IceUtil::Mutex[CRYPTO_num_locks()];
+            CRYPTO_set_locking_callback(IceSSL_opensslLockCallback);
+            CRYPTO_set_id_callback(IceSSL_opensslThreadIdCallback);
+        }
 
         //
         // Load human-readable error messages.
@@ -274,10 +284,15 @@ IceSSL::Instance::~Instance()
 
     if(--instanceCount == 0)
     {
-        CRYPTO_set_locking_callback(0);
-        CRYPTO_set_id_callback(0);
-        delete[] locks;
-        locks = 0;
+        //
+        // NOTE: We can't destroy the locks here: threads wich might have called openssl methods
+        // might access openssl locks upon termination (from DllMain/THREAD_DETACHED). Instead, 
+        // we release the locks in the ~Init() static destructor. See bug #4156.
+        //
+        //CRYPTO_set_locking_callback(0);
+        //CRYPTO_set_id_callback(0);
+        //delete[] locks;
+        //locks = 0;
 
         CRYPTO_cleanup_all_ex_data();
         RAND_cleanup();

@@ -45,7 +45,7 @@ public:
     virtual void holdAdapter(const Ice::Current&);
     virtual void resumeAdapter(const Ice::Current&);
     
-    virtual void initializeSocketStatus(int, const Ice::Current&);
+    virtual void initializeSocketOperation(int, const Ice::Current&);
     virtual void initializeException(bool, const Ice::Current&);
 
     virtual void readReady(bool, const Ice::Current&);

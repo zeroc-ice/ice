@@ -13,24 +13,22 @@
 #include <IceUtil/Shared.h>
 #include <Ice/AcceptorF.h>
 #include <Ice/TransceiverF.h>
-
-#ifdef _WIN32
-#include <winsock2.h>
-typedef int ssize_t;
-#else
-#   define SOCKET int
-#endif
+#include <Ice/Network.h>
 
 namespace IceInternal
 {
 
-class ICE_API Acceptor : public ::IceUtil::Shared
+class ICE_API Acceptor : virtual public ::IceUtil::Shared
 {
 public:
 
-    virtual SOCKET fd() = 0;
+    virtual NativeInfoPtr getNativeInfo() = 0;
     virtual void close() = 0;
     virtual void listen() = 0;
+#ifdef ICE_USE_IOCP
+    virtual void startAccept() = 0;
+    virtual void finishAccept() = 0;
+#endif
     virtual TransceiverPtr accept() = 0;
     virtual std::string toString() const = 0;
 };

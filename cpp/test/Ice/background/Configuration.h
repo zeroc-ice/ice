@@ -33,9 +33,9 @@ public:
     virtual void connectException(Ice::LocalException*);
     virtual void checkConnectException();
 
-    virtual void initializeSocketStatus(IceInternal::SocketStatus);
+    virtual void initializeSocketOperation(IceInternal::SocketOperation);
     virtual void initializeException(Ice::LocalException*);
-    virtual IceInternal::SocketStatus initializeSocketStatus();
+    virtual IceInternal::SocketOperation initializeSocketOperation();
     virtual void checkInitializeException();
 
     virtual void readReady(bool);
@@ -54,7 +54,7 @@ private:
 
     std::auto_ptr<Ice::LocalException> _connectorsException;
     std::auto_ptr<Ice::LocalException> _connectException;
-    IceInternal::SocketStatus _initializeSocketStatus;
+    IceInternal::SocketOperation _initializeSocketOperation;
     int _initializeResetCount;
     std::auto_ptr<Ice::LocalException> _initializeException;
     int _readReadyCount;

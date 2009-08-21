@@ -152,7 +152,7 @@ public class AllTests
             while(cond.value())
             {
                 cb = new AMICheckSetValue(cond, value);
-                if(hold.set_async(cb, ++value, rand.Next(5)))
+                if(hold.set_async(cb, ++value, value < 500 ? rand.Next(5) : 0))
                 {
                     cb = null;
                 }
@@ -163,6 +163,14 @@ public class AllTests
                         cb.waitForSent();
                         cb = null;
                     }
+                }
+
+                if(value > 100000)
+                {
+                    // Don't continue, it's possible that out-of-order dispatch doesn't occur
+                    // after 100000 iterations and we don't want the test to last for too long
+                    // when this occurs.
+                    break;
                 }
             }
             if(cb != null)

@@ -297,9 +297,9 @@ public class ConnectRequestHandler
             _reference.getInstance().clientThreadPool().execute(new ThreadPoolWorkItem() 
                 {
                     public void
-                    execute(ThreadPool threadPool)
+                    execute(ThreadPoolCurrent current)
                     {
-                        threadPool.promoteFollower(null);
+                        current.ioCompleted();
                         flushRequestsWithException(ex);
                     };
                 });
@@ -430,13 +430,13 @@ public class ConnectRequestHandler
                     {
                         request.os.pos(0);
                         os.writeBlob(request.os.readBlob(request.os.size()));
-                        _connection.finishBatchRequest(os, _compress);
                     }
                     catch(Ice.LocalException ex)
                     {
                         _connection.abortBatchRequest();
                         throw ex;
                     }
+                    _connection.finishBatchRequest(os, _compress);
                 }
                 p.remove();
             }
@@ -450,9 +450,9 @@ public class ConnectRequestHandler
                 _reference.getInstance().clientThreadPool().execute(new ThreadPoolWorkItem() 
                     {
                         public void
-                        execute(ThreadPool threadPool)
+                        execute(ThreadPoolCurrent current)
                         {
-                            threadPool.promoteFollower(null);
+                            current.ioCompleted();
                             flushRequestsWithException(ex);
                         };
                     });
@@ -467,9 +467,9 @@ public class ConnectRequestHandler
                 _reference.getInstance().clientThreadPool().execute(new ThreadPoolWorkItem() 
                     {
                         public void
-                        execute(ThreadPool threadPool)
+                        execute(ThreadPoolCurrent current)
                         {
-                            threadPool.promoteFollower(null);
+                            current.ioCompleted();
                             flushRequestsWithException(ex);
                         };
                     });
@@ -482,9 +482,9 @@ public class ConnectRequestHandler
             instance.clientThreadPool().execute(new ThreadPoolWorkItem() 
                                                 {
                                                     public void
-                                                    execute(ThreadPool threadPool)
+                                                    execute(ThreadPoolCurrent current)
                                                     {
-                                                        threadPool.promoteFollower(null);
+                                                        current.ioCompleted();
                                                         for(OutgoingAsyncMessageCallback callback : sentCallbacks)
                                                         {
                                                             callback.__sent(instance);

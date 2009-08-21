@@ -259,6 +259,7 @@ generated from the section label.
         <suffix name="SizeWarn" />
         <suffix name="StackSize" />
         <suffix name="Serialize" />
+        <suffix name="ThreadIdleTime" />
         <suffix name="ThreadPriority" />
     </class>
 

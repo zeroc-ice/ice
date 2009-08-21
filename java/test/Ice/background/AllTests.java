@@ -503,9 +503,9 @@ public class AllTests
 
         try
         {
-            configuration.initializeSocketStatus(IceInternal.SocketStatus.NeedConnect);
+            configuration.initializeSocketStatus(IceInternal.SocketOperation.Connect);
             background.op();
-            configuration.initializeSocketStatus(IceInternal.SocketStatus.Finished);
+            configuration.initializeSocketStatus(IceInternal.SocketOperation.None);
         }
         catch(Ice.LocalException ex)
         {
@@ -515,9 +515,9 @@ public class AllTests
         
         try
         {
-            configuration.initializeSocketStatus(IceInternal.SocketStatus.NeedWrite);
+            configuration.initializeSocketStatus(IceInternal.SocketOperation.Write);
             background.op();
-            configuration.initializeSocketStatus(IceInternal.SocketStatus.Finished);
+            configuration.initializeSocketStatus(IceInternal.SocketOperation.None);
         }
         catch(Ice.LocalException ex)
         {
@@ -527,7 +527,7 @@ public class AllTests
 
         try
         {
-            configuration.initializeSocketStatus(IceInternal.SocketStatus.NeedWrite);
+            configuration.initializeSocketStatus(IceInternal.SocketOperation.Write);
             configuration.initializeException(new Ice.SocketException());
             background.op();
             test(false);
@@ -535,22 +535,22 @@ public class AllTests
         catch(Ice.SocketException ex)
         {
             configuration.initializeException(null);
-            configuration.initializeSocketStatus(IceInternal.SocketStatus.Finished);
+            configuration.initializeSocketStatus(IceInternal.SocketOperation.None);
         }
 
-        configuration.initializeSocketStatus(IceInternal.SocketStatus.NeedWrite);
+        configuration.initializeSocketStatus(IceInternal.SocketOperation.Write);
         configuration.initializeException(new Ice.SocketException());
         test(!background.op_async(cbEx));
         cbEx.exception();
         configuration.initializeException(null);
-        configuration.initializeSocketStatus(IceInternal.SocketStatus.Finished);
+        configuration.initializeSocketStatus(IceInternal.SocketOperation.None);
 
-        configuration.initializeSocketStatus(IceInternal.SocketStatus.NeedWrite);
+        configuration.initializeSocketStatus(IceInternal.SocketOperation.Write);
         configuration.initializeException(new Ice.SocketException());
         test(!((BackgroundPrx)background.ice_oneway()).op_async(cbEx));
         cbEx.exception();
         configuration.initializeException(null);
-        configuration.initializeSocketStatus(IceInternal.SocketStatus.Finished);
+        configuration.initializeSocketStatus(IceInternal.SocketOperation.None);
 
         //
         // Now run the same tests with the server side.
@@ -573,9 +573,9 @@ public class AllTests
 
         try
         {
-            ctl.initializeSocketStatus(IceInternal.SocketStatus.NeedWrite.value());
+            ctl.initializeSocketStatus(IceInternal.SocketOperation.Write);
             background.op();
-            ctl.initializeSocketStatus(IceInternal.SocketStatus.Finished.value());
+            ctl.initializeSocketStatus(IceInternal.SocketOperation.None);
         }
         catch(Ice.LocalException ex)
         {
@@ -585,7 +585,7 @@ public class AllTests
 
         try
         {
-            ctl.initializeSocketStatus(IceInternal.SocketStatus.NeedWrite.value());
+            ctl.initializeSocketStatus(IceInternal.SocketOperation.Write);
             ctl.initializeException(true);
             background.op();
             test(false);
@@ -593,12 +593,12 @@ public class AllTests
         catch(Ice.ConnectionLostException ex)
         {
             ctl.initializeException(false);
-            ctl.initializeSocketStatus(IceInternal.SocketStatus.Finished.value());
+            ctl.initializeSocketStatus(IceInternal.SocketOperation.None);
         }
         catch(Ice.SecurityException ex)
         {
             ctl.initializeException(false);
-            ctl.initializeSocketStatus(IceInternal.SocketStatus.Finished.value());
+            ctl.initializeSocketStatus(IceInternal.SocketOperation.None);
         }
 
         OpThread thread1 = new OpThread(background);
@@ -641,10 +641,10 @@ public class AllTests
                 test(false);
             }
 
-            configuration.initializeSocketStatus(IceInternal.SocketStatus.NeedWrite);
+            configuration.initializeSocketStatus(IceInternal.SocketOperation.Write);
             background.ice_getCachedConnection().close(true);
             background.ice_ping();
-            configuration.initializeSocketStatus(IceInternal.SocketStatus.Finished);
+            configuration.initializeSocketStatus(IceInternal.SocketOperation.None);
 
             ctl.initializeException(true);
             background.ice_getCachedConnection().close(true);
@@ -674,10 +674,10 @@ public class AllTests
 
             try
             {
-                ctl.initializeSocketStatus(IceInternal.SocketStatus.NeedWrite.value());
+                ctl.initializeSocketStatus(IceInternal.SocketOperation.Write);
                 background.ice_getCachedConnection().close(true);
                 background.op();
-                ctl.initializeSocketStatus(IceInternal.SocketStatus.Finished.value());
+                ctl.initializeSocketStatus(IceInternal.SocketOperation.None);
             }
             catch(Ice.LocalException ex)
             {

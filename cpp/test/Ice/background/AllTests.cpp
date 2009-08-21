@@ -503,11 +503,12 @@ initializeTests(const ConfigurationPtr& configuration,
     cbEx->exception();
     configuration->initializeException(0);
 
+#if !defined(ICE_USE_IOCP) && !defined(ICE_USE_CFSTREAM)
     try
     {
-        configuration->initializeSocketStatus(IceInternal::NeedWrite);
+        configuration->initializeSocketOperation(IceInternal::SocketOperationWrite);
         background->op();
-        configuration->initializeSocketStatus(IceInternal::Finished);
+        configuration->initializeSocketOperation(IceInternal::SocketOperationNone);
     }
     catch(const Ice::LocalException&)
     {
@@ -517,9 +518,9 @@ initializeTests(const ConfigurationPtr& configuration,
 
     try
     {
-        configuration->initializeSocketStatus(IceInternal::NeedConnect);
+        configuration->initializeSocketOperation(IceInternal::SocketOperationConnect);
         background->op();
-        configuration->initializeSocketStatus(IceInternal::Finished);
+        configuration->initializeSocketOperation(IceInternal::SocketOperationNone);
     }
     catch(const Ice::LocalException&)
     {
@@ -529,7 +530,7 @@ initializeTests(const ConfigurationPtr& configuration,
 
     try
     {
-        configuration->initializeSocketStatus(IceInternal::NeedWrite);
+        configuration->initializeSocketOperation(IceInternal::SocketOperationWrite);
         configuration->initializeException(new Ice::SocketException(__FILE__, __LINE__));
         background->op();
         test(false);
@@ -537,22 +538,23 @@ initializeTests(const ConfigurationPtr& configuration,
     catch(const Ice::SocketException&)
     {
         configuration->initializeException(0);
-        configuration->initializeSocketStatus(IceInternal::Finished);
+        configuration->initializeSocketOperation(IceInternal::SocketOperationNone);
     }
 
-    configuration->initializeSocketStatus(IceInternal::NeedWrite);
+    configuration->initializeSocketOperation(IceInternal::SocketOperationWrite);
     configuration->initializeException(new Ice::SocketException(__FILE__, __LINE__));
     test(!background->op_async(cbEx));
     cbEx->exception();
     configuration->initializeException(0);
-    configuration->initializeSocketStatus(IceInternal::Finished);
+    configuration->initializeSocketOperation(IceInternal::SocketOperationNone);
 
-    configuration->initializeSocketStatus(IceInternal::NeedWrite);
+    configuration->initializeSocketOperation(IceInternal::SocketOperationWrite);
     configuration->initializeException(new Ice::SocketException(__FILE__, __LINE__));
     test(!background->ice_oneway()->op_async(cbEx));
     cbEx->exception();
     configuration->initializeException(0);
-    configuration->initializeSocketStatus(IceInternal::Finished);
+    configuration->initializeSocketOperation(IceInternal::SocketOperationNone);
+#endif
 
     //
     // Now run the same tests with the server side.
@@ -573,11 +575,12 @@ initializeTests(const ConfigurationPtr& configuration,
         ctl->initializeException(false);
     }
 
+#if !defined(ICE_USE_IOCP) && !defined(ICE_USE_CFSTREAM)
     try
     {
-        ctl->initializeSocketStatus(IceInternal::NeedWrite);
+        ctl->initializeSocketOperation(IceInternal::SocketOperationWrite);
         background->op();
-        ctl->initializeSocketStatus(IceInternal::Finished);
+        ctl->initializeSocketOperation(IceInternal::SocketOperationNone);
     }
     catch(const Ice::LocalException&)
     {
@@ -587,7 +590,7 @@ initializeTests(const ConfigurationPtr& configuration,
 
     try
     {
-        ctl->initializeSocketStatus(IceInternal::NeedWrite);
+        ctl->initializeSocketOperation(IceInternal::SocketOperationWrite);
         ctl->initializeException(true);
         background->op();
         test(false);
@@ -595,13 +598,14 @@ initializeTests(const ConfigurationPtr& configuration,
     catch(const Ice::ConnectionLostException&)
     {
         ctl->initializeException(false);
-        ctl->initializeSocketStatus(IceInternal::Finished);
+        ctl->initializeSocketOperation(IceInternal::SocketOperationNone);
     }
     catch(const Ice::SecurityException&)
     {
         ctl->initializeException(false);
-        ctl->initializeSocketStatus(IceInternal::Finished);
+        ctl->initializeSocketOperation(IceInternal::SocketOperationNone);
     }
+#endif
 
     OpThreadPtr thread1 = new OpThread(background);
     OpThreadPtr thread2 = new OpThread(background);
@@ -637,10 +641,10 @@ initializeTests(const ConfigurationPtr& configuration,
             test(false);
         }
 
-        configuration->initializeSocketStatus(IceInternal::NeedWrite);
+        configuration->initializeSocketOperation(IceInternal::SocketOperationWrite);
         background->ice_getCachedConnection()->close(true);
         background->ice_ping();
-        configuration->initializeSocketStatus(IceInternal::Finished);
+        configuration->initializeSocketOperation(IceInternal::SocketOperationNone);
 
         ctl->initializeException(true);
         background->ice_getCachedConnection()->close(true);
@@ -664,10 +668,15 @@ initializeTests(const ConfigurationPtr& configuration,
 
         try
         {
-            ctl->initializeSocketStatus(IceInternal::NeedWrite);
+#if !defined(ICE_USE_IOCP) && !defined(ICE_USE_CFSTREAM)
+            ctl->initializeSocketOperation(IceInternal::SocketOperationWrite);
             background->ice_getCachedConnection()->close(true);
             background->op();
-            ctl->initializeSocketStatus(IceInternal::Finished);
+            ctl->initializeSocketOperation(IceInternal::SocketOperationNone);
+#else
+            background->ice_getCachedConnection()->close(true);
+            background->op();
+#endif
         }
         catch(const Ice::LocalException& ex)
         {
@@ -788,6 +797,10 @@ validationTests(const ConfigurationPtr& configuration,
     cb->responseAndSent();
     cb2->responseAndSent();
 
+#if defined(ICE_USE_IOCP) || defined(ICE_USE_CFSTREAM)
+    if(background->ice_getCommunicator()->getProperties()->getProperty("Ice.Default.Protocol") != "test-ssl")
+    {
+#endif
     try
     {
         // Get the write() of connection validation to throw right away.
@@ -837,6 +850,10 @@ validationTests(const ConfigurationPtr& configuration,
         cerr << ex << endl;
         test(false);
     }
+#if defined(ICE_USE_IOCP) || defined(ICE_USE_CFSTREAM)
+    }
+#endif
+
     Ice::ByteSeq seq;
     seq.resize(512 * 1024);
 
@@ -1010,14 +1027,23 @@ readWriteTests(const ConfigurationPtr& configuration,
     }
 
     background->ice_ping();
+    configuration->readReady(false); // Required in C# to make sure beginRead() doesn't throw too soon.
     configuration->readException(new Ice::SocketException(__FILE__, __LINE__));
     if(!background->op_async(cbEx))
     {
+        // The read exception might propagate before the message send is seen as completed on IOCP.
+#ifndef ICE_USE_IOCP        
         test(cbEx->sent(true));
+#endif
     }
     cbEx->exception();
     configuration->readException(0);
+    configuration->readReady(true);
 
+#if defined(ICE_USE_IOCP) || defined(ICE_USE_CFSTREAM)
+    if(background->ice_getCommunicator()->getProperties()->getProperty("Ice.Default.Protocol") != "test-ssl")
+    {
+#endif
     try
     {
         background->ice_ping();
@@ -1037,8 +1063,9 @@ readWriteTests(const ConfigurationPtr& configuration,
         background->op();
         configuration->readReady(true);
     }
-    catch(const Ice::LocalException&)
+    catch(const Ice::LocalException& ex)
     {
+        cerr << ex << endl;
         test(false);
     }
 
@@ -1093,7 +1120,10 @@ readWriteTests(const ConfigurationPtr& configuration,
     configuration->readException(new Ice::SocketException(__FILE__, __LINE__));
     if(!background->op_async(cbEx))
     {
+        // The read exception might propagate before the message send is seen as completed on IOCP.
+#ifndef ICE_USE_IOCP        
         test(cbEx->sent(true));
+#endif
     }
     cbEx->exception();
     configuration->readReady(true);
@@ -1104,11 +1134,17 @@ readWriteTests(const ConfigurationPtr& configuration,
     configuration->writeReady(false);
     configuration->readException(new Ice::SocketException(__FILE__, __LINE__));
     test(!background->op_async(cbEx));
+    // The read exception might propagate before the message send is seen as completed on IOCP.
+#ifndef ICE_USE_IOCP        
     test(cbEx->sent(true));
+#endif
     cbEx->exception();
     configuration->writeReady(true);
     configuration->readReady(true);
     configuration->readException(0);
+#if defined(ICE_USE_IOCP) || defined(ICE_USE_CFSTREAM)
+    }
+#endif
 
     background->ice_ping(); // Establish the connection
     
@@ -1162,6 +1198,10 @@ readWriteTests(const ConfigurationPtr& configuration,
         ctl->readException(false);
     }
 
+#if defined(ICE_USE_IOCP) || defined(ICE_USE_CFSTREAM)
+    if(background->ice_getCommunicator()->getProperties()->getProperty("Ice.Default.Protocol") != "test-ssl")
+    {
+#endif
     try
     {
         background->ice_ping();
@@ -1213,6 +1253,9 @@ readWriteTests(const ConfigurationPtr& configuration,
         ctl->readException(false);
         ctl->readReady(true);
     }
+#if defined(ICE_USE_IOCP) || defined(ICE_USE_CFSTREAM)
+    }
+#endif
 
     OpThreadPtr thread1 = new OpThread(background);
     OpThreadPtr thread2 = new OpThread(background);

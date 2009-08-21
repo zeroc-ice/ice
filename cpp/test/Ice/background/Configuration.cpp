@@ -12,7 +12,7 @@
 Configuration* Configuration::_instance = 0;
 
 Configuration::Configuration() :
-    _initializeSocketStatus(IceInternal::Finished),
+    _initializeSocketOperation(IceInternal::SocketOperationNone),
     _initializeResetCount(0),
     _readReadyCount(0),
     _writeReadyCount(0)
@@ -61,16 +61,16 @@ Configuration::checkConnectException()
 }
 
 void
-Configuration::initializeSocketStatus(IceInternal::SocketStatus status)
+Configuration::initializeSocketOperation(IceInternal::SocketOperation status)
 {
     Lock sync(*this);
-    if(status == IceInternal::Finished)
+    if(status == IceInternal::SocketOperationNone)
     {
         _initializeResetCount = 0;
         return;
     }
     _initializeResetCount = 10;
-    _initializeSocketStatus = status;
+    _initializeSocketOperation = status;
 }
 
 void
@@ -80,16 +80,16 @@ Configuration::initializeException(Ice::LocalException* ex)
     _initializeException.reset(ex);
 }
     
-IceInternal::SocketStatus
-Configuration::initializeSocketStatus()
+IceInternal::SocketOperation
+Configuration::initializeSocketOperation()
 {
     Lock sync(*this);
     if(_initializeResetCount == 0)
     {
-        return IceInternal::Finished;
+        return IceInternal::SocketOperationNone;
     }
     --_initializeResetCount;
-    return _initializeSocketStatus;
+    return _initializeSocketOperation;
 }
 
 void

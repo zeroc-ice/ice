@@ -15,24 +15,24 @@ final class Transceiver implements IceInternal.Transceiver
         return _transceiver.fd();
     }
 
-    public IceInternal.SocketStatus
+    public int
     initialize()
     {
-        IceInternal.SocketStatus status = _configuration.initializeSocketStatus();
-        if(status == IceInternal.SocketStatus.NeedConnect || status == IceInternal.SocketStatus.NeedWrite)
+        int status = _configuration.initializeSocketStatus();
+        if(status == IceInternal.SocketOperation.Connect || status == IceInternal.SocketOperation.Write)
         {
             if(!_initialized)
             {
                 status = _transceiver.initialize();
-                if(status != IceInternal.SocketStatus.Finished)
+                if(status != IceInternal.SocketOperation.None)
                 {
                     return status;
                 }
                 _initialized = true;
             }
-            return IceInternal.SocketStatus.NeedWrite;
+            return IceInternal.SocketOperation.Write;
         }
-        else if(status == IceInternal.SocketStatus.NeedRead)
+        else if(status == IceInternal.SocketOperation.Read)
         {
             return status;
         }
@@ -41,13 +41,13 @@ final class Transceiver implements IceInternal.Transceiver
         if(!_initialized)
         {
             status = _transceiver.initialize();
-            if(status != IceInternal.SocketStatus.Finished)
+            if(status != IceInternal.SocketOperation.None)
             {
                 return status;
             }
             _initialized = true;
         }
-        return IceInternal.SocketStatus.Finished;
+        return IceInternal.SocketOperation.None;
     }
 
     public void

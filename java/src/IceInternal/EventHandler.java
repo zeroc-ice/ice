@@ -9,66 +9,39 @@
 
 package IceInternal;
 
-public abstract class EventHandler extends SelectorHandler
+public abstract class EventHandler
 {
     //
-    // Return true if the handler is for a datagram transport, false otherwise.
+    // Called when there's a message ready to be processed.
     //
-    abstract public boolean datagram();
+    abstract public void message(ThreadPoolCurrent current);
 
     //
-    // Return true if read() must be called before calling message().
+    // Called when the event handler is unregistered.
     //
-    abstract public boolean readable();
-
-    //
-    // Read data via the event handler. May only be called if
-    // readable() returns true.
-    //
-    abstract public boolean read(BasicStream is);
-
-    //
-    // A complete message has been received.
-    //
-    abstract public void message(BasicStream stream, ThreadPool threadPool);
-
-    //
-    // Will be called if the event handler is finally
-    // unregistered. (Calling unregister() does not unregister
-    // immediately.)
-    //
-    abstract public void finished(ThreadPool threadPool);
-
-    //
-    // Propagate an exception to the event handler.
-    //
-    abstract public void exception(Ice.LocalException ex);
+    abstract public void finished(ThreadPoolCurrent current);
 
     //
     // Get a textual representation of the event handler.
     //
     abstract public String toString();
 
-    public IceInternal.Instance
-    instance()
-    {
-        return _instance;
-    }
-
-    protected
-    EventHandler(Instance instance)
-    {
-        _instance = instance;
-        _stream = new BasicStream(instance);
-    }
-
-    protected Instance _instance;
+    //
+    // Get the native information of the handler, this is used by the selector.
+    //
+    abstract public java.nio.channels.SelectableChannel fd();
 
     //
-    // The _stream data member is only for use by the ThreadPool or by the
-    // connection for validation.
+    // In Java, it's possible that the transceiver reads more data than what was 
+    // really asked. If this is the case, hasMoreData() returns true and the handler
+    // read() method should be called again (without doing a select()). This is 
+    // handled by the Selector class (it adds the handler to a separate list of 
+    // handlers if this method returns true.)
     //
-    protected BasicStream _stream;
-    boolean _serializing;
-    boolean _registered;
+    abstract public boolean hasMoreData();
+
+    int _disabled = 0;
+    int _registered = 0;
+    int _ready = 0;
+    java.nio.channels.SelectionKey _key = null;
 }

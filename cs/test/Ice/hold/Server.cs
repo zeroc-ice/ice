@@ -21,7 +21,7 @@ public class Server
 {
     private static int run(string[] args, Ice.Communicator communicator)
     {
-         communicator.getProperties().setProperty("TestAdapter1.Endpoints", "default -p 12010:udp");
+        communicator.getProperties().setProperty("TestAdapter1.Endpoints", "default -p 12010:udp");
         communicator.getProperties().setProperty("TestAdapter1.ThreadPool.Size", "5");
         communicator.getProperties().setProperty("TestAdapter1.ThreadPool.SizeMax", "5");
         communicator.getProperties().setProperty("TestAdapter1.ThreadPool.SizeWarn", "0");
@@ -75,7 +75,7 @@ public class Server
                 status = 1;
             }
         }
-        
+
         if(status != 0)
         {
             System.Environment.Exit(status);

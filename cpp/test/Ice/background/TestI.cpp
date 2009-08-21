@@ -74,9 +74,9 @@ BackgroundControllerI::resumeAdapter(const Ice::Current&)
 }
     
 void
-BackgroundControllerI::initializeSocketStatus(int status, const Ice::Current&)
+BackgroundControllerI::initializeSocketOperation(int status, const Ice::Current&)
 {
-    _configuration->initializeSocketStatus(static_cast<IceInternal::SocketStatus>(status));
+    _configuration->initializeSocketOperation(static_cast<IceInternal::SocketOperation>(status));
 }
 
 void

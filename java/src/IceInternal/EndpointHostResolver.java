@@ -25,11 +25,7 @@ public class EndpointHostResolver
         }
         catch(RuntimeException ex)
         {
-            java.io.StringWriter sw = new java.io.StringWriter();
-            java.io.PrintWriter pw = new java.io.PrintWriter(sw);
-            ex.printStackTrace(pw);
-            pw.flush();
-            String s = "cannot create thread for endpoint host resolver thread:\n" + sw.toString();
+            String s = "cannot create thread for endpoint host resolver thread:\n" + Ex.toString(ex);
             _instance.initializationData().logger.error(s);
             throw ex;
         }
@@ -151,37 +147,14 @@ public class EndpointHostResolver
         public void
         run()
         {
-            if(_instance.initializationData().threadHook != null)
-            {
-                _instance.initializationData().threadHook.start();
-            }
-
             try
             {
                 EndpointHostResolver.this.run();
             }
-            catch(Ice.LocalException ex)
-            {
-                java.io.StringWriter sw = new java.io.StringWriter();
-                java.io.PrintWriter pw = new java.io.PrintWriter(sw);
-                ex.printStackTrace(pw);
-                pw.flush();
-                String s = "exception in endpoint host resolver thread " + getName() + ":\n" + sw.toString();
-                _instance.initializationData().logger.error(s);
-            }
             catch(java.lang.Exception ex)
             {
-                java.io.StringWriter sw = new java.io.StringWriter();
-                java.io.PrintWriter pw = new java.io.PrintWriter(sw);
-                ex.printStackTrace(pw);
-                pw.flush();
-                String s = "unknown exception in endpoint host resolver thread " + getName() + ":\n" + sw.toString();
+                String s = "exception in endpoint host resolver thread " + getName() + ":\n" + Ex.toString(ex);
                 _instance.initializationData().logger.error(s);
-            }
-
-            if(_instance.initializationData().threadHook != null)
-            {
-                _instance.initializationData().threadHook.stop();
             }
         }
     }

@@ -17,9 +17,8 @@
 #include <Ice/StatsF.h>
 #include <Ice/Transceiver.h>
 
-#include <IceUtil/Mutex.h>
-
 typedef struct ssl_st SSL;
+typedef struct bio_st BIO;
 
 namespace IceSSL
 {
@@ -27,32 +26,50 @@ namespace IceSSL
 class ConnectorI;
 class AcceptorI;
 
-class TransceiverI : public IceInternal::Transceiver
+class TransceiverI : public IceInternal::Transceiver, public IceInternal::NativeInfo
 {
     enum State
     {
         StateNeedConnect,
         StateConnectPending,
-        StateConnected
+        StateConnected,
+        StateHandshakeComplete
     };
 
 public:
 
-    virtual SOCKET fd();
+    virtual IceInternal::NativeInfoPtr getNativeInfo();
+#ifdef ICE_USE_IOCP
+    virtual IceInternal::AsyncInfo* getAsyncInfo(IceInternal::SocketOperation);
+#endif
+    
+    virtual IceInternal::SocketOperation initialize();
     virtual void close();
     virtual bool write(IceInternal::Buffer&);
     virtual bool read(IceInternal::Buffer&);
+#ifdef ICE_USE_IOCP
+    virtual void startWrite(IceInternal::Buffer&);
+    virtual void finishWrite(IceInternal::Buffer&);
+    virtual void startRead(IceInternal::Buffer&);
+    virtual void finishRead(IceInternal::Buffer&);
+#endif
     virtual std::string type() const;
     virtual std::string toString() const;
-    virtual IceInternal::SocketStatus initialize();
     virtual void checkSendSize(const IceInternal::Buffer&, size_t);
 
     ConnectionInfo getConnectionInfo() const;
 
 private:
 
-    TransceiverI(const InstancePtr&, SSL*, SOCKET, const std::string&, bool, bool, const std::string& = "");
+    TransceiverI(const InstancePtr&, SOCKET, const std::string&, const struct sockaddr_storage&);
+    TransceiverI(const InstancePtr&, SOCKET, const std::string&);
     virtual ~TransceiverI();
+ 
+#ifdef ICE_USE_IOCP
+    bool send();
+    bool receive();
+#endif
+
     friend class ConnectorI;
     friend class AcceptorI;
 
@@ -61,9 +78,6 @@ private:
     const Ice::StatsPtr _stats;
     
     SSL* _ssl;
-    IceUtil::Mutex _sslMutex; // Access to the SSL data structure must be synchronized.
-
-    SOCKET _fd;
 
     const std::string _host;
 
@@ -72,8 +86,19 @@ private:
 
     State _state;
     std::string _desc;
-#ifdef _WIN32
-    int _maxPacketSize;
+#ifdef ICE_USE_IOCP
+    int _maxSendPacketSize;
+    int _maxReceivePacketSize;
+    BIO* _iocpBio;
+    struct sockaddr_storage _connectAddr;
+    IceInternal::AsyncInfo _read;
+    IceInternal::AsyncInfo _write;
+    std::vector<char> _writeBuffer;
+    std::vector<char>::iterator _writeI;
+    std::vector<char> _readBuffer;
+    std::vector<char>::iterator _readI;
+    int _sentBytes;
+    int _sentPacketSize;
 #endif
 };
 typedef IceUtil::Handle<TransceiverI> TransceiverIPtr;

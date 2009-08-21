@@ -117,7 +117,11 @@ namespace IceInternal
         public virtual void reset()
         {
             _buf.reset();
+            clear();
+        }
 
+        public virtual void clear()
+        {
             if(_readEncapsStack != null)
             {
                 Debug.Assert(_readEncapsStack.next == null);
@@ -127,27 +131,23 @@ namespace IceInternal
                 _readEncapsCache.reset();
             }
 
-            if(_objectList != null)
+            if(_writeEncapsStack != null)
             {
-                _objectList.Clear();
+                Debug.Assert(_writeEncapsStack.next == null);
+                _writeEncapsStack.next = _writeEncapsCache;
+                _writeEncapsCache = _writeEncapsStack;
+                _writeEncapsStack = null;
+                _writeEncapsCache.reset();
             }
 
-            _sliceObjects = true;
-        }
-
-        public virtual void clear()
-        {
-            _readEncapsStack = null;
-            _writeEncapsStack = null;
             _seqDataStack = null;
 
             if(_objectList != null)
             {
                 _objectList.Clear();
             }
-            _objectList = null;
-            _sliceObjects = true;
 
+            _sliceObjects = true;
         }
 
         public virtual Instance instance()

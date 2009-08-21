@@ -42,6 +42,7 @@ SRCS		= Acceptor.cs \
 		  EndpointFactory.cs \
 		  EndpointFactoryManager.cs \
 		  EndpointHostResolver.cs \
+		  EventHandler.cs \
 		  Exception.cs \
 		  ImplicitContextI.cs \
 		  IncomingAsync.cs \
@@ -83,6 +84,7 @@ SRCS		= Acceptor.cs \
 		  ServantManager.cs \
 		  Set.cs \
 		  SliceChecksums.cs \
+		  SocketOperation.cs \
 		  Stream.cs \
 		  StreamI.cs \
                   StreamWrapper.cs \

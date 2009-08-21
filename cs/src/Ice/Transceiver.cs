@@ -9,47 +9,17 @@
 
 namespace IceInternal
 {
-
     using System;
     using System.Net.Sockets;
 
-    //
-    // This is an internal exception used to communicate to the Ice run time that
-    // an asynchronous read operation was aborted because the thread that initiated
-    // it has exited or the socket was closed.
-    //
-    public class ReadAbortedException : Ice.SocketException
-    {
-        public ReadAbortedException()
-        {
-        }
-
-        public ReadAbortedException(System.Exception ex) : base(ex)
-        {
-        }
-
-        public ReadAbortedException(int error) : base(error)
-        {
-        }
-
-        public ReadAbortedException(int error, System.Exception ex) : base(error, ex)
-        {
-        }
-    }
-
     public interface Transceiver
     {
-        //
-        // Return true if read operations can be safely restarted.
-        //
-        bool restartable();
-
         //
         // Initialize the transceiver using asynchronous I/O. This method never blocks. Returns true
         // if initialization is complete, or false if an I/O request is pending. In the latter case,
         // the callback must invoke initialize again and repeat this process until it returns true.
         //
-        bool initialize(AsyncCallback callback);
+        int initialize();
 
         void close();
 
@@ -80,8 +50,8 @@ namespace IceInternal
         // calls beginRead, or when the socket is closed. In this case endRead
         // raises ReadAbortedException.
         //
-        IAsyncResult beginRead(Buffer buf, AsyncCallback callback, object state);
-        void endRead(Buffer buf, IAsyncResult result);
+        bool startRead(Buffer buf, AsyncCallback callback, object state);
+        void finishRead(Buffer buf);
 
         //
         // Write data asynchronously.
@@ -90,8 +60,8 @@ namespace IceInternal
         // will be invoked in the same thread as beginWrite. The request
         // will be canceled upon the termination of the thread that calls beginWrite.
         //
-        IAsyncResult beginWrite(Buffer buf, AsyncCallback callback, object state);
-        void endWrite(Buffer buf, IAsyncResult result);
+        bool startWrite(Buffer buf, AsyncCallback callback, object state);
+        void finishWrite(Buffer buf);
 
         string type();
         void checkSendSize(Buffer buf, int messageSizeMax);

@@ -54,36 +54,37 @@ public class BasicStream
     reset()
     {
         _buf.reset();
-
-        if(_readEncapsStack != null)
-        {
-            assert(_readEncapsStack.next == null);
-            _readEncapsStack.next = _readEncapsCache;
-            _readEncapsCache = _readEncapsStack;
-            _readEncapsStack = null;
-            _readEncapsCache.reset();
-        }
-
-        if(_objectList != null)
-        {
-            _objectList.clear();
-        }
-
-        _sliceObjects = true;
+        clear();
     }
 
     public void
     clear()
     {
-        _readEncapsStack = null;
-        _writeEncapsStack = null;
+        if(_readEncapsStack != null)
+        {
+            assert(_readEncapsStack.next == null);
+            _readEncapsStack.next = _readEncapsCache;
+            _readEncapsCache = _readEncapsStack;
+            _readEncapsCache.reset();
+            _readEncapsStack = null;
+        }
+
+        if(_writeEncapsStack != null)
+        {
+            assert(_writeEncapsStack.next == null);
+            _writeEncapsStack.next = _writeEncapsCache;
+            _writeEncapsCache = _writeEncapsStack;
+            _writeEncapsCache.reset();
+            _writeEncapsStack = null;
+        }
+
         _seqDataStack = null;
-        
+
         if(_objectList != null)
         {
             _objectList.clear();
         }
-        _objectList = null;
+
         _sliceObjects = true;
     }
 
@@ -1780,14 +1781,8 @@ public class BasicStream
                 }
                 catch(java.lang.Exception ex)
                 {
-                    java.io.StringWriter sw = new java.io.StringWriter();
-                    java.io.PrintWriter pw = new java.io.PrintWriter(sw);
-                    IceUtilInternal.OutputBase out = new IceUtilInternal.OutputBase(pw);
-                    out.setUseTab(false);
-                    out.print("exception raised by ice_postUnmarshal:\n");
-                    ex.printStackTrace(pw);
-                    pw.flush();
-                    _instance.initializationData().logger.warning(sw.toString());
+                    String s = "exception raised by ice_postUnmarshal:\n" + Ex.toString(ex);
+                    _instance.initializationData().logger.warning("exception raised by ice_postUnmarshal:\n");
                 }
             }
         }
@@ -1809,14 +1804,8 @@ public class BasicStream
         }
         catch(java.lang.Exception ex)
         {
-            java.io.StringWriter sw = new java.io.StringWriter();
-            java.io.PrintWriter pw = new java.io.PrintWriter(sw);
-            IceUtilInternal.OutputBase out = new IceUtilInternal.OutputBase(pw);
-            out.setUseTab(false);
-            out.print("exception raised by ice_preMarshal:\n");
-            ex.printStackTrace(pw);
-            pw.flush();
-            _instance.initializationData().logger.warning(sw.toString());
+            String s = "exception raised by ice_preUnmarshal:\n" + Ex.toString(ex);
+            _instance.initializationData().logger.warning("exception raised by ice_preUnmarshal:\n");
         }
         v.__write(this);
     }

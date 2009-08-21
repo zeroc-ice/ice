@@ -1136,7 +1136,7 @@ Slice::GeneratorBase::getComment(const ContainedPtr& contained, const ContainerP
             size_t sz = 0;
             comment += toString(toSliceID(literal, contained->file()), container, false, forIndex, summary ? &sz : 0);
             summarySize += sz;
-            i = endpos;
+            i = static_cast<unsigned int>(endpos);
         }
         else if(summary && s[i] == '.' && (i + 1 >= s.size() || isspace(static_cast<unsigned char>(s[i + 1]))))
         {

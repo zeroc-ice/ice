@@ -23,28 +23,22 @@ namespace IceSSL
     {
         public void close()
         {
-            Socket fd;
-            lock(this)
+            if(_instance.networkTraceLevel() >= 1)
             {
-                fd = _fd;
+                string s = "stopping to accept ssl connections at " + ToString();
+                _logger.trace(_instance.networkTraceCategory(), s);
+            }
+            
+            Debug.Assert(_acceptFd == null);
+            
+            try
+            {
+                _fd.Close();
                 _fd = null;
             }
-            if(fd != null)
+            catch(System.Exception)
             {
-                if(_instance.networkTraceLevel() >= 1)
-                {
-                    string s = "stopping to accept ssl connections at " + ToString();
-                    _logger.trace(_instance.networkTraceCategory(), s);
-                }
-
-                try
-                {
-                    fd.Close();
-                }
-                catch(System.Exception)
-                {
-                    // Ignore.
-                }
+                // Ignore.
             }
         }
 
@@ -79,7 +73,7 @@ namespace IceSSL
             }
         }
 
-        public IAsyncResult beginAccept(AsyncCallback callback, object state)
+        public bool startAccept(AsyncCallback callback, object state)
         {
             //
             // The plug-in may not be fully initialized.
@@ -93,7 +87,8 @@ namespace IceSSL
 
             try
             {
-                return _fd.BeginAccept(callback, state);
+                _result = _fd.BeginAccept(callback, state);
+                return _result.CompletedSynchronously;
             }
             catch(SocketException ex)
             {
@@ -101,28 +96,43 @@ namespace IceSSL
             }
         }
 
-        public IceInternal.Transceiver endAccept(IAsyncResult result)
+        public void finishAccept()
         {
-            Socket fd = null;
-            try
+            if(_fd != null)
             {
-                fd = _fd.EndAccept(result);
+                Debug.Assert(_result != null);
+                try
+                {
+                    _acceptFd = _fd.EndAccept(_result);
+                    _result = null;
+                }
+                catch(SocketException ex)
+                {
+                    _acceptError = ex;
+                }
             }
-            catch(SocketException ex)
+        }
+
+        public IceInternal.Transceiver accept()
+        {
+            if(_acceptFd == null)
             {
-                throw new Ice.SocketException(ex);
+                throw _acceptError;
             }
 
-            IceInternal.Network.setBlock(fd, true); // SSL requires a blocking socket.
-            IceInternal.Network.setTcpBufSize(fd, _instance.communicator().getProperties(), _logger);
+            IceInternal.Network.setBlock(_acceptFd, true); // SSL requires a blocking socket.
+            IceInternal.Network.setTcpBufSize(_acceptFd, _instance.communicator().getProperties(), _logger);
 
             if(_instance.networkTraceLevel() >= 1)
             {
-                string s = "attempting to accept ssl connection\n" + IceInternal.Network.fdToString(fd);
+                string s = "attempting to accept ssl connection\n" + IceInternal.Network.fdToString(_acceptFd);
                 _logger.trace(_instance.networkTraceCategory(), s);
             }
 
-            return new TransceiverI(_instance, fd, null, "", true, _adapterName);
+            Socket acceptFd = _acceptFd;
+            _acceptFd = null;
+            _acceptError = null;
+            return new TransceiverI(_instance, acceptFd, null, "", true, _adapterName);
         }
 
         public override string ToString()
@@ -194,7 +204,10 @@ namespace IceSSL
         private string _adapterName;
         private Ice.Logger _logger;
         private Socket _fd;
+        private Socket _acceptFd;
+        private System.Exception _acceptError;
         private int _backlog;
         private IPEndPoint _addr;
+        private IAsyncResult _result;
     }
 }

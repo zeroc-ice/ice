@@ -17,7 +17,36 @@
 namespace Ice
 {
 
-class ICE_API Print : private IceUtil::noncopyable
+class ICE_API LoggerOutputBase : private IceUtil::noncopyable
+{
+public:
+
+    std::ostringstream& __str(); // For internal use only. Don't use in your code.
+
+private:
+
+    std::ostringstream _str;
+};
+
+template<typename T>
+inline LoggerOutputBase&
+operator<<(LoggerOutputBase& out, const T& val)
+{
+    out.__str() << val;
+    return out;
+}
+
+template<class Y>
+LoggerOutputBase& 
+operator<<(LoggerOutputBase& os, ::IceInternal::ProxyHandle<Y> p)
+{
+    return os << (p ? p->ice_toString() : "");
+}
+
+ICE_API LoggerOutputBase& operator<<(LoggerOutputBase&, std::ios_base& (*)(std::ios_base&));
+ICE_API LoggerOutputBase& operator<<(LoggerOutputBase&, const ::std::exception& ex);
+
+class ICE_API Print : public LoggerOutputBase
 {
 public:
 
@@ -26,31 +55,12 @@ public:
 
     void flush();
 
-    std::ostringstream& __str(); // For internal use only. Don't use in your code.
-
 private:
 
     LoggerPtr _logger;
-    std::ostringstream _str;
 };
 
-template<typename T>
-inline Print&
-operator<<(Print& out, const T& val)
-{
-    out.__str() << val;
-    return out;
-}
-
-template<class Y>
-::Ice::Print& operator<<(::Ice::Print& os, ::IceInternal::ProxyHandle<Y> p)
-{
-    return os << (p ? p->ice_toString() : "");
-}
-
-ICE_API Print& operator<<(Print&, std::ios_base& (*)(std::ios_base&));
-
-class ICE_API Warning : private IceUtil::noncopyable
+class ICE_API Warning : public LoggerOutputBase
 {
 public:
 
@@ -59,31 +69,12 @@ public:
 
     void flush();
 
-    std::ostringstream& __str(); // For internal use only. Don't use in your code.
-
 private:
 
     LoggerPtr _logger;
-    std::ostringstream _str;
 };
 
-template<typename T>
-inline Warning&
-operator<<(Warning& out, const T& val)
-{
-    out.__str() << val;
-    return out;
-}
-
-template<class Y>
-::Ice::Warning& operator<<(::Ice::Warning& os, ::IceInternal::ProxyHandle<Y> p)
-{
-    return os << (p ? p->ice_toString() : "");
-}
-
-ICE_API Warning& operator<<(Warning&, std::ios_base& (*)(std::ios_base&));
-
-class ICE_API Error : private IceUtil::noncopyable
+class ICE_API Error : public LoggerOutputBase
 {
 public:
 
@@ -92,30 +83,12 @@ public:
 
     void flush();
 
-    std::ostringstream& __str(); // For internal use only. Don't use in your code.
-
 private:
 
     LoggerPtr _logger;
-    std::ostringstream _str;
 };
 
-template<typename T>
-inline Error&
-operator<<(Error& out, const T& val)
-{
-    out.__str() << val;
-    return out;
-}
-
-template<class Y>
-::Ice::Error& operator<<(::Ice::Error& os, ::IceInternal::ProxyHandle<Y> p)
-{
-    return os << (p ? p->ice_toString() : "");
-}
-ICE_API Error& operator<<(Error&, std::ios_base& (*)(std::ios_base&));
-
-class ICE_API Trace : private IceUtil::noncopyable
+class ICE_API Trace : public LoggerOutputBase
 {
 public:
 
@@ -124,30 +97,11 @@ public:
 
     void flush();
 
-    std::ostringstream& __str(); // For internal use only. Don't use in your code.
-
 private:
 
     LoggerPtr _logger;
     std::string _category;
-    std::ostringstream _str;
 };
-
-template<typename T>
-inline Trace&
-operator<<(Trace& out, const T& val)
-{
-    out.__str() << val;
-    return out;
-}
-
-template<class Y>
-::Ice::Trace& operator<<(::Ice::Trace& os, ::IceInternal::ProxyHandle<Y> p)
-{
-    return os << (p ? p->ice_toString() : "");
-}
-
-ICE_API Trace& operator<<(Trace&, std::ios_base& (*)(std::ios_base&));
 
 //
 // A special plug-in that installs a logger during a communicator's initialization.

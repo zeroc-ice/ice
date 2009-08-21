@@ -51,9 +51,9 @@ public:
     }
     
     virtual void
-    execute(const ThreadPoolPtr& threadPool)
+    execute(ThreadPoolCurrent& current)
     {
-        threadPool->promoteFollower();
+        current.ioCompleted();
         _outAsync->__exception(*_exception.get());
     }
     

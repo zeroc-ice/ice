@@ -21,29 +21,16 @@ namespace IceInternal
     {
         public virtual void close()
         {
-            Socket fd;
-            lock(this)
+            if(_traceLevels.network >= 1)
             {
-                fd = _fd;
-                _fd = null;
+                string s = "stopping to accept tcp connections at " + ToString();
+                _logger.trace(_traceLevels.networkCat, s);
             }
-            if(fd != null)
-            {
-                if(_traceLevels.network >= 1)
-                {
-                    string s = "stopping to accept tcp connections at " + ToString();
-                    _logger.trace(_traceLevels.networkCat, s);
-                }
 
-                try
-                {
-                    fd.Close();
-                }
-                catch(System.Exception)
-                {
-                    // Ignore.
-                }
-            }
+            Debug.Assert(_acceptFd == null);
+
+            _fd.Close();
+            _fd = null;
         }
 
         public virtual void listen()
@@ -77,40 +64,55 @@ namespace IceInternal
             }
         }
 
-        public virtual IAsyncResult beginAccept(AsyncCallback callback, object state)
+        public virtual bool startAccept(AsyncCallback callback, object state)
         {
             try
             {
-                return _fd.BeginAccept(callback, state);
+                _result = _fd.BeginAccept(callback, state);
             }
             catch(SocketException ex)
             {
                 throw new Ice.SocketException(ex);
+            }
+            return _result.CompletedSynchronously;
+        }
+
+        public virtual void finishAccept()
+        {
+            if(_fd != null)
+            {
+                _acceptFd = null;
+                try
+                {
+                    _acceptFd = _fd.EndAccept(_result);
+                }
+                catch(SocketException ex)
+                {
+                    _acceptError = ex;
+                }
             }
         }
 
-        public virtual Transceiver endAccept(IAsyncResult result)
+        public virtual Transceiver accept()
         {
-            Socket fd = null;
-            try
+            if(_acceptFd == null)
             {
-                fd = _fd.EndAccept(result);
-            }
-            catch(SocketException ex)
-            {
-                throw new Ice.SocketException(ex);
+                throw _acceptError;
             }
 
-            Network.setBlock(fd, false);
-            Network.setTcpBufSize(fd, instance_.initializationData().properties, _logger);
+            Network.setBlock(_acceptFd, false);
+            Network.setTcpBufSize(_acceptFd, instance_.initializationData().properties, _logger);
 
             if(_traceLevels.network >= 1)
             {
-                string s = "accepted tcp connection\n" + Network.fdToString(fd);
+                string s = "accepted tcp connection\n" + Network.fdToString(_acceptFd);
                 _logger.trace(_traceLevels.networkCat, s);
             }
 
-            return new TcpTransceiver(instance_, fd, null, true);
+            Socket acceptFd = _acceptFd;
+            _acceptFd = null;
+            _acceptError = null;
+            return new TcpTransceiver(instance_, acceptFd, null, true);
         }
 
         public override string ToString()
@@ -171,8 +173,11 @@ namespace IceInternal
         private TraceLevels _traceLevels;
         private Ice.Logger _logger;
         private Socket _fd;
+        private Socket _acceptFd;
+        private System.Exception _acceptError;
         private int _backlog;
         private IPEndPoint _addr;
+        private IAsyncResult _result;
     }
 
 }

@@ -17,8 +17,9 @@ namespace IceInternal
     {
         void close();
         void listen();
-        IAsyncResult beginAccept(AsyncCallback callback, object state);
-        Transceiver endAccept(IAsyncResult result);
+        bool startAccept(AsyncCallback callback, object state);
+        void finishAccept();
+        Transceiver accept();
         string ToString();
     }
 

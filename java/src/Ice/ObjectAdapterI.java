@@ -23,8 +23,6 @@ public final class ObjectAdapterI implements ObjectAdapter
     public synchronized Communicator
     getCommunicator()
     {
-        checkForDeactivation();
-
         return _communicator;
     }
 
@@ -364,7 +362,6 @@ public final class ObjectAdapterI implements ObjectAdapter
             //
             _instance = null;
             _threadPool = null;
-            _communicator = null;
             _routerEndpoints = null;
             _routerInfo = null;
             _publishedEndpoints = null;
@@ -828,7 +825,6 @@ public final class ObjectAdapterI implements ObjectAdapter
             _deactivated = true;
             _destroyed = true;
             _instance = null;
-            _communicator = null;
             _incomingConnectionFactories = null;
 
             InitializationException ex = new InitializationException();
@@ -995,7 +991,6 @@ public final class ObjectAdapterI implements ObjectAdapter
         {
             IceUtilInternal.Assert.FinalizerAssert(_threadPool == null);
             //IceUtilInternal.Assert.FinalizerAssert(_servantManager == null); // Not cleared, it needs to be immutable.
-            IceUtilInternal.Assert.FinalizerAssert(_communicator == null);
             IceUtilInternal.Assert.FinalizerAssert(_incomingConnectionFactories == null);
             IceUtilInternal.Assert.FinalizerAssert(_directCount == 0);
             IceUtilInternal.Assert.FinalizerAssert(!_waitForActivate);

@@ -229,7 +229,7 @@ extern "C"
 using namespace Ice;
 
 ICE_DECLSPEC_EXPORT Plugin*
-createStringConverter(const CommunicatorPtr& communicator, const string& name, const StringSeq& args)
+createIceStringConverter(const CommunicatorPtr& communicator, const string& name, const StringSeq& args)
 {
     StringConverterPtr stringConverter;
     WstringConverterPtr wstringConverter;

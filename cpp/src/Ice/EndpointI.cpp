@@ -108,11 +108,6 @@ IceInternal::EndpointHostResolver::destroy()
 void
 IceInternal::EndpointHostResolver::run()
 {
-    if(_instance->initializationData().threadHook)
-    {
-        _instance->initializationData().threadHook->start();
-    }
-
     while(true)
     {
         ResolveEntry resolve;
@@ -151,9 +146,4 @@ IceInternal::EndpointHostResolver::run()
         p->callback->exception(Ice::CommunicatorDestroyedException(__FILE__, __LINE__));
     }
     _queue.clear();
-
-    if(_instance->initializationData().threadHook)
-    {
-        _instance->initializationData().threadHook->stop();
-    }
 }

@@ -11,5 +11,5 @@ package IceInternal;
 
 public interface ThreadPoolWorkItem
 {
-    void execute(ThreadPool threadPool);
+    void execute(ThreadPoolCurrent current);
 }

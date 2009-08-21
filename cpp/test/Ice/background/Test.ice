@@ -36,7 +36,7 @@ interface BackgroundController
     void holdAdapter();
     void resumeAdapter();
 
-    void initializeSocketStatus(int status);
+    void initializeSocketOperation(int status);
     void initializeException(bool enable);
 
     void readReady(bool enable);

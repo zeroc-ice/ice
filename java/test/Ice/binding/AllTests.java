@@ -267,11 +267,11 @@ public class AllTests
             int count;
             if(System.getProperty("os.name").startsWith("Windows"))
             {
-                count = 20;
+                count = 60;
             }
             else
             {
-                count = 60;
+                count = 20;
             }
 
             int adapterCount = adapters.length;

@@ -271,7 +271,7 @@ namespace IceInternal
                 //
                 if(_requests.Count > 0)
                 {
-                    _reference.getInstance().clientThreadPool().execute(delegate(bool unused)
+                    _reference.getInstance().clientThreadPool().execute(delegate()
                                                                         {
                                                                             flushRequestsWithException(ex);
                                                                         });
@@ -387,13 +387,13 @@ namespace IceInternal
                         {
                             request.os.pos(0);
                             os.writeBlob(request.os.readBlob(request.os.size()));
-                            _connection.finishBatchRequest(os, _compress);
                         }
                         catch(Ice.LocalException)
                         {
                             _connection.abortBatchRequest();
                             throw;
                         }
+                        _connection.finishBatchRequest(os, _compress);
                     }
                     LinkedListNode<Request> tmp = p;
                     p = p.Next;
@@ -406,7 +406,7 @@ namespace IceInternal
                 {
                     Debug.Assert(_exception == null && _requests.Count > 0);
                     _exception = ex.get();
-                    _reference.getInstance().clientThreadPool().execute(delegate(bool unused)
+                    _reference.getInstance().clientThreadPool().execute(delegate()
                                                                         {
                                                                             flushRequestsWithException(ex);
                                                                         });
@@ -418,7 +418,7 @@ namespace IceInternal
                 {
                     Debug.Assert(_exception == null && _requests.Count > 0);
                     _exception = ex;
-                    _reference.getInstance().clientThreadPool().execute(delegate(bool unused)
+                    _reference.getInstance().clientThreadPool().execute(delegate()
                                                                         {
                                                                             flushRequestsWithException(ex);
                                                                         });
@@ -428,7 +428,7 @@ namespace IceInternal
             if(sentCallbacks.Count > 0)
             {
                 Instance instance = _reference.getInstance();
-                instance.clientThreadPool().execute(delegate(bool unsused)
+                instance.clientThreadPool().execute(delegate()
                                                     {
                                                         foreach(OutgoingAsyncMessageCallback callback in sentCallbacks)
                                                         {

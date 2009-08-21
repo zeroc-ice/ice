@@ -22,7 +22,7 @@ namespace IceInternal
 class TcpConnector;
 class TcpAcceptor;
 
-class TcpTransceiver : public Transceiver
+class TcpTransceiver : public Transceiver, public NativeInfo
 {
     enum State
     {
@@ -33,19 +33,32 @@ class TcpTransceiver : public Transceiver
 
 public:
 
-    virtual SOCKET fd();
+    virtual NativeInfoPtr getNativeInfo();
+#ifdef ICE_USE_IOCP
+    virtual AsyncInfo* getAsyncInfo(SocketOperation);
+#endif
+
+    virtual SocketOperation initialize();
     virtual void close();
     virtual bool write(Buffer&);
     virtual bool read(Buffer&);
+#ifdef ICE_USE_IOCP
+    virtual void startWrite(Buffer&);
+    virtual void finishWrite(Buffer&);
+    virtual void startRead(Buffer&);
+    virtual void finishRead(Buffer&);
+#endif
     virtual std::string type() const;
     virtual std::string toString() const;
-    virtual SocketStatus initialize();
     virtual void checkSendSize(const Buffer&, size_t);
 
 private:
 
     TcpTransceiver(const InstancePtr&, SOCKET, bool);
     virtual ~TcpTransceiver();
+
+    void connect(const struct sockaddr_storage&);
+
     friend class TcpConnector;
     friend class TcpAcceptor;
 
@@ -53,11 +66,14 @@ private:
     const Ice::LoggerPtr _logger;
     const Ice::StatsPtr _stats;
     
-    SOCKET _fd;
     State _state;
     std::string _desc;
-#ifdef _WIN32
-    int _maxPacketSize;
+#ifdef ICE_USE_IOCP
+    struct sockaddr_storage _connectAddr;
+    AsyncInfo _read;
+    AsyncInfo _write;
+    int _maxSendPacketSize;
+    int _maxReceivePacketSize;
 #endif
 };
 

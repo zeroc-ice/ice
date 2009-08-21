@@ -33,6 +33,7 @@ public class Client extends test.Util.Application
         int prio = priority.getPriority();
         test(prio == 10);
         out.println("ok");
+
         priority.shutdown();
         return 0;
     }

@@ -288,13 +288,9 @@ public final class ServantManager
             }
             catch(java.lang.Exception ex)
             {
-                java.io.StringWriter sw = new java.io.StringWriter();
-                java.io.PrintWriter pw = new java.io.PrintWriter(sw);
-                ex.printStackTrace(pw);
-                pw.flush();
                 String s = "exception during locator deactivation:\n" + "object adapter: `" + _adapterName + "'\n" +
-                    "locator category: `" + p.getKey() + "'\n" + sw.toString();
-                logger.error(s);
+                    "locator category: `" + p.getKey() + "'\n" + Ex.toString(ex);
+                _instance.initializationData().logger.error(s);
             }
         }
     }

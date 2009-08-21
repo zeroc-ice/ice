@@ -18,7 +18,6 @@
 #include <Ice/ReferenceFactory.h>
 #include <Ice/ProxyFactory.h>
 #include <Ice/ThreadPool.h>
-#include <Ice/SelectorThread.h>
 #include <Ice/ConnectionFactory.h>
 #include <Ice/ConnectionMonitor.h>
 #include <Ice/ObjectFactoryManager.h>
@@ -275,19 +274,6 @@ IceInternal::Instance::serverThreadPool()
     }
 
     return _serverThreadPool;
-}
-
-SelectorThreadPtr
-IceInternal::Instance::selectorThread()
-{
-    IceUtil::RecMutex::Lock sync(*this);
-    if(_state == StateDestroyed)
-    {
-        throw CommunicatorDestroyedException(__FILE__, __LINE__);
-    }
-
-    assert(_selectorThread);
-    return _selectorThread;
 }
 
 EndpointHostResolverPtr
@@ -1041,8 +1027,6 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const Initi
 
         _clientThreadPool = new ThreadPool(this, "Ice.ThreadPool.Client", 0);
 
-        _selectorThread = new SelectorThread(this);
-
         if(_initData.wstringConverter == 0)
         {
             _initData.wstringConverter = new UnicodeWstringConverter();
@@ -1088,7 +1072,6 @@ IceInternal::Instance::~Instance()
     assert(!_objectAdapterFactory);
     assert(!_clientThreadPool);
     assert(!_serverThreadPool);
-    assert(!_selectorThread);
     assert(!_endpointHostResolver);
     assert(!_retryQueue);
     assert(!_timer);
@@ -1269,7 +1252,6 @@ IceInternal::Instance::destroy()
 
     ThreadPoolPtr serverThreadPool;
     ThreadPoolPtr clientThreadPool;
-    SelectorThreadPtr selectorThread;
     EndpointHostResolverPtr endpointHostResolver;
 
     {
@@ -1295,12 +1277,6 @@ IceInternal::Instance::destroy()
         {
             _clientThreadPool->destroy();
             std::swap(_clientThreadPool, clientThreadPool);
-        }
-
-        if(_selectorThread)
-        {
-            _selectorThread->destroy();
-            std::swap(selectorThread, _selectorThread);
         }
 
         if(_endpointHostResolver)
@@ -1371,10 +1347,6 @@ IceInternal::Instance::destroy()
     if(serverThreadPool)
     {
         serverThreadPool->joinWithAllThreads();
-    }
-    if(selectorThread)
-    {
-        selectorThread->joinWithThread();
     }
     if(endpointHostResolver)
     {

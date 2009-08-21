@@ -56,10 +56,6 @@ Ice::ObjectAdapterI::getName() const
 CommunicatorPtr
 Ice::ObjectAdapterI::getCommunicator() const
 {
-    IceUtil::Monitor<IceUtil::RecMutex>::Lock sync(*this);
-
-    checkForDeactivation();
-
     return _communicator;
 }
 
@@ -357,7 +353,6 @@ Ice::ObjectAdapterI::destroy()
         //
         _instance = 0;
         _threadPool = 0;
-        _communicator = 0;
         _routerEndpoints.clear();
         _routerInfo = 0;
         _publishedEndpoints.clear();
@@ -982,7 +977,6 @@ Ice::ObjectAdapterI::~ObjectAdapterI()
     {
         //assert(!_servantManager); // We don't clear this reference, it needs to be immutable.
         assert(!_threadPool);
-        assert(!_communicator);
         assert(_incomingConnectionFactories.empty());
         assert(_directCount == 0);
         assert(!_waitForActivate);

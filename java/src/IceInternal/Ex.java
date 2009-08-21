@@ -23,4 +23,16 @@ public class Ex
         throw new Ice.MemoryLimitException("requested " + requested + " bytes, maximum allowed is " + maximum +
                                            " bytes (see Ice.MessageSizeMax)");
     }
+
+    //
+    // A small utility to get the strack trace of the exception (which also includes toString()).
+    //
+    public static String toString(java.lang.Throwable ex)
+    {        
+        java.io.StringWriter sw = new java.io.StringWriter();
+        java.io.PrintWriter pw = new java.io.PrintWriter(sw);
+        ex.printStackTrace(pw);
+        pw.flush();
+        return sw.toString();
+    }
 }

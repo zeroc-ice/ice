@@ -175,18 +175,6 @@ public final class Instance
         return _serverThreadPool;
     }
 
-    public synchronized SelectorThread
-    selectorThread()
-    {
-        if(_state == StateDestroyed)
-        {
-            throw new Ice.CommunicatorDestroyedException();
-        }        
-
-        assert(_selectorThread != null);
-        return _selectorThread;
-    }
-
     public synchronized EndpointHostResolver
     endpointHostResolver()
     {
@@ -716,11 +704,7 @@ public final class Instance
             }
             catch(RuntimeException ex)
             {
-                java.io.StringWriter sw = new java.io.StringWriter();
-                java.io.PrintWriter pw = new java.io.PrintWriter(sw);
-                ex.printStackTrace(pw);
-                pw.flush();
-                String s = "cannot create thread for endpoint host resolver:\n" + sw.toString();
+                String s = "cannot create thread for endpoint host resolver:\n" + Ex.toString(ex);
                 _initData.logger.error(s);
                 throw ex;
             }
@@ -735,19 +719,13 @@ public final class Instance
             }
             catch(RuntimeException ex)
             {
-                java.io.StringWriter sw = new java.io.StringWriter();
-                java.io.PrintWriter pw = new java.io.PrintWriter(sw);
-                ex.printStackTrace(pw);
-                pw.flush();
-                String s = "cannot create thread for timer:\n" + sw.toString();
+                String s = "cannot create thread for timer:\n" + Ex.toString(ex);
                 _initData.logger.error(s);
                 throw ex;
             }
 
             _clientThreadPool = new ThreadPool(this, "Ice.ThreadPool.Client", 0);
 
-            _selectorThread = new SelectorThread(this);
-            
             //
             // Add Process and Properties facets
             //
@@ -781,7 +759,6 @@ public final class Instance
         IceUtilInternal.Assert.FinalizerAssert(_objectAdapterFactory == null);
         IceUtilInternal.Assert.FinalizerAssert(_clientThreadPool == null);
         IceUtilInternal.Assert.FinalizerAssert(_serverThreadPool == null);
-        IceUtilInternal.Assert.FinalizerAssert(_selectorThread == null);
         IceUtilInternal.Assert.FinalizerAssert(_endpointHostResolver == null);
         IceUtilInternal.Assert.FinalizerAssert(_timer == null);
         IceUtilInternal.Assert.FinalizerAssert(_routerManager == null);
@@ -922,7 +899,6 @@ public final class Instance
         
         ThreadPool serverThreadPool = null;
         ThreadPool clientThreadPool = null;
-        SelectorThread selectorThread = null;
         EndpointHostResolver endpointHostResolver = null;
 
         synchronized(this)
@@ -949,13 +925,6 @@ public final class Instance
                 _clientThreadPool.destroy();
                 clientThreadPool = _clientThreadPool;
                 _clientThreadPool = null;
-            }
-
-            if(_selectorThread != null)
-            {
-                _selectorThread.destroy();
-                selectorThread = _selectorThread;
-                _selectorThread = null;
             }
 
             if(_endpointHostResolver != null)
@@ -1026,10 +995,6 @@ public final class Instance
         if(serverThreadPool != null)
         {
             serverThreadPool.joinWithAllThreads();
-        }
-        if(selectorThread != null)
-        {
-            selectorThread.joinWithThread();
         }
         if(endpointHostResolver != null)
         {
@@ -1105,7 +1070,6 @@ public final class Instance
     private int _protocolSupport;
     private ThreadPool _clientThreadPool;
     private ThreadPool _serverThreadPool;
-    private SelectorThread _selectorThread;
     private EndpointHostResolver _endpointHostResolver;
     private RetryQueue _retryQueue;
     private Timer _timer;

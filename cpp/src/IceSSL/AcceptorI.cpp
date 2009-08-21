@@ -19,15 +19,29 @@
 #include <Ice/Network.h>
 #include <Ice/Properties.h>
 
+#ifdef ICE_USE_IOCP
+#  include <Mswsock.h>
+#endif
+
 using namespace std;
 using namespace Ice;
 using namespace IceSSL;
 
-SOCKET
-IceSSL::AcceptorI::fd()
+IceInternal::NativeInfoPtr
+IceSSL::AcceptorI::getNativeInfo()
 {
-    return _fd;
+    return this;
 }
+
+
+#ifdef ICE_USE_IOCP
+IceInternal::AsyncInfo*
+IceSSL::AcceptorI::getAsyncInfo(IceInternal::SocketOperation status)
+{
+    assert(status == IceInternal::SocketOperationRead);
+    return &_info;
+}
+#endif
 
 void
 IceSSL::AcceptorI::close()
@@ -83,6 +97,54 @@ IceSSL::AcceptorI::listen()
     }
 }
 
+#ifdef ICE_USE_IOCP
+void
+IceSSL::AcceptorI::startAccept()
+{
+    LPFN_ACCEPTEX AcceptEx = NULL; // a pointer to the 'AcceptEx()' function
+    GUID GuidAcceptEx = WSAID_ACCEPTEX; // The Guid
+    DWORD dwBytes;
+    if(WSAIoctl(_fd, 
+                SIO_GET_EXTENSION_FUNCTION_POINTER,
+                &GuidAcceptEx,
+                sizeof(GuidAcceptEx),
+                &AcceptEx,
+                sizeof(AcceptEx),
+                &dwBytes,
+                NULL, 
+                NULL) == SOCKET_ERROR)
+    {
+        SocketException ex(__FILE__, __LINE__);
+        ex.error = IceInternal::getSocketErrno();
+        throw ex;
+    }        
+
+    assert(_acceptFd == INVALID_SOCKET);
+    _acceptFd = IceInternal::createSocket(false, _addr.ss_family);
+    const int sz = static_cast<int>(_acceptBuf.size() / 2);
+    if(!AcceptEx(_fd, _acceptFd, &_acceptBuf[0], 0, sz, sz, &_info.count, &_info))
+    {
+        if(WSAGetLastError() != WSA_IO_PENDING)
+        {
+            SocketException ex(__FILE__, __LINE__);
+            ex.error = IceInternal::getSocketErrno();
+            throw ex;
+        }
+    }
+}
+
+void 
+IceSSL::AcceptorI::finishAccept()
+{
+    if(_info.count == SOCKET_ERROR || _fd == INVALID_SOCKET)
+    {
+        IceInternal::closeSocketNoThrow(_acceptFd);
+        _acceptFd = INVALID_SOCKET;
+        _acceptError = _info.error;
+    }
+}
+#endif
+
 IceInternal::TransceiverPtr
 IceSSL::AcceptorI::accept()
 {
@@ -96,28 +158,29 @@ IceSSL::AcceptorI::accept()
         throw ex;
     }
 
+#ifndef ICE_USE_IOCP
     SOCKET fd = IceInternal::doAccept(_fd);
-    IceInternal::setBlock(fd, false);
-    IceInternal::setTcpBufSize(fd, _instance->communicator()->getProperties(), _logger);
-
-    BIO* bio = BIO_new_socket(static_cast<int>(fd), BIO_CLOSE);
-    if(!bio)
+#else
+    if(_acceptFd == INVALID_SOCKET)
     {
-        IceInternal::closeSocketNoThrow(fd);
-        SecurityException ex(__FILE__, __LINE__);
-        ex.reason = "openssl failure";
+        SocketException ex(__FILE__, __LINE__);
+        ex.error = _acceptError;
+        throw ex;        
+    }
+
+    if(setsockopt(_acceptFd, SOL_SOCKET, SO_UPDATE_ACCEPT_CONTEXT, (char*)&_acceptFd, sizeof(_acceptFd)) == 
+       SOCKET_ERROR)
+    {
+        IceInternal::closeSocketNoThrow(_acceptFd);
+        _acceptFd = INVALID_SOCKET;
+        SocketException ex(__FILE__, __LINE__);
+        ex.error = IceInternal::getSocketErrno();
         throw ex;
     }
 
-    SSL* ssl = SSL_new(_instance->context());
-    if(!ssl)
-    {
-        BIO_free(bio); // Also closes the socket.
-        SecurityException ex(__FILE__, __LINE__);
-        ex.reason = "openssl failure";
-        throw ex;
-    }
-    SSL_set_bio(ssl, bio, bio);
+    SOCKET fd = _acceptFd;
+    _acceptFd = INVALID_SOCKET;
+#endif
 
     if(_instance->networkTraceLevel() >= 1)
     {
@@ -129,7 +192,7 @@ IceSSL::AcceptorI::accept()
     // SSL handshaking is performed in TransceiverI::initialize, since
     // accept must not block.
     //
-    return new TransceiverI(_instance, ssl, fd, "", true, true, _adapterName);
+    return new TransceiverI(_instance, fd, _adapterName);
 }
 
 string
@@ -156,6 +219,10 @@ IceSSL::AcceptorI::AcceptorI(const InstancePtr& instance, const string& adapterN
     _adapterName(adapterName),
     _logger(instance->communicator()->getLogger()),
     _addr(IceInternal::getAddressForServer(host, port, instance->protocolSupport()))
+#ifdef ICE_USE_IOCP
+    , _acceptFd(INVALID_SOCKET),
+    _info(IceInternal::SocketOperationRead)
+#endif
 {
 #ifdef SOMAXCONN
     _backlog = instance->communicator()->getProperties()->getPropertyAsIntWithDefault("Ice.TCP.Backlog", SOMAXCONN);
@@ -163,41 +230,39 @@ IceSSL::AcceptorI::AcceptorI(const InstancePtr& instance, const string& adapterN
     _backlog = instance->communicator()->getProperties()->getPropertyAsIntWithDefault("Ice.TCP.Backlog", 511);
 #endif
 
-    try
-    {
-        _fd = IceInternal::createSocket(false, _addr.ss_family);
-        IceInternal::setBlock(_fd, false);
-        IceInternal::setTcpBufSize(_fd, _instance->communicator()->getProperties(), _logger);
-#ifndef _WIN32
-        //
-        // Enable SO_REUSEADDR on Unix platforms to allow re-using the
-        // socket even if it's in the TIME_WAIT state. On Windows,
-        // this doesn't appear to be necessary and enabling
-        // SO_REUSEADDR would actually not be a good thing since it
-        // allows a second process to bind to an address even it's
-        // already bound by another process.
-        //
-        // TODO: using SO_EXCLUSIVEADDRUSE on Windows would probably
-        // be better but it's only supported by recent Windows
-        // versions (XP SP2, Windows Server 2003).
-        //
-        IceInternal::setReuseAddress(_fd, true);
+    _fd = IceInternal::createSocket(false, _addr.ss_family);
+#ifdef ICE_USE_IOCP
+    _acceptBuf.resize((sizeof(sockaddr_storage) + 16) * 2);
 #endif
-        if(_instance->networkTraceLevel() >= 2)
-        {
-            Trace out(_logger, _instance->networkTraceCategory());
-            out << "attempting to bind to ssl socket " << toString();
-        }
-        const_cast<struct sockaddr_storage&>(_addr) = IceInternal::doBind(_fd, _addr);
-    }
-    catch(...)
+    IceInternal::setBlock(_fd, false);
+    IceInternal::setTcpBufSize(_fd, _instance->communicator()->getProperties(), _logger);
+#ifndef _WIN32
+    //
+    // Enable SO_REUSEADDR on Unix platforms to allow re-using the
+    // socket even if it's in the TIME_WAIT state. On Windows,
+    // this doesn't appear to be necessary and enabling
+    // SO_REUSEADDR would actually not be a good thing since it
+    // allows a second process to bind to an address even it's
+    // already bound by another process.
+    //
+    // TODO: using SO_EXCLUSIVEADDRUSE on Windows would probably
+    // be better but it's only supported by recent Windows
+    // versions (XP SP2, Windows Server 2003).
+    //
+    IceInternal::setReuseAddress(_fd, true);
+#endif
+    if(_instance->networkTraceLevel() >= 2)
     {
-        _fd = INVALID_SOCKET;
-        throw;
+        Trace out(_logger, _instance->networkTraceCategory());
+        out << "attempting to bind to ssl socket " << toString();
     }
+    const_cast<struct sockaddr_storage&>(_addr) = IceInternal::doBind(_fd, _addr);
 }
 
 IceSSL::AcceptorI::~AcceptorI()
 {
     assert(_fd == INVALID_SOCKET);
+#ifdef ICE_USE_IOCP
+    assert(_acceptFd == INVALID_SOCKET);
+#endif
 }

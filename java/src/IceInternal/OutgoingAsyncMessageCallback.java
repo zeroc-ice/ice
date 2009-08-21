@@ -105,9 +105,9 @@ abstract public class OutgoingAsyncMessageCallback
                 __os.instance().clientThreadPool().execute(new ThreadPoolWorkItem()
                     {
                         public void
-                        execute(ThreadPool threadPool)
+                        execute(ThreadPoolCurrent current)
                         {
-                            threadPool.promoteFollower(null);
+                            current.ioCompleted();
                             __exception(ex);
                         }
                     });
@@ -149,14 +149,8 @@ abstract public class OutgoingAsyncMessageCallback
     {
         if(instance.initializationData().properties.getPropertyAsIntWithDefault("Ice.Warn.AMICallback", 1) > 0)
         {
-            java.io.StringWriter sw = new java.io.StringWriter();
-            java.io.PrintWriter pw = new java.io.PrintWriter(sw);
-            IceUtilInternal.OutputBase out = new IceUtilInternal.OutputBase(pw);
-            out.setUseTab(false);
-            out.print("exception raised by AMI callback:\n");
-            ex.printStackTrace(pw);
-            pw.flush();
-            instance.initializationData().logger.warning(sw.toString());
+            String s = "exception raised by AMI callback:\n" + Ex.toString(ex);
+            instance.initializationData().logger.warning(s);
         }
     }
 

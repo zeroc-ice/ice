@@ -16,14 +16,6 @@
 #include <Ice/ThreadPoolF.h>
 #include <Ice/BasicStream.h>
 #include <Ice/Network.h>
-#include <Ice/SelectorF.h>
-
-namespace Ice
-{
-
-class LocalException;
-
-}
 
 namespace IceInternal
 {
@@ -32,70 +24,51 @@ class EventHandler : virtual public ::IceUtil::Shared
 {
 public:
 
-    InstancePtr instance() const;
-    
+#ifdef ICE_USE_IOCP
     //
-    // Return true if the handler is for a datagram transport, false otherwise.
+    // Called to start a new asynchronous read or write operation.
     //
-    virtual bool datagram() const = 0;
+    virtual bool startAsync(SocketOperation) = 0;
+    virtual bool finishAsync(SocketOperation) = 0;
+#endif
 
     //
-    // Return true if read() must be called before calling message().
+    // Called when there's a message ready to be processed.
     //
-    virtual bool readable() const = 0;
+    virtual void message(ThreadPoolCurrent&) = 0;
 
     //
-    // Read data via the event handler. May only be called if
-    // readable() returns true.
+    // Called when the event handler is unregistered.
     //
-    virtual bool read(BasicStream&) = 0;
-
-    //
-    // A complete message has been received.
-    //
-    virtual void message(BasicStream&, const ThreadPoolPtr&) = 0;
-
-    //
-    // Will be called if the event handler is finally
-    // unregistered. (Calling unregister() does not unregister
-    // immediately.)
-    //
-    virtual void finished(const ThreadPoolPtr&) = 0;
-
-    //
-    // Propagate an exception to the event handler.
-    //
-    virtual void exception(const ::Ice::LocalException&) = 0;
+    virtual void finished(ThreadPoolCurrent&) = 0;
 
     //
     // Get a textual representation of the event handler.
     //
     virtual std::string toString() const = 0;
 
+    //
+    // Get the native information of the handler, this is used by the selector.
+    //
+    virtual NativeInfoPtr getNativeInfo() = 0;
+
 protected:
     
-    EventHandler(const InstancePtr&, SOCKET = INVALID_SOCKET);
-    ICE_API virtual ~EventHandler();
+    EventHandler();
+    virtual ~EventHandler();
 
-    const InstancePtr _instance;
+#ifdef ICE_USE_IOCP
+    SocketOperation _ready;
+    SocketOperation _pending;
+    SocketOperation _started;
+    bool _finish;
+#else
+    SocketOperation _disabled;
+#endif
+    SocketOperation _registered;
 
-    //
-    // The _stream data member is for use by ThreadPool or by the
-    // connection for connection validation only.
-    //
-    BasicStream _stream;
-    SOCKET _fd;
-    bool _serializing;
-    bool _registered;
     friend class ThreadPool;
-    friend class Selector<EventHandler>;
-};
-
-class ThreadPoolWorkItem : virtual public IceUtil::Shared
-{
-public:
-    
-    virtual void execute(const ThreadPoolPtr&) = 0;
+    friend class Selector;
 };
 
 }

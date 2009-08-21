@@ -20,63 +20,43 @@ namespace IceInternal
 
     sealed class UdpTransceiver : Transceiver
     {
-        public bool restartable()
+        public int initialize()
         {
-            return true;
-        }
-
-        public bool initialize(AsyncCallback callback)
-        {
-            if(!_incoming)
+            if(!_incoming) // Incoming connection is connected on the first read.
             {
-                if(_connect)
+                if(_state == StateNeedConnect)
                 {
-                    Debug.Assert(callback != null);
-                    Debug.Assert(_addr != null);
-
-                    _connect = false;
-                    _result = Network.doBeginConnectAsync(_fd, _addr, callback);
-
-                    if(!_result.CompletedSynchronously)
-                    {
-                        //
-                        // Return now if the I/O request needs an asynchronous callback.
-                        //
-                        return false;
-                    }
+                    _state = StateConnectPending;
+                    return SocketOperation.Connect;
                 }
-
-                if(!_connect)
+                else if(_state <= StateConnectPending)
                 {
-                    Debug.Assert(_result != null);
-                    Network.doEndConnectAsync(_result);
-                    _result = null;
-
                     if(Network.isMulticast(_addr))
                     {
                         Network.setMcastGroup(_fd, _addr.Address, _mcastInterface);
-
+                        
                         if(_mcastTtl != -1)
                         {
                             Network.setMcastTtl(_fd, _mcastTtl, _addr.AddressFamily);
                         }
                     }
-
-                    if(_traceLevels.network >= 1)
-                    {
-                        string s = "starting to send udp packets\n" + ToString();
-                        _logger.trace(_traceLevels.networkCat, s);
-                    }
+                    _state = StateConnected;
                 }
 
-                Debug.Assert(!_connect);
+                if(_traceLevels.network >= 1)
+                {
+                    string s = "starting to send udp packets\n" + ToString();
+                    _logger.trace(_traceLevels.networkCat, s);
+                }
+                Debug.Assert(_state == StateConnected);
             }
-            return true;
+
+            return SocketOperation.None;
         }
 
         public void close()
         {
-            if(_traceLevels.network >= 1)
+            if(_state == StateConnected && _traceLevels.network >= 1)
             {
                 string s = "closing udp connection\n" + ToString();
                 _logger.trace(_traceLevels.networkCat, s);
@@ -196,7 +176,7 @@ namespace IceInternal
                 try
                 {
                     Debug.Assert(_fd != null);
-                    if(_connect)
+                    if(_state == StateNeedConnect)
                     {
                         ret = _fd.ReceiveFrom(buf.b.rawBytes(), 0, buf.b.limit(), SocketFlags.None, ref peerAddr);
                     }
@@ -257,14 +237,16 @@ namespace IceInternal
                 throw new Ice.ConnectionLostException();
             }
 
-            if(_connect)
+            if(_state == StateNeedConnect)
             {
+                Debug.Assert(_incoming);
+
                 //
                 // If we must connect, then we connect to the first peer that sends us a packet.
                 //
                 bool connected = Network.doConnect(_fd, peerAddr);
                 Debug.Assert(connected);
-                _connect = false; // We're connected now
+                _state = StateConnected; // We're connected now
 
                 if(_traceLevels.network >= 1)
                 {
@@ -290,7 +272,7 @@ namespace IceInternal
             return true;
         }
 
-        public IAsyncResult beginRead(Buffer buf, AsyncCallback callback, object state)
+        public bool startRead(Buffer buf, AsyncCallback callback, object state)
         {
             Debug.Assert(buf.b.position() == 0);
 
@@ -311,19 +293,30 @@ namespace IceInternal
             buf.b.position(0);
 
             try
-            {
-                EndPoint peerAddr;
-                if(_addr.AddressFamily == AddressFamily.InterNetwork)
+            {                
+                if(_state == StateNeedConnect)
                 {
-                    peerAddr = new IPEndPoint(IPAddress.Any, 0);
+                    Debug.Assert(_incoming);
+
+                    EndPoint peerAddr;
+                    if(_addr.AddressFamily == AddressFamily.InterNetwork)
+                    {
+                        peerAddr = new IPEndPoint(IPAddress.Any, 0);
+                    }
+                    else
+                    {
+                        Debug.Assert(_addr.AddressFamily == AddressFamily.InterNetworkV6);
+                        peerAddr = new IPEndPoint(IPAddress.IPv6Any, 0);
+                    }
+
+                    _readResult = _fd.BeginReceiveFrom(buf.b.rawBytes(), 0, buf.b.limit(), SocketFlags.None, 
+                                                       ref peerAddr, callback, state);
                 }
                 else
                 {
-                    Debug.Assert(_addr.AddressFamily == AddressFamily.InterNetworkV6);
-                    peerAddr = new IPEndPoint(IPAddress.IPv6Any, 0);
+                    _readResult = _fd.BeginReceive(buf.b.rawBytes(), 0, buf.b.limit(), SocketFlags.None, callback, 
+                                                   state);
                 }
-                return _fd.BeginReceiveFrom(buf.b.rawBytes(), 0, buf.b.limit(), SocketFlags.None, ref peerAddr,
-                                            callback, state);
             }
             catch(Win32Exception ex)
             {
@@ -338,24 +331,42 @@ namespace IceInternal
             {
                 throw new Ice.ConnectionLostException(ex);
             }
+
+            return _readResult.CompletedSynchronously;
         }
 
-        public void endRead(Buffer buf, IAsyncResult result)
+        public void finishRead(Buffer buf)
         {
+            if(_fd == null)
+            {
+                return;
+            }
+
             int packetSize = System.Math.Min(_maxPacketSize, _rcvSize - _udpOverhead);
             try
             {
-                EndPoint peerAddr;
-                if(_addr.AddressFamily == AddressFamily.InterNetwork)
+                Debug.Assert(_readResult != null);
+                int ret;
+                EndPoint peerAddr = null;
+                if(_state == StateNeedConnect)
                 {
-                    peerAddr = new IPEndPoint(IPAddress.Any, 0);
+                    if(_addr.AddressFamily == AddressFamily.InterNetwork)
+                    {
+                        peerAddr = new IPEndPoint(IPAddress.Any, 0);
+                    }
+                    else
+                    {
+                        Debug.Assert(_addr.AddressFamily == AddressFamily.InterNetworkV6);
+                        peerAddr = new IPEndPoint(IPAddress.IPv6Any, 0);
+                    }
+                    ret = _fd.EndReceiveFrom(_readResult, ref peerAddr);
                 }
                 else
                 {
-                    Debug.Assert(_addr.AddressFamily == AddressFamily.InterNetworkV6);
-                    peerAddr = new IPEndPoint(IPAddress.IPv6Any, 0);
+                    ret = _fd.EndReceive(_readResult);
                 }
-                int ret = _fd.EndReceiveFrom(result, ref peerAddr);
+
+                _readResult = null;
                 if(ret == 0)
                 {
                     throw new Ice.ConnectionLostException();
@@ -363,15 +374,17 @@ namespace IceInternal
 
                 Debug.Assert(ret > 0);
 
-                if(_connect)
+                if(_state == StateNeedConnect)
                 {
+                    Debug.Assert(_incoming);
+
                     //
                     // If we must connect, then we connect to the first peer that
                     // sends us a packet.
                     //
                     bool connected = Network.doConnect(_fd, peerAddr);
                     Debug.Assert(connected);
-                    _connect = false; // We're connected now
+                    _state = StateConnected; // We're connected now
 
                     if(_traceLevels.network >= 1)
                     {
@@ -415,11 +428,6 @@ namespace IceInternal
                     throw new Ice.ConnectionRefusedException(ex);
                 }
 
-                if(Network.operationAborted(ex))
-                {
-                    throw new ReadAbortedException(ex);
-                }
-
                 throw new Ice.SocketException(ex);
             }
             catch(ObjectDisposedException ex)
@@ -428,8 +436,15 @@ namespace IceInternal
             }
         }
 
-        public IAsyncResult beginWrite(Buffer buf, AsyncCallback callback, object state)
+        public bool startWrite(Buffer buf, AsyncCallback callback, object state)
         {
+            if(!_incoming && _state < StateConnected)
+            {
+                Debug.Assert(_addr != null);
+                _writeResult = Network.doConnectAsync(_fd, _addr, callback, state);
+                return _writeResult.CompletedSynchronously;
+            }
+
             Debug.Assert(buf.b.position() == 0);
             int packetSize = System.Math.Min(_maxPacketSize, _sndSize - _udpOverhead);
             if(packetSize < buf.size())
@@ -443,7 +458,7 @@ namespace IceInternal
             try
             {
                 Debug.Assert(_fd != null);
-                return _fd.BeginSend(buf.b.rawBytes(), 0, buf.b.limit(), SocketFlags.None, callback, state);
+                _writeResult = _fd.BeginSend(buf.b.rawBytes(), 0, buf.b.limit(), SocketFlags.None, callback, state);
             }
             catch(Win32Exception ex)
             {
@@ -458,13 +473,31 @@ namespace IceInternal
             {
                 throw new Ice.ConnectionLostException(ex);
             }
+
+            return _writeResult.CompletedSynchronously;
         }
 
-        public void endWrite(Buffer buf, IAsyncResult result)
+        public void finishWrite(Buffer buf)
         {
+            if(_fd == null)
+            {
+                buf.b.position(buf.size()); // Assume all the data was sent for at-most-once semantics.
+                _writeResult = null;
+                return;
+            }
+
+            if(!_incoming && _state < StateConnected)
+            {
+                Debug.Assert(_writeResult != null);
+                Network.doFinishConnectAsync(_fd, _writeResult);
+                _writeResult = null;
+                return;
+            }
+
             try
             {
-                int ret = _fd.EndSend(result);
+                int ret = _fd.EndSend(_writeResult);
+                _writeResult = null;
                 if(ret == 0)
                 {
                     throw new Ice.ConnectionLostException();
@@ -484,6 +517,7 @@ namespace IceInternal
                 }
 
                 Debug.Assert(ret == buf.b.limit());
+                buf.b.position(buf.b.position() + ret);
             }
             catch(Win32Exception ex)
             {
@@ -553,7 +587,7 @@ namespace IceInternal
             _addr = addr;
             _mcastInterface = mcastInterface;
             _mcastTtl = mcastTtl;
-            _connect = true;
+            _state = StateNeedConnect;
             _incoming = false;
 
             try
@@ -578,10 +612,10 @@ namespace IceInternal
             _logger = instance.initializationData().logger;
             _stats = instance.initializationData().stats;
             _protocolSupport = instance.protocolSupport();
-            _connect = connect;
             _warn = instance.initializationData().properties.getPropertyAsInt("Ice.Warn.Datagrams") > 0;
+            _state = connect ? StateNeedConnect : StateConnected;
             _incoming = true;
-
+            
             try
             {
                 _addr = Network.getAddressForServer(host, port, instance.protocolSupport());
@@ -739,7 +773,7 @@ namespace IceInternal
         private Ice.Logger _logger;
         private Ice.Stats _stats;
         private int _protocolSupport;
-        private bool _connect;
+        private int _state;
         private bool _incoming;
         private readonly bool _warn;
         private int _rcvSize;
@@ -749,7 +783,13 @@ namespace IceInternal
         private IPEndPoint _mcastAddr = null;
         private string _mcastInterface = null;
         private int _mcastTtl = -1;
-        private IAsyncResult _result;
+
+        private IAsyncResult _writeResult;
+        private IAsyncResult _readResult;
+
+        private const int StateNeedConnect = 0;
+        private const int StateConnectPending = 1;
+        private const int StateConnected = 2;
 
         //
         // The maximum IP datagram size is 65535. Subtract 20 bytes for the IP header and 8 bytes for the UDP header

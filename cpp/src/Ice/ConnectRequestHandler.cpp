@@ -36,9 +36,9 @@ public:
     }
     
     virtual void
-    execute(const ThreadPoolPtr& threadPool)
+    execute(ThreadPoolCurrent& current)
     {
-        threadPool->promoteFollower();
+        current.ioCompleted();
         _handler->flushRequestsWithException(*_exception.get());
     }
     
@@ -59,9 +59,9 @@ public:
     }
     
     virtual void
-    execute(const ThreadPoolPtr& threadPool)
+    execute(ThreadPoolCurrent& current)
     {
-        threadPool->promoteFollower();
+        current.ioCompleted();
         _handler->flushRequestsWithException(_exception);
     }
     
@@ -81,9 +81,9 @@ public:
     }
 
     virtual void
-    execute(const ThreadPoolPtr& threadPool)
+    execute(ThreadPoolCurrent& current)
     {
-        threadPool->promoteFollower();
+        current.ioCompleted();
         for(vector<OutgoingAsyncMessageCallbackPtr>::const_iterator p = _callbacks.begin(); p != _callbacks.end(); ++p)
         {
             (*p)->__sentCallback(_instance);
@@ -438,14 +438,14 @@ ConnectRequestHandler::flushRequests()
                     req.os->i = req.os->b.begin();
                     req.os->readBlob(bytes, req.os->b.size());
                     os.writeBlob(bytes, req.os->b.size());
-                    _connection->finishBatchRequest(&os, _compress);
-                    delete req.os;
                 }
                 catch(const Ice::LocalException&)
                 {
                     _connection->abortBatchRequest();
                     throw;
                 }
+                _connection->finishBatchRequest(&os, _compress);
+                delete req.os;
             }
             _requests.pop_front();
         }

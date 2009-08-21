@@ -27,12 +27,7 @@ namespace Ice
 
         public Communicator getCommunicator()
         {
-            lock(this)
-            {
-                checkForDeactivation();
-                
-                return _communicator;
-            }
+            return _communicator;
         }
 
         public void activate()
@@ -198,7 +193,6 @@ namespace Ice
                 locatorInfo = _locatorInfo;
 
                 _deactivated = true;
-                
                 System.Threading.Monitor.PulseAll(this);
             }
 
@@ -345,7 +339,6 @@ namespace Ice
                 //
                 instance_ = null;
                 _threadPool = null;
-                _communicator = null;
                 _routerEndpoints = null;
                 _routerInfo = null;
                 _publishedEndpoints = null;
@@ -841,7 +834,6 @@ namespace Ice
                 //
                 _deactivated = true;
                 instance_ = null;
-                _communicator = null;
                 _incomingConnectionFactories = null;
 
                 InitializationException ex = new InitializationException();

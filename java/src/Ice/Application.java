@@ -106,12 +106,12 @@ public abstract class Application
             }
             catch(LocalException ex)
             {
-                error("", ex);
+                Util.getProcessLogger().error(IceInternal.Ex.toString(ex));
                 return 1;
             }
             catch(java.lang.Exception ex)
             {
-                error("unknown exception", ex);
+                Util.getProcessLogger().error("unknown exception: " + IceInternal.Ex.toString(ex));
                 return 1;
             }
         }
@@ -195,12 +195,12 @@ public abstract class Application
         }
         catch(LocalException ex)
         {
-            error("", ex);
+            Util.getProcessLogger().error(IceInternal.Ex.toString(ex));
             status = 1;
         }
         catch(java.lang.Exception ex)
         {
-            error("unknown exception", ex);
+            Util.getProcessLogger().error("unknown exception: " + IceInternal.Ex.toString(ex));
             status = 1;
         }
         catch(java.lang.Error err)
@@ -208,7 +208,7 @@ public abstract class Application
             //
             // We catch Error to avoid hangs in some non-fatal situations
             //
-            error("Java error", err);
+            Util.getProcessLogger().error("Java error: " + IceInternal.Ex.toString(err));
             status = 1;
         }
 
@@ -254,12 +254,12 @@ public abstract class Application
             }
             catch(LocalException ex)
             {
-                error("", ex);
+                Util.getProcessLogger().error(IceInternal.Ex.toString(ex));
                 status = 1;
             }
             catch(java.lang.Exception ex)
             {
-                error("unknown exception", ex);
+                Util.getProcessLogger().error("unknown exception: " + IceInternal.Ex.toString(ex));
                 status = 1;
             }
             _communicator = null;
@@ -640,23 +640,6 @@ public abstract class Application
         }
 
         private Thread _hook;
-    }
-
-    private void
-    error(String msg, java.lang.Throwable ex)
-    {
-        java.io.StringWriter sw = new java.io.StringWriter();
-        java.io.PrintWriter pw = new java.io.PrintWriter(sw);
-        ex.printStackTrace(pw);
-        pw.flush();
-        if(msg.equals(""))
-        {
-            Util.getProcessLogger().error(sw.toString());
-        }
-        else
-        {
-            Util.getProcessLogger().error(msg + ":\n" + sw.toString());
-        }
     }
 
     private static String _appName;

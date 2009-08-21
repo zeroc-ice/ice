@@ -216,7 +216,7 @@ def addPathToEnv(variable, path, env = None):
 
 # List of supported cross languages test.
 crossTests = [ "Ice/adapterDeactivation",
-               "Ice/background",
+               #"Ice/background",
                "Ice/binding",
                "Ice/checksum",
                #"Ice/custom",

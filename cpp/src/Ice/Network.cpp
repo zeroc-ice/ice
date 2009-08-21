@@ -35,6 +35,7 @@
 #  include <winsock2.h>
 #  include <ws2tcpip.h>
 #  include <iphlpapi.h>
+#  include <Mswsock.h>
 #else
 #  include <net/if.h>
 #  include <sys/ioctl.h>
@@ -473,6 +474,14 @@ getInterfaceAddress(const string& name)
 
 }
 
+#ifdef ICE_USE_IOCP
+IceInternal::AsyncInfo::AsyncInfo(SocketOperation s)
+{
+    ZeroMemory(this, sizeof(AsyncInfo));
+    status = s;
+}
+#endif
+
 int
 IceInternal::getSocketErrno()
 {
@@ -533,7 +542,8 @@ bool
 IceInternal::wouldBlock()
 {
 #ifdef _WIN32
-    return WSAGetLastError() == WSAEWOULDBLOCK;
+    int error = WSAGetLastError();
+    return error == WSAEWOULDBLOCK || error == WSA_IO_PENDING;
 #else
     return errno == EAGAIN || errno == EWOULDBLOCK;
 #endif
@@ -567,7 +577,7 @@ IceInternal::connectionRefused()
 {
 #ifdef _WIN32
     int error = WSAGetLastError();
-    return error == WSAECONNREFUSED;
+    return error == WSAECONNREFUSED || error == ERROR_CONNECTION_REFUSED;
 #else
     return errno == ECONNREFUSED;
 #endif
@@ -577,7 +587,8 @@ bool
 IceInternal::connectInProgress()
 {
 #ifdef _WIN32
-    return WSAGetLastError() == WSAEWOULDBLOCK;
+    int error = WSAGetLastError();
+    return error == WSAEWOULDBLOCK || error == WSA_IO_PENDING;
 #else
     return errno == EINPROGRESS;
 #endif
@@ -591,6 +602,9 @@ IceInternal::connectionLost()
     return error == WSAECONNRESET ||
            error == WSAESHUTDOWN ||
            error == WSAENOTCONN ||
+#ifdef ICE_USE_IOCP
+           error == ERROR_NETNAME_DELETED ||
+#endif
            error == WSAECONNABORTED;
 #else
     return errno == ECONNRESET ||
@@ -1238,6 +1252,121 @@ IceInternal::doFinishConnect(SOCKET fd)
     }
 #endif
 }
+
+#ifdef ICE_USE_IOCP
+void
+IceInternal::doConnectAsync(SOCKET fd, const struct sockaddr_storage& addr, AsyncInfo& info)
+{
+    struct sockaddr_storage bindAddr;
+    memset(&bindAddr, 0, sizeof(bindAddr));
+
+    int size;
+    if(addr.ss_family == AF_INET)
+    {
+        size = sizeof(sockaddr_in);
+
+        struct sockaddr_in* addrin = reinterpret_cast<struct sockaddr_in*>(&bindAddr);
+        addrin->sin_family = AF_INET;
+        addrin->sin_port = htons(0);
+        addrin->sin_addr.s_addr = htonl(INADDR_ANY);
+    }
+    else if(addr.ss_family == AF_INET6)
+    {
+        size = sizeof(sockaddr_in6);
+
+        struct sockaddr_in6* addrin = reinterpret_cast<struct sockaddr_in6*>(&bindAddr);
+        addrin->sin6_family = AF_INET6;
+        addrin->sin6_port = htons(0);
+        addrin->sin6_addr = in6addr_any;
+    }
+    else
+    {
+        assert(false);
+        size = 0; // Keep the compiler happy.
+    }
+
+    doBind(fd, bindAddr);
+
+    LPFN_CONNECTEX ConnectEx = NULL; // a pointer to the 'ConnectEx()' function
+    GUID GuidConnectEx = WSAID_CONNECTEX; // The Guid
+    DWORD dwBytes;
+    if(WSAIoctl(fd, 
+                SIO_GET_EXTENSION_FUNCTION_POINTER,
+                &GuidConnectEx,
+                sizeof(GuidConnectEx),
+                &ConnectEx,
+                sizeof(ConnectEx),
+                &dwBytes,
+                NULL, 
+                NULL) == SOCKET_ERROR)
+    {
+        SocketException ex(__FILE__, __LINE__);
+        ex.error = getSocketErrno();
+        throw ex;
+    }        
+
+    if(!ConnectEx(fd, reinterpret_cast<const struct sockaddr*>(&addr), size, 0, 0, 0, &info))
+    {
+        if(!connectInProgress())
+        {
+            closeSocketNoThrow(fd);
+            if(connectionRefused())
+            {
+                ConnectionRefusedException ex(__FILE__, __LINE__);
+                ex.error = getSocketErrno();
+                throw ex;
+            }
+            else if(connectFailed())
+            {
+                ConnectFailedException ex(__FILE__, __LINE__);
+                ex.error = getSocketErrno();
+                throw ex;
+            }
+            else
+            {
+                SocketException ex(__FILE__, __LINE__);
+                ex.error = getSocketErrno();
+                throw ex;
+            }
+        }
+    }
+
+}
+
+void
+IceInternal::doFinishConnectAsync(SOCKET fd, AsyncInfo& info)
+{
+    if(info.count == SOCKET_ERROR)
+    {
+        WSASetLastError(info.error);
+        if(connectionRefused())
+        {
+            ConnectionRefusedException ex(__FILE__, __LINE__);
+            ex.error = getSocketErrno();
+            throw ex;
+        }
+        else if(connectFailed())
+        {
+            ConnectFailedException ex(__FILE__, __LINE__);
+            ex.error = getSocketErrno();
+            throw ex;
+        }
+        else
+        {
+            SocketException ex(__FILE__, __LINE__);
+            ex.error = getSocketErrno();
+            throw ex;
+        }
+    }
+
+    if(setsockopt(fd, SOL_SOCKET, SO_UPDATE_CONNECT_CONTEXT, NULL, 0) == SOCKET_ERROR)
+    {
+        SocketException ex(__FILE__, __LINE__);
+        ex.error = getSocketErrno();
+        throw ex;
+    }
+}
+#endif
 
 SOCKET
 IceInternal::doAccept(SOCKET fd)

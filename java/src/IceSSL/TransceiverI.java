@@ -22,7 +22,7 @@ final class TransceiverI implements IceInternal.Transceiver
         return _fd;
     }
 
-    public IceInternal.SocketStatus
+    public int
     initialize()
     {
         try
@@ -30,7 +30,7 @@ final class TransceiverI implements IceInternal.Transceiver
             if(_state == StateNeedConnect)
             {
                 _state = StateConnectPending;
-                return IceInternal.SocketStatus.NeedConnect;
+                return IceInternal.SocketOperation.Connect;
             }
             else if(_state <= StateConnectPending)
             {
@@ -40,8 +40,8 @@ final class TransceiverI implements IceInternal.Transceiver
             }
             assert(_state == StateConnected);
 
-            IceInternal.SocketStatus status = handshakeNonBlocking();
-            if(status != IceInternal.SocketStatus.Finished)
+            int status = handshakeNonBlocking();
+            if(status != IceInternal.SocketOperation.None)
             {
                 return status;
             }
@@ -56,13 +56,13 @@ final class TransceiverI implements IceInternal.Transceiver
             throw ex;
         }
 
-        return IceInternal.SocketStatus.Finished;
+        return IceInternal.SocketOperation.None;
     }
 
     public void
     close()
     {
-        if(_instance.networkTraceLevel() >= 1)
+        if(_state == StateHandshakeComplete && _instance.networkTraceLevel() >= 1)
         {
             String s = "closing ssl connection\n" + toString();
             _logger.trace(_instance.networkTraceCategory(), s);
@@ -147,10 +147,10 @@ final class TransceiverI implements IceInternal.Transceiver
             throw new Ice.ConnectionLostException();
         }
 
-        IceInternal.SocketStatus status = writeNonBlocking(buf.b);
-        if(status != IceInternal.SocketStatus.Finished)
+        int status = writeNonBlocking(buf.b);
+        if(status != IceInternal.SocketOperation.None)
         {
-            assert(status == IceInternal.SocketStatus.NeedWrite);
+            assert(status == IceInternal.SocketOperation.Write);
             return false;
         }
         return true;
@@ -213,10 +213,10 @@ final class TransceiverI implements IceInternal.Transceiver
                 }
                 case BUFFER_UNDERFLOW:
                 {
-                    IceInternal.SocketStatus status = readNonBlocking();
-                    if(status != IceInternal.SocketStatus.Finished)
+                    int status = readNonBlocking();
+                    if(status != IceInternal.SocketOperation.None)
                     {
-                        assert(status == IceInternal.SocketStatus.NeedRead);
+                        assert(status == IceInternal.SocketOperation.Read);
                         moreData.value = false;
                         return false;
                     }
@@ -345,7 +345,7 @@ final class TransceiverI implements IceInternal.Transceiver
         super.finalize();
     }
 
-    private IceInternal.SocketStatus
+    private int
     handshakeNonBlocking()
     {
         try
@@ -391,8 +391,8 @@ final class TransceiverI implements IceInternal.Transceiver
                     case BUFFER_UNDERFLOW:
                     {
                         assert(status == javax.net.ssl.SSLEngineResult.HandshakeStatus.NEED_UNWRAP);
-                        IceInternal.SocketStatus ss = readNonBlocking();
-                        if(ss != IceInternal.SocketStatus.Finished)
+                        int ss = readNonBlocking();
+                        if(ss != IceInternal.SocketOperation.None)
                         {
                             return ss;
                         }
@@ -413,8 +413,8 @@ final class TransceiverI implements IceInternal.Transceiver
                     result = _engine.wrap(_emptyBuffer, _netOutput);
                     if(result.bytesProduced() > 0)
                     {
-                        IceInternal.SocketStatus ss = flushNonBlocking();
-                        if(ss != IceInternal.SocketStatus.Finished)
+                        int ss = flushNonBlocking();
+                        if(ss != IceInternal.SocketOperation.None)
                         {
                             return ss;
                         }
@@ -457,7 +457,7 @@ final class TransceiverI implements IceInternal.Transceiver
             throw e;
         }
 
-        return IceInternal.SocketStatus.Finished;
+        return IceInternal.SocketOperation.None;
     }
 
     private void
@@ -515,7 +515,7 @@ final class TransceiverI implements IceInternal.Transceiver
         }
     }
 
-    private IceInternal.SocketStatus
+    private int
     writeNonBlocking(ByteBuffer buf)
     {
         //
@@ -578,10 +578,10 @@ final class TransceiverI implements IceInternal.Transceiver
                 //
                 if(_netOutput.position() > 0)
                 {
-                    IceInternal.SocketStatus ss = flushNonBlocking();
-                    if(ss != IceInternal.SocketStatus.Finished)
+                    int ss = flushNonBlocking();
+                    if(ss != IceInternal.SocketOperation.None)
                     {
-                        assert(ss == IceInternal.SocketStatus.NeedWrite);
+                        assert(ss == IceInternal.SocketOperation.Write);
                         return ss;
                     }
                 }
@@ -596,10 +596,10 @@ final class TransceiverI implements IceInternal.Transceiver
         }
 
         assert(_netOutput.position() == 0);
-        return IceInternal.SocketStatus.Finished;
+        return IceInternal.SocketOperation.None;
     }
 
-    private IceInternal.SocketStatus
+    private int
     flushNonBlocking()
     {
         _netOutput.flip();
@@ -612,7 +612,7 @@ final class TransceiverI implements IceInternal.Transceiver
             _netOutput.limit(_netOutput.position() + packetSize);
         }
 
-        IceInternal.SocketStatus status = IceInternal.SocketStatus.Finished;
+        int status = IceInternal.SocketOperation.None;
         while(_netOutput.hasRemaining())
         {
             try
@@ -626,7 +626,7 @@ final class TransceiverI implements IceInternal.Transceiver
                 }
                 else if(ret == 0)
                 {
-                    status = IceInternal.SocketStatus.NeedWrite;
+                    status = IceInternal.SocketOperation.Write;
                     break;
                 }
 
@@ -653,7 +653,7 @@ final class TransceiverI implements IceInternal.Transceiver
             }
         }
 
-        if(status == IceInternal.SocketStatus.Finished)
+        if(status == IceInternal.SocketOperation.None)
         {
             _netOutput.clear();
         }
@@ -666,7 +666,7 @@ final class TransceiverI implements IceInternal.Transceiver
         return status;
     }
 
-    private IceInternal.SocketStatus
+    private int
     readNonBlocking()
     {
         while(true)
@@ -682,7 +682,7 @@ final class TransceiverI implements IceInternal.Transceiver
                 }
                 else if(ret == 0)
                 {
-                    return IceInternal.SocketStatus.NeedRead;
+                    return IceInternal.SocketOperation.Read;
                 }
 
                 break;
@@ -699,7 +699,7 @@ final class TransceiverI implements IceInternal.Transceiver
             }
         }
 
-        return IceInternal.SocketStatus.Finished;
+        return IceInternal.SocketOperation.None;
     }
 
     private void

@@ -357,8 +357,9 @@ public class AllTests
         {
             background.op();
         }
-        catch(Ice.LocalException)
+        catch(Ice.LocalException ex)
         {
+            System.Console.Out.WriteLine(ex);
             test(false);
         }
         background.ice_getConnection().close(false);

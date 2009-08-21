@@ -18,13 +18,13 @@ final class UdpTransceiver implements Transceiver
         return _fd;
     }
 
-    public SocketStatus
+    public int
     initialize()
     {
         //
         // Nothing to do.
         //
-        return SocketStatus.Finished;
+        return SocketOperation.None;
     }
 
     public void
@@ -32,7 +32,7 @@ final class UdpTransceiver implements Transceiver
     {
         assert(_fd != null);
         
-        if(_traceLevels.network >= 1)
+        if(!_connect && _traceLevels.network >= 1)
         {
             String s = "closing udp connection\n" + toString();
             _logger.trace(_traceLevels.networkCat, s);

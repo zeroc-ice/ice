@@ -31,19 +31,9 @@ IceInternal::TcpConnector::connect()
 
     try
     {
-        SOCKET fd = createSocket(false, _addr.ss_family);
-        setBlock(fd, false);
-        setTcpBufSize(fd, _instance->initializationData().properties, _logger);
-        bool connected = doConnect(fd, _addr);
-        if(connected)
-        {
-            if(_traceLevels->network >= 1)
-            {
-                Trace out(_logger, _traceLevels->networkCat);
-                out << "tcp connection established\n" << fdToString(fd);
-            }
-        }
-        return new TcpTransceiver(_instance, fd, connected);
+        TransceiverPtr transceiver = new TcpTransceiver(_instance, createSocket(false, _addr.ss_family), false);
+        dynamic_cast<TcpTransceiver*>(transceiver.get())->connect(_addr);
+        return transceiver;
     }
     catch(const Ice::LocalException& ex)
     {

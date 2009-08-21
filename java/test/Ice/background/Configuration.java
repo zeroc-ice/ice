@@ -41,9 +41,9 @@ public final class Configuration
     }
 
     public synchronized void
-    initializeSocketStatus(IceInternal.SocketStatus status)
+    initializeSocketStatus(int status)
     {
-        if(status == IceInternal.SocketStatus.Finished)
+        if(status == IceInternal.SocketOperation.None)
         {
             _initializeResetCount = 0;
             return;
@@ -58,12 +58,12 @@ public final class Configuration
         _initializeException = ex;
     }
     
-    public synchronized IceInternal.SocketStatus
+    public synchronized int
     initializeSocketStatus()
     {
         if(_initializeResetCount == 0)
         {
-            return IceInternal.SocketStatus.Finished;
+            return IceInternal.SocketOperation.None;
         }
         --_initializeResetCount;
         return _initializeSocketStatus;
@@ -144,7 +144,7 @@ public final class Configuration
 
     private Ice.LocalException _connectorsException;
     private Ice.LocalException _connectException;
-    private IceInternal.SocketStatus _initializeSocketStatus;
+    private int _initializeSocketStatus;
     private int _initializeResetCount;
     private Ice.LocalException _initializeException;
     private int _readReadyCount;

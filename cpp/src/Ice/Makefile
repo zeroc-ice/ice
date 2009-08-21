@@ -86,7 +86,7 @@ OBJS		= Acceptor.o \
 		  RequestHandler.o \
 		  RouterInfo.o \
 		  Router.o \
-		  SelectorThread.o \
+		  Selector.o \
 		  ServantLocator.o \
 		  ServantManager.o \
 		  Service.o \

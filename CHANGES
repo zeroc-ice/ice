@@ -40,6 +40,23 @@ noted.
 - Ice.NegativeSizeException has been removed. The run time now throws
   MarshalException or UnmarshalOutOfBoundsException instead.
 
+- The Ice thread pool now supports receiving and sending data over Ice
+  conncetions using multiple threads. Allowing multiple connections to
+  concurrently send and receive data improves CPU usage on machines
+  with multiple cores. The maximum number of threads allowed to
+  concurrently send/receive data is capped by the number of available
+  cores.
+
+- The Ice runtime now uses Windows completion ports and overlapped IO
+  to accept, connect and receive and send data over connections. This
+  improves scalability of server applications handling many connection
+  on Windows.
+
+- Ice connections now support read timeouts. A connection will now
+  eventually timeout once the connection timeout is reached if no more
+  data is available for read after the message header was received. 
+  ACM no longer closes connection which have a message being received.
+
 - The IceSSL.TrustOnly properties support a new syntax that allows you
   to reject a peer whose distinguished name matches certain criteria.
 
@@ -536,6 +553,9 @@ noted.
 
 C++ Changes
 ===========
+
+- Fixed a bug in IceSSL plugin which could cause a crash on
+  communicator destruction.
 
 - Changed the thread pool to ensure that references to AMI callback
   objects are released as soon as possible.
