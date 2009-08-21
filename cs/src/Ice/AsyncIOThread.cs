@@ -22,7 +22,7 @@ namespace IceInternal
             _instance = instance;
 
             _thread = new HelperThread(this);
-            if(instance.initializationData().properties.getProperty("Ice.ThreadPriority") != "")
+            if(instance.initializationData().properties.getProperty("Ice.ThreadPriority").Length > 0)
             {
                 ThreadPriority priority = IceInternal.Util.stringToThreadPriority(
                                            instance.initializationData().properties.getProperty("Ice.ThreadPriority"));

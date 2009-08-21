@@ -756,7 +756,7 @@ namespace IceInternal
 
                 try
                 {
-                    if(initializationData().properties.getProperty("Ice.ThreadPriority") != "")
+                    if(initializationData().properties.getProperty("Ice.ThreadPriority").Length > 0)
                     {
                         ThreadPriority priority = IceInternal.Util.stringToThreadPriority(
                                                     initializationData().properties.getProperty("Ice.ThreadPriority"));

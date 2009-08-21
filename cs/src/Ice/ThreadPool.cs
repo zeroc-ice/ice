@@ -193,11 +193,11 @@ namespace IceInternal
             }
             _stackSize = stackSize;
 
-            _hasPriority = properties.getProperty(_prefix + ".ThreadPriority") != "";
+            _hasPriority = properties.getProperty(_prefix + ".ThreadPriority").Length > 0;
             _priority = IceInternal.Util.stringToThreadPriority(properties.getProperty(_prefix + ".ThreadPriority"));
             if(!_hasPriority)
             {
-                _hasPriority = properties.getProperty("Ice.ThreadPriority") != "";
+                _hasPriority = properties.getProperty("Ice.ThreadPriority").Length > 0;
                 _priority = IceInternal.Util.stringToThreadPriority(properties.getProperty("Ice.ThreadPriority"));
             }
             
