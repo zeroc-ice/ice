@@ -2042,7 +2042,7 @@ ServerI::updateImpl(const InternalServerDescriptorPtr& descriptor)
         if(!success)
         {
             Ice::SyscallException ex(__FILE__, __LINE__);
-            ex.error = getSystemErrno();
+            ex.error = IceInternal::getSystemErrno();
             throw ex;
         }
         if(user != string(&buf[0]))
