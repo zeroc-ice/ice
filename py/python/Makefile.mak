@@ -184,6 +184,12 @@ Ice_SliceChecksumDict_ice.py: $(slicedir)/Ice/SliceChecksumDict.ice
 Ice_Endpoint_ice.py: $(slicedir)/Ice/Endpoint.ice
 	$(SLICE2PY) $(SLICE2PYFLAGS) --prefix Ice_ --no-package $(slicedir)/Ice/Endpoint.ice
 
+Ice_EndpointF_ice.py: $(slicedir)/Ice/EndpointF.ice
+	$(SLICE2PY) $(SLICE2PYFLAGS) --prefix Ice_ --no-package $(slicedir)/Ice/EndpointF.ice
+
+Ice_EndpointTypes_ice.py: $(slicedir)/Ice/EndpointTypes.ice
+	$(SLICE2PY) $(SLICE2PYFLAGS) --prefix Ice_ --no-package $(slicedir)/Ice/EndpointTypes.ice
+
 
 Glacier2_RouterF_ice.py: $(slicedir)/Glacier2/RouterF.ice
 	$(SLICE2PY) $(SLICE2PYFLAGS) --prefix Glacier2_ $(slicedir)/Glacier2/RouterF.ice
