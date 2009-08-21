@@ -61,7 +61,6 @@
   public *;
 }
 -keep interface IceGrid.**
--keep class IceInternal.SelectorHandler
 -keep class com.jgoodies.looks.plastic.PlasticXPLookAndFeel
 -keep class com.jgoodies.looks.plastic.PlasticFieldCaret
 -keep class com.jgoodies.looks.windows.WindowsFieldCaret 

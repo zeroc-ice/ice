@@ -41,7 +41,6 @@
 # More keeps to suppress Notes
 
 -keep interface Ice.Communicator
--keep class IceInternal.SelectorHandler
 
 -keep public class Ice.DispatchStatus {
     int __value;
