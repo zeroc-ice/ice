@@ -182,10 +182,14 @@ public:
             throw CommunicatorDestroyedException(__FILE__, __LINE__);
         }
         _workItems.push_back(item);
+#ifndef ICE_USE_IOCP
         if(_workItems.size() == 1)
         {
             postMessage();
         }
+#else
+        postMessage();
+#endif
     }
 
 #ifdef ICE_USE_IOCP
@@ -212,9 +216,9 @@ public:
                 workItem = _workItems.front();
                 _workItems.pop_front();
 
+#ifndef ICE_USE_IOCP
                 if(_workItems.empty())
                 {
-#ifndef ICE_USE_IOCP
                     char c;
                     while(true)
                     {
@@ -237,12 +241,15 @@ public:
                         }
                         break;
                     }
-#endif
                 }
+#endif
             }
             else
             {
                 assert(_destroyed);
+#ifdef ICE_USE_IOCP
+                postMessage();
+#endif
             }
         }
 
