@@ -337,6 +337,7 @@ generated from the section label.
         <property name="PluginLoadOrder" />
         <property name="PrintAdapterReady" />
         <property name="PrintProcessId" />
+        <property name="PrintStackTraces" />
         <property name="ProgramName" />
         <property name="RetryIntervals" />
         <property name="ServerId" deprecated="true" />

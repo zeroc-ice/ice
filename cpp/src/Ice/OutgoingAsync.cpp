@@ -194,9 +194,6 @@ IceInternal::OutgoingAsyncMessageCallback::__warning(const InstancePtr& instance
         if(ex)
         {
             out << "Ice::Exception raised by AMI callback:\n" << *ex;
-#ifdef __GNUC__
-            out << "\n" << ex->ice_stackTrace();
-#endif
         }
         else
         {

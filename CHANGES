@@ -227,6 +227,11 @@ C++ Changes
   the exception stack trace on platforms/compilers that support it.
   Currently this is only supported with the GCC compiler.
 
+- Added new property, Ice.PrintStackTraces, which controls whether the
+  Ice logger utility classes (Ice::Trace, Ice::Warning, etc) print the
+  stack trace for Ice exceptions. By default it is enabled for debug
+  builds and disabled for release builds.
+
 - Removed AMD_Array_Object_ice_invoke class and instead added an
   ice_response method to AMD_Object_ice_invoke that uses the array
   type.

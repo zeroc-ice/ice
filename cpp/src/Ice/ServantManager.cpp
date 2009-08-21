@@ -466,9 +466,6 @@ IceInternal::ServantManager::destroy()
                 << "object adapter: `" << _adapterName << "'\n"
                 << "locator category: `" << p->first << "'\n"
                 << ex;
-#ifdef __GNUC__
-            out << "\n" << ex.ice_stackTrace();
-#endif
         }
         catch(...)
         {

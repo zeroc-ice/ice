@@ -148,18 +148,10 @@ destroyOnInterruptCallback(int signal)
         assert(_communicator != 0);
         _communicator->destroy();
     }
-    catch(const Ice::Exception& ex)
-    {
-        Error out(getProcessLogger());
-        out << "(while destroying in response to signal " << signal << "): " << ex.what();
-#ifdef __GNUC__
-        out << "\n" << ex.ice_stackTrace();
-#endif
-    }
     catch(const std::exception& ex)
     {
         Error out(getProcessLogger());
-        out << "(while destroying in response to signal " << signal << "): " << ex.what();
+        out << "(while destroying in response to signal " << signal << "): " << ex;
     }
     catch(const std::string& msg)
     {
@@ -211,18 +203,10 @@ shutdownOnInterruptCallback(int signal)
         assert(_communicator != 0);
         _communicator->shutdown();
     }
-    catch(const Ice::Exception& ex)
-    {
-        Error out(getProcessLogger());
-        out << "(while shutting down in response to signal " << signal << "): std::exception: " << ex.what();
-#ifdef __GNUC__
-        out << "\n" << ex.ice_stackTrace();
-#endif
-    }
     catch(const std::exception& ex)
     {
         Error out(getProcessLogger());
-        out << "(while shutting down in response to signal " << signal << "): std::exception: " << ex.what();
+        out << "(while shutting down in response to signal " << signal << "): std::exception: " << ex;
     }
     catch(const std::string& msg)
     {
@@ -271,18 +255,10 @@ callbackOnInterruptCallback(int signal)
         assert(_application != 0);
         _application->interruptCallback(signal);
     }
-    catch(const Ice::Exception& ex)
-    {
-        Error out(getProcessLogger());
-        out << "(while interrupting in response to signal " << signal << "): std::exception: " << ex.what();
-#ifdef __GNUC__
-        out << "\n" << ex.ice_stackTrace();
-#endif
-    }
     catch(const std::exception& ex)
     {
         Error out(getProcessLogger());
-        out << "(while interrupting in response to signal " << signal << "): std::exception: " << ex.what();
+        out << "(while interrupting in response to signal " << signal << "): std::exception: " << ex;
     }
     catch(const std::string& msg)
     {
@@ -342,19 +318,10 @@ Ice::Application::main(int argc, char* argv[], const char* configFile)
             initData.properties = createProperties();
             initData.properties->load(configFile);
         }
-        catch(const Ice::Exception& ex)
-        {
-            Error out(getProcessLogger());
-	    out << ex.what();
-#ifdef __GNUC__
-            out << "\n" << ex.ice_stackTrace();
-#endif
-            return EXIT_FAILURE;
-        }
         catch(const std::exception& ex)
         {
             Error out(getProcessLogger());
-	    out << ex.what();
+	    out << ex;
             return EXIT_FAILURE;
         }
         catch(...)
@@ -657,19 +624,10 @@ Ice::Application::mainInternal(int argc, char* argv[], const InitializationData&
 
         status = run(argc, argv);
     }
-    catch(const Ice::Exception& ex)
-    {
-        Error out(getProcessLogger());
-        out << ex.what();
-#ifdef __GNUC__
-        out << "\n" << ex.ice_stackTrace();
-#endif
-        status = EXIT_FAILURE;
-    }
     catch(const std::exception& ex)
     {
         Error out(getProcessLogger());
-        out << ex.what();
+        out << ex;
         status = EXIT_FAILURE;
     }
     catch(const std::string& msg)
@@ -729,19 +687,10 @@ Ice::Application::mainInternal(int argc, char* argv[], const InitializationData&
         {
             _communicator->destroy();
         }
-        catch(const Ice::Exception& ex)
-        {
-            Error out(getProcessLogger());
-            out << ex.what();
-#ifdef __GNUC__
-            out << "\n" << ex.ice_stackTrace();
-#endif
-            status = EXIT_FAILURE;
-        }
         catch(const std::exception& ex)
         {
             Error out(getProcessLogger());
-            out << ex.what();
+            out << ex;
             status = EXIT_FAILURE;
         }
         catch(...)

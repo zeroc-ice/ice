@@ -632,14 +632,6 @@ main(int argc, char* argv[])
     {
         return compile(argc, argv);
     }
-    catch(const IceUtil::Exception& ex)
-    {
-        getErrorStream() << argv[0] << ": error:" << ex.what() << endl;
-#ifdef __GNUC__
-        getErrorStream() << ex.ice_stackTrace() << endl;
-#endif
-        return EXIT_FAILURE;
-    }
     catch(const std::exception& ex)
     {
         getErrorStream() << argv[0] << ": error:" << ex.what() << endl;

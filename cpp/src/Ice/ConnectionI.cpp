@@ -1618,9 +1618,6 @@ Ice::ConnectionI::setState(State state, const LocalException& ex)
                 {
                     Warning out(_logger);
                     out << "connection exception:\n" << *_exception.get() << '\n' << _desc;
-#ifdef __GNUC__
-                    out << "\n" << ex.ice_stackTrace();
-#endif
                 }
             }
         }
@@ -1753,9 +1750,6 @@ Ice::ConnectionI::setState(State state)
     {
         Error out(_logger);
         out << "unexpected connection exception:\n" << ex << '\n' << _desc;
-#ifdef __GNUC__
-        out << "\n" << ex.ice_stackTrace();
-#endif
     }
 
     //

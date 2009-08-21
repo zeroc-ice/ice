@@ -16,6 +16,13 @@
 
 using namespace std;
 
+namespace IceInternal
+{
+
+bool printStackTraces = false;
+
+}
+
 ostringstream&
 Ice::LoggerOutputBase::__str()
 {
@@ -33,11 +40,14 @@ Ice::LoggerOutputBase&
 Ice::operator<<(Ice::LoggerOutputBase& out, const std::exception& ex)
 {
 #ifdef __GNUC__
-    const ::IceUtil::Exception* exception = dynamic_cast<const ::IceUtil::Exception*>(&ex);
-    if(exception)
+    if(IceInternal::printStackTraces)
     {
-        out.__str() << exception->what() << '\n' << exception->ice_stackTrace();
-        return out;
+        const ::IceUtil::Exception* exception = dynamic_cast<const ::IceUtil::Exception*>(&ex);
+        if(exception)
+        {
+            out.__str() << exception->what() << '\n' << exception->ice_stackTrace();
+            return out;
+        }
     }
 #endif
     out.__str() << ex.what();

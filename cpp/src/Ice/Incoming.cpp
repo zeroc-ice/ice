@@ -75,12 +75,12 @@ IceInternal::IncomingBase::adopt(IncomingBase& other)
 void
 IceInternal::IncomingBase::__warning(const Exception& ex) const
 {
-    ostringstream str;
-    str << ex;
-#ifdef __GNUC__
-    str << "\n" << ex.ice_stackTrace();
-#endif
-    __warning(str.str());
+    Warning out(_os.instance()->initializationData().logger);
+
+    out << "dispatch exception: " << ex;
+    out << "\nidentity: " << _os.instance()->identityToString(_current.id);
+    out << "\nfacet: " << IceUtilInternal::escapeString(_current.facet, "");
+    out << "\noperation: " << _current.operation;
 }
 
 void

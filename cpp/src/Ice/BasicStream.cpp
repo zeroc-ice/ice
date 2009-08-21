@@ -2089,18 +2089,10 @@ IceInternal::BasicStream::readPendingObjects()
             {
                 (*p)->ice_postUnmarshal();
             }
-            catch(const Ice::Exception& ex)
-            {
-                Ice::Warning out(_instance->initializationData().logger);
-                out << "Ice::Exception raised by ice_postUnmarshal:\n" << ex;
-#ifdef __GNUC__
-                out << "\n" << ex.ice_stackTrace();
-#endif
-            }
             catch(const std::exception& ex)
             {
                 Ice::Warning out(_instance->initializationData().logger);
-                out << "std::exception raised by ice_postUnmarshal:\n" << ex.what();
+                out << "std::exception raised by ice_postUnmarshal:\n" << ex;
             }
             catch(...)
             {
@@ -2148,18 +2140,10 @@ IceInternal::BasicStream::writeInstance(const ObjectPtr& v, Int index)
     {
         v->ice_preMarshal();
     }
-    catch(const Ice::Exception& ex)
-    {
-        Ice::Warning out(_instance->initializationData().logger);
-        out << "Ice::Exception raised by ice_preMarshal:\n" << ex;
-#ifdef __GNUC__
-        out << "\n" << ex.ice_stackTrace();
-#endif
-    }
     catch(const std::exception& ex)
     {
         Ice::Warning out(_instance->initializationData().logger);
-        out << "std::exception raised by ice_preMarshal:\n" << ex.what();
+        out << "std::exception raised by ice_preMarshal:\n" << ex;
     }
     catch(...)
     {

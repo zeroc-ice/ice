@@ -64,6 +64,13 @@ extern bool ICE_DECLSPEC_IMPORT nullHandleAbort;
 
 }
 
+namespace IceInternal
+{
+
+extern bool printStackTraces;
+
+};
+
 namespace
 {
 
@@ -824,6 +831,15 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const Initi
                 {
                     IceUtil::nullHandleAbort = true;
                 }
+
+#ifdef NDEBUG
+                if(_initData.properties->getPropertyAsIntWithDefault("Ice.PrintStackTraces", 0) > 0)
+#else
+                if(_initData.properties->getPropertyAsIntWithDefault("Ice.PrintStackTraces", 1) > 0)
+#endif
+                {
+                    printStackTraces = true;
+                }
                 
 #ifndef _WIN32
                 string newUser = _initData.properties->getProperty("Ice.ChangeUser");
@@ -1005,9 +1021,6 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const Initi
         {
             Error out(_initData.logger);
             out << "cannot create thread for timer:\n" << ex;
-#ifdef __GNUC__
-            out << "\n" << ex.ice_stackTrace();
-#endif
             throw;
         }
         
@@ -1019,9 +1032,6 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const Initi
         {
             Error out(_initData.logger);
             out << "cannot create thread for endpoint host resolver:\n" << ex;
-#ifdef __GNUC__
-            out << "\n" << ex.ice_stackTrace();
-#endif
             throw;
         }
 
