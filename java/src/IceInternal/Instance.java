@@ -74,7 +74,7 @@ public final class Instance
         assert(_referenceFactory != null);
         return _referenceFactory;
     }
-    
+
     public synchronized ProxyFactory
     proxyFactory()
     {
@@ -165,7 +165,7 @@ public final class Instance
         {
             throw new Ice.CommunicatorDestroyedException();
         }
-        
+
         if(_serverThreadPool == null) // Lazy initialization.
         {
             int timeout = _initData.properties.getPropertyAsInt("Ice.ServerIdleTime");
@@ -181,7 +181,7 @@ public final class Instance
         if(_state == StateDestroyed)
         {
             throw new Ice.CommunicatorDestroyedException();
-        }        
+        }
 
         assert(_endpointHostResolver != null);
         return _endpointHostResolver;
@@ -193,7 +193,7 @@ public final class Instance
         if(_state == StateDestroyed)
         {
             throw new Ice.CommunicatorDestroyedException();
-        }        
+        }
 
         assert(_retryQueue != null);
         return _retryQueue;
@@ -205,7 +205,7 @@ public final class Instance
         if(_state == StateDestroyed)
         {
             throw new Ice.CommunicatorDestroyedException();
-        }        
+        }
 
         assert(_timer != null);
         return _timer;
@@ -274,7 +274,7 @@ public final class Instance
             {
                 throw new Ice.CommunicatorDestroyedException();
             }
-            
+
             connectionFactory = _outgoingConnectionFactory;
             adapterFactory = _objectAdapterFactory;
         }
@@ -295,8 +295,7 @@ public final class Instance
         return Ice.Util.identityToString(ident);
     }
 
-    
-    public Ice.ObjectPrx 
+    public Ice.ObjectPrx
     getAdmin()
     {
         Ice.ObjectAdapter adapter = null;
@@ -311,7 +310,7 @@ public final class Instance
             }
 
             final String adminOA = "Ice.Admin";
-            
+
             if(_adminAdapter != null)
             {
                 return _adminAdapter.createProxy(_adminIdentity);
@@ -326,7 +325,7 @@ public final class Instance
                 String instanceName = _initData.properties.getProperty("Ice.Admin.InstanceName");
 
                 defaultLocator = _referenceFactory.getDefaultLocator();
-                
+
                 if((defaultLocator != null && serverId.length() > 0) || instanceName.length() > 0)
                 {
                     if(_adminIdentity == null)
@@ -362,7 +361,7 @@ public final class Instance
                         }
                     }
                     _adminFacets = filteredFacets;
-                    
+
                     adapter = _adminAdapter;
                 }
             }
@@ -395,13 +394,13 @@ public final class Instance
 
             Ice.ObjectPrx admin = adapter.createProxy(_adminIdentity);
             if(defaultLocator != null && serverId.length() > 0)
-            {    
+            {
                 Ice.ProcessPrx process = Ice.ProcessPrxHelper.uncheckedCast(admin.ice_facet("Process"));
-                
+
                 try
                 {
                     //
-                    // Note that as soon as the process proxy is registered, the communicator might be 
+                    // Note that as soon as the process proxy is registered, the communicator might be
                     // shutdown by a remote client and admin facets might start receiving calls.
                     //
                     defaultLocator.getRegistry().setServerProcessProxy(serverId, process);
@@ -446,15 +445,15 @@ public final class Instance
             return admin;
         }
     }
-    
-    public synchronized void 
+
+    public synchronized void
     addAdminFacet(Ice.Object servant, String facet)
     {
         if(_state == StateDestroyed)
         {
             throw new Ice.CommunicatorDestroyedException();
         }
-        
+
         if(_adminAdapter == null || (!_adminFacetFilter.isEmpty() && !_adminFacetFilter.contains(facet)))
         {
             if(_adminFacets.get(facet) != null)
@@ -469,14 +468,14 @@ public final class Instance
         }
     }
 
-    public synchronized Ice.Object 
+    public synchronized Ice.Object
     removeAdminFacet(String facet)
     {
         if(_state == StateDestroyed)
         {
             throw new Ice.CommunicatorDestroyedException();
         }
-        
+
         Ice.Object result = null;
         if(_adminAdapter == null || (!_adminFacetFilter.isEmpty() && !_adminFacetFilter.contains(facet)))
         {
@@ -501,7 +500,7 @@ public final class Instance
         {
             throw new Ice.CommunicatorDestroyedException();
         }
-        
+
         _referenceFactory = _referenceFactory.setDefaultLocator(locator);
     }
 
@@ -512,14 +511,14 @@ public final class Instance
         {
             throw new Ice.CommunicatorDestroyedException();
         }
-        
+
         _referenceFactory = _referenceFactory.setDefaultRouter(router);
     }
 
     public void
     setLogger(Ice.Logger logger)
     {
-        // 
+        //
         // No locking, as it can only be called during plug-in loading
         //
         _initData.logger = logger;
@@ -548,9 +547,9 @@ public final class Instance
                 {
                     String stdOut = _initData.properties.getProperty("Ice.StdOut");
                     String stdErr = _initData.properties.getProperty("Ice.StdErr");
-                    
+
                     java.io.PrintStream outStream = null;
-                    
+
                     if(stdOut.length() > 0)
                     {
                         //
@@ -558,7 +557,7 @@ public final class Instance
                         // to the new file
                         //
                         System.out.close();
-                        
+
                         try
                         {
                             outStream = new java.io.PrintStream(new java.io.FileOutputStream(stdOut, true));
@@ -579,10 +578,10 @@ public final class Instance
                         // close for consistency with stdout
                         //
                         System.err.close();
-                        
+
                         if(stdErr.equals(stdOut))
                         {
-                            System.setErr(outStream); 
+                            System.setErr(outStream);
                         }
                         else
                         {
@@ -689,7 +688,7 @@ public final class Instance
             _endpointFactoryManager.add(udpEndpointFactory);
 
             _pluginManager = new Ice.PluginManagerI(communicator);
-           
+
             _outgoingConnectionFactory = new OutgoingConnectionFactory(this);
 
             _servantFactoryManager = new ObjectFactoryManager();
@@ -708,11 +707,11 @@ public final class Instance
                 _initData.logger.error(s);
                 throw ex;
             }
-            
+
             try
             {
                 _timer = new Timer(this);
-                if(initializationData().properties.getProperty("Ice.ThreadPriority") != "")
+                if(initializationData().properties.getProperty("Ice.ThreadPriority").length() > 0)
                 {
                     _timer.setPriority(Util.getThreadPriorityProperty(initializationData().properties, "Ice"));
                 }
@@ -834,10 +833,10 @@ public final class Instance
         //
         // Server thread pool initialization is lazy in serverThreadPool().
         //
-        
+
         //
         // This must be done last as this call creates the Ice.Admin object adapter
-        // and eventually registers a process proxy with the Ice locator (allowing 
+        // and eventually registers a process proxy with the Ice locator (allowing
         // remote clients to invoke on Ice.Admin facets as soon as it's registered).
         //
         if(_initData.properties.getPropertyAsIntWithDefault("Ice.Admin.DelayCreation", 0) <= 0)
@@ -862,7 +861,7 @@ public final class Instance
             {
                 return;
             }
-            
+
             //
             // We cannot set state to StateDestroyed otherwise instance
             // methods called during the destroy process (such as
@@ -886,7 +885,7 @@ public final class Instance
         {
             _objectAdapterFactory.destroy();
         }
-        
+
         if(_outgoingConnectionFactory != null)
         {
             _outgoingConnectionFactory.waitUntilFinished();
@@ -896,7 +895,7 @@ public final class Instance
         {
             _retryQueue.destroy();
         }
-        
+
         ThreadPool serverThreadPool = null;
         ThreadPool clientThreadPool = null;
         EndpointHostResolver endpointHostResolver = null;
@@ -917,7 +916,7 @@ public final class Instance
             {
                 _serverThreadPool.destroy();
                 serverThreadPool = _serverThreadPool;
-                _serverThreadPool = null;       
+                _serverThreadPool = null;
             }
 
             if(_clientThreadPool != null)
@@ -951,7 +950,7 @@ public final class Instance
                 _referenceFactory.destroy();
                 _referenceFactory = null;
             }
-            
+
             // _proxyFactory.destroy(); // No destroy function defined.
             _proxyFactory = null;
 
@@ -978,7 +977,7 @@ public final class Instance
                 _pluginManager.destroy();
                 _pluginManager = null;
             }
-            
+
             _adminAdapter = null;
             _adminFacets.clear();
 

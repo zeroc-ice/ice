@@ -158,11 +158,11 @@ public final class ThreadPool
         }
         _stackSize = stackSize;
 
-        boolean hasPriority = properties.getProperty(_prefix + ".ThreadPriority") != "";
+        boolean hasPriority = properties.getProperty(_prefix + ".ThreadPriority").length() > 0;
         int priority = properties.getPropertyAsInt(_prefix + ".ThreadPriority");
         if(!hasPriority)
         {
-            hasPriority = properties.getProperty("Ice.ThreadPriority") != "";
+            hasPriority = properties.getProperty("Ice.ThreadPriority").length() > 0;
             priority = properties.getPropertyAsInt("Ice.ThreadPriority");
         }
         _hasPriority = hasPriority;

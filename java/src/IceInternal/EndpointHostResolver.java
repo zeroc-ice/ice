@@ -17,7 +17,7 @@ public class EndpointHostResolver
         try
         {
             _thread = new HelperThread();
-            if(_instance.initializationData().properties.getProperty("Ice.ThreadPriority") != "")
+            if(_instance.initializationData().properties.getProperty("Ice.ThreadPriority").length() > 0)
             {
                 _thread.setPriority(Util.getThreadPriorityProperty(_instance.initializationData().properties, "Ice"));
             }
@@ -35,13 +35,13 @@ public class EndpointHostResolver
     resolve(String host, int port, EndpointI endpoint, EndpointI_connectors callback)
     {
         //
-        // TODO: Optimize to avoid the lookup if the given host is a textual IPv4 or IPv6 
+        // TODO: Optimize to avoid the lookup if the given host is a textual IPv4 or IPv6
         // address. This requires implementing parsing of IPv4/IPv6 addresses (Java does
         // not provide such methods).
         //
 
         assert(!_destroyed);
-        
+
         ResolveEntry entry = new ResolveEntry();
         entry.host = host;
         entry.port = port;
@@ -51,7 +51,7 @@ public class EndpointHostResolver
         notify();
     }
 
-    synchronized public void 
+    synchronized public void
     destroy()
     {
         assert(!_destroyed);
@@ -119,7 +119,7 @@ public class EndpointHostResolver
         }
         _queue.clear();
     }
-    
+
     static class ResolveEntry
     {
         String host;
@@ -130,7 +130,7 @@ public class EndpointHostResolver
 
     private final Instance _instance;
     private boolean _destroyed;
-    private java.util.LinkedList<ResolveEntry> _queue = new java.util.LinkedList<ResolveEntry>(); 
+    private java.util.LinkedList<ResolveEntry> _queue = new java.util.LinkedList<ResolveEntry>();
 
     private final class HelperThread extends Thread
     {
