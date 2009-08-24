@@ -186,22 +186,7 @@ clean::
 endif
 
 $(TARGETS_CONFIG):
-	@echo "Generating $@..."
-	@echo <<EOF \
-"<configuration>\n \
-<system.diagnostics>\n   \
-<trace autoflush=\"true\" indentsize=\"4\">\n     \
-<listeners>\n       \
-<add name=\"Console\"\n            \
-type=\"System.Diagnostics.ConsoleTraceListener\"/>\n     \
-</listeners>\n   \
-</trace>\n   \
-<switches>\n     \
-<add name=\"IceLogger\" value=\"Info\"/>\n   \
-</switches>\n \
-</system.diagnostics>\n\
-</configuration>" \
-EOF >$@
+	@cp -f $(top_srcdir)/config/unix.config $@
 
 GEN_SRCS = $(subst .ice,.cs,$(addprefix $(GDIR)/,$(notdir $(SLICE_SRCS))))
 CGEN_SRCS = $(subst .ice,.cs,$(addprefix $(GDIR)/,$(notdir $(SLICE_C_SRCS))))
