@@ -1,0 +1,71 @@
+Index: lock/lock.c
+===================================================================
+RCS file: /a/CVSROOT/db/lock/lock.c,v
+retrieving revision 12.61
+diff -c -r12.61 lock.c
+*** lock/lock.c	22 Jul 2008 12:08:53 -0000	12.61
+--- lock/lock.c	19 Aug 2008 17:28:24 -0000
+***************
+*** 1278,1287 ****
+  		SH_TAILQ_REMOVE(
+  		    &lt->obj_tab[obj_ndx], sh_obj, links, __db_lockobj);
+  		if (sh_obj->lockobj.size > sizeof(sh_obj->objdata)) {
+! 			LOCK_REGION_LOCK(env);
+  			__env_alloc_free(&lt->reginfo,
+  			    SH_DBT_PTR(&sh_obj->lockobj));
+! 			LOCK_REGION_UNLOCK(env);
+  		}
+  		SH_TAILQ_INSERT_HEAD(
+  		    &FREE_OBJS(lt, part_id), sh_obj, links, __db_lockobj);
+--- 1278,1289 ----
+  		SH_TAILQ_REMOVE(
+  		    &lt->obj_tab[obj_ndx], sh_obj, links, __db_lockobj);
+  		if (sh_obj->lockobj.size > sizeof(sh_obj->objdata)) {
+! 			if (region->part_t_size != 1)
+! 				LOCK_REGION_LOCK(env);
+  			__env_alloc_free(&lt->reginfo,
+  			    SH_DBT_PTR(&sh_obj->lockobj));
+! 			if (region->part_t_size != 1)
+! 				LOCK_REGION_UNLOCK(env);
+  		}
+  		SH_TAILQ_INSERT_HEAD(
+  		    &FREE_OBJS(lt, part_id), sh_obj, links, __db_lockobj);
+***************
+*** 1470,1484 ****
+  		if (obj->size <= sizeof(sh_obj->objdata))
+  			p = sh_obj->objdata;
+  		else {
+! 			LOCK_REGION_LOCK(env);
+  			if ((ret =
+  			    __env_alloc(&lt->reginfo, obj->size, &p)) != 0) {
+  				__db_errx(env,
+  				    "No space for lock object storage");
+! 				LOCK_REGION_UNLOCK(env);
+  				goto err;
+  			}
+! 			LOCK_REGION_UNLOCK(env);
+  		}
+  
+  		memcpy(p, obj->data, obj->size);
+--- 1472,1492 ----
+  		if (obj->size <= sizeof(sh_obj->objdata))
+  			p = sh_obj->objdata;
+  		else {
+! 			/*
+! 			 * If we have only one partition, the region is locked.
+! 			 */
+! 			if (region->part_t_size != 1)
+! 				LOCK_REGION_LOCK(env);
+  			if ((ret =
+  			    __env_alloc(&lt->reginfo, obj->size, &p)) != 0) {
+  				__db_errx(env,
+  				    "No space for lock object storage");
+! 				if (region->part_t_size != 1)
+! 					LOCK_REGION_UNLOCK(env);
+  				goto err;
+  			}
+! 			if (region->part_t_size != 1)
+! 				LOCK_REGION_UNLOCK(env);
+  		}
+  
+  		memcpy(p, obj->data, obj->size);

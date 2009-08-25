@@ -1,8 +1,8 @@
 
-To apply the patchs on top of db 4.6.21
+To apply the patchs on top of db 4.7.25
 
-patch -p0 < patch.db-4.6.21.1
-patch -p0 < patch.db-4.6.21.2
-patch -p0 < patch.db-4.6.21.3
-patch -p0 < patch.db-4.6.21.15663
+patch -p0 < patch.db-4.7.25.1
+patch -p0 < patch.db-4.7.25.2
+patch -p0 < patch.db-4.7.25.3
+patch -p0 < patch.db-4.7.25.17646
 
