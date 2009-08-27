@@ -627,6 +627,23 @@ twoways(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrx& p)
     }
 
     {
+        Test::MyEnumStringD di1;
+        di1[Test::enum1] = "abc";
+        Test::MyEnumStringD di2;
+        di2[Test::enum2] = "Hello!!";
+        di2[Test::enum3] = "qwerty";
+
+        Test::MyEnumStringD _do;
+        Test::MyEnumStringD ro = p->opMyEnumStringD(di1, di2, _do);
+
+        test(_do == di1);
+        test(ro.size() == 3);
+        test(ro[Test::enum1] == "abc");
+        test(ro[Test::enum2] == "Hello!!");
+        test(ro[Test::enum3] == "qwerty");
+    }
+
+    {
         Test::MyStruct s11 = { 1, 1 };
         Test::MyStruct s12 = { 1, 2 };
         Test::MyStructMyEnumD di1;

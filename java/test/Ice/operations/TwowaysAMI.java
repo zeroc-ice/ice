@@ -30,6 +30,7 @@ import test.Ice.operations.Test.AMI_MyClass_opShortIntLongS;
 import test.Ice.operations.Test.AMI_MyClass_opShortIntLongSS;
 import test.Ice.operations.Test.AMI_MyClass_opString;
 import test.Ice.operations.Test.AMI_MyClass_opStringMyEnumD;
+import test.Ice.operations.Test.AMI_MyClass_opMyEnumStringD;
 import test.Ice.operations.Test.AMI_MyClass_opStringS;
 import test.Ice.operations.Test.AMI_MyClass_opStringSS;
 import test.Ice.operations.Test.AMI_MyClass_opStringSSS;
@@ -967,6 +968,37 @@ class TwowaysAMI
         private Callback callback = new Callback();
     }
 
+    private static class AMI_MyClass_opMyEnumStringDI extends AMI_MyClass_opMyEnumStringD
+    {
+        public void
+        ice_response(java.util.Map<MyEnum, String> ro, java.util.Map<MyEnum, String> _do)
+        {
+            java.util.Map<MyEnum, String> di1 = new java.util.HashMap<MyEnum, String>();
+            di1.put(MyEnum.enum1, "abc");
+            di1.put(MyEnum.enum2, "");
+            test(_do.equals(di1));
+            test(ro.size() == 3);
+            test(ro.get(MyEnum.enum1).equals("abc"));
+            test(ro.get(MyEnum.enum2).equals("Hello!!"));
+            test(ro.get(MyEnum.enum3).equals("qwerty"));
+            callback.called();
+        }
+
+        public void
+        ice_exception(Ice.LocalException ex)
+        {
+            test(false);
+        }
+
+        public void
+        check()
+        {
+            callback.check();
+        }
+
+        private Callback callback = new Callback();
+    }
+
     private static class AMI_MyClass_opMyStructMyEnumDI extends AMI_MyClass_opMyStructMyEnumD
     {
         public void
@@ -1493,6 +1525,20 @@ class TwowaysAMI
 
             AMI_MyClass_opStringMyEnumDI cb = new AMI_MyClass_opStringMyEnumDI();
             p.opStringMyEnumD_async(cb, di1, di2);
+            cb.check();
+        }
+
+        {
+            java.util.Map<MyEnum, String> di1 = new java.util.HashMap<MyEnum, String>();
+            di1.put(MyEnum.enum1, "abc");
+            di1.put(MyEnum.enum2, "");
+            java.util.Map<MyEnum, String> di2 = new java.util.HashMap<MyEnum, String>();
+            di2.put(MyEnum.enum1, "abc");
+            di2.put(MyEnum.enum2, "Hello!!");
+            di2.put(MyEnum.enum3, "qwerty");
+
+            AMI_MyClass_opMyEnumStringDI cb = new AMI_MyClass_opMyEnumStringDI();
+            p.opMyEnumStringD_async(cb, di1, di2);
             cb.check();
         }
 

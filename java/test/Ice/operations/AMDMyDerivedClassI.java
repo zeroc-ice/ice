@@ -33,6 +33,7 @@ import test.Ice.operations.AMD.Test.AMD_MyClass_opShortIntLongS;
 import test.Ice.operations.AMD.Test.AMD_MyClass_opShortIntLongSS;
 import test.Ice.operations.AMD.Test.AMD_MyClass_opString;
 import test.Ice.operations.AMD.Test.AMD_MyClass_opStringMyEnumD;
+import test.Ice.operations.AMD.Test.AMD_MyClass_opMyEnumStringD;
 import test.Ice.operations.AMD.Test.AMD_MyClass_opStringS;
 import test.Ice.operations.AMD.Test.AMD_MyClass_opStringSS;
 import test.Ice.operations.AMD.Test.AMD_MyClass_opStringSSS;
@@ -357,6 +358,18 @@ public final class AMDMyDerivedClassI extends MyDerivedClass
     {
         java.util.Map<String, MyEnum> p3 = p1;
         java.util.Map<String, MyEnum> r = new java.util.HashMap<String, MyEnum>();
+        r.putAll(p1);
+        r.putAll(p2);
+        cb.ice_response(r, p3);
+    }
+
+    public void
+    opMyEnumStringD_async(AMD_MyClass_opMyEnumStringD cb,
+                          java.util.Map<MyEnum, String> p1, java.util.Map<MyEnum, String> p2,
+                          Ice.Current current)
+    {
+        java.util.Map<MyEnum, String> p3 = p1;
+        java.util.Map<MyEnum, String> r = new java.util.HashMap<MyEnum, String>();
         r.putAll(p1);
         r.putAll(p2);
         cb.ice_response(r, p3);

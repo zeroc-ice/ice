@@ -413,6 +413,18 @@ function twoways($communicator, $p)
     }
 
     {
+        $di1 = array($enum1 => "abc");
+        $di2 = array($enum2 => "Hello!!", $enum3 => "qwerty");
+        $ro = $p->opMyEnumStringD($di1, $di2, $_do);
+        test(count($_do) == 1);
+        test($_do[$enum1] == $di1[$enum1]);
+        test(count($ro) == 3);
+        test($ro[$enum1] == "abc");
+        test($ro[$enum2] == "Hello!!");
+        test($ro[$enum3] == "qwerty");
+    }
+
+    {
         $lengths = array(0, 1, 2, 126, 127, 128, 129, 253, 254, 255, 256, 257, 1000);
         foreach($lengths as $l)
         {

@@ -144,6 +144,10 @@ public:
                                                 Test::StringMyEnumD&,
                                                 const Ice::Current&);
 
+    virtual Test::MyEnumStringD opMyEnumStringD(const Test::MyEnumStringD&, const Test::MyEnumStringD&,
+                                                Test::MyEnumStringD&,
+                                                const Ice::Current&);
+
     virtual Test::MyStructMyEnumD opMyStructMyEnumD(const Test::MyStructMyEnumD&, const Test::MyStructMyEnumD&,
                                                     Test::MyStructMyEnumD&,
                                                     const Ice::Current&);

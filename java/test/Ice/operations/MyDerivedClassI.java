@@ -35,6 +35,7 @@ import test.Ice.operations.Test.ShortIntDHolder;
 import test.Ice.operations.Test.ShortSHolder;
 import test.Ice.operations.Test.ShortSSHolder;
 import test.Ice.operations.Test.StringMyEnumDHolder;
+import test.Ice.operations.Test.MyEnumStringDHolder;
 import test.Ice.operations.Test.StringSHolder;
 import test.Ice.operations.Test.StringSSHolder;
 import test.Ice.operations.Test.StringSSSHolder;
@@ -310,6 +311,17 @@ public final class MyDerivedClassI extends MyDerivedClass
     {
         p3.value = p1;
         java.util.Map<String, MyEnum> r = new java.util.HashMap<String, MyEnum>();
+        r.putAll(p1);
+        r.putAll(p2);
+        return r;
+    }
+
+    public java.util.Map<MyEnum, String>
+    opMyEnumStringD(java.util.Map<MyEnum, String> p1, java.util.Map<MyEnum, String> p2, MyEnumStringDHolder p3,
+                    Ice.Current current)
+    {
+        p3.value = p1;
+        java.util.Map<MyEnum, String> r = new java.util.HashMap<MyEnum, String>();
         r.putAll(p1);
         r.putAll(p2);
         return r;

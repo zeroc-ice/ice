@@ -468,6 +468,22 @@ class AMI_MyClass_opStringMyEnumDI(CallbackBase):
     def ice_exception(self, ex):
         test(False)
 
+class AMI_MyClass_opMyEnumStringDI(CallbackBase):
+    def __init__(self):
+        CallbackBase.__init__(self)
+
+    def ice_response(self, ro, do):
+        di1 = {Test.MyEnum.enum1: 'abc'}
+        test(do == di1)
+        test(len(ro) == 3)
+        test(ro[Test.MyEnum.enum1] == "abc")
+        test(ro[Test.MyEnum.enum2] == "Hello!!")
+        test(ro[Test.MyEnum.enum3] == "qwerty")
+        self.called()
+
+    def ice_exception(self, ex):
+        test(False)
+
 class AMI_MyClass_opMyStructMyEnumDI(CallbackBase):
     def __init__(self):
         CallbackBase.__init__(self)
@@ -791,6 +807,16 @@ def twowaysAMI(communicator, p):
 
     cb = AMI_MyClass_opStringMyEnumDI()
     p.opStringMyEnumD_async(cb, di1, di2)
+    cb.check()
+
+    #
+    # opMyEnumStringD
+    #
+    di1 = {Test.MyEnum.enum1: 'abc'}
+    di2 = {Test.MyEnum.enum2: 'Hello!!', Test.MyEnum.enum3: 'qwerty'}
+
+    cb = AMI_MyClass_opMyEnumStringDI()
+    p.opMyEnumStringD_async(cb, di1, di2)
     cb.check()
 
     #

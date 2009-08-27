@@ -753,6 +753,33 @@ public:
 
 typedef IceUtil::Handle<AMI_MyClass_opStringMyEnumDI> AMI_MyClass_opStringMyEnumDIPtr;
 
+class AMI_MyClass_opMyEnumStringDI : public Test::AMI_MyClass_opMyEnumStringD, public CallbackBase
+{
+public:
+
+    virtual void ice_response(const ::Test::MyEnumStringD& ro, const ::Test::MyEnumStringD& _do)
+    {
+        Test::MyEnumStringD di1;
+        di1[Test::enum1] = "abc";
+        test(_do == di1);
+        test(ro.size() == 3);
+        test(ro.find(Test::enum1) != ro.end());
+        test(ro.find(Test::enum1)->second == "abc");
+        test(ro.find(Test::enum2) != ro.end());
+        test(ro.find(Test::enum2)->second == "Hello!!");
+        test(ro.find(Test::enum3) != ro.end());
+        test(ro.find(Test::enum3)->second == "qwerty");
+        called();
+    }
+
+    virtual void ice_exception(const ::Ice::Exception&)
+    {
+        test(false);
+    }
+};
+
+typedef IceUtil::Handle<AMI_MyClass_opMyEnumStringDI> AMI_MyClass_opMyEnumStringDIPtr;
+
 class AMI_MyClass_opMyStructMyEnumDI : public Test::AMI_MyClass_opMyStructMyEnumD, public CallbackBase
 {
 public:
@@ -1237,6 +1264,18 @@ twowaysAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrx& p)
 
         AMI_MyClass_opStringMyEnumDIPtr cb = new AMI_MyClass_opStringMyEnumDI;
         p->opStringMyEnumD_async(cb, di1, di2);
+        cb->check();
+    }
+
+    {
+        Test::MyEnumStringD di1;
+        di1[Test::enum1] = "abc";
+        Test::MyEnumStringD di2;
+        di2[Test::enum2] = "Hello!!";
+        di2[Test::enum3] = "qwerty";
+
+        AMI_MyClass_opMyEnumStringDIPtr cb = new AMI_MyClass_opMyEnumStringDI;
+        p->opMyEnumStringD_async(cb, di1, di2);
         cb->check();
     }
 

@@ -863,6 +863,39 @@ CodeVisitor::visitSequence(const SequencePtr& p)
 void
 CodeVisitor::visitDictionary(const DictionaryPtr& p)
 {
+    TypePtr keyType = p->keyType();
+    BuiltinPtr b = BuiltinPtr::dynamicCast(keyType);
+    if(b)
+    {
+        switch(b->kind())
+        {
+        case Slice::Builtin::KindBool:
+        case Slice::Builtin::KindByte:
+        case Slice::Builtin::KindShort:
+        case Slice::Builtin::KindInt:
+        case Slice::Builtin::KindLong:
+        case Slice::Builtin::KindString:
+            //
+            // These types are acceptable as dictionary keys.
+            //
+            break;
+
+        case Slice::Builtin::KindFloat:
+        case Slice::Builtin::KindDouble:
+            emitWarning(p->file(), p->line(), "dictionary key type not supported in PHP");
+            break;
+
+        case Slice::Builtin::KindObject:
+        case Slice::Builtin::KindObjectProxy:
+        case Slice::Builtin::KindLocalObject:
+            assert(false);
+        }
+    }
+    else if(!EnumPtr::dynamicCast(keyType))
+    {
+        emitWarning(p->file(), p->line(), "dictionary key type not supported in PHP");
+    }
+
     string type = getTypeVar(p);
 
     startNamespace(p);

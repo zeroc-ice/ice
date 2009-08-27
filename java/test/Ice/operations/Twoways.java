@@ -31,6 +31,7 @@ import test.Ice.operations.Test.MyStructMyEnumDHolder;
 import test.Ice.operations.Test.ShortIntDHolder;
 import test.Ice.operations.Test.ShortSHolder;
 import test.Ice.operations.Test.StringMyEnumDHolder;
+import test.Ice.operations.Test.MyEnumStringDHolder;
 import test.Ice.operations.Test.StringSHolder;
 import test.Ice.operations.Test.StringSSHolder;
 import test.Ice.operations.Test.StringSSSHolder;
@@ -628,6 +629,25 @@ class Twoways
             test(ro.get("qwerty") == MyEnum.enum3);
             test(ro.get("") == MyEnum.enum2);
             test(ro.get("Hello!!") == MyEnum.enum2);
+        }
+
+        {
+            java.util.Map<MyEnum, String> di1 = new java.util.HashMap<MyEnum, String>();
+            di1.put(MyEnum.enum1, "abc");
+            di1.put(MyEnum.enum2, "");
+            java.util.Map<MyEnum, String> di2 = new java.util.HashMap<MyEnum, String>();
+            di2.put(MyEnum.enum1, "abc");
+            di2.put(MyEnum.enum2, "Hello!!");
+            di2.put(MyEnum.enum3, "qwerty");
+
+            MyEnumStringDHolder _do = new MyEnumStringDHolder();
+            java.util.Map<MyEnum, String> ro = p.opMyEnumStringD(di1, di2, _do);
+
+            test(_do.value.equals(di1));
+            test(ro.size() == 3);
+            test(ro.get(MyEnum.enum1).equals("abc"));
+            test(ro.get(MyEnum.enum2).equals("Hello!!"));
+            test(ro.get(MyEnum.enum3).equals("qwerty"));
         }
 
         {

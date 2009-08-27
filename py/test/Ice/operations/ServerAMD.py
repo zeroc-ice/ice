@@ -191,6 +191,12 @@ class MyDerivedClassI(Test.MyDerivedClass):
         r.update(p2)
         cb.ice_response(r, p3)
 
+    def opMyEnumStringD_async(self, cb, p1, p2, current=None):
+        p3 = p1.copy()
+        r = p1.copy()
+        r.update(p2)
+        cb.ice_response(r, p3)
+
     def opMyStructMyEnumD_async(self, cb, p1, p2, current=None):
         p3 = p1.copy()
         r = p1.copy()

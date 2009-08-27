@@ -119,6 +119,10 @@ public:
                                        const Test::StringMyEnumD&, const Test::StringMyEnumD&,
                                        const Ice::Current&);
 
+    virtual void opMyEnumStringD_async(const Test::AMD_MyClass_opMyEnumStringDPtr&,
+                                       const Test::MyEnumStringD&, const Test::MyEnumStringD&,
+                                       const Ice::Current&);
+
     virtual void opMyStructMyEnumD_async(const Test::AMD_MyClass_opMyStructMyEnumDPtr&,
                                          const Test::MyStructMyEnumD&, const Test::MyStructMyEnumD&,
                                          const Ice::Current&);

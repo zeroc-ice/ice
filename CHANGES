@@ -393,6 +393,8 @@ Ruby Changes
 PHP Changes
 ===========
 
+- Enumerations are now supported as dictionary key types.
+
 - Integer values are now accepted where floating point values are
   expected.
 

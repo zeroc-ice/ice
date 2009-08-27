@@ -71,6 +71,7 @@ dictionary<short, int> ShortIntD;
 dictionary<long, float> LongFloatD;
 dictionary<string, string> StringStringD;
 dictionary<string, MyEnum> StringMyEnumD;
+dictionary<MyEnum, string> MyEnumStringD;
 dictionary<MyStruct, MyEnum> MyStructMyEnumD;
 
 ["ami"] class MyClass
@@ -149,6 +150,9 @@ dictionary<MyStruct, MyEnum> MyStructMyEnumD;
 
     StringMyEnumD opStringMyEnumD(StringMyEnumD p1, StringMyEnumD p2,
                                   out StringMyEnumD p3);
+
+    MyEnumStringD opMyEnumStringD(MyEnumStringD p1, MyEnumStringD p2,
+                                  out MyEnumStringD p3);
 
     MyStructMyEnumD opMyStructMyEnumD(MyStructMyEnumD p1, MyStructMyEnumD p2,
                                       out MyStructMyEnumD p3);

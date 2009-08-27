@@ -524,6 +524,20 @@ def twoways(communicator, p):
     test(ro["Hello!!"] == Test.MyEnum.enum2)
 
     #
+    # opMyEnumStringD
+    #
+    di1 = {Test.MyEnum.enum1: 'abc'}
+    di2 = {Test.MyEnum.enum2: 'Hello!!', Test.MyEnum.enum3: 'qwerty'}
+
+    ro, do = p.opMyEnumStringD(di1, di2)
+
+    test(do == di1)
+    test(len(ro) == 3)
+    test(ro[Test.MyEnum.enum1] == "abc")
+    test(ro[Test.MyEnum.enum2] == "Hello!!")
+    test(ro[Test.MyEnum.enum3] == "qwerty")
+
+    #
     # opMyStructMyEnumD
     #
     s11 = Test.MyStruct()

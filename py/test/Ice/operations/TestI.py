@@ -154,6 +154,12 @@ class MyDerivedClassI(Test.MyDerivedClass):
         r.update(p2)
         return (r, p3)
 
+    def opMyEnumStringD(self, p1, p2, current=None):
+        p3 = p1.copy()
+        r = p1.copy()
+        r.update(p2)
+        return (r, p3)
+
     def opMyStructMyEnumD(self, p1, p2, current=None):
         p3 = p1.copy()
         r = p1.copy()

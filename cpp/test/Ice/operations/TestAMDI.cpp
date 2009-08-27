@@ -361,6 +361,18 @@ MyDerivedClassI::opStringMyEnumD_async(const Test::AMD_MyClass_opStringMyEnumDPt
 }
 
 void
+MyDerivedClassI::opMyEnumStringD_async(const Test::AMD_MyClass_opMyEnumStringDPtr& cb,
+                                       const Test::MyEnumStringD& p1,
+                                       const Test::MyEnumStringD& p2,
+                                       const Ice::Current&)
+{
+    Test::MyEnumStringD p3 = p1;
+    Test::MyEnumStringD r = p1;
+    std::set_union(p1.begin(), p1.end(), p2.begin(), p2.end(), std::inserter(r, r.end()));
+    cb->ice_response(r, p3);
+}
+
+void
 MyDerivedClassI::opMyStructMyEnumD_async(const Test::AMD_MyClass_opMyStructMyEnumDPtr& cb,
                                        const Test::MyStructMyEnumD& p1,
                                        const Test::MyStructMyEnumD& p2,

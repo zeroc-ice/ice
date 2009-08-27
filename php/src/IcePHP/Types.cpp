@@ -1411,7 +1411,8 @@ IcePHP::DictionaryInfo::marshal(zval* zv, const Ice::OutputStreamPtr& os, Object
     assert(Z_TYPE_P(zv) == IS_ARRAY); // validate() should have caught this.
 
     PrimitiveInfoPtr piKey = PrimitiveInfoPtr::dynamicCast(keyType);
-    if(!piKey || piKey->kind == PrimitiveInfo::KindFloat || piKey->kind == PrimitiveInfo::KindDouble)
+    EnumInfoPtr enKey = EnumInfoPtr::dynamicCast(keyType);
+    if(!enKey && (!piKey || piKey->kind == PrimitiveInfo::KindFloat || piKey->kind == PrimitiveInfo::KindDouble))
     {
         invalidArgument("dictionary type `%s' cannot be marshaled" TSRMLS_CC, id.c_str());
         throw AbortMarshaling();
@@ -1444,7 +1445,7 @@ IcePHP::DictionaryInfo::marshal(zval* zv, const Ice::OutputStreamPtr& os, Object
         int hashKeyType = zend_hash_get_current_key_ex(arr, &keyStr, &keyLen, &keyNum, 0, &pos);
 
         //
-        // Store the key in a zval, so that we can reuse the PrimitiveInfo logic.
+        // Store the key in a zval so that we can reuse the marshaling logic.
         //
         zval* zkey;
         MAKE_STD_ZVAL(zkey);
@@ -1462,38 +1463,48 @@ IcePHP::DictionaryInfo::marshal(zval* zv, const Ice::OutputStreamPtr& os, Object
         //
         // Convert the zval to the required type, if necessary.
         //
-        switch(piKey->kind)
+        if(piKey)
         {
-        case PrimitiveInfo::KindBool:
-        {
-            convert_to_boolean(zkey);
-            break;
-        }
+            switch(piKey->kind)
+            {
+            case PrimitiveInfo::KindBool:
+            {
+                convert_to_boolean(zkey);
+                break;
+            }
 
-        case PrimitiveInfo::KindByte:
-        case PrimitiveInfo::KindShort:
-        case PrimitiveInfo::KindInt:
-        case PrimitiveInfo::KindLong:
+            case PrimitiveInfo::KindByte:
+            case PrimitiveInfo::KindShort:
+            case PrimitiveInfo::KindInt:
+            case PrimitiveInfo::KindLong:
+            {
+                if(hashKeyType == HASH_KEY_IS_STRING)
+                {
+                    convert_to_long(zkey);
+                }
+                break;
+            }
+
+            case PrimitiveInfo::KindString:
+            {
+                if(hashKeyType == HASH_KEY_IS_LONG)
+                {
+                    convert_to_string(zkey);
+                }
+                break;
+            }
+
+            case PrimitiveInfo::KindFloat:
+            case PrimitiveInfo::KindDouble:
+                assert(false);
+            }
+        }
+        else
         {
             if(hashKeyType == HASH_KEY_IS_STRING)
             {
                 convert_to_long(zkey);
             }
-            break;
-        }
-
-        case PrimitiveInfo::KindString:
-        {
-            if(hashKeyType == HASH_KEY_IS_LONG)
-            {
-                convert_to_string(zkey);
-            }
-            break;
-        }
-
-        case PrimitiveInfo::KindFloat:
-        case PrimitiveInfo::KindDouble:
-            assert(false);
         }
 
         //
@@ -1525,7 +1536,8 @@ IcePHP::DictionaryInfo::unmarshal(const Ice::InputStreamPtr& is, const Unmarshal
                                   const CommunicatorInfoPtr& comm, zval* target, void* closure TSRMLS_DC)
 {
     PrimitiveInfoPtr piKey = PrimitiveInfoPtr::dynamicCast(keyType);
-    if(!piKey || piKey->kind == PrimitiveInfo::KindFloat || piKey->kind == PrimitiveInfo::KindDouble)
+    EnumInfoPtr enKey = EnumInfoPtr::dynamicCast(keyType);
+    if(!enKey && (!piKey || piKey->kind == PrimitiveInfo::KindFloat || piKey->kind == PrimitiveInfo::KindDouble))
     {
         invalidArgument("dictionary type `%s' cannot be unmarshaled" TSRMLS_CC, id.c_str());
         throw AbortMarshaling();
