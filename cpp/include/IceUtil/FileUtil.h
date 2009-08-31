@@ -35,7 +35,12 @@ ICE_UTIL_API bool directoryExists(const std::string&);
 
 #ifdef _WIN32
 
+#if defined(_MSC_VER) && (_MSC_VER < 1300)
+typedef struct _stat structstat;
+#else
 typedef struct _stat64i32 structstat;
+#endif
+
 #ifdef _MSC_VER
 #   define O_RDONLY _O_RDONLY
 #   define O_BINARY _O_BINARY

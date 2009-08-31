@@ -1391,13 +1391,14 @@ Slice::CsVisitor::writeDocCommentOp(const OperationPtr& p)
     //
     // Output the leading comment block up until the first <param>, <returns>, or <exception> tag.
     //
-    for(StringList::const_iterator i = summaryLines.begin(); i != summaryLines.end(); ++i)
+    StringList::const_iterator i;
+    for(i = summaryLines.begin(); i != summaryLines.end(); ++i)
     {
         _out << nl << "/// " << *i;
     }
 
     bool done = false;
-    for(StringList::const_iterator i = remarksLines.begin(); i != remarksLines.end() && !done; ++i)
+    for(i = remarksLines.begin(); i != remarksLines.end() && !done; ++i)
     {
         if(i->find("<param") != string::npos ||
            i->find("<returns") != string::npos ||
@@ -1494,13 +1495,14 @@ Slice::CsVisitor::writeDocCommentAsync(const OperationPtr& p, ParamDir paramType
         // Output the leading comment block up until the first tag.
         //
         _out << nl << "/// <summary>";
-        for(StringList::const_iterator i = summaryLines.begin(); i != summaryLines.end(); ++i)
+        StringList::const_iterator i;
+        for(i = summaryLines.begin(); i != summaryLines.end(); ++i)
         {
             _out << nl << "/// " << *i;
         }
 
         bool done = false;
-        for(StringList::const_iterator i = remarksLines.begin(); i != remarksLines.end() && !done; ++i)
+        for(i = remarksLines.begin(); i != remarksLines.end() && !done; ++i)
         {
             string::size_type pos = i->find('<');
             done = true;
