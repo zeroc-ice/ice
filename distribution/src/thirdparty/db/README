@@ -4,5 +4,6 @@ To apply the patchs on top of db 4.7.25
 patch -p0 < patch.db-4.7.25.1
 patch -p0 < patch.db-4.7.25.2
 patch -p0 < patch.db-4.7.25.3
+patch -p1 < patch.db-4.7.25.4
 patch -p0 < patch.db-4.7.25.17646
 
