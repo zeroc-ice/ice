@@ -543,7 +543,7 @@ IceInternal::wouldBlock()
 {
 #ifdef _WIN32
     int error = WSAGetLastError();
-    return error == WSAEWOULDBLOCK || error == WSA_IO_PENDING;
+    return error == WSAEWOULDBLOCK || error == WSA_IO_PENDING || error == ERROR_IO_PENDING;
 #else
     return errno == EAGAIN || errno == EWOULDBLOCK;
 #endif
@@ -1305,7 +1305,13 @@ IceInternal::doConnectAsync(SOCKET fd, const struct sockaddr_storage& addr, Asyn
         throw ex;
     }        
 
-    if(!ConnectEx(fd, reinterpret_cast<const struct sockaddr*>(&addr), size, 0, 0, 0, &info))
+    if(!ConnectEx(fd, reinterpret_cast<const struct sockaddr*>(&addr), size, 0, 0, 0, 
+#if defined(_MSC_VER) && (_MSC_VER < 1300) // COMPILER FIX: VC60
+                  reinterpret_cast<LPOVERLAPPED>(&info)
+#else
+                  &info
+#endif
+                  ))
     {
         if(!connectInProgress())
         {

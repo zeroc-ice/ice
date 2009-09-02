@@ -76,7 +76,13 @@ Selector::update(EventHandler* handler, SocketOperation remove, SocketOperation 
 
     if(info)
     {
-        if(!PostQueuedCompletionStatus(_handle, 0, reinterpret_cast<ULONG_PTR>(handler), info))
+        if(!PostQueuedCompletionStatus(_handle, 0, reinterpret_cast<ULONG_PTR>(handler), 
+#if defined(_MSC_VER) && (_MSC_VER < 1300) // COMPILER FIX: VC60
+                                       reinterpret_cast<LPOVERLAPPED>(info)
+#else
+                                       info
+#endif
+                                       ))
         {
             Ice::SocketException ex(__FILE__, __LINE__);
             ex.error = GetLastError();
@@ -119,7 +125,11 @@ Selector::getNextHandler(SocketOperation& status, int timeout)
             }
         }
 
+#if defined(_MSC_VER) && (_MSC_VER < 1300) // COMPILER FIX: VC60
+        AsyncInfo* info = reinterpret_cast<AsyncInfo*>(ol);
+#else
         AsyncInfo* info = static_cast<AsyncInfo*>(ol);
+#endif
         status = info->status;
         info->count = SOCKET_ERROR;
         info->error = WSAGetLastError();
@@ -127,7 +137,11 @@ Selector::getNextHandler(SocketOperation& status, int timeout)
     }
 
     assert(ol);
+#if defined(_MSC_VER) && (_MSC_VER < 1300) // COMPILER FIX: VC60
+    AsyncInfo* info = reinterpret_cast<AsyncInfo*>(ol);
+#else
     AsyncInfo* info = static_cast<AsyncInfo*>(ol);
+#endif
     status = info->status;
     info->count = count;
     info->error = 0;

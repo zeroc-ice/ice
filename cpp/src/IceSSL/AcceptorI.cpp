@@ -122,7 +122,13 @@ IceSSL::AcceptorI::startAccept()
     assert(_acceptFd == INVALID_SOCKET);
     _acceptFd = IceInternal::createSocket(false, _addr.ss_family);
     const int sz = static_cast<int>(_acceptBuf.size() / 2);
-    if(!AcceptEx(_fd, _acceptFd, &_acceptBuf[0], 0, sz, sz, &_info.count, &_info))
+    if(!AcceptEx(_fd, _acceptFd, &_acceptBuf[0], 0, sz, sz, &_info.count,
+#if defined(_MSC_VER) && (_MSC_VER < 1300) // COMPILER FIX: VC60
+                 reinterpret_cast<LPOVERLAPPED>(&_info)
+#else
+                 &_info
+#endif
+                 ))
     {
         if(WSAGetLastError() != WSA_IO_PENDING)
         {

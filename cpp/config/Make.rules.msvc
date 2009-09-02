@@ -78,6 +78,6 @@ BASELIBS	= iceutil$(LIBSUFFIX).lib $(ICE_OS_LIBS)
 LIBS		= ice$(LIBSUFFIX).lib $(BASELIBS)
 
 BZIP2_LIBS      = libbz2$(LIBSUFFIX).lib
-DB_LIBS         = libdb46$(LIBSUFFIX).lib
+DB_LIBS         = libdb47$(LIBSUFFIX).lib
 MCPP_LIBS       = mcpp$(LIBSUFFIX).lib
 ICONV_LIB       = libiconv.lib
