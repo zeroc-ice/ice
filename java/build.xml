@@ -444,7 +444,7 @@
         <mkdir dir="${cache.dir}"/>
         <depend srcdir="." destdir="${lib.dir}" cache="${cache.dir}"/>
         <javac srcdir=".:${generated.test.dir}" destdir="${lib.dir}" source="1.5" debug="${debug}" deprecation="on"
-            classpathref="freeze.classpath">
+               classpathref="freeze.classpath" fork="true" memoryinitialsize="256m" memorymaximumsize="256m">
             <exclude name="${generated.test.dir}/**"/>
 	    <include name="test/**"/>
             <exclude name="test/Ice/translator/"/>
