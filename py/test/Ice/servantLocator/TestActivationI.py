@@ -14,10 +14,12 @@ import Ice, Test, TestI
 class TestActivationI(Test.TestActivation):
 
     def activateServantLocator(self, activate, current=None):
-        if(activate):
+        if activate:
             current.adapter.addServantLocator(TestI.ServantLocatorI(""), "")
             current.adapter.addServantLocator(TestI.ServantLocatorI("category"), "category")
         else:
-            current.adapter.removeServantLocator("")
-            current.adapter.removeServantLocator("category")
+            locator = current.adapter.removeServantLocator("")
+            locator.deactivate("")
+            locator = current.adapter.removeServantLocator("category")
+            locator.deactivate("category")
 

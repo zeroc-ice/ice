@@ -2113,7 +2113,7 @@ IcePy::ClassInfo::marshal(PyObject* p, const Ice::OutputStreamPtr& os, ObjectMap
     ObjectMap::iterator q = objectMap->find(p);
     if(q == objectMap->end())
     {
-        PyObjectHandle iceType = PyObject_GetAttrString(p, STRCAST("ice_type"));
+        PyObjectHandle iceType = PyObject_GetAttrString(p, STRCAST("_ice_type"));
         if(!iceType.get())
         {
             assert(PyErr_Occurred());
@@ -2170,12 +2170,12 @@ IcePy::ClassInfo::print(PyObject* value, IceUtilInternal::Output& out, PrintObje
         }
         else
         {
-            PyObjectHandle iceType = PyObject_GetAttrString(value, STRCAST("ice_type"));
+            PyObjectHandle iceType = PyObject_GetAttrString(value, STRCAST("_ice_type"));
             ClassInfoPtr info;
             if(!iceType.get())
             {
                 //
-                // The ice_type attribute will be missing in an instance of LocalObject
+                // The _ice_type attribute will be missing in an instance of LocalObject
                 // that does not derive from a user-defined type.
                 //
                 assert(id == "::Ice::LocalObject");
@@ -2672,7 +2672,7 @@ IcePy::ExceptionInfo::printMembers(PyObject* value, IceUtilInternal::Output& out
 IcePy::ExceptionWriter::ExceptionWriter(const Ice::CommunicatorPtr& communicator, const PyObjectHandle& ex) :
     Ice::UserExceptionWriter(communicator), _ex(ex)
 {
-    PyObjectHandle iceType = PyObject_GetAttrString(ex.get(), STRCAST("ice_type"));
+    PyObjectHandle iceType = PyObject_GetAttrString(ex.get(), STRCAST("_ice_type"));
     assert(iceType.get());
     _info = ExceptionInfoPtr::dynamicCast(getException(iceType.get()));
     assert(_info);
@@ -3379,7 +3379,7 @@ IcePy_stringifyException(PyObject*, PyObject* args)
         return 0;
     }
 
-    PyObjectHandle iceType = PyObject_GetAttrString(value, STRCAST("ice_type"));
+    PyObjectHandle iceType = PyObject_GetAttrString(value, STRCAST("_ice_type"));
     assert(iceType.get());
     ExceptionInfoPtr info = getException(iceType.get());
     assert(info);

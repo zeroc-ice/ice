@@ -39,18 +39,40 @@ _struct_marker = object()
 #
 class Object(object):
     def ice_isA(self, id, current=None):
+        '''Determines whether the target object supports the interface denoted
+by the given Slice type id.
+Arguments:
+    id The Slice type id
+Returns:
+    True if the target object supports the interface, or false otherwise.
+'''
         return id in self.ice_ids()
 
     def ice_ping(self, current=None):
+        '''A reachability test for the target object.'''
         pass
 
     def ice_ids(self, current=None):
+        '''Obtains the type ids corresponding to the Slice interface
+that are supported by the target object.
+Returns:
+    A list of type ids.
+'''
         return [ self.ice_id() ]
 
     def ice_id(self, current=None):
+        '''Obtains the type id corresponding to the most-derived Slice
+interface supported by the target object.
+Returns:
+    The type id.
+'''
         return '::Ice::Object'
 
     def ice_staticId():
+        '''Obtains the type id of this Slice class or interface.
+Returns:
+    The type id.
+'''
         return '::Ice::Object'
     ice_staticId = staticmethod(ice_staticId)
 
@@ -70,31 +92,57 @@ class LocalObject(object):
     pass
 
 class Blobject(Object):
+    '''Special-purpose servant base class that allows a subclass to
+handle synchronous Ice invocations as "blobs" of bytes.'''
+
     def ice_invoke(self, bytes, current):
+        '''Dispatch a synchronous Ice invocation. The operation's
+arguments are encoded in the bytes argument. The return
+value must be a tuple of two values: the first is a
+boolean indicating whether the operation succeeded (True)
+or raised a user exception (False), and the second is
+the encoded form of the operation's results or the user
+exception.
+'''
         pass
 
 class BlobjectAsync(Object):
+    '''Special-purpose servant base class that allows a subclass to
+handle asynchronous Ice invocations as "blobs" of bytes.'''
+
     def ice_invoke_async(self, cb, bytes, current):
+        '''Dispatch an asynchronous Ice invocation. The operation's
+arguments are encoded in the bytes argument. When the
+dispatch is complete, the subclass can invoke either
+ice_response or ice_exception on the supplied callback
+object.
+'''
         pass
 
 #
 # Exceptions.
 #
 class Exception(exceptions.Exception):
+    '''The base class for all Ice exceptions.'''
     def __str__(self):
         return self.__class__.__name__
 
+    def ice_name(self):
+        '''Returns the type name of this exception.'''
+        return self._ice_name
+
 class LocalException(Exception):
+    '''The base class for all Ice run-time exceptions.'''
     def __init__(self, args=''):
         self.args = args
 
 class UserException(Exception):
+    '''The base class for all user-defined exceptions.'''
     pass
 
-#
-# Convenience function for locating the directory containing the Slice files.
-#
 def getSliceDir():
+    '''Convenience function for locating the directory containing the Slice files.'''
+
     #
     # Get the parent of the directory containing this file (Ice.py).
     #
@@ -216,19 +264,35 @@ del OpaqueEndpoint
 OpaqueEndpoint =  IcePy.OpaqueEndpoint
 
 class ThreadNotification(object):
+    '''Base class for thread notification callbacks. A subclass must
+define the start and stop methods.'''
+
     def __init__(self):
         pass
 
-    #
-    # Operation signatures
-    #
-    # def start():
-    # def stop():
+    def start():
+        '''Invoked in the context of a thread created by the Ice run time.'''
+        pass
+
+    def stop():
+        '''Invoked in the context of an Ice run-time thread that is about
+to terminate.'''
+        pass
 
 #
 # Initialization data.
 #
 class InitializationData(object):
+    '''The attributes of this class are used to initialize a new
+communicator instance. The supported attributes are as follows:
+
+properties: An instance of Ice.Properties. You can use the
+    Ice.createProperties function to create a new property set.
+
+logger: An instance of Ice.Logger.
+
+threadHook: An object that implements ThreadNotification.
+'''
     def __init__(self):
         self.properties = None
         self.logger = None
@@ -333,10 +397,31 @@ class CommunicatorI(Communicator):
     def flushBatchRequests(self):
         self._impl.flushBatchRequests()
 
+    def getAdmin(self):
+        return self._impl.getAdmin()
+
+    def addAdminFacet(self, servant, facet):
+        self._impl.addAdminFacet(servant, facet)
+
+    def removeAdminFacet(self, facet):
+        return self._impl.removeAdminFacet(facet)
+
 #
 # Ice.initialize()
 #
 def initialize(args=None, data=None):
+    '''Initializes a new communicator. The optional arguments represent
+an argument list (such as sys.argv) and an instance of InitializationData.
+You can invoke this function as follows:
+
+Ice.initialize()
+Ice.initialize(args)
+Ice.initialize(data)
+Ice.initialize(args, data)
+
+If you supply an argument list, the function removes those arguments from
+the list that were recognized by the Ice run time.
+'''
     communicator = IcePy.Communicator(args, data)
     return CommunicatorI(communicator)
 
@@ -539,6 +624,19 @@ class PropertiesI(Properties):
 # Ice.createProperties()
 #
 def createProperties(args=[], defaults=None):
+    '''Creates a new property set. The optional arguments represent
+an argument list (such as sys.argv) and a property set that supplies
+default values. You can invoke this function as follows:
+
+Ice.createProperties()
+Ice.createProperties(args)
+Ice.createProperties(defaults)
+Ice.createProperties(args, defaults)
+
+If you supply an argument list, the function removes those arguments
+from the list that were recognized by the Ice run time.
+'''
+
     properties = IcePy.createProperties(args, defaults)
     return PropertiesI(properties)
 
@@ -547,6 +645,7 @@ def createProperties(args=[], defaults=None):
 # Ice.setProcessLogger()
 #
 def getProcessLogger():
+    '''Returns the default logger object.'''
     logger = IcePy.getProcessLogger()
     if isinstance(logger, Logger):
         return logger
@@ -554,6 +653,7 @@ def getProcessLogger():
         return LoggerI(logger)
 
 def setProcessLogger(logger):
+    '''Sets the default logger object.'''
     IcePy.setProcessLogger(logger)
 
 #
@@ -682,7 +782,7 @@ class CtrlCHandler(threading.Thread):
 #
 # Application logger.
 #
-class ApplicationLoggerI(Logger):
+class _ApplicationLoggerI(Logger):
     def __init__(self, prefix):
         if len(prefix) > 0:
             self._prefix = prefix + ": "
@@ -723,13 +823,30 @@ class ApplicationLoggerI(Logger):
 #
 import signal, traceback
 class Application(object):
+    '''Convenience class that initializes a communicator and reacts
+gracefully to signals. An application must define a subclass
+of this class and supply an implementation of the run method.
+'''
 
     def __init__(self, signalPolicy=0): # HandleSignals=0
+        '''The constructor accepts an optional argument indicating
+whether to handle signals. The value should be either
+Application.HandleSignals (the default) or
+Application.NoSignalHandling.
+'''
         if type(self) == Application:
             raise RuntimeError("Ice.Application is an abstract class")
         Application._signalPolicy = signalPolicy
 
     def main(self, args, configFile=None, initData=None):
+        '''The main entry point for the Application class. The arguments
+are an argument list (such as sys.argv), the name of an Ice
+configuration file (optional), and an instance of
+InitializationData (optional). This method does not return
+until after the completion of the run method. The return
+value is an integer representing the exit status.
+'''
+
         if Application._communicator:
             getProcessLogger().error(args[0] + ": only one instance of the Application class can be used")
             return 1
@@ -753,7 +870,7 @@ class Application(object):
         #  a logger which is using the program name for the prefix.
         #
         if isinstance(getProcessLogger(), LoggerI):
-            setProcessLogger(ApplicationLoggerI(initData.properties.getProperty("Ice.ProgramName")))
+            setProcessLogger(_ApplicationLoggerI(initData.properties.getProperty("Ice.ProgramName")))
 
         #
         # Install our handler for the signals we are interested in. We assume main()
@@ -771,7 +888,7 @@ class Application(object):
             Application._destroyed = False
 
             #
-            # Used by destroyOnInterruptCallback and shutdownOnInterruptCallback.
+            # Used by _destroyOnInterruptCallback and _shutdownOnInterruptCallback.
             #
             Application._nohup = Application._communicator.getProperties().getPropertyAsInt("Ice.Nohup") > 0
 
@@ -828,26 +945,38 @@ class Application(object):
         return status
 
     def run(self, args):
+        '''This method must be overridden in a subclass. The base
+class supplies an argument list from which all Ice arguments
+have already been removed. The method returns an integer
+exit status (0 is success, non-zero is failure).
+'''
         raise RuntimeError('run() not implemented')
 
     def interruptCallback(self, sig):
+        '''Subclass hook to intercept an interrupt.'''
         pass
 
     def appName(self):
+        '''Returns the application name (the first element of
+the argument list).'''
         return self._appName
     appName = classmethod(appName)
 
     def communicator(self):
+        '''Returns the communicator that was initialized for
+the application.'''
         return self._communicator
     communicator = classmethod(communicator)
 
     def destroyOnInterrupt(self):
+        '''Configures the application to destroy its communicator
+when interrupted by a signal.'''
         if Application._signalPolicy == Application.HandleSignals:
             self._condVar.acquire()
-            if self._ctrlCHandler.getCallback() == self.holdInterruptCallback:
+            if self._ctrlCHandler.getCallback() == self._holdInterruptCallback:
                 self._released = True
                 self._condVar.notify()
-            self._ctrlCHandler.setCallback(self.destroyOnInterruptCallback)
+            self._ctrlCHandler.setCallback(self._destroyOnInterruptCallback)
             self._condVar.release()
         else:
             getProcessLogger().error(Application._appName + \
@@ -855,12 +984,14 @@ class Application(object):
     destroyOnInterrupt = classmethod(destroyOnInterrupt)
 
     def shutdownOnInterrupt(self):
+        '''Configures the application to shutdown its communicator
+when interrupted by a signal.'''
         if Application._signalPolicy == Application.HandleSignals:
             self._condVar.acquire()
-            if self._ctrlCHandler.getCallback() == self.holdInterruptCallback:
+            if self._ctrlCHandler.getCallback() == self._holdInterruptCallback:
                 self._released = True
                 self._condVar.notify()
-            self._ctrlCHandler.setCallback(self.shutdownOnInterruptCallback)
+            self._ctrlCHandler.setCallback(self._shutdownOnInterruptCallback)
             self._condVar.release()
         else:
             getProcessLogger().error(Application._appName + \
@@ -868,9 +999,10 @@ class Application(object):
     shutdownOnInterrupt = classmethod(shutdownOnInterrupt)
 
     def ignoreInterrupt(self):
+        '''Configures the application to ignore signals.'''
         if Application._signalPolicy == Application.HandleSignals:
             self._condVar.acquire()
-            if self._ctrlCHandler.getCallback() == self.holdInterruptCallback:
+            if self._ctrlCHandler.getCallback() == self._holdInterruptCallback:
                 self._released = True
                 self._condVar.notify()
             self._ctrlCHandler.setCallback(None)
@@ -881,12 +1013,14 @@ class Application(object):
     ignoreInterrupt = classmethod(ignoreInterrupt)
 
     def callbackOnInterrupt(self):
+        '''Configures the application to invoke interruptCallback
+when interrupted by a signal.'''
         if Application._signalPolicy == Application.HandleSignals:
             self._condVar.acquire()
-            if self._ctrlCHandler.getCallback() == self.holdInterruptCallback:
+            if self._ctrlCHandler.getCallback() == self._holdInterruptCallback:
                 self._released = True
                 self._condVar.notify()
-            self._ctrlCHandler.setCallback(self.callbackOnInterruptCallback)
+            self._ctrlCHandler.setCallback(self._callbackOnInterruptCallback)
             self._condVar.release()
         else:
             getProcessLogger().error(Application._appName + \
@@ -894,12 +1028,14 @@ class Application(object):
     callbackOnInterrupt = classmethod(callbackOnInterrupt)
 
     def holdInterrupt(self):
+        '''Configures the application to queue an interrupt for
+later processing.'''
         if Application._signalPolicy == Application.HandleSignals:
             self._condVar.acquire()
-            if self._ctrlCHandler.getCallback() != self.holdInterruptCallback:
+            if self._ctrlCHandler.getCallback() != self._holdInterruptCallback:
                 self._previousCallback = self._ctrlCHandler.getCallback()
                 self._released = False
-                self._ctrlCHandler.setCallback(self.holdInterruptCallback)
+                self._ctrlCHandler.setCallback(self._holdInterruptCallback)
             # else, we were already holding signals
             self._condVar.release()
         else:
@@ -908,9 +1044,10 @@ class Application(object):
     holdInterrupt = classmethod(holdInterrupt)
 
     def releaseInterrupt(self):
+        '''Instructs the application to process any queued interrupt.'''
         if Application._signalPolicy == Application.HandleSignals:
             self._condVar.acquire()
-            if self._ctrlCHandler.getCallback() == self.holdInterruptCallback:
+            if self._ctrlCHandler.getCallback() == self._holdInterruptCallback:
                 #
                 # Note that it's very possible no signal is held;
                 # in this case the callback is just replaced and
@@ -928,13 +1065,15 @@ class Application(object):
     releaseInterrupt = classmethod(releaseInterrupt)
 
     def interrupted(self):
+        '''Returns True if the application was interrupted by a
+signal, or False otherwise.'''
         self._condVar.acquire()
         result = self._interrupted
         self._condVar.release()
         return result
     interrupted = classmethod(interrupted)
 
-    def holdInterruptCallback(self, sig):
+    def _holdInterruptCallback(self, sig):
         self._condVar.acquire()
         while not self._released:
             self._condVar.wait()
@@ -948,9 +1087,9 @@ class Application(object):
         self._condVar.release()
         if callback:
             callback(sig)
-    holdInterruptCallback = classmethod(holdInterruptCallback)
+    _holdInterruptCallback = classmethod(_holdInterruptCallback)
 
-    def destroyOnInterruptCallback(self, sig):
+    def _destroyOnInterruptCallback(self, sig):
         self._condVar.acquire()
         if self._destroyed or self._nohup and sig == signal.SIGHUP:
             #
@@ -974,9 +1113,9 @@ class Application(object):
         self._callbackInProcess = False
         self._condVar.notify()
         self._condVar.release()
-    destroyOnInterruptCallback = classmethod(destroyOnInterruptCallback)
+    _destroyOnInterruptCallback = classmethod(_destroyOnInterruptCallback)
 
-    def shutdownOnInterruptCallback(self, sig):
+    def _shutdownOnInterruptCallback(self, sig):
         self._condVar.acquire()
         if self._destroyed or self._nohup and sig == signal.SIGHUP:
             #
@@ -999,9 +1138,9 @@ class Application(object):
         self._callbackInProcess = False
         self._condVar.notify()
         self._condVar.release()
-    shutdownOnInterruptCallback = classmethod(shutdownOnInterruptCallback)
+    _shutdownOnInterruptCallback = classmethod(_shutdownOnInterruptCallback)
 
-    def callbackOnInterruptCallback(self, sig):
+    def _callbackOnInterruptCallback(self, sig):
         self._condVar.acquire()
         if self._destroyed:
             #
@@ -1027,7 +1166,7 @@ class Application(object):
         self._condVar.notify()
         self._condVar.release()
 
-    callbackOnInterruptCallback = classmethod(callbackOnInterruptCallback)
+    _callbackOnInterruptCallback = classmethod(_callbackOnInterruptCallback)
 
     HandleSignals = 0
     NoSignalHandling = 1
@@ -1049,7 +1188,7 @@ class Application(object):
 #
 IcePy._t_Object = IcePy.defineClass('::Ice::Object', Object, (), False, None, (), ())
 IcePy._t_ObjectPrx = IcePy.defineProxy('::Ice::Object', ObjectPrx)
-Object.ice_type = IcePy._t_Object
+Object._ice_type = IcePy._t_Object
 
 Object._op_ice_isA = IcePy.Operation('ice_isA', OperationMode.Idempotent, OperationMode.Nonmutating, False, (), (((), IcePy._t_string),), (), IcePy._t_bool, ())
 Object._op_ice_ping = IcePy.Operation('ice_ping', OperationMode.Idempotent, OperationMode.Nonmutating, False, (), (), (), None, ())
@@ -1093,9 +1232,11 @@ del ConnectionLostException__str__
 # Proxy comparison functions.
 #
 def proxyIdentityEqual(lhs, rhs):
+    '''Determines whether the identities of two proxies are equal.'''
     return proxyIdentityCompare(lhs, rhs) == 0
 
 def proxyIdentityCompare(lhs, rhs):
+    '''Compares the identities of two proxies.'''
     if (lhs and not isinstance(lhs, ObjectPrx)) or (rhs and not isinstance(rhs, ObjectPrx)):
         raise ValueError('argument is not a proxy')
     if not lhs and not rhs:
@@ -1108,9 +1249,12 @@ def proxyIdentityCompare(lhs, rhs):
         return cmp(lhs.ice_getIdentity(), rhs.ice_getIdentity())
 
 def proxyIdentityAndFacetEqual(lhs, rhs):
+    '''Determines whether the identities and facets of two
+proxies are equal.'''
     return proxyIdentityAndFacetCompare(lhs, rhs) == 0
 
 def proxyIdentityAndFacetCompare(lhs, rhs):
+    '''Compares the identities and facets of two proxies.'''
     if (lhs and not isinstance(lhs, ObjectPrx)) or (rhs and not isinstance(rhs, ObjectPrx)):
         raise ValueError('argument is not a proxy')
     if not lhs and not rhs:

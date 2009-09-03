@@ -80,7 +80,7 @@ interruptedCallback(int signal)
 //
 // Inside __init__.py we add an import statement for Foo_ice, causing
 // Foo_ice to be imported implicitly when M is imported.
-// 
+//
 // Of course, another Slice file Bar.ice may contain definitions for the
 // same Slice module M, in which case the __init__.py file for M is modified
 // to contain an additional import statement for Bar_ice. Therefore a
@@ -167,7 +167,7 @@ PackageVisitor::visitModuleStart(const ModulePtr& p)
                 {
                     addSubmodule(path, fixIdent(*q));
                 }
-                    
+
                 path += "/" + *q;
                 createDirectory(path);
 
@@ -232,7 +232,7 @@ PackageVisitor::createDirectory(const string& dir)
     }
 #ifdef _WIN32
     result = _mkdir(dir.c_str());
-#else       
+#else
     result = mkdir(dir.c_str(), S_IRWXU | S_IRWXG | S_IRWXO);
 #endif
 
@@ -386,7 +386,7 @@ void
 usage(const char* n)
 {
     getErrorStream() << "Usage: " << n << " [options] slice-files...\n";
-    getErrorStream() <<        
+    getErrorStream() <<
         "Options:\n"
         "-h, --help           Show this message.\n"
         "-v, --version        Display the Ice version.\n"
@@ -422,7 +422,7 @@ compile(int argc, char* argv[])
     opts.addOpt("", "no-package");
     opts.addOpt("", "checksum");
     opts.addOpt("", "prefix", IceUtilInternal::Options::NeedArg);
-     
+
     vector<string> args;
     try
     {
@@ -498,11 +498,12 @@ compile(int argc, char* argv[])
     IceUtil::CtrlCHandler ctrlCHandler;
     ctrlCHandler.setCallback(interruptedCallback);
 
-    
+    bool keepComments = true;
+
     for(i = args.begin(); i != args.end(); ++i)
     {
         Preprocessor icecpp(argv[0], *i, cppArgs);
-        FILE* cppHandle = icecpp.preprocess(false);
+        FILE* cppHandle = icecpp.preprocess(keepComments);
 
         if(cppHandle == 0)
         {

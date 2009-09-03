@@ -16,6 +16,7 @@
 #include <Logger.h>
 #include <ObjectAdapter.h>
 #include <ObjectFactory.h>
+#include <Operation.h>
 #include <Properties.h>
 #include <Proxy.h>
 #include <ThreadNotification.h>
@@ -628,6 +629,117 @@ communicatorFlushBatchRequests(CommunicatorObject* self)
 extern "C"
 #endif
 static PyObject*
+communicatorGetAdmin(CommunicatorObject* self)
+{
+    assert(self->communicator);
+    Ice::ObjectPrx proxy;
+    try
+    {
+        proxy = (*self->communicator)->getAdmin();
+        if(proxy)
+        {
+            return createProxy(proxy, *self->communicator);
+        }
+    }
+    catch(const Ice::Exception& ex)
+    {
+        setPythonException(ex);
+        return 0;
+    }
+
+    Py_INCREF(Py_None);
+    return Py_None;
+}
+
+#ifdef WIN32
+extern "C"
+#endif
+static PyObject*
+communicatorAddAdminFacet(CommunicatorObject* self, PyObject* args)
+{
+    PyObject* objectType = lookupType("Ice.Object");
+    PyObject* servant;
+    PyObject* facetObj;
+    if(!PyArg_ParseTuple(args, STRCAST("O!O"), objectType, &servant, &facetObj))
+    {
+        return 0;
+    }
+
+    string facet;
+    if(!getStringArg(facetObj, "facet", facet))
+    {
+        return 0;
+    }
+
+    ServantWrapperPtr wrapper = createServantWrapper(servant);
+    if(PyErr_Occurred())
+    {
+        return 0;
+    }
+
+    assert(self->communicator);
+    try
+    {
+        (*self->communicator)->addAdminFacet(wrapper, facet);
+    }
+    catch(const Ice::Exception& ex)
+    {
+        setPythonException(ex);
+        return 0;
+    }
+
+    Py_INCREF(Py_None);
+    return Py_None;
+}
+
+#ifdef WIN32
+extern "C"
+#endif
+static PyObject*
+communicatorRemoveAdminFacet(CommunicatorObject* self, PyObject* args)
+{
+    PyObject* facetObj;
+    if(!PyArg_ParseTuple(args, STRCAST("O"), &facetObj))
+    {
+        return 0;
+    }
+
+    string facet;
+    if(!getStringArg(facetObj, "facet", facet))
+    {
+        return 0;
+    }
+
+    assert(self->communicator);
+    try
+    {
+        //
+        // The facet being removed may not be implemented by a Python servant
+        // (e.g., it could be the Process or Properties facet), in which case
+        // we return None.
+        //
+        Ice::ObjectPtr obj = (*self->communicator)->removeAdminFacet(facet);
+        assert(obj);
+        ServantWrapperPtr wrapper = ServantWrapperPtr::dynamicCast(obj);
+        if(wrapper)
+        {
+            return wrapper->getObject();
+        }
+    }
+    catch(const Ice::Exception& ex)
+    {
+        setPythonException(ex);
+        return 0;
+    }
+
+    Py_INCREF(Py_None);
+    return Py_None;
+}
+
+#ifdef WIN32
+extern "C"
+#endif
+static PyObject*
 communicatorSetWrapper(CommunicatorObject* self, PyObject* args)
 {
     PyObject* wrapper;
@@ -1150,6 +1262,12 @@ static PyMethodDef CommunicatorMethods[] =
         PyDoc_STR(STRCAST("setDefaultLocator(proxy) -> None")) },
     { STRCAST("flushBatchRequests"), reinterpret_cast<PyCFunction>(communicatorFlushBatchRequests), METH_NOARGS,
         PyDoc_STR(STRCAST("flushBatchRequests() -> None")) },
+    { STRCAST("getAdmin"), reinterpret_cast<PyCFunction>(communicatorGetAdmin), METH_NOARGS,
+        PyDoc_STR(STRCAST("getAdmin() -> Ice.ObjectPrx")) },
+    { STRCAST("addAdminFacet"), reinterpret_cast<PyCFunction>(communicatorAddAdminFacet), METH_VARARGS,
+        PyDoc_STR(STRCAST("addAdminFacet(servant, facet) -> None")) },
+    { STRCAST("removeAdminFacet"), reinterpret_cast<PyCFunction>(communicatorRemoveAdminFacet), METH_VARARGS,
+        PyDoc_STR(STRCAST("removeAdminFacet(facet) -> Ice.Object")) },
     { STRCAST("_setWrapper"), reinterpret_cast<PyCFunction>(communicatorSetWrapper), METH_VARARGS,
         PyDoc_STR(STRCAST("internal function")) },
     { STRCAST("_getWrapper"), reinterpret_cast<PyCFunction>(communicatorGetWrapper), METH_NOARGS,

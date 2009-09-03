@@ -642,7 +642,7 @@ adapterAdd(ObjectAdapterObject* self, PyObject* args)
         return 0;
     }
 
-    ServantWrapperPtr wrapper= createServantWrapper(servant);
+    ServantWrapperPtr wrapper = createServantWrapper(servant);
     if(PyErr_Occurred())
     {
         return 0;
@@ -685,7 +685,7 @@ adapterAddFacet(ObjectAdapterObject* self, PyObject* args)
         return 0;
     }
 
-    ServantWrapperPtr wrapper= createServantWrapper(servant);
+    ServantWrapperPtr wrapper = createServantWrapper(servant);
     if(PyErr_Occurred())
     {
         return 0;
@@ -725,7 +725,7 @@ adapterAddWithUUID(ObjectAdapterObject* self, PyObject* args)
         return 0;
     }
 
-    ServantWrapperPtr wrapper= createServantWrapper(servant);
+    ServantWrapperPtr wrapper = createServantWrapper(servant);
     if(PyErr_Occurred())
     {
         return 0;
@@ -760,7 +760,7 @@ adapterAddFacetWithUUID(ObjectAdapterObject* self, PyObject* args)
         return 0;
     }
 
-    ServantWrapperPtr wrapper= createServantWrapper(servant);
+    ServantWrapperPtr wrapper = createServantWrapper(servant);
     if(PyErr_Occurred())
     {
         return 0;
@@ -801,7 +801,7 @@ adapterAddDefaultServant(ObjectAdapterObject* self, PyObject* args)
         return 0;
     }
 
-    ServantWrapperPtr wrapper= createServantWrapper(servant);
+    ServantWrapperPtr wrapper = createServantWrapper(servant);
     if(PyErr_Occurred())
     {
         return 0;

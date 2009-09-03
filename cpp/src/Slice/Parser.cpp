@@ -4936,7 +4936,22 @@ Slice::Unit::setComment(const string& comment)
     string::size_type end = 0;
     while(true)
     {
-        string::size_type begin = comment.find_first_not_of(" \t\r\n*", end);
+        string::size_type begin;
+        if(end == 0)
+        {
+            //
+            // Skip past the initial whitespace.
+            //
+            begin = comment.find_first_not_of(" \t\r\n*", end);
+        }
+        else
+        {
+            //
+            // Skip more whitespace but retain blank lines.
+            //
+            begin = comment.find_first_not_of(" \t*", end);
+        }
+
         if(begin == string::npos)
         {
             break;
@@ -4949,6 +4964,7 @@ Slice::Unit::setComment(const string& comment)
             {
                 _currentComment += comment.substr(begin, end + 1 - begin);
             }
+            ++end;
         }
         else
         {

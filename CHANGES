@@ -371,6 +371,11 @@ C# Changes
 Python Changes
 ==============
 
+- Slice comments are now converted into Python docstrings in the
+  generated code.
+
+- Added the administrative facet API.
+
 - Integer values are now accepted where floating point values are
   expected.
 

@@ -201,7 +201,6 @@ def allTests(communicator, collocated):
     activation = Test.TestActivationPrx.checkedCast(base)
     activation.activateServantLocator(False)
     try:
-        base = communicator.stringToProxy("category/finished:default -p 12010")
         obj.ice_ping()
         test(False)
     except Ice.ObjectNotExistException:

@@ -2000,7 +2000,7 @@ IcePy::TypedUpcall::exception(PyException& ex)
                 //
                 // Get the exception's type and verify that it is legal to be thrown from this operation.
                 //
-                PyObjectHandle iceType = PyObject_GetAttrString(ex.ex.get(), STRCAST("ice_type"));
+                PyObjectHandle iceType = PyObject_GetAttrString(ex.ex.get(), STRCAST("_ice_type"));
                 assert(iceType.get());
                 ExceptionInfoPtr info = ExceptionInfoPtr::dynamicCast(getException(iceType.get()));
                 assert(info);

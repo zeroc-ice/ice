@@ -128,12 +128,13 @@ IcePy_loadSlice(PyObject* /*self*/, PyObject* args)
     checksum = opts.isSet("checksum");
 
     bool ignoreRedefs = false;
+    bool keepComments = true;
 
     for(vector<string>::const_iterator p = files.begin(); p != files.end(); ++p)
     {
         string file = *p;
         Slice::Preprocessor icecpp("icecpp", file, cppArgs);
-        FILE* cppHandle = icecpp.preprocess(false);
+        FILE* cppHandle = icecpp.preprocess(keepComments);
 
         if(cppHandle == 0)
         {

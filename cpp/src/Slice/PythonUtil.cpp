@@ -157,6 +157,8 @@ private:
     void collectClassMembers(const ClassDefPtr&, MemberInfoList&, bool);
     void collectExceptionMembers(const ExceptionPtr&, MemberInfoList&, bool);
 
+    string editComment(const string&);
+
     Output& _out;
     set<string>& _moduleHistory;
     list<string> _moduleStack;
@@ -172,8 +174,8 @@ lookupKwd(const string& name)
     //
     // Keyword list. *Must* be kept in alphabetical order.
     //
-    static const string keywordList[] = 
-    {       
+    static const string keywordList[] =
+    {
         "and", "assert", "break", "class", "continue", "def", "del", "elif", "else", "except", "exec",
         "finally", "for", "from", "global", "if", "import", "in", "is", "lambda", "not", "or", "pass",
         "print", "raise", "return", "try", "while", "yield"
@@ -341,6 +343,13 @@ Slice::Python::CodeVisitor::visitModuleStart(const ModulePtr& p)
         _moduleHistory.insert(abs);
     }
     _out << nl << "__name__ = '" << abs << "'";
+
+    string comment = p->comment();
+    if(!comment.empty())
+    {
+        _out << nl << "_M_" << abs << ".__doc__ = '''" << editComment(comment) << "'''";
+    }
+
     _moduleStack.push_front(abs);
     return true;
 }
@@ -432,6 +441,12 @@ Slice::Python::CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
     _out << "):";
 
     _out.inc();
+
+    string comment = p->comment();
+    if(!comment.empty())
+    {
+        _out << nl << "'''" << editComment(comment) << "'''";
+    }
 
     //
     // __init__
@@ -545,16 +560,12 @@ Slice::Python::CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
         //
         // Emit a placeholder for each operation.
         //
-        _out << sp
-             << nl << "#"
-             << nl << "# Operation signatures."
-             << nl << "#";
         for(oli = ops.begin(); oli != ops.end(); ++oli)
         {
             string fixedOpName = fixIdent((*oli)->name());
             if(!p->isLocal() && (p->hasMetaData("amd") || (*oli)->hasMetaData("amd")))
             {
-                _out << nl << "# def " << fixedOpName << "_async(self, _cb";
+                _out << sp << nl << "def " << fixedOpName << "_async(self, _cb";
 
                 ParamDeclList params = (*oli)->parameters();
 
@@ -570,10 +581,18 @@ Slice::Python::CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
                     _out << ", current=None";
                 }
                 _out << "):";
+                _out.inc();
+                comment = (*oli)->comment();
+                if(!comment.empty())
+                {
+                    _out << nl << "'''" << editComment(comment) << "'''";
+                }
+                _out << nl << "pass";
+                _out.dec();
             }
             else
             {
-                _out << nl << "# def " << fixedOpName << "(self";
+                _out << sp << nl << "def " << fixedOpName << "(self";
 
                 ParamDeclList params = (*oli)->parameters();
 
@@ -589,6 +608,14 @@ Slice::Python::CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
                     _out << ", current=None";
                 }
                 _out << "):";
+                _out.inc();
+                comment = (*oli)->comment();
+                if(!comment.empty())
+                {
+                    _out << nl << "'''" << editComment(comment) << "'''";
+                }
+                _out << nl << "pass";
+                _out.dec();
             }
         }
     }
@@ -660,6 +687,13 @@ Slice::Python::CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
             }
             _out << ", _ctx=None):";
             _out.inc();
+
+            comment = (*oli)->comment();
+            if(!comment.empty())
+            {
+                _out << nl << "'''" << editComment(comment) << "'''";
+            }
+
             _out << nl << "return _M_" << abs << "._op_" << (*oli)->name() << ".invoke(self, ((" << inParams;
             if(!inParams.empty() && inParams.find(',') == string::npos)
             {
@@ -677,6 +711,12 @@ Slice::Python::CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
                 }
                 _out << ", _ctx=None):";
                 _out.inc();
+
+                if(!comment.empty())
+                {
+                    _out << nl << "'''" << editComment(comment) << "'''";
+                }
+
                 _out << nl << "return _M_" << abs << "._op_" << (*oli)->name() << ".invokeAsync(self, (_cb, ("
                      << inParams;
                 if(!inParams.empty() && inParams.find(',') == string::npos)
@@ -789,7 +829,7 @@ Slice::Python::CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
         _out << nl;
     }
     _out << "))";
-    _out << nl << name << ".ice_type = _M_" << type;
+    _out << nl << name << "._ice_type = _M_" << type;
 
     //
     // Define each operation. The arguments to the IcePy.Operation constructor are:
@@ -943,6 +983,12 @@ Slice::Python::CodeVisitor::visitExceptionStart(const ExceptionPtr& p)
     _out << "):";
     _out.inc();
 
+    string comment = p->comment();
+    if(!comment.empty())
+    {
+        _out << nl << "'''" << editComment(comment) << "'''";
+    }
+
     DataMemberList members = p->dataMembers();
     DataMemberList::iterator dmli;
 
@@ -991,14 +1037,6 @@ Slice::Python::CodeVisitor::visitExceptionStart(const ExceptionPtr& p)
     _out.dec();
 
     //
-    // ice_name
-    //
-    _out << sp << nl << "def ice_name(self):";
-    _out.inc();
-    _out << nl << "return '" << scoped.substr(2) << "'";
-    _out.dec();
-
-    //
     // __str__
     //
     _out << sp << nl << "def __str__(self):";
@@ -1006,6 +1044,11 @@ Slice::Python::CodeVisitor::visitExceptionStart(const ExceptionPtr& p)
     _out << nl << "return IcePy.stringifyException(self)";
     _out.dec();
     _out << sp << nl << "__repr__ = __str__";
+
+    //
+    // _ice_name
+    //
+    _out << sp << nl << "_ice_name = '" << scoped.substr(2) << "'";
 
     _out.dec();
 
@@ -1059,7 +1102,7 @@ Slice::Python::CodeVisitor::visitExceptionStart(const ExceptionPtr& p)
         _out << nl;
     }
     _out << "))";
-    _out << nl << name << ".ice_type = _M_" << type;
+    _out << nl << name << "._ice_type = _M_" << type;
 
     registerName(name);
 
@@ -1093,6 +1136,13 @@ Slice::Python::CodeVisitor::visitStructStart(const StructPtr& p)
     _out << nl << "_M_" << abs << " = Ice.createTempClass()";
     _out << nl << "class " << name << "(object):";
     _out.inc();
+
+    string comment = p->comment();
+    if(!comment.empty())
+    {
+        _out << nl << "'''" << editComment(comment) << "'''";
+    }
+
     _out << nl << "def __init__(self";
     for(r = memberList.begin(); r != memberList.end(); ++r)
     {
@@ -1288,6 +1338,13 @@ Slice::Python::CodeVisitor::visitEnum(const EnumPtr& p)
     _out << nl << "_M_" << abs << " = Ice.createTempClass()";
     _out << nl << "class " << name << "(object):";
     _out.inc();
+
+    string comment = p->comment();
+    if(!comment.empty())
+    {
+        _out << nl << "'''" << editComment(comment) << "'''";
+    }
+
     _out << sp << nl << "def __init__(self, val):";
     _out.inc();
     {
@@ -1840,6 +1897,215 @@ Slice::Python::CodeVisitor::collectExceptionMembers(const ExceptionPtr& p, Membe
         m.metaData = (*q)->getMetaData();
         allMembers.push_back(m);
     }
+}
+
+string
+Slice::Python::CodeVisitor::editComment(const string& comment)
+{
+    //
+    // Strip HTML markup and javadoc links.
+    //
+    string result = comment;
+    string::size_type pos = 0;
+    do
+    {
+        pos = result.find('<', pos);
+        if(pos != string::npos)
+        {
+            string::size_type endpos = result.find('>', pos);
+            if(endpos != string::npos)
+            {
+                result.erase(pos, endpos - pos + 1);
+            }
+        }
+    } while(pos != string::npos);
+
+    const string link = "{@link";
+    pos = 0;
+    do
+    {
+        pos = result.find(link, pos);
+        if(pos != string::npos)
+        {
+            result.erase(pos, link.size());
+            string::size_type endpos = result.find('}', pos);
+            if(endpos != string::npos)
+            {
+                string::size_type identpos = result.find_first_not_of(" \t#", pos);
+                if(identpos != string::npos && identpos < endpos)
+                {
+                    string ident = result.substr(identpos, endpos - identpos);
+                    result.replace(pos, endpos - pos + 1, fixIdent(ident));
+                }
+            }
+        }
+    } while(pos != string::npos);
+
+    //
+    // Strip @see sections.
+    //
+    static const string seeTag = "@see";
+    pos = 0;
+    do
+    {
+        //
+        // Look for the next @ and delete up to that, or
+        // to the end of the string, if not found.
+        //
+        pos = result.find(seeTag, pos);
+        if(pos != string::npos)
+        {
+            string::size_type next = result.find('@', pos + seeTag.size());
+            if(next != string::npos)
+            {
+                result.erase(pos, next - pos);
+            }
+            else
+            {
+                result.erase(pos, string::npos);
+            }
+        }
+    } while(pos != string::npos);
+
+    //
+    // Reformat @param, @return, and @throws.
+    //
+    static const string paramTag = "@param";
+    pos = 0;
+    bool first = true;
+    do
+    {
+        pos = result.find(paramTag, pos);
+        if(pos != string::npos)
+        {
+            result.replace(pos, paramTag.size() + 1, "    ");
+
+            if(first)
+            {
+                string::size_type bol = result.rfind('\n', pos);
+                if(bol == string::npos)
+                {
+                    bol = 0;
+                }
+                else
+                {
+                    bol++;
+                }
+                result.insert(bol, "Arguments:\n");
+                first = false;
+            }
+        }
+    } while(pos != string::npos);
+
+    static const string returnTag = "@return";
+    pos = result.find(returnTag);
+    first = true;
+    if(pos != string::npos)
+    {
+        result.replace(pos, returnTag.size() + 1, "    ");
+        string::size_type bol = result.rfind('\n', pos);
+        if(bol == string::npos)
+        {
+            bol = 0;
+        }
+        else
+        {
+            bol++;
+        }
+        result.insert(bol, "Returns:\n");
+    }
+
+    static const string throwsTag = "@throws";
+    pos = 0;
+    first = true;
+    do
+    {
+        pos = result.find(throwsTag, pos);
+        if(pos != string::npos)
+        {
+            result.replace(pos, throwsTag.size() + 1, "    ");
+
+            if(first)
+            {
+                string::size_type bol = result.rfind('\n', pos);
+                if(bol == string::npos)
+                {
+                    bol = 0;
+                }
+                else
+                {
+                    bol++;
+                }
+                result.insert(bol, "Exceptions:\n");
+                first = false;
+            }
+        }
+    } while(pos != string::npos);
+
+    //
+    // Escape triple quotes.
+    //
+    static const string quotes = "'''";
+    pos = 0;
+    do
+    {
+        pos = result.find(quotes, pos);
+        if(pos != string::npos)
+        {
+            result.insert(pos, "\\");
+            pos += quotes.size() + 1;
+        }
+    } while(pos != string::npos);
+
+    //
+    // Fold multiple empty lines.
+    //
+    pos = 0;
+    while(true)
+    {
+        pos = result.find('\n', pos);
+        if(pos == string::npos)
+        {
+            break;
+        }
+
+        //
+        // Skip the next LF or CR/LF, if present.
+        //
+        if(pos < result.size() - 1 && result[pos + 1] == '\n')
+        {
+            pos += 2;
+        }
+        else if(pos < result.size() - 2 && result[pos + 1] == '\r' && result[pos + 2] == '\n')
+        {
+            pos += 3;
+        }
+        else
+        {
+            ++pos;
+            continue;
+        }
+
+        //
+        // Erase any more CR/LF characters.
+        //
+        string::size_type next = result.find_first_not_of("\r\n", pos);
+        if(next != string::npos)
+        {
+            result.erase(pos, next - pos);
+        }
+    }
+
+    //
+    // Remove trailing whitespace.
+    //
+    pos = result.find_last_not_of(" \t\r\n");
+    if(pos != string::npos)
+    {
+        result.erase(pos + 1, result.size() - pos - 1);
+    }
+
+    return result;
 }
 
 void

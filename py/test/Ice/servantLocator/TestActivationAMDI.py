@@ -18,6 +18,8 @@ class TestActivationAMDI(Test.TestActivation):
             current.adapter.addServantLocator(TestAMDI.ServantLocatorI(""), "")
             current.adapter.addServantLocator(TestAMDI.ServantLocatorI("category"), "category")
         else:
-            current.adapter.removeServantLocator("")
-            current.adapter.removeServantLocator("category")
+            locator = current.adapter.removeServantLocator("")
+            locator.deactivate("")
+            locator = current.adapter.removeServantLocator("category")
+            locator.deactivate("category")
 
