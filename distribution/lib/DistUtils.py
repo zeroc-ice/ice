@@ -33,7 +33,7 @@ berkeleydb = { \
 }
 
 berkeleydbjar = { \
-    'Linux' : '/usr/share/java/db-4.6.21.jar', \
+    'Linux' : '/usr/share/java/db-4.7.25.jar', \
 }
 
 expat = { \

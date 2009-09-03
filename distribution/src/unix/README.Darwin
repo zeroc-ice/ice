@@ -65,7 +65,7 @@ Berkeley DB and Expat
 ======================================================================
 
 This distribution includes the C++ and Java run time for Berkeley DB
-4.6.21 and the Expat 2.0.0 library. The Berkeley DB C++ run time was
+4.7.25 and the Expat 2.0.0 library. The Berkeley DB C++ run time was
 built using GCC 4.0.1. The Berkeley DB and Expat licenses are provided
 in the file THIRD_PARTY_LICENSE.
 
