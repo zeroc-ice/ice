@@ -159,9 +159,9 @@ Follow these instructions for building mcpp:
   > cd mcpp-2.7.2\src
 
 - Apply the patch for noconfig.H appropriate for your compiler from
-  the noconfig directory. For example, for VS2005 you would run:
+  the noconfig directory. For example, for VS2008 you would run:
 
-  > patch -p0 < ..\noconfig\vc2005.dif
+  > patch -p0 < ..\noconfig\vc2008.dif
 
   and for C++Builder 2007 you would run:
 

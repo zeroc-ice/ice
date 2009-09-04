@@ -12,7 +12,6 @@ Ice Visual Studio Extension has been extensively tested on
 
 using
 
- - Visual Studio 2005
  - Visual Studio 2008
 
 
@@ -27,11 +26,6 @@ The Ice Visual Studio Extension requires:
 
   http://www.microsoft.com/downloads/details.aspx?FamilyID=30402623-93ca-479a-867c-04dc45164f5b&displaylang=en
   
-- Microsoft Visual Studio 2005
-
-  This is only required if you plan to build the extension for Visual
-  Studio 2005.
-
 
 ======================================================================
 Compilation
@@ -53,11 +47,9 @@ IceVisualStudioExtension-@ver@ subdirectory.
    > nmake /f Makefile.mak
 
 The plug-in DLL is placed into the IceVisualStudio-@ver@\bin 
-directory. The library names are
+directory. The library name is
 
-   - bin\IceVisualStudioAddin-VS2008.dll (for Visual Studio 2008)
-
-   - bin\IceVisualStudioAddin-VS2005.dll (for Visual Studio 2005)
+   - bin\IceVisualStudioAddin-VS2008.dll
 
 
 ======================================================================
@@ -105,15 +97,8 @@ Configuration
   Once you have chosen the directory, you must copy the corresponding
   .Addin file to that directory.
 
-  For Visual Studio 2008:
-
    > cd C:\Users\username\Documents\Visual Studio 2008\Addins
    > copy C:\IceVisualStudioExtension-@ver@\conf\Ice-VS2008.AddIn
-
-  For Visual Studio 2005:
-
-   > cd C:\Users\username\Documents\Visual Studio 2005\Addins
-   > copy C:\IceVisualStudioExtension-@ver@\conf\Ice-VS2005.Addin
 
   If you have not installed the add-in in the default location, you 
   must edit the .Addin file and update the value of the "Assembly"
@@ -141,10 +126,6 @@ Configuration
 
    > cd C:\IceVisualStudioExtension-@ver@\templates\vs
    > xcopy /e * C:\Program Files\Microsoft Visual Studio 9.0\VC#\CSharpProjectItems
-
-   The commands shown above are for Visual Studio 2008. For Visual 
-   Studio 2005, change the path to use "Microsoft Visual Studio 8"
-   instead.
 
    On 64-bit platforms, you must the copy the template files to the Visual
    Studio folder in: 

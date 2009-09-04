@@ -105,21 +105,6 @@ NOTES:
    is no longer supported by Python 2.5.
 
 
-Visual C++ 2005 Express SP1 Setup
----------------------------------
-
-Users of Visual C++ 2005 Express SP1 need to install the Microsoft
-Platform SDK:
-
-  http://www.microsoft.com/Downloads/details.aspx?familyid=0BAF2B35-C656-4969-ACE8-E4C0C0716ADB&displaylang=en
-
-Once installed, you need to add the Platform SDK directories to the
-INCLUDE, LIB and PATH environment variables. This can be done by
-executing the following script from within the compiler command prompt:
-
-  C:\Program Files\Microsoft Platform SDK for Windows Server 2003 R2\SetEnv.Cmd
-
-
 ======================================================================
 Configuring your Environment
 ======================================================================

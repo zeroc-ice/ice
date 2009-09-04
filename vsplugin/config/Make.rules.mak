@@ -27,24 +27,6 @@ DEBUG			= yes
 
 OPTIMIZE		= yes
 
-
-#
-# Set the target Visual Studio Version  Supported Versions are:
-#	VS2008 - Visual Studio 2008
-#	VS2005 - Visual Studio 2005
-#
-
-!if "$(VS)" == ""
-VS			= VS2008
-!endif
-
-#
-# Set the location of the Visual Studio 2005,  This is only required if you are
-# building the extension for Visual Studio 2005
-#
-VS2005_HOME		= C:\Program Files\Microsoft Visual Studio 8
-#VS2005_HOME 		 = C:\Program Files (x86)\Microsoft Visual Studio 8
-
 #
 # Set the location of the Visual Studio 2008 SDK
 #
@@ -64,38 +46,32 @@ KEYFILE			= $(top_srcdir)\config\IceDevKey.snk
 # Don't change anything below this line!
 # ----------------------------------------------------------------------
 
-EVERYTHING      = all install clean
-
-!if "$(VS)" == "VS2008"
-VS_HOME = $(VSINSTALLDIR)
-PKG_PREFIX = $(VS)
-!else if "$(VS)" == "VS2005"
-VS_HOME = $(VS2005_HOME)
-PKG_PREFIX = $(VS)
+!if exist ($(top_srcdir)\..\config\Make.common.rules.mak)
+!include $(top_srcdir)\..\config\Make.common.rules.mak
 !else
-!error Invalid setting for VS: $(VS)
+!include $(top_srcdir)\config\Make.common.rules.mak
 !endif
 
-bindir = ..\bin
+EVERYTHING      = all install clean
 
-install_bindir = $(prefix)\bin
+VS_HOME 		= $(VSINSTALLDIR)
+PKG_PREFIX 		= VS2008
+
+bindir 			= ..\bin
+
+install_bindir 		= $(prefix)\bin
 install_configdir 	= $(prefix)\config
-
-VERSION = 1.0.0
-INTVERSION		= 1.0.0
-SHORT_VERSION           = 1.0
-SOVERSION		= 10
 
 OBJEXT			= .obj
 
 MCS			= csc -nologo
 
-MCSFLAGS = -d:MAKEFILE_BUILD -target:library -keyfile:$(KEYFILE) -warnaserror+
+MCSFLAGS 		= -d:MAKEFILE_BUILD -target:library -keyfile:$(KEYFILE) -warnaserror+
 
 #
 # Supress EnvDTE redirection warning.
 #
-MCSFLAGS = $(MCSFLAGS) -nowarn:1701
+MCSFLAGS 		= $(MCSFLAGS) -nowarn:1701
 
 !if "$(DEBUG)" == "yes"
 MCSFLAGS 		= $(MCSFLAGS) -debug -define:DEBUG
@@ -105,9 +81,7 @@ MCSFLAGS 		= $(MCSFLAGS) -debug -define:DEBUG
 MCSFLAGS 		= $(MCSFLAGS) -optimize+
 !endif
 
-!if "$(VS)" == "VS2008"
 MCSFLAGS = $(MCSFLAGS) -define:VS2008
-!endif
 
 MCSFLAGS = $(MCSFLAGS) /reference:"C:\Windows\Microsoft.NET\Framework\v2.0.50727\mscorlib.dll"
 MCSFLAGS = $(MCSFLAGS) /reference:"$(VSINSTALLDIR)\Common7\IDE\PublicAssemblies\EnvDTE.dll"

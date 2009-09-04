@@ -203,10 +203,15 @@ Change to the desired demo subdirectory and review the README file if
 one is present. Type 'server' to start the server. In another command
 prompt, type 'client' to start the client.
 
-The Ice source code archive and Windows installer for Visual Studio
-2005 include examples for integrating Ice with databases other than
-Berkeley DB. These demos are not supported for Visual C++ 9.0 and are
-not included in this distribution.
+This distribution includes examples for integrating Ice with databases
+other than Berkeley DB. These examples are not included in the
+demo.sln file mentioned above. If you want to build these demos you
+must add the demo project files located in the demo\Database
+subdirectories to the demo solution and build from there.
+
+The current examples are for Oracle, and require the appropriate
+Oracle development environment. Please see the individual demo README
+files for more information.
 
 
 Building and running the C# demos

@@ -65,8 +65,8 @@ IceGrid GUI
 Some of the IceGrid demos recommend using the IceGrid GUI. However
 the Java GUI is not included in C++Builder binary distribution. If you
 want to use the GUI you can obtain it from one of the other Windows
-installers (VS2005 or VS2008) or download the Ice source distribution
-and build it yourself.
+installers (VS2008) or download the Ice source distribution and build
+it yourself.
 
 
 NMAKE and Message Compiler (MC.EXE)

@@ -23,10 +23,10 @@ OPTIMIZE		= yes
 
 #
 # Specify your C++ compiler. Supported values are:
-# VC60, VC71, VC80, VC80_EXPRESS, VC90, VC90_EXPRESS
+# VC60, VC90, VC90_EXPRESS
 #
 !if "$(CPP_COMPILER)" == ""
-CPP_COMPILER            = VC80
+CPP_COMPILER            = VC90
 !endif
 
 #
@@ -46,16 +46,6 @@ STLPORT_HOME            = $(THIRDPARTY_HOME)
 !else
 STLPORT_HOME            = C:\Ice-$(VERSION)-ThirdParty-VC60
 !endif
-!endif
-
-#
-# For VC80 it is necessary to set the location of the manifest tool.
-# This must be the 6.x version of mt.exe, not the 5.x version!
-#
-!if "$(CPP_COMPILER)" == "VC80"
-MT = "$(VS80COMNTOOLS)bin\mt.exe"
-!else
-MT = mt.exe
 !endif
 
 # ----------------------------------------------------------------------
@@ -136,6 +126,8 @@ SLICE2PY		= "$(ice_cpp_dir)\bin$(x64suffix)\slice2py.exe"
 !else
 SLICE2PY		= "$(ice_dir)\bin$(x64suffix)\slice2py.exe"
 !endif
+
+MT			= mt.exe
 
 EVERYTHING		= all clean install
 

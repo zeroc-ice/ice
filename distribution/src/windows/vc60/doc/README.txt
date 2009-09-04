@@ -74,8 +74,8 @@ IceGrid GUI
 Some of the IceGrid demos recommend using the IceGrid GUI. However
 the Java GUI is not included in the Visual C++ 6.0 binary distribution.
 If you want to use the GUI you can obtain it from one of the other
-Windows installers (VS2005 or VS2008) or download the Ice source 
-distribution and build it yourself.
+Windows installers (VS2008) or download the Ice source distribution
+and build it yourself.
 
 
 Setting up Visual Studio 6.0 to build Ice applications in C++
@@ -137,7 +137,7 @@ Some demo directories contain README files if additional requirements
 are necessary.
 
 The Ice source code archive and Windows installer for Visual Studio
-2005 include examples for integrating Ice with databases other than 
+2008 include examples for integrating Ice with databases other than 
 Berkeley DB. These demos are not supported for Visual C++ 6.0 and
 are not included in this distribution.
 

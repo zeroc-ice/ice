@@ -27,10 +27,10 @@ prefix			= C:\Ice-$(VERSION)
 
 #
 # Specify your C++ compiler. Supported values are:
-# VC60, VC80, VC80_EXPRESS, VC90, VC90_EXPRESS, BCC2007, BCC2009
+# VC60, VC90, VC90_EXPRESS, BCC2007, BCC2009
 #
 !if "$(CPP_COMPILER)" == ""
-CPP_COMPILER		= VC80
+CPP_COMPILER		= VC90
 !endif
 
 #
@@ -38,9 +38,7 @@ CPP_COMPILER		= VC80
 # or THIRDPARTY_HOME is not set in your environment variables then
 # change the following setting to reflect the installation location.
 #
-!if "$(CPP_COMPILER)" == "VC80_EXPRESS"
-THIRDPARTY_HOME_EXT	= VC80
-!elseif "$(CPP_COMPILER)" == "VC90_EXPRESS"
+!if "$(CPP_COMPILER)" == "VC90_EXPRESS"
 THIRDPARTY_HOME_EXT	= VC90
 !else
 THIRDPARTY_HOME_EXT	= $(CPP_COMPILER)
@@ -48,16 +46,6 @@ THIRDPARTY_HOME_EXT	= $(CPP_COMPILER)
 
 !if "$(THIRDPARTY_HOME)" == ""
 THIRDPARTY_HOME		= C:\Ice-$(VERSION)-ThirdParty-$(THIRDPARTY_HOME_EXT)
-!endif
-
-#
-# For VC80 it is necessary to set the location of the manifest tool.
-# This must be the 6.x version of mt.exe, not the 5.x # version!
-#
-!if "$(CPP_COMPILER)" == "VC80"
-MT = "$(VS80COMNTOOLS)bin\mt.exe"
-!else
-MT = mt.exe
 !endif
 
 
@@ -156,6 +144,8 @@ SLICE2CPP		= $(ice_dir)\bin$(x64suffix)\slice2cpp.exe
 SLICE2XSD		= $(ice_dir)\bin$(x64suffix)\slice2xsd.exe
 SLICE2FREEZE		= $(ice_dir)\bin$(x64suffix)\slice2freeze.exe
 !endif
+
+MT 			= mt.exe
 
 EVERYTHING		= all clean install
 
