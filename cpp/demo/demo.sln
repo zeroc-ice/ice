@@ -1,6 +1,6 @@
 ﻿
-Microsoft Visual Studio Solution File, Format Version 9.00
-# Visual Studio 2005
+Microsoft Visual Studio Solution File, Format Version 10.00
+# Visual Studio 2008
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Freeze.backup.client", "Freeze\backup\Freeze.backup.client.vcproj", "{3178F16D-EA3B-42F5-A334-CE753A0A8E33}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Freeze.bench.client", "Freeze\bench\Freeze.bench.client.vcproj", "{8148DA60-E8D7-4117-A60E-9AFA0C15143C}"
