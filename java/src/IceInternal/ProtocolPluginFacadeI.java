@@ -87,6 +87,15 @@ public class ProtocolPluginFacadeI implements ProtocolPluginFacade
         return _instance.endpointFactoryManager().get(type);
     }
 
+    //
+    // Look up a Java class by name.
+    //
+    public Class<?>
+    findClass(String className)
+    {
+        return _instance.findClass(className);
+    }
+
     private Instance _instance;
     private Ice.Communicator _communicator;
 }

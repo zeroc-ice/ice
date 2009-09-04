@@ -67,4 +67,9 @@ public final class InitializationData implements Cloneable
      * The thread hook for the communicator.
      **/
     public ThreadNotification threadHook;
+
+    /**
+     * The custom class loader for the communicator.
+     **/
+    public ClassLoader classLoader;
 }

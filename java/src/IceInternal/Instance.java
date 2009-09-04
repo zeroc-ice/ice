@@ -524,6 +524,12 @@ public final class Instance
         _initData.logger = logger;
     }
 
+    public Class<?>
+    findClass(String className)
+    {
+        return Util.findClass(className, _initData.classLoader);
+    }
+
     //
     // Only for use by Ice.CommunicatorI
     //
@@ -1034,7 +1040,7 @@ public final class Instance
             Class<?> cls = null;
             try
             {
-                cls = Util.findClass(className);
+                cls = findClass(className);
             }
             catch(java.lang.Exception ex)
             {

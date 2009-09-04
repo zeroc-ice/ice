@@ -821,7 +821,7 @@ public class BasicStream
         try
         {
             InputStreamWrapper w = new InputStreamWrapper(sz, this);
-            ObjectInputStream in = new ObjectInputStream(w);
+            ObjectInputStream in = new ObjectInputStream(_instance, w);
             return (java.io.Serializable)in.readObject();
         }
         catch(java.lang.Exception ex)
@@ -2349,7 +2349,7 @@ public class BasicStream
     getConcreteClass(String className)
         throws LinkageError
     {
-        Class<?> c = Util.findClass(className);
+        Class<?> c = _instance.findClass(className);
 
         if(c != null)
         {
@@ -2536,13 +2536,13 @@ public class BasicStream
         {
             Class<?> cls;
             Class<?>[] types = new Class<?>[1];
-            cls = Util.findClass("org.apache.tools.bzip2.CBZip2InputStream");
+            cls = IceInternal.Util.findClass("org.apache.tools.bzip2.CBZip2InputStream", null);
             if(cls != null)
             {
                 types[0] = java.io.InputStream.class;
                 _bzInputStreamCtor = cls.getDeclaredConstructor(types);
             }
-            cls = Util.findClass("org.apache.tools.bzip2.CBZip2OutputStream");
+            cls = IceInternal.Util.findClass("org.apache.tools.bzip2.CBZip2OutputStream", null);
             if(cls != null)
             {
                 types = new Class[2];

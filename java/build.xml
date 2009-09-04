@@ -247,9 +247,6 @@
             <includepath>
                 <pathelement path="${slice.dir}" />
             </includepath>
-            <fileset dir="test/Ice/udp">
-                <include name="Test.ice" />
-            </fileset>
             <fileset dir="test/Ice/adapterDeactivation">
                 <include name="Test.ice" />
             </fileset>
@@ -257,6 +254,9 @@
                 <include name="Test.ice" />
             </fileset>
             <fileset dir="test/Ice/binding">
+                <include name="Test.ice" />
+            </fileset>
+            <fileset dir="test/Ice/classLoader">
                 <include name="Test.ice" />
             </fileset>
             <fileset dir="test/Ice/custom">
@@ -327,6 +327,9 @@
             </fileset>
             <fileset dir="test/Ice/threadPoolPriority">
 		<include name="Test.ice" />
+            </fileset>
+            <fileset dir="test/Ice/udp">
+                <include name="Test.ice" />
             </fileset>
             <fileset dir="test/Freeze/complex">
                 <include name="Complex.ice" />

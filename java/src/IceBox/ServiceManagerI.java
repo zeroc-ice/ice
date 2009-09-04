@@ -481,7 +481,7 @@ public class ServiceManagerI extends _ServiceManagerDisp
         info.args = args;
         try
         {
-            Class<?> c = IceInternal.Util.findClass(className);
+            Class<?> c = IceInternal.Util.findClass(className, null);
             if(c == null)
             {
                 FailureException e = new FailureException();

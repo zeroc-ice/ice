@@ -18,10 +18,11 @@ package IceInternal;
 public class ObjectInputStream extends java.io.ObjectInputStream
 {
     public
-    ObjectInputStream(java.io.InputStream in)
+    ObjectInputStream(Instance instance, java.io.InputStream in)
         throws java.io.IOException
     {
         super(in);
+        _instance = instance;
     }
 
     protected Class<?>
@@ -30,7 +31,7 @@ public class ObjectInputStream extends java.io.ObjectInputStream
     {
         try
         {
-            Class<?> c = Util.findClass(cls.getName());
+            Class<?> c = _instance.findClass(cls.getName());
             if(c != null)
             {
                 return c;
@@ -42,4 +43,6 @@ public class ObjectInputStream extends java.io.ObjectInputStream
             throw new ClassNotFoundException("unable to resolve class " + cls.getName(), ex);
         }
     }
+
+    private Instance _instance;
 }

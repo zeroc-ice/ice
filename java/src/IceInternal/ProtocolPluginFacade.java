@@ -47,4 +47,9 @@ public interface ProtocolPluginFacade
     // Get an EndpointFactory.
     //
     EndpointFactory getEndpointFactory(short type);
+
+    //
+    // Look up a Java class by name.
+    //
+    Class<?> findClass(String className);
 }

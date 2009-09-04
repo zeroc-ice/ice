@@ -61,44 +61,66 @@ public final class Util
     }
 
     public static Class<?>
-    findClass(String className)
+    findClass(String className, ClassLoader cl)
         throws LinkageError
     {
-        Class<?> c = null;
-
+        //
+        // Try to load the class using the given class loader (if any). If that fails (or
+        // none is provided), we try to load the class a few more ways before giving up.
         //
         // Calling Class.forName() doesn't always work. For example, if Ice.jar is installed
         // as an extension (in $JAVA_HOME/jre/lib/ext), calling Class.forName(name) uses the
         // extension class loader, which will not look in CLASSPATH for the target class.
         //
-        // First we try using the system class loader (which knows about CLASSPATH). Next we
-        // try the current thread's class loader, and finally we fall back to Class.forName().
+
+        Class<?> c = null;
+
+        if(cl != null)
+        {
+            c = loadClass(className, cl);
+        }
+
         //
-        try
+        // Try using the system class loader (which knows about CLASSPATH).
+        //
+        if(c == null)
         {
             try
             {
-                ClassLoader cl = ClassLoader.getSystemClassLoader();
+                cl = ClassLoader.getSystemClassLoader();
                 if(cl != null)
                 {
-                    c = findClass(className, cl);
+                    c = loadClass(className, cl);
                 }
             }
             catch(SecurityException ex)
             {
             }
+        }
 
-            if(c == null)
+        //
+        // Try using the current thread's class loader.
+        //
+        if(c == null)
+        {
+            try
             {
-                try
+                cl = Thread.currentThread().getContextClassLoader();
+                if(cl != null)
                 {
-                    c = findClass(className, Thread.currentThread().getContextClassLoader());
-                }
-                catch(SecurityException ex)
-                {
+                    c = loadClass(className, cl);
                 }
             }
+            catch(SecurityException ex)
+            {
+            }
+        }
 
+        //
+        // Fall back to Class.forName().
+        //
+        try
+        {
             if(c == null)
             {
                 c = Class.forName(className);
@@ -113,9 +135,10 @@ public final class Util
     }
 
     private static Class<?>
-    findClass(String className, ClassLoader cl)
+    loadClass(String className, ClassLoader cl)
         throws LinkageError
     {
+        assert(cl != null);
         try
         {
             return cl.loadClass(className);

@@ -246,6 +246,10 @@ C++ Changes
 Java Changes
 ============
 
+- Added the "classLoader" member to Ice.InitializationData, which
+  allows you to supply a custom class loader that Ice will use when
+  it loads plug-ins, user exceptions, concrete Slice classes, etc.
+
 - Fixed a bug in the implementation of ice_invoke_async.
 
 - The Freeze classes are now stored in a separate JAR file named

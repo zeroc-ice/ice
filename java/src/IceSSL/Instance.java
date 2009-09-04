@@ -114,7 +114,7 @@ class Instance
             Class<?> cls = null;
             try
             {
-                cls = IceInternal.Util.findClass(certVerifierClass);
+                cls = _facade.findClass(certVerifierClass);
             }
             catch(Throwable ex)
             {
@@ -153,7 +153,7 @@ class Instance
             Class<?> cls = null;
             try
             {
-                cls = IceInternal.Util.findClass(passwordCallbackClass);
+                cls = _facade.findClass(passwordCallbackClass);
             }
             catch(Throwable ex)
             {

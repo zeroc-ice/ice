@@ -457,7 +457,7 @@ final class UdpTransceiver implements Transceiver
         {
             Class<?> cls;
 
-            cls = Util.findClass("java.net.PlainDatagramSocketImpl");
+            cls = Util.findClass("java.net.PlainDatagramSocketImpl", null);
             if(cls == null)
             {
                 throw new Ice.SocketException();
@@ -474,7 +474,7 @@ final class UdpTransceiver implements Transceiver
             m.setAccessible(true);
             m.invoke(socketImpl);
 
-            cls = Util.findClass("sun.nio.ch.DatagramChannelImpl");
+            cls = Util.findClass("sun.nio.ch.DatagramChannelImpl", null);
             if(cls == null)
             {
                 throw new Ice.SocketException();

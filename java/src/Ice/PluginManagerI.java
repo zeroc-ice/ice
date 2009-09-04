@@ -311,7 +311,7 @@ public final class PluginManagerI implements PluginManager
         PluginFactory pluginFactory = null;
         try
         {
-            Class<?> c = IceInternal.Util.findClass(className);
+            Class<?> c = IceInternal.Util.getInstance(_communicator).findClass(className);
             if(c == null)
             {
                 PluginInitializationException e = new PluginInitializationException();
