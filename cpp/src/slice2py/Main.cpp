@@ -502,8 +502,8 @@ compile(int argc, char* argv[])
 
     for(i = args.begin(); i != args.end(); ++i)
     {
-        Preprocessor icecpp(argv[0], *i, cppArgs);
-        FILE* cppHandle = icecpp.preprocess(keepComments);
+        PreprocessorPtr icecpp = Preprocessor::create(argv[0], *i, cppArgs);
+        FILE* cppHandle = icecpp->preprocess(keepComments);
 
         if(cppHandle == 0)
         {
@@ -520,7 +520,7 @@ compile(int argc, char* argv[])
                     return EXIT_FAILURE;
                 }
             }
-            if(!icecpp.close())
+            if(!icecpp->close())
             {
                 return EXIT_FAILURE;
             }
@@ -530,7 +530,7 @@ compile(int argc, char* argv[])
             UnitPtr u = Unit::createUnit(false, all, ice);
             int parseStatus = u->parse(*i, cppHandle, debug);
 
-            if(!icecpp.close())
+            if(!icecpp->close())
             {
                 u->destroy();
                 return EXIT_FAILURE;
@@ -542,7 +542,7 @@ compile(int argc, char* argv[])
             }
             else
             {
-                string base = icecpp.getBaseName();
+                string base = icecpp->getBaseName();
                 string::size_type pos = base.find_last_of("/\\");
                 if(pos != string::npos)
                 {

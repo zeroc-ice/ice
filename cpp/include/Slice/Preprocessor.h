@@ -10,12 +10,12 @@
 #ifndef PREPROCESSOR_H
 #define PREPROCESSOR_H
 
-#include <IceUtil/Config.h>
+#include <IceUtil/Shared.h>
+#include <IceUtil/Handle.h>
 #include <vector>
 #ifdef __BCPLUSPLUS__
 #  include <stdio.h>
 #endif
-
 
 #ifndef SLICE_API
 #   ifdef SLICE_API_EXPORTS
@@ -28,27 +28,33 @@
 namespace Slice
 {
 
-class SLICE_API Preprocessor
+class Preprocessor;
+typedef IceUtil::Handle<Preprocessor> PreprocessorPtr;
+
+class SLICE_API Preprocessor : public IceUtil::SimpleShared
 {
 public:
 
-    Preprocessor(const std::string&, const std::string&, const std::vector<std::string>&);
+    static PreprocessorPtr create(const std::string&, const std::string&, const std::vector<std::string>&);
+
     ~Preprocessor();
-    
+
     FILE* preprocess(bool);
     bool close();
 
-    enum Language { CPlusPlus, Java, JavaXML, CSharp, VisualBasic };
+    enum Language { CPlusPlus, Java, JavaXML, CSharp };
 
     bool printMakefileDependencies(Language, const std::vector<std::string>&, const std::string& = "cpp");
-    
+
     std::string getBaseName();
 
     static std::string addQuotes(const std::string&);
     static std::string normalizeIncludePath(const std::string&);
 
 private:
-    
+
+    Preprocessor(const std::string&, const std::string&, const std::vector<std::string>&);
+
     bool checkInputFile();
 
     const std::string _path;

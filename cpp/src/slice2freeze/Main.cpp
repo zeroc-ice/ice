@@ -1946,15 +1946,15 @@ compile(int argc, char* argv[])
 
     for(vector<string>::size_type idx = 1; idx < args.size(); ++idx)
     {
-        Preprocessor icecpp(argv[0], args[idx], cppArgs);
+        PreprocessorPtr icecpp = Preprocessor::create(argv[0], args[idx], cppArgs);
 
         //
         // Add an include file for each Slice file. Note that the .h extension
         // is replaced with headerExtension later.
         //
-        includes.push_back(icecpp.getBaseName() + ".h");
+        includes.push_back(icecpp->getBaseName() + ".h");
 
-        FILE* cppHandle = icecpp.preprocess(false);
+        FILE* cppHandle = icecpp->preprocess(false);
 
         if(cppHandle == 0)
         {
@@ -1982,7 +1982,7 @@ compile(int argc, char* argv[])
             u->visit(&visitor, false);
         }
 
-        if(!icecpp.close())
+        if(!icecpp->close())
         {
             u->destroy();
             return EXIT_FAILURE;            

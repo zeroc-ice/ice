@@ -36,13 +36,19 @@ namespace Slice
 enum Outdest
 {
     Out=0, Err=1, Dbg=2, Num_Outdest=3
-}; 
-
 };
+
+}
 
 extern "C" int   mcpp_lib_main(int argc, char** argv);
 extern "C" void  mcpp_use_mem_buffers(int tf);
 extern "C" char* mcpp_get_mem_buffer(Outdest od);
+
+Slice::PreprocessorPtr
+Slice::Preprocessor::create(const string& path, const string& fileName, const vector<string>& args)
+{
+    return new Preprocessor(path, fileName, args);
+}
 
 Slice::Preprocessor::Preprocessor(const string& path, const string& fileName, const vector<string>& args) :
     _path(path),
@@ -119,12 +125,12 @@ Slice::Preprocessor::normalizeIncludePath(const string& path)
     if(result == "/" || (result.size() == 3 && isalpha(static_cast<unsigned char>(result[0])) && result[1] == ':' &&
        result[2] == '/'))
     {
-	return result;
+        return result;
     }
-    
+
     if(result.size() > 1 && result[result.size() - 1] == '/')
     {
-	result.erase(result.size() - 1);
+        result.erase(result.size() - 1);
     }
 
     return result;
@@ -175,13 +181,13 @@ Slice::Preprocessor::preprocess(bool keepComments)
         {
             emitRaw(i->c_str());
 
-	    //
-	    // MCPP FIX: mcpp does not always return non-zero exit status when there is an error.
-	    //
-	    if(i->find("error:") != string::npos)
-	    {
-	        status = 1;
-	    }
+            //
+            // MCPP FIX: mcpp does not always return non-zero exit status when there is an error.
+            //
+            if(i->find("error:") != string::npos)
+            {
+                status = 1;
+            }
         }
     }
 
@@ -206,7 +212,7 @@ Slice::Preprocessor::preprocess(bool keepComments)
 #else
         _cppHandle = tmpfile();
 #endif
-        
+
         //
         // If that fails try to open file in current directory.
         //
@@ -273,7 +279,7 @@ Slice::Preprocessor::printMakefileDependencies(Language lang, const vector<strin
     {
         argv[i + 1] = args[i].c_str();
     }
-    
+
     //
     // Call mcpp using memory buffer.
     //
@@ -431,17 +437,17 @@ Slice::Preprocessor::printMakefileDependencies(Language lang, const vector<strin
      *
      * x.o[bj]: /path/x.ice /path/y.ice
      *
-     * x.o[bj]: /path/x.ice \ 
+     * x.o[bj]: /path/x.ice \
      *  /path/y.ice
      *
-     * x.o[bj]: /path/x.ice /path/y.ice \ 
+     * x.o[bj]: /path/x.ice /path/y.ice \
      *  /path/z.ice
      *
-     * x.o[bj]: \ 
+     * x.o[bj]: \
      *  /path/x.ice
      *
-     * x.o[bj]: \ 
-     *  /path/x.ice \ 
+     * x.o[bj]: \
+     *  /path/x.ice \
      *  /path/y.ice
      *
      * Spaces embedded within filenames are escaped with a backslash. Note that
@@ -559,7 +565,7 @@ Slice::Preprocessor::close()
             return false;
         }
     }
-    
+
     return true;
 }
 
@@ -578,7 +584,7 @@ Slice::Preprocessor::checkInputFile()
         getErrorStream() << _path << ": error: input files must end with `.ice'" << endl;
         return false;
     }
-    
+
     ifstream test(_fileName.c_str());
     if(!test)
     {

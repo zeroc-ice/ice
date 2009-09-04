@@ -133,8 +133,8 @@ IcePy_loadSlice(PyObject* /*self*/, PyObject* args)
     for(vector<string>::const_iterator p = files.begin(); p != files.end(); ++p)
     {
         string file = *p;
-        Slice::Preprocessor icecpp("icecpp", file, cppArgs);
-        FILE* cppHandle = icecpp.preprocess(keepComments);
+        Slice::PreprocessorPtr icecpp = Slice::Preprocessor::create("icecpp", file, cppArgs);
+        FILE* cppHandle = icecpp->preprocess(keepComments);
 
         if(cppHandle == 0)
         {
@@ -145,7 +145,7 @@ IcePy_loadSlice(PyObject* /*self*/, PyObject* args)
         UnitPtr u = Slice::Unit::createUnit(ignoreRedefs, all, ice);
         int parseStatus = u->parse(file, cppHandle, debug);
 
-        if(!icecpp.close() || parseStatus == EXIT_FAILURE)
+        if(!icecpp->close() || parseStatus == EXIT_FAILURE)
         {
             PyErr_Format(PyExc_RuntimeError, "Slice parsing failed for `%s'", cmd);
             u->destroy();

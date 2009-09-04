@@ -193,8 +193,8 @@ compile(int argc, char* argv[])
     {
         if(depend)
         {
-            Preprocessor icecpp(argv[0], *i, cppArgs);
-            FILE* cppHandle = icecpp.preprocess(false);
+            PreprocessorPtr icecpp = Preprocessor::create(argv[0], *i, cppArgs);
+            FILE* cppHandle = icecpp->preprocess(false);
 
             if(cppHandle == 0)
             {
@@ -210,20 +210,20 @@ compile(int argc, char* argv[])
                 return EXIT_FAILURE;
             }
 
-            if(!icecpp.printMakefileDependencies(Preprocessor::CPlusPlus, includePaths, sourceExtension))
+            if(!icecpp->printMakefileDependencies(Preprocessor::CPlusPlus, includePaths, sourceExtension))
             {
                 return EXIT_FAILURE;
             }
 
-            if(!icecpp.close())
+            if(!icecpp->close())
             {
                 return EXIT_FAILURE;
             }
         }
         else
         {
-            Preprocessor icecpp(argv[0], *i, cppArgs);
-            FILE* cppHandle = icecpp.preprocess(false);
+            PreprocessorPtr icecpp = Preprocessor::create(argv[0], *i, cppArgs);
+            FILE* cppHandle = icecpp->preprocess(false);
 
             if(cppHandle == 0)
             {
@@ -240,7 +240,7 @@ compile(int argc, char* argv[])
                         return EXIT_FAILURE;
                     }
                 }
-                if(!icecpp.close())
+                if(!icecpp->close())
                 {
                     return EXIT_FAILURE;
                 }
@@ -250,7 +250,7 @@ compile(int argc, char* argv[])
                 UnitPtr u = Unit::createUnit(false, false, ice);
                 int parseStatus = u->parse(*i, cppHandle, debug);
             
-                if(!icecpp.close())
+                if(!icecpp->close())
                 {
                     u->destroy();
                     return EXIT_FAILURE;
@@ -264,7 +264,7 @@ compile(int argc, char* argv[])
                 {
                     try
                     {
-                        Gen gen(icecpp.getBaseName(), headerExtension, sourceExtension, extraHeaders, include,
+                        Gen gen(icecpp->getBaseName(), headerExtension, sourceExtension, extraHeaders, include,
                                 includePaths, dllExport, output, impl, checksum, stream, ice);
                         gen.generate(u);
                     }

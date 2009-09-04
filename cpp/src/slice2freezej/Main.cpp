@@ -1554,8 +1554,8 @@ compile(int argc, char* argv[])
     {
         if(depend)
         {
-            Preprocessor icecpp(argv[0], args[idx], cppArgs);
-            FILE* cppHandle = icecpp.preprocess(false);
+            PreprocessorPtr icecpp = Preprocessor::create(argv[0], args[idx], cppArgs);
+            FILE* cppHandle = icecpp->preprocess(false);
 
             if(cppHandle == 0)
             {
@@ -1571,13 +1571,13 @@ compile(int argc, char* argv[])
                 return EXIT_FAILURE;
             }
 
-            if(!icecpp.printMakefileDependencies(Preprocessor::Java, includePaths))
+            if(!icecpp->printMakefileDependencies(Preprocessor::Java, includePaths))
             {
                 u->destroy();
                 return EXIT_FAILURE;
             }
 
-            if(!icecpp.close())
+            if(!icecpp->close())
             {
                 u->destroy();
                 return EXIT_FAILURE;
@@ -1585,8 +1585,8 @@ compile(int argc, char* argv[])
         }
         else
         {
-            Preprocessor icecpp(argv[0], args[idx], cppArgs);
-            FILE* cppHandle = icecpp.preprocess(false);
+            PreprocessorPtr icecpp = Preprocessor::create(argv[0], args[idx], cppArgs);
+            FILE* cppHandle = icecpp->preprocess(false);
 
             if(cppHandle == 0)
             {
@@ -1611,7 +1611,7 @@ compile(int argc, char* argv[])
                 status = u->parse(args[idx], cppHandle, debug);
             }
 
-            if(!icecpp.close())
+            if(!icecpp->close())
             {
                 u->destroy();
                 return EXIT_FAILURE;

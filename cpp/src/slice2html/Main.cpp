@@ -221,8 +221,8 @@ compile(int argc, char* argv[])
 
     for(vector<string>::size_type idx = 0; idx < args.size(); ++idx)
     {
-        Preprocessor icecpp(argv[0], args[idx], cppArgs);
-        FILE* cppHandle = icecpp.preprocess(true);
+        PreprocessorPtr icecpp = Preprocessor::create(argv[0], args[idx], cppArgs);
+        FILE* cppHandle = icecpp->preprocess(true);
 
         if(cppHandle == 0)
         {
@@ -246,7 +246,7 @@ compile(int argc, char* argv[])
             status = p->parse(args[idx], cppHandle, debug);
         }
 
-        if(!icecpp.close())
+        if(!icecpp->close())
         {
             p->destroy();
             return EXIT_FAILURE;

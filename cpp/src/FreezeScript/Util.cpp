@@ -177,9 +177,9 @@ FreezeScript::parseSlice(const string& n, const Slice::UnitPtr& u, const vector<
     //
     for(vector<string>::const_iterator p = files.begin(); p != files.end(); ++p)
     {
-        Preprocessor icecpp(n, *p, cppArgs);
+        PreprocessorPtr icecpp = Preprocessor::create(n, *p, cppArgs);
 
-        FILE* cppHandle = icecpp.preprocess(false);
+        FILE* cppHandle = icecpp->preprocess(false);
 
         if(cppHandle == 0)
         {
@@ -188,7 +188,7 @@ FreezeScript::parseSlice(const string& n, const Slice::UnitPtr& u, const vector<
 
         int status = u->parse(*p, cppHandle, debug);
 
-        if(!icecpp.close())
+        if(!icecpp->close())
         {
             return false;            
         }

@@ -119,8 +119,8 @@ IceRuby_loadSlice(int argc, VALUE* argv, VALUE self)
         for(vector<string>::const_iterator p = files.begin(); p != files.end(); ++p)
         {
             string file = *p;
-            Slice::Preprocessor icecpp("icecpp", file, cppArgs);
-            FILE* cppHandle = icecpp.preprocess(false);
+            Slice::PreprocessorPtr icecpp = Slice::Preprocessor::create("icecpp", file, cppArgs);
+            FILE* cppHandle = icecpp->preprocess(false);
 
             if(cppHandle == 0)
             {
@@ -130,7 +130,7 @@ IceRuby_loadSlice(int argc, VALUE* argv, VALUE self)
             UnitPtr u = Slice::Unit::createUnit(ignoreRedefs, all, ice);
             int parseStatus = u->parse(file, cppHandle, debug);
 
-            if(!icecpp.close() || parseStatus == EXIT_FAILURE)
+            if(!icecpp->close() || parseStatus == EXIT_FAILURE)
             {
                 u->destroy();
                 throw RubyException(rb_eArgError, "Slice parsing failed for `%s'", cmd.c_str());

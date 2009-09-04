@@ -2116,16 +2116,6 @@ Slice::Python::generate(const UnitPtr& un, bool all, bool checksum, const vector
 
     out << nl << "import Ice, IcePy, __builtin__";
 
-    //
-    // For backward-compatibility with generated code from Ice 3.3.0, we add a definition
-    // of _struct_marker to the Ice module if necessary.
-    //
-    out << nl;
-    out << nl << "if not Ice.__dict__.has_key(\"_struct_marker\"):";
-    out.inc();
-    out << nl << "Ice._struct_marker = object()";
-    out.dec();
-
     if(!all)
     {
         vector<string> paths = includePaths;

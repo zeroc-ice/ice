@@ -15,7 +15,6 @@
 #include <IceUtil/Iterator.h>
 #include <Slice/Checksum.h>
 #include <Slice/FileTracker.h>
-#include <Slice/Preprocessor.h>
 
 #include <limits>
 
