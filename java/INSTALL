@@ -231,23 +231,6 @@ one, use these commands:
   ant clean
   ant
 
-You may receive an error during the build:
-
-    [javac] The system is out of resources.
-    [javac] Consult the following stack trace for details.
-    [javac] java.lang.OutOfMemoryError: Java heap space
-
-If so, set ANT_OPTS as follows:
-
-    # On Unix
-    $ ANT_OPTS="-Xms256m -Xmx256m"
-    $ export ANT_OPTS
-
-    # On Windows
-    > set ANT_OPTS=-Xms256m -Xmx256m
-
-This increases the size of the heap for the Java VM.
-
 
 Ant Tasks
 ---------
