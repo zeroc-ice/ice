@@ -700,7 +700,14 @@ IceUtilInternal::toLower(const std::string& s)
     result.reserve(s.size());
     for(unsigned int i = 0; i < s.length(); ++i)
     {
-         result += tolower(static_cast<unsigned char>(s[i]));
+        if(isascii(s[i]))
+        {
+            result += tolower(static_cast<unsigned char>(s[i]));
+        }
+        else
+        {
+            result += s[i];
+        }
     }
     return result;
 }
@@ -712,7 +719,14 @@ IceUtilInternal::toUpper(const std::string& s)
     result.reserve(s.size());
     for(unsigned int i = 0; i < s.length(); ++i)
     {
-         result += toupper(static_cast<unsigned char>(s[i]));
+        if(isascii(s[i]))
+        {
+            result += toupper(static_cast<unsigned char>(s[i]));
+        }
+        else
+        {
+            result += s[i];
+        }
     }
     return result;
 }
