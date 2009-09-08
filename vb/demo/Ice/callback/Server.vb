@@ -19,7 +19,7 @@ Module CallbackS
             End If
 
             Dim adapter As Ice.ObjectAdapter = communicator().createObjectAdapter("Callback.Server")
-            adapter.add(New CallbackSenderI, communicator().stringToIdentity("callback"))
+            adapter.add(New CallbackSenderI, communicator().stringToIdentity("callbackSender"))
             adapter.activate()
             communicator().waitForShutdown()
             Return 0

@@ -2,8 +2,14 @@
 # The client contacts the server using the proxy specified by the CallbackServer
 # property, and provides the endpoints specified by the Endpoints property.
 #
-Callback.CallbackServer=callback:tcp -p 10000:udp -p 10000:ssl -p 10001
-Callback.Client.Endpoints=tcp:udp:ssl
+Callback.CallbackServer=callbackSender:default -p 10000
+
+#
+# The client creates one single object adapter with the name
+# "Callback.Client". The following line sets the endpoints for this
+# adapter.
+#
+Callback.Client.Endpoints=default
 
 #
 # Warn about connection exceptions

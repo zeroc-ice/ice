@@ -2,14 +2,14 @@
 # The client reads this property to create the reference to the
 # "CallbackSender" object in the server.
 #
-CallbackSender.Proxy=callback:tcp -p 10000:udp -p 10000:ssl -p 10001
+CallbackSender.Proxy=callbackSender:default -p 10000
 
 #
 # The client creates one single object adapter with the name
 # "Callback.Client". The following line sets the endpoints for this
 # adapter.
 #
-Callback.Client.Endpoints=tcp:udp:ssl
+Callback.Client.Endpoints=default
 
 #
 # Warn about connection exceptions.

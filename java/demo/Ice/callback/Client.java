@@ -32,13 +32,7 @@ public class Client extends Ice.Application
     {
         System.out.println(
             "usage:\n" +
-            "t: send callback as twoway\n" +
-            "o: send callback as oneway\n" +
-            "O: send callback as batch oneway\n" +
-            "d: send callback as datagram\n" +
-            "D: send callback as batch datagram\n" +
-            "f: flush all batch requests\n" +
-            "S: switch secure mode on/off\n" +
+            "t: send callback\n" +
             "s: shutdown server\n" +
             "x: exit\n" +
             "?: help\n");
@@ -60,31 +54,22 @@ public class Client extends Ice.Application
         //
         setInterruptHook(new ShutdownHook());
 
-        CallbackSenderPrx twoway = CallbackSenderPrxHelper.checkedCast(
+        CallbackSenderPrx sender = CallbackSenderPrxHelper.checkedCast(
             communicator().propertyToProxy("CallbackSender.Proxy").
                 ice_twoway().ice_timeout(-1).ice_secure(false));
-        if(twoway == null)
+        if(sender == null)
         {
             System.err.println("invalid proxy");
             return 1;
         }
-        CallbackSenderPrx oneway = CallbackSenderPrxHelper.uncheckedCast(twoway.ice_oneway());
-        CallbackSenderPrx batchOneway = CallbackSenderPrxHelper.uncheckedCast(twoway.ice_batchOneway());
-        CallbackSenderPrx datagram = CallbackSenderPrxHelper.uncheckedCast(twoway.ice_datagram());
-        CallbackSenderPrx batchDatagram = CallbackSenderPrxHelper.uncheckedCast(twoway.ice_batchDatagram());
 
         Ice.ObjectAdapter adapter = communicator().createObjectAdapter("Callback.Client");
         adapter.add(new CallbackReceiverI(), communicator().stringToIdentity("callbackReceiver"));
         adapter.activate();
 
-        CallbackReceiverPrx twowayR = 
+        CallbackReceiverPrx receiver = 
             CallbackReceiverPrxHelper.uncheckedCast(adapter.createProxy(
                 communicator().stringToIdentity("callbackReceiver")));
-        CallbackReceiverPrx onewayR = CallbackReceiverPrxHelper.uncheckedCast(twowayR.ice_oneway());
-        CallbackReceiverPrx datagramR = CallbackReceiverPrxHelper.uncheckedCast(twowayR.ice_datagram());
-
-        boolean secure = false;
-        String secureStr = "";
 
         menu();
 
@@ -104,69 +89,11 @@ public class Client extends Ice.Application
                 }
                 if(line.equals("t"))
                 {
-                    twoway.initiateCallback(twowayR);
-                }
-                else if(line.equals("o"))
-                {
-                    oneway.initiateCallback(onewayR);
-                }
-                else if(line.equals("O"))
-                {
-                    batchOneway.initiateCallback(onewayR);
-                }
-                else if(line.equals("d"))
-                {
-                    if(secure)
-                    {
-                        System.out.println("secure datagrams are not supported");
-                    }
-                    else
-                    {
-                        datagram.initiateCallback(datagramR);
-                    }
-                }
-                else if(line.equals("D"))
-                {
-                    if(secure)
-                    {
-                        System.out.println("secure datagrams are not supported");
-                    }
-                    else
-                    {
-                        batchDatagram.initiateCallback(datagramR);
-                    }
-                }
-                else if(line.equals("S"))
-                {
-                    secure = !secure;
-                    secureStr = secure ? "s" : "";
-
-                    twoway = CallbackSenderPrxHelper.uncheckedCast(twoway.ice_secure(secure));
-                    oneway = CallbackSenderPrxHelper.uncheckedCast(oneway.ice_secure(secure));
-                    batchOneway = CallbackSenderPrxHelper.uncheckedCast(batchOneway.ice_secure(secure));
-                    datagram = CallbackSenderPrxHelper.uncheckedCast(datagram.ice_secure(secure));
-                    batchDatagram = CallbackSenderPrxHelper.uncheckedCast(batchDatagram.ice_secure(secure));
-
-                    twowayR = CallbackReceiverPrxHelper.uncheckedCast(twowayR.ice_secure(secure));
-                    onewayR = CallbackReceiverPrxHelper.uncheckedCast(onewayR.ice_secure(secure));
-                    datagramR = CallbackReceiverPrxHelper.uncheckedCast(datagramR.ice_secure(secure));
-
-                    if(secure)
-                    {
-                        System.out.println("secure mode is now on");
-                    }
-                    else
-                    {
-                        System.out.println("secure mode is now off");
-                    }
-                }
-                else if(line.equals("f"))
-                {
-                    communicator().flushBatchRequests();
+                    sender.initiateCallback(receiver);
                 }
                 else if(line.equals("s"))
                 {
-                    twoway.shutdown();
+                    sender.shutdown();
                 }
                 else if(line.equals("x"))
                 {

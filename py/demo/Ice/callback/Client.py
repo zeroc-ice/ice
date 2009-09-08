@@ -16,13 +16,7 @@ import Demo
 def menu():
     print """
 usage:
-t: send callback as twoway
-o: send callback as oneway
-O: send callback as batch oneway
-d: send callback as datagram
-D: send callback as batch datagram
-f: flush all batch requests
-S: switch secure mode on/off
+t: send callback
 s: shutdown server
 x: exit
 ?: help
@@ -38,29 +32,19 @@ class Client(Ice.Application):
             print self.appName() + ": too many arguments"
             return 1
 
-        twoway = Demo.CallbackSenderPrx.checkedCast(
+        sender = Demo.CallbackSenderPrx.checkedCast(
             self.communicator().propertyToProxy('CallbackSender.Proxy').
             ice_twoway().ice_timeout(-1).ice_secure(False))
-        if not twoway:
+        if not sender:
             print self.appName() + ": invalid proxy"
             return 1
-
-        oneway = Demo.CallbackSenderPrx.uncheckedCast(twoway.ice_oneway())
-        batchOneway = Demo.CallbackSenderPrx.uncheckedCast(twoway.ice_batchOneway())
-        datagram = Demo.CallbackSenderPrx.uncheckedCast(twoway.ice_datagram())
-        batchDatagram = Demo.CallbackSenderPrx.uncheckedCast(twoway.ice_batchDatagram())
 
         adapter = self.communicator().createObjectAdapter("Callback.Client")
         adapter.add(CallbackReceiverI(), self.communicator().stringToIdentity("callbackReceiver"))
         adapter.activate()
 
-        twowayR = Demo.CallbackReceiverPrx.uncheckedCast(
+        receiver = Demo.CallbackReceiverPrx.uncheckedCast(
             adapter.createProxy(self.communicator().stringToIdentity("callbackReceiver")))
-        onewayR = Demo.CallbackReceiverPrx.uncheckedCast(twowayR.ice_oneway())
-        datagramR = Demo.CallbackReceiverPrx.uncheckedCast(twowayR.ice_datagram())
-
-        secure = False
-        secureStr = ''
 
         menu()
 
@@ -69,42 +53,9 @@ class Client(Ice.Application):
             try:
                 c = raw_input("==> ")
                 if c == 't':
-                    twoway.initiateCallback(twowayR)
-                elif c == 'o':
-                    oneway.initiateCallback(onewayR)
-                elif c == 'O':
-                    batchOneway.initiateCallback(onewayR)
-                elif c == 'd':
-                    if secure:
-                        print "secure datagrams are not supported"
-                    else:
-                        datagram.initiateCallback(datagramR)
-                elif c == 'D':
-                    if secure:
-                        print "secure datagrams are not supported"
-                    else:
-                        batchDatagram.initiateCallback(datagramR)
-                elif c == 'f':
-                    self.communicator().flushBatchRequests()
-                elif c == 'S':
-                    secure = not secure
-
-                    twoway = Demo.CallbackSenderPrx.uncheckedCast(twoway.ice_secure(secure))
-                    oneway = Demo.CallbackSenderPrx.uncheckedCast(oneway.ice_secure(secure))
-                    batchOneway = Demo.CallbackSenderPrx.uncheckedCast(batchOneway.ice_secure(secure))
-                    datagram = Demo.CallbackSenderPrx.uncheckedCast(datagram.ice_secure(secure))
-                    batchDatagram = Demo.CallbackSenderPrx.uncheckedCast(batchDatagram.ice_secure(secure))
-
-                    twowayR = Demo.CallbackReceiverPrx.uncheckedCast(twowayR.ice_secure(secure))
-                    onewayR = Demo.CallbackReceiverPrx.uncheckedCast(onewayR.ice_secure(secure))
-                    datagramR = Demo.CallbackReceiverPrx.uncheckedCast(datagramR.ice_secure(secure))
-
-                    if secure:
-                        print "secure mode is now on"
-                    else:
-                        print "secure mode is now off"
+                    sender.initiateCallback(receiver)
                 elif c == 's':
-                    twoway.shutdown()
+                    sender.shutdown()
                 elif c == 'x':
                     pass # Nothing to do
                 elif c == '?':
