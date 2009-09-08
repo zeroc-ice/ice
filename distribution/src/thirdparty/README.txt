@@ -71,6 +71,20 @@ to the top-level directory and apply the patches as shown below:
  > patch -p1 < patch.db-4.7.25.4
  > patch -p0 < patch.db-4.7.25.17646
 
+mcpp
+----
+
+The files mcpp/patch.2.7.2_1 and mcpp/patch.2.7.2_2 in this archive 
+contain several important fixes required by Ice. We expect that these 
+changes will be included in a future release of mcpp.
+
+After extracting the mcpp source distribution, change to the top-level
+directory and apply the patch as shown below:
+
+  $ cd mcpp-2.7.2
+  $ patch -p0 < patch.2.7.2_1
+  $ patch -p0 < patch.2.7.2_2
+
 
 ======================================================================
 Packages
