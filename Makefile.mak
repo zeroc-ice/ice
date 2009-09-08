@@ -10,19 +10,19 @@
 top_srcdir = cpp
 !include cpp/config/Make.rules.mak
 
-SUBDIRS			= cpp java py
-CLEAN_SUBDIRS		= java py cpp
-DEPEND_SUBDIRS		= cpp py
-INSTALL_SUBDIRS		= cpp java py
+SUBDIRS			= cpp java py php
+CLEAN_SUBDIRS		= java py php cpp
+DEPEND_SUBDIRS		= cpp py php
+INSTALL_SUBDIRS		= cpp java py php
 
 !if "$(CPP_COMPILER)" == "VC60"
-SUBDIRS			= $(SUBDIRS) php rb
-CLEAN_SUBDIRS		= php rb $(CLEAN_SUBDIRS)
-DEPEND_SUBDIRS		= $(DEPEND_SUBDIRS) php rb
-INSTALL_SUBDIRS		= $(INSTALL_SUBDIRS) php rb
+SUBDIRS			= $(SUBDIRS) rb
+CLEAN_SUBDIRS		= rb $(CLEAN_SUBDIRS)
+DEPEND_SUBDIRS		= $(DEPEND_SUBDIRS) rb
+INSTALL_SUBDIRS		= $(INSTALL_SUBDIRS) rb
 !else
-SUBDIRS			= $(SUBDIRS) cs vb
-CLEAN_SUBDIRS		= cs vb $(CLEAN_SUBDIRS)
+SUBDIRS			= $(SUBDIRS) cs vb vsplugin
+CLEAN_SUBDIRS		= cs vb vsplugin $(CLEAN_SUBDIRS)
 DEPEND_SUBDIRS		= $(DEPEND_SUBDIRS) cs vb
 INSTALL_SUBDIRS		= $(INSTALL_SUBDIRS) cs
 !endif
@@ -74,3 +74,7 @@ rb::
 php::
 	@echo "making all in php" && \
 	cmd /c "cd php && $(MAKE) -nologo -f Makefile.mak $(MAKEFLAGS) all" || exit 1
+
+vsplugin::
+	@echo "making all in vsplugin" && \
+	cmd /c "cd vsplugin && $(MAKE) -nologo -f Makefile.mak $(MAKEFLAGS) all" || exit 1

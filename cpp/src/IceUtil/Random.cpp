@@ -7,6 +7,10 @@
 //
 // **********************************************************************
 
+#if defined(_MSC_VER) && (_MSC_VER > 1400)
+#  define _CRT_RAND_S
+#endif
+
 #include <IceUtil/Random.h>
 #include <IceUtil/Mutex.h>
 #include <IceUtil/MutexPtrLock.h>
@@ -21,6 +25,7 @@
 using namespace std;
 using namespace IceUtil;
 
+#if !defined(_WIN32) || !defined(_MSC_VER) || (_MSC_VER < 1400)
 namespace
 {
 
@@ -76,11 +81,19 @@ public:
 Init init;
 
 }
+#endif
 
 void
 IceUtilInternal::generateRandom(char* buffer, int size)
 {
 #ifdef _WIN32
+
+#  if defined(_MSC_VER) && (_MSC_VER >= 1400)
+    for(int i = 0; i < size; ++i)
+    {
+        buffer[i] = random(256);
+    }
+#  else
     //
     // It's not clear from the Microsoft documentation if CryptGenRandom 
     // can be called concurrently from several threads. To be on the safe
@@ -101,6 +114,8 @@ IceUtilInternal::generateRandom(char* buffer, int size)
     {
         throw SyscallException(__FILE__, __LINE__, GetLastError());
     }
+#  endif
+
 #else
 
     //
@@ -149,18 +164,25 @@ IceUtilInternal::generateRandom(char* buffer, int size)
 #endif
 }
 
-int
+unsigned int
 IceUtilInternal::random(int limit)
 {
-    int r;
-    generateRandom(reinterpret_cast<char*>(&r), static_cast<int>(sizeof(int)));
+    unsigned int r;
+#if defined(_MSC_VER) && (_MSC_VER > 1400)
+    errno_t err;
+    if(err = rand_s(&r) != 0)
+    {
+        SyscallException ex(__FILE__, __LINE__, errno);
+        cerr << "rand_s failed:\n" << ex << endl;
+        assert(0);
+        throw ex;
+    }
+#else
+    generateRandom(reinterpret_cast<char*>(&r), static_cast<unsigned int>(sizeof(unsigned int)));
+#endif
     if(limit > 0)
     {
         r = r % limit;
-    }
-    if(r < 0)
-    {
-        r = -r;
     }
     return r;
 }

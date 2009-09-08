@@ -19,7 +19,7 @@
 using namespace std;
 using namespace IceGrid;
 
-pointer_to_unary_function<int, int> ObjectCache::_rand(IceUtilInternal::random);
+pointer_to_unary_function<int, unsigned int> ObjectCache::_rand(IceUtilInternal::random);
 
 namespace IceGrid
 {
