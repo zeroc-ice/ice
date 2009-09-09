@@ -24,7 +24,8 @@ using namespace std;
 namespace IceUtilInternal
 {
 
-bool printStackTraces = false;
+bool ICE_DECLSPEC_EXPORT printStackTraces = false;
+bool ICE_DECLSPEC_EXPORT nullHandleAbort = false;
 
 }
 
@@ -51,19 +52,7 @@ public:
 
 Init init;
 
-}
-
-namespace IceUtil
-{
-
-bool ICE_DECLSPEC_EXPORT nullHandleAbort = false;
-
-};
-
 #ifdef __GNUC__
-namespace
-{
-
 string
 getStackTrace()
 {
@@ -187,9 +176,9 @@ getStackTrace()
 
     return stackTrace;
 }
-
-};
 #endif
+
+}
 
 IceUtil::Exception::Exception() :
     _file(0),
@@ -293,7 +282,7 @@ IceUtil::operator<<(ostream& out, const IceUtil::Exception& ex)
 IceUtil::NullHandleException::NullHandleException(const char* file, int line) :
     Exception(file, line)
 {
-    if(nullHandleAbort)
+    if(IceUtilInternal::nullHandleAbort)
     {
         abort();
     }

@@ -57,17 +57,11 @@ using namespace std;
 using namespace Ice;
 using namespace IceInternal;
 
-namespace IceUtil
-{
-
-extern bool ICE_DECLSPEC_IMPORT nullHandleAbort;
-
-}
-
 namespace IceUtilInternal
 {
 
-extern bool printStackTraces;
+extern bool ICE_DECLSPEC_IMPORT nullHandleAbort;
+extern bool ICE_DECLSPEC_IMPORT printStackTraces;
 
 };
 
@@ -829,7 +823,7 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const Initi
     
                 if(_initData.properties->getPropertyAsInt("Ice.NullHandleAbort") > 0)
                 {
-                    IceUtil::nullHandleAbort = true;
+                    IceUtilInternal::nullHandleAbort = true;
                 }
 
 #ifdef NDEBUG
