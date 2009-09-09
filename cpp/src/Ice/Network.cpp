@@ -588,7 +588,7 @@ IceInternal::connectInProgress()
 {
 #ifdef _WIN32
     int error = WSAGetLastError();
-    return error == WSAEWOULDBLOCK || error == WSA_IO_PENDING;
+    return error == WSAEWOULDBLOCK || error == WSA_IO_PENDING || error == ERROR_IO_PENDING;
 #else
     return errno == EINPROGRESS;
 #endif

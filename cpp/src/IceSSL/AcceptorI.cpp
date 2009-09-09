@@ -130,7 +130,7 @@ IceSSL::AcceptorI::startAccept()
 #endif
                  ))
     {
-        if(WSAGetLastError() != WSA_IO_PENDING)
+        if(!IceInternal::wouldBlock())
         {
             SocketException ex(__FILE__, __LINE__);
             ex.error = IceInternal::getSocketErrno();

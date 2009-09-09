@@ -124,7 +124,7 @@ IceInternal::TcpAcceptor::startAccept()
 #endif
                  ))
     {
-        if(WSAGetLastError() != WSA_IO_PENDING)
+        if(!wouldBlock())
         {
             SocketException ex(__FILE__, __LINE__);
             ex.error = getSocketErrno();
