@@ -7,12 +7,42 @@
 //
 // **********************************************************************
 
+#include <IceUtil/IceUtil.h>
 #include <Ice/Ice.h>
 #include <Glacier2/Router.h>
 #include <CallbackI.h>
 
 using namespace std;
 using namespace Demo;
+
+class PingTask : public IceUtil::TimerTask
+{
+public:
+
+    PingTask(const Glacier2::RouterPrx& router) :
+        _router(router)
+    {
+    }
+
+    virtual void runTimerTask()
+    {
+        cout << "-> ice_ping" << endl;
+        try
+        {
+            _router->ice_ping();
+            cout << "<- ice_ping" << endl;
+        }
+        catch(const Ice::Exception& ex)
+        {
+            cout << "<- ice_ping " << ex << endl;
+            // Ignore
+        }
+    }
+
+private:
+
+    const Glacier2::RouterPrx _router;
+};
 
 class CallbackClient : public Ice::Application
 {
@@ -104,6 +134,9 @@ CallbackClient::run(int argc, char* argv[])
         }
     }
 
+    IceUtil::TimerPtr timer = new IceUtil::Timer();
+    timer->scheduleRepeated(new PingTask(router), IceUtil::Time::milliSeconds(router->getSessionTimeout() * 500));
+    
     Ice::Identity callbackReceiverIdent;
     callbackReceiverIdent.name = "callbackReceiver";
     callbackReceiverIdent.category = router->getCategoryForClient();
@@ -226,6 +259,12 @@ CallbackClient::run(int argc, char* argv[])
     }
     while(cin.good() && c != 'x');
 
+    //
+    // Destroy the timer before the router session is destroyed,
+    // otherwise it might get a spurious ObjectNotExistException.
+    //
+    timer->destroy();
+
     try
     {
         router->destroySession();
@@ -241,5 +280,6 @@ CallbackClient::run(int argc, char* argv[])
         //
     }
 
+    
     return EXIT_SUCCESS;
 }

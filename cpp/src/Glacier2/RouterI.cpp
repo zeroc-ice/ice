@@ -127,10 +127,7 @@ Glacier2::RouterI::addProxy(const ObjectPrx& proxy, const Current& current)
 ObjectProxySeq
 Glacier2::RouterI::addProxies(const ObjectProxySeq& proxies, const Current& current)
 {
-    IceUtil::Mutex::Lock lock(*this);
-
-    _timestamp = IceUtil::Time::now(IceUtil::Time::Monotonic);
-
+    updateTimestamp();
     return _clientBlobject->add(proxies, current);
 }
 
@@ -171,10 +168,7 @@ Glacier2::RouterI::getSessionTimeout(const Current&) const
 ClientBlobjectPtr
 Glacier2::RouterI::getClientBlobject() const
 {
-    IceUtil::Mutex::Lock lock(*this);
-
-    _timestamp = IceUtil::Time::now(IceUtil::Time::Monotonic);
-
+    updateTimestamp();
     return _clientBlobject;
 }
 
@@ -198,8 +192,7 @@ Glacier2::RouterI::getSession() const
 IceUtil::Time
 Glacier2::RouterI::getTimestamp() const
 {
-    IceUtil::Mutex::TryLock lock(*this);
-
+    IceUtil::Mutex::TryLock lock(_timestampMutex);
     if(lock.acquired())
     {
         return _timestamp;
@@ -208,6 +201,13 @@ Glacier2::RouterI::getTimestamp() const
     {
         return IceUtil::Time::now(IceUtil::Time::Monotonic);
     }
+}
+
+void
+Glacier2::RouterI::updateTimestamp() const
+{
+    IceUtil::Mutex::Lock lock(_timestampMutex);
+    _timestamp = IceUtil::Time::now(IceUtil::Time::Monotonic);
 }
 
 string

@@ -1,13 +1,10 @@
-This example demonstrates the use of a Glacier2 router and the
-implementation of a Glacier2 session server.
+This example demonstrates the use of a Glacier2 router with a set of
+well known server objects. In this demo no Glacier2 session manager is
+used.
 
 To run the demo, first start the server:
 
 $ python Server.py
-
-In a separate window, start the session server:
-
-$ python SessionServer.py
 
 In a separate window, start the Glacier2 router:
 

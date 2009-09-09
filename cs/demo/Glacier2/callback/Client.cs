@@ -9,6 +9,7 @@
 
 using Demo;
 using System;
+using System.Threading;
 using System.Collections.Generic;
 using System.Reflection;
 
@@ -22,6 +23,49 @@ public class Client
 {
     public class App : Ice.Application
     {
+        class SessionRefreshThread
+        {
+            public SessionRefreshThread(Glacier2.RouterPrx router, int timeout)
+            {
+                _router = router;
+                _timeout = timeout;
+                _terminated = false;
+            }
+
+            public void run()
+            {
+                lock(this)
+                {
+                    while(!_terminated)
+                    {
+                        Monitor.Wait(this, _timeout);
+                        if(!_terminated)
+                        {
+                            try
+                            {
+                                _router.ice_ping();
+                            }
+                            catch(Ice.Exception)
+                            {
+                            }
+                        }
+                    }
+                }
+            }
+
+            public void terminate()
+            {
+                lock(this)
+                {
+                    _terminated = true;
+                    Monitor.Pulse(this);
+                }
+            }
+
+            private Glacier2.RouterPrx _router;
+            private int _timeout;
+            private bool _terminated;
+        }
         private static void menu()
         {
             Console.WriteLine(
@@ -87,6 +131,10 @@ public class Client
                     Console.Write("cannot create session:\n" + ex.reason);
                 }
             }
+
+            SessionRefreshThread refresh = new SessionRefreshThread(router, (int)router.getSessionTimeout() * 500);
+            Thread refreshThread = new Thread(new ThreadStart(refresh.run));
+            refreshThread.Start();
 
             String category = router.getCategoryForClient();
             Ice.Identity callbackReceiverIdent = new Ice.Identity();
@@ -219,6 +267,16 @@ public class Client
                 }
             }
             while(!line.Equals("x"));
+
+            //
+            // The refresher thread must be terminated before destroy is
+            // called, otherwise it might get ObjectNotExistException. refresh
+            // is set to 0 so that if session.destroy() raises an exception
+            // the thread will not be re-terminated and re-joined.
+            //
+            refresh.terminate();
+            refreshThread.Join();
+            refresh = null;
 
             try
             {

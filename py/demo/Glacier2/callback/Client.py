@@ -8,7 +8,7 @@
 #
 # **********************************************************************
 
-import sys, Ice, Glacier2
+import sys, threading, Ice, Glacier2
 
 Ice.loadSlice('Callback.ice')
 import Demo
@@ -26,6 +26,35 @@ s: shutdown server
 x: exit
 ?: help
 """
+
+class SessionRefreshThread(threading.Thread):
+    def __init__(self, router, timeout):
+        threading.Thread.__init__(self)
+        self._router = router
+        self._timeout = timeout
+        self._terminated = False
+        self._cond = threading.Condition()
+
+    def run(self):
+        self._cond.acquire()
+        try:
+            while not self._terminated:
+                self._cond.wait(self._timeout)
+                if not self._terminated:
+                    try:
+                        self._router.ice_ping()
+                    except Ice.LocalException, ex:
+                        pass
+        finally:
+            self._cond.release()
+
+    def terminate(self):
+        self._cond.acquire()
+        try:
+            self._terminated = True
+            self._cond.notify()
+        finally:
+            self._cond.release()
 
 class CallbackReceiverI(Demo.CallbackReceiver):
     def callback(self, current=None):
@@ -56,6 +85,9 @@ class Client(Ice.Application):
                 break
             except Glacier2.PermissionDeniedException, ex:
                 print "permission denied:\n" + ex.reason
+
+        refresh = SessionRefreshThread(router, router.getSessionTimeout() / 2.0)
+        refresh.start()
 
         category = router.getCategoryForClient()
         callbackReceiverIdent = Ice.Identity()
@@ -136,6 +168,16 @@ class Client(Ice.Application):
                 break
             except EOFError:
                 break
+
+        #
+        # The refresher thread must be terminated before destroy is
+        # called, otherwise it might get ObjectNotExistException. refresh
+        # is set to 0 so that if session->destroy() raises an exception
+        # the thread will not be re-terminated and re-joined.
+        #
+        refresh.terminate()
+        refresh.join()
+        refresh = None
 
         try:
             router.destroySession()

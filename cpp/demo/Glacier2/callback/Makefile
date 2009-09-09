@@ -11,7 +11,6 @@ top_srcdir	= ../../..
 
 CLIENT		= client
 SERVER		= server
-SESSION_SERVER	= sessionserver
 
 TARGETS		= $(CLIENT) $(SERVER) $(SESSION_SERVER)
 
@@ -22,13 +21,9 @@ COBJS		= Client.o
 
 SOBJS		= Server.o
 
-SSOBJS		= SessionServer.o \
-		  SessionI.o
-
 SRCS		= $(OBJS:.o=.cpp) \
 		  $(COBJS:.o=.cpp) \
-		  $(SOBJS:.o=.cpp) \
-		  $(SSOBJS:.o=.cpp)
+		  $(SOBJS:.o=.cpp)
 
 SLICE_SRCS	= Callback.ice
 
@@ -43,9 +38,5 @@ $(CLIENT): $(OBJS) $(COBJS)
 $(SERVER): $(OBJS) $(SOBJS)
 	rm -f $@
 	$(CXX) $(LDFLAGS) -o $@ $(OBJS) $(SOBJS) $(LIBS)
-
-$(SESSION_SERVER): $(SSOBJS)
-	rm -f $@
-	$(CXX) $(LDFLAGS) -o $@ $(SSOBJS) -lGlacier2 $(LIBS)
 
 include .depend

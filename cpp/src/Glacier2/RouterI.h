@@ -53,6 +53,7 @@ public:
     SessionPrx getSession() const;
 
     IceUtil::Time getTimestamp() const;
+    void updateTimestamp() const;
 
     std::string toString() const;
 
@@ -68,6 +69,7 @@ private:
     const SessionPrx _session;
     const Ice::Identity _controlId;
     const Ice::Context _sslContext;
+    const IceUtil::Mutex _timestampMutex;
     mutable IceUtil::Time _timestamp;
 };
 

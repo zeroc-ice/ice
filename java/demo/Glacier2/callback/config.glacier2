@@ -19,17 +19,9 @@ Glacier2.Client.Endpoints=ssl -p 4064 -h 127.0.0.1
 Glacier2.Server.Endpoints=tcp -h 127.0.0.1
 
 # 
-# The configures the session manager. If no external session manager
-# is used, sessions are only handled Glacier2 internally.
-#
-Glacier2.SessionManager=sessionmanager:tcp -h 127.0.0.1 -p 10001
-
+# For this demo, we use a null permissions verifier.
 # 
-# For this demo, we use a dummy permissions verifier that is
-# collocated with the session server process. This dummy permissions
-# verifier allows any user-id / password combination.
-# 
-Glacier2.PermissionsVerifier=verifier:tcp -h 127.0.0.1 -p 10001
+Glacier2.PermissionsVerifier=DemoGlacier2/NullPermissionsVerifier
 
 #
 # The timeout for inactive sessions. If any client session is inactive

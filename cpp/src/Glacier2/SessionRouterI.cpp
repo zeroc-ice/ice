@@ -951,6 +951,12 @@ Glacier2::SessionRouterI::getSessionTimeout(const Ice::Current&) const
     return _sessionTimeout.toSeconds();
 }
 
+void
+Glacier2::SessionRouterI::ice_ping(const Ice::Current& current) const
+{
+    getRouter(current.con, current.id)->updateTimestamp();
+}
+
 RouterIPtr
 Glacier2::SessionRouterI::getRouter(const ConnectionPtr& connection, const Ice::Identity& id) const
 {

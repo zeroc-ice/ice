@@ -11,6 +11,52 @@ import Demo.*;
 
 public class Client extends Ice.Application
 {
+
+    static private class SessionRefreshThread extends Thread
+    {
+        SessionRefreshThread(Glacier2.RouterPrx router, long timeout)
+        {
+            _router = router;
+            _timeout = timeout;
+        }
+
+        synchronized public void
+        run()
+        {
+            while(!_terminated)
+            {
+                try
+                {
+                    wait(_timeout);
+                }
+                catch(InterruptedException e)
+                {
+                }
+                if(!_terminated)
+                {
+                    try
+                    {
+                        _router.ice_ping();
+                    }
+                    catch(Ice.LocalException ex)
+                    {
+                    }
+                }
+            }
+        }
+
+        synchronized private void
+        terminate()
+        {
+            _terminated = true;
+            notify();
+        }
+
+        final private Glacier2.RouterPrx _router;
+        final private long _timeout;
+        private boolean _terminated = false;
+    }
+
     class ShutdownHook extends Thread
     {
         public void
@@ -109,6 +155,9 @@ public class Client extends Ice.Application
                 ex.printStackTrace();
             }
         }
+
+        SessionRefreshThread refresh = new SessionRefreshThread(router, router.getSessionTimeout() * 500);
+        refresh.start();
 
         String category = router.getCategoryForClient();
         Ice.Identity callbackReceiverIdent = new Ice.Identity();
@@ -245,6 +294,21 @@ public class Client extends Ice.Application
             }
         }
         while(!line.equals("x"));
+
+        //
+        // The refresher thread must be terminated before the session
+        // is destroyed, otherwise it might get
+        // ObjectNotExistException.
+        //
+        refresh.terminate();
+        try
+        {
+            refresh.join();
+        }
+        catch(InterruptedException e)
+        {
+        }
+        refresh = null;
 
         try
         {
