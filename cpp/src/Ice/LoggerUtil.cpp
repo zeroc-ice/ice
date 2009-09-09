@@ -16,10 +16,10 @@
 
 using namespace std;
 
-namespace IceInternal
+namespace IceUtilInternal
 {
 
-bool printStackTraces = false;
+extern bool printStackTraces;
 
 }
 
@@ -40,7 +40,7 @@ Ice::LoggerOutputBase&
 Ice::operator<<(Ice::LoggerOutputBase& out, const std::exception& ex)
 {
 #ifdef __GNUC__
-    if(IceInternal::printStackTraces)
+    if(IceUtilInternal::printStackTraces)
     {
         const ::IceUtil::Exception* exception = dynamic_cast<const ::IceUtil::Exception*>(&ex);
         if(exception)

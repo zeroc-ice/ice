@@ -21,6 +21,13 @@
 
 using namespace std;
 
+namespace IceUtilInternal
+{
+
+bool printStackTraces = false;
+
+}
+
 namespace
 {
 
@@ -61,6 +68,11 @@ string
 getStackTrace()
 {
     string stackTrace;
+
+    if(!IceUtilInternal::printStackTraces)
+    {
+        return stackTrace;
+    }
 
     const size_t maxDepth = 100;
     void *stackAddrs[maxDepth];

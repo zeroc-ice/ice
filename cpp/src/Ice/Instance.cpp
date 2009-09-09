@@ -64,7 +64,7 @@ extern bool ICE_DECLSPEC_IMPORT nullHandleAbort;
 
 }
 
-namespace IceInternal
+namespace IceUtilInternal
 {
 
 extern bool printStackTraces;
@@ -838,7 +838,7 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const Initi
                 if(_initData.properties->getPropertyAsIntWithDefault("Ice.PrintStackTraces", 1) > 0)
 #endif
                 {
-                    printStackTraces = true;
+                    IceUtilInternal::printStackTraces = true;
                 }
                 
 #ifndef _WIN32
