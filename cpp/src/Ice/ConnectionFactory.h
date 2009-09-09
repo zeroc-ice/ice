@@ -73,10 +73,9 @@ private:
         ConnectorInfo(const ConnectorPtr& c, const EndpointIPtr& e) : connector(c), endpoint(e)
         {
         }
-
-        bool operator<(const ConnectorInfo& other) const;
+    
         bool operator==(const ConnectorInfo& other) const;
-
+    
         ConnectorPtr connector;
         EndpointIPtr endpoint;
     };
@@ -139,13 +138,14 @@ private:
     Ice::ConnectionIPtr createConnection(const TransceiverPtr&, const ConnectorInfo&);
 
     void handleException(const Ice::LocalException&, bool);
-    void handleException(const Ice::LocalException&, const ConnectorInfo&, const Ice::ConnectionIPtr&, bool);
+    void handleConnectionException(const Ice::LocalException&, bool);
 
     const InstancePtr _instance;
+    const ConnectionReaperPtr _reaper;
     bool _destroyed;
 
-    std::multimap<ConnectorInfo, Ice::ConnectionIPtr> _connections;
-    std::map<ConnectorInfo, std::set<ConnectCallbackPtr> > _pending;
+    std::multimap<ConnectorPtr, Ice::ConnectionIPtr> _connections;
+    std::map<ConnectorPtr, std::set<ConnectCallbackPtr> > _pending;
 
     std::multimap<EndpointIPtr, Ice::ConnectionIPtr> _connectionsByEndpoint;
     int _pendingConnectCount;
@@ -168,7 +168,7 @@ public:
     EndpointIPtr endpoint() const;
     std::list<Ice::ConnectionIPtr> connections() const;
     void flushBatchRequests();
-
+    
     //
     // Operations from EventHandler
     //
@@ -203,6 +203,7 @@ private:
     void setState(State);
 
     const InstancePtr _instance;
+    const ConnectionReaperPtr _reaper;
 
     AcceptorPtr _acceptor;
     const TransceiverPtr _transceiver;
@@ -212,7 +213,7 @@ private:
 
     const bool _warn;
 
-    std::list<Ice::ConnectionIPtr> _connections;
+    std::set<Ice::ConnectionIPtr> _connections;
 
     State _state;
 };

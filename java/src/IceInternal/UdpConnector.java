@@ -81,7 +81,7 @@ final class UdpConnector implements Connector
 
         if(this == p)
         {
-            return false;
+            return true;
         }
 
         if(!_connectionId.equals(p._connectionId))

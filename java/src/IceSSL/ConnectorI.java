@@ -110,7 +110,7 @@ final class ConnectorI implements IceInternal.Connector
 
         if(this == p)
         {
-            return false;
+            return true;
         }
 
         if(_timeout != p._timeout)

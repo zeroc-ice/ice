@@ -61,10 +61,8 @@ public final class IncomingConnectionFactory extends EventHandler implements Ice
         //
         // Now we wait until each connection is in holding state.
         //
-        java.util.ListIterator<Ice.ConnectionI> p = connections.listIterator();
-        while(p.hasNext())
+        for(Ice.ConnectionI connection : connections)
         {
-            Ice.ConnectionI connection = p.next();
             connection.waitUntilHolding();
         }
     }
@@ -100,30 +98,27 @@ public final class IncomingConnectionFactory extends EventHandler implements Ice
             // We want to wait until all connections are finished outside the
             // thread synchronization.
             //
-            if(_connections != null)
-            {
-                connections = new java.util.LinkedList<Ice.ConnectionI>(_connections);
-            }
+            connections = new java.util.LinkedList<Ice.ConnectionI>(_connections);
         }
 
         if(connections != null)
         {
-            java.util.ListIterator<Ice.ConnectionI> p = connections.listIterator();
-            while(p.hasNext())
+            for(Ice.ConnectionI connection : connections)
             {
-                Ice.ConnectionI connection = p.next();
                 connection.waitUntilFinished();
             }
         }
 
         synchronized(this)
         {
-            //
-            // For consistency with C#, we set _connections to null rather than to a
-            // new empty list so that our finalizer does not try to invoke any
-            // methods on member objects.
-            //
-            _connections = null;
+            // Ensure all the connections are finished and reapable at this point.
+            java.util.List<Ice.ConnectionI> cons = _reaper.swapConnections();
+            assert((cons == null ? 0 : cons.size()) == _connections.size());
+            if(cons != null)
+            {
+                cons.clear();
+            }
+            _connections.clear();
         }
     }
 
@@ -142,10 +137,8 @@ public final class IncomingConnectionFactory extends EventHandler implements Ice
         //
         // Only copy connections which have not been destroyed.
         //
-        java.util.ListIterator<Ice.ConnectionI> p = _connections.listIterator();
-        while(p.hasNext())
+        for(Ice.ConnectionI connection : _connections)
         {
-            Ice.ConnectionI connection = p.next();
             if(connection.isActiveOrHolding())
             {
                 connections.add(connection);
@@ -192,15 +185,14 @@ public final class IncomingConnectionFactory extends EventHandler implements Ice
             }
                 
             //
-            // Reap connections for which destruction has completed.
+            // Reap closed connections.
             //
-            java.util.ListIterator<Ice.ConnectionI> p = _connections.listIterator();
-            while(p.hasNext())
+            java.util.List<Ice.ConnectionI> cons = _reaper.swapConnections();
+            if(cons != null)
             {
-                Ice.ConnectionI con = p.next();
-                if(con.isFinished())
+                for(Ice.ConnectionI c : cons)
                 {
-                    p.remove();
+                    _connections.remove(c);
                 }
             }
 
@@ -245,7 +237,7 @@ public final class IncomingConnectionFactory extends EventHandler implements Ice
 
             try
             {
-                connection = new Ice.ConnectionI(_instance, transceiver, _endpoint, _adapter);
+                connection = new Ice.ConnectionI(_instance, _reaper, transceiver, null, _endpoint, _adapter);
             }
             catch(Ice.LocalException ex)
             {
@@ -333,16 +325,6 @@ public final class IncomingConnectionFactory extends EventHandler implements Ice
         {
             warning(ex);
         }
-        
-        //
-        // If the connection is finished, remove it right away from
-        // the connection map. Otherwise, we keep it in the map, it
-        // will eventually be reaped.
-        //
-        if(connection.isFinished())
-        {
-            _connections.remove(connection);
-        }
     }
 
     public
@@ -378,7 +360,7 @@ public final class IncomingConnectionFactory extends EventHandler implements Ice
                 Ice.ConnectionI connection;
 		try
 		{
-		    connection = new Ice.ConnectionI(_instance, _transceiver, _endpoint, _adapter);
+		    connection = new Ice.ConnectionI(_instance, _reaper, _transceiver, null, _endpoint, _adapter);
 		}
 		catch(Ice.LocalException ex)
 		{
@@ -428,7 +410,7 @@ public final class IncomingConnectionFactory extends EventHandler implements Ice
             {
                 _state = StateClosed;
                 _acceptor = null;
-                _connections = null;
+                _connections.clear();
             }
 
             if(ex instanceof Ice.LocalException)
@@ -449,7 +431,7 @@ public final class IncomingConnectionFactory extends EventHandler implements Ice
         throws Throwable
     {
         IceUtilInternal.Assert.FinalizerAssert(_state == StateFinished);
-        IceUtilInternal.Assert.FinalizerAssert(_connections == null);
+        //IceUtilInternal.Assert.FinalizerAssert(_connections.isEmpty());
 
         super.finalize();
     }
@@ -480,10 +462,8 @@ public final class IncomingConnectionFactory extends EventHandler implements Ice
                     ((Ice.ObjectAdapterI)_adapter).getThreadPool().register(this, SocketOperation.Read);
                 }
 
-                java.util.ListIterator<Ice.ConnectionI> p = _connections.listIterator();
-                while(p.hasNext())
+                for(Ice.ConnectionI connection : _connections)
                 {
-                    Ice.ConnectionI connection = p.next();
                     connection.activate();
                 }
                 break;
@@ -500,10 +480,8 @@ public final class IncomingConnectionFactory extends EventHandler implements Ice
                     ((Ice.ObjectAdapterI)_adapter).getThreadPool().unregister(this, SocketOperation.Read);
                 }
 
-                java.util.ListIterator<Ice.ConnectionI> p = _connections.listIterator();
-                while(p.hasNext())
+                for(Ice.ConnectionI connection : _connections)
                 {
-                    Ice.ConnectionI connection = p.next();
                     connection.hold();
                 }
                 break;
@@ -520,10 +498,8 @@ public final class IncomingConnectionFactory extends EventHandler implements Ice
                     state = StateFinished;
                 }
 
-                java.util.ListIterator<Ice.ConnectionI> p = _connections.listIterator();
-                while(p.hasNext())
-                {   
-                    Ice.ConnectionI connection = p.next();
+                for(Ice.ConnectionI connection : _connections)
+                {
                     connection.destroy(Ice.ConnectionI.ObjectAdapterDeactivated);
                 }
                 break;
@@ -551,7 +527,8 @@ public final class IncomingConnectionFactory extends EventHandler implements Ice
         _instance.initializationData().logger.warning(s);
     }
 
-    private final IceInternal.Instance _instance;
+    private final Instance _instance;
+    private final ConnectionReaper _reaper = new ConnectionReaper();
 
     private Acceptor _acceptor;
     private final Transceiver _transceiver;
@@ -561,7 +538,7 @@ public final class IncomingConnectionFactory extends EventHandler implements Ice
 
     private final boolean _warn;
 
-    private java.util.List<Ice.ConnectionI> _connections = new java.util.LinkedList<Ice.ConnectionI>();
+    private java.util.Set<Ice.ConnectionI> _connections = new java.util.HashSet<Ice.ConnectionI>();
 
     private int _state;
 }

@@ -58,6 +58,20 @@ private:
 }
 
 void
+IceInternal::ConnectionReaper::add(const ConnectionIPtr& connection)
+{
+    Lock sync(*this);
+    _connections.push_back(connection);
+}
+
+void
+IceInternal::ConnectionReaper::swapConnections(vector<ConnectionIPtr>& connections)
+{
+    Lock sync(*this);
+    _connections.swap(connections);
+}
+
+void
 Ice::ConnectionI::OutgoingMessage::adopt(BasicStream* str)
 {
     if(adopted)
@@ -899,27 +913,33 @@ Ice::ConnectionI::sendResponse(BasicStream* os, Byte compressFlag)
 {
     IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
     assert(_state > StateNotValidated);
-
+    
     try
     {
         if(--_dispatchCount == 0)
         {
+            if(_state == StateFinished)
+            {
+                _reaper->add(this);
+            }
             notifyAll();
         }
-
+        
         if(_state >= StateClosed)
         {
             assert(_exception.get());
             _exception->ice_throw();
         }
-
+        
         OutgoingMessage message(os, compressFlag > 0);
         sendMessage(message);
-
+        
         if(_state == StateClosing && _dispatchCount == 0)
         {
             initiateShutdown();
         }
+        
+        return;
     }
     catch(const LocalException& ex)
     {
@@ -932,20 +952,24 @@ Ice::ConnectionI::sendNoResponse()
 {
     IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
     assert(_state > StateNotValidated);
-
+    
     try
     {
         if(--_dispatchCount == 0)
         {
+            if(_state == StateFinished)
+            {
+                _reaper->add(this);
+            }
             notifyAll();
         }
-
+        
         if(_state >= StateClosed)
         {
             assert(_exception.get());
             _exception->ice_throw();
         }
-
+        
         if(_state == StateClosing && _dispatchCount == 0)
         {
             initiateShutdown();
@@ -961,6 +985,12 @@ EndpointIPtr
 Ice::ConnectionI::endpoint() const
 {
     return _endpoint; // No mutex protection necessary, _endpoint is immutable.
+}
+
+ConnectorPtr
+Ice::ConnectionI::connector() const
+{
+    return _connector; // No mutex protection necessary, _connector is immutable.
 }
 
 void
@@ -1390,6 +1420,10 @@ Ice::ConnectionI::finished(ThreadPoolCurrent& current)
     {
         IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
         setState(StateFinished);
+        if(_dispatchCount == 0)
+        {
+            _reaper->add(this);
+        }
     }
 }
 
@@ -1468,19 +1502,27 @@ Ice::ConnectionI::invokeException(const LocalException& ex, int invokeNum)
         assert(_dispatchCount >= 0);
         if(_dispatchCount == 0)
         {
+            if(_state == StateFinished)
+            {
+                _reaper->add(this);
+            }
             notifyAll();
         }
     }
 }
 
 Ice::ConnectionI::ConnectionI(const InstancePtr& instance,
+                              const ConnectionReaperPtr& reaper,
                               const TransceiverPtr& transceiver,
+                              const ConnectorPtr& connector,
                               const EndpointIPtr& endpoint,
                               const ObjectAdapterPtr& adapter) :
     _transceiver(transceiver),
     _instance(instance),
+    _reaper(reaper),
     _desc(transceiver->toString()),
     _type(transceiver->type()),
+    _connector(connector),
     _endpoint(endpoint),
     _adapter(adapter),
     _logger(_instance->initializationData().logger), // Cached for better performance.

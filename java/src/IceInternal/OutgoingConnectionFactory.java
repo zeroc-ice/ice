@@ -11,6 +11,36 @@ package IceInternal;
 
 public final class OutgoingConnectionFactory
 {
+    //
+    // Helper class to to multi hash map.
+    //
+    private static class MultiHashMap<K, V> extends java.util.HashMap<K, java.util.List<V>>
+    {
+        public void
+        put(K key, V value)
+        {
+            java.util.List<V> list = this.get(key);
+            if(list == null)
+            {
+                list = new java.util.LinkedList<V>();
+                this.put(key, list);
+            }
+            list.add(value);
+        }
+
+        public void
+        remove(K key, V value)
+        {
+            java.util.List<V> list = this.get(key);
+            assert(list != null);
+            list.remove(value);
+            if(list.isEmpty())
+            {
+                this.remove(key);
+            }
+        }
+    };
+    
     interface CreateConnectionCallback
     {
         void setConnection(Ice.ConnectionI connection, boolean compress);
@@ -40,7 +70,7 @@ public final class OutgoingConnectionFactory
     public void
     waitUntilFinished()
     {
-        java.util.Map<ConnectorInfo, java.util.List<Ice.ConnectionI> > connections = null;
+        java.util.Map<Connector, java.util.List<Ice.ConnectionI> > connections = null;
 
         synchronized(this)
         {
@@ -65,10 +95,7 @@ public final class OutgoingConnectionFactory
             // We want to wait until all connections are finished outside the
             // thread synchronization.
             //
-            if(_connections != null)
-            {
-                connections = new java.util.HashMap<ConnectorInfo, java.util.List<Ice.ConnectionI> >(_connections);
-            }
+            connections = new java.util.HashMap<Connector, java.util.List<Ice.ConnectionI> >(_connections);
         }
 
         //
@@ -84,13 +111,24 @@ public final class OutgoingConnectionFactory
 
         synchronized(this)
         {
-            //
-            // For consistency with C#, we set _connections to null rather than to a
-            // new empty list so that our finalizer does not try to invoke any
-            // methods on member objects.
-            //
-            _connections = null;
-            _connectionsByEndpoint = null;
+            // Ensure all the connections are finished and reapable at this point.
+            java.util.List<Ice.ConnectionI> cons = _reaper.swapConnections();
+            if(cons != null)
+            {
+                int size = 0;
+                for(java.util.List<Ice.ConnectionI> connectionList : _connections.values())
+                {
+                    size += connectionList.size();
+                }
+                assert(cons.size() == size);
+                _connections.clear();
+                _connectionsByEndpoint.clear();
+            }
+            else
+            {
+                assert(_connections.isEmpty());
+                assert(_connectionsByEndpoint.isEmpty());
+            }
         }
     }
 
@@ -199,14 +237,14 @@ public final class OutgoingConnectionFactory
             catch(Ice.CommunicatorDestroyedException ex)
             {
                 exception = ex;
-                handleException(exception, ci, connection, hasMore || p.hasNext());
+                handleConnectionException(exception, hasMore || p.hasNext());
                 connection = null;
                 break; // No need to continue
             }
             catch(Ice.LocalException ex)
             {
                 exception = ex;
-                handleException(exception, ci, connection, hasMore || p.hasNext());
+                handleConnectionException(exception, hasMore || p.hasNext());
                 connection = null;
             }
         }
@@ -346,6 +384,11 @@ public final class OutgoingConnectionFactory
 
         synchronized(this)
         {
+            if(_destroyed)
+            {
+                return;
+            }
+
             for(java.util.List<Ice.ConnectionI> connectionList : _connections.values())
             {
                 for(Ice.ConnectionI connection : connectionList)
@@ -382,8 +425,8 @@ public final class OutgoingConnectionFactory
         throws Throwable
     {
         IceUtilInternal.Assert.FinalizerAssert(_destroyed);
-        IceUtilInternal.Assert.FinalizerAssert(_connections == null);
-        IceUtilInternal.Assert.FinalizerAssert(_connectionsByEndpoint == null);
+        //IceUtilInternal.Assert.FinalizerAssert(_connections.isEmpty());
+        //IceUtilInternal.Assert.FinalizerAssert(_connectionsByEndpoint.isEmpty());
         IceUtilInternal.Assert.FinalizerAssert(_pendingConnectCount == 0);
         IceUtilInternal.Assert.FinalizerAssert(_pending.isEmpty());
 
@@ -461,12 +504,12 @@ public final class OutgoingConnectionFactory
         DefaultsAndOverrides defaultsAndOverrides = _instance.defaultsAndOverrides();
         for(ConnectorInfo ci : connectors)
         {
-            if(_pending.containsKey(ci))
+            if(_pending.containsKey(ci.connector))
             {
                 continue;
             }
 
-            java.util.List<Ice.ConnectionI> connectionList = _connections.get(ci);
+            java.util.List<Ice.ConnectionI> connectionList = _connections.get(ci.connector);
             if(connectionList == null)
             {
                 continue;
@@ -476,17 +519,6 @@ public final class OutgoingConnectionFactory
             {
                 if(connection.isActiveOrHolding()) // Don't return destroyed or un-validated connections
                 {
-                    if(!connection.endpoint().equals(ci.endpoint))
-                    {
-                        java.util.List<Ice.ConnectionI> conList = _connectionsByEndpoint.get(ci.endpoint);
-                        if(conList == null)
-                        {
-                            conList = new java.util.LinkedList<Ice.ConnectionI>();
-                            _connectionsByEndpoint.put(ci.endpoint, conList);
-                        }
-                        conList.add(connection);
-                    }
-
                     if(defaultsAndOverrides.overrideCompress)
                     {
                         compress.value = defaultsAndOverrides.overrideCompressValue;
@@ -543,49 +575,16 @@ public final class OutgoingConnectionFactory
             }
 
             //
-            // Reap connections for which destruction has completed.
+            // Reap closed connections
             //
+            java.util.List<Ice.ConnectionI> cons = _reaper.swapConnections();
+            if(cons != null)
             {
-                java.util.Iterator<java.util.List<Ice.ConnectionI> > p = _connections.values().iterator();
-                while(p.hasNext())
+                for(Ice.ConnectionI c : cons)
                 {
-                    java.util.List<Ice.ConnectionI> connectionList = p.next();
-                    java.util.Iterator<Ice.ConnectionI> q = connectionList.iterator();
-                    while(q.hasNext())
-                    {
-                        Ice.ConnectionI con = q.next();
-                        if(con.isFinished())
-                        {
-                            q.remove();
-                        }
-                    }
-
-                    if(connectionList.isEmpty())
-                    {
-                        p.remove();
-                    }
-                }
-            }
-
-            {
-                java.util.Iterator<java.util.List<Ice.ConnectionI> > p = _connectionsByEndpoint.values().iterator();
-                while(p.hasNext())
-                {
-                    java.util.List<Ice.ConnectionI> connectionList = p.next();
-                    java.util.Iterator<Ice.ConnectionI> q = connectionList.iterator();
-                    while(q.hasNext())
-                    {
-                        Ice.ConnectionI con = q.next();
-                        if(con.isFinished())
-                        {
-                            q.remove();
-                        }
-                    }
-
-                    if(connectionList.isEmpty())
-                    {
-                        p.remove();
-                    }
+                    _connections.remove(c.connector(), c);
+                    _connectionsByEndpoint.remove(c.endpoint(), c);
+                    _connectionsByEndpoint.remove(c.endpoint().compress(true), c);
                 }
             }
 
@@ -662,7 +661,7 @@ public final class OutgoingConnectionFactory
     private synchronized Ice.ConnectionI
     createConnection(Transceiver transceiver, ConnectorInfo ci)
     {
-        assert(_pending.containsKey(ci) && transceiver != null);
+        assert(_pending.containsKey(ci.connector) && transceiver != null);
 
         //
         // Create and add the connection to the connection map. Adding the connection to the map
@@ -677,7 +676,8 @@ public final class OutgoingConnectionFactory
                 throw new Ice.CommunicatorDestroyedException();
             }
 
-            connection = new Ice.ConnectionI(_instance, transceiver, ci.endpoint.compress(false),null);
+            connection = new Ice.ConnectionI(_instance, _reaper, transceiver, ci.connector, 
+                                             ci.endpoint.compress(false), null);
 	}
 	catch(Ice.LocalException ex)
 	{
@@ -692,20 +692,9 @@ public final class OutgoingConnectionFactory
             throw ex;
 	}
 
-        java.util.List<Ice.ConnectionI> connectionList = _connections.get(ci);
-        if(connectionList == null)
-        {
-            connectionList = new java.util.LinkedList<Ice.ConnectionI>();
-            _connections.put(ci, connectionList);
-        }
-        connectionList.add(connection);
-        connectionList = _connectionsByEndpoint.get(ci.endpoint);
-        if(connectionList == null)
-        {
-            connectionList = new java.util.LinkedList<Ice.ConnectionI>();
-            _connectionsByEndpoint.put(ci.endpoint, connectionList);
-        }
-        connectionList.add(connection);
+        _connections.put(ci.connector, connection);
+        _connectionsByEndpoint.put(connection.endpoint(), connection);
+        _connectionsByEndpoint.put(connection.endpoint().compress(true), connection);
         return connection;
     }
 
@@ -726,7 +715,7 @@ public final class OutgoingConnectionFactory
         {
             for(ConnectorInfo c : connectors)
             {
-                java.util.Set<ConnectCallback> cbs = _pending.remove(c);
+                java.util.Set<ConnectCallback> cbs = _pending.remove(c.connector);
                 if(cbs != null)
                 {
                     for(ConnectCallback cc : cbs)
@@ -790,7 +779,7 @@ public final class OutgoingConnectionFactory
         {
             for(ConnectorInfo c : connectors)
             {
-                java.util.Set<ConnectCallback> cbs = _pending.remove(c);
+                java.util.Set<ConnectCallback> cbs = _pending.remove(c.connector);
                 if(cbs != null)
                 {
                     for(ConnectCallback cc : cbs)
@@ -834,7 +823,7 @@ public final class OutgoingConnectionFactory
         boolean found = false;
         for(ConnectorInfo p : connectors)
         {
-            java.util.Set<ConnectCallback> cbs = _pending.get(p);
+            java.util.Set<ConnectCallback> cbs = _pending.get(p.connector);
             if(cbs != null)
             {
                 found = true;
@@ -857,9 +846,9 @@ public final class OutgoingConnectionFactory
         //
         for(ConnectorInfo p : connectors)
         {
-            if(!_pending.containsKey(p))
+            if(!_pending.containsKey(p.connector))
             {
-                _pending.put(p, new java.util.HashSet<ConnectCallback>());
+                _pending.put(p.connector, new java.util.HashSet<ConnectCallback>());
             }
         }
 
@@ -871,7 +860,7 @@ public final class OutgoingConnectionFactory
     {
         for(ConnectorInfo p : connectors)
         {
-            java.util.Set<ConnectCallback> cbs = _pending.get(p);
+            java.util.Set<ConnectCallback> cbs = _pending.get(p.connector);
             if(cbs != null)
             {
                 cbs.remove(cb);
@@ -880,7 +869,7 @@ public final class OutgoingConnectionFactory
     }
 
     private void
-    handleException(Ice.LocalException ex, ConnectorInfo ci, Ice.ConnectionI connection, boolean hasMore)
+    handleConnectionException(Ice.LocalException ex, boolean hasMore)
     {
         TraceLevels traceLevels = _instance.traceLevels();
         if(traceLevels.retry >= 2)
@@ -904,38 +893,6 @@ public final class OutgoingConnectionFactory
             }
             s.append(ex.toString());
             _instance.initializationData().logger.trace(traceLevels.retryCat, s.toString());
-        }
-
-        if(connection != null && connection.isFinished())
-        {
-            //
-            // If the connection is finished, we remove it right away instead of
-            // waiting for the reaping.
-            //
-            // NOTE: it's possible for the connection to not be finished yet.
-            //
-            synchronized(this)
-            {
-                java.util.List<Ice.ConnectionI> connectionList = _connections.get(ci);
-                if(connectionList != null) // It might have already been reaped!
-                {
-                    connectionList.remove(connection);
-                    if(connectionList.isEmpty())
-                    {
-                        _connections.remove(ci);
-                    }
-                }
-
-                connectionList = _connectionsByEndpoint.get(ci.endpoint);
-                if(connectionList != null) // It might have already been reaped!
-                {
-                    connectionList.remove(connection);
-                    if(connectionList.isEmpty())
-                    {
-                        _connectionsByEndpoint.remove(ci.endpoint);
-                    }
-                }
-            }
         }
     }
 
@@ -1020,7 +977,7 @@ public final class OutgoingConnectionFactory
         {
             assert(_current != null);
 
-            _factory.handleException(ex, _current, connection, _hasMore || _iter.hasNext());
+            _factory.handleConnectionException(ex, _hasMore || _iter.hasNext());
             if(ex instanceof Ice.CommunicatorDestroyedException) // No need to continue.
             {
                 _factory.finishGetConnection(_connectors, ex, this);
@@ -1234,13 +1191,13 @@ public final class OutgoingConnectionFactory
     }
 
     private final Instance _instance;
+    private final ConnectionReaper _reaper = new ConnectionReaper();
     private boolean _destroyed;
 
-    private java.util.Map<ConnectorInfo, java.util.List<Ice.ConnectionI> > _connections =
-        new java.util.HashMap<ConnectorInfo, java.util.List<Ice.ConnectionI> >();
-    private java.util.Map<EndpointI, java.util.List<Ice.ConnectionI> > _connectionsByEndpoint =
-        new java.util.HashMap<EndpointI, java.util.List<Ice.ConnectionI> >();
-    private java.util.Map<ConnectorInfo, java.util.HashSet<ConnectCallback> > _pending =
-        new java.util.HashMap<ConnectorInfo, java.util.HashSet<ConnectCallback> >();
+    private MultiHashMap<Connector, Ice.ConnectionI> _connections = new MultiHashMap<Connector, Ice.ConnectionI>();
+    private MultiHashMap<EndpointI, Ice.ConnectionI> _connectionsByEndpoint = 
+        new MultiHashMap<EndpointI, Ice.ConnectionI>();
+    private java.util.Map<Connector, java.util.HashSet<ConnectCallback> > _pending =
+        new java.util.HashMap<Connector, java.util.HashSet<ConnectCallback> >();
     private int _pendingConnectCount = 0;
 }

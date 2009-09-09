@@ -775,6 +775,10 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
         {
             if(--_dispatchCount == 0)
             {
+                if(_state == StateFinished)
+                {
+                    _reaper.add(this);
+                }
                 notifyAll();
             }
 
@@ -805,6 +809,10 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
         {
             if(--_dispatchCount == 0)
             {
+                if(_state == StateFinished)
+                {
+                    _reaper.add(this);
+                }
                 notifyAll();
             }
 
@@ -829,6 +837,12 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
     endpoint()
     {
         return _endpoint; // No mutex protection necessary, _endpoint is immutable.
+    }
+
+    public IceInternal.Connector
+    connector()
+    {
+        return _connector; // No mutex protection necessary, _connector is immutable.
     }
 
     public synchronized void
@@ -1175,6 +1189,10 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
         synchronized(this)
         {
             setState(StateFinished);
+            if(_dispatchCount == 0)
+            {
+                _reaper.add(this);
+            }
         }
     }
 
@@ -1262,21 +1280,28 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
             assert(_dispatchCount >= 0);
             if(_dispatchCount == 0)
             {
+                if(_state == StateFinished)
+                {
+                    _reaper.add(this);
+                }
                 notifyAll();
             }
         }
     }
 
-    public ConnectionI(IceInternal.Instance instance, IceInternal.Transceiver transceiver,
+    public ConnectionI(IceInternal.Instance instance, IceInternal.ConnectionReaper reaper,
+                       IceInternal.Transceiver transceiver, IceInternal.Connector connector,
                        IceInternal.EndpointI endpoint, ObjectAdapter adapter)
     {
         _instance = instance;
-        final Ice.InitializationData initData = instance.initializationData();
+        _reaper = reaper;
         _transceiver = transceiver;
         _desc = transceiver.toString();
         _type = transceiver.type();
+        _connector = connector;
         _endpoint = endpoint;
         _adapter = adapter;
+        final Ice.InitializationData initData = instance.initializationData();
         _logger = initData.logger; // Cached for better performance.
         _traceLevels = instance.traceLevels(); // Cached for better performance.
         _timer = instance.timer();
@@ -2423,9 +2448,11 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
     }
 
     private final IceInternal.Instance _instance;
+    private final IceInternal.ConnectionReaper _reaper;
     private final IceInternal.Transceiver _transceiver;
     private String _desc;
     private final String _type;
+    private final IceInternal.Connector _connector;
     private final IceInternal.EndpointI _endpoint;
 
     private ObjectAdapter _adapter;

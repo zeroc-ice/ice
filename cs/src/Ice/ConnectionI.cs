@@ -304,7 +304,7 @@ namespace Ice
                     }
                 }
 
-                Debug.Assert(_state == StateFinished);
+                Debug.Assert(_state == StateFinished && _dispatchCount == 0);
 
                 //
                 // Clear the OA. See bug 1673 for the details of why this is necessary.
@@ -331,7 +331,7 @@ namespace Ice
                 // Active connection management for idle connections.
                 //
                 if(_acmTimeout <= 0 ||
-                    _requests.Count > 0 || _asyncRequests.Count > 0 || _dispatchCount > 0 ||
+                   _requests.Count > 0 || _asyncRequests.Count > 0 || _dispatchCount > 0 ||
                    _readStream.size() > IceInternal.Protocol.headerSize || 
                    !_writeStream.isEmpty() || 
                    !_batchStream.isEmpty())
@@ -803,6 +803,10 @@ namespace Ice
                 {
                     if(--_dispatchCount == 0)
                     {
+                        if(_state == StateFinished)
+                        {
+                            _reaper.add(this);
+                        }
                         Monitor.PulseAll(this);
                     }
 
@@ -836,6 +840,10 @@ namespace Ice
                 {
                     if(--_dispatchCount == 0)
                     {
+                        if(_state == StateFinished)
+                        {
+                            _reaper.add(this);
+                        }
                         Monitor.PulseAll(this);
                     }
 
@@ -860,6 +868,11 @@ namespace Ice
         public IceInternal.EndpointI endpoint()
         {
             return _endpoint; // No mutex protection necessary, _endpoint is immutable.
+        }
+
+        public IceInternal.Connector connector()
+        {
+            return _connector; // No mutex protection necessary, _endpoint is immutable.
         }
 
         public void setAdapter(ObjectAdapter adapter)
@@ -1304,6 +1317,10 @@ namespace Ice
                         lock(this)
                         {
                             setState(StateFinished);
+                            if(_dispatchCount == 0)
+                            {
+                                _reaper.add(this);
+                            }
                         }
                     });
             }
@@ -1316,6 +1333,10 @@ namespace Ice
                 lock(this)
                 {
                     setState(StateFinished);
+                    if(_dispatchCount == 0)
+                    {
+                        _reaper.add(this);
+                    }
                 }
             }
         }
@@ -1392,6 +1413,10 @@ namespace Ice
                     Debug.Assert(_dispatchCount >= 0);
                     if(_dispatchCount == 0)
                     {
+                        if(_state == StateFinished)
+                        {
+                            _reaper.add(this);
+                        }
                         Monitor.PulseAll(this);
                     }
                 }
@@ -1403,14 +1428,17 @@ namespace Ice
             _compressionSupported = IceInternal.BasicStream.compressible();
         }
 
-        internal ConnectionI(IceInternal.Instance instance, IceInternal.Transceiver transceiver,
+        internal ConnectionI(IceInternal.Instance instance, IceInternal.ConnectionReaper reaper, 
+                             IceInternal.Transceiver transceiver, IceInternal.Connector connector,
                              IceInternal.EndpointI endpoint, ObjectAdapter adapter)
         {
             _instance = instance;
+            _reaper = reaper;
             InitializationData initData = instance.initializationData();
             _transceiver = transceiver;
             _desc = transceiver.ToString();
             _type = transceiver.type();
+            _connector = connector;
             _endpoint = endpoint;
             _adapter = adapter;
             _logger = initData.logger; // Cached for better performance.
@@ -2479,9 +2507,11 @@ namespace Ice
         }
 
         private IceInternal.Instance _instance;
+        private IceInternal.ConnectionReaper _reaper;
         private IceInternal.Transceiver _transceiver;
         private string _desc;
         private string _type;
+        private IceInternal.Connector _connector;
         private IceInternal.EndpointI _endpoint;
 
         private ObjectAdapter _adapter;

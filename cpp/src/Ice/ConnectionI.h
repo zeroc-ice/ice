@@ -23,6 +23,7 @@
 #include <Ice/ObjectAdapterF.h>
 #include <Ice/ServantManagerF.h>
 #include <Ice/EndpointIF.h>
+#include <Ice/ConnectorF.h>
 #include <Ice/LoggerF.h>
 #include <Ice/TraceLevelsF.h>
 #include <Ice/OutgoingAsyncF.h>
@@ -37,6 +38,19 @@ namespace IceInternal
 class Outgoing;
 class BatchOutgoing;
 class OutgoingMessageCallback;
+
+class ConnectionReaper : public IceUtil::Mutex, public IceUtil::Shared
+{
+public:
+
+    void add(const Ice::ConnectionIPtr&);
+    void swapConnections(std::vector<Ice::ConnectionIPtr>&);
+
+private:
+
+    std::vector<Ice::ConnectionIPtr> _connections;
+};
+typedef IceUtil::Handle<ConnectionReaper> ConnectionReaperPtr;
 
 }
 
@@ -96,6 +110,7 @@ public:
     void sendNoResponse();
 
     IceInternal::EndpointIPtr endpoint() const;
+    IceInternal::ConnectorPtr connector() const;
 
     virtual void setAdapter(const ObjectAdapterPtr&); // From Connection.
     virtual ObjectAdapterPtr getAdapter() const; // From Connection.
@@ -168,8 +183,9 @@ private:
         bool adopted;
     };
 
-    ConnectionI(const IceInternal::InstancePtr&, const IceInternal::TransceiverPtr&, const IceInternal::EndpointIPtr&, 
-                const ObjectAdapterPtr&);
+    ConnectionI(const IceInternal::InstancePtr&, const IceInternal::ConnectionReaperPtr&, 
+                const IceInternal::TransceiverPtr&, const IceInternal::ConnectorPtr&, 
+                const IceInternal::EndpointIPtr&, const ObjectAdapterPtr&);
     virtual ~ConnectionI();
 
     friend class IceInternal::IncomingConnectionFactory;
@@ -237,8 +253,10 @@ private:
 
     const IceInternal::TransceiverPtr _transceiver;
     const IceInternal::InstancePtr _instance;
+    const IceInternal::ConnectionReaperPtr _reaper;
     const std::string _desc;
     const std::string _type;
+    const IceInternal::ConnectorPtr _connector;
     const IceInternal::EndpointIPtr _endpoint;
 
     ObjectAdapterPtr _adapter;

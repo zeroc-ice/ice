@@ -30,9 +30,10 @@ SRCS		= Acceptor.cs \
 		  Collections.cs \
 		  ConnectRequestHandler.cs \
 		  ConnectionI.cs \
-		  ConnectionRequestHandler.cs \
 		  ConnectionFactory.cs \
 		  ConnectionMonitor.cs \
+		  ConnectionReaper.cs \
+		  ConnectionRequestHandler.cs \
 		  Connector.cs \
 		  DefaultsAndOverrides.cs \
                   DictionaryBase.cs \
