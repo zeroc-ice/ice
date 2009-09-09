@@ -169,8 +169,8 @@ IceUtilInternal::random(int limit)
 {
     unsigned int r;
 #if defined(_MSC_VER) && (_MSC_VER > 1400)
-    errno_t err;
-    if(err = rand_s(&r) != 0)
+    errno_t err = rand_s(&r);
+    if(err != 0)
     {
         SyscallException ex(__FILE__, __LINE__, errno);
         cerr << "rand_s failed:\n" << ex << endl;
