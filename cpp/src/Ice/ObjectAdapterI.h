@@ -129,6 +129,8 @@ private:
     IceInternal::LocatorInfoPtr _locatorInfo;
     int _directCount; // The number of direct proxies dispatching on this object adapter.
     bool _waitForActivate;
+    int  _waitForHold;
+    bool _waitForHoldRetry;
     bool _destroying;
     bool _destroyed;
     bool _noConfig;

@@ -19,6 +19,7 @@ public:
     HoldI(const IceUtil::TimerPtr&, const Ice::ObjectAdapterPtr&);
 
     virtual void putOnHold(Ice::Int, const Ice::Current&);
+    virtual void waitForHold(const Ice::Current&);
     virtual Ice::Int set(Ice::Int, Ice::Int, const Ice::Current&);
     virtual void setOneway(Ice::Int, Ice::Int, const Ice::Current&);
     virtual void shutdown(const Ice::Current&);

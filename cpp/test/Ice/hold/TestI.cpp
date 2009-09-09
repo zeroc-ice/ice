@@ -20,7 +20,11 @@ HoldI::HoldI(const IceUtil::TimerPtr& timer, const Ice::ObjectAdapterPtr& adapte
 void
 HoldI::putOnHold(Ice::Int milliSeconds, const Ice::Current&)
 {
-    if(milliSeconds <= 0)
+    if(milliSeconds < 0)
+    {
+        _adapter->hold();
+    }
+    else if(milliSeconds == 0)
     {
         _adapter->hold();
         _adapter->activate();
@@ -34,6 +38,49 @@ HoldI::putOnHold(Ice::Int milliSeconds, const Ice::Current&)
         catch(const IceUtil::IllegalArgumentException&)
         {
         }
+    }
+}
+
+void
+HoldI::waitForHold(const Ice::Current& current)
+{
+    class WaitForHold : public IceUtil::TimerTask
+    {
+    public:
+
+        WaitForHold(const Ice::ObjectAdapterPtr& adapter) : _adapter(adapter)
+        {
+        }
+
+        void 
+        runTimerTask()
+        {
+            try
+            {
+                _adapter->waitForHold();
+                _adapter->activate();
+            }
+            catch(const Ice::ObjectAdapterDeactivatedException&)
+            {
+                //
+                // This shouldn't occur. The test ensures all the waitForHold timers are 
+                // finished before shutting down the communicator.
+                //
+                test(false);
+            }
+        }
+
+    private:
+        
+        const Ice::ObjectAdapterPtr _adapter;
+    };
+
+    try
+    {
+        _timer->schedule(new WaitForHold(current.adapter), IceUtil::Time());
+    }
+    catch(const IceUtil::IllegalArgumentException&)
+    {
     }
 }
 

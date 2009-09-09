@@ -41,6 +41,13 @@ namespace Ice
                 checkForDeactivation();
                 
                 //
+                // If some threads are waiting on waitForHold(), we set this
+                // flag to ensure the threads will start again the wait for
+                // all the incoming connection factories.
+                //
+                _waitForHoldRetry = _waitForHold > 0;
+
+                //
                 // If the one off initializations of the adapter are already
                 // done, we just need to activate the incoming connection
                 // factories and we're done.
@@ -123,10 +130,8 @@ namespace Ice
             {
                 checkForDeactivation();
                 
-                int sz = _incomingConnectionFactories.Count;
-                for(int i = 0; i < sz; ++i)
+                foreach(IceInternal.IncomingConnectionFactory factory in _incomingConnectionFactories)
                 {
-                    IceInternal.IncomingConnectionFactory factory = _incomingConnectionFactories[i];
                     factory.hold();
                 }
             }
@@ -134,15 +139,52 @@ namespace Ice
         
         public void waitForHold()
         {
-            lock(this)
+            while(true)
             {
-                checkForDeactivation();
-                
-                int sz = _incomingConnectionFactories.Count;
-                for(int i = 0; i < sz; ++i)
+                List<IceInternal.IncomingConnectionFactory> incomingConnectionFactories;
+                lock(this)
                 {
-                    IceInternal.IncomingConnectionFactory factory = _incomingConnectionFactories[i];
+                    checkForDeactivation();
+                    
+                    incomingConnectionFactories =
+                        new List<IceInternal.IncomingConnectionFactory>(_incomingConnectionFactories);
+                    
+                    ++_waitForHold;
+                }
+
+                foreach(IceInternal.IncomingConnectionFactory factory in incomingConnectionFactories)
+                {
                     factory.waitUntilHolding();
+                }
+                
+                lock(this)
+                {
+                    if(--_waitForHold == 0)
+                    {
+                        System.Threading.Monitor.PulseAll(this);
+                    }
+            
+                    //
+                    // If we don't need to retry, we're done. Otherwise, we wait until 
+                    // all the waiters finish waiting on the connections and we try 
+                    // again waiting on all the conncetions. This is necessary in the 
+                    // case activate() is called by another thread while waitForHold()
+                    // waits on the some connection, if we didn't retry, waitForHold() 
+                    // could return only after waiting on a subset of the connections.
+                    //
+                    if(!_waitForHoldRetry)
+                    {
+                        return;
+                    }
+                    else 
+                    {
+                        while(_waitForHold > 0)
+                        {
+                            checkForDeactivation();
+                            System.Threading.Monitor.Wait(this);
+                        }
+                        _waitForHoldRetry = false;
+                    }
                 }
             }
         }
@@ -213,10 +255,8 @@ namespace Ice
             // Connection::destroy() might block when sending a CloseConnection
             // message.
             //
-            int sz = incomingConnectionFactories.Count;
-            for(int i = 0; i < sz; ++i)
+            foreach(IceInternal.IncomingConnectionFactory factory in incomingConnectionFactories)
             {
-                IceInternal.IncomingConnectionFactory factory = incomingConnectionFactories[i];
                 factory.destroy();
             }
 
@@ -255,9 +295,9 @@ namespace Ice
             // Now we wait for until all incoming connection factories are
             // finished.
             //
-            for(int i = 0; i < incomingConnectionFactories.Length; ++i)
+            foreach(IceInternal.IncomingConnectionFactory factory in incomingConnectionFactories)
             {
-                incomingConnectionFactories[i].waitUntilFinished();
+                factory.waitUntilFinished();
             }
         }
 
@@ -329,10 +369,7 @@ namespace Ice
                 // We're done, now we can throw away all incoming connection
                 // factories.
                 //
-                // We set _incomingConnectionFactories to null because the finalizer
-                // must not invoke methods on objects.
-                //
-                _incomingConnectionFactories = null;
+                _incomingConnectionFactories.Clear();
                 
                 //
                 // Remove object references (some of them cyclic).
@@ -793,6 +830,8 @@ namespace Ice
             _routerInfo = null;
             _directCount = 0;
             _waitForActivate = false;
+            _waitForHold = 0;
+            _waitForHoldRetry = false;
             _noConfig = noConfig;
             _processId = null;
             
@@ -1497,6 +1536,8 @@ namespace Ice
         private IceInternal.LocatorInfo _locatorInfo;
         private int _directCount;
         private bool _waitForActivate;
+        private int _waitForHold;
+        private bool _waitForHoldRetry;
         private bool _destroying;
         private bool _destroyed;
         private bool _noConfig;

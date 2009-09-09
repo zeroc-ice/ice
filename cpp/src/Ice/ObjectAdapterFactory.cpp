@@ -67,15 +67,6 @@ IceInternal::ObjectAdapterFactory::waitForShutdown()
             wait();
         }
 
-        //
-        // If some other thread is currently shutting down, we wait
-        // until this thread is finished.
-        //
-        while(_waitForShutdown)
-        {
-            wait();
-        }
-        _waitForShutdown = true;
         adapters = _adapters;
     }
 
@@ -83,16 +74,6 @@ IceInternal::ObjectAdapterFactory::waitForShutdown()
     // Now we wait for deactivation of each object adapter.
     //
     for_each(adapters.begin(), adapters.end(), IceUtil::voidMemFun(&ObjectAdapter::waitForDeactivate));
-    
-    {
-        IceUtil::Monitor<IceUtil::RecMutex>::Lock sync(*this);
-
-        //
-        // Signal that waiting is complete.
-        //
-        _waitForShutdown = false;
-        notifyAll();
-    }
 }
 
 bool
@@ -115,13 +96,18 @@ IceInternal::ObjectAdapterFactory::destroy()
 
     {
         IceUtil::Monitor<IceUtil::RecMutex>::Lock sync(*this);
-        adapters.swap(_adapters);
+        adapters = _adapters;
     }
 
     //
     // Now we destroy each object adapter.
     //
     for_each(adapters.begin(), adapters.end(), IceUtil::voidMemFun(&ObjectAdapter::destroy));
+
+    {
+        IceUtil::Monitor<IceUtil::RecMutex>::Lock sync(*this);
+        _adapters.clear();
+    }
 }
 
 ObjectAdapterPtr
@@ -223,8 +209,7 @@ IceInternal::ObjectAdapterFactory::flushBatchRequests() const
 IceInternal::ObjectAdapterFactory::ObjectAdapterFactory(const InstancePtr& instance,
                                                         const CommunicatorPtr& communicator) :
     _instance(instance),
-    _communicator(communicator),
-    _waitForShutdown(false)
+    _communicator(communicator)
 {
 }
 
@@ -233,5 +218,4 @@ IceInternal::ObjectAdapterFactory::~ObjectAdapterFactory()
     assert(!_instance);
     assert(!_communicator);
     assert(_adapters.empty());
-    assert(!_waitForShutdown);
 }

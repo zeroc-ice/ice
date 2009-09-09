@@ -33,6 +33,14 @@ General Changes
 These entries apply to all relevant language mappings unless otherwise
 noted.
 
+- Fixed a bug where calling the object adapter waitForHold() method 
+  would cause other calls on the object adapter to hang until the 
+  waitForHold() method returned.
+
+- Improved connection establishment scalability. Creating or accepting
+  a new connection show now be done in constant time regardless of the
+  number of connections already established or accepted.
+
 - Fixed Glacier2 router bug which would cause the getCategoryForClient
   method to throw Ice::NullHandleException if the server endpoints
   were not set, instead it now returns an empty string.

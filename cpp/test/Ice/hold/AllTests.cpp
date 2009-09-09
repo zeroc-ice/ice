@@ -218,6 +218,25 @@ allTests(const Ice::CommunicatorPtr& communicator)
     }
     cout << "ok" << endl;
 
+    cout << "testing waitForHold... " << flush;
+    {
+        hold->waitForHold();
+        hold->waitForHold();
+        for(i = 0; i < 1000; ++i)
+        {
+            hold->ice_oneway()->ice_ping();
+            if((i % 20) == 0)
+            {
+                hold->putOnHold(0);
+            }
+        }
+        hold->putOnHold(-1);
+        hold->ice_ping();
+        hold->putOnHold(-1);
+        hold->ice_ping();
+    }
+    cout << "ok" << endl;
+
     cout << "changing state to hold and shutting down server... " << flush;
     hold->shutdown();
     cout << "ok" << endl;

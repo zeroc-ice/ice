@@ -222,6 +222,26 @@ public class AllTests
         }
         Console.Out.WriteLine("ok");
 
+        Console.Out.Write("testing waitForHold... ");
+        Console.Out.Flush();
+        {
+            hold.waitForHold();
+            hold.waitForHold();
+            for(int i = 0; i < 1000; ++i)
+            {
+                holdOneway.ice_ping();
+                if((i % 20) == 0)
+                {
+                    hold.putOnHold(0);
+                }
+            }
+            hold.putOnHold(-1);
+            hold.ice_ping();
+            hold.putOnHold(-1);
+            hold.ice_ping();            
+        }
+        Console.Out.WriteLine("ok");
+
         Console.Out.Write("changing state to hold and shutting down server... ");
         Console.Out.Flush();
         hold.shutdown();

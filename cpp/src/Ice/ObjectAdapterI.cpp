@@ -72,6 +72,13 @@ Ice::ObjectAdapterI::activate()
         checkForDeactivation();
 
         //
+        // If some threads are waiting on waitForHold(), we set this
+        // flag to ensure the threads will start again the wait for
+        // all the incoming connection factories.
+        //
+        _waitForHoldRetry = _waitForHold > 0;
+
+        //
         // If the one off initializations of the adapter are already
         // done, we just need to activate the incoming connection
         // factories and we're done.
@@ -158,12 +165,52 @@ Ice::ObjectAdapterI::hold()
 void
 Ice::ObjectAdapterI::waitForHold()
 {
-    IceUtil::Monitor<IceUtil::RecMutex>::Lock sync(*this);
+    while(true)
+    {
+        vector<IncomingConnectionFactoryPtr> incomingConnectionFactories;
+        {
+            IceUtil::Monitor<IceUtil::RecMutex>::Lock sync(*this);
+            
+            checkForDeactivation();
+            
+            incomingConnectionFactories = _incomingConnectionFactories;
 
-    checkForDeactivation();
-
-    for_each(_incomingConnectionFactories.begin(), _incomingConnectionFactories.end(),
-             Ice::constVoidMemFun(&IncomingConnectionFactory::waitUntilHolding));
+            ++_waitForHold;
+        }
+        
+        for_each(incomingConnectionFactories.begin(), incomingConnectionFactories.end(),
+                 Ice::constVoidMemFun(&IncomingConnectionFactory::waitUntilHolding));
+        
+        {
+            IceUtil::Monitor<IceUtil::RecMutex>::Lock sync(*this);
+            if(--_waitForHold == 0)
+            {
+                notifyAll();
+            }
+            
+            //
+            // If we don't need to retry, we're done. Otherwise, we wait until 
+            // all the waiters finish waiting on the connections and we try 
+            // again waiting on all the conncetions. This is necessary in the 
+            // case activate() is called by another thread while waitForHold()
+            // waits on the some connection, if we didn't retry, waitForHold() 
+            // could return only after waiting on a subset of the connections.
+            //
+            if(!_waitForHoldRetry)
+            {
+                return;
+            }
+            else
+            {
+                while(_waitForHold > 0)
+                {
+                    checkForDeactivation();
+                    wait();
+                }
+                _waitForHoldRetry = false;
+            }
+        }
+    }
 }
 
 void
@@ -795,6 +842,8 @@ Ice::ObjectAdapterI::ObjectAdapterI(const InstancePtr& instance, const Communica
     _name(name),
     _directCount(0),
     _waitForActivate(false),
+    _waitForHold(0),
+    _waitForHoldRetry(false),
     _destroying(false),
     _destroyed(false),
     _noConfig(noConfig)

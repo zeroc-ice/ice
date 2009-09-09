@@ -216,6 +216,26 @@ public class AllTests
         }
         out.println("ok");
 
+        out.print("testing waitForHold... ");
+        out.flush();
+        {
+            hold.waitForHold();
+            hold.waitForHold();
+            for(int i = 0; i < 1000; ++i)
+            {
+                holdOneway.ice_ping();
+                if((i % 20) == 0)
+                {
+                    hold.putOnHold(0);
+                }
+            }
+            hold.putOnHold(-1);
+            hold.ice_ping();
+            hold.putOnHold(-1);
+            hold.ice_ping();            
+        }
+        out.println("ok");
+        
         out.print("changing state to hold and shutting down server... ");
         out.flush();
         hold.shutdown();

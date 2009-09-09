@@ -29,7 +29,7 @@ public final class ObjectAdapterFactory
             _instance = null;
             _communicator = null;
 
-            adapters = _adapters;
+            adapters = new java.util.LinkedList<Ice.ObjectAdapterI>(_adapters);
         
             notifyAll();
         }
@@ -38,12 +38,9 @@ public final class ObjectAdapterFactory
         // Deactivate outside the thread synchronization, to avoid
         // deadlocks.
         //
-        if(adapters != null)
+        for(Ice.ObjectAdapterI adapter : adapters)
         {
-            for(Ice.ObjectAdapterI adapter : adapters)
-            {
-                adapter.deactivate();
-            }
+            adapter.deactivate();
         }
     }
 
@@ -66,43 +63,16 @@ public final class ObjectAdapterFactory
                 {
                 }
             }
-            
-            //
-            // If some other thread is currently shutting down, we wait
-            // until this thread is finished.
-            //
-            while(_waitForShutdown)
-            {
-                try
-                {
-                    wait();
-                }
-                catch(InterruptedException ex)
-                {
-                }
-            }
-            _waitForShutdown = true;
-            adapters = _adapters;
+
+            adapters = new java.util.LinkedList<Ice.ObjectAdapterI>(_adapters);
         }
         
         //
         // Now we wait for deactivation of each object adapter.
         //
-        if(adapters != null)
+        for(Ice.ObjectAdapterI adapter : adapters)
         {
-            for(Ice.ObjectAdapterI adapter : adapters)
-            {
-                adapter.waitForDeactivate();
-            }
-        }
-
-        synchronized(this)
-        {
-            //
-            // Signal that waiting is complete.
-            //
-            _waitForShutdown = false;
-            notifyAll();
+            adapter.waitForDeactivate();
         }
     }
 
@@ -123,25 +93,17 @@ public final class ObjectAdapterFactory
         java.util.List<Ice.ObjectAdapterI> adapters;
         synchronized(this)
         {
-            adapters = _adapters;
-
-            //
-            // For consistency with C#, we set _adapters to null
-            // so that our finalizer does not try to invoke any
-            // methods on member objects.
-            //
-            _adapters = null;
+            adapters = new java.util.LinkedList<Ice.ObjectAdapterI>(_adapters);
         }
 
-        //
-        // Now we destroy each object adapter.
-        //
-        if(adapters != null)
+        for(Ice.ObjectAdapterI adapter : adapters)
         {
-            for(Ice.ObjectAdapterI adapter : adapters)
-            {
-                adapter.destroy();
-            }
+            adapter.destroy();
+        }
+
+        synchronized(this)
+        {
+            _adapters.clear();
         }
     }
     
@@ -183,7 +145,7 @@ public final class ObjectAdapterFactory
                 return null;
             }
 
-            adapters = _adapters;
+            adapters = new java.util.LinkedList<Ice.ObjectAdapterI>(_adapters);
         }
 
         for(Ice.ObjectAdapterI adapter : adapters)
@@ -222,12 +184,7 @@ public final class ObjectAdapterFactory
         java.util.List<Ice.ObjectAdapterI> adapters;
         synchronized(this)
         {
-            if(_adapters == null)
-            {
-                return;
-            }
-
-            adapters = _adapters;
+            adapters = new java.util.LinkedList<Ice.ObjectAdapterI>(_adapters);
         }
 
         for(Ice.ObjectAdapterI adapter : adapters)
@@ -243,7 +200,6 @@ public final class ObjectAdapterFactory
     {
         _instance = instance;
         _communicator = communicator;
-        _waitForShutdown = false;
     }
 
     protected synchronized void
@@ -252,8 +208,7 @@ public final class ObjectAdapterFactory
     {
         IceUtilInternal.Assert.FinalizerAssert(_instance == null);
         IceUtilInternal.Assert.FinalizerAssert(_communicator == null);
-        IceUtilInternal.Assert.FinalizerAssert(_adapters == null);
-        IceUtilInternal.Assert.FinalizerAssert(!_waitForShutdown);
+        //IceUtilInternal.Assert.FinalizerAssert(_adapters.isEmpty())
 
         super.finalize();
     }
@@ -262,5 +217,4 @@ public final class ObjectAdapterFactory
     private Ice.Communicator _communicator;
     private java.util.Set<String> _adapterNamesInUse = new java.util.HashSet<String>();
     private java.util.List<Ice.ObjectAdapterI> _adapters = new java.util.LinkedList<Ice.ObjectAdapterI>();
-    private boolean _waitForShutdown;
 }

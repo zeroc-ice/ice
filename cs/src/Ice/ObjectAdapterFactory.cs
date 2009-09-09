@@ -31,7 +31,7 @@ namespace IceInternal
                     return;
                 }
 
-                adapters = _adapters;
+                adapters = new List<Ice.ObjectAdapterI>(_adapters);
                 
                 instance_ = null;
                 _communicator = null;
@@ -62,36 +62,15 @@ namespace IceInternal
                     System.Threading.Monitor.Wait(this);
                 }
                 
-                //
-                // If some other thread is currently shutting down, we wait
-                // until this thread is finished.
-                //
-                while(_waitForShutdown)
-                {
-                    System.Threading.Monitor.Wait(this);
-                }
-                _waitForShutdown = true;
-                adapters = _adapters;
+                adapters = new List<Ice.ObjectAdapterI>(_adapters);
             }
 
             //
             // Now we wait for deactivation of each object adapter.
             //
-            if(adapters != null)
+            foreach(Ice.ObjectAdapter adapter in adapters)
             {
-                foreach(Ice.ObjectAdapter adapter in adapters)
-                {
-                    adapter.waitForDeactivate();
-                }
-            }
-            
-            lock(this)
-            {
-                //
-                // Signal that waiting is complete.
-                //
-                _waitForShutdown = false;
-                System.Threading.Monitor.PulseAll(this);
+                adapter.waitForDeactivate();
             }
         }
 
@@ -113,21 +92,17 @@ namespace IceInternal
             List<Ice.ObjectAdapterI> adapters;
             lock(this)
             {
-                adapters = _adapters;
-
-                //
-                // We set _adapters to null because our destructor must not
-                // invoke methods on member objects.
-                //
-                _adapters = null;
+                adapters = new List<Ice.ObjectAdapterI>(_adapters);
             }
 
-            if(adapters != null)
+            foreach(Ice.ObjectAdapter adapter in adapters)
             {
-                foreach(Ice.ObjectAdapter adapter in adapters)
-                {
-                    adapter.destroy();
-                }
+                adapter.destroy();
+            }
+
+            lock(this)
+            {
+                _adapters.Clear();
             }
         }
         
@@ -173,7 +148,7 @@ namespace IceInternal
                     return null;
                 }
                 
-                adapters = _adapters;
+                adapters = new List<Ice.ObjectAdapterI>(_adapters);
             }
             
             foreach(Ice.ObjectAdapterI adapter in adapters)
@@ -213,12 +188,7 @@ namespace IceInternal
             List<Ice.ObjectAdapterI> adapters;
             lock(this)
             {
-                if(_adapters == null)
-                {
-                    return;
-                }
-                
-                adapters = _adapters;
+                adapters = new List<Ice.ObjectAdapterI>(_adapters);
             }
 
             foreach(Ice.ObjectAdapterI adapter in adapters)
@@ -236,14 +206,12 @@ namespace IceInternal
             _communicator = communicator;
             _adapterNamesInUse = new Set();
             _adapters = new List<Ice.ObjectAdapterI>();
-            _waitForShutdown = false;
         }
         
         private Instance instance_;
         private Ice.Communicator _communicator;
         private Set _adapterNamesInUse;
         private List<Ice.ObjectAdapterI> _adapters;
-        private bool _waitForShutdown;
     }
 
 }

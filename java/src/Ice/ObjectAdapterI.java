@@ -38,17 +38,21 @@ public final class ObjectAdapterI implements ObjectAdapter
             checkForDeactivation();
 
             //
+            // If some threads are waiting on waitForHold(), we set this
+            // flag to ensure the threads will start again the wait for
+            // all the incoming connection factories.
+            //
+            _waitForHoldRetry = _waitForHold > 0;
+
+            //
             // If the one off initializations of the adapter are already
             // done, we just need to activate the incoming connection
             // factories and we're done.
             //
             if(_activateOneOffDone)
             {
-                final int sz = _incomingConnectionFactories.size();
-                for(int i = 0; i < sz; ++i)
+                for(IceInternal.IncomingConnectionFactory factory : _incomingConnectionFactories)
                 {
-                    IceInternal.IncomingConnectionFactory factory =
-                        (IceInternal.IncomingConnectionFactory)_incomingConnectionFactories.get(i);
                     factory.activate();
                 }
                 return;
@@ -111,11 +115,8 @@ public final class ObjectAdapterI implements ObjectAdapter
 
             _activateOneOffDone = true;
 
-            final int sz = _incomingConnectionFactories.size();
-            for(int i = 0; i < sz; ++i)
+            for(IceInternal.IncomingConnectionFactory factory : _incomingConnectionFactories)
             {
-                IceInternal.IncomingConnectionFactory factory =
-                    (IceInternal.IncomingConnectionFactory)_incomingConnectionFactories.get(i);
                 factory.activate();
             }
         }
@@ -126,26 +127,68 @@ public final class ObjectAdapterI implements ObjectAdapter
     {
         checkForDeactivation();
 
-        final int sz = _incomingConnectionFactories.size();
-        for(int i = 0; i < sz; ++i)
+        for(IceInternal.IncomingConnectionFactory factory : _incomingConnectionFactories)
         {
-            IceInternal.IncomingConnectionFactory factory =
-                (IceInternal.IncomingConnectionFactory)_incomingConnectionFactories.get(i);
             factory.hold();
         }
     }
 
-    public synchronized void
+    public void
     waitForHold()
     {
-        checkForDeactivation();
-
-        final int sz = _incomingConnectionFactories.size();
-        for(int i = 0; i < sz; ++i)
+        while(true)
         {
-            IceInternal.IncomingConnectionFactory factory =
-                (IceInternal.IncomingConnectionFactory)_incomingConnectionFactories.get(i);
-            factory.waitUntilHolding();
+            java.util.List<IceInternal.IncomingConnectionFactory> incomingConnectionFactories;
+            synchronized(this)
+            {
+                checkForDeactivation();
+            
+                incomingConnectionFactories =
+                    new java.util.ArrayList<IceInternal.IncomingConnectionFactory>(_incomingConnectionFactories);
+
+                ++_waitForHold;
+            }
+
+            for(IceInternal.IncomingConnectionFactory factory : incomingConnectionFactories)
+            {
+                factory.waitUntilHolding();
+            }
+
+            synchronized(this)
+            {
+                if(--_waitForHold == 0)
+                {
+                    notifyAll();
+                }
+                
+                //
+                // If we don't need to retry, we're done. Otherwise, we wait until 
+                // all the waiters finish waiting on the connections and we try 
+                // again waiting on all the conncetions. This is necessary in the 
+                // case activate() is called by another thread while waitForHold()
+                // waits on the some connection, if we didn't retry, waitForHold() 
+                // could return only after waiting on a subset of the connections.
+                //
+                if(!_waitForHoldRetry)
+                {
+                    return;
+                }
+                else
+                {
+                    while(_waitForHold > 0)
+                    {
+                        checkForDeactivation();
+                        try
+                        {
+                            wait();
+                        }
+                        catch(java.lang.InterruptedException ex)
+                        {
+                        }
+                    }
+                    _waitForHoldRetry = false;
+                }
+            }
         }
     }
 
@@ -222,10 +265,8 @@ public final class ObjectAdapterI implements ObjectAdapter
         // Connection::destroy() might block when sending a CloseConnection
         // message.
         //
-        final int sz = incomingConnectionFactories.size();
-        for(int i = 0; i < sz; ++i)
+        for(IceInternal.IncomingConnectionFactory factory : incomingConnectionFactories)
         {
-            IceInternal.IncomingConnectionFactory factory = incomingConnectionFactories.get(i);
             factory.destroy();
         }
 
@@ -348,14 +389,7 @@ public final class ObjectAdapterI implements ObjectAdapter
             _destroyed = true;
             notifyAll();
 
-            //
-            // We're done, now we can throw away all incoming connection
-            // factories.
-            //
-            // For compatibility with C#, we set _incomingConnectionFactories
-            // to null so that the finalizer does not invoke methods on objects.
-            //
-            _incomingConnectionFactories = null;
+            _incomingConnectionFactories.clear();
 
             //
             // Remove object references (some of them cyclic).
@@ -604,9 +638,8 @@ public final class ObjectAdapterI implements ObjectAdapter
     getEndpoints()
     {
         java.util.List<Endpoint> endpoints = new java.util.ArrayList<Endpoint>();
-        for(int i = 0; i < _incomingConnectionFactories.size(); ++i)
+        for(IceInternal.IncomingConnectionFactory factory : _incomingConnectionFactories)
         {
-            IceInternal.IncomingConnectionFactory factory = _incomingConnectionFactories.get(i);
             endpoints.add(factory.endpoint());
         }
         return endpoints.toArray(new Endpoint[0]);
@@ -782,6 +815,8 @@ public final class ObjectAdapterI implements ObjectAdapter
         _name = name;
         _directCount = 0;
         _waitForActivate = false;
+        _waitForHold = 0;
+        _waitForHoldRetry = false;
         _destroying = false;
         _destroyed = false;
         _noConfig = noConfig;
@@ -934,9 +969,8 @@ public final class ObjectAdapterI implements ObjectAdapter
                 //
                 java.util.List<IceInternal.EndpointI> endpoints =
                     parseEndpoints(properties.getProperty(_name + ".Endpoints"), true);
-                for(int i = 0; i < endpoints.size(); ++i)
+                for(IceInternal.EndpointI endp : endpoints)
                 {
-                    IceInternal.EndpointI endp = endpoints.get(i);
                     IceInternal.IncomingConnectionFactory factory =
                         new IceInternal.IncomingConnectionFactory(instance, endp, this, _name);
                     _incomingConnectionFactories.add(factory);
@@ -991,7 +1025,7 @@ public final class ObjectAdapterI implements ObjectAdapter
         {
             IceUtilInternal.Assert.FinalizerAssert(_threadPool == null);
             //IceUtilInternal.Assert.FinalizerAssert(_servantManager == null); // Not cleared, it needs to be immutable.
-            IceUtilInternal.Assert.FinalizerAssert(_incomingConnectionFactories == null);
+            //IceUtilInternal.Assert.FinalizerAssert(_incomingConnectionFactories.isEmpty());
             IceUtilInternal.Assert.FinalizerAssert(_directCount == 0);
             IceUtilInternal.Assert.FinalizerAssert(!_waitForActivate);
         }
@@ -1177,9 +1211,8 @@ public final class ObjectAdapterI implements ObjectAdapter
             // If the PublishedEndpoints property isn't set, we compute the published enpdoints
             // from the OA endpoints.
             //
-            for(int i = 0; i < _incomingConnectionFactories.size(); ++i)
+            for(IceInternal.IncomingConnectionFactory factory : _incomingConnectionFactories)
             {
-                IceInternal.IncomingConnectionFactory factory = _incomingConnectionFactories.get(i);
                 endpoints.add(factory.endpoint());
             }
 
@@ -1500,6 +1533,8 @@ public final class ObjectAdapterI implements ObjectAdapter
     private IceInternal.LocatorInfo _locatorInfo;
     private int _directCount;
     private boolean _waitForActivate;
+    private int _waitForHold;
+    private boolean _waitForHoldRetry;
     private boolean _destroying;
     private boolean _destroyed;
     private boolean _noConfig;

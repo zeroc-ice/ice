@@ -28,7 +28,11 @@ public sealed class HoldI : HoldDisp_
     public override void
     putOnHold(int milliSeconds, Ice.Current current)
     {
-        if(milliSeconds <= 0)
+        if(milliSeconds < 0)
+        {
+            _adapter.hold();
+        }
+        else if(milliSeconds == 0)
         {
             _adapter.hold();
             _adapter.activate();
@@ -51,6 +55,47 @@ public sealed class HoldI : HoldDisp_
             timer.Enabled = true;
         }
     }
+
+    public override void
+    waitForHold(Ice.Current current)
+    {
+        lock(this)
+        {
+            if(++_waitForHold == 1)
+            {
+                System.Timers.Timer timer = new System.Timers.Timer(1);
+                timer.AutoReset = false;
+                timer.Elapsed += new System.Timers.ElapsedEventHandler(
+                    delegate(object source, System.Timers.ElapsedEventArgs e)
+                    {
+                        while(true)
+                        {
+                            lock(this)
+                            {
+                                if(--_waitForHold < 0)
+                                {
+                                    return;
+                                }
+                            }
+                            try
+                            {
+                                current.adapter.waitForHold();
+                                current.adapter.activate();
+                            }
+                            catch(Ice.ObjectAdapterDeactivatedException)
+                            {
+                                //
+                                // This shouldn't occur. The test ensures all the waitForHold timers are 
+                                // finished before shutting down the communicator.
+                                //
+                                test(false);
+                            }
+                        }
+                    });
+                timer.Enabled = true;
+            }
+        }
+    }    
 
     public override int
     set(int value, int delay, Ice.Current current)
@@ -84,4 +129,5 @@ public sealed class HoldI : HoldDisp_
 
     private Ice.ObjectAdapter _adapter;
     private int _last = 0;
+    private int _waitForHold = 0;
 }
