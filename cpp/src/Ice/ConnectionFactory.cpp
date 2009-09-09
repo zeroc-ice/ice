@@ -48,15 +48,21 @@ struct RandomNumberGenerator : public std::unary_function<ptrdiff_t, ptrdiff_t>
 };
 
 template <typename K, typename V> void
-remove(multimap<K, V>& map, K k, V v)
+remove(multimap<K, V>& m, K k, V v)
 {
-    pair<typename multimap<K, V>::iterator, typename multimap<K, V>::iterator> pr = map.equal_range(k);
+#if defined(_MSC_VER) && (_MSC_VER < 1300)
+    pair<multimap<K, V>::iterator, multimap<K, V>::iterator> pr = m.equal_range(k);
+    assert(pr.first != pr.second);
+    for(multimap<K, V>::iterator q = pr.first; q != pr.second; ++q)
+#else
+    pair<typename multimap<K, V>::iterator, typename multimap<K, V>::iterator> pr = m.equal_range(k);
     assert(pr.first != pr.second);
     for(typename multimap<K, V>::iterator q = pr.first; q != pr.second; ++q)
+#endif
     {
         if(q->second.get() == v.get())
         {
-            map.erase(q);
+            m.erase(q);
             return;
         }
     }
@@ -64,13 +70,19 @@ remove(multimap<K, V>& map, K k, V v)
 }
 
 template <typename K, typename V> ::IceInternal::Handle<V>
-find(multimap<K,::IceInternal::Handle<V> >& map, 
+find(multimap<K,::IceInternal::Handle<V> >& m, 
      K k, 
      const ::IceUtilInternal::ConstMemFun<bool, V, ::IceInternal::Handle<V> >& predicate)
 {
+#if defined(_MSC_VER) && (_MSC_VER < 1300)
+    pair<multimap<K, ::IceInternal::Handle<V> >::const_iterator, 
+         multimap<K, ::IceInternal::Handle<V> >::const_iterator> pr = m.equal_range(k);
+    for(multimap<K, ::IceInternal::Handle<V> >::const_iterator q = pr.first; q != pr.second; ++q)
+#else
     pair<typename multimap<K, ::IceInternal::Handle<V> >::const_iterator, 
-         typename multimap<K, ::IceInternal::Handle<V> >::const_iterator> pr = map.equal_range(k);
+         typename multimap<K, ::IceInternal::Handle<V> >::const_iterator> pr = m.equal_range(k);
     for(typename multimap<K, ::IceInternal::Handle<V> >::const_iterator q = pr.first; q != pr.second; ++q)
+#endif
     {
         if(predicate(q->second))
         {
