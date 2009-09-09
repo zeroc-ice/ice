@@ -233,6 +233,13 @@ public final class ServantManager
         assert(_instance != null); // Must not be called after destruction.
     
         l = _locatorMap.remove(category);
+        if(l == null)
+        {
+            Ice.NotRegisteredException ex = new Ice.NotRegisteredException();
+            ex.id = IceUtilInternal.StringUtil.escapeString(category, "");
+            ex.kindOfObject = "servant locator";
+            throw ex;
+        }
         return l;
     }
 

@@ -95,9 +95,9 @@ local exception AlreadyRegisteredException
  * registered with the Ice run time or Ice locator.
  *
  * This exception is raised if an attempt is made to remove a servant,
- * facet, object factory, plug-in, object adapter, object, or user
- * exception factory that is not currently registered. 
- 
+ * servant locator, facet, object factory, plug-in, object adapter, 
+ * object, or user exception factory that is not currently registered.
+ *
  * It's also raised if the Ice locator can't find an object or object
  * adapter when resolving an indirect proxy or when an object adapter
  * is activated.
@@ -108,8 +108,8 @@ local exception NotRegisteredException
     /**
      *
      * The kind of object that could not be removed: "servant",
-     * "object factory", "plug-in", "object adapter",
-     * "object", or "user exception factory".
+     * "servant locator", "object factory", "plug-in", 
+     * "object adapter", "object", or "user exception factory".
      *
      **/
     string kindOfObject;

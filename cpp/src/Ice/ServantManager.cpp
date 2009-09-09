@@ -361,15 +361,17 @@ IceInternal::ServantManager::removeServantLocator(const string& category)
         p = _locatorMap.find(category);
     }
 
-    ServantLocatorPtr locator;
-
-    if(p != _locatorMap.end())
+    if(p == _locatorMap.end())
     {
-        locator = p->second;
-        _locatorMap.erase(p);
-        _locatorMapHint = _locatorMap.begin();
+        NotRegisteredException ex(__FILE__, __LINE__);
+        ex.kindOfObject = "servant locator";
+        ex.id = IceUtilInternal::escapeString(category, "");
+        throw ex;
     }
 
+    ServantLocatorPtr locator = p->second;
+    _locatorMap.erase(p);
+    _locatorMapHint = _locatorMap.begin();
     return locator;
 }
 

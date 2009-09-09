@@ -268,10 +268,14 @@ public sealed class ServantManager
             
             Ice.ServantLocator l;
             _locatorMap.TryGetValue(category, out l);
-            if(l != null)
+            if(l == null)
             {
-                _locatorMap.Remove(category);
+                Ice.NotRegisteredException ex = new Ice.NotRegisteredException();
+                ex.id = IceUtilInternal.StringUtil.escapeString(category, "");
+                ex.kindOfObject = "servant locator";
+                throw ex;
             }
+            _locatorMap.Remove(category);
             return l;
         }
     }

@@ -499,8 +499,8 @@ local interface ObjectAdapter
      * locate servants, or an empty string if the Servant Locator does
      * not belong to any specific category.
      *
-     * @return The Servant Locator, or null if no Servant Locator was
-     * found for the given category.
+     * @return The Servant Locator, or throws {@link NotRegisteredException}
+     * if no Servant Locator was found for the given category.
      *
      * @see Identity
      * @see #addServantLocator
