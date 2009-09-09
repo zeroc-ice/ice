@@ -20,58 +20,35 @@ const DWORD SIGHUP = CTRL_LOGOFF_EVENT;
 using namespace std;
 using namespace Demo;
 
-class SessionRefreshThread : public IceUtil::Thread, public IceUtil::Monitor<IceUtil::Mutex>
+class RefreshTask : public IceUtil::TimerTask
 {
 public:
 
-    SessionRefreshThread(const Ice::LoggerPtr& logger, const IceUtil::Time& timeout, const SessionPrx& session) :
+    RefreshTask(const Ice::LoggerPtr& logger, const SessionPrx& session) :
         _logger(logger),
-        _session(session),
-        _timeout(timeout),
-        _terminated(false)
+        _session(session)
     {
     }
 
     virtual void
-    run()
+    runTimerTask()
     {
-        Lock sync(*this);
-        while(!_terminated)
+        try
         {
-            timedWait(_timeout);
-            if(!_terminated)
-            {
-                try
-                {
-                    _session->refresh();
-                }
-                catch(const Ice::Exception& ex)
-                {
-                    Ice::Warning warn(_logger);
-                    warn << "SessionRefreshThread: " << ex;
-                    _terminated = true;
-                }
-            }
+            _session->refresh();
         }
-    }
-
-    void
-    terminate()
-    {
-        Lock sync(*this);
-        _terminated = true;
-        notify();
+        catch(const Ice::Exception& ex)
+        {
+            Ice::Warning warn(_logger);
+            warn << "RefreshTask: " << ex;
+        }
     }
 
 private:
 
     const Ice::LoggerPtr _logger;
     const SessionPrx _session;
-    const IceUtil::Time _timeout;
-    bool _terminated;
 };
-
-typedef IceUtil::Handle<SessionRefreshThread> SessionRefreshThreadPtr;
 
 class SessionClient : public Ice::Application
 {
@@ -90,7 +67,7 @@ private:
     // another so shared variables must be mutex protected.
     //
     IceUtil::Mutex _mutex;
-    SessionRefreshThreadPtr _refresh;
+    IceUtil::TimerPtr _timer;
     SessionPrx _session;
 };
 
@@ -139,9 +116,8 @@ SessionClient::run(int argc, char* argv[])
         IceUtil::Mutex::Lock sync(_mutex);
         _session = factory->create(name);
         
-        _refresh = new SessionRefreshThread(
-            communicator()->getLogger(), IceUtil::Time::seconds(5), _session);
-        _refresh->start();
+        _timer = new IceUtil::Timer();
+        _timer->scheduleRepeated(new RefreshTask(communicator()->getLogger(), _session), IceUtil::Time::seconds(5));
     }
 
     vector<HelloPrx> hellos;
@@ -239,11 +215,10 @@ SessionClient::cleanup(bool destroy)
     // is set to 0 so that if session->destroy() raises an exception
     // the thread will not be re-terminated and re-joined.
     //
-    if(_refresh)
+    if(_timer)
     {
-        _refresh->terminate();
-        _refresh->getThreadControl().join();
-        _refresh = 0;
+        _timer->destroy();
+        _timer = 0;
     }
     
     if(destroy && _session)

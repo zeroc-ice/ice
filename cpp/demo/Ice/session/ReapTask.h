@@ -7,27 +7,26 @@
 //
 // **********************************************************************
 
-#ifndef REAP_THREAD_H
-#define REAP_THREAD_H
+#ifndef REAP_TASK_H
+#define REAP_TASK_H
 
 #include <IceUtil/IceUtil.h>
 #include <SessionI.h>
 #include <list>
 
-class ReapThread : public IceUtil::Thread, public IceUtil::Monitor<IceUtil::Mutex>
+class ReapTask : public IceUtil::TimerTask, public IceUtil::Monitor<IceUtil::Mutex>
 {
 public:
 
-    ReapThread();
+    ReapTask();
 
-    virtual void run();
+    virtual void runTimerTask();
     void terminate();
     void add(const Demo::SessionPrx&, const SessionIPtr&);
 
 private:
 
     const IceUtil::Time _timeout;
-    bool _terminated;
     struct SessionProxyPair
     {
         SessionProxyPair(const Demo::SessionPrx& p, const SessionIPtr& s) :
@@ -37,6 +36,6 @@ private:
     };
     std::list<SessionProxyPair> _sessions;
 };
-typedef IceUtil::Handle<ReapThread> ReapThreadPtr;
+typedef IceUtil::Handle<ReapTask> ReapTaskPtr;
 
 #endif

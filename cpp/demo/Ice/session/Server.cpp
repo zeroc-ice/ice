@@ -37,16 +37,16 @@ SessionServer::run(int argc, char* argv[])
 
     Ice::ObjectAdapterPtr adapter = communicator()->createObjectAdapter("SessionFactory");
 
-    ReapThreadPtr reaper = new ReapThread();
-    reaper->start();
+    IceUtil::TimerPtr timer = new IceUtil::Timer();
+    ReapTaskPtr reapTask = new ReapTask;
+    timer->scheduleRepeated(reapTask, IceUtil::Time::seconds(1));
 
-    SessionFactoryPtr factory = new SessionFactoryI(reaper);
+    SessionFactoryPtr factory = new SessionFactoryI(reapTask);
     adapter->add(factory, communicator()->stringToIdentity("SessionFactory"));
     adapter->activate();
     communicator()->waitForShutdown();
 
-    reaper->terminate();
-    reaper->getThreadControl().join();
+    timer->destroy();
 
     return EXIT_SUCCESS;
 }

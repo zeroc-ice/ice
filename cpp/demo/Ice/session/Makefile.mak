@@ -18,7 +18,7 @@ OBJS		= Session.obj
 
 COBJS		= Client.obj
 
-SOBJS		= ReapThread.obj \
+SOBJS		= ReapTask.obj \
 		  SessionFactoryI.obj \
 		  SessionI.obj \
 		  Server.obj

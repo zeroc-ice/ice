@@ -15,54 +15,31 @@
 using namespace std;
 using namespace Demo;
 
-class SessionPingThread : public IceUtil::Thread, public IceUtil::Monitor<IceUtil::Mutex>
+class PingTask : public IceUtil::TimerTask
 {
 public:
 
-    SessionPingThread(const Glacier2::SessionPrx& session, long timeout) :
-        _session(session),
-        _timeout(IceUtil::Time::seconds(timeout)),
-        _destroy(false)
+    PingTask(const Glacier2::SessionPrx& session) :
+        _session(session)
     {
     }
 
-    virtual void
-    run()
+    virtual void runTimerTask()
     {
-        Lock sync(*this);
-        while(!_destroy)
+        try
         {
-            timedWait(_timeout);
-            if(_destroy)
-            {
-                break;
-            }
-            try
-            {
-                _session->ice_ping();
-            }
-            catch(const Ice::Exception&)
-            {
-                break;
-            }
+            _session->ice_ping();
         }
-    }
-
-    void
-    destroy()
-    {
-        Lock sync(*this);
-        _destroy = true;
-        notify();
+        catch(const Ice::Exception&)
+        {
+            // Ignore
+        }
     }
 
 private:
 
     const Glacier2::SessionPrx _session;
-    const IceUtil::Time _timeout;
-    bool _destroy;
 };
-typedef IceUtil::Handle<SessionPingThread> SessionPingThreadPtr;
 
 class ChatCallbackI : public ChatCallback
 {
@@ -152,8 +129,9 @@ public:
             }
         }
 
-        _ping = new SessionPingThread(session, (long)_router->getSessionTimeout() / 2);
-        _ping->start();
+        _timer = new IceUtil::Timer();
+        _timer->scheduleRepeated(new PingTask(session), IceUtil::Time::milliSeconds(
+                                    _router->getSessionTimeout() * 500));
 
         Ice::Identity callbackReceiverIdent;
         callbackReceiverIdent.name = "callbackReceiver";
@@ -212,6 +190,16 @@ private:
     void
     cleanup()
     {
+        //
+        // Destroy the timer before the router session is destroyed,
+        // otherwise it might get a spurious ObjectNotExistException.
+        //
+        if(_timer)
+        {
+            _timer->destroy();
+            _timer = 0;
+        }
+
         if(_router)
         {
             try
@@ -225,12 +213,6 @@ private:
                 //
             }
             _router = 0;
-        }
-        if(_ping)
-        {
-            _ping->destroy();
-            _ping->getThreadControl().join();
-            _ping = 0;
         }
     }
 
@@ -253,7 +235,7 @@ private:
     }
 
     Glacier2::RouterPrx _router;
-    SessionPingThreadPtr _ping;
+    IceUtil::TimerPtr _timer;
 };
 
 int

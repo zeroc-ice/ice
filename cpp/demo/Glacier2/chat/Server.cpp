@@ -14,6 +14,18 @@
 using namespace std;
 using namespace Demo;
 
+class DummyPermissionsVerifierI : public Glacier2::PermissionsVerifier
+{
+public:
+
+    virtual bool
+    checkPermissions(const string& userId, const string& password, string&, const Ice::Current&) const
+    {
+        cout << "verified user `" << userId << "' with password `" << password << "'" << endl;
+        return true;
+    }
+};
+
 class ChatSessionManagerI : public Glacier2::SessionManager
 {
 public:
@@ -40,6 +52,8 @@ public:
 
         Ice::ObjectAdapterPtr adapter = communicator()->createObjectAdapter("ChatServer");
         
+        Glacier2::PermissionsVerifierPtr dpv = new DummyPermissionsVerifierI;
+        adapter->add(dpv, communicator()->stringToIdentity("ChatSessionVerifier"));
         Glacier2::SessionManagerPtr csm = new ChatSessionManagerI;
         adapter->add(csm, communicator()->stringToIdentity("ChatSessionManager"));
         adapter->activate();

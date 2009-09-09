@@ -12,8 +12,8 @@
 using namespace std;
 using namespace Demo;
 
-SessionFactoryI::SessionFactoryI(const ReapThreadPtr& reapThread) :
-    _reaper(reapThread)
+SessionFactoryI::SessionFactoryI(const ReapTaskPtr& reapTask) :
+    _reaper(reapTask)
 {
 }
 

@@ -35,11 +35,11 @@ private:
     static ChatRoomPtr _instance;
 };
 
-ChatRoomPtr ChatRoom::_instance;
-IceUtil::Mutex* ChatRoom::_instanceMutex = 0;
-
 namespace
 {
+
+ChatRoomPtr ChatRoom::_instance;
+IceUtil::Mutex* ChatRoom::_instanceMutex = 0;
 
 class Init
 {
@@ -126,7 +126,7 @@ ChatSessionI::ChatSessionI(const string& userId) :
 }
 
 void
-ChatSessionI::setCallback(const ChatCallbackPrx& callback, const Ice::Current& current)
+ChatSessionI::setCallback(const ChatCallbackPrx& callback, const Ice::Current&)
 {
     Lock sync(*this);
     if(!_callback)
