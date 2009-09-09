@@ -254,6 +254,9 @@ C++ Changes
 Java Changes
 ============
 
+- The Ice runtime now re-throws exceptions using fillInStackTrace to
+  ensure the exception stack trace includes the calling point.
+
 - Added the "classLoader" member to Ice.InitializationData, which
   allows you to supply a custom class loader that Ice will use when
   it loads plug-ins, user exceptions, concrete Slice classes, etc.

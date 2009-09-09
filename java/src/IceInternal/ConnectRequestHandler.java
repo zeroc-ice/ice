@@ -238,7 +238,7 @@ public class ConnectRequestHandler
 
         if(_exception != null)
         {
-            throw _exception;
+            throw (Ice.LocalException)_exception.fillInStackTrace();
         }
         else
         {
@@ -359,7 +359,7 @@ public class ConnectRequestHandler
 
 	    if(_exception != null)
 	    {
-		throw _exception;
+		throw (Ice.LocalException)_exception.fillInStackTrace();
 	    }
 	    else
 	    {

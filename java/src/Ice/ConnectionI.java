@@ -36,7 +36,7 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
                 if(_state >= StateClosed) // The connection might already be closed if the communicator was destroyed.
                 {
                     assert(_exception != null);
-                    throw _exception;
+                    throw (Ice.LocalException)_exception.fillInStackTrace();
                 }
 
                 if(!initialize(IceInternal.SocketOperation.None) || !validate(IceInternal.SocketOperation.None))
@@ -64,7 +64,7 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
                     if(_state >= StateClosing)
                     {
                         assert(_exception != null);
-                        throw _exception;
+                        throw (Ice.LocalException)_exception.fillInStackTrace();
                     }
                 }
 
@@ -200,7 +200,7 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
         if(_exception != null)
         {
             assert(_state >= StateClosing);
-            throw _exception;
+            throw (Ice.LocalException)_exception.fillInStackTrace();
         }
     }
 
@@ -335,7 +335,7 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
             // to send our request, we always try to send the request
             // again.
             //
-            throw new IceInternal.LocalExceptionWrapper(_exception, true);
+            throw new IceInternal.LocalExceptionWrapper((Ice.LocalException)_exception.fillInStackTrace(), true);
         }
 
         assert(_state > StateNotValidated);
@@ -374,7 +374,7 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
         {
             setState(StateClosed, ex);
             assert(_exception != null);
-            throw _exception;
+            throw (Ice.LocalException)_exception.fillInStackTrace();
         }
 
         if(response)
@@ -402,7 +402,7 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
             // to send our request, we always try to send the request
             // again.
             //
-            throw new IceInternal.LocalExceptionWrapper(_exception, true);
+            throw new IceInternal.LocalExceptionWrapper((Ice.LocalException)_exception.fillInStackTrace(), true);
         }
 
         assert(_state > StateNotValidated);
@@ -436,7 +436,7 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
         {
             setState(StateClosed, ex);
             assert(_exception != null);
-            throw _exception;
+            throw (Ice.LocalException)_exception.fillInStackTrace();
         }
 
         if(response)
@@ -476,11 +476,11 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
             //
             if(_batchStream.isEmpty())
             {
-                throw new IceInternal.LocalExceptionWrapper(_exception, true);
+                throw new IceInternal.LocalExceptionWrapper((Ice.LocalException)_exception.fillInStackTrace(), true);
             }
             else
             {
-                throw _exception;
+                throw (Ice.LocalException)_exception.fillInStackTrace();
             }
         }
 
@@ -524,7 +524,7 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
 
                 if(_exception != null)
                 {
-                    throw _exception;
+                    throw (Ice.LocalException)_exception.fillInStackTrace();
                 }
 
                 boolean flush = false;
@@ -577,7 +577,7 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
                     {
                         setState(StateClosed, ex);
                         assert(_exception != null);
-                        throw _exception;
+                        throw (Ice.LocalException)_exception.fillInStackTrace();
                     }
 
                     //
@@ -670,7 +670,7 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
 
         if(_exception != null)
         {
-            throw _exception;
+            throw (Ice.LocalException)_exception.fillInStackTrace();
         }
 
         if(_batchRequestNum == 0)
@@ -697,7 +697,7 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
         {
             setState(StateClosed, ex);
             assert(_exception != null);
-            throw _exception;
+            throw (Ice.LocalException)_exception.fillInStackTrace();
         }
 
         //
@@ -726,7 +726,7 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
 
         if(_exception != null)
         {
-            throw _exception;
+            throw (Ice.LocalException)_exception.fillInStackTrace();
         }
 
         if(_batchRequestNum == 0)
@@ -753,7 +753,7 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
         {
             setState(StateClosed, ex);
             assert(_exception != null);
-            throw _exception;
+            throw (Ice.LocalException)_exception.fillInStackTrace();
         }
 
         //
@@ -785,7 +785,7 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
             if(_state >= StateClosed)
             {
                 assert(_exception != null);
-                throw _exception;
+                throw (Ice.LocalException)_exception.fillInStackTrace();
             }
 
             sendMessage(new OutgoingMessage(os, compressFlag != 0, true));
@@ -819,7 +819,7 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
             if(_state >= StateClosed)
             {
                 assert(_exception != null);
-                throw _exception;
+                throw (Ice.LocalException)_exception.fillInStackTrace();
             }
 
             if(_state == StateClosing && _dispatchCount == 0)
