@@ -42,7 +42,7 @@ class SessionRefreshThread(threading.Thread):
                 self._cond.wait(self._timeout)
                 if not self._terminated:
                     try:
-                        self._router.ice_ping()
+                        self._router.refreshSession()
                     except Ice.LocalException, ex:
                         pass
         finally:

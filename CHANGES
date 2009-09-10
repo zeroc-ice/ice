@@ -33,6 +33,12 @@ General Changes
 These entries apply to all relevant language mappings unless otherwise
 noted.
 
+- Added Glacier2::Router::refreshSession, which keeps the client's
+  Glacier2 session alive. This is useful in the case that the
+  application architecture does not use a Glacier2 session
+  manager. Modified demo/Glacier2/callback to demonstrate the use of
+  this method.
+
 - Fixed bug in icegridadmin where invalid XML could cause a crash.
 
 - Fixed a bug where calling the object adapter waitForHold() method 

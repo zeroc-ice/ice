@@ -43,7 +43,7 @@ public class Client
                         {
                             try
                             {
-                                _router.ice_ping();
+                                _router.refreshSession();
                             }
                             catch(Ice.Exception)
                             {

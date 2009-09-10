@@ -26,15 +26,12 @@ public:
 
     virtual void runTimerTask()
     {
-        cout << "-> ice_ping" << endl;
         try
         {
-            _router->ice_ping();
-            cout << "<- ice_ping" << endl;
+            _router->refreshSession();
         }
         catch(const Ice::Exception& ex)
         {
-            cout << "<- ice_ping " << ex << endl;
             // Ignore
         }
     }

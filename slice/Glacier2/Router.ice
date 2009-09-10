@@ -148,6 +148,17 @@ interface Router extends Ice::Router
 
     /**
      *
+     * Keep the calling client's session with this router alive.
+     *
+     * @throws SessionNotExistException Raised if no session exists
+     * for the calling client.
+     *
+     **/
+    void refreshSession()
+        throws SessionNotExistException;
+
+    /**
+     *
      * Destroy the calling client's session with this router.
      *
      * @throws SessionNotExistException Raised if no session exists

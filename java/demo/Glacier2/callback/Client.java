@@ -36,7 +36,10 @@ public class Client extends Ice.Application
                 {
                     try
                     {
-                        _router.ice_ping();
+                        _router.refreshSession();
+                    }
+                    catch(Glacier2.SessionNotExistException ex)
+                    {
                     }
                     catch(Ice.LocalException ex)
                     {

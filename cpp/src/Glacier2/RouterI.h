@@ -44,6 +44,7 @@ public:
                                      const Ice::Current&);
     virtual void createSessionFromSecureConnection_async(const AMD_Router_createSessionFromSecureConnectionPtr&,
                                                          const Ice::Current&);
+    virtual void refreshSession(const ::Ice::Current&);
     virtual void destroySession(const ::Ice::Current&);
     virtual Ice::Long getSessionTimeout(const ::Ice::Current&) const;
 

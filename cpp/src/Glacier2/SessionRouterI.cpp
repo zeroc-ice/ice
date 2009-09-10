@@ -888,6 +888,17 @@ Glacier2::SessionRouterI::destroySession(const Current& current)
 }
 
 void
+Glacier2::SessionRouterI::refreshSession(const Ice::Current& current)
+{
+    RouterIPtr router = getRouter(current.con, current.id, false);
+    if(!router)
+    {
+        throw SessionNotExistException();
+    }
+    router->updateTimestamp();
+}
+
+void
 Glacier2::SessionRouterI::destroySession(const ConnectionPtr& connection)
 {
     RouterIPtr router;
@@ -914,8 +925,7 @@ Glacier2::SessionRouterI::destroySession(const ConnectionPtr& connection)
         
         if(p == _routersByConnection.end())
         {
-            SessionNotExistException exc;
-            throw exc;
+            throw SessionNotExistException();
         }
         
         router = p->second;
@@ -951,14 +961,8 @@ Glacier2::SessionRouterI::getSessionTimeout(const Ice::Current&) const
     return _sessionTimeout.toSeconds();
 }
 
-void
-Glacier2::SessionRouterI::ice_ping(const Ice::Current& current) const
-{
-    getRouter(current.con, current.id)->updateTimestamp();
-}
-
 RouterIPtr
-Glacier2::SessionRouterI::getRouter(const ConnectionPtr& connection, const Ice::Identity& id) const
+Glacier2::SessionRouterI::getRouter(const ConnectionPtr& connection, const Ice::Identity& id, bool close) const
 {
     IceUtil::Monitor<IceUtil::Mutex>::Lock lock(*this);
 
@@ -982,7 +986,7 @@ Glacier2::SessionRouterI::getRouter(const ConnectionPtr& connection, const Ice::
         _routersByConnectionHint = p;
         return p->second;
     }
-    else
+    else if(close)
     {
         if(_rejectTraceLevel >= 1)
         {
@@ -993,6 +997,7 @@ Glacier2::SessionRouterI::getRouter(const ConnectionPtr& connection, const Ice::
         connection->close(true);
         throw ObjectNotExistException(__FILE__, __LINE__);
     }
+    return 0;
 }
 
 RouterIPtr
