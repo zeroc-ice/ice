@@ -328,8 +328,7 @@ namespace IceInternal
                 // currently busy dispatching or about to dispatch, we spawn a new thread to 
                 // execute this new work item right away.
                 //
-                if(_sizeMax > 1 && 
-                   _threads.Count < _sizeMax && 
+                if(_threads.Count < _sizeMax && 
                    (_inUse + _workItems.Count) > _threads.Count &&
                    !_destroyed)
                 {
