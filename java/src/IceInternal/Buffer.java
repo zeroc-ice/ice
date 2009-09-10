@@ -16,12 +16,13 @@ package IceInternal;
 public class Buffer
 {
     public
-    Buffer(int maxCapacity)
+    Buffer(int maxCapacity, boolean direct)
     {
         b = _emptyBuffer;
         _size = 0;
         _capacity = 0;
         _maxCapacity = maxCapacity;
+        _direct = direct;
     }
 
     public int
@@ -132,7 +133,7 @@ public class Buffer
         {
             java.nio.ByteBuffer buf;
 
-            if(DIRECT)
+            if(_direct)
             {
                 buf = java.nio.ByteBuffer.allocateDirect(_capacity);
             }
@@ -174,12 +175,6 @@ public class Buffer
     private int _size;
     private int _capacity; // Cache capacity to avoid excessive method calls.
     private int _maxCapacity;
+    private boolean _direct; // Use direct buffers?
     private int _shrinkCounter;
-
-    //
-    // This flag indicates whether we should use direct byte buffers. It is set to false
-    // because direct byte buffers have been known to cause problems in the past (for
-    // example, see bug 1582).
-    //
-    private static final boolean DIRECT = false;
 }

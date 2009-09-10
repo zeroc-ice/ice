@@ -1311,7 +1311,7 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
         _readTimeoutScheduled = false;
         _warn = initData.properties.getPropertyAsInt("Ice.Warn.Connections") > 0;
         _warnUdp = instance.initializationData().properties.getPropertyAsInt("Ice.Warn.Datagrams") > 0;
-        _cacheBuffers = initData.properties.getPropertyAsIntWithDefault("Ice.CacheMessageBuffers", 1) == 1;
+        _cacheBuffers = instance.cacheMessageBuffers();
         _acmAbsoluteTimeoutMillis = 0;
         _nextRequestId = 1;
         _batchAutoFlush = initData.properties.getPropertyAsIntWithDefault("Ice.BatchAutoFlush", 1) > 0 ? true : false;
@@ -2273,7 +2273,7 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
     {
         IceInternal.Incoming in = null;
 
-        if(_cacheBuffers)
+        if(_cacheBuffers > 0)
         {
             synchronized(_incomingCacheMutex)
             {
@@ -2301,7 +2301,7 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
     private void
     reclaimIncoming(IceInternal.Incoming in)
     {
-        if(_cacheBuffers)
+        if(_cacheBuffers > 0)
         {
             synchronized(_incomingCacheMutex)
             {
@@ -2322,7 +2322,7 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
     {
         IceInternal.Outgoing out = null;
 
-        if(_cacheBuffers)
+        if(_cacheBuffers > 0)
         {
             synchronized(_outgoingCacheMutex)
             {
@@ -2350,7 +2350,7 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
     public void
     reclaimOutgoing(IceInternal.Outgoing out)
     {
-        if(_cacheBuffers)
+        if(_cacheBuffers > 0)
         {
             //
             // Clear references to Ice objects as soon as possible.
@@ -2512,5 +2512,5 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
 
     private static boolean _compressionSupported = IceInternal.BasicStream.compressible();
 
-    private boolean _cacheBuffers;
+    private int _cacheBuffers;
 }

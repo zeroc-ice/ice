@@ -262,6 +262,16 @@ C++ Changes
 Java Changes
 ============
 
+- Added support for using direct buffers in the transport layer to
+  minimize copying. The semantics of the Ice.CacheMessageBuffers
+  property have been extended as follows:
+
+  0 = no buffer caching
+  1 = buffer caching using non-direct buffers
+  2 = buffer caching using direct buffers
+
+  If this property is not defined, the new default value is 2.
+
 - The Ice runtime now re-throws exceptions using fillInStackTrace to
   ensure the exception stack trace includes the calling point.
 

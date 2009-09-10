@@ -27,7 +27,7 @@ public class BasicStream
     initialize(Instance instance, boolean unlimited)
     {
         _instance = instance;
-        _buf = new Buffer(_instance.messageSizeMax());
+        _buf = new Buffer(_instance.messageSizeMax(), _instance.cacheMessageBuffers() > 1);
         _closure = null;
         _unlimited = unlimited;
 

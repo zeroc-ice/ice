@@ -243,6 +243,13 @@ public final class Instance
     }
 
     public int
+    cacheMessageBuffers()
+    {
+        // No mutex lock, immutable.
+        return _cacheMessageBuffers;
+    }
+
+    public int
     clientACM()
     {
         // No mutex lock, immutable.
@@ -653,6 +660,8 @@ public final class Instance
                 }
             }
 
+            _cacheMessageBuffers = _initData.properties.getPropertyAsIntWithDefault("Ice.CacheMessageBuffers", 2);
+
             //
             // Client ACM enabled by default. Server ACM disabled by default.
             //
@@ -1061,6 +1070,7 @@ public final class Instance
     private final TraceLevels _traceLevels; // Immutable, not reset by destroy().
     private final DefaultsAndOverrides _defaultsAndOverrides; // Immutable, not reset by destroy().
     private final int _messageSizeMax; // Immutable, not reset by destroy().
+    private final int _cacheMessageBuffers; // Immutable, not reset by destroy().
     private final int _clientACM; // Immutable, not reset by destroy().
     private final int _serverACM; // Immutable, not reset by destroy().
     private final Ice.ImplicitContextI _implicitContext;
