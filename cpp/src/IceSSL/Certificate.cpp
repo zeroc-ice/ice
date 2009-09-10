@@ -185,7 +185,7 @@ convertGeneralNames(GENERAL_NAMES* gens)
             ASN1_IA5STRING* str = gen->d.rfc822Name;
             if(str && str->type == V_ASN1_IA5STRING && str->data && str->length > 0)
             {
-                p.second = reinterpret_cast<const char*>(str->data);
+                p.second = string(reinterpret_cast<const char*>(str->data), str->length);
             }
             break;
         }
@@ -194,7 +194,7 @@ convertGeneralNames(GENERAL_NAMES* gens)
             ASN1_IA5STRING* str = gen->d.dNSName;
             if(str && str->type == V_ASN1_IA5STRING && str->data && str->length > 0)
             {
-                p.second = reinterpret_cast<const char*>(str->data);
+                p.second = string(reinterpret_cast<const char*>(str->data), str->length);
             }
             break;
         }
@@ -208,7 +208,7 @@ convertGeneralNames(GENERAL_NAMES* gens)
             ASN1_IA5STRING* str = gen->d.uniformResourceIdentifier;
             if(str && str->type == V_ASN1_IA5STRING && str->data && str->length > 0)
             {
-                p.second = reinterpret_cast<const char*>(str->data);
+                p.second = string(reinterpret_cast<const char*>(str->data), str->length);
             }
             break;
         }
