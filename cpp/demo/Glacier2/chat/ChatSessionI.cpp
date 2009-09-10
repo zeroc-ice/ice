@@ -35,11 +35,12 @@ private:
     static ChatRoomPtr _instance;
 };
 
+ChatRoomPtr ChatRoom::_instance;
+IceUtil::Mutex* ChatRoom::_instanceMutex = 0;
+
 namespace
 {
 
-ChatRoomPtr ChatRoom::_instance;
-IceUtil::Mutex* ChatRoom::_instanceMutex = 0;
 
 class Init
 {

@@ -30,7 +30,7 @@ public:
         {
             _router->refreshSession();
         }
-        catch(const Ice::Exception& ex)
+        catch(const Ice::Exception&)
         {
             // Ignore
         }
