@@ -33,6 +33,8 @@ General Changes
 These entries apply to all relevant language mappings unless otherwise
 noted.
 
+- Fixed bug in icegridadmin where invalid XML could cause a crash.
+
 - Fixed a bug where calling the object adapter waitForHold() method 
   would cause other calls on the object adapter to hang until the 
   waitForHold() method returned.

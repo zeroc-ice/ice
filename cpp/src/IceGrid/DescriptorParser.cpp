@@ -204,7 +204,7 @@ DescriptorHandler::startElement(const string& name, const IceXML::Attributes& at
         }
         else if(name == "node")
         {
-            if(!_currentApplication.get())
+            if(!_currentApplication.get() || _currentNode.get())
             {
                 error("the <node> element can only be a child of an <application> element");
             }
@@ -212,7 +212,7 @@ DescriptorHandler::startElement(const string& name, const IceXML::Attributes& at
         }
         else if(name == "server-instance")
         {
-            if(!_currentNode.get() || _currentServer.get())
+            if(!_currentNode.get() || _currentServer.get() || _currentServerInstance.get())
             {
                 error("the <server-instance> element can only be a child of a <node> element");
             }
@@ -220,7 +220,7 @@ DescriptorHandler::startElement(const string& name, const IceXML::Attributes& at
         }
         else if(name == "server")
         {
-            if((!_currentNode.get() && !_currentTemplate.get()) || _currentServer.get())
+            if((!_currentNode.get() && !_currentTemplate.get()) || _currentServer.get() || _currentServerInstance.get())
             {
                 error("the <server> element can only be a child of a <node> or <server-template> element");
             }
@@ -236,7 +236,7 @@ DescriptorHandler::startElement(const string& name, const IceXML::Attributes& at
         }
         else if(name == "icebox")
         {
-            if((!_currentNode.get() && !_currentTemplate.get()) || _currentServer.get())
+            if((!_currentNode.get() && !_currentTemplate.get()) || _currentServer.get() || _currentServerInstance.get())
             {
                 error("the <icebox> element can only be a child of a <node> or <server-template> element");
             }
@@ -260,7 +260,7 @@ DescriptorHandler::startElement(const string& name, const IceXML::Attributes& at
         }
         else if(name == "service-instance")
         {
-            if(!_currentServer.get())
+            if(!_currentServer.get() || _currentServiceInstance.get())
             {
                 error("the <service-instance> element can only be a child of an <icebox> element");
             }
@@ -268,7 +268,8 @@ DescriptorHandler::startElement(const string& name, const IceXML::Attributes& at
         }
         else if(name == "service")
         {
-            if((!_currentServer.get() && !_currentTemplate.get()) || _currentService.get())
+            if((!_currentServer.get() && !_currentTemplate.get()) || _currentService.get() ||
+               _currentServiceInstance.get())
             {
                 error("the <service> element can only be a child of an <icebox> or <service-template> element");
             }
