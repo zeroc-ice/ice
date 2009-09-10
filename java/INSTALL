@@ -139,8 +139,8 @@ The libraries are available here:
 The IceGrid administrative tool has been tested with the following
 versions:
 
-  JGoodies Looks 2.1.4
-  JGoodies Forms 1.2.0
+  JGoodies Looks 2.2.2
+  JGoodies Forms 1.2.1
 
 
 ProGuard
@@ -153,7 +153,7 @@ ProGuard is available here:
 
   http://proguard.sourceforge.net
 
-Ice for Java has been tested with ProGuard 4.1 and 4.3.
+Ice for Java has been tested with ProGuard 4.4.
 
 
 ======================================================================

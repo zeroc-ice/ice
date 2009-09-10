@@ -13,8 +13,8 @@ import logging, cStringIO, glob
 import textwrap
 
 iceVersion = '3.4b'
-looksVersion = '2.1.4'
-formsVersion = '1.2.0'
+looksVersion = '2.2.2'
+formsVersion = '1.2.1'
 
 timeStampingURL = 'http://timestamp.verisign.com/scripts/timstamp.dll'
 

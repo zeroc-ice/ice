@@ -60,12 +60,12 @@ BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 %define dotnetversion 3.4..51
 %define dotnetpolicyversion 3.3
 
-%define formsversion 1.2.0
-%define looksversion 2.1.4
-%define dbversion 4.6.21
+%define formsversion 1.2.1
+%define looksversion 2.2.2
+%define dbversion 4.7.25
 
 BuildRequires: openssl-devel >= 0.9.7a
-BuildRequires: db46-devel >= 4.6.21, db46-java >= 4.6.21
+BuildRequires: db47-devel >= 4.7.25, db47-java >= 4.7.25
 BuildRequires: jpackage-utils
 BuildRequires: mcpp-devel >= 2.7.2
 
@@ -141,7 +141,7 @@ The Ice runtime for .NET (mono).
 %package java
 Summary: The Ice runtime for Java
 Group: System Environment/Libraries
-Requires: ice = %{version}-%{release}, db46-java,
+Requires: ice = %{version}-%{release}, db47-java,
 %description java
 The Ice runtime for Java.
 %endif
@@ -153,7 +153,7 @@ The Ice runtime for Java.
 %package libs
 Summary: The Ice runtime for C++
 Group: System Environment/Libraries
-Requires: ice = %{version}-%{release}, db46
+Requires: ice = %{version}-%{release}, db47
 %description libs
 The Ice runtime for C++
 

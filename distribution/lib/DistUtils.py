@@ -51,15 +51,15 @@ mcpp = {
 }
 
 jgoodies_looks = { \
-    'SunOS' : '/share/opt/looks-2.1.4/looks-2.1.4.jar', \
-    'Darwin' : '/opt/looks-2.1.4/looks-2.1.4.jar', \
-    'Linux' : '/opt/looks-2.1.4/looks-2.1.4.jar', \
+    'SunOS' : '/share/opt/looks-2.2.2/looks-2.2.2.jar', \
+    'Darwin' : '/opt/looks-2.2.2/looks-2.2.2.jar', \
+    'Linux' : '/opt/looks-2.2.2/looks-2.2.2.jar', \
 }
 
 jgoodies_forms = { \
-    'SunOS' : '/share/opt/forms-1.2.0/forms-1.2.0.jar', \
-    'Darwin' : '/opt/forms-1.2.0/forms-1.2.0.jar', \
-    'Linux' : '/opt/forms-1.2.0/forms-1.2.0.jar', \
+    'SunOS' : '/share/opt/forms-1.2.1/forms-1.2.1.jar', \
+    'Darwin' : '/opt/forms-1.2.1/forms-1.2.1.jar', \
+    'Linux' : '/opt/forms-1.2.1/forms-1.2.1.jar', \
 }
 
 proguard = { \
