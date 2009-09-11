@@ -9,11 +9,46 @@
 
 Imports Demo
 Imports System
+Imports System.Threading
 Imports System.Collections.Generic
 
 Module Glacier2callbackC
     Class Client
         Inherits Ice.Application
+
+        Class SessionRefreshThread
+
+            Public Sub New(ByVal router As Glacier2.RouterPrx, ByVal timeout As Integer)
+                _router = router
+                _timeout = timeout
+                _terminated = False
+            End Sub
+
+            Public Sub run()
+                SyncLock Me
+                    While Not _terminated
+                        System.Threading.Monitor.Wait(Me, _timeout)
+                        If Not _terminated Then
+                            Try
+                                _router.refreshSession()
+                            Catch ex As Ice.Exception
+                            End Try
+                        End If
+                    End While
+                End SyncLock
+            End Sub
+
+            Public Sub terminate()
+                SyncLock Me
+                    _terminated = True
+                    System.Threading.Monitor.Pulse(Me)
+                End SyncLock
+            End Sub
+
+            Private _router As Glacier2.RouterPrx
+            Private _timeout As Integer
+            Private _terminated As Boolean
+        End Class
 
         Private Sub menu()
             Console.Out.WriteLine("usage:")
@@ -69,6 +104,10 @@ Module Glacier2callbackC
                 End Try
 
             End While
+
+            Dim refresh As SessionRefreshThread = New SessionRefreshThread(router, router.getSessionTimeout() / 2)
+            Dim refreshThread As Thread = New Thread(New ThreadStart(AddressOf refresh.run))
+            refreshThread.Start()
 
             Dim category As String = router.getCategoryForClient()
             Dim callbackReceiverIdent As Ice.Identity = New Ice.Identity
@@ -162,8 +201,18 @@ Module Glacier2callbackC
                 End Try
             Loop While Not line.Equals("x")
 
+            '
+            ' The refresher thread must be terminated before destroy Is
+            ' called, otherwIse it might get ObjectNotExIstException. refresh
+            ' Is set to 0 so that If session.destroy() raIses an exception
+            ' the thread will not be re-terminated and re-joined.
+            '
+            refresh.terminate()
+            refreshThread.Join()
+            refresh = Nothing
+
             Try
-		router.destroySession()
+                router.destroySession()
             Catch ex As Glacier2.SessionNotExistException
                 Console.Error.WriteLine(ex)
             Catch ex As Ice.ConnectionLostException

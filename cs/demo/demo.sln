@@ -28,8 +28,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Glacier2.callback.client", 
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Glacier2.callback.server", "Glacier2\callback\Glacier2.callback.server.csproj", "{E0C03A3C-1504-49B6-9C20-9B96DF17649E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Glacier2.callback.sessionserver", "Glacier2\callback\Glacier2.callback.sessionserver.csproj", "{B41A6B60-9582-4814-9291-4758BEF1E9CC}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Ice.async.client", "Ice\async\Ice.async.client.csproj", "{5678ADFF-7802-4A36-8374-C32DE33B0290}"
 	ProjectSection(ProjectDependencies) = postProject
 		{1234ADFF-7802-4A36-8374-C32DE33B0290} = {1234ADFF-7802-4A36-8374-C32DE33B0290}
@@ -209,10 +207,6 @@ Global
 		{E0C03A3C-1504-49B6-9C20-9B96DF17649E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E0C03A3C-1504-49B6-9C20-9B96DF17649E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{E0C03A3C-1504-49B6-9C20-9B96DF17649E}.Release|Any CPU.Build.0 = Release|Any CPU
-		{B41A6B60-9582-4814-9291-4758BEF1E9CC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{B41A6B60-9582-4814-9291-4758BEF1E9CC}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{B41A6B60-9582-4814-9291-4758BEF1E9CC}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{B41A6B60-9582-4814-9291-4758BEF1E9CC}.Release|Any CPU.Build.0 = Release|Any CPU
 		{5678ADFF-7802-4A36-8374-C32DE33B0290}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{5678ADFF-7802-4A36-8374-C32DE33B0290}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{5678ADFF-7802-4A36-8374-C32DE33B0290}.Release|Any CPU.ActiveCfg = Release|Any CPU

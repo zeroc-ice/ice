@@ -66,11 +66,6 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Glacier2.callback.client", 
 	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Glacier2.callback.server", "Glacier2\callback\Glacier2.callback.server.vcproj", "{50C35E8E-3504-4DDF-8C5A-787525F16A91}"
-	ProjectSection(ProjectDependencies) = postProject
-		{5DC1F3F0-1269-4AFD-B4D3-E43798C194B8} = {5DC1F3F0-1269-4AFD-B4D3-E43798C194B8}
-	EndProjectSection
-EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Glacier2.callback.sessionserver", "Glacier2\callback\Glacier2.callback.sessionserver.vcproj", "{5DC1F3F0-1269-4AFD-B4D3-E43798C194B8}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Glacier2.chat.client", "Glacier2\chat\Glacier2.chat.client.vcproj", "{3202DB5F-A249-4250-AB9D-EAA35AE386F1}"
 	ProjectSection(ProjectDependencies) = postProject
@@ -466,14 +461,6 @@ Global
 		{50C35E8E-3504-4DDF-8C5A-787525F16A91}.Release|Win32.Build.0 = Release|Win32
 		{50C35E8E-3504-4DDF-8C5A-787525F16A91}.Release|x64.ActiveCfg = Release|x64
 		{50C35E8E-3504-4DDF-8C5A-787525F16A91}.Release|x64.Build.0 = Release|x64
-		{5DC1F3F0-1269-4AFD-B4D3-E43798C194B8}.Debug|Win32.ActiveCfg = Debug|Win32
-		{5DC1F3F0-1269-4AFD-B4D3-E43798C194B8}.Debug|Win32.Build.0 = Debug|Win32
-		{5DC1F3F0-1269-4AFD-B4D3-E43798C194B8}.Debug|x64.ActiveCfg = Debug|x64
-		{5DC1F3F0-1269-4AFD-B4D3-E43798C194B8}.Debug|x64.Build.0 = Debug|x64
-		{5DC1F3F0-1269-4AFD-B4D3-E43798C194B8}.Release|Win32.ActiveCfg = Release|Win32
-		{5DC1F3F0-1269-4AFD-B4D3-E43798C194B8}.Release|Win32.Build.0 = Release|Win32
-		{5DC1F3F0-1269-4AFD-B4D3-E43798C194B8}.Release|x64.ActiveCfg = Release|x64
-		{5DC1F3F0-1269-4AFD-B4D3-E43798C194B8}.Release|x64.Build.0 = Release|x64
 		{3202DB5F-A249-4250-AB9D-EAA35AE386F1}.Debug|Win32.ActiveCfg = Debug|Win32
 		{3202DB5F-A249-4250-AB9D-EAA35AE386F1}.Debug|Win32.Build.0 = Debug|Win32
 		{3202DB5F-A249-4250-AB9D-EAA35AE386F1}.Debug|x64.ActiveCfg = Debug|x64
