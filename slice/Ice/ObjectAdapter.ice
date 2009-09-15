@@ -59,9 +59,9 @@ local interface ObjectAdapter
 
     /**
      *
-     * Activate all endpoints that belong to this object
-     * adapter. After activation, the object adapter can dispatch
-     * requests received through its endpoints.
+     * Activate all endpoints that belong to this object adapter.
+     * After activation, the object adapter can dispatch requests
+     * received through its endpoints.
      *
      * @see #hold
      * @see #deactivate
@@ -101,23 +101,22 @@ local interface ObjectAdapter
 
     /**
      *
-     * Deactivate all endpoints that belong to this object
-     * adapter. After deactivation, the object adapter stops receiving
+     * Deactivate all endpoints that belong to this object adapter.
+     * After deactivation, the object adapter stops receiving
      * requests through its endpoints. Object adapters that have been
      * deactivated must not be reactivated again, and cannot be used
      * otherwise. Attempts to use a deactivated object adapter raise
      * {@link ObjectAdapterDeactivatedException}; however, attempts to
-     * {@link #deactivate} an already deactivated object adapter are ignored
-     * and do nothing. Once deactivated, it is possible to destroy the
-     * adapter to clean up resources and then create and activate a
-     * new adapter with the same name.
+     * {@link #deactivate} an already deactivated object adapter are
+     * ignored and do nothing. Once deactivated, it is possible to
+     * destroy the adapter to clean up resources and then create and
+     * activate a new adapter with the same name.
      *
-     * <p class="Note"> After {@link #deactivate} returns, no new requests are
-     * processed by the object adapter. However, requests that have
-     * been started before {@link #deactivate} was called might still be
-     * active. You can use {@link #waitForDeactivate} to wait for the
-     * completion of all requests for this object
-     * adapter.
+     * <p class="Note"> After {@link #deactivate} returns, no new requests
+     * are processed by the object adapter. However, requests that
+     * have been started before {@link #deactivate} was called might
+     * still be active. You can use {@link #waitForDeactivate} to wait
+     * for the completion of all requests for this object adapter.
      *
      * @see #activate
      * @see #hold
@@ -154,12 +153,12 @@ local interface ObjectAdapter
 
     /**
      *
-     * Destroys the object adapter and cleans up all resources
-     * held by the object adapter. If the object adapter has not yet
-     * been deactivated, {@link #destroy} implicitly initiates the
-     * deactivation and waits for it to finish. Subsequent calls to
-     * {@link destroy} are ignored. Once {@link destroy} has returned, it is
-     * possible to create another object adapter with the same name.
+     * Destroys the object adapter and cleans up all resources held by
+     * the object adapter. If the object adapter has not yet been
+     * deactivated, {@link #destroy} implicitly initiates the deactivation
+     * and waits for it to finish. Subsequent calls to {@link destroy} are
+     * ignored. Once {@link destroy} has returned, it is possible to create
+     * another object adapter with the same name.
      * 
      * @see #deactivate
      * @see #waitForDeactivate
@@ -171,15 +170,14 @@ local interface ObjectAdapter
     /**
      *
      * Add a servant to this object adapter's Active Servant Map. Note
-     * that one servant can implement several Ice objects by
-     * registering the servant with multiple identities. Adding a
-     * servant with an identity that is in the map already throws
-     * {@link AlreadyRegisteredException}.
+     * that one servant can implement several Ice objects by registering
+     * the servant with multiple identities. Adding a servant with an
+     * identity that is in the map already throws {@link AlreadyRegisteredException}.
      *
      * @param servant The servant to add.
      *
-     * @param id The identity of the Ice object that is
-     * implemented by the servant.
+     * @param id The identity of the Ice object that is implemented by
+     * the servant.
      *
      * @return A proxy that matches the given identity and this object
      * adapter.
@@ -195,17 +193,15 @@ local interface ObjectAdapter
 
     /**
      *
-     * Like {@link #add}, but with a facet. Calling <tt>add(servant, * id)</tt>
-     * is equivalent to calling {@link #addFacet} with an empty
-     * facet.
+     * Like {@link #add}, but with a facet. Calling <tt>add(servant, id)</tt>
+     * is equivalent to calling {@link #addFacet} with an empty facet.
      *
      * @param servant The servant to add.
      *
-     * @param id The identity of the Ice object that is
-     * implemented by the servant.
+     * @param id The identity of the Ice object that is implemented by
+     * the servant.
      *
-     * @param facet The facet. An empty facet means the default
-     * facet.
+     * @param facet The facet. An empty facet means the default facet.
      *
      * @return A proxy that matches the given identity, facet, and
      * this object adapter.
@@ -265,16 +261,37 @@ local interface ObjectAdapter
 
     /**
      *
-     * Add a default servant to handle requests for specific
+     * Add a default servant to handle requests for a specific
      * category. Adding a default servant for a category for
-     * which a default servant locator is already registered
-     * throws {@link AlreadyRegisteredException}.
+     * which a default servant is already registered throws
+     * {@link AlreadyRegisteredException}. To dispatch operation
+     * calls on servants, the object adapter tries to find a servant
+     * for a given Ice object identity and facet in the following
+     * order:
+     *
+     * <ol>
+     *
+     * <li>The object adapter tries to find a servant for the identity
+     * and facet in the Active Servant Map.</li>
+     *
+     * <li>If no servant has been found in the Active Servant Map, the
+     * object adapter tries to find a default servant for the category
+     * component of the identity.</li>
+     *
+     * <li>If no servant has been found by any of the preceding steps,
+     * the object adapter tries to find a default servant for an empty
+     * category, regardless of the category contained in the identity.</li>
+     *
+     * <li>If no servant has been found by any of the preceding steps,
+     * the object adapter gives up and the caller receives
+     * {@link ObjectNotExistException} or {@link FacetNotExistException}.</li>
+     *
+     * </ol>
      *
      * @param servant The default servant.
      *
-     * @param category The category for which the default
-     * servant is registered. An empty category means it will
-     * handle all categories.
+     * @param category The category for which the default servant is
+     * registered. An empty category means it will handle all categories.
      *
      * @see #removeDefaultServant
      * @see #findDefaultServant
@@ -284,13 +301,13 @@ local interface ObjectAdapter
 
     /**
      *
-     * Remove a servant (that is, the default facet) from the
-     * object adapter's Active Servant Map.
+     * Remove a servant (that is, the default facet) from the object
+     * adapter's Active Servant Map.
      *
-     * @param id The identity of the Ice object that is
-     * implemented by the servant. If the servant implements multiple
-     * Ice objects, {@link #remove} has to be called for all those Ice
-     * objects. Removing an identity that is not in the map throws
+     * @param id The identity of the Ice object that is implemented by
+     * the servant. If the servant implements multiple Ice objects,
+     * {@link #remove} has to be called for all those Ice objects.
+     * Removing an identity that is not in the map throws
      * {@link NotRegisteredException].
      *
      * @return The removed servant.
@@ -304,15 +321,13 @@ local interface ObjectAdapter
 
     /**
      *
-     * Like {@link #remove}, but with a facet. Calling
-     * <tt>remove(id)</tt> is equivalent to calling
-     * {@link #removeFacet} with an empty facet.
+     * Like {@link #remove}, but with a facet. Calling <tt>remove(id)</tt>
+     * is equivalent to calling {@link #removeFacet} with an empty facet.
      *
-     * @param id The identity of the Ice object that is
-     * implemented by the servant.
+     * @param id The identity of the Ice object that is implemented by
+     * the servant.
      *
-     * @param facet The facet. An empty facet means the default
-     * facet.
+     * @param facet The facet. An empty facet means the default facet.
      *
      * @return The removed servant.
      *
@@ -362,12 +377,12 @@ local interface ObjectAdapter
      * Look up a servant in this object adapter's Active Servant Map
      * by the identity of the Ice object it implements.
      *
-     * <p class="Note">This operation only tries to lookup a servant in
+     * <p class="Note">This operation only tries to look up a servant in
      * the Active Servant Map. It does not attempt to find a servant
      * by using any installed {@link ServantLocator}.
      *
-     * @param id The identity of the Ice object for which the
-     * servant should be returned.
+     * @param id The identity of the Ice object for which the servant
+     * should be returned.
      *
      * @return The servant that implements the Ice object with the
      * given identity, or null if no such servant has been found.
@@ -381,9 +396,9 @@ local interface ObjectAdapter
 
     /**
      *
-     * Like {@link #find}, but with a facet. Calling
-     * <tt>find(id)</tt> is equivalent to calling
-     * {@link #findFacet} with an empty facet.
+     * Like {@link #find}, but with a facet. Calling <tt>find(id)</tt>
+     * is equivalent to calling {@link #findFacet} with an empty
+     * facet.
      *
      * @param id The identity of the Ice object for which the
      * servant should be returned.
@@ -427,7 +442,7 @@ local interface ObjectAdapter
      *
      * <p class="Note">This operation only tries to lookup a servant in
      * the Active Servant Map. It does not attempt to find a servant
-     * via any installed {@link ServantLocator}s.
+     * by using any installed {@link ServantLocator}.
      *
      * @param proxy The proxy for which the servant should be returned.
      *
@@ -451,26 +466,23 @@ local interface ObjectAdapter
      *
      * <ol>
      *
-     * <li>The object adapter tries to find a servant for
-     * the identity and facet in the Active Servant
-     * Map.</li>
+     * <li>The object adapter tries to find a servant for the identity
+     * and facet in the Active Servant Map.</li>
      *
-     * <li>If no servant has been found in the Active
-     * Servant Map, the object adapter tries to find a locator for the
+     * <li>If no servant has been found in the Active Servant Map,
+     * the object adapter tries to find a servant locator for the
      * category component of the identity. If a locator is found, the
-     * object adapter tries to find a servant using this
-     * locator.</li>
+     * object adapter tries to find a servant using this locator.</li>
      *
-     * <li>If no servant has been found by any of the
-     * preceding steps, the object adapter tries to find a locator for
-     * an empty category, regardless of the category contained in the
-     * identity. If a locator is found, the object adapter tries to
-     * find a servant using this locator.</li>
+     * <li>If no servant has been found by any of the preceding steps,
+     * the object adapter tries to find a locator for an empty category,
+     * regardless of the category contained in the identity. If a
+     * locator is found, the object adapter tries to find a servant
+     * using this locator.</li>
      *
-     * <li>If no servant has been found with any of the
-     * preceding steps, the object adapter gives up and the caller
-     * receives {@link ObjectNotExistException} or
-     * {@link FacetNotExistException}.</li>
+     * <li>If no servant has been found by any of the preceding steps,
+     * the object adapter gives up and the caller receives
+     * {@link ObjectNotExistException} or {@link FacetNotExistException}.</li>
      *
      * </ol>
      *
@@ -493,7 +505,7 @@ local interface ObjectAdapter
 
     /**
      *
-     * Remove a Servant Locator installed with this object adapter.
+     * Remove a Servant Locator from this object adapter.
      *
      * @param category The category for which the Servant Locator can
      * locate servants, or an empty string if the Servant Locator does
@@ -598,8 +610,8 @@ local interface ObjectAdapter
      * Set an Ice locator for this object adapter. By doing so, the
      * object adapter will register itself with the locator registry
      * when it is activated for the first time. Furthermore, the proxies
-     * created by this object adapter will contain the adapter name instead
-     * of its endpoints.
+     * created by this object adapter will contain the adapter name
+     * instead of its endpoints.
      *
      * @param loc The locator used by this object adapter.
      *
