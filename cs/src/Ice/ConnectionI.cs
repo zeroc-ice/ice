@@ -2296,7 +2296,7 @@ namespace Ice
                 _timer.schedule(_readTimeout, timeout);
                 _readTimeoutScheduled = true;
             }
-            if((status & IceInternal.SocketOperation.Write) != 0)
+            if((status & (IceInternal.SocketOperation.Write | IceInternal.SocketOperation.Connect)) != 0)
             {
                 _timer.schedule(_writeTimeout, timeout);
                 _writeTimeoutScheduled = true;
@@ -2310,7 +2310,8 @@ namespace Ice
                 _timer.cancel(_readTimeout);
                 _readTimeoutScheduled = false;
             }
-            if((status & IceInternal.SocketOperation.Write) != 0 && _writeTimeoutScheduled)
+            if((status & (IceInternal.SocketOperation.Write | IceInternal.SocketOperation.Connect)) != 0 &&
+                _writeTimeoutScheduled)
             {
                 _timer.cancel(_writeTimeout);
                 _writeTimeoutScheduled = false;

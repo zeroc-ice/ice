@@ -223,7 +223,7 @@ private:
                 _timer->schedule(_readTimeout, IceUtil::Time::milliSeconds(timeout));
                 _readTimeoutScheduled = true;
             }
-            if(status & IceInternal::SocketOperationWrite)
+            if(status & (IceInternal::SocketOperationWrite | IceInternal::SocketOperationConnect))
             {
                 _timer->schedule(_writeTimeout, IceUtil::Time::milliSeconds(timeout));
                 _writeTimeoutScheduled = true;
@@ -242,7 +242,8 @@ private:
             _timer->cancel(_readTimeout);
             _readTimeoutScheduled = false;
         }
-        if((status & IceInternal::SocketOperationWrite) && _writeTimeoutScheduled)
+        if((status & (IceInternal::SocketOperationWrite | IceInternal::SocketOperationConnect)) &&
+           _writeTimeoutScheduled)
         {
             _timer->cancel(_writeTimeout);
             _writeTimeoutScheduled = false;
