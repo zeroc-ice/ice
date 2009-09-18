@@ -20,6 +20,12 @@ if len(path) == 0:
 sys.path.append(path[0])
 from scripts import *
 
+if not TestUtil.isWin32() and os.getuid() == 0:
+    print
+    print "*** can't run test as root ***"
+    print
+    sys.exit(0)
+
 testdir = os.getcwd();
 
 registryProcs = IceGridAdmin.startIceGridRegistry(testdir)
