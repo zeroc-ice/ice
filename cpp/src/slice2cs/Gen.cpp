@@ -5314,14 +5314,11 @@ Slice::Gen::AsyncVisitor::visitOperation(const OperationPtr& p)
         _out << sp;
         writeDocCommentOp(p);
         _out << nl << "public interface " << classNameAMD << '_' << name;
+        _out << nl << " : Ice.AMDCallback";
         _out << sb;
         _out << sp;
         writeDocCommentAsync(p, OutParam);
         _out << nl << "void ice_response" << spar << paramsAMD << epar << ';';
-        _out << sp << nl << "/// ice_exception indicates to the Ice run time that";
-        _out << nl << "/// the operation completed with an exception.";
-        _out << nl << "/// <param name=\"ex\">The exception to be raised.</param>";
-        _out << nl << "void ice_exception(_System.Exception ex);";
         _out << eb;
     
         TypePtr ret = p->returnType();
@@ -5394,17 +5391,10 @@ Slice::Gen::AsyncVisitor::visitOperation(const OperationPtr& p)
         _out << eb;
         _out << eb;
 
-        _out << sp << nl << "public void ice_exception(_System.Exception ex)";
-        _out << sb;
-        if(throws.empty())
+        if(!throws.empty())
         {
-            _out << nl << "if(validateException__(ex))";
+            _out << sp << nl << "override public void ice_exception(_System.Exception ex)";
             _out << sb;
-            _out << nl << "exception__(ex);";
-            _out << eb;
-        }
-        else
-        {
             _out << nl << "try";
             _out << sb;
             _out << nl << "throw ex;";
@@ -5424,11 +5414,10 @@ Slice::Gen::AsyncVisitor::visitOperation(const OperationPtr& p)
             }
             _out << nl << "catch(_System.Exception ex__)";
             _out << sb;
-            _out << nl << "exception__(ex__);";
+            _out << nl << "ice_exception(ex__);";
+            _out << eb;
             _out << eb;
         }
-        _out << eb;
-
         _out << eb;
     }
 }

@@ -16,6 +16,7 @@ POLICY_TARGET   = $(POLICY).dll
 
 SRCS		= Acceptor.cs \
 		  Application.cs \
+		  AMDCallback.cs \
 		  Arrays.cs \
 		  AssemblyInfo.cs \
 		  AssemblyUtil.cs \

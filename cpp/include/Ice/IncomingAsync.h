@@ -13,6 +13,19 @@
 #include <Ice/IncomingAsyncF.h>
 #include <Ice/Incoming.h>
 
+namespace Ice
+{
+
+class AMDCallback : virtual public IceUtil::Shared
+{
+public:
+
+    virtual void ice_exception(const ::std::exception&) = 0;
+    virtual void ice_exception() = 0;
+};
+
+}
+
 namespace IceInternal
 {
 
@@ -20,13 +33,16 @@ namespace IceInternal
 // We need virtual inheritance from shared, because we use multiple
 // inheritance from IceUtil::Shared for generated AMD code.
 //
-class ICE_API IncomingAsync : public IncomingBase, virtual public IceUtil::Shared
+class ICE_API IncomingAsync : public IncomingBase, virtual public Ice::AMDCallback, virtual public IceUtil::Shared
 {
 public:
 
     IncomingAsync(Incoming&); // Adopts the argument. It must not be used afterwards.
 
     void __deactivate(Incoming&);
+
+    virtual void ice_exception(const ::std::exception&);
+    virtual void ice_exception();
 
 protected:
 
@@ -35,9 +51,6 @@ protected:
     void __exception();
 
     bool __validateResponse(bool);
-    bool __validateException(const std::exception&);
-    bool __validateException();
-
 
     // Inlined for speed optimization.
     BasicStream* __os() { return &_os; }
@@ -65,14 +78,12 @@ private:
 namespace Ice
 {
 
-class ICE_API AMD_Object_ice_invoke : virtual public IceUtil::Shared
+class ICE_API AMD_Object_ice_invoke : virtual public Ice::AMDCallback, virtual public IceUtil::Shared
 {
 public:
     
     virtual void ice_response(bool, const std::vector<Ice::Byte>&) = 0;
     virtual void ice_response(bool, const std::pair<const Ice::Byte*, const Ice::Byte*>&) = 0;
-    virtual void ice_exception(const std::exception&) = 0;
-    virtual void ice_exception() = 0;
 };
 
 }
@@ -91,8 +102,6 @@ public:
     
     virtual void ice_response(bool, const std::vector< ::Ice::Byte>&);
     virtual void ice_response(bool, const std::pair<const ::Ice::Byte*, const ::Ice::Byte*>&);
-    virtual void ice_exception(const std::exception&);
-    virtual void ice_exception();
 };
 
 }

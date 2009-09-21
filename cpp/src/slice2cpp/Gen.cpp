@@ -5509,15 +5509,13 @@ Slice::Gen::AsyncVisitor::visitOperation(const OperationPtr& p)
     if(cl->hasMetaData("amd") || p->hasMetaData("amd"))
     {
         H << sp << nl << "class " << _dllExport << classNameAMD << '_' << name
-          << " : virtual public ::IceUtil::Shared";
+          << " : virtual public ::Ice::AMDCallback";
         H << sb;
         H.dec();
         H << nl << "public:";
         H.inc();
         H << sp;
         H << nl << "virtual void ice_response" << spar << paramsAMD << epar << " = 0;";
-        H << nl << "virtual void ice_exception(const ::std::exception&) = 0;";
-        H << nl << "virtual void ice_exception() = 0;";
         H << eb << ';';
         H << sp << nl << "typedef ::IceUtil::Handle< " << classScopedAMD << '_' << name << "> "
           << classNameAMD << '_' << name  << "Ptr;";
@@ -5674,8 +5672,10 @@ Slice::Gen::AsyncImplVisitor::visitOperation(const OperationPtr& p)
 
     H << sp;
     H << nl << "virtual void ice_response(" << params << ");";
-    H << nl << "virtual void ice_exception(const ::std::exception&);";
-    H << nl << "virtual void ice_exception();";
+    if(!throws.empty())
+    {
+        H << nl << "virtual void ice_exception(const ::std::exception&);";
+    }
     H << eb << ';';
 
     C << sp << nl << "IceAsync" << classScopedAMD << '_' << name << "::" << classNameAMD << '_' << name
@@ -5716,28 +5716,21 @@ Slice::Gen::AsyncImplVisitor::visitOperation(const OperationPtr& p)
     C << eb;
     C << eb;
 
-    C << sp << nl << "void" << nl << "IceAsync" << classScopedAMD << '_' << name
-      << "::ice_exception(const ::std::exception& ex)";
-    C << sb;
-    if(throws.empty())
+    if(!throws.empty())
     {
-        C << nl << "if(__validateException(ex))";
+        C << sp << nl << "void" << nl << "IceAsync" << classScopedAMD << '_' << name
+            << "::ice_exception(const ::std::exception& ex)";
         C << sb;
-        C << nl << "__exception(ex);";
-        C << eb;
-    }
-    else
-    {
         ExceptionList::const_iterator r;
         for(r = throws.begin(); r != throws.end(); ++r)
         {
             C << nl;
             if(r != throws.begin())
             {
-                 C << "else ";
+                C << "else ";
             }
             C << "if(const " << fixKwd((*r)->scoped()) << "* __ex = dynamic_cast<const " << fixKwd((*r)->scoped())
-              << "*>(&ex))";
+            << "*>(&ex))";
             C << sb;
             C << nl <<"if(__validateResponse(false))";
             C << sb;
@@ -5748,22 +5741,10 @@ Slice::Gen::AsyncImplVisitor::visitOperation(const OperationPtr& p)
         }
         C << nl << "else";
         C << sb;
-        C << nl << "if(__validateException(ex))";
-        C << sb;
-        C << nl << "__exception(ex);";
+        C << nl << "ice_exception(ex);";
         C << eb;
         C << eb;
     }
-    C << eb;
-
-    C << sp << nl << "void" << nl << "IceAsync" << classScopedAMD << '_' << name
-      << "::ice_exception()";
-    C << sb;
-    C << nl << "if(__validateException())";
-    C << sb;
-    C << nl << "__exception();";
-    C << eb;
-    C << eb;
 }
 
 void

@@ -85,6 +85,82 @@ IceInternal::IncomingAsync::__deactivate(Incoming& in)
 }
 
 void
+IceInternal::IncomingAsync::ice_exception(const ::std::exception& ex)
+{
+    //
+    // Only call __exception if this incoming is not retriable or if
+    // all the interceptors return true and no response has been sent
+    // yet.
+    //
+
+    if(_retriable)
+    {
+        try
+        {
+            for(deque<Ice::DispatchInterceptorAsyncCallbackPtr>::iterator p = _interceptorAsyncCallbackQueue.begin();
+                p != _interceptorAsyncCallbackQueue.end(); ++p)
+            {
+                if((*p)->exception(ex) == false)
+                {
+                    return;
+                }
+            }
+        }
+        catch(...)
+        {
+            return;
+        }
+    
+        IceUtilInternal::MutexPtrLock<IceUtil::Mutex> lock(globalMutex);
+        if(!_active)
+        {
+            return;
+        }
+        _active = false;
+    }
+
+    __exception(ex);
+}
+
+void
+IceInternal::IncomingAsync::ice_exception()
+{
+    //
+    // Only call __exception if this incoming is not retriable or if
+    // all the interceptors return true and no response has been sent
+    // yet.
+    //
+
+    if(_retriable)
+    {
+        try
+        {
+            for(deque<Ice::DispatchInterceptorAsyncCallbackPtr>::iterator p = _interceptorAsyncCallbackQueue.begin();
+                p != _interceptorAsyncCallbackQueue.end(); ++p)
+            {
+                if((*p)->exception() == false)
+                {
+                    return;
+                }
+            }
+        }
+        catch(...)
+        {
+            return;
+        }
+    
+        IceUtilInternal::MutexPtrLock<IceUtil::Mutex> lock(globalMutex);
+        if(!_active)
+        {
+            return;
+        }
+        _active = false;
+    }
+
+    __exception();
+}
+
+void
 IceInternal::IncomingAsync::__response(bool ok)
 {
     try
@@ -159,112 +235,40 @@ IceInternal::IncomingAsync::__exception()
 bool
 IceInternal::IncomingAsync::__validateResponse(bool ok)
 {
-    if(!_retriable)
+    //
+    // Only returns true if this incoming is not retriable or if all
+    // the interceptors return true and no response has been sent
+    // yet. Upon getting a true return value, the caller should send
+    // the response.
+    //
+
+    if(_retriable)
     {
-        return true;
-    }
-    
-    try
-    {
-        for(std::deque<Ice::DispatchInterceptorAsyncCallbackPtr>::iterator p = _interceptorAsyncCallbackQueue.begin();
-            p != _interceptorAsyncCallbackQueue.end(); ++p)
+        try
         {
-            if((*p)->response(ok) == false)
+            for(deque<DispatchInterceptorAsyncCallbackPtr>::iterator p = _interceptorAsyncCallbackQueue.begin();
+                p != _interceptorAsyncCallbackQueue.end(); ++p)
             {
-                return false;
+                if((*p)->response(ok) == false)
+                {
+                    return false;
+                }
             }
         }
-    }
-    catch(...)
-    {
-        return false;
-    }
-    
-    IceUtilInternal::MutexPtrLock<IceUtil::Mutex> lock(globalMutex);
-    if(_active)
-    {
-        _active = false;
-        return true;
-    }
-    else
-    {
-        return false;
-    }
-}
-
-    
-bool 
-IceInternal::IncomingAsync::__validateException(const std::exception& ex)
-{
-    if(!_retriable)
-    {
-        return true;
-    }
-    
-    try
-    {
-        for(std::deque<Ice::DispatchInterceptorAsyncCallbackPtr>::iterator p = _interceptorAsyncCallbackQueue.begin();
-            p != _interceptorAsyncCallbackQueue.end(); ++p)
+        catch(...)
         {
-            if((*p)->exception(ex) == false)
-            {
-                return false;
-            }
+            return false;
         }
-    }
-    catch(...)
-    {
-        return false;
-    }
-    
-    IceUtilInternal::MutexPtrLock<IceUtil::Mutex> lock(globalMutex);
-    if(_active)
-    {
-        _active = false;
-        return true;
-    }
-    else
-    {
-        return false;
-    }
-}
-
-bool 
-IceInternal::IncomingAsync::__validateException()
-{
-    if(!_retriable)
-    {
-        return true;
-    }
-    
-    try
-    {
-        for(std::deque<Ice::DispatchInterceptorAsyncCallbackPtr>::iterator p = _interceptorAsyncCallbackQueue.begin();
-            p != _interceptorAsyncCallbackQueue.end(); ++p)
+        
+        IceUtilInternal::MutexPtrLock<IceUtil::Mutex> lock(globalMutex);
+        if(!_active)
         {
-            if((*p)->exception() == false)
-            {
-                return false;
-            }
+            return false;
         }
-    }
-    catch(...)
-    {
-        return false;
-    }
-    
-    IceUtilInternal::MutexPtrLock<IceUtil::Mutex> lock(globalMutex);
-    if(_active)
-    {
         _active = false;
-        return true;
     }
-    else
-    {
-        return false;
-    }
+    return true;
 }
-
 
 IceAsync::Ice::AMD_Object_ice_invoke::AMD_Object_ice_invoke(Incoming& in) :
     IncomingAsync(in)
@@ -307,20 +311,3 @@ IceAsync::Ice::AMD_Object_ice_invoke::ice_response(bool ok, const pair<const Byt
     }
 }
 
-void
-IceAsync::Ice::AMD_Object_ice_invoke::ice_exception(const std::exception& ex)
-{
-    if(__validateException(ex))
-    {
-        __exception(ex);
-    }
-}
-
-void
-IceAsync::Ice::AMD_Object_ice_invoke::ice_exception()
-{
-    if(__validateException())
-    {
-        __exception();
-    }
-}

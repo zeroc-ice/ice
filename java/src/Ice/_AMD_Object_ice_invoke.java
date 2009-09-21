@@ -34,13 +34,4 @@ final class _AMD_Object_ice_invoke extends IceInternal.IncomingAsync implements 
             __response(ok);
         }
     }
-
-    public void
-    ice_exception(java.lang.Exception ex)
-    {
-        if(__validateException(ex))
-        {
-            __exception(ex);
-        }
-    }
 }

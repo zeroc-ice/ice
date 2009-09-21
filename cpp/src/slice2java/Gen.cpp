@@ -5442,17 +5442,12 @@ Slice::Gen::AsyncVisitor::visitOperation(const OperationPtr& p)
             
             writeDocCommentOp(out, p);
             out << sp << nl << "public interface " << classNameAMD << '_' << name;
+            out << " extends Ice.AMDCallback";
             out << sb;
             out << sp;
             writeDocCommentAsync(out, p, OutParam);
             out << nl << "void ice_response" << spar << paramsAMD << epar << ';';
-            out << sp;
-            out << nl << "/**";
-            out << nl << " * ice_exception indicates to the Ice run time that";
-            out << nl << " * the operation completed with an exception.";
-            out << nl << " * @param ex The exception to be raised.";
-            out << nl << " **/";
-            out << nl << "void ice_exception(java.lang.Exception ex);";
+ 
             out << eb;
             
             close();
@@ -5539,17 +5534,10 @@ Slice::Gen::AsyncVisitor::visitOperation(const OperationPtr& p)
             out << eb;
             out << eb;
 
-            out << sp << nl << "public void" << nl << "ice_exception(java.lang.Exception ex)";
-            out << sb;
-            if(throws.empty())
+            if(!throws.empty())
             {
-                out << nl << "if(__validateException(ex))";
+                out << sp << nl << "public void" << nl << "ice_exception(java.lang.Exception ex)";
                 out << sb;
-                out << nl << "__exception(ex);";
-                out << eb;
-            }
-            else
-            {
                 out << nl << "try";
                 out << sb;
                 out << nl << "throw ex;";
@@ -5569,13 +5557,10 @@ Slice::Gen::AsyncVisitor::visitOperation(const OperationPtr& p)
                 }
                 out << nl << "catch(java.lang.Exception __ex)";
                 out << sb;
-                out << nl << "if(__validateException(__ex))";
-                out << sb;
-                out << nl << "__exception(__ex);";
+                out << nl << "ice_exception(__ex);";
                 out << eb;
                 out << eb;
             }
-            out << eb;
 
             out << eb;
             
