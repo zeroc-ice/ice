@@ -1171,10 +1171,8 @@ Slice::Python::CodeVisitor::visitStructStart(const StructPtr& p)
 
     _out << sp << nl << "def __cmp__(self, other):";
     _out.inc();
-    _out << nl << "if other == None:";
+    _out << nl << "if isinstance(other, _M_" << abs << "):";
     _out.inc();
-    _out << nl << "return 1";
-    _out.dec();
     for(r = memberList.begin(); r != memberList.end(); ++r)
     {
         _out << nl << "if self." << r->fixedName << " < other." << r->fixedName << ':';
@@ -1187,6 +1185,12 @@ Slice::Python::CodeVisitor::visitStructStart(const StructPtr& p)
         _out.dec();
     }
     _out << nl << "return 0";
+    _out.dec();
+    _out << nl << "elif other == None:";
+    _out.inc();
+    _out << nl << "return 1";
+    _out.dec();
+    _out << nl << "return NotImplemented";
     _out.dec();
 
     //
@@ -1356,6 +1360,8 @@ Slice::Python::CodeVisitor::visitEnum(const EnumPtr& p)
     _out.dec();
     _out << sp << nl << "def __str__(self):";
     _out.inc();
+    _out << nl << "return _names(self.value)";
+#if 0
     for(q = enums.begin(), i = 0; q != enums.end(); ++q, ++i)
     {
         _out << nl;
@@ -1375,6 +1381,7 @@ Slice::Python::CodeVisitor::visitEnum(const EnumPtr& p)
         _out.dec();
     }
     _out << nl << "return None";
+#endif
     _out.dec();
     _out << sp << nl << "__repr__ = __str__";
     _out << sp << nl << "def __hash__(self):";
@@ -1385,6 +1392,21 @@ Slice::Python::CodeVisitor::visitEnum(const EnumPtr& p)
     _out.inc();
     _out << nl << "return cmp(self.value, other.value)";
     _out.dec();
+
+    _out << sp << nl << "_names = (";
+    for(q = enums.begin(), i = 0; q != enums.end(); ++q, ++i)
+    {
+        if(q != enums.begin())
+        {
+            _out << ", ";
+        }
+        _out << "'" << (*q)->name() << "'";
+    }
+    if(enums.size() == 1)
+    {
+        _out << ',';
+    }
+    _out << ')';
     _out.dec();
 
     _out << sp;

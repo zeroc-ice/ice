@@ -404,6 +404,8 @@ C# Changes
 Python Changes
 ==============
 
+- Improved the __cmp__ method generated for Slice structures.
+
 - Slice comments are now converted into Python docstrings in the
   generated code.
 
