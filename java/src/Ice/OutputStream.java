@@ -227,8 +227,8 @@ public interface OutputStream
      *
      * @param clearBuffer If <code>true</code>, the stream's internal buffer becomes eligible for
      * garbage collection; if <code>false</code>, the stream's internal buffer is retained, to avoid
-     * creating unnecessary garbage. If retained, thh internal buffer may resized to a smaller capacity.
-     * Either way, <code>reset</code> resets the stream's writing position to zero.
+     * creating unnecessary garbage. If retained, the internal buffer may be resized to a smaller
+     * capacity. Either way, <code>reset</code> resets the stream's writing position to zero.
      **/
     void reset(boolean clearBuffer);
 

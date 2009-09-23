@@ -37,7 +37,7 @@ namespace Ice
         Communicator communicator();
 
         /// <summary>
-        /// Determines the behavior of the stream when extract Slice objects.
+        /// Determines the behavior of the stream when extracting Slice objects.
         /// A Slice object is "sliced" when a factory cannot be found for a Slice type ID.
         /// </summary>
         /// <param name="slice">If true (the default), slicing is enabled; if false,
@@ -221,7 +221,7 @@ namespace Ice
         byte[] readBlob(int size);
 
         /// <summary>
-        /// Indicates that the a sequence is about to be unmarshaled.
+        /// Indicates that a sequence is about to be unmarshaled.
         /// </summary>
         /// <param name="numElements">The number of elements in the sequence.</param>
         /// <param name="minSize">The minimum number of bytes required to encode a single element.</param>
@@ -229,9 +229,9 @@ namespace Ice
 
         /// <summary>
         /// Checks whether whether the stream has a sufficient number of bytes remaining to unmarshal
-        /// the not yet unmarshaled remaining elements of a sequence. This method is used for sequences
-        /// with elements whose on-the-wire size can vary (such as strings or structures containing variable-length
-        /// members).
+        /// the not-yet-unmarshaled remaining elements of a sequence. This method is used for sequences
+        /// with elements whose on-the-wire size can vary (such as strings or structures containing
+        /// variable-length members).
         /// </summary>
         void checkSeq();
 
@@ -254,15 +254,15 @@ namespace Ice
         void endElement();
 
         /// <summary>
-        /// Indicates that unmarshaling is complete, except for any Slice objects. The application must call this method
-        /// only if the stream actually contains Slice objects. Calling readPendingObjects triggers the
-        /// calls to ReadObjectCallback.invoke that informs the application that unmarshaling of a Slice
-        /// object is complete.
+        /// Indicates that unmarshaling is complete, except for any Slice objects. The application must
+        /// call this method only if the stream actually contains Slice objects. Calling readPendingObjects
+        /// triggers the calls to ReadObjectCallback.invoke that inform the application that unmarshaling
+        /// of a Slice object is complete.
         /// </summary>
         void readPendingObjects();
 
         /// <summary>
-        /// Resets teh read position of the stream to the beginning.
+        /// Resets the read position of the stream to the beginning.
         /// </summary>
         void rewind();
 
@@ -281,7 +281,6 @@ namespace Ice
     {
         /// <summary>
         /// Returns the communicator for this output stream.
-        /// of bytes.
         /// </summary>
         Communicator communicator();
 
@@ -385,7 +384,8 @@ namespace Ice
         /// <summary>
         /// Writes a string to the stream.
         /// </summary>
-        /// <param name="v">The string to write to the stream.</param>
+        /// <param name="v">The string to write to the stream.
+        /// Passing null causes an empty string to be written to the stream.</param>
         void writeString(string v);
 
         /// <summary>
@@ -410,8 +410,8 @@ namespace Ice
         /// <summary>
         /// Writes a Slice class to the stream.
         /// </summary>
-        /// <param name="v">The class to write. This method wirtes the index of a Slice class; the state of the
-        /// class is written once writePendingObjcets is called.</param>
+        /// <param name="v">The class to write. This method writes the index of a Slice class; the state of the
+        /// class is written once writePendingObjects is called.</param>
         void writeObject(Ice.Object v);
 
         /// <summary>
@@ -470,12 +470,12 @@ namespace Ice
         ///
         /// <param name="clearBuffer">If true, the stream's internal buffer becomes eligible for
         /// garbage collection; if false, the stream's internal buffer is retained, to avoid
-        /// creating unnecessary garbage. If retained, thh internal buffer may resized to a smaller capacity.
-        /// Either way, reset resets the stream's writing position to zero.</param>
+        /// creating unnecessary garbage. If retained, the internal buffer may be resized to a smaller
+        /// capacity. Either way, reset resets the stream's writing position to zero.</param>
         void reset(bool clearBuffer);
 
         /// <summary>
-        /// Destroys the stream and its associated resources. The application must call de>destroy prior
+        /// Destroys the stream and its associated resources. The application must call destroy prior
         /// to releasing the last reference to a stream; failure to do so may result in resource leaks.
         /// </summary>
         void destroy();

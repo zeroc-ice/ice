@@ -13,7 +13,7 @@ package Ice;
  * Interface for input streams used to extract Slice types from a sequence
  * of bytes.
  *
- * see OutputStream.
+ * @see OutputStream
  **/
 public interface InputStream
 {
@@ -25,7 +25,7 @@ public interface InputStream
     Communicator communicator();
 
     /**
-     * Determines the behavior of the stream when extract Slice objects.
+     * Determines the behavior of the stream when extracting Slice objects.
      * A Slice object is "sliced" when a factory cannot be found for a Slice type ID.
      *
      * @param slice If <code>true</code> (the default), slicing is enabled; if <code>false</code>,
@@ -91,7 +91,7 @@ public interface InputStream
     int readInt();
 
     /**
-     * Extracts an integer value from the stream.
+     * Extracts a sequence of integer values from the stream.
      *
      * @return The extracted integer sequence.
      **/
@@ -105,7 +105,7 @@ public interface InputStream
     long readLong();
 
     /**
-     * Extracts a long sequence from the stream.
+     * Extracts a sequence of long values from the stream.
      *
      * @return The extracted long sequence.
      **/
@@ -119,7 +119,7 @@ public interface InputStream
     float readFloat();
 
     /**
-     * Extracts a float sequence from the stream.
+     * Extracts a sequence of float values from the stream.
      *
      * @return The extracted float sequence.
      **/
@@ -133,7 +133,7 @@ public interface InputStream
     double readDouble();
 
     /**
-     * Extracts a double sequence from the stream.
+     * Extracts a sequence of double values from the stream.
      *
      * @return The extracted float sequence.
      **/
@@ -221,7 +221,7 @@ public interface InputStream
     void endEncapsulation();
 
     /**
-     * Indicates that the a sequence is about to be unmarshaled.
+     * Indicates that a sequence is about to be unmarshaled.
      *
      * @param numElements The number of elements in the sequence.
      * @param minSize The minimum number of bytes required to encode a single element.
@@ -230,7 +230,7 @@ public interface InputStream
 
     /**
      * Checks whether whether the stream has a sufficient number of bytes remaining to unmarshal
-     * the not yet unmarshaled remaining elements of a sequence. This method is used for sequences
+     * the not-yet-unmarshaled remaining elements of a sequence. This method is used for sequences
      * with elements whose on-the-wire size can vary (such as strings or structures containing variable-length
      * members).
      **/
@@ -258,7 +258,7 @@ public interface InputStream
     /**
      * Indicates that unmarshaling is complete, except for any Slice objects. The application must call this method
      * only if the stream actually contains Slice objects. Calling <code>readPendingObjects</code> triggers the
-     * calls to {@link ReadObjectCallback#invoke} that informs the application that unmarshaling of a Slice
+     * calls to {@link ReadObjectCallback#invoke} that inform the application that unmarshaling of a Slice
      * object is complete.
      **/
     void readPendingObjects();
