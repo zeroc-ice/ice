@@ -50,24 +50,14 @@ namespace IceSSL
             {
                 StringBuilder s = new StringBuilder("accepting ssl connections at ");
 		s.Append(ToString());
-                if(_instance.networkTraceLevel() >= 3)
+
+                List<string> interfaces = 
+                    IceInternal.Network.getHostsForEndpointExpand(_addr.Address.ToString(), 
+                                                                  _instance.protocolSupport(), true);
+                if(interfaces.Count != 0)
                 {
-                    List<string> interfaces = IceInternal.Network.getHostsForEndpointExpand(_addr.Address.ToString(),
-                                                                                 _instance.protocolSupport(), true);
-                    if(interfaces.Count != 0)
-                    {
-                        s.Append("\nlocal interfaces: ");
-                        bool first = true;
-                        foreach(string iface in interfaces)
-                        {
-                            if(!first)
-                            {
-                                s.Append(", ");
-                            }
-                            s.Append(iface);
-                            first = false;
-                        }
-                    }
+                    s.Append("\nlocal interfaces: ");
+                    s.Append(String.Join(", ", interfaces.ToArray()));
                 }
                 _logger.trace(_instance.networkTraceCategory(), s.ToString());
             }

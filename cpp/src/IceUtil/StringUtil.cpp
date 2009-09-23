@@ -369,6 +369,21 @@ IceUtilInternal::splitString(const string& str, const string& delim, vector<stri
     return true;
 }
 
+string
+IceUtilInternal::joinString(const std::vector<std::string>& values, const std::string& delimiter)
+{
+    ostringstream out;
+    for(unsigned int i = 0; i < values.size(); i++)
+    {
+        if(i != 0)
+        {
+            out << delimiter;
+        }
+        out << values[i];
+    }
+    return out.str();
+}
+
 //
 // Trim white space (" \t\r\n")
 //

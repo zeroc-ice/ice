@@ -27,12 +27,16 @@ ICE_UTIL_API std::string escapeString(const std::string&, const std::string&);
 //
 ICE_UTIL_API bool unescapeString(const std::string&, std::string::size_type, std::string::size_type, std::string&);
 
-
 //
 // Split a string using the given delimiters. Considers single and double quotes;
 // returns false for unbalanced quote, true otherwise.
 //
 ICE_UTIL_API bool splitString(const std::string&, const std::string&, std::vector<std::string>&);
+
+//
+// Join a list of strings using the given delimiter. 
+//
+ICE_UTIL_API std::string joinString(const std::vector<std::string>&, const std::string&);
 
 //
 // Trim white space

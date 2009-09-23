@@ -257,7 +257,6 @@ final class UdpTransceiver implements Transceiver
         _traceLevels = instance.traceLevels();
         _logger = instance.initializationData().logger;
         _stats = instance.initializationData().stats;
-        _protocolSupport = instance.protocolSupport();
         _connect = true;
         _warn = instance.initializationData().properties.getPropertyAsInt("Ice.Warn.Datagrams") > 0;
         _addr = addr;
@@ -295,7 +294,6 @@ final class UdpTransceiver implements Transceiver
         _traceLevels = instance.traceLevels();
         _logger = instance.initializationData().logger;
         _stats = instance.initializationData().stats;
-        _protocolSupport = instance.protocolSupport();
         _connect = connect;
         _warn = instance.initializationData().properties.getPropertyAsInt("Ice.Warn.Datagrams") > 0;
 
@@ -347,24 +345,14 @@ final class UdpTransceiver implements Transceiver
             {
                 StringBuffer s = new StringBuffer("starting to receive udp packets\n");
 		s.append(toString());
-                if(_traceLevels.network >= 3)
+
+                java.util.List<String> interfaces = 
+                    Network.getHostsForEndpointExpand(_addr.getAddress().getHostAddress(), instance.protocolSupport(),
+                                                      true);
+                if(!interfaces.isEmpty())
                 {
-                    java.util.List<String> interfaces = 
-                        Network.getHostsForEndpointExpand(_addr.getAddress().getHostAddress(), _protocolSupport, true);
-                    if(!interfaces.isEmpty())
-                    {
-                        s.append("\nlocal interfaces: ");
-                        boolean first = true;
-                        for(String iface : interfaces)
-                        {
-                            if(!first)
-                            {
-                                s.append(", ");
-                            }
-                            s.append(iface);
-                            first = false;
-                        }
-                    }
+                    s.append("\nlocal interfaces: ");
+                    s.append(IceUtilInternal.StringUtil.joinString(interfaces, ", "));
                 }
                 _logger.trace(_traceLevels.networkCat, s.toString());
             }
@@ -550,7 +538,6 @@ final class UdpTransceiver implements Transceiver
     private TraceLevels _traceLevels;
     private Ice.Logger _logger;
     private Ice.Stats _stats;
-    private int _protocolSupport;
     private boolean _connect;
     private final boolean _warn;
     private int _rcvSize;

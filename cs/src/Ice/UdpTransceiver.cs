@@ -582,7 +582,6 @@ namespace IceInternal
             _traceLevels = instance.traceLevels();
             _logger = instance.initializationData().logger;
             _stats = instance.initializationData().stats;
-            _protocolSupport = instance.protocolSupport();
             _warn = instance.initializationData().properties.getPropertyAsInt("Ice.Warn.Datagrams") > 0;
             _addr = addr;
             _mcastInterface = mcastInterface;
@@ -611,7 +610,6 @@ namespace IceInternal
             _traceLevels = instance.traceLevels();
             _logger = instance.initializationData().logger;
             _stats = instance.initializationData().stats;
-            _protocolSupport = instance.protocolSupport();
             _warn = instance.initializationData().properties.getPropertyAsInt("Ice.Warn.Datagrams") > 0;
             _state = connect ? StateNeedConnect : StateConnected;
             _incoming = true;
@@ -672,24 +670,13 @@ namespace IceInternal
                 {
                     StringBuilder s = new StringBuilder("starting to receive udp packets\n");
 		    s.Append(ToString());
-                    if(_traceLevels.network >= 3)
+
+                    List<string> interfaces =
+                        Network.getHostsForEndpointExpand(_addr.Address.ToString(), instance.protocolSupport(), true);
+                    if(interfaces.Count != 0)
                     {
-                        List<string> interfaces =
-                            Network.getHostsForEndpointExpand(_addr.Address.ToString(), _protocolSupport, true);
-                        if(interfaces.Count != 0)
-                        {
-                            s.Append("\nlocal interfaces: ");
-                            bool first = true;
-                            foreach(string iface in interfaces)
-                            {
-                                if(!first)
-                                {
-				    s.Append(", ");
-                                }
-                                s.Append(iface);
-                                first = false;
-                            }
-                        }
+                        s.Append("\nlocal interfaces: ");
+                        s.Append(String.Join(", ", interfaces.ToArray()));
                     }
                     _logger.trace(_traceLevels.networkCat, s.ToString());
                 }
@@ -772,7 +759,6 @@ namespace IceInternal
         private TraceLevels _traceLevels;
         private Ice.Logger _logger;
         private Ice.Stats _stats;
-        private int _protocolSupport;
         private int _state;
         private bool _incoming;
         private readonly bool _warn;

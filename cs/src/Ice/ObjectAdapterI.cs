@@ -1233,27 +1233,17 @@ namespace Ice
             {
                 //
                 // If the PublishedEndpoints property isn't set, we compute the published enpdoints
-                // from the OA endpoints.
+                // from the OA endpoints, expanding any endpoints that may be listening on INADDR_ANY
+                // to include actual addresses in the published endpoints.
                 //
                 foreach(IceInternal.IncomingConnectionFactory factory in _incomingConnectionFactories)
                 {
-                    endpoints.Add(factory.endpoint());
+                    endpoints.AddRange(factory.endpoint().expand());
                 }
-
-                //
-                // Expand any endpoints that may be listening on INADDR_ANY to
-                // include actual addresses in the published endpoints.
-                //
-                List<IceInternal.EndpointI> expandedEndpoints = new List<IceInternal.EndpointI>();
-                foreach(IceInternal.EndpointI endp in endpoints)
-                {
-                    expandedEndpoints.AddRange(endp.expand());
-                }
-                endpoints = expandedEndpoints;
             }
 
-            if(instance_.traceLevels().network >= 3)
-             {
+            if(instance_.traceLevels().network >= 1)
+            {
                  StringBuilder s = new StringBuilder("published endpoints for object adapter `");
 		 s.Append(_name);
 		 s.Append("':\n");

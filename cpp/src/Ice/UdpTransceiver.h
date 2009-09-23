@@ -72,7 +72,6 @@ private:
     const TraceLevelsPtr _traceLevels;
     const Ice::LoggerPtr _logger;
     const Ice::StatsPtr _stats;
-    const ProtocolSupport _protocolSupport;
     const bool _incoming;
     const struct sockaddr_storage _addr;
     struct sockaddr_storage _mcastAddr;

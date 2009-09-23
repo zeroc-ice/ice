@@ -1209,26 +1209,16 @@ public final class ObjectAdapterI implements ObjectAdapter
         {
             //
             // If the PublishedEndpoints property isn't set, we compute the published enpdoints
-            // from the OA endpoints.
+            // from the OA endpoints, expanding any endpoints that may be listening on INADDR_ANY
+            // to include actual addresses in the published endpoints.
             //
             for(IceInternal.IncomingConnectionFactory factory : _incomingConnectionFactories)
             {
-                endpoints.add(factory.endpoint());
+                endpoints.addAll(factory.endpoint().expand());
             }
-
-            //
-            // Expand any endpoints that may be listening on INADDR_ANY to
-            // include actual addresses in the published endpoints.
-            //
-            java.util.List<IceInternal.EndpointI> expandedEndpoints = new java.util.ArrayList<IceInternal.EndpointI>();
-            for(IceInternal.EndpointI p : endpoints)
-            {
-                expandedEndpoints.addAll(p.expand());
-            }
-            endpoints = expandedEndpoints;
         }
 
-        if(_instance.traceLevels().network >= 3)
+        if(_instance.traceLevels().network >= 1)
         {
             StringBuffer s = new StringBuffer("published endpoints for object adapter `");
 	    s.append(_name);

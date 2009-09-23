@@ -15,6 +15,7 @@
 #include <Ice/Network.h>
 #include <Ice/Exception.h>
 #include <Ice/Properties.h>
+#include <IceUtil/StringUtil.h>
 
 #ifdef ICE_USE_IOCP
 #  include <Mswsock.h>
@@ -71,22 +72,12 @@ IceInternal::TcpAcceptor::listen()
         Trace out(_logger, _traceLevels->networkCat);
         out << "accepting tcp connections at " << toString();
 
-        if(_traceLevels->network >= 3)
+        vector<string> interfaces = 
+            getHostsForEndpointExpand(inetAddrToString(_addr), _instance->protocolSupport(), true);
+        if(!interfaces.empty())
         {
-            vector<string> interfaces = 
-                getHostsForEndpointExpand(inetAddrToString(_addr), _instance->protocolSupport(), true);
-            if(!interfaces.empty())
-            {
-                out << "\nlocal interfaces: ";
-                for(unsigned int i = 0; i < interfaces.size(); ++i)
-                {
-                    if(i != 0)
-                    {
-                        out << ", ";
-                    }
-                    out << interfaces[i];
-                }
-            }
+            out << "\nlocal interfaces: ";
+            out << IceUtilInternal::joinString(interfaces, ", ");
         }
     }
 }

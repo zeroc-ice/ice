@@ -41,24 +41,13 @@ namespace IceInternal
             {
                 StringBuilder s = new StringBuilder("accepting tcp connections at ");
 		s.Append(ToString());
-                if(_traceLevels.network >= 3)
+
+                List<string> interfaces =
+                    Network.getHostsForEndpointExpand(_addr.Address.ToString(), instance_.protocolSupport(), true);
+                if(interfaces.Count != 0)
                 {
-                    List<string> interfaces =
-                        Network.getHostsForEndpointExpand(_addr.Address.ToString(), instance_.protocolSupport(), true);
-                    if(interfaces.Count != 0)
-                    {
-                        s.Append("\nlocal interfaces: ");
-                        bool first = true;
-                        foreach(string iface in interfaces)
-                        {
-                            if(!first)
-                            {
-                                s.Append(", ");
-                            }
-                            s.Append(iface);
-                            first = false;
-                        }
-                    }
+                    s.Append("\nlocal interfaces: ");
+                    s.Append(String.Join(", ", interfaces.ToArray()));
                 }
                 _logger.trace(_traceLevels.networkCat, s.ToString());
             }

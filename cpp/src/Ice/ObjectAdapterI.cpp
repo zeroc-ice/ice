@@ -1199,25 +1199,17 @@ ObjectAdapterI::parsePublishedEndpoints()
     {
         //
         // If the PublishedEndpoints property isn't set, we compute the published enpdoints
-        // from the OA endpoints.
+        // from the OA endpoints, expanding any endpoints that may be listening on INADDR_ANY
+        // to include actual addresses in the published endpoints.
         //
-        transform(_incomingConnectionFactories.begin(), _incomingConnectionFactories.end(), 
-                  back_inserter(endpoints), Ice::constMemFun(&IncomingConnectionFactory::endpoint));
-    
-        //
-        // Expand any endpoints that may be listening on INADDR_ANY to include actual
-        // addresses in the published endpoints.
-        //
-        vector<EndpointIPtr> expandedEndpoints;
-        for(unsigned int i = 0; i < endpoints.size(); ++i)
+        for(unsigned int i = 0; i < _incomingConnectionFactories.size(); ++i)
         {
-            vector<EndpointIPtr> endps = endpoints[i]->expand();
-            expandedEndpoints.insert(expandedEndpoints.end(), endps.begin(), endps.end());
+            vector<EndpointIPtr> endps = _incomingConnectionFactories[i]->endpoint()->expand();
+            endpoints.insert(endpoints.end(), endps.begin(), endps.end());
         }
-        endpoints = expandedEndpoints;
     }
 
-    if(_instance->traceLevels()->network >= 3)
+    if(_instance->traceLevels()->network >= 1)
     {
         Trace out(_instance->initializationData().logger, _instance->traceLevels()->networkCat);
         out << "published endpoints for object adapter `" << getName() << "':\n";
