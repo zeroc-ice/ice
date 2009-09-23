@@ -53,6 +53,7 @@ subjectKeyIdentifier = hash
 authorityKeyIdentifier = keyid:always,issuer:always
 
 subjectAltName = DNS:server, IP:127.0.0.1
+issuerAltName = email:issuer@zeroc.com, IP:127.0.0.1
 
 [ req ]
 default_bits        = 1024

@@ -55,23 +55,51 @@ public:
     {
         if(info.certs.size() > 0)
         {
-            vector<pair<int, string> > subjectAltNames = info.certs[0]->getSubjectAlternativeNames();
-            vector<string> ipAddresses;
-            vector<string> dnsNames;
-            for(vector<pair<int, string> >::const_iterator p = subjectAltNames.begin(); p != subjectAltNames.end(); ++p)
+            //
+            // Subject alternative name
+            //
             {
-                if(p->first == 7)
+                vector<pair<int, string> > altNames = info.certs[0]->getSubjectAlternativeNames();
+                vector<string> ipAddresses;
+                vector<string> dnsNames;
+                for(vector<pair<int, string> >::const_iterator p = altNames.begin(); p != altNames.end(); ++p)
                 {
-                    ipAddresses.push_back(p->second);
+                    if(p->first == 7)
+                    {
+                        ipAddresses.push_back(p->second);
+                    }
+                    else if(p->first == 2)
+                    {
+                        dnsNames.push_back(p->second);
+                    }
                 }
-                else if(p->first == 2)
-                {
-                    dnsNames.push_back(p->second);
-                }
+
+                test(find(dnsNames.begin(), dnsNames.end(), "server") != dnsNames.end());
+                test(find(ipAddresses.begin(), ipAddresses.end(), "127.0.0.1") != ipAddresses.end());
             }
 
-            test(find(dnsNames.begin(), dnsNames.end(), "server") != dnsNames.end());
-            test(find(ipAddresses.begin(), ipAddresses.end(), "127.0.0.1") != ipAddresses.end());
+            //
+            // Issuer alternative name
+            //
+            {
+                vector<pair<int, string> > altNames = info.certs[0]->getIssuerAlternativeNames();
+                vector<string> ipAddresses;
+                vector<string> emailAddresses;
+                for(vector<pair<int, string> >::const_iterator p = altNames.begin(); p != altNames.end(); ++p)
+                {
+                    if(p->first == 7)
+                    {
+                        ipAddresses.push_back(p->second);
+                    }
+                    else if(p->first == 1)
+                    {
+                        emailAddresses.push_back(p->second);
+                    }
+                }
+
+                test(find(ipAddresses.begin(), ipAddresses.end(), "127.0.0.1") != ipAddresses.end());
+                test(find(emailAddresses.begin(), emailAddresses.end(), "issuer@zeroc.com") != emailAddresses.end());
+            }
         }
 
         _hadCert = info.certs.size() != 0;
