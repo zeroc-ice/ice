@@ -161,9 +161,9 @@ ifneq ($(DB_HOME),)
    DB_LIBS              = -L$(DB_HOME)/$(libsubdir) -ldb_cxx
    DB_RPATH_LINK        = $(call rpathlink,$(DB_HOME)/$(libsubdir))
 else
-   ifeq ($(shell if [ -d /usr/include/db47 -a -d /usr/$(libsubdir)/db47 ] ; then echo yes; fi), yes)
-      DB_FLAGS          = -I/usr/include/db47
-      DB_LIBS           = -L/usr/$(libsubdir)/db47 -ldb_cxx
+   ifeq ($(shell if [ -d /usr/include/db48 -a -d /usr/$(libsubdir)/db48 ] ; then echo yes; fi), yes)
+      DB_FLAGS          = -I/usr/include/db48
+      DB_LIBS           = -L/usr/$(libsubdir)/db48 -ldb_cxx
    else
       DB_LIBS           = -ldb_cxx
    endif

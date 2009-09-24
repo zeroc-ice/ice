@@ -65,7 +65,7 @@ BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 %define dbversion 4.7.25
 
 BuildRequires: openssl-devel >= 0.9.7a
-BuildRequires: db47-devel >= 4.7.25, db47-java >= 4.7.25
+BuildRequires: db48-devel >= 4.8.24, db48-java >= 4.8.24
 BuildRequires: jpackage-utils
 BuildRequires: mcpp-devel >= 2.7.2
 
@@ -141,7 +141,7 @@ The Ice runtime for .NET (mono).
 %package java
 Summary: The Ice runtime for Java
 Group: System Environment/Libraries
-Requires: ice = %{version}-%{release}, db47-java,
+Requires: ice = %{version}-%{release}, db48-java,
 %description java
 The Ice runtime for Java.
 %endif
@@ -153,7 +153,7 @@ The Ice runtime for Java.
 %package libs
 Summary: The Ice runtime for C++
 Group: System Environment/Libraries
-Requires: ice = %{version}-%{release}, db47
+Requires: ice = %{version}-%{release}, db48
 %description libs
 The Ice runtime for C++
 

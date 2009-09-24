@@ -82,9 +82,9 @@ The ice.spec file defines a number of build requirements that must be
 installed on your system in order to build the source RPM. These
 dependencies are listed below:
 
- - db46
- - db46-devel
- - db46-java
+ - db48
+ - db48-devel
+ - db48-java
  - mcpp-devel
  - openssl-devel
  - jpackage-utils
@@ -97,7 +97,7 @@ dependencies are listed below:
  - mono-core (SLES)
  - mono-devel (SLES)
 
-The db46* and mcpp-devel RPMs are provided by ZeroC. You can determine
+The db48* and mcpp-devel RPMs are provided by ZeroC. You can determine
 the version requirements for all other prerequisites by examining the
 BuildRequires directives in the ice.spec file.
 

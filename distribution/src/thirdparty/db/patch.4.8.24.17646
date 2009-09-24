@@ -1,0 +1,24 @@
+*** os_windows/os_abs.c	Thu May 17 23:15:50 2007
+--- os_windows/os_abs.c	Thu Aug 20 10:27:04 2009
+***************
+*** 24,30 ****
+  	 * separator used by the win32 DB (PATH_SEPARATOR) is \; look for both
+  	 * / and \ since these are user-input paths.
+  	 */
+! 	if (isalpha(path[0]) && path[1] == ':')
+  		path += 2;
+  	return (path[0] == '/' || path[0] == '\\');
+  }
+--- 24,35 ----
+  	 * separator used by the win32 DB (PATH_SEPARATOR) is \; look for both
+  	 * / and \ since these are user-input paths.
+  	 */
+! 	if (strlen(path) == 0)
+! 		return (0);
+! 	
+! 	if (strlen(path) >= 3 && ((path[0] <= 'Z' && path[0] >= 'A') || 
+! 	    (path[0] <= 'z' && path[0] >= 'a')) && path[1] == ':')
+  		path += 2;
++ 
+  	return (path[0] == '/' || path[0] == '\\');
+  }

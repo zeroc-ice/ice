@@ -9,11 +9,11 @@
 # **********************************************************************
 
 #
-# If you use a db47 RPM installation, the db utilities are
-# named db47_xxx
+# If you use a db48 RPM installation, the db utilities are
+# named db48_xxx
 #
 db="db"
-if [ -f /usr/bin/db47_hotbackup ]; then db="db47"; fi
+if [ -f /usr/bin/db48_hotbackup ]; then db="db48"; fi
 
 case $1 in
   "full" | "incremental") echo "Performing $1 backup"
