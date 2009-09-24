@@ -10,7 +10,6 @@
 top_srcdir	= ../../..
 
 TARGETS		= client.exe server.exe collocated.exe
-TARGETS_CONFIG  = $(TARGETS:.exe=.exe.config)
 
 C_SRCS		= AllTests.cs Client.cs EmptyI.cs
 S_SRCS		= AI.cs BI.cs CI.cs DI.cs EI.cs EmptyI.cs FI.cs GI.cs HI.cs Server.cs

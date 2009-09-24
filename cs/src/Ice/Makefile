@@ -15,8 +15,8 @@ TARGETS		= $(bindir)/$(LIBNAME)
 POLICY_TARGET	= $(POLICY).dll
 
 SRCS		= Acceptor.cs \
-          AMDCallback.cs \
-          Application.cs \
+		  AMDCallback.cs \
+		  Application.cs \
 		  Arrays.cs \
 		  AssemblyInfo.cs \
 		  AssemblyUtil.cs \

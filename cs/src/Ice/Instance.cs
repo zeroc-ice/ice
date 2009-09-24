@@ -672,10 +672,17 @@ namespace IceInternal
                         }
                         _initData.logger = new Ice.SysLoggerI(_initData.properties.getProperty("Ice.ProgramName"));
                     }
-                    else if(logfile.Length != 0)
+                    else if(logfile.Length != 0 || Ice.Util.getProcessLogger() is Ice.LoggerI) 
                     {
+                        //
+                        // If Ice.LogFile set, default ConsoleTraceListener disabled.
+                        // Otherwise default enabled.
+                        //
+                        bool console = 
+                            _initData.properties.getPropertyAsIntWithDefault("Ice.ConsoleListener",
+                                                                             logfile.Length == 0 ? 1 : 0) > 0;
                         _initData.logger = 
-                            new Ice.LoggerI(_initData.properties.getProperty("Ice.ProgramName"), logfile);
+                            new Ice.TraceLoggerI(_initData.properties.getProperty("Ice.ProgramName"), logfile, console);
                     }
                     else
                     {

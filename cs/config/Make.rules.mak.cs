@@ -217,18 +217,6 @@ $(TARGETS_CONFIG):
         @echo "Generating" <<$@ "..."
 <?xml version="1.0"?>
   <configuration>
-    <system.diagnostics>
-      <trace autoflush="true" indentsize="4">
-        <listeners>
-          <add name="Console" 
-               type="System.Diagnostics.ConsoleTraceListener"
-	       initializeData="true"/>
-        </listeners>
-      </trace>
-      <switches>
-        <add name="IceLogger" value="Info"/>
-      </switches>
-    </system.diagnostics>
     <runtime>
       <assemblyBinding xmlns="urn:schemas-microsoft-com:asm.v1">
         <dependentAssembly>

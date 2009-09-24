@@ -11,13 +11,11 @@
 
 namespace Ice
 {
-
-    using System.Globalization;
     using System.Diagnostics;
 
-    public sealed class LoggerI : Logger
+    public abstract class LoggerI : Logger
     {
-        public LoggerI(string prefix, string file)
+        public LoggerI(string prefix)
         {
             if(prefix.Length > 0)
             {
@@ -26,28 +24,16 @@ namespace Ice
             
             _date = "d";
             _time = "HH:mm:ss:fff";
-
-            if(file.Length != 0)
-            {
-                Trace.Listeners.Add(new TextWriterTraceListener(file));
-            }
-
-            if(IceInternal.AssemblyUtil.runtime_ == IceInternal.AssemblyUtil.Runtime.Mono)
-            {
-                //
-                // COMPILERFIX: With Mono if a write is not done before the TraceSwitch
-                // members are accessed then the ConsoleTraceListener double prints.
-                //
-                Trace.Write("");
-            }
         }
 
-        public void print(string message)
+        public void print( string message)
         {
-            System.Text.StringBuilder s = new System.Text.StringBuilder(message);
-            write(s, false, _switch.TraceInfo);
+            lock(_globalMutex)
+            {
+                write(message);
+            }
         }
-        
+
         public void trace(string category, string message)
         {
             System.Text.StringBuilder s = new System.Text.StringBuilder("-- ");
@@ -59,7 +45,12 @@ namespace Ice
             s.Append(category);
             s.Append(": ");
             s.Append(message);
-            write(s, true, _switch.TraceInfo);
+            s.Replace("\n", "\n   ");
+
+            lock(_globalMutex)
+            {
+                write(s.ToString());
+            }
         }
         
         public void warning(string message)
@@ -72,7 +63,12 @@ namespace Ice
             s.Append(_prefix);
             s.Append("warning: ");
             s.Append(message);
-            write(s, true, _switch.TraceWarning);
+            s.Replace("\n", "\n   ");
+
+            lock(_globalMutex)
+            {
+                write(s.ToString());
+            }
         }
         
         public void error(string message)
@@ -85,40 +81,63 @@ namespace Ice
             s.Append(_prefix);
             s.Append("error: ");
             s.Append(message);
-            write(s, true, _switch.TraceError);
-        }
+            s.Replace("\n", "\n   ");
 
-        private void write(System.Text.StringBuilder message, bool indent, bool condition)
-        {
             lock(_globalMutex)
             {
-                if(indent)
-                {
-                    message.Replace("\n", "\n   ");
-                }
-
-                Trace.WriteLineIf(condition, message);
+                write(s.ToString());
             }
         }
-        
+
+        protected abstract void write(string message);
+
         internal string _prefix = "";
         internal string _date = null;
         internal string _time = null;
 
         internal static object _globalMutex;
-        internal static TraceSwitch _switch;
+
         static LoggerI()
         {
             _globalMutex = new object();
-            if(IceInternal.AssemblyUtil.runtime_ == IceInternal.AssemblyUtil.Runtime.Mono)
+        }
+    }
+
+    public sealed class ConsoleLoggerI : LoggerI
+    {
+        public ConsoleLoggerI(string prefix)
+            : base(prefix)
+        {
+        }
+
+        protected override void write(string message)
+        {
+            System.Console.Error.WriteLine(message);
+        }
+    }
+
+    public sealed class TraceLoggerI : LoggerI
+    {
+        public TraceLoggerI(string prefix, string file, bool console)
+            : base(prefix)
+        {
+            if(file.Length != 0)
             {
-                _switch = new TraceSwitch("IceLogger", "Ice Logger Switch");
+                Trace.Listeners.Add(new TextWriterTraceListener(file));
             }
-            else
+
+            if(console && !Trace.Listeners.Contains(_consoleListener))
             {
-                _switch = new TraceSwitch("IceLogger", "Ice Logger Switch", "Info");
+                Trace.Listeners.Add(_consoleListener);
             }
         }
 
+        protected override void write(string message)
+        {
+            Trace.WriteLine(message);
+            Trace.Flush();
+        }
+
+        internal static ConsoleTraceListener _consoleListener = new ConsoleTraceListener(true);
     }
 }

@@ -10,7 +10,6 @@
 top_srcdir	= ../../..
 
 TARGETS		= client.exe testservice.dll
-TARGETS_CONFIG  = client.exe.config
 
 C_SRCS		= Client.cs AllTests.cs
 S_SRCS		= TestI.cs TestServiceI.cs

@@ -10,7 +10,6 @@
 top_srcdir	= ../../..
 
 TARGETS		= client.exe server.exe
-TARGETS_CONFIG  = $(TARGETS:.exe=.exe.config)
 
 COMMON_SRCS	= Acceptor.cs Configuration.cs Connector.cs EndpointFactory.cs EndpointI.cs PluginI.cs Transceiver.cs
 C_SRCS		= AllTests.cs Client.cs $(COMMON_SRCS)

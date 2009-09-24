@@ -306,6 +306,7 @@ generated from the section label.
         <property name="ChangeUser" />
         <property name="Compression.Level" />
         <property name="Config" />
+        <property name="ConsoleListener" />
         <property name="Default.CollocationOptimization" deprecated="true" 
             deprecatedBy="Ice.Default.CollocationOptimized" />
         <property name="Default.CollocationOptimized" />

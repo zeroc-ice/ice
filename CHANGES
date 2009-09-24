@@ -155,7 +155,7 @@ noted.
 - Added extra network tracing to show the list of local interfaces
   currently available when an endpoint is using a wildcard host and
   the published endpoints for an object adapter. Both of these traces
-  will be shown when Ice.Trace.Network >= 3.
+  will be shown when Ice.Trace.Network >= 1.
 
 - Renamed the context entries added by Glacier2 for secure sessions
   when Glacier2.AddSSLContext is set as follows:

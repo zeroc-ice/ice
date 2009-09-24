@@ -120,9 +120,9 @@ namespace Ice
         /// the return value is non-zero.</returns>
         public int main(string[] args, string configFile)
         {
-            if(Util.getProcessLogger() is LoggerI)
+            if(Util.getProcessLogger() is ConsoleLoggerI)
             {
-                Util.setProcessLogger(new LoggerI(_appName, ""));
+                Util.setProcessLogger(new ConsoleLoggerI(_appName));
             }
 
             InitializationData initData = new InitializationData();
@@ -163,9 +163,9 @@ namespace Ice
         /// the return value is non-zero.</returns>
         public int main(string[] args, InitializationData initData)
         {
-            if(Util.getProcessLogger() is LoggerI)
+            if(Util.getProcessLogger() is ConsoleLoggerI)
             {
-                Util.setProcessLogger(new LoggerI(_appName, ""));
+                Util.setProcessLogger(new ConsoleLoggerI(_appName));
             }
 
             if(_communicator != null)
@@ -416,9 +416,10 @@ namespace Ice
                 // If the process logger is the default logger, we replace it with a
                 // a logger which is using the program name for the prefix.
                 //
-                if(initData.properties.getProperty("Ice.ProgramName").Length > 0 && Util.getProcessLogger() is LoggerI)
+                if(initData.properties.getProperty("Ice.ProgramName").Length > 0 && 
+                   Util.getProcessLogger() is ConsoleLoggerI)
                 {
-                    Util.setProcessLogger(new LoggerI(initData.properties.getProperty("Ice.ProgramName"), ""));
+                    Util.setProcessLogger(new ConsoleLoggerI(initData.properties.getProperty("Ice.ProgramName")));
                 }
 
                 _application = this;

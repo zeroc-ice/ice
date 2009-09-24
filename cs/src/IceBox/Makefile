@@ -13,7 +13,6 @@ PKG		= IceBox
 LIBNAME		= $(PKG).dll
 ICEBOXNET	= $(bindir)/iceboxnet.exe
 TARGETS		= $(ICEBOXNET) $(bindir)/$(LIBNAME)
-TARGETS_CONFIG  = $(ICEBOXNET:.exe=.exe.config)
 POLICY_TARGET	= $(POLICY).dll
 
 L_SRCS		= AssemblyInfo.cs
