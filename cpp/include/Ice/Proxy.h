@@ -238,7 +238,6 @@ public:
     void __handleExceptionWrapperRelaxed(const ::IceInternal::Handle< ::IceDelegate::Ice::Object>&,
                                          const ::IceInternal::LocalExceptionWrapper&, IceInternal::OutgoingAsync*,
                                          int&);
-    void __checkTwowayOnly(const char*) const;
     void __checkTwowayOnly(const ::std::string&) const;
 
     ::IceInternal::Handle< ::IceDelegate::Ice::Object> __getDelegate(bool);
