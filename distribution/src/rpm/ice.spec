@@ -57,12 +57,12 @@ Source1: Ice-rpmbuild-%{version}.tar.gz
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
 %define soversion 34b
-%define dotnetversion 3.4..51
-%define dotnetpolicyversion 3.3
+%define dotnetversion 3.4.51
+%define dotnetpolicyversion 3.4
 
 %define formsversion 1.2.1
 %define looksversion 2.2.2
-%define dbversion 4.7.25
+%define dbversion 4.8.24
 
 BuildRequires: openssl-devel >= 0.9.7a
 BuildRequires: db48-devel >= 4.8.24, db48-java >= 4.8.24
