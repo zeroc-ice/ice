@@ -1257,6 +1257,11 @@ IceInternal::doFinishConnect(SOCKET fd)
 void
 IceInternal::doConnectAsync(SOCKET fd, const struct sockaddr_storage& addr, AsyncInfo& info)
 {
+    //
+    // NOTE: It's the caller's responsability to close the socket upon
+    // failure to connect. The socket isn't closed by this method.
+    //
+
     struct sockaddr_storage bindAddr;
     memset(&bindAddr, 0, sizeof(bindAddr));
 
@@ -1285,7 +1290,12 @@ IceInternal::doConnectAsync(SOCKET fd, const struct sockaddr_storage& addr, Asyn
         size = 0; // Keep the compiler happy.
     }
 
-    doBind(fd, bindAddr);
+    if(bind(fd, reinterpret_cast<const struct sockaddr*>(&bindAddr), size) == SOCKET_ERROR)
+    {
+        SocketException ex(__FILE__, __LINE__);
+        ex.error = getSocketErrno();
+        throw ex;
+    }
 
     LPFN_CONNECTEX ConnectEx = NULL; // a pointer to the 'ConnectEx()' function
     GUID GuidConnectEx = WSAID_CONNECTEX; // The Guid
@@ -1315,7 +1325,6 @@ IceInternal::doConnectAsync(SOCKET fd, const struct sockaddr_storage& addr, Asyn
     {
         if(!connectInProgress())
         {
-            closeSocketNoThrow(fd);
             if(connectionRefused())
             {
                 ConnectionRefusedException ex(__FILE__, __LINE__);
@@ -1342,6 +1351,11 @@ IceInternal::doConnectAsync(SOCKET fd, const struct sockaddr_storage& addr, Asyn
 void
 IceInternal::doFinishConnectAsync(SOCKET fd, AsyncInfo& info)
 {
+    //
+    // NOTE: It's the caller's responsability to close the socket upon
+    // failure to connect. The socket isn't closed by this method.
+    //
+
     if(info.count == SOCKET_ERROR)
     {
         WSASetLastError(info.error);

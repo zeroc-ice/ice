@@ -638,6 +638,11 @@ namespace IceInternal
 
         public static IAsyncResult doConnectAsync(Socket fd, EndPoint addr, AsyncCallback callback, object state)
         {
+            //
+            // NOTE: It's the caller's responsability to close the socket upon
+            // failure to connect. The socket isn't closed by this method.
+            //
+
         repeatConnect:
             try
             {
@@ -658,8 +663,6 @@ namespace IceInternal
                     goto repeatConnect;
                 }
 
-                closeSocketNoThrow(fd);
-
                 if(connectionRefused(ex))
                 {
                     throw new Ice.ConnectionRefusedException(ex);
@@ -674,9 +677,10 @@ namespace IceInternal
         public static void doFinishConnectAsync(Socket fd, IAsyncResult result)
         {
             //
-            // Note: we don't close the socket if there's an exception. It's the responsibility
-            // of the caller to do so.
+            // NOTE: It's the caller's responsability to close the socket upon
+            // failure to connect. The socket isn't closed by this method.
             //
+
             try
             {
                 fd.EndConnect(result);
