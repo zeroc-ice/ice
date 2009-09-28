@@ -5741,7 +5741,17 @@ Slice::Gen::AsyncImplVisitor::visitOperation(const OperationPtr& p)
         }
         C << nl << "else";
         C << sb;
-        C << nl << "ice_exception(ex);";
+        C.zeroIndent();
+        C << nl << "#if defined(_MSC_VER) && (_MSC_VER < 1300) // VC++ 6 compiler bug"; // COMPILERBUG
+        C.restoreIndent();
+        C << nl << "IncomingAsync::ice_exception(ex);";
+        C.zeroIndent();
+        C << nl << "#else";
+        C.restoreIndent();
+        C << nl << "::IceInternal::IncomingAsync::ice_exception(ex);";
+        C.zeroIndent();
+        C << nl << "#endif";
+        C.restoreIndent();
         C << eb;
         C << eb;
     }

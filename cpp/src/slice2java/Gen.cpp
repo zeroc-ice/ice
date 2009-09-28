@@ -5557,7 +5557,7 @@ Slice::Gen::AsyncVisitor::visitOperation(const OperationPtr& p)
                 }
                 out << nl << "catch(java.lang.Exception __ex)";
                 out << sb;
-                out << nl << "ice_exception(__ex);";
+                out << nl << "super.ice_exception(__ex);";
                 out << eb;
                 out << eb;
             }

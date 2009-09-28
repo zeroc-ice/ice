@@ -5414,7 +5414,7 @@ Slice::Gen::AsyncVisitor::visitOperation(const OperationPtr& p)
             }
             _out << nl << "catch(_System.Exception ex__)";
             _out << sb;
-            _out << nl << "ice_exception(ex__);";
+            _out << nl << "base.ice_exception(ex__);";
             _out << eb;
             _out << eb;
         }
