@@ -96,6 +96,7 @@ SRCS		= Acceptor.cs \
 		  TcpConnector.cs \
 		  TcpEndpointI.cs \
 		  TcpTransceiver.cs \
+		  ThreadHookPlugin.cs \
 		  ThreadPool.cs \
 		  TieBase.cs \
 		  Time.cs \

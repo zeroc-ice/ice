@@ -161,6 +161,8 @@ NPTL_LIB		= /usr/$(libsubdir)/nptl
 BASELIBS		= -lIceUtil -L$(NPTL_LIB) -lpthread -lrt
 LIBS			= $(BZIP2_RPATH_LINK) -lIce $(BASELIBS)
 
+QT_LIBS			= -lQtCore -lQtSql
+
 ICEUTIL_OS_LIBS         = 
 ICE_OS_LIBS             = -ldl
 

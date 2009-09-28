@@ -26,6 +26,11 @@ tracefile = None
 printenv = False
 cross = []
 watchDog = None
+sqlType = None
+sqlDbName = None
+sqlHost = None
+sqlUser = None
+sqlPassword = None
 
 def isCygwin():
     # The substring on sys.platform is required because some cygwin
@@ -257,7 +262,12 @@ def run(tests, root = False):
           --x64                   Binary distribution is 64-bit.
           --cross=lang            Run cross language test.
           --script                Generate a script to run the tests.
-          --env                   Print important environment variables
+          --env                   Print important environment variables.
+          --sql-type=<driver>     Run IceStorm/IceGrid tests using QtSql with specified driver.
+          --sql-db=<db>           Set SQL database name.
+          --sql-host=<host>       Set SQL host name.
+          --sql-user=<user>       Set SQL user name.
+          --sql-passwd=<passwd>   Set SQL password.
         """
         sys.exit(2)
 
@@ -265,7 +275,8 @@ def run(tests, root = False):
         opts, args = getopt.getopt(sys.argv[1:], "lr:R:",
                                    ["start=", "start-after=", "filter=", "rfilter=", "all", "all-cross", "loop",
                                     "debug", "protocol=", "compress", "valgrind", "host=", "serialize", "continue",
-                                    "ipv6", "no-ipv6", "ice-home=", "cross=", "x64", "script", "env"])
+                                    "ipv6", "no-ipv6", "ice-home=", "cross=", "x64", "script", "env", "sql-type=",
+                                    "sql-db=", "sql-host=", "sql-user=", "sql-passwd="])
     except getopt.GetoptError:
         usage()
 
@@ -317,7 +328,7 @@ def run(tests, root = False):
                 sys.exit(1)
 
         if o in ( "--cross", "--protocol", "--host", "--debug", "--compress", "--valgrind", "--serialize", "--ipv6", \
-                  "--ice-home", "--x64", "--env"):
+                  "--ice-home", "--x64", "--env", "--sql-type", "--sql-db", "--sql-host", "--sql-user", "--sql-passwd"):
             arg += " " + o
             if len(a) > 0:
                 arg += " " + a
@@ -611,6 +622,11 @@ class DriverConfig:
     overrides = None
     ipv6 = False
     x64 = False
+    sqlType = None 
+    sqlDbName = None
+    sqlHost = None
+    sqlUser = None
+    sqlPassword = None
 
     def __init__(self, type = None):
         global protocol
@@ -621,6 +637,11 @@ class DriverConfig:
         global valgrind
         global ipv6
         global x64
+        global sqlType
+        global sqlDbName
+        global sqlHost
+        global sqlUser
+        global sqlPassword
         self.lang = getDefaultMapping()
         self.protocol = protocol
         self.compress = compress
@@ -631,6 +652,11 @@ class DriverConfig:
         self.type = type
         self.ipv6 = ipv6
         self.x64 = x64
+        self.sqlType = sqlType 
+        self.sqlDbName = sqlDbName
+        self.sqlHost = sqlHost
+        self.sqlUser = sqlUser
+        self.sqlPassword = sqlPassword
 
 def argsToDict(argumentString, results):
     """Converts an argument string to dictionary"""
@@ -796,6 +822,47 @@ def getDefaultCollocatedFile():
 
 def isDebug():
     return debug
+
+def getQtSqlOptions(prefix, dataDir):
+    if sqlType == None:
+        return ""
+
+    options = '--' + prefix+ '.SQL.DatabaseType=' + sqlType
+
+    options += ' --' + prefix+ '.SQL.DatabaseName='
+    if sqlDbName == None:
+        if sqlType == "QSQLITE":
+            options += dataDir + '/SQL.db'
+        elif sqlType == "QODBC":
+            options += 'testdsn'
+        else:
+            options += 'test'
+    else:
+        options += sqlDbName
+
+    options += ' --' + prefix+ '.SQL.HostName='
+    if sqlHost == None:
+        if sqlType == "QODBC":
+            options += '.\SQLExpress'
+        else:
+            options += 'localhost'
+    else:
+        options += sqlHost
+
+    options += ' --' + prefix+ '.SQL.UserName='
+    if sqlUser == None:
+        options += 'test'
+    else:
+        options += sqlUser
+
+    options += ' --' + prefix+ '.SQL.Password='
+    if sqlPassword != None:
+        options += sqlPassword
+
+    if prefix == "IceStorm":
+        options += ' --Ice.Plugin.SQLThreadHook=IceStormService:createThreadHook'
+
+    return options
 
 import Expect
 def spawn(cmd, env=None, cwd=None, startReader=True, lang=None):
@@ -1083,13 +1150,19 @@ def processCmdLine():
           --x64                   Binary distribution is 64-bit.
           --env                   Print important environment variables.
           --cross=lang            Run cross language test.
+          --sql-type=<driver>     Run IceStorm/IceGrid tests using QtSql with specified driver.
+          --sql-db=<db>           Set SQL database name.
+          --sql-host=<host>       Set SQL host name.
+          --sql-user=<user>       Set SQL user name.
+          --sql-passwd=<passwd>   Set SQL password.
         """
         sys.exit(2)
 
     try:
         opts, args = getopt.getopt(
             sys.argv[1:], "", ["debug", "trace=", "protocol=", "compress", "valgrind", "host=", "serialize", "ipv6", \
-                              "ice-home=", "x64", "cross=", "env"])
+                              "ice-home=", "x64", "cross=", "env", "sql-type=", "sql-db=", "sql-host=", "sql-user=", 
+                              "sql-passwd="])
     except getopt.GetoptError:
         usage()
 
@@ -1157,6 +1230,21 @@ def processCmdLine():
                 sys.exit(1)
             global protocol
             protocol = a
+        elif o == "--sql-type":
+            global sqlType
+            sqlType = a
+        elif o == "--sql-db":
+            global sqlDbName
+            sqlDbName = a
+        elif o == "--sql-host":
+            global sqlHost
+            sqlHost = a
+        elif o == "--sql-user":
+            global sqlUser
+            sqlUser = a
+        elif o == "--sql-passwd":
+            global sqlPassword
+            sqlPassword = a
 
     if len(args) > 0:
         usage()

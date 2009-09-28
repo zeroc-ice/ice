@@ -29,6 +29,11 @@
 #endif
 #include <IceGrid/DescriptorParser.h>
 #include <IcePatch2/Util.h>
+#ifdef QTSQL
+#  include <IceSQL/SqlTypes.h>
+#  include <QtCore/QCoreApplication>
+#  include <QtCore/QTextCodec>
+#endif
 
 #ifdef _WIN32
 #   include <direct.h>
@@ -71,6 +76,7 @@ class NodeService : public Service
 public:
 
     NodeService();
+    ~NodeService();
 
     virtual bool shutdown();
 
@@ -92,6 +98,9 @@ private:
     NodeIPtr _node;
     NodeSessionManager _sessions;
     Ice::ObjectAdapterPtr _adapter;
+#ifdef QTSQL
+    QCoreApplication* _qtApp;
+#endif
 };
 
 class CollocatedRegistry : public RegistryI
@@ -172,6 +181,18 @@ ProcessI::writeMessage(const string& message, Int fd, const Current& current)
 NodeService::NodeService()
 {
 }
+
+NodeService::~NodeService()
+{
+#ifdef QTSQL
+    if(_qtApp != 0)
+    {
+        delete _qtApp;
+        _qtApp = 0;
+    }
+#endif
+}
+
 
 bool
 NodeService::shutdown()
@@ -802,6 +823,15 @@ NodeService::initializeCommunicator(int& argc, char* argv[],
     // Delay creation of Admin object:
     //
     initData.properties->setProperty("Ice.Admin.DelayCreation", "1");
+
+#ifdef QTSQL
+    if(QCoreApplication::instance() == 0)
+    {
+        _qtApp = new QCoreApplication(argc, argv);
+        QTextCodec::setCodecForCStrings(QTextCodec::codecForName("UTF-8"));
+    }
+    initData.threadHook = new IceSQL::ThreadHook();
+#endif
 
     return Service::initializeCommunicator(argc, argv, initData);
 }

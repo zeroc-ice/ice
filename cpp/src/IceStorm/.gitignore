@@ -17,8 +17,6 @@ V32Format.h
 V31Format.h
 SubscriberMap.h
 SubscriberMap.cpp
-PersistentTopicMap.h
-PersistentTopicMap.cpp
 V32FormatDB.h
 V32FormatDB.cpp
 V31FormatDB.h

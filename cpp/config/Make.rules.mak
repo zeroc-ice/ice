@@ -122,6 +122,9 @@ RCFLAGS		= -D_DEBUG
 OPENSSL_LIBS            = ssleay32.lib libeay32.lib
 EXPAT_LIBS              = libexpat.lib
 
+QTSQL_FLAGS		= -DQTSQL -I"$(QTSQL_HOME)\include"
+QTSQL_LIBS		= $(PRELIBPATH)"$(QTSQL_HOME)\lib" QtSql$(LIBSUFFIX)4.lib QtCore$(LIBSUFFIX)4.lib
+
 CPPFLAGS		= $(CPPFLAGS) -I$(includedir)
 ICECPPFLAGS		= -I$(slicedir)
 SLICE2CPPFLAGS		= $(ICECPPFLAGS)

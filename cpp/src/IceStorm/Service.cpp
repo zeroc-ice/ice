@@ -26,9 +26,13 @@
 #include <IceGrid/Locator.h>
 #include <IceGrid/Query.h>
 
+#ifdef QTSQL
+#include <QtCore/QCoreApplication>
+#include <QtCore/QTextCodec>
+#endif
+
 using namespace std;
 using namespace Ice;
-using namespace Freeze;
 using namespace IceStorm;
 using namespace IceStormInternal;
 using namespace IceStormElection;
@@ -66,6 +70,9 @@ private:
     TransientTopicManagerImplPtr _transientManager;
     TopicManagerPrx _managerProxy;
     InstancePtr _instance;
+#ifdef QTSQL
+    QCoreApplication* _qtApp;
+#endif
 };
 
 }
@@ -97,6 +104,21 @@ Service::create(const CommunicatorPtr& communicator,
 
 ServiceI::ServiceI()
 {
+#ifdef QTSQL
+    //
+    // In order to load SQL drivers it is necessary for an instance of
+    // QCoreApplication to be instantiated. However only one can be instantiated
+    // per process. Therefore we do not destroy _qtApp as it may be required
+    // by other services that are also using QT.
+    //
+    if(QCoreApplication::instance() == 0)
+    {
+        int argc = 0;
+        char** argv = 0;
+        _qtApp = new QCoreApplication(argc, argv);
+        QTextCodec::setCodecForCStrings(QTextCodec::codecForName("UTF-8"));
+    }
+#endif
 }
 
 ServiceI::~ServiceI()
@@ -505,6 +527,11 @@ ServiceI::validateProperties(const string& name, const PropertiesPtr& properties
         "Trace.TopicManager",
         "Send.Timeout",
         "Discard.Interval",
+        "SQL.DatabaseType",
+        "SQL.HostName",
+        "SQL.DatabaseName",
+        "SQL.UserName",
+        "SQL.Password"
     };
 
     vector<string> unknownProps;

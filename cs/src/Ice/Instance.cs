@@ -591,6 +591,15 @@ namespace IceInternal
             _initData.logger = logger;
         }
 
+        public void
+        setThreadHook(Ice.ThreadNotification threadHook)
+        {
+            //
+            // No locking, as it can only be called during plug-in loading
+            //
+            _initData.threadHook = threadHook;
+        }
+
         //
         // Only for use by Ice.CommunicatorI
         //
@@ -761,39 +770,6 @@ namespace IceInternal
                 
                 _retryQueue = new RetryQueue(this);
 
-                try
-                {
-                    if(initializationData().properties.getProperty("Ice.ThreadPriority").Length > 0)
-                    {
-                        ThreadPriority priority = IceInternal.Util.stringToThreadPriority(
-                                                    initializationData().properties.getProperty("Ice.ThreadPriority"));
-                        _timer = new Timer(this, priority);
-                    }
-                    else
-                    {
-                        _timer = new Timer(this);
-                    }
-                }
-                catch(System.Exception ex)
-                {
-                    string s = "cannot create thread for timer:\n" + ex;
-                    _initData.logger.error(s);
-                    throw ex;
-                }
-            
-                try
-                {
-                    _endpointHostResolver = new EndpointHostResolver(this);
-                }
-                catch(System.Exception ex)
-                {
-                    string s = "cannot create thread for endpoint host resolver:\n" + ex;
-                    _initData.logger.error(s);
-                    throw ex;
-                }
-
-                _clientThreadPool = new ThreadPool(this, "Ice.ThreadPool.Client", 0);
-
                 string[] facetFilter = _initData.properties.getPropertyAsList("Ice.Admin.Facets");
                 if(facetFilter.Length > 0)
                 {
@@ -817,9 +793,46 @@ namespace IceInternal
             //
             // Load plug-ins.
             //
+            Debug.Assert(_serverThreadPool == null);
             Ice.PluginManagerI pluginManagerImpl = (Ice.PluginManagerI)_pluginManager;
             pluginManagerImpl.loadPlugins(ref args);
             
+            //
+            // Create threads.
+            //
+            try
+            {
+                if(initializationData().properties.getProperty("Ice.ThreadPriority").Length > 0)
+                {
+                    ThreadPriority priority = IceInternal.Util.stringToThreadPriority(
+                                                initializationData().properties.getProperty("Ice.ThreadPriority"));
+                    _timer = new Timer(this, priority);
+                }
+                else
+                {
+                    _timer = new Timer(this);
+                }
+            }
+            catch(System.Exception ex)
+            {
+                string s = "cannot create thread for timer:\n" + ex;
+                _initData.logger.error(s);
+                throw ex;
+            }
+          
+            try
+            {
+                _endpointHostResolver = new EndpointHostResolver(this);
+            }
+            catch(System.Exception ex)
+            {
+                string s = "cannot create thread for endpoint host resolver:\n" + ex;
+                _initData.logger.error(s);
+                throw ex;
+            }
+
+            _clientThreadPool = new ThreadPool(this, "Ice.ThreadPool.Client", 0);
+
             //
             // Get default router and locator proxies. Don't move this
             // initialization before the plug-in initialization!!! The proxies
@@ -890,6 +903,16 @@ namespace IceInternal
             //
             // Server thread pool initialization is lazy in serverThreadPool().
             //
+
+            //      
+            // An application can set Ice.InitPlugins=0 if it wants to postpone
+            // initialization until after it has interacted directly with the
+            // plug-ins.
+            //      
+            if(_initData.properties.getPropertyAsIntWithDefault("Ice.InitPlugins", 1) > 0)
+            {
+                pluginManagerImpl.initializePlugins();
+            }
 
             //
             // This must be done last as this call creates the Ice.Admin object adapter

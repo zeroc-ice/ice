@@ -7,3 +7,4 @@ Clock.cpp
 Clock.h
 db/node/*
 db/registry/*
+db/*.db

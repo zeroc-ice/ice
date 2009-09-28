@@ -16,6 +16,7 @@
 #include <Ice/LocalException.h>
 #include <Ice/StreamI.h>
 #include <Ice/LoggerI.h>
+#include <Ice/Instance.h>
 #include <IceUtil/Mutex.h>
 #include <IceUtil/MutexPtrLock.h>
 
@@ -106,6 +107,27 @@ Ice::createProperties(int& argc, char* argv[], const PropertiesPtr& defaults, co
     PropertiesPtr properties = createProperties(args, defaults, converter);
     stringSeqToArgs(args, argc, argv);
     return properties;
+}
+
+Ice::ThreadHookPlugin::ThreadHookPlugin(const CommunicatorPtr& communicator, const ThreadNotificationPtr& threadHook)
+{
+    if(communicator == 0)
+    {
+        throw PluginInitializationException(__FILE__, __LINE__, "Communicator cannot be null");
+    }
+
+    IceInternal::InstancePtr instance = IceInternal::getInstance(communicator);
+    instance->setThreadHook(threadHook);
+}
+
+void
+Ice::ThreadHookPlugin::initialize()
+{
+}
+
+void
+Ice::ThreadHookPlugin::destroy()
+{
 }
 
 namespace

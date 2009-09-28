@@ -74,10 +74,9 @@ BASELIBS		= -lIceUtil -lpthread
 LIBS			= -lIce $(BASELIBS)
 
 ICONV_LIB               = -liconv
+QT_LIBS			= -framework QtCore -framework QtSql
 
 ICEUTIL_OS_LIBS         = -lpthread
 ICE_OS_LIBS             = -ldl $(ICONV_LIB)
 
-
 PLATFORM_HAS_READLINE   := no
-

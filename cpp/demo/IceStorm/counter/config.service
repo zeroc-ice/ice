@@ -15,6 +15,12 @@ IceStorm.TopicManager.Endpoints=default -p 10000
 IceStorm.Publish.Endpoints=default
 
 #
+# IceStorm SQL configuration if using SQL database.
+#
+IceStorm.SQL.DatabaseType=QSQLITE
+IceStorm.SQL.DatabaseName=db/IceStorm.db
+
+#
 # TopicManager Tracing
 #
 # 0 = no tracing

@@ -761,6 +761,15 @@ IceInternal::Instance::setLogger(const Ice::LoggerPtr& logger)
     _initData.logger = logger;
 }
 
+void
+IceInternal::Instance::setThreadHook(const Ice::ThreadNotificationPtr& threadHook)
+{
+    //
+    // No locking, as it can only be called during plug-in loading
+    //
+    _initData.threadHook = threadHook;
+}
+
 IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const InitializationData& initData) :
     _state(StateActive),
     _initData(initData),
@@ -998,38 +1007,6 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const Initi
         
         _retryQueue = new RetryQueue(this);
 
-        try
-        {
-            bool hasPriority = _initData.properties->getProperty("Ice.ThreadPriority") != "";
-            int priority = _initData.properties->getPropertyAsInt("Ice.ThreadPriority");
-            if(hasPriority)
-            {
-                _timer = new IceUtil::Timer(priority);
-            }
-            else
-            {
-                _timer = new IceUtil::Timer;
-            }
-        }
-        catch(const IceUtil::Exception& ex)
-        {
-            Error out(_initData.logger);
-            out << "cannot create thread for timer:\n" << ex;
-            throw;
-        }
-        
-        try
-        {
-            _endpointHostResolver = new EndpointHostResolver(this);
-        }
-        catch(const IceUtil::Exception& ex)
-        {
-            Error out(_initData.logger);
-            out << "cannot create thread for endpoint host resolver:\n" << ex;
-            throw;
-        }
-
-        _clientThreadPool = new ThreadPool(this, "Ice.ThreadPool.Client", 0);
 
         if(_initData.wstringConverter == 0)
         {
@@ -1114,9 +1091,47 @@ IceInternal::Instance::finishSetup(int& argc, char* argv[])
     //
     // Load plug-ins.
     //
+    assert(!_serverThreadPool);
     PluginManagerI* pluginManagerImpl = dynamic_cast<PluginManagerI*>(_pluginManager.get());
     assert(pluginManagerImpl);
     pluginManagerImpl->loadPlugins(argc, argv);
+
+
+    //
+    // Create threads.
+    //
+    try
+    {
+        bool hasPriority = _initData.properties->getProperty("Ice.ThreadPriority") != "";
+        int priority = _initData.properties->getPropertyAsInt("Ice.ThreadPriority");
+        if(hasPriority)
+        {
+            _timer = new IceUtil::Timer(priority);
+        }
+        else
+        {
+            _timer = new IceUtil::Timer;
+        }
+    }
+    catch(const IceUtil::Exception& ex)
+    {
+        Error out(_initData.logger);
+        out << "cannot create thread for timer:\n" << ex;
+        throw;
+    }
+    
+    try
+    {
+        _endpointHostResolver = new EndpointHostResolver(this);
+    }
+    catch(const IceUtil::Exception& ex)
+    {
+        Error out(_initData.logger);
+        out << "cannot create thread for endpoint host resolver:\n" << ex;
+        throw;
+    }
+
+    _clientThreadPool = new ThreadPool(this, "Ice.ThreadPool.Client", 0);
 
     //
     // Get default router and locator proxies. Don't move this
@@ -1193,6 +1208,16 @@ IceInternal::Instance::finishSetup(int& argc, char* argv[])
     //
     // Server thread pool initialization is lazy in serverThreadPool().
     //
+
+    //
+    // An application can set Ice.InitPlugins=0 if it wants to postpone
+    // initialization until after it has interacted directly with the
+    // plug-ins.
+    //
+    if(_initData.properties->getPropertyAsIntWithDefault("Ice.InitPlugins", 1) > 0)
+    {
+        pluginManagerImpl->initializePlugins();
+    }
 
     //
     // This must be done last as this call creates the Ice.Admin object adapter

@@ -96,6 +96,7 @@ public:
     void setStringConverter(const Ice::StringConverterPtr&);
     void setWstringConverter(const Ice::WstringConverterPtr&);
     void setLogger(const Ice::LoggerPtr&);
+    void setThreadHook(const Ice::ThreadNotificationPtr&);
 
 private:
 

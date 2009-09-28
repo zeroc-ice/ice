@@ -21,6 +21,12 @@ IceGrid.Registry.SSLPermissionsVerifier=DemoIceGrid/NullSSLPermissionsVerifier
 IceGrid.Registry.AdminSSLPermissionsVerifier=DemoIceGrid/NullSSLPermissionsVerifier
 
 #
+# IceGrid SQL configuration if using SQL database.
+#
+IceGrid.SQL.DatabaseType=QSQLITE
+IceGrid.SQL.DatabaseName=db/registry/Registry.db
+
+#
 # IceGrid node configuration.
 #
 IceGrid.Node.Name=node1

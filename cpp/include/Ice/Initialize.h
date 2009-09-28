@@ -52,6 +52,21 @@ public:
 typedef IceUtil::Handle<ThreadNotification> ThreadNotificationPtr;
 
 //
+// A special plug-in that installs thread hook during a communicator's initialization.
+// Both initialize and destroy are no-op. See Ice::InitializationData.
+//
+class ICE_API ThreadHookPlugin : public Ice::Plugin
+{
+public:
+
+    ThreadHookPlugin(const CommunicatorPtr& communicator, const ThreadNotificationPtr&);
+
+    virtual void initialize();
+
+    virtual void destroy();
+};
+
+//
 // Communicator initialization info
 //
 struct InitializationData

@@ -450,6 +450,11 @@ generated from the section label.
         <property name="Registry.Trace.Topic"/>
         <property name="Registry.Trace.TopicManager"/>
         <property name="Registry.UserAccounts" />
+        <property name="SQL.DatabaseType" />
+        <property name="SQL.HostName" />
+        <property name="SQL.DatabaseName" />
+        <property name="SQL.UserName" />
+        <property name="SQL.Password" />
 </section>
     
     <section name="IcePatch2">

@@ -43,6 +43,8 @@
              <property name="${service}.Trace.Subscriber" value="1"/>
              <property name="${service}.Trace.Election" value="1"/>
              <property name="${service}.NodeId" value="${index}"/>
+             <property name="${service}.SQL.DatabaseType" value="QSQLITE"/>
+             <property name="${service}.SQL.DatabaseName" value="db/${instance-name}-${index}.db"/>
            </properties>
 
          </service>

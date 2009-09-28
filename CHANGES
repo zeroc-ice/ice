@@ -33,6 +33,9 @@ General Changes
 These entries apply to all relevant language mappings unless otherwise
 noted.
 
+- The new Ice::ThreadHookPlugin class allows you to install thread 
+  notification hooks during communicator initialization via plugins.
+
 - Added Glacier2::Router::refreshSession, which keeps the client's
   Glacier2 session alive. This is useful in the case that the
   application architecture does not use a Glacier2 session
@@ -232,6 +235,11 @@ noted.
 
 C++ Changes
 ============
+
+- Added the ability to use alternative database storage for IceStorm
+  and IceGrid other than Freeze. The following SQL databases are 
+  supported: SQLite, PostgresSQL, MySQL and SQL Server. Please see
+  the manual for more information.
 
 - Fixed a bug where globally scoped garbage collected class pointers
   could cause a crash on application termination.

@@ -531,6 +531,15 @@ public final class Instance
         _initData.logger = logger;
     }
 
+    public void
+    setThreadHook(Ice.ThreadNotification threadHook)
+    {
+        // 
+        // No locking, as it can only be called during plug-in loading
+        //
+        _initData.threadHook = threadHook;
+    }
+
     public Class<?>
     findClass(String className)
     {
@@ -712,34 +721,6 @@ public final class Instance
 
             _retryQueue = new RetryQueue(this);
 
-            try
-            {
-                _endpointHostResolver = new EndpointHostResolver(this);
-            }
-            catch(RuntimeException ex)
-            {
-                String s = "cannot create thread for endpoint host resolver:\n" + Ex.toString(ex);
-                _initData.logger.error(s);
-                throw ex;
-            }
-
-            try
-            {
-                _timer = new Timer(this);
-                if(initializationData().properties.getProperty("Ice.ThreadPriority").length() > 0)
-                {
-                    _timer.setPriority(Util.getThreadPriorityProperty(initializationData().properties, "Ice"));
-                }
-            }
-            catch(RuntimeException ex)
-            {
-                String s = "cannot create thread for timer:\n" + Ex.toString(ex);
-                _initData.logger.error(s);
-                throw ex;
-            }
-
-            _clientThreadPool = new ThreadPool(this, "Ice.ThreadPool.Client", 0);
-
             //
             // Add Process and Properties facets
             //
@@ -790,8 +771,40 @@ public final class Instance
         //
         // Load plug-ins.
         //
+        assert(_serverThreadPool == null);
         Ice.PluginManagerI pluginManagerImpl = (Ice.PluginManagerI)_pluginManager;
         pluginManagerImpl.loadPlugins(args);
+
+        //
+        // Create threads.
+        //
+        try
+        {
+            _timer = new Timer(this);
+            if(initializationData().properties.getProperty("Ice.ThreadPriority").length() > 0)
+            {
+                _timer.setPriority(Util.getThreadPriorityProperty(initializationData().properties, "Ice"));
+            }
+        }
+        catch(RuntimeException ex)
+        {
+            String s = "cannot create thread for timer:\n" + Ex.toString(ex);
+            _initData.logger.error(s);
+            throw ex;
+        }
+
+        try
+        {
+            _endpointHostResolver = new EndpointHostResolver(this);
+        }
+        catch(RuntimeException ex)
+        {
+            String s = "cannot create thread for endpoint host resolver:\n" + Ex.toString(ex);
+            _initData.logger.error(s);
+            throw ex;
+        }
+
+        _clientThreadPool = new ThreadPool(this, "Ice.ThreadPool.Client", 0);
 
         //
         // Get default router and locator proxies. Don't move this
@@ -848,6 +861,16 @@ public final class Instance
         //
         // Server thread pool initialization is lazy in serverThreadPool().
         //
+
+        //
+        // An application can set Ice.InitPlugins=0 if it wants to postpone
+        // initialization until after it has interacted directly with the
+        // plug-ins.
+        //
+        if(_initData.properties.getPropertyAsIntWithDefault("Ice.InitPlugins", 1) > 0)
+        {
+            pluginManagerImpl.initializePlugins();
+        }
 
         //
         // This must be done last as this call creates the Ice.Admin object adapter

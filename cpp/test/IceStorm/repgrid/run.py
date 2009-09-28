@@ -21,6 +21,12 @@ sys.path.append(os.path.join(path[0]))
 from scripts import *
 
 #
+# Remove IceStorm databases possibly left from SQL run.
+#
+for filename in [os.path.join("db", f) for f in os.listdir("db") if f.endswith(".db")]:
+    os.remove(filename)
+
+#
 # Test client/server without on demand activation.
 #
 IceGridAdmin.iceGridTest("application.xml", "", '"icebox.exe=%s"' % TestUtil.getIceBox())

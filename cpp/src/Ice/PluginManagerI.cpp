@@ -291,16 +291,6 @@ Ice::PluginManagerI::loadPlugins(int& argc, char* argv[])
     }
 
     stringSeqToArgs(cmdArgs, argc, argv);
-
-    //
-    // An application can set Ice.InitPlugins=0 if it wants to postpone
-    // initialization until after it has interacted directly with the
-    // plug-ins.
-    //
-    if(properties->getPropertyAsIntWithDefault("Ice.InitPlugins", 1) > 0)
-    {
-        initializePlugins();
-    }
 }
 
 void

@@ -18,6 +18,11 @@
 #  include <IceGrid/Database.h>
 #  include <IceGrid/WellKnownObjectsManager.h>
 #endif
+#ifdef QTSQL
+#  include <IceSQL/SqlTypes.h>
+#  include <QtCore/QCoreApplication>
+#  include <QtCore/QTextCodec>
+#endif
 
 using namespace std;
 using namespace Ice;
@@ -31,6 +36,7 @@ class RegistryService : public Service
 public:
 
     RegistryService();
+    ~RegistryService();
 
     virtual bool shutdown();
 
@@ -46,12 +52,26 @@ private:
     void usage(const std::string&);
 
     RegistryIPtr _registry;
+#ifdef QTSQL
+    QCoreApplication* _qtApp;
+#endif
 };
 
 } // End of namespace IceGrid
 
 RegistryService::RegistryService()
 {
+}
+
+RegistryService::~RegistryService()
+{
+#ifdef QTSQL
+    if(_qtApp != 0)
+    {
+        delete _qtApp;
+        _qtApp = 0;
+    }
+#endif
 }
 
 bool
@@ -121,6 +141,7 @@ RegistryService::start(int argc, char* argv[])
         out << "you should set individual adapter thread pools instead.";
     }
 
+
     TraceLevelsPtr traceLevels = new TraceLevels(communicator(), "IceGrid.Registry");
     
     _registry = new RegistryI(communicator(), traceLevels, nowarn, readonly);
@@ -162,6 +183,15 @@ RegistryService::initializeCommunicator(int& argc, char* argv[],
     // Make sure that IceGridRegistry doesn't use collocation optimization.
     //
     initData.properties->setProperty("Ice.Default.CollocationOptimized", "0");
+
+#ifdef QTSQL
+    if(QCoreApplication::instance() == 0)
+    {
+        _qtApp = new QCoreApplication(argc, argv);
+        QTextCodec::setCodecForCStrings(QTextCodec::codecForName("UTF-8"));
+    }
+    initData.threadHook = new IceSQL::ThreadHook();
+#endif
 
     return Service::initializeCommunicator(argc, argv, initData);
 }

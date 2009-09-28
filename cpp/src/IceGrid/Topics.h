@@ -14,9 +14,15 @@
 #include <IceStorm/IceStorm.h>
 #include <IceGrid/Internal.h>
 #include <IceGrid/Observer.h>
-#include <IceGrid/StringApplicationInfoDict.h>
-#include <IceGrid/StringAdapterInfoDict.h>
-#include <IceGrid/IdentityObjectInfoDict.h>
+#ifdef QTSQL
+#  include <IceGrid/SqlStringApplicationInfoDict.h>
+#  include <IceGrid/SqlStringAdapterInfoDict.h>
+#  include <IceGrid/SqlIdentityObjectInfoDict.h>
+#else
+#  include <IceGrid/StringApplicationInfoDict.h>
+#  include <IceGrid/StringAdapterInfoDict.h>
+#  include <IceGrid/IdentityObjectInfoDict.h>
+#endif
 #include <set>
 
 namespace IceGrid

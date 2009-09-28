@@ -11,9 +11,9 @@
 #define TOPIC_I_H
 
 #include <IceStorm/IceStormInternal.h>
-#include <IceStorm/SubscriberMap.h>
 #include <IceStorm/Election.h>
-#include <IceStorm/LLUMap.h>
+#include <IceStorm/DatabaseCache.h>
+#include <IceStorm/DatabaseWrapper.h>
 #include <list>
 
 namespace IceStorm
@@ -30,7 +30,8 @@ class TopicImpl : public IceUtil::Shared
 {
 public:
 
-    TopicImpl(const InstancePtr&, const std::string&, const Ice::Identity&, const SubscriberRecordSeq&);
+    TopicImpl(const InstancePtr&, const std::string&, const Ice::Identity&, const SubscriberRecordSeq&,
+              const DatabaseCachePtr&);
     ~TopicImpl();
 
     std::string getName() const;
@@ -95,10 +96,7 @@ private:
     //
     std::vector<SubscriberPtr> _subscribers;
 
-    const Freeze::ConnectionPtr _connection; // The database connection.
-
-    SubscriberMap _subscriberMap; // The subscribers.
-    LLUMap _llumap; // The LLU map.
+    DatabaseCachePtr _databaseCache; // The database cache.
 
     bool _destroyed; // Has this Topic been destroyed?
 };

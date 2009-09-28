@@ -107,7 +107,6 @@ private:
 // A special plug-in that installs a logger during a communicator's initialization.
 // Both initialize and destroy are no-op. See Ice::InitializationData.
 //
-
 class ICE_API LoggerPlugin : public Ice::Plugin
 {
 public:

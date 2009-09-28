@@ -12,13 +12,9 @@
 
 #include <IceUtil/Mutex.h>
 #include <IceUtil/Shared.h>
-#include <Freeze/ConnectionF.h>
 #include <Ice/CommunicatorF.h>
 #include <IceGrid/Admin.h>
 #include <IceGrid/Internal.h>
-#include <IceGrid/StringApplicationInfoDict.h>
-#include <IceGrid/IdentityObjectInfoDict.h>
-#include <IceGrid/StringAdapterInfoDict.h>
 #include <IceGrid/ServerCache.h>
 #include <IceGrid/NodeCache.h>
 #include <IceGrid/ReplicaCache.h>
@@ -26,6 +22,7 @@
 #include <IceGrid/AllocatableObjectCache.h>
 #include <IceGrid/AdapterCache.h>
 #include <IceGrid/Topics.h>
+#include <IceGrid/DatabaseCache.h>
 
 namespace IceGrid
 {
@@ -182,11 +179,7 @@ private:
     AdapterObserverTopicPtr _adapterObserverTopic;
     ObjectObserverTopicPtr _objectObserverTopic;
 
-    Freeze::ConnectionPtr _connection;
-    StringApplicationInfoDict _applications;
-    StringAdapterInfoDict _adapters;
-    IdentityObjectInfoDict _objects;
-    IdentityObjectInfoDict _internalObjects;
+    DatabaseCachePtr _databaseCache;
     
     AdminSessionI* _lock;
     std::string _lockUserId;

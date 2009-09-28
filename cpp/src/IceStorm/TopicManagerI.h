@@ -11,8 +11,8 @@
 #define TOPIC_MANAGER_I_H
 
 #include <IceStorm/IceStorm.h>
-#include <IceStorm/LLUMap.h>
-#include <IceStorm/SubscriberMap.h>
+#include <IceStorm/DatabaseCache.h>
+#include <IceStorm/DatabaseWrapper.h>
 
 #include <IceStorm/Replica.h>
 #include <IceStorm/Election.h>
@@ -77,10 +77,7 @@ private:
 
     const InstancePtr _instance;
 
-    // The connection and freeze maps.
-    const Freeze::ConnectionPtr _connection;
-    LLUMap _llumap;
-    SubscriberMap _subscriberMap;
+    DatabaseCachePtr _databaseCache;
 
     std::map<std::string, TopicImplPtr> _topics;
 

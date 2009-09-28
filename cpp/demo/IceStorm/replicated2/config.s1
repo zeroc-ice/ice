@@ -102,3 +102,9 @@ IceStorm.Flush.Timeout=2000
 # database environment for the IceStorm service.
 #
 Freeze.DbEnv.IceStorm.DbHome=db1
+
+#
+# IceStorm SQL configuration if using SQL database.
+#
+IceStorm.SQL.DatabaseType=QSQLITE
+IceStorm.SQL.DatabaseName=db1/IceStorm.db

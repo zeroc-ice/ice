@@ -31,7 +31,6 @@ embedded_runpath_prefix  ?= /opt/Ice-$(VERSION_MAJOR).$(VERSION_MINOR)
 #
 #LP64			?= yes
 
-
 #
 # Define USE_READLINE as yes if you want to build parts of Ice using
 # readline on platforms where readline is available (see
@@ -51,7 +50,6 @@ embedded_runpath_prefix  ?= /opt/Ice-$(VERSION_MAJOR).$(VERSION_MINOR)
 # 
 
 USE_READLINE		?= no
-
 
 #
 # If libbzip2 is not installed in a standard location where the
@@ -169,6 +167,12 @@ else
    endif
 endif
 
+ifneq ($(QTSQL_HOME),)
+   QTSQL_FLAGS             = -DQTSQL -I$(QTSQL_HOME)/include
+   QTSQL_LIBS              = -L$(QTSQL_HOME)/$(libsubdir) $(QT_LIBS)
+   QTSQL_RPATH_LINK        = $(call rpathlink,$(QTSQL_HOME)/$(libsubdir))
+endif
+
 EXPAT_FLAGS             = $(if $(EXPAT_HOME),-I$(EXPAT_HOME)/include)
 EXPAT_LIBS              = $(if $(EXPAT_HOME),-L$(EXPAT_HOME)/$(libsubdir)) -lexpat
 EXPAT_RPATH_LINK        = $(if $(EXPAT_HOME),$(call rpathlink,$(EXPAT_HOME)/$(libsubdir)))
@@ -181,6 +185,9 @@ ifeq ($(PLATFORM_HAS_READLINE),yes)
         READLINE_FLAGS  = -DHAVE_READLINE $(if $(READLINE_HOME),-I$(READLINE_HOME)/include)
         READLINE_LIBS   = $(if $(READLINE_HOME),-L$(READLINE_HOME)/$(libsubdir)) -lreadline -lncurses        
     endif
+endif
+
+ifneq ($(DB_HOME),)
 endif
 
 ICECPPFLAGS		= -I$(slicedir)

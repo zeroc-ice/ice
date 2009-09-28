@@ -25,7 +25,9 @@ origIceStormService = ' --IceBox.Service.IceStorm=IceStormService,' + TestUtil.g
                   ' --IceBox.InheritProperties=1' + \
                   ' --Ice.Warn.Dispatch=0 --Ice.Warn.Connections=0' + \
                   ' --Ice.ServerIdleTime=0'
+
 origIceStormProxy = '%s/TopicManager:default -p %d'
+
 origIceStormReference = ' --IceStormAdmin.TopicManager.Default="%s"'
 
 class IceStormUtil(object):
@@ -120,7 +122,12 @@ class Replicated(IceStormUtil):
             dbHome = os.path.join(self.testdir, "%d.%s" % (replica, dbDir))
             self.dbHome.append(dbHome)
             TestUtil.cleanDbDir(dbHome)
-            self.iceStormDBEnv.append(" --Freeze.DbEnv.IceStorm.DbHome=%s" % dbHome)
+
+            sqlOptions = TestUtil.getQtSqlOptions('IceStorm', dbHome)
+            if len(sqlOptions) == 0:
+                self.iceStormDBEnv.append(" --Freeze.DbEnv.IceStorm.DbHome=%s" % dbHome)
+            else:
+                self.iceStormDBEnv.append(" %s" % sqlOptions)
             self.procs.append(None)
 
         topicReplicaProxy = '%s/TopicManager:%s' % (instanceName, replicaTopicManagerEndpoints)
@@ -215,7 +222,12 @@ class NonReplicated(IceStormUtil):
 
         self.dbHome = os.path.join(self.testdir, self.dbDir)
         TestUtil.cleanDbDir(self.dbHome)
-        self.iceStormDBEnv=" --Freeze.DbEnv.IceStorm.DbHome=" + self.dbHome
+
+        sqlOptions = TestUtil.getQtSqlOptions('IceStorm', self.dbHome)
+        if len(sqlOptions) == 0:
+            self.iceStormDBEnv = " --Freeze.DbEnv.IceStorm.DbHome=" + self.dbHome
+        else:
+            self.iceStormDBEnv = " " + sqlOptions
 
     def clean(self):
         TestUtil.cleanDbDir(self.dbHome)
