@@ -23,25 +23,21 @@ public:
 
     enum { IDD = IDD_HELLOCLIENT_DIALOG };
 
+    afx_msg void OnCbnSelchangeMode();
+
 protected:
 
     virtual void DoDataExchange(CDataExchange*);    // DDX/DDV support
 
-protected:
-
     Ice::CommunicatorPtr _communicator;
     CEdit* _host;
     CComboBox* _mode;
-    CButton* _secure;
-    CButton* _timeout;
-    CButton* _delay;
+    CSliderCtrl* _timeout;
+    CStatic* _timeoutStatus;
+    CSliderCtrl* _delay;
+    CStatic* _delayStatus;
     CStatic* _status;
-    Demo::HelloPrx _proxy;
-    Demo::HelloPrx _currentProxy;
-    int _currentMode;
-    std::string _hostname;
-    bool _useSecure;
-    bool _useTimeout;
+    CButton* _flush;
     HICON _hIcon;
 
     // Generated message map functions
@@ -49,17 +45,19 @@ protected:
     afx_msg void OnClose();
     afx_msg void OnPaint();
     afx_msg HCURSOR OnQueryDragIcon();
+    afx_msg void OnHScroll(UINT, UINT, CScrollBar*);
     afx_msg void OnSayHello();
     afx_msg void OnFlush();
     afx_msg void OnShutdown();
     afx_msg LRESULT OnAMIException(WPARAM, LPARAM);
-    afx_msg LRESULT OnAMISayHelloResponse(WPARAM, LPARAM);
-    afx_msg LRESULT OnAMISayHelloSent(WPARAM, LPARAM);
-    afx_msg LRESULT OnAMIFlushBatchRequestsSent(WPARAM, LPARAM);
-    afx_msg LRESULT OnAMIShutdownSent(WPARAM, LPARAM);
+    afx_msg LRESULT OnAMIResponse(WPARAM, LPARAM);
+    afx_msg LRESULT OnAMISent(WPARAM, LPARAM);
     DECLARE_MESSAGE_MAP()
 
-    void updateProxy();
+private:
+
+    Demo::HelloPrx createProxy();
+    BOOL deliveryModeIsBatch();
     void handleException(const IceUtil::Exception&);
 };
 
