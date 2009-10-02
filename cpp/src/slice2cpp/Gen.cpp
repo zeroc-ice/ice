@@ -174,9 +174,10 @@ Slice::Gen::generate(const UnitPtr& p)
     FileTracker::instance()->addFile(fileC);
 
     printHeader(H);
+    printGeneratedHeader(H, _base + ".ice");
     printHeader(C);
-    H << "\n// Generated from file `" << _base << ".ice'\n";
-    C << "\n// Generated from file `" << _base << ".ice'\n";
+    printGeneratedHeader(C, _base + ".ice");
+
 
     string s = fileH;
     if(_include.size())
@@ -194,9 +195,9 @@ Slice::Gen::generate(const UnitPtr& p)
 
     if(_dllExport.size())
     {
-	C << "\n#ifndef " << _dllExport << "_EXPORTS";
-	C << "\n#   define " << _dllExport << "_EXPORTS";
-	C << "\n#endif";
+        C << "\n#ifndef " << _dllExport << "_EXPORTS";
+        C << "\n#   define " << _dllExport << "_EXPORTS";
+        C << "\n#endif";
     }
 
     C << "\n#include <";

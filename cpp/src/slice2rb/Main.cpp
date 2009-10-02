@@ -244,7 +244,7 @@ compile(int argc, char* argv[])
                     FileTracker::instance()->addFile(file);
 
                     printHeader(out);
-                    out << "\n# Generated from file `" << base << ".ice'\n";
+                    printGeneratedHeader(out, base + ".ice", "#");
 
                     //
                     // Generate the Ruby mapping.

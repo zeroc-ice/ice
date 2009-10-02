@@ -1398,6 +1398,9 @@ gen(const string& name, const UnitPtr& u, const vector<string>& includePaths, co
     FileTracker::instance()->addFile(fileH);
 
     printHeader(H);
+    printGeneratedHeader(H, string(args[0]) + ".ice");
+
+
     printFreezeTypes(H, dicts, indices);
 
     IceUtilInternal::Output CPP;
@@ -1411,6 +1414,8 @@ gen(const string& name, const UnitPtr& u, const vector<string>& includePaths, co
     FileTracker::instance()->addFile(fileC);
 
     printHeader(CPP);
+    printGeneratedHeader(CPP, string(args[0]) + ".ice");
+
     printFreezeTypes(CPP, dicts, indices);
 
     for(vector<string>::const_iterator i = extraHeaders.begin(); i != extraHeaders.end(); ++i)

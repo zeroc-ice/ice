@@ -187,7 +187,7 @@ Slice::JavaGenerator::~JavaGenerator()
 }
 
 void
-Slice::JavaGenerator::open(const string& absolute)
+Slice::JavaGenerator::open(const string& absolute, const string& file)
 {
     assert(_out == 0);
 
@@ -195,6 +195,7 @@ Slice::JavaGenerator::open(const string& absolute)
     try
     {
         out->openClass(absolute, _dir);
+        printGeneratedHeader(*out, file);
     }
     catch(const FileException&)
     {

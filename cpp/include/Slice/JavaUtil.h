@@ -60,9 +60,9 @@ protected:
 
     //
     // Given the fully-scoped Java class name, create any intermediate
-    // package directories and open the class file
+    // package directories and open the class file,
     //
-    void open(const std::string&);
+    void open(const std::string&, const std::string&);
 
     ::IceUtilInternal::Output& output() const;
 

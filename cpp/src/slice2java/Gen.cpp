@@ -1657,7 +1657,7 @@ Slice::Gen::OpsVisitor::writeOperations(const ClassDefPtr& p, bool noCurrent)
     }
     string absolute = getAbsolute(p, "", "_", opIntfName);
 
-    open(absolute);
+    open(absolute, p->file());
 
     Output& out = output();
 
@@ -1787,7 +1787,7 @@ Slice::Gen::TieVisitor::visitClassDefStart(const ClassDefPtr& p)
         return false;
     }
 
-    open(absolute);
+    open(absolute, p->file());
 
     Output& out = output();
 
@@ -1971,9 +1971,10 @@ Slice::Gen::PackageVisitor::visitModuleStart(const ModulePtr& p)
     if(!prefix.empty())
     {
         string markerClass = prefix + "." + fixKwd(p->name()) + "._Marker";
-        open(markerClass);
+        open(markerClass, p->file());
     
         Output& out = output();
+
         out << sp << nl << "interface _Marker";
         out << sb;
         out << eb;
@@ -2005,7 +2006,7 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
     DataMemberList allDataMembers = p->allDataMembers();
     DataMemberList::const_iterator d;
 
-    open(absolute);
+    open(absolute, p->file());
 
     Output& out = output();
 
@@ -2281,7 +2282,7 @@ Slice::Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
     DataMemberList members = p->dataMembers();
     DataMemberList::const_iterator d;
 
-    open(absolute);
+    open(absolute, p->file());
 
     Output& out = output();
 
@@ -2612,7 +2613,7 @@ Slice::Gen::TypesVisitor::visitStructStart(const StructPtr& p)
     string name = fixKwd(p->name());
     string absolute = getAbsolute(p);
 
-    open(absolute);
+    open(absolute, p->file());
 
     Output& out = output();
 
@@ -3121,7 +3122,7 @@ Slice::Gen::TypesVisitor::visitEnum(const EnumPtr& p)
     EnumeratorList::const_iterator en;
     size_t sz = enumerators.size();
 
-    open(absolute);
+    open(absolute, p->file());
 
     Output& out = output();
 
@@ -3236,9 +3237,10 @@ Slice::Gen::TypesVisitor::visitConst(const ConstPtr& p)
     string absolute = getAbsolute(p);
     TypePtr type = p->type();
 
-    open(absolute);
+    open(absolute, p->file());
 
     Output& out = output();
+
     out << sp;
     writeDocComment(out, p, getDeprecateReason(p, 0, "constant"));
     out << nl << "public interface " << name;
@@ -3390,8 +3392,9 @@ Slice::Gen::HolderVisitor::visitClassDefStart(const ClassDefPtr& p)
         string name = p->name();
         string absolute = getAbsolute(p, "", "", "PrxHolder");
 
-        open(absolute);
+        open(absolute, p->file());
         Output& out = output();
+
         out << sp << nl << "public final class " << name << "PrxHolder";
         out << sb;
         out << sp << nl << "public" << nl << name << "PrxHolder()";
@@ -3459,8 +3462,16 @@ Slice::Gen::HolderVisitor::writeHolder(const TypePtr& p)
     string name = contained->name();
     string absolute = getAbsolute(contained, "", "", "Holder");
 
-    open(absolute);
+
+    string file;
+    if(p->definitionContext())
+    {
+        file = p->definitionContext()->filename();
+    }
+    
+    open(absolute, file);
     Output& out = output();
+
     string typeS = typeToString(p, TypeModeIn, getPackage(contained));
     out << sp << nl << "public final class " << name << "Holder";
     BuiltinPtr builtin = BuiltinPtr::dynamicCast(p);
@@ -3540,8 +3551,7 @@ Slice::Gen::HelperVisitor::visitClassDefStart(const ClassDefPtr& p)
     string package = getPackage(p);
     string absolute = getAbsolute(p);
 
-    open(getAbsolute(p, "", "", "PrxHelper"));
-
+    open(getAbsolute(p, "", "", "PrxHelper"), p->file());
     Output& out = output();
 
     //
@@ -3880,7 +3890,7 @@ Slice::Gen::HelperVisitor::visitClassDefStart(const ClassDefPtr& p)
         //
         // Class helper.
         //
-        open(getAbsolute(p, "", "", "Helper"));
+        open(getAbsolute(p, "", "", "Helper"), p->file());
 
         Output& out2 = output();
 
@@ -3912,7 +3922,7 @@ Slice::Gen::HelperVisitor::visitStructStart(const StructPtr& p)
         string name = p->name();
         string fixedName = fixKwd(name);
 
-        open(getAbsolute(p, "", "", "Helper"));
+        open(getAbsolute(p, "", "", "Helper"), p->file());
 
         Output& out = output();
 
@@ -4006,8 +4016,9 @@ Slice::Gen::HelperVisitor::visitSequence(const SequencePtr& p)
         suppressUnchecked = origContentS.find('<') != string::npos;
     }
 
-    open(helper);
+    open(helper, p->file());
     Output& out = output();
+
     int iter;
 
     out << sp << nl << "public final class " << name << "Helper";
@@ -4079,8 +4090,9 @@ Slice::Gen::HelperVisitor::visitDictionary(const DictionaryPtr& p)
     StringList metaData = p->getMetaData();
     string formalType = typeToString(p, TypeModeIn, package, StringList(), true);
 
-    open(helper);
+    open(helper, p->file());
     Output& out = output();
+    
     int iter;
 
     out << sp << nl << "public final class " << name << "Helper";
@@ -4132,7 +4144,7 @@ Slice::Gen::HelperVisitor::visitEnum(const EnumPtr& p)
         string name = p->name();
         string fixedName = fixKwd(name);
 
-        open(getAbsolute(p, "", "", "Helper"));
+        open(getAbsolute(p, "", "", "Helper"), p->file());
 
         Output& out = output();
 
@@ -4172,7 +4184,7 @@ Slice::Gen::ProxyVisitor::visitClassDefStart(const ClassDefPtr& p)
     string package = getPackage(p);
     string absolute = getAbsolute(p, "", "", "Prx");
 
-    open(absolute);
+    open(absolute, p->file());
 
     Output& out = output();
 
@@ -4288,7 +4300,7 @@ Slice::Gen::DelegateVisitor::visitClassDefStart(const ClassDefPtr& p)
     string package = getPackage(p);
     string absolute = getAbsolute(p, "", "_", "Del");
 
-    open(absolute);
+    open(absolute, p->file());
 
     Output& out = output();
 
@@ -4362,8 +4374,7 @@ Slice::Gen::DelegateMVisitor::visitClassDefStart(const ClassDefPtr& p)
     string package = getPackage(p);
     string absolute = getAbsolute(p, "", "_", "DelM");
 
-    open(absolute);
-
+    open(absolute, p->file());
     Output& out = output();
 
     out << sp << nl << "public final class _" << name << "DelM extends Ice._ObjectDelM implements _" << name << "Del";
@@ -4562,7 +4573,7 @@ Slice::Gen::DelegateDVisitor::visitClassDefStart(const ClassDefPtr& p)
     string package = getPackage(p);
     string absolute = getAbsolute(p, "", "_", "DelD");
 
-    open(absolute);
+    open(absolute, p->file());
 
     Output& out = output();
 
@@ -4746,7 +4757,7 @@ Slice::Gen::DispatcherVisitor::visitClassDefStart(const ClassDefPtr& p)
     ClassList bases = p->bases();
     string absolute = getAbsolute(p, "", "_", "Disp");
 
-    open(absolute);
+    open(absolute, p->file());
 
     Output& out = output();
 
@@ -5043,7 +5054,7 @@ Slice::Gen::ImplVisitor::visitClassDefStart(const ClassDefPtr& p)
     string package = getPackage(p);
     string absolute = getAbsolute(p, "", "", "I");
 
-    open(absolute);
+    open(absolute, p->file());
 
     Output& out = output();
 
@@ -5101,7 +5112,7 @@ Slice::Gen::ImplTieVisitor::visitClassDefStart(const ClassDefPtr& p)
     string package = getPackage(p);
     string absolute = getAbsolute(p, "", "", "I");
 
-    open(absolute);
+    open(absolute, p->file());
 
     Output& out = output();
 
@@ -5198,7 +5209,7 @@ Slice::Gen::AsyncVisitor::visitOperation(const OperationPtr& p)
         string classNameAMI = "AMI_" + cl->name();
         string absoluteAMI = getAbsolute(cl, "", "AMI_", "_" + name);
 
-        open(absoluteAMI);
+        open(absoluteAMI, p->file());
         
         Output& out = output();
 
@@ -5436,10 +5447,10 @@ Slice::Gen::AsyncVisitor::visitOperation(const OperationPtr& p)
         vector<string> paramsAMD = getParamsAsyncCB(p, classPkg);
 
         {
-            open(absoluteAMD);
+            open(absoluteAMD, p->file());
 
             Output& out = output();
-            
+
             writeDocCommentOp(out, p);
             out << sp << nl << "public interface " << classNameAMD << '_' << name;
             out << " extends Ice.AMDCallback";
@@ -5454,10 +5465,10 @@ Slice::Gen::AsyncVisitor::visitOperation(const OperationPtr& p)
         }
         
         {
-            open(absoluteAMDI);
+            open(absoluteAMDI, p->file());
             
             Output& out = output();
-            
+
             TypePtr ret = p->returnType();
             
             ParamDeclList outParams;

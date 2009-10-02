@@ -426,7 +426,7 @@ FreezeGenerator::generate(UnitPtr& u, const Dict& dict)
         }
     }
 
-    open(dict.name);
+    open(dict.name, u->currentFile());
 
     Output& out = output();
 
@@ -1125,7 +1125,7 @@ FreezeGenerator::generate(UnitPtr& u, const Index& index)
 
     string memberTypeString = typeToString(dataMember->type(), TypeModeIn);
 
-    open(index.name);
+    open(index.name, u->currentFile());
 
     Output& out = output();
 

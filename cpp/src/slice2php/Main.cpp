@@ -1693,7 +1693,7 @@ compile(int argc, char* argv[])
 
                     out << "<?php\n";
                     printHeader(out);
-                    out << "\n// Generated from file `" << base << ".ice'\n";
+                    printGeneratedHeader(out, base + ".ice");
 
                     //
                     // Generate the PHP mapping.

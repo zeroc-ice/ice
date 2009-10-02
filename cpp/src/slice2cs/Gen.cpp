@@ -23,6 +23,7 @@
 #include <Slice/Checksum.h>
 #include <Slice/DotNetNames.h>
 #include <Slice/FileTracker.h>
+#include <Slice/Util.h>
 #include <string.h>
 
 using namespace std;
@@ -1647,7 +1648,7 @@ Slice::Gen::Gen(const string& base, const vector<string>& includePaths, const st
     FileTracker::instance()->addFile(file);
     printHeader();
 
-    _out << nl << "// Generated from file `" << fileBase << ".ice'";
+    printGeneratedHeader(_out, fileBase + ".ice");
 
     _out << sp << nl << "using _System = global::System;";
     _out << nl << "using _Microsoft = global::Microsoft;";
