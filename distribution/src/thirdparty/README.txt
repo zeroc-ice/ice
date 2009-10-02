@@ -57,19 +57,14 @@ top-level directory and apply the patch as shown below:
 Berkeley DB
 -----------
 
-The files db/patch.4.7.25.1, db/patch.4.7.25.2, db/patch.4.7.25.3, 
-db/patch.4.7.25.3 and db/patch.4.7.25.17646 in this archive contain 
-several important fixes for Berkeley DB required by Ice. 
+The file db/patch.4.8.24.17646 in this archive contains an important
+fix for Berkeley DB required by Ice. 
 
-After extracting the Berkeley DB 4.7.25 source distribution, change 
+After extracting the Berkeley DB 4.8.24 source distribution, change 
 to the top-level directory and apply the patches as shown below:
 
- > cd db-4.7.25
- > patch -p0 < patch.db-4.7.25.1
- > patch -p0 < patch.db-4.7.25.2
- > patch -p0 < patch.db-4.7.25.3
- > patch -p1 < patch.db-4.7.25.4
- > patch -p0 < patch.db-4.7.25.17646
+ > cd db-4.8.24
+ > patch -p0 < patch.db-4.8.24.17646
 
 mcpp
 ----
@@ -116,10 +111,6 @@ before building Berkeley DB:
 - Select "Library files"
 
 - Add the lib directory for STLport.
-
-Users of Visual Studio 2008 must remove bufferoverflowU.lib from the 
-linker input "Additional Dependencies" in most projects when building
-on x64.
 
 When building the debug version of the Berkeley DB DLL (db_dll
 project), you should also remove the "DIAGNOSTIC" define and the
