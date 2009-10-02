@@ -25,17 +25,17 @@ using namespace IceUtilInternal;
 //
 // static initializations.
 //
-Mutex* IceInternal::mutex = 0;
+Mutex* IceInternal::Application::mutex = 0;
 
-bool IceInternal::_callbackInProgress = false;
-bool IceInternal::_destroyed = false;
-bool IceInternal::_interrupted = false;
+bool IceInternal::Application::_callbackInProgress = false;
+bool IceInternal::Application::_destroyed = false;
+bool IceInternal::Application::_interrupted = false;
 
-string IceInternal::_appName;
-CommunicatorPtr IceInternal::_communicator;
-SignalPolicy IceInternal::_signalPolicy = HandleSignals;
-auto_ptr<Cond> IceInternal::_condVar;
-Ice::Application* IceInternal::_application;
+string IceInternal::Application::_appName;
+CommunicatorPtr IceInternal::Application::_communicator;
+SignalPolicy IceInternal::Application::_signalPolicy = HandleSignals;
+auto_ptr<Cond> IceInternal::Application::_condVar;
+Ice::Application* IceInternal::Application::_application;
 //
 // _mutex and _condVar are used to synchronize the main thread and
 // the CtrlCHandler thread
@@ -50,13 +50,13 @@ public:
 
     Init()
     {
-        IceInternal::mutex = new IceUtil::Mutex;
+        IceInternal::Application::mutex = new IceUtil::Mutex;
     }
 
     ~Init()
     {
-        delete IceInternal::mutex;
-        IceInternal::mutex = 0;
+        delete IceInternal::Application::mutex;
+        IceInternal::Application::mutex = 0;
     }
 };
 
@@ -103,13 +103,13 @@ holdInterruptCallback(int signal)
 {
     CtrlCHandlerCallback callback = 0;
     {
-        IceUtil::Mutex::Lock lock(*IceInternal::mutex);
+        IceUtil::Mutex::Lock lock(*IceInternal::Application::mutex);
         while(!_released)
         {
-            IceInternal::_condVar->wait(lock);
+            IceInternal::Application::_condVar->wait(lock);
         }
         
-        if(IceInternal::_destroyed)
+        if(IceInternal::Application::_destroyed)
         {
             //
             // Being destroyed by main thread
@@ -130,8 +130,8 @@ static void
 destroyOnInterruptCallback(int signal)
 {
     {
-        IceUtil::Mutex::Lock lock(*IceInternal::mutex);
-        if(IceInternal::_destroyed)
+        IceUtil::Mutex::Lock lock(*IceInternal::Application::mutex);
+        if(IceInternal::Application::_destroyed)
         {
             //
             // Being destroyed by main thread
@@ -143,16 +143,16 @@ destroyOnInterruptCallback(int signal)
             return;
         }
 
-        assert(!IceInternal::_callbackInProgress);
-        IceInternal::_callbackInProgress = true;
-        IceInternal::_interrupted = true;
-        IceInternal::_destroyed = true;
+        assert(!IceInternal::Application::_callbackInProgress);
+        IceInternal::Application::_callbackInProgress = true;
+        IceInternal::Application::_interrupted = true;
+        IceInternal::Application::_destroyed = true;
     }
         
     try
     {
-        assert(IceInternal::_communicator != 0);
-        IceInternal::_communicator->destroy();
+        assert(IceInternal::Application::_communicator != 0);
+        IceInternal::Application::_communicator->destroy();
     }
     catch(const std::exception& ex)
     {
@@ -176,18 +176,18 @@ destroyOnInterruptCallback(int signal)
     }
 
     {
-        IceUtil::Mutex::Lock lock(*IceInternal::mutex);
-        IceInternal::_callbackInProgress = false;
+        IceUtil::Mutex::Lock lock(*IceInternal::Application::mutex);
+        IceInternal::Application::_callbackInProgress = false;
     }
-    IceInternal::_condVar->signal();
+    IceInternal::Application::_condVar->signal();
 }
 
 static void
 shutdownOnInterruptCallback(int signal)
 {
     {
-        IceUtil::Mutex::Lock lock(*IceInternal::mutex);
-        if(IceInternal::_destroyed)
+        IceUtil::Mutex::Lock lock(*IceInternal::Application::mutex);
+        if(IceInternal::Application::_destroyed)
         {
             //
             // Being destroyed by main thread
@@ -199,15 +199,15 @@ shutdownOnInterruptCallback(int signal)
             return;
         }
 
-        assert(!IceInternal::_callbackInProgress);
-        IceInternal::_callbackInProgress = true;
-        IceInternal::_interrupted = true;
+        assert(!IceInternal::Application::_callbackInProgress);
+        IceInternal::Application::_callbackInProgress = true;
+        IceInternal::Application::_interrupted = true;
     }
 
     try
     {
-        assert(IceInternal::_communicator != 0);
-        IceInternal::_communicator->shutdown();
+        assert(IceInternal::Application::_communicator != 0);
+        IceInternal::Application::_communicator->shutdown();
     }
     catch(const std::exception& ex)
     {
@@ -231,18 +231,18 @@ shutdownOnInterruptCallback(int signal)
     }
 
     {
-        IceUtil::Mutex::Lock lock(*IceInternal::mutex);
-        IceInternal::_callbackInProgress = false;
+        IceUtil::Mutex::Lock lock(*IceInternal::Application::mutex);
+        IceInternal::Application::_callbackInProgress = false;
     }
-    IceInternal::_condVar->signal();
+    IceInternal::Application::_condVar->signal();
 }
 
 static void
 callbackOnInterruptCallback(int signal)
 {
     {
-        IceUtil::Mutex::Lock lock(*IceInternal::mutex);
-        if(IceInternal::_destroyed)
+        IceUtil::Mutex::Lock lock(*IceInternal::Application::mutex);
+        if(IceInternal::Application::_destroyed)
         {
             //
             // Being destroyed by main thread
@@ -251,15 +251,15 @@ callbackOnInterruptCallback(int signal)
         }
         // For SIGHUP the user callback is always called. It can
         // decide what to do.
-        assert(!IceInternal::_callbackInProgress);
-        IceInternal::_callbackInProgress = true;
-        IceInternal::_interrupted = true;
+        assert(!IceInternal::Application::_callbackInProgress);
+        IceInternal::Application::_callbackInProgress = true;
+        IceInternal::Application::_interrupted = true;
     }
 
     try
     {
-        assert(IceInternal::_application != 0);
-        IceInternal::_application->interruptCallback(signal);
+        assert(IceInternal::Application::_application != 0);
+        IceInternal::Application::_application->interruptCallback(signal);
     }
     catch(const std::exception& ex)
     {
@@ -283,15 +283,15 @@ callbackOnInterruptCallback(int signal)
     }
 
     {
-        IceUtil::Mutex::Lock lock(*IceInternal::mutex);
-        IceInternal::_callbackInProgress = false;
+        IceUtil::Mutex::Lock lock(*IceInternal::Application::mutex);
+        IceInternal::Application::_callbackInProgress = false;
     }
-    IceInternal::_condVar->signal();
+    IceInternal::Application::_condVar->signal();
 }
 
 Ice::Application::Application(SignalPolicy signalPolicy)
 {
-    IceInternal::_signalPolicy = signalPolicy;
+    IceInternal::Application::_signalPolicy = signalPolicy;
 }
 
 Ice::Application::~Application()
@@ -348,7 +348,7 @@ Ice::Application::main(int argc, char* argv[], const InitializationData& initDat
         setProcessLogger(new LoggerI(argv[0], ""));
     }
 
-    if(IceInternal::_communicator != 0)
+    if(IceInternal::Application::_communicator != 0)
     {
         Error out(getProcessLogger());
         out << "only one instance of the Application class can be used";
@@ -356,7 +356,7 @@ Ice::Application::main(int argc, char* argv[], const InitializationData& initDat
     }
     int status;
 
-    if(IceInternal::_signalPolicy == HandleSignals)
+    if(IceInternal::Application::_signalPolicy == HandleSignals)
     {
         try
         {
@@ -418,27 +418,27 @@ Ice::Application::interruptCallback(int)
 const char*
 Ice::Application::appName()
 {
-    return IceInternal::_appName.c_str();
+    return IceInternal::Application::_appName.c_str();
 }
 
 CommunicatorPtr
 Ice::Application::communicator()
 {
-    return IceInternal::_communicator;
+    return IceInternal::Application::_communicator;
 }
 
 void
 Ice::Application::destroyOnInterrupt()
 {
-    if(IceInternal::_signalPolicy == HandleSignals)
+    if(IceInternal::Application::_signalPolicy == HandleSignals)
     {
         if(_ctrlCHandler != 0)
         {
-            IceUtil::Mutex::Lock lock(*IceInternal::mutex); // we serialize all the interrupt-setting
+            IceUtil::Mutex::Lock lock(*IceInternal::Application::mutex); // we serialize all the interrupt-setting
             if(_ctrlCHandler->getCallback() == holdInterruptCallback)
             {
                 _released = true;
-                IceInternal::_condVar->signal();
+                IceInternal::Application::_condVar->signal();
             }
             _ctrlCHandler->setCallback(destroyOnInterruptCallback);
         }
@@ -453,15 +453,15 @@ Ice::Application::destroyOnInterrupt()
 void
 Ice::Application::shutdownOnInterrupt()
 {
-    if(IceInternal::_signalPolicy == HandleSignals)
+    if(IceInternal::Application::_signalPolicy == HandleSignals)
     {
         if(_ctrlCHandler != 0)
         {
-            IceUtil::Mutex::Lock lock(*IceInternal::mutex); // we serialize all the interrupt-setting
+            IceUtil::Mutex::Lock lock(*IceInternal::Application::mutex); // we serialize all the interrupt-setting
             if(_ctrlCHandler->getCallback() == holdInterruptCallback)
             {
                 _released = true;
-                IceInternal::_condVar->signal();
+                IceInternal::Application::_condVar->signal();
             }
             _ctrlCHandler->setCallback(shutdownOnInterruptCallback);
         }
@@ -476,15 +476,15 @@ Ice::Application::shutdownOnInterrupt()
 void
 Ice::Application::ignoreInterrupt()
 {
-    if(IceInternal::_signalPolicy == HandleSignals)
+    if(IceInternal::Application::_signalPolicy == HandleSignals)
     {
         if(_ctrlCHandler != 0)
         {
-            IceUtil::Mutex::Lock lock(*IceInternal::mutex); // we serialize all the interrupt-setting
+            IceUtil::Mutex::Lock lock(*IceInternal::Application::mutex); // we serialize all the interrupt-setting
             if(_ctrlCHandler->getCallback() == holdInterruptCallback)
             {
                 _released = true;
-                IceInternal::_condVar->signal();
+                IceInternal::Application::_condVar->signal();
             }
             _ctrlCHandler->setCallback(0);
         }
@@ -499,15 +499,15 @@ Ice::Application::ignoreInterrupt()
 void
 Ice::Application::callbackOnInterrupt()
 {
-    if(IceInternal::_signalPolicy == HandleSignals)
+    if(IceInternal::Application::_signalPolicy == HandleSignals)
     {
         if(_ctrlCHandler != 0)
         {
-            IceUtil::Mutex::Lock lock(*IceInternal::mutex); // we serialize all the interrupt-setting
+            IceUtil::Mutex::Lock lock(*IceInternal::Application::mutex); // we serialize all the interrupt-setting
             if(_ctrlCHandler->getCallback() == holdInterruptCallback)
             {
                 _released = true;
-                IceInternal::_condVar->signal();
+                IceInternal::Application::_condVar->signal();
             }
             _ctrlCHandler->setCallback(callbackOnInterruptCallback);
         }
@@ -522,11 +522,11 @@ Ice::Application::callbackOnInterrupt()
 void
 Ice::Application::holdInterrupt()
 {
-    if(IceInternal::_signalPolicy == HandleSignals)
+    if(IceInternal::Application::_signalPolicy == HandleSignals)
     {
         if(_ctrlCHandler != 0)
         {
-            IceUtil::Mutex::Lock lock(*IceInternal::mutex); // we serialize all the interrupt-setting
+            IceUtil::Mutex::Lock lock(*IceInternal::Application::mutex); // we serialize all the interrupt-setting
             if(_ctrlCHandler->getCallback() != holdInterruptCallback)
             {
                 _previousCallback = _ctrlCHandler->getCallback();
@@ -546,11 +546,11 @@ Ice::Application::holdInterrupt()
 void
 Ice::Application::releaseInterrupt()
 {
-    if(IceInternal::_signalPolicy == HandleSignals)
+    if(IceInternal::Application::_signalPolicy == HandleSignals)
     {
         if(_ctrlCHandler != 0)
         {
-            IceUtil::Mutex::Lock lock(*IceInternal::mutex); // we serialize all the interrupt-setting
+            IceUtil::Mutex::Lock lock(*IceInternal::Application::mutex); // we serialize all the interrupt-setting
             if(_ctrlCHandler->getCallback() == holdInterruptCallback)
             {
                 //
@@ -562,7 +562,7 @@ Ice::Application::releaseInterrupt()
             
                 _released = true;
                 _ctrlCHandler->setCallback(_previousCallback);
-                IceInternal::_condVar->signal();
+                IceInternal::Application::_condVar->signal();
             }
             // Else nothing to release.
         }
@@ -577,8 +577,8 @@ Ice::Application::releaseInterrupt()
 bool
 Ice::Application::interrupted()
 {
-    IceUtil::Mutex::Lock lock(*IceInternal::mutex);
-    return IceInternal::_interrupted;
+    IceUtil::Mutex::Lock lock(*IceInternal::Application::mutex);
+    return IceInternal::Application::_interrupted;
 }
 
 int
@@ -588,13 +588,13 @@ Ice::Application::doMain(int argc, char* argv[], const InitializationData& initi
 
     try
     {
-        if(IceInternal::_condVar.get() == 0)
+        if(IceInternal::Application::_condVar.get() == 0)
         {
-            IceInternal::_condVar.reset(new Cond);
+            IceInternal::Application::_condVar.reset(new Cond);
         }
 
-        IceInternal::_interrupted = false;
-        IceInternal::_appName = argv[0] ? argv[0] : "";
+        IceInternal::Application::_interrupted = false;
+        IceInternal::Application::_appName = argv[0] ? argv[0] : "";
 
         //
         // We parse the properties here to extract Ice.ProgramName.
@@ -611,19 +611,19 @@ Ice::Application::doMain(int argc, char* argv[], const InitializationData& initi
             setProcessLogger(new LoggerI(initData.properties->getProperty("Ice.ProgramName"), ""));
         }
 
-        IceInternal::_application = this;
-        IceInternal::_communicator = initialize(argc, argv, initData);
-        IceInternal::_destroyed = false;
+        IceInternal::Application::_application = this;
+        IceInternal::Application::_communicator = initialize(argc, argv, initData);
+        IceInternal::Application::_destroyed = false;
 
         //
         // Used by destroyOnInterruptCallback and shutdownOnInterruptCallback.
         //
-        _nohup = (IceInternal::_communicator->getProperties()->getPropertyAsInt("Ice.Nohup") > 0);
+        _nohup = (IceInternal::Application::_communicator->getProperties()->getPropertyAsInt("Ice.Nohup") > 0);
     
         //
         // The default is to destroy when a signal is received.
         //
-        if(IceInternal::_signalPolicy == HandleSignals)
+        if(IceInternal::Application::_signalPolicy == HandleSignals)
         {
             destroyOnInterrupt();
         }
@@ -660,38 +660,38 @@ Ice::Application::doMain(int argc, char* argv[], const InitializationData& initi
     // it would not make sense to release a held signal to run
     // shutdown or destroy.
     //
-    if(IceInternal::_signalPolicy == HandleSignals)
+    if(IceInternal::Application::_signalPolicy == HandleSignals)
     {
         ignoreInterrupt();
     }
 
     {
-        IceUtil::Mutex::Lock lock(*IceInternal::mutex);
-        while(IceInternal::_callbackInProgress)
+        IceUtil::Mutex::Lock lock(*IceInternal::Application::mutex);
+        while(IceInternal::Application::_callbackInProgress)
         {
-            IceInternal::_condVar->wait(lock);
+            IceInternal::Application::_condVar->wait(lock);
         }
-        if(IceInternal::_destroyed)
+        if(IceInternal::Application::_destroyed)
         {
-            IceInternal::_communicator = 0;
+            IceInternal::Application::_communicator = 0;
         }
         else
         {
-            IceInternal::_destroyed = true;
+            IceInternal::Application::_destroyed = true;
             //
             // And _communicator != 0, meaning will be destroyed
             // next, _destroyed = true also ensures that any
             // remaining callback won't do anything
             //
         }
-        IceInternal::_application = 0;
+        IceInternal::Application::_application = 0;
     }
 
-    if(IceInternal::_communicator != 0)
+    if(IceInternal::Application::_communicator != 0)
     {  
         try
         {
-            IceInternal::_communicator->destroy();
+            IceInternal::Application::_communicator->destroy();
         }
         catch(const std::exception& ex)
         {
@@ -705,7 +705,7 @@ Ice::Application::doMain(int argc, char* argv[], const InitializationData& initi
             out << "unknown exception";
             status = EXIT_FAILURE;
         }
-        IceInternal::_communicator = 0;
+        IceInternal::Application::_communicator = 0;
     }
 
     return status;

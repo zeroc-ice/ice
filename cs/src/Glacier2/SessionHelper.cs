@@ -111,7 +111,7 @@ public class SessionHelper
     /// establishment.</param>
     /// <param name="initData">The Ice.InitializationData for initializing
     /// the communicator.</param>
-    public SessionHelper(SessionFactoryHelper.Callback callback, Ice.InitializationData initData)
+    public SessionHelper(SessionFactoryHelper.SessionCallback callback, Ice.InitializationData initData)
     {
         _callback = callback;
         _initData = initData;
@@ -120,7 +120,7 @@ public class SessionHelper
     /// <sumary>
     /// Destroys the Glacier2 session.
     /// 
-    /// Once the session has been destroyed, Callback.disconnected is
+    /// Once the session has been destroyed, SessionCallback.disconnected is
     /// called on the associated callback object.
     /// </sumary>
     public void
@@ -277,8 +277,8 @@ public class SessionHelper
     /// <sumary>
     /// Connects to the Glacier2 router using the associated SSL credentials.
     ///
-    /// Once the connection is established, Callback.connected} is called on 
-    /// the callback object; upon failure, Callback.exception is called with
+    /// Once the connection is established, SessionCallback.connected} is called on 
+    /// the callback object; upon failure, SessionCallback.exception is called with
     /// the exception.
     /// </sumary>
     public void
@@ -296,8 +296,8 @@ public class SessionHelper
     /// <sumary>
     /// Connects a Glacier2 session using user name and password credentials.
     ///
-    /// Once the connection is established, {@link Callback#connected} is called on the callback object;
-    /// upon failure {@link Callback.exception} is called with the exception. 
+    /// Once the connection is established, SessionCallback.connected is called on the callback object;
+    /// upon failure SessionCallback.exception is called with the exception. 
     /// </sumary>
     /// <param name="username">The user name.</param>
     /// <param name="password">The password.</param>
@@ -478,7 +478,7 @@ public class SessionHelper
 
     private SessionRefreshThread _sessionRefresh;
     private Thread _refreshThread;
-    private SessionFactoryHelper.Callback _callback;
+    private SessionCallback _callback;
     private bool _destroy = false;
 }
 

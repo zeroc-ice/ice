@@ -10,8 +10,6 @@ package Glacier2;
 
 import javax.swing.SwingUtilities;
 
-import Glacier2.SessionFactoryHelper.Callback;
-
 /**
  * A helper class for using Glacier2 with GUI applications.
  */
@@ -87,7 +85,7 @@ public class SessionHelper
      * @param callback The callback for notifications about session establishment.
      * @param initData The {@link Ice.InitializationData} for initializing the communicator.
      */
-    public SessionHelper(SessionFactoryHelper.Callback callback, Ice.InitializationData initData)
+    public SessionHelper(SessionCallback callback, Ice.InitializationData initData)
     {
         _callback = callback;
         _initData = initData;
@@ -96,7 +94,7 @@ public class SessionHelper
     /**
      * Destroys the Glacier2 session.
      * 
-     * Once the session has been destroyed, {@link Callback.disconnected} is called on
+     * Once the session has been destroyed, {@link SessionCallback.disconnected} is called on
      * the associated callback object.
      */
     synchronized public void
@@ -261,8 +259,8 @@ public class SessionHelper
     /**
      * Connects to the Glacier2 router using the associated SSL credentials.
      *
-     * Once the connection is established, {@link Callback#connected} is called on the callback object;
-     * upon failure, {@link Callback#exception} is called with the exception.
+     * Once the connection is established, {@link SessionCallback#connected} is called on the callback object;
+     * upon failure, {@link SessionCallback#exception} is called with the exception.
      */
     synchronized protected void
     connect()
@@ -280,8 +278,8 @@ public class SessionHelper
     /**
      * Connects a Glacier2 session using user name and password credentials.
      *
-     * Once the connection is established, {@link Callback#connected} is called on the callback object;
-     * upon failure {@link Callback.exception} is called with the exception. 
+     * Once the connection is established, {@link SessionCallback#connected} is called on the callback object;
+     * upon failure {@link SessionCallback.exception} is called with the exception. 
      * 
      * @param username The user name.
      * @param password The password.
@@ -489,7 +487,7 @@ public class SessionHelper
     private Glacier2.SessionPrx _session;
 
     private SessionRefreshThread _refreshThread;
-    private SessionFactoryHelper.Callback _callback;
+    private SessionCallback _callback;
     private boolean _destroy = false;
     private boolean _connected = false;
     private Thread _shutdownHook;

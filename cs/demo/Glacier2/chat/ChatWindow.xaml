@@ -21,7 +21,7 @@
     <DockPanel>
         <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" DockPanel.Dock="Top">
             <Menu Style="{StaticResource Menu}" Background="White">
-                <MenuItem Header="Connect">
+                <MenuItem Header="Session">
                     <MenuItem Header="_Login" Command="local:ChatCommands.Login" Background="White"/>
                     <MenuItem Header="_Logout" Command="local:ChatCommands.Logout" Background="White"/>
                     <MenuItem Header="E_xit" Command="local:ChatCommands.Exit" Background="White"/>
@@ -61,7 +61,7 @@
                  Background="WhiteSmoke" KeyDown="sendMessage" TabIndex="1"></TextBox>
 
             <!-- TextBlock with the status message -->
-            <Label Grid.Row="3" Name="status" Grid.Column="0" VerticalAlignment="Bottom" Content="Disconnected"/>
+            <Label Grid.Row="3" Name="status" Grid.Column="0" VerticalAlignment="Bottom" Content="Not connected"/>
 
         </Grid>
     </DockPanel>

@@ -24,50 +24,11 @@ namespace Glacier2
 public class SessionFactoryHelper
 {
     /// <sumary>
-    /// A callback class to get notifications of status changes in the Glacier2 session.
-    /// All callbacks on the <code>Callback</code> interface occur in the main swing thread.
-    /// </sumary>
-    public interface Callback
-    {
-        /// <sumary>
-        /// Notifies the application that the communicator was created.
-        /// </sumary>
-        /// <param name="session">The Glacier2 session.</param>
-        void
-        createdCommunicator(SessionHelper session);
-
-        /// <sumary>
-        /// Notifies the application that the Glacier2 session has been established.
-        /// </sumary>
-        /// <param name="session">The established session.</param>
-        void
-        connected(SessionHelper session);
-        
-        /// <sumary>
-        /// Notifies the application that the Glacier2 session has been disconnected.
-        /// </sumary>
-        /// <param name="session">The disconnected session.</param>
-        void
-        disconnected(SessionHelper session);
-
-        /// <sumary>
-        /// Notifies the application that the Glacier2 session establishment failed. 
-        /// </sumary>
-        /// <param name="session">The session reporting the connection failure.</param>
-        /// <param name="ex">The exception.</param>
-        void
-        connectFailed(SessionHelper session, Exception ex);
-
-        System.Windows.Threading.Dispatcher
-        getDispatcher();
-    }
-
-    /// <sumary>
     /// Creates a SessionFactory object.
     /// </sumary>
     /// <param name="callback">The callback object for notifications.</param>
     public
-    SessionFactoryHelper(Callback callback)
+    SessionFactoryHelper(SessionCallback callback)
     {
         _callback = callback;
         _initData = new Ice.InitializationData();
@@ -81,7 +42,7 @@ public class SessionFactoryHelper
     /// <param name="initData">The initialization data to use when creating the communicator.</param>
     /// <param name="callback">The callback object for notifications.</param>
     public
-    SessionFactoryHelper(Ice.InitializationData initData, Callback callback)
+    SessionFactoryHelper(Ice.InitializationData initData, SessionCallback callback)
     {
         _callback = callback;
         _initData = initData;
@@ -94,7 +55,7 @@ public class SessionFactoryHelper
     /// <param name="properties">The properties to use when creating the communicator.</param>
     /// <param name="callback">The callback object for notifications.</param>
     public
-    SessionFactoryHelper(Ice.Properties properties, Callback callback)
+    SessionFactoryHelper(Ice.Properties properties, SessionCallback callback)
     {
         _callback = callback;
         _initData = new Ice.InitializationData();
@@ -105,6 +66,7 @@ public class SessionFactoryHelper
     /// <sumary>
     /// Set the router object identity.
     /// </sumary>
+    /// <param name="identity">The Glacier2 router's identity.</param>
     public void
     setRouterIdentity(Ice.Identity identity)
     {
@@ -252,8 +214,8 @@ public class SessionFactoryHelper
     /// <sumary>
     /// Connects to the Glacier2 router using the associated SSL credentials.
     /// 
-    /// Once the connection is established, Callback.connected is called on
-    /// the callback object; upon failure, Callback.connectFailed is called 
+    /// Once the connection is established, SesssionCallback.connected is called on
+    /// the callback object; upon failure, SessionCallback.connectFailed is called 
     /// with the exception.
     /// </sumary>
     /// <returns>The connected session.</returns>
@@ -271,8 +233,8 @@ public class SessionFactoryHelper
     /// <sumary>
     /// Connect the Glacier2 session using user name and password credentials.
     ///
-    /// Once the connection is established, Callback.connected is called on
-    /// the callback object; upon failure, Callback.connectFailed is called
+    /// Once the connection is established, SessionCallback.connected is called on
+    /// the callback object; upon failure, SessionCallback.connectFailed is called
     /// with the exception. 
     /// </sumary>
     /// <param name="username">The user name.</param>
@@ -346,7 +308,7 @@ public class SessionFactoryHelper
         _initData.properties.setProperty("Ice.RetryIntervals", "-1");
     }
 
-    private Callback _callback;
+    private SessionCallback _callback;
     private string _routerHost = "127.0.0.1";
     private Ice.InitializationData _initData;
     private Ice.Identity _identity = new Ice.Identity("router", "Glacier2");

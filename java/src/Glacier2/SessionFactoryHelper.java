@@ -20,56 +20,13 @@ package Glacier2;
 public class SessionFactoryHelper
 {
     /**
-     * A callback class to get notifications of status changes in the Glacier2 session.
-     * All callbacks on the <code>Callback</code> interface occur in the main swing thread.
-     */
-    public interface Callback
-    {
-        /**
-         * Notifies the application that the communicator was created.
-         *
-         * @param session The Glacier2 session.
-         */
-        void
-        createdCommunicator(SessionHelper session);
-
-        /**
-         * Notifies the application that the Glacier2 session has been established.
-         *  
-         * @param session The established session.
-         */
-
-        void
-        connected(SessionHelper session)
-            throws SessionNotExistException;
-        
-        /**
-         * Notifies the application that the Glacier2 session has been disconnected.
-         *
-         * @param session The disconnected session.
-         */
-        void
-        disconnected(SessionHelper session);
-
-        /**
-         * Notifies the application that the Glacier2 session establishment failed. 
-         * 
-         * @param session The session reporting the connection
-         * failure.
-         * @param ex The exception.
-         */
-        void
-        connectFailed(SessionHelper session, Throwable ex);
-    }
-
-    /**
      * Creates a SessionFactory object.
      * 
      * @param callback The callback object for notifications.
      * @throws {@link Ice.InitializationException}
      */
     public
-    SessionFactoryHelper(Callback callback) throws Ice.InitializationException
+    SessionFactoryHelper(SessionCallback callback) throws Ice.InitializationException
     {
         initialize(callback, new Ice.InitializationData(), Ice.Util.createProperties());
     }
@@ -82,7 +39,7 @@ public class SessionFactoryHelper
      * @throws {@link Ice.InitializationException}
      */
     public
-    SessionFactoryHelper(Ice.InitializationData initData, Callback callback) throws Ice.InitializationException
+    SessionFactoryHelper(Ice.InitializationData initData, SessionCallback callback) throws Ice.InitializationException
     {
         initialize(callback, initData, initData.properties);
     }
@@ -95,18 +52,18 @@ public class SessionFactoryHelper
      * @throws {@link Ice.InitializationException}
      */
     public
-    SessionFactoryHelper(Ice.Properties properties, Callback callback) throws Ice.InitializationException
+    SessionFactoryHelper(Ice.Properties properties, SessionCallback callback) throws Ice.InitializationException
     {
         initialize(callback, new Ice.InitializationData(), properties);
     }
 
     private void
-    initialize(Callback callback, Ice.InitializationData initData, Ice.Properties properties)
+    initialize(SessionCallback callback, Ice.InitializationData initData, Ice.Properties properties)
         throws Ice.InitializationException
     {
         if(callback == null)
         {
-            throw new Ice.InitializationException("Attempt to create a SessionFactoryHelper with a null Callback" +
+            throw new Ice.InitializationException("Attempt to create a SessionFactoryHelper with a null SessionCallback" +
                                                   "argument");
         }
 
@@ -136,7 +93,7 @@ public class SessionFactoryHelper
     /**
      * Set the router object identity.
      *
-     * @return The Glacier2 router's identity.
+     * @param identity The Glacier2 router's identity.
      */
     synchronized public void
     setRouterIdentity(Ice.Identity identity)
@@ -259,8 +216,8 @@ public class SessionFactoryHelper
     /**
      * Connects to the Glacier2 router using the associated SSL credentials.
      *
-     * Once the connection is established, {@link Callback#connected} is called on the callback object;
-     * upon failure, {@link Callback#connectFailed} is called with the exception.
+     * Once the connection is established, {@link SessionCallback#connected} is called on the callback object;
+     * upon failure, {@link SessionCallback#connectFailed} is called with the exception.
      *
      * @return The connected session.
      */
@@ -275,8 +232,8 @@ public class SessionFactoryHelper
     /**
      * Connect the Glacier2 session using user name and password credentials.
      *
-     * Once the connection is established, {@link Callback#connected} is called on the callback object;
-     * upon failure, {@link Callback#connectFailed) is called with the exception. 
+     * Once the connection is established, {@link SessionCallback#connected} is called on the callback object;
+     * upon failure, {@link SessionCallback#connectFailed) is called with the exception. 
      * 
      * @param username The user name.
      * @param password The password.
@@ -343,7 +300,7 @@ public class SessionFactoryHelper
         return initData;
     }
 
-    private Callback _callback;
+    private SessionCallback _callback;
     private String _routerHost = "127.0.0.1";
     private Ice.InitializationData _initData;
     private Ice.Identity _identity = new Ice.Identity("router", "Glacier2");

@@ -47,6 +47,7 @@ import javax.swing.text.Element;
 
 import Glacier2.SessionFactoryHelper;
 import Glacier2.SessionHelper;
+import Glacier2.SessionCallback;
 import Glacier2.SessionNotExistException;
 import Ice.Current;
 import Ice.LocalException;
@@ -217,7 +218,7 @@ public class Client extends JFrame
         JPanel statusPanel = new JPanel();
         JSeparator statusPanelSeparator = new JSeparator();
         _status = new JLabel();
-        _status.setText("Disconnected");
+        _status.setText("Not connected");
 
         statusPanel.add(statusPanelSeparator, BorderLayout.NORTH);
         statusPanel.add(_status, BorderLayout.SOUTH);
@@ -225,7 +226,7 @@ public class Client extends JFrame
         add(statusPanel, BorderLayout.SOUTH);
 
         JMenuBar menuBar = new JMenuBar();
-        JMenu connectMenu = new JMenu("Connect");
+        JMenu connectMenu = new JMenu("Session");
 
         _login = new AbstractAction("Login")
         {
@@ -242,8 +243,7 @@ public class Client extends JFrame
             actionPerformed(ActionEvent e) 
             {
                 setEnabled(false);
-                _status.setText("Disconnecting");
-
+                _status.setText("Logging out");
                 destroySession();
                 _chat = null;
             }
@@ -316,7 +316,7 @@ public class Client extends JFrame
         properties.load("config.client");
         StringSeqHolder argHolder = new StringSeqHolder(args);
         properties = Util.createProperties(argHolder, properties);
-        _factory = new SessionFactoryHelper(properties, new SessionFactoryHelper.Callback()
+        _factory = new SessionFactoryHelper(properties, new SessionCallback()
             {
                 // The session helper callbacks are all called from the
                 // GUI thread.
@@ -417,8 +417,7 @@ public class Client extends JFrame
                 _logout.setEnabled(false);
 
                 _input.setEnabled(false);
-
-                _status.setText("Disconnected");
+                _status.setText("Not connected");
             }
 
             public void
@@ -484,7 +483,7 @@ public class Client extends JFrame
         if(_session != null)
         {
             _session.destroy();
-            _session = null;
+            //The session will be set to null on disconnected.
         }
     }
 

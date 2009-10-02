@@ -60,7 +60,7 @@ namespace Glacier2.chat.client
     /// <summary>
     /// Interaction logic for ChatWindow.xaml
     /// </summary>
-    public partial class ChatWindow : Window, Glacier2.SessionFactoryHelper.Callback
+    public partial class ChatWindow : Window, Glacier2.SessionCallback
     {
         private class ChatCallbackI : Demo.ChatCallbackDisp_
         {
@@ -162,12 +162,7 @@ namespace Glacier2.chat.client
                 Util.centerWindow(_cancelDialog, this);
                 if(_cancelDialog.ShowModal())
                 {
-                    if(_session != null)
-                    {
-                        _session.destroy();
-                        _session = null;
-                        status.Content = "Connection canceled";
-                    }
+                    destroySession();
                 }
             }
         }
@@ -175,9 +170,8 @@ namespace Glacier2.chat.client
         private void
         logout(object sender, ExecutedRoutedEventArgs args)
         {
-            status.Content = "Disconnecting";
-            _session.destroy();
-            _session = null;
+            status.Content = "Logging out";
+            destroySession();
         }
 
         private void
@@ -191,11 +185,7 @@ namespace Glacier2.chat.client
         {
             lock(this)
             {
-                if(_session != null)
-                {
-                    _session.destroy();
-                    _session = null;
-                }
+                destroySession();
             }
             App.Current.Shutdown(0);
         }
@@ -254,6 +244,16 @@ namespace Glacier2.chat.client
             txtMessages.ScrollToEnd();
         }
 
+        private void
+        destroySession()
+        {
+            if(_session != null)
+            {
+                _session.destroy();
+                _session = null;
+            }
+        }
+
         private LoginData _loginData = new LoginData();
         private CancelDialog _cancelDialog = new CancelDialog();
         private Glacier2.SessionFactoryHelper _factory;
@@ -308,7 +308,7 @@ namespace Glacier2.chat.client
             _session = null;
             _chat = null;
             input.IsEnabled = false;
-            status.Content = "Disconnected";
+            status.Content = "Not connected";
         }
 
         public Dispatcher getDispatcher()

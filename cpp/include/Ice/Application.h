@@ -23,6 +23,9 @@ namespace Ice
 
 namespace IceInternal
 {
+    
+namespace Application
+{
     extern ICE_API IceUtil::Mutex* mutex;
     extern ICE_API std::auto_ptr<IceUtil::Cond> _condVar;
 
@@ -42,6 +45,8 @@ namespace IceInternal
     extern ICE_API Ice::CommunicatorPtr _communicator;
     extern ICE_API Ice::SignalPolicy _signalPolicy;
     extern ICE_API Ice::Application* _application;
+}
+
 }
 
 namespace Ice
