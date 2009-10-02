@@ -202,7 +202,7 @@ private:
      * Run should not be overridden for Glacier2.Application. Instead
      * <code>runWithSession</code> should be used.
      */
-    int run(int, char**)
+    int run(int, char*[])
     {
         // This shouldn't be called.
         assert(false);

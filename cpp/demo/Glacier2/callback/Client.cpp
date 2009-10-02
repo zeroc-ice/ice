@@ -22,9 +22,10 @@ public:
 
     CallbackClient();
     
-    virtual int runWithSession(int, char**);
+    virtual int runWithSession(int, char*[]);
     virtual Glacier2::SessionPrx createSession();
 };
+
 
 int
 main(int argc, char* argv[])
