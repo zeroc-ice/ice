@@ -14,16 +14,12 @@ include $(top_srcdir)/config/Make.rules
 SUBDIRS		= IceUtil \
 		  Ice \
 		  Freeze \
+		  IceBox \
 		  IceStorm \
 		  Glacier2 \
 		  IceGrid \
 		  book \
 		  cookbook
-
-!if "$(BCPLUSPLUS)" != "yes" && "$(CPP_COMPILER)" != "VC60"
-SUBDIRS		= $(SUBDIRS) \
-		  IceBox
-!endif
 
 $(EVERYTHING)::
 	@for subdir in $(SUBDIRS); \

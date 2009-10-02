@@ -7,8 +7,6 @@
 //
 // **********************************************************************
 
-#include <exception>
-
 #include <Ice/Application.h>
 
 #include <Glacier2/Session.h>
