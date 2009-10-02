@@ -192,22 +192,22 @@ Ice_EndpointTypes_ice.py: $(slicedir)/Ice/EndpointTypes.ice
 
 
 Glacier2_RouterF_ice.py: $(slicedir)/Glacier2/RouterF.ice
-	$(SLICE2PY) $(SLICE2PYFLAGS) --prefix Glacier2_ $(slicedir)/Glacier2/RouterF.ice
+	$(SLICE2PY) $(SLICE2PYFLAGS) --prefix Glacier2_ --no-package $(slicedir)/Glacier2/RouterF.ice
 
 Glacier2_Router_ice.py: $(slicedir)/Glacier2/Router.ice
-	$(SLICE2PY) $(SLICE2PYFLAGS) --prefix Glacier2_ $(slicedir)/Glacier2/Router.ice
+	$(SLICE2PY) $(SLICE2PYFLAGS) --prefix Glacier2_ --no-package $(slicedir)/Glacier2/Router.ice
 
 Glacier2_Session_ice.py: $(slicedir)/Glacier2/Session.ice
-	$(SLICE2PY) $(SLICE2PYFLAGS) --prefix Glacier2_ $(slicedir)/Glacier2/Session.ice
+	$(SLICE2PY) $(SLICE2PYFLAGS) --prefix Glacier2_ --no-package $(slicedir)/Glacier2/Session.ice
 
 Glacier2_PermissionsVerifierF_ice.py: $(slicedir)/Glacier2/PermissionsVerifierF.ice
-	$(SLICE2PY) $(SLICE2PYFLAGS) --prefix Glacier2_ $(slicedir)/Glacier2/PermissionsVerifierF.ice
+	$(SLICE2PY) $(SLICE2PYFLAGS) --prefix Glacier2_ --no-package $(slicedir)/Glacier2/PermissionsVerifierF.ice
 
 Glacier2_PermissionsVerifier_ice.py: $(slicedir)/Glacier2/PermissionsVerifier.ice
-	$(SLICE2PY) $(SLICE2PYFLAGS) --prefix Glacier2_ $(slicedir)/Glacier2/PermissionsVerifier.ice
+	$(SLICE2PY) $(SLICE2PYFLAGS) --prefix Glacier2_ --no-package $(slicedir)/Glacier2/PermissionsVerifier.ice
 
 Glacier2_SSLInfo_ice.py: $(slicedir)/Glacier2/SSLInfo.ice
-	$(SLICE2PY) $(SLICE2PYFLAGS) --prefix Glacier2_ $(slicedir)/Glacier2/SSLInfo.ice
+	$(SLICE2PY) $(SLICE2PYFLAGS) --prefix Glacier2_ --no-package $(slicedir)/Glacier2/SSLInfo.ice
 
 
 IceBox_IceBox_ice.py: $(slicedir)/IceBox/IceBox.ice

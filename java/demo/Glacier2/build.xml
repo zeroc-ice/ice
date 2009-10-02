@@ -13,10 +13,12 @@
 
     <target name="all">
         <ant dir="callback"/>
+        <ant dir="chat"/>
     </target>
 
     <target name="clean">
         <ant dir="callback" target="clean"/>
+        <ant dir="chat" target="clean"/>
     </target>
 
 </project>

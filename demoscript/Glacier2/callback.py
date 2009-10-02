@@ -11,16 +11,13 @@
 import sys, time, signal
 from scripts import Expect
 
-def run(client, server, sessionserver, glacier2):
+def run(client, server, glacier2):
     print "testing ",
     sys.stdout.flush()
     client.expect('user id:')
     client.sendline("foo")
     client.expect('password:')
     client.sendline("foo")
-
-    sessionserver.expect('verified user')
-    sessionserver.expect('creating session')
 
     client.expect("==>")
 
@@ -29,14 +26,14 @@ def run(client, server, sessionserver, glacier2):
     client.sendline('t')
     server.expect('initiating callback to')
     client.expect('received callback')
-    glacier2.expect('_fwd/t \\]')
+    #glacier2.expect('_fwd/t \\]')
 
     print "oneway",
     sys.stdout.flush()
     client.sendline('o')
     server.expect('initiating callback to')
     client.expect('received callback')
-    glacier2.expect('_fwd/o \\]')
+    #glacier2.expect('_fwd/o \\]')
 
     print "batch",
     sys.stdout.flush()
@@ -47,14 +44,14 @@ def run(client, server, sessionserver, glacier2):
         pass
     client.sendline('O')
     client.sendline('f')
-    glacier2.expect('_fwd/O \\]')
+    #glacier2.expect('_fwd/O \\]')
     print "ok"
 
     print "testing override context field...",
     sys.stdout.flush()
     client.sendline('v')
     client.sendline('t')
-    glacier2.expect('_fwd/t, _ovrd/some_value')
+    #glacier2.expect('_fwd/t, _ovrd/some_value')
     server.expect('initiating callback to')
     client.expect('received callback')
     print "ok"
@@ -71,20 +68,10 @@ def run(client, server, sessionserver, glacier2):
         pass
     print "ok"
 
-    print "testing session timeout...",
-    sys.stdout.flush()
-    time.sleep(6)
-    glacier2.expect('expiring session')
-    sessionserver.expect('destroying session for user')
-    print "ok"
 
     # SessionNotExist
     client.sendline('x')
-    client.expect('SessionNotExistException')
     client.waitTestSuccess()
-
-    sessionserver.kill(signal.SIGINT)
-    sessionserver.waitTestSuccess()
 
     server.kill(signal.SIGINT)
     server.waitTestSuccess()

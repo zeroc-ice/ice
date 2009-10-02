@@ -169,6 +169,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Ice.plugin.server", "Ice\pl
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Ice.plugin.hello", "Ice\plugin\Ice.plugin.hello.csproj", "{8D371651-BFA4-43C9-B143-77F0CCEEBB10}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Ice.wpf.client", "Ice\wpf\Ice.wpf.client.csproj", "{1EB710F0-E760-499B-BFD6-24E3B7A132E8}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Glacier2.chat.client", "Glacier2\chat\Glacier2.chat.client.csproj", "{53DCED47-A722-48EF-86D8-A10AD0594F21}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -363,6 +367,14 @@ Global
 		{8D371651-BFA4-43C9-B143-77F0CCEEBB10}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{8D371651-BFA4-43C9-B143-77F0CCEEBB10}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{8D371651-BFA4-43C9-B143-77F0CCEEBB10}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1EB710F0-E760-499B-BFD6-24E3B7A132E8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1EB710F0-E760-499B-BFD6-24E3B7A132E8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1EB710F0-E760-499B-BFD6-24E3B7A132E8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1EB710F0-E760-499B-BFD6-24E3B7A132E8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{53DCED47-A722-48EF-86D8-A10AD0594F21}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{53DCED47-A722-48EF-86D8-A10AD0594F21}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{53DCED47-A722-48EF-86D8-A10AD0594F21}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{53DCED47-A722-48EF-86D8-A10AD0594F21}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

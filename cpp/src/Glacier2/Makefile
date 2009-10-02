@@ -21,7 +21,8 @@ TARGETS         = $(LIBTARGETS) $(ROUTER)
 OBJS		= PermissionsVerifier.o \
 		  Router.o \
 		  SSLInfo.o \
-		  Session.o
+		  Session.o \
+          Application.o
 
 ROBJS		= Blobject.o \
 		  ClientBlobject.o \

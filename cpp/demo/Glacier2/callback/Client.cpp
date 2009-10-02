@@ -10,44 +10,20 @@
 #include <IceUtil/IceUtil.h>
 #include <Ice/Ice.h>
 #include <Glacier2/Router.h>
+#include <Glacier2/Application.h>
 #include <CallbackI.h>
 
 using namespace std;
 using namespace Demo;
 
-class PingTask : public IceUtil::TimerTask
-{
-public:
-
-    PingTask(const Glacier2::RouterPrx& router) :
-        _router(router)
-    {
-    }
-
-    virtual void runTimerTask()
-    {
-        try
-        {
-            _router->refreshSession();
-        }
-        catch(const Ice::Exception&)
-        {
-            // Ignore
-        }
-    }
-
-private:
-
-    const Glacier2::RouterPrx _router;
-};
-
-class CallbackClient : public Ice::Application
+class CallbackClient : public Glacier2::Application
 {
 public:
 
     CallbackClient();
-
-    virtual int run(int, char*[]);
+    
+    virtual int runWithSession(int, char**);
+    virtual Glacier2::SessionPrx createSession();
 };
 
 int
@@ -78,34 +54,15 @@ CallbackClient::CallbackClient() :
     // Since this is an interactive demo we don't want any signal
     // handling.
     //
-    Ice::Application(Ice::NoSignalHandling)
+    Glacier2::Application(Ice::NoSignalHandling)
 {
 }
 
-int
-CallbackClient::run(int argc, char* argv[])
+Glacier2::SessionPrx
+CallbackClient::createSession()
 {
-    if(argc > 1)
-    {
-        cerr << appName() << ": too many arguments" << endl;
-        return EXIT_FAILURE;
-    }
-
-    Ice::RouterPrx defaultRouter = communicator()->getDefaultRouter();
-    if(!defaultRouter)
-    {
-        cerr << argv[0] << ": no default router set" << endl;
-        return EXIT_FAILURE;
-    }
-
-    Glacier2::RouterPrx router = Glacier2::RouterPrx::checkedCast(defaultRouter);
-    if(!router)
-    {
-        cerr << argv[0] << ": configured router is not a Glacier2 router" << endl;
-        return EXIT_FAILURE;
-    }
-
-    while(true)
+    Glacier2::SessionPrx session;
+     while(true)
     {
         cout << "This demo accepts any user-id / password combination.\n";
 
@@ -122,21 +79,32 @@ CallbackClient::run(int argc, char* argv[])
 #if defined(__BCPLUSPLUS__) && (__BCPLUSPLUS__ >= 0x0600)
             IceUtil::DummyBCC dummy;
 #endif
-            router->createSession(id, pw);
+            router()->createSession(id, pw);
             break;
         }
         catch(const Glacier2::PermissionDeniedException& ex)
         {
             cout << "permission denied:\n" << ex.reason << endl;
         }
+        catch(const Glacier2::CannotCreateSessionException ex)
+        {
+            cout << "cannot create session:\n" << ex.reason << endl;
+        }
     }
+    return session;
+}
 
-    IceUtil::TimerPtr timer = new IceUtil::Timer();
-    timer->scheduleRepeated(new PingTask(router), IceUtil::Time::milliSeconds(router->getSessionTimeout() * 500));
+int
+CallbackClient::runWithSession(int argc, char* argv[])
+{
+    if(argc > 1)
+    {
+        cerr << appName() << ": too many arguments" << endl;
+        return EXIT_FAILURE;
+    }
     
-    Ice::Identity callbackReceiverIdent;
-    callbackReceiverIdent.name = "callbackReceiver";
-    callbackReceiverIdent.category = router->getCategoryForClient();
+    Ice::Identity callbackReceiverIdent = createCallbackIdentity("callbackReceiver");
+
     Ice::Identity callbackReceiverFakeIdent;
     callbackReceiverFakeIdent.name = "callbackReceiver";
     callbackReceiverFakeIdent.category = "fake";
@@ -146,12 +114,13 @@ CallbackClient::run(int argc, char* argv[])
     CallbackPrx oneway = CallbackPrx::uncheckedCast(twoway->ice_oneway());
     CallbackPrx batchOneway = CallbackPrx::uncheckedCast(twoway->ice_batchOneway());
     
-    Ice::ObjectAdapterPtr adapter = communicator()->createObjectAdapterWithRouter("Callback.Client", defaultRouter);
-    adapter->add(new CallbackReceiverI, callbackReceiverIdent);
-    adapter->add(new CallbackReceiverI, callbackReceiverFakeIdent); // Should never be called for the fake identity. 
-    adapter->activate();
+    objectAdapter()->add(new CallbackReceiverI, callbackReceiverIdent);
+    
+    // Should never be called for the fake identity. 
+    objectAdapter()->add(new CallbackReceiverI, callbackReceiverFakeIdent);
 
-    CallbackReceiverPrx twowayR = CallbackReceiverPrx::uncheckedCast(adapter->createProxy(callbackReceiverIdent));
+    CallbackReceiverPrx twowayR = CallbackReceiverPrx::uncheckedCast(
+                                           objectAdapter()->createProxy(callbackReceiverIdent));
     CallbackReceiverPrx onewayR = CallbackReceiverPrx::uncheckedCast(twowayR->ice_oneway());
 
     string override;
@@ -255,27 +224,6 @@ CallbackClient::run(int argc, char* argv[])
         }
     }
     while(cin.good() && c != 'x');
-
-    //
-    // Destroy the timer before the router session is destroyed,
-    // otherwise it might get a spurious ObjectNotExistException.
-    //
-    timer->destroy();
-
-    try
-    {
-        router->destroySession();
-    }
-    catch(const Glacier2::SessionNotExistException& ex)
-    {
-        cerr << ex << endl;
-    }
-    catch(const Ice::ConnectionLostException&)
-    {
-        //
-        // Expected: the router closed the connection.
-        //
-    }
 
     
     return EXIT_SUCCESS;

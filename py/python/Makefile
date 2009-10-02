@@ -93,7 +93,7 @@ Ice_%_ice.py: $(slicedir)/Ice/%.ice
 	$(SLICE2PY) --prefix Ice_ --ice --no-package $(SLICE2PYFLAGS) $<
 
 Glacier2_%_ice.py: $(slicedir)/Glacier2/%.ice
-	$(SLICE2PY) --prefix Glacier2_ --checksum $(SLICE2PYFLAGS) $<
+	$(SLICE2PY) --prefix Glacier2_ --no-package --checksum $(SLICE2PYFLAGS) $<
 
 IceBox_%_ice.py: $(slicedir)/IceBox/%.ice
 	$(SLICE2PY) --prefix IceBox_ --ice --checksum $(SLICE2PYFLAGS) $<

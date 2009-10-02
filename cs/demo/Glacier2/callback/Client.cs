@@ -21,51 +21,8 @@ using System.Reflection;
 
 public class Client
 {
-    public class App : Ice.Application
+    public class App : Glacier2.Application
     {
-        class SessionRefreshThread
-        {
-            public SessionRefreshThread(Glacier2.RouterPrx router, int timeout)
-            {
-                _router = router;
-                _timeout = timeout;
-                _terminated = false;
-            }
-
-            public void run()
-            {
-                lock(this)
-                {
-                    while(!_terminated)
-                    {
-                        Monitor.Wait(this, _timeout);
-                        if(!_terminated)
-                        {
-                            try
-                            {
-                                _router.refreshSession();
-                            }
-                            catch(Ice.Exception)
-                            {
-                            }
-                        }
-                    }
-                }
-            }
-
-            public void terminate()
-            {
-                lock(this)
-                {
-                    _terminated = true;
-                    Monitor.Pulse(this);
-                }
-            }
-
-            private Glacier2.RouterPrx _router;
-            private int _timeout;
-            private bool _terminated;
-        }
         private static void menu()
         {
             Console.WriteLine(
@@ -81,7 +38,49 @@ public class Client
                 "?: help\n");
         }
 
-        public override int run(string[] args)
+        public override Glacier2.SessionPrx createSession()
+        {
+            Glacier2.SessionPrx session;
+            while(true)
+            {
+                Console.WriteLine("This demo accepts any user-id / password combination.");
+
+                String id;
+                String pw;
+                try
+                {
+                    Console.Write("user id: ");
+                    Console.Out.Flush();
+                    id = Console.In.ReadLine().Trim();
+
+                    Console.Write("password: ");
+                    Console.Out.Flush();
+                    pw = Console.In.ReadLine().Trim();
+                }
+                catch(System.IO.IOException ex)
+                {
+                    Console.WriteLine(ex.StackTrace.ToString());
+                    continue;
+                }
+
+                try
+                {
+                    session = router().createSession(id, pw);
+                    break;
+                }
+                catch(Glacier2.PermissionDeniedException ex)
+                {
+                    Console.WriteLine("permission denied:\n" + ex.reason);
+                }
+                catch(Glacier2.CannotCreateSessionException ex)
+                {
+                    Console.WriteLine("cannot create session:\n" + ex.reason);
+                }
+            }
+            return session;
+        }
+
+        public override int runWithSession(string[] args)
         {
             if(args.Length > 0)
             {
@@ -89,73 +88,20 @@ public class Client
                 return 1;
             }
 
-            Ice.RouterPrx defaultRouter = communicator().getDefaultRouter();
-            if(defaultRouter == null)
-            {
-                Console.Error.WriteLine("no default router set");
-                return 1;
-            }
 
-            Glacier2.RouterPrx router = Glacier2.RouterPrxHelper.checkedCast(defaultRouter);
-            if(router == null)
-            {
-                Console.Error.WriteLine("configured router is not a Glacier2 router");
-                return 1;
-            }
-
-            while(true)
-            {
-                Console.WriteLine("This demo accepts any user-id / password combination.");
-
-                String id;
-                Console.Write("user id: ");
-                Console.Out.Flush();
-                id = Console.In.ReadLine();
-
-                String pw;
-                Console.Write("password: ");
-                Console.Out.Flush();
-                pw = Console.In.ReadLine();
-
-                try
-                {
-                    router.createSession(id, pw);
-                    break;
-                }
-                catch(Glacier2.PermissionDeniedException ex)
-                {
-                    Console.Write("permission denied:\n" + ex.reason);
-                }
-                catch(Glacier2.CannotCreateSessionException ex)
-                {
-                    Console.Write("cannot create session:\n" + ex.reason);
-                }
-            }
-
-            SessionRefreshThread refresh = new SessionRefreshThread(router, (int)router.getSessionTimeout() * 500);
-            Thread refreshThread = new Thread(new ThreadStart(refresh.run));
-            refreshThread.Start();
-
-            String category = router.getCategoryForClient();
-            Ice.Identity callbackReceiverIdent = new Ice.Identity();
-            callbackReceiverIdent.name = "callbackReceiver";
-            callbackReceiverIdent.category = category;
-            Ice.Identity callbackReceiverFakeIdent = new Ice.Identity();
-            callbackReceiverFakeIdent.name = "callbackReceiver";
-            callbackReceiverFakeIdent.category = "fake";
+            Ice.Identity callbackReceiverIdent = createCallbackIdentity("callbackReceiver");
+            Ice.Identity callbackReceiverFakeIdent = new Ice.Identity("fake", "callbackReceiver");
 
             Ice.ObjectPrx @base = communicator().propertyToProxy("Callback.Proxy");
             CallbackPrx twoway = CallbackPrxHelper.checkedCast(@base);
             CallbackPrx oneway = CallbackPrxHelper.uncheckedCast(twoway.ice_oneway());
             CallbackPrx batchOneway = CallbackPrxHelper.uncheckedCast(twoway.ice_batchOneway());
 
-            Ice.ObjectAdapter adapter = communicator().createObjectAdapterWithRouter("Callback.Client", defaultRouter);
-            adapter.add(new CallbackReceiverI(), callbackReceiverIdent);
-            adapter.add(new CallbackReceiverI(), callbackReceiverFakeIdent);
-            adapter.activate();
+            objectAdapter().add(new CallbackReceiverI(), callbackReceiverFakeIdent);
 
             CallbackReceiverPrx twowayR = CallbackReceiverPrxHelper.uncheckedCast(
-                adapter.createProxy(callbackReceiverIdent));
+                                                    objectAdapter().add(new CallbackReceiverI(), callbackReceiverIdent));
+
             CallbackReceiverPrx onewayR = CallbackReceiverPrxHelper.uncheckedCast(twowayR.ice_oneway());
 
             menu();
@@ -274,25 +220,6 @@ public class Client
             // is set to 0 so that if session.destroy() raises an exception
             // the thread will not be re-terminated and re-joined.
             //
-            refresh.terminate();
-            refreshThread.Join();
-            refresh = null;
-
-            try
-            {
-                router.destroySession();
-            }
-            catch(Glacier2.SessionNotExistException ex)
-            {
-                Console.Error.WriteLine(ex);
-            }
-            catch(Ice.ConnectionLostException)
-            {
-                //
-                // Expected: the router closed the connection.
-                //
-            }
-
             return 0;
         }
     }

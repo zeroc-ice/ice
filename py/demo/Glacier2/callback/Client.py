@@ -9,7 +9,6 @@
 # **********************************************************************
 
 import sys, threading, Ice, Glacier2
-
 Ice.loadSlice('Callback.ice')
 import Demo
 
@@ -27,72 +26,35 @@ x: exit
 ?: help
 """
 
-class SessionRefreshThread(threading.Thread):
-    def __init__(self, router, timeout):
-        threading.Thread.__init__(self)
-        self._router = router
-        self._timeout = timeout
-        self._terminated = False
-        self._cond = threading.Condition()
-
-    def run(self):
-        self._cond.acquire()
-        try:
-            while not self._terminated:
-                self._cond.wait(self._timeout)
-                if not self._terminated:
-                    try:
-                        self._router.refreshSession()
-                    except Ice.LocalException, ex:
-                        pass
-        finally:
-            self._cond.release()
-
-    def terminate(self):
-        self._cond.acquire()
-        try:
-            self._terminated = True
-            self._cond.notify()
-        finally:
-            self._cond.release()
-
 class CallbackReceiverI(Demo.CallbackReceiver):
     def callback(self, current=None):
         print "received callback"
 
-class Client(Ice.Application):
-    def run(self, args):
-        if len(args) > 1:
-            print self.appName() + ": too many arguments"
-            return 1
+class Client(Glacier2.Application):
 
-        defaultRouter = self.communicator().getDefaultRouter()
-        if not defaultRouter:
-            print self.appName() + ": no default router set"
-            return 1
 
-        router = Glacier2.RouterPrx.checkedCast(defaultRouter)
-        if not router:
-            print self.appName() + ": configured router is not a Glacier2 router"
-            return 1
-
+    def createSession(self):
+        session = None
         while True:
             print "This demo accepts any user-id / password combination."
             id = raw_input("user id: ")
             pw = raw_input("password: ")
             try:
-                router.createSession(id, pw)
+                session = self.router().createSession(id, pw)
                 break
             except Glacier2.PermissionDeniedException, ex:
                 print "permission denied:\n" + ex.reason
+            except Glacier2.CannotCreateSessionException, ex:
+                print "cannot create session:\n" + ex.reason
+        return session
 
-        refresh = SessionRefreshThread(router, router.getSessionTimeout() / 2.0)
-        refresh.start()
+    def runWithSession(self, args):
+        if len(args) > 1:
+            print self.appName() + ": too many arguments"
+            return 1
 
-        category = router.getCategoryForClient()
-        callbackReceiverIdent = Ice.Identity()
-        callbackReceiverIdent.name = "callbackReceiver"
-        callbackReceiverIdent.category = category
+        callbackReceiverIdent =  self.createCallbackIdentity("callbackReceiver")
+
         callbackReceiverFakeIdent = Ice.Identity()
         callbackReceiverFakeIdent.name = "callbackReceiver"
         callbackReceiverFakeIdent.category = "fake"
@@ -102,12 +64,11 @@ class Client(Ice.Application):
         oneway = Demo.CallbackPrx.uncheckedCast(twoway.ice_oneway())
         batchOneway = Demo.CallbackPrx.uncheckedCast(twoway.ice_batchOneway())
 
-        adapter = self.communicator().createObjectAdapterWithRouter("Callback.Client", defaultRouter)
-        adapter.add(CallbackReceiverI(), callbackReceiverIdent)
-        adapter.add(CallbackReceiverI(), callbackReceiverFakeIdent)
-        adapter.activate()
 
-        twowayR = Demo.CallbackReceiverPrx.uncheckedCast(adapter.createProxy(callbackReceiverIdent))
+        self.objectAdapter().add(CallbackReceiverI(), callbackReceiverIdent)
+        self.objectAdapter().add(CallbackReceiverI(), callbackReceiverFakeIdent)
+
+        twowayR = Demo.CallbackReceiverPrx.uncheckedCast(self.objectAdapter().createProxy(callbackReceiverIdent))
         onewayR = Demo.CallbackReceiverPrx.uncheckedCast(twowayR.ice_oneway())
 
         override = ''
@@ -168,24 +129,6 @@ class Client(Ice.Application):
                 break
             except EOFError:
                 break
-
-        #
-        # The refresher thread must be terminated before destroy is
-        # called, otherwise it might get ObjectNotExistException. refresh
-        # is set to 0 so that if session->destroy() raises an exception
-        # the thread will not be re-terminated and re-joined.
-        #
-        refresh.terminate()
-        refresh.join()
-        refresh = None
-
-        try:
-            router.destroySession()
-        except Glacier2.SessionNotExistException, ex:
-            print ex
-        except Ice.ConnectionLostException:
-            # Expected: the router closed the connection.
-            pass
 
         return 0
 

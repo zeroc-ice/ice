@@ -9,57 +9,8 @@
 
 import Demo.*;
 
-public class Client extends Ice.Application
+public class Client extends Glacier2.Application
 {
-
-    static private class SessionRefreshThread extends Thread
-    {
-        SessionRefreshThread(Glacier2.RouterPrx router, long timeout)
-        {
-            _router = router;
-            _timeout = timeout;
-        }
-
-        synchronized public void
-        run()
-        {
-            while(!_terminated)
-            {
-                try
-                {
-                    wait(_timeout);
-                }
-                catch(InterruptedException e)
-                {
-                }
-                if(!_terminated)
-                {
-                    try
-                    {
-                        _router.refreshSession();
-                    }
-                    catch(Glacier2.SessionNotExistException ex)
-                    {
-                    }
-                    catch(Ice.LocalException ex)
-                    {
-                    }
-                }
-            }
-        }
-
-        synchronized private void
-        terminate()
-        {
-            _terminated = true;
-            notify();
-        }
-
-        final private Glacier2.RouterPrx _router;
-        final private long _timeout;
-        private boolean _terminated = false;
-    }
-
     class ShutdownHook extends Thread
     {
         public void
@@ -88,12 +39,62 @@ public class Client extends Ice.Application
             "v: set/reset override context field\n" +
             "F: set/reset fake category\n" +
             "s: shutdown server\n" +
+            "r: restart the session\n" +
             "x: exit\n" +
             "?: help\n");
     }
 
+    public void sessionDestroyed()
+    {
+        System.out.println("The Glacier2 session has been destroyed.");
+    }
+
+    public Glacier2.SessionPrx createSession()
+    {
+        Glacier2.SessionPrx session;
+        while(true)
+        {
+            java.io.BufferedReader in = new java.io.BufferedReader(new java.io.InputStreamReader(System.in));
+            System.out.println("This demo accepts any user-id / password combination.");
+
+            String id;
+            String pw;
+            try
+            {
+                System.out.print("user id: ");
+                System.out.flush();
+                id = in.readLine();
+
+                System.out.print("password: ");
+                System.out.flush();
+                pw = in.readLine();
+            }
+            catch(java.io.IOException ex)
+            {
+                ex.printStackTrace();
+                continue;
+            }
+
+            try
+            {
+                session = router().createSession(id, pw);
+                break;
+            }
+            catch(Glacier2.PermissionDeniedException ex)
+            {
+                System.out.println("permission denied:\n" + ex.reason);
+            }
+            catch(Glacier2.CannotCreateSessionException ex)
+            {
+                System.out.println("cannot create session:\n" + ex.reason);
+            }
+        }
+        return session;
+    }
+
     public int
-    run(String[] args)
+    runWithSession(String[] args)
+        throws RestartSessionException
     {
         if(args.length > 0)
         {
@@ -108,98 +109,48 @@ public class Client extends Ice.Application
         //
         setInterruptHook(new ShutdownHook());
 
-        Ice.RouterPrx defaultRouter = communicator().getDefaultRouter();
-        if(defaultRouter == null)
+        try
         {
-            System.err.println("no default router set");
-            return 1;
-        }
-        
-        Glacier2.RouterPrx router = Glacier2.RouterPrxHelper.checkedCast(defaultRouter);
-        if(router == null)
-        {
-            System.err.println("configured router is not a Glacier2 router");
-            return 1;
-        }
+            Ice.Identity callbackReceiverIdent = createCallbackIdentity("callbackReceiver");
+            Ice.Identity callbackReceiverFakeIdent = new Ice.Identity("fake", "callbackReceiver");
 
-        java.io.BufferedReader in = new java.io.BufferedReader(new java.io.InputStreamReader(System.in));
-        while(true)
-        {
-            System.out.println("This demo accepts any user-id / password combination.");
+            Ice.ObjectPrx base = communicator().propertyToProxy("Callback.Proxy");
+            CallbackPrx twoway = CallbackPrxHelper.checkedCast(base);
+            CallbackPrx oneway = CallbackPrxHelper.uncheckedCast(twoway.ice_oneway());
+            CallbackPrx batchOneway = CallbackPrxHelper.uncheckedCast(twoway.ice_batchOneway());
 
-            try
-            {
-                String id;
-                System.out.print("user id: ");
-                System.out.flush();
-                id = in.readLine();
-                
-                String pw;
-                System.out.print("password: ");
-                System.out.flush();
-                pw = in.readLine();
-                
-                try
-                {
-                    router.createSession(id, pw);
-                    break;
-                }
-                catch(Glacier2.PermissionDeniedException ex)
-                {
-                    System.out.println("permission denied:\n" + ex.reason);
-                }
-                catch(Glacier2.CannotCreateSessionException ex)
-                {
-                    System.out.println("cannot create session:\n" + ex.reason);
-                }
-            }
-            catch(java.io.IOException ex)
-            {
-                ex.printStackTrace();
-            }
-        }
+            objectAdapter().add(new CallbackReceiverI(), callbackReceiverFakeIdent);
 
-        SessionRefreshThread refresh = new SessionRefreshThread(router, router.getSessionTimeout() * 500);
-        refresh.start();
+            CallbackReceiverPrx twowayR = CallbackReceiverPrxHelper.uncheckedCast(
+                objectAdapter().add(new CallbackReceiverI(), callbackReceiverIdent));
+            CallbackReceiverPrx onewayR = CallbackReceiverPrxHelper.uncheckedCast(twowayR.ice_oneway());
 
-        String category = router.getCategoryForClient();
-        Ice.Identity callbackReceiverIdent = new Ice.Identity();
-        callbackReceiverIdent.name = "callbackReceiver";
-        callbackReceiverIdent.category = category;
-        Ice.Identity callbackReceiverFakeIdent = new Ice.Identity();
-        callbackReceiverFakeIdent.name = "callbackReceiver";
-        callbackReceiverFakeIdent.category = "fake";
 
-        Ice.ObjectPrx base = communicator().propertyToProxy("Callback.Proxy");
-        CallbackPrx twoway = CallbackPrxHelper.checkedCast(base);
-        CallbackPrx oneway = CallbackPrxHelper.uncheckedCast(twoway.ice_oneway());
-        CallbackPrx batchOneway = CallbackPrxHelper.uncheckedCast(twoway.ice_batchOneway());
+            menu();
 
-        Ice.ObjectAdapter adapter = communicator().createObjectAdapterWithRouter("Callback.Client", defaultRouter);
-        adapter.add(new CallbackReceiverI(), callbackReceiverIdent);
-        adapter.add(new CallbackReceiverI(), callbackReceiverFakeIdent);
-        adapter.activate();
-
-        CallbackReceiverPrx twowayR = CallbackReceiverPrxHelper.uncheckedCast(
-            adapter.createProxy(callbackReceiverIdent));
-        CallbackReceiverPrx onewayR = CallbackReceiverPrxHelper.uncheckedCast(twowayR.ice_oneway());
-
-        menu();
-
-        String line = null;
-        String override = null;
-        boolean fake = false;
-        do
-        {
-            try
+            String line = null;
+            String override = null;
+            boolean fake = false;
+            java.io.BufferedReader in = new java.io.BufferedReader(new java.io.InputStreamReader(System.in));
+            do
             {
                 System.out.print("==> ");
                 System.out.flush();
-                line = in.readLine();
+                try
+                {
+                    line = in.readLine();
+                }
+                catch(java.io.IOException ex)
+                {
+                    ex.printStackTrace();
+                    line = null;
+                }
+
                 if(line == null)
                 {
                     break;
                 }
+
                 if(line.equals("t"))
                 {
                     java.util.Map<String, String> context = new java.util.HashMap<String, String>();
@@ -250,7 +201,7 @@ public class Client extends Ice.Application
                 else if(line.equals("F"))
                 {
                     fake = !fake;
-                    
+
                     if(fake)
                     {
                         twowayR = CallbackReceiverPrxHelper.uncheckedCast(
@@ -265,13 +216,17 @@ public class Client extends Ice.Application
                         onewayR = CallbackReceiverPrxHelper.uncheckedCast(
                             onewayR.ice_identity(callbackReceiverIdent));
                     }
-                    
+
                     System.out.println("callback receiver identity: " + 
-                                       communicator().identityToString(twowayR.ice_getIdentity()));
+                                    communicator().identityToString(twowayR.ice_getIdentity()));
                 }
                 else if(line.equals("s"))
                 {
                     twoway.shutdown();
+                }
+                else if(line.equals("r"))
+                {
+                    restart();
                 }
                 else if(line.equals("x"))
                 {
@@ -287,45 +242,12 @@ public class Client extends Ice.Application
                     menu();
                 }
             }
-            catch(java.io.IOException ex)
-            {
-                ex.printStackTrace();
-            }
-            catch(Ice.LocalException ex)
-            {
-                ex.printStackTrace();
-            }
-        }
-        while(!line.equals("x"));
-
-        //
-        // The refresher thread must be terminated before the session
-        // is destroyed, otherwise it might get
-        // ObjectNotExistException.
-        //
-        refresh.terminate();
-        try
-        {
-            refresh.join();
-        }
-        catch(InterruptedException e)
-        {
-        }
-        refresh = null;
-
-        try
-        {
-            router.destroySession();
+            while(!line.equals("x"));
         }
         catch(Glacier2.SessionNotExistException ex)
         {
-            ex.printStackTrace();
-        }
-        catch(Ice.ConnectionLostException ex)
-        {
-            //
-            // Expected: the router closed the connection.
-            //
+            System.err.println(appName() + ": " + ex.toString());
+            return 1;
         }
 
         return 0;

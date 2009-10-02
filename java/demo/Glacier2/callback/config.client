@@ -5,29 +5,10 @@
 Ice.Default.Router=DemoGlacier2/router:ssl -p 4064 -h 127.0.0.1
 
 #
-# We don't need any endpoints for the client if we use a
-# router. Incoming requests are received through connections
-# established from the client to the router.
-#
-Callback.Client.Endpoints=
-
-#
 # This must match the value of Callback.Server.Endpoints in
 # config.server.
 #
 Callback.Proxy=callback:tcp -h 127.0.0.1 -p 10000
-
-#
-# No active connection management is permitted with Glacier2.
-# Connections must remain established.
-#
-Ice.ACM.Client=0
-
-#
-# Connection retry is not possible with Glacier2. Connections must
-# remain established.
-#
-Ice.RetryIntervals=-1
 
 #
 # Warn about connection exceptions

@@ -25,6 +25,7 @@
         <ant dir="plugin"/>
         <ant dir="serialize"/>
         <ant dir="session"/>
+        <ant dir="swing"/>
         <ant dir="throughput"/>
         <ant dir="value"/>
     </target>
@@ -43,6 +44,7 @@
         <ant dir="plugin" target="clean"/>
         <ant dir="serialize" target="clean"/>
         <ant dir="session" target="clean"/>
+        <ant dir="swing" target="clean"/>
         <ant dir="throughput" target="clean"/>
         <ant dir="value" target="clean"/>
     </target>

@@ -154,7 +154,7 @@ interface Router extends Ice::Router
      * for the calling client.
      *
      **/
-    void refreshSession()
+    ["ami"] void refreshSession()
         throws SessionNotExistException;
 
     /**

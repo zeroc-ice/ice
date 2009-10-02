@@ -14,7 +14,10 @@ LIBNAME		= $(PKG).dll
 TARGETS		= $(bindir)\$(LIBNAME)
 POLICY_TARGET   = $(POLICY).dll
 
-SRCS		= AssemblyInfo.cs
+SRCS		= SessionFactoryHelper.cs \
+		  SessionHelper.cs \
+		  Application.cs \
+		  AssemblyInfo.cs
 
 GEN_SRCS	= $(GDIR)\PermissionsVerifier.cs \
 		  $(GDIR)\Router.cs \
@@ -28,7 +31,7 @@ GDIR		= generated
 
 MCSFLAGS	= $(MCSFLAGS) -target:library -out:$(TARGETS) -warnaserror-
 MCSFLAGS	= $(MCSFLAGS) -keyfile:$(KEYFILE)
-MCSFLAGS	= $(MCSFLAGS) /doc:$(bindir)\$(PKG).xml /nowarn:1591
+MCSFLAGS	= $(MCSFLAGS) /doc:$(bindir)\$(PKG).xml /nowarn:1591 -r:WindowsBase.dll
 
 SLICE2CSFLAGS	= $(SLICE2CSFLAGS) -I$(slicedir)
 

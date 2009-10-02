@@ -12,10 +12,40 @@
 
 #include <Ice/Ice.h>
 
+#include <IceUtil/Mutex.h>
+
+
 namespace Ice
 {
+    enum SignalPolicy { HandleSignals, NoSignalHandling } ;
+    class Application;
+}
 
-enum SignalPolicy { HandleSignals, NoSignalHandling } ;
+namespace IceInternal
+{
+    extern ICE_API IceUtil::Mutex* mutex;
+    extern ICE_API std::auto_ptr<IceUtil::Cond> _condVar;
+
+    //
+    // Variables than can change while run() and communicator->destroy() are running!
+    //
+    extern ICE_API bool _callbackInProgress;
+    extern ICE_API bool _destroyed;
+    extern ICE_API bool _interrupted;
+    
+    //
+    // Variables that are immutable during run() and until communicator->destroy() has returned;
+    // before and after run(), and once communicator->destroy() has returned, we assume that 
+    // only the main thread and CtrlCHandler threads are running.
+    //
+    extern ICE_API std::string _appName;
+    extern ICE_API Ice::CommunicatorPtr _communicator;
+    extern ICE_API Ice::SignalPolicy _signalPolicy;
+    extern ICE_API Ice::Application* _application;
+}
+
+namespace Ice
+{
 
 class ICE_API Application : private IceUtil::noncopyable
 {
@@ -96,9 +126,9 @@ public:
     //
     static bool interrupted();
 
-private:
+protected:
 
-    int mainInternal(int, char*[], const Ice::InitializationData&);
+    virtual int doMain(int, char*[], const Ice::InitializationData&);
 
 #if defined(__SUNPRO_CC)
 //

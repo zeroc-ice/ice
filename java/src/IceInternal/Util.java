@@ -138,14 +138,16 @@ public final class Util
     loadClass(String className, ClassLoader cl)
         throws LinkageError
     {
-        assert(cl != null);
-        try
+        if(cl != null)
         {
-            return cl.loadClass(className);
-        }
-        catch(ClassNotFoundException ex)
-        {
-            // Ignore
+            try
+            {
+                return cl.loadClass(className);
+            }
+            catch(ClassNotFoundException ex)
+            {
+                // Ignore
+            }
         }
 
         return null;

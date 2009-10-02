@@ -177,6 +177,12 @@ public abstract class Application
             Util.setProcessLogger(new LoggerI(initData.properties.getProperty("Ice.ProgramName"), ""));
         }
 
+        return doMain(argHolder, initData);
+    }
+
+    protected int
+    doMain(StringSeqHolder argHolder, Ice.InitializationData initData)
+    {
         int status = 0;
 
         try
@@ -427,7 +433,7 @@ public abstract class Application
     }
     
     /**
-     * Clears any shutdownn hooks, including any hook established with {@link #destroyOnInterrupt}code> or
+     * Clears any shutdown hooks, including any hook established with {@link #destroyOnInterrupt}code> or
      * {@link #shutdownOnInterrupt}.
      **/
     public static void
@@ -524,9 +530,10 @@ public abstract class Application
         }
     }
 
-    static class AppHook extends Thread
+    // For use by Glacier2.Application
+    static public class AppHook extends Thread
     {
-        void
+        public void
         done()
         {
             synchronized(_doneMutex)
@@ -642,12 +649,12 @@ public abstract class Application
         private Thread _hook;
     }
 
-    private static String _appName;
-    private static Communicator _communicator;
-    private static AppHook _appHook;
-    private static java.lang.Object _mutex = new java.lang.Object();
-    private static boolean _callbackInProgress = false;
-    private static boolean _destroyed = false;
-    private static boolean _interrupted = false;
-    private static SignalPolicy _signalPolicy = SignalPolicy.HandleSignals;
+    protected static String _appName;
+    protected static Communicator _communicator;
+    protected static AppHook _appHook;
+    protected static java.lang.Object _mutex = new java.lang.Object();
+    protected static boolean _callbackInProgress = false;
+    protected static boolean _destroyed = false;
+    protected static boolean _interrupted = false;
+    protected static SignalPolicy _signalPolicy = SignalPolicy.HandleSignals;
 }

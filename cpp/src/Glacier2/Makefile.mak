@@ -19,7 +19,8 @@ TARGETS         = $(LIBNAME) $(DLLNAME) $(ROUTER)
 OBJS		= PermissionsVerifier.obj \
 		  Router.obj \
 		  SSLInfo.obj \
-		  Session.obj
+		  Session.obj \
+          Application.obj
 
 ROBJS		= Blobject.obj \
 		  ClientBlobject.obj \
@@ -43,7 +44,7 @@ SDIR		= $(slicedir)\Glacier2
 
 !include $(top_srcdir)\config\Make.rules.mak
 
-CPPFLAGS	= -I.. $(CPPFLAGS) -DWIN32_LEAN_AND_MEAN
+CPPFLAGS	= -I.. $(CPPFLAGS) -DGLACIER2_API_EXPORTS -DWIN32_LEAN_AND_MEAN
 LINKWITH 	= $(LIBS) $(OPENSSL_LIBS) glacier2$(LIBSUFFIX).lib icessl$(LIBSUFFIX).lib
 !if "$(BCPLUSPLUS)" != "yes"
 LINKWITH	= $(LINKWITH) ws2_32.lib

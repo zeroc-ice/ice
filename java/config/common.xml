@@ -84,7 +84,7 @@
     </condition>
     <condition property="ice.dir" value="${ice.top.dir}/ice">
         <and>
-            <!-- Don't just look for ${ice.top.dir}/../java - we want to make sure we are really
+            <!-- Don't just look for ${ice.top.dir}/ice/java - we want to make sure we are really
                  in a source distribution. -->
             <not><isset property="ice.dir"/></not>
             <available file="${ice.top.dir}/ice/java/src/Ice/Util.java"/>

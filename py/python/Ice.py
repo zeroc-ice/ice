@@ -898,7 +898,7 @@ value is an integer representing the exit status.
             if Application._signalPolicy == Application.HandleSignals:
                 Application.destroyOnInterrupt()
 
-            status = self.run(args)
+            status = self.doMain(args, initData)
         except:
             getProcessLogger().error(traceback.format_exc())
             status = 1
@@ -943,6 +943,9 @@ value is an integer representing the exit status.
         Application._ctrlCHandler = None
 
         return status
+
+    def doMain(self, args, initData):
+        self.run(args)
 
     def run(self, args):
         '''This method must be overridden in a subclass. The base
