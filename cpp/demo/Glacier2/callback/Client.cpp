@@ -46,6 +46,7 @@ menu()
         "v: set/reset override context field\n"
         "F: set/reset fake category\n"
         "s: shutdown server\n"
+        "r: restart the session\n"
         "x: exit\n"
         "?: help\n";
 }
@@ -201,6 +202,10 @@ CallbackClient::runWithSession(int argc, char* argv[])
             else if(c == 's')
             {
                 twoway->shutdown();
+            }
+            else if(c == 'r')
+            {
+                restart()
             }
             else if(c == 'x')
             {

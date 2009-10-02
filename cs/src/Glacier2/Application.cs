@@ -359,7 +359,6 @@ public abstract class Application : Ice.Application
         // failure, etc).
         catch(RestartSessionException ex)
         {
-            Ice.Util.getProcessLogger().error(ex.ToString());
             restart = true;
         }
         catch(Ice.ConnectionRefusedException ex)

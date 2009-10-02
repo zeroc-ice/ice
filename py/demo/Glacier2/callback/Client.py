@@ -22,6 +22,7 @@ f: flush all batch requests
 v: set/reset override context field
 F: set/reset fake category
 s: shutdown server
+r: restart the session
 x: exit
 ?: help
 """
@@ -31,8 +32,6 @@ class CallbackReceiverI(Demo.CallbackReceiver):
         print "received callback"
 
 class Client(Glacier2.Application):
-
-
     def createSession(self):
         session = None
         while True:
@@ -53,7 +52,7 @@ class Client(Glacier2.Application):
             print self.appName() + ": too many arguments"
             return 1
 
-        callbackReceiverIdent =  self.createCallbackIdentity("callbackReceiver")
+        callbackReceiverIdent = self.createCallbackIdentity("callbackReceiver")
 
         callbackReceiverFakeIdent = Ice.Identity()
         callbackReceiverFakeIdent.name = "callbackReceiver"
@@ -64,8 +63,9 @@ class Client(Glacier2.Application):
         oneway = Demo.CallbackPrx.uncheckedCast(twoway.ice_oneway())
         batchOneway = Demo.CallbackPrx.uncheckedCast(twoway.ice_batchOneway())
 
-
         self.objectAdapter().add(CallbackReceiverI(), callbackReceiverIdent)
+
+        # Should never be called for the fake identity.
         self.objectAdapter().add(CallbackReceiverI(), callbackReceiverFakeIdent)
 
         twowayR = Demo.CallbackReceiverPrx.uncheckedCast(self.objectAdapter().createProxy(callbackReceiverIdent))
@@ -118,6 +118,8 @@ class Client(Glacier2.Application):
                         onewayR = Demo.CallbackReceiverPrx.uncheckedCast(twowayR.ice_identity(callbackReceiverIdent))
                 elif c == 's':
                     twoway.shutdown()
+                elif c == 'r':
+                    self.restart()
                 elif c == 'x':
                     pass # Nothing to do
                 elif c == '?':

@@ -11,18 +11,15 @@
 Glacier2 module
 """
 
-import sys, exceptions, string, imp, os, threading, warnings, datetime, traceback, copy
+import threading, traceback, copy
 
 #
 # Import the Python extension.
 #
-import IcePy
 import Ice
 
-import Glacier2_RouterF_ice
 import Glacier2_Router_ice
 import Glacier2_Session_ice
-import Glacier2_PermissionsVerifierF_ice
 import Glacier2_PermissionsVerifier_ice
 import Glacier2_SSLInfo_ice
 
@@ -35,11 +32,10 @@ class RestartSessionException(Exception):
         pass
 
 class AMI_Router_refreshSessionI:
-
     def __init__(self, app, pinger):
         self._app = app
         self._pinger = pinger
-    
+
     def ice_response(self):
         pass
 
@@ -51,31 +47,32 @@ class AMI_Router_refreshSessionI:
         self._pinger.done()
         self._app.sessionDestroyed()
 
-
 class SessionPingThread(threading.Thread):
-    def __init__(self, app, router, timeout):
+    def __init__(self, app, router, period):
         threading.Thread.__init__(self)
-        self._router = router
         self._app = app
-        self._timeout = timeout
-        self._terminated = False
+        self._router = router
+        self._period = period
+        self._done = False
         self._cond = threading.Condition()
 
     def run(self):
         self._cond.acquire()
         try:
-            while not self._terminated:
-                self._cond.wait(self._timeout)
-                if not self._terminated:
-                    self._router.refreshSession_async(AMI_Router_refreshSessionI(self._app, self))
+            while not self._done:
+                self._router.refreshSession_async(AMI_Router_refreshSessionI(self._app, self))
+
+                if not self._done:
+                    self._cond.wait(self._period)
         finally:
             self._cond.release()
 
     def done(self):
         self._cond.acquire()
         try:
-            self._terminated = True
-            self._cond.notify()
+            if not self._done:
+                self._done = True
+                self._cond.notify()
         finally:
             self._cond.release()
 
@@ -87,17 +84,19 @@ whether to handle signals. The value should be either
 Application.HandleSignals (the default) or
 Application.NoSignalHandling.
 '''
-        self._router = None
-        self._session = None
-        self._adapter = None
-        self._createdSession = False
 
         if type(self) == Application:
             raise RuntimeError("Glacier2.Application is an abstract class")
+
         Ice.Application.__init__(self, signalPolicy)
- 
+
+        Application._adapter = None
+        Application._router = None
+        Application._session = None
+        Application._createdSession = False
+
     def run(self, args):
-        raise RuntimeError('run should not be called on Galcier2.Application instead runWithSession should be used')
+        raise RuntimeError('run should not be called on Glacier2.Application - call runWithSession instead')
 
     def runWithSession(self, args):
         raise RuntimeError('runWithSession() not implemented')
@@ -106,21 +105,23 @@ Application.NoSignalHandling.
         raise RuntimeError('createSession() not implemented')
 
     def restart(self):
-        raise RestartException()
+        raise RestartSessionException()
 
     def sessionDestroyed(self):
         pass
 
     def router(self):
-        return self._router
+        return Application._router
+    router = classmethod(router)
 
     def session(self):
-        return self._session
+        return Application._session
+    session = classmethod(session)
 
     def categoryForClient(self):
-        if self._router == None:
+        if Application._router == None:
             raise SessionNotExistException()
-        return self._router.getCategoryForClient()
+        return Application._router.getCategoryForClient()
 
     def createCallbackIdentity(self, name):
         return Ice.Identity(name, self.categoryForClient())
@@ -129,15 +130,18 @@ Application.NoSignalHandling.
         return objectAdapter().add(servant, createCallbackIdentity(Ice.generateUUID()))
 
     def objectAdapter(self):
-        if self._adapter == None:
+        if Application._adapter == None:
+            if Application._router == None:
+                raise SessionNotExistException()
             # TODO: Depending on the resolution of
             # http://bugzilla/bugzilla/show_bug.cgi?id=4264 the OA
             # name could be an empty string.
-            self._adapter = self.communicator().createObjectAdapterWithRouter(Ice.generateUUID(), self.router())
-            self._adapter.activate();
-        return self._adapter
+            uuid = Ice.generateUUID()
+            Application._adapter = self.communicator().createObjectAdapterWithRouter(uuid, Application._router)
+            Application._adapter.activate()
+        return Application._adapter
 
-    def doMainInternal(self, args, initData, status):
+    def doMainInternal(self, args, initData):
         # Reset internal state variables from Ice.Application. The
         # remainder are reset at the end of this method.
         Ice.Application._callbackInProgress = False
@@ -149,12 +153,12 @@ Application.NoSignalHandling.
 
         ping = None
         try:
-            Ice.Application._communicator = Ice.initialize(args, initData);
-            self._router = RouterPrx.uncheckedCast(Ice.Application.communicator().getDefaultRouter())
-            
-            if self._router == None:
-                Ice.getProcessLogger().error("no glacier2 router configured");
-                status = 1;
+            Ice.Application._communicator = Ice.initialize(args, initData)
+
+            Application._router = RouterPrx.uncheckedCast(Ice.Application.communicator().getDefaultRouter())
+            if Application._router == None:
+                Ice.getProcessLogger().error("no glacier2 router configured")
+                status = 1
             else:
                 #
                 # The default is to destroy when a signal is received.
@@ -164,102 +168,100 @@ Application.NoSignalHandling.
 
                 # If createSession throws, we're done.
                 try:
-                    self._session = self.createSession()
-                    self._createdSession = True
-                except Ice.LocalException as (ex):
+                    Application._session = self.createSession()
+                    Application._createdSession = True
+                except Ice.LocalException:
                     Ice.getProcessLogger().error(traceback.format_exc())
-                    status = 1;
+                    status = 1
 
-                if self._createdSession:
-                    ping = SessionPingThread(self, self._router, self._router.getSessionTimeout() / 2)
-                    ping.start();
+                if Application._createdSession:
+                    ping = SessionPingThread(self, Application._router, Application._router.getSessionTimeout() / 2)
+                    ping.start()
                     status = self.runWithSession(args)
 
         # We want to restart on those exceptions which indicate a
         # break down in communications, but not those exceptions that
         # indicate a programming logic error (ie: marshal, protocol
         # failure, etc).
-        except(RestartSessionException, Ice.ConnectionLostException, Ice.ConnectionLostException, \
-                Ice.UnknownLocalException, Ice.RequestFailedException, Ice.TimeoutException) as (ex):
+        except(RestartSessionException):
+            restart = True
+        except(Ice.ConnectionRefusedException, Ice.ConnectionLostException, Ice.UnknownLocalException, \
+               Ice.RequestFailedException, Ice.TimeoutException):
             Ice.getProcessLogger().error(traceback.format_exc())
+            restart = True
         except:
             Ice.getProcessLogger().error(traceback.format_exc())
             status = 1
-
-
-        if self._createdSession and self._router != None:
-            try:
-                self._router.destroySession();
-            except (Ice.ConnectionLostException, SessionNotExistException):
-                pass
-            except:
-                Ice.getProcessLogger().error(traceback.format_exc())
 
         #
         # Don't want any new interrupt and at this point (post-run),
         # it would not make sense to release a held signal to run
         # shutdown or destroy.
         #
-        if Application._signalPolicy == Application.HandleSignals:
-            Application.ignoreInterrupt()
+        if Ice.Application._signalPolicy == Ice.Application.HandleSignals:
+            Ice.Application.ignoreInterrupt()
 
-        Application._condVar.acquire()
-        while Application._callbackInProgress:
-            Application._condVar.wait()
-        if Application._destroyed:
-            Application._communicator = None
+        Ice.Application._condVar.acquire()
+        while Ice.Application._callbackInProgress:
+            Ice.Application._condVar.wait()
+        if Ice.Application._destroyed:
+            Ice.Application._communicator = None
         else:
-            Application._destroyed = True
+            Ice.Application._destroyed = True
             #
-            # And _communicator != 0, meaning will be destroyed
-            # next, _destroyed = true also ensures that any
+            # And _communicator != None, meaning will be destroyed
+            # next, _destroyed = True also ensures that any
             # remaining callback won't do anything
             #
-        Application._application = None
-        Application._condVar.release()
+        Ice.Application._condVar.release()
 
-        if Application._communicator:
+        if ping:
+            ping.done()
+            ping.join()
+
+        if Application._createdSession and Application._router:
             try:
-                Application._communicator.destroy()
+                Application._router.destroySession()
+            except (Ice.ConnectionLostException, SessionNotExistException):
+                pass
+            except:
+                Ice.getProcessLogger().error("unexpected exception when destroying the session " + \
+                                             traceback.format_exc())
+            Application._router = None
+
+        if Ice.Application._communicator:
+            try:
+                Ice.Application._communicator.destroy()
             except:
                 getProcessLogger().error(traceback.format_exc())
                 status = 1
 
-            Application._communicator = None
-
-        #
-        # Set _ctrlCHandler to 0 only once communicator.destroy() has
-        # completed.
-        # 
-        Application._ctrlCHandler.destroy()
-        Application._ctrlCHandler = None
-
-        if ping != None:
-            ping.done()
+            Ice.Application._communicator = None
 
         # Reset internal state. We cannot reset the Application state
         # here, since _destroyed must remain true until we re-run
         # this method.
-        self._adapter = None
-        self._router = None
-        self._session = None
-        self._createdSession = False
-        
-        return restart
+        Application._adapter = None
+        Application._router = None
+        Application._session = None
+        Application._createdSession = False
+
+        return (restart, status)
 
     def doMain(self, args, initData):
-        initData.properties.setProperty("Ice.ACM.Client", "0");
-        initData.properties.setProperty("Ice.RetryIntervals", "-1");
+        # Set the default properties for all Glacier2 applications.
+        initData.properties.setProperty("Ice.ACM.Client", "0")
+        initData.properties.setProperty("Ice.RetryIntervals", "-1")
 
-        restart = True;
-        ret = 0;
+        restart = True
+        ret = 0
         while restart:
             # A copy of the initialization data and the string seq
             # needs to be passed to doMainInternal, as these can be
             # changed by the application.
             id = copy.copy(initData)
-            if id.properties != None:
+            if id.properties:
                 id.properties = id.properties.clone()
             argsCopy = args[:]
-            restart = self.doMainInternal(argsCopy, initData, ret)
-        return ret;
+            (restart, ret) = self.doMainInternal(argsCopy, initData)
+        return ret

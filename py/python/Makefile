@@ -85,7 +85,7 @@ ALL_SRCS	= $(ICE_SRCS) \
 		  $(ICEPATCH2_SRCS) \
 		  $(ICESTORM_SRCS)
 
-PACKAGES	= Glacier2 IceBox IceGrid IcePatch2 IceStorm
+PACKAGES	= IceBox IceGrid IcePatch2 IceStorm
 
 all:: $(ALL_SRCS)
 

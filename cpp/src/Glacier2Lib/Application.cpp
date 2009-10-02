@@ -322,7 +322,7 @@ Glacier2::Application::doMain(Ice::StringSeq& args, const Ice::InitializationDat
     catch(...)
     {
         Error out(getProcessLogger());
-        out << IceInternal::_appName << ": unknow exception ";
+        out << IceInternal::_appName << ": unknown exception";
         status = 1;
     }
 
