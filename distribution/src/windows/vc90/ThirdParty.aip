@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<DOCUMENT type="Advanced Installer" CreateVersion="6.9.1" version="7.1.3" modules="enterprise" RootPath=".." Language="en">
+<DOCUMENT type="Advanced Installer" CreateVersion="6.9.1" version="7.2.1" modules="enterprise" RootPath=".." Language="en">
   <COMPONENT cid="caphyon.advinst.msicomp.MsiPropsComponent">
     <ROW Property="AI_UPGRADE" Value="No"/>
     <ROW Property="ALLUSERS" Value="2"/>
@@ -64,12 +64,12 @@
     <ROW Component="db_verify.exe" ComponentId="{453D1B15-9DBD-4E7D-82D7-B75376ACC1D1}" Directory_="bin_DIR" Attributes="0" KeyPath="db_verify.exe"/>
     <ROW Component="db_verify.exe_1" ComponentId="{0E764B8C-B404-46FA-85DB-D0A8A2A35395}" Directory_="x64_DIR" Attributes="256" KeyPath="db_verify.exe_1"/>
     <ROW Component="libbz2.lib" ComponentId="{994005EB-B1F9-4402-9190-13D07F32438A}" Directory_="x64_1_DIR" Attributes="0" KeyPath="ssleay32.lib_1" Type="0"/>
-    <ROW Component="libdb47.dll" ComponentId="{5350D7D7-FB68-4FCE-817A-227E2AEA2B1D}" Directory_="bin_DIR" Attributes="0" KeyPath="libdb47.dll"/>
-    <ROW Component="libdb47.dll_1" ComponentId="{BEC04A28-AE31-4ED4-8934-7315F931BA4D}" Directory_="x64_DIR" Attributes="256" KeyPath="libdb47.dll_1"/>
-    <ROW Component="libdb47d.dll" ComponentId="{2B1F263E-F37B-4ED5-9D04-AA7B1445717F}" Directory_="bin_DIR" Attributes="0" KeyPath="libdb47d.dll"/>
-    <ROW Component="libdb47d.dll_1" ComponentId="{C909A4F1-D169-4934-AED1-E7318AE6D881}" Directory_="x64_DIR" Attributes="256" KeyPath="libdb47d.dll_1"/>
-    <ROW Component="libdb_java47.dll" ComponentId="{3BD3B6D7-86F0-428D-8BD7-A8E697FE6C0B}" Directory_="bin_DIR" Attributes="0" KeyPath="libdb_java47.dll"/>
-    <ROW Component="libdb_java47.dll_1" ComponentId="{304F6790-E3CD-459F-8B51-CA8F18925364}" Directory_="x64_DIR" Attributes="256" KeyPath="libdb_java47.dll_1"/>
+    <ROW Component="libdb48.dll" ComponentId="{3EC53248-9D84-44DD-B89B-A0FFF3EF3A94}" Directory_="bin_DIR" Attributes="256" KeyPath="libdb48.dll"/>
+    <ROW Component="libdb48.dll_1" ComponentId="{02FA48F7-AA76-419F-8767-96FF0FEDEA99}" Directory_="x64_DIR" Attributes="256" KeyPath="libdb48.dll_1"/>
+    <ROW Component="libdb48d.dll" ComponentId="{03C2C5A4-0F20-487F-A80E-53B1289DED7C}" Directory_="bin_DIR" Attributes="256" KeyPath="libdb48d.dll"/>
+    <ROW Component="libdb48d.dll_1" ComponentId="{BA10E3A2-4D62-44E8-BA6C-C0DA0FA673BD}" Directory_="x64_DIR" Attributes="256" KeyPath="libdb48d.dll_1"/>
+    <ROW Component="libdb_java48.dll" ComponentId="{C3B99C2C-E8A8-46C7-990B-4510A627C9B8}" Directory_="bin_DIR" Attributes="256" KeyPath="libdb_java48.dll"/>
+    <ROW Component="libdb_java48.dll_1" ComponentId="{3C3BDD3F-4C69-480C-AC43-A55DC2ED99D2}" Directory_="x64_DIR" Attributes="256" KeyPath="libdb_java48.dll_1"/>
     <ROW Component="libeay32.dll" ComponentId="{F897FA6D-0DFB-4D1C-945B-E79D486444AA}" Directory_="bin_DIR" Attributes="0" KeyPath="libeay32.dll"/>
     <ROW Component="libeay32.dll_1" ComponentId="{86DDC6C0-13F8-4798-BF6C-132D7EEAA768}" Directory_="x64_DIR" Attributes="256" KeyPath="libeay32.dll_1"/>
     <ROW Component="libexpat.dll" ComponentId="{114AF361-D776-4490-84BB-A0194B8740A8}" Directory_="bin_DIR" Attributes="0" KeyPath="libexpat.dll"/>
@@ -80,7 +80,7 @@
     <ROW Component="ssleay32.dll_1" ComponentId="{61CF92AE-E594-4AB1-8DD6-256D1F903D0C}" Directory_="x64_DIR" Attributes="256" KeyPath="ssleay32.dll_1"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiFeatsComponent">
-    <ROW Feature="MainFeature" Title="MainFeature" Description="Description" Display="1" Level="1" Attributes="0" Components="bzlib.h db.jar libbz2.lib InstallDir bzip2.dll bzip2d.dll db_archive.exe db_checkpoint.exe db_deadlock.exe db_dump.exe db_hotbackup.exe db_load.exe db_printlog.exe db_recover.exe db_stat.exe db_upgrade.exe db_verify.exe libeay32.dll libexpat.dll openssl.exe ssleay32.dll aes.h bzip2.dll_1 bzip2d.dll_1 ssleay32.dll_1 libeay32.dll_1 openssl.exe_1 db_verify.exe_1 db_archive.exe_1 db_checkpoint.exe_1 db_deadlock.exe_1 db_dump.exe_1 db_hotbackup.exe_1 db_load.exe_1 db_printlog.exe_1 db_recover.exe_1 db_stat.exe_1 db_upgrade.exe_1 SOURCES libexpat.dll_1 libdb47d.dll libdb_java47.dll libdb47.dll libdb47d.dll_1 libdb_java47.dll_1 libdb47.dll_1"/>
+    <ROW Feature="MainFeature" Title="MainFeature" Description="Description" Display="1" Level="1" Attributes="0" Components="bzlib.h db.jar libbz2.lib InstallDir bzip2.dll bzip2d.dll db_archive.exe db_checkpoint.exe db_deadlock.exe db_dump.exe db_hotbackup.exe db_load.exe db_printlog.exe db_recover.exe db_stat.exe db_upgrade.exe db_verify.exe libeay32.dll libexpat.dll openssl.exe ssleay32.dll aes.h bzip2.dll_1 bzip2d.dll_1 ssleay32.dll_1 libeay32.dll_1 openssl.exe_1 db_verify.exe_1 db_archive.exe_1 db_checkpoint.exe_1 db_deadlock.exe_1 db_dump.exe_1 db_hotbackup.exe_1 db_load.exe_1 db_printlog.exe_1 db_recover.exe_1 db_stat.exe_1 db_upgrade.exe_1 SOURCES libexpat.dll_1 libdb_java48.dll libdb48.dll libdb48d.dll libdb_java48.dll_1 libdb48.dll_1 libdb48d.dll_1"/>
     <ATTRIBUTE name="CurrentFeature" value="MainFeature"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiFilesComponent">
@@ -105,30 +105,30 @@
     <ROW File="conf_api.h" Component_="aes.h" FileName="conf_api.h" Attributes="0" SourcePath="&lt;OPENSSL_HOME&gt;crypto\conf\conf_api.h" SelfReg="false" Sequence="41"/>
     <ROW File="crypto.h" Component_="aes.h" FileName="crypto.h" Attributes="0" SourcePath="&lt;OPENSSL_HOME&gt;crypto\crypto.h" SelfReg="false" Sequence="42"/>
     <ROW File="db.h" Component_="bzlib.h" FileName="db.h" Attributes="1" SourcePath="&lt;DB_HOME&gt;build_windows\db.h" SelfReg="false" Sequence="1"/>
-    <ROW File="db.jar" Component_="db.jar" FileName="db.jar" Attributes="0" SourcePath="&lt;DB_HOME&gt;build_windows\Release\db.jar" SelfReg="false" Sequence="5"/>
-    <ROW File="db_archive.exe" Component_="db_archive.exe" FileName="db_arc~1.exe|db_archive.exe" Attributes="0" SourcePath="&lt;DB_HOME&gt;build_windows\Release\db_archive.exe" SelfReg="false" Sequence="15" DigSign="true"/>
-    <ROW File="db_archive.exe_1" Component_="db_archive.exe_1" FileName="db_arc~1.exe|db_archive.exe" Attributes="0" SourcePath="&lt;DB_HOME&gt;build_windows\Release_AMD64\db_archive.exe" SelfReg="false" Sequence="105" DigSign="true"/>
-    <ROW File="db_checkpoint.exe" Component_="db_checkpoint.exe" FileName="db_che~1.exe|db_checkpoint.exe" Attributes="0" SourcePath="&lt;DB_HOME&gt;build_windows\Release\db_checkpoint.exe" SelfReg="false" Sequence="16" DigSign="true"/>
-    <ROW File="db_checkpoint.exe_1" Component_="db_checkpoint.exe_1" FileName="db_che~1.exe|db_checkpoint.exe" Attributes="0" SourcePath="&lt;DB_HOME&gt;build_windows\Release_AMD64\db_checkpoint.exe" SelfReg="false" Sequence="106" DigSign="true"/>
+    <ROW File="db.jar" Component_="db.jar" FileName="db.jar" Attributes="0" SourcePath="..\..\..\..\..\ThirdParty-Sources-3.4.0\db-4.8.24.NC\build_windows\Win32\Release\db.jar" SelfReg="false" Sequence="5"/>
+    <ROW File="db_archive.exe" Component_="db_archive.exe" FileName="db_arc~1.exe|db_archive.exe" Attributes="0" SourcePath="..\..\..\..\..\ThirdParty-Sources-3.4.0\db-4.8.24.NC\build_windows\Win32\Release\db_archive.exe" SelfReg="false" Sequence="15" DigSign="true"/>
+    <ROW File="db_archive.exe_1" Component_="db_archive.exe_1" FileName="db_arc~1.exe|db_archive.exe" Attributes="0" SourcePath="..\..\..\..\..\ThirdParty-Sources-3.4.0\db-4.8.24.NC\build_windows\x64\Release\db_archive.exe" SelfReg="false" Sequence="105" DigSign="true"/>
+    <ROW File="db_checkpoint.exe" Component_="db_checkpoint.exe" FileName="db_che~1.exe|db_checkpoint.exe" Attributes="0" SourcePath="..\..\..\..\..\ThirdParty-Sources-3.4.0\db-4.8.24.NC\build_windows\Win32\Release\db_checkpoint.exe" SelfReg="false" Sequence="16" DigSign="true"/>
+    <ROW File="db_checkpoint.exe_1" Component_="db_checkpoint.exe_1" FileName="db_che~1.exe|db_checkpoint.exe" Attributes="0" SourcePath="..\..\..\..\..\ThirdParty-Sources-3.4.0\db-4.8.24.NC\build_windows\x64\Release\db_checkpoint.exe" SelfReg="false" Sequence="106" DigSign="true"/>
     <ROW File="db_cxx.h" Component_="bzlib.h" FileName="db_cxx.h" Attributes="1" SourcePath="&lt;DB_HOME&gt;build_windows\db_cxx.h" SelfReg="false" Sequence="2"/>
-    <ROW File="db_deadlock.exe" Component_="db_deadlock.exe" FileName="db_dea~1.exe|db_deadlock.exe" Attributes="0" SourcePath="&lt;DB_HOME&gt;build_windows\Release\db_deadlock.exe" SelfReg="false" Sequence="17" DigSign="true"/>
-    <ROW File="db_deadlock.exe_1" Component_="db_deadlock.exe_1" FileName="db_dea~1.exe|db_deadlock.exe" Attributes="0" SourcePath="&lt;DB_HOME&gt;build_windows\Release_AMD64\db_deadlock.exe" SelfReg="false" Sequence="107" DigSign="true"/>
-    <ROW File="db_dump.exe" Component_="db_dump.exe" FileName="db_dump.exe" Attributes="0" SourcePath="&lt;DB_HOME&gt;build_windows\Release\db_dump.exe" SelfReg="false" Sequence="18" DigSign="true"/>
-    <ROW File="db_dump.exe_1" Component_="db_dump.exe_1" FileName="db_dump.exe" Attributes="0" SourcePath="&lt;DB_HOME&gt;build_windows\Release_AMD64\db_dump.exe" SelfReg="false" Sequence="108" DigSign="true"/>
-    <ROW File="db_hotbackup.exe" Component_="db_hotbackup.exe" FileName="db_hot~1.exe|db_hotbackup.exe" Attributes="0" SourcePath="&lt;DB_HOME&gt;build_windows\Release\db_hotbackup.exe" SelfReg="false" Sequence="19" DigSign="true"/>
-    <ROW File="db_hotbackup.exe_1" Component_="db_hotbackup.exe_1" FileName="db_hot~1.exe|db_hotbackup.exe" Attributes="0" SourcePath="&lt;DB_HOME&gt;build_windows\Release_AMD64\db_hotbackup.exe" SelfReg="false" Sequence="109" DigSign="true"/>
-    <ROW File="db_load.exe" Component_="db_load.exe" FileName="db_load.exe" Attributes="0" SourcePath="&lt;DB_HOME&gt;build_windows\Release\db_load.exe" SelfReg="false" Sequence="20" DigSign="true"/>
-    <ROW File="db_load.exe_1" Component_="db_load.exe_1" FileName="db_load.exe" Attributes="0" SourcePath="&lt;DB_HOME&gt;build_windows\Release_AMD64\db_load.exe" SelfReg="false" Sequence="110" DigSign="true"/>
-    <ROW File="db_printlog.exe" Component_="db_printlog.exe" FileName="db_pri~1.exe|db_printlog.exe" Attributes="0" SourcePath="&lt;DB_HOME&gt;build_windows\Release\db_printlog.exe" SelfReg="false" Sequence="21" DigSign="true"/>
-    <ROW File="db_printlog.exe_1" Component_="db_printlog.exe_1" FileName="db_pri~1.exe|db_printlog.exe" Attributes="0" SourcePath="&lt;DB_HOME&gt;build_windows\Release_AMD64\db_printlog.exe" SelfReg="false" Sequence="111" DigSign="true"/>
-    <ROW File="db_recover.exe" Component_="db_recover.exe" FileName="db_rec~1.exe|db_recover.exe" Attributes="0" SourcePath="&lt;DB_HOME&gt;build_windows\Release\db_recover.exe" SelfReg="false" Sequence="22" DigSign="true"/>
-    <ROW File="db_recover.exe_1" Component_="db_recover.exe_1" FileName="db_rec~1.exe|db_recover.exe" Attributes="0" SourcePath="&lt;DB_HOME&gt;build_windows\Release_AMD64\db_recover.exe" SelfReg="false" Sequence="112" DigSign="true"/>
-    <ROW File="db_stat.exe" Component_="db_stat.exe" FileName="db_stat.exe" Attributes="0" SourcePath="&lt;DB_HOME&gt;build_windows\Release\db_stat.exe" SelfReg="false" Sequence="23" DigSign="true"/>
-    <ROW File="db_stat.exe_1" Component_="db_stat.exe_1" FileName="db_stat.exe" Attributes="0" SourcePath="&lt;DB_HOME&gt;build_windows\Release_AMD64\db_stat.exe" SelfReg="false" Sequence="113" DigSign="true"/>
-    <ROW File="db_upgrade.exe" Component_="db_upgrade.exe" FileName="db_upg~1.exe|db_upgrade.exe" Attributes="0" SourcePath="&lt;DB_HOME&gt;build_windows\Release\db_upgrade.exe" SelfReg="false" Sequence="24" DigSign="true"/>
-    <ROW File="db_upgrade.exe_1" Component_="db_upgrade.exe_1" FileName="db_upg~1.exe|db_upgrade.exe" Attributes="0" SourcePath="&lt;DB_HOME&gt;build_windows\Release_AMD64\db_upgrade.exe" SelfReg="false" Sequence="114" DigSign="true"/>
-    <ROW File="db_verify.exe" Component_="db_verify.exe" FileName="db_ver~1.exe|db_verify.exe" Attributes="0" SourcePath="&lt;DB_HOME&gt;build_windows\Release\db_verify.exe" SelfReg="false" Sequence="25" DigSign="true"/>
-    <ROW File="db_verify.exe_1" Component_="db_verify.exe_1" FileName="db_ver~1.exe|db_verify.exe" Attributes="0" SourcePath="&lt;DB_HOME&gt;build_windows\Release_AMD64\db_verify.exe" SelfReg="false" Sequence="104" DigSign="true"/>
+    <ROW File="db_deadlock.exe" Component_="db_deadlock.exe" FileName="db_dea~1.exe|db_deadlock.exe" Attributes="0" SourcePath="..\..\..\..\..\ThirdParty-Sources-3.4.0\db-4.8.24.NC\build_windows\Win32\Release\db_deadlock.exe" SelfReg="false" Sequence="17" DigSign="true"/>
+    <ROW File="db_deadlock.exe_1" Component_="db_deadlock.exe_1" FileName="db_dea~1.exe|db_deadlock.exe" Attributes="0" SourcePath="..\..\..\..\..\ThirdParty-Sources-3.4.0\db-4.8.24.NC\build_windows\x64\Release\db_deadlock.exe" SelfReg="false" Sequence="107" DigSign="true"/>
+    <ROW File="db_dump.exe" Component_="db_dump.exe" FileName="db_dump.exe" Attributes="0" SourcePath="..\..\..\..\..\ThirdParty-Sources-3.4.0\db-4.8.24.NC\build_windows\Win32\Release\db_dump.exe" SelfReg="false" Sequence="18" DigSign="true"/>
+    <ROW File="db_dump.exe_1" Component_="db_dump.exe_1" FileName="db_dump.exe" Attributes="0" SourcePath="..\..\..\..\..\ThirdParty-Sources-3.4.0\db-4.8.24.NC\build_windows\x64\Release\db_dump.exe" SelfReg="false" Sequence="108" DigSign="true"/>
+    <ROW File="db_hotbackup.exe" Component_="db_hotbackup.exe" FileName="db_hot~1.exe|db_hotbackup.exe" Attributes="0" SourcePath="..\..\..\..\..\ThirdParty-Sources-3.4.0\db-4.8.24.NC\build_windows\Win32\Release\db_hotbackup.exe" SelfReg="false" Sequence="19" DigSign="true"/>
+    <ROW File="db_hotbackup.exe_1" Component_="db_hotbackup.exe_1" FileName="db_hot~1.exe|db_hotbackup.exe" Attributes="0" SourcePath="..\..\..\..\..\ThirdParty-Sources-3.4.0\db-4.8.24.NC\build_windows\x64\Release\db_hotbackup.exe" SelfReg="false" Sequence="109" DigSign="true"/>
+    <ROW File="db_load.exe" Component_="db_load.exe" FileName="db_load.exe" Attributes="0" SourcePath="..\..\..\..\..\ThirdParty-Sources-3.4.0\db-4.8.24.NC\build_windows\Win32\Release\db_load.exe" SelfReg="false" Sequence="20" DigSign="true"/>
+    <ROW File="db_load.exe_1" Component_="db_load.exe_1" FileName="db_load.exe" Attributes="0" SourcePath="..\..\..\..\..\ThirdParty-Sources-3.4.0\db-4.8.24.NC\build_windows\x64\Release\db_load.exe" SelfReg="false" Sequence="110" DigSign="true"/>
+    <ROW File="db_printlog.exe" Component_="db_printlog.exe" FileName="db_pri~1.exe|db_printlog.exe" Attributes="0" SourcePath="..\..\..\..\..\ThirdParty-Sources-3.4.0\db-4.8.24.NC\build_windows\Win32\Release\db_printlog.exe" SelfReg="false" Sequence="21" DigSign="true"/>
+    <ROW File="db_printlog.exe_1" Component_="db_printlog.exe_1" FileName="db_pri~1.exe|db_printlog.exe" Attributes="0" SourcePath="..\..\..\..\..\ThirdParty-Sources-3.4.0\db-4.8.24.NC\build_windows\x64\Release\db_printlog.exe" SelfReg="false" Sequence="111" DigSign="true"/>
+    <ROW File="db_recover.exe" Component_="db_recover.exe" FileName="db_rec~1.exe|db_recover.exe" Attributes="0" SourcePath="..\..\..\..\..\ThirdParty-Sources-3.4.0\db-4.8.24.NC\build_windows\Win32\Release\db_recover.exe" SelfReg="false" Sequence="22" DigSign="true"/>
+    <ROW File="db_recover.exe_1" Component_="db_recover.exe_1" FileName="db_rec~1.exe|db_recover.exe" Attributes="0" SourcePath="..\..\..\..\..\ThirdParty-Sources-3.4.0\db-4.8.24.NC\build_windows\x64\Release\db_recover.exe" SelfReg="false" Sequence="112" DigSign="true"/>
+    <ROW File="db_stat.exe" Component_="db_stat.exe" FileName="db_stat.exe" Attributes="0" SourcePath="..\..\..\..\..\ThirdParty-Sources-3.4.0\db-4.8.24.NC\build_windows\Win32\Release\db_stat.exe" SelfReg="false" Sequence="23" DigSign="true"/>
+    <ROW File="db_stat.exe_1" Component_="db_stat.exe_1" FileName="db_stat.exe" Attributes="0" SourcePath="..\..\..\..\..\ThirdParty-Sources-3.4.0\db-4.8.24.NC\build_windows\x64\Release\db_stat.exe" SelfReg="false" Sequence="113" DigSign="true"/>
+    <ROW File="db_upgrade.exe" Component_="db_upgrade.exe" FileName="db_upg~1.exe|db_upgrade.exe" Attributes="0" SourcePath="..\..\..\..\..\ThirdParty-Sources-3.4.0\db-4.8.24.NC\build_windows\Win32\Release\db_upgrade.exe" SelfReg="false" Sequence="24" DigSign="true"/>
+    <ROW File="db_upgrade.exe_1" Component_="db_upgrade.exe_1" FileName="db_upg~1.exe|db_upgrade.exe" Attributes="0" SourcePath="..\..\..\..\..\ThirdParty-Sources-3.4.0\db-4.8.24.NC\build_windows\x64\Release\db_upgrade.exe" SelfReg="false" Sequence="114" DigSign="true"/>
+    <ROW File="db_verify.exe" Component_="db_verify.exe" FileName="db_ver~1.exe|db_verify.exe" Attributes="0" SourcePath="..\..\..\..\..\ThirdParty-Sources-3.4.0\db-4.8.24.NC\build_windows\Win32\Release\db_verify.exe" SelfReg="false" Sequence="25" DigSign="true"/>
+    <ROW File="db_verify.exe_1" Component_="db_verify.exe_1" FileName="db_ver~1.exe|db_verify.exe" Attributes="0" SourcePath="..\..\..\..\..\ThirdParty-Sources-3.4.0\db-4.8.24.NC\build_windows\x64\Release\db_verify.exe" SelfReg="false" Sequence="104" DigSign="true"/>
     <ROW File="des.h" Component_="aes.h" FileName="des.h" Attributes="0" SourcePath="&lt;OPENSSL_HOME&gt;crypto\des\des.h" SelfReg="false" Sequence="43"/>
     <ROW File="des_old.h" Component_="aes.h" FileName="des_old.h" Attributes="0" SourcePath="&lt;OPENSSL_HOME&gt;crypto\des\des_old.h" SelfReg="false" Sequence="44"/>
     <ROW File="dh.h" Component_="aes.h" FileName="dh.h" Attributes="0" SourcePath="&lt;OPENSSL_HOME&gt;crypto\dh\dh.h" SelfReg="false" Sequence="45"/>
@@ -155,16 +155,16 @@
     <ROW File="libbz2.lib_1" Component_="libbz2.lib" FileName="libbz2.lib" Attributes="0" SourcePath="&lt;BZIP2_HOME_64&gt;libbz2.lib" SelfReg="false" Sequence="116"/>
     <ROW File="libbz2d.lib" Component_="db.jar" FileName="libbz2d.lib" Attributes="0" SourcePath="&lt;BZIP2_HOME&gt;libbz2d.lib" SelfReg="false" Sequence="7"/>
     <ROW File="libbz2d.lib_1" Component_="libbz2.lib" FileName="libbz2d.lib" Attributes="0" SourcePath="&lt;BZIP2_HOME_64&gt;libbz2d.lib" SelfReg="false" Sequence="115"/>
-    <ROW File="libdb47.dll" Component_="libdb47.dll" FileName="libdb47.dll" Attributes="0" SourcePath="&lt;DB_HOME&gt;build_windows\Release\libdb47.dll" SelfReg="false" Sequence="134" DigSign="true"/>
-    <ROW File="libdb47.dll_1" Component_="libdb47.dll_1" FileName="libdb47.dll" Attributes="0" SourcePath="&lt;DB_HOME&gt;build_windows\Release_AMD64\libdb47.dll" SelfReg="false" Sequence="137" DigSign="true"/>
-    <ROW File="libdb47.lib" Component_="db.jar" FileName="libdb47.lib" Attributes="0" SourcePath="&lt;DB_HOME&gt;build_windows\Release\libdb47.lib" SelfReg="false" Sequence="129"/>
-    <ROW File="libdb47.lib_1" Component_="libbz2.lib" FileName="libdb47.lib" Attributes="0" SourcePath="&lt;DB_HOME&gt;build_windows\Release_AMD64\libdb47.lib" SelfReg="false" Sequence="131"/>
-    <ROW File="libdb47d.dll" Component_="libdb47d.dll" FileName="libdb47d.dll" Attributes="0" SourcePath="&lt;DB_HOME&gt;build_windows\Debug\libdb47d.dll" SelfReg="false" Sequence="132" DigSign="true"/>
-    <ROW File="libdb47d.dll_1" Component_="libdb47d.dll_1" FileName="libdb47d.dll" Attributes="0" SourcePath="&lt;DB_HOME&gt;build_windows\Debug_AMD64\libdb47d.dll" SelfReg="false" Sequence="135" DigSign="true"/>
-    <ROW File="libdb47d.lib" Component_="db.jar" FileName="libdb47d.lib" Attributes="0" SourcePath="&lt;DB_HOME&gt;build_windows\Debug\libdb47d.lib" SelfReg="false" Sequence="128"/>
-    <ROW File="libdb47d.lib_1" Component_="libbz2.lib" FileName="libdb47d.lib" Attributes="0" SourcePath="&lt;DB_HOME&gt;build_windows\Debug_AMD64\libdb47d.lib" SelfReg="false" Sequence="130"/>
-    <ROW File="libdb_java47.dll" Component_="libdb_java47.dll" FileName="libdb_~2.dll|libdb_java47.dll" Attributes="0" SourcePath="&lt;DB_HOME&gt;build_windows\Release\libdb_java47.dll" SelfReg="false" Sequence="133" DigSign="true"/>
-    <ROW File="libdb_java47.dll_1" Component_="libdb_java47.dll_1" FileName="libdb_~2.dll|libdb_java47.dll" Attributes="0" SourcePath="&lt;DB_HOME&gt;build_windows\Release_AMD64\libdb_java47.dll" SelfReg="false" Sequence="136" DigSign="true"/>
+    <ROW File="libdb48.dll" Component_="libdb48.dll" FileName="libdb48.dll" Attributes="0" SourcePath="..\..\..\..\..\ThirdParty-Sources-3.4.0\db-4.8.24.NC\build_windows\Win32\Release\libdb48.dll" SelfReg="false" Sequence="133"/>
+    <ROW File="libdb48.dll_1" Component_="libdb48.dll_1" FileName="libdb48.dll" Attributes="0" SourcePath="&lt;DB_HOME&gt;build_windows\x64\Release\libdb48.dll" SelfReg="false" Sequence="136"/>
+    <ROW File="libdb48.lib" Component_="db.jar" FileName="libdb48.lib" Attributes="0" SourcePath="&lt;DB_HOME&gt;build_windows\Win32\Release\libdb48.lib" SelfReg="false" Sequence="128"/>
+    <ROW File="libdb48.lib_1" Component_="libbz2.lib" FileName="libdb48.lib" Attributes="0" SourcePath="&lt;DB_HOME&gt;build_windows\x64\Release\libdb48.lib" SelfReg="false" Sequence="130"/>
+    <ROW File="libdb48d.dll" Component_="libdb48d.dll" FileName="libdb48d.dll" Attributes="0" SourcePath="..\..\..\..\..\ThirdParty-Sources-3.4.0\db-4.8.24.NC\build_windows\Win32\Debug\libdb48d.dll" SelfReg="false" Sequence="134"/>
+    <ROW File="libdb48d.dll_1" Component_="libdb48d.dll_1" FileName="libdb48d.dll" Attributes="0" SourcePath="&lt;DB_HOME&gt;build_windows\x64\Debug\libdb48d.dll" SelfReg="false" Sequence="137"/>
+    <ROW File="libdb48d.lib" Component_="db.jar" FileName="libdb48d.lib" Attributes="0" SourcePath="&lt;DB_HOME&gt;build_windows\Win32\Debug\libdb48d.lib" SelfReg="false" Sequence="129"/>
+    <ROW File="libdb48d.lib_1" Component_="libbz2.lib" FileName="libdb48d.lib" Attributes="0" SourcePath="&lt;DB_HOME&gt;build_windows\x64\Debug\libdb48d.lib" SelfReg="false" Sequence="131"/>
+    <ROW File="libdb_java48.dll" Component_="libdb_java48.dll" FileName="libdb_~1.dll|libdb_java48.dll" Attributes="0" SourcePath="..\..\..\..\..\ThirdParty-Sources-3.4.0\db-4.8.24.NC\build_windows\Win32\Release\libdb_java48.dll" SelfReg="false" Sequence="132"/>
+    <ROW File="libdb_java48.dll_1" Component_="libdb_java48.dll_1" FileName="libdb_~1.dll|libdb_java48.dll" Attributes="0" SourcePath="&lt;DB_HOME&gt;build_windows\x64\Release\libdb_java48.dll" SelfReg="false" Sequence="135"/>
     <ROW File="libeay32.dll" Component_="libeay32.dll" FileName="libeay32.dll" Attributes="0" SourcePath="&lt;OPENSSL_HOME&gt;out32dll\libeay32.dll" SelfReg="false" Sequence="26" DigSign="true"/>
     <ROW File="libeay32.dll_1" Component_="libeay32.dll_1" FileName="libeay32.dll" Attributes="0" SourcePath="&lt;OPENSSL_HOME_64&gt;out32dll\libeay32.dll" SelfReg="false" Sequence="102" DigSign="true"/>
     <ROW File="libeay32.lib" Component_="db.jar" FileName="libeay32.lib" Attributes="0" SourcePath="&lt;OPENSSL_HOME&gt;out32dll\libeay32.lib" SelfReg="false" Sequence="8"/>
