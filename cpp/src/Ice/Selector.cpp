@@ -59,7 +59,6 @@ Selector::initialize(EventHandler* handler)
 void
 Selector::update(EventHandler* handler, SocketOperation remove, SocketOperation add)
 {
-    SocketOperation previous = handler->_registered;
     handler->_registered = static_cast<SocketOperation>(handler->_registered & ~remove);
     handler->_registered = static_cast<SocketOperation>(handler->_registered | add);
     AsyncInfo* info = 0;

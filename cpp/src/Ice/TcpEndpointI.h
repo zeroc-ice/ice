@@ -52,6 +52,22 @@ public:
     virtual bool operator!=(const EndpointI&) const;
     virtual bool operator<(const EndpointI&) const;
 
+#if defined(__BCPLUSPLUS__)
+    //
+    // COMPILERFIX: Avoid warnings about hiding members for C++Builder 2010
+    //
+    //
+    virtual bool operator==(const Ice::LocalObject& rhs) const
+    {
+        return EndpointI::operator==(rhs);
+    }
+
+    virtual bool operator<(const Ice::LocalObject& rhs) const
+    {
+        return EndpointI::operator<(rhs);
+    }
+#endif
+
 private:
 
     virtual std::vector<ConnectorPtr> connectors(const std::vector<struct sockaddr_storage>&) const;
