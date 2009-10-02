@@ -34,7 +34,7 @@ def run(clientStr, desc = 'application'):
 
     print "starting icegridnode...",
     sys.stdout.flush()
-    node = Util.spawn('icegridnode --Ice.Config=config.grid --Ice.PrintAdapterReady %s' % (args))
+    node = Util.spawn(Util.getIceGridNode() + ' --Ice.Config=config.grid --Ice.PrintAdapterReady %s' % (args))
     node.expect('IceGrid.Registry.Internal ready')
     node.expect('IceGrid.Registry.Server ready')
     node.expect('IceGrid.Registry.Client ready')
@@ -45,7 +45,7 @@ def run(clientStr, desc = 'application'):
 
     print "deploying application...",
     sys.stdout.flush()
-    admin = Util.spawn('icegridadmin --Ice.Config=config.grid')
+    admin = Util.spawn(Util.getIceGridAdmin() + ' --Ice.Config=config.grid')
     admin.expect('>>>')
     admin.sendline("application add \'%s.xml\'" %(desc))
     admin.expect('>>>')
@@ -124,9 +124,9 @@ def run(clientStr, desc = 'application'):
 
     # Windows seems to have problems with the password input.
     if Util.isWin32():
-	admin = Util.spawn('icegridadmin --Ice.Default.Router="DemoGlacier2/router:tcp -h localhost -p 4063" -u foo -p foo')
+	admin = Util.spawn(Util.getIceGridAdmin() + ' --Ice.Default.Router="DemoGlacier2/router:tcp -h localhost -p 4063" -u foo -p foo')
     else:
-	admin = Util.spawn('icegridadmin --Ice.Default.Router="DemoGlacier2/router:tcp -h localhost -p 4063"')
+	admin = Util.spawn(Util.getIceGridAdmin() + ' --Ice.Default.Router="DemoGlacier2/router:tcp -h localhost -p 4063"')
 	admin.expect('user id:')
 	admin.sendline('foo')
 	admin.expect('password:')

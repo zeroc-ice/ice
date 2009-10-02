@@ -48,15 +48,9 @@ SPDBFLAGS       = /pdb:$(SERVER:.exe=.pdb)
 APDBFLAGS       = /pdb:$(ADMIN:.exe=.pdb)
 !endif
 
-!if "$(BCPLUSPLUS)" == "yes"
-RES_FILE        = ,, IceBox.res
-SRES_FILE       = ,, IceBoxExe.res
-ARES_FILE       = ,, IceBoxAdmin.res
-!else
 RES_FILE        = IceBox.res
 SRES_FILE       = IceBoxExe.res
 ARES_FILE       = IceBoxAdmin.res
-!endif
 
 $(LIBNAME): $(DLLNAME)
 
@@ -92,14 +86,7 @@ install:: all
 	copy $(ADMIN) $(install_bindir)
 
 
-!if "$(BCPLUSPLUS)" == "yes" && "$(OPTIMIZE)" != "yes"
-
-install:: all
-	copy $(DLLNAME:.dll=.tds) $(install_bindir)
-	copy $(SERVER:.exe=.tds) $(install_bindir)
-	copy $(ADMIN:.exe=.tds) $(install_bindir)
-
-!elseif "$(GENERATE_PDB)" == "yes"
+!if "$(GENERATE_PDB)" == "yes"
 
 install:: all
 	copy $(DLLNAME:.dll=.pdb) $(install_bindir)

@@ -621,6 +621,27 @@ class AMI_Test_useForwardI : public AMI_TestIntf_useForward, public CallbackBase
 
 typedef IceUtil::Handle<AMI_Test_useForwardI> AMI_Test_useForwardIPtr;
 
+void
+testUOO(const TestIntfPrx& test)
+{
+    Ice::ObjectPtr o;
+    try
+    {
+#if defined(__BCPLUSPLUS__) && (__BCPLUSPLUS__ >= 0x0600)
+        IceUtil::DummyBCC dummy;
+#endif
+        o = test->SUnknownAsObject();
+        test(false);
+    }
+    catch(const Ice::NoObjectFactoryException&)
+    {
+    }
+    catch(...)
+    {
+        test(false);
+    }
+}
+
 TestIntfPrx
 allTests(const Ice::CommunicatorPtr& communicator)
 {
@@ -751,22 +772,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
     cout << "unknown with Object as Object... " << flush;
     {
-        Ice::ObjectPtr o;
-        try
-        {
-#if defined(__BCPLUSPLUS__) && (__BCPLUSPLUS__ >= 0x0600)
-            IceUtil::DummyBCC dummy;
-#endif
-            o = test->SUnknownAsObject();
-            test(false);
-        }
-        catch(const Ice::NoObjectFactoryException&)
-        {
-        }
-        catch(...)
-        {
-            test(false);
-        }
+        testUOO(test);
     }
     cout << "ok" << endl;
 

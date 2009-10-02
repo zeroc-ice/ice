@@ -21,7 +21,7 @@ sys.path.append(os.path.join(path[0]))
 from scripts import *
 
 testdir = os.getcwd()
-router = os.path.join(TestUtil.getCppBinDir(), "glacier2router")
+router = TestUtil.getGlacier2Router()
 
 args = ' --Glacier2.RoutingTable.MaxSize=10' + \
        ' --Glacier2.Client.Endpoints="default -p 12347"' + \

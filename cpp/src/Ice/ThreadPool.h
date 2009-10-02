@@ -20,11 +20,12 @@
 #include <Ice/InstanceF.h>
 #include <Ice/LoggerF.h>
 #include <Ice/PropertiesF.h>
-#include <Ice/EventHandlerF.h>
+#include <Ice/EventHandler.h>
 #include <Ice/Selector.h>
 #include <Ice/BasicStream.h>
 
 #include <set>
+#include <list>
 
 namespace IceInternal
 {
@@ -159,6 +160,42 @@ class ThreadPoolWorkItem : virtual public IceUtil::Shared
 public:
     
     virtual void execute(ThreadPoolCurrent&) = 0;
+};
+
+class ThreadPoolWorkQueue : public EventHandler, public IceUtil::Mutex
+{
+public:
+
+    ThreadPoolWorkQueue(ThreadPool*, const InstancePtr&, Selector&);
+    ~ThreadPoolWorkQueue();
+
+    void destroy();
+    void queue(const ThreadPoolWorkItemPtr&);
+
+#ifdef ICE_USE_IOCP
+    bool startAsync(SocketOperation);
+    bool finishAsync(SocketOperation);
+#endif
+
+    virtual void message(ThreadPoolCurrent&);
+    virtual void finished(ThreadPoolCurrent&);
+    virtual std::string toString() const;
+    virtual NativeInfoPtr getNativeInfo();
+    virtual void postMessage();
+
+private:
+
+    const ThreadPool* _threadPool;
+    const InstancePtr _instance;
+    Selector& _selector;
+    bool _destroyed;
+#ifdef ICE_USE_IOCP
+    AsyncInfo _info;
+#else
+    SOCKET _fdIntrRead;
+    SOCKET _fdIntrWrite;
+#endif
+    std::list<ThreadPoolWorkItemPtr> _workItems;
 };
 
 //

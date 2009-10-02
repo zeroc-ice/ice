@@ -798,7 +798,7 @@ IceSSL::TransceiverI::getConnectionInfo() const
 
 IceSSL::TransceiverI::TransceiverI(const InstancePtr& instance, SOCKET fd, const string& host, 
                                    const struct sockaddr_storage& addr) :
-    NativeInfo(fd),
+    IceInternal::NativeInfo(fd),
     _instance(instance),
     _logger(instance->communicator()->getLogger()),
     _stats(instance->communicator()->getStats()),
@@ -835,7 +835,7 @@ IceSSL::TransceiverI::TransceiverI(const InstancePtr& instance, SOCKET fd, const
 }
 
 IceSSL::TransceiverI::TransceiverI(const InstancePtr& instance, SOCKET fd, const string& adapterName) :
-    NativeInfo(fd),
+    IceInternal::NativeInfo(fd),
     _instance(instance),
     _logger(instance->communicator()->getLogger()),
     _stats(instance->communicator()->getStats()),

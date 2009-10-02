@@ -12,9 +12,6 @@ top_srcdir	= ..\..
 # Set appropriately if building IceStorm to use SQL database
 #QTSQL_HOME     = C:\Qt\4.5.2
 
-LIBNAME		= $(top_srcdir)\lib\icestorm$(LIBSUFFIX).lib
-DLLNAME		= $(top_srcdir)\bin\icestorm$(SOVERSION)$(LIBSUFFIX).dll
-
 SVCLIBNAME_D	= $(top_srcdir)\lib\icestormserviced.lib
 SVCDLLNAME_D	= $(top_srcdir)\bin\icestormservice$(SOVERSION)d.dll
 
@@ -30,9 +27,7 @@ ADMIN		= $(top_srcdir)\bin\icestormadmin.exe
 MIGRATE		= $(top_srcdir)\bin\icestormmigrate.exe
 !endif
 
-TARGETS         = $(LIBNAME) $(DLLNAME) $(SVCLIBNAME) $(SVCDLLNAME) $(ADMIN) $(MIGRATE)
-
-OBJS		= IceStorm.obj
+TARGETS         = $(SVCLIBNAME) $(SVCDLLNAME) $(ADMIN) $(MIGRATE)
 
 SERVICE_OBJS	= NodeI.obj \
 		  Observers.obj \
@@ -88,8 +83,7 @@ MOBJS		= Migrate.obj \
                   V31Format.obj
 !endif
 
-SRCS		= $(OBJS:.obj=.cpp) \
-		  $(SOBJS:.obj=.cpp) \
+SRCS		= $(SOBJS:.obj=.cpp) \
 		  $(AOBJS:.obj=.cpp) \
 		  $(MOBJS:.obj=.cpp)
 
@@ -121,32 +115,14 @@ MLINKWITH 	= $(LIBS) $(DBLINKWITH) icestorm$(LIBSUFFIX).lib
 SLICE2FREEZECMD = $(SLICE2FREEZE) --ice --include-dir IceStorm -I.. -I$(slicedir)
 
 !if "$(GENERATE_PDB)" == "yes"
-PDBFLAGS        = /pdb:$(DLLNAME:.dll=.pdb)
 SPDBFLAGS       = /pdb:$(SVCDLLNAME:.dll=.pdb)
 APDBFLAGS       = /pdb:$(ADMIN:.exe=.pdb)
 MPDBFLAGS       = /pdb:$(MIGRATE:.exe=.pdb)
 !endif
 
-!if "$(BCPLUSPLUS)" == "yes"
-RES_FILE        = ,, IceStorm.res
-SRES_FILE       = ,, IceStormService.res
-ARES_FILE       = ,, IceStormAdmin.res
-MRES_FILE       = ,, IceStormMigrate.res
-!else
-RES_FILE        = IceStorm.res
 SRES_FILE       = IceStormService.res
 ARES_FILE       = IceStormAdmin.res
 MRES_FILE       = IceStormMigrate.res
-!endif
-
-$(LIBNAME): $(DLLNAME)
-
-$(DLLNAME): $(OBJS) IceStorm.res
-	$(LINK) $(LD_DLLFLAGS) $(PDBFLAGS) $(OBJS) $(PREOUT)$@ $(PRELIBS)$(LIBS) $(RES_FILE)
-	move $(DLLNAME:.dll=.lib) $(LIBNAME)
-	@if exist $@.manifest echo ^ ^ ^ Embedding manifest using $(MT) && \
-	    $(MT) -nologo -manifest $@.manifest -outputresource:$@;#2 && del /q $@.manifest
-	@if exist $(DLLNAME:.dll=.exp) del /q $(DLLNAME:.dll=.exp)
 
 $(SVCLIBNAME): $(SVCDLLNAME)
 
@@ -196,11 +172,6 @@ V31FormatDB.h V31FormatDB.cpp: ..\IceStorm\V31Format.ice $(SLICE2FREEZE) $(SLICE
 	V31FormatDB ..\IceStorm\V31Format.ice
 !endif
 
-IceStorm.cpp $(HDIR)\IceStorm.h: $(SDIR)\IceStorm.ice $(SLICE2CPP) $(SLICEPARSERLIB)
-	del /q $(HDIR)\IceStorm.h IceStorm.cpp
-	$(SLICE2CPP) --checksum --dll-export ICE_STORM_LIB_API $(SLICE2CPPFLAGS) $(SDIR)\IceStorm.ice
-	move IceStorm.h $(HDIR)
-
 # Implicit rule to build the private IceStorm .ice files.
 {..\IceStorm\}.ice{..\IceStorm\}.h:
 	del /q $(*F).h $(*F).cpp
@@ -226,7 +197,6 @@ clean::
 	del /q V32FormatDB.cpp V31FormatDB.cpp V31FormatDB.h V31FormatDB.h
 
 clean::
-	-del /q IceStorm.cpp $(HDIR)\IceStorm.h
 	-del /q IceStormInternal.cpp IceStormInternal.h
 	-del /q V32Migrate.cpp V32Migrate.h
 	-del /q V31Migrate.cpp V31Migrate.h
@@ -236,33 +206,18 @@ clean::
 	-del /q $(SVCDLLNAME_R:.dll=.*) $(SVCDLLNAME_D:.dll=.*)
 	-del /q $(SVCLIBNAME_R) $(SVCLIBNAME_D)
 	-del /q $(ADMIN:.exe=.*) $(MIGRATE:.exe=.*)
-	-del /q IceStormAdmin.res IceStormMigrate.res IceStorm.res IceStormService.res
+	-del /q IceStormAdmin.res IceStormMigrate.res IceStormService.res
 
 install:: all
-	copy $(LIBNAME) $(install_libdir)
-	copy $(DLLNAME) $(install_bindir)
 	copy $(SVCLIBNAME) $(install_libdir)
 	copy $(SVCDLLNAME) $(install_bindir)
 	copy $(ADMIN) $(install_bindir)
 	copy $(MIGRATE) $(install_bindir)
 
 
-!if "$(BCPLUSPLUS)" == "yes" && "$(OPTIMIZE)" != "yes"
+!if "$(GENERATE_PDB)" == "yes"
 
 install:: all
-	copy $(DLLNAME:.dll=.tds) $(install_bindir)
-	copy $(SVCDLLNAME:.dll=.tds) $(install_bindir)
-	copy $(ADMIN:.exe=.tds) $(install_bindir)
-
-!if "$(QTSQL_HOME)" == ""
-install:: all
-	copy $(MIGRATE:.exe=.tds) $(install_bindir)
-!endif
-
-!elseif "$(GENERATE_PDB)" == "yes"
-
-install:: all
-	copy $(DLLNAME:.dll=.pdb) $(install_bindir)
 	copy $(SVCDLLNAME:.dll=.pdb) $(install_bindir)
 	copy $(ADMIN:.exe=.pdb) $(install_bindir)
 

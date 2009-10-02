@@ -35,8 +35,12 @@ class IceStormUtil(object):
         self.toplevel = toplevel
         self.testdir = testdir
         self.iceBox = TestUtil.getIceBox()
-        self.iceBoxAdmin = os.path.join(TestUtil.getCppBinDir(), "iceboxadmin")
-        self.iceStormAdmin = os.path.join(TestUtil.getCppBinDir(), "icestormadmin")
+        if TestUtil.isNoServices():
+            self.iceBoxAdmin = os.path.join(TestUtil.getServiceDir(), "iceboxadmin")
+            self.iceStormAdmin = os.path.join(TestUtil.getServiceDir(), "icestormadmin")
+        else:
+            self.iceBoxAdmin = os.path.join(TestUtil.getCppBinDir(), "iceboxadmin")
+            self.iceStormAdmin = os.path.join(TestUtil.getCppBinDir(), "icestormadmin")
 
     def runIceBoxAdmin(self, endpts, command):
         proc = TestUtil.startClient(self.iceBoxAdmin, endpts + " " + command, echo = False)

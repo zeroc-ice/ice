@@ -26,7 +26,7 @@ print "starting server...",
 serverProc = TestUtil.startServer(server)
 print "ok"
 
-router = os.path.join(TestUtil.getCppBinDir(), "glacier2router")
+router = TestUtil.getGlacier2Router()
 
 args = ' --Ice.Warn.Dispatch=0' + \
        ' --Glacier2.AddSSLContext=1' + \

@@ -70,7 +70,11 @@ def getDefaultLocatorProperty():
 
 def startIceGridRegistry(testdir, dynamicRegistration = False):
 
-    iceGrid = os.path.join(TestUtil.getCppBinDir(), "icegridregistry")
+    iceGrid = ""
+    if TestUtil.isNoServices():
+        iceGrid = os.path.join(TestUtil.getServiceDir(), "icegridregistry")
+    else:
+        iceGrid = os.path.join(TestUtil.getCppBinDir(), "icegridregistry")
 
     command = ' --nowarn ' + registryOptions
     if dynamicRegistration:
@@ -127,7 +131,11 @@ def shutdownIceGridRegistry(procs):
 
 def startIceGridNode(testdir):
 
-    iceGrid = os.path.join(TestUtil.getCppBinDir(), "icegridnode")
+    iceGrid = ""
+    if TestUtil.isNoServices():
+        iceGrid = os.path.join(TestUtil.getServiceDir(), "icegridnode")
+    else:
+        iceGrid = os.path.join(TestUtil.getCppBinDir(), "icegridnode")
 
     dataDir = os.path.join(testdir, "db", "node")
     if not os.path.exists(dataDir):
@@ -162,7 +170,11 @@ def startIceGridNode(testdir):
 
 def iceGridAdmin(cmd, ignoreFailure = False):
 
-    iceGridAdmin = os.path.join(TestUtil.getCppBinDir(), "icegridadmin")
+    iceGridAdmin = ""
+    if TestUtil.isNoServices():
+        iceGridAdmin = os.path.join(TestUtil.getServiceDir(), "icegridadmin")
+    else:
+        iceGridAdmin = os.path.join(TestUtil.getCppBinDir(), "icegridadmin")
 
     user = r"admin1"
     if cmd == "registry shutdown":

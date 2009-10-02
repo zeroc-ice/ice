@@ -20,7 +20,11 @@ if len(path) == 0:
 sys.path.append(os.path.join(path[0]))
 from scripts import *
 
-iceStormAdmin = os.path.join(TestUtil.getCppBinDir(), "icestormadmin")
+iceStormAdmin = ""
+if TestUtil.isNoServices():
+    iceStormAdmin = os.path.join(TestUtil.getServiceDir(), "icestormadmin")
+else:
+    iceStormAdmin = os.path.join(TestUtil.getCppBinDir(), "icestormadmin")
 
 def doTest(server1, server2, subOpts, pubOpts):
     publisher = os.path.join(os.getcwd(), "publisher")

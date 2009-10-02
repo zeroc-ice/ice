@@ -23,13 +23,16 @@ from demoscript import *
 import time, signal
 
 desc = 'application.xml'
-if Util.isDebugBuild():
+if Util.isNoServices() or Util.isDebugBuild():
     fi = open(desc, "r")
     desc = 'tmp_application.xml'
     fo = open(desc, "w")
     for l in fi:
         if l.find('exe="icebox"') != -1:
-            l = l.replace('exe="icebox"', 'exe="iceboxd.exe"')
+            if Util.isNoServices():
+                l = l.replace('exe="icebox"', 'exe="' + Util.getIceBox() + '"')
+            else:
+                l = l.replace('exe="icebox"', 'exe="iceboxd.exe"')
         fo.write(l)
     fi.close()
     fo.close()
@@ -47,13 +50,13 @@ else:
 
 print "starting icegridnode...",
 sys.stdout.flush()
-node = Util.spawn('icegridnode --Ice.Config=config.grid --Ice.PrintAdapterReady %s' % (args))
+node = Util.spawn(Util.getIceGridNode() + ' --Ice.Config=config.grid --Ice.PrintAdapterReady %s' % (args))
 node.expect('IceGrid.Registry.Server ready\nIceGrid.Registry.Client ready\nIceGrid.Node ready')
 print "ok"
 
 print "deploying application...",
 sys.stdout.flush()
-admin = Util.spawn('icegridadmin --Ice.Config=config.grid')
+admin = Util.spawn(Util.getIceGridAdmin() + ' --Ice.Config=config.grid')
 admin.expect('>>>')
 admin.sendline("application add \'%s\'" %(desc))
 admin.expect('>>>')

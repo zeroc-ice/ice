@@ -21,8 +21,11 @@ sys.path.append(os.path.join(path[0]))
 from scripts import *
 
 def icepatch2Calc(datadir, dirname):
-
-    icePatch2Calc = os.path.join(TestUtil.getCppBinDir(), "icepatch2calc")
+    icePatch2Calc = ""
+    if TestUtil.isNoServices():
+        icePatch2Calc = os.path.join(TestUtil.getServiceDir(), "icepatch2calc")
+    else:
+        icePatch2Calc = os.path.join(TestUtil.getCppBinDir(), "icepatch2calc")
     commandProc = TestUtil.spawn(icePatch2Calc + " " + os.path.join(datadir, dirname))
     commandProc.waitTestSuccess()
 

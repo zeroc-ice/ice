@@ -36,10 +36,7 @@ SDIR		= $(slicedir)\IceSSL
 CPPFLAGS	= -I.. $(CPPFLAGS) -DICE_SSL_API_EXPORTS -DFD_SETSIZE=1024 -DWIN32_LEAN_AND_MEAN
 SLICE2CPPFLAGS	= --ice --include-dir IceSSL --dll-export ICE_SSL_API $(SLICE2CPPFLAGS)
 
-LINKWITH        = $(OPENSSL_LIBS) $(LIBS)
-!if "$(BCPLUSPLUS)" != "yes"
-LINKWITH	= $(LINKWITH) ws2_32.lib
-!endif
+LINKWITH        = $(OPENSSL_LIBS) $(LIBS) ws2_32.lib
 
 !if "$(GENERATE_PDB)" == "yes"
 PDBFLAGS        = /pdb:$(DLLNAME:.dll=.pdb)

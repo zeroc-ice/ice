@@ -15,11 +15,15 @@ SUBDIRS		= IceUtil \
 		  Ice \
 		  Freeze \
 		  IceStorm \
-		  IceBox \
 		  Glacier2 \
 		  IceGrid \
 		  book \
 		  cookbook
+
+!if "$(BCPLUSPLUS)" != "yes" && "$(CPP_COMPILER)" != "VC60"
+SUBDIRS		= $(SUBDIRS) \
+		  IceBox
+!endif
 
 $(EVERYTHING)::
 	@for subdir in $(SUBDIRS); \

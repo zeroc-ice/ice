@@ -40,7 +40,6 @@ demos = [
     "Ice/session",
     "Ice/throughput",
     "Ice/value",
-    "IceBox/hello",
     "IceStorm/clock",
     "IceStorm/counter",
     "IceStorm/replicated",
@@ -49,7 +48,6 @@ demos = [
     "IceGrid/allocate",
     "IceGrid/sessionActivation",
     "IceGrid/replication",
-    "IceGrid/icebox",
     "IceGrid/secure",
     "Glacier2/chat",
     "Glacier2/callback",
@@ -66,6 +64,9 @@ demos = [
     "book/lifecycle",
     "cookbook/compression",
 ]
+
+if not Util.isNoServices():
+    demos.append(["IceBox/hello", "IceGrid/icebox"])
 
 if __name__ == "__main__":
     Util.run(demos)

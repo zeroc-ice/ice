@@ -27,6 +27,65 @@ public:
     }
 };
 
+class ResponseCounter : public IceUtil::Monitor<IceUtil::Mutex>
+{
+public:
+    
+    ResponseCounter(int expected) : _expected(expected)
+    {
+    }
+    
+    void response()
+    {
+        Lock sync(*this);
+        if(--_expected == 0)
+        {
+            notifyAll();
+        }
+    }
+    
+    void waitForAllResponses()
+    {
+        Lock sync(*this);
+        while(_expected > 0)
+        {
+            wait();
+        }
+    }
+    
+    void reset(int expected)
+    {
+        _expected = expected;
+    }
+private:
+
+    int _expected;
+};
+
+class AMICallback : public Test::AMI_Hello_sayHello
+{
+public:
+    AMICallback(ResponseCounter& c) : _counter(c)
+    {
+    }
+
+    virtual void
+    ice_exception(const Ice::Exception&)
+    {
+        test(false);
+    }
+
+    virtual void
+    ice_response()
+    {
+        _counter.response();
+    }
+
+private:
+
+    ResponseCounter& _counter;
+};
+
 void
 allTests(const Ice::CommunicatorPtr& communicator, const string& ref)
 {
@@ -307,67 +366,9 @@ allTests(const Ice::CommunicatorPtr& communicator, const string& ref)
     test(++count == locator->getRequestCount());
     int i;
 
-    class ResponseCounter : public IceUtil::Monitor<IceUtil::Mutex>
-    {
-    public:
-        
-        ResponseCounter(int expected) : _expected(expected)
-        {
-        }
-        
-        void response()
-        {
-            Lock sync(*this);
-            if(--_expected == 0)
-            {
-                notifyAll();
-            }
-        }
-        
-        void waitForAllResponses()
-        {
-            Lock sync(*this);
-            while(_expected > 0)
-            {
-                wait();
-            }
-        }
-        
-        void reset(int expected)
-        {
-            _expected = expected;
-        }
-    private:
-
-        int _expected;
-    };
-
     ResponseCounter counter(1000);
     for(i = 0; i < 1000; i++)
     {
-        class AMICallback : public Test::AMI_Hello_sayHello
-        {
-        public:
-            AMICallback(ResponseCounter& c) : _counter(c)
-            {
-            }
-
-            virtual void
-            ice_exception(const Ice::Exception&)
-            {
-                test(false);
-            }
-
-            virtual void
-            ice_response()
-            {
-                _counter.response();
-            }
-
-        private:
-
-            ResponseCounter& _counter;
-        };
         hello->sayHello_async(new AMICallback(counter));
     }
     counter.waitForAllResponses();

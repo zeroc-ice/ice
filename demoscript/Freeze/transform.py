@@ -54,7 +54,7 @@ def run(createCmd, recreateCmd, readCmd, readnewCmd):
     readnew = demoscript.Util.spawn(readnewCmd)
     readnew.expect('All contacts \(default order\)')
     readnew.expect('All contacts \(ordered by phone number\)')
-    readnew.expect('DbEnv \"dbnew\": Secondary index corrupt: not consistent with primary')
+    readnew.expect('DbEnv \"dbnew\": contacts: DB_SECONDARY_BAD: Secondary index inconsistent with primary')
     readnew.waitTestSuccess(1)
     print "ok"
 

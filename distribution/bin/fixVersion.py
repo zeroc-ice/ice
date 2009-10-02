@@ -90,6 +90,9 @@ FixUtil.fileMatchAndReplace(os.path.join(ice_dir, "demoscript", "IceStorm", "clo
 for f in FixUtil.find("config.icebox"):
     FixUtil.fileMatchAndReplace(f, [("IceStormService,([0-9]+b?)", FixUtil.soVersion(version))])
 
+for f in FixUtil.find("expect.py"):
+    FixUtil.fileMatchAndReplace(f, [("IceStormService,([0-9]+b?)", FixUtil.soVersion(version))])
+
 for f in FixUtil.find("config*"):
     FixUtil.fileMatchAndReplace(f, 
                         [("Version=*([0-9]*\.[0-9]*\.[0-9]*).0",

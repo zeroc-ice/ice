@@ -25,7 +25,7 @@ from demoscript.Glacier2 import callback
 server = Util.spawn('./server --Ice.PrintAdapterReady')
 server.expect('.* ready')
 
-glacier2 = Util.spawn('glacier2router --Ice.Config=config.glacier2 --Ice.PrintAdapterReady --Glacier2.SessionTimeout=5')
+glacier2 = Util.spawn(Util.getGlacier2Router() + ' --Ice.Config=config.glacier2 --Ice.PrintAdapterReady --Glacier2.SessionTimeout=5')
 glacier2.expect('Glacier2.Client ready')
 glacier2.expect('Glacier2.Server ready')
 

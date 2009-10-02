@@ -12,10 +12,6 @@ top_srcdir	= ../..
 # Set appropriately if building IceStorm to use SQL database
 #QTSQL_HOME	= /opt/qt
 
-LIBFILENAME     = $(call mklibfilename,IceStorm,$(VERSION))
-SONAME          = $(call mksoname,IceStorm,$(SOVERSION))  
-LIBNAME		= $(call mklibname,IceStorm)
-
 SVCLIBFILENAME  = $(call mklibfilename,IceStormService,$(VERSION))
 SVCSONAME       = $(call mksoname,IceStormService,$(SOVERSION))  
 SVCLIBNAME	= $(call mklibname,IceStormService)
@@ -25,16 +21,12 @@ ifeq ($(QTSQL_HOME),)
 MIGRATE		= $(top_srcdir)/bin/icestormmigrate
 endif
 
-LIBTARGETS	= $(call mklibtargets,$(libdir)/$(LIBFILENAME),$(libdir)/$(SONAME),$(libdir)/$(LIBNAME))
 SVCLIBTARGETS   = $(call mklibtargets,$(libdir)/$(SVCLIBFILENAME),$(libdir)/$(SVCSONAME),$(libdir)/$(SVCLIBNAME))
-TARGETS         = $(LIBTARGETS) $(SVCLIBTARGETS) $(ADMIN) $(MIGRATE)
-
-OBJS		= IceStorm.o
+TARGETS         = $(SVCLIBTARGETS) $(ADMIN) $(MIGRATE)
 
 SERVICE_OBJS	= NodeI.o \
 		  Observers.o \
 		  Election.o \
-		  IceStorm.o \
 		  Instance.o \
 		  TraceLevels.o \
 		  Subscriber.o \
@@ -84,8 +76,7 @@ MOBJS		= Migrate.o \
 		  V31Format.o
 endif
 
-SRCS		= $(OBJS:.o=.cpp) \
-		  $(SERVICE_OBJS:.o=.cpp) \
+SRCS		= $(SERVICE_OBJS:.o=.cpp) \
 		  $(AOBJS:.o=.cpp) \
 		  $(MOBJS:.o=.cpp)
 
@@ -93,8 +84,7 @@ ifneq ($(QTSQL_HOME),)
 SRCS           += $(patsubst %.o,$(ICESQL_DIR)/%.cpp,$(ICESQL_DIR))
 endif
 
-SLICE_SRCS	= $(SDIR)/IceStorm.ice \
-		  ../IceStorm/Election.ice \
+SLICE_SRCS	= ../IceStorm/Election.ice \
 		  ../IceStorm/IceStormInternal.ice \
 		  ../IceStorm/SubscriberRecord.ice \
 		  ../IceStorm/LinkRecord.ice
@@ -104,8 +94,6 @@ SLICE_SRCS     += ../IceStorm/V32Format.ice \
 		  ../IceStorm/V31Format.ice
 endif
 
-HDIR		= $(headerdir)/IceStorm
-SDIR		= $(slicedir)/IceStorm
 LOCAL_HDIR	= ../IceStorm
 
 SLICE2FREEZECMD = $(SLICE2FREEZE) --ice --include-dir IceStorm $(ICECPPFLAGS)
@@ -115,30 +103,17 @@ include $(top_srcdir)/config/Make.rules
 CPPFLAGS	:= $(CPPFLAGS) -I.. $(READLINE_FLAGS)  $(QTSQL_FLAGS)
 ICECPPFLAGS	:= $(ICECPPFLAGS) -I..
 SLICE2CPPFLAGS	:= --ice --include-dir IceStorm $(SLICE2CPPFLAGS)
-LINKWITH	:= $(BZIP2_RPATH_LINK) -lIce -lIceUtil
-SVCLINKWITH	:= $(DB_RPATH_LINK) -lIceGrid -lGlacier2 -lIceBox $(BZIP2_RPATH_LINK) -lIce -lIceUtil
+LINKWITH	:= $(DB_RPATH_LINK) -lIceGrid -lGlacier2 -lIceBox $(BZIP2_RPATH_LINK) -lIce -lIceUtil
 
 ifneq ($(QTSQL_HOME),)
-SVCLINKWITH	+= $(QTSQL_RPATH_LINK) $(QTSQL_LIBS)
+LINKWITH	+= $(QTSQL_RPATH_LINK) $(QTSQL_LIBS)
 else
-SVCLINKWITH	+= $(DB_RPATH_LINK) -lFreeze
+LINKWITH	+= $(DB_RPATH_LINK) -lFreeze
 endif
-
-$(libdir)/$(LIBFILENAME): $(OBJS)
-	rm -f $@
-	$(call mkshlib,$@,$(SONAME),$(OBJS),$(LINKWITH))
-
-$(libdir)/$(SONAME): $(libdir)/$(LIBFILENAME)
-	rm -f $@
-	ln -s $(LIBFILENAME) $@
-
-$(libdir)/$(LIBNAME): $(libdir)/$(SONAME)
-	rm -f $@
-	ln -s $(SONAME) $@
 
 $(libdir)/$(SVCLIBFILENAME): $(SERVICE_OBJS) $(ICESQL_OBJS)
 	rm -f $@
-	$(call mkshlib,$@,$(SVCSONAME),$(SERVICE_OBJS)  $(ICESQL_OBJS),$(SVCLINKWITH))
+	$(call mkshlib,$@,$(SVCSONAME),$(SERVICE_OBJS)  $(ICESQL_OBJS),$(LINKWITH))
 
 $(libdir)/$(SVCSONAME): $(libdir)/$(SVCLIBFILENAME)
 	rm -f $@
@@ -148,7 +123,7 @@ $(libdir)/$(SVCLIBNAME): $(libdir)/$(SVCSONAME)
 	rm -f $@
 	ln -s $(SVCSONAME) $@
 
-$(ADMIN): $(AOBJS) $(LIBTARGETS)
+$(ADMIN): $(AOBJS)
 	rm -f $@
 	$(CXX) $(LDFLAGS) -o $@ $(AOBJS) -lIceStorm $(READLINE_LIBS) $(LIBS)
 
@@ -160,7 +135,7 @@ $(LOCAL_HDIR)/SubscriberMap.h:
 $(LOCAL_HDIR)/LLUMap.h:
 	touch $@
 else
-$(MIGRATE): $(MOBJS) $(LIBTARGETS)
+$(MIGRATE): $(MOBJS)
 	rm -f $@
 	$(CXX) $(LDFLAGS) -o $@ $(MOBJS) $(DB_RPATH_LINK) -lIceStorm -lFreeze $(LIBS)
 
@@ -187,11 +162,6 @@ SubscriberMap.h SubscriberMap.cpp: ../IceStorm/SubscriberRecord.ice $(slicedir)/
 	V31FormatDB ../IceStorm/V31Format.ice
 endif
 
-IceStorm.cpp $(HDIR)/IceStorm.h: $(SDIR)/IceStorm.ice $(SLICE2CPP) $(SLICEPARSERLIB)
-	rm -f IceStorm.cpp $(HDIR)/IceStorm.h
-	$(SLICE2CPP) --checksum --dll-export ICE_STORM_LIB_API $(SLICE2CPPFLAGS) $(SDIR)/IceStorm.ice
-	mv IceStorm.h $(HDIR)
-
 # Needed for make -jn to work.
 ../IceStorm/Grammar.y: Grammar.h
 
@@ -202,7 +172,6 @@ clean::
 	-rm -f LLUMap.h LLUMap.cpp
 
 install:: all
-	$(call installlib,$(install_libdir),$(libdir),$(LIBFILENAME),$(SONAME),$(LIBNAME))
 	$(call installlib,$(install_libdir),$(libdir),$(SVCLIBFILENAME),$(SVCSONAME),$(SVCLIBNAME))
 	$(call installprogram,$(ADMIN),$(install_bindir))
 	$(call installprogram,$(MIGRATE),$(install_bindir))

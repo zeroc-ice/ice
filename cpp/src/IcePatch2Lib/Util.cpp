@@ -729,8 +729,8 @@ IcePatch2::decompressFile(const string& pa)
         //
         // The BZ2_bzReadOpen/BZ2_bzRead/BZ2_bzReadClose functions fail with BCC
         //
-        OS::structstat buf;
-        if(OS::osstat(pathBZ2, &buf) == -1)
+        IceUtilInternal::structstat buf;
+        if(IceUtilInternal::stat(pathBZ2, &buf) == -1)
         {
             throw "cannot stat `" + pathBZ2 + "':\n" + IceUtilInternal::lastErrorToString();
         }

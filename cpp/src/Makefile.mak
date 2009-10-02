@@ -14,27 +14,40 @@ top_srcdir	= ..
 SUBDIRS		= IceUtil \
 		  Slice \
 		  slice2cpp \
+		  slice2freeze
+
+!if "$(BCPLUSPLUS)" != "yes" && "$(CPP_COMPILER)" != "VC60"
+SUBDIRS		= $(SUBDIRS) \
 		  slice2cs \
-		  slice2freeze \
 		  slice2freezej \
 		  slice2java \
 		  slice2php \
 		  slice2py \
 		  slice2rb \
-		  slice2html \
+		  slice2html
+!endif
+
+SUBDIRS		= $(SUBDIRS) \
 		  Ice \
-		  IceXML \
 		  IceSSL \
+		  IceXML \
+		  Freeze \
+		  FreezeScript \
+		  IcePatch2Lib \
+		  Glacier2Lib \
+		  IceStormLib \
+		  IceGridLib \
+		  ca
+
+!if "$(BCPLUSPLUS)" != "yes" && "$(CPP_COMPILER)" != "VC60"
+SUBDIRS		= $(SUBDIRS) \
 		  IceBox \
 		  IcePatch2 \
 		  Glacier2 \
-		  Freeze \
-		  FreezeScript \
-		  IceGridLib \
 		  IceStorm \
 		  IceGrid \
-                  iceserviceinstall \
-		  ca
+                  iceserviceinstall
+!endif
 
 $(EVERYTHING)::
 	@for %i in ( $(SUBDIRS) ) do \

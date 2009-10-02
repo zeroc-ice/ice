@@ -60,6 +60,6 @@ def run(subCmd, pubCmd):
     for s in pubargs:
         runtest(icestorm, subCmd, "", pubCmd, s)
 
-    admin = Util.spawn('iceboxadmin --Ice.Config=config.icebox shutdown')
+    admin = Util.spawn(Util.getIceBoxAdmin() + ' --Ice.Config=config.icebox shutdown')
     admin.waitTestSuccess()
     icestorm.waitTestSuccess()

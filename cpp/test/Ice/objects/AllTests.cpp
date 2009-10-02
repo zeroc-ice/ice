@@ -14,6 +14,38 @@
 using namespace std;
 using namespace Test;
 
+void
+testUOE(const Ice::CommunicatorPtr& communicator)
+{
+    string ref = "uoet:default -p 12010";
+    Ice::ObjectPrx base = communicator->stringToProxy(ref);
+    test(base);
+    UnexpectedObjectExceptionTestPrx uoet = UnexpectedObjectExceptionTestPrx::uncheckedCast(base);
+    test(uoet);
+    try
+    {
+#if defined(__BCPLUSPLUS__) && (__BCPLUSPLUS__ >= 0x0600)
+        IceUtil::DummyBCC dummy;
+#endif
+        uoet->op();
+        test(false);
+    }
+    catch(const Ice::UnexpectedObjectException& ex)
+    {
+        test(ex.type == "::Test::AlsoEmpty");
+        test(ex.expectedType == "::Test::Empty");
+    }
+    catch(const Ice::Exception& ex)
+    {
+        cout << ex << endl;
+        test(false);
+    }
+    catch(...)
+    {
+        test(false);
+    }
+}
+
 InitialPrx
 allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
 {
@@ -164,33 +196,7 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
     if(!collocated)
     {
         cout << "testing UnexpectedObjectException... " << flush;
-        ref = "uoet:default -p 12010";
-        base = communicator->stringToProxy(ref);
-        test(base);
-        UnexpectedObjectExceptionTestPrx uoet = UnexpectedObjectExceptionTestPrx::uncheckedCast(base);
-        test(uoet);
-        try
-        {
-#if defined(__BCPLUSPLUS__) && (__BCPLUSPLUS__ >= 0x0600)
-            IceUtil::DummyBCC dummy;
-#endif
-            uoet->op();
-            test(false);
-        }
-        catch(const Ice::UnexpectedObjectException& ex)
-        {
-            test(ex.type == "::Test::AlsoEmpty");
-            test(ex.expectedType == "::Test::Empty");
-        }
-        catch(const Ice::Exception& ex)
-        {
-            cout << ex << endl;
-            test(false);
-        }
-        catch(...)
-        {
-            test(false);
-        }
+        testUOE(communicator);
         cout << "ok" << endl;
     }
 

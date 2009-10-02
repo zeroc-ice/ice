@@ -55,7 +55,7 @@ public:
 protected:
     
     EventHandler();
-    virtual ~EventHandler();
+    ICE_API virtual ~EventHandler();
 
 #ifdef ICE_USE_IOCP
     SocketOperation _ready;

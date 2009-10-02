@@ -124,7 +124,8 @@ IceInternal::ObjectAdapterFactory::createObjectAdapter(const string& name, const
     if(name.empty())
     {
         string uuid = IceUtil::generateUUID();
-        adapter = new ObjectAdapterI(_instance, _communicator, this, uuid, 0, true);
+        adapter = new ObjectAdapterI(_instance, _communicator, this, uuid, true);
+        adapter->initialize(0);
     }
     else
     {
@@ -132,7 +133,8 @@ IceInternal::ObjectAdapterFactory::createObjectAdapter(const string& name, const
         {
             throw AlreadyRegisteredException(__FILE__, __LINE__, "object adapter", name);
         }
-        adapter = new ObjectAdapterI(_instance, _communicator, this, name, router, false);
+        adapter = new ObjectAdapterI(_instance, _communicator, this, name, false);
+        adapter->initialize(router);
         _adapterNamesInUse.insert(name);
     }
 

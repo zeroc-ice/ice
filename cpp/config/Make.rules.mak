@@ -27,7 +27,7 @@ prefix			= C:\Ice-$(VERSION)
 
 #
 # Specify your C++ compiler. Supported values are:
-# VC60, VC90, VC90_EXPRESS, BCC2007, BCC2009
+# VC60, VC90, VC90_EXPRESS, BCC2010
 #
 !if "$(CPP_COMPILER)" == ""
 CPP_COMPILER		= VC90
@@ -89,7 +89,7 @@ SETARGV			= setargv.obj
 #
 # Compiler specific definitions
 #
-!if "$(CPP_COMPILER)" == "BCC2007" || "$(CPP_COMPILER)" == "BCC2009"
+!if "$(CPP_COMPILER)" == "BCC2007" || "$(CPP_COMPILER)" == "BCC2009" || "$(CPP_COMPILER)" == "BCC2010"
 BCPLUSPLUS		= yes
 !include 	$(top_srcdir)/config/Make.rules.bcc
 !elseif "$(CPP_COMPILER)" == "VC60" || "$(CPP_COMPILER)" == "VC71" || \

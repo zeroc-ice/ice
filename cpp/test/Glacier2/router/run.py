@@ -20,7 +20,7 @@ if len(path) == 0:
 sys.path.append(os.path.join(path[0]))
 from scripts import *
 
-router = os.path.join(TestUtil.getCppBinDir(), "glacier2router")
+router = TestUtil.getGlacier2Router()
 
 def startRouter(buffered):
 

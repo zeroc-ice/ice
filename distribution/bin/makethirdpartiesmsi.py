@@ -24,7 +24,7 @@ OpenSSLVer = '0.9.8k'
 Bzip2Ver = '1.0.5'
 STLPortVer = '4.6.2'
 ExpatVer = '2.0.1'
-DBVer = '4.7.25'
+DBVer = '4.8.24'
 MCPPVer = '2.7.2'
 LooksVer = '2.2.2'
 FormsVer = '1.2.1'
@@ -79,7 +79,7 @@ def environmentCheck(target):
     required = ["DB_HOME", "BZIP2_HOME", "EXPAT_HOME", "OPENSSL_HOME", "MCPP_HOME"]
     if target == "vc60":
         required.append("STLPORT_HOME")
-    if target != "bcc2007" and target != "bcc2009":
+    if target != "bcc2007" and target != "bcc2009" and target != "bcc2010":
         required.append("JGOODIES_FORMS_HOME")
         required.append("JGOODIES_LOOKS_HOME")
 
@@ -126,7 +126,7 @@ def convertLicensesToRTF(toolDir, installTarget):
     core = [ berkeleydb, bzip2, openssl, expat, mcpp ]
 
     collection = core
-    if installTarget != "bcc2007" and installTarget != "bcc2009":
+    if installTarget != "bcc2007" and installTarget != "bcc2009" and installTarget != "bcc2010":
         jgoodies =[(os.path.join(os.environ["JGOODIES_FORMS_HOME"], "license.txt"), "JGoodies Forms",
                     "JGOODIES_FORMS_LICENSE.rtf"),
                    (os.path.join(os.environ["JGOODIES_LOOKS_HOME"], "license.txt"), "JGoodies Looks",
@@ -259,7 +259,7 @@ def main():
         try:
             optionList, args = getopt.getopt(
                 sys.argv[1:], "dhil:", [ "help", "info", "debug", "logfile", "vc60", "vc80", "vc90", "bcc2007",
-  	        "bcc2009", "sslhome=", "expathome=", "dbhome=", "stlporthome=", "bzip2home=", "mcpphome=",
+  	        "bcc2009", "bcc2010", "sslhome=", "expathome=", "dbhome=", "stlporthome=", "bzip2home=", "mcpphome=",
 	        "jgoodiesformshome=", "jgoodieslookshome=", "thirdparty="])
         except getopt.GetoptError:
             usage()
@@ -292,6 +292,8 @@ def main():
                 target = 'bcc2007'
             elif o == '--bcc2009':
                 target = 'bcc2009'
+            elif o == '--bcc2010':
+                target = 'bcc2010'
             elif o == '--sslhome':
                 os.environ['OPENSSL_HOME'] = a
                 os.environ['OPENSSL_HOME_64'] = a + "-x64"

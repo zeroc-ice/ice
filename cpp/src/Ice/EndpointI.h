@@ -45,7 +45,7 @@ public:
 };
 typedef IceUtil::Handle<EndpointI_connectors> EndpointI_connectorsPtr;
 
-class ICE_API EndpointI : public Ice::Endpoint
+class ICE_API EndpointI : public virtual Ice::Endpoint
 {
 public:
 

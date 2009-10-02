@@ -28,8 +28,11 @@ SUBDIRS		= IceUtil \
 		  Freeze \
 		  FreezeScript \
 		  IceBox \
+		  Glacier2Lib \
 		  Glacier2 \
+		  IcePatch2Lib \
 		  IcePatch2 \
+		  IceStormLib \
 		  IceGridLib \
 		  IceStorm \
 		  IceGrid \

@@ -30,11 +30,11 @@ Util.cleanDbDir("db3")
 print "ok"
 
 if Util.defaultHost:
-    a1 = ' --IceBox.Service.IceStorm="IceStormService,33:createIceStorm --Ice.Config=config.s1 %s"' \
+    a1 = ' --IceBox.Service.IceStorm="IceStormService,34b:createIceStorm --Ice.Config=config.s1 %s"' \
         % Util.defaultHost
-    a2 = ' --IceBox.Service.IceStorm="IceStormService,33:createIceStorm --Ice.Config=config.s2 %s"' \
+    a2 = ' --IceBox.Service.IceStorm="IceStormService,34b:createIceStorm --Ice.Config=config.s2 %s"' \
         % Util.defaultHost
-    a3 = ' --IceBox.Service.IceStorm="IceStormService,33:createIceStorm --Ice.Config=config.s3 %s"' \
+    a3 = ' --IceBox.Service.IceStorm="IceStormService,34b:createIceStorm --Ice.Config=config.s3 %s"' \
         % Util.defaultHost
 else:
     a1 = ''
@@ -82,10 +82,10 @@ ib1.expect('Topic: time: remove replica observer: [-0-9A-Fa-f]+')
 ib2.expect('Topic: time: remove replica observer: [-0-9A-Fa-f]+')
 ib3.expect('Topic: time: unsubscribe: [-0-9A-Fa-f]+')
 
-admin = Util.spawn('iceboxadmin --Ice.Config=config.ib1 shutdown')
+admin = Util.spawn(Util.getIceBoxAdmin() + ' --Ice.Config=config.ib1 shutdown')
 admin.waitTestSuccess()
-admin = Util.spawn('iceboxadmin --Ice.Config=config.ib2 shutdown')
+admin = Util.spawn(Util.getIceBoxAdmin() + ' --Ice.Config=config.ib2 shutdown')
 admin.waitTestSuccess()
-admin = Util.spawn('iceboxadmin --Ice.Config=config.ib3 shutdown')
+admin = Util.spawn(Util.getIceBoxAdmin() + ' --Ice.Config=config.ib3 shutdown')
 admin.waitTestSuccess()
 print "ok"

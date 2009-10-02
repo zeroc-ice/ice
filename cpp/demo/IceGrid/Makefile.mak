@@ -11,7 +11,16 @@ top_srcdir	= ..\..
 
 !include $(top_srcdir)\config\Make.rules.mak
 
-SUBDIRS		= allocate sessionActivation simple replication icebox secure
+SUBDIRS		= allocate \
+		  sessionActivation \
+		  simple \
+		  replication \
+		  secure
+
+!if "$(BCPLUSPLUS)" != "yes" && "$(CPP_COMPILER)" != "VC60"
+SUBDIRS		= $(SUBDIRS) \
+		  icebox
+!endif
 
 $(EVERYTHING)::
 	@for %i in ( $(SUBDIRS) ) do \

@@ -38,21 +38,21 @@ else:
 
 print "starting icegridnodes...",
 sys.stdout.flush()
-master = Util.spawn('icegridregistry --Ice.Config=config.master --Ice.PrintAdapterReady --Ice.StdErr= --Ice.StdOut=')
+master = Util.spawn(Util.getIceGridRegistry() + ' --Ice.Config=config.master --Ice.PrintAdapterReady --Ice.StdErr= --Ice.StdOut=')
 master.expect('IceGrid.Registry.Internal ready\nIceGrid.Registry.Server ready\nIceGrid.Registry.Client ready')
-replica1 = Util.spawn('icegridregistry --Ice.Config=config.replica1 --Ice.PrintAdapterReady --Ice.StdErr= --Ice.StdOut=')
+replica1 = Util.spawn(Util.getIceGridRegistry() + ' --Ice.Config=config.replica1 --Ice.PrintAdapterReady --Ice.StdErr= --Ice.StdOut=')
 replica1.expect('IceGrid.Registry.Server ready\nIceGrid.Registry.Client ready')
-replica2 = Util.spawn('icegridregistry --Ice.Config=config.replica2 --Ice.PrintAdapterReady --Ice.StdErr= --Ice.StdOut=')
+replica2 = Util.spawn(Util.getIceGridRegistry() + ' --Ice.Config=config.replica2 --Ice.PrintAdapterReady --Ice.StdErr= --Ice.StdOut=')
 replica2.expect('IceGrid.Registry.Server ready\nIceGrid.Registry.Client ready')
-node1 = Util.spawn('icegridnode --Ice.Config=config.node1 --Ice.PrintAdapterReady --Ice.StdErr= --Ice.StdOut= %s' % (args))
+node1 = Util.spawn(Util.getIceGridNode() + ' --Ice.Config=config.node1 --Ice.PrintAdapterReady --Ice.StdErr= --Ice.StdOut= %s' % (args))
 node1.expect('IceGrid.Node ready')
-node2 = Util.spawn('icegridnode --Ice.Config=config.node2 --Ice.PrintAdapterReady --Ice.StdErr= --Ice.StdOut= %s' % (args))
+node2 = Util.spawn(Util.getIceGridNode() + ' --Ice.Config=config.node2 --Ice.PrintAdapterReady --Ice.StdErr= --Ice.StdOut= %s' % (args))
 node2.expect('IceGrid.Node ready')
 print "ok"
 
 print "deploying application...",
 sys.stdout.flush()
-admin = Util.spawn('icegridadmin --Ice.Config=config.client')
+admin = Util.spawn(Util.getIceGridAdmin() + ' --Ice.Config=config.client')
 admin.expect('>>>')
 admin.sendline("application add \'application.xml\'")
 admin.expect('>>>')

@@ -34,13 +34,13 @@ def run(clientCmd):
 
     print "starting icegridnode...",
     sys.stdout.flush()
-    node = Util.spawn('icegridnode --Ice.Config=config.grid --Ice.PrintAdapterReady %s' % (args))
+    node = Util.spawn(Util.getIceGridNode() + ' --Ice.Config=config.grid --Ice.PrintAdapterReady %s' % (args))
     node.expect('IceGrid.Registry.Internal ready\nIceGrid.Registry.Server ready\nIceGrid.Registry.Client ready\nIceGrid.Node ready')
     print "ok"
 
     print "deploying application...",
     sys.stdout.flush()
-    admin = Util.spawn('icegridadmin --Ice.Config=config.grid')
+    admin = Util.spawn(Util.getIceGridAdmin() + ' --Ice.Config=config.grid')
     admin.expect('>>>')
     admin.sendline("application add \'application-single.xml\'")
     admin.expect('>>>')

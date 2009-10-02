@@ -153,7 +153,7 @@ EventLoggerMsg.h EventLoggerMsg.rc: EventLoggerMsg.mc
 
 Ice.res: EventLoggerMsg.rc
 
-!if "$(CPP_COMPILER)" == "BCC2009" & "$(OPTIMIZE)" == "yes"
+!if "$(CPP_COMPILER)" == "BCC2010" & "$(OPTIMIZE)" == "yes"
 #
 # Tests fail if GC.cpp is built with optimizations enabled
 #

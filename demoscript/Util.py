@@ -34,6 +34,7 @@ keepGoing = False
 iceHome = None
 x64 = False
 preferIPv4 = False
+serviceDir = None
 demoErrors = []
 
 #
@@ -220,6 +221,17 @@ def isMono():
 def isSolaris():
     return sys.platform == "sunos5"
 
+def isNoServices():
+    if not isWin32():
+        return false
+    compiler = ""
+    if os.environ.get("CPP_COMPILER", "") != "":
+        compiler = os.environ["CPP_COMPILER"]
+    else:
+        config = open(os.path.join(toplevel, "cpp", "config", "Make.rules.mak"), "r")
+        compiler = re.search("CPP_COMPILER[\t\s]*= ([A-Z0-9]*)", config.read()).group(1)
+    return compiler == "BCC2010" or compiler == "VC60"
+
 def getMapping():
     """Determine the current mapping based on the cwd."""
     here = os.path.abspath(os.getcwd())
@@ -320,6 +332,7 @@ def run(demos, protobufDemos = [], root = False):
         --preferIPv4            Prefer IPv4 stack (java only)."
         --fast                  Run an abbreviated version of the demos."
         --script                Generate a script to run the demos.
+        --service-dir=<path>    Directory to locate services for C++Builder/VC6.
         --env                   Dump the environment."
         --noenv                 Do not automatically modify environment.""" % (sys.argv[0])
         sys.exit(2)
@@ -329,7 +342,7 @@ def run(demos, protobufDemos = [], root = False):
     try:
         opts, args = getopt.getopt(sys.argv[1:], "lr:R:", [
                 "filter=", "rfilter=", "start=", "loop", "fast", "trace=", "debug", "host=", "mode=",
-                "continue", "ice-home=", "x64", "preferIPv4", "env", "noenv", "script", "protobuf"])
+                "continue", "ice-home=", "x64", "preferIPv4", "env", "noenv", "script", "protobuf", "service-dir="])
     except getopt.GetoptError:
         usage()
 
@@ -375,6 +388,9 @@ def run(demos, protobufDemos = [], root = False):
             script = True
         elif o in '--protobuf':
             demos = demos + protobufDemos
+        elif o in '--service-dir':
+            global serviceDir
+            serviceDir = a
 
     for demoFilter, removeFilter in filters:
         if removeFilter:
@@ -430,9 +446,21 @@ def isDebugBuild():
 	buildmode = guessBuildMode()
 	print "(guessed build mode %s)" % buildmode
     return buildmode == "debug"
+
+def getIceVersion():
+    config = open(os.path.join(toplevel, "config", "Make.common.rules"), "r")
+    return re.search("VERSION[\t\s]*= ([0-9]+\.[0-9]+(\.[0-9]+|b[0-9]*))", config.read()).group(1)
+
+def getServiceDir():
+    global serviceDir
+    if serviceDir == None:
+        serviceDir = "C:\\Ice-" + str(getIceVersion()) + "\\bin"
+    return serviceDir
         
 def getIceBox(mapping = "cpp"):
     if mapping == "cpp":
+        if isNoServices():
+            return os.path.join(getServiceDir(), "icebox.exe")
         if isWin32() and isDebugBuild():
 	    return "iceboxd"
         return "icebox"
@@ -443,6 +471,36 @@ def getIceBox(mapping = "cpp"):
         else:
             return "iceboxnet.exe"
     assert False
+
+def getIceBoxAdmin():
+    if isNoServices():
+        return os.path.join(getServiceDir(), "iceboxadmin")
+    else:
+        return "iceboxadmin"
+
+def getIceGridRegistry():
+    if isNoServices():
+        return os.path.join(getServiceDir(), "icegridregistry")
+    else:
+        return "icegridregistry"
+
+def getIceGridNode():
+    if isNoServices():
+        return os.path.join(getServiceDir(), "icegridnode")
+    else:
+        return "icegridnode"
+
+def getIceGridAdmin():
+    if isNoServices():
+        return os.path.join(getServiceDir(), "icegridadmin")
+    else:
+        return "icegridadmin"
+
+def getGlacier2Router():
+    if isNoServices():
+        return os.path.join(getServiceDir(), "glacier2router")
+    else:
+        return "glacier2router"
 
 def spawn(command, cwd = None):
     desc = command.split(' ')[0]
@@ -513,10 +571,10 @@ def addLdPath(libpath):
 
 def processCmdLine():
     def usage():
-	print "usage: " + sys.argv[0] + " --x64 --preferIPv4 --env --noenv --fast --trace=output --debug --host host --mode=[debug|release] --ice-home=<dir>"
+	print "usage: " + sys.argv[0] + " --x64 --preferIPv4 --env --noenv --fast --trace=output --debug --host host --mode=[debug|release] --ice-home=<dir> --service-dir=<dir>"
 	sys.exit(2)
     try:
-	opts, args = getopt.getopt(sys.argv[1:], "", ["env", "noenv", "x64", "preferIPv4", "fast", "trace=", "debug", "host=", "mode=", "ice-home="])
+	opts, args = getopt.getopt(sys.argv[1:], "", ["env", "noenv", "x64", "preferIPv4", "fast", "trace=", "debug", "host=", "mode=", "ice-home=", "--servicedir="])
     except getopt.GetoptError:
 	usage()
 
@@ -529,6 +587,7 @@ def processCmdLine():
     global debug
     global host
     global iceHome
+    global serviceDir
 
     fast = False
     trace = False
@@ -560,6 +619,8 @@ def processCmdLine():
 	    preferIPv4 = True
         if o == "--ice-home":
             iceHome = a
+        if o == "--service-dir":
+            serviceDir = a
 	if o == "--mode":
 	    buildmode = a
 	    if buildmode != 'debug' and buildmode != 'release':

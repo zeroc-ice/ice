@@ -145,16 +145,10 @@ LINKWITH 	= $(LIBS) glacier2$(LIBSUFFIX).lib
 ALINKWITH 	= $(LINKWITH) icegrid$(LIBSUFFIX).lib icexml$(LIBSUFFIX).lib icepatch2$(LIBSUFFIX).lib \
 		  icebox$(LIBSUFFIX).lib
 NLINKWITH	= $(ALINKWITH) $(DBLINKWITH) icestorm$(LIBSUFFIX).lib icebox$(LIBSUFFIX).lib \
-		  icessl$(LIBSUFFIX).lib icestormservice$(LIBSUFFIX).lib $(OPENSSL_LIBS)
-!if "$(BCPLUSPLUS)" != "yes"
-NLINKWITH	= $(NLINKWITH) pdh.lib ws2_32.lib
-!endif
+		  icessl$(LIBSUFFIX).lib icestormservice$(LIBSUFFIX).lib $(OPENSSL_LIBS) pdh.lib ws2_32.lib
 
 SLICE2CPPFLAGS	= --checksum --ice --include-dir IceGrid $(SLICE2CPPFLAGS)
-CPPFLAGS	= -I. -I.. -Idummyinclude $(CPPFLAGS) -DWIN32_LEAN_AND_MEAN
-!if "$(BCPLUSPLUS)" != "yes"
-CPPFLAGS 	= $(CPPFLAGS) -Zm200
-!endif
+CPPFLAGS	= -I. -I.. -Idummyinclude $(CPPFLAGS) -DWIN32_LEAN_AND_MEAN -Zm200
 
 !if "$(GENERATE_PDB)" == "yes"
 APDBFLAGS       = /pdb:$(ADMIN:.exe=.pdb)
@@ -162,15 +156,9 @@ RPDBFLAGS       = /pdb:$(REGISTRY_SERVER:.exe=.pdb)
 NPDBFLAGS       = /pdb:$(NODE_SERVER:.exe=.pdb)
 !endif
 
-!if "$(BCPLUSPLUS)" == "yes"
-ARES_FILE       = ,, IceGridAdmin.res
-RRES_FILE       = ,, IceGridRegistry.res
-NRES_FILE       = ,, IceGridNode.res
-!else
 ARES_FILE       = IceGridAdmin.res
 RRES_FILE       = IceGridRegistry.res
 NRES_FILE       = IceGridNode.res
-!endif
 
 $(ADMIN): $(ADMIN_OBJS) IceGridAdmin.res
 	$(LINK) $(LD_EXEFLAGS) $(APDBFLAGS) $(ADMIN_OBJS) $(SETARGV) $(PREOUT)$@ $(PRELIBS)$(ALINKWITH) $(ARES_FILE)
@@ -245,14 +233,7 @@ install:: all
 	copy $(REGISTRY_SERVER) $(install_bindir)
 
 
-!if "$(BCPLUSPLUS)" == "yes" && "$(OPTIMIZE)" != "yes"
-
-install:: all
-	copy $(ADMIN:.exe=.tds) $(install_bindir)
-	copy $(NODE_SERVER:.exe=.tds) $(install_bindir)
-	copy $(REGISTRY_SERVER:.exe=.tds) $(install_bindir)
-
-!elseif "$(GENERATE_PDB)" == "yes"
+!if "$(GENERATE_PDB)" == "yes"
 
 install:: all
 	copy $(ADMIN:.exe=.pdb) $(install_bindir)

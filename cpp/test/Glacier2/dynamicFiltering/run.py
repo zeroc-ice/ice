@@ -26,7 +26,7 @@ print "starting server...",
 serverProc = TestUtil.startServer(server, count=3)
 print "ok"
 
-router = os.path.join(TestUtil.getCppBinDir(), "glacier2router")
+router = TestUtil.getGlacier2Router()
 
 args = r' --Glacier2.Client.Endpoints="default -p 12347"' + \
         r' --Ice.Admin.Endpoints="tcp -p 12348"' + \

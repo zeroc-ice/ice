@@ -15,12 +15,16 @@ SUBDIRS		= IceUtil \
 		  Slice \
 		  Ice \
                   IceSSL \
-		  IceBox \
 		  Glacier2 \
 		  Freeze \
 		  IceStorm \
 		  FreezeScript \
 		  IceGrid
+
+!if "$(BCPLUSPLUS)" != "yes" && "$(CPP_COMPILER)" != "VC60"
+SUBDIRS		= $(SUBDIRS) \
+		  IceBox
+!endif
 
 $(EVERYTHING)::
 	@for %i in ( $(SUBDIRS) ) do \

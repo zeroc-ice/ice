@@ -223,7 +223,7 @@ elif len(testcases) < 6:
     print "WARNING: The network configuration for this host does not permit all "
     print "         tests to run correctly, some tests have been disabled."
 
-router = os.path.join(TestUtil.getCppBinDir(), "glacier2router")
+router = TestUtil.getGlacier2Router()
 
 def pingProgress():
     sys.stdout.write('.')

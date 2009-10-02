@@ -830,9 +830,14 @@ Ice::ObjectAdapterI::getServantManager() const
     return _servantManager;
 }
 
+//
+// COMPILERFIX: The ObjectAdapterI setup is broken out into a separate initialize
+// function because when it was part of the constructor C++Builder 2010 apps would
+// crash if an execption was thrown from any calls within the constructor.
+//
 Ice::ObjectAdapterI::ObjectAdapterI(const InstancePtr& instance, const CommunicatorPtr& communicator,
                                     const ObjectAdapterFactoryPtr& objectAdapterFactory, const string& name,
-                                    const RouterPrx& router, bool noConfig) :
+                                    /*const RouterPrx& router,*/ bool noConfig) :
     _deactivated(false),
     _instance(instance),
     _communicator(communicator),
@@ -848,13 +853,18 @@ Ice::ObjectAdapterI::ObjectAdapterI(const InstancePtr& instance, const Communica
     _destroyed(false),
     _noConfig(noConfig)
 {
+}
+
+void
+Ice::ObjectAdapterI::initialize(const RouterPrx& router)
+{
     if(_noConfig)
     {
         _reference = _instance->referenceFactory()->create("dummy -t", "");
         return;
     }
 
-    PropertiesPtr properties = instance->initializationData().properties;
+    PropertiesPtr properties = _instance->initializationData().properties;
     StringSeq unknownProps;
     bool noProps = filterProperties(unknownProps);
 
@@ -871,38 +881,37 @@ Ice::ObjectAdapterI::ObjectAdapterI(const InstancePtr& instance, const Communica
         }
     }
 
-    //
-    // Make sure named adapter has some configuration
-    //
-    if(router == 0 && noProps)
-    {
-        InitializationException ex(__FILE__, __LINE__);
-        ex.reason = "object adapter `" + _name + "' requires configuration";
-        throw ex;
-    }
-
-    const_cast<string&>(_id) = properties->getProperty(_name + ".AdapterId");
-    const_cast<string&>(_replicaGroupId) = properties->getProperty(_name + ".ReplicaGroupId");
-
-    //
-    // Setup a reference to be used to get the default proxy options
-    // when creating new proxies. By default, create twoway proxies.
-    //
-    string proxyOptions = properties->getPropertyWithDefault(_name + ".ProxyOptions", "-t");
     try
     {
-        _reference = _instance->referenceFactory()->create("dummy " + proxyOptions, "");
-    }
-    catch(const ProxyParseException&)
-    {
-        InitializationException ex(__FILE__, __LINE__);
-        ex.reason = "invalid proxy options `" + proxyOptions + "' for object adapter `" + _name + "'";
-        throw ex;
-    }
+        //
+        // Make sure named adapter has some configuration
+        //
+        if(router == 0 && noProps)
+        {
+            InitializationException ex(__FILE__, __LINE__);
+            ex.reason = "object adapter `" + _name + "' requires configuration";
+            throw ex;
+        }
 
-    __setNoDelete(true);
-    try
-    {
+        const_cast<string&>(_id) = properties->getProperty(_name + ".AdapterId");
+        const_cast<string&>(_replicaGroupId) = properties->getProperty(_name + ".ReplicaGroupId");
+
+        //
+        // Setup a reference to be used to get the default proxy options
+        // when creating new proxies. By default, create twoway proxies.
+        //
+        string proxyOptions = properties->getPropertyWithDefault(_name + ".ProxyOptions", "-t");
+        try
+        {
+            _reference = _instance->referenceFactory()->create("dummy " + proxyOptions, "");
+        }
+        catch(const ProxyParseException&)
+        {
+            InitializationException ex(__FILE__, __LINE__);
+            ex.reason = "invalid proxy options `" + proxyOptions + "' for object adapter `" + _name + "'";
+            throw ex;
+        }
+
         int threadPoolSize = properties->getPropertyAsInt(_name + ".ThreadPool.Size");
         int threadPoolSizeMax = properties->getPropertyAsInt(_name + ".ThreadPool.SizeMax");
         bool hasPriority = properties->getProperty(_name + ".ThreadPool.ThreadPriority") != "";
@@ -971,7 +980,7 @@ Ice::ObjectAdapterI::ObjectAdapterI(const InstancePtr& instance, const Communica
             for(vector<EndpointIPtr>::iterator p = endpoints.begin(); p != endpoints.end(); ++p)
             {
 
-                IncomingConnectionFactoryPtr factory = new IncomingConnectionFactory(instance, *p, this);
+                IncomingConnectionFactoryPtr factory = new IncomingConnectionFactory(_instance, *p, this);
                  factory->initialize(_name);
                 _incomingConnectionFactories.push_back(factory);
             }
@@ -982,7 +991,7 @@ Ice::ObjectAdapterI::ObjectAdapterI(const InstancePtr& instance, const Communica
                 if(tl->network >= 2)
                 {
                     Trace out(_instance->initializationData().logger, tl->networkCat);
-                    out << "created adapter `" << name << "' without endpoints";
+                    out << "created adapter `" << _name << "' without endpoints";
                 }
             }
 
@@ -1004,10 +1013,8 @@ Ice::ObjectAdapterI::ObjectAdapterI(const InstancePtr& instance, const Communica
     catch(...)
     {
         destroy();
-        __setNoDelete(false);
         throw;
     }
-    __setNoDelete(false);  
 }
 
 Ice::ObjectAdapterI::~ObjectAdapterI()

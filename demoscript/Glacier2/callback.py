@@ -26,14 +26,14 @@ def run(client, server, glacier2):
     client.sendline('t')
     server.expect('initiating callback to')
     client.expect('received callback')
-    #glacier2.expect('_fwd/t \\]')
+    glacier2.expect('_fwd/t')
 
     print "oneway",
     sys.stdout.flush()
     client.sendline('o')
     server.expect('initiating callback to')
     client.expect('received callback')
-    #glacier2.expect('_fwd/o \\]')
+    glacier2.expect('_fwd/o')
 
     print "batch",
     sys.stdout.flush()
@@ -44,14 +44,14 @@ def run(client, server, glacier2):
         pass
     client.sendline('O')
     client.sendline('f')
-    #glacier2.expect('_fwd/O \\]')
+    glacier2.expect('_fwd/O')
     print "ok"
 
     print "testing override context field...",
     sys.stdout.flush()
     client.sendline('v')
     client.sendline('t')
-    #glacier2.expect('_fwd/t, _ovrd/some_value')
+    glacier2.expect('_fwd/t, _ovrd/some_value')
     server.expect('initiating callback to')
     client.expect('received callback')
     print "ok"
@@ -68,13 +68,13 @@ def run(client, server, glacier2):
         pass
     print "ok"
 
-
-    # SessionNotExist
-    client.sendline('x')
-    client.waitTestSuccess()
-
-    server.kill(signal.SIGINT)
+    client.sendline('s')
+    server.expect('shutting down...')
     server.waitTestSuccess()
+
+    client.sendline('x')
+    glacier2.expect('destroying session')
+    client.waitTestSuccess()
 
     glacier2.kill(signal.SIGINT)
     glacier2.waitTestSuccess()

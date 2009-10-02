@@ -33,11 +33,7 @@ EXTRA_MANIFEST  = security.manifest
 PDBFLAGS       = /pdb:$(TOOL:.exe=.pdb)
 !endif
 
-!if "$(BCPLUSPLUS)" == "yes"
-RES_FILE        = ,, IceServiceInstall.res
-!else
 RES_FILE        = IceServiceInstall.res
-!endif
 
 $(TOOL): $(OBJS) IceServiceInstall.res
 	$(LINK) $(LD_EXEFLAGS) $(PDBFLAGS) $(OBJS) $(SETARGV) $(PREOUT)$@ $(PRELIBS)$(LINKWITH) $(RES_FILE)
@@ -51,13 +47,7 @@ clean::
 install:: all
 	copy $(TOOL) $(install_bindir)
 
-
-!if "$(BCPLUSPLUS)" == "yes" && "$(OPTIMIZE)" != "yes"
-
-install:: all
-	copy $(TOOL:.exe=.tds) $(install_bindir)
-
-!elseif "$(GENERATE_PDB)" == "yes"
+!if "$(GENERATE_PDB)" == "yes"
 
 install:: all
 	copy $(TOOL:.exe=.pdb) $(install_bindir)

@@ -31,6 +31,7 @@ sqlDbName = None
 sqlHost = None
 sqlUser = None
 sqlPassword = None
+serviceDir = None
 
 def isCygwin():
     # The substring on sys.platform is required because some cygwin
@@ -62,13 +63,25 @@ def isSparc():
         return False
 
 def isAIX():
-   return sys.platform in ['aix4', 'aix5']
+    return sys.platform in ['aix4', 'aix5']
   
 def isDarwin():
-   return sys.platform == "darwin"
+    return sys.platform == "darwin"
 
 def isLinux():
     return sys.platform.startswith("linux")
+
+
+def isNoServices():
+    if not isWin32():
+        return false
+    compiler = ""
+    if os.environ.get("CPP_COMPILER", "") != "":
+        compiler = os.environ["CPP_COMPILER"]
+    else:
+        config = open(os.path.join(toplevel, "cpp", "config", "Make.rules.mak"), "r")
+        compiler = re.search("CPP_COMPILER[\t\s]*= ([A-Z0-9]*)", config.read()).group(1)
+    return compiler == "BCC2010" or compiler == "VC60"
 
 #
 # The PHP interpreter is called "php5" on some platforms (e.g., SLES).
@@ -268,6 +281,7 @@ def run(tests, root = False):
           --sql-host=<host>       Set SQL host name.
           --sql-user=<user>       Set SQL user name.
           --sql-passwd=<passwd>   Set SQL password.
+          --service-dir=<dir>     Where to locate services for builds without service support.
         """
         sys.exit(2)
 
@@ -276,7 +290,7 @@ def run(tests, root = False):
                                    ["start=", "start-after=", "filter=", "rfilter=", "all", "all-cross", "loop",
                                     "debug", "protocol=", "compress", "valgrind", "host=", "serialize", "continue",
                                     "ipv6", "no-ipv6", "ice-home=", "cross=", "x64", "script", "env", "sql-type=",
-                                    "sql-db=", "sql-host=", "sql-user=", "sql-passwd="])
+                                    "sql-db=", "sql-host=", "sql-user=", "sql-passwd=", "service-dir="])
     except getopt.GetoptError:
         usage()
 
@@ -328,7 +342,8 @@ def run(tests, root = False):
                 sys.exit(1)
 
         if o in ( "--cross", "--protocol", "--host", "--debug", "--compress", "--valgrind", "--serialize", "--ipv6", \
-                  "--ice-home", "--x64", "--env", "--sql-type", "--sql-db", "--sql-host", "--sql-user", "--sql-passwd"):
+                  "--ice-home", "--x64", "--env", "--sql-type", "--sql-db", "--sql-host", "--sql-user", "--sql-passwd",
+                  "--service-dir"):
             arg += " " + o
             if len(a) > 0:
                 arg += " " + a
@@ -488,8 +503,11 @@ def phpCleanup():
     if os.path.exists("tmp.ini"):
         os.remove("tmp.ini")
 
-def getIceSoVersion():
+def getIceVersion():
+    config = open(os.path.join(toplevel, "config", "Make.common.rules"), "r")
+    return re.search("VERSION[\t\s]*= ([0-9]+\.[0-9]+(\.[0-9]+|b[0-9]*))", config.read()).group(1)
 
+def getIceSoVersion():
     config = open(os.path.join(toplevel, "cpp", "include", "IceUtil", "Config.h"), "r")
     intVersion = int(re.search("ICE_INT_VERSION ([0-9]*)", config.read()).group(1))
     majorVersion = intVersion / 10000
@@ -536,7 +554,9 @@ def getIceBox():
     lang = getDefaultMapping()
     if lang == "cpp":
         iceBox = ""
-        if isWin32():
+        if isNoServices():
+            iceBox = os.path.join(getServiceDir(), "icebox.exe")
+        elif isWin32():
             #
             # Read the build.txt file from the test directory to figure out 
             # how the IceBox service was built ("debug" vs. "release") and 
@@ -564,6 +584,12 @@ def getIceBox():
         sys.exit(0)
     
     return iceBox
+
+def getGlacier2Router():
+    if isNoServices():
+        return os.path.join(getServiceDir(), "glacier2router")
+    else:
+        return os.path.join(getCppBinDir(), "glacier2router")
 
 class InvalidSelectorString(Exception):
     def __init__(self, value):
@@ -627,6 +653,7 @@ class DriverConfig:
     sqlHost = None
     sqlUser = None
     sqlPassword = None
+    serviceDir = None
 
     def __init__(self, type = None):
         global protocol
@@ -642,6 +669,7 @@ class DriverConfig:
         global sqlHost
         global sqlUser
         global sqlPassword
+        global serviceDir
         self.lang = getDefaultMapping()
         self.protocol = protocol
         self.compress = compress
@@ -657,6 +685,7 @@ class DriverConfig:
         self.sqlHost = sqlHost
         self.sqlUser = sqlUser
         self.sqlPassword = sqlPassword
+        self.serviceDir = serviceDir
 
 def argsToDict(argumentString, results):
     """Converts an argument string to dictionary"""
@@ -1055,6 +1084,12 @@ def getCppBinDir():
             binDir = os.path.join(binDir, "x64")
     return binDir
 
+def getServiceDir():
+    global serviceDir
+    if serviceDir == None:
+        serviceDir = "C:\\Ice-" + str(getIceVersion()) + "\\bin"
+    return serviceDir
+
 def getTestEnv(lang, testdir):
     env = os.environ.copy()
     if lang == "cpp":
@@ -1155,6 +1190,7 @@ def processCmdLine():
           --sql-host=<host>       Set SQL host name.
           --sql-user=<user>       Set SQL user name.
           --sql-passwd=<passwd>   Set SQL password.
+          --service-dir=<dir>     Where to locate services for builds without service support.
         """
         sys.exit(2)
 
@@ -1162,7 +1198,7 @@ def processCmdLine():
         opts, args = getopt.getopt(
             sys.argv[1:], "", ["debug", "trace=", "protocol=", "compress", "valgrind", "host=", "serialize", "ipv6", \
                               "ice-home=", "x64", "cross=", "env", "sql-type=", "sql-db=", "sql-host=", "sql-user=", 
-                              "sql-passwd="])
+                              "sql-passwd=", "service-dir="])
     except getopt.GetoptError:
         usage()
 
@@ -1245,6 +1281,9 @@ def processCmdLine():
         elif o == "--sql-passwd":
             global sqlPassword
             sqlPassword = a
+        elif o == "--service-dir":
+            global serviceDir
+            serviceDir = a
 
     if len(args) > 0:
         usage()
@@ -1321,6 +1360,10 @@ def runTests(start, expanded, num = 0, script = False):
             
             if not isWin32() and "win32only" in config:
                 print "%s*** test only supported under Win32%s" % (prefix, suffix)
+                continue
+
+            if isNoServices() and "noservices" in config:
+                print "%s*** test not supported with VC++ 6.0/C++Builder%s" % (prefix, suffix)
                 continue
 
             # If this is mono and we're running ssl protocol tests

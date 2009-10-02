@@ -95,9 +95,9 @@ public:
 private:
 
     ObjectAdapterI(const IceInternal::InstancePtr&, const CommunicatorPtr&, 
-                   const IceInternal::ObjectAdapterFactoryPtr&, const std::string&, 
-                   const RouterPrx&, bool);
+                   const IceInternal::ObjectAdapterFactoryPtr&, const std::string&, bool);
     virtual ~ObjectAdapterI();
+    void initialize(const RouterPrx&);
     friend class IceInternal::ObjectAdapterFactory;
     
     ObjectPrx newProxy(const Identity&, const std::string&) const;
