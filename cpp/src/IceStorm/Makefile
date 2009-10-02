@@ -103,7 +103,7 @@ include $(top_srcdir)/config/Make.rules
 CPPFLAGS	:= $(CPPFLAGS) -I.. $(READLINE_FLAGS)  $(QTSQL_FLAGS)
 ICECPPFLAGS	:= $(ICECPPFLAGS) -I..
 SLICE2CPPFLAGS	:= --ice --include-dir IceStorm $(SLICE2CPPFLAGS)
-LINKWITH	:= $(DB_RPATH_LINK) -lIceGrid -lGlacier2 -lIceBox $(BZIP2_RPATH_LINK) -lIce -lIceUtil
+LINKWITH	:= $(DB_RPATH_LINK) -lIceStorm -lIceGrid -lGlacier2 -lIceBox $(BZIP2_RPATH_LINK) -lIce -lIceUtil
 
 ifneq ($(QTSQL_HOME),)
 LINKWITH	+= $(QTSQL_RPATH_LINK) $(QTSQL_LIBS)
