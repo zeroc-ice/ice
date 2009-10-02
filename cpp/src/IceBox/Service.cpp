@@ -72,9 +72,6 @@ IceBox::IceBoxService::start(int argc, char* argv[])
 
     try
     {
-#if defined(__BCPLUSPLUS__) && (__BCPLUSPLUS__ >= 0x0600)
-        IceUtil::DummyBCC dummy;
-#endif
         args = opts.parse(args);
     }
     catch(const IceUtilInternal::BadOptException& e)

@@ -195,9 +195,6 @@ allTests(const Ice::CommunicatorPtr& communicator)
         TestIntfPrx obj;
         try
         {
-#if defined(__BCPLUSPLUS__) && (__BCPLUSPLUS__ >= 0x0600)
-            IceUtil::DummyBCC dummy;
-#endif
             obj = TestIntfPrx::checkedCast(communicator->stringToProxy("server-manual"));
             test(false);
         }

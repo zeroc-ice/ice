@@ -210,9 +210,6 @@ public:
         os << "stress-" << IceUtilInternal::random(6) + 1;
         try
         {
-#if defined(__BCPLUSPLUS__) && (__BCPLUSPLUS__ >= 0x0600)
-        IceUtil::DummyBCC dummy;
-#endif
             return session->allocateObjectById(_communicator->stringToIdentity(os.str()));
         }
         catch(const AllocationTimeoutException&)
@@ -232,9 +229,6 @@ public:
     {
         try
         {
-#if defined(__BCPLUSPLUS__) && (__BCPLUSPLUS__ >= 0x0600)
-        IceUtil::DummyBCC dummy;
-#endif
             return session->allocateObjectByType("::StressTest");
         }
         catch(const AllocationTimeoutException&)
@@ -421,9 +415,6 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
         try
         {
-#if defined(__BCPLUSPLUS__) && (__BCPLUSPLUS__ >= 0x0600)
-            IceUtil::DummyBCC dummy;
-#endif
             session1->allocateObjectById(communicator->stringToIdentity("dummy"));
         }
         catch(const ObjectNotRegisteredException&)
@@ -431,9 +422,6 @@ allTests(const Ice::CommunicatorPtr& communicator)
         }
         try
         {
-#if defined(__BCPLUSPLUS__) && (__BCPLUSPLUS__ >= 0x0600)
-            IceUtil::DummyBCC dummy;
-#endif
             session1->releaseObject(communicator->stringToIdentity("dummy"));
         }
         catch(const ObjectNotRegisteredException&)
@@ -442,9 +430,6 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
         try
         {
-#if defined(__BCPLUSPLUS__) && (__BCPLUSPLUS__ >= 0x0600)
-            IceUtil::DummyBCC dummy;
-#endif
             session1->allocateObjectById(communicator->stringToIdentity("nonallocatable"));
             test(false);
         }
@@ -458,9 +443,6 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
         try
         {
-#if defined(__BCPLUSPLUS__) && (__BCPLUSPLUS__ >= 0x0600)
-            IceUtil::DummyBCC dummy;
-#endif
             session2->allocateObjectById(communicator->stringToIdentity("nonallocatable"));
             test(false);
         }
@@ -474,9 +456,6 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
         try
         {
-#if defined(__BCPLUSPLUS__) && (__BCPLUSPLUS__ >= 0x0600)
-            IceUtil::DummyBCC dummy;
-#endif
             session1->releaseObject(communicator->stringToIdentity("nonallocatable"));
             test(false);
         }
@@ -490,9 +469,6 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
         try
         {
-#if defined(__BCPLUSPLUS__) && (__BCPLUSPLUS__ >= 0x0600)
-            IceUtil::DummyBCC dummy;
-#endif
             session2->releaseObject(communicator->stringToIdentity("nonallocatable"));
             test(false);
         }
@@ -507,9 +483,6 @@ allTests(const Ice::CommunicatorPtr& communicator)
         session1->allocateObjectById(allocatable);
         try
         {
-#if defined(__BCPLUSPLUS__) && (__BCPLUSPLUS__ >= 0x0600)
-            IceUtil::DummyBCC dummy;
-#endif
             session1->allocateObjectById(allocatable);
             test(false);
         }
@@ -522,9 +495,6 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
         try
         {
-#if defined(__BCPLUSPLUS__) && (__BCPLUSPLUS__ >= 0x0600)
-            IceUtil::DummyBCC dummy;
-#endif
             session2->allocateObjectById(allocatable);
             test(false);
         }
@@ -533,9 +503,6 @@ allTests(const Ice::CommunicatorPtr& communicator)
         }
         try
         {
-#if defined(__BCPLUSPLUS__) && (__BCPLUSPLUS__ >= 0x0600)
-            IceUtil::DummyBCC dummy;
-#endif
             session2->releaseObject(allocatable);
             test(false);
         }
@@ -546,9 +513,6 @@ allTests(const Ice::CommunicatorPtr& communicator)
         session1->allocateObjectById(allocatablebis);
         try
         {
-#if defined(__BCPLUSPLUS__) && (__BCPLUSPLUS__ >= 0x0600)
-            IceUtil::DummyBCC dummy;
-#endif
             session2->allocateObjectById(allocatablebis);
             test(false);
         }
@@ -559,9 +523,6 @@ allTests(const Ice::CommunicatorPtr& communicator)
         session2->allocateObjectById(allocatablebis);
         try
         {
-#if defined(__BCPLUSPLUS__) && (__BCPLUSPLUS__ >= 0x0600)
-            IceUtil::DummyBCC dummy;
-#endif
             session1->allocateObjectById(allocatablebis);
             test(false);
         }
@@ -582,9 +543,6 @@ allTests(const Ice::CommunicatorPtr& communicator)
         session1->setAllocationTimeout(0);
         try
         {
-#if defined(__BCPLUSPLUS__) && (__BCPLUSPLUS__ >= 0x0600)
-            IceUtil::DummyBCC dummy;
-#endif
             session1->allocateObjectById(allocatable);
             test(false);
         }
@@ -593,9 +551,6 @@ allTests(const Ice::CommunicatorPtr& communicator)
         }
         try
         {
-#if defined(__BCPLUSPLUS__) && (__BCPLUSPLUS__ >= 0x0600)
-            IceUtil::DummyBCC dummy;
-#endif
             session1->releaseObject(allocatable);
             test(false);
         }
@@ -623,9 +578,6 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
         try
         {
-#if defined(__BCPLUSPLUS__) && (__BCPLUSPLUS__ >= 0x0600)
-            IceUtil::DummyBCC dummy;
-#endif
             obj = session1->allocateObjectByType("::Unknown");
             test(false);
         }
@@ -639,9 +591,6 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
         try
         {
-#if defined(__BCPLUSPLUS__) && (__BCPLUSPLUS__ >= 0x0600)
-            IceUtil::DummyBCC dummy;
-#endif
             obj = session1->allocateObjectByType("::NotAllocatable");
             test(false);
         }
@@ -657,9 +606,6 @@ allTests(const Ice::CommunicatorPtr& communicator)
         test(obj && obj->ice_getIdentity().name == "allocatable");
         try
         {
-#if defined(__BCPLUSPLUS__) && (__BCPLUSPLUS__ >= 0x0600)
-            IceUtil::DummyBCC dummy;
-#endif
             session1->allocateObjectByType("::Test");
             test(false);
         }
@@ -668,9 +614,6 @@ allTests(const Ice::CommunicatorPtr& communicator)
         }
         try
         {
-#if defined(__BCPLUSPLUS__) && (__BCPLUSPLUS__ >= 0x0600)
-            IceUtil::DummyBCC dummy;
-#endif
             session2->allocateObjectByType("::Test");
             test(false);
         }
@@ -679,9 +622,6 @@ allTests(const Ice::CommunicatorPtr& communicator)
         }
         try
         {
-#if defined(__BCPLUSPLUS__) && (__BCPLUSPLUS__ >= 0x0600)
-            IceUtil::DummyBCC dummy;
-#endif
             session2->releaseObject(obj->ice_getIdentity());
         }
         catch(const AllocationException&)
@@ -691,9 +631,6 @@ allTests(const Ice::CommunicatorPtr& communicator)
         session1->releaseObject(obj->ice_getIdentity());
         try
         {
-#if defined(__BCPLUSPLUS__) && (__BCPLUSPLUS__ >= 0x0600)
-            IceUtil::DummyBCC dummy;
-#endif
             session1->releaseObject(obj->ice_getIdentity());
         }
         catch(const AllocationException&)
@@ -704,9 +641,6 @@ allTests(const Ice::CommunicatorPtr& communicator)
         test(obj && obj->ice_getIdentity().name == "allocatable");
         try
         {
-#if defined(__BCPLUSPLUS__) && (__BCPLUSPLUS__ >= 0x0600)
-            IceUtil::DummyBCC dummy;
-#endif
             session2->allocateObjectByType("::Test");
             test(false);
         }
@@ -715,9 +649,6 @@ allTests(const Ice::CommunicatorPtr& communicator)
         }
         try
         {
-#if defined(__BCPLUSPLUS__) && (__BCPLUSPLUS__ >= 0x0600)
-            IceUtil::DummyBCC dummy;
-#endif
             session1->allocateObjectByType("::Test");
             test(false);
         }
@@ -727,9 +658,6 @@ allTests(const Ice::CommunicatorPtr& communicator)
         session1->allocateObjectByType("::TestBis");
         try
         {
-#if defined(__BCPLUSPLUS__) && (__BCPLUSPLUS__ >= 0x0600)
-            IceUtil::DummyBCC dummy;
-#endif
             session2->allocateObjectByType("::TestBis");
             test(false);
         }
@@ -740,9 +668,6 @@ allTests(const Ice::CommunicatorPtr& communicator)
         session2->allocateObjectByType("::TestBis");
         try
         {
-#if defined(__BCPLUSPLUS__) && (__BCPLUSPLUS__ >= 0x0600)
-            IceUtil::DummyBCC dummy;
-#endif
             session1->allocateObjectByType("::TestBis");
             test(false);
         }
@@ -771,9 +696,6 @@ allTests(const Ice::CommunicatorPtr& communicator)
         session2->setAllocationTimeout(500);
         try
         {
-#if defined(__BCPLUSPLUS__) && (__BCPLUSPLUS__ >= 0x0600)
-            IceUtil::DummyBCC dummy;
-#endif
             session2->allocateObjectById(allocatable);
             test(false);
         }
@@ -784,9 +706,6 @@ allTests(const Ice::CommunicatorPtr& communicator)
         time = IceUtil::Time::now();
         try
         {
-#if defined(__BCPLUSPLUS__) && (__BCPLUSPLUS__ >= 0x0600)
-            IceUtil::DummyBCC dummy;
-#endif
             session2->allocateObjectById(allocatable);
             test(false);
         }
@@ -797,9 +716,6 @@ allTests(const Ice::CommunicatorPtr& communicator)
         time = IceUtil::Time::now();
         try
         {
-#if defined(__BCPLUSPLUS__) && (__BCPLUSPLUS__ >= 0x0600)
-            IceUtil::DummyBCC dummy;
-#endif
             session2->allocateObjectByType("::Test");
             test(false);
         }
@@ -824,9 +740,6 @@ allTests(const Ice::CommunicatorPtr& communicator)
         session1->allocateObjectById(allocatable3);
         try
         {
-#if defined(__BCPLUSPLUS__) && (__BCPLUSPLUS__ >= 0x0600)
-            IceUtil::DummyBCC dummy;
-#endif
             session2->allocateObjectById(allocatable3);
             test(false);
         }
@@ -835,9 +748,6 @@ allTests(const Ice::CommunicatorPtr& communicator)
         }
         try
         {
-#if defined(__BCPLUSPLUS__) && (__BCPLUSPLUS__ >= 0x0600)
-            IceUtil::DummyBCC dummy;
-#endif
             session2->allocateObjectById(allocatable4);
             test(false);
         }
@@ -849,9 +759,6 @@ allTests(const Ice::CommunicatorPtr& communicator)
         session1->releaseObject(allocatable3);
         try
         {
-#if defined(__BCPLUSPLUS__) && (__BCPLUSPLUS__ >= 0x0600)
-            IceUtil::DummyBCC dummy;
-#endif
             session2->allocateObjectById(allocatable3);
             test(false);
         }
@@ -862,9 +769,6 @@ allTests(const Ice::CommunicatorPtr& communicator)
         session2->allocateObjectById(allocatable3);
         try
         {
-#if defined(__BCPLUSPLUS__) && (__BCPLUSPLUS__ >= 0x0600)
-            IceUtil::DummyBCC dummy;
-#endif
             session1->allocateObjectById(allocatable3);
             test(false);
         }
@@ -873,9 +777,6 @@ allTests(const Ice::CommunicatorPtr& communicator)
         }
         try
         {
-#if defined(__BCPLUSPLUS__) && (__BCPLUSPLUS__ >= 0x0600)
-            IceUtil::DummyBCC dummy;
-#endif
             session1->allocateObjectById(allocatable4);
             test(false);
         }
@@ -886,9 +787,6 @@ allTests(const Ice::CommunicatorPtr& communicator)
         session2->releaseObject(allocatable3);
         try
         {
-#if defined(__BCPLUSPLUS__) && (__BCPLUSPLUS__ >= 0x0600)
-            IceUtil::DummyBCC dummy;
-#endif
             session1->allocateObjectById(allocatable3);
             test(false);
         }
@@ -897,9 +795,6 @@ allTests(const Ice::CommunicatorPtr& communicator)
         }
         try
         {
-#if defined(__BCPLUSPLUS__) && (__BCPLUSPLUS__ >= 0x0600)
-            IceUtil::DummyBCC dummy;
-#endif
             session1->allocateObjectByType("::TestServer1");
             test(false);
         }
@@ -908,9 +803,6 @@ allTests(const Ice::CommunicatorPtr& communicator)
         }
         try
         {
-#if defined(__BCPLUSPLUS__) && (__BCPLUSPLUS__ >= 0x0600)
-            IceUtil::DummyBCC dummy;
-#endif
             session1->allocateObjectByType("::TestServer2");
             test(false);
         }
@@ -920,9 +812,6 @@ allTests(const Ice::CommunicatorPtr& communicator)
         test(session2->allocateObjectByType("::TestServer1"));
         try
         {
-#if defined(__BCPLUSPLUS__) && (__BCPLUSPLUS__ >= 0x0600)
-            IceUtil::DummyBCC dummy;
-#endif
             session2->allocateObjectByType("::TestServer1");
             test(false);
         }
@@ -931,9 +820,6 @@ allTests(const Ice::CommunicatorPtr& communicator)
         }
         try
         {
-#if defined(__BCPLUSPLUS__) && (__BCPLUSPLUS__ >= 0x0600)
-            IceUtil::DummyBCC dummy;
-#endif
             session2->allocateObjectByType("::TestServer2");
             test(false);
         }
@@ -974,9 +860,6 @@ allTests(const Ice::CommunicatorPtr& communicator)
         test(session1->allocateObjectByType("::TestMultipleByServer"));
         try
         {
-#if defined(__BCPLUSPLUS__) && (__BCPLUSPLUS__ >= 0x0600)
-            IceUtil::DummyBCC dummy;
-#endif
             session2->allocateObjectByType("::TestMultipleByServer");
             test(false);
         }
@@ -989,9 +872,6 @@ allTests(const Ice::CommunicatorPtr& communicator)
         test(session2->allocateObjectByType("::TestMultipleByServer"));
         try
         {
-#if defined(__BCPLUSPLUS__) && (__BCPLUSPLUS__ >= 0x0600)
-            IceUtil::DummyBCC dummy;
-#endif
             session1->allocateObjectByType("::TestMultipleByServer");
             test(false);
         }
@@ -1008,9 +888,6 @@ allTests(const Ice::CommunicatorPtr& communicator)
         test(obj2);
         try
         {
-#if defined(__BCPLUSPLUS__) && (__BCPLUSPLUS__ >= 0x0600)
-            IceUtil::DummyBCC dummy;
-#endif
             session1->allocateObjectByType("::TestMultipleServer");
             test(false);
         }
@@ -1019,9 +896,6 @@ allTests(const Ice::CommunicatorPtr& communicator)
         }
         try
         {
-#if defined(__BCPLUSPLUS__) && (__BCPLUSPLUS__ >= 0x0600)
-            IceUtil::DummyBCC dummy;
-#endif
             session2->allocateObjectByType("::TestMultipleServer");
             test(false);
         }

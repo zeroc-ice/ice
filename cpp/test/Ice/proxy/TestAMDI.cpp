@@ -38,9 +38,5 @@ bool
 MyDerivedClassI::ice_isA(const std::string& s, const Ice::Current& current) const
 {
     _ctx = current.ctx;
-#ifdef __BCPLUSPLUS__
     return Test::MyDerivedClass::ice_isA(s, current);
-#else
-    return MyDerivedClass::ice_isA(s, current);
-#endif
 }

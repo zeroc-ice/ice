@@ -480,9 +480,6 @@ allTests(const Ice::CommunicatorPtr& communicator)
         
         try
         {
-#if defined(__BCPLUSPLUS__) && (__BCPLUSPLUS__ >= 0x0600)
-            IceUtil::DummyBCC dummy;
-#endif
             test->getAdapterName();
         }
         catch(const Ice::ConnectionRefusedException&)
@@ -530,9 +527,6 @@ allTests(const Ice::CommunicatorPtr& communicator)
         TestIntfPrx test3 = TestIntfPrx::uncheckedCast(test1);
         try
         {
-#if defined(__BCPLUSPLUS__) && (__BCPLUSPLUS__ >= 0x0600)
-            IceUtil::DummyBCC dummy;
-#endif
             test(test3->ice_getConnection() == test1->ice_getConnection());
             test(false);
         }
@@ -645,9 +639,6 @@ allTests(const Ice::CommunicatorPtr& communicator)
         
         try
         {
-#if defined(__BCPLUSPLUS__) && (__BCPLUSPLUS__ >= 0x0600)
-            IceUtil::DummyBCC dummy;
-#endif
             test->getAdapterName();
         }
         catch(const Ice::ConnectionRefusedException&)
@@ -707,9 +698,6 @@ allTests(const Ice::CommunicatorPtr& communicator)
         
         try
         {
-#if defined(__BCPLUSPLUS__) && (__BCPLUSPLUS__ >= 0x0600)
-            IceUtil::DummyBCC dummy;
-#endif
             test->getAdapterName();
         }
         catch(const Ice::ConnectionRefusedException&)
@@ -751,9 +739,6 @@ allTests(const Ice::CommunicatorPtr& communicator)
         test(test->ice_getConnection() != testUDP->ice_getConnection());
         try
         {
-#if defined(__BCPLUSPLUS__) && (__BCPLUSPLUS__ >= 0x0600)
-            IceUtil::DummyBCC dummy;
-#endif
             testUDP->getAdapterName();
         }
         catch(const Ice::TwowayOnlyException&)

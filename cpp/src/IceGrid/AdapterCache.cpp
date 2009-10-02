@@ -276,9 +276,6 @@ ServerAdapterEntry::getAdapterInfo() const
     info.replicaGroupId = _replicaGroupId;
     try
     {
-#if defined(__BCPLUSPLUS__) && (__BCPLUSPLUS__ >= 0x0600)
-        IceUtil::DummyBCC dummy;
-#endif
         info.proxy = _server->getAdapter(_id, true)->getDirectProxy();
     }
     catch(const Ice::Exception&)

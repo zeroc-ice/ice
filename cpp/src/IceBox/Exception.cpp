@@ -15,11 +15,7 @@ using namespace std;
 void
 IceBox::FailureException::ice_print(ostream& out) const
 {
-#ifdef __BCPLUSPLUS__
-    Ice::Exception::ice_print(out);
-#else
     Exception::ice_print(out);
-#endif
     out << ":\nservice failure exception: " << reason;
 }
 

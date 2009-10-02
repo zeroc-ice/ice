@@ -166,11 +166,7 @@ FreezeScript::EvaluateException::ice_name() const
 void
 FreezeScript::EvaluateException::ice_print(ostream& out) const
 {
-#ifdef __BCPLUSPLUS__
     Ice::Exception::ice_print(out);
-#else
-    Exception::ice_print(out);
-#endif
     out << ":\nerror occurred while evaluating expression";
     if(!_reason.empty())
     {

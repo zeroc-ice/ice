@@ -294,9 +294,6 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
         try
         {
-#if defined(__BCPLUSPLUS__) && (__BCPLUSPLUS__ >= 0x0600)
-            IceUtil::DummyBCC dummy;
-#endif
             admin->getServerInfo("Server2");
             test(false);
         }
@@ -350,9 +347,6 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
         try
         {
-#if defined(__BCPLUSPLUS__) && (__BCPLUSPLUS__ >= 0x0600)
-        IceUtil::DummyBCC dummy;
-#endif
             admin->getServerInfo("Server1");
             test(false);
         }

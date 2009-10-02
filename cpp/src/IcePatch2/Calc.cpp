@@ -13,10 +13,6 @@
 #include <IceUtil/FileUtil.h>
 #include <IcePatch2/Util.h>
 
-#ifdef __BCPLUSPLUS__
-#  include <iterator>
-#endif
-
 using namespace std;
 using namespace Ice;
 using namespace IcePatch2;
@@ -134,9 +130,6 @@ main(int argc, char* argv[])
     vector<string> args;
     try
     {
-#if defined(__BCPLUSPLUS__) && (__BCPLUSPLUS__ >= 0x0600)
-        IceUtil::DummyBCC dummy;
-#endif
         args = opts.parse(argc, (const char**)argv);
     }
     catch(const IceUtilInternal::BadOptException& e)

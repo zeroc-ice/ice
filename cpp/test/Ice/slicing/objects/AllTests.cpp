@@ -627,9 +627,6 @@ testUOO(const TestIntfPrx& test)
     Ice::ObjectPtr o;
     try
     {
-#if defined(__BCPLUSPLUS__) && (__BCPLUSPLUS__ >= 0x0600)
-        IceUtil::DummyBCC dummy;
-#endif
         o = test->SUnknownAsObject();
         test(false);
     }

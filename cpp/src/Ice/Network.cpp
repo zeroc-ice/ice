@@ -390,8 +390,6 @@ getInterfaceIndex(const string& name)
 {
     int index = 0;
 #ifdef _WIN32
-
-#ifndef __BCPLUSPLUS__
     IP_ADAPTER_ADDRESSES addrs;
     ULONG buflen = 0;
     if(::GetAdaptersAddresses(AF_INET6, 0, 0, &addrs, &buflen) == ERROR_BUFFER_OVERFLOW)
@@ -413,8 +411,6 @@ getInterfaceIndex(const string& name)
         }
         delete[] buf;
     }
-#endif
-
 #elif !defined(__hpux)
     index = if_nametoindex(name.c_str());
 #endif
@@ -427,8 +423,6 @@ getInterfaceAddress(const string& name)
     struct in_addr addr;
     addr.s_addr = INADDR_ANY;
 #ifdef _WIN32
-
-#ifndef __BCPLUSPLUS__
     IP_ADAPTER_ADDRESSES addrs;
     ULONG buflen = 0;
     if(::GetAdaptersAddresses(AF_INET, 0, 0, &addrs, &buflen) == ERROR_BUFFER_OVERFLOW)
@@ -453,8 +447,6 @@ getInterfaceAddress(const string& name)
         }
         delete[] buf;
     }
-#endif
-
 #else
     ifreq if_address;
     strcpy(if_address.ifr_name, name.c_str());

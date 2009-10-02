@@ -235,9 +235,6 @@ allTests(const Ice::CommunicatorPtr& comm)
         obj = TestIntfPrx::uncheckedCast(obj->ice_connectionCached(false));
         try
         {
-#if defined(__BCPLUSPLUS__) && (__BCPLUSPLUS__ >= 0x0600)
-            IceUtil::DummyBCC dummy;
-#endif
             test(obj->getReplicaIdAndShutdown() == "Server1.ReplicatedAdapter");
             test(obj->getReplicaIdAndShutdown() == "Server2.ReplicatedAdapter");
             test(obj->getReplicaIdAndShutdown() == "Server3.ReplicatedAdapter");        
@@ -248,9 +245,6 @@ allTests(const Ice::CommunicatorPtr& comm)
 
             try
             {
-#if defined(__BCPLUSPLUS__) && (__BCPLUSPLUS__ >= 0x0600)
-                IceUtil::DummyBCC dummy;
-#endif
                 obj->getReplicaId();
                 test(false);
             }
@@ -418,9 +412,6 @@ allTests(const Ice::CommunicatorPtr& comm)
 
         try
         {
-#if defined(__BCPLUSPLUS__) && (__BCPLUSPLUS__ >= 0x0600)
-                IceUtil::DummyBCC dummy;
-#endif
             obj->getReplicaId();
             test(false);
         }

@@ -24,9 +24,6 @@ testUOE(const Ice::CommunicatorPtr& communicator)
     test(uoet);
     try
     {
-#if defined(__BCPLUSPLUS__) && (__BCPLUSPLUS__ >= 0x0600)
-        IceUtil::DummyBCC dummy;
-#endif
         uoet->op();
         test(false);
     }

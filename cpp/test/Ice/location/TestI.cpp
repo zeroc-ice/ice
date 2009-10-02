@@ -119,9 +119,6 @@ TestI::migrateHello(const Ice::Current&)
     const Ice::Identity id = _adapter1->getCommunicator()->stringToIdentity("hello");
     try
     {
-#if defined(__BCPLUSPLUS__) && (__BCPLUSPLUS__ >= 0x0600)
-        IceUtil::DummyBCC dummy;
-#endif
         _registry->addObject(_adapter2->add(_adapter1->remove(id), id));
     }
     catch(Ice::NotRegisteredException&)

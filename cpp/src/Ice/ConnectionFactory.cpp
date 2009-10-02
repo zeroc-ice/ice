@@ -1107,9 +1107,6 @@ IceInternal::OutgoingConnectionFactory::ConnectCallback::nextConnector()
     Ice::ConnectionIPtr connection;
     try
     {
-#if defined(__BCPLUSPLUS__) && (__BCPLUSPLUS__ >= 0x0600)
-        IceUtil::DummyBCC dummy;
-#endif
         assert(_iter != _connectors.end());
         connection = _factory->createConnection(_iter->connector->connect(), *_iter);
         connection->start(this);

@@ -20,13 +20,6 @@
 #include <IceGrid/NodeI.h>
 #include <IceGrid/NodeSessionManager.h>
 #include <IceGrid/TraceLevels.h>
-#ifdef __BCPLUSPLUS__
-#  include <IceGrid/ServerI.h>
-#  include <IceGrid/AdminSessionI.h>
-#  include <IceGrid/ReapThread.h>
-#  include <IceGrid/Database.h>
-#  include <IceGrid/WellKnownObjectsManager.h>
-#endif
 #include <IceGrid/DescriptorParser.h>
 #include <IcePatch2/Util.h>
 #ifdef QTSQL

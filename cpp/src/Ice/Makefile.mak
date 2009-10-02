@@ -118,9 +118,9 @@ SDIR		= $(slicedir)\Ice
 CPPFLAGS	= -I.. $(CPPFLAGS) -DICE_API_EXPORTS -DFD_SETSIZE=1024 -DWIN32_LEAN_AND_MEAN
 SLICE2CPPFLAGS	= --ice --include-dir Ice --dll-export ICE_API $(SLICE2CPPFLAGS)
 LINKWITH        = $(BASELIBS) $(BZIP2_LIBS) $(ICE_OS_LIBS) ws2_32.lib
-!if "$(BCPLUSPLUS)" != "yes"
+#!if "$(BCPLUSPLUS)" != "yes"
 LINKWITH	= $(LINKWITH) Iphlpapi.lib
-!endif
+#!endif
 
 !if "$(BCPLUSPLUS)" == "yes"
 RES_FILE	= ,, Ice.res

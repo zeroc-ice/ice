@@ -618,9 +618,6 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
         Ice::ObjectAdapterPtr first;
         try
         {
-#if defined(__BCPLUSPLUS__) && (__BCPLUSPLUS__ >= 0x0600)
-            IceUtil::DummyBCC dummy;
-#endif
             first = communicator->createObjectAdapter("TestAdapter0");
             test(false);
         }
@@ -663,9 +660,6 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
         adapter->add(obj, communicator->stringToIdentity("x"));
         try
         {
-#if defined(__BCPLUSPLUS__) && (__BCPLUSPLUS__ >= 0x0600)
-            IceUtil::DummyBCC dummy;
-#endif
             adapter->add(obj, communicator->stringToIdentity("x"));
             test(false);
         }
@@ -676,9 +670,6 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
         adapter->remove(communicator->stringToIdentity("x"));
         try
         {
-#if defined(__BCPLUSPLUS__) && (__BCPLUSPLUS__ >= 0x0600)
-            IceUtil::DummyBCC dummy;
-#endif
             adapter->remove(communicator->stringToIdentity("x"));
             test(false);
         }

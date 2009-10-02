@@ -132,9 +132,6 @@ HelloClient::run(int argc, char* argv[])
 
         try
         {
-#if defined(__BCPLUSPLUS__) && (__BCPLUSPLUS__ >= 0x0600)
-            IceUtil::DummyBCC dummy;
-#endif
             session = registry->createSession(id, password);
             break;
         }
@@ -158,9 +155,6 @@ HelloClient::run(int argc, char* argv[])
         HelloPrx hello;
         try
         {
-#if defined(__BCPLUSPLUS__) && (__BCPLUSPLUS__ >= 0x0600)
-            IceUtil::DummyBCC dummy;
-#endif
             hello = HelloPrx::checkedCast(session->allocateObjectById(communicator()->stringToIdentity("hello")));
         }
         catch(const IceGrid::ObjectNotRegisteredException&)

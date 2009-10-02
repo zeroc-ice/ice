@@ -1050,9 +1050,6 @@ RegistryI::getPermissionsVerifier(const ObjectAdapterPtr& adapter,
         {
             try
             {
-#if defined(__BCPLUSPLUS__) && (__BCPLUSPLUS__ >= 0x0600)
-                IceUtil::DummyBCC dummy;
-#endif
                 verifier = _communicator->propertyToProxy(verifierProperty);
             }
             catch(const ProxyParseException&)
@@ -1135,9 +1132,6 @@ RegistryI::getPermissionsVerifier(const ObjectAdapterPtr& adapter,
     Glacier2::PermissionsVerifierPrx verifierPrx;
     try
     {
-#if defined(__BCPLUSPLUS__) && (__BCPLUSPLUS__ >= 0x0600)
-        IceUtil::DummyBCC dummy;
-#endif
         //
         // Set the permission verifier proxy locator to the internal
         // locator. We can't use the "public" locator, this could lead
@@ -1179,9 +1173,6 @@ RegistryI::getSSLPermissionsVerifier(const IceGrid::LocatorPrx& locator, const s
         {
             try
             {
-#if defined(__BCPLUSPLUS__) && (__BCPLUSPLUS__ >= 0x0600)
-                IceUtil::DummyBCC dummy;
-#endif
                 verifier = _communicator->propertyToProxy(verifierProperty);
             }
             catch(const ProxyParseException&)
@@ -1225,9 +1216,6 @@ RegistryI::getSSLPermissionsVerifier(const IceGrid::LocatorPrx& locator, const s
     Glacier2::SSLPermissionsVerifierPrx verifierPrx;
     try
     {
-#if defined(__BCPLUSPLUS__) && (__BCPLUSPLUS__ >= 0x0600)
-        IceUtil::DummyBCC dummy;
-#endif
         //
         // Set the permission verifier proxy locator to the internal
         // locator. We can't use the "public" locator, this could lead

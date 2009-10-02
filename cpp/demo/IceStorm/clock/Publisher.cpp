@@ -98,18 +98,12 @@ Publisher::run(int argc, char* argv[])
     IceStorm::TopicPrx topic;
     try
     {
-#if defined(__BCPLUSPLUS__) && (__BCPLUSPLUS__ >= 0x0600)
-        IceUtil::DummyBCC dummy;
-#endif
         topic = manager->retrieve(topicName);
     }
     catch(const IceStorm::NoSuchTopic&)
     {
         try
         {
-#if defined(__BCPLUSPLUS__) && (__BCPLUSPLUS__ >= 0x0600)
-            IceUtil::DummyBCC dummy;
-#endif
             topic = manager->create(topicName);
         }
         catch(const IceStorm::TopicExists&)

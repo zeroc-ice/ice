@@ -653,9 +653,6 @@ LocatorI::findObjectById_async(const Ice::AMD_Locator_findObjectByIdPtr& cb,
     Ice::ObjectPrx proxy;
     try
     {
-#if defined(__BCPLUSPLUS__) && (__BCPLUSPLUS__ >= 0x0600)
-        IceUtil::DummyBCC dummy;
-#endif
         proxy = _database->getObjectProxy(id);
     }
     catch(const ObjectNotRegisteredException&)
@@ -746,9 +743,6 @@ LocatorI::findAdapterById_async(const Ice::AMD_Locator_findAdapterByIdPtr& cb,
 
     try
     {
-#if defined(__BCPLUSPLUS__) && (__BCPLUSPLUS__ >= 0x0600)
-        IceUtil::DummyBCC dummy;
-#endif
         cb->ice_response(_database->getAdapterDirectProxy(id));
     }
     catch(const AdapterNotExistException&)

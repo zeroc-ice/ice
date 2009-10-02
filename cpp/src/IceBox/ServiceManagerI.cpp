@@ -598,9 +598,6 @@ IceBox::ServiceManagerI::start(const string& service, const string& entryPoint, 
     SERVICE_FACTORY factory = (SERVICE_FACTORY)sym;
     try
     {
-#if defined(__BCPLUSPLUS__) && (__BCPLUSPLUS__ >= 0x0600)
-        IceUtil::DummyBCC dummy;
-#endif
         info.service = factory(_communicator);
     }
     catch(const Exception& ex)

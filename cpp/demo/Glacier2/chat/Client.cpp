@@ -117,9 +117,6 @@ public:
 
             try
             {
-#if defined(__BCPLUSPLUS__) && (__BCPLUSPLUS__ >= 0x0600)
-                IceUtil::DummyBCC dummy;
-#endif
                 session = ChatSessionPrx::uncheckedCast(_router->createSession(id, pw));
                 break;
             }

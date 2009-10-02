@@ -35,9 +35,6 @@ allTests(const CommunicatorPtr& communicator)
             communicator->createObjectAdapterWithEndpoints("TransientTestAdapter", "default");
         try
         {
-#if defined(__BCPLUSPLUS__) && (__BCPLUSPLUS__ >= 0x0600)
-        IceUtil::DummyBCC dummy;
-#endif
             communicator->createObjectAdapterWithEndpoints("TransientTestAdapter", "default");
             test(false);
         }

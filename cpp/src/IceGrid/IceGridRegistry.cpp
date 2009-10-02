@@ -12,12 +12,6 @@
 #include <Ice/Service.h>
 #include <IceGrid/RegistryI.h>
 #include <IceGrid/TraceLevels.h>
-#ifdef __BCPLUSPLUS__
-#  include <IceGrid/AdminSessionI.h>
-#  include <IceGrid/ReapThread.h>
-#  include <IceGrid/Database.h>
-#  include <IceGrid/WellKnownObjectsManager.h>
-#endif
 #ifdef QTSQL
 #  include <IceSQL/SqlTypes.h>
 #  include <QtCore/QCoreApplication>
@@ -97,9 +91,6 @@ RegistryService::start(int argc, char* argv[])
     vector<string> args;
     try
     {
-#if defined(__BCPLUSPLUS__) && (__BCPLUSPLUS__ >= 0x0600)
-        IceUtil::DummyBCC dummy;
-#endif
         args = opts.parse(argc, (const char**)argv);
     }
     catch(const IceUtilInternal::BadOptException& e)

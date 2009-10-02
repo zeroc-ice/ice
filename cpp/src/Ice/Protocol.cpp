@@ -14,11 +14,7 @@ namespace IceInternal
 
 const Ice::Byte magic[] = { 0x49, 0x63, 0x65, 0x50 };   // 'I', 'c', 'e', 'P'
 
-#ifdef __BCPLUSPLUS__
-const Ice::Byte requestHdr[headerSize + sizeof(Ice::Int)] = 
-#else
 const Ice::Byte requestHdr[] = 
-#endif
 {
     magic[0],
     magic[1],
@@ -34,11 +30,7 @@ const Ice::Byte requestHdr[] =
     0, 0, 0, 0 // Request id (placeholder)
 };
 
-#ifdef __BCPLUSPLUS__
-const Ice::Byte requestBatchHdr[headerSize + sizeof(Ice::Int)] =
-#else
 const Ice::Byte requestBatchHdr[] =
-#endif
 {
     magic[0],
     magic[1],

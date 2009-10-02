@@ -14,10 +14,6 @@
 
 #include <Ice/LoggerUtil.h>
 
-#ifdef __BCPLUSPLUS__
-#include <iterator>
-#endif
-
 using namespace std;
 using namespace IceStorm;
 using namespace IceStormElection;
@@ -581,9 +577,6 @@ Subscriber::create(
             Ice::ObjectPrx newObj;
             try
             {
-#if defined(__BCPLUSPLUS__) && (__BCPLUSPLUS__ >= 0x0600)
-                IceUtil::DummyBCC dummy;
-#endif
                 newObj = rec.obj->ice_timeout(instance->sendTimeout());
             }
             catch(const Ice::FixedProxyException&)

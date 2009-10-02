@@ -137,9 +137,6 @@ logTests(const Ice::CommunicatorPtr& comm, const AdminSessionPrx& session)
     assert(!testDir.empty());
     try
     {
-#if defined(__BCPLUSPLUS__) && (__BCPLUSPLUS__ >= 0x0600)
-        IceUtil::DummyBCC dummy;
-#endif
         session->openServerStdErr("LogServer", -1);
         test(false);
     }
@@ -148,9 +145,6 @@ logTests(const Ice::CommunicatorPtr& comm, const AdminSessionPrx& session)
     }
     try
     {
-#if defined(__BCPLUSPLUS__) && (__BCPLUSPLUS__ >= 0x0600)
-        IceUtil::DummyBCC dummy;
-#endif
         session->openServerStdOut("LogServer", -1);
         test(false);
     }
@@ -159,9 +153,6 @@ logTests(const Ice::CommunicatorPtr& comm, const AdminSessionPrx& session)
     }
     try
     {
-#if defined(__BCPLUSPLUS__) && (__BCPLUSPLUS__ >= 0x0600)
-        IceUtil::DummyBCC dummy;
-#endif
         session->openServerLog("LogServer", "unknown.txt", -1);
         test(false);
     }

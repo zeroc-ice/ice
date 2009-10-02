@@ -390,9 +390,6 @@ Ice::Service::main(int& argc, char* argv[], const InitializationData& initializa
     InitializationData initData = initializationData;
     try
     {
-#if defined(__BCPLUSPLUS__) && (__BCPLUSPLUS__ >= 0x0600)
-        IceUtil::DummyBCC dummy;
-#endif
         initData.properties = createProperties(argc, argv, initData.properties, initData.stringConverter);
     }
     catch(const Ice::Exception& ex)

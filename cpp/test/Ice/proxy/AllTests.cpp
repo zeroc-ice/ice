@@ -40,9 +40,6 @@ allTests(const Ice::CommunicatorPtr& communicator)
          b1->ice_getFacet().empty());
     try
     {
-#if defined(__BCPLUSPLUS__) && (__BCPLUSPLUS__ >= 0x0600)
-	IceUtil::DummyBCC dummy;
-#endif
         b1 = communicator->stringToProxy("\"test -f facet'");
         test(false);
     }
@@ -60,9 +57,6 @@ allTests(const Ice::CommunicatorPtr& communicator)
          b1->ice_getFacet().empty());
     try
     {
-#if defined(__BCPLUSPLUS__) && (__BCPLUSPLUS__ >= 0x0600)
-	IceUtil::DummyBCC dummy;
-#endif
         b1 = communicator->stringToProxy("test test");
         test(false);
     }
@@ -73,9 +67,6 @@ allTests(const Ice::CommunicatorPtr& communicator)
     test(b1->ice_getIdentity().name == "test test" && b1->ice_getIdentity().category.empty());
     try
     {
-#if defined(__BCPLUSPLUS__) && (__BCPLUSPLUS__ >= 0x0600)
-	IceUtil::DummyBCC dummy;
-#endif
         b1 = communicator->stringToProxy("test\\777");
         test(false);
     }
@@ -107,9 +98,6 @@ allTests(const Ice::CommunicatorPtr& communicator)
          b1->ice_getAdapterId() == "adapter");
     try
     {
-#if defined(__BCPLUSPLUS__) && (__BCPLUSPLUS__ >= 0x0600)
-	IceUtil::DummyBCC dummy;
-#endif
         b1 = communicator->stringToProxy("id@adapter test");
         test(false);
     }
@@ -149,9 +137,6 @@ allTests(const Ice::CommunicatorPtr& communicator)
          b1->ice_getFacet() == "facet x");
     try
     {
-#if defined(__BCPLUSPLUS__) && (__BCPLUSPLUS__ >= 0x0600)
-	IceUtil::DummyBCC dummy;
-#endif
         b1 = communicator->stringToProxy("id -f \"facet x");
         test(false);
     }
@@ -160,9 +145,6 @@ allTests(const Ice::CommunicatorPtr& communicator)
     }
     try
     {
-#if defined(__BCPLUSPLUS__) && (__BCPLUSPLUS__ >= 0x0600)
-	IceUtil::DummyBCC dummy;
-#endif
         b1 = communicator->stringToProxy("id -f \'facet x");
         test(false);
     }
@@ -186,9 +168,6 @@ allTests(const Ice::CommunicatorPtr& communicator)
          b1->ice_getFacet() == "facet@test" && b1->ice_getAdapterId() == "test");
     try
     {
-#if defined(__BCPLUSPLUS__) && (__BCPLUSPLUS__ >= 0x0600)
-	IceUtil::DummyBCC dummy;
-#endif
         b1 = communicator->stringToProxy("test -f facet@test @test");
         test(false);
     }
@@ -214,9 +193,6 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
     try
     {
-#if defined(__BCPLUSPLUS__) && (__BCPLUSPLUS__ >= 0x0600)
-	IceUtil::DummyBCC dummy;
-#endif
         b1 = communicator->stringToProxy("test:tcp@adapterId");
         test(false);
     }
@@ -235,9 +211,6 @@ allTests(const Ice::CommunicatorPtr& communicator)
     //}
     try
     {
-#if defined(__BCPLUSPLUS__) && (__BCPLUSPLUS__ >= 0x0600)
-	IceUtil::DummyBCC dummy;
-#endif
         b1 = communicator->stringToProxy("test::tcp");
         test(false);
     }
@@ -707,9 +680,6 @@ allTests(const Ice::CommunicatorPtr& communicator)
         //
         try
         {
-#if defined(__BCPLUSPLUS__) && (__BCPLUSPLUS__ >= 0x0600)
-	    IceUtil::DummyBCC dummy;
-#endif
             p1->ice_ping();
             test(false);
         }

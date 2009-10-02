@@ -12,10 +12,6 @@
 #include <Ice/ObjectAdapter.h>
 #include <IceGrid/SessionServantManager.h>
 
-#if defined(__BCPLUSPLUS__)
-#  include <iterator>
-#endif
-
 using namespace std;
 using namespace IceGrid;
 
