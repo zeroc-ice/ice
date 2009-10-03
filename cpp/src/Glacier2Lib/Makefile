@@ -40,7 +40,7 @@ CPPFLAGS	:= -I.. $(CPPFLAGS) $(OPENSSL_FLAGS)
 SLICE2CPPFLAGS	:= --include-dir Glacier2 --dll-export GLACIER2_API $(SLICE2CPPFLAGS)
 LINKWITH        := $(BZIP2_RPATH_LINK) -lIce -lIceUtil
 
-$(libdir)/$(LIBFILENAME): $(OBJS) PermissionsVerifierF.cpp RouterF.cpp
+$(libdir)/$(LIBFILENAME): $(OBJS) $(HDIR)/PermissionsVerifierF.cpp $(HDIR)/RouterF.cpp
 	rm -f $@
 	$(call mkshlib,$@,$(SONAME),$(OBJS),$(LINKWITH))
 

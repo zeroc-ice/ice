@@ -43,7 +43,7 @@ SLICE2CPPFLAGS	= --include-dir Glacier2 --dll-export GLACIER2_API $(SLICE2CPPFLA
 
 $(LIBNAME): $(DLLNAME)
 
-$(DLLNAME): $(OBJS) Glacier2.res PermissionsVerifierF.cpp RouterF.cpp
+$(DLLNAME): $(OBJS) Glacier2.res $(HDIR)\PermissionsVerifierF.h $(HDIR)\RouterF.h
 	$(LINK) $(LD_DLLFLAGS) $(PDBFLAGS) $(OBJS) $(PREOUT)$@ $(PRELIBS)$(LIBS) $(RES_FILE)
 	move $(DLLNAME:.dll=.lib) $(LIBNAME)
 	@if exist $@.manifest echo ^ ^ ^ Embedding manifest using $(MT) && \
