@@ -19,7 +19,7 @@ using namespace std;
 namespace IceUtilInternal
 {
 
-extern bool printStackTraces;
+extern bool ICE_DECLSPEC_IMPORT printStackTraces;
 
 }
 

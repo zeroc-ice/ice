@@ -221,7 +221,8 @@ namespace IceInternal
         {
             if(ex is Ice.UserException)
             {
-                throw new LocalExceptionWrapper(new Ice.UnknownUserException(((Ice.UserException)ex).ice_name()), false);
+                throw new LocalExceptionWrapper(new Ice.UnknownUserException(((Ice.UserException)ex).ice_name()), 
+                                                false);
             }
 
             if(ex is Ice.LocalException)
@@ -233,7 +234,8 @@ namespace IceInternal
                 {
                     throw new LocalExceptionWrapper((Ice.LocalException)ex, false);
                 }
-                throw new LocalExceptionWrapper(new Ice.UnknownLocalException(((Ice.LocalException)ex).ice_name()), false);
+                throw new LocalExceptionWrapper(new Ice.UnknownLocalException(((Ice.LocalException)ex).ice_name()), 
+                                                false);
             }
             throw new LocalExceptionWrapper(new Ice.UnknownException(ex.GetType().FullName), false);
         }

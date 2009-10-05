@@ -336,7 +336,7 @@ namespace IceInternal
                     os_.endWriteEncaps();
                     os_.resize(Protocol.headerSize + 4, false); // Reply status position.
                     os_.writeByte(ReplyStatus.replyUnknownLocalException);
-                    os_.writeString(ex.ice_name());
+                    os_.writeString(ex.ice_name() + "\n" + ex.StackTrace);
                     connection_.sendResponse(os_, compress_);
                 }
                 else
@@ -359,7 +359,7 @@ namespace IceInternal
                     os_.endWriteEncaps();
                     os_.resize(Protocol.headerSize + 4, false); // Reply status position.
                     os_.writeByte(ReplyStatus.replyUnknownUserException);
-                    os_.writeString(ex.ToString());
+                    os_.writeString(ex.ice_name() + "\n" + ex.StackTrace);
                     connection_.sendResponse(os_, compress_);
                 }
                 else
