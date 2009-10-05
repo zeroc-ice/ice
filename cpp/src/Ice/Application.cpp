@@ -34,8 +34,8 @@ bool IceInternal::Application::_interrupted = false;
 string IceInternal::Application::_appName;
 CommunicatorPtr IceInternal::Application::_communicator;
 SignalPolicy IceInternal::Application::_signalPolicy = HandleSignals;
-auto_ptr<Cond> IceInternal::Application::_condVar;
-Ice::Application* IceInternal::Application::_application;
+Cond* IceInternal::Application::_condVar;
+Application* IceInternal::Application::_application;
 //
 // _mutex and _condVar are used to synchronize the main thread and
 // the CtrlCHandler thread
@@ -51,12 +51,15 @@ public:
     Init()
     {
         IceInternal::Application::mutex = new IceUtil::Mutex;
+        IceInternal::Application::_condVar = new Cond();
     }
 
     ~Init()
     {
         delete IceInternal::Application::mutex;
         IceInternal::Application::mutex = 0;
+        delete IceInternal::Application::_condVar;
+        IceInternal::Application::_condVar = 0;
     }
 };
 
@@ -588,11 +591,6 @@ Ice::Application::doMain(int argc, char* argv[], const InitializationData& initi
 
     try
     {
-        if(IceInternal::Application::_condVar.get() == 0)
-        {
-            IceInternal::Application::_condVar.reset(new Cond);
-        }
-
         IceInternal::Application::_interrupted = false;
         IceInternal::Application::_appName = argv[0] ? argv[0] : "";
 
