@@ -34,7 +34,7 @@ CPPFLAGS	= -I.. $(CPPFLAGS) -DWIN32_LEAN_AND_MEAN
 LINKWITH 	= $(LIBS) $(OPENSSL_LIBS) glacier2$(LIBSUFFIX).lib icessl$(LIBSUFFIX).lib
 
 !if "$(GENERATE_PDB)" == "yes"
-PDBFLAGS        = /pdb:$(DLLNAME:.dll=.pdb)
+PDBFLAGS        = /pdb:$(ROUTER:.exe=.pdb)
 !endif
 
 RES_FILE       = Glacier2Router.res
