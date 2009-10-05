@@ -1,2 +1,2 @@
-Test.cs:
-TestAMD.cs:
+Test.cs: ./Test.ice
+TestAMD.cs: ./TestAMD.ice

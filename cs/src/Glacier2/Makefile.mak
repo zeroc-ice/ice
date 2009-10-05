@@ -16,6 +16,7 @@ POLICY_TARGET   = $(POLICY).dll
 
 SRCS		= SessionFactoryHelper.cs \
 		  SessionHelper.cs \
+		  SessionCallback.cs \
 		  Application.cs \
 		  AssemblyInfo.cs
 

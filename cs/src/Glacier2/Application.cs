@@ -357,7 +357,7 @@ public abstract class Application : Ice.Application
         // break down in communications, but not those exceptions that
         // indicate a programming logic error (ie: marshal, protocol
         // failure, etc).
-        catch(RestartSessionException ex)
+        catch(RestartSessionException)
         {
             restart = true;
         }

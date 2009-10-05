@@ -205,7 +205,7 @@ CallbackClient::runWithSession(int argc, char* argv[])
             }
             else if(c == 'r')
             {
-                restart()
+                restart();
             }
             else if(c == 'x')
             {

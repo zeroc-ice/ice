@@ -111,7 +111,7 @@ public class SessionHelper
     /// establishment.</param>
     /// <param name="initData">The Ice.InitializationData for initializing
     /// the communicator.</param>
-    public SessionHelper(SessionFactoryHelper.SessionCallback callback, Ice.InitializationData initData)
+    public SessionHelper(SessionCallback callback, Ice.InitializationData initData)
     {
         _callback = callback;
         _initData = initData;

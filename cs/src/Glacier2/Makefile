@@ -15,7 +15,7 @@ TARGETS		= $(bindir)/$(LIBNAME)
 POLICY_TARGET	= $(POLICY).dll
 
 SRCS		= AssemblyInfo.cs \
-            Application.cs
+            	  Application.cs
 
 SLICE_SRCS	= $(SDIR)/PermissionsVerifier.ice \
 		  $(SDIR)/Router.ice \
