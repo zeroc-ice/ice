@@ -27,7 +27,7 @@ namespace IceInternal
 namespace Application
 {
     extern ICE_API IceUtil::Mutex* mutex;
-    extern ICE_API std::auto_ptr<IceUtil::Cond> _condVar;
+    extern ICE_API IceUtil::Cond* _condVar;
 
     //
     // Variables than can change while run() and communicator->destroy() are running!
