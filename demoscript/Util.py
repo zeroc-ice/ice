@@ -223,7 +223,7 @@ def isSolaris():
 
 def isNoServices():
     if not isWin32():
-        return false
+        return False
     compiler = ""
     if os.environ.get("CPP_COMPILER", "") != "":
         compiler = os.environ["CPP_COMPILER"]

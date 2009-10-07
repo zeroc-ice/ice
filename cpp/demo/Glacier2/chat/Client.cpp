@@ -127,8 +127,8 @@ public:
         }
 
         _timer = new IceUtil::Timer();
-        _timer->scheduleRepeated(new PingTask(session), IceUtil::Time::milliSeconds(
-                                    _router->getSessionTimeout() * 500));
+        _timer->scheduleRepeated(new PingTask(session), IceUtil::Time::secondsDouble(
+                                    _router->getSessionTimeout() / 2.0));
 
         Ice::Identity callbackReceiverIdent;
         callbackReceiverIdent.name = "callbackReceiver";

@@ -152,6 +152,24 @@ IceUtil::Time::microSeconds(Int64 t)
     return Time(t);
 }
 
+Time
+IceUtil::Time::secondsDouble(double t)
+{
+    return Time(Int64(t * 1000000));
+}
+
+Time
+IceUtil::Time::milliSecondsDouble(double t)
+{
+    return Time(Int64(t * 1000));
+}
+
+Time
+IceUtil::Time::microSecondsDouble(double t)
+{
+    return Time(Int64(t));
+}
+
 #ifndef _WIN32
 IceUtil::Time::operator timeval() const
 {

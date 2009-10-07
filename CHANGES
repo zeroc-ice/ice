@@ -236,6 +236,13 @@ noted.
 C++ Changes
 ============
 
+- Added new static methods to initialize an IceUtil::Time class from
+  a double:
+
+  IceUtil::Time::secondsDouble(double)
+  IceUtil::Time::milliSecondsDouble(double)
+  IceUtil::Time::microSecondsDouble(double)
+
 - Added the ability to use alternative database storage for IceStorm
   and IceGrid other than Freeze. The following SQL databases are 
   supported: SQLite, PostgresSQL, MySQL and SQL Server. Please see
