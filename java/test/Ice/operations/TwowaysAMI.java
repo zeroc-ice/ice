@@ -1226,7 +1226,7 @@ class TwowaysAMI
             Ice.InitializationData initData = new Ice.InitializationData();
             initData.properties = communicator.getProperties()._clone();
             Ice.Communicator ic = app.initialize(initData);
-            Ice.ObjectPrx obj = ic.stringToProxy(p.ice_toString());
+            Ice.ObjectPrx obj = ic.stringToProxy(p.toString());
             MyClassPrx p2 = MyClassPrxHelper.checkedCast(obj);
 
             ic.destroy();

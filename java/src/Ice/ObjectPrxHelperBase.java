@@ -55,9 +55,7 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
     }
 
     /**
-     * Returns the stringified form of this proxy.
-     *
-     * @return The stringified proxy.
+     * @deprecated
      **/
     public final String ice_toString()
     {

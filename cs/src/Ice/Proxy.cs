@@ -33,9 +33,9 @@ namespace Ice
         Communicator ice_getCommunicator();
 
         /// <summary>
-        /// Returns the stringified form of this proxy.
+        /// This method is deprecated. Use ToString instead.
         /// </summary>
-        /// <returns>The stringified proxy.</returns>
+        [Obsolete("This method is deprecated. Use ToString instead.")]
         string ice_toString();
 
         /// <summary>
@@ -492,9 +492,9 @@ namespace Ice
         }
 
         /// <summary>
-        /// Returns the stringified form of this proxy.
+        /// This method is deprecated. Use ToString instead.
         /// </summary>
-        /// <returns>The stringified proxy.</returns>
+        [Obsolete("This method is deprecated. Use ToString instead.")]
         public string ice_toString()
         {
             return ToString();

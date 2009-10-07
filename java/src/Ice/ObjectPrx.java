@@ -27,9 +27,7 @@ public interface ObjectPrx
     Communicator ice_getCommunicator();
 
     /**
-     * Returns the stringified form of this proxy.
-     *
-     * @return The stringified proxy.
+     * @deprecated This method is deprecated, use toString instead.
      **/
     String ice_toString();
 

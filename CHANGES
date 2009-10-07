@@ -331,6 +331,7 @@ Java Changes
 
   Object::ice_hash()
   ObjectPrx::ice_getHash()
+  ObjectPrx::ice_toString()
 
 - The StackSize thread pool configuration property is now used.
 
@@ -405,6 +406,7 @@ C# Changes
 
   Object::ice_hash()
   ObjectPrx::ice_getHash()
+  ObjectPrx::ice_toString()
 
 - The StackSize thread pool configuration property is now used.
 
