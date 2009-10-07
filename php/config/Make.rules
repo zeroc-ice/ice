@@ -143,12 +143,15 @@ endif
 
 ifdef ice_src_dist
     ifeq ($(ice_cpp_dir), $(ice_dir)/cpp)
-        SLICE2PHP = $(ice_cpp_dir)/bin/slice2php
+        SLICE2PHP 	= $(ice_cpp_dir)/bin/slice2php
+	SLICEPARSERLIB	= $(ice_cpp_dir)/lib/$(call mklibfilename,Slice,$(VERSION))
     else
-        SLICE2PHP = $(ice_cpp_dir)/$(binsubdir)/slice2php
+        SLICE2PHP 	= $(ice_cpp_dir)/$(binsubdir)/slice2php
+	SLICEPARSERLIB	= $(ice_cpp_dir)/$(libsubdir)/$(call mklibfilename,Slice,$(VERSION))
     endif
 else
-    SLICE2PHP = $(ice_dir)/$(binsubdir)/slice2php
+    SLICE2PHP 		= $(ice_dir)/$(binsubdir)/slice2php
+    SLICEPARSERLIB	= $(ice_dir)/$(libsubdir)/$(call mklibfilename,Slice,$(VERSION))
 endif
 
 ifeq ($(installphplib),)
@@ -181,7 +184,13 @@ clean::
 
 all:: $(SRCS) $(TARGETS)
 
+ifneq ($(SLICE_SRCS),)
+depend:: $(SLICE_SRCS)
+	rm -f .depend
+	$(SLICE2PHP) --depend $(SLICE2PHPFLAGS) $(SLICE_SRCS) | $(ice_dir)/config/makedepend.py >> .depend
+else
 depend::
+endif
 
 ifneq ($(TEMPLATE_REPOSITORY),)
 clean::

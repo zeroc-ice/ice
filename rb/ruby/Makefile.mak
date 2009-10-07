@@ -103,7 +103,7 @@ all:: $(ALL_SRCS)
 $(MODULES):
 	-mkdir $@
 
-$(ALL_SRCS): $(MODULES) {$(slicedir)}$*.ice
+$(ALL_SRCS): $(MODULES) {$(slicedir)}$*.ice $(SLICE2RB) $(SLICEPARSERLIB)
 	-$(SLICE2RB) $(SLICE2RBFLAGS) --output-dir $(*D) $(slicedir)\$*.ice
 
 
@@ -118,3 +118,5 @@ install::
 
 clean::
 	-rmdir /S /Q $(MODULES)
+
+include .depend

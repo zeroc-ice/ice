@@ -1,1 +1,1 @@
-Nested.cs: ./Nested.ice
+generated/Nested.cs: ./Nested.ice $(SLICE2CS) $(SLICEPARSERLIB)

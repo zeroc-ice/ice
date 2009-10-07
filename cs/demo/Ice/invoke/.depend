@@ -1,1 +1,1 @@
-Printer.cs: ./Printer.ice
+generated/Printer.cs: ./Printer.ice $(SLICE2CS) $(SLICEPARSERLIB)

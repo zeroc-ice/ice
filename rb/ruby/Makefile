@@ -94,33 +94,63 @@ ALL_SRCS	= $(ICE_SRCS) \
 		  $(ICEPATCH2_SRCS) \
 		  $(ICESTORM_SRCS)
 
+ICE_SLICE	= $(patsubst %.rb,$(slicedir)/%.ice,$(ICE_SRCS))
+GLACIER2_SLICE	= $(patsubst %.rb,$(slicedir)/%.ice,$(GLACIER2_SRCS))
+ICEBOX_SLICE	= $(patsubst %.rb,$(slicedir)/%.ice,$(ICEBOX_SRCS))
+ICEGRID_SLICE	= $(patsubst %.rb,$(slicedir)/%.ice,$(ICEGRID_SRCS))
+ICEPATCH2_SLICE	= $(patsubst %.rb,$(slicedir)/%.ice,$(ICEPATCH2_SRCS))
+ICESTORM_SLICE	= $(patsubst %.rb,$(slicedir)/%.ice,$(ICESTORM_SRCS))
+
 MODULES		= Glacier2 Ice IceBox IceGrid IcePatch2 IceStorm
 
 all:: $(ALL_SRCS)
 
-Ice/%.rb: $(slicedir)/Ice/%.ice
-	@mkdir -p $(notdir $(<D))
-	$(SLICE2RB) --output-dir $(notdir $(<D)) --ice $(SLICE2RBFLAGS) $<
+SLICE2RBFLAGS	+= --ice
 
-Glacier2/%.rb: $(slicedir)/Glacier2/%.ice
+Ice/%.rb: $(slicedir)/Ice/%.ice $(SLICE2RB) $(SLICEPARSERLIB)
 	@mkdir -p $(notdir $(<D))
-	$(SLICE2RB) --output-dir $(notdir $(<D)) --ice $(SLICE2RBFLAGS) $<
+	$(SLICE2RB) --output-dir $(notdir $(<D)) $(SLICE2RBFLAGS) $<
 
-IceBox/%.rb: $(slicedir)/IceBox/%.ice
+Glacier2/%.rb: $(slicedir)/Glacier2/%.ice $(SLICE2RB) $(SLICEPARSERLIB)
 	@mkdir -p $(notdir $(<D))
-	$(SLICE2RB) --output-dir $(notdir $(<D)) --ice $(SLICE2RBFLAGS) $<
+	$(SLICE2RB) --output-dir $(notdir $(<D)) $(SLICE2RBFLAGS) $<
 
-IceGrid/%.rb: $(slicedir)/IceGrid/%.ice
+IceBox/%.rb: $(slicedir)/IceBox/%.ice $(SLICE2RB) $(SLICEPARSERLIB)
 	@mkdir -p $(notdir $(<D))
-	$(SLICE2RB) --output-dir $(notdir $(<D)) --ice $(SLICE2RBFLAGS) $<
+	$(SLICE2RB) --output-dir $(notdir $(<D)) $(SLICE2RBFLAGS) $<
 
-IcePatch2/%.rb: $(slicedir)/IcePatch2/%.ice
+IceGrid/%.rb: $(slicedir)/IceGrid/%.ice $(SLICE2RB) $(SLICEPARSERLIB)
 	@mkdir -p $(notdir $(<D))
-	$(SLICE2RB) --output-dir $(notdir $(<D)) --ice $(SLICE2RBFLAGS) $<
+	$(SLICE2RB) --output-dir $(notdir $(<D)) $(SLICE2RBFLAGS) $<
 
-IceStorm/%.rb: $(slicedir)/IceStorm/%.ice
+IcePatch2/%.rb: $(slicedir)/IcePatch2/%.ice $(SLICE2RB) $(SLICEPARSERLIB)
 	@mkdir -p $(notdir $(<D))
-	$(SLICE2RB) --output-dir $(notdir $(<D)) --ice $(SLICE2RBFLAGS) $<
+	$(SLICE2RB) --output-dir $(notdir $(<D)) $(SLICE2RBFLAGS) $<
+
+IceStorm/%.rb: $(slicedir)/IceStorm/%.ice $(SLICE2RB) $(SLICEPARSERLIB)
+	@mkdir -p $(notdir $(<D))
+	$(SLICE2RB) --output-dir $(notdir $(<D)) $(SLICE2RBFLAGS) $<
+
+depend::  $(ICE_SLICE) $(GLACIER2_SLICE) $(ICEBOX_SLICE) $(ICEGRID_SLICE) $(ICEPATCH2_SLICE) $(ICESTORM_SLICE)
+	-rm -f .depend
+	if test -n "$(ICE_SLICE)" ; then \
+	    $(SLICE2RB) --depend $(SLICE2RBFLAGS) $(ICE_SLICE) | $(ice_dir)/config/makedepend.py Ice >> .depend; \
+	fi
+	if test -n "$(GLACIER2_SLICE)" ; then \
+	    $(SLICE2RB) --depend $(SLICE2RBFLAGS) $(GLACIER2_SLICE) | $(ice_dir)/config/makedepend.py Glacier2 >> .depend; \
+	fi
+	if test -n "$(ICEBOX_SLICE)" ; then \
+	    $(SLICE2RB) --depend $(SLICE2RBFLAGS) $(ICEBOX_SLICE) | $(ice_dir)/config/makedepend.py IceBox >> .depend; \
+	fi
+	if test -n "$(ICEGRID_SLICE)" ; then \
+	    $(SLICE2RB) --depend $(SLICE2RBFLAGS) $(ICEGRID_SLICE) | $(ice_dir)/config/makedepend.py IceGrid >> .depend; \
+	fi
+	if test -n "$(ICEPATCH2_SLICE)" ; then \
+	    $(SLICE2RB) --depend $(SLICE2RBFLAGS) $(ICEPATCH2_SLICE) | $(ice_dir)/config/makedepend.py IcePatch2 >> .depend; \
+	fi
+	if test -n "$(ICESTORM_SLICE)" ; then \
+	    $(SLICE2RB) --depend $(SLICE2RBFLAGS) $(ICESTORM_SLICE) | $(ice_dir)/config/makedepend.py IceStorm >> .depend; \
+	fi
 
 install:: $(ALL_SRCS)
 	@echo "Installing generated code"
@@ -132,3 +162,5 @@ install:: $(ALL_SRCS)
 
 clean::
 	rm -rf $(MODULES)
+
+include .depend

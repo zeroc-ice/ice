@@ -1,1 +1,1 @@
-Key.cs: ./Key.ice
+generated/Key.cs: ./Key.ice $(SLICE2CS) $(SLICEPARSERLIB)

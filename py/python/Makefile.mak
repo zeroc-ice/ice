@@ -85,174 +85,174 @@ SLICE2PYFLAGS   = $(SLICE2PYFLAGS) --ice
 
 all:: $(ALL_SRCS)
 
-Ice_LocalException_ice.py: $(slicedir)/Ice/LocalException.ice
+Ice_LocalException_ice.py: $(slicedir)/Ice/LocalException.ice $(SLICE2PY) $(SLICEPARSERLIB)
 	$(SLICE2PY) $(SLICE2PYFLAGS) --prefix Ice_ --no-package $(slicedir)/Ice/LocalException.ice
 
-Ice_Communicator_ice.py: $(slicedir)/Ice/Communicator.ice
+Ice_Communicator_ice.py: $(slicedir)/Ice/Communicator.ice $(SLICE2PY) $(SLICEPARSERLIB)
 	$(SLICE2PY) $(SLICE2PYFLAGS) --prefix Ice_ --no-package $(slicedir)/Ice/Communicator.ice
 
-Ice_CommunicatorF_ice.py: $(slicedir)/Ice/CommunicatorF.ice
+Ice_CommunicatorF_ice.py: $(slicedir)/Ice/CommunicatorF.ice $(SLICE2PY) $(SLICEPARSERLIB)
 	$(SLICE2PY) $(SLICE2PYFLAGS) --prefix Ice_ --no-package $(slicedir)/Ice/CommunicatorF.ice
 
-Ice_Logger_ice.py: $(slicedir)/Ice/Logger.ice
+Ice_Logger_ice.py: $(slicedir)/Ice/Logger.ice $(SLICE2PY) $(SLICEPARSERLIB)
 	$(SLICE2PY) $(SLICE2PYFLAGS) --prefix Ice_ --no-package $(slicedir)/Ice/Logger.ice
 
-Ice_LoggerF_ice.py: $(slicedir)/Ice/LoggerF.ice
+Ice_LoggerF_ice.py: $(slicedir)/Ice/LoggerF.ice $(SLICE2PY) $(SLICEPARSERLIB)
 	$(SLICE2PY) $(SLICE2PYFLAGS) --prefix Ice_ --no-package $(slicedir)/Ice/LoggerF.ice
 
-Ice_BuiltinSequences_ice.py: $(slicedir)/Ice/BuiltinSequences.ice
+Ice_BuiltinSequences_ice.py: $(slicedir)/Ice/BuiltinSequences.ice $(SLICE2PY) $(SLICEPARSERLIB)
 	$(SLICE2PY) $(SLICE2PYFLAGS) --prefix Ice_ --no-package $(slicedir)/Ice/BuiltinSequences.ice
 
-Ice_ObjectAdapter_ice.py: $(slicedir)/Ice/ObjectAdapter.ice
+Ice_ObjectAdapter_ice.py: $(slicedir)/Ice/ObjectAdapter.ice $(SLICE2PY) $(SLICEPARSERLIB)
 	$(SLICE2PY) $(SLICE2PYFLAGS) --prefix Ice_ --no-package $(slicedir)/Ice/ObjectAdapter.ice
 
-Ice_ObjectAdapterF_ice.py: $(slicedir)/Ice/ObjectAdapterF.ice
+Ice_ObjectAdapterF_ice.py: $(slicedir)/Ice/ObjectAdapterF.ice $(SLICE2PY) $(SLICEPARSERLIB)
 	$(SLICE2PY) $(SLICE2PYFLAGS) --prefix Ice_ --no-package $(slicedir)/Ice/ObjectAdapterF.ice
 
-Ice_ServantLocator_ice.py: $(slicedir)/Ice/ServantLocator.ice
+Ice_ServantLocator_ice.py: $(slicedir)/Ice/ServantLocator.ice $(SLICE2PY) $(SLICEPARSERLIB)
 	$(SLICE2PY) $(SLICE2PYFLAGS) --prefix Ice_ --no-package $(slicedir)/Ice/ServantLocator.ice
 
-Ice_ServantLocatorF_ice.py: $(slicedir)/Ice/ServantLocatorF.ice
+Ice_ServantLocatorF_ice.py: $(slicedir)/Ice/ServantLocatorF.ice $(SLICE2PY) $(SLICEPARSERLIB)
 	$(SLICE2PY) $(SLICE2PYFLAGS) --prefix Ice_ --no-package $(slicedir)/Ice/ServantLocatorF.ice
 
-Ice_Properties_ice.py: $(slicedir)/Ice/Properties.ice
+Ice_Properties_ice.py: $(slicedir)/Ice/Properties.ice $(SLICE2PY) $(SLICEPARSERLIB)
 	$(SLICE2PY) $(SLICE2PYFLAGS) --prefix Ice_ --no-package $(slicedir)/Ice/Properties.ice
 
-Ice_PropertiesF_ice.py: $(slicedir)/Ice/PropertiesF.ice
+Ice_PropertiesF_ice.py: $(slicedir)/Ice/PropertiesF.ice $(SLICE2PY) $(SLICEPARSERLIB)
 	$(SLICE2PY) $(SLICE2PYFLAGS) --prefix Ice_ --no-package $(slicedir)/Ice/PropertiesF.ice
 
-Ice_ObjectFactory_ice.py: $(slicedir)/Ice/ObjectFactory.ice
+Ice_ObjectFactory_ice.py: $(slicedir)/Ice/ObjectFactory.ice $(SLICE2PY) $(SLICEPARSERLIB)
 	$(SLICE2PY) $(SLICE2PYFLAGS) --prefix Ice_ --no-package $(slicedir)/Ice/ObjectFactory.ice
 
-Ice_ObjectFactoryF_ice.py: $(slicedir)/Ice/ObjectFactoryF.ice
+Ice_ObjectFactoryF_ice.py: $(slicedir)/Ice/ObjectFactoryF.ice $(SLICE2PY) $(SLICEPARSERLIB)
 	$(SLICE2PY) $(SLICE2PYFLAGS) --prefix Ice_ --no-package $(slicedir)/Ice/ObjectFactoryF.ice
 
-Ice_Identity_ice.py: $(slicedir)/Ice/Identity.ice
+Ice_Identity_ice.py: $(slicedir)/Ice/Identity.ice $(SLICE2PY) $(SLICEPARSERLIB)
 	$(SLICE2PY) $(SLICE2PYFLAGS) --prefix Ice_ --no-package $(slicedir)/Ice/Identity.ice
 
-Ice_Current_ice.py: $(slicedir)/Ice/Current.ice
+Ice_Current_ice.py: $(slicedir)/Ice/Current.ice $(SLICE2PY) $(SLICEPARSERLIB)
 	$(SLICE2PY) $(SLICE2PYFLAGS) --prefix Ice_ --no-package $(slicedir)/Ice/Current.ice
 
-Ice_ImplicitContext_ice.py: $(slicedir)/Ice/ImplicitContext.ice
+Ice_ImplicitContext_ice.py: $(slicedir)/Ice/ImplicitContext.ice $(SLICE2PY) $(SLICEPARSERLIB)
 	$(SLICE2PY) $(SLICE2PYFLAGS) --prefix Ice_ --no-package $(slicedir)/Ice/ImplicitContext.ice
 
-Ice_ImplicitContextF_ice.py: $(slicedir)/Ice/ImplicitContextF.ice
+Ice_ImplicitContextF_ice.py: $(slicedir)/Ice/ImplicitContextF.ice $(SLICE2PY) $(SLICEPARSERLIB)
 	$(SLICE2PY) $(SLICE2PYFLAGS) --prefix Ice_ --no-package $(slicedir)/Ice/ImplicitContextF.ice
 
-Ice_Router_ice.py: $(slicedir)/Ice/Router.ice
+Ice_Router_ice.py: $(slicedir)/Ice/Router.ice $(SLICE2PY) $(SLICEPARSERLIB)
 	$(SLICE2PY) $(SLICE2PYFLAGS) --prefix Ice_ --no-package $(slicedir)/Ice/Router.ice
 
-Ice_RouterF_ice.py: $(slicedir)/Ice/RouterF.ice
+Ice_RouterF_ice.py: $(slicedir)/Ice/RouterF.ice $(SLICE2PY) $(SLICEPARSERLIB)
 	$(SLICE2PY) $(SLICE2PYFLAGS) --prefix Ice_ --no-package $(slicedir)/Ice/RouterF.ice
 
-Ice_Plugin_ice.py: $(slicedir)/Ice/Plugin.ice
+Ice_Plugin_ice.py: $(slicedir)/Ice/Plugin.ice $(SLICE2PY) $(SLICEPARSERLIB)
 	$(SLICE2PY) $(SLICE2PYFLAGS) --prefix Ice_ --no-package $(slicedir)/Ice/Plugin.ice
 
-Ice_PluginF_ice.py: $(slicedir)/Ice/PluginF.ice
+Ice_PluginF_ice.py: $(slicedir)/Ice/PluginF.ice $(SLICE2PY) $(SLICEPARSERLIB)
 	$(SLICE2PY) $(SLICE2PYFLAGS) --prefix Ice_ --no-package $(slicedir)/Ice/PluginF.ice
 
-Ice_Locator_ice.py: $(slicedir)/Ice/Locator.ice
+Ice_Locator_ice.py: $(slicedir)/Ice/Locator.ice $(SLICE2PY) $(SLICEPARSERLIB)
 	$(SLICE2PY) $(SLICE2PYFLAGS) --prefix Ice_ --no-package $(slicedir)/Ice/Locator.ice
 
-Ice_LocatorF_ice.py: $(slicedir)/Ice/LocatorF.ice
+Ice_LocatorF_ice.py: $(slicedir)/Ice/LocatorF.ice $(SLICE2PY) $(SLICEPARSERLIB)
 	$(SLICE2PY) $(SLICE2PYFLAGS) --prefix Ice_ --no-package $(slicedir)/Ice/LocatorF.ice
 
-Ice_StatsF_ice.py: $(slicedir)/Ice/StatsF.ice
+Ice_StatsF_ice.py: $(slicedir)/Ice/StatsF.ice $(SLICE2PY) $(SLICEPARSERLIB)
 	$(SLICE2PY) $(SLICE2PYFLAGS) --prefix Ice_ --no-package $(slicedir)/Ice/StatsF.ice
 
-Ice_Stats_ice.py: $(slicedir)/Ice/Stats.ice
+Ice_Stats_ice.py: $(slicedir)/Ice/Stats.ice $(SLICE2PY) $(SLICEPARSERLIB)
 	$(SLICE2PY) $(SLICE2PYFLAGS) --prefix Ice_ --no-package $(slicedir)/Ice/Stats.ice
 
-Ice_Process_ice.py: $(slicedir)/Ice/Process.ice
+Ice_Process_ice.py: $(slicedir)/Ice/Process.ice $(SLICE2PY) $(SLICEPARSERLIB)
 	$(SLICE2PY) $(SLICE2PYFLAGS) --prefix Ice_ --no-package $(slicedir)/Ice/Process.ice
 
-Ice_ProcessF_ice.py: $(slicedir)/Ice/ProcessF.ice
+Ice_ProcessF_ice.py: $(slicedir)/Ice/ProcessF.ice $(SLICE2PY) $(SLICEPARSERLIB)
 	$(SLICE2PY) $(SLICE2PYFLAGS) --prefix Ice_ --no-package $(slicedir)/Ice/ProcessF.ice
 
-Ice_FacetMap_ice.py: $(slicedir)/Ice/FacetMap.ice
+Ice_FacetMap_ice.py: $(slicedir)/Ice/FacetMap.ice $(SLICE2PY) $(SLICEPARSERLIB)
 	$(SLICE2PY) $(SLICE2PYFLAGS) --prefix Ice_ --no-package $(slicedir)/Ice/FacetMap.ice
 
-Ice_Connection_ice.py: $(slicedir)/Ice/Connection.ice
+Ice_Connection_ice.py: $(slicedir)/Ice/Connection.ice $(SLICE2PY) $(SLICEPARSERLIB)
 	$(SLICE2PY) $(SLICE2PYFLAGS) --prefix Ice_ --no-package $(slicedir)/Ice/Connection.ice
 
-Ice_ConnectionF_ice.py: $(slicedir)/Ice/ConnectionF.ice
+Ice_ConnectionF_ice.py: $(slicedir)/Ice/ConnectionF.ice $(SLICE2PY) $(SLICEPARSERLIB)
 	$(SLICE2PY) $(SLICE2PYFLAGS) --prefix Ice_ --no-package $(slicedir)/Ice/ConnectionF.ice
 
-Ice_SliceChecksumDict_ice.py: $(slicedir)/Ice/SliceChecksumDict.ice
+Ice_SliceChecksumDict_ice.py: $(slicedir)/Ice/SliceChecksumDict.ice $(SLICE2PY) $(SLICEPARSERLIB)
 	$(SLICE2PY) $(SLICE2PYFLAGS) --prefix Ice_ --no-package $(slicedir)/Ice/SliceChecksumDict.ice
 
-Ice_Endpoint_ice.py: $(slicedir)/Ice/Endpoint.ice
+Ice_Endpoint_ice.py: $(slicedir)/Ice/Endpoint.ice $(SLICE2PY) $(SLICEPARSERLIB)
 	$(SLICE2PY) $(SLICE2PYFLAGS) --prefix Ice_ --no-package $(slicedir)/Ice/Endpoint.ice
 
-Ice_EndpointF_ice.py: $(slicedir)/Ice/EndpointF.ice
+Ice_EndpointF_ice.py: $(slicedir)/Ice/EndpointF.ice $(SLICE2PY) $(SLICEPARSERLIB)
 	$(SLICE2PY) $(SLICE2PYFLAGS) --prefix Ice_ --no-package $(slicedir)/Ice/EndpointF.ice
 
-Ice_EndpointTypes_ice.py: $(slicedir)/Ice/EndpointTypes.ice
+Ice_EndpointTypes_ice.py: $(slicedir)/Ice/EndpointTypes.ice $(SLICE2PY) $(SLICEPARSERLIB)
 	$(SLICE2PY) $(SLICE2PYFLAGS) --prefix Ice_ --no-package $(slicedir)/Ice/EndpointTypes.ice
 
 
-Glacier2_RouterF_ice.py: $(slicedir)/Glacier2/RouterF.ice
+Glacier2_RouterF_ice.py: $(slicedir)/Glacier2/RouterF.ice $(SLICE2PY) $(SLICEPARSERLIB)
 	$(SLICE2PY) $(SLICE2PYFLAGS) --prefix Glacier2_ --no-package $(slicedir)/Glacier2/RouterF.ice
 
-Glacier2_Router_ice.py: $(slicedir)/Glacier2/Router.ice
+Glacier2_Router_ice.py: $(slicedir)/Glacier2/Router.ice $(SLICE2PY) $(SLICEPARSERLIB)
 	$(SLICE2PY) $(SLICE2PYFLAGS) --prefix Glacier2_ --no-package $(slicedir)/Glacier2/Router.ice
 
-Glacier2_Session_ice.py: $(slicedir)/Glacier2/Session.ice
+Glacier2_Session_ice.py: $(slicedir)/Glacier2/Session.ice $(SLICE2PY) $(SLICEPARSERLIB)
 	$(SLICE2PY) $(SLICE2PYFLAGS) --prefix Glacier2_ --no-package $(slicedir)/Glacier2/Session.ice
 
-Glacier2_PermissionsVerifierF_ice.py: $(slicedir)/Glacier2/PermissionsVerifierF.ice
+Glacier2_PermissionsVerifierF_ice.py: $(slicedir)/Glacier2/PermissionsVerifierF.ice $(SLICE2PY) $(SLICEPARSERLIB)
 	$(SLICE2PY) $(SLICE2PYFLAGS) --prefix Glacier2_ --no-package $(slicedir)/Glacier2/PermissionsVerifierF.ice
 
-Glacier2_PermissionsVerifier_ice.py: $(slicedir)/Glacier2/PermissionsVerifier.ice
+Glacier2_PermissionsVerifier_ice.py: $(slicedir)/Glacier2/PermissionsVerifier.ice $(SLICE2PY) $(SLICEPARSERLIB)
 	$(SLICE2PY) $(SLICE2PYFLAGS) --prefix Glacier2_ --no-package $(slicedir)/Glacier2/PermissionsVerifier.ice
 
-Glacier2_SSLInfo_ice.py: $(slicedir)/Glacier2/SSLInfo.ice
+Glacier2_SSLInfo_ice.py: $(slicedir)/Glacier2/SSLInfo.ice $(SLICE2PY) $(SLICEPARSERLIB)
 	$(SLICE2PY) $(SLICE2PYFLAGS) --prefix Glacier2_ --no-package $(slicedir)/Glacier2/SSLInfo.ice
 
 
-IceBox_IceBox_ice.py: $(slicedir)/IceBox/IceBox.ice
+IceBox_IceBox_ice.py: $(slicedir)/IceBox/IceBox.ice $(SLICE2PY) $(SLICEPARSERLIB)
 	$(SLICE2PY) $(SLICE2PYFLAGS) --prefix IceBox_ $(slicedir)/IceBox/IceBox.ice
 
 
-IceGrid_Admin_ice.py: $(slicedir)/IceGrid/Admin.ice
+IceGrid_Admin_ice.py: $(slicedir)/IceGrid/Admin.ice $(SLICE2PY) $(SLICEPARSERLIB)
 	$(SLICE2PY) $(SLICE2PYFLAGS) --prefix IceGrid_ $(slicedir)/IceGrid/Admin.ice
 
-IceGrid_Descriptor_ice.py: $(slicedir)/IceGrid/Descriptor.ice
+IceGrid_Descriptor_ice.py: $(slicedir)/IceGrid/Descriptor.ice $(SLICE2PY) $(SLICEPARSERLIB)
 	$(SLICE2PY) $(SLICE2PYFLAGS) --prefix IceGrid_ $(slicedir)/IceGrid/Descriptor.ice
 
-IceGrid_Exception_ice.py: $(slicedir)/IceGrid/Exception.ice
+IceGrid_Exception_ice.py: $(slicedir)/IceGrid/Exception.ice $(SLICE2PY) $(SLICEPARSERLIB)
 	$(SLICE2PY) $(SLICE2PYFLAGS) --prefix IceGrid_ $(slicedir)/IceGrid/Exception.ice
 
-IceGrid_FileParser_ice.py: $(slicedir)/IceGrid/FileParser.ice
+IceGrid_FileParser_ice.py: $(slicedir)/IceGrid/FileParser.ice $(SLICE2PY) $(SLICEPARSERLIB)
 	$(SLICE2PY) $(SLICE2PYFLAGS) --prefix IceGrid_ $(slicedir)/IceGrid/FileParser.ice
 
-IceGrid_Locator_ice.py: $(slicedir)/IceGrid/Locator.ice
+IceGrid_Locator_ice.py: $(slicedir)/IceGrid/Locator.ice $(SLICE2PY) $(SLICEPARSERLIB)
 	$(SLICE2PY) $(SLICE2PYFLAGS) --prefix IceGrid_ $(slicedir)/IceGrid/Locator.ice
 
-IceGrid_Observer_ice.py: $(slicedir)/IceGrid/Observer.ice
+IceGrid_Observer_ice.py: $(slicedir)/IceGrid/Observer.ice $(SLICE2PY) $(SLICEPARSERLIB)
 	$(SLICE2PY) $(SLICE2PYFLAGS) --prefix IceGrid_ $(slicedir)/IceGrid/Observer.ice
 
-IceGrid_Query_ice.py: $(slicedir)/IceGrid/Query.ice
+IceGrid_Query_ice.py: $(slicedir)/IceGrid/Query.ice $(SLICE2PY) $(SLICEPARSERLIB)
 	$(SLICE2PY) $(SLICE2PYFLAGS) --prefix IceGrid_ $(slicedir)/IceGrid/Query.ice
 
-IceGrid_Registry_ice.py: $(slicedir)/IceGrid/Registry.ice
+IceGrid_Registry_ice.py: $(slicedir)/IceGrid/Registry.ice $(SLICE2PY) $(SLICEPARSERLIB)
 	$(SLICE2PY) $(SLICE2PYFLAGS) --prefix IceGrid_ $(slicedir)/IceGrid/Registry.ice
 
-IceGrid_Session_ice.py: $(slicedir)/IceGrid/Session.ice
+IceGrid_Session_ice.py: $(slicedir)/IceGrid/Session.ice $(SLICE2PY) $(SLICEPARSERLIB)
 	$(SLICE2PY) $(SLICE2PYFLAGS) --prefix IceGrid_ $(slicedir)/IceGrid/Session.ice
 
-IceGrid_UserAccountMapper_ice.py: $(slicedir)/IceGrid/UserAccountMapper.ice
+IceGrid_UserAccountMapper_ice.py: $(slicedir)/IceGrid/UserAccountMapper.ice $(SLICE2PY) $(SLICEPARSERLIB)
 	$(SLICE2PY) $(SLICE2PYFLAGS) --prefix IceGrid_ $(slicedir)/IceGrid/UserAccountMapper.ice
 
 
-IcePatch2_FileInfo_ice.py: $(slicedir)/IcePatch2/FileInfo.ice
+IcePatch2_FileInfo_ice.py: $(slicedir)/IcePatch2/FileInfo.ice $(SLICE2PY) $(SLICEPARSERLIB)
 	$(SLICE2PY) $(SLICE2PYFLAGS) --prefix IcePatch2_ $(slicedir)/IcePatch2/FileInfo.ice
 
-IcePatch2_FileServer_ice.py: $(slicedir)/IcePatch2/FileServer.ice
+IcePatch2_FileServer_ice.py: $(slicedir)/IcePatch2/FileServer.ice $(SLICE2PY) $(SLICEPARSERLIB)
 	$(SLICE2PY) $(SLICE2PYFLAGS) --prefix IcePatch2_ $(slicedir)/IcePatch2/FileServer.ice
 
 
-IceStorm_IceStorm_ice.py: $(slicedir)/IceStorm/IceStorm.ice
+IceStorm_IceStorm_ice.py: $(slicedir)/IceStorm/IceStorm.ice $(SLICE2PY) $(SLICEPARSERLIB)
 	$(SLICE2PY) $(SLICE2PYFLAGS) --prefix IceStorm_ $(slicedir)/IceStorm/IceStorm.ice
 
 
@@ -268,3 +268,5 @@ install:: $(ALL_SRCS)
 clean::
 	-rmdir /s /q $(PACKAGES)
 	del /q *_ice.py
+
+include .depend

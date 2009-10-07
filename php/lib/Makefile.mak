@@ -121,3 +121,5 @@ install::
 
 clean::
 	-rmdir /S /Q $(MODULES)
+
+include .depend

@@ -94,6 +94,13 @@ ALL_SRCS	= $(ICE_SRCS) \
 		  $(ICEPATCH2_SRCS) \
 		  $(ICESTORM_SRCS)
 
+ICE_SLICE       = $(patsubst %.php,$(slicedir)/%.ice,$(ICE_SRCS))
+GLACIER2_SLICE  = $(patsubst %.php,$(slicedir)/%.ice,$(GLACIER2_SRCS))
+ICEBOX_SLICE    = $(patsubst %.php,$(slicedir)/%.ice,$(ICEBOX_SRCS))
+ICEGRID_SLICE   = $(patsubst %.php,$(slicedir)/%.ice,$(ICEGRID_SRCS))
+ICEPATCH2_SLICE = $(patsubst %.php,$(slicedir)/%.ice,$(ICEPATCH2_SRCS))
+ICESTORM_SLICE  = $(patsubst %.php,$(slicedir)/%.ice,$(ICESTORM_SRCS))
+
 MODULES		= Glacier2 Ice IceBox IceGrid IcePatch2 IceStorm
 ifeq ("$(USE_NAMESPACES)","yes")
 MODULE_SRCS	= Glacier2.php Ice_ns.php IceBox.php IceGrid.php IcePatch2.php IceStorm.php
@@ -103,29 +110,52 @@ endif
 
 all:: $(ALL_SRCS)
 
+SLICE2PHPFLAGS	+= --ice 
+
 Ice/%.php: $(slicedir)/Ice/%.ice
 	@mkdir -p $(notdir $(<D))
-	$(SLICE2PHP) --output-dir $(notdir $(<D)) --ice $(SLICE2PHPFLAGS) $<
+	$(SLICE2PHP) --output-dir $(notdir $(<D)) $(SLICE2PHPFLAGS) $<
 
 Glacier2/%.php: $(slicedir)/Glacier2/%.ice
 	@mkdir -p $(notdir $(<D))
-	$(SLICE2PHP) --output-dir $(notdir $(<D)) --ice $(SLICE2PHPFLAGS) $<
+	$(SLICE2PHP) --output-dir $(notdir $(<D)) $(SLICE2PHPFLAGS) $<
 
 IceBox/%.php: $(slicedir)/IceBox/%.ice
 	@mkdir -p $(notdir $(<D))
-	$(SLICE2PHP) --output-dir $(notdir $(<D)) --ice $(SLICE2PHPFLAGS) $<
+	$(SLICE2PHP) --output-dir $(notdir $(<D)) $(SLICE2PHPFLAGS) $<
 
 IceGrid/%.php: $(slicedir)/IceGrid/%.ice
 	@mkdir -p $(notdir $(<D))
-	$(SLICE2PHP) --output-dir $(notdir $(<D)) --ice $(SLICE2PHPFLAGS) $<
+	$(SLICE2PHP) --output-dir $(notdir $(<D)) $(SLICE2PHPFLAGS) $<
 
 IcePatch2/%.php: $(slicedir)/IcePatch2/%.ice
 	@mkdir -p $(notdir $(<D))
-	$(SLICE2PHP) --output-dir $(notdir $(<D)) --ice $(SLICE2PHPFLAGS) $<
+	$(SLICE2PHP) --output-dir $(notdir $(<D)) $(SLICE2PHPFLAGS) $<
 
 IceStorm/%.php: $(slicedir)/IceStorm/%.ice
 	@mkdir -p $(notdir $(<D))
-	$(SLICE2PHP) --output-dir $(notdir $(<D)) --ice $(SLICE2PHPFLAGS) $<
+	$(SLICE2PHP) --output-dir $(notdir $(<D)) $(SLICE2PHPFLAGS) $<
+
+depend::  $(ICE_SLICE) $(GLACIER2_SLICE) $(ICEBOX_SLICE) $(ICEGRID_SLICE) $(ICEPATCH2_SLICE) $(ICESTORM_SLICE)
+	-rm -f .depend
+	if test -n "$(ICE_SLICE)" ; then \
+	    $(SLICE2PHP) --depend $(SLICE2PHPFLAGS) $(ICE_SLICE) | $(ice_dir)/config/makedepend.py Ice >> .depend; \
+	fi
+	if test -n "$(GLACIER2_SLICE)" ; then \
+	    $(SLICE2PHP) --depend $(SLICE2PHPFLAGS) $(GLACIER2_SLICE) | $(ice_dir)/config/makedepend.py Glacier2 >> .depend; \
+	fi
+	if test -n "$(ICEBOX_SLICE)" ; then \
+	    $(SLICE2PHP) --depend $(SLICE2PHPFLAGS) $(ICEBOX_SLICE) | $(ice_dir)/config/makedepend.py IceBox >> .depend; \
+	fi
+	if test -n "$(ICEGRID_SLICE)" ; then \
+	    $(SLICE2PHP) --depend $(SLICE2PHPFLAGS) $(ICEGRID_SLICE) | $(ice_dir)/config/makedepend.py IceGrid >> .depend; \
+	fi
+	if test -n "$(ICEPATCH2_SLICE)" ; then \
+	    $(SLICE2PHP) --depend $(SLICE2PHPFLAGS) $(ICEPATCH2_SLICE) | $(ice_dir)/config/makedepend.py IcePatch2 >> .depend; \
+	fi
+	if test -n "$(ICESTORM_SLICE)" ; then \
+	    $(SLICE2PHP) --depend $(SLICE2PHPFLAGS) $(ICESTORM_SLICE) | $(ice_dir)/config/makedepend.py IceStorm >> .depend; \
+	fi
 
 install:: $(ALL_SRCS)
 	@echo "Installing generated code"
@@ -140,3 +170,5 @@ install:: $(ALL_SRCS)
 
 clean::
 	rm -rf $(MODULES)
+
+include .depend

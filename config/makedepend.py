@@ -8,7 +8,7 @@
 #
 # **********************************************************************
 
-import sys, os, fileinput, re, string
+import sys, os, fileinput, re, string, getopt
 
 previous = ""
 
@@ -23,6 +23,13 @@ else:
 
 subincludedir = top_srcdir + "/include"
 subcppincludedir = top_srcdir + "/../cpp/include"
+
+prefix = None
+if len(sys.argv) == 2:
+    prefix = sys.argv[1]
+    del sys.argv[1]
+
+lang = None
 
 for line in fileinput.input():
     line = line.strip()
@@ -48,6 +55,24 @@ for line in fileinput.input():
         if(s[0] == "/"):
             continue
 
+        if s.endswith(".cs:"):
+            lang = "cs"
+            s = "generated/" + s
+            print s,
+            continue
+
+        if s.endswith(".rb:") and not prefix == None:
+            s = prefix + "/" + s
+            print s,
+            continue
+
+        if s.endswith(".php:"):
+            lang = "php"
+            if not prefix == None:
+                s = prefix + "/" + s
+                print s,
+                continue
+
         if s.startswith(subincludedir):
             s = "$(includedir)" + s[len(subincludedir):]
             print s,
@@ -66,5 +91,10 @@ for line in fileinput.input():
 
         print s,
 
-    print
+    if lang == "cs":
+        print "$(SLICE2CS) $(SLICEPARSERLIB)"
+    elif lang == "php":
+        print "$(SLICE2PHP) $(SLICEPARSERLIB)"
+    else:
+        print
             

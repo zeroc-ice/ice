@@ -115,12 +115,15 @@ LDFLAGS			= $(LDPLATFORMFLAGS) $(CXXFLAGS) -L$(libdir)
 
 ifdef ice_src_dist
     ifeq ($(ice_cpp_dir), $(ice_dir)/cpp)
-        SLICE2RB = $(ice_cpp_dir)/bin/slice2rb
+        SLICE2RB 	= $(ice_cpp_dir)/bin/slice2rb
+	SLICEPARSERLIB	= $(ice_cpp_dir)/lib/$(call mklibfilename,Slice,$(VERSION))
     else
-        SLICE2RB = $(ice_cpp_dir)/$(binsubdir)/slice2rb
+        SLICE2RB 	= $(ice_cpp_dir)/$(binsubdir)/slice2rb
+	SLICEPARSERLIB	= $(ice_cpp_dir)/$(libsubdir)/$(call mklibfilename,Slice,$(VERSION))
     endif
 else
-    SLICE2RB = $(ice_dir)/$(binsubdir)/slice2rb
+    SLICE2RB 		= $(ice_dir)/$(binsubdir)/slice2rb
+    SLICEPARSERLIB	= $(ice_dir)/$(libsubdir)/$(call mklibfilename,Slice,$(VERSION))
 endif
 
 #
@@ -151,11 +154,13 @@ clean::
 
 all:: $(SRCS) $(TARGETS)
 
-depend:: $(SRCS) $(SLICE_SRCS)
+ifneq ($(SRCS),)
+depend:: $(SRCS)
 	-rm -f .depend
 	if test -n "$(SRCS)" ; then \
 	    $(CXX) -DMAKEDEPEND -M $(CXXFLAGS) $(CPPFLAGS) $(SRCS) | $(ice_dir)/config/makedepend.py >> .depend; \
 	fi
+endif
 
 ifneq ($(TEMPLATE_REPOSITORY),)
 clean::

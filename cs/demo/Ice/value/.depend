@@ -1,1 +1,1 @@
-Value.cs: ./Value.ice
+generated/Value.cs: ./Value.ice $(SLICE2CS) $(SLICEPARSERLIB)

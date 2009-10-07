@@ -134,12 +134,15 @@ endif
 
 ifdef ice_src_dist
     ifeq ($(ice_cpp_dir), $(ice_dir)/cpp)
-        SLICE2CS = $(ice_cpp_dir)/bin/slice2cs
+        SLICE2CS 	= $(ice_cpp_dir)/bin/slice2cs
+        SLICEPARSERLIB 	= $(ice_cpp_dir)/lib/$(call mklibfilename,Slice,$(VERSION))
     else
-        SLICE2CS = $(ice_cpp_dir)/$(binsubdir)/slice2cs
+        SLICE2CS 	= $(ice_cpp_dir)/$(binsubdir)/slice2cs
+        SLICEPARSERLIB 	= $(ice_cpp_dir)/$(libsubdir)/$(call mklibfilename,Slice,$(VERSION))
     endif
 else
-    SLICE2CS = $(ice_dir)/$(binsubdir)/slice2cs
+    SLICE2CS 		= $(ice_dir)/$(binsubdir)/slice2cs
+    SLICEPARSERLIB 	= $(ice_dir)/$(libsubdir)/$(call mklibfilename,Slice,$(VERSION))
 endif
 
 AL              = al

@@ -9,6 +9,9 @@
 
 top_srcdir	= ../../..
 
+SLICE_SRCS	= Test.ice \
+		  CTypes.ice
+
 include $(top_srcdir)/config/Make.rules
 
 SRCS		= Test.php CTypes.php
@@ -20,3 +23,5 @@ all:: $(SRCS)
 
 clean::
 	rm -f $(SRCS)
+
+include .depend

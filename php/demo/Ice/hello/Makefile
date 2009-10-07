@@ -9,6 +9,8 @@
 
 top_srcdir	= ../../..
 
+SLICE_SRCS	= Hello.ice
+
 include $(top_srcdir)/config/Make.rules
 
 SRCS	= Hello.php
@@ -20,3 +22,6 @@ all:: $(SRCS)
 
 clean::
 	rm -f $(SRCS)
+
+
+include .depend

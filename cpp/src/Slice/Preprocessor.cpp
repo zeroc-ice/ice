@@ -258,7 +258,7 @@ Slice::Preprocessor::preprocess(bool keepComments)
 
 bool
 Slice::Preprocessor::printMakefileDependencies(Language lang, const vector<string>& includePaths,
-                                               const string& cppSourceExt)
+                                               const string& cppSourceExt, const string& pyPrefix)
 {
     if(!checkInputFile())
     {
@@ -526,6 +526,46 @@ Slice::Preprocessor::printMakefileDependencies(Language lang, const vector<strin
             while((pos = result.find(suffix)) != string::npos)
             {
                 result.replace(pos, suffix.size() - 1, ".cs");
+            }
+            break;
+        }
+        case Python:
+        {
+            //
+            // Change .o[bj] suffix to .py suffix.
+            //
+            if(pyPrefix.size() != 0)
+            {
+                result = pyPrefix + result;
+            }
+            string::size_type pos;
+            while((pos = result.find(suffix)) != string::npos)
+            {
+                result.replace(pos, suffix.size() - 1, "_ice.py");
+            }
+            break;
+        }
+        case Ruby:
+        {
+            //
+            // Change .o[bj] suffix to .rb suffix.
+            //
+            string::size_type pos;
+            while((pos = result.find(suffix)) != string::npos)
+            {
+                result.replace(pos, suffix.size() - 1, ".rb");
+            }
+            break;
+        }
+        case PHP:
+        {
+            //
+            // Change .o[bj] suffix to .php suffix.
+            //
+            string::size_type pos;
+            while((pos = result.find(suffix)) != string::npos)
+            {
+                result.replace(pos, suffix.size() - 1, ".php");
             }
             break;
         }

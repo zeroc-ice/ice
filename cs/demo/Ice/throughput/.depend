@@ -1,1 +1,1 @@
-Throughput.cs: ./Throughput.ice
+generated/Throughput.cs: ./Throughput.ice $(SLICE2CS) $(SLICEPARSERLIB)

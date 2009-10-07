@@ -88,11 +88,14 @@ MCSFLAGS 		= $(MCSFLAGS) -optimize+
 !if "$(ice_src_dist)" != ""
 !if "$(ice_cpp_dir)" == "$(ice_dir)\cpp"
 SLICE2CS		= "$(ice_cpp_dir)\bin\slice2cs.exe"
+SLICEPARSERLIB		= "$(ice_cpp_dir)\lib\slice$(LIBSUFFIX).lib"
 !else
 SLICE2CS		= "$(ice_cpp_dir)\bin$(x64suffix)\slice2cs.exe"
+SLICEPARSERLIB		= "$(ice_cpp_dir)\lib$(x64suffix)\slice$(LIBSUFFIX).lib"
 !endif
 !else
 SLICE2CS		= "$(ice_dir)\bin$(x64suffix)\slice2cs.exe"
+SLICEPARSERLIB		= "$(ice_dir)\lib$(x64suffix)\slice$(LIBSUFFIX).lib"
 !endif
 
 EVERYTHING		= all clean install config

@@ -84,6 +84,7 @@ usage(const char* n)
         "-IDIR                Put DIR in the include file search path.\n"
         "-E                   Print preprocessor output on stdout.\n"
         "--output-dir DIR     Create files in the directory DIR.\n"
+        "--depend             Generate Makefile dependencies.\n"
         "-d, --debug          Print debug messages.\n"
         "--ice                Permit `Ice' prefix (for building Ice source code only)\n"
         "--all                Generate code for Slice definitions in included files.\n"
@@ -102,6 +103,7 @@ compile(int argc, char* argv[])
     opts.addOpt("I", "", IceUtilInternal::Options::NeedArg, "", IceUtilInternal::Options::Repeat);
     opts.addOpt("E");
     opts.addOpt("", "output-dir", IceUtilInternal::Options::NeedArg);
+    opts.addOpt("", "depend");
     opts.addOpt("d", "debug");
     opts.addOpt("", "ice");
     opts.addOpt("", "all");
@@ -155,6 +157,8 @@ compile(int argc, char* argv[])
 
     string output = opts.optArg("output-dir");
 
+    bool depend = opts.isSet("depend");
+
     bool debug = opts.isSet("debug");
 
     bool ice = opts.isSet("ice");
@@ -177,25 +181,30 @@ compile(int argc, char* argv[])
 
     for(i = args.begin(); i != args.end(); ++i)
     {
-
-        PreprocessorPtr icecpp = Preprocessor::create(argv[0], *i, cppArgs);
-        FILE* cppHandle = icecpp->preprocess(false);
-
-        if(cppHandle == 0)
+        if(depend)
         {
-            return EXIT_FAILURE;
-        }
+            PreprocessorPtr icecpp = Preprocessor::create(argv[0], *i, cppArgs);
+            FILE* cppHandle = icecpp->preprocess(false);
 
-        if(preprocess)
-        {
-            char buf[4096];
-            while(fgets(buf, static_cast<int>(sizeof(buf)), cppHandle) != NULL)
+            if(cppHandle == 0)
             {
-                if(fputs(buf, stdout) == EOF)
-                {
-                    return EXIT_FAILURE;
-                }
+                return EXIT_FAILURE;
             }
+
+            UnitPtr u = Unit::createUnit(false, false, ice);
+            int parseStatus = u->parse(*i, cppHandle, debug);
+            u->destroy();
+
+            if(parseStatus == EXIT_FAILURE)
+            {
+                return EXIT_FAILURE;
+            }
+
+            if(!icecpp->printMakefileDependencies(Preprocessor::Ruby, includePaths))
+            {
+                return EXIT_FAILURE;
+            }
+
             if(!icecpp->close())
             {
                 return EXIT_FAILURE;
@@ -203,68 +212,94 @@ compile(int argc, char* argv[])
         }
         else
         {
-            UnitPtr u = Unit::createUnit(false, all, ice);
-            int parseStatus = u->parse(*i, cppHandle, debug);
+            PreprocessorPtr icecpp = Preprocessor::create(argv[0], *i, cppArgs);
+            FILE* cppHandle = icecpp->preprocess(false);
 
-            if(!icecpp->close())
+            if(cppHandle == 0)
             {
-                u->destroy();
                 return EXIT_FAILURE;
             }
 
-            if(parseStatus == EXIT_FAILURE)
+            if(preprocess)
             {
-                status = EXIT_FAILURE;
-            }
-            else
-            {
-                string base = icecpp->getBaseName();
-                string::size_type pos = base.find_last_of("/\\");
-                if(pos != string::npos)
+                char buf[4096];
+                while(fgets(buf, static_cast<int>(sizeof(buf)), cppHandle) != NULL)
                 {
-                    base.erase(0, pos + 1);
-                }
-
-                string file = base + ".rb";
-                if(!output.empty())
-                {
-                    file = output + '/' + file;
-                }
-
-                try
-                {
-                    IceUtilInternal::Output out;
-                    out.open(file.c_str());
-                    if(!out)
+                    if(fputs(buf, stdout) == EOF)
                     {
-                        ostringstream os;
-                        os << "cannot open`" << file << "': " << strerror(errno);
-                        throw FileException(__FILE__, __LINE__, os.str());
+                        return EXIT_FAILURE;
                     }
-                    FileTracker::instance()->addFile(file);
-
-                    printHeader(out);
-                    printGeneratedHeader(out, base + ".ice", "#");
-
-                    //
-                    // Generate the Ruby mapping.
-                    //
-                    generate(u, all, checksum, includePaths, out);
-
-                    out.close();
                 }
-                catch(const Slice::FileException& ex)
+                if(!icecpp->close())
                 {
-                    // If a file could not be created, then cleanup
-                    // any created files.
-                    FileTracker::instance()->cleanup();
-                    u->destroy();
-                    getErrorStream() << argv[0] << ": error: " << ex.reason() << endl;
                     return EXIT_FAILURE;
                 }
             }
+            else
+            {
+                UnitPtr u = Unit::createUnit(false, all, ice);
+                int parseStatus = u->parse(*i, cppHandle, debug);
 
-            u->destroy();
+                if(!icecpp->close())
+                {
+                    u->destroy();
+                    return EXIT_FAILURE;
+                }
+
+                if(parseStatus == EXIT_FAILURE)
+                {
+                    status = EXIT_FAILURE;
+                }
+                else
+                {
+                    string base = icecpp->getBaseName();
+                    string::size_type pos = base.find_last_of("/\\");
+                    if(pos != string::npos)
+                    {
+                        base.erase(0, pos + 1);
+                    }
+
+                    string file = base + ".rb";
+                    if(!output.empty())
+                    {
+                        file = output + '/' + file;
+                    }
+
+                    try
+                    {
+                        IceUtilInternal::Output out;
+                        out.open(file.c_str());
+                        if(!out)
+                        {
+                            ostringstream os;
+                            os << "cannot open`" << file << "': " << strerror(errno);
+                            throw FileException(__FILE__, __LINE__, os.str());
+                        }
+                        FileTracker::instance()->addFile(file);
+
+                        printHeader(out);
+                        printGeneratedHeader(out, base + ".ice", "#");
+
+                        //
+                        // Generate the Ruby mapping.
+                        //
+                        generate(u, all, checksum, includePaths, out);
+
+                        out.close();
+                    }
+                    catch(const Slice::FileException& ex)
+                    {
+                        // If a file could not be created, then cleanup
+                        // any created files.
+                        FileTracker::instance()->cleanup();
+                        u->destroy();
+                        getErrorStream() << argv[0] << ": error: " << ex.reason() << endl;
+                        return EXIT_FAILURE;
+                    }
+                }
+
+                u->destroy();
+            }
         }
 
         {
