@@ -15,18 +15,10 @@
 #include <Ice/Identity.ice>
 #include <Ice/BuiltinSequences.ice>
 #include <IceStorm/SubscriberRecord.ice>
+#include <IceStorm/LLURecord.ice>
 
 module IceStormElection
 {
-
-/** A struct used for marking the last log update. */
-struct LogUpdate
-{
-    /** The generation. */
-    long generation;
-    /** The iteration within this generation. */
-    long iteration;
-};
 
 /** The contents of topic. */
 struct TopicContent

@@ -12,11 +12,6 @@
 #include <Ice/Service.h>
 #include <IceGrid/RegistryI.h>
 #include <IceGrid/TraceLevels.h>
-#ifdef QTSQL
-#  include <IceSQL/SqlTypes.h>
-#  include <QtCore/QCoreApplication>
-#  include <QtCore/QTextCodec>
-#endif
 
 using namespace std;
 using namespace Ice;
@@ -46,9 +41,6 @@ private:
     void usage(const std::string&);
 
     RegistryIPtr _registry;
-#ifdef QTSQL
-    QCoreApplication* _qtApp;
-#endif
 };
 
 } // End of namespace IceGrid
@@ -59,13 +51,6 @@ RegistryService::RegistryService()
 
 RegistryService::~RegistryService()
 {
-#ifdef QTSQL
-    if(_qtApp != 0)
-    {
-        delete _qtApp;
-        _qtApp = 0;
-    }
-#endif
 }
 
 bool
@@ -175,14 +160,13 @@ RegistryService::initializeCommunicator(int& argc, char* argv[],
     //
     initData.properties->setProperty("Ice.Default.CollocationOptimized", "0");
 
-#ifdef QTSQL
-    if(QCoreApplication::instance() == 0)
+    //
+    // Default backend database plugin is Freeze if none is specified.
+    //
+    if(initData.properties->getProperty("Ice.Plugin.DB").empty())
     {
-        _qtApp = new QCoreApplication(argc, argv);
-        QTextCodec::setCodecForCStrings(QTextCodec::codecForName("UTF-8"));
+        initData.properties->setProperty("Ice.Plugin.DB", "IceGridFreezeDB:createFreezeDB");
     }
-    initData.threadHook = new IceSQL::ThreadHook();
-#endif
 
     return Service::initializeCommunicator(argc, argv, initData);
 }

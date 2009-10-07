@@ -12,8 +12,6 @@
 
 #include <IceStorm/IceStormInternal.h>
 #include <IceStorm/Election.h>
-#include <IceStorm/DatabaseCache.h>
-#include <IceStorm/DatabaseWrapper.h>
 #include <list>
 
 namespace IceStorm
@@ -26,12 +24,14 @@ typedef IceUtil::Handle<Instance> InstancePtr;
 class Subscriber;
 typedef IceUtil::Handle<Subscriber> SubscriberPtr;
 
+class DatabaseCache;
+typedef IceUtil::Handle<DatabaseCache> DatabaseCachePtr;
+
 class TopicImpl : public IceUtil::Shared
 {
 public:
 
-    TopicImpl(const InstancePtr&, const std::string&, const Ice::Identity&, const SubscriberRecordSeq&,
-              const DatabaseCachePtr&);
+    TopicImpl(const InstancePtr&, const std::string&, const Ice::Identity&, const SubscriberRecordSeq&);
     ~TopicImpl();
 
     std::string getName() const;
@@ -78,6 +78,8 @@ private:
     const std::string _name; // The topic name
     const Ice::Identity _id; // The topic identity
     const std::string _envName;
+    const DatabaseCachePtr _databaseCache; // The database cache.
+
 
     /*const*/ Ice::ObjectPrx _publisherPrx; // The actual publisher proxy.
     /*const*/ TopicLinkPrx _linkPrx; // The link proxy.
@@ -95,8 +97,6 @@ private:
     // was the fastest of the three.
     //
     std::vector<SubscriberPtr> _subscribers;
-
-    DatabaseCachePtr _databaseCache; // The database cache.
 
     bool _destroyed; // Has this Topic been destroyed?
 };

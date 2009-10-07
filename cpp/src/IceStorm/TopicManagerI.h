@@ -11,8 +11,6 @@
 #define TOPIC_MANAGER_I_H
 
 #include <IceStorm/IceStorm.h>
-#include <IceStorm/DatabaseCache.h>
-#include <IceStorm/DatabaseWrapper.h>
 
 #include <IceStorm/Replica.h>
 #include <IceStorm/Election.h>
@@ -27,6 +25,9 @@ namespace IceStorm
 //
 class Instance;
 typedef IceUtil::Handle<Instance> InstancePtr;
+
+class DatabaseCache;
+typedef IceUtil::Handle<DatabaseCache> DatabaseCachePtr;
 
 class TopicImpl;
 typedef IceUtil::Handle<TopicImpl> TopicImplPtr;
@@ -76,8 +77,7 @@ private:
                           const IceStorm::SubscriberRecordSeq& = IceStorm::SubscriberRecordSeq());
 
     const InstancePtr _instance;
-
-    DatabaseCachePtr _databaseCache;
+    const DatabaseCachePtr _databaseCache;
 
     std::map<std::string, TopicImplPtr> _topics;
 

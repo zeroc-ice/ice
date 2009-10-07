@@ -8,10 +8,14 @@
 // **********************************************************************
 
 #include <IceUtil/DisableWarnings.h>
+
+#include <Ice/PluginManagerI.h> // For loadPlugin
+
 #include <IceStorm/TopicI.h>
 #include <IceStorm/TopicManagerI.h>
 #include <IceStorm/TransientTopicManagerI.h>
 #include <IceStorm/Instance.h>
+#include <IceStorm/DB.h>
 
 #define ICE_STORM_API ICE_DECLSPEC_EXPORT
 #include <IceStorm/Service.h>
@@ -25,11 +29,6 @@
 
 #include <IceGrid/Locator.h>
 #include <IceGrid/Query.h>
-
-#ifdef QTSQL
-#include <QtCore/QCoreApplication>
-#include <QtCore/QTextCodec>
-#endif
 
 using namespace std;
 using namespace Ice;
@@ -70,9 +69,6 @@ private:
     TransientTopicManagerImplPtr _transientManager;
     TopicManagerPrx _managerProxy;
     InstancePtr _instance;
-#ifdef QTSQL
-    QCoreApplication* _qtApp;
-#endif
 };
 
 }
@@ -104,21 +100,6 @@ Service::create(const CommunicatorPtr& communicator,
 
 ServiceI::ServiceI()
 {
-#ifdef QTSQL
-    //
-    // In order to load SQL drivers it is necessary for an instance of
-    // QCoreApplication to be instantiated. However only one can be instantiated
-    // per process. Therefore we do not destroy _qtApp as it may be required
-    // by other services that are also using QT.
-    //
-    if(QCoreApplication::instance() == 0)
-    {
-        int argc = 0;
-        char** argv = 0;
-        _qtApp = new QCoreApplication(argc, argv);
-        QTextCodec::setCodecForCStrings(QTextCodec::codecForName("UTF-8"));
-    }
-#endif
 }
 
 ServiceI::~ServiceI()
@@ -160,7 +141,7 @@ ServiceI::start(
 
     if(properties->getPropertyAsIntWithDefault(name+ ".Transient", 0))
     {
-        _instance = new Instance(instanceName, name, communicator, publishAdapter, topicAdapter);
+        _instance = new Instance(instanceName, name, communicator, 0, publishAdapter, topicAdapter, 0);
         try
         {
             TransientTopicManagerImplPtr manager = new TransientTopicManagerImpl(_instance);
@@ -183,9 +164,47 @@ ServiceI::start(
         return;
     }
 
+    //
+    // Create the database cache.
+    //
+    DatabasePluginPtr plugin;
+    try
+    {
+        plugin = DatabasePluginPtr::dynamicCast(communicator->getPluginManager()->getPlugin("DB"));
+    }
+    catch(const NotRegisteredException&)
+    {
+        try
+        {
+            Ice::StringSeq cmdArgs;
+            IceInternal::loadPlugin(communicator, "DB", "IceStormFreezeDB:createFreezeDB", cmdArgs);
+            plugin = DatabasePluginPtr::dynamicCast(communicator->getPluginManager()->getPlugin("DB"));
+        }
+        catch(const Ice::LocalException& ex)
+        {
+            ostringstream s;
+            s << "failed to load default Freeze database plugin:\n" << ex;
+
+            IceBox::FailureException e(__FILE__, __LINE__);
+            e.reason = s.str();
+            throw e;
+        }
+    }
+
+    if(!plugin)
+    {
+        ostringstream s;
+        s << "no database plugin configured with `Ice.Plugin.DB' or plugin is not an IceStorm database plugin";
+        
+        IceBox::FailureException e(__FILE__, __LINE__);
+        e.reason = s.str();
+        throw e;
+    }
+    DatabaseCachePtr databaseCache = plugin->getDatabaseCache(name);
+
     if(id == -1) // No replication.
     {
-        _instance = new Instance(instanceName, name, communicator, publishAdapter, topicAdapter);
+        _instance = new Instance(instanceName, name, communicator, databaseCache, publishAdapter, topicAdapter);
 
         try
         {
@@ -333,8 +352,8 @@ ServiceI::start(
             }
             Ice::ObjectAdapterPtr nodeAdapter = communicator->createObjectAdapter(name + ".Node");
 
-            _instance = new Instance(instanceName, name, communicator, publishAdapter, topicAdapter, nodeAdapter,
-                                     nodes[id]);
+            _instance = new Instance(instanceName, name, communicator, databaseCache, publishAdapter, topicAdapter, 
+                                     nodeAdapter, nodes[id]);
             _instance->observers()->setMajority(static_cast<unsigned int>(nodes.size())/2);
             
             // Trace replication information.
@@ -414,7 +433,7 @@ ServiceI::start(const CommunicatorPtr& communicator,
     // This is for IceGrid only and as such we use a transient
     // implementation of IceStorm.
     string instanceName = communicator->getProperties()->getPropertyWithDefault(name + ".InstanceName", "IceStorm");
-    _instance = new Instance(instanceName, name, communicator, publishAdapter, topicAdapter);
+    _instance = new Instance(instanceName, name, communicator, 0, publishAdapter, topicAdapter);
 
     try
     {

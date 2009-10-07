@@ -26,9 +26,16 @@ from scripts import *
 for filename in [os.path.join("db", f) for f in os.listdir("db") if f.endswith(".db")]:
     os.remove(filename)
 
+variables = '"icebox.exe=%s"' % TestUtil.getIceBox()
+
+if TestUtil.sqlType != None:
+    variables += " db-plugin=IceStormSqlDB:createSqlDB"
+else:
+    variables += " db-plugin=IceStormFreezeDB:createFreezeDB"
+
 #
 # Test client/server without on demand activation.
 #
-IceGridAdmin.iceGridTest("application.xml", "", '"icebox.exe=%s"' % TestUtil.getIceBox())
+IceGridAdmin.iceGridTest("application.xml", "", variables)
 
 TestUtil.cleanup()

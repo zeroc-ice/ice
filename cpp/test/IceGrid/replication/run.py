@@ -22,7 +22,18 @@ from scripts import *
 
 TestUtil.addLdPath(os.getcwd())
 
-IceGridAdmin.iceGridTest("application.xml", '--IceDir="%s" --TestDir="%s"' % (TestUtil.toplevel, os.getcwd()),
-    "'properties-override=%s'" % TestUtil.getCommandLine("", TestUtil.DriverConfig("server")).replace("--", ""))
+if TestUtil.sqlType != None and TestUtil.sqlType != "QSQLITE":
+    print "*** This test only supports Freeze or SQLite databases"
+    sys.exit(0)
 
+variables = "'properties-override=%s'" % \
+    TestUtil.getCommandLine("", TestUtil.DriverConfig("server")).replace("--", "")
+
+if TestUtil.sqlType != None:
+    variables += " db-plugin=IceGridSqlDB:createSqlDB"
+else:
+    variables += " db-plugin=IceGridFreezeDB:createFreezeDB"
+
+IceGridAdmin.iceGridTest("application.xml", '--IceDir="%s" --TestDir="%s"' % (TestUtil.toplevel, os.getcwd()),
+                         variables)
 TestUtil.cleanup()

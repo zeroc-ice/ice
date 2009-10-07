@@ -18,6 +18,13 @@
 #include <IceUtil/Mutex.h>
 #include <map>
 
+namespace IceInternal
+{
+
+ICE_API void loadPlugin(const ::Ice::CommunicatorPtr&, const std::string&, const std::string&, Ice::StringSeq&);
+
+}
+
 namespace Ice
 {
 
@@ -35,6 +42,8 @@ private:
 
     PluginManagerI(const CommunicatorPtr&, const IceInternal::DynamicLibraryListPtr&);
     friend class IceInternal::Instance;
+    friend void IceInternal::loadPlugin(const Ice::CommunicatorPtr&, const std::string&, const std::string&, 
+                                        Ice::StringSeq&);
 
     void loadPlugins(int&, char*[]);
     void loadPlugin(const std::string&, const std::string&, StringSeq&);
@@ -47,7 +56,9 @@ private:
     bool _initialized;
     static const char * const _kindOfObject;
 };
+typedef IceUtil::Handle<PluginManagerI> PluginManagerIPtr;
 
 }
+
 
 #endif

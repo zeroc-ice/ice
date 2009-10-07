@@ -22,7 +22,7 @@
 #include <IceGrid/AllocatableObjectCache.h>
 #include <IceGrid/AdapterCache.h>
 #include <IceGrid/Topics.h>
-#include <IceGrid/DatabaseCache.h>
+#include <IceGrid/DB.h>
 
 namespace IceGrid
 {
@@ -54,7 +54,7 @@ public:
 
 
     Database(const Ice::ObjectAdapterPtr&, const IceStorm::TopicManagerPrx&, const std::string&, const TraceLevelsPtr&,
-             const RegistryInfo&, bool);
+             const RegistryInfo&, const DatabasePluginPtr&, bool);
     virtual ~Database();
     
     std::string getInstanceName() const;
@@ -127,19 +127,23 @@ public:
 
 private:
 
-    void checkForAddition(const ApplicationHelper&);
-    void checkForUpdate(const ApplicationHelper&, const ApplicationHelper&);
+    void checkForAddition(const ApplicationHelper&, const IceDB::DatabaseConnectionPtr&);
+    void checkForUpdate(const ApplicationHelper&, const ApplicationHelper&, const IceDB::DatabaseConnectionPtr&);
     void checkForRemove(const ApplicationHelper&);
 
     void checkServerForAddition(const std::string&);
-    void checkAdapterForAddition(const std::string&);
-    void checkObjectForAddition(const Ice::Identity&);
+    void checkAdapterForAddition(const std::string&, const AdaptersWrapperPtr&);
+    void checkObjectForAddition(const Ice::Identity&, const ObjectsWrapperPtr&);
     void checkReplicaGroupExists(const std::string&);
     void checkReplicaGroupForRemove(const std::string&);
 
     void load(const ApplicationHelper&, ServerEntrySeq&, const std::string&, int);
     void unload(const ApplicationHelper&, ServerEntrySeq&);
     void reload(const ApplicationHelper&, const ApplicationHelper&, ServerEntrySeq&, const std::string&, int);
+
+    void saveApplication(const ApplicationInfo&, const IceDB::DatabaseConnectionPtr&);
+    void removeApplication(const std::string&, const IceDB::DatabaseConnectionPtr&);
+
     void finishApplicationUpdate(ServerEntrySeq&, const ApplicationUpdateInfo&, const ApplicationInfo&, 
                                  const ApplicationDescriptor&, AdminSessionI*);
 
@@ -160,7 +164,6 @@ private:
     const Ice::CommunicatorPtr _communicator;
     const Ice::ObjectAdapterPtr _internalAdapter;
     const IceStorm::TopicManagerPrx _topicManager;
-    const std::string _envName;
     const std::string _instanceName;
     const TraceLevelsPtr _traceLevels;
     const bool _master;
@@ -180,6 +183,7 @@ private:
     ObjectObserverTopicPtr _objectObserverTopic;
 
     DatabaseCachePtr _databaseCache;
+    DatabasePluginPtr _databasePlugin;
     
     AdminSessionI* _lock;
     std::string _lockUserId;

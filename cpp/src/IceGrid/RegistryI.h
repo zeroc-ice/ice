@@ -44,6 +44,8 @@ typedef IceUtil::Handle<ClientSessionFactory> ClientSessionFactoryPtr;
 class AdminSessionFactory;
 typedef IceUtil::Handle<AdminSessionFactory> AdminSessionFactoryPtr;    
 
+std::string getInstanceName(const Ice::CommunicatorPtr&);
+
 class RegistryI : public Registry
 {
 public:

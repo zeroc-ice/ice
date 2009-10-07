@@ -30,6 +30,7 @@ SUBDIRS		= IceUtil \
 		  IceBox \
 		  Glacier2Lib \
 		  Glacier2 \
+		  IceDB \
 		  IcePatch2Lib \
 		  IcePatch2 \
 		  IceStormLib \

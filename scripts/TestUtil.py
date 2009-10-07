@@ -852,16 +852,18 @@ def getDefaultCollocatedFile():
 def isDebug():
     return debug
 
-def getQtSqlOptions(prefix, dataDir):
+def getQtSqlOptions(prefix, dataDir = None):
     if sqlType == None:
-        return ""
+        return '';
 
-    options = '--' + prefix+ '.SQL.DatabaseType=' + sqlType
+    options = '--Ice.Plugin.DB=' + prefix + 'SqlDB:createSqlDB';
+    options += ' --' + prefix+ '.SQL.DatabaseType=' + sqlType
 
     options += ' --' + prefix+ '.SQL.DatabaseName='
     if sqlDbName == None:
         if sqlType == "QSQLITE":
-            options += dataDir + '/SQL.db'
+            if dataDir != None:
+                options += dataDir + '/SQL.db'
         elif sqlType == "QODBC":
             options += 'testdsn'
         else:
@@ -887,9 +889,6 @@ def getQtSqlOptions(prefix, dataDir):
     options += ' --' + prefix+ '.SQL.Password='
     if sqlPassword != None:
         options += sqlPassword
-
-    if prefix == "IceStorm":
-        options += ' --Ice.Plugin.SQLThreadHook=IceStormService:createThreadHook'
 
     return options
 

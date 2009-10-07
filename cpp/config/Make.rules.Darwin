@@ -70,11 +70,19 @@ ifeq ($(DB_HOME),)
    endif
 endif
 
+ifneq ($(QT_HOME),)
+   ifneq ($(QT_HOME), /Library/Frameworks)
+      # Frameworks are installed in the lib directory
+      QT_FLAGS             = -F$(QT_HOME)/lib
+      QT_LIBS              = -F$(QT_HOME)/lib
+   endif
+   QT_LIBS := $(QT_LIBS) -framework QtCore -framework QtSql
+endif
+
 BASELIBS		= -lIceUtil -lpthread 
 LIBS			= -lIce $(BASELIBS)
 
 ICONV_LIB               = -liconv
-QT_LIBS			= -framework QtCore -framework QtSql
 
 ICEUTIL_OS_LIBS         = -lpthread
 ICE_OS_LIBS             = -ldl $(ICONV_LIB)

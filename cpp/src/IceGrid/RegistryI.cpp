@@ -41,9 +41,6 @@
 
 #include <openssl/des.h> // For crypt() passwords
 
-#include <sys/types.h>
-#include <sys/stat.h>
-
 #ifdef _WIN32
 #   include <direct.h>
 #   ifdef _MSC_VER
@@ -190,29 +187,6 @@ RegistryI::startImpl()
     PropertiesPtr properties = _communicator->getProperties();
 
     //
-    // Initialize the database environment.
-    //
-    string dbPath = properties->getProperty("IceGrid.Registry.Data");
-    if(dbPath.empty())
-    {
-        Error out(_communicator->getLogger());
-        out << "property `IceGrid.Registry.Data' is not set";
-        return false;
-    }
-    else
-    {
-        struct stat filestat;
-        if(stat(dbPath.c_str(), &filestat) != 0 || !S_ISDIR(filestat.st_mode))
-        {
-            Error out(_communicator->getLogger());
-            SyscallException ex(__FILE__, __LINE__);
-            ex.error = IceInternal::getSystemErrno();
-            out << "property `IceGrid.Registry.Data' is set to an invalid path:\n" << ex;
-            return false;
-        }
-    }
-
-    //
     // Check that required properties are set and valid.
     //
     if(properties->getProperty("IceGrid.Registry.Client.Endpoints").empty())
@@ -279,6 +253,16 @@ RegistryI::startImpl()
     _master = _replicaName == "Master";
     _sessionTimeout = properties->getPropertyAsIntWithDefault("IceGrid.Registry.SessionTimeout", 30);
 
+    if(!_master && properties->getProperty("Ice.Default.Locator").empty())
+    {
+        if(properties->getProperty("Ice.Default.Locator").empty())
+        {
+            Error out(_communicator->getLogger());
+            out << "property `Ice.Default.Locator' is not set";
+            return false;
+        }
+    }
+
     //
     // Get the instance name
     //
@@ -299,12 +283,6 @@ RegistryI::startImpl()
     }
     else
     {
-        if(properties->getProperty("Ice.Default.Locator").empty())
-        {
-            Error out(_communicator->getLogger());
-            out << "property `Ice.Default.Locator' is not set";
-            return false;
-        }
         _instanceName = _communicator->getDefaultLocator()->ice_getIdentity().category;
     }
 
@@ -328,8 +306,6 @@ RegistryI::startImpl()
     {
     }
     
-    properties->setProperty("Freeze.DbEnv.Registry.DbHome", dbPath);
-
     //
     // Create the reaper thread.
     //
@@ -359,7 +335,22 @@ RegistryI::startImpl()
     //
     // Create the registry database.
     //
-    _database = new Database(registryAdapter, topicManager, _instanceName, _traceLevels, getInfo(), _readonly);
+    DatabasePluginPtr plugin;
+    try
+    {
+        plugin = DatabasePluginPtr::dynamicCast(_communicator->getPluginManager()->getPlugin("DB"));
+    }
+    catch(const NotRegisteredException&)
+    {
+    }
+    if(!plugin)
+    {
+        Error out(_communicator->getLogger());
+        out << "no database plugin configured with `Ice.Plugin.DB' or plugin is not a database plugin";
+        return false;
+    }
+    
+    _database = new Database(registryAdapter, topicManager, _instanceName, _traceLevels, getInfo(), plugin, _readonly);
     _wellKnownObjects = new WellKnownObjectsManager(_database);
 
     //

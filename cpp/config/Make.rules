@@ -93,6 +93,14 @@ USE_READLINE		?= no
 #READLINE_HOME		?= /opt/readline
 
 #
+# If you want to build the SQL database plugins for IceStorm and
+# IceGrid, set QT_HOME to the Qt installation directory.
+#
+#
+#QT_HOME	= /usr/local/Trolltech/Qt-4.5.3
+#QT_HOME	= /Library/Frameworks
+
+#
 # Generate position independent code unless GENPIC is set to no
 #
 #GENPIC                     ?= yes
@@ -165,12 +173,6 @@ else
    else
       DB_LIBS           = -ldb_cxx
    endif
-endif
-
-ifneq ($(QTSQL_HOME),)
-   QTSQL_FLAGS             = -DQTSQL -I$(QTSQL_HOME)/include
-   QTSQL_LIBS              = -L$(QTSQL_HOME)/$(libsubdir) $(QT_LIBS)
-   QTSQL_RPATH_LINK        = $(call rpathlink,$(QTSQL_HOME)/$(libsubdir))
 endif
 
 EXPAT_FLAGS             = $(if $(EXPAT_HOME),-I$(EXPAT_HOME)/include)

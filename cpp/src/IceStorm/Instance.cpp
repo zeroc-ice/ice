@@ -9,6 +9,7 @@
 
 #include <IceStorm/Instance.h>
 #include <IceStorm/TraceLevels.h>
+#include <IceStorm/DB.h>
 #include <IceStorm/Observers.h>
 #include <IceStorm/NodeI.h>
 #include <IceUtil/Timer.h>
@@ -24,6 +25,7 @@ Instance::Instance(
     const string& instanceName,
     const string& name,
     const Ice::CommunicatorPtr& communicator,
+    const DatabaseCachePtr& databaseCache,
     const Ice::ObjectAdapterPtr& publishAdapter,
     const Ice::ObjectAdapterPtr& topicAdapter,
     const Ice::ObjectAdapterPtr& nodeAdapter,
@@ -41,7 +43,8 @@ Instance::Instance(
     _flushInterval(IceUtil::Time::milliSeconds(communicator->getProperties()->getPropertyAsIntWithDefault(
                                                    name + ".Flush.Timeout", 1000))), // default one second.
     // default one minute.
-    _sendTimeout(communicator->getProperties()->getPropertyAsIntWithDefault(name + ".Send.Timeout", 60 * 1000))
+    _sendTimeout(communicator->getProperties()->getPropertyAsIntWithDefault(name + ".Send.Timeout", 60 * 1000)),
+    _databaseCache(databaseCache)
 {
     try
     {
@@ -175,6 +178,12 @@ Ice::ObjectPrx
 Instance::publisherReplicaProxy() const
 {
     return _publisherReplicaProxy;
+}
+
+DatabaseCachePtr
+Instance::databaseCache() const
+{
+    return _databaseCache;
 }
 
 IceUtil::Time

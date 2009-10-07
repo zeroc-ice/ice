@@ -44,6 +44,7 @@ SUBDIRS		= $(SUBDIRS) \
 		  IceBox \
 		  IcePatch2 \
 		  Glacier2 \
+		  IceDB \
 		  IceStorm \
 		  IceGrid \
                   iceserviceinstall

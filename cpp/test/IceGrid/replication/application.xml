@@ -51,8 +51,8 @@
         <property name="IceGrid.Registry.Trace.Locator" value="0"/> 
         <property name="IceGrid.Registry.UserAccounts" value="${test.dir}/useraccounts.txt"/>
         <property name="Ice.Admin.Endpoints" value=""/>
+        <property name="Ice.Plugin.DB" value="${db-plugin}"/>
         <property name="IceGrid.SQL.DatabaseType" value="QSQLITE"/>
-        <property name="IceGrid.SQL.DatabaseName" value="${node.datadir}/servers/${server}/dbs/data/Registry.db"/>
       </server>
     </server-template>
 

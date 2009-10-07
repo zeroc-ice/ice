@@ -13,6 +13,7 @@
 #include <Ice/Properties.h>
 #include <Ice/LoggerUtil.h>
 #include <Ice/Initialize.h>
+#include <Ice/Instance.h>
 #include <Ice/LocalException.h>
 
 using namespace std;
@@ -379,3 +380,12 @@ Ice::PluginManagerI::loadPlugin(const string& name, const string& pluginSpec, St
     _libraries->add(library);
 }
 
+void
+IceInternal::loadPlugin(const Ice::CommunicatorPtr& communicator, 
+                        const string& name, 
+                        const string& pluginSpec,
+                        Ice::StringSeq& cmdArgs)
+{
+    PluginManagerIPtr pluginManager = PluginManagerIPtr::dynamicCast(getInstance(communicator)->pluginManager());
+    pluginManager->loadPlugin(name, pluginSpec, cmdArgs);
+}
