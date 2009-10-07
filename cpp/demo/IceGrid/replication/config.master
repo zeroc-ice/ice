@@ -16,8 +16,9 @@ IceGrid.Registry.AdminPermissionsVerifier=DemoIceGrid/NullPermissionsVerifier
 #
 # IceGrid SQL configuration if using SQL database.
 #
-IceGrid.SQL.DatabaseType=QSQLITE
-IceGrid.SQL.DatabaseName=db/master/Registry.db
+#Ice.Plugin.DB=IceGridSqlDB:createSqlDB
+#IceGrid.SQL.DatabaseType=QSQLITE
+#IceGrid.SQL.DatabaseName=db/master/Registry.db
 
 Ice.StdErr=db/master/stderr.txt
 Ice.StdOut=db/master/stdout.txt

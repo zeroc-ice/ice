@@ -103,10 +103,11 @@ SqlDatabaseCache::SqlDatabaseCache(const Ice::CommunicatorPtr& communicator,
                                    const string& databaseType,
                                    const string& databaseName,
                                    const string& hostname,
+                                   int port,
                                    const string& username,
                                    const string& password,
                                    const string& tablePrefix) :
-    SqlDB::DatabaseCache(communicator, databaseType, databaseName, hostname, username, password, true)
+    SqlDB::DatabaseCache(communicator, databaseType, databaseName, hostname, port, username, password, true)
 {
     IceDB::DatabaseConnectionPtr connection = getConnection();
     IceDB::TransactionHolder txn(connection);
@@ -228,6 +229,7 @@ SqlDBPlugin::initialize()
                                           properties->getProperty("IceGrid.SQL.DatabaseType"),
                                           databaseName,
                                           properties->getProperty("IceGrid.SQL.HostName"),
+                                          properties->getPropertyAsInt("IceGrid.SQL.Port"),
                                           properties->getProperty("IceGrid.SQL.UserName"),
                                           properties->getProperty("IceGrid.SQL.Password"),
                                           tablePrefix);

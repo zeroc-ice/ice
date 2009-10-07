@@ -20,9 +20,9 @@ IceStorm.Publish.Endpoints=tcp -p 10001:udp -p 10001
 #
 # IceStorm SQL configuration if using SQL database.
 #
+#Ice.Plugin.DB=IceStormSqlDB:createSqlDB
 #IceStorm.SQL.DatabaseType=QSQLITE
 #IceStorm.SQL.DatabaseName=db/IceStorm.db
-#Ice.Plugin.SQLThreadHook=IceStormService:createThreadHook
 
 #
 # TopicManager Tracing

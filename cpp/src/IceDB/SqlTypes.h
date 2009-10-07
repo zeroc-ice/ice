@@ -114,7 +114,7 @@ public:
 
 protected:
 
-    DatabaseCache(const Ice::CommunicatorPtr&, const std::string&, const std::string&, const std::string&, 
+    DatabaseCache(const Ice::CommunicatorPtr&, const std::string&, const std::string&, const std::string&, int,
                   const std::string&, const std::string&, bool);
     virtual ~DatabaseCache();
                   

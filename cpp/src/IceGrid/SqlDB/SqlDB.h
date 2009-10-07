@@ -26,7 +26,7 @@ class SqlDatabaseCache : public SqlDB::DatabaseCache, public DatabaseCache
 public:
 
     SqlDatabaseCache(const Ice::CommunicatorPtr&, const std::string&, const std::string&,
-                     const std::string&, const std::string&, const std::string&, const std::string&);
+                     const std::string&, int, const std::string&, const std::string&, const std::string&);
     virtual ~SqlDatabaseCache();
 
     virtual ApplicationsWrapperPtr getApplications(const IceDB::DatabaseConnectionPtr&);

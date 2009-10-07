@@ -452,6 +452,7 @@ generated from the section label.
         <property name="Registry.UserAccounts" />
         <property name="SQL.DatabaseType" />
         <property name="SQL.HostName" />
+        <property name="SQL.Port" />
         <property name="SQL.DatabaseName" />
         <property name="SQL.UserName" />
         <property name="SQL.Password" />

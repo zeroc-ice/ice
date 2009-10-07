@@ -29,6 +29,7 @@ watchDog = None
 sqlType = None
 sqlDbName = None
 sqlHost = None
+sqlPort = None
 sqlUser = None
 sqlPassword = None
 serviceDir = None
@@ -279,6 +280,7 @@ def run(tests, root = False):
           --sql-type=<driver>     Run IceStorm/IceGrid tests using QtSql with specified driver.
           --sql-db=<db>           Set SQL database name.
           --sql-host=<host>       Set SQL host name.
+          --sql-port=<port>       Set SQL server port.
           --sql-user=<user>       Set SQL user name.
           --sql-passwd=<passwd>   Set SQL password.
           --service-dir=<dir>     Where to locate services for builds without service support.
@@ -290,7 +292,7 @@ def run(tests, root = False):
                                    ["start=", "start-after=", "filter=", "rfilter=", "all", "all-cross", "loop",
                                     "debug", "protocol=", "compress", "valgrind", "host=", "serialize", "continue",
                                     "ipv6", "no-ipv6", "ice-home=", "cross=", "x64", "script", "env", "sql-type=",
-                                    "sql-db=", "sql-host=", "sql-user=", "sql-passwd=", "service-dir="])
+                                    "sql-db=", "sql-host=", "sql-port=", "sql-user=", "sql-passwd=", "service-dir="])
     except getopt.GetoptError:
         usage()
 
@@ -342,8 +344,8 @@ def run(tests, root = False):
                 sys.exit(1)
 
         if o in ( "--cross", "--protocol", "--host", "--debug", "--compress", "--valgrind", "--serialize", "--ipv6", \
-                  "--ice-home", "--x64", "--env", "--sql-type", "--sql-db", "--sql-host", "--sql-user", "--sql-passwd",
-                  "--service-dir"):
+                  "--ice-home", "--x64", "--env", "--sql-type", "--sql-db", "--sql-host", "--sql-port", "--sql-user", \
+                  "--sql-passwd", "--service-dir"):
             arg += " " + o
             if len(a) > 0:
                 arg += " " + a
@@ -651,6 +653,7 @@ class DriverConfig:
     sqlType = None 
     sqlDbName = None
     sqlHost = None
+    sqlPort = None
     sqlUser = None
     sqlPassword = None
     serviceDir = None
@@ -667,6 +670,7 @@ class DriverConfig:
         global sqlType
         global sqlDbName
         global sqlHost
+        global sqlPort
         global sqlUser
         global sqlPassword
         global serviceDir
@@ -683,6 +687,7 @@ class DriverConfig:
         self.sqlType = sqlType 
         self.sqlDbName = sqlDbName
         self.sqlHost = sqlHost
+        self.sqlPort = sqlPort
         self.sqlUser = sqlUser
         self.sqlPassword = sqlPassword
         self.serviceDir = serviceDir
@@ -879,6 +884,10 @@ def getQtSqlOptions(prefix, dataDir = None):
             options += 'localhost'
     else:
         options += sqlHost
+
+    options += ' --' + prefix+ '.SQL.Port='
+    if sqlPassword != None:
+        options += sqlPort
 
     options += ' --' + prefix+ '.SQL.UserName='
     if sqlUser == None:
@@ -1187,6 +1196,7 @@ def processCmdLine():
           --sql-type=<driver>     Run IceStorm/IceGrid tests using QtSql with specified driver.
           --sql-db=<db>           Set SQL database name.
           --sql-host=<host>       Set SQL host name.
+          --sql-port=<port>       Set SQL server port.
           --sql-user=<user>       Set SQL user name.
           --sql-passwd=<passwd>   Set SQL password.
           --service-dir=<dir>     Where to locate services for builds without service support.
@@ -1196,8 +1206,8 @@ def processCmdLine():
     try:
         opts, args = getopt.getopt(
             sys.argv[1:], "", ["debug", "trace=", "protocol=", "compress", "valgrind", "host=", "serialize", "ipv6", \
-                              "ice-home=", "x64", "cross=", "env", "sql-type=", "sql-db=", "sql-host=", "sql-user=", 
-                              "sql-passwd=", "service-dir="])
+                              "ice-home=", "x64", "cross=", "env", "sql-type=", "sql-db=", "sql-host=", "sql-port=", \
+                              "sql-user=", "sql-passwd=", "service-dir="])
     except getopt.GetoptError:
         usage()
 
@@ -1274,6 +1284,9 @@ def processCmdLine():
         elif o == "--sql-host":
             global sqlHost
             sqlHost = a
+        elif o == "--sql-port":
+            global sqlPort
+            sqlPort = a
         elif o == "--sql-user":
             global sqlUser
             sqlUser = a

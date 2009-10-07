@@ -548,6 +548,7 @@ ServiceI::validateProperties(const string& name, const PropertiesPtr& properties
         "Discard.Interval",
         "SQL.DatabaseType",
         "SQL.HostName",
+        "SQL.Port",
         "SQL.DatabaseName",
         "SQL.UserName",
         "SQL.Password"

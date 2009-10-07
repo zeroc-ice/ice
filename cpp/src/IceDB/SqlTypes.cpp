@@ -164,6 +164,7 @@ DatabaseCache::DatabaseCache(const Ice::CommunicatorPtr& communicator,
                              const string& type,
                              const string& name,
                              const string& host,
+                             int port,
                              const string& user,
                              const string& password,
                              bool requiresBlob)
@@ -173,6 +174,10 @@ DatabaseCache::DatabaseCache(const Ice::CommunicatorPtr& communicator,
     _connection = QSqlDatabase::addDatabase(type.c_str(), IceUtil::generateUUID().c_str());
     _connection.setDatabaseName(name.c_str());
     _connection.setHostName(host.c_str());
+    if(port != 0)
+    {
+        _connection.setPort(port);
+    }
     _connection.setUserName(user.c_str());
     _connection.setPassword(password.c_str());
 
