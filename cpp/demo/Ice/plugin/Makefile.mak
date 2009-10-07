@@ -13,10 +13,10 @@ CLIENT		= client.exe
 SERVER		= server.exe
 
 LOGGERLIBNAME   = loggerplugin$(LIBSUFFIX).lib
-LOGGERDLLNAME   = loggerplugin$(LIBSUFFIX).dll
+LOGGERDLLNAME   = loggerplugin$(SOVERSION)$(LIBSUFFIX).dll
 
 HELLOLIBNAME   	= helloplugin$(LIBSUFFIX).lib
-HELLODLLNAME   	= helloplugin$(LIBSUFFIX).dll
+HELLODLLNAME   	= helloplugin$(SOVERSION)$(LIBSUFFIX).dll
 
 TARGETS		= $(CLIENT) $(SERVER) $(LOGGERDLLNAME) $(HELLODLLNAME)
 
