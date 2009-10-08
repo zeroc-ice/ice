@@ -1297,6 +1297,11 @@ namespace Ice.VisualStudio
                         (VCCLCompilerTool)(((IVCCollection)conf.Tools).Item("VCCLCompilerTool"));
                     VCLinkerTool linkerTool = (VCLinkerTool)(((IVCCollection)conf.Tools).Item("VCLinkerTool"));
 
+                    if(compilerTool == null || linkerTool == null)
+                    {
+                        continue;
+                    }
+
                     bool debug = false;
                     if(!String.IsNullOrEmpty(compilerTool.PreprocessorDefinitions))
                     {
@@ -1344,6 +1349,11 @@ namespace Ice.VisualStudio
                     VCCLCompilerTool compilerTool = 
                         (VCCLCompilerTool)(((IVCCollection)conf.Tools).Item("VCCLCompilerTool"));
                     VCLinkerTool linkerTool = (VCLinkerTool)(((IVCCollection)conf.Tools).Item("VCLinkerTool"));
+
+                    if(compilerTool == null || linkerTool == null)
+                    {
+                        continue;
+                    }
 
                     bool debug = false;
                     if(!String.IsNullOrEmpty(compilerTool.PreprocessorDefinitions))

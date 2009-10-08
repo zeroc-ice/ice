@@ -12,7 +12,7 @@
 # if it does not exist.
 #
 
-prefix			= C:\IceVisualStudioExtension-$(VERSION)
+prefix			= C:\Ice-$(VERSION)
 
 #
 # Define DEBUG as yes if you want to build with debug information and
@@ -28,13 +28,6 @@ DEBUG			= yes
 OPTIMIZE		= yes
 
 #
-# Set the location of the Visual Studio 2008 SDK
-#
-
-VSSDK_HOME		= C:\Program Files\Microsoft Visual Studio 2008 SDK
-#VSSDK_HOME		 = C:\Program Files (x86)\Microsoft Visual Studio 2008 SDK
-
-#
 # Set the key file used to sign assemblies.
 #
 
@@ -46,6 +39,11 @@ KEYFILE			= $(top_srcdir)\config\IceDevKey.snk
 # Don't change anything below this line!
 # ----------------------------------------------------------------------
 
+#
+# Common definitions
+#
+ice_language = cs
+
 !if exist ($(top_srcdir)\..\config\Make.common.rules.mak)
 !include $(top_srcdir)\..\config\Make.common.rules.mak
 !else
@@ -55,6 +53,7 @@ KEYFILE			= $(top_srcdir)\config\IceDevKey.snk
 EVERYTHING      = all install clean
 
 VS_HOME 		= $(VSINSTALLDIR)
+VSSDK_HOME		= $(VSSDK90INSTALL)
 PKG_PREFIX 		= VS2008
 
 bindir 			= ..\bin
