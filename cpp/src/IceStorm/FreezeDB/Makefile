@@ -50,8 +50,7 @@ include $(top_srcdir)/config/Make.rules
 
 CPPFLAGS	:= -I../.. $(CPPFLAGS)
 SLICE2CPPFLAGS	:= -I../.. --ice --include-dir IceStorm/FreezeDB $(SLICE2CPPFLAGS)
-
-LINKWITH        := $(DB_RPATH_LINK) -lIceStormDB -lFreeze -lIceDB -lIce -lIceUtil 
+LINKWITH        := $(DB_RPATH_LINK) -lIceStormService -lIceStorm -lFreeze -lIceDB -lIce -lIceUtil 
 
 $(libdir)/$(LIBFILENAME): $(OBJS) $(DB_OBJS)
 	rm -f $@
@@ -67,7 +66,7 @@ $(libdir)/$(LIBNAME): $(libdir)/$(SONAME)
 
 $(MIGRATE): $(MOBJS)
 	rm -f $@
-	$(CXX) $(LDFLAGS) -o $@ $(MOBJS) $(DB_RPATH_LINK) -lIceStorm -lIceStormDB -lFreeze $(LIBS)
+	$(CXX) $(LDFLAGS) -o $@ $(MOBJS) $(DB_RPATH_LINK) -lIceStormService -lIceStorm -lFreeze $(LIBS)
 
 LLUMap.h LLUMap.cpp: ../../IceStorm/LLURecord.ice $(SLICE2FREEZE) $(SLICEPARSERLIB)
 	rm -f LLUMap.h LLUMap.cpp

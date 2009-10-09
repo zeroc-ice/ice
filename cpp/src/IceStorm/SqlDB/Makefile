@@ -30,7 +30,7 @@ include $(top_srcdir)/config/Make.rules
 
 CPPFLAGS	:= -I../.. $(CPPFLAGS) $(QT_FLAGS)
 
-LINKWITH        := $(QT_RPATH_LINK) $(QT_LIBS) -lIceStormDB -lIceDB -lIce -lIceUtil
+LINKWITH        := $(QT_RPATH_LINK) $(QT_LIBS) -lIceStormService -lIceStorm -lIceDB -lIce -lIceUtil
 
 $(libdir)/$(LIBFILENAME): $(OBJS) $(DB_OBJS)
 	rm -f $@

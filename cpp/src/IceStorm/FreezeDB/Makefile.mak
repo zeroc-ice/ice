@@ -48,8 +48,8 @@ SLICE2FREEZECMD = $(SLICE2FREEZE) -I..\.. --ice --include-dir IceStorm\FreezeDB 
 CPPFLAGS	= -I..\.. -Idummyinclude $(CPPFLAGS) -DWIN32_LEAN_AND_MEAN
 SLICE2CPPFLAGS	= -I..\.. --ice --include-dir IceStorm\FreezeDB $(SLICE2CPPFLAGS)
 
-LINKWITH 	= icestormdb$(LIBSUFFIX).lib icestorm$(LIBSUFFIX).lib icedb$(LIBSUFFIX).lib freeze$(LIBSUFFIX).lib $(LIBS)
-MLINKWITH 	= freeze$(LIBSUFFIX).lib icestorm$(LIBSUFFIX).lib icestormdb$(LIBSUFFIX).lib $(LIBS)
+LINKWITH 	= icestormservice$(LIBSUFFIX).lib icestorm$(LIBSUFFIX).lib icedb$(LIBSUFFIX).lib freeze$(LIBSUFFIX).lib $(LIBS)
+MLINKWITH 	= freeze$(LIBSUFFIX).lib icestormservice$(LIBSUFFIX).lib icestorm$(LIBSUFFIX).lib $(LIBS)
 
 !if "$(GENERATE_PDB)" == "yes"
 PDBFLAGS        = /pdb:$(DLLNAME:.dll=.pdb)

@@ -9,21 +9,16 @@
 
 top_srcdir	= ../..
 
-LIBFILENAME  = $(call mklibfilename,IceStormDB,$(VERSION))
-SONAME       = $(call mksoname,IceStormDB,$(SOVERSION))  
-LIBNAME	= $(call mklibname,IceStormDB)
-
-SVCLIBFILENAME  = $(call mklibfilename,IceStormService,$(VERSION))
-SVCSONAME       = $(call mksoname,IceStormService,$(SOVERSION))  
-SVCLIBNAME	= $(call mklibname,IceStormService)
+LIBFILENAME  = $(call mklibfilename,IceStormService,$(VERSION))
+SONAME       = $(call mksoname,IceStormService,$(SOVERSION))  
+LIBNAME	= $(call mklibname,IceStormService)
 
 ADMIN		= $(top_srcdir)/bin/icestormadmin
 
-LIBTARGETS   = $(call mklibtargets,$(libdir)/$(SVCLIBFILENAME),$(libdir)/$(SVCSONAME),$(libdir)/$(SVCLIBNAME))
-SVCLIBTARGETS   = $(call mklibtargets,$(libdir)/$(SVCLIBFILENAME),$(libdir)/$(SVCSONAME),$(libdir)/$(SVCLIBNAME))
-TARGETS         = $(LIBTARGETS) $(SVCLIBTARGETS) $(ADMIN)
+LIBTARGETS   	= $(call mklibtargets,$(libdir)/$(LIBFILENAME),$(libdir)/$(SONAME),$(libdir)/$(LIBNAME))
+TARGETS         = $(LIBTARGETS) $(ADMIN)
 
-SERVICE_OBJS	= NodeI.o \
+OBJS		= NodeI.o \
 		  Observers.o \
 		  Instance.o \
 		  TraceLevels.o \
@@ -32,9 +27,7 @@ SERVICE_OBJS	= NodeI.o \
 		  TopicManagerI.o \
 		  TransientTopicI.o \
 		  TransientTopicManagerI.o \
-		  Service.o
-
-OBJS		= IceStorm.o \
+		  Service.o \
 		  LLURecord.o \
 		  Election.o \
 		  SubscriberRecord.o \
@@ -49,8 +42,7 @@ AOBJS		= Admin.o \
 		  SubscriberRecord.o \
 		  IceStormInternal.o
 
-SRCS		= $(SERVICE_OBJS:.o=.cpp) \
-		  $(OBJS:.o=.cpp) \
+SRCS		= $(OBJS:.o=.cpp) \
 		  $(AOBJS:.o=.cpp) \
 
 SLICE_SRCS	= ../IceStorm/Election.ice \
@@ -63,23 +55,10 @@ SDIR		= $(slicedir)/IceStorm
 
 include $(top_srcdir)/config/Make.rules
 
-CPPFLAGS	:= $(CPPFLAGS) -I.. $(READLINE_FLAGS)
+CPPFLAGS	:= $(CPPFLAGS) -I.. -DICESTORM_SERVICE_API_EXPORTS $(READLINE_FLAGS)
 ICECPPFLAGS	:= $(ICECPPFLAGS) -I..
-SLICE2CPPFLAGS	:= --ice --include-dir IceStorm $(SLICE2CPPFLAGS)
-LINKWITH	:= $(BZIP2_RPATH_LINK) -lIce -lIceUtil
-SVCLINKWITH	:= $(BZIP2_RPATH_LINK) -lIceGrid -lGlacier2 -lIceStormDB -lIceDB -lIceBox -lIce -lIceUtil
-
-$(libdir)/$(SVCLIBFILENAME): $(SERVICE_OBJS) $(libdir)/$(LIBNAME)
-	rm -f $@
-	$(call mkshlib,$@,$(SVCSONAME),$(SERVICE_OBJS),$(SVCLINKWITH))
-
-$(libdir)/$(SVCSONAME): $(libdir)/$(SVCLIBFILENAME)
-	rm -f $@
-	ln -s $(SVCLIBFILENAME) $@
-
-$(libdir)/$(SVCLIBNAME): $(libdir)/$(SVCSONAME)
-	rm -f $@
-	ln -s $(SVCSONAME) $@
+SLICE2CPPFLAGS	:= --ice --include-dir IceStorm --dll-export ICE_STORM_SERVICE_API $(SLICE2CPPFLAGS)
+LINKWITH	:= $(BZIP2_RPATH_LINK) -lIceStorm -lIceGrid -lGlacier2 -lIceDB -lIceBox -lIce -lIceUtil
 
 $(libdir)/$(LIBFILENAME): $(OBJS)
 	rm -f $@
@@ -117,7 +96,6 @@ $(EVERYTHING)::
 
 install:: all
 	$(call installlib,$(install_libdir),$(libdir),$(LIBFILENAME),$(SONAME),$(LIBNAME))
-	$(call installlib,$(install_libdir),$(libdir),$(SVCLIBFILENAME),$(SVCSONAME),$(SVCLIBNAME))
 	$(call installprogram,$(ADMIN),$(install_bindir))
 
 include .depend
