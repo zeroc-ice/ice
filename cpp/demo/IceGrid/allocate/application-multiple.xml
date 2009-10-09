@@ -15,7 +15,7 @@
 
     <server-template id="AllocateServer">
       <parameter name="index"/>
-      <server id="AllocateServer-${index}" exe="./server" activation="on-demand">
+      <server id="AllocateServer-${index}" exe="./server" activation="always">
         <adapter name="Hello" endpoints="tcp">
 	  <allocatable identity="hello-${index}" type="::Demo::Hello" property="Identity"/>
 	</adapter>

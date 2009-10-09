@@ -50,9 +50,6 @@ SLICE_SRCS	= ../IceStorm/Election.ice \
 		  ../IceStorm/LLURecord.ice \
 		  ../IceStorm/SubscriberRecord.ice
 
-HDIR		= $(headerdir)/IceStorm
-SDIR		= $(slicedir)/IceStorm
-
 include $(top_srcdir)/config/Make.rules
 
 CPPFLAGS	:= $(CPPFLAGS) -I.. -DICESTORM_SERVICE_API_EXPORTS $(READLINE_FLAGS)

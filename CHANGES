@@ -501,6 +501,19 @@ PHP Changes
   Ice_dumpProfile()
 
 
+Visual Studio Plugin Changes
+============================
+
+- It is now possible to install the plugin when "My Documents" is
+  linked to a network drive.
+
+- The plugin will no longer modify projects for which it is not
+  enabled.
+
+- The plugin will now compile slice files for C++ projects even if
+  the project does not have "C++ Options".
+
+
 ======================================================================
 Changes since version 3.3.0
 ======================================================================
