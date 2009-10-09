@@ -129,6 +129,12 @@ FixUtil.fileMatchAndReplace(os.path.join(ice_home, "demo", "IceStorm", "replicat
 FixUtil.fileMatchAndReplace(os.path.join(ice_home, "config", "templates.xml"),
                     [("IceStormService,([0-9]+b?)", FixUtil.soVersion(version))])
 
+FixUtil.fileMatchAndReplace(os.path.join(ice_home, "demo", "Ice", "plugin", "Ice.plugin.hello.vcproj"),
+                    [("helloplugin([0-9]+b?)", FixUtil.soVersion(version))])
+
+FixUtil.fileMatchAndReplace(os.path.join(ice_home, "demo", "Ice", "plugin", "Ice.plugin.logger.vcproj"),
+                    [("loggerplugin([0-9]+b?)", FixUtil.soVersion(version))])
+
 for f in FixUtil.find("*.rc"):
     FixUtil.fileMatchAndReplace(f, [("\"FileVersion\", \"" + FixUtil.vpatMatch, version), \
                             ("\"ProductVersion\", \"" + FixUtil.vpatMatch, version), \
