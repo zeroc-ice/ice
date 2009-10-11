@@ -1691,21 +1691,21 @@ Slice::Container::hasAbstractClassDefs() const
 }
 
 bool
-Slice::Container::hasDataOnlyClasses() const
+Slice::Container::hasNonLocalDataOnlyClasses() const
 {
     for(ContainedList::const_iterator p = _contents.begin(); p != _contents.end(); ++p)
     {
         ClassDefPtr q = ClassDefPtr::dynamicCast(*p);
         if(q)
         {
-            if(!q->isAbstract())
+            if(!q->isLocal() && !q->isAbstract())
             {
                 return true;
             }
         }
 
         ContainerPtr container = ContainerPtr::dynamicCast(*p);
-        if(container && container->hasDataOnlyClasses())
+        if(container && container->hasNonLocalDataOnlyClasses())
         {
             return true;
         }
