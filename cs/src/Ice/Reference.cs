@@ -254,7 +254,7 @@ namespace IceInternal
             // the identity string in quotes.
             //
             string id = instance_.identityToString(identity_);
-            if(IceUtilInternal.StringUtil.findFirstOf(id, " \t\n\r:@") != -1)
+            if(IceUtilInternal.StringUtil.findFirstOf(id, " :@") != -1)
             {
                 s.Append('"');
                 s.Append(id);
@@ -274,7 +274,7 @@ namespace IceInternal
                 //
                 s.Append(" -f ");
                 string fs = IceUtilInternal.StringUtil.escapeString(facet_, "");
-                if(IceUtilInternal.StringUtil.findFirstOf(fs, " \t\n\r:@") != -1)
+                if(IceUtilInternal.StringUtil.findFirstOf(fs, " :@") != -1)
                 {
                     s.Append('"');
                     s.Append(fs);
@@ -950,7 +950,7 @@ namespace IceInternal
                 // the adapter id string in quotes.
                 //
                 string a = IceUtilInternal.StringUtil.escapeString(_adapterId, null);
-                if(IceUtilInternal.StringUtil.findFirstOf(a, " \t\n\r") != -1)
+                if(IceUtilInternal.StringUtil.findFirstOf(a, " :@") != -1)
                 {
                     s.Append('"');
                     s.Append(a);

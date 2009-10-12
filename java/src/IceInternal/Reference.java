@@ -257,7 +257,7 @@ public abstract class Reference implements Cloneable
         // the identity string in quotes.
         //
         String id = _instance.identityToString(_identity);
-        if(IceUtilInternal.StringUtil.findFirstOf(id, " \t\n\r:@") != -1)
+        if(IceUtilInternal.StringUtil.findFirstOf(id, " :@") != -1)
         {
             s.append('"');
             s.append(id);
@@ -277,7 +277,7 @@ public abstract class Reference implements Cloneable
             //
             s.append(" -f ");
             String fs = IceUtilInternal.StringUtil.escapeString(_facet, "");
-            if(IceUtilInternal.StringUtil.findFirstOf(fs, " \t\n\r:@") != -1)
+            if(IceUtilInternal.StringUtil.findFirstOf(fs, " :@") != -1)
             {
                 s.append('"');
                 s.append(fs);
