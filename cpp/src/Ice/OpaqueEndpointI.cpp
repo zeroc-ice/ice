@@ -144,6 +144,43 @@ IceInternal::OpaqueEndpointI::toString() const
     return s.str();
 }
 
+Ice::EndpointInfoPtr
+IceInternal::OpaqueEndpointI::getInfo() const
+{
+    class InfoI : public Ice::OpaqueEndpointInfo
+    {
+    public:
+
+        InfoI(Ice::Short type, Ice::ByteSeq rawByes) : OpaqueEndpointInfo(-1, false, rawBytes), _type(type)
+        {
+        }
+
+        virtual Ice::Short
+        type() const
+        {
+            return _type;
+        }
+        
+        virtual bool
+        datagram() const
+        {
+            return false;
+        }
+
+        virtual bool
+        secure() const
+        {
+            return false;
+        }
+
+    private:
+
+        Ice::Short _type;
+    };
+
+    return new InfoI(_type, _rawBytes);
+}
+
 Short
 IceInternal::OpaqueEndpointI::type() const
 {
@@ -190,12 +227,6 @@ bool
 IceInternal::OpaqueEndpointI::secure() const
 {
     return false;
-}
-
-Ice::ByteSeq
-IceInternal::OpaqueEndpointI::rawBytes() const
-{
-    return _rawBytes;
 }
 
 TransceiverPtr

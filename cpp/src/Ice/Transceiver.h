@@ -12,6 +12,7 @@
 
 #include <IceUtil/Shared.h>
 #include <Ice/TransceiverF.h>
+#include <Ice/ConnectionF.h>
 #include <Ice/Network.h>
 
 namespace IceInternal
@@ -36,7 +37,7 @@ public:
 #endif
     virtual std::string type() const = 0;
     virtual std::string toString() const = 0;
-
+    virtual Ice::ConnectionInfoPtr getInfo() const = 0;
     virtual void checkSendSize(const Buffer&, size_t) = 0;
 };
 

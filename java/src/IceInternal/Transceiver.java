@@ -43,5 +43,6 @@ public interface Transceiver
 
     String type();
     String toString();
+    Ice.ConnectionInfo getInfo();
     void checkSendSize(Buffer buf, int messageSizeMax);
 }

@@ -7,8 +7,8 @@
 //
 // **********************************************************************
 
-#ifndef ICE_SSL_ENDPOINT_ICE
-#define ICE_SSL_ENDPOINT_ICE
+#ifndef ICE_SSL_ENDPOINT_INFO_ICE
+#define ICE_SSL_ENDPOINT_INFO_ICE
 
 [["cpp:header-ext:h"]]
 
@@ -21,28 +21,25 @@ module IceSSL
 {
 
 /**
+ *
  * Provides access to the address details of an SSL endpoint.
+ *
  **/
-local interface SslEndpoint extends Ice::Endpoint
+["cpp:virtual"] local class SSLEndpointInfo extends Ice::EndpointInfo
 {
     /**
      * 
-     * Get the host or address configured with
-     * the endpoint.
-     * 
-     * @return The host or address.
+     * The host or address configured with the endpoint.
      *
      **/
-    ["cpp:const"] string host();
+    string host;
 
     /**
      * 
-     * Get the TCP port number.
-     *
-     * @return The port number.
+     * The TCP port number.
      * 
      **/
-    ["cpp:const"] int port();
+    int port;
 };
 
 };

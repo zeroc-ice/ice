@@ -181,6 +181,8 @@ ICE_API void createPipe(SOCKET fds[2]);
 ICE_API std::string errorToStringDNS(int);
 
 ICE_API std::string fdToString(SOCKET);
+ICE_API void fdToAddressAndPort(SOCKET, std::string&, int&, std::string&, int&);
+ICE_API void addrToAddressAndPort(const struct sockaddr_storage&, std::string&, int&);
 ICE_API std::string addressesToString(const struct sockaddr_storage&, const struct sockaddr_storage&, bool);
 ICE_API void fdToLocalAddress(SOCKET, struct sockaddr_storage&);
 ICE_API bool fdToRemoteAddress(SOCKET, struct sockaddr_storage&);

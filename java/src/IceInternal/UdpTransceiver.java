@@ -229,6 +229,38 @@ final class UdpTransceiver implements Transceiver
         }
     }
 
+    public Ice.ConnectionInfo
+    getInfo()
+    {
+        assert(_fd != null);
+
+        Ice.UdpConnectionInfo info = new Ice.UdpConnectionInfo();
+        java.net.DatagramSocket socket = _fd.socket();
+        info.localAddress = socket.getLocalAddress().getHostAddress();
+        info.localPort = socket.getLocalPort();
+        if(socket.getInetAddress() != null)
+        {
+            info.remoteAddress = socket.getInetAddress().getHostAddress();
+            info.remotePort = socket.getPort();
+        }
+        else
+        {
+            info.remoteAddress = "";
+            info.remotePort = -1;
+        }
+        if(_mcastAddr != null)
+        {
+            info.mcastAddress = _mcastAddr.getAddress().getHostAddress();
+            info.mcastPort = _mcastAddr.getPort();
+        }
+        else
+        {
+            info.mcastAddress = "";
+            info.mcastPort = -1;
+        }
+        return info;
+    }
+
     public void
     checkSendSize(Buffer buf, int messageSizeMax)
     {

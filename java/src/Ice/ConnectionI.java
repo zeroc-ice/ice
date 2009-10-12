@@ -1239,6 +1239,16 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
         return _endpoint.timeout(); // No mutex protection necessary, _endpoint is immutable.
     }
 
+    public synchronized ConnectionInfo
+    getInfo()
+    {
+        if(_exception != null)
+        {
+            throw (Ice.LocalException)_exception.fillInStackTrace();
+        }
+        return _transceiver.getInfo();
+    }
+
     //
     // Only used by the SSL plug-in.
     //

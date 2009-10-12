@@ -7,17 +7,11 @@
 //
 // **********************************************************************
 
-#ifndef ICE_CONNECTION_F_ICE
-#define ICE_CONNECTION_F_ICE
+#ifndef ICE_SSL_ICE_SSL_H
+#define ICE_SSL_ICE_SSL_H
 
-[["cpp:header-ext:h"]]
-
-module Ice
-{
-
-local class ConnectionInfo;
-local interface Connection;
-
-};
+#include <IceSSL/Plugin.h>
+#include <IceSSL/EndpointInfo.h>
+#include <IceSSL/ConnectionInfo.h>
 
 #endif

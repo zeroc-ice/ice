@@ -26,7 +26,8 @@ SRCS		= AcceptorI.cs \
 		  TrustManager.cs \
 		  Util.cs
 
-GEN_SRCS	= $(GDIR)\Endpoint.cs
+GEN_SRCS	= $(GDIR)\EndpointInfo.cs \
+		  $(GDIR)\ConnectionInfo.cs
 
 SDIR		= $(slicedir)\IceSSL
 GDIR		= generated

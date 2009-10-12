@@ -226,6 +226,40 @@ IceInternal::TcpEndpointI::toString() const
     return s.str();
 }
 
+EndpointInfoPtr
+IceInternal::TcpEndpointI::getInfo() const
+{
+    class InfoI : public Ice::TcpEndpointInfo
+    {
+    public:
+
+        InfoI(Ice::Int to, bool comp, const string& host, Ice::Int port) :
+            TcpEndpointInfo(to, comp, host, port)
+        {
+        }
+
+        virtual Ice::Short
+        type() const
+        {
+            return TcpEndpointType;
+        }
+        
+        virtual bool
+        datagram() const
+        {
+            return false;
+        }
+
+        virtual bool
+        secure() const
+        {
+            return false;
+        }
+    };
+
+    return new InfoI(_timeout, _compress, _host, _port);
+}
+
 Short
 IceInternal::TcpEndpointI::type() const
 {
@@ -293,18 +327,6 @@ bool
 IceInternal::TcpEndpointI::secure() const
 {
     return false;
-}
-
-string
-IceInternal::TcpEndpointI::host() const
-{
-    return _host;
-}
-
-Ice::Int
-IceInternal::TcpEndpointI::port() const
-{
-    return _port;
 }
 
 TransceiverPtr

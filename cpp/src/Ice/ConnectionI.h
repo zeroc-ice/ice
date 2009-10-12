@@ -132,7 +132,7 @@ public:
 
     virtual std::string type() const; // From Connection.
     virtual Ice::Int timeout() const; // From Connection.
-
+    virtual ConnectionInfoPtr getInfo() const; // From Connection
 
     // SSL plug-in needs to be able to get the transceiver.
     IceInternal::TransceiverPtr getTransceiver() const;

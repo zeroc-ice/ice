@@ -657,7 +657,7 @@ public class RoutableReference extends Reference
         //
         for(EndpointI endpoint : allEndpoints)
         {
-            if(!(endpoint instanceof Ice.OpaqueEndpoint))
+            if(!(endpoint instanceof IceInternal.OpaqueEndpointI))
             {
                 endpoints.add(endpoint);
             }

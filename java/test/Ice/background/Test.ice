@@ -43,10 +43,6 @@ interface BackgroundController
     void writeException(bool enable);
 };
 
-local interface TestEndpoint extends Ice::Endpoint
-{
-};
-
 };
 
 #endif

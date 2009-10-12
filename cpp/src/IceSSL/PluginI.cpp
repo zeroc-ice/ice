@@ -108,7 +108,7 @@ ConnectionInvalidException::ice_throw() const
     throw *this;
 }
 
-ConnectionInfo
+IceSSL::ConnectionInfo
 IceSSL::getConnectionInfo(const ConnectionPtr& connection)
 {
     Ice::ConnectionIPtr con = Ice::ConnectionIPtr::dynamicCast(connection);

@@ -9,7 +9,7 @@
 
 package IceInternal;
 
-final class TcpEndpointI extends EndpointI implements Ice.TcpEndpoint
+final class TcpEndpointI extends EndpointI
 {
     final static short TYPE = 1;
 
@@ -231,6 +231,31 @@ final class TcpEndpointI extends EndpointI implements Ice.TcpEndpoint
     }
 
     //
+    // Return the endpoint information.
+    //
+    public Ice.EndpointInfo
+    getInfo()
+    {
+        return new Ice.TcpEndpointInfo(_timeout, _compress, _host, _port)
+            {
+                public short type()
+                {
+                    return TYPE;
+                }
+                
+                public boolean datagram()
+                {
+                    return false;
+                }
+                
+                public boolean secure()
+                {
+                    return false;
+                }
+        };
+    }
+
+    //
     // Return the endpoint type
     //
     public short
@@ -327,24 +352,6 @@ final class TcpEndpointI extends EndpointI implements Ice.TcpEndpoint
     secure()
     {
         return false;
-    }
-
-    //
-    // Get the host name.
-    //
-    public String
-    host()
-    {
-        return _host;
-    }
-
-    //
-    // Get the port number.
-    //
-    public int
-    port()
-    {
-        return _port;
     }
 
     //

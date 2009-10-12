@@ -432,6 +432,43 @@ IceInternal::UdpEndpointI::toString() const
     return s.str();
 }
 
+EndpointInfoPtr
+IceInternal::UdpEndpointI::getInfo() const
+{
+    class InfoI : public Ice::UdpEndpointInfo
+    {
+    public:
+
+        InfoI(bool comp, const string& host, Ice::Int port, Ice::Byte protocolMajor, Ice::Byte protocolMinor, 
+              Ice::Byte encodingMajor, Ice::Byte encodingMinor, const std::string& mcastInterface, Ice::Int mcastTtl) :
+            UdpEndpointInfo(-1, comp, host, port, protocolMajor, protocolMinor, encodingMajor, encodingMinor,
+                            mcastInterface, mcastTtl)
+        {
+        }
+
+        virtual Ice::Short
+        type() const
+        {
+            return UdpEndpointType;
+        }
+        
+        virtual bool
+        datagram() const
+        {
+            return true;
+        }
+
+        virtual bool
+        secure() const
+        {
+            return false;
+        }
+    };
+
+    return new InfoI(_compress, _host, _port, _protocolMajor, _protocolMinor, _encodingMajor, _encodingMinor, 
+                     _mcastInterface, _mcastTtl);
+}
+
 Short
 IceInternal::UdpEndpointI::type() const
 {
@@ -494,30 +531,6 @@ bool
 IceInternal::UdpEndpointI::secure() const
 {
     return false;
-}
-
-string
-IceInternal::UdpEndpointI::host() const
-{
-    return _host;
-}
-
-Ice::Int
-IceInternal::UdpEndpointI::port() const
-{
-    return _port;
-}
-
-string
-IceInternal::UdpEndpointI::mcastInterface() const
-{
-    return _mcastInterface;
-}
-
-Ice::Int
-IceInternal::UdpEndpointI::mcastTtl() const
-{
-    return _mcastTtl;
 }
 
 TransceiverPtr

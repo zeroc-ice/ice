@@ -14,7 +14,7 @@
 #include <Test.h>
 #include <Configuration.h>
 
-class EndpointI : public IceInternal::EndpointI, public Test::TestEndpoint
+class EndpointI : public IceInternal::EndpointI
 {
 public:
 
@@ -35,6 +35,7 @@ public:
 
     // From TestEndpoint
     virtual std::string toString() const;
+    virtual Ice::EndpointInfoPtr getInfo() const;
     virtual Ice::Int timeout() const;
     virtual bool compress() const;
     virtual bool datagram() const;

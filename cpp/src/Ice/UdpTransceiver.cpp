@@ -16,6 +16,7 @@
 #endif
 
 #include <Ice/UdpTransceiver.h>
+#include <Ice/Connection.h>
 #include <Ice/Instance.h>
 #include <Ice/TraceLevels.h>
 #include <Ice/LoggerUtil.h>
@@ -449,6 +450,16 @@ IceInternal::UdpTransceiver::toString() const
     {
         return fdToString(_fd);
     }
+}
+
+Ice::ConnectionInfoPtr
+IceInternal::UdpTransceiver::getInfo() const
+{
+    assert(_fd != INVALID_SOCKET);
+    Ice::UdpConnectionInfoPtr info = new Ice::UdpConnectionInfo();
+    fdToAddressAndPort(_fd, info->localAddress, info->localPort, info->remoteAddress, info->remotePort);
+    addrToAddressAndPort(_mcastAddr, info->mcastAddress, info->mcastPort);
+    return info;
 }
 
 void

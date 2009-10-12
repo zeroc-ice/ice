@@ -14,9 +14,20 @@
 
 #include <Ice/ObjectAdapterF.ice>
 #include <Ice/Identity.ice>
+#include <Ice/Endpoint.ice>
 
 module Ice
 {
+
+local class ConnectionInfo
+{
+    /**
+     *
+     * The endpoint used to establish the connection.
+     *
+     **/
+    EndpointInfo endpoint;
+};
 
 /**
  *
@@ -130,6 +141,61 @@ local interface Connection
      *
      **/
     ["cpp:const"] string toString();
+
+    /**
+     *
+     * Returns the connection information.
+     *
+     * @return The connection information.
+     *
+     **/
+    ["cpp:const"] ConnectionInfo getInfo();
+};
+
+/**
+ *
+ * Provides access to the connection details of a TCP connection
+ *
+ **/
+local class TcpConnectionInfo extends ConnectionInfo
+{
+    /** The local address. */
+    string localAddress;
+
+    /** The local port. */
+    int localPort;
+
+    /** The remote address. */
+    string remoteAddress;
+
+    /** The remote port. */
+    int remotePort;
+};
+
+/**
+ *
+ * Provides access to the connection details of a UDP connection
+ *
+ **/
+local class UdpConnectionInfo extends ConnectionInfo
+{
+    /** The local address. */
+    string localAddress;
+
+    /** The local port. */
+    int localPort;
+
+    /** The remote address. */
+    string remoteAddress;
+
+    /** The remote port. */
+    int remotePort;    
+
+    /** The multicast address. */
+    string mcastAddress;
+
+    /** The multicast port. */
+    int mcastPort;
 };
 
 };

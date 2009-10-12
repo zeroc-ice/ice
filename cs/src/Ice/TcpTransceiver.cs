@@ -419,6 +419,28 @@ namespace IceInternal
             return "tcp";
         }
 
+        public Ice.ConnectionInfo
+        getInfo()
+        {
+            Debug.Assert(_fd != null);
+            Ice.TcpConnectionInfo info = new Ice.TcpConnectionInfo();
+            IPEndPoint localEndpoint = Network.getLocalAddress(_fd);
+            info.localAddress = localEndpoint.Address.ToString();
+            info.localPort = localEndpoint.Port;
+            IPEndPoint remoteEndpoint = Network.getLocalAddress(_fd);
+            if(remoteEndpoint != null)
+            {
+                info.remoteAddress = remoteEndpoint.Address.ToString();
+                info.remotePort = remoteEndpoint.Port;
+            }
+            else
+            {
+                info.remoteAddress = "";
+                info.remotePort = -1;
+            }
+            return info;
+        }
+
         public void checkSendSize(Buffer buf, int messageSizeMax)
         {
             if(buf.size() > messageSizeMax)

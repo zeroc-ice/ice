@@ -15,7 +15,7 @@ namespace IceInternal
     using System.Collections.Generic;
     using System.Net;
 
-    sealed class UdpEndpointI : EndpointI, Ice.UdpEndpoint
+    sealed class UdpEndpointI : EndpointI
     {
         internal const short TYPE = 3;
         
@@ -467,6 +467,40 @@ namespace IceInternal
             return s;
         }
         
+        private sealed class InfoI : Ice.UdpEndpointInfo
+        {
+            public InfoI(bool comp, string host, int port, byte protocolMajor, byte protocolMinor, 
+                         byte encodingMajor, byte encodingMinor, string mcastInterface, int mcastTtl) :
+                base(-1, comp, host, port, protocolMajor, protocolMinor, encodingMajor, encodingMinor, mcastInterface,
+                    mcastTtl)
+            {
+            }
+
+            override public short type()
+            {
+                return TYPE;
+            }
+                
+            override public bool datagram()
+            {
+                return true;
+            }
+                
+            override public bool secure()
+            {
+                return false;
+            }
+        };
+
+        //
+        // Return the endpoint information.
+        //
+        public override Ice.EndpointInfo getInfo()
+        {
+            return new InfoI(_compress, _host, _port, _protocolMajor, _protocolMinor, _encodingMajor, 
+                             _encodingMinor, _mcastInterface, _mcastTtl);
+        }
+
         //
         // Return the endpoint type
         //
@@ -553,38 +587,6 @@ namespace IceInternal
         public override bool secure()
         {
             return false;
-        }
-
-        //
-        // Get the host name.
-        //
-        public string host()
-        {
-            return _host;
-        }
-
-        //
-        // Get the port number.
-        //
-        public int port()
-        {
-            return _port;
-        }
-        
-        //
-        // Get the multicast interface.
-        //
-        public string mcastInterface()
-        {
-            return _mcastInterface;
-        }
-
-        //
-        // Get the multicast time-to-live.
-        //
-        public int mcastTtl()
-        {
-            return _mcastTtl;
         }
 
         //

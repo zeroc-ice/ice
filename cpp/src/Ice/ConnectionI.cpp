@@ -1465,6 +1465,17 @@ Ice::ConnectionI::timeout() const
     return _endpoint->timeout(); // No mutex lock, _endpoint is immutable.
 }
 
+ConnectionInfoPtr
+Ice::ConnectionI::getInfo() const
+{
+    IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
+    if(_exception.get())
+    {
+        _exception->ice_throw();
+    }
+    return _transceiver->getInfo();
+}
+
 //
 // Only used by the SSL plug-in.
 //

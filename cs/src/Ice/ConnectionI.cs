@@ -1371,6 +1371,19 @@ namespace Ice
             return _endpoint.timeout(); // No mutex protection necessary, _endpoint is immutable.
         }
 
+        public ConnectionInfo
+        getInfo()
+        {
+            lock(this)
+            {
+                if(_exception != null)
+                {
+                    throw _exception;
+                }
+                return _transceiver.getInfo();
+            }
+        }
+        
         //
         // Only used by the SSL plug-in.
         //
