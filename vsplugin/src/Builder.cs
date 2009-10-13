@@ -265,15 +265,15 @@ namespace Ice.VisualStudio
                 initDocumentEvents();
                 foreach(Project p in _applicationObject.Solution.Projects)
                 {
-                    if(Util.isCSharpProject(p) || Util.isCppProject(p))
+                    if((Util.isCSharpProject(p) || Util.isCppProject(p)) && Util.isSliceBuilderEnabled(p))
                     {
                         //
                         // Update Ice Home if expansion does not match old setting.
                         //
-                        if(!Util.subEnvironmentVars(Util.getIceHomeRaw(p)).Equals(Util.getIceHome(p), 
+                        if(!Util.subEnvironmentVars(Util.getIceHomeRaw(p, false)).Equals(Util.getIceHome(p), 
                                                                           StringComparison.CurrentCultureIgnoreCase))
                         {
-                            Util.updateIceHome(p, Util.getIceHomeRaw(p), true);
+                            Util.updateIceHome(p, Util.getIceHomeRaw(p, false), true);
                         }
                         _dependenciesMap[p.Name] = new Dictionary<string, List<string>>();
                         buildProject(p, true, vsBuildScope.vsBuildScopeSolution);
@@ -299,6 +299,7 @@ namespace Ice.VisualStudio
         {
             if(Util.isCppProject(project))
             {
+                Util.getIceHomeRaw(project, true);
                 Util.addIceCppConfigurations(project);
                 ComponentList components = 
                     new ComponentList(Util.getProjectProperty(project, Util.PropertyNames.IceComponents));
@@ -313,6 +314,7 @@ namespace Ice.VisualStudio
             }
             else if(Util.isCSharpProject(project))
             {
+                Util.getIceHomeRaw(project, true);
                 if(Util.isSilverlightProject(project))
                 {
                     Util.addCSharpReference(project, "IceSL");

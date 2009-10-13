@@ -53,7 +53,7 @@ namespace Ice.VisualStudio
             if(_project != null)
             {
                 includeDirList.Items.Clear();
-                txtIceHome.Text = Util.getIceHomeRaw(_project);
+                txtIceHome.Text = Util.getIceHomeRaw(_project, false);
                 txtExtraOptions.Text = Util.getProjectProperty(_project, Util.PropertyNames.IceExtraOptions);
 
                 chkIcePrefix.Checked = Util.getProjectPropertyAsBool(_project, Util.PropertyNames.IcePrefix);

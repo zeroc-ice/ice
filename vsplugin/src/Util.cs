@@ -200,29 +200,20 @@ namespace Ice.VisualStudio
             };
         }
 
-        public static string getIceHomeRaw(Project project)
+        const string iceSilverlightHome = "C:\\IceSL-0.3.3";
+        const string defaultIceHome = "C:\\Ice-3.3.1";
+
+        public static string getIceHomeRaw(Project project, bool update)
         {
-            const string iceSilverlightHome = "C:\\IceSL-0.3.3";
-#if VS2008
-            const string defaultIceHome = "C:\\Ice-3.3.1-VC90";
-#else
-            const string defaultIceHome = "C:\\Ice-3.3.1";
-#endif
             if(Util.isSilverlightProject(project))
             {
-                return Util.getProjectProperty(project, Util.PropertyNames.IceHome, iceSilverlightHome);
+                return Util.getProjectProperty(project, Util.PropertyNames.IceHome, iceSilverlightHome, update);
             }
-            return Util.getProjectProperty(project, Util.PropertyNames.IceHome, defaultIceHome);
+            return Util.getProjectProperty(project, Util.PropertyNames.IceHome, defaultIceHome, update);
         }
 
         public static string getIceHome(Project project)
         {
-            const string iceSilverlightHome = "C:\\IceSL-0.3.3";
-#if VS2008
-            const string defaultIceHome = "C:\\Ice-3.3.1-VC90";
-#else
-            const string defaultIceHome = "C:\\Ice-3.3.1";
-#endif
             if(Util.isSilverlightProject(project))
             {
                 return Util.getProjectProperty(project, Util.PropertyNames.IceHomeExpanded, iceSilverlightHome);
@@ -911,7 +902,7 @@ namespace Ice.VisualStudio
 
             if(!force)
             {
-                string oldIceHome = Util.getIceHomeRaw(project).ToUpper();
+                string oldIceHome = Util.getIceHomeRaw(project, true).ToUpper();
                 if(oldIceHome.Equals(iceHome, StringComparison.CurrentCultureIgnoreCase))
                 {
                     return;
@@ -1015,10 +1006,15 @@ namespace Ice.VisualStudio
 
         public static string getProjectProperty(Project project, string name)
         {
-            return Util.getProjectProperty(project, name, "");
+            return Util.getProjectProperty(project, name, "", true);
         }
 
         public static string getProjectProperty(Project project, string name, string defaultValue)
+        {
+            return Util.getProjectProperty(project, name, defaultValue, true);
+        }
+
+        public static string getProjectProperty(Project project, string name, string defaultValue, bool update)
         {
             if(project == null || String.IsNullOrEmpty(name))
             {
@@ -1030,16 +1026,17 @@ namespace Ice.VisualStudio
                 return defaultValue;
             }
 
-            if(!project.Globals.get_VariableExists(name))
+            if(project.Globals.get_VariableExists(name))
             {
-                if(String.IsNullOrEmpty(defaultValue))
-                {
-                    return "";
-                }
+                return project.Globals[name].ToString();
+            }
+
+            if(update && !String.IsNullOrEmpty(defaultValue))
+            {
                 project.Globals[name] = defaultValue;
                 project.Globals.set_VariablePersists(name, true);
             }
-            return project.Globals[name].ToString();
+            return defaultValue;
         }
 
         public static void setProjectProperty(Project project, string name, string value)
