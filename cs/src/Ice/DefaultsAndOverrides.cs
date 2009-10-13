@@ -54,6 +54,18 @@ namespace IceInternal
                 overrideConnectTimeoutValue = -1;
             }
 
+            val = properties.getProperty("Ice.Override.CloseTimeout");
+            if(val.Length > 0)
+            {
+                overrideCloseTimeout = true;
+                overrideCloseTimeoutValue = properties.getPropertyAsInt("Ice.Override.CloseTimeout");
+            }
+            else
+            {
+                overrideCloseTimeout = false;
+                overrideCloseTimeoutValue = -1;
+            }
+
             val = properties.getProperty("Ice.Override.Compress");
             if(val.Length > 0)
             {
@@ -119,6 +131,8 @@ namespace IceInternal
         public int overrideTimeoutValue;
         public bool overrideConnectTimeout;
         public int overrideConnectTimeoutValue;
+        public bool overrideCloseTimeout;
+        public int overrideCloseTimeoutValue;
         public bool overrideCompress;
         public bool overrideCompressValue;
         public bool overrideSecure;

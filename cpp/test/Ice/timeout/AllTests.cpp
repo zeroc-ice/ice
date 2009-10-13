@@ -283,6 +283,34 @@ allTests(const Ice::CommunicatorPtr& communicator)
     }
     cout << "ok" << endl;
 
+    cout << "testing close timeout... " << flush;
+    {
+        TimeoutPrx to = TimeoutPrx::checkedCast(obj->ice_timeout(250));
+        Ice::ConnectionPtr connection = to->ice_getConnection();
+        timeout->holdAdapter(750);
+        connection->close(false);
+        try
+        {
+            connection->getInfo(); // getInfo() doesn't throw in the closing state.
+        }
+        catch(const Ice::LocalException&)
+        {
+            test(false);
+        }
+        IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(300));
+        try
+        {
+            connection->getInfo();
+            test(false);
+        }
+        catch(const Ice::CloseConnectionException&)
+        {
+            // Expected.
+        }
+        timeout->op(); // Ensure adapter is active.
+    }
+    cout << "ok" << endl;
+
     cout << "testing timeout overrides... " << flush;
     {
         //
@@ -367,6 +395,20 @@ allTests(const Ice::CommunicatorPtr& communicator)
             // Expected.
         }
         comm->destroy();
+    }
+    {
+        //
+        // Test Ice.Override.CloseTimeout.
+        //
+        Ice::InitializationData initData;
+        initData.properties = communicator->getProperties()->clone();
+        initData.properties->setProperty("Ice.Override.CloseTimeout", "200");
+        Ice::CommunicatorPtr comm = Ice::initialize(initData);
+        Ice::ConnectionPtr connection = comm->stringToProxy(sref)->ice_getConnection();
+        timeout->holdAdapter(750);
+        IceUtil::Time now = IceUtil::Time::now();
+        comm->destroy();
+        test(IceUtil::Time::now() - now < IceUtil::Time::milliSeconds(500));
     }
     cout << "ok" << endl;
 

@@ -250,58 +250,14 @@ namespace Ice
             lock(this)
             {
                 //
-                // We wait indefinitely until connection closing has been
-                // initiated. We also wait indefinitely until all outstanding
-                // requests are completed. Otherwise we couldn't guarantee
-                // that there are no outstanding calls when deactivate() is
-                // called on the servant locators.
+                // We wait indefinitely until the connection is finished and all
+                // outstanding requests are completed. Otherwise we couldn't
+                // guarantee that there are no outstanding calls when deactivate()
+                // is called on the servant locators.
                 //
-                while(_state < StateClosing || _dispatchCount > 0)
+                while(_state < StateFinished || _dispatchCount > 0)
                 {
                     Monitor.Wait(this);
-                }
-
-                //
-                // Now we must wait until close() has been called on the
-                // transceiver.
-                //
-                while(_state != StateFinished)
-                {
-                    if(_state != StateClosed && _endpoint.timeout() >= 0)
-                    {
-                        long absoluteWaitTime = _stateTime + _endpoint.timeout();
-                        int waitTime = (int)(absoluteWaitTime - IceInternal.Time.currentMonotonicTimeMillis());
-
-                        if(waitTime > 0)
-                        {
-                            //
-                            // We must wait a bit longer until we close this
-                            // connection.
-                            //
-                            Monitor.Wait(this, waitTime);
-                            if(IceInternal.Time.currentMonotonicTimeMillis() >= absoluteWaitTime)
-                            {
-                                setState(StateClosed, new CloseTimeoutException());
-                            }
-                        }
-                        else
-                        {
-                            //
-                            // We already waited long enough, so let's close this
-                            // connection!
-                            //
-                            setState(StateClosed, new CloseTimeoutException());
-                        }
-
-                        //
-                        // No return here, we must still wait until close() is
-                        // called on the _transceiver.
-                        //
-                    }
-                    else
-                    {
-                        Monitor.Wait(this);
-                    }
                 }
 
                 Debug.Assert(_state == StateFinished && _dispatchCount == 0);
@@ -1354,9 +1310,13 @@ namespace Ice
                 {
                     setState(StateClosed, new ConnectTimeoutException());
                 }
-                else if(_state <= StateClosing)
+                else if(_state < StateClosing)
                 {
                     setState(StateClosed, new TimeoutException());
+                }
+                else if(_state == StateClosing)
+                {
+                    setState(StateClosed, new CloseTimeoutException());
                 }
             }
         }
@@ -1376,7 +1336,7 @@ namespace Ice
         {
             lock(this)
             {
-                if(_exception != null)
+                if(_state >= StateClosed)
                 {
                     throw _exception;
                 }
@@ -1763,7 +1723,15 @@ namespace Ice
                 os.writeByte(_compressionSupported ? (byte)1 : (byte)0);
                 os.writeInt(IceInternal.Protocol.headerSize); // Message size.
 
-                sendMessage(new OutgoingMessage(os, false, false));
+                if(sendMessage(new OutgoingMessage(os, false, false)))
+                {
+                    //
+                    // Schedule the close timeout to wait for the peer to close the connection. If
+                    // the message was queued for sending, sendNextMessage will schedule the timeout
+                    // once all messages were sent.
+                    //
+                    scheduleTimeout(IceInternal.SocketOperation.Write, closeTimeout());
+                }
 
                 //
                 // The CloseConnection message should be sufficient. Closing the write
@@ -1967,6 +1935,16 @@ namespace Ice
 
             Debug.Assert(_writeStream.isEmpty());
             _threadPool.unregister(this, IceInternal.SocketOperation.Write);
+
+            //
+            // If all the messages were sent and we are in the closing state, we schedule 
+            // the close timeout to wait for the peer to close the connection.
+            //
+            if(_state == StateClosing)
+            {
+                scheduleTimeout(IceInternal.SocketOperation.Write, closeTimeout());
+            }
+
             return callbacks;
         }
 
@@ -2337,6 +2315,19 @@ namespace Ice
             if(defaultsAndOverrides.overrideConnectTimeout)
             {
                 return defaultsAndOverrides.overrideConnectTimeoutValue;
+            }
+            else
+            {
+                return _endpoint.timeout();
+            }
+        }
+
+        private int closeTimeout()
+        {
+            IceInternal.DefaultsAndOverrides defaultsAndOverrides = _instance.defaultsAndOverrides();
+            if(defaultsAndOverrides.overrideCloseTimeout)
+            {
+                return defaultsAndOverrides.overrideCloseTimeoutValue;
             }
             else
             {

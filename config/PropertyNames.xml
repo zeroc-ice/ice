@@ -329,6 +329,7 @@ generated from the section label.
         <property name="MonitorConnections" />
         <property name="Nohup" />
         <property name="NullHandleAbort" />
+        <property name="Override.CloseTimeout" />
         <property name="Override.Compress" />
         <property name="Override.ConnectTimeout" />
         <property name="Override.Timeout" />

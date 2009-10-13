@@ -356,57 +356,14 @@ Ice::ConnectionI::waitUntilFinished()
     IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
 
     //
-    // We wait indefinitely until connection closing has been
-    // initiated. We also wait indefinitely until all outstanding
-    // requests are completed. Otherwise we couldn't guarantee
-    // that there are no outstanding calls when deactivate() is
-    // called on the servant locators.
+    // We wait indefinitely until the connection is finished and all
+    // outstanding requests are completed. Otherwise we couldn't
+    // guarantee that there are no outstanding calls when deactivate()
+    // is called on the servant locators.
     //
-    while(_state < StateClosing || _dispatchCount > 0)
+    while(_state < StateFinished || _dispatchCount > 0)
     {
         wait();
-    }
-
-    //
-    // Now we must wait until close() has been called on the
-    // transceiver.
-    //
-    while(_state != StateFinished)
-    {
-        if(_state < StateClosed && _endpoint->timeout() >= 0)
-        {
-            IceUtil::Time timeout = IceUtil::Time::milliSeconds(_endpoint->timeout());
-            IceUtil::Time waitTime = _stateTime + timeout - IceUtil::Time::now(IceUtil::Time::Monotonic);
-
-            if(waitTime > IceUtil::Time())
-            {
-                //
-                // We must wait a bit longer until we close this
-                // connection.
-                //
-                if(!timedWait(waitTime))
-                {
-                    setState(StateClosed, CloseTimeoutException(__FILE__, __LINE__));
-                }
-            }
-            else
-            {
-                //
-                // We already waited long enough, so let's close this
-                // connection!
-                //
-                setState(StateClosed, CloseTimeoutException(__FILE__, __LINE__));
-            }
-
-            //
-            // No return here, we must still wait until close() is
-            // called on the _transceiver.
-            //
-        }
-        else
-        {
-            wait();
-        }
     }
 
     assert(_state == StateFinished);
@@ -1447,9 +1404,13 @@ Ice::ConnectionI::timedOut()
     {
         setState(StateClosed, ConnectTimeoutException(__FILE__, __LINE__));
     }
-    else if(_state <= StateClosing)
+    else if(_state < StateClosing)
     {
         setState(StateClosed, TimeoutException(__FILE__, __LINE__));
+    }
+    else if(_state == StateClosing)
+    {
+        setState(StateClosed, CloseTimeoutException(__FILE__, __LINE__));
     }
 }
 
@@ -1469,7 +1430,7 @@ ConnectionInfoPtr
 Ice::ConnectionI::getInfo() const
 {
     IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
-    if(_exception.get())
+    if(_state >= StateClosed)
     {
         _exception->ice_throw();
     }
@@ -1867,8 +1828,16 @@ Ice::ConnectionI::initiateShutdown()
         os.write(headerSize); // Message size.
 
         OutgoingMessage message(&os, false);
-        sendMessage(message);
-
+        if(sendMessage(message))
+        {
+            //
+            // Schedule the close timeout to wait for the peer to close the connection. If
+            // the message was queued for sending, sendNextMessage will schedule the timeout
+            // once all messages were sent.
+            //
+            scheduleTimeout(SocketOperationWrite, closeTimeout());
+        }
+        
         //
         // The CloseConnection message should be sufficient. Closing the write
         // end of the socket is probably an artifact of how things were done
@@ -2123,6 +2092,15 @@ Ice::ConnectionI::sendNextMessage(vector<OutgoingAsyncMessageCallbackPtr>& callb
 
     assert(_writeStream.b.empty());
     _threadPool->unregister(this, SocketOperationWrite);
+
+    //
+    // If all the messages were sent and we are in the closing state, we schedule 
+    // the close timeout to wait for the peer to close the connection.
+    //
+    if(_state == StateClosing)
+    {
+        scheduleTimeout(SocketOperationWrite, closeTimeout());
+    }
 }
 
 bool
@@ -2654,6 +2632,20 @@ Ice::ConnectionI::connectTimeout()
     if(defaultsAndOverrides->overrideConnectTimeout)
     {
         return defaultsAndOverrides->overrideConnectTimeoutValue;
+    }
+    else
+    {
+        return _endpoint->timeout();
+    }
+}
+
+int
+Ice::ConnectionI::closeTimeout()
+{
+    DefaultsAndOverridesPtr defaultsAndOverrides = _instance->defaultsAndOverrides();
+    if(defaultsAndOverrides->overrideCloseTimeout)
+    {
+        return defaultsAndOverrides->overrideCloseTimeoutValue;
     }
     else
     {

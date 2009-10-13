@@ -305,6 +305,35 @@ public class AllTests
         }
         Console.Out.WriteLine("ok");
 
+        Console.Out.Write("testing close timeout... ");
+        Console.Out.Flush();
+        {
+            Test.TimeoutPrx to = Test.TimeoutPrxHelper.checkedCast(obj.ice_timeout(250));
+            Ice.Connection connection = to.ice_getConnection();
+            timeout.holdAdapter(750);
+            connection.close(false);
+            try
+            {
+                connection.getInfo(); // getInfo() doesn't throw in the closing state.
+            }
+            catch(Ice.LocalException)
+            {
+                test(false);
+            }
+            Thread.Sleep(300);
+            try
+            {
+                connection.getInfo();
+                test(false);
+            }
+            catch(Ice.CloseConnectionException)
+            {
+                // Expected.
+            }
+            timeout.op(); // Ensure adapter is active.
+        }
+        Console.Out.WriteLine("ok");
+
         Console.Out.Write("testing timeout overrides... ");
         Console.Out.Flush();
         {
@@ -392,6 +421,21 @@ public class AllTests
                 // Expected.
             }
             comm.destroy();
+        }
+        {
+            //
+            // Test Ice.Override.CloseTimeout.
+            //
+            Ice.InitializationData initData = new Ice.InitializationData();
+            initData.properties = communicator.getProperties().ice_clone_();
+            initData.properties.setProperty("Ice.Override.CloseTimeout", "200");
+            Ice.Communicator comm = Ice.Util.initialize(initData);
+            comm.stringToProxy(sref).ice_getConnection();
+            timeout.holdAdapter(750);
+            Stopwatch stopwatch = new Stopwatch();
+            long now = stopwatch.ElapsedMilliseconds;
+            comm.destroy();
+            test(stopwatch.ElapsedMilliseconds - now < 500);
         }
         Console.Out.WriteLine("ok");
 

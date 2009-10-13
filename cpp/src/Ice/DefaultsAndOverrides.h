@@ -1,3 +1,4 @@
+
 // **********************************************************************
 //
 // Copyright (c) 2003-2009 ZeroC, Inc. All rights reserved.
@@ -35,6 +36,8 @@ public:
     Ice::Int overrideTimeoutValue;
     bool overrideConnectTimeout;
     Ice::Int overrideConnectTimeoutValue;
+    bool overrideCloseTimeout;
+    Ice::Int overrideCloseTimeoutValue;
     bool overrideCompress;
     bool overrideCompressValue;
     bool overrideSecure;

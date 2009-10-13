@@ -251,6 +251,7 @@ private:
     }
 
     int connectTimeout();
+    int closeTimeout();
 
     const IceInternal::TransceiverPtr _transceiver;
     const IceInternal::InstancePtr _instance;

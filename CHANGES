@@ -33,6 +33,14 @@ General Changes
 These entries apply to all relevant language mappings unless otherwise
 noted.
 
+- Added Ice.Override.CloseTimeout property. This property overrides
+  timeout settings used to close connections.
+
+- Ice connections are now forcefully closed after sending a close
+  connection message and once the connection timeout
+  expires. Previously, the connection would only be closed when the
+  object adapter or communicator was destroyed.
+
 - The new Ice::ThreadHookPlugin class allows you to install thread 
   notification hooks during communicator initialization via plugins.
 
