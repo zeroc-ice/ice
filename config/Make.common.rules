@@ -278,11 +278,16 @@ endif
 #
 
 ifeq ($(mklibfilename),)
-    mklibfilename	= $(if $(2),lib$(1).so.$(2),lib$(1).so)
+    # These default platform-specific rules are needed for cs/config/Make.rules.cs
+    ifeq ($(UNAME),Darwin)
+	mklibfilename	= $(if $(2),lib$(1).$(2).dylib,lib$(1).dylib)
+    else
+	mklibfilename	= $(if $(2),lib$(1).so.$(2),lib$(1).so)
+    endif
 endif
 
 ifeq ($(mksoname),)
-    mksoname		= $(if $(2),lib$(1).so.$(2),lib$(1).so)
+    mksoname	= $(if $(2),lib$(1).so.$(2),lib$(1).so)
 endif
 
 ifeq ($(mklibname),)

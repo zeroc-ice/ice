@@ -9,7 +9,7 @@
 
 package IceInternal;
 
-final class OpaqueEndpointI extends EndpointI implements Ice.OpaqueEndpoint
+final class OpaqueEndpointI extends EndpointI
 {
     public
     OpaqueEndpointI(String str)
@@ -131,6 +131,31 @@ final class OpaqueEndpointI extends EndpointI implements Ice.OpaqueEndpoint
     {
         String val = IceUtilInternal.Base64.encode(_rawBytes);
         return "opaque -t " + _type + " -v " + val;
+    }
+
+    //
+    // Return the endpoint information.
+    //
+    public Ice.EndpointInfo
+    getInfo()
+    {
+        return new Ice.OpaqueEndpointInfo(-1, false, _rawBytes)
+            {
+                public short type()
+                {
+                    return _type;
+                }
+                
+                public boolean datagram()
+                {
+                    return false;
+                }
+                
+                public boolean secure()
+                {
+                    return false;
+                }
+        };
     }
 
     //

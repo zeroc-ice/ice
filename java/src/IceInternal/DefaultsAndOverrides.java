@@ -51,6 +51,18 @@ public final class DefaultsAndOverrides
             overrideConnectTimeoutValue = -1;
         }
 
+        value = properties.getProperty("Ice.Override.CloseTimeout");
+        if(value.length() > 0)
+        {
+            overrideCloseTimeout = true;
+            overrideCloseTimeoutValue = properties.getPropertyAsInt("Ice.Override.CloseTimeout");
+        }
+        else
+        {
+            overrideCloseTimeout = false;
+            overrideCloseTimeoutValue = -1;
+        }
+
         value = properties.getProperty("Ice.Override.Compress");
         if(value.length() > 0)
         {
@@ -116,6 +128,8 @@ public final class DefaultsAndOverrides
     final public int overrideTimeoutValue;
     final public boolean overrideConnectTimeout;
     final public int overrideConnectTimeoutValue;
+    final public boolean overrideCloseTimeout;
+    final public int overrideCloseTimeoutValue;
     final public boolean overrideCompress;
     final public boolean overrideCompressValue;
     final public boolean overrideSecure;

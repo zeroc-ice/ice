@@ -12,15 +12,15 @@
 
 #include <Ice/EndpointI.h>
 #include <Ice/EndpointFactory.h>
-#include <IceSSL/Endpoint.h>
 #include <IceSSL/InstanceF.h>
+#include <IceSSL/EndpointInfo.h>
 
 namespace IceSSL
 {
 
 const Ice::Short EndpointType = 2;
 
-class EndpointI : public IceInternal::EndpointI, public SslEndpoint
+class EndpointI : public IceInternal::EndpointI
 {
 public:
 
@@ -28,21 +28,17 @@ public:
     EndpointI(const InstancePtr&, const std::string&, bool);
     EndpointI(const InstancePtr&, IceInternal::BasicStream*);
 
-    // From SslEndpoint
-    virtual std::string toString() const;
-    virtual Ice::Int timeout() const;
-    virtual bool compress() const;
-    virtual bool datagram() const;
-    virtual bool secure() const;
-    virtual std::string host() const;
-    virtual Ice::Int port() const;
-
-    // From IceInternal::EndpointI
     virtual void streamWrite(IceInternal::BasicStream*) const;
+    virtual std::string toString() const;
+    virtual Ice::EndpointInfoPtr getInfo() const;
     virtual Ice::Short type() const;
+    virtual Ice::Int timeout() const;
     virtual IceInternal::EndpointIPtr timeout(Ice::Int) const;
     virtual IceInternal::EndpointIPtr connectionId(const ::std::string&) const;
+    virtual bool compress() const;
     virtual IceInternal::EndpointIPtr compress(bool) const;
+    virtual bool datagram() const;
+    virtual bool secure() const;
     virtual IceInternal::TransceiverPtr transceiver(IceInternal::EndpointIPtr&) const;
     virtual std::vector<IceInternal::ConnectorPtr> connectors() const;
     virtual void connectors_async(const IceInternal::EndpointI_connectorsPtr&) const;

@@ -226,6 +226,40 @@ IceSSL::EndpointI::toString() const
     return s.str();
 }
 
+Ice::EndpointInfoPtr
+IceSSL::EndpointI::getInfo() const
+{
+    class InfoI : public IceSSL::SSLEndpointInfo
+    {
+    public:
+
+        InfoI(Ice::Int to, bool comp, const string& host, Ice::Int port) :
+            SSLEndpointInfo(to, comp, host, port)
+        {
+        }
+
+        virtual Ice::Short
+        type() const
+        {
+            return EndpointType;
+        }
+        
+        virtual bool
+        datagram() const
+        {
+            return false;
+        }
+
+        virtual bool
+        secure() const
+        {
+            return true;
+        }
+    };
+
+    return new InfoI(_timeout, _compress, _host, _port);
+}
+
 Short
 IceSSL::EndpointI::type() const
 {
@@ -293,18 +327,6 @@ bool
 IceSSL::EndpointI::secure() const
 {
     return true;
-}
-
-string
-IceSSL::EndpointI::host() const
-{
-    return _host;
-}
-
-Ice::Int
-IceSSL::EndpointI::port() const
-{
-    return _port;
 }
 
 IceInternal::TransceiverPtr

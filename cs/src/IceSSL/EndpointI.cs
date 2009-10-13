@@ -13,7 +13,7 @@ namespace IceSSL
     using System.Collections.Generic;
     using System.Net;
 
-    sealed class EndpointI : IceInternal.EndpointI, SslEndpoint
+    sealed class EndpointI : IceInternal.EndpointI
     {
         internal const short TYPE = 2;
 
@@ -245,6 +245,36 @@ namespace IceSSL
             }
             return s;
         }
+        
+        private sealed class InfoI : IceSSL.SSLEndpointInfo
+        {
+            public InfoI(int to, bool comp, string host, int port) : base(to, comp, host, port)
+            {
+            }
+
+            override public short type()
+            {
+                return TYPE;
+            }
+            
+            override public bool datagram()
+            {
+                return false;
+            }
+                
+            override public bool secure()
+            {
+                return true;
+            }
+        };
+
+        //
+        // Return the endpoint information.
+        //
+        public override Ice.EndpointInfo getInfo()
+        {
+            return new InfoI(_timeout, _compress, _host, _port);
+        }
 
         //
         // Return the endpoint type.
@@ -335,22 +365,6 @@ namespace IceSSL
         public override bool secure()
         {
             return true;
-        }
-
-        //
-        // Get the host name.
-        //
-        public string host()
-        {
-            return _host;
-        }
-
-        //
-        // Get the port number.
-        //
-        public int port()
-        {
-            return _port;
         }
 
         //

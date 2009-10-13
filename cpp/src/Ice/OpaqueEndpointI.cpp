@@ -144,6 +144,54 @@ IceInternal::OpaqueEndpointI::toString() const
     return s.str();
 }
 
+namespace
+{
+
+class InfoI : public Ice::OpaqueEndpointInfo
+{
+public:
+    
+    InfoI(Ice::Short type, const Ice::ByteSeq& rawByes);
+
+    virtual Ice::Short
+    type() const
+    {
+        return _type;
+    }
+        
+    virtual bool
+    datagram() const
+    {
+        return false;
+    }
+    
+    virtual bool
+    secure() const
+    {
+        return false;
+    }
+
+private:
+    
+    Ice::Short _type;
+};
+
+
+//
+// COMPILERFIX: inlining this constructor causes crashes with gcc 4.0.1.
+//
+InfoI::InfoI(Ice::Short type, const Ice::ByteSeq& rawBytes) : Ice::OpaqueEndpointInfo(-1, false, rawBytes), _type(type)
+{
+}
+
+}
+
+Ice::EndpointInfoPtr
+IceInternal::OpaqueEndpointI::getInfo() const
+{
+    return new InfoI(_type, _rawBytes);
+}
+
 Short
 IceInternal::OpaqueEndpointI::type() const
 {
@@ -190,12 +238,6 @@ bool
 IceInternal::OpaqueEndpointI::secure() const
 {
     return false;
-}
-
-Ice::ByteSeq
-IceInternal::OpaqueEndpointI::rawBytes() const
-{
-    return _rawBytes;
 }
 
 TransceiverPtr

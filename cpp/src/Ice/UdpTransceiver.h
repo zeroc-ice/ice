@@ -54,6 +54,7 @@ public:
 #endif
     virtual std::string type() const;
     virtual std::string toString() const;
+    virtual Ice::ConnectionInfoPtr getInfo() const;
     virtual void checkSendSize(const Buffer&, size_t);
 
     int effectivePort() const;

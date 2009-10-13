@@ -8,6 +8,7 @@
 // **********************************************************************
 
 #include <Ice/TcpTransceiver.h>
+#include <Ice/Connection.h>
 #include <Ice/Instance.h>
 #include <Ice/TraceLevels.h>
 #include <Ice/LoggerUtil.h>
@@ -451,6 +452,15 @@ string
 IceInternal::TcpTransceiver::toString() const
 {
     return _desc;
+}
+
+Ice::ConnectionInfoPtr 
+IceInternal::TcpTransceiver::getInfo() const
+{
+    assert(_fd != INVALID_SOCKET);
+    Ice::TcpConnectionInfoPtr info = new Ice::TcpConnectionInfo();
+    fdToAddressAndPort(_fd, info->localAddress, info->localPort, info->remoteAddress, info->remotePort);
+    return info;
 }
 
 void

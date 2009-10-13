@@ -18,7 +18,7 @@ namespace IceInternal
 
 const Ice::Short UdpEndpointType = 3;
 
-class UdpEndpointI : public EndpointI, public Ice::UdpEndpoint
+class UdpEndpointI : public EndpointI
 {
 public:
 
@@ -27,23 +27,17 @@ public:
     UdpEndpointI(const InstancePtr&, const std::string&, bool);
     UdpEndpointI(BasicStream*);
 
-    // From UdpEndpoint
-    virtual std::string toString() const;
-    virtual Ice::Int timeout() const;
-    virtual bool compress() const;
-    virtual bool datagram() const;
-    virtual bool secure() const;
-    virtual std::string host() const;
-    virtual Ice::Int port() const;
-    virtual std::string mcastInterface() const;
-    virtual Ice::Int mcastTtl() const;
-
-    // From EndpointI
     virtual void streamWrite(BasicStream*) const;
+    virtual std::string toString() const;
+    virtual Ice::EndpointInfoPtr getInfo() const;
     virtual Ice::Short type() const;
+    virtual Ice::Int timeout() const;
     virtual EndpointIPtr timeout(Ice::Int) const;
     virtual EndpointIPtr connectionId(const ::std::string&) const;
+    virtual bool compress() const;
     virtual EndpointIPtr compress(bool) const;
+    virtual bool datagram() const;
+    virtual bool secure() const;
     virtual TransceiverPtr transceiver(EndpointIPtr&) const;
     virtual std::vector<ConnectorPtr> connectors() const;
     virtual void connectors_async(const EndpointI_connectorsPtr&) const;

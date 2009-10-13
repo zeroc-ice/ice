@@ -15,7 +15,7 @@
 
 #include <IceUtil/UUID.h>
 
-#include <IceSSL/Plugin.h>
+#include <IceSSL/IceSSL.h>
 #include <Ice/Network.h>
 
 using namespace std;
@@ -819,33 +819,21 @@ Glacier2::SessionRouterI::createSessionFromSecureConnection_async(
     //
     try
     {
-        IceSSL::ConnectionInfo info = IceSSL::getConnectionInfo(current.con);
-        if(info.remoteAddr.ss_family == AF_UNSPEC)
+        IceSSL::SSLConnectionInfoPtr info = IceSSL::SSLConnectionInfoPtr::dynamicCast(current.con->getInfo());
+        if(!info)
         {
-            //
-            // The remote address may not be available on Windows XP SP2 when using IPv6.
-            //
-            sslinfo.remotePort = 0;
-            sslinfo.remoteHost = "";
+            amdCB->ice_exception(PermissionDeniedException("not ssl connection"));
+            return;
         }
-        else
+        sslinfo.remotePort = info->remotePort;
+        sslinfo.remoteHost = info->remoteAddress;
+        sslinfo.localPort = info->localPort;
+        sslinfo.localHost = info->localAddress;
+        sslinfo.cipher = info->cipher;
+        sslinfo.certs = info->certs;
+        if(info->certs.size() > 0)
         {
-            sslinfo.remotePort = IceInternal::getPort(info.remoteAddr);
-            sslinfo.remoteHost = IceInternal::inetAddrToString(info.remoteAddr);
-        }
-        sslinfo.localPort = IceInternal::getPort(info.localAddr);
-        sslinfo.localHost = IceInternal::inetAddrToString(info.localAddr);
-
-        sslinfo.cipher = info.cipher;
-
-        if(info.certs.size() > 0)
-        {
-            sslinfo.certs.resize(info.certs.size());
-            for(unsigned int i = 0; i < info.certs.size(); ++i)
-            {
-                sslinfo.certs[i] = info.certs[i]->encode();
-            }
-            userDN = info.certs[0]->getSubjectDN();
+            userDN = IceSSL::Certificate::decode(info->certs[0])->getSubjectDN();
         }
 
         if(_instance->properties()->getPropertyAsInt("Glacier2.AddSSLContext") > 0)
@@ -860,20 +848,20 @@ Glacier2::SessionRouterI::createSessionFromSecureConnection_async(
             os << sslinfo.localPort;
             sslCtx["_SSL.Local.Port"] = os.str();
             sslCtx["_SSL.Local.Host"] = sslinfo.localHost;
-            if(info.certs.size() > 0)
+            if(info->certs.size() > 0)
             {
-                sslCtx["_SSL.PeerCert"] = info.certs[0]->encode();
+                sslCtx["_SSL.PeerCert"] = info->certs[0];
             }
         }
-    }
-    catch(const IceSSL::ConnectionInvalidException&)
-    {
-        amdCB->ice_exception(PermissionDeniedException("not ssl connection"));
-        return;
     }
     catch(const IceSSL::CertificateEncodingException&)
     {
         amdCB->ice_exception(PermissionDeniedException("certificate encoding exception"));
+        return;
+    }
+    catch(const Ice::LocalException&)
+    {
+        amdCB->ice_exception(PermissionDeniedException("connection exception"));
         return;
     }
 

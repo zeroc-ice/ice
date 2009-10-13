@@ -64,6 +64,7 @@ namespace IceInternal
         void finishWrite(Buffer buf);
 
         string type();
+        Ice.ConnectionInfo getInfo();
         void checkSendSize(Buffer buf, int messageSizeMax);
     }
 

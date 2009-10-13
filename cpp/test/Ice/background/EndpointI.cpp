@@ -218,6 +218,12 @@ EndpointI::toString() const
     return "test-" + _endpoint->toString();
 }
 
+Ice::EndpointInfoPtr
+EndpointI::getInfo() const
+{
+    return _endpoint->getInfo();
+}
+
 bool
 EndpointI::operator==(const IceInternal::EndpointI& r) const
 {

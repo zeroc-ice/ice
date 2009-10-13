@@ -1743,6 +1743,41 @@ IceInternal::fdToString(SOCKET fd)
     return addressesToString(localAddr, remoteAddr, peerConnected);
 };
 
+void
+IceInternal::fdToAddressAndPort(SOCKET fd, string& localAddress, int& localPort, string& remoteAddress, int& remotePort)
+{
+    if(fd == INVALID_SOCKET)
+    {
+        localAddress.clear();
+        remoteAddress.clear();
+        localPort = -1;
+        remotePort = -1;
+        return;
+    }
+
+    struct sockaddr_storage localAddr;
+    fdToLocalAddress(fd, localAddr);
+    addrToAddressAndPort(localAddr, localAddress, localPort);
+
+    struct sockaddr_storage remoteAddr;
+    if(fdToRemoteAddress(fd, remoteAddr))
+    {
+        addrToAddressAndPort(remoteAddr, remoteAddress, remotePort);
+    }
+    else
+    {
+        remoteAddress.clear();
+        remotePort = -1;
+    }
+}
+
+void
+IceInternal::addrToAddressAndPort(const struct sockaddr_storage& addr, string& address, int& port)
+{
+    address = inetAddrToString(addr);
+    port = getPort(addr);
+}
+
 std::string
 IceInternal::addressesToString(const struct sockaddr_storage& localAddr, const struct sockaddr_storage& remoteAddr,
                                bool peerConnected)
@@ -1807,6 +1842,10 @@ IceInternal::inetAddrToString(const struct sockaddr_storage& ss)
     {
         size = sizeof(sockaddr_in6);
     }
+    else
+    {
+        return "";
+    }
 
     char namebuf[1024];
     namebuf[0] = '\0';
@@ -1819,17 +1858,7 @@ IceInternal::addrToString(const struct sockaddr_storage& addr)
 {
     ostringstream s;
     string port;
-    s << inetAddrToString(addr) << ':';
-    if(addr.ss_family == AF_INET)
-    {
-        const struct sockaddr_in* addrin = reinterpret_cast<const sockaddr_in*>(&addr);
-        s << ntohs(addrin->sin_port);
-    }
-    else
-    {
-        const struct sockaddr_in6* addrin = reinterpret_cast<const sockaddr_in6*>(&addr);
-        s << ntohs(addrin->sin6_port);
-    }
+    s << inetAddrToString(addr) << ':' << getPort(addr);
     return s.str();
 }
 
@@ -1840,9 +1869,13 @@ IceInternal::isMulticast(const struct sockaddr_storage& addr)
     {
         return IN_MULTICAST(ntohl(reinterpret_cast<const struct sockaddr_in*>(&addr)->sin_addr.s_addr));
     }
-    else
+    else if(addr.ss_family == AF_INET6)
     {
         return IN6_IS_ADDR_MULTICAST(&reinterpret_cast<const struct sockaddr_in6*>(&addr)->sin6_addr);
+    }
+    else
+    {
+        return false;
     }
 }
 
@@ -1853,9 +1886,13 @@ IceInternal::getPort(const struct sockaddr_storage& addr)
     {
         return ntohs(reinterpret_cast<const sockaddr_in*>(&addr)->sin_port);
     }
-    else
+    else if(addr.ss_family == AF_INET6)
     {
         return ntohs(reinterpret_cast<const sockaddr_in6*>(&addr)->sin6_port);
+    }
+    else
+    {
+        return -1;
     }
 }
 
@@ -1868,6 +1905,7 @@ IceInternal::setPort(struct sockaddr_storage& addr, int port)
     }
     else
     {
+        assert(addr.ss_family == AF_INET6);
         reinterpret_cast<sockaddr_in6*>(&addr)->sin6_port = htons(port);
     }
 }

@@ -15,6 +15,7 @@
 module Ice
 {
 
+local class ConnectionInfo;
 local interface Connection;
 
 };

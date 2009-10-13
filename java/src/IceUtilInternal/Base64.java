@@ -82,7 +82,7 @@ encode(byte[] plainSeq)
 
     while((retval.length() - iter) > 76)
     {
-        outString.append(retval.substring(iter, 76));
+        outString.append(retval.substring(iter, iter + 76));
         outString.append("\r\n");
         iter += 76;
     }

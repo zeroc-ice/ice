@@ -1120,7 +1120,7 @@ IceInternal::RoutableReference::toString() const
             a = string(reinterpret_cast<const char*>(buffer.getBuffer()), last - buffer.getBuffer());
         }
         a = IceUtilInternal::escapeString(a, "");
-        if(a.find_first_of(" ") != string::npos)
+        if(a.find_first_of(" :@") != string::npos)
         {
             result.append("\"");
             result.append(a);

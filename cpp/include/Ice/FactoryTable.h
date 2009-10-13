@@ -12,7 +12,7 @@
 
 #include <IceUtil/StaticMutex.h>
 #include <IceUtil/Mutex.h>
-#include <Ice/UserExceptionFactoryF.h>
+#include <Ice/UserExceptionFactory.h>
 #include <Ice/ObjectFactoryF.h>
 #include <string>
 #include <map>

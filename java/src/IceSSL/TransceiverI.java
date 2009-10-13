@@ -274,6 +274,49 @@ final class TransceiverI implements IceInternal.Transceiver
         return _desc;
     }
 
+    public Ice.ConnectionInfo
+    getInfo()
+    {
+        assert(_fd != null);
+
+        IceSSL.SSLConnectionInfo info = new IceSSL.SSLConnectionInfo();
+        java.net.Socket socket = _fd.socket();
+        info.localAddress = socket.getLocalAddress().getHostAddress();
+        info.localPort = socket.getLocalPort();
+        if(socket.getInetAddress() != null)
+        {
+            info.remoteAddress = socket.getInetAddress().getHostAddress();
+            info.remotePort = socket.getPort();
+        }
+        else
+        {
+            info.remoteAddress = "";
+            info.remotePort = -1;
+        }
+        SSLSession session = _engine.getSession();
+        info.cipher = session.getCipherSuite();
+        try
+        {
+            java.util.ArrayList<String> certs = new java.util.ArrayList<String>();
+            for(java.security.cert.Certificate c : session.getPeerCertificates())
+            {
+                StringBuffer s = new StringBuffer("-----BEGIN CERTIFICATE-----\n");
+                s.append(IceUtilInternal.Base64.encode(c.getEncoded()));
+                s.append("\n-----END CERTIFICATE-----");
+                certs.add(s.toString());
+            }
+            info.certs = certs.toArray(new String[0]);
+        }
+        catch(java.security.cert.CertificateEncodingException ex)
+        {
+        }
+        catch(javax.net.ssl.SSLPeerUnverifiedException ex)
+        {
+            // No peer certificates.
+        }
+        return info;
+    }
+
     public void
     checkSendSize(IceInternal.Buffer buf, int messageSizeMax)
     {

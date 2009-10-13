@@ -96,6 +96,11 @@ internal class Transceiver : IceInternal.Transceiver
         return "test-" + _transceiver.type();
     }
 
+    public Ice.ConnectionInfo getInfo()
+    {
+        return _transceiver.getInfo();
+    }
+
     public override string ToString()
     {
         return _transceiver.ToString();

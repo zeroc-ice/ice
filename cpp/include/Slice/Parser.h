@@ -437,7 +437,7 @@ public:
     bool hasClassDecls() const;
     bool hasClassDefs() const;
     bool hasAbstractClassDefs() const;
-    bool hasDataOnlyClasses() const;
+    bool hasNonLocalDataOnlyClasses() const;
     bool hasOtherConstructedOrExceptions() const; // Exceptions or constructed types other than classes.
     bool hasContentsWithMetaData(const std::string&) const;
     bool hasAsyncOps() const;

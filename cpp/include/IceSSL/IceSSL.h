@@ -7,18 +7,11 @@
 //
 // **********************************************************************
 
-#ifndef ICE_USER_EXCEPTION_FACTORYF_H
-#define ICE_USER_EXCEPTION_FACTORYF_H
+#ifndef ICE_SSL_ICE_SSL_H
+#define ICE_SSL_ICE_SSL_H
 
-#include <IceUtil/Handle.h>
-
-namespace IceInternal
-{
-
-class UserExceptionFactory;
-
-typedef ::IceUtil::Handle<UserExceptionFactory> UserExceptionFactoryPtr;
-
-};
+#include <IceSSL/Plugin.h>
+#include <IceSSL/EndpointInfo.h>
+#include <IceSSL/ConnectionInfo.h>
 
 #endif

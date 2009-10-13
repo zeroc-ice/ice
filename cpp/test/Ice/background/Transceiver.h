@@ -30,6 +30,7 @@ public:
 #endif
     virtual std::string type() const;
     virtual std::string toString() const;
+    virtual Ice::ConnectionInfoPtr getInfo() const;
     virtual IceInternal::SocketOperation initialize();
     virtual void checkSendSize(const IceInternal::Buffer&, size_t);
 

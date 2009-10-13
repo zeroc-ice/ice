@@ -28,6 +28,7 @@ namespace IceInternal
         }
 
         public abstract string ice_toString_();
+        public abstract Ice.EndpointInfo getInfo();
         public abstract int CompareTo(object obj);
 
         //

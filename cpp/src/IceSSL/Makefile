@@ -1,3 +1,4 @@
+
 # **********************************************************************
 #
 # Copyright (c) 2003-2009 ZeroC, Inc. All rights reserved.
@@ -18,7 +19,8 @@ TARGETS		= $(call mklibtargets,$(libdir)/$(LIBFILENAME),$(libdir)/$(SONAME),$(li
 OBJS		= AcceptorI.o \
 		  Certificate.o \
                   ConnectorI.o \
-		  Endpoint.o \
+		  EndpointInfo.o \
+		  ConnectionInfo.o \
                   EndpointI.o \
                   Instance.o \
                   PluginI.o \
@@ -29,7 +31,8 @@ OBJS		= AcceptorI.o \
 
 SRCS		= $(OBJS:.o=.cpp)
 
-SLICE_SRCS	= $(SDIR)/Endpoint.ice
+SLICE_SRCS	= $(SDIR)/EndpointInfo.ice \
+		  $(SDIR)/ConnectionInfo.ice
 
 HDIR		= $(headerdir)/IceSSL
 SDIR            = $(slicedir)/IceSSL

@@ -14,7 +14,7 @@
 #include <Ice/ProtocolPluginFacade.h> // Just to get the hostname
 
 #include <IceStorm/Service.h>
-#include <IceSSL/Plugin.h>
+#include <IceSSL/IceSSL.h>
 #include <Glacier2/PermissionsVerifier.h>
 
 #include <IceGrid/TraceLevels.h>
@@ -1239,61 +1239,35 @@ RegistryI::getSSLInfo(const ConnectionPtr& connection, string& userDN)
     Glacier2::SSLInfo sslinfo;
     try
     {
-        IceSSL::ConnectionInfo info = IceSSL::getConnectionInfo(connection);
-
-        if(info.remoteAddr.ss_family == AF_UNSPEC)
+        IceSSL::SSLConnectionInfoPtr info = IceSSL::SSLConnectionInfoPtr::dynamicCast(connection->getInfo());
+        if(!info)
         {
-            //
-            // The remote address may not be available on Windows XP SP2 when using IPv6.
-            //
-            sslinfo.remotePort = 0;
-            sslinfo.remoteHost = "";
-        }
-        else
-        {
-            if(info.remoteAddr.ss_family == AF_INET)
-            {
-                sslinfo.remotePort = ntohs(reinterpret_cast<sockaddr_in*>(&info.remoteAddr)->sin_port);
-            }
-            else
-            {
-                sslinfo.remotePort = ntohs(reinterpret_cast<sockaddr_in6*>(&info.remoteAddr)->sin6_port);
-            }
-            sslinfo.remoteHost = IceInternal::inetAddrToString(info.remoteAddr);
+            PermissionDeniedException exc;
+            exc.reason = "not ssl connection";
+            throw exc;
         }
 
-        if(info.localAddr.ss_family == AF_INET)
+        sslinfo.remotePort = info->remotePort;
+        sslinfo.remoteHost = info->remoteAddress;
+        sslinfo.localPort = info->localPort;
+        sslinfo.localHost = info->localAddress;
+        sslinfo.cipher = info->cipher;
+        sslinfo.certs = info->certs;
+        if(info->certs.size() > 0)
         {
-            sslinfo.localPort = ntohs(reinterpret_cast<sockaddr_in*>(&info.localAddr)->sin_port);
+            userDN = IceSSL::Certificate::decode(info->certs[0])->getSubjectDN();
         }
-        else
-        {
-            sslinfo.localPort = ntohs(reinterpret_cast<sockaddr_in6*>(&info.localAddr)->sin6_port);
-        }
-        sslinfo.localHost = IceInternal::inetAddrToString(info.localAddr);
-
-        sslinfo.cipher = info.cipher;
-
-        if(!info.certs.empty())
-        {
-            sslinfo.certs.resize(info.certs.size());
-            for(unsigned int i = 0; i < info.certs.size(); ++i)
-            {
-                sslinfo.certs[i] = info.certs[i]->encode();
-            }
-            userDN = info.certs[0]->getSubjectDN();
-        }
-    }
-    catch(const IceSSL::ConnectionInvalidException&)
-    {
-        PermissionDeniedException exc;
-        exc.reason = "not ssl connection";
-        throw exc;
     }
     catch(const IceSSL::CertificateEncodingException&)
     {
         PermissionDeniedException exc;
         exc.reason = "certificate encoding exception";
+        throw exc;
+    }
+    catch(const Ice::LocalException&)
+    {
+        PermissionDeniedException exc;
+        exc.reason = "connection exception";
         throw exc;
     }
 

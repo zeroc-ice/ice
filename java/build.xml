@@ -115,7 +115,8 @@
                 <pathelement path="${slice.dir}" />
             </includepath>
             <fileset dir="${slice.dir}/IceSSL">
-                <include name="Endpoint.ice" />
+                <include name="EndpointInfo.ice" />
+                <include name="ConnectionInfo.ice" />
             </fileset>
         </slice2java>
 

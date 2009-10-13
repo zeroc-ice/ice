@@ -17,7 +17,8 @@ TARGETS		= $(LIBNAME) $(DLLNAME)
 OBJS		= AcceptorI.obj \
 		  Certificate.obj \
                   ConnectorI.obj \
-                  Endpoint.obj \
+                  ConnectionInfo.obj \
+                  EndpointInfo.obj \
                   EndpointI.obj \
                   Instance.obj \
                   PluginI.obj \
@@ -58,7 +59,8 @@ $(DLLNAME): $(OBJS) IceSSL.res
 	@if exist $(DLLNAME:.dll=.exp) del /q $(DLLNAME:.dll=.exp)
 
 clean::
-	-del /q Endpoint.cpp $(HDIR)\Endpoint.h
+	-del /q ConnectionInfo.cpp $(HDIR)\ConnectionInfo.h
+	-del /q EndpointInfo.cpp $(HDIR)\EndpointInfo.h
 	-del /q IceSSL.res
 
 install:: all

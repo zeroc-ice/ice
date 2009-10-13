@@ -23,6 +23,8 @@ IceInternal::DefaultsAndOverrides::DefaultsAndOverrides(const PropertiesPtr& pro
     overrideTimeoutValue(-1),
     overrideConnectTimeout(false),
     overrideConnectTimeoutValue(-1),
+    overrideCloseTimeout(false),
+    overrideCloseTimeoutValue(-1),
     overrideCompress(false),
     overrideCompressValue(false),
     overrideSecure(false),
@@ -46,6 +48,13 @@ IceInternal::DefaultsAndOverrides::DefaultsAndOverrides(const PropertiesPtr& pro
     {
         const_cast<bool&>(overrideConnectTimeout) = true;
         const_cast<Int&>(overrideConnectTimeoutValue) = properties->getPropertyAsInt("Ice.Override.ConnectTimeout");
+    }
+
+    value = properties->getProperty("Ice.Override.CloseTimeout");
+    if(!value.empty())
+    {
+        const_cast<bool&>(overrideCloseTimeout) = true;
+        const_cast<Int&>(overrideCloseTimeoutValue) = properties->getPropertyAsInt("Ice.Override.CloseTimeout");
     }
 
     value = properties->getProperty("Ice.Override.Compress");

@@ -317,7 +317,7 @@ IceSSL::checkPath(string& path, const string& defaultDir, bool dir)
     return false;
 }
 
-ConnectionInfo
+IceSSL::ConnectionInfo
 IceSSL::populateConnectionInfo(SSL* ssl, SOCKET fd, const string& adapterName, bool incoming)
 {
     ConnectionInfo info;

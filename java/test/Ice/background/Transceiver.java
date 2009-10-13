@@ -103,6 +103,12 @@ final class Transceiver implements IceInternal.Transceiver
         return _transceiver.toString();
     }
 
+    public Ice.ConnectionInfo
+    getInfo()
+    {
+        return _transceiver.getInfo();
+    }
+
     public void
     checkSendSize(IceInternal.Buffer buf, int messageSizeMax)
     {

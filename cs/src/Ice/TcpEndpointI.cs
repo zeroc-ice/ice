@@ -13,7 +13,7 @@ namespace IceInternal
     using System.Collections.Generic;
     using System.Net;
 
-    sealed class TcpEndpointI : EndpointI, Ice.TcpEndpoint
+    sealed class TcpEndpointI : EndpointI
     {
         internal const short TYPE = 1;
 
@@ -247,6 +247,36 @@ namespace IceInternal
             return s;
         }
 
+        private sealed class InfoI : Ice.TcpEndpointInfo
+        {
+            public InfoI(int to, bool comp, string host, int port) : base(to, comp, host, port)
+            {
+            }
+
+            override public short type()
+            {
+                return TYPE;
+            }
+            
+            override public bool datagram()
+            {
+                return false;
+            }
+                
+            override public bool secure()
+            {
+                return false;
+            }
+        };
+
+        //
+        // Return the endpoint information.
+        //
+        public override Ice.EndpointInfo getInfo()
+        {
+            return new InfoI(_timeout, _compress, _host, _port);
+        }
+
         //
         // Return the endpoint type
         //
@@ -336,22 +366,6 @@ namespace IceInternal
         public override bool secure()
         {
             return false;
-        }
-
-        //
-        // Get the host name.
-        //
-        public string host()
-        {
-            return _host;
-        }
-
-        //
-        // Get the port number.
-        //
-        public int port()
-        {
-            return _port;
         }
 
         //

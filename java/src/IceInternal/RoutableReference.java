@@ -310,7 +310,7 @@ public class RoutableReference extends Reference
             // the adapter id string in quotes.
             //
             String a = IceUtilInternal.StringUtil.escapeString(_adapterId, null);
-            if(IceUtilInternal.StringUtil.findFirstOf(a, " \t\n\r") != -1)
+            if(IceUtilInternal.StringUtil.findFirstOf(a, " :@") != -1)
             {
                 s.append('"');
                 s.append(a);
@@ -657,7 +657,7 @@ public class RoutableReference extends Reference
         //
         for(EndpointI endpoint : allEndpoints)
         {
-            if(!(endpoint instanceof Ice.OpaqueEndpoint))
+            if(!(endpoint instanceof IceInternal.OpaqueEndpointI))
             {
                 endpoints.add(endpoint);
             }

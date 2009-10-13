@@ -9,7 +9,7 @@
 
 package IceInternal;
 
-final class UdpEndpointI extends EndpointI implements Ice.UdpEndpoint
+final class UdpEndpointI extends EndpointI
 {
     final static short TYPE = 3;
 
@@ -397,6 +397,32 @@ final class UdpEndpointI extends EndpointI implements Ice.UdpEndpoint
     }
 
     //
+    // Return the endpoint information.
+    //
+    public Ice.EndpointInfo
+    getInfo()
+    {
+        return new Ice.UdpEndpointInfo(-1, _compress, _host, _port, _protocolMajor, _protocolMinor, _encodingMajor,
+                                       _encodingMinor, _mcastInterface, _mcastTtl)
+            {
+                public short type()
+                {
+                    return TYPE;
+                }
+                
+                public boolean datagram()
+                {
+                    return true;
+                }
+                
+                public boolean secure()
+                {
+                    return false;
+                }
+        };
+    }
+
+    //
     // Return the endpoint type
     //
     public short
@@ -491,43 +517,6 @@ final class UdpEndpointI extends EndpointI implements Ice.UdpEndpoint
     {
         return false;
     }
-
-    //
-    // Get the host name.
-    //
-    public String
-    host()
-    {
-        return _host;
-    }
-
-    //
-    // Get the port number.
-    //
-    public int
-    port()
-    {
-        return _port;
-    }
-
-    //
-    // Get the multicast interface.
-    //
-    public String
-    mcastInterface()
-    {
-        return _mcastInterface;
-    }
-
-    //
-    // Get the multicast time-to-live.
-    //
-    public int
-    mcastTtl()
-    {
-        return _mcastTtl;
-    }
-
 
     //
     // Return a server side transceiver for this endpoint, or null if a

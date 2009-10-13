@@ -13,7 +13,7 @@ namespace IceInternal
     using System.Collections;
     using System.Collections.Generic;
 
-    sealed class OpaqueEndpointI : EndpointI, Ice.OpaqueEndpoint
+    sealed class OpaqueEndpointI : EndpointI
     {
         public OpaqueEndpointI(string str)
         {
@@ -134,6 +134,39 @@ namespace IceInternal
         {
             string val = IceUtilInternal.Base64.encode(_rawBytes);
             return "opaque -t " + _type + " -v " + val;
+        }
+
+        private sealed class InfoI : Ice.OpaqueEndpointInfo
+        {
+            public InfoI(short type, byte[] rawBytes) : base(-1, false, rawBytes)
+            {                
+                _type = type;
+            }
+
+            override public short type()
+            {
+                return _type;
+            }
+                
+            override public bool datagram()
+            {
+                return false;
+            }
+                
+            override public bool secure()
+            {
+                return false;
+            }
+
+            private readonly short _type;
+        };
+
+        //
+        // Return the endpoint information.
+        //
+        public override Ice.EndpointInfo getInfo()
+        {
+            return new InfoI(_type, _rawBytes);
         }
 
         //

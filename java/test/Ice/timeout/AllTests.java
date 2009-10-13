@@ -358,6 +358,41 @@ public class AllTests
         }
         out.println("ok");
 
+        out.print("testing close timeout... ");
+        out.flush();
+        {
+            TimeoutPrx to = TimeoutPrxHelper.checkedCast(obj.ice_timeout(250));
+            Ice.Connection connection = to.ice_getConnection();
+            timeout.holdAdapter(750);
+            connection.close(false);
+            try
+            {
+                connection.getInfo(); // getInfo() doesn't throw in the closing state.
+            }
+            catch(Ice.LocalException ex)
+            {
+                test(false);
+            }
+            try
+            {
+                Thread.sleep(300);
+            }
+            catch(java.lang.InterruptedException ex)
+            {
+            }
+            try
+            {
+                connection.getInfo();
+                test(false);
+            }
+            catch(Ice.CloseConnectionException ex)
+            {
+                // Expected.
+            }
+            timeout.op(); // Ensure adapter is active.
+        }
+        out.println("ok");
+
         out.print("testing timeout overrides... ");
         out.flush();
         {
@@ -461,6 +496,20 @@ public class AllTests
                 // Expected.
             }
             comm.destroy();
+        }
+        {
+            //
+            // Test Ice.Override.CloseTimeout.
+            //
+            Ice.InitializationData initData = new Ice.InitializationData();
+            initData.properties = communicator.getProperties()._clone();
+            initData.properties.setProperty("Ice.Override.CloseTimeout", "200");
+            Ice.Communicator comm = Ice.Util.initialize(initData);
+            Ice.Connection connection = comm.stringToProxy(sref).ice_getConnection();
+            timeout.holdAdapter(750);
+            long now = System.nanoTime();
+            comm.destroy();
+            test(System.nanoTime() - now < 500 * 1000000);
         }
         out.println("ok");
 

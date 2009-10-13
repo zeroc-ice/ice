@@ -8,9 +8,7 @@
 // **********************************************************************
 package test.Ice.background;
 
-import test.Ice.background.Test.TestEndpoint;
-
-final class EndpointI extends IceInternal.EndpointI implements TestEndpoint
+final class EndpointI extends IceInternal.EndpointI
 {
     final static short TYPE_BASE = 100;
 
@@ -38,6 +36,15 @@ final class EndpointI extends IceInternal.EndpointI implements TestEndpoint
     _toString()
     {
         return "test-" + _endpoint.toString();
+    }
+
+    //
+    // Return the endpoint information/
+    //
+    public Ice.EndpointInfo
+    getInfo()
+    {
+        return _endpoint.getInfo();
     }
 
     //

@@ -10,7 +10,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 
-internal class EndpointI : IceInternal.EndpointI, Test.TestEndpoint
+internal class EndpointI : IceInternal.EndpointI
 {
     internal static short TYPE_BASE = 100;
 
@@ -35,6 +35,11 @@ internal class EndpointI : IceInternal.EndpointI, Test.TestEndpoint
     public override string ice_toString_()
     {
         return "test-" + _endpoint.ToString();
+    }
+
+    public override Ice.EndpointInfo getInfo()
+    {
+        return _endpoint.getInfo();
     }
 
     //

@@ -544,6 +544,38 @@ namespace IceInternal
             return "udp";
         }
 
+        public Ice.ConnectionInfo
+        getInfo()
+        {
+            Debug.Assert(_fd != null);
+            Ice.UdpConnectionInfo info = new Ice.UdpConnectionInfo();
+            IPEndPoint localEndpoint = Network.getLocalAddress(_fd);
+            info.localAddress = localEndpoint.Address.ToString();
+            info.localPort = localEndpoint.Port;
+            IPEndPoint remoteEndpoint = Network.getLocalAddress(_fd);
+            if(remoteEndpoint != null)
+            {
+                info.remoteAddress = remoteEndpoint.Address.ToString();
+                info.remotePort = remoteEndpoint.Port;
+            }
+            else
+            {
+                info.remoteAddress = "";
+                info.remotePort = -1;
+            }
+            if(_mcastAddr != null)
+            {
+                info.mcastAddress = _mcastAddr.Address.ToString();
+                info.mcastPort = _mcastAddr.Port;
+            }
+            else
+            {
+                info.mcastAddress = "";
+                info.mcastPort = -1;
+            }
+            return info;
+        }
+
         public void checkSendSize(Buffer buf, int messageSizeMax)
         {
             if(buf.size() > messageSizeMax)

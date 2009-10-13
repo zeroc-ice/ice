@@ -16,10 +16,6 @@
 module Test
 {
 
-local interface TestEndpoint extends Ice::Endpoint
-{
-};
-
 interface Background
 {
     ["ami"] void op();

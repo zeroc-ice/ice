@@ -243,12 +243,7 @@ Slice::Gen::generate(const UnitPtr& p)
         H << "\n#include <Ice/Object.h>";
     }
 
-    if(p->hasNonLocalExceptions())
-    {
-        H << "\n#include <Ice/UserExceptionFactory.h>";
-    }
-
-    if(p->hasDataOnlyClasses() || p->hasNonLocalExceptions())
+    if(p->hasNonLocalDataOnlyClasses() || p->hasNonLocalExceptions())
     {
         H << "\n#include <Ice/FactoryTableInit.h>";
     }

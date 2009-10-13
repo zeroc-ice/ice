@@ -55,7 +55,7 @@ namespace Ice.VisualStudio
             if(_project != null)
             {
                 includeDirList.Items.Clear();
-                txtIceHome.Text = Util.getIceHomeRaw(_project);
+                txtIceHome.Text = Util.getIceHomeRaw(_project, false);
                 txtIceHome.Modified = false;
                 txtExtraOptions.Text = Util.getProjectProperty(_project, Util.PropertyNames.IceExtraOptions);
 

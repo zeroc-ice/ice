@@ -141,6 +141,12 @@ Transceiver::toString() const
     return _transceiver->toString();
 }
 
+Ice::ConnectionInfoPtr
+Transceiver::getInfo() const
+{
+    return _transceiver->getInfo();
+}
+
 void
 Transceiver::checkSendSize(const IceInternal::Buffer& buf, size_t messageSizeMax)
 {

@@ -23,6 +23,51 @@ module Ice
  * The user-level interface to an endpoint.
  *
  **/
+local class EndpointInfo
+{
+    /**
+     *
+     * The timeout for the endpoint in milliseconds. 0 means
+     * non-blocking, -1 means no timeout.
+     *
+     **/
+    int timeout;
+
+    /**
+     *
+     * Specifies whether or not compression should be used if
+     * available when using this endpoint.
+     *
+     */
+    bool compress;
+
+    /**
+     *
+     * Returns the type of the endpoint.
+     *
+     **/
+    ["cpp:const"] short type();
+
+    /**
+     *
+     * Returns true if this endpoint is a datagram endpoint.
+     *
+     **/
+    ["cpp:const"] bool datagram();
+
+    /**
+     *
+     * Returns true if this endpoint is a secure endpoint.
+     *
+     **/
+    ["cpp:const"] bool secure();
+};
+
+/**
+ *
+ * The user-level interface to an endpoint.
+ *
+ **/
 local interface Endpoint
 {
     /**
@@ -36,118 +81,107 @@ local interface Endpoint
 
     /**
      *
-     * Return the timeout for the endpoint in milliseconds.
-     * 0 means non-blocking, -1 means no timeout.
+     * Returns the endpoint information.
      *
-     * @return The timeout.
+     * @return The endpoint information class.
      *
      **/
-    ["cpp:const"] int timeout();
-
-    /**
-     *
-     * Check whether endpoint supports bzip2 compress,
-     * or false otherwise.
-     *
-     * @return Whether compression is enabled.
-     *
-     */
-    ["cpp:const"] bool compress();
+    ["cpp:const"] EndpointInfo getInfo();
 };
 
 /**
  *
- * A TCP endpoint.
+ * Provides access to the address details of a TCP endpoint.
  *
  * @see Endpoint
  *
  **/
-local interface TcpEndpoint extends Endpoint
+local class TcpEndpointInfo extends EndpointInfo
 {
     /**
      * 
-     * Get the host or address configured with
-     * the endpoint.
-     * 
-     * @return The host or address.
+     * The host or address configured with the endpoint.
      *
      **/
-    ["cpp:const"] string host();
+    string host;
 
     /**
      * 
-     * Get the TCP port number.
-     *
-     * @return The port number.
+     * The TCP port number.
      * 
      **/
-    ["cpp:const"] int port();
+    int port;
 };
 
 /**
- * 
- * A UDP endpoint.
+ *
+ * Provides access to the address details of a UDP endpoint.
  *
  * @see Endpoint
  *
  **/
-local interface UdpEndpoint extends Endpoint
+local class UdpEndpointInfo extends EndpointInfo
 {
     /**
      * 
-     * Get the host or address configured with
-     * the endpoint.
-     * 
-     * @return The host or address.
+     * The host or address configured with the endpoint.
      *
      **/
-    ["cpp:const"] string host();
+    string host;
 
     /**
      * 
-     * Get the TCP port number.
+     * The TCP port number.
      *
-     * @return The port number.
-     * 
      **/
-    ["cpp:const"] int port();
-    
+     int port;
+
+     /**
+      *
+      * The protocol version supported by the endpoint.
+      *
+      **/
+     byte protocolMajor;
+     byte protocolMinor;
+
+     /**
+      *
+      * The encoding version supported by the endpoint.
+      *
+      **/
+     byte encodingMajor;
+     byte encodingMinor;
+
     /**
      * 
-     * Get the multicast interface.
-     *
-     * @return The multicast interface.
+     * The multicast interface.
      *
      **/
-    ["cpp:const"] string mcastInterface();
+     string mcastInterface;
 
     /**
      *
-     * Get the multicast time-to-live (or hops).
+     * The multicast time-to-live (or hops).
      *
-     * @return The time-to-live.
-     * 
      **/
-    ["cpp:const"] int mcastTtl();
+     int mcastTtl;
 };
 
 /**
- * 
- * An opaque endpoint.
+ *
+ * Provides access to the details of an opaque endpoint.
  *
  * @see Endpoint
  *
  **/
-local interface OpaqueEndpoint extends Endpoint
+local class OpaqueEndpointInfo extends EndpointInfo
 {
     /**
      *
-     * Return the raw encoding of the opaque endpoint.
-     *
-     * @return The raw encoding.
+     * The raw encoding of the opaque endpoint.
      *
      **/
-    ["cpp:const"] Ice::ByteSeq rawBytes();
+    Ice::ByteSeq rawBytes;
 };
 
 };
