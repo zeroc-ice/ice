@@ -90,7 +90,7 @@ CallbackClient::run(int argc, char* argv[])
     cout << "creating non-ssl session with ssl connection... ";
     try
     {
-        Glacier2::SessionPrx session = router->createSession("nossl", "");
+        Glacier2::SessionPrx session = router->createSession("ssl", "");
         session->ice_ping();
         router->destroySession();
     }

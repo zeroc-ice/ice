@@ -39,7 +39,7 @@ private:
     const int _requestTraceLevel;
     const int _overrideTraceLevel;
     const RequestQueuePtr _requestQueue;
-    const Ice::Context _sslContext;
+    const Ice::Context _context;
 };
 
 }

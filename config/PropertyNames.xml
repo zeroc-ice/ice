@@ -509,7 +509,8 @@ generated from the section label.
     </section>
 
     <section name="Glacier2">
-        <property name="AddSSLContext" />
+        <property name="AddSSLContext" deprecated="true"/>
+        <property name="AddConnectionContext"/>
         <property name="Admin" class="deprecatedobjectadapter" />
         <property name="Client" class="objectadapter"/>
         <property name="Client.AlwaysBatch" />

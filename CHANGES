@@ -33,6 +33,11 @@ General Changes
 These entries apply to all relevant language mappings unless otherwise
 noted.
 
+- Added Glacier2.AddConnectionContext property to enable forwarding
+  connection information into the context of routed invocations. See
+  the manual for more information. Glacier2.AddSSLContext has been
+  deprecated, this new property should be used instead.
+
 - Added Ice.Override.CloseTimeout property. This property overrides
   timeout settings used to close connections.
 
