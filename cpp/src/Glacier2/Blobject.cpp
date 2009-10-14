@@ -137,7 +137,7 @@ private:
 }
 
 Glacier2::Blobject::Blobject(const InstancePtr& instance, const ConnectionPtr& reverseConnection,
-                             const Ice::Context& sslContext) :
+                             const Ice::Context& context) :
     _instance(instance),
     _reverseConnection(reverseConnection),
     _forwardContext(_reverseConnection ?
@@ -152,7 +152,7 @@ Glacier2::Blobject::Blobject(const InstancePtr& instance, const ConnectionPtr& r
     _overrideTraceLevel(reverseConnection ?
                         _instance->properties()->getPropertyAsInt(serverTraceOverride) :
                         _instance->properties()->getPropertyAsInt(clientTraceOverride)),
-    _sslContext(sslContext)
+    _context(context)
 {
     RequestQueueThreadPtr t = _reverseConnection ? _instance->serverRequestQueueThread() : 
                                                    _instance->clientRequestQueueThread();
@@ -337,7 +337,7 @@ Glacier2::Blobject::invoke(ObjectPrx& proxy, const AMD_Object_ice_invokePtr& amd
         bool override;
         try
         {
-            override = _requestQueue->addRequest(new Request(proxy, inParams, current, _forwardContext, _sslContext, 
+            override = _requestQueue->addRequest(new Request(proxy, inParams, current, _forwardContext, _context,
                                                              amdCB));
         }
         catch(const ObjectNotExistException& ex)
@@ -402,11 +402,11 @@ Glacier2::Blobject::invoke(ObjectPrx& proxy, const AMD_Object_ice_invokePtr& amd
             bool sent;
             if(_forwardContext)
             {
-                if(_sslContext.size() > 0)
+                if(_context.size() > 0)
                 {
                     Ice::Context ctx = current.ctx;
-                    ctx.insert(_sslContext.begin(), _sslContext.end());
-                    sent = proxy->ice_invoke_async(amiCB, current.operation, current.mode, inParams);
+                    ctx.insert(_context.begin(), _context.end());
+                    sent = proxy->ice_invoke_async(amiCB, current.operation, current.mode, inParams, ctx);
                 }
                 else
                 {
@@ -415,9 +415,9 @@ Glacier2::Blobject::invoke(ObjectPrx& proxy, const AMD_Object_ice_invokePtr& amd
             }
             else
             {
-                if(_sslContext.size() > 0)
+                if(_context.size() > 0)
                 {
-                    sent = proxy->ice_invoke_async(amiCB, current.operation, current.mode, inParams, _sslContext);
+                    sent = proxy->ice_invoke_async(amiCB, current.operation, current.mode, inParams, _context);
                 }
                 else
                 {

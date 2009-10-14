@@ -33,6 +33,11 @@ General Changes
 These entries apply to all relevant language mappings unless otherwise
 noted.
 
+- Added Glacier2.AddConnectionContext property to enable forwarding
+  connection information into the context of routed invocations. See
+  the manual for more information. Glacier2.AddSSLContext has been
+  deprecated, this new property should be used instead.
+
 - Added Ice.Override.CloseTimeout property. This property overrides
   timeout settings used to close connections.
 
@@ -167,20 +172,6 @@ noted.
   currently available when an endpoint is using a wildcard host and
   the published endpoints for an object adapter. Both of these traces
   will be shown when Ice.Trace.Network >= 1.
-
-- Renamed the context entries added by Glacier2 for secure sessions
-  when Glacier2.AddSSLContext is set as follows:
-
-  SSL.Active            -> _SSL.Active
-  SSL.Cipher            -> _SSL.Cipher
-  SSL.Remote.Host       -> _SSL.Remote.Host
-  SSL.Remote.Port       -> _SSL.Remote.Port
-  SSL.Local.Host        -> _SSL.Local.Host
-  SSL.Local.Port        -> _SSL.Local.Port
-  SSL.PeerCert          -> _SSL.PeerCert
-
-  As of this release, context names beginning with '_' are reserved
-  for Ice.
 
 - Added new property, Ice.Trace.ThreadPool, that when set >= 1 enables
   tracing of thread pool creation as the growing/shrinking of dynamic

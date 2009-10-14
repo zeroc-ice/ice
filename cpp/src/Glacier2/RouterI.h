@@ -69,7 +69,7 @@ private:
     const std::string _userId;
     const SessionPrx _session;
     const Ice::Identity _controlId;
-    const Ice::Context _sslContext;
+    const Ice::Context _context;
     const IceUtil::Mutex _timestampMutex;
     mutable IceUtil::Time _timestamp;
 };

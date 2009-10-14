@@ -40,7 +40,7 @@ class CreateSession : public IceUtil::Shared
 {
 public:
 
-    CreateSession(const SessionRouterIPtr&, const std::string&, const Ice::Current&, const Ice::Context&);
+    CreateSession(const SessionRouterIPtr&, const std::string&, const Ice::Current&);
 
     void create();
     void addPendingCallback(const CreateSessionPtr&);
@@ -65,7 +65,7 @@ protected:
     const SessionRouterIPtr _sessionRouter;
     const std::string _user;
     const Ice::Current _current;
-    Ice::Context _sslContext;
+    Ice::Context _context;
     std::vector<CreateSessionPtr> _pendingCallbacks;
     SessionControlPrx _control;
     FilterManagerPtr _filterManager;

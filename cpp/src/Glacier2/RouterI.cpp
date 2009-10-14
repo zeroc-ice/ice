@@ -20,14 +20,14 @@ using namespace Glacier2;
 
 Glacier2::RouterI::RouterI(const InstancePtr& instance, const ConnectionPtr& connection, const string& userId, 
                            const SessionPrx& session, const Identity& controlId, const FilterManagerPtr& filters,
-                           const Ice::Context& sslContext) :
+                           const Ice::Context& context) :
     _instance(instance),
-    _clientBlobject(new ClientBlobject(_instance, filters, sslContext)),
+    _clientBlobject(new ClientBlobject(_instance, filters, context)),
     _connection(connection),
     _userId(userId),
     _session(session),
     _controlId(controlId),
-    _sslContext(sslContext),
+    _context(context),
     _timestamp(IceUtil::Time::now(IceUtil::Time::Monotonic))
 {
     //
@@ -91,9 +91,9 @@ Glacier2::RouterI::destroy(const AMI_Session_destroyPtr& amiCB)
             }
         }
 
-        if(_sslContext.size() > 0)
+        if(_context.size() > 0)
         {
-            _session->destroy_async(amiCB, _sslContext);
+            _session->destroy_async(amiCB, _context);
         }
         else
         {
