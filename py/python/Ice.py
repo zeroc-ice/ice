@@ -252,16 +252,16 @@ import Ice_Router_ice
 import Ice_ServantLocator_ice
 
 #
-# Replace Endpoint with our implementation.
+# Replace EndpointInfo with our implementation.
 #
-del Endpoint
-Endpoint =  IcePy.Endpoint
-del TcpEndpoint
-TcpEndpoint =  IcePy.TcpEndpoint
-del UdpEndpoint
-UdpEndpoint =  IcePy.UdpEndpoint
-del OpaqueEndpoint
-OpaqueEndpoint =  IcePy.OpaqueEndpoint
+#del EndpointInfo
+#Endpoint =  IcePy.EndpointInfo
+#del TcpEndpointInfo
+#TcpEndpointInfo =  IcePy.TcpEndpointInfo
+#del UdpEndpointInfo
+#UdpEndpointInfo =  IcePy.UdpEndpointInfo
+#del OpaqueEndpointInfo
+#OpaqueEndpointInfo =  IcePy.OpaqueEndpointInfo
 
 class ThreadNotification(object):
     '''Base class for thread notification callbacks. A subclass must

@@ -24,7 +24,7 @@ Ice/Stats.rb: $(slicedir)/Ice/Stats.ice
 Ice/Process.rb: $(slicedir)/Ice/Process.ice
 Ice/ProcessF.rb: $(slicedir)/Ice/ProcessF.ice
 Ice/FacetMap.rb: $(slicedir)/Ice/FacetMap.ice
-Ice/Connection.rb: $(slicedir)/Ice/Connection.ice $(slicedir)/Ice/ObjectAdapterF.ice $(slicedir)/Ice/Identity.ice
+Ice/Connection.rb: $(slicedir)/Ice/Connection.ice $(slicedir)/Ice/ObjectAdapterF.ice $(slicedir)/Ice/Identity.ice $(slicedir)/Ice/Endpoint.ice $(slicedir)/Ice/BuiltinSequences.ice $(slicedir)/Ice/EndpointF.ice
 Ice/ConnectionF.rb: $(slicedir)/Ice/ConnectionF.ice
 Ice/SliceChecksumDict.rb: $(slicedir)/Ice/SliceChecksumDict.ice
 Ice/Endpoint.rb: $(slicedir)/Ice/Endpoint.ice $(slicedir)/Ice/BuiltinSequences.ice $(slicedir)/Ice/EndpointF.ice

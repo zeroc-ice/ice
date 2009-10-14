@@ -609,29 +609,29 @@ def allTests(communicator, collocated):
 
     print "ok"
 
-    print "testing endpoint information...",
+    #print "testing endpoint information...",
 
-    p1 = communicator.stringToProxy("test -t:tcp -h tcphost -p 10000 -t 1200 -z:udp -h udphost -p 10001 --interface eth0 --ttl 5:opaque -t 100 -v ABCD");
-    endps = p1.ice_getEndpoints();
+    #p1 = communicator.stringToProxy("test -t:tcp -h tcphost -p 10000 -t 1200 -z:udp -h udphost -p 10001 --interface eth0 --ttl 5:opaque -t 100 -v ABCD");
+    #endps = p1.ice_getEndpoints();
 
-    test(isinstance(endps[0], Ice.TcpEndpoint));
-    tcpEndpoint = endps[0];
-    test(tcpEndpoint.host() == "tcphost");
-    test(tcpEndpoint.port() == 10000);
-    test(tcpEndpoint.timeout() == 1200);
-    test(tcpEndpoint.compress());
+    #test(isinstance(endps[0], Ice.TcpEndpoint));
+    #tcpEndpoint = endps[0];
+    #test(tcpEndpoint.host() == "tcphost");
+    #test(tcpEndpoint.port() == 10000);
+    #test(tcpEndpoint.timeout() == 1200);
+    #test(tcpEndpoint.compress());
 
-    test(isinstance(endps[1], Ice.UdpEndpoint));
-    udpEndpoint = endps[1];
-    test(udpEndpoint.host() == "udphost");
-    test(udpEndpoint.port() == 10001);
-    test(udpEndpoint.mcastInterface() == "eth0");
-    test(udpEndpoint.mcastTtl() == 5);
-    test(udpEndpoint.timeout() == -1);
-    test(not udpEndpoint.compress());
+    #test(isinstance(endps[1], Ice.UdpEndpoint));
+    #udpEndpoint = endps[1];
+    #test(udpEndpoint.host() == "udphost");
+    #test(udpEndpoint.port() == 10001);
+    #test(udpEndpoint.mcastInterface() == "eth0");
+    #test(udpEndpoint.mcastTtl() == 5);
+    #test(udpEndpoint.timeout() == -1);
+    #test(not udpEndpoint.compress());
 
-    test(isinstance(endps[2], Ice.OpaqueEndpoint));
+    #test(isinstance(endps[2], Ice.OpaqueEndpoint));
 
-    print "ok"
+    #print "ok"
 
     return cl

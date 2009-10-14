@@ -30,11 +30,6 @@ class Server(Ice.Application):
 
         adapter = self.communicator().createObjectAdapter("Hello")
         adapter.add(HelloI(), self.communicator().stringToIdentity("hello"))
-
-        endpoints = adapter.getEndpoints()
-        for i in range(0, len(endpoints)):
-           print endpoints[i].timeout()
-
         adapter.activate()
         self.communicator().waitForShutdown()
         return 0

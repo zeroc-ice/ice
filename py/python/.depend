@@ -27,7 +27,7 @@ Ice_Stats_ice.py: $(slicedir)/Ice/Stats.ice
 Ice_Process_ice.py: $(slicedir)/Ice/Process.ice
 Ice_ProcessF_ice.py: $(slicedir)/Ice/ProcessF.ice
 Ice_FacetMap_ice.py: $(slicedir)/Ice/FacetMap.ice
-Ice_Connection_ice.py: $(slicedir)/Ice/Connection.ice $(slicedir)/Ice/ObjectAdapterF.ice $(slicedir)/Ice/Identity.ice
+Ice_Connection_ice.py: $(slicedir)/Ice/Connection.ice $(slicedir)/Ice/ObjectAdapterF.ice $(slicedir)/Ice/Identity.ice $(slicedir)/Ice/Endpoint.ice $(slicedir)/Ice/BuiltinSequences.ice $(slicedir)/Ice/EndpointF.ice
 Ice_ConnectionF_ice.py: $(slicedir)/Ice/ConnectionF.ice
 Ice_SliceChecksumDict_ice.py: $(slicedir)/Ice/SliceChecksumDict.ice
 Ice_Endpoint_ice.py: $(slicedir)/Ice/Endpoint.ice $(slicedir)/Ice/BuiltinSequences.ice $(slicedir)/Ice/EndpointF.ice

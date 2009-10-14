@@ -95,6 +95,7 @@ clean::
 	-rm -f V32FormatDB.h V32FormatDB.cpp
 	-rm -f V31FormatDB.h V31FormatDB.cpp
 	-rm -f LLUMap.h LLUMap.cpp
+	-rm -f LinkRecord.h LinkRecord.cpp
 
 install:: all
 	$(call installlib,$(install_libdir),$(libdir),$(LIBFILENAME),$(SONAME),$(LIBNAME))
