@@ -66,7 +66,7 @@ demos = [
 ]
 
 if not Util.isNoServices():
-    demos.append(["IceBox/hello", "IceGrid/icebox"])
+    demos += ["IceBox/hello", "IceGrid/icebox"]
 
 if __name__ == "__main__":
     Util.run(demos)

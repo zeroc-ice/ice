@@ -23,7 +23,7 @@ Public NotInheritable Class CallbackI
     End Sub
 
     Public Overloads Overrides Sub shutdown(ByVal current As Ice.Current)
-        Console.WriteLine("Shutting down...")
+        Console.WriteLine("shutting down...")
         Try
             current.adapter.getCommunicator().shutdown()
         Catch ex As System.Exception

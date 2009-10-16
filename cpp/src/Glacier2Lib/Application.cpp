@@ -378,7 +378,7 @@ Glacier2::Application::doMain(Ice::StringSeq& args, const Ice::InitializationDat
         }
         catch(const Ice::ConnectionLostException&)
         {
-            // Expected: the router closed the connection.
+            // Expected if another thread invoked on an object from the session concurrently.
         }
         catch(const Glacier2::SessionNotExistException&)
         {

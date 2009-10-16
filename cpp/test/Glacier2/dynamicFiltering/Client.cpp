@@ -138,16 +138,7 @@ SessionControlClient::run(int argc, char* argv[])
     //
     // Cleanup.
     //
-    try
-    {
-        router->destroySession();
-    }
-    catch(const ConnectionLostException&)
-    {
-    }
-    catch(const CloseConnectionException&)
-    {
-    }
+    router->destroySession();
 
     cout << "testing shutdown... " << flush;
 

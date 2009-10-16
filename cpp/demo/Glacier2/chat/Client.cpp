@@ -199,16 +199,7 @@ private:
 
         if(_router)
         {
-            try
-            {
-                _router->destroySession();
-            }
-            catch(const Ice::ConnectionLostException&)
-            {
-                //
-                // Expected: the router closed the connection.
-                //
-            }
+            _router->destroySession();
             _router = 0;
         }
     }

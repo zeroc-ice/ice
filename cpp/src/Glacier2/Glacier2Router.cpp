@@ -144,6 +144,18 @@ Glacier2::RouterService::start(int argc, char* argv[])
         error("property `" + clientEndpointsProperty + "' is not set");
         return false;
     }
+    const string clientACMProperty = "Glacier2.Client.ACM";
+    if(properties->getProperty(clientACMProperty).empty())
+    {
+        //
+        // Set the client object adapter ACM timeout to the session timeout * 2. If no
+        // session timeout is set, ACM is disabled for the client object adapter.
+        //
+        ostringstream os;
+        os << properties->getPropertyAsInt("Glacier2.SessionTimeout") * 2;
+        properties->setProperty(clientACMProperty, os.str());
+    }
+
     ObjectAdapterPtr clientAdapter = communicator()->createObjectAdapter("Glacier2.Client");
 
     //
@@ -553,11 +565,13 @@ Glacier2::RouterService::initializeCommunicator(int& argc, char* argv[],
     initData.properties->setProperty("Ice.Default.Router", "");
     
     //
-    // No active connection management is permitted with
-    // Glacier2. Connections must remain established.
+    // Active connection management is permitted with Glacier2. For
+    // the client object adapter, the ACM timeout is set to the
+    // session timeout to ensure client connections are not closed
+    // prematurely,
     //
-    initData.properties->setProperty("Ice.ACM.Client", "0");
-    initData.properties->setProperty("Ice.ACM.Server", "0");
+    //initData.properties->setProperty("Ice.ACM.Client", "0");
+    //initData.properties->setProperty("Ice.ACM.Server", "0");
 
     //
     // We do not need to set Ice.RetryIntervals to -1, i.e., we do

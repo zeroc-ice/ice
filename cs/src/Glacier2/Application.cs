@@ -455,7 +455,7 @@ public abstract class Application : Ice.Application
             }
             catch(Ice.ConnectionLostException)
             {
-                // Expected: the router closed the connection.
+                // Expected if another thread invoked on an object from the session concurrently.
             }
             catch(Glacier2.SessionNotExistException)
             {

@@ -342,10 +342,6 @@ public class Client
                 try
                 {
                     router.destroySession();
-                    test(false);
-                }
-                catch(Ice.ConnectionLostException)
-                {
                 }
                 catch(Ice.LocalException)
                 {

@@ -33,6 +33,18 @@ General Changes
 These entries apply to all relevant language mappings unless otherwise
 noted.
 
+- Calling Glacier2::Router::destroySession() no longer raises an
+  Ice::ConnectionLostException exception. Glacier2 doesn't forcefully
+  close anymore the connection but instead relies on Glacier2
+  activation connection management for client connections to close it.
+
+- Glacier2 has been changed to allow enabling active connection
+  management. Active connection management is enabled by default for
+  Glacier2 client connections and if Glacier2.SessionTimeout is set.
+  The ACM timeout is set to twice the value of the session timeout. If
+  session timeout is disabled, ACM is also disabled for client
+  connections.
+
 - Added support for per-object adapter ACM timeout. This timeout is
   set with the <adapter>.ACM property. If not set, the connections
   from the object adapter will use by default the ACM timeout set at

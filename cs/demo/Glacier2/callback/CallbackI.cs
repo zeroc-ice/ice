@@ -27,7 +27,7 @@ public sealed class CallbackI : CallbackDisp_
 
     public override void shutdown(Ice.Current current)
     {
-        Console.WriteLine("Shutting down...");
+        Console.WriteLine("shutting down...");
         try
         {
             current.adapter.getCommunicator().shutdown();

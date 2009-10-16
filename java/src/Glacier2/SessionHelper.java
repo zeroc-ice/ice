@@ -367,7 +367,7 @@ public class SessionHelper
         }
         catch(Ice.ConnectionLostException e)
         {
-            // Expected
+            // Expected if another thread invoked on an object from the session concurrently.
         }
         catch(SessionNotExistException e)
         {

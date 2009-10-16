@@ -140,10 +140,6 @@ public:
         try
         {
             router->destroySession();
-            test(false);
-        }
-        catch(const Ice::ConnectionLostException&)
-        {
         }
         catch(const Ice::LocalException&)
         {
@@ -257,10 +253,11 @@ public:
         try
         {
             _router->destroySession();
-            test(false);
         }
         catch(const Ice::ConnectionLostException&)
         {
+            // Expected if the thread invokes shortly after the session is destroyed.
+            // In this case, Glacier2 closes forcefully the connection.
         }
         catch(const Ice::CommunicatorDestroyedException&)
         {
@@ -834,10 +831,6 @@ CallbackClient::run(int argc, char* argv[])
         try
         {
             router->destroySession();
-            test(false);
-        }
-        catch(const Ice::ConnectionLostException&)
-        {
         }
         catch(const Ice::LocalException&)
         {

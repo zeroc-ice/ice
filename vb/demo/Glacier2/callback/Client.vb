@@ -215,8 +215,6 @@ Module Glacier2callbackC
                 router.destroySession()
             Catch ex As Glacier2.SessionNotExistException
                 Console.Error.WriteLine(ex)
-            Catch ex As Ice.ConnectionLostException
-                ' Expected: the router closed the connection.
             End Try
 
             Return 0

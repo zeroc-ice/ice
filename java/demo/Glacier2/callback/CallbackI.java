@@ -28,7 +28,7 @@ public final class CallbackI extends _CallbackDisp
     public void
     shutdown(Ice.Current current)
     {
-        System.out.println("Shutting down...");
+        System.out.println("shutting down...");
         try
         {
             current.adapter.getCommunicator().shutdown();

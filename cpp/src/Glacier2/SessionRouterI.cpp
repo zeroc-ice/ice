@@ -966,7 +966,6 @@ Glacier2::SessionRouterI::destroySession(const ConnectionPtr& connection)
         
         if(_destroy)
         {
-            connection->close(true);
             throw ObjectNotExistException(__FILE__, __LINE__);
         }
         
@@ -1026,7 +1025,6 @@ Glacier2::SessionRouterI::getRouter(const ConnectionPtr& connection, const Ice::
 
     if(_destroy)
     {
-        connection->close(true);
         throw ObjectNotExistException(__FILE__, __LINE__);
     }
 

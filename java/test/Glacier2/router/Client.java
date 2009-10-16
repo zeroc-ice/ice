@@ -362,14 +362,10 @@ public class Client extends test.Util.Application
             try
             {
                 router.destroySession();
-                test(false);
             }
             catch(Glacier2.SessionNotExistException ex)
             {
                 test(false);
-            }
-            catch(Ice.ConnectionLostException ex)
-            {
             }
             catch(Ice.LocalException ex)
             {

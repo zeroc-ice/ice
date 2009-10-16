@@ -55,9 +55,6 @@ CallbackClient::run(int argc, char* argv[])
         session->ice_ping();
         router->destroySession();
     }
-    catch(const Ice::ConnectionLostException&)
-    {
-    }
     catch(const Glacier2::PermissionDeniedException&)
     {
         test(false);
@@ -94,9 +91,6 @@ CallbackClient::run(int argc, char* argv[])
         session->ice_ping();
         router->destroySession();
     }
-    catch(const Ice::ConnectionLostException&)
-    {
-    }
     catch(const Glacier2::PermissionDeniedException&)
     {
         test(false);
@@ -109,9 +103,6 @@ CallbackClient::run(int argc, char* argv[])
         Glacier2::SessionPrx session = router->createSessionFromSecureConnection();
         session->ice_ping();
         router->destroySession();
-    }
-    catch(const Ice::ConnectionLostException&)
-    {
     }
     catch(const Glacier2::PermissionDeniedException&)
     {

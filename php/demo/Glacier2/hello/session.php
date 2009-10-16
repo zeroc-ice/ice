@@ -44,12 +44,6 @@ try
                 $router = Glacier2_RouterPrxHelper::uncheckedCast($ICE->getDefaultRouter());
                 $router->destroySession();
             }
-            catch(Ice_ConnectionLostException $ex)
-            {
-                //
-                // This exception is expected when the session is destroyed.
-                //
-            }
             catch(Glacier2_SessionNotExistException $ex)
             {
                 //

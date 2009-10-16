@@ -67,8 +67,6 @@ Glacier2::RouterI::~RouterI()
 void
 Glacier2::RouterI::destroy(const AMI_Session_destroyPtr& amiCB)
 {
-    _connection->close(true);
-
     if(_session)
     {
         if(_instance->serverObjectAdapter())
