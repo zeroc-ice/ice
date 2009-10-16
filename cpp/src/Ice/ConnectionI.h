@@ -308,7 +308,6 @@ private:
     int _dispatchCount;
 
     State _state; // The current state.
-    IceUtil::Time _stateTime; // The last time when the state was changed.
 };
 
 }

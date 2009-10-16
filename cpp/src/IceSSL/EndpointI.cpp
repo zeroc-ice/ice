@@ -351,7 +351,7 @@ IceSSL::EndpointI::connectors_async(const IceInternal::EndpointI_connectorsPtr& 
 IceInternal::AcceptorPtr
 IceSSL::EndpointI::acceptor(IceInternal::EndpointIPtr& endp, const string& adapterName) const
 {
-    AcceptorI* p = new AcceptorI(_instance, adapterName, _host, _port);
+    AcceptorI* p = new AcceptorI(_instance, SSLEndpointInfoPtr::dynamicCast(getInfo()), adapterName);
     endp = new EndpointI(_instance, _host, p->effectivePort(), _timeout, _connectionId, _compress);
     return p;
 }
@@ -502,7 +502,8 @@ IceSSL::EndpointI::connectors(const vector<struct sockaddr_storage>& addresses) 
     vector<IceInternal::ConnectorPtr> connectors;
     for(unsigned int i = 0; i < addresses.size(); ++i)
     {
-        connectors.push_back(new ConnectorI(_instance, _host, addresses[i], _timeout, _connectionId));
+        connectors.push_back(new ConnectorI(_instance, SSLEndpointInfoPtr::dynamicCast(getInfo()), addresses[i],
+                                            _connectionId));
     }
     return connectors;
 }

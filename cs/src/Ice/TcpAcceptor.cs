@@ -101,7 +101,7 @@ namespace IceInternal
             Socket acceptFd = _acceptFd;
             _acceptFd = null;
             _acceptError = null;
-            return new TcpTransceiver(instance_, acceptFd, null, true);
+            return new TcpTransceiver(instance_, _endpointInfo, acceptFd, null, true);
         }
 
         public override string ToString()
@@ -114,16 +114,18 @@ namespace IceInternal
             return _addr.Port;
         }
 
-        internal TcpAcceptor(Instance instance, string host, int port)
+        internal TcpAcceptor(Instance instance, Ice.TcpEndpointInfo endpointInfo)
         {
             instance_ = instance;
+            _endpointInfo = endpointInfo;
             _traceLevels = instance.traceLevels();
             _logger = instance.initializationData().logger;
             _backlog = instance.initializationData().properties.getPropertyAsIntWithDefault("Ice.TCP.Backlog", 511);
 
             try
             {
-                _addr = Network.getAddressForServer(host, port, instance_.protocolSupport());
+                _addr = 
+                    Network.getAddressForServer(_endpointInfo.host, _endpointInfo.port, instance_.protocolSupport());
                 _fd = Network.createSocket(false, _addr.AddressFamily);
                 Network.setBlock(_fd, false);
                 Network.setTcpBufSize(_fd, instance_.initializationData().properties, _logger);
@@ -159,6 +161,7 @@ namespace IceInternal
         }
 
         private Instance instance_;
+        private Ice.TcpEndpointInfo _endpointInfo;
         private TraceLevels _traceLevels;
         private Ice.Logger _logger;
         private Socket _fd;

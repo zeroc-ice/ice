@@ -188,7 +188,7 @@ IceSSL::AcceptorI::accept()
     // SSL handshaking is performed in TransceiverI::initialize, since
     // accept must not block.
     //
-    return new TransceiverI(_instance, fd, _adapterName);
+    return new TransceiverI(_instance, _endpointInfo, fd, _adapterName);
 }
 
 string
@@ -210,11 +210,13 @@ IceSSL::AcceptorI::effectivePort() const
     }
 }
 
-IceSSL::AcceptorI::AcceptorI(const InstancePtr& instance, const string& adapterName, const string& host, int port) :
+IceSSL::AcceptorI::AcceptorI(const InstancePtr& instance, const SSLEndpointInfoPtr& endpointInfo,
+                             const string& adapterName) :
     _instance(instance),
+    _endpointInfo(endpointInfo),
     _adapterName(adapterName),
     _logger(instance->communicator()->getLogger()),
-    _addr(IceInternal::getAddressForServer(host, port, instance->protocolSupport()))
+    _addr(IceInternal::getAddressForServer(_endpointInfo->host, _endpointInfo->port, instance->protocolSupport()))
 #ifdef ICE_USE_IOCP
     , _acceptFd(INVALID_SOCKET),
     _info(IceInternal::SocketOperationRead)

@@ -16,8 +16,10 @@ TARGETS		= $(LIBNAME) $(DLLNAME)
 
 OBJS		= Communicator.obj \
 		  Connection.obj \
+		  ConnectionInfo.obj \
 		  Current.obj \
 		  Endpoint.obj \
+		  EndpointInfo.obj \
 		  ImplicitContext.obj \
 		  Init.obj \
 		  Logger.obj \

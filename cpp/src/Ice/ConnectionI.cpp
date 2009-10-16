@@ -1521,8 +1521,7 @@ Ice::ConnectionI::ConnectionI(const InstancePtr& instance,
     _readStream(_instance.get()),
     _writeStream(_instance.get()),
     _dispatchCount(0),
-    _state(StateNotInitialized),
-    _stateTime(IceUtil::Time::now(IceUtil::Time::Monotonic))
+    _state(StateNotInitialized)
 {
 
     int& compressionLevel = const_cast<int&>(_compressionLevel);
@@ -1786,7 +1785,6 @@ Ice::ConnectionI::setState(State state)
     }
 
     _state = state;
-    _stateTime = IceUtil::Time::now(IceUtil::Time::Monotonic);
 
     notifyAll();
 

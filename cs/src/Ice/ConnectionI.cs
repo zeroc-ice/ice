@@ -1436,7 +1436,6 @@ namespace Ice
             _writeStream = new IceInternal.BasicStream(instance);
             _dispatchCount = 0;
             _state = StateNotInitialized;
-            _stateTime = IceInternal.Time.currentMonotonicTimeMillis();
 
             _compressionLevel = initData.properties.getPropertyAsIntWithDefault("Ice.Compression.Level", 1);
             if(_compressionLevel < 1)
@@ -1684,7 +1683,6 @@ namespace Ice
             }
 
             _state = state;
-            _stateTime = IceInternal.Time.currentMonotonicTimeMillis();
 
             Monitor.PulseAll(this);
 
@@ -2563,7 +2561,6 @@ namespace Ice
         private int _dispatchCount;
 
         private int _state; // The current state.
-        private long _stateTime; // The last time when the state was changed.
 
         private IceInternal.Incoming _incomingCache;
         private object _incomingCacheMutex = new object();

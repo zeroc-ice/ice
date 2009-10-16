@@ -12,8 +12,10 @@
 #endif
 #include <Communicator.h>
 #include <Connection.h>
+#include <ConnectionInfo.h>
 #include <Current.h>
 #include <Endpoint.h>
+#include <EndpointInfo.h>
 #include <ImplicitContext.h>
 #include <Logger.h>
 #include <ObjectAdapter.h>
@@ -131,11 +133,19 @@ initIcePy(void)
     {
         return;
     }
+    if(!initConnectionInfo(module))
+    {
+        return;
+    }
     if(!initImplicitContext(module))
     {
         return;
     }
     if(!initEndpoint(module))
+    {
+        return;
+    }
+    if(!initEndpointInfo(module))
     {
         return;
     }

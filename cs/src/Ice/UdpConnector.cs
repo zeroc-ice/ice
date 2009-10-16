@@ -18,7 +18,7 @@ namespace IceInternal
     {
         public Transceiver connect()
         {
-            return new UdpTransceiver(instance_, _addr, _mcastInterface, _mcastTtl);
+            return new UdpTransceiver(instance_, _endpointInfo, _addr);
         }
 
         public short type()
@@ -29,23 +29,16 @@ namespace IceInternal
         //
         // Only for use by TcpEndpoint
         //
-        internal UdpConnector(Instance instance, IPEndPoint addr, string mcastInterface, int mcastTtl,
-                              byte protocolMajor, byte protocolMinor, byte encodingMajor, byte encodingMinor,
-                              string connectionId)
+        internal UdpConnector(Instance instance, Ice.UdpEndpointInfo endpointInfo, IPEndPoint addr, string connectionId)
         {
             instance_ = instance;
+            _endpointInfo = endpointInfo;
             _addr = addr;
-            _mcastInterface = mcastInterface;
-            _mcastTtl = mcastTtl;
-            _protocolMajor = protocolMajor;
-            _protocolMinor = protocolMinor;
-            _encodingMajor = encodingMajor;
-            _encodingMinor = encodingMinor;
             _connectionId = connectionId;
 
             _hashCode = _addr.GetHashCode();
-            _hashCode = 5 * _hashCode + _mcastInterface.GetHashCode();
-            _hashCode = 5 * _hashCode + _mcastTtl.GetHashCode();
+            _hashCode = 5 * _hashCode + _endpointInfo.mcastInterface.GetHashCode();
+            _hashCode = 5 * _hashCode + _endpointInfo.mcastTtl.GetHashCode();
             _hashCode = 5 * _hashCode + _connectionId.GetHashCode();
         }
 
@@ -72,32 +65,32 @@ namespace IceInternal
                 return false;
             }
 
-            if(_protocolMajor != p._protocolMajor)
+            if(_endpointInfo.protocolMajor != p._endpointInfo.protocolMajor)
             {
                 return false;
             }
 
-            if(_protocolMinor != p._protocolMinor)
+            if(_endpointInfo.protocolMinor != p._endpointInfo.protocolMinor)
             {
                 return false;
             }
 
-            if(_encodingMajor != p._encodingMajor)
+            if(_endpointInfo.encodingMajor != p._endpointInfo.encodingMajor)
             {
                 return false;
             }
 
-            if(_encodingMinor != p._encodingMinor)
+            if(_endpointInfo.encodingMinor != p._endpointInfo.encodingMinor)
             {
                 return false;
             }
 
-            if(!_mcastInterface.Equals(p._mcastInterface))
+            if(!_endpointInfo.mcastInterface.Equals(p._endpointInfo.mcastInterface))
             {
                 return false;
             }
 
-            if(_mcastTtl != p._mcastTtl)
+            if(_endpointInfo.mcastTtl != p._endpointInfo.mcastTtl)
             {
                 return false;
             }
@@ -116,13 +109,8 @@ namespace IceInternal
         }
 
         private Instance instance_;
+        private Ice.UdpEndpointInfo _endpointInfo;
         private IPEndPoint _addr;
-        private string _mcastInterface;
-        private int _mcastTtl;
-        private byte _protocolMajor;
-        private byte _protocolMinor;
-        private byte _encodingMajor;
-        private byte _encodingMinor;
         private string _connectionId;
         private int _hashCode;
     }

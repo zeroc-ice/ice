@@ -39,7 +39,7 @@ final class ConnectorI implements IceInternal.Connector
             try
             {
                 javax.net.ssl.SSLEngine engine = _instance.createSSLEngine(false);
-                return new TransceiverI(_instance, engine, fd, _host, connected, false, "");
+                return new TransceiverI(_instance, _endpointInfo, engine, fd, connected, false, "");
             }
             catch(RuntimeException ex)
             {
@@ -79,18 +79,17 @@ final class ConnectorI implements IceInternal.Connector
     //
     // Only for use by EndpointI.
     //
-    ConnectorI(Instance instance, String host, java.net.InetSocketAddress addr, int timeout, String connectionId)
+    ConnectorI(Instance instance, SSLEndpointInfo endpointInfo, java.net.InetSocketAddress addr, String connectionId)
     {
         _instance = instance;
+        _endpointInfo = endpointInfo;
         _logger = instance.communicator().getLogger();
-        _host = host;
         _addr = addr;
-        _timeout = timeout;
         _connectionId = connectionId;
 
         _hashCode = _addr.getAddress().getHostAddress().hashCode();
         _hashCode = 5 * _hashCode + _addr.getPort();
-        _hashCode = 5 * _hashCode + _timeout;
+        _hashCode = 5 * _hashCode + _endpointInfo.timeout;
         _hashCode = 5 * _hashCode + _connectionId.hashCode();
     }
 
@@ -113,7 +112,7 @@ final class ConnectorI implements IceInternal.Connector
             return true;
         }
 
-        if(_timeout != p._timeout)
+        if(_endpointInfo.timeout != p._endpointInfo.timeout)
         {
             return false;
         }
@@ -127,10 +126,9 @@ final class ConnectorI implements IceInternal.Connector
     }
 
     private Instance _instance;
+    private SSLEndpointInfo _endpointInfo;
     private Ice.Logger _logger;
-    private String _host;
     private java.net.InetSocketAddress _addr;
-    private int _timeout;
     private String _connectionId;
     private int _hashCode;
 }

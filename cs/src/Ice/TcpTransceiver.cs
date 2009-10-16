@@ -424,6 +424,7 @@ namespace IceInternal
         {
             Debug.Assert(_fd != null);
             Ice.TcpConnectionInfo info = new Ice.TcpConnectionInfo();
+            info.endpoint = _endpointInfo;
             IPEndPoint localEndpoint = Network.getLocalAddress(_fd);
             info.localAddress = localEndpoint.Address.ToString();
             info.localPort = localEndpoint.Port;
@@ -457,8 +458,10 @@ namespace IceInternal
         //
         // Only for use by TcpConnector, TcpAcceptor
         //
-        internal TcpTransceiver(Instance instance, Socket fd, IPEndPoint addr, bool connected)
+        internal TcpTransceiver(Instance instance, Ice.TcpEndpointInfo endpointInfo, Socket fd, IPEndPoint addr,
+                                bool connected)
         {
+            _endpointInfo = endpointInfo;
             _fd = fd;
             _addr = addr;
             _traceLevels = instance.traceLevels();
@@ -480,6 +483,7 @@ namespace IceInternal
             }
         }
 
+        private Ice.TcpEndpointInfo _endpointInfo;
         private Socket _fd;
         private IPEndPoint _addr;
         private TraceLevels _traceLevels;

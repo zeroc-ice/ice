@@ -12,6 +12,7 @@
 
 #include <IceSSL/InstanceF.h>
 #include <IceSSL/Plugin.h>
+#include <IceSSL/EndpointInfo.h>
 
 #include <Ice/LoggerF.h>
 #include <Ice/StatsF.h>
@@ -62,8 +63,8 @@ public:
 
 private:
 
-    TransceiverI(const InstancePtr&, SOCKET, const std::string&, const struct sockaddr_storage&);
-    TransceiverI(const InstancePtr&, SOCKET, const std::string&);
+    TransceiverI(const InstancePtr&, const SSLEndpointInfoPtr&, SOCKET, const struct sockaddr_storage&);
+    TransceiverI(const InstancePtr&, const SSLEndpointInfoPtr&, SOCKET, const std::string&);
     virtual ~TransceiverI();
  
 #ifdef ICE_USE_IOCP
@@ -75,12 +76,11 @@ private:
     friend class AcceptorI;
 
     const InstancePtr _instance;
+    const SSLEndpointInfoPtr _endpointInfo;
     const Ice::LoggerPtr _logger;
     const Ice::StatsPtr _stats;
     
     SSL* _ssl;
-
-    const std::string _host;
 
     const bool _incoming;
     const std::string _adapterName;

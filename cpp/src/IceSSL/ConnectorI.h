@@ -14,6 +14,7 @@
 #include <Ice/TransceiverF.h>
 #include <Ice/Connector.h>
 #include <IceSSL/InstanceF.h>
+#include <IceSSL/EndpointInfo.h>
 
 #ifdef _WIN32
 #   include <winsock2.h>
@@ -41,15 +42,14 @@ public:
 
 private:
     
-    ConnectorI(const InstancePtr&, const std::string&, const struct sockaddr_storage&, Ice::Int, const std::string&);
+    ConnectorI(const InstancePtr&, const SSLEndpointInfoPtr&, const struct sockaddr_storage&, const std::string&);
     virtual ~ConnectorI();
     friend class EndpointI;
 
     const InstancePtr _instance;
+    const SSLEndpointInfoPtr _endpointInfo;
     const Ice::LoggerPtr _logger;
-    const std::string _host;
     struct sockaddr_storage _addr;
-    const Ice::Int _timeout;
     const std::string _connectionId;
 };
 

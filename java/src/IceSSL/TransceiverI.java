@@ -280,6 +280,7 @@ final class TransceiverI implements IceInternal.Transceiver
         assert(_fd != null);
 
         IceSSL.SSLConnectionInfo info = new IceSSL.SSLConnectionInfo();
+        info.endpoint = _endpointInfo;
         java.net.Socket socket = _fd.socket();
         info.localAddress = socket.getLocalAddress().getHostAddress();
         info.localPort = socket.getLocalPort();
@@ -339,13 +340,13 @@ final class TransceiverI implements IceInternal.Transceiver
     //
     // Only for use by ConnectorI, AcceptorI.
     //
-    TransceiverI(Instance instance, javax.net.ssl.SSLEngine engine, java.nio.channels.SocketChannel fd,
-                 String host, boolean connected, boolean incoming, String adapterName)
+    TransceiverI(Instance instance, SSLEndpointInfo endpointInfo, javax.net.ssl.SSLEngine engine,
+                 java.nio.channels.SocketChannel fd, boolean connected, boolean incoming, String adapterName)
     {
         _instance = instance;
+        _endpointInfo = endpointInfo;
         _engine = engine;
         _fd = fd;
-        _host = host;
         _incoming = incoming;
         _adapterName = adapterName;
         _state = connected ? StateConnected : StateNeedConnect;
@@ -536,7 +537,7 @@ final class TransceiverI implements IceInternal.Transceiver
         // Additional verification.
         //
         _info = Util.populateConnectionInfo(_engine.getSession(), _fd.socket(), _adapterName, _incoming);
-        _instance.verifyPeer(_info, _fd, _host, _incoming);
+        _instance.verifyPeer(_info, _fd, _endpointInfo.host, _incoming);
 
         if(_instance.networkTraceLevel() >= 1)
         {
@@ -791,9 +792,9 @@ final class TransceiverI implements IceInternal.Transceiver
     }
 
     private Instance _instance;
+    private SSLEndpointInfo _endpointInfo;
     private java.nio.channels.SocketChannel _fd;
     private javax.net.ssl.SSLEngine _engine;
-    private String _host;
     private boolean _incoming;
     private String _adapterName;
     private int _state;

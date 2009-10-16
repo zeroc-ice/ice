@@ -528,7 +528,7 @@ final class UdpEndpointI extends EndpointI
     public Transceiver
     transceiver(EndpointIHolder endpoint)
     {
-        UdpTransceiver p = new UdpTransceiver(_instance, _host, _port, _mcastInterface, _connect);
+        UdpTransceiver p = new UdpTransceiver(_instance, (Ice.UdpEndpointInfo)getInfo(), _connect);
         endpoint.value = new UdpEndpointI(_instance, _host, p.effectivePort(), _mcastInterface, _mcastTtl, 
                                           _protocolMajor, _protocolMinor, _encodingMajor, _encodingMinor, _connect,
                                           _connectionId, _compress);
@@ -744,9 +744,7 @@ final class UdpEndpointI extends EndpointI
         java.util.ArrayList<Connector> connectors = new java.util.ArrayList<Connector>();
         for(java.net.InetSocketAddress p : addresses)
         {
-            connectors.add(
-                new UdpConnector(_instance, p, _mcastInterface, _mcastTtl, _protocolMajor, _protocolMinor,
-                                 _encodingMajor, _encodingMinor, _connectionId));
+            connectors.add(new UdpConnector(_instance, (Ice.UdpEndpointInfo)getInfo(), p, _connectionId));
         }
         return connectors;
     }

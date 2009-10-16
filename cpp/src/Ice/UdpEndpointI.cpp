@@ -536,7 +536,7 @@ IceInternal::UdpEndpointI::secure() const
 TransceiverPtr
 IceInternal::UdpEndpointI::transceiver(EndpointIPtr& endp) const
 {
-    UdpTransceiver* p = new UdpTransceiver(_instance, _host, _port, _mcastInterface, _connect);
+    UdpTransceiver* p = new UdpTransceiver(_instance, UdpEndpointInfoPtr::dynamicCast(getInfo()), _connect);
     endp = new UdpEndpointI(_instance, _host, p->effectivePort(), _mcastInterface, _mcastTtl, _protocolMajor,
                             _protocolMinor, _encodingMajor, _encodingMinor, _connect, _connectionId,
                             _compress);
@@ -794,8 +794,8 @@ IceInternal::UdpEndpointI::connectors(const vector<struct sockaddr_storage>& add
     vector<ConnectorPtr> connectors;
     for(unsigned int i = 0; i < addresses.size(); ++i)
     {
-        connectors.push_back(new UdpConnector(_instance, addresses[i], _mcastInterface, _mcastTtl, _protocolMajor,
-                                              _protocolMinor, _encodingMajor, _encodingMinor, _connectionId));
+        connectors.push_back(new UdpConnector(_instance, UdpEndpointInfoPtr::dynamicCast(getInfo()), addresses[i],
+                                              _connectionId));
     }
     return connectors;
 }

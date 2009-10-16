@@ -11,6 +11,7 @@
 #   include <IceUtil/Config.h>
 #endif
 #include <Endpoint.h>
+#include <EndpointInfo.h>
 #include <Util.h>
 
 using namespace std;
@@ -75,10 +76,31 @@ endpointRepr(EndpointObject* self)
     return endpointToString(self);
 }
 
+#ifdef WIN32
+extern "C"
+#endif
+static PyObject*
+endpointGetInfo(EndpointObject* self)
+{
+    assert(self->endpoint);
+    try
+    {
+        Ice::EndpointInfoPtr info = (*self->endpoint)->getInfo();
+        return createEndpointInfo(info);
+    }
+    catch(const Ice::Exception& ex)
+    {
+        setPythonException(ex);
+        return 0;
+    }
+}
+
 static PyMethodDef EndpointMethods[] =
 {
     { STRCAST("toString"), reinterpret_cast<PyCFunction>(endpointToString), METH_NOARGS,
         PyDoc_STR(STRCAST("toString() -> string")) },
+    { STRCAST("getInfo"), reinterpret_cast<PyCFunction>(endpointGetInfo), METH_NOARGS,
+        PyDoc_STR(STRCAST("getInfo() -> Ice.EndpointInfo")) },
     { 0, 0 } /* sentinel */
 };
 
@@ -91,7 +113,7 @@ PyTypeObject EndpointType =
      * to be portable to Windows without using C++. */
     PyObject_HEAD_INIT(0)
     0,                               /* ob_size */
-    STRCAST("Ice.Endpoint"),         /* tp_name */
+    STRCAST("IcePy.Endpoint"),       /* tp_name */
     sizeof(EndpointObject),          /* tp_basicsize */
     0,                               /* tp_itemsize */
     /* methods */

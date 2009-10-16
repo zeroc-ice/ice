@@ -25,7 +25,7 @@ module IceSSL
  * Provides access to the address details of an SSL endpoint.
  *
  **/
-["cpp:virtual"] local class SSLEndpointInfo extends Ice::EndpointInfo
+local class SSLEndpointInfo extends Ice::EndpointInfo
 {
     /**
      * 

@@ -351,7 +351,7 @@ IceInternal::TcpEndpointI::connectors_async(const EndpointI_connectorsPtr& callb
 AcceptorPtr
 IceInternal::TcpEndpointI::acceptor(EndpointIPtr& endp, const string&) const
 {
-    TcpAcceptor* p = new TcpAcceptor(_instance, _host, _port);
+    TcpAcceptor* p = new TcpAcceptor(_instance, TcpEndpointInfoPtr::dynamicCast(getInfo()));
     endp = new TcpEndpointI(_instance, _host, p->effectivePort(), _timeout, _connectionId, _compress);
     return p;
 }
@@ -503,7 +503,8 @@ IceInternal::TcpEndpointI::connectors(const vector<struct sockaddr_storage>& add
     vector<ConnectorPtr> connectors;
     for(unsigned int i = 0; i < addresses.size(); ++i)
     {
-        connectors.push_back(new TcpConnector(_instance, addresses[i], _timeout, _connectionId));
+        connectors.push_back(new TcpConnector(_instance, TcpEndpointInfoPtr::dynamicCast(getInfo()), addresses[i],
+                                              _connectionId));
     }
     return connectors;
 }

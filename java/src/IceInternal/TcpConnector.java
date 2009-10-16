@@ -34,7 +34,7 @@ final class TcpConnector implements Connector
                     _logger.trace(_traceLevels.networkCat, s);
                 }
             }
-            return new TcpTransceiver(_instance, fd, connected);
+            return new TcpTransceiver(_instance, _endpointInfo, fd, connected);
         }
         catch(Ice.LocalException ex)
         {
@@ -68,18 +68,19 @@ final class TcpConnector implements Connector
     //
     // Only for use by TcpEndpoint
     //
-    TcpConnector(Instance instance, java.net.InetSocketAddress addr, int timeout, String connectionId)
+    TcpConnector(Instance instance, Ice.TcpEndpointInfo endpointInfo, java.net.InetSocketAddress addr, 
+                 String connectionId)
     {
         _instance = instance;
+        _endpointInfo = endpointInfo;
         _traceLevels = instance.traceLevels();
         _logger = instance.initializationData().logger;
         _addr = addr;
-        _timeout = timeout;
         _connectionId = connectionId;
 
         _hashCode = _addr.getAddress().getHostAddress().hashCode();
         _hashCode = 5 * _hashCode + _addr.getPort();
-        _hashCode = 5 * _hashCode + _timeout;
+        _hashCode = 5 * _hashCode + _endpointInfo.timeout;
         _hashCode = 5 * _hashCode + _connectionId.hashCode();
     }
 
@@ -102,7 +103,7 @@ final class TcpConnector implements Connector
             return true;
         }
 
-        if(_timeout != p._timeout)
+        if(_endpointInfo.timeout != p._endpointInfo.timeout)
         {
             return false;
         }
@@ -116,10 +117,10 @@ final class TcpConnector implements Connector
     } 
 
     private Instance _instance;
+    private Ice.TcpEndpointInfo _endpointInfo;
     private TraceLevels _traceLevels;
     private Ice.Logger _logger;
     private java.net.InetSocketAddress _addr;
-    private int _timeout;
     private String _connectionId = "";
     private int _hashCode;
 }

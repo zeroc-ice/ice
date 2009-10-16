@@ -42,7 +42,7 @@ IceSSL::ConnectorI::connect()
 
     try
     {
-        return new TransceiverI(_instance, IceInternal::createSocket(false, _addr.ss_family), _host, _addr);
+        return new TransceiverI(_instance, _endpointInfo, IceInternal::createSocket(false, _addr.ss_family), _addr);
     }
     catch(const Ice::LocalException& ex)
     {
@@ -81,7 +81,7 @@ IceSSL::ConnectorI::operator==(const IceInternal::Connector& r) const
         return false;
     }
 
-    if(_timeout != p->_timeout)
+    if(_endpointInfo->timeout != p->_endpointInfo->timeout)
     {
         return false;
     }
@@ -109,11 +109,11 @@ IceSSL::ConnectorI::operator<(const IceInternal::Connector& r) const
         return type() < r.type();
     }
 
-    if(_timeout < p->_timeout)
+    if(_endpointInfo->timeout < p->_endpointInfo->timeout)
     {
         return true;
     }
-    else if(p->_timeout < _timeout)
+    else if(p->_endpointInfo->timeout < _endpointInfo->timeout)
     {
         return false;
     }
@@ -130,13 +130,12 @@ IceSSL::ConnectorI::operator<(const IceInternal::Connector& r) const
     return IceInternal::compareAddress(_addr, p->_addr) == -1;
 }
 
-IceSSL::ConnectorI::ConnectorI(const InstancePtr& instance, const string& host, const struct sockaddr_storage& addr,
-                               Ice::Int timeout, const string& connectionId) :
+IceSSL::ConnectorI::ConnectorI(const InstancePtr& instance, const SSLEndpointInfoPtr& endpointInfo,
+                               const struct sockaddr_storage& addr, const string& connectionId) :
     _instance(instance),
+    _endpointInfo(endpointInfo),
     _logger(instance->communicator()->getLogger()),
-    _host(host),
     _addr(addr),
-    _timeout(timeout),
     _connectionId(connectionId)
 {
 }

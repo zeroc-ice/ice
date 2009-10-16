@@ -23,8 +23,6 @@
 namespace IceInternal
 {
 
-class TcpEndpoint;
-
 class TcpAcceptor : public Acceptor, public NativeInfo
 {
 public:
@@ -47,11 +45,12 @@ public:
 
 private:
 
-    TcpAcceptor(const InstancePtr&, const std::string&, int);
+    TcpAcceptor(const InstancePtr&, const Ice::TcpEndpointInfoPtr&);
     virtual ~TcpAcceptor();
     friend class TcpEndpointI;
 
     const InstancePtr _instance;
+    const Ice::TcpEndpointInfoPtr _endpointInfo;
     const TraceLevelsPtr _traceLevels;
     const ::Ice::LoggerPtr _logger;
     const struct sockaddr_storage _addr;

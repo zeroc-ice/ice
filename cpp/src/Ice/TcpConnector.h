@@ -11,6 +11,7 @@
 #define ICE_TCP_CONNECTOR_H
 
 #include <Ice/TransceiverF.h>
+#include <Ice/EndpointF.h>
 #include <Ice/InstanceF.h>
 #include <Ice/TraceLevelsF.h>
 #include <Ice/LoggerF.h>
@@ -40,11 +41,13 @@ public:
 
 private:
     
-    TcpConnector(const InstancePtr&, const struct sockaddr_storage&, Ice::Int, const std::string&);
+    TcpConnector(const InstancePtr&, const Ice::TcpEndpointInfoPtr&, const struct sockaddr_storage&,
+                 const std::string&);
     virtual ~TcpConnector();
     friend class TcpEndpointI;
 
     const InstancePtr _instance;
+    const Ice::TcpEndpointInfoPtr _endpointInfo;
     const TraceLevelsPtr _traceLevels;
     const ::Ice::LoggerPtr _logger;
     const struct sockaddr_storage _addr;

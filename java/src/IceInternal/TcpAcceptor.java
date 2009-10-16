@@ -66,7 +66,7 @@ class TcpAcceptor implements Acceptor
             _logger.trace(_traceLevels.networkCat, s);
         }
 
-        return new TcpTransceiver(_instance, fd, true);
+        return new TcpTransceiver(_instance, _endpointInfo, fd, true);
     }
 
     public String
@@ -81,9 +81,10 @@ class TcpAcceptor implements Acceptor
         return _addr.getPort();
     }
 
-    TcpAcceptor(Instance instance, String host, int port)
+    TcpAcceptor(Instance instance, Ice.TcpEndpointInfo endpointInfo)
     {
         _instance = instance;
+        _endpointInfo = endpointInfo;
         _traceLevels = instance.traceLevels();
         _logger = instance.initializationData().logger;
         _backlog = instance.initializationData().properties.getPropertyAsIntWithDefault("Ice.TCP.Backlog", 511);
@@ -110,7 +111,7 @@ class TcpAcceptor implements Acceptor
                 //
                 Network.setReuseAddress(_fd, true);
             }
-            _addr = Network.getAddressForServer(host, port, _instance.protocolSupport());
+            _addr = Network.getAddressForServer(_endpointInfo.host, _endpointInfo.port, _instance.protocolSupport());
             if(_traceLevels.network >= 2)
             {
                 String s = "attempting to bind to tcp socket " + toString();
@@ -135,6 +136,7 @@ class TcpAcceptor implements Acceptor
     }
 
     private Instance _instance;
+    private Ice.TcpEndpointInfo _endpointInfo;
     private TraceLevels _traceLevels;
     private Ice.Logger _logger;
     private java.nio.channels.ServerSocketChannel _fd;

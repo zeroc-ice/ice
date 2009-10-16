@@ -7,19 +7,22 @@
 //
 // **********************************************************************
 
-#ifndef ICE_ENDPOINT_F_ICE
-#define ICE_ENDPOINT_F_ICE
+#ifndef ICEPY_ENDPOINT_INFO_H
+#define ICEPY_ENDPOINT_INFO_H
 
-[["cpp:header-ext:h"]]
+#include <Config.h>
+#include <Ice/Endpoint.h>
 
-module Ice
+namespace IcePy
 {
 
-local class TcpEndpointInfo;
-local class UdpEndpointInfo;
-local interface Endpoint;
-local sequence<Endpoint> EndpointSeq;
+extern PyTypeObject EndpointInfoType;
 
-};
+bool initEndpointInfo(PyObject*);
+
+PyObject* createEndpointInfo(const Ice::EndpointInfoPtr&);
+Ice::EndpointInfoPtr getEndpointInfo(PyObject*);
+
+}
 
 #endif

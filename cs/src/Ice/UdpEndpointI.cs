@@ -598,7 +598,7 @@ namespace IceInternal
         //
         public override Transceiver transceiver(ref EndpointI endpoint)
         {
-            UdpTransceiver p = new UdpTransceiver(instance_, _host, _port, _mcastInterface, _connect);
+            UdpTransceiver p = new UdpTransceiver(instance_, (Ice.UdpEndpointInfo)getInfo(), _connect);
             endpoint = new UdpEndpointI(instance_, _host, p.effectivePort(), _mcastInterface, _mcastTtl, 
                                         _protocolMajor, _protocolMinor, _encodingMajor, _encodingMinor, _connect,
                                         _connectionId, _compress);
@@ -679,8 +679,7 @@ namespace IceInternal
             List<Connector> connectors = new List<Connector>();
             foreach(IPEndPoint addr in addresses)
             {
-                connectors.Add(new UdpConnector(instance_, addr, _mcastInterface, _mcastTtl, _protocolMajor,
-                                                _protocolMinor, _encodingMajor, _encodingMinor, _connectionId));
+                connectors.Add(new UdpConnector(instance_, (Ice.UdpEndpointInfo)getInfo(), addr, _connectionId));
             }
             return connectors;
         }

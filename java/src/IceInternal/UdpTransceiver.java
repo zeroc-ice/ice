@@ -235,6 +235,7 @@ final class UdpTransceiver implements Transceiver
         assert(_fd != null);
 
         Ice.UdpConnectionInfo info = new Ice.UdpConnectionInfo();
+        info.endpoint = _endpointInfo;
         java.net.DatagramSocket socket = _fd.socket();
         info.localAddress = socket.getLocalAddress().getHostAddress();
         info.localPort = socket.getLocalPort();
@@ -284,8 +285,9 @@ final class UdpTransceiver implements Transceiver
     //
     // Only for use by UdpEndpoint
     //
-    UdpTransceiver(Instance instance, java.net.InetSocketAddress addr, String mcastInterface, int mcastTtl)
+    UdpTransceiver(Instance instance, Ice.UdpEndpointInfo endpointInfo, java.net.InetSocketAddress addr)
     {
+        _endpointInfo = endpointInfo;
         _traceLevels = instance.traceLevels();
         _logger = instance.initializationData().logger;
         _stats = instance.initializationData().stats;
@@ -302,7 +304,7 @@ final class UdpTransceiver implements Transceiver
             _connect = false; // We're connected now
             if(_addr.getAddress().isMulticastAddress())
             {
-                configureMulticast(null, mcastInterface, mcastTtl);
+                configureMulticast(null, _endpointInfo.mcastInterface, _endpointInfo.mcastTtl);
             }
 
             if(_traceLevels.network >= 1)
@@ -321,8 +323,9 @@ final class UdpTransceiver implements Transceiver
     //
     // Only for use by UdpEndpoint
     //
-    UdpTransceiver(Instance instance, String host, int port, String mcastInterface, boolean connect)
+    UdpTransceiver(Instance instance, Ice.UdpEndpointInfo endpointInfo, boolean connect)
     {
+        _endpointInfo = endpointInfo;
         _traceLevels = instance.traceLevels();
         _logger = instance.initializationData().logger;
         _stats = instance.initializationData().stats;
@@ -334,7 +337,7 @@ final class UdpTransceiver implements Transceiver
             _fd = Network.createUdpSocket();
             setBufSize(instance);
             Network.setBlock(_fd, false);
-            _addr = Network.getAddressForServer(host, port, instance.protocolSupport());
+            _addr = Network.getAddressForServer(_endpointInfo.host, _endpointInfo.port, instance.protocolSupport());
             if(_traceLevels.network >= 2)
             {
                 String s = "attempting to bind to udp socket " + Network.addrToString(_addr);
@@ -344,12 +347,12 @@ final class UdpTransceiver implements Transceiver
             {
                 Network.setReuseAddress(_fd, true);
                 _mcastAddr = _addr;
-                _addr = Network.doBind(_fd, Network.getAddress("0.0.0.0", port, Network.EnableIPv4));
-                if(port == 0)
+                _addr = Network.doBind(_fd, Network.getAddress("0.0.0.0", _endpointInfo.port, Network.EnableIPv4));
+                if(_endpointInfo.port == 0)
                 {
                     _mcastAddr = new java.net.InetSocketAddress(_mcastAddr.getAddress(), _addr.getPort());
                 }
-                configureMulticast(_mcastAddr, mcastInterface, -1);
+                configureMulticast(_mcastAddr, _endpointInfo.mcastInterface, -1);
             }
             else
             {
@@ -567,6 +570,7 @@ final class UdpTransceiver implements Transceiver
         super.finalize();
     }
 
+    private Ice.UdpEndpointInfo _endpointInfo;
     private TraceLevels _traceLevels;
     private Ice.Logger _logger;
     private Ice.Stats _stats;

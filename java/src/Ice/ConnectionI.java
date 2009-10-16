@@ -1290,7 +1290,6 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
         _writeStream = new IceInternal.BasicStream(instance);
         _dispatchCount = 0;
         _state = StateNotInitialized;
-        _stateTime = IceInternal.Time.currentMonotonicTimeMillis();
 
         int compressionLevel = initData.properties.getPropertyAsIntWithDefault("Ice.Compression.Level", 1);
         if(compressionLevel < 1)
@@ -1563,7 +1562,6 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
         }
 
         _state = state;
-        _stateTime = IceInternal.Time.currentMonotonicTimeMillis();
 
         notifyAll();
 
@@ -2500,7 +2498,6 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
     private int _dispatchCount;
 
     private int _state; // The current state.
-    private long _stateTime; // The last time when the state was changed.
 
     private IceInternal.Incoming _incomingCache;
     private java.lang.Object _incomingCacheMutex = new java.lang.Object();

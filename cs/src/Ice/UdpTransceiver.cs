@@ -33,11 +33,11 @@ namespace IceInternal
                 {
                     if(Network.isMulticast(_addr))
                     {
-                        Network.setMcastGroup(_fd, _addr.Address, _mcastInterface);
+                        Network.setMcastGroup(_fd, _addr.Address, _endpointInfo.mcastInterface);
                         
-                        if(_mcastTtl != -1)
+                        if(_endpointInfo.mcastTtl != -1)
                         {
-                            Network.setMcastTtl(_fd, _mcastTtl, _addr.AddressFamily);
+                            Network.setMcastTtl(_fd, _endpointInfo.mcastTtl, _addr.AddressFamily);
                         }
                     }
                     _state = StateConnected;
@@ -549,6 +549,7 @@ namespace IceInternal
         {
             Debug.Assert(_fd != null);
             Ice.UdpConnectionInfo info = new Ice.UdpConnectionInfo();
+            info.endpoint = _endpointInfo;
             IPEndPoint localEndpoint = Network.getLocalAddress(_fd);
             info.localAddress = localEndpoint.Address.ToString();
             info.localPort = localEndpoint.Port;
@@ -609,15 +610,14 @@ namespace IceInternal
         //
         // Only for use by UdpConnector.
         //
-        internal UdpTransceiver(Instance instance, IPEndPoint addr, string mcastInterface, int mcastTtl)
+        internal UdpTransceiver(Instance instance, Ice.UdpEndpointInfo endpointInfo, IPEndPoint addr)
         {
+            _endpointInfo = endpointInfo;
             _traceLevels = instance.traceLevels();
             _logger = instance.initializationData().logger;
             _stats = instance.initializationData().stats;
             _warn = instance.initializationData().properties.getPropertyAsInt("Ice.Warn.Datagrams") > 0;
             _addr = addr;
-            _mcastInterface = mcastInterface;
-            _mcastTtl = mcastTtl;
             _state = StateNeedConnect;
             _incoming = false;
 
@@ -637,8 +637,9 @@ namespace IceInternal
         //
         // Only for use by UdpEndpoint.
         //
-        internal UdpTransceiver(Instance instance, string host, int port, string mcastInterface, bool connect)
+        internal UdpTransceiver(Instance instance, Ice.UdpEndpointInfo endpointInfo, bool connect)
         {
+            _endpointInfo = endpointInfo;
             _traceLevels = instance.traceLevels();
             _logger = instance.initializationData().logger;
             _stats = instance.initializationData().stats;
@@ -648,7 +649,7 @@ namespace IceInternal
             
             try
             {
-                _addr = Network.getAddressForServer(host, port, instance.protocolSupport());
+                _addr = Network.getAddressForServer(_endpointInfo.host, _endpointInfo.port, instance.protocolSupport());
                 _fd = Network.createSocket(true, _addr.AddressFamily);
                 setBufSize(instance);
                 Network.setBlock(_fd, false);
@@ -663,18 +664,18 @@ namespace IceInternal
                     _mcastAddr = _addr;
                     if(_addr.AddressFamily == AddressFamily.InterNetwork)
                     {
-                        _addr = Network.doBind(_fd, new IPEndPoint(IPAddress.Any, port));
+                        _addr = Network.doBind(_fd, new IPEndPoint(IPAddress.Any, _endpointInfo.port));
                     }
                     else
                     {
                         Debug.Assert(_addr.AddressFamily == AddressFamily.InterNetworkV6);
-                        _addr = Network.doBind(_fd, new IPEndPoint(IPAddress.IPv6Any, port));
+                        _addr = Network.doBind(_fd, new IPEndPoint(IPAddress.IPv6Any, _endpointInfo.port));
                     }
-                    if(port == 0)
+                    if(_endpointInfo.port == 0)
                     {
                         _mcastAddr.Port = _addr.Port;
                     }
-                    Network.setMcastGroup(_fd, _mcastAddr.Address, mcastInterface);
+                    Network.setMcastGroup(_fd, _mcastAddr.Address, _endpointInfo.mcastInterface);
                 }
                 else
                 {
@@ -788,6 +789,7 @@ namespace IceInternal
             }
         }
 
+        private Ice.UdpEndpointInfo _endpointInfo;
         private TraceLevels _traceLevels;
         private Ice.Logger _logger;
         private Ice.Stats _stats;
@@ -799,8 +801,6 @@ namespace IceInternal
         private Socket _fd;
         private IPEndPoint _addr;
         private IPEndPoint _mcastAddr = null;
-        private string _mcastInterface = null;
-        private int _mcastTtl = -1;
 
         private IAsyncResult _writeResult;
         private IAsyncResult _readResult;
