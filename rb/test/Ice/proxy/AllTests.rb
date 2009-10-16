@@ -421,7 +421,7 @@ def allTests(communicator)
     # TODO: Ideally we should also test comparison of fixed proxies.
     #
 
-    print "ok"
+    puts "ok"
 
     print "testing checked cast... "
     STDOUT.flush
@@ -600,30 +600,32 @@ def allTests(communicator)
     end
     puts "ok"
 
-    #print "testing endpoint information..."
+    print "testing endpoint information... "
+    STDOUT.flush
 
-    #p1 = communicator.stringToProxy("test -t:tcp -h tcphost -p 10000 -t 1200 -z:udp -h udphost -p 10001 --interface eth0 --ttl 5:opaque -t 100 -v ABCD");
-    #endps = p1.ice_getEndpoints();
+    p1 = communicator.stringToProxy("test -t:tcp -h tcphost -p 10000 -t 1200 -z:udp -h udphost -p 10001 --interface eth0 --ttl 5:opaque -t 100 -v ABCD");
+    endps = p1.ice_getEndpoints();
 
-    #test(endps[0].is_a?(Ice::TcpEndpoint));
-    #tcpEndpoint = endps[0];
-    #test(tcpEndpoint.host() == "tcphost");
-    #test(tcpEndpoint.port() == 10000);
-    #test(tcpEndpoint.timeout() == 1200);
-    #test(tcpEndpoint.compress());
+    info = endps[0].getInfo()
+    test(info.is_a?(Ice::TcpEndpointInfo));
+    test(info.host == "tcphost");
+    test(info.port == 10000);
+    test(info.timeout == 1200);
+    test(info.compress);
 
-    #test(endps[1].is_a?(Ice::UdpEndpoint));
-    #udpEndpoint = endps[1];
-    #test(udpEndpoint.host() == "udphost");
-    #test(udpEndpoint.port() == 10001);
-    #test(udpEndpoint.mcastInterface() == "eth0");
-    #test(udpEndpoint.mcastTtl() == 5);
-    #test(udpEndpoint.timeout() == -1);
-    #test(!udpEndpoint.compress());
+    info = endps[1].getInfo()
+    test(info.is_a?(Ice::UdpEndpointInfo));
+    test(info.host == "udphost");
+    test(info.port == 10001);
+    test(info.mcastInterface == "eth0");
+    test(info.mcastTtl == 5);
+    test(info.timeout == -1);
+    test(!info.compress);
 
-    #test(endps[2].is_a?(Ice::OpaqueEndpoint));
+    info = endps[2].getInfo()
+    test(info.is_a?(Ice::OpaqueEndpointInfo));
 
-    #puts "ok"
+    puts "ok"
 
     return cl
 end

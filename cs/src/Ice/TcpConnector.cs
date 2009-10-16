@@ -35,7 +35,7 @@ namespace IceInternal
                 //
                 // Nonblocking connect is handled by the transceiver.
                 //
-                return new TcpTransceiver(_instance, _endpointInfo, fd, _addr, false);
+                return new TcpTransceiver(_instance, fd, _addr, false);
             }
             catch(Ice.LocalException ex)
             {
@@ -56,17 +56,17 @@ namespace IceInternal
         //
         // Only for use by TcpEndpoint
         //
-        internal TcpConnector(Instance instance, Ice.TcpEndpointInfo endpointInfo, IPEndPoint addr, string connectionId)
+        internal TcpConnector(Instance instance, IPEndPoint addr, int timeout, string connectionId)
         {
             _instance = instance;
-            _endpointInfo = endpointInfo;
             _traceLevels = instance.traceLevels();
             _logger = instance.initializationData().logger;
             _addr = addr;
+            _timeout = timeout;
             _connectionId = connectionId;
 
             _hashCode = _addr.GetHashCode();
-            _hashCode = 5 * _hashCode + _endpointInfo.timeout;
+            _hashCode = 5 * _hashCode + _timeout;
             _hashCode = 5 * _hashCode + _connectionId.GetHashCode();
         }
 
@@ -88,7 +88,7 @@ namespace IceInternal
                 return true;
             }
 
-            if(_endpointInfo.timeout != p._endpointInfo.timeout)
+            if(_timeout != p._timeout)
             {
                 return false;
             }
@@ -112,10 +112,10 @@ namespace IceInternal
         }
 
         private Instance _instance;
-        private Ice.TcpEndpointInfo _endpointInfo;
         private TraceLevels _traceLevels;
         private Ice.Logger _logger;
         private IPEndPoint _addr;
+        private int _timeout;
         private string _connectionId;
         private int _hashCode;
     }

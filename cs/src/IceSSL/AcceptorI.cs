@@ -122,7 +122,7 @@ namespace IceSSL
             Socket acceptFd = _acceptFd;
             _acceptFd = null;
             _acceptError = null;
-            return new TransceiverI(_instance, _endpointInfo, acceptFd, null, true, _adapterName);
+            return new TransceiverI(_instance, acceptFd, null, "", true, _adapterName);
         }
 
         public override string ToString()
@@ -135,10 +135,9 @@ namespace IceSSL
             return _addr.Port;
         }
 
-        internal AcceptorI(Instance instance, SSLEndpointInfo endpointInfo, string adapterName)
+        internal AcceptorI(Instance instance, string adapterName, string host, int port)
         {
             _instance = instance;
-            _endpointInfo = endpointInfo;
             _adapterName = adapterName;
             _logger = instance.communicator().getLogger();
             _backlog = instance.communicator().getProperties().getPropertyAsIntWithDefault("Ice.TCP.Backlog", 511);
@@ -156,8 +155,7 @@ namespace IceSSL
 
             try
             {
-                _addr = IceInternal.Network.getAddressForServer(_endpointInfo.host, _endpointInfo.port, 
-                                                                _instance.protocolSupport());
+                _addr = IceInternal.Network.getAddressForServer(host, port, _instance.protocolSupport());
                 _fd = IceInternal.Network.createSocket(false, _addr.AddressFamily);
                 IceInternal.Network.setBlock(_fd, false);
                 IceInternal.Network.setTcpBufSize(_fd, _instance.communicator().getProperties(), _logger);
@@ -193,7 +191,6 @@ namespace IceSSL
         }
 
         private Instance _instance;
-        private SSLEndpointInfo _endpointInfo;
         private string _adapterName;
         private Ice.Logger _logger;
         private Socket _fd;

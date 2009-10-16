@@ -15,7 +15,6 @@
 #include <Ice/Acceptor.h>
 #include <Ice/Protocol.h>
 #include <IceSSL/InstanceF.h>
-#include <IceSSL/EndpointInfo.h>
 
 #ifndef _WIN32
 #   include <sys/socket.h> // For struct sockaddr_storage
@@ -50,12 +49,11 @@ public:
 
 private:
 
-    AcceptorI(const InstancePtr&, const SSLEndpointInfoPtr&, const std::string&);
+    AcceptorI(const InstancePtr&, const std::string&, const std::string&, int);
     virtual ~AcceptorI();
     friend class EndpointI;
 
     const InstancePtr _instance;
-    const SSLEndpointInfoPtr _endpointInfo;
     const std::string _adapterName;
     const Ice::LoggerPtr _logger;
     const struct sockaddr_storage _addr;

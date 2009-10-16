@@ -55,7 +55,7 @@ public:
 
 private:
 
-    TcpTransceiver(const InstancePtr&, const Ice::TcpEndpointInfoPtr&, SOCKET, bool);
+    TcpTransceiver(const InstancePtr&, SOCKET, bool);
     virtual ~TcpTransceiver();
 
     void connect(const struct sockaddr_storage&);
@@ -63,7 +63,6 @@ private:
     friend class TcpConnector;
     friend class TcpAcceptor;
 
-    const Ice::TcpEndpointInfoPtr _endpointInfo;
     const TraceLevelsPtr _traceLevels;
     const Ice::LoggerPtr _logger;
     const Ice::StatsPtr _stats;

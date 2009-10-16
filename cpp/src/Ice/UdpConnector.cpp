@@ -20,7 +20,7 @@ using namespace IceInternal;
 TransceiverPtr
 IceInternal::UdpConnector::connect()
 {
-    return new UdpTransceiver(_instance, _endpointInfo, _addr);
+    return new UdpTransceiver(_instance, _addr, _mcastInterface, _mcastTtl);
 }
 
 Short
@@ -54,32 +54,32 @@ IceInternal::UdpConnector::operator==(const Connector& r) const
         return false;
     }
 
-    if(_endpointInfo->protocolMajor != p->_endpointInfo->protocolMajor)
+    if(_protocolMajor != p->_protocolMajor)
     {
         return false;
     }
 
-    if(_endpointInfo->protocolMinor != p->_endpointInfo->protocolMinor)
+    if(_protocolMinor != p->_protocolMinor)
     {
         return false;
     }
 
-    if(_endpointInfo->encodingMajor != p->_endpointInfo->encodingMajor)
+    if(_encodingMajor != p->_encodingMajor)
     {
         return false;
     }
 
-    if(_endpointInfo->encodingMinor != p->_endpointInfo->encodingMinor)
+    if(_encodingMinor != p->_encodingMinor)
     {
         return false;
     }
 
-    if(_endpointInfo->mcastTtl != p->_endpointInfo->mcastTtl)
+    if(_mcastTtl != p->_mcastTtl)
     {
         return false;
     }
 
-    if(_endpointInfo->mcastInterface != p->_endpointInfo->mcastInterface)
+    if(_mcastInterface != p->_mcastInterface)
     {
         return false;
     }
@@ -111,56 +111,56 @@ IceInternal::UdpConnector::operator<(const Connector& r) const
         return false;
     }
 
-    if(_endpointInfo->protocolMajor < p->_endpointInfo->protocolMajor)
+    if(_protocolMajor < p->_protocolMajor)
     {
         return true;
     }
-    else if(p->_endpointInfo->protocolMajor < _endpointInfo->protocolMajor)
+    else if(p->_protocolMajor < _protocolMajor)
     {
         return false;
     }
 
-    if(_endpointInfo->protocolMinor < p->_endpointInfo->protocolMinor)
+    if(_protocolMinor < p->_protocolMinor)
     {
         return true;
     }
-    else if(p->_endpointInfo->protocolMinor < _endpointInfo->protocolMinor)
+    else if(p->_protocolMinor < _protocolMinor)
     {
         return false;
     }
 
-    if(_endpointInfo->encodingMajor < p->_endpointInfo->encodingMajor)
+    if(_encodingMajor < p->_encodingMajor)
     {
         return true;
     }
-    else if(p->_endpointInfo->encodingMajor < _endpointInfo->encodingMajor)
+    else if(p->_encodingMajor < _encodingMajor)
     {
         return false;
     }
 
-    if(_endpointInfo->encodingMinor < p->_endpointInfo->encodingMinor)
+    if(_encodingMinor < p->_encodingMinor)
     {
         return true;
     }
-    else if(p->_endpointInfo->encodingMinor < _endpointInfo->encodingMinor)
+    else if(p->_encodingMinor < _encodingMinor)
     {
         return false;
     }
 
-    if(_endpointInfo->mcastTtl < p->_endpointInfo->mcastTtl)
+    if(_mcastTtl < p->_mcastTtl)
     {
         return true;
     }
-    else if(p->_endpointInfo->mcastTtl < _endpointInfo->mcastTtl)
+    else if(p->_mcastTtl < _mcastTtl)
     {
         return false;
     }
 
-    if(_endpointInfo->mcastInterface < p->_endpointInfo->mcastInterface)
+    if(_mcastInterface < p->_mcastInterface)
     {
         return true;
     }
-    else if(p->_endpointInfo->mcastInterface < _endpointInfo->mcastInterface)
+    else if(p->_mcastInterface < _mcastInterface)
     {
         return false;
     }
@@ -169,13 +169,18 @@ IceInternal::UdpConnector::operator<(const Connector& r) const
 }
 
 
-IceInternal::UdpConnector::UdpConnector(const InstancePtr& instance,
-                                        const UdpEndpointInfoPtr& endpointInfo,
-                                        const struct sockaddr_storage& addr, 
+IceInternal::UdpConnector::UdpConnector(const InstancePtr& instance, const struct sockaddr_storage& addr, 
+                                        const string& mcastInterface, int mcastTtl, Ice::Byte protocolMajor,
+                                        Ice::Byte protocolMinor, Ice::Byte encodingMajor, Ice::Byte encodingMinor,
                                         const std::string& connectionId) :
     _instance(instance),
-    _endpointInfo(endpointInfo),
     _addr(addr),
+    _mcastInterface(mcastInterface),
+    _mcastTtl(mcastTtl),
+    _protocolMajor(protocolMajor),
+    _protocolMinor(protocolMinor),
+    _encodingMajor(encodingMajor),
+    _encodingMinor(encodingMinor),
     _connectionId(connectionId)
 {
 }

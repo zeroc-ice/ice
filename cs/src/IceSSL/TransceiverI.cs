@@ -354,7 +354,6 @@ namespace IceSSL
         {
             Debug.Assert(_fd != null && _stream != null);
             IceSSL.SSLConnectionInfo info = new IceSSL.SSLConnectionInfo();
-            info.endpoint = _endpointInfo;
             IPEndPoint localEndpoint = IceInternal.Network.getLocalAddress(_fd);
             info.localAddress = localEndpoint.Address.ToString();
             info.localPort = localEndpoint.Port;
@@ -404,13 +403,13 @@ namespace IceSSL
         //
         // Only for use by ConnectorI, AcceptorI.
         //
-        internal TransceiverI(Instance instance, SSLEndpointInfo endpointInfo, Socket fd, IPEndPoint addr, 
-                              bool connected, string adapterName)
+        internal TransceiverI(Instance instance, Socket fd, IPEndPoint addr, string host, bool connected,
+                              string adapterName)
         {
             _instance = instance;
-            _endpointInfo = endpointInfo;
             _fd = fd;
             _addr = addr;
+            _host = host;
             _adapterName = adapterName;
             _stream = null;
             _info = null;
@@ -457,7 +456,7 @@ namespace IceSSL
                     //
                     // Client authentication.
                     //
-                    _writeResult = _stream.BeginAuthenticateAsClient(_endpointInfo.host, _instance.certs(),
+                    _writeResult = _stream.BeginAuthenticateAsClient(_host, _instance.certs(),
                                                                      _instance.protocols(),
                                                                      _instance.checkCRL() > 0,
                                                                      callback, state);
@@ -523,7 +522,7 @@ namespace IceSSL
                 }
 
                 _info = Util.populateConnectionInfo(_stream, _fd, _chain, _adapterName, _adapterName != null);
-                _instance.verifyPeer(_info, _fd, _endpointInfo.host, _adapterName != null);
+                _instance.verifyPeer(_info, _fd, _host, _adapterName != null);
 
                 if(_instance.networkTraceLevel() >= 1)
                 {
@@ -717,9 +716,9 @@ namespace IceSSL
         }
 
         private Instance _instance;
-        private SSLEndpointInfo _endpointInfo;
         private Socket _fd;
         private IPEndPoint _addr;
+        private string _host;
         private string _adapterName;
         private SslStream _stream;
         private ConnectionInfo _info;

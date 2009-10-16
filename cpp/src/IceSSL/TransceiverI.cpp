@@ -234,7 +234,7 @@ IceSSL::TransceiverI::initialize()
             }
         }
 
-        _instance->verifyPeer(_ssl, _fd, _endpointInfo->host, _adapterName, _incoming);
+        _instance->verifyPeer(_ssl, _fd, _host, _adapterName, _incoming);
         _state = StateHandshakeComplete;
     }
     catch(const Ice::LocalException& ex)
@@ -784,7 +784,6 @@ IceSSL::TransceiverI::getInfo() const
     assert(_fd != INVALID_SOCKET && _ssl != 0);
 
     SSLConnectionInfoPtr info = new SSLConnectionInfo();
-    info->endpoint = _endpointInfo;
     IceInternal::fdToAddressAndPort(_fd, info->localAddress, info->localPort, info->remoteAddress, info->remotePort);
 
     //
@@ -842,14 +841,14 @@ IceSSL::TransceiverI::getConnectionInfo() const
     return populateConnectionInfo(_ssl, _fd, _adapterName, _incoming);
 }
 
-IceSSL::TransceiverI::TransceiverI(const InstancePtr& instance, const SSLEndpointInfoPtr& endpointInfo, SOCKET fd,
+IceSSL::TransceiverI::TransceiverI(const InstancePtr& instance, SOCKET fd, const string& host, 
                                    const struct sockaddr_storage& addr) :
     IceInternal::NativeInfo(fd),
     _instance(instance),
-    _endpointInfo(endpointInfo),
     _logger(instance->communicator()->getLogger()),
     _stats(instance->communicator()->getStats()),
     _ssl(0),
+    _host(host),
     _incoming(false),
     _state(StateNeedConnect)
 #ifdef ICE_USE_IOCP
@@ -880,11 +879,9 @@ IceSSL::TransceiverI::TransceiverI(const InstancePtr& instance, const SSLEndpoin
 #endif
 }
 
-IceSSL::TransceiverI::TransceiverI(const InstancePtr& instance, const SSLEndpointInfoPtr& endpointInfo, SOCKET fd, 
-                                   const string& adapterName) :
+IceSSL::TransceiverI::TransceiverI(const InstancePtr& instance, SOCKET fd, const string& adapterName) :
     IceInternal::NativeInfo(fd),
     _instance(instance),
-    _endpointInfo(endpointInfo),
     _logger(instance->communicator()->getLogger()),
     _stats(instance->communicator()->getStats()),
     _ssl(0),

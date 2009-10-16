@@ -14,7 +14,7 @@ final class UdpConnector implements Connector
     public Transceiver
     connect()
     {
-        return new UdpTransceiver(_instance, _endpointInfo, _addr);
+        return new UdpTransceiver(_instance, _addr, _mcastInterface, _mcastTtl);
     }
 
     public java.nio.channels.SelectableChannel
@@ -45,18 +45,23 @@ final class UdpConnector implements Connector
     //
     // Only for use by TcpEndpoint
     //
-    UdpConnector(Instance instance, Ice.UdpEndpointInfo endpointInfo, java.net.InetSocketAddress addr, 
-                 String connectionId)
+    UdpConnector(Instance instance, java.net.InetSocketAddress addr, String mcastInterface, int mcastTtl, 
+                 byte protocolMajor, byte protocolMinor, byte encodingMajor, byte encodingMinor, String connectionId)
     {
         _instance = instance;
-        _endpointInfo = endpointInfo;
         _addr = addr;
+        _mcastInterface = mcastInterface;
+        _mcastTtl = mcastTtl;
+        _protocolMajor = protocolMajor;
+        _protocolMinor = protocolMinor;
+        _encodingMajor = encodingMajor;
+        _encodingMinor = encodingMinor;
         _connectionId = connectionId;
 
         _hashCode = _addr.getAddress().getHostAddress().hashCode();
         _hashCode = 5 * _hashCode + _addr.getPort();
-        _hashCode = 5 * _hashCode + _endpointInfo.mcastInterface.hashCode();
-        _hashCode = 5 * _hashCode + _endpointInfo.mcastTtl;
+        _hashCode = 5 * _hashCode + _mcastInterface.hashCode();
+        _hashCode = 5 * _hashCode + _mcastTtl;
         _hashCode = 5 * _hashCode + _connectionId.hashCode();
     }
 
@@ -84,32 +89,32 @@ final class UdpConnector implements Connector
             return false;
         }
 
-        if(_endpointInfo.protocolMajor != p._endpointInfo.protocolMajor)
+        if(_protocolMajor != p._protocolMajor)
         {
             return false;
         }
 
-        if(_endpointInfo.protocolMinor != p._endpointInfo.protocolMinor)
+        if(_protocolMinor != p._protocolMinor)
         {
             return false;
         }
 
-        if(_endpointInfo.encodingMajor != p._endpointInfo.encodingMajor)
+        if(_encodingMajor != p._encodingMajor)
         {
             return false;
         }
 
-        if(_endpointInfo.encodingMinor != p._endpointInfo.encodingMinor)
+        if(_encodingMinor != p._encodingMinor)
         {
             return false;
         }
 
-        if(_endpointInfo.mcastTtl != p._endpointInfo.mcastTtl)
+        if(_mcastTtl != p._mcastTtl)
         {
             return false;
         }
 
-        if(_endpointInfo.mcastInterface.compareTo(p._endpointInfo.mcastInterface) != 0)
+        if(_mcastInterface.compareTo(p._mcastInterface) != 0)
         {
             return false;
         }
@@ -118,8 +123,13 @@ final class UdpConnector implements Connector
     } 
 
     private Instance _instance;
-    private Ice.UdpEndpointInfo _endpointInfo;
     private java.net.InetSocketAddress _addr;
+    private String _mcastInterface;
+    private int _mcastTtl;
+    private byte _protocolMajor;
+    private byte _protocolMinor;
+    private byte _encodingMajor;
+    private byte _encodingMinor;
     private String _connectionId;
     private int _hashCode;
 }

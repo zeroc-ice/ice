@@ -394,7 +394,7 @@ final class TcpEndpointI extends EndpointI
     public Acceptor
     acceptor(EndpointIHolder endpoint, String adapterName)
     {
-        TcpAcceptor p = new TcpAcceptor(_instance, (Ice.TcpEndpointInfo)getInfo());
+        TcpAcceptor p = new TcpAcceptor(_instance, _host, _port);
         endpoint.value =
             new TcpEndpointI(_instance, _host, p.effectivePort(), _timeout, _connectionId, _compress);
         return p;
@@ -524,7 +524,7 @@ final class TcpEndpointI extends EndpointI
         java.util.List<Connector> connectors = new java.util.ArrayList<Connector>();
         for(java.net.InetSocketAddress p : addresses)
         {
-            connectors.add(new TcpConnector(_instance, (Ice.TcpEndpointInfo)getInfo(), p, _connectionId));
+            connectors.add(new TcpConnector(_instance, p, _timeout, _connectionId));
         }
         return connectors;
     }

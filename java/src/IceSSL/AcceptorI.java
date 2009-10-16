@@ -88,7 +88,7 @@ final class AcceptorI implements IceInternal.Acceptor
                           IceInternal.Network.fdToString(fd));
         }
 
-        return new TransceiverI(_instance, _endpointInfo, engine, fd, true, true, _adapterName);
+        return new TransceiverI(_instance, engine, fd, "", true, true, _adapterName);
     }
 
     public String
@@ -103,10 +103,9 @@ final class AcceptorI implements IceInternal.Acceptor
         return _addr.getPort();
     }
 
-    AcceptorI(Instance instance, SSLEndpointInfo endpointInfo, String adapterName)
+    AcceptorI(Instance instance, String adapterName, String host, int port)
     {
         _instance = instance;
-        _endpointInfo = endpointInfo;
         _adapterName = adapterName;
         _logger = instance.communicator().getLogger();
         _backlog = instance.communicator().getProperties().getPropertyAsIntWithDefault("Ice.TCP.Backlog", 511);
@@ -133,8 +132,7 @@ final class AcceptorI implements IceInternal.Acceptor
                 //
                 IceInternal.Network.setReuseAddress(_fd, true);
             }
-            _addr = IceInternal.Network.getAddressForServer(_endpointInfo.host, _endpointInfo.port, 
-                                                            _instance.protocolSupport());
+            _addr = IceInternal.Network.getAddressForServer(host, port, _instance.protocolSupport());
             if(_instance.networkTraceLevel() >= 2)
             {
                 String s = "attempting to bind to ssl socket " + toString();
@@ -159,7 +157,6 @@ final class AcceptorI implements IceInternal.Acceptor
     }
 
     private Instance _instance;
-    private SSLEndpointInfo _endpointInfo;
     private String _adapterName;
     private Ice.Logger _logger;
     private java.nio.channels.ServerSocketChannel _fd;

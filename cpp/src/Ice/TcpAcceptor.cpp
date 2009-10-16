@@ -9,7 +9,6 @@
 
 #include <Ice/TcpAcceptor.h>
 #include <Ice/TcpTransceiver.h>
-#include <Ice/Endpoint.h>
 #include <Ice/Instance.h>
 #include <Ice/TraceLevels.h>
 #include <Ice/LoggerUtil.h>
@@ -169,7 +168,7 @@ IceInternal::TcpAcceptor::accept()
         Trace out(_logger, _traceLevels->networkCat);
         out << "accepted tcp connection\n" << fdToString(fd);
     }
-    return new TcpTransceiver(_instance, _endpointInfo, fd, true);
+    return new TcpTransceiver(_instance, fd, true);
 }
 
 string
@@ -184,12 +183,11 @@ IceInternal::TcpAcceptor::effectivePort() const
     return getPort(_addr);
 }
 
-IceInternal::TcpAcceptor::TcpAcceptor(const InstancePtr& instance, const TcpEndpointInfoPtr& endpointInfo) :
+IceInternal::TcpAcceptor::TcpAcceptor(const InstancePtr& instance, const string& host, int port) :
     _instance(instance),
-    _endpointInfo(endpointInfo),
     _traceLevels(instance->traceLevels()),
     _logger(instance->initializationData().logger),
-    _addr(getAddressForServer(endpointInfo->host, endpointInfo->port, instance->protocolSupport()))
+    _addr(getAddressForServer(host, port, instance->protocolSupport()))
 #ifdef ICE_USE_IOCP
     , _acceptFd(INVALID_SOCKET),
     _info(SocketOperationRead)

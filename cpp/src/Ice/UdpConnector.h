@@ -11,7 +11,6 @@
 #define ICE_UDP_CONNECTOR_H
 
 #include <Ice/TransceiverF.h>
-#include <Ice/EndpointF.h>
 #include <Ice/InstanceF.h>
 #include <Ice/Connector.h>
 #include <Ice/Protocol.h>
@@ -40,14 +39,19 @@ public:
 
 private:
     
-    UdpConnector(const InstancePtr&, const Ice::UdpEndpointInfoPtr&, const struct sockaddr_storage&,
-                 const std::string&);
+    UdpConnector(const InstancePtr&, const struct sockaddr_storage&, const std::string&, int, Ice::Byte, Ice::Byte, 
+                 Ice::Byte, Ice::Byte, const std::string&);
     virtual ~UdpConnector();
     friend class UdpEndpointI;
 
     const InstancePtr _instance;
-    const Ice::UdpEndpointInfoPtr _endpointInfo;
     struct sockaddr_storage _addr;
+    const std::string _mcastInterface;
+    const int _mcastTtl;
+    const Ice::Byte _protocolMajor;
+    const Ice::Byte _protocolMinor;
+    const Ice::Byte _encodingMajor;
+    const Ice::Byte _encodingMinor;
     const std::string _connectionId;
 };
 

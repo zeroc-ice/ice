@@ -61,8 +61,8 @@ public:
 
 private:
 
-    UdpTransceiver(const InstancePtr&, const Ice::UdpEndpointInfoPtr&, const struct sockaddr_storage&);
-    UdpTransceiver(const InstancePtr&, const Ice::UdpEndpointInfoPtr&, bool);
+    UdpTransceiver(const InstancePtr&, const struct sockaddr_storage&, const std::string&, int);
+    UdpTransceiver(const InstancePtr&, const std::string&, int, const std::string&, bool);
     virtual ~UdpTransceiver();
 
     void setBufSize(const InstancePtr&);
@@ -70,7 +70,6 @@ private:
     friend class UdpEndpointI;
     friend class UdpConnector;
 
-    const Ice::UdpEndpointInfoPtr _endpointInfo;
     const TraceLevelsPtr _traceLevels;
     const Ice::LoggerPtr _logger;
     const Ice::StatsPtr _stats;

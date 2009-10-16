@@ -1202,7 +1202,9 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
         {
             throw (Ice.LocalException)_exception.fillInStackTrace();
         }
-        return _transceiver.getInfo();
+        ConnectionInfo info = _transceiver.getInfo();
+        info.endpoint = _endpoint.getInfo();
+        return info;
     }
 
     //

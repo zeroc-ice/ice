@@ -55,7 +55,7 @@ namespace IceSSL
                 //
                 // Nonblocking connect is handled by the transceiver.
                 //
-                return new TransceiverI(_instance, _endpointInfo, fd, _addr, false, null);
+                return new TransceiverI(_instance, fd, _addr, _host, false, null);
             }
             catch(Ice.LocalException ex)
             {
@@ -76,15 +76,17 @@ namespace IceSSL
         //
         // Only for use by EndpointI.
         //
-        internal ConnectorI(Instance instance, SSLEndpointInfo endpointInfo, IPEndPoint addr, string connectionId)
+        internal ConnectorI(Instance instance, string host, IPEndPoint addr, int timeout, string connectionId)
         {
             _instance = instance;
+            _host = host;
             _logger = instance.communicator().getLogger();
             _addr = addr;
+            _timeout = timeout;
             _connectionId = connectionId;
 
             _hashCode = _addr.GetHashCode();
-            _hashCode = 5 * _hashCode + _endpointInfo.timeout;
+            _hashCode = 5 * _hashCode + _timeout;
             _hashCode = 5 * _hashCode + _connectionId.GetHashCode();
         }
 
@@ -106,7 +108,7 @@ namespace IceSSL
                 return true;
             }
 
-            if(_endpointInfo.timeout != p._endpointInfo.timeout)
+            if(_timeout != p._timeout)
             {
                 return false;
             }
@@ -130,9 +132,10 @@ namespace IceSSL
         }
 
         private Instance _instance;
-        private SSLEndpointInfo _endpointInfo;
         private Ice.Logger _logger;
+        private string _host;
         private IPEndPoint _addr;
+        private int _timeout;
         private string _connectionId;
         private int _hashCode;
     }

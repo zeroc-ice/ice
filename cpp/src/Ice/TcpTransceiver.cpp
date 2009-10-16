@@ -459,7 +459,6 @@ IceInternal::TcpTransceiver::getInfo() const
 {
     assert(_fd != INVALID_SOCKET);
     Ice::TcpConnectionInfoPtr info = new Ice::TcpConnectionInfo();
-    info->endpoint = _endpointInfo;
     fdToAddressAndPort(_fd, info->localAddress, info->localPort, info->remoteAddress, info->remotePort);
     return info;
 }
@@ -473,12 +472,8 @@ IceInternal::TcpTransceiver::checkSendSize(const Buffer& buf, size_t messageSize
     }
 }
 
-IceInternal::TcpTransceiver::TcpTransceiver(const InstancePtr& instance,
-                                            const TcpEndpointInfoPtr& endpointInfo,
-                                            SOCKET fd,
-                                            bool connected) :
+IceInternal::TcpTransceiver::TcpTransceiver(const InstancePtr& instance, SOCKET fd, bool connected) :
     NativeInfo(fd),
-    _endpointInfo(endpointInfo),
     _traceLevels(instance->traceLevels()),
     _logger(instance->initializationData().logger),
     _stats(instance->initializationData().stats),

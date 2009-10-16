@@ -457,7 +457,6 @@ IceInternal::UdpTransceiver::getInfo() const
 {
     assert(_fd != INVALID_SOCKET);
     Ice::UdpConnectionInfoPtr info = new Ice::UdpConnectionInfo();
-    info->endpoint = _endpointInfo;
     fdToAddressAndPort(_fd, info->localAddress, info->localPort, info->remoteAddress, info->remotePort);
     addrToAddressAndPort(_mcastAddr, info->mcastAddress, info->mcastPort);
     return info;
@@ -483,10 +482,8 @@ IceInternal::UdpTransceiver::effectivePort() const
     return getPort(_addr);
 }
 
-IceInternal::UdpTransceiver::UdpTransceiver(const InstancePtr& instance,
-                                            const Ice::UdpEndpointInfoPtr& endpointInfo,
-                                            const struct sockaddr_storage& addr) :
-    _endpointInfo(endpointInfo),
+IceInternal::UdpTransceiver::UdpTransceiver(const InstancePtr& instance, const struct sockaddr_storage& addr,
+                                            const string& mcastInterface, int mcastTtl) :
     _traceLevels(instance->traceLevels()),
     _logger(instance->initializationData().logger),
     _stats(instance->initializationData().stats),
@@ -513,26 +510,24 @@ IceInternal::UdpTransceiver::UdpTransceiver(const InstancePtr& instance,
     
     if(isMulticast(_addr))
     {
-        if(endpointInfo->mcastInterface.length() > 0)
+        if(mcastInterface.length() > 0)
         {
-            setMcastInterface(_fd, endpointInfo->mcastInterface, _addr.ss_family == AF_INET);
+            setMcastInterface(_fd, mcastInterface, _addr.ss_family == AF_INET);
         }
-        if(endpointInfo->mcastTtl != -1)
+        if(mcastTtl != -1)
         {
-            setMcastTtl(_fd, endpointInfo->mcastTtl, _addr.ss_family == AF_INET);
+            setMcastTtl(_fd, mcastTtl, _addr.ss_family == AF_INET);
         }
     }
 }
 
-IceInternal::UdpTransceiver::UdpTransceiver(const InstancePtr& instance,
-                                            const Ice::UdpEndpointInfoPtr& endpointInfo,
-                                            bool connect) :
-    _endpointInfo(endpointInfo),
+IceInternal::UdpTransceiver::UdpTransceiver(const InstancePtr& instance, const string& host, int port,
+                                            const string& mcastInterface, bool connect) :
     _traceLevels(instance->traceLevels()),
     _logger(instance->initializationData().logger),
     _stats(instance->initializationData().stats),
     _incoming(true),
-    _addr(getAddressForServer(_endpointInfo->host, _endpointInfo->port, instance->protocolSupport())),
+    _addr(getAddressForServer(host, port, instance->protocolSupport())),
     _connect(connect),
     _warn(instance->initializationData().properties->getPropertyAsInt("Ice.Warn.Datagrams") > 0)
 #ifdef ICE_USE_IOCP
@@ -569,7 +564,7 @@ IceInternal::UdpTransceiver::UdpTransceiver(const InstancePtr& instance,
         {
             setPort(_mcastAddr, getPort(_addr));
         }
-        setMcastGroup(_fd, _mcastAddr, _endpointInfo->mcastInterface);
+        setMcastGroup(_fd, _mcastAddr, mcastInterface);
     }
     else
     {

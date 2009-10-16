@@ -394,7 +394,7 @@ final class EndpointI extends IceInternal.EndpointI
     public IceInternal.Acceptor
     acceptor(IceInternal.EndpointIHolder endpoint, String adapterName)
     {
-        AcceptorI p = new AcceptorI(_instance, (SSLEndpointInfo)getInfo(), adapterName);
+        AcceptorI p = new AcceptorI(_instance, adapterName, _host, _port);
         endpoint.value = 
             new EndpointI(_instance, _host, p.effectivePort(), _timeout, _connectionId, _compress);
         return p;
@@ -525,7 +525,7 @@ final class EndpointI extends IceInternal.EndpointI
         java.util.List<IceInternal.Connector> connectors = new java.util.ArrayList<IceInternal.Connector>();
         for(java.net.InetSocketAddress p : addresses)
         {
-            connectors.add(new ConnectorI(_instance, (SSLEndpointInfo)getInfo(), p, _connectionId));
+            connectors.add(new ConnectorI(_instance, _host, p, _timeout, _connectionId));
         }
         return connectors;
     }

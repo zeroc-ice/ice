@@ -15,7 +15,8 @@ LIBNAME		= $(call mkrblibname,IceRuby)
 
 TARGETS		=  $(call mklibtargets,$(libdir)/$(LIBFILENAME),$(libdir)/$(SONAME),$(libdir)/$(LIBNAME))
 
-OBJS		= Communicator.o \
+OBJS		= ConnectionInfo.o \
+		  Communicator.o \
 		  Init.o \
 		  ImplicitContext.o \
 		  Logger.o \

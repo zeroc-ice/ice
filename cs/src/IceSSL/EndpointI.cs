@@ -403,7 +403,7 @@ namespace IceSSL
         //
         public override IceInternal.Acceptor acceptor(ref IceInternal.EndpointI endpoint, string adapterName)
         {
-            AcceptorI p = new AcceptorI(_instance, (SSLEndpointInfo)getInfo(), adapterName);
+            AcceptorI p = new AcceptorI(_instance, adapterName, _host, _port);
             endpoint = new EndpointI(_instance, _host, p.effectivePort(), _timeout, _connectionId, _compress);
             return p;
         }
@@ -453,7 +453,7 @@ namespace IceSSL
             List<IceInternal.Connector> connectors = new List<IceInternal.Connector>();
             foreach(IPEndPoint addr in addresses)
             {
-                connectors.Add(new ConnectorI(_instance, (SSLEndpointInfo)getInfo(), addr, _connectionId));
+                connectors.Add(new ConnectorI(_instance, _host, addr, _timeout, _connectionId));
             }
             return connectors;
         }

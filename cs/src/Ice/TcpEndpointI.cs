@@ -404,7 +404,7 @@ namespace IceInternal
         //
         public override Acceptor acceptor(ref EndpointI endpoint, string adapterName)
         {
-            TcpAcceptor p = new TcpAcceptor(_instance, (Ice.TcpEndpointInfo)getInfo());
+            TcpAcceptor p = new TcpAcceptor(_instance, _host, _port);
             endpoint = new TcpEndpointI(_instance, _host, p.effectivePort(), _timeout, _connectionId, _compress);
             return p;
         }
@@ -453,7 +453,7 @@ namespace IceInternal
             List<Connector> connectors = new List<Connector>();
             foreach(IPEndPoint addr in addresses)
             {
-                connectors.Add(new TcpConnector(_instance, (Ice.TcpEndpointInfo)getInfo(), addr, _connectionId));
+                connectors.Add(new TcpConnector(_instance, addr, _timeout, _connectionId));
             }
             return connectors;
         }

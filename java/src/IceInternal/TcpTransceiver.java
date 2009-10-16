@@ -226,7 +226,6 @@ final class TcpTransceiver implements Transceiver
     {
         assert(_fd != null);
         Ice.TcpConnectionInfo info = new Ice.TcpConnectionInfo();
-        info.endpoint = _endpointInfo;
         java.net.Socket socket = _fd.socket();
         info.localAddress = socket.getLocalAddress().getHostAddress();
         info.localPort = socket.getLocalPort();
@@ -255,10 +254,8 @@ final class TcpTransceiver implements Transceiver
     //
     // Only for use by TcpConnector, TcpAcceptor
     //
-    TcpTransceiver(Instance instance, Ice.TcpEndpointInfo endpointInfo, java.nio.channels.SocketChannel fd,
-                   boolean connected)
+    TcpTransceiver(Instance instance, java.nio.channels.SocketChannel fd, boolean connected)
     {
-        _endpointInfo = endpointInfo;
         _fd = fd;
         _traceLevels = instance.traceLevels();
         _logger = instance.initializationData().logger;
@@ -291,7 +288,6 @@ final class TcpTransceiver implements Transceiver
         super.finalize();
     }
 
-    private Ice.TcpEndpointInfo _endpointInfo;
     private java.nio.channels.SocketChannel _fd;
     private TraceLevels _traceLevels;
     private Ice.Logger _logger;

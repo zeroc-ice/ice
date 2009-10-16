@@ -1340,7 +1340,9 @@ namespace Ice
                 {
                     throw _exception;
                 }
-                return _transceiver.getInfo();
+                ConnectionInfo info = _transceiver.getInfo();
+                info.endpoint = _endpoint.getInfo();
+                return info;
             }
         }
         

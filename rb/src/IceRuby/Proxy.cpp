@@ -9,6 +9,7 @@
 
 #include <Proxy.h>
 #include <Communicator.h>
+#include <ConnectionInfo.h>
 #include <Util.h>
 #include <Ice/Connection.h>
 #include <Ice/Locator.h>
@@ -105,6 +106,22 @@ IceRuby_Connection_timeout(VALUE self)
 
 extern "C"
 VALUE
+IceRuby_Connection_getInfo(VALUE self)
+{
+    ICE_RUBY_TRY
+    {
+        Ice::ConnectionPtr* p = reinterpret_cast<Ice::ConnectionPtr*>(DATA_PTR(self));
+        assert(p);
+
+        Ice::ConnectionInfoPtr info = (*p)->getInfo();
+        return createConnectionInfo(info);
+    }
+    ICE_RUBY_CATCH
+    return Qnil;
+}
+
+extern "C"
+VALUE
 IceRuby_Connection_toString(VALUE self)
 {
     ICE_RUBY_TRY
@@ -159,10 +176,6 @@ createEndpoint(const Ice::EndpointPtr& p)
     return Data_Wrap_Struct(_endpointClass, 0, IceRuby_Endpoint_free, new Ice::EndpointPtr(p));
 }
 
-
-//
-// Ice::Endpoint::toString
-//
 extern "C"
 VALUE
 IceRuby_Endpoint_toString(VALUE self)
@@ -174,6 +187,22 @@ IceRuby_Endpoint_toString(VALUE self)
 
         string s = (*p)->toString();
         return createString(s);
+    }
+    ICE_RUBY_CATCH
+    return Qnil;
+}
+
+extern "C"
+VALUE
+IceRuby_Endpoint_getInfo(VALUE self)
+{
+    ICE_RUBY_TRY
+    {
+        Ice::EndpointPtr* p = reinterpret_cast<Ice::EndpointPtr*>(DATA_PTR(self));
+        assert(p);
+
+        Ice::EndpointInfoPtr info = (*p)->getInfo();
+        return createEndpointInfo(info);
     }
     ICE_RUBY_CATCH
     return Qnil;
@@ -1316,6 +1345,7 @@ IceRuby::initProxy(VALUE iceModule)
     rb_define_method(_connectionClass, "flushBatchRequests", CAST_METHOD(IceRuby_Connection_flushBatchRequests), 0);
     rb_define_method(_connectionClass, "type", CAST_METHOD(IceRuby_Connection_type), 0);
     rb_define_method(_connectionClass, "timeout", CAST_METHOD(IceRuby_Connection_timeout), 0);
+    rb_define_method(_connectionClass, "getInfo", CAST_METHOD(IceRuby_Connection_getInfo), 0);
     rb_define_method(_connectionClass, "toString", CAST_METHOD(IceRuby_Connection_toString), 0);
     rb_define_method(_connectionClass, "to_s", CAST_METHOD(IceRuby_Connection_toString), 0);
     rb_define_method(_connectionClass, "inspect", CAST_METHOD(IceRuby_Connection_toString), 0);
@@ -1331,6 +1361,9 @@ IceRuby::initProxy(VALUE iceModule)
     // Instance methods.
     //
     rb_define_method(_endpointClass, "toString", CAST_METHOD(IceRuby_Endpoint_toString), 0);
+    rb_define_method(_endpointClass, "getInfo", CAST_METHOD(IceRuby_Endpoint_getInfo), 0);
+    rb_define_method(_endpointClass, "to_s", CAST_METHOD(IceRuby_Endpoint_toString), 0);
+    rb_define_method(_endpointClass, "inspect", CAST_METHOD(IceRuby_Endpoint_toString), 0);
 
     //
     // ObjectPrx.

@@ -15,6 +15,7 @@
 #include <Proxy.h>
 #include <Slice.h>
 #include <Types.h>
+#include <ConnectionInfo.h>
 
 using namespace std;
 using namespace IceRuby;
@@ -37,6 +38,7 @@ Init_IceRuby()
     initTypes(iceModule);
     initImplicitContext(iceModule);
     initUtil(iceModule);
+    initConnectionInfo(iceModule);
 }
 
 }

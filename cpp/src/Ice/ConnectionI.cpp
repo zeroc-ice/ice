@@ -1434,7 +1434,9 @@ Ice::ConnectionI::getInfo() const
     {
         _exception->ice_throw();
     }
-    return _transceiver->getInfo();
+    ConnectionInfoPtr info = _transceiver->getInfo();
+    info->endpoint = _endpoint->getInfo();
+    return info;
 }
 
 //
