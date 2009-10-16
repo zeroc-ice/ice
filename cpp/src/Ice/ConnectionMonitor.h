@@ -25,6 +25,8 @@ class ConnectionMonitor : public IceUtil::TimerTask, public ::IceUtil::Mutex
 {
 public:
 
+    void checkIntervalForACM(int);
+
     void destroy();
 
     void add(const Ice::ConnectionIPtr&);
@@ -39,6 +41,8 @@ private:
     virtual void runTimerTask();
 
     InstancePtr _instance;
+    const int _interval;
+    int _scheduledInterval;
     std::set<Ice::ConnectionIPtr> _connections;
 };
 

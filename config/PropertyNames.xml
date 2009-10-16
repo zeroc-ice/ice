@@ -264,6 +264,7 @@ generated from the section label.
     </class>
 
     <class name="objectadapter" prefix-only="true">
+        <suffix name="ACM" />
         <suffix name="AdapterId" />
         <suffix name="Endpoints" />
         <suffix name="Locator" />

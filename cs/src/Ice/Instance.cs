@@ -128,7 +128,7 @@ namespace IceInternal
                     throw new Ice.CommunicatorDestroyedException();
                 }
                 
-                //Debug.Assert(_connectionMonitor != null); // Optional
+                Debug.Assert(_connectionMonitor != null);
                 return _connectionMonitor;
             }
         }
@@ -866,40 +866,15 @@ namespace IceInternal
             }
              
             //
-            // Start connection monitor if necessary. Set the check interval to
-            // 1/10 of the ACM timeout with a minmal value of 1 second and a
-            // maximum value of 5 minutes.
+            // Create the connection monitor and ensure the interval for
+            // monitoring connections is appropriate for client & server
+            // ACM.
             //
-            int interval = 0;
-            if(_clientACM > 0 && _serverACM > 0)
-            {
-                if(_clientACM < _serverACM)
-                {
-                    interval = _clientACM;
-                }
-                else
-                {
-                    interval = _serverACM;
-                }
-            }
-            else if(_clientACM > 0)
-            {
-                interval = _clientACM;
-            }
-            else if(_serverACM > 0)
-            {
-                interval = _serverACM;
-            }
-            if(interval > 0)
-            {
-                interval = System.Math.Min(300, System.Math.Max(5, (int)interval / 10));
-            }
-            interval = _initData.properties.getPropertyAsIntWithDefault("Ice.MonitorConnections", interval);
-            if(interval > 0)
-            {
-                _connectionMonitor = new ConnectionMonitor(this, interval);
-            }
-            
+            int interval = _initData.properties.getPropertyAsInt("Ice.MonitorConnections");
+            _connectionMonitor = new ConnectionMonitor(this, interval);
+            _connectionMonitor.checkIntervalForACM(_clientACM);
+            _connectionMonitor.checkIntervalForACM(_serverACM);
+
             //
             // Server thread pool initialization is lazy in serverThreadPool().
             //

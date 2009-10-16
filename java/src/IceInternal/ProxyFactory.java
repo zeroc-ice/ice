@@ -189,7 +189,16 @@ public final class ProxyFactory
         ++cnt;
         assert(cnt > 0);
 
-        if(cnt > _retryIntervals.length)
+        int interval;
+        if(cnt == (_retryIntervals.length + 1) && ex instanceof Ice.CloseConnectionException)
+        {
+            //
+            // A close connection exception is always retried at least once, even if the retry
+            // limit is reached.
+            //
+            interval = 0;
+        }
+        else if(cnt > _retryIntervals.length)
         {
             if(traceLevels.retry >= 1)
             {
@@ -198,8 +207,10 @@ public final class ProxyFactory
             }
             throw ex;
         }
-
-        int interval = _retryIntervals[cnt - 1];
+        else
+        {
+            interval = _retryIntervals[cnt - 1];
+        }
 
         if(traceLevels.retry >= 1)
         {

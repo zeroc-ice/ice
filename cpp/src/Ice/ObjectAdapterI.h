@@ -91,6 +91,7 @@ public:
 
     IceInternal::ThreadPoolPtr getThreadPool() const;
     IceInternal::ServantManagerPtr getServantManager() const;
+    Ice::Int getACM() const;
 
 private:
 
@@ -115,6 +116,8 @@ private:
     CommunicatorPtr _communicator;
     IceInternal::ObjectAdapterFactoryPtr _objectAdapterFactory;
     IceInternal::ThreadPoolPtr _threadPool;
+    bool _hasAcmTimeout;
+    Ice::Int _acmTimeout;
     IceInternal::ServantManagerPtr _servantManager;
     bool _activateOneOffDone;
     const std::string _name;

@@ -798,6 +798,23 @@ public final class ObjectAdapterI implements ObjectAdapter
         return _servantManager;
     }
 
+    public int
+    getACM()
+    {
+        // Not check for deactivation here!
+
+        assert(_instance != null); // Must not be called after destroy().
+
+        if(_hasAcmTimeout)
+        {
+            return _acmTimeout;
+        }
+        else
+        {
+            return _instance.serverACM();
+        }
+    }
+
     //
     // Only for use by IceInternal.ObjectAdapterFactory
     //
@@ -810,6 +827,8 @@ public final class ObjectAdapterI implements ObjectAdapter
         _instance = instance;
         _communicator = communicator;
         _objectAdapterFactory = objectAdapterFactory;
+        _hasAcmTimeout = false;
+        _acmTimeout = 0;
         _servantManager = new IceInternal.ServantManager(instance, name);
         _activateOneOffDone = false;
         _name = name;
@@ -897,6 +916,13 @@ public final class ObjectAdapterI implements ObjectAdapter
             if(threadPoolSize > 0 || threadPoolSizeMax > 0)
             {
                 _threadPool = new IceInternal.ThreadPool(_instance, _name + ".ThreadPool", 0);
+            }
+
+            _hasAcmTimeout = properties.getProperty(_name + ".ACM").length() > 0;
+            if(_hasAcmTimeout)
+            {
+                _acmTimeout = properties.getPropertyAsInt(_name + ".ACM");
+                _instance.connectionMonitor().checkIntervalForACM(_acmTimeout);
             }
 
             if(router == null)
@@ -1436,6 +1462,7 @@ public final class ObjectAdapterI implements ObjectAdapter
 
     static private String[] _suffixes =
     {
+        "ACM",
         "AdapterId",
         "Endpoints",
         "Locator",
@@ -1508,6 +1535,8 @@ public final class ObjectAdapterI implements ObjectAdapter
     private Communicator _communicator;
     private IceInternal.ObjectAdapterFactory _objectAdapterFactory;
     private IceInternal.ThreadPool _threadPool;
+    private boolean _hasAcmTimeout;
+    private int _acmTimeout;
     private IceInternal.ServantManager _servantManager;
     private boolean _activateOneOffDone;
     final private String _name;

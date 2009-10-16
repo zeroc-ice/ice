@@ -1524,22 +1524,6 @@ Ice::ConnectionI::ConnectionI(const InstancePtr& instance,
     _state(StateNotInitialized),
     _stateTime(IceUtil::Time::now(IceUtil::Time::Monotonic))
 {
-    Int& acmTimeout = const_cast<Int&>(_acmTimeout);
-    if(_endpoint->datagram())
-    {
-        acmTimeout = 0;
-    }
-    else
-    {
-        if(_adapter)
-        {
-            acmTimeout = _instance->serverACM();
-        }
-        else
-        {
-            acmTimeout = _instance->clientACM();
-        }
-    }
 
     int& compressionLevel = const_cast<int&>(_compressionLevel);
     compressionLevel = _instance->initializationData().properties->getPropertyAsIntWithDefault(
@@ -1557,6 +1541,23 @@ Ice::ConnectionI::ConnectionI(const InstancePtr& instance,
     if(adapterImpl)
     {
         _servantManager = adapterImpl->getServantManager();
+    }
+
+    Int& acmTimeout = const_cast<Int&>(_acmTimeout);
+    if(_endpoint->datagram())
+    {
+        acmTimeout = 0;
+    }
+    else
+    {
+        if(adapterImpl)
+        {
+            acmTimeout = adapterImpl->getACM();
+        }
+        else
+        {
+            acmTimeout = _instance->clientACM();
+        }
     }
 
     __setNoDelete(true);
@@ -1772,16 +1773,15 @@ Ice::ConnectionI::setState(State state)
     // monitor, but only if we were registered before, i.e., if our
     // old state was StateActive.
     //
-    ConnectionMonitorPtr connectionMonitor = _instance->connectionMonitor();
-    if(connectionMonitor)
+    if(_acmTimeout > 0)
     {
         if(state == StateActive)
         {
-            connectionMonitor->add(this);
+            _instance->connectionMonitor()->add(this);
         }
         else if(_state == StateActive)
         {
-            connectionMonitor->remove(this);
+            _instance->connectionMonitor()->remove(this);
         }
     }
 

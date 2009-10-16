@@ -1438,22 +1438,6 @@ namespace Ice
             _state = StateNotInitialized;
             _stateTime = IceInternal.Time.currentMonotonicTimeMillis();
 
-            if(_endpoint.datagram())
-            {
-                _acmTimeout = 0;
-            }
-            else
-            {
-                if(_adapter != null)
-                {
-                    _acmTimeout = _instance.serverACM();
-                }
-                else
-                {
-                    _acmTimeout = _instance.clientACM();
-                }
-            }
-
             _compressionLevel = initData.properties.getPropertyAsIntWithDefault("Ice.Compression.Level", 1);
             if(_compressionLevel < 1)
             {
@@ -1472,6 +1456,22 @@ namespace Ice
 
             try
             {
+                if(_endpoint.datagram())
+                {
+                    _acmTimeout = 0;
+                }
+                else
+                {
+                    if(adapterImpl != null)
+                    {
+                        _acmTimeout = adapterImpl.getACM();
+                    }
+                    else
+                    {
+                        _acmTimeout = _instance.clientACM();
+                    }
+                }
+
                 if(adapterImpl != null)
                 {
                     _threadPool = adapterImpl.getThreadPool();
@@ -1671,16 +1671,15 @@ namespace Ice
             // monitor, but only if we were registered before, i.e., if our
             // old state was StateActive.
             //
-            IceInternal.ConnectionMonitor connectionMonitor = _instance.connectionMonitor();
-            if(connectionMonitor != null)
+            if(_acmTimeout > 0)
             {
                 if(state == StateActive)
                 {
-                    connectionMonitor.add(this);
+                    _instance.connectionMonitor().add(this);
                 }
                 else if(_state == StateActive)
                 {
-                    connectionMonitor.remove(this);
+                    _instance.connectionMonitor().remove(this);
                 }
             }
 

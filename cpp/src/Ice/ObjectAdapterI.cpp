@@ -11,6 +11,7 @@
 #include <Ice/ObjectAdapterI.h>
 #include <Ice/ObjectAdapterFactory.h>
 #include <Ice/Instance.h>
+#include <Ice/ConnectionMonitor.h>
 #include <Ice/Proxy.h>
 #include <Ice/ProxyFactory.h>
 #include <Ice/ReferenceFactory.h>
@@ -830,6 +831,23 @@ Ice::ObjectAdapterI::getServantManager() const
     return _servantManager;
 }
 
+Ice::Int
+Ice::ObjectAdapterI::getACM() const
+{
+    // Not check for deactivation here!
+
+    assert(_instance); // Must not be called after destroy().
+
+    if(_hasAcmTimeout)
+    {
+        return _acmTimeout;
+    }
+    else
+    {
+        return _instance->serverACM();
+    }
+}
+
 //
 // COMPILERFIX: The ObjectAdapterI setup is broken out into a separate initialize
 // function because when it was part of the constructor C++Builder 2010 apps would
@@ -842,6 +860,8 @@ Ice::ObjectAdapterI::ObjectAdapterI(const InstancePtr& instance, const Communica
     _instance(instance),
     _communicator(communicator),
     _objectAdapterFactory(objectAdapterFactory),
+    _hasAcmTimeout(false),
+    _acmTimeout(0),
     _servantManager(new ServantManager(instance, name)),
     _activateOneOffDone(false),
     _name(name),
@@ -923,6 +943,13 @@ Ice::ObjectAdapterI::initialize(const RouterPrx& router)
         if(threadPoolSize > 0 || threadPoolSizeMax > 0 || hasPriority)
         {
             _threadPool = new ThreadPool(_instance, _name + ".ThreadPool", 0);
+        }
+        
+        _hasAcmTimeout = properties->getProperty(_name + ".ACM") != "";
+        if(_hasAcmTimeout)
+        {
+            _acmTimeout = properties->getPropertyAsInt(_name + ".ACM");
+            _instance->connectionMonitor()->checkIntervalForACM(_acmTimeout);
         }
 
         if(!router)
@@ -1404,6 +1431,7 @@ Ice::ObjectAdapterI::filterProperties(StringSeq& unknownProps)
 {
     static const string suffixes[] = 
     { 
+        "ACM",
         "AdapterId",
         "Endpoints",
         "Locator",

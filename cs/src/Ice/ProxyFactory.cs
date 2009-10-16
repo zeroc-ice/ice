@@ -178,7 +178,16 @@ namespace IceInternal
             ++cnt;
             Debug.Assert(cnt > 0);
 
-            if(cnt > _retryIntervals.Length)
+            int interval;
+            if(cnt == (_retryIntervals.Length + 1) && ex is Ice.CloseConnectionException)
+            {
+                //
+                // A close connection exception is always retried at least once, even if the retry
+                // limit is reached.
+                //
+                interval = 0;
+            }
+            else if(cnt > _retryIntervals.Length)
             {
                 if(traceLevels.retry >= 1)
                 {
@@ -187,8 +196,10 @@ namespace IceInternal
                 }
                 throw ex;
             }
-
-            int interval = _retryIntervals[cnt - 1];
+            else
+            {
+                interval = _retryIntervals[cnt - 1];
+            }
 
             if(traceLevels.retry >= 1)
             {

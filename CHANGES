@@ -33,6 +33,17 @@ General Changes
 These entries apply to all relevant language mappings unless otherwise
 noted.
 
+- Added support for per-object adapter ACM timeout. This timeout is
+  set with the <adapter>.ACM property. If not set, the connections
+  from the object adapter will use by default the ACM timeout set at
+  the communicator level with the Ice.ACM.Server property.
+
+- Improved the Ice runtime invocation retry to always retry at least
+  once on Ice::CloseConnectionException failures even if the retry
+  limit has been reached. If retries are disabled, this ensures that
+  the invocation will still be retried if it fails with an
+  Ice::CloseConnectionException.
+
 - Added Glacier2.AddConnectionContext property to enable forwarding
   connection information into the context of routed invocations. See
   the manual for more information. Glacier2.AddSSLContext has been

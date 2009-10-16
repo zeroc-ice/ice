@@ -203,8 +203,18 @@ IceInternal::ProxyFactory::checkRetryAfterException(const LocalException& ex,
 
     ++cnt;
     assert(cnt > 0);
-    
-    if(cnt > static_cast<int>(_retryIntervals.size()))
+
+    int interval;
+    if(cnt == static_cast<int>(_retryIntervals.size() + 1) && 
+       dynamic_cast<const CloseConnectionException*>(&ex))
+    {
+        //
+        // A close connection exception is always retried at least once, even if the retry
+        // limit is reached.
+        //
+        interval = 0;
+    } 
+    else if(cnt > static_cast<int>(_retryIntervals.size()))
     {
         if(traceLevels->retry >= 1)
         {
@@ -213,8 +223,10 @@ IceInternal::ProxyFactory::checkRetryAfterException(const LocalException& ex,
         }
         ex.ice_throw();
     }
-
-    int interval = _retryIntervals[cnt - 1];
+    else
+    {
+        interval = _retryIntervals[cnt - 1];
+    }
 
     if(traceLevels->retry >= 1)
     {
