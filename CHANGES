@@ -397,6 +397,9 @@ Java Changes
 C# Changes
 ==========
 
+- Both Ice Plugin and IceBox Service configuration now allow you to
+  enter a full path as the assembly DLL name.
+
 - Added new ice_dispatch method to Object that does not take a
   DispatchInterceptorAsyncCallback paramter to be used for
   synchronous dispatch only.

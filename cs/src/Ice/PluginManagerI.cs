@@ -356,6 +356,16 @@ namespace Ice
             //
             string err = "unable to load plug-in '" + entryPoint + "': ";
             int sepPos = entryPoint.IndexOf(':');
+            if(sepPos != -1)
+            {
+                if(entryPoint.Length > 3 &&
+                   sepPos == 1 &&
+                   System.Char.IsLetter(entryPoint[0]) &&
+                   (entryPoint[2] == '\\' || entryPoint[2] == '/'))
+                {
+                    sepPos = entryPoint.IndexOf(':', 3);
+                }
+            }
             if (sepPos == -1)
             {
                 PluginInitializationException e = new PluginInitializationException();
