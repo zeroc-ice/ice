@@ -116,15 +116,24 @@ SLICE2RBFLAGS		= $(ICECPPFLAGS)
 
 !if "$(ice_src_dist)" != ""
 !if "$(ice_cpp_dir)" == "$(ice_dir)\cpp"
-SLICE2RB		= "$(ice_cpp_dir)\bin\slice2rb.exe"
-SLICEPARSERLIB          = "$(ice_cpp_dir)\lib\slice$(LIBSUFFIX).lib"
-!else
-SLICE2RB		= "$(ice_cpp_dir)\bin$(x64suffix)\slice2rb.exe"
-SLICEPARSERLIB          = "$(ice_cpp_dir)\lib$(x64suffix)\slice$(LIBSUFFIX).lib"
+SLICE2RB                = "$(ice_cpp_dir)\bin\slice2rb.exe"
+SLICEPARSERLIB          = "$(ice_cpp_dir)\lib\slice.lib"
+!if !exist ($(SLICEPARSERLIB))
+SLICEPARSERLIB          = "$(ice_cpp_dir)\lib\sliced.lib"
 !endif
 !else
-SLICE2RB		= "$(ice_dir)\bin$(x64suffix)\slice2rb.exe"
-SLICEPARSERLIB          = "$(ice_dir)\lib$(x64suffix)\slice$(LIBSUFFIX).lib"
+SLICE2RB                = "$(ice_cpp_dir)\bin$(x64suffix)\slice2rb.exe"
+SLICEPARSERLIB          = "$(ice_cpp_dir)\lib$(x64suffix)\slice.lib"
+!if !exist ($(SLICEPARSERLIB))
+SLICEPARSERLIB          = "$(ice_cpp_dir)\lib$(x64suffix)\sliced.lib"
+!endif
+!endif
+!else
+SLICE2RB                = "$(ice_dir)\bin$(x64suffix)\slice2rb.exe"
+SLICEPARSERLIB          = "$(ice_dir)\lib$(x64suffix)\slice.lib"
+!if !exist ($(SLICEPARSERLIB))
+SLICEPARSERLIB          = "$(ice_dir)\lib$(x64suffix)\sliced.lib"
+!endif
 !endif
 
 EVERYTHING		= all clean install

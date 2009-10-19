@@ -156,15 +156,24 @@ SLICE2PHPFLAGS		= $(SLICE2PHPFLAGS) -n
 
 !if "$(ice_src_dist)" != ""
 !if "$(ice_cpp_dir)" == "$(ice_dir)\cpp"
-SLICE2PHP		= "$(ice_cpp_dir)\bin\slice2php.exe"
-SLICEPARSERLIB          = "$(ice_cpp_dir)\lib\slice$(LIBSUFFIX).lib"
-!else
-SLICE2PHP		= "$(ice_cpp_dir)\bin$(x64suffix)\slice2php.exe"
-SLICEPARSERLIB          = "$(ice_cpp_dir)\lib$(x64suffix)\slice$(LIBSUFFIX).lib"
+SLICE2PHP               = "$(ice_cpp_dir)\bin\slice2php.exe"
+SLICEPARSERLIB          = "$(ice_cpp_dir)\lib\slice.lib"
+!if !exist ($(SLICEPARSERLIB))
+SLICEPARSERLIB          = "$(ice_cpp_dir)\lib\sliced.lib"
 !endif
 !else
-SLICE2PHP		= "$(ice_dir)\bin$(x64suffix)\slice2php.exe"
-SLICEPARSERLIB          = "$(ice_dir)\lib$(x64suffix)\slice$(LIBSUFFIX).lib"
+SLICE2PHP               = "$(ice_cpp_dir)\bin$(x64suffix)\slice2php.exe"
+SLICEPARSERLIB          = "$(ice_cpp_dir)\lib$(x64suffix)\slice.lib"
+!if !exist ($(SLICEPARSERLIB))
+SLICEPARSERLIB          = "$(ice_cpp_dir)\lib$(x64suffix)\sliced.lib"
+!endif
+!endif
+!else
+SLICE2PHP               = "$(ice_dir)\bin$(x64suffix)\slice2php.exe"
+SLICEPARSERLIB          = "$(ice_dir)\lib$(x64suffix)\slice.lib"
+!if !exist ($(SLICEPARSERLIB))
+SLICEPARSERLIB          = "$(ice_dir)\lib$(x64suffix)\sliced.lib"
+!endif
 !endif
 
 EVERYTHING		= all clean install
