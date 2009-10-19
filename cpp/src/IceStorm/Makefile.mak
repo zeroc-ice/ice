@@ -9,12 +9,12 @@
 
 top_srcdir	= ..\..
 
-LIBNAME		= $(top_srcdir)\lib\icestormdb$(LIBSUFFIX).lib
-DLLNAME		= $(top_srcdir)\bin\icestormdb$(SOVERSION)$(LIBSUFFIX).dll
+LIBNAME		= $(top_srcdir)\lib\icestormservice$(LIBSUFFIX).lib
+DLLNAME		= $(top_srcdir)\bin\icestormservice$(SOVERSION)$(LIBSUFFIX).dll
 
 ADMIN		= $(top_srcdir)\bin\icestormadmin.exe
 
-TARGETS         = $(SVCLIBNAME) $(SVCDLLNAME) $(ADMIN)
+TARGETS         = $(LIBNAME) $(DLLNAME) $(ADMIN)
 
 OBJS		= NodeI.obj \
 		  Observers.obj \

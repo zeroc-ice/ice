@@ -688,7 +688,7 @@ Glacier2::CreateSession::exception(const Ice::Exception& ex)
     {    
         _sessionRouter->finishCreateSession(_current.con, 0);
     }
-    catch(const Ice::Exception& ex)
+    catch(const Ice::Exception&)
     {
     }
         
