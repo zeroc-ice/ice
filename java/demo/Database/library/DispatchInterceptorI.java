@@ -19,7 +19,7 @@ class DispatchInterceptorI extends Ice.DispatchInterceptor
         SQLRequestContext context = new SQLRequestContext();
         try
         {
-            Ice.DispatchStatus status = _servant.ice_dispatch(request, null);
+            Ice.DispatchStatus status = _servant.ice_dispatch(request);
 
             // An exception causes the current transaction to rollback.
             context.destroyFromDispatch(status == Ice.DispatchStatus.DispatchOK);

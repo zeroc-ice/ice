@@ -301,6 +301,22 @@ public abstract class ObjectImpl implements Object, java.lang.Cloneable, java.io
         }
     }
 
+    /**
+     * Dispatches an invocation to a servant. This method is used by dispatch interceptors to forward an invocation
+     * to a servant (or to another interceptor).
+     *
+     * @param request The details of the invocation.
+     * @return The dispatch status for the operation.
+     *
+     * @see DispatchInterceptor
+     * @see DispatchStatus
+     **/
+    public DispatchStatus
+    ice_dispatch(Request request)
+    {
+        return ice_dispatch(request, null);
+    }
+
     public DispatchStatus
     __dispatch(IceInternal.Incoming in, Current current)
     {

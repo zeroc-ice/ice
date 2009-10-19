@@ -150,6 +150,14 @@ namespace Ice
         /// <returns>The dispatch status for the operation.</returns>
         DispatchStatus ice_dispatch(Request request, DispatchInterceptorAsyncCallback cb);
 
+        /// <summary>
+        /// Dispatches an invocation to a servant. This method is used by dispatch interceptors to forward an invocation
+        /// to a servant (or to another interceptor).
+        /// </summary>
+        /// <param name="request">The details of the invocation.</param>
+        /// <returns>The dispatch status for the operation.</returns>
+        DispatchStatus ice_dispatch(Request request);
+
         DispatchStatus dispatch__(IceInternal.Incoming inc, Current current);
 
         DispatchStatus collocDispatch__(IceInternal.Direct request);
@@ -375,6 +383,17 @@ namespace Ice
                     }
                 }
             }
+        }
+
+        /// <summary>
+        /// Dispatches an invocation to a servant. This method is used by dispatch interceptors to forward an invocation
+        /// to a servant (or to another interceptor).
+        /// </summary>
+        /// <param name="request">The details of the invocation.</param>
+        /// <returns>The dispatch status for the operation.</returns>
+        public virtual DispatchStatus ice_dispatch(Request request)
+        {
+            return ice_dispatch(request, null);
         }
 
         public virtual DispatchStatus dispatch__(IceInternal.Incoming inc, Current current)

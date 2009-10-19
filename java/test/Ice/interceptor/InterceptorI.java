@@ -40,7 +40,7 @@ class InterceptorI extends Ice.DispatchInterceptor
             {
                 try
                 {
-                    _servant.ice_dispatch(request, null);
+                    _servant.ice_dispatch(request);
                     test(false);
                 }
                 catch(RetryException re)
@@ -54,7 +54,7 @@ class InterceptorI extends Ice.DispatchInterceptor
             current.ctx.put("retry", "no");
         }
       
-        _lastStatus = _servant.ice_dispatch(request, null);
+        _lastStatus = _servant.ice_dispatch(request);
         return _lastStatus;
     }
 

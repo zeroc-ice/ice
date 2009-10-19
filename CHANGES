@@ -299,6 +299,10 @@ C++ Changes
 Java Changes
 ============
 
+- Added new ice_dispatch method to Object that does not take a
+  DispatchInterceptorAsyncCallback paramter to be used for
+  synchronous dispatch only.
+
 - Added support for using direct buffers in the transport layer to
   minimize copying. The semantics of the Ice.CacheMessageBuffers
   property have been extended as follows:
@@ -392,6 +396,10 @@ Java Changes
 
 C# Changes
 ==========
+
+- Added new ice_dispatch method to Object that does not take a
+  DispatchInterceptorAsyncCallback paramter to be used for
+  synchronous dispatch only.
 
 - IceSSL's behavior with respect to the IceSSL.CheckCertName property
   is now consistent with that of C++ and Java. Specifically, IceSSL

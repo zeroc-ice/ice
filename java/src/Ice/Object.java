@@ -142,6 +142,18 @@ public interface Object
      **/
     DispatchStatus ice_dispatch(Request request, DispatchInterceptorAsyncCallback cb);
 
+    /**
+     * Dispatches an invocation to a servant. This method is used by dispatch interceptors to forward an invocation
+     * to a servant (or to another interceptor).
+     *
+     * @param request The details of the invocation.
+     * @return The dispatch status for the operation.
+     *
+     * @see DispatchInterceptor
+     * @see DispatchStatus
+     **/
+    DispatchStatus ice_dispatch(Request request);
+
     DispatchStatus __dispatch(IceInternal.Incoming in, Current current);
 
     DispatchStatus __collocDispatch(IceInternal.Direct request);

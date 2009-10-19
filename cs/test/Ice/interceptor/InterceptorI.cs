@@ -39,7 +39,7 @@ class InterceptorI : Ice.DispatchInterceptor
             {
                 try
                 {
-                    servant_.ice_dispatch(request, null);
+                    servant_.ice_dispatch(request);
                     test(false);
                 }
                 catch(Test.RetryException)
@@ -53,7 +53,7 @@ class InterceptorI : Ice.DispatchInterceptor
             current.ctx["retry"] = "no";
         }
       
-        lastStatus_ = servant_.ice_dispatch(request, null);
+        lastStatus_ = servant_.ice_dispatch(request);
         return lastStatus_;
     }
 
