@@ -24,28 +24,29 @@ namespace IcePy
 struct ConnectionInfoObject
 {
     PyObject_HEAD
-
-    // Ice::ConnectionInfo
-    PyObject* endpoint;
-
-    // Ice::TcpConnectionInfo
-    // Ice::UdpConnectionInfo
-    PyObject* localAddress;
-    int localPort;
-    PyObject* remoteAddress;
-    int remotePort;
-
-    // Ice::UdpConnectionInfo
-    PyObject* mcastAddress;
-    int mcastPort;
-
     Ice::ConnectionInfoPtr* connectionInfo;
 };
 
-extern PyTypeObject TcpConnectionInfoType;
-extern PyTypeObject UdpConnectionInfoType;
-
 }
+
+//
+// ConnectionInfo members
+//
+#define MEMBER_ENDPOINT         0
+
+//
+// Shared TCP/UDP members
+//
+#define MEMBER_LOCAL_ADDRESS    1
+#define MEMBER_LOCAL_PORT       2
+#define MEMBER_REMOTE_ADDRESS   3
+#define MEMBER_REMOTE_PORT      4
+
+//
+// UdpConnectionInfo members
+//
+#define MEMBER_MCAST_ADDRESS    5
+#define MEMBER_MCAST_PORT       6
 
 #ifdef WIN32
 extern "C"
@@ -63,57 +64,135 @@ extern "C"
 static void
 connectionInfoDealloc(ConnectionInfoObject* self)
 {
-    if(Ice::TcpConnectionInfoPtr::dynamicCast(*self->connectionInfo))
-    {
-        Py_DECREF(self->localAddress);
-        Py_DECREF(self->remoteAddress);
-    }
-    else if(Ice::UdpConnectionInfoPtr::dynamicCast(*self->connectionInfo))
-    {
-        Py_DECREF(self->localAddress);
-        Py_DECREF(self->remoteAddress);
-        Py_DECREF(self->mcastAddress);
-    }
-
     delete self->connectionInfo;
-    Py_DECREF(self->endpoint);
     PyObject_Del(self);
 }
 
-static PyMemberDef ConnectionInfoMembers[] =
+#ifdef WIN32
+extern "C"
+#endif
+static PyObject*
+connectionInfoGetter(ConnectionInfoObject* self, void* closure)
 {
-    { STRCAST("endpoint"), T_OBJECT, offsetof(ConnectionInfoObject, endpoint), READONLY,
-        PyDoc_STR(STRCAST("endpoint used to establish the connection")) },
+    int member = reinterpret_cast<int>(closure);
+    PyObject* result = 0;
+
+    switch(member)
+    {
+    case MEMBER_ENDPOINT:
+        result = createEndpointInfo((*self->connectionInfo)->endpoint);
+        break;
+    default:
+        assert(false);
+    }
+
+    return result;
+}
+
+#ifdef WIN32
+extern "C"
+#endif
+static PyObject*
+tcpConnectionInfoGetter(ConnectionInfoObject* self, void* closure)
+{
+    int member = reinterpret_cast<int>(closure);
+    PyObject* result = 0;
+    Ice::TcpConnectionInfoPtr info = Ice::TcpConnectionInfoPtr::dynamicCast(*self->connectionInfo);
+    assert(info);
+
+    switch(member)
+    {
+    case MEMBER_LOCAL_ADDRESS:
+        result = createString(info->localAddress);
+        break;
+    case MEMBER_LOCAL_PORT:
+        result = PyInt_FromLong(info->localPort);
+        break;
+    case MEMBER_REMOTE_ADDRESS:
+        result = createString(info->remoteAddress);
+        break;
+    case MEMBER_REMOTE_PORT:
+        result = PyInt_FromLong(info->remotePort);
+        break;
+    default:
+        assert(false);
+    }
+
+    return result;
+}
+
+#ifdef WIN32
+extern "C"
+#endif 
+static PyObject*
+udpConnectionInfoGetter(ConnectionInfoObject* self, void* closure)
+{
+    int member = reinterpret_cast<int>(closure);
+    PyObject* result = 0;
+    Ice::UdpConnectionInfoPtr info = Ice::UdpConnectionInfoPtr::dynamicCast(*self->connectionInfo);
+    assert(info);
+
+    switch(member)
+    {
+    case MEMBER_LOCAL_ADDRESS:
+        result = createString(info->localAddress);
+        break;
+    case MEMBER_LOCAL_PORT:
+        result = PyInt_FromLong(info->localPort);
+        break;
+    case MEMBER_REMOTE_ADDRESS:
+        result = createString(info->remoteAddress);
+        break;
+    case MEMBER_REMOTE_PORT:
+        result = PyInt_FromLong(info->remotePort);
+        break;
+    case MEMBER_MCAST_ADDRESS:
+        result = createString(info->mcastAddress);
+        break;
+    case MEMBER_MCAST_PORT:
+        result = PyInt_FromLong(info->mcastPort);
+        break;
+    default:
+        assert(false);
+    }
+
+    return result;
+}
+
+static PyGetSetDef ConnectionInfoGetters[] =
+{
+    { STRCAST("endpoint"), reinterpret_cast<getter>(connectionInfoGetter), 0,
+        PyDoc_STR(STRCAST("endpoint used to establish the connection")), reinterpret_cast<void*>(MEMBER_ENDPOINT) },
     { 0, 0 } /* sentinel */
 };
 
-static PyMemberDef TcpConnectionInfoMembers[] =
+static PyGetSetDef TcpConnectionInfoGetters[] =
 {
-    { STRCAST("localAddress"), T_OBJECT, offsetof(ConnectionInfoObject, localAddress), READONLY,
-        PyDoc_STR(STRCAST("local address")) },
-    { STRCAST("localPort"), T_INT, offsetof(ConnectionInfoObject, localPort), READONLY,
-        PyDoc_STR(STRCAST("local port")) },
-    { STRCAST("remoteAddress"), T_OBJECT, offsetof(ConnectionInfoObject, remoteAddress), READONLY,
-        PyDoc_STR(STRCAST("remote address")) },
-    { STRCAST("remotePort"), T_INT, offsetof(ConnectionInfoObject, remotePort), READONLY,
-        PyDoc_STR(STRCAST("remote port")) },
+    { STRCAST("localAddress"), reinterpret_cast<getter>(tcpConnectionInfoGetter), 0,
+        PyDoc_STR(STRCAST("local address")), reinterpret_cast<void*>(MEMBER_LOCAL_ADDRESS) },
+    { STRCAST("localPort"), reinterpret_cast<getter>(tcpConnectionInfoGetter), 0,
+        PyDoc_STR(STRCAST("local port")), reinterpret_cast<void*>(MEMBER_LOCAL_PORT) },
+    { STRCAST("remoteAddress"), reinterpret_cast<getter>(tcpConnectionInfoGetter), 0,
+        PyDoc_STR(STRCAST("remote address")), reinterpret_cast<void*>(MEMBER_REMOTE_ADDRESS) },
+    { STRCAST("remotePort"), reinterpret_cast<getter>(tcpConnectionInfoGetter), 0,
+        PyDoc_STR(STRCAST("remote port")), reinterpret_cast<void*>(MEMBER_REMOTE_PORT) },
     { 0, 0 } /* sentinel */
 };
 
-static PyMemberDef UdpConnectionInfoMembers[] =
+static PyGetSetDef UdpConnectionInfoGetters[] =
 {
-    { STRCAST("localAddress"), T_OBJECT, offsetof(ConnectionInfoObject, localAddress), READONLY,
-        PyDoc_STR(STRCAST("local address")) },
-    { STRCAST("localPort"), T_INT, offsetof(ConnectionInfoObject, localPort), READONLY,
-        PyDoc_STR(STRCAST("local port")) },
-    { STRCAST("remoteAddress"), T_OBJECT, offsetof(ConnectionInfoObject, remoteAddress), READONLY,
-        PyDoc_STR(STRCAST("remote address")) },
-    { STRCAST("remotePort"), T_INT, offsetof(ConnectionInfoObject, remotePort), READONLY,
-        PyDoc_STR(STRCAST("remote port")) },
-    { STRCAST("mcastAddress"), T_OBJECT, offsetof(ConnectionInfoObject, mcastAddress), READONLY,
-        PyDoc_STR(STRCAST("multicast address")) },
-    { STRCAST("mcastPort"), T_INT, offsetof(ConnectionInfoObject, mcastPort), READONLY,
-        PyDoc_STR(STRCAST("multicast port")) },
+    { STRCAST("localAddress"), reinterpret_cast<getter>(udpConnectionInfoGetter), 0,
+        PyDoc_STR(STRCAST("local address")), reinterpret_cast<void*>(MEMBER_LOCAL_ADDRESS) },
+    { STRCAST("localPort"), reinterpret_cast<getter>(udpConnectionInfoGetter), 0,
+        PyDoc_STR(STRCAST("local port")), reinterpret_cast<void*>(MEMBER_LOCAL_PORT) },
+    { STRCAST("remoteAddress"), reinterpret_cast<getter>(udpConnectionInfoGetter), 0,
+        PyDoc_STR(STRCAST("remote address")), reinterpret_cast<void*>(MEMBER_REMOTE_ADDRESS) },
+    { STRCAST("remotePort"), reinterpret_cast<getter>(udpConnectionInfoGetter), 0,
+        PyDoc_STR(STRCAST("remote port")), reinterpret_cast<void*>(MEMBER_REMOTE_PORT) },
+    { STRCAST("mcastAddress"), reinterpret_cast<getter>(udpConnectionInfoGetter), 0,
+        PyDoc_STR(STRCAST("multicast address")), reinterpret_cast<void*>(MEMBER_MCAST_ADDRESS) },
+    { STRCAST("mcastPort"), reinterpret_cast<getter>(udpConnectionInfoGetter), 0,
+        PyDoc_STR(STRCAST("multicast port")), reinterpret_cast<void*>(MEMBER_MCAST_PORT) },
     { 0, 0 } /* sentinel */
 };
 
@@ -154,8 +233,8 @@ PyTypeObject ConnectionInfoType =
     0,                               /* tp_iter */
     0,                               /* tp_iternext */
     0,                               /* tp_methods */
-    ConnectionInfoMembers,           /* tp_members */
-    0,                               /* tp_getset */
+    0,                               /* tp_members */
+    ConnectionInfoGetters,           /* tp_getset */
     0,                               /* tp_base */
     0,                               /* tp_dict */
     0,                               /* tp_descr_get */
@@ -202,8 +281,8 @@ PyTypeObject TcpConnectionInfoType =
     0,                               /* tp_iter */
     0,                               /* tp_iternext */
     0,                               /* tp_methods */
-    TcpConnectionInfoMembers,        /* tp_members */
-    0,                               /* tp_getset */
+    0,                               /* tp_members */
+    TcpConnectionInfoGetters,        /* tp_getset */
     0,                               /* tp_base */
     0,                               /* tp_dict */
     0,                               /* tp_descr_get */
@@ -250,8 +329,8 @@ PyTypeObject UdpConnectionInfoType =
     0,                               /* tp_iter */
     0,                               /* tp_iternext */
     0,                               /* tp_methods */
-    UdpConnectionInfoMembers,        /* tp_members */
-    0,                               /* tp_getset */
+    0,                               /* tp_members */
+    UdpConnectionInfoGetters,        /* tp_getset */
     0,                               /* tp_base */
     0,                               /* tp_dict */
     0,                               /* tp_descr_get */
@@ -315,49 +394,26 @@ IcePy::getConnectionInfo(PyObject* obj)
 PyObject*
 IcePy::createConnectionInfo(const Ice::ConnectionInfoPtr& connectionInfo)
 {
-    ConnectionInfoObject* obj;
+    PyTypeObject* type;
     if(Ice::TcpConnectionInfoPtr::dynamicCast(connectionInfo))
     {
-        obj = PyObject_New(ConnectionInfoObject, &TcpConnectionInfoType);
-        if(!obj)
-        {
-            return 0;
-        }
-
-        Ice::TcpConnectionInfoPtr tcpConnectionInfo = Ice::TcpConnectionInfoPtr::dynamicCast(connectionInfo);
-        obj->localAddress = IcePy::createString(tcpConnectionInfo->localAddress);
-        obj->localPort = static_cast<int>(tcpConnectionInfo->localPort);
-        obj->remoteAddress = IcePy::createString(tcpConnectionInfo->remoteAddress);
-        obj->remotePort = static_cast<int>(tcpConnectionInfo->remotePort);
+        type = &TcpConnectionInfoType;
     }
     else if(Ice::UdpConnectionInfoPtr::dynamicCast(connectionInfo))
     {
-        obj = PyObject_New(ConnectionInfoObject, &UdpConnectionInfoType);
-        if(!obj)
-        {
-            return 0;
-        }
-
-        Ice::UdpConnectionInfoPtr udpConnectionInfo = Ice::UdpConnectionInfoPtr::dynamicCast(connectionInfo);
-        obj->localAddress = IcePy::createString(udpConnectionInfo->localAddress);
-        obj->localPort = static_cast<int>(udpConnectionInfo->localPort);
-        obj->remoteAddress = IcePy::createString(udpConnectionInfo->remoteAddress);
-        obj->remotePort = static_cast<int>(udpConnectionInfo->remotePort);
-        obj->mcastAddress = IcePy::createString(udpConnectionInfo->mcastAddress);
-        obj->mcastPort = static_cast<int>(udpConnectionInfo->mcastPort);
+        type = &UdpConnectionInfoType;
     }
     else
     {
-        obj = PyObject_New(ConnectionInfoObject, &ConnectionInfoType);
-        if(!obj)
-        {
-            return 0;
-        }
+        type = &ConnectionInfoType;
     }
 
+    ConnectionInfoObject* obj = PyObject_New(ConnectionInfoObject, type);
+    if(!obj)
+    {
+        return 0;
+    }
     obj->connectionInfo = new Ice::ConnectionInfoPtr(connectionInfo);
-    Ice::EndpointInfoPtr info = connectionInfo->endpoint;
-    obj->endpoint = IcePy::createEndpointInfo(connectionInfo->endpoint);
 
     return (PyObject*)obj;
 }
