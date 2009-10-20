@@ -70,8 +70,8 @@ public:
 
 protected:
 
-    virtual bool start(int, char*[]);
-    bool startImpl(int, char*[]);
+    virtual bool start(int, char*[], int&);
+    bool startImpl(int, char*[], int&);
     virtual void waitForShutdown();
     virtual bool stop();
     virtual CommunicatorPtr initializeCommunicator(int&, char*[], const InitializationData&);
@@ -182,11 +182,11 @@ NodeService::shutdown()
 }
 
 bool
-NodeService::start(int argc, char* argv[])
+NodeService::start(int argc, char* argv[], int& status)
 {
     try
     {
-        if(!startImpl(argc, argv))
+        if(!startImpl(argc, argv, status))
         {
             stop();
             return false;
@@ -201,7 +201,7 @@ NodeService::start(int argc, char* argv[])
 }
 
 bool
-NodeService::startImpl(int argc, char* argv[])
+NodeService::startImpl(int argc, char* argv[], int& status)
 {
     bool nowarn = false;
     bool readonly = false;
@@ -212,11 +212,13 @@ NodeService::startImpl(int argc, char* argv[])
         if(strcmp(argv[i], "-h") == 0 || strcmp(argv[i], "--help") == 0)
         {
             usage(argv[0]);
+            status = EXIT_SUCCESS;
             return false;
         }
         else if(strcmp(argv[i], "-v") == 0 || strcmp(argv[i], "--version") == 0)
         {
             print(ICE_STRING_VERSION);
+            status = EXIT_SUCCESS;
             return false;
         }
         else if(strcmp(argv[i], "--nowarn") == 0)

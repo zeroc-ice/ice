@@ -807,7 +807,7 @@ Ice::Service::run(int& argc, char* argv[], const InitializationData& initData)
         //
         // Start the service.
         //
-        if(start(argc, argv))
+        if(start(argc, argv, status))
         {
             //
             // Wait for service shutdown.
@@ -2018,7 +2018,7 @@ Ice::Service::runDaemon(int argc, char* argv[], const InitializationData& initDa
         //
         // Start the service.
         //
-        if(start(argc, argv))
+        if(start(argc, argv, status))
         {
             //
             // Notify the parent that the child is ready.

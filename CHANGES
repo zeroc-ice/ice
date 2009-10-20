@@ -258,6 +258,8 @@ noted.
 C++ Changes
 ============
 
+- Changed the signature of the Ice::Service start method.
+
 - Added new static methods to initialize an IceUtil::Time class from
   a double:
 

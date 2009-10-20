@@ -162,7 +162,7 @@ protected:
     // Prepare a service for execution, including the creation and
     // activation of object adapters and servants.
     //
-    virtual bool start(int, char*[]) = 0;
+    virtual bool start(int, char*[], int&) = 0;
 
     //
     // Blocks until the service shuts down. The default implementation

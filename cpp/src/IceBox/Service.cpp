@@ -27,7 +27,7 @@ public:
 
 protected:
 
-    virtual bool start(int, char*[]);
+    virtual bool start(int, char*[], int&);
     virtual bool stop();
 
 private:
@@ -43,7 +43,7 @@ IceBox::IceBoxService::IceBoxService()
 }
 
 bool
-IceBox::IceBoxService::start(int argc, char* argv[])
+IceBox::IceBoxService::start(int argc, char* argv[], int& status)
 {
     // Run through the command line arguments removing all the service
     // properties.
@@ -84,11 +84,13 @@ IceBox::IceBoxService::start(int argc, char* argv[])
     if(opts.isSet("help"))
     {
         usage(argv[0]);
+        status = EXIT_SUCCESS;
         return false;
     }
     if(opts.isSet("version"))
     {
         print(ICE_STRING_VERSION);
+        status = EXIT_SUCCESS;
         return false;
     }
 

@@ -31,7 +31,7 @@ public:
 
 protected:
 
-    virtual bool start(int, char*[]);
+    virtual bool start(int, char*[], int&);
     virtual void waitForShutdown();
     virtual bool stop();
     virtual CommunicatorPtr initializeCommunicator(int&, char*[], const InitializationData&);
@@ -62,7 +62,7 @@ RegistryService::shutdown()
 }
 
 bool
-RegistryService::start(int argc, char* argv[])
+RegistryService::start(int argc, char* argv[], int& status)
 {
     bool nowarn;
     bool readonly;
@@ -88,11 +88,13 @@ RegistryService::start(int argc, char* argv[])
     if(opts.isSet("help"))
     {
         usage(argv[0]);
+        status = EXIT_SUCCESS;
         return false;
     }
     if(opts.isSet("version"))
     {
         print(ICE_STRING_VERSION);
+        status = EXIT_SUCCESS;
         return false;
     }
     nowarn = opts.isSet("nowarn");
