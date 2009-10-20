@@ -14,8 +14,12 @@ package Ice;
  **/
 public interface Object
 {
-    boolean equals(java.lang.Object rhs);
-
+    /**
+     * Returns a copy of the object. The cloned object contains field-for-field copies
+     * of the state.
+     *
+     * @return The cloned object.
+     **/
     java.lang.Object clone() throws java.lang.CloneNotSupportedException;
 
      /**
