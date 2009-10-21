@@ -1588,7 +1588,8 @@ Ice::Service::serviceMain(int argc, char* argv[])
     DWORD status = EXIT_FAILURE;
     try
     {
-        if(start(argc, args))
+        int tmpStatus = EXIT_FAILURE;
+        if(start(argc, args, tmpStatus))
         {
             trace("Service started successfully.");
 
@@ -1610,6 +1611,10 @@ Ice::Service::serviceMain(int argc, char* argv[])
             {
                 status = EXIT_SUCCESS;
             }
+        }
+        else
+        {
+            status = tmpStatus;
         }
     }
     catch(const IceUtil::Exception& ex)
