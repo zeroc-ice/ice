@@ -16,6 +16,7 @@ SUBDIRS         = application \
                   exceptions \
                   facets \
                   faultTolerance \
+		  info \
                   inheritance \
                   hold \
                   location \

@@ -871,6 +871,11 @@ namespace Ice
             }
         }
 
+        public Endpoint getEndpoint()
+        {
+            return _endpoint; // No mutex protection necessary, _endpoint is immutable.
+        }
+
         public ObjectPrx createProxy(Identity ident)
         {
             //
@@ -1341,22 +1346,12 @@ namespace Ice
                     throw _exception;
                 }
                 ConnectionInfo info = _transceiver.getInfo();
-                info.endpoint = _endpoint.getInfo();
+                info.adapterName = _adapter != null ? _adapter.getName() : "";
+                info.incoming = _connector == null;
                 return info;
             }
         }
         
-        //
-        // Only used by the SSL plug-in.
-        //
-        // The external party has to synchronize the connection, since the
-        // connection is the object that protects the transceiver.
-        //
-        public IceInternal.Transceiver getTransceiver()
-        {
-            return _transceiver;
-        }
-
         public string ice_toString_()
         {
             return ToString();

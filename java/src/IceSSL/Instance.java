@@ -869,15 +869,15 @@ class Instance
     }
 
     void
-    verifyPeer(ConnectionInfo info, java.nio.channels.SelectableChannel fd, String address, boolean incoming)
+    verifyPeer(NativeConnectionInfo info, java.nio.channels.SelectableChannel fd, String address)
     {
         //
         // For an outgoing connection, we compare the proxy address (if any) against
         // fields in the server's certificate (if any).
         //
-        if(info.certs != null && info.certs.length > 0 && address.length() > 0)
+        if(info.nativeCerts != null && info.nativeCerts.length > 0 && address.length() > 0)
         {
-            java.security.cert.X509Certificate cert = (java.security.cert.X509Certificate)info.certs[0];
+            java.security.cert.X509Certificate cert = (java.security.cert.X509Certificate)info.nativeCerts[0];
 
             //
             // Extract the IP addresses and the DNS names from the subject
@@ -1005,10 +1005,10 @@ class Instance
             }
         }
 
-        if(_verifyDepthMax > 0 && info.certs != null && info.certs.length > _verifyDepthMax)
+        if(_verifyDepthMax > 0 && info.nativeCerts != null && info.nativeCerts.length > _verifyDepthMax)
         {
-            String msg = (incoming ? "incoming" : "outgoing") + " connection rejected:\n" +
-                "length of peer's certificate chain (" + info.certs.length + ") exceeds maximum of " +
+            String msg = (info.incoming ? "incoming" : "outgoing") + " connection rejected:\n" +
+                "length of peer's certificate chain (" + info.nativeCerts.length + ") exceeds maximum of " +
                 _verifyDepthMax + "\n" +
                 IceInternal.Network.fdToString(fd);
             if(_securityTraceLevel >= 1)
@@ -1022,7 +1022,7 @@ class Instance
 
         if(!_trustManager.verify(info))
         {
-            String msg = (incoming ? "incoming" : "outgoing") + " connection rejected by trust manager\n" +
+            String msg = (info.incoming ? "incoming" : "outgoing") + " connection rejected by trust manager\n" +
                 IceInternal.Network.fdToString(fd);
             if(_securityTraceLevel >= 1)
             {
@@ -1035,7 +1035,7 @@ class Instance
 
         if(_verifier != null && !_verifier.verify(info))
         {
-            String msg = (incoming ? "incoming" : "outgoing") + " connection rejected by certificate verifier\n" +
+            String msg = (info.incoming ? "incoming" : "outgoing") + " connection rejected by certificate verifier\n" +
                 IceInternal.Network.fdToString(fd);
             if(_securityTraceLevel >= 1)
             {

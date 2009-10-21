@@ -35,6 +35,7 @@ tests = [
     ("Ice/proxy", ["core"]),
     ("Ice/operations", ["core"]),
     ("Ice/exceptions", ["core"]),
+    ("Ice/info", ["core"]),
     ("Ice/inheritance", ["core"]),
     ("Ice/facets", ["core"]),
     ("Ice/objects", ["core"]),

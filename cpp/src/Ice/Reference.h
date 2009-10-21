@@ -98,7 +98,7 @@ public:
     virtual ReferencePtr changeTimeout(int) const = 0;
     virtual ReferencePtr changeConnectionId(const std::string&) const = 0;
     
-    virtual int hash() const; // Conceptually const.
+    int hash() const; // Conceptually const.
 
     //
     // Utility methods.
@@ -133,9 +133,8 @@ protected:
     Reference(const InstancePtr&, const Ice::CommunicatorPtr&, const Ice::Identity&, const std::string&, Mode, bool);
     Reference(const Reference&);
 
-    void hashInit() const;
+    virtual Ice::Int hashInit() const;
 
-    IceUtil::Mutex _hashMutex; // For lazy initialization of hash value.
     mutable Ice::Int _hashValue;
     mutable bool _hashInitialized;
 
@@ -240,8 +239,6 @@ public:
     virtual ReferencePtr changeTimeout(int) const;
     virtual ReferencePtr changeConnectionId(const std::string&) const;
 
-    virtual int hash() const;
-
     virtual bool isIndirect() const;
     virtual bool isWellKnown() const;
 
@@ -267,6 +264,8 @@ protected:
     RoutableReference(const RoutableReference&);
 
     std::vector<EndpointIPtr> filterEndpoints(const std::vector<EndpointIPtr>&) const;
+
+    virtual int hashInit() const;
 
 private:
     

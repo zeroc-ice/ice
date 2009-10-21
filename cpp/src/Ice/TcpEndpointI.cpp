@@ -16,6 +16,7 @@
 #include <Ice/LocalException.h>
 #include <Ice/Instance.h>
 #include <Ice/DefaultsAndOverrides.h>
+#include <Ice/HashUtil.h>
 
 using namespace std;
 using namespace Ice;
@@ -177,7 +178,7 @@ IceInternal::TcpEndpointI::TcpEndpointI(BasicStream* s) :
 void
 IceInternal::TcpEndpointI::streamWrite(BasicStream* s) const
 {
-    s->write(TcpEndpointType);
+    s->write(TCPEndpointType);
     s->startWriteEncaps();
     s->write(_host, false);
     s->write(_port);
@@ -229,19 +230,19 @@ IceInternal::TcpEndpointI::toString() const
 EndpointInfoPtr
 IceInternal::TcpEndpointI::getInfo() const
 {
-    class InfoI : public Ice::TcpEndpointInfo
+    class InfoI : public Ice::TCPEndpointInfo
     {
     public:
 
         InfoI(Ice::Int to, bool comp, const string& host, Ice::Int port) :
-            TcpEndpointInfo(to, comp, host, port)
+            TCPEndpointInfo(to, comp, host, port)
         {
         }
 
         virtual Ice::Short
         type() const
         {
-            return TcpEndpointType;
+            return TCPEndpointType;
         }
         
         virtual bool
@@ -263,7 +264,7 @@ IceInternal::TcpEndpointI::getInfo() const
 Short
 IceInternal::TcpEndpointI::type() const
 {
-    return TcpEndpointType;
+    return TCPEndpointType;
 }
 
 Int
@@ -388,7 +389,7 @@ IceInternal::TcpEndpointI::equivalent(const EndpointIPtr& endpoint) const
 }
 
 bool
-IceInternal::TcpEndpointI::operator==(const EndpointI& r) const
+IceInternal::TcpEndpointI::operator==(const LocalObject& r) const
 {
     const TcpEndpointI* p = dynamic_cast<const TcpEndpointI*>(&r);
     if(!p)
@@ -430,18 +431,17 @@ IceInternal::TcpEndpointI::operator==(const EndpointI& r) const
 }
 
 bool
-IceInternal::TcpEndpointI::operator!=(const EndpointI& r) const
-{
-    return !operator==(r);
-}
-
-bool
-IceInternal::TcpEndpointI::operator<(const EndpointI& r) const
+IceInternal::TcpEndpointI::operator<(const LocalObject& r) const
 {
     const TcpEndpointI* p = dynamic_cast<const TcpEndpointI*>(&r);
     if(!p)
     {
-        return type() < r.type();
+        const EndpointI* e = dynamic_cast<const EndpointI*>(&r);
+        if(!e)
+        {
+            return false;
+        }
+        return type() < e->type();
     }
 
     if(this == p)
@@ -497,6 +497,18 @@ IceInternal::TcpEndpointI::operator<(const EndpointI& r) const
     return false;
 }
 
+Ice::Int
+IceInternal::TcpEndpointI::hashInit() const
+{
+    Ice::Int h = 0;
+    hashAdd(h, _host);
+    hashAdd(h, _port);
+    hashAdd(h, _timeout);
+    hashAdd(h, _connectionId);
+    hashAdd(h, _compress);
+    return h;
+}
+ 
 vector<ConnectorPtr>
 IceInternal::TcpEndpointI::connectors(const vector<struct sockaddr_storage>& addresses) const
 {
@@ -520,7 +532,7 @@ IceInternal::TcpEndpointFactory::~TcpEndpointFactory()
 Short
 IceInternal::TcpEndpointFactory::type() const
 {
-    return TcpEndpointType;
+    return TCPEndpointType;
 }
 
 string

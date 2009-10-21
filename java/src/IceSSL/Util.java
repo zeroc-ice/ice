@@ -11,41 +11,6 @@ package IceSSL;
 
 public final class Util
 {
-    public static ConnectionInfo
-    getConnectionInfo(Ice.Connection connection)
-    {
-        Ice.ConnectionI con = (Ice.ConnectionI)connection;
-        assert(con != null);
-
-        //
-        // Lock the connection directly. This is done because the only
-        // thing that prevents the transceiver from being closed during
-        // the duration of the invocation is the connection.
-        //
-        synchronized(con)
-        {
-            IceInternal.Transceiver transceiver = con.getTransceiver();
-            if(transceiver == null)
-            {
-                ConnectionInvalidException ex = new ConnectionInvalidException();
-                ex.reason = "connection closed";
-                throw ex;
-            }
-
-            try
-            {
-                TransceiverI sslTransceiver = (TransceiverI)transceiver;
-                return sslTransceiver.getConnectionInfo();
-            }
-            catch(ClassCastException ex)
-            {
-                ConnectionInvalidException e = new ConnectionInvalidException();
-                e.reason = "not ssl connection";
-                throw e;
-            }
-        }
-    }
-
     //
     // Create a certificate from a PEM-encoded string.
     //
@@ -92,26 +57,6 @@ public final class Util
         java.io.ByteArrayInputStream in = new java.io.ByteArrayInputStream(bytes);
         java.security.cert.CertificateFactory cf = java.security.cert.CertificateFactory.getInstance("X.509");
         return (java.security.cert.X509Certificate)cf.generateCertificate(in);
-    }
-
-    static ConnectionInfo
-    populateConnectionInfo(javax.net.ssl.SSLSession session, java.net.Socket fd, String adapterName, boolean incoming)
-    {
-        ConnectionInfo info = new ConnectionInfo();
-        try
-        {
-            info.certs = session.getPeerCertificates();
-        }
-        catch(javax.net.ssl.SSLPeerUnverifiedException ex)
-        {
-            // No peer certificates.
-        }
-        info.cipher = session.getCipherSuite();
-        info.localAddr = (java.net.InetSocketAddress)fd.getLocalSocketAddress();
-        info.remoteAddr = (java.net.InetSocketAddress)fd.getRemoteSocketAddress();
-        info.adapterName = adapterName;
-        info.incoming = incoming;
-        return info;
     }
 
     public final static String jdkTarget = "1.5";

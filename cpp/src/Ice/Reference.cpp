@@ -23,9 +23,11 @@
 #include <Ice/ConnectionFactory.h>
 #include <Ice/LoggerUtil.h>
 #include <Ice/TraceLevels.h>
+#include <Ice/HashUtil.h>
 #include <Ice/DefaultsAndOverrides.h>
 #include <IceUtil/StringUtil.h>
 #include <IceUtil/Random.h>
+#include <IceUtil/MutexPtrLock.h>
 
 #include <functional>
 
@@ -37,6 +39,27 @@ IceUtil::Shared* IceInternal::upCast(IceInternal::Reference* p) { return p; }
 
 namespace
 {
+
+IceUtil::Mutex* hashMutex = 0;
+
+class Init
+{
+public:
+
+    Init()
+    {
+        hashMutex = new IceUtil::Mutex;
+    }
+
+    ~Init()
+    {
+        delete hashMutex;
+        hashMutex = 0;
+    }
+};
+
+Init init;
+
 struct RandomNumberGenerator : public std::unary_function<ptrdiff_t, ptrdiff_t>
 {
     ptrdiff_t operator()(ptrdiff_t d)
@@ -125,10 +148,11 @@ IceInternal::Reference::changeCompress(bool newCompress) const
 Int
 Reference::hash() const
 {
-    IceUtil::Mutex::Lock sync(_hashMutex);
+    IceUtilInternal::MutexPtrLock<IceUtil::Mutex> lock(hashMutex);
     if(!_hashInitialized)
     {
-        hashInit(); // Initialize _hashValue
+        _hashValue = hashInit();
+        _hashInitialized = true;
     }
     return _hashValue;
 }
@@ -434,45 +458,16 @@ IceInternal::Reference::Reference(const Reference& r) :
 {
 }
 
-void
+int
 IceInternal::Reference::hashInit() const
 {
-    string::const_iterator p;
-    Context::const_iterator q;
-
     Int h = static_cast<Int>(_mode);
-
-    for(p = _identity.name.begin(); p != _identity.name.end(); ++p)
-    {
-	h = 5 * h + *p;
-    }
-
-    for(p = _identity.category.begin(); p != _identity.category.end(); ++p)
-    {
-	h = 5 * h + *p;
-    }
-
-    for(q = _context->getValue().begin(); q != _context->getValue().end(); ++q)
-    {
-	for(p = q->first.begin(); p != q->first.end(); ++p)
-	{
-	    h = 5 * h + *p;
-	}
-	for(p = q->second.begin(); p != q->second.end(); ++p)
-	{
-	    h = 5 * h + *p;
-	}
-    }
-
-    for(p = _facet.begin(); p != _facet.end(); ++p)
-    {
-	h = 5 * h + *p;
-    }
-
-    h = 5 * h + static_cast<Int>(_secure);
-
-    _hashValue = h;
-    _hashInitialized = true;
+    hashAdd(h, _identity.name);
+    hashAdd(h, _identity.category);
+    hashAdd(h, _context->getValue());
+    hashAdd(h, _facet);
+    hashAdd(h, _secure);
+    return h;
 }
 
 IceUtil::Shared* IceInternal::upCast(IceInternal::FixedReference* p) { return p; }
@@ -1139,20 +1134,11 @@ IceInternal::RoutableReference::toString() const
 }
 
 int
-IceInternal::RoutableReference::hash() const
+IceInternal::RoutableReference::hashInit() const
 {
-    IceUtil::Mutex::Lock sync(_hashMutex);
-    if(!_hashInitialized)
-    {
-        hashInit(); // Initializes _hashValue.
-        
-        // Add hash of adapter ID to base hash.
-        for(string::const_iterator p = _adapterId.begin(); p != _adapterId.end(); ++p)
-        {
-            _hashValue = 5 * _hashValue + *p;
-        }
-    }
-    return _hashValue;
+    int value = Reference::hashInit();
+    hashAdd(value, _adapterId);
+    return value;
 }
 
 bool

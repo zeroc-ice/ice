@@ -11,8 +11,6 @@ package IceInternal;
 
 final class TcpEndpointI extends EndpointI
 {
-    final static short TYPE = 1;
-
     public
     TcpEndpointI(Instance instance, String ho, int po, int ti, String conId, boolean co)
     {
@@ -178,7 +176,7 @@ final class TcpEndpointI extends EndpointI
     public void
     streamWrite(BasicStream s)
     {
-        s.writeShort(TYPE);
+        s.writeShort(Ice.TCPEndpointType.value);
         s.startWriteEncaps();
         s.writeString(_host);
         s.writeInt(_port);
@@ -236,11 +234,11 @@ final class TcpEndpointI extends EndpointI
     public Ice.EndpointInfo
     getInfo()
     {
-        return new Ice.TcpEndpointInfo(_timeout, _compress, _host, _port)
+        return new Ice.TCPEndpointInfo(_timeout, _compress, _host, _port)
             {
                 public short type()
                 {
-                    return TYPE;
+                    return Ice.TCPEndpointType.value;
                 }
                 
                 public boolean datagram()
@@ -261,7 +259,7 @@ final class TcpEndpointI extends EndpointI
     public short
     type()
     {
-        return TYPE;
+        return Ice.TCPEndpointType.value;
     }
 
     //

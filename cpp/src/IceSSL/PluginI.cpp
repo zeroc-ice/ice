@@ -12,7 +12,6 @@
 #include <IceSSL/TransceiverI.h>
 
 #include <Ice/LocalException.h>
-#include <Ice/ConnectionI.h> // For implementation of getConnectionInfo.
 
 using namespace std;
 using namespace Ice;
@@ -76,72 +75,4 @@ void
 IceSSL::PluginI::setPasswordPrompt(const PasswordPromptPtr& prompt)
 {
     _instance->setPasswordPrompt(prompt);
-}
-
-const char* IceSSL::ConnectionInvalidException::_name = "IceSSL::ConnectionInvalidException";
-
-ConnectionInvalidException::ConnectionInvalidException(const char* file, int line, const string& r) :
-    Exception(file, line),
-    reason(r)
-{
-}
-
-ConnectionInvalidException::~ConnectionInvalidException() throw()
-{
-}
-
-string
-ConnectionInvalidException::ice_name() const
-{
-    return _name;
-}
-
-Exception* 
-ConnectionInvalidException::ice_clone() const
-{
-    return new ConnectionInvalidException(*this);
-}
-
-void
-ConnectionInvalidException::ice_throw() const
-{
-    throw *this;
-}
-
-IceSSL::ConnectionInfo
-IceSSL::getConnectionInfo(const ConnectionPtr& connection)
-{
-    Ice::ConnectionIPtr con = Ice::ConnectionIPtr::dynamicCast(connection);
-    assert(con);
-
-    //
-    // Lock the connection directly. This is done because the only
-    // thing that prevents the transceiver from being closed during
-    // the duration of the invocation is the connection.
-    //
-    IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*con.get());
-    IceInternal::TransceiverPtr transceiver = con->getTransceiver();
-    if(!transceiver)
-    {
-        throw ConnectionInvalidException(__FILE__, __LINE__, "connection closed");
-    }
-
-    TransceiverIPtr ssltransceiver = TransceiverIPtr::dynamicCast(con->getTransceiver());
-    if(!ssltransceiver)
-    {
-        throw ConnectionInvalidException(__FILE__, __LINE__, "not ssl connection");
-    }
-
-    try
-    {
-        return ssltransceiver->getConnectionInfo();
-    }
-    catch(const Ice::LocalException& ex)
-    {
-        ostringstream os;
-        os << "couldn't get connection information:\n" << ex << endl;
-        throw ConnectionInvalidException(__FILE__, __LINE__, os.str());
-    }
-
-    return ConnectionInfo(); // Required to prevent compiler warning on Solaris.
 }

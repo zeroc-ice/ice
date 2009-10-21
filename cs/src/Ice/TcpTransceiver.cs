@@ -423,11 +423,11 @@ namespace IceInternal
         getInfo()
         {
             Debug.Assert(_fd != null);
-            Ice.TcpConnectionInfo info = new Ice.TcpConnectionInfo();
+            Ice.TCPConnectionInfo info = new Ice.TCPConnectionInfo();
             IPEndPoint localEndpoint = Network.getLocalAddress(_fd);
             info.localAddress = localEndpoint.Address.ToString();
             info.localPort = localEndpoint.Port;
-            IPEndPoint remoteEndpoint = Network.getLocalAddress(_fd);
+            IPEndPoint remoteEndpoint = Network.getRemoteAddress(_fd);
             if(remoteEndpoint != null)
             {
                 info.remoteAddress = remoteEndpoint.Address.ToString();

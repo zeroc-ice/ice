@@ -25,7 +25,7 @@ public:
 
     TrustManager(const Ice::CommunicatorPtr&);
 
-    bool verify(const ConnectionInfo&);
+    bool verify(const NativeConnectionInfoPtr&);
 
 private:
 

@@ -22,5 +22,5 @@ public interface CertificateVerifier
      * @return <code>true</code> if the connection should be accepted;
      * <code>false</code>, otherwise.
      **/
-    boolean verify(ConnectionInfo info);
+    boolean verify(NativeConnectionInfo info);
 }

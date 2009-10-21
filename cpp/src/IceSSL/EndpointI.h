@@ -18,8 +18,6 @@
 namespace IceSSL
 {
 
-const Ice::Short EndpointType = 2;
-
 class EndpointI : public IceInternal::EndpointI
 {
 public:
@@ -46,38 +44,13 @@ public:
     virtual std::vector<IceInternal::EndpointIPtr> expand() const;
     virtual bool equivalent(const IceInternal::EndpointIPtr&) const;
 
-    virtual bool operator==(const IceInternal::EndpointI&) const;
-    virtual bool operator!=(const IceInternal::EndpointI&) const;
-    virtual bool operator<(const IceInternal::EndpointI&) const;
-
-#if defined(__BCPLUSPLUS__)
-    //
-    // COMPILERFIX: Avoid warnings about hiding members for C++Builder 2010
-    //
-    //
-    virtual bool operator==(const Ice::LocalObject& rhs) const
-    {
-        return Ice::LocalObject::operator==(rhs);
-    }
-
-    virtual bool operator<(const Ice::LocalObject& rhs) const
-    {
-        return Ice::LocalObject::operator<(rhs);
-    }
-#endif
+    virtual bool operator==(const LocalObject&) const;
+    virtual bool operator<(const LocalObject&) const;
 
 private:
 
-    virtual std::vector<IceInternal::ConnectorPtr> connectors(const std::vector<struct sockaddr_storage>&) const;
-    
-#if defined(__SUNPRO_CC)
-    //
-    // COMPILERFIX: prevent the compiler from emitting a warning about
-    // hidding these operators.
-    //
-    using LocalObject::operator==;
-    using LocalObject::operator<;
-#endif
+    virtual ::Ice::Int hashInit() const;
+    virtual std::vector<IceInternal::ConnectorPtr> connectors(const std::vector<struct sockaddr_storage>&) const;    
 
     //
     // All members are const, because endpoints are immutable.

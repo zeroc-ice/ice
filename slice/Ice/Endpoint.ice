@@ -18,6 +18,9 @@
 module Ice
 {
 
+const short TCPEndpointType = 1;
+const short UDPEndpointType = 3;
+
 /**
  *
  * The user-level interface to an endpoint.
@@ -91,12 +94,12 @@ local interface Endpoint
 
 /**
  *
- * Provides access to the address details of a TCP endpoint.
+ * Provides access to the address details of a IP endpoint.
  *
  * @see Endpoint
  *
  **/
-local class TcpEndpointInfo extends EndpointInfo
+local class IPEndpointInfo extends EndpointInfo
 {
     /**
      * 
@@ -107,7 +110,7 @@ local class TcpEndpointInfo extends EndpointInfo
 
     /**
      * 
-     * The TCP port number.
+     * The port number.
      * 
      **/
     int port;
@@ -115,27 +118,24 @@ local class TcpEndpointInfo extends EndpointInfo
 
 /**
  *
- * Provides access to the address details of a UDP endpoint.
+ * Provides access to a TCP endpoint information.
  *
  * @see Endpoint
  *
  **/
-local class UdpEndpointInfo extends EndpointInfo
+local class TCPEndpointInfo extends IPEndpointInfo
 {
-    /**
-     * 
-     * The host or address configured with the endpoint.
-     *
-     **/
-    string host;
+};
 
-    /**
-     * 
-     * The TCP port number.
-     *
-     **/
-     int port;
-
+/**
+ *
+ * Provides access to an UDP endpoint information.
+ *
+ * @see Endpoint
+ *
+ **/
+local class UDPEndpointInfo extends IPEndpointInfo
+{
      /**
       *
       * The protocol version supported by the endpoint.

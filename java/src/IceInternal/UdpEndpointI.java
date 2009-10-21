@@ -11,8 +11,6 @@ package IceInternal;
 
 final class UdpEndpointI extends EndpointI
 {
-    final static short TYPE = 3;
-
     public
     UdpEndpointI(Instance instance, String ho, int po, String mif, int mttl, byte pma, byte pmi, byte ema, byte emi,
                  boolean conn, String conId, boolean co)
@@ -315,7 +313,7 @@ final class UdpEndpointI extends EndpointI
     public void
     streamWrite(BasicStream s)
     {
-        s.writeShort(TYPE);
+        s.writeShort(Ice.UDPEndpointType.value);
         s.startWriteEncaps();
         s.writeString(_host);
         s.writeInt(_port);
@@ -402,12 +400,12 @@ final class UdpEndpointI extends EndpointI
     public Ice.EndpointInfo
     getInfo()
     {
-        return new Ice.UdpEndpointInfo(-1, _compress, _host, _port, _protocolMajor, _protocolMinor, _encodingMajor,
+        return new Ice.UDPEndpointInfo(-1, _compress, _host, _port, _protocolMajor, _protocolMinor, _encodingMajor,
                                        _encodingMinor, _mcastInterface, _mcastTtl)
             {
                 public short type()
                 {
-                    return TYPE;
+                    return Ice.UDPEndpointType.value;
                 }
                 
                 public boolean datagram()
@@ -428,7 +426,7 @@ final class UdpEndpointI extends EndpointI
     public short
     type()
     {
-        return TYPE;
+        return Ice.UDPEndpointType.value;
     }
 
     //

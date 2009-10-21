@@ -62,7 +62,7 @@ TrustManager::TrustManager(const Ice::CommunicatorPtr& communicator) :
 }
 
 bool
-TrustManager::verify(const ConnectionInfo& info)
+TrustManager::verify(const NativeConnectionInfoPtr& info)
 {
     list<list<DistinguishedName> > reject, accept;
 
@@ -70,15 +70,15 @@ TrustManager::verify(const ConnectionInfo& info)
     {
         reject.push_back(_rejectAll);
     }
-    if(info.incoming)
+    if(info->incoming)
     {
         if(_rejectAllServer.size() > 0)
         {
             reject.push_back(_rejectAllServer);
         }
-        if(info.adapterName.size() > 0)
+        if(info->adapterName.size() > 0)
         {
-            map<string, list<DistinguishedName> >::const_iterator p = _rejectServer.find(info.adapterName);
+            map<string, list<DistinguishedName> >::const_iterator p = _rejectServer.find(info->adapterName);
             if(p != _rejectServer.end())
             {
                 reject.push_back(p->second);
@@ -97,15 +97,15 @@ TrustManager::verify(const ConnectionInfo& info)
     {
         accept.push_back(_acceptAll);
     }
-    if(info.incoming)
+    if(info->incoming)
     {
         if(_acceptAllServer.size() > 0)
         {
             accept.push_back(_acceptAllServer);
         }
-        if(info.adapterName.size() > 0)
+        if(info->adapterName.size() > 0)
         {
-            map<string, list<DistinguishedName> >::const_iterator p = _acceptServer.find(info.adapterName);
+            map<string, list<DistinguishedName> >::const_iterator p = _acceptServer.find(info->adapterName);
             if(p != _acceptServer.end())
             {
                 accept.push_back(p->second);
@@ -131,50 +131,26 @@ TrustManager::verify(const ConnectionInfo& info)
     //
     // If there is no certificate then we match false.
     //
-    if(info.certs.size() != 0)
+    if(info->nativeCerts.size() != 0)
     {
-        DistinguishedName subject = info.certs[0]->getSubjectDN();
+        DistinguishedName subject = info->nativeCerts[0]->getSubjectDN();
         if(_traceLevel > 0)
         {
             Ice::Trace trace(_communicator->getLogger(), "Security");
-            if(info.incoming)
+            if(info->incoming)
             {
                 trace << "trust manager evaluating client:\n"
                       << "subject = " << string(subject) << '\n'
-                      << "adapter = " << info.adapterName << '\n'
-                      << "local addr = " << IceInternal::addrToString(info.localAddr) << '\n'
-                      << "remote addr = ";
-                if(info.remoteAddr.ss_family == AF_UNSPEC)
-                {
-                    //
-                    // The remote address may not be available when using Windows XP Service Pack 2
-                    // and IPv6 (see populateConnectionInfo).
-                    //
-                    trace << "<not available>";
-                }
-                else
-                {
-                    trace << IceInternal::addrToString(info.remoteAddr);
-                }
+                      << "adapter = " << info->adapterName << '\n'
+                      << "local addr = " << info->localAddress << ":" << info->localPort << '\n'
+                      << "remote addr = " << info->remoteAddress << ":" << info->remotePort;
             }
             else
             {
                 trace << "trust manager evaluating server:\n"
                       << "subject = " << string(subject) << '\n'
-                      << "local addr = " << IceInternal::addrToString(info.localAddr) << '\n'
-                      << "remote addr = ";
-                if(info.remoteAddr.ss_family == AF_UNSPEC)
-                {
-                    //
-                    // The remote address may not be available when using Windows XP Service Pack 2
-                    // and IPv6 (see populateConnectionInfo).
-                    //
-                    trace << "<not available>";
-                }
-                else
-                {
-                    trace << IceInternal::addrToString(info.remoteAddr);
-                }
+                      << "local addr = " << info->localAddress << ":" << info->localPort << '\n'
+                      << "remote addr = " << info->remoteAddress << ":" << info->remotePort;
             }
         }
 

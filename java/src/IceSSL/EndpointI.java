@@ -11,8 +11,6 @@ package IceSSL;
 
 final class EndpointI extends IceInternal.EndpointI
 {
-    final static short TYPE = 2;
-
     public
     EndpointI(Instance instance, String ho, int po, int ti, String conId, boolean co)
     {
@@ -178,7 +176,7 @@ final class EndpointI extends IceInternal.EndpointI
     public void
     streamWrite(IceInternal.BasicStream s)
     {
-        s.writeShort(TYPE);
+        s.writeShort(EndpointType.value);
         s.startWriteEncaps();
         s.writeString(_host);
         s.writeInt(_port);
@@ -236,11 +234,11 @@ final class EndpointI extends IceInternal.EndpointI
     public Ice.EndpointInfo
     getInfo()
     {
-        return new IceSSL.SSLEndpointInfo(_timeout, _compress, _host, _port)
+        return new IceSSL.EndpointInfo(_timeout, _compress, _host, _port)
             {
                 public short type()
                 {
-                    return TYPE;
+                    return EndpointType.value;
                 }
                 
                 public boolean datagram()
@@ -261,7 +259,7 @@ final class EndpointI extends IceInternal.EndpointI
     public short
     type()
     {
-        return TYPE;
+        return EndpointType.value;
     }
 
     //

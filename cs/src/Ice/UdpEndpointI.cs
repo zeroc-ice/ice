@@ -17,8 +17,6 @@ namespace IceInternal
 
     sealed class UdpEndpointI : EndpointI
     {
-        internal const short TYPE = 3;
-        
         public UdpEndpointI(Instance instance, string ho, int po, string mif, int mttl, byte pma, byte pmi, byte ema,
                             byte emi, bool conn, string conId, bool co)
         {
@@ -387,7 +385,7 @@ namespace IceInternal
         //
         public override void streamWrite(BasicStream s)
         {
-            s.writeShort(TYPE);
+            s.writeShort(Ice.UDPEndpointType.value);
             s.startWriteEncaps();
             s.writeString(_host);
             s.writeInt(_port);
@@ -467,7 +465,7 @@ namespace IceInternal
             return s;
         }
         
-        private sealed class InfoI : Ice.UdpEndpointInfo
+        private sealed class InfoI : Ice.UDPEndpointInfo
         {
             public InfoI(bool comp, string host, int port, byte protocolMajor, byte protocolMinor, 
                          byte encodingMajor, byte encodingMinor, string mcastInterface, int mcastTtl) :
@@ -478,7 +476,7 @@ namespace IceInternal
 
             override public short type()
             {
-                return TYPE;
+                return Ice.UDPEndpointType.value;
             }
                 
             override public bool datagram()
@@ -506,7 +504,7 @@ namespace IceInternal
         //
         public override short type()
         {
-            return TYPE;
+            return Ice.UDPEndpointType.value;
         }
         
         //
@@ -845,7 +843,7 @@ namespace IceInternal
         
         public short type()
         {
-            return UdpEndpointI.TYPE;
+            return Ice.UDPEndpointType.value;
         }
         
         public string protocol()

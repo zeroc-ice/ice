@@ -16,6 +16,7 @@
 #include <Ice/Instance.h>
 #include <Ice/DefaultsAndOverrides.h>
 #include <Ice/Protocol.h>
+#include <Ice/HashUtil.h>
 
 using namespace std;
 using namespace Ice;
@@ -350,7 +351,7 @@ IceInternal::UdpEndpointI::UdpEndpointI(BasicStream* s) :
 void
 IceInternal::UdpEndpointI::streamWrite(BasicStream* s) const
 {
-    s->write(UdpEndpointType);
+    s->write(UDPEndpointType);
     s->startWriteEncaps();
     s->write(_host, false);
     s->write(_port);
@@ -435,13 +436,13 @@ IceInternal::UdpEndpointI::toString() const
 EndpointInfoPtr
 IceInternal::UdpEndpointI::getInfo() const
 {
-    class InfoI : public Ice::UdpEndpointInfo
+    class InfoI : public Ice::UDPEndpointInfo
     {
     public:
 
         InfoI(bool comp, const string& host, Ice::Int port, Ice::Byte protocolMajor, Ice::Byte protocolMinor, 
               Ice::Byte encodingMajor, Ice::Byte encodingMinor, const std::string& mcastInterface, Ice::Int mcastTtl) :
-            UdpEndpointInfo(-1, comp, host, port, protocolMajor, protocolMinor, encodingMajor, encodingMinor,
+            UDPEndpointInfo(-1, comp, host, port, protocolMajor, protocolMinor, encodingMajor, encodingMinor,
                             mcastInterface, mcastTtl)
         {
         }
@@ -449,7 +450,7 @@ IceInternal::UdpEndpointI::getInfo() const
         virtual Ice::Short
         type() const
         {
-            return UdpEndpointType;
+            return UDPEndpointType;
         }
         
         virtual bool
@@ -472,7 +473,7 @@ IceInternal::UdpEndpointI::getInfo() const
 Short
 IceInternal::UdpEndpointI::type() const
 {
-    return UdpEndpointType;
+    return UDPEndpointType;
 }
 
 Int
@@ -595,7 +596,7 @@ IceInternal::UdpEndpointI::equivalent(const EndpointIPtr& endpoint) const
 }
 
 bool
-IceInternal::UdpEndpointI::operator==(const EndpointI& r) const
+IceInternal::UdpEndpointI::operator==(const LocalObject& r) const
 {
     const UdpEndpointI* p = dynamic_cast<const UdpEndpointI*>(&r);
     if(!p)
@@ -667,18 +668,17 @@ IceInternal::UdpEndpointI::operator==(const EndpointI& r) const
 }
 
 bool
-IceInternal::UdpEndpointI::operator!=(const EndpointI& r) const
-{
-    return !operator==(r);
-}
-
-bool
-IceInternal::UdpEndpointI::operator<(const EndpointI& r) const
+IceInternal::UdpEndpointI::operator<(const LocalObject& r) const
 {
     const UdpEndpointI* p = dynamic_cast<const UdpEndpointI*>(&r);
     if(!p)
     {
-        return type() < r.type();
+        const EndpointI* e = dynamic_cast<const EndpointI*>(&r);
+        if(!e)
+        {
+            return false;
+        }
+        return type() < e->type();
     }
 
     if(this == p)
@@ -788,6 +788,20 @@ IceInternal::UdpEndpointI::operator<(const EndpointI& r) const
     return false;
 }
 
+Ice::Int
+IceInternal::UdpEndpointI::hashInit() const
+{
+    Ice::Int h = 0;
+    hashAdd(h, _host);
+    hashAdd(h, _port);
+    hashAdd(h, _mcastInterface);
+    hashAdd(h, _mcastTtl);
+    hashAdd(h, _connect);
+    hashAdd(h, _connectionId);
+    hashAdd(h, _compress);
+    return h;
+}
+
 vector<ConnectorPtr>
 IceInternal::UdpEndpointI::connectors(const vector<struct sockaddr_storage>& addresses) const
 {
@@ -812,7 +826,7 @@ IceInternal::UdpEndpointFactory::~UdpEndpointFactory()
 Short
 IceInternal::UdpEndpointFactory::type() const
 {
-    return UdpEndpointType;
+    return UDPEndpointType;
 }
 
 string

@@ -456,7 +456,7 @@ Ice::ConnectionInfoPtr
 IceInternal::UdpTransceiver::getInfo() const
 {
     assert(_fd != INVALID_SOCKET);
-    Ice::UdpConnectionInfoPtr info = new Ice::UdpConnectionInfo();
+    Ice::UDPConnectionInfoPtr info = new Ice::UDPConnectionInfo();
     fdToAddressAndPort(_fd, info->localAddress, info->localPort, info->remoteAddress, info->remotePort);
     addrToAddressAndPort(_mcastAddr, info->mcastAddress, info->mcastPort);
     return info;

@@ -23,7 +23,7 @@ namespace IceInternal
 
         public short type()
         {
-            return UdpEndpointI.TYPE;
+            return Ice.UDPEndpointType.value;
         }
 
         //

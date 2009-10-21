@@ -61,7 +61,7 @@ final class ConnectorI implements IceInternal.Connector
     public short
     type()
     {
-        return EndpointI.TYPE;
+        return EndpointType.value;
     }
 
     public String

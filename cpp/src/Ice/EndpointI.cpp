@@ -13,12 +13,49 @@
 #include <Ice/Network.h>
 #include <Ice/PropertiesI.h>
 #include <Ice/LoggerUtil.h>
+#include <IceUtil/MutexPtrLock.h>
 
 using namespace std;
 using namespace IceInternal;
 
+namespace
+{
+
+IceUtil::Mutex* hashMutex = 0;
+
+class Init
+{
+public:
+
+    Init()
+    {
+        hashMutex = new IceUtil::Mutex;
+    }
+
+    ~Init()
+    {
+        delete hashMutex;
+        hashMutex = 0;
+    }
+};
+
+Init init;
+
+}
+
 Ice::LocalObject* IceInternal::upCast(EndpointI* p) { return p; }
 IceUtil::Shared* IceInternal::upCast(EndpointHostResolver* p) { return p; }
+
+Ice::Int
+IceInternal::EndpointI::ice_getHash() const
+{
+    IceUtilInternal::MutexPtrLock<IceUtil::Mutex> lock(hashMutex);
+    if(!_hashInitialized)
+    {
+        _hashValue = hashInit();
+    }
+    return _hashValue;
+}
 
 vector<ConnectorPtr>
 IceInternal::EndpointI::connectors(const vector<struct sockaddr_storage>& addrs) const
@@ -29,6 +66,10 @@ IceInternal::EndpointI::connectors(const vector<struct sockaddr_storage>& addrs)
     //
     assert(false);
     return vector<ConnectorPtr>();
+}
+
+IceInternal::EndpointI::EndpointI() : _hashInitialized(false)
+{
 }
 
 IceInternal::EndpointHostResolver::EndpointHostResolver(const InstancePtr& instance) :

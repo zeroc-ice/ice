@@ -15,31 +15,22 @@
 #include <Ice/Endpoint.ice>
 
 /**
+ *
  * IceSSL provides a secure transport for Ice.
+ *
  **/
 module IceSSL
 {
 
+const short EndpointType = 2;
+
 /**
  *
- * Provides access to the address details of an SSL endpoint.
+ * Provides access to an SSL endpoint information.
  *
  **/
-local class SSLEndpointInfo extends Ice::EndpointInfo
+local class EndpointInfo extends Ice::IPEndpointInfo
 {
-    /**
-     * 
-     * The host or address configured with the endpoint.
-     *
-     **/
-    string host;
-
-    /**
-     * 
-     * The TCP port number.
-     * 
-     **/
-    int port;
 };
 
 };

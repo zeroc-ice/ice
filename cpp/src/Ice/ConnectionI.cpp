@@ -988,6 +988,12 @@ Ice::ConnectionI::getAdapter() const
     return _adapter;
 }
 
+EndpointPtr
+Ice::ConnectionI::getEndpoint() const
+{
+    return _endpoint; // No mutex protection necessary, _endpoint is immutable.
+}
+
 ObjectPrx
 Ice::ConnectionI::createProxy(const Identity& ident) const
 {
@@ -1434,21 +1440,11 @@ Ice::ConnectionI::getInfo() const
     {
         _exception->ice_throw();
     }
-    ConnectionInfoPtr info = _transceiver->getInfo();
-    info->endpoint = _endpoint->getInfo();
-    return info;
-}
 
-//
-// Only used by the SSL plug-in.
-//
-// The external party has to synchronize the connection, since the
-// connection is the object that protects the transceiver.
-//
-IceInternal::TransceiverPtr
-Ice::ConnectionI::getTransceiver() const
-{
-    return _transceiver;
+    ConnectionInfoPtr info = _transceiver->getInfo();
+    info->incoming = _connector == 0;
+    info->adapterName = _adapter ? _adapter->getName() : string();
+    return info;
 }
 
 void

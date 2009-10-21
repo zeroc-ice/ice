@@ -27,7 +27,7 @@ final class UdpConnector implements Connector
     public short
     type()
     {
-        return UdpEndpointI.TYPE;
+        return Ice.UDPEndpointType.value;
     }
 
     public String

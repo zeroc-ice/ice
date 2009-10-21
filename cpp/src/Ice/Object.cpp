@@ -34,7 +34,7 @@ Ice::Object::operator<(const Object& r) const
 }
 
 Int
-Ice::Object::ice_hash() const
+Ice::Object::ice_getHash() const
 {
     return static_cast<Int>(reinterpret_cast<Long>(this) >> 4);
 }

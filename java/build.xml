@@ -279,6 +279,9 @@
             <fileset dir="test/Ice/hold">
                 <include name="Test.ice" />
             </fileset>
+            <fileset dir="test/Ice/info">
+                <include name="Test.ice" />
+            </fileset>
             <fileset dir="test/Ice/inheritance">
                 <include name="Test.ice" />
             </fileset>

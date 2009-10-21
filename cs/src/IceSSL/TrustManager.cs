@@ -58,7 +58,7 @@ namespace IceSSL
             }
         }
 
-        internal bool verify(ConnectionInfo info)
+        internal bool verify(NativeConnectionInfo info)
         {
             List<List<List<RFC2253.RDNPair>>> reject = new List<List<List<RFC2253.RDNPair>>>(),
                 accept = new List<List<List<RFC2253.RDNPair>>>();
@@ -128,9 +128,9 @@ namespace IceSSL
             //
             // If there is no certificate then we match false.
             //
-            if(info.certs != null && info.certs.Length > 0)
+            if(info.nativeCerts != null && info.nativeCerts.Length > 0)
             {
-                X500DistinguishedName subjectDN = info.certs[0].SubjectName;
+                X500DistinguishedName subjectDN = info.nativeCerts[0].SubjectName;
                 string subjectName = subjectDN.Name;
                 Debug.Assert(subjectName != null);
                 try
@@ -145,15 +145,15 @@ namespace IceSSL
                             communicator_.getLogger().trace("Security", "trust manager evaluating client:\n" +
                                 "subject = " + subjectName + "\n" +
                                 "adapter = " + info.adapterName + "\n" +
-                                "local addr = " + IceInternal.Network.addrToString(info.localAddr) + "\n" +
-                                "remote addr = " + IceInternal.Network.addrToString(info.remoteAddr));
+                                "local addr = " + info.localAddress + ":" + info.localPort + "\n" +
+                                "remote addr = " +  info.remoteAddress + ":" + info.remotePort);
                         }
                         else
                         {
                             communicator_.getLogger().trace("Security", "trust manager evaluating server:\n" +
                                 "subject = " + subjectName + "\n" +
-                                "local addr = " + IceInternal.Network.addrToString(info.localAddr) + "\n" +
-                                "remote addr = " + IceInternal.Network.addrToString(info.remoteAddr));
+                                "local addr = " + info.localAddress + ":" + info.localPort + "\n" +
+                                "remote addr = " +  info.remoteAddress + ":" + info.remotePort);
                         }
                     }
 

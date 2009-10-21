@@ -26,7 +26,7 @@ IceInternal::UdpConnector::connect()
 Short
 IceInternal::UdpConnector::type() const
 {
-    return UdpEndpointType;
+    return UDPEndpointType;
 }
 
 string

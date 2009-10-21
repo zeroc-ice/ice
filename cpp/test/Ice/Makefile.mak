@@ -14,6 +14,7 @@ top_srcdir	= ..\..
 SUBDIRS		= proxy \
 		  operations \
 		  exceptions \
+		  info \
 		  inheritance \
 		  facets \
 		  objects \

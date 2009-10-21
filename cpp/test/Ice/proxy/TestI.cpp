@@ -11,6 +11,8 @@
 #include <TestI.h>
 #include <TestCommon.h>
 
+using namespace std;
+
 MyDerivedClassI::MyDerivedClassI()
 {
 }

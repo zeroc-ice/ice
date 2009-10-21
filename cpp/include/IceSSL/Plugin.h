@@ -12,7 +12,7 @@
 
 #include <IceUtil/Time.h>
 #include <Ice/Plugin.h>
-#include <Ice/ConnectionF.h>
+#include <IceSSL/ConnectionInfo.h>
 
 #include <vector>
 #include <list>
@@ -355,52 +355,21 @@ private:
 };
 
 //
-// ConnectionInfo contains information that may be of use to a
-// CertificateVerifier or an application that wants information
-// about its peer.
+// NativeConnectionInfo is an extension of IceSSL::ConnectionInfo that
+// provides access to native certificates.
 //
-struct ConnectionInfo
+class NativeConnectionInfo : public ConnectionInfo
 {
+public:
+
     //
     // The certificate chain. This may be empty if the peer did not
     // supply a certificate. The peer's certificate (if any) is the
     // first one in the chain.
     //
-    std::vector<CertificatePtr> certs;
-
-    //
-    // The name of the negotiated cipher.
-    //
-    std::string cipher;
-
-    //
-    // The local TCP/IP host & port.
-    //
-    struct sockaddr_storage localAddr;
-
-    //
-    // The remote TCP/IP host & port.
-    //
-    // NOTE:
-    //
-    // This value may not be available when using IPv6 on Windows XP SP2 due to a bug in
-    // the IPv6 implementation. In this case, remoteAddr.ss_family is set to AF_UNSPEC and
-    // the remainder of the value is filled with zeroes.
-    //
-    struct sockaddr_storage remoteAddr;
-
-    //
-    // If the connection is incoming this bool is true, false
-    // otherwise.
-    //
-    bool incoming;
-
-    //
-    // The name of the object adapter that hosts this endpoint, if
-    // any.
-    //
-    std::string adapterName;
+    std::vector<CertificatePtr> nativeCerts;
 };
+typedef IceUtil::Handle<NativeConnectionInfo> NativeConnectionInfoPtr;
 
 //
 // An application can customize the certificate verification process
@@ -414,7 +383,7 @@ public:
     // Return false if the connection should be rejected, or true to
     // allow it.
     //
-    virtual bool verify(const ConnectionInfo&) = 0;
+    virtual bool verify(const NativeConnectionInfoPtr&) = 0;
 };
 typedef IceUtil::Handle<CertificateVerifier> CertificateVerifierPtr;
 
@@ -483,33 +452,6 @@ public:
     virtual void setPasswordPrompt(const PasswordPromptPtr&) = 0;
 };
 typedef IceUtil::Handle<Plugin> PluginPtr;
-
-//
-// Thrown if getConnectionInfo cannot retrieve the ConnectionInfo.
-//
-class ICE_SSL_API ConnectionInvalidException : public IceUtil::Exception
-{
-public:
-
-    ConnectionInvalidException(const char*, int, const std::string&);
-    virtual ~ConnectionInvalidException() throw();
-    virtual std::string ice_name() const;
-    virtual IceUtil::Exception* ice_clone() const;
-    virtual void ice_throw() const;
-
-    std::string reason;
-
-private:
-
-    static const char* _name;
-};
-
-//
-// This function obtains a ConnectionInfo value that describes a
-// Connection. The function raises ConnectionInvalidException if the
-// connection is closed or is not an SSL connection.
-//
-ICE_SSL_API ConnectionInfo getConnectionInfo(const ::Ice::ConnectionPtr&);
 
 }
 

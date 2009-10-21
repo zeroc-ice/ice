@@ -23,10 +23,18 @@ local class ConnectionInfo
 {
     /**
      *
-     * The endpoint used to establish the connection.
+     * Whether or not the connection is an incoming or outgoing
+     * connection.
      *
      **/
-    EndpointInfo endpoint;
+    bool incoming;
+
+    /**
+     *
+     * The name of the adapter associated with the connection.
+     *
+     **/
+    string adapterName;
 };
 
 /**
@@ -105,6 +113,15 @@ local interface Connection
 
     /**
      *
+     * Get the endpoint from which the creation was created.
+     *
+     * @return The endpoint from which the connection was created.
+     *
+     **/
+    ["cpp:const"] Endpoint getEndpoint();
+
+    /**
+     *
      * Flush any pending batch requests for this connection. This
      * causes all batch requests that were sent via proxies that use
      * this connection to be sent to the server.
@@ -154,10 +171,10 @@ local interface Connection
 
 /**
  *
- * Provides access to the connection details of a TCP connection
+ * Provides access to the connection details of an IP connection
  *
  **/
-local class TcpConnectionInfo extends ConnectionInfo
+local class IPConnectionInfo extends ConnectionInfo
 {
     /** The local address. */
     string localAddress;
@@ -174,23 +191,20 @@ local class TcpConnectionInfo extends ConnectionInfo
 
 /**
  *
+ * Provides access to the connection details of a TCP connection
+ *
+ **/
+local class TCPConnectionInfo extends IPConnectionInfo
+{
+};
+
+/**
+ *
  * Provides access to the connection details of a UDP connection
  *
  **/
-local class UdpConnectionInfo extends ConnectionInfo
+local class UDPConnectionInfo extends IPConnectionInfo
 {
-    /** The local address. */
-    string localAddress;
-
-    /** The local port. */
-    int localPort;
-
-    /** The remote address. */
-    string remoteAddress;
-
-    /** The remote port. */
-    int remotePort;    
-
     /** The multicast address. */
     string mcastAddress;
 

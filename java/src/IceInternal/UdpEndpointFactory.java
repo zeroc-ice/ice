@@ -19,7 +19,7 @@ final class UdpEndpointFactory implements EndpointFactory
     public short
     type()
     {
-        return UdpEndpointI.TYPE;
+        return Ice.UDPEndpointType.value;
     }
 
     public String

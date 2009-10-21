@@ -430,6 +430,11 @@ public class AllTests
         compObj2 = communicator.stringToProxy("foo@MyAdapter1");
         test(!compObj1.equals(compObj2));
 
+        Ice.Endpoint[] endpts1 = communicator.stringToProxy("foo:tcp -h 127.0.0.1 -p 10000").ice_getEndpoints();
+        Ice.Endpoint[] endpts2 = communicator.stringToProxy("foo:tcp -h 127.0.0.1 -p 10001").ice_getEndpoints();
+        test(!endpts1[0].equals(endpts2[0]));
+        test(endpts1[0].equals(communicator.stringToProxy("foo:tcp -h 127.0.0.1 -p 10000").ice_getEndpoints()[0]));
+
         //
         // TODO: Ideally we should also test comparison of fixed proxies.
         //
@@ -644,32 +649,6 @@ public class AllTests
             }
 
         }
-        out.println("ok");
-
-        out.print("testing endpoint information... ");
-        out.flush();
-
-        Ice.ObjectPrx p = communicator.stringToProxy("test -t:tcp -h tcphost -p 10000 -t 1200 -z:udp -h udphost -p 10001 --interface eth0 --ttl 5:opaque -t 100 -v ABCD");
-        Ice.Endpoint[] endps = p.ice_getEndpoints();
-
-        test(endps[0].getInfo() instanceof Ice.TcpEndpointInfo);
-        Ice.TcpEndpointInfo tcpEndpoint = (Ice.TcpEndpointInfo)endps[0].getInfo();
-        test(tcpEndpoint.host.equals("tcphost"));
-        test(tcpEndpoint.port == 10000);
-        test(tcpEndpoint.timeout == 1200);
-        test(tcpEndpoint.compress);
-
-        test(endps[1].getInfo() instanceof Ice.UdpEndpointInfo);
-        Ice.UdpEndpointInfo udpEndpoint = (Ice.UdpEndpointInfo)endps[1].getInfo();
-        test(udpEndpoint.host.equals("udphost"));
-        test(udpEndpoint.port == 10001);
-        test(udpEndpoint.mcastInterface.equals("eth0"));
-        test(udpEndpoint.mcastTtl == 5);
-        test(udpEndpoint.timeout == -1);
-        test(!udpEndpoint.compress);
-
-        test(endps[2].getInfo() instanceof Ice.OpaqueEndpointInfo);
-
         out.println("ok");
 
         return cl;

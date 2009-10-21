@@ -50,7 +50,7 @@ namespace IceInternal
 
         public short type()
         {
-            return TcpEndpointI.TYPE;
+            return Ice.UDPEndpointType.value;
         }
 
         //

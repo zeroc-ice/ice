@@ -423,6 +423,11 @@ public class AllTests
         compObj2 = communicator.stringToProxy("foo@MyAdapter1");
         test(!compObj1.Equals(compObj2));
 
+        Ice.Endpoint[] endpts1 = communicator.stringToProxy("foo:tcp -h 127.0.0.1 -p 10000").ice_getEndpoints();
+        Ice.Endpoint[] endpts2 = communicator.stringToProxy("foo:tcp -h 127.0.0.1 -p 10001").ice_getEndpoints();
+        test(!endpts1[0].Equals(endpts2[0]));
+        test(endpts1[0].Equals(communicator.stringToProxy("foo:tcp -h 127.0.0.1 -p 10000").ice_getEndpoints()[0]));
+
         //
         // TODO: Ideally we should also test comparison of fixed proxies.
         //
@@ -629,32 +634,6 @@ public class AllTests
                 test(pstr.Equals("test -t:ssl -h 127.0.0.1 -p 10001:opaque -t 99 -v abch"));
             }
         }
-
-        Console.Out.WriteLine("ok");
-
-        Console.Out.Write("testing endpoint information... ");
-        Console.Out.Flush();
-
-        p1 = communicator.stringToProxy("test -t:tcp -h tcphost -p 10000 -t 1200 -z:udp -h udphost -p 10001 --interface eth0 --ttl 5:opaque -t 100 -v ABCD");
-        Ice.Endpoint[] endps = p1.ice_getEndpoints();
-
-        test(endps[0].getInfo() is Ice.TcpEndpointInfo);
-        Ice.TcpEndpointInfo tcpEndpoint = (Ice.TcpEndpointInfo)endps[0].getInfo();
-        test(tcpEndpoint.host == "tcphost");
-        test(tcpEndpoint.port == 10000);
-        test(tcpEndpoint.timeout == 1200);
-        test(tcpEndpoint.compress);
-
-        test(endps[1].getInfo() is Ice.UdpEndpointInfo);
-        Ice.UdpEndpointInfo udpEndpoint = (Ice.UdpEndpointInfo)endps[1].getInfo();
-        test(udpEndpoint.host == "udphost");
-        test(udpEndpoint.port == 10001);
-        test(udpEndpoint.mcastInterface == "eth0");
-        test(udpEndpoint.mcastTtl == 5);
-        test(udpEndpoint.timeout == -1);
-        test(!udpEndpoint.compress);
-
-        test(endps[2].getInfo() is Ice.OpaqueEndpointInfo);
 
         Console.Out.WriteLine("ok");
 

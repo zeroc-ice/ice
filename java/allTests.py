@@ -36,6 +36,7 @@ tests = [
     ("Ice/operations", ["core"]),
     ("Ice/seqMapping", ["core"]),
     ("Ice/exceptions", ["core"]),
+    ("Ice/info", ["core"]),
     ("Ice/inheritance", ["core"]),
     ("Ice/facets", ["core"]),
     ("Ice/objects", ["core"]),

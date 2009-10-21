@@ -51,15 +51,15 @@ public:
     }
 
     virtual bool
-    verify(const IceSSL::ConnectionInfo& info)
+    verify(const IceSSL::NativeConnectionInfoPtr& info)
     {
-        if(info.certs.size() > 0)
+        if(info->nativeCerts.size() > 0)
         {
             //
             // Subject alternative name
             //
             {
-                vector<pair<int, string> > altNames = info.certs[0]->getSubjectAlternativeNames();
+                vector<pair<int, string> > altNames = info->nativeCerts[0]->getSubjectAlternativeNames();
                 vector<string> ipAddresses;
                 vector<string> dnsNames;
                 for(vector<pair<int, string> >::const_iterator p = altNames.begin(); p != altNames.end(); ++p)
@@ -82,7 +82,7 @@ public:
             // Issuer alternative name
             //
             {
-                vector<pair<int, string> > altNames = info.certs[0]->getIssuerAlternativeNames();
+                vector<pair<int, string> > altNames = info->nativeCerts[0]->getIssuerAlternativeNames();
                 vector<string> ipAddresses;
                 vector<string> emailAddresses;
                 for(vector<pair<int, string> >::const_iterator p = altNames.begin(); p != altNames.end(); ++p)
@@ -102,7 +102,7 @@ public:
             }
         }
 
-        _hadCert = info.certs.size() != 0;
+        _hadCert = info->nativeCerts.size() != 0;
         _invoked = true;
         return _returnValue;
     }
@@ -280,10 +280,11 @@ allTests(const CommunicatorPtr& communicator, const string& testDir)
         //
         try
         {
-            IceSSL::ConnectionInfo info = IceSSL::getConnectionInfo(server->ice_getConnection());
-            test(info.certs.size() == 2);
+            IceSSL::NativeConnectionInfoPtr info = 
+                IceSSL::NativeConnectionInfoPtr::dynamicCast(server->ice_getConnection()->getInfo());
+            test(info->nativeCerts.size() == 2);
         }
-        catch(const IceSSL::ConnectionInvalidException&)
+        catch(const Ice::LocalException&)
         {
             test(false);
         }
@@ -385,23 +386,24 @@ allTests(const CommunicatorPtr& communicator, const string& testDir)
             test(serverCert->verify(caCert->getPublicKey()));
             test(caCert->verify(caCert->getPublicKey()));
 
-            IceSSL::ConnectionInfo info = IceSSL::getConnectionInfo(server->ice_getConnection());
+            IceSSL::NativeConnectionInfoPtr info = 
+                IceSSL::NativeConnectionInfoPtr::dynamicCast(server->ice_getConnection()->getInfo());
 
-            test(info.certs.size() == 2);
+            test(info->nativeCerts.size() == 2);
 
-            test(caCert == info.certs[1]);
-            test(serverCert == info.certs[0]);
+            test(caCert == info->nativeCerts[1]);
+            test(serverCert == info->nativeCerts[0]);
 
-            test(serverCert != info.certs[1]);
-            test(caCert != info.certs[0]);
+            test(serverCert != info->nativeCerts[1]);
+            test(caCert != info->nativeCerts[0]);
 
-            test(info.certs[0]->checkValidity() && info.certs[1]->checkValidity());
-            test(!info.certs[0]->checkValidity(IceUtil::Time::seconds(0)) &&
-                 !info.certs[1]->checkValidity(IceUtil::Time::seconds(0)));
-            test(info.certs[0]->verify(info.certs[1]->getPublicKey()));
-            test(info.certs.size() == 2 &&
-                 info.certs[0]->getSubjectDN() == serverCert->getSubjectDN() &&
-                 info.certs[0]->getIssuerDN() == serverCert->getIssuerDN());
+            test(info->nativeCerts[0]->checkValidity() && info->nativeCerts[1]->checkValidity());
+            test(!info->nativeCerts[0]->checkValidity(IceUtil::Time::seconds(0)) &&
+                 !info->nativeCerts[1]->checkValidity(IceUtil::Time::seconds(0)));
+            test(info->nativeCerts[0]->verify(info->nativeCerts[1]->getPublicKey()));
+            test(info->nativeCerts.size() == 2 &&
+                 info->nativeCerts[0]->getSubjectDN() == serverCert->getSubjectDN() &&
+                 info->nativeCerts[0]->getIssuerDN() == serverCert->getIssuerDN());
         }
         catch(const LocalException&)
         {
@@ -673,8 +675,9 @@ allTests(const CommunicatorPtr& communicator, const string& testDir)
         {
             string cipherSub = "ADH-";
             server->checkCipher(cipherSub);
-            IceSSL::ConnectionInfo info = IceSSL::getConnectionInfo(server->ice_getConnection());
-            test(info.cipher.compare(0, cipherSub.size(), cipherSub) == 0);
+            IceSSL::NativeConnectionInfoPtr info = 
+                IceSSL::NativeConnectionInfoPtr::dynamicCast(server->ice_getConnection()->getInfo());
+            test(info->cipher.compare(0, cipherSub.size(), cipherSub) == 0);
         }
         catch(const LocalException&)
         {
@@ -1022,8 +1025,9 @@ allTests(const CommunicatorPtr& communicator, const string& testDir)
         {
             string cipherSub = "ADH-";
             server->checkCipher(cipherSub);
-            IceSSL::ConnectionInfo info = IceSSL::getConnectionInfo(server->ice_getConnection());
-            test(info.cipher.compare(0, cipherSub.size(), cipherSub) == 0);
+            IceSSL::NativeConnectionInfoPtr info = 
+                IceSSL::NativeConnectionInfoPtr::dynamicCast(server->ice_getConnection()->getInfo());
+            test(info->cipher.compare(0, cipherSub.size(), cipherSub) == 0);
         }
         catch(const LocalException&)
         {
@@ -1199,7 +1203,7 @@ allTests2(const CommunicatorPtr& communicator,
         {
             server->ice_ping();
         }
-        catch(const LocalException&)
+        catch(const LocalException& ex)
         {
             test(false);
         }

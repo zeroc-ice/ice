@@ -22,20 +22,8 @@ module IceSSL
  * Provides access to the connection details of an SSL connection
  *
  **/
-local class SSLConnectionInfo extends Ice::ConnectionInfo
+local class ConnectionInfo extends Ice::IPConnectionInfo
 {
-    /** The local address. */
-    string localAddress;
-
-    /** The local port. */
-    int localPort;
-
-    /** The remote address. */
-    string remoteAddress;
-
-    /** The remote port. */
-    int remotePort;    
-
     /** The negotiated cipher suite. */
     string cipher;
 

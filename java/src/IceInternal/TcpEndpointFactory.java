@@ -19,7 +19,7 @@ final class TcpEndpointFactory implements EndpointFactory
     public short
     type()
     {
-        return TcpEndpointI.TYPE;
+        return Ice.TCPEndpointType.value;
     }
 
     public String

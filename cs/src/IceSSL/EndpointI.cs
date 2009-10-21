@@ -15,8 +15,6 @@ namespace IceSSL
 
     sealed class EndpointI : IceInternal.EndpointI
     {
-        internal const short TYPE = 2;
-
         internal EndpointI(Instance instance, string ho, int po, int ti, string conId, bool co)
         {
             _instance = instance;
@@ -197,7 +195,7 @@ namespace IceSSL
         //
         public override void streamWrite(IceInternal.BasicStream s)
         {
-            s.writeShort(TYPE);
+            s.writeShort(EndpointType.value);
             s.startWriteEncaps();
             s.writeString(_host);
             s.writeInt(_port);
@@ -246,7 +244,7 @@ namespace IceSSL
             return s;
         }
         
-        private sealed class InfoI : IceSSL.SSLEndpointInfo
+        private sealed class InfoI : IceSSL.EndpointInfo
         {
             public InfoI(int to, bool comp, string host, int port) : base(to, comp, host, port)
             {
@@ -254,7 +252,7 @@ namespace IceSSL
 
             override public short type()
             {
-                return TYPE;
+                return EndpointType.value;
             }
             
             override public bool datagram()
@@ -281,7 +279,7 @@ namespace IceSSL
         //
         public override short type()
         {
-            return TYPE;
+            return EndpointType.value;
         }
 
         //
@@ -559,7 +557,7 @@ namespace IceSSL
 
         public short type()
         {
-            return EndpointI.TYPE;
+            return EndpointType.value;
         }
 
         public string protocol()

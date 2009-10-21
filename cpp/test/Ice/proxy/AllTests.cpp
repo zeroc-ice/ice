@@ -451,6 +451,13 @@ allTests(const Ice::CommunicatorPtr& communicator)
     test(compObj1 < compObj2);
     test(!(compObj2 < compObj1));
 
+    Ice::EndpointSeq endpts1 = communicator->stringToProxy("foo:tcp -h 127.0.0.1 -p 10000")->ice_getEndpoints();
+    Ice::EndpointSeq endpts2 = communicator->stringToProxy("foo:tcp -h 127.0.0.1 -p 10001")->ice_getEndpoints();
+    test(endpts1 != endpts2);
+    test(endpts1 < endpts2);
+    test(!(endpts2 < endpts1));
+    test(endpts1 == communicator->stringToProxy("foo:tcp -h 127.0.0.1 -p 10000")->ice_getEndpoints());
+
     //
     // TODO: Ideally we should also test comparison of fixed proxies.
     //
@@ -709,32 +716,6 @@ allTests(const Ice::CommunicatorPtr& communicator)
             test(pstr == "test -t:ssl -h 127.0.0.1 -p 10001:opaque -t 99 -v abch");
         }
     }
-
-    cout << "ok" << endl;
-
-    cout << "testing endpoint information... " << flush;
-
-    p1 = communicator->stringToProxy("test -t:tcp -h tcphost -p 10000 -t 1200 -z:udp -h udphost -p 10001 --interface eth0 --ttl 5:opaque -t 100 -v ABCD");
-    Ice::EndpointSeq endps = p1->ice_getEndpoints();
-
-    Ice::TcpEndpointInfoPtr tcpEndpoint = Ice::TcpEndpointInfoPtr::dynamicCast(endps[0]->getInfo());
-    test(tcpEndpoint);
-    test(tcpEndpoint->host == "tcphost");
-    test(tcpEndpoint->port == 10000);
-    test(tcpEndpoint->timeout == 1200);
-    test(tcpEndpoint->compress);
-
-    Ice::UdpEndpointInfoPtr udpEndpoint = Ice::UdpEndpointInfoPtr::dynamicCast(endps[1]->getInfo());
-    test(udpEndpoint);
-    test(udpEndpoint->host == "udphost");
-    test(udpEndpoint->port == 10001);
-    test(udpEndpoint->mcastInterface == "eth0");
-    test(udpEndpoint->mcastTtl == 5);
-    test(udpEndpoint->timeout == -1);
-    test(!udpEndpoint->compress);
-
-    Ice::OpaqueEndpointInfoPtr opaqueEndpoint = Ice::OpaqueEndpointInfoPtr::dynamicCast(endps[2]->getInfo());
-    test(opaqueEndpoint);
 
     cout << "ok" << endl;
 

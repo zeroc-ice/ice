@@ -58,13 +58,13 @@ public:
     virtual Ice::ConnectionInfoPtr getInfo() const;
     virtual void checkSendSize(const IceInternal::Buffer&, size_t);
 
-    ConnectionInfo getConnectionInfo() const;
-
 private:
 
     TransceiverI(const InstancePtr&, SOCKET, const std::string&, const struct sockaddr_storage&);
     TransceiverI(const InstancePtr&, SOCKET, const std::string&);
     virtual ~TransceiverI();
+
+    virtual NativeConnectionInfoPtr getNativeConnectionInfo() const;
  
 #ifdef ICE_USE_IOCP
     bool send();

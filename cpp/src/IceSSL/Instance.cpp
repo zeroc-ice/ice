@@ -783,7 +783,7 @@ IceSSL::Instance::securityTraceCategory() const
 }
 
 void
-IceSSL::Instance::verifyPeer(SSL* ssl, SOCKET fd, const string& address, const string& adapterName, bool incoming)
+IceSSL::Instance::verifyPeer(SSL* ssl, SOCKET fd, const string& address, const NativeConnectionInfoPtr& info)
 {
     long result = SSL_get_verify_result(ssl);
     if(result != X509_V_OK)
@@ -935,13 +935,11 @@ IceSSL::Instance::verifyPeer(SSL* ssl, SOCKET fd, const string& address, const s
         }
     }
 
-    ConnectionInfo info = populateConnectionInfo(ssl, fd, adapterName, incoming);
-
-    if(_verifyDepthMax > 0 && static_cast<int>(info.certs.size()) > _verifyDepthMax)
+    if(_verifyDepthMax > 0 && static_cast<int>(info->certs.size()) > _verifyDepthMax)
     {
         ostringstream ostr;
-        ostr << (incoming ? "incoming" : "outgoing") << " connection rejected:\n"
-             << "length of peer's certificate chain (" << info.certs.size() << ") exceeds maximum of "
+        ostr << (info->incoming ? "incoming" : "outgoing") << " connection rejected:\n"
+             << "length of peer's certificate chain (" << info->certs.size() << ") exceeds maximum of "
              << _verifyDepthMax;
         string msg = ostr.str();
         if(_securityTraceLevel >= 1)
@@ -955,7 +953,7 @@ IceSSL::Instance::verifyPeer(SSL* ssl, SOCKET fd, const string& address, const s
 
     if(!_trustManager->verify(info))
     {
-        string msg = string(incoming ? "incoming" : "outgoing") + " connection rejected by trust manager";
+        string msg = string(info->incoming ? "incoming" : "outgoing") + " connection rejected by trust manager";
         if(_securityTraceLevel >= 1)
         {
             _logger->trace(_securityTraceCategory, msg + "\n" + IceInternal::fdToString(fd));
@@ -967,7 +965,7 @@ IceSSL::Instance::verifyPeer(SSL* ssl, SOCKET fd, const string& address, const s
 
     if(_verifier && !_verifier->verify(info))
     {
-        string msg = string(incoming ? "incoming" : "outgoing") + " connection rejected by certificate verifier";
+        string msg = string(info->incoming ? "incoming" : "outgoing") + " connection rejected by certificate verifier";
         if(_securityTraceLevel >= 1)
         {
             _logger->trace(_securityTraceCategory, msg + "\n" + IceInternal::fdToString(fd));

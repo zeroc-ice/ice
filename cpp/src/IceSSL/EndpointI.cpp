@@ -16,6 +16,7 @@
 #include <Ice/BasicStream.h>
 #include <Ice/LocalException.h>
 #include <Ice/DefaultsAndOverrides.h>
+#include <Ice/HashUtil.h>
 
 using namespace std;
 using namespace Ice;
@@ -229,12 +230,12 @@ IceSSL::EndpointI::toString() const
 Ice::EndpointInfoPtr
 IceSSL::EndpointI::getInfo() const
 {
-    class InfoI : public IceSSL::SSLEndpointInfo
+    class InfoI : public IceSSL::EndpointInfo
     {
     public:
 
         InfoI(Ice::Int to, bool comp, const string& host, Ice::Int port) :
-            SSLEndpointInfo(to, comp, host, port)
+            EndpointInfo(to, comp, host, port)
         {
         }
 
@@ -387,7 +388,7 @@ IceSSL::EndpointI::equivalent(const IceInternal::EndpointIPtr& endpoint) const
 }
 
 bool
-IceSSL::EndpointI::operator==(const IceInternal::EndpointI& r) const
+IceSSL::EndpointI::operator==(const Ice::LocalObject& r) const
 {
     const EndpointI* p = dynamic_cast<const EndpointI*>(&r);
     if(!p)
@@ -429,18 +430,17 @@ IceSSL::EndpointI::operator==(const IceInternal::EndpointI& r) const
 }
 
 bool
-IceSSL::EndpointI::operator!=(const IceInternal::EndpointI& r) const
-{
-    return !operator==(r);
-}
-
-bool
-IceSSL::EndpointI::operator<(const IceInternal::EndpointI& r) const
+IceSSL::EndpointI::operator<(const Ice::LocalObject& r) const
 {
     const EndpointI* p = dynamic_cast<const EndpointI*>(&r);
     if(!p)
     {
-        return type() < r.type();
+        const IceInternal::EndpointI* e = dynamic_cast<const IceInternal::EndpointI*>(&r);
+        if(!e)
+        {
+            return false;
+        }
+        return type() < e->type();
     }
 
     if(this == p)
@@ -494,6 +494,18 @@ IceSSL::EndpointI::operator<(const IceInternal::EndpointI& r) const
     }
 
     return false;
+}
+
+Ice::Int
+IceSSL::EndpointI::hashInit() const
+{
+    Ice::Int h = 0;
+    IceInternal::hashAdd(h, _host);
+    IceInternal::hashAdd(h, _port);
+    IceInternal::hashAdd(h, _timeout);
+    IceInternal::hashAdd(h, _connectionId);
+    IceInternal::hashAdd(h, _compress);
+    return h;
 }
 
 vector<IceInternal::ConnectorPtr>

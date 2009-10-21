@@ -374,13 +374,13 @@ namespace IceSSL
             communicator().getLogger().trace(_securityTraceCategory, s.ToString());
         }
 
-        internal void verifyPeer(ConnectionInfo info, System.Net.Sockets.Socket fd, string address, bool incoming)
+        internal void verifyPeer(NativeConnectionInfo info, System.Net.Sockets.Socket fd, string address)
         {
             //
             // For an outgoing connection, we compare the proxy address (if any) against
             // fields in the server's certificate (if any).
             //
-            if(info.certs != null && info.certs.Length > 0 && address.Length > 0)
+            if(info.nativeCerts != null && info.nativeCerts.Length > 0 && address.Length > 0)
             {
                 //
                 // Extract the IP addresses and the DNS names from the subject
@@ -408,7 +408,7 @@ namespace IceSSL
                 //    registeredID                    [8]     OBJECT IDENTIFIER
                 // }
                 //
-                foreach(X509Extension ext in info.certs[0].Extensions)
+                foreach(X509Extension ext in info.nativeCerts[0].Extensions)
                 {
                     if(ext.Oid.Value.Equals("2.5.29.17") && ext.RawData.Length > 0)
                     {
@@ -481,7 +481,7 @@ namespace IceSSL
                 // Compare the peer's address against the common name as well as
                 // the dnsName and ipAddress values in the subject alternative name.
                 //
-                string dn = info.certs[0].Subject;
+                string dn = info.nativeCerts[0].Subject;
                 string addrLower = address.ToLower();
                 bool certNameOK = false;
                 {
@@ -568,10 +568,10 @@ namespace IceSSL
                 }
             }
 
-            if(_verifyDepthMax > 0 && info.certs != null && info.certs.Length > _verifyDepthMax)
+            if(_verifyDepthMax > 0 && info.nativeCerts != null && info.nativeCerts.Length > _verifyDepthMax)
             {
-                string msg = (incoming ? "incoming" : "outgoing") + " connection rejected:\n" +
-                    "length of peer's certificate chain (" + info.certs.Length + ") exceeds maximum of " +
+                string msg = (info.incoming ? "incoming" : "outgoing") + " connection rejected:\n" +
+                    "length of peer's certificate chain (" + info.nativeCerts.Length + ") exceeds maximum of " +
                     _verifyDepthMax + "\n" +
                     IceInternal.Network.fdToString(fd);
                 if(_securityTraceLevel >= 1)
@@ -585,7 +585,7 @@ namespace IceSSL
 
             if(!_trustManager.verify(info))
             {
-                string msg = (incoming ? "incoming" : "outgoing") + " connection rejected by trust manager\n" +
+                string msg = (info.incoming ? "incoming" : "outgoing") + " connection rejected by trust manager\n" +
                     IceInternal.Network.fdToString(fd);
                 if(_securityTraceLevel >= 1)
                 {
@@ -599,8 +599,8 @@ namespace IceSSL
 
             if(_verifier != null && !_verifier.verify(info))
             {
-                string msg = (incoming ? "incoming" : "outgoing") + " connection rejected by certificate verifier\n" +
-                    IceInternal.Network.fdToString(fd);
+                string msg = (info.incoming ? "incoming" : "outgoing") + 
+                    " connection rejected by certificate verifier\n" + IceInternal.Network.fdToString(fd);
                 if(_securityTraceLevel >= 1)
                 {
                     _logger.trace(_securityTraceCategory, msg);

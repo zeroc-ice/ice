@@ -225,10 +225,10 @@ public class AllTests
                 //
                 try
                 {
-                    IceSSL.ConnectionInfo info = IceSSL.Util.getConnectionInfo(server.ice_getConnection());
+                    IceSSL.NativeConnectionInfo info = (IceSSL.NativeConnectionInfo)server.ice_getConnection().getInfo();
                     test(info.certs != null);
                 }
-                catch(IceSSL.ConnectionInvalidException)
+                catch(Ice.LocalException)
                 {
                     test(false);
                 }
@@ -287,7 +287,7 @@ public class AllTests
                         new X509Certificate2(defaultDir + "/s_rsa_nopass_ca1.pfx", "password");
                     X509Certificate2 caCert = new X509Certificate2(defaultDir + "/cacert1.pem");
 
-                    IceSSL.ConnectionInfo info = IceSSL.Util.getConnectionInfo(server.ice_getConnection());
+                    IceSSL.NativeConnectionInfo info = (IceSSL.NativeConnectionInfo)server.ice_getConnection().getInfo();
 
                     test(caCert.Equals(info.certs[1]));
                     test(serverCert.Equals(info.certs[0]));
@@ -515,7 +515,8 @@ public class AllTests
                 Test.ServerPrx server = fact.createServer(d);
                 try
                 {
-                    IceSSL.ConnectionInfo info = IceSSL.Util.getConnectionInfo(server.ice_getConnection());
+                    IceSSL.NativeConnectionInfo info = 
+                        (IceSSL.NativeConnectionInfo)server.ice_getConnection().getInfo();
                     server.checkCipher(info.cipher);
                 }
                 catch(Ice.LocalException)

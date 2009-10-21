@@ -29,7 +29,12 @@ public:
 
     virtual bool operator==(const LocalObject&) const;
     virtual bool operator<(const LocalObject&) const;
-    virtual ::Ice::Int ice_hash() const;
+    virtual ::Ice::Int ice_getHash() const;
+    
+    ICE_DEPRECATED_API ::Ice::Int ice_hash() const
+    {
+        return ice_getHash();
+    }
 };
 
 }

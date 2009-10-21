@@ -114,6 +114,7 @@ public:
 
     virtual void setAdapter(const ObjectAdapterPtr&); // From Connection.
     virtual ObjectAdapterPtr getAdapter() const; // From Connection.
+    virtual EndpointPtr getEndpoint() const; // From Connection.
     virtual ObjectPrx createProxy(const Identity& ident) const; // From Connection.
 
     //
@@ -133,9 +134,6 @@ public:
     virtual std::string type() const; // From Connection.
     virtual Ice::Int timeout() const; // From Connection.
     virtual ConnectionInfoPtr getInfo() const; // From Connection
-
-    // SSL plug-in needs to be able to get the transceiver.
-    IceInternal::TransceiverPtr getTransceiver() const;
 
     void exception(const LocalException&);
     void invokeException(const LocalException&, int);

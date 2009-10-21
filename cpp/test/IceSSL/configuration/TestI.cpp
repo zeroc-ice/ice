@@ -26,10 +26,10 @@ ServerI::noCert(const Ice::Current& c)
 {
     try
     {
-        IceSSL::ConnectionInfo info = IceSSL::getConnectionInfo(c.con);
-        test(info.certs.size() == 0);
+        IceSSL::NativeConnectionInfoPtr info = IceSSL::NativeConnectionInfoPtr::dynamicCast(c.con->getInfo());
+        test(info->nativeCerts.size() == 0);
     }
-    catch(const IceSSL::ConnectionInvalidException&)
+    catch(const Ice::LocalException&)
     {
         test(false);
     }
@@ -40,12 +40,12 @@ ServerI::checkCert(const string& subjectDN, const string& issuerDN, const Ice::C
 {
     try
     {
-        IceSSL::ConnectionInfo info = IceSSL::getConnectionInfo(c.con);
-        test(info.certs.size() == 2 &&
-             info.certs[0]->getSubjectDN() == IceSSL::DistinguishedName(subjectDN) &&
-             info.certs[0]->getIssuerDN() == IceSSL::DistinguishedName(issuerDN));
+        IceSSL::NativeConnectionInfoPtr info = IceSSL::NativeConnectionInfoPtr::dynamicCast(c.con->getInfo());
+        test(info->nativeCerts.size() == 2 &&
+             info->nativeCerts[0]->getSubjectDN() == IceSSL::DistinguishedName(subjectDN) &&
+             info->nativeCerts[0]->getIssuerDN() == IceSSL::DistinguishedName(issuerDN));
     }
-    catch(const IceSSL::ConnectionInvalidException&)
+    catch(const Ice::LocalException&)
     {
         test(false);
     }
@@ -56,10 +56,10 @@ ServerI::checkCipher(const string& cipher, const Ice::Current& c)
 {
     try
     {
-        IceSSL::ConnectionInfo info = IceSSL::getConnectionInfo(c.con);
-        test(info.cipher.compare(0, cipher.size(), cipher) == 0);
+        IceSSL::NativeConnectionInfoPtr info = IceSSL::NativeConnectionInfoPtr::dynamicCast(c.con->getInfo());
+        test(info->cipher.compare(0, cipher.size(), cipher) == 0);
     }
-    catch(const IceSSL::ConnectionInvalidException&)
+    catch(const Ice::LocalException&)
     {
         test(false);
     }

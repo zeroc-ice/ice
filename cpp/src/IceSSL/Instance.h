@@ -45,7 +45,7 @@ public:
     int securityTraceLevel() const;
     std::string securityTraceCategory() const;
 
-    void verifyPeer(SSL*, SOCKET, const std::string&, const std::string&, bool);
+    void verifyPeer(SSL*, SOCKET, const std::string&, const NativeConnectionInfoPtr&);
 
     std::string sslErrors() const;
 

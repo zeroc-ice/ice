@@ -1239,7 +1239,7 @@ RegistryI::getSSLInfo(const ConnectionPtr& connection, string& userDN)
     Glacier2::SSLInfo sslinfo;
     try
     {
-        IceSSL::SSLConnectionInfoPtr info = IceSSL::SSLConnectionInfoPtr::dynamicCast(connection->getInfo());
+        IceSSL::ConnectionInfoPtr info = IceSSL::ConnectionInfoPtr::dynamicCast(connection->getInfo());
         if(!info)
         {
             PermissionDeniedException exc;

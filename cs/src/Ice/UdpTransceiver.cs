@@ -548,7 +548,7 @@ namespace IceInternal
         getInfo()
         {
             Debug.Assert(_fd != null);
-            Ice.UdpConnectionInfo info = new Ice.UdpConnectionInfo();
+            Ice.UDPConnectionInfo info = new Ice.UDPConnectionInfo();
             IPEndPoint localEndpoint = Network.getLocalAddress(_fd);
             info.localAddress = localEndpoint.Address.ToString();
             info.localPort = localEndpoint.Port;

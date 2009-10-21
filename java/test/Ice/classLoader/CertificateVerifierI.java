@@ -11,7 +11,7 @@ package test.Ice.classLoader;
 
 public class CertificateVerifierI implements IceSSL.CertificateVerifier
 {
-    public boolean verify(IceSSL.ConnectionInfo info)
+    public boolean verify(IceSSL.NativeConnectionInfo info)
     {
         return true;
     }

@@ -22,10 +22,10 @@ class ServerI extends _ServerDisp
     {
         try
         {
-            IceSSL.ConnectionInfo info = IceSSL.Util.getConnectionInfo(current.con);
+            IceSSL.NativeConnectionInfo info = (IceSSL.NativeConnectionInfo)current.con.getInfo();
             test(info.certs == null);
         }
-        catch(IceSSL.ConnectionInvalidException ex)
+        catch(Ice.LocalException ex)
         {
             test(false);
         }
@@ -36,13 +36,13 @@ class ServerI extends _ServerDisp
     {
         try
         {
-            IceSSL.ConnectionInfo info = IceSSL.Util.getConnectionInfo(current.con);
-            java.security.cert.X509Certificate cert = (java.security.cert.X509Certificate)info.certs[0];
-            test(info.certs.length == 2 &&
+            IceSSL.NativeConnectionInfo info = (IceSSL.NativeConnectionInfo)current.con.getInfo();
+            java.security.cert.X509Certificate cert = (java.security.cert.X509Certificate)info.nativeCerts[0];
+            test(info.nativeCerts.length == 2 &&
                  cert.getSubjectDN().toString().equals(subjectDN) &&
                  cert.getIssuerDN().toString().equals(issuerDN));
         }
-        catch(IceSSL.ConnectionInvalidException ex)
+        catch(Ice.LocalException ex)
         {
             test(false);
         }
@@ -53,10 +53,10 @@ class ServerI extends _ServerDisp
     {
         try
         {
-            IceSSL.ConnectionInfo info = IceSSL.Util.getConnectionInfo(current.con);
+            IceSSL.NativeConnectionInfo info = (IceSSL.NativeConnectionInfo)current.con.getInfo();
             test(info.cipher.indexOf(cipher) >= 0);
         }
-        catch(IceSSL.ConnectionInvalidException ex)
+        catch(Ice.LocalException ex)
         {
             test(false);
         }

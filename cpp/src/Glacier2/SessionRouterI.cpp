@@ -483,23 +483,6 @@ private:
 
 }
 
-namespace
-{
-    
-template<class T> void populateContext(const IceInternal::Handle<T>& info, Ice::Context& context)
-{
-    ostringstream os;
-    os << info->remotePort;
-    context["_con.remotePort"] = os.str();
-    context["_con.remoteAddress"] = info->remoteAddress;
-    os.str("");
-    os << info->localPort;
-    context["_con.localPort"] = os.str();
-    context["_con.localAddress"] = info->localAddress;
-}
-
-}
-
 using namespace Glacier2;
 
 Glacier2::CreateSession::CreateSession(const SessionRouterIPtr& sessionRouter, const string& user, 
@@ -513,17 +496,22 @@ Glacier2::CreateSession::CreateSession(const SessionRouterIPtr& sessionRouter, c
     {
         _context["_con.type"] = current.con->type();
         {
-            Ice::TcpConnectionInfoPtr info = Ice::TcpConnectionInfoPtr::dynamicCast(current.con->getInfo());
+            Ice::IPConnectionInfoPtr info = Ice::IPConnectionInfoPtr::dynamicCast(current.con->getInfo());
             if(info)
             {
-                populateContext(info, _context);
-            }
+                ostringstream os;
+                os << info->remotePort;
+                _context["_con.remotePort"] = os.str();
+                _context["_con.remoteAddress"] = info->remoteAddress;
+                os.str("");
+                os << info->localPort;
+                _context["_con.localPort"] = os.str();
+                _context["_con.localAddress"] = info->localAddress;            }
         }
         {
-            IceSSL::SSLConnectionInfoPtr info = IceSSL::SSLConnectionInfoPtr::dynamicCast(current.con->getInfo());
+            IceSSL::ConnectionInfoPtr info = IceSSL::ConnectionInfoPtr::dynamicCast(current.con->getInfo());
             if(info)
             {
-                populateContext(info, _context);
                 _context["_con.cipher"] = info->cipher;
                 if(info->certs.size() > 0)
                 {
@@ -615,7 +603,7 @@ Glacier2::CreateSession::sessionCreated(const SessionPrx& session)
             //
             // DEPRECATED: Glacier2.AddSSLContext.
             //
-            IceSSL::SSLConnectionInfoPtr info = IceSSL::SSLConnectionInfoPtr::dynamicCast(_current.con->getInfo());
+            IceSSL::ConnectionInfoPtr info = IceSSL::ConnectionInfoPtr::dynamicCast(_current.con->getInfo());
             if(info && _instance->properties()->getPropertyAsInt("Glacier2.AddSSLContext") > 0)
             {
                 _context["SSL.Active"] = "1";
@@ -907,7 +895,7 @@ Glacier2::SessionRouterI::createSessionFromSecureConnection_async(
     //
     try
     {
-        IceSSL::SSLConnectionInfoPtr info = IceSSL::SSLConnectionInfoPtr::dynamicCast(current.con->getInfo());
+        IceSSL::ConnectionInfoPtr info = IceSSL::ConnectionInfoPtr::dynamicCast(current.con->getInfo());
         if(!info)
         {
             amdCB->ice_exception(PermissionDeniedException("not ssl connection"));

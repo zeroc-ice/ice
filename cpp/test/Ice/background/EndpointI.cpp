@@ -225,7 +225,7 @@ EndpointI::getInfo() const
 }
 
 bool
-EndpointI::operator==(const IceInternal::EndpointI& r) const
+EndpointI::operator==(const Ice::LocalObject& r) const
 {
     const EndpointI* p = dynamic_cast<const EndpointI*>(&r);
     if(!p)
@@ -243,18 +243,17 @@ EndpointI::operator==(const IceInternal::EndpointI& r) const
 }
 
 bool
-EndpointI::operator!=(const IceInternal::EndpointI& r) const
-{
-    return !operator==(r);
-}
-
-bool
-EndpointI::operator<(const IceInternal::EndpointI& r) const
+EndpointI::operator<(const Ice::LocalObject& r) const
 {
     const EndpointI* p = dynamic_cast<const EndpointI*>(&r);
     if(!p)
     {
-        return type() < r.type();
+        const IceInternal::EndpointI* e = dynamic_cast<const IceInternal::EndpointI*>(&r);
+        if(!e)
+        {
+            return false;
+        }
+        return type() < e->type();
     }
 
     if(this == p)
@@ -263,4 +262,10 @@ EndpointI::operator<(const IceInternal::EndpointI& r) const
     }
 
     return *p->_endpoint < *_endpoint;
+}
+
+Ice::Int
+EndpointI::hashInit() const
+{
+    return _endpoint->ice_getHash();
 }

@@ -19,7 +19,7 @@ final class EndpointFactoryI implements IceInternal.EndpointFactory
     public short
     type()
     {
-        return EndpointI.TYPE;
+        return EndpointType.value;
     }
 
     public String

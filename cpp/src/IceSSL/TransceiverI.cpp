@@ -234,7 +234,7 @@ IceSSL::TransceiverI::initialize()
             }
         }
 
-        _instance->verifyPeer(_ssl, _fd, _host, _adapterName, _incoming);
+        _instance->verifyPeer(_ssl, _fd, _host, getNativeConnectionInfo());
         _state = StateHandshakeComplete;
     }
     catch(const Ice::LocalException& ex)
@@ -781,45 +781,7 @@ IceSSL::TransceiverI::toString() const
 Ice::ConnectionInfoPtr 
 IceSSL::TransceiverI::getInfo() const
 {
-    assert(_fd != INVALID_SOCKET && _ssl != 0);
-
-    SSLConnectionInfoPtr info = new SSLConnectionInfo();
-    IceInternal::fdToAddressAndPort(_fd, info->localAddress, info->localPort, info->remoteAddress, info->remotePort);
-
-    //
-    // On the client side, SSL_get_peer_cert_chain returns the entire chain of certs.
-    // On the server side, the peer certificate must be obtained separately.
-    //
-    // Since we have no clear idea whether the connection is server or client side,
-    // the peer certificate is obtained separately and compared against the first
-    // certificate in the chain. If they are not the same, it is added to the chain.
-    //
-    X509* cert = SSL_get_peer_certificate(_ssl);
-    STACK_OF(X509)* chain = SSL_get_peer_cert_chain(_ssl);
-    if(cert != 0 && (chain == 0 || sk_X509_num(chain) == 0 || cert != sk_X509_value(chain, 0)))
-    {
-        CertificatePtr certificate = new Certificate(cert);
-        info->certs.push_back(certificate->encode());
-    }
-    else
-    {
-        X509_free(cert);
-    }
-    
-    if(chain != 0)
-    {
-        for(int i = 0; i < sk_X509_num(chain); ++i)
-        {
-            //
-            // Duplicate the certificate since the stack comes straight from the SSL connection.
-            //
-            CertificatePtr certificate = new Certificate(X509_dup(sk_X509_value(chain, i)));
-            info->certs.push_back(certificate->encode());
-        }
-    }
-    
-    info->cipher = SSL_get_cipher_name(_ssl); // Nothing needs to be free'd.
-    return info;
+    return getNativeConnectionInfo();
 }
 
 void
@@ -829,16 +791,6 @@ IceSSL::TransceiverI::checkSendSize(const IceInternal::Buffer& buf, size_t messa
     {
         IceInternal::Ex::throwMemoryLimitException(__FILE__, __LINE__, buf.b.size(), messageSizeMax);
     }
-}
-
-IceSSL::ConnectionInfo
-IceSSL::TransceiverI::getConnectionInfo() const
-{
-    //
-    // This can only be called on an open transceiver.
-    //
-    assert(_fd != INVALID_SOCKET);
-    return populateConnectionInfo(_ssl, _fd, _adapterName, _incoming);
 }
 
 IceSSL::TransceiverI::TransceiverI(const InstancePtr& instance, SOCKET fd, const string& host, 
@@ -903,6 +855,53 @@ IceSSL::TransceiverI::~TransceiverI()
     assert(_fd == INVALID_SOCKET);
 }
 
+NativeConnectionInfoPtr
+IceSSL::TransceiverI::getNativeConnectionInfo() const
+{
+    assert(_fd != INVALID_SOCKET && _ssl != 0);
+
+    NativeConnectionInfoPtr info = new NativeConnectionInfo();
+    IceInternal::fdToAddressAndPort(_fd, info->localAddress, info->localPort, info->remoteAddress, info->remotePort);
+
+    //
+    // On the client side, SSL_get_peer_cert_chain returns the entire chain of certs.
+    // On the server side, the peer certificate must be obtained separately.
+    //
+    // Since we have no clear idea whether the connection is server or client side,
+    // the peer certificate is obtained separately and compared against the first
+    // certificate in the chain. If they are not the same, it is added to the chain.
+    //
+    X509* cert = SSL_get_peer_certificate(_ssl);
+    STACK_OF(X509)* chain = SSL_get_peer_cert_chain(_ssl);
+    if(cert != 0 && (chain == 0 || sk_X509_num(chain) == 0 || cert != sk_X509_value(chain, 0)))
+    {
+        CertificatePtr certificate = new Certificate(cert);
+        info->nativeCerts.push_back(certificate);
+        info->certs.push_back(certificate->encode());
+    }
+    else
+    {
+        X509_free(cert);
+    }
+    
+    if(chain != 0)
+    {
+        for(int i = 0; i < sk_X509_num(chain); ++i)
+        {
+            //
+            // Duplicate the certificate since the stack comes straight from the SSL connection.
+            //
+            CertificatePtr certificate = new Certificate(X509_dup(sk_X509_value(chain, i)));
+            info->nativeCerts.push_back(certificate);
+            info->certs.push_back(certificate->encode());
+        }
+    }
+    
+    info->cipher = SSL_get_cipher_name(_ssl); // Nothing needs to be free'd.
+    info->adapterName = _adapterName;
+    info->incoming = _incoming;
+    return info;
+}
 #ifdef ICE_USE_IOCP
 bool
 IceSSL::TransceiverI::receive()

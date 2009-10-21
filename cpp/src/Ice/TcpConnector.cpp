@@ -49,7 +49,7 @@ IceInternal::TcpConnector::connect()
 Short
 IceInternal::TcpConnector::type() const
 {
-    return TcpEndpointType;
+    return TCPEndpointType;
 }
 
 string

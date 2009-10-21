@@ -74,7 +74,11 @@ public:
     virtual bool operator==(const Object&) const;
     virtual bool operator<(const Object&) const;
 
-    virtual Int ice_hash() const;
+    virtual Int ice_getHash() const;
+    ICE_DEPRECATED_API ::Ice::Int ice_hash() const
+    {
+        return ice_getHash();
+    }
 
     virtual bool ice_isA(const std::string&, const Current& = Current()) const;
     DispatchStatus ___ice_isA(IceInternal::Incoming&, const Current&);

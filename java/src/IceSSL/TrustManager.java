@@ -55,7 +55,7 @@ class TrustManager
     }
 
     boolean
-    verify(ConnectionInfo info)
+    verify(NativeConnectionInfo info)
     {
         java.util.List<java.util.List<java.util.List<RFC2253.RDNPair> > >
             reject = new java.util.LinkedList<java.util.List<java.util.List<RFC2253.RDNPair> > >(),
@@ -126,10 +126,10 @@ class TrustManager
         //
         // If there is no certificate then we match false.
         //
-        if(info.certs != null && info.certs.length > 0)
+        if(info.nativeCerts != null && info.nativeCerts.length > 0)
         {
             javax.security.auth.x500.X500Principal subjectDN = (javax.security.auth.x500.X500Principal)
-                ((java.security.cert.X509Certificate)info.certs[0]).getSubjectX500Principal();
+                ((java.security.cert.X509Certificate)info.nativeCerts[0]).getSubjectX500Principal();
             String subjectName = subjectDN.getName(javax.security.auth.x500.X500Principal.RFC2253);
             assert subjectName != null;
             try
@@ -144,15 +144,15 @@ class TrustManager
                         _communicator.getLogger().trace("Security", "trust manager evaluating client:\n" +
                             "subject = " + subjectName + "\n" +
                             "adapter = " + info.adapterName + "\n" +
-                            "local addr = " + IceInternal.Network.addrToString(info.localAddr) + "\n" +
-                            "remote addr = " + IceInternal.Network.addrToString(info.remoteAddr));
+                            "local addr = " +  info.localAddress + ":" + info.localPort + "\n" +
+                            "remote addr = " + info.remoteAddress + ":" + info.remotePort);
                     }
                     else
                     {
                         _communicator.getLogger().trace("Security", "trust manager evaluating server:\n" +
                             "subject = " + subjectName + "\n" +
-                            "local addr = " + IceInternal.Network.addrToString(info.localAddr) + "\n" +
-                            "remote addr = " + IceInternal.Network.addrToString(info.remoteAddr));
+                            "local addr = " +  info.localAddress + ":" + info.localPort + "\n" +
+                            "remote addr = " + info.remoteAddress + ":" + info.remotePort);
                     }
                 }
                 java.util.List<RFC2253.RDNPair> dn = RFC2253.parseStrict(subjectName);

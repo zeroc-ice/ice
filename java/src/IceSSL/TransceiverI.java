@@ -277,44 +277,7 @@ final class TransceiverI implements IceInternal.Transceiver
     public Ice.ConnectionInfo
     getInfo()
     {
-        assert(_fd != null);
-
-        IceSSL.SSLConnectionInfo info = new IceSSL.SSLConnectionInfo();
-        java.net.Socket socket = _fd.socket();
-        info.localAddress = socket.getLocalAddress().getHostAddress();
-        info.localPort = socket.getLocalPort();
-        if(socket.getInetAddress() != null)
-        {
-            info.remoteAddress = socket.getInetAddress().getHostAddress();
-            info.remotePort = socket.getPort();
-        }
-        else
-        {
-            info.remoteAddress = "";
-            info.remotePort = -1;
-        }
-        SSLSession session = _engine.getSession();
-        info.cipher = session.getCipherSuite();
-        try
-        {
-            java.util.ArrayList<String> certs = new java.util.ArrayList<String>();
-            for(java.security.cert.Certificate c : session.getPeerCertificates())
-            {
-                StringBuffer s = new StringBuffer("-----BEGIN CERTIFICATE-----\n");
-                s.append(IceUtilInternal.Base64.encode(c.getEncoded()));
-                s.append("\n-----END CERTIFICATE-----");
-                certs.add(s.toString());
-            }
-            info.certs = certs.toArray(new String[0]);
-        }
-        catch(java.security.cert.CertificateEncodingException ex)
-        {
-        }
-        catch(javax.net.ssl.SSLPeerUnverifiedException ex)
-        {
-            // No peer certificates.
-        }
-        return info;
+        return getNativeConnectionInfo();
     }
 
     public void
@@ -324,16 +287,6 @@ final class TransceiverI implements IceInternal.Transceiver
         {
             IceInternal.Ex.throwMemoryLimitException(buf.size(), messageSizeMax);
         }
-    }
-
-    ConnectionInfo
-    getConnectionInfo()
-    {
-        //
-        // This can only be called on an open transceiver.
-        //
-        assert(_fd != null);
-        return _info;
     }
 
     //
@@ -386,6 +339,55 @@ final class TransceiverI implements IceInternal.Transceiver
         IceUtilInternal.Assert.FinalizerAssert(_fd == null);
 
         super.finalize();
+    }
+
+    private NativeConnectionInfo
+    getNativeConnectionInfo()
+    {
+        //
+        // This can only be called on an open transceiver.
+        //
+        assert(_fd != null);
+
+        NativeConnectionInfo info = new NativeConnectionInfo();
+        java.net.Socket socket = _fd.socket();
+        info.localAddress = socket.getLocalAddress().getHostAddress();
+        info.localPort = socket.getLocalPort();
+        if(socket.getInetAddress() != null)
+        {
+            info.remoteAddress = socket.getInetAddress().getHostAddress();
+            info.remotePort = socket.getPort();
+        }
+        else
+        {
+            info.remoteAddress = "";
+            info.remotePort = -1;
+        }
+        SSLSession session = _engine.getSession();
+        info.cipher = session.getCipherSuite();
+        try
+        {
+            java.util.ArrayList<String> certs = new java.util.ArrayList<String>();
+            info.nativeCerts = session.getPeerCertificates();
+            for(java.security.cert.Certificate c : info.nativeCerts)
+            {
+                StringBuffer s = new StringBuffer("-----BEGIN CERTIFICATE-----\n");
+                s.append(IceUtilInternal.Base64.encode(c.getEncoded()));
+                s.append("\n-----END CERTIFICATE-----");
+                certs.add(s.toString());
+            }
+            info.certs = certs.toArray(new String[0]);
+        }
+        catch(java.security.cert.CertificateEncodingException ex)
+        {
+        }
+        catch(javax.net.ssl.SSLPeerUnverifiedException ex)
+        {
+            // No peer certificates.
+        }
+        info.adapterName = _adapterName;
+        info.incoming = _incoming;
+        return info;
     }
 
     private int
@@ -535,8 +537,7 @@ final class TransceiverI implements IceInternal.Transceiver
         //
         // Additional verification.
         //
-        _info = Util.populateConnectionInfo(_engine.getSession(), _fd.socket(), _adapterName, _incoming);
-        _instance.verifyPeer(_info, _fd, _host, _incoming);
+        _instance.verifyPeer(getNativeConnectionInfo(), _fd, _host);
 
         if(_instance.networkTraceLevel() >= 1)
         {
@@ -805,7 +806,6 @@ final class TransceiverI implements IceInternal.Transceiver
     private ByteBuffer _netInput; // Holds encrypted data read from the socket.
     private ByteBuffer _netOutput; // Holds encrypted data to be written to the socket.
     private static ByteBuffer _emptyBuffer = ByteBuffer.allocate(0); // Used during handshaking.
-    private ConnectionInfo _info;
 
     private static final int StateNeedConnect = 0;
     private static final int StateConnectPending = 1;

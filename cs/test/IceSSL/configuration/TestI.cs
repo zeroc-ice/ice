@@ -24,10 +24,10 @@ internal sealed class ServerI : ServerDisp_
     {
         try
         {
-            IceSSL.ConnectionInfo info = IceSSL.Util.getConnectionInfo(current.con);
-            test(info.certs == null);
+            IceSSL.NativeConnectionInfo info = (IceSSL.NativeConnectionInfo)current.con.getInfo();
+            test(info.nativeCerts == null);
         }
-        catch(IceSSL.ConnectionInvalidException)
+        catch(Ice.LocalException)
         {
             test(false);
         }
@@ -38,12 +38,12 @@ internal sealed class ServerI : ServerDisp_
     {
         try
         {
-            IceSSL.ConnectionInfo info = IceSSL.Util.getConnectionInfo(current.con);
-            test(info.certs.Length == 2 &&
-                 info.certs[0].Subject.Equals(subjectDN) &&
-                 info.certs[0].Issuer.Equals(issuerDN));
+            IceSSL.NativeConnectionInfo info = (IceSSL.NativeConnectionInfo)current.con.getInfo();
+            test(info.nativeCerts.Length == 2 &&
+                 info.nativeCerts[0].Subject.Equals(subjectDN) &&
+                 info.nativeCerts[0].Issuer.Equals(issuerDN));
         }
-        catch(IceSSL.ConnectionInvalidException)
+        catch(Ice.LocalException)
         {
             test(false);
         }
@@ -54,10 +54,10 @@ internal sealed class ServerI : ServerDisp_
     {
         try
         {
-            IceSSL.ConnectionInfo info = IceSSL.Util.getConnectionInfo(current.con);
+            IceSSL.NativeConnectionInfo info = (IceSSL.NativeConnectionInfo)current.con.getInfo();
             test(info.cipher.Equals(cipher));
         }
-        catch(IceSSL.ConnectionInvalidException)
+        catch(Ice.LocalException)
         {
             test(false);
         }

@@ -135,46 +135,37 @@ public:
     // Check whether the endpoint is equivalent to another one.
     //
     virtual bool equivalent(const EndpointIPtr&) const = 0;
-
+    
     //
     // Compare endpoints for sorting purposes.
     //
-    virtual bool operator==(const EndpointI&) const = 0;
-    virtual bool operator!=(const EndpointI&) const = 0;
-    virtual bool operator<(const EndpointI&) const = 0;
-
-#if defined(__BCPLUSPLUS__)
-    //
-    // COMPILERFIX: Avoid warnings about hiding members for C++Builder 2010
-    //
-    //
-    virtual bool operator==(const Ice::LocalObject& rhs) const
-    {
-        return Ice::LocalObject::operator==(rhs);
-    }
-
-    virtual bool operator<(const Ice::LocalObject& rhs) const
-    {
-        return Ice::LocalObject::operator<(rhs);
-    }
-#endif
+    virtual bool operator==(const LocalObject&) const = 0;
+    virtual bool operator<(const LocalObject&) const = 0;
+    virtual ::Ice::Int ice_getHash() const;
 
 protected:
 
     virtual std::vector<ConnectorPtr> connectors(const std::vector<struct sockaddr_storage>&) const;
     friend class EndpointHostResolver;
 
+    EndpointI();
+    virtual ::Ice::Int hashInit() const = 0;
+
 private:
 
-#if defined(__SUNPRO_CC)
-    //
-    // COMPILERFIX: prevent the compiler from emitting a warning about
-    // hidding these operators.
-    //
-    using LocalObject::operator==;
-    using LocalObject::operator<;
-#endif
+    mutable bool _hashInitialized;
+    mutable Ice::Int _hashValue;
 };
+
+inline bool operator==(const EndpointI& l, const EndpointI& r)
+{
+    return static_cast<const ::Ice::LocalObject&>(l) == static_cast<const ::Ice::LocalObject&>(r);
+}
+
+inline bool operator<(const EndpointI& l, const EndpointI& r)
+{
+    return static_cast<const ::Ice::LocalObject&>(l) < static_cast<const ::Ice::LocalObject&>(r);
+}
 
 class ICE_API EndpointHostResolver : public IceUtil::Thread, public IceUtil::Monitor<IceUtil::Mutex>
 {

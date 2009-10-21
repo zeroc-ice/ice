@@ -12,6 +12,7 @@
 #include <Ice/Exception.h>
 #include <Ice/Instance.h>
 #include <Ice/Base64.h>
+#include <Ice/HashUtil.h>
 
 using namespace std;
 using namespace Ice;
@@ -282,7 +283,7 @@ IceInternal::OpaqueEndpointI::equivalent(const EndpointIPtr&) const
 }
 
 bool
-IceInternal::OpaqueEndpointI::operator==(const EndpointI& r) const
+IceInternal::OpaqueEndpointI::operator==(const LocalObject& r) const
 {
     const OpaqueEndpointI* p = dynamic_cast<const OpaqueEndpointI*>(&r);
     if(!p)
@@ -309,18 +310,17 @@ IceInternal::OpaqueEndpointI::operator==(const EndpointI& r) const
 }
 
 bool
-IceInternal::OpaqueEndpointI::operator!=(const EndpointI& r) const
-{
-    return !operator==(r);
-}
-
-bool
-IceInternal::OpaqueEndpointI::operator<(const EndpointI& r) const
+IceInternal::OpaqueEndpointI::operator<(const LocalObject& r) const
 {
     const OpaqueEndpointI* p = dynamic_cast<const OpaqueEndpointI*>(&r);
     if(!p)
     {
-        return type() < r.type();
+        const EndpointI* e = dynamic_cast<const EndpointI*>(&r);
+        if(!e)
+        {
+            return false;
+        }
+        return type() < e->type();
     }
 
     if(this == p)
@@ -347,4 +347,12 @@ IceInternal::OpaqueEndpointI::operator<(const EndpointI& r) const
     }
 
     return false;
+}
+
+Ice::Int
+IceInternal::OpaqueEndpointI::hashInit() const
+{
+    Ice::Int h = _type;
+    hashAdd(h, _rawBytes);
+    return h;
 }

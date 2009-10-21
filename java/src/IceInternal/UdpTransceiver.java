@@ -234,7 +234,7 @@ final class UdpTransceiver implements Transceiver
     {
         assert(_fd != null);
 
-        Ice.UdpConnectionInfo info = new Ice.UdpConnectionInfo();
+        Ice.UDPConnectionInfo info = new Ice.UDPConnectionInfo();
         java.net.DatagramSocket socket = _fd.socket();
         info.localAddress = socket.getLocalAddress().getHostAddress();
         info.localPort = socket.getLocalPort();

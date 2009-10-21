@@ -15,8 +15,6 @@ namespace IceInternal
 
     sealed class TcpEndpointI : EndpointI
     {
-        internal const short TYPE = 1;
-
         public TcpEndpointI(Instance instance, string ho, int po, int ti, string conId, bool co)
         {
             _instance = instance;
@@ -197,7 +195,7 @@ namespace IceInternal
         //
         public override void streamWrite(BasicStream s)
         {
-            s.writeShort(TYPE);
+            s.writeShort(Ice.TCPEndpointType.value);
             s.startWriteEncaps();
             s.writeString(_host);
             s.writeInt(_port);
@@ -247,7 +245,7 @@ namespace IceInternal
             return s;
         }
 
-        private sealed class InfoI : Ice.TcpEndpointInfo
+        private sealed class InfoI : Ice.TCPEndpointInfo
         {
             public InfoI(int to, bool comp, string host, int port) : base(to, comp, host, port)
             {
@@ -255,7 +253,7 @@ namespace IceInternal
 
             override public short type()
             {
-                return TYPE;
+                return Ice.TCPEndpointType.value;
             }
             
             override public bool datagram()
@@ -282,7 +280,7 @@ namespace IceInternal
         //
         public override short type()
         {
-            return TYPE;
+            return Ice.TCPEndpointType.value;
         }
 
         //
@@ -538,7 +536,7 @@ namespace IceInternal
             _hashCode = 5 * _hashCode + _port;
             _hashCode = 5 * _hashCode + _timeout;
             _hashCode = 5 * _hashCode + _connectionId.GetHashCode();
-            _hashCode = 5 * _hashCode + (_compress? 1 : 0);
+            _hashCode = 5 * _hashCode + (_compress ? 1 : 0);
         }
 
         private Instance _instance;
@@ -559,7 +557,7 @@ namespace IceInternal
 
         public short type()
         {
-            return TcpEndpointI.TYPE;
+            return Ice.TCPEndpointType.value;
         }
 
         public string protocol()

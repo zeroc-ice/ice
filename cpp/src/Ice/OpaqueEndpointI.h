@@ -41,45 +41,15 @@ public:
     virtual std::vector<EndpointIPtr> expand() const;
     virtual bool equivalent(const EndpointIPtr&) const;
 
-    virtual bool operator==(const EndpointI&) const;
-    virtual bool operator!=(const EndpointI&) const;
-    virtual bool operator<(const EndpointI&) const;
-
-#if defined(__BCPLUSPLUS__)
-    //
-    // COMPILERFIX: Avoid warnings about hiding members for C++Builder 2010
-    //
-    //
-    virtual bool operator==(const Ice::LocalObject& rhs) const
-    {
-        return EndpointI::operator==(rhs);
-    }
-
-    virtual bool operator<(const Ice::LocalObject& rhs) const
-    {
-        return EndpointI::operator<(rhs);
-    }
-
-    virtual std::vector<ConnectorPtr> connectors(const std::vector<struct sockaddr_storage>& v) const
-    {
-        return EndpointI::connectors(v);
-    }
-#endif
+    virtual bool operator==(const LocalObject&) const;
+    virtual bool operator<(const LocalObject&) const;
 
 protected:
 
+    virtual ::Ice::Int hashInit() const;
     using EndpointI::connectors;
 
 private:
-
-#if defined(__SUNPRO_CC)
-    //
-    // COMPILERFIX: prevent the compiler from emitting a warning about
-    // hidding these operators.
-    //
-    using LocalObject::operator==;
-    using LocalObject::operator<;
-#endif
 
     //
     // All members are const, because endpoints are immutable.

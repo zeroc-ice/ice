@@ -50,7 +50,7 @@ final class TcpConnector implements Connector
     public short
     type()
     {
-        return TcpEndpointI.TYPE;
+        return Ice.TCPEndpointType.value;
     }
 
     public String

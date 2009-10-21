@@ -41,12 +41,12 @@ public:
     virtual bool datagram() const;
     virtual bool secure() const;
 
-    virtual bool operator==(const IceInternal::EndpointI&) const;
-    virtual bool operator!=(const IceInternal::EndpointI&) const;
-    virtual bool operator<(const IceInternal::EndpointI&) const;
+    virtual bool operator==(const Ice::LocalObject&) const;
+    virtual bool operator<(const Ice::LocalObject&) const;
 
 protected:
 
+    virtual Ice::Int hashInit() const;
 #if !defined(_MSC_VER) || _MSC_VER > 1300
     using IceInternal::EndpointI::connectors;
 #endif
@@ -55,15 +55,6 @@ private:
 
     EndpointI(const IceInternal::EndpointIPtr&);
     friend class EndpointFactory;
-
-#if defined(__SUNPRO_CC)
-    //
-    // COMPILERFIX: prevent the compiler from emitting a warning about
-    // hidding these operators.
-    //
-    using LocalObject::operator==;
-    using LocalObject::operator<;
-#endif
 
     const IceInternal::EndpointIPtr _endpoint;
     const ConfigurationPtr _configuration;
