@@ -13,7 +13,6 @@
 #include <ConnectionInfo.h>
 #include <EndpointInfo.h>
 #include <Util.h>
-#include <structmember.h>
 
 using namespace std;
 using namespace IcePy;
@@ -123,7 +122,7 @@ tcpConnectionInfoGetter(ConnectionInfoObject* self, void* closure)
 
 #ifdef WIN32
 extern "C"
-#endif 
+#endif
 static PyObject*
 udpConnectionInfoGetter(ConnectionInfoObject* self, void* closure)
 {

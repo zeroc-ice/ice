@@ -20,10 +20,6 @@ if len(path) == 0:
 sys.path.append(os.path.join(path[0]))
 from scripts import *
 
-print "starting client...",
-clientProc = TestUtil.startClient("test.Ice.info.Client")
-print "ok"
-
-clientProc.waitTestSuccess()
+TestUtil.clientServerTest()
 
 TestUtil.cleanup()

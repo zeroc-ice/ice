@@ -108,6 +108,7 @@ namespace
 // Include certain generated files.
 //
 require 'Ice/BuiltinSequences.php';
+require 'Ice/Endpoint.php';
 require 'Ice/EndpointTypes.php';
 require 'Ice/LocalException.php';
 require 'Ice/Locator.php';

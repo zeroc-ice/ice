@@ -9,36 +9,18 @@
 
 top_srcdir	= ../../..
 
-CLIENT		= client
-SERVER		= server
-
-TARGETS		= $(CLIENT) $(SERVER)
-
-COBJS		= Test.o \
-		  TestI.o \
-		  Client.o \
-		  AllTests.o
-
-SOBJS		= Test.o \
-		  TestI.o \
-		  Server.o
-
-SRCS		= $(COBJS:.o=.cpp) \
-		  $(SOBJS:.o=.cpp)
-
 SLICE_SRCS	= Test.ice
-
 
 include $(top_srcdir)/config/Make.rules
 
-CPPFLAGS	:= -I. -I../../include $(CPPFLAGS)
+SRCS	= Test.php
 
-$(CLIENT): $(COBJS)
-	rm -f $@
-	$(CXX) $(LDFLAGS) -o $@ $(COBJS) -lIceSSL $(LIBS)
+all:: $(SRCS)
 
-$(SERVER): $(SOBJS)
-	rm -f $@
-	$(CXX) $(LDFLAGS) -o $@ $(SOBJS) $(LIBS)
+%.php: %.ice
+	$(SLICE2PHP) $(SLICE2PHPFLAGS) $<
+
+clean::
+	rm -f $(SRCS)
 
 include .depend

@@ -7,13 +7,16 @@
 #
 # **********************************************************************
 
-top_srcdir	= ..\..
+top_srcdir	= ..\..\..
 
 !include $(top_srcdir)\config\Make.rules.mak
 
-SUBDIRS		= binding checksum exceptions facets info inheritance objects operations proxy slicing
+SRCS		= Test.php
 
-$(EVERYTHING)::
-	@for %i in ( $(SUBDIRS) ) do \
-	    @echo "making $@ in %i" && \
-	    cmd /c "cd %i && $(MAKE) -nologo -f Makefile.mak $@" || exit 1
+all:: $(SRCS)
+
+$(SRCS): $*.ice
+	-$(SLICE2PHP) $(SLICE2PHPFLAGS) $*.ice
+
+clean::
+	del /q $(SRCS)

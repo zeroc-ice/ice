@@ -28,6 +28,7 @@ Table of Contents
      - Changes to the Java API for Freeze maps
      - Freeze packaging
      - PHP changes
+     - IceSSL changes
   3. Upgrading your application from Ice 3.2 or earlier releases
      - Compatibility
      - Migrating IceStorm databases
@@ -52,6 +53,10 @@ Table of Contents
 ======================================================================
 
 This section discusses the significant enhancements in Ice 3.4.
+
+- ConnectionInfo/EndpointInfo
+
+TBD
 
 
 Features added with 3.3.1
@@ -977,6 +982,56 @@ release:
   Ice_dumpProfile()
 
   Refer to the "Configuration" section above for more information.
+
+
+IceSSL changes
+==============
+
+With the addition of the ConnectionInfo classes in this release (see
+"New Features" above), the IceSSL::ConnectionInfo structure has
+changed from a native type to a Slice class. This change has several
+implications for existing applications:
+
+* As a Slice class, IceSSL::ConnectionInfo cannot provide the X509
+  certificate chain in its native form, therefore the chain is
+  provided as a sequence of strings representing the encoded form
+  of each certificate. You can use language-specific facilities to
+  convert these strings back to certificate objects.
+
+* For your convenience, we have added a native subclass of
+  IceSSL::ConnectionInfo called IceSSL::NativeConnectionInfo. This
+  class provides the certificate chain as certificate objects.
+
+* The CertificateVerifier interface now uses NativeConnectionInfo
+  instead of ConnectionInfo. If your application configures a
+  custom certificate verifier, you will need to modify your
+  implementation accordingly.
+
+* In C++, also note that NativeConnectionInfo is now managed by a
+  smart pointer, therefore the signature of the certificate verifier
+  method becomes the following:
+
+    virtual bool verify(const IceSSL::NativeConnectionInfoPtr&) = 0;
+
+* The getConnectionInfo() helper function has been removed because its
+  functionality has been replaced by the Connection::getInfo()
+  operation. For example, in prior releases a C++ application would do
+  the following:
+
+    Ice::ConnectionPtr con = ...
+    IceSSL::ConnectionInfo info = IceSSL::getConnectionInfo(con);
+
+  Now the application should do this:
+
+    Ice::ConnectionPtr con = ...
+    IceSSL::ConnectionInfoPtr info =
+        IceSSL::ConnectionInfoPtr::dynamicCast(con->getInfo());
+
+  Alternatively, the application can downcast to the native class:
+  
+    Ice::ConnectionPtr con = ...
+    IceSSL::NativeConnectionInfoPtr info =
+        IceSSL::NativeConnectionInfoPtr::dynamicCast(con->getInfo());
 
 
 ================

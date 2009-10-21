@@ -7,21 +7,23 @@
 //
 // **********************************************************************
 
-#ifndef ICEPHP_ENDPOINT_H
-#define ICEPHP_ENDPOINT_H
+#ifndef TEST_ICE
+#define TEST_ICE
 
-#include <Config.h>
+#include <Ice/Current.ice>
 
-namespace IcePHP
+module Test
 {
 
-bool endpointInit(TSRMLS_D);
+interface TestIntf
+{
+    void shutdown();
 
-bool createEndpoint(zval*, const Ice::EndpointPtr& TSRMLS_DC);
-bool fetchEndpoint(zval*, Ice::EndpointPtr& TSRMLS_DC);
+    Ice::Context getEndpointInfoAsContext();
 
-bool createEndpointInfo(zval*, const Ice::EndpointInfoPtr& TSRMLS_DC);
+    Ice::Context getConnectionInfoAsContext();
+};
 
-} // End of namespace IcePHP
+};
 
 #endif

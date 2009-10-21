@@ -18,24 +18,27 @@ ZEND_EXTERN_MODULE_GLOBALS(ice)
 //
 // Class entries represent the PHP class implementations we have registered.
 //
-namespace IcePHP
-{
-zend_class_entry* endpointClassEntry = 0;
-}
+static zend_class_entry* endpointClassEntry = 0;
 
-static zend_class_entry* tcpEndpointClassEntry = 0;
-static zend_class_entry* udpEndpointClassEntry = 0;
-static zend_class_entry* opaqueEndpointClassEntry = 0;
+static zend_class_entry* endpointInfoClassEntry = 0;
+static zend_class_entry* ipEndpointInfoClassEntry = 0;
+static zend_class_entry* tcpEndpointInfoClassEntry = 0;
+static zend_class_entry* udpEndpointInfoClassEntry = 0;
+static zend_class_entry* opaqueEndpointInfoClassEntry = 0;
 
 //
 // Ice::Endpoint support.
 //
-static zend_object_handlers _handlers;
+static zend_object_handlers _endpointHandlers;
+static zend_object_handlers _endpointInfoHandlers;
 
 extern "C"
 {
-static zend_object_value handleAlloc(zend_class_entry* TSRMLS_DC);
-static void handleFreeStorage(void* TSRMLS_DC);
+static zend_object_value handleEndpointAlloc(zend_class_entry* TSRMLS_DC);
+static void handleEndpointFreeStorage(void* TSRMLS_DC);
+
+static zend_object_value handleEndpointInfoAlloc(zend_class_entry* TSRMLS_DC);
+static void handleEndpointInfoFreeStorage(void* TSRMLS_DC);
 }
 
 ZEND_METHOD(Ice_Endpoint, __construct)
@@ -70,7 +73,7 @@ ZEND_METHOD(Ice_Endpoint, toString)
     ZEND_MN(Ice_Endpoint___toString)(INTERNAL_FUNCTION_PARAM_PASSTHRU);
 }
 
-ZEND_METHOD(Ice_Endpoint, timeout)
+ZEND_METHOD(Ice_Endpoint, getInfo)
 {
     if(ZEND_NUM_ARGS() > 0)
     {
@@ -80,10 +83,60 @@ ZEND_METHOD(Ice_Endpoint, timeout)
     Ice::EndpointPtr _this = Wrapper<Ice::EndpointPtr>::value(getThis() TSRMLS_CC);
     assert(_this);
 
+    if(!createEndpointInfo(return_value, _this->getInfo() TSRMLS_CC))
+    {
+        RETURN_NULL();
+    }
+}
+
+#ifdef _WIN32
+extern "C"
+#endif
+static zend_object_value
+handleEndpointAlloc(zend_class_entry* ce TSRMLS_DC)
+{
+    zend_object_value result;
+
+    Wrapper<Ice::EndpointPtr>* obj = Wrapper<Ice::EndpointPtr>::create(ce TSRMLS_CC);
+    assert(obj);
+
+    result.handle = zend_objects_store_put(obj, 0, (zend_objects_free_object_storage_t)handleEndpointFreeStorage,
+                                           0 TSRMLS_CC);
+    result.handlers = &_endpointHandlers;
+
+    return result;
+}
+
+#ifdef _WIN32
+extern "C"
+#endif
+static void
+handleEndpointFreeStorage(void* p TSRMLS_DC)
+{
+    Wrapper<Ice::EndpointPtr>* obj = static_cast<Wrapper<Ice::EndpointPtr>*>(p);
+    delete obj->ptr;
+    zend_objects_free_object_storage(static_cast<zend_object*>(p) TSRMLS_CC);
+}
+
+ZEND_METHOD(Ice_EndpointInfo, __construct)
+{
+    runtimeError("EndpointInfo cannot be instantiated" TSRMLS_CC);
+}
+
+ZEND_METHOD(Ice_EndpointInfo, type)
+{
+    if(ZEND_NUM_ARGS() > 0)
+    {
+        WRONG_PARAM_COUNT;
+    }
+
+    Ice::EndpointInfoPtr _this = Wrapper<Ice::EndpointInfoPtr>::value(getThis() TSRMLS_CC);
+    assert(_this);
+
     try
     {
-        long timeout = static_cast<long>(_this->timeout());
-        RETURN_LONG(timeout);
+        short type = static_cast<short>(_this->type());
+        RETURN_LONG(type);
     }
     catch(const IceUtil::Exception& ex)
     {
@@ -92,19 +145,19 @@ ZEND_METHOD(Ice_Endpoint, timeout)
     }
 }
 
-ZEND_METHOD(Ice_Endpoint, compress)
+ZEND_METHOD(Ice_EndpointInfo, datagram)
 {
     if(ZEND_NUM_ARGS() > 0)
     {
         WRONG_PARAM_COUNT;
     }
 
-    Ice::EndpointPtr _this = Wrapper<Ice::EndpointPtr>::value(getThis() TSRMLS_CC);
+    Ice::EndpointInfoPtr _this = Wrapper<Ice::EndpointInfoPtr>::value(getThis() TSRMLS_CC);
     assert(_this);
 
     try
     {
-        RETURN_BOOL(_this->timeout() ? 1 : 0);
+        RETURN_BOOL(_this->datagram() ? 1 : 0);
     }
     catch(const IceUtil::Exception& ex)
     {
@@ -113,170 +166,19 @@ ZEND_METHOD(Ice_Endpoint, compress)
     }
 }
 
-ZEND_METHOD(Ice_TcpEndpoint, host)
+ZEND_METHOD(Ice_EndpointInfo, secure)
 {
     if(ZEND_NUM_ARGS() > 0)
     {
         WRONG_PARAM_COUNT;
     }
 
-    Ice::EndpointPtr base = Wrapper<Ice::EndpointPtr>::value(getThis() TSRMLS_CC);
-    assert(base);
-    Ice::TcpEndpointPtr _this = Ice::TcpEndpointPtr::dynamicCast(base);
+    Ice::EndpointInfoPtr _this = Wrapper<Ice::EndpointInfoPtr>::value(getThis() TSRMLS_CC);
     assert(_this);
 
     try
     {
-        string str = _this->host();
-        RETURN_STRINGL(STRCAST(str.c_str()), str.length(), 1);
-    }
-    catch(const IceUtil::Exception& ex)
-    {
-        throwException(ex TSRMLS_CC);
-        RETURN_NULL();
-    }
-}
-
-ZEND_METHOD(Ice_TcpEndpoint, port)
-{
-    if(ZEND_NUM_ARGS() > 0)
-    {
-        WRONG_PARAM_COUNT;
-    }
-
-    Ice::EndpointPtr base = Wrapper<Ice::EndpointPtr>::value(getThis() TSRMLS_CC);
-    assert(base);
-    Ice::TcpEndpointPtr _this = Ice::TcpEndpointPtr::dynamicCast(base);
-    assert(_this);
-
-    try
-    {
-        long port = static_cast<long>(_this->port());
-        RETURN_LONG(port);
-    }
-    catch(const IceUtil::Exception& ex)
-    {
-        throwException(ex TSRMLS_CC);
-        RETURN_NULL();
-    }
-}
-
-ZEND_METHOD(Ice_UdpEndpoint, host)
-{
-    if(ZEND_NUM_ARGS() > 0)
-    {
-        WRONG_PARAM_COUNT;
-    }
-
-    Ice::EndpointPtr base = Wrapper<Ice::EndpointPtr>::value(getThis() TSRMLS_CC);
-    assert(base);
-    Ice::UdpEndpointPtr _this = Ice::UdpEndpointPtr::dynamicCast(base);
-    assert(_this);
-
-    try
-    {
-        string str = _this->host();
-        RETURN_STRINGL(STRCAST(str.c_str()), str.length(), 1);
-    }
-    catch(const IceUtil::Exception& ex)
-    {
-        throwException(ex TSRMLS_CC);
-        RETURN_NULL();
-    }
-}
-
-ZEND_METHOD(Ice_UdpEndpoint, port)
-{
-    if(ZEND_NUM_ARGS() > 0)
-    {
-        WRONG_PARAM_COUNT;
-    }
-
-    Ice::EndpointPtr base = Wrapper<Ice::EndpointPtr>::value(getThis() TSRMLS_CC);
-    assert(base);
-    Ice::UdpEndpointPtr _this = Ice::UdpEndpointPtr::dynamicCast(base);
-    assert(_this);
-
-    try
-    {
-        long port = static_cast<long>(_this->port());
-        RETURN_LONG(port);
-    }
-    catch(const IceUtil::Exception& ex)
-    {
-        throwException(ex TSRMLS_CC);
-        RETURN_NULL();
-    }
-}
-
-ZEND_METHOD(Ice_UdpEndpoint, mcastInterface)
-{
-    if(ZEND_NUM_ARGS() > 0)
-    {
-        WRONG_PARAM_COUNT;
-    }
-
-    Ice::EndpointPtr base = Wrapper<Ice::EndpointPtr>::value(getThis() TSRMLS_CC);
-    assert(base);
-    Ice::UdpEndpointPtr _this = Ice::UdpEndpointPtr::dynamicCast(base);
-    assert(_this);
-
-    try
-    {
-        string str = _this->mcastInterface();
-        RETURN_STRINGL(STRCAST(str.c_str()), str.length(), 1);
-    }
-    catch(const IceUtil::Exception& ex)
-    {
-        throwException(ex TSRMLS_CC);
-        RETURN_NULL();
-    }
-}
-
-ZEND_METHOD(Ice_UdpEndpoint, mcastTtl)
-{
-    if(ZEND_NUM_ARGS() > 0)
-    {
-        WRONG_PARAM_COUNT;
-    }
-
-    Ice::EndpointPtr base = Wrapper<Ice::EndpointPtr>::value(getThis() TSRMLS_CC);
-    assert(base);
-    Ice::UdpEndpointPtr _this = Ice::UdpEndpointPtr::dynamicCast(base);
-    assert(_this);
-
-    try
-    {
-        long port = static_cast<long>(_this->mcastTtl());
-        RETURN_LONG(port);
-    }
-    catch(const IceUtil::Exception& ex)
-    {
-        throwException(ex TSRMLS_CC);
-        RETURN_NULL();
-    }
-}
-
-ZEND_METHOD(Ice_OpaqueEndpoint, rawBytes)
-{
-    if(ZEND_NUM_ARGS() > 0)
-    {
-        WRONG_PARAM_COUNT;
-    }
-
-    Ice::EndpointPtr base = Wrapper<Ice::EndpointPtr>::value(getThis() TSRMLS_CC);
-    assert(base);
-    Ice::OpaqueEndpointPtr _this = Ice::OpaqueEndpointPtr::dynamicCast(base);
-    assert(_this);
-
-    try
-    {
-        Ice::ByteSeq seq = _this->rawBytes();
-        array_init(return_value);
-        for(Ice::ByteSeq::iterator p = seq.begin(); p != seq.end(); ++p)
-        {
-            add_next_index_long(return_value, static_cast<long>(*p));
-        }
+        RETURN_BOOL(_this->secure() ? 1 : 0);
     }
     catch(const IceUtil::Exception& ex)
     {
@@ -289,15 +191,16 @@ ZEND_METHOD(Ice_OpaqueEndpoint, rawBytes)
 extern "C"
 #endif
 static zend_object_value
-handleAlloc(zend_class_entry* ce TSRMLS_DC)
+handleEndpointInfoAlloc(zend_class_entry* ce TSRMLS_DC)
 {
     zend_object_value result;
 
     Wrapper<Ice::EndpointPtr>* obj = Wrapper<Ice::EndpointPtr>::create(ce TSRMLS_CC);
     assert(obj);
 
-    result.handle = zend_objects_store_put(obj, 0, (zend_objects_free_object_storage_t)handleFreeStorage, 0 TSRMLS_CC);
-    result.handlers = &_handlers;
+    result.handle = zend_objects_store_put(obj, 0, (zend_objects_free_object_storage_t)handleEndpointInfoFreeStorage,
+                                           0 TSRMLS_CC);
+    result.handlers = &_endpointInfoHandlers;
 
     return result;
 }
@@ -306,46 +209,39 @@ handleAlloc(zend_class_entry* ce TSRMLS_DC)
 extern "C"
 #endif
 static void
-handleFreeStorage(void* p TSRMLS_DC)
+handleEndpointInfoFreeStorage(void* p TSRMLS_DC)
 {
-    Wrapper<Ice::EndpointPtr>* obj = static_cast<Wrapper<Ice::EndpointPtr>*>(p);
+    Wrapper<Ice::EndpointInfoPtr>* obj = static_cast<Wrapper<Ice::EndpointInfoPtr>*>(p);
     delete obj->ptr;
     zend_objects_free_object_storage(static_cast<zend_object*>(p) TSRMLS_CC);
 }
 
-//
-// Predefined methods for Endpoint.
-//
 static function_entry _interfaceMethods[] =
 {
     {0, 0, 0}
 };
+
+//
+// Predefined methods for Endpoint.
+//
 static function_entry _endpointMethods[] =
 {
     ZEND_ME(Ice_Endpoint, __construct, NULL, ZEND_ACC_PRIVATE|ZEND_ACC_CTOR)
     ZEND_ME(Ice_Endpoint, __toString, NULL, ZEND_ACC_PUBLIC)
     ZEND_ME(Ice_Endpoint, toString, NULL, ZEND_ACC_PUBLIC)
-    ZEND_ME(Ice_Endpoint, timeout, NULL, ZEND_ACC_PUBLIC)
-    ZEND_ME(Ice_Endpoint, compress, NULL, ZEND_ACC_PUBLIC)
+    ZEND_ME(Ice_Endpoint, getInfo, NULL, ZEND_ACC_PUBLIC)
     {0, 0, 0}
 };
-static function_entry _tcpEndpointMethods[] =
+
+//
+// Predefined methods for EndpointInfo.
+//
+static function_entry _endpointInfoMethods[] =
 {
-    ZEND_ME(Ice_TcpEndpoint, host, NULL, ZEND_ACC_PUBLIC)
-    ZEND_ME(Ice_TcpEndpoint, port, NULL, ZEND_ACC_PUBLIC)
-    {0, 0, 0}
-};
-static function_entry _udpEndpointMethods[] =
-{
-    ZEND_ME(Ice_UdpEndpoint, host, NULL, ZEND_ACC_PUBLIC)
-    ZEND_ME(Ice_UdpEndpoint, port, NULL, ZEND_ACC_PUBLIC)
-    ZEND_ME(Ice_UdpEndpoint, mcastInterface, NULL, ZEND_ACC_PUBLIC)
-    ZEND_ME(Ice_UdpEndpoint, mcastTtl, NULL, ZEND_ACC_PUBLIC)
-    {0, 0, 0}
-};
-static function_entry _opaqueEndpointMethods[] =
-{
-    ZEND_ME(Ice_OpaqueEndpoint, rawBytes, NULL, ZEND_ACC_PUBLIC)
+    ZEND_ME(Ice_EndpointInfo, __construct, NULL, ZEND_ACC_PRIVATE|ZEND_ACC_CTOR)
+    ZEND_ME(Ice_EndpointInfo, type, NULL, ZEND_ACC_PUBLIC)
+    ZEND_ME(Ice_EndpointInfo, datagram, NULL, ZEND_ACC_PUBLIC)
+    ZEND_ME(Ice_EndpointInfo, secure, NULL, ZEND_ACC_PUBLIC)
     {0, 0, 0}
 };
 
@@ -369,73 +265,91 @@ IcePHP::endpointInit(TSRMLS_D)
     zend_class_entry* endpointInterface = zend_register_internal_interface(&ce TSRMLS_CC);
 
     //
-    // Register the TcpEndpoint interface.
-    //
-#ifdef ICEPHP_USE_NAMESPACES
-    INIT_NS_CLASS_ENTRY(ce, STRCAST("Ice"), STRCAST("TcpEndpoint"), _interfaceMethods);
-#else
-    INIT_CLASS_ENTRY(ce, "Ice_TcpEndpoint", _interfaceMethods);
-#endif
-    zend_class_entry* tcpEndpointInterface = zend_register_internal_interface(&ce TSRMLS_CC);
-    zend_class_implements(tcpEndpointInterface TSRMLS_CC, 1, endpointInterface);
-
-    //
-    // Register the UdpEndpoint interface.
-    //
-#ifdef ICEPHP_USE_NAMESPACES
-    INIT_NS_CLASS_ENTRY(ce, STRCAST("Ice"), STRCAST("UdpEndpoint"), _interfaceMethods);
-#else
-    INIT_CLASS_ENTRY(ce, "Ice_UdpEndpoint", _interfaceMethods);
-#endif
-    zend_class_entry* udpEndpointInterface = zend_register_internal_interface(&ce TSRMLS_CC);
-    zend_class_implements(udpEndpointInterface TSRMLS_CC, 1, endpointInterface);
-
-    //
-    // Register the OpaqueEndpoint interface.
-    //
-#ifdef ICEPHP_USE_NAMESPACES
-    INIT_NS_CLASS_ENTRY(ce, STRCAST("Ice"), STRCAST("OpaqueEndpoint"), _interfaceMethods);
-#else
-    INIT_CLASS_ENTRY(ce, "Ice_OpaqueEndpoint", _interfaceMethods);
-#endif
-    zend_class_entry* opaqueEndpointInterface = zend_register_internal_interface(&ce TSRMLS_CC);
-    zend_class_implements(opaqueEndpointInterface TSRMLS_CC, 1, endpointInterface);
-
-    //
     // Register the Endpoint class.
     //
     INIT_CLASS_ENTRY(ce, "IcePHP_Endpoint", _endpointMethods);
-    ce.create_object = handleAlloc;
+    ce.create_object = handleEndpointAlloc;
     endpointClassEntry = zend_register_internal_class(&ce TSRMLS_CC);
-    memcpy(&_handlers, zend_get_std_object_handlers(), sizeof(zend_object_handlers));
+    memcpy(&_endpointHandlers, zend_get_std_object_handlers(), sizeof(zend_object_handlers));
     zend_class_implements(endpointClassEntry TSRMLS_CC, 1, endpointInterface);
 
     //
-    // Register the TcpEndpoint class.
+    // Register the EndpointInfo class.
     //
-    INIT_CLASS_ENTRY(ce, "IcePHP_TcpEndpoint", _tcpEndpointMethods);
-    ce.create_object = handleAlloc;
-    tcpEndpointClassEntry = zend_register_internal_class_ex(&ce, endpointClassEntry, NULL TSRMLS_CC);
-    memcpy(&_handlers, zend_get_std_object_handlers(), sizeof(zend_object_handlers));
-    zend_class_implements(tcpEndpointClassEntry TSRMLS_CC, 1, tcpEndpointInterface);
+#ifdef ICEPHP_USE_NAMESPACES
+    INIT_NS_CLASS_ENTRY(ce, STRCAST("Ice"), STRCAST("EndpointInfo"), _endpointInfoMethods);
+#else
+    INIT_CLASS_ENTRY(ce, "Ice_EndpointInfo", _endpointInfoMethods);
+#endif
+    ce.create_object = handleEndpointInfoAlloc;
+    endpointInfoClassEntry = zend_register_internal_class(&ce TSRMLS_CC);
+    memcpy(&_endpointInfoHandlers, zend_get_std_object_handlers(), sizeof(zend_object_handlers));
+    zend_declare_property_long(endpointInfoClassEntry, STRCAST("timeout"), sizeof("timeout") - 1, 0,
+                               ZEND_ACC_PUBLIC TSRMLS_CC);
+    zend_declare_property_bool(endpointInfoClassEntry, STRCAST("compress"), sizeof("compress") - 1, 0,
+                               ZEND_ACC_PUBLIC TSRMLS_CC);
 
     //
-    // Register the UdpEndpoint class.
+    // Register the IPEndpointInfo class.
     //
-    INIT_CLASS_ENTRY(ce, "IcePHP_UdpEndpoint", _udpEndpointMethods);
-    ce.create_object = handleAlloc;
-    udpEndpointClassEntry = zend_register_internal_class_ex(&ce, endpointClassEntry, NULL TSRMLS_CC);
-    memcpy(&_handlers, zend_get_std_object_handlers(), sizeof(zend_object_handlers));
-    zend_class_implements(udpEndpointClassEntry TSRMLS_CC, 1, udpEndpointInterface);
+#ifdef ICEPHP_USE_NAMESPACES
+    INIT_NS_CLASS_ENTRY(ce, STRCAST("Ice"), STRCAST("IPEndpointInfo"), NULL);
+#else
+    INIT_CLASS_ENTRY(ce, "Ice_IPEndpointInfo", NULL);
+#endif
+    ce.create_object = handleEndpointInfoAlloc;
+    ipEndpointInfoClassEntry = zend_register_internal_class_ex(&ce, endpointInfoClassEntry, NULL TSRMLS_CC);
+    zend_declare_property_string(ipEndpointInfoClassEntry, STRCAST("host"), sizeof("host") - 1, STRCAST(""),
+                                 ZEND_ACC_PUBLIC TSRMLS_CC);
+    zend_declare_property_long(ipEndpointInfoClassEntry, STRCAST("port"), sizeof("port") - 1, 0,
+                               ZEND_ACC_PUBLIC TSRMLS_CC);
 
     //
-    // Register the OpaqueEndpoint class.
+    // Register the TCPEndpointInfo class.
     //
-    INIT_CLASS_ENTRY(ce, "IcePHP_OpaqueEndpoint", _opaqueEndpointMethods);
-    ce.create_object = handleAlloc;
-    opaqueEndpointClassEntry = zend_register_internal_class_ex(&ce, endpointClassEntry, NULL TSRMLS_CC);
-    memcpy(&_handlers, zend_get_std_object_handlers(), sizeof(zend_object_handlers));
-    zend_class_implements(opaqueEndpointClassEntry TSRMLS_CC, 1, opaqueEndpointInterface);
+#ifdef ICEPHP_USE_NAMESPACES
+    INIT_NS_CLASS_ENTRY(ce, STRCAST("Ice"), STRCAST("TCPEndpointInfo"), NULL);
+#else
+    INIT_CLASS_ENTRY(ce, "Ice_TCPEndpointInfo", NULL);
+#endif
+    ce.create_object = handleEndpointInfoAlloc;
+    tcpEndpointInfoClassEntry = zend_register_internal_class_ex(&ce, ipEndpointInfoClassEntry, NULL TSRMLS_CC);
+
+    //
+    // Register the UDPEndpointInfo class.
+    //
+#ifdef ICEPHP_USE_NAMESPACES
+    INIT_NS_CLASS_ENTRY(ce, STRCAST("Ice"), STRCAST("UDPEndpointInfo"), NULL);
+#else
+    INIT_CLASS_ENTRY(ce, "Ice_UDPEndpointInfo", NULL);
+#endif
+    ce.create_object = handleEndpointInfoAlloc;
+    udpEndpointInfoClassEntry = zend_register_internal_class_ex(&ce, ipEndpointInfoClassEntry, NULL TSRMLS_CC);
+    zend_declare_property_long(udpEndpointInfoClassEntry, STRCAST("protocolMajor"), sizeof("protocolMajor") - 1, 0,
+                               ZEND_ACC_PUBLIC TSRMLS_CC);
+    zend_declare_property_long(udpEndpointInfoClassEntry, STRCAST("protocolMinor"), sizeof("protocolMinor") - 1, 0,
+                               ZEND_ACC_PUBLIC TSRMLS_CC);
+    zend_declare_property_long(udpEndpointInfoClassEntry, STRCAST("encodingMajor"), sizeof("encodingMajor") - 1, 0,
+                               ZEND_ACC_PUBLIC TSRMLS_CC);
+    zend_declare_property_long(udpEndpointInfoClassEntry, STRCAST("encodingMinor"), sizeof("encodingMinor") - 1, 0,
+                               ZEND_ACC_PUBLIC TSRMLS_CC);
+    zend_declare_property_string(udpEndpointInfoClassEntry, STRCAST("mcastInterface"), sizeof("mcastInterface") - 1,
+                                 STRCAST(""), ZEND_ACC_PUBLIC TSRMLS_CC);
+    zend_declare_property_long(udpEndpointInfoClassEntry, STRCAST("mcastTtl"), sizeof("mcastTtl") - 1, 0,
+                               ZEND_ACC_PUBLIC TSRMLS_CC);
+
+    //
+    // Register the OpaqueEndpointInfo class.
+    //
+#ifdef ICEPHP_USE_NAMESPACES
+    INIT_NS_CLASS_ENTRY(ce, STRCAST("Ice"), STRCAST("OpaqueEndpointInfo"), NULL);
+#else
+    INIT_CLASS_ENTRY(ce, "Ice_OpaqueEndpointInfo", NULL);
+#endif
+    ce.create_object = handleEndpointInfoAlloc;
+    opaqueEndpointInfoClassEntry = zend_register_internal_class_ex(&ce, endpointInfoClassEntry, NULL TSRMLS_CC);
+    zend_declare_property_null(opaqueEndpointInfoClassEntry, STRCAST("rawBytes"), sizeof("rawBytes") - 1,
+                               ZEND_ACC_PUBLIC TSRMLS_CC);
 
     return true;
 }
@@ -443,25 +357,7 @@ IcePHP::endpointInit(TSRMLS_D)
 bool
 IcePHP::createEndpoint(zval* zv, const Ice::EndpointPtr& p TSRMLS_DC)
 {
-    zend_class_entry* ce;
-    if(Ice::TcpEndpointPtr::dynamicCast(p))
-    {
-        ce = tcpEndpointClassEntry;
-    }
-    else if(Ice::UdpEndpointPtr::dynamicCast(p))
-    {
-        ce = udpEndpointClassEntry;
-    }
-    else if(Ice::OpaqueEndpointPtr::dynamicCast(p))
-    {
-        ce = opaqueEndpointClassEntry;
-    }
-    else
-    {
-        ce = endpointClassEntry;
-    }
-
-    if(object_init_ex(zv, ce) != SUCCESS)
+    if(object_init_ex(zv, endpointClassEntry) != SUCCESS)
     {
         runtimeError("unable to initialize endpoint" TSRMLS_CC);
         return false;
@@ -496,5 +392,75 @@ IcePHP::fetchEndpoint(zval* zv, Ice::EndpointPtr& endpoint TSRMLS_DC)
         }
         endpoint = *obj->ptr;
     }
+    return true;
+}
+
+bool
+IcePHP::createEndpointInfo(zval* zv, const Ice::EndpointInfoPtr& p TSRMLS_DC)
+{
+    int status;
+    if(Ice::TCPEndpointInfoPtr::dynamicCast(p))
+    {
+        status = object_init_ex(zv, tcpEndpointInfoClassEntry);
+    }
+    else if(Ice::UDPEndpointInfoPtr::dynamicCast(p))
+    {
+        Ice::UDPEndpointInfoPtr info = Ice::UDPEndpointInfoPtr::dynamicCast(p);
+        if((status = object_init_ex(zv, udpEndpointInfoClassEntry)) == SUCCESS)
+        {
+            add_property_long(zv, STRCAST("protocolMajor"), static_cast<long>(info->protocolMajor));
+            add_property_long(zv, STRCAST("protocolMinor"), static_cast<long>(info->protocolMinor));
+            add_property_long(zv, STRCAST("encodingMajor"), static_cast<long>(info->encodingMajor));
+            add_property_long(zv, STRCAST("encodingMinor"), static_cast<long>(info->encodingMinor));
+            add_property_string(zv, STRCAST("mcastInterface"), STRCAST(info->mcastInterface.c_str()), 1);
+            add_property_long(zv, STRCAST("mcastTtl"), static_cast<long>(info->mcastTtl));
+        }
+    }
+    else if(Ice::OpaqueEndpointInfoPtr::dynamicCast(p))
+    {
+        Ice::OpaqueEndpointInfoPtr info = Ice::OpaqueEndpointInfoPtr::dynamicCast(p);
+        if((status = object_init_ex(zv, opaqueEndpointInfoClassEntry)) == SUCCESS)
+        {
+            zval* rawBytes;
+            MAKE_STD_ZVAL(rawBytes);
+            array_init(rawBytes);
+            for(Ice::ByteSeq::iterator i = info->rawBytes.begin(); i != info->rawBytes.end(); ++i)
+            {
+                add_next_index_long(rawBytes, *i & 0xff);
+            }
+            add_property_zval(zv, STRCAST("rawBytes"), rawBytes);
+            zval_ptr_dtor(&rawBytes); // add_property_zval increased the refcount of rawBytes
+        }
+    }
+    else if(Ice::IPEndpointInfoPtr::dynamicCast(p))
+    {
+        status = object_init_ex(zv, ipEndpointInfoClassEntry);
+    }
+    else
+    {
+        status = object_init_ex(zv, endpointInfoClassEntry);
+    }
+
+    if(status != SUCCESS)
+    {
+        runtimeError("unable to initialize endpoint info" TSRMLS_CC);
+        return false;
+    }
+
+    if(Ice::IPEndpointInfoPtr::dynamicCast(p))
+    {
+        Ice::IPEndpointInfoPtr info = Ice::IPEndpointInfoPtr::dynamicCast(p);
+        add_property_string(zv, STRCAST("host"), STRCAST(info->host.c_str()), 1);
+        add_property_long(zv, STRCAST("port"), static_cast<long>(info->port));
+    }
+
+    add_property_long(zv, STRCAST("timeout"), static_cast<long>(p->timeout));
+    add_property_bool(zv, STRCAST("compress"), static_cast<long>(p->compress));
+
+    Wrapper<Ice::EndpointInfoPtr>* obj = Wrapper<Ice::EndpointInfoPtr>::extract(zv TSRMLS_CC);
+    assert(obj);
+    assert(!obj->ptr);
+    obj->ptr = new Ice::EndpointInfoPtr(p);
+
     return true;
 }

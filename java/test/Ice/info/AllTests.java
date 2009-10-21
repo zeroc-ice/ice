@@ -59,7 +59,7 @@ public class AllTests
             test(!udpEndpoint.compress);
             test(!udpEndpoint.secure());
             test(udpEndpoint.datagram());
-            test(udpEndpoint.type() == 3);
+            test(udpEndpoint.type() == Ice.UDPEndpointType.value);
         
             Ice.OpaqueEndpointInfo opaqueEndpoint = (Ice.OpaqueEndpointInfo)endps[2].getInfo();
         }
@@ -90,8 +90,8 @@ public class AllTests
 
             adapter.destroy();
 
-            communicator.getProperties().setProperty("TestAdapter.Endpoints", "default -h * -p 12010");
-            communicator.getProperties().setProperty("TestAdapter.PublishedEndpoints", "default -h 127.0.0.1 -p 12010");
+            communicator.getProperties().setProperty("TestAdapter.Endpoints", "default -h * -p 12020");
+            communicator.getProperties().setProperty("TestAdapter.PublishedEndpoints", "default -h 127.0.0.1 -p 12020");
             adapter = communicator.createObjectAdapter("TestAdapter");
 
             endpoints = adapter.getEndpoints();
@@ -102,24 +102,19 @@ public class AllTests
             for(Ice.Endpoint endpoint : endpoints)
             {
                 ipEndpoint = (Ice.IPEndpointInfo)endpoint.getInfo();
-                test(ipEndpoint.port == 12010);
+                test(ipEndpoint.port == 12020);
             }
         
             ipEndpoint = (Ice.IPEndpointInfo)publishedEndpoints[0].getInfo();
             test(ipEndpoint.host.equals("127.0.0.1"));
-            test(ipEndpoint.port == 12010);
+            test(ipEndpoint.port == 12020);
 
             adapter.destroy();
         }
         out.println("ok");
 
-        communicator.getProperties().setProperty("TestAdapter.Endpoints", "default -p 12010:udp -p 12010");
-        communicator.getProperties().setProperty("TestAdapter.PublishedEndpoints", "");
-        Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
-        Ice.ObjectPrx base = adapter.addWithUUID(new TestI()).ice_collocationOptimized(false);
-        adapter.activate();
-
-        TestIntfPrx test = TestIntfPrxHelper.uncheckedCast(base);
+        Ice.ObjectPrx base = communicator.stringToProxy("test:default -p 12010:udp -p 12010");
+        TestIntfPrx testIntf = TestIntfPrxHelper.checkedCast(base);
 
         out.print("test connection endpoint information... ");
         out.flush();
@@ -130,7 +125,7 @@ public class AllTests
             test(!ipinfo.compress);
             test(ipinfo.host.equals(defaultHost));
 
-            java.util.Map<String, String> ctx = test.getEndpointInfoAsContext();
+            java.util.Map<String, String> ctx = testIntf.getEndpointInfoAsContext();
             test(ctx.get("host").equals(ipinfo.host));
             test(ctx.get("compress").equals("false"));
             int port = Integer.parseInt(ctx.get("port"));
@@ -153,7 +148,7 @@ public class AllTests
             test(info.remoteAddress.equals(defaultHost));
             test(info.localAddress.equals(defaultHost));
         
-            java.util.Map<String, String> ctx = test.getConnectionInfoAsContext();
+            java.util.Map<String, String> ctx = testIntf.getConnectionInfoAsContext();
             test(ctx.get("incoming").equals("true"));
             test(ctx.get("adapterName").equals("TestAdapter"));
             test(ctx.get("remoteAddress").equals(info.localAddress));
@@ -162,6 +157,8 @@ public class AllTests
             test(ctx.get("localPort").equals(Integer.toString(info.remotePort)));
         }
         out.println("ok");
+
+        testIntf.shutdown();
 
         communicator.shutdown();
         communicator.waitForShutdown();

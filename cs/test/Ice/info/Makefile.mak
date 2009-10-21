@@ -9,10 +9,11 @@
 
 top_srcdir	= ..\..\..
 
-TARGETS		= client.exe
+TARGETS		= client.exe server.exe
 TARGETS_CONFIG	= $(TARGETS:.exe=.exe.config)
 
-SRCS		= AllTests.cs Client.cs TestI.cs
+C_SRCS		= AllTests.cs Client.cs TestI.cs
+S_SRCS		= TestI.cs Server.cs
 
 GEN_SRCS	= $(GDIR)\Test.cs
 
@@ -24,9 +25,12 @@ GDIR		= generated
 
 MCSFLAGS	= $(MCSFLAGS) -target:exe
 
-SLICE2CSFLAGS	= $(SLICE2CSFLAGS) -I. -I$(slicedir)
+SLICE2CSFLAGS	= $(SLICE2CSFLAGS) --ice -I. -I$(slicedir)
 
-client.exe: $(SRCS) $(GEN_SRCS)
-	$(MCS) $(MCSFLAGS) -out:$@ -r:$(refdir)\Ice.dll $(SRCS) $(GEN_SRCS)
+client.exe: $(C_SRCS) $(GEN_SRCS)
+	$(MCS) $(MCSFLAGS) -out:$@ -r:$(refdir)\Ice.dll -r:$(refdir)\IceSSL.dll $(C_SRCS) $(GEN_SRCS)
+
+server.exe: $(S_SRCS) $(GEN_SRCS)
+	$(MCS) $(MCSFLAGS) -out:$@ -r:$(refdir)\Ice.dll $(S_SRCS) $(GEN_SRCS)
 
 !include .depend

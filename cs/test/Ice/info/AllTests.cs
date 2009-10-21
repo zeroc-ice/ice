@@ -11,7 +11,6 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Threading;
 using Test;
 
 public class AllTests
@@ -44,12 +43,16 @@ public class AllTests
             test(ipEndpoint.compress);
             test(!ipEndpoint.datagram());
 
-//             test(ipEndpoint.type() == Ice.TCPEndpointType.value && !ipEndpoint.secure() ||
-//                  ipEndpoint.type() == IceSSL.EndpointType.value && ipEndpoint.secure());
+#if __MonoCS__
+            test(ipEndpoint.type() == Ice.TCPEndpointType.value && !ipEndpoint.secure());
+            test(ipEndpoint.type() == Ice.TCPEndpointType.value && ipEndpoint is Ice.TCPEndpointInfo);
+#else
+            test(ipEndpoint.type() == Ice.TCPEndpointType.value && !ipEndpoint.secure() ||
+                 ipEndpoint.type() == IceSSL.EndpointType.value && ipEndpoint.secure());
+            test(ipEndpoint.type() == Ice.TCPEndpointType.value && ipEndpoint is Ice.TCPEndpointInfo ||
+                 ipEndpoint.type() == IceSSL.EndpointType.value && ipEndpoint is IceSSL.EndpointInfo);
+#endif
 
-//             test(ipEndpoint.type() == Ice.TCPEndpointType.value && ipEndpoint is Ice.TCPEndpointInfo ||
-//                  ipEndpoint.type() == IceSSL.EndpointType.value && ipEndpoint is IceSSL.EndpointInfo);
-        
             Ice.UDPEndpointInfo udpEndpoint = (Ice.UDPEndpointInfo)endps[1].getInfo();
             test(udpEndpoint.host.Equals("udphost"));
             test(udpEndpoint.port == 10001);
@@ -60,7 +63,7 @@ public class AllTests
             test(!udpEndpoint.secure());
             test(udpEndpoint.datagram());
             test(udpEndpoint.type() == 3);
-        
+
             Ice.OpaqueEndpointInfo opaqueEndpoint = (Ice.OpaqueEndpointInfo)endps[2].getInfo();
             test(opaqueEndpoint.rawBytes.Length > 0);
         }
@@ -81,7 +84,11 @@ public class AllTests
             test(IceUtilInternal.Arrays.Equals(endpoints, publishedEndpoints));
 
             Ice.IPEndpointInfo ipEndpoint = (Ice.IPEndpointInfo)endpoints[0].getInfo();
-            //test(ipEndpoint.type() == Ice.TCPEndpointType.value || ipEndpoint.type() == IceSSL.EndpointType.value);
+#if __MonoCS__
+            test(ipEndpoint.type() == Ice.TCPEndpointType.value);
+#else
+            test(ipEndpoint.type() == Ice.TCPEndpointType.value || ipEndpoint.type() == IceSSL.EndpointType.value);
+#endif
             test(ipEndpoint.host.Equals(defaultHost));
             test(ipEndpoint.port > 0);
             test(ipEndpoint.timeout == 15000);
@@ -93,36 +100,31 @@ public class AllTests
 
             adapter.destroy();
 
-            communicator.getProperties().setProperty("TestAdapter.Endpoints", "default -h * -p 12010");
-            communicator.getProperties().setProperty("TestAdapter.PublishedEndpoints", "default -h 127.0.0.1 -p 12010");
+            communicator.getProperties().setProperty("TestAdapter.Endpoints", "default -h * -p 12020");
+            communicator.getProperties().setProperty("TestAdapter.PublishedEndpoints", "default -h 127.0.0.1 -p 12020");
             adapter = communicator.createObjectAdapter("TestAdapter");
 
             endpoints = adapter.getEndpoints();
             test(endpoints.Length >= 1);
             publishedEndpoints = adapter.getPublishedEndpoints();
             test(publishedEndpoints.Length == 1);
-        
+
             foreach(Ice.Endpoint endpoint in endpoints)
             {
                 ipEndpoint = (Ice.IPEndpointInfo)endpoint.getInfo();
-                test(ipEndpoint.port == 12010);
+                test(ipEndpoint.port == 12020);
             }
-        
+
             ipEndpoint = (Ice.IPEndpointInfo)publishedEndpoints[0].getInfo();
             test(ipEndpoint.host.Equals("127.0.0.1"));
-            test(ipEndpoint.port == 12010);
+            test(ipEndpoint.port == 12020);
 
             adapter.destroy();
         }
         Console.Out.WriteLine("ok");
 
-        communicator.getProperties().setProperty("TestAdapter.Endpoints", "default -p 12010:udp -p 12010");
-        communicator.getProperties().setProperty("TestAdapter.PublishedEndpoints", "");
-        adapter = communicator.createObjectAdapter("TestAdapter");
-        Ice.ObjectPrx @base = adapter.addWithUUID(new TestI()).ice_collocationOptimized(false);
-        adapter.activate();
-
-        TestIntfPrx testIntf = TestIntfPrxHelper.uncheckedCast(@base);
+        Ice.ObjectPrx @base = communicator.stringToProxy("test:default -p 12010:udp -p 12010");
+        TestIntfPrx testIntf = TestIntfPrxHelper.checkedCast(@base);
 
         Console.Out.Write("test connection endpoint information... ");
         Console.Out.Flush();
@@ -155,7 +157,7 @@ public class AllTests
             test(info.remotePort == 12010);
             test(info.remoteAddress.Equals(defaultHost));
             test(info.localAddress.Equals(defaultHost));
-        
+
             Dictionary<string, string> ctx = testIntf.getConnectionInfoAsContext();
             test(ctx["incoming"].Equals("true"));
             test(ctx["adapterName"].Equals("TestAdapter"));
@@ -165,6 +167,8 @@ public class AllTests
             test(ctx["localPort"].Equals(info.remotePort.ToString()));
         }
         Console.Out.WriteLine("ok");
+
+        testIntf.shutdown();
 
         communicator.shutdown();
         communicator.waitForShutdown();

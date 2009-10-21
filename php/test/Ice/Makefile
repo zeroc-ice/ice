@@ -11,7 +11,7 @@ top_srcdir	= ../..
 
 include $(top_srcdir)/config/Make.rules
 
-SUBDIRS		= binding checksum exceptions facets inheritance objects operations proxy slicing
+SUBDIRS		= binding checksum exceptions facets info inheritance objects operations proxy slicing
 
 $(EVERYTHING)::
 	@for subdir in $(SUBDIRS); \

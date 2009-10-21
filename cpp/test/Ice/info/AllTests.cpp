@@ -33,11 +33,11 @@ allTests(const Ice::CommunicatorPtr& communicator)
         test(ipEndpoint->timeout == 1200);
         test(ipEndpoint->compress);
         test(!ipEndpoint->datagram());
-        test(ipEndpoint->type() == Ice::TCPEndpointType && !ipEndpoint->secure() ||
-             ipEndpoint->type() == IceSSL::EndpointType && ipEndpoint->secure());
-        test(ipEndpoint->type() == Ice::TCPEndpointType && Ice::TCPEndpointInfoPtr::dynamicCast(ipEndpoint) ||
-             ipEndpoint->type() == IceSSL::EndpointType && IceSSL::EndpointInfoPtr::dynamicCast(ipEndpoint));
-        
+        test((ipEndpoint->type() == Ice::TCPEndpointType && !ipEndpoint->secure()) ||
+             (ipEndpoint->type() == IceSSL::EndpointType && ipEndpoint->secure()));
+        test((ipEndpoint->type() == Ice::TCPEndpointType && Ice::TCPEndpointInfoPtr::dynamicCast(ipEndpoint)) ||
+             (ipEndpoint->type() == IceSSL::EndpointType && IceSSL::EndpointInfoPtr::dynamicCast(ipEndpoint)));
+
         Ice::UDPEndpointInfoPtr udpEndpoint = Ice::UDPEndpointInfoPtr::dynamicCast(endps[1]->getInfo());
         test(udpEndpoint);
         test(udpEndpoint->host == "udphost");
@@ -48,8 +48,8 @@ allTests(const Ice::CommunicatorPtr& communicator)
         test(!udpEndpoint->compress);
         test(!udpEndpoint->secure());
         test(udpEndpoint->datagram());
-        test(udpEndpoint->type() == 3);
-        
+        test(udpEndpoint->type() == Ice::UDPEndpointType);
+
         Ice::OpaqueEndpointInfoPtr opaqueEndpoint = Ice::OpaqueEndpointInfoPtr::dynamicCast(endps[2]->getInfo());
         test(opaqueEndpoint);
     }
@@ -81,36 +81,31 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
         adapter->destroy();
 
-        communicator->getProperties()->setProperty("TestAdapter.Endpoints", "default -h * -p 12010");
-        communicator->getProperties()->setProperty("TestAdapter.PublishedEndpoints", "default -h 127.0.0.1 -p 12010");
+        communicator->getProperties()->setProperty("TestAdapter.Endpoints", "default -h * -p 12020");
+        communicator->getProperties()->setProperty("TestAdapter.PublishedEndpoints", "default -h 127.0.0.1 -p 12020");
         adapter = communicator->createObjectAdapter("TestAdapter");
 
         endpoints = adapter->getEndpoints();
         test(endpoints.size() >= 1);
         publishedEndpoints = adapter->getPublishedEndpoints();
         test(publishedEndpoints.size() == 1);
-        
+
         for(Ice::EndpointSeq::const_iterator p = endpoints.begin(); p != endpoints.end(); ++p)
         {
             ipEndpoint = Ice::IPEndpointInfoPtr::dynamicCast((*p)->getInfo());
-            test(ipEndpoint->port == 12010);
+            test(ipEndpoint->port == 12020);
         }
-        
+
         ipEndpoint = Ice::IPEndpointInfoPtr::dynamicCast(publishedEndpoints[0]->getInfo());
         test(ipEndpoint->host == "127.0.0.1");
-        test(ipEndpoint->port == 12010);
+        test(ipEndpoint->port == 12020);
 
         adapter->destroy();
     }
     cout << "ok" << endl;
 
-    communicator->getProperties()->setProperty("TestAdapter.Endpoints", "default -p 12010:udp -p 12010");
-    communicator->getProperties()->setProperty("TestAdapter.PublishedEndpoints", "");
-    Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter("TestAdapter");
-    Ice::ObjectPrx base = adapter->addWithUUID(new TestI())->ice_collocationOptimized(false);
-    adapter->activate();
-
-    TestIntfPrx test = TestIntfPrx::uncheckedCast(base);
+    Ice::ObjectPrx base = communicator->stringToProxy("test:default -p 12010:udp -p 12010");
+    TestIntfPrx testIntf = TestIntfPrx::checkedCast(base);
 
     cout << "test connection endpoint information... " << flush;
     {
@@ -121,8 +116,8 @@ allTests(const Ice::CommunicatorPtr& communicator)
         test(ipinfo->host == defaultHost);
 
         ostringstream os;
-        
-        Ice::Context ctx = test->getEndpointInfoAsContext();
+
+        Ice::Context ctx = testIntf->getEndpointInfoAsContext();
         test(ctx["host"] == ipinfo->host);
         test(ctx["compress"] == "false");
         istringstream is(ctx["port"]);
@@ -147,10 +142,10 @@ allTests(const Ice::CommunicatorPtr& communicator)
         test(info->remotePort == 12010);
         test(info->remoteAddress == defaultHost);
         test(info->localAddress == defaultHost);
-        
+
         ostringstream os;
-        
-        Ice::Context ctx = test->getConnectionInfoAsContext();
+
+        Ice::Context ctx = testIntf->getConnectionInfoAsContext();
         test(ctx["incoming"] == "true");
         test(ctx["adapterName"] == "TestAdapter");
         test(ctx["remoteAddress"] == info->localAddress);
@@ -163,6 +158,8 @@ allTests(const Ice::CommunicatorPtr& communicator)
         test(ctx["localPort"] == os.str());
     }
     cout << "ok" << endl;
+
+    testIntf->shutdown();
 
     communicator->shutdown();
     communicator->waitForShutdown();

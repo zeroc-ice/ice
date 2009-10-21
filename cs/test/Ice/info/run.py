@@ -8,7 +8,7 @@
 #
 # **********************************************************************
 
-import os, sys, getopt
+import os, sys
 
 path = [ ".", "..", "../..", "../../..", "../../../.." ]
 head = os.path.dirname(sys.argv[0])
@@ -20,12 +20,6 @@ if len(path) == 0:
 sys.path.append(os.path.join(path[0]))
 from scripts import *
 
-client = os.path.join(os.getcwd(), "client")
-
-print "starting client...",
-clientProc = TestUtil.startClient(client)
-print "ok"
-
-clientProc.waitTestSuccess()
+TestUtil.clientServerTest()
 
 TestUtil.cleanup()
