@@ -67,12 +67,12 @@ public:
     // are printed if exceptions propagate to main(), and the
     // Communicator is always destroyed, regardless of exceptions.
     //
-    int main(int, char*[]);
     int main(int, char*[], const char*);
-    int main(int, char*[], const Ice::InitializationData&);
-    int main(const StringSeq&);
+    int main(int, char*[], const Ice::InitializationData& = Ice::InitializationData());
+    int main(int, char* const[], const char*);
+    int main(int, char* const[], const Ice::InitializationData& = Ice::InitializationData());
     int main(const StringSeq&, const char*);
-    int main(const StringSeq&, const Ice::InitializationData&);
+    int main(const StringSeq&, const Ice::InitializationData& = Ice::InitializationData());
 
     virtual int run(int, char*[]) = 0;
 

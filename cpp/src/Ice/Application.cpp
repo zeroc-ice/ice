@@ -302,12 +302,6 @@ Ice::Application::~Application()
 }
 
 int
-Ice::Application::main(int argc, char* argv[])
-{
-    return main(argc, argv, InitializationData());
-}
-
-int
 Ice::Application::main(int argc, char* argv[], const char* configFile)
 {
     //
@@ -369,7 +363,7 @@ Ice::Application::main(int argc, char* argv[], const InitializationData& initDat
             //
             CtrlCHandler ctrCHandler;
             _ctrlCHandler = &ctrCHandler;
-
+            
             status = doMain(argc, argv, initData);
 
             //
@@ -392,11 +386,18 @@ Ice::Application::main(int argc, char* argv[], const InitializationData& initDat
     return status;
 }
 
-int
-Ice::Application::main(const StringSeq& args)
+int 
+Ice::Application::main(int argc, char* const argv[], const char* configFile)
 {
-    ArgVector av(args);
-    return main(av.argc, av.argv);
+    ArgVector av(argc, argv);
+    return main(av.argc, av.argv, configFile);
+}
+
+int 
+Ice::Application::main(int argc, char* const argv[], const Ice::InitializationData& initData)
+{
+    ArgVector av(argc, argv);
+    return main(av.argc, av.argv, initData);
 }
 
 int
