@@ -1203,7 +1203,7 @@ allTests2(const CommunicatorPtr& communicator,
         {
             server->ice_ping();
         }
-        catch(const LocalException& ex)
+        catch(const LocalException&)
         {
             test(false);
         }

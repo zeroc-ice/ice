@@ -227,19 +227,26 @@ IceSSL::EndpointI::toString() const
     return s.str();
 }
 
-Ice::EndpointInfoPtr
-IceSSL::EndpointI::getInfo() const
+//
+// COMPILERFIX: VC6 complains about an ambiguous "EndpointInfo" symbol when this class is defined inside
+//              getInfo(). Moving the definition into an anonymous namespace works around it.
+//
+namespace
 {
     class InfoI : public IceSSL::EndpointInfo
     {
     public:
 
-        InfoI(Ice::Int to, bool comp, const string& host, Ice::Int port) :
+        InfoI(Int to, bool comp, const string& host, Int port) :
+#if defined(_MSC_VER) && (_MSC_VER < 1300) // VC++ 6 compiler bug
+            IceSSL::EndpointInfo(to, comp, host, port)
+#else
             EndpointInfo(to, comp, host, port)
+#endif
         {
         }
 
-        virtual Ice::Short
+        virtual Short
         type() const
         {
             return EndpointType;
@@ -257,7 +264,11 @@ IceSSL::EndpointI::getInfo() const
             return true;
         }
     };
+}
 
+Ice::EndpointInfoPtr
+IceSSL::EndpointI::getInfo() const
+{
     return new InfoI(_timeout, _compress, _host, _port);
 }
 
@@ -499,7 +510,7 @@ IceSSL::EndpointI::operator<(const Ice::LocalObject& r) const
 Ice::Int
 IceSSL::EndpointI::hashInit() const
 {
-    Ice::Int h = 0;
+    Int h = 0;
     IceInternal::hashAdd(h, _host);
     IceInternal::hashAdd(h, _port);
     IceInternal::hashAdd(h, _timeout);

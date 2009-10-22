@@ -44,8 +44,8 @@ public:
     virtual std::vector<IceInternal::EndpointIPtr> expand() const;
     virtual bool equivalent(const IceInternal::EndpointIPtr&) const;
 
-    virtual bool operator==(const LocalObject&) const;
-    virtual bool operator<(const LocalObject&) const;
+    virtual bool operator==(const Ice::LocalObject&) const;
+    virtual bool operator<(const Ice::LocalObject&) const;
 
 private:
 

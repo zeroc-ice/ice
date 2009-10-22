@@ -39,5 +39,10 @@ bool
 MyDerivedClassI::ice_isA(const std::string& s, const Ice::Current& current) const
 {
     _ctx = current.ctx;
+    
+#if defined(_MSC_VER) && (_MSC_VER < 1300) // VC++ 6 compiler bug
+    return MyDerivedClass::ice_isA(s, current);
+#else
     return Test::MyDerivedClass::ice_isA(s, current);
+#endif
 }
