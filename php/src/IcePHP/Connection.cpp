@@ -479,7 +479,7 @@ IcePHP::createConnectionInfo(zval* zv, const Ice::ConnectionInfoPtr& p TSRMLS_DC
         Ice::UDPConnectionInfoPtr info = Ice::UDPConnectionInfoPtr::dynamicCast(p);
         if((status = object_init_ex(zv, udpConnectionInfoClassEntry)) == SUCCESS)
         {
-            add_property_string(zv, STRCAST("mcastAddress"), STRCAST(info->mcastAddress.c_str()), 1);
+            add_property_string(zv, STRCAST("mcastAddress"), const_cast<char*>(info->mcastAddress.c_str()), 1);
             add_property_long(zv, STRCAST("mcastPort"), static_cast<long>(info->mcastPort));
         }
     }
@@ -501,14 +501,14 @@ IcePHP::createConnectionInfo(zval* zv, const Ice::ConnectionInfoPtr& p TSRMLS_DC
     if(Ice::IPConnectionInfoPtr::dynamicCast(p))
     {
         Ice::IPConnectionInfoPtr info = Ice::IPConnectionInfoPtr::dynamicCast(p);
-        add_property_string(zv, STRCAST("localAddress"), STRCAST(info->localAddress.c_str()), 1);
+        add_property_string(zv, STRCAST("localAddress"), const_cast<char*>(info->localAddress.c_str()), 1);
         add_property_long(zv, STRCAST("localPort"), static_cast<long>(info->localPort));
-        add_property_string(zv, STRCAST("remoteAddress"), STRCAST(info->remoteAddress.c_str()), 1);
+        add_property_string(zv, STRCAST("remoteAddress"), const_cast<char*>(info->remoteAddress.c_str()), 1);
         add_property_long(zv, STRCAST("remotePort"), static_cast<long>(info->remotePort));
     }
 
     add_property_bool(zv, STRCAST("incoming"), p->incoming ? 1 : 0);
-    add_property_string(zv, STRCAST("adapterName"), STRCAST(p->adapterName.c_str()), 1);
+    add_property_string(zv, STRCAST("adapterName"), const_cast<char*>(p->adapterName.c_str()), 1);
 
     Wrapper<Ice::ConnectionInfoPtr>* obj = Wrapper<Ice::ConnectionInfoPtr>::extract(zv TSRMLS_CC);
     assert(obj);

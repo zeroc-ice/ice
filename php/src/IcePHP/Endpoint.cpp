@@ -412,7 +412,7 @@ IcePHP::createEndpointInfo(zval* zv, const Ice::EndpointInfoPtr& p TSRMLS_DC)
             add_property_long(zv, STRCAST("protocolMinor"), static_cast<long>(info->protocolMinor));
             add_property_long(zv, STRCAST("encodingMajor"), static_cast<long>(info->encodingMajor));
             add_property_long(zv, STRCAST("encodingMinor"), static_cast<long>(info->encodingMinor));
-            add_property_string(zv, STRCAST("mcastInterface"), STRCAST(info->mcastInterface.c_str()), 1);
+            add_property_string(zv, STRCAST("mcastInterface"), const_cast<char*>(info->mcastInterface.c_str()), 1);
             add_property_long(zv, STRCAST("mcastTtl"), static_cast<long>(info->mcastTtl));
         }
     }
@@ -450,7 +450,7 @@ IcePHP::createEndpointInfo(zval* zv, const Ice::EndpointInfoPtr& p TSRMLS_DC)
     if(Ice::IPEndpointInfoPtr::dynamicCast(p))
     {
         Ice::IPEndpointInfoPtr info = Ice::IPEndpointInfoPtr::dynamicCast(p);
-        add_property_string(zv, STRCAST("host"), STRCAST(info->host.c_str()), 1);
+        add_property_string(zv, STRCAST("host"), const_cast<char*>(info->host.c_str()), 1);
         add_property_long(zv, STRCAST("port"), static_cast<long>(info->port));
     }
 
