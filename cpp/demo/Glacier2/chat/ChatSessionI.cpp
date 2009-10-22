@@ -21,16 +21,29 @@ class ChatRoom : public IceUtil::Mutex, public IceUtil::Shared
 {
 public:
 
+    ChatRoom();
+    ~ChatRoom();
+
     static ChatRoomPtr& instance();
 
-    void enter(const Demo::ChatCallbackPrx&);
+    void enter(const Demo::ChatSessionPrx&, const Demo::ChatCallbackPrx&);
     void leave(const Demo::ChatCallbackPrx&);
     void message(const string&) const;
+    void update(const Demo::ChatCallbackPrx&);
+
+    struct MemberInfo
+    {
+        Demo::ChatSessionPrx session;
+        Demo::ChatCallbackPrx callback;
+        IceUtil::Time updateTime;
+    };
+    list<MemberInfo> members() const;
 
     static IceUtil::Mutex* _instanceMutex;
 private:
     
-    list<Demo::ChatCallbackPrx> _members;
+    list<MemberInfo> _members;
+    IceUtil::TimerPtr _timer;
 
     static ChatRoomPtr _instance;
 };
@@ -40,7 +53,6 @@ IceUtil::Mutex* ChatRoom::_instanceMutex = 0;
 
 namespace
 {
-
 
 class Init
 {
@@ -60,7 +72,31 @@ public:
 
 Init init;
 
-}
+class ReapTask : public IceUtil::TimerTask
+{
+public:
+
+    virtual void runTimerTask()
+    {
+        ChatRoomPtr chatRoom = ChatRoom::instance();
+        list<ChatRoom::MemberInfo> members = chatRoom->members();
+        IceUtil::Time now = IceUtil::Time::now();
+        for(list<ChatRoom::MemberInfo>::const_iterator p = members.begin(); p != members.end(); ++p)
+        {
+            if(now - (*p).updateTime > IceUtil::Time::secondsDouble(30 * 1.5)) // SessionTimeout * 1.5
+            {
+                try
+                {
+                    (*p).session->destroy();
+                }
+                catch(const Ice::Exception&)
+                {
+                    // Ignore
+                }
+            }
+        }
+    }
+};
 
 class AMI_ChatCallback_messageI : public Demo::AMI_ChatCallback_message
 {
@@ -75,33 +111,50 @@ public:
     }
 };
 
+}
+
+ChatRoom::ChatRoom()
+{
+    _timer = new IceUtil::Timer();
+    _timer->scheduleRepeated(new ReapTask(), IceUtil::Time::seconds(30));
+}
+
+ChatRoom::~ChatRoom()
+{
+    _timer->destroy();
+}
+
 ChatRoomPtr&
 ChatRoom::instance()
 {
     IceUtil::Mutex::Lock sync(*_instanceMutex);
     if(!_instance)
     {
-        _instance = new ChatRoom;
+        _instance = new ChatRoom();
     }
 
     return _instance;
 }
 
 void
-ChatRoom::enter(const ChatCallbackPrx& callback)
+ChatRoom::enter(const Demo::ChatSessionPrx& session, const ChatCallbackPrx& callback)
 {
     Lock sync(*this);
-    _members.push_back(callback);
+    MemberInfo info;
+    info.session = session;
+    info.callback = callback;
+    info.updateTime = IceUtil::Time::now();
+    _members.push_back(info);
 }
 
 void
 ChatRoom::leave(const ChatCallbackPrx& callback)
 {
     Lock sync(*this);
-    list<ChatCallbackPrx>::iterator p;
+    list<MemberInfo>::iterator p;
     for(p = _members.begin(); p != _members.end(); ++p)
     {
-        if(Ice::proxyIdentityEqual(callback, *p))
+        if(Ice::proxyIdentityEqual(callback, (*p).callback))
         {
             break;
         }
@@ -115,10 +168,30 @@ void
 ChatRoom::message(const string& data) const
 {
     Lock sync(*this);
-    for(list<ChatCallbackPrx>::const_iterator p = _members.begin(); p != _members.end(); ++p)
+    for(list<MemberInfo>::const_iterator p = _members.begin(); p != _members.end(); ++p)
     {
-        (*p)->message_async(new AMI_ChatCallback_messageI(), data);
+        (*p).callback->message_async(new AMI_ChatCallback_messageI(), data);
     }
+}
+
+void
+ChatRoom::update(const ChatCallbackPrx& callback)
+{
+    Lock sync(*this);
+    for(list<MemberInfo>::iterator p = _members.begin(); p != _members.end(); ++p)
+    {
+        if(Ice::proxyIdentityEqual(callback, (*p).callback))
+        {
+            (*p).updateTime = IceUtil::Time::now();
+            break;
+        }
+    }
+}
+
+list<ChatRoom::MemberInfo>
+ChatRoom::members() const
+{
+    return _members;
 }
 
 ChatSessionI::ChatSessionI(const string& userId) :
@@ -127,7 +200,14 @@ ChatSessionI::ChatSessionI(const string& userId) :
 }
 
 void
-ChatSessionI::setCallback(const ChatCallbackPrx& callback, const Ice::Current&)
+ChatSessionI::ice_ping(const Ice::Current&) const
+{
+    Lock sync(*this);
+    ChatRoom::instance()->update(_callback);
+}
+
+void
+ChatSessionI::setCallback(const ChatCallbackPrx& callback, const Ice::Current& current)
 {
     Lock sync(*this);
     if(!_callback)
@@ -135,14 +215,17 @@ ChatSessionI::setCallback(const ChatCallbackPrx& callback, const Ice::Current&)
         _callback = callback;
         ChatRoomPtr chatRoom = ChatRoom::instance();
         chatRoom->message(_userId + " has entered the chat room.");
-        chatRoom->enter(callback);
+        chatRoom->enter(ChatSessionPrx::uncheckedCast(current.adapter->createProxy(current.id)), callback);
     }
 }
 
 void
 ChatSessionI::say(const string& data, const Ice::Current&)
 {
-    ChatRoom::instance()->message(_userId + " says: " + data);
+    Lock sync(*this);
+    ChatRoomPtr chatRoom = ChatRoom::instance();
+    chatRoom->message(_userId + " says: " + data);
+    chatRoom->update(_callback);
 }
 
 void

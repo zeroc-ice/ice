@@ -18,6 +18,7 @@ public:
 
     ChatSessionI(const std::string&);
 
+    virtual void ice_ping(const Ice::Current&) const;
     virtual void setCallback(const Demo::ChatCallbackPrx&, const Ice::Current&);
     virtual void say(const std::string&, const Ice::Current&);
     virtual void destroy(const Ice::Current&);

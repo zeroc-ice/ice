@@ -942,6 +942,8 @@ Glacier2::SessionRouterI::refreshSession(const Ice::Current& current)
         throw SessionNotExistException();
     }
     router->updateTimestamp();
+
+    // XXX - TODO ping session async when new async mapping available!
 }
 
 void
