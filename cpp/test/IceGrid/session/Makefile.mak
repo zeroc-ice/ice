@@ -43,7 +43,7 @@ $(CLIENT): $(COBJS)
 	    $(MT) -nologo -manifest $@.manifest -outputresource:$@;#1 && del /q $@.manifest
 
 $(VERIFIER): $(VOBJS)
-	$(LINK) $(LD_EXEFLAGS) $(VPDBFLAGS) $(SETARGV) $(VOBJS) $(PREOUT)$@ $(PRELIBS)$(LINKWITH)
+	$(LINK) $(LD_EXEFLAGS) $(VPDBFLAGS) $(SETARGV) $(VOBJS) $(PREOUT)$@ $(PRELIBS)$(LINKWITH) icessl$(LIBSUFFIX).lib
 	@if exist $@.manifest echo ^ ^ ^ Embedding manifest using $(MT) && \
 	    $(MT) -nologo -manifest $@.manifest -outputresource:$@;#1 && del /q $@.manifest
 
