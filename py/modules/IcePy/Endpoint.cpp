@@ -51,6 +51,26 @@ endpointDealloc(EndpointObject* self)
 #ifdef WIN32
 extern "C"
 #endif
+static int
+endpointCompare(EndpointObject* p1, EndpointObject* p2)
+{
+    if(*p1->endpoint < *p2->endpoint)
+    {
+        return -1;
+    }
+    else if(*p1->endpoint == *p2->endpoint)
+    {
+        return 0;
+    }
+    else
+    {
+        return 1;
+    }
+}
+
+#ifdef WIN32
+extern "C"
+#endif
 static PyObject*
 endpointToString(EndpointObject* self)
 {
@@ -121,7 +141,7 @@ PyTypeObject EndpointType =
     0,                               /* tp_print */
     0,                               /* tp_getattr */
     0,                               /* tp_setattr */
-    0,                               /* tp_compare */
+    (cmpfunc)endpointCompare,        /* tp_compare */
     (reprfunc)endpointRepr,          /* tp_repr */
     0,                               /* tp_as_number */
     0,                               /* tp_as_sequence */

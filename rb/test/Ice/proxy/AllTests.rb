@@ -417,6 +417,13 @@ def allTests(communicator)
     #test(compObj1 < compObj2);
     #test(!(compObj2 < compObj1));
 
+    endpts1 = communicator.stringToProxy("foo:tcp -h 127.0.0.1 -p 10000").ice_getEndpoints()
+    endpts2 = communicator.stringToProxy("foo:tcp -h 127.0.0.1 -p 10001").ice_getEndpoints()
+    test(endpts1 != endpts2)
+    #test(endpts1 < endpts2)
+    #test(!(endpts2 < endpts1))
+    test(endpts1 == communicator.stringToProxy("foo:tcp -h 127.0.0.1 -p 10000").ice_getEndpoints())
+
     #
     # TODO: Ideally we should also test comparison of fixed proxies.
     #
@@ -598,33 +605,6 @@ def allTests(communicator)
           test(pstr == "test -t:ssl -h 127.0.0.1 -p 10001:opaque -t 99 -v abch");
       end
     end
-    puts "ok"
-
-    print "testing endpoint information... "
-    STDOUT.flush
-
-    p1 = communicator.stringToProxy("test -t:tcp -h tcphost -p 10000 -t 1200 -z:udp -h udphost -p 10001 --interface eth0 --ttl 5:opaque -t 100 -v ABCD");
-    endps = p1.ice_getEndpoints();
-
-    info = endps[0].getInfo()
-    test(info.is_a?(Ice::TcpEndpointInfo));
-    test(info.host == "tcphost");
-    test(info.port == 10000);
-    test(info.timeout == 1200);
-    test(info.compress);
-
-    info = endps[1].getInfo()
-    test(info.is_a?(Ice::UdpEndpointInfo));
-    test(info.host == "udphost");
-    test(info.port == 10001);
-    test(info.mcastInterface == "eth0");
-    test(info.mcastTtl == 5);
-    test(info.timeout == -1);
-    test(!info.compress);
-
-    info = endps[2].getInfo()
-    test(info.is_a?(Ice::OpaqueEndpointInfo));
-
     puts "ok"
 
     return cl

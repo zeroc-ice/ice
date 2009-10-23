@@ -136,6 +136,7 @@ require 'Ice/Logger.rb'
 require 'Ice/ObjectFactory.rb'
 require 'Ice/Process.rb'
 require 'Ice/Router.rb'
+require 'Ice/Endpoint.rb'
 
 module Ice
     #

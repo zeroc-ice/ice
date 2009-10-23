@@ -34,13 +34,13 @@ struct EndpointInfoObject
 #define MEMBER_COMPRESS         1
 
 //
-// Shared TCP/UDP members
+// IPEndpointInfo members
 //
 #define MEMBER_HOST             2
 #define MEMBER_PORT             3
 
 //
-// UdpEndpointInfo members
+// UDPEndpointInfo members
 //
 #define MEMBER_PROTOCOL_MAJOR   4
 #define MEMBER_PROTOCOL_MINOR   5
@@ -175,11 +175,11 @@ endpointInfoGetter(EndpointInfoObject* self, void* closure)
 extern "C"
 #endif
 static PyObject*
-tcpEndpointInfoGetter(EndpointInfoObject* self, void* closure)
+ipEndpointInfoGetter(EndpointInfoObject* self, void* closure)
 {
     int member = reinterpret_cast<int>(closure);
     PyObject* result = 0;
-    Ice::TcpEndpointInfoPtr info = Ice::TcpEndpointInfoPtr::dynamicCast(*self->endpointInfo);
+    Ice::IPEndpointInfoPtr info = Ice::IPEndpointInfoPtr::dynamicCast(*self->endpointInfo);
     assert(info);
 
     switch(member)
@@ -205,17 +205,11 @@ udpEndpointInfoGetter(EndpointInfoObject* self, void* closure)
 {
     int member = reinterpret_cast<int>(closure);
     PyObject* result = 0;
-    Ice::UdpEndpointInfoPtr info = Ice::UdpEndpointInfoPtr::dynamicCast(*self->endpointInfo);
+    Ice::UDPEndpointInfoPtr info = Ice::UDPEndpointInfoPtr::dynamicCast(*self->endpointInfo);
     assert(info);
 
     switch(member)
     {
-    case MEMBER_HOST:
-        result = createString(info->host);
-        break;
-    case MEMBER_PORT:
-        result = PyInt_FromLong(info->port);
-        break;
     case MEMBER_PROTOCOL_MAJOR:
         result = PyInt_FromLong(info->protocolMajor);
         break;
@@ -285,21 +279,17 @@ static PyGetSetDef EndpointInfoGetters[] =
     { 0, 0 } /* sentinel */
 };
 
-static PyGetSetDef TcpEndpointInfoGetters[] =
+static PyGetSetDef IPEndpointInfoGetters[] =
 {
-    { STRCAST("host"), reinterpret_cast<getter>(tcpEndpointInfoGetter), 0,
+    { STRCAST("host"), reinterpret_cast<getter>(ipEndpointInfoGetter), 0,
         PyDoc_STR(STRCAST("host name or IP address")), reinterpret_cast<void*>(MEMBER_HOST) },
-    { STRCAST("port"), reinterpret_cast<getter>(tcpEndpointInfoGetter), 0,
+    { STRCAST("port"), reinterpret_cast<getter>(ipEndpointInfoGetter), 0,
         PyDoc_STR(STRCAST("TCP port number")), reinterpret_cast<void*>(MEMBER_PORT) },
     { 0, 0 } /* sentinel */
 };
 
-static PyGetSetDef UdpEndpointInfoGetters[] =
+static PyGetSetDef UDPEndpointInfoGetters[] =
 {
-    { STRCAST("host"), reinterpret_cast<getter>(udpEndpointInfoGetter), 0,
-        PyDoc_STR(STRCAST("host name or IP address")), reinterpret_cast<void*>(MEMBER_HOST) },
-    { STRCAST("port"), reinterpret_cast<getter>(udpEndpointInfoGetter), 0,
-        PyDoc_STR(STRCAST("UDP port number")), reinterpret_cast<void*>(MEMBER_PORT) },
     { STRCAST("protocolMajor"), reinterpret_cast<getter>(udpEndpointInfoGetter), 0,
         PyDoc_STR(STRCAST("protocol major version")), reinterpret_cast<void*>(MEMBER_PROTOCOL_MAJOR) },
     { STRCAST("protocolMinor"), reinterpret_cast<getter>(udpEndpointInfoGetter), 0,
@@ -373,13 +363,13 @@ PyTypeObject EndpointInfoType =
     0,                               /* tp_is_gc */
 };
 
-PyTypeObject TcpEndpointInfoType =
+PyTypeObject IPEndpointInfoType =
 {
     /* The ob_type field must be initialized in the module init function
      * to be portable to Windows without using C++. */
     PyObject_HEAD_INIT(0)
     0,                               /* ob_size */
-    STRCAST("IcePy.TcpEndpointInfo"),/* tp_name */
+    STRCAST("IcePy.IPEndpointInfo"),   /* tp_name */
     sizeof(EndpointInfoObject),      /* tp_basicsize */
     0,                               /* tp_itemsize */
     /* methods */
@@ -408,7 +398,7 @@ PyTypeObject TcpEndpointInfoType =
     0,                               /* tp_iternext */
     0,                               /* tp_methods */
     0,                               /* tp_members */
-    TcpEndpointInfoGetters,          /* tp_getset */
+    IPEndpointInfoGetters,           /* tp_getset */
     0,                               /* tp_base */
     0,                               /* tp_dict */
     0,                               /* tp_descr_get */
@@ -421,13 +411,13 @@ PyTypeObject TcpEndpointInfoType =
     0,                               /* tp_is_gc */
 };
 
-PyTypeObject UdpEndpointInfoType =
+PyTypeObject TCPEndpointInfoType =
 {
     /* The ob_type field must be initialized in the module init function
      * to be portable to Windows without using C++. */
     PyObject_HEAD_INIT(0)
     0,                               /* ob_size */
-    STRCAST("IcePy.UdpEndpointInfo"),/* tp_name */
+    STRCAST("IcePy.TCPEndpointInfo"),/* tp_name */
     sizeof(EndpointInfoObject),      /* tp_basicsize */
     0,                               /* tp_itemsize */
     /* methods */
@@ -456,7 +446,55 @@ PyTypeObject UdpEndpointInfoType =
     0,                               /* tp_iternext */
     0,                               /* tp_methods */
     0,                               /* tp_members */
-    UdpEndpointInfoGetters,          /* tp_getset */
+    0,                               /* tp_getset */
+    0,                               /* tp_base */
+    0,                               /* tp_dict */
+    0,                               /* tp_descr_get */
+    0,                               /* tp_descr_set */
+    0,                               /* tp_dictoffset */
+    0,                               /* tp_init */
+    0,                               /* tp_alloc */
+    (newfunc)endpointInfoNew,        /* tp_new */
+    0,                               /* tp_free */
+    0,                               /* tp_is_gc */
+};
+
+PyTypeObject UDPEndpointInfoType =
+{
+    /* The ob_type field must be initialized in the module init function
+     * to be portable to Windows without using C++. */
+    PyObject_HEAD_INIT(0)
+    0,                               /* ob_size */
+    STRCAST("IcePy.UDPEndpointInfo"),/* tp_name */
+    sizeof(EndpointInfoObject),      /* tp_basicsize */
+    0,                               /* tp_itemsize */
+    /* methods */
+    (destructor)endpointInfoDealloc, /* tp_dealloc */
+    0,                               /* tp_print */
+    0,                               /* tp_getattr */
+    0,                               /* tp_setattr */
+    0,                               /* tp_compare */
+    0,                               /* tp_repr */
+    0,                               /* tp_as_number */
+    0,                               /* tp_as_sequence */
+    0,                               /* tp_as_mapping */
+    0,                               /* tp_hash */
+    0,                               /* tp_call */
+    0,                               /* tp_str */
+    0,                               /* tp_getattro */
+    0,                               /* tp_setattro */
+    0,                               /* tp_as_buffer */
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE, /* tp_flags */
+    0,                               /* tp_doc */
+    0,                               /* tp_traverse */
+    0,                               /* tp_clear */
+    0,                               /* tp_richcompare */
+    0,                               /* tp_weaklistoffset */
+    0,                               /* tp_iter */
+    0,                               /* tp_iternext */
+    0,                               /* tp_methods */
+    0,                               /* tp_members */
+    UDPEndpointInfoGetters,          /* tp_getset */
     0,                               /* tp_base */
     0,                               /* tp_dict */
     0,                               /* tp_descr_get */
@@ -532,24 +570,35 @@ IcePy::initEndpointInfo(PyObject* module)
         return false;
     }
 
-    TcpEndpointInfoType.tp_base = &EndpointInfoType; // Force inheritance from EndpointInfoType.
-    if(PyType_Ready(&TcpEndpointInfoType) < 0)
+    IPEndpointInfoType.tp_base = &EndpointInfoType; // Force inheritance from EndpointInfoType.
+    if(PyType_Ready(&IPEndpointInfoType) < 0)
     {
         return false;
     }
-    type = &TcpEndpointInfoType; // Necessary to prevent GCC's strict-alias warnings.
-    if(PyModule_AddObject(module, STRCAST("TcpEndpointInfo"), reinterpret_cast<PyObject*>(type)) < 0)
+    type = &IPEndpointInfoType; // Necessary to prevent GCC's strict-alias warnings.
+    if(PyModule_AddObject(module, STRCAST("IPEndpointInfo"), reinterpret_cast<PyObject*>(type)) < 0)
     {
         return false;
     }
 
-    UdpEndpointInfoType.tp_base = &EndpointInfoType; // Force inheritance from EndpointType.
-    if(PyType_Ready(&UdpEndpointInfoType) < 0)
+    TCPEndpointInfoType.tp_base = &IPEndpointInfoType; // Force inheritance from IPEndpointInfoType.
+    if(PyType_Ready(&TCPEndpointInfoType) < 0)
     {
         return false;
     }
-    type = &UdpEndpointInfoType; // Necessary to prevent GCC's strict-alias warnings.
-    if(PyModule_AddObject(module, STRCAST("UdpEndpointInfo"), reinterpret_cast<PyObject*>(type)) < 0)
+    type = &TCPEndpointInfoType; // Necessary to prevent GCC's strict-alias warnings.
+    if(PyModule_AddObject(module, STRCAST("TCPEndpointInfo"), reinterpret_cast<PyObject*>(type)) < 0)
+    {
+        return false;
+    }
+
+    UDPEndpointInfoType.tp_base = &IPEndpointInfoType; // Force inheritance from IPEndpointType.
+    if(PyType_Ready(&UDPEndpointInfoType) < 0)
+    {
+        return false;
+    }
+    type = &UDPEndpointInfoType; // Necessary to prevent GCC's strict-alias warnings.
+    if(PyModule_AddObject(module, STRCAST("UDPEndpointInfo"), reinterpret_cast<PyObject*>(type)) < 0)
     {
         return false;
     }
@@ -580,17 +629,21 @@ PyObject*
 IcePy::createEndpointInfo(const Ice::EndpointInfoPtr& endpointInfo)
 {
     PyTypeObject* type;
-    if(Ice::TcpEndpointInfoPtr::dynamicCast(endpointInfo))
+    if(Ice::TCPEndpointInfoPtr::dynamicCast(endpointInfo))
     {
-        type = &TcpEndpointInfoType;
+        type = &TCPEndpointInfoType;
     }
-    else if(Ice::UdpEndpointInfoPtr::dynamicCast(endpointInfo))
+    else if(Ice::UDPEndpointInfoPtr::dynamicCast(endpointInfo))
     {
-        type = &UdpEndpointInfoType;
+        type = &UDPEndpointInfoType;
     }
     else if(Ice::OpaqueEndpointInfoPtr::dynamicCast(endpointInfo))
     {
         type = &OpaqueEndpointInfoType;
+    }
+    else if(Ice::IPEndpointInfoPtr::dynamicCast(endpointInfo))
+    {
+        type = &IPEndpointInfoType;
     }
     else
     {

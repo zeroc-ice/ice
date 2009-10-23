@@ -12,6 +12,7 @@
 #endif
 #include <Connection.h>
 #include <ConnectionInfo.h>
+#include <Endpoint.h>
 #include <ObjectAdapter.h>
 #include <Proxy.h>
 #include <Util.h>
@@ -301,6 +302,25 @@ connectionGetInfo(ConnectionObject* self)
     }
 }
 
+#ifdef WIN32
+extern "C"
+#endif
+static PyObject*
+connectionGetEndpoint(ConnectionObject* self)
+{
+    assert(self->connection);
+    try
+    {
+        Ice::EndpointPtr endpoint = (*self->connection)->getEndpoint();
+        return createEndpoint(endpoint);
+    }
+    catch(const Ice::Exception& ex)
+    {
+        setPythonException(ex);
+        return 0;
+    }
+}
+
 static PyMethodDef ConnectionMethods[] =
 {
     { STRCAST("close"), reinterpret_cast<PyCFunction>(connectionClose), METH_VARARGS,
@@ -321,6 +341,8 @@ static PyMethodDef ConnectionMethods[] =
         PyDoc_STR(STRCAST("toString() -> string")) },
     { STRCAST("getInfo"), reinterpret_cast<PyCFunction>(connectionGetInfo), METH_NOARGS,
         PyDoc_STR(STRCAST("getInfo() -> Ice.ConnectionInfo")) },
+    { STRCAST("getEndpoint"), reinterpret_cast<PyCFunction>(connectionGetEndpoint), METH_NOARGS,
+        PyDoc_STR(STRCAST("getInfo() -> Ice.Endpoint")) },
     { 0, 0 } /* sentinel */
 };
 

@@ -27,7 +27,7 @@ tests = [
     ("Ice/proxy", ["core"]),
     ("Ice/operations", ["core"]),
     ("Ice/exceptions", ["core"]),
-    ("Ice/info", ["core"]),
+    ("Ice/info", ["core", "noipv6", "nocompress"]),
     ("Ice/inheritance", ["core"]),
     ("Ice/binding", ["core"]),
     ("Ice/checksum", ["core"]),

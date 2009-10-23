@@ -14,8 +14,9 @@ DLLNAME         = $(libdir)\IceRuby$(LIBSUFFIX).dll
 
 TARGETS		= $(LIBNAME) $(DLLNAME)
 
-OBJS		= ConnectionInfo.obj \
+OBJS		= Connection.obj \
 		  Communicator.obj \
+		  Endpoint.obj \
 		  Init.obj \
 		  ImplicitContext.obj \
 		  Logger.obj \

@@ -7,67 +7,110 @@
 //
 // **********************************************************************
 
-#include <ConnectionInfo.h>
+#include <Endpoint.h>
 #include <Util.h>
-#include <Ice/Connection.h>
 
 using namespace std;
 using namespace IceRuby;
 
-static VALUE _connectionInfoClass;
-static VALUE _tcpConnectionInfoClass;
-static VALUE _udpConnectionInfoClass;
+static VALUE _endpointClass;
 
 static VALUE _endpointInfoClass;
+static VALUE _ipEndpointInfoClass;
 static VALUE _tcpEndpointInfoClass;
 static VALUE _udpEndpointInfoClass;
 static VALUE _opaqueEndpointInfoClass;
 
 // **********************************************************************
-// ConnectionInfo
+// Endpoint
 // **********************************************************************
 
 extern "C"
 void
-IceRuby_ConnectionInfo_free(Ice::ConnectionPtr* p)
+IceRuby_Endpoint_free(Ice::EndpointPtr* p)
 {
     assert(p);
     delete p;
 }
 
 VALUE
-IceRuby::createConnectionInfo(const Ice::ConnectionInfoPtr& p)
+IceRuby::createEndpoint(const Ice::EndpointPtr& p)
 {
-    VALUE info;
-    if(Ice::TcpConnectionInfoPtr::dynamicCast(p))
-    {
-        info = Data_Wrap_Struct(_tcpConnectionInfoClass, 0, IceRuby_ConnectionInfo_free, new Ice::ConnectionInfoPtr(p));
-
-        Ice::TcpConnectionInfoPtr tcp = Ice::TcpConnectionInfoPtr::dynamicCast(p);
-        rb_ivar_set(info, rb_intern("@localAddress"), createString(tcp->localAddress));
-        rb_ivar_set(info, rb_intern("@localPort"), INT2FIX(tcp->localPort));
-        rb_ivar_set(info, rb_intern("@remoteAddress"), createString(tcp->remoteAddress));
-        rb_ivar_set(info, rb_intern("@remotePort"), INT2FIX(tcp->remotePort));
-    }
-    else if(Ice::UdpConnectionInfoPtr::dynamicCast(p))
-    {
-        info = Data_Wrap_Struct(_udpConnectionInfoClass, 0, IceRuby_ConnectionInfo_free, new Ice::ConnectionInfoPtr(p));
-
-        Ice::UdpConnectionInfoPtr udp = Ice::UdpConnectionInfoPtr::dynamicCast(p);
-        rb_ivar_set(info, rb_intern("@localAddress"), createString(udp->localAddress));
-        rb_ivar_set(info, rb_intern("@localPort"), INT2FIX(udp->localPort));
-        rb_ivar_set(info, rb_intern("@remoteAddress"), createString(udp->remoteAddress));
-        rb_ivar_set(info, rb_intern("@remotePort"), INT2FIX(udp->remotePort));
-        rb_ivar_set(info, rb_intern("@mcastAddress"), createString(udp->mcastAddress));
-        rb_ivar_set(info, rb_intern("@mcastPort"), INT2FIX(udp->mcastPort));
-    }
-    else
-    {
-        info = Data_Wrap_Struct(_connectionInfoClass, 0, IceRuby_ConnectionInfo_free, new Ice::ConnectionInfoPtr(p));
-    }
-    rb_ivar_set(info, rb_intern("@endpoint"), createEndpointInfo(p->endpoint));
-    return info;
+    return Data_Wrap_Struct(_endpointClass, 0, IceRuby_Endpoint_free, new Ice::EndpointPtr(p));
 }
+
+extern "C"
+VALUE
+IceRuby_Endpoint_toString(VALUE self)
+{
+    ICE_RUBY_TRY
+    {
+        Ice::EndpointPtr* p = reinterpret_cast<Ice::EndpointPtr*>(DATA_PTR(self));
+        assert(p);
+
+        string s = (*p)->toString();
+        return createString(s);
+    }
+    ICE_RUBY_CATCH
+    return Qnil;
+}
+
+extern "C"
+VALUE
+IceRuby_Endpoint_getInfo(VALUE self)
+{
+    ICE_RUBY_TRY
+    {
+        Ice::EndpointPtr* p = reinterpret_cast<Ice::EndpointPtr*>(DATA_PTR(self));
+        assert(p);
+
+        Ice::EndpointInfoPtr info = (*p)->getInfo();
+        return createEndpointInfo(info);
+    }
+    ICE_RUBY_CATCH
+    return Qnil;
+}
+
+extern "C"
+VALUE
+IceRuby_Endpoint_cmp(VALUE self, VALUE other)
+{
+    ICE_RUBY_TRY
+    {
+        if(NIL_P(other))
+        {
+            return INT2NUM(1);
+        }
+        if(!checkEndpoint(other))
+        {
+            throw RubyException(rb_eTypeError, "argument must be a endpoint");
+        }
+        Ice::EndpointPtr p1 = Ice::EndpointPtr(*reinterpret_cast<Ice::EndpointPtr*>(DATA_PTR(self)));
+        Ice::EndpointPtr p2 = Ice::EndpointPtr(*reinterpret_cast<Ice::EndpointPtr*>(DATA_PTR(other)));
+        if(p1 < p2)
+        {
+            return INT2NUM(-1);
+        }
+        else if(p1 == p2)
+        {
+            return INT2NUM(0);
+        }
+        else
+        {
+            return INT2NUM(1);
+        }
+    }
+    ICE_RUBY_CATCH
+    return Qnil;
+}
+
+extern "C"
+VALUE
+IceRuby_Endpoint_equals(VALUE self, VALUE other)
+{
+    return IceRuby_Endpoint_cmp(self, other) == INT2NUM(0) ? Qtrue : Qfalse;
+}
+
 
 // **********************************************************************
 // EndpointInfo
@@ -85,19 +128,19 @@ VALUE
 IceRuby::createEndpointInfo(const Ice::EndpointInfoPtr& p)
 {
     VALUE info;
-    if(Ice::TcpEndpointInfoPtr::dynamicCast(p))
+    if(Ice::TCPEndpointInfoPtr::dynamicCast(p))
     {
         info = Data_Wrap_Struct(_tcpEndpointInfoClass, 0, IceRuby_EndpointInfo_free, new Ice::EndpointInfoPtr(p));
 
-        Ice::TcpEndpointInfoPtr tcp = Ice::TcpEndpointInfoPtr::dynamicCast(p);
+        Ice::TCPEndpointInfoPtr tcp = Ice::TCPEndpointInfoPtr::dynamicCast(p);
         rb_ivar_set(info, rb_intern("@host"), createString(tcp->host));
         rb_ivar_set(info, rb_intern("@port"), INT2FIX(tcp->port));
     }
-    else if(Ice::UdpEndpointInfoPtr::dynamicCast(p))
+    else if(Ice::UDPEndpointInfoPtr::dynamicCast(p))
     {
         info = Data_Wrap_Struct(_udpEndpointInfoClass, 0, IceRuby_EndpointInfo_free, new Ice::EndpointInfoPtr(p));
 
-        Ice::UdpEndpointInfoPtr udp = Ice::UdpEndpointInfoPtr::dynamicCast(p);
+        Ice::UDPEndpointInfoPtr udp = Ice::UDPEndpointInfoPtr::dynamicCast(p);
         rb_ivar_set(info, rb_intern("@host"), createString(udp->host));
         rb_ivar_set(info, rb_intern("@port"), INT2FIX(udp->port));
         rb_ivar_set(info, rb_intern("@protocolMajor"), CHR2FIX(udp->protocolMajor));
@@ -116,6 +159,14 @@ IceRuby::createEndpointInfo(const Ice::EndpointInfoPtr& p)
         VALUE v = callRuby(rb_str_new, reinterpret_cast<const char*>(&b[0]), static_cast<long>(b.size()));
         rb_ivar_set(info, rb_intern("@rawBytes"), v);
     }
+    else if(Ice::IPEndpointInfoPtr::dynamicCast(p))
+    {
+        info = Data_Wrap_Struct(_ipEndpointInfoClass, 0, IceRuby_EndpointInfo_free, new Ice::EndpointInfoPtr(p));
+
+        Ice::IPEndpointInfoPtr ip = Ice::IPEndpointInfoPtr::dynamicCast(p);
+        rb_ivar_set(info, rb_intern("@host"), createString(ip->host));
+        rb_ivar_set(info, rb_intern("@port"), INT2FIX(ip->port));
+    }
     else
     {
         info = Data_Wrap_Struct(_endpointInfoClass, 0, IceRuby_EndpointInfo_free, new Ice::EndpointInfoPtr(p));
@@ -125,9 +176,6 @@ IceRuby::createEndpointInfo(const Ice::EndpointInfoPtr& p)
     return info;
 }
 
-//
-// Ice::Endpoint::type
-//
 extern "C"
 VALUE
 IceRuby_EndpointInfo_type(VALUE self)
@@ -144,9 +192,6 @@ IceRuby_EndpointInfo_type(VALUE self)
     return Qnil;
 }
 
-//
-// Ice::Endpoint::datagram
-//
 extern "C"
 VALUE
 IceRuby_EndpointInfo_datagram(VALUE self)
@@ -163,9 +208,6 @@ IceRuby_EndpointInfo_datagram(VALUE self)
     return Qnil;
 }
 
-//
-// Ice::Endpoint::secure
-//
 extern "C"
 VALUE
 IceRuby_EndpointInfo_secure(VALUE self)
@@ -183,45 +225,23 @@ IceRuby_EndpointInfo_secure(VALUE self)
 }
 
 void
-IceRuby::initConnectionInfo(VALUE iceModule)
+IceRuby::initEndpoint(VALUE iceModule)
 {
     //
-    // ConnectionInfo.
+    // Endpoint.
     //
-    _connectionInfoClass = rb_define_class_under(iceModule, "ConnectionInfo", rb_cObject);
+    _endpointClass = rb_define_class_under(iceModule, "Endpoint", rb_cObject);
 
     //
-    // Instance members. 
+    // Instance methods.
     //
-    rb_define_attr(_connectionInfoClass, "endpoint", 1, 0); 
-
-    //
-    // TcpConnectionInfo
-    //
-    _tcpConnectionInfoClass = rb_define_class_under(iceModule, "TcpConnectionInfo", _connectionInfoClass);
-
-    //
-    // Instance members. 
-    //
-    rb_define_attr(_tcpConnectionInfoClass, "localAddress", 1, 0); 
-    rb_define_attr(_tcpConnectionInfoClass, "localPort", 1, 0); 
-    rb_define_attr(_tcpConnectionInfoClass, "remoteAddress", 1, 0); 
-    rb_define_attr(_tcpConnectionInfoClass, "remotePort", 1, 0); 
-
-    //
-    // UdpConnectionInfo
-    //
-    _udpConnectionInfoClass = rb_define_class_under(iceModule, "UdpConnectionInfo", _connectionInfoClass);
-
-    //
-    // Instance members. 
-    //
-    rb_define_attr(_udpConnectionInfoClass, "localAddress", 1, 0); 
-    rb_define_attr(_udpConnectionInfoClass, "localPort", 1, 0); 
-    rb_define_attr(_udpConnectionInfoClass, "remoteAddress", 1, 0); 
-    rb_define_attr(_udpConnectionInfoClass, "remotePort", 1, 0); 
-    rb_define_attr(_udpConnectionInfoClass, "mcastAddress", 1, 0); 
-    rb_define_attr(_udpConnectionInfoClass, "mcastPort", 1, 0); 
+    rb_define_method(_endpointClass, "toString", CAST_METHOD(IceRuby_Endpoint_toString), 0);
+    rb_define_method(_endpointClass, "getInfo", CAST_METHOD(IceRuby_Endpoint_getInfo), 0);
+    rb_define_method(_endpointClass, "to_s", CAST_METHOD(IceRuby_Endpoint_toString), 0);
+    rb_define_method(_endpointClass, "inspect", CAST_METHOD(IceRuby_Endpoint_toString), 0);
+    rb_define_method(_endpointClass, "<=>", CAST_METHOD(IceRuby_Endpoint_cmp), 1);
+    rb_define_method(_endpointClass, "==", CAST_METHOD(IceRuby_Endpoint_equals), 1);
+    rb_define_method(_endpointClass, "eql?", CAST_METHOD(IceRuby_Endpoint_equals), 1);
 
     //
     // EndpointInfo.
@@ -242,26 +262,29 @@ IceRuby::initConnectionInfo(VALUE iceModule)
     rb_define_attr(_endpointInfoClass, "compress", 1, 0); 
 
     //
-    // TcpEndpointInfo
+    // IPEndpointInfo
     //
-    _tcpEndpointInfoClass = rb_define_class_under(iceModule, "TcpEndpointInfo", _endpointInfoClass);
+    _ipEndpointInfoClass = rb_define_class_under(iceModule, "IPEndpointInfo", _endpointInfoClass);
 
     //
     // Instance members. 
     //
-    rb_define_attr(_tcpEndpointInfoClass, "host", 1, 0); 
-    rb_define_attr(_tcpEndpointInfoClass, "port", 1, 0); 
+    rb_define_attr(_ipEndpointInfoClass, "host", 1, 0); 
+    rb_define_attr(_ipEndpointInfoClass, "port", 1, 0); 
 
     //
-    // UdpEndpointInfo
+    // TCPEndpointInfo
     //
-    _udpEndpointInfoClass = rb_define_class_under(iceModule, "UdpEndpointInfo", _endpointInfoClass);
+    _tcpEndpointInfoClass = rb_define_class_under(iceModule, "TCPEndpointInfo", _ipEndpointInfoClass);
+
+    //
+    // UDPEndpointInfo
+    //
+    _udpEndpointInfoClass = rb_define_class_under(iceModule, "UDPEndpointInfo", _ipEndpointInfoClass);
 
     //
     // Instance members. 
     //
-    rb_define_attr(_udpEndpointInfoClass, "host", 1, 0); 
-    rb_define_attr(_udpEndpointInfoClass, "port", 1, 0); 
     rb_define_attr(_udpEndpointInfoClass, "protocolMajor", 1, 0); 
     rb_define_attr(_udpEndpointInfoClass, "protocolMinor", 1, 0); 
     rb_define_attr(_udpEndpointInfoClass, "encodingMajor", 1, 0); 
@@ -279,3 +302,10 @@ IceRuby::initConnectionInfo(VALUE iceModule)
     //
     rb_define_attr(_opaqueEndpointInfoClass, "rawBytes", 1, 0); 
 }
+
+bool
+IceRuby::checkEndpoint(VALUE v)
+{
+    return callRuby(rb_obj_is_kind_of, v, _endpointClass) == Qtrue;
+}
+

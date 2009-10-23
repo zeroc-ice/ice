@@ -9,204 +9,17 @@
 
 #include <Proxy.h>
 #include <Communicator.h>
-#include <ConnectionInfo.h>
+#include <Connection.h>
+#include <Endpoint.h>
 #include <Util.h>
-#include <Ice/Connection.h>
 #include <Ice/Locator.h>
 #include <Ice/Proxy.h>
 #include <Ice/Router.h>
-#include <Ice/Endpoint.h>
 
 using namespace std;
 using namespace IceRuby;
 
-static VALUE _connectionClass;
-static VALUE _endpointClass;
 static VALUE _proxyClass;
-
-// **********************************************************************
-// Connection
-// **********************************************************************
-
-extern "C"
-void
-IceRuby_Connection_free(Ice::ConnectionPtr* p)
-{
-    assert(p);
-    delete p;
-}
-
-static VALUE
-createConnection(const Ice::ConnectionPtr& p)
-{
-    return Data_Wrap_Struct(_connectionClass, 0, IceRuby_Connection_free, new Ice::ConnectionPtr(p));
-}
-
-extern "C"
-VALUE
-IceRuby_Connection_close(VALUE self, VALUE b)
-{
-    ICE_RUBY_TRY
-    {
-        Ice::ConnectionPtr* p = reinterpret_cast<Ice::ConnectionPtr*>(DATA_PTR(self));
-        assert(p);
-
-        (*p)->close(RTEST(b));
-    }
-    ICE_RUBY_CATCH
-    return Qnil;
-}
-
-extern "C"
-VALUE
-IceRuby_Connection_flushBatchRequests(VALUE self)
-{
-    ICE_RUBY_TRY
-    {
-        Ice::ConnectionPtr* p = reinterpret_cast<Ice::ConnectionPtr*>(DATA_PTR(self));
-        assert(p);
-
-        (*p)->flushBatchRequests();
-    }
-    ICE_RUBY_CATCH
-    return Qnil;
-}
-
-extern "C"
-VALUE
-IceRuby_Connection_type(VALUE self)
-{
-    ICE_RUBY_TRY
-    {
-        Ice::ConnectionPtr* p = reinterpret_cast<Ice::ConnectionPtr*>(DATA_PTR(self));
-        assert(p);
-
-        string s = (*p)->type();
-        return createString(s);
-    }
-    ICE_RUBY_CATCH
-    return Qnil;
-}
-
-extern "C"
-VALUE
-IceRuby_Connection_timeout(VALUE self)
-{
-    ICE_RUBY_TRY
-    {
-        Ice::ConnectionPtr* p = reinterpret_cast<Ice::ConnectionPtr*>(DATA_PTR(self));
-        assert(p);
-
-        Ice::Int timeout = (*p)->timeout();
-        return INT2FIX(timeout);
-    }
-    ICE_RUBY_CATCH
-    return Qnil;
-}
-
-extern "C"
-VALUE
-IceRuby_Connection_getInfo(VALUE self)
-{
-    ICE_RUBY_TRY
-    {
-        Ice::ConnectionPtr* p = reinterpret_cast<Ice::ConnectionPtr*>(DATA_PTR(self));
-        assert(p);
-
-        Ice::ConnectionInfoPtr info = (*p)->getInfo();
-        return createConnectionInfo(info);
-    }
-    ICE_RUBY_CATCH
-    return Qnil;
-}
-
-extern "C"
-VALUE
-IceRuby_Connection_toString(VALUE self)
-{
-    ICE_RUBY_TRY
-    {
-        Ice::ConnectionPtr* p = reinterpret_cast<Ice::ConnectionPtr*>(DATA_PTR(self));
-        assert(p);
-
-        string s = (*p)->toString();
-        return createString(s);
-    }
-    ICE_RUBY_CATCH
-    return Qnil;
-}
-
-extern "C"
-VALUE
-IceRuby_Connection_equals(VALUE self, VALUE other)
-{
-    ICE_RUBY_TRY
-    {
-        if(NIL_P(other))
-        {
-            return Qfalse;
-        }
-        if(callRuby(rb_obj_is_kind_of, other, _connectionClass) != Qtrue)
-        {
-            throw RubyException(rb_eTypeError, "argument must be a connection");
-        }
-        Ice::ConnectionPtr* p1 = reinterpret_cast<Ice::ConnectionPtr*>(DATA_PTR(self));
-        Ice::ConnectionPtr* p2 = reinterpret_cast<Ice::ConnectionPtr*>(DATA_PTR(other));
-        return *p1 == *p2 ? Qtrue : Qfalse;
-    }
-    ICE_RUBY_CATCH
-    return Qnil;
-}
-
-// **********************************************************************
-// Endpoint
-// **********************************************************************
-
-extern "C"
-void
-IceRuby_Endpoint_free(Ice::EndpointPtr* p)
-{
-    assert(p);
-    delete p;
-}
-
-static VALUE
-createEndpoint(const Ice::EndpointPtr& p)
-{
-    return Data_Wrap_Struct(_endpointClass, 0, IceRuby_Endpoint_free, new Ice::EndpointPtr(p));
-}
-
-extern "C"
-VALUE
-IceRuby_Endpoint_toString(VALUE self)
-{
-    ICE_RUBY_TRY
-    {
-        Ice::EndpointPtr* p = reinterpret_cast<Ice::EndpointPtr*>(DATA_PTR(self));
-        assert(p);
-
-        string s = (*p)->toString();
-        return createString(s);
-    }
-    ICE_RUBY_CATCH
-    return Qnil;
-}
-
-extern "C"
-VALUE
-IceRuby_Endpoint_getInfo(VALUE self)
-{
-    ICE_RUBY_TRY
-    {
-        Ice::EndpointPtr* p = reinterpret_cast<Ice::EndpointPtr*>(DATA_PTR(self));
-        assert(p);
-
-        Ice::EndpointInfoPtr info = (*p)->getInfo();
-        return createEndpointInfo(info);
-    }
-    ICE_RUBY_CATCH
-    return Qnil;
-}
 
 // **********************************************************************
 // ObjectPrx
@@ -585,7 +398,7 @@ IceRuby_ObjectPrx_ice_endpoints(VALUE self, VALUE seq)
             }
             for(long i = 0; i < RARRAY(arr)->len; ++i)
             {
-                if(callRuby(rb_obj_is_kind_of, RARRAY(arr)->ptr[i], _endpointClass) == Qfalse)
+                if(!checkEndpoint(RARRAY(arr)->ptr[i]))
                 {
                     throw RubyException(rb_eTypeError, "array element is not an Ice::Endpoint");
                 }
@@ -1333,38 +1146,6 @@ IceRuby_ObjectPrx_new(int /*argc*/, VALUE* /*args*/, VALUE self)
 void
 IceRuby::initProxy(VALUE iceModule)
 {
-    //
-    // Connection.
-    //
-    _connectionClass = rb_define_class_under(iceModule, "ConnectionI", rb_cObject);
-
-    //
-    // Instance methods.
-    //
-    rb_define_method(_connectionClass, "close", CAST_METHOD(IceRuby_Connection_close), 1);
-    rb_define_method(_connectionClass, "flushBatchRequests", CAST_METHOD(IceRuby_Connection_flushBatchRequests), 0);
-    rb_define_method(_connectionClass, "type", CAST_METHOD(IceRuby_Connection_type), 0);
-    rb_define_method(_connectionClass, "timeout", CAST_METHOD(IceRuby_Connection_timeout), 0);
-    rb_define_method(_connectionClass, "getInfo", CAST_METHOD(IceRuby_Connection_getInfo), 0);
-    rb_define_method(_connectionClass, "toString", CAST_METHOD(IceRuby_Connection_toString), 0);
-    rb_define_method(_connectionClass, "to_s", CAST_METHOD(IceRuby_Connection_toString), 0);
-    rb_define_method(_connectionClass, "inspect", CAST_METHOD(IceRuby_Connection_toString), 0);
-    rb_define_method(_connectionClass, "==", CAST_METHOD(IceRuby_Connection_equals), 1);
-    rb_define_method(_connectionClass, "eql?", CAST_METHOD(IceRuby_Connection_equals), 1);
-
-    //
-    // Endpoint.
-    //
-    _endpointClass = rb_define_class_under(iceModule, "Endpoint", rb_cObject);
-
-    //
-    // Instance methods.
-    //
-    rb_define_method(_endpointClass, "toString", CAST_METHOD(IceRuby_Endpoint_toString), 0);
-    rb_define_method(_endpointClass, "getInfo", CAST_METHOD(IceRuby_Endpoint_getInfo), 0);
-    rb_define_method(_endpointClass, "to_s", CAST_METHOD(IceRuby_Endpoint_toString), 0);
-    rb_define_method(_endpointClass, "inspect", CAST_METHOD(IceRuby_Endpoint_toString), 0);
-
     //
     // ObjectPrx.
     //

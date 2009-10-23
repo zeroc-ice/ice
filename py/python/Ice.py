@@ -14,9 +14,43 @@ Ice module
 import sys, exceptions, string, imp, os, threading, warnings, datetime
 
 #
+# RTTI problems can occur in C++ code unless we modify Python's dlopen flags.
+# Note that changing these flags might cause problems for other extensions
+# loaded by the application (see bug 3660), so we restore the original settings
+# after loading IcePy.
+#
+_dlopenflags = -1
+try:
+    _dlopenflags = sys.getdlopenflags()
+
+    try:
+        import dl
+        sys.setdlopenflags(dl.RTLD_NOW|dl.RTLD_GLOBAL)
+    except ImportError:
+        #
+        # If the dl module is not available and we're running on a Linux
+        # platform, use the hard coded value of RTLD_NOW|RTLD_GLOBAL.
+        #
+        if sys.platform.startswith("linux"):
+            sys.setdlopenflags(258)
+        pass
+
+except AttributeError:
+    #
+    # sys.getdlopenflags() is not supported (we're probably running on Windows).
+    #
+    pass
+
+#
 # Import the Python extension.
 #
 import IcePy
+
+#
+# Restore the dlopen flags.
+#
+if _dlopenflags >= 0:
+    sys.setdlopenflags(_dlopenflags)
 
 #
 # Add some symbols to the Ice module.
@@ -257,10 +291,12 @@ import Ice_Connection_ice
 #
 del EndpointInfo
 EndpointInfo =  IcePy.EndpointInfo
-del TcpEndpointInfo
-TcpEndpointInfo =  IcePy.TcpEndpointInfo
-del UdpEndpointInfo
-UdpEndpointInfo =  IcePy.UdpEndpointInfo
+del IPEndpointInfo
+IPEndpointInfo =  IcePy.IPEndpointInfo
+del TCPEndpointInfo
+TCPEndpointInfo =  IcePy.TCPEndpointInfo
+del UDPEndpointInfo
+UDPEndpointInfo =  IcePy.UDPEndpointInfo
 del OpaqueEndpointInfo
 OpaqueEndpointInfo =  IcePy.OpaqueEndpointInfo
 
@@ -269,10 +305,12 @@ OpaqueEndpointInfo =  IcePy.OpaqueEndpointInfo
 #
 del ConnectionInfo
 ConnectionInfo =  IcePy.ConnectionInfo
-del TcpConnectionInfo
-TcpConnectionInfo =  IcePy.TcpConnectionInfo
-del UdpConnectionInfo
-UdpConnectionInfo =  IcePy.UdpConnectionInfo
+del IPConnectionInfo
+IPConnectionInfo =  IcePy.IPConnectionInfo
+del TCPConnectionInfo
+TCPConnectionInfo =  IcePy.TCPConnectionInfo
+del UDPConnectionInfo
+UDPConnectionInfo =  IcePy.UDPConnectionInfo
 
 class ThreadNotification(object):
     '''Base class for thread notification callbacks. A subclass must

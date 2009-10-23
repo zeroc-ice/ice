@@ -7,8 +7,8 @@
 //
 // **********************************************************************
 
-#ifndef ICE_RUBY_CONNECTION_INFO_H
-#define ICE_RUBY_CONNECTION_INFO_H
+#ifndef ICE_RUBY_ENDPOINT_H
+#define ICE_RUBY_ENDPOINT_H
 
 #include <Config.h>
 #include <Ice/Connection.h>
@@ -16,10 +16,11 @@
 namespace IceRuby
 {
 
-void initConnectionInfo(VALUE);
-VALUE createConnectionInfo(const Ice::ConnectionInfoPtr&);
+void initEndpoint(VALUE);
 
+VALUE createEndpoint(const Ice::EndpointPtr&);
 VALUE createEndpointInfo(const Ice::EndpointInfoPtr&);
+bool checkEndpoint(VALUE);
 
 }
 

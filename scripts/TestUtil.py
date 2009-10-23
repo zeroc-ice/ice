@@ -1362,6 +1362,10 @@ def runTests(start, expanded, num = 0, script = False):
                 print "%s*** test not supported with IPv6%s" % (prefix, suffix)
                 continue
 
+            if args.find("compress") != -1 and "nocompress" in config:
+                print "%s*** test not supported with compression%s" % (prefix, suffix)
+                continue
+
             if isVista() and "novista" in config:
                 print "%s*** test not supported under Vista%s" % (prefix, suffix)
                 continue
