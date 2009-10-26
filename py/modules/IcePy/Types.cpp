@@ -307,6 +307,12 @@ IcePy::PrimitiveInfo::validate(PyObject* p)
     case PrimitiveInfo::KindByte:
     {
         long val;
+        PyObjectHandle n = PyNumber_Int(p);
+        if(n.get())
+        {
+            p = n.get();
+        }
+
         if(PyInt_Check(p))
         {
             val = PyInt_AS_LONG(p);
@@ -329,6 +335,12 @@ IcePy::PrimitiveInfo::validate(PyObject* p)
     case PrimitiveInfo::KindShort:
     {
         long val;
+        PyObjectHandle n = PyNumber_Int(p);
+        if(n.get())
+        {
+            p = n.get();
+        }
+
         if(PyInt_Check(p))
         {
             val = PyInt_AS_LONG(p);
@@ -351,6 +363,12 @@ IcePy::PrimitiveInfo::validate(PyObject* p)
     case PrimitiveInfo::KindInt:
     {
         long val;
+        PyObjectHandle n = PyNumber_Int(p);
+        if(n.get())
+        {
+            p = n.get();
+        }
+
         if(PyInt_Check(p))
         {
             val = PyInt_AS_LONG(p);
@@ -372,7 +390,13 @@ IcePy::PrimitiveInfo::validate(PyObject* p)
     }
     case PrimitiveInfo::KindLong:
     {
-        if(!PyInt_Check(p) && !PyLong_Check(p))
+        PyObjectHandle n = PyNumber_Long(p);
+        if(n.get())
+        {
+            p = n.get();
+        }
+
+        if(PyErr_Occurred() || !PyInt_Check(p) && !PyLong_Check(p))
         {
             return false;
         }
@@ -388,6 +412,12 @@ IcePy::PrimitiveInfo::validate(PyObject* p)
     case PrimitiveInfo::KindFloat:
     case PrimitiveInfo::KindDouble:
     {
+        PyObjectHandle n = PyNumber_Float(p);
+        if(n.get())
+        {
+            p = n.get();
+        }
+
         if(!PyInt_Check(p) && !PyLong_Check(p) && !PyFloat_Check(p))
         {
             return false;
@@ -429,6 +459,12 @@ IcePy::PrimitiveInfo::marshal(PyObject* p, const Ice::OutputStreamPtr& os, Objec
     case PrimitiveInfo::KindByte:
     {
         long val = 0;
+        PyObjectHandle n = PyNumber_Int(p);
+        if(n.get())
+        {
+            p = n.get();
+        }
+
         if(PyInt_Check(p))
         {
             val = PyInt_AS_LONG(p);
@@ -450,6 +486,12 @@ IcePy::PrimitiveInfo::marshal(PyObject* p, const Ice::OutputStreamPtr& os, Objec
     case PrimitiveInfo::KindShort:
     {
         long val = 0;
+        PyObjectHandle n = PyNumber_Int(p);
+        if(n.get())
+        {
+            p = n.get();
+        }
+
         if(PyInt_Check(p))
         {
             val = PyInt_AS_LONG(p);
@@ -471,6 +513,12 @@ IcePy::PrimitiveInfo::marshal(PyObject* p, const Ice::OutputStreamPtr& os, Objec
     case PrimitiveInfo::KindInt:
     {
         long val = 0;
+        PyObjectHandle n = PyNumber_Int(p);
+        if(n.get())
+        {
+            p = n.get();
+        }
+
         if(PyInt_Check(p))
         {
             val = PyInt_AS_LONG(p);
@@ -492,6 +540,12 @@ IcePy::PrimitiveInfo::marshal(PyObject* p, const Ice::OutputStreamPtr& os, Objec
     case PrimitiveInfo::KindLong:
     {
         Ice::Long val = 0;
+        PyObjectHandle n = PyNumber_Long(p);
+        if(n.get())
+        {
+            p = n.get();
+        }
+
         if(PyInt_Check(p))
         {
             val = PyInt_AS_LONG(p);
@@ -512,6 +566,12 @@ IcePy::PrimitiveInfo::marshal(PyObject* p, const Ice::OutputStreamPtr& os, Objec
     case PrimitiveInfo::KindFloat:
     {
         float val = 0;
+        PyObjectHandle n = PyNumber_Float(p);
+        if(n.get())
+        {
+            p = n.get();
+        }
+
         if(PyFloat_Check(p))
         {
             val = static_cast<float>(PyFloat_AS_DOUBLE(p));
@@ -535,6 +595,12 @@ IcePy::PrimitiveInfo::marshal(PyObject* p, const Ice::OutputStreamPtr& os, Objec
     case PrimitiveInfo::KindDouble:
     {
         double val = 0;
+        PyObjectHandle n = PyNumber_Float(p);
+        if(n.get())
+        {
+            p = n.get();
+        }
+
         if(PyFloat_Check(p))
         {
             val = PyFloat_AS_DOUBLE(p);
@@ -1202,6 +1268,12 @@ IcePy::SequenceInfo::marshalPrimitiveSequence(const PrimitiveInfoPtr& pi, PyObje
                 }
 
                 long val = -1;
+                PyObjectHandle n = PyNumber_Int(item);
+                if(n.get())
+                {
+                    item = n.get();
+                }
+
                 if(PyInt_Check(item))
                 {
                     val = PyInt_AS_LONG(item);
@@ -1237,6 +1309,12 @@ IcePy::SequenceInfo::marshalPrimitiveSequence(const PrimitiveInfoPtr& pi, PyObje
             }
 
             long val = SHRT_MIN - 1;
+            PyObjectHandle n = PyNumber_Int(item);
+            if(n.get())
+            {
+                item = n.get();
+            }
+
             if(PyInt_Check(item))
             {
                 val = PyInt_AS_LONG(item);
@@ -1271,6 +1349,12 @@ IcePy::SequenceInfo::marshalPrimitiveSequence(const PrimitiveInfoPtr& pi, PyObje
             }
 
             long val;
+            PyObjectHandle n = PyNumber_Int(item);
+            if(n.get())
+            {
+                item = n.get();
+            }
+
             if(PyInt_Check(item))
             {
                 val = PyInt_AS_LONG(item);
@@ -1311,6 +1395,12 @@ IcePy::SequenceInfo::marshalPrimitiveSequence(const PrimitiveInfoPtr& pi, PyObje
             }
 
             Ice::Long val;
+            PyObjectHandle n = PyNumber_Long(item);
+            if(n.get())
+            {
+                item = n.get();
+            }
+
             if(PyInt_Check(item))
             {
                 val = PyInt_AS_LONG(item);
@@ -1351,6 +1441,12 @@ IcePy::SequenceInfo::marshalPrimitiveSequence(const PrimitiveInfoPtr& pi, PyObje
             }
 
             float val;
+            PyObjectHandle n = PyNumber_Float(item);
+            if(n.get())
+            {
+                item = n.get();
+            }
+
             if(PyFloat_Check(item))
             {
                 val = static_cast<float>(PyFloat_AS_DOUBLE(item));
@@ -1389,6 +1485,12 @@ IcePy::SequenceInfo::marshalPrimitiveSequence(const PrimitiveInfoPtr& pi, PyObje
             }
 
             double val;
+            PyObjectHandle n = PyNumber_Float(item);
+            if(n.get())
+            {
+                item = n.get();
+            }
+
             if(PyFloat_Check(item))
             {
                 val = PyFloat_AS_DOUBLE(item);

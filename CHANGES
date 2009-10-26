@@ -472,6 +472,11 @@ Python Changes
 - Changed the way sequences are unmarshaled to protect against
   malicious messages with faked very large sequence count values.
 
+- Objects that support the number protocol are now accepted as legal
+  values for Slice integer and floating-point types.
+
+- 64-bit integers are now supported in buffer types.
+
 
 Ruby Changes
 ============
