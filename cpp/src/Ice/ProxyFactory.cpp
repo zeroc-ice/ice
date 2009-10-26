@@ -55,6 +55,19 @@ IceInternal::ProxyFactory::propertyToProxy(const string& prefix) const
     return referenceToProxy(ref);
 }
 
+PropertyDict
+IceInternal::ProxyFactory::proxyToProperty(const ObjectPrx& proxy, const string& prefix) const
+{
+    if(proxy)
+    {
+        return proxy->__reference()->toProperty(prefix);
+    }
+    else
+    {
+        return PropertyDict();
+    }
+}
+
 ObjectPrx
 IceInternal::ProxyFactory::streamToProxy(BasicStream* s) const
 {

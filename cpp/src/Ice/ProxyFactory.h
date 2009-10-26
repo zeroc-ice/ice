@@ -18,6 +18,7 @@
 #include <Ice/ProxyF.h>
 #include <Ice/Exception.h>
 #include <Ice/OutgoingAsyncF.h>
+#include <Ice/Properties.h>
 
 namespace IceInternal
 {
@@ -32,6 +33,7 @@ public:
     std::string proxyToString(const Ice::ObjectPrx&) const;
 
     Ice::ObjectPrx propertyToProxy(const std::string&) const;
+    Ice::PropertyDict proxyToProperty(const Ice::ObjectPrx&, const std::string&) const;
 
     Ice::ObjectPrx streamToProxy(BasicStream*) const;
     void proxyToStream(const Ice::ObjectPrx&, BasicStream*) const;

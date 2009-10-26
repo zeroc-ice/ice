@@ -383,6 +383,9 @@ class CommunicatorI(Communicator):
     def propertyToProxy(self, str):
         return self._impl.propertyToProxy(str)
 
+    def proxyToProperty(self, obj, str):
+        return self._impl.proxyToProperty(obj, str)
+
     def stringToIdentity(self, str):
         return self._impl.stringToIdentity(str)
 

@@ -15,13 +15,13 @@
 #include <Ice/LoggerF.ice>
 #include <Ice/StatsF.ice>
 #include <Ice/ObjectAdapterF.ice>
-#include <Ice/PropertiesF.ice>
 #include <Ice/ObjectFactoryF.ice>
 #include <Ice/RouterF.ice>
 #include <Ice/LocatorF.ice>
 #include <Ice/PluginF.ice>
 #include <Ice/ImplicitContextF.ice>
 #include <Ice/Current.ice>
+#include <Ice/Properties.ice>
 
 /**
  *
@@ -159,6 +159,19 @@ local interface Communicator
      *
      **/
     ["cpp:const"] Object* propertyToProxy(string property);
+
+    /**
+     * 
+     * Convert a proxy to a set of proxy properties.
+     *
+     * @param proxy The proxy.
+     *
+     * @param property The base property name.
+     * 
+     * @return The property set.
+     *
+     **/
+    ["cpp:const"] PropertyDict proxyToProperty(Object* proxy, string property);
 
     /**
      *

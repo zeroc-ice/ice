@@ -49,6 +49,11 @@ namespace Ice
             return instance_.proxyFactory().propertyToProxy(s);
         }
         
+        public Dictionary<string, string> proxyToProperty(Ice.ObjectPrx proxy, string prefix)
+        {
+            return instance_.proxyFactory().proxyToProperty(proxy, prefix);
+        }
+        
         public Ice.Identity stringToIdentity(string s)
         {
             return instance_.stringToIdentity(s);
@@ -89,19 +94,11 @@ namespace Ice
             //
             // We set the proxy properties here, although we still use the proxy supplied.
             //
-            getProperties().setProperty(name + ".Router", proxyToString(router));
-            if(router.ice_getLocator() != null)
+            Dictionary<string, string> properties = proxyToProperty(router, name + ".Router");
+            foreach(KeyValuePair<string, string> entry in properties)
             {
-                ObjectPrx locator = router.ice_getLocator();
-                getProperties().setProperty(name + ".Router.Locator", proxyToString(locator));
+                getProperties().setProperty(entry.Key, entry.Value);
             }
-            getProperties().setProperty(name + ".Router.CollocationOptimized",
-                                        router.ice_isCollocationOptimized() ? "0" : "1");
-            getProperties().setProperty(name + ".Router.ConnectionCached", router.ice_isConnectionCached() ? "0" : "1");
-            getProperties().setProperty(name + ".Router.PreferSecure", router.ice_isPreferSecure() ? "0" : "1");
-            getProperties().setProperty(name + ".Router.EndpointSelection",
-                        router.ice_getEndpointSelection() == EndpointSelectionType.Random ? "Random" : "Ordered");
-            getProperties().setProperty(name + ".Router.LocatorCacheTimeout", "" + router.ice_getLocatorCacheTimeout());
 
             return instance_.objectAdapterFactory().createObjectAdapter(name, router);
         }

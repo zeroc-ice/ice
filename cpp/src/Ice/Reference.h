@@ -23,6 +23,7 @@
 #include <Ice/ConnectionIF.h>
 #include <Ice/SharedContext.h>
 #include <Ice/Identity.h>
+#include <Ice/Properties.h>
 
 namespace IceInternal
 {
@@ -117,6 +118,11 @@ public:
     virtual std::string toString() const;
 
     //
+    // Convert the refernce to its property form.
+    //
+    virtual Ice::PropertyDict toProperty(const std::string&) const = 0;
+
+    //
     // Get a suitable connection for this reference.
     //
     virtual Ice::ConnectionIPtr getConnection(bool&) const = 0;
@@ -189,6 +195,7 @@ public:
 
     virtual void streamWrite(BasicStream*) const;
     virtual std::string toString() const;
+    virtual Ice::PropertyDict toProperty(const std::string&) const;
 
     virtual Ice::ConnectionIPtr getConnection(bool&) const;
     virtual void getConnection(const GetConnectionCallbackPtr&) const;
@@ -244,6 +251,7 @@ public:
 
     virtual void streamWrite(BasicStream*) const;
     virtual std::string toString() const;
+    virtual Ice::PropertyDict toProperty(const std::string&) const;
 
     virtual bool operator==(const Reference&) const;
     virtual bool operator!=(const Reference&) const;

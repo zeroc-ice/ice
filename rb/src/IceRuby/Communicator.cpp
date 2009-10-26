@@ -315,6 +315,29 @@ IceRuby_Communicator_propertyToProxy(VALUE self, VALUE str)
 
 extern "C"
 VALUE
+IceRuby_Communicator_proxyToProperty(VALUE self, VALUE obj, VALUE str)
+{
+    ICE_RUBY_TRY
+    {
+        Ice::CommunicatorPtr p = getCommunicator(self);
+        Ice::ObjectPrx o = getProxy(obj);
+        string s = getString(str);
+        Ice::PropertyDict dict = p->proxyToProperty(o, s);
+        volatile VALUE result = callRuby(rb_hash_new);
+        for(Ice::PropertyDict::const_iterator q = dict.begin(); q != dict.end(); ++q)
+        {
+            volatile VALUE key = createString(q->first);
+            volatile VALUE value = createString(q->second);
+            callRuby(rb_hash_aset, result, key, value);
+        }
+        return result; 
+    }
+    ICE_RUBY_CATCH
+    return Qnil;
+}
+
+extern "C"
+VALUE
 IceRuby_Communicator_stringToIdentity(VALUE self, VALUE str)
 {
     ICE_RUBY_TRY
@@ -525,6 +548,7 @@ IceRuby::initCommunicator(VALUE iceModule)
     rb_define_method(_communicatorClass, "stringToProxy", CAST_METHOD(IceRuby_Communicator_stringToProxy), 1);
     rb_define_method(_communicatorClass, "proxyToString", CAST_METHOD(IceRuby_Communicator_proxyToString), 1);
     rb_define_method(_communicatorClass, "propertyToProxy", CAST_METHOD(IceRuby_Communicator_propertyToProxy), 1);
+    rb_define_method(_communicatorClass, "proxyToProperty", CAST_METHOD(IceRuby_Communicator_proxyToProperty), 2);
     rb_define_method(_communicatorClass, "stringToIdentity", CAST_METHOD(IceRuby_Communicator_stringToIdentity), 1);
     rb_define_method(_communicatorClass, "identityToString", CAST_METHOD(IceRuby_Communicator_identityToString), 1);
     rb_define_method(_communicatorClass, "addObjectFactory", CAST_METHOD(IceRuby_Communicator_addObjectFactory), 2);

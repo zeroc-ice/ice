@@ -171,6 +171,12 @@ Ice::CommunicatorI::propertyToProxy(const string& p) const
     return _instance->proxyFactory()->propertyToProxy(p);
 }
 
+PropertyDict
+Ice::CommunicatorI::proxyToProperty(const ObjectPrx& proxy, const string& property) const
+{
+    return _instance->proxyFactory()->proxyToProperty(proxy, property);
+}
+
 Identity
 Ice::CommunicatorI::stringToIdentity(const string& s) const
 {
@@ -198,6 +204,7 @@ Ice::CommunicatorI::createObjectAdapterWithEndpoints(const string& name, const s
         ex.reason = "Cannot configure endpoints with nameless object adapter";
         throw ex;
     }
+
     getProperties()->setProperty(name + ".Endpoints", endpoints);
     return _instance->objectAdapterFactory()->createObjectAdapter(name, 0);
 }
@@ -215,21 +222,11 @@ Ice::CommunicatorI::createObjectAdapterWithRouter(const string& name, const Rout
     //
     // We set the proxy properties here, although we still use the proxy supplied.
     //
-    getProperties()->setProperty(name + ".Router", proxyToString(router));
-    if(router->ice_getLocator() != 0)
+    PropertyDict properties = proxyToProperty(router, name + ".Router");
+    for(PropertyDict::const_iterator p = properties.begin(); p != properties.end(); ++p)
     {
-        ObjectPrx locator = ::IceInternal::upCast(router->ice_getLocator().get());
-        getProperties()->setProperty(name + ".Router.Locator", proxyToString(locator));
+        getProperties()->setProperty(p->first, p->second);
     }
-    getProperties()->setProperty(name + ".Router.CollocationOptimized", 
-                                 router->ice_isCollocationOptimized() ? "0" : "1");
-    getProperties()->setProperty(name + ".Router.ConnectionCached", router->ice_isConnectionCached() ? "0" : "1");
-    getProperties()->setProperty(name + ".Router.PreferSecure", router->ice_isPreferSecure() ? "0" : "1");
-    getProperties()->setProperty(name + ".Router.EndpointSelection", 
-                                 router->ice_getEndpointSelection() == Random ? "Random" : "Ordered");
-    ostringstream s;
-    s << router->ice_getLocatorCacheTimeout();
-    getProperties()->setProperty(name + ".Router.LocatorCacheTimeout", s.str());
 
     return _instance->objectAdapterFactory()->createObjectAdapter(name, router);
 }

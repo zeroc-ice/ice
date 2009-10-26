@@ -540,6 +540,55 @@ communicatorPropertyToProxy(CommunicatorObject* self, PyObject* args)
 extern "C"
 #endif
 static PyObject*
+communicatorProxyToProperty(CommunicatorObject* self, PyObject* args)
+{
+    PyObject* proxyObj;
+    PyObject* strObj;
+    if(!PyArg_ParseTuple(args, STRCAST("OO"), &proxyObj, &strObj))
+    {
+        return 0;
+    }
+
+    Ice::ObjectPrx proxy = getProxy(proxyObj);
+    string str;
+    if(!getStringArg(strObj, "property", str))
+    {
+        return 0;
+    }
+
+    assert(self->communicator);
+    Ice::PropertyDict dict;
+    try
+    {
+        dict = (*self->communicator)->proxyToProperty(proxy, str);
+    }
+    catch(const Ice::Exception& ex)
+    {
+        setPythonException(ex);
+        return 0;
+    }
+
+    PyObjectHandle result = PyDict_New();
+    if(result.get())
+    {
+        for(Ice::PropertyDict::iterator p = dict.begin(); p != dict.end(); ++p)
+        {
+            PyObjectHandle key = createString(p->first);
+            PyObjectHandle val = createString(p->second);
+            if(!val.get() || PyDict_SetItem(result.get(), key.get(), val.get()) < 0)
+            {
+                return 0;
+            }
+        }
+    }
+
+    return result.release();
+}
+
+#ifdef WIN32
+extern "C"
+#endif
+static PyObject*
 communicatorStringToIdentity(CommunicatorObject* self, PyObject* args)
 {
     PyObject* strObj;
@@ -1230,6 +1279,8 @@ static PyMethodDef CommunicatorMethods[] =
         PyDoc_STR(STRCAST("proxyToString(Ice.ObjectPrx) -> string")) },
     { STRCAST("propertyToProxy"), reinterpret_cast<PyCFunction>(communicatorPropertyToProxy), METH_VARARGS,
         PyDoc_STR(STRCAST("propertyToProxy(str) -> Ice.ObjectPrx")) },
+    { STRCAST("proxyToProperty"), reinterpret_cast<PyCFunction>(communicatorProxyToProperty), METH_VARARGS,
+        PyDoc_STR(STRCAST("proxyToProperty(Ice.ObjectPrx, str) -> dict")) },
     { STRCAST("stringToIdentity"), reinterpret_cast<PyCFunction>(communicatorStringToIdentity), METH_VARARGS,
         PyDoc_STR(STRCAST("stringToIdentity(str) -> Ice.Identity")) },
     { STRCAST("identityToString"), reinterpret_cast<PyCFunction>(communicatorIdentityToString), METH_VARARGS,

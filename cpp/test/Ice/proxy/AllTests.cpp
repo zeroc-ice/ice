@@ -308,6 +308,58 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
     cout << "ok" << endl;
 
+    cout << "testing proxyToProperty... " << flush;
+
+    b1 = communicator->stringToProxy("test");
+    b1 = b1->ice_collocationOptimized(true);
+    b1 = b1->ice_connectionCached(true);
+    b1 = b1->ice_preferSecure(false);
+    b1 = b1->ice_endpointSelection(Ice::Ordered);
+    b1 = b1->ice_locatorCacheTimeout(100);
+
+    Ice::ObjectPrx router = communicator->stringToProxy("router");
+    router = router->ice_collocationOptimized(false);
+    router = router->ice_connectionCached(true);
+    router = router->ice_preferSecure(true);
+    router = router->ice_endpointSelection(Ice::Random);
+    router = router->ice_locatorCacheTimeout(200);
+
+    Ice::ObjectPrx locator = communicator->stringToProxy("locator");
+    locator = locator->ice_collocationOptimized(true);
+    locator = locator->ice_connectionCached(false);
+    locator = locator->ice_preferSecure(true);
+    locator = locator->ice_endpointSelection(Ice::Random);
+    locator = locator->ice_locatorCacheTimeout(300);
+
+    locator = locator->ice_router(Ice::RouterPrx::uncheckedCast(router));
+    b1 = b1->ice_locator(Ice::LocatorPrx::uncheckedCast(locator));
+
+    Ice::PropertyDict proxyProps = communicator->proxyToProperty(b1, "Test");
+    test(proxyProps.size() == 18);
+
+    test(proxyProps["Test"] == "test -t");
+    test(proxyProps["Test.CollocationOptimized"] == "1");
+    test(proxyProps["Test.ConnectionCached"] == "1");
+    test(proxyProps["Test.PreferSecure"] == "0");
+    test(proxyProps["Test.EndpointSelection"] == "Ordered");
+    test(proxyProps["Test.LocatorCacheTimeout"] == "100");
+
+    test(proxyProps["Test.Locator"] == "locator -t");
+    test(proxyProps["Test.Locator.CollocationOptimized"] == "1");
+    test(proxyProps["Test.Locator.ConnectionCached"] == "0");
+    test(proxyProps["Test.Locator.PreferSecure"] == "1");
+    test(proxyProps["Test.Locator.EndpointSelection"] == "Random");
+    test(proxyProps["Test.Locator.LocatorCacheTimeout"] == "300");
+
+    test(proxyProps["Test.Locator.Router"] == "router -t");
+    test(proxyProps["Test.Locator.Router.CollocationOptimized"] == "0");
+    test(proxyProps["Test.Locator.Router.ConnectionCached"] == "1");
+    test(proxyProps["Test.Locator.Router.PreferSecure"] == "1");
+    test(proxyProps["Test.Locator.Router.EndpointSelection"] == "Random");
+    test(proxyProps["Test.Locator.Router.LocatorCacheTimeout"] == "200");
+
+    cout << "ok" << endl;
+
     cout << "testing ice_getCommunicator... " << flush;
     test(base->ice_getCommunicator() == communicator);
     cout << "ok" << endl;

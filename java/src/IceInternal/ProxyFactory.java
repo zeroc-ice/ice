@@ -40,6 +40,20 @@ public final class ProxyFactory
         return referenceToProxy(ref);
     }
 
+    public java.util.Map<String, String>
+    proxyToProperty(Ice.ObjectPrx proxy, String prefix)
+    {
+        if(proxy != null)
+        {
+            Ice.ObjectPrxHelperBase h = (Ice.ObjectPrxHelperBase)proxy;
+            return h.__reference().toProperty(prefix);
+        }
+        else
+        {
+            return new java.util.HashMap<String, String>();
+        }
+    }
+
     public Ice.ObjectPrx
     streamToProxy(BasicStream s)
     {

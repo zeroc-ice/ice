@@ -33,6 +33,9 @@ General Changes
 These entries apply to all relevant language mappings unless otherwise
 noted.
 
+- Added Communicator::proxyToProperty which converts a proxy to a
+  property set.
+
 - Calling Glacier2::Router::destroySession() no longer raises an
   Ice::ConnectionLostException exception. Glacier2 doesn't forcefully
   close anymore the connection but instead relies on Glacier2

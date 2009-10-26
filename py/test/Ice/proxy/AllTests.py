@@ -285,7 +285,60 @@ def allTests(communicator, collocated):
 
     print "ok"
 
+    print "testing proxyToProperty... ",
+
+    b1 = communicator.stringToProxy("test")
+    #b1 = b1.ice_collocationOptimized(true)
+    b1 = b1.ice_connectionCached(True)
+    b1 = b1.ice_preferSecure(False)
+    b1 = b1.ice_endpointSelection(Ice.EndpointSelectionType.Ordered)
+    b1 = b1.ice_locatorCacheTimeout(100)
+
+    router = communicator.stringToProxy("router")
+    #router = router.ice_collocationOptimized(false)
+    router = router.ice_connectionCached(True)
+    router = router.ice_preferSecure(True)
+    router = router.ice_endpointSelection(Ice.EndpointSelectionType.Random)
+    router = router.ice_locatorCacheTimeout(200)
+
+    locator = communicator.stringToProxy("locator")
+    #locator = locator.ice_collocationOptimized(true)
+    locator = locator.ice_connectionCached(False)
+    locator = locator.ice_preferSecure(True)
+    locator = locator.ice_endpointSelection(Ice.EndpointSelectionType.Random)
+    locator = locator.ice_locatorCacheTimeout(300)
+
+    locator = locator.ice_router(Ice.RouterPrx.uncheckedCast(router))
+    b1 = b1.ice_locator(Ice.LocatorPrx.uncheckedCast(locator))
+
+    proxyProps = communicator.proxyToProperty(b1, "Test")
+    test(len(proxyProps) == 18)
+
+    test(proxyProps["Test"] == "test -t")
+    #test(proxyProps["Test.CollocationOptimized"] == "1")
+    test(proxyProps["Test.ConnectionCached"] == "1")
+    test(proxyProps["Test.PreferSecure"] == "0")
+    test(proxyProps["Test.EndpointSelection"] == "Ordered")
+    test(proxyProps["Test.LocatorCacheTimeout"] == "100")
+
+    test(proxyProps["Test.Locator"] == "locator -t")
+    #test(proxyProps["Test.Locator.CollocationOptimized"] == "1")
+    test(proxyProps["Test.Locator.ConnectionCached"] == "0")
+    test(proxyProps["Test.Locator.PreferSecure"] == "1")
+    test(proxyProps["Test.Locator.EndpointSelection"] == "Random")
+    test(proxyProps["Test.Locator.LocatorCacheTimeout"] == "300")
+
+    test(proxyProps["Test.Locator.Router"] == "router -t")
+    #test(proxyProps["Test.Locator.Router.CollocationOptimized"] == "0")
+    test(proxyProps["Test.Locator.Router.ConnectionCached"] == "1")
+    test(proxyProps["Test.Locator.Router.PreferSecure"] == "1")
+    test(proxyProps["Test.Locator.Router.EndpointSelection"] == "Random")
+    test(proxyProps["Test.Locator.Router.LocatorCacheTimeout"] == "200")
+
+    print "ok"
+
     print "testing ice_getCommunicator...",
+
     test(base.ice_getCommunicator() == communicator)
     print "ok"
 
@@ -301,8 +354,8 @@ def allTests(communicator, collocated):
     test(base.ice_batchDatagram().ice_isBatchDatagram())
     test(base.ice_secure(True).ice_isSecure())
     test(not base.ice_secure(False).ice_isSecure())
-    #test(base.ice_collocationOptimized(true)->ice_isCollocationOptimized());
-    #test(!base.ice_collocationOptimized(false)->ice_isCollocationOptimized());
+    #test(base.ice_collocationOptimized(true)->ice_isCollocationOptimized())
+    #test(!base.ice_collocationOptimized(false)->ice_isCollocationOptimized())
     test(base.ice_preferSecure(True).ice_isPreferSecure())
     test(not base.ice_preferSecure(False).ice_isPreferSecure())
     print "ok"
@@ -354,8 +407,8 @@ def allTests(communicator, collocated):
     test(compObj.ice_connectionId("id1") != compObj.ice_connectionId("id2"))
     test(compObj.ice_connectionId("id1") < compObj.ice_connectionId("id2"))
     test(not (compObj.ice_connectionId("id2") < compObj.ice_connectionId("id1")))
-    test(compObj.ice_connectionId("id1").ice_getConnectionId() == "id1");
-    test(compObj.ice_connectionId("id2").ice_getConnectionId() == "id2");
+    test(compObj.ice_connectionId("id1").ice_getConnectionId() == "id1")
+    test(compObj.ice_connectionId("id2").ice_getConnectionId() == "id2")
 
     test(compObj.ice_compress(True) == compObj.ice_compress(True))
     test(compObj.ice_compress(False) != compObj.ice_compress(True))
@@ -392,9 +445,9 @@ def allTests(communicator, collocated):
     test(not (compObj.ice_router(rtr2) < compObj.ice_router(rtr1)))
 
     ctx1 = { }
-    ctx1["ctx1"] = "v1";
+    ctx1["ctx1"] = "v1"
     ctx2 = { }
-    ctx2["ctx2"] = "v2";
+    ctx2["ctx2"] = "v2"
     test(compObj.ice_context({ }) == compObj.ice_context({ }))
     test(compObj.ice_context(ctx1) == compObj.ice_context(ctx1))
     test(compObj.ice_context(ctx1) != compObj.ice_context({ }))
@@ -486,107 +539,107 @@ def allTests(communicator, collocated):
 
     try:
         # Invalid -x option
-        p = communicator.stringToProxy("id:opaque -t 99 -v abc -x abc");
-        test(False);
+        p = communicator.stringToProxy("id:opaque -t 99 -v abc -x abc")
+        test(False)
     except Ice.EndpointParseException:
         pass
 
     try:
         # Missing -t and -v
-        p = communicator.stringToProxy("id:opaque");
-        test(False);
+        p = communicator.stringToProxy("id:opaque")
+        test(False)
     except Ice.EndpointParseException:
         pass
 
     try:
         # Repeated -t
-        p = communicator.stringToProxy("id:opaque -t 1 -t 1 -v abc");
-        test(False);
+        p = communicator.stringToProxy("id:opaque -t 1 -t 1 -v abc")
+        test(False)
     except Ice.EndpointParseException:
         pass
 
     try:
         # Repeated -v
-        p = communicator.stringToProxy("id:opaque -t 1 -v abc -v abc");
-        test(False);
+        p = communicator.stringToProxy("id:opaque -t 1 -v abc -v abc")
+        test(False)
     except Ice.EndpointParseException:
         pass
 
     try:
         # Missing -t
-        p = communicator.stringToProxy("id:opaque -v abc");
-        test(False);
+        p = communicator.stringToProxy("id:opaque -v abc")
+        test(False)
     except Ice.EndpointParseException:
         pass
 
     try:
         # Missing -v
-        p = communicator.stringToProxy("id:opaque -t 1");
-        test(False);
+        p = communicator.stringToProxy("id:opaque -t 1")
+        test(False)
     except Ice.EndpointParseException:
         pass
 
     try:
         # Missing arg for -t
-        p = communicator.stringToProxy("id:opaque -t -v abc");
-        test(False);
+        p = communicator.stringToProxy("id:opaque -t -v abc")
+        test(False)
     except Ice.EndpointParseException:
         pass
 
     try:
         # Missing arg for -v
-        p = communicator.stringToProxy("id:opaque -t 1 -v");
-        test(False);
+        p = communicator.stringToProxy("id:opaque -t 1 -v")
+        test(False)
     except Ice.EndpointParseException:
         pass
 
     try:
         # Not a number for -t
-        p = communicator.stringToProxy("id:opaque -t x -v abc");
-        test(False);
+        p = communicator.stringToProxy("id:opaque -t x -v abc")
+        test(False)
     except Ice.EndpointParseException:
         pass
 
     try:
         # < 0 for -t
-        p = communicator.stringToProxy("id:opaque -t -1 -v abc");
-        test(False);
+        p = communicator.stringToProxy("id:opaque -t -1 -v abc")
+        test(False)
     except Ice.EndpointParseException:
         pass
 
     try:
         # Invalid char for -v
-        p = communicator.stringToProxy("id:opaque -t 99 -v x?c");
-        test(False);
+        p = communicator.stringToProxy("id:opaque -t 99 -v x?c")
+        test(False)
     except Ice.EndpointParseException:
         pass
 
     # Legal TCP endpoint expressed as opaque endpoint
-    p1 = communicator.stringToProxy("test:opaque -t 1 -v CTEyNy4wLjAuMeouAAAQJwAAAA==");
-    pstr = communicator.proxyToString(p1);
-    test(pstr == "test -t:tcp -h 127.0.0.1 -p 12010 -t 10000");
+    p1 = communicator.stringToProxy("test:opaque -t 1 -v CTEyNy4wLjAuMeouAAAQJwAAAA==")
+    pstr = communicator.proxyToString(p1)
+    test(pstr == "test -t:tcp -h 127.0.0.1 -p 12010 -t 10000")
     
     if communicator.getProperties().getPropertyAsInt("Ice.IPv6") == 0:
         # Working?
-        ssl = communicator.getProperties().getProperty("Ice.Default.Protocol") == "ssl";
+        ssl = communicator.getProperties().getProperty("Ice.Default.Protocol") == "ssl"
         if not ssl:
-            p1.ice_ping();
+            p1.ice_ping()
 
         # Two legal TCP endpoints expressed as opaque endpoints
-        p1 = communicator.stringToProxy("test:opaque -t 1 -v CTEyNy4wLjAuMeouAAAQJwAAAA==:opaque -t 1 -v CTEyNy4wLjAuMusuAAAQJwAAAA==");
-        pstr = communicator.proxyToString(p1);
-        test(pstr == "test -t:tcp -h 127.0.0.1 -p 12010 -t 10000:tcp -h 127.0.0.2 -p 12011 -t 10000");
+        p1 = communicator.stringToProxy("test:opaque -t 1 -v CTEyNy4wLjAuMeouAAAQJwAAAA==:opaque -t 1 -v CTEyNy4wLjAuMusuAAAQJwAAAA==")
+        pstr = communicator.proxyToString(p1)
+        test(pstr == "test -t:tcp -h 127.0.0.1 -p 12010 -t 10000:tcp -h 127.0.0.2 -p 12011 -t 10000")
 
         #
         # Test that an SSL endpoint and a nonsense endpoint get written
         # back out as an opaque endpoint.
         #
-        p1 = communicator.stringToProxy("test:opaque -t 2 -v CTEyNy4wLjAuMREnAAD/////AA==:opaque -t 99 -v abch");
-        pstr = communicator.proxyToString(p1);
+        p1 = communicator.stringToProxy("test:opaque -t 2 -v CTEyNy4wLjAuMREnAAD/////AA==:opaque -t 99 -v abch")
+        pstr = communicator.proxyToString(p1)
         if not ssl:
-            test(pstr == "test -t:opaque -t 2 -v CTEyNy4wLjAuMREnAAD/////AA==:opaque -t 99 -v abch");
+            test(pstr == "test -t:opaque -t 2 -v CTEyNy4wLjAuMREnAAD/////AA==:opaque -t 99 -v abch")
         else:
-            test(pstr == "test -t:ssl -h 127.0.0.1 -p 10001:opaque -t 99 -v abch");
+            test(pstr == "test -t:ssl -h 127.0.0.1 -p 10001:opaque -t 99 -v abch")
 
         #
         # Try to invoke on the SSL endpoint to verify that we get a
@@ -594,12 +647,12 @@ def allTests(communicator, collocated):
         # running with SSL).
         #
         try:
-            p1.ice_ping();
-            test(False);
+            p1.ice_ping()
+            test(False)
         except Ice.NoEndpointException:
-            test(not ssl);
+            test(not ssl)
         except Ice.ConnectionRefusedException:
-            test(ssl);
+            test(ssl)
 
         #
         # Test that the proxy with an SSL endpoint and a nonsense
@@ -607,12 +660,12 @@ def allTests(communicator, collocated):
         # sent over the wire and returned by the server without losing
         # the opaque endpoints.
         #
-        p2 = derived.echo(p1);
-        pstr = communicator.proxyToString(p2);
+        p2 = derived.echo(p1)
+        pstr = communicator.proxyToString(p2)
         if not ssl:
-            test(pstr == "test -t:opaque -t 2 -v CTEyNy4wLjAuMREnAAD/////AA==:opaque -t 99 -v abch");
+            test(pstr == "test -t:opaque -t 2 -v CTEyNy4wLjAuMREnAAD/////AA==:opaque -t 99 -v abch")
         else:
-            test(pstr == "test -t:ssl -h 127.0.0.1 -p 10001:opaque -t 99 -v abch");
+            test(pstr == "test -t:ssl -h 127.0.0.1 -p 10001:opaque -t 99 -v abch")
 
     print "ok"
 

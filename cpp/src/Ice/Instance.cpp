@@ -513,7 +513,6 @@ IceInternal::Instance::identityToString(const Identity& ident) const
     }
 }
 
-
 Ice::ObjectPrx
 IceInternal::Instance::getAdmin()
 {

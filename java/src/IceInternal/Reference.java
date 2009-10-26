@@ -332,6 +332,11 @@ public abstract class Reference implements Cloneable
         // Derived class writes the remainder of the string.
     }
 
+    //
+    // Convert the reference to its property form.
+    //
+    public abstract java.util.Map<String, String> toProperty(String prefix);
+
     public abstract Ice.ConnectionI getConnection(Ice.BooleanHolder comp);
     public abstract void getConnection(GetConnectionCallback callback);
 

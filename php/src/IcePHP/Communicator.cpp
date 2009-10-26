@@ -284,6 +284,54 @@ ZEND_METHOD(Ice_Communicator, propertyToProxy)
     }
 }
 
+ZEND_METHOD(Ice_Communicator, proxyToProperty)
+{
+    CommunicatorInfoIPtr _this = Wrapper<CommunicatorInfoIPtr>::value(getThis() TSRMLS_CC);
+    assert(_this);
+
+    zval* zv;
+    char* str;
+    int strLen;
+    if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, const_cast<char*>("Os!"), &zv, proxyClassEntry TSRMLS_CC, 
+        &str, &strLen) != SUCCESS)
+    {
+        RETURN_NULL();
+    }
+
+    string s(str, strLen);
+
+    try
+    {
+        string str;
+        if(zv)
+        {
+            Ice::ObjectPrx prx;
+            ClassInfoPtr info;
+            if(!fetchProxy(zv, prx, info TSRMLS_CC))
+            {
+                RETURN_NULL();
+            }
+            assert(prx);
+            
+            Ice::PropertyDict val = _this->getCommunicator()->proxyToProperty(prx, s);
+            for(Ice::PropertyDict::const_iterator p = val.begin(); p != val.end(); ++p)
+            {
+                if(p != val.begin())
+                {
+                    str.append("\n");
+                }
+                str.append(p->first + "=" + p->second);
+            }
+        }
+        RETURN_STRINGL(STRCAST(str.c_str()), str.length(), 1);
+    }
+    catch(const IceUtil::Exception& ex)
+    {
+        throwException(ex TSRMLS_CC);
+        RETURN_NULL();
+    }
+}
+
 ZEND_METHOD(Ice_Communicator, stringToIdentity)
 {
     CommunicatorInfoIPtr _this = Wrapper<CommunicatorInfoIPtr>::value(getThis() TSRMLS_CC);
@@ -588,7 +636,7 @@ ZEND_METHOD(Ice_Communicator, setDefaultLocator)
         {
             if(!info || !info->isA("::Ice::Locator"))
             {
-                invalidArgument("setDefaultRouter requires a proxy narrowed to Ice::Locator" TSRMLS_CC);
+                invalidArgument("setDefaultLocator requires a proxy narrowed to Ice::Locator" TSRMLS_CC);
                 RETURN_NULL();
             }
             locator = Ice::LocatorPrx::uncheckedCast(proxy);

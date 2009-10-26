@@ -8,6 +8,7 @@
 // **********************************************************************
 
 using System.Diagnostics;
+using System.Collections.Generic;
 
 namespace IceInternal
 {
@@ -37,6 +38,20 @@ namespace IceInternal
             string proxy = instance_.initializationData().properties.getProperty(prefix);
             Reference r = instance_.referenceFactory().create(proxy, prefix);
             return referenceToProxy(r);
+        }
+
+        public Dictionary<string, string>
+        proxyToProperty(Ice.ObjectPrx proxy, string prefix)
+        {
+            if(proxy != null)
+            {
+                Ice.ObjectPrxHelperBase h = (Ice.ObjectPrxHelperBase) proxy;
+                return h.reference__().toProperty(prefix);
+            }
+            else
+            {
+                return new Dictionary<string, string>();
+            }
         }
         
         public Ice.ObjectPrx streamToProxy(BasicStream s)

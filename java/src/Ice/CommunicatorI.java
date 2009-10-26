@@ -53,6 +53,12 @@ public final class CommunicatorI implements Communicator
         return _instance.proxyFactory().propertyToProxy(s);
     }
 
+    public java.util.Map<String, String>
+    proxyToProperty(Ice.ObjectPrx proxy, String prefix)
+    {
+        return _instance.proxyFactory().proxyToProperty(proxy, prefix);
+    }
+
     public Ice.Identity
     stringToIdentity(String s)
     {
@@ -98,19 +104,11 @@ public final class CommunicatorI implements Communicator
         //
         // We set the proxy properties here, although we still use the proxy supplied.
         //
-        getProperties().setProperty(name + ".Router", proxyToString(router));
-        if(router.ice_getLocator() != null)
+        java.util.Map<String, String> properties = proxyToProperty(router, name + ".Router");
+        for(java.util.Map.Entry<String, String> p : properties.entrySet())
         {
-            ObjectPrx locator = router.ice_getLocator();
-            getProperties().setProperty(name + ".Router.Locator", proxyToString(locator));
+            getProperties().setProperty(p.getKey(), p.getValue());
         }
-        getProperties().setProperty(name + ".Router.CollocationOptimized",
-                                    router.ice_isCollocationOptimized() ? "0" : "1");
-        getProperties().setProperty(name + ".Router.ConnectionCached", router.ice_isConnectionCached() ? "0" : "1");
-        getProperties().setProperty(name + ".Router.PreferSecure", router.ice_isPreferSecure() ? "0" : "1");
-        getProperties().setProperty(name + ".Router.EndpointSelection",
-                    router.ice_getEndpointSelection() == EndpointSelectionType.Random ? "Random" : "Ordered");
-        getProperties().setProperty(name + ".Router.LocatorCacheTimeout", "" + router.ice_getLocatorCacheTimeout());
 
         return _instance.objectAdapterFactory().createObjectAdapter(name, router);
     }

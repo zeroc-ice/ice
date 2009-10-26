@@ -32,6 +32,7 @@ public:
     virtual std::string proxyToString(const ObjectPrx&) const;
 
     virtual ObjectPrx propertyToProxy(const std::string&) const;
+    virtual PropertyDict proxyToProperty(const ObjectPrx&, const std::string&) const;
 
     virtual Identity stringToIdentity(const std::string&) const;
     virtual std::string identityToString(const Identity&) const;

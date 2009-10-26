@@ -637,6 +637,15 @@ IceInternal::FixedReference::toString() const
     return string(); // To keep the compiler from complaining.
 }
 
+PropertyDict
+IceInternal::FixedReference::toProperty(const string&) const
+{
+    throw FixedProxyException(__FILE__, __LINE__);
+
+    assert(false);   // Cannot be reached.
+    return PropertyDict(); // To keep the compiler from complaining.
+}
+
 ConnectionIPtr
 IceInternal::FixedReference::getConnection(bool& compress) const
 {
@@ -1131,6 +1140,42 @@ IceInternal::RoutableReference::toString() const
 	return result;
     }
     return result;
+}
+
+PropertyDict
+IceInternal::RoutableReference::toProperty(const string& prefix) const
+{
+    Ice::PropertyDict properties;
+
+    properties[prefix] = toString();
+    properties[prefix + ".CollocationOptimized"] = _collocationOptimized ? "1" : "0";
+    properties[prefix + ".ConnectionCached"] = _cacheConnection ? "1" : "0";
+    properties[prefix + ".PreferSecure"] = _preferSecure ? "1" : "0";
+    properties[prefix + ".EndpointSelection"] = _endpointSelection == Random ? "Random" : "Ordered";
+
+    ostringstream s;
+    s << _locatorCacheTimeout;
+    properties[prefix + ".LocatorCacheTimeout"] = s.str();
+
+    if(_routerInfo)
+    {
+        PropertyDict routerProperties = _routerInfo->getRouter()->__reference()->toProperty(prefix + ".Router");
+        for(PropertyDict::const_iterator p = routerProperties.begin(); p != routerProperties.end(); ++p)
+        {
+            properties[p->first] = p->second;
+        }
+    }
+
+    if(_locatorInfo)
+    {
+        PropertyDict locatorProperties = _locatorInfo->getLocator()->__reference()->toProperty(prefix + ".Locator");
+        for(PropertyDict::const_iterator p = locatorProperties.begin(); p != locatorProperties.end(); ++p)
+        {
+            properties[p->first] = p->second;
+        }
+    }
+
+    return properties;
 }
 
 int

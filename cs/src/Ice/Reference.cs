@@ -329,6 +329,8 @@ namespace IceInternal
             // Derived class writes the remainder of the string.
         }
 
+        public abstract Dictionary<string, string> toProperty(string prefix);
+
         public abstract Ice.ConnectionI getConnection(out bool comp);
         public abstract void getConnection(GetConnectionCallback callback);
 
@@ -564,6 +566,11 @@ namespace IceInternal
         }
 
         public override string ToString()
+        {
+            throw new Ice.FixedProxyException();
+        }
+
+        public override Dictionary<string, string> toProperty(string prefix)
         {
             throw new Ice.FixedProxyException();
         }
@@ -964,6 +971,41 @@ namespace IceInternal
             return s.ToString();
         }
 
+        public override Dictionary<string, string> toProperty(string prefix)
+        {
+            Dictionary<string, string> properties = new Dictionary<string, string>();
+
+            properties[prefix] = ToString();
+            properties[prefix + ".CollocationOptimized"] = _collocationOptimized ? "1" : "0";
+            properties[prefix + ".ConnectionCached"] = _cacheConnection ? "1" : "0";
+            properties[prefix + ".PreferSecure"] = _preferSecure ? "1" : "0";
+            properties[prefix + ".EndpointSelection"] =
+                       _endpointSelection == Ice.EndpointSelectionType.Random ? "Random" : "Ordered";
+            properties[prefix + ".LocatorCacheTimeout"] = _locatorCacheTimeout.ToString();
+
+            if(_routerInfo != null)
+            {
+                Ice.ObjectPrxHelperBase h = (Ice.ObjectPrxHelperBase)_routerInfo.getRouter();
+                Dictionary<String, String> routerProperties = h.reference__().toProperty(prefix + ".Router");
+                foreach(KeyValuePair<string, string> entry in routerProperties)
+                {
+                    properties[entry.Key] = entry.Value;
+                }
+            }
+
+            if(_locatorInfo != null)
+            {
+                Ice.ObjectPrxHelperBase h = (Ice.ObjectPrxHelperBase)_locatorInfo.getLocator();
+                Dictionary<String, String> locatorProperties = h.reference__().toProperty(prefix + ".Locator");
+                foreach(KeyValuePair<string, string> entry in locatorProperties)
+                {
+                    properties[entry.Key] = entry.Value;
+                }
+            }
+
+            return properties;
+        }
+        
         //
         // If we override Equals, we must also override GetHashCode.
         //

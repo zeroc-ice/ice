@@ -321,6 +321,59 @@ public class AllTests
 
         out.println("ok");
 
+        out.print("testing proxyToProperty... ");
+        out.flush();
+
+        b1 = communicator.stringToProxy("test");
+        b1 = b1.ice_collocationOptimized(true);
+        b1 = b1.ice_connectionCached(true);
+        b1 = b1.ice_preferSecure(false);
+        b1 = b1.ice_endpointSelection(Ice.EndpointSelectionType.Ordered);
+        b1 = b1.ice_locatorCacheTimeout(100);
+
+        Ice.ObjectPrx router = communicator.stringToProxy("router");
+        router = router.ice_collocationOptimized(false);
+        router = router.ice_connectionCached(true);
+        router = router.ice_preferSecure(true);
+        router = router.ice_endpointSelection(Ice.EndpointSelectionType.Random);
+        router = router.ice_locatorCacheTimeout(200);
+
+        Ice.ObjectPrx locator = communicator.stringToProxy("locator");
+        locator = locator.ice_collocationOptimized(true);
+        locator = locator.ice_connectionCached(false);
+        locator = locator.ice_preferSecure(true);
+        locator = locator.ice_endpointSelection(Ice.EndpointSelectionType.Random);
+        locator = locator.ice_locatorCacheTimeout(300);
+
+        locator = locator.ice_router(Ice.RouterPrxHelper.uncheckedCast(router));
+        b1 = b1.ice_locator(Ice.LocatorPrxHelper.uncheckedCast(locator));
+
+        java.util.Map<String, String> proxyProps = communicator.proxyToProperty(b1, "Test");
+        test(proxyProps.size() == 18);
+
+        test(proxyProps.get("Test").equals("test -t"));
+        test(proxyProps.get("Test.CollocationOptimized").equals("1"));
+        test(proxyProps.get("Test.ConnectionCached").equals("1"));
+        test(proxyProps.get("Test.PreferSecure").equals("0"));
+        test(proxyProps.get("Test.EndpointSelection").equals("Ordered"));
+        test(proxyProps.get("Test.LocatorCacheTimeout").equals("100"));
+
+        test(proxyProps.get("Test.Locator").equals("locator -t"));
+        test(proxyProps.get("Test.Locator.CollocationOptimized").equals("1"));
+        test(proxyProps.get("Test.Locator.ConnectionCached").equals("0"));
+        test(proxyProps.get("Test.Locator.PreferSecure").equals("1"));
+        test(proxyProps.get("Test.Locator.EndpointSelection").equals("Random"));
+        test(proxyProps.get("Test.Locator.LocatorCacheTimeout").equals("300"));
+
+        test(proxyProps.get("Test.Locator.Router").equals("router -t"));
+        test(proxyProps.get("Test.Locator.Router.CollocationOptimized").equals("0"));
+        test(proxyProps.get("Test.Locator.Router.ConnectionCached").equals("1"));
+        test(proxyProps.get("Test.Locator.Router.PreferSecure").equals("1"));
+        test(proxyProps.get("Test.Locator.Router.EndpointSelection").equals("Random"));
+        test(proxyProps.get("Test.Locator.Router.LocatorCacheTimeout").equals("200"));
+
+        out.println("ok");
+
         out.print("testing ice_getCommunicator... ");
         out.flush();
         test(base.ice_getCommunicator() == communicator);

@@ -324,6 +324,44 @@ public class RoutableReference extends Reference
         return s.toString();
     }
 
+    public java.util.Map<String, String> toProperty(String prefix)
+    {
+        java.util.Map<String, String> properties = new java.util.HashMap<String, String>();
+
+        properties.put(prefix, toString());
+        properties.put(prefix + ".CollocationOptimized", _collocationOptimized ? "1" : "0");
+        properties.put(prefix + ".ConnectionCached", _cacheConnection ? "1" : "0");
+        properties.put(prefix + ".PreferSecure", _preferSecure ? "1" : "0");
+        properties.put(prefix + ".EndpointSelection", 
+                       _endpointSelection == Ice.EndpointSelectionType.Random ? "Random" : "Ordered");
+
+        StringBuffer s = new StringBuffer();
+        s.append(_locatorCacheTimeout);
+        properties.put(prefix + ".LocatorCacheTimeout", s.toString());
+
+        if(_routerInfo != null)
+        {
+            Ice.ObjectPrxHelperBase h = (Ice.ObjectPrxHelperBase)_routerInfo.getRouter();
+            java.util.Map<String, String> routerProperties = h.__reference().toProperty(prefix + ".Router");
+            for(java.util.Map.Entry<String, String> p : routerProperties.entrySet())
+            {
+                properties.put(p.getKey(), p.getValue());
+            }
+        }
+
+        if(_locatorInfo != null)
+        {
+            Ice.ObjectPrxHelperBase h = (Ice.ObjectPrxHelperBase)_locatorInfo.getLocator();
+            java.util.Map<String, String> locatorProperties = h.__reference().toProperty(prefix + ".Locator");
+            for(java.util.Map.Entry<String, String> p : locatorProperties.entrySet())
+            {
+                properties.put(p.getKey(), p.getValue());
+            }
+        }
+
+        return properties;
+    }
+
     public synchronized int
     hashCode()
     {

@@ -176,6 +176,12 @@ public class FixedReference extends Reference
         throw new Ice.FixedProxyException();
     }
 
+    public java.util.Map<String, String>
+    toProperty(String prefix)
+    {
+        throw new Ice.FixedProxyException();
+    }
+
     public Ice.ConnectionI
     getConnection(Ice.BooleanHolder compress)
     {
