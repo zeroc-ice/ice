@@ -292,17 +292,16 @@ ZEND_METHOD(Ice_Communicator, proxyToProperty)
     zval* zv;
     char* str;
     int strLen;
-    if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, const_cast<char*>("Os!"), &zv, proxyClassEntry TSRMLS_CC, 
-        &str, &strLen) != SUCCESS)
+    if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, const_cast<char*>("O!s"), &zv, proxyClassEntry, &str, &strLen)
+        != SUCCESS)
     {
         RETURN_NULL();
     }
 
-    string s(str, strLen);
+    string prefix(str, strLen);
 
     try
     {
-        string str;
         if(zv)
         {
             Ice::ObjectPrx prx;
@@ -313,17 +312,16 @@ ZEND_METHOD(Ice_Communicator, proxyToProperty)
             }
             assert(prx);
             
-            Ice::PropertyDict val = _this->getCommunicator()->proxyToProperty(prx, s);
-            for(Ice::PropertyDict::const_iterator p = val.begin(); p != val.end(); ++p)
+            Ice::PropertyDict val = _this->getCommunicator()->proxyToProperty(prx, prefix);
+            if(!createStringMap(return_value, val TSRMLS_CC))
             {
-                if(p != val.begin())
-                {
-                    str.append("\n");
-                }
-                str.append(p->first + "=" + p->second);
+                RETURN_NULL();
             }
         }
-        RETURN_STRINGL(STRCAST(str.c_str()), str.length(), 1);
+        else
+        {
+            array_init(return_value);
+        }
     }
     catch(const IceUtil::Exception& ex)
     {
@@ -1072,6 +1070,7 @@ static function_entry _classMethods[] =
     ZEND_ME(Ice_Communicator, stringToProxy, NULL, ZEND_ACC_PUBLIC)
     ZEND_ME(Ice_Communicator, proxyToString, NULL, ZEND_ACC_PUBLIC)
     ZEND_ME(Ice_Communicator, propertyToProxy, NULL, ZEND_ACC_PUBLIC)
+    ZEND_ME(Ice_Communicator, proxyToProperty, NULL, ZEND_ACC_PUBLIC)
     ZEND_ME(Ice_Communicator, stringToIdentity, NULL, ZEND_ACC_PUBLIC)
     ZEND_ME(Ice_Communicator, identityToString, NULL, ZEND_ACC_PUBLIC)
     ZEND_ME(Ice_Communicator, addObjectFactory, NULL, ZEND_ACC_PUBLIC)
