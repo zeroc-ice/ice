@@ -9,12 +9,11 @@
 
 top_srcdir	= ..\..\..
 
-TARGETS		= client.exe server.exe sessionserver.exe
+TARGETS		= client.exe server.exe
 TARGETS_CONFIG	= $(TARGETS:.exe=.exe.config)
 
 C_SRCS		= CallbackReceiverI.vb Client.vb
 S_SRCS		= CallbackI.vb Server.vb
-SS_SRCS		= SessionI.vb SessionManagerI.vb SessionServer.vb
 
 GEN_SRCS	= $(GDIR)\Callback.cs
 
@@ -35,8 +34,5 @@ client.exe: $(C_SRCS) $(SLICE_ASSEMBLY)
 
 server.exe: $(S_SRCS) $(SLICE_ASSEMBLY)
 	$(VBC) $(VBCFLAGS) -out:$@ -r:$(csbindir)\Ice.dll -r:$(SLICE_ASSEMBLY) $(S_SRCS)
-
-sessionserver.exe: $(SS_SRCS)
-	$(VBC) $(VBCFLAGS) -out:$@ -r:$(csbindir)\Ice.dll -r:$(csbindir)\Glacier2.dll $(SS_SRCS)
 
 !include .depend

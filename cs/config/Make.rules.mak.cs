@@ -78,7 +78,12 @@ MCS			= csc -nologo
 
 MCSFLAGS = -warnaserror -d:MAKEFILE_BUILD
 !if "$(DEBUG)" == "yes"
-MCSFLAGS 		= $(MCSFLAGS) -debug -define:DEBUG
+!if "$(OPTIMIZE)" == "yes"
+MCSFLAGS 		= $(MCSFLAGS) -debug:pdbonly
+!else
+MCSFLAGS 		= $(MCSFLAGS) -debug
+!endif
+MCSFLAGS 		= $(MCSFLAGS) -define:DEBUG
 !endif
 
 !if "$(OPTIMIZE)" == "yes"

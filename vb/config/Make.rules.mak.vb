@@ -66,7 +66,12 @@ MCS			= csc -nologo
 
 MCSFLAGS = -warnaserror -d:MAKEFILE_BUILD
 !if "$(DEBUG)" == "yes"
-MCSFLAGS 		= $(MCSFLAGS) -debug -define:DEBUG
+!if "$(OPTIMIZE)" == "yes"
+MCSFLAGS               = $(MCSFLAGS) -debug:pdbonly
+!else
+MCSFLAGS               = $(MCSFLAGS) -debug
+!endif
+MCSFLAGS               = $(MCSFLAGS) -define:DEBUG
 !endif
 
 !if "$(OPTIMIZE)" == "yes"
@@ -92,7 +97,7 @@ EVERYTHING		= all clean depend config
 
 !if "$(SLICE_ASSEMBLY)" != ""
 $(SLICE_ASSEMBLY): $(GEN_SRCS)
-        $(MCS) -target:library -out:$@ -r:$(csbindir)\Ice.dll $(GEN_SRCS)
+        $(MCS) $(MCSFLAGS) -target:library -out:$@ -r:$(csbindir)\Ice.dll $(GEN_SRCS)
 !endif
 
 all:: $(TARGETS) $(TARGETS_CONFIG) $(SLICE_ASSEMBLY)
