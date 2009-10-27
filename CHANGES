@@ -265,6 +265,8 @@ noted.
 C++ Changes
 ============
 
+- The Ice DLLs no longer all use the default base load address.
+
 - Changed the signature of the Ice::Service start method.
 
 - Added new static methods to initialize an IceUtil::Time class from
@@ -405,6 +407,8 @@ Java Changes
 
 C# Changes
 ==========
+
+- The Ice DLLs no longer all use the default base load address.
 
 - Both Ice Plugin and IceBox Service configuration now allow you to
   enter a full path as the assembly DLL name.

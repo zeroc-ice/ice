@@ -53,7 +53,8 @@ RES_FILE        = IceGridFreezeDB.res
 $(LIBNAME): $(DLLNAME)
 
 $(DLLNAME): $(OBJS) $(DB_OBJS) IceGridFreezeDB.res
-	$(LINK) $(LD_DLLFLAGS) $(PDBFLAGS) $(OBJS) $(DB_OBJS) $(PREOUT)$@ $(PRELIBS)$(LINKWITH) $(RES_FILE)
+	$(LINK) /base:0x2E000000 $(LD_DLLFLAGS) $(PDBFLAGS) $(OBJS) $(DB_OBJS) $(PREOUT)$@ $(PRELIBS)$(LINKWITH) \
+		$(RES_FILE)
 	move $(DLLNAME:.dll=.lib) $(LIBNAME)
 	@if exist $@.manifest echo ^ ^ ^ Embedding manifest using $(MT) && \
 	    $(MT) -nologo -manifest $@.manifest -outputresource:$@;#2 && del /q $@.manifest

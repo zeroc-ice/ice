@@ -39,7 +39,7 @@ MCSFLAGS	= $(MCSFLAGS) /doc:$(bindir)\$(PKG).xml /nowarn:1591
 SLICE2CSFLAGS	= $(SLICE2CSFLAGS) --ice -I$(slicedir)
 
 $(TARGETS):: $(SRCS) $(GEN_SRCS)
-	$(MCS) $(MCSFLAGS) -r:$(refdir)\Glacier2.dll -r:$(refdir)\Ice.dll $(SRCS) $(GEN_SRCS)
+	$(MCS) /baseaddress:0x24000000 $(MCSFLAGS) -r:$(refdir)\Glacier2.dll -r:$(refdir)\Ice.dll $(SRCS) $(GEN_SRCS)
 
 !if "$(DEBUG)" == "yes"
 clean::

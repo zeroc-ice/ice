@@ -152,7 +152,7 @@ MCSFLAGS        = $(MCSFLAGS) /unsafe
 SLICE2CSFLAGS	= $(SLICE2CSFLAGS) --ice -I$(slicedir)
 
 $(TARGETS):: $(SRCS) $(GEN_SRCS)
-	$(MCS) $(MCSFLAGS) $(SRCS) $(GEN_SRCS)
+	$(MCS) /baseaddress:0x20000000 $(MCSFLAGS) $(SRCS) $(GEN_SRCS)
 
 !if "$(DEBUG)" == "yes"
 clean::
