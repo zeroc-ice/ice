@@ -4,7 +4,7 @@
 #
 Greet.Proxy=greet:tcp -p 10000
 
-Ice.Plugin.StringConverter=Ice:createStringConverter iconv=ISO8859-1 windows=1252
+Ice.Plugin.StringConverter=Ice:createIceStringConverter iconv=ISO8859-1 windows=1252
 
 #
 # Warn about connection exceptions
