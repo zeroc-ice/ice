@@ -115,4 +115,3 @@ print "ok"
 
 print "publisher published %s events, subscriber received %s events" % (publisherCount, subscriberCount)
 
-TestUtil.cleanup()

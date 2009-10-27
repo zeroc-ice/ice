@@ -54,5 +54,4 @@ for file in files:
     else:
         print "ok"
 
-TestUtil.cleanup()
 sys.exit(0)

@@ -36,4 +36,3 @@ else:
 
 IceGridAdmin.iceGridTest("application.xml", '--IceDir="%s" --TestDir="%s"' % (TestUtil.toplevel, os.getcwd()),
                          variables)
-TestUtil.cleanup()

@@ -26,4 +26,3 @@ IceGridAdmin.iceGridTest("application.xml", '--TestDir="%s"' % os.getcwd(), '"ic
 IceGridAdmin.iceGridTest("application.xml", '-t --TestDir="%s"' % os.getcwd(),
                          "icebox.exe=%s moreservers moreservices moreproperties" % TestUtil.getIceBox())
 
-TestUtil.cleanup()

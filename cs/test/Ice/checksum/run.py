@@ -22,4 +22,3 @@ from scripts import *
 
 TestUtil.clientServerTest(server = os.path.join(os.getcwd(), "server", "server"))
 
-TestUtil.cleanup()

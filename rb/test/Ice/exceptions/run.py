@@ -25,5 +25,4 @@ TestUtil.clientServerTest()
 print "tests with AMD server."
 TestUtil.clientServerTest(server="serveramd")
 
-TestUtil.cleanup()
 sys.exit(0)

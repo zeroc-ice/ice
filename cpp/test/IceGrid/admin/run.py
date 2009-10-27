@@ -254,4 +254,3 @@ IceGridAdmin.iceGridAdmin("node shutdown localnode")
 IceGridAdmin.shutdownIceGridRegistry(registryProcs)
 nodeProc.waitTestSuccess()
 
-TestUtil.cleanup()

@@ -22,4 +22,3 @@ from scripts import *
 
 TestUtil.clientServerTest(server='server/server')
 
-TestUtil.cleanup()

@@ -7,7 +7,7 @@
 #
 # **********************************************************************
 
-import sys, os, re, errno, getopt, time, StringIO, string, copy, threading, signal
+import sys, os, re, getopt, time, StringIO, string, threading
 
 # Global flags and their default values.
 protocol = ""                   # If unset, default to TCP. Valid values are "tcp" or "ssl".
@@ -500,10 +500,6 @@ def phpSetup():
     if incDir:
         tmpini.write("include_path=%s\n" % incDir)
     tmpini.close()
-
-def phpCleanup():
-    if os.path.exists("tmp.ini"):
-        os.remove("tmp.ini")
 
 def getIceVersion():
     config = open(os.path.join(toplevel, "config", "Make.common.rules"), "r")
@@ -1122,30 +1118,26 @@ def getTestName():
 
 class WatchDog(threading.Thread):
     def __init__(self):
-        self._done = False
         self._reset = False
         self._cv = threading.Condition()
         threading.Thread.__init__(self)
 
-        #
-        # Setup and install signal handlers
-        #
-        if signal.__dict__.has_key('SIGHUP'):
-            signal.signal(signal.SIGHUP, signal.SIG_DFL)
-        if signal.__dict__.has_key('SIGBREAK'):
-            signal.signal(signal.SIGBREAK, signal.SIG_DFL)
-        signal.signal(signal.SIGINT, signal.SIG_DFL)
-        signal.signal(signal.SIGTERM, signal.SIG_DFL)
+	# The thread is marked as a daemon thread. This is done so that if
+	# an expect script runs off the end of main without kill/wait on each
+	# spawned process the script will not hang tring to join with the
+	# reader thread. Instead __del__ (below) will be called which
+	# terminates and joins with the thread.
+	self.setDaemon(True)
 
         self.start()
 
     def run(self):
         self._cv.acquire()
-        while self._done == False:
+        while True:
             self._cv.wait(180)
             if self._reset:
                 self._reset = False
-            elif not self._done:
+            else:
                 print "\a*** %s Warning: Test has been inactive for 3 minutes and may be hung", time.strftime("%x %X")
         self._cv.release()
 
@@ -1155,28 +1147,17 @@ class WatchDog(threading.Thread):
         self._cv.notify()
         self._cv.release()
 
-    def destroy(self):
-        self._cv.acquire()
-        self._done = True
-        self._cv.notify()
-        self._cv.release()
-
-    def signalHandler(self, sig, frame):
-        self.destroy()
-        self.join()
-    signalHandler = classmethod(signalHandler)
-
-def cleanup():
-    # Stop watch dog thread
-    global watchDog
-    if watchDog != None:
-        watchDog.destroy()
-        watchDog.join()
-        watchDog = None
-
-    lang = getDefaultMapping()
-    if lang == "php":
-        phpCleanup()
+class PhpCleanup:
+    def __del__(self):
+        if os.path.exists("tmp.ini"):
+            os.remove("tmp.ini")
+    
+# TODO: Perhaps this should be done when the tmp.ini file is created.
+lang = getDefaultMapping()
+if getDefaultMapping() == "php":
+    # Instantiate a PhpCleanup object. The __del__ method will
+    # cleanup when the scritp is done.
+    p = PhpCleanup()
 
 def processCmdLine():
     def usage():

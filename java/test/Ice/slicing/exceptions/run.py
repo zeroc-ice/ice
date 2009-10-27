@@ -29,4 +29,3 @@ amdenv = copy.deepcopy(os.environ)
 TestUtil.addClasspath(os.path.join(os.getcwd(), "..", "exceptionsAMD", "classes"), amdenv)
 TestUtil.clientServerTest(serverenv = amdenv)
 
-TestUtil.cleanup()

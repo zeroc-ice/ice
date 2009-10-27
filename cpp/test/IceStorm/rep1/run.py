@@ -282,4 +282,3 @@ sys.stdout.flush()
 icestorm.stop()
 print "ok"
 
-TestUtil.cleanup()

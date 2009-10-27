@@ -69,5 +69,4 @@ dotest("persistent")
 dotest("transient")
 dotest("replicated")
 
-TestUtil.cleanup()
 sys.exit(0)

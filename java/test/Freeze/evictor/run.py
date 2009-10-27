@@ -27,4 +27,3 @@ testOptions = " --Freeze.Warn.Deadlocks=0 --Freeze.DbEnv.db.DbHome=%s/db --Ice.C
 
 TestUtil.clientServerTest(testOptions, testOptions)
 
-TestUtil.cleanup()

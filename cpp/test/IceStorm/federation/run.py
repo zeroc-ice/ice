@@ -86,4 +86,3 @@ runtest("transient")
 runtest("replicated", replicatedPublisher = False)
 runtest("replicated", replicatedPublisher = True)
 
-TestUtil.cleanup()

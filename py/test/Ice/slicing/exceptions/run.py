@@ -25,4 +25,3 @@ TestUtil.clientServerTest()
 print "tests with AMD server."
 TestUtil.clientServerTest(server="ServerAMD.py")
 
-TestUtil.cleanup()

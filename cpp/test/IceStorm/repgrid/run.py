@@ -38,4 +38,3 @@ else:
 #
 IceGridAdmin.iceGridTest("application.xml", "", variables)
 
-TestUtil.cleanup()

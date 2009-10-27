@@ -33,4 +33,3 @@ if TestUtil.mono:
 else:
     IceGridAdmin.iceGridTest("simple_server.xml", "--with-deploy")    
 
-TestUtil.cleanup()

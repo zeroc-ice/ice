@@ -26,4 +26,3 @@ from scripts import *
 #
 TestUtil.clientServerTest(additionalClientOptions=os.path.splitdrive(os.getcwd())[1])
 
-TestUtil.cleanup()

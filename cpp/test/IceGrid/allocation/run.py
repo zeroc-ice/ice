@@ -22,4 +22,3 @@ from scripts import *
 
 IceGridAdmin.iceGridTest("application.xml")
 
-TestUtil.cleanup()

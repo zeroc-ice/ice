@@ -30,4 +30,3 @@ IceGridAdmin.iceGridClientServerTest("", "--TestAdapter.Endpoints=default --Test
 #
 IceGridAdmin.iceGridTest("simple_server.xml", "--with-deploy")
 
-TestUtil.cleanup()

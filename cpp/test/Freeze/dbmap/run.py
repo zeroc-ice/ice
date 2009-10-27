@@ -28,4 +28,3 @@ client = os.path.join(os.getcwd(), "client")
 clientProc = TestUtil.startClient(client, " --Freeze.Warn.Rollback=0 %s" % os.getcwd())
 clientProc.waitTestSuccess()
 
-TestUtil.cleanup()

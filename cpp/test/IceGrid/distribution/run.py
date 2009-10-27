@@ -66,4 +66,3 @@ IceGridAdmin.iceGridTest("application.xml")
 IceGridAdmin.cleanDbDir(datadir)
 os.rmdir(datadir)
 
-TestUtil.cleanup()

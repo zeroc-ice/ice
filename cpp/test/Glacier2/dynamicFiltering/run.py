@@ -51,4 +51,3 @@ proc.waitTestSuccess()
 serverProc.waitTestSuccess()
 starterProc.waitTestSuccess()
 
-TestUtil.cleanup()

@@ -353,4 +353,3 @@ for testcase in testcases:
     serverProc.waitTestSuccess()
     starterProc.waitTestSuccess()
 
-TestUtil.cleanup()

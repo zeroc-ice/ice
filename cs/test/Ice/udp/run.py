@@ -40,4 +40,3 @@ clientProc.waitTestSuccess()
 for p in serverProc:
     p.waitTestSuccess()
 
-TestUtil.cleanup()

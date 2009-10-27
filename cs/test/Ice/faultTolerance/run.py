@@ -52,4 +52,3 @@ for p in serverProc:
     # results in a non-zero exit status. Therefore we ignore the status.
     p.wait()
 
-TestUtil.cleanup()

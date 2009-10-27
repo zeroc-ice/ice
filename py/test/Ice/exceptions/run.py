@@ -27,4 +27,3 @@ TestUtil.clientServerTest(server="ServerAMD.py")
 print "tests with collocated server."
 TestUtil.collocatedTest()
 
-TestUtil.cleanup()

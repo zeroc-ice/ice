@@ -25,4 +25,3 @@ TestUtil.clientServerTest()
 print "tests custom server thread pool."
 TestUtil.clientServerTest(server = "servercustom")
 
-TestUtil.cleanup()

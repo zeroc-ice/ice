@@ -23,4 +23,3 @@ from scripts import *
 print "tests with regular server."
 TestUtil.clientServerTest()
 
-TestUtil.cleanup()

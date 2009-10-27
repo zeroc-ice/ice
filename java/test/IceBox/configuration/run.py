@@ -25,4 +25,3 @@ TestUtil.clientServerTest(additionalServerOptions="--Ice.Config=%s" % os.path.jo
 TestUtil.clientServerTest(additionalServerOptions="--Ice.Config=%s" % os.path.join(os.getcwd(), "config.icebox2"),
 	server=TestUtil.getIceBox())
 
-TestUtil.cleanup()

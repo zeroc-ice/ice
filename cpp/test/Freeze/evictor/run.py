@@ -27,4 +27,3 @@ testOptions = " --Freeze.DbEnv.db.DbHome=%s --Ice.Config=%s" % (dbdir, os.path.j
 
 TestUtil.clientServerTest(additionalServerOptions= testOptions, additionalClientOptions= testOptions)
 
-TestUtil.cleanup()

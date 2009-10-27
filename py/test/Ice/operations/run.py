@@ -27,4 +27,3 @@ TestUtil.clientServerTest(server="ServerAMD.py")
 print "tests with collocated server."
 TestUtil.collocatedTest(" --Ice.ThreadPool.Client.SizeMax=2 --Ice.ThreadPool.Client.SizeWarn=0")
 
-TestUtil.cleanup()

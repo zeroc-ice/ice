@@ -27,4 +27,3 @@ clientProc.startReader()
 
 clientProc.waitTestSuccess()
 
-TestUtil.cleanup()

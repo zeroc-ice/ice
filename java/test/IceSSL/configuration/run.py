@@ -24,4 +24,3 @@ testdir = os.getcwd()
 
 TestUtil.clientServerTest(additionalClientOptions=testdir)
 
-TestUtil.cleanup()

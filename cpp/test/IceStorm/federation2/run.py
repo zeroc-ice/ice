@@ -267,5 +267,4 @@ runtest("persistent")
 runtest("replicated", replicatedPublisher = False)
 runtest("replicated", replicatedPublisher = True)
 
-TestUtil.cleanup()
 sys.exit(0)

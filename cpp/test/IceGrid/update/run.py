@@ -41,4 +41,3 @@ nodeOverrideOptions = '--IceBinDir="%s" --TestDir="%s" --NodePropertiesOverride=
 
 IceGridAdmin.iceGridTest("", nodeOverrideOptions)
 
-TestUtil.cleanup()

@@ -23,4 +23,3 @@ from scripts import *
 TestUtil.clientServerTest()
 TestUtil.collocatedTest()
 
-TestUtil.cleanup()

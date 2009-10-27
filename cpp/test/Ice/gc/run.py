@@ -28,4 +28,3 @@ TestUtil.simpleTest(client, seedfile)
 
 os.remove(seedfile)
 
-TestUtil.cleanup()

@@ -37,4 +37,3 @@ TestUtil.clientServerTest()
 
 starterProc.waitTestSuccess()
 
-TestUtil.cleanup()

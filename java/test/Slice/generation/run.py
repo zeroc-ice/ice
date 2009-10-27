@@ -45,5 +45,4 @@ while i < len(lines1):
 else:
     print "ok"
 
-TestUtil.cleanup()
 sys.exit(0)

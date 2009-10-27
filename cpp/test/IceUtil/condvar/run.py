@@ -30,4 +30,3 @@ TestUtil.simpleTest(match)
 
 TestUtil.simpleTest(match + " -b")
 
-TestUtil.cleanup()

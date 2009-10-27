@@ -52,4 +52,3 @@ IceGridAdmin.iceGridTest("application.xml",
 
 verifierProc.waitTestSuccess()
 
-TestUtil.cleanup()

@@ -22,4 +22,3 @@ from scripts import *
 
 TestUtil.clientServerTest(additionalClientOptions = os.getcwd())
 
-TestUtil.cleanup()

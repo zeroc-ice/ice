@@ -138,4 +138,3 @@ if os.system(command) != 0:
 
 print "ok"
 
-TestUtil.cleanup()

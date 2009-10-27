@@ -45,4 +45,3 @@ TestUtil.clientServerTest(additionalClientOptions=" --shutdown")
 
 starterProc.waitTestSuccess()
 
-TestUtil.cleanup()

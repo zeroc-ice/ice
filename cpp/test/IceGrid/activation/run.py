@@ -23,4 +23,3 @@ from scripts import *
 IceGridAdmin.iceGridTest("application.xml", "",
 	" 'properties-override=%s'" % TestUtil.getCommandLine("", TestUtil.DriverConfig("colloc")).replace("--", ""))
 
-TestUtil.cleanup()

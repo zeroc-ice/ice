@@ -29,4 +29,3 @@ TestUtil.clientServerTest(server="test.Ice.seqMapping.AMDServer")
 print "tests with collocated server."
 TestUtil.collocatedTest()
 
-TestUtil.cleanup()
