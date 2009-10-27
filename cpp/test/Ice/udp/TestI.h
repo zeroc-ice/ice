@@ -18,6 +18,7 @@ public:
 
     virtual void ping(const Test::PingReplyPrx&, const Ice::Current&);
     virtual void sendByteSeq(const Test::ByteSeq&, const Test::PingReplyPrx&, const Ice::Current&);
+    virtual void pingBiDir(const Ice::Identity&, const Ice::Current&);
     virtual void shutdown(const Ice::Current&);
 };
 

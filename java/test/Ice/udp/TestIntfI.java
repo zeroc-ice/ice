@@ -37,6 +37,32 @@ public final class TestIntfI extends _TestIntfDisp
         }
     }
 
+    public void pingBiDir(Ice.Identity id, Ice.Current current)
+    {
+        try
+        {
+            //
+            // Ensure sending too much data doesn't cause the UDP connection
+            // to be closed.
+            //
+            try
+            {
+                byte[] seq = new byte[32 * 1024];
+                TestIntfPrxHelper.uncheckedCast(current.con.createProxy(id)).sendByteSeq(seq, null);
+            }
+            catch(Ice.DatagramLimitException ex)
+            {
+                // Expected.
+            }
+
+            PingReplyPrxHelper.uncheckedCast(current.con.createProxy(id)).reply();
+        }
+        catch(Ice.LocalException ex)
+        {
+            assert(false);
+        }
+    }
+
     public void shutdown(Ice.Current current)
     {
         current.adapter.getCommunicator().shutdown();

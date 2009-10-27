@@ -30,21 +30,21 @@ public class Client
 
     private static int run(string[] args, Ice.Communicator communicator)
     {
-        Console.WriteLine("testing server priority... ");
+        Console.Out.Write("testing server priority... ");
+        Console.Out.Flush();
         Ice.ObjectPrx obj = communicator.stringToProxy("test:default -p 12010 -t 10000");
         Test.PriorityPrx priority = Test.PriorityPrxHelper.checkedCast(obj);
 
         try
         {
-            Console.WriteLine("Priority: " + priority.getPriority());
             test("AboveNormal".Equals(priority.getPriority()));
         }
         catch(Exception ex)
         {
-            Console.WriteLine(ex.ToString());
+            Console.Error.WriteLine(ex.ToString());
             test(false);
         }
-        Console.WriteLine("ok");
+        Console.Out.WriteLine("ok");
 
         priority.shutdown();
         return 0;

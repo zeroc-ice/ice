@@ -291,6 +291,12 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
         assert(_state > StateNotValidated);
         assert(_state < StateClosing);
 
+        //
+        // Ensure the message isn't bigger than what we can send with the
+        // transport.
+        //
+        _transceiver.checkSendSize(os.getBuffer(), _instance.messageSizeMax());
+
         if(response)
         {
             //
@@ -357,6 +363,12 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
 
         assert(_state > StateNotValidated);
         assert(_state < StateClosing);
+
+        //
+        // Ensure the message isn't bigger than what we can send with the
+        // transport.
+        //
+        _transceiver.checkSendSize(os.getBuffer(), _instance.messageSizeMax());
 
         if(response)
         {
@@ -880,13 +892,14 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
                 }
                 if((current.operation & IceInternal.SocketOperation.Read) != 0 && !_readStream.isEmpty())
                 {
-                    if(_readStream.size() == IceInternal.Protocol.headerSize) // Read header.
+                    if(_readHeader) // Read header if necessary.
                     {
                         if(!_transceiver.read(_readStream.getBuffer(), _hasMoreData))
                         {
                             return;
                         }
                         assert(!_readStream.getBuffer().b.hasRemaining());
+                        _readHeader = false;
 
                         int pos = _readStream.pos();
                         if(pos < IceInternal.Protocol.headerSize)
@@ -903,8 +916,8 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
                         m[1] = _readStream.readByte();
                         m[2] = _readStream.readByte();
                         m[3] = _readStream.readByte();
-                        if(m[0] != IceInternal.Protocol.magic[0] || m[1] != IceInternal.Protocol.magic[1]
-                           || m[2] != IceInternal.Protocol.magic[2] || m[3] != IceInternal.Protocol.magic[3])
+                        if(m[0] != IceInternal.Protocol.magic[0] || m[1] != IceInternal.Protocol.magic[1] ||
+                           m[2] != IceInternal.Protocol.magic[2] || m[3] != IceInternal.Protocol.magic[3])
                         {
                             Ice.BadMagicException ex = new Ice.BadMagicException();
                             ex.badMagic = m;
@@ -957,12 +970,7 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
                     {
                         if(_endpoint.datagram())
                         {
-                            if(_warnUdp)
-                            {
-                                _logger.warning("DatagramLimitException: maximum size of " + _readStream.pos() +
-                                                " exceeded");
-                            }
-                            throw new Ice.DatagramLimitException();
+                            throw new Ice.DatagramLimitException(); // The message was truncated.
                         }
                         else
                         {
@@ -1015,8 +1023,13 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
             }
             catch(DatagramLimitException ex) // Expected.
             {
+                if(_warnUdp)
+                {
+                    _logger.warning("maximum datagram size of " + _readStream.pos() + " exceeded");
+                }
                 _readStream.resize(IceInternal.Protocol.headerSize, true);
                 _readStream.pos(0);
+                _readHeader = true;
                 return;
             }
             catch(SocketException ex)
@@ -1035,6 +1048,7 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
                     }
                     _readStream.resize(IceInternal.Protocol.headerSize, true);
                     _readStream.pos(0);
+                    _readHeader = true;
                 }
                 else
                 {
@@ -1284,6 +1298,7 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
         _batchRequestCompress = false;
         _batchMarker = 0;
         _readStream = new IceInternal.BasicStream(instance);
+        _readHeader = false;
         _writeStream = new IceInternal.BasicStream(instance);
         _dispatchCount = 0;
         _state = StateNotInitialized;
@@ -1732,6 +1747,7 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
         _writeStream.pos(0);
 
         _readStream.resize(IceInternal.Protocol.headerSize, true);
+        _readHeader = true;
         _readStream.pos(0);
 
         return true;
@@ -1950,6 +1966,7 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
         _readStream.swap(info.stream);
         _readStream.resize(IceInternal.Protocol.headerSize, true);
         _readStream.pos(0);
+        _readHeader = true;
 
         assert(info.stream.pos() == info.stream.size());
 
@@ -2490,6 +2507,7 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
     private java.util.LinkedList<OutgoingMessage> _sendStreams = new java.util.LinkedList<OutgoingMessage>();
 
     private IceInternal.BasicStream _readStream;
+    private boolean _readHeader;
     private IceInternal.BasicStream _writeStream;
 
     private int _dispatchCount;

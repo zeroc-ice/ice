@@ -44,13 +44,14 @@ public final class ReferenceFactory
         //
         // Create new reference
         //
-        FixedReference ref = new FixedReference(_instance, 
-                                                _communicator, 
-                                                ident, 
-                                                "", // Facet
-                                                Reference.ModeTwoway,
-                                                false,
-                                                fixedConnection);
+        FixedReference ref = new FixedReference(
+            _instance, 
+            _communicator, 
+            ident, 
+            "", // Facet
+            fixedConnection.endpoint().datagram() ? Reference.ModeDatagram : Reference.ModeTwoway,
+            fixedConnection.endpoint().secure(),
+            fixedConnection);
         return updateCache(ref);
     }
 

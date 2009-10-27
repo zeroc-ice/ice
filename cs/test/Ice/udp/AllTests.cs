@@ -121,7 +121,7 @@ public class AllTests
             {
                 test(seq.Length > 16384);
             }
-            
+            obj.ice_getConnection().close(false);
             communicator.getProperties().setProperty("Ice.UDP.SndSize", "64000");
             seq = new byte[50000];
             try
@@ -151,26 +151,84 @@ public class AllTests
             host = "239.255.1.1";
         }
         @base = communicator.stringToProxy("test:udp -h " + host + " -p 12020").ice_datagram();
-        obj = Test.TestIntfPrxHelper.uncheckedCast(@base);
+        TestIntfPrx objMcast = Test.TestIntfPrxHelper.uncheckedCast(@base);
 
-        replyI.reset();
-        obj.ping(reply);
-        if(!replyI.waitReply(5, 5000))
+        nRetry = 5;
+        while(nRetry-- > 0)
+        {
+            replyI.reset();
+            objMcast.ping(reply);
+            ret = replyI.waitReply(5, 5000);
+            if(ret)
+            {
+                break;
+            }
+            replyI = new PingReplyI();
+            reply =(Test.PingReplyPrx)Test.PingReplyPrxHelper.uncheckedCast(adapter.addWithUUID(replyI)).ice_datagram();
+        }
+        if(!ret)
         {
             Console.Out.WriteLine("failed (is a firewall enabled?)");
-            return obj;
         }
-
-        replyI.reset();
-        obj.ping(reply);
-        if(!replyI.waitReply(5, 5000))
+        else
         {
-            Console.Out.WriteLine("failed (is a firewall enabled?)");
-            return obj;
+            Console.Out.WriteLine("ok");
         }
 
-        Console.Out.WriteLine("ok");
+        Console.Out.Write("testing udp bi-dir connection... ");
+        Console.Out.Flush();
+        obj.ice_getConnection().setAdapter(adapter);
+        objMcast.ice_getConnection().setAdapter(adapter);
+        nRetry = 5;
+        while(nRetry-- > 0)
+        {
+            replyI.reset();
+            obj.pingBiDir(reply.ice_getIdentity());
+            obj.pingBiDir(reply.ice_getIdentity());
+            obj.pingBiDir(reply.ice_getIdentity());
+            ret = replyI.waitReply(3, 2000);
+            if(ret)
+            {
+                break; // Success
+            }
+            replyI = new PingReplyI();
+            reply = (PingReplyPrx)PingReplyPrxHelper.uncheckedCast(adapter.addWithUUID(replyI)).ice_datagram();
+        }
+        test(ret);
 
-        return obj;
+        if(IceInternal.AssemblyUtil.platform_ != IceInternal.AssemblyUtil.Platform.Windows)
+        {
+            //
+            // Windows doesn't support sending replies back on the multicast UDP connection,
+            // see UdpTransceiver constructor for the details.
+            // 
+            nRetry = 5;
+            while(nRetry-- > 0)
+            {
+                replyI.reset();
+                objMcast.pingBiDir(reply.ice_getIdentity());
+                ret = replyI.waitReply(5, 2000);
+                if(ret)
+                {
+                    break; // Success
+                }
+                replyI = new PingReplyI();
+                reply = (PingReplyPrx)PingReplyPrxHelper.uncheckedCast(adapter.addWithUUID(replyI)).ice_datagram();
+            }
+
+            if(!ret)
+            {
+                Console.Out.WriteLine("failed (is a firewall enabled?)");
+            }
+            else
+            {
+                Console.Out.WriteLine("ok");
+            }
+        }
+        else
+        {
+            Console.Out.WriteLine("ok");
+        }
+        return objMcast;
     }
 }

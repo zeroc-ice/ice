@@ -10,6 +10,8 @@
 #ifndef TEST_ICE
 #define TEST_ICE
 
+#include <Ice/Identity.ice>
+
 [["java:package:test.Ice.udp"]]
 module Test
 {
@@ -25,6 +27,7 @@ interface TestIntf
 {
     void ping(PingReply* reply);
     void sendByteSeq(ByteSeq seq, PingReply* reply);
+    void pingBiDir(Ice::Identity id);
     void shutdown();
 };
 

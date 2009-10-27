@@ -301,6 +301,7 @@ private:
     std::deque<OutgoingMessage> _sendStreams;
 
     IceInternal::BasicStream _readStream;
+    bool _readHeader;
     IceInternal::BasicStream _writeStream;
 
     int _dispatchCount;

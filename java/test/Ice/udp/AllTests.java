@@ -78,7 +78,7 @@ public class AllTests
 
         System.out.print("testing udp... ");
         System.out.flush();
-        Ice.ObjectPrx base = communicator.stringToProxy("test:udp -p 12010").ice_datagram();
+        Ice.ObjectPrx base = communicator.stringToProxy("test -d:udp -p 12010");
         TestIntfPrx obj = TestIntfPrxHelper.uncheckedCast(base);
 
         int nRetry = 5;
@@ -124,7 +124,7 @@ public class AllTests
             {
                 test(seq.length > 16384);
             }
-            
+            obj.ice_getConnection().close(false);
             communicator.getProperties().setProperty("Ice.UDP.SndSize", "64000");
             seq = new byte[50000];
             try
@@ -153,28 +153,85 @@ public class AllTests
         {
             host = "239.255.1.1";
         }
-        base = communicator.stringToProxy("test:udp -h " + host + " -p 12020").ice_datagram();
-        obj = TestIntfPrxHelper.uncheckedCast(base);
+        base = communicator.stringToProxy("test -d:udp -h " + host + " -p 12020");
+        TestIntfPrx objMcast = TestIntfPrxHelper.uncheckedCast(base);
 
-        replyI.reset();
-        obj.ping(reply);
-        if(!replyI.waitReply(5, 2000))
+        nRetry = 5;
+        while(nRetry-- > 0)
+        {
+            replyI.reset();
+            objMcast.ping(reply);
+            ret = replyI.waitReply(5, 2000);
+            if(ret)
+            {
+                break; // Success
+            }
+            replyI = new PingReplyI();
+            reply = (PingReplyPrx)PingReplyPrxHelper.uncheckedCast(adapter.addWithUUID(replyI)).ice_datagram();
+        }
+        if(!ret)
         {
             System.out.println("failed (is a firewall enabled?)");
-            return obj;
         }
-
-        replyI.reset();
-        obj.ping(reply);
-        ret = replyI.waitReply(5, 2000);
-        if(!replyI.waitReply(5, 2000))
+        else
         {
-            System.out.println("failed (is a firewall enabled?)");
-            return obj;
+            System.out.println("ok");
         }
 
-        System.out.println("ok");
+        System.out.print("testing udp bi-dir connection... ");
+        System.out.flush();
+        obj.ice_getConnection().setAdapter(adapter);
+        objMcast.ice_getConnection().setAdapter(adapter);
+        nRetry = 5;
+        while(nRetry-- > 0)
+        {
+            replyI.reset();
+            obj.pingBiDir(reply.ice_getIdentity());
+            obj.pingBiDir(reply.ice_getIdentity());
+            obj.pingBiDir(reply.ice_getIdentity());
+            ret = replyI.waitReply(3, 2000);
+            if(ret)
+            {
+                break; // Success
+            }
+            replyI = new PingReplyI();
+            reply = (PingReplyPrx)PingReplyPrxHelper.uncheckedCast(adapter.addWithUUID(replyI)).ice_datagram();
+        }
+        test(ret);
+        if(!System.getProperty("os.name").startsWith("Windows"))
+        {
+            //
+            // Windows doesn't support sending replies back on the multicast UDP connection,
+            // see UdpTransceiver constructor for the details.
+            // 
+            nRetry = 5;
+            while(nRetry-- > 0)
+            {
+                replyI.reset();
+                objMcast.pingBiDir(reply.ice_getIdentity());
+                ret = replyI.waitReply(5, 2000);
+                if(ret)
+                {
+                    break; // Success
+                }
+                replyI = new PingReplyI();
+                reply = (PingReplyPrx)PingReplyPrxHelper.uncheckedCast(adapter.addWithUUID(replyI)).ice_datagram();
+            }
 
-        return obj;
+            if(!ret)
+            {
+                System.out.println("failed (is a firewall enabled?)");
+            }
+            else
+            {
+                System.out.println("ok");
+            }
+        }
+        else
+        {
+            System.out.println("ok");
+        }
+        
+        return objMcast;
     }
 }

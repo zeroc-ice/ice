@@ -54,6 +54,7 @@ main(int argc, char* argv[])
         initData.properties = Ice::createProperties(argc, argv);
 
         initData.properties->setProperty("Ice.Warn.Connections", "0");
+        initData.properties->setProperty("Ice.UDP.SndSize", "16384");
         initData.properties->setProperty("Ice.UDP.RcvSize", "16384");
 
         communicator = Ice::initialize(argc, argv, initData);

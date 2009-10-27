@@ -423,6 +423,12 @@ Ice::ConnectionI::sendRequest(Outgoing* out, bool compress, bool response)
     assert(_state > StateNotValidated);
     assert(_state < StateClosing);
 
+    //
+    // Ensure the message isn't bigger than what we can send with the
+    // transport.
+    //
+    _transceiver->checkSendSize(*os, _instance->messageSizeMax());
+
     Int requestId;
     if(response)
     {
@@ -493,6 +499,12 @@ Ice::ConnectionI::sendAsyncRequest(const OutgoingAsyncPtr& out, bool compress, b
 
     assert(_state > StateNotValidated);
     assert(_state < StateClosing);
+
+    //
+    // Ensure the message isn't bigger than what we can send with the
+    // transport.
+    //
+    _transceiver->checkSendSize(*os, _instance->messageSizeMax());
 
     Int requestId;
     if(response)
@@ -1099,13 +1111,14 @@ Ice::ConnectionI::message(ThreadPoolCurrent& current)
             }
             if(current.operation & SocketOperationRead && !_readStream.b.empty())
             {
-                if(static_cast<Int>(_readStream.b.size()) == headerSize) // Read header.
+                if(_readHeader) // Read header if necessary.
                 {
                     if(_readStream.i != _readStream.b.end() && !_transceiver->read(_readStream))
                     {
                         return;
                     }   
                     assert(_readStream.i == _readStream.b.end());
+                    _readHeader = false;
                 
                     ptrdiff_t pos = _readStream.i - _readStream.b.begin();
                     if(pos < headerSize)
@@ -1173,18 +1186,12 @@ Ice::ConnectionI::message(ThreadPoolCurrent& current)
                     }
                     _readStream.i = _readStream.b.begin() + pos;
                 }
-            
+
                 if(_readStream.i != _readStream.b.end())
                 {
                     if(_endpoint->datagram())
                     {
-                        if(_warnUdp)
-                        {
-                            Warning out(_instance->initializationData().logger);
-                            out << "DatagramLimitException: maximum size of " << _readStream.i - _readStream.b.begin() 
-                                << " exceeded";
-                        }
-                        throw DatagramLimitException(__FILE__, __LINE__);
+                        throw DatagramLimitException(__FILE__, __LINE__); // The message was truncated.
                     }
                     else
                     {
@@ -1236,8 +1243,14 @@ Ice::ConnectionI::message(ThreadPoolCurrent& current)
         }
         catch(const DatagramLimitException&) // Expected.
         {
+            if(_warnUdp)
+            {
+                Warning out(_instance->initializationData().logger);
+                out << "maximum datagram size of " << _readStream.i - _readStream.b.begin() << " exceeded";
+            }
             _readStream.resize(headerSize);
             _readStream.i = _readStream.b.begin();
+            _readHeader = true;
             return;
         }
         catch(const SocketException& ex)
@@ -1249,13 +1262,14 @@ Ice::ConnectionI::message(ThreadPoolCurrent& current)
         {
             if(_endpoint->datagram())
             {
-                if(_instance->initializationData().properties->getPropertyAsInt("Ice.Warn.Connections") > 0)
+                if(_warn)
                 {
                     Warning out(_instance->initializationData().logger);
                     out << "datagram connection exception:\n" << ex << '\n' << _desc;
                 }
                 _readStream.resize(headerSize);
                 _readStream.i = _readStream.b.begin();
+                _readHeader = true;
             }
             else
             {
@@ -1517,6 +1531,7 @@ Ice::ConnectionI::ConnectionI(const InstancePtr& instance,
     _batchRequestCompress(false),
     _batchMarker(0),
     _readStream(_instance.get()),
+    _readHeader(false),
     _writeStream(_instance.get()),
     _dispatchCount(0),
     _state(StateNotInitialized)
@@ -1973,6 +1988,7 @@ Ice::ConnectionI::validate(SocketOperation operation)
 
     _readStream.resize(headerSize);
     _readStream.i = _readStream.b.begin();
+    _readHeader = true;
 
     return true;
 }
@@ -2370,6 +2386,7 @@ Ice::ConnectionI::parseMessage(BasicStream& stream, Int& invokeNum, Int& request
     _readStream.swap(stream);
     _readStream.resize(headerSize);
     _readStream.i = _readStream.b.begin();
+    _readHeader = true;
 
     assert(stream.i == stream.b.end());
 

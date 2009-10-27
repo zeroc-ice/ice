@@ -52,13 +52,14 @@ namespace IceInternal
             //
             // Create new reference
             //
-            FixedReference r = new FixedReference(instance_, 
-                                                  _communicator, 
-                                                  ident,
-                                                  "", // Facet
-                                                  Reference.Mode.ModeTwoway,
-                                                  false,
-                                                  connection);
+            FixedReference r = new FixedReference(
+                instance_, 
+                _communicator, 
+                ident,
+                "", // Facet
+                connection.endpoint().datagram() ? Reference.Mode.ModeDatagram : Reference.Mode.ModeTwoway,
+                connection.endpoint().secure(),
+                connection);
             return updateCache(r);
         }
 

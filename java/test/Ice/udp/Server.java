@@ -36,6 +36,7 @@ public class Server extends test.Util.Application
         initData.properties.setProperty("Ice.Package.Test", "test.Ice.udp");
         initData.properties.setProperty("Ice.Warn.Connections", "0");
         initData.properties.setProperty("Ice.UDP.RcvSize", "16384");
+        initData.properties.setProperty("Ice.UDP.SndSize", "16384");
 
         String host;
         if(initData.properties.getProperty("Ice.IPv6") == "1")

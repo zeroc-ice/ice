@@ -325,6 +325,12 @@ namespace Ice
                 Debug.Assert(_state > StateNotValidated);
                 Debug.Assert(_state < StateClosing);
 
+                //
+                // Ensure the message isn't bigger than what we can send with the
+                // transport.
+                //
+                _transceiver.checkSendSize(os.getBuffer(), _instance.messageSizeMax());
+
                 int requestId = 0;
                 if(response)
                 {
@@ -391,6 +397,12 @@ namespace Ice
 
                 Debug.Assert(_state > StateNotValidated);
                 Debug.Assert(_state < StateClosing);
+
+                //
+                // Ensure the message isn't bigger than what we can send with the
+                // transport.
+                //
+                _transceiver.checkSendSize(os.getBuffer(), _instance.messageSizeMax());
 
                 int requestId = 0;
                 if(response)
@@ -968,13 +980,14 @@ namespace Ice
                     }
                     if((current.operation & IceInternal.SocketOperation.Read) != 0 && !_readStream.isEmpty())
                     {
-                        if(_readStream.size() == IceInternal.Protocol.headerSize) // Read header.
+                        if(_readHeader) // Read header if necessary.
                         {
                             if(_readStream.getBuffer().b.hasRemaining() && !_transceiver.read(_readStream.getBuffer()))
                             {
                                 return;
                             }
                             Debug.Assert(!_readStream.getBuffer().b.hasRemaining());
+                            _readHeader = true;
 
                             int pos = _readStream.pos();
                             if(pos < IceInternal.Protocol.headerSize)
@@ -991,8 +1004,8 @@ namespace Ice
                             m[1] = _readStream.readByte();
                             m[2] = _readStream.readByte();
                             m[3] = _readStream.readByte();
-                            if(m[0] != IceInternal.Protocol.magic[0] || m[1] != IceInternal.Protocol.magic[1]
-                               || m[2] != IceInternal.Protocol.magic[2] || m[3] != IceInternal.Protocol.magic[3])
+                            if(m[0] != IceInternal.Protocol.magic[0] || m[1] != IceInternal.Protocol.magic[1] ||
+                               m[2] != IceInternal.Protocol.magic[2] || m[3] != IceInternal.Protocol.magic[3])
                             {
                                 Ice.BadMagicException ex = new Ice.BadMagicException();
                                 ex.badMagic = m;
@@ -1047,12 +1060,7 @@ namespace Ice
                         {
                             if(_endpoint.datagram())
                             {
-                                if(_warnUdp)
-                                {
-                                    _logger.warning("DatagramLimitException: maximum size of " + 
-                                                    _readStream.pos() + " exceeded");
-                                }
-                                throw new Ice.DatagramLimitException();
+                                throw new Ice.DatagramLimitException(); // The message was truncated.
                             }
                             else
                             {
@@ -1118,8 +1126,13 @@ namespace Ice
                 }
                 catch(DatagramLimitException) // Expected.
                 {
+                    if(_warnUdp)
+                    {
+                        _logger.warning("maximum datagram size of " + _readStream.pos() + " exceeded");
+                    }
                     _readStream.resize(IceInternal.Protocol.headerSize, true);
                     _readStream.pos(0);
+                    _readHeader = true;
                     return;
                 }
                 catch(SocketException ex)
@@ -1138,6 +1151,7 @@ namespace Ice
                         }
                         _readStream.resize(IceInternal.Protocol.headerSize, true);
                         _readStream.pos(0);
+                        _readHeader = true;
                     }
                     else
                     {
@@ -1430,6 +1444,7 @@ namespace Ice
             _batchRequestCompress = false;
             _batchMarker = 0;
             _readStream = new IceInternal.BasicStream(instance);
+            _readHeader = false;
             _writeStream = new IceInternal.BasicStream(instance);
             _dispatchCount = 0;
             _state = StateNotInitialized;
@@ -1851,6 +1866,7 @@ namespace Ice
 
             _readStream.resize(IceInternal.Protocol.headerSize, true);
             _readStream.pos(0);
+            _readHeader = true;
 
             return true;
         }
@@ -2061,7 +2077,8 @@ namespace Ice
             info.stream = stream;
             _readStream.swap(info.stream);
             _readStream.resize(IceInternal.Protocol.headerSize, true);
-            _readStream.pos(0);            
+            _readStream.pos(0);
+            _readHeader = true;
 
             try
             {
@@ -2553,6 +2570,7 @@ namespace Ice
         private Queue<OutgoingMessage> _sendStreams = new Queue<OutgoingMessage>();
 
         private IceInternal.BasicStream _readStream;
+        private bool _readHeader;
         private IceInternal.BasicStream _writeStream;
 
         private int _dispatchCount;

@@ -154,6 +154,7 @@ public class AllTests
             Ice.IPConnectionInfo info = (Ice.IPConnectionInfo)@base.ice_getConnection().getInfo();
             test(!info.incoming);
             test(info.adapterName.Length == 0);
+            test(info.localPort > 0);
             test(info.remotePort == 12010);
             test(info.remoteAddress.Equals(defaultHost));
             test(info.localAddress.Equals(defaultHost));
@@ -165,6 +166,14 @@ public class AllTests
             test(ctx["localAddress"].Equals(info.remoteAddress));
             test(ctx["remotePort"].Equals(info.localPort.ToString()));
             test(ctx["localPort"].Equals(info.remotePort.ToString()));
+
+            info = (Ice.IPConnectionInfo)@base.ice_datagram().ice_getConnection().getInfo();
+            test(!info.incoming);
+            test(info.adapterName.Length == 0);
+            test(info.localPort > 0);
+            test(info.remotePort == 12010);
+            test(info.remoteAddress.Equals(defaultHost));
+            test(info.localAddress.Equals(defaultHost));
         }
         Console.Out.WriteLine("ok");
 

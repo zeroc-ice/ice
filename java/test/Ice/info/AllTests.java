@@ -144,6 +144,7 @@ public class AllTests
             Ice.IPConnectionInfo info = (Ice.IPConnectionInfo)base.ice_getConnection().getInfo();
             test(!info.incoming);
             test(info.adapterName.length() == 0);
+            test(info.localPort > 0);
             test(info.remotePort == 12010);
             test(info.remoteAddress.equals(defaultHost));
             test(info.localAddress.equals(defaultHost));
@@ -155,6 +156,14 @@ public class AllTests
             test(ctx.get("localAddress").equals(info.remoteAddress));
             test(ctx.get("remotePort").equals(Integer.toString(info.localPort)));
             test(ctx.get("localPort").equals(Integer.toString(info.remotePort)));
+
+            info = (Ice.IPConnectionInfo)base.ice_datagram().ice_getConnection().getInfo();
+            test(!info.incoming);
+            test(info.adapterName.length() == 0);
+            test(info.localPort > 0);
+            test(info.remotePort == 12010);
+            test(info.remoteAddress.equals(defaultHost));
+            test(info.localAddress.equals(defaultHost));
         }
         out.println("ok");
 

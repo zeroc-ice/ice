@@ -26,6 +26,7 @@ public class Client extends test.Util.Application
         initData.properties = Ice.Util.createProperties(argsH);
         initData.properties.setProperty("Ice.Package.Test", "test.Ice.udp");
         initData.properties.setProperty("Ice.Warn.Connections", "0");
+        initData.properties.setProperty("Ice.UDP.RcvSize", "16384");
         initData.properties.setProperty("Ice.UDP.SndSize", "16384");
         return initData;
     }

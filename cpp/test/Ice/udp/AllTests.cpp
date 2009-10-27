@@ -70,7 +70,7 @@ allTests(const CommunicatorPtr& communicator)
     adapter->activate();
 
     cout << "testing udp... " << flush;
-    ObjectPrx base = communicator->stringToProxy("test:udp -p 12010")->ice_datagram();
+    ObjectPrx base = communicator->stringToProxy("test -d:udp -p 12010");
     TestIntfPrx obj = TestIntfPrx::uncheckedCast(base);
 
     int nRetry = 5;
@@ -117,7 +117,7 @@ allTests(const CommunicatorPtr& communicator)
         {
             test(seq.size() > 16384);
         }
-        
+        obj->ice_getConnection()->close(false);
         communicator->getProperties()->setProperty("Ice.UDP.SndSize", "64000");
         seq.resize(50000);
         try
@@ -135,6 +135,7 @@ allTests(const CommunicatorPtr& communicator)
 
     cout << "ok" << endl;
 
+
     cout << "testing udp multicast... " << flush;
     string host;
     if(communicator->getProperties()->getProperty("Ice.IPv6") == "1")
@@ -145,26 +146,83 @@ allTests(const CommunicatorPtr& communicator)
     {
         host = "239.255.1.1";
     }
-    base = communicator->stringToProxy("test:udp -h " + host + " -p 12020")->ice_datagram();
-    obj = TestIntfPrx::uncheckedCast(base);
+    base = communicator->stringToProxy("test -d:udp -h " + host + " -p 12020");
+    TestIntfPrx objMcast = TestIntfPrx::uncheckedCast(base);
 
-    replyI->reset();
-    obj->ping(reply);
-    if(!replyI->waitReply(5, IceUtil::Time::seconds(2)))
+    nRetry = 5;
+    while(nRetry-- > 0)
+    {
+        replyI->reset();
+        objMcast->ping(reply);
+        ret = replyI->waitReply(5, IceUtil::Time::seconds(2));
+        if(ret)
+        {
+            break; // Success
+        }
+        replyI = new PingReplyI;
+        reply = PingReplyPrx::uncheckedCast(adapter->addWithUUID(replyI))->ice_datagram();
+    }
+    if(!ret)
     {
         cout << "failed (is a firewall enabled?)" << endl;
-        return obj;
+    }
+    else
+    {
+        cout << "ok" << endl;
     }
 
-    replyI->reset();
-    obj->ping(reply);
-    if(!replyI->waitReply(5, IceUtil::Time::seconds(2)))
+    cout << "testing udp bi-dir connection... " << flush;    
+    obj->ice_getConnection()->setAdapter(adapter);
+    objMcast->ice_getConnection()->setAdapter(adapter);
+    nRetry = 5;
+    while(nRetry-- > 0)
+    {
+        replyI->reset();
+        obj->pingBiDir(reply->ice_getIdentity());
+        obj->pingBiDir(reply->ice_getIdentity());
+        obj->pingBiDir(reply->ice_getIdentity());
+        ret = replyI->waitReply(3, IceUtil::Time::seconds(2));
+        if(ret)
+        {
+            break; // Success
+        }
+
+        // If the 3 datagrams were not received within the 2 seconds, we try again to
+        // receive 3 new datagrams using a new object. We give up after 5 retries. 
+        replyI = new PingReplyI;
+        reply = PingReplyPrx::uncheckedCast(adapter->addWithUUID(replyI))->ice_datagram();
+    }
+    test(ret);
+
+#ifndef _WIN32
+    //
+    // Windows doesn't support sending replies back on the multicast UDP connection,
+    // see UdpTransceiver constructor for the details.
+    // 
+    nRetry = 5;
+    while(nRetry-- > 0)
+    {
+        replyI->reset();
+        objMcast->pingBiDir(reply->ice_getIdentity());
+        ret = replyI->waitReply(5, IceUtil::Time::seconds(2));
+        if(ret)
+        {
+            break; // Success
+        }        
+        replyI = new PingReplyI;
+        reply = PingReplyPrx::uncheckedCast(adapter->addWithUUID(replyI))->ice_datagram();
+    }
+    if(!ret)
     {
         cout << "failed (is a firewall enabled?)" << endl;
-        return obj;
     }
-
+    else
+    {
+        cout << "ok" << endl;
+    }
+#else
     cout << "ok" << endl;
+#endif
 
-    return obj;
+    return objMcast;
 }

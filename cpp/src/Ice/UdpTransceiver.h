@@ -35,6 +35,14 @@ class SUdpTransceiver;
 
 class UdpTransceiver : public Transceiver, public NativeInfo
 {
+    enum State
+    {
+        StateNeedConnect,
+        StateConnectPending,
+        StateConnected,
+        StateNotConnected
+    };
+
 public:
 
     virtual NativeInfoPtr getNativeInfo();
@@ -76,17 +84,19 @@ private:
     const bool _incoming;
     const struct sockaddr_storage _addr;
     struct sockaddr_storage _mcastAddr;
-
-    bool _connect;
+    struct sockaddr_storage _peerAddr;
+    
+    State _state;
     int _rcvSize;
     int _sndSize;
-    const bool _warn;
     static const int _udpOverhead;
     static const int _maxPacketSize;
 
 #ifdef ICE_USE_IOCP
     AsyncInfo _read;
     AsyncInfo _write;
+    struct sockaddr_storage _readAddr;
+    socklen_t _readAddrLen;
 #endif
 };
 

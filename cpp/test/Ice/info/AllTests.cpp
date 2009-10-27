@@ -139,6 +139,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
         test(info);
         test(!info->incoming);
         test(info->adapterName.empty());
+        test(info->localPort > 0);
         test(info->remotePort == 12010);
         test(info->remoteAddress == defaultHost);
         test(info->localAddress == defaultHost);
@@ -156,6 +157,14 @@ allTests(const Ice::CommunicatorPtr& communicator)
         os.str("");
         os << info->remotePort;
         test(ctx["localPort"] == os.str());
+
+        info = Ice::IPConnectionInfoPtr::dynamicCast(base->ice_datagram()->ice_getConnection()->getInfo());
+        test(!info->incoming);
+        test(info->adapterName.empty());
+        test(info->localPort > 0);
+        test(info->remotePort == 12010);
+        test(info->remoteAddress ==defaultHost);
+        test(info->localAddress == defaultHost);
     }
     cout << "ok" << endl;
 

@@ -13,6 +13,7 @@
 #include <Ice/LocalException.h>
 #include <Ice/Instance.h>
 #include <Ice/EndpointI.h>
+#include <Ice/ConnectionI.h>
 #include <Ice/EndpointFactoryManager.h>
 #include <Ice/RouterInfo.h>
 #include <Ice/Router.h>
@@ -86,8 +87,8 @@ IceInternal::ReferenceFactory::create(const Identity& ident, const Ice::Connecti
                               _communicator, 
                               ident, 
                               "",  // Facet
-                              Reference::ModeTwoway,
-                              false,
+                              connection->endpoint()->datagram() ? Reference::ModeDatagram : Reference::ModeTwoway,
+                              connection->endpoint()->secure(),
                               connection);
 }
 

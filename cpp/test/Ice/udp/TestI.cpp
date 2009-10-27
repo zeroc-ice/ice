@@ -41,6 +41,38 @@ TestIntfI::sendByteSeq(const Test::ByteSeq&, const Test::PingReplyPrx& reply, co
 }
 
 void
+TestIntfI::pingBiDir(const Ice::Identity& id, const Ice::Current& current)
+{
+    try
+    {
+        //
+        // Ensure sending too much data doesn't cause the UDP connection
+        // to be closed.
+        //
+        try
+        {
+            Test::ByteSeq seq;
+            seq.resize(32 * 1024);
+            Test::TestIntfPrx::uncheckedCast(current.con->createProxy(id))->sendByteSeq(seq, 0);
+        }
+        catch(const DatagramLimitException&)
+        {
+            // Expected.
+        }
+
+        //
+        // Send the reply through the incoming connection.
+        //
+        Test::PingReplyPrx::uncheckedCast(current.con->createProxy(id))->reply();
+    }
+    catch(const Ice::Exception& ex)
+    {
+        cerr << ex << endl;
+        assert(false);
+    }
+}
+
+void
 TestIntfI::shutdown(const Current& current)
 {
     current.adapter->getCommunicator()->shutdown();
