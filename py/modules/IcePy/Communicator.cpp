@@ -476,12 +476,17 @@ static PyObject*
 communicatorProxyToString(CommunicatorObject* self, PyObject* args)
 {
     PyObject* obj;
-    if(!PyArg_ParseTuple(args, STRCAST("O!"), &ProxyType, &obj))
+    if(!PyArg_ParseTuple(args, STRCAST("O"), &obj))
     {
         return 0;
     }
 
-    Ice::ObjectPrx proxy = getProxy(obj);
+    Ice::ObjectPrx proxy;
+    if(!getProxyArg(obj, "proxyToString", "obj", proxy))
+    {
+        return 0;
+    }
+
     string str;
 
     assert(self->communicator);
@@ -542,9 +547,13 @@ extern "C"
 static PyObject*
 communicatorProxyToProperty(CommunicatorObject* self, PyObject* args)
 {
+    //
+    // We don't want to accept None here, so we can specify ProxyType and force
+    // the caller to supply a proxy object.
+    //
     PyObject* proxyObj;
     PyObject* strObj;
-    if(!PyArg_ParseTuple(args, STRCAST("OO"), &proxyObj, &strObj))
+    if(!PyArg_ParseTuple(args, STRCAST("O!O"), &ProxyType, &proxyObj, &strObj))
     {
         return 0;
     }
@@ -1071,8 +1080,8 @@ static PyObject*
 communicatorCreateObjectAdapterWithRouter(CommunicatorObject* self, PyObject* args)
 {
     PyObject* nameObj;
-    PyObject* proxy;
-    if(!PyArg_ParseTuple(args, STRCAST("OO"), &nameObj, &proxy))
+    PyObject* p;
+    if(!PyArg_ParseTuple(args, STRCAST("OO"), &nameObj, &p))
     {
         return 0;
     }
@@ -1083,25 +1092,19 @@ communicatorCreateObjectAdapterWithRouter(CommunicatorObject* self, PyObject* ar
         return 0;
     }
 
-    PyObject* routerProxyType = lookupType("Ice.RouterPrx");
-    assert(routerProxyType);
-    Ice::RouterPrx router;
-    if(PyObject_IsInstance(proxy, routerProxyType))
+    Ice::ObjectPrx proxy;
+    if(!getProxyArg(p, "createObjectAdapterWithRouter", "rtr", proxy, "Ice.RouterPrx"))
     {
-        router = Ice::RouterPrx::uncheckedCast(getProxy(proxy));
-    }
-    else if(proxy != Py_None)
-    {
-        PyErr_Format(PyExc_ValueError, STRCAST("createObjectAdapterWithRouter requires None or Ice.RouterPrx"));
         return 0;
     }
 
-    AllowThreads allowThreads; // Release Python's global interpreter lock to avoid a potential deadlock.
+    Ice::RouterPrx router = Ice::RouterPrx::uncheckedCast(proxy);
 
     assert(self->communicator);
     Ice::ObjectAdapterPtr adapter;
     try
     {
+        AllowThreads allowThreads; // Release Python's global interpreter lock to avoid a potential deadlock.
         adapter = (*self->communicator)->createObjectAdapterWithRouter(name, router);
     }
     catch(const Ice::Exception& ex)
@@ -1160,24 +1163,19 @@ extern "C"
 static PyObject*
 communicatorSetDefaultRouter(CommunicatorObject* self, PyObject* args)
 {
-    PyObject* proxy;
-    if(!PyArg_ParseTuple(args, STRCAST("O"), &proxy))
+    PyObject* p;
+    if(!PyArg_ParseTuple(args, STRCAST("O"), &p))
     {
         return 0;
     }
 
-    PyObject* routerProxyType = lookupType("Ice.RouterPrx");
-    assert(routerProxyType);
-    Ice::RouterPrx router;
-    if(PyObject_IsInstance(proxy, routerProxyType))
+    Ice::ObjectPrx proxy;
+    if(!getProxyArg(p, "setDefaultRouter", "rtr", proxy, "Ice.RouterPrx"))
     {
-        router = Ice::RouterPrx::uncheckedCast(getProxy(proxy));
-    }
-    else if(proxy != Py_None)
-    {
-        PyErr_Format(PyExc_ValueError, STRCAST("setDefaultRouter requires None or Ice.RouterPrx"));
         return 0;
     }
+
+    Ice::RouterPrx router = Ice::RouterPrx::uncheckedCast(proxy);
 
     assert(self->communicator);
     try
@@ -1229,24 +1227,19 @@ extern "C"
 static PyObject*
 communicatorSetDefaultLocator(CommunicatorObject* self, PyObject* args)
 {
-    PyObject* proxy;
-    if(!PyArg_ParseTuple(args, STRCAST("O"), &proxy))
+    PyObject* p;
+    if(!PyArg_ParseTuple(args, STRCAST("O"), &p))
     {
         return 0;
     }
 
-    PyObject* locatorProxyType = lookupType("Ice.LocatorPrx");
-    assert(locatorProxyType);
-    Ice::LocatorPrx locator;
-    if(PyObject_IsInstance(proxy, locatorProxyType))
+    Ice::ObjectPrx proxy;
+    if(!getProxyArg(p, "setDefaultLocator", "loc", proxy, "Ice.LocatorPrx"))
     {
-        locator = Ice::LocatorPrx::uncheckedCast(getProxy(proxy));
-    }
-    else if(proxy != Py_None)
-    {
-        PyErr_Format(PyExc_ValueError, STRCAST("setDefaultLocator requires None or Ice.LocatorPrx"));
         return 0;
     }
+
+    Ice::LocatorPrx locator = Ice::LocatorPrx::uncheckedCast(proxy);
 
     assert(self->communicator);
     try

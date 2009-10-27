@@ -907,25 +907,20 @@ proxyIceRouter(ProxyObject* self, PyObject* args)
         return 0;
     }
 
-    PyObject* routerProxyType = lookupType("Ice.RouterPrx");
-    assert(routerProxyType);
-    Ice::RouterPrx routerProxy;
-    if(PyObject_IsInstance(p, routerProxyType))
+    Ice::ObjectPrx proxy;
+    if(!getProxyArg(p, "ice_router", "rtr", proxy, "Ice.RouterPrx"))
     {
-        routerProxy = Ice::RouterPrx::uncheckedCast(getProxy(p));
-    }
-    else if(p != Py_None)
-    {
-        PyErr_Format(PyExc_ValueError, STRCAST("ice_router requires None or Ice.RouterPrx"));
         return 0;
     }
+
+    Ice::RouterPrx router = Ice::RouterPrx::uncheckedCast(proxy);
 
     assert(self->proxy);
 
     Ice::ObjectPrx newProxy;
     try
     {
-        newProxy = (*self->proxy)->ice_router(routerProxy);
+        newProxy = (*self->proxy)->ice_router(router);
     }
     catch(const Ice::Exception& ex)
     {
@@ -978,25 +973,20 @@ proxyIceLocator(ProxyObject* self, PyObject* args)
         return 0;
     }
 
-    PyObject* locatorProxyType = lookupType("Ice.LocatorPrx");
-    assert(locatorProxyType);
-    Ice::LocatorPrx locatorProxy;
-    if(PyObject_IsInstance(p, locatorProxyType))
+    Ice::ObjectPrx proxy;
+    if(!getProxyArg(p, "ice_locator", "loc", proxy, "Ice.LocatorPrx"))
     {
-        locatorProxy = Ice::LocatorPrx::uncheckedCast(getProxy(p));
-    }
-    else if(p != Py_None)
-    {
-        PyErr_Format(PyExc_ValueError, STRCAST("ice_locator requires None or Ice.LocatorPrx"));
         return 0;
     }
+
+    Ice::LocatorPrx locator = Ice::LocatorPrx::uncheckedCast(proxy);
 
     assert(self->proxy);
 
     Ice::ObjectPrx newProxy;
     try
     {
-        newProxy = (*self->proxy)->ice_locator(locatorProxy);
+        newProxy = (*self->proxy)->ice_locator(locator);
     }
     catch(const Ice::Exception& ex)
     {
@@ -2042,6 +2032,50 @@ IcePy::getProxy(PyObject* p)
     assert(checkProxy(p));
     ProxyObject* obj = reinterpret_cast<ProxyObject*>(p);
     return *obj->proxy;
+}
+
+bool
+IcePy::getProxyArg(PyObject* p, const string& func, const string& arg, Ice::ObjectPrx& proxy, const string& type)
+{
+    bool result = true;
+
+    if(checkProxy(p))
+    {
+        if(!type.empty())
+        {
+            PyObject* proxyType = lookupType(type);
+            assert(proxyType);
+            if(!PyObject_IsInstance(p, proxyType))
+            {
+                result = false;
+            }
+        }
+    }
+    else if(p != Py_None)
+    {
+        result = false;
+    }
+
+    if(result)
+    {
+        if(p != Py_None)
+        {
+            ProxyObject* obj = reinterpret_cast<ProxyObject*>(p);
+            proxy = *obj->proxy;
+        }
+        else
+        {
+            proxy = 0;
+        }
+    }
+    else
+    {
+        string typeName = type.empty() ? "Ice.ObjectPrx" : type;
+        PyErr_Format(PyExc_ValueError, STRCAST("%s expects a proxy of type %s or None for argument '%s'"),
+                     func.c_str(), typeName.c_str(), arg.c_str());
+    }
+
+    return result;
 }
 
 Ice::CommunicatorPtr

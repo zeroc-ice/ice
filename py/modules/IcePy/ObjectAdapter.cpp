@@ -1159,9 +1159,12 @@ extern "C"
 static PyObject*
 adapterFindByProxy(ObjectAdapterObject* self, PyObject* args)
 {
-    PyObject* proxyType = lookupType("Ice.ObjectPrx");
+    //
+    // We don't want to accept None here, so we can specify ProxyType and force
+    // the caller to supply a proxy object.
+    //
     PyObject* proxy;
-    if(!PyArg_ParseTuple(args, STRCAST("O!"), proxyType, &proxy))
+    if(!PyArg_ParseTuple(args, STRCAST("O!"), &ProxyType, &proxy))
     {
         return 0;
     }
@@ -1458,14 +1461,19 @@ extern "C"
 static PyObject*
 adapterSetLocator(ObjectAdapterObject* self, PyObject* args)
 {
-    PyObject* proxyType = lookupType("Ice.LocatorPrx");
-    PyObject* proxy;
-    if(!PyArg_ParseTuple(args, STRCAST("O!"), proxyType, &proxy))
+    PyObject* p;
+    if(!PyArg_ParseTuple(args, STRCAST("O"), &p))
     {
         return 0;
     }
 
-    Ice::LocatorPrx locator = Ice::LocatorPrx::uncheckedCast(getProxy(proxy));
+    Ice::ObjectPrx proxy;
+    if(!getProxyArg(p, "setLocator", "loc", proxy, "Ice.LocatorPrx"))
+    {
+        return 0;
+    }
+
+    Ice::LocatorPrx locator = Ice::LocatorPrx::uncheckedCast(proxy);
 
     assert(self->adapter);
     try

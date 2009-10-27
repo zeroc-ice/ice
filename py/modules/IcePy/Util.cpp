@@ -43,19 +43,25 @@ IcePy::getStringArg(PyObject* p, const string& arg, string& val)
     }
     else if(p != Py_None)
     {
-        //
-        // Get name of current function.
-        //
-        PyFrameObject *f = PyThreadState_GET()->frame;
-        PyObjectHandle code = PyObject_GetAttrString(reinterpret_cast<PyObject*>(f), STRCAST("f_code"));
-        assert(code.get());
-        PyObjectHandle func = PyObject_GetAttrString(code.get(), STRCAST("co_name"));
-        assert(func.get());
-        string funcName = getString(func.get());
+        string funcName = getFunction();
         PyErr_Format(PyExc_ValueError, STRCAST("%s expects a string for argument '%s'"), funcName.c_str(), arg.c_str());
         return false;
     }
     return true;
+}
+
+string
+IcePy::getFunction()
+{
+    //
+    // Get name of current function.
+    //
+    PyFrameObject *f = PyThreadState_GET()->frame;
+    PyObjectHandle code = PyObject_GetAttrString(reinterpret_cast<PyObject*>(f), STRCAST("f_code"));
+    assert(code.get());
+    PyObjectHandle func = PyObject_GetAttrString(code.get(), STRCAST("co_name"));
+    assert(func.get());
+    return getString(func.get());
 }
 
 IcePy::PyObjectHandle::PyObjectHandle(PyObject* p) :
