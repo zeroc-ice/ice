@@ -20,9 +20,10 @@
 #include <Ice/DefaultsAndOverrides.h>
 #include <Ice/TraceLevels.h>
 #include <Ice/GC.h>
+#include <Ice/Router.h>
 #include <IceUtil/Mutex.h>
 #include <IceUtil/MutexPtrLock.h>
-#include <Ice/Router.h>
+#include <IceUtil/UUID.h>
 
 using namespace std;
 using namespace Ice;
@@ -198,31 +199,26 @@ Ice::CommunicatorI::createObjectAdapter(const string& name)
 ObjectAdapterPtr
 Ice::CommunicatorI::createObjectAdapterWithEndpoints(const string& name, const string& endpoints)
 {
-    if(name.empty())
+    string oaName = name;
+    if(oaName.empty())
     {
-        InitializationException ex(__FILE__, __LINE__);
-        ex.reason = "Cannot configure endpoints with nameless object adapter";
-        throw ex;
+        oaName = IceUtil::generateUUID();
     }
 
-    getProperties()->setProperty(name + ".Endpoints", endpoints);
-    return _instance->objectAdapterFactory()->createObjectAdapter(name, 0);
+    getProperties()->setProperty(oaName + ".Endpoints", endpoints);
+    return _instance->objectAdapterFactory()->createObjectAdapter(oaName, 0);
 }
 
 ObjectAdapterPtr
 Ice::CommunicatorI::createObjectAdapterWithRouter(const string& name, const RouterPrx& router)
 {
-    if(name.empty())
+    string oaName = name;
+    if(oaName.empty())
     {
-        InitializationException ex(__FILE__, __LINE__);
-        ex.reason = "Cannot configure router with nameless object adapter";
-        throw ex;
+        oaName = IceUtil::generateUUID();
     }
 
-    //
-    // We set the proxy properties here, although we still use the proxy supplied.
-    //
-    PropertyDict properties = proxyToProperty(router, name + ".Router");
+    PropertyDict properties = proxyToProperty(router, oaName + ".Router");
     for(PropertyDict::const_iterator p = properties.begin(); p != properties.end(); ++p)
     {
         getProperties()->setProperty(p->first, p->second);

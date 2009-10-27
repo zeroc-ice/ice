@@ -82,9 +82,7 @@ public final class CommunicatorI implements Communicator
     {
         if(name.length() == 0)
         {
-            Ice.InitializationException ex = new Ice.InitializationException();
-            ex.reason = "Cannot configure endpoints with nameless object adapter";
-            throw ex;
+            name = java.util.UUID.randomUUID().toString();
         }
         
         getProperties().setProperty(name + ".Endpoints", endpoints);
@@ -96,9 +94,7 @@ public final class CommunicatorI implements Communicator
     {
         if(name.length() == 0)
         {
-            Ice.InitializationException ex = new Ice.InitializationException();
-            ex.reason = "Cannot configure router with nameless object adapter";
-            throw ex;
+            name = java.util.UUID.randomUUID().toString();
         }
 
         //

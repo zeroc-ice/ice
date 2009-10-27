@@ -73,9 +73,7 @@ namespace Ice
         {
             if(name.Length == 0)
             {
-                Ice.InitializationException ex = new Ice.InitializationException();
-                ex.reason = "Cannot configure endpoints with nameless object adapter";
-                throw ex;
+                name = System.Guid.NewGuid().ToString();
             }
 
             getProperties().setProperty(name + ".Endpoints", endpoints);
@@ -86,9 +84,7 @@ namespace Ice
         {
             if(name.Length == 0)
             {
-                Ice.InitializationException ex = new Ice.InitializationException();
-                ex.reason = "Cannot configure router with nameless object adapter";
-                throw ex;
+                name = System.Guid.NewGuid().ToString();
             }
 
             //
