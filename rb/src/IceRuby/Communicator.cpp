@@ -319,6 +319,10 @@ IceRuby_Communicator_proxyToProperty(VALUE self, VALUE obj, VALUE str)
 {
     ICE_RUBY_TRY
     {
+        if(!checkProxy(obj))
+        {
+            throw RubyException(rb_eTypeError, "argument must be a proxy");
+        }
         Ice::CommunicatorPtr p = getCommunicator(self);
         Ice::ObjectPrx o = getProxy(obj);
         string s = getString(str);
