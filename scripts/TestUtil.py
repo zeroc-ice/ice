@@ -1125,21 +1125,29 @@ class WatchDog(threading.Thread):
 	# The thread is marked as a daemon thread. This is done so that if
 	# an expect script runs off the end of main without kill/wait on each
 	# spawned process the script will not hang tring to join with the
-	# reader thread. Instead __del__ (below) will be called which
-	# terminates and joins with the thread.
+	# reader thread.
 	self.setDaemon(True)
 
         self.start()
 
     def run(self):
-        self._cv.acquire()
-        while True:
-            self._cv.wait(180)
-            if self._reset:
-                self._reset = False
-            else:
-                print "\a*** %s Warning: Test has been inactive for 3 minutes and may be hung", time.strftime("%x %X")
-        self._cv.release()
+        try:
+            self._cv.acquire()
+            while True:
+                self._cv.wait(180)
+                if self._reset:
+                    self._reset = False
+                else:
+                    print "\a*** %s Warning: Test has been inactive for 3 minutes and may be hung", \
+                        time.strftime("%x %X")
+            self._cv.release()
+        except AttributeError:
+            #
+            # This exception can be raised if the thread is still alive when the interpreter is
+            # in the process of shutting down. For example, Python resets module objects to None,
+            # so code such as "time.strftime()" can fail with AttributeError.
+            #
+            pass
 
     def reset(self):
         self._cv.acquire()
