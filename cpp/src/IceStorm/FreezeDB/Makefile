@@ -68,24 +68,24 @@ $(MIGRATE): $(MOBJS)
 	rm -f $@
 	$(CXX) $(LDFLAGS) -o $@ $(MOBJS) $(DB_RPATH_LINK) -lIceStormService -lIceStorm -lFreeze $(LIBS)
 
-LLUMap.h LLUMap.cpp: ../../IceStorm/LLURecord.ice $(SLICE2FREEZE) $(SLICEPARSERLIB)
+../../IceStorm/FreezeDB/LLUMap.h LLUMap.cpp: ../../IceStorm/LLURecord.ice $(SLICE2FREEZE) $(SLICEPARSERLIB)
 	rm -f LLUMap.h LLUMap.cpp
 	$(SLICE2FREEZECMD) --dict IceStorm::LLUMap,string,IceStormElection::LogUpdate \
 	LLUMap ../../IceStorm/LLURecord.ice
 
-SubscriberMap.h SubscriberMap.cpp: ../../IceStorm/SubscriberRecord.ice $(slicedir)/Ice/Identity.ice $(SLICE2FREEZE) $(SLICEPARSERLIB)
+../../IceStorm/FreezeDB/SubscriberMap.h SubscriberMap.cpp: ../../IceStorm/SubscriberRecord.ice $(slicedir)/Ice/Identity.ice $(SLICE2FREEZE) $(SLICEPARSERLIB)
 	rm -f SubscriberMap.h SubscriberMap.cpp
 	$(SLICE2FREEZECMD) \
 	--dict IceStorm::SubscriberMap,IceStorm::SubscriberRecordKey,IceStorm::SubscriberRecord,sort \
 	SubscriberMap ../../IceStorm/SubscriberRecord.ice
 
 # Needed for migration.
-../IceStorm/FreezeDB/V32FormatDB.h V32FormatDB.cpp: ../../IceStorm/FreezeDB/V32Format.ice $(SLICE2FREEZE) $(SLICEPARSERLIB)
+../../IceStorm/FreezeDB/V32FormatDB.h V32FormatDB.cpp: ../../IceStorm/FreezeDB/V32Format.ice $(SLICE2FREEZE) $(SLICEPARSERLIB)
 	rm -f V32FormatDB.h V32FormatDB.cpp
 	$(SLICE2FREEZECMD) --dict IceStorm::V32Format,Ice::Identity,IceStorm::LinkRecordSeq \
 	V32FormatDB ../../IceStorm/FreezeDB/V32Format.ice
 
-../IceStorm/FreezeDB/V31FormatDB.h V31FormatDB.cpp: ../../IceStorm/FreezeDB/V31Format.ice $(SLICE2FREEZE) $(SLICEPARSERLIB)
+../../IceStorm/FreezeDB/V31FormatDB.h V31FormatDB.cpp: ../../IceStorm/FreezeDB/V31Format.ice $(SLICE2FREEZE) $(SLICEPARSERLIB)
 	rm -f V31FormatDB.h V31FormatDB.cpp
 	$(SLICE2FREEZECMD) --dict IceStorm::V31Format,string,IceStorm::LinkRecordDict \
 	V31FormatDB ../../IceStorm/FreezeDB/V31Format.ice

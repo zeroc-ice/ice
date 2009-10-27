@@ -51,18 +51,18 @@ $(libdir)/$(LIBNAME): $(libdir)/$(SONAME)
 	ln -s $(SONAME) $@
 
 
-StringApplicationInfoDict.h StringApplicationInfoDict.cpp: $(SDIR)/Admin.ice $(SLICE2FREEZE) $(SLICEPARSERLIB)
+../../IceGrid/FreezeDB/StringApplicationInfoDict.h StringApplicationInfoDict.cpp: $(SDIR)/Admin.ice $(SLICE2FREEZE) $(SLICEPARSERLIB)
 	rm -f StringApplicationInfoDict.h StringApplicationInfoDict.cpp
 	$(SLICE2FREEZECMD) --dict IceGrid::StringApplicationInfoDict,string,IceGrid::ApplicationInfo \
 	StringApplicationInfoDict $(SDIR)/Admin.ice
 
-IdentityObjectInfoDict.h IdentityObjectInfoDict.cpp: $(slicedir)/Ice/Identity.ice $(SDIR)/Admin.ice $(SLICE2FREEZE) $(SLICEPARSERLIB)
+../../IceGrid/FreezeDB/IdentityObjectInfoDict.h IdentityObjectInfoDict.cpp: $(slicedir)/Ice/Identity.ice $(SDIR)/Admin.ice $(SLICE2FREEZE) $(SLICEPARSERLIB)
 	rm -f IdentityObjectInfoDict.h IdentityObjectInfoDict.cpp
 	$(SLICE2FREEZECMD) --dict IceGrid::IdentityObjectInfoDict,Ice::Identity,IceGrid::ObjectInfo \
 	--dict-index IceGrid::IdentityObjectInfoDict,type \
 	IdentityObjectInfoDict $(slicedir)/Ice/Identity.ice $(SDIR)/Admin.ice
 
-StringAdapterInfoDict.h StringAdapterInfoDict.cpp: $(SDIR)/Admin.ice $(SLICE2FREEZE) $(SLICEPARSERLIB)
+../../IceGrid/FreezeDB/StringAdapterInfoDict.h StringAdapterInfoDict.cpp: $(SDIR)/Admin.ice $(SLICE2FREEZE) $(SLICEPARSERLIB)
 	rm -f StringAdapterInfoDict.h StringAdapterInfoDict.cpp
 	$(SLICE2FREEZECMD) --dict IceGrid::StringAdapterInfoDict,string,IceGrid::AdapterInfo \
 	--dict-index IceGrid::StringAdapterInfoDict,replicaGroupId StringAdapterInfoDict $(SDIR)/Admin.ice
@@ -74,7 +74,4 @@ clean::
 install:: all
 	$(call installlib,$(install_libdir),$(libdir),$(LIBFILENAME),$(SONAME),$(LIBNAME))
 
-
 include .depend
-
-
