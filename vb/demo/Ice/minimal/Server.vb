@@ -9,9 +9,9 @@
 
 Module MinimalS
 
-    Public Sub Main()
+    Public Sub Main(ByVal args() As String)
         Try
-            Dim communicator As Ice.Communicator = Ice.Util.initialize()
+            Dim communicator As Ice.Communicator = Ice.Util.initialize(args)
             Dim adapter As Ice.ObjectAdapter = communicator.createObjectAdapterWithEndpoints("Hello", "tcp -p 10000")
             adapter.add(New HelloI, communicator.stringToIdentity("hello"))
             adapter.activate()

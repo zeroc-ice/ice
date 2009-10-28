@@ -47,7 +47,6 @@ cpp/src/Ice/EventLoggerMsg.res
 cpp/src/Ice/MSG00001.bin
 tmp_*.xml
 obj
-*.exe.config
 *.RES
 ClientBin
 vcproj

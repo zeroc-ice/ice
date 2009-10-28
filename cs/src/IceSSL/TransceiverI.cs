@@ -425,7 +425,7 @@ namespace IceSSL
             IPEndPoint localEndpoint = IceInternal.Network.getLocalAddress(_fd);
             info.localAddress = localEndpoint.Address.ToString();
             info.localPort = localEndpoint.Port;
-            IPEndPoint remoteEndpoint = IceInternal.Network.getLocalAddress(_fd);
+            IPEndPoint remoteEndpoint = IceInternal.Network.getRemoteAddress(_fd);
             if(remoteEndpoint != null)
             {
                 info.remoteAddress = remoteEndpoint.Address.ToString();

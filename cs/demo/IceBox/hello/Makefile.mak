@@ -10,7 +10,6 @@
 top_srcdir	= ..\..\..
 
 TARGETS		= client.exe helloservice.dll
-TARGETS_CONFIG	= client.exe.config
 
 C_SRCS		= Client.cs
 S_SRCS		= HelloI.cs HelloServiceI.cs

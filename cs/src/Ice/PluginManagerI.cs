@@ -377,13 +377,26 @@ namespace Ice
             string assemblyName = entryPoint.Substring(0, sepPos);
             try
             {
-                if (System.IO.File.Exists(assemblyName))
-                {
-                    pluginAssembly = System.Reflection.Assembly.LoadFrom(assemblyName);
-                }
-                else
+                //
+                // First try to load the assemby using Assembly.Load which will succeed
+                // if full name is configured or partial name has been qualified in config.
+                // If that fails, try Assembly.LoadFrom() which will succeed if a file name
+                // is configured or partial name is configured and DEVPATH is used.
+                //
+                try
                 {
                     pluginAssembly = System.Reflection.Assembly.Load(assemblyName);
+                }
+                catch(System.Exception ex)
+                {
+                    try
+                    {
+                        pluginAssembly = System.Reflection.Assembly.LoadFrom(assemblyName);
+                    }
+                    catch(System.Exception)
+                    {
+                         throw ex;
+                    }
                 }
             }
             catch(System.Exception ex)

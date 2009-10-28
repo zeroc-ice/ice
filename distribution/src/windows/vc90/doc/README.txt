@@ -228,12 +228,15 @@ dialog when you open the solution. This harmless warning is caused
 by the technique that the projects use to compile Slice files. You
 can safely allow the projects to load normally.
 
-To run a demo, open a Command Prompt, change to the desired demo
-directory, and type 'server.exe' to start the server. In a separate
-Command Prompt window, type 'client.exe' to run the client.
+To run these demos, you will typically need at least two Command
+Prompt windows. In each command prompt, add the Ice bin directory to
+your DEVPATH, as shown below:
 
-Some demo directories contain README files if additional requirements
-are necessary.
+set DEVPATH=<Ice installation root directory>\bin;%DEVPATH%
+
+Change to the desired demo subdirectory and review the README file if
+one is present. Type 'server.exe' to start the server. In another 
+command prompt, type 'client.exe' to start the client.
 
 
 Building and running the Visual Basic demos

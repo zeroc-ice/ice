@@ -117,9 +117,9 @@ case of a failure, the tests abort with "failed".
 Running the demos
 -----------------
 
-To run the demos, you need to have the Ice bin directory in your PATH.
-See the README file in each demo directory for a description of the
-demo.
+To run the demos, you need to have the Ice bin directory in your PATH 
+and DEVPATH. See the README file in each demo directory for a 
+description of the demo.
 
 Note that in demos that use IceSSL, the IceSSL plug-in configuration
 does not contain the fully-qualified name (FQN) for the IceSSL
@@ -127,9 +127,9 @@ assembly. Instead it just contains the partial name:
 
   Ice.Plugin.IceSSL=IceSSL:IceSSL.PluginFactory
 
-The FQN is found in the *.exe.config files that are generated when the
-demos are built. If you want to run an application using the IceSSL
-assembly installed in the GAC without the use of the *.exe.config
+The IceSSL assembly is found though the use of DEVPATH which is enabled
+in the *.exe.config files. If you want to run an application using the
+IceSSL assembly installed in the GAC without the use of the *.exe.config
 files, you must add the FQN to the IceSSL plug-in configuration, as
 shown below:
 

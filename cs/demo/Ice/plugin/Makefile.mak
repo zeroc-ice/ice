@@ -10,7 +10,6 @@
 top_srcdir	= ..\..\..
 
 TARGETS		= client.exe server.exe LoggerPlugin.dll HelloPlugin.dll
-TARGETS_CONFIG	= client.exe.config server.exe.config
 
 C_SRCS		= Client.cs
 S_SRCS		= Server.cs

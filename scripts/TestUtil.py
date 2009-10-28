@@ -132,13 +132,13 @@ def dumpenv(env, lang):
         env = os.environ
     vars = ["PATH", "LD_LIBRARY_PATH", "DYLD_LIBRARY_PATH", "SHLIB_PATH", "LIBPATH", "LD_LIBRARY_PATH_64"]
     if lang == None:
-        vars.extend(["CLASSPATH", "MONO_PATH", "PYTHONPATH", "RUBYLIB"])
+        vars.extend(["CLASSPATH", "MONO_PATH", "DEVPATH", "PYTHONPATH", "RUBYLIB"])
     elif lang == "cpp":
         pass
     elif lang == "java":
         vars.append("CLASSPATH")
     elif lang == "cs":
-        vars.append("MONO_PATH")
+        vars.extend(["MONO_PATH", "DEVPATH"])
     elif lang == "py":
         vars.append("PYTHONPATH")
     elif lang ==  "rb":
@@ -193,7 +193,9 @@ def configurePaths():
     # 
     # On Windows, C# assemblies are found thanks to the .exe.config files.
     #
-    if not isWin32():
+    if isWin32():
+        addPathToEnv("DEVPATH", os.path.join(getIceDir("cs"), "bin"))
+    else:
         addPathToEnv("MONO_PATH", os.path.join(getIceDir("cs"), "bin"))
         
     #

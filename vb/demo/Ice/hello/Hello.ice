@@ -15,7 +15,7 @@ module Demo
 
 interface Hello
 {
-    void sayHello(int delay);
+    idempotent void sayHello(int delay);
     void shutdown();
 };
 

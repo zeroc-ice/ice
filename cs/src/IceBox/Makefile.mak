@@ -39,27 +39,6 @@ $(ICEBOXNET): $(I_SRCS) $(LIBNAME)
 $(LIBNAME): $(L_SRCS) $(GEN_SRCS)
 	$(MCS) /baseaddress:0x25000000 $(LIB_MCSFLAGS) -r:$(refdir)\Ice.dll $(L_SRCS) $(GEN_SRCS)
 
-all:: $(ICEBOXNET:.exe=.exe.config)
-
-$(ICEBOXNET:.exe=.exe.config):
-	@echo "Generating" <<$@ "..."
-<?xml version="1.0"?>
-  <configuration>
-    <system.diagnostics>
-      <trace autoflush="true" indentsize="4">
-        <listeners>
-          <add name="Console"
-               type="System.Diagnostics.ConsoleTraceListener"
-               initializeData="true"/>
-        </listeners>
-      </trace>
-      <switches>
-        <add name="IceLogger" value="Info"/>
-      </switches>
-    </system.diagnostics>
-  </configuration>
-<<KEEP
-
 !if "$(DEBUG)" == "yes"
 clean::
 	del /q $(bindir)\$(PKG).pdb

@@ -10,7 +10,6 @@
 top_srcdir	= ..\..\..
 
 TARGETS		= client.exe server.exe
-TARGETS_CONFIG	= $(TARGETS:.exe=.exe.config)
 
 C_SRCS		= Client.cs Parser.cs Grammar.cs Scanner.cs Token.cs
 S_SRCS		= DirectoryI.cs FileI.cs NodeI.cs Server.cs
