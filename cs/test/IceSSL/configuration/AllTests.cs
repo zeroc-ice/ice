@@ -225,7 +225,8 @@ public class AllTests
                 //
                 try
                 {
-                    IceSSL.NativeConnectionInfo info = (IceSSL.NativeConnectionInfo)server.ice_getConnection().getInfo();
+                    IceSSL.NativeConnectionInfo info = 
+                        (IceSSL.NativeConnectionInfo)server.ice_getConnection().getInfo();
                     test(info.certs != null);
                 }
                 catch(Ice.LocalException)
@@ -289,8 +290,8 @@ public class AllTests
 
                     IceSSL.NativeConnectionInfo info = (IceSSL.NativeConnectionInfo)server.ice_getConnection().getInfo();
 
-                    test(caCert.Equals(info.certs[1]));
-                    test(serverCert.Equals(info.certs[0]));
+                    test(caCert.Equals(info.nativeCerts[1]));
+                    test(serverCert.Equals(info.nativeCerts[0]));
                 }
                 catch(Exception)
                 {

@@ -439,13 +439,16 @@ namespace IceSSL
             info.cipher = _stream.CipherAlgorithm.ToString();
             info.nativeCerts = _chain;
             List<string> certs = new List<string>();
-            foreach(X509Certificate2 cert in info.nativeCerts)
+            if(info.nativeCerts != null)
             {
-                StringBuilder s = new StringBuilder();
-                s.Append("-----BEGIN CERTIFICATE-----\n");
-                s.Append(Convert.ToBase64String(cert.Export(X509ContentType.Cert)));
-                s.Append("\n-----END CERTIFICATE-----");
-                certs.Add(s.ToString());
+                foreach(X509Certificate2 cert in info.nativeCerts)
+                {
+                    StringBuilder s = new StringBuilder();
+                    s.Append("-----BEGIN CERTIFICATE-----\n");
+                    s.Append(Convert.ToBase64String(cert.Export(X509ContentType.Cert)));
+                    s.Append("\n-----END CERTIFICATE-----");
+                    certs.Add(s.ToString());
+                }
             }
             info.certs = certs.ToArray();
             info.adapterName = _adapterName;
