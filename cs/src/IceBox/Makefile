@@ -15,8 +15,8 @@ ICEBOXNET	= $(bindir)/iceboxnet.exe
 TARGETS		= $(ICEBOXNET) $(bindir)/$(LIBNAME)
 POLICY_TARGET	= $(POLICY).dll
 
-L_SRCS		= AssemblyInfo.cs
-I_SRCS		= Server.cs ServiceManagerI.cs
+L_SRCS		= AssemblyInfoLib.cs
+I_SRCS		= AssemblyInfoExe.cs Server.cs ServiceManagerI.cs
 
 SLICE_SRCS	= $(SDIR)/IceBox.ice
 
