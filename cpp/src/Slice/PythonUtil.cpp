@@ -1169,29 +1169,57 @@ Slice::Python::CodeVisitor::visitStructStart(const StructPtr& p)
     _out << nl << "return _h % 0x7fffffff";
     _out.dec();
 
-    _out << sp << nl << "def __cmp__(self, other):";
-    _out.inc();
-    _out << nl << "if isinstance(other, _M_" << abs << "):";
-    _out.inc();
-    for(r = memberList.begin(); r != memberList.end(); ++r)
+    //
+    // Rich operators.  __lt__, __le__, __eq__, __ne__, __gt__, __ge__
+    //
+    static const char* richOps[] = {
+        "__lt__", "<",
+        "__le__", "<=",
+        "__eq__", "==",
+        "__ne__", "!=",
+        "__gt__", ">",
+        "__ge__", ">="
+    };
+    for(int opIndex = 0; opIndex != sizeof(richOps)/sizeof(richOps[0]); opIndex += 2)
     {
-        _out << nl << "if self." << r->fixedName << " < other." << r->fixedName << ':';
+        const char* opName = richOps[opIndex];
+        const char* opSymbol = richOps[opIndex+1];
+
+        _out << sp << nl << "def " << opName << "(self, other):";
         _out.inc();
-        _out << nl << "return -1";
+        _out << nl << "if isinstance(other, _M_" << abs << "):";
+        _out.inc();
+        if(!memberList.empty())
+        {
+            _out << nl << "return ";
+            for(r = memberList.begin(); r != memberList.end(); ++r)
+            {
+                if(r != memberList.begin())
+                {
+                    if(opName == "__eq__")
+                    {
+                        _out << " and ";
+                    }
+                    else
+                    {
+                        _out << " or ";
+                    }
+                }
+                _out << "self." << r->fixedName << " " << opSymbol << " other." << r->fixedName;
+            }
+        }
+        else
+        {
+            _out << nl << "return False";
+        }
         _out.dec();
-        _out << nl << "elif self." << r->fixedName << " > other." << r->fixedName << ':';
+        _out << nl << "elif other == None:";
         _out.inc();
-        _out << nl << "return 1";
+        _out << nl << "return False";
+        _out.dec();
+        _out << nl << "return NotImplemented";
         _out.dec();
     }
-    _out << nl << "return 0";
-    _out.dec();
-    _out << nl << "elif other == None:";
-    _out.inc();
-    _out << nl << "return 1";
-    _out.dec();
-    _out << nl << "return NotImplemented";
-    _out.dec();
 
     //
     // __str__

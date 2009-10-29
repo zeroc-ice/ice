@@ -467,7 +467,9 @@ C# Changes
 Python Changes
 ==============
 
-- Improved the __cmp__ method generated for Slice structures.
+- The __cmp__ method generated for slice structures has been replaced
+  by the rich operators __lt__, __le__, __eq__, __ne__, __gt__,
+  __ge__.
 
 - Slice comments are now converted into Python docstrings in the
   generated code.
