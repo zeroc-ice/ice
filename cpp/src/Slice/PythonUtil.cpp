@@ -1386,40 +1386,46 @@ Slice::Python::CodeVisitor::visitEnum(const EnumPtr& p)
     }
     _out << nl << "self.value = val";
     _out.dec();
+
     _out << sp << nl << "def __str__(self):";
     _out.inc();
-    _out << nl << "return _names(self.value)";
-#if 0
-    for(q = enums.begin(), i = 0; q != enums.end(); ++q, ++i)
-    {
-        _out << nl;
-        if(q == enums.begin())
-        {
-            _out << "if";
-        }
-        else
-        {
-            _out << "elif";
-        }
-        ostringstream idx;
-        idx << i;
-        _out << " self.value == " << idx.str() << ':';
-        _out.inc();
-        _out << nl << "return '" << (*q)->name() << "'";
-        _out.dec();
-    }
-    _out << nl << "return None";
-#endif
+    _out << nl << "return self._names[self.value]";
     _out.dec();
     _out << sp << nl << "__repr__ = __str__";
     _out << sp << nl << "def __hash__(self):";
     _out.inc();
     _out << nl << "return self.value";
     _out.dec();
-    _out << sp << nl << "def __cmp__(self, other):";
-    _out.inc();
-    _out << nl << "return cmp(self.value, other.value)";
-    _out.dec();
+
+    //
+    // Rich operators.  __lt__, __le__, __eq__, __ne__, __gt__, __ge__
+    //
+    static const char* richOps[] = {
+        "__lt__", "<",
+        "__le__", "<=",
+        "__eq__", "==",
+        "__ne__", "!=",
+        "__gt__", ">",
+        "__ge__", ">="
+    };
+    for(int opIndex = 0; opIndex != sizeof(richOps)/sizeof(richOps[0]); opIndex += 2)
+    {
+        const char* opName = richOps[opIndex];
+        const char* opSymbol = richOps[opIndex+1];
+
+        _out << sp << nl << "def " << opName << "(self, other):";
+        _out.inc();
+        _out << nl << "if isinstance(other, _M_" << abs << "):";
+        _out.inc();
+        _out << nl << "return self.value " << opSymbol << " other.value;";
+        _out.dec();
+        _out << nl << "elif other == None:";
+        _out.inc();
+        _out << nl << "return False";
+        _out.dec();
+        _out << nl << "return NotImplemented";
+        _out.dec();
+    }
 
     _out << sp << nl << "_names = (";
     for(q = enums.begin(), i = 0; q != enums.end(); ++q, ++i)
