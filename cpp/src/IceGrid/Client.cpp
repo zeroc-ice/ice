@@ -453,10 +453,12 @@ Client::run(int argc, char* argv[])
                 if(password.empty())
                 {
                     password = getPassword("password: ");
+#ifndef _WIN32
                     if(!cin.good())
                     {
                         return EXIT_FAILURE;
                     }
+#endif
                 }
                      
                 session = AdminSessionPrx::uncheckedCast(router->createSession(id, password));
@@ -596,10 +598,12 @@ Client::run(int argc, char* argv[])
                 if(password.empty())
                 {
                     password = getPassword("password: ");
+#ifndef _WIN32
                     if(!cin.good())
                     {
                         return EXIT_FAILURE;
                     }
+#endif
                 }
                     
                 session = registry->createAdminSession(id, password);
