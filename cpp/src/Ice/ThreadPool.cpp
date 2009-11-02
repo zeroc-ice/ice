@@ -995,13 +995,14 @@ IceInternal::ThreadPool::followerWait(const IceUtil::ThreadPtr& thread, ThreadPo
     //
     // Wait to be promoted and for all the IO threads to be done.
     //
-    while(!_promote || _inUseIO == _sizeIO || _nextHandler == _handlers.end() && _inUseIO > 0)
+    while(!_promote || _inUseIO == _sizeIO || (_nextHandler == _handlers.end() && _inUseIO > 0))
     {
         if(_threadIdleTime)
         {
             if(!timedWait(IceUtil::Time::seconds(_threadIdleTime)))
             {
-                if(!_destroyed && (!_promote || _inUseIO == _sizeIO || _nextHandler == _handlers.end() && _inUseIO > 0))
+                if(!_destroyed && (!_promote || _inUseIO == _sizeIO || 
+                                   (_nextHandler == _handlers.end() && _inUseIO > 0)))
                 {
                     if(_instance->traceLevels()->threadPool >= 1)
                     {
