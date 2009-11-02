@@ -33,6 +33,9 @@ General Changes
 These entries apply to all relevant language mappings unless otherwise
 noted.
 
+- icegridadmin now correctly handles EOF when reading username and
+  password.
+
 - The Ice::Connection createProxy method will now create a secure
   proxy if the connection is secure and a datagram proxy if the
   connection is a datagram connection.

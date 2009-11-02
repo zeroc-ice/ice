@@ -439,16 +439,24 @@ Client::run(int argc, char* argv[])
             }
             else
             {
-                while(id.empty())
+                while(id.empty() && cin.good())
                 {
                     cout << "user id: " << flush;
                     getline(cin, id);
+                    if(!cin.good())
+                    {
+                        return EXIT_FAILURE;
+                    }
                     id = IceUtilInternal::trim(id);
                 }
                 
                 if(password.empty())
                 {
                     password = getPassword("password: ");
+                    if(!cin.good())
+                    {
+                        return EXIT_FAILURE;
+                    }
                 }
                      
                 session = AdminSessionPrx::uncheckedCast(router->createSession(id, password));
@@ -574,16 +582,24 @@ Client::run(int argc, char* argv[])
             }
             else
             {
-                while(id.empty())
+                while(id.empty() && cin.good())
                 {
                     cout << "user id: " << flush;
                     getline(cin, id);
+                    if(!cin.good())
+                    {
+                        return EXIT_FAILURE;
+                    }
                     id = IceUtilInternal::trim(id);
                 }
                 
                 if(password.empty())
                 {
                     password = getPassword("password: ");
+                    if(!cin.good())
+                    {
+                        return EXIT_FAILURE;
+                    }
                 }
                     
                 session = registry->createAdminSession(id, password);
