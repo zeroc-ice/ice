@@ -33,6 +33,9 @@ General Changes
 These entries apply to all relevant language mappings unless otherwise
 noted.
 
+- icegridadmin when using username/password authentication now zeros
+  the entire password after use.
+
 - icegridadmin now correctly handles EOF when reading username and
   password.
 

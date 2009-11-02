@@ -462,7 +462,11 @@ Client::run(int argc, char* argv[])
                 }
                      
                 session = AdminSessionPrx::uncheckedCast(router->createSession(id, password));
-                password = "";
+                // Zero the password string.
+                for(string::iterator p = password.begin(); p != password.end(); ++p)
+                {
+                    *p = '\0';
+                }
                 if(!session)
                 {
                     cerr << argv[0]
@@ -607,7 +611,11 @@ Client::run(int argc, char* argv[])
                 }
                     
                 session = registry->createAdminSession(id, password);
-                password = "";
+                // Zero the password string.
+                for(string::iterator p = password.begin(); p != password.end(); ++p)
+                {
+                    *p = '\0';
+                }
             }
 
             timeout = registry->getSessionTimeout();
