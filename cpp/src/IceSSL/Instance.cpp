@@ -123,9 +123,9 @@ IceSSL_opensslPasswordCallback(char* buf, int size, int flag, void* userData)
     strncpy(buf, passwd.c_str(), sz);
     buf[sz] = '\0';
 
-    for(string::iterator p = passwd.begin(); p != passwd.end(); ++p)
+    for(string::iterator i = passwd.begin(); i != passwd.end(); ++i)
     {
-        *p = '\0';
+        *i = '\0';
     } 
 
     return sz;
