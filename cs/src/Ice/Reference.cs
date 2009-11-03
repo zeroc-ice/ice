@@ -492,7 +492,7 @@ namespace IceInternal
 
         public override string getConnectionId()
         {
-            throw new Ice.FixedProxyException();
+            return "";
         }
 
         public override Reference changeEndpoints(EndpointI[] newEndpoints)

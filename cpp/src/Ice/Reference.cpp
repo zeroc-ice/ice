@@ -529,8 +529,7 @@ IceInternal::FixedReference::getLocatorCacheTimeout() const
 string
 IceInternal::FixedReference::getConnectionId() const
 {
-    throw FixedProxyException(__FILE__, __LINE__);
-    return string(); // Keep the compiler happy.
+    return string();
 }
 
 ReferencePtr
