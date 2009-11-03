@@ -136,7 +136,68 @@ private:
 
 static ServiceStatusManager* serviceStatusManager;
 
-class SMEventLoggerI : public Ice::Logger
+//
+// Interface implemented by SMEventLoggerI and called from
+// SMEventLoggerIWrapper.
+//
+class SMEventLogger : public IceUtil::Shared
+{
+public:
+    virtual void print(const string&, const string&) = 0;
+    virtual void trace(const string&, const string&, const string&) = 0;
+    virtual void warning(const string&, const string&) = 0;
+    virtual void error(const string&, const string&) = 0;
+};
+typedef IceUtil::Handle<SMEventLogger> SMEventLoggerPtr;
+
+class SMEventLoggerIWrapper : public Ice::Logger
+{
+public:
+    
+    SMEventLoggerIWrapper(const SMEventLoggerPtr& logger, const string& prefix) :
+        _logger(logger),
+        _prefix(prefix)
+    {
+        assert(_logger);
+    }
+    
+    virtual void
+    print(const string& message)
+    {
+        _logger->print(_prefix, message);
+    }
+
+    void
+    trace(const string& category, const string& message)
+    {
+        _logger->trace(_prefix, category, message);
+    }
+
+    virtual void
+    warning(const string& message)
+    {
+        _logger->warning(_prefix, message);
+    }
+
+    virtual void
+    error(const string& message)
+    {
+        _logger->error(_prefix, message);
+    }
+    
+    virtual Ice::LoggerPtr
+    cloneWithPrefix(const string& prefix)
+    {
+        return new SMEventLoggerIWrapper(_logger, prefix);
+    }
+    
+private:
+    
+    SMEventLoggerPtr _logger;
+    string _prefix;
+};
+
+class SMEventLoggerI : public Ice::Logger, public SMEventLogger
 {
 public:
 
@@ -225,6 +286,19 @@ public:
     }
 
     virtual void
+    print(const string& prefix, const string& message)
+    {
+        string s;
+        if(!prefix.empty())
+        {
+            s = prefix;
+            s.append(": ");
+        }
+        s.append(message);
+        print(s);
+    }
+    
+    virtual void
     print(const string& message)
     {
         const char* str[1];
@@ -236,7 +310,20 @@ public:
         ReportEvent(_source, EVENTLOG_INFORMATION_TYPE, 0, EVENT_LOGGER_MSG, 0, 1, 0, str, 0);
     }
 
-    void
+    virtual void
+    trace(const string& prefix, const string& category, const string& message)
+    {
+        string s;
+        if(!category.empty())
+        {
+            s = category;
+            s.append(": ");
+        }
+        s.append(message);
+        trace(prefix, s);
+    }
+    
+    virtual void
     trace(const string& category, const string& message)
     {
         string s;
@@ -257,6 +344,19 @@ public:
     }
 
     virtual void
+    warning(const string& prefix, const string& message)
+    {
+        string s;
+        if(!prefix.empty())
+        {
+            s = prefix;
+            s.append(": ");
+        }
+        s.append(message);
+        warning(s);
+    }
+    
+    virtual void
     warning(const string& message)
     {
         const char* str[1];
@@ -269,6 +369,19 @@ public:
     }
 
     virtual void
+    error(const string& prefix, const string& message)
+    {
+        string s;
+        if(!prefix.empty())
+        {
+            s = prefix;
+            s.append(": ");
+        }
+        s.append(message);
+        error(s);
+    }
+
+    virtual void
     error(const string& message)
     {
         const char* str[1];
@@ -278,6 +391,12 @@ public:
         // anything we can do about it.
         //
         ReportEvent(_source, EVENTLOG_ERROR_TYPE, 0, EVENT_LOGGER_MSG, 0, 1, 0, str, 0);
+    }
+    
+    virtual Ice::LoggerPtr
+    cloneWithPrefix(const string& prefix)
+    {
+        return new SMEventLoggerIWrapper(this, prefix);
     }
 
     static void
@@ -428,7 +547,7 @@ Ice::Service::main(int& argc, char* argv[], const InitializationData& initializa
             if(LoggerIPtr::dynamicCast(_logger))
             {
                 string eventLogSource = initData.properties->getPropertyWithDefault("Ice.EventLog.Source", name);
-                _logger = new SMEventLoggerI(eventLogSource);
+                _logger = new SMEventLoggerIWrapper(new SMEventLoggerI(eventLogSource), "");
                 setProcessLogger(_logger);
             }
 
