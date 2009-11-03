@@ -34,6 +34,11 @@ public sealed class DummyLogger : Ice.Logger
     public void error(string message)
     {
     }
+
+    public Ice.Logger cloneWithPrefix(string prefix)
+    {
+        return new DummyLogger();
+    }
 }
 
 public class Server

@@ -41,6 +41,12 @@ public:
     {
         cout << "ERROR: " << message << endl;
     }
+
+    virtual Ice::LoggerPtr
+    cloneWithPrefix(const std::string&)
+    {
+        return new LoggerI();   
+    }
 };
 
 };

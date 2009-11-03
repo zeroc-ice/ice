@@ -34,4 +34,10 @@ public class LoggerI implements Ice.Logger
     {
         System.out.println("ERROR: " + message);
     }
+
+    public Ice.Logger
+    cloneWithPrefix(String prefix)
+    {
+        return new LoggerI();
+    }
 }

@@ -558,6 +558,11 @@ public class ServiceManagerI extends _ServiceManagerDisp
                 }
             
                 //
+                // Clone the logger to assing a new prefix.
+                //
+                initData.logger = _logger.cloneWithPrefix(initData.properties.getProperty("Ice.ProgramName"));
+
+                //
                 // Remaining command line options are passed to the communicator. This is 
                 // necessary for Ice plug-in properties (e.g.: IceSSL).
                 //

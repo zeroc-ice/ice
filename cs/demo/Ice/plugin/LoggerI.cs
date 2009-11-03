@@ -28,4 +28,9 @@ public class LoggerI : Ice.Logger
     {
         System.Console.WriteLine("ERROR: " + message);
     }
+
+    public Ice.Logger cloneWithPrefix(string prefix)
+    {
+        return new LoggerI();
+    }
 }

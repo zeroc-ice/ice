@@ -28,6 +28,7 @@ public:
     virtual void trace(const std::string&, const std::string&);
     virtual void warning(const std::string&);
     virtual void error(const std::string&);
+    virtual LoggerPtr cloneWithPrefix(const std::string&);
 
 private:
 
@@ -35,6 +36,7 @@ private:
 
     std::string _prefix;
     std::fstream _out;
+    std::string _file;
 };
 
 typedef IceUtil::Handle<LoggerI> LoggerIPtr;

@@ -25,13 +25,14 @@ public class LoggerI implements Logger
 
         if(file.length() != 0)
         {
+            _file = file;
             try
             {
-                _out = new java.io.FileOutputStream(new java.io.File(file), true);
+                _out = new java.io.FileOutputStream(new java.io.File(_file), true);
             }
             catch(java.io.FileNotFoundException ex)
             {
-                throw new InitializationException("FileLogger: cannot open " + file);
+                throw new InitializationException("FileLogger: cannot open " + _file);
             }
         }
     }
@@ -106,6 +107,12 @@ public class LoggerI implements Logger
         write(s, true);
     }
 
+    public Logger
+    cloneWithPrefix(String prefix)
+    {
+        return new LoggerI(prefix, _file);
+    }
+
     private void
     write(StringBuilder message, boolean indent)
     {
@@ -137,6 +144,7 @@ public class LoggerI implements Logger
     }
 
     String _prefix = "";
+    String _file = "";
     String _lineSeparator;
     java.text.DateFormat _date;
     java.text.SimpleDateFormat _time;

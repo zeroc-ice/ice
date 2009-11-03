@@ -54,6 +54,11 @@ namespace Ice
         {
             log(LOG_ERR, message);
         }
+
+        public Logger cloneWithPrefix(string prefix)
+        {
+            return new SysLoggerI(prefix);
+        }
         
         private void log(int severity, string message)
         {

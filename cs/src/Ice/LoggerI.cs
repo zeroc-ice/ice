@@ -89,6 +89,8 @@ namespace Ice
             }
         }
 
+        public abstract Logger cloneWithPrefix(string prefix);
+
         protected abstract void write(string message);
 
         internal string _prefix = "";
@@ -110,6 +112,11 @@ namespace Ice
         {
         }
 
+        public override Logger cloneWithPrefix(string prefix)
+        {
+            return new ConsoleLoggerI(prefix);
+        }
+
         protected override void write(string message)
         {
             System.Console.Error.WriteLine(message);
@@ -123,13 +130,19 @@ namespace Ice
         {
             if(file.Length != 0)
             {
+                _file = file;
                 Trace.Listeners.Add(new TextWriterTraceListener(file));
             }
-
+            _console = console;
             if(console && !Trace.Listeners.Contains(_consoleListener))
             {
                 Trace.Listeners.Add(_consoleListener);
             }
+        }
+
+        public override Logger cloneWithPrefix(string prefix)
+        {
+            return new TraceLoggerI(prefix, _file, _console);
         }
 
         protected override void write(string message)
@@ -138,6 +151,8 @@ namespace Ice
             Trace.Flush();
         }
 
+        private string _file = "";
+        private bool _console = false;
         internal static ConsoleTraceListener _consoleListener = new ConsoleTraceListener(true);
     }
 }

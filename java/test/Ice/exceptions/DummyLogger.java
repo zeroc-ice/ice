@@ -31,4 +31,10 @@ public final class DummyLogger implements Ice.Logger
     error(String message)
     {
     }
+
+    public Ice.Logger
+    cloneWithPrefix(String prefix)
+    {
+        return new DummyLogger();
+    }
 }

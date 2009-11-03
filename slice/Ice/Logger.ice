@@ -63,6 +63,16 @@ local interface Logger
      *
      **/
     void error(string message);
+    
+    /**
+     *
+     * Returns a clone of the logger with prefix
+     * as the logger prefix.
+     *
+     * @param prefix The new prefix to the looger.
+     *
+     */
+    Logger cloneWithPrefix(string prefix);
 };
 
 };

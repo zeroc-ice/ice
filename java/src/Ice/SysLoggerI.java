@@ -63,6 +63,12 @@ public final class SysLoggerI implements Logger
         log(LOG_ERR, message);
     }
 
+    public Logger
+    cloneWithPrefix(String prefix)
+    {
+        return new SysLoggerI(prefix);
+    }
+
     private void
     log(int severity, String message)
     {

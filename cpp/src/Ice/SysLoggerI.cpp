@@ -54,3 +54,9 @@ Ice::SysLoggerI::error(const string& message)
     IceUtil::Mutex::Lock sync(*this);
     syslog(LOG_ERR, "%s", message.c_str());
 }
+
+Ice::LoggerPtr
+Ice::SysLoggerI::cloneWithPrefix(const string& prefix)
+{
+    return new SysLoggerI(prefix);
+}

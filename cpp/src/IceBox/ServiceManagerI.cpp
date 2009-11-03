@@ -128,7 +128,6 @@ IceBox::ServiceManagerI::ServiceManagerI(CommunicatorPtr communicator, int& argc
     _traceServiceObserver(0)
 { 
     _logger = _communicator->getLogger();
-
     _traceServiceObserver = _communicator->getProperties()->getPropertyAsInt("IceBox.Trace.ServiceObserver");
 
     for(int i = 1; i < argc; i++)
@@ -653,6 +652,11 @@ IceBox::ServiceManagerI::start(const string& service, const string& entryPoint, 
                 //
                 info.args = initData.properties->parseCommandLineOptions(service, info.args);
             }
+            
+            //
+            // Clone the logger to assing a new prefix.
+            //
+            initData.logger = _logger->cloneWithPrefix(initData.properties->getProperty("Ice.ProgramName"));
             
             //
             // Remaining command line options are passed to the communicator. This is 

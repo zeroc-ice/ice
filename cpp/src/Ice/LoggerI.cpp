@@ -51,10 +51,11 @@ Ice::LoggerI::LoggerI(const string& prefix, const string& file)
 
     if(!file.empty())
     {
-        _out.open(file.c_str(), fstream::out | fstream::app);
+        _file = file;
+        _out.open(_file.c_str(), fstream::out | fstream::app);
         if(!_out.is_open())
         {
-            throw InitializationException(__FILE__, __LINE__, "FileLogger: cannot open " + file);
+            throw InitializationException(__FILE__, __LINE__, "FileLogger: cannot open " + _file);
         }
     }
 }
@@ -97,6 +98,12 @@ void
 Ice::LoggerI::error(const string& message)
 {
     write("!! " + IceUtil::Time::now().toDateTime() + " " + _prefix + "error: " + message, true);
+}
+
+LoggerPtr
+Ice::LoggerI::cloneWithPrefix(const std::string& prefix)
+{
+    return new LoggerI(prefix, _file);
 }
 
 void
