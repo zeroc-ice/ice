@@ -84,6 +84,12 @@ IcePy::LoggerWrapper::error(const string& message)
     }
 }
 
+Ice::LoggerPtr
+IcePy::LoggerWrapper::cloneWithPrefix(const string& prefix)
+{
+    return new LoggerWrapper(getObject());
+}
+
 PyObject*
 IcePy::LoggerWrapper::getObject()
 {
