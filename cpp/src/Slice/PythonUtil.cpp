@@ -1182,8 +1182,8 @@ Slice::Python::CodeVisitor::visitStructStart(const StructPtr& p)
     };
     for(int opIndex = 0; opIndex != sizeof(richOps)/sizeof(richOps[0]); opIndex += 2)
     {
-        const char* opName = richOps[opIndex];
-        const char* opSymbol = richOps[opIndex+1];
+        string opName = richOps[opIndex];
+        string opSymbol = richOps[opIndex+1];
 
         _out << sp << nl << "def " << opName << "(self, other):";
         _out.inc();
