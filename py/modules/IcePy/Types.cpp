@@ -396,7 +396,7 @@ IcePy::PrimitiveInfo::validate(PyObject* p)
             p = n.get();
         }
 
-        if(PyErr_Occurred() || !PyInt_Check(p) && !PyLong_Check(p))
+        if(PyErr_Occurred() || (!PyInt_Check(p) && !PyLong_Check(p)))
         {
             return false;
         }

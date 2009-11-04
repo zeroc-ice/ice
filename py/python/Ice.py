@@ -618,6 +618,10 @@ class LoggerI(Logger):
     def error(self, message):
         return self._impl.error(message)
 
+    def cloneWithPrefix(self, prefix):
+        logger = self._impl.cloneWithPrefix(prefix)
+        return LoggerI(logger)
+
 #
 # Properties wrapper.
 #

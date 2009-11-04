@@ -97,6 +97,23 @@ IceRuby_Logger_error(VALUE self, VALUE message)
 
 extern "C"
 VALUE
+IceRuby_Logger_cloneWithPrefix(VALUE self, VALUE prefix)
+{
+    ICE_RUBY_TRY
+    {
+        Ice::LoggerPtr* p = reinterpret_cast<Ice::LoggerPtr*>(DATA_PTR(self));
+        assert(p);
+
+        string pfx = getString(prefix);
+        Ice::LoggerPtr clone = (*p)->cloneWithPrefix(pfx);
+        return createLogger(clone);
+    }
+    ICE_RUBY_CATCH
+    return Qnil;
+}
+
+extern "C"
+VALUE
 IceRuby_getProcessLogger()
 {
     ICE_RUBY_TRY
@@ -123,6 +140,7 @@ IceRuby::initLogger(VALUE iceModule)
     rb_define_method(_loggerClass, "trace", CAST_METHOD(IceRuby_Logger_trace), 2);
     rb_define_method(_loggerClass, "warning", CAST_METHOD(IceRuby_Logger_warning), 1);
     rb_define_method(_loggerClass, "error", CAST_METHOD(IceRuby_Logger_error), 1);
+    rb_define_method(_loggerClass, "cloneWithPrefix", CAST_METHOD(IceRuby_Logger_cloneWithPrefix), 1);
 
     //
     // Global methods.

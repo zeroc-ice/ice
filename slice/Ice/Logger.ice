@@ -66,10 +66,9 @@ local interface Logger
     
     /**
      *
-     * Returns a clone of the logger with prefix
-     * as the logger prefix.
+     * Returns a clone of the logger with a new prefix.
      *
-     * @param prefix The new prefix to the looger.
+     * @param prefix The new prefix for the logger.
      *
      */
     Logger cloneWithPrefix(string prefix);

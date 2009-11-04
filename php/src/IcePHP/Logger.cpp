@@ -153,6 +153,38 @@ ZEND_METHOD(Ice_Logger, error)
     }
 }
 
+ZEND_METHOD(Ice_Logger, cloneWithPrefix)
+{
+    char* p;
+    int pLen;
+
+    if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, const_cast<char*>("s"), &p, &pLen) == FAILURE)
+    {
+        RETURN_NULL();
+    }
+
+    Ice::LoggerPtr _this = Wrapper<Ice::LoggerPtr>::value(getThis() TSRMLS_CC);
+    assert(_this);
+
+    Ice::LoggerPtr clone;
+
+    string prefix(p, pLen);
+    try
+    {
+        clone = _this->cloneWithPrefix(prefix);
+    }
+    catch(const IceUtil::Exception& ex)
+    {
+        throwException(ex TSRMLS_CC);
+        RETURN_NULL();
+    }
+
+    if(!createLogger(return_value, clone TSRMLS_CC))
+    {
+        RETURN_NULL();
+    }
+}
+
 #ifdef _WIN32
 extern "C"
 #endif
@@ -206,6 +238,7 @@ static function_entry _classMethods[] =
     ZEND_ME(Ice_Logger, trace, NULL, ZEND_ACC_PUBLIC)
     ZEND_ME(Ice_Logger, warning, NULL, ZEND_ACC_PUBLIC)
     ZEND_ME(Ice_Logger, error, NULL, ZEND_ACC_PUBLIC)
+    ZEND_ME(Ice_Logger, cloneWithPrefix, NULL, ZEND_ACC_PUBLIC)
     {0, 0, 0}
 };
 

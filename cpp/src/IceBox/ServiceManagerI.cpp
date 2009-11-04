@@ -654,7 +654,7 @@ IceBox::ServiceManagerI::start(const string& service, const string& entryPoint, 
             }
             
             //
-            // Clone the logger to assing a new prefix.
+            // Clone the logger to assign a new prefix.
             //
             initData.logger = _logger->cloneWithPrefix(initData.properties->getProperty("Ice.ProgramName"));
             

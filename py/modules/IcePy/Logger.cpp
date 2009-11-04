@@ -87,7 +87,15 @@ IcePy::LoggerWrapper::error(const string& message)
 Ice::LoggerPtr
 IcePy::LoggerWrapper::cloneWithPrefix(const string& prefix)
 {
-    return new LoggerWrapper(getObject());
+    AdoptThread adoptThread; // Ensure the current thread is able to call into Python.
+
+    PyObjectHandle tmp = PyObject_CallMethod(_logger.get(), STRCAST("cloneWithPrefix"), STRCAST("s"), prefix.c_str());
+    if(!tmp.get())
+    {
+        throwPythonException();
+    }
+
+    return new LoggerWrapper(tmp.get());
 }
 
 PyObject*
@@ -259,6 +267,55 @@ loggerError(LoggerObject* self, PyObject* args)
     return Py_None;
 }
 
+#ifdef WIN32
+extern "C"
+#endif
+static PyObject*
+loggerCloneWithPrefix(LoggerObject* self, PyObject* args)
+{
+    PyObject* prefixObj;
+    if(!PyArg_ParseTuple(args, STRCAST("O"), &prefixObj))
+    {
+        return 0;
+    }
+
+    string prefix;
+    if(!getStringArg(prefixObj, "prefix", prefix))
+    {
+        return 0;
+    }
+
+    Ice::LoggerPtr clone;
+
+    assert(self->logger);
+    try
+    {
+        clone = (*self->logger)->cloneWithPrefix(prefix);
+    }
+    catch(const Ice::Exception& ex)
+    {
+        setPythonException(ex);
+        return 0;
+    }
+
+    //
+    // The new clone can either be a C++ object (such as
+    // the default logger supplied by the Ice run time), or a C++
+    // wrapper around a Python implementation. If the latter, we
+    // return it directly. Otherwise, we create a Python object
+    // that delegates to the C++ object.
+    //
+    LoggerWrapperPtr wrapper = LoggerWrapperPtr::dynamicCast(clone);
+    if(wrapper)
+    {
+        PyObject* obj = wrapper->getObject();
+        Py_INCREF(obj);
+        return obj;
+    }
+
+    return createLogger(clone);
+}
+
 static PyMethodDef LoggerMethods[] =
 {
     { STRCAST("_print"), reinterpret_cast<PyCFunction>(loggerPrint), METH_VARARGS,
@@ -269,6 +326,8 @@ static PyMethodDef LoggerMethods[] =
         PyDoc_STR(STRCAST("warning(message) -> None")) },
     { STRCAST("error"), reinterpret_cast<PyCFunction>(loggerError), METH_VARARGS,
         PyDoc_STR(STRCAST("error(message) -> None")) },
+    { STRCAST("cloneWithPrefix"), reinterpret_cast<PyCFunction>(loggerCloneWithPrefix), METH_VARARGS,
+        PyDoc_STR(STRCAST("cloneWithPrefix(prefix) -> Ice.Logger")) },
     { 0, 0 } /* sentinel */
 };
 
