@@ -18,6 +18,7 @@ LINK 		= link.exe
 AR 		= lib.exe
 RC		= rc.exe
 
+BASE		= /base
 PREOUT		= /out:
 PRELIBS		=
 PRELIBPATH      = /LIBPATH:

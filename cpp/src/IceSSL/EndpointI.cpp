@@ -238,11 +238,7 @@ namespace
     public:
 
         InfoI(Int to, bool comp, const string& host, Int port) :
-#if defined(_MSC_VER) && (_MSC_VER < 1300) // VC++ 6 compiler bug
             IceSSL::EndpointInfo(to, comp, host, port)
-#else
-            EndpointInfo(to, comp, host, port)
-#endif
         {
         }
 

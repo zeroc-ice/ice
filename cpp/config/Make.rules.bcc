@@ -25,6 +25,7 @@ CC		= bcc32.exe
 LINK 		= ilink32.exe
 RC		= brc32.exe
 
+BASE		= -b
 PREOUT		= ,
 PRELIBS		= ,,
 PRELIBPATH      = -L
