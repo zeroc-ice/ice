@@ -70,9 +70,9 @@ node.expectall([ 'Election: node 1: reporting for duty in group 3:[-0-9A-Fa-f]+ 
                  'Election: node 2: reporting for duty in group 3:[-0-9A-Fa-f]+ with coordinator 3',
                  'Election: node 3: reporting for duty in group 3:[-0-9A-Fa-f]+ as coordinator' ], timeout=60)
          
-node.expectall(['DemoIceStorm-3: Topic: time: subscribeAndGetPublisher: [-0-9A-Fa-f]+',
-                'DemoIceStorm-1: Topic: time: add replica observer: [-0-9A-Fa-f]+',
-                'DemoIceStorm-2: Topic: time: add replica observer: [-0-9A-Fa-f]+' ], timeout=60)
+node.expectall(['DemoIceStorm-3-IceStorm: Topic: time: subscribeAndGetPublisher: [-0-9A-Fa-f]+',
+                'DemoIceStorm-1-IceStorm: Topic: time: add replica observer: [-0-9A-Fa-f]+',
+                'DemoIceStorm-2-IceStorm: Topic: time: add replica observer: [-0-9A-Fa-f]+' ], timeout=60)
 
 sub.expect('.* ready')
 
@@ -87,9 +87,9 @@ sub.waitTestSuccess()
 pub.kill(signal.SIGINT)
 pub.waitTestSuccess()
 
-node.expectall([ 'DemoIceStorm-1: Topic: time: remove replica observer: [-0-9A-Fa-f]+',
-                 'DemoIceStorm-2: Topic: time: remove replica observer: [-0-9A-Fa-f]+' ,
-                 'DemoIceStorm-3: Topic: time: unsubscribe: [-0-9A-Fa-f]+' ], timeout=60) 
+node.expectall([ 'DemoIceStorm-1-IceStorm: Topic: time: remove replica observer: [-0-9A-Fa-f]+',
+                 'DemoIceStorm-2-IceStorm: Topic: time: remove replica observer: [-0-9A-Fa-f]+' ,
+                 'DemoIceStorm-3-IceStorm: Topic: time: unsubscribe: [-0-9A-Fa-f]+' ], timeout=60) 
 
 admin.sendline('registry shutdown Master')
 admin.sendline('exit')
