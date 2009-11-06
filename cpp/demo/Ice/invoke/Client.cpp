@@ -74,7 +74,7 @@ public:
             //
             Ice::InputStreamPtr in = Ice::createInputStream(_communicator, outParams);
             Demo::CPtr c;
-            Demo::ice_readC(in, c);
+            in->read(c);
             string str = in->readString();
             in->readPendingObjects();
             cout << "Got string `" << str << "' and class: s.name=" << c->s.name
@@ -250,7 +250,7 @@ InvokeClient::run(int argc, char* argv[])
                 Demo::StringDict dict;
                 dict["The"] = "streaming";
                 dict["API"] = "works!";
-                Demo::ice_writeStringDict(out, dict);
+                out->write(dict);
                 out->finished(inParams);
 
                 //
@@ -275,7 +275,7 @@ InvokeClient::run(int argc, char* argv[])
                 //
                 Ice::ByteSeq inParams, outParams;
                 Ice::OutputStreamPtr out = Ice::createOutputStream(communicator());
-                Demo::ice_writeColor(out, Demo::green);
+                out->write(Demo::green);
                 out->finished(inParams);
 
                 //
@@ -303,7 +303,7 @@ InvokeClient::run(int argc, char* argv[])
                 Demo::Structure s;
                 s.name = "red";
                 s.value = Demo::red;
-                Demo::ice_writeStructure(out, s);
+                out->write(s);
                 out->finished(inParams);
 
                 //
@@ -338,7 +338,7 @@ InvokeClient::run(int argc, char* argv[])
                 arr.push_back(Demo::Structure());
                 arr.back().name = "blue";
                 arr.back().value = Demo::blue;
-                Demo::ice_writeStructureSeq(out, arr);
+                out->write(arr);
                 out->finished(inParams);
 
                 //
@@ -366,7 +366,7 @@ InvokeClient::run(int argc, char* argv[])
                 Demo::CPtr c = new Demo::C;
                 c->s.name = "blue";
                 c->s.value = Demo::blue;
-                Demo::ice_writeC(out, c);
+                out->write(c);
                 out->writePendingObjects();
                 out->finished(inParams);
 
@@ -409,7 +409,7 @@ InvokeClient::run(int argc, char* argv[])
                     //
                     Ice::InputStreamPtr in = Ice::createInputStream(communicator(), outParams);
                     Demo::CPtr c;
-                    Demo::ice_readC(in, c);
+                    in->read(c);
                     string str = in->readString();
                     in->readPendingObjects();
                     cout << "Got string `" << str << "' and class: s.name=" << c->s.name

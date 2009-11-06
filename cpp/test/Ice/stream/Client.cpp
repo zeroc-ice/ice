@@ -11,6 +11,13 @@
 #include <TestCommon.h>
 #include <Test.h>
 
+// XXX: We disable deprecation warning here, to allow clean
+// compilation of test cases that uses the old stream api.
+// Once the old stream API is gone this could be removed.
+#ifdef _MSC_VER
+#   pragma warning( disable : 4996 )
+#endif
+
 using namespace std;
 
 class TestObjectWriter : public Ice::ObjectWriter
@@ -145,6 +152,446 @@ run(int argc, char** argv, const Ice::CommunicatorPtr& communicator)
     Ice::InputStreamPtr in;
     Ice::OutputStreamPtr out;
     vector<Ice::Byte> data;
+
+#if defined(_MSC_VER) && (_MSC_VER < 1300)
+//
+// VC++ 6 compiler bugs doesn't allow to write 
+// the Stream API using c++ templates.
+//
+// see: http://support.microsoft.com/kb/240866
+//      http://support.microsoft.com/kb/241569
+//
+#else
+    //
+    // Test the new stream api.
+    //
+    cout << "testing primitive types... " << flush;
+
+    {
+        vector<Ice::Byte> byte;
+        in = Ice::createInputStream(communicator, byte);
+    }
+
+    {
+        out = Ice::createOutputStream(communicator);
+        out->startEncapsulation();
+        out->write(true);
+        out->endEncapsulation();
+        out->finished(data);
+        out = 0;
+
+        in = Ice::createInputStream(communicator, data);
+        in->startEncapsulation();
+        bool v;
+        in->read(v);
+        test(v);
+        in->endEncapsulation();
+    }
+
+    {
+        vector<Ice::Byte> byte;
+        in = Ice::createInputStream(communicator, byte);
+        try
+        {
+            bool v;
+            in->read(v);
+            test(false);
+        }
+        catch(const Ice::UnmarshalOutOfBoundsException&)
+        {
+        }
+    }
+
+    {
+        out = Ice::createOutputStream(communicator);
+        out->write(true);
+        out->finished(data);
+        in = Ice::createInputStream(communicator, data);
+        bool v;
+        in->read(v);
+        test(v);
+    }
+
+    {
+        out = Ice::createOutputStream(communicator);
+        out->write((Ice::Byte)1);
+        out->finished(data);
+        in = Ice::createInputStream(communicator, data);
+        Ice::Byte v;
+        in->read(v);
+        test(v == 1);
+    }
+
+    {
+        out = Ice::createOutputStream(communicator);
+        out->write((Ice::Short)2);
+        out->finished(data);
+        in = Ice::createInputStream(communicator, data);
+        Ice::Short v;
+        in->read(v);
+        test(v == 2);
+    }
+
+    {
+        out = Ice::createOutputStream(communicator);
+        out->write((Ice::Int)3);
+        out->finished(data);
+        in = Ice::createInputStream(communicator, data);
+        Ice::Int v;
+        in->read(v);
+        test(v == 3);
+    }
+
+    {
+        out = Ice::createOutputStream(communicator);
+        out->write((Ice::Long)4);
+        out->finished(data);
+        in = Ice::createInputStream(communicator, data);
+        Ice::Long v;
+        in->read(v);
+        test(v == 4);
+    }
+
+    {
+        out = Ice::createOutputStream(communicator);
+        out->write((Ice::Float)5.0);
+        out->finished(data);
+        in = Ice::createInputStream(communicator, data);
+        Ice::Float v;
+        in->read(v);
+        test(v == 5.0);
+    }
+
+    {
+        out = Ice::createOutputStream(communicator);
+        out->write((Ice::Double)6.0);
+        out->finished(data);
+        in = Ice::createInputStream(communicator, data);
+        Ice::Double v;
+        in->read(v);
+        test(v == 6.0);
+    }
+
+    {
+        out = Ice::createOutputStream(communicator);
+        out->write("hello world");
+        out->finished(data);
+        in = Ice::createInputStream(communicator, data);
+        string v;
+        in->read(v);
+        test(v == "hello world");
+    }
+
+    cout << "ok" << endl;
+
+    cout << "testing constructed types... " << flush;
+
+    {
+        out = Ice::createOutputStream(communicator);
+        out->write(Test::enum3);
+        out->finished(data);
+        in = Ice::createInputStream(communicator, data);
+        Test::MyEnum e;
+        in->read(e);
+        test(e == Test::enum3);
+    }
+
+    {
+        out = Ice::createOutputStream(communicator);
+        Test::SmallStruct s;
+        s.bo = true;
+        s.by = 1;
+        s.sh = 2;
+        s.i = 3;
+        s.l = 4;
+        s.f = 5.0;
+        s.d = 6.0;
+        s.str = "7";
+        s.e = Test::enum2;
+        s.p = Test::MyClassPrx::uncheckedCast(communicator->stringToProxy("test:default"));
+        out->write(s);
+        out->finished(data);
+        in = Ice::createInputStream(communicator, data);
+        Test::SmallStruct s2;
+        in->read(s2);
+        test(s2 == s);
+    }
+
+    {
+        Test::BoolS arr;
+        arr.push_back(true);
+        arr.push_back(false);
+        arr.push_back(true);
+        arr.push_back(false);
+
+        out = Ice::createOutputStream(communicator);
+        out->write(arr);
+        out->finished(data);
+        
+        in = Ice::createInputStream(communicator, data);
+        Test::BoolS arr2;
+        in->read(arr2);
+        test(arr2 == arr);
+    }
+
+    {
+        Test::ByteS arr;
+        arr.push_back(0x01);
+        arr.push_back(0x11);
+        arr.push_back(0x12);
+        arr.push_back(0x22);
+
+        out = Ice::createOutputStream(communicator);
+        out->write(arr);
+        out->finished(data);
+        in = Ice::createInputStream(communicator, data);
+        Test::ByteS arr2;
+        in->read(arr2);
+        test(arr2 == arr);
+    }
+
+    {
+        Test::ShortS arr;
+        arr.push_back(0x01);
+        arr.push_back(0x11);
+        arr.push_back(0x12);
+        arr.push_back(0x22);
+        out = Ice::createOutputStream(communicator);
+        out->write(arr);
+        out->finished(data);
+        in = Ice::createInputStream(communicator, data);
+        Test::ShortS arr2;
+        in->read(arr2);
+        test(arr2 == arr);
+    }
+
+    {
+        Test::IntS arr;
+        arr.push_back(0x01);
+        arr.push_back(0x11);
+        arr.push_back(0x12);
+        arr.push_back(0x22);
+        out = Ice::createOutputStream(communicator);
+        out->write(arr);
+        out->finished(data);
+        in = Ice::createInputStream(communicator, data);
+        Test::IntS arr2;
+        in->read(arr2);
+        test(arr2 == arr);
+    }
+
+    {
+        Test::LongS arr;
+        arr.push_back(0x01);
+        arr.push_back(0x11);
+        arr.push_back(0x12);
+        arr.push_back(0x22);
+        out = Ice::createOutputStream(communicator);
+        out->write(arr);
+        out->finished(data);
+        in = Ice::createInputStream(communicator, data);
+        Test::LongS arr2;
+        in->read(arr2);
+        test(arr2 == arr);
+    }
+
+    {
+        Test::FloatS arr;
+        arr.push_back(1);
+        arr.push_back(2);
+        arr.push_back(3);
+        arr.push_back(4);
+        out = Ice::createOutputStream(communicator);
+        out->write(arr);
+        out->finished(data);
+        in = Ice::createInputStream(communicator, data);
+        Test::FloatS arr2;
+        in->read(arr2);
+        test(arr2 == arr);
+    }
+
+    {
+        Test::DoubleS arr;
+        arr.push_back(1);
+        arr.push_back(2);
+        arr.push_back(3);
+        arr.push_back(4);
+        out = Ice::createOutputStream(communicator);
+        out->write(arr);
+        out->finished(data);
+        in = Ice::createInputStream(communicator, data);
+        Test::DoubleS arr2;
+        in->read(arr2);
+        test(arr2 == arr);
+    }
+
+    {
+        Test::StringS arr;
+        arr.push_back("string1");
+        arr.push_back("string2");
+        arr.push_back("string3");
+        arr.push_back("string4");
+        out = Ice::createOutputStream(communicator);
+        out->write(arr);
+        out->finished(data);
+        in = Ice::createInputStream(communicator, data);
+        Test::StringS arr2;
+        in->read(arr2);
+        test(arr2 == arr);
+    }
+
+    {
+        Test::MyEnumS arr;
+        arr.push_back(Test::enum3);
+        arr.push_back(Test::enum2);
+        arr.push_back(Test::enum1);
+        arr.push_back(Test::enum2);
+
+        out = Ice::createOutputStream(communicator);
+        out->write(arr);
+        out->finished(data);
+        in = Ice::createInputStream(communicator, data);
+        Test::MyEnumS arr2;
+        in->read(arr2);
+        test(arr2 == arr);
+    }
+
+    {
+        Test::MyClassS arr;
+        for(int i = 0; i < 4; ++i)
+        {
+            Test::MyClassPtr c = new Test::MyClass;
+            c->c = c;
+            c->o = c;
+            c->s.e = Test::enum2;
+
+            c->seq1.push_back(true);
+            c->seq1.push_back(false);
+            c->seq1.push_back(true);
+            c->seq1.push_back(false);
+
+            c->seq2.push_back(1);
+            c->seq2.push_back(2);
+            c->seq2.push_back(3);
+            c->seq2.push_back(4);
+
+            c->seq3.push_back(1);
+            c->seq3.push_back(2);
+            c->seq3.push_back(3);
+            c->seq3.push_back(4);
+
+            c->seq4.push_back(1);
+            c->seq4.push_back(2);
+            c->seq4.push_back(3);
+            c->seq4.push_back(4);
+
+            c->seq5.push_back(1);
+            c->seq5.push_back(2);
+            c->seq5.push_back(3);
+            c->seq5.push_back(4);
+
+            c->seq6.push_back(1);
+            c->seq6.push_back(2);
+            c->seq6.push_back(3);
+            c->seq6.push_back(4);
+
+            c->seq7.push_back(1);
+            c->seq7.push_back(2);
+            c->seq7.push_back(3);
+            c->seq7.push_back(4);
+
+            c->seq8.push_back("string1");
+            c->seq8.push_back("string2");
+            c->seq8.push_back("string3");
+            c->seq8.push_back("string4");
+
+            c->seq9.push_back(Test::enum3);
+            c->seq9.push_back(Test::enum2);
+            c->seq9.push_back(Test::enum1);
+
+            c->d["hi"] = c;
+        }
+        out = Ice::createOutputStream(communicator);
+        out->write(arr);
+        out->writePendingObjects();
+        out->finished(data);
+        in = Ice::createInputStream(communicator, data);
+        Test::MyClassS arr2;
+        in->read(arr2);
+        in->readPendingObjects();
+        test(arr2.size() == arr.size());
+        for(Test::MyClassS::size_type j = 0; j < arr2.size(); ++j)
+        {
+            test(arr2[j]);
+            test(arr2[j]->c == arr2[j]);
+            test(arr2[j]->o == arr2[j]);
+            test(arr2[j]->s.e == Test::enum2);
+            test(arr2[j]->seq1 == arr[j]->seq1);
+            test(arr2[j]->seq2 == arr[j]->seq2);
+            test(arr2[j]->seq3 == arr[j]->seq3);
+            test(arr2[j]->seq4 == arr[j]->seq4);
+            test(arr2[j]->seq5 == arr[j]->seq5);
+            test(arr2[j]->seq6 == arr[j]->seq6);
+            test(arr2[j]->seq7 == arr[j]->seq7);
+            test(arr2[j]->seq8 == arr[j]->seq8);
+            test(arr2[j]->seq9 == arr[j]->seq9);
+            test(arr2[j]->d["hi"] == arr2[j]);
+        }
+    }
+
+    {
+        Test::MyInterfacePtr i = new Test::MyInterface();
+        out = Ice::createOutputStream(communicator);
+        out->write(i);
+        out->writePendingObjects();
+        out->finished(data);
+        in = Ice::createInputStream(communicator, data);
+        i = 0;
+        in->read(i);
+        in->readPendingObjects();
+        test(i);
+    }
+
+    {
+        out = Ice::createOutputStream(communicator);
+        Test::MyClassPtr obj = new Test::MyClass;
+        obj->s.e = Test::enum2;
+        TestObjectWriterPtr writer = new TestObjectWriter(obj);
+        out->writeObject(writer);
+        out->writePendingObjects();
+        out->finished(data);
+        test(writer->called);
+    }
+
+    {
+        out = Ice::createOutputStream(communicator);
+        Test::MyClassPtr obj = new Test::MyClass;
+        obj->s.e = Test::enum2;
+        TestObjectWriterPtr writer = new TestObjectWriter(obj);
+        out->writeObject(writer);
+        out->writePendingObjects();
+        out->finished(data);
+        test(writer->called);
+        factoryWrapper->setFactory(new TestObjectFactory);
+        in = Ice::createInputStream(communicator, data);
+        TestReadObjectCallbackPtr cb = new TestReadObjectCallback;
+        in->readObject(cb);
+        in->readPendingObjects();
+        test(cb->obj);
+        TestObjectReaderPtr reader = TestObjectReaderPtr::dynamicCast(cb->obj);
+        test(reader);
+        test(reader->called);
+        test(reader->obj);
+        test(reader->obj->s.e == Test::enum2);
+    }
+
+    cout << "ok" << endl;
+
+#endif
+
+    //
+    // Test the old stream api.
+    //
 
     cout << "testing primitive types... " << flush;
 

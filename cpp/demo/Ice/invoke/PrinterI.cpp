@@ -65,7 +65,7 @@ PrinterI::ice_invoke(const vector<Ice::Byte>& inParams, vector<Ice::Byte>& outPa
     else if(current.operation == "printDictionary")
     {
         Demo::StringDict dict;
-        Demo::ice_readStringDict(in, dict);
+        in->read(dict);
         cout << "Printing dictionary {";
         for(Demo::StringDict::iterator p = dict.begin(); p != dict.end(); ++p)
         {
@@ -81,21 +81,21 @@ PrinterI::ice_invoke(const vector<Ice::Byte>& inParams, vector<Ice::Byte>& outPa
     else if(current.operation == "printEnum")
     {
         Demo::Color c;
-        Demo::ice_readColor(in, c);
+        in->read(c);
         cout << "Printing enum " << c << endl;
         return true;
     }
     else if(current.operation == "printStruct")
     {
         Demo::Structure s;
-        Demo::ice_readStructure(in, s);
+        in->read(s);
         cout << "Printing struct: name=" << s.name << ", value=" << s.value << endl;
         return true;
     }
     else if(current.operation == "printStructSequence")
     {
         Demo::StructureSeq seq;
-        Demo::ice_readStructureSeq(in, seq);
+        in->read(seq);
         cout << "Printing struct sequence: {";
         for(Demo::StructureSeq::iterator p = seq.begin(); p != seq.end(); ++p)
         {
@@ -111,7 +111,7 @@ PrinterI::ice_invoke(const vector<Ice::Byte>& inParams, vector<Ice::Byte>& outPa
     else if(current.operation == "printClass")
     {
         Demo::CPtr c;
-        Demo::ice_readC(in, c);
+        in->read(c);
         in->readPendingObjects();
         cout << "Printing class: s.name=" << c->s.name << ", s.value=" << c->s.value << endl;
         return true;
@@ -122,7 +122,7 @@ PrinterI::ice_invoke(const vector<Ice::Byte>& inParams, vector<Ice::Byte>& outPa
         c->s.name = "green";
         c->s.value = Demo::green;
         Ice::OutputStreamPtr out = Ice::createOutputStream(communicator);
-        Demo::ice_writeC(out, c);
+        out->write(c);
         out->writeString("hello");
         out->writePendingObjects();
         out->finished(outParams);

@@ -387,6 +387,24 @@ private:
         bool _useWstring;
         std::list<bool> _useWstringHist;
     };
+    
+    class StreamVisitor : private ::IceUtil::noncopyable, public ParserVisitor
+    {
+    public:
+
+        StreamVisitor(::IceUtilInternal::Output&, ::IceUtilInternal::Output&);
+
+        virtual bool visitModuleStart(const ModulePtr&);
+        virtual void visitModuleEnd(const ModulePtr&);
+        virtual bool visitStructStart(const StructPtr&);
+        virtual void visitStructEnd(const StructPtr&);
+        virtual void visitEnum(const EnumPtr&);
+
+    private:
+
+        ::IceUtilInternal::Output& H;
+        ::IceUtilInternal::Output& C;
+    };
 
 private:
 
