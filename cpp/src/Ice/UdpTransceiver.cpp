@@ -229,7 +229,7 @@ repeat:
             // The message was truncated and the whole buffer is filled. We ignore 
             // this error here, it will be detected at the connection level when
             // the Ice message size is checked against the buffer size.
-            ret = buf.b.size();
+            ret = static_cast<ssize_t>(buf.b.size());
         }
         else
         {
@@ -452,7 +452,7 @@ IceInternal::UdpTransceiver::finishRead(Buffer& buf)
             // The message was truncated and the whole buffer is filled. We ignore 
             // this error here, it will be detected at the connection level when
             // the Ice message size is checked against the buffer size.
-            _read.count = buf.b.size();
+            _read.count = static_cast<int>(buf.b.size());
         }
         else
         {
