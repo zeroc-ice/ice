@@ -80,10 +80,16 @@ USE_READLINE		?= no
 #OPENSSL_HOME		?= /opt/openssl
 
 #
-# If Mcpp is not installed in a standard location where the  compiler 
+# If MCPP is not installed in a standard location where the compiler 
 # can find it, set MCPP_HOME to the Mcpp installation directory.
 #
 #MCPP_HOME		?= /opt/mcpp
+
+#
+# If libiconv is not installed in a standard location where the compiler 
+# can find it, set ICONV_HOME to the libiconv installation directory.
+#
+#ICONV_HOME		?= /opt/libiconv
 
 #
 # If readline is not installed in a standard location where the
@@ -161,6 +167,8 @@ OPENSSL_RPATH_LINK      = $(if $(OPENSSL_HOME),$(call rpathlink,$(OPENSSL_HOME)/
 BZIP2_FLAGS             = $(if $(BZIP2_HOME),-I$(BZIP2_HOME)/include)
 BZIP2_LIBS              = $(if $(BZIP2_HOME),-L$(BZIP2_HOME)/$(libsubdir)) -lbz2
 BZIP2_RPATH_LINK        = $(if $(BZIP2_HOME),$(call rpathlink,$(BZIP2_HOME)/$(libsubdir)))
+
+ICONV_LIBS              = $(if $(ICONV_HOME),-L$(ICONV_HOME)/$(libsubdir)) $(ICONV_LIB)
 
 ifneq ($(DB_HOME),)
    DB_FLAGS             = -I$(DB_HOME)/include

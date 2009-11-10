@@ -12,12 +12,11 @@
 #
 
 #
-# The default compiler on Solaris is CC. 
-# If you want to build with another compiler, you can edit this line, or
-# comment it out and define CXX=<desired-compiler> in your environment.
 # If CXX is not defined anywhere, the default (from gmake) is g++. 
+# If you want to build with another compiler, you can edit this line and
+# uncomment it, or define CXX=<desired-compiler> in your environment.
 #
-CXX = CC
+#CXX = CC
 
 # This variable is used to determine the machine type.
 # For SUN UltraSPARC machines: sun4u
@@ -153,7 +152,9 @@ ifeq ($(CXX),g++)
 
     mklib		    = ar cr $(1) $(2)
 
-    LDPLATFORMFLAGS	    = -rdynamic
+    ifeq ($(MACHINE_TYPE),i86pc)
+        ICONV_LIB	    = -liconv
+    endif
 endif
 
 rpathlink                   = -L$(1)

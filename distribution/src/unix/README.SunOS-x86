@@ -43,8 +43,7 @@ lib/amd64.
 Requirements
 ======================================================================
 
-This binary distribution was compiled on Solaris 10 using Sun CC
-version 5.9 with Patch 124864-07.
+This binary distribution was compiled on Solaris 10 using GCC 3.4.3.
 
 The following Solaris 10 binary packages are required to use
 this distribution:
@@ -57,10 +56,6 @@ We also recommend that you install the Solaris 10 Encryption Kit (Sun
 packages SUNWcry and SUNWcryr) available at
 
   http://www.sun.com/download/index.jsp?cat=Security&tab=3&subcat=Cryptography%20%26%20Encryption
-
-Note: The bzip2 package in the Solaris 10 Update 3 distribution does
-not contain 64-bit libraries. You need to apply Solaris patch
-126869-01 to install these libraries.
 
 
 Java

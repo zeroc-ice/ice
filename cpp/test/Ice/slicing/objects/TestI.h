@@ -44,7 +44,7 @@ public:
     virtual ::Test::BPtr returnTest2(::Test::BPtr&, ::Test::BPtr&, const ::Ice::Current&);
     virtual ::Test::BPtr returnTest3(const ::Test::BPtr&, const ::Test::BPtr&, const ::Ice::Current&);
 
-    virtual ::Test::SS sequenceTest(const ::Test::SS1Ptr&, const ::Test::SS2Ptr&, const ::Ice::Current&);
+    virtual ::Test::SS3 sequenceTest(const ::Test::SS1Ptr&, const ::Test::SS2Ptr&, const ::Ice::Current&);
 
     virtual ::Test::BDict dictionaryTest(const ::Test::BDict&, ::Test::BDict&, const ::Ice::Current&);
 

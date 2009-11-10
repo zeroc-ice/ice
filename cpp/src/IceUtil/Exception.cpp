@@ -14,7 +14,7 @@
 #include <ostream>
 #include <cstdlib>
 
-#ifdef __GNUC__
+#if defined(__GNUC__) && !defined(__sun)
 #  include <execinfo.h>
 #  include <cxxabi.h>
 #endif
@@ -52,7 +52,7 @@ public:
 
 Init init;
 
-#ifdef __GNUC__
+#if defined(__GNUC__) && !defined(__sun)
 string
 getStackTrace()
 {
@@ -183,7 +183,7 @@ getStackTrace()
 IceUtil::Exception::Exception() :
     _file(0),
     _line(0)
-#ifdef __GNUC__
+#if defined(__GNUC__) && !defined(__sun)
     , _stackTrace(getStackTrace())
 #endif
 {
@@ -192,7 +192,7 @@ IceUtil::Exception::Exception() :
 IceUtil::Exception::Exception(const char* file, int line) :
     _file(file),
     _line(line)
-#ifdef __GNUC__
+#if defined(__GNUC__) && !defined(__sun)
     , _stackTrace(getStackTrace())
 #endif
 {

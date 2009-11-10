@@ -8,8 +8,8 @@ Operating System
 
 Ice is expected to build and run properly on Solaris 8, Solaris 9
 and Solaris 10 on SPARC and x86/x64. However, Ice is officially
-supported only on Solaris 10 update 2 or greater on SPARC and
-Solaris 10 update 3 or greater on x86/x64.
+supported only on Solaris 10 update 5 or greater for both SPARC and
+x86/x64.
 
 You also need to have /dev/urandom installed. This is installed by
 default on Solaris 9 and Solaris 10; on Solaris 8, you need to install 
@@ -19,18 +19,11 @@ patch 112438-01.
 C++ compiler
 ------------
 
-The following Sun compiler is supported:
+Ice is expected to build properly with GCC 3.4 or later. However, only
+the following compilers are officially supported:
 
-- Sun C++ 5.9 (part of Sun Studio 12) with Patch 124863-01 on SPARC
-  and Patch 124864-07 on x86/x64
-
-Builds with the following compilers are expected to succeed, but these
-compilers are not supported at this time:
-
-- Sun C++ 5.5, 5.6, 5.7 and 5.8 (Sun Studio 8, 9, 10 and 11
-  respectively)
-
-- GCC 3.4, 4.0 and 4.1
+- GCC 3.4.3 on x86/x64
+- GCC 4.3.2 on SPARC
 
 
 Third-party libraries
@@ -38,11 +31,12 @@ Third-party libraries
 
 Ice has dependencies on a number of third-party libraries:
 
-- Berkeley DB 4.7.25
+- Berkeley DB 4.8.24
 - expat 1.95.7 or 2.0.0
 - OpenSSL 0.9.7 or later (OpenSSL 0.9.8 or later recommended)
 - bzip2 1.0.x
 - mcpp 2.7.2
+- libiconv 1.13.1 (x86/x64 only)
 
 We recommend downloading the Ice third-party source archive from
 
@@ -60,6 +54,7 @@ expat          http://expat.sourceforge.net
 OpenSSL        http://www.openssl.org
 bzip2          http://sources.redhat.com/bzip2
 mcpp           http://mcpp.sourceforge.net
+libiconv       http://www.gnu.org/software/libiconv
 
 
 GNU Make 3.80

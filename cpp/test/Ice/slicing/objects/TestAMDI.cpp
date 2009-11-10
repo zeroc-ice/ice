@@ -255,7 +255,7 @@ void
 TestI::sequenceTest_async(const AMD_TestIntf_sequenceTestPtr& cb,
                           const SS1Ptr& p1, const SS2Ptr& p2, const ::Ice::Current&)
 {
-    SS ss;
+    SS3 ss;
     ss.c1 = p1;
     ss.c2 = p2;
     cb->ice_response(ss);

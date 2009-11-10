@@ -85,6 +85,6 @@ LIBS			= -lIce $(BASELIBS)
 ICONV_LIB               = -liconv
 
 ICEUTIL_OS_LIBS         = -lpthread
-ICE_OS_LIBS             = -ldl $(ICONV_LIB)
+ICE_OS_LIBS             = -ldl
 
 PLATFORM_HAS_READLINE   := no

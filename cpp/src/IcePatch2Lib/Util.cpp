@@ -44,7 +44,7 @@ const char* IcePatch2::logFile = "IcePatch2.log";
 //
 #ifdef __sun
 
-extern "C" static int
+extern "C" int
 ice_scandir(const char* dir, struct dirent*** namelist,
         int (*select)(const struct dirent*),
         int (*compar)(const void*, const void*))
@@ -101,7 +101,7 @@ ice_scandir(const char* dir, struct dirent*** namelist,
     return i;
 }
 
-extern "C" static int
+extern "C" int
 ice_alphasort(const void* v1, const void* v2)
 {
     const struct dirent **a = (const struct dirent **)v1;

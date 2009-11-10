@@ -229,10 +229,10 @@ TestI::returnTest3(const BPtr& p1, const BPtr& p2, const ::Ice::Current&)
     return p1;
 }
 
-SS
+SS3
 TestI::sequenceTest(const SS1Ptr& p1, const SS2Ptr& p2, const ::Ice::Current&)
 {
-    SS ss;
+    SS3 ss;
     ss.c1 = p1;
     ss.c2 = p2;
     return ss;

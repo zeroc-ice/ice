@@ -612,7 +612,7 @@ Selector::select(vector<pair<EventHandler*, SocketOperation> >& handlers, int ti
 
             {
                 Ice::SocketException ex(__FILE__, __LINE__, IceInternal::getSocketErrno());
-                Error out(_instance->initializationData().logger);
+                Ice::Error out(_instance->initializationData().logger);
                 out << "fatal error: selector failed:\n" << ex;
             }
             abort();

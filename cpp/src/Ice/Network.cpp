@@ -51,7 +51,7 @@ using namespace std;
 using namespace Ice;
 using namespace IceInternal;
 
-#ifdef __sun
+#if defined(__sun) && !defined(__GNUC__)
 #    define INADDR_NONE (in_addr_t)0xffffffff
 #endif
 
@@ -238,22 +238,51 @@ getLocalAddresses(ProtocolSupport protocol)
         {
             if(!(ifr[i].ifr_flags & IFF_LOOPBACK)) // Don't include loopback interface addresses
             {
+		//
+		// On Solaris the above Loopback check does not always work so we double 
+		// check the address below. Solaris also returns duplicate entries that need
+		// to be filtered out.
+		//
                 if(ifr[i].ifr_addr.sa_family == AF_INET && protocol != EnableIPv6)
                 {
                     sockaddr_storage addr;
                     memcpy(&addr, &ifr[i].ifr_addr, sizeof(sockaddr_in));
-                    if(reinterpret_cast<struct sockaddr_in*>(&addr)->sin_addr.s_addr != 0)
+                    struct in_addr* inaddr = &reinterpret_cast<struct sockaddr_in*>(&addr)->sin_addr;
+                    if(inaddr->s_addr != 0 && inaddr->s_addr != htonl(INADDR_LOOPBACK))
                     {
-                        result.push_back(addr);
+			unsigned int j;
+			for(j = 0; j < result.size(); ++j)
+			{
+			   if(compareAddress(addr, result[j]) == 0)
+			   {
+			       break;
+			   }
+			}
+			if(j == result.size())
+			{
+                            result.push_back(addr);
+			}
                     }
                 }
                 else if(ifr[i].ifr_addr.sa_family == AF_INET6 && protocol != EnableIPv4)
                 {
                     sockaddr_storage addr;
                     memcpy(&addr, &ifr[i].ifr_addr, sizeof(sockaddr_in6));
-                    if(!IN6_IS_ADDR_UNSPECIFIED(&reinterpret_cast<struct sockaddr_in6*>(&addr)->sin6_addr))
+                    struct in6_addr* inaddr6 = &reinterpret_cast<struct sockaddr_in6*>(&addr)->sin6_addr;
+                    if(!IN6_IS_ADDR_UNSPECIFIED(inaddr6) && !IN6_IS_ADDR_LOOPBACK(inaddr6))
                     {
-                    result.push_back(addr);
+			unsigned int j;
+			for(j = 0; j < result.size(); ++j)
+			{
+			   if(compareAddress(addr, result[j]) == 0)
+			   {
+			       break;
+			   }
+			}
+			if(j == result.size())
+			{
+                            result.push_back(addr);
+			}
                     }
                 }
             }

@@ -174,7 +174,7 @@ mcpp
 Ice requires the library version of mcpp, so configure mcpp as shown
 below:
 
-  $ ./configure CC=cc CXX=CC CFLAGS=-KPIC --enable-mcpplib --disable-shared
+  $ ./configure CFLAGS=-kPIC --enable-mcpplib --disable-shared
   (and --prefix=<dir> if you like)
 
 On 64-bit platforms, after installation it is necessary to rename the

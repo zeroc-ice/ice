@@ -43,8 +43,7 @@ in lib/sparcv9.
 Requirements
 ======================================================================
 
-This binary distribution was compiled on Solaris 10 using Sun CC
-version 5.9 with Patch 124863-01.
+This binary distribution was compiled on Solaris 10 using GCC 4.3.2.
 
 The following Solaris 10 binary packages are required to use
 this distribution:

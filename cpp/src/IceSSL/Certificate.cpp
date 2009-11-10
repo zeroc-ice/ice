@@ -85,7 +85,7 @@ CertificateEncodingException::ice_throw() const
 namespace
 {
 
-IceUtil::Mutex* mutex = 0;
+IceUtil::Mutex* mut = 0;
 
 class Init
 {
@@ -93,13 +93,13 @@ public:
 
     Init()
     {
-        mutex = new IceUtil::Mutex;
+        mut = new IceUtil::Mutex;
     }
 
     ~Init()
     {
-        delete mutex;
-        mutex = 0;
+        delete mut;
+        mut = 0;
     }
 };
 
@@ -146,7 +146,7 @@ ASMUtcTimeToIceUtilTime(const ASN1_UTCTIME* s)
     //
     time_t tzone;
     {
-        IceUtilInternal::MutexPtrLock<IceUtil::Mutex> sync(mutex);
+        IceUtilInternal::MutexPtrLock<IceUtil::Mutex> sync(mut);
         time_t now = time(0);
         tzone = mktime(localtime(&now)) - mktime(gmtime(&now));
     }

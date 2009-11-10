@@ -456,7 +456,7 @@ typedef IceUtil::Handle<AMI_Test_paramTest4I> AMI_Test_paramTest4IPtr;
 class AMI_Test_sequenceTestI : public AMI_TestIntf_sequenceTest, public CallbackBase
 {
     virtual void
-    ice_response(const SS& ss)
+    ice_response(const SS3& ss)
     {
         r = ss;
         called();
@@ -470,7 +470,7 @@ class AMI_Test_sequenceTestI : public AMI_TestIntf_sequenceTest, public Callback
 
 public:
 
-    SS r;
+    SS3 r;
 };
 
 typedef IceUtil::Handle<AMI_Test_sequenceTestI> AMI_Test_sequenceTestIPtr;
@@ -1467,7 +1467,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
     {
         try
         {
-            SS ss;
+            SS3 ss;
             {
                 BPtr ss1b = new B;
                 ss1b->sb = "B.sb";
@@ -1554,7 +1554,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
     {
         try
         {
-            SS ss;
+            SS3 ss;
             {
                 BPtr ss1b = new B;
                 ss1b->sb = "B.sb";
