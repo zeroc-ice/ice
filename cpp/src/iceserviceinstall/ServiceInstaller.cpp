@@ -16,8 +16,7 @@
 #include <ServiceInstaller.h>
 #include <IceUtil/StringUtil.h>
 #include <IceUtil/FileUtil.h>
-#include <sys/types.h>
-#include <sys/stat.h>
+
 
 #include <Aclapi.h>
 
@@ -110,12 +109,6 @@ IceServiceInstaller::IceServiceInstaller(int serviceType, const string& configFi
             throw "Unknown service type";
         }
     }
-}
-
-
-IceServiceInstaller::~IceServiceInstaller()
-{
-    free(_sid);
 }
 
 void
@@ -301,20 +294,20 @@ IceServiceInstaller::install(const PropertiesPtr& properties)
     bool autoStart = properties->getPropertyAsIntWithDefault("AutoStart", 1) != 0;
     string password = properties->getProperty("Password");
 
-    SC_HANDLE service = CreateService(
+    SC_HANDLE service = CreateServiceW(
         scm,
-        _serviceName.c_str(),
-        displayName.c_str(),
+        IceUtil::stringToWstring(_serviceName).c_str(),
+        IceUtil::stringToWstring(displayName).c_str(),
         SERVICE_ALL_ACCESS,
         SERVICE_WIN32_OWN_PROCESS,
         autoStart ? SERVICE_AUTO_START : SERVICE_DEMAND_START,
         SERVICE_ERROR_NORMAL,
-        command.c_str(),
+        IceUtil::stringToWstring(command).c_str(),
         0,
         0,
-        deps.c_str(),
-        _sidName.c_str(),
-        password.c_str());
+        IceUtil::stringToWstring(deps).c_str(),
+        IceUtil::stringToWstring(_sidName).c_str(),
+        IceUtil::stringToWstring(password).c_str());
 
     if(service == 0)
     {
@@ -327,7 +320,7 @@ IceServiceInstaller::install(const PropertiesPtr& properties)
     // Set description
     //
 
-    SERVICE_DESCRIPTION sd = { const_cast<char*>(description.c_str()) };
+    SERVICE_DESCRIPTIONW sd = { const_cast<wchar_t*>(IceUtil::stringToWstring(description).c_str()) };
 
     if(!ChangeServiceConfig2(service, SERVICE_CONFIG_DESCRIPTION, &sd))
     {
@@ -351,7 +344,7 @@ IceServiceInstaller::uninstall()
         throw "Cannot open SCM: " + IceUtilInternal::errorToString(res);
     }
 
-    SC_HANDLE service = OpenService(scm, _serviceName.c_str(), SERVICE_ALL_ACCESS);
+    SC_HANDLE service = OpenServiceW(scm, IceUtil::stringToWstring(_serviceName).c_str(), SERVICE_ALL_ACCESS);
     if(service == 0)
     {
         DWORD res = GetLastError();
@@ -394,7 +387,7 @@ IceServiceInstaller::uninstall()
     }
 }
 
-/* static */ vector<string>
+vector<string>
 IceServiceInstaller::getPropertyNames()
 {
     static const string propertyNames[] = { "ImagePath", "DisplayName", "ObjectName", "Password",
@@ -405,7 +398,7 @@ IceServiceInstaller::getPropertyNames()
     return result;
 }
 
-/*static*/ string
+string
 IceServiceInstaller::serviceTypeToString(int serviceType)
 {
     static const string serviceTypeArray[] = { "IceGridRegistry", "IceGridNode", "Glacier2Router" };
@@ -420,7 +413,7 @@ IceServiceInstaller::serviceTypeToString(int serviceType)
     }
 }
 
-/*static*/ string
+string
 IceServiceInstaller::serviceTypeToLowerString(int serviceType)
 {
     static const string serviceTypeArray[] = { "icegridregistry", "icegridnode", "glacier2router" };
@@ -440,35 +433,25 @@ IceServiceInstaller::initializeSid(const string& name)
 {
     {
         DWORD sidSize = 32;
-        _sid = static_cast<SID*>(malloc(sidSize));
-        memset(_sid, 0, sidSize);
+        _sid = auto_ptr<SID>(new SID[sidSize]);
 
         DWORD domainNameSize = 32;
-        char* domainName = static_cast<char*>(malloc(domainNameSize));
-        memset(domainName, 0, domainNameSize);
+        auto_ptr<wchar_t> domainName(new wchar_t[domainNameSize]);
 
         SID_NAME_USE nameUse;
-        while(LookupAccountName(0, name.c_str(), _sid, &sidSize, domainName, &domainNameSize, &nameUse) == false)
+        while(LookupAccountNameW(0, IceUtil::stringToWstring(name).c_str(), _sid.get(), &sidSize, domainName.get(),
+              &domainNameSize, &nameUse) == false)
         {
             DWORD res = GetLastError();
 
             if(res == ERROR_INSUFFICIENT_BUFFER)
             {
-                _sid = static_cast<SID*>(realloc(_sid, sidSize));
-                memset(_sid, 0, sidSize);
-                domainName = static_cast<char*>(realloc(domainName, domainNameSize));
-                memset(domainName, 0, domainNameSize);
+                _sid =  auto_ptr<SID>(new SID[sidSize]);
+                domainName  = auto_ptr<wchar_t>(new wchar_t[domainNameSize]);
+                continue;
             }
-            else
-            {
-                free(_sid);
-                _sid = 0;
-                free(domainName);
-
-                throw "Could not retrieve Security ID for " + name + ": " + IceUtilInternal::errorToString(res);
-            }
+            throw "Could not retrieve Security ID for " + name + ": " + IceUtilInternal::errorToString(res);
         }
-        free(domainName);
     }
 
     //
@@ -487,21 +470,21 @@ IceServiceInstaller::initializeSid(const string& name)
     }
     else
     {
-        char accountName[1024];
+        wchar_t accountName[1024];
         DWORD accountNameLen = 1024;
 
-        char domainName[1024];
+        wchar_t domainName[1024];
         DWORD domainLen = 1024;
 
         SID_NAME_USE nameUse;
-        if(LookupAccountSid(0, _sid, accountName, &accountNameLen, domainName,
+        if(LookupAccountSidW(0, _sid.get(), accountName, &accountNameLen, domainName,
                             &domainLen, &nameUse) == false)
         {
             DWORD res = GetLastError();
             throw "Could not retrieve full account name for " + name + ": " + IceUtilInternal::errorToString(res);
         }
 
-        _sidName = string(domainName) + "\\" + accountName;
+        _sidName = IceUtil::wstringToString(domainName) + "\\" + IceUtil::wstringToString(accountName);
     }
 
     if(_debug)
@@ -509,9 +492,9 @@ IceServiceInstaller::initializeSid(const string& name)
         Trace trace(_communicator->getLogger(), "IceServiceInstaller");
 
 #if defined(_MSC_VER) && _MSC_VER >= 1300
-	char* sidString = 0;
-        ConvertSidToStringSid(_sid, &sidString);
-	trace << "SID: " << sidString << "; ";
+	wchar_t* sidString = 0;
+        ConvertSidToStringSidW(_sid.get(), &sidString);
+	trace << "SID: " << IceUtil::wstringToString(sidString) << "; ";
 	LocalFree(sidString);
 #endif
 	trace << "Full name: " << _sidName;
@@ -521,12 +504,12 @@ IceServiceInstaller::initializeSid(const string& name)
 bool
 IceServiceInstaller::fileExists(const string& path) const
 {
-    struct _stat buffer = { 0 };
-    int err = _stat(path.c_str(), &buffer);
+    IceUtilInternal::structstat st = {0};
+    int err = IceUtilInternal::stat(path, &st);
 
     if(err == 0)
     {
-        if((buffer.st_mode & _S_IFREG) == 0)
+        if((S_ISREG(st.st_mode)) == 0)
         {
             throw path + " is not a regular file";
         }
@@ -555,7 +538,7 @@ IceServiceInstaller::grantPermissions(const string& path, SE_OBJECT_TYPE type, b
     PACL acl = 0;
     PACL newAcl = 0;
     PSECURITY_DESCRIPTOR sd = 0;
-    DWORD res = GetNamedSecurityInfo(const_cast<char*>(path.c_str()), type,
+    DWORD res = GetNamedSecurityInfoW(const_cast<wchar_t*>(IceUtil::stringToWstring(path).c_str()), type,
                                      DACL_SECURITY_INFORMATION,
                                      0, 0, &acl, 0, &sd);
     if(res != ERROR_SUCCESS)
@@ -568,15 +551,16 @@ IceServiceInstaller::grantPermissions(const string& path, SE_OBJECT_TYPE type, b
         //
         // Now check if _sid can read this file/dir/key
         //
-        TRUSTEE trustee;
-        BuildTrusteeWithSid(&trustee, _sid);
+        TRUSTEE_W trustee;
+        BuildTrusteeWithSidW(&trustee, _sid.get());
 
         ACCESS_MASK accessMask = 0;
-        res = GetEffectiveRightsFromAcl(acl, &trustee, &accessMask);
+        res = GetEffectiveRightsFromAclW(acl, &trustee, &accessMask);
 
         if(res != ERROR_SUCCESS)
         {
-            throw "Could not retrieve effective rights for " + _sidName + " on " + path + ": " + IceUtilInternal::errorToString(res);
+            throw "Could not retrieve effective rights for " + _sidName + " on " + path + ": " + 
+                  IceUtilInternal::errorToString(res);
         }
 
         bool done = false;
@@ -608,7 +592,7 @@ IceServiceInstaller::grantPermissions(const string& path, SE_OBJECT_TYPE type, b
         }
         else
         {
-            EXPLICIT_ACCESS ea = { 0 };
+            EXPLICIT_ACCESS_W ea = { 0 };
 
             if(type == SE_FILE_OBJECT && fullControl)
             {
@@ -632,18 +616,19 @@ IceServiceInstaller::grantPermissions(const string& path, SE_OBJECT_TYPE type, b
             //
             // Create new ACL
             //
-            res = SetEntriesInAcl(1, &ea, acl, &newAcl);
+            res = SetEntriesInAclW(1, &ea, acl, &newAcl);
             if(res != ERROR_SUCCESS)
             {
                 throw "Could not modify ACL for " + path + ": " + IceUtilInternal::errorToString(res);
             }
 
-            res = SetNamedSecurityInfo(const_cast<char*>(path.c_str()), type,
+            res = SetNamedSecurityInfoW(const_cast<wchar_t*>(IceUtil::stringToWstring(path).c_str()), type,
                                        DACL_SECURITY_INFORMATION,
                                        0, 0, newAcl, 0);
             if(res != ERROR_SUCCESS)
             {
-                throw "Could not grant access to " + _sidName + " on " + path + ": " + IceUtilInternal::errorToString(res);
+                throw "Could not grant access to " + _sidName + " on " + path + ": " +
+                      IceUtilInternal::errorToString(res);
             }
 
             if(_debug)
@@ -667,7 +652,7 @@ IceServiceInstaller::grantPermissions(const string& path, SE_OBJECT_TYPE type, b
 bool
 IceServiceInstaller::mkdir(const string& path) const
 {
-    if(CreateDirectory(path.c_str(), 0) == 0)
+    if(CreateDirectoryW(IceUtil::stringToWstring(path).c_str(), 0) == 0)
     {
         DWORD res = GetLastError();
         if(res == ERROR_ALREADY_EXISTS)
@@ -702,8 +687,8 @@ IceServiceInstaller::addLog(const string& log) const
 
     HKEY key = 0;
     DWORD disposition = 0;
-    LONG res = RegCreateKeyEx(HKEY_LOCAL_MACHINE, createLog(log).c_str(),
-                              0, "REG_SZ", REG_OPTION_NON_VOLATILE, KEY_ALL_ACCESS, 0,
+    LONG res = RegCreateKeyExW(HKEY_LOCAL_MACHINE, IceUtil::stringToWstring(createLog(log)).c_str(),
+                              0, L"REG_SZ", REG_OPTION_NON_VOLATILE, KEY_ALL_ACCESS, 0,
                               &key, &disposition);
 
     if(res != ERROR_SUCCESS)
@@ -721,7 +706,7 @@ IceServiceInstaller::addLog(const string& log) const
 void
 IceServiceInstaller::removeLog(const string& log) const
 {
-    LONG res = RegDeleteKey(HKEY_LOCAL_MACHINE, createLog(log).c_str());
+    LONG res = RegDeleteKeyW(HKEY_LOCAL_MACHINE, IceUtil::stringToWstring(createLog(log)).c_str());
 
     //
     // We get ERROR_ACCESS_DENIED when the log is shared by several sources
@@ -737,8 +722,8 @@ IceServiceInstaller::addSource(const string& source, const string& log, const st
 {
     HKEY key = 0;
     DWORD disposition = 0;
-    LONG res = RegCreateKeyEx(HKEY_LOCAL_MACHINE, createSource(source, log).c_str(),
-                              0, "REG_SZ", REG_OPTION_NON_VOLATILE, KEY_ALL_ACCESS, 0,
+    LONG res = RegCreateKeyExW(HKEY_LOCAL_MACHINE, IceUtil::stringToWstring(createSource(source, log)).c_str(),
+                              0, L"REG_SZ", REG_OPTION_NON_VOLATILE, KEY_ALL_ACCESS, 0,
                               &key, &disposition);
     if(res != ERROR_SUCCESS)
     {
@@ -750,9 +735,9 @@ IceServiceInstaller::addSource(const string& source, const string& log, const st
     // the "EventMessageFile" key should contain the path to this
     // DLL.
     //
-    res = RegSetValueEx(key, "EventMessageFile", 0, REG_EXPAND_SZ,
-                        reinterpret_cast<const BYTE*>(resourceFile.c_str()),
-                        static_cast<DWORD>(resourceFile.length() + 1));
+    res = RegSetValueExW(key, L"EventMessageFile", 0, REG_EXPAND_SZ,
+                        reinterpret_cast<const BYTE*>(IceUtil::stringToWstring(resourceFile).c_str()),
+                        static_cast<DWORD>(resourceFile.length() + 1) * sizeof(wchar_t));
 
     if(res == ERROR_SUCCESS)
     {
@@ -762,7 +747,7 @@ IceServiceInstaller::addSource(const string& source, const string& log, const st
         //
         DWORD typesSupported = EVENTLOG_ERROR_TYPE | EVENTLOG_WARNING_TYPE
             | EVENTLOG_INFORMATION_TYPE;
-        res = RegSetValueEx(key, "TypesSupported", 0, REG_DWORD,
+        res = RegSetValueExW(key, L"TypesSupported", 0, REG_DWORD,
                             reinterpret_cast<BYTE*>(&typesSupported), sizeof(typesSupported));
     }
 
@@ -788,7 +773,7 @@ IceServiceInstaller::removeSource(const string& source) const
 
     HKEY key = 0;
 
-    LONG res = RegOpenKeyEx(HKEY_LOCAL_MACHINE, "SYSTEM\\CurrentControlSet\\Services\\EventLog", 0,
+    LONG res = RegOpenKeyExW(HKEY_LOCAL_MACHINE, L"SYSTEM\\CurrentControlSet\\Services\\EventLog", 0,
                             KEY_ENUMERATE_SUB_KEYS, &key);
 
     if(res != ERROR_SUCCESS)
@@ -799,17 +784,19 @@ IceServiceInstaller::removeSource(const string& source) const
     DWORD index = 0;
     do
     {
-        char subkey[4096];
         DWORD subkeySize = 4096;
+        wchar_t subkey[4096];
 
-        res = RegEnumKeyEx(key, index, subkey, &subkeySize, 0, 0, 0, 0);
+        res = RegEnumKeyExW(key, index, subkey, &subkeySize, 0, 0, 0, 0);
 
         if(res == ERROR_SUCCESS)
         {
             //
             // Check if we can delete the source sub-key
             //
-            LONG delRes = RegDeleteKey(HKEY_LOCAL_MACHINE, createSource(source, subkey).c_str());
+            LONG delRes = RegDeleteKeyW(HKEY_LOCAL_MACHINE,
+                                        IceUtil::stringToWstring(createSource(source, 
+                                                                           IceUtil::wstringToString(subkey))).c_str());
             if(delRes == ERROR_SUCCESS)
             {
                 res = RegCloseKey(key);
@@ -817,12 +804,12 @@ IceServiceInstaller::removeSource(const string& source) const
                 {
                     throw "Could not close registry key handle: " + IceUtilInternal::errorToString(res);
                 }
-                return string(subkey);
+                return IceUtil::wstringToString(subkey);
             }
 
             ++index;
         }
-    } while(res == ERROR_SUCCESS);
+    }while(res == ERROR_SUCCESS);
 
 
     if(res == ERROR_NO_MORE_ITEMS)

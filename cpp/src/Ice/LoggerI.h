@@ -11,8 +11,7 @@
 #define ICE_LOGGER_I_H
 
 #include <Ice/Logger.h>
-
-#include <fstream>
+#include <IceUtil/FileUtil.h>
 
 namespace Ice
 {
@@ -35,7 +34,7 @@ private:
     void write(const std::string&, bool);
 
     std::string _prefix;
-    std::fstream _out;
+    IceUtilInternal::ofstream _out;
     std::string _file;
 };
 

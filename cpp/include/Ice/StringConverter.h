@@ -124,5 +124,38 @@ public:
     virtual void destroy();
 };
 
+//
+// Converts the given string from the native narrow string encoding to
+// UTF8 using the given converter. If the converter is null, returns
+// the given string.
+//
+ICE_API std::string
+nativeToUTF8(const Ice::StringConverterPtr&, const std::string&);
+
+//
+// Converts the given string from the native narrow string encoding to
+// UTF8 using the communicator's converter. If the converter is null,
+// returns the given string.
+//
+ICE_API std::string
+nativeToUTF8(const Ice::CommunicatorPtr&, const std::string&);
+
+//
+// Converts the given string from UTF8 to the native narrow string
+// encoding using the given converter. If the converter is null,
+// returns the given string.
+//
+ICE_API std::string
+UTF8ToNative(const Ice::StringConverterPtr&, const std::string&);
+
+//
+// Converts the given string from UTF8 to the native narrow string
+// encoding using the communicator's converter. If the converter is
+// null, returns the given string.
+//
+ICE_API std::string
+UTF8ToNative(const Ice::CommunicatorPtr&, const std::string&);
+
 }
+
 #endif

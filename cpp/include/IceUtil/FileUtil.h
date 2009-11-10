@@ -14,6 +14,7 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 #include <stdio.h>
+#include <fstream>
 
 namespace IceUtilInternal
 {
@@ -60,7 +61,6 @@ typedef struct stat structstat;
 // OS stat
 //
 ICE_UTIL_API int stat(const std::string&, structstat*);
-
 ICE_UTIL_API int remove(const std::string&);
 ICE_UTIL_API int rename(const std::string&, const std::string&);
 ICE_UTIL_API int rmdir(const std::string&);
@@ -69,6 +69,54 @@ ICE_UTIL_API int mkdir(const std::string&, int);
 ICE_UTIL_API FILE* fopen(const std::string&, const std::string&);
 ICE_UTIL_API int open(const std::string&, int);
 ICE_UTIL_API int getcwd(std::string&);
+ICE_UTIL_API int unlink(const std::string&);
+
+class ICE_UTIL_API ifstream : public std::ifstream
+{
+public:
+
+    ifstream();
+    ifstream(const std::string&, std::ios_base::openmode mode = std::ios_base::in);
+#ifdef _STLP_BEGIN_NAMESPACE
+    ~ifstream();
+    void close();
+#endif
+    void open(const std::string&, std::ios_base::openmode mode = std::ios_base::in);
+
+private:
+
+    // Hide const char* definitions since they shouldn't be used.
+    ifstream(const char*);
+    void open(const char*, std::ios_base::openmode mode = std::ios_base::in);
+    
+#ifdef _STLP_BEGIN_NAMESPACE
+    int _fd;
+#endif
+};
+
+class ICE_UTIL_API ofstream : public std::ofstream
+{
+public:
+
+    ofstream();
+    ofstream(const std::string&, std::ios_base::openmode mode = std::ios_base::out);
+#ifdef _STLP_BEGIN_NAMESPACE
+    ~ofstream();
+    void close();
+#endif
+    void open(const std::string&, std::ios_base::openmode mode = std::ios_base::out);
+
+private:
+
+    // Hide const char* definitions since they shouldn't be used.
+    ofstream(const char*);
+    void open(const char*, std::ios_base::openmode mode = std::ios_base::out);
+
+#ifdef _STLP_BEGIN_NAMESPACE
+    int _fd;
+#endif
+};
+
 };
 
 #endif

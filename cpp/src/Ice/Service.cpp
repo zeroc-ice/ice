@@ -14,9 +14,11 @@
 #include <IceUtil/Monitor.h>
 #include <IceUtil/Mutex.h>
 #include <IceUtil/ArgVector.h>
+#include <IceUtil/FileUtil.h>
 #include <Ice/Service.h>
 #include <Ice/LoggerI.h>
 #include <Ice/Initialize.h>
+#include <Ice/StringConverter.h>
 #include <Ice/Communicator.h>
 #include <Ice/LocalException.h>
 #include <Ice/Properties.h>
@@ -30,7 +32,6 @@
 #   include <sys/types.h>
 #   include <sys/stat.h>
 #   include <csignal>
-#   include <fstream>
 #endif
 
 using namespace std;
@@ -834,6 +835,25 @@ Ice::Service::main(int& argc, char* argv[], const InitializationData& initializa
 
     return run(argc, argv, initData);
 }
+
+#ifdef _WIN32
+
+int
+Ice::Service::main(int& argc, wchar_t* argv[], const InitializationData& initializationData)
+{
+#ifdef __BCPLUSPLUS__ // COMPILER FIX
+    //
+    //BCC don't see the main overload if we don't create the temp args object here.
+    //
+    Ice::StringSeq args = Ice::argsToStringSeq(argc, argv, initializationData.stringConverter);
+    return main(args, initializationData);
+#else
+    return main(Ice::argsToStringSeq(argc, argv, initializationData.stringConverter), initializationData);
+#endif
+
+}
+
+#endif
 
 int
 Ice::Service::main(StringSeq& args, const InitializationData& initData)
@@ -2125,7 +2145,7 @@ Ice::Service::runDaemon(int argc, char* argv[], const InitializationData& initDa
         //
         if(_pidFile.size() > 0)
         {
-            ofstream of(_pidFile.c_str());
+            IceUtilInternal::ofstream of(Ice::nativeToUTF8(_communicator, _pidFile));
             of << getpid() << endl;
 
             if(!of)

@@ -246,7 +246,7 @@ usage(const char* n)
 void
 checkIdentifier(string t, string s)
 {
-    if(s.empty() || (!isalpha(static_cast<unsigned char>(s[0])) && s[0] != '_'))
+    if(s.empty() || (!IceUtilInternal::isAlpha(s[0]) && s[0] != '_'))
     {
         ostringstream os;
         os << t << "' is not a valid type name";

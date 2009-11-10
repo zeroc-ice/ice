@@ -18,6 +18,7 @@
 #include <Ice/LoggerUtil.h>
 #include <Ice/Properties.h>
 #include <Ice/ProtocolPluginFacade.h>
+#include <Ice/StringConverter.h>
 
 #include <IceUtil/Mutex.h>
 #include <IceUtil/MutexPtrLock.h>
@@ -208,7 +209,8 @@ IceSSL::Instance::Instance(const CommunicatorPtr& communicator) :
         {
             RAND_load_file(randFile, 1024);
         }
-        string randFiles = properties->getProperty("IceSSL.Random");
+        string randFiles = Ice::nativeToUTF8(communicator, properties->getProperty("IceSSL.Random"));
+
         if(!randFiles.empty())
         {
             vector<string> files;
@@ -217,7 +219,8 @@ IceSSL::Instance::Instance(const CommunicatorPtr& communicator) :
 #else
             const string sep = ":";
 #endif
-            string defaultDir = properties->getProperty("IceSSL.DefaultDir");
+            string defaultDir = Ice::nativeToUTF8(communicator, properties->getProperty("IceSSL.DefaultDir"));
+
             if(!IceUtilInternal::splitString(randFiles, sep, files))
             {
                 PluginInitializationException ex(__FILE__, __LINE__);

@@ -112,6 +112,9 @@
         </dbenv>
         <option>--Test.Test=2</option>
         <env>MY_ENV_VARIABLE=12</env>
+        <env>MY_ENV_UNICODE_VARIABLE=A Coruña</env>
+        <env>MY_ENV_VÄRIABLE=1</env>
+        <env>my_env_väriable=2</env>
         <properties>
           <properties refid="AppProperties"/>
           <properties refid="NodeProperties"/>
@@ -150,6 +153,9 @@
         <log path="${test.dir}/log3.txt"/>
         <log path="${test.dir}/log4.txt"/>
         <env>MY_ENV_VARIABLE=12</env>
+        <env>MY_ENV_UNICODE_VARIABLE=A Coruña</env>
+        <env>MY_ENV_VÄRIABLE=1</env>
+        <env>my_env_väriable=2</env>
         <properties>
           <property name="Ice.StdErr" value="${node.datadir}/servers/${server}.out"/>
           <property name="Ice.StdOut" value="${node.datadir}/servers/${server}.err"/>

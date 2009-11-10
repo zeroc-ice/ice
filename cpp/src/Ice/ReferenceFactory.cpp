@@ -279,15 +279,7 @@ IceInternal::ReferenceFactory::create(const string& str, const string& propertyP
                     throw ex;
                 }
 
-                if(_instance->initializationData().stringConverter)
-                {
-                    string tmpFacet;
-                    _instance->initializationData().stringConverter->fromUTF8(
-                                reinterpret_cast<const Byte*>(facet.data()),
-                                reinterpret_cast<const Byte*>(facet.data() + facet.size()), tmpFacet);
-                    facet = tmpFacet;
-                }
-
+                facet = Ice::UTF8ToNative(_instance->initializationData().stringConverter, facet);
                 break;
             }
 
@@ -515,15 +507,8 @@ IceInternal::ReferenceFactory::create(const string& str, const string& propertyP
                 throw ex;
             }
 
-            if(_instance->initializationData().stringConverter && !adapter.empty())
-            {
-                string tmpAdapter;
-                _instance->initializationData().stringConverter->fromUTF8(
-                                reinterpret_cast<const Byte*>(adapter.data()), 
-                                reinterpret_cast<const Byte*>(adapter.data() + adapter.size()), tmpAdapter);
-                adapter = tmpAdapter;
-            }
-            
+            adapter = Ice::UTF8ToNative(_instance->initializationData().stringConverter, adapter);
+
             return create(ident, facet, mode, secure, vector<EndpointIPtr>(), adapter, propertyPrefix);
             break;
         }

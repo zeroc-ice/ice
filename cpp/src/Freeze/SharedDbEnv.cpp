@@ -19,6 +19,8 @@
 #include <IceUtil/MutexPtrTryLock.h>
 #include <IceUtil/IceUtil.h>
 
+#include <Ice/StringConverter.h>
+
 #include <cstdlib>
 #include <memory>
 
@@ -553,8 +555,8 @@ Freeze::SharedDbEnv::SharedDbEnv(const std::string& envName,
             
             string dbHome = properties->getPropertyWithDefault(
                 propertyPrefix + ".DbHome", envName);
-            
-            _env->open(dbHome.c_str(), flags, FREEZE_DB_MODE);
+
+            _env->open(Ice::nativeToUTF8(_communicator, dbHome).c_str(), flags, FREEZE_DB_MODE);
        
             //
             // Default checkpoint period is every 120 seconds

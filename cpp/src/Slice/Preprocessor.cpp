@@ -122,8 +122,8 @@ Slice::Preprocessor::normalizeIncludePath(const string& path)
         result.replace(pos, 2, "/");
     }
 
-    if(result == "/" || (result.size() == 3 && isalpha(static_cast<unsigned char>(result[0])) && result[1] == ':' &&
-       result[2] == '/'))
+    if(result == "/" || (result.size() == 3 && IceUtilInternal::isAlpha(result[0]) && result[1] == ':' && 
+                         result[2] == '/'))
     {
         return result;
     }
@@ -205,9 +205,9 @@ Slice::Preprocessor::preprocess(bool keepComments)
         wchar_t* name = _wtempnam(NULL, L".preprocess");
         if(name)
         {
-            _cppFile = wstring(name);
+            _cppFile = IceUtil::wstringToString(name);
             free(name);
-            _cppHandle = ::_wfopen(_cppFile.c_str(), L"w+");
+            _cppHandle = IceUtilInternal::fopen(_cppFile, "w+");
         }
 #else
         _cppHandle = tmpfile();
@@ -218,13 +218,8 @@ Slice::Preprocessor::preprocess(bool keepComments)
         //
         if(_cppHandle == 0)
         {
-#ifdef _WIN32
-            _cppFile = L".preprocess." + IceUtil::stringToWstring(IceUtil::generateUUID());
-            _cppHandle = ::_wfopen(_cppFile.c_str(), L"w+");
-#else
             _cppFile = ".preprocess." + IceUtil::generateUUID();
-            _cppHandle = ::fopen(_cppFile.c_str(), "w+");
-#endif
+            _cppHandle = IceUtilInternal::fopen(_cppFile, "w+");
         }
 
         if(_cppHandle != 0)
@@ -239,11 +234,7 @@ Slice::Preprocessor::preprocess(bool keepComments)
         {
             ostream& os = getErrorStream();
             os << _path << ": error: could not open temporary file: ";
-#ifdef _WIN32
-            os << IceUtil::wstringToString(_cppFile);
-#else
             os << _cppFile;
-#endif
             os << endl;
         }
     }
@@ -593,11 +584,7 @@ Slice::Preprocessor::close()
 
         if(_cppFile.size() != 0)
         {
-#ifdef _WIN32
-            _wunlink(_cppFile.c_str());
-#else
-            unlink(_cppFile.c_str());
-#endif
+            IceUtilInternal::unlink(_cppFile);
         }
 
         if(status != 0)

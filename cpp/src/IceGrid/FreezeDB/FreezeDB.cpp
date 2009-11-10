@@ -13,18 +13,7 @@
 #include <IceGrid/FreezeDB/StringAdapterInfoDict.h>
 #include <IceGrid/FreezeDB/IdentityObjectInfoDict.h>
 
-#include <sys/types.h>
-#include <sys/stat.h>
-
-#ifdef _WIN32
-#   include <direct.h>
-#   ifdef _MSC_VER
-#       define S_ISDIR(mode) ((mode) & _S_IFDIR)
-#       define S_ISREG(mode) ((mode) & _S_IFREG)
-#   endif
-#else
-#   include <unistd.h>
-#endif
+#include <IceUtil/FileUtil.h>
 
 using namespace IceGrid;
 using namespace std;
@@ -146,8 +135,7 @@ FreezeDBPlugin::FreezeDBPlugin(const Ice::CommunicatorPtr& communicator) : _comm
     }
     else
     {
-        struct stat filestat;
-        if(stat(dbPath.c_str(), &filestat) != 0 || !S_ISDIR(filestat.st_mode))
+        if(!IceUtilInternal::directoryExists(dbPath))
         {
             ostringstream os;
             Ice::SyscallException ex(__FILE__, __LINE__);

@@ -51,6 +51,29 @@ Ice::argsToStringSeq(int argc, char* argv[])
     return result;
 }
 
+#ifdef _WIN32
+
+StringSeq
+Ice::argsToStringSeq(int argc, wchar_t* argv[])
+{
+   return argsToStringSeq(argc, argv, 0);
+}
+
+StringSeq
+Ice::argsToStringSeq(int argc, wchar_t* argv[], const StringConverterPtr& converter)
+{
+    StringSeq args;
+    for(int i=0; argv[i] != 0; i++)
+    {
+        string value = IceUtil::wstringToString(argv[i]);
+        value = Ice::UTF8ToNative(converter, value);
+        args.push_back(value);
+    }
+    return args;
+}
+
+#endif
+
 void
 Ice::stringSeqToArgs(const StringSeq& args, int& argc, char* argv[])
 {

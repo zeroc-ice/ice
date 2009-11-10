@@ -32,7 +32,6 @@ public:
 #endif
 
     IceServiceInstaller(int, const std::string&, const Ice::CommunicatorPtr&);
-    ~IceServiceInstaller();
 
     void install(const Ice::PropertiesPtr&);
 
@@ -73,7 +72,7 @@ private:
     std::string _nodeName;
     std::string _glacier2InstanceName;
 
-    SID* _sid;
+    std::auto_ptr<SID> _sid;
     std::string _sidName;
 
     bool _debug;

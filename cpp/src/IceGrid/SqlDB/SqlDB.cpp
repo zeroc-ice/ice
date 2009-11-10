@@ -8,6 +8,7 @@
 // **********************************************************************
 
 #include <IceUtil/ArgVector.h>
+#include <IceUtil/FileUtil.h>
 #include <Ice/Communicator.h>
 #include <Ice/Locator.h>
 #include <Ice/Instance.h>
@@ -16,19 +17,6 @@
 
 #include <QtCore/QCoreApplication>
 #include <QtCore/QTextCodec>
-
-#include <sys/types.h>
-#include <sys/stat.h>
-
-#ifdef _WIN32
-#   include <direct.h>
-#   ifdef _MSC_VER
-#       define S_ISDIR(mode) ((mode) & _S_IFDIR)
-#       define S_ISREG(mode) ((mode) & _S_IFREG)
-#   endif
-#else
-#   include <unistd.h>
-#endif
 
 using namespace IceGrid;
 using namespace std;
@@ -190,8 +178,7 @@ SqlDBPlugin::initialize()
         }
         else
         {
-            struct stat filestat;
-            if(stat(dbPath.c_str(), &filestat) != 0 || !S_ISDIR(filestat.st_mode))
+            if(IceUtilInternal::directoryExists(dbPath))
             {
                 ostringstream os;
                 Ice::SyscallException ex(__FILE__, __LINE__);

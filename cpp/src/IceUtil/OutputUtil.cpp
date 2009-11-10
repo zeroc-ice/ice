@@ -8,6 +8,7 @@
 // **********************************************************************
 
 #include <IceUtil/OutputUtil.h>
+#include <IceUtil/FileUtil.h>
 #include <cstring>
 
 using namespace std;
@@ -94,11 +95,7 @@ IceUtilInternal::OutputBase::open(const char* s)
     // Remove any existing file first. This prevents file name
     // mismatches on case-insensitive OSs.
     //
-#ifdef _WIN32
-    _unlink(s);
-#else
-    unlink(s);
-#endif
+    IceUtilInternal::unlink(s);
     _fout.open(s);
 }
 

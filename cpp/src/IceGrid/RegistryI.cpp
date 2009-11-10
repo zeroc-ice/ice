@@ -9,6 +9,7 @@
 
 #include <IceUtil/DisableWarnings.h>
 #include <IceUtil/UUID.h>
+#include <IceUtil/FileUtil.h>
 #include <Ice/Ice.h>
 #include <Ice/Network.h>
 #include <Ice/ProtocolPluginFacade.h> // Just to get the hostname
@@ -41,15 +42,7 @@
 
 #include <openssl/des.h> // For crypt() passwords
 
-#ifdef _WIN32
-#   include <direct.h>
-#   ifdef _MSC_VER
-#      define S_ISDIR(mode) ((mode) & _S_IFDIR)
-#      define S_ISREG(mode) ((mode) & _S_IFREG)
-#   endif
-#else
-#   include <unistd.h>
-#endif
+#include <sys/types.h>
 
 using namespace std;
 using namespace Ice;
@@ -1079,7 +1072,11 @@ RegistryI::getPermissionsVerifier(const ObjectAdapterPtr& adapter,
     }
     else if(!passwordsProperty.empty())
     {
-        ifstream passwordFile(passwordsProperty.c_str());
+        //
+        // No nativeToUTF8 conversion necessary here, since no string
+        // converter is installed by IceGrid the string is UTF-8.
+        //
+        IceUtilInternal::ifstream passwordFile(passwordsProperty);
         if(!passwordFile)
         {
             Error out(_communicator->getLogger());

@@ -15,6 +15,8 @@
 
 #include <IceUtil/IceUtil.h>
 
+#include <Ice/StringConverter.h>
+
 #include <typeinfo>
 
 using namespace std;
@@ -312,7 +314,8 @@ Freeze::EvictorIBase::allDbs() const
     try
     {
         Db db(_dbEnv->getEnv(), 0);
-        db.open(0, _filename.c_str(), 0, DB_UNKNOWN, DB_RDONLY, 0);
+
+        db.open(0, Ice::nativeToUTF8(_communicator, _filename).c_str(), 0, DB_UNKNOWN, DB_RDONLY, 0);
 
         Dbc* dbc = 0;
         db.cursor(0, &dbc, 0);

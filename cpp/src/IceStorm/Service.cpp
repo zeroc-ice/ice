@@ -301,12 +301,12 @@ ServiceI::start(
                 // start of the node id, and then the end of the
                 // digits).
                 string::size_type start = instanceName.size();
-                while(start < adapterid.size() && !isdigit(static_cast<unsigned char>(adapterid[start])))
+                while(start < adapterid.size() && !IceUtilInternal::isDigit(adapterid[start]))
                 {
                     ++start;
                 }
                 string::size_type end = start;
-                while(end < adapterid.size() && isdigit(static_cast<unsigned char>(adapterid[end])))
+                while(end < adapterid.size() && IceUtilInternal::isDigit(adapterid[end]))
                 {
                     ++end;
                 }

@@ -252,7 +252,7 @@ createIceStringConverter(const CommunicatorPtr& communicator, const string& name
         {
             if(args[i].find("windows=") == 0)
             {
-	        cp = atoi(args[i].substr(strlen("windows=")).c_str());
+                cp = atoi(args[i].substr(strlen("windows=")).c_str());
             }
             else if(args[i].find("iconv=") != 0)
             {
@@ -342,3 +342,47 @@ createIceStringConverter(const CommunicatorPtr& communicator, const string& name
 }
 }
 
+string
+Ice::nativeToUTF8(const Ice::StringConverterPtr& converter, const string& str)
+{
+    if(!converter)
+    {
+        return str;
+    }
+    if(str.empty())
+    {
+        return str;
+    }
+    IceInternal::UTF8BufferI buffer;
+    Ice::Byte* last = converter->toUTF8(str.data(), str.data() + str.size(), buffer);
+    return string(reinterpret_cast<const char*>(buffer.getBuffer()), last - buffer.getBuffer());
+}
+
+string
+Ice::nativeToUTF8(const Ice::CommunicatorPtr& ic, const string& str)
+{
+    return nativeToUTF8(IceInternal::getInstance(ic)->initializationData().stringConverter, str);
+}
+
+string
+Ice::UTF8ToNative(const Ice::StringConverterPtr& converter, const string& str)
+{
+    if(!converter)
+    {
+        return str;
+    }
+    if(str.empty())
+    {
+        return str;
+    }
+    string tmp;
+    converter->fromUTF8(reinterpret_cast<const Ice::Byte*>(str.data()),
+                        reinterpret_cast<const Ice::Byte*>(str.data() + str.size()), tmp);
+    return tmp;
+}
+
+string
+Ice::UTF8ToNative(const Ice::CommunicatorPtr& ic, const std::string& str)
+{
+    return UTF8ToNative(IceInternal::getInstance(ic)->initializationData().stringConverter, str);
+}

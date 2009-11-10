@@ -220,14 +220,7 @@ IceInternal::Reference::toString() const
         // the reference parser uses as separators, then we enclose
         // the facet string in quotes.
         //
-        string fs = _facet;
-        if(_instance->initializationData().stringConverter)
-        {
-            UTF8BufferI buffer;
-            Byte* last =
-                _instance->initializationData().stringConverter->toUTF8(fs.data(), fs.data() + fs.size(), buffer);
-            fs = string(reinterpret_cast<const char*>(buffer.getBuffer()), last - buffer.getBuffer());
-        }
+        string fs = Ice::nativeToUTF8(_instance->initializationData().stringConverter, _facet);
         fs = IceUtilInternal::escapeString(fs, "");
         if(fs.find_first_of(" :@") != string::npos)
         {
@@ -1114,14 +1107,7 @@ IceInternal::RoutableReference::toString() const
         // reference parser uses as separators, then we enclose the
         // adapter id string in quotes.
         //
-        string a = _adapterId;
-        StringConverterPtr stringConverter = getInstance()->initializationData().stringConverter;
-        if(stringConverter)
-        {
-            UTF8BufferI buffer;
-            Byte* last = stringConverter->toUTF8(a.data(), a.data() + a.size(), buffer);
-            a = string(reinterpret_cast<const char*>(buffer.getBuffer()), last - buffer.getBuffer());
-        }
+        string a = Ice::nativeToUTF8(getInstance()->initializationData().stringConverter, _adapterId);
         a = IceUtilInternal::escapeString(a, "");
         if(a.find_first_of(" :@") != string::npos)
         {
@@ -1131,7 +1117,7 @@ IceInternal::RoutableReference::toString() const
         }
         else
         {
-            result.append(_adapterId);
+            result.append(a);
         }
     }
     else

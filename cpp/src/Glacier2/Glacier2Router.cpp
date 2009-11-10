@@ -10,13 +10,13 @@
 #include <IceUtil/DisableWarnings.h>
 #include <IceUtil/UUID.h>
 #include <IceUtil/Options.h>
+#include <IceUtil/FileUtil.h>
 #include <Ice/Service.h>
 #include <Glacier2/Instance.h>
 #include <Glacier2/RouterI.h>
 #include <Glacier2/Session.h>
 #include <Glacier2/SessionRouterI.h>
 #include <Glacier2/CryptPermissionsVerifierI.h>
-#include <fstream>
 
 using namespace std;
 using namespace Ice;
@@ -269,7 +269,12 @@ Glacier2::RouterService::start(int argc, char* argv[], int& status)
     }
     else if(!passwordsProperty.empty())
     {
-        ifstream passwordFile(passwordsProperty.c_str());
+        //
+        // No nativeToUTF8 conversion necessary here, since no string
+        // converter is installed by Glacier2 the string is UTF-8.
+        //
+        IceUtilInternal::ifstream passwordFile(passwordsProperty);
+
         if(!passwordFile)
         {
             string err = strerror(errno);
@@ -607,8 +612,18 @@ Glacier2::RouterService::usage(const string& appName)
     print("Usage: " + appName + " [options]\n" + options);
 }
 
+//COMPILERFIX: Borland C++ 2010 doesn't support wmain for console applications.
+#if defined(_WIN32 ) && !defined(__BCPLUSPLUS__)
+
+int
+wmain(int argc, wchar_t* argv[])
+
+#else
+
 int
 main(int argc, char* argv[])
+
+#endif
 {
     Glacier2::RouterService svc;
     return svc.main(argc, argv);

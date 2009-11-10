@@ -87,28 +87,21 @@ normalizePath(const string& path)
 string
 Slice::fullPath(const string& path)
 {
-#ifdef _WIN32
-    if(!IceUtilInternal::isAbsolutePath(path))
-    {
-        wchar_t cwdbuf[_MAX_PATH];
-        if(_wgetcwd(cwdbuf, _MAX_PATH) != NULL)
-        {
-            return normalizePath(IceUtil::wstringToString(cwdbuf) + "/" + path);
-        }
-    }
-    return normalizePath(path);
-#else
     string result = path;
     if(!IceUtilInternal::isAbsolutePath(result))
     {
-        char cwdbuf[PATH_MAX];
-        if(::getcwd(cwdbuf, PATH_MAX) != NULL)
+        string cwd;
+        if(IceUtilInternal::getcwd(cwd) == 0)
         {
-            result = string(cwdbuf) + '/' + result;
+            result = string(cwd) + '/' + result;
         }
     }
 
     result = normalizePath(result);
+
+#ifdef _WIN32
+    return result;
+#else
 
     string::size_type beg = 0;
     string::size_type next;

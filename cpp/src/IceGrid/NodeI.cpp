@@ -1150,8 +1150,7 @@ NodeI::removeServer(const ServerIPtr& server, const std::string& application)
             _serversByApplication.erase(p);
             
             string appDir = _dataDir + "/distrib/" + application;
-            IceUtilInternal::structstat buf;
-            if(IceUtilInternal::stat(appDir, &buf) != -1 && S_ISDIR(buf.st_mode))
+            if(IceUtilInternal::directoryExists(appDir))
             {
                 try
                 {

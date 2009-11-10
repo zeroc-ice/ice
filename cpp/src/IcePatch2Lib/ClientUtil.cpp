@@ -10,6 +10,7 @@
 #include <IceUtil/Unicode.h>
 #include <IceUtil/StringUtil.h>
 #include <IceUtil/FileUtil.h>
+#include <Ice/StringConverter.h>
 #define ICE_PATCH2_API_EXPORTS
 #include <IcePatch2/ClientUtil.h>
 #include <IcePatch2/Util.h>
@@ -150,7 +151,7 @@ private:
 
 IcePatch2::Patcher::Patcher(const CommunicatorPtr& communicator, const PatcherFeedbackPtr& feedback) :
     _feedback(feedback),
-    _dataDir(simplify(communicator->getProperties()->getPropertyWithDefault("IcePatch2.Directory", "."))),
+    _dataDir(communicator->getProperties()->getPropertyWithDefault("IcePatch2.Directory", ".")),
     _thorough(communicator->getProperties()->getPropertyAsInt("IcePatch2.Thorough") > 0),
     _chunkSize(communicator->getProperties()->getPropertyAsIntWithDefault("IcePatch2.ChunkSize", 100)),
     _remove(communicator->getProperties()->getPropertyAsIntWithDefault("IcePatch2.Remove", 1)),
@@ -186,7 +187,7 @@ IcePatch2::Patcher::Patcher(const FileServerPrx& server,
                             Ice::Int chunkSize,
                             Ice::Int remove) :
     _feedback(feedback),
-    _dataDir(simplify(dataDir)),
+    _dataDir(dataDir),
     _thorough(thorough),
     _chunkSize(chunkSize),
     _remove(remove)
@@ -470,7 +471,7 @@ IcePatch2::Patcher::prepare()
 bool
 IcePatch2::Patcher::patch(const string& d)
 {
-    string dir = simplify(d);
+    string dir = simplify(nativeToUTF8(_serverNoCompress->ice_getCommunicator(), d));
 
     if(dir.empty() || dir == ".")
     {
@@ -593,12 +594,19 @@ IcePatch2::Patcher::init(const FileServerPrx& server)
         throw string("no data directory specified");
     }
 
+    Ice::CommunicatorPtr communicator = server->ice_getCommunicator();
+
+    //
+    // Transform dataDir to a UTF8 string (it's either read from the properties or 
+    // provided by the user application directly).
+    //
+    const_cast<string&>(_dataDir) = simplify(nativeToUTF8(communicator, _dataDir));
+
     //
     // Make sure that _chunkSize doesn't exceed MessageSizeMax, otherwise
     // it won't work at all.
     //
-    int sizeMax = 
-        server->ice_getCommunicator()->getProperties()->getPropertyAsIntWithDefault("Ice.MessageSizeMax", 1024);
+    int sizeMax = communicator->getProperties()->getPropertyAsIntWithDefault("Ice.MessageSizeMax", 1024);
     if(_chunkSize < 1)
     {
         const_cast<Int&>(_chunkSize) = 1;

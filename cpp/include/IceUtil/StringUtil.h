@@ -71,10 +71,14 @@ ICE_UTIL_API std::string errorToString(int);
 #endif
 
 //
-// Functions to convert to to all lower/upper case
+// Functions to convert to lower/upper case. These functions accept
+// UTF8 string/characters but ignore non ASCII characters. Unlike, the
+// C methods, these methods are not local dependent.
 //
 ICE_UTIL_API std::string toLower(const std::string&);
 ICE_UTIL_API std::string toUpper(const std::string&);
+ICE_UTIL_API bool isAlpha(char);
+ICE_UTIL_API bool isDigit(char);
 
 //
 // Remove all whitespace from a string

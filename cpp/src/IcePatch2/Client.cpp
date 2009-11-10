@@ -326,8 +326,18 @@ Client::usage(const string& appName)
     cerr << options << endl;
 }
 
+//COMPILERFIX: Borland C++ 2010 doesn't support wmain for console applications.
+#if defined(_WIN32 ) && !defined(__BCPLUSPLUS__)
+
+int
+wmain(int argc, wchar_t* argv[])
+
+#else
+
 int
 main(int argc, char* argv[])
+
+#endif
 {
     Client app;
     return app.main(argc, argv);

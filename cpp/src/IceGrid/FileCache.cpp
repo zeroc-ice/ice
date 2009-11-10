@@ -10,11 +10,12 @@
 #include <Ice/Communicator.h>
 #include <Ice/Properties.h>
 
+#include <IceUtil/FileUtil.h>
+
 #include <IceGrid/FileCache.h>
 #include <IceGrid/Exception.h>
 
 #include <deque>
-#include <fstream>
 
 using namespace std;
 using namespace IceGrid;
@@ -27,7 +28,7 @@ FileCache::FileCache(const Ice::CommunicatorPtr& com) :
 Ice::Long
 FileCache::getOffsetFromEnd(const string& file, int originalCount)
 {
-    ifstream is(file.c_str());
+    IceUtilInternal::ifstream is(file); // file is a UTF-8 string
     if(is.fail())
     {
         throw FileNotAvailableException("failed to open file `" + file + "'");
@@ -139,7 +140,7 @@ FileCache::read(const string& file, Ice::Long offset, int size, Ice::Long& newOf
         throw FileNotAvailableException("maximum bytes per read request is too low");
     }
 
-    ifstream is(file.c_str());
+    IceUtilInternal::ifstream is(file); // file is a UTF-8 string
     if(is.fail())
     {
         throw FileNotAvailableException("failed to open file `" + file + "'");

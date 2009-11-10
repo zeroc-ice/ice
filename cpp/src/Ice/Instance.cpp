@@ -399,6 +399,15 @@ IceInternal::Instance::flushBatchRequests()
 Identity
 IceInternal::Instance::stringToIdentity(const string& s) const
 {
+    //
+    // This method only accepts printable ascii. Since printable ascii is a subset 
+    // of all narrow string encodings, it is not necessary to convert the string 
+    // from the native string encoding. Any characters other than printable-ASCII
+    // will cause an IllegalArgumentException. Note that it can contain Unicode
+    // encoded in the escaped form which is the reason why we call fromUTF8 after
+    // unespcaping the printable ASCII string.
+    //
+
     Identity ident;
 
     //
@@ -454,26 +463,8 @@ IceInternal::Instance::stringToIdentity(const string& s) const
         }
     }
 
-    if(_initData.stringConverter)
-    {
-        string tmpString;
-        if(!ident.name.empty())
-        {
-            _initData.stringConverter->fromUTF8(reinterpret_cast<const Byte*>(ident.name.data()),
-                                                reinterpret_cast<const Byte*>(ident.name.data() + ident.name.size()),
-                                                tmpString);
-            ident.name = tmpString;
-        }
-
-        if(!ident.category.empty())
-        {
-            _initData.stringConverter->fromUTF8(reinterpret_cast<const Byte*>(ident.category.data()),
-                                                reinterpret_cast<const Byte*>(ident.category.data() +
-                                                                             ident.category.size()),
-                                                tmpString);
-            ident.category = tmpString;
-        }
-    }
+    ident.name = Ice::UTF8ToNative(_initData.stringConverter, ident.name);
+    ident.category = Ice::UTF8ToNative(_initData.stringConverter, ident.category);
 
     return ident;
 }
@@ -481,27 +472,12 @@ IceInternal::Instance::stringToIdentity(const string& s) const
 string
 IceInternal::Instance::identityToString(const Identity& ident) const
 {
-    string name = ident.name;
-    string category = ident.category;
-    if(_initData.stringConverter)
-    {
-        UTF8BufferI buffer;
-        Byte* last;
-        if(!ident.name.empty())
-        {
-            last = _initData.stringConverter->toUTF8(ident.name.data(), ident.name.data() + ident.name.size(),
-                                                           buffer);
-            name = string(reinterpret_cast<const char*>(buffer.getBuffer()), last - buffer.getBuffer());
-        }
-
-        buffer.reset();
-        if(!ident.category.empty())
-        {
-            last = _initData.stringConverter->toUTF8(ident.category.data(),
-                                                     ident.category.data() + ident.category.size(), buffer);
-            category = string(reinterpret_cast<const char*>(buffer.getBuffer()), last - buffer.getBuffer());
-        }
-    }
+    //
+    // This method returns the stringified identity. The returned string only
+    // contains printable ascii. It can contain UTF8 in the escaped form.
+    //
+    string name = Ice::nativeToUTF8(_initData.stringConverter, ident.name);
+    string category = Ice::nativeToUTF8(_initData.stringConverter, ident.category);
 
     if(category.empty())
     {
@@ -802,7 +778,13 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const Initi
 #ifdef _LARGEFILE64_SOURCE
                     FILE* file = freopen64(stdOutFilename.c_str(), "a", stdout);
 #else
+#ifdef _WIN32
+                    FILE* file = _wfreopen(IceUtil::stringToWstring(nativeToUTF8(_initData.stringConverter, 
+                                                                                 stdOutFilename)).c_str(),
+                                           L"a", stdout);
+#else
                     FILE* file = freopen(stdOutFilename.c_str(), "a", stdout);
+#endif
 #endif
                     if(file == 0)
                     {
@@ -818,7 +800,13 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const Initi
 #ifdef _LARGEFILE64_SOURCE
                     FILE* file = freopen64(stdErrFilename.c_str(), "a", stderr);
 #else
+#ifdef _WIN32
+                    FILE* file = _wfreopen(IceUtil::stringToWstring(nativeToUTF8(_initData.stringConverter,
+                                                                                 stdErrFilename)).c_str(), 
+                                           L"a", stderr);
+#else
                     FILE* file = freopen(stdErrFilename.c_str(), "a", stderr);
+#endif
 #endif
                     if(file == 0)
                     {
@@ -924,7 +912,8 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const Initi
 #endif
             if(!logfile.empty())
             {
-                _initData.logger = new LoggerI(_initData.properties->getProperty("Ice.ProgramName"), logfile);
+                _initData.logger = new LoggerI(_initData.properties->getProperty("Ice.ProgramName"),
+                                               nativeToUTF8(_initData.stringConverter, logfile));
             }
             else
             {

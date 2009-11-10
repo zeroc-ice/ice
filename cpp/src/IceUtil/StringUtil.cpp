@@ -746,6 +746,18 @@ IceUtilInternal::toUpper(const std::string& s)
     return result;
 }
 
+bool
+IceUtilInternal::isAlpha(char c)
+{
+    return (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z');
+}
+
+bool
+IceUtilInternal::isDigit(char c)
+{
+    return c >= '0' && c <= '9';
+}
+
 string
 IceUtilInternal::removeWhitespace(const std::string& s)
 {

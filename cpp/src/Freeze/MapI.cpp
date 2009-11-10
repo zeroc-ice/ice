@@ -17,6 +17,8 @@
 #include <IceUtil/UUID.h>
 #include <stdlib.h>
 
+#include <Ice/StringConverter.h>
+
 using namespace std;
 using namespace Ice;
 using namespace Freeze;
@@ -200,7 +202,10 @@ Freeze::MapHelper::recreate(const Freeze::ConnectionPtr& connection,
                 // Fortunately, DB closes oldDb automatically when it goes out of scope
                 //
                 Db oldDb(connectionI->dbEnv()->getEnv(), 0);
-                oldDb.open(txn, oldDbName.c_str(), 0, DB_BTREE, DB_THREAD, FREEZE_DB_MODE);
+
+
+                oldDb.open(txn, Ice::nativeToUTF8(connectionI->communicator(), oldDbName).c_str(), 0, DB_BTREE,
+                           DB_THREAD, FREEZE_DB_MODE);
                     
                 auto_ptr<MapDb> newDb(new MapDb(connectionI, dbName, key, value, keyCompare, indices, true));
                 
@@ -1675,7 +1680,8 @@ Freeze::MapIndexI::MapIndexI(const ConnectionIPtr& connection, MapDb& db,
         out << "Opening index \"" << _dbName << "\"";
     }
 
-    _db->open(txn, _dbName.c_str(), 0, DB_BTREE, flags, FREEZE_DB_MODE);
+    _db->open(txn, Ice::nativeToUTF8(connection->communicator(), _dbName).c_str(), 0, DB_BTREE, flags,
+              FREEZE_DB_MODE);
 
     //
     // To populate empty indices

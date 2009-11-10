@@ -8,6 +8,7 @@
 // **********************************************************************
 
 #include <IceUtil/Options.h>
+#include <IceUtil/StringUtil.h>
 #include <iostream>
 #include <set>
 
@@ -492,7 +493,7 @@ IceUtilInternal::Options::split(const string& line)
                             case 'c':
                             {
                                 c = l[++i];
-                                if(isalpha(static_cast<unsigned char>(c)) || c == '@' || (c >= '[' && c <= '_'))
+                                if(IceUtilInternal::isAlpha(c) || c == '@' || (c >= '[' && c <= '_'))
                                 {
                                     arg.push_back(static_cast<char>(toupper(static_cast<unsigned char>(c)) - '@'));
                                 }

@@ -156,8 +156,8 @@ class Client : public IceUtil::Monitor<IceUtil::Mutex>
 public:
 
     void usage();
-    int main(int argc, char* argv[]);
-    int run(int, char*[]);
+    int main(Ice::StringSeq& args);
+    int run(Ice::StringSeq& args);
     void interrupted();
 
     Ice::CommunicatorPtr communicator() const { return _communicator; }
@@ -183,11 +183,22 @@ interruptCallback(int signal)
     }
 }
 
+//COMPILERFIX: Borland C++ 2010 doesn't support wmain for console applications.
+#if defined(_WIN32 ) && !defined(__BCPLUSPLUS__)
+
+int
+wmain(int argc, wchar_t* argv[])
+
+#else
+
 int
 main(int argc, char* argv[])
+
+#endif
 {
     Client app;
-    return app.main(argc, argv);
+    Ice::StringSeq args = Ice::argsToStringSeq(argc, argv);
+    return app.main(args);
 }
 
 void
@@ -208,15 +219,16 @@ Client::usage()
         ;
 }
 
+
 int
-Client::main(int argc, char* argv[])
+Client::main(Ice::StringSeq& args)
 {
     int status = EXIT_SUCCESS;
 
     try
     {
-        _appName = argv[0];
-        _communicator = Ice::initialize(argc, argv);
+        _appName = args[0].c_str();
+        _communicator = Ice::initialize(args);
         
         {
             IceUtilInternal::MutexPtrLock<IceUtil::Mutex> sync(_staticMutex);
@@ -226,7 +238,7 @@ Client::main(int argc, char* argv[])
 
         try
         {
-            status = run(argc, argv);
+            status = run(args);
         }
         catch(const Ice::CommunicatorDestroyedException&)
         {
@@ -310,7 +322,7 @@ Client::interrupted()
 }
 
 int
-Client::run(int argc, char* argv[])
+Client::run(Ice::StringSeq& originalArgs)
 {
     string commands;
     bool debug;
@@ -329,7 +341,7 @@ Client::run(int argc, char* argv[])
     vector<string> args;
     try
     {
-        args = opts.parse(argc, (const char**)argv);
+        args = opts.parse(originalArgs);
     }
     catch(const IceUtilInternal::BadOptException& e)
     {
@@ -339,7 +351,7 @@ Client::run(int argc, char* argv[])
     }
     if(!args.empty())
     {
-        cerr << argv[0] << ": too many arguments" << endl;
+        cerr << _appName << ": too many arguments" << endl;
         usage();
         return EXIT_FAILURE;
     }
@@ -416,13 +428,13 @@ Client::run(int argc, char* argv[])
                 router = Glacier2::RouterPrx::checkedCast(communicator()->getDefaultRouter()->ice_preferSecure(true));
                 if(!router)
                 {
-                    cerr << argv[0] << ": configured router is not a Glacier2 router" << endl;
+                    cerr << _appName << ": configured router is not a Glacier2 router" << endl;
                     return EXIT_FAILURE;
                 }
             }
             catch(const Ice::LocalException& ex)
             {
-                cerr << argv[0] << ": could not contact the default router:" << endl << ex << endl;
+                cerr << _appName << ": could not contact the default router:" << endl << ex << endl;
                 return EXIT_FAILURE;                
             }
 
@@ -431,7 +443,7 @@ Client::run(int argc, char* argv[])
                 session = AdminSessionPrx::uncheckedCast(router->createSessionFromSecureConnection());
                 if(!session)
                 {
-                    cerr << argv[0]
+                    cerr << _appName
                          << ": Glacier2 returned a null session, please set the Glacier2.SSLSessionManager property"
                          << endl;
                     return EXIT_FAILURE;
@@ -469,7 +481,7 @@ Client::run(int argc, char* argv[])
                 }
                 if(!session)
                 {
-                    cerr << argv[0]
+                    cerr << _appName
                          << ": Glacier2 returned a null session, please set the Glacier2.SessionManager property"
                          << endl;
                     return EXIT_FAILURE;
@@ -502,14 +514,14 @@ Client::run(int argc, char* argv[])
                 locator = IceGrid::LocatorPrx::checkedCast(communicator()->getDefaultLocator());
                 if(!locator)
                 {
-                    cerr << argv[0] << ": configured locator is not an IceGrid locator" << endl;
+                    cerr << _appName << ": configured locator is not an IceGrid locator" << endl;
                     return EXIT_FAILURE;
                 }
                 localRegistry = locator->getLocalRegistry();
             }
             catch(const Ice::LocalException& ex)
             {
-                cerr << argv[0] << ": could not contact the default locator:" << endl << ex << endl;
+                cerr << _appName << ": could not contact the default locator:" << endl << ex << endl;
                 return EXIT_FAILURE;                    
             }
             
@@ -530,19 +542,19 @@ Client::run(int argc, char* argv[])
                     registry = RegistryPrx::checkedCast(communicator()->stringToProxy(strId));
                     if(!registry)
                     {
-                        cerr << argv[0] << ": could not contact an IceGrid registry" << endl;
+                        cerr << _appName << ": could not contact an IceGrid registry" << endl;
                     }
                 }
                 catch(const Ice::NotRegisteredException&)
                 {
-                    cerr << argv[0] << ": no active registry replica named `" << replica << "'" << endl;
+                    cerr << _appName << ": no active registry replica named `" << replica << "'" << endl;
                     return EXIT_FAILURE;            
                 }
                 catch(const Ice::LocalException& ex)
                 {
                     if(!replica.empty())
                     {
-                        cerr << argv[0] << ": could not contact the registry replica named `" << replica << "':\n";
+                        cerr << _appName << ": could not contact the registry replica named `" << replica << "':\n";
                         cerr << ex << endl;
                         return EXIT_FAILURE;            
                     }
@@ -559,7 +571,7 @@ Client::run(int argc, char* argv[])
                         {
                             name = name.substr(prefix.size());
                         }
-                        cerr << argv[0] << ": warning: could not contact master, using slave `" << name << "'" << endl;
+                        cerr << _appName << ": warning: could not contact master, using slave `" << name << "'" << endl;
                     }
                 }
             }
@@ -622,7 +634,7 @@ Client::run(int argc, char* argv[])
         }
         else // No default locator or router set.
         {
-            cerr << argv[0] << ": could not contact the registry:" << endl;
+            cerr << _appName << ": could not contact the registry:" << endl;
             cerr << "no default locator or router configured" << endl;
             return EXIT_FAILURE;            
         }

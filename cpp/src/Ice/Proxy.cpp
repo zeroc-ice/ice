@@ -109,6 +109,11 @@ IceProxy::Ice::Object::ice_getCommunicator() const
 string
 IceProxy::Ice::Object::ice_toString() const
 {
+    //
+    // Returns the stringified proxy. There's no need to convert the
+    // string to a native string: a stringified proxy only contains
+    // printable ASCII which is a subset of all native character sets.
+    //
     return _reference->toString();
 }
 

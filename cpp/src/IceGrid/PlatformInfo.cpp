@@ -21,7 +21,6 @@
 #include <climits>
 
 #if defined(_WIN32)
-#   include <direct.h> // For _getcwd
 #   include <pdhmsg.h> // For PDH_MORE_DATA
 #else
 #   include <sys/utsname.h>
@@ -268,13 +267,8 @@ PlatformInfo::PlatformInfo(const string& prefix,
         _endpoints = properties->getProperty(endpointsPrefix + ".Endpoints");
     }
 
-#ifdef _WIN32
-    char cwd[_MAX_PATH];
-    if(_getcwd(cwd, _MAX_PATH) == NULL)
-#else
-    char cwd[PATH_MAX];
-    if(getcwd(cwd, PATH_MAX) == NULL)
-#endif
+    string cwd;
+    if(IceUtilInternal::getcwd(cwd) != 0)
     {
         throw "cannot get the current directory:\n" + IceUtilInternal::lastErrorToString();
     }

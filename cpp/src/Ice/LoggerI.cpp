@@ -11,6 +11,7 @@
 #include <Ice/LoggerI.h>
 #include <IceUtil/Mutex.h>
 #include <IceUtil/MutexPtrLock.h>
+#include <Ice/StringConverter.h>
 #include <Ice/LocalException.h>
 
 using namespace std;
@@ -51,8 +52,12 @@ Ice::LoggerI::LoggerI(const string& prefix, const string& file)
 
     if(!file.empty())
     {
+        //
+        // The given file string is execpted to be encoded as UTF8 by
+        // the caller, so no need to convert it here.
+        //
         _file = file;
-        _out.open(_file.c_str(), fstream::out | fstream::app);
+        _out.open(file, fstream::out | fstream::app);
         if(!_out.is_open())
         {
             throw InitializationException(__FILE__, __LINE__, "FileLogger: cannot open " + _file);

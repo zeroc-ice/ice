@@ -9,6 +9,7 @@
 
 #include <IceUtil/DisableWarnings.h>
 #include <IceUtil/StringUtil.h>
+#include <IceUtil/FileUtil.h>
 #include <Ice/PropertiesI.h>
 #include <Ice/Initialize.h>
 #include <Ice/LocalException.h>
@@ -16,7 +17,7 @@
 #include <Ice/Logger.h>
 #include <Ice/LoggerUtil.h>
 #include <Ice/Communicator.h>
-#include <fstream>
+#include <Ice/StringConverter.h>
 
 using namespace std;
 using namespace Ice;
@@ -162,16 +163,15 @@ Ice::PropertiesI::setProperty(const string& key, const string& value)
         {
             string pattern(IceInternal::PropertyNames::validProps[i].properties[0].pattern);
             
-	    
             dotPos = pattern.find('.');
 
-	    //
-	    // Each top level prefix describes a non-empty
-	    // namespace. Having a string without a prefix followed by a
-	    // dot is an error.
-	    //
+            //
+            // Each top level prefix describes a non-empty
+            // namespace. Having a string without a prefix followed by a
+            // dot is an error.
+            //
             assert(dotPos != string::npos);
-	    
+
             string propPrefix = pattern.substr(0, dotPos);
             if(propPrefix != prefix)
             {
@@ -196,7 +196,7 @@ Ice::PropertiesI::setProperty(const string& key, const string& value)
             }
             if(!found)
             {
-                logger->warning("unknown property: " + currentKey);
+                logger->warning("unknown property: `" + currentKey + "'");
             }
         }
     }
@@ -286,59 +286,105 @@ void
 Ice::PropertiesI::load(const std::string& file)
 {
 #ifdef _WIN32
-    if(file.find("HKLM\\") == 0 || file.find("HKCU\\") == 0)
+    if(file.find("HKLM\\") == 0)
     {
-        HKEY key;
-        if(file.find("HKLM\\") == 0)
-        {
-            key = HKEY_LOCAL_MACHINE;
-        }
-        else
-        {
-            key = HKEY_CURRENT_USER;
-        }
-
         HKEY iceKey;
-        if(RegOpenKey(key, file.substr(5).c_str(), &iceKey) != ERROR_SUCCESS)
+        const wstring keyName = IceUtil::stringToWstring(Ice::nativeToUTF8(_converter, file).substr(5)).c_str();
+        LONG err;
+        if((err = RegOpenKeyExW(HKEY_LOCAL_MACHINE, keyName.c_str(), 0, KEY_QUERY_VALUE, &iceKey)) != ERROR_SUCCESS)
         {
             InitializationException ex(__FILE__, __LINE__);
-            ex.reason = "Could not open Windows registry key `" + file + "'";
+            ex.reason = "could not open Windows registry key `" + file + "':\n" + IceUtilInternal::errorToString(err);
             throw ex;
         }
 
+        DWORD maxNameSize; // Size in characters not including terminating null character.
+        DWORD maxDataSize; // Size in bytes
         DWORD numValues;
-        if(RegQueryInfoKey(iceKey, NULL, NULL, NULL, NULL, NULL, NULL, &numValues, NULL, NULL, NULL, NULL) ==
-           ERROR_SUCCESS)
+        try
         {
-            if(numValues > 0)
+            err = RegQueryInfoKey(iceKey, NULL, NULL, NULL, NULL, NULL, NULL, &numValues, &maxNameSize, &maxDataSize, 
+                                  NULL, NULL);
+            if(err != ERROR_SUCCESS)
             {
-                for(DWORD i = 0; i < numValues; ++i)
+                InitializationException ex(__FILE__, __LINE__);
+                ex.reason = "could not open Windows registry key `" + file + "':\n";
+                ex.reason += IceUtilInternal::errorToString(err);
+                throw ex;
+            }
+
+            for(DWORD i = 0; i < numValues; ++i)
+            {
+                vector<wchar_t> nameBuf(maxNameSize + 1);
+                vector<BYTE> dataBuf(maxDataSize);
+                DWORD keyType;
+                DWORD nameBufSize = nameBuf.size();
+                DWORD dataBufSize = dataBuf.size();
+                err = RegEnumValueW(iceKey, i, &nameBuf[0], &nameBufSize, NULL, &keyType, &dataBuf[0], &dataBufSize);
+                if(err != ERROR_SUCCESS || nameBufSize == 0)
                 {
-                    char keyBuf[256];
-                    DWORD keyBufSize = sizeof(keyBuf);
-                    if(RegEnumValue(iceKey, i, keyBuf, &keyBufSize, NULL, NULL, NULL, NULL) == ERROR_SUCCESS)
+                    ostringstream os;
+                    os << "could not read Windows registry property name, key: `" + file + "', index: " << i << ":\n";
+                    if(nameBufSize == 0)
                     {
-                        char valueBuf[256];
-                        DWORD valueBufSize = sizeof(valueBuf);
-                        DWORD keyType;
-                        if(RegQueryValueEx(iceKey, keyBuf, 0, &keyType, (BYTE*)valueBuf, &valueBufSize) ==
-                           ERROR_SUCCESS)
+                        os << "property name can't be the empty string";
+                    }
+                    else
+                    {
+                        os << IceUtilInternal::errorToString(err);
+                    }
+                    getProcessLogger()->warning(os.str());
+                    continue;
+                }
+                string name = IceUtil::wstringToString(wstring(reinterpret_cast<wchar_t*>(&nameBuf[0]), nameBufSize));
+                name = Ice::UTF8ToNative(_converter, name);
+                if(keyType != REG_SZ && keyType != REG_EXPAND_SZ)
+                {
+                    ostringstream os;
+                    os << "unsupported type for Windows registry property `" + name + "' key: `" + file + "'";
+                    getProcessLogger()->warning(os.str());
+                    continue;
+                }
+
+                string value;
+                wstring valueW = wstring(reinterpret_cast<wchar_t*>(&dataBuf[0]), (dataBufSize / sizeof(wchar_t)) - 1);
+                if(keyType == REG_SZ)
+                {
+                    value = IceUtil::wstringToString(valueW);
+                }
+                else // keyType == REG_EXPAND_SZ
+                {
+                    vector<wchar_t> expandedValue(1024);
+                    DWORD sz = ExpandEnvironmentStringsW(valueW.c_str(), &expandedValue[0], expandedValue.size());
+                    if(sz >= expandedValue.size())
+                    {
+                        expandedValue.resize(sz + 1);
+                        if(ExpandEnvironmentStringsW(valueW.c_str(), &expandedValue[0], expandedValue.size()) == 0)
                         {
-                            if(keyType == REG_SZ)
-                            {
-                                setProperty(keyBuf, valueBuf);
-                            }
+                            ostringstream os;
+                            os << "could not expand variable in property `" << name << "', key: `" + file + "':\n";
+                            os << IceUtilInternal::lastErrorToString();
+                            getProcessLogger()->warning(os.str());
+                            continue;
                         }
                     }
+                    value = IceUtil::wstringToString(wstring(&expandedValue[0], sz -1));
                 }
+                value = Ice::UTF8ToNative(_converter, value);
+                setProperty(name, value);
             }
+        }
+        catch(...)
+        {
+            RegCloseKey(iceKey);
+            throw;
         }
         RegCloseKey(iceKey);
     }
     else
 #endif
     {
-        ifstream in(file.c_str());
+        IceUtilInternal::ifstream in(Ice::nativeToUTF8(_converter, file));
         if(!in)
         {
             FileException ex(__FILE__, __LINE__);
@@ -398,7 +444,6 @@ Ice::PropertiesI::PropertiesI(StringSeq& args, const PropertiesPtr& defaults, co
 
     StringSeq::iterator q = args.begin();
 
-     
     map<string, PropertyValue>::iterator p = _properties.find("Ice.ProgramName");
     if(p == _properties.end())
     {
@@ -627,21 +672,9 @@ Ice::PropertiesI::parseLine(const string& line, const StringConverterPtr& conver
         return;
     }
 
-    if(converter)
-    {
-        string tmp;
-        converter->fromUTF8(reinterpret_cast<const Byte*>(key.data()),
-                            reinterpret_cast<const Byte*>(key.data() + key.size()), tmp);
-        key.swap(tmp);
+    key = Ice::UTF8ToNative(converter, key);
+    value = Ice::UTF8ToNative(converter, value);
 
-        if(!value.empty())
-        {
-            converter->fromUTF8(reinterpret_cast<const Byte*>(value.data()),
-                                reinterpret_cast<const Byte*>(value.data() + value.size()), tmp);
-            value.swap(tmp);
-        }
-    }
-    
     setProperty(key, value);
 }
 
@@ -649,14 +682,31 @@ void
 Ice::PropertiesI::loadConfig()
 {
     string value = getProperty("Ice.Config");
-
     if(value.empty() || value == "1")
     {
-        const char* s = getenv("ICE_CONFIG");
-        if(s && *s != '\0')
+#ifdef _WIN32
+        vector<wchar_t> v(256);
+        DWORD ret = GetEnvironmentVariableW(L"ICE_CONFIG", &v[0], v.size());
+        if(ret >= v.size())
         {
-            value = s;
+            v.resize(ret + 1);
+            ret = GetEnvironmentVariableW(L"ICE_CONFIG", &v[0], v.size());
         }
+        if(ret > 0)
+        {
+            value = Ice::UTF8ToNative(_converter, IceUtil::wstringToString(wstring(&v[0], ret)));
+        }
+        else
+        {
+            value = "";
+        }
+#else
+       const char* s = getenv("ICE_CONFIG");
+       if(s && *s != '\0')
+       {
+           value = s;
+       }
+#endif
     }
 
     if(!value.empty())
@@ -693,7 +743,7 @@ Ice::PropertiesI::loadConfig()
 
 Ice::PropertiesAdminI::PropertiesAdminI(const PropertiesPtr& properties) :
     _properties(properties)
-{    
+{
 }
 
 string 

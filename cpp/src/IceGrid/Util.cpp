@@ -12,8 +12,6 @@
 #include <IceGrid/Util.h>
 #include <IceGrid/Admin.h>
 
-#include <fstream>
-
 using namespace std;
 using namespace IceGrid;
 

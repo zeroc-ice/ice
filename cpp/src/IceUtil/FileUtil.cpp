@@ -12,9 +12,12 @@
 #include <IceUtil/Unicode.h>
 #include <climits>
 
+#ifdef _WIN32
+#  include <io.h>
+#endif
+
 #ifdef __BCPLUSPLUS__
 #  include <dir.h>
-#  include <io.h>
 #endif
 using namespace std;
 
@@ -131,7 +134,14 @@ IceUtilInternal::fopen(const string& path, const string& mode)
 int
 IceUtilInternal::open(const string& path, int flags)
 {
-    return ::_wopen(IceUtil::stringToWstring(path).c_str(), flags);
+    if(flags & _O_CREAT)
+    {
+        return ::_wopen(IceUtil::stringToWstring(path).c_str(), flags, _S_IREAD | _S_IWRITE);
+    }
+    else
+    {
+        return ::_wopen(IceUtil::stringToWstring(path).c_str(), flags);
+    }
 }
 
 int
@@ -146,6 +156,168 @@ IceUtilInternal::getcwd(string& cwd)
     return 0;
 }
 
+int
+IceUtilInternal::unlink(const string& path)
+{
+    return _wunlink(IceUtil::stringToWstring(path).c_str());
+}
+
+#ifdef _STLP_BEGIN_NAMESPACE
+namespace
+{
+int
+toFileFlags(ios_base::openmode mode)
+{
+    int flags = 0;
+    if(mode & ios_base::app)
+    {
+        flags |= _O_APPEND;
+    }
+    if(mode & ios_base::trunc)
+    {
+        flags |= _O_TRUNC;
+    }
+    if(mode & ios_base::binary)
+    {
+        flags |= _O_BINARY;
+    }
+    if((mode & ios_base::in) && !(mode & ios_base::out))
+    {
+        flags |= _O_RDONLY;
+    }
+    else if((mode & ios_base::out) && !(mode & ios_base::in))
+    {
+        flags |= _O_WRONLY | _O_CREAT;
+    }
+    else 
+    {
+        flags |= _O_RDWR;
+        if(mode & ios_base::trunc)
+        {
+            flags |= _O_CREAT;
+        }
+    }
+    return flags;
+}
+}
+#endif
+
+IceUtilInternal::ifstream::ifstream()
+{
+}
+
+#ifdef _STLP_BEGIN_NAMESPACE
+
+IceUtilInternal::ifstream::ifstream(const string& path, ios_base::openmode mode) : _fd(-1)
+{
+    open(path, mode);
+}
+
+IceUtilInternal::ifstream::~ifstream()
+{
+    close();
+}
+
+void
+IceUtilInternal::ifstream::close()
+{
+    if(!rdbuf()->close())
+    {
+        setstate(ios_base::failbit);
+    }
+    if(_fd >= 0)
+    {
+        _close(_fd);
+    }
+}
+
+void
+IceUtilInternal::ifstream::open(const string& path, ios_base::openmode mode)
+{
+    mode |= ifstream::in;
+    _fd = IceUtilInternal::open(path, toFileFlags(mode));
+    if(_fd < 0 || !rdbuf()->open(_fd, mode))
+    {
+        setstate(ios_base::failbit);
+    }
+    if(mode & (ios_base::ate || ios_base::app))
+    {
+        seekg(ios_base::end);
+    }
+}
+
+#else
+
+IceUtilInternal::ifstream::ifstream(const string& path, ios_base::openmode mode) : std::ifstream(IceUtil::stringToWstring(path).c_str(), mode)
+{
+}
+
+void
+IceUtilInternal::ifstream::open(const string& path, ios_base::openmode mode)
+{
+    std::ifstream::open(IceUtil::stringToWstring(path).c_str(), mode);
+}
+
+#endif
+
+IceUtilInternal::ofstream::ofstream()
+{
+}
+
+#ifdef _STLP_BEGIN_NAMESPACE
+
+IceUtilInternal::ofstream::ofstream(const string& path, ios_base::openmode mode) : _fd(-1)
+{
+    open(path, mode);
+}
+
+IceUtilInternal::ofstream::~ofstream()
+{
+    close();
+}
+
+void
+IceUtilInternal::ofstream::close()
+{
+    if(!rdbuf()->close())
+    {
+        setstate(ios_base::failbit);
+    }
+    if(_fd >= 0)
+    {
+        _close(_fd);
+    }
+}
+
+void
+IceUtilInternal::ofstream::open(const string& path, ios_base::openmode mode)
+{
+    mode |= ofstream::out;
+    _fd = IceUtilInternal::open(path, toFileFlags(mode));
+    if(_fd < 0 || !rdbuf()->open(_fd, mode))
+    {
+        setstate(ios_base::failbit);
+    }
+    if(mode & (ios_base::ate || ios_base::app))
+    {
+        seekp(ios_base::end);
+    }
+}
+
+#else
+
+IceUtilInternal::ofstream::ofstream(const string& path, ios_base::openmode mode) : std::ofstream(IceUtil::stringToWstring(path).c_str(), mode)
+{
+}
+
+void
+IceUtilInternal::ofstream::open(const string& path, ios_base::openmode mode)
+{
+    std::ofstream::open(IceUtil::stringToWstring(path).c_str(), mode);
+}
+
+#endif
+
 #else
 
 //
@@ -154,7 +326,7 @@ IceUtilInternal::getcwd(string& cwd)
 int
 IceUtilInternal::stat(const string& path, structstat* buffer)
 {
-    return stat(path.c_str(), buffer);
+    return ::stat(path.c_str(), buffer);
 }
 
 int
@@ -190,7 +362,15 @@ IceUtilInternal::fopen(const string& path, const string& mode)
 int
 IceUtilInternal::open(const string& path, int flags)
 {
-    return ::open(path.c_str(), flags);
+    if(flags & O_CREAT)
+    {
+        // By default, create with rw-rw-rw- modified by the user's umask (same as fopen).
+        return ::open(path.c_str(), flags, S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH | S_IWOTH);
+    }
+    else
+    {
+        return ::open(path.c_str(), flags);
+    }
 }
 
 int
@@ -203,6 +383,40 @@ IceUtilInternal::getcwd(string& cwd)
     }
     cwd = cwdbuf;
     return 0;
+}
+
+int
+IceUtilInternal::unlink(const string& path)
+{
+    return ::unlink(path.c_str());
+}
+
+IceUtilInternal::ifstream::ifstream()
+{
+}
+
+IceUtilInternal::ifstream::ifstream(const string& path, ios_base::openmode mode) : std::ifstream(path.c_str(), mode)
+{
+}
+
+void
+IceUtilInternal::ifstream::open(const string& path, ios_base::openmode mode)
+{
+    std::ifstream::open(path.c_str(), mode);
+}
+
+IceUtilInternal::ofstream::ofstream()
+{
+}
+
+IceUtilInternal::ofstream::ofstream(const string& path, ios_base::openmode mode) : std::ofstream(path.c_str(), mode)
+{
+}
+
+void
+IceUtilInternal::ofstream::open(const string& path, ios_base::openmode mode)
+{
+    std::ofstream::open(path.c_str(), mode);
 }
 
 #endif

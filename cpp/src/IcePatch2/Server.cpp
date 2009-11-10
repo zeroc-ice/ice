@@ -211,15 +211,34 @@ IcePatch2::PatcherService::usage(const string& appName)
     print("Usage: " + appName + " [options] [DIR]\n" + options);
 }
 
+#ifdef _WIN32
+
+//COMPILERFIX: Borland C++ 2010 doesn't support wmain for console applications.
+#ifdef __BCCPLUSPLUS__
+
+int
+main(int argc, char* argv[])
+
+#else
+
+int
+wmain(int argc, wchar_t* argv[])
+
+#endif
+{
+    IcePatch2::PatcherService svc;
+    int status = EXIT_FAILURE;
+    status = svc.main(argc, argv);
+    return status;
+}
+
+#else
+
 int
 main(int argc, char* argv[])
 {
     IcePatch2::PatcherService svc;
     int status = EXIT_FAILURE;
-
-#ifdef _WIN32
-    status = svc.main(argc, argv);
-#else
     //
     // For UNIX, force --nochdir option, so the service isn't started
     // with / as the working directory. That way, if the data
@@ -234,7 +253,7 @@ main(int argc, char* argv[])
         args.push_back(argv[i]);
     }
     status = svc.main(args);
-#endif
-
     return status;
 }
+
+#endif

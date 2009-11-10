@@ -337,6 +337,26 @@ Ice::Application::main(int argc, char* argv[], const char* configFile)
     return main(argc, argv, initData);
 }
 
+#ifdef _WIN32
+
+int
+Ice::Application::main(int argc, wchar_t* argv[], const char* config)
+{
+    return main(argsToStringSeq(argc, argv), config);
+}
+
+int
+Ice::Application::main(int argc, wchar_t* argv[], const Ice::InitializationData& initData)
+{
+    //
+    // On Windows the given wchar_t* strings are UTF16 and therefore
+    // needs to be converted to native narow string encoding.
+    //
+    return main(argsToStringSeq(argc, argv, initData.stringConverter), initData);
+}
+
+#endif
+
 int
 Ice::Application::main(int argc, char* argv[], const InitializationData& initData)
 {
@@ -687,7 +707,7 @@ Ice::Application::doMain(int argc, char* argv[], const InitializationData& initi
     }
 
     if(IceInternal::Application::_communicator != 0)
-    {  
+    {
         try
         {
             IceInternal::Application::_communicator->destroy();

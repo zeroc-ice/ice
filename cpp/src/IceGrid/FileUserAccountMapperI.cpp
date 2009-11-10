@@ -8,16 +8,15 @@
 // **********************************************************************
 
 #include <IceUtil/DisableWarnings.h>
+#include <IceUtil/FileUtil.h>
 #include <IceGrid/FileUserAccountMapperI.h>
-
-#include <fstream>
 
 using namespace std;
 using namespace IceGrid;
 
 FileUserAccountMapperI::FileUserAccountMapperI(const string& filename)
 {
-    ifstream file(filename.c_str());
+    IceUtilInternal::ifstream file(filename); // filename is a UTF-8 string
     if(!file)
     {
         throw "cannot open `" + filename + "' for reading: " + strerror(errno);

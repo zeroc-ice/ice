@@ -144,7 +144,8 @@ public:
 class ICE_XML_API Parser
 {
 public:
-    static DocumentPtr parse(const std::string&);
+
+    static DocumentPtr parse(const std::string&); // The given filename must be UTF-8 encoded
     static DocumentPtr parse(std::istream&);
 
     static void parse(const std::string&, Handler&);

@@ -47,7 +47,8 @@ IceInternal::ServantManager::addServant(const ObjectPtr& object, const Identity&
             ex.id = _instance->identityToString(ident);
             if(!facet.empty())
             {
-                ex.id += " -f " + IceUtilInternal::escapeString(facet, "");
+                string fs = nativeToUTF8(_instance->initializationData().stringConverter, facet);
+                ex.id += " -f " + IceUtilInternal::escapeString(fs, "");
             }
             throw ex;
         }
@@ -106,7 +107,8 @@ IceInternal::ServantManager::removeServant(const Identity& ident, const string& 
         ex.id = _instance->identityToString(ident);
         if(!facet.empty())
         {
-            ex.id += " -f " + IceUtilInternal::escapeString(facet, "");
+            string fs = nativeToUTF8(_instance->initializationData().stringConverter, facet);
+            ex.id += " -f " + IceUtilInternal::escapeString(fs, "");
         }
         throw ex;
     }
@@ -333,7 +335,7 @@ IceInternal::ServantManager::addServantLocator(const ServantLocatorPtr& locator,
     {
         AlreadyRegisteredException ex(__FILE__, __LINE__);
         ex.kindOfObject = "servant locator";
-        ex.id = IceUtilInternal::escapeString(category, "");
+        ex.id = category;
         throw ex;
     }
     
@@ -365,7 +367,7 @@ IceInternal::ServantManager::removeServantLocator(const string& category)
     {
         NotRegisteredException ex(__FILE__, __LINE__);
         ex.kindOfObject = "servant locator";
-        ex.id = IceUtilInternal::escapeString(category, "");
+        ex.id = category;
         throw ex;
     }
 

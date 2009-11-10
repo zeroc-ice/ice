@@ -25,6 +25,15 @@ namespace Ice
 ICE_API void collectGarbage();
 
 ICE_API StringSeq argsToStringSeq(int, char*[]);
+
+#ifdef _WIN32
+
+ICE_API StringSeq argsToStringSeq(int, wchar_t*[]);
+
+ICE_API StringSeq argsToStringSeq(int, wchar_t*[], const StringConverterPtr&);
+
+#endif
+
 //
 // This function assumes that the string sequence only contains
 // elements of the argument vector. The function shifts the

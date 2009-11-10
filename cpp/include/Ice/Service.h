@@ -60,6 +60,13 @@ public:
     // EXIT_SUCCESS.
     //
     int main(int&, char*[], const InitializationData& = InitializationData());
+
+#ifdef _WIN32
+
+    int main(int&, wchar_t*[], const InitializationData& = InitializationData());
+
+#endif
+
     int main(StringSeq&, const InitializationData& = InitializationData());
 
     //

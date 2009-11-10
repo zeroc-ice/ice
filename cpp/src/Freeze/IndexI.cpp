@@ -12,6 +12,8 @@
 #include <Freeze/ObjectStore.h>
 #include <Freeze/EvictorI.h>
 
+#include <Ice/StringConverter.h>
+
 using namespace Freeze;
 using namespace Ice;
 using namespace std;
@@ -354,7 +356,14 @@ Freeze::IndexI::associate(ObjectStoreBase* store, DbTxn* txn,
         flags = DB_CREATE;
     }
 
-    _db->open(txn, store->evictor()->filename().c_str(), _dbName.c_str(), DB_BTREE, flags, FREEZE_DB_MODE);
+    //
+    // We keep _dbName as a native string here, while it might have
+    // been better to convert it to UTF-8, changing this isn't
+    // possible without potentially breaking backward compatibility
+    // with deployed databases.
+    //
+    _db->open(txn, Ice::nativeToUTF8(store->communicator(), store->evictor()->filename()).c_str(), _dbName.c_str(), 
+              DB_BTREE, flags, FREEZE_DB_MODE);
 
     flags = 0;
     if(populateIndex)

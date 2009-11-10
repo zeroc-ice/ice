@@ -62,11 +62,7 @@ private:
     const std::string _fileName;
     const std::string _shortFileName;
     const std::vector<std::string> _args;
-#ifdef _WIN32
-    std::wstring _cppFile;
-#else
     std::string _cppFile;
-#endif
     FILE* _cppHandle;
 };
 
