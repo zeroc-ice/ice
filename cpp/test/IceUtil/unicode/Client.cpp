@@ -42,7 +42,7 @@ main(int argc, char* argv[])
     {
 #ifdef _WIN32 
 
-#ifndef __BCPLUSPLUS__
+#ifdef __BCPLUSPLUS__
         dir = argv[1];
 #else
         dir = IceUtil::wstringToString(argv[1]);
