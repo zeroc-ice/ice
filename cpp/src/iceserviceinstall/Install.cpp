@@ -203,6 +203,8 @@ Install::usage() const
         "service must be icegridregistry, icegridnode or glacier2router.\n"
         "\n"
         "config-file          Path to the Ice configuration file for this service.\n"
+        "                     If the path starts with HKLM\\ the configuration will be read from\n"
+        "                     the correspoding windows registry keyword in HKEY_LOCAL_MACHINE.\n"
         "\n"
         "Valid properties:\n"
         "ImagePath            Full path to <service>.exe. The default value is\n"

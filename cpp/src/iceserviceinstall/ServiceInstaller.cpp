@@ -225,7 +225,7 @@ IceServiceInstaller::install(const PropertiesPtr& properties)
         }
     }
 
-    if(!_configFile.find("HKLM\\") == 0 && !_configFile.find("HKCU\\") == 0)
+    if(!_configFile.find("HKLM\\") == 0)
     {
          grantPermissions(_configFile);
     }
@@ -277,7 +277,7 @@ IceServiceInstaller::install(const PropertiesPtr& properties)
     //
     // Get the full path of config file.
     //
-    if(!_configFile.find("HKLM\\") == 0 && !_configFile.find("HKCU\\") == 0)
+    if(!_configFile.find("HKLM\\") == 0)
     {
         char fullPath[MAX_PATH];
         if(GetFullPathName(_configFile.c_str(), MAX_PATH, fullPath, 0) > MAX_PATH)
@@ -319,10 +319,10 @@ IceServiceInstaller::install(const PropertiesPtr& properties)
     //
     // Set description
     //
+    wstring uDescription = IceUtil::stringToWstring(description);
+    SERVICE_DESCRIPTIONW sd = { const_cast<wchar_t*>(uDescription.c_str()) };
 
-    SERVICE_DESCRIPTIONW sd = { const_cast<wchar_t*>(IceUtil::stringToWstring(description).c_str()) };
-
-    if(!ChangeServiceConfig2(service, SERVICE_CONFIG_DESCRIPTION, &sd))
+    if(!ChangeServiceConfig2W(service, SERVICE_CONFIG_DESCRIPTION, &sd))
     {
         DWORD res = GetLastError();
         CloseServiceHandle(scm);
@@ -492,12 +492,12 @@ IceServiceInstaller::initializeSid(const string& name)
         Trace trace(_communicator->getLogger(), "IceServiceInstaller");
 
 #if defined(_MSC_VER) && _MSC_VER >= 1300
-	wchar_t* sidString = 0;
+        wchar_t* sidString = 0;
         ConvertSidToStringSidW(_sid.get(), &sidString);
-	trace << "SID: " << IceUtil::wstringToString(sidString) << "; ";
-	LocalFree(sidString);
+        trace << "SID: " << IceUtil::wstringToString(sidString) << "; ";
+        LocalFree(sidString);
 #endif
-	trace << "Full name: " << _sidName;
+        trace << "Full name: " << _sidName;
     }
 }
 
