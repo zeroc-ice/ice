@@ -237,8 +237,15 @@ public:
     //
     inline void
 #if defined(_MSC_VER) && (_MSC_VER >= 1300)
-    // std::vector<bool> optimization for Vs2008
-    read(std::_Vb_reference<unsigned int, __w64 int, std::vector<bool, std::allocator<bool> > > v)
+
+#if defined (ICE_64)
+    // std::vector<bool> optimization for Vs2008 x64
+    read(std::_Vb_reference<unsigned __int64, __int64, std::vector<bool, std::allocator<bool> > > v)
+#else
+    // std::vector<bool> optimization for Vs2008 x86
+    read(std::_Vb_reference<unsigned int, int, std::vector<bool, std::allocator<bool> > > v)
+#endif
+
 #elif defined(__BCPLUSPLUS__)
     // std::vector<bool> optimization for Borland.
     read(std::_Vb_reference<unsigned int, int> v)
