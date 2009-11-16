@@ -25,12 +25,16 @@ SUBDIRS		= $(SUBDIRS) \
 		  slice2cs \
 		  slice2freezej \
 		  slice2java \
-		  slice2php \
 		  slice2py \
-		  slice2rb \
 		  slice2html
 !endif
 
+!endif
+
+!if "$(BCPLUSPLUS)" != "yes"
+SUBDIRS		= $(SUBDIRS) \
+		  slice2php \
+		  slice2rb
 !endif
 
 SUBDIRS		= $(SUBDIRS) \

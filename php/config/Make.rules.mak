@@ -41,7 +41,7 @@ USE_NAMESPACES		= no
 # Set PHP_HOME to your PHP source directory.
 #
 !if "$(PHP_HOME)" == ""
-PHP_HOME		= C:\php-5.2.9
+PHP_HOME		= C:\php-5.2.11
 !endif
 
 #
@@ -98,10 +98,16 @@ install_libdir		= $(prefix)\php
 
 !include $(top_srcdir)\..\cpp\config\Make.rules.msvc
 
+!if "$(CPP_COMPILER)" == "VC60"
+libsuff         = \vc6
+!else
+libsuff         = $(x64suffix)
+!endif
+
 !if "$(ice_src_dist)" != ""
 !if "$(STLPORT_HOME)" != ""
 CPPFLAGS        = -I"$(STLPORT_HOME)\include\stlport" $(CPPFLAGS)
-LDFLAGS         = /LIBPATH:"$(STLPORT_HOME)\lib" $(LDFLAGS)
+LDFLAGS         = /LIBPATH:"$(STLPORT_HOME)\lib$(libsuff)" $(LDFLAGS)
 !endif
 !else
 !if "$(CPP_COMPILER)" == "VC60"
@@ -114,12 +120,6 @@ LIBSUFFIX       = $(LIBSUFFIX)d
 !endif
 
 ICE_LIBS		= ice$(LIBSUFFIX).lib iceutil$(LIBSUFFIX).lib slice$(LIBSUFFIX).lib
-
-!if "$(CPP_COMPILER)" == "VC60"
-libsuff         = \vc6
-!else
-libsuff         = $(x64suffix)
-!endif
 
 !if "$(ice_src_dist)" != ""
 ICE_CPPFLAGS            = -I"$(ice_cpp_dir)\include"

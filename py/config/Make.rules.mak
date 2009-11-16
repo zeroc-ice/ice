@@ -77,10 +77,16 @@ install_libdir		= $(prefix)\python
 
 !include $(top_srcdir)\..\cpp\config\Make.rules.msvc
 
+!if "$(CPP_COMPILER)" == "VC60"
+libsuff			= \vc6
+!else
+libsuff			= $(x64suffix)
+!endif
+
 !if "$(ice_src_dist)" != ""
 !if "$(STLPORT_HOME)" != ""
 CPPFLAGS        = -I"$(STLPORT_HOME)\include\stlport" $(CPPFLAGS)
-LDFLAGS         = /LIBPATH:"$(STLPORT_HOME)\lib$(x64suffix)" $(LDFLAGS)
+LDFLAGS         = /LIBPATH:"$(STLPORT_HOME)\lib$(libsuff)" $(LDFLAGS)
 !endif
 !else
 !if "$(CPP_COMPILER)" == "VC60"
@@ -100,11 +106,11 @@ ICE_CPPFLAGS		= -I"$(ice_cpp_dir)\include"
 !if "$(ice_cpp_dir)" == "$(ice_dir)\cpp"
 ICE_LDFLAGS		= /LIBPATH:"$(ice_cpp_dir)\lib"
 !else
-ICE_LDFLAGS		= /LIBPATH:"$(ice_cpp_dir)\lib$(x64suffix)"
+ICE_LDFLAGS		= /LIBPATH:"$(ice_cpp_dir)\lib$(libsuff)"
 !endif
 !else
 ICE_CPPFLAGS		= -I"$(ice_dir)\include"
-ICE_LDFLAGS		= /LIBPATH:"$(ice_dir)\lib$(x64suffix)"
+ICE_LDFLAGS		= /LIBPATH:"$(ice_dir)\lib$(libsuff)"
 !endif
 
 slicedir                = $(ice_dir)\slice
