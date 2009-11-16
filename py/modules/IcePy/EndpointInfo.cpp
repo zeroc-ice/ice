@@ -27,33 +27,6 @@ struct EndpointInfoObject
 
 }
 
-//
-// EndpointInfo members
-//
-#define MEMBER_TIMEOUT          0
-#define MEMBER_COMPRESS         1
-
-//
-// IPEndpointInfo members
-//
-#define MEMBER_HOST             2
-#define MEMBER_PORT             3
-
-//
-// UDPEndpointInfo members
-//
-#define MEMBER_PROTOCOL_MAJOR   4
-#define MEMBER_PROTOCOL_MINOR   5
-#define MEMBER_ENCODING_MAJOR   6
-#define MEMBER_ENCODING_MINOR   7
-#define MEMBER_MCAST_INTERFACE  8
-#define MEMBER_MCAST_TTL        9
-
-//
-// OpaqueEndpointInfo members
-//
-#define MEMBER_RAW_BYTES        2
-
 #ifdef WIN32
 extern "C"
 #endif
@@ -150,24 +123,19 @@ endpointInfoSecure(EndpointInfoObject* self)
 extern "C"
 #endif
 static PyObject*
-endpointInfoGetter(EndpointInfoObject* self, void* closure)
+endpointInfoGetTimeout(EndpointInfoObject* self)
 {
-    int member = reinterpret_cast<int>(closure);
-    PyObject* result = 0;
+    return PyInt_FromLong((*self->endpointInfo)->timeout);
+}
 
-    switch(member)
-    {
-    case MEMBER_TIMEOUT:
-        result = PyInt_FromLong((*self->endpointInfo)->timeout);
-        break;
-    case MEMBER_COMPRESS:
-        result = (*self->endpointInfo)->compress ? getTrue() : getFalse();
-        Py_INCREF(result);
-        break;
-    default:
-        assert(false);
-    }
-
+#ifdef WIN32
+extern "C"
+#endif
+static PyObject*
+endpointInfoGetCompress(EndpointInfoObject* self)
+{
+    PyObject* result = (*self->endpointInfo)->compress ? getTrue() : getFalse();
+    Py_INCREF(result);
     return result;
 }
 
@@ -175,88 +143,100 @@ endpointInfoGetter(EndpointInfoObject* self, void* closure)
 extern "C"
 #endif
 static PyObject*
-ipEndpointInfoGetter(EndpointInfoObject* self, void* closure)
+ipEndpointInfoGetHost(EndpointInfoObject* self)
 {
-    int member = reinterpret_cast<int>(closure);
-    PyObject* result = 0;
     Ice::IPEndpointInfoPtr info = Ice::IPEndpointInfoPtr::dynamicCast(*self->endpointInfo);
     assert(info);
-
-    switch(member)
-    {
-    case MEMBER_HOST:
-        result = createString(info->host);
-        break;
-    case MEMBER_PORT:
-        result = PyInt_FromLong(info->port);
-        break;
-    default:
-        assert(false);
-    }
-
-    return result;
+    return createString(info->host);
 }
 
 #ifdef WIN32
 extern "C"
 #endif
 static PyObject*
-udpEndpointInfoGetter(EndpointInfoObject* self, void* closure)
+ipEndpointInfoGetPort(EndpointInfoObject* self)
 {
-    int member = reinterpret_cast<int>(closure);
-    PyObject* result = 0;
+    Ice::IPEndpointInfoPtr info = Ice::IPEndpointInfoPtr::dynamicCast(*self->endpointInfo);
+    assert(info);
+    return PyInt_FromLong(info->port);
+}
+
+#ifdef WIN32
+extern "C"
+#endif
+static PyObject*
+udpEndpointInfoGetProtocolMajor(EndpointInfoObject* self)
+{
     Ice::UDPEndpointInfoPtr info = Ice::UDPEndpointInfoPtr::dynamicCast(*self->endpointInfo);
     assert(info);
-
-    switch(member)
-    {
-    case MEMBER_PROTOCOL_MAJOR:
-        result = PyInt_FromLong(info->protocolMajor);
-        break;
-    case MEMBER_PROTOCOL_MINOR:
-        result = PyInt_FromLong(info->protocolMinor);
-        break;
-    case MEMBER_ENCODING_MAJOR:
-        result = PyInt_FromLong(info->encodingMajor);
-        break;
-    case MEMBER_ENCODING_MINOR:
-        result = PyInt_FromLong(info->encodingMinor);
-        break;
-    case MEMBER_MCAST_INTERFACE:
-        result = createString(info->mcastInterface);
-        break;
-    case MEMBER_MCAST_TTL:
-        result = PyInt_FromLong(info->mcastTtl);
-        break;
-    default:
-        assert(false);
-    }
-
-    return result;
+    return PyInt_FromLong(info->protocolMajor);
 }
 
 #ifdef WIN32
 extern "C"
 #endif
 static PyObject*
-opaqueEndpointInfoGetter(EndpointInfoObject* self, void* closure)
+udpEndpointInfoGetProtocolMinor(EndpointInfoObject* self)
 {
-    int member = reinterpret_cast<int>(closure);
-    PyObject* result = 0;
+    Ice::UDPEndpointInfoPtr info = Ice::UDPEndpointInfoPtr::dynamicCast(*self->endpointInfo);
+    assert(info);
+    return PyInt_FromLong(info->protocolMinor);
+}
+
+#ifdef WIN32
+extern "C"
+#endif
+static PyObject*
+udpEndpointInfoGetEncodingMajor(EndpointInfoObject* self)
+{
+    Ice::UDPEndpointInfoPtr info = Ice::UDPEndpointInfoPtr::dynamicCast(*self->endpointInfo);
+    assert(info);
+    return PyInt_FromLong(info->encodingMajor);
+}
+
+#ifdef WIN32
+extern "C"
+#endif
+static PyObject*
+udpEndpointInfoGetEncodingMinor(EndpointInfoObject* self)
+{
+    Ice::UDPEndpointInfoPtr info = Ice::UDPEndpointInfoPtr::dynamicCast(*self->endpointInfo);
+    assert(info);
+    return PyInt_FromLong(info->encodingMinor);
+}
+
+#ifdef WIN32
+extern "C"
+#endif
+static PyObject*
+udpEndpointInfoGetMcastInterface(EndpointInfoObject* self)
+{
+    Ice::UDPEndpointInfoPtr info = Ice::UDPEndpointInfoPtr::dynamicCast(*self->endpointInfo);
+    assert(info);
+    return createString(info->mcastInterface);
+}
+
+#ifdef WIN32
+extern "C"
+#endif
+static PyObject*
+udpEndpointInfoGetMcastTtl(EndpointInfoObject* self)
+{
+    Ice::UDPEndpointInfoPtr info = Ice::UDPEndpointInfoPtr::dynamicCast(*self->endpointInfo);
+    assert(info);
+    return PyInt_FromLong(info->mcastTtl);
+}
+
+#ifdef WIN32
+extern "C"
+#endif
+static PyObject*
+opaqueEndpointInfoGetRawBytes(EndpointInfoObject* self)
+{
     Ice::OpaqueEndpointInfoPtr info = Ice::OpaqueEndpointInfoPtr::dynamicCast(*self->endpointInfo);
     assert(info);
-
-    switch(member)
-    {
-    case MEMBER_RAW_BYTES:
-        result = PyString_FromStringAndSize(reinterpret_cast<const char*>(&info->rawBytes[0]),
-                                            static_cast<int>(info->rawBytes.size()));
-        break;
-    default:
-        assert(false);
-    }
-
-    return result;
+    return PyString_FromStringAndSize(reinterpret_cast<const char*>(&info->rawBytes[0]),
+                                      static_cast<int>(info->rawBytes.size()));
 }
 
 static PyMethodDef EndpointInfoMethods[] =
@@ -272,43 +252,43 @@ static PyMethodDef EndpointInfoMethods[] =
 
 static PyGetSetDef EndpointInfoGetters[] =
 {
-    { STRCAST("timeout"), reinterpret_cast<getter>(endpointInfoGetter), 0,
-        PyDoc_STR(STRCAST("timeout in milliseconds")), reinterpret_cast<void*>(MEMBER_TIMEOUT) },
-    { STRCAST("compress"), reinterpret_cast<getter>(endpointInfoGetter), 0,
-        PyDoc_STR(STRCAST("compression status")), reinterpret_cast<void*>(MEMBER_COMPRESS) },
+    { STRCAST("timeout"), reinterpret_cast<getter>(endpointInfoGetTimeout), 0,
+        PyDoc_STR(STRCAST("timeout in milliseconds")), 0 },
+    { STRCAST("compress"), reinterpret_cast<getter>(endpointInfoGetCompress), 0,
+        PyDoc_STR(STRCAST("compression status")), 0 },
     { 0, 0 } /* sentinel */
 };
 
 static PyGetSetDef IPEndpointInfoGetters[] =
 {
-    { STRCAST("host"), reinterpret_cast<getter>(ipEndpointInfoGetter), 0,
-        PyDoc_STR(STRCAST("host name or IP address")), reinterpret_cast<void*>(MEMBER_HOST) },
-    { STRCAST("port"), reinterpret_cast<getter>(ipEndpointInfoGetter), 0,
-        PyDoc_STR(STRCAST("TCP port number")), reinterpret_cast<void*>(MEMBER_PORT) },
+    { STRCAST("host"), reinterpret_cast<getter>(ipEndpointInfoGetHost), 0,
+        PyDoc_STR(STRCAST("host name or IP address")), 0 },
+    { STRCAST("port"), reinterpret_cast<getter>(ipEndpointInfoGetPort), 0,
+        PyDoc_STR(STRCAST("TCP port number")), 0 },
     { 0, 0 } /* sentinel */
 };
 
 static PyGetSetDef UDPEndpointInfoGetters[] =
 {
-    { STRCAST("protocolMajor"), reinterpret_cast<getter>(udpEndpointInfoGetter), 0,
-        PyDoc_STR(STRCAST("protocol major version")), reinterpret_cast<void*>(MEMBER_PROTOCOL_MAJOR) },
-    { STRCAST("protocolMinor"), reinterpret_cast<getter>(udpEndpointInfoGetter), 0,
-        PyDoc_STR(STRCAST("protocol minor version")), reinterpret_cast<void*>(MEMBER_PROTOCOL_MINOR) },
-    { STRCAST("encodingMajor"), reinterpret_cast<getter>(udpEndpointInfoGetter), 0,
-        PyDoc_STR(STRCAST("encoding major version")), reinterpret_cast<void*>(MEMBER_ENCODING_MAJOR) },
-    { STRCAST("encodingMinor"), reinterpret_cast<getter>(udpEndpointInfoGetter), 0,
-        PyDoc_STR(STRCAST("encoding minor version")), reinterpret_cast<void*>(MEMBER_ENCODING_MINOR) },
-    { STRCAST("mcastInterface"), reinterpret_cast<getter>(udpEndpointInfoGetter), 0,
-        PyDoc_STR(STRCAST("multicast interface")), reinterpret_cast<void*>(MEMBER_MCAST_INTERFACE) },
-    { STRCAST("mcastTtl"), reinterpret_cast<getter>(udpEndpointInfoGetter), 0,
-        PyDoc_STR(STRCAST("multicast time-to-live")), reinterpret_cast<void*>(MEMBER_MCAST_TTL) },
+    { STRCAST("protocolMajor"), reinterpret_cast<getter>(udpEndpointInfoGetProtocolMajor), 0,
+        PyDoc_STR(STRCAST("protocol major version")), 0 },
+    { STRCAST("protocolMinor"), reinterpret_cast<getter>(udpEndpointInfoGetProtocolMinor), 0,
+        PyDoc_STR(STRCAST("protocol minor version")), 0 },
+    { STRCAST("encodingMajor"), reinterpret_cast<getter>(udpEndpointInfoGetEncodingMajor), 0,
+        PyDoc_STR(STRCAST("encoding major version")), 0 },
+    { STRCAST("encodingMinor"), reinterpret_cast<getter>(udpEndpointInfoGetEncodingMinor), 0,
+        PyDoc_STR(STRCAST("encoding minor version")), 0 },
+    { STRCAST("mcastInterface"), reinterpret_cast<getter>(udpEndpointInfoGetMcastInterface), 0,
+        PyDoc_STR(STRCAST("multicast interface")), 0 },
+    { STRCAST("mcastTtl"), reinterpret_cast<getter>(udpEndpointInfoGetMcastTtl), 0,
+        PyDoc_STR(STRCAST("multicast time-to-live")), 0 },
     { 0, 0 } /* sentinel */
 };
 
 static PyGetSetDef OpaqueEndpointInfoGetters[] =
 {
-    { STRCAST("rawBytes"), reinterpret_cast<getter>(opaqueEndpointInfoGetter), 0,
-        PyDoc_STR(STRCAST("raw encoding")), reinterpret_cast<void*>(MEMBER_RAW_BYTES) },
+    { STRCAST("rawBytes"), reinterpret_cast<getter>(opaqueEndpointInfoGetRawBytes), 0,
+        PyDoc_STR(STRCAST("raw encoding")), 0 },
     { 0, 0 } /* sentinel */
 };
 

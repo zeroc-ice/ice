@@ -28,26 +28,6 @@ struct ConnectionInfoObject
 
 }
 
-//
-// ConnectionInfo members
-//
-#define MEMBER_INCOMING         0
-#define MEMBER_ADAPTER_NAME     1
-
-//
-// IPConnectionInfo members
-//
-#define MEMBER_LOCAL_ADDRESS    2
-#define MEMBER_LOCAL_PORT       3
-#define MEMBER_REMOTE_ADDRESS   4
-#define MEMBER_REMOTE_PORT      5
-
-//
-// UDPConnectionInfo members
-//
-#define MEMBER_MCAST_ADDRESS    6
-#define MEMBER_MCAST_PORT       7
-
 #ifdef WIN32
 extern "C"
 #endif
@@ -72,23 +52,10 @@ connectionInfoDealloc(ConnectionInfoObject* self)
 extern "C"
 #endif
 static PyObject*
-connectionInfoGetter(ConnectionInfoObject* self, void* closure)
+connectionInfoGetIncoming(ConnectionInfoObject* self)
 {
-    int member = reinterpret_cast<int>(closure);
-    PyObject* result = 0;
-
-    switch(member)
-    {
-    case MEMBER_INCOMING:
-        result = (*self->connectionInfo)->incoming ? getTrue() : getFalse();
-        break;
-    case MEMBER_ADAPTER_NAME:
-        result = createString((*self->connectionInfo)->adapterName);
-        break;
-    default:
-        assert(false);
-    }
-
+    PyObject* result = (*self->connectionInfo)->incoming ? getTrue() : getFalse();
+    Py_INCREF(result);
     return result;
 }
 
@@ -96,88 +63,105 @@ connectionInfoGetter(ConnectionInfoObject* self, void* closure)
 extern "C"
 #endif
 static PyObject*
-ipConnectionInfoGetter(ConnectionInfoObject* self, void* closure)
+connectionInfoGetAdapterName(ConnectionInfoObject* self)
 {
-    int member = reinterpret_cast<int>(closure);
-    PyObject* result = 0;
+    return createString((*self->connectionInfo)->adapterName);
+}
+
+#ifdef WIN32
+extern "C"
+#endif
+static PyObject*
+ipConnectionInfoGetLocalAddress(ConnectionInfoObject* self)
+{
     Ice::IPConnectionInfoPtr info = Ice::IPConnectionInfoPtr::dynamicCast(*self->connectionInfo);
     assert(info);
-
-    switch(member)
-    {
-    case MEMBER_LOCAL_ADDRESS:
-        result = createString(info->localAddress);
-        break;
-    case MEMBER_LOCAL_PORT:
-        result = PyInt_FromLong(info->localPort);
-        break;
-    case MEMBER_REMOTE_ADDRESS:
-        result = createString(info->remoteAddress);
-        break;
-    case MEMBER_REMOTE_PORT:
-        result = PyInt_FromLong(info->remotePort);
-        break;
-    default:
-        assert(false);
-    }
-
-    return result;
+    return createString(info->localAddress);
 }
 
 #ifdef WIN32
 extern "C"
 #endif
 static PyObject*
-udpConnectionInfoGetter(ConnectionInfoObject* self, void* closure)
+ipConnectionInfoGetLocalPort(ConnectionInfoObject* self)
 {
-    int member = reinterpret_cast<int>(closure);
-    PyObject* result = 0;
+    Ice::IPConnectionInfoPtr info = Ice::IPConnectionInfoPtr::dynamicCast(*self->connectionInfo);
+    assert(info);
+    return PyInt_FromLong(info->localPort);
+}
+
+#ifdef WIN32
+extern "C"
+#endif
+static PyObject*
+ipConnectionInfoGetRemoteAddress(ConnectionInfoObject* self)
+{
+    Ice::IPConnectionInfoPtr info = Ice::IPConnectionInfoPtr::dynamicCast(*self->connectionInfo);
+    assert(info);
+    return createString(info->remoteAddress);
+}
+
+#ifdef WIN32
+extern "C"
+#endif
+static PyObject*
+ipConnectionInfoGetRemotePort(ConnectionInfoObject* self)
+{
+    Ice::IPConnectionInfoPtr info = Ice::IPConnectionInfoPtr::dynamicCast(*self->connectionInfo);
+    assert(info);
+    return PyInt_FromLong(info->remotePort);
+}
+
+#ifdef WIN32
+extern "C"
+#endif
+static PyObject*
+udpConnectionInfoGetMcastAddress(ConnectionInfoObject* self)
+{
     Ice::UDPConnectionInfoPtr info = Ice::UDPConnectionInfoPtr::dynamicCast(*self->connectionInfo);
     assert(info);
+    return createString(info->mcastAddress);
+}
 
-    switch(member)
-    {
-    case MEMBER_MCAST_ADDRESS:
-        result = createString(info->mcastAddress);
-        break;
-    case MEMBER_MCAST_PORT:
-        result = PyInt_FromLong(info->mcastPort);
-        break;
-    default:
-        assert(false);
-    }
-
-    return result;
+#ifdef WIN32
+extern "C"
+#endif
+static PyObject*
+udpConnectionInfoGetMcastPort(ConnectionInfoObject* self, void* member)
+{
+    Ice::UDPConnectionInfoPtr info = Ice::UDPConnectionInfoPtr::dynamicCast(*self->connectionInfo);
+    assert(info);
+    return PyInt_FromLong(info->mcastPort);
 }
 
 static PyGetSetDef ConnectionInfoGetters[] =
 {
-    { STRCAST("incoming"), reinterpret_cast<getter>(connectionInfoGetter), 0,
-        PyDoc_STR(STRCAST("whether connection is incoming")), reinterpret_cast<void*>(MEMBER_INCOMING) },
-    { STRCAST("adapterName"), reinterpret_cast<getter>(connectionInfoGetter), 0,
-        PyDoc_STR(STRCAST("adapter associated the connection")), reinterpret_cast<void*>(MEMBER_ADAPTER_NAME) },
+    { STRCAST("incoming"), reinterpret_cast<getter>(connectionInfoGetIncoming), 0,
+        PyDoc_STR(STRCAST("whether connection is incoming")), 0 },
+    { STRCAST("adapterName"), reinterpret_cast<getter>(connectionInfoGetAdapterName), 0,
+        PyDoc_STR(STRCAST("adapter associated the connection")), 0 },
     { 0, 0 } /* sentinel */
 };
 
 static PyGetSetDef IPConnectionInfoGetters[] =
 {
-    { STRCAST("localAddress"), reinterpret_cast<getter>(ipConnectionInfoGetter), 0,
-        PyDoc_STR(STRCAST("local address")), reinterpret_cast<void*>(MEMBER_LOCAL_ADDRESS) },
-    { STRCAST("localPort"), reinterpret_cast<getter>(ipConnectionInfoGetter), 0,
-        PyDoc_STR(STRCAST("local port")), reinterpret_cast<void*>(MEMBER_LOCAL_PORT) },
-    { STRCAST("remoteAddress"), reinterpret_cast<getter>(ipConnectionInfoGetter), 0,
-        PyDoc_STR(STRCAST("remote address")), reinterpret_cast<void*>(MEMBER_REMOTE_ADDRESS) },
-    { STRCAST("remotePort"), reinterpret_cast<getter>(ipConnectionInfoGetter), 0,
-        PyDoc_STR(STRCAST("remote port")), reinterpret_cast<void*>(MEMBER_REMOTE_PORT) },
+    { STRCAST("localAddress"), reinterpret_cast<getter>(ipConnectionInfoGetLocalAddress), 0,
+        PyDoc_STR(STRCAST("local address")), 0 },
+    { STRCAST("localPort"), reinterpret_cast<getter>(ipConnectionInfoGetLocalPort), 0,
+        PyDoc_STR(STRCAST("local port")), 0 },
+    { STRCAST("remoteAddress"), reinterpret_cast<getter>(ipConnectionInfoGetRemoteAddress), 0,
+        PyDoc_STR(STRCAST("remote address")), 0 },
+    { STRCAST("remotePort"), reinterpret_cast<getter>(ipConnectionInfoGetRemotePort), 0,
+        PyDoc_STR(STRCAST("remote port")), 0 },
     { 0, 0 } /* sentinel */
 };
 
 static PyGetSetDef UDPConnectionInfoGetters[] =
 {
-    { STRCAST("mcastAddress"), reinterpret_cast<getter>(udpConnectionInfoGetter), 0,
-        PyDoc_STR(STRCAST("multicast address")), reinterpret_cast<void*>(MEMBER_MCAST_ADDRESS) },
-    { STRCAST("mcastPort"), reinterpret_cast<getter>(udpConnectionInfoGetter), 0,
-        PyDoc_STR(STRCAST("multicast port")), reinterpret_cast<void*>(MEMBER_MCAST_PORT) },
+    { STRCAST("mcastAddress"), reinterpret_cast<getter>(udpConnectionInfoGetMcastAddress), 0,
+        PyDoc_STR(STRCAST("multicast address")), 0 },
+    { STRCAST("mcastPort"), reinterpret_cast<getter>(udpConnectionInfoGetMcastPort), 0,
+        PyDoc_STR(STRCAST("multicast port")), 0 },
     { 0, 0 } /* sentinel */
 };
 
