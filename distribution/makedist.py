@@ -24,6 +24,7 @@ includeSubDirs = [ \
     "py", \
     "vb", \
     "rb", \
+    "vsplugin", \
     "config", \
     "scripts", \
     "certs", \
