@@ -190,12 +190,14 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
     initial->setI(h);
     cout << "ok" << endl;
 
+#if !defined(_MSC_VER) || (_MSC_VER >= 1300)
     if(!collocated)
     {
         cout << "testing UnexpectedObjectException... " << flush;
         testUOE(communicator);
         cout << "ok" << endl;
     }
+#endif
 
     return initial;
 }

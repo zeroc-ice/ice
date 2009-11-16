@@ -38,14 +38,9 @@ CPP_COMPILER		= VC90
 # or THIRDPARTY_HOME is not set in your environment variables then
 # change the following setting to reflect the installation location.
 #
-!if "$(CPP_COMPILER)" == "VC90_EXPRESS"
-THIRDPARTY_HOME_EXT	= VC90
-!else
-THIRDPARTY_HOME_EXT	= $(CPP_COMPILER)
-!endif
-
 !if "$(THIRDPARTY_HOME)" == ""
-THIRDPARTY_HOME		= C:\Ice-$(VERSION)-ThirdParty-$(THIRDPARTY_HOME_EXT)
+THIRDPARTY_HOME		= C:\Program Files\ZeroC\Ice-$(VERSION)-ThirdParty
+#THIRDPARTY_HOME	 = C:\Program Files (x86)\ZeroC\Ice-$(VERSION)-ThirdParty
 !endif
 
 #
@@ -95,21 +90,27 @@ SETARGV			= setargv.obj
 #
 # Compiler specific definitions
 #
-!if "$(CPP_COMPILER)" == "BCC2007" || "$(CPP_COMPILER)" == "BCC2009" || "$(CPP_COMPILER)" == "BCC2010"
+!if "$(CPP_COMPILER)" == "BCC2010"
 BCPLUSPLUS		= yes
 !include 	$(top_srcdir)/config/Make.rules.bcc
-!elseif "$(CPP_COMPILER)" == "VC60" || "$(CPP_COMPILER)" == "VC71" || \
-        "$(CPP_COMPILER)" == "VC80" || "$(CPP_COMPILER)" == "VC80_EXPRESS" || \
-        "$(CPP_COMPILER)" == "VC90" || "$(CPP_COMPILER)" == "VC90_EXPRESS" 
+!elseif "$(CPP_COMPILER)" == "VC60" || "$(CPP_COMPILER)" == "VC90" || "$(CPP_COMPILER)" == "VC90_EXPRESS" 
 !include        $(top_srcdir)/config/Make.rules.msvc
 ! else
 !error Invalid setting for CPP_COMPILER: $(CPP_COMPILER)
 !endif
 
+!if "$(CPP_COMPILER)" == "BCC2010"
+libsuff		= \bcc10
+!elseif "$(CPP_COMPILER)" == "VC60"
+libsuff		= \vc6
+!else
+libsuff		= $(x64suffix)
+!endif
+
 !if "$(ice_src_dist)" != ""
 !if "$(THIRDPARTY_HOME)" != ""
 CPPFLAGS        = -I"$(THIRDPARTY_HOME)\include" $(CPPFLAGS)
-LDFLAGS         = $(PRELIBPATH)"$(THIRDPARTY_HOME)\lib$(x64suffix)" $(LDFLAGS)
+LDFLAGS         = $(PRELIBPATH)"$(THIRDPARTY_HOME)\lib$(libsuff)" $(LDFLAGS)
 !if "$(CPP_COMPILER)" == "VC60"
 CPPFLAGS        = -I"$(THIRDPARTY_HOME)\include\stlport" $(CPPFLAGS)
 !endif
@@ -118,6 +119,10 @@ CPPFLAGS        = -I"$(THIRDPARTY_HOME)\include\stlport" $(CPPFLAGS)
 !if "$(CPP_COMPILER)" == "VC60"
 CPPFLAGS        = -I"$(ice_dir)\include\stlport" $(CPPFLAGS)
 !endif
+!endif
+
+!if "$(CPP_COMPILER)" == "VC60"
+COMPSUFFIX	= _vc6
 !endif
 
 !if "$(OPTIMIZE)" != "yes"

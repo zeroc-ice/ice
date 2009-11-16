@@ -22,7 +22,7 @@ from scripts import *
 
 
 def getIceGridAdmin():
-    if TestUtil.isNoServices():
+    if TestUtil.isBCC2010():
         return os.path.join(TestUtil.getServiceDir(), "icegridadmin")
     else:
         return os.path.join(TestUtil.getCppBinDir(), "icegridadmin")

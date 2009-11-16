@@ -13,21 +13,27 @@ top_srcdir	= ..
 
 SUBDIRS		= IceUtil \
 		  Ice \
+		  book \
+		  cookbook
+
+
+!if "$(CPP_COMPILER)" != "VC60"
+SUBDIRS		= $(SUBDIRS) \
 		  Glacier2 \
 		  Freeze \
 		  IceStorm \
 		  IceGrid \
-		  book \
-		  cookbook
 
-!if "$(BCPLUSPLUS)" != "yes" && "$(CPP_COMPILER)" != "VC60"
+!if "$(BCPLUSPLUS)" != "yes"
 SUBDIRS		= $(SUBDIRS) \
 		  IceBox
 !endif
 
-!if "$(BCPLUSPLUS)" != "yes" && "$(CPP_COMPILER)" != "VC80_EXPRESS" && "$(CPP_COMPILER)" != "VC90_EXPRESS"
+!if "$(BCPLUSPLUS)" != "yes" && "$(CPP_COMPILER)" != "VC90_EXPRESS"
 SUBDIRS		= $(SUBDIRS) \
 		  IcePatch2
+!endif
+
 !endif
 
 $(EVERYTHING)::

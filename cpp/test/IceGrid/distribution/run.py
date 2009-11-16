@@ -22,7 +22,7 @@ from scripts import *
 
 def icepatch2Calc(datadir, dirname):
     icePatch2Calc = ""
-    if TestUtil.isNoServices():
+    if TestUtil.isBCC2010():
         icePatch2Calc = os.path.join(TestUtil.getServiceDir(), "icepatch2calc")
     else:
         icePatch2Calc = os.path.join(TestUtil.getCppBinDir(), "icepatch2calc")

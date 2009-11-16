@@ -8,6 +8,7 @@
 // **********************************************************************
 
 #include <Ice/DynamicLibrary.h>
+#include <IceUtil/StringUtil.h>
 
 #ifndef _WIN32
 #   include <dlfcn.h>
@@ -90,6 +91,15 @@ IceInternal::DynamicLibrary::loadEntryPoint(const string& entryPoint, bool useIc
 
 #ifdef _WIN32
     lib = libName + version;
+#if defined(_MSC_VER) && (_MSC_VER < 1300)
+    //
+    // Special case to deal with the naming of IceSSL VC6 DLL.
+    //
+    if(IceUtilInternal::toLower(libName) == "icessl")
+    {
+        lib += "_vc6";
+    }
+#endif
 #   ifdef _DEBUG
     lib += 'd';
 #   endif

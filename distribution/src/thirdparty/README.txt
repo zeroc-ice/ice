@@ -137,8 +137,10 @@ OpenSSL
 After extracting the OpenSSL source archive, refer to the file
 INSTALL.W32 or INSTALL.W64 for build instructions.
 
-When building with Visual Studio 2008 for a x64 target, you also 
-need to edit ms\ntdll.mak to remove all occurences of bufferoverflowU.lib.
+For VC++6 you should use the replacement makefile included in this
+archive:
+
+  > nmake /f ..\openssl\ntdll.mak
 
 bzip2
 -----
@@ -151,7 +153,11 @@ makefile included in this archive:
 
   > nmake /f ..\bzip2\Makefile.mak
 
-This will build the release and debug versions of the bzip2 DLLs.
+This will build the release and debug versions of the bzip2 DLLs. If
+conmpiling for VC++6 then first set the CPP_COMPILER envirnment variable
+to be VC60.
+
+  > set CPP_COMPILER=VC60
 
 
 mcpp

@@ -11,7 +11,14 @@ top_srcdir	= ..\..
 
 !include $(top_srcdir)\config\Make.rules.mak
 
-SUBDIRS		= printer simple_filesystem lifecycle freeze_filesystem
+SUBDIRS		= printer \
+		  simple_filesystem \
+		  lifecycle
+
+!if "$(CPP_COMPILER)" != "VC60"
+SUBDIRS		= $(SUBDIRS) \
+		  freeze_filesystem
+!endif
 
 $(EVERYTHING)::
 	@for %i in ( $(SUBDIRS) ) do \

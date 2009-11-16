@@ -14,16 +14,21 @@ top_srcdir	= ..
 SUBDIRS		= IceUtil \
 		  Slice \
 		  Ice \
-                  IceSSL \
+                  IceSSL
+
+!if "$(CPP_COMPILER)" != "VC60"
+SUBDIRS		= $(SUBDIRS) \
 		  Glacier2 \
 		  Freeze \
 		  IceStorm \
 		  FreezeScript \
 		  IceGrid
 
-!if "$(BCPLUSPLUS)" != "yes" && "$(CPP_COMPILER)" != "VC60"
+!if "$(BCPLUSPLUS)" != "yes"
 SUBDIRS		= $(SUBDIRS) \
 		  IceBox
+!endif
+
 !endif
 
 $(EVERYTHING)::

@@ -21,7 +21,7 @@ sys.path.append(os.path.join(path[0]))
 from scripts import *
 
 iceStormAdmin = ""
-if TestUtil.isNoServices():
+if TestUtil.isBCC2010():
     iceStormAdmin = os.path.join(TestUtil.getServiceDir(), "icestormadmin")
 else:
     iceStormAdmin = os.path.join(TestUtil.getCppBinDir(), "icestormadmin")

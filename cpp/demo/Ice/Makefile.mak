@@ -18,7 +18,6 @@ SUBDIRS		= minimal \
 		  value \
 		  callback \
 		  nested \
-		  invoke \
 		  bidir \
 		  session \
 		  converter \
@@ -27,8 +26,14 @@ SUBDIRS		= minimal \
 		  nrvo \
 		  plugin
 
-!if "$(BCPLUSPLUS)" != "yes" && "$(CPP_COMPILER)" != "VC80_EXPRESS" &&  "$(CPP_COMPILER)" != "VC90_EXPRESS"
-SUBDIRS		= $(SUBDIRS) MFC
+!if "$(CPP_COMPILER)" != "VC60"
+SUBDIRS		= $(SUBDIRS) \
+		  invoke
+!endif
+
+!if "$(BCPLUSPLUS)" != "yes" && "$(CPP_COMPILER)" != "VC90_EXPRESS"
+SUBDIRS		= $(SUBDIRS) \
+		  MFC
 !endif
 
 $(EVERYTHING)::

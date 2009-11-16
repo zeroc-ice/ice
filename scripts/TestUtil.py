@@ -73,7 +73,7 @@ def isLinux():
     return sys.platform.startswith("linux")
 
 
-def isNoServices():
+def isBCC2010():
     if not isWin32():
         return False
     compiler = ""
@@ -82,7 +82,18 @@ def isNoServices():
     else:
         config = open(os.path.join(toplevel, "cpp", "config", "Make.rules.mak"), "r")
         compiler = re.search("CPP_COMPILER[\t\s]*= ([A-Z0-9]*)", config.read()).group(1)
-    return compiler == "BCC2010" or compiler == "VC60"
+    return compiler == "BCC2010"
+
+def isVC6():
+    if not isWin32():
+        return False
+    compiler = ""
+    if os.environ.get("CPP_COMPILER", "") != "":
+        compiler = os.environ["CPP_COMPILER"]
+    else:
+        config = open(os.path.join(toplevel, "cpp", "config", "Make.rules.mak"), "r")
+        compiler = re.search("CPP_COMPILER[\t\s]*= ([A-Z0-9]*)", config.read()).group(1)
+    return compiler == "VC60"
 
 #
 # The PHP interpreter is called "php5" on some platforms (e.g., SLES).
@@ -554,7 +565,7 @@ def getIceBox():
     lang = getDefaultMapping()
     if lang == "cpp":
         iceBox = ""
-        if isNoServices():
+        if isBCC2010() or isVC6():
             iceBox = os.path.join(getServiceDir(), "icebox.exe")
         elif isWin32():
             #
@@ -586,7 +597,7 @@ def getIceBox():
     return iceBox
 
 def getGlacier2Router():
-    if isNoServices():
+    if isBCC2010() or isVC6():
         return os.path.join(getServiceDir(), "glacier2router")
     else:
         return os.path.join(getCppBinDir(), "glacier2router")
@@ -1369,8 +1380,12 @@ def runTests(start, expanded, num = 0, script = False):
                 print "%s*** test only supported under Win32%s" % (prefix, suffix)
                 continue
 
-            if isNoServices() and "noservices" in config:
-                print "%s*** test not supported with VC++ 6.0/C++Builder%s" % (prefix, suffix)
+            if isBCC2010() and "nobcc" in config:
+                print "%s*** test not supported with C++Builder%s" % (prefix, suffix)
+                continue
+
+            if isVC6() and "novc6" in config:
+                print "%s*** test not supported with VC++ 6.0%s" % (prefix, suffix)
                 continue
 
             # If this is mono and we're running ssl protocol tests

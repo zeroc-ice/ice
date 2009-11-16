@@ -24,7 +24,6 @@ SUBDIRS		= proxy \
 		  slicing \
 		  gc \
 		  checksum \
-		  stream \
 		  hold \
 		  custom \
 		  binding \
@@ -37,6 +36,11 @@ SUBDIRS		= proxy \
 		  udp \
 		  defaultServant \
 		  threadPoolPriority
+
+!if "$(CPP_COMPILER)" != "VC60"
+SUBDIRS		= $(SUBDIRS) \
+		  stream
+!endif
 
 $(EVERYTHING)::
 	@for %i in ( $(SUBDIRS) ) do \
