@@ -318,8 +318,8 @@ Ice::PropertiesI::load(const std::string& file)
                 vector<wchar_t> nameBuf(maxNameSize + 1);
                 vector<BYTE> dataBuf(maxDataSize);
                 DWORD keyType;
-                DWORD nameBufSize = nameBuf.size();
-                DWORD dataBufSize = dataBuf.size();
+                DWORD nameBufSize = static_cast<DWORD>(nameBuf.size());
+                DWORD dataBufSize = static_cast<DWORD>(dataBuf.size());
                 err = RegEnumValueW(iceKey, i, &nameBuf[0], &nameBufSize, NULL, &keyType, &dataBuf[0], &dataBufSize);
                 if(err != ERROR_SUCCESS || nameBufSize == 0)
                 {
@@ -355,11 +355,13 @@ Ice::PropertiesI::load(const std::string& file)
                 else // keyType == REG_EXPAND_SZ
                 {
                     vector<wchar_t> expandedValue(1024);
-                    DWORD sz = ExpandEnvironmentStringsW(valueW.c_str(), &expandedValue[0], expandedValue.size());
+                    DWORD sz = ExpandEnvironmentStringsW(valueW.c_str(), &expandedValue[0],
+                                                         static_cast<DWORD>(expandedValue.size()));
                     if(sz >= expandedValue.size())
                     {
                         expandedValue.resize(sz + 1);
-                        if(ExpandEnvironmentStringsW(valueW.c_str(), &expandedValue[0], expandedValue.size()) == 0)
+                        if(ExpandEnvironmentStringsW(valueW.c_str(), &expandedValue[0],
+                                                     static_cast<DWORD>(expandedValue.size())) == 0)
                         {
                             ostringstream os;
                             os << "could not expand variable in property `" << name << "', key: `" + file + "':\n";
@@ -686,11 +688,11 @@ Ice::PropertiesI::loadConfig()
     {
 #ifdef _WIN32
         vector<wchar_t> v(256);
-        DWORD ret = GetEnvironmentVariableW(L"ICE_CONFIG", &v[0], v.size());
+        DWORD ret = GetEnvironmentVariableW(L"ICE_CONFIG", &v[0], static_cast<DWORD>(v.size()));
         if(ret >= v.size())
         {
             v.resize(ret + 1);
-            ret = GetEnvironmentVariableW(L"ICE_CONFIG", &v[0], v.size());
+            ret = GetEnvironmentVariableW(L"ICE_CONFIG", &v[0], static_cast<DWORD>(v.size()));
         }
         if(ret > 0)
         {

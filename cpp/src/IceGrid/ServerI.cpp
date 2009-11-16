@@ -299,7 +299,7 @@ struct EnvironmentEval : std::unary_function<string, string>
                 break;
             }
             string variable = v.substr(beg + 1, end - beg - 1);
-            DWORD ret = GetEnvironmentVariableW(IceUtil::stringToWstring(variable).c_str(), &buf[0], buf.size());
+            DWORD ret = GetEnvironmentVariableW(IceUtil::stringToWstring(variable).c_str(), &buf[0], static_cast<DWORD>(buf.size()));
             string valstr = (ret > 0 && ret < sizeof(buf.size())) ? IceUtil::wstringToString(&buf[0]) : string("");
             v.replace(beg, end - beg + 1, valstr);
             beg += valstr.size();
