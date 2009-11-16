@@ -101,7 +101,7 @@ Client::run(int argc, char* argv[])
     }
 
     in.seekg(0, ios::end);
-    int len = in.tellg();
+    ifstream::pos_type len = in.tellg();
     in.seekg(0, ios::beg);
 
     ByteSeq source;
@@ -176,7 +176,10 @@ Client::run(int argc, char* argv[])
         }
         else
         {
-            sz *= 10;
+            //
+            // ifstream::pos_type has not *= operator.
+            //
+            sz = sz * 10;
             if(sz > len)
             {
                 sz = len;
