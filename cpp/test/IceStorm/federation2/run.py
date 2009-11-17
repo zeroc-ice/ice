@@ -29,6 +29,11 @@ else:
 publisher = os.path.join(os.getcwd(), "publisher")
 subscriber = os.path.join(os.getcwd(), "subscriber")
 
+targets = []
+if TestUtil.appverifier:
+    targets = [TestUtil.getIceBox(), publisher, subscriber, TestUtil.getIceBoxAdmin(), TestUtil.getIceStormAdmin()]
+    TestUtil.setAppVerifierSettings(targets, cwd = os.getcwd())
+
 def admin(ref, command):
     proc = TestUtil.startClient(iceStormAdmin, ref + ' -e "%s"' % command, echo = False)
     proc.waitTestSuccess()
@@ -266,5 +271,8 @@ def runtest(type, **args):
 runtest("persistent")
 runtest("replicated", replicatedPublisher = False)
 runtest("replicated", replicatedPublisher = True)
+
+if TestUtil.appverifier:
+    TestUtil.appVerifierAfterTestEnd(targets, cwd = os.getcwd())
 
 sys.exit(0)

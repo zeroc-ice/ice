@@ -28,5 +28,6 @@ match = os.path.join(os.getcwd(), "match")
 
 TestUtil.simpleTest(match)
 
-TestUtil.simpleTest(match + " -b")
-
+# Don't use simpleTest(match + " -b") this will confuse
+# appverifier about the name of target exe
+TestUtil.simpleTest(match, " -b")

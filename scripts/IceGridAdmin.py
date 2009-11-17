@@ -181,11 +181,17 @@ def iceGridAdmin(cmd, ignoreFailure = False):
         user = r"shutdown"
     command = getDefaultLocatorProperty() + r" --IceGridAdmin.Username=" + user + " --IceGridAdmin.Password=test1 " + \
               r' -e "' + cmd + '"'
+    if TestUtil.appverifier:
+        TestUtil.setAppVerifierSettings([TestUtil.getIceGridAdmin()])
 
     driverConfig = TestUtil.DriverConfig("client")
     driverConfig.lang = "cpp"
     proc = TestUtil.startClient(iceGridAdmin, command, driverConfig)
     status = proc.wait()
+
+    if TestUtil.appverifier:
+        TestUtil.appVerifierAfterTestEnd([TestUtil.getIceGridAdmin()])
+
     if not ignoreFailure and status:
         print proc.buf
         sys.exit(1)
@@ -216,6 +222,11 @@ def iceGridTest(application, additionalOptions = "", applicationOptions = ""):
 
     clientOptions = ' ' + getDefaultLocatorProperty() + ' ' + additionalOptions
 
+    targets = []
+    if TestUtil.appverifier:
+        targets = [client, TestUtil.getIceGridNode(), TestUtil.getIceGridRegistry()]
+        TestUtil.setAppVerifierSettings(targets)
+
     registryProcs = startIceGridRegistry(testdir)
     iceGridNodeProc = startIceGridNode(testdir)
     
@@ -243,6 +254,9 @@ def iceGridTest(application, additionalOptions = "", applicationOptions = ""):
     shutdownIceGridRegistry(registryProcs)
     iceGridNodeProc.waitTestSuccess()
 
+    if TestUtil.appverifier:
+        TestUtil.appVerifierAfterTestEnd(targets)
+
 def iceGridClientServerTest(additionalClientOptions, additionalServerOptions):
 
     testdir = os.getcwd()
@@ -254,6 +268,11 @@ def iceGridClientServerTest(additionalClientOptions, additionalServerOptions):
 
     if TestUtil.getDefaultMapping() == "java":
         os.environ['CLASSPATH'] = os.path.join(os.getcwd(), "classes") + os.pathsep + os.environ.get("CLASSPATH", "")
+
+    targets = []
+    if TestUtil.appverifier:
+        targets = [client, server, TestUtil.getIceGridRegistry()]
+        TestUtil.setAppVerifierSettings(targets)
 
     clientOptions = getDefaultLocatorProperty() + ' ' + additionalClientOptions
     serverOptions = getDefaultLocatorProperty() + ' ' + additionalServerOptions
@@ -272,6 +291,9 @@ def iceGridClientServerTest(additionalClientOptions, additionalServerOptions):
     serverProc.waitTestSuccess()
 
     shutdownIceGridRegistry(registryProcs)
+
+    if TestUtil.appverifier:
+        TestUtil.appVerifierAfterTestEnd(targets)
 
 def cleanDbDir(path):
     for filename in [ os.path.join(path, f) for f in os.listdir(path) if f != ".gitignore"]:

@@ -24,6 +24,12 @@ publisher = os.path.join(os.getcwd(), "publisher")
 subscriber = os.path.join(os.getcwd(), "subscriber")
 control = os.path.join(os.getcwd(), "control")
 
+targets = []
+if TestUtil.appverifier:
+    targets = [TestUtil.getIceBox(), publisher, subscriber, control, TestUtil.getIceBoxAdmin(), \
+               TestUtil.getIceStormAdmin()]
+    TestUtil.setAppVerifierSettings(targets, cwd = os.getcwd())
+
 def runcontrol(proxy):
     proc = TestUtil.startClient(control, ' "%s"' % proxy)
     proc.waitTestSuccess()
@@ -115,3 +121,5 @@ print "ok"
 
 print "publisher published %s events, subscriber received %s events" % (publisherCount, subscriberCount)
 
+if TestUtil.appverifier:
+    TestUtil.appVerifierAfterTestEnd(targets, cwd = os.getcwd())

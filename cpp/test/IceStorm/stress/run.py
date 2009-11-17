@@ -26,9 +26,16 @@ if TestUtil.isBCC2010():
 else:
     iceStormAdmin = os.path.join(TestUtil.getCppBinDir(), "icestormadmin")
 
+publisher = os.path.join(os.getcwd(), "publisher")
+subscriber = os.path.join(os.getcwd(), "subscriber")
+
+targets = []
+if TestUtil.appverifier:
+    targets = [TestUtil.getIceBox(), publisher, subscriber, TestUtil.getIceBoxAdmin(), \
+               TestUtil.getIceStormAdmin()]
+    TestUtil.setAppVerifierSettings(targets, cwd = os.getcwd())
+
 def doTest(server1, server2, subOpts, pubOpts):
-    publisher = os.path.join(os.getcwd(), "publisher")
-    subscriber = os.path.join(os.getcwd(), "subscriber")
 
     subscriberProcs = []
     if type(subOpts) != type([]):
@@ -174,3 +181,5 @@ def runtest(type):
 runtest("persistent")
 runtest("replicated")
 
+if TestUtil.appverifier:
+    TestUtil.appVerifierAfterTestEnd(targets, cwd = os.getcwd())

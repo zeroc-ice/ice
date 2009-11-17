@@ -22,6 +22,7 @@ iceHome = None                  # Binary distribution to use (None to use binari
 x64 = False                     # Binary distribution is 64-bit
 javaCmd = "java"                # Default java loader
 valgrind = False                # Set to True to use valgrind for C++ executables.
+appverifier = False             # Set to True to use appverifier for C++ executables, This is windows only feature
 tracefile = None
 printenv = False
 cross = []
@@ -281,6 +282,7 @@ def run(tests, root = False):
           --compress              Run the tests with protocol compression.
           --host=host             Set --Ice.Default.Host=<host>.
           --valgrind              Run the test with valgrind.
+          --appverifier           Run the test with appverifier under Windows.
           --serialize             Run with connection serialization.
           --continue              Keep running when a test fails
           --ipv6                  Use IPv6 addresses.
@@ -305,7 +307,8 @@ def run(tests, root = False):
                                    ["start=", "start-after=", "filter=", "rfilter=", "all", "all-cross", "loop",
                                     "debug", "protocol=", "compress", "valgrind", "host=", "serialize", "continue",
                                     "ipv6", "no-ipv6", "ice-home=", "cross=", "x64", "script", "env", "sql-type=",
-                                    "sql-db=", "sql-host=", "sql-port=", "sql-user=", "sql-passwd=", "service-dir="])
+                                    "sql-db=", "sql-host=", "sql-port=", "sql-user=", "sql-passwd=", "service-dir=",
+                                    "appverifier"])
     except getopt.GetoptError:
         usage()
 
@@ -358,7 +361,7 @@ def run(tests, root = False):
 
         if o in ( "--cross", "--protocol", "--host", "--debug", "--compress", "--valgrind", "--serialize", "--ipv6", \
                   "--ice-home", "--x64", "--env", "--sql-type", "--sql-db", "--sql-host", "--sql-port", "--sql-user", \
-                  "--sql-passwd", "--service-dir"):
+                  "--sql-passwd", "--service-dir", "--appverifier"):
             arg += " " + o
             if len(a) > 0:
                 arg += " " + a
@@ -596,11 +599,42 @@ def getIceBox():
     
     return iceBox
 
+def getIceBoxAdmin():
+    if isBCC2010():
+        return os.path.join(getServiceDir(), "iceboxadmin")
+    else:
+        return os.path.join(getCppBinDir(), "iceboxadmin")
+
+def getIceGridAdmin():
+    if isBCC2010():
+        return os.path.join(getServiceDir(), "icegridadmin")
+    else:
+        return os.path.join(getCppBinDir(), "icegridadmin")
+
+def getIceStormAdmin():
+    if isBCC2010():
+        return os.path.join(getServiceDir(), "icestormadmin")
+    else:
+        return os.path.join(getCppBinDir(), "icestormadmin")
+
+def getIceGridNode():
+    if isBCC2010() or isVC6():
+        return os.path.join(getServiceDir(), "icegridnode")
+    else:
+        return os.path.join(getCppBinDir(), "icegridnode")
+
+def getIceGridRegistry():
+    if isBCC2010() or isVC6():
+        return os.path.join(getServiceDir(), "icegridregistry")
+    else:
+        return os.path.join(getCppBinDir(), "icegridregistry")
+
 def getGlacier2Router():
     if isBCC2010() or isVC6():
         return os.path.join(getServiceDir(), "glacier2router")
     else:
         return os.path.join(getCppBinDir(), "glacier2router")
+
 
 class InvalidSelectorString(Exception):
     def __init__(self, value):
@@ -655,6 +689,7 @@ class DriverConfig:
     host = None 
     mono = False
     valgrind = False
+    appverifier = False
     type = None
     overrides = None
     ipv6 = False
@@ -674,6 +709,7 @@ class DriverConfig:
         global host 
         global mono
         global valgrind
+        global appverifier
         global ipv6
         global x64
         global sqlType
@@ -690,6 +726,7 @@ class DriverConfig:
         self.host = host
         self.mono = mono
         self.valgrind = valgrind
+        self.appverifier = appverifier
         self.type = type
         self.ipv6 = ipv6
         self.x64 = x64
@@ -943,6 +980,51 @@ def spawnServer(cmd, env=None, cwd=None, count=1, adapter=None, echo=True, lang=
         server.trace([re.compile("[^\n]+ ready")])
     return server
 
+def matchAppVerifierSuccess():
+    return re.escape("\nApplication Verifier ") +  ".*\n" + \
+           re.escape("Copyright (c) Microsoft Corporation. All rights reserved.") + \
+           ".*\n\n$" #After all match to newlines at end.
+
+def setAppVerifierSettings(targets, cwd=os.getcwd()):
+    for exe in targets:
+        if exe.endswith(".exe") == False:
+            exe += ".exe"
+        
+        #First enable all appverifier tests
+        cmd = "appverif -enable * -for " + exe
+        verifier = spawn(cmd, cwd=cwd)
+        verifier.expect(matchAppVerifierSuccess(), -1)
+        
+        #Now disable all tests we are not intested in
+        cmd = "appverif -disable LuaPriv PrintDriver PrintApi -for " + exe
+        verifier = spawn(cmd, cwd=cwd)
+        verifier.expectall(["Application Verifier 4.0","",""], -1)
+
+def appVerifierAfterTestEnd(targets, cwd=os.getcwd()):
+    for exe in targets:
+        if exe.endswith(".exe") == False:
+            exe += ".exe"
+
+        # Export appverifier logs to a xml file in cwd
+        logName = cwd
+        if logName == None:
+            logName = os.path.dirname(exe)
+        logName += "/" + os.path.basename(exe) + "_appverifier_log.xml"
+        cmd = "appverif -export log -for " + exe + " -with To=" + logName
+        verifier = spawn(cmd, cwd=cwd)
+        verifier.expect(matchAppVerifierSuccess(), -1)
+
+        # Delete appverifier logs from registry
+        cmd = "appverif -delete logs -for " + exe
+        verifier = spawn(cmd, cwd=cwd)
+        verifier.expect(matchAppVerifierSuccess(), -1)
+
+        # Delete appverifier settings
+        cmd = "appverif -delete settings -for " + exe
+        verifier = spawn(cmd, cwd=cwd)
+        verifier.expect(matchAppVerifierSuccess(), -1)
+
+
 def getMirrorDir(base, mapping):
     """Get the mirror directory for the current test in the given mapping."""
     lang = getDefaultMapping()
@@ -1010,6 +1092,12 @@ def clientServerTest(additionalServerOptions = "", additionalClientOptions = "",
 
         if lang == "php":
             phpSetup()
+        
+        clientExe = client
+        serverExe = server
+        
+        if appverifier:
+          setAppVerifierSettings([clientExe, serverExe])
 
         print "starting " + serverDesc + "...",
         serverCfg = DriverConfig("server")
@@ -1026,10 +1114,14 @@ def clientServerTest(additionalServerOptions = "", additionalClientOptions = "",
         client = getCommandLine(client, clientCfg) + " " + additionalClientOptions
         clientProc = spawnClient(client, env = clientenv, startReader = False, lang=clientCfg.lang)
         print "ok"
-	clientProc.startReader()
+        clientProc.startReader()
 
         clientProc.waitTestSuccess()
         serverProc.waitTestSuccess()
+        
+
+        if appverifier:
+            appVerifierAfterTestEnd([clientExe, serverExe])
 
 def collocatedTest(additionalOptions = ""):
     lang = getDefaultMapping()
@@ -1042,6 +1134,10 @@ def collocatedTest(additionalOptions = ""):
     if lang != "java" and lang != "javae":
         collocated = os.path.join(testdir, collocated) 
 
+    exe = collocated
+    if appverifier:
+        setAppVerifierSettings([exe])
+        
     env = getTestEnv(lang, testdir)
 
     print "starting collocated...",
@@ -1050,10 +1146,12 @@ def collocatedTest(additionalOptions = ""):
     print "ok"
     collocatedProc.startReader()
     collocatedProc.waitTestSuccess()
+    if appverifier:
+        appVerifierAfterTestEnd([exe])
 
 def cleanDbDir(path):
     for filename in [ os.path.join(path, f) for f in os.listdir(path) if f != ".gitignore" and f != "DB_CONFIG" ]:
-	os.remove(filename)
+        os.remove(filename)
 
 def startClient(exe, args = "", config=None, env=None, echo = True, startReader = True):
     if config == None:
@@ -1082,13 +1180,18 @@ def startColloc(exe, args, config=None, env=None):
     return spawnClient(cmd, env = env, lang=config.lang)
 
 def simpleTest(exe, options = ""):
+    if appverifier:
+        setAppVerifierSettings([exe])
     print "starting client...",
     command = exe + ' ' + options
     client = spawnClient(command, startReader = False, lang=getDefaultMapping())
     print "ok"
     client.startReader()
     client.waitTestSuccess()
-
+    
+    if appverifier:
+        appVerifierAfterTestEnd([exe])
+        
 def getCppBinDir():
     binDir = os.path.join(getIceDir("cpp"), "bin")
     if iceHome and x64:
@@ -1188,6 +1291,7 @@ def processCmdLine():
           --protocol=tcp|ssl      Run with the given protocol.
           --compress              Run the tests with protocol compression.
           --valgrind              Run the tests with valgrind.
+          --appverifier           Run the tests with appverifier.
           --host=host             Set --Ice.Default.Host=<host>.
           --serialize             Run with connection serialization.
           --ipv6                  Use IPv6 addresses.
@@ -1209,7 +1313,7 @@ def processCmdLine():
         opts, args = getopt.getopt(
             sys.argv[1:], "", ["debug", "trace=", "protocol=", "compress", "valgrind", "host=", "serialize", "ipv6", \
                               "ice-home=", "x64", "cross=", "env", "sql-type=", "sql-db=", "sql-host=", "sql-port=", \
-                              "sql-user=", "sql-passwd=", "service-dir="])
+                              "sql-user=", "sql-passwd=", "service-dir=", "appverifier"])
     except getopt.GetoptError:
         usage()
 
@@ -1253,6 +1357,12 @@ def processCmdLine():
         elif o == "--valgrind":
             global valgrind
             valgrind = True
+        elif o == "--appverifier":
+            if not isWin32() or getDefaultMapping() != "cpp":
+                print "--appverifier option is only supported for Win32 c++ tests."
+                sys.exit(1)
+            global appverifier
+            appverifier = True
         elif o == "--ipv6":
             global ipv6
             ipv6 = True
@@ -1351,8 +1461,8 @@ def runTests(start, expanded, num = 0, script = False):
 
             if args.find("cross") != -1:
                 test = os.path.join(*i.split(os.sep)[2:])
-		# The crossTests list is in UNIX format.
-		test = test.replace(os.sep, '/')
+                # The crossTests list is in UNIX format.
+                test = test.replace(os.sep, '/')
                 if not test in crossTests:
                     print "%s*** test does not support cross testing%s" % (prefix, suffix)
                     continue
@@ -1402,6 +1512,11 @@ def runTests(start, expanded, num = 0, script = False):
             # Skip tests not supported by valgrind
             if args.find("valgrind") != -1 and ("novalgrind" in config or args.find("ssl") != -1):
                 print "%s*** test not supported with valgrind%s" % (prefix, suffix)
+                continue
+            
+            # Skip tests not supported by appverifier
+            if args.find("appverifier") != -1 and ("noappverifier" in config or args.find("ssl") != -1):
+                print "%s*** test not supported with appverifier%s" % (prefix, suffix)
                 continue
             
             if script:

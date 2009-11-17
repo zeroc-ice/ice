@@ -21,12 +21,17 @@ sys.path.append(os.path.join(path[0]))
 from scripts import *
 
 server = os.path.join(os.getcwd(), "server")
+client = os.path.join(os.getcwd(), "client")
+router = TestUtil.getGlacier2Router()
+
+targets = []
+if TestUtil.appverifier:
+    targets = [server, client, router]
+    TestUtil.setAppVerifierSettings(targets)
 
 print "starting server...",
 serverProc = TestUtil.startServer(server)
 print "ok"
-
-router = TestUtil.getGlacier2Router()
 
 args = ' --Ice.Warn.Dispatch=0' + \
        ' --Glacier2.AddSSLContext=1' + \
@@ -48,7 +53,7 @@ print "ok"
 
 clientCfg = TestUtil.DriverConfig("client")
 clientCfg.protocol = "ssl"
-client = os.path.join(os.getcwd(), "client")
+
 print "starting client...",
 clientProc = TestUtil.startClient(client, "", clientCfg, startReader = False)
 print "ok"
@@ -58,3 +63,5 @@ clientProc.waitTestSuccess()
 serverProc.waitTestSuccess()
 starterProc.waitTestSuccess()
 
+if TestUtil.appverifier:
+    TestUtil.appVerifierAfterTestEnd(targets)

@@ -25,6 +25,15 @@ fqdn = socket.getfqdn()
 
 limitedTests = False
 
+router = TestUtil.getGlacier2Router()
+clientCmd = os.path.join(os.getcwd(), 'client')
+serverCmd = os.path.join(os.getcwd(), 'server')
+
+targets = []
+if TestUtil.appverifier:
+    targets = [serverCmd, clientCmd, router]
+    TestUtil.setAppVerifierSettings(targets)
+
 # 
 # Try and figure out what tests are reasonable with this host's
 # configuration.
@@ -223,8 +232,6 @@ elif len(testcases) < 6:
     print "WARNING: The network configuration for this host does not permit all "
     print "         tests to run correctly, some tests have been disabled."
 
-router = TestUtil.getGlacier2Router()
-
 def pingProgress():
     sys.stdout.write('.')
     sys.stdout.flush()
@@ -327,7 +334,6 @@ for testcase in testcases:
     else:
         serverOptions = ""
 
-    serverCmd = os.path.join(os.getcwd(), 'server')
     serverDriver = TestUtil.DriverConfig("server")
     if serverDriver.host == "127.0.0.1":
         serverDriver.host = None
@@ -342,7 +348,6 @@ for testcase in testcases:
     # The client is responsible for reporting success or failure. A test
     # failure will result in an assertion and the test will abort.
     #
-    clientCmd = os.path.join(os.getcwd(), 'client')
     clientDriver = TestUtil.DriverConfig("client")
     if clientDriver.host == "127.0.0.1":
         clientDriver.host = None
@@ -353,3 +358,5 @@ for testcase in testcases:
     serverProc.waitTestSuccess()
     starterProc.waitTestSuccess()
 
+if TestUtil.appverifier:
+    TestUtil.appVerifierAfterTestEnd(targets)

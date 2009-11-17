@@ -30,6 +30,9 @@ TestUtil.cleanDbDir(dbdir)
 
 client = os.path.join(os.getcwd(), "client")
 
+if TestUtil.appverifier:
+    TestUtil.setAppVerifierSettings([client])
+
 print "starting populate...",
 populateProc = TestUtil.startClient(client, " --dbdir %s populate" % os.getcwd(), startReader = False)
 print "ok"
@@ -42,3 +45,5 @@ print "ok"
 clientProc.startReader()
 clientProc.waitTestSuccess()
 
+if TestUtil.appverifier:
+    TestUtil.appVerifierAfterTestEnd([client])

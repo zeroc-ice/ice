@@ -20,7 +20,11 @@ if len(path) == 0:
 sys.path.append(os.path.join(path[0]))
 from scripts import *
 
+
 transformdb = os.path.join(TestUtil.getCppBinDir(), "transformdb")
+
+if TestUtil.appverifier:
+    TestUtil.setAppVerifierSettings([transformdb])
 
 dbdir = os.path.join(os.getcwd(), "db")
 TestUtil.cleanDbDir(dbdir)
@@ -138,3 +142,5 @@ if os.system(command) != 0:
 
 print "ok"
 
+if TestUtil.appverifier:
+    TestUtil.appVerifierAfterTestEnd([transformdb])

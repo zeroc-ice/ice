@@ -20,6 +20,11 @@ if len(path) == 0:
 sys.path.append(os.path.join(path[0]))
 from scripts import *
 
+targets = []
+if TestUtil.appverifier:
+    targets = [TestUtil.getIceBox()]
+    TestUtil.setAppVerifierSettings(targets, cwd = os.getcwd())
+
 #
 # Remove IceStorm databases possibly left from SQL run.
 #
@@ -38,3 +43,5 @@ else:
 #
 IceGridAdmin.iceGridTest("application.xml", "", variables)
 
+if TestUtil.appverifier:
+    TestUtil.appVerifierAfterTestEnd(targets, cwd = os.getcwd())

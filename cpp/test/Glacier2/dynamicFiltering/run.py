@@ -21,12 +21,18 @@ sys.path.append(os.path.join(path[0]))
 from scripts import *
 
 server = os.path.join(os.getcwd(), "server")
+client = os.path.join(os.getcwd(), "client")
+router = os.path.join(TestUtil.getGlacier2Router())
+
+targets = []
+if TestUtil.appverifier:
+    targets = [server, client, router]
+    TestUtil.setAppVerifierSettings(targets)
+
 
 print "starting server...",
 serverProc = TestUtil.startServer(server, count=3)
 print "ok"
-
-router = TestUtil.getGlacier2Router()
 
 args = r' --Glacier2.Client.Endpoints="default -p 12347"' + \
         r' --Ice.Admin.Endpoints="tcp -p 12348"' + \
@@ -40,7 +46,7 @@ print "starting router...",
 starterProc = TestUtil.startServer(router, args, count=2) 
 print "ok"
 
-client = os.path.join(os.getcwd(), "client")
+
 
 print "starting client...",
 proc = TestUtil.startClient(client, startReader = False)
@@ -51,3 +57,5 @@ proc.waitTestSuccess()
 serverProc.waitTestSuccess()
 starterProc.waitTestSuccess()
 
+if TestUtil.appverifier:
+    TestUtil.appVerifierAfterTestEnd(targets)

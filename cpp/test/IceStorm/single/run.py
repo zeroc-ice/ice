@@ -21,6 +21,15 @@ if len(path) == 0:
 sys.path.append(os.path.join(path[0]))
 from scripts import *
 
+publisher = os.path.join(os.getcwd(), "publisher")
+subscriber = os.path.join(os.getcwd(), "subscriber")
+
+targets = []
+if TestUtil.appverifier:
+    targets = [TestUtil.getIceBox(), publisher, subscriber, TestUtil.getIceBoxAdmin(), \
+               TestUtil.getIceStormAdmin()]
+    TestUtil.setAppVerifierSettings(targets, cwd = os.getcwd())
+
 def dotest(type):
     icestorm = IceStormUtil.init(TestUtil.toplevel, os.getcwd(), type)
 
@@ -30,9 +39,6 @@ def dotest(type):
     sys.stdout.flush()
     icestorm.admin("create single")
     print "ok"
-
-    publisher = os.path.join(os.getcwd(), "publisher")
-    subscriber = os.path.join(os.getcwd(), "subscriber")
 
     print "starting subscriber...",
     sys.stdout.flush()
@@ -68,5 +74,8 @@ def dotest(type):
 dotest("persistent")
 dotest("transient")
 dotest("replicated")
+
+if TestUtil.appverifier:
+    TestUtil.appVerifierAfterTestEnd([targets], cwd = os.getcwd())
 
 sys.exit(0)

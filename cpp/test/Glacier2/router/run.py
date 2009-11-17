@@ -22,6 +22,9 @@ from scripts import *
 
 router = TestUtil.getGlacier2Router()
 
+if TestUtil.appverifier:
+    TestUtil.setAppVerifierSettings([router])
+
 def startRouter(buffered):
 
     args = ' --Ice.Warn.Dispatch=0' + \
@@ -70,4 +73,7 @@ TestUtil.clientServerTest()
 TestUtil.clientServerTest(name, additionalClientOptions = " --shutdown")
 
 starterProc.waitTestSuccess()
+
+if TestUtil.appverifier:
+    TestUtil.appVerifierAfterTestEnd([router])
 

@@ -23,6 +23,9 @@ from scripts import *
 testdir = os.getcwd()
 router = TestUtil.getGlacier2Router()
 
+if TestUtil.appverifier:
+    TestUtil.setAppVerifierSettings([router])
+
 args = ' --Glacier2.RoutingTable.MaxSize=10' + \
        ' --Glacier2.Client.Endpoints="default -p 12347"' + \
        ' --Ice.Admin.Endpoints="tcp -h 127.0.0.1 -p 12348"' + \
@@ -37,3 +40,5 @@ TestUtil.clientServerTest()
 
 starterProc.waitTestSuccess()
 
+if TestUtil.appverifier:
+    TestUtil.appVerifierAfterTestEnd([router])

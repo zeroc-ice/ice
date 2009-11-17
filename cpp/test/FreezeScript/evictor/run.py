@@ -22,6 +22,9 @@ from scripts import *
 
 transformdb = os.path.join(TestUtil.getCppBinDir(), "transformdb")
 
+if TestUtil.appverifier:
+    TestUtil.setAppVerifierSettings([transformdb])
+
 dbdir = os.path.join(os.getcwd(), "db")
 TestUtil.cleanDbDir(dbdir)
 
@@ -66,3 +69,5 @@ proc = TestUtil.spawn(command)
 proc.waitTestSuccess()
 print "ok"
 
+if TestUtil.appverifier:
+    TestUtil.appVerifierAfterTestEnd([transformdb])

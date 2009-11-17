@@ -24,6 +24,12 @@ publisher = os.path.join(os.getcwd(), "publisher")
 subscriber = os.path.join(os.getcwd(), "subscriber")
 subscriber2 = os.path.join(os.getcwd(), "sub")
 
+targets = []
+if TestUtil.appverifier:
+    targets = [TestUtil.getIceBox(), publisher, subscriber, subscriber2, TestUtil.getIceBoxAdmin(), \
+               TestUtil.getIceStormAdmin()]
+    TestUtil.setAppVerifierSettings(targets, cwd = os.getcwd())
+
 def runsub(opt, ref, arg = "", echo=False):
     qos = ""
     if opt == "twoway":
@@ -282,3 +288,5 @@ sys.stdout.flush()
 icestorm.stop()
 print "ok"
 
+if TestUtil.appverifier:
+    TestUtil.appVerifierAfterTestEnd(targets, cwd = os.getcwd())

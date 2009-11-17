@@ -20,13 +20,6 @@ if len(path) == 0:
 sys.path.append(path[0])
 from scripts import *
 
-
-def getIceGridAdmin():
-    if TestUtil.isBCC2010():
-        return os.path.join(TestUtil.getServiceDir(), "icegridadmin")
-    else:
-        return os.path.join(TestUtil.getCppBinDir(), "icegridadmin")
-
 if not TestUtil.isWin32() and os.getuid() == 0:
     print
     print "*** can't run test as root ***"
@@ -35,12 +28,18 @@ if not TestUtil.isWin32() and os.getuid() == 0:
 
 testdir = os.getcwd();
 
+router = TestUtil.getGlacier2Router()
+targets = []
+if TestUtil.appverifier:
+    targets = [ TestUtil.getIceGridNode(), TestUtil.getIceGridRegistry(), router]
+    TestUtil.setAppVerifierSettings(targets)
+
 registryProcs = IceGridAdmin.startIceGridRegistry(testdir)
 nodeProc = IceGridAdmin.startIceGridNode(testdir)
 
 print "starting glacier2...",
 sys.stdout.flush()
-router = TestUtil.getGlacier2Router()
+
 args = ' --Glacier2.SessionTimeout=5' + \
        ' --Glacier2.Client.Endpoints="default -p 12347"' + \
        ' --Glacier2.Server.Endpoints="tcp -h 127.0.0.1"' \
@@ -57,7 +56,7 @@ print "testing login with username/password...",
 sys.stdout.flush()
 
 # Direct registry connection with username/password
-icegridadmin = getIceGridAdmin()
+icegridadmin = TestUtil.getIceGridAdmin()
 args = ' --Ice.Default.Locator="IceGrid/Locator:default -p 12010"' + \
        ' --IceGridAdmin.Username=demo' + \
        ' --IceGridAdmin.Password=dummy'
@@ -86,7 +85,7 @@ if TestUtil.protocol == "ssl":
     sys.stdout.flush()
 
     # Direct registry connection with SSL
-    icegridadmin = getIceGridAdmin()
+    icegridadmin = TestUil.getIceGridAdmin()
     args = ' --Ice.Default.Locator="IceGrid/Locator:default -p 12010" --ssl'
     admin = TestUtil.startClient(icegridadmin, args, None, None, False)
     admin.expect('>>> ')
@@ -108,7 +107,7 @@ if TestUtil.protocol == "ssl":
 
 print "testing commands...",
 sys.stdout.flush()
-icegridadmin = getIceGridAdmin()
+icegridadmin = TestUtil.getIceGridAdmin()
 args = ' --Ice.Default.Locator="IceGrid/Locator:default -p 12010"' + \
        ' --IceGridAdmin.Username=demo' + \
        ' --IceGridAdmin.Password=dummy'
@@ -253,4 +252,7 @@ print "ok"
 IceGridAdmin.iceGridAdmin("node shutdown localnode")
 IceGridAdmin.shutdownIceGridRegistry(registryProcs)
 nodeProc.waitTestSuccess()
+
+if TestUtil.appverifier:
+    TestUtil.appVerifierAfterTestEnd(targets)
 

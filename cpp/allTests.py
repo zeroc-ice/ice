@@ -28,7 +28,7 @@ tests = [
     ("IceUtil/thread",  ["once"]),
     ("IceUtil/unicode", ["once"]),
     ("IceUtil/inputUtil",  ["once"]),
-    ("IceUtil/uuid", ["once"]),
+    ("IceUtil/uuid", ["once", "noappverifier"]), # This test is very slow with appverifier.
     ("IceUtil/timer", ["once"]),
     ("Slice/errorDetection", ["once"]),
     ("Slice/keyword", ["once"]),
@@ -63,16 +63,16 @@ tests = [
     ("Freeze/dbmap", ["once", "novc6"]),
     ("Freeze/complex", ["once", "novc6"]),
     ("Freeze/evictor", ["core", "novc6"]),
-    ("IceStorm/single", ["service", "novc6"]),
+    ("IceStorm/single", ["service", "novc6", "noappverifier"]),  # This test doensn't work with appverifier is sensitive to timeouts.
     ("IceStorm/federation", ["service", "novc6"]),
     ("IceStorm/federation2", ["service", "novc6"]),
-    ("IceStorm/stress", ["service", "stress", "novc6"]),
+    ("IceStorm/stress", ["service", "stress", "novc6", "noappverifier"]), # This test is very slow with appverifier.
     ("IceStorm/rep1", ["service", "novc6"]),
     ("IceStorm/repgrid", ["service", "novc6"]),
     ("IceStorm/repstress", ["service", "noipv6", "stress", "novc6"]),
     ("FreezeScript/dbmap", ["once", "novc6"]),
     ("FreezeScript/evictor", ["once", "novc6"]),
-    ("IceGrid/simple", ["service", "novc6"]),
+    ("IceGrid/simple", ["service"]),
     ("IceGrid/deployer", ["service", "nobcc", "novc6"]),
     ("IceGrid/session", ["service", "nobcc", "novc6"]),
     ("IceGrid/update", ["service", "nobcc", "novc6"]),
