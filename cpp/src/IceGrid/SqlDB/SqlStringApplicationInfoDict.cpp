@@ -147,7 +147,7 @@ SqlStringApplicationInfoDict::put(const DatabaseConnectionPtr& connection,
     if(driver != "QPSQL" && driver != "QODBC")
     {
         QByteArray bytes;
-        bytes.resize(stream.b.size());
+        bytes.resize(static_cast<int>(stream.b.size()));
         ::memcpy(bytes.data(), stream.b.begin(), stream.b.size());
         QVariant descriptor(bytes);
 
@@ -206,7 +206,7 @@ SqlStringApplicationInfoDict::put(const DatabaseConnectionPtr& connection,
             if(driver != "QPSQL" && driver != "QODBC")
             {
                 QByteArray bytes;
-                bytes.resize(stream.b.size());
+                bytes.resize(static_cast<int>(stream.b.size()));
                 ::memcpy(bytes.data(), stream.b.begin(), stream.b.size());
                 QVariant descriptor(bytes);
  

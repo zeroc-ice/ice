@@ -178,7 +178,7 @@ SqlDBPlugin::initialize()
         }
         else
         {
-            if(IceUtilInternal::directoryExists(dbPath))
+            if(!IceUtilInternal::directoryExists(dbPath))
             {
                 ostringstream os;
                 Ice::SyscallException ex(__FILE__, __LINE__);
