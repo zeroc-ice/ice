@@ -827,8 +827,7 @@ local exception UnexpectedObjectException extends MarshalException
 
 /**
  *
- * This exception is raised if the system-specific memory limit is exceeded during
- * marshaling or unmarshaling.
+ * This exception is raised if a request size exceeds the limit specified by the <tt>Ice.MessageSizeMax</tt> property.
  *
  **/
 local exception MemoryLimitException extends MarshalException
