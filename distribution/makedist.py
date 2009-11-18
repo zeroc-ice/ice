@@ -241,9 +241,6 @@ for d in os.listdir('.'):
         move(os.path.join(d, "allDemos.py"), os.path.join(md, "allDemos.py"))
         os.rmdir(os.path.join(demoscriptDir, d))
 
-    if d == "vb":
-        continue
-
     if os.path.isdir(d) and os.path.exists(os.path.join(d, "demo")):
         copy(os.path.join(d, "demo"), os.path.join(demoDir, getMappingDir("demo", d)))
 
@@ -296,7 +293,7 @@ for d in [srcDir, demoDir, distFilesDir, rpmBuildDir]:
 for (dir, archiveDir) in [(demoscriptDir, "Ice-" + version + "-demos")]:
     tarArchive(dir, verbose, archiveDir)
 
-for d in [srcDir]:
+for d in [srcDir, demoDir]:
     zipArchive(d, verbose)
 
 #
