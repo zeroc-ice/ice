@@ -161,7 +161,7 @@ def allTests(communicator)
     begin
         to.sleep(1500)
         test(false)
-    rescue Ice::TimeoutException:
+    rescue Ice::TimeoutException
         # Expected.
     end
     comm.destroy()

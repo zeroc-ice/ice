@@ -276,12 +276,167 @@ inline VALUE callRuby(Fun fun, T1 t1, T2 t2, T3 t3, T4 t4)
 }
 
 //
+// The callRubyVoid functions are used to invoke Ruby C API functions
+// while translating any Ruby exception into RubyException so that
+// C++ objects are cleaned up properly. Overloadings are provided
+// to support API functions that accept multiple arguments.
+//
+template<typename Fun>
+void callRubyVoid(Fun fun);
+
+template<typename Fun, typename T1>
+void callRubyVoid(Fun fun, T1 t1);
+
+template<typename Fun, typename T1, typename T2>
+void callRubyVoid(Fun fun, T1 t1, T2 t2);
+
+template<typename Fun, typename T1, typename T2, typename T3>
+void callRubyVoid(Fun fun, T1 t1, T2 t2, T3 t3);
+
+template<typename Fun, typename T1, typename T2, typename T3, typename T4>
+void callRubyVoid(Fun fun, T1 t1, T2 t2, T3 t3, T4 t4);
+
+template<typename Fun>
+class RFV_0
+{
+public:
+
+    RFV_0(Fun f) : _f(f) {}
+    inline void operator()() { _f(); }
+    static inline VALUE call(RFV_0* f) { (*f)(); return Qnil; }
+
+private:
+
+    Fun _f;
+};
+
+template<typename Fun>
+inline void callRubyVoid(Fun fun)
+{
+    typedef RFV_0<Fun> RF;
+    RF f(fun);
+    callProtected(RubyFunction(RF::call), reinterpret_cast<VALUE>(&f));
+}
+
+template<typename Fun, typename T1>
+class RFV_1
+{
+public:
+
+    RFV_1(Fun f, T1 t1) : _f(f), _t1(t1) {}
+    inline void operator()() { _f(_t1); }
+    static inline VALUE call(RFV_1* f) { (*f)(); return Qnil; }
+
+private:
+
+    Fun _f;
+    T1 _t1;
+};
+
+template<typename Fun, typename T1>
+inline void callRubyVoid(Fun fun, T1 t1)
+{
+    typedef RFV_1<Fun, T1> RF;
+    RF f(fun, t1);
+    callProtected(RubyFunction(RF::call), reinterpret_cast<VALUE>(&f));
+}
+
+template<typename Fun, typename T1, typename T2>
+class RFV_2
+{
+public:
+
+    RFV_2(Fun f, T1 t1, T2 t2) : _f(f), _t1(t1), _t2(t2) {}
+    inline void operator()() { _f(_t1, _t2); }
+    static inline VALUE call(RFV_2* f) { (*f)(); return Qnil; }
+
+private:
+
+    Fun _f;
+    T1 _t1;
+    T2 _t2;
+};
+
+template<typename Fun, typename T1, typename T2>
+inline void callRubyVoid(Fun fun, T1 t1, T2 t2)
+{
+    typedef RFV_2<Fun, T1, T2> RF;
+    RF f(fun, t1, t2);
+    callProtected(RubyFunction(RF::call), reinterpret_cast<VALUE>(&f));
+}
+
+template<typename Fun, typename T1, typename T2, typename T3>
+class RFV_3
+{
+public:
+
+    RFV_3(Fun f, T1 t1, T2 t2, T3 t3) : _f(f), _t1(t1), _t2(t2), _t3(t3) {}
+    inline void operator()() { _f(_t1, _t2, _t3); }
+    static inline VALUE call(RFV_3* f) { (*f)(); return Qnil; }
+
+private:
+
+    Fun _f;
+    T1 _t1;
+    T2 _t2;
+    T3 _t3;
+};
+
+template<typename Fun, typename T1, typename T2, typename T3>
+inline void callRubyVoid(Fun fun, T1 t1, T2 t2, T3 t3)
+{
+    typedef RFV_3<Fun, T1, T2, T3> RF;
+    RF f(fun, t1, t2, t3);
+    callProtected(RubyFunction(RF::call), reinterpret_cast<VALUE>(&f));
+}
+
+template<typename Fun, typename T1, typename T2, typename T3, typename T4>
+class RFV_4
+{
+public:
+
+    RFV_4(Fun f, T1 t1, T2 t2, T3 t3, T4 t4) : _f(f), _t1(t1), _t2(t2), _t3(t3), _t4(t4) {}
+    inline void operator()() { _f(_t1, _t2, _t3, _t4); }
+    static inline VALUE call(RFV_4* f) { (*f)(); return Qnil; }
+
+private:
+
+    Fun _f;
+    T1 _t1;
+    T2 _t2;
+    T3 _t3;
+    T4 _t4;
+};
+
+template<typename Fun, typename T1, typename T2, typename T3, typename T4>
+inline void callRubyVoid(Fun fun, T1 t1, T2 t2, T3 t3, T4 t4)
+{
+    typedef RFV_4<Fun, T1, T2, T3, T4> RF;
+    RF f(fun, t1, t2, t3, t4);
+    callProtected(RubyFunction(RF::call), reinterpret_cast<VALUE>(&f));
+}
+
+VALUE createArrayHelper(long);
+
+//
 // Create an array with the given size. May raise RubyException.
+//
+// Note that the length of the array returned by this function is already
+// set to the requested size. This prevents the array's elements from being
+// prematurely garbage-collected, but it means the array must be populated
+// via direct access to its buffer and not by pushing elements onto the
+// array using rb_ary_push:
+//
+// VALUE arr = createArray(size);
+// for(long i = 0; i < size; ++i)
+// {
+//     RARRAY_PTR(arr)[i] = ...;
+// }
 //
 template<typename T>
 inline VALUE createArray(T sz)
 {
-    return callRuby(rb_ary_new2, static_cast<long>(sz));
+    return createArrayHelper(static_cast<long>(sz));
 }
 
 //

@@ -47,4 +47,24 @@ typedef VALUE(*ICE_RUBY_ENTRY_POINT)(...);
 
 #define CAST_METHOD(X) reinterpret_cast<ICE_RUBY_ENTRY_POINT>(X)
 
+//
+// These macros are defined in Ruby 1.9 but not in 1.8. We define them here
+// to maintain compatibility with 1.8.
+//
+#ifndef RFLOAT_VALUE
+#   define RFLOAT_VALUE(v) RFLOAT(v)->value
+#endif
+
+#ifndef RBIGNUM_LEN
+#   define RBIGNUM_LEN(v) RBIGNUM(v)->len
+#endif
+
+#ifndef RBIGNUM_DIGITS
+#   define RBIGNUM_DIGITS(v) ((BDIGIT*)RBIGNUM(v)->digits)
+#endif
+
+#ifndef RBIGNUM_SIGN
+#   define RBIGNUM_SIGN(v) RBIGNUM(v)->sign
+#endif
+
 #endif

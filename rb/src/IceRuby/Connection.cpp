@@ -177,7 +177,7 @@ IceRuby_Connection_equals(VALUE self, VALUE other)
 
 extern "C"
 void
-IceRuby_ConnectionInfo_free(Ice::ConnectionPtr* p)
+IceRuby_ConnectionInfo_free(Ice::ConnectionInfoPtr* p)
 {
     assert(p);
     delete p;

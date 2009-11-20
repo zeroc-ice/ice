@@ -609,7 +609,7 @@ def allTests(communicator)
     test(pstr == "test -t:tcp -h 127.0.0.1 -p 12010 -t 10000");
     
     # Working?
-    if communicator.getProperties().getPropertyAsInt("Ice.IPv6") == 0:
+    if communicator.getProperties().getPropertyAsInt("Ice.IPv6") == 0
         ssl = communicator.getProperties().getProperty("Ice.Default.Protocol") == "ssl";
         if !ssl
             p1.ice_ping();

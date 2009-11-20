@@ -44,7 +44,7 @@ RUBY_HOME		= C:\ruby
 !if "$(THIRDPARTY_HOME)" != ""
 STLPORT_HOME            = $(THIRDPARTY_HOME)
 !else
-STLPORT_HOME            = C:\Ice-$(VERSION)-ThirdParty-VC60
+STLPORT_HOME            = C:\Program Files\ZeroC\Ice-$(VERSION)-ThirdParty
 !endif
 !endif
 
@@ -113,9 +113,22 @@ ICE_LDFLAGS		= /LIBPATH:"$(ice_dir)\lib$(libsuff)"
 
 slicedir                = $(ice_dir)\slice
 
+#
+# Ruby 1.8
+#
 RUBY_CPPFLAGS		= -I"$(RUBY_HOME)\lib\ruby\1.8\i386-mswin32"
 RUBY_LDFLAGS		= /LIBPATH:"$(RUBY_HOME)\lib"
 RUBY_LIBS		= msvcrt-ruby18.lib
+
+#
+# Ruby 1.9
+#
+# Without HAVE_VSNPRINTF the Ruby header files declare this function, which causes
+# a compilation error in Util.cpp.
+#
+#RUBY_CPPFLAGS		= -I"$(RUBY_HOME)\include\ruby-1.9.1" -I"$(RUBY_HOME)\include\ruby-1.9.1\i386-mswin32" -DWIN32_LEAN_AND_MEAN -DHAVE_VSNPRINTF
+#RUBY_LDFLAGS		= /LIBPATH:"$(RUBY_HOME)\lib"
+#RUBY_LIBS		= msvcrt-ruby191.lib
 
 ICECPPFLAGS		= -I$(slicedir)
 SLICE2RBFLAGS		= $(ICECPPFLAGS)

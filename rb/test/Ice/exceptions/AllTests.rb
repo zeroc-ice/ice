@@ -218,7 +218,7 @@ def allTests(communicator)
 
     puts "ok"
 
-    if thrower.supportsUndeclaredExceptions():
+    if thrower.supportsUndeclaredExceptions()
         print "catching unknown user exception... "
         STDOUT.flush
 

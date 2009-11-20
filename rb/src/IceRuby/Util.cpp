@@ -10,7 +10,6 @@
 #include <Util.h>
 #include <Ice/LocalException.h>
 #include <stdarg.h>
-#include <st.h>
 
 using namespace std;
 using namespace IceRuby;
@@ -75,7 +74,7 @@ IceRuby::RubyException::operator<<(ostream& ostr) const
 {
     volatile VALUE cls = rb_class_path(CLASS_OF(ex));
     volatile VALUE msg = rb_obj_as_string(ex);
-    ostr << RSTRING(cls)->ptr << ": " << RSTRING(msg)->ptr;
+    ostr << RSTRING_PTR(cls) << ": " << RSTRING_PTR(msg);
     return ostr;
 }
 
@@ -101,7 +100,7 @@ string
 IceRuby::getString(VALUE val)
 {
     volatile VALUE result = callRuby(rb_string_value, &val);
-    return RSTRING(result)->ptr;
+    return RSTRING_PTR(result);
 }
 
 VALUE
@@ -132,7 +131,6 @@ IceRuby::getInteger(VALUE val)
     throw RubyException(rb_eTypeError, "unable to convert value to an integer");
 }
 
-#define BDIGITS(x) ((BDIGIT*)RBIGNUM(x)->digits)
 #define BITSPERDIG (SIZEOF_BDIGITS*CHAR_BIT)
 #define BIGUP(x) ((BDIGIT_DBL)(x) << BITSPERDIG)
 
@@ -155,12 +153,12 @@ IceRuby::getLong(VALUE val)
     else
     {
         assert(TYPE(v) == T_BIGNUM);
-        long len = RBIGNUM(v)->len;
+        long len = RBIGNUM_LEN(v);
         if(len > SIZEOF_LONG_LONG/SIZEOF_BDIGITS)
         {
             throw RubyException(rb_eRangeError, "bignum too big to convert into long");
         }
-        BDIGIT *ds = BDIGITS(v);
+        BDIGIT *ds = RBIGNUM_DIGITS(v);
         BDIGIT_DBL num = 0;
         while(len--)
         {
@@ -168,11 +166,11 @@ IceRuby::getLong(VALUE val)
             num += ds[len];
         }
         Ice::Long l = static_cast<Ice::Long>(num);
-        if(l < 0 && (RBIGNUM(v)->sign || l != LLONG_MIN))
+        if(l < 0 && (RBIGNUM_SIGN(v) || l != LLONG_MIN))
         {
             throw RubyException(rb_eRangeError, "bignum too big to convert into long");
         }
-        if (!RBIGNUM(v)->sign)
+        if (!RBIGNUM_SIGN(v))
         {
             return -l;
         }
@@ -188,10 +186,10 @@ IceRuby::arrayToStringSeq(VALUE val, vector<string>& seq)
     {
         return false;
     }
-    for(long i = 0; i < RARRAY(arr)->len; ++i)
+    for(long i = 0; i < RARRAY_LEN(arr); ++i)
     {
-        string s = getString(RARRAY(arr)->ptr[i]);
-        seq.push_back(getString(RARRAY(arr)->ptr[i]));
+        string s = getString(RARRAY_PTR(arr)[i]);
+        seq.push_back(getString(RARRAY_PTR(arr)[i]));
     }
     return true;
 }
@@ -201,10 +199,12 @@ IceRuby::stringSeqToArray(const vector<string>& seq)
 {
     volatile VALUE result = createArray(seq.size());
     long i = 0;
-    for(vector<string>::const_iterator p = seq.begin(); p != seq.end(); ++p, ++i)
+    if(seq.size() > 0)
     {
-        RARRAY(result)->ptr[i] = createString(*p);
-        RARRAY(result)->len++; // Increment len for each new element to prevent premature GC.
+        for(vector<string>::const_iterator p = seq.begin(); p != seq.end(); ++p, ++i)
+        {
+            RARRAY_PTR(result)[i] = createString(*p);
+        }
     }
     return result;
 }
@@ -515,6 +515,17 @@ setExceptionMembers(const Ice::LocalException& ex, VALUE p)
         // Nothing to do.
         //
     }
+}
+
+VALUE
+IceRuby::createArrayHelper(long sz)
+{
+    VALUE arr = callRuby(rb_ary_new2, sz);
+    if(sz > 0)
+    {
+        callRubyVoid(rb_ary_store, arr, sz - 1, Qnil);
+    }
+    return arr;
 }
 
 VALUE

@@ -41,7 +41,7 @@ class Client < Ice::Application
     end
 
     def run(args)
-        if args.length > 0:
+        if args.length > 0
             puts $0 + ": too many argumnets"
             return 1
         end
@@ -59,8 +59,6 @@ class Client < Ice::Application
             puts $0 + ": invalid proxy"
             return 1
         end
-
-        twoway.hash()
 
         oneway = twoway.ice_oneway()
         batchOneway = twoway.ice_batchOneway()
