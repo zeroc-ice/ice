@@ -225,7 +225,7 @@
         </javac>
     </target>
 
-    <target name="freeze-jar" depends="freeze-compile">
+    <target name="freeze-jar" depends="freeze-compile,ice-jar">
         <jar jarfile="${lib.dir}/Freeze.jar" basedir="${lib.dir}">
             <include name="Freeze/**"/>
             <manifest>
@@ -459,7 +459,7 @@
         </javac>
     </target>
 
-    <target name="test-jar" depends="test-compile">
+    <target name="test-jar" depends="test-compile,freeze-jar">
         <jar jarfile="${lib.dir}/IceTest.jar" basedir="${lib.dir}">
             <include name="test/**"/>
             <manifest>

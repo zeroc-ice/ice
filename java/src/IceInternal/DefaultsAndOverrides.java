@@ -68,7 +68,7 @@ public final class DefaultsAndOverrides
         {
             overrideCompress = true;
             boolean b = properties.getPropertyAsInt("Ice.Override.Compress") > 0;
-            if(!BasicStream.compressible() && b)
+            if(b && !BasicStream.compressible())
             {
                 System.err.println("warning: bzip2 support not available, Ice.Override.Compress ignored");
                 b = false;
@@ -77,7 +77,7 @@ public final class DefaultsAndOverrides
         }
         else
         {
-            overrideCompress = !BasicStream.compressible();
+            overrideCompress = false;
             overrideCompressValue = false;
         }
 

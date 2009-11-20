@@ -1609,7 +1609,7 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
             os.writeByte(IceInternal.Protocol.encodingMajor);
             os.writeByte(IceInternal.Protocol.encodingMinor);
             os.writeByte(IceInternal.Protocol.closeConnectionMsg);
-            os.writeByte(_compressionSupported ? (byte)1 : (byte)0);
+            os.writeByte((byte)0); // compression status: always report 0 for CloseConnection in Java.
             os.writeInt(IceInternal.Protocol.headerSize); // Message size.
 
             if(sendMessage(new OutgoingMessage(os, false, false)))
@@ -1892,44 +1892,50 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
     private IceInternal.BasicStream
     doCompress(IceInternal.BasicStream uncompressed, boolean compress)
     {
-        if(_compressionSupported)
+        boolean compressionSupported = false;
+        if(compress)
         {
-            if(compress && uncompressed.size() >= 100)
+            //
+            // Don't check whether compression support is available unless the proxy
+            // is configured for compression.
+            //
+            compressionSupported = IceInternal.BasicStream.compressible();
+        }
+
+        if(compressionSupported && uncompressed.size() >= 100)
+        {
+            //
+            // Do compression.
+            //
+            IceInternal.BasicStream cstream = uncompressed.compress(IceInternal.Protocol.headerSize, _compressionLevel);
+            if(cstream != null)
             {
                 //
-                // Do compression.
+                // Set compression status.
                 //
-                IceInternal.BasicStream cstream = uncompressed.compress(IceInternal.Protocol.headerSize,
-                                                                        _compressionLevel);
-                if(cstream != null)
-                {
-                    //
-                    // Set compression status.
-                    //
-                    cstream.pos(9);
-                    cstream.writeByte((byte)2);
+                cstream.pos(9);
+                cstream.writeByte((byte)2);
 
-                    //
-                    // Write the size of the compressed stream into the header.
-                    //
-                    cstream.pos(10);
-                    cstream.writeInt(cstream.size());
+                //
+                // Write the size of the compressed stream into the header.
+                //
+                cstream.pos(10);
+                cstream.writeInt(cstream.size());
 
-                    //
-                    // Write the compression status and size of the compressed stream into the header of the
-                    // uncompressed stream -- we need this to trace requests correctly.
-                    //
-                    uncompressed.pos(9);
-                    uncompressed.writeByte((byte)2);
-                    uncompressed.writeInt(cstream.size());
+                //
+                // Write the compression status and size of the compressed stream into the header of the
+                // uncompressed stream -- we need this to trace requests correctly.
+                //
+                uncompressed.pos(9);
+                uncompressed.writeByte((byte)2);
+                uncompressed.writeInt(cstream.size());
 
-                    return cstream;
-                }
+                return cstream;
             }
         }
 
         uncompressed.pos(9);
-        uncompressed.writeByte((byte)((_compressionSupported && compress) ? 1 : 0));
+        uncompressed.writeByte((byte)(compressionSupported ? 1 : 0));
 
         //
         // Not compressed, fill in the message size.
@@ -1982,7 +1988,7 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
             info.compress = info.stream.readByte();
             if(info.compress == (byte)2)
             {
-                if(_compressionSupported)
+                if(IceInternal.BasicStream.compressible())
                 {
                     info.stream = info.stream.uncompress(IceInternal.Protocol.headerSize);
                 }
@@ -2519,8 +2525,6 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
 
     private IceInternal.Outgoing _outgoingCache;
     private java.lang.Object _outgoingCacheMutex = new java.lang.Object();
-
-    private static boolean _compressionSupported = IceInternal.BasicStream.compressible();
 
     private int _cacheBuffers;
 }
