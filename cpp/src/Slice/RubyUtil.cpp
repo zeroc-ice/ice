@@ -865,15 +865,6 @@ Slice::Ruby::CodeVisitor::visitExceptionStart(const ExceptionPtr& p)
     _out << nl << "end";
 
     //
-    // inspect
-    //
-    _out << sp << nl << "def inspect";
-    _out.inc();
-    _out << nl << "return ::Ice::__stringifyException(self)";
-    _out.dec();
-    _out << nl << "end";
-
-    //
     // read/write accessors for data members.
     //
     if(!members.empty())
