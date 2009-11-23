@@ -483,6 +483,39 @@ private:
 
 }
 
+namespace
+{
+
+class SessionPingCallback : public IceUtil::Shared
+{
+public:
+
+    SessionPingCallback(const Glacier2::InstancePtr& instance, const Ice::ConnectionPtr& connection) :
+        _instance(instance),
+        _connection(connection)
+    {
+    }
+
+    void exception(const Ice::Exception&)
+    {
+        try
+        {
+            _instance->sessionRouter()->destroySession(_connection);
+        }
+        catch(...)
+        {
+        }
+    }
+
+private:
+
+    Glacier2::InstancePtr _instance;
+    Ice::ConnectionPtr _connection;
+};
+typedef IceUtil::Handle<SessionPingCallback> SessionPingCallbackPtr;
+
+}
+
 using namespace Glacier2;
 
 Glacier2::CreateSession::CreateSession(const SessionRouterIPtr& sessionRouter, const string& user, 
@@ -943,7 +976,12 @@ Glacier2::SessionRouterI::refreshSession(const Ice::Current& current)
     }
     router->updateTimestamp();
 
-    // XXX - TODO ping session async when new async mapping available!
+    //
+    // Ping the session to ensure it does not timeout.
+    //
+    SessionPingCallbackPtr cb = new SessionPingCallback(_instance, current.con);
+    Ice::CallbackPtr d = Ice::newCallback(cb, &SessionPingCallback::exception);
+    router->getSession()->begin_ice_ping(d);
 }
 
 void
