@@ -48,7 +48,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="2"
 				InlineFunctionExpansion="1"
-				AdditionalIncludeDirectories="dummyinclude ; . ; ..\..\..\..\cpp\include"
+				AdditionalIncludeDirectories="dummyinclude ; . ; C:\Program Files\ZeroC\Ice-3.4b\include"
 				PreprocessorDefinitions="_CONSOLE;NDEBUG;WIN32_LEAN_AND_MEAN"
 				StringPooling="true"
 				RuntimeLibrary="2"
@@ -80,7 +80,7 @@
 				OutputFile="collocated.exe"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
-				AdditionalLibraryDirectories="..\..\..\..\cpp\lib"
+				AdditionalLibraryDirectories="C:\Program Files\ZeroC\Ice-3.4b\lib"
 				SubSystem="1"
 				RandomizedBaseAddress="1"
 				DataExecutionPrevention="0"
@@ -99,6 +99,100 @@
 				Name="VCBscMakeTool"
 				SuppressStartupBanner="true"
 				OutputFile=".\Release/Freeze.library.collocated.bsc"
+			/>
+			<Tool
+				Name="VCFxCopTool"
+			/>
+			<Tool
+				Name="VCAppVerifierTool"
+			/>
+			<Tool
+				Name="VCPostBuildEventTool"
+			/>
+		</Configuration>
+		<Configuration
+			Name="Debug|Win32"
+			OutputDirectory=".\Debug"
+			IntermediateDirectory=".\Debug"
+			ConfigurationType="1"
+			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC60.vsprops"
+			UseOfMFC="0"
+			ATLMinimizesCRunTimeLibraryUsage="false"
+			>
+			<Tool
+				Name="VCPreBuildEventTool"
+			/>
+			<Tool
+				Name="VCCustomBuildTool"
+			/>
+			<Tool
+				Name="VCXMLDataGeneratorTool"
+			/>
+			<Tool
+				Name="VCWebServiceProxyGeneratorTool"
+			/>
+			<Tool
+				Name="VCMIDLTool"
+				TypeLibraryName=".\Debug/Freeze.library.collocated.tlb"
+				HeaderFileName=""
+			/>
+			<Tool
+				Name="VCCLCompilerTool"
+				Optimization="0"
+				AdditionalIncludeDirectories="dummyinclude ; . ; C:\Program Files\ZeroC\Ice-3.4b\include"
+				PreprocessorDefinitions="_CONSOLE;_DEBUG;WIN32_LEAN_AND_MEAN"
+				MinimalRebuild="true"
+				BasicRuntimeChecks="3"
+				RuntimeLibrary="3"
+				RuntimeTypeInfo="true"
+				PrecompiledHeaderFile=".\Debug/Freeze.library.collocated.pch"
+				AssemblerListingLocation=".\Debug/"
+				ObjectFile=".\Debug/"
+				ProgramDataBaseFileName=".\Debug/"
+				WarningLevel="3"
+				WarnAsError="true"
+				SuppressStartupBanner="true"
+				DebugInformationFormat="3"
+			/>
+			<Tool
+				Name="VCManagedResourceCompilerTool"
+			/>
+			<Tool
+				Name="VCResourceCompilerTool"
+				PreprocessorDefinitions="_DEBUG"
+				Culture="1033"
+			/>
+			<Tool
+				Name="VCPreLinkEventTool"
+			/>
+			<Tool
+				Name="VCLinkerTool"
+				AdditionalOptions="/FIXED:NO"
+				AdditionalDependencies="Freezed.lib Iced.lib IceUtild.lib setargv.obj"
+				OutputFile="collocated.exe"
+				LinkIncremental="2"
+				SuppressStartupBanner="true"
+				AdditionalLibraryDirectories="C:\Program Files\ZeroC\Ice-3.4b\lib"
+				GenerateDebugInformation="true"
+				ProgramDatabaseFile=".\Debug/collocated.pdb"
+				SubSystem="1"
+				RandomizedBaseAddress="1"
+				DataExecutionPrevention="0"
+				TargetMachine="1"
+			/>
+			<Tool
+				Name="VCALinkTool"
+			/>
+			<Tool
+				Name="VCManifestTool"
+			/>
+			<Tool
+				Name="VCXDCMakeTool"
+			/>
+			<Tool
+				Name="VCBscMakeTool"
+				SuppressStartupBanner="true"
+				OutputFile=".\Debug/Freeze.library.collocated.bsc"
 			/>
 			<Tool
 				Name="VCFxCopTool"
@@ -192,100 +286,6 @@
 				Name="VCBscMakeTool"
 				SuppressStartupBanner="true"
 				OutputFile=".\Release/Freeze.library.collocated.bsc"
-			/>
-			<Tool
-				Name="VCFxCopTool"
-			/>
-			<Tool
-				Name="VCAppVerifierTool"
-			/>
-			<Tool
-				Name="VCPostBuildEventTool"
-			/>
-		</Configuration>
-		<Configuration
-			Name="Debug|Win32"
-			OutputDirectory=".\Debug"
-			IntermediateDirectory=".\Debug"
-			ConfigurationType="1"
-			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC60.vsprops"
-			UseOfMFC="0"
-			ATLMinimizesCRunTimeLibraryUsage="false"
-			>
-			<Tool
-				Name="VCPreBuildEventTool"
-			/>
-			<Tool
-				Name="VCCustomBuildTool"
-			/>
-			<Tool
-				Name="VCXMLDataGeneratorTool"
-			/>
-			<Tool
-				Name="VCWebServiceProxyGeneratorTool"
-			/>
-			<Tool
-				Name="VCMIDLTool"
-				TypeLibraryName=".\Debug/Freeze.library.collocated.tlb"
-				HeaderFileName=""
-			/>
-			<Tool
-				Name="VCCLCompilerTool"
-				Optimization="0"
-				AdditionalIncludeDirectories="dummyinclude ; . ; ..\..\..\..\cpp\include"
-				PreprocessorDefinitions="_CONSOLE;_DEBUG;WIN32_LEAN_AND_MEAN"
-				MinimalRebuild="true"
-				BasicRuntimeChecks="3"
-				RuntimeLibrary="3"
-				RuntimeTypeInfo="true"
-				PrecompiledHeaderFile=".\Debug/Freeze.library.collocated.pch"
-				AssemblerListingLocation=".\Debug/"
-				ObjectFile=".\Debug/"
-				ProgramDataBaseFileName=".\Debug/"
-				WarningLevel="3"
-				WarnAsError="true"
-				SuppressStartupBanner="true"
-				DebugInformationFormat="3"
-			/>
-			<Tool
-				Name="VCManagedResourceCompilerTool"
-			/>
-			<Tool
-				Name="VCResourceCompilerTool"
-				PreprocessorDefinitions="_DEBUG"
-				Culture="1033"
-			/>
-			<Tool
-				Name="VCPreLinkEventTool"
-			/>
-			<Tool
-				Name="VCLinkerTool"
-				AdditionalOptions="/FIXED:NO"
-				AdditionalDependencies="Freezed.lib Iced.lib IceUtild.lib setargv.obj"
-				OutputFile="collocated.exe"
-				LinkIncremental="2"
-				SuppressStartupBanner="true"
-				AdditionalLibraryDirectories="..\..\..\..\cpp\lib"
-				GenerateDebugInformation="true"
-				ProgramDatabaseFile=".\Debug/collocated.pdb"
-				SubSystem="1"
-				RandomizedBaseAddress="1"
-				DataExecutionPrevention="0"
-				TargetMachine="1"
-			/>
-			<Tool
-				Name="VCALinkTool"
-			/>
-			<Tool
-				Name="VCManifestTool"
-			/>
-			<Tool
-				Name="VCXDCMakeTool"
-			/>
-			<Tool
-				Name="VCBscMakeTool"
-				SuppressStartupBanner="true"
-				OutputFile=".\Debug/Freeze.library.collocated.bsc"
 			/>
 			<Tool
 				Name="VCFxCopTool"
@@ -413,7 +413,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|x64"
+					Name="Debug|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -422,7 +422,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug|Win32"
+					Name="Release|x64"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -453,7 +453,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|x64"
+					Name="Debug|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -462,7 +462,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug|Win32"
+					Name="Release|x64"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -493,7 +493,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|x64"
+					Name="Debug|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -502,7 +502,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug|Win32"
+					Name="Release|x64"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -537,7 +537,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|x64"
+					Name="Debug|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -546,7 +546,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug|Win32"
+					Name="Release|x64"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -577,7 +577,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|x64"
+					Name="Debug|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -586,7 +586,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug|Win32"
+					Name="Release|x64"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -617,7 +617,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|x64"
+					Name="Debug|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -626,7 +626,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug|Win32"
+					Name="Release|x64"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -657,7 +657,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|x64"
+					Name="Debug|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -666,7 +666,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug|Win32"
+					Name="Release|x64"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -697,7 +697,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|x64"
+					Name="Debug|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -706,7 +706,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug|Win32"
+					Name="Release|x64"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -766,16 +766,7 @@
 					>
 					<Tool
 						Name="VCCustomBuildTool"
-                                                CommandLine="if exist ../../../../slice (set sliceDir=../../../../slice) else set sliceDir=%ICE_HOME%\slice&#x0D;&#x0A;%ICE_HOME%\bin\slice2freeze.exe --ice -I%sliceDir% --dict StringIsbnSeqDict,string,Ice::StringSeq LibraryTypes %sliceDir%/Ice/BuiltinSequences.ice Library.ice&#x0D;&#x0A;"
-						Outputs="LibraryTypes.cpp;LibraryTypes.h"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|x64"
-					>
-					<Tool
-						Name="VCCustomBuildTool"
-                                                CommandLine="if exist ../../../../slice (set sliceDir=../../../../slice) else set sliceDir=%ICE_HOME%\slice&#x0D;&#x0A;%ICE_HOME%\bin\slice2freeze.exe --ice -I%sliceDir% --dict StringIsbnSeqDict,string,Ice::StringSeq LibraryTypes %sliceDir%/Ice/BuiltinSequences.ice Library.ice&#x0D;&#x0A;"
+						CommandLine="if exist ../../../../slice (set sliceDir=../../../../slice) else set sliceDir=$(IceHome)\slice&#x0D;&#x0A;&quot;$(IceHome)&quot;\bin\slice2freeze.exe --ice -I%sliceDir% --dict StringIsbnSeqDict,string,Ice::StringSeq LibraryTypes %sliceDir%/Ice/BuiltinSequences.ice Library.ice&#x0D;&#x0A;"
 						Outputs="LibraryTypes.cpp;LibraryTypes.h"
 					/>
 				</FileConfiguration>
@@ -784,7 +775,16 @@
 					>
 					<Tool
 						Name="VCCustomBuildTool"
-                                                CommandLine="if exist ../../../../slice (set sliceDir=../../../../slice) else set sliceDir=%ICE_HOME%\slice&#x0D;&#x0A;%ICE_HOME%\bin\slice2freeze.exe --ice -I%sliceDir% --dict StringIsbnSeqDict,string,Ice::StringSeq LibraryTypes %sliceDir%/Ice/BuiltinSequences.ice Library.ice&#x0D;&#x0A;"
+						CommandLine="if exist ../../../../slice (set sliceDir=../../../../slice) else set sliceDir=$(IceHome)\slice&#x0D;&#x0A;&quot;$(IceHome)&quot;\bin\slice2freeze.exe --ice -I%sliceDir% --dict StringIsbnSeqDict,string,Ice::StringSeq LibraryTypes %sliceDir%/Ice/BuiltinSequences.ice Library.ice&#x0D;&#x0A;"
+						Outputs="LibraryTypes.cpp;LibraryTypes.h"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|x64"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+						CommandLine="if exist ../../../../slice (set sliceDir=../../../../slice) else set sliceDir=$(IceHome)\slice&#x0D;&#x0A;&quot;$(IceHome)&quot;\bin\slice2freeze.exe --ice -I%sliceDir% --dict StringIsbnSeqDict,string,Ice::StringSeq LibraryTypes %sliceDir%/Ice/BuiltinSequences.ice Library.ice&#x0D;&#x0A;"
 						Outputs="LibraryTypes.cpp;LibraryTypes.h"
 					/>
 				</FileConfiguration>
@@ -793,7 +793,7 @@
 					>
 					<Tool
 						Name="VCCustomBuildTool"
-                                                CommandLine="if exist ../../../../slice (set sliceDir=../../../../slice) else set sliceDir=%ICE_HOME%\slice&#x0D;&#x0A;%ICE_HOME%\bin\slice2freeze.exe --ice -I%sliceDir% --dict StringIsbnSeqDict,string,Ice::StringSeq LibraryTypes %sliceDir%/Ice/BuiltinSequences.ice Library.ice&#x0D;&#x0A;"
+						CommandLine="if exist ../../../../slice (set sliceDir=../../../../slice) else set sliceDir=$(IceHome)\slice&#x0D;&#x0A;&quot;$(IceHome)&quot;\bin\slice2freeze.exe --ice -I%sliceDir% --dict StringIsbnSeqDict,string,Ice::StringSeq LibraryTypes %sliceDir%/Ice/BuiltinSequences.ice Library.ice&#x0D;&#x0A;"
 						Outputs="LibraryTypes.cpp;LibraryTypes.h"
 					/>
 				</FileConfiguration>
@@ -814,12 +814,8 @@
 			Value="True"
 		/>
 		<Global
-			Name="ZerocIce_Home"
-			Value="$(ICE_HOME)"
-		/>
-		<Global
 			Name="ZerocIce_HomeExpanded"
-			Value="..\..\..\.."
+			Value="C:\Program Files\ZeroC\Ice-3.4b"
 		/>
 	</Globals>
 </VisualStudioProject>

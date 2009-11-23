@@ -201,24 +201,50 @@ namespace Ice.VisualStudio
         }
 
         const string iceSilverlightHome = "C:\\IceSL-0.3.3";
-        const string defaultIceHome = "C:\\Program Files\\ZeroC\\Ice-3.4b";
+        static string defaultIceHome = null;
+
+        private static void setIceHomeDefault()
+        {
+            defaultIceHome = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+            if(defaultIceHome.EndsWith("\\bin"))
+            {
+                defaultIceHome = defaultIceHome.Substring(0, defaultIceHome.Length - 4);
+            }
+        }
 
         public static string getIceHomeRaw(Project project, bool update)
         {
+            if(defaultIceHome == null)
+            {
+                setIceHomeDefault();
+            }
+
             if(Util.isSilverlightProject(project))
             {
                 return Util.getProjectProperty(project, Util.PropertyNames.IceHome, iceSilverlightHome, update);
             }
-            return Util.getProjectProperty(project, Util.PropertyNames.IceHome, defaultIceHome, update);
+            string iceHome = Util.getProjectProperty(project, Util.PropertyNames.IceHome, "", update);
+            if(iceHome.Length == 0)
+            {
+                iceHome = defaultIceHome;
+            }
+            return iceHome;
         }
 
         public static string getIceHome(Project project)
         {
+            if(defaultIceHome == null)
+            {
+                setIceHomeDefault();
+            }
+
             if(Util.isSilverlightProject(project))
             {
                 return Util.getProjectProperty(project, Util.PropertyNames.IceHomeExpanded, iceSilverlightHome);
             }
-            return Util.getProjectProperty(project, Util.PropertyNames.IceHomeExpanded, defaultIceHome);
+            string iceHome = Util.getProjectProperty(project, Util.PropertyNames.IceHomeExpanded, defaultIceHome);
+            Environment.SetEnvironmentVariable("IceHome", iceHome);
+            return iceHome;
         }
 
         public static string getAbsoluteIceHome(Project project)
@@ -994,7 +1020,10 @@ namespace Ice.VisualStudio
                 }
             }
 
-            setProjectProperty(project, Util.PropertyNames.IceHome, value);
+            if(!value.Equals(defaultIceHome))
+            {
+                setProjectProperty(project, Util.PropertyNames.IceHome, value);
+            }
             setProjectProperty(project, Util.PropertyNames.IceHomeExpanded, expanded);
         }
 
