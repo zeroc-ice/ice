@@ -23,6 +23,10 @@
 #   include "st.h"
 #endif
 
+#ifndef RHASH_SIZE
+#   define RHASH_SIZE(v) RHASH(v)->tbl->num_entries
+#endif
+
 using namespace std;
 using namespace IceRuby;
 using namespace IceUtil;
