@@ -502,8 +502,7 @@
 					>
 					<Tool
 						Name="VCCustomBuildTool"
-						CommandLine="..\..\..\bin\slice2freeze.exe --dict Demo::IntIntMap,int,int --dict Demo::Struct1Struct2Map,Demo::Struct1,Demo::Struct2  --dict Demo::Struct1Class1Map,Demo::Struct1,Demo::Class1  --dict Demo::Struct1ObjectMap,Demo::Struct1,Object          --dict Demo::IndexedIntIntMap,int,int --dict-index Demo::IndexedIntIntMap          --dict Demo::IndexedStruct1Struct2Map,Demo::Struct1,Demo::Struct2          --dict-index Demo::IndexedStruct1Struct2Map,s,case-insensitive          --dict-index Demo::IndexedStruct1Struct2Map,s1          --dict Demo::IndexedStruct1Class1Map,Demo::Struct1,Demo::Class1          --dict-index Demo::IndexedStruct1Class1Map,s,case-sensitive BenchTypes Test.ice&#x0D;&#x0A;"
-						AdditionalDependencies="..\..\..\bin\slice2freeze.exe;..\..\..\lib\sliced.lib;"
+						CommandLine="%ICE_HOME%\bin\slice2freeze.exe --dict Demo::IntIntMap,int,int --dict Demo::Struct1Struct2Map,Demo::Struct1,Demo::Struct2  --dict Demo::Struct1Class1Map,Demo::Struct1,Demo::Class1  --dict Demo::Struct1ObjectMap,Demo::Struct1,Object          --dict Demo::IndexedIntIntMap,int,int --dict-index Demo::IndexedIntIntMap          --dict Demo::IndexedStruct1Struct2Map,Demo::Struct1,Demo::Struct2          --dict-index Demo::IndexedStruct1Struct2Map,s,case-insensitive          --dict-index Demo::IndexedStruct1Struct2Map,s1          --dict Demo::IndexedStruct1Class1Map,Demo::Struct1,Demo::Class1          --dict-index Demo::IndexedStruct1Class1Map,s,case-sensitive BenchTypes Test.ice&#x0D;&#x0A;"
 						Outputs="BenchTypes.cpp;BenchTypes.h"
 					/>
 				</FileConfiguration>
@@ -512,8 +511,7 @@
 					>
 					<Tool
 						Name="VCCustomBuildTool"
-						CommandLine="..\..\..\bin\slice2freeze.exe --dict Demo::IntIntMap,int,int --dict Demo::Struct1Struct2Map,Demo::Struct1,Demo::Struct2  --dict Demo::Struct1Class1Map,Demo::Struct1,Demo::Class1  --dict Demo::Struct1ObjectMap,Demo::Struct1,Object          --dict Demo::IndexedIntIntMap,int,int --dict-index Demo::IndexedIntIntMap          --dict Demo::IndexedStruct1Struct2Map,Demo::Struct1,Demo::Struct2          --dict-index Demo::IndexedStruct1Struct2Map,s,case-insensitive          --dict-index Demo::IndexedStruct1Struct2Map,s1          --dict Demo::IndexedStruct1Class1Map,Demo::Struct1,Demo::Class1          --dict-index Demo::IndexedStruct1Class1Map,s,case-sensitive BenchTypes Test.ice&#x0D;&#x0A;"
-						AdditionalDependencies="..\..\..\bin\slice2freeze.exe;..\..\..\lib\sliced.lib;"
+						CommandLine="%ICE_HOME%\bin\slice2freeze.exe --dict Demo::IntIntMap,int,int --dict Demo::Struct1Struct2Map,Demo::Struct1,Demo::Struct2  --dict Demo::Struct1Class1Map,Demo::Struct1,Demo::Class1  --dict Demo::Struct1ObjectMap,Demo::Struct1,Object          --dict Demo::IndexedIntIntMap,int,int --dict-index Demo::IndexedIntIntMap          --dict Demo::IndexedStruct1Struct2Map,Demo::Struct1,Demo::Struct2          --dict-index Demo::IndexedStruct1Struct2Map,s,case-insensitive          --dict-index Demo::IndexedStruct1Struct2Map,s1          --dict Demo::IndexedStruct1Class1Map,Demo::Struct1,Demo::Class1          --dict-index Demo::IndexedStruct1Class1Map,s,case-sensitive BenchTypes Test.ice&#x0D;&#x0A;"
 						Outputs="BenchTypes.cpp;BenchTypes.h"
 					/>
 				</FileConfiguration>
@@ -522,8 +520,7 @@
 					>
 					<Tool
 						Name="VCCustomBuildTool"
-						CommandLine="..\..\..\bin\slice2freeze.exe --dict Demo::IntIntMap,int,int --dict Demo::Struct1Struct2Map,Demo::Struct1,Demo::Struct2  --dict Demo::Struct1Class1Map,Demo::Struct1,Demo::Class1  --dict Demo::Struct1ObjectMap,Demo::Struct1,Object          --dict Demo::IndexedIntIntMap,int,int --dict-index Demo::IndexedIntIntMap          --dict Demo::IndexedStruct1Struct2Map,Demo::Struct1,Demo::Struct2          --dict-index Demo::IndexedStruct1Struct2Map,s,case-insensitive          --dict-index Demo::IndexedStruct1Struct2Map,s1          --dict Demo::IndexedStruct1Class1Map,Demo::Struct1,Demo::Class1          --dict-index Demo::IndexedStruct1Class1Map,s,case-sensitive BenchTypes Test.ice&#x0D;&#x0A;"
-						AdditionalDependencies="..\..\..\bin\slice2freeze.exe;..\..\..\lib\slice.lib;"
+						CommandLine="%ICE_HOME%\bin\slice2freeze.exe --dict Demo::IntIntMap,int,int --dict Demo::Struct1Struct2Map,Demo::Struct1,Demo::Struct2  --dict Demo::Struct1Class1Map,Demo::Struct1,Demo::Class1  --dict Demo::Struct1ObjectMap,Demo::Struct1,Object          --dict Demo::IndexedIntIntMap,int,int --dict-index Demo::IndexedIntIntMap          --dict Demo::IndexedStruct1Struct2Map,Demo::Struct1,Demo::Struct2          --dict-index Demo::IndexedStruct1Struct2Map,s,case-insensitive          --dict-index Demo::IndexedStruct1Struct2Map,s1          --dict Demo::IndexedStruct1Class1Map,Demo::Struct1,Demo::Class1          --dict-index Demo::IndexedStruct1Class1Map,s,case-sensitive BenchTypes Test.ice&#x0D;&#x0A;"
 						Outputs="BenchTypes.cpp;BenchTypes.h"
 					/>
 				</FileConfiguration>
@@ -532,8 +529,7 @@
 					>
 					<Tool
 						Name="VCCustomBuildTool"
-						CommandLine="..\..\..\bin\slice2freeze.exe --dict Demo::IntIntMap,int,int --dict Demo::Struct1Struct2Map,Demo::Struct1,Demo::Struct2  --dict Demo::Struct1Class1Map,Demo::Struct1,Demo::Class1  --dict Demo::Struct1ObjectMap,Demo::Struct1,Object          --dict Demo::IndexedIntIntMap,int,int --dict-index Demo::IndexedIntIntMap          --dict Demo::IndexedStruct1Struct2Map,Demo::Struct1,Demo::Struct2          --dict-index Demo::IndexedStruct1Struct2Map,s,case-insensitive          --dict-index Demo::IndexedStruct1Struct2Map,s1          --dict Demo::IndexedStruct1Class1Map,Demo::Struct1,Demo::Class1          --dict-index Demo::IndexedStruct1Class1Map,s,case-sensitive BenchTypes Test.ice&#x0D;&#x0A;"
-						AdditionalDependencies="..\..\..\bin\slice2freeze.exe;..\..\..\lib\slice.lib;"
+						CommandLine="%ICE_HOME%\bin\slice2freeze.exe --dict Demo::IntIntMap,int,int --dict Demo::Struct1Struct2Map,Demo::Struct1,Demo::Struct2  --dict Demo::Struct1Class1Map,Demo::Struct1,Demo::Class1  --dict Demo::Struct1ObjectMap,Demo::Struct1,Object          --dict Demo::IndexedIntIntMap,int,int --dict-index Demo::IndexedIntIntMap          --dict Demo::IndexedStruct1Struct2Map,Demo::Struct1,Demo::Struct2          --dict-index Demo::IndexedStruct1Struct2Map,s,case-insensitive          --dict-index Demo::IndexedStruct1Struct2Map,s1          --dict Demo::IndexedStruct1Class1Map,Demo::Struct1,Demo::Class1          --dict-index Demo::IndexedStruct1Class1Map,s,case-sensitive BenchTypes Test.ice&#x0D;&#x0A;"
 						Outputs="BenchTypes.cpp;BenchTypes.h"
 					/>
 				</FileConfiguration>
@@ -555,7 +551,7 @@
 		/>
 		<Global
 			Name="ZerocIce_Home"
-			Value="..\..\..\.."
+			Value="$(ICE_HOME)"
 		/>
 		<Global
 			Name="ZerocIce_HomeExpanded"

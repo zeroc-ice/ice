@@ -626,50 +626,6 @@
 			Name="Resource Files"
 			Filter="ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe"
 			>
-			<File
-				RelativePath="Library.ice"
-				>
-				<FileConfiguration
-					Name="Release|Win32"
-					>
-					<Tool
-						Name="VCCustomBuildTool"
-						CommandLine="if exist ../../../slice (set sliceDir=../../../slice) else set sliceDir=../../../../slice&#x0D;&#x0A;..\..\..\bin\slice2freeze.exe --ice -I%sliceDir% --dict StringIsbnSeqDict,string,Ice::StringSeq LibraryTypes %sliceDir%/Ice/BuiltinSequences.ice Library.ice&#x0D;&#x0A;"
-						AdditionalDependencies="..\..\..\bin\slice2freeze.exe;..\..\..\lib\slice.lib;"
-						Outputs="LibraryTypes.cpp;LibraryTypes.h"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|x64"
-					>
-					<Tool
-						Name="VCCustomBuildTool"
-						CommandLine="if exist ../../../slice (set sliceDir=../../../slice) else set sliceDir=../../../../slice&#x0D;&#x0A;..\..\..\bin\slice2freeze.exe --ice -I%sliceDir% --dict StringIsbnSeqDict,string,Ice::StringSeq LibraryTypes %sliceDir%/Ice/BuiltinSequences.ice Library.ice&#x0D;&#x0A;"
-						AdditionalDependencies="..\..\..\bin\slice2freeze.exe;..\..\..\lib\slice.lib;"
-						Outputs="LibraryTypes.cpp;LibraryTypes.h"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Debug|Win32"
-					>
-					<Tool
-						Name="VCCustomBuildTool"
-						CommandLine="if exist ../../../slice (set sliceDir=../../../slice) else set sliceDir=../../../../slice&#x0D;&#x0A;..\..\..\bin\slice2freeze.exe --ice -I%sliceDir% --dict StringIsbnSeqDict,string,Ice::StringSeq LibraryTypes %sliceDir%/Ice/BuiltinSequences.ice Library.ice&#x0D;&#x0A;"
-						AdditionalDependencies="..\..\..\bin\slice2freeze.exe;..\..\..\lib\sliced.lib;"
-						Outputs="LibraryTypes.cpp;LibraryTypes.h"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Debug|x64"
-					>
-					<Tool
-						Name="VCCustomBuildTool"
-						CommandLine="if exist ../../../slice (set sliceDir=../../../slice) else set sliceDir=../../../../slice&#x0D;&#x0A;..\..\..\bin\slice2freeze.exe --ice -I%sliceDir% --dict StringIsbnSeqDict,string,Ice::StringSeq LibraryTypes %sliceDir%/Ice/BuiltinSequences.ice Library.ice&#x0D;&#x0A;"
-						AdditionalDependencies="..\..\..\bin\slice2freeze.exe;..\..\..\lib\sliced.lib;"
-						Outputs="LibraryTypes.cpp;LibraryTypes.h"
-					/>
-				</FileConfiguration>
-			</File>
 		</Filter>
 		<File
 			RelativePath="README"
@@ -687,7 +643,7 @@
 		/>
 		<Global
 			Name="ZerocIce_Home"
-			Value="..\..\..\.."
+			Value="$(ICE_HOME)"
 		/>
 		<Global
 			Name="ZerocIce_HomeExpanded"

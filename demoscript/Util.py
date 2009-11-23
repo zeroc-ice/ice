@@ -111,8 +111,8 @@ def configurePaths():
             binDir = binDir + "64"
 
     # Only add the lib directory to the shared library path if we're
-     # not using the embedded location.
-    if libDir and iceHome != "/opt/Ice-3.3":
+    # not using the embedded location.
+    if libDir and iceHome != "/opt/Ice-3.4b":
         addLdPath(libDir)
 
     if not iceHome:

@@ -502,8 +502,7 @@
 					>
 					<Tool
 						Name="VCCustomBuildTool"
-						CommandLine="..\..\..\bin\slice2freeze.exe -I../../../../slice --dict Demo::Contacts,string,Demo::ContactData,sort --dict-index Demo::Contacts,phoneNumber,sort Contacts ContactData.ice&#x0D;&#x0A;"
-						AdditionalDependencies="..\..\..\bin\slice2freeze.exe;..\..\..\lib\slice.lib;"
+						CommandLine="%ICE_HOME%\bin\slice2freeze.exe --dict Demo::Contacts,string,Demo::ContactData,sort --dict-index Demo::Contacts,phoneNumber,sort Contacts ContactData.ice&#x0D;&#x0A;"
 						Outputs="Contacts.cpp;Contacts.h"
 					/>
 				</FileConfiguration>
@@ -512,8 +511,7 @@
 					>
 					<Tool
 						Name="VCCustomBuildTool"
-						CommandLine="..\..\..\bin\slice2freeze.exe -I../../../../slice --dict Demo::Contacts,string,Demo::ContactData,sort --dict-index Demo::Contacts,phoneNumber,sort Contacts ContactData.ice&#x0D;&#x0A;"
-						AdditionalDependencies="..\..\..\bin\slice2freeze.exe;..\..\..\lib\slice.lib;"
+						CommandLine="%ICE_HOME%\bin\slice2freeze.exe --dict Demo::Contacts,string,Demo::ContactData,sort --dict-index Demo::Contacts,phoneNumber,sort Contacts ContactData.ice&#x0D;&#x0A;"
 						Outputs="Contacts.cpp;Contacts.h"
 					/>
 				</FileConfiguration>
@@ -522,8 +520,7 @@
 					>
 					<Tool
 						Name="VCCustomBuildTool"
-						CommandLine="..\..\..\bin\slice2freeze.exe -I../../../../slice --dict Demo::Contacts,string,Demo::ContactData,sort --dict-index Demo::Contacts,phoneNumber,sort Contacts ContactData.ice&#x0D;&#x0A;"
-						AdditionalDependencies="..\..\..\bin\slice2freeze.exe;..\..\..\lib\sliced.lib;"
+						CommandLine="%ICE_HOME%\bin\slice2freeze.exe --dict Demo::Contacts,string,Demo::ContactData,sort --dict-index Demo::Contacts,phoneNumber,sort Contacts ContactData.ice&#x0D;&#x0A;"
 						Outputs="Contacts.cpp;Contacts.h"
 					/>
 				</FileConfiguration>
@@ -532,8 +529,7 @@
 					>
 					<Tool
 						Name="VCCustomBuildTool"
-						CommandLine="..\..\..\bin\slice2freeze.exe -I../../../../slice --dict Demo::Contacts,string,Demo::ContactData,sort --dict-index Demo::Contacts,phoneNumber,sort Contacts ContactData.ice&#x0D;&#x0A;"
-						AdditionalDependencies="..\..\..\bin\slice2freeze.exe;..\..\..\lib\sliced.lib;"
+						CommandLine="%ICE_HOME%\bin\slice2freeze.exe --dict Demo::Contacts,string,Demo::ContactData,sort --dict-index Demo::Contacts,phoneNumber,sort Contacts ContactData.ice&#x0D;&#x0A;"
 						Outputs="Contacts.cpp;Contacts.h"
 					/>
 				</FileConfiguration>
@@ -551,7 +547,7 @@
 		/>
 		<Global
 			Name="ZerocIce_Home"
-			Value="..\..\..\.."
+			Value="$(ICE_HOME)"
 		/>
 		<Global
 			Name="ZerocIce_HomeExpanded"

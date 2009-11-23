@@ -477,15 +477,11 @@
 		/>
 		<Global
 			Name="ZerocIce_Home"
-			Value="..\..\..\.."
+			Value="$(ICE_HOME)"
 		/>
 		<Global
 			Name="ZerocIce_HomeExpanded"
 			Value="..\..\..\.."
-		/>
-		<Global
-			Name="ZerocIce_IncludePath"
-			Value=""
 		/>
 	</Globals>
 </VisualStudioProject>

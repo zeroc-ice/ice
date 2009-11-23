@@ -766,8 +766,7 @@
 					>
 					<Tool
 						Name="VCCustomBuildTool"
-						CommandLine="if exist ../../../slice (set sliceDir=../../../slice) else set sliceDir=../../../../slice&#x0D;&#x0A;..\..\..\bin\slice2freeze.exe -I%sliceDir% --index NameIndex,Demo::Contact,name,case-insensitive NameIndex PhoneBook.ice&#x0D;&#x0A;"
-						AdditionalDependencies="..\..\..\bin\slice2freeze.exe;..\..\..\lib\sliced.lib;"
+						CommandLine="if exist ../../../../slice (set sliceDir=../../../../slice) else set sliceDir=%ICE_HOME%\slice&#x0D;&#x0A;%ICE_HOME%\bin\slice2freeze.exe -I%sliceDir% --index NameIndex,Demo::Contact,name,case-insensitive NameIndex PhoneBook.ice&#x0D;&#x0A;"
 						Outputs="NameIndex.cpp;NameIndex.h"
 					/>
 				</FileConfiguration>
@@ -776,8 +775,7 @@
 					>
 					<Tool
 						Name="VCCustomBuildTool"
-						CommandLine="if exist ../../../slice (set sliceDir=../../../slice) else set sliceDir=../../../../slice&#x0D;&#x0A;..\..\..\bin\slice2freeze.exe -I%sliceDir% --index NameIndex,Demo::Contact,name,case-insensitive NameIndex PhoneBook.ice&#x0D;&#x0A;"
-						AdditionalDependencies="..\..\..\bin\slice2freeze.exe;..\..\..\lib\sliced.lib;"
+						CommandLine="if exist ../../../../slice (set sliceDir=../../../../slice) else set sliceDir=%ICE_HOME%\slice&#x0D;&#x0A;%ICE_HOME%\bin\slice2freeze.exe -I%sliceDir% --index NameIndex,Demo::Contact,name,case-insensitive NameIndex PhoneBook.ice&#x0D;&#x0A;"
 						Outputs="NameIndex.cpp;NameIndex.h"
 					/>
 				</FileConfiguration>
@@ -786,7 +784,7 @@
 					>
 					<Tool
 						Name="VCCustomBuildTool"
-						CommandLine="if exist ../../../slice (set sliceDir=../../../slice) else set sliceDir=../../../../slice&#x0D;&#x0A;..\..\..\bin\slice2freeze.exe -I%sliceDir% --index NameIndex,Demo::Contact,name,case-insensitive NameIndex PhoneBook.ice&#x0D;&#x0A;"
+						CommandLine="if exist ../../../../slice (set sliceDir=../../../../slice) else set sliceDir=%ICE_HOME%\slice&#x0D;&#x0A;%ICE_HOME%\bin\slice2freeze.exe -I%sliceDir% --index NameIndex,Demo::Contact,name,case-insensitive NameIndex PhoneBook.ice&#x0D;&#x0A;"
 						AdditionalDependencies="..\..\..\bin\slice2freeze.exe;..\..\..\lib\slice.lib;"
 						Outputs="NameIndex.cpp;NameIndex.h"
 					/>
@@ -796,8 +794,7 @@
 					>
 					<Tool
 						Name="VCCustomBuildTool"
-						CommandLine="if exist ../../../slice (set sliceDir=../../../slice) else set sliceDir=../../../../slice&#x0D;&#x0A;..\..\..\bin\slice2freeze.exe -I%sliceDir% --index NameIndex,Demo::Contact,name,case-insensitive NameIndex PhoneBook.ice&#x0D;&#x0A;"
-						AdditionalDependencies="..\..\..\bin\slice2freeze.exe;..\..\..\lib\slice.lib;"
+						CommandLine="if exist ../../../../slice (set sliceDir=../../../../slice) else set sliceDir=%ICE_HOME%\slice&#x0D;&#x0A;%ICE_HOME%\bin\slice2freeze.exe -I%sliceDir% --index NameIndex,Demo::Contact,name,case-insensitive NameIndex PhoneBook.ice&#x0D;&#x0A;"
 						Outputs="NameIndex.cpp;NameIndex.h"
 					/>
 				</FileConfiguration>
@@ -819,7 +816,7 @@
 		/>
 		<Global
 			Name="ZerocIce_Home"
-			Value="..\..\..\.."
+			Value="$(ICE_HOME)"
 		/>
 		<Global
 			Name="ZerocIce_HomeExpanded"

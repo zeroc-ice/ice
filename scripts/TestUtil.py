@@ -180,6 +180,9 @@ def configurePaths():
     
     if isWin32():
         libDir = getCppBinDir()
+        if iceHome and isBCC2010():
+            addLdPath(libDir)
+            libDir = os.path.join(libDir, "bcc10")
     else:
         libDir = os.path.join(getIceDir("cpp"), "lib")
         if iceHome and x64: 
@@ -568,7 +571,7 @@ def getIceBox():
     lang = getDefaultMapping()
     if lang == "cpp":
         iceBox = ""
-        if isBCC2010() or isVC6():
+        if isBCC2010():
             iceBox = os.path.join(getServiceDir(), "icebox.exe")
         elif isWin32():
             #
@@ -618,19 +621,19 @@ def getIceStormAdmin():
         return os.path.join(getCppBinDir(), "icestormadmin")
 
 def getIceGridNode():
-    if isBCC2010() or isVC6():
+    if isBCC2010():
         return os.path.join(getServiceDir(), "icegridnode")
     else:
         return os.path.join(getCppBinDir(), "icegridnode")
 
 def getIceGridRegistry():
-    if isBCC2010() or isVC6():
+    if isBCC2010():
         return os.path.join(getServiceDir(), "icegridregistry")
     else:
         return os.path.join(getCppBinDir(), "icegridregistry")
 
 def getGlacier2Router():
-    if isBCC2010() or isVC6():
+    if isBCC2010():
         return os.path.join(getServiceDir(), "glacier2router")
     else:
         return os.path.join(getCppBinDir(), "glacier2router")
@@ -1207,7 +1210,10 @@ def getCppBinDir():
 def getServiceDir():
     global serviceDir
     if serviceDir == None:
-        serviceDir = "C:\\Ice-" + str(getIceVersion()) + "\\bin"
+        if iceHome:
+            serviceDir = os.path.join(iceHome, "bin")
+        else:
+            serviceDir = "C:\\Program Files\ZeroC\Ice-" + str(getIceVersion()) + "\\bin"
     return serviceDir
 
 def getTestEnv(lang, testdir):

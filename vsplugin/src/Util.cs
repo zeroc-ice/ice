@@ -201,7 +201,7 @@ namespace Ice.VisualStudio
         }
 
         const string iceSilverlightHome = "C:\\IceSL-0.3.3";
-        const string defaultIceHome = "C:\\Ice-3.3.1";
+        const string defaultIceHome = "C:\\Program Files\\ZeroC\\Ice-3.4b";
 
         public static string getIceHomeRaw(Project project, bool update)
         {

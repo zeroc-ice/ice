@@ -95,10 +95,7 @@ Grammar.cpp Grammar.h: Grammar.y
 	move Grammar.tab.h Grammar.h
 	del /q Grammar.output
 
-SUBDIRS = FreezeDB
-!if "$(QT_HOME)" != ""
-SUBDIRS = $(SUBDIRS) SqlDB
-!endif
+SUBDIRS = FreezeDB SqlDB
 
 $(EVERYTHING)::
 	@for %i in ( $(SUBDIRS) ) do \

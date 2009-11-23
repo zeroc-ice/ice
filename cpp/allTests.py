@@ -72,7 +72,7 @@ tests = [
     ("IceStorm/repstress", ["service", "noipv6", "stress", "novc6"]),
     ("FreezeScript/dbmap", ["once", "novc6"]),
     ("FreezeScript/evictor", ["once", "novc6"]),
-    ("IceGrid/simple", ["service"]),
+    ("IceGrid/simple", ["service", "novc6"]),
     ("IceGrid/deployer", ["service", "nobcc", "novc6"]),
     ("IceGrid/session", ["service", "nobcc", "novc6"]),
     ("IceGrid/update", ["service", "nobcc", "novc6"]),

@@ -46,13 +46,6 @@ THIRDPARTY_HOME	 = $(PROGRAMFILES)\ZeroC\Ice-$(VERSION)-ThirdParty
 !endif
 !endif
 
-#
-# If you want to build the SQL database plugins for IceStorm and
-# IceGrid, set QT_HOME to the Qt installation directory.
-#
-#QT_HOME     = C:\Qt\4.5.3
-
-
 # ----------------------------------------------------------------------
 # Don't change anything below this line!
 # ----------------------------------------------------------------------
@@ -136,8 +129,7 @@ RCFLAGS		= -D_DEBUG
 OPENSSL_LIBS            = ssleay32.lib libeay32.lib
 EXPAT_LIBS              = libexpat.lib
 
-QT_FLAGS		= -DQTSQL -I"$(QT_HOME)\include"
-QT_LIBS			= $(PRELIBPATH)"$(QT_HOME)\lib" QtSql$(LIBSUFFIX)4.lib QtCore$(LIBSUFFIX)4.lib
+QT_LIBS			= QtSql$(LIBSUFFIX)4.lib QtCore$(LIBSUFFIX)4.lib
 
 CPPFLAGS		= $(CPPFLAGS) -I$(includedir)
 ICECPPFLAGS		= -I$(slicedir)
@@ -146,7 +138,7 @@ SLICE2CPPFLAGS		= $(ICECPPFLAGS)
 !if "$(ice_src_dist)" != ""
 LDFLAGS			= $(LDFLAGS) $(PRELIBPATH)"$(libdir)"
 !else
-LDFLAGS			= $(LDFLAGS) $(PRELIBPATH)"$(ice_dir)\lib$(x64suffix)"
+LDFLAGS			= $(LDFLAGS) $(PRELIBPATH)"$(ice_dir)\lib$(libsuff)"
 !endif
 LDFLAGS			= $(LDFLAGS) $(LDPLATFORMFLAGS) $(CXXFLAGS)
 

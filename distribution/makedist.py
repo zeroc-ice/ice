@@ -252,10 +252,6 @@ for root, dirnames, filesnames in os.walk(demoDir):
         if fnmatch.fnmatch(f, "config*"):
             substitute(os.path.join(root, f), configSubstituteExprs)
 
-        for m in [ "*.dsp", "*.dsw", "*.sln", "*.csproj", "*.vbproj", "*.exe.config", "Make*mak*"]:
-            if fnmatch.fnmatch(f, m):
-                rmFiles.append(os.path.join(root[len(demoDir) + 1:], f))
-
 for f in rmFiles: remove(os.path.join(demoDir, f))
 
 print "ok"
