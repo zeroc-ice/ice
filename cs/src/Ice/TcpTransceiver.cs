@@ -159,7 +159,8 @@ namespace IceInternal
 
         public bool read(Buffer buf)
         {
-            if(AssemblyUtil.platform_ != AssemblyUtil.Platform.Windows)
+            // COMPILERFIX: Workaround for Mac OS X broken poll(), see Mono bug #470120
+            if(AssemblyUtil.osx_)
             {
                 if(_blocking > 0)
                 {
@@ -248,7 +249,7 @@ namespace IceInternal
             Debug.Assert(_fd != null && _readResult == null);
 
             // COMPILERFIX: Workaround for Mac OS X broken poll(), see Mono bug #470120
-            if(AssemblyUtil.platform_ != AssemblyUtil.Platform.Windows)
+            if(AssemblyUtil.osx_)
             {
                 if(++_blocking == 1)
                 {
@@ -300,7 +301,7 @@ namespace IceInternal
                 }
 
                 // COMPILERFIX: Workaround for Mac OS X broken poll(), see Mono bug #470120
-                if(AssemblyUtil.platform_ != AssemblyUtil.Platform.Windows)
+                if(AssemblyUtil.osx_)
                 {
                     if(--_blocking == 0)
                     {
@@ -347,7 +348,7 @@ namespace IceInternal
             Debug.Assert(_fd != null && _writeResult == null);
 
             // COMPILERFIX: Workaround for Mac OS X broken poll(), see Mono bug #470120
-            if(AssemblyUtil.platform_ != AssemblyUtil.Platform.Windows)
+            if(AssemblyUtil.osx_)
             {
                 if(++_blocking == 1)
                 {
@@ -425,7 +426,7 @@ namespace IceInternal
                 Debug.Assert(ret > 0);
 
                 // COMPILERFIX: Workaround for Mac OS X broken poll(), see Mono bug #470120
-                if(AssemblyUtil.platform_ != AssemblyUtil.Platform.Windows)
+                if(AssemblyUtil.osx_)
                 {
                     if(--_blocking == 0)
                     {
