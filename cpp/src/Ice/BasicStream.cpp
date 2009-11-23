@@ -22,6 +22,8 @@
 #include <Ice/TraceUtil.h>
 #include <Ice/TraceLevels.h>
 #include <Ice/LoggerUtil.h>
+#include <Ice/StringConverter.h>
+#include <IceUtil/Unicode.h>
 #ifdef __BCPLUSPLUS__
 #  include <iterator>
 #endif
@@ -29,6 +31,52 @@
 using namespace std;
 using namespace Ice;
 using namespace IceInternal;
+
+namespace
+{
+
+class StreamUTF8BufferI : public Ice::UTF8Buffer
+{
+public:
+    
+    StreamUTF8BufferI(BasicStream& stream) : 
+        _stream(stream)
+    {
+    }
+    
+    Ice::Byte*
+    getMoreBytes(size_t howMany, Ice::Byte* firstUnused)
+    {
+        assert(howMany > 0);
+
+        if(firstUnused != 0)
+        {
+            //
+            // Return unused bytes
+            //
+            _stream.b.resize(firstUnused - _stream.b.begin());
+        }
+
+        //
+        // Index of first unused byte
+        //
+        Buffer::Container::size_type pos = _stream.b.size();
+
+        //
+        // Since resize may reallocate the buffer, when firstUnused != 0, the
+        // return value can be != firstUnused
+        //
+        _stream.resize(pos + howMany);
+
+        return &_stream.b[pos];
+    }
+
+private:
+
+    BasicStream& _stream;
+};
+
+}
 
 IceInternal::BasicStream::BasicStream(Instance* instance, bool unlimited) :
     IceInternal::Buffer(instance->messageSizeMax()),
@@ -1574,6 +1622,12 @@ IceInternal::BasicStream::write(const string* begin, const string* end, bool con
 }
 
 void
+IceInternal::BasicStream::readConverted(string& v, int sz)
+{
+    _stringConverter->fromUTF8(i, i + sz, v);
+}
+
+void
 IceInternal::BasicStream::read(vector<string>& v, bool convert)
 {
     Int sz;
@@ -1671,6 +1725,27 @@ IceInternal::BasicStream::write(const wstring* begin, const wstring* end)
         {
             write(begin[i]);
         }
+    }
+}
+
+void
+IceInternal::BasicStream::read(wstring& v)
+{
+    Ice::Int sz;
+    readSize(sz);
+    if(sz > 0)
+    {
+        if(b.end() - i < sz)
+        {
+            throwUnmarshalOutOfBoundsException(__FILE__, __LINE__);
+        }
+
+        _wstringConverter->fromUTF8(i, i + sz, v);
+        i += sz;
+    }
+    else
+    {
+        v.clear();
     }
 }
 

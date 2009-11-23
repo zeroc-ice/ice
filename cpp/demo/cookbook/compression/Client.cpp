@@ -182,7 +182,7 @@ Client::run(int argc, char* argv[])
             sz = sz * 10;
             if(sz > len)
             {
-                sz = len;
+                sz = static_cast<int>(len);
             }
         }
     }

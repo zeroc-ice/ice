@@ -12,11 +12,11 @@
 <project name="test_Slice" default="all" basedir=".">
 
     <target name="all">
-        <ant dir="keyword"/>
+        <ant dir="generation"/>
     </target>
 
     <target name="clean">
-        <ant dir="keyword" target="clean"/>
+        <ant dir="generation" target="clean"/>
     </target>
 
 </project>

@@ -12,17 +12,10 @@
 #include <Test.h>
 #include <limits>
 
-//
-// Visual C++ defines min and max as macros
-//
-#ifdef min
-#   undef min
-#endif
-#ifdef max
-#   undef max
-#endif
-
 using namespace std;
+
+namespace
+{
 
 class CallbackBase : public IceUtil::Monitor<IceUtil::Mutex>
 {
@@ -928,6 +921,8 @@ public:
 
 typedef IceUtil::Handle<AMI_MyClass_opDoubleMarshalingI> AMI_MyClass_opDoubleMarshalingIPtr;
 
+}
+
 void
 twowaysAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrx& p)
 {
@@ -948,8 +943,10 @@ twowaysAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrx& p)
     }
 
     {
+	//
         // Check that a call to a twoway operation raises NoEndpointException
         // in the ice_exception() callback instead of at the point of call.
+	//
         Test::MyClassPrx indirect = Test::MyClassPrx::uncheckedCast(p->ice_adapterId("dummy"));
         AMI_MyClass_opByteExIPtr cb = new AMI_MyClass_opByteExI;
         try
@@ -973,7 +970,9 @@ twowaysAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrx& p)
     }
 
     {
+	//
         // Check that CommunicatorDestroyedException is raised directly.
+	//
         Ice::InitializationData initData;
         initData.properties = communicator->getProperties()->clone();
         Ice::CommunicatorPtr ic = Ice::initialize(initData);

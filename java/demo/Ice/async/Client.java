@@ -27,19 +27,22 @@ public class Client extends Ice.Application
         }
     }
 
-    public class AMI_Hello_sayHelloI extends AMI_Hello_sayHello
+    public class Callback_Hello_sayHelloI extends Callback_Hello_sayHello
     {
-        public void ice_response()
+        @Override
+        public void response()
         {
         }
 
-        public void ice_exception(Ice.LocalException ex)
+        @Override
+        public void exception(Ice.LocalException ex)
         {
             System.err.println("sayHello AMI call failed:");
             ex.printStackTrace();
         }
 
-        public void ice_exception(Ice.UserException ex)
+        @Override
+        public void exception(Ice.UserException ex)
         {
             if(ex instanceof Demo.RequestCanceledException)
             {
@@ -109,7 +112,7 @@ public class Client extends Ice.Application
                 }
                 else if(line.equals("d"))
                 {
-                    hello.sayHello_async(new AMI_Hello_sayHelloI(), 5000);
+                    hello.begin_sayHello(5000, new Callback_Hello_sayHelloI());
                 }
                 else if(line.equals("s"))
                 {

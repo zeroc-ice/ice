@@ -66,6 +66,12 @@ public sealed class MyDerivedClassI : Test.MyDerivedClass
         cb.ice_response();
     }
 
+    public override void delay_async(Test.AMD_MyClass_delay cb, int ms, Ice.Current current)
+    {
+        System.Threading.Thread.Sleep(ms);
+        cb.ice_response();
+    }
+
     public override void opVoid_async(Test.AMD_MyClass_opVoid cb, Ice.Current current)
     {
         while(_opVoidThread != null)
@@ -76,12 +82,6 @@ public sealed class MyDerivedClassI : Test.MyDerivedClass
 
         _opVoidThread = new Thread_opVoid(cb);
         _opVoidThread.Start();
-    }
-
-    public override void opSleep_async(Test.AMD_MyClass_opSleep cb, int duration, Ice.Current current)
-    {
-        System.Threading.Thread.Sleep(duration);
-        cb.ice_response();
     }
 
     public override void opBool_async(Test.AMD_MyClass_opBool cb, bool p1, bool p2, Ice.Current current)

@@ -74,9 +74,13 @@ dictionary<string, MyEnum> StringMyEnumD;
 dictionary<MyEnum, string> MyEnumStringD;
 dictionary<MyStruct, MyEnum> MyStructMyEnumD;
 
+exception SomeException {};
+
 ["ami"] class MyClass
 {
     void shutdown();
+
+    void delay(int ms);
 
     void opVoid();
 

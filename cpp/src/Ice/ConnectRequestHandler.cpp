@@ -86,7 +86,7 @@ public:
         current.ioCompleted();
         for(vector<OutgoingAsyncMessageCallbackPtr>::const_iterator p = _callbacks.begin(); p != _callbacks.end(); ++p)
         {
-            (*p)->__sentCallback(_instance);
+            (*p)->__sent();
         }
     }
 
@@ -412,20 +412,14 @@ ConnectRequestHandler::flushRequests()
             {
                 if(_connection->sendAsyncRequest(req.out, _compress, _response))
                 {
-                    if(dynamic_cast<Ice::AMISentCallback*>(req.out.get()))
-                    {
-                        sentCallbacks.push_back(req.out);
-                    }
+                    sentCallbacks.push_back(req.out);
                 }
             }
             else if(req.batchOut)
             {
                 if(_connection->flushAsyncBatchRequests(req.batchOut))
                 {
-                    if(dynamic_cast<Ice::AMISentCallback*>(req.batchOut.get()))
-                    {
-                        sentCallbacks.push_back(req.batchOut);
-                    }
+                    sentCallbacks.push_back(req.batchOut);
                 }
             }
             else
@@ -504,11 +498,11 @@ ConnectRequestHandler::flushRequestsWithException(const Ice::LocalException& ex)
     {
         if(p->out)
         {            
-            p->out->__finished(ex);
+            p->out->__finished(ex, false);
         }
         else if(p->batchOut)
         {
-            p->batchOut->__finished(ex);
+            p->batchOut->__finished(ex, false);
         }
         else
         {
@@ -530,7 +524,7 @@ ConnectRequestHandler::flushRequestsWithException(const LocalExceptionWrapper& e
         }
         else if(p->batchOut)
         {
-            p->batchOut->__finished(*ex.get());
+            p->batchOut->__finished(*ex.get(), false);
         }
         else
         {

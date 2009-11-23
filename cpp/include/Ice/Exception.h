@@ -62,7 +62,6 @@ public:
 
 typedef ::IceInternal::Handle<UserException> UserExceptionPtr;
 
-
 class ICE_API SystemException : public IceUtil::Exception
 {
 public:

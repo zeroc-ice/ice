@@ -292,6 +292,7 @@
                 <include name="Test.ice" />
             </fileset>
             <fileset dir="test/Ice/operations">
+                <include name="StateChanger.ice" />
                 <include name="Test.ice" />
                 <include name="TestAMD.ice" />
             </fileset>

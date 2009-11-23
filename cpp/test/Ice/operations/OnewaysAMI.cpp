@@ -14,6 +14,9 @@
 
 using namespace std;
 
+namespace
+{
+
 class CallbackBase : public IceUtil::Monitor<IceUtil::Mutex>
 {
 public:
@@ -104,6 +107,8 @@ public:
 };
 
 typedef IceUtil::Handle<AMI_MyClass_onewayOpByteExI> AMI_MyClass_onewayOpByteExIPtr;
+
+}
 
 void
 onewaysAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrx& proxy)

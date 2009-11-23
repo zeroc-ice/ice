@@ -111,26 +111,29 @@ sequence<ClassStruct> ClassStructSeq;
 
 ["ami"] class TestIntf
 {
-    DoubleSeq opDoubleArray(["cpp:array"] DoubleSeq inSeq, out DoubleSeq outSeq);
+    ["cpp:array"] DoubleSeq opDoubleArray(["cpp:array"] DoubleSeq inSeq, out ["cpp:array"] DoubleSeq outSeq);
 
-    BoolSeq opBoolArray(["cpp:array"] BoolSeq inSeq, out BoolSeq outSeq);
+    ["cpp:array"] BoolSeq opBoolArray(["cpp:array"] BoolSeq inSeq, out ["cpp:array"] BoolSeq outSeq);
 
     ["cpp:array"] ByteList opByteArray(["cpp:array"] ByteList inSeq, out ["cpp:array"] ByteList outSeq);
 
-    VariableList opVariableArray(["cpp:array"] VariableList inSeq, out VariableList outSeq);
+    ["cpp:array"] VariableList opVariableArray(["cpp:array"] VariableList inSeq, out ["cpp:array"] VariableList outSeq);
 
-    BoolSeq opBoolRange(["cpp:range"] BoolSeq inSeq, out BoolSeq outSeq);
+    ["cpp:range"] BoolSeq opBoolRange(["cpp:range"] BoolSeq inSeq, out ["cpp:range"] BoolSeq outSeq);
 
     ["cpp:range"] ByteList opByteRange(["cpp:range"] ByteList inSeq, out ["cpp:range"] ByteList outSeq);
 
-    VariableList opVariableRange(["cpp:range"] VariableList inSeq, out VariableList outSeq);
+    ["cpp:range"] VariableList opVariableRange(["cpp:range"] VariableList inSeq, out ["cpp:range"] VariableList outSeq);
 
-    BoolSeq opBoolRangeType(["cpp:range:array"] BoolSeq inSeq, out BoolSeq outSeq);
+    ["cpp:range:array"] BoolSeq opBoolRangeType(["cpp:range:array"] BoolSeq inSeq,
+                                                out ["cpp:range:array"] BoolSeq outSeq);
     
-    ByteList opByteRangeType(["cpp:range:::Test::ByteList"] ByteList inSeq, out ByteList outSeq);
+    ["cpp:range:::Test::ByteList"] ByteList opByteRangeType(["cpp:range:::Test::ByteList"] ByteList inSeq, 
+                                                            out ["cpp:range:::Test::ByteList"] ByteList outSeq);
 
-    VariableList
-    opVariableRangeType(["cpp:range:std::deque< ::Test::Variable>"] VariableList inSeq, out VariableList outSeq);
+    ["cpp:range:std::deque< ::Test::Variable>"] VariableList
+    opVariableRangeType(["cpp:range:std::deque< ::Test::Variable>"] VariableList inSeq, 
+                        out ["cpp:range:std::deque< ::Test::Variable>"] VariableList outSeq);
 
     ["cpp:type:std::deque<bool>"] BoolSeq 
     opBoolSeq(["cpp:type:std::deque<bool>"] BoolSeq inSeq, out ["cpp:type:std::deque<bool>"]BoolSeq outSeq);

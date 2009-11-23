@@ -688,6 +688,10 @@ public class BasicStream
     public void
     writeBlob(byte[] v)
     {
+        if(v == null)
+        {
+            return;
+        }
         expand(v.length);
         _buf.b.put(v);
     }
@@ -695,6 +699,10 @@ public class BasicStream
     public void
     writeBlob(byte[] v, int off, int len)
     {
+        if(v == null)
+        {
+            return;
+        }
         expand(len);
         _buf.b.put(v, off, len);
     }

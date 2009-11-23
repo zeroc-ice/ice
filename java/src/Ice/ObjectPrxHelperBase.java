@@ -39,7 +39,8 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
      *
      * @return The communicator that created this proxy.
      **/
-    public final Communicator ice_getCommunicator()
+    public final Communicator
+    ice_getCommunicator()
     {
         return _reference.getCommunicator();
     }
@@ -49,7 +50,8 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
      *
      * @return The stringified proxy.
      **/
-    public final String toString()
+    public final String
+    toString()
     {
         return _reference.toString();
     }
@@ -57,7 +59,8 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
     /**
      * @deprecated
      **/
-    public final String ice_toString()
+    public final String
+    ice_toString()
     {
         return toString();
     }
@@ -87,6 +90,8 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
         return ice_isA(__id, __context, true);
     }
 
+    private static final String __ice_isA_name = "ice_isA";
+
     private boolean
     ice_isA(String __id, java.util.Map<String, String> __context, boolean __explicitCtx)
     {
@@ -94,14 +99,14 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
         {
             __context = _emptyContext;
         }
-        
+
         int __cnt = 0;
         while(true)
         {
             _ObjectDel __del = null;
             try
             {
-                __checkTwowayOnly("ice_isA");
+                __checkTwowayOnly(__ice_isA_name);
                 __del = __getDelegate(false);
                 return __del.ice_isA(__id, __context);
             }
@@ -114,6 +119,135 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
                 __cnt = __handleException(__del, __ex, null, __cnt);
             }
         }
+    }
+
+    /**
+     * Tests whether this proxy supports a given interface.
+     *
+     * @param __id The Slice type ID of an interface.
+     * @return The asynchronous result object.
+     **/
+    public final AsyncResult
+    begin_ice_isA(String __id)
+    {
+        return begin_ice_isA(__id, null, false, null);
+    }
+
+    /**
+     * Tests whether this proxy supports a given interface.
+     *
+     * @param __id The Slice type ID of an interface.
+     * @param __context The <code>Context</code> map for the invocation.
+     * @return The asynchronous result object.
+     **/
+    public final AsyncResult
+    begin_ice_isA(String __id, java.util.Map<String, String> __context)
+    {
+        return begin_ice_isA(__id, __context, true, null);
+    }
+
+    /**
+     * Tests whether this proxy supports a given interface.
+     *
+     * @param __id The Slice type ID of an interface.
+     * @param __cb The asynchronous callback object.
+     * @return The asynchronous result object.
+     **/
+    public final AsyncResult
+    begin_ice_isA(String __id, Callback __cb)
+    {
+        return begin_ice_isA(__id, null, false, __cb);
+    }
+
+    /**
+     * Tests whether this proxy supports a given interface.
+     *
+     * @param __id The Slice type ID of an interface.
+     * @param __context The <code>Context</code> map for the invocation.
+     * @param __cb The asynchronous callback object.
+     * @return The asynchronous result object.
+     **/
+    public final AsyncResult
+    begin_ice_isA(String __id, java.util.Map<String, String> __context, Callback __cb)
+    {
+        return begin_ice_isA(__id, __context, true, __cb);
+    }
+
+    /**
+     * Tests whether this proxy supports a given interface.
+     *
+     * @param __id The Slice type ID of an interface.
+     * @param __cb The asynchronous callback object.
+     * @return The asynchronous result object.
+     **/
+    public final AsyncResult
+    begin_ice_isA(String __id, Callback_Object_ice_isA __cb)
+    {
+        return begin_ice_isA(__id, null, false, __cb);
+    }
+
+    /**
+     * Tests whether this proxy supports a given interface.
+     *
+     * @param __id The Slice type ID of an interface.
+     * @param __context The <code>Context</code> map for the invocation.
+     * @param __cb The asynchronous callback object.
+     * @return The asynchronous result object.
+     **/
+    public final AsyncResult
+    begin_ice_isA(String __id, java.util.Map<String, String> __context, Callback_Object_ice_isA __cb)
+    {
+        return begin_ice_isA(__id, __context, true, __cb);
+    }
+
+    private AsyncResult
+    begin_ice_isA(String __id, java.util.Map<String, String> __context, boolean __explicitCtx,
+                  IceInternal.CallbackBase __cb)
+    {
+        IceInternal.OutgoingAsync __result = new IceInternal.OutgoingAsync(this, __ice_isA_name, __cb);
+        try
+        {
+            __checkTwowayOnly(__ice_isA_name);
+            __result.__prepare(__ice_isA_name, OperationMode.Nonmutating, __context, __explicitCtx);
+            IceInternal.BasicStream __os = __result.__os();
+            __os.writeString(__id);
+            __os.endWriteEncaps();
+            __result.__send(true);
+        }
+        catch(LocalException __ex)
+        {
+            __result.__exceptionAsync(__ex);
+        }
+        return __result;
+    }
+
+    /**
+     * Completes the asynchronous ice_isA request.
+     *
+     * @param __result The asynchronous result.
+     * @return <code>true</code> if this proxy supports the specified interface; <code>false</code>, otherwise.
+     **/
+    public final boolean
+    end_ice_isA(AsyncResult __result)
+    {
+        AsyncResult.__check(__result, this, __ice_isA_name);
+        if(!__result.__wait())
+        {
+            try
+            {
+                __result.__throwUserException();
+            }
+            catch(UserException __ex)
+            {
+                throw new UnknownUserException(__ex.ice_name());
+            }
+        }
+        boolean __ret;
+        IceInternal.BasicStream __is = __result.__is();
+        __is.startReadEncaps();
+        __ret = __is.readBool();
+        __is.endReadEncaps();
+        return __ret;
     }
 
     /**
@@ -135,6 +269,8 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
     {
         ice_ping(__context, true);
     }
+
+    private static final String __ice_ping_name = "ice_ping";
 
     private void
     ice_ping(java.util.Map<String, String> __context, boolean __explicitCtx)
@@ -166,6 +302,108 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
     }
 
     /**
+     * Tests whether the target object of this proxy can be reached.
+     *
+     * @return The asynchronous result object.
+     **/
+    public final AsyncResult
+    begin_ice_ping()
+    {
+        return begin_ice_ping(null, false, null);
+    }
+
+    /**
+     * Tests whether the target object of this proxy can be reached.
+     *
+     * @param __context The context map for the invocation.
+     * @return The asynchronous result object.
+     **/
+    public final AsyncResult
+    begin_ice_ping(java.util.Map<String, String> __context)
+    {
+        return begin_ice_ping(__context, true, null);
+    }
+
+    /**
+     * Tests whether the target object of this proxy can be reached.
+     *
+     * @param __cb The asynchronous callback object.
+     * @return The asynchronous result object.
+     **/
+    public final AsyncResult
+    begin_ice_ping(Callback __cb)
+    {
+        return begin_ice_ping(null, false, __cb);
+    }
+
+    /**
+     * Tests whether the target object of this proxy can be reached.
+     *
+     * @param __context The context map for the invocation.
+     * @param __cb The asynchronous callback object.
+     * @return The asynchronous result object.
+     **/
+    public final AsyncResult
+    begin_ice_ping(java.util.Map<String, String> __context, Callback __cb)
+    {
+        return begin_ice_ping(__context, true, __cb);
+    }
+
+    /**
+     * Tests whether the target object of this proxy can be reached.
+     *
+     * @param __cb The asynchronous callback object.
+     * @return The asynchronous result object.
+     **/
+    public final AsyncResult
+    begin_ice_ping(Callback_Object_ice_ping __cb)
+    {
+        return begin_ice_ping(null, false, __cb);
+    }
+
+    /**
+     * Tests whether the target object of this proxy can be reached.
+     *
+     * @param __context The context map for the invocation.
+     * @param __cb The asynchronous callback object.
+     * @return The asynchronous result object.
+     **/
+    public final AsyncResult
+    begin_ice_ping(java.util.Map<String, String> __context, Callback_Object_ice_ping __cb)
+    {
+        return begin_ice_ping(__context, true, __cb);
+    }
+
+    private AsyncResult
+    begin_ice_ping(java.util.Map<String, String> __context, boolean __explicitCtx, IceInternal.CallbackBase __cb)
+    {
+        IceInternal.OutgoingAsync __result = new IceInternal.OutgoingAsync(this, __ice_ping_name, __cb);
+        try
+        {
+            __result.__prepare(__ice_ping_name, OperationMode.Nonmutating, __context, __explicitCtx);
+            IceInternal.BasicStream __os = __result.__os();
+            __os.endWriteEncaps();
+            __result.__send(true);
+        }
+        catch(LocalException __ex)
+        {
+            __result.__exceptionAsync(__ex);
+        }
+        return __result;
+    }
+
+    /**
+     * Completes the asynchronous ping request.
+     *
+     * @param __result The asynchronous result.
+     **/
+    public final void
+    end_ice_ping(AsyncResult __result)
+    {
+        __end(__result, __ice_ping_name);
+    }
+
+    /**
      * Returns the Slice type IDs of the interfaces supported by the target object of this proxy.
      *
      * @return The Slice type IDs of the interfaces supported by the target object, in base-to-derived
@@ -190,6 +428,8 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
         return ice_ids(__context, true);
     }
 
+    private static final String __ice_ids_name = "ice_ids";
+
     private String[]
     ice_ids(java.util.Map<String, String> __context, boolean __explicitCtx)
     {
@@ -204,7 +444,7 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
             _ObjectDel __del = null;
             try
             {
-                __checkTwowayOnly("ice_ids");
+                __checkTwowayOnly(__ice_ids_name);
                 __del = __getDelegate(false);
                 return __del.ice_ids(__context);
             }
@@ -217,6 +457,128 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
                 __cnt = __handleException(__del, __ex, null, __cnt);
             }
         }
+    }
+
+    /**
+     * Returns the Slice type IDs of the interfaces supported by the target object of this proxy.
+     *
+     * @return The asynchronous result object.
+     **/
+    public final AsyncResult
+    begin_ice_ids()
+    {
+        return begin_ice_ids(null, false, null);
+    }
+
+    /**
+     * Returns the Slice type IDs of the interfaces supported by the target object of this proxy.
+     *
+     * @param __context The context map for the invocation.
+     * @return The asynchronous result object.
+     **/
+    public final AsyncResult
+    begin_ice_ids(java.util.Map<String, String> __context)
+    {
+        return begin_ice_ids(__context, true, null);
+    }
+
+    /**
+     * Returns the Slice type IDs of the interfaces supported by the target object of this proxy.
+     *
+     * @param __cb The asynchronous callback object.
+     * @return The asynchronous result object.
+     **/
+    public final AsyncResult
+    begin_ice_ids(Callback __cb)
+    {
+        return begin_ice_ids(null, false, __cb);
+    }
+
+    /**
+     * Returns the Slice type IDs of the interfaces supported by the target object of this proxy.
+     *
+     * @param __context The context map for the invocation.
+     * @param __cb The asynchronous callback object.
+     * @return The asynchronous result object.
+     **/
+    public final AsyncResult
+    begin_ice_ids(java.util.Map<String, String> __context, Callback __cb)
+    {
+        return begin_ice_ids(__context, true, __cb);
+    }
+
+    /**
+     * Returns the Slice type IDs of the interfaces supported by the target object of this proxy.
+     *
+     * @param __cb The asynchronous callback object.
+     * @return The asynchronous result object.
+     **/
+    public final AsyncResult
+    begin_ice_ids(Callback_Object_ice_ids __cb)
+    {
+        return begin_ice_ids(null, false, __cb);
+    }
+
+    /**
+     * Returns the Slice type IDs of the interfaces supported by the target object of this proxy.
+     *
+     * @param __context The context map for the invocation.
+     * @param __cb The asynchronous callback object.
+     * @return The asynchronous result object.
+     **/
+    public final AsyncResult
+    begin_ice_ids(java.util.Map<String, String> __context, Callback_Object_ice_ids __cb)
+    {
+        return begin_ice_ids(__context, true, __cb);
+    }
+
+    private AsyncResult
+    begin_ice_ids(java.util.Map<String, String> __context, boolean __explicitCtx, IceInternal.CallbackBase __cb)
+    {
+        IceInternal.OutgoingAsync __result = new IceInternal.OutgoingAsync(this, __ice_ids_name, __cb);
+        try
+        {
+            __checkTwowayOnly(__ice_ids_name);
+            __result.__prepare(__ice_ids_name, OperationMode.Nonmutating, __context, __explicitCtx);
+            IceInternal.BasicStream __os = __result.__os();
+            __os.endWriteEncaps();
+            __result.__send(true);
+        }
+        catch(LocalException __ex)
+        {
+            __result.__exceptionAsync(__ex);
+        }
+        return __result;
+    }
+
+    /**
+     * Completes the asynchronous ice_ids request.
+     *
+     * @param __result The asynchronous result.
+     * @return The Slice type IDs of the interfaces supported by the target object, in base-to-derived
+     * order. The first element of the returned array is always <code>::Ice::Object</code>.
+     **/
+    public final String[]
+    end_ice_ids(AsyncResult __result)
+    {
+        AsyncResult.__check(__result, this, __ice_ids_name);
+        if(!__result.__wait())
+        {
+            try
+            {
+                __result.__throwUserException();
+            }
+            catch(UserException __ex)
+            {
+                throw new UnknownUserException(__ex.ice_name());
+            }
+        }
+        String[] __ret = null;
+        IceInternal.BasicStream __is = __result.__is();
+        __is.startReadEncaps();
+        __ret = StringSeqHelper.read(__is);
+        __is.endReadEncaps();
+        return __ret;
     }
 
     /**
@@ -242,6 +604,8 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
         return ice_id(__context, true);
     }
 
+    private static final String __ice_id_name = "ice_id";
+
     private String
     ice_id(java.util.Map<String, String> __context, boolean __explicitCtx)
     {
@@ -256,7 +620,7 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
             _ObjectDel __del = null;
             try
             {
-                __checkTwowayOnly("ice_id");
+                __checkTwowayOnly(__ice_id_name);
                 __del = __getDelegate(false);
                 return __del.ice_id(__context);
             }
@@ -269,6 +633,127 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
                 __cnt = __handleException(__del, __ex, null, __cnt);
             }
         }
+    }
+
+    /**
+     * Returns the Slice type ID of the most-derived interface supported by the target object of this proxy.
+     *
+     * @return The asynchronous result object.
+     **/
+    public final AsyncResult
+    begin_ice_id()
+    {
+        return begin_ice_id(null, false, null);
+    }
+
+    /**
+     * Returns the Slice type ID of the most-derived interface supported by the target object of this proxy.
+     *
+     * @param __context The context map for the invocation.
+     * @return The asynchronous result object.
+     **/
+    public final AsyncResult
+    begin_ice_id(java.util.Map<String, String> __context)
+    {
+        return begin_ice_id(__context, true, null);
+    }
+
+    /**
+     * Returns the Slice type ID of the most-derived interface supported by the target object of this proxy.
+     *
+     * @param __cb The asynchronous callback object.
+     * @return The asynchronous result object.
+     **/
+    public final AsyncResult
+    begin_ice_id(Callback __cb)
+    {
+        return begin_ice_id(null, false, __cb);
+    }
+
+    /**
+     * Returns the Slice type ID of the most-derived interface supported by the target object of this proxy.
+     *
+     * @param __context The context map for the invocation.
+     * @param __cb The asynchronous callback object.
+     * @return The asynchronous result object.
+     **/
+    public final AsyncResult
+    begin_ice_id(java.util.Map<String, String> __context, Callback __cb)
+    {
+        return begin_ice_id(__context, true, __cb);
+    }
+
+    /**
+     * Returns the Slice type ID of the most-derived interface supported by the target object of this proxy.
+     *
+     * @param __cb The asynchronous callback object.
+     * @return The asynchronous result object.
+     **/
+    public final AsyncResult
+    begin_ice_id(Callback_Object_ice_id __cb)
+    {
+        return begin_ice_id(null, false, __cb);
+    }
+
+    /**
+     * Returns the Slice type ID of the most-derived interface supported by the target object of this proxy.
+     *
+     * @param __context The context map for the invocation.
+     * @param __cb The asynchronous callback object.
+     * @return The asynchronous result object.
+     **/
+    public final AsyncResult
+    begin_ice_id(java.util.Map<String, String> __context, Callback_Object_ice_id __cb)
+    {
+        return begin_ice_id(__context, true, __cb);
+    }
+
+    private AsyncResult
+    begin_ice_id(java.util.Map<String, String> __context, boolean __explicitCtx, IceInternal.CallbackBase __cb)
+    {
+        IceInternal.OutgoingAsync __result = new IceInternal.OutgoingAsync(this, __ice_id_name, __cb);
+        try
+        {
+            __checkTwowayOnly(__ice_id_name);
+            __result.__prepare(__ice_id_name, OperationMode.Nonmutating, __context, __explicitCtx);
+            IceInternal.BasicStream __os = __result.__os();
+            __os.endWriteEncaps();
+            __result.__send(true);
+        }
+        catch(LocalException __ex)
+        {
+            __result.__exceptionAsync(__ex);
+        }
+        return __result;
+    }
+
+    /**
+     * Completes the asynchronous ice_id request.
+     *
+     * @param __result The asynchronous result.
+     * @return The Slice type ID of the most-derived interface.
+     **/
+    public final String
+    end_ice_id(AsyncResult __result)
+    {
+        AsyncResult.__check(__result, this, __ice_id_name);
+        if(!__result.__wait())
+        {
+            try
+            {
+                __result.__throwUserException();
+            }
+            catch(UserException __ex)
+            {
+                throw new UnknownUserException(__ex.ice_name());
+            }
+        }
+        String __ret = null;
+        IceInternal.BasicStream __is = __result.__is();
+        __is.startReadEncaps();
+        __ret = __is.readString();
+        __is.endReadEncaps();
+        return __ret;
     }
 
     /**
@@ -316,7 +801,7 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
     {
         return ice_invoke(operation, mode, inParams, outParams, context, true);
     }
-    
+
     private boolean
     ice_invoke(String operation, OperationMode mode, byte[] inParams, ByteSeqHolder outParams,
                java.util.Map<String, String> context, boolean explicitCtx)
@@ -343,7 +828,7 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
                 }
                 else
                 {
-                    __handleExceptionWrapper(__del, __ex, null);
+                    __handleExceptionWrapper(__del, __ex);
                 }
             }
             catch(LocalException __ex)
@@ -351,6 +836,175 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
                 __cnt = __handleException(__del, __ex, null, __cnt);
             }
         }
+    }
+
+    private static final String __ice_invoke_name = "ice_invoke";
+
+    /**
+     * Invokes an operation dynamically and asynchronously.
+     *
+     * @param operation The name of the operation to invoke.
+     * @param mode The operation mode (normal or idempotent).
+     * @param inParams The encoded in-parameters for the operation.
+     * @return The asynchronous result object.
+     *
+     * @see Blobject
+     * @see OperationMode
+     **/
+    public final AsyncResult
+    begin_ice_invoke(String operation, OperationMode mode, byte[] inParams)
+    {
+        return begin_ice_invoke(operation, mode, inParams, null, false, null);
+    }
+
+    /**
+     * Invokes an operation dynamically and asynchronously.
+     *
+     * @param operation The name of the operation to invoke.
+     * @param mode The operation mode (normal or idempotent).
+     * @param inParams The encoded in-parameters for the operation.
+     * for the operation. The return value follows any out-parameters.
+     * @param __context The context map for the invocation.
+     * @return The asynchronous result object.
+     *
+     * @see Blobject
+     * @see OperationMode
+     **/
+    public final AsyncResult
+    begin_ice_invoke(String operation, OperationMode mode, byte[] inParams,
+                                 java.util.Map<String, String> __context)
+    {
+        return begin_ice_invoke(operation, mode, inParams, __context, true, null);
+    }
+
+    /**
+     * Invokes an operation dynamically and asynchronously.
+     *
+     * @param operation The name of the operation to invoke.
+     * @param mode The operation mode (normal or idempotent).
+     * @param inParams The encoded in-parameters for the operation.
+     * for the operation. The return value follows any out-parameters.
+     * @param __cb The asynchronous callback object.
+     * @return The asynchronous result object.
+     *
+     * @see Blobject
+     * @see OperationMode
+     **/
+    public final AsyncResult
+    begin_ice_invoke(String operation, OperationMode mode, byte[] inParams, Callback __cb)
+    {
+        return begin_ice_invoke(operation, mode, inParams, null, false, __cb);
+    }
+
+    /**
+     * Invokes an operation dynamically and asynchronously.
+     *
+     * @param operation The name of the operation to invoke.
+     * @param mode The operation mode (normal or idempotent).
+     * @param inParams The encoded in-parameters for the operation.
+     * for the operation. The return value follows any out-parameters.
+     * @param __context The context map for the invocation.
+     * @param __cb The asynchronous callback object.
+     * @return The asynchronous result object.
+     *
+     * @see Blobject
+     * @see OperationMode
+     **/
+    public final AsyncResult
+    begin_ice_invoke(String operation, OperationMode mode, byte[] inParams, java.util.Map<String, String> __context,
+                     Callback __cb)
+    {
+        return begin_ice_invoke(operation, mode, inParams, __context, true, __cb);
+    }
+
+    /**
+     * Invokes an operation dynamically and asynchronously.
+     *
+     * @param operation The name of the operation to invoke.
+     * @param mode The operation mode (normal or idempotent).
+     * @param inParams The encoded in-parameters for the operation.
+     * for the operation. The return value follows any out-parameters.
+     * @param __cb The asynchronous callback object.
+     * @return The asynchronous result object.
+     *
+     * @see Blobject
+     * @see OperationMode
+     **/
+    public final AsyncResult
+    begin_ice_invoke(String operation, OperationMode mode, byte[] inParams, Callback_Object_ice_invoke __cb)
+    {
+        return begin_ice_invoke(operation, mode, inParams, null, false, __cb);
+    }
+
+    /**
+     * Invokes an operation dynamically and asynchronously.
+     *
+     * @param operation The name of the operation to invoke.
+     * @param mode The operation mode (normal or idempotent).
+     * @param inParams The encoded in-parameters for the operation.
+     * for the operation. The return value follows any out-parameters.
+     * @param __context The context map for the invocation.
+     * @param __cb The asynchronous callback object.
+     * @return The asynchronous result object.
+     *
+     * @see Blobject
+     * @see OperationMode
+     **/
+    public final AsyncResult
+    begin_ice_invoke(String operation, OperationMode mode, byte[] inParams, java.util.Map<String, String> __context,
+                     Callback_Object_ice_invoke __cb)
+    {
+        return begin_ice_invoke(operation, mode, inParams, __context, true, __cb);
+    }
+
+    private AsyncResult
+    begin_ice_invoke(String operation, OperationMode mode, byte[] inParams, java.util.Map<String, String> __context,
+                     boolean __explicitCtx, IceInternal.CallbackBase __cb)
+    {
+        IceInternal.OutgoingAsync __result = new IceInternal.OutgoingAsync(this, __ice_invoke_name, __cb);
+        try
+        {
+            __result.__prepare(operation, mode, __context, __explicitCtx);
+            IceInternal.BasicStream __os = __result.__os();
+            __os.writeBlob(inParams);
+            __os.endWriteEncaps();
+            __result.__send(true);
+        }
+        catch(LocalException __ex)
+        {
+            __result.__exceptionAsync(__ex);
+        }
+        return __result;
+    }
+
+    /**
+     * Completes the asynchronous ice_invoke request.
+     *
+     * @param outParams The encoded out-paramaters and return value.
+     * @param __result The asynchronous result.
+     * @return If the operation completed successfully, the return value
+     * is <code>true</code>. If the operation raises a user exception,
+     * the return value is <code>false</code>; in this case, <code>outParams</code>
+     * contains the encoded user exception. If the operation raises a run-time exception,
+     * it throws it directly.
+     **/
+    public final boolean
+    end_ice_invoke(ByteSeqHolder outParams, AsyncResult __result)
+    {
+        AsyncResult.__check(__result, this, __ice_invoke_name);
+        boolean ok = __result.__wait();
+        if(_reference.getMode() == IceInternal.Reference.ModeTwoway)
+        {
+            IceInternal.BasicStream __is = __result.__is();
+            __is.startReadEncaps();
+            int sz = __is.getReadEncapsSize();
+            if(outParams != null)
+            {
+                outParams.value = __is.readBlob(sz);
+            }
+            __is.endReadEncaps();
+        }
+        return ok;
     }
 
     /**
@@ -370,8 +1024,8 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
     public final boolean
     ice_invoke_async(AMI_Object_ice_invoke cb, String operation, OperationMode mode, byte[] inParams)
     {
-        __checkTwowayOnly("ice_invoke_async");
-        return cb.__invoke(this, operation, mode, inParams, null);
+        AsyncResult __result = begin_ice_invoke(operation, mode, inParams, cb);
+        return __result.sentSynchronously();
     }
 
     /**
@@ -393,14 +1047,10 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
     ice_invoke_async(AMI_Object_ice_invoke cb, String operation, OperationMode mode, byte[] inParams,
                      java.util.Map<String, String> context)
     {
-        if(context == null)
-        {
-            context = _emptyContext;
-        }
-        __checkTwowayOnly("ice_invoke_async");
-        return cb.__invoke(this, operation, mode, inParams, context);
+        AsyncResult __result = begin_ice_invoke(operation, mode, inParams, context, cb);
+        return __result.sentSynchronously();
     }
-    
+
     /**
      * Returns the identity embedded in this proxy.
      *
@@ -1020,7 +1670,7 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
      *
      * @param connectionId The connection ID for the new proxy. An empty string removes the
      * connection ID.
-     * 
+     *
      * @return A new proxy with the specified connection ID.
      **/
     public final ObjectPrx
@@ -1086,7 +1736,7 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
         {
             __del = _delegate;
         }
-        
+
         if(__del != null)
         {
             try
@@ -1135,7 +1785,85 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
     public boolean
     ice_flushBatchRequests_async(AMI_Object_ice_flushBatchRequests cb)
     {
-        return cb.__invoke(this);
+        AsyncResult result = begin_ice_flushBatchRequests(cb);
+        return result.sentSynchronously();
+    }
+
+    /**
+     * Asynchronously flushes any pending batched requests for this communicator. The call does not block.
+     *
+     * @return The asynchronous result object.
+     **/
+    public AsyncResult
+    begin_ice_flushBatchRequests()
+    {
+        AsyncResult result = begin_ice_flushBatchRequestsInternal(null);
+        return result;
+    }
+
+    /**
+     * Asynchronously flushes any pending batched requests for this communicator. The call does not block.
+     *
+     * @param __cb The callback object to notify the application when the flush is complete.
+     * @return The asynchronous result object.
+     **/
+    public AsyncResult
+    begin_ice_flushBatchRequests(Callback __cb)
+    {
+        AsyncResult result = begin_ice_flushBatchRequestsInternal(__cb);
+        return result;
+    }
+
+    /**
+     * Asynchronously flushes any pending batched requests for this communicator. The call does not block.
+     *
+     * @param __cb The callback object to notify the application when the flush is complete.
+     * @return The asynchronous result object.
+     **/
+    public AsyncResult
+    begin_ice_flushBatchRequests(Callback_Object_ice_flushBatchRequests __cb)
+    {
+        AsyncResult result = begin_ice_flushBatchRequestsInternal(__cb);
+        return result;
+    }
+
+    private static final String __ice_flushBatchRequests_name = "ice_flushBatchRequests";
+
+    private AsyncResult
+    begin_ice_flushBatchRequestsInternal(IceInternal.CallbackBase __cb)
+    {
+        IceInternal.BatchOutgoingAsync __result =
+            new IceInternal.ProxyBatchOutgoingAsync(this, __ice_flushBatchRequests_name, __cb);
+        try
+        {
+            //
+            // We don't automatically retry if ice_flushBatchRequests fails. Otherwise, if some batch
+            // requests were queued with the connection, they would be lost without being noticed.
+            //
+            _ObjectDel delegate = null;
+            int cnt = -1; // Don't retry.
+            try
+            {
+                delegate = __getDelegate(false);
+                delegate.__getRequestHandler().flushAsyncBatchRequests(__result);
+            }
+            catch(LocalException __ex)
+            {
+                cnt = __handleException(delegate, __ex, null, cnt);
+            }
+        }
+        catch(LocalException __ex)
+        {
+            __result.__exceptionAsync(__ex);
+        }
+        return __result;
+    }
+
+    public void
+    end_ice_flushBatchRequests(AsyncResult __result)
+    {
+        AsyncResult.__check(__result, this, __ice_flushBatchRequests_name);
+        __result.__wait();
     }
 
     /**
@@ -1210,8 +1938,8 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
             // The _delegate attribute is only used if "cache connection"
             // is enabled. If it's not enabled, we don't keep track of the
             // delegate -- a new delegate is created for each invocation.
-            //  
-            
+            //
+
             if(delegateD != null)
             {
                 _ObjectDelD delegate = __createDelegateD();
@@ -1228,7 +1956,7 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
     }
 
     public final int
-    __handleException(_ObjectDel delegate, LocalException ex, IceInternal.OutgoingAsync out, int cnt)
+    __handleException(_ObjectDel delegate, LocalException ex, Ice.IntHolder interval, int cnt)
     {
         //
         // Only _delegate needs to be mutex protected here.
@@ -1248,7 +1976,7 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
 
         try
         {
-            return _reference.getInstance().proxyFactory().checkRetryAfterException(ex, _reference, out, cnt);
+            return _reference.getInstance().proxyFactory().checkRetryAfterException(ex, _reference, interval, cnt);
         }
         catch(CommunicatorDestroyedException e)
         {
@@ -1262,7 +1990,7 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
     }
 
     public final void
-    __handleExceptionWrapper(_ObjectDel delegate, IceInternal.LocalExceptionWrapper ex, IceInternal.OutgoingAsync out)
+    __handleExceptionWrapper(_ObjectDel delegate, IceInternal.LocalExceptionWrapper ex)
     {
         synchronized(this)
         {
@@ -1276,20 +2004,17 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
         {
             throw ex.get();
         }
-
-        if(out != null)
-        {
-            out.__send();
-        }
     }
 
     public final int
-    __handleExceptionWrapperRelaxed(_ObjectDel delegate, IceInternal.LocalExceptionWrapper ex, 
-                                    IceInternal.OutgoingAsync out, int cnt)
+    __handleExceptionWrapperRelaxed(_ObjectDel delegate,
+                                    IceInternal.LocalExceptionWrapper ex, 
+                                    Ice.IntHolder interval,
+                                    int cnt)
     {
         if(!ex.retry())
         {
-            return __handleException(delegate, ex.get(), out, cnt);
+            return __handleException(delegate, ex.get(), interval, cnt);
         }
         else
         {
@@ -1299,11 +2024,6 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
                 {
                     _delegate = null;
                 }
-            }
-
-            if(out != null)
-            {
-                out.__send();
             }
 
             return cnt;
@@ -1345,8 +2065,8 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
         else
         {
             final int mode = _reference.getMode();
-            return createDelegate(ami || 
-                                  mode == IceInternal.Reference.ModeBatchOneway || 
+            return createDelegate(ami ||
+                                  mode == IceInternal.Reference.ModeBatchOneway ||
                                   mode == IceInternal.Reference.ModeBatchDatagram);
         }
     }
@@ -1371,7 +2091,30 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
             }
         }
     }
-    
+
+    public final void
+    __end(AsyncResult __result, String operation)
+    {
+        AsyncResult.__check(__result, this, operation);
+        boolean ok = __result.__wait();
+        if(_reference.getMode() == IceInternal.Reference.ModeTwoway)
+        {
+            if(!ok)
+            {
+                try
+                {
+                    __result.__throwUserException();
+                }
+                catch(UserException __ex)
+                {
+                    throw new UnknownUserException(__ex.ice_name());
+                }
+            }
+            IceInternal.BasicStream __is = __result.__is();
+            __is.skipEmptyEncaps();
+        }
+    }
+
     protected _ObjectDelM
     __createDelegateM()
     {

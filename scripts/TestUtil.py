@@ -673,7 +673,7 @@ def getDefaultMapping():
     """Try and guess the language mapping out of the current path"""
 
     here = os.getcwd()
-    while len(here) > 0:
+    while len(here) > 0 and here != '/':
 	current = os.path.basename(here)
 	here = os.path.dirname(here)
         if current in ["cpp", "cs", "java", "php", "py", "rb", "cppe", "javae", "tmp"]:
@@ -1277,11 +1277,15 @@ class PhpCleanup:
             os.remove("tmp.ini")
     
 # TODO: Perhaps this should be done when the tmp.ini file is created.
-lang = getDefaultMapping()
-if getDefaultMapping() == "php":
-    # Instantiate a PhpCleanup object. The __del__ method will
-    # cleanup when the scritp is done.
-    p = PhpCleanup()
+try:
+    lang = getDefaultMapping()
+    if getDefaultMapping() == "php":
+        # Instantiate a PhpCleanup object. The __del__ method will
+        # cleanup when the scritp is done.
+        p = PhpCleanup()
+except:
+    # Can't figure default mapping, so it's not PHP
+    pass
 
 def processCmdLine():
     def usage():

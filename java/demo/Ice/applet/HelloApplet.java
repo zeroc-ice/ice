@@ -343,11 +343,26 @@ public class HelloApplet extends JApplet
         return Demo.HelloPrxHelper.uncheckedCast(prx);
     }
 
-    class SayHelloI extends Demo.AMI_Hello_sayHello implements Ice.AMISentCallback
+    class SayHelloI extends Demo.Callback_Hello_sayHello
     {
         private boolean _response = false;
 
-        synchronized public void ice_exception(final Ice.LocalException ex)
+        @Override
+        synchronized public void response()
+        {
+            assert (!_response);
+            _response = true;
+            SwingUtilities.invokeLater(new Runnable()
+            {
+                public void run()
+                {
+                    _status.setText("Ready");
+                }
+            });
+        }
+
+        @Override
+        synchronized public void exception(final Ice.LocalException ex)
         {
             assert (!_response);
             _response = true;
@@ -361,7 +376,8 @@ public class HelloApplet extends JApplet
             });
         }
 
-        synchronized public void ice_sent()
+        @Override
+        synchronized public void sent()
         {
             if(_response)
             {
@@ -383,19 +399,6 @@ public class HelloApplet extends JApplet
                 }
             });
         }
-
-        synchronized public void ice_response()
-        {
-            assert (!_response);
-            _response = true;
-            SwingUtilities.invokeLater(new Runnable()
-            {
-                public void run()
-                {
-                    _status.setText("Ready");
-                }
-            });
-        }
     }
 
     private void sayHello()
@@ -411,7 +414,8 @@ public class HelloApplet extends JApplet
         {
             if(!_deliveryMode.isBatch())
             {
-                if(hello.sayHello_async(new SayHelloI(), delay))
+                Ice.AsyncResult r = hello.begin_sayHello(delay, new SayHelloI());
+                if(r.sentSynchronously())
                 {
                     if(_deliveryMode == DeliveryMode.TWOWAY || _deliveryMode == DeliveryMode.TWOWAY_SECURE)
                     {
@@ -448,26 +452,28 @@ public class HelloApplet extends JApplet
         {
             if(!_deliveryMode.isBatch())
             {
-                hello.shutdown_async(new Demo.AMI_Hello_shutdown()
+                hello.begin_shutdown(new Demo.Callback_Hello_shutdown()
                 {
-                    public void ice_exception(final Ice.LocalException ex)
-                    {
-                        SwingUtilities.invokeLater(new Runnable()
-                        {
-                            public void run()
-                            {
-                                handleException(ex);
-                            }
-                        });
-                    }
-
-                    public void ice_response()
+                    @Override
+                    public void response()
                     {
                         SwingUtilities.invokeLater(new Runnable()
                         {
                             public void run()
                             {
                                 _status.setText("Ready");
+                            }
+                        });
+                    }
+
+                    @Override
+                    public void exception(final Ice.LocalException ex)
+                    {
+                        SwingUtilities.invokeLater(new Runnable()
+                        {
+                            public void run()
+                            {
+                                handleException(ex);
                             }
                         });
                     }

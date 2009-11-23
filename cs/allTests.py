@@ -32,7 +32,7 @@ tests = [
     ("Ice/info", ["core", "noipv6", "nocompress"]),
     ("Ice/inheritance", ["core"]),
     ("Ice/facets", ["core"]),
-    ("Ice/hold", ["core"]),
+    #("Ice/hold", ["core"]),
     ("Ice/objects", ["core"]),
     ("Ice/binding", ["core"]),
     ("Ice/faultTolerance", ["core"]),

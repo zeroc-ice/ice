@@ -1,6 +1,6 @@
 generated/BuiltinSequences.cs: $(slicedir)/Ice/BuiltinSequences.ice $(SLICE2CS) $(SLICEPARSERLIB)
 generated/Communicator.cs: $(slicedir)/Ice/Communicator.ice $(slicedir)/Ice/LoggerF.ice $(slicedir)/Ice/StatsF.ice $(slicedir)/Ice/ObjectAdapterF.ice $(slicedir)/Ice/PropertiesF.ice $(slicedir)/Ice/ObjectFactoryF.ice $(slicedir)/Ice/RouterF.ice $(slicedir)/Ice/LocatorF.ice $(slicedir)/Ice/PluginF.ice $(slicedir)/Ice/ImplicitContextF.ice $(slicedir)/Ice/Current.ice $(slicedir)/Ice/ConnectionF.ice $(slicedir)/Ice/Identity.ice $(SLICE2CS) $(SLICEPARSERLIB)
-generated/Connection.cs: $(slicedir)/Ice/Connection.ice $(slicedir)/Ice/ObjectAdapterF.ice $(slicedir)/Ice/Identity.ice $(SLICE2CS) $(SLICEPARSERLIB)
+generated/Connection.cs: $(slicedir)/Ice/Connection.ice $(slicedir)/Ice/ObjectAdapterF.ice $(slicedir)/Ice/Identity.ice $(slicedir)/Ice/Endpoint.ice $(slicedir)/Ice/BuiltinSequences.ice $(slicedir)/Ice/EndpointF.ice $(SLICE2CS) $(SLICEPARSERLIB)
 generated/Current.cs: $(slicedir)/Ice/Current.ice $(slicedir)/Ice/ObjectAdapterF.ice $(slicedir)/Ice/ConnectionF.ice $(slicedir)/Ice/Identity.ice $(SLICE2CS) $(SLICEPARSERLIB)
 generated/Endpoint.cs: $(slicedir)/Ice/Endpoint.ice $(slicedir)/Ice/BuiltinSequences.ice $(slicedir)/Ice/EndpointF.ice $(SLICE2CS) $(SLICEPARSERLIB)
 generated/EndpointTypes.cs: $(slicedir)/Ice/EndpointTypes.ice $(SLICE2CS) $(SLICEPARSERLIB)

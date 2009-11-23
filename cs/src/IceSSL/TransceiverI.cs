@@ -218,7 +218,7 @@ namespace IceSSL
             }
         }
 
-        public bool startWrite(IceInternal.Buffer buf, AsyncCallback callback, object state)
+        public bool startWrite(IceInternal.Buffer buf, AsyncCallback callback, object state, out bool completed)
         {
             Debug.Assert(_fd != null);
             
@@ -227,10 +227,12 @@ namespace IceSSL
                 if(_state == StateConnectPending)
                 {
                     _writeResult = IceInternal.Network.doConnectAsync(_fd, _addr, callback, state);
+                    completed = false;
                     return _writeResult.CompletedSynchronously;
                 }
                 else if(_state == StateAuthenticatePending)
                 {
+                    completed = false;
                     return beginAuthenticate(callback, state);
                 }
             }
@@ -248,6 +250,7 @@ namespace IceSSL
             try
             {
                 _writeResult = _stream.BeginWrite(buf.b.rawBytes(), buf.b.position(), packetSize, callback, state);
+                completed = packetSize == buf.b.remaining();
                 return _writeResult.CompletedSynchronously;
             }
             catch(IOException ex)

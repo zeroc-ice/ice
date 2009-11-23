@@ -277,14 +277,14 @@ IceInternal::TcpTransceiver::read(Buffer& buf)
 }
 
 #ifdef ICE_USE_IOCP
-void
+bool
 IceInternal::TcpTransceiver::startWrite(Buffer& buf)
 {
     if(_state < StateConnected)
     {
         doConnectAsync(_fd, _connectAddr, _write);
         _desc = fdToString(_fd);
-        return;
+        return false;
     }
 
     assert(!buf.b.empty() && buf.i != buf.b.end());
@@ -316,6 +316,7 @@ IceInternal::TcpTransceiver::startWrite(Buffer& buf)
             }
         }
     }
+    return packetSize == static_cast<int>(buf.b.end() - buf.i);
 }
 
 void

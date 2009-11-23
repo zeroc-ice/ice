@@ -38,6 +38,7 @@ namespace IceInternal
             internal OutgoingAsync @out = null;
             internal BatchOutgoingAsync batchOut = null;
             internal BasicStream os = null;
+            internal Ice.AsyncCallback sentCallback = null;
         }
 
         public RequestHandler connect()
@@ -54,7 +55,7 @@ namespace IceInternal
                 else
                 {
                     // The proxy request handler will be updated when the connection is set.
-                    _updateRequestHandler = true; 
+                    _updateRequestHandler = true;
                     return this;
                 }
             }
@@ -71,8 +72,8 @@ namespace IceInternal
 
                 if(!initialized())
                 {
-                    _batchStream.swap(os);
                     _batchRequestInProgress = true;
+                    _batchStream.swap(os);
                     return;
                 }
             }
@@ -117,6 +118,7 @@ namespace IceInternal
                     BasicStream dummy = new BasicStream(_reference.getInstance(), _batchAutoFlush);
                     _batchStream.swap(dummy);
                     _batchRequestsSize = Protocol.requestBatchHdr.Length;
+
                     return;
                 }
             }
@@ -125,7 +127,9 @@ namespace IceInternal
 
         public Ice.ConnectionI sendRequest(Outgoing @out)
         {
-            if(!getConnection(true).sendRequest(@out, _compress, _response) || _response)
+            Ice.ConnectionI connection = getConnection(true);
+            Debug.Assert(connection != null);
+            if(!connection.sendRequest(@out, _compress, _response) || _response)
             {
                 return _connection; // The request has been sent or we're expecting a response.
             }
@@ -144,8 +148,9 @@ namespace IceInternal
                     _requests.AddLast(new Request(@out));
                     return false;
                 }
-            }            
-            return _connection.sendAsyncRequest(@out, _compress, _response);
+            }
+            Ice.AsyncCallback sentCallback;
+            return _connection.sendAsyncRequest(@out, _compress, _response, out sentCallback);
         }
 
         public bool flushBatchRequests(BatchOutgoing @out)
@@ -163,7 +168,8 @@ namespace IceInternal
                     return false;
                 }
             }
-            return _connection.flushAsyncBatchRequests(@out);
+            Ice.AsyncCallback sentCallback;
+            return _connection.flushAsyncBatchRequests(@out, out sentCallback);
         }
 
         public Outgoing getOutgoing(string operation, Ice.OperationMode mode, Dictionary<string, string> context)
@@ -197,11 +203,11 @@ namespace IceInternal
             return _reference;
         }
 
-        public Ice.ConnectionI getConnection(bool wait)
+        public Ice.ConnectionI getConnection(bool waitInit)
         {
-            lock(this)
+            if(waitInit)
             {
-                if(wait)
+                lock(this)
                 {
                     //
                     // Wait for the connection establishment to complete or fail.
@@ -211,16 +217,16 @@ namespace IceInternal
                         Monitor.Wait(this);
                     }
                 }
+            }
 
-                if(_exception != null)
-                {
-                    throw _exception;
-                }
-                else
-                {
-                    Debug.Assert(!wait || _initialized);
-                    return _connection;
-                }
+            if(_exception != null)
+            {
+                throw _exception;
+            }
+            else
+            {
+                Debug.Assert(!waitInit || _initialized);
+                return _connection;
             }
         }
 
@@ -232,7 +238,9 @@ namespace IceInternal
         {
             lock(this)
             {
-                Debug.Assert(_connection == null && _exception == null);
+                Debug.Assert(_exception == null && _connection == null);
+                Debug.Assert(_updateRequestHandler || _requests.Count == 0);
+
                 _connection = connection;
                 _compress = compress;
             }
@@ -266,7 +274,7 @@ namespace IceInternal
 
                 //
                 // If some requests were queued, we notify them of the failure. This is done from a thread
-                // from the client thread pool since this will result in ice_exception callbacks to be 
+                // from the client thread pool since this will result in ice_exception callbacks to be
                 // called.
                 //
                 if(_requests.Count > 0)
@@ -287,7 +295,7 @@ namespace IceInternal
         public void addedProxy()
         {
             //
-            // The proxy was added to the router info, we're now ready to send the 
+            // The proxy was added to the router info, we're now ready to send the
             // queued requests.
             //
             flushRequests();
@@ -301,9 +309,11 @@ namespace IceInternal
             _delegate = del;
             _batchAutoFlush = @ref.getInstance().initializationData().properties.getPropertyAsIntWithDefault(
                 "Ice.BatchAutoFlush", 1) > 0 ? true : false;
-            _batchStream = new BasicStream(@ref.getInstance(), _batchAutoFlush);
+            _initialized = false;
+            _flushing = false;
             _batchRequestInProgress = false;
             _batchRequestsSize = Protocol.requestBatchHdr.Length;
+            _batchStream = new BasicStream(@ref.getInstance(), _batchAutoFlush);
             _updateRequestHandler = false;
         }
 
@@ -351,8 +361,7 @@ namespace IceInternal
                 _flushing = true;
             }
 
-            LinkedList<OutgoingAsyncMessageCallback> sentCallbacks = 
-                new LinkedList<OutgoingAsyncMessageCallback>();
+            LinkedList<Request> sentCallbacks = new LinkedList<Request>();
             try
             {
                 LinkedListNode<Request> p = _requests.First; // _requests is immutable when _flushing = true
@@ -361,22 +370,16 @@ namespace IceInternal
                     Request request = p.Value;
                     if(request.@out != null)
                     {
-                        if(_connection.sendAsyncRequest(request.@out, _compress, _response))
+                        if(_connection.sendAsyncRequest(request.@out, _compress, _response, out request.sentCallback))
                         {
-                            if(request.@out is Ice.AMISentCallback)
-                            {
-                                sentCallbacks.AddLast(request.@out);
-                            }
+                            sentCallbacks.AddLast(request);
                         }
                     }
                     else if(request.batchOut != null)
                     {
-                        if(_connection.flushAsyncBatchRequests(request.batchOut))
+                        if(_connection.flushAsyncBatchRequests(request.batchOut, out request.sentCallback))
                         {
-                            if(request.batchOut is Ice.AMISentCallback)
-                            {
-                                sentCallbacks.AddLast(request.batchOut);
-                            }
+                            sentCallbacks.AddLast(request);
                         }
                     }
                     else
@@ -430,17 +433,24 @@ namespace IceInternal
                 Instance instance = _reference.getInstance();
                 instance.clientThreadPool().execute(delegate()
                                                     {
-                                                        foreach(OutgoingAsyncMessageCallback callback in sentCallbacks)
+                                                        foreach(Request r in sentCallbacks)
                                                         {
-                                                            callback.sent__(instance);
+                                                            if(r.@out != null)
+                                                            {
+                                                                r.@out.sent__(r.sentCallback);
+                                                            }
+                                                            else if(r.batchOut != null)
+                                                            {
+                                                                r.batchOut.sent__(r.sentCallback);
+                                                            }
                                                         }
                                                     });
             }
 
             //
             // We've finished sending the queued requests and the request handler now send
-            // the requests over the connection directly. It's time to substitute the 
-            // request handler of the proxy with the more efficient connection request 
+            // the requests over the connection directly. It's time to substitute the
+            // request handler of the proxy with the more efficient connection request
             // handler which does not have any synchronization. This also breaks the cyclic
             // reference count with the proxy.
             //
@@ -472,11 +482,11 @@ namespace IceInternal
             {
                 if(request.@out != null)
                 {
-                    request.@out.finished__(ex);
+                    request.@out.finished__(ex, false);
                 }
                 else if(request.batchOut != null)
                 {
-                    request.batchOut.finished__(ex);
+                    request.batchOut.finished__(ex, false);
                 }
             }
             _requests.Clear();
@@ -493,22 +503,25 @@ namespace IceInternal
                 }
                 else if(request.batchOut != null)
                 {
-                    request.batchOut.finished__(ex.get());
+                    request.batchOut.finished__(ex.get(), false);
                 }
             }
             _requests.Clear();
         }
 
         private Reference _reference;
-        private bool _batchAutoFlush;
+        private bool _response;
+
         private Ice.ObjectPrxHelperBase _proxy;
         private Ice.ObjectDelM_ _delegate;
-        private bool _initialized = false;
-        private bool _flushing = false;
-        private Ice.ConnectionI _connection = null;
-        private bool _compress = false;
-        private bool _response;
-        private Ice.LocalException _exception = null;
+
+        private bool _batchAutoFlush;
+
+        private Ice.ConnectionI _connection;
+        private bool _compress;
+        private Ice.LocalException _exception;
+        private bool _initialized;
+        private bool _flushing;
 
         private LinkedList<Request> _requests = new LinkedList<Request>();
         private bool _batchRequestInProgress;

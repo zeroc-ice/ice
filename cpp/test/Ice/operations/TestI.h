@@ -18,6 +18,8 @@ public:
 
     virtual void shutdown(const Ice::Current&);
 
+    virtual void delay(Ice::Int, const Ice::Current&);
+
     virtual void opVoid(const Ice::Current&);
 
     virtual Ice::Byte opByte(Ice::Byte,

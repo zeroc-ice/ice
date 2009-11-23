@@ -20,6 +20,9 @@ public:
     virtual void shutdown_async(const Test::AMD_MyClass_shutdownPtr&,
                                 const Ice::Current&);
 
+    virtual void delay_async(const Test::AMD_MyClass_delayPtr&, Ice::Int,
+                             const Ice::Current&);
+
     virtual void opVoid_async(const Test::AMD_MyClass_opVoidPtr&,
                               const Ice::Current&);
 

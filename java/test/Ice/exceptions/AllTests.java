@@ -33,6 +33,20 @@ import test.Ice.exceptions.Test.ThrowerPrx;
 import test.Ice.exceptions.Test.ThrowerPrxHelper;
 import test.Ice.exceptions.Test.WrongOperationPrx;
 import test.Ice.exceptions.Test.WrongOperationPrxHelper;
+import test.Ice.exceptions.Test.Callback_Thrower_throwAasA;
+import test.Ice.exceptions.Test.Callback_Thrower_throwAorDasAorD;
+import test.Ice.exceptions.Test.Callback_Thrower_throwAssertException;
+import test.Ice.exceptions.Test.Callback_Thrower_throwBasA;
+import test.Ice.exceptions.Test.Callback_Thrower_throwBasB;
+import test.Ice.exceptions.Test.Callback_Thrower_throwCasA;
+import test.Ice.exceptions.Test.Callback_Thrower_throwCasB;
+import test.Ice.exceptions.Test.Callback_Thrower_throwCasC;
+import test.Ice.exceptions.Test.Callback_Thrower_throwLocalException;
+import test.Ice.exceptions.Test.Callback_Thrower_throwNonIceException;
+import test.Ice.exceptions.Test.Callback_Thrower_throwUndeclaredA;
+import test.Ice.exceptions.Test.Callback_Thrower_throwUndeclaredB;
+import test.Ice.exceptions.Test.Callback_Thrower_throwUndeclaredC;
+import test.Ice.exceptions.Test.Callback_WrongOperation_noSuchOperation;
 
 public class AllTests
 {
@@ -52,8 +66,7 @@ public class AllTests
             _called = false;
         }
 
-        public synchronized void
-        check()
+        public synchronized void check()
         {
             while(!_called)
             {
@@ -68,9 +81,8 @@ public class AllTests
 
             _called = false;
         }
-        
-        public synchronized void
-        called()
+
+        public synchronized void called()
         {
             assert(!_called);
             _called = true;
@@ -82,21 +94,21 @@ public class AllTests
 
     private static class AMI_Thrower_throwAasAI extends AMI_Thrower_throwAasA
     {
-        public void
-        ice_response()
+        @Override
+        public void ice_response()
         {
             test(false);
         }
 
-        public void
-        ice_exception(Ice.LocalException exc)
+        @Override
+        public void ice_exception(Ice.LocalException exc)
         {
             exc.printStackTrace();
             test(false);
         }
 
-        public void
-        ice_exception(Ice.UserException exc)
+        @Override
+        public void ice_exception(Ice.UserException exc)
         {
             try
             {
@@ -114,8 +126,7 @@ public class AllTests
             callback.called();
         }
 
-        public void
-        check()
+        public void check()
         {
             callback.check();
         }
@@ -130,14 +141,14 @@ public class AllTests
             _communicator = communicator;
         }
 
-        public void
-        ice_response()
+        @Override
+        public void ice_response()
         {
             test(false);
         }
 
-        public void
-        ice_exception(Ice.LocalException exc)
+        @Override
+        public void ice_exception(Ice.LocalException exc)
         {
             try
             {
@@ -156,15 +167,14 @@ public class AllTests
             callback.called();
         }
 
-        public void
-        ice_exception(Ice.UserException exc)
+        @Override
+        public void ice_exception(Ice.UserException exc)
         {
             exc.printStackTrace();
             test(false);
         }
 
-        public void
-        check()
+        public void check()
         {
             callback.check();
         }
@@ -175,14 +185,14 @@ public class AllTests
 
     private static class AMI_Thrower_throwAasAFacetNotExistI extends AMI_Thrower_throwAasA
     {
-        public void
-        ice_response()
+        @Override
+        public void ice_response()
         {
             test(false);
         }
 
-        public void
-        ice_exception(Ice.LocalException exc)
+        @Override
+        public void ice_exception(Ice.LocalException exc)
         {
             try
             {
@@ -200,15 +210,14 @@ public class AllTests
             callback.called();
         }
 
-        public void
-        ice_exception(Ice.UserException exc)
+        @Override
+        public void ice_exception(Ice.UserException exc)
         {
             exc.printStackTrace();
             test(false);
         }
 
-        public void
-        check()
+        public void check()
         {
             callback.check();
         }
@@ -218,21 +227,21 @@ public class AllTests
 
     private static class AMI_Thrower_throwAorDasAorDI extends AMI_Thrower_throwAorDasAorD
     {
-        public void
-        ice_response()
+        @Override
+        public void ice_response()
         {
             test(false);
         }
 
-        public void
-        ice_exception(Ice.LocalException exc)
+        @Override
+        public void ice_exception(Ice.LocalException exc)
         {
             exc.printStackTrace();
             test(false);
         }
 
-        public void
-        ice_exception(Ice.UserException exc)
+        @Override
+        public void ice_exception(Ice.UserException exc)
         {
             try
             {
@@ -254,8 +263,7 @@ public class AllTests
             callback.called();
         }
 
-        public void
-        check()
+        public void check()
         {
             callback.check();
         }
@@ -265,21 +273,21 @@ public class AllTests
 
     private static class AMI_Thrower_throwBasAI extends AMI_Thrower_throwBasA
     {
-        public void
-        ice_response()
+        @Override
+        public void ice_response()
         {
             test(false);
         }
 
-        public void
-        ice_exception(Ice.LocalException exc)
+        @Override
+        public void ice_exception(Ice.LocalException exc)
         {
             exc.printStackTrace();
             test(false);
         }
 
-        public void
-        ice_exception(Ice.UserException exc)
+        @Override
+        public void ice_exception(Ice.UserException exc)
         {
             try
             {
@@ -298,8 +306,7 @@ public class AllTests
             callback.called();
         }
 
-        public void
-        check()
+        public void check()
         {
             callback.check();
         }
@@ -309,21 +316,21 @@ public class AllTests
 
     private static class AMI_Thrower_throwCasAI extends AMI_Thrower_throwCasA
     {
-        public void
-        ice_response()
+        @Override
+        public void ice_response()
         {
             test(false);
         }
 
-        public void
-        ice_exception(Ice.LocalException exc)
+        @Override
+        public void ice_exception(Ice.LocalException exc)
         {
             exc.printStackTrace();
             test(false);
         }
 
-        public void
-        ice_exception(Ice.UserException exc)
+        @Override
+        public void ice_exception(Ice.UserException exc)
         {
             try
             {
@@ -343,8 +350,7 @@ public class AllTests
             callback.called();
         }
 
-        public void
-        check()
+        public void check()
         {
             callback.check();
         }
@@ -354,21 +360,21 @@ public class AllTests
 
     private static class AMI_Thrower_throwBasBI extends AMI_Thrower_throwBasB
     {
-        public void
-        ice_response()
+        @Override
+        public void ice_response()
         {
             test(false);
         }
 
-        public void
-        ice_exception(Ice.LocalException exc)
+        @Override
+        public void ice_exception(Ice.LocalException exc)
         {
             exc.printStackTrace();
             test(false);
         }
 
-        public void
-        ice_exception(Ice.UserException exc)
+        @Override
+        public void ice_exception(Ice.UserException exc)
         {
             try
             {
@@ -387,8 +393,7 @@ public class AllTests
             callback.called();
         }
 
-        public void
-        check()
+        public void check()
         {
             callback.check();
         }
@@ -398,21 +403,21 @@ public class AllTests
 
     private static class AMI_Thrower_throwCasBI extends AMI_Thrower_throwCasB
     {
-        public void
-        ice_response()
+        @Override
+        public void ice_response()
         {
             test(false);
         }
 
-        public void
-        ice_exception(Ice.LocalException exc)
+        @Override
+        public void ice_exception(Ice.LocalException exc)
         {
             exc.printStackTrace();
             test(false);
         }
 
-        public void
-        ice_exception(Ice.UserException exc)
+        @Override
+        public void ice_exception(Ice.UserException exc)
         {
             try
             {
@@ -432,8 +437,7 @@ public class AllTests
             callback.called();
         }
 
-        public void
-        check()
+        public void check()
         {
             callback.check();
         }
@@ -443,21 +447,21 @@ public class AllTests
 
     private static class AMI_Thrower_throwCasCI extends AMI_Thrower_throwCasC
     {
-        public void
-        ice_response()
+        @Override
+        public void ice_response()
         {
             test(false);
         }
 
-        public void
-        ice_exception(Ice.LocalException exc)
+        @Override
+        public void ice_exception(Ice.LocalException exc)
         {
             exc.printStackTrace();
             test(false);
         }
 
-        public void
-        ice_exception(Ice.UserException exc)
+        @Override
+        public void ice_exception(Ice.UserException exc)
         {
             try
             {
@@ -477,8 +481,7 @@ public class AllTests
             callback.called();
         }
 
-        public void
-        check()
+        public void check()
         {
             callback.check();
         }
@@ -488,14 +491,14 @@ public class AllTests
 
     private static class AMI_Thrower_throwUndeclaredAI extends AMI_Thrower_throwUndeclaredA
     {
-        public void
-        ice_response()
+        @Override
+        public void ice_response()
         {
             test(false);
         }
 
-        public void
-        ice_exception(Ice.LocalException exc)
+        @Override
+        public void ice_exception(Ice.LocalException exc)
         {
             try
             {
@@ -512,8 +515,7 @@ public class AllTests
             callback.called();
         }
 
-        public void
-        check()
+        public void check()
         {
             callback.check();
         }
@@ -523,14 +525,14 @@ public class AllTests
 
     private static class AMI_Thrower_throwUndeclaredBI extends AMI_Thrower_throwUndeclaredB
     {
-        public void
-        ice_response()
+        @Override
+        public void ice_response()
         {
             test(false);
         }
 
-        public void
-        ice_exception(Ice.LocalException exc)
+        @Override
+        public void ice_exception(Ice.LocalException exc)
         {
             try
             {
@@ -547,8 +549,7 @@ public class AllTests
             callback.called();
         }
 
-        public void
-        check()
+        public void check()
         {
             callback.check();
         }
@@ -558,14 +559,14 @@ public class AllTests
 
     private static class AMI_Thrower_throwUndeclaredCI extends AMI_Thrower_throwUndeclaredC
     {
-        public void
-        ice_response()
+        @Override
+        public void ice_response()
         {
             test(false);
         }
 
-        public void
-        ice_exception(Ice.LocalException exc)
+        @Override
+        public void ice_exception(Ice.LocalException exc)
         {
             try
             {
@@ -582,8 +583,7 @@ public class AllTests
             callback.called();
         }
 
-        public void
-        check()
+        public void check()
         {
             callback.check();
         }
@@ -593,14 +593,14 @@ public class AllTests
 
     private static class AMI_Thrower_throwLocalExceptionI extends AMI_Thrower_throwLocalException
     {
-        public void
-        ice_response()
+        @Override
+        public void ice_response()
         {
             test(false);
         }
 
-        public void
-        ice_exception(Ice.LocalException exc)
+        @Override
+        public void ice_exception(Ice.LocalException exc)
         {
             try
             {
@@ -617,8 +617,7 @@ public class AllTests
             callback.called();
         }
 
-        public void
-        check()
+        public void check()
         {
             callback.check();
         }
@@ -628,14 +627,14 @@ public class AllTests
 
     private static class AMI_Thrower_throwNonIceExceptionI extends AMI_Thrower_throwNonIceException
     {
-        public void
-        ice_response()
+        @Override
+        public void ice_response()
         {
             test(false);
         }
 
-        public void
-        ice_exception(Ice.LocalException exc)
+        @Override
+        public void ice_exception(Ice.LocalException exc)
         {
             try
             {
@@ -652,8 +651,7 @@ public class AllTests
             callback.called();
         }
 
-        public void
-        check()
+        public void check()
         {
             callback.check();
         }
@@ -663,14 +661,14 @@ public class AllTests
 
     private static class AMI_Thrower_throwAssertExceptionI extends AMI_Thrower_throwAssertException
     {
-        public void
-        ice_response()
+        @Override
+        public void ice_response()
         {
             test(false);
         }
 
-        public void
-        ice_exception(Ice.LocalException exc)
+        @Override
+        public void ice_exception(Ice.LocalException exc)
         {
             try
             {
@@ -687,8 +685,7 @@ public class AllTests
             callback.called();
         }
 
-        public void
-        check()
+        public void check()
         {
             callback.check();
         }
@@ -698,14 +695,14 @@ public class AllTests
 
     private static class AMI_WrongOperation_noSuchOperationI extends AMI_WrongOperation_noSuchOperation
     {
-        public void
-        ice_response()
+        @Override
+        public void ice_response()
         {
             test(false);
         }
 
-        public void
-        ice_exception(Ice.LocalException exc)
+        @Override
+        public void ice_exception(Ice.LocalException exc)
         {
             try
             {
@@ -723,8 +720,643 @@ public class AllTests
             callback.called();
         }
 
-        public void
-        check()
+        public void check()
+        {
+            callback.check();
+        }
+
+        private Callback callback = new Callback();
+    }
+
+    private static class Callback_Thrower_throwAasAI extends Callback_Thrower_throwAasA
+    {
+        @Override
+        public void response()
+        {
+            test(false);
+        }
+
+        @Override
+        public void exception(Ice.LocalException exc)
+        {
+            exc.printStackTrace();
+            test(false);
+        }
+
+        @Override
+        public void exception(Ice.UserException exc)
+        {
+            try
+            {
+                throw exc;
+            }
+            catch(A ex)
+            {
+                test(ex.aMem == 1);
+            }
+            catch(Throwable ex)
+            {
+                ex.printStackTrace();
+                test(false);
+            }
+            callback.called();
+        }
+
+        public void check()
+        {
+            callback.check();
+        }
+
+        private Callback callback = new Callback();
+    }
+
+    private static class Callback_Thrower_throwAasAObjectNotExistI extends Callback_Thrower_throwAasA
+    {
+        Callback_Thrower_throwAasAObjectNotExistI(Ice.Communicator communicator)
+        {
+            _communicator = communicator;
+        }
+
+        @Override
+        public void response()
+        {
+            test(false);
+        }
+
+        @Override
+        public void exception(Ice.LocalException exc)
+        {
+            try
+            {
+                throw exc;
+            }
+            catch(Ice.ObjectNotExistException ex)
+            {
+                Ice.Identity id = _communicator.stringToIdentity("does not exist");
+                test(ex.id.equals(id));
+            }
+            catch(Throwable ex)
+            {
+                ex.printStackTrace();
+                test(false);
+            }
+            callback.called();
+        }
+
+        @Override
+        public void exception(Ice.UserException exc)
+        {
+            exc.printStackTrace();
+            test(false);
+        }
+
+        public void check()
+        {
+            callback.check();
+        }
+
+        private Callback callback = new Callback();
+        private Ice.Communicator _communicator;
+    }
+
+    private static class Callback_Thrower_throwAasAFacetNotExistI extends Callback_Thrower_throwAasA
+    {
+        @Override
+        public void response()
+        {
+            test(false);
+        }
+
+        @Override
+        public void exception(Ice.LocalException exc)
+        {
+            try
+            {
+                throw exc;
+            }
+            catch(Ice.FacetNotExistException ex)
+            {
+                test(ex.facet.equals("no such facet"));
+            }
+            catch(Throwable ex)
+            {
+                ex.printStackTrace();
+                test(false);
+            }
+            callback.called();
+        }
+
+        @Override
+        public void exception(Ice.UserException exc)
+        {
+            exc.printStackTrace();
+            test(false);
+        }
+
+        public void check()
+        {
+            callback.check();
+        }
+
+        private Callback callback = new Callback();
+    }
+
+    private static class Callback_Thrower_throwAorDasAorDI extends Callback_Thrower_throwAorDasAorD
+    {
+        @Override
+        public void response()
+        {
+            test(false);
+        }
+
+        @Override
+        public void exception(Ice.LocalException exc)
+        {
+            exc.printStackTrace();
+            test(false);
+        }
+
+        @Override
+        public void exception(Ice.UserException exc)
+        {
+            try
+            {
+                throw exc;
+            }
+            catch(A ex)
+            {
+                test(ex.aMem == 1);
+            }
+            catch(D ex)
+            {
+                test(ex.dMem == -1);
+            }
+            catch(Throwable ex)
+            {
+                ex.printStackTrace();
+                test(false);
+            }
+            callback.called();
+        }
+
+        public void check()
+        {
+            callback.check();
+        }
+
+        private Callback callback = new Callback();
+    }
+
+    private static class Callback_Thrower_throwBasAI extends Callback_Thrower_throwBasA
+    {
+        @Override
+        public void response()
+        {
+            test(false);
+        }
+
+        @Override
+        public void exception(Ice.LocalException exc)
+        {
+            exc.printStackTrace();
+            test(false);
+        }
+
+        @Override
+        public void exception(Ice.UserException exc)
+        {
+            try
+            {
+                throw exc;
+            }
+            catch(B ex)
+            {
+                test(ex.aMem == 1);
+                test(ex.bMem == 2);
+            }
+            catch(Throwable ex)
+            {
+                ex.printStackTrace();
+                test(false);
+            }
+            callback.called();
+        }
+
+        public void check()
+        {
+            callback.check();
+        }
+
+        private Callback callback = new Callback();
+    }
+
+    private static class Callback_Thrower_throwCasAI extends Callback_Thrower_throwCasA
+    {
+        @Override
+        public void response()
+        {
+            test(false);
+        }
+
+        @Override
+        public void exception(Ice.LocalException exc)
+        {
+            exc.printStackTrace();
+            test(false);
+        }
+
+        @Override
+        public void exception(Ice.UserException exc)
+        {
+            try
+            {
+                throw exc;
+            }
+            catch(C ex)
+            {
+                test(ex.aMem == 1);
+                test(ex.bMem == 2);
+                test(ex.cMem == 3);
+            }
+            catch(Throwable ex)
+            {
+                ex.printStackTrace();
+                test(false);
+            }
+            callback.called();
+        }
+
+        public void check()
+        {
+            callback.check();
+        }
+
+        private Callback callback = new Callback();
+    }
+
+    private static class Callback_Thrower_throwBasBI extends Callback_Thrower_throwBasB
+    {
+        @Override
+        public void response()
+        {
+            test(false);
+        }
+
+        @Override
+        public void exception(Ice.LocalException exc)
+        {
+            exc.printStackTrace();
+            test(false);
+        }
+
+        @Override
+        public void exception(Ice.UserException exc)
+        {
+            try
+            {
+                throw exc;
+            }
+            catch(B ex)
+            {
+                test(ex.aMem == 1);
+                test(ex.bMem == 2);
+            }
+            catch(Throwable ex)
+            {
+                ex.printStackTrace();
+                test(false);
+            }
+            callback.called();
+        }
+
+        public void check()
+        {
+            callback.check();
+        }
+
+        private Callback callback = new Callback();
+    }
+
+    private static class Callback_Thrower_throwCasBI extends Callback_Thrower_throwCasB
+    {
+        @Override
+        public void response()
+        {
+            test(false);
+        }
+
+        @Override
+        public void exception(Ice.LocalException exc)
+        {
+            exc.printStackTrace();
+            test(false);
+        }
+
+        @Override
+        public void exception(Ice.UserException exc)
+        {
+            try
+            {
+                throw exc;
+            }
+            catch(C ex)
+            {
+                test(ex.aMem == 1);
+                test(ex.bMem == 2);
+                test(ex.cMem == 3);
+            }
+            catch(Throwable ex)
+            {
+                ex.printStackTrace();
+                test(false);
+            }
+            callback.called();
+        }
+
+        public void check()
+        {
+            callback.check();
+        }
+
+        private Callback callback = new Callback();
+    }
+
+    private static class Callback_Thrower_throwCasCI extends Callback_Thrower_throwCasC
+    {
+        @Override
+        public void response()
+        {
+            test(false);
+        }
+
+        @Override
+        public void exception(Ice.LocalException exc)
+        {
+            exc.printStackTrace();
+            test(false);
+        }
+
+        @Override
+        public void exception(Ice.UserException exc)
+        {
+            try
+            {
+                throw exc;
+            }
+            catch(C ex)
+            {
+                test(ex.aMem == 1);
+                test(ex.bMem == 2);
+                test(ex.cMem == 3);
+            }
+            catch(Throwable ex)
+            {
+                ex.printStackTrace();
+                test(false);
+            }
+            callback.called();
+        }
+
+        public void check()
+        {
+            callback.check();
+        }
+
+        private Callback callback = new Callback();
+    }
+
+    private static class Callback_Thrower_throwUndeclaredAI extends Callback_Thrower_throwUndeclaredA
+    {
+        @Override
+        public void response()
+        {
+            test(false);
+        }
+
+        @Override
+        public void exception(Ice.LocalException exc)
+        {
+            try
+            {
+                throw exc;
+            }
+            catch(Ice.UnknownUserException ex)
+            {
+            }
+            catch(Throwable ex)
+            {
+                ex.printStackTrace();
+                test(false);
+            }
+            callback.called();
+        }
+
+        public void check()
+        {
+            callback.check();
+        }
+
+        private Callback callback = new Callback();
+    }
+
+    private static class Callback_Thrower_throwUndeclaredBI extends Callback_Thrower_throwUndeclaredB
+    {
+        @Override
+        public void response()
+        {
+            test(false);
+        }
+
+        @Override
+        public void exception(Ice.LocalException exc)
+        {
+            try
+            {
+                throw exc;
+            }
+            catch(Ice.UnknownUserException ex)
+            {
+            }
+            catch(Throwable ex)
+            {
+                ex.printStackTrace();
+                test(false);
+            }
+            callback.called();
+        }
+
+        public void check()
+        {
+            callback.check();
+        }
+
+        private Callback callback = new Callback();
+    }
+
+    private static class Callback_Thrower_throwUndeclaredCI extends Callback_Thrower_throwUndeclaredC
+    {
+        @Override
+        public void response()
+        {
+            test(false);
+        }
+
+        @Override
+        public void exception(Ice.LocalException exc)
+        {
+            try
+            {
+                throw exc;
+            }
+            catch(Ice.UnknownUserException ex)
+            {
+            }
+            catch(Throwable ex)
+            {
+                ex.printStackTrace();
+                test(false);
+            }
+            callback.called();
+        }
+
+        public void check()
+        {
+            callback.check();
+        }
+
+        private Callback callback = new Callback();
+    }
+
+    private static class Callback_Thrower_throwLocalExceptionI extends Callback_Thrower_throwLocalException
+    {
+        @Override
+        public void response()
+        {
+            test(false);
+        }
+
+        @Override
+        public void exception(Ice.LocalException exc)
+        {
+            try
+            {
+                throw exc;
+            }
+            catch(Ice.UnknownLocalException ex)
+            {
+            }
+            catch(Throwable ex)
+            {
+                ex.printStackTrace();
+                test(false);
+            }
+            callback.called();
+        }
+
+        public void check()
+        {
+            callback.check();
+        }
+
+        private Callback callback = new Callback();
+    }
+
+    private static class Callback_Thrower_throwNonIceExceptionI extends Callback_Thrower_throwNonIceException
+    {
+        @Override
+        public void response()
+        {
+            test(false);
+        }
+
+        @Override
+        public void exception(Ice.LocalException exc)
+        {
+            try
+            {
+                throw exc;
+            }
+            catch(Ice.UnknownException ex)
+            {
+            }
+            catch(Throwable ex)
+            {
+                ex.printStackTrace();
+                test(false);
+            }
+            callback.called();
+        }
+
+        public void check()
+        {
+            callback.check();
+        }
+
+        private Callback callback = new Callback();
+    }
+
+    private static class Callback_Thrower_throwAssertExceptionI extends Callback_Thrower_throwAssertException
+    {
+        @Override
+        public void response()
+        {
+            test(false);
+        }
+
+        @Override
+        public void exception(Ice.LocalException exc)
+        {
+            try
+            {
+                throw exc;
+            }
+            catch(Ice.ConnectionLostException ex)
+            {
+            }
+            catch(Throwable ex)
+            {
+                ex.printStackTrace();
+                test(false);
+            }
+            callback.called();
+        }
+
+        public void check()
+        {
+            callback.check();
+        }
+
+        private Callback callback = new Callback();
+    }
+
+    private static class Callback_WrongOperation_noSuchOperationI extends Callback_WrongOperation_noSuchOperation
+    {
+        @Override
+        public void response()
+        {
+            test(false);
+        }
+
+        @Override
+        public void exception(Ice.LocalException exc)
+        {
+            try
+            {
+                throw exc;
+            }
+            catch(Ice.OperationNotExistException ex)
+            {
+                test(ex.operation.equals("noSuchOperation"));
+            }
+            catch(Throwable ex)
+            {
+                ex.printStackTrace();
+                test(false);
+            }
+            callback.called();
+        }
+
+        public void check()
         {
             callback.check();
         }
@@ -758,10 +1390,10 @@ public class AllTests
             {
                 // Expected
             }
-            
+
             try
             {
-                Ice.ObjectAdapter second = 
+                Ice.ObjectAdapter second =
                     communicator.createObjectAdapterWithEndpoints("TestAdapter0", "ssl -h foo -p 12011");
                 test(false);
             }
@@ -772,7 +1404,7 @@ public class AllTests
             first.deactivate();
             out.println("ok");
         }
-        
+
         {
             out.print("testing servant registration exceptions... ");
             communicator.getProperties().setProperty("TestAdapter1.Endpoints", "default");
@@ -1029,7 +1661,7 @@ public class AllTests
 
             out.print("catching unknown user exception... ");
             out.flush();
-            
+
             try
             {
                 thrower.throwUndeclaredA(1);
@@ -1043,7 +1675,7 @@ public class AllTests
                 ex.printStackTrace();
                 test(false);
             }
-            
+
             try
             {
                 thrower.throwUndeclaredB(1, 2);
@@ -1057,7 +1689,7 @@ public class AllTests
                 ex.printStackTrace();
                 test(false);
             }
-            
+
             try
             {
                 thrower.throwUndeclaredC(1, 2, 3);
@@ -1071,15 +1703,15 @@ public class AllTests
                 ex.printStackTrace();
                 test(false);
             }
-            
+
             out.println("ok");
         }
-        
+
         if(thrower.supportsAssertException())
         {
             out.print("testing assert in the server... ");
             out.flush();
-            
+
             try
             {
                 thrower.throwAssertException();
@@ -1098,7 +1730,7 @@ public class AllTests
                 ex.printStackTrace();
                 test(false);
             }
-            
+
             out.println("ok");
         }
 
@@ -1128,7 +1760,7 @@ public class AllTests
 
         out.print("catching facet not exist exception... ");
         out.flush();
- 
+
         try
         {
             ThrowerPrx thrower2 = ThrowerPrxHelper.uncheckedCast(thrower, "no such facet");
@@ -1222,25 +1854,25 @@ public class AllTests
                 thrower.throwAasA_async(cb, 1);
                 cb.check();
             }
-        
+
             {
                 AMI_Thrower_throwAorDasAorDI cb = new AMI_Thrower_throwAorDasAorDI();
                 thrower.throwAorDasAorD_async(cb, 1);
                 cb.check();
             }
-        
+
             {
                 AMI_Thrower_throwAorDasAorDI cb = new AMI_Thrower_throwAorDasAorDI();
                 thrower.throwAorDasAorD_async(cb, -1);
                 cb.check();
             }
-        
+
             {
                 AMI_Thrower_throwBasBI cb = new AMI_Thrower_throwBasBI();
                 thrower.throwBasB_async(cb, 1, 2);
                 cb.check();
             }
-        
+
             {
                 AMI_Thrower_throwCasCI cb = new AMI_Thrower_throwCasCI();
                 thrower.throwCasC_async(cb, 1, 2, 3);
@@ -1249,12 +1881,12 @@ public class AllTests
                 thrower.throwCasC_async(cb, 1, 2, 3);
                 cb.check();
             }
-        
+
             out.println("ok");
-        
+
             out.print("catching derived types with AMI... ");
             out.flush();
-        
+
             {
                 AMI_Thrower_throwBasAI cb = new AMI_Thrower_throwBasAI();
                 thrower.throwBasA_async(cb, 1, 2);
@@ -1266,20 +1898,20 @@ public class AllTests
                 thrower.throwCasA_async(cb, 1, 2, 3);
                 cb.check();
             }
-        
+
             {
                 AMI_Thrower_throwCasBI cb = new AMI_Thrower_throwCasBI();
                 thrower.throwCasB_async(cb, 1, 2, 3);
                 cb.check();
             }
-        
+
             out.println("ok");
 
             if(thrower.supportsUndeclaredExceptions())
             {
                 out.print("catching unknown user exception with AMI... ");
                 out.flush();
-            
+
                 {
                     AMI_Thrower_throwUndeclaredAI cb = new AMI_Thrower_throwUndeclaredAI();
                     thrower.throwUndeclaredA_async(cb, 1);
@@ -1297,7 +1929,7 @@ public class AllTests
                     thrower.throwUndeclaredC_async(cb, 1, 2, 3);
                     cb.check();
                 }
-        
+
                 out.println("ok");
             }
 
@@ -1305,11 +1937,11 @@ public class AllTests
             {
                 out.print("testing assert in the server with AMI... ");
                 out.flush();
-            
+
                 AMI_Thrower_throwAssertExceptionI cb = new AMI_Thrower_throwAssertExceptionI();
                 thrower.throwAssertException_async(cb);
                 cb.check();
-        
+
                 out.println("ok");
             }
 
@@ -1343,7 +1975,7 @@ public class AllTests
                 ex.printStackTrace();
                 test(false);
             }
-                
+
             out.println("ok");
 
             out.print("catching operation not exist exception with AMI... ");
@@ -1357,7 +1989,7 @@ public class AllTests
             }
 
             out.println("ok");
-    
+
             out.print("catching unknown local exception with AMI... ");
             out.flush();
 
@@ -1366,16 +1998,161 @@ public class AllTests
                 thrower.throwLocalException_async(cb);
                 cb.check();
             }
-        
+
             out.println("ok");
 
             out.print("catching unknown non-Ice exception with AMI... ");
             out.flush();
-        
-            AMI_Thrower_throwNonIceExceptionI cb = new AMI_Thrower_throwNonIceExceptionI();
-            thrower.throwNonIceException_async(cb);
-            cb.check();
-        
+
+            {
+                AMI_Thrower_throwNonIceExceptionI cb = new AMI_Thrower_throwNonIceExceptionI();
+                thrower.throwNonIceException_async(cb);
+                cb.check();
+            }
+
+            out.println("ok");
+
+            out.print("catching exact types with new AMI mapping... ");
+            out.flush();
+
+            {
+                Callback_Thrower_throwAasAI cb = new Callback_Thrower_throwAasAI();
+                thrower.begin_throwAasA(1, cb);
+                cb.check();
+            }
+
+            {
+                Callback_Thrower_throwAorDasAorDI cb = new Callback_Thrower_throwAorDasAorDI();
+                thrower.begin_throwAorDasAorD(1, cb);
+                cb.check();
+            }
+
+            {
+                Callback_Thrower_throwAorDasAorDI cb = new Callback_Thrower_throwAorDasAorDI();
+                thrower.begin_throwAorDasAorD(-1, cb);
+                cb.check();
+            }
+
+            {
+                Callback_Thrower_throwBasBI cb = new Callback_Thrower_throwBasBI();
+                thrower.begin_throwBasB(1, 2, cb);
+                cb.check();
+            }
+
+            {
+                Callback_Thrower_throwCasCI cb = new Callback_Thrower_throwCasCI();
+                thrower.begin_throwCasC(1, 2, 3, cb);
+                cb.check();
+            }
+
+            out.println("ok");
+
+            out.print("catching derived types with new AMI mapping... ");
+            out.flush();
+
+            {
+                Callback_Thrower_throwBasAI cb = new Callback_Thrower_throwBasAI();
+                thrower.begin_throwBasA(1, 2, cb);
+                cb.check();
+            }
+
+            {
+                Callback_Thrower_throwCasAI cb = new Callback_Thrower_throwCasAI();
+                thrower.begin_throwCasA(1, 2, 3, cb);
+                cb.check();
+            }
+
+            {
+                Callback_Thrower_throwCasBI cb = new Callback_Thrower_throwCasBI();
+                thrower.begin_throwCasB(1, 2, 3, cb);
+                cb.check();
+            }
+
+            out.println("ok");
+
+            if(thrower.supportsUndeclaredExceptions())
+            {
+                out.print("catching unknown user exception with new AMI mapping... ");
+                out.flush();
+
+                {
+                    Callback_Thrower_throwUndeclaredAI cb = new Callback_Thrower_throwUndeclaredAI();
+                    thrower.begin_throwUndeclaredA(1, cb);
+                    cb.check();
+                }
+
+                {
+                    Callback_Thrower_throwUndeclaredBI cb = new Callback_Thrower_throwUndeclaredBI();
+                    thrower.begin_throwUndeclaredB(1, 2, cb);
+                    cb.check();
+                }
+
+                {
+                    Callback_Thrower_throwUndeclaredCI cb = new Callback_Thrower_throwUndeclaredCI();
+                    thrower.begin_throwUndeclaredC(1, 2, 3, cb);
+                    cb.check();
+                }
+
+                out.println("ok");
+            }
+
+            out.print("catching object not exist exception with new AMI mapping... ");
+            out.flush();
+
+            {
+                Ice.Identity id = communicator.stringToIdentity("does not exist");
+                ThrowerPrx thrower2 = ThrowerPrxHelper.uncheckedCast(thrower.ice_identity(id));
+                AMI_Thrower_throwAasAObjectNotExistI cb = new AMI_Thrower_throwAasAObjectNotExistI(communicator);
+                thrower2.begin_throwAasA(1, cb);
+                cb.check();
+            }
+
+            out.println("ok");
+
+            out.print("catching facet not exist exception with new AMI mapping... ");
+            out.flush();
+
+            {
+                ThrowerPrx thrower2 = ThrowerPrxHelper.uncheckedCast(thrower, "no such facet");
+                Callback_Thrower_throwAasAFacetNotExistI cb = new Callback_Thrower_throwAasAFacetNotExistI();
+                thrower2.begin_throwAasA(1, cb);
+                cb.check();
+            }
+
+            out.println("ok");
+
+            out.print("catching operation not exist exception with new AMI mapping... ");
+            out.flush();
+
+            {
+                Callback_WrongOperation_noSuchOperationI cb = new Callback_WrongOperation_noSuchOperationI();
+                WrongOperationPrx thrower2 = WrongOperationPrxHelper.uncheckedCast(thrower);
+                thrower2.begin_noSuchOperation(cb);
+                cb.check();
+            }
+
+            out.println("ok");
+
+            out.print("catching unknown local exception with new AMI mapping... ");
+            out.flush();
+
+            {
+                Callback_Thrower_throwLocalExceptionI cb = new Callback_Thrower_throwLocalExceptionI();
+                thrower.begin_throwLocalException(cb);
+                cb.check();
+            }
+
+            out.println("ok");
+
+            out.print("catching unknown non-Ice exception with AMI... ");
+            out.flush();
+
+            {
+                Callback_Thrower_throwNonIceExceptionI cb = new Callback_Thrower_throwNonIceExceptionI();
+                thrower.begin_throwNonIceException(cb);
+                cb.check();
+            }
+
             out.println("ok");
         }
 

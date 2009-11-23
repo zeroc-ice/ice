@@ -9,7 +9,7 @@
 
 package IceInternal;
 
-public class ConnectRequestHandler 
+public class ConnectRequestHandler
     implements RequestHandler, Reference.GetConnectionCallback, RouterInfo.AddProxyCallback
 {
     static class Request
@@ -71,15 +71,15 @@ public class ConnectRequestHandler
                 {
                 }
             }
-            
+
             if(!initialized())
             {
-                _batchStream.swap(os);
                 _batchRequestInProgress = true;
+                _batchStream.swap(os);
                 return;
             }
         }
-        
+
         _connection.prepareBatchRequest(os);
     }
 
@@ -107,7 +107,6 @@ public class ConnectRequestHandler
                 return;
             }
         }
-        
         _connection.finishBatchRequest(os, _compress);
     }
 
@@ -125,10 +124,10 @@ public class ConnectRequestHandler
                 BasicStream dummy = new BasicStream(_reference.getInstance(), _batchAutoFlush);
                 _batchStream.swap(dummy);
                 _batchRequestsSize = Protocol.requestBatchHdr.length;
+
                 return;
             }
         }
-
         _connection.abortBatchRequest();
     }
 
@@ -210,16 +209,16 @@ public class ConnectRequestHandler
         _connection.reclaimOutgoing(out);
     }
 
-    public Reference 
+    public Reference
     getReference()
     {
         return _reference;
     }
 
     synchronized public Ice.ConnectionI
-    getConnection(boolean wait)
+    getConnection(boolean waitInit)
     {
-        if(wait)
+        if(waitInit)
         {
             //
             // Wait for the connection establishment to complete or fail.
@@ -242,7 +241,7 @@ public class ConnectRequestHandler
         }
         else
         {
-            assert(!wait || _initialized);
+            assert(!waitInit || _initialized);
             return _connection;
         }
     }
@@ -256,7 +255,9 @@ public class ConnectRequestHandler
     {
         synchronized(this)
         {
-            assert(_connection == null && _exception == null);
+            assert(_exception == null && _connection == null);
+            assert(_updateRequestHandler || _requests.isEmpty());
+
             _connection = connection;
             _compress = compress;
         }
@@ -277,24 +278,24 @@ public class ConnectRequestHandler
         flushRequests();
     }
 
-    public synchronized void 
+    public synchronized void
     setException(final Ice.LocalException ex)
     {
         assert(!_initialized && _exception == null);
         assert(_updateRequestHandler || _requests.isEmpty());
-        
+
         _exception = ex;
         _proxy = null; // Break cyclic reference count.
         _delegate = null; // Break cyclic reference count.
-        
+
         //
         // If some requests were queued, we notify them of the failure. This is done from a thread
-        // from the client thread pool since this will result in ice_exception callbacks to be 
+        // from the client thread pool since this will result in ice_exception callbacks to be
         // called.
         //
         if(!_requests.isEmpty())
         {
-            _reference.getInstance().clientThreadPool().execute(new ThreadPoolWorkItem() 
+            _reference.getInstance().clientThreadPool().execute(new ThreadPoolWorkItem()
                 {
                     public void
                     execute(ThreadPoolCurrent current)
@@ -315,30 +316,34 @@ public class ConnectRequestHandler
     addedProxy()
     {
         //
-        // The proxy was added to the router info, we're now ready to send the 
+        // The proxy was added to the router info, we're now ready to send the
         // queued requests.
         //
         flushRequests();
     }
 
-    public 
+    public
     ConnectRequestHandler(Reference ref, Ice.ObjectPrx proxy, Ice._ObjectDelM delegate)
     {
         _reference = ref;
         _response = _reference.getMode() == Reference.ModeTwoway;
-        _proxy = (Ice.ObjectPrxHelperBase)proxy; 
+        _proxy = (Ice.ObjectPrxHelperBase)proxy;
         _delegate = delegate;
         _batchAutoFlush = ref.getInstance().initializationData().properties.getPropertyAsIntWithDefault(
             "Ice.BatchAutoFlush", 1) > 0 ? true : false;
-        _batchStream = new BasicStream(ref.getInstance(), _batchAutoFlush);
+        _initialized = false;
+        _flushing = false;
         _batchRequestInProgress = false;
         _batchRequestsSize = Protocol.requestBatchHdr.length;
+        _batchStream = new BasicStream(ref.getInstance(), _batchAutoFlush);
         _updateRequestHandler = false;
     }
 
     private boolean
     initialized()
     {
+        // Must be called with the mutex locked.
+
         if(_initialized)
         {
             assert(_connection != null);
@@ -357,14 +362,14 @@ public class ConnectRequestHandler
                 }
             }
 
-	    if(_exception != null)
-	    {
-		throw (Ice.LocalException)_exception.fillInStackTrace();
-	    }
-	    else
-	    {
-		return _initialized;
-	    }
+            if(_exception != null)
+            {
+                throw (Ice.LocalException)_exception.fillInStackTrace();
+            }
+            else
+            {
+                return _initialized;
+            }
         }
     }
 
@@ -374,7 +379,7 @@ public class ConnectRequestHandler
         synchronized(this)
         {
             assert(_connection != null && !_initialized);
-            
+
             while(_batchRequestInProgress)
             {
                 try
@@ -385,16 +390,16 @@ public class ConnectRequestHandler
                 {
                 }
             }
-            
+
             //
             // We set the _flushing flag to true to prevent any additional queuing. Callers
             // might block for a little while as the queued requests are being sent but this
             // shouldn't be an issue as the request sends are non-blocking.
-            // 
+            //
             _flushing = true;
         }
 
-        final java.util.List<OutgoingAsyncMessageCallback> sentCallbacks = 
+        final java.util.List<OutgoingAsyncMessageCallback> sentCallbacks =
             new java.util.ArrayList<OutgoingAsyncMessageCallback>();
         try
         {
@@ -406,20 +411,14 @@ public class ConnectRequestHandler
                 {
                     if(_connection.sendAsyncRequest(request.out, _compress, _response))
                     {
-                        if(request.out instanceof Ice.AMISentCallback)
-                        {
-                            sentCallbacks.add(request.out);
-                        }
+                        sentCallbacks.add(request.out);
                     }
                 }
                 else if(request.batchOut != null)
                 {
                     if(_connection.flushAsyncBatchRequests(request.batchOut))
                     {
-                        if(request.batchOut instanceof Ice.AMISentCallback)
-                        {
-                            sentCallbacks.add(request.batchOut);
-                        }
+                        sentCallbacks.add(request.batchOut);
                     }
                 }
                 else
@@ -447,7 +446,7 @@ public class ConnectRequestHandler
             {
                 assert(_exception == null && !_requests.isEmpty());
                 _exception = ex.get();
-                _reference.getInstance().clientThreadPool().execute(new ThreadPoolWorkItem() 
+                _reference.getInstance().clientThreadPool().execute(new ThreadPoolWorkItem()
                     {
                         public void
                         execute(ThreadPoolCurrent current)
@@ -464,7 +463,7 @@ public class ConnectRequestHandler
             {
                 assert(_exception == null && !_requests.isEmpty());
                 _exception = ex;
-                _reference.getInstance().clientThreadPool().execute(new ThreadPoolWorkItem() 
+                _reference.getInstance().clientThreadPool().execute(new ThreadPoolWorkItem()
                     {
                         public void
                         execute(ThreadPoolCurrent current)
@@ -475,11 +474,11 @@ public class ConnectRequestHandler
                     });
             }
         }
-        
+
         if(!sentCallbacks.isEmpty())
         {
             final Instance instance = _reference.getInstance();
-            instance.clientThreadPool().execute(new ThreadPoolWorkItem() 
+            instance.clientThreadPool().execute(new ThreadPoolWorkItem()
                                                 {
                                                     public void
                                                     execute(ThreadPoolCurrent current)
@@ -487,16 +486,16 @@ public class ConnectRequestHandler
                                                         current.ioCompleted();
                                                         for(OutgoingAsyncMessageCallback callback : sentCallbacks)
                                                         {
-                                                            callback.__sent(instance);
+                                                            callback.__sent();
                                                         }
                                                     };
                                                 });
         }
-        
+
         //
         // We've finished sending the queued requests and the request handler now send
-        // the requests over the connection directly. It's time to substitute the 
-        // request handler of the proxy with the more efficient connection request 
+        // the requests over the connection directly. It's time to substitute the
+        // request handler of the proxy with the more efficient connection request
         // handler which does not have any synchronization. This also breaks the cyclic
         // reference count with the proxy.
         //
@@ -509,9 +508,9 @@ public class ConnectRequestHandler
 
         synchronized(this)
         {
+            assert(!_initialized);
             if(_exception == null)
             {
-                assert(!_initialized);
                 _initialized = true;
                 _flushing = false;
             }
@@ -527,12 +526,12 @@ public class ConnectRequestHandler
         for(Request request : _requests)
         {
             if(request.out != null)
-            {            
-                request.out.__finished(ex);
+            {
+                request.out.__finished(ex, false);
             }
             else if(request.batchOut != null)
             {
-                request.batchOut.__finished(ex);
+                request.batchOut.__finished(ex, false);
             }
         }
         _requests.clear();
@@ -544,27 +543,30 @@ public class ConnectRequestHandler
         for(Request request : _requests)
         {
             if(request.out != null)
-            {            
+            {
                 request.out.__finished(ex);
             }
             else if(request.batchOut != null)
             {
-                request.batchOut.__finished(ex.get());
+                request.batchOut.__finished(ex.get(), false);
             }
         }
         _requests.clear();
     }
 
     private final Reference _reference;
-    private final boolean _batchAutoFlush;
+    private boolean _response;
+
     private Ice.ObjectPrxHelperBase _proxy;
     private Ice._ObjectDelM _delegate;
-    private boolean _initialized = false;
-    private boolean _flushing = false;
-    private Ice.ConnectionI _connection = null;
-    private boolean _compress = false;
-    private boolean _response;
-    private Ice.LocalException _exception = null;
+
+    private final boolean _batchAutoFlush;
+
+    private Ice.ConnectionI _connection;
+    private boolean _compress;
+    private Ice.LocalException _exception;
+    private boolean _initialized;
+    private boolean _flushing;
 
     private java.util.List<Request> _requests = new java.util.LinkedList<Request>();
     private boolean _batchRequestInProgress;

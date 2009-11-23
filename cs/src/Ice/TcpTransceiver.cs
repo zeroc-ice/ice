@@ -96,6 +96,13 @@ namespace IceInternal
                     packetSize = _maxSendPacketSize / 2;
                 }
             }
+            else
+            {
+                if(_blocking > 0)
+                {
+                    return false;
+                }
+            }
 
             while(buf.b.hasRemaining())
             {
@@ -152,6 +159,14 @@ namespace IceInternal
 
         public bool read(Buffer buf)
         {
+            if(AssemblyUtil.platform_ != AssemblyUtil.Platform.Windows)
+            {
+                if(_blocking > 0)
+                {
+                    return false;
+                }
+            }
+
             int remaining = buf.b.remaining();
             int position = buf.b.position();
 
@@ -232,6 +247,15 @@ namespace IceInternal
         {
             Debug.Assert(_fd != null && _readResult == null);
 
+            // COMPILERFIX: Workaround for Mac OS X broken poll(), see Mono bug #470120
+            if(AssemblyUtil.platform_ != AssemblyUtil.Platform.Windows)
+            {
+                if(++_blocking == 1)
+                {
+                    Network.setBlock(_fd, true);
+                }
+            }
+
             int packetSize = buf.b.remaining();
             if(_maxReceivePacketSize > 0 && packetSize > _maxReceivePacketSize)
             {
@@ -275,6 +299,14 @@ namespace IceInternal
                     throw new Ice.ConnectionLostException();
                 }
 
+                // COMPILERFIX: Workaround for Mac OS X broken poll(), see Mono bug #470120
+                if(AssemblyUtil.platform_ != AssemblyUtil.Platform.Windows)
+                {
+                    if(--_blocking == 0)
+                    {
+                        Network.setBlock(_fd, false);
+                    }
+                }
                 Debug.Assert(ret > 0);
 
                 if(_traceLevels.network >= 3)
@@ -310,13 +342,23 @@ namespace IceInternal
             }
         }
 
-        public bool startWrite(Buffer buf, AsyncCallback callback, object state)
+        public bool startWrite(Buffer buf, AsyncCallback callback, object state, out bool completed)
         {
             Debug.Assert(_fd != null && _writeResult == null);
+
+            // COMPILERFIX: Workaround for Mac OS X broken poll(), see Mono bug #470120
+            if(AssemblyUtil.platform_ != AssemblyUtil.Platform.Windows)
+            {
+                if(++_blocking == 1)
+                {
+                    Network.setBlock(_fd, true);
+                }
+            }
 
             if(_state < StateConnected)
             {
                 _writeResult = Network.doConnectAsync(_fd, _addr, callback, state);
+                completed = false;
                 return _writeResult.CompletedSynchronously;
             }
 
@@ -348,7 +390,8 @@ namespace IceInternal
             {
                 throw new Ice.ConnectionLostException(ex);
             }
-
+            
+            completed = packetSize == buf.b.remaining();
             return _writeResult.CompletedSynchronously;
         }
 
@@ -380,6 +423,15 @@ namespace IceInternal
                     throw new Ice.ConnectionLostException();
                 }
                 Debug.Assert(ret > 0);
+
+                // COMPILERFIX: Workaround for Mac OS X broken poll(), see Mono bug #470120
+                if(AssemblyUtil.platform_ != AssemblyUtil.Platform.Windows)
+                {
+                    if(--_blocking == 0)
+                    {
+                        Network.setBlock(_fd, false);
+                    }
+                }
 
                 if(_traceLevels.network >= 3)
                 {
@@ -490,6 +542,7 @@ namespace IceInternal
         private int _maxSendPacketSize;
         private int _maxReceivePacketSize;
 
+        private int _blocking = 0;
         private IAsyncResult _writeResult;
         private IAsyncResult _readResult;
 

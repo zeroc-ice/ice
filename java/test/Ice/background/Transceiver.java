@@ -6,7 +6,9 @@
 // ICE_LICENSE file included in this distribution.
 //
 // **********************************************************************
+
 package test.Ice.background;
+
 final class Transceiver implements IceInternal.Transceiver
 {
     public java.nio.channels.SelectableChannel
@@ -66,7 +68,7 @@ final class Transceiver implements IceInternal.Transceiver
 
         if(!_configuration.writeReady())
         {
-                return false;
+            return false;
         }
         _configuration.checkWriteException();
         return _transceiver.write(buf);

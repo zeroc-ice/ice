@@ -100,11 +100,11 @@ Transceiver::read(IceInternal::Buffer& buf)
 
 
 #ifdef ICE_USE_IOCP
-void 
+bool
 Transceiver::startWrite(IceInternal::Buffer& buf)
 {
     _configuration->checkWriteException();
-    _transceiver->startWrite(buf);
+    return _transceiver->startWrite(buf);
 }
 
 void 

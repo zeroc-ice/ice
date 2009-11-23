@@ -23,15 +23,22 @@ COBJS		= Test.obj \
 		  Oneways.obj \
 		  TwowaysAMI.obj \
 		  OnewaysAMI.obj \
-		  BatchOneways.obj
+		  TwowaysNewAMI.obj \
+		  OnewaysNewAMI.obj \
+		  BatchOneways.obj \
+		  StateChanger.obj
 
 SOBJS		= Test.obj \
 		  TestI.obj \
-		  Server.obj
+		  Server.obj \
+		  StateChanger.obj \
+		  StateChangerI.obj
 
 SAMDOBJS	= TestAMD.obj \
 		  TestAMDI.obj \
-		  ServerAMD.obj
+		  ServerAMD.obj \
+		  StateChanger.obj \
+		  StateChangerI.obj
 
 COLOBJS		= Test.obj \
 		  TestI.obj \
@@ -41,7 +48,10 @@ COLOBJS		= Test.obj \
 		  Oneways.obj \
 		  TwowaysAMI.obj \
 		  OnewaysAMI.obj \
-		  BatchOneways.obj
+		  TwowaysNewAMI.obj \
+		  OnewaysNewAMI.obj \
+		  BatchOneways.obj \
+		  StateChanger.obj
 
 SRCS		= $(COBJS:.obj=.cpp) \
 		  $(SOBJS:.obj=.cpp) \
@@ -50,7 +60,7 @@ SRCS		= $(COBJS:.obj=.cpp) \
 
 !include $(top_srcdir)/config/Make.rules.mak
 
-CPPFLAGS	= -I. -I../../include $(CPPFLAGS) -DWIN32_LEAN_AND_MEAN
+CPPFLAGS	= -I. -I../../include $(CPPFLAGS) -DWIN32_LEAN_AND_MEAN -Zm200
 
 !if "$(GENERATE_PDB)" == "yes"
 CPDBFLAGS        = /pdb:$(CLIENT:.exe=.pdb)

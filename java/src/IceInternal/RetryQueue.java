@@ -43,5 +43,4 @@ public class RetryQueue
 
     final private Instance _instance;
     final private java.util.HashSet<RetryTask> _requests = new java.util.HashSet<RetryTask>();
-};
-
+}

@@ -18,6 +18,11 @@ public class Server extends test.Util.Application
         adapter.add(new MyDerivedClassI(), communicator().stringToIdentity("test"));
         adapter.activate();
 
+        communicator().getProperties().setProperty("HoldAdapter.Endpoints", "default -p 12011:udp");
+        Ice.ObjectAdapter holdAdapter = communicator().createObjectAdapter("HoldAdapter");
+        holdAdapter.add(new StateChangerI(new java.util.Timer(), adapter), communicator().stringToIdentity("hold"));
+        holdAdapter.activate();
+
         return WAIT;
     }
 
@@ -26,13 +31,12 @@ public class Server extends test.Util.Application
         Ice.InitializationData initData = new Ice.InitializationData();
         initData.properties = Ice.Util.createProperties(argsH);
         //
-        // Its possible to have batch oneway requests dispatched
+        // It's possible to have batch oneway requests dispatched
         // after the adapter is deactivated due to thread
-        // scheduling so we supress this warning.
+        // scheduling so we suppress this warning.
         //
         initData.properties.setProperty("Ice.Warn.Dispatch", "0");
         initData.properties.setProperty("Ice.Package.Test", "test.Ice.operations");
-        initData.properties.setProperty("TestAdapter.Endpoints", "default -p 12010:udp");
         return initData;
     }
 

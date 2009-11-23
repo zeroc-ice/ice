@@ -412,11 +412,12 @@ public final class Outgoing implements OutgoingMessageCallback
     }
 
     public synchronized void
-    finished(Ice.LocalException ex)
+    finished(Ice.LocalException ex, boolean sent)
     {
         assert(_state <= StateInProgress);
         _state = StateFailed;
         _exception = ex;
+        _sent = sent;
         notify();
     }
 

@@ -9,6 +9,7 @@
 
 #include <Ice/Ice.h>
 #include <TestAMDI.h>
+#include <StateChangerI.h>
 
 using namespace std;
 
@@ -19,6 +20,11 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
     Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter("TestAdapter");
     adapter->add(new MyDerivedClassI, communicator->stringToIdentity("test"));
     adapter->activate();
+
+    communicator->getProperties()->setProperty("HoldAdapter.Endpoints", "default -p 12011:udp");
+    Ice::ObjectAdapterPtr holdAdapter = communicator->createObjectAdapter("HoldAdapter");
+    holdAdapter->add(new StateChangerI(new IceUtil::Timer(), adapter), communicator->stringToIdentity("hold"));
+    holdAdapter->activate();
 
     communicator->waitForShutdown();
     return EXIT_SUCCESS;

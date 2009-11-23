@@ -85,7 +85,6 @@ public class Client extends JFrame
         });
     }
 
-
     Client(String[] args)
     {
         // Build the JTextArea that shows the chat conversation.
@@ -113,7 +112,7 @@ public class Client extends JFrame
         _input = new JTextArea("");
         _input.setLineWrap(true);
         _input.setEditable(true);
-        _input.addKeyListener( new KeyListener()
+        _input.addKeyListener(new KeyListener()
         {
             public void
             keyTyped(KeyEvent e)
@@ -126,11 +125,17 @@ public class Client extends JFrame
                         String msg = doc.getText(0, doc.getLength()).trim();
                         if(msg.length() > 0)
                         {
-                            _chat.say_async(new Demo.AMI_ChatSession_say()
+                            _chat.begin_say(msg, new Demo.Callback_ChatSession_say()
                             {
                                 @Override
                                 public void
-                                ice_exception(final LocalException ex)
+                                response()
+                                {
+                                }
+
+                                @Override
+                                public void
+                                exception(final LocalException ex)
                                 {
                                     SwingUtilities.invokeLater(new Runnable() {
 
@@ -141,13 +146,7 @@ public class Client extends JFrame
                                         }
                                     });
                                 }
-
-                                @Override
-                                public void
-                                ice_response()
-                                {
-                                }
-                            }, msg);
+                            });
                         }
                     }
                     catch(BadLocationException e1)
@@ -353,46 +352,42 @@ public class Client extends JFrame
                                 _session.addWithUUID(servant));
 
                     _chat = Demo.ChatSessionPrxHelper.uncheckedCast(_session.session());
-                    _chat.setCallback_async(new Demo.AMI_ChatSession_setCallback()
-                        {
+                    _chat.begin_setCallback(callback, new Demo.Callback_ChatSession_setCallback()
+                    {
                         @Override
                         public void
-                        ice_exception(LocalException ex)
+                        response()
                         {
                             SwingUtilities.invokeLater(new Runnable()
+                            {
+                                public void run()
                                 {
+                                    assert _loginDialog != null;
+                                    _loginDialog.dispose();
 
-                                    public void
-                                    run()
-                                    {
-                                        destroySession();
-                                    }
-                                });
+                                    _login.setEnabled(false);
+                                    _logout.setEnabled(true);
+
+                                    _input.setEnabled(true);
+
+                                    _status.setText("Connected with " + _hostField.getText());
+                                }
+                            });
                         }
 
                         @Override
                         public void
-                        ice_response()
+                        exception(LocalException ex)
                         {
-                        SwingUtilities.invokeLater(new Runnable()
-                                    {
-                            public void
-                                        run()
+                            SwingUtilities.invokeLater(new Runnable()
                             {
-                            assert _loginDialog != null;
-                            _loginDialog.dispose();
-
-                            _login.setEnabled(false);
-                            _logout.setEnabled(true);
-
-                            _input.setEnabled(true);
-
-                            _status.setText("Connected with " + _hostField.getText());
-                            }
-                        });
+                                public void run()
+                                {
+                                    destroySession();
+                                }
+                            });
                         }
-
-                    }, callback);
+                    });
             }
 
             public void

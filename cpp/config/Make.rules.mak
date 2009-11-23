@@ -39,8 +39,11 @@ CPP_COMPILER		= VC90
 # change the following setting to reflect the installation location.
 #
 !if "$(THIRDPARTY_HOME)" == ""
-THIRDPARTY_HOME		= C:\Program Files\ZeroC\Ice-$(VERSION)-ThirdParty
-#THIRDPARTY_HOME	 = C:\Program Files (x86)\ZeroC\Ice-$(VERSION)-ThirdParty
+!if "$(PROCESSOR_ARCHITECTURE)" == "AMD64" || "$(PROCESSOR_ARCHITECTUREW6432)" == "AMD64"
+THIRDPARTY_HOME	 = $(PROGRAMFILES) (x86)\ZeroC\Ice-$(VERSION)-ThirdParty
+!else
+THIRDPARTY_HOME	 = $(PROGRAMFILES)\ZeroC\Ice-$(VERSION)-ThirdParty
+!endif
 !endif
 
 #

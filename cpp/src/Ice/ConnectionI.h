@@ -154,31 +154,32 @@ private:
     struct OutgoingMessage
     {
         OutgoingMessage(IceInternal::BasicStream* str, bool comp) : 
-	    stream(str), out(0), compress(comp), response(false), adopted(false)
+	    stream(str), out(0), compress(comp), requestId(0), adopted(false), isSent(false)
 	{
 	}
 
-        OutgoingMessage(IceInternal::OutgoingMessageCallback* o, IceInternal::BasicStream* str, bool comp, bool resp) :
-	    stream(str), out(o), compress(comp), response(resp), adopted(false)
+        OutgoingMessage(IceInternal::OutgoingMessageCallback* o, IceInternal::BasicStream* str, bool comp, int rid) :
+	    stream(str), out(o), compress(comp), requestId(rid), adopted(false), isSent(false)
 	{
 	}
 
         OutgoingMessage(const IceInternal::OutgoingAsyncMessageCallbackPtr& o, IceInternal::BasicStream* str, 
-                        bool comp, bool resp) :
-	    stream(str), out(0), outAsync(o), compress(comp), response(resp), adopted(false)
+                        bool comp, int rid) :
+	    stream(str), out(0), outAsync(o), compress(comp), requestId(rid), adopted(false), isSent(false)
 	{
 	}
 
         void adopt(IceInternal::BasicStream*);
-        void sent(ConnectionI*, bool);
+        bool sent(ConnectionI*, bool);
         void finished(const Ice::LocalException&);
 
         IceInternal::BasicStream* stream;
         IceInternal::OutgoingMessageCallback* out;
         IceInternal::OutgoingAsyncMessageCallbackPtr outAsync;
         bool compress;
-        bool response;
+        int requestId;
         bool adopted;
+        bool isSent;
     };
 
     ConnectionI(const IceInternal::InstancePtr&, const IceInternal::ConnectionReaperPtr&, 

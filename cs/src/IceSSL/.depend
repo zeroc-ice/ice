@@ -1,1 +1,0 @@
-Endpoint.cs: $(slicedir)/Ice/Endpoint.ice $(slicedir)/Ice/BuiltinSequences.ice $(slicedir)/Ice/EndpointF.ice

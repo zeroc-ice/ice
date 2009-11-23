@@ -10,8 +10,8 @@
 #ifndef DATABASE_CACHE_H
 #define DATABASE_CACHE_H
 
+#include <Ice/Plugin.h>
 #include <IceDB/IceDB.h>
-
 #include <IceGrid/Admin.h>
 
 namespace IceGrid

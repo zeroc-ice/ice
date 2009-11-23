@@ -144,5 +144,26 @@ allTests(const Ice::CommunicatorPtr& communicator)
     cb1->check();
     cout << "ok" << endl;
 
+    cout << "calling regular AMI operation with new AMI mapping with first proxy... " << flush;
+    Ice::AsyncResultPtr r = retry1->begin_op(false);
+    retry1->end_op(r);
+    cout << "ok" << endl;
+
+    cout << "calling AMI operation with new AMI mapping to kill connection with second proxy... " << flush;
+    r = retry2->begin_op(true);
+    try
+    {
+	retry2->end_op(r);
+    }
+    catch(const Ice::ConnectionLostException&)
+    {
+    }
+    cout << "ok" << endl;
+
+    cout << "calling regular AMI operation with first proxy again... " << flush;
+    r = retry1->begin_op(false);
+    retry1->end_op(r);
+    cout << "ok" << endl;
+
     return retry1;
 }

@@ -11,77 +11,97 @@ import Demo.*;
 
 public class Client extends Ice.Application
 {
-    private class AMI_Object_ice_invokeI extends Ice.AMI_Object_ice_invoke
+    private class CallbackI extends Ice.AsyncCallback
     {
-        public void ice_response(boolean ok, byte[] outParams)
+        @Override
+        public void completed(Ice.AsyncResult r)
         {
-            if(!ok)
-            {
-                System.out.println("Unknown user exception");
-            }
-        }
-
-        public void ice_exception(Ice.LocalException ex)
-        {
-            ex.printStackTrace();
-        }
-    }
-
-    private class AMI_Object_ice_invokeGetValuesI extends Ice.AMI_Object_ice_invoke
-    {
-        public void ice_response(boolean ok, byte[] outParams)
-        {
-            if(!ok)
-            {
-                System.out.println("Unknown user exception");
-            }
-            else
-            {
-                //
-                // Unmarshal the results.
-                //
-                Ice.InputStream in = Ice.Util.createInputStream(communicator(), outParams);
-                Demo.CHolder c = new Demo.CHolder();
-                Demo.CHelper.read(in, c);
-                String str = in.readString();
-                in.readPendingObjects();
-                in.destroy();
-                System.out.println("Got string `" + str + "' and class: s.name=" + c.value.s.name +
-                                   ", s.value=" + c.value.s.value);
-            }
-        }
-
-        public void ice_exception(Ice.LocalException ex)
-        {
-            ex.printStackTrace();
-        }
-    }
-
-    private class AMI_Object_ice_invokeThrowPrintFailureI extends Ice.AMI_Object_ice_invoke
-    {
-        public void ice_response(boolean ok, byte[] outParams)
-        {
-            Ice.InputStream in = Ice.Util.createInputStream(communicator(), outParams);
+            Ice.ByteSeqHolder outParams = new Ice.ByteSeqHolder();
             try
             {
-                in.throwException();
+                if(!r.getProxy().end_ice_invoke(outParams, r))
+                {
+                    System.out.println("Unknown user exception");
+                }
             }
-            catch(Demo.PrintFailure ex)
+            catch(Ice.LocalException ex)
             {
-                // Expected.
+                ex.printStackTrace();
             }
-            catch(Ice.UserException ex)
-            {
-                System.out.println("Unknown user exception");
-            }
-            in.destroy();
-        }
-
-        public void ice_exception(Ice.LocalException ex)
-        {
-            ex.printStackTrace();
         }
     }
+
+    private class Callback_getValuesI extends Ice.AsyncCallback
+    {
+        @Override
+        public void completed(Ice.AsyncResult r)
+        {
+            Ice.ByteSeqHolder outParams = new Ice.ByteSeqHolder();
+            try
+            {
+                if(r.getProxy().end_ice_invoke(outParams, r))
+                {
+                    //
+                    // Unmarshal the results.
+                    //
+                    Ice.InputStream in = Ice.Util.createInputStream(communicator(), outParams.value);
+                    Demo.CHolder c = new Demo.CHolder();
+                    Demo.CHelper.read(in, c);
+                    String str = in.readString();
+                    in.readPendingObjects();
+                    in.destroy();
+                    System.out.println("Got string `" + str + "' and class: s.name=" + c.value.s.name +
+                                       ", s.value=" + c.value.s.value);
+                }
+                else
+                {
+                    System.out.println("Unknown user exception");
+                }
+            }
+            catch(Ice.LocalException ex)
+            {
+                ex.printStackTrace();
+            }
+        }
+    }
+
+    private class Callback_throwPrintFailureI extends Ice.AsyncCallback
+    {
+        @Override
+        public void completed(Ice.AsyncResult r)
+        {
+            Ice.ByteSeqHolder outParams = new Ice.ByteSeqHolder();
+            try
+            {
+                if(!r.getProxy().end_ice_invoke(outParams, r))
+                {
+                    Ice.InputStream in = Ice.Util.createInputStream(communicator(), outParams.value);
+                    try
+                    {
+                        in.throwException();
+                    }
+                    catch(Demo.PrintFailure ex)
+                    {
+                        // Expected.
+                    }
+                    catch(Ice.UserException ex)
+                    {
+                        System.out.println("Unknown user exception");
+                    }
+                    in.destroy();
+                }
+                else
+                {
+                    System.out.println("Expected user exception");
+                }
+            }
+            catch(Ice.LocalException ex)
+            {
+                ex.printStackTrace();
+            }
+        }
+    }
+
     private static void
     menu()
     {
@@ -169,8 +189,7 @@ public class Client extends Ice.Application
                     //
                     if(async)
                     {
-                        obj.ice_invoke_async(new AMI_Object_ice_invokeI(), "printString", Ice.OperationMode.Normal,
-                                             out.finished());
+                        obj.begin_ice_invoke("printString", Ice.OperationMode.Normal, out.finished(), new CallbackI());
                     }
                     else
                     {
@@ -196,8 +215,8 @@ public class Client extends Ice.Application
                     //
                     if(async)
                     {
-                        obj.ice_invoke_async(new AMI_Object_ice_invokeI(), "printStringSequence",
-                                             Ice.OperationMode.Normal, out.finished());
+                        obj.begin_ice_invoke("printStringSequence", Ice.OperationMode.Normal, out.finished(),
+                                             new CallbackI());
                     }
                     else
                     {
@@ -225,8 +244,8 @@ public class Client extends Ice.Application
                     //
                     if(async)
                     {
-                        obj.ice_invoke_async(new AMI_Object_ice_invokeI(), "printDictionary", Ice.OperationMode.Normal,
-                                             out.finished());
+                        obj.begin_ice_invoke("printDictionary", Ice.OperationMode.Normal, out.finished(),
+                                             new CallbackI());
                     }
                     else
                     {
@@ -251,8 +270,7 @@ public class Client extends Ice.Application
                     //
                     if(async)
                     {
-                        obj.ice_invoke_async(new AMI_Object_ice_invokeI(), "printEnum", Ice.OperationMode.Normal,
-                                             out.finished());
+                        obj.begin_ice_invoke("printEnum", Ice.OperationMode.Normal, out.finished(), new CallbackI());
                     }
                     else
                     {
@@ -280,8 +298,7 @@ public class Client extends Ice.Application
                     //
                     if(async)
                     {
-                        obj.ice_invoke_async(new AMI_Object_ice_invokeI(), "printStruct", Ice.OperationMode.Normal,
-                                             out.finished());
+                        obj.begin_ice_invoke("printStruct", Ice.OperationMode.Normal, out.finished(), new CallbackI());
                     }
                     else
                     {
@@ -316,8 +333,8 @@ public class Client extends Ice.Application
                     //
                     if(async)
                     {
-                        obj.ice_invoke_async(new AMI_Object_ice_invokeI(), "printStructSequence",
-                                             Ice.OperationMode.Normal, out.finished());
+                        obj.begin_ice_invoke("printStructSequence", Ice.OperationMode.Normal, out.finished(),
+                                             new CallbackI());
                     }
                     else
                     {
@@ -347,8 +364,7 @@ public class Client extends Ice.Application
                     //
                     if(async)
                     {
-                        obj.ice_invoke_async(new AMI_Object_ice_invokeI(), "printClass", Ice.OperationMode.Normal,
-                                             out.finished());
+                        obj.begin_ice_invoke("printClass", Ice.OperationMode.Normal, out.finished(), new CallbackI());
                     }
                     else
                     {
@@ -368,8 +384,7 @@ public class Client extends Ice.Application
                     Ice.ByteSeqHolder outParams = new Ice.ByteSeqHolder();
                     if(async)
                     {
-                        obj.ice_invoke_async(new AMI_Object_ice_invokeGetValuesI(), "getValues",
-                                             Ice.OperationMode.Normal, null);
+                        obj.begin_ice_invoke("getValues", Ice.OperationMode.Normal, null, new Callback_getValuesI());
                     }
                     else
                     {
@@ -400,8 +415,8 @@ public class Client extends Ice.Application
                     Ice.ByteSeqHolder outParams = new Ice.ByteSeqHolder();
                     if(async)
                     {
-                        obj.ice_invoke_async(new AMI_Object_ice_invokeThrowPrintFailureI(), "throwPrintFailure",
-                                             Ice.OperationMode.Normal, null);
+                        obj.begin_ice_invoke("throwPrintFailure", Ice.OperationMode.Normal, null,
+                                             new Callback_throwPrintFailureI());
                     }
                     else
                     {
@@ -431,7 +446,7 @@ public class Client extends Ice.Application
                 {
                     if(async)
                     {
-                        obj.ice_invoke_async(new AMI_Object_ice_invokeI(), "shutdown", Ice.OperationMode.Normal, null);
+                        obj.begin_ice_invoke("shutdown", Ice.OperationMode.Normal, null, new CallbackI());
                     }
                     else
                     {

@@ -5,6 +5,8 @@ client
 server
 serveramd
 collocated
+StateChanger.h
+StateChanger.cpp
 Test.cpp
 TestAMD.cpp
 Test.h

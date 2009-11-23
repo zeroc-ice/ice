@@ -24,11 +24,11 @@ class RetryTask implements TimerTask
         {
             try
             {
-                _outAsync.__send();
+                _outAsync.__send(false);
             }
             catch(Ice.LocalException ex)
             {
-                _outAsync.__releaseCallback(ex);
+                _outAsync.__exceptionAsync(ex);
             }
         }
     }
@@ -36,7 +36,7 @@ class RetryTask implements TimerTask
     public void
     destroy()
     {
-        _outAsync.__releaseCallback(new Ice.CommunicatorDestroyedException());
+        _outAsync.__exceptionAsync(new Ice.CommunicatorDestroyedException());
     }
 
     private final RetryQueue _queue;

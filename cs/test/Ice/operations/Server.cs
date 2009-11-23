@@ -31,6 +31,11 @@ public class Server
         adapter.add(new MyDerivedClassI(), communicator.stringToIdentity("test"));
         adapter.activate();
 
+        communicator.getProperties().setProperty("HoldAdapter.Endpoints", "default -p 12011:udp");
+        Ice.ObjectAdapter holdAdapter = communicator.createObjectAdapter("HoldAdapter");
+        holdAdapter.add(new StateChangerI(adapter), communicator.stringToIdentity("hold"));
+        holdAdapter.activate();
+
         communicator.waitForShutdown();
         return 0;
     }

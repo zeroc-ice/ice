@@ -43,7 +43,8 @@ namespace IceInternal
 
         public bool sendAsyncRequest(OutgoingAsync @out)
         {
-            return _connection.sendAsyncRequest(@out, _compress, _response);
+            Ice.AsyncCallback sentCallback;
+            return _connection.sendAsyncRequest(@out, _compress, _response, out sentCallback);
         }
 
         public bool flushBatchRequests(BatchOutgoing @out)
@@ -53,7 +54,8 @@ namespace IceInternal
 
         public bool flushAsyncBatchRequests(BatchOutgoingAsync @out)
         {
-            return _connection.flushAsyncBatchRequests(@out);
+            Ice.AsyncCallback sentCallback;
+            return _connection.flushAsyncBatchRequests(@out, out sentCallback);
         }
 
         public Outgoing getOutgoing(string operation, Ice.OperationMode mode, Dictionary<string, string> context)

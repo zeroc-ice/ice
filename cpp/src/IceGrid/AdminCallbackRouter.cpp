@@ -15,11 +15,11 @@ using namespace std;
 namespace
 {
 
-class AMICallback : public AMI_Array_Object_ice_invoke
+class InvokeAMICallback : public AMI_Array_Object_ice_invoke
 {
 public:
 
-    AMICallback(const AMD_Object_ice_invokePtr& cb) :
+    InvokeAMICallback(const AMD_Object_ice_invokePtr& cb) :
         _cb(cb)
     {
     }
@@ -92,6 +92,6 @@ IceGrid::AdminCallbackRouter::ice_invoke_async(const AMD_Object_ice_invokePtr& c
     //
     // Call with AMI
     //
-    target->ice_invoke_async(new AMICallback(cb), current.operation, current.mode, inParams, current.ctx);
+    target->ice_invoke_async(new InvokeAMICallback(cb), current.operation, current.mode, inParams, current.ctx);
 }
 

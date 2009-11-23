@@ -21,10 +21,10 @@ sys.path.append(os.path.join(path[0]))
 from scripts import *
 
 print "tests with regular server."
-TestUtil.clientServerTest()
+TestUtil.clientServerTest(additionalClientOptions = "--Ice.Warn.AMICallback=0")
 
 print "tests with AMD server."
-TestUtil.clientServerTest(server="test.Ice.operations.AMDServer")
+TestUtil.clientServerTest(additionalClientOptions = "--Ice.Warn.AMICallback=0", server="test.Ice.operations.AMDServer")
 
 print "tests with collocated server."
 TestUtil.collocatedTest()

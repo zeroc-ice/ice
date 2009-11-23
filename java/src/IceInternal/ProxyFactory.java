@@ -99,7 +99,7 @@ public final class ProxyFactory
     }
 
     public int
-    checkRetryAfterException(Ice.LocalException ex, Reference ref, final OutgoingAsync out, int cnt)
+    checkRetryAfterException(Ice.LocalException ex, Reference ref, Ice.IntHolder sleepInterval, int cnt)
     {
         TraceLevels traceLevels = _instance.traceLevels();
         Ice.Logger logger = _instance.initializationData().logger;
@@ -135,9 +135,9 @@ public final class ProxyFactory
                     logger.trace(traceLevels.retryCat, s);
                 }
 
-                if(out != null)
+                if(sleepInterval != null)
                 {
-                    out.__retry(cnt, 0);
+                    sleepInterval.value = 0;
                 }
                 return cnt; // We must always retry, so we don't look at the retry count.
             }
@@ -237,9 +237,9 @@ public final class ProxyFactory
             logger.trace(traceLevels.retryCat, s);
         }
 
-        if(out != null)
+        if(sleepInterval != null)
         {
-            out.__retry(cnt, interval);
+            sleepInterval.value = interval;
         }
         else if(interval > 0)
         {
