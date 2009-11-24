@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<DOCUMENT type="Advanced Installer" CreateVersion="7.3" version="7.3" modules="enterprise" RootPath="." Language="en">
+<DOCUMENT type="Advanced Installer" CreateVersion="7.3" version="7.3.1" modules="enterprise" RootPath="." Language="en">
   <COMPONENT cid="caphyon.advinst.msicomp.MsiPropsComponent">
     <ROW Property="AI_UPGRADE" Value="No"/>
     <ROW Property="ALLUSERS" Value="2"/>
@@ -537,7 +537,7 @@
     <ROW File="IcePatch2_FileInfo_ice.py" Component_="IceStorm_IceStorm_ice.py" FileName="IcePat~1.py|IcePatch2_FileInfo_ice.py" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;VC9\Release\py\python\IcePatch2_FileInfo_ice.py" SelfReg="false" Sequence="650"/>
     <ROW File="IcePatch2_FileServer_ice.py" Component_="IceStorm_IceStorm_ice.py" FileName="IcePat~2.py|IcePatch2_FileServer_ice.py" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;VC9\Release\py\python\IcePatch2_FileServer_ice.py" SelfReg="false" Sequence="651"/>
     <ROW File="IcePy.pyd" Component_="IceStorm_IceStorm_ice.py" FileName="IcePy.pyd" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;VC9\Release\py\python\IcePy.pyd" SelfReg="false" Sequence="652" DigSign="true"/>
-    <ROW File="IceRuby.dll" Component_="IceRuby.dll" FileName="IceRuby.so" Attributes="0" SourcePath="..\..\..\..\..\Ice-Build-3.4\VC6\Release\rb\ruby\IceRuby.so" SelfReg="false" Sequence="1118" DigSign="true"/>
+    <ROW File="IceRuby.dll" Component_="IceRuby.dll" FileName="IceRuby.so" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;VC6\Release\rb\ruby\IceRuby.so" SelfReg="false" Sequence="1118" DigSign="true"/>
     <ROW File="IceSSL.dll" Component_="IceSSL.dll" FileName="IceSSL.dll" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;VC9\Release\cs\bin\IceSSL.dll" SelfReg="false" Sequence="323" DigSign="true"/>
     <ROW File="IceSSL.h" Component_="ConnectionInfo.h" FileName="IceSSL.h" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;VC9\Release\cpp\include\IceSSL\IceSSL.h" SelfReg="false" Sequence="256"/>
     <ROW File="IceSSL.pdb" Component_="stlport_vc6_stldebug46.pdb" FileName="IceSSL.pdb" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;VC9\Release\cs\bin\IceSSL.pdb" SelfReg="false" Sequence="322"/>
@@ -710,7 +710,7 @@
     <ROW File="Query.ice" Component_="UserAccountMapper.ice" FileName="Query.ice" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;VC9\Release\slice\IceGrid\Query.ice" SelfReg="false" Sequence="114"/>
     <ROW File="Query.rb" Component_="UserAccountMapper.rb" FileName="Query.rb" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;VC6\Release\rb\ruby\IceGrid\Query.rb" SelfReg="false" Sequence="1165"/>
     <ROW File="README" Component_="vector.h" FileName="README" Attributes="0" SourcePath="&lt;THIRDPARTY_HOME&gt;include\stlport\BC50\README" SelfReg="false" Sequence="790"/>
-    <ROW File="README.txt" Component_="THIRD_PARTY_SOURCES.txt" FileName="README.txt" Attributes="0" SourcePath="docs\main\README.txt" SelfReg="false" Sequence="1"/>
+    <ROW File="README.txt" Component_="THIRD_PARTY_SOURCES.txt" FileName="README.txt" Attributes="0" SourcePath="&lt;WindowsVolume&gt;Builds\ice\distribution\src\windows\docs\main\README.txt" SelfReg="false" Sequence="1"/>
     <ROW File="README_1" Component_="unconfigure" FileName="README" Attributes="0" SourcePath="&lt;THIRDPARTY_HOME&gt;include\stlport\config\new_compiler\README" SelfReg="false" Sequence="1037"/>
     <ROW File="RELEASE_NOTES.txt" Component_="THIRD_PARTY_SOURCES.txt" FileName="RELEAS~1.txt|RELEASE_NOTES.txt" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;VC9\Release\RELEASE_NOTES.txt" SelfReg="false" Sequence="1070"/>
     <ROW File="RWRecMutex.h" Component_="AbstractMutex.h" FileName="RWRecM~1.h|RWRecMutex.h" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;VC9\Release\cpp\include\IceUtil\RWRecMutex.h" SelfReg="false" Sequence="284"/>
@@ -734,7 +734,7 @@
     <ROW File="RouterF.rb" Component_="SSLInfo.rb" FileName="RouterF.rb" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;VC6\Release\rb\ruby\Glacier2\RouterF.rb" SelfReg="false" Sequence="1123"/>
     <ROW File="RouterF.rb_1" Component_="StatsF.rb" FileName="RouterF.rb" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;VC6\Release\rb\ruby\Ice\RouterF.rb" SelfReg="false" Sequence="1154"/>
     <ROW File="RubyUtil.h" Component_="Checksum.h" FileName="RubyUtil.h" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;VC9\Release\cpp\include\Slice\RubyUtil.h" SelfReg="false" Sequence="306"/>
-    <ROW File="SOURCES.txt" Component_="THIRD_PARTY_SOURCES.txt" FileName="SOURCES.txt" Attributes="0" SourcePath="docs\main\SOURCES.txt" SelfReg="false" Sequence="2"/>
+    <ROW File="SOURCES.txt" Component_="THIRD_PARTY_SOURCES.txt" FileName="SOURCES.txt" Attributes="0" SourcePath="&lt;WindowsVolume&gt;Builds\ice\distribution\src\windows\docs\main\SOURCES.txt" SelfReg="false" Sequence="2"/>
     <ROW File="SSLInfo.h" Component_="Application.h" FileName="SSLInfo.h" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;VC9\Release\cpp\include\Glacier2\SSLInfo.h" SelfReg="false" Sequence="147"/>
     <ROW File="SSLInfo.ice" Component_="SSLInfo.ice" FileName="SSLInfo.ice" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;VC9\Release\slice\Glacier2\SSLInfo.ice" SelfReg="false" Sequence="65"/>
     <ROW File="SSLInfo.rb" Component_="SSLInfo.rb" FileName="SSLInfo.rb" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;VC6\Release\rb\ruby\Glacier2\SSLInfo.rb" SelfReg="false" Sequence="1119"/>
@@ -768,7 +768,7 @@
     <ROW File="StreamF.h" Component_="Application.h_1" FileName="StreamF.h" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;VC9\Release\cpp\include\Ice\StreamF.h" SelfReg="false" Sequence="233"/>
     <ROW File="StringConverter.h" Component_="Application.h_1" FileName="String~1.h|StringConverter.h" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;VC9\Release\cpp\include\Ice\StringConverter.h" SelfReg="false" Sequence="234"/>
     <ROW File="StringUtil.h" Component_="AbstractMutex.h" FileName="String~1.h|StringUtil.h" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;VC9\Release\cpp\include\IceUtil\StringUtil.h" SelfReg="false" Sequence="288"/>
-    <ROW File="THIRD_PARTY_LICENSE.txt" Component_="THIRD_PARTY_SOURCES.txt" FileName="THIRD_~2.txt|THIRD_PARTY_LICENSE.txt" Attributes="0" SourcePath="docs\main\THIRD_PARTY_LICENSE.txt" SelfReg="false" Sequence="3"/>
+    <ROW File="THIRD_PARTY_LICENSE.txt" Component_="THIRD_PARTY_SOURCES.txt" FileName="THIRD_~2.txt|THIRD_PARTY_LICENSE.txt" Attributes="0" SourcePath="&lt;WindowsVolume&gt;Builds\ice\distribution\src\windows\docs\main\THIRD_PARTY_LICENSE.txt" SelfReg="false" Sequence="3"/>
     <ROW File="Thread.h" Component_="AbstractMutex.h" FileName="Thread.h" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;VC9\Release\cpp\include\IceUtil\Thread.h" SelfReg="false" Sequence="289"/>
     <ROW File="ThreadException.h" Component_="AbstractMutex.h" FileName="Thread~1.h|ThreadException.h" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;VC9\Release\cpp\include\IceUtil\ThreadException.h" SelfReg="false" Sequence="290"/>
     <ROW File="Time.h" Component_="AbstractMutex.h" FileName="Time.h" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;VC9\Release\cpp\include\IceUtil\Time.h" SelfReg="false" Sequence="291"/>
@@ -1579,10 +1579,10 @@
     <ROW Property="VS_2008_INSTALL_DIR" Signature_="AppSearchSign_2"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiBinaryComponent">
-    <ROW Name="action.vbs" SourcePath="..\..\..\..\..\Ice-Build-3.4\VC9\Release\vsplugin\action.vbs"/>
+    <ROW Name="action.vbs" SourcePath="&lt;WindowsVolume&gt;Ice-Build-3.4\VC9\Release\vsplugin\action.vbs"/>
     <ROW Name="aicustact.dll" SourcePath="&lt;AI_CUSTACTS&gt;aicustact.dll"/>
-    <ROW Name="installer_header.bmp" SourcePath="installer-header.bmp"/>
-    <ROW Name="installer_main.bmp" SourcePath="installer-main.bmp"/>
+    <ROW Name="installer_header.bmp" SourcePath="&lt;WindowsVolume&gt;Builds\ice\distribution\src\windows\installer-header.bmp"/>
+    <ROW Name="installer_main.bmp" SourcePath="&lt;WindowsVolume&gt;Builds\ice\distribution\src\windows\installer-main.bmp"/>
     <ROW Name="xmlCfg.dll" SourcePath="&lt;AI_CUSTACTS&gt;xmlCfg.dll"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiConditionComponent">
@@ -1591,7 +1591,7 @@
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiControlComponent">
     <ROW Dialog_="LicenseAgreementDlg" Control="BannerBitmap" Type="Bitmap" X="0" Y="0" Width="370" Height="44" Attributes="1048577" Text="[BannerBitmap]" Control_Next="AgreementText" MsiKey="LicenseAgreementDlg#BannerBitmap"/>
-    <ROW Dialog_="LicenseAgreementDlg" Control="AgreementText" Type="FileScrollableText" X="20" Y="60" Width="330" Height="120" Attributes="7" Text="LICENSE.rtf" Control_Next="Buttons" TextLocId="Control.Text.LicenseAgreementDlg#AgreementText"/>
+    <ROW Dialog_="LicenseAgreementDlg" Control="AgreementText" Type="FileScrollableText" X="20" Y="60" Width="330" Height="120" Attributes="7" Text="&lt;WindowsVolume&gt;Builds\ice\distribution\src\windows\LICENSE.rtf" Control_Next="Buttons" TextLocId="Control.Text.LicenseAgreementDlg#AgreementText"/>
     <ATTRIBUTE name="FixedSizeBitmaps" value="2"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiControlEventComponent">
@@ -1637,6 +1637,8 @@
   <COMPONENT cid="caphyon.advinst.msicomp.MsiMergeModsComponent">
     <ROW Module="Microsoft_VC90_CRT_x86.msm" Path="&lt;CommonFilesFolder&gt;Merge Modules\Microsoft_VC90_CRT_x86.msm" Feature="MainFeature" Directory="APPDIR"/>
     <ROW Module="Microsoft_VC90_CRT_x86_x64.msm" Path="&lt;CommonFilesFolder&gt;Merge Modules\Microsoft_VC90_CRT_x86_x64.msm" Feature="MainFeature" Directory="APPDIR"/>
+    <ROW Module="policy_9_0_Microsoft_VC90_CRT_x86.msm" Path="&lt;CommonFilesFolder&gt;Merge Modules\policy_9_0_Microsoft_VC90_CRT_x86.msm" Feature="MainFeature" Directory="APPDIR"/>
+    <ROW Module="policy_9_0_Microsoft_VC90_CRT_x86_x64.msm" Path="&lt;CommonFilesFolder&gt;Merge Modules\policy_9_0_Microsoft_VC90_CRT_x86_x64.msm" Feature="MainFeature" Directory="APPDIR"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiRegLocatorComponent">
     <ROW Signature_="AppSearchSign" Root="2" Key="SOFTWARE\Microsoft\VisualStudio\9.0\Projects\{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}\AddItemTemplates\TemplateDirs\{F1C25864-3097-11D2-A5C5-00C04F7968B4}\/1" Name="TemplatesDir" Type="2"/>
