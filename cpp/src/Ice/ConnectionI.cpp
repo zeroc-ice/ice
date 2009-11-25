@@ -111,6 +111,12 @@ Ice::ConnectionI::OutgoingMessage::sent(ConnectionI* connection, bool notify)
 {
     isSent = true; // The message is sent.
 
+    if(adopted)
+    {
+        delete stream;
+        stream = 0;
+    }
+
     if(out)
     {
         out->sent(notify); // true = notify the waiting thread that the request was sent.
@@ -123,12 +129,6 @@ Ice::ConnectionI::OutgoingMessage::sent(ConnectionI* connection, bool notify)
     else
     {
         return false;
-    }
-
-    if(adopted)
-    {
-        delete stream;
-        stream = 0;
     }
 }
 
