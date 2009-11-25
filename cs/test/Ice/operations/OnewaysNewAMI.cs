@@ -100,19 +100,19 @@ public class OnewaysNewAMI
 
         {
             Callback cb = new Callback();
-            p.begin_ice_isA("::Test::MyClass").whenCompleted(cb.twowayOnlyException);
+            p.begin_ice_isA("::Test::MyClass").whenCompleted((Ice.ExceptionCallback)cb.twowayOnlyException);
             cb.check();
         }
     
         {
             Callback cb = new Callback();
-            p.begin_ice_id().whenCompleted(cb.twowayOnlyException);
+            p.begin_ice_id().whenCompleted((Ice.ExceptionCallback)cb.twowayOnlyException);
             cb.check();
         }
     
         {
             Callback cb = new Callback();
-            p.begin_ice_ids().whenCompleted(cb.twowayOnlyException);
+            p.begin_ice_ids().whenCompleted((Ice.ExceptionCallback)cb.twowayOnlyException);
             cb.check();
         }
 

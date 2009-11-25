@@ -66,7 +66,7 @@ namespace Ice
         object getCookie();
         string getOperation();
 
-        AsyncResult whenSent(Ice.AsyncCallback cb);
+        AsyncResult whenSentWithResult(Ice.AsyncCallback cb);
 
         AsyncResult whenSent(Ice.SentCallback cb);
         AsyncResult whenCompleted(Ice.ExceptionCallback cb);
@@ -234,7 +234,7 @@ namespace IceInternal
             }
         }        
 
-        public Ice.AsyncResult whenSent(Ice.AsyncCallback cb)
+        public Ice.AsyncResult whenSentWithResult(Ice.AsyncCallback cb)
         {
             lock(monitor_)
             {

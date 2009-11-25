@@ -788,22 +788,22 @@ public class AllTests
             Test.TestIntfPrx i = Test.TestIntfPrxHelper.uncheckedCast(p.ice_adapterId("dummy"));
             ExceptionCallback cb = new ExceptionCallback();
         
-            i.begin_ice_isA("::Test::TestIntf").whenCompleted(cb.ex);
+            i.begin_ice_isA("::Test::TestIntf").whenCompleted((Ice.ExceptionCallback)cb.ex);
             cb.check();        
 
             i.begin_op().whenCompleted(cb.ex);
             cb.check();
 
-            i.begin_opWithResult().whenCompleted(cb.ex);
+            i.begin_opWithResult().whenCompleted((Ice.ExceptionCallback)cb.ex);
             cb.check();
 
             i.begin_opWithUE().whenCompleted(cb.ex);
             cb.check();
 
             // Ensures no exception is called when response is received
-            p.begin_ice_isA("::Test::TestIntf").whenCompleted(cb.noEx);
+            p.begin_ice_isA("::Test::TestIntf").whenCompleted((Ice.ExceptionCallback)cb.noEx);
             p.begin_op().whenCompleted(cb.noEx);
-            p.begin_opWithResult().whenCompleted(cb.noEx);
+            p.begin_opWithResult().whenCompleted((Ice.ExceptionCallback)cb.noEx);
             p.begin_opWithUE().whenCompleted(cb.noEx);
         }
         Console.Out.WriteLine("ok");
@@ -828,7 +828,7 @@ public class AllTests
             p.begin_op().whenCompleted(cb.op, cb.ex).whenSent(cb.sent);
             cb.check();
         
-            p.begin_op(cb.opAsync, null).whenSent(cb.sentAsync);
+            p.begin_op(cb.opAsync, null).whenSentWithResult(cb.sentAsync);
             cb.check();
 
             p.begin_op().whenCompleted(cb.ex).whenSent(cb.sent);
