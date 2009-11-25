@@ -10,22 +10,11 @@
 #include <Ice/Ice.h>
 #include <TestCommon.h>
 #include <Test.h>
-#include <StateChanger.h>
 
 using namespace std;
 
 namespace
 {
-
-struct Cookie : public Ice::LocalObject
-{
-    Cookie(int i) : val(i)
-    {
-    }
-    int val;
-};
-
-typedef IceUtil::Handle<Cookie> CookiePtr;
 
 class CallbackBase : public Ice::LocalObject
 {
@@ -68,83 +57,11 @@ private:
 
 typedef IceUtil::Handle<CallbackBase> CallbackBasePtr;
 
-class NoEndpointCallback : public CallbackBase
-{
-public:
-
-    NoEndpointCallback()
-    {
-    }
-
-    void completed(const Ice::AsyncResultPtr& r)
-    {
-        try
-	{
-	    Test::MyClassPrx p = Test::MyClassPrx::uncheckedCast(r->getProxy());
-	    p->end_opVoid(r);
-            called();
-	}
-	catch(const Ice::NoEndpointException&)
-	{
-	    test(false);
-	}
-    }
-
-    void completedEx(const Ice::AsyncResultPtr& r)
-    {
-        try
-	{
-	    Test::MyClassPrx p = Test::MyClassPrx::uncheckedCast(r->getProxy());
-	    p->end_opVoid(r);
-	    test(false);
-	}
-	catch(const Ice::NoEndpointException&)
-	{
-	    called();
-	}
-    }
-
-    void successNC()
-    {
-        test(false);
-    }
-
-    void success(const CookiePtr&)
-    {
-        test(false);
-    }
-
-    void exCBNC(const Ice::Exception& ex)
-    {
-	test(dynamic_cast<const Ice::NoEndpointException*>(&ex));
-	called();
-    }
-
-    void exCB(const Ice::Exception& ex, const CookiePtr&)
-    {
-	test(dynamic_cast<const Ice::NoEndpointException*>(&ex));
-	called();
-    }
-
-    void sentCB(const Ice::AsyncResultPtr&)
-    {
-	test(false);
-    }
-
-    void sentCBNC()
-    {
-	test(false);
-    }
-};
-
-typedef IceUtil::Handle<NoEndpointCallback> NoEndpointCallbackPtr;
-
 class Callback : public CallbackBase
 {
 public:
 
     Callback()
-        : _communicator(0)
     {
     }
 
@@ -153,76 +70,44 @@ public:
     {
     }
 
-    Callback(int l)
-        : _l(l)
-    {
-    }
-
-    Callback(const vector<string>& ids)
-        : _ids(ids)
-    {
-    }
-
-    Callback(const string& id)
-        : _id(id)
-    {
-    }
-
-    void opVoid(const Ice::AsyncResultPtr& result)
-    {
-	CookiePtr cookie = CookiePtr::dynamicCast(result->getCookie());
-	if(cookie)
-	{
-	    test(cookie->val == 99);
-	}
-	Test::MyClassPrx p = Test::MyClassPrx::uncheckedCast(result->getProxy());
-	p->end_opVoid(result);
-        called();
-    }
-
-    void opVoidNC()
+    void ping()
     {
         called();
     }
 
-    void opVoidWC(const CookiePtr& cookie)
+    void isA(bool result)
     {
-	test(cookie->val == 99);
+        test(result);
         called();
     }
 
-    void opContextNC(const Ice::Context&)
+    void id(const string& id)
+    {
+        test(id == Test::MyDerivedClass::ice_staticId());
+        called();
+    }
+
+    void ids(const Ice::StringSeq& ids)
+    {
+        test(ids.size() == 3);
+        test(ids[0] == "::Ice::Object");
+        test(ids[1] == "::Test::MyClass");
+        test(ids[2] == "::Test::MyDerivedClass");
+        called();
+    }
+    
+    void opVoid()
     {
         called();
     }
 
-    void opContext(const Ice::Context&, const CookiePtr&)
+    void opContext(const Ice::Context&)
     {
         called();
     }
 
-    void opByteAsync(const Ice::AsyncResultPtr& result)
+    void opByte(Ice::Byte r, Ice::Byte b)
     {
-	CookiePtr c = CookiePtr::dynamicCast(result->getCookie());
-	test(c->val == 78);
-	Test::MyClassPrx p = Test::MyClassPrx::uncheckedCast(result->getProxy());
-	Ice::Byte b;
-	Ice::Byte r = p->end_opByte(b, result);
-        test(b == Ice::Byte(0xf0));
-        test(r == Ice::Byte(0xff));
-        called();
-    }
-
-    void opByteNC(Ice::Byte r, Ice::Byte b)
-    {
-        test(b == Ice::Byte(0xf0));
-        test(r == Ice::Byte(0xff));
-        called();
-    }
-
-    void opByte(Ice::Byte r, Ice::Byte b, const CookiePtr& cookie)
-    {
-	test(cookie->val == 78);
         test(b == Ice::Byte(0xf0));
         test(r == Ice::Byte(0xff));
         called();
@@ -232,100 +117,6 @@ public:
     {
         test(b);
         test(!r);
-        called();
-    }
-
-    void ice_isAAsync(const Ice::AsyncResultPtr& result)
-    {
-	CookiePtr cookie = CookiePtr::dynamicCast(result->getCookie());
-	if(cookie)
-	{
-	    test(cookie->val == 99);
-	}
-	Test::MyClassPrx p = Test::MyClassPrx::uncheckedCast(result->getProxy());
-	test(p->end_ice_isA(result));
-        called();
-    }
-
-    void ice_isANC(bool r)
-    {
-	test(r);
-        called();
-    }
-
-    void ice_isA(bool r, const CookiePtr&)
-    {
-	test(r);
-        called();
-    }
-
-    void ice_pingAsync(const Ice::AsyncResultPtr& result)
-    {
-	CookiePtr cookie = CookiePtr::dynamicCast(result->getCookie());
-	if(cookie)
-	{
-	    test(cookie->val == 99);
-	}
-	Test::MyClassPrx p = Test::MyClassPrx::uncheckedCast(result->getProxy());
-	p->end_ice_ping(result);
-        called();
-    }
-
-    void ice_pingNC()
-    {
-        called();
-    }
-
-    void ice_ping(const CookiePtr&)
-    {
-        called();
-    }
-
-    void ice_idsAsync(const Ice::AsyncResultPtr& result)
-    {
-	CookiePtr cookie = CookiePtr::dynamicCast(result->getCookie());
-	if(cookie)
-	{
-	    test(cookie->val == 99);
-	}
-	Test::MyClassPrx p = Test::MyClassPrx::uncheckedCast(result->getProxy());
-	test(p->end_ice_ids(result) == p->ice_ids());
-        called();
-    }
-
-    void ice_idsNC(const vector<string>& ids)
-    {
-	test(ids == _ids);
-        called();
-    }
-
-    void ice_ids(const vector<string>& ids, const CookiePtr&)
-    {
-	test(ids == _ids);
-        called();
-    }
-
-    void ice_idAsync(const Ice::AsyncResultPtr& result)
-    {
-	CookiePtr cookie = CookiePtr::dynamicCast(result->getCookie());
-	if(cookie)
-	{
-	    test(cookie->val == 99);
-	}
-	Test::MyClassPrx p = Test::MyClassPrx::uncheckedCast(result->getProxy());
-	test(p->end_ice_id(result) == p->ice_id());
-        called();
-    }
-
-    void ice_idNC(const string& id)
-    {
-	test(id == _id);
-        called();
-    }
-
-    void ice_id(const string& id, const CookiePtr&)
-    {
-	test(id == _id);
         called();
     }
 
@@ -676,8 +467,7 @@ public:
 
     void opIntS(const Test::IntS& r)
     {
-        test(r.size() == static_cast<size_t>(_l));
-        for(int j = 0; j < _l; ++j)
+        for(int j = 0; j < static_cast<int>(r.size()); ++j)
         {
             test(r[j] == -j);
         }
@@ -694,12 +484,7 @@ public:
         called();
     }
 
-    void exCBNC(const Ice::Exception& ex)
-    {
-	test(false);
-    }
-
-    void exCB(const Ice::Exception& ex, const CookiePtr& cookie)
+    void exCB(const Ice::Exception& ex)
     {
 	test(false);
     }
@@ -707,137 +492,8 @@ public:
 private:
 
     Ice::CommunicatorPtr _communicator;
-    int _l;
-    vector<string> _ids;
-    string _id;
 };
-
 typedef IceUtil::Handle<Callback> CallbackPtr;
-
-enum ThrowType { LocalException, UserException, StandardException, OtherException };
-
-class Thrower : public CallbackBase
-{
-public:
-
-    Thrower(ThrowType t)
-        : _t(t)
-    {
-    }
-
-    void opVoidNC()
-    {
-        // No call to called() here!
-    }
-
-    void opVoidThrow(const Ice::AsyncResultPtr& r)
-    {
-	called();
-	throwEx();
-    }
-
-    void opVoidThrowNC()
-    {
-	called();
-	throwEx();
-    }
-
-    void exCBNC(const Ice::Exception& ex)
-    {
-	test(false);
-    }
-
-    void exCBThrowNC(const Ice::Exception& ex)
-    {
-	called();
-	throwEx();
-    }
-
-private:
-
-    void throwEx()
-    {
-	switch(_t)
-	{
-	    case LocalException:
-	    {
-		throw Ice::ObjectNotExistException(__FILE__, __LINE__);
-		break;
-	    }
-	    case UserException:
-	    {
-		throw Test::SomeException();
-		break;
-	    }
-	    case StandardException:
-	    {
-		throw ::std::bad_alloc();
-		break;
-	    }
-	    case OtherException:
-	    {
-	    	throw 99;
-		break;
-	    }
-	    default:
-	    {
-	        assert(false);
-		break;
-	    }
-	}
-    }
-
-    ThrowType _t;
-};
-
-typedef IceUtil::Handle<Thrower> ThrowerPtr;
-
-class SentCounter : public CallbackBase
-{
-public:
-
-    SentCounter() : _queuedCount(0), _completedCount(0)
-    {
-    }
-
-    void opVoid(const Ice::AsyncResultPtr& r)
-    {
-        test(r->isCompleted());
-        IceUtil::Monitor<IceUtil::Mutex>::Lock sync(_m);
-        ++_completedCount;
-	_m.notify();
-    }
-
-    void sentCB(const Ice::AsyncResultPtr& r)
-    {
-        IceUtil::Monitor<IceUtil::Mutex>::Lock sync(_m);
-        ++_queuedCount;
-    }
-
-    int queuedCount()
-    {
-        IceUtil::Monitor<IceUtil::Mutex>::Lock sync(_m);
-        return _queuedCount;
-    }
-
-    void check(int size)
-    {
-        IceUtil::Monitor<IceUtil::Mutex>::Lock sync(_m);
-        while(_completedCount != size)
-	{
-	     _m.wait();
-	}
-    }
-
-private:
-
-    int _queuedCount;
-    int _completedCount;
-    IceUtil::ThreadControl::ID _id;
-    IceUtil::Monitor<IceUtil::Mutex> _m;
-};
-
-typedef IceUtil::Handle<SentCounter> SentCounterPtr;
 
 }
 
@@ -845,416 +501,68 @@ void
 twowaysNewAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrx& p)
 {
     {
-	//
-        // Check that a call to a void operation raises NoEndpointException
-        // in the end_ method instead of at the point of call.
-	//
-        Test::MyClassPrx indirect = Test::MyClassPrx::uncheckedCast(p->ice_adapterId("dummy"));
-	Ice::AsyncResultPtr r;
-
-	r = indirect->begin_opVoid();
-	try
-	{
-	    indirect->end_opVoid(r);
-	    test(false);
-	}
-	catch(const Ice::NoEndpointException&)
-	{
-	}
-
-	//
-	// Check that a second call to the end_ method throws IllegalArgumentException.
-	//
-	try
-	{
-	    indirect->end_opVoid(r);
-	    test(false);
-	}
-	catch(const IceUtil::IllegalArgumentException&)
-	{
-	}
-
-	//
-        // Use type-unsafe and type-safe variations of the callback, and
-	// variations of the callback (with and without success callback).
-	// Also test that the sent callback is not called in this case.
-	//
-        NoEndpointCallbackPtr cb1 = new NoEndpointCallback;
-	NoEndpointCallbackPtr cb2 = new NoEndpointCallback;
-	NoEndpointCallbackPtr cb3 = new NoEndpointCallback;
-
-        Ice::CallbackPtr callback = Ice::newCallback(cb1, 
-                                                     &NoEndpointCallback::completedEx,
-                                                     &NoEndpointCallback::sentCB);
-        indirect->begin_opVoid(callback);
-        
-        Test::Callback_MyClass_opVoidPtr callback2 = Test::newCallback_MyClass_opVoid(cb2,
-                                                                                      &NoEndpointCallback::successNC,
-                                                                                      &NoEndpointCallback::exCBNC,
-                                                                                      &NoEndpointCallback::sentCBNC);
-        indirect->begin_opVoid(callback2);
-        
-        Ice::CallbackPtr callback3 = Ice::newCallback(cb3, 
-                                                      &NoEndpointCallback::exCBNC, 
-                                                      &NoEndpointCallback::sentCBNC);
-        indirect->begin_opVoid(callback3);
-        
-	cb1->check();
-	cb2->check();
-	cb3->check();
-    }
-    
-    {
-        //
-	// Check that calling the end_ method with a different proxy or for a different operation than the begin_
-	// method throws IllegalArgumentException. If the test throws as expected, we never call the end_ method,
-	// so this also tests that it is safe to throw the AsyncResult away without calling the end_ method.
-	//
-        Test::MyClassPrx indirect1 = Test::MyClassPrx::uncheckedCast(p->ice_adapterId("dummy"));
-        Test::MyClassPrx indirect2 = Test::MyClassPrx::uncheckedCast(p->ice_adapterId("dummy2"));
-
-	Ice::AsyncResultPtr r1 = indirect1->begin_opVoid();
-	Ice::AsyncResultPtr r2 = indirect2->begin_opVoid();
-
-	try
-	{
-	    indirect1->end_opVoid(r2); // Wrong proxy
-	    test(false);
-	}
-	catch(const IceUtil::IllegalArgumentException&)
-	{
-	}
-
-	try
-	{
-	    indirect1->end_shutdown(r1); // Wrong operation
-	    test(false);
-	}
-	catch(const IceUtil::IllegalArgumentException&)
-	{
-	}
-    }
-
-    {
-        //
-	// Check that calling the end_ method with a null result throws IllegalArgumentException.
-	//
-	try
-	{
-	    p->end_opVoid(0);
-	    test(false);
-	}
-	catch(const IceUtil::IllegalArgumentException&)
-	{
-	}
-    }
-
-    {
-	//
-	// Check that passing a null callback instance throws IllegalArgumentException.
-	//
-	CallbackPtr cb;
-	try
-	{
-            Ice::newCallback(cb, &Callback::exCBNC);
-	    test(false);
-	}
-	catch(IceUtil::IllegalArgumentException&)
-	{
-	}
-    }
-
-    //
-    // Check optional callbacks on callback creation.
-    //
-    {
-        NoEndpointCallbackPtr cb = new NoEndpointCallback;
-
-        Ice::CallbackPtr del1 = Ice::newCallback(cb, &NoEndpointCallback::completed);
-        p->begin_opVoid(del1);
+	CallbackPtr cb = new Callback;
+        Ice::Callback_Object_ice_pingPtr callback = Ice::newCallback_Object_ice_ping(cb,
+                                                                                     &Callback::ping,
+                                                                                     &Callback::exCB);
+        p->begin_ice_ping(callback);
         cb->check();
-
-        Test::MyClassPrx indirect = Test::MyClassPrx::uncheckedCast(p->ice_adapterId("dummy"));
-            
-        Ice::CallbackPtr del2 = Ice::newCallback(cb, &NoEndpointCallback::exCBNC);
-        indirect->begin_opVoid(del2);
-        cb->check();
-            
-        Ice::CallbackPtr del3 = Ice::newCallback(cb, &NoEndpointCallback::exCB);
-        indirect->begin_opVoid(del3, 0);
-        cb->check();
-
-        Ice::CallbackPtr del4 = Ice::newCallback(cb, &NoEndpointCallback::sentCBNC);
-        indirect->begin_opVoid(del4);
-
-        try
-        {
-            void (NoEndpointCallback::*nullCallback)(const Ice::AsyncResultPtr&) = 0;
-            Ice::newCallback(cb, nullCallback);
-            test(false);
-        }
-        catch(const IceUtil::IllegalArgumentException&)
-        {
-        }        
-
-        try
-        {
-            void (NoEndpointCallback::*nullCallback)(const Ice::Exception&) = 0;
-            Ice::newCallback(cb, nullCallback);
-            test(false);
-        }
-        catch(const IceUtil::IllegalArgumentException&)
-        {
-        }
-
-        try
-        {
-            void (NoEndpointCallback::*nullCallback)(const Ice::Exception&, const CookiePtr&) = 0;
-            Ice::newCallback(cb, nullCallback);
-            test(false);
-        }
-        catch(const IceUtil::IllegalArgumentException&)
-        {
-        }
     }
 
-    //
-    // Check optional exception and sent callbacks on delegation creation.
-    //
     {
 	CallbackPtr cb = new Callback;
-
-        Test::Callback_MyClass_opVoidPtr del1 = Test::newCallback_MyClass_opVoid(cb, &Callback::opVoidNC);
-        p->begin_opVoid(del1);
+        Ice::Callback_Object_ice_isAPtr callback = Ice::newCallback_Object_ice_isA(cb,
+                                                                                   &Callback::isA,
+                                                                                   &Callback::exCB);
+        p->begin_ice_isA(Test::MyClass::ice_staticId(), callback);
         cb->check();
-            
-        Test::Callback_MyClass_opVoidPtr del2 = Test::newCallback_MyClass_opVoid(cb, &Callback::opVoidWC);
-        p->begin_opVoid(del2, new Cookie(99));
-        cb->check();
-            
-        Test::Callback_MyClass_opContextPtr del3 = Test::newCallback_MyClass_opContext(cb, &Callback::opContextNC);
-        p->begin_opContext(del3);
-        cb->check();
-            
-        Test::Callback_MyClass_opContextPtr del4 = Test::newCallback_MyClass_opContext(cb, &Callback::opContext);
-        p->begin_opContext(del4, 0);
-        cb->check();
-
-        try
-        {
-            void (Callback::*nullCallback)() = 0;
-            Test::newCallback_MyClass_opVoid(cb, nullCallback);
-            test(false);
-        }
-        catch(const IceUtil::IllegalArgumentException&)
-        {
-        }
-
-        try
-        {
-            void (Callback::*nullCallback)(const CookiePtr&) = 0;
-            Test::newCallback_MyClass_opVoid(cb, nullCallback);
-            test(false);
-        }
-        catch(const IceUtil::IllegalArgumentException&)
-        {
-        }
-
-        try
-        {
-            void (Callback::*nullCallback)(const Ice::Context&) = 0;
-            Test::newCallback_MyClass_opContext(cb, nullCallback);
-            test(false);
-        }
-        catch(const IceUtil::IllegalArgumentException&)
-        {
-        }
-
-        try
-        {
-            void (Callback::*nullCallback)(const Ice::Context&, const CookiePtr&) = 0;
-            Test::newCallback_MyClass_opContext(cb, nullCallback);
-            test(false);
-        }
-        catch(const IceUtil::IllegalArgumentException&)
-        {
-        }
     }
-
-    {
-        //
-	// Check that throwing an exception from the success callback doesn't cause problems.
-	//
-	{
-	    ThrowerPtr cb = new Thrower(LocalException);
-	    Ice::CallbackPtr callback = Ice::newCallback(cb, &Thrower::opVoidThrow);
-	    p->begin_opVoid(callback);
-	    cb->check();
-	}
-
-	{
-	    ThrowerPtr cb = new Thrower(UserException);
-	    Ice::CallbackPtr callback = Ice::newCallback(cb, &Thrower::opVoidThrow);
-	    p->begin_opVoid(callback);
-	    cb->check();
-	}
-
-	{
-	    ThrowerPtr cb = new Thrower(StandardException);
-	    Ice::CallbackPtr callback = Ice::newCallback(cb, &Thrower::opVoidThrow);
-	    p->begin_opVoid(callback);
-	    cb->check();
-	}
-
-	{
-	    ThrowerPtr cb = new Thrower(OtherException);
-	    Ice::CallbackPtr callback = Ice::newCallback(cb, &Thrower::opVoidThrow);
-	    p->begin_opVoid(callback);
-	    cb->check();
-	}
-
-	{
-	    ThrowerPtr cb = new Thrower(LocalException);
-	    Test::Callback_MyClass_opVoidPtr callback = Test::newCallback_MyClass_opVoid(cb,
-                                                                                         &Thrower::opVoidThrowNC,
-                                                                                         &Thrower::exCBNC);
-	    p->begin_opVoid(callback);
-	    cb->check();
-	}
-
-	{
-	    ThrowerPtr cb = new Thrower(UserException);
-	    Test::Callback_MyClass_opVoidPtr callback = Test::newCallback_MyClass_opVoid(cb,
-                                                                                         &Thrower::opVoidThrowNC,
-                                                                                         &Thrower::exCBNC);
-	    p->begin_opVoid(callback);
-	    cb->check();
-	}
-
-	{
-	    ThrowerPtr cb = new Thrower(StandardException);
-	    Test::Callback_MyClass_opVoidPtr callback = Test::newCallback_MyClass_opVoid(cb,
-                                                                                         &Thrower::opVoidThrowNC,
-                                                                                         &Thrower::exCBNC);
-	    p->begin_opVoid(callback);
-	    cb->check();
-	}
-
-	{
-	    ThrowerPtr cb = new Thrower(OtherException);
-	    Test::Callback_MyClass_opVoidPtr callback = Test::newCallback_MyClass_opVoid(cb,
-                                                                                         &Thrower::opVoidThrowNC,
-                                                                                         &Thrower::exCBNC);
-	    p->begin_opVoid(callback);
-	    cb->check();
-	}
-    }
-
-    {
-        //
-	// Check that throwing an exception from the exception callback doesn't cause problems.
-	//
-        Test::MyClassPrx indirect = Test::MyClassPrx::uncheckedCast(p->ice_adapterId("dummy"));
-
-	{
-	    ThrowerPtr cb = new Thrower(LocalException);
-	    Ice::CallbackPtr callback = Ice::newCallback(cb, &Thrower::opVoidThrow);
-	    indirect->begin_opVoid(callback);
-	    cb->check();
-	}
-
-	{
-	    ThrowerPtr cb = new Thrower(LocalException);
-	    Test::Callback_MyClass_opVoidPtr callback = Test::newCallback_MyClass_opVoid(cb,
-                                                                                         &Thrower::opVoidNC,
-                                                                                         &Thrower::exCBThrowNC);
-	    indirect->begin_opVoid(callback);
-	    cb->check();
-	}
-        
-	{
-	    ThrowerPtr cb = new Thrower(UserException);
-	    Test::Callback_MyClass_opVoidPtr callback = Test::newCallback_MyClass_opVoid(cb,
-                                                                                         &Thrower::opVoidNC,
-                                                                                         &Thrower::exCBThrowNC);
-	    indirect->begin_opVoid(callback);
-	    cb->check();
-	}
-
-	{
-	    ThrowerPtr cb = new Thrower(StandardException);
-	    Test::Callback_MyClass_opVoidPtr callback = Test::newCallback_MyClass_opVoid(cb,
-                                                                                         &Thrower::opVoidNC,
-                                                                                         &Thrower::exCBThrowNC);
-	    indirect->begin_opVoid(callback);
-	    cb->check();
-	}
-
-	{
-	    ThrowerPtr cb = new Thrower(OtherException);
-	    Test::Callback_MyClass_opVoidPtr callback = Test::newCallback_MyClass_opVoid(cb,
-                                                                                         &Thrower::opVoidNC,
-                                                                                         &Thrower::exCBThrowNC);
-	    indirect->begin_opVoid(callback);
-	    cb->check();
-	}
-    }
-
-    {
-	//
-        // Check that CommunicatorDestroyedException is raised directly.
-	//
-        Ice::InitializationData initData;
-        initData.properties = communicator->getProperties()->clone();
-        Ice::CommunicatorPtr ic = Ice::initialize(initData);
-        Ice::ObjectPrx obj = ic->stringToProxy(p->ice_toString());
-        Test::MyClassPrx p2 = Test::MyClassPrx::checkedCast(obj);
-
-        ic->destroy();
     
-        try
-        {
-	    p2->begin_opVoid();
-            test(false);
-        }
-        catch(const Ice::CommunicatorDestroyedException&)
-        {
-            // Expected.
-        }
-    }
-
-    //
-    // Test that marshaling works as expected, and that the callbacks for each type of callback work.
-    //
-
     {
-	Ice::AsyncResultPtr r = p->begin_opVoid();
-	p->end_opVoid(r);
+	CallbackPtr cb = new Callback;
+        Ice::Callback_Object_ice_idPtr callback = Ice::newCallback_Object_ice_id(cb,
+                                                                                 &Callback::id,
+                                                                                 &Callback::exCB);
+        p->begin_ice_id(callback);
+        cb->check();
+    }
+    
+    {
+	CallbackPtr cb = new Callback;
+        Ice::Callback_Object_ice_idsPtr callback = Ice::newCallback_Object_ice_ids(cb,
+                                                                                   &Callback::ids,
+                                                                                   &Callback::exCB);
+        p->begin_ice_ids(callback);
+        cb->check();
     }
 
     {
 	CallbackPtr cb = new Callback;
 	Test::Callback_MyClass_opVoidPtr callback = Test::newCallback_MyClass_opVoid(cb,
-                                                                                     &Callback::opVoidNC,
-                                                                                     &Callback::exCBNC);
+                                                                                     &Callback::opVoid,
+                                                                                     &Callback::exCB);
 	p->begin_opVoid(callback);
 	cb->check();
     }
-
+    
     {
-	Ice::AsyncResultPtr r = p->begin_opByte(Ice::Byte(0xff), Ice::Byte(0x0f));
-	Ice::Byte p3;
-	Ice::Byte ret = p->end_opByte(p3, r);
-        test(p3 == Ice::Byte(0xf0));
-        test(ret == Ice::Byte(0xff));
+        Ice::Double d = 1278312346.0 / 13.0;
+        Test::DoubleS ds(5, d);
+        CallbackPtr cb = new Callback;
+	Test::Callback_MyClass_opBytePtr callback = Test::newCallback_MyClass_opByte(cb,
+                                                                                     &Callback::opByte,
+                                                                                     &Callback::exCB);
+	p->begin_opByte(Ice::Byte(0xff), Ice::Byte(0x0f), callback);
+	cb->check();
     }
+    
 
     {
 	CallbackPtr cb = new Callback;
-	Test::Callback_MyClass_opBytePtr callback = Test::newCallback_MyClass_opByte(cb,
-                                                                                     &Callback::opByteNC,
-                                                                                     &Callback::exCBNC);
-	p->begin_opByte(Ice::Byte(0xff), Ice::Byte(0x0f), callback);
+	Test::Callback_MyClass_opVoidPtr callback = Test::newCallback_MyClass_opVoid(cb,
+                                                                                     &Callback::opVoid,
+                                                                                     &Callback::exCB);
+	p->begin_opVoid(callback);
 	cb->check();
     }
 
@@ -1262,7 +570,7 @@ twowaysNewAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrx& 
 	CallbackPtr cb = new Callback;
 	Test::Callback_MyClass_opBoolPtr callback = Test::newCallback_MyClass_opBool(cb,
                                                                                      &Callback::opBool,
-                                                                                     &Callback::exCBNC);
+                                                                                     &Callback::exCB);
 	p->begin_opBool(true, false, callback);
 	cb->check();
     }
@@ -1270,7 +578,7 @@ twowaysNewAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrx& 
     {
 	CallbackPtr cb = new Callback;
 	Test::Callback_MyClass_opShortIntLongPtr callback = 
-            Test::newCallback_MyClass_opShortIntLong(cb, &Callback::opShortIntLong, &Callback::exCBNC);
+            Test::newCallback_MyClass_opShortIntLong(cb, &Callback::opShortIntLong, &Callback::exCB);
 	p->begin_opShortIntLong(10, 11, 12, callback);
 	cb->check();
     }
@@ -1278,7 +586,7 @@ twowaysNewAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrx& 
     {
 	CallbackPtr cb = new Callback;
 	Test::Callback_MyClass_opFloatDoublePtr callback = 
-            Test::newCallback_MyClass_opFloatDouble(cb, &Callback::opFloatDouble, &Callback::exCBNC);
+            Test::newCallback_MyClass_opFloatDouble(cb, &Callback::opFloatDouble, &Callback::exCB);
 	p->begin_opFloatDouble(Ice::Float(3.14), Ice::Double(1.1E10), callback);
 	cb->check();
     }
@@ -1287,7 +595,7 @@ twowaysNewAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrx& 
 	CallbackPtr cb = new Callback;
 	Test::Callback_MyClass_opStringPtr callback = Test::newCallback_MyClass_opString(cb,
                                                                                          &Callback::opString,
-                                                                                         &Callback::exCBNC);
+                                                                                         &Callback::exCB);
 	p->begin_opString("hello", "world", callback);
 	cb->check();
     }
@@ -1296,7 +604,7 @@ twowaysNewAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrx& 
 	CallbackPtr cb = new Callback;
 	Test::Callback_MyClass_opMyEnumPtr callback = Test::newCallback_MyClass_opMyEnum(cb,
                                                                                          &Callback::opMyEnum,
-                                                                                         &Callback::exCBNC);
+                                                                                         &Callback::exCB);
 	p->begin_opMyEnum(Test::enum2, callback);
 	cb->check();
     }
@@ -1305,7 +613,7 @@ twowaysNewAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrx& 
 	CallbackPtr cb = new Callback(communicator);
 	Test::Callback_MyClass_opMyClassPtr callback = Test::newCallback_MyClass_opMyClass(cb,
                                                                                            &Callback::opMyClass,
-                                                                                           &Callback::exCBNC);
+                                                                                           &Callback::exCB);
 	p->begin_opMyClass(p, callback);
 	cb->check();
     }
@@ -1323,7 +631,7 @@ twowaysNewAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrx& 
 	CallbackPtr cb = new Callback(communicator);
 	Test::Callback_MyClass_opStructPtr callback = Test::newCallback_MyClass_opStruct(cb,
                                                                                          &Callback::opStruct,
-                                                                                         &Callback::exCBNC);
+                                                                                         &Callback::exCB);
 	p->begin_opStruct(si1, si2, callback);
 	cb->check();
     }
@@ -1345,7 +653,7 @@ twowaysNewAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrx& 
 	CallbackPtr cb = new Callback;
 	Test::Callback_MyClass_opByteSPtr callback = Test::newCallback_MyClass_opByteS(cb,
                                                                                        &Callback::opByteS,
-                                                                                       &Callback::exCBNC);
+                                                                                       &Callback::exCB);
 	p->begin_opByteS(bsi1, bsi2, callback);
 	cb->check();
     }
@@ -1363,7 +671,7 @@ twowaysNewAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrx& 
 	CallbackPtr cb = new Callback;
 	Test::Callback_MyClass_opBoolSPtr callback = Test::newCallback_MyClass_opBoolS(cb,
                                                                                        &Callback::opBoolS,
-                                                                                       &Callback::exCBNC);
+                                                                                       &Callback::exCB);
 	p->begin_opBoolS(bsi1, bsi2, callback);
 	cb->check();
     }
@@ -1388,7 +696,7 @@ twowaysNewAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrx& 
 
 	CallbackPtr cb = new Callback;
 	Test::Callback_MyClass_opShortIntLongSPtr callback = 
-            Test::newCallback_MyClass_opShortIntLongS(cb, &Callback::opShortIntLongS, &Callback::exCBNC);
+            Test::newCallback_MyClass_opShortIntLongS(cb, &Callback::opShortIntLongS, &Callback::exCB);
 	p->begin_opShortIntLongS(ssi, isi, lsi, callback);
 	cb->check();
     }
@@ -1406,7 +714,7 @@ twowaysNewAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrx& 
 
 	CallbackPtr cb = new Callback;
 	Test::Callback_MyClass_opFloatDoubleSPtr callback = 
-            Test::newCallback_MyClass_opFloatDoubleS(cb, &Callback::opFloatDoubleS, &Callback::exCBNC);
+            Test::newCallback_MyClass_opFloatDoubleS(cb, &Callback::opFloatDoubleS, &Callback::exCB);
 	p->begin_opFloatDoubleS(fsi, dsi, callback);
 	cb->check();
     }
@@ -1424,7 +732,7 @@ twowaysNewAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrx& 
 	CallbackPtr cb = new Callback;
 	Test::Callback_MyClass_opStringSPtr callback = Test::newCallback_MyClass_opStringS(cb,
                                                                                            &Callback::opStringS,
-                                                                                           &Callback::exCBNC);
+                                                                                           &Callback::exCB);
 	p->begin_opStringS(ssi1, ssi2, callback);
 	cb->check();
     }
@@ -1447,7 +755,7 @@ twowaysNewAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrx& 
 	CallbackPtr cb = new Callback;
 	Test::Callback_MyClass_opByteSSPtr callback = Test::newCallback_MyClass_opByteSS(cb,
                                                                                          &Callback::opByteSS,
-                                                                                         &Callback::exCBNC);
+                                                                                         &Callback::exCB);
 	p->begin_opByteSS(bsi1, bsi2, callback);
 	cb->check();
     }
@@ -1467,7 +775,7 @@ twowaysNewAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrx& 
 
 	CallbackPtr cb = new Callback;
 	Test::Callback_MyClass_opFloatDoubleSSPtr callback = 
-            Test::newCallback_MyClass_opFloatDoubleSS(cb, &Callback::opFloatDoubleSS, &Callback::exCBNC);
+            Test::newCallback_MyClass_opFloatDoubleSS(cb, &Callback::opFloatDoubleSS, &Callback::exCB);
 	p->begin_opFloatDoubleSS(fsi, dsi, callback);
 	cb->check();
     }
@@ -1486,7 +794,7 @@ twowaysNewAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrx& 
 
 	CallbackPtr cb = new Callback;
 	Test::Callback_MyClass_opStringSSPtr callback = 
-            Test::newCallback_MyClass_opStringSS(cb, &Callback::opStringSS, &Callback::exCBNC);
+            Test::newCallback_MyClass_opStringSS(cb, &Callback::opStringSS, &Callback::exCB);
 	p->begin_opStringSS(ssi1, ssi2, callback);
 	cb->check();
     }
@@ -1502,7 +810,7 @@ twowaysNewAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrx& 
 
 	CallbackPtr cb = new Callback;
 	Test::Callback_MyClass_opByteBoolDPtr callback = 
-            Test::newCallback_MyClass_opByteBoolD(cb, &Callback::opByteBoolD, &Callback::exCBNC);
+            Test::newCallback_MyClass_opByteBoolD(cb, &Callback::opByteBoolD, &Callback::exCB);
 	p->begin_opByteBoolD(di1, di2, callback);
 	cb->check();
     }
@@ -1518,7 +826,7 @@ twowaysNewAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrx& 
 
 	CallbackPtr cb = new Callback;
 	Test::Callback_MyClass_opShortIntDPtr callback = 
-            Test::newCallback_MyClass_opShortIntD(cb, &Callback::opShortIntD, &Callback::exCBNC);
+            Test::newCallback_MyClass_opShortIntD(cb, &Callback::opShortIntD, &Callback::exCB);
 	p->begin_opShortIntD(di1, di2, callback);
 	cb->check();
     }
@@ -1534,7 +842,7 @@ twowaysNewAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrx& 
 
 	CallbackPtr cb = new Callback;
 	Test::Callback_MyClass_opLongFloatDPtr callback = 
-            Test::newCallback_MyClass_opLongFloatD(cb, &Callback::opLongFloatD, &Callback::exCBNC);
+            Test::newCallback_MyClass_opLongFloatD(cb, &Callback::opLongFloatD, &Callback::exCB);
 	p->begin_opLongFloatD(di1, di2, callback);
 	cb->check();
     }
@@ -1550,7 +858,7 @@ twowaysNewAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrx& 
 
 	CallbackPtr cb = new Callback;
 	Test::Callback_MyClass_opStringStringDPtr callback = 
-            Test::newCallback_MyClass_opStringStringD(cb, &Callback::opStringStringD, &Callback::exCBNC);
+            Test::newCallback_MyClass_opStringStringD(cb, &Callback::opStringStringD, &Callback::exCB);
 	p->begin_opStringStringD(di1, di2, callback);
 	cb->check();
     }
@@ -1566,7 +874,7 @@ twowaysNewAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrx& 
 
 	CallbackPtr cb = new Callback;
 	Test::Callback_MyClass_opStringMyEnumDPtr callback = 
-            Test::newCallback_MyClass_opStringMyEnumD(cb, &Callback::opStringMyEnumD, &Callback::exCBNC);
+            Test::newCallback_MyClass_opStringMyEnumD(cb, &Callback::opStringMyEnumD, &Callback::exCB);
 	p->begin_opStringMyEnumD(di1, di2, callback);
 	cb->check();
     }
@@ -1587,7 +895,7 @@ twowaysNewAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrx& 
 
 	CallbackPtr cb = new Callback;
 	Test::Callback_MyClass_opMyStructMyEnumDPtr callback = 
-            Test::newCallback_MyClass_opMyStructMyEnumD(cb, &Callback::opMyStructMyEnumD, &Callback::exCBNC);
+            Test::newCallback_MyClass_opMyStructMyEnumD(cb, &Callback::opMyStructMyEnumD, &Callback::exCB);
 	p->begin_opMyStructMyEnumD(di1, di2, callback);
 	cb->check();
     }
@@ -1602,9 +910,9 @@ twowaysNewAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrx& 
             {
                 s.push_back(i);
             }
-	    CallbackPtr cb = new Callback(lengths[l]);
+	    CallbackPtr cb = new Callback;
 	    Test::Callback_MyClass_opIntSPtr callback = 
-                Test::newCallback_MyClass_opIntS(cb, &Callback::opIntS, &Callback::exCBNC);
+                Test::newCallback_MyClass_opIntS(cb, &Callback::opIntS, &Callback::exCB);
 	    p->begin_opIntS(s, callback);
 	    cb->check();
         }
@@ -1662,7 +970,7 @@ twowaysNewAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrx& 
 
 
                 Test::MyClassPrx p = Test::MyClassPrx::uncheckedCast(
-                                        ic->stringToProxy("test:default -p 12010"));
+                    ic->stringToProxy("test:default -p 12010"));
                 
                 
                 ic->getImplicitContext()->setContext(ctx);
@@ -1717,7 +1025,7 @@ twowaysNewAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrx& 
         Test::DoubleS ds(5, d);
 	CallbackPtr cb = new Callback;
 	Test::Callback_MyClass_opDoubleMarshalingPtr callback = 
-            Test::newCallback_MyClass_opDoubleMarshaling(cb, &Callback::opDoubleMarshaling, &Callback::exCBNC);
+            Test::newCallback_MyClass_opDoubleMarshaling(cb, &Callback::opDoubleMarshaling, &Callback::exCB);
 	p->begin_opDoubleMarshaling(d, ds, callback);
 	cb->check();
     }
@@ -1727,353 +1035,8 @@ twowaysNewAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrx& 
         test(derived);
 	CallbackPtr cb = new Callback;
 	Test::Callback_MyDerivedClass_opDerivedPtr callback = 
-            Test::newCallback_MyDerivedClass_opDerived(cb, &Callback::opDerived, &Callback::exCBNC);
+            Test::newCallback_MyDerivedClass_opDerived(cb, &Callback::opDerived, &Callback::exCB);
 	derived->begin_opDerived(callback);
 	cb->check();
-    }
-
-    //
-    // Test that cookies work. Because the same generated template is
-    // instantiated each time, it is not necessary to test all
-    // possible operations. Instead, we only need to test once for
-    // each of the three begin_ methods that accept a cookie for a
-    // oneway and a twoway operation.
-    //
-
-    {
-	CallbackPtr cb = new Callback;
-	CookiePtr cookie = new Cookie(99);
-	Ice::CallbackPtr callback = Ice::newCallback(cb, &Callback::opVoid);
-	p->begin_opVoid(callback, cookie);
-    }
-
-    {
-	CallbackPtr cb = new Callback;
-	CookiePtr cookie = new Cookie(99);
-	Test::Callback_MyClass_opVoidPtr callback = Test::newCallback_MyClass_opVoid(cb,
-                                                                                     &Callback::opVoidWC,
-                                                                                     &Callback::exCB);
-	p->begin_opVoid(callback, cookie);
-    }
-
-    {
-        //
- 	// Test that not passing a cookie when one is expected throws IlllegalArgumentException.
- 	// (The opposite, passing a cookie when none is expected, causes a compile-time error.)
- 	//
-// 	CallbackPtr cb = new Callback;
-// 	Test::Callback_MyClass_opVoidPtr callback = Test::newCallback_MyClass_opVoid(cb,
-//                                                                                      &Callback::opVoidWC,
-//                                                                                      &Callback::exCB);
-// 	try
-// 	{
-// 	    p->begin_opVoid(callback);
-// 	    test(false);
-// 	}
-// 	catch(const IceUtil::IllegalArgumentException&)
-// 	{
-// 	}
-    }
-
-    {
-	CallbackPtr cb = new Callback;
-	CookiePtr cookie = new Cookie(78);
-	Ice::CallbackPtr callback = Ice::newCallback(cb, &Callback::opByteAsync);
-	p->begin_opByte(Ice::Byte(0xff), Ice::Byte(0x0f), callback, cookie);
-    }
-
-    {
-	CallbackPtr cb = new Callback;
-	CookiePtr cookie = new Cookie(78);
-	Test::Callback_MyClass_opBytePtr callback = Test::newCallback_MyClass_opByte(cb,
-                                                                                     &Callback::opByte,
-                                                                                     &Callback::exCB);
-	p->begin_opByte(Ice::Byte(0xff), Ice::Byte(0x0f), callback, cookie);
-    }
-
-    {
-	//
-        // Check that we can call operations on Object asynchronously.
-	//
-	{
-	    Ice::AsyncResultPtr r = p->begin_ice_isA(p->ice_staticId());
-	    try
-	    {
-		test(p->end_ice_isA(r));
-	    }
-	    catch(...)
-	    {
-		test(false);
-	    }
-	}
-
-	{
-	    CallbackPtr cb = new Callback;
-	    Ice::CallbackPtr callback = Ice::newCallback(cb, &Callback::ice_isAAsync);
-	    p->begin_ice_isA(p->ice_staticId(), callback);
-	    cb->check();
-	}
-
-	{
-	    CallbackPtr cb = new Callback;
-	    Ice::Callback_Object_ice_isAPtr callback = Ice::newCallback_Object_ice_isA(cb,
-                                                                                       &Callback::ice_isANC,
-                                                                                       &Callback::exCBNC);
-	    p->begin_ice_isA(p->ice_staticId(), callback);
-	    cb->check();
-	}
-
-	{
-	    Ice::AsyncResultPtr r = p->begin_ice_ping();
-	    try
-	    {
-		p->end_ice_ping(r);
-	    }
-	    catch(...)
-	    {
-		test(false);
-	    }
-	}
-
-	{
-	    CallbackPtr cb = new Callback;
-	    Ice::CallbackPtr callback = Ice::newCallback(cb, &Callback::ice_pingAsync);
-	    p->begin_ice_ping(callback);
-	    cb->check();
-	}
-
-	{
-	    CallbackPtr cb = new Callback;
-	    Ice::Callback_Object_ice_pingPtr callback = Ice::newCallback_Object_ice_ping(cb,
-                                                                                         &Callback::ice_pingNC,
-                                                                                         &Callback::exCBNC);
-	    p->begin_ice_ping(callback);
-	    cb->check();
-	}
-
-	{
-	    Ice::AsyncResultPtr r = p->begin_ice_ids();
-	    try
-	    {
-		test(p->end_ice_ids(r) == p->ice_ids());
-	    }
-	    catch(...)
-	    {
-		test(false);
-	    }
-	}
-
-	{
-	    CallbackPtr cb = new Callback;
-	    Ice::CallbackPtr callback = Ice::newCallback(cb, &Callback::ice_idsAsync);
-	    p->begin_ice_ids(callback);
-	    cb->check();
-	}
-
-	{
-	    CallbackPtr cb = new Callback(p->ice_ids());
-	    Ice::Callback_Object_ice_idsPtr callback = Ice::newCallback_Object_ice_ids(cb,
-                                                                                       &Callback::ice_idsNC,
-                                                                                       &Callback::exCBNC);
-	    p->begin_ice_ids(callback);
-	    cb->check();
-	}
-
-	{
-	    Ice::AsyncResultPtr r = p->begin_ice_id();
-	    try
-	    {
-		test(p->end_ice_id(r) == p->ice_id());
-	    }
-	    catch(...)
-	    {
-		test(false);
-	    }
-	}
-
-	{
-	    CallbackPtr cb = new Callback;
-	    Ice::CallbackPtr callback = Ice::newCallback(cb, &Callback::ice_idAsync);
-	    p->begin_ice_id(callback);
-	    cb->check();
-	}
-
-	{
-	    CallbackPtr cb = new Callback(p->ice_id());
-	    Ice::Callback_Object_ice_idPtr callback = Ice::newCallback_Object_ice_id(cb,
-                                                                                     &Callback::ice_idNC,
-                                                                                     &Callback::exCBNC);
-	    p->begin_ice_id(callback);
-	    cb->check();
-	}
-
-	//
-        // Check that we can call operations on Object asynchronously with a cookie.
-	//
-	{
-	    CallbackPtr cb = new Callback;
-	    Ice::CallbackPtr callback = Ice::newCallback(cb, &Callback::ice_isAAsync);
-	    CookiePtr cookie = new Cookie(99);
-	    p->begin_ice_isA(p->ice_staticId(), callback, cookie);
-	    cb->check();
-	}
-
-	{
-	    CallbackPtr cb = new Callback;
-	    Ice::Callback_Object_ice_isAPtr callback = Ice::newCallback_Object_ice_isA(cb,
-                                                                                       &Callback::ice_isA,
-                                                                                       &Callback::exCB);
-	    CookiePtr cookie = new Cookie(99);
-	    p->begin_ice_isA(p->ice_staticId(), callback, cookie);
-	    cb->check();
-	}
-
-	{
-	    CallbackPtr cb = new Callback;
-	    Ice::CallbackPtr callback = Ice::newCallback(cb, &Callback::ice_pingAsync);
-	    CookiePtr cookie = new Cookie(99);
-	    p->begin_ice_ping(callback, cookie);
-	    cb->check();
-	}
-
-	{
-	    CallbackPtr cb = new Callback;
-	    Ice::Callback_Object_ice_pingPtr callback = Ice::newCallback_Object_ice_ping(cb,
-                                                                                         &Callback::ice_ping,
-                                                                                         &Callback::exCB);
-	    CookiePtr cookie = new Cookie(99);
-	    p->begin_ice_ping(callback, cookie);
-	    cb->check();
-	}
-
-	{
-	    CallbackPtr cb = new Callback;
-	    Ice::CallbackPtr callback = Ice::newCallback(cb, &Callback::ice_idsAsync);
-	    CookiePtr cookie = new Cookie(99);
-	    p->begin_ice_ids(callback, cookie);
-	    cb->check();
-	}
-
-	{
-	    CallbackPtr cb = new Callback(p->ice_ids());
-	    Ice::Callback_Object_ice_idsPtr callback = Ice::newCallback_Object_ice_ids(cb,
-                                                                                       &Callback::ice_ids,
-                                                                                       &Callback::exCB);
-	    CookiePtr cookie = new Cookie(99);
-	    p->begin_ice_ids(callback, cookie);
-	    cb->check();
-	}
-
-	{
-	    CallbackPtr cb = new Callback;
-	    Ice::CallbackPtr callback = Ice::newCallback(cb, &Callback::ice_idAsync);
-	    CookiePtr cookie = new Cookie(99);
-	    p->begin_ice_id(callback, cookie);
-	    cb->check();
-	}
-
-	{
-	    CallbackPtr cb = new Callback(p->ice_id());
-	    Ice::Callback_Object_ice_idPtr callback = Ice::newCallback_Object_ice_id(cb,
-                                                                                     &Callback::ice_id,
-                                                                                     &Callback::exCB);
-	    CookiePtr cookie = new Cookie(99);
-	    p->begin_ice_id(callback, cookie);
-	    cb->check();
-	}
-    }
-
-    //
-    // Test that queuing indication works.
-    //
-    {
-	Ice::AsyncResultPtr r = p->begin_delay(100);
-	test(!r->isCompleted());
-	p->end_delay(r);
-	test(r->isCompleted());
-    }
-
-    //
-    // Put the server's adapter into the holding state and pump out requests until one is queued.
-    // Then activate the adapter again and pump out more until one isn't queued again.
-    // Check that all the callbacks arrive after calling the end_ method for each request.
-    // We fill a context with a few kB of data to make sure we don't queue up too many requests.
-    //
-    {
-	const int contextSize = 10; // Kilobytes
-	string s(1024, 'a');
-
-	Ice::Context ctx;
-	for(int i = 0; i < contextSize; ++i)
-	{
-	    ostringstream ss;
-	    ss << "i" << i;
-	    ctx[ss.str()] = s;
-	}
-
-	//
-	// Keep all the AsyncResults we get from the begin_ calls, so we can call end_ for each of them.
-	//
-	vector<Ice::AsyncResultPtr> results;
-
-	int queuedCount = 0;
-
-	SentCounterPtr cb = new SentCounter;
-	Ice::CallbackPtr callback = Ice::newCallback(cb, &SentCounter::opVoid, &SentCounter::sentCB);
-	Ice::AsyncResultPtr r;
-
-	Test::StateChangerPrx state = Test::StateChangerPrx::checkedCast(
-					communicator->stringToProxy("hold:default -p 12011"));
-	state->hold(3);
-
-	do
-	{
-	    r = p->begin_opVoid(ctx, callback);
-	    results.push_back(r);
-	    if(!r->sentSynchronously())
-	    {
-		++queuedCount;
-	    }
-	}
-	while(r->sentSynchronously());
-
-	vector<Ice::AsyncResultPtr>::size_type numRequests = results.size();
-	test(numRequests > 1); // Something is wrong if we didn't get something out without queueing.
-
-	//
-	// Re-enable the adapter.
-	//
-	state->activate(3);
-
-	//
-	// Fire off a bunch more requests until we get one that wasn't queued.
-	// We sleep in between calls to allow the queued requests to drain.
-	//
-	do
-	{
-	    r = p->begin_opVoid(callback);
-	    results.push_back(r);
-	    if(!r->sentSynchronously())
-	    {
-		++queuedCount;
-	    }
-	    IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(1));
-	}
-	while(!r->sentSynchronously());
-	test(results.size() > numRequests); // Something is wrong if we didn't queue additional requests.
-
-	//
-	// Now make all the outstanding calls to the end_ method.
-	//
-	for(vector<Ice::AsyncResultPtr>::iterator q = results.begin(); q != results.end(); ++q)
-	{
-	    p->end_opVoid(*q);
-	}
-
-	//
-	// Check that all the callbacks have arrived and that we got a sent callback for each queued request.
-	//
-	cb->check(static_cast<int>(results.size()));
-	test(cb->queuedCount() == queuedCount);
     }
 }

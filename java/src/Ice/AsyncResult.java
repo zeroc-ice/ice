@@ -174,6 +174,72 @@ public class AsyncResult
         }
     }
 
+    public final void __exception(LocalException ex)
+    {
+        synchronized(_monitor)
+        {
+            _state |= Done;
+            _exception = ex;
+            _monitor.notifyAll();
+        }
+
+        if(_callback != null)
+        {
+            try
+            {
+                _callback.__completed(this);
+            }
+            catch(RuntimeException exc)
+            {
+                __warning(exc);
+            }
+        }
+    }
+
+    protected final void __sentInternal()
+    {
+        //
+        // Note: no need to change the _state here, specializations are responsible for
+        // changing the state.
+        //
+
+        if(_callback != null)
+        {
+            try
+            {
+                _callback.__sent(this);
+            }
+            catch(RuntimeException ex)
+            {
+                __warning(ex);
+            }
+        }
+    }
+
+    public final void __sentAsync()
+    {
+        //
+        // This is called when it's not safe to call the sent callback synchronously
+        // from this thread. Instead the exception callback is called asynchronously from
+        // the client thread pool.
+        //
+        try
+        {
+            _instance.clientThreadPool().execute(new IceInternal.ThreadPoolWorkItem()
+                {
+                    public void
+                    execute(IceInternal.ThreadPoolCurrent current)
+                    {
+                        current.ioCompleted();
+                        __sentInternal();
+                    }
+                });
+        }
+        catch(CommunicatorDestroyedException exc)
+        {
+        }
+    }
+
     public static void __check(AsyncResult r, ObjectPrx prx, String operation)
     {
         __check(r, operation);
@@ -207,28 +273,6 @@ public class AsyncResult
         }
     }
 
-    public final void __exception(LocalException ex)
-    {
-        synchronized(_monitor)
-        {
-            _state |= Done;
-            _exception = ex;
-            _monitor.notifyAll();
-        }
-
-        if(_callback != null)
-        {
-            try
-            {
-                _callback.__completed(this);
-            }
-            catch(RuntimeException exc)
-            {
-                __warning(exc);
-            }
-        }
-    }
-
     protected static void __check(AsyncResult r, String operation)
     {
         if(r == null)
@@ -239,26 +283,6 @@ public class AsyncResult
         {
             throw new IllegalArgumentException("Incorrect operation for end_" + operation + " method: " +
                                                r.getOperation());
-        }
-    }
-
-    protected final void __sentInternal()
-    {
-        //
-        // Note: no need to change the _state here, specializations are responsible for
-        // changing the state.
-        //
-
-        if(_callback != null)
-        {
-            try
-            {
-                _callback.__sent(this);
-            }
-            catch(RuntimeException ex)
-            {
-                __warning(ex);
-            }
         }
     }
 

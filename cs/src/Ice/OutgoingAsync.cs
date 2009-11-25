@@ -34,7 +34,7 @@ namespace Ice
     /// that returns no data.
     /// </summary>
     ///
-    public delegate void SentCallback();
+    public delegate void SentCallback(bool sentSynchronously);
 
     ///
     /// <summary>
@@ -63,6 +63,7 @@ namespace Ice
 
         bool sentSynchronously();
 
+        object getCookie();
         string getOperation();
 
         AsyncResult whenSent(Ice.AsyncCallback cb);
@@ -242,23 +243,37 @@ namespace IceInternal
                     throw new System.ArgumentException("sent callback already set");
                 }
                 sentCallback_ = cb;
-                if((state_ & Sent) == 0 || sentSynchronously_)
+                if((state_ & Sent) == 0)
                 {
                     return this;
                 }
             }
 
-            instance_.clientThreadPool().execute(delegate()
-                                                 {
-                                                     try
+            if(sentSynchronously_)
+            {
+                try
+                {
+                    sentCallback_(this);
+                }
+                catch(System.Exception ex)
+                {
+                    warning__(ex);
+                }
+            }
+            else
+            {
+                instance_.clientThreadPool().execute(delegate()
                                                      {
-                                                         sentCallback_(this);
-                                                     }
-                                                     catch(System.Exception ex)
-                                                     {
-                                                         warning__(ex);
-                                                     }
-                                                 });
+                                                         try
+                                                         {
+                                                             sentCallback_(this);
+                                                         }
+                                                         catch(System.Exception ex)
+                                                         {
+                                                             warning__(ex);
+                                                         }
+                                                     });
+            }
             return this;
         }
 
@@ -299,24 +314,41 @@ namespace IceInternal
                 {
                     throw new System.ArgumentException("sent callback already set");
                 }
-                sentCallback_ = r => cb();
-                if((state_ & Sent) == 0 || sentSynchronously_)
+                sentCallback_ = delegate(Ice.AsyncResult result) 
+                                {
+                                    cb(result.sentSynchronously());                        
+                                };
+                if((state_ & Sent) == 0)
                 {
                     return this;
                 }
             }
 
-            instance_.clientThreadPool().execute(delegate()
-                                                 {
-                                                     try
+            if(sentSynchronously_)
+            {
+                try
+                {
+                    cb(true);
+                }
+                catch(System.Exception ex)
+                {
+                    warning__(ex);
+                }
+            }
+            else
+            {
+                instance_.clientThreadPool().execute(delegate()
                                                      {
-                                                         cb();
-                                                     }
-                                                     catch(System.Exception ex)
-                                                     {
-                                                         warning__(ex);
-                                                     }
-                                                 });
+                                                         try
+                                                         {
+                                                             cb(false);
+                                                         }
+                                                         catch(System.Exception ex)
+                                                         {
+                                                             warning__(ex);
+                                                         }
+                                                     });
+            }
             return this;
         }
 
@@ -421,6 +453,25 @@ namespace IceInternal
             }
         }
 
+        public void sentAsync__(Ice.AsyncCallback callback)
+        {
+            //
+            // This is called when it's not safe to call the exception callback synchronously
+            // from this thread. Instead the exception callback is called asynchronously from
+            // the client thread pool.
+            //
+            try
+            {
+                instance_.clientThreadPool().execute(delegate()
+                                                     {
+                                                         sent__(callback);
+                                                     });
+            }
+            catch(Ice.CommunicatorDestroyedException)
+            {
+            }
+        }
+
         public static void check__(OutgoingAsyncBase r, Ice.ObjectPrx prx, string operation)
         {
             check__(r, operation);
@@ -498,11 +549,6 @@ namespace IceInternal
             // changing the state.
             //
 
-            if(sentSynchronously_)
-            {
-                return;
-            }
-
             if(cb != null)
             {
                 try
@@ -569,7 +615,7 @@ namespace IceInternal
             Debug.Assert(exceptionCallback_ != null);
             try
             {
-                ((Ice.ObjectPrxHelperBase)result.getProxy()).end__(result, result.getOperation());
+                ((OutgoingAsyncBase)result).wait__();
             }
             catch(Ice.Exception ex)
             {
@@ -962,10 +1008,24 @@ namespace IceInternal
                 try
                 {
                     _delegate = proxy_.getDelegate__(true);
-                    bool sent = _delegate.getRequestHandler__().sendAsyncRequest(this);
-                    if(synchronous) // Only set sentSynchronously_ If called synchronously by the user thread.
+                    Ice.AsyncCallback sentCallback;
+                    if(_delegate.getRequestHandler__().sendAsyncRequest(this, out sentCallback))
                     {
-                        sentSynchronously_ = sent;
+                        if(synchronous) // Only set sentSynchronously_ If called synchronously by the user thread.
+                        {
+                            sentSynchronously_ = true;
+                            if(sentCallback != null)
+                            {
+                                sent__(sentCallback);
+                            }
+                        }
+                        else
+                        {
+                            if(sentCallback != null)
+                            {
+                                sentAsync__(sentCallback);
+                            }
+                        }
                     }
                     break;
                 }
@@ -1246,6 +1306,33 @@ namespace IceInternal
             _proxy = proxy;
         }
 
+        public void send__()
+        {
+            //
+            // We don't automatically retry if ice_flushBatchRequests fails. Otherwise, if some batch
+            // requests were queued with the connection, they would be lost without being noticed.
+            //
+            Ice.ObjectDel_ @delegate = null;
+            int cnt = -1; // Don't retry.
+            try
+            {
+                @delegate = ((Ice.ObjectPrxHelperBase)_proxy).getDelegate__(false);
+                Ice.AsyncCallback sentCallback;
+                if(@delegate.getRequestHandler__().flushAsyncBatchRequests(this, out sentCallback))
+                {
+                    sentSynchronously_ = true;
+                    if(sentCallback != null)
+                    {
+                        sent__(sentCallback);
+                    }
+                }
+            }
+            catch(Ice.LocalException __ex)
+            {
+                ((Ice.ObjectPrxHelperBase)_proxy).handleException__(@delegate, __ex, false, ref cnt);
+            }
+        }
+
         public override Ice.ObjectPrx getProxy()
         {
             return _proxy;
@@ -1292,9 +1379,12 @@ namespace Ice
             ice_exception(ex);
         }
 
-        public void sent__()
+        public void sent__(bool sentSynchronously)
         {
-            ((AMISentCallback)this).ice_sent();
+            if(!sentSynchronously)
+            {
+                ((AMISentCallback)this).ice_sent();
+            }
         }
     }
 }

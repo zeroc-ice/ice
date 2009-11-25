@@ -251,6 +251,9 @@
             <fileset dir="test/Ice/adapterDeactivation">
                 <include name="Test.ice" />
             </fileset>
+            <fileset dir="test/Ice/ami">
+                <include name="Test.ice" />
+            </fileset>
             <fileset dir="test/Ice/background">
                 <include name="Test.ice" />
             </fileset>
@@ -292,7 +295,6 @@
                 <include name="Test.ice" />
             </fileset>
             <fileset dir="test/Ice/operations">
-                <include name="StateChanger.ice" />
                 <include name="Test.ice" />
                 <include name="TestAMD.ice" />
             </fileset>

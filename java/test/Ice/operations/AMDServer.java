@@ -17,12 +17,6 @@ public class AMDServer extends test.Util.Application
         Ice.ObjectAdapter adapter = communicator().createObjectAdapter("TestAdapter");
         adapter.add(new AMDMyDerivedClassI(), communicator().stringToIdentity("test"));
         adapter.activate();
-
-        communicator().getProperties().setProperty("HoldAdapter.Endpoints", "default -p 12011:udp");
-        Ice.ObjectAdapter holdAdapter = communicator().createObjectAdapter("HoldAdapter");
-        holdAdapter.add(new StateChangerI(new java.util.Timer(), adapter), communicator().stringToIdentity("hold"));
-        holdAdapter.activate();
-
         return WAIT;
     }
 

@@ -99,9 +99,9 @@ public:
         ice_exception(ex);
     }
     
-    void __sent()
+    void __sent(bool sentSynchronously)
     {
-        AMICallbackBase::__sent();
+        AMICallbackBase::__sent(sentSynchronously);
     }
 };
 typedef IceUtil::Handle<AMI_Object_ice_invoke> AMI_Object_ice_invokePtr;
@@ -122,9 +122,9 @@ public:
         ice_exception(ex);
     }
     
-    void __sent()
+    void __sent(bool sentSynchronously)
     {
-        AMICallbackBase::__sent();
+        AMICallbackBase::__sent(sentSynchronously);
     }
 };
 typedef IceUtil::Handle<AMI_Array_Object_ice_invoke> AMI_Array_Object_ice_invokePtr;
@@ -172,11 +172,9 @@ public:
         return begin_ice_isA(typeId, 0, ::IceInternal::__dummyCallback, 0);
     }
 
-    ::Ice::AsyncResultPtr begin_ice_isA(const ::std::string& typeId,
-                                        const ::Ice::Context& __ctx,
-					const ::Ice::LocalObjectPtr& __cookie = 0)
+    ::Ice::AsyncResultPtr begin_ice_isA(const ::std::string& typeId, const ::Ice::Context& __ctx)
     {
-        return begin_ice_isA(typeId, &__ctx, ::IceInternal::__dummyCallback, __cookie);
+        return begin_ice_isA(typeId, &__ctx, ::IceInternal::__dummyCallback, 0);
     }
 
     ::Ice::AsyncResultPtr begin_ice_isA(const ::std::string& typeId,
@@ -225,10 +223,9 @@ public:
         return begin_ice_ping(0, ::IceInternal::__dummyCallback, 0);
     }
 
-    ::Ice::AsyncResultPtr begin_ice_ping(const ::Ice::Context& __ctx,
-                                         const ::Ice::LocalObjectPtr& __cookie = 0)
+    ::Ice::AsyncResultPtr begin_ice_ping(const ::Ice::Context& __ctx)
     {
-        return begin_ice_ping(&__ctx, ::IceInternal::__dummyCallback, __cookie);
+        return begin_ice_ping(&__ctx, ::IceInternal::__dummyCallback, 0);
     }
 
     ::Ice::AsyncResultPtr begin_ice_ping(const ::Ice::CallbackPtr& __del,
@@ -272,10 +269,9 @@ public:
         return begin_ice_ids(0, ::IceInternal::__dummyCallback, 0);
     }
 
-    ::Ice::AsyncResultPtr begin_ice_ids(const ::Ice::Context& __ctx,
-                                        const ::Ice::LocalObjectPtr& __cookie = 0)
+    ::Ice::AsyncResultPtr begin_ice_ids(const ::Ice::Context& __ctx)
     {
-        return begin_ice_ids(&__ctx, ::IceInternal::__dummyCallback, __cookie);
+        return begin_ice_ids(&__ctx, ::IceInternal::__dummyCallback, 0);
     }
 
     ::Ice::AsyncResultPtr begin_ice_ids(const ::Ice::CallbackPtr& __del,
@@ -320,10 +316,9 @@ public:
         return begin_ice_id(0, ::IceInternal::__dummyCallback, 0);
     }
 
-    ::Ice::AsyncResultPtr begin_ice_id(const ::Ice::Context& __ctx,
-                                       const ::Ice::LocalObjectPtr& __cookie = 0)
+    ::Ice::AsyncResultPtr begin_ice_id(const ::Ice::Context& __ctx)
     {
-        return begin_ice_id(&__ctx, ::IceInternal::__dummyCallback, __cookie);
+        return begin_ice_id(&__ctx, ::IceInternal::__dummyCallback, 0);
     }
 
     ::Ice::AsyncResultPtr begin_ice_id(const ::Ice::CallbackPtr& __del,
@@ -387,10 +382,9 @@ public:
     ::Ice::AsyncResultPtr begin_ice_invoke(const ::std::string& operation, 
                                            ::Ice::OperationMode mode, 
                                            const ::std::vector< ::Ice::Byte>& inParams,
-                                           const ::Ice::Context& __ctx,
-                                           const ::Ice::LocalObjectPtr& __cookie = 0)
+                                           const ::Ice::Context& __ctx)
     {
-        return begin_ice_invoke(operation, mode, inParams, &__ctx, ::IceInternal::__dummyCallback, __cookie);
+        return begin_ice_invoke(operation, mode, inParams, &__ctx, ::IceInternal::__dummyCallback, 0);
     }
 
     ::Ice::AsyncResultPtr begin_ice_invoke(const ::std::string& operation, 
@@ -1046,7 +1040,7 @@ public:
     typedef IceUtil::Handle<T> TPtr;
 
     typedef void (T::*Exception)(const ::Ice::Exception&);
-    typedef void (T::*Sent)();
+    typedef void (T::*Sent)(bool);
 
     CallbackNC(const TPtr& instance, Exception excb, Sent sentcb) : callback(instance), exception(excb), sent(sentcb)
     {
@@ -1065,7 +1059,7 @@ public:
     {
 	if(sent)
 	{
-	    (callback.get()->*sent)();
+	    (callback.get()->*sent)(result->sentSynchronously());
 	}
     }
 
@@ -1101,7 +1095,7 @@ public:
     typedef IceUtil::Handle<CT> CTPtr;
 
     typedef void (T::*Exception)(const ::Ice::Exception&, const CTPtr&);
-    typedef void (T::*Sent)(const CTPtr&);
+    typedef void (T::*Sent)(bool, const CTPtr&);
 
     Callback(const TPtr& instance, Exception excb, Sent sentcb) : callback(instance), exception(excb), sent(sentcb)
     {
@@ -1120,7 +1114,7 @@ public:
     {
 	if(sent)
 	{
-	    (callback.get()->*sent)(CTPtr::dynamicCast(result->getCookie()));
+	    (callback.get()->*sent)(result->sentSynchronously(), CTPtr::dynamicCast(result->getCookie()));
 	}
     }
 
@@ -1155,7 +1149,7 @@ public:
     typedef IceUtil::Handle<T> TPtr;
 
     typedef void (T::*Exception)(const ::Ice::Exception&);
-    typedef void (T::*Sent)();
+    typedef void (T::*Sent)(bool);
 
     TwowayCallbackNC(const TPtr& instance, bool cb, Exception excb, Sent sentcb) : CallbackNC<T>(instance, excb, sentcb)
     {
@@ -1172,7 +1166,7 @@ public:
     typedef IceUtil::Handle<CT> CTPtr;
 
     typedef void (T::*Exception)(const ::Ice::Exception&, const CTPtr&);
-    typedef void (T::*Sent)(const CTPtr&);
+    typedef void (T::*Sent)(bool, const CTPtr&);
 
     TwowayCallback(const TPtr& instance, bool cb, Exception excb, Sent sentcb) : Callback<T, CT>(instance, excb, sentcb)
     {
@@ -1191,7 +1185,7 @@ public:
     typedef IceUtil::Handle<T> TPtr;
 
     typedef void (T::*Exception)(const ::Ice::Exception&);
-    typedef void (T::*Sent)();
+    typedef void (T::*Sent)(bool);
     typedef void (T::*Response)();
 
     OnewayCallbackNC(const TPtr& instance, Response cb, Exception excb, Sent sentcb) : 
@@ -1234,7 +1228,7 @@ public:
     typedef IceUtil::Handle<CT> CTPtr;
 
     typedef void (T::*Exception)(const ::Ice::Exception&, const CTPtr&);
-    typedef void (T::*Sent)(const CTPtr&);
+    typedef void (T::*Sent)(bool, const CTPtr&);
     typedef void (T::*Response)(const CTPtr&);
 
     OnewayCallback(const TPtr& instance, Response cb, Exception excb, Sent sentcb) : 
@@ -1281,7 +1275,7 @@ public:
     typedef IceUtil::Handle<T> TPtr;
 
     typedef void (T::*Exception)(const ::Ice::Exception&);
-    typedef void (T::*Sent)();
+    typedef void (T::*Sent)(bool);
     typedef void (T::*Response)(bool);
 
     CallbackNC_Object_ice_isA(const TPtr& instance, Response cb, Exception excb, Sent sentcb) :
@@ -1324,7 +1318,7 @@ public:
     typedef IceUtil::Handle<CT> CTPtr;
 
     typedef void (T::*Exception)(const ::Ice::Exception&, const CTPtr&);
-    typedef void (T::*Sent)(const CTPtr&);
+    typedef void (T::*Sent)(bool, const CTPtr&);
     typedef void (T::*Response)(bool, const CTPtr&);
 
     Callback_Object_ice_isA(const TPtr& instance, Response cb, Exception excb, Sent sentcb) :
@@ -1366,7 +1360,7 @@ public:
     typedef IceUtil::Handle<T> TPtr;
 
     typedef void (T::*Exception)(const ::Ice::Exception&);
-    typedef void (T::*Sent)();
+    typedef void (T::*Sent)(bool);
     typedef void (T::*Response)();
 
     CallbackNC_Object_ice_ping(const TPtr& instance, Response cb, Exception excb, Sent sentcb) :
@@ -1384,7 +1378,7 @@ public:
     typedef IceUtil::Handle<CT> CTPtr;
 
     typedef void (T::*Exception)(const ::Ice::Exception&, const CTPtr&);
-    typedef void (T::*Sent)(const CTPtr&);
+    typedef void (T::*Sent)(bool, const CTPtr&);
     typedef void (T::*Response)(const CTPtr&);
 
     Callback_Object_ice_ping(const TPtr& instance, Response cb, Exception excb, Sent sentcb) :
@@ -1401,7 +1395,7 @@ public:
     typedef IceUtil::Handle<T> TPtr;
 
     typedef void (T::*Exception)(const ::Ice::Exception&);
-    typedef void (T::*Sent)();
+    typedef void (T::*Sent)(bool);
     typedef void (T::*Response)(const ::std::vector< ::std::string>&);
 
     CallbackNC_Object_ice_ids(const TPtr& instance, Response cb, Exception excb, Sent sentcb) :
@@ -1444,7 +1438,7 @@ public:
     typedef IceUtil::Handle<CT> CTPtr;
 
     typedef void (T::*Exception)(const ::Ice::Exception&, const CTPtr&);
-    typedef void (T::*Sent)(const CTPtr&);
+    typedef void (T::*Sent)(bool, const CTPtr&);
     typedef void (T::*Response)(const ::std::vector< ::std::string>&, const CTPtr&);
 
     Callback_Object_ice_ids(const TPtr& instance, Response cb, Exception excb, Sent sentcb) :
@@ -1486,7 +1480,7 @@ public:
     typedef IceUtil::Handle<T> TPtr;
 
     typedef void (T::*Exception)(const ::Ice::Exception&);
-    typedef void (T::*Sent)();
+    typedef void (T::*Sent)(bool);
     typedef void (T::*Response)(const ::std::string&);
 
     CallbackNC_Object_ice_id(const TPtr& instance, Response cb, Exception excb, Sent sentcb) :
@@ -1529,7 +1523,7 @@ public:
     typedef IceUtil::Handle<CT> CTPtr;
 
     typedef void (T::*Exception)(const ::Ice::Exception&, const CTPtr&);
-    typedef void (T::*Sent)(const CTPtr&);
+    typedef void (T::*Sent)(bool, const CTPtr&);
     typedef void (T::*Response)(const ::std::string&, const CTPtr&);
 
     Callback_Object_ice_id(const TPtr& instance, Response cb, Exception excb, Sent sentcb) :
@@ -1574,7 +1568,7 @@ public:
     typedef IceUtil::Handle<T> TPtr;
 
     typedef void (T::*Exception)(const ::Ice::Exception&);
-    typedef void (T::*Sent)();
+    typedef void (T::*Sent)(bool);
     typedef void (T::*Response)(bool, const std::vector< ::Ice::Byte>&);
     typedef void (T::*ResponseArray)(bool, const std::pair<const ::Ice::Byte*, const ::Ice::Byte*>&);
 
@@ -1654,7 +1648,7 @@ public:
     typedef IceUtil::Handle<CT> CTPtr;
 
     typedef void (T::*Exception)(const ::Ice::Exception&, const CTPtr&);
-    typedef void (T::*Sent)(const CTPtr&);
+    typedef void (T::*Sent)(bool, const CTPtr&);
     typedef void (T::*Response)(bool, const std::vector< ::Ice::Byte>&, const CTPtr&);
     typedef void (T::*ResponseArray)(bool, const std::pair<const ::Ice::Byte*, const ::Ice::Byte*>&, const CTPtr&);
 
@@ -1733,7 +1727,7 @@ template<class T> Callback_Object_ice_isAPtr
 newCallback_Object_ice_isA(const IceUtil::Handle<T>& instance,
                            void (T::*cb)(bool),
                            void (T::*excb)(const ::Ice::Exception&) = 0,
-                           void (T::*sentcb)() = 0)
+                           void (T::*sentcb)(bool) = 0)
 {
     return new CallbackNC_Object_ice_isA<T>(instance, cb, excb, sentcb);
 }
@@ -1742,7 +1736,7 @@ template<class T, typename CT> Callback_Object_ice_isAPtr
 newCallback_Object_ice_isA(const IceUtil::Handle<T>& instance,
                            void (T::*cb)(bool, const IceUtil::Handle<CT>&),
                            void (T::*excb)(const ::Ice::Exception&, const IceUtil::Handle<CT>&) = 0,
-                           void (T::*sentcb)(const IceUtil::Handle<CT>&) = 0)
+                           void (T::*sentcb)(bool, const IceUtil::Handle<CT>&) = 0)
 {
     return new Callback_Object_ice_isA<T, CT>(instance, cb, excb, sentcb);
 }
@@ -1751,7 +1745,7 @@ template<class T> Callback_Object_ice_pingPtr
 newCallback_Object_ice_ping(const IceUtil::Handle<T>& instance,
                             void (T::*cb)(),
                             void (T::*excb)(const ::Ice::Exception&) = 0,
-                            void (T::*sentcb)() = 0)
+                            void (T::*sentcb)(bool) = 0)
 {
     return new CallbackNC_Object_ice_ping<T>(instance, cb, excb, sentcb);
 }
@@ -1760,7 +1754,7 @@ template<class T, typename CT> Callback_Object_ice_pingPtr
 newCallback_Object_ice_ping(const IceUtil::Handle<T>& instance,
                             void (T::*cb)(const IceUtil::Handle<CT>&),
                             void (T::*excb)(const ::Ice::Exception&, const IceUtil::Handle<CT>&) = 0,
-                            void (T::*sentcb)(const IceUtil::Handle<CT>&) = 0)
+                            void (T::*sentcb)(bool, const IceUtil::Handle<CT>&) = 0)
 {
     return new Callback_Object_ice_ping<T, CT>(instance, cb, excb, sentcb);
 }
@@ -1769,7 +1763,7 @@ template<class T> Callback_Object_ice_idsPtr
 newCallback_Object_ice_ids(const IceUtil::Handle<T>& instance,
                            void (T::*cb)(const ::std::vector< ::std::string>&),
                            void (T::*excb)(const ::Ice::Exception&) = 0,
-                           void (T::*sentcb)() = 0)
+                           void (T::*sentcb)(bool) = 0)
 {
     return new CallbackNC_Object_ice_ids<T>(instance, cb, excb, sentcb);
 }
@@ -1778,7 +1772,7 @@ template<class T, typename CT> Callback_Object_ice_idsPtr
 newCallback_Object_ice_ids(const IceUtil::Handle<T>& instance,
                            void (T::*cb)(const ::std::vector< ::std::string>&, const IceUtil::Handle<CT>&),
                            void (T::*excb)(const ::Ice::Exception&, const IceUtil::Handle<CT>&) = 0,
-                           void (T::*sentcb)(const IceUtil::Handle<CT>&) = 0)
+                           void (T::*sentcb)(bool, const IceUtil::Handle<CT>&) = 0)
 {
     return new Callback_Object_ice_ids<T, CT>(instance, cb, excb, sentcb);
 }
@@ -1787,7 +1781,7 @@ template<class T> Callback_Object_ice_idPtr
 newCallback_Object_ice_id(const IceUtil::Handle<T>& instance,
                           void (T::*cb)(const ::std::string&),
                           void (T::*excb)(const ::Ice::Exception&) = 0,
-                          void (T::*sentcb)() = 0)
+                          void (T::*sentcb)(bool) = 0)
 {
     return new CallbackNC_Object_ice_id<T>(instance, cb, excb, sentcb);
 }
@@ -1796,7 +1790,7 @@ template<class T, typename CT> Callback_Object_ice_idPtr
 newCallback_Object_ice_id(const IceUtil::Handle<T>& instance,
                           void (T::*cb)(const ::std::string&, const IceUtil::Handle<CT>&),
                           void (T::*excb)(const ::Ice::Exception&, const IceUtil::Handle<CT>&) = 0,
-                          void (T::*sentcb)(const IceUtil::Handle<CT>&) = 0)
+                          void (T::*sentcb)(bool, const IceUtil::Handle<CT>&) = 0)
 {
     return new Callback_Object_ice_id<T, CT>(instance, cb, excb, sentcb);
 }
@@ -1805,7 +1799,7 @@ template<class T> Callback_Object_ice_invokePtr
 newCallback_Object_ice_invoke(const IceUtil::Handle<T>& instance,
                               void (T::*cb)(bool, const std::vector<Ice::Byte>&),
                               void (T::*excb)(const ::Ice::Exception&) = 0,
-                              void (T::*sentcb)() = 0)
+                              void (T::*sentcb)(bool) = 0)
 {
     return new CallbackNC_Object_ice_invoke<T>(instance, cb, excb, sentcb);
 }
@@ -1814,7 +1808,7 @@ template<class T> Callback_Object_ice_invokePtr
 newCallback_Object_ice_invoke(const IceUtil::Handle<T>& instance,
                               void (T::*cb)(bool, const std::pair<const Byte*, const Byte*>&),
                               void (T::*excb)(const ::Ice::Exception&) = 0,
-                              void (T::*sentcb)() = 0)
+                              void (T::*sentcb)(bool) = 0)
 {
     return new CallbackNC_Object_ice_invoke<T>(instance, cb, excb, sentcb);
 }
@@ -1823,7 +1817,7 @@ template<class T, typename CT> Callback_Object_ice_invokePtr
 newCallback_Object_ice_invoke(const IceUtil::Handle<T>& instance,
                               void (T::*cb)(bool, const std::vector<Ice::Byte>&, const IceUtil::Handle<CT>&),
                               void (T::*excb)(const ::Ice::Exception&, const IceUtil::Handle<CT>&) = 0,
-                              void (T::*sentcb)(const IceUtil::Handle<CT>&) = 0)
+                              void (T::*sentcb)(bool, const IceUtil::Handle<CT>&) = 0)
 {
     return new Callback_Object_ice_invoke<T, CT>(instance, cb, excb, sentcb);
 }
@@ -1833,7 +1827,7 @@ newCallback_Object_ice_invoke(const IceUtil::Handle<T>& instance,
                               void (T::*cb)(bool, const std::pair<const Byte*, const Byte*>&, 
                                             const IceUtil::Handle<CT>&),
                               void (T::*excb)(const ::Ice::Exception&, const IceUtil::Handle<CT>&) = 0,
-                              void (T::*sentcb)(const IceUtil::Handle<CT>&) = 0)
+                              void (T::*sentcb)(bool, const IceUtil::Handle<CT>&) = 0)
 {
     return new Callback_Object_ice_invoke<T, CT>(instance, cb, excb, sentcb);
 }

@@ -49,8 +49,6 @@ import test.Ice.operations.Test.MyDerivedClassPrxHelper;
 import test.Ice.operations.Test.MyEnum;
 import test.Ice.operations.Test.Structure;
 import test.Ice.operations.Test.MyStruct;
-import test.Ice.operations.Test.StateChangerPrx;
-import test.Ice.operations.Test.StateChangerPrxHelper;
 
 class TwowaysNewAMI
 {
@@ -96,85 +94,85 @@ class TwowaysNewAMI
         private boolean _called;
     }
 
-    private static class NoEndpointCallbackUnsafe extends Ice.AsyncCallback
-    {
-        @Override
-        public void completed(Ice.AsyncResult r)
-        {
-            try
-            {
-                MyClassPrx p = MyClassPrxHelper.uncheckedCast(r.getProxy());
-                p.end_opVoid(r);
-                callback.called();
-            }
-            catch(Ice.NoEndpointException ex)
-            {
-                test(false);
-            }
-        }
-
-        @Override
-        public void sent(Ice.AsyncResult r)
-        {
-            test(false);
-        }
-
-        public void check()
-        {
-            callback.check();
-        }
-
-        private Callback callback = new Callback();
-    }
-
-    private static class NoEndpointCallbackUnsafeEx extends Ice.AsyncCallback
-    {
-        @Override
-        public void completed(Ice.AsyncResult r)
-        {
-            try
-            {
-                MyClassPrx p = MyClassPrxHelper.uncheckedCast(r.getProxy());
-                p.end_opVoid(r);
-                test(false);
-            }
-            catch(Ice.NoEndpointException ex)
-            {
-                callback.called();
-            }
-        }
-
-        @Override
-        public void sent(Ice.AsyncResult r)
-        {
-            test(false);
-        }
-
-        public void check()
-        {
-            callback.check();
-        }
-
-        private Callback callback = new Callback();
-    }
-
-    private static class NoEndpointCallbackSafe extends Callback_MyClass_opVoid
+    private static class pingI extends Ice.Callback_Object_ice_ping
     {
         @Override
         public void response()
         {
-            test(false);
+            callback.called();
         }
 
         @Override
         public void exception(Ice.LocalException ex)
         {
-            test(ex instanceof Ice.NoEndpointException);
+            test(false);
+        }
+
+        public void check()
+        {
+            callback.check();
+        }
+
+        private Callback callback = new Callback();
+    }
+
+    private static class isAI extends Ice.Callback_Object_ice_isA
+    {
+        @Override
+        public void response(boolean r)
+        {
+            test(r);
             callback.called();
         }
 
         @Override
-        public void sent()
+        public void exception(Ice.LocalException ex)
+        {
+            test(false);
+        }
+
+        public void check()
+        {
+            callback.check();
+        }
+
+        private Callback callback = new Callback();
+    }
+
+    private static class idI extends Ice.Callback_Object_ice_id
+    {
+        @Override
+        public void response(String id)
+        {
+            test(id.equals("::Test::MyDerivedClass"));
+            callback.called();
+        }
+
+        @Override
+        public void exception(Ice.LocalException ex)
+        {
+            test(false);
+        }
+
+        public void check()
+        {
+            callback.check();
+        }
+
+        private Callback callback = new Callback();
+    }
+
+    private static class idsI extends Ice.Callback_Object_ice_ids
+    {
+        @Override
+        public void response(String[] ids)
+        {
+            test(ids.length == 3);
+            callback.called();
+        }
+
+        @Override
+        public void exception(Ice.LocalException ex)
         {
             test(false);
         }
@@ -1241,534 +1239,34 @@ class TwowaysNewAMI
         private Callback callback = new Callback();
     }
 
-    private static class IsACallbackUnsafe extends Ice.AsyncCallback
-    {
-        @Override
-        public void completed(Ice.AsyncResult r)
-        {
-            test(r.getProxy().end_ice_isA(r));
-            callback.called();
-        }
-
-        public void check()
-        {
-            callback.check();
-        }
-
-        private Callback callback = new Callback();
-    }
-
-    private static class IsACallbackSafe extends Ice.Callback_Object_ice_isA
-    {
-        @Override
-        public void response(boolean ret)
-        {
-            test(ret);
-            callback.called();
-        }
-
-        @Override
-        public void exception(Ice.LocalException ex)
-        {
-            test(false);
-        }
-
-        public void check()
-        {
-            callback.check();
-        }
-
-        private Callback callback = new Callback();
-    }
-
-    private static class PingCallbackUnsafe extends Ice.AsyncCallback
-    {
-        @Override
-        public void completed(Ice.AsyncResult r)
-        {
-            r.getProxy().end_ice_ping(r);
-            callback.called();
-        }
-
-        public void check()
-        {
-            callback.check();
-        }
-
-        private Callback callback = new Callback();
-    }
-
-    private static class PingCallbackSafe extends Ice.Callback_Object_ice_ping
-    {
-        @Override
-        public void response()
-        {
-            callback.called();
-        }
-
-        @Override
-        public void exception(Ice.LocalException ex)
-        {
-            test(false);
-        }
-
-        public void check()
-        {
-            callback.check();
-        }
-
-        private Callback callback = new Callback();
-    }
-
-    private static class IdsCallbackUnsafe extends Ice.AsyncCallback
-    {
-        @Override
-        public void completed(Ice.AsyncResult r)
-        {
-            test(java.util.Arrays.equals(r.getProxy().end_ice_ids(r), r.getProxy().ice_ids()));
-            callback.called();
-        }
-
-        public void check()
-        {
-            callback.check();
-        }
-
-        private Callback callback = new Callback();
-    }
-
-    private static class IdsCallbackSafe extends Ice.Callback_Object_ice_ids
-    {
-        IdsCallbackSafe(String[] ids)
-        {
-            _ids = ids;
-        }
-
-        @Override
-        public void response(String[] ids)
-        {
-            test(java.util.Arrays.equals(ids, _ids));
-            callback.called();
-        }
-
-        @Override
-        public void exception(Ice.LocalException ex)
-        {
-            test(false);
-        }
-
-        public void check()
-        {
-            callback.check();
-        }
-
-        private String[] _ids;
-        private Callback callback = new Callback();
-    }
-
-    private static class IdCallbackUnsafe extends Ice.AsyncCallback
-    {
-        @Override
-        public void completed(Ice.AsyncResult r)
-        {
-            test(r.getProxy().end_ice_id(r).equals(r.getProxy().ice_id()));
-            callback.called();
-        }
-
-        public void check()
-        {
-            callback.check();
-        }
-
-        private Callback callback = new Callback();
-    }
-
-    private static class IdCallbackSafe extends Ice.Callback_Object_ice_id
-    {
-        IdCallbackSafe(String id)
-        {
-            _id = id;
-        }
-
-        @Override
-        public void response(String id)
-        {
-            test(id.equals(_id));
-            callback.called();
-        }
-
-        @Override
-        public void exception(Ice.LocalException ex)
-        {
-            test(false);
-        }
-
-        public void check()
-        {
-            callback.check();
-        }
-
-        private String _id;
-        private Callback callback = new Callback();
-    }
-
-    enum ThrowType { LocalException, OtherException };
-
-    private static void throwEx(ThrowType t)
-    {
-        switch(t)
-        {
-        case LocalException:
-            throw new Ice.ObjectNotExistException();
-
-        case OtherException:
-            throw new NullPointerException();
-        }
-    }
-
-    private static class ThrowerUnsafe extends Ice.AsyncCallback
-    {
-        ThrowerUnsafe(ThrowType t)
-        {
-            _t = t;
-        }
-
-        @Override
-        public void completed(Ice.AsyncResult r)
-        {
-            MyClassPrx p = (MyClassPrx)r.getProxy();
-            p.end_opVoid(r);
-            callback.called();
-            throwEx(_t);
-        }
-
-        public void check()
-        {
-            callback.check();
-        }
-
-        private Callback callback = new Callback();
-        private ThrowType _t;
-    }
-
-    private static class ThrowerSafe extends Callback_MyClass_opVoid
-    {
-        ThrowerSafe(ThrowType t)
-        {
-            _t = t;
-        }
-
-        @Override
-        public void response()
-        {
-            callback.called();
-            throwEx(_t);
-        }
-
-        @Override
-        public void exception(Ice.LocalException ex)
-        {
-            test(false);
-        }
-
-        public void check()
-        {
-            callback.check();
-        }
-
-        private Callback callback = new Callback();
-        private ThrowType _t;
-    }
-
-    private static class ThrowerUnsafeEx extends Ice.AsyncCallback
-    {
-        ThrowerUnsafeEx(ThrowType t)
-        {
-            _t = t;
-        }
-
-        @Override
-        public void completed(Ice.AsyncResult r)
-        {
-            MyClassPrx p = (MyClassPrx)r.getProxy();
-            try
-            {
-                p.end_opVoid(r);
-                test(false);
-            }
-            catch(Ice.LocalException ex)
-            {
-                callback.called();
-                throwEx(_t);
-            }
-        }
-
-        public void check()
-        {
-            callback.check();
-        }
-
-        private Callback callback = new Callback();
-        private ThrowType _t;
-    }
-
-    private static class ThrowerSafeEx extends Callback_MyClass_opVoid
-    {
-        ThrowerSafeEx(ThrowType t)
-        {
-            _t = t;
-        }
-
-        @Override
-        public void response()
-        {
-            test(false);
-        }
-
-        @Override
-        public void exception(Ice.LocalException ex)
-        {
-            callback.called();
-            throwEx(_t);
-        }
-
-        public void check()
-        {
-            callback.check();
-        }
-
-        private Callback callback = new Callback();
-        private ThrowType _t;
-    }
-
-    private static class SentCounter extends Ice.AsyncCallback
-    {
-        SentCounter()
-        {
-            _queuedCount = 0;
-            _completedCount = 0;
-        }
-
-        @Override
-        public void completed(Ice.AsyncResult r)
-        {
-            test(r.isCompleted());
-            synchronized(this)
-            {
-                ++_completedCount;
-                notify();
-            }
-        }
-
-        @Override
-        public void sent(Ice.AsyncResult r)
-        {
-            synchronized(this)
-            {
-                ++_queuedCount;
-            }
-        }
-
-        synchronized int queuedCount()
-        {
-            return _queuedCount;
-        }
-
-        synchronized void check(int size)
-        {
-            while(_completedCount != size)
-            {
-                try
-                {
-                    wait();
-                }
-                catch(InterruptedException ex)
-                {
-                }
-            }
-        }
-
-        private int _queuedCount;
-        private int _completedCount;
-    }
-
     static void
     twowaysNewAMI(test.Util.Application app, MyClassPrx p)
     {
         Ice.Communicator communicator = app.communicator();
 
         {
-            //
-            // Check that a call to a void operation raises NoEndpointException
-            // in the end_ method instead of at the point of call.
-            //
-            MyClassPrx indirect = MyClassPrxHelper.uncheckedCast(p.ice_adapterId("dummy"));
-            Ice.AsyncResult r;
-
-            r = indirect.begin_opVoid();
-            try
-            {
-                indirect.end_opVoid(r);
-                test(false);
-            }
-            catch(Ice.NoEndpointException ex)
-            {
-            }
-
-            //
-            // Check that a second call to the end_ method throws IllegalArgumentException.
-            //
-            try
-            {
-                indirect.end_opVoid(r);
-                test(false);
-            }
-            catch(IllegalArgumentException ex)
-            {
-            }
-
-            //
-            // Use type-unsafe and type-safe variations of the callback.
-            // Also test that the sent callback is not called in this case.
-            //
-            NoEndpointCallbackUnsafeEx cb1 = new NoEndpointCallbackUnsafeEx();
-            indirect.begin_opVoid(cb1);
-            cb1.check();
-
-            NoEndpointCallbackSafe cb2 = new NoEndpointCallbackSafe();
-            indirect.begin_opVoid(cb2);
-            cb2.check();
-
-            //
-            // Check that calling the end_ method with a different proxy or for a different operation than the begin_
-            // method throws IllegalArgumentException. If the test throws as expected, we never call the end_ method,
-            // so this also tests that it is safe to throw the AsyncResult away without calling the end_ method.
-            //
-            MyClassPrx indirect1 = MyClassPrxHelper.uncheckedCast(p.ice_adapterId("dummy"));
-            MyClassPrx indirect2 = MyClassPrxHelper.uncheckedCast(p.ice_adapterId("dummy2"));
-
-            Ice.AsyncResult r1 = indirect1.begin_opVoid();
-            Ice.AsyncResult r2 = indirect2.begin_opVoid();
-
-            try
-            {
-                indirect1.end_opVoid(r2); // Wrong proxy
-                test(false);
-            }
-            catch(IllegalArgumentException ex)
-            {
-            }
-
-            try
-            {
-                indirect1.end_shutdown(r1); // Wrong operation
-                test(false);
-            }
-            catch(IllegalArgumentException ex)
-            {
-            }
+            pingI cb = new pingI();
+            p.begin_ice_ping(cb);
+            cb.check();
         }
 
         {
-            //
-            // Check that calling the end_ method with a null result throws IllegalArgumentException.
-            //
-            try
-            {
-                p.end_opVoid(null);
-                test(false);
-            }
-            catch(IllegalArgumentException ex)
-            {
-            }
+            isAI cb = new isAI();
+            p.begin_ice_isA("::Test::MyClass", cb);
+            cb.check();
         }
-
+    
         {
-            //
-            // Check that throwing an exception from the success callback doesn't cause problems.
-            //
-            {
-                ThrowerSafe cb = new ThrowerSafe(ThrowType.LocalException);
-                p.begin_opVoid(cb);
-                cb.check();
-            }
-
-            {
-                ThrowerSafe cb = new ThrowerSafe(ThrowType.OtherException);
-                p.begin_opVoid(cb);
-                cb.check();
-            }
-
-            {
-                ThrowerUnsafe cb = new ThrowerUnsafe(ThrowType.LocalException);
-                p.begin_opVoid(cb);
-                cb.check();
-            }
-
-            {
-                ThrowerUnsafe cb = new ThrowerUnsafe(ThrowType.OtherException);
-                p.begin_opVoid(cb);
-                cb.check();
-            }
+            idI cb = new idI();
+            p.begin_ice_id(cb);
+            cb.check();
         }
-
+    
         {
-            //
-            // Check that throwing an exception from the exception callback doesn't cause problems.
-            //
-            MyClassPrx indirect = MyClassPrxHelper.uncheckedCast(p.ice_adapterId("dummy"));
-
-            {
-                ThrowerSafeEx cb = new ThrowerSafeEx(ThrowType.LocalException);
-                indirect.begin_opVoid(cb);
-                cb.check();
-            }
-
-            {
-                ThrowerSafeEx cb = new ThrowerSafeEx(ThrowType.OtherException);
-                indirect.begin_opVoid(cb);
-                cb.check();
-            }
-
-            {
-                ThrowerUnsafeEx cb = new ThrowerUnsafeEx(ThrowType.LocalException);
-                indirect.begin_opVoid(cb);
-                cb.check();
-            }
-
-            {
-                ThrowerUnsafeEx cb = new ThrowerUnsafeEx(ThrowType.OtherException);
-                indirect.begin_opVoid(cb);
-                cb.check();
-            }
+            idsI cb = new idsI();
+            p.begin_ice_ids(cb);
+            cb.check();
         }
-
-        {
-            //
-            // Check that CommunicatorDestroyedException is raised directly.
-            //
-            Ice.InitializationData initData = new Ice.InitializationData();
-            initData.properties = communicator.getProperties()._clone();
-            Ice.Communicator ic = app.initialize(initData);
-            Ice.ObjectPrx obj = ic.stringToProxy(p.toString());
-            MyClassPrx p2 = MyClassPrxHelper.checkedCast(obj);
-
-            ic.destroy();
-
-            try
-            {
-                p2.begin_opVoid();
-                test(false);
-            }
-            catch(Ice.CommunicatorDestroyedException ex)
-            {
-                // Expected.
-            }
-        }
-
-        //
-        // Test that marshaling works as expected, and that the delegates for each type of callback work.
-        //
 
         {
             Ice.AsyncResult r = p.begin_opVoid();
@@ -2233,208 +1731,6 @@ class TwowaysNewAMI
             opDerivedI cb = new opDerivedI();
             derived.begin_opDerived(cb);
             cb.check();
-        }
-
-        {
-            //
-            // Check that we can call operations on Object asynchronously.
-            //
-            {
-                Ice.AsyncResult r = p.begin_ice_isA(MyClass.ice_staticId());
-                try
-                {
-                    test(p.end_ice_isA(r));
-                }
-                catch(RuntimeException ex)
-                {
-                    test(false);
-                }
-            }
-
-            {
-                IsACallbackUnsafe cb = new IsACallbackUnsafe();
-                p.begin_ice_isA(MyClass.ice_staticId(), cb);
-                cb.check();
-            }
-
-            {
-                IsACallbackSafe cb = new IsACallbackSafe();
-                p.begin_ice_isA(MyClass.ice_staticId(), cb);
-                cb.check();
-            }
-
-            {
-                Ice.AsyncResult r = p.begin_ice_ping();
-                try
-                {
-                    p.end_ice_ping(r);
-                }
-                catch(RuntimeException ex)
-                {
-                    test(false);
-                }
-            }
-
-            {
-                PingCallbackUnsafe cb = new PingCallbackUnsafe();
-                p.begin_ice_ping(cb);
-                cb.check();
-            }
-
-            {
-                PingCallbackSafe cb = new PingCallbackSafe();
-                p.begin_ice_ping(cb);
-                cb.check();
-            }
-
-            {
-                Ice.AsyncResult r = p.begin_ice_ids();
-                try
-                {
-                    test(java.util.Arrays.equals(p.end_ice_ids(r), p.ice_ids()));
-                }
-                catch(RuntimeException ex)
-                {
-                    test(false);
-                }
-            }
-
-            {
-                IdsCallbackUnsafe cb = new IdsCallbackUnsafe();
-                p.begin_ice_ids(cb);
-                cb.check();
-            }
-
-            {
-                IdsCallbackSafe cb = new IdsCallbackSafe(p.ice_ids());
-                p.begin_ice_ids(cb);
-                cb.check();
-            }
-
-            {
-                Ice.AsyncResult r = p.begin_ice_id();
-                try
-                {
-                    test(p.end_ice_id(r).equals(p.ice_id()));
-                }
-                catch(RuntimeException ex)
-                {
-                    test(false);
-                }
-            }
-
-            {
-                IdCallbackUnsafe cb = new IdCallbackUnsafe();
-                p.begin_ice_id(cb);
-                cb.check();
-            }
-
-            {
-                IdCallbackSafe cb = new IdCallbackSafe(p.ice_id());
-                p.begin_ice_id(cb);
-                cb.check();
-            }
-        }
-
-        //
-        // Test that queuing indication works.
-        //
-        {
-            Ice.AsyncResult r = p.begin_delay(100);
-            test(!r.isCompleted());
-            p.end_delay(r);
-            test(r.isCompleted());
-        }
-
-        //
-        // Put the server's adapter into the holding state and pump out requests until one is queued.
-        // Then activate the adapter again and pump out more until one isn't queued again.
-        // Check that all the callbacks arrive after calling the end_ method for each request.
-        // We fill a context with a few kB of data to make sure we don't queue up too many requests.
-        //
-        {
-            final int contextSize = 10; // Kilobytes
-            StringBuilder s = new StringBuilder();
-            for(int i = 0; i < 1024; ++i)
-            {
-                s.append('a');
-            }
-
-            java.util.Map<String, String> ctx = new java.util.HashMap<String, String>();
-            for(int i = 0; i < contextSize; ++i)
-            {
-                ctx.put("" + i, s.toString());
-            }
-
-            //
-            // Keep all the AsyncResults we get from the begin_ calls, so we can call end_ for each of them.
-            //
-            java.util.ArrayList<Ice.AsyncResult> results = new java.util.ArrayList<Ice.AsyncResult>();
-
-            int queuedCount = 0;
-
-            SentCounter cb = new SentCounter();
-            Ice.AsyncResult r;
-
-            StateChangerPrx state =
-                StateChangerPrxHelper.checkedCast(communicator.stringToProxy("hold:default -p 12011"));
-            state.hold(3);
-
-            do
-            {
-                r = p.begin_opVoid(ctx, cb);
-                results.add(r);
-                if(!r.sentSynchronously())
-                {
-                    ++queuedCount;
-                }
-            }
-            while(r.sentSynchronously());
-
-            int numRequests = results.size();
-            test(numRequests > 1); // Something is wrong if we didn't get something out without queueing.
-
-            //
-            // Re-enable the adapter.
-            //
-            state.activate(3);
-
-            //
-            // Fire off a bunch more requests until we get one that wasn't queued.
-            // We sleep in between calls to allow the queued requests to drain.
-            //
-            do
-            {
-                r = p.begin_opVoid(cb);
-                results.add(r);
-                if(!r.sentSynchronously())
-                {
-                    ++queuedCount;
-                }
-                try
-                {
-                    Thread.sleep(1);
-                }
-                catch(InterruptedException ex)
-                {
-                }
-            }
-            while(!r.sentSynchronously());
-            test(results.size() > numRequests); // Something is wrong if we didn't queue additional requests.
-
-            //
-            // Now make all the outstanding calls to the end_ method.
-            //
-            for(Ice.AsyncResult ar : results)
-            {
-                p.end_opVoid(ar);
-            }
-
-            //
-            // Check that all the callbacks have arrived and that we got a sent callback for each queued request.
-            //
-            cb.check(results.size());
-            test(cb.queuedCount() == queuedCount);
         }
     }
 }

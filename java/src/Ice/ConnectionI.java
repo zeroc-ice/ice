@@ -324,7 +324,8 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
         boolean sent = false;
         try
         {
-            sent = sendMessage(new OutgoingMessage(out, out.os(), compress, requestId));
+            OutgoingMessage message = new OutgoingMessage(out, out.os(), compress, requestId);
+            sent = (sendMessage(message) & IceInternal.AsyncStatus.Sent) > 0;
         }
         catch(Ice.LocalException ex)
         {
@@ -344,7 +345,7 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
         return sent; // The request was sent.
     }
 
-    synchronized public boolean
+    synchronized public int
     sendAsyncRequest(IceInternal.OutgoingAsync out, boolean compress, boolean response)
         throws IceInternal.LocalExceptionWrapper
     {
@@ -389,10 +390,10 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
             os.writeInt(requestId);
         }
 
-        boolean sent;
+        int status;
         try
         {
-            sent = sendMessage(new OutgoingMessage(out, out.__os(), compress, requestId));
+            status = sendMessage(new OutgoingMessage(out, out.__os(), compress, requestId));
         }
         catch(Ice.LocalException ex)
         {
@@ -408,7 +409,7 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
             //
             _asyncRequests.put(requestId, out);
         }
-        return sent;
+        return status;
     }
 
     public synchronized void
@@ -653,7 +654,7 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
         try
         {
             OutgoingMessage message = new OutgoingMessage(out, out.os(), _batchRequestCompress, 0);
-            sent = sendMessage(message);
+            sent = (sendMessage(message) & IceInternal.AsyncStatus.Sent) > 0;
         }
         catch(Ice.LocalException ex)
         {
@@ -672,7 +673,7 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
         return sent;
     }
 
-    synchronized public boolean
+    synchronized public int
     flushAsyncBatchRequests(IceInternal.BatchOutgoingAsync outAsync)
     {
         while(_batchStreamInUse && _exception == null)
@@ -693,8 +694,12 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
 
         if(_batchRequestNum == 0)
         {
-            outAsync.__sent(this);
-            return true;
+            int status = IceInternal.AsyncStatus.Sent;
+            if(outAsync.__sent(this))
+            {
+                status |= IceInternal.AsyncStatus.InvokeSentCallback;
+            }
+            return status;
         }
 
         //
@@ -705,11 +710,11 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
 
         _batchStream.swap(outAsync.__os());
 
-        boolean sent;
+        int status;
         try
         {
             OutgoingMessage message = new OutgoingMessage(outAsync, outAsync.__os(), _batchRequestCompress, 0);
-            sent = sendMessage(message);
+            status = sendMessage(message);
         }
         catch(Ice.LocalException ex)
         {
@@ -725,7 +730,7 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
         _batchRequestNum = 0;
         _batchRequestCompress = false;
         _batchMarker = 0;
-        return sent;
+        return status;
     }
 
     synchronized public void
@@ -1630,7 +1635,7 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
             os.writeByte((byte)0); // compression status: always report 0 for CloseConnection in Java.
             os.writeInt(IceInternal.Protocol.headerSize); // Message size.
 
-            if(sendMessage(new OutgoingMessage(os, false, false)))
+            if((sendMessage(new OutgoingMessage(os, false, false)) & IceInternal.AsyncStatus.Sent) > 0)
             {
                 //
                 // Schedule the close timeout to wait for the peer to close the connection. If
@@ -1854,7 +1859,7 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
         return callbacks;
     }
 
-    private boolean
+    private int
     sendMessage(OutgoingMessage message)
     {
         assert(_state < StateClosed);
@@ -1862,7 +1867,7 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
         {
             message.adopt();
             _sendStreams.addLast(message);
-            return false;
+            return IceInternal.AsyncStatus.Queued;
         }
 
         //
@@ -1890,12 +1895,16 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
 
         if(_transceiver.write(message.stream.getBuffer()))
         {
-            message.sent(this, false);
+            int status = IceInternal.AsyncStatus.Sent;
+            if(message.sent(this, false))
+            {
+                status |= IceInternal.AsyncStatus.InvokeSentCallback;
+            }
             if(_acmTimeout > 0)
             {
                 _acmAbsoluteTimeoutMillis = IceInternal.Time.currentMonotonicTimeMillis() + _acmTimeout * 1000;
             }
-            return true;
+            return status;
         }
         message.adopt();
 
@@ -1903,7 +1912,7 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
         _sendStreams.addLast(message);
         scheduleTimeout(IceInternal.SocketOperation.Write, _endpoint.timeout());
         _threadPool.register(this, IceInternal.SocketOperation.Write);
-        return false;
+        return IceInternal.AsyncStatus.Queued;
     }
 
     private IceInternal.BasicStream

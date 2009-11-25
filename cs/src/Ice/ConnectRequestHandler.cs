@@ -139,17 +139,17 @@ namespace IceInternal
             }
         }
 
-        public bool sendAsyncRequest(OutgoingAsync @out)
+        public bool sendAsyncRequest(OutgoingAsync @out, out Ice.AsyncCallback sentCallback)
         {
             lock(this)
             {
                 if(!initialized())
                 {
                     _requests.AddLast(new Request(@out));
+                    sentCallback = null;
                     return false;
                 }
             }
-            Ice.AsyncCallback sentCallback;
             return _connection.sendAsyncRequest(@out, _compress, _response, out sentCallback);
         }
 
@@ -158,17 +158,17 @@ namespace IceInternal
             return getConnection(true).flushBatchRequests(@out);
         }
 
-        public bool flushAsyncBatchRequests(BatchOutgoingAsync @out)
+        public bool flushAsyncBatchRequests(BatchOutgoingAsync @out, out Ice.AsyncCallback sentCallback)
         {
             lock(this)
             {
                 if(!initialized())
                 {
                     _requests.AddLast(new Request(@out));
+                    sentCallback = null;
                     return false;
                 }
             }
-            Ice.AsyncCallback sentCallback;
             return _connection.flushAsyncBatchRequests(@out, out sentCallback);
         }
 
@@ -372,14 +372,20 @@ namespace IceInternal
                     {
                         if(_connection.sendAsyncRequest(request.@out, _compress, _response, out request.sentCallback))
                         {
-                            sentCallbacks.AddLast(request);
+                            if(request.sentCallback != null)
+                            {
+                                sentCallbacks.AddLast(request);
+                            }
                         }
                     }
                     else if(request.batchOut != null)
                     {
                         if(_connection.flushAsyncBatchRequests(request.batchOut, out request.sentCallback))
                         {
-                            sentCallbacks.AddLast(request);
+                            if(request.sentCallback != null)
+                            {
+                                sentCallbacks.AddLast(request);
+                            }
                         }
                     }
                     else

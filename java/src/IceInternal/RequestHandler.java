@@ -19,11 +19,11 @@ public interface RequestHandler
     Ice.ConnectionI sendRequest(Outgoing out)
         throws LocalExceptionWrapper;
 
-    boolean sendAsyncRequest(OutgoingAsync out)
+    int sendAsyncRequest(OutgoingAsync out)
         throws LocalExceptionWrapper;
 
     boolean flushBatchRequests(BatchOutgoing out);
-    boolean flushAsyncBatchRequests(BatchOutgoingAsync out);
+    int flushAsyncBatchRequests(BatchOutgoingAsync out);
 
     Reference getReference();
 

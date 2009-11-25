@@ -226,7 +226,7 @@ ConnectRequestHandler::sendRequest(Outgoing* out)
     }
 }
 
-bool
+AsyncStatus
 ConnectRequestHandler::sendAsyncRequest(const OutgoingAsyncPtr& out)
 {
     {
@@ -236,7 +236,7 @@ ConnectRequestHandler::sendAsyncRequest(const OutgoingAsyncPtr& out)
             Request req;
             req.out = out;
             _requests.push_back(req);
-            return false;
+            return AsyncStatusQueued;
         }
     }
     return _connection->sendAsyncRequest(out, _compress, _response);
@@ -248,7 +248,7 @@ ConnectRequestHandler::flushBatchRequests(BatchOutgoing* out)
     return getConnection(true)->flushBatchRequests(out);
 }
 
-bool
+AsyncStatus
 ConnectRequestHandler::flushAsyncBatchRequests(const BatchOutgoingAsyncPtr& out)
 {
     {
@@ -258,7 +258,7 @@ ConnectRequestHandler::flushAsyncBatchRequests(const BatchOutgoingAsyncPtr& out)
             Request req;
             req.batchOut = out;
             _requests.push_back(req);
-            return false;
+            return AsyncStatusQueued;
         }
     }
     return _connection->flushAsyncBatchRequests(out);
@@ -410,14 +410,14 @@ ConnectRequestHandler::flushRequests()
             Request& req = _requests.front();
             if(req.out)
             {
-                if(_connection->sendAsyncRequest(req.out, _compress, _response))
+                if(_connection->sendAsyncRequest(req.out, _compress, _response) & AsyncStatusInvokeSentCallback)
                 {
                     sentCallbacks.push_back(req.out);
                 }
             }
             else if(req.batchOut)
             {
-                if(_connection->flushAsyncBatchRequests(req.batchOut))
+                if(_connection->flushAsyncBatchRequests(req.batchOut) & AsyncStatusInvokeSentCallback)
                 {
                     sentCallbacks.push_back(req.batchOut);
                 }

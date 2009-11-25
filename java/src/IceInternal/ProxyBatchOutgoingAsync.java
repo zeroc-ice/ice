@@ -17,6 +17,34 @@ public class ProxyBatchOutgoingAsync extends BatchOutgoingAsync
         _proxy = prx;
     }
 
+    public void
+    __send()
+    {
+        //
+        // We don't automatically retry if ice_flushBatchRequests fails. Otherwise, if some batch
+        // requests were queued with the connection, they would be lost without being noticed.
+        //
+        Ice._ObjectDel delegate = null;
+        int cnt = -1; // Don't retry.
+        try
+        {
+            delegate = ((Ice.ObjectPrxHelperBase)_proxy).__getDelegate(false);
+            int status = delegate.__getRequestHandler().flushAsyncBatchRequests(this);
+            if((status & AsyncStatus.Sent) > 0)
+            {
+                _sentSynchronously = true;
+                if((status & AsyncStatus.InvokeSentCallback) > 0)
+                {
+                    __sent();
+                }
+            }
+        }
+        catch(Ice.LocalException __ex)
+        {
+            cnt = ((Ice.ObjectPrxHelperBase)_proxy).__handleException(delegate, __ex, null, cnt);
+        }
+    }
+
     public Ice.ObjectPrx getProxy()
     {
         return _proxy;

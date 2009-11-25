@@ -5579,34 +5579,16 @@ Slice::Gen::AsyncVisitor::visitOperation(const OperationPtr& p)
         vector<string> args = getArgsAsyncCB(p);
 
         writeDocCommentOp(p);
-        _out << sp << nl << "public abstract class AMI_" << cl->name() << '_' << name;
+        _out << sp << nl << "public abstract class AMI_" << cl->name() << '_' << name << " : Ice.AMICallbackBase";
         _out << sb;
         _out << sp;
         writeDocCommentAsync(p, OutParam);
         _out << nl << "public abstract void ice_response" << spar << params << epar << ';';
 
         _out << sp;
-        _out << nl << "public abstract void ice_exception(Ice.Exception ex__);";
-
-        _out << sp;
         _out << nl << "public void response__" << spar << params << epar;
         _out << sb;
         _out << nl << "ice_response" << spar << args << epar << ';';
-        _out << eb;
-
-        _out << sp;
-        _out << nl << "public void exception__(Ice.Exception ex__)";
-        _out << sb;
-        _out << nl << "ice_exception(ex__);";
-        _out << eb;
-
-        _out << sp;
-        _out << nl << "public void sent__()";
-        _out << sb;
-        _out << nl << "if(this is Ice.AMISentCallback)";
-        _out << sb;
-        _out << nl << "((Ice.AMISentCallback)this).ice_sent();";
-        _out << eb;
         _out << eb;
 
         _out << eb;

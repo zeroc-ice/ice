@@ -14,6 +14,7 @@ include $(top_srcdir)/config/Make.rules
 SUBDIRS		= proxy \
                   operations \
 		  exceptions \
+		  ami \
 		  info \
 		  inheritance \
 		  facets \

@@ -145,7 +145,7 @@ public class ConnectRequestHandler
         }
     }
 
-    public boolean
+    public int
     sendAsyncRequest(OutgoingAsync out)
         throws LocalExceptionWrapper
     {
@@ -154,7 +154,7 @@ public class ConnectRequestHandler
             if(!initialized())
             {
                 _requests.add(new Request(out));
-                return false;
+                return AsyncStatus.Queued;
             }
         }
         return _connection.sendAsyncRequest(out, _compress, _response);
@@ -166,7 +166,7 @@ public class ConnectRequestHandler
         return getConnection(true).flushBatchRequests(out);
     }
 
-    public boolean
+    public int
     flushAsyncBatchRequests(BatchOutgoingAsync out)
     {
         synchronized(this)
@@ -174,7 +174,7 @@ public class ConnectRequestHandler
             if(!initialized())
             {
                 _requests.add(new Request(out));
-                return false;
+                return AsyncStatus.Queued;
             }
         }
         return _connection.flushAsyncBatchRequests(out);
@@ -409,14 +409,16 @@ public class ConnectRequestHandler
                 Request request = p.next();
                 if(request.out != null)
                 {
-                    if(_connection.sendAsyncRequest(request.out, _compress, _response))
+                    if((_connection.sendAsyncRequest(request.out, _compress, _response) & 
+                        AsyncStatus.InvokeSentCallback) > 0)
                     {
                         sentCallbacks.add(request.out);
                     }
                 }
                 else if(request.batchOut != null)
                 {
-                    if(_connection.flushAsyncBatchRequests(request.batchOut))
+                    if((_connection.flushAsyncBatchRequests(request.batchOut) & 
+                        AsyncStatus.InvokeSentCallback) > 0)
                     {
                         sentCallbacks.add(request.batchOut);
                     }

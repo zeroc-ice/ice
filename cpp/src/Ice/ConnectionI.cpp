@@ -460,7 +460,7 @@ Ice::ConnectionI::sendRequest(Outgoing* out, bool compress, bool response)
     try
     {
         OutgoingMessage message(out, os, compress, requestId);
-        sent = sendMessage(message);
+        sent = sendMessage(message) & AsyncStatusSent;
     }
     catch(const LocalException& ex)
     {
@@ -480,7 +480,7 @@ Ice::ConnectionI::sendRequest(Outgoing* out, bool compress, bool response)
     return sent;
 }
 
-bool
+AsyncStatus
 Ice::ConnectionI::sendAsyncRequest(const OutgoingAsyncPtr& out, bool compress, bool response)
 {
     BasicStream* os = out->__getOs();
@@ -529,11 +529,11 @@ Ice::ConnectionI::sendAsyncRequest(const OutgoingAsyncPtr& out, bool compress, b
 #endif
     }
 
-    bool sent = false;
+    AsyncStatus status;
     try
     {
         OutgoingMessage message(out, os, compress, requestId);
-        sent = sendMessage(message);
+        status = sendMessage(message);
     }
     catch(const LocalException& ex)
     {
@@ -550,7 +550,7 @@ Ice::ConnectionI::sendAsyncRequest(const OutgoingAsyncPtr& out, bool compress, b
         _asyncRequestsHint = _asyncRequests.insert(_asyncRequests.end(),
                                                    pair<const Int, OutgoingAsyncPtr>(requestId, out));
     }
-    return sent;
+    return status;
 }
 
 void
@@ -798,7 +798,7 @@ Ice::ConnectionI::flushBatchRequests(BatchOutgoing* out)
     try
     {
         OutgoingMessage message(out, out->os(), _batchRequestCompress, 0);
-        sent = sendMessage(message);
+        sent = sendMessage(message) & AsyncStatusSent;
     }
     catch(const Ice::LocalException& ex)
     {
@@ -818,7 +818,7 @@ Ice::ConnectionI::flushBatchRequests(BatchOutgoing* out)
     return sent;
 }
 
-bool
+AsyncStatus
 Ice::ConnectionI::flushAsyncBatchRequests(const BatchOutgoingAsyncPtr& outAsync)
 {
     IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
@@ -834,8 +834,12 @@ Ice::ConnectionI::flushAsyncBatchRequests(const BatchOutgoingAsyncPtr& outAsync)
 
     if(_batchRequestNum == 0)
     {
-        outAsync->__sent(this);
-        return true;
+        AsyncStatus status = AsyncStatusSent;
+        if(outAsync->__sent(this))
+        {
+            status = static_cast<AsyncStatus>(status | AsyncStatusInvokeSentCallback);
+        }
+        return status;
     }
 
     //
@@ -852,11 +856,11 @@ Ice::ConnectionI::flushAsyncBatchRequests(const BatchOutgoingAsyncPtr& outAsync)
     //
     // Send the batch stream.
     //
-    bool sent = false;
+    AsyncStatus status;
     try
     {
         OutgoingMessage message(outAsync, outAsync->__getOs(), _batchRequestCompress, 0);
-        sent = sendMessage(message);
+        status = sendMessage(message);
     }
     catch(const Ice::LocalException& ex)
     {
@@ -873,7 +877,7 @@ Ice::ConnectionI::flushAsyncBatchRequests(const BatchOutgoingAsyncPtr& outAsync)
     _batchRequestNum = 0;
     _batchRequestCompress = false;
     _batchMarker = 0;
-    return sent;
+    return status;
 }
 
 void
@@ -1853,7 +1857,7 @@ Ice::ConnectionI::initiateShutdown()
         os.write(headerSize); // Message size.
 
         OutgoingMessage message(&os, false);
-        if(sendMessage(message))
+        if(sendMessage(message) & AsyncStatusSent)
         {
             //
             // Schedule the close timeout to wait for the peer to close the connection. If
@@ -2129,7 +2133,7 @@ Ice::ConnectionI::sendNextMessage(vector<OutgoingAsyncMessageCallbackPtr>& callb
     }
 }
 
-bool
+AsyncStatus
 Ice::ConnectionI::sendMessage(OutgoingMessage& message)
 {
     assert(_state < StateClosed);
@@ -2140,7 +2144,7 @@ Ice::ConnectionI::sendMessage(OutgoingMessage& message)
     {
         _sendStreams.push_back(message);
         _sendStreams.back().adopt(0);
-        return false;
+        return AsyncStatusQueued;
     }
 
     //
@@ -2178,13 +2182,17 @@ Ice::ConnectionI::sendMessage(OutgoingMessage& message)
         //
         if(_transceiver->write(stream))
         {
-            message.sent(this, false);
+            AsyncStatus status = AsyncStatusSent;
+            if(message.sent(this, false))
+            {
+                status = static_cast<AsyncStatus>(status | AsyncStatusInvokeSentCallback);
+            }
             if(_acmTimeout > 0)
             {
                 _acmAbsoluteTimeout =
                     IceUtil::Time::now(IceUtil::Time::Monotonic) + IceUtil::Time::seconds(_acmTimeout);
             }
-            return true;
+            return status;
         }
 
         _sendStreams.push_back(message);
@@ -2226,13 +2234,17 @@ Ice::ConnectionI::sendMessage(OutgoingMessage& message)
         //
         if(_transceiver->write(*message.stream))
         {
-            message.sent(this, false);
+            AsyncStatus status = AsyncStatusSent;
+            if(message.sent(this, false))
+            {
+                status = static_cast<AsyncStatus>(status | AsyncStatusInvokeSentCallback);
+            }
             if(_acmTimeout > 0)
             {
                 _acmAbsoluteTimeout =
                     IceUtil::Time::now(IceUtil::Time::Monotonic) + IceUtil::Time::seconds(_acmTimeout);
             }
-            return true;
+            return status;
         }
 
         _sendStreams.push_back(message);
@@ -2242,7 +2254,7 @@ Ice::ConnectionI::sendMessage(OutgoingMessage& message)
     _writeStream.swap(*_sendStreams.back().stream);
     scheduleTimeout(SocketOperationWrite, _endpoint->timeout());
     _threadPool->_register(this, SocketOperationWrite);
-    return false;
+    return AsyncStatusQueued;
 }
 
 static string

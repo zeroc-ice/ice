@@ -41,9 +41,8 @@ namespace IceInternal
             }
         }
 
-        public bool sendAsyncRequest(OutgoingAsync @out)
+        public bool sendAsyncRequest(OutgoingAsync @out, out Ice.AsyncCallback sentCallback)
         {
-            Ice.AsyncCallback sentCallback;
             return _connection.sendAsyncRequest(@out, _compress, _response, out sentCallback);
         }
 
@@ -52,9 +51,8 @@ namespace IceInternal
             return _connection.flushBatchRequests(@out);
         }
 
-        public bool flushAsyncBatchRequests(BatchOutgoingAsync @out)
+        public bool flushAsyncBatchRequests(BatchOutgoingAsync @out, out Ice.AsyncCallback sentCallback)
         {
-            Ice.AsyncCallback sentCallback;
             return _connection.flushAsyncBatchRequests(@out, out sentCallback);
         }
 

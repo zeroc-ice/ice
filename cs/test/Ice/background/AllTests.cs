@@ -86,7 +86,7 @@ public class AllTests
             test(false);
         }
 
-        public void sent()
+        public void sent(bool ss)
         {
             _sent.called();
         }

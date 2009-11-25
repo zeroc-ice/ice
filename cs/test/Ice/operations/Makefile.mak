@@ -13,13 +13,13 @@ TARGETS		= client.exe server.exe collocated.exe serveramd.exe
 
 C_SRCS		= AllTests.cs Client.cs Twoways.cs TwowaysAMI.cs TwowaysNewAMI.cs BatchOneways.cs Oneways.cs \
 		  OnewaysAMI.cs OnewaysNewAMI.cs
-S_SRCS		= MyDerivedClassI.cs Server.cs StateChangerI.cs
+S_SRCS		= MyDerivedClassI.cs Server.cs
 COL_SRCS	= AllTests.cs Collocated.cs MyDerivedClassI.cs Twoways.cs TwowaysAMI.cs TwowaysNewAMI.cs \
 		  BatchOneways.cs Oneways.cs OnewaysAMI.cs OnewaysNewAMI.cs
-SAMD_SRCS	= MyDerivedClassAMDI.cs Server.cs StateChangerI.cs
+SAMD_SRCS	= MyDerivedClassAMDI.cs Server.cs
 
-GEN_SRCS	= $(GDIR)\Test.cs $(GDIR)\StateChanger.cs
-GEN_AMD_SRCS	= $(GDIR)\TestAMD.cs $(GDIR)\StateChanger.cs
+GEN_SRCS	= $(GDIR)\Test.cs
+GEN_AMD_SRCS	= $(GDIR)\TestAMD.cs
 
 SDIR		= .
 

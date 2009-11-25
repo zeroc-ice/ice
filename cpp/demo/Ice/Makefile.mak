@@ -18,6 +18,7 @@ SUBDIRS		= minimal \
 		  value \
 		  callback \
 		  nested \
+		  invoke \
 		  bidir \
 		  session \
 		  converter \

@@ -2563,10 +2563,9 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
     H << eb;
 
     H << sp << nl << "::Ice::AsyncResultPtr begin_" << name << spar << paramsDeclAMI
-      << "const ::Ice::Context& __ctx"
-      << "const ::Ice::LocalObjectPtr& __cookie = 0" << epar;
+      << "const ::Ice::Context& __ctx" << epar;
     H << sb;
-    H << nl << "return begin_" << name << spar << argsAMI << "&__ctx" << "::IceInternal::__dummyCallback" << "__cookie"
+    H << nl << "return begin_" << name << spar << argsAMI << "&__ctx" << "::IceInternal::__dummyCallback" << "0"
       << epar << ';';
     H << eb;
 
@@ -2865,7 +2864,7 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
             C << eb;
             C << nl << "else";
             C << sb;
-            C << nl << "__del = ::Ice::newCallback(__cb);";
+            C << nl << "__del = ::Ice::newAMICallback(__cb);";
             C << eb;
         }
         C << nl << "::Ice::AsyncResultPtr __ar = begin_" << name << spar << argsAMI << "0, __del" << epar << ';';
@@ -2906,7 +2905,7 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
             C << eb;
             C << nl << "else";
             C << sb;
-            C << nl << "__del = ::Ice::newCallback(__cb);";
+            C << nl << "__del = ::Ice::newAMICallback(__cb);";
             C << eb;
         }
         C << nl << "::Ice::AsyncResultPtr __ar = begin_" << name << spar << argsAMI << "&__ctx" << "__del" << epar
@@ -5374,7 +5373,7 @@ Slice::Gen::AsyncCallbackTemplateVisitor::generateOperation(const OperationPtr& 
     }
 
     H << sp << nl << "typedef void (T::*Exception)(const ::Ice::Exception&" << comCookieT << ");";
-    H << nl << "typedef void (T::*Sent)(" << cookieT << ");";
+    H << nl << "typedef void (T::*Sent)(bool" << comCookieT << ");";
     if(p->returnsData())
     {
         //
@@ -5533,7 +5532,7 @@ Slice::Gen::AsyncCallbackTemplateVisitor::generateOperation(const OperationPtr& 
         H  << "void (T::*cb)(" << cookieT << "),";
     }
     H << "void (T::*excb)(" << "const ::Ice::Exception&" << comCookieT << ") = 0,";
-    H << "void (T::*sentcb)(" << cookieT << ") = 0)";
+    H << "void (T::*sentcb)(bool" << comCookieT << ") = 0)";
     H << sb;
     if(withCookie)
     {
@@ -6337,9 +6336,9 @@ Slice::Gen::AsyncVisitor::visitOperation(const OperationPtr& p)
         H << sb;
         H << nl << "ice_exception(ex);";
         H << eb;
-        H << nl << "void __sent()";
+        H << nl << "void __sent(bool sentSynchronously)";
         H << sb;
-        H << nl << "AMICallbackBase::__sent();";
+        H << nl << "AMICallbackBase::__sent(sentSynchronously);";
         H << eb;
         H << eb << ';';
         H << sp << nl << "typedef ::IceUtil::Handle< " << classScopedAMI << '_' << name << "> " << classNameAMI

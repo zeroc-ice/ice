@@ -35,6 +35,7 @@ IceUtil::Shared* IceInternal::upCast(AsyncResult* p) { return p; }
 IceUtil::Shared* IceInternal::upCast(OutgoingAsyncMessageCallback* p) { return p; }
 IceUtil::Shared* IceInternal::upCast(OutgoingAsync* p) { return p; }
 IceUtil::Shared* IceInternal::upCast(BatchOutgoingAsync* p) { return p; }
+IceUtil::Shared* IceInternal::upCast(ProxyBatchOutgoingAsync* p) { return p; }
 
 const unsigned char Ice::AsyncResult::OK = 0x1;
 const unsigned char Ice::AsyncResult::Done = 0x2;
@@ -64,6 +65,26 @@ private:
     
     const Ice::AsyncResultPtr _result;
     const auto_ptr<Ice::Exception> _exception;
+};
+
+class AsynchronousSent : public ThreadPoolWorkItem
+{
+public:
+    
+    AsynchronousSent(const Ice::AsyncResultPtr& result) : _result(result)
+    {
+    }
+    
+    virtual void
+    execute(ThreadPoolCurrent& current)
+    {
+        current.ioCompleted();
+        _result->__sent();
+    }
+    
+private:
+    
+    const Ice::AsyncResultPtr _result;
 };
 
 };
@@ -96,12 +117,6 @@ bool
 Ice::AsyncResult::operator==(const AsyncResult& r) const
 {
     return this == &r;
-}
-
-bool
-Ice::AsyncResult::operator!=(const AsyncResult& r) const
-{
-    return !operator==(r);
 }
 
 bool
@@ -208,6 +223,23 @@ Ice::AsyncResult::__sent()
 	{
 	    __warning();
 	}
+    }
+}
+
+void
+Ice::AsyncResult::__sentAsync()
+{
+    //
+    // This is called when it's not safe to call the sent callback synchronously
+    // from this thread. Instead the exception callback is called asynchronously from
+    // the client thread pool.
+    //
+    try
+    {
+        _instance->clientThreadPool()->execute(new AsynchronousSent(this));
+    }
+    catch(const Ice::CommunicatorDestroyedException&)
+    {
     }
 }
 
@@ -465,7 +497,7 @@ IceInternal::OutgoingAsync::__sent(Ice::ConnectionI* connection)
         }
     }
     _monitor.notifyAll();
-    return !alreadySent && _callback && _callback->__hasSentCallback(); // Don't call the sent call is already sent.
+    return !alreadySent && _callback && _callback->__hasSentCallback();
 }
 
 void
@@ -699,10 +731,24 @@ IceInternal::OutgoingAsync::__send(bool synchronous)
         try
         {
             _delegate = _proxy->__getDelegate(true);
-            bool sent = _delegate->__getRequestHandler()->sendAsyncRequest(this);
-            if(synchronous)
+            AsyncStatus status = _delegate->__getRequestHandler()->sendAsyncRequest(this);
+            if(status & AsyncStatusSent)
             {
-                _sentSynchronously = sent;
+                if(synchronous)
+                {
+                    _sentSynchronously = true;
+                    if(status & AsyncStatusInvokeSentCallback)
+                    {
+                        __sent(); // Call the sent callback from the user thread.
+                    }
+                }
+                else
+                {
+                    if(status & AsyncStatusInvokeSentCallback)
+                    {
+                        __sentAsync(); // Call the sent callback from a client thread pool thread.
+                    }
+                }
             }
             break;
         }
@@ -843,6 +889,34 @@ IceInternal::ProxyBatchOutgoingAsync::ProxyBatchOutgoingAsync(const Ice::ObjectP
 {
 }
 
+void
+IceInternal::ProxyBatchOutgoingAsync::__send()
+{
+    //
+    // We don't automatically retry if ice_flushBatchRequests fails. Otherwise, if some batch
+    // requests were queued with the connection, they would be lost without being noticed.
+    //
+    Handle<IceDelegate::Ice::Object> delegate;
+    int cnt = -1; // Don't retry.
+    try
+    {
+        delegate = _proxy->__getDelegate(true);
+        AsyncStatus status = delegate->__getRequestHandler()->flushAsyncBatchRequests(this);
+        if(status & AsyncStatusSent)
+        {
+            _sentSynchronously = true;
+            if(status & AsyncStatusInvokeSentCallback)
+            {
+                __sent();
+            }
+        }
+    }
+    catch(const ::Ice::LocalException& ex)
+    {
+        _proxy->__handleException(delegate, ex, 0, cnt);
+    }
+}
+
 namespace
 {
 
@@ -907,7 +981,10 @@ Ice::AMICallbackBase::__exception(const ::Ice::Exception& ex)
 }
 
 void
-Ice::AMICallbackBase::__sent()
+Ice::AMICallbackBase::__sent(bool sentSynchronously)
 {
-    dynamic_cast<AMISentCallback*>(this)->ice_sent();
+    if(!sentSynchronously)
+    {
+        dynamic_cast<AMISentCallback*>(this)->ice_sent();
+    }
 }

@@ -81,7 +81,7 @@ public class AllTests
         }
 
         @Override
-        public void sent()
+        public void sent(boolean ss)
         {
             _sent.called();
         }
@@ -124,7 +124,7 @@ public class AllTests
         }
 
         @Override
-        public void sent()
+        public void sent(boolean ss)
         {
             _sent.called();
         }

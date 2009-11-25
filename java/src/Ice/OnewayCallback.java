@@ -29,13 +29,13 @@ public abstract class OnewayCallback extends IceInternal.CallbackBase
     /**
      * Called when a queued invocation is sent successfully.
      **/
-    public void sent()
+    public void sent(boolean sentSynchronously)
     {
     }
 
     public final void __sent(AsyncResult __result)
     {
-        sent();
+        sent(__result.sentSynchronously());
     }
 
     public final void __completed(AsyncResult __result)

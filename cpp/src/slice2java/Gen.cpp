@@ -5750,9 +5750,9 @@ Slice::Gen::AsyncVisitor::visitOperation(const OperationPtr& p)
         out << sb;
         out << nl << "ice_exception(__ex);";
         out << eb;
-        out << sp << nl << "public final void sent()";
+        out << sp << nl << "@Override public final void sent(boolean sentSynchronously)";
         out << sb;
-        out << nl << "if(this instanceof Ice.AMISentCallback)";
+        out << nl << "if(!sentSynchronously && this instanceof Ice.AMISentCallback)";
         out << sb;
         out << nl << "((Ice.AMISentCallback)this).ice_sent();";
         out << eb;

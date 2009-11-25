@@ -1118,7 +1118,7 @@ IceProxy::Ice::Object::ice_flushBatchRequests()
 bool
 IceProxy::Ice::Object::ice_flushBatchRequests_async(const AMI_Object_ice_flushBatchRequestsPtr& cb)
 {
-    ::Ice::AsyncResultPtr result = begin_ice_flushBatchRequests(newCallback(cb));
+    ::Ice::AsyncResultPtr result = begin_ice_flushBatchRequests(newAMICallback(cb));
     return result->sentSynchronously();
 }
 
@@ -1127,25 +1127,11 @@ IceProxy::Ice::Object::begin_ice_flushBatchRequests(const ::Ice::Context* /* unu
                                                     const ::IceInternal::CallbackBasePtr& del,
                                                     const ::Ice::LocalObjectPtr& cookie)
 {
-    ::IceInternal::BatchOutgoingAsyncPtr __result = 
+    ::IceInternal::ProxyBatchOutgoingAsyncPtr __result = 
         new ::IceInternal::ProxyBatchOutgoingAsync(this, ice_flushBatchRequests_name, del, cookie);
     try
     {
-        //
-        // We don't automatically retry if ice_flushBatchRequests fails. Otherwise, if some batch
-        // requests were queued with the connection, they would be lost without being noticed.
-        //
-        Handle<IceDelegate::Ice::Object> delegate;
-        int cnt = -1; // Don't retry.
-        try
-        {
-            delegate = __getDelegate(true);
-            delegate->__getRequestHandler()->flushAsyncBatchRequests(__result);
-        }
-        catch(const ::Ice::LocalException& ex)
-        {
-            __handleException(delegate, ex, 0, cnt);
-        }
+        __result->__send();
     }
     catch(const LocalException& __ex)
     {

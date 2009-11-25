@@ -1986,7 +1986,7 @@ namespace Ice
 
         public AsyncResult begin_ice_flushBatchRequests(Ice.AsyncCallback cb__, object cookie__)
         {
-            IceInternal.BatchOutgoingAsync result__ =
+            IceInternal.ProxyBatchOutgoingAsync result__ =
                 new IceInternal.ProxyBatchOutgoingAsync(this, __ice_flushBatchRequests_name, cookie__);
             if(cb__ != null)
             {
@@ -1994,21 +1994,7 @@ namespace Ice
             }
             try
             {
-                //
-                // We don't automatically retry if ice_flushBatchRequests fails. Otherwise, if some batch
-                // requests were queued with the connection, they would be lost without being noticed.
-                //
-                Ice.ObjectDel_ @delegate = null;
-                int cnt = -1; // Don't retry.
-                try
-                {
-                    @delegate = getDelegate__(true);
-                    @delegate.getRequestHandler__().flushAsyncBatchRequests(result__);
-                }
-                catch(Ice.LocalException ex)
-                {
-                    handleException__(@delegate, ex, true, ref cnt);
-                }
+                result__.send__();
             }
             catch(Ice.LocalException ex__)
             {

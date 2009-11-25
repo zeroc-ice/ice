@@ -18,11 +18,10 @@ namespace IceInternal
         void abortBatchRequest();
 
         Ice.ConnectionI sendRequest(Outgoing @out);
-
-        bool sendAsyncRequest(OutgoingAsync @out);
+        bool sendAsyncRequest(OutgoingAsync @out, out Ice.AsyncCallback cb);
 
         bool flushBatchRequests(BatchOutgoing @out);
-        bool flushAsyncBatchRequests(BatchOutgoingAsync @out);
+        bool flushAsyncBatchRequests(BatchOutgoingAsync @out, out Ice.AsyncCallback cb);
 
         Reference getReference();
 

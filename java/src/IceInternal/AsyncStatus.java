@@ -7,19 +7,11 @@
 //
 // **********************************************************************
 
-#ifndef STATECHANGER_ICE
-#define STATECHANGER_ICE
+package IceInternal;
 
-[["java:package:test.Ice.operations"]]
-module Test
+public class AsyncStatus
 {
-
-interface StateChanger
-{
-    void hold(int milliSeconds);
-    void activate(int milliSeconds);
-};
-
-};
-
-#endif
+    public static final int Queued = 0;
+    public static final int Sent = 1;
+    public static final int InvokeSentCallback = 2;
+}

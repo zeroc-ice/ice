@@ -42,9 +42,10 @@ public abstract class AMI_Object_ice_invoke extends Callback_Object_ice_invoke
         ice_exception(ex);
     }
 
-    public final void sent()
+    @Override
+    public final void sent(boolean sentSynchronously)
     {
-        if(this instanceof AMISentCallback)
+        if(!sentSynchronously && this instanceof AMISentCallback)
         {
             ((AMISentCallback)this).ice_sent();
         }

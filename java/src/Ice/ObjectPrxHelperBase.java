@@ -1832,25 +1832,11 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
     private AsyncResult
     begin_ice_flushBatchRequestsInternal(IceInternal.CallbackBase __cb)
     {
-        IceInternal.BatchOutgoingAsync __result =
+        IceInternal.ProxyBatchOutgoingAsync __result =
             new IceInternal.ProxyBatchOutgoingAsync(this, __ice_flushBatchRequests_name, __cb);
         try
         {
-            //
-            // We don't automatically retry if ice_flushBatchRequests fails. Otherwise, if some batch
-            // requests were queued with the connection, they would be lost without being noticed.
-            //
-            _ObjectDel delegate = null;
-            int cnt = -1; // Don't retry.
-            try
-            {
-                delegate = __getDelegate(false);
-                delegate.__getRequestHandler().flushAsyncBatchRequests(__result);
-            }
-            catch(LocalException __ex)
-            {
-                cnt = __handleException(delegate, __ex, null, cnt);
-            }
+            __result.__send();
         }
         catch(LocalException __ex)
         {

@@ -26,7 +26,7 @@ public abstract class ExceptionCallback extends Callback
     /**
      * Called when a queued invocation is sent successfully.
      **/
-    public void sent()
+    public void sent(boolean sentSynchronously)
     {
     }
 
@@ -45,6 +45,6 @@ public abstract class ExceptionCallback extends Callback
 
     public final void __sent(AsyncResult __result)
     {
-        sent();
+        sent(__result.sentSynchronously());
     }
 }

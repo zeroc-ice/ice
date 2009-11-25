@@ -25,20 +25,15 @@ COBJS		= Test.obj \
 		  OnewaysAMI.obj \
 		  TwowaysNewAMI.obj \
 		  OnewaysNewAMI.obj \
-		  BatchOneways.obj \
-		  StateChanger.obj
+		  BatchOneways.obj
 
 SOBJS		= Test.obj \
 		  TestI.obj \
-		  Server.obj \
-		  StateChanger.obj \
-		  StateChangerI.obj
+		  Server.obj
 
 SAMDOBJS	= TestAMD.obj \
 		  TestAMDI.obj \
-		  ServerAMD.obj \
-		  StateChanger.obj \
-		  StateChangerI.obj
+		  ServerAMD.obj
 
 COLOBJS		= Test.obj \
 		  TestI.obj \
@@ -51,7 +46,6 @@ COLOBJS		= Test.obj \
 		  TwowaysNewAMI.obj \
 		  OnewaysNewAMI.obj \
 		  BatchOneways.obj \
-		  StateChanger.obj
 
 SRCS		= $(COBJS:.obj=.cpp) \
 		  $(SOBJS:.obj=.cpp) \

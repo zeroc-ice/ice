@@ -95,7 +95,7 @@ public:
     void monitor(const IceUtil::Time&);
 
     bool sendRequest(IceInternal::Outgoing*, bool, bool);
-    bool sendAsyncRequest(const IceInternal::OutgoingAsyncPtr&, bool, bool);
+    IceInternal::AsyncStatus sendAsyncRequest(const IceInternal::OutgoingAsyncPtr&, bool, bool);
 
     void prepareBatchRequest(IceInternal::BasicStream*);
     void finishBatchRequest(IceInternal::BasicStream*, bool);
@@ -104,7 +104,7 @@ public:
     virtual void flushBatchRequests(); // From Connection.
 
     bool flushBatchRequests(IceInternal::BatchOutgoing*);
-    bool flushAsyncBatchRequests(const IceInternal::BatchOutgoingAsyncPtr&);
+    IceInternal::AsyncStatus flushAsyncBatchRequests(const IceInternal::BatchOutgoingAsyncPtr&);
 
     void sendResponse(IceInternal::BasicStream*, Byte);
     void sendNoResponse();
@@ -198,7 +198,7 @@ private:
     bool initialize(IceInternal::SocketOperation = IceInternal::SocketOperationNone);
     bool validate(IceInternal::SocketOperation = IceInternal::SocketOperationNone);
     void sendNextMessage(std::vector<IceInternal::OutgoingAsyncMessageCallbackPtr>&);
-    bool sendMessage(OutgoingMessage&);
+    IceInternal::AsyncStatus sendMessage(OutgoingMessage&);
 
     void doCompress(IceInternal::BasicStream&, IceInternal::BasicStream&);
     void doUncompress(IceInternal::BasicStream&, IceInternal::BasicStream&);

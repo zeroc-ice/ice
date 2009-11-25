@@ -355,10 +355,24 @@ public class OutgoingAsync extends Ice.AsyncResult implements OutgoingAsyncMessa
             try
             {
                 _delegate = _proxy.__getDelegate(true);
-                boolean sent = _delegate.__getRequestHandler().sendAsyncRequest(this);
-                if(synchronous) // Only set sentSynchronously_ If called synchronously by the user thread.
+                int status = _delegate.__getRequestHandler().sendAsyncRequest(this);
+                if((status & AsyncStatus.Sent) > 0)
                 {
-                    _sentSynchronously = sent;
+                    if(synchronous)
+                    {
+                        _sentSynchronously = true;
+                        if((status & AsyncStatus.InvokeSentCallback) > 0)
+                        {
+                            __sent(); // Call from the user thread.
+                        }
+                    }
+                    else
+                    {
+                        if((status & AsyncStatus.InvokeSentCallback) > 0)
+                        {
+                            __sentAsync(); // Call from a client thread pool thread.
+                        }
+                    }
                 }
                 break;
             }

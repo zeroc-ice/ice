@@ -377,7 +377,7 @@ public class HelloApplet extends JApplet
         }
 
         @Override
-        synchronized public void sent()
+        synchronized public void sent(boolean ss)
         {
             if(_response)
             {
@@ -415,14 +415,7 @@ public class HelloApplet extends JApplet
             if(!_deliveryMode.isBatch())
             {
                 Ice.AsyncResult r = hello.begin_sayHello(delay, new SayHelloI());
-                if(r.sentSynchronously())
-                {
-                    if(_deliveryMode == DeliveryMode.TWOWAY || _deliveryMode == DeliveryMode.TWOWAY_SECURE)
-                    {
-                        _status.setText("Waiting for response");
-                    }
-                }
-                else
+                if(!r.sentSynchronously())
                 {
                     _status.setText("Sending request");
                 }

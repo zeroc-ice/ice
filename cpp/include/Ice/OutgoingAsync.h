@@ -1,4 +1,3 @@
-
 // **********************************************************************
 //
 // Copyright (c) 2003-2009 ZeroC, Inc. All rights reserved.
@@ -41,7 +40,6 @@ class ICE_API AsyncResult : virtual public IceUtil::Shared, private IceUtil::non
 public:
 
     virtual bool operator==(const AsyncResult&) const;
-    virtual bool operator!=(const AsyncResult&) const;
     virtual bool operator<(const AsyncResult&) const;
 
     virtual Int getHash() const;
@@ -107,6 +105,7 @@ public:
     static void __check(const AsyncResultPtr&, const ::Ice::Communicator*, const ::std::string&);
 
     void __exception(const Ice::Exception&); // Required to be public for AsynchronousException
+    void __sent(); // Required to be public for AsynchronousSent
 
 protected:
 
@@ -115,7 +114,7 @@ protected:
     AsyncResult(const IceInternal::InstancePtr&, const std::string&, const IceInternal::CallbackBasePtr&, 
                 const LocalObjectPtr&);
 
-    void __sent();
+    void __sentAsync();
     void __response();
 
     void __warning(const std::exception&) const;
@@ -246,6 +245,8 @@ public:
     ProxyBatchOutgoingAsync(const Ice::ObjectPrx&, const std::string&, const CallbackBasePtr&,
                             const Ice::LocalObjectPtr&);
 
+    void __send();
+
     virtual Ice::ObjectPrx
     getProxy() const
     {
@@ -351,7 +352,7 @@ public:
     typedef IceUtil::Handle<T> TPtr;
 
     typedef void (T::*Exception)(const ::Ice::Exception&);
-    typedef void (T::*Sent)();
+    typedef void (T::*Sent)(bool);
 
     ExceptionCallbackNC(const TPtr& instance, Exception excb, Sent sentcb) :
         callback(instance), exception(excb), sent(sentcb)
@@ -384,7 +385,7 @@ public:
     {
 	if(sent)
 	{
-	    (callback.get()->*sent)();
+	    (callback.get()->*sent)(result->sentSynchronously());
 	}
     }
 
@@ -410,7 +411,7 @@ public:
     typedef IceUtil::Handle<CT> CTPtr;
 
     typedef void (T::*Exception)(const ::Ice::Exception&, const CTPtr&);
-    typedef void (T::*Sent)(const CTPtr&);
+    typedef void (T::*Sent)(bool, const CTPtr&);
 
     ExceptionCallback(const TPtr& instance, Exception excb, Sent sentcb) :
         callback(instance), exception(excb), sent(sentcb)
@@ -443,7 +444,7 @@ public:
     {
 	if(sent)
 	{
-	    (callback.get()->*sent)(CTPtr::dynamicCast(result->getCookie()));
+	    (callback.get()->*sent)(result->sentSynchronously(), CTPtr::dynamicCast(result->getCookie()));
 	}
     }
 
@@ -454,95 +455,6 @@ public:
 
     TPtr callback;
     Exception exception;
-    Sent sent;
-};
-
-template<class T>
-class SentCallbackNC : public GenericCallbackBase
-{
-public:
-
-    typedef T callback_type;
-    typedef IceUtil::Handle<T> TPtr;
-
-    typedef void (T::*Sent)();
-
-    SentCallbackNC(const TPtr& instance, Sent sentcb) :
-        callback(instance), sent(sentcb)
-    {
-        checkCallback(instance, sentcb != 0);
-    }
-
-    virtual void __completed(const ::Ice::AsyncResultPtr& result) const
-    {
-    }
-
-    virtual CallbackBasePtr __verify(::Ice::LocalObjectPtr& __cookie)
-    {
-	if(__cookie) // Makes sure begin_ was called without a cookie
-	{
-	    throw IceUtil::IllegalArgumentException(__FILE__, __LINE__, "cookie specified for callback without cookie");
-	}
-        return this;
-    }
-
-    virtual void __sent(const ::Ice::AsyncResultPtr& result) const
-    {
-        (callback.get()->*sent)();
-    }
-
-    virtual bool __hasSentCallback() const
-    {
-        return true;
-    }
-
-    TPtr callback;
-    Sent sent;
-};
-
-template<class T, class CT>
-class SentCallback : public GenericCallbackBase
-{
-public:
-
-    typedef T callback_type;
-    typedef CT cookie_type;
-
-    typedef IceUtil::Handle<T> TPtr;
-    typedef IceUtil::Handle<CT> CTPtr;
-
-    typedef void (T::*Sent)(const CTPtr&);
-
-    SentCallback(const TPtr& instance, Sent sentcb) :
-        callback(instance),  sent(sentcb)
-    {
-        checkCallback(instance, sentcb != 0);
-    }
-
-    virtual void __completed(const ::Ice::AsyncResultPtr& result) const
-    {
-    }
-
-    virtual CallbackBasePtr __verify(::Ice::LocalObjectPtr& __cookie)
-    {
-	if(__cookie && !CTPtr::dynamicCast(__cookie))
-	{
-	    throw IceUtil::IllegalArgumentException(__FILE__, __LINE__, "unexpected cookie type");
-	}
-        return this;
-    }
-
-    virtual void __sent(const ::Ice::AsyncResultPtr& result) const
-    {
-        (callback.get()->*sent)(CTPtr::dynamicCast(result->getCookie()));
-    }
-
-    virtual bool __hasSentCallback() const
-    {
-        return true;
-    }
-
-    TPtr callback;
     Sent sent;
 };
 
@@ -564,7 +476,7 @@ newCallback(const IceUtil::Handle<T>& instance,
 template<class T> CallbackPtr
 newCallback(const IceUtil::Handle<T>& instance, 
             void (T::*excb)(const ::Ice::Exception&), 
-            void (T::*sentcb)() = 0)
+            void (T::*sentcb)(bool) = 0)
 {
     return new ::IceInternal::ExceptionCallbackNC<T>(instance, excb, sentcb);
 }
@@ -572,21 +484,9 @@ newCallback(const IceUtil::Handle<T>& instance,
 template<class T, class CT> CallbackPtr
 newCallback(const IceUtil::Handle<T>& instance, 
             void (T::*excb)(const ::Ice::Exception&, const IceUtil::Handle<CT>&),
-            void (T::*sentcb)(const IceUtil::Handle<CT>&) = 0)
+            void (T::*sentcb)(bool, const IceUtil::Handle<CT>&) = 0)
 {
     return new ::IceInternal::ExceptionCallback<T, CT>(instance, excb, sentcb);
-}
-
-template<class T> CallbackPtr
-newCallback(const IceUtil::Handle<T>& instance, void (T::*sentcb)())
-{
-    return new ::IceInternal::SentCallbackNC<T>(instance, sentcb);
-}
-
-template<class T, class CT> CallbackPtr
-newCallback(const IceUtil::Handle<T>& instance, void (T::*sentcb)(const IceUtil::Handle<CT>&))
-{
-    return new ::IceInternal::SentCallback<T, CT>(instance, sentcb);
 }
 
 //
@@ -613,11 +513,11 @@ public:
     virtual void ice_exception(const Exception&) = 0;
 
     void __exception(const Exception&);
-    void __sent();
+    void __sent(bool);
 };
 
 inline CallbackPtr
-newCallback(const IceUtil::Handle< ::Ice::AMICallbackBase>& instance)
+newAMICallback(const IceUtil::Handle< ::Ice::AMICallbackBase>& instance)
 {
     if(dynamic_cast<AMISentCallback*>(instance.get()))
     {

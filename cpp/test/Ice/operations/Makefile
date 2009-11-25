@@ -25,20 +25,15 @@ COBJS		= Test.o \
 		  TwowaysNewAMI.o \
 		  OnewaysAMI.o \
 		  OnewaysNewAMI.o \
-		  BatchOneways.o \
-		  StateChanger.o
+		  BatchOneways.o
 
 SOBJS		= Test.o \
 		  TestI.o \
 		  Server.o \
-		  StateChanger.o \
-		  StateChangerI.o
 
 SAMDOBJS	= TestAMD.o \
 		  TestAMDI.o \
-		  ServerAMD.o \
-		  StateChanger.o \
-		  StateChangerI.o
+		  ServerAMD.o
 
 COLOBJS		= Test.o \
 		  TestI.o \
@@ -50,16 +45,14 @@ COLOBJS		= Test.o \
 		  TwowaysNewAMI.o \
 		  OnewaysAMI.o \
 		  OnewaysNewAMI.o \
-		  BatchOneways.o \
-		  StateChanger.o \
-		  StateChangerI.o
+		  BatchOneways.o
 
 SRCS		= $(COBJS:.o=.cpp) \
 		  $(SOBJS:.o=.cpp) \
 		  $(SAMDOBJS:.o=.cpp) \
 		  $(COLOBJS:.o=.cpp)
 
-SLICE_SRCS	= Test.ice TestAMD.ice StateChanger.ice
+SLICE_SRCS	= Test.ice TestAMD.ice
 
 include $(top_srcdir)/config/Make.rules
 
