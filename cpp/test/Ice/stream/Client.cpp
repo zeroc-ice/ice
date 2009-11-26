@@ -584,6 +584,85 @@ run(int argc, char** argv, const Ice::CommunicatorPtr& communicator)
         test(reader->obj);
         test(reader->obj->s.e == Test::enum2);
     }
+    
+    {
+        out = Ice::createOutputStream(communicator);
+        Test::MyException ex;
+        Test::MyClassForExceptionPtr c = new Test::MyClassForException;
+        c->c = c;
+        c->o = c;
+        c->s.e = Test::enum2;
+
+        c->seq1.push_back(true);
+        c->seq1.push_back(false);
+        c->seq1.push_back(true);
+        c->seq1.push_back(false);
+
+        c->seq2.push_back(1);
+        c->seq2.push_back(2);
+        c->seq2.push_back(3);
+        c->seq2.push_back(4);
+
+        c->seq3.push_back(1);
+        c->seq3.push_back(2);
+        c->seq3.push_back(3);
+        c->seq3.push_back(4);
+
+        c->seq4.push_back(1);
+        c->seq4.push_back(2);
+        c->seq4.push_back(3);
+        c->seq4.push_back(4);
+
+        c->seq5.push_back(1);
+        c->seq5.push_back(2);
+        c->seq5.push_back(3);
+        c->seq5.push_back(4);
+
+        c->seq6.push_back(1);
+        c->seq6.push_back(2);
+        c->seq6.push_back(3);
+        c->seq6.push_back(4);
+
+        c->seq7.push_back(1);
+        c->seq7.push_back(2);
+        c->seq7.push_back(3);
+        c->seq7.push_back(4);
+
+        c->seq8.push_back("string1");
+        c->seq8.push_back("string2");
+        c->seq8.push_back("string3");
+        c->seq8.push_back("string4");
+
+        c->seq9.push_back(Test::enum3);
+        c->seq9.push_back(Test::enum2);
+        c->seq9.push_back(Test::enum1);
+
+        ex.c = c;
+        
+        out->write(ex);
+        out->writePendingObjects();
+        out->finished(data);
+ 
+        in = Ice::createInputStream(communicator, data);
+        try
+        {
+            in->throwException();
+            test(false);
+        }
+        catch(const Test::MyException& ex1)
+        {
+            test(ex1.c->s.e == c->s.e);
+            test(ex1.c->seq1 == c->seq1);
+            test(ex1.c->seq2 == c->seq2);
+            test(ex1.c->seq3 == c->seq3);
+            test(ex1.c->seq4 == c->seq4);
+            test(ex1.c->seq5 == c->seq5);
+            test(ex1.c->seq6 == c->seq6);
+            test(ex1.c->seq7 == c->seq7);
+            test(ex1.c->seq8 == c->seq8);
+            test(ex1.c->seq9 == c->seq9);
+        }
+    }
 
     cout << "ok" << endl;
 

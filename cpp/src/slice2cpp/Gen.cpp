@@ -6636,6 +6636,27 @@ Slice::Gen::StreamVisitor::visitModuleEnd(const ModulePtr&)
 }
 
 bool
+Slice::Gen::StreamVisitor::visitExceptionStart(const ExceptionPtr& p)
+{
+    if(!p->isLocal())
+    {
+        string scoped = p->scoped();
+        H << nl << sp << "template<>";
+        H << nl << "struct StreamTrait< " << fixKwd(scoped) << " >" << nl;
+        H << sb;
+        H << nl << "static const ::Ice::StreamTraitType type = ::Ice::StreamTraitTypeUserException;" << nl;
+        H << nl << "static const int enumLimit = 0;";
+        H << eb << ";" << nl;
+    }
+    return true;
+}
+
+void
+Slice::Gen::StreamVisitor::visitExceptionEnd(const ExceptionPtr&)
+{
+}
+
+bool
 Slice::Gen::StreamVisitor::visitStructStart(const StructPtr& p)
 {
     if(!p->isLocal())
