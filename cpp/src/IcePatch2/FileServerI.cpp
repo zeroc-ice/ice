@@ -108,11 +108,7 @@ IcePatch2::FileServerI::getFileCompressed_async(const AMD_FileServer_getFileComp
 #endif
         != static_cast<off_t>(pos))
     {
-#if defined(_MSC_VER) && (_MSC_VER >= 1400)
-        _close(fd);
-#else
-        close(fd);
-#endif
+        IceUtilInternal::close(fd);
 
         ostringstream posStr;
         posStr << pos;
@@ -138,11 +134,7 @@ IcePatch2::FileServerI::getFileCompressed_async(const AMD_FileServer_getFileComp
     if((r = read(fd, bytes.get(), static_cast<size_t>(num))) == -1)
 #endif
     {
-#if defined(_MSC_VER) && (_MSC_VER >= 1400)
-        _close(fd);
-#else
-        close(fd);
-#endif
+        IceUtilInternal::close(fd);
 
         FileAccessException ex;
         ex.reason = "cannot read `" + path + "': " + strerror(errno);
@@ -150,11 +142,7 @@ IcePatch2::FileServerI::getFileCompressed_async(const AMD_FileServer_getFileComp
         return;
     }
 
-#if defined(_MSC_VER) && (_MSC_VER >= 1400)
-    _close(fd);
-#else
-    close(fd);
-#endif
+    IceUtilInternal::close(fd);
 
     ret.first = bytes.get();
     ret.second = ret.first + r;

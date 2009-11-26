@@ -70,6 +70,7 @@ ICE_UTIL_API FILE* fopen(const std::string&, const std::string&);
 ICE_UTIL_API int open(const std::string&, int);
 ICE_UTIL_API int getcwd(std::string&);
 ICE_UTIL_API int unlink(const std::string&);
+ICE_UTIL_API int close(int);
 
 class ICE_UTIL_API ifstream : public std::ifstream
 {

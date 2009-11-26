@@ -162,6 +162,16 @@ IceUtilInternal::unlink(const string& path)
     return _wunlink(IceUtil::stringToWstring(path).c_str());
 }
 
+int
+IceUtilInternal::close(int fd)
+{
+#if defined(_MSC_VER) && (_MSC_VER >= 1400)
+        return _close(fd);
+#else
+        return ::close(fd);
+#endif
+}
+
 #ifdef _STLP_BEGIN_NAMESPACE
 namespace
 {
@@ -389,6 +399,12 @@ int
 IceUtilInternal::unlink(const string& path)
 {
     return ::unlink(path.c_str());
+}
+
+int
+IceUtilInternal::close(int fd)
+{
+    return ::close(fd);
 }
 
 IceUtilInternal::ifstream::ifstream()
