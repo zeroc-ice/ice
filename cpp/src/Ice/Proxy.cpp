@@ -468,7 +468,7 @@ IceProxy::Ice::Object::begin_ice_invoke(const string& operation,
 }
 
 bool
-IceProxy::Ice::Object::end_ice_invoke(const AsyncResultPtr& __result, vector<Byte>& outParams)
+IceProxy::Ice::Object::end_ice_invoke(vector<Byte>& outParams, const AsyncResultPtr& __result)
 {
     AsyncResult::__check(__result, this, ice_invoke_name);
     bool ok = __result->__wait();
@@ -592,7 +592,7 @@ IceProxy::Ice::Object::begin_ice_invoke(const string& operation,
 }
 
 bool
-IceProxy::Ice::Object::end_ice_invoke(const AsyncResultPtr& __result, pair<const Byte*, const Byte*>& outParams)
+IceProxy::Ice::Object::end_ice_invoke(pair<const Byte*, const Byte*>& outParams, const AsyncResultPtr& __result)
 {
     AsyncResult::__check(__result, this, ice_invoke_name);
     bool ok = __result->__wait();

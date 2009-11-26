@@ -16,70 +16,6 @@ Module InvokeC
     Class Client
         Inherits Ice.Application
 
-        Class AMI_Object_ice_invokeI
-            Inherits Ice.AMI_Object_ice_invoke
-
-            Public Overloads Overrides Sub ice_response(ByVal ok As Boolean, ByVal outParams() As Byte)
-                If Not ok Then
-                    Console.Error.WriteLine("Unknown user exception")
-                End If
-            End Sub
-
-            Public Overloads Overrides Sub ice_exception(ByVal ex As Ice.Exception)
-                Console.Error.WriteLine(ex)
-            End Sub
-
-        End Class
-
-        Class AMI_Object_ice_invokeGetValuesI
-            Inherits Ice.AMI_Object_ice_invoke
-
-            Public Overloads Overrides Sub ice_response(ByVal ok As Boolean, ByVal outParams() As Byte)
-                If Not ok Then
-                    Console.Error.WriteLine("Unknown user exception")
-                Else
-                    '
-                    ' Unmarshal the results.
-                    '
-                    Dim inStream As Ice.InputStream = Ice.Util.createInputStream(communicator, outParams)
-                    Dim ch As CHelper = New CHelper(inStream)
-                    ch.read()
-                    Dim str As String = inStream.readString()
-                    inStream.readPendingObjects()
-                    inStream.destroy()
-                    Dim C As C = ch.value
-                    Console.Error.WriteLine("Got string `" & str & "' and class: s.name=" & C.s.name & _
-                                            ", s.value=" & C.s.value)
-                End If
-            End Sub
-
-            Public Overloads Overrides Sub ice_exception(ByVal ex As Ice.Exception)
-                Console.Error.WriteLine(ex)
-            End Sub
-
-        End Class
-
-        Class AMI_Object_ice_invokeThrowPrintFailureI
-            Inherits Ice.AMI_Object_ice_invoke
-
-            Public Overloads Overrides Sub ice_response(ByVal ok As Boolean, ByVal outParams() As Byte)
-                Dim inStream As Ice.InputStream = Ice.Util.createInputStream(communicator, outParams)
-                Try
-                    inStream.throwException()
-                Catch ex As PrintFailure
-                    ' Expected.
-                Catch ex As Ice.UserException
-                    Console.Error.WriteLine("Unknown user exception", ex)
-                End Try
-                inStream.destroy()
-            End Sub
-
-            Public Overloads Overrides Sub ice_exception(ByVal ex As Ice.Exception)
-                Console.Error.WriteLine(ex)
-            End Sub
-
-        End Class
-
         Private Sub menu()
             Console.WriteLine("usage:")
             Console.WriteLine("1: print string")
@@ -97,13 +33,8 @@ Module InvokeC
         End Sub
 
         Public Overloads Overrides Function run(ByVal args() As String) As Integer
-            Dim async As Boolean = false
-            If args.Length = 1 Then
-                If args(0).Equals("--async") Then
-                    async = true
-                End If
-            ElseIf args.Length > 0 Then
-                Console.Error.WriteLine("Usage: " & appName() & " [--async]")
+            If args.Length > 0 Then
+                Console.Error.WriteLine(appName() & ": too many arguments")
                 Return 1
             End If
 
@@ -133,13 +64,8 @@ Module InvokeC
                         '
                         ' Invoke operation.
                         '
-                        If async Then
-                            Dim cb As AMI_Object_ice_invokeI = New AMI_Object_ice_invokeI()
-                            obj.ice_invoke_async(cb, "printString", Ice.OperationMode.Normal, outStream.finished())
-                        Else
-                            If Not obj.ice_invoke("printString", Ice.OperationMode.Normal, outStream.finished(), outParams) Then
-                                Console.Error.WriteLine("Unknown user exception")
-                            End If
+                        If Not obj.ice_invoke("printString", Ice.OperationMode.Normal, outStream.finished(), outParams) Then
+                            Console.Error.WriteLine("Unknown user exception")
                         End If
 
                         outStream.destroy()
@@ -154,13 +80,8 @@ Module InvokeC
                         '
                         ' Invoke operation.
                         '
-                        If async Then
-                            Dim cb As AMI_Object_ice_invokeI = New AMI_Object_ice_invokeI()
-                            obj.ice_invoke_async(cb, "printStringSequence", Ice.OperationMode.Normal, outStream.finished())
-                        Else
-                            If Not obj.ice_invoke("printStringSequence", Ice.OperationMode.Normal, outStream.finished(), outParams) Then
-                                Console.Error.WriteLine("Unknown user exception")
-                            End If
+                        If Not obj.ice_invoke("printStringSequence", Ice.OperationMode.Normal, outStream.finished(), outParams) Then
+                            Console.Error.WriteLine("Unknown user exception")
                         End If
 
                         outStream.destroy()
@@ -177,13 +98,8 @@ Module InvokeC
                         '
                         ' Invoke operation.
                         '
-                        If async Then
-                            Dim cb As AMI_Object_ice_invokeI = New AMI_Object_ice_invokeI()
-                            obj.ice_invoke_async(cb, "printDictionary", Ice.OperationMode.Normal, outStream.finished())
-                        Else
-                            If Not obj.ice_invoke("printDictionary", Ice.OperationMode.Normal, outStream.finished(), outParams) Then
-                                Console.Error.WriteLine("Unknown user exception")
-                            End If
+                        If Not obj.ice_invoke("printDictionary", Ice.OperationMode.Normal, outStream.finished(), outParams) Then
+                            Console.Error.WriteLine("Unknown user exception")
                         End If
 
                         outStream.destroy()
@@ -197,13 +113,8 @@ Module InvokeC
                         '
                         ' Invoke operation.
                         '
-                        If async Then
-                            Dim cb As AMI_Object_ice_invokeI = New AMI_Object_ice_invokeI()
-                            obj.ice_invoke_async(cb, "printEnum", Ice.OperationMode.Normal, outStream.finished())
-                        Else
-                            If Not obj.ice_invoke("printEnum", Ice.OperationMode.Normal, outStream.finished(), outParams) Then
-                                Console.Error.WriteLine("Unknown user exception")
-                            End If
+                        If Not obj.ice_invoke("printEnum", Ice.OperationMode.Normal, outStream.finished(), outParams) Then
+                            Console.Error.WriteLine("Unknown user exception")
                         End If
 
                         outStream.destroy()
@@ -220,13 +131,8 @@ Module InvokeC
                         '
                         ' Invoke operation.
                         '
-                        If async Then
-                            Dim cb As AMI_Object_ice_invokeI = New AMI_Object_ice_invokeI()
-                            obj.ice_invoke_async(cb, "printStruct", Ice.OperationMode.Normal, outStream.finished())
-                        Else
-                            If Not obj.ice_invoke("printStruct", Ice.OperationMode.Normal, outStream.finished(), outParams) Then
-                                Console.Error.WriteLine("Unknown user exception")
-                            End If
+                        If Not obj.ice_invoke("printStruct", Ice.OperationMode.Normal, outStream.finished(), outParams) Then
+                            Console.Error.WriteLine("Unknown user exception")
                         End If
 
                         outStream.destroy()
@@ -250,14 +156,9 @@ Module InvokeC
                         '
                         ' Invoke operation.
                         '
-                        If async Then
-                            Dim cb As AMI_Object_ice_invokeI = New AMI_Object_ice_invokeI()
-                            obj.ice_invoke_async(cb, "printStructSequence", Ice.OperationMode.Normal, outStream.finished())
-                        Else
-                            If Not obj.ice_invoke("printStructSequence", Ice.OperationMode.Normal, outStream.finished(), _
-                                                  outParams) Then
-                                Console.Error.WriteLine("Unknown user exception")
-                            End If
+                        If Not obj.ice_invoke("printStructSequence", Ice.OperationMode.Normal, outStream.finished(), _
+                                              outParams) Then
+                            Console.Error.WriteLine("Unknown user exception")
                         End If
 
                         outStream.destroy()
@@ -276,13 +177,8 @@ Module InvokeC
                         '
                         ' Invoke operation.
                         '
-                        If async Then
-                            Dim cb As AMI_Object_ice_invokeI = New AMI_Object_ice_invokeI()
-                            obj.ice_invoke_async(cb, "printClass", Ice.OperationMode.Normal, outStream.finished())
-                        Else
-                            If Not obj.ice_invoke("printClass", Ice.OperationMode.Normal, outStream.finished(), outParams) Then
-                                Console.Error.WriteLine("Unknown user exception")
-                            End If
+                        If Not obj.ice_invoke("printClass", Ice.OperationMode.Normal, outStream.finished(), outParams) Then
+                            Console.Error.WriteLine("Unknown user exception")
                         End If
 
                         outStream.destroy()
@@ -290,58 +186,43 @@ Module InvokeC
                         '
                         ' Invoke operation.
                         '
-                        If async Then
-                            Dim cb As AMI_Object_ice_invokeGetValuesI = New AMI_Object_ice_invokeGetValuesI()
-                            obj.ice_invoke_async(cb, "getValues", Ice.OperationMode.Normal, Nothing)
-                        Else
-                            If Not obj.ice_invoke("getValues", Ice.OperationMode.Normal, Nothing, outParams) Then
-                                Console.Error.WriteLine("Unknown user exception")
-                                Exit Try
-                            End If
-
-                            '
-                            ' Unmarshal the results.
-                            '
-                            Dim inStream As Ice.InputStream = Ice.Util.createInputStream(communicator, outParams)
-                            Dim ch As CHelper = New CHelper(inStream)
-                            ch.read()
-                            Dim str As String = inStream.readString()
-                            inStream.readPendingObjects()
-                            inStream.destroy()
-                            Dim C As C = ch.value
-                            Console.Error.WriteLine("Got string `" & str & "' and class: s.name=" & C.s.name & _
-                                                    ", s.value=" & C.s.value)
+                        If Not obj.ice_invoke("getValues", Ice.OperationMode.Normal, Nothing, outParams) Then
+                            Console.Error.WriteLine("Unknown user exception")
+                            Exit Try
                         End If
+
+                        '
+                        ' Unmarshal the results.
+                        '
+                        Dim inStream As Ice.InputStream = Ice.Util.createInputStream(communicator, outParams)
+                        Dim ch As CHelper = New CHelper(inStream)
+                        ch.read()
+                        Dim str As String = inStream.readString()
+                        inStream.readPendingObjects()
+                        inStream.destroy()
+                        Dim C As C = ch.value
+                        Console.Error.WriteLine("Got string `" & str & "' and class: s.name=" & C.s.name & _
+                                                ", s.value=" & C.s.value)
                     ElseIf line.Equals("9") Then
                         '
                         ' Invoke operation.
                         '
-                        If async Then
-                            Dim cb As AMI_Object_ice_invokeThrowPrintFailureI = New AMI_Object_ice_invokeThrowPrintFailureI()
-                            obj.ice_invoke_async(cb, "throwPrintFailure", Ice.OperationMode.Normal, Nothing)
-                        Else
-                            If obj.ice_invoke("throwPrintFailure", Ice.OperationMode.Normal, Nothing, outParams) Then
-                                Console.Error.WriteLine("Expected exception")
-                                Exit Try
-                            End If
+                        If obj.ice_invoke("throwPrintFailure", Ice.OperationMode.Normal, Nothing, outParams) Then
+                            Console.Error.WriteLine("Expected exception")
+                            Exit Try
+                        End If
 
-                            Dim inStream As Ice.InputStream = Ice.Util.createInputStream(communicator, outParams)
-                            Try
-                                inStream.throwException()
-                            Catch ex As PrintFailure
-                                ' Expected.
-                            Catch ex As Ice.UserException
-                                Console.Error.WriteLine("Unknown user exception", ex)
-                            End Try
-                            inStream.destroy()
-                        End If
+                        Dim inStream As Ice.InputStream = Ice.Util.createInputStream(communicator, outParams)
+                        Try
+                            inStream.throwException()
+                        Catch ex As PrintFailure
+                            ' Expected.
+                        Catch ex As Ice.UserException
+                            Console.Error.WriteLine("Unknown user exception", ex)
+                        End Try
+                        inStream.destroy()
                     ElseIf line.Equals("s") Then
-                        If async Then
-                            Dim cb As AMI_Object_ice_invokeI = New AMI_Object_ice_invokeI()
-                            obj.ice_invoke_async(cb, "shutdown", Ice.OperationMode.Normal, Nothing)
-                        Else
-                            obj.ice_invoke("shutdown", Ice.OperationMode.Normal, Nothing, outParams)
-                        End If
+                        obj.ice_invoke("shutdown", Ice.OperationMode.Normal, Nothing, outParams)
                     ElseIf line.Equals("x") Then
                         ' Nothing to do.
                     ElseIf line.Equals("?") Then

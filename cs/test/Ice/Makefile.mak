@@ -18,6 +18,7 @@ SUBDIRS         = application \
                   faultTolerance \
 		  info \
                   inheritance \
+		  invoke \
                   hold \
                   location \
                   objects \

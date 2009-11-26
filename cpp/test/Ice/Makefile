@@ -37,7 +37,8 @@ SUBDIRS		= proxy \
 		  background \
 		  udp \
 		  defaultServant \
-		  threadPoolPriority
+		  threadPoolPriority \
+		  invoke
 
 $(EVERYTHING)::
 	@for subdir in $(SUBDIRS); \

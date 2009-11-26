@@ -59,6 +59,7 @@ tests = [
     ("Ice/stringConverter", ["core"]),
     ("Ice/udp", ["core"]),
     ("Ice/defaultServant", ["core"]),
+    ("Ice/invoke", ["core", "novc6"]),
     ("IceSSL/configuration", ["once", "novalgrind"]), # valgrind doesn't work well with openssl
     ("IceBox/configuration", ["core", "noipv6", "nobcc", "novc6"]),
     ("Freeze/dbmap", ["once", "novc6"]),

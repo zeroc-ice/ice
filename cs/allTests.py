@@ -53,6 +53,7 @@ tests = [
     ("Ice/udp", ["core"]),
     ("Ice/defaultServant", ["core"]),
     ("Ice/threadPoolPriority", ["core", "nomono"]),
+    ("Ice/invoke", ["core"]),
     ("IceBox/configuration", ["core", "noipv6"]),
     ("Glacier2/router", ["service"]),
     ("IceGrid/simple", ["service"]),

@@ -425,7 +425,7 @@ public:
         return begin_ice_invoke(operation, mode, inParams, &__ctx, __del, __cookie);
     }
 
-    bool end_ice_invoke(const ::Ice::AsyncResultPtr&, ::std::vector< ::Ice::Byte>&);
+    bool end_ice_invoke(::std::vector< ::Ice::Byte>&, const ::Ice::AsyncResultPtr&);
 
     bool ice_invoke(const ::std::string& operation, 
                     ::Ice::OperationMode mode, 
@@ -503,7 +503,7 @@ public:
         return begin_ice_invoke(operation, mode, inParams, &__ctx, __del, __cookie);
     }
 
-    bool end_ice_invoke(const ::Ice::AsyncResultPtr&, ::std::pair<const ::Ice::Byte*, const ::Ice::Byte*>&);
+    bool end_ice_invoke(::std::pair<const ::Ice::Byte*, const ::Ice::Byte*>&, const ::Ice::AsyncResultPtr&);
 
     ::Ice::Identity ice_getIdentity() const;
     ::Ice::ObjectPrx ice_identity(const ::Ice::Identity&) const;
@@ -1590,7 +1590,7 @@ public:
             std::vector< ::Ice::Byte> outParams;
             try
             {
-                __ok = __result->getProxy()->end_ice_invoke(__result, outParams);
+                __ok = __result->getProxy()->end_ice_invoke(outParams, __result);
             }
             catch(const ::Ice::Exception& ex)
             {
@@ -1615,7 +1615,7 @@ public:
             std::pair<const ::Ice::Byte*, const::Ice::Byte*> outParams;
             try
             {
-                __ok = __result->getProxy()->end_ice_invoke(__result, outParams);
+                __ok = __result->getProxy()->end_ice_invoke(outParams, __result);
             }
             catch(const ::Ice::Exception& ex)
             {
@@ -1670,7 +1670,7 @@ public:
             std::vector< ::Ice::Byte> outParams;
             try
             {
-                __ok = __result->getProxy()->end_ice_invoke(__result, outParams);
+                __ok = __result->getProxy()->end_ice_invoke(outParams, __result);
             }
             catch(const ::Ice::Exception& ex)
             {
@@ -1697,7 +1697,7 @@ public:
             std::pair<const ::Ice::Byte*, const::Ice::Byte*> outParams;
             try
             {
-                __ok = __result->getProxy()->end_ice_invoke(__result, outParams);
+                __ok = __result->getProxy()->end_ice_invoke(outParams, __result);
             }
             catch(const ::Ice::Exception& ex)
             {
