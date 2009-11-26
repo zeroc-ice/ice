@@ -40,7 +40,7 @@ SUBDIRS		= proxy \
 
 !if "$(CPP_COMPILER)" != "VC60"
 SUBDIRS		= $(SUBDIRS) \
-		  stream,
+		  stream \
 		  invoke
 !endif
 
