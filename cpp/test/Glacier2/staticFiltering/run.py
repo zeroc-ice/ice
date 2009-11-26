@@ -279,7 +279,7 @@ for testcase in testcases:
     # these tests.
     #
 
-    routerArgs = " --Ice.Config=" + os.path.join(os.getcwd(), "router.cfg") + \
+    routerArgs = ' --Ice.Config="' + os.path.join(os.getcwd(), "router.cfg") + '"' + \
           ' --Glacier2.Client.Endpoints="default -p 12347"' + \
           ' --Ice.Admin.Endpoints="tcp -h 127.0.0.1 -p 12348"' + \
           ' --Ice.Admin.InstanceName=Glacier2' + \
@@ -328,7 +328,7 @@ for testcase in testcases:
 
     if TestUtil.protocol != "ssl":
         serverConfig = file(os.path.join(os.getcwd(), "server.cfg"), "w")
-        serverOptions = ' --Ice.Config=' + os.path.join(os.getcwd(), "server.cfg") + " " 
+        serverOptions = ' --Ice.Config="' + os.path.join(os.getcwd(), "server.cfg") + '" ' 
         serverConfig.write("BackendAdapter.Endpoints=tcp -p 12010\n")
         serverConfig.close()
     else:
@@ -352,7 +352,7 @@ for testcase in testcases:
     if clientDriver.host == "127.0.0.1":
         clientDriver.host = None
     clientDriver.host = commonClientOptions
-    clientArgs = " --Ice.Config=" + os.path.join(os.getcwd(), 'attack.cfg') + " "
+    clientArgs = ' --Ice.Config="%s"' % os.path.join(os.getcwd(), 'attack.cfg')
     clientProc = TestUtil.startClient(clientCmd, clientArgs, clientDriver)
     clientProc.waitTestSuccess()
     serverProc.waitTestSuccess()

@@ -301,7 +301,7 @@ def runDemos(start, args, demos, num = 0, script = False, root = False):
                 print "  exit 1"
             print "fi"
         else:
-            status = os.system("python " + os.path.join(dir, "expect.py " + args))
+            status = os.system('python "' + os.path.join(dir, "expect.py") + '" ' + args)
 
             if status:
                 if(num > 0):

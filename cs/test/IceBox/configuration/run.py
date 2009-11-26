@@ -22,8 +22,8 @@ from scripts import *
 
 icebox = TestUtil.getIceBox()
 
-TestUtil.clientServerTest(additionalServerOptions="--Ice.Config=%s" % os.path.join(os.getcwd(), "config.icebox"),
+TestUtil.clientServerTest(additionalServerOptions='--Ice.Config="%s"' % os.path.join(os.getcwd(), "config.icebox"),
 	server=icebox)
-TestUtil.clientServerTest(additionalServerOptions="--Ice.Config=%s" % os.path.join(os.getcwd(), "config.icebox2"),
+TestUtil.clientServerTest(additionalServerOptions='--Ice.Config="%s"' % os.path.join(os.getcwd(), "config.icebox2"),
 	server=icebox)
 

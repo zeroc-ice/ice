@@ -20,7 +20,7 @@ if len(path) == 0:
 sys.path.append(os.path.join(path[0]))
 from scripts import *
 
-testdir = os.getcwd()
+testdir = "'%s'" % os.getcwd()
 
 TestUtil.clientServerTest(additionalClientOptions=testdir)
 

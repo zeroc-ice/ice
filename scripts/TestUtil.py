@@ -138,7 +138,12 @@ def sanitize(cp):
             np = np + os.pathsep
         np = np + p
     return np
-        
+
+def quoteArgument(arg):
+    if arg == None:
+        return None
+    return '"%s"' % arg
+
 def dumpenv(env, lang):
     if env == None:
         env = os.environ
@@ -603,41 +608,28 @@ def getIceBox():
     return iceBox
 
 def getIceBoxAdmin():
-    if isBCC2010():
-        return os.path.join(getServiceDir(), "iceboxadmin")
-    else:
-        return os.path.join(getCppBinDir(), "iceboxadmin")
+    return getIceExe("iceboxadmin")
 
 def getIceGridAdmin():
-    if isBCC2010():
-        return os.path.join(getServiceDir(), "icegridadmin")
-    else:
-        return os.path.join(getCppBinDir(), "icegridadmin")
+    return getIceExe("icegridadmin")
 
 def getIceStormAdmin():
-    if isBCC2010():
-        return os.path.join(getServiceDir(), "icestormadmin")
-    else:
-        return os.path.join(getCppBinDir(), "icestormadmin")
+    return getIceExe("icestormadmin")
 
 def getIceGridNode():
-    if isBCC2010():
-        return os.path.join(getServiceDir(), "icegridnode")
-    else:
-        return os.path.join(getCppBinDir(), "icegridnode")
+    return getIceExe("icegridnode")
 
 def getIceGridRegistry():
-    if isBCC2010():
-        return os.path.join(getServiceDir(), "icegridregistry")
-    else:
-        return os.path.join(getCppBinDir(), "icegridregistry")
+    return getIceExe("icegridregistry")
 
 def getGlacier2Router():
-    if isBCC2010():
-        return os.path.join(getServiceDir(), "glacier2router")
-    else:
-        return os.path.join(getCppBinDir(), "glacier2router")
+    return getIceExe("glacier2router")
 
+def getIceExe(name):
+    if isBCC2010() or isVC6():
+        return os.path.join(getServiceDir(), name)
+    else:
+        return os.path.join(getCppBinDir(), name)
 
 class InvalidSelectorString(Exception):
     def __init__(self, value):
@@ -782,7 +774,7 @@ def getCommandLine(exe, config):
     #
     if config.protocol == "ssl":
         sslenv = {}
-        sslenv["certsdir"] = os.path.abspath(os.path.join(toplevel, "certs"))
+        sslenv["certsdir"] = quoteArgument(os.path.abspath(os.path.join(toplevel, "certs")))
         components.append(sslConfigTree[config.lang]["plugin"] % sslenv)
         components.append(sslConfigTree[config.lang][config.type] % sslenv)
 
@@ -822,9 +814,9 @@ def getCommandLine(exe, config):
     
     output = StringIO.StringIO()
     if config.mono and config.lang == "cs":
-        print >>output, "mono", "--debug %s.exe" % exe,
+        print >>output, "mono", "--debug '%s.exe'" % exe,
     elif config.lang == "rb" and config.type == "client":
-        print >>output, "ruby", exe,
+        print >>output, "ruby '" + exe + "'",
     elif config.lang == "java" or config.lang == "javae":
         print >>output, "%s -ea" % javaCmd,
         if isSolaris() and config.x64:
@@ -833,16 +825,19 @@ def getCommandLine(exe, config):
             print >>output, "-Djava.net.preferIPv4Stack=true",
         print >>output, exe,
     elif config.lang == "py":
-        print >>output, sys.executable, exe,
+        print >>output, sys.executable, '"%s"' % exe,
     elif config.lang == "php" and config.type == "client":
-        print >>output, phpCmd, "-c tmp.ini -f", exe, " -- ",
+        print >>output, phpCmd, "-c tmp.ini -f'"+ exe +"' -- ",
     elif config.lang == "cpp" and config.valgrind:
         # --child-silent-after-fork=yes is required for the IceGrid/activator test where the node
         # forks a process with execv failing (invalid exe name).
         print >>output, "valgrind -q --child-silent-after-fork=yes --leak-check=full ",
-        print >>output, "--suppressions=" + os.path.join(toplevel, "config", "valgrind.sup"), exe,
+        print >>output, '--suppressions="' + os.path.join(toplevel, "config", "valgrind.sup") + '" "' + exe + '"',
     else:
-        print >>output, exe,
+        if exe.find(" ") != -1:
+            print >>output, '"' + exe + '"',
+        else:
+            print >>output, exe,
 
     for c in components:
         print >>output, c,
@@ -966,13 +961,13 @@ def spawn(cmd, env=None, cwd=None, startReader=True, lang=None):
     return Expect.Expect(cmd, startReader=startReader, env=env, logfile=tracefile, cwd=cwd)
 
 def spawnClient(cmd, env=None, cwd=None, echo=True, startReader=True, lang=None):
-    client = spawn(cmd, env, cwd, startReader=startReader, lang=lang)
+    client = spawn(cmd, env, quoteArgument(cwd), startReader=startReader, lang=lang)
     if echo:
         client.trace()
     return client
 
 def spawnServer(cmd, env=None, cwd=None, count=1, adapter=None, echo=True, lang=None):
-    server = spawn(cmd, env, cwd, lang=lang)
+    server = spawn(cmd, env, quoteArgument(cwd), lang=lang)
     if adapter:
         server.expect("%s ready\n" % adapter)
     else:
@@ -982,6 +977,21 @@ def spawnServer(cmd, env=None, cwd=None, count=1, adapter=None, echo=True, lang=
     if echo:
         server.trace([re.compile("[^\n]+ ready")])
     return server
+
+import subprocess
+def runCommand(command):
+    #
+    # popen3 has problems dealing with white spaces in command line.
+    #
+    if isWin32():
+        CREATE_NEW_PROCESS_GROUP = 512
+        p = subprocess.Popen(command, shell=False, bufsize=0, stdin=subprocess.PIPE, stdout=subprocess.PIPE,
+                            stderr=subprocess.PIPE, creationflags = 512)
+    else:
+        p = subprocess.Popen(command, shell=True, bufsize=1024, stdin=subprocess.PIPE, stdout=subprocess.PIPE, \
+            stderr=subprocess.PIPE, close_fds=True)
+
+    return p;
 
 def matchAppVerifierSuccess():
     return re.escape("\nApplication Verifier ") +  ".*\n" + \
@@ -1175,6 +1185,7 @@ def startServer(exe, args = "", config=None, env=None, adapter = None, count = 1
     return spawnServer(cmd, env = env, adapter = adapter, count = count, echo = echo,lang=config.lang)
 
 def startColloc(exe, args, config=None, env=None):
+    exe = quoteArgument(exe)
     if config == None:
         config = DriverConfig("colloc")
     if env == None:
@@ -1183,6 +1194,7 @@ def startColloc(exe, args, config=None, env=None):
     return spawnClient(cmd, env = env, lang=config.lang)
 
 def simpleTest(exe, options = ""):
+    exe = quoteArgument(exe)
     if appverifier:
         setAppVerifierSettings([exe])
     print "starting client...",
@@ -1535,7 +1547,6 @@ def runTests(start, expanded, num = 0, script = False):
             else:
                 print "*** test started:", time.strftime("%x %X")
                 sys.stdout.flush()
-
                 os.chdir(dir)
 
             global keepGoing
@@ -1546,7 +1557,7 @@ def runTests(start, expanded, num = 0, script = False):
                     print "  exit 1"
                 print "fi"
             else:
-                status = os.system(sys.executable + " " +  os.path.join(dir, "run.py " + args))
+                status = os.system(sys.executable + " " +  quoteArgument(os.path.join(dir, "run.py")) + " " + args)
 
                 if status:
                     if(num > 0):

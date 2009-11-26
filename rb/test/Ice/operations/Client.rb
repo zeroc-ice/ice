@@ -12,7 +12,7 @@ require 'pathname'
 require 'Ice'
 
 slice_dir = Ice.getSliceDir
-Ice::loadSlice('-I' + slice_dir + ' Test.ice')
+Ice::loadSlice("'-I" + slice_dir + "' Test.ice")
 require 'AllTests'
 
 def test(b)

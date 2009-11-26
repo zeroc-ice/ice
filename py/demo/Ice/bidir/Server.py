@@ -15,7 +15,7 @@ if not slice_dir:
     print sys.argv[0] + ': Slice directory not found.'
     sys.exit(1)
 
-Ice.loadSlice('-I' + slice_dir + ' Callback.ice')
+Ice.loadSlice("'-I" + slice_dir + "' Callback.ice")
 import Demo
 
 class CallbackSenderI(Demo.CallbackSender, threading.Thread):

@@ -15,7 +15,7 @@ if slice_dir.empty?
     fail "Slice directory not found"
 end
 
-Ice::loadSlice('-I' + slice_dir + ' Test.ice')
+Ice::loadSlice("'-I" + slice_dir + "' Test.ice")
 require 'AllTests'
 
 def test(b)

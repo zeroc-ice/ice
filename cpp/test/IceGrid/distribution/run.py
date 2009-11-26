@@ -26,7 +26,7 @@ def icepatch2Calc(datadir, dirname):
         icePatch2Calc = os.path.join(TestUtil.getServiceDir(), "icepatch2calc")
     else:
         icePatch2Calc = os.path.join(TestUtil.getCppBinDir(), "icepatch2calc")
-    commandProc = TestUtil.spawn(icePatch2Calc + " " + os.path.join(datadir, dirname))
+    commandProc = TestUtil.spawn('"%s" "%s"' % (icePatch2Calc, os.path.join(datadir, dirname)))
     commandProc.waitTestSuccess()
 
 datadir = os.path.join(os.getcwd(), "data")

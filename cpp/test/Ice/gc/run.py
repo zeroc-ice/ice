@@ -24,7 +24,7 @@ client = os.path.join(os.getcwd(), "client")
 
 seedfile = os.path.join(os.getcwd(), "seed")
 
-TestUtil.simpleTest(client, seedfile)
+TestUtil.simpleTest(client, '"%s"' % seedfile)
 
 os.remove(seedfile)
 

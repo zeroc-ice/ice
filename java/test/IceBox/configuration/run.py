@@ -20,8 +20,8 @@ if len(path) == 0:
 sys.path.append(os.path.join(path[0]))
 from scripts import *
 
-TestUtil.clientServerTest(additionalServerOptions="--Ice.Config=%s" % os.path.join(os.getcwd(), "config.icebox"),
+TestUtil.clientServerTest(additionalServerOptions='--Ice.Config="%s"' % os.path.join(os.getcwd(), "config.icebox"),
 	server=TestUtil.getIceBox())
-TestUtil.clientServerTest(additionalServerOptions="--Ice.Config=%s" % os.path.join(os.getcwd(), "config.icebox2"),
+TestUtil.clientServerTest(additionalServerOptions='--Ice.Config="%s"' % os.path.join(os.getcwd(), "config.icebox2"),
 	server=TestUtil.getIceBox())
 

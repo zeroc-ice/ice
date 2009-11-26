@@ -16,7 +16,7 @@ if not slice_dir:
     print sys.argv[0] + ': Slice directory not found.'
     sys.exit(1)
 
-Ice.loadSlice('-I' + slice_dir + ' --checksum Test.ice CTypes.ice')
+Ice.loadSlice("'-I" + slice_dir + "' --checksum Test.ice CTypes.ice")
 import Test, AllTests
 
 def run(args, communicator):

@@ -26,9 +26,9 @@ slice2java = os.path.join(TestUtil.getCppBinDir(), "slice2java")
 if not os.path.exists("classes"):
     os.mkdir("classes")
 
-command = slice2java + " --list-generated --output-dir classes File1.ice File2.ice"
-stdin, stdout, stderr = os.popen3(command)
-lines1 = stdout.readlines()
+command = '"' + slice2java + '" --list-generated --output-dir classes File1.ice File2.ice's
+p = TestUtil.runCommand(command)
+lines1 = p.stdout.readlines()
 lines2 = open(os.path.join(os.getcwd(), "list-generated.out"), "r").readlines()
 if len(lines1) != len(lines2):
     print "failed!"

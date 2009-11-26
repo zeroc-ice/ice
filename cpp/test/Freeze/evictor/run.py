@@ -23,7 +23,7 @@ from scripts import *
 dbdir = os.path.join(os.getcwd(), "db")
 TestUtil.cleanDbDir(dbdir)
 
-testOptions = " --Freeze.DbEnv.db.DbHome=%s --Ice.Config=%s" % (dbdir, os.path.join(os.getcwd(), "config"))
+testOptions = ' --Freeze.DbEnv.db.DbHome="%s" --Ice.Config="%s"' % (dbdir, os.path.join(os.getcwd(), "config"))
 
 TestUtil.clientServerTest(additionalServerOptions= testOptions, additionalClientOptions= testOptions)
 

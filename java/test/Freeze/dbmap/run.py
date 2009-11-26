@@ -24,7 +24,7 @@ dbdir = os.path.join(os.getcwd(), "db")
 TestUtil.cleanDbDir(dbdir)
 
 print "starting client...",
-clientProc = TestUtil.startClient("test.Freeze.dbmap.Client", os.getcwd(), startReader=False)
+clientProc = TestUtil.startClient("test.Freeze.dbmap.Client", "'" + os.getcwd() + "'", startReader=False)
 print "ok"
 clientProc.startReader()
 clientProc.waitTestSuccess()

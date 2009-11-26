@@ -14,14 +14,15 @@ iceca = "iceca"
 
 def runIceca(args):
     os.environ['PYTHONUNBUFFERED'] = '1'
-    if os.system(iceca + " " + args):
+    command = 'python "%s" %s' % (iceca, args)
+    if os.system(command):
         sys.exit(1)
 
 def createCertificate(filename, cn):
 
     print "======= Creating " + filename + " certificate ======="
 
-    runIceca("request --no-password --overwrite %s \"%s\"" % (filename, cn))
+    runIceca('request --no-password --overwrite "%s" "%s"' % (filename, cn))
     runIceca("sign --in %s_req.pem --out %s_cert.pem" % (filename, filename))
     os.remove("%s_req.pem" % filename)
 

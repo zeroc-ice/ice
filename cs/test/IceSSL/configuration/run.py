@@ -24,5 +24,5 @@ from scripts import *
 # The drive letter needs to be removed on Windows or loading the SSL
 # plug-in will not work.
 #
-TestUtil.clientServerTest(additionalClientOptions=os.path.splitdrive(os.getcwd())[1])
+TestUtil.clientServerTest(additionalClientOptions = '"%s"' % os.path.splitdrive(os.getcwd())[1])
 
