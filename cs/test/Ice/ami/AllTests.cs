@@ -80,7 +80,7 @@ public class AllTests
         public void
         isA(Ice.AsyncResult result)
         {
-            test(result.getCookie() == _cookie);
+            test(result.AsyncState == _cookie);
             test(result.getProxy().end_ice_isA(result));
             called();
         }
@@ -88,7 +88,7 @@ public class AllTests
         public void 
         ping(Ice.AsyncResult result)
         {
-            test(result.getCookie() == _cookie);
+            test(result.AsyncState == _cookie);
             result.getProxy().end_ice_ping(result);
             called();
         }
@@ -96,7 +96,7 @@ public class AllTests
         public void 
         id(Ice.AsyncResult result)
         {
-            test(result.getCookie() == _cookie);
+            test(result.AsyncState == _cookie);
             test(result.getProxy().end_ice_id(result).Equals("::Test::TestIntf"));
             called();
         }
@@ -104,7 +104,7 @@ public class AllTests
         public void
         ids(Ice.AsyncResult result)
         {
-            test(result.getCookie() == _cookie);
+            test(result.AsyncState == _cookie);
             test(result.getProxy().end_ice_ids(result).Length == 2);
             called();
         }
@@ -112,7 +112,7 @@ public class AllTests
         public void
         op(Ice.AsyncResult result)
         {
-            test(result.getCookie() == _cookie);
+            test(result.AsyncState == _cookie);
             TestIntfPrxHelper.uncheckedCast(result.getProxy()).end_op(result);
             called();
         }
@@ -120,7 +120,7 @@ public class AllTests
         public void
         opWithResult(Ice.AsyncResult result)
         {
-            test(result.getCookie() == _cookie);
+            test(result.AsyncState == _cookie);
             test(TestIntfPrxHelper.uncheckedCast(result.getProxy()).end_opWithResult(result) == 15);
             called();
         }
@@ -128,7 +128,7 @@ public class AllTests
         public void
         opWithUE(Ice.AsyncResult result)
         {
-            test(result.getCookie() == _cookie);
+            test(result.AsyncState == _cookie);
             try
             {
                 TestIntfPrxHelper.uncheckedCast(result.getProxy()).end_opWithUE(result);
@@ -147,7 +147,7 @@ public class AllTests
         public void
         isAEx(Ice.AsyncResult result)
         {
-            test(result.getCookie() == _cookie);
+            test(result.AsyncState == _cookie);
             try
             {
                 result.getProxy().end_ice_isA(result);
@@ -166,7 +166,7 @@ public class AllTests
         public void
         pingEx(Ice.AsyncResult result)
         {
-            test(result.getCookie() == _cookie);
+            test(result.AsyncState == _cookie);
             try
             {
                 result.getProxy().end_ice_ping(result);
@@ -185,7 +185,7 @@ public class AllTests
         public void
         idEx(Ice.AsyncResult result)
         {
-            test(result.getCookie() == _cookie);
+            test(result.AsyncState == _cookie);
             try
             {
                 result.getProxy().end_ice_id(result);
@@ -204,7 +204,7 @@ public class AllTests
         public void
         idsEx(Ice.AsyncResult result)
         {
-            test(result.getCookie() == _cookie);
+            test(result.AsyncState == _cookie);
             try
             {
                 result.getProxy().end_ice_ids(result);
@@ -223,7 +223,7 @@ public class AllTests
         public void
         opEx(Ice.AsyncResult result)
         {
-            test(result.getCookie() == _cookie);
+            test(result.AsyncState == _cookie);
             try
             {
                 TestIntfPrxHelper.uncheckedCast(result.getProxy()).end_op(result);

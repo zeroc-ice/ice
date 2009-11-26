@@ -63,7 +63,6 @@ namespace Ice
 
         bool sentSynchronously();
 
-        object getCookie();
         string getOperation();
 
         AsyncResult whenSentWithResult(Ice.AsyncCallback cb);
@@ -177,14 +176,9 @@ namespace IceInternal
             return sentSynchronously_; // No lock needed, immutable once send__() is called
         }
 
-        public object getCookie()
-        {
-            return _cookie; // No lock needed, cookie is immutable.
-        }
-
         public string getOperation()
         {
-                return operation_;
+            return operation_;
         }
 
         //
