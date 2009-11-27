@@ -115,7 +115,7 @@
   </PropertyGroup>
   <ProjectExtensions>
     <VisualStudio>
-      <UserProperties ZerocIce_ConsoleOutput="True" ZerocIce_Enabled="True" ZerocIce_Home="$(ICE_HOME)" ZerocIce_HomeExpanded="..\..\..\.." />
+      <UserProperties ZerocIce_ConsoleOutput="True" ZerocIce_Enabled="True" ZerocIce_HomeExpanded="..\..\..\.." />
     </VisualStudio>
   </ProjectExtensions>
 </Project>
