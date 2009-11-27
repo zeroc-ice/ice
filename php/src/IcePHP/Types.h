@@ -241,8 +241,6 @@ public:
 
     std::string id;
     TypeInfoPtr elementType;
-    bool variableLength;
-    int minWireSize;
 
 private:
 
