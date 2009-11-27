@@ -485,9 +485,6 @@ Python Changes
 - Integer values are now accepted where floating point values are
   expected.
 
-- Changed the way sequences are unmarshaled to protect against
-  malicious messages with faked very large sequence count values.
-
 - Objects that support the number protocol are now accepted as legal
   values for Slice integer and floating-point types.
 
@@ -501,9 +498,6 @@ Ruby Changes
   future release.
 
   ObjectPrx::ice_getHash()
-
-- Changed the way sequences are unmarshaled to protect against
-  malicious messages with faked very large sequence count values.
 
 
 PHP Changes

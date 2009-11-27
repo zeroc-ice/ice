@@ -682,27 +682,10 @@ IceRuby::SequenceInfo::unmarshal(const Ice::InputStreamPtr& is, const UnmarshalC
     Ice::Int sz = is->readSize();
     volatile VALUE arr = createArray(sz);
 
-    if(variableLength)
-    {
-        is->startSeq(sz, minWireSize);
-    }
-    else
-    {
-        is->checkFixedSeq(sz, minWireSize);
-    }
     for(Ice::Int i = 0; i < sz; ++i)
     {
         void* cl = reinterpret_cast<void*>(i);
         elementType->unmarshal(is, this, arr, cl);
-        if(variableLength)
-        {
-            is->checkSeq();
-            is->endElement();
-        }
-    }
-    if(variableLength)
-    {
-        is->endSeq(sz);
     }
 
     cb->unmarshaled(arr, target, closure);
@@ -1958,15 +1941,13 @@ IceRuby_defineStruct(VALUE /*self*/, VALUE id, VALUE type, VALUE members)
 
 extern "C"
 VALUE
-IceRuby_defineSequence(VALUE /*self*/, VALUE id, VALUE elementType, VALUE variableLength, VALUE minWireSize)
+IceRuby_defineSequence(VALUE /*self*/, VALUE id, VALUE elementType)
 {
     ICE_RUBY_TRY
     {
         SequenceInfoPtr info = new SequenceInfo;
         info->id = getString(id);
         info->elementType = getType(elementType);
-        info->variableLength = variableLength == Qtrue;
-        info->minWireSize = getInteger(minWireSize);
 
         return createType(info);
     }
@@ -2272,7 +2253,7 @@ IceRuby::initTypes(VALUE iceModule)
 
     rb_define_module_function(iceModule, "__defineEnum", CAST_METHOD(IceRuby_defineEnum), 3);
     rb_define_module_function(iceModule, "__defineStruct", CAST_METHOD(IceRuby_defineStruct), 3);
-    rb_define_module_function(iceModule, "__defineSequence", CAST_METHOD(IceRuby_defineSequence), 4);
+    rb_define_module_function(iceModule, "__defineSequence", CAST_METHOD(IceRuby_defineSequence), 2);
     rb_define_module_function(iceModule, "__defineDictionary", CAST_METHOD(IceRuby_defineDictionary), 3);
     rb_define_module_function(iceModule, "__declareProxy", CAST_METHOD(IceRuby_declareProxy), 1);
     rb_define_module_function(iceModule, "__declareClass", CAST_METHOD(IceRuby_declareClass), 1);

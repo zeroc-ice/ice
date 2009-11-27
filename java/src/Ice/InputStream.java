@@ -221,41 +221,6 @@ public interface InputStream
     void endEncapsulation();
 
     /**
-     * Indicates that a sequence is about to be unmarshaled.
-     *
-     * @param numElements The number of elements in the sequence.
-     * @param minSize The minimum number of bytes required to encode a single element.
-     **/
-    void startSeq(int numElements, int minSize);
-
-    /**
-     * Checks whether whether the stream has a sufficient number of bytes remaining to unmarshal
-     * the not-yet-unmarshaled remaining elements of a sequence. This method is used for sequences
-     * with elements whose on-the-wire size can vary (such as strings or structures containing variable-length
-     * members).
-     **/
-    void checkSeq();
-
-    /**
-     * Checks whether the stream has a sufficient number of bytes remaining to unmarshal a sequence
-     * containing elements that have fixed length (such as integers or doubles).
-     *
-     * @param numElements The number of elements in the sequence.
-     * @param minSize The minimum number of bytes required to encode a single element.
-     **/
-    void checkFixedSeq(int numElements, int minSize);
-
-    /**
-     * Indicates that a sequence has been unmarshaled.
-     **/
-    void endSeq(int sz);
-
-    /**
-     * Indicates that an element of a sequence with variable-length elements has been unmarshaled.
-     **/
-    void endElement();
-
-    /**
      * Indicates that unmarshaling is complete, except for any Slice objects. The application must call this method
      * only if the stream actually contains Slice objects. Calling <code>readPendingObjects</code> triggers the
      * calls to {@link ReadObjectCallback#invoke} that inform the application that unmarshaling of a Slice

@@ -221,39 +221,6 @@ namespace Ice
         byte[] readBlob(int size);
 
         /// <summary>
-        /// Indicates that a sequence is about to be unmarshaled.
-        /// </summary>
-        /// <param name="numElements">The number of elements in the sequence.</param>
-        /// <param name="minSize">The minimum number of bytes required to encode a single element.</param>
-        void startSeq(int numElements, int minSize);
-
-        /// <summary>
-        /// Checks whether whether the stream has a sufficient number of bytes remaining to unmarshal
-        /// the not-yet-unmarshaled remaining elements of a sequence. This method is used for sequences
-        /// with elements whose on-the-wire size can vary (such as strings or structures containing
-        /// variable-length members).
-        /// </summary>
-        void checkSeq();
-
-        /// <summary>
-        /// Checks whether the stream has a sufficient number of bytes remaining to unmarshal a sequence
-        /// containing elements that have fixed length (such as integers or doubles).
-        /// </summary>
-        /// <param name="numElements">The number of elements in the sequence.</param>
-        /// <param name="minSize">The minimum number of bytes required to encode a single element.</param>
-        void checkFixedSeq(int numElements, int minSize);
-
-        /// <summary>
-        /// Indicates that a sequence has been unmarshaled.
-        /// </summary>
-        void endSeq(int sz);
-
-        /// <summary>
-        /// Indicates that an element of a sequence with variable-length elements has been unmarshaled.
-        /// </summary>
-        void endElement();
-
-        /// <summary>
         /// Indicates that unmarshaling is complete, except for any Slice objects. The application must
         /// call this method only if the stream actually contains Slice objects. Calling readPendingObjects
         /// triggers the calls to ReadObjectCallback.invoke that inform the application that unmarshaling

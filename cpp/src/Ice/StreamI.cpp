@@ -322,36 +322,6 @@ Ice::InputStreamI::skipSlice()
 }
 
 void
-Ice::InputStreamI::startSeq(int numElements, int minSize)
-{
-    _is->startSeq(numElements, minSize);
-}
-
-void
-Ice::InputStreamI::checkSeq()
-{
-    _is->checkSeq();
-}
-
-void
-Ice::InputStreamI::checkFixedSeq(int numElements, int minSize)
-{
-    _is->checkFixedSeq(numElements, minSize);
-}
-
-void
-Ice::InputStreamI::endSeq(int sz)
-{
-    _is->endSeq(sz);
-}
-
-void
-Ice::InputStreamI::endElement()
-{
-    _is->endElement();
-}
-
-void
 Ice::InputStreamI::readPendingObjects()
 {
     _is->readPendingObjects();

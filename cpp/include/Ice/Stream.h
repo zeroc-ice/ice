@@ -220,12 +220,6 @@ public:
     virtual void endEncapsulation() = 0;
     virtual void skipEncapsulation() = 0;
 
-    virtual void startSeq(int, int) = 0;
-    virtual void checkSeq() = 0;
-    virtual void checkFixedSeq(int, int) = 0;
-    virtual void endSeq(int) = 0;
-    virtual void endElement() = 0;
-
     virtual void readPendingObjects() = 0;
 
     virtual void rewind() = 0;

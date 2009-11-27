@@ -1097,21 +1097,11 @@ Slice::Ruby::CodeVisitor::visitSequence(const SequencePtr& p)
     //
     string name = fixIdent(p->name(), IdentToUpper);
     string scoped = p->scoped();
-    TypePtr type = p->type();
     _out << sp << nl << "if not defined?(" << getAbsolute(p, IdentToUpper, "T_") << ')';
     _out.inc();
     _out << nl << "T_" << name << " = ::Ice::__defineSequence('" << scoped << "', ";
     writeType(p->type());
-    _out << ", ";
-    if(type->isVariableLength())
-    {
-        _out << "true";
-    }
-    else
-    {
-        _out << "false";
-    }
-    _out << ", " << type->minWireSize() << ")";
+    _out << ")";
     _out.dec();
     _out << nl << "end"; // if not defined?()
 }
