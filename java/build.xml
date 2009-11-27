@@ -545,7 +545,7 @@
             update="true">
             <include name="icons/**"/>
         </jar>
-        <delete file="${lib.dir}/icegridgui.mf" />
+
         <taskdef resource="proguard/ant/task.properties"/>
 
         <proguard>
@@ -558,6 +558,19 @@
              -include config/icegridgui.pro
         </proguard>
         <delete file="${lib.dir}/IceGridGUItemp.jar" />
+
+        <!-- Remove Ice source code from the jar and regenerate -->
+        <!--<mkdir dir="${lib.dir}/tmp"/>
+        <unzip src="${lib.dir}/IceGridGUI.jar" dest="${lib.dir}/tmp"/>
+        <delete>
+            <fileset dir="${lib.dir}" includes="**/*.java"/>
+        </delete>
+        <delete file="${lib.dir}/IceGridGUI.jar"/>
+        <jar jarfile="${lib.dir}/IceGridGUI.jar" manifest="${lib.dir}/icegridgui.mf" basedir="${lib.dir}/tmp" level="9">
+            <include name="**/**"/>
+        </jar>-->
+        <delete file="${lib.dir}/icegridgui.mf" />
+        <delete dir="${lib.dir}/tmp"/>
     </target>
 
     <target name="compile" depends="ice-compile, icegridadmin-compile">
