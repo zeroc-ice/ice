@@ -172,8 +172,7 @@ noted.
     HKLM\Software\MyCompany\IceProperties
 
   This will read all the string values from the specified key in
-  HKEY_LOCAL_MACHINE and set them as Ice properties. You can also use
-  HKEY_CURRENT_USER by specifying HKCU instead of HKLM.
+  HKEY_LOCAL_MACHINE and set them as Ice properties.
 
 - Added ability to get information from endpoints such as host and
   port without having to parse the stringified endpoint.
