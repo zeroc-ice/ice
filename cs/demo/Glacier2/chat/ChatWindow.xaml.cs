@@ -80,62 +80,6 @@ namespace Glacier2.chat.client
             ChatWindow _window;
         }
 
-        class AMI_ChatSession_sayI : Demo.AMI_ChatSession_say
-        {
-            public AMI_ChatSession_sayI(ChatWindow window)
-            {
-                _window = window;
-            }
-
-            public override void
-            ice_exception(Ice.Exception ex)
-            {
-                _window.Dispatcher.BeginInvoke(DispatcherPriority.Normal, (Action)delegate()
-                {
-                    _window.appendMessage("<system-message> - " + ex.ToString());
-                });
-            }
-
-            public override void
-            ice_response()
-            {
-            }
-
-            private ChatWindow _window;
-        }
-
-        class AMI_ChatSession_setCallbackI : Demo.AMI_ChatSession_setCallback
-        {
-            public AMI_ChatSession_setCallbackI(ChatWindow window)
-            {
-                _window = window;
-            }
-
-            public override void 
-            ice_response()
-            {
-                _window.Dispatcher.BeginInvoke(DispatcherPriority.Normal, (Action)delegate()
-                {
-                    _window.closeCancelDialog();
-                    _window.input.IsEnabled = true;
-                    _window.status.Content = "Connected with " + _window._loginData.routerHost;
-                });
-            }
-
-            public override void
-            ice_exception(Ice.Exception ex)
-            {
-                _window.Dispatcher.BeginInvoke(DispatcherPriority.Normal, (Action)delegate()
-                {
-                    if(_window._session != null)
-                    {
-                        _window._session.destroy();
-                    }
-                });
-            }
-            private ChatWindow _window;
-        }
-
         public ChatWindow()
         {
             Ice.Properties properties = Ice.Util.createProperties();
@@ -215,7 +159,16 @@ namespace Glacier2.chat.client
                 string message = input.Text.Trim();
                 if(message.Length > 0)
                 {
-                    _chat.say_async(new AMI_ChatSession_sayI(this), message);
+                    _chat.begin_say(message).whenCompleted(delegate()
+                                             {
+                                             },
+                                             delegate(Ice.Exception ex)
+                                             {
+                                                 Dispatcher.BeginInvoke(DispatcherPriority.Normal, (Action)delegate()
+                                                 {
+                                                     appendMessage("<system-message> - " + ex.ToString());
+                                                 });
+                                             });
                 }
                 input.Text = "";
             }
@@ -286,10 +239,27 @@ namespace Glacier2.chat.client
 
             Ice.Object servant = new ChatCallbackI(this);
 
-            Demo.ChatCallbackPrx callback = Demo.ChatCallbackPrxHelper.uncheckedCast(
-                _session.addWithUUID(servant));
+            Demo.ChatCallbackPrx callback = Demo.ChatCallbackPrxHelper.uncheckedCast(_session.addWithUUID(servant));
             _chat = Demo.ChatSessionPrxHelper.uncheckedCast(_session.session());
-            _chat.setCallback_async(new AMI_ChatSession_setCallbackI(this), callback);
+            _chat.begin_setCallback(callback).whenCompleted(delegate()
+                                              {
+                                                  Dispatcher.BeginInvoke(DispatcherPriority.Normal, (Action)delegate()
+                                                  {
+                                                      closeCancelDialog();
+                                                      input.IsEnabled = true;
+                                                      status.Content = "Connected with " + _loginData.routerHost;
+                                                  });
+                                              },
+                                              delegate(Ice.Exception ex)
+                                              {
+                                                  Dispatcher.BeginInvoke(DispatcherPriority.Normal, (Action)delegate()
+                                                  {
+                                                     if(_session != null)
+                                                     {
+                                                          _session.destroy();
+                                                     }
+                                                  });
+                                              });
         }
 
         public void createdCommunicator(SessionHelper session)

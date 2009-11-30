@@ -15,21 +15,17 @@ Module AsyncC
     Class Client
         Inherits Ice.Application
 
-        Class AMI_Hello_sayHelloI
-            Inherits AMI_Hello_sayHello
+        Public Sub success()
+        End Sub
 
-            Public Overloads Overrides Sub ice_response()
-            End Sub
-
-            Public Overloads Overrides Sub ice_exception(ByVal ex As Ice.Exception)
-                If TypeOf ex Is RequestCanceledException Then
-                    Console.Error.WriteLine("RequestCanceledException")
-                Else
-                    Console.Error.WriteLine("sayHello AMI call failed:")
-                    Console.Error.WriteLine(ex)
-                End If
-            End Sub
-        End Class
+        Public Sub exception(ByVal ex As Ice.Exception)
+            If TypeOf ex Is RequestCanceledException Then
+                Console.Error.WriteLine("RequestCanceledException")
+            Else
+                Console.Error.WriteLine("sayHello AMI call failed:")
+                Console.Error.WriteLine(ex)
+            End If
+        End Sub
 
         Private Sub menu()
             Console.WriteLine("usage:")
@@ -66,7 +62,7 @@ Module AsyncC
                     If line.Equals("i") Then
                         hello.sayHello(0)
                     ElseIf line.Equals("d") Then
-                        hello.sayHello_async(new AMI_Hello_sayHelloI(), 5000)
+                        hello.begin_sayHello(5000).whenCompleted(AddressOf success, AddressOf exception)
                     ElseIf line.Equals("s") Then
                         hello.shutdown()
                     ElseIf line.Equals("x") Then

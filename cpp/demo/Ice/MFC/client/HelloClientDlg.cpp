@@ -27,29 +27,29 @@ using namespace Demo;
 namespace
 {
 
-class SayHelloI : public AMI_Hello_sayHello, public Ice::AMISentCallback
+class Callback : public IceUtil::Shared
 {
 public:
 
-    SayHelloI(CHelloClientDlg* dialog) :
+    Callback(CHelloClientDlg* dialog) :
         _dialog(dialog)
     {
     }
 
-    virtual void
-    ice_sent()
+    void
+    sent(bool)
     {
         _dialog->PostMessage(WM_AMI_SENT, 0, 0);
     }
 
-    virtual void
-    ice_response()
+    void
+    response()
     {
         _dialog->PostMessage(WM_AMI_RESPONSE, 0, 0);
     }
 
-    virtual void
-    ice_exception(const Ice::Exception& ex)
+    void
+    exception(const Ice::Exception& ex)
     {
         _dialog->PostMessage(WM_AMI_EXCEPTION, 0, reinterpret_cast<LONG>(ex.ice_clone()));
     }
@@ -58,38 +58,7 @@ private:
 
     CHelloClientDlg* _dialog;
 };
-
-class ShutdownI : public AMI_Hello_shutdown, public Ice::AMISentCallback
-{
-public:
-    
-    ShutdownI(CHelloClientDlg* dialog) :
-        _dialog(dialog)
-    {
-    }
-
-    virtual void
-    ice_sent()
-    {
-        _dialog->PostMessage(WM_AMI_SENT, 0, 0);
-    }
-
-    virtual void
-    ice_response()
-    {
-        _dialog->PostMessage(WM_AMI_RESPONSE, 0, 0);
-    }
-
-    virtual void
-    ice_exception(const Ice::Exception& ex)
-    {
-        _dialog->PostMessage(WM_AMI_EXCEPTION, 0, reinterpret_cast<LONG>(ex.ice_clone()));
-    }
-
-private:
-
-    CHelloClientDlg* _dialog;
-};
+typedef IceUtil::Handle<Callback> CallbackPtr;
 
 enum DeliveryMode
 {
@@ -273,21 +242,10 @@ CHelloClientDlg::OnSayHello()
     {
         if(!deliveryModeIsBatch())
         {
-            if(hello->sayHello_async(new SayHelloI(this), delay))
-            {
-                if(hello->ice_isTwoway())
-                {
-                    _status->SetWindowText(CString(" Waiting for response"));
-                }
-                else
-                {
-                    _status->SetWindowText(CString(" Ready"));
-                }
-            }
-            else
-            {
-                _status->SetWindowText(CString(" Sending request"));
-            }
+            _status->SetWindowText(CString(" Sending request"));
+            CallbackPtr cb = new Callback(this);
+            hello->begin_sayHello(delay, newCallback_Hello_sayHello(cb, &Callback::response, &Callback::exception,
+                                                                    &Callback::sent));
         }
         else
         {
@@ -310,21 +268,10 @@ CHelloClientDlg::OnShutdown()
     {
         if(!deliveryModeIsBatch())
         {
-            if(hello->shutdown_async(new ShutdownI(this)))
-            {
-                if(hello->ice_isTwoway())
-                {
-                    _status->SetWindowText(CString(" Waiting for response"));
-                }
-                else
-                {
-                    _status->SetWindowText(CString(" Ready"));
-                }
-            }
-            else
-            {
-                _status->SetWindowText(CString(" Sending request"));
-            }
+            _status->SetWindowText(CString(" Sending request"));
+            CallbackPtr cb = new Callback(this);
+            hello->begin_shutdown(newCallback_Hello_shutdown(cb, &Callback::response, &Callback::exception, 
+                                                             &Callback::sent));
         }
         else
         {

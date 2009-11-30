@@ -13,19 +13,20 @@
 using namespace std;
 using namespace Demo;
 
-class AMI_Hello_sayHelloI : public AMI_Hello_sayHello
+class Callback : public IceUtil::Shared
 {
 public:
 
-    virtual void ice_response()
+    void response()
     {
     }
 
-    virtual void ice_exception(const Ice::Exception& ex)
+    void exception(const Ice::Exception& ex)
     {
         cerr << "sayHello AMI call failed:\n" << ex << endl;
     }
 };
+typedef IceUtil::Handle<Callback> CallbackPtr;
 
 class AsyncClient : public Ice::Application
 {
@@ -37,6 +38,7 @@ public:
 
 private:
 
+    void exception(const Ice::Exception&);
     void menu();
 };
 
@@ -74,6 +76,8 @@ AsyncClient::run(int argc, char* argv[])
 
     menu();
 
+    CallbackPtr cb = new Callback();
+
     char c;
     do
     {
@@ -87,7 +91,7 @@ AsyncClient::run(int argc, char* argv[])
             }
             else if(c == 'd')
             {
-                hello->sayHello_async(new AMI_Hello_sayHelloI, 5000);
+                hello->begin_sayHello(5000, newCallback_Hello_sayHello(cb, &Callback::response, &Callback::exception));
             }
             else if(c == 's')
             {
@@ -128,3 +132,4 @@ AsyncClient::menu()
         "x: exit\n"
         "?: help\n";
 }
+

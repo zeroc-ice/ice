@@ -116,14 +116,14 @@ namespace Ice.wpf.client
             return prx;
         }
 
-        class SayHelloI : Demo.AMI_Hello_sayHello, Ice.AMISentCallback
+        class SayHelloCB
         {
-            public SayHelloI(HelloWindow window)
+            public SayHelloCB(HelloWindow window)
             {
                 _window = window;
             }
             
-            public override void ice_response()
+            public void response()
             {
                 lock(this)
                 {
@@ -136,7 +136,7 @@ namespace Ice.wpf.client
                 }
             }
 
-            public override void ice_exception(Exception ex)
+            public void exception(Exception ex)
             {
                 lock(this)
                 {
@@ -149,9 +149,7 @@ namespace Ice.wpf.client
                 }
             }
 
-            #region AMISentCallback Members
-
-            public void ice_sent()
+            public void sent(bool sentSynchronously)
             {
                 lock(this)
                 {
@@ -173,8 +171,6 @@ namespace Ice.wpf.client
                 }
             }
 
-            #endregion
-
             private bool _response = false;
             private HelloWindow _window;
         }
@@ -192,17 +188,10 @@ namespace Ice.wpf.client
             {
                 if(!deliveryModeIsBatch())
                 {
-                    if(hello.sayHello_async(new SayHelloI(this), delay))
-                    {
-                        if(deliveryMode.Text.Equals(TWOWAY) || deliveryMode.Text.Equals(TWOWAY_SECURE))                        
-                        {
-                            status.Content = "Waiting for response";
-                        }
-                    }
-                    else
-                    {
-                        status.Content = "Sending request";
-                    }
+                    AsyncResult<Demo.Callback_Hello_sayHello> result = hello.begin_sayHello(delay);
+                    status.Content = "Sending request";
+                    SayHelloCB cb = new SayHelloCB(this);
+                    result.whenCompleted(cb.response, cb.exception).whenSent(cb.sent);
                 }
                 else
                 {
@@ -225,38 +214,6 @@ namespace Ice.wpf.client
             });
         }
 
-        class ShutdownI : Demo.AMI_Hello_shutdown
-        {
-            public ShutdownI(HelloWindow window)
-            {
-                _window = window;
-            }
-            
-            public override void ice_response()
-            {
-                lock(this)
-                {
-                    _window.Dispatcher.BeginInvoke(DispatcherPriority.Normal,(Action)delegate()
-                    {
-                        _window.status.Content = "Ready";
-                    });
-                }
-            }
-
-            public override void ice_exception(Exception ex)
-            {
-                lock(this)
-                {
-                    _window.Dispatcher.BeginInvoke(DispatcherPriority.Normal,(Action)delegate()
-                    {
-                        _window.handleException(ex);
-                    });
-                }
-            }
-
-            private HelloWindow _window;
-        }
-
         private void shutdown_Click(object sender, RoutedEventArgs e)
         {
             Demo.HelloPrx hello = createProxy();
@@ -271,17 +228,22 @@ namespace Ice.wpf.client
             {
                 if(!deliveryModeIsBatch())
                 {
-                    if(hello.shutdown_async(new ShutdownI(this)))
-                    {
-                        if(deliveryMode.Text.Equals("Twoway") || deliveryMode.Text.Equals("Twoway Secure"))
-                        {
-                            status.Content = "Waiting for response";
-                        }
-                    }
-                    else
-                    {
-                        status.Content = "Sending request";
-                    }
+                    AsyncResult<Demo.Callback_Hello_shutdown> result = hello.begin_shutdown();
+                    status.Content = "Sending request";
+                    result.whenCompleted(delegate()
+                                         {
+                                             Dispatcher.BeginInvoke(DispatcherPriority.Normal,(Action)delegate()
+                                             {
+                                                 status.Content = "Ready";
+                                             });
+                                         },
+                                         delegate(Exception ex)
+                                         {
+                                             Dispatcher.BeginInvoke(DispatcherPriority.Normal,(Action)delegate()
+                                             {
+                                                 handleException(ex);
+                                             });
+                                         });
                 }
                 else
                 {
