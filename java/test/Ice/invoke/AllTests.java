@@ -117,7 +117,7 @@ public class AllTests
                 {
                     inS.throwException();
                 }
-                catch(Test.MyException ex)
+                catch(MyException ex)
                 {
                     callback.called();
                 }
@@ -198,7 +198,7 @@ public class AllTests
                 {
                     inS.throwException();
                 }
-                catch(Test.MyException ex)
+                catch(MyException ex)
                 {
                     callback.called();
                 }
@@ -266,7 +266,7 @@ public class AllTests
                 {
                     inS.throwException();
                 }
-                catch(Test.MyException ex)
+                catch(MyException ex)
                 {
                 }
                 catch(java.lang.Exception ex)
@@ -328,7 +328,7 @@ public class AllTests
                 {
                     inS.throwException();
                 }
-                catch(Test.MyException ex)
+                catch(MyException ex)
                 {
                 }
                 catch(java.lang.Exception ex)

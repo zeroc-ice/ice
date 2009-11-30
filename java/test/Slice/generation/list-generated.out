@@ -13,7 +13,6 @@
     <file name="classes/test/Slice/generation/Test/_Interface1DelM.java"/>
     <file name="classes/test/Slice/generation/Test/_Interface1DelD.java"/>
     <file name="classes/test/Slice/generation/Test/_Interface1Disp.java"/>
-    <file name="classes/test/Slice/generation/Test/AMICallback_Interface1_method.java"/>
     <output></output>
   </source>
   <source name="File2.ice">
@@ -29,7 +28,6 @@
     <file name="classes/test/Slice/generation/Test/_Interface2DelM.java"/>
     <file name="classes/test/Slice/generation/Test/_Interface2DelD.java"/>
     <file name="classes/test/Slice/generation/Test/_Interface2Disp.java"/>
-    <file name="classes/test/Slice/generation/Test/AMICallback_Interface2_method.java"/>
     <output></output>
   </source>
 </generated>
