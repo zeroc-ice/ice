@@ -46,16 +46,33 @@ private:
 };
 typedef IceUtil::Handle<Condition> ConditionPtr;
 
-class AMIWaitForSent : public Ice::AMISentCallback, public IceUtil::Monitor<IceUtil::Mutex>
+class SetCB : public IceUtil::Shared, public IceUtil::Monitor<IceUtil::Mutex>
 {
 public:
 
-    AMIWaitForSent() : _sent(false)
+    SetCB(const ConditionPtr& condition, Ice::Int expected) :
+        _condition(condition),
+        _expected(expected),
+        _sent(false)
     {
     }
 
-    virtual void
-    ice_sent()
+    void
+    response(Ice::Int value)
+    {
+        if(value != _expected)
+        {
+            _condition->set(false);
+        }
+    }
+
+    void
+    exception(const Ice::Exception&)
+    {
+    }
+
+    void
+    sent(bool)
     {
         Lock sync(*this);
         _sent = true;
@@ -74,37 +91,11 @@ public:
     
 private:
 
-    bool _sent;
-};
-
-class AMICheckSetValue : public AMI_Hold_set, public AMIWaitForSent
-{
-public:
-    
-    AMICheckSetValue(const ConditionPtr& condition, Ice::Int expected) : _condition(condition), _expected(expected)
-    {
-    }
-
-    virtual void
-    ice_response(Ice::Int value)
-    {
-        if(value != _expected)
-        {
-            _condition->set(false);
-        }
-    }
-
-    virtual void
-    ice_exception(const Ice::Exception& ex)
-    {
-    }
-
-private:
-
     const ConditionPtr _condition;
     Ice::Int _expected;
+    bool _sent;
 };
-typedef IceUtil::Handle<AMICheckSetValue> AMICheckSetValuePtr;
+typedef IceUtil::Handle<SetCB> SetCBPtr;
 
 }
 
@@ -153,21 +144,16 @@ allTests(const Ice::CommunicatorPtr& communicator)
     {
         ConditionPtr cond = new Condition(true);
         int value = 0;
-        AMICheckSetValuePtr cb;
+        SetCBPtr cb;
         while(cond->value())
         {
-            cb = new AMICheckSetValue(cond, value);
-            if(hold->set_async(cb, ++value, IceUtilInternal::random(5)))
-            {
-                cb = 0;
-            }
+            cb = new SetCB(cond, value);
+            hold->begin_set(++value, IceUtilInternal::random(5),
+                            newCallback_Hold_set(cb, &SetCB::response, &SetCB::exception, &SetCB::sent));
             if(value % 100 == 0)
             {
-                if(cb)
-                {
-                    cb->waitForSent();
-                    cb = 0;
-                }
+                cb->waitForSent();
+                cb = 0;
             }
         }
         if(cb)
@@ -182,21 +168,16 @@ allTests(const Ice::CommunicatorPtr& communicator)
     {
         ConditionPtr cond = new Condition(true);
         int value = 0;
-        AMICheckSetValuePtr cb;
+        SetCBPtr cb;
         while(value < 3000 && cond->value())
         {
-            cb = new AMICheckSetValue(cond, value);
-            if(holdSerialized->set_async(cb, ++value, 0))
-            {
-                cb = 0;
-            }
+            cb = new SetCB(cond, value);
+            holdSerialized->begin_set(++value, IceUtilInternal::random(5),
+                                      newCallback_Hold_set(cb, &SetCB::response, &SetCB::exception, &SetCB::sent));
             if(value % 100 == 0)
             {
-                if(cb)
-                {
-                    cb->waitForSent();
-                    cb = 0;
-                }
+                cb->waitForSent();
+                cb = 0;
             }
         }
         if(cb)

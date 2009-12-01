@@ -12,31 +12,31 @@ package test.Ice.slicing.objects;
 import java.io.PrintStream;
 import java.io.PrintWriter;
 
-import test.Ice.slicing.objects.client.Test.AMI_TestIntf_D1AsB;
-import test.Ice.slicing.objects.client.Test.AMI_TestIntf_D1AsD1;
-import test.Ice.slicing.objects.client.Test.AMI_TestIntf_D2AsB;
-import test.Ice.slicing.objects.client.Test.AMI_TestIntf_SBSKnownDerivedAsSBSKnownDerived;
-import test.Ice.slicing.objects.client.Test.AMI_TestIntf_SBSKnownDerivedAsSBase;
-import test.Ice.slicing.objects.client.Test.AMI_TestIntf_SBSUnknownDerivedAsSBase;
-import test.Ice.slicing.objects.client.Test.AMI_TestIntf_SBaseAsObject;
-import test.Ice.slicing.objects.client.Test.AMI_TestIntf_SBaseAsSBase;
-import test.Ice.slicing.objects.client.Test.AMI_TestIntf_SUnknownAsObject;
-import test.Ice.slicing.objects.client.Test.AMI_TestIntf_dictionaryTest;
-import test.Ice.slicing.objects.client.Test.AMI_TestIntf_oneElementCycle;
-import test.Ice.slicing.objects.client.Test.AMI_TestIntf_paramTest1;
-import test.Ice.slicing.objects.client.Test.AMI_TestIntf_paramTest2;
-import test.Ice.slicing.objects.client.Test.AMI_TestIntf_paramTest3;
-import test.Ice.slicing.objects.client.Test.AMI_TestIntf_paramTest4;
-import test.Ice.slicing.objects.client.Test.AMI_TestIntf_returnTest1;
-import test.Ice.slicing.objects.client.Test.AMI_TestIntf_returnTest2;
-import test.Ice.slicing.objects.client.Test.AMI_TestIntf_returnTest3;
-import test.Ice.slicing.objects.client.Test.AMI_TestIntf_sequenceTest;
-import test.Ice.slicing.objects.client.Test.AMI_TestIntf_throwBaseAsBase;
-import test.Ice.slicing.objects.client.Test.AMI_TestIntf_throwDerivedAsBase;
-import test.Ice.slicing.objects.client.Test.AMI_TestIntf_throwDerivedAsDerived;
-import test.Ice.slicing.objects.client.Test.AMI_TestIntf_throwUnknownDerivedAsBase;
-import test.Ice.slicing.objects.client.Test.AMI_TestIntf_twoElementCycle;
-import test.Ice.slicing.objects.client.Test.AMI_TestIntf_useForward;
+import test.Ice.slicing.objects.client.Test.Callback_TestIntf_D1AsB;
+import test.Ice.slicing.objects.client.Test.Callback_TestIntf_D1AsD1;
+import test.Ice.slicing.objects.client.Test.Callback_TestIntf_D2AsB;
+import test.Ice.slicing.objects.client.Test.Callback_TestIntf_SBSKnownDerivedAsSBSKnownDerived;
+import test.Ice.slicing.objects.client.Test.Callback_TestIntf_SBSKnownDerivedAsSBase;
+import test.Ice.slicing.objects.client.Test.Callback_TestIntf_SBSUnknownDerivedAsSBase;
+import test.Ice.slicing.objects.client.Test.Callback_TestIntf_SBaseAsObject;
+import test.Ice.slicing.objects.client.Test.Callback_TestIntf_SBaseAsSBase;
+import test.Ice.slicing.objects.client.Test.Callback_TestIntf_SUnknownAsObject;
+import test.Ice.slicing.objects.client.Test.Callback_TestIntf_dictionaryTest;
+import test.Ice.slicing.objects.client.Test.Callback_TestIntf_oneElementCycle;
+import test.Ice.slicing.objects.client.Test.Callback_TestIntf_paramTest1;
+import test.Ice.slicing.objects.client.Test.Callback_TestIntf_paramTest2;
+import test.Ice.slicing.objects.client.Test.Callback_TestIntf_paramTest3;
+import test.Ice.slicing.objects.client.Test.Callback_TestIntf_paramTest4;
+import test.Ice.slicing.objects.client.Test.Callback_TestIntf_returnTest1;
+import test.Ice.slicing.objects.client.Test.Callback_TestIntf_returnTest2;
+import test.Ice.slicing.objects.client.Test.Callback_TestIntf_returnTest3;
+import test.Ice.slicing.objects.client.Test.Callback_TestIntf_sequenceTest;
+import test.Ice.slicing.objects.client.Test.Callback_TestIntf_throwBaseAsBase;
+import test.Ice.slicing.objects.client.Test.Callback_TestIntf_throwDerivedAsBase;
+import test.Ice.slicing.objects.client.Test.Callback_TestIntf_throwDerivedAsDerived;
+import test.Ice.slicing.objects.client.Test.Callback_TestIntf_throwUnknownDerivedAsBase;
+import test.Ice.slicing.objects.client.Test.Callback_TestIntf_twoElementCycle;
+import test.Ice.slicing.objects.client.Test.Callback_TestIntf_useForward;
 import test.Ice.slicing.objects.client.Test.B;
 import test.Ice.slicing.objects.client.Test.BDictHolder;
 import test.Ice.slicing.objects.client.Test.BHolder;
@@ -100,10 +100,10 @@ public class AllTests
         private boolean _called;
     }
 
-    private static class AMI_Test_SBaseAsObjectI extends AMI_TestIntf_SBaseAsObject
+    private static class Callback_TestIntf_SBaseAsObjectI extends Callback_TestIntf_SBaseAsObject
     {
         public void
-        ice_response(Ice.Object o)
+        response(Ice.Object o)
         {
             test(o != null);
             test(o.ice_id().equals("::Test::SBase"));
@@ -114,13 +114,13 @@ public class AllTests
         }
 
         public void
-        ice_exception(Ice.LocalException exc)
+        exception(Ice.LocalException exc)
         {
             test(false);
         }
 
         public void
-        ice_exception(Ice.UserException exc)
+        exception(Ice.UserException exc)
         {
             test(false);
         }
@@ -134,23 +134,23 @@ public class AllTests
         private Callback callback = new Callback();
     }
 
-    private static class AMI_Test_SBaseAsSBaseI extends AMI_TestIntf_SBaseAsSBase
+    private static class Callback_TestIntf_SBaseAsSBaseI extends Callback_TestIntf_SBaseAsSBase
     {
         public void
-        ice_response(SBase sb)
+        response(SBase sb)
         {
             test(sb.sb.equals("SBase.sb"));
             callback.called();
         }
 
         public void
-        ice_exception(Ice.LocalException exc)
+        exception(Ice.LocalException exc)
         {
             test(false);
         }
 
         public void
-        ice_exception(Ice.UserException exc)
+        exception(Ice.UserException exc)
         {
             test(false);
         }
@@ -164,10 +164,10 @@ public class AllTests
         private Callback callback = new Callback();
     }
 
-    private static class AMI_Test_SBSKnownDerivedAsSBaseI extends AMI_TestIntf_SBSKnownDerivedAsSBase
+    private static class Callback_TestIntf_SBSKnownDerivedAsSBaseI extends Callback_TestIntf_SBSKnownDerivedAsSBase
     {
         public void
-        ice_response(SBase sb)
+        response(SBase sb)
         {
             test(sb.sb.equals("SBSKnownDerived.sb"));
             SBSKnownDerived sbskd = (SBSKnownDerived)sb;
@@ -177,13 +177,13 @@ public class AllTests
         }
 
         public void
-        ice_exception(Ice.LocalException exc)
+        exception(Ice.LocalException exc)
         {
             test(false);
         }
 
         public void
-        ice_exception(Ice.UserException exc)
+        exception(Ice.UserException exc)
         {
             test(false);
         }
@@ -197,24 +197,24 @@ public class AllTests
         private Callback callback = new Callback();
     }
 
-    private static class AMI_Test_SBSKnownDerivedAsSBSKnownDerivedI
-        extends AMI_TestIntf_SBSKnownDerivedAsSBSKnownDerived
+    private static class Callback_TestIntf_SBSKnownDerivedAsSBSKnownDerivedI
+        extends Callback_TestIntf_SBSKnownDerivedAsSBSKnownDerived
     {
         public void
-        ice_response(SBSKnownDerived sbskd)
+        response(SBSKnownDerived sbskd)
         {
             test(sbskd.sbskd.equals("SBSKnownDerived.sbskd"));
             callback.called();
         }
 
         public void
-        ice_exception(Ice.LocalException exc)
+        exception(Ice.LocalException exc)
         {
             test(false);
         }
 
         public void
-        ice_exception(Ice.UserException exc)
+        exception(Ice.UserException exc)
         {
             test(false);
         }
@@ -228,23 +228,23 @@ public class AllTests
         private Callback callback = new Callback();
     }
 
-    private static class AMI_Test_SBSUnknownDerivedAsSBaseI extends AMI_TestIntf_SBSUnknownDerivedAsSBase
+    private static class Callback_TestIntf_SBSUnknownDerivedAsSBaseI extends Callback_TestIntf_SBSUnknownDerivedAsSBase
     {
         public void
-        ice_response(SBase sb)
+        response(SBase sb)
         {
             test(sb.sb.equals("SBSUnknownDerived.sb"));
             callback.called();
         }
 
         public void
-        ice_exception(Ice.LocalException exc)
+        exception(Ice.LocalException exc)
         {
             test(false);
         }
 
         public void
-        ice_exception(Ice.UserException exc)
+        exception(Ice.UserException exc)
         {
             test(false);
         }
@@ -258,16 +258,16 @@ public class AllTests
         private Callback callback = new Callback();
     }
 
-    private static class AMI_Test_SUnknownAsObjectI extends AMI_TestIntf_SUnknownAsObject
+    private static class Callback_TestIntf_SUnknownAsObjectI extends Callback_TestIntf_SUnknownAsObject
     {
         public void
-        ice_response(Ice.Object o)
+        response(Ice.Object o)
         {
             test(false);
         }
 
         public void
-        ice_exception(Ice.LocalException exc)
+        exception(Ice.LocalException exc)
         {
 
             test(exc.ice_name().equals("Ice::NoObjectFactoryException"));
@@ -275,7 +275,7 @@ public class AllTests
         }
 
         public void
-        ice_exception(Ice.UserException exc)
+        exception(Ice.UserException exc)
         {
             test(false);
         }
@@ -289,10 +289,10 @@ public class AllTests
         private Callback callback = new Callback();
     }
 
-    private static class AMI_Test_oneElementCycleI extends AMI_TestIntf_oneElementCycle
+    private static class Callback_TestIntf_oneElementCycleI extends Callback_TestIntf_oneElementCycle
     {
         public void
-        ice_response(B b)
+        response(B b)
         {
             test(b != null);
             test(b.ice_id().equals("::Test::B"));
@@ -302,13 +302,13 @@ public class AllTests
         }
 
         public void
-        ice_exception(Ice.LocalException exc)
+        exception(Ice.LocalException exc)
         {
             test(false);
         }
 
         public void
-        ice_exception(Ice.UserException exc)
+        exception(Ice.UserException exc)
         {
             test(false);
         }
@@ -322,10 +322,10 @@ public class AllTests
         private Callback callback = new Callback();
     }
 
-    private static class AMI_Test_twoElementCycleI extends AMI_TestIntf_twoElementCycle
+    private static class Callback_TestIntf_twoElementCycleI extends Callback_TestIntf_twoElementCycle
     {
         public void
-        ice_response(B b1)
+        response(B b1)
         {
             test(b1 != null);
             test(b1.ice_id().equals("::Test::B"));
@@ -340,13 +340,13 @@ public class AllTests
         }
 
         public void
-        ice_exception(Ice.LocalException exc)
+        exception(Ice.LocalException exc)
         {
             test(false);
         }
 
         public void
-        ice_exception(Ice.UserException exc)
+        exception(Ice.UserException exc)
         {
             test(false);
         }
@@ -360,10 +360,10 @@ public class AllTests
         private Callback callback = new Callback();
     }
 
-    private static class AMI_Test_D1AsBI extends AMI_TestIntf_D1AsB
+    private static class Callback_TestIntf_D1AsBI extends Callback_TestIntf_D1AsB
     {
         public void
-        ice_response(B b1)
+        response(B b1)
         {
             test(b1 != null);
             test(b1.ice_id().equals("::Test::D1"));
@@ -386,13 +386,13 @@ public class AllTests
         }
 
         public void
-        ice_exception(Ice.LocalException exc)
+        exception(Ice.LocalException exc)
         {
             test(false);
         }
 
         public void
-        ice_exception(Ice.UserException exc)
+        exception(Ice.UserException exc)
         {
             test(false);
         }
@@ -406,10 +406,10 @@ public class AllTests
         private Callback callback = new Callback();
     }
 
-    private static class AMI_Test_D1AsD1I extends AMI_TestIntf_D1AsD1
+    private static class Callback_TestIntf_D1AsD1I extends Callback_TestIntf_D1AsD1
     {
         public void
-        ice_response(D1 d1)
+        response(D1 d1)
         {
             test(d1 != null);
             test(d1.ice_id().equals("::Test::D1"));
@@ -426,13 +426,13 @@ public class AllTests
         }
 
         public void
-        ice_exception(Ice.LocalException exc)
+        exception(Ice.LocalException exc)
         {
             test(false);
         }
 
         public void
-        ice_exception(Ice.UserException exc)
+        exception(Ice.UserException exc)
         {
             test(false);
         }
@@ -446,10 +446,10 @@ public class AllTests
         private Callback callback = new Callback();
     }
 
-    private static class AMI_Test_D2AsBI extends AMI_TestIntf_D2AsB
+    private static class Callback_TestIntf_D2AsBI extends Callback_TestIntf_D2AsB
     {
         public void
-        ice_response(B b2)
+        response(B b2)
         {
             test(b2 != null);
             test(b2.ice_id().equals("::Test::B"));
@@ -470,13 +470,13 @@ public class AllTests
         }
 
         public void
-        ice_exception(Ice.LocalException exc)
+        exception(Ice.LocalException exc)
         {
             test(false);
         }
 
         public void
-        ice_exception(Ice.UserException exc)
+        exception(Ice.UserException exc)
         {
             test(false);
         }
@@ -490,10 +490,10 @@ public class AllTests
         private Callback callback = new Callback();
     }
 
-    private static class AMI_Test_paramTest1I extends AMI_TestIntf_paramTest1
+    private static class Callback_TestIntf_paramTest1I extends Callback_TestIntf_paramTest1
     {
         public void
-        ice_response(B b1, B b2)
+        response(B b1, B b2)
         {
             test(b1 != null);
             test(b1.ice_id().equals("::Test::D1"));
@@ -512,13 +512,13 @@ public class AllTests
         }
 
         public void
-        ice_exception(Ice.LocalException exc)
+        exception(Ice.LocalException exc)
         {
             test(false);
         }
 
         public void
-        ice_exception(Ice.UserException exc)
+        exception(Ice.UserException exc)
         {
             test(false);
         }
@@ -532,10 +532,10 @@ public class AllTests
         private Callback callback = new Callback();
     }
 
-    private static class AMI_Test_paramTest2I extends AMI_TestIntf_paramTest2
+    private static class Callback_TestIntf_paramTest2I extends Callback_TestIntf_paramTest2
     {
         public void
-        ice_response(B b2, B b1)
+        response(B b2, B b1)
         {
             test(b1 != null);
             test(b1.ice_id().equals("::Test::D1"));
@@ -554,13 +554,13 @@ public class AllTests
         }
 
         public void
-        ice_exception(Ice.LocalException exc)
+        exception(Ice.LocalException exc)
         {
             test(false);
         }
 
         public void
-        ice_exception(Ice.UserException exc)
+        exception(Ice.UserException exc)
         {
             test(false);
         }
@@ -574,23 +574,23 @@ public class AllTests
         private Callback callback = new Callback();
     }
 
-    private static class AMI_Test_returnTest1I extends AMI_TestIntf_returnTest1
+    private static class Callback_TestIntf_returnTest1I extends Callback_TestIntf_returnTest1
     {
         public void
-        ice_response(B r, B p1, B p2)
+        response(B r, B p1, B p2)
         {
             test(r == p1);
             callback.called();
         }
 
         public void
-        ice_exception(Ice.LocalException exc)
+        exception(Ice.LocalException exc)
         {
             test(false);
         }
 
         public void
-        ice_exception(Ice.UserException exc)
+        exception(Ice.UserException exc)
         {
             test(false);
         }
@@ -604,23 +604,23 @@ public class AllTests
         private Callback callback = new Callback();
     }
 
-    private static class AMI_Test_returnTest2I extends AMI_TestIntf_returnTest2
+    private static class Callback_TestIntf_returnTest2I extends Callback_TestIntf_returnTest2
     {
         public void
-        ice_response(B r, B p1, B p2)
+        response(B r, B p1, B p2)
         {
             test(r == p1);
             callback.called();
         }
 
         public void
-        ice_exception(Ice.LocalException exc)
+        exception(Ice.LocalException exc)
         {
             test(false);
         }
 
         public void
-        ice_exception(Ice.UserException exc)
+        exception(Ice.UserException exc)
         {
             test(false);
         }
@@ -634,23 +634,23 @@ public class AllTests
         private Callback callback = new Callback();
     }
 
-    private static class AMI_Test_returnTest3I extends AMI_TestIntf_returnTest3
+    private static class Callback_TestIntf_returnTest3I extends Callback_TestIntf_returnTest3
     {
         public void
-        ice_response(B b)
+        response(B b)
         {
             r = b;
             callback.called();
         }
 
         public void
-        ice_exception(Ice.LocalException exc)
+        exception(Ice.LocalException exc)
         {
             test(false);
         }
 
         public void
-        ice_exception(Ice.UserException exc)
+        exception(Ice.UserException exc)
         {
             test(false);
         }
@@ -666,10 +666,10 @@ public class AllTests
         public B r;
     }
 
-    private static class AMI_Test_paramTest3I extends AMI_TestIntf_paramTest3
+    private static class Callback_TestIntf_paramTest3I extends Callback_TestIntf_paramTest3
     {
         public void
-        ice_response(B ret, B p1, B p2)
+        response(B ret, B p1, B p2)
         {
             test(p1 != null);
             test(p1.sb.equals("D2.sb (p1 1)"));
@@ -689,13 +689,13 @@ public class AllTests
         }
 
         public void
-        ice_exception(Ice.LocalException exc)
+        exception(Ice.LocalException exc)
         {
             test(false);
         }
 
         public void
-        ice_exception(Ice.UserException exc)
+        exception(Ice.UserException exc)
         {
             test(false);
         }
@@ -709,10 +709,10 @@ public class AllTests
         private Callback callback = new Callback();
     }
 
-    private static class AMI_Test_paramTest4I extends AMI_TestIntf_paramTest4
+    private static class Callback_TestIntf_paramTest4I extends Callback_TestIntf_paramTest4
     {
         public void
-        ice_response(B ret, B b)
+        response(B ret, B b)
         {
             test(b != null);
             test(b.sb.equals("D4.sb (1)"));
@@ -727,13 +727,13 @@ public class AllTests
         }
 
         public void
-        ice_exception(Ice.LocalException exc)
+        exception(Ice.LocalException exc)
         {
             test(false);
         }
 
         public void
-        ice_exception(Ice.UserException exc)
+        exception(Ice.UserException exc)
         {
             test(false);
         }
@@ -747,23 +747,23 @@ public class AllTests
         private Callback callback = new Callback();
     }
 
-    private static class AMI_Test_sequenceTestI extends AMI_TestIntf_sequenceTest
+    private static class Callback_TestIntf_sequenceTestI extends Callback_TestIntf_sequenceTest
     {
         public void
-        ice_response(SS ss)
+        response(SS ss)
         {
             r = ss;
             callback.called();
         }
 
         public void
-        ice_exception(Ice.LocalException exc)
+        exception(Ice.LocalException exc)
         {
             test(false);
         }
 
         public void
-        ice_exception(Ice.UserException exc)
+        exception(Ice.UserException exc)
         {
             test(false);
         }
@@ -779,10 +779,10 @@ public class AllTests
         public SS r;
     }
 
-    private static class AMI_Test_dictionaryTestI extends AMI_TestIntf_dictionaryTest
+    private static class Callback_TestIntf_dictionaryTestI extends Callback_TestIntf_dictionaryTest
     {
         public void
-        ice_response(java.util.Map<Integer, B> r, java.util.Map<Integer, B> bout)
+        response(java.util.Map<Integer, B> r, java.util.Map<Integer, B> bout)
         {
             this.r = r;
             this.bout = bout;
@@ -790,13 +790,13 @@ public class AllTests
         }
 
         public void
-        ice_exception(Ice.LocalException exc)
+        exception(Ice.LocalException exc)
         {
             test(false);
         }
 
         public void
-        ice_exception(Ice.UserException exc)
+        exception(Ice.UserException exc)
         {
             test(false);
         }
@@ -813,22 +813,22 @@ public class AllTests
         public java.util.Map<Integer, B> bout;
     }
 
-    private static class AMI_Test_throwBaseAsBaseI extends AMI_TestIntf_throwBaseAsBase
+    private static class Callback_TestIntf_throwBaseAsBaseI extends Callback_TestIntf_throwBaseAsBase
     {
         public void
-        ice_response()
+        response()
         {
             test(false);
         }
 
         public void
-        ice_exception(Ice.LocalException exc)
+        exception(Ice.LocalException exc)
         {
             test(false);
         }
 
         public void
-        ice_exception(Ice.UserException exc)
+        exception(Ice.UserException exc)
         {
             try
             {
@@ -855,22 +855,22 @@ public class AllTests
         private Callback callback = new Callback();
     }
 
-    private static class AMI_Test_throwDerivedAsBaseI extends AMI_TestIntf_throwDerivedAsBase
+    private static class Callback_TestIntf_throwDerivedAsBaseI extends Callback_TestIntf_throwDerivedAsBase
     {
         public void
-        ice_response()
+        response()
         {
             test(false);
         }
 
         public void
-        ice_exception(Ice.LocalException exc)
+        exception(Ice.LocalException exc)
         {
             test(false);
         }
 
         public void
-        ice_exception(Ice.UserException exc)
+        exception(Ice.UserException exc)
         {
             try
             {
@@ -903,22 +903,22 @@ public class AllTests
         private Callback callback = new Callback();
     }
 
-    private static class AMI_Test_throwDerivedAsDerivedI extends AMI_TestIntf_throwDerivedAsDerived
+    private static class Callback_TestIntf_throwDerivedAsDerivedI extends Callback_TestIntf_throwDerivedAsDerived
     {
         public void
-        ice_response()
+        response()
         {
             test(false);
         }
 
         public void
-        ice_exception(Ice.LocalException exc)
+        exception(Ice.LocalException exc)
         {
             test(false);
         }
 
         public void
-        ice_exception(Ice.UserException exc)
+        exception(Ice.UserException exc)
         {
             try
             {
@@ -951,22 +951,23 @@ public class AllTests
         private Callback callback = new Callback();
     }
 
-    private static class AMI_Test_throwUnknownDerivedAsBaseI extends AMI_TestIntf_throwUnknownDerivedAsBase
+    private static class Callback_TestIntf_throwUnknownDerivedAsBaseI 
+        extends Callback_TestIntf_throwUnknownDerivedAsBase
     {
         public void
-        ice_response()
+        response()
         {
             test(false);
         }
 
         public void
-        ice_exception(Ice.LocalException exc)
+        exception(Ice.LocalException exc)
         {
             test(false);
         }
 
         public void
-        ice_exception(Ice.UserException exc)
+        exception(Ice.UserException exc)
         {
             try
             {
@@ -993,23 +994,23 @@ public class AllTests
         private Callback callback = new Callback();
     }
 
-    private static class AMI_Test_useForwardI extends AMI_TestIntf_useForward
+    private static class Callback_TestIntf_useForwardI extends Callback_TestIntf_useForward
     {
         public void
-        ice_response(Forward f)
+        response(Forward f)
         {
              test(f != null);
              callback.called();
         }
 
         public void
-        ice_exception(Ice.LocalException exc)
+        exception(Ice.LocalException exc)
         {
             test(false);
         }
 
         public void
-        ice_exception(Ice.UserException exc)
+        exception(Ice.UserException exc)
         {
             test(false);
         }
@@ -1064,8 +1065,8 @@ public class AllTests
         out.print("base as Object (AMI)... ");
         out.flush();
         {
-            AMI_Test_SBaseAsObjectI cb = new AMI_Test_SBaseAsObjectI();
-            test.SBaseAsObject_async(cb);
+            Callback_TestIntf_SBaseAsObjectI cb = new Callback_TestIntf_SBaseAsObjectI();
+            test.begin_SBaseAsObject(cb);
             cb.check();
         }
         out.println("ok");
@@ -1089,8 +1090,8 @@ public class AllTests
         out.print("base as base (AMI)... ");
         out.flush();
         {
-            AMI_Test_SBaseAsSBaseI cb = new AMI_Test_SBaseAsSBaseI();
-            test.SBaseAsSBase_async(cb);
+            Callback_TestIntf_SBaseAsSBaseI cb = new Callback_TestIntf_SBaseAsSBaseI();
+            test.begin_SBaseAsSBase(cb);
             cb.check();
         }
         out.println("ok");
@@ -1118,8 +1119,8 @@ public class AllTests
         out.print("base with known derived as base (AMI)... ");
         out.flush();
         {
-            AMI_Test_SBSKnownDerivedAsSBaseI cb = new AMI_Test_SBSKnownDerivedAsSBaseI();
-            test.SBSKnownDerivedAsSBase_async(cb);
+            Callback_TestIntf_SBSKnownDerivedAsSBaseI cb = new Callback_TestIntf_SBSKnownDerivedAsSBaseI();
+            test.begin_SBSKnownDerivedAsSBase(cb);
             cb.check();
         }
         out.println("ok");
@@ -1143,8 +1144,9 @@ public class AllTests
         out.print("base with known derived as known derived (AMI)... ");
         out.flush();
         {
-            AMI_Test_SBSKnownDerivedAsSBSKnownDerivedI cb = new AMI_Test_SBSKnownDerivedAsSBSKnownDerivedI();
-            test.SBSKnownDerivedAsSBSKnownDerived_async(cb);
+            Callback_TestIntf_SBSKnownDerivedAsSBSKnownDerivedI cb =
+                new Callback_TestIntf_SBSKnownDerivedAsSBSKnownDerivedI();
+            test.begin_SBSKnownDerivedAsSBSKnownDerived(cb);
             cb.check();
         }
         out.println("ok");
@@ -1168,8 +1170,8 @@ public class AllTests
         out.print("base with unknown derived as base (AMI)... ");
         out.flush();
         {
-            AMI_Test_SBSUnknownDerivedAsSBaseI cb = new AMI_Test_SBSUnknownDerivedAsSBaseI();
-            test.SBSUnknownDerivedAsSBase_async(cb);
+            Callback_TestIntf_SBSUnknownDerivedAsSBaseI cb = new Callback_TestIntf_SBSUnknownDerivedAsSBaseI();
+            test.begin_SBSUnknownDerivedAsSBase(cb);
             cb.check();
         }
         out.println("ok");
@@ -1196,8 +1198,8 @@ public class AllTests
         out.print("unknown with Object as Object (AMI)... ");
         out.flush();
         {
-            AMI_Test_SUnknownAsObjectI cb = new AMI_Test_SUnknownAsObjectI();
-            test.SUnknownAsObject_async(cb);
+            Callback_TestIntf_SUnknownAsObjectI cb = new Callback_TestIntf_SUnknownAsObjectI();
+            test.begin_SUnknownAsObject(cb);
             cb.check();
         }
         out.println("ok");
@@ -1223,8 +1225,8 @@ public class AllTests
         out.print("one-element cycle (AMI)... ");
         out.flush();
         {
-            AMI_Test_oneElementCycleI cb = new AMI_Test_oneElementCycleI();
-            test.oneElementCycle_async(cb);
+            Callback_TestIntf_oneElementCycleI cb = new Callback_TestIntf_oneElementCycleI();
+            test.begin_oneElementCycle(cb);
             cb.check();
         }
         out.println("ok");
@@ -1255,8 +1257,8 @@ public class AllTests
         out.print("two-element cycle (AMI)... ");
         out.flush();
         {
-            AMI_Test_twoElementCycleI cb = new AMI_Test_twoElementCycleI();
-            test.twoElementCycle_async(cb);
+            Callback_TestIntf_twoElementCycleI cb = new Callback_TestIntf_twoElementCycleI();
+            test.begin_twoElementCycle(cb);
             cb.check();
         }
         out.println("ok");
@@ -1296,8 +1298,8 @@ public class AllTests
         out.print("known derived pointer slicing as base (AMI)... ");
         out.flush();
         {
-            AMI_Test_D1AsBI cb = new AMI_Test_D1AsBI();
-            test.D1AsB_async(cb);
+            Callback_TestIntf_D1AsBI cb = new Callback_TestIntf_D1AsBI();
+            test.begin_D1AsB(cb);
             cb.check();
         }
         out.println("ok");
@@ -1331,8 +1333,8 @@ public class AllTests
         out.print("known derived pointer slicing as derived (AMI)... ");
         out.flush();
         {
-            AMI_Test_D1AsD1I cb = new AMI_Test_D1AsD1I();
-            test.D1AsD1_async(cb);
+            Callback_TestIntf_D1AsD1I cb = new Callback_TestIntf_D1AsD1I();
+            test.begin_D1AsD1(cb);
             cb.check();
         }
         out.println("ok");
@@ -1370,8 +1372,8 @@ public class AllTests
         out.print("unknown derived pointer slicing as base (AMI)... ");
         out.flush();
         {
-            AMI_Test_D2AsBI cb = new AMI_Test_D2AsBI();
-            test.D2AsB_async(cb);
+            Callback_TestIntf_D2AsBI cb = new Callback_TestIntf_D2AsBI();
+            test.begin_D2AsB(cb);
             cb.check();
         }
         out.println("ok");
@@ -1409,8 +1411,8 @@ public class AllTests
         out.print("param ptr slicing with known first (AMI)... ");
         out.flush();
         {
-            AMI_Test_paramTest1I cb = new AMI_Test_paramTest1I();
-            test.paramTest1_async(cb);
+            Callback_TestIntf_paramTest1I cb = new Callback_TestIntf_paramTest1I();
+            test.begin_paramTest1(cb);
             cb.check();
         }
         out.println("ok");
@@ -1448,8 +1450,8 @@ public class AllTests
         out.print("param ptr slicing with unknown first (AMI)... ");
         out.flush();
         {
-            AMI_Test_paramTest2I cb = new AMI_Test_paramTest2I();
-            test.paramTest2_async(cb);
+            Callback_TestIntf_paramTest2I cb = new Callback_TestIntf_paramTest2I();
+            test.begin_paramTest2(cb);
             cb.check();
         }
         out.println("ok");
@@ -1474,8 +1476,8 @@ public class AllTests
         out.print("return value identity with known first (AMI)... ");
         out.flush();
         {
-            AMI_Test_returnTest1I cb = new AMI_Test_returnTest1I();
-            test.returnTest1_async(cb);
+            Callback_TestIntf_returnTest1I cb = new Callback_TestIntf_returnTest1I();
+            test.begin_returnTest1(cb);
             cb.check();
         }
         out.println("ok");
@@ -1500,8 +1502,8 @@ public class AllTests
         out.print("return value identity with unknown first (AMI)... ");
         out.flush();
         {
-            AMI_Test_returnTest2I cb = new AMI_Test_returnTest2I();
-            test.returnTest2_async(cb);
+            Callback_TestIntf_returnTest2I cb = new Callback_TestIntf_returnTest2I();
+            test.begin_returnTest2(cb);
             cb.check();
         }
         out.println("ok");
@@ -1572,8 +1574,8 @@ public class AllTests
             d1.pb = d3;
             d1.pd1 = d3;
 
-            AMI_Test_returnTest3I cb = new AMI_Test_returnTest3I();
-            test.returnTest3_async(cb, d1, d3);
+            Callback_TestIntf_returnTest3I cb = new Callback_TestIntf_returnTest3I();
+            test.begin_returnTest3(d1, d3, cb);
             cb.check();
             B b1 = cb.r;
 
@@ -1673,8 +1675,8 @@ public class AllTests
             d1.pb = d3;
             d1.pd1 = d3;
 
-            AMI_Test_returnTest3I cb = new AMI_Test_returnTest3I();
-            test.returnTest3_async(cb, d3, d1);
+            Callback_TestIntf_returnTest3I cb = new Callback_TestIntf_returnTest3I();
+            test.begin_returnTest3(d3, d1, cb);
             cb.check();
             B b1 = cb.r;
 
@@ -1742,8 +1744,8 @@ public class AllTests
         out.print("remainder unmarshaling (3 instances) (AMI)... ");
         out.flush();
         {
-            AMI_Test_paramTest3I cb = new AMI_Test_paramTest3I();
-            test.paramTest3_async(cb);
+            Callback_TestIntf_paramTest3I cb = new Callback_TestIntf_paramTest3I();
+            test.begin_paramTest3(cb);
             cb.check();
         }
         out.println("ok");
@@ -1776,8 +1778,8 @@ public class AllTests
         out.print("remainder unmarshaling (4 instances) (AMI)... ");
         out.flush();
         {
-            AMI_Test_paramTest4I cb = new AMI_Test_paramTest4I();
-            test.paramTest4_async(cb);
+            Callback_TestIntf_paramTest4I cb = new Callback_TestIntf_paramTest4I();
+            test.begin_paramTest4(cb);
             cb.check();
         }
         out.println("ok");
@@ -1832,8 +1834,8 @@ public class AllTests
             b2.sb = "B.sb(2)";
             b2.pb = b1;
 
-            AMI_Test_returnTest3I cb = new AMI_Test_returnTest3I();
-            test.returnTest3_async(cb, d3, b2);
+            Callback_TestIntf_returnTest3I cb = new Callback_TestIntf_returnTest3I();
+            test.begin_returnTest3(d3, b2, cb);
             cb.check();
             B r = cb.r;
 
@@ -1899,8 +1901,8 @@ public class AllTests
             d12.sd1 = "D1.sd1(2)";
             d12.pd1 = d11;
 
-            AMI_Test_returnTest3I cb = new AMI_Test_returnTest3I();
-            test.returnTest3_async(cb, d3, d12);
+            Callback_TestIntf_returnTest3I cb = new Callback_TestIntf_returnTest3I();
+            test.begin_returnTest3(d3, d12, cb);
             cb.check();
             B r = cb.r;
 
@@ -2052,8 +2054,8 @@ public class AllTests
                 ss2.s[1] = ss2d1;
                 ss2.s[2] = ss2d3;
 
-                AMI_Test_sequenceTestI cb = new AMI_Test_sequenceTestI();
-                test.sequenceTest_async(cb, ss1, ss2);
+                Callback_TestIntf_sequenceTestI cb = new Callback_TestIntf_sequenceTestI();
+                test.begin_sequenceTest(ss1, ss2, cb);
                 cb.check();
                 ss = cb.r;
             }
@@ -2158,8 +2160,8 @@ public class AllTests
                 bin.put(i, d1);
             }
 
-            AMI_Test_dictionaryTestI cb = new AMI_Test_dictionaryTestI();
-            test.dictionaryTest_async(cb, bin);
+            Callback_TestIntf_dictionaryTestI cb = new Callback_TestIntf_dictionaryTestI();
+            test.begin_dictionaryTest(bin, cb);
             cb.check();
             bout = cb.bout;
             r = cb.r;
@@ -2219,8 +2221,8 @@ public class AllTests
         out.print("base exception thrown as base exception (AMI)... ");
         out.flush();
         {
-            AMI_Test_throwBaseAsBaseI cb = new AMI_Test_throwBaseAsBaseI();
-            test.throwBaseAsBase_async(cb);
+            Callback_TestIntf_throwBaseAsBaseI cb = new Callback_TestIntf_throwBaseAsBaseI();
+            test.begin_throwBaseAsBase(cb);
             cb.check();
         }
         out.println("ok");
@@ -2257,8 +2259,8 @@ public class AllTests
         out.print("derived exception thrown as base exception (AMI)... ");
         out.flush();
         {
-            AMI_Test_throwDerivedAsBaseI cb = new AMI_Test_throwDerivedAsBaseI();
-            test.throwDerivedAsBase_async(cb);
+            Callback_TestIntf_throwDerivedAsBaseI cb = new Callback_TestIntf_throwDerivedAsBaseI();
+            test.begin_throwDerivedAsBase(cb);
             cb.check();
         }
         out.println("ok");
@@ -2295,8 +2297,8 @@ public class AllTests
         out.print("derived exception thrown as derived exception (AMI)... ");
         out.flush();
         {
-            AMI_Test_throwDerivedAsDerivedI cb = new AMI_Test_throwDerivedAsDerivedI();
-            test.throwDerivedAsDerived_async(cb);
+            Callback_TestIntf_throwDerivedAsDerivedI cb = new Callback_TestIntf_throwDerivedAsDerivedI();
+            test.begin_throwDerivedAsDerived(cb);
             cb.check();
         }
         out.println("ok");
@@ -2327,8 +2329,8 @@ public class AllTests
         out.print("unknown derived exception thrown as base exception (AMI)... ");
         out.flush();
         {
-            AMI_Test_throwUnknownDerivedAsBaseI cb = new AMI_Test_throwUnknownDerivedAsBaseI();
-            test.throwUnknownDerivedAsBase_async(cb);
+            Callback_TestIntf_throwUnknownDerivedAsBaseI cb = new Callback_TestIntf_throwUnknownDerivedAsBaseI();
+            test.begin_throwUnknownDerivedAsBase(cb);
             cb.check();
         }
         out.println("ok");
@@ -2352,8 +2354,8 @@ public class AllTests
         out.print("forward-declared class (AMI)... ");
         out.flush();
         {
-            AMI_Test_useForwardI cb = new AMI_Test_useForwardI();
-            test.useForward_async(cb);
+            Callback_TestIntf_useForwardI cb = new Callback_TestIntf_useForwardI();
+            test.begin_useForward(cb);
             cb.check();
         }
         out.println("ok");

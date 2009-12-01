@@ -52,40 +52,38 @@ private:
     bool _called;
 };
 
-class AMIRegular : public Test::AMI_Retry_op, public CallbackBase
+class CallbackSuccess : public IceUtil::Shared, public CallbackBase
 {
 public:
 
-    virtual void ice_response()
+    void response()
     {
         called();
     }
 
-    virtual void ice_exception(const ::Ice::Exception&)
+    void exception(const ::Ice::Exception&)
     {
         test(false);
     }
 };
+typedef IceUtil::Handle<CallbackSuccess> CallbackSuccessPtr;
 
-typedef IceUtil::Handle<AMIRegular> AMIRegularPtr;
-
-class AMIException : public Test::AMI_Retry_op, public CallbackBase
+class CallbackFail : public IceUtil::Shared, public CallbackBase
 {
 public:
 
-    virtual void ice_response()
+    void response()
     {
         test(false);
     }
 
-    virtual void ice_exception(const ::Ice::Exception& ex)
+    void exception(const ::Ice::Exception& ex)
     {
         test(dynamic_cast<const Ice::ConnectionLostException*>(&ex));
         called();
     }
 };
-
-typedef IceUtil::Handle<AMIException> AMIExceptionPtr;
+typedef IceUtil::Handle<CallbackFail> CallbackFailPtr;
 
 RetryPrx
 allTests(const Ice::CommunicatorPtr& communicator)
@@ -126,43 +124,22 @@ allTests(const Ice::CommunicatorPtr& communicator)
     retry1->op(false);
     cout << "ok" << endl;
 
-    AMIRegularPtr cb1 = new AMIRegular;
-    AMIExceptionPtr cb2 = new AMIException;
+    CallbackSuccessPtr cb1 = new CallbackSuccess();
+    CallbackFailPtr cb2 = new CallbackFail();
 
     cout << "calling regular AMI operation with first proxy... " << flush;
-    retry1->op_async(cb1, false);
+    retry1->begin_op(false, newCallback_Retry_op(cb1, &CallbackSuccess::response, &CallbackSuccess::exception));
     cb1->check();
     cout << "ok" << endl;
 
     cout << "calling AMI operation to kill connection with second proxy... " << flush;
-    retry2->op_async(cb2, true);
+    retry2->begin_op(true, newCallback_Retry_op(cb2, &CallbackFail::response, &CallbackFail::exception));
     cb2->check();
     cout << "ok" << endl;
 
     cout << "calling regular AMI operation with first proxy again... " << flush;
-    retry1->op_async(cb1, false);
+    retry1->begin_op(false, newCallback_Retry_op(cb1, &CallbackSuccess::response, &CallbackSuccess::exception));
     cb1->check();
-    cout << "ok" << endl;
-
-    cout << "calling regular AMI operation with new AMI mapping with first proxy... " << flush;
-    Ice::AsyncResultPtr r = retry1->begin_op(false);
-    retry1->end_op(r);
-    cout << "ok" << endl;
-
-    cout << "calling AMI operation with new AMI mapping to kill connection with second proxy... " << flush;
-    r = retry2->begin_op(true);
-    try
-    {
-	retry2->end_op(r);
-    }
-    catch(const Ice::ConnectionLostException&)
-    {
-    }
-    cout << "ok" << endl;
-
-    cout << "calling regular AMI operation with first proxy again... " << flush;
-    r = retry1->begin_op(false);
-    retry1->end_op(r);
     cout << "ok" << endl;
 
     return retry1;

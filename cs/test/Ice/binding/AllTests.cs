@@ -23,9 +23,9 @@ public class AllTests
         }
     }
 
-    private class GetAdapterNameCB : AMI_TestIntf_getAdapterName
+    private class GetAdapterNameCB 
     {
-        public override void ice_response(string name)
+        public void response(string name)
         {
             lock(this)
             {
@@ -34,7 +34,7 @@ public class AllTests
             }
         }
         
-        public override void ice_exception(Ice.Exception ex)
+        public void exception(Ice.Exception ex)
         {
             test(false);
         }
@@ -54,21 +54,10 @@ public class AllTests
         private string _name = null;
     };
 
-    private class NoOpGetAdapterNameCB : AMI_TestIntf_getAdapterName
-    {
-        public override void ice_response(string name)
-        {
-        }
-        
-        public override void ice_exception(Ice.Exception ex)
-        {
-        }
-    };
-
     private static string getAdapterNameWithAMI(TestIntfPrx test)
     {
         GetAdapterNameCB cb = new GetAdapterNameCB();
-        test.getAdapterName_async(cb);
+        test.begin_getAdapterName().whenCompleted(cb.response, cb.exception);
         return cb.getResult();
     }
 
@@ -306,7 +295,7 @@ public class AllTests
             
                 for(i = 0; i < proxies.Length; i++)
                 {
-                    proxies[i].getAdapterName_async(new NoOpGetAdapterNameCB());
+                    proxies[i].begin_getAdapterName();
                 }
                 for(i = 0; i < proxies.Length; i++)
                 {

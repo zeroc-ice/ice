@@ -20,35 +20,6 @@ public class AllTests
         }
     }
     
-    class AMICallbackResponse : Test.AMI_Hello_sayHello
-    {
-        override public void
-        ice_exception(Ice.Exception ex)
-        {
-            test(false);
-        }
-
-        override public void
-        ice_response()
-        {
-        }
-    }
-
-    class AMICallbackException : Test.AMI_Hello_sayHello
-    {
-        override public void
-        ice_exception(Ice.Exception ex)
-        {
-            test(ex is Ice.NotRegisteredException);
-        }
-        
-        override public void
-        ice_response()
-        {
-            test(false);
-        }
-    }
-
     public static void allTests(Ice.Communicator communicator)
     {
         ServerManagerPrx manager = ServerManagerPrxHelper.checkedCast(
@@ -325,7 +296,13 @@ public class AllTests
         test(++count == locator.getRequestCount());
         for(int i = 0; i < 1000; i++)
         {
-            hello.sayHello_async(new AMICallbackResponse());
+            hello.begin_sayHello().whenCompleted(delegate()
+                                   {
+                                   },
+                                   delegate(Ice.Exception ex)
+                                   {
+                                       test(false);
+                                   });
         }
         hello.ice_ping();
         test(locator.getRequestCount() > count && locator.getRequestCount() < count + 999);
@@ -337,7 +314,14 @@ public class AllTests
         hello = (HelloPrx)hello.ice_adapterId("unknown");
         for(int i = 0; i < 1000; i++)
         {
-            hello.sayHello_async(new AMICallbackException());
+            hello.begin_sayHello().whenCompleted(delegate()
+                                   {
+                                       test(false);
+                                   },
+                                   delegate(Ice.Exception ex)
+                                   {
+                                       test(ex is Ice.NotRegisteredException);
+                                   });
         }
         try
         {

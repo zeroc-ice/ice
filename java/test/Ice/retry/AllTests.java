@@ -11,7 +11,7 @@ package test.Ice.retry;
 
 import java.io.PrintWriter;
 
-import test.Ice.retry.Test.AMI_Retry_op;
+import test.Ice.retry.Test.Callback_Retry_op;
 import test.Ice.retry.Test.RetryPrx;
 import test.Ice.retry.Test.RetryPrxHelper;
 
@@ -61,16 +61,18 @@ public class AllTests
         private boolean _called;
     }
 
-    private static class AMIRegular extends AMI_Retry_op
+    private static class AMIRegular extends Callback_Retry_op
     {
+        @Override
         public void
-        ice_response()
+        response()
         {
             callback.called();
         }
 
+        @Override
         public void
-        ice_exception(Ice.LocalException ex)
+        exception(Ice.LocalException ex)
         {
             test(false);
         }
@@ -84,16 +86,18 @@ public class AllTests
         private Callback callback = new Callback();
     }
 
-    private static class AMIException extends AMI_Retry_op
+    private static class AMIException extends Callback_Retry_op
     {
+        @Override
         public void
-        ice_response()
+        response()
         {
             test(false);
         }
 
+        @Override
         public void
-        ice_exception(Ice.LocalException ex)
+        exception(Ice.LocalException ex)
         {
             test(ex instanceof Ice.ConnectionLostException);
             callback.called();
@@ -156,17 +160,17 @@ public class AllTests
         AMIException cb2 = new AMIException();
 
         out.print("calling regular AMI operation with first proxy... ");
-        retry1.op_async(cb1, false);
+        retry1.begin_op(false, cb1);
         cb1.check();
         out.println("ok");
 
         out.print("calling AMI operation to kill connection with second proxy... ");
-        retry2.op_async(cb2, true);
+        retry2.begin_op(true, cb2);
         cb2.check();
         out.println("ok");
 
         out.print("calling regular AMI operation with first proxy again... ");
-        retry1.op_async(cb1, false);
+        retry1.begin_op(false, cb1);
         cb1.check();
         out.println("ok");
 

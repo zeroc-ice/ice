@@ -17,8 +17,8 @@ module Test
 
 interface Background
 {
-    ["ami"] void op();
-    ["ami"] void opWithPayload(Ice::ByteSeq seq);
+    void op();
+    void opWithPayload(Ice::ByteSeq seq);
 
     void shutdown();
 };

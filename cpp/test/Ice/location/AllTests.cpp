@@ -62,29 +62,42 @@ private:
     int _expected;
 };
 
-class AMICallback : public Test::AMI_Hello_sayHello
+class AMICallback : public IceUtil::Shared
 {
 public:
     AMICallback(ResponseCounter& c) : _counter(c)
     {
     }
 
-    virtual void
-    ice_exception(const Ice::Exception&)
+    void
+    exception1(const Ice::Exception&)
     {
         test(false);
     }
-
-    virtual void
-    ice_response()
+    void
+    exception2(const Ice::Exception& ex)
     {
         _counter.response();
+        test(dynamic_cast<const Ice::NotRegisteredException*>(&ex));
+    }
+
+    void
+    response1()
+    {
+        _counter.response();
+    }
+
+    void
+    response2()
+    {
+        test(false);
     }
 
 private:
 
     ResponseCounter& _counter;
 };
+typedef IceUtil::Handle<AMICallback> AMICallbackPtr;
 
 void
 allTests(const Ice::CommunicatorPtr& communicator, const string& ref)
@@ -369,7 +382,8 @@ allTests(const Ice::CommunicatorPtr& communicator, const string& ref)
     ResponseCounter counter(1000);
     for(i = 0; i < 1000; i++)
     {
-        hello->sayHello_async(new AMICallback(counter));
+        AMICallbackPtr cb = new AMICallback(counter);
+        hello->begin_sayHello(newCallback_Hello_sayHello(cb, &AMICallback::response1, &AMICallback::exception1));
     }
     counter.waitForAllResponses();
     test(locator->getRequestCount() > count && locator->getRequestCount() < count + 999);
@@ -382,31 +396,8 @@ allTests(const Ice::CommunicatorPtr& communicator, const string& ref)
     counter.reset(1000);
     for(i = 0; i < 1000; i++)
     {
-        class AMICallback : public Test::AMI_Hello_sayHello
-        {
-        public:
-            AMICallback(ResponseCounter& c) : _counter(c)
-            {
-            }
-
-            virtual void
-            ice_exception(const Ice::Exception& ex)
-            {
-                _counter.response();
-                test(dynamic_cast<const Ice::NotRegisteredException*>(&ex));
-            }
-
-            virtual void
-            ice_response()
-            {
-                test(false);
-            }
-
-        private:
-
-            ResponseCounter& _counter;
-        };
-        hello->sayHello_async(new AMICallback(counter));
+        AMICallbackPtr cb = new AMICallback(counter);
+        hello->begin_sayHello(newCallback_Hello_sayHello(cb, &AMICallback::response2, &AMICallback::exception2));
     }
     counter.waitForAllResponses();
     // Take into account the retries.

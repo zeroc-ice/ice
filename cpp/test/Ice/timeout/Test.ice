@@ -17,7 +17,7 @@ sequence<byte> ByteSeq;
 
 interface Timeout
 {
-    ["ami"] void op();
+    void op();
     ["ami"] void sendData(ByteSeq seq);
     ["ami"] void sleep(int to);
 

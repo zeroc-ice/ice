@@ -21,9 +21,9 @@ public class AllTests
         }
     }
 
-    private class Callback
+    private class CallbackBase
     {
-        internal Callback()
+        internal CallbackBase()
         {
             _called = false;
         }
@@ -54,34 +54,24 @@ public class AllTests
         private bool _called;
     }
 
-    private class AMISendData : Test.AMI_Timeout_sendData
+    private class Callback
     {
-        public override void ice_response()
+        public void response()
         {
             callback.called();
         }
 
-        public override void ice_exception(Ice.Exception ex)
+        public void exception(Ice.Exception ex)
         {
             test(false);
         }
 
-        public void check()
-        {
-            callback.check();
-        }
-
-        private Callback callback = new Callback();
-    }
-
-    private class AMISendDataEx : Test.AMI_Timeout_sendData
-    {
-        public override void ice_response()
+        public void responseEx()
         {
             test(false);
         }
 
-        public override void ice_exception(Ice.Exception ex)
+        public void exceptionEx(Ice.Exception ex)
         {
             test(ex is Ice.TimeoutException);
             callback.called();
@@ -92,48 +82,7 @@ public class AllTests
             callback.check();
         }
 
-        private Callback callback = new Callback();
-    }
-
-    private class AMISleep : Test.AMI_Timeout_sleep
-    {
-        public override void ice_response()
-        {
-            callback.called();
-        }
-
-        public override void ice_exception(Ice.Exception ex)
-        {
-            test(false);
-        }
-
-        public void check()
-        {
-            callback.check();
-        }
-
-        private Callback callback = new Callback();
-    }
-
-    private class AMISleepEx : Test.AMI_Timeout_sleep
-    {
-        public override void ice_response()
-        {
-            test(false);
-        }
-
-        public override void ice_exception(Ice.Exception ex)
-        {
-            test(ex is Ice.TimeoutException);
-            callback.called();
-        }
-
-        public void check()
-        {
-            callback.check();
-        }
-
-        private Callback callback = new Callback();
+        private CallbackBase callback = new CallbackBase();
     }
 
     public static Test.TimeoutPrx allTests(Ice.Communicator communicator)
@@ -262,8 +211,8 @@ public class AllTests
             // Expect TimeoutException.
             //
             Test.TimeoutPrx to = Test.TimeoutPrxHelper.uncheckedCast(obj.ice_timeout(500));
-            AMISleepEx cb = new AMISleepEx();
-            to.sleep_async(cb, 2000);
+            Callback cb = new Callback();
+            to.begin_sleep(2000).whenCompleted(cb.responseEx, cb.exceptionEx);
             cb.check();
         }
         {
@@ -272,8 +221,8 @@ public class AllTests
             //
             timeout.op(); // Ensure adapter is active.
             Test.TimeoutPrx to = Test.TimeoutPrxHelper.uncheckedCast(obj.ice_timeout(1000));
-            AMISleep cb = new AMISleep();
-            to.sleep_async(cb, 500);
+            Callback cb = new Callback();
+            to.begin_sleep(500).whenCompleted(cb.response, cb.exception);
             cb.check();
         }
         Console.Out.WriteLine("ok");
@@ -287,8 +236,8 @@ public class AllTests
             Test.TimeoutPrx to = Test.TimeoutPrxHelper.uncheckedCast(obj.ice_timeout(500));
             to.holdAdapter(2000);
             byte[] seq = new byte[100000];
-            AMISendDataEx cb = new AMISendDataEx();
-            to.sendData_async(cb, seq);
+            Callback cb = new Callback();
+            to.begin_sendData(seq).whenCompleted(cb.responseEx, cb.exceptionEx);
             cb.check();
         }
         {
@@ -299,8 +248,8 @@ public class AllTests
             Test.TimeoutPrx to = Test.TimeoutPrxHelper.uncheckedCast(obj.ice_timeout(1000));
             to.holdAdapter(500);
             byte[] seq = new byte[100000];
-            AMISendData cb = new AMISendData();
-            to.sendData_async(cb, seq);
+            Callback cb = new Callback();
+            to.begin_sendData(seq).whenCompleted(cb.response, cb.exception);
             cb.check();
         }
         Console.Out.WriteLine("ok");

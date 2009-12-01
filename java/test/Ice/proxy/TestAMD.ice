@@ -16,14 +16,14 @@
 module Test
 {
 
-["ami", "amd"] class MyClass
+["amd"] class MyClass
 {
     void shutdown();
 
     Ice::Context getContext();
 };
 
-["ami", "amd"] class MyDerivedClass extends MyClass
+["amd"] class MyDerivedClass extends MyClass
 {
     Object* echo(Object* obj);
 };
