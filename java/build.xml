@@ -514,16 +514,21 @@
         <delete file="${lib.dir}/icegridgui.mf" />
     </target>
 
-    <target name="icegridadmin-pro-jar" depends="icegridadmin-compile" if="build-icegridadmin-pro-jar">
+    <target name="icegridadmin-pro-jar" depends="ice-jar,icegridadmin-compile" if="build-icegridadmin-pro-jar">
         <condition property="library.jarfiles" value="classes.jar,jsse.jar">
             <os family="mac"/>
         </condition>
         <condition property="library.jarfiles" value="rt.jar,jsse.jar">
             <!-- Library jar files for Sun JDK -->
-            <available file="${java.home}/lib/rt.jar"/>
+            <and>
+                <available file="${java.home}/lib/rt.jar"/>
+                <not>
+                    <available file="${java.home}/lib/vm.jar"/>
+                </not>
+            </and>
         </condition>
-        <condition property="library.jarfiles" value="vm.jar,core.jar,graphics.jar,security.jar,server.jar">
-            <!-- Library jar files for IBM J9 (from Linux SuSE) -->
+        <condition property="library.jarfiles" value="vm.jar,rt.jar,security.jar,beans.jar,java.util.jar,ibmjssefw.jar,ibmcertpathfw.jar,logging.jar">
+            <!-- Library jar files for IBM J9 (from SuSE Linux) -->
             <available file="${java.home}/lib/vm.jar"/>
         </condition>
         <condition property="library.jarpath" value="${java.home}/../Classes" else="${java.home}/lib">

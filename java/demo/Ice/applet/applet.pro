@@ -17,7 +17,6 @@
 
 -dontskipnonpubliclibraryclasses
 -dontusemixedcaseclassnames
--dontwarn
 
 # We could reduce the size of the JAR file significantly if we
 # enable obfuscation but it would make things like stack traces
