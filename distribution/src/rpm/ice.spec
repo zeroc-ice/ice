@@ -87,7 +87,7 @@ BuildRequires: ruby-devel
 %endif
 
 %if %{mono}
-BuildRequires: mono-core >= 1.2.6, mono-devel >= 1.2.6
+BuildRequires: mono-core >= 2.0.1, mono-devel >= 2.0.1
 %endif
 
 %if "%{dist}" == ".rhel5"
@@ -97,8 +97,8 @@ BuildRequires: php-devel >= 5.1.6
 BuildRequires: python-devel >= 2.4.3
 %endif
 %if "%{dist}" == ".sles11"
-BuildRequires: php5-devel >= 5.1.2
-BuildRequires: python-devel >= 2.4.2
+BuildRequires: php5-devel >= 5.2.6
+BuildRequires: python-devel >= 2.6.0
 %endif
 
 %description
