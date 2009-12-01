@@ -17,6 +17,7 @@
 module Test
 {
 
+["ami"]
 interface Background
 {
     void op();
