@@ -10,7 +10,7 @@
 
 import os, sys, fnmatch, re, getopt
 
-sys.path.append(os.path.join(os.path.dirname(__file__), "distribution", "lib"))
+sys.path.append(os.path.join(os.path.dirname(__file__), "lib"))
 from DistUtils import *
 
 #
@@ -37,10 +37,10 @@ includeSubDirs = [ \
 # Files to not include in the source distributions.
 #
 filesToRemove = [ \
-    "fixCopyright.py", \
-    "fixVersion.py", \
-    "FixUtil.py", \
-    "makedist.py", \
+    "distribution/bin/fixCopyright.py", \
+    "distribution/bin/fixVersion.py", \
+    "distribution/lib/FixUtil.py", \
+    "distribution/makedist.py", \
     "cpp/config/makegitignore.py", \
     "rb/config/Make.rules.Darwin", \
 ]
@@ -105,7 +105,7 @@ for (o, a) in opts:
         compareToDir = a
 
 cwd = os.getcwd()
-os.chdir(os.path.dirname(__file__))
+os.chdir(os.path.join(os.path.dirname(__file__), ".."))
 
 #
 # Get Ice versions.

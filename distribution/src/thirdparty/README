@@ -24,6 +24,7 @@ mcpp           http://mcpp.sourceforge.net
 Patches
 ======================================================================
 
+
 Berkeley DB
 -----------
 
@@ -38,6 +39,7 @@ to the top-level directory and apply the patches as shown below:
  
 Follow the platform-specific instructions below for configuring and
 building Berkeley DB.
+
 
 mcpp
 ----
@@ -108,6 +110,7 @@ support:
   $ ../dist/configure --enable-cxx
   (plus --prefix=<dir> and/or --enable-java if you like)
   $ gmake
+
 
 mcpp
 ----

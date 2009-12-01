@@ -7,11 +7,11 @@
 #
 # **********************************************************************
 
-%if "%{dist}" == ".rhel4" || "%{dist}" == ".rhel5"
+%if "%{dist}" == ".rhel5"
   %define ruby 1
   %define mono 0
 %else
-  %if "%{dist}" == ".sles10"
+  %if "%{dist}" == ".sles11"
     %define ruby 0
     %define mono 1
   %else
@@ -90,20 +90,13 @@ BuildRequires: ruby-devel
 BuildRequires: mono-core >= 1.2.6, mono-devel >= 1.2.6
 %endif
 
-%if "%{dist}" == ".rhel4"
-BuildRequires: nptl-devel
-BuildRequires: bzip2-devel >= 1.0.2
-BuildRequires: expat-devel >= 1.95.7
-BuildRequires: php-devel >= 5.1.4
-BuildRequires: python-devel >= 2.3.4
-%endif
 %if "%{dist}" == ".rhel5"
 BuildRequires: bzip2-devel >= 1.0.3
 BuildRequires: expat-devel >= 1.95.8
 BuildRequires: php-devel >= 5.1.6
 BuildRequires: python-devel >= 2.4.3
 %endif
-%if "%{dist}" == ".sles10"
+%if "%{dist}" == ".sles11"
 BuildRequires: php5-devel >= 5.1.2
 BuildRequires: python-devel >= 2.4.2
 %endif
@@ -173,10 +166,10 @@ Requires: ice-utils = %{version}-%{release}
 Requires: ice-mono = %{version}-%{release}
 %endif
 # Requirements for the users
-%if "%{dist}" == ".sles10"
+%if "%{dist}" == ".sles11"
 Requires(pre): pwdutils
 %endif
-%if "%{dist}" == ".rhel4" || "%{dist}" == ".rhel5"
+%if "%{dist}" == ".rhel5"
 Requires(pre): shadow-utils
 %endif
 # Requirements for the init.d services
@@ -191,9 +184,6 @@ icebox, iceboxnet, icepatch2server and related files.
 Summary: Tools, libraries and headers for developing Ice applications in C++
 Group: Development/Tools
 Requires: ice-libs = %{version}-%{release}
-%if "%{dist}" == ".rhel4"
-Requires: nptl-devel
-%endif
 %description c++-devel
 Tools, libraries and headers for developing Ice applications in C++.
 
@@ -359,7 +349,7 @@ cp -p $RPM_BUILD_DIR/Ice-rpmbuild-%{version}/ice.pth $RPM_BUILD_ROOT%{python_sit
 cd $RPM_BUILD_DIR/Ice-%{version}/php
 make prefix=$RPM_BUILD_ROOT install
 
-%if "%{dist}" == ".rhel4" || "%{dist}" == ".rhel5"
+%if "%{dist}" == ".rhel5"
 mkdir -p $RPM_BUILD_ROOT%{_sysconfdir}/php.d
 cp -p $RPM_BUILD_DIR/Ice-rpmbuild-%{version}/ice.ini $RPM_BUILD_ROOT%{_sysconfdir}/php.d
 mkdir -p $RPM_BUILD_ROOT%{_libdir}/php/modules
@@ -368,7 +358,7 @@ mkdir -p $RPM_BUILD_ROOT%{_datadir}/php
 mv $RPM_BUILD_ROOT/php/* $RPM_BUILD_ROOT%{_datadir}/php
 %endif
 
-%if "%{dist}" == ".sles10"
+%if "%{dist}" == ".sles11"
 mkdir -p $RPM_BUILD_ROOT%{_sysconfdir}/php5/conf.d
 cp -p $RPM_BUILD_DIR/Ice-rpmbuild-%{version}/ice.ini $RPM_BUILD_ROOT%{_sysconfdir}/php5/conf.d
 mkdir -p $RPM_BUILD_ROOT%{_libdir}/php5/extensions
@@ -449,6 +439,8 @@ rm -f $RPM_BUILD_ROOT/LICENSE
 rm -fr $RPM_BUILD_ROOT/doc/reference
 rm -fr $RPM_BUILD_ROOT/slice
 rm -f $RPM_BUILD_ROOT%{_libdir}/libIceStormService.so
+rm -f $RPM_BUILD_ROOT%{_libdir}/libIceStormFreezeDB.so
+rm -f $RPM_BUILD_ROOT%{_libdir}/libIceGridFreezeDB.so
 
 %if !%{mono}
 rm -f $RPM_BUILD_ROOT%{_bindir}/slice2cs
@@ -586,6 +578,8 @@ rm -rf $RPM_BUILD_ROOT
 %{_libdir}/libGlacier2.so.%{soversion}
 %{_libdir}/libIceBox.so.%{version}
 %{_libdir}/libIceBox.so.%{soversion}
+%{_libdir}/libIceDB.so.%{version}
+%{_libdir}/libIceDB.so.%{soversion}
 %{_libdir}/libIcePatch2.so.%{version}
 %{_libdir}/libIcePatch2.so.%{soversion}
 %{_libdir}/libIce.so.%{version}
@@ -600,6 +594,10 @@ rm -rf $RPM_BUILD_ROOT
 %{_libdir}/libSlice.so.%{soversion}
 %{_libdir}/libIceGrid.so.%{version}
 %{_libdir}/libIceGrid.so.%{soversion}
+%{_libdir}/libIceGridFreezeDB.so.%{version}
+%{_libdir}/libIceGridFreezeDB.so.%{soversion}
+%{_libdir}/libIceStormFreezeDB.so.%{version}
+%{_libdir}/libIceStormFreezeDB.so.%{soversion}
 
 %post libs -p /sbin/ldconfig
 %postun libs -p /sbin/ldconfig
@@ -638,10 +636,14 @@ rm -rf $RPM_BUILD_ROOT
 %endif
 %{_bindir}/icegridnode
 %{_bindir}/icegridregistry
+%{_libdir}/libIceGridFreezeDB.so.%{version}
+%{_libdir}/libIceGridFreezeDB.so.%{soversion}
 %{_bindir}/icepatch2server
 %{_bindir}/icestormmigrate
 %{_libdir}/libIceStormService.so.%{version}
 %{_libdir}/libIceStormService.so.%{soversion}
+%{_libdir}/libIceStormFreezeDB.so.%{version}
+%{_libdir}/libIceStormFreezeDB.so.%{soversion}
 %dir %{_datadir}/Ice-%{version}
 %{_datadir}/Ice-%{version}/templates.xml
 %attr(755,root,root) %{_datadir}/Ice-%{version}/upgradeicegrid.py*
@@ -668,7 +670,7 @@ exit 0
 
 %post servers
 /sbin/ldconfig
-%if "%{dist}" != ".sles10"
+%if "%{dist}" != ".sles11"
 /sbin/chkconfig --add icegridregistry
 /sbin/chkconfig --add icegridnode
 /sbin/chkconfig --add glacier2router
@@ -676,7 +678,7 @@ exit 0
 
 %preun servers
 if [ $1 = 0 ]; then
-%if "%{dist}" == ".sles10"
+%if "%{dist}" == ".sles11"
         /sbin/service icegridnode stop >/dev/null 2>&1 || :
         /sbin/insserv -r icegridnode
 	/sbin/service icegridregistry stop >/dev/null 2>&1 || :
@@ -720,6 +722,7 @@ fi
 %{_libdir}/libFreeze.so
 %{_libdir}/libGlacier2.so
 %{_libdir}/libIceBox.so
+%{_libdir}/libIceDB.so
 %{_libdir}/libIceGrid.so
 %{_libdir}/libIcePatch2.so
 %{_libdir}/libIce.so
@@ -776,14 +779,14 @@ fi
 
 %files php
 %defattr(-, root, root, -)
-%{_datadir}/Ice-%{version}/php
+%{_datadir}/php
 
-%if "%{dist}" == ".rhel4" || "%{dist}" == ".rhel5"
+%if "%{dist}" == ".rhel5"
 %{_libdir}/php/modules/IcePHP.so
 %config(noreplace) %{_sysconfdir}/php.d/ice.ini
 %endif
 
-%if "%{dist}" == ".sles10"
+%if "%{dist}" == ".sles11"
 %{_libdir}/php5/extensions
 %config(noreplace) %{_sysconfdir}/php5/conf.d/ice.ini
 %endif
