@@ -20,18 +20,17 @@ using namespace Test;
 
 static Ice::InitializationData initData;
 
-class AMI_Callback_initiateConcurrentCallbackI : public AMI_Callback_initiateConcurrentCallback,
-                                                 public IceUtil::Monitor<IceUtil::Mutex>
+class AsyncCallback : public IceUtil::Monitor<IceUtil::Mutex>, public IceUtil::Shared
 {
 public:
 
-    AMI_Callback_initiateConcurrentCallbackI() :
+    AsyncCallback() :
         _haveResponse(false)
     {
     }
 
-    virtual void
-    ice_response(Int response)
+    void
+    response(Int response)
     {
         Lock sync(*this);
         _haveResponse = true;
@@ -39,8 +38,8 @@ public:
         notify();
     }
 
-    virtual void
-    ice_exception(const Exception& e)
+    void
+    exception(const Exception& e)
     {
         Lock sync(*this);
         _haveResponse = true;
@@ -69,7 +68,7 @@ private:
     auto_ptr<Exception> _ex;
     Int _response;
 };
-typedef IceUtil::Handle<AMI_Callback_initiateConcurrentCallbackI> AMI_Callback_initiateConcurrentCallbackIPtr;
+typedef IceUtil::Handle<AsyncCallback> AsyncCallbackPtr;
 
 class MisbehavedClient : public IceUtil::Thread, public IceUtil::Monitor<IceUtil::Mutex>
 {
@@ -617,12 +616,15 @@ CallbackClient::run(int argc, char* argv[])
         cout << "testing concurrent twoway callback... " << flush;
         Context context;
         context["_fwd"] = "t";
-        AMI_Callback_initiateConcurrentCallbackIPtr cb0 = new AMI_Callback_initiateConcurrentCallbackI();
-        twoway->initiateConcurrentCallback_async(cb0, 0, twowayR, context);
-        AMI_Callback_initiateConcurrentCallbackIPtr cb1 = new AMI_Callback_initiateConcurrentCallbackI();
-        twoway->initiateConcurrentCallback_async(cb1, 1, twowayR, context);
-        AMI_Callback_initiateConcurrentCallbackIPtr cb2 = new AMI_Callback_initiateConcurrentCallbackI();
-        twoway->initiateConcurrentCallback_async(cb2, 2, twowayR, context);
+        AsyncCallbackPtr cb0 = new AsyncCallback();
+        twoway->begin_initiateConcurrentCallback(0, twowayR, context,
+            newCallback_Callback_initiateConcurrentCallback(cb0, &AsyncCallback::response, &AsyncCallback::exception));
+        AsyncCallbackPtr cb1 = new AsyncCallback();
+        twoway->begin_initiateConcurrentCallback(1, twowayR, context,
+            newCallback_Callback_initiateConcurrentCallback(cb1, &AsyncCallback::response, &AsyncCallback::exception));
+        AsyncCallbackPtr cb2 = new AsyncCallback();
+        twoway->begin_initiateConcurrentCallback(2, twowayR, context,
+            newCallback_Callback_initiateConcurrentCallback(cb2, &AsyncCallback::response, &AsyncCallback::exception));
         callbackReceiverImpl->answerConcurrentCallbacks(3);
         test(cb0->waitResponse() == 0);
         test(cb1->waitResponse() == 1);

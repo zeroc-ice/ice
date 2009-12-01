@@ -22,19 +22,6 @@ public class Client extends test.Util.Application
         }
     }
 
-    private static class AMI_Servant_setValueAsyncI extends AMI_Servant_setValueAsync
-    {
-        public void
-        ice_response()
-        {
-        }
-
-        public void
-        ice_exception(Ice.LocalException ex)
-        {
-        }
-    }
-
     static class ReadThread extends  Thread
     {
         ReadThread(ServantPrx[] servants)
@@ -542,14 +529,12 @@ public class Client extends test.Util.Application
             //
             // Test saving while busy
             //
-
-            AMI_Servant_setValueAsyncI setCB = new AMI_Servant_setValueAsyncI();
             for(int i = 0; i < size; i++)
             {
                 //
                 // Start a mutating operation so that the object is not idle.
                 //
-                servants[i].setValueAsync_async(setCB, i + 300);
+                servants[i].begin_setValueAsync(i + 300);
 
                 test(servants[i].getValue() == i + 100);
                 //

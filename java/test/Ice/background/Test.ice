@@ -17,11 +17,10 @@
 module Test
 {
 
-["ami"]
 interface Background
 {
-    void op();
-    void opWithPayload(Ice::ByteSeq seq);
+    ["ami"] void op();
+    ["ami"] void opWithPayload(Ice::ByteSeq seq);
 
     void shutdown();
 };
