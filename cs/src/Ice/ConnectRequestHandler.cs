@@ -279,7 +279,7 @@ namespace IceInternal
                 //
                 if(_requests.Count > 0)
                 {
-                    _reference.getInstance().clientThreadPool().execute(delegate()
+                    _reference.getInstance().clientThreadPool().dispatch(delegate()
                                                                         {
                                                                             flushRequestsWithException(ex);
                                                                         });
@@ -415,7 +415,7 @@ namespace IceInternal
                 {
                     Debug.Assert(_exception == null && _requests.Count > 0);
                     _exception = ex.get();
-                    _reference.getInstance().clientThreadPool().execute(delegate()
+                    _reference.getInstance().clientThreadPool().dispatch(delegate()
                                                                         {
                                                                             flushRequestsWithException(ex);
                                                                         });
@@ -427,7 +427,7 @@ namespace IceInternal
                 {
                     Debug.Assert(_exception == null && _requests.Count > 0);
                     _exception = ex;
-                    _reference.getInstance().clientThreadPool().execute(delegate()
+                    _reference.getInstance().clientThreadPool().dispatch(delegate()
                                                                         {
                                                                             flushRequestsWithException(ex);
                                                                         });
@@ -437,7 +437,7 @@ namespace IceInternal
             if(sentCallbacks.Count > 0)
             {
                 Instance instance = _reference.getInstance();
-                instance.clientThreadPool().execute(delegate()
+                instance.clientThreadPool().dispatch(delegate()
                                                     {
                                                         foreach(Request r in sentCallbacks)
                                                         {

@@ -116,6 +116,7 @@ namespace IceInternal
         public ThreadPool(Instance instance, string prefix, int timeout)
         {
             _instance = instance;
+            _dispatcher = instance.initializationData().dispatcher;
             _destroyed = false;
             _prefix = prefix;
             _threadIndex = 0;
@@ -308,6 +309,30 @@ namespace IceInternal
                 {
                     handler._finish = true;
                 }
+            }
+        }
+
+        public void
+        dispatch(Ice.DispatcherCall call)
+        {
+            if(_dispatcher != null)
+            {
+                try
+                {
+                    _dispatcher.dispatch(call, null);
+                }
+                catch(System.Exception ex)
+                {
+                    if(_instance.initializationData().properties.getPropertyAsIntWithDefault(
+                           "Ice.Warn.Dispatch", 1) > 1)
+                    {
+                        _instance.initializationData().logger.warning("dispatch exception:\n" + ex);
+                    }
+                }
+            }
+            else
+            {
+                execute(delegate() { call(); });
             }
         }
 
@@ -653,6 +678,7 @@ namespace IceInternal
         }
 
         private Instance _instance;
+        private Ice.Dispatcher _dispatcher;
         private bool _destroyed;
         private readonly string _prefix;
         private readonly string _threadPrefix;
@@ -732,6 +758,7 @@ namespace IceInternal
             private readonly string _name;
             private Thread _thread;
         }
+
 
         private readonly int _size; // Number of threads that are pre-created.
         private readonly int _sizeMax; // Maximum number of threads.

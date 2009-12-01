@@ -28,6 +28,7 @@
 #include <Ice/TraceLevelsF.h>
 #include <Ice/OutgoingAsyncF.h>
 #include <Ice/EventHandler.h>
+#include <Ice/Dispatcher.h>
 
 #include <deque>
 #include <memory>
@@ -137,6 +138,11 @@ public:
 
     void exception(const LocalException&);
     void invokeException(const LocalException&, int);
+
+    void dispatch(const StartCallbackPtr&, const std::vector<IceInternal::OutgoingAsyncMessageCallbackPtr>&,
+                  Byte, Int, Int, const IceInternal::ServantManagerPtr&, const ObjectAdapterPtr&, 
+                  const IceInternal::OutgoingAsyncPtr&, IceInternal::BasicStream&);
+    void finish();
 
 private:
 
@@ -263,6 +269,7 @@ private:
     ObjectAdapterPtr _adapter;
     IceInternal::ServantManagerPtr _servantManager;
 
+    const DispatcherPtr _dispatcher;
     const LoggerPtr _logger;
     const IceInternal::TraceLevelsPtr _traceLevels;
     const IceInternal::ThreadPoolPtr _threadPool;

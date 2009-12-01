@@ -256,17 +256,17 @@ namespace IceInternal
             }
             else
             {
-                instance_.clientThreadPool().execute(delegate()
-                                                     {
-                                                         try
-                                                         {
-                                                             sentCallback_(this);
-                                                         }
-                                                         catch(System.Exception ex)
-                                                         {
-                                                             warning__(ex);
-                                                         }
-                                                     });
+                instance_.clientThreadPool().dispatch(delegate()
+                                                      {
+                                                          try
+                                                          {
+                                                              sentCallback_(this);
+                                                          }
+                                                          catch(System.Exception ex)
+                                                          {
+                                                              warning__(ex);
+                                                          }
+                                                      });
             }
             return this;
         }
@@ -286,17 +286,17 @@ namespace IceInternal
                 }
             }
 
-            instance_.clientThreadPool().execute(delegate()
-                                                 {
-                                                     try
-                                                     {
-                                                         cb(this);
-                                                     }
-                                                     catch(System.Exception ex)
-                                                     {
-                                                         warning__(ex);
-                                                     }
-                                                 });
+            instance_.clientThreadPool().dispatch(delegate()
+                                                  {
+                                                      try
+                                                      {
+                                                          cb(this);
+                                                      }
+                                                      catch(System.Exception ex)
+                                                      {
+                                                          warning__(ex);
+                                                      }
+                                                  });
             return this;
         }
 
@@ -331,17 +331,17 @@ namespace IceInternal
             }
             else
             {
-                instance_.clientThreadPool().execute(delegate()
-                                                     {
-                                                         try
-                                                         {
-                                                             cb(false);
-                                                         }
-                                                         catch(System.Exception ex)
-                                                         {
+                instance_.clientThreadPool().dispatch(delegate()
+                                                      {
+                                                          try
+                                                          {
+                                                              cb(false);
+                                                          }
+                                                          catch(System.Exception ex)
+                                                          {
                                                              warning__(ex);
-                                                         }
-                                                     });
+                                                          }
+                                                      });
             }
             return this;
         }
@@ -362,17 +362,17 @@ namespace IceInternal
                 }
             }
 
-            instance_.clientThreadPool().execute(delegate()
-                                                 {
-                                                     try
-                                                     {
-                                                         completedCallback_(this);
-                                                     }
-                                                     catch(System.Exception ex)
-                                                     {
-                                                         warning__(ex);
-                                                     }
-                                                 });
+            instance_.clientThreadPool().dispatch(delegate()
+                                                  {
+                                                      try
+                                                      {
+                                                          completedCallback_(this);
+                                                      }
+                                                      catch(System.Exception ex)
+                                                      {
+                                                          warning__(ex);
+                                                      }
+                                                  });
             return this;
         }
 
@@ -436,10 +436,10 @@ namespace IceInternal
             //
             try
             {
-                instance_.clientThreadPool().execute(delegate()
-                                                     {
-                                                         exception__(ex);
-                                                     });
+                instance_.clientThreadPool().dispatch(delegate()
+                                                      {
+                                                          exception__(ex);
+                                                      });
             }
             catch(Ice.CommunicatorDestroyedException)
             {
@@ -456,10 +456,10 @@ namespace IceInternal
             //
             try
             {
-                instance_.clientThreadPool().execute(delegate()
-                                                     {
-                                                         sent__(callback);
-                                                     });
+                instance_.clientThreadPool().dispatch(delegate()
+                                                      {
+                                                          sent__(callback);
+                                                      });
             }
             catch(Ice.CommunicatorDestroyedException)
             {
@@ -1165,7 +1165,7 @@ namespace IceInternal
                 }
             }
 
-            instance_.clientThreadPool().execute(delegate()
+            instance_.clientThreadPool().dispatch(delegate()
                                                  {
                                                      try
                                                      {
@@ -1219,8 +1219,8 @@ namespace IceInternal
                 }
             }
 
-            instance_.clientThreadPool().execute(delegate()
-                                                 {
+            instance_.clientThreadPool().dispatch(delegate()
+                                                  {
                                                      try
                                                      {
                                                          completed__(this);
@@ -1229,7 +1229,7 @@ namespace IceInternal
                                                      {
                                                          warning__(ex);
                                                      }
-                                                 });
+                                                  });
             return this;
         }
 

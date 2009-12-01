@@ -69,6 +69,11 @@ namespace Ice
         /// The thread hook for the communicator.
         /// </summary>
         public ThreadNotification threadHook;
+
+        /// <summary>
+        /// The dispatcher for the communicator.
+        /// </summary>
+        public Dispatcher dispatcher;
     }
 
     /// <summary>

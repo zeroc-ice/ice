@@ -49,6 +49,7 @@ tests = [
     ("Ice/slicing/objects", ["core"]),
     ("Ice/custom", ["core"]),
     ("Ice/checksum", ["core"]),
+    ("Ice/dispatcher", ["core"]),
     ("Ice/packagemd", ["core"]),
     ("Ice/stream", ["core"]),
     ("Ice/hold", ["core"]),

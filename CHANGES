@@ -33,6 +33,12 @@ General Changes
 These entries apply to all relevant language mappings unless otherwise
 noted.
 
+- Added support for dispatching servant invocations and AMI callbacks
+  with application specific threads (with a GUI dedicated thread for
+  example). The application needs to implement the Ice::Dispatcher
+  interface and initialize the communicator appropiately to use this
+  dispatcher implementation. See the Ice manual for more information.
+
 - icegridadmin when using username/password authentication now zeros
   the entire password after use.
 

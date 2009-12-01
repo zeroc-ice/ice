@@ -48,6 +48,7 @@ tests = [
     ("Ice/slicing/exceptions", ["core"]),
     ("Ice/slicing/objects", ["core"]),
     ("Ice/gc", ["once"]),
+    ("Ice/dispatcher", ["once"]),
     ("Ice/checksum", ["core"]),
     ("Ice/stream", ["core", "novc6"]),
     ("Ice/hold", ["core"]),

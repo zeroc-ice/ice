@@ -45,19 +45,20 @@ const unsigned char Ice::AsyncResult::EndCalled = 0x8;
 namespace
 {
 
-class AsynchronousException : public ThreadPoolWorkItem
+class AsynchronousException : public DispatchWorkItem
 {
 public:
     
-    AsynchronousException(const Ice::AsyncResultPtr& result, const Ice::Exception& ex) :
-        _result(result), _exception(dynamic_cast<Ice::LocalException*>(ex.ice_clone()))
+    AsynchronousException(const IceInternal::InstancePtr& instance,
+                          const Ice::AsyncResultPtr& result,
+                          const Ice::Exception& ex) :
+        DispatchWorkItem(instance), _result(result), _exception(dynamic_cast<Ice::LocalException*>(ex.ice_clone()))
     {
     }
     
     virtual void
-    execute(ThreadPoolCurrent& current)
+    run()
     {
-        current.ioCompleted();
         _result->__exception(*_exception.get());
     }
     
@@ -67,18 +68,18 @@ private:
     const auto_ptr<Ice::Exception> _exception;
 };
 
-class AsynchronousSent : public ThreadPoolWorkItem
+class AsynchronousSent : public DispatchWorkItem
 {
 public:
     
-    AsynchronousSent(const Ice::AsyncResultPtr& result) : _result(result)
+    AsynchronousSent(const IceInternal::InstancePtr& instance, const Ice::AsyncResultPtr& result) : 
+        DispatchWorkItem(instance), _result(result)
     {
     }
     
     virtual void
-    execute(ThreadPoolCurrent& current)
+    run()
     {
-        current.ioCompleted();
         _result->__sent();
     }
     
@@ -236,7 +237,7 @@ Ice::AsyncResult::__sentAsync()
     //
     try
     {
-        _instance->clientThreadPool()->execute(new AsynchronousSent(this));
+        _instance->clientThreadPool()->execute(new AsynchronousSent(_instance, this));
     }
     catch(const Ice::CommunicatorDestroyedException&)
     {
@@ -281,7 +282,7 @@ Ice::AsyncResult::__exceptionAsync(const Ice::Exception& ex)
     //
     try
     {
-        _instance->clientThreadPool()->execute(new AsynchronousException(this, ex));
+        _instance->clientThreadPool()->execute(new AsynchronousException(_instance, this, ex));
     }
     catch(const Ice::CommunicatorDestroyedException&)
     {

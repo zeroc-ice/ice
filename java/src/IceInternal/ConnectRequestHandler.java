@@ -295,12 +295,11 @@ public class ConnectRequestHandler
         //
         if(!_requests.isEmpty())
         {
-            _reference.getInstance().clientThreadPool().execute(new ThreadPoolWorkItem()
+            _reference.getInstance().clientThreadPool().execute(new DispatchWorkItem(_reference.getInstance())
                 {
                     public void
-                    execute(ThreadPoolCurrent current)
+                    run()
                     {
-                        current.ioCompleted();
                         flushRequestsWithException(ex);
                     };
                 });
@@ -448,12 +447,11 @@ public class ConnectRequestHandler
             {
                 assert(_exception == null && !_requests.isEmpty());
                 _exception = ex.get();
-                _reference.getInstance().clientThreadPool().execute(new ThreadPoolWorkItem()
+                _reference.getInstance().clientThreadPool().execute(new DispatchWorkItem(_reference.getInstance())
                     {
                         public void
-                        execute(ThreadPoolCurrent current)
+                        run()
                         {
-                            current.ioCompleted();
                             flushRequestsWithException(ex);
                         };
                     });
@@ -465,12 +463,11 @@ public class ConnectRequestHandler
             {
                 assert(_exception == null && !_requests.isEmpty());
                 _exception = ex;
-                _reference.getInstance().clientThreadPool().execute(new ThreadPoolWorkItem()
+                _reference.getInstance().clientThreadPool().execute(new DispatchWorkItem(_reference.getInstance())
                     {
                         public void
-                        execute(ThreadPoolCurrent current)
+                        run()
                         {
-                            current.ioCompleted();
                             flushRequestsWithException(ex);
                         };
                     });
@@ -480,12 +477,11 @@ public class ConnectRequestHandler
         if(!sentCallbacks.isEmpty())
         {
             final Instance instance = _reference.getInstance();
-            instance.clientThreadPool().execute(new ThreadPoolWorkItem()
+            instance.clientThreadPool().execute(new DispatchWorkItem(instance)
                                                 {
                                                     public void
-                                                    execute(ThreadPoolCurrent current)
+                                                    run()
                                                     {
-                                                        current.ioCompleted();
                                                         for(OutgoingAsyncMessageCallback callback : sentCallbacks)
                                                         {
                                                             callback.__sent();

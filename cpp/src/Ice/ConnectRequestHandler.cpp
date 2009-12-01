@@ -25,20 +25,22 @@ using namespace IceInternal;
 namespace
 {
 
-class FlushRequestsWithException : public ThreadPoolWorkItem
+class FlushRequestsWithException : public DispatchWorkItem
 {
 public:
     
-    FlushRequestsWithException(const ConnectRequestHandlerPtr& handler, const Ice::LocalException& ex) :
+    FlushRequestsWithException(const InstancePtr& instance,
+                               const ConnectRequestHandlerPtr& handler, 
+                               const Ice::LocalException& ex) :
+        DispatchWorkItem(instance),
         _handler(handler),
         _exception(dynamic_cast<Ice::LocalException*>(ex.ice_clone()))
     {
     }
     
     virtual void
-    execute(ThreadPoolCurrent& current)
+    run()
     {
-        current.ioCompleted();
         _handler->flushRequestsWithException(*_exception.get());
     }
     
@@ -48,20 +50,22 @@ private:
     const auto_ptr<Ice::LocalException> _exception;
 };
 
-class FlushRequestsWithExceptionWrapper : public ThreadPoolWorkItem
+class FlushRequestsWithExceptionWrapper : public DispatchWorkItem
 {
 public:
     
-    FlushRequestsWithExceptionWrapper(const ConnectRequestHandlerPtr& handler, const LocalExceptionWrapper& ex) :
+    FlushRequestsWithExceptionWrapper(const InstancePtr& instance,
+                                      const ConnectRequestHandlerPtr& handler, 
+                                      const LocalExceptionWrapper& ex) :
+        DispatchWorkItem(instance),
         _handler(handler),
         _exception(ex)
     {
     }
     
     virtual void
-    execute(ThreadPoolCurrent& current)
+    run()
     {
-        current.ioCompleted();
         _handler->flushRequestsWithException(_exception);
     }
     
@@ -71,19 +75,18 @@ private:
     const LocalExceptionWrapper _exception;
 };
 
-class FlushSentRequests : public ThreadPoolWorkItem
+class FlushSentRequests : public DispatchWorkItem
 {
 public:
     
     FlushSentRequests(const InstancePtr& instance, const vector<OutgoingAsyncMessageCallbackPtr>& callbacks) :
-        _instance(instance), _callbacks(callbacks)
+        DispatchWorkItem(instance), _callbacks(callbacks)
     {
     }
 
     virtual void
-    execute(ThreadPoolCurrent& current)
+    run()
     {
-        current.ioCompleted();
         for(vector<OutgoingAsyncMessageCallbackPtr>::const_iterator p = _callbacks.begin(); p != _callbacks.end(); ++p)
         {
             (*p)->__sent();
@@ -92,7 +95,6 @@ public:
 
 private:
 
-    InstancePtr _instance;
     vector<OutgoingAsyncMessageCallbackPtr> _callbacks;
 };
 
@@ -337,7 +339,8 @@ ConnectRequestHandler::setException(const Ice::LocalException& ex)
     //
     if(!_requests.empty())
     {
-        _reference->getInstance()->clientThreadPool()->execute(new FlushRequestsWithException(this, ex));
+        const InstancePtr instance = _reference->getInstance();
+        instance->clientThreadPool()->execute(new FlushRequestsWithException(instance, this, ex));
     }
 
     notifyAll();
@@ -449,19 +452,21 @@ ConnectRequestHandler::flushRequests()
         Lock sync(*this);
         assert(!_exception.get() && !_requests.empty());
         _exception.reset(dynamic_cast<Ice::LocalException*>(ex.get()->ice_clone()));
-        _reference->getInstance()->clientThreadPool()->execute(new FlushRequestsWithExceptionWrapper(this, ex));
+        const InstancePtr instance = _reference->getInstance();
+        instance->clientThreadPool()->execute(new FlushRequestsWithExceptionWrapper(instance, this, ex));
     }
     catch(const Ice::LocalException& ex)
     {
         Lock sync(*this);
         assert(!_exception.get() && !_requests.empty());
         _exception.reset(dynamic_cast<Ice::LocalException*>(ex.ice_clone()));
-        _reference->getInstance()->clientThreadPool()->execute(new FlushRequestsWithException(this, ex));
+        const InstancePtr instance = _reference->getInstance();
+        instance->clientThreadPool()->execute(new FlushRequestsWithException(instance, this, ex));
     }
 
     if(!sentCallbacks.empty())
     {
-        InstancePtr instance = _reference->getInstance();
+        const InstancePtr instance = _reference->getInstance();
         instance->clientThreadPool()->execute(new FlushSentRequests(instance, sentCallbacks));
     }
         

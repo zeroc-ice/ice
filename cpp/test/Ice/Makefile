@@ -26,6 +26,7 @@ SUBDIRS		= proxy \
 		  gc \
 		  checksum \
 		  stream \
+		  dispatcher \
 		  hold \
 		  custom \
 		  binding \

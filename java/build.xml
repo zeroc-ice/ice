@@ -269,6 +269,9 @@
             <fileset dir="test/Ice/defaultServant">
                 <include name="Test.ice" />
             </fileset>
+            <fileset dir="test/Ice/dispatcher">
+                <include name="Test.ice" />
+            </fileset>
             <fileset dir="test/Ice/exceptions">
                 <include name="Test.ice" />
                 <include name="TestAMD.ice" />

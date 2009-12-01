@@ -26,6 +26,7 @@ SUBDIRS		= application \
 		  proxy \
 		  operations \
 		  ami \
+		  dispatcher \
 		  slicing \
 		  checksum \
 		  stream \

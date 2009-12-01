@@ -25,6 +25,7 @@ SUBDIRS		= proxy \
 		  slicing \
 		  gc \
 		  checksum \
+		  dispatcher \
 		  hold \
 		  custom \
 		  binding \

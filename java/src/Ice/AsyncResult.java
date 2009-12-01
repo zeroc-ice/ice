@@ -128,7 +128,8 @@ public class AsyncResult
             }
             if(_exception != null)
             {
-                throw (LocalException)_exception.fillInStackTrace(); // TODO: Correct?
+                //throw (LocalException)_exception.fillInStackTrace();
+                throw _exception;
             }
             return (_state & OK) > 0;
         }
@@ -158,12 +159,11 @@ public class AsyncResult
         //
         try
         {
-            _instance.clientThreadPool().execute(new IceInternal.ThreadPoolWorkItem()
+            _instance.clientThreadPool().execute(new IceInternal.DispatchWorkItem(_instance)
                 {
                     public void
-                    execute(IceInternal.ThreadPoolCurrent current)
+                    run()
                     {
-                        current.ioCompleted();
                         __exception(ex);
                     }
                 });
@@ -225,12 +225,11 @@ public class AsyncResult
         //
         try
         {
-            _instance.clientThreadPool().execute(new IceInternal.ThreadPoolWorkItem()
+            _instance.clientThreadPool().execute(new IceInternal.DispatchWorkItem(_instance)
                 {
                     public void
-                    execute(IceInternal.ThreadPoolCurrent current)
+                    run()
                     {
-                        current.ioCompleted();
                         __sentInternal();
                     }
                 });

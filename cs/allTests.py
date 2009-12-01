@@ -42,6 +42,7 @@ tests = [
     ("Ice/slicing/exceptions", ["core"]),
     ("Ice/slicing/objects", ["core"]),
     ("Ice/checksum", ["core"]),
+    ("Ice/dispatcher", ["core"]),
     ("Ice/stream", ["core"]),
     ("Ice/retry", ["core"]),
     ("Ice/timeout", ["core"]),
