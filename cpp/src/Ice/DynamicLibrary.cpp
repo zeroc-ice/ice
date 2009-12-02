@@ -92,13 +92,15 @@ IceInternal::DynamicLibrary::loadEntryPoint(const string& entryPoint, bool useIc
 #ifdef _WIN32
     lib = libName;
 
-#   if defined(_MSC_VER) && (_MSC_VER < 1300)
+#   ifdef COMPSUFFIX
     //
-    // Special case to deal with the naming of IceSSL VC6 DLL.
+    // If using unique dll names we need to add compiler suffix
+    // to IceSSL so that we do not have to use compiler suffix
+    // in the configuration.
     //
     if(IceUtilInternal::toLower(libName) == "icessl")
     {
-        lib += "vc60_";
+        lib += COMPSUFFIX;
     }
 #   endif
 

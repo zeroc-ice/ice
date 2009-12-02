@@ -10,7 +10,7 @@
 top_srcdir	= ..\..\..
 
 LIBNAME		= $(top_srcdir)\lib\icestormsqldb$(LIBSUFFIX).lib
-DLLNAME		= $(top_srcdir)\bin\icestormsqldb$(SOVERSION)$(LIBSUFFIX).dll
+DLLNAME		= $(top_srcdir)\bin\icestormsqldb$(COMPSUFFIX)$(SOVERSION)$(LIBSUFFIX).dll
 
 TARGETS         = $(LIBNAME) $(DLLNAME)
 

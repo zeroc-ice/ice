@@ -276,6 +276,10 @@ noted.
 C++ Changes
 ============
 
+- On Windows it is now possible to build the Ice DLLs with unique names
+  for each supported compiler. See UNIQUE_DLL_NAMES setting in 
+  cpp/config/Make.rules.mak.
+
 - The Ice DLLs no longer all use the default base load address.
 
 - Changed the signature of the Ice::Service start method.
