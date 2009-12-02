@@ -3778,7 +3778,6 @@ Slice::Gen::HelperVisitor::visitClassDefStart(const ClassDefPtr& p)
         out << eb;
         out << eb;
 
-        if(cl->hasMetaData("ami") || op->hasMetaData("ami"))
         {
             //
             // Write the asynchronous begin/end methods.
@@ -4009,7 +4008,10 @@ Slice::Gen::HelperVisitor::visitClassDefStart(const ClassDefPtr& p)
                 out << nl << "__end(__result, __" << op->name() << "_name);";
             }
             out << eb;
+        }
 
+        if(cl->hasMetaData("ami") || op->hasMetaData("ami"))
+        {
             vector<string> paramsAMI = getParamsAsync(op, package, false);
             vector<string> argsAMI = getInOutArgs(op, InParam);
             
@@ -4590,7 +4592,6 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
     writeThrowsClause(package, throws);
     out << ';';
 
-    if(cl->hasMetaData("ami") || p->hasMetaData("ami"))
     {
         //
         // Write the asynchronous begin/end methods.
@@ -4650,7 +4651,10 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
             << epar;
         writeThrowsClause(package, throws);
         out << ';';
+    }
 
+    if(cl->hasMetaData("ami") || p->hasMetaData("ami"))
+    {
         vector<string> paramsAMI = getParamsAsync(p, package, false);
 
         //
@@ -5591,7 +5595,6 @@ Slice::Gen::AsyncVisitor::visitOperation(const OperationPtr& p)
     //
     // Generate new-style callback.
     //
-    if(cl->hasMetaData("ami") || p->hasMetaData("ami"))
     {
         string classNameAsync = "Callback_" + cl->name();
         string absoluteAsync = getAbsolute(cl, "", "Callback_", "_" + name);

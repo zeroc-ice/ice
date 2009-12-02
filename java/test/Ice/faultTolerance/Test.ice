@@ -14,7 +14,7 @@
 module Test
 {
 
-["ami"] interface TestIntf
+interface TestIntf
 {
     void shutdown();
     void abort();

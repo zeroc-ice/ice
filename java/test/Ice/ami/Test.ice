@@ -21,7 +21,7 @@ exception TestIntfException
 {
 };
 
-["ami"] interface TestIntf
+interface TestIntf
 {
     void op();
     void opWithPayload(Ice::ByteSeq seq);

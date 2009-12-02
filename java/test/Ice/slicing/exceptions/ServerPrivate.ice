@@ -36,7 +36,7 @@ exception KnownMostDerived extends KnownIntermediate
     string kmd;
 };
 
-["ami"] interface TestIntf
+interface TestIntf
 {
     void baseAsBase() throws Base;
     void unknownDerivedAsBase() throws Base;

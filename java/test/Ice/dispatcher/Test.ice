@@ -16,7 +16,7 @@
 module Test
 {
 
-["ami"] interface TestIntf
+interface TestIntf
 {
     void op();
     void opWithPayload(Ice::ByteSeq seq);
