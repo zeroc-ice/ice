@@ -99,6 +99,11 @@ BlobjectArrayAsyncI::ice_invoke_async(const Ice::AMD_Object_ice_invokePtr& cb,
     Ice::InputStreamPtr in = Ice::createInputStream(current.adapter->getCommunicator(), inParams);
     vector<Ice::Byte> outParams;
     bool ok = invokeInternal(in, outParams, current);
-    pair<const Ice::Byte*, const Ice::Byte*> outPair(&outParams[0], &outParams[0] + outParams.size());
-    cb->ice_response(ok, outParams);
+    pair<const Ice::Byte*, const Ice::Byte*> outPair(0, 0);
+    if(outParams.size() != 0)
+    {
+        outPair.first = &outParams[0];
+        outPair.second = &outParams[0] + outParams.size();
+    }
+    cb->ice_response(ok, outPair);
 }
