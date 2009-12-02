@@ -403,6 +403,10 @@ ln -s ant-ice-%{version}.jar $RPM_BUILD_ROOT%{_javadir}/ant-ice.jar
 #
 cd $RPM_BUILD_DIR/Ice-%{version}/cs
 make prefix=$RPM_BUILD_ROOT GACINSTALL=yes GAC_ROOT=$RPM_BUILD_ROOT%{_prefix}/lib install
+for f in Ice Glacier2 IceBox IceGrid IcePatch2 IceStorm
+do
+     mv $RPM_BUILD_ROOT/bin/$f.xml $RPM_BUILD_ROOT%{_libdir}/mono/gac/$f/%{dotnetversion}.*/
+done
 mv $RPM_BUILD_ROOT/bin/* $RPM_BUILD_ROOT%{_bindir}
 
 #
@@ -480,6 +484,10 @@ ln -s  Ice-%{version}.jar $RPM_BUILD_ROOT%{_javadir}/Ice.jar
 #
 cd $RPM_BUILD_DIR/Ice-%{version}/cs
 make prefix=$RPM_BUILD_ROOT GACINSTALL=yes GAC_ROOT=$RPM_BUILD_ROOT%{_prefix}/lib install
+for f in Ice Glacier2 IceBox IceGrid IcePatch2 IceStorm
+do
+     mv $RPM_BUILD_ROOT/bin/$f.xml $RPM_BUILD_ROOT%{_libdir}/mono/gac/$f/%{dotnetversion}.*/
+done
 %endif
 
 #
@@ -536,18 +544,18 @@ rm -rf $RPM_BUILD_ROOT
 %{_prefix}/lib/mono/gac/IcePatch2/%{dotnetversion}.*/
 %dir %{_prefix}/lib/mono/gac/IceStorm
 %{_prefix}/lib/mono/gac/IceStorm/%{dotnetversion}.*/
-%dir %{_prefix}/lib/mono/gac/policy.%{dotnetpolicyversion}.Glacier2
-%{_prefix}/lib/mono/gac/policy.%{dotnetpolicyversion}.Glacier2/0.*/
-%dir %{_prefix}/lib/mono/gac/policy.%{dotnetpolicyversion}.Ice
-%{_prefix}/lib/mono/gac/policy.%{dotnetpolicyversion}.Ice/0.*/
-%dir %{_prefix}/lib/mono/gac/policy.%{dotnetpolicyversion}.IceBox
-%{_prefix}/lib/mono/gac/policy.%{dotnetpolicyversion}.IceBox/0.*/
-%dir %{_prefix}/lib/mono/gac/policy.%{dotnetpolicyversion}.IceGrid
-%{_prefix}/lib/mono/gac/policy.%{dotnetpolicyversion}.IceGrid/0.*/
-%dir %{_prefix}/lib/mono/gac/policy.%{dotnetpolicyversion}.IcePatch2
-%{_prefix}/lib/mono/gac/policy.%{dotnetpolicyversion}.IcePatch2/0.*/
-%dir %{_prefix}/lib/mono/gac/policy.%{dotnetpolicyversion}.IceStorm
-%{_prefix}/lib/mono/gac/policy.%{dotnetpolicyversion}.IceStorm/0.*/
+#%dir %{_prefix}/lib/mono/gac/policy.%{dotnetpolicyversion}.Glacier2
+#%{_prefix}/lib/mono/gac/policy.%{dotnetpolicyversion}.Glacier2/0.*/
+#%dir %{_prefix}/lib/mono/gac/policy.%{dotnetpolicyversion}.Ice
+#%{_prefix}/lib/mono/gac/policy.%{dotnetpolicyversion}.Ice/0.*/
+#%dir %{_prefix}/lib/mono/gac/policy.%{dotnetpolicyversion}.IceBox
+#%{_prefix}/lib/mono/gac/policy.%{dotnetpolicyversion}.IceBox/0.*/
+#%dir %{_prefix}/lib/mono/gac/policy.%{dotnetpolicyversion}.IceGrid
+#%{_prefix}/lib/mono/gac/policy.%{dotnetpolicyversion}.IceGrid/0.*/
+#%dir %{_prefix}/lib/mono/gac/policy.%{dotnetpolicyversion}.IcePatch2
+#%{_prefix}/lib/mono/gac/policy.%{dotnetpolicyversion}.IcePatch2/0.*/
+#%dir %{_prefix}/lib/mono/gac/policy.%{dotnetpolicyversion}.IceStorm
+#%{_prefix}/lib/mono/gac/policy.%{dotnetpolicyversion}.IceStorm/0.*/
 %endif
 
 #
@@ -779,14 +787,15 @@ fi
 
 %files php
 %defattr(-, root, root, -)
-%{_datadir}/php
 
 %if "%{dist}" == ".rhel5"
+%{_datadir}/php
 %{_libdir}/php/modules/IcePHP.so
 %config(noreplace) %{_sysconfdir}/php.d/ice.ini
 %endif
 
 %if "%{dist}" == ".sles11"
+%{_datadir}/php5
 %{_libdir}/php5/extensions
 %config(noreplace) %{_sysconfdir}/php5/conf.d/ice.ini
 %endif

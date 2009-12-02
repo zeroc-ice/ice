@@ -56,7 +56,6 @@ install:: all
 
 install:: all
 	copy $(ICEBOXNET) $(install_bindir)
-	copy $(ICEBOXNET:.exe=.exe.config) $(install_bindir)
 !if "$(DEBUG)" == "yes"
 	copy $(bindir)\iceboxnet.pdb $(install_bindir)
 !endif

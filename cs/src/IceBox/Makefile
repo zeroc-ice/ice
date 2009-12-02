@@ -46,7 +46,6 @@ install:: all
 
 install:: all
 	$(call installprogram,$(ICEBOXNET),$(install_bindir))
-	$(call installdata,$(ICEBOXNET:.exe=.exe.config),$(install_bindir))
 	$(call installmdb,$(ICEBOXNET).mdb)
 
 ifeq ($(GACINSTALL),yes)

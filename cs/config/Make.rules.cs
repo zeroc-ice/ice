@@ -98,7 +98,7 @@ GACUTIL			= gacutil
 
 # MDB files are generated only for debug builds. For debug, with a GAC
 # install gacutil installs the .mdb into the GAC.
-installmdb    =
+installmdb    = /bin/true
 
 ifeq ($(GACINSTALL),yes)
     ifeq ($(GAC_ROOT),)
@@ -116,9 +116,18 @@ else
     			  chmod a+rx $(install_bindir)/$(notdir $(1).dll); \
     			  chmod a+r $(install_bindir)/$(notdir $(1))
     ifeq ($(DEBUG),yes)
-        installmdb          = $(INSTALL_LIBRARY) $(1) $(install_bindir); \
-    			      chmod a+rx $(install_bindir)/$(notdir $(1))
+        installmdb      = $(INSTALL_LIBRARY) $(1) $(install_bindir); \
+                          chmod a+rx $(install_bindir)/$(notdir $(1))
     endif
+endif
+
+#
+# Do not generate policy files for beta (x.y.51) or minor (x.y.0) releases.
+#
+generate_policies = $(shell test $(VERSION_PATCH) -gt 0 -a $(VERSION_PATCH) -lt 51 && echo "yes")
+
+ifneq ($(generate_policies),yes)
+    installpolicy = /bin/true
 endif
 
 MCS			= gmcs
@@ -148,6 +157,8 @@ endif
 AL              = al
 POLICY          = policy.$(SHORT_VERSION).$(PKG)
 
+ifeq ($(generate_policies),yes)
+
 ifneq ($(PUBLIC_KEY_TOKEN),)
     publicKeyToken = $(PUBLIC_KEY_TOKEN)
 else
@@ -165,7 +176,7 @@ endif
 ifneq ($(POLICY_TARGET),)
 
 $(bindir)/$(POLICY_TARGET):
-	@echo <<EOF " \
+	@echo -e " \
 <configuration> \n \
   <runtime> \n \
     <assemblyBinding xmlns=\"urn:schemas-microsoft-com:asm.v1\"> \n \
@@ -176,8 +187,7 @@ $(bindir)/$(POLICY_TARGET):
       </dependentAssembly> \n \
     </assemblyBinding> \n \
   </runtime> \n \
-</configuration>" \
-EOF >$(POLICY)
+</configuration>" >$(POLICY)
 	$(AL) /link:$(POLICY) /version:0.0.0.0 /out:$(POLICY_TARGET) /keyfile:$(KEYFILE)
 	chmod a+r $(POLICY)
 	chmod a+rx $(POLICY_TARGET)
@@ -185,6 +195,8 @@ EOF >$(POLICY)
 
 clean::
 	-rm -f $(bindir)/$(POLICY) $(bindir)/$(POLICY_TARGET)
+
+endif
 
 endif
 
@@ -208,8 +220,10 @@ $(GDIR)/%.cs: $(SDIR)/%.ice
 
 all:: $(TARGETS)
 
-ifneq ($(POLICY_TARGET),)
+ifeq ($(generate_policies),yes)
+    ifneq ($(POLICY_TARGET),)
 all:: $(bindir)/$(POLICY_TARGET)
+    endif
 endif
 
 ifneq ($(TARGETS_CONFIG),)

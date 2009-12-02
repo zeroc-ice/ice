@@ -475,7 +475,7 @@ IcePHP::PrimitiveInfo::marshal(zval* zv, const Ice::OutputStreamPtr& os, ObjectM
     }
     case PrimitiveInfo::KindFloat:
     {
-        double val;
+        double val = 0;
         if(Z_TYPE_P(zv) == IS_DOUBLE)
         {
             val = Z_DVAL_P(zv);
@@ -493,7 +493,7 @@ IcePHP::PrimitiveInfo::marshal(zval* zv, const Ice::OutputStreamPtr& os, ObjectM
     }
     case PrimitiveInfo::KindDouble:
     {
-        double val;
+        double val = 0;
         if(Z_TYPE_P(zv) == IS_DOUBLE)
         {
             val = Z_DVAL_P(zv);
@@ -1158,7 +1158,7 @@ IcePHP::SequenceInfo::marshalPrimitiveSequence(const PrimitiveInfoPtr& pi, zval*
             {
                 throw AbortMarshaling();
             }
-            double d;
+            double d = 0;
             if(Z_TYPE_P(*val) == IS_DOUBLE)
             {
                 d = Z_DVAL_P(*val);
@@ -1189,7 +1189,7 @@ IcePHP::SequenceInfo::marshalPrimitiveSequence(const PrimitiveInfoPtr& pi, zval*
             {
                 throw AbortMarshaling();
             }
-            double d;
+            double d = 0;
             if(Z_TYPE_P(*val) == IS_DOUBLE)
             {
                 d = Z_DVAL_P(*val);
