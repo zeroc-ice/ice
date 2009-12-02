@@ -10,7 +10,7 @@
 top_srcdir	= ..\..
 
 LIBNAME		= $(top_srcdir)\lib\glacier2$(LIBSUFFIX).lib
-DLLNAME		= $(top_srcdir)\bin\glacier2$(SOVERSION)$(LIBSUFFIX).dll
+DLLNAME		= $(top_srcdir)\bin\glacier2$(COMPSUFFIX)$(SOVERSION)$(LIBSUFFIX).dll
 
 TARGETS         = $(LIBNAME) $(DLLNAME)
 

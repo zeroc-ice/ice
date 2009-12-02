@@ -46,6 +46,11 @@ THIRDPARTY_HOME	 = $(PROGRAMFILES)\ZeroC\Ice-$(VERSION)-ThirdParty
 !endif
 !endif
 
+#
+# Define if you want the Ice DLLs to have compiler specific names
+#
+#UNIQUE_DLL_NAMES	= yes
+
 # ----------------------------------------------------------------------
 # Don't change anything below this line!
 # ----------------------------------------------------------------------
@@ -96,11 +101,12 @@ BCPLUSPLUS		= yes
 !endif
 
 !if "$(CPP_COMPILER)" == "BCC2010"
-libsuff		= \bcc10
+libsuff			= \bcc10
 !elseif "$(CPP_COMPILER)" == "VC60"
-libsuff		= \vc6
+libsuff			= \vc6
+UNIQUE_DLL_NAMES	= yes
 !else
-libsuff		= $(x64suffix)
+libsuff			= $(x64suffix)
 !endif
 
 !if "$(ice_src_dist)" != ""
@@ -117,8 +123,14 @@ CPPFLAGS        = -I"$(ice_dir)\include\stlport" $(CPPFLAGS)
 !endif
 !endif
 
+!if "$(UNIQUE_DLL_NAMES)" == "yes"
 !if "$(CPP_COMPILER)" == "VC60"
-COMPSUFFIX	= _vc6
+COMPSUFFIX	= vc60_
+!elseif "$(CPP_COMPILER)" == "VC90" || "$(CPP_COMPILER)" == "VC90_EXPRESS"
+COMPSUFFIX	= vc90_
+!elseif "$(CPP_COMPILER)" == "BCC2010"
+COMPSUFFIX	= bcc10_
+!endif
 !endif
 
 !if "$(OPTIMIZE)" != "yes"

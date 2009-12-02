@@ -10,7 +10,7 @@
 top_srcdir	= ..\..
  
 LIBNAME		= $(top_srcdir)\lib\icexml$(LIBSUFFIX).lib
-DLLNAME		= $(top_srcdir)\bin\icexml$(SOVERSION)$(LIBSUFFIX).dll
+DLLNAME		= $(top_srcdir)\bin\icexml$(COMPSUFFIX)$(SOVERSION)$(LIBSUFFIX).dll
 
 TARGETS		= $(LIBNAME) $(DLLNAME)
 
