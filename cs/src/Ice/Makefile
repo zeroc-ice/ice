@@ -172,4 +172,7 @@ install:: all
 	 $(call installmdb,$(LIBNAME).mdb); \
 	 $(call installdata,$(PKG).xml,$(install_bindir)))
 
+clean::
+	-rm -f $(bindir)/$(PKG).xml
+
 include .depend

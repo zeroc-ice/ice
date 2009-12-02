@@ -46,4 +46,7 @@ install:: all
 	$(call installdata,../../lib/pkgconfig/$(PKG).pc,$(install_pkgconfigdir))
 endif
 
+clean::
+	-rm -f $(bindir)/$(PKG).xml
+
 include .depend
