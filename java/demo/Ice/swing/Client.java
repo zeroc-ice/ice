@@ -464,7 +464,7 @@ public class Client extends JFrame
             if(!_deliveryMode.isBatch())
             {
                 Ice.AsyncResult r = hello.begin_sayHello(delay, new SayHelloI());
-                if(!r.sentSynchronously())
+                if(!r.isSentSynchronously())
                 {
                     _status.setText("Sending request");
                 }

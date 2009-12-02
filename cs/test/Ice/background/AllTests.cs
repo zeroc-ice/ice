@@ -15,50 +15,50 @@ using System.Threading;
 public class AllTests
 {
     private static void test(bool b)
-    {
-        if(!b)
         {
-            throw new System.Exception();
+            if(!b)
+            {
+                throw new System.Exception();
+            }
         }
-    }
 
     private class Callback
     {
         internal Callback()
-        {
-            _called = false;
-        }
-
-        public virtual void check()
-        {
-            lock(this)
             {
-                while(!_called)
-                {
-                    Monitor.Wait(this);
-                }
-
                 _called = false;
             }
-        }
+
+        public virtual void check()
+            {
+                lock(this)
+                {
+                    while(!_called)
+                    {
+                        Monitor.Wait(this);
+                    }
+
+                    _called = false;
+                }
+            }
 
         public virtual void called()
-        {
-            lock(this)
             {
-                Debug.Assert(!_called);
-                _called = true;
-                Monitor.Pulse(this);
+                lock(this)
+                {
+                    Debug.Assert(!_called);
+                    _called = true;
+                    Monitor.Pulse(this);
+                }
             }
-        }
 
         public virtual bool isCalled()
-        {
-            lock(this)
             {
-                return _called;
+                lock(this)
+                {
+                    return _called;
+                }
             }
-        }
 
         private bool _called;
     }
@@ -66,62 +66,62 @@ public class AllTests
     private class OpAMICallback
     {
         public void response()
-        {
-            _response.called();
-        }
+            {
+                _response.called();
+            }
 
         public void noResponse()
-        {
-            test(false);
-        }
+            {
+                test(false);
+            }
 
         public void exception(Ice.Exception ex)
-        {
-            _response.called();
-        }
+            {
+                _response.called();
+            }
 
         public void noException(Ice.Exception ex)
-        {
-            Console.Error.WriteLine(ex);
-            test(false);
-        }
+            {
+                Console.Error.WriteLine(ex);
+                test(false);
+            }
 
         public void sent(bool ss)
-        {
-            _sent.called();
-        }
+            {
+                _sent.called();
+            }
 
         public bool checkException(bool wait)
-        {
-            if(wait)
             {
-                _response.check();
-                return true;
+                if(wait)
+                {
+                    _response.check();
+                    return true;
+                }
+                else
+                {
+                    return _response.isCalled();
+                }
             }
-            else
-            {
-                return _response.isCalled();
-            }
-        }
 
         public bool checkResponse(bool wait)
-        {
-            if(wait)
             {
-                _response.check();
-                return true;
+                if(wait)
+                {
+                    _response.check();
+                    return true;
+                }
+                else
+                {
+                    return _response.isCalled();
+                }
             }
-            else
-            {
-                return _response.isCalled();
-            }
-        }
 
         public void checkResponseAndSent()
-        {
-            _sent.check();
-            _response.check();
-        }
+            {
+                _sent.check();
+                _response.check();
+            }
 
         private Callback _response = new Callback();
         private Callback _sent = new Callback();
@@ -130,58 +130,58 @@ public class AllTests
     private class OpThread
     {
         internal OpThread(BackgroundPrx background)
-        {
-            _background = BackgroundPrxHelper.uncheckedCast(background.ice_oneway());
-            Start();
-        }
+            {
+                _background = BackgroundPrxHelper.uncheckedCast(background.ice_oneway());
+                Start();
+            }
 
         public void Join()
-        {
-            _thread.Join();
-        }
+            {
+                _thread.Join();
+            }
 
         public void Start()
-        {
-            _thread = new Thread(new ThreadStart(Run));
-            _thread.Start();
-        }
+            {
+                _thread = new Thread(new ThreadStart(Run));
+                _thread.Start();
+            }
 
         public void Run()
-        {
-            int count = 0;
-            while(true)
+            {
+                int count = 0;
+                while(true)
+                {
+                    lock(this)
+                    {
+                        if(_destroyed)
+                        {
+                            return;
+                        }
+                    }
+
+                    try
+                    {
+                        if(++count == 10) // Don't blast the connection with only oneway's
+                        {
+                            count = 0;
+                            _background.ice_twoway().ice_ping();
+                        }
+                        _background.begin_op();
+                        Thread.Sleep(1);
+                    }
+                    catch(Ice.LocalException)
+                    {
+                    }
+                }
+            }
+
+        public void destroy()
             {
                 lock(this)
                 {
-                    if(_destroyed)
-                    {
-                        return;
-                    }
-                }
-
-                try
-                {
-                    if(++count == 10) // Don't blast the connection with only oneway's
-                    {
-                        count = 0;
-                        _background.ice_twoway().ice_ping();
-                    }
-                    _background.begin_op();
-                    Thread.Sleep(1);
-                }
-                catch(Ice.LocalException)
-                {
+                    _destroyed = true;
                 }
             }
-        }
-
-        public void destroy()
-        {
-            lock(this)
-            {
-                _destroyed = true;
-            }
-        }
 
         private bool _destroyed = false;
         private BackgroundPrx _background = null;
@@ -189,401 +189,401 @@ public class AllTests
     }
 
     public static Test.BackgroundPrx allTests(Ice.Communicator communicator)
-    {
-        string sref = "background:default -p 12010";
-        Ice.ObjectPrx obj = communicator.stringToProxy(sref);
-        test(obj != null);
-
-        BackgroundPrx background = BackgroundPrxHelper.uncheckedCast(obj);
-
-        sref = "backgroundController:tcp -p 12011";
-        obj = communicator.stringToProxy(sref);
-        test(obj != null);
-
-        BackgroundControllerPrx backgroundController = BackgroundControllerPrxHelper.uncheckedCast(obj);
-
-        Configuration configuration = Configuration.getInstance();
-
-        Console.Write("testing connect... ");
-        Console.Out.Flush();
         {
-            connectTests(configuration, background);
-        }
-        Console.Out.WriteLine("ok");
+            string sref = "background:default -p 12010";
+            Ice.ObjectPrx obj = communicator.stringToProxy(sref);
+            test(obj != null);
 
-        Console.Write("testing initialization... ");
-        Console.Out.Flush();
-        {
-            initializeTests(configuration, background, backgroundController);
-        }
-        Console.Out.WriteLine("ok");
+            BackgroundPrx background = BackgroundPrxHelper.uncheckedCast(obj);
 
-        Console.Write("testing connection validation... ");
-        Console.Out.Flush();
-        {
-            validationTests(configuration, background, backgroundController);
-        }
-        Console.Out.WriteLine("ok");
+            sref = "backgroundController:tcp -p 12011";
+            obj = communicator.stringToProxy(sref);
+            test(obj != null);
 
-        Console.Write("testing read/write... ");
-        Console.Out.Flush();
-        {
-            readWriteTests(configuration, background, backgroundController);
-        }
-        Console.Out.WriteLine("ok");
+            BackgroundControllerPrx backgroundController = BackgroundControllerPrxHelper.uncheckedCast(obj);
 
-        Console.Write("testing locator... ");
-        Console.Out.Flush();
-        {
-            Ice.LocatorPrx locator;
-            obj = communicator.stringToProxy("locator:default -p 12010 -t 500");
-            locator = Ice.LocatorPrxHelper.uncheckedCast(obj);
-            obj = communicator.stringToProxy("background@Test").ice_locator(locator).ice_oneway();
+            Configuration configuration = Configuration.getInstance();
 
-            backgroundController.pauseCall("findAdapterById");
-            try
+            Console.Write("testing connect... ");
+            Console.Out.Flush();
             {
+                connectTests(configuration, background);
+            }
+            Console.Out.WriteLine("ok");
+
+            Console.Write("testing initialization... ");
+            Console.Out.Flush();
+            {
+                initializeTests(configuration, background, backgroundController);
+            }
+            Console.Out.WriteLine("ok");
+
+            Console.Write("testing connection validation... ");
+            Console.Out.Flush();
+            {
+                validationTests(configuration, background, backgroundController);
+            }
+            Console.Out.WriteLine("ok");
+
+            Console.Write("testing read/write... ");
+            Console.Out.Flush();
+            {
+                readWriteTests(configuration, background, backgroundController);
+            }
+            Console.Out.WriteLine("ok");
+
+            Console.Write("testing locator... ");
+            Console.Out.Flush();
+            {
+                Ice.LocatorPrx locator;
+                obj = communicator.stringToProxy("locator:default -p 12010 -t 500");
+                locator = Ice.LocatorPrxHelper.uncheckedCast(obj);
+                obj = communicator.stringToProxy("background@Test").ice_locator(locator).ice_oneway();
+
+                backgroundController.pauseCall("findAdapterById");
+                try
+                {
+                    obj.ice_ping();
+                    test(false);
+                }
+                catch(Ice.TimeoutException)
+                {
+                }
+                backgroundController.resumeCall("findAdapterById");
+
+                obj = communicator.stringToProxy("locator:default -p 12010");
+                locator = Ice.LocatorPrxHelper.uncheckedCast(obj);
+                obj = obj.ice_locator(locator);
                 obj.ice_ping();
-                test(false);
+
+                obj = communicator.stringToProxy("background@Test").ice_locator(locator);
+                BackgroundPrx bg = BackgroundPrxHelper.uncheckedCast(obj);
+
+                backgroundController.pauseCall("findAdapterById");
+                Ice.AsyncResult r1 = bg.begin_op();
+                Ice.AsyncResult r2 = bg.begin_op();
+                test(!r1.IsCompleted);
+                test(!r2.IsCompleted);
+                backgroundController.resumeCall("findAdapterById");
+                bg.end_op(r1);
+                bg.end_op(r2);
+                test(r1.IsCompleted);
+                test(r2.IsCompleted);
             }
-            catch(Ice.TimeoutException)
+            Console.Out.WriteLine("ok");
+
+            Console.Write("testing router... ");
+            Console.Out.Flush();
             {
+                Ice.RouterPrx router;
+
+                obj = communicator.stringToProxy("router:default -p 12010 -t 500");
+                router = Ice.RouterPrxHelper.uncheckedCast(obj);
+                obj = communicator.stringToProxy("background@Test").ice_router(router).ice_oneway();
+
+                backgroundController.pauseCall("getClientProxy");
+                try
+                {
+                    obj.ice_ping();
+                    test(false);
+                }
+                catch(Ice.TimeoutException)
+                {
+                }
+                backgroundController.resumeCall("getClientProxy");
+
+                obj = communicator.stringToProxy("router:default -p 12010");
+                router = Ice.RouterPrxHelper.uncheckedCast(obj);
+                obj = communicator.stringToProxy("background@Test").ice_router(router);
+                BackgroundPrx bg = BackgroundPrxHelper.uncheckedCast(obj);
+                test(bg.ice_getRouter() != null);
+
+                backgroundController.pauseCall("getClientProxy");
+                Ice.AsyncResult r1 = bg.begin_op();
+                Ice.AsyncResult r2 = bg.begin_op();
+                test(!r1.IsCompleted);
+                test(!r2.IsCompleted);
+                backgroundController.resumeCall("getClientProxy");
+                bg.end_op(r1);
+                bg.end_op(r2);
+                test(r1.IsCompleted);
+                test(r2.IsCompleted);
             }
-            backgroundController.resumeCall("findAdapterById");
+            Console.Out.WriteLine("ok");
 
-            obj = communicator.stringToProxy("locator:default -p 12010");
-            locator = Ice.LocatorPrxHelper.uncheckedCast(obj);
-            obj = obj.ice_locator(locator);
-            obj.ice_ping();
-
-            obj = communicator.stringToProxy("background@Test").ice_locator(locator);
-            BackgroundPrx bg = BackgroundPrxHelper.uncheckedCast(obj);
-
-            backgroundController.pauseCall("findAdapterById");
-            Ice.AsyncResult r1 = bg.begin_op();
-            Ice.AsyncResult r2 = bg.begin_op();
-            test(!r1.IsCompleted);
-            test(!r2.IsCompleted);
-            backgroundController.resumeCall("findAdapterById");
-            bg.end_op(r1);
-            bg.end_op(r2);
-            test(r1.IsCompleted);
-            test(r2.IsCompleted);
+            return background;
         }
-        Console.Out.WriteLine("ok");
-
-        Console.Write("testing router... ");
-        Console.Out.Flush();
-        {
-            Ice.RouterPrx router;
-
-            obj = communicator.stringToProxy("router:default -p 12010 -t 500");
-            router = Ice.RouterPrxHelper.uncheckedCast(obj);
-            obj = communicator.stringToProxy("background@Test").ice_router(router).ice_oneway();
-
-            backgroundController.pauseCall("getClientProxy");
-            try
-            {
-                obj.ice_ping();
-                test(false);
-            }
-            catch(Ice.TimeoutException)
-            {
-            }
-            backgroundController.resumeCall("getClientProxy");
-
-            obj = communicator.stringToProxy("router:default -p 12010");
-            router = Ice.RouterPrxHelper.uncheckedCast(obj);
-            obj = communicator.stringToProxy("background@Test").ice_router(router);
-            BackgroundPrx bg = BackgroundPrxHelper.uncheckedCast(obj);
-            test(bg.ice_getRouter() != null);
-
-            backgroundController.pauseCall("getClientProxy");
-            Ice.AsyncResult r1 = bg.begin_op();
-            Ice.AsyncResult r2 = bg.begin_op();
-            test(!r1.IsCompleted);
-            test(!r2.IsCompleted);
-            backgroundController.resumeCall("getClientProxy");
-            bg.end_op(r1);
-            bg.end_op(r2);
-            test(r1.IsCompleted);
-            test(r2.IsCompleted);
-        }
-        Console.Out.WriteLine("ok");
-
-        return background;
-    }
 
     private static void connectTests(Configuration configuration, Test.BackgroundPrx background)
-    {
-        try
         {
-            background.op();
-        }
-        catch(Ice.LocalException ex)
-        {
-            System.Console.Out.WriteLine(ex);
-            test(false);
-        }
-        background.ice_getConnection().close(false);
-
-        for(int i = 0; i < 4; ++i)
-        {
-            if(i == 0 || i == 2)
+            try
             {
-                configuration.connectorsException(new Ice.DNSException());
+                background.op();
             }
-            else
+            catch(Ice.LocalException ex)
             {
+                System.Console.Out.WriteLine(ex);
+                test(false);
+            }
+            background.ice_getConnection().close(false);
+
+            for(int i = 0; i < 4; ++i)
+            {
+                if(i == 0 || i == 2)
+                {
+                    configuration.connectorsException(new Ice.DNSException());
+                }
+                else
+                {
+                    configuration.connectException(new Ice.SocketException());
+                }
+                BackgroundPrx prx = (i == 1 || i == 3) ? background : (BackgroundPrx)background.ice_oneway();
+
+                try
+                {
+                    prx.op();
+                    test(false);
+                }
+                catch(Ice.Exception)
+                {
+                }
+
+                Ice.AsyncResult r = prx.begin_op();
+                test(!r.isSentSynchronously());
+                try
+                {
+                    prx.end_op(r);
+                    test(false);
+                }
+                catch(Ice.Exception)
+                {
+                }
+                test(r.IsCompleted);
+
+                OpAMICallback cbEx = new OpAMICallback();
+                r = prx.begin_op().whenCompleted(cbEx.exception);
+                test(!r.isSentSynchronously());
+                cbEx.checkException(true);
+                test(r.IsCompleted);
+
+                if(i == 0 || i == 2)
+                {
+                    configuration.connectorsException(null);
+                }
+                else
+                {
+                    configuration.connectException(null);
+                }
+            }
+
+            OpThread thread1 = new OpThread(background);
+            OpThread thread2 = new OpThread(background);
+
+            for(int i = 0; i < 5; i++)
+            {
+                try
+                {
+                    background.ice_ping();
+                }
+                catch(Ice.LocalException)
+                {
+                    test(false);
+                }
+
                 configuration.connectException(new Ice.SocketException());
-            }
-            BackgroundPrx prx = (i == 1 || i == 3) ? background : (BackgroundPrx)background.ice_oneway();
-
-            try
-            {
-                prx.op();
-                test(false);
-            }
-            catch(Ice.Exception)
-            {
-            }
-
-            Ice.AsyncResult r = prx.begin_op();
-            test(!r.sentSynchronously());
-            try
-            {
-                prx.end_op(r);
-                test(false);
-            }
-            catch(Ice.Exception)
-            {
-            }
-            test(r.IsCompleted);
-
-            OpAMICallback cbEx = new OpAMICallback();
-            r = prx.begin_op().whenCompleted(cbEx.exception);
-            test(!r.sentSynchronously());
-            cbEx.checkException(true);
-            test(r.IsCompleted);
-
-            if(i == 0 || i == 2)
-            {
-                configuration.connectorsException(null);
-            }
-            else
-            {
+                background.ice_getCachedConnection().close(true);
+                Thread.Sleep(10);
                 configuration.connectException(null);
+                try
+                {
+                    background.ice_ping();
+                }
+                catch(Ice.LocalException)
+                {
+                }
             }
+
+            thread1.destroy();
+            thread2.destroy();
+
+            thread1.Join();
+            thread2.Join();
         }
-
-        OpThread thread1 = new OpThread(background);
-        OpThread thread2 = new OpThread(background);
-
-        for(int i = 0; i < 5; i++)
-        {
-            try
-            {
-                background.ice_ping();
-            }
-            catch(Ice.LocalException)
-            {
-                test(false);
-            }
-
-            configuration.connectException(new Ice.SocketException());
-            background.ice_getCachedConnection().close(true);
-            Thread.Sleep(10);
-            configuration.connectException(null);
-            try
-            {
-                background.ice_ping();
-            }
-            catch(Ice.LocalException)
-            {
-            }
-        }
-
-        thread1.destroy();
-        thread2.destroy();
-
-        thread1.Join();
-        thread2.Join();
-    }
 
     private static void initializeTests(Configuration configuration, Test.BackgroundPrx background,
                                         Test.BackgroundControllerPrx ctl)
-    {
-        try
-        {
-            background.op();
-        }
-        catch(Ice.LocalException)
-        {
-            test(false);
-        }
-        background.ice_getConnection().close(false);
-
-        for(int i = 0; i < 4; ++i)
-        {
-            if(i == 0 || i == 2)
-            {
-                configuration.initializeException(new Ice.SocketException());
-            }
-            else
-            {
-                continue;
-            }
-            BackgroundPrx prx = (i == 1 || i == 3) ? background : (BackgroundPrx)background.ice_oneway();
-
-            try
-            {
-                prx.op();
-                test(false);
-            }
-            catch(Ice.SocketException)
-            {
-            }
-
-            Ice.AsyncResult r = prx.begin_op();
-            test(!r.sentSynchronously());
-            try
-            {
-                prx.end_op(r);
-                test(false);
-            }
-            catch(Ice.Exception)
-            {
-            }
-            test(r.IsCompleted);
-
-            OpAMICallback cbEx = new OpAMICallback();
-            r = prx.begin_op().whenCompleted(cbEx.exception);
-            test(!r.sentSynchronously());
-            cbEx.checkException(true);
-            test(r.IsCompleted);
-
-            if(i == 0 || i == 2)
-            {
-                configuration.initializeException(null);
-            }
-        }
-
-        //
-        // Now run the same tests with the server side.
-        //
-
-        try
-        {
-            ctl.initializeException(true);
-            background.op();
-            test(false);
-        }
-        catch(Ice.ConnectionLostException)
-        {
-            ctl.initializeException(false);
-        }
-        catch(Ice.SecurityException)
-        {
-            ctl.initializeException(false);
-        }
-
-        OpThread thread1 = new OpThread(background);
-        OpThread thread2 = new OpThread(background);
-
-        for(int i = 0; i < 5; i++)
         {
             try
             {
-                background.ice_ping();
-            }
-            catch(Ice.LocalException)
-            {
-                test(false);
-            }
-
-            configuration.initializeException(new Ice.SocketException());
-            background.ice_getCachedConnection().close(true);
-            Thread.Sleep(10);
-            configuration.initializeException(null);
-            try
-            {
-                background.ice_ping();
-            }
-            catch(Ice.LocalException)
-            {
-            }
-            try
-            {
-                background.ice_ping();
-            }
-            catch(Ice.LocalException)
-            {
-                test(false);
-            }
-
-            background.ice_getCachedConnection().close(true);
-            background.ice_ping();
-
-            ctl.initializeException(true);
-            background.ice_getCachedConnection().close(true);
-            Thread.Sleep(10);
-            ctl.initializeException(false);
-            try
-            {
-                background.ice_ping();
-            }
-            catch(Ice.LocalException)
-            {
-            }
-            try
-            {
-                background.ice_ping();
-            }
-            catch(Ice.LocalException)
-            {
-                test(false);
-            }
-
-            try
-            {
-                background.ice_getCachedConnection().close(true);
                 background.op();
             }
             catch(Ice.LocalException)
             {
                 test(false);
             }
+            background.ice_getConnection().close(false);
+
+            for(int i = 0; i < 4; ++i)
+            {
+                if(i == 0 || i == 2)
+                {
+                    configuration.initializeException(new Ice.SocketException());
+                }
+                else
+                {
+                    continue;
+                }
+                BackgroundPrx prx = (i == 1 || i == 3) ? background : (BackgroundPrx)background.ice_oneway();
+
+                try
+                {
+                    prx.op();
+                    test(false);
+                }
+                catch(Ice.SocketException)
+                {
+                }
+
+                Ice.AsyncResult r = prx.begin_op();
+                test(!r.isSentSynchronously());
+                try
+                {
+                    prx.end_op(r);
+                    test(false);
+                }
+                catch(Ice.Exception)
+                {
+                }
+                test(r.IsCompleted);
+
+                OpAMICallback cbEx = new OpAMICallback();
+                r = prx.begin_op().whenCompleted(cbEx.exception);
+                test(!r.isSentSynchronously());
+                cbEx.checkException(true);
+                test(r.IsCompleted);
+
+                if(i == 0 || i == 2)
+                {
+                    configuration.initializeException(null);
+                }
+            }
+
+            //
+            // Now run the same tests with the server side.
+            //
+
+            try
+            {
+                ctl.initializeException(true);
+                background.op();
+                test(false);
+            }
+            catch(Ice.ConnectionLostException)
+            {
+                ctl.initializeException(false);
+            }
+            catch(Ice.SecurityException)
+            {
+                ctl.initializeException(false);
+            }
+
+            OpThread thread1 = new OpThread(background);
+            OpThread thread2 = new OpThread(background);
+
+            for(int i = 0; i < 5; i++)
+            {
+                try
+                {
+                    background.ice_ping();
+                }
+                catch(Ice.LocalException)
+                {
+                    test(false);
+                }
+
+                configuration.initializeException(new Ice.SocketException());
+                background.ice_getCachedConnection().close(true);
+                Thread.Sleep(10);
+                configuration.initializeException(null);
+                try
+                {
+                    background.ice_ping();
+                }
+                catch(Ice.LocalException)
+                {
+                }
+                try
+                {
+                    background.ice_ping();
+                }
+                catch(Ice.LocalException)
+                {
+                    test(false);
+                }
+
+                background.ice_getCachedConnection().close(true);
+                background.ice_ping();
+
+                ctl.initializeException(true);
+                background.ice_getCachedConnection().close(true);
+                Thread.Sleep(10);
+                ctl.initializeException(false);
+                try
+                {
+                    background.ice_ping();
+                }
+                catch(Ice.LocalException)
+                {
+                }
+                try
+                {
+                    background.ice_ping();
+                }
+                catch(Ice.LocalException)
+                {
+                    test(false);
+                }
+
+                try
+                {
+                    background.ice_getCachedConnection().close(true);
+                    background.op();
+                }
+                catch(Ice.LocalException)
+                {
+                    test(false);
+                }
+            }
+
+            thread1.destroy();
+            thread2.destroy();
+
+            thread1.Join();
+            thread2.Join();
         }
-
-        thread1.destroy();
-        thread2.destroy();
-
-        thread1.Join();
-        thread2.Join();
-    }
 
     private static void validationTests(Configuration configuration, Test.BackgroundPrx background,
                                         Test.BackgroundControllerPrx ctl)
-    {
-        try
         {
-            background.op();
-        }
-        catch(Ice.LocalException)
-        {
-            test(false);
-        }
-        background.ice_getConnection().close(false);
+            try
+            {
+                background.op();
+            }
+            catch(Ice.LocalException)
+            {
+                test(false);
+            }
+            background.ice_getConnection().close(false);
 
-        try
-        {
-            // Get the read() of connection validation to throw right away.
-            configuration.readException(new Ice.SocketException());
-            background.op();
-            test(false);
-        }
-        catch(Ice.SocketException)
-        {
+            try
+            {
+                // Get the read() of connection validation to throw right away.
+                configuration.readException(new Ice.SocketException());
+                background.op();
+                test(false);
+            }
+            catch(Ice.SocketException)
+            {
             configuration.readException(null);
         }
 
@@ -592,7 +592,7 @@ public class AllTests
             configuration.readException(new Ice.SocketException());
             BackgroundPrx prx = i == 0 ? background : (BackgroundPrx)background.ice_oneway();
             Ice.AsyncResult r = prx.begin_op();
-            test(!r.sentSynchronously());
+            test(!r.isSentSynchronously());
             try
             {
                 prx.end_op(r);
@@ -640,7 +640,7 @@ public class AllTests
                 configuration.readReady(false);
                 configuration.readException(new Ice.SocketException());
                 Ice.AsyncResult r = background.begin_op();
-                test(!r.sentSynchronously());
+                test(!r.isSentSynchronously());
                 try
                 {
                     background.end_op(r);
@@ -659,7 +659,7 @@ public class AllTests
             ctl.holdAdapter(); // Hold to block in connection validation
             Ice.AsyncResult r = background.begin_op();
             Ice.AsyncResult r2 = background.begin_op();
-            test(!r.sentSynchronously() && !r2.sentSynchronously());
+            test(!r.isSentSynchronously() && !r2.isSentSynchronously());
             test(!r.IsCompleted && !r2.IsCompleted);
             ctl.resumeAdapter();
             background.end_op(r);
@@ -837,7 +837,7 @@ public class AllTests
             background.ice_ping();
             configuration.writeException(new Ice.SocketException());
             Ice.AsyncResult r = prx.begin_op();
-            test(!r.sentSynchronously());
+            test(!r.isSentSynchronously());
             try
             {
                 prx.end_op(r);
@@ -867,7 +867,7 @@ public class AllTests
             configuration.readReady(false); // Required in C# to make sure beginRead() doesn't throw too soon.
             configuration.readException(new Ice.SocketException());
             Ice.AsyncResult r = background.begin_op();
-            if(!r.sentSynchronously())
+            if(!r.isSentSynchronously())
             {
                 // The read exception might propagate before the message send is seen as completed on IOCP.
                 //test(r.IsCompleted);
@@ -931,7 +931,7 @@ public class AllTests
             configuration.writeReady(false);
             configuration.writeException(new Ice.SocketException());
             Ice.AsyncResult r = prx.begin_op();
-            test(!r.sentSynchronously());
+            test(!r.isSentSynchronously());
             try
             {
                 prx.end_op(r);
@@ -964,7 +964,7 @@ public class AllTests
             configuration.readReady(false);
             configuration.readException(new Ice.SocketException());
             Ice.AsyncResult r = background.begin_op();
-            if(!r.sentSynchronously())
+            if(!r.isSentSynchronously())
             {
                 // The read exception might propagate before the message send is seen as completed on IOCP.
                 //test(r.isCompleted());
@@ -1014,20 +1014,23 @@ public class AllTests
         byte[] seq = new byte[512 * 1024];
         (new System.Random()).NextBytes(seq);
         OpAMICallback cbWP = new OpAMICallback();
-        while(backgroundOneway.begin_opWithPayload(seq).whenCompleted(cbWP.noResponse, cbWP.noException).sentSynchronously())
+        while(backgroundOneway.begin_opWithPayload(seq).whenCompleted(cbWP.noResponse,
+                                                                      cbWP.noException).isSentSynchronously())
         {
         }
 
         OpAMICallback cb = new OpAMICallback();
         Ice.AsyncResult r1 = background.begin_op().whenCompleted(cb.response, cb.noException).whenSent(cb.sent);
-        test(!r1.sentSynchronously() && !r1.isSent());
+        test(!r1.isSentSynchronously() && !r1.isSent());
 
         OpAMICallback cb2 = new OpAMICallback();
         Ice.AsyncResult r2 = background.begin_op().whenCompleted(cb2.response, cb2.noException).whenSent(cb2.sent);
-        test(!r2.sentSynchronously() && !r2.isSent());
+        test(!r2.isSentSynchronously() && !r2.isSent());
 
-        test(!backgroundOneway.begin_opWithPayload(seq).whenCompleted(cbWP.noResponse, cbWP.noException).sentSynchronously());
-        test(!backgroundOneway.begin_opWithPayload(seq).whenCompleted(cbWP.noResponse, cbWP.noException).sentSynchronously());
+        test(!backgroundOneway.begin_opWithPayload(seq).whenCompleted(cbWP.noResponse, 
+                                                                      cbWP.noException).isSentSynchronously());
+        test(!backgroundOneway.begin_opWithPayload(seq).whenCompleted(cbWP.noResponse, 
+                                                                      cbWP.noException).isSentSynchronously());
 
         test(!cb.checkResponse(false));
         test(!cb2.checkResponse(false));

@@ -483,39 +483,6 @@ private:
 
 }
 
-namespace
-{
-
-class SessionPingCallback : public IceUtil::Shared
-{
-public:
-
-    SessionPingCallback(const Glacier2::InstancePtr& instance, const Ice::ConnectionPtr& connection) :
-        _instance(instance),
-        _connection(connection)
-    {
-    }
-
-    void exception(const Ice::Exception&)
-    {
-        try
-        {
-            _instance->sessionRouter()->destroySession(_connection);
-        }
-        catch(...)
-        {
-        }
-    }
-
-private:
-
-    Glacier2::InstancePtr _instance;
-    Ice::ConnectionPtr _connection;
-};
-typedef IceUtil::Handle<SessionPingCallback> SessionPingCallbackPtr;
-
-}
-
 using namespace Glacier2;
 
 Glacier2::CreateSession::CreateSession(const SessionRouterIPtr& sessionRouter, const string& user, 
@@ -748,8 +715,10 @@ Glacier2::SessionRouterI::SessionRouterI(const InstancePtr& instance,
     _sessionThread(_sessionTimeout > IceUtil::Time() ? new SessionThread(this, _sessionTimeout) : 0),
     _routersByConnectionHint(_routersByConnection.end()),
     _routersByCategoryHint(_routersByCategory.end()),
+    _sessionPingCallback(newCallback_Object_ice_ping(this, &SessionRouterI::sessionPingException)),
     _destroy(false)
 {
+
     //
     // This session router is used directly as servant for the main
     // Glacier2 router Ice object.
@@ -835,6 +804,8 @@ Glacier2::SessionRouterI::destroy()
         
         sessionThread = _sessionThread;
         _sessionThread = 0;
+
+        _sessionPingCallback = 0; // Break cyclic reference count.
     }
 
     //
@@ -979,9 +950,8 @@ Glacier2::SessionRouterI::refreshSession(const Ice::Current& current)
     //
     // Ping the session to ensure it does not timeout.
     //
-    SessionPingCallbackPtr cb = new SessionPingCallback(_instance, current.con);
-    Ice::CallbackPtr d = Ice::newCallback(cb, &SessionPingCallback::exception);
-    router->getSession()->begin_ice_ping(d);
+    assert(_sessionPingCallback);
+    router->getSession()->begin_ice_ping(_sessionPingCallback, current.con);
 }
 
 void
@@ -1171,6 +1141,12 @@ Glacier2::SessionRouterI::expireSessions()
             
         (*p)->destroy(new DestroyCB(_sessionTraceLevel, _instance->logger()));
     }
+}
+
+void
+Glacier2::SessionRouterI::sessionPingException(const Ice::Exception&, const Ice::ConnectionPtr& con)
+{
+    destroySession(con);
 }
 
 bool

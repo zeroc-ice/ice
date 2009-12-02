@@ -19,6 +19,7 @@ import test.Ice.ami.Test.TestIntfException;
 import test.Ice.ami.Test.Callback_TestIntf_op;
 import test.Ice.ami.Test.Callback_TestIntf_opWithResult;
 import test.Ice.ami.Test.Callback_TestIntf_opWithUE;
+import test.Ice.ami.Test.Callback_TestIntf_opWithPayload;
 
 public class AllTests
 {
@@ -382,8 +383,8 @@ public class AllTests
         public void
         sent(Ice.AsyncResult r)
         {
-            test(r.sentSynchronously() && _thread == Thread.currentThread().getId() ||
-                 !r.sentSynchronously() && _thread != Thread.currentThread().getId());
+            test(r.isSentSynchronously() && _thread == Thread.currentThread().getId() ||
+                 !r.isSentSynchronously() && _thread != Thread.currentThread().getId());
             called();
         }
 
@@ -1110,88 +1111,6 @@ public class AllTests
         }
         out.println("ok");
     
-        out.print("testing exception callback... ");
-        out.flush();
-        {
-            TestIntfPrx i = TestIntfPrxHelper.uncheckedCast(p.ice_adapterId("dummy"));
-            final ExceptionCallback cb = new ExceptionCallback();
-        
-            i.begin_ice_isA("::Test::TestIntf", new Ice.ExceptionCallback()
-                {
-                    public void 
-                    exception(Ice.LocalException ex)
-                    {
-                        cb.ex(ex);
-                    }
-                });
-            cb.check();        
-
-            i.begin_op(new Ice.ExceptionCallback()
-                {
-                    public void 
-                    exception(Ice.LocalException ex)
-                    {
-                        cb.ex(ex);
-                    }
-                });
-            cb.check();
-
-            i.begin_opWithResult(new Ice.ExceptionCallback()
-                {
-                    public void 
-                    exception(Ice.LocalException ex)
-                    {
-                        cb.ex(ex);
-                    }
-                });
-            cb.check();
-
-            i.begin_opWithUE(new Ice.ExceptionCallback()
-                {
-                    public void 
-                    exception(Ice.LocalException ex)
-                    {
-                        cb.ex(ex);
-                    }
-                });
-            cb.check();
-
-            // Ensures no exception is called when response is received
-            p.begin_ice_isA("::Test::TestIntf", new Ice.ExceptionCallback()
-                {
-                    public void 
-                    exception(Ice.LocalException ex)
-                    {
-                        cb.noEx(ex);
-                    }
-                });
-            p.begin_op(new Ice.ExceptionCallback()
-                {
-                    public void 
-                    exception(Ice.LocalException ex)
-                    {
-                        cb.noEx(ex);
-                    }
-                });
-            p.begin_opWithResult(new Ice.ExceptionCallback()
-                {
-                    public void 
-                    exception(Ice.LocalException ex)
-                    {
-                        cb.noEx(ex);
-                    }
-                });
-            p.begin_opWithUE(new Ice.ExceptionCallback()
-                {
-                    public void 
-                    exception(Ice.LocalException ex)
-                    {
-                        cb.noEx(ex);
-                    }
-                });
-        }
-        out.println("ok");
-
         out.print("testing sent callback... ");
         out.flush();
         {
@@ -1323,22 +1242,6 @@ public class AllTests
                 });
             cb.check();
 
-            p.begin_op(new Ice.ExceptionCallback()
-                {
-                    public void
-                    exception(Ice.LocalException ex)
-                    {
-                        cb.ex(ex);
-                    }
-                    
-                    public void
-                    sent(boolean ss)
-                    {
-                        cb.sent(ss);
-                    }
-                });
-            cb.check();
-
             java.util.List<SentCallback> cbs = new java.util.ArrayList<SentCallback>();
             byte[] seq = new byte[10024];
             new java.util.Random().nextBytes(seq); // Make sure the request doesn't compress too well.
@@ -1347,8 +1250,13 @@ public class AllTests
             do
             {
                 final SentCallback cb2 = new SentCallback();
-                r = p.begin_opWithPayload(seq, new Ice.ExceptionCallback()
+                r = p.begin_opWithPayload(seq, new Callback_TestIntf_opWithPayload()
                     {
+                        public void
+                        response()
+                        {
+                        }
+
                         public void
                         exception(Ice.LocalException ex)
                         {
@@ -1363,7 +1271,7 @@ public class AllTests
                     });
                 cbs.add(cb2);
             }
-            while(r.sentSynchronously());
+            while(r.isSentSynchronously());
             testController.resumeAdapter();
             for(SentCallback cb3 : cbs)
             {
@@ -1497,16 +1405,6 @@ public class AllTests
                         }
                     });
                 cb.check();
-
-                q.begin_op(new Ice.ExceptionCallback()
-                    {
-                        public void
-                        exception(Ice.LocalException ex)
-                        {
-                            cb.ex(ex);
-                        }
-                    });
-                cb.check();
             }
         }
         out.println("ok");
@@ -1520,12 +1418,12 @@ public class AllTests
             byte[] seq = new byte[10024];
             new java.util.Random().nextBytes(seq); // Make sure the request doesn't compress too well.
             Ice.AsyncResult r2;
-            while((r2 = p.begin_opWithPayload(seq)).sentSynchronously());
+            while((r2 = p.begin_opWithPayload(seq)).isSentSynchronously());
         
-            test(r1.sentSynchronously() && r1.isSent() && !r1.isCompleted() ||
-                 !r1.sentSynchronously() && !r1.isCompleted());
+            test(r1.isSentSynchronously() && r1.isSent() && !r1.isCompleted() ||
+                 !r1.isSentSynchronously() && !r1.isCompleted());
 
-            test(!r2.sentSynchronously() && !r2.isCompleted());
+            test(!r2.isSentSynchronously() && !r2.isCompleted());
 
             testController.resumeAdapter();
 

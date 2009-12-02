@@ -269,7 +269,7 @@ public class AllTests
 
             // begin_ice_invoke with Callback_Object_ice_invoke
             cb = new Callback(communicator, true);
-            cl.begin_ice_invoke("opString", Ice.OperationMode.Normal, inParams).whenCompleted(cb.opStringNC);
+            cl.begin_ice_invoke("opString", Ice.OperationMode.Normal, inParams).whenCompleted(cb.opStringNC, null);
             cb.check();
         }
 
@@ -309,7 +309,7 @@ public class AllTests
 
             // begin_ice_invoke with Callback_Object_ice_invoke
             cb = new Callback(communicator, true);
-            cl.begin_ice_invoke("opException", Ice.OperationMode.Normal, null).whenCompleted(cb.opExceptionNC);
+            cl.begin_ice_invoke("opException", Ice.OperationMode.Normal, null).whenCompleted(cb.opExceptionNC, null);
             cb.check();
         }
 

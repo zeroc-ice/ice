@@ -30,6 +30,6 @@ public abstract class TwowayCallback extends IceInternal.CallbackBase
 
     public final void __sent(AsyncResult __result)
     {
-        sent(__result.sentSynchronously());
+        sent(__result.isSentSynchronously());
     }
 }

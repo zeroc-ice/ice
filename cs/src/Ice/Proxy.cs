@@ -728,7 +728,10 @@ namespace Ice
                 }
                 return;
             }
-            cb__(ret__);
+            if(cb__ != null)
+            {
+                cb__(ret__);
+            }
         }
 
         /// <summary>
@@ -832,7 +835,10 @@ namespace Ice
 
         private void ice_ping_completed__(Callback_Object_ice_ping cb)
         {
-            cb();
+            if(cb != null)
+            {
+                cb();
+            }
         }
 
         /// <summary>
@@ -971,7 +977,10 @@ namespace Ice
                 }
                 return;
             }
-            cb__(ret__);
+            if(cb__ != null)
+            {
+                cb__(ret__);
+            }
         }
 
         /// <summary>
@@ -1108,7 +1117,10 @@ namespace Ice
                 }
                 return;
             }
-            cb__(ret__);
+            if(cb__ != null)
+            {
+                cb__(ret__);
+            }
         }
 
         /// <summary>
@@ -1200,9 +1212,9 @@ namespace Ice
             result.whenCompleted(cb.response__, cb.exception__);
             if(cb is Ice.AMISentCallback)
             {
-                result.whenSent(cb.sent__);
+                result.whenSent((Ice.AsyncCallback)cb.sent__);
             }
-            return result.sentSynchronously();
+            return result.isSentSynchronously();
         }
 
         /// <summary>
@@ -1223,9 +1235,9 @@ namespace Ice
             result.whenCompleted(cb.response__, cb.exception__);
             if(cb is Ice.AMISentCallback)
             {
-                result.whenSent(cb.sent__);
+                result.whenSent((Ice.AsyncCallback)cb.sent__);
             }
-            return result.sentSynchronously();
+            return result.isSentSynchronously();
         }
 
         public AsyncResult<Callback_Object_ice_invoke> begin_ice_invoke(string operation,
@@ -1327,7 +1339,10 @@ namespace Ice
                 }
                 return;
             }
-            cb__(ret__, outParams);
+            if(cb__ != null)
+            {
+                cb__(ret__, outParams);
+            }
         }
 
         /// <summary>
@@ -1972,9 +1987,9 @@ namespace Ice
             Ice.AsyncResult result = begin_ice_flushBatchRequests().whenCompleted(cb.exception__);
             if(cb is Ice.AMISentCallback)
             {
-                result.whenSent(cb.sent__);
+                result.whenSent((Ice.AsyncCallback)cb.sent__);
             }
-            return result.sentSynchronously();
+            return result.isSentSynchronously();
         }
 
         private const string __ice_flushBatchRequests_name = "ice_flushBatchRequests";

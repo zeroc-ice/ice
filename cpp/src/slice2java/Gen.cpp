@@ -4025,7 +4025,7 @@ Slice::Gen::HelperVisitor::visitClassDefStart(const ClassDefPtr& p)
             out << sb;
             out << nl << "Ice.AsyncResult __r = begin_" << op->name() << spar << argsAMI << "null" << "false"
                 << "__cb" << epar << ';';
-            out << nl << "return __r.sentSynchronously();";
+            out << nl << "return __r.isSentSynchronously();";
             out << eb;
 
             out << sp;
@@ -4034,7 +4034,7 @@ Slice::Gen::HelperVisitor::visitClassDefStart(const ClassDefPtr& p)
             out << sb;
             out << nl << "Ice.AsyncResult __r = begin_" << op->name() << spar << argsAMI << "__ctx" << "true"
                 << "__cb" << epar << ';';
-            out << nl << "return __r.sentSynchronously();";
+            out << nl << "return __r.isSentSynchronously();";
             out << eb;
         }
     }

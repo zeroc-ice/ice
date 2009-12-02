@@ -233,6 +233,9 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
     Test::MyClassPrx cl = Test::MyClassPrx::checkedCast(base);
     test(cl);
+
+    void (Callback::*nullEx)(const Ice::Exception&) = 0;
+    void (Callback::*nullExWC)(const Ice::Exception&, const CookiePtr&) = 0;
     
     cout << "testing ice_invoke... " << flush;
 
@@ -328,10 +331,9 @@ allTests(const Ice::CommunicatorPtr& communicator)
         // begin_ice_invoke with no callback and array mapping
         pair<const ::Ice::Byte*, const ::Ice::Byte*> inPair(&inParams[0], &inParams[0] + inParams.size());
         result = cl->begin_ice_invoke("opString", Ice::Normal, inPair);
-        pair<const ::Ice::Byte*, const ::Ice::Byte*> outPair;
-        if(cl->end_ice_invoke(outPair, result))
+        if(cl->end_ice_invoke(outParams, result))
         {
-            Ice::InputStreamPtr in = Ice::createInputStream(communicator, outPair);
+            Ice::InputStreamPtr in = Ice::createInputStream(communicator, outParams);
             string s;
             in->read(s);
             test(s == testString);
@@ -355,26 +357,25 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
         // begin_ice_invoke with Callback_Object_ice_invoke 
         cb = new Callback(communicator, false);
-        Ice::Callback_Object_ice_invokePtr d = 
-            Ice::newCallback_Object_ice_invoke(cb, &Callback::opStringNC);
+        Ice::Callback_Object_ice_invokePtr d = Ice::newCallback_Object_ice_invoke(cb, &Callback::opStringNC, nullEx);
         cl->begin_ice_invoke("opString", Ice::Normal, inParams, d);
         cb->check();
 
         // begin_ice_invoke with Callback_Object_ice_invoke with Cookie
         cb = new Callback(communicator, false);
-        d = Ice::newCallback_Object_ice_invoke(cb, &Callback::opStringWC);
+        d = Ice::newCallback_Object_ice_invoke(cb, &Callback::opStringWC, nullExWC);
         cl->begin_ice_invoke("opString", Ice::Normal, inParams, d, cookie);
         cb->check();
 
         // begin_ice_invoke with Callback_Object_ice_invoke and array mapping
         cb = new Callback(communicator, false);
-        d = Ice::newCallback_Object_ice_invoke(cb, &Callback::opStringNC);
+        d = Ice::newCallback_Object_ice_invoke(cb, &Callback::opStringNC, nullEx);
         cl->begin_ice_invoke("opString", Ice::Normal, inPair, d);
         cb->check();
 
         // begin_ice_invoke with Callback_Object_ice_invoke and array mapping with Cookie
         cb = new Callback(communicator, false);
-        d = Ice::newCallback_Object_ice_invoke(cb, &Callback::opStringWC);
+        d = Ice::newCallback_Object_ice_invoke(cb, &Callback::opStringWC, nullExWC);
         cl->begin_ice_invoke("opString", Ice::Normal, inPair, d, cookie);
         cb->check();
     }
@@ -418,13 +419,13 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
         // begin_ice_invoke with Callback_Object_ice_invoke
         cb = new Callback(communicator, false);
-        Ice::Callback_Object_ice_invokePtr d = Ice::newCallback_Object_ice_invoke(cb, &Callback::opExceptionNC);
+        Ice::Callback_Object_ice_invokePtr d = Ice::newCallback_Object_ice_invoke(cb, &Callback::opExceptionNC, nullEx);
         cl->begin_ice_invoke("opException", Ice::Normal, inParams, d);
         cb->check();
 
         // begin_ice_invoke with Callback_Object_ice_invoke with Cookie
         cb = new Callback(communicator, false);
-        d = Ice::newCallback_Object_ice_invoke(cb, &Callback::opExceptionWC);
+        d = Ice::newCallback_Object_ice_invoke(cb, &Callback::opExceptionWC, nullExWC);
         cl->begin_ice_invoke("opException", Ice::Normal, inParams, d, cookie);
         cb->check();
     }

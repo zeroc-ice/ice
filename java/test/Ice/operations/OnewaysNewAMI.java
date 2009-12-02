@@ -13,6 +13,8 @@ import test.Ice.operations.Test.Callback_MyClass_opVoid;
 import test.Ice.operations.Test.MyClass;
 import test.Ice.operations.Test.MyClassPrx;
 import test.Ice.operations.Test.MyClassPrxHelper;
+import test.Ice.operations.Test.Callback_MyClass_opVoid;
+import test.Ice.operations.Test.Callback_MyClass_opByte;
 
 class OnewaysNewAMI
 {
@@ -100,8 +102,14 @@ class OnewaysNewAMI
 
         {
             final Callback cb = new Callback();
-            Ice.ExceptionCallback callback = new Ice.ExceptionCallback()
+            Ice.Callback_Object_ice_ping callback = new Ice.Callback_Object_ice_ping()
                 {
+                    public void
+                    response()
+                    {
+                        test(false);
+                    }
+
                     public void
                     exception(Ice.LocalException ex)
                     {
@@ -120,8 +128,14 @@ class OnewaysNewAMI
 
         {
             final Callback cb = new Callback();
-            Ice.ExceptionCallback callback = new Ice.ExceptionCallback()
+            Ice.Callback_Object_ice_isA callback = new Ice.Callback_Object_ice_isA()
                 {
+                    public void
+                    response(boolean isA)
+                    {
+                        test(false);
+                    }
+
                     public void 
                     exception(Ice.LocalException ex)
                     {
@@ -134,8 +148,14 @@ class OnewaysNewAMI
     
         {
             final Callback cb = new Callback();
-            Ice.ExceptionCallback callback = new Ice.ExceptionCallback()
+            Ice.Callback_Object_ice_id callback = new Ice.Callback_Object_ice_id()
                 {
+                    public void
+                    response(String id)
+                    {
+                        test(false);
+                    }
+
                     public void 
                     exception(Ice.LocalException ex)
                     {
@@ -148,8 +168,14 @@ class OnewaysNewAMI
     
         {
             final Callback cb = new Callback();
-            Ice.ExceptionCallback callback = new Ice.ExceptionCallback()
+            Ice.Callback_Object_ice_ids callback = new Ice.Callback_Object_ice_ids()
                 {
+                    public void
+                    response(String[] ids)
+                    {
+                        test(false);
+                    }
+
                     public void 
                     exception(Ice.LocalException ex)
                     {
@@ -162,8 +188,14 @@ class OnewaysNewAMI
 
         {
             final Callback cb = new Callback();
-            Ice.ExceptionCallback callback = new Ice.ExceptionCallback()
+            Callback_MyClass_opVoid callback = new Callback_MyClass_opVoid()
                 {
+                    public void
+                    response()
+                    {
+                        test(false);
+                    }
+
                     public void
                     exception(Ice.LocalException ex)
                     {
@@ -185,8 +217,14 @@ class OnewaysNewAMI
         //
         {
             final Callback cb = new Callback();
-            Ice.ExceptionCallback callback = new Ice.ExceptionCallback()
+            Callback_MyClass_opByte callback = new Callback_MyClass_opByte()
                 {
+                    public void
+                    response(byte r, byte o)
+                    {
+                        test(false);
+                    }
+
                     public void 
                     exception(Ice.LocalException ex)
                     {

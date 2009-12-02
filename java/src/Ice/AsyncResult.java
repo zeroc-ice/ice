@@ -87,7 +87,7 @@ public class AsyncResult
         }
     }
 
-    public final boolean sentSynchronously()
+    public final boolean isSentSynchronously()
     {
         return _sentSynchronously; // No lock needed, immutable once __send() is called
     }

@@ -61,20 +61,22 @@ namespace Ice
         bool isSent();
         void waitForSent();
 
-        bool sentSynchronously();
+        bool isSentSynchronously();
 
         string getOperation();
 
-        AsyncResult whenSentWithResult(Ice.AsyncCallback cb);
-
+        AsyncResult whenSent(Ice.AsyncCallback cb);
         AsyncResult whenSent(Ice.SentCallback cb);
-        AsyncResult whenCompleted(Ice.ExceptionCallback cb);
+
+        AsyncResult whenCompleted(Ice.ExceptionCallback excb);
     }
 
     public interface AsyncResult<T> : AsyncResult
     {
         AsyncResult<T> whenCompleted(T cb, Ice.ExceptionCallback excb);
-        AsyncResult<T> whenCompleted(T cb);
+
+        new AsyncResult<T> whenCompleted(Ice.ExceptionCallback excb);
+        new AsyncResult<T> whenSent(Ice.SentCallback cb);
     };
 }
 
@@ -116,7 +118,7 @@ namespace IceInternal
         void finished__(Ice.LocalException ex, bool sent);
     }
 
-    public class OutgoingAsyncBase : Ice.AsyncResult
+    abstract public class OutgoingAsyncBase : Ice.AsyncResult
     {
         public virtual Ice.Communicator getCommunicator()
         {
@@ -171,14 +173,9 @@ namespace IceInternal
             }
         }
 
-        public bool sentSynchronously()
+        public bool isSentSynchronously()
         {
             return sentSynchronously_; // No lock needed, immutable once send__() is called
-        }
-
-        public string getOperation()
-        {
-            return operation_;
         }
 
         //
@@ -228,7 +225,7 @@ namespace IceInternal
             }
         }        
 
-        public Ice.AsyncResult whenSentWithResult(Ice.AsyncCallback cb)
+        public Ice.AsyncResult whenSent(Ice.AsyncCallback cb)
         {
             lock(monitor_)
             {
@@ -271,6 +268,52 @@ namespace IceInternal
             return this;
         }
 
+        public Ice.AsyncResult whenSent(Ice.SentCallback cb)
+        {
+            lock(monitor_)
+            {
+                if(sentCallback_ != null)
+                {
+                    throw new System.ArgumentException("sent callback already set");
+                }
+                sentCallback_ = delegate(Ice.AsyncResult result) 
+                                {
+                                    cb(result.isSentSynchronously());                        
+                                };
+                if((state_ & Sent) == 0)
+                {
+                    return this;
+                }
+            }
+
+            if(sentSynchronously_)
+            {
+                try
+                {
+                    cb(true);
+                }
+                catch(System.Exception ex)
+                {
+                    warning__(ex);
+                }
+            }
+            else
+            {
+                instance_.clientThreadPool().dispatch(delegate()
+                                                      {
+                                                          try
+                                                          {
+                                                              cb(false);
+                                                          }
+                                                          catch(System.Exception ex)
+                                                          {
+                                                              warning__(ex);
+                                                          }
+                                                      });
+            }
+            return this;
+        }
+
         public Ice.AsyncResult whenCompletedWithAsyncCallback(Ice.AsyncCallback cb)
         {
             lock(monitor_)
@@ -300,57 +343,11 @@ namespace IceInternal
             return this;
         }
 
-        public Ice.AsyncResult whenSent(Ice.SentCallback cb)
-        {
-            lock(monitor_)
-            {
-                if(sentCallback_ != null)
-                {
-                    throw new System.ArgumentException("sent callback already set");
-                }
-                sentCallback_ = delegate(Ice.AsyncResult result) 
-                                {
-                                    cb(result.sentSynchronously());                        
-                                };
-                if((state_ & Sent) == 0)
-                {
-                    return this;
-                }
-            }
-
-            if(sentSynchronously_)
-            {
-                try
-                {
-                    cb(true);
-                }
-                catch(System.Exception ex)
-                {
-                    warning__(ex);
-                }
-            }
-            else
-            {
-                instance_.clientThreadPool().dispatch(delegate()
-                                                      {
-                                                          try
-                                                          {
-                                                              cb(false);
-                                                          }
-                                                          catch(System.Exception ex)
-                                                          {
-                                                             warning__(ex);
-                                                          }
-                                                      });
-            }
-            return this;
-        }
-
         public Ice.AsyncResult whenCompleted(Ice.ExceptionCallback cb)
         {
             lock(monitor_)
             {
-                setCompletedCallback(completed__);
+                setCompletedCallback(getCompletedCallback());
                 exceptionCallback_ = cb;
                 if((state_ & Done) == 0)
                 {
@@ -374,6 +371,11 @@ namespace IceInternal
                                                       }
                                                   });
             return this;
+        }
+
+        public string getOperation()
+        {
+            return operation_;
         }
 
         public IceInternal.BasicStream ostr__
@@ -604,6 +606,11 @@ namespace IceInternal
             }
         }
 
+        protected virtual Ice.AsyncCallback getCompletedCallback()
+        {
+            return completed__;
+        }
+
         private void completed__(Ice.AsyncResult result)
         {
             Debug.Assert(exceptionCallback_ != null);
@@ -650,7 +657,7 @@ namespace IceInternal
         private object _cookie;
     }
 
-    public class OutgoingAsync : OutgoingAsyncBase, OutgoingAsyncMessageCallback
+    abstract public class OutgoingAsync : OutgoingAsyncBase, OutgoingAsyncMessageCallback
     {
         public OutgoingAsync(Ice.ObjectPrx prx, string operation, object cookie) :
             base(((Ice.ObjectPrxHelperBase)prx).reference__().getInstance(), operation, cookie)
@@ -1139,21 +1146,18 @@ namespace IceInternal
         private static Dictionary<string, string> emptyContext_ = new Dictionary<string, string>();
     }
 
-    public class TwowayOutgoingAsync<T> : OutgoingAsync, Ice.AsyncResult<T>
+    abstract public class OutgoingAsync<T> : OutgoingAsync, Ice.AsyncResult<T>
     {
-        public TwowayOutgoingAsync(Ice.ObjectPrx prx, string operation, ProxyTwowayCallback<T> cb, object cookie) :
+        public OutgoingAsync(Ice.ObjectPrx prx, string operation, object cookie) :
             base(prx, operation, cookie)
         {
-            Debug.Assert(cb != null);
-            _completed = cb;
         }
 
-        public Ice.AsyncResult<T> whenCompleted(T cb, Ice.ExceptionCallback excb)
+        new public Ice.AsyncResult<T> whenCompleted(Ice.ExceptionCallback excb)
         {
             lock(monitor_)
             {
-                setCompletedCallback(completed__);
-                _responseCallback = cb;
+                setCompletedCallback(getCompletedCallback());
                 exceptionCallback_ = excb;
                 if((state_ & Done) == 0)
                 {
@@ -1169,7 +1173,7 @@ namespace IceInternal
                                                  {
                                                      try
                                                      {
-                                                         _completed(this, _responseCallback, exceptionCallback_);
+                                                         completedCallback_(this);
                                                      }
                                                      catch(System.Exception ex)
                                                      {
@@ -1179,35 +1183,12 @@ namespace IceInternal
             return this;
         }
 
-        public Ice.AsyncResult<T> whenCompleted(T cb)
-        {
-            return whenCompleted(cb, null);
-        }
-
-        private void completed__(Ice.AsyncResult result)
-        {
-            _completed(this, _responseCallback, exceptionCallback_);
-        }
-        
-        private ProxyTwowayCallback<T> _completed;
-        private T _responseCallback;
-    };
-
-    public class OnewayOutgoingAsync<T> : OutgoingAsync, Ice.AsyncResult<T>
-    {
-        public OnewayOutgoingAsync(Ice.ObjectPrx prx, string operation, ProxyOnewayCallback<T> cb,object cookie) :
-            base(prx, operation, cookie)
-        {
-            Debug.Assert(cb != null);
-            _completed = cb;
-        }
-
         public Ice.AsyncResult<T> whenCompleted(T cb, Ice.ExceptionCallback excb)
         {
             lock(monitor_)
             {
-                setCompletedCallback(completed__);
-                _responseCallback = cb;
+                setCompletedCallback(getCompletedCallback());
+                responseCallback_ = cb;
                 exceptionCallback_ = excb;
                 if((state_ & Done) == 0)
                 {
@@ -1220,29 +1201,70 @@ namespace IceInternal
             }
 
             instance_.clientThreadPool().dispatch(delegate()
-                                                  {
+                                                 {
                                                      try
                                                      {
-                                                         completed__(this);
+                                                         completedCallback_(this);
                                                      }
                                                      catch(System.Exception ex)
                                                      {
                                                          warning__(ex);
                                                      }
-                                                  });
+                                                 });
             return this;
         }
 
-        public Ice.AsyncResult<T> whenCompleted(T cb)
+        new public Ice.AsyncResult<T> whenSent(Ice.SentCallback cb)
         {
-            return whenCompleted(cb, null);
+            base.whenSent(cb);
+            return this;
+        }
+
+        protected T responseCallback_;
+    };
+
+    public class TwowayOutgoingAsync<T> : OutgoingAsync<T>
+    {
+        public TwowayOutgoingAsync(Ice.ObjectPrx prx, string operation, ProxyTwowayCallback<T> cb, object cookie) :
+            base(prx, operation, cookie)
+        {
+            Debug.Assert(cb != null);
+            _completed = cb;
+        }
+
+        override protected Ice.AsyncCallback getCompletedCallback()
+        {
+            return completed__;
+        }
+
+        private void completed__(Ice.AsyncResult result)
+        {
+            _completed(this, responseCallback_, exceptionCallback_);
+        }
+        
+        private ProxyTwowayCallback<T> _completed;
+    };
+
+    public class OnewayOutgoingAsync<T> : OutgoingAsync<T>
+    {
+        public OnewayOutgoingAsync(Ice.ObjectPrx prx, string operation, ProxyOnewayCallback<T> cb,object cookie) :
+            base(prx, operation, cookie)
+        {
+            Debug.Assert(cb != null);
+            _completed = cb;
+        }
+        
+        override protected Ice.AsyncCallback getCompletedCallback()
+        {
+            return completed__;
         }
 
         protected void completed__(Ice.AsyncResult r__)
         {
             try
             {
-                ((Ice.ObjectPrxHelperBase)(r__.getProxy())).end__(r__, r__.getOperation());
+                IceInternal.OutgoingAsync outAsync__ = (IceInternal.OutgoingAsync)r__;
+                ((Ice.ObjectPrxHelperBase)(outAsync__.getProxy())).end__(outAsync__, outAsync__.getOperation());
             }
             catch(Ice.Exception ex__)
             {
@@ -1252,11 +1274,10 @@ namespace IceInternal
                 }
                 return;
             }
-            _completed(_responseCallback);
+            _completed(responseCallback_);
         }
 
         private ProxyOnewayCallback<T> _completed;
-        private T _responseCallback;
     }
 
     public class BatchOutgoingAsync : OutgoingAsyncBase, OutgoingAsyncMessageCallback
@@ -1373,9 +1394,9 @@ namespace Ice
             ice_exception(ex);
         }
 
-        public void sent__(bool sentSynchronously)
+        public void sent__(Ice.AsyncResult result)
         {
-            if(!sentSynchronously)
+            if(!result.isSentSynchronously())
             {
                 ((AMISentCallback)this).ice_sent();
             }

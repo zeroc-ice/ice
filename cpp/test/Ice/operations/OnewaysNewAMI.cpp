@@ -102,28 +102,29 @@ onewaysNewAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrx& 
 
     {
 	CallbackPtr cb = new Callback;
-        Ice::CallbackPtr callback = Ice::newCallback(cb, &Callback::noException, &Callback::sent);
+        Ice::Callback_Object_ice_pingPtr callback =
+            Ice::newCallback_Object_ice_ping(cb, &Callback::noException, &Callback::sent);
         p->begin_ice_ping(callback);
         cb->check();
     }
 
     {
 	CallbackPtr cb = new Callback;
-        Ice::CallbackPtr callback = Ice::newCallback(cb, &Callback::twowayOnlyException);
+        Ice::Callback_Object_ice_isAPtr callback = Ice::newCallback_Object_ice_isA(cb, &Callback::twowayOnlyException);
         p->begin_ice_isA(Test::MyClass::ice_staticId(), callback);
         cb->check();
     }
     
     {
 	CallbackPtr cb = new Callback;
-        Ice::CallbackPtr callback = Ice::newCallback(cb, &Callback::twowayOnlyException);
+        Ice::Callback_Object_ice_idPtr callback = Ice::newCallback_Object_ice_id(cb, &Callback::twowayOnlyException);
         p->begin_ice_id(callback);
         cb->check();
     }
     
     {
 	CallbackPtr cb = new Callback;
-        Ice::CallbackPtr callback = Ice::newCallback(cb, &Callback::twowayOnlyException);
+        Ice::Callback_Object_ice_idsPtr callback = Ice::newCallback_Object_ice_ids(cb, &Callback::twowayOnlyException);
         p->begin_ice_ids(callback);
         cb->check();
     }
@@ -131,7 +132,8 @@ onewaysNewAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrx& 
     {
         {
             CallbackPtr cb = new Callback;
-            Ice::CallbackPtr callback = Ice::newCallback(cb, &Callback::noException, &Callback::sent);
+            Test::Callback_MyClass_opVoidPtr callback =
+                Test::newCallback_MyClass_opVoid(cb, &Callback::noException, &Callback::sent);
             p->begin_opVoid(callback);
             cb->check();
         }
@@ -142,7 +144,8 @@ onewaysNewAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrx& 
     //
     {
         CallbackPtr cb = new Callback;
-        Ice::CallbackPtr callback = Ice::newCallback(cb, &Callback::twowayOnlyException);
+        Test::Callback_MyClass_opBytePtr callback =
+            Test::newCallback_MyClass_opByte(cb, &Callback::twowayOnlyException);
         p->begin_opByte(Ice::Byte(0xff), Ice::Byte(0x0f), callback);
         cb->check();
     }

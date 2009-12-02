@@ -43,7 +43,7 @@ public class AllTests
         {
             p.op();
 
-            p.begin_op().whenCompleted(delegate() { test(Dispatcher.isDispatcherThread()); });
+            p.begin_op().whenCompleted(delegate() { test(Dispatcher.isDispatcherThread()); }, null);
 
             TestIntfPrx i = (TestIntfPrx)p.ice_adapterId("dummy");
             i.begin_op().whenCompleted(delegate(Ice.Exception ex) 
@@ -54,14 +54,14 @@ public class AllTests
 
             testController.holdAdapter();
             Test.Callback_TestIntf_opWithPayload rcb = delegate() { test(Dispatcher.isDispatcherThread()); };
-            Ice.SentCallback scb = delegate(bool sentSynchronously) 
+            Ice.SentCallback scb = delegate(bool isSentSynchronously) 
                 {
-                    test(sentSynchronously || Dispatcher.isDispatcherThread());
+                    test(isSentSynchronously || Dispatcher.isDispatcherThread());
                 };
 
             byte[] seq = new byte[10 * 1024];
             (new System.Random()).NextBytes(seq);
-            while(p.begin_opWithPayload(seq).whenCompleted(rcb).whenSent(scb).sentSynchronously());
+            while(p.begin_opWithPayload(seq).whenCompleted(rcb, null).whenSent(scb).isSentSynchronously());
             testController.resumeAdapter();
         }
         Console.Out.WriteLine("ok");

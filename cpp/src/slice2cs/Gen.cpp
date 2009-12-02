@@ -4321,6 +4321,8 @@ Slice::Gen::HelperVisitor::visitClassDefStart(const ClassDefPtr& p)
             _out << eb;
             _out << nl << "return;";
             _out << eb;
+            _out << nl << "if(cb__ != null)";
+            _out << sb;
             _out << nl << "cb__" << spar;
             if(ret)
             {
@@ -4332,12 +4334,16 @@ Slice::Gen::HelperVisitor::visitClassDefStart(const ClassDefPtr& p)
             }
             _out << epar << ';';
             _out << eb;
+            _out << eb;
         }
         else
         {    
             _out << sp << nl << "private void " << op->name() << "_completed__(" << delType << " cb__)";
             _out << sb;
+            _out << nl << "if(cb__ != null)";
+            _out << sb;
             _out << nl << "cb__();";
+            _out << eb;
             _out << eb;
         }
     }
@@ -4370,9 +4376,9 @@ Slice::Gen::HelperVisitor::visitClassDefStart(const ClassDefPtr& p)
             _out << ".whenCompleted(cb__.response__, cb__.exception__);";
             _out << nl << "if(cb__ is Ice.AMISentCallback)";
             _out << sb;
-            _out << nl << "result__.whenSent(cb__.sent__);";
+            _out << nl << "result__.whenSent((Ice.AsyncCallback)cb__.sent__);";
             _out << eb;
-            _out << "return result__.sentSynchronously();";
+            _out << "return result__.isSentSynchronously();";
             _out << eb;
 
             _out << sp;
@@ -4385,9 +4391,9 @@ Slice::Gen::HelperVisitor::visitClassDefStart(const ClassDefPtr& p)
             _out << ".whenCompleted(cb__.response__, cb__.exception__);";
             _out << nl << "if(cb__ is Ice.AMISentCallback)";
             _out << sb;
-            _out << nl << "result__.whenSent(cb__.sent__);";
+            _out << nl << "result__.whenSent((Ice.AsyncCallback)cb__.sent__);";
             _out << eb;
-            _out << "return result__.sentSynchronously();";
+            _out << "return result__.isSentSynchronously();";
             _out << eb;
         }
     }

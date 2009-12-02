@@ -94,7 +94,7 @@ public class OnewaysNewAMI
 
         {
             Callback cb = new Callback();
-            p.begin_ice_ping().whenCompleted(cb.noException).whenSent(cb.sent);
+            p.begin_ice_ping().whenCompleted(cb.noException).whenSent((Ice.SentCallback)cb.sent);
             cb.check();
         }
 
@@ -119,7 +119,7 @@ public class OnewaysNewAMI
         {
             {
                 Callback cb = new Callback();
-                p.begin_opVoid().whenCompleted(cb.noException).whenSent(cb.sent);
+                p.begin_opVoid().whenCompleted(cb.noException).whenSent((Ice.SentCallback)cb.sent);
                 cb.check();
             }
         }

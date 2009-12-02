@@ -110,6 +110,8 @@ public:
     
 private:
 
+    void sessionPingException(const Ice::Exception&, const ::Ice::ConnectionPtr&);
+
     bool startCreateSession(const CreateSessionPtr&, const Ice::ConnectionPtr&);
     void finishCreateSession(const Ice::ConnectionPtr&, const RouterIPtr&);
     friend class Glacier2::CreateSession;
@@ -150,7 +152,9 @@ private:
     mutable std::map<std::string, RouterIPtr>::iterator _routersByCategoryHint;
 
     std::map<Ice::ConnectionPtr, CreateSessionPtr> _pending;
-
+    
+    Ice::Callback_Object_ice_pingPtr _sessionPingCallback;
+    
     bool _destroy;
 };
 

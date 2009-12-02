@@ -1436,6 +1436,12 @@ public:
             test(false);
         }
     }
+
+    void 
+    noEx(const Ice::Exception&, const InParamPtr&)
+    {
+        test(false);
+    }
 };
 typedef IceUtil::Handle<Callback> CallbackPtr;
 
@@ -2925,7 +2931,7 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
 
             CallbackPtr cb = new Callback();
             Test::Callback_TestIntf_opDoubleArrayPtr callback = 
-                Test::newCallback_TestIntf_opDoubleArray(cb, &Callback::opDoubleArray);
+                Test::newCallback_TestIntf_opDoubleArray(cb, &Callback::opDoubleArray, &Callback::noEx);
             t->begin_opDoubleArray(inPair, callback, newInParam(inPair));
             cb->check();
         }
@@ -2946,7 +2952,7 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
 
             CallbackPtr cb = new Callback();
             Test::Callback_TestIntf_opBoolArrayPtr callback = 
-                Test::newCallback_TestIntf_opBoolArray(cb, &Callback::opBoolArray);
+                Test::newCallback_TestIntf_opBoolArray(cb, &Callback::opBoolArray, &Callback::noEx);
             t->begin_opBoolArray(inPair, callback, newInParam(inPair));
             cb->check();
         }
@@ -2962,7 +2968,7 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
 
             CallbackPtr cb = new Callback();
             Test::Callback_TestIntf_opByteArrayPtr callback = 
-                Test::newCallback_TestIntf_opByteArray(cb, &Callback::opByteArray);
+                Test::newCallback_TestIntf_opByteArray(cb, &Callback::opByteArray, &Callback::noEx);
             t->begin_opByteArray(inPair, callback, newInParam(inPair));
             cb->check();
         }
@@ -2984,7 +2990,7 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
 
             CallbackPtr cb = new Callback();
             Test::Callback_TestIntf_opVariableArrayPtr callback =
-                Test::newCallback_TestIntf_opVariableArray(cb, &Callback::opVariableArray);
+                Test::newCallback_TestIntf_opVariableArray(cb, &Callback::opVariableArray, &Callback::noEx);
             t->begin_opVariableArray(inPair, callback, newInParam(inPair));
             cb->check();
         }
@@ -3000,7 +3006,7 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
 
             CallbackPtr cb = new Callback();
             Test::Callback_TestIntf_opBoolRangePtr callback = 
-                Test::newCallback_TestIntf_opBoolRange(cb, &Callback::opBoolRange);
+                Test::newCallback_TestIntf_opBoolRange(cb, &Callback::opBoolRange, &Callback::noEx);
             t->begin_opBoolRange(inPair, callback, newInParam(inPair));
             cb->check();
         }
@@ -3016,7 +3022,7 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
 
             CallbackPtr cb = new Callback();
             Test::Callback_TestIntf_opByteRangePtr callback = 
-                Test::newCallback_TestIntf_opByteRange(cb, &Callback::opByteRange);
+                Test::newCallback_TestIntf_opByteRange(cb, &Callback::opByteRange, &Callback::noEx);
             t->begin_opByteRange(inPair, callback, newInParam(inPair));
             cb->check();
         }
@@ -3038,7 +3044,7 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
 
             CallbackPtr cb = new Callback();
             Test::Callback_TestIntf_opVariableRangePtr callback =
-                Test::newCallback_TestIntf_opVariableRange(cb, &Callback::opVariableRange);
+                Test::newCallback_TestIntf_opVariableRange(cb, &Callback::opVariableRange, &Callback::noEx);
             t->begin_opVariableRange(inPair, callback, newInParam(inPair));
             cb->check();
         }
@@ -3059,7 +3065,7 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
 
             CallbackPtr cb = new Callback();
             Test::Callback_TestIntf_opBoolRangeTypePtr callback = 
-                Test::newCallback_TestIntf_opBoolRangeType(cb, &Callback::opBoolRangeType);
+                Test::newCallback_TestIntf_opBoolRangeType(cb, &Callback::opBoolRangeType, &Callback::noEx);
             t->begin_opBoolRangeType(inPair, callback, newInParam(inPair));
             cb->check();
         }
@@ -3075,7 +3081,7 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
 
             CallbackPtr cb = new Callback();
             Test::Callback_TestIntf_opByteRangeTypePtr callback =
-                Test::newCallback_TestIntf_opByteRangeType(cb, &Callback::opByteRangeType);
+                Test::newCallback_TestIntf_opByteRangeType(cb, &Callback::opByteRangeType, &Callback::noEx);
             t->begin_opByteRangeType(inPair, callback, newInParam(inPair));
             cb->check();
         }
@@ -3104,7 +3110,7 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
 
             CallbackPtr cb = new Callback();
             Test::Callback_TestIntf_opVariableRangeTypePtr callback = 
-                Test::newCallback_TestIntf_opVariableRangeType(cb, &Callback::opVariableRangeType);
+                Test::newCallback_TestIntf_opVariableRangeType(cb, &Callback::opVariableRangeType, &Callback::noEx);
             t->begin_opVariableRangeType(inPair, callback, newInParam(inPair));
             cb->check();
         }
@@ -3119,7 +3125,7 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
 
             CallbackPtr cb = new Callback();
             Test::Callback_TestIntf_opBoolSeqPtr callback = 
-                Test::newCallback_TestIntf_opBoolSeq(cb, &Callback::opBoolSeq);
+                Test::newCallback_TestIntf_opBoolSeq(cb, &Callback::opBoolSeq, &Callback::noEx);
             t->begin_opBoolSeq(in, callback, newInParam(in));
             cb->check();
         }
@@ -3134,7 +3140,7 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
 
             CallbackPtr cb = new Callback();
             Test::Callback_TestIntf_opBoolListPtr callback = 
-                Test::newCallback_TestIntf_opBoolList(cb, &Callback::opBoolList);
+                Test::newCallback_TestIntf_opBoolList(cb, &Callback::opBoolList, &Callback::noEx);
             t->begin_opBoolList(in, callback, newInParam(in));
             cb->check();
         }
@@ -3149,7 +3155,7 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
 
             CallbackPtr cb = new Callback();
             Test::Callback_TestIntf_opByteSeqPtr callback = 
-                Test::newCallback_TestIntf_opByteSeq(cb, &Callback::opByteSeq);
+                Test::newCallback_TestIntf_opByteSeq(cb, &Callback::opByteSeq, &Callback::noEx);
             t->begin_opByteSeq(in, callback, newInParam(in));
             cb->check();
         }
@@ -3164,7 +3170,7 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
 
             CallbackPtr cb = new Callback();
             Test::Callback_TestIntf_opByteListPtr callback = 
-                Test::newCallback_TestIntf_opByteList(cb, &Callback::opByteList);
+                Test::newCallback_TestIntf_opByteList(cb, &Callback::opByteList, &Callback::noEx);
             t->begin_opByteList(in, callback, newInParam(in));
             cb->check();
         }
@@ -3179,7 +3185,7 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
 
             CallbackPtr cb = new Callback();
             Test::Callback_TestIntf_opMyByteSeqPtr callback = 
-                Test::newCallback_TestIntf_opMyByteSeq(cb, &Callback::opMyByteSeq);
+                Test::newCallback_TestIntf_opMyByteSeq(cb, &Callback::opMyByteSeq, &Callback::noEx);
             t->begin_opMyByteSeq(in, callback, newInParam(in));
             cb->check();
         }
@@ -3194,7 +3200,7 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
 
             CallbackPtr cb = new Callback();
             Test::Callback_TestIntf_opStringSeqPtr callback = 
-                Test::newCallback_TestIntf_opStringSeq(cb, &Callback::opStringSeq);
+                Test::newCallback_TestIntf_opStringSeq(cb, &Callback::opStringSeq, &Callback::noEx);
             t->begin_opStringSeq(in, callback, newInParam(in));
             cb->check();
         }
@@ -3209,7 +3215,7 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
 
             CallbackPtr cb = new Callback();
             Test::Callback_TestIntf_opStringListPtr callback = 
-                Test::newCallback_TestIntf_opStringList(cb, &Callback::opStringList);
+                Test::newCallback_TestIntf_opStringList(cb, &Callback::opStringList, &Callback::noEx);
             t->begin_opStringList(in, callback, newInParam(in));
             cb->check();
         }
@@ -3224,7 +3230,7 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
 
             CallbackPtr cb = new Callback();
             Test::Callback_TestIntf_opFixedSeqPtr callback = 
-                Test::newCallback_TestIntf_opFixedSeq(cb, &Callback::opFixedSeq);
+                Test::newCallback_TestIntf_opFixedSeq(cb, &Callback::opFixedSeq, &Callback::noEx);
             t->begin_opFixedSeq(in, callback, newInParam(in));
             cb->check();
         }
@@ -3239,7 +3245,7 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
 
             CallbackPtr cb = new Callback();
             Test::Callback_TestIntf_opFixedListPtr callback = 
-                Test::newCallback_TestIntf_opFixedList(cb, &Callback::opFixedList);
+                Test::newCallback_TestIntf_opFixedList(cb, &Callback::opFixedList, &Callback::noEx);
             t->begin_opFixedList(in, callback, newInParam(in));
             cb->check();
         }
@@ -3254,7 +3260,7 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
 
             CallbackPtr cb = new Callback();
             Test::Callback_TestIntf_opVariableSeqPtr callback = 
-                Test::newCallback_TestIntf_opVariableSeq(cb, &Callback::opVariableSeq);
+                Test::newCallback_TestIntf_opVariableSeq(cb, &Callback::opVariableSeq, &Callback::noEx);
             t->begin_opVariableSeq(in, callback, newInParam(in));
             cb->check();
         }
@@ -3275,7 +3281,7 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
 
             CallbackPtr cb = new Callback();
             Test::Callback_TestIntf_opVariableListPtr callback = 
-                Test::newCallback_TestIntf_opVariableList(cb, &Callback::opVariableList);
+                Test::newCallback_TestIntf_opVariableList(cb, &Callback::opVariableList, &Callback::noEx);
             t->begin_opVariableList(in, callback, newInParam(in));
             cb->check();
         }
@@ -3290,7 +3296,7 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
 
             CallbackPtr cb = new Callback();
             Test::Callback_TestIntf_opStringStringDictSeqPtr callback = 
-                Test::newCallback_TestIntf_opStringStringDictSeq(cb, &Callback::opStringStringDictSeq);
+                Test::newCallback_TestIntf_opStringStringDictSeq(cb, &Callback::opStringStringDictSeq, &Callback::noEx);
             t->begin_opStringStringDictSeq(in, callback, newInParam(in));
             cb->check();
         }
@@ -3311,7 +3317,7 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
 
             CallbackPtr cb = new Callback();
             Test::Callback_TestIntf_opStringStringDictListPtr callback = 
-                Test::newCallback_TestIntf_opStringStringDictList(cb, &Callback::opStringStringDictList);
+                Test::newCallback_TestIntf_opStringStringDictList(cb, &Callback::opStringStringDictList, &Callback::noEx);
             t->begin_opStringStringDictList(in, callback, newInParam(in));
             cb->check();
         }
@@ -3326,7 +3332,7 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
 
             CallbackPtr cb = new Callback();
             Test::Callback_TestIntf_opESeqPtr callback = 
-                Test::newCallback_TestIntf_opESeq(cb, &Callback::opESeq);
+                Test::newCallback_TestIntf_opESeq(cb, &Callback::opESeq, &Callback::noEx);
             t->begin_opESeq(in, callback, newInParam(in));
             cb->check();
         }
@@ -3341,7 +3347,7 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
 
             CallbackPtr cb = new Callback();
             Test::Callback_TestIntf_opEListPtr callback = 
-                Test::newCallback_TestIntf_opEList(cb, &Callback::opEList);
+                Test::newCallback_TestIntf_opEList(cb, &Callback::opEList, &Callback::noEx);
             t->begin_opEList(in, callback, newInParam(in));
             cb->check();
         }
@@ -3356,7 +3362,7 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
 
             CallbackPtr cb = new Callback();
             Test::Callback_TestIntf_opCPrxSeqPtr callback = 
-                Test::newCallback_TestIntf_opCPrxSeq(cb, &Callback::opCPrxSeq);
+                Test::newCallback_TestIntf_opCPrxSeq(cb, &Callback::opCPrxSeq, &Callback::noEx);
             t->begin_opCPrxSeq(in, callback, newInParam(in));
             cb->check();
         }
@@ -3371,7 +3377,7 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
 
             CallbackPtr cb = new Callback();
             Test::Callback_TestIntf_opCPrxListPtr callback = 
-                Test::newCallback_TestIntf_opCPrxList(cb, &Callback::opCPrxList);
+                Test::newCallback_TestIntf_opCPrxList(cb, &Callback::opCPrxList, &Callback::noEx);
             t->begin_opCPrxList(in, callback, newInParam(in));
             cb->check();
         }
@@ -3385,7 +3391,7 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
             in[4] = in[0];
 
             CallbackPtr cb = new Callback();
-            Test::Callback_TestIntf_opCSeqPtr callback = Test::newCallback_TestIntf_opCSeq(cb, &Callback::opCSeq);
+            Test::Callback_TestIntf_opCSeqPtr callback = Test::newCallback_TestIntf_opCSeq(cb, &Callback::opCSeq, &Callback::noEx);
             t->begin_opCSeq(in, callback, newInParam(in));
             cb->check();
         }
@@ -3400,7 +3406,7 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
 
             CallbackPtr cb = new Callback();
             Test::Callback_TestIntf_opCListPtr callback = 
-                Test::newCallback_TestIntf_opCList(cb, &Callback::opCList);
+                Test::newCallback_TestIntf_opCList(cb, &Callback::opCList, &Callback::noEx);
             t->begin_opCList(in, callback, newInParam(in));
             cb->check();
         }
@@ -3450,7 +3456,7 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
         {
             CallbackPtr cb = new Callback();
             Test::Callback_TestIntf_opClassStructPtr callback = 
-                Test::newCallback_TestIntf_opClassStruct(cb, &Callback::opClassStruct);
+                Test::newCallback_TestIntf_opClassStruct(cb, &Callback::opClassStruct, &Callback::noEx);
             t->begin_opClassStruct(cs, csseq1, callback, newInParam(make_pair(cs, csseq1)));
             cb->check();
         }
@@ -3505,7 +3511,7 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
         }
         {
             CallbackPtr cb = new Callback();
-            wsc1->begin_opString(wstr, Test1::newCallback_WstringClass_opString(cb, &Callback::opString),
+            wsc1->begin_opString(wstr, Test1::newCallback_WstringClass_opString(cb, &Callback::opString, &Callback::noEx),
                                  newInParam(wstr));
             cb->check();
         }
@@ -3531,8 +3537,8 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
         }
         {
             CallbackPtr cb = new Callback();
-            wsc2->begin_opString(wstr, Test2::newCallback_WstringClass_opString(cb, &Callback::opString),
-                                 newInParam(wstr));
+            wsc2->begin_opString(wstr, Test2::newCallback_WstringClass_opString(cb, &Callback::opString, 
+                                                                                &Callback::noEx), newInParam(wstr));
             cb->check();
         }
     }

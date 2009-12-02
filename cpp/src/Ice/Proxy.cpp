@@ -418,7 +418,7 @@ IceProxy::Ice::Object::ice_invoke_async(const AMI_Object_ice_invokePtr& cb,
                                             &AMI_Object_ice_invoke::__exception);
     }
     ::Ice::AsyncResultPtr result = begin_ice_invoke(operation, mode, inParams, del);
-    return result->sentSynchronously();
+    return result->isSentSynchronously();
 }
 
 bool
@@ -443,7 +443,7 @@ IceProxy::Ice::Object::ice_invoke_async(const AMI_Object_ice_invokePtr& cb,
                                             &AMI_Object_ice_invoke::__exception);
     }
     ::Ice::AsyncResultPtr result = begin_ice_invoke(operation, mode, inParams, context, del);
-    return result->sentSynchronously();
+    return result->isSentSynchronously();
 }
 
 AsyncResultPtr
@@ -539,7 +539,7 @@ IceProxy::Ice::Object::ice_invoke_async(const AMI_Array_Object_ice_invokePtr& cb
                                             &AMI_Array_Object_ice_invoke::__exception);
     }
     ::Ice::AsyncResultPtr result = begin_ice_invoke(operation, mode, inParams, del);
-    return result->sentSynchronously();
+    return result->isSentSynchronously();
 }
 
 bool
@@ -564,7 +564,7 @@ IceProxy::Ice::Object::ice_invoke_async(const AMI_Array_Object_ice_invokePtr& cb
                                             &AMI_Array_Object_ice_invoke::__exception);
     }
     ::Ice::AsyncResultPtr result = begin_ice_invoke(operation, mode, inParams, context, del);
-    return result->sentSynchronously();
+    return result->isSentSynchronously();
 }
 
 AsyncResultPtr
@@ -592,7 +592,7 @@ IceProxy::Ice::Object::begin_ice_invoke(const string& operation,
 }
 
 bool
-IceProxy::Ice::Object::end_ice_invoke(pair<const Byte*, const Byte*>& outParams, const AsyncResultPtr& __result)
+IceProxy::Ice::Object::___end_ice_invoke(pair<const Byte*, const Byte*>& outParams, const AsyncResultPtr& __result)
 {
     AsyncResult::__check(__result, this, ice_invoke_name);
     bool ok = __result->__wait();
@@ -1118,8 +1118,19 @@ IceProxy::Ice::Object::ice_flushBatchRequests()
 bool
 IceProxy::Ice::Object::ice_flushBatchRequests_async(const AMI_Object_ice_flushBatchRequestsPtr& cb)
 {
-    ::Ice::AsyncResultPtr result = begin_ice_flushBatchRequests(newAMICallback(cb));
-    return result->sentSynchronously();
+    Callback_Object_ice_flushBatchRequestsPtr __del;
+    if(dynamic_cast< AMISentCallback*>(cb.get()))
+    {
+        __del = newCallback_Object_ice_flushBatchRequests(cb, 
+                                                          &AMI_Object_ice_flushBatchRequests::__exception, 
+                                                          &AMI_Object_ice_flushBatchRequests::__sent);
+    }
+    else
+    {
+        __del = newCallback_Object_ice_flushBatchRequests(cb, &AMI_Object_ice_flushBatchRequests::__exception);
+    }
+    ::Ice::AsyncResultPtr result = begin_ice_flushBatchRequests(0, __del, 0);
+    return result->isSentSynchronously();
 }
 
 ::Ice::AsyncResultPtr

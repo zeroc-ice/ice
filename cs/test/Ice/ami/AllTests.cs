@@ -344,6 +344,23 @@ public class AllTests
         }
         
         public void
+        opWithUE(Ice.Exception e)
+        {
+            try
+            {
+                throw e;
+            }
+            catch(TestIntfException)
+            {
+                called();
+            }
+            catch(Ice.Exception)
+            {
+                test(false);
+            }
+        }
+            
+        public void
         ex(Ice.Exception ex)
         {
             test(ex is Ice.NoEndpointException);
@@ -402,8 +419,8 @@ public class AllTests
         public void
         sentAsync(Ice.AsyncResult r)
         {
-            test(r.sentSynchronously() && _thread == Thread.CurrentThread ||
-                 !r.sentSynchronously() && _thread != Thread.CurrentThread);
+            test(r.isSentSynchronously() && _thread == Thread.CurrentThread ||
+                 !r.isSentSynchronously() && _thread != Thread.CurrentThread);
             called();
         }
 
@@ -638,34 +655,34 @@ public class AllTests
             ResponseCallback cb = new ResponseCallback();
             Dictionary<string, string> ctx = new Dictionary<string, string>();
         
-            p.begin_ice_isA("::Test::TestIntf").whenCompleted(cb.isA);
+            p.begin_ice_isA("::Test::TestIntf").whenCompleted(cb.isA, null);
             cb.check();        
-            p.begin_ice_isA("::Test::TestIntf", ctx).whenCompleted(cb.isA);
+            p.begin_ice_isA("::Test::TestIntf", ctx).whenCompleted(cb.isA, null);
             cb.check();        
 
-            p.begin_ice_ping().whenCompleted(cb.ping);
+            p.begin_ice_ping().whenCompleted(cb.ping, null);
             cb.check();        
-            p.begin_ice_ping(ctx).whenCompleted(cb.ping);
+            p.begin_ice_ping(ctx).whenCompleted(cb.ping, null);
             cb.check();        
         
-            p.begin_ice_id().whenCompleted(cb.id);
+            p.begin_ice_id().whenCompleted(cb.id, null);
             cb.check();        
-            p.begin_ice_id(ctx).whenCompleted(cb.id);
-            cb.check();        
-
-            p.begin_ice_ids().whenCompleted(cb.ids);
-            cb.check();        
-            p.begin_ice_ids(ctx).whenCompleted(cb.ids);
+            p.begin_ice_id(ctx).whenCompleted(cb.id, null);
             cb.check();        
 
-            p.begin_op().whenCompleted(cb.op);
+            p.begin_ice_ids().whenCompleted(cb.ids, null);
+            cb.check();        
+            p.begin_ice_ids(ctx).whenCompleted(cb.ids, null);
+            cb.check();        
+
+            p.begin_op().whenCompleted(cb.op, null);
             cb.check();
-            p.begin_op(ctx).whenCompleted(cb.op);
+            p.begin_op(ctx).whenCompleted(cb.op, null);
             cb.check();
 
-            p.begin_opWithResult().whenCompleted(cb.opWithResult);
+            p.begin_opWithResult().whenCompleted(cb.opWithResult, null);
             cb.check();
-            p.begin_opWithResult(ctx).whenCompleted(cb.opWithResult);
+            p.begin_opWithResult(ctx).whenCompleted(cb.opWithResult, null);
             cb.check();
 
             p.begin_opWithUE().whenCompleted(cb.op, cb.opWithUE);
@@ -788,23 +805,26 @@ public class AllTests
             Test.TestIntfPrx i = Test.TestIntfPrxHelper.uncheckedCast(p.ice_adapterId("dummy"));
             ExceptionCallback cb = new ExceptionCallback();
         
-            i.begin_ice_isA("::Test::TestIntf").whenCompleted((Ice.ExceptionCallback)cb.ex);
+            i.begin_ice_isA("::Test::TestIntf").whenCompleted(cb.ex);
             cb.check();        
 
             i.begin_op().whenCompleted(cb.ex);
             cb.check();
 
-            i.begin_opWithResult().whenCompleted((Ice.ExceptionCallback)cb.ex);
+            i.begin_opWithResult().whenCompleted(cb.ex);
             cb.check();
 
             i.begin_opWithUE().whenCompleted(cb.ex);
             cb.check();
 
             // Ensures no exception is called when response is received
-            p.begin_ice_isA("::Test::TestIntf").whenCompleted((Ice.ExceptionCallback)cb.noEx);
+            p.begin_ice_isA("::Test::TestIntf").whenCompleted(cb.noEx);
             p.begin_op().whenCompleted(cb.noEx);
-            p.begin_opWithResult().whenCompleted((Ice.ExceptionCallback)cb.noEx);
-            p.begin_opWithUE().whenCompleted(cb.noEx);
+            p.begin_opWithResult().whenCompleted(cb.noEx);
+
+            // If response is a user exception, it should be received.
+            p.begin_opWithUE().whenCompleted(cb.opWithUE);
+            cb.check();
         }
         Console.Out.WriteLine("ok");
 
@@ -828,7 +848,7 @@ public class AllTests
             p.begin_op().whenCompleted(cb.op, cb.ex).whenSent(cb.sent);
             cb.check();
         
-            p.begin_op(cb.opAsync, null).whenSentWithResult(cb.sentAsync);
+            p.begin_op(cb.opAsync, null).whenSent((Ice.AsyncCallback)cb.sentAsync);
             cb.check();
 
             p.begin_op().whenCompleted(cb.ex).whenSent(cb.sent);
@@ -845,7 +865,7 @@ public class AllTests
                 r = p.begin_opWithPayload(seq).whenCompleted(cb2.ex).whenSent(cb2.sent);
                 cbs.Add(cb2);
             }
-            while(r.sentSynchronously());
+            while(r.isSentSynchronously());
             testController.resumeAdapter();
             foreach(SentCallback cb3 in cbs)
             {
@@ -905,7 +925,7 @@ public class AllTests
                 p.begin_op(cb.opAsync, null);
                 cb.check();
 
-                p.begin_op().whenCompleted(cb.op);
+                p.begin_op().whenCompleted(cb.op, null);
                 cb.check();
 
                 q.begin_op().whenCompleted(cb.op, cb.ex);
@@ -929,12 +949,12 @@ public class AllTests
             byte[] seq = new byte[10024];
             (new System.Random()).NextBytes(seq);
             Ice.AsyncResult r2;
-            while((r2 = p.begin_opWithPayload(seq)).sentSynchronously());
+            while((r2 = p.begin_opWithPayload(seq)).isSentSynchronously());
 
-            test(r1.sentSynchronously() && r1.isSent() && !r1.isCompleted_() || 
-                 !r1.sentSynchronously() && !r1.isCompleted_());
+            test(r1.isSentSynchronously() && r1.isSent() && !r1.isCompleted_() || 
+                 !r1.isSentSynchronously() && !r1.isCompleted_());
 
-            test(!r2.sentSynchronously() && !r2.isCompleted_());
+            test(!r2.isSentSynchronously() && !r2.isCompleted_());
 
             test(!r1.IsCompleted && !r1.CompletedSynchronously);
             test(!r2.IsCompleted && !r2.CompletedSynchronously);

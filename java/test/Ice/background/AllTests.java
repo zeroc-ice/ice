@@ -409,7 +409,7 @@ public class AllTests
             }
 
             Ice.AsyncResult r = prx.begin_op();
-            test(!r.sentSynchronously());
+            test(!r.isSentSynchronously());
             try
             {
                 prx.end_op(r);
@@ -422,7 +422,7 @@ public class AllTests
 
             OpAMICallbackEx cbEx = new OpAMICallbackEx();
             r = prx.begin_op(cbEx);
-            test(!r.sentSynchronously());
+            test(!r.isSentSynchronously());
             cbEx.exception(true);
             test(r.isCompleted());
 
@@ -519,7 +519,7 @@ public class AllTests
             }
 
             Ice.AsyncResult r = prx.begin_op();
-            test(!r.sentSynchronously());
+            test(!r.isSentSynchronously());
             try
             {
                 prx.end_op(r);
@@ -532,7 +532,7 @@ public class AllTests
 
             OpAMICallbackEx cbEx = new OpAMICallbackEx();
             r = prx.begin_op(cbEx);
-            test(!r.sentSynchronously());
+            test(!r.isSentSynchronously());
             cbEx.exception(true);
             test(r.isCompleted());
 
@@ -761,7 +761,7 @@ public class AllTests
             configuration.readException(new Ice.SocketException());
             BackgroundPrx prx = i == 0 ? background : (BackgroundPrx)background.ice_oneway();
             Ice.AsyncResult r = prx.begin_op();
-            test(!r.sentSynchronously());
+            test(!r.isSentSynchronously());
             try
             {
                 prx.end_op(r);
@@ -809,7 +809,7 @@ public class AllTests
                 configuration.readReady(false);
                 configuration.readException(new Ice.SocketException());
                 Ice.AsyncResult r = background.begin_op();
-                test(!r.sentSynchronously());
+                test(!r.isSentSynchronously());
                 try
                 {
                     background.end_op(r);
@@ -827,7 +827,7 @@ public class AllTests
         ctl.holdAdapter(); // Hold to block in connection validation
         Ice.AsyncResult r = background.begin_op();
         Ice.AsyncResult r2 = background.begin_op();
-        test(!r.sentSynchronously() && !r2.sentSynchronously());
+        test(!r.isSentSynchronously() && !r2.isSentSynchronously());
         test(!r.isCompleted() && !r2.isCompleted());
         ctl.resumeAdapter();
         background.end_op(r);
@@ -1005,7 +1005,7 @@ public class AllTests
             background.ice_ping();
             configuration.writeException(new Ice.SocketException());
             Ice.AsyncResult r = prx.begin_op();
-            test(!r.sentSynchronously());
+            test(!r.isSentSynchronously());
             try
             {
                 prx.end_op(r);
@@ -1034,7 +1034,7 @@ public class AllTests
         configuration.readReady(false); // Required in C# to make sure beginRead() doesn't throw too soon.
         configuration.readException(new Ice.SocketException());
         Ice.AsyncResult r = background.begin_op();
-        if(!r.sentSynchronously())
+        if(!r.isSentSynchronously())
         {
             // The read exception might propagate before the message send is seen as completed on IOCP.
             test(r.isCompleted());
@@ -1097,7 +1097,7 @@ public class AllTests
             configuration.writeReady(false);
             configuration.writeException(new Ice.SocketException());
             r = prx.begin_op();
-            test(!r.sentSynchronously());
+            test(!r.isSentSynchronously());
             try
             {
                 prx.end_op(r);
@@ -1130,7 +1130,7 @@ public class AllTests
             configuration.readReady(false);
             configuration.readException(new Ice.SocketException());
             r = background.begin_op();
-            if(!r.sentSynchronously())
+            if(!r.isSentSynchronously())
             {
                 // The read exception might propagate before the message send is seen as completed on IOCP.
                 test(r.isCompleted());
@@ -1180,20 +1180,20 @@ public class AllTests
         byte[] seq = new byte[512 * 1024];
         new java.util.Random().nextBytes(seq); // Make sure the request doesn't compress too well.
         NoResponse noResponse = new NoResponse();
-        while(backgroundOneway.begin_opWithPayload(seq, noResponse).sentSynchronously())
+        while(backgroundOneway.begin_opWithPayload(seq, noResponse).isSentSynchronously())
         {
         }
 
         OpAMICallback cb = new OpAMICallback();
         Ice.AsyncResult r1 = background.begin_op(cb);
-        test(!r1.sentSynchronously() && !r1.isSent());
+        test(!r1.isSentSynchronously() && !r1.isSent());
 
         OpAMICallback cb2 = new OpAMICallback();
         Ice.AsyncResult r2 = background.begin_op(cb2);
-        test(!r2.sentSynchronously() && !r2.isSent());
+        test(!r2.isSentSynchronously() && !r2.isSent());
 
-        test(!backgroundOneway.begin_opWithPayload(seq, noResponse).sentSynchronously());
-        test(!backgroundOneway.begin_opWithPayload(seq, noResponse).sentSynchronously());
+        test(!backgroundOneway.begin_opWithPayload(seq, noResponse).isSentSynchronously());
+        test(!backgroundOneway.begin_opWithPayload(seq, noResponse).isSentSynchronously());
 
         test(!cb.response(false));
         test(!cb2.response(false));

@@ -2849,8 +2849,6 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
         else
         {
             C << nl << "::IceInternal::CallbackBasePtr __del;";
-            C << nl << "if(ice_isTwoway())";
-            C << sb;
             C << nl << "if(dynamic_cast< ::Ice::AMISentCallback*>(__cb.get()))";
             C << sb;
             C << nl << " __del = " << classScope << "new" << delName << "(__cb, &" << opScopedAMI << "::__response, &"
@@ -2861,14 +2859,9 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
             C << nl << " __del = " << classScope << "new" << delName << "(__cb, &" << opScopedAMI << "::__response, &"
               << opScopedAMI << "::__exception);";
             C << eb;
-            C << eb;
-            C << nl << "else";
-            C << sb;
-            C << nl << "__del = ::Ice::newAMICallback(__cb);";
-            C << eb;
         }
         C << nl << "::Ice::AsyncResultPtr __ar = begin_" << name << spar << argsAMI << "0, __del" << epar << ';';
-        C << nl << "return __ar->sentSynchronously();";
+        C << nl << "return __ar->isSentSynchronously();";
         C << eb;
 
         C << sp << nl << "bool" << nl << "IceProxy" << scope << name << "_async" << spar
@@ -2892,7 +2885,6 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
         else
         {
             C << nl << "::IceInternal::CallbackBasePtr __del;";
-            C << nl << "if(ice_isTwoway())";
             C << nl << "if(dynamic_cast< ::Ice::AMISentCallback*>(__cb.get()))";
             C << sb;
             C << nl << " __del = " << classScope << "new" << delName << "(__cb, &" << opScopedAMI << "::__response, &"
@@ -2903,14 +2895,10 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
             C << nl << " __del = " << classScope << "new" << delName << "(__cb, &" << opScopedAMI << "::__response, &"
               << opScopedAMI << "::__exception);";
             C << eb;
-            C << nl << "else";
-            C << sb;
-            C << nl << "__del = ::Ice::newAMICallback(__cb);";
-            C << eb;
         }
         C << nl << "::Ice::AsyncResultPtr __ar = begin_" << name << spar << argsAMI << "&__ctx" << "__del" << epar
           << ';';
-        C << nl << "return __ar->sentSynchronously();";
+        C << nl << "return __ar->isSentSynchronously();";
         C << eb;
     }
 }
@@ -5359,17 +5347,13 @@ Slice::Gen::AsyncCallbackTemplateVisitor::generateOperation(const OperationPtr& 
     H.inc();
 
     H << sp << nl << "typedef IceUtil::Handle<T> TPtr;";
-    if(withCookie)
-    {
-        H << nl << "typedef IceUtil::Handle<CT> CTPtr;";
-    }
 
     string cookieT;
     string comCookieT;
     if(withCookie)
     {
-        cookieT = "const CTPtr&";
-        comCookieT = " , const CTPtr&";
+        cookieT = "const CT&";
+        comCookieT = " , const CT&";
     }
 
     H << sp << nl << "typedef void (T::*Exception)(const ::Ice::Exception&" << comCookieT << ");";
@@ -5473,7 +5457,7 @@ Slice::Gen::AsyncCallbackTemplateVisitor::generateOperation(const OperationPtr& 
         H << outArgs;
         if(withCookie)
         {
-            H << "CTPtr::dynamicCast(__result->getCookie())";
+            H << "CT::dynamicCast(__result->getCookie())";
         }
         H << epar << ';';
 	H.zeroIndent();
@@ -5487,7 +5471,7 @@ Slice::Gen::AsyncCallbackTemplateVisitor::generateOperation(const OperationPtr& 
         H << outArgs;
         if(withCookie)
         {
-            H << "CTPtr::dynamicCast(__result->getCookie())";
+            H << "CT::dynamicCast(__result->getCookie())";
         }
         H << epar << ';';
 	H.zeroIndent();
@@ -5501,48 +5485,75 @@ Slice::Gen::AsyncCallbackTemplateVisitor::generateOperation(const OperationPtr& 
     H << eb << ';';
 
     // Factory method
-    if(withCookie)
+    for(int i = 0; i < 2; i++)
     {
-        cookieT = "const ::IceUtil::Handle<CT>&";
-        comCookieT = " , const ::IceUtil::Handle<CT>&";
-        H << sp << nl << "template<class T, typename CT> " << delName << "Ptr"; 
-    }
-    else
-    {
-        H << sp << nl << "template<class T> " << delName << "Ptr"; 
-    }
+        string callbackT = i == 0 ? "const IceUtil::Handle<T>&" : "T*";
 
-    H << nl << "new" << delName << "(const ::IceUtil::Handle<T>& instance, ";
-    if(p->returnsData())
-    {
-        H  << "void (T::*cb)" << spar;
-        if(ret)
-        {
-            H << retS;
-        }
-        H << outDecls;
         if(withCookie)
         {
-            H << cookieT;
+            cookieT = "const CT&";
+            comCookieT = " , const CT&";
+            H << sp << nl << "template<class T, typename CT> " << delName << "Ptr"; 
         }
-        H << epar << ", ";
+        else
+        {
+            H << sp << nl << "template<class T> " << delName << "Ptr"; 
+        }
+
+        H << nl << "new" << delName << "(" << callbackT << " instance, ";
+        if(p->returnsData())
+        {
+            H  << "void (T::*cb)" << spar;
+            if(ret)
+            {
+                H << retS;
+            }
+            H << outDecls;
+            if(withCookie)
+            {
+                H << cookieT;
+            }
+            H << epar << ", ";
+        }
+        else
+        {
+            H  << "void (T::*cb)(" << cookieT << "),";
+        }
+        H << "void (T::*excb)(" << "const ::Ice::Exception&" << comCookieT << "),";
+        H << "void (T::*sentcb)(bool" << comCookieT << ") = 0)";
+        H << sb;
+        if(withCookie)
+        {
+            H << nl << "return new " << delTmplName << "<T, CT>(instance, cb, excb, sentcb);";
+        }
+        else
+        {
+            H << nl << "return new " << delTmplName << "<T>(instance, cb, excb, sentcb);";
+        }
+        H << eb;
+
+        if(withCookie)
+        {
+            H << sp << nl << "template<class T, typename CT> " << delName << "Ptr"; 
+        }
+        else
+        {
+            H << sp << nl << "template<class T> " << delName << "Ptr"; 
+        }
+        H << nl << "new" << delName << "(" << callbackT << " instance, ";
+        H << "void (T::*excb)(" << "const ::Ice::Exception&" << comCookieT << "),";
+        H << "void (T::*sentcb)(bool" << comCookieT << ") = 0)";
+        H << sb;
+        if(withCookie)
+        {
+            H << nl << "return new " << delTmplName << "<T, CT>(instance, 0, excb, sentcb);";
+        }
+        else
+        {
+            H << nl << "return new " << delTmplName << "<T>(instance, 0, excb, sentcb);";
+        }
+        H << eb;
     }
-    else
-    {
-        H  << "void (T::*cb)(" << cookieT << "),";
-    }
-    H << "void (T::*excb)(" << "const ::Ice::Exception&" << comCookieT << ") = 0,";
-    H << "void (T::*sentcb)(bool" << comCookieT << ") = 0)";
-    H << sb;
-    if(withCookie)
-    {
-        H << nl << "return new " << delTmplName << "<T, CT>(instance, cb, excb, sentcb);";
-    }
-    else
-    {
-        H << nl << "return new " << delTmplName << "<T>(instance, cb, excb, sentcb);";
-    }
-    H << eb;
 }
 
 Slice::Gen::IceInternalVisitor::IceInternalVisitor(Output& h, Output& c, const string& dllExport) :

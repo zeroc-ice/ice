@@ -27,7 +27,8 @@ struct Cookie : public Ice::LocalObject
 
 typedef IceUtil::Handle<Cookie> CookiePtr;
 
-class CallbackBase : public Ice::LocalObject
+class CallbackBase
+ : public Ice::LocalObject
 {
 public:
 
@@ -290,6 +291,10 @@ public:
             called();
         }
     }
+
+    void ex(const Ice::Exception&)
+    {
+    }
 };
 typedef IceUtil::Handle<ResponseCallback> ResponseCallbackPtr;
 
@@ -355,6 +360,10 @@ public:
         }
     }
 
+    void ex(const Ice::Exception&, const CookiePtr&)
+    {
+    }
+
 private:
     
     CookiePtr _cookie;
@@ -392,6 +401,12 @@ public:
     void op()
     {
         test(false);
+    }
+
+    void opWithUE(const Ice::Exception& ex)
+    {
+        test(dynamic_cast<const Test::TestIntfException*>(&ex));
+        called();
     }
 
     void ex(const Ice::Exception& ex)
@@ -438,6 +453,13 @@ public:
     void op(const CookiePtr& cookie)
     {
         test(false);
+    }
+
+    void opWithUE(const Ice::Exception& ex, const CookiePtr& cookie)
+    {
+        test(cookie == _cookie);        
+        test(dynamic_cast<const Test::TestIntfException*>(&ex));
+        called();
     }
 
     void ex(const Ice::Exception& ex, const CookiePtr& cookie)
@@ -524,22 +546,22 @@ public:
 
     void sentAsync(const Ice::AsyncResultPtr& result)
     {
-        test(result->sentSynchronously() && _thread == IceUtil::ThreadControl() ||
-             !result->sentSynchronously() && _thread != IceUtil::ThreadControl());
+        test(result->isSentSynchronously() && _thread == IceUtil::ThreadControl() ||
+             !result->isSentSynchronously() && _thread != IceUtil::ThreadControl());
 	called();
     }
 
-    void sent(bool sentSynchronously)
+    void sent(bool isSentSynchronously)
     {
-        test(sentSynchronously && _thread == IceUtil::ThreadControl() ||
-             !sentSynchronously && _thread != IceUtil::ThreadControl());
+        test(isSentSynchronously && _thread == IceUtil::ThreadControl() ||
+             !isSentSynchronously && _thread != IceUtil::ThreadControl());
 	called();
     }
 
-    void sentWC(bool sentSynchronously, const CookiePtr& cookie)
+    void sentWC(bool isSentSynchronously, const CookiePtr& cookie)
     {
-        test(sentSynchronously && _thread == IceUtil::ThreadControl() ||
-             !sentSynchronously && _thread != IceUtil::ThreadControl());
+        test(isSentSynchronously && _thread == IceUtil::ThreadControl() ||
+             !isSentSynchronously && _thread != IceUtil::ThreadControl());
         test(cookie == _cookie);
 	called();
     }
@@ -598,6 +620,16 @@ public:
     {
 	called();
 	throwEx();
+    }
+
+    void noEx(const Ice::Exception& ex)
+    {
+        test(false);
+    }
+
+    void noExWC(const Ice::Exception& ex, const CookiePtr&)
+    {
+        test(false);
     }
 
     void sent(bool)
@@ -803,62 +835,68 @@ allTests(const Ice::CommunicatorPtr& communicator)
         CookiePtr cookie = new Cookie(5);
         ResponseCallbackWCPtr cbWC = new ResponseCallbackWC(cookie);
         
-        p->begin_ice_isA(Test::TestIntf::ice_staticId(), Ice::newCallback_Object_ice_isA(cb, &ResponseCallback::isA));
+        Ice::CallbackNC_Object_ice_isA<ResponseCallback>::Exception nullEx = 0;
+        Ice::Callback_Object_ice_isA<ResponseCallbackWC, CookiePtr>::Exception nullExWC = 0;
+
+        p->begin_ice_isA(Test::TestIntf::ice_staticId(), Ice::newCallback_Object_ice_isA(cb, &ResponseCallback::isA, 
+                                                                                         nullEx));
         cb->check();        
         p->begin_ice_isA(Test::TestIntf::ice_staticId(), 
-                         Ice::newCallback_Object_ice_isA(cbWC, &ResponseCallbackWC::isA), cookie);
+                         Ice::newCallback_Object_ice_isA(cbWC, &ResponseCallbackWC::isA, nullExWC), cookie);
         cbWC->check();        
         p->begin_ice_isA(Test::TestIntf::ice_staticId(), ctx, 
-                         Ice::newCallback_Object_ice_isA(cb, &ResponseCallback::isA));
+                         Ice::newCallback_Object_ice_isA(cb, &ResponseCallback::isA, nullEx));
         cb->check();        
         p->begin_ice_isA(Test::TestIntf::ice_staticId(), ctx,
-                         Ice::newCallback_Object_ice_isA(cbWC, &ResponseCallbackWC::isA), cookie);
+                         Ice::newCallback_Object_ice_isA(cbWC, &ResponseCallbackWC::isA, nullExWC), cookie);
         cbWC->check();        
 
-        p->begin_ice_ping(Ice::newCallback_Object_ice_ping(cb, &ResponseCallback::ping));
+        p->begin_ice_ping(Ice::newCallback_Object_ice_ping(cb, &ResponseCallback::ping, nullEx));
         cb->check();        
-        p->begin_ice_ping(Ice::newCallback_Object_ice_ping(cbWC, &ResponseCallbackWC::ping), cookie);
+        p->begin_ice_ping(Ice::newCallback_Object_ice_ping(cbWC, &ResponseCallbackWC::ping, nullExWC), cookie);
         cbWC->check();        
-        p->begin_ice_ping(ctx, Ice::newCallback_Object_ice_ping(cb, &ResponseCallback::ping));
+        p->begin_ice_ping(ctx, Ice::newCallback_Object_ice_ping(cb, &ResponseCallback::ping, nullEx));
         cb->check();        
-        p->begin_ice_ping(ctx, Ice::newCallback_Object_ice_ping(cbWC, &ResponseCallbackWC::ping), cookie);
+        p->begin_ice_ping(ctx, Ice::newCallback_Object_ice_ping(cbWC, &ResponseCallbackWC::ping, nullExWC), cookie);
         cbWC->check();        
         
-        p->begin_ice_id(Ice::newCallback_Object_ice_id(cb, &ResponseCallback::id));
+        p->begin_ice_id(Ice::newCallback_Object_ice_id(cb, &ResponseCallback::id, nullEx));
         cb->check();        
-        p->begin_ice_id(Ice::newCallback_Object_ice_id(cbWC, &ResponseCallbackWC::id), cookie);
+        p->begin_ice_id(Ice::newCallback_Object_ice_id(cbWC, &ResponseCallbackWC::id, nullExWC), cookie);
         cbWC->check();        
-        p->begin_ice_id(ctx, Ice::newCallback_Object_ice_id(cb, &ResponseCallback::id));
+        p->begin_ice_id(ctx, Ice::newCallback_Object_ice_id(cb, &ResponseCallback::id, nullEx));
         cb->check();        
-        p->begin_ice_id(ctx, Ice::newCallback_Object_ice_id(cbWC, &ResponseCallbackWC::id), cookie);
-        cbWC->check();        
-
-        p->begin_ice_ids(Ice::newCallback_Object_ice_ids(cb, &ResponseCallback::ids));
-        cb->check();        
-        p->begin_ice_ids(Ice::newCallback_Object_ice_ids(cbWC, &ResponseCallbackWC::ids), cookie);
-        cbWC->check();        
-        p->begin_ice_ids(ctx, Ice::newCallback_Object_ice_ids(cb, &ResponseCallback::ids));
-        cb->check();        
-        p->begin_ice_ids(ctx, Ice::newCallback_Object_ice_ids(cbWC, &ResponseCallbackWC::ids), cookie);
+        p->begin_ice_id(ctx, Ice::newCallback_Object_ice_id(cbWC, &ResponseCallbackWC::id, nullExWC), cookie);
         cbWC->check();        
 
-        p->begin_op(Test::newCallback_TestIntf_op(cb, &ResponseCallback::op));
+        p->begin_ice_ids(Ice::newCallback_Object_ice_ids(cb, &ResponseCallback::ids, nullEx));
+        cb->check();        
+        p->begin_ice_ids(Ice::newCallback_Object_ice_ids(cbWC, &ResponseCallbackWC::ids, nullExWC), cookie);
+        cbWC->check();        
+        p->begin_ice_ids(ctx, Ice::newCallback_Object_ice_ids(cb, &ResponseCallback::ids, nullEx));
+        cb->check();        
+        p->begin_ice_ids(ctx, Ice::newCallback_Object_ice_ids(cbWC, &ResponseCallbackWC::ids, nullExWC), cookie);
+        cbWC->check();        
+
+        p->begin_op(Test::newCallback_TestIntf_op(cb, &ResponseCallback::op, nullEx));
         cb->check();
-        p->begin_op(Test::newCallback_TestIntf_op(cbWC, &ResponseCallbackWC::op), cookie);
+        p->begin_op(Test::newCallback_TestIntf_op(cbWC, &ResponseCallbackWC::op, nullExWC), cookie);
         cbWC->check();
-        p->begin_op(ctx, Test::newCallback_TestIntf_op(cb, &ResponseCallback::op));
+        p->begin_op(ctx, Test::newCallback_TestIntf_op(cb, &ResponseCallback::op, nullEx));
         cb->check();
-        p->begin_op(ctx, Test::newCallback_TestIntf_op(cbWC, &ResponseCallbackWC::op), cookie);
+        p->begin_op(ctx, Test::newCallback_TestIntf_op(cbWC, &ResponseCallbackWC::op, nullExWC), cookie);
         cbWC->check();
 
-        p->begin_opWithResult(Test::newCallback_TestIntf_opWithResult(cb, &ResponseCallback::opWithResult));
+        p->begin_opWithResult(Test::newCallback_TestIntf_opWithResult(cb, &ResponseCallback::opWithResult, nullEx));
         cb->check();
-        p->begin_opWithResult(Test::newCallback_TestIntf_opWithResult(cbWC, &ResponseCallbackWC::opWithResult), cookie);
+        p->begin_opWithResult(Test::newCallback_TestIntf_opWithResult(cbWC, &ResponseCallbackWC::opWithResult,
+                                                                      nullExWC), cookie);
         cbWC->check();
-        p->begin_opWithResult(ctx, Test::newCallback_TestIntf_opWithResult(cb, &ResponseCallback::opWithResult));
+        p->begin_opWithResult(ctx, Test::newCallback_TestIntf_opWithResult(cb, &ResponseCallback::opWithResult,
+                                                                           nullEx));
         cb->check();
-        p->begin_opWithResult(ctx, Test::newCallback_TestIntf_opWithResult(cbWC, &ResponseCallbackWC::opWithResult), 
-                              cookie);
+        p->begin_opWithResult(ctx, Test::newCallback_TestIntf_opWithResult(cbWC, &ResponseCallbackWC::opWithResult, 
+                                                                           nullExWC), cookie);
         cbWC->check();
 
         p->begin_opWithUE(Test::newCallback_TestIntf_opWithUE(cb, &ResponseCallback::op, &ResponseCallback::opWithUE));
@@ -1004,35 +1042,44 @@ allTests(const Ice::CommunicatorPtr& communicator)
         CookiePtr cookie = new Cookie(5);
         ExceptionCallbackWCPtr cbWC = new ExceptionCallbackWC(cookie);
         
-        i->begin_ice_isA(Test::TestIntf::ice_staticId(), Ice::newCallback(cb, &ExceptionCallback::ex));
+        i->begin_ice_isA(Test::TestIntf::ice_staticId(), 
+                         Ice::newCallback_Object_ice_isA(cb, &ExceptionCallback::ex));
         cb->check();        
-        i->begin_ice_isA(Test::TestIntf::ice_staticId(), Ice::newCallback(cbWC, &ExceptionCallbackWC::ex), cookie);
+        i->begin_ice_isA(Test::TestIntf::ice_staticId(), 
+                         Ice::newCallback_Object_ice_isA(cbWC, &ExceptionCallbackWC::ex), cookie);
         cbWC->check();
 
-        i->begin_op(Ice::newCallback(cb, &ExceptionCallback::ex));
+        i->begin_op(Test::newCallback_TestIntf_op(cb, &ExceptionCallback::ex));
         cb->check();
-        i->begin_op(Ice::newCallback(cbWC, &ExceptionCallbackWC::ex), cookie);
+        i->begin_op(Test::newCallback_TestIntf_op(cbWC, &ExceptionCallbackWC::ex), cookie);
         cbWC->check();
 
-        i->begin_opWithResult(Ice::newCallback(cb, &ExceptionCallback::ex));
+        i->begin_opWithResult(Test::newCallback_TestIntf_opWithResult(cb, &ExceptionCallback::ex));
         cb->check();
-        i->begin_opWithResult(Ice::newCallback(cbWC, &ExceptionCallbackWC::ex), cookie);
+        i->begin_opWithResult(Test::newCallback_TestIntf_opWithResult(cbWC, &ExceptionCallbackWC::ex), cookie);
         cbWC->check();
 
-        i->begin_opWithUE(Ice::newCallback(cb, &ExceptionCallback::ex));
+        i->begin_opWithUE(Test::newCallback_TestIntf_opWithUE(cb, &ExceptionCallback::ex));
         cb->check();
-        i->begin_opWithUE(Ice::newCallback(cbWC, &ExceptionCallbackWC::ex), cookie);
+        i->begin_opWithUE(Test::newCallback_TestIntf_opWithUE(cbWC, &ExceptionCallbackWC::ex), cookie);
         cbWC->check();
 
         // Ensures no exception is called when response is received
-        p->begin_ice_isA(Test::TestIntf::ice_staticId(), Ice::newCallback(cb, &ExceptionCallback::noEx));
-        p->begin_ice_isA(Test::TestIntf::ice_staticId(), Ice::newCallback(cbWC, &ExceptionCallbackWC::noEx), cookie);
-        p->begin_op(Ice::newCallback(cb, &ExceptionCallback::noEx));
-        p->begin_op(Ice::newCallback(cbWC, &ExceptionCallbackWC::noEx), cookie);
-        p->begin_opWithResult(Ice::newCallback(cb, &ExceptionCallback::noEx));
-        p->begin_opWithResult(Ice::newCallback(cbWC, &ExceptionCallbackWC::noEx), cookie);
-        p->begin_opWithUE(Ice::newCallback(cb, &ExceptionCallback::noEx));
-        p->begin_opWithUE(Ice::newCallback(cbWC, &ExceptionCallbackWC::noEx), cookie);
+        p->begin_ice_isA(Test::TestIntf::ice_staticId(), 
+                         Ice::newCallback_Object_ice_isA(cb, &ExceptionCallback::noEx));
+        p->begin_ice_isA(Test::TestIntf::ice_staticId(), 
+                         Ice::newCallback_Object_ice_isA(cbWC, &ExceptionCallbackWC::noEx), cookie);
+        p->begin_op(Test::newCallback_TestIntf_op(cb, &ExceptionCallback::noEx));
+        p->begin_op(Test::newCallback_TestIntf_op(cbWC, &ExceptionCallbackWC::noEx), cookie);
+        p->begin_opWithResult(Test::newCallback_TestIntf_opWithResult(cb, &ExceptionCallback::noEx));
+        p->begin_opWithResult(Test::newCallback_TestIntf_opWithResult(cbWC, &ExceptionCallbackWC::noEx), cookie);
+
+        // If response is a user exception, it should be received.
+        p->begin_opWithUE(Test::newCallback_TestIntf_opWithUE(cb, &ExceptionCallback::opWithUE));
+        cb->check();
+
+        p->begin_opWithUE(Test::newCallback_TestIntf_opWithUE(cbWC, &ExceptionCallbackWC::opWithUE), cookie);
+        cbWC->check();
     }
     cout << "ok" << endl;
 
@@ -1080,9 +1127,9 @@ allTests(const Ice::CommunicatorPtr& communicator)
         p->begin_op(Ice::newCallback(cbWC, &SentCallback::opAsync, &SentCallback::sentAsync), cookie);
         cbWC->check();
 
-        p->begin_op(Ice::newCallback(cb, &SentCallback::ex, &SentCallback::sent));
+        p->begin_op(Test::newCallback_TestIntf_op(cb, &SentCallback::ex, &SentCallback::sent));
         cb->check();
-        p->begin_op(Ice::newCallback(cbWC, &SentCallback::exWC, &SentCallback::sentWC), cookie);
+        p->begin_op(Test::newCallback_TestIntf_op(cbWC, &SentCallback::exWC, &SentCallback::sentWC), cookie);
         cbWC->check();
 
         vector<SentCallbackPtr> cbs;
@@ -1094,8 +1141,8 @@ allTests(const Ice::CommunicatorPtr& communicator)
         }
         testController->holdAdapter();
         cb = new SentCallback();
-        while(p->begin_opWithPayload(seq, 
-                                     Ice::newCallback(cb, &SentCallback::ex, &SentCallback::sent))->sentSynchronously())
+        while(p->begin_opWithPayload(seq, Test::newCallback_TestIntf_opWithPayload(
+                                         cb, &SentCallback::ex, &SentCallback::sent))->isSentSynchronously())
         {
             cbs.push_back(cb);
             cb = new SentCallback();
@@ -1153,7 +1200,8 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
         try
         {
-            p->begin_op(Test::newCallback_TestIntf_op(ResponseCallbackPtr(), &ResponseCallback::op));
+            p->begin_op(Test::newCallback_TestIntf_op(ResponseCallbackPtr(), &ResponseCallback::op, 
+                                                      &ResponseCallback::ex));
             test(false);
         }
         catch(const IceUtil::IllegalArgumentException&)
@@ -1162,7 +1210,8 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
         try
         {
-            p->begin_op(Test::newCallback_TestIntf_op(ResponseCallbackWCPtr(), &ResponseCallbackWC::op));
+            p->begin_op(Test::newCallback_TestIntf_op(ResponseCallbackWCPtr(), &ResponseCallbackWC::op,
+                                                      &ResponseCallbackWC::ex));
             test(false);
         }
         catch(const IceUtil::IllegalArgumentException&)
@@ -1172,7 +1221,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
         try
         {
             void (AsyncCallback::*nullCallback)(const Ice::AsyncResultPtr&) = 0;
-            p->begin_op(Ice::newCallback(AsyncCallbackPtr(new AsyncCallback), nullCallback));
+            p->begin_op(Ice::newCallback(new AsyncCallback, nullCallback));
             test(false);
         }
         catch(const IceUtil::IllegalArgumentException&)
@@ -1182,7 +1231,8 @@ allTests(const Ice::CommunicatorPtr& communicator)
         try
         {
             void (ResponseCallback::*nullCallback)() = 0;
-            p->begin_op(Test::newCallback_TestIntf_op(ResponseCallbackPtr(new ResponseCallback), nullCallback));
+            void (ResponseCallback::*nullExCallback)(const Ice::Exception&) = 0;
+            p->begin_op(Test::newCallback_TestIntf_op(new ResponseCallback, nullCallback, nullExCallback));
             test(false);
         }
         catch(const IceUtil::IllegalArgumentException&)
@@ -1192,7 +1242,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
         try
         {
             ResponseCallbackPtr cb = new ResponseCallback();
-            p->begin_op(Test::newCallback_TestIntf_op(cb, &ResponseCallback::op), new Cookie(3));
+            p->begin_op(Test::newCallback_TestIntf_op(cb, &ResponseCallback::op, &ResponseCallback::ex), new Cookie(3));
             test(false);
         }
         catch(const IceUtil::IllegalArgumentException&)
@@ -1202,7 +1252,8 @@ allTests(const Ice::CommunicatorPtr& communicator)
         try
         {
             ResponseCallbackWCPtr cb = new ResponseCallbackWC(new Cookie(3));
-            p->begin_op(Test::newCallback_TestIntf_op(cb, &ResponseCallbackWC::op), new Ice::LocalObject());
+            p->begin_op(Test::newCallback_TestIntf_op(cb, &ResponseCallbackWC::op, &ResponseCallbackWC::ex), 
+                        new Ice::LocalObject());
             test(false);
         }
         catch(const IceUtil::IllegalArgumentException&)
@@ -1224,10 +1275,10 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	    p->begin_op(Ice::newCallback(cb, &Thrower::opAsync));
 	    cb->check();
 
-	    p->begin_op(Test::newCallback_TestIntf_op(cb, &Thrower::op));
+	    p->begin_op(Test::newCallback_TestIntf_op(cb, &Thrower::op, &Thrower::noEx));
 	    cb->check();
 
-	    p->begin_op(Test::newCallback_TestIntf_op(cb, &Thrower::opWC), cookie);
+	    p->begin_op(Test::newCallback_TestIntf_op(cb, &Thrower::opWC, &Thrower::noExWC), cookie);
 	    cb->check();
 
 	    q->begin_op(Test::newCallback_TestIntf_op(cb, &Thrower::op, &Thrower::ex));
@@ -1242,10 +1293,10 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	    p->begin_op(Test::newCallback_TestIntf_op(cb, &Thrower::noOpWC, &Thrower::exWC, &Thrower::sentWC), cookie);
 	    cb->check();
 
-	    q->begin_op(Ice::newCallback(cb, &Thrower::ex));
+	    q->begin_op(Test::newCallback_TestIntf_op(cb, &Thrower::ex));
 	    cb->check();
 
-            q->begin_op(Ice::newCallback(cb, &Thrower::exWC), cookie);
+            q->begin_op(Test::newCallback_TestIntf_op(cb, &Thrower::exWC), cookie);
 	    cb->check();
 	}
     }
@@ -1263,7 +1314,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
             *q = static_cast<Ice::Byte>(IceUtilInternal::random(255));
         }
         Ice::AsyncResultPtr r2;
-        while((r2 = p->begin_opWithPayload(seq))->sentSynchronously());
+        while((r2 = p->begin_opWithPayload(seq))->isSentSynchronously());
 
         test(r1 == r1);
         test(r1 != r2);
@@ -1272,10 +1323,10 @@ allTests(const Ice::CommunicatorPtr& communicator)
         test(r1->getHash() != r2->getHash());
         test(r1->getHash() < r2->getHash() || r2->getHash() < r1->getHash());
 
-        test(r1->sentSynchronously() && r1->isSent() && !r1->isCompleted() ||
-             !r1->sentSynchronously() && !r1->isCompleted());
+        test(r1->isSentSynchronously() && r1->isSent() && !r1->isCompleted() ||
+             !r1->isSentSynchronously() && !r1->isCompleted());
 
-        test(!r2->sentSynchronously() && !r2->isCompleted());
+        test(!r2->isSentSynchronously() && !r2->isCompleted());
 
         testController->resumeAdapter();
 
