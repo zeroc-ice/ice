@@ -30,6 +30,7 @@ demos = [
     "Ice/callback",
     "Ice/converter",
     "Ice/hello",
+    "Ice/interleaved",
     "Ice/invoke",
     "Ice/latency",
     "Ice/minimal",

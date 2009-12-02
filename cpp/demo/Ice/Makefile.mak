@@ -25,7 +25,8 @@ SUBDIRS		= minimal \
 		  async \
 		  multicast \
 		  nrvo \
-		  plugin
+		  plugin \
+		  interleaved
 
 !if "$(CPP_COMPILER)" != "VC60"
 SUBDIRS		= $(SUBDIRS) \
