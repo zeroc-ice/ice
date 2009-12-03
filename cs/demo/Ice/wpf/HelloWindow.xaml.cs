@@ -183,10 +183,9 @@ namespace Ice.wpf.client
             {
                 if(!deliveryModeIsBatch())
                 {
-                    AsyncResult<Demo.Callback_Hello_sayHello> result = hello.begin_sayHello(delay);
                     status.Content = "Sending request";
                     SayHelloCB cb = new SayHelloCB(this);
-                    result.whenCompleted(cb.response, cb.exception).whenSent(cb.sent);
+                    hello.begin_sayHello(delay).whenCompleted(cb.response, cb.exception).whenSent(cb.sent);
                 }
                 else
                 {
