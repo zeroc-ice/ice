@@ -98,15 +98,15 @@ public class AllTests
                     }
 
                     public void 
-                    sent(boolean isSentSynchronously)
+                    sent(boolean sentSynchronously)
                     {
-                        test(isSentSynchronously || Dispatcher.isDispatcherThread());
+                        test(sentSynchronously || Dispatcher.isDispatcherThread());
                     }
                 };
 
             byte[] seq = new byte[10 * 1024];
             new java.util.Random().nextBytes(seq); // Make sure the request doesn't compress too well.
-            while(p.begin_opWithPayload(seq, callback).isSentSynchronously());
+            while(p.begin_opWithPayload(seq, callback).sentSynchronously());
             testController.resumeAdapter();
         }
         out.println("ok");

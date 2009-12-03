@@ -36,9 +36,9 @@ public:
     }
 
     void
-    sent(bool isSentSynchronously)
+    sent(bool sentSynchronously)
     {
-        test(isSentSynchronously || Dispatcher::isDispatcherThread());
+        test(sentSynchronously || Dispatcher::isDispatcherThread());
     }
 };
 typedef IceUtil::Handle<Callback> CallbackPtr;
@@ -85,7 +85,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
         {
             *q = static_cast<Ice::Byte>(IceUtilInternal::random(255));
         }
-        while(p->begin_opWithPayload(seq, callback2)->isSentSynchronously());
+        while(p->begin_opWithPayload(seq, callback2)->sentSynchronously());
         testController->resumeAdapter();
     }
     cout << "ok" << endl;

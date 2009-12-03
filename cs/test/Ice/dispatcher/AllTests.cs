@@ -54,14 +54,14 @@ public class AllTests
 
             testController.holdAdapter();
             Test.Callback_TestIntf_opWithPayload rcb = delegate() { test(Dispatcher.isDispatcherThread()); };
-            Ice.SentCallback scb = delegate(bool isSentSynchronously) 
+            Ice.SentCallback scb = delegate(bool sentSynchronously) 
                 {
-                    test(isSentSynchronously || Dispatcher.isDispatcherThread());
+                    test(sentSynchronously || Dispatcher.isDispatcherThread());
                 };
 
             byte[] seq = new byte[10 * 1024];
             (new System.Random()).NextBytes(seq);
-            while(p.begin_opWithPayload(seq).whenCompleted(rcb, null).whenSent(scb).isSentSynchronously());
+            while(p.begin_opWithPayload(seq).whenCompleted(rcb, null).whenSent(scb).sentSynchronously());
             testController.resumeAdapter();
         }
         Console.Out.WriteLine("ok");

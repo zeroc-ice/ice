@@ -419,8 +419,8 @@ public class AllTests
         public void
         sentAsync(Ice.AsyncResult r)
         {
-            test(r.isSentSynchronously() && _thread == Thread.CurrentThread ||
-                 !r.isSentSynchronously() && _thread != Thread.CurrentThread);
+            test(r.sentSynchronously() && _thread == Thread.CurrentThread ||
+                 !r.sentSynchronously() && _thread != Thread.CurrentThread);
             called();
         }
 
@@ -865,7 +865,7 @@ public class AllTests
                 r = p.begin_opWithPayload(seq).whenCompleted(cb2.ex).whenSent(cb2.sent);
                 cbs.Add(cb2);
             }
-            while(r.isSentSynchronously());
+            while(r.sentSynchronously());
             testController.resumeAdapter();
             foreach(SentCallback cb3 in cbs)
             {
@@ -949,12 +949,12 @@ public class AllTests
             byte[] seq = new byte[10024];
             (new System.Random()).NextBytes(seq);
             Ice.AsyncResult r2;
-            while((r2 = p.begin_opWithPayload(seq)).isSentSynchronously());
+            while((r2 = p.begin_opWithPayload(seq)).sentSynchronously());
 
-            test(r1.isSentSynchronously() && r1.isSent() && !r1.isCompleted_() || 
-                 !r1.isSentSynchronously() && !r1.isCompleted_());
+            test(r1.sentSynchronously() && r1.isSent() && !r1.isCompleted_() || 
+                 !r1.sentSynchronously() && !r1.isCompleted_());
 
-            test(!r2.isSentSynchronously() && !r2.isCompleted_());
+            test(!r2.sentSynchronously() && !r2.isCompleted_());
 
             test(!r1.IsCompleted && !r1.CompletedSynchronously);
             test(!r2.IsCompleted && !r2.CompletedSynchronously);

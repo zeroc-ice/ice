@@ -35,7 +35,7 @@ public abstract class OnewayCallback extends IceInternal.CallbackBase
 
     public final void __sent(AsyncResult __result)
     {
-        sent(__result.isSentSynchronously());
+        sent(__result.sentSynchronously());
     }
 
     public final void __completed(AsyncResult __result)

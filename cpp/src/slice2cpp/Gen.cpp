@@ -2861,7 +2861,7 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
             C << eb;
         }
         C << nl << "::Ice::AsyncResultPtr __ar = begin_" << name << spar << argsAMI << "0, __del" << epar << ';';
-        C << nl << "return __ar->isSentSynchronously();";
+        C << nl << "return __ar->sentSynchronously();";
         C << eb;
 
         C << sp << nl << "bool" << nl << "IceProxy" << scope << name << "_async" << spar
@@ -2898,7 +2898,7 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
         }
         C << nl << "::Ice::AsyncResultPtr __ar = begin_" << name << spar << argsAMI << "&__ctx" << "__del" << epar
           << ';';
-        C << nl << "return __ar->isSentSynchronously();";
+        C << nl << "return __ar->sentSynchronously();";
         C << eb;
     }
 }
@@ -5532,27 +5532,30 @@ Slice::Gen::AsyncCallbackTemplateVisitor::generateOperation(const OperationPtr& 
         }
         H << eb;
 
-        if(withCookie)
+        if(!ret && outParams.empty())
         {
-            H << sp << nl << "template<class T, typename CT> " << delName << "Ptr"; 
+            if(withCookie)
+            {
+                H << sp << nl << "template<class T, typename CT> " << delName << "Ptr"; 
+            }
+            else
+            {
+                H << sp << nl << "template<class T> " << delName << "Ptr"; 
+            }
+            H << nl << "new" << delName << "(" << callbackT << " instance, ";
+            H << "void (T::*excb)(" << "const ::Ice::Exception&" << comCookieT << "),";
+            H << "void (T::*sentcb)(bool" << comCookieT << ") = 0)";
+            H << sb;
+            if(withCookie)
+            {
+                H << nl << "return new " << delTmplName << "<T, CT>(instance, 0, excb, sentcb);";
+            }
+            else
+            {
+                H << nl << "return new " << delTmplName << "<T>(instance, 0, excb, sentcb);";
+            }
+            H << eb;
         }
-        else
-        {
-            H << sp << nl << "template<class T> " << delName << "Ptr"; 
-        }
-        H << nl << "new" << delName << "(" << callbackT << " instance, ";
-        H << "void (T::*excb)(" << "const ::Ice::Exception&" << comCookieT << "),";
-        H << "void (T::*sentcb)(bool" << comCookieT << ") = 0)";
-        H << sb;
-        if(withCookie)
-        {
-            H << nl << "return new " << delTmplName << "<T, CT>(instance, 0, excb, sentcb);";
-        }
-        else
-        {
-            H << nl << "return new " << delTmplName << "<T>(instance, 0, excb, sentcb);";
-        }
-        H << eb;
     }
 }
 

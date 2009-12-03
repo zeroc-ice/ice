@@ -546,22 +546,22 @@ public:
 
     void sentAsync(const Ice::AsyncResultPtr& result)
     {
-        test(result->isSentSynchronously() && _thread == IceUtil::ThreadControl() ||
-             !result->isSentSynchronously() && _thread != IceUtil::ThreadControl());
+        test(result->sentSynchronously() && _thread == IceUtil::ThreadControl() ||
+             !result->sentSynchronously() && _thread != IceUtil::ThreadControl());
 	called();
     }
 
-    void sent(bool isSentSynchronously)
+    void sent(bool sentSynchronously)
     {
-        test(isSentSynchronously && _thread == IceUtil::ThreadControl() ||
-             !isSentSynchronously && _thread != IceUtil::ThreadControl());
+        test(sentSynchronously && _thread == IceUtil::ThreadControl() ||
+             !sentSynchronously && _thread != IceUtil::ThreadControl());
 	called();
     }
 
-    void sentWC(bool isSentSynchronously, const CookiePtr& cookie)
+    void sentWC(bool sentSynchronously, const CookiePtr& cookie)
     {
-        test(isSentSynchronously && _thread == IceUtil::ThreadControl() ||
-             !isSentSynchronously && _thread != IceUtil::ThreadControl());
+        test(sentSynchronously && _thread == IceUtil::ThreadControl() ||
+             !sentSynchronously && _thread != IceUtil::ThreadControl());
         test(cookie == _cookie);
 	called();
     }
@@ -1054,10 +1054,11 @@ allTests(const Ice::CommunicatorPtr& communicator)
         i->begin_op(Test::newCallback_TestIntf_op(cbWC, &ExceptionCallbackWC::ex), cookie);
         cbWC->check();
 
-        i->begin_opWithResult(Test::newCallback_TestIntf_opWithResult(cb, &ExceptionCallback::ex));
-        cb->check();
-        i->begin_opWithResult(Test::newCallback_TestIntf_opWithResult(cbWC, &ExceptionCallbackWC::ex), cookie);
-        cbWC->check();
+        // Operations that return a result must provide the response callback
+        //i->begin_opWithResult(Test::newCallback_TestIntf_opWithResult(cb, &ExceptionCallback::ex));
+        //cb->check();
+        //i->begin_opWithResult(Test::newCallback_TestIntf_opWithResult(cbWC, &ExceptionCallbackWC::ex), cookie);
+        //cbWC->check();
 
         i->begin_opWithUE(Test::newCallback_TestIntf_opWithUE(cb, &ExceptionCallback::ex));
         cb->check();
@@ -1071,8 +1072,8 @@ allTests(const Ice::CommunicatorPtr& communicator)
                          Ice::newCallback_Object_ice_isA(cbWC, &ExceptionCallbackWC::noEx), cookie);
         p->begin_op(Test::newCallback_TestIntf_op(cb, &ExceptionCallback::noEx));
         p->begin_op(Test::newCallback_TestIntf_op(cbWC, &ExceptionCallbackWC::noEx), cookie);
-        p->begin_opWithResult(Test::newCallback_TestIntf_opWithResult(cb, &ExceptionCallback::noEx));
-        p->begin_opWithResult(Test::newCallback_TestIntf_opWithResult(cbWC, &ExceptionCallbackWC::noEx), cookie);
+        //p->begin_opWithResult(Test::newCallback_TestIntf_opWithResult(cb, &ExceptionCallback::noEx));
+        //p->begin_opWithResult(Test::newCallback_TestIntf_opWithResult(cbWC, &ExceptionCallbackWC::noEx), cookie);
 
         // If response is a user exception, it should be received.
         p->begin_opWithUE(Test::newCallback_TestIntf_opWithUE(cb, &ExceptionCallback::opWithUE));
@@ -1142,7 +1143,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
         testController->holdAdapter();
         cb = new SentCallback();
         while(p->begin_opWithPayload(seq, Test::newCallback_TestIntf_opWithPayload(
-                                         cb, &SentCallback::ex, &SentCallback::sent))->isSentSynchronously())
+                                         cb, &SentCallback::ex, &SentCallback::sent))->sentSynchronously())
         {
             cbs.push_back(cb);
             cb = new SentCallback();
@@ -1314,7 +1315,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
             *q = static_cast<Ice::Byte>(IceUtilInternal::random(255));
         }
         Ice::AsyncResultPtr r2;
-        while((r2 = p->begin_opWithPayload(seq))->isSentSynchronously());
+        while((r2 = p->begin_opWithPayload(seq))->sentSynchronously());
 
         test(r1 == r1);
         test(r1 != r2);
@@ -1323,10 +1324,10 @@ allTests(const Ice::CommunicatorPtr& communicator)
         test(r1->getHash() != r2->getHash());
         test(r1->getHash() < r2->getHash() || r2->getHash() < r1->getHash());
 
-        test(r1->isSentSynchronously() && r1->isSent() && !r1->isCompleted() ||
-             !r1->isSentSynchronously() && !r1->isCompleted());
+        test(r1->sentSynchronously() && r1->isSent() && !r1->isCompleted() ||
+             !r1->sentSynchronously() && !r1->isCompleted());
 
-        test(!r2->isSentSynchronously() && !r2->isCompleted());
+        test(!r2->sentSynchronously() && !r2->isCompleted());
 
         testController->resumeAdapter();
 

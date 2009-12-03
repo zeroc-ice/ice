@@ -418,7 +418,7 @@ IceProxy::Ice::Object::ice_invoke_async(const AMI_Object_ice_invokePtr& cb,
                                             &AMI_Object_ice_invoke::__exception);
     }
     ::Ice::AsyncResultPtr result = begin_ice_invoke(operation, mode, inParams, del);
-    return result->isSentSynchronously();
+    return result->sentSynchronously();
 }
 
 bool
@@ -443,7 +443,7 @@ IceProxy::Ice::Object::ice_invoke_async(const AMI_Object_ice_invokePtr& cb,
                                             &AMI_Object_ice_invoke::__exception);
     }
     ::Ice::AsyncResultPtr result = begin_ice_invoke(operation, mode, inParams, context, del);
-    return result->isSentSynchronously();
+    return result->sentSynchronously();
 }
 
 AsyncResultPtr
@@ -539,7 +539,7 @@ IceProxy::Ice::Object::ice_invoke_async(const AMI_Array_Object_ice_invokePtr& cb
                                             &AMI_Array_Object_ice_invoke::__exception);
     }
     ::Ice::AsyncResultPtr result = begin_ice_invoke(operation, mode, inParams, del);
-    return result->isSentSynchronously();
+    return result->sentSynchronously();
 }
 
 bool
@@ -564,7 +564,7 @@ IceProxy::Ice::Object::ice_invoke_async(const AMI_Array_Object_ice_invokePtr& cb
                                             &AMI_Array_Object_ice_invoke::__exception);
     }
     ::Ice::AsyncResultPtr result = begin_ice_invoke(operation, mode, inParams, context, del);
-    return result->isSentSynchronously();
+    return result->sentSynchronously();
 }
 
 AsyncResultPtr
@@ -1130,7 +1130,7 @@ IceProxy::Ice::Object::ice_flushBatchRequests_async(const AMI_Object_ice_flushBa
         __del = newCallback_Object_ice_flushBatchRequests(cb, &AMI_Object_ice_flushBatchRequests::__exception);
     }
     ::Ice::AsyncResultPtr result = begin_ice_flushBatchRequests(0, __del, 0);
-    return result->isSentSynchronously();
+    return result->sentSynchronously();
 }
 
 ::Ice::AsyncResultPtr

@@ -4378,7 +4378,7 @@ Slice::Gen::HelperVisitor::visitClassDefStart(const ClassDefPtr& p)
             _out << sb;
             _out << nl << "result__.whenSent((Ice.AsyncCallback)cb__.sent__);";
             _out << eb;
-            _out << "return result__.isSentSynchronously();";
+            _out << "return result__.sentSynchronously();";
             _out << eb;
 
             _out << sp;
@@ -4393,7 +4393,7 @@ Slice::Gen::HelperVisitor::visitClassDefStart(const ClassDefPtr& p)
             _out << sb;
             _out << nl << "result__.whenSent((Ice.AsyncCallback)cb__.sent__);";
             _out << eb;
-            _out << "return result__.isSentSynchronously();";
+            _out << "return result__.sentSynchronously();";
             _out << eb;
         }
     }

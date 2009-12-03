@@ -65,6 +65,10 @@ public:
     {
     }
 
+    void opByte(Ice::Byte b, Ice::Byte b1)
+    {
+    }
+
     void sent(bool)
     {
         called();
@@ -145,7 +149,7 @@ onewaysNewAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrx& 
     {
         CallbackPtr cb = new Callback;
         Test::Callback_MyClass_opBytePtr callback =
-            Test::newCallback_MyClass_opByte(cb, &Callback::twowayOnlyException);
+            Test::newCallback_MyClass_opByte(cb, &Callback::opByte, &Callback::twowayOnlyException);
         p->begin_opByte(Ice::Byte(0xff), Ice::Byte(0x0f), callback);
         cb->check();
     }

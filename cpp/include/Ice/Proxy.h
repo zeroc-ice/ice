@@ -1073,7 +1073,7 @@ public:
     {
 	if(sent)
 	{
-	    (callback.get()->*sent)(result->isSentSynchronously());
+	    (callback.get()->*sent)(result->sentSynchronously());
 	}
     }
 
@@ -1127,7 +1127,7 @@ public:
     {
 	if(sent)
 	{
-	    (callback.get()->*sent)(result->isSentSynchronously(), CT::dynamicCast(result->getCookie()));
+	    (callback.get()->*sent)(result->sentSynchronously(), CT::dynamicCast(result->getCookie()));
 	}
     }
 

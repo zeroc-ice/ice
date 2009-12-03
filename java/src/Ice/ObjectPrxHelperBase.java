@@ -1025,7 +1025,7 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
     ice_invoke_async(AMI_Object_ice_invoke cb, String operation, OperationMode mode, byte[] inParams)
     {
         AsyncResult __result = begin_ice_invoke(operation, mode, inParams, cb);
-        return __result.isSentSynchronously();
+        return __result.sentSynchronously();
     }
 
     /**
@@ -1048,7 +1048,7 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
                      java.util.Map<String, String> context)
     {
         AsyncResult __result = begin_ice_invoke(operation, mode, inParams, context, cb);
-        return __result.isSentSynchronously();
+        return __result.sentSynchronously();
     }
 
     /**
@@ -1786,7 +1786,7 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
     ice_flushBatchRequests_async(AMI_Object_ice_flushBatchRequests cb)
     {
         AsyncResult result = begin_ice_flushBatchRequests(cb);
-        return result.isSentSynchronously();
+        return result.sentSynchronously();
     }
 
     /**

@@ -383,8 +383,8 @@ public class AllTests
         public void
         sent(Ice.AsyncResult r)
         {
-            test(r.isSentSynchronously() && _thread == Thread.currentThread().getId() ||
-                 !r.isSentSynchronously() && _thread != Thread.currentThread().getId());
+            test(r.sentSynchronously() && _thread == Thread.currentThread().getId() ||
+                 !r.sentSynchronously() && _thread != Thread.currentThread().getId());
             called();
         }
 
@@ -1271,7 +1271,7 @@ public class AllTests
                     });
                 cbs.add(cb2);
             }
-            while(r.isSentSynchronously());
+            while(r.sentSynchronously());
             testController.resumeAdapter();
             for(SentCallback cb3 : cbs)
             {
@@ -1418,12 +1418,12 @@ public class AllTests
             byte[] seq = new byte[10024];
             new java.util.Random().nextBytes(seq); // Make sure the request doesn't compress too well.
             Ice.AsyncResult r2;
-            while((r2 = p.begin_opWithPayload(seq)).isSentSynchronously());
+            while((r2 = p.begin_opWithPayload(seq)).sentSynchronously());
         
-            test(r1.isSentSynchronously() && r1.isSent() && !r1.isCompleted() ||
-                 !r1.isSentSynchronously() && !r1.isCompleted());
+            test(r1.sentSynchronously() && r1.isSent() && !r1.isCompleted() ||
+                 !r1.sentSynchronously() && !r1.isCompleted());
 
-            test(!r2.isSentSynchronously() && !r2.isCompleted());
+            test(!r2.sentSynchronously() && !r2.isCompleted());
 
             testController.resumeAdapter();
 

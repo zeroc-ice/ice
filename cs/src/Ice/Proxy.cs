@@ -1214,7 +1214,7 @@ namespace Ice
             {
                 result.whenSent((Ice.AsyncCallback)cb.sent__);
             }
-            return result.isSentSynchronously();
+            return result.sentSynchronously();
         }
 
         /// <summary>
@@ -1237,7 +1237,7 @@ namespace Ice
             {
                 result.whenSent((Ice.AsyncCallback)cb.sent__);
             }
-            return result.isSentSynchronously();
+            return result.sentSynchronously();
         }
 
         public AsyncResult<Callback_Object_ice_invoke> begin_ice_invoke(string operation,
@@ -1989,7 +1989,7 @@ namespace Ice
             {
                 result.whenSent((Ice.AsyncCallback)cb.sent__);
             }
-            return result.isSentSynchronously();
+            return result.sentSynchronously();
         }
 
         private const string __ice_flushBatchRequests_name = "ice_flushBatchRequests";

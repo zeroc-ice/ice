@@ -352,7 +352,7 @@ connectTests(const ConfigurationPtr& configuration, const Test::BackgroundPrx& b
         }
 
         Ice::AsyncResultPtr r = prx->begin_op();
-        test(!r->isSentSynchronously());
+        test(!r->sentSynchronously());
         try
         {
             prx->end_op(r);
@@ -365,7 +365,7 @@ connectTests(const ConfigurationPtr& configuration, const Test::BackgroundPrx& b
         
         OpAMICallbackPtr cbEx = new OpAMICallback();
         r = prx->begin_op(Test::newCallback_Background_op(cbEx, &OpAMICallback::exception));
-        test(!r->isSentSynchronously());
+        test(!r->sentSynchronously());
         cbEx->checkException();
         test(r->isCompleted());
 
@@ -457,7 +457,7 @@ initializeTests(const ConfigurationPtr& configuration,
         }
 
         Ice::AsyncResultPtr r = prx->begin_op();
-        test(!r->isSentSynchronously());
+        test(!r->sentSynchronously());
         try
         {
             prx->end_op(r);
@@ -470,7 +470,7 @@ initializeTests(const ConfigurationPtr& configuration,
 
         OpAMICallbackPtr cbEx = new OpAMICallback();
         r = prx->begin_op(Test::newCallback_Background_op(cbEx, &OpAMICallback::exception));
-        test(!r->isSentSynchronously());
+        test(!r->sentSynchronously());
         cbEx->checkException();
         test(r->isCompleted());
 
@@ -685,7 +685,7 @@ validationTests(const ConfigurationPtr& configuration,
         configuration->readException(new Ice::SocketException(__FILE__, __LINE__));
         BackgroundPrx prx = i == 0 ? background : background->ice_oneway();
         Ice::AsyncResultPtr r = prx->begin_op();
-        test(!r->isSentSynchronously());
+        test(!r->sentSynchronously());
         try
         {
             prx->end_op(r);
@@ -738,7 +738,7 @@ validationTests(const ConfigurationPtr& configuration,
             configuration->readReady(false);
             configuration->readException(new Ice::SocketException(__FILE__, __LINE__));
             Ice::AsyncResultPtr r = background->begin_op();
-            test(!r->isSentSynchronously());
+            test(!r->sentSynchronously());
             try
             {
                 background->end_op(r);
@@ -756,7 +756,7 @@ validationTests(const ConfigurationPtr& configuration,
     ctl->holdAdapter(); // Hold to block in connection validation
     Ice::AsyncResultPtr r = background->begin_op();
     Ice::AsyncResultPtr r2 = background->begin_op();
-    test(!r->isSentSynchronously() && !r2->isSentSynchronously());
+    test(!r->sentSynchronously() && !r2->sentSynchronously());
     test(!r->isCompleted() && !r2->isCompleted());
     ctl->resumeAdapter();
     background->end_op(r);    
@@ -971,7 +971,7 @@ readWriteTests(const ConfigurationPtr& configuration,
         background->ice_ping();
         configuration->writeException(new Ice::SocketException(__FILE__, __LINE__));
         Ice::AsyncResultPtr r = prx->begin_op();
-        test(!r->isSentSynchronously());
+        test(!r->sentSynchronously());
         try
         {
             prx->end_op(r);
@@ -1000,7 +1000,7 @@ readWriteTests(const ConfigurationPtr& configuration,
     configuration->readReady(false); // Required in C# to make sure beginRead() doesn't throw too soon.
     configuration->readException(new Ice::SocketException(__FILE__, __LINE__));
     Ice::AsyncResultPtr r = background->begin_op();
-    if(!r->isSentSynchronously())
+    if(!r->sentSynchronously())
     {
         // The read exception might propagate before the message send is seen as completed on IOCP.
 #ifndef ICE_USE_IOCP
@@ -1070,7 +1070,7 @@ readWriteTests(const ConfigurationPtr& configuration,
             configuration->writeReady(false);
             configuration->writeException(new Ice::SocketException(__FILE__, __LINE__));
             Ice::AsyncResultPtr r = prx->begin_op();
-            test(!r->isSentSynchronously());
+            test(!r->sentSynchronously());
             try
             {
                 prx->end_op(r);
@@ -1103,7 +1103,7 @@ readWriteTests(const ConfigurationPtr& configuration,
             configuration->readReady(false);
             configuration->readException(new Ice::SocketException(__FILE__, __LINE__));
             Ice::AsyncResultPtr r = background->begin_op();
-            if(!r->isSentSynchronously())
+            if(!r->sentSynchronously())
             {
                 // The read exception might propagate before the message send is seen as completed on IOCP.
 #ifndef ICE_USE_IOCP
@@ -1167,7 +1167,7 @@ readWriteTests(const ConfigurationPtr& configuration,
     Callback_Background_opWithPayloadPtr callbackWP = newCallback_Background_opWithPayload(cb, 
                                                                                            &OpAMICallback::noResponse, 
                                                                                            &OpAMICallback::noException);
-    while(backgroundOneway->begin_opWithPayload(seq, callbackWP)->isSentSynchronously())
+    while(backgroundOneway->begin_opWithPayload(seq, callbackWP)->sentSynchronously())
     {
     }
 
@@ -1177,17 +1177,17 @@ readWriteTests(const ConfigurationPtr& configuration,
                                                                             &OpAMICallback::response, 
                                                                             &OpAMICallback::noException,
                                                                             &OpAMICallback::sent));
-    test(!r1->isSentSynchronously() && !r1->isSent());
+    test(!r1->sentSynchronously() && !r1->isSent());
 
     OpAMICallbackPtr cb2 = new OpAMICallback();
     Ice::AsyncResultPtr r2 = background->begin_op(newCallback_Background_op(cb2,
                                                                             &OpAMICallback::response, 
                                                                             &OpAMICallback::noException,
                                                                             &OpAMICallback::sent));
-    test(!r2->isSentSynchronously() && !r2->isSent());
+    test(!r2->sentSynchronously() && !r2->isSent());
 
-    test(!backgroundOneway->begin_opWithPayload(seq, callbackWP)->isSentSynchronously());
-    test(!backgroundOneway->begin_opWithPayload(seq, callbackWP)->isSentSynchronously());
+    test(!backgroundOneway->begin_opWithPayload(seq, callbackWP)->sentSynchronously());
+    test(!backgroundOneway->begin_opWithPayload(seq, callbackWP)->sentSynchronously());
 
     test(!cb->checkResponse(false));
     test(!cb2->checkResponse(false));

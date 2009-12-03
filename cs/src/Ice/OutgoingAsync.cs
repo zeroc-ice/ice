@@ -61,7 +61,7 @@ namespace Ice
         bool isSent();
         void waitForSent();
 
-        bool isSentSynchronously();
+        bool sentSynchronously();
 
         string getOperation();
 
@@ -173,7 +173,7 @@ namespace IceInternal
             }
         }
 
-        public bool isSentSynchronously()
+        public bool sentSynchronously()
         {
             return sentSynchronously_; // No lock needed, immutable once send__() is called
         }
@@ -278,7 +278,7 @@ namespace IceInternal
                 }
                 sentCallback_ = delegate(Ice.AsyncResult result) 
                                 {
-                                    cb(result.isSentSynchronously());                        
+                                    cb(result.sentSynchronously());                        
                                 };
                 if((state_ & Sent) == 0)
                 {
@@ -1396,7 +1396,7 @@ namespace Ice
 
         public void sent__(Ice.AsyncResult result)
         {
-            if(!result.isSentSynchronously())
+            if(!result.sentSynchronously())
             {
                 ((AMISentCallback)this).ice_sent();
             }
