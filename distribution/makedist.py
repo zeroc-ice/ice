@@ -246,11 +246,37 @@ for d in os.listdir('.'):
 
 rmFiles = []
 configSubstituteExprs = [(re.compile(regexpEscape("../../certs")), "../certs")]
+csprojSubstituteExprs = [(re.compile(regexpEscape("ZerocIce_Home=\"..\..\..\..\"")), "")]
 for root, dirnames, filesnames in os.walk(demoDir):
     for f in filesnames:
 
         if fnmatch.fnmatch(f, "config*"):
             substitute(os.path.join(root, f), configSubstituteExprs)
+
+        # Remove ZerocIce_Home setting from C# projects
+        if fnmatch.fnmatch(f, "*.csproj"):
+            substitute(os.path.join(root, f), csprojSubstituteExprs)
+
+        # Remove ZerocIce_Home setting from C++ projects
+        if fnmatch.fnmatch(f, "*.vcproj"):
+            foundGlobal = False
+            deleteLines = 0
+            globalLine = None
+            for line in fileinput.input(os.path.join(root, f), True):
+                if deleteLines > 0:
+                    deleteLines = deleteLines - 1
+                elif foundGlobal:
+                    if line.find("Name=\"ZerocIce_Home\"") != -1:
+                        deleteLines = 2
+                    else:
+                        print globalLine,
+                        print line,
+                    foundGlobal = False
+                elif line.find("<Global") != -1:
+                        foundGlobal = True
+                        globalLine = line
+                else:
+                    print line,
 
 for f in rmFiles: remove(os.path.join(demoDir, f))
 
@@ -303,7 +329,7 @@ writeSrcDistReport("Ice", version, compareToDir, [srcDir, demoDir, distFilesDir,
 print "Cleaning up...",
 sys.stdout.flush()
 remove(srcDir)
-remove(demoDir)
+#remove(demoDir)
 remove(demoscriptDir)
 remove(rpmBuildDir)
 remove(distFilesDir)
