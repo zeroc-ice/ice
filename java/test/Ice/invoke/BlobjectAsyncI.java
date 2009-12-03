@@ -19,7 +19,11 @@ public class BlobjectAsyncI extends Ice.BlobjectAsync
         Ice.Communicator communicator = current.adapter.getCommunicator();
         Ice.InputStream in = Ice.Util.createInputStream(communicator, inParams);
         Ice.OutputStream out = Ice.Util.createOutputStream(communicator);
-        if(current.operation.equals("opString"))
+        if(current.operation.equals("opOneway"))
+        {
+            cb.ice_response(true, new byte[0]);
+        }
+        else if(current.operation.equals("opString"))
         {
             String s = in.readString();
             out.writeString(s);

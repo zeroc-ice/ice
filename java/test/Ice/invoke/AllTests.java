@@ -230,11 +230,17 @@ public class AllTests
         String ref = "test:default -p 12010";
         Ice.ObjectPrx base = communicator.stringToProxy(ref);
         MyClassPrx cl = MyClassPrxHelper.checkedCast(base);
+        MyClassPrx oneway = MyClassPrxHelper.uncheckedCast(cl.ice_oneway());
 
         out.print("testing ice_invoke... ");
         out.flush();
 
         {
+            if(!oneway.ice_invoke("opOneway", Ice.OperationMode.Normal, null, null))
+            {
+                test(false);
+            }
+
             Ice.OutputStream outS = Ice.Util.createOutputStream(communicator);
             outS.writeString(testString);
             byte[] inParams = outS.finished();
@@ -282,13 +288,19 @@ public class AllTests
         out.flush();
 
         {
+            Ice.AsyncResult result = oneway.begin_ice_invoke("opOneway", Ice.OperationMode.Normal, null);
+            Ice.ByteSeqHolder outParams = new Ice.ByteSeqHolder();
+            if(!oneway.end_ice_invoke(outParams, result))
+            {
+                test(false);
+            }
+
             Ice.OutputStream outS = Ice.Util.createOutputStream(communicator);
             outS.writeString(testString);
             byte[] inParams = outS.finished();
 
             // begin_ice_invoke with no callback
-            Ice.AsyncResult result = cl.begin_ice_invoke("opString", Ice.OperationMode.Normal, inParams);
-            Ice.ByteSeqHolder outParams = new Ice.ByteSeqHolder();
+            result = cl.begin_ice_invoke("opString", Ice.OperationMode.Normal, inParams);
             if(cl.end_ice_invoke(outParams, result))
             {
                 Ice.InputStream inS = Ice.Util.createInputStream(communicator, outParams.value);

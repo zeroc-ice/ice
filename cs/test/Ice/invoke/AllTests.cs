@@ -184,12 +184,18 @@ public class AllTests
     {
         Ice.ObjectPrx baseProxy = communicator.stringToProxy("test:default -p 12010");
         Test.MyClassPrx cl = Test.MyClassPrxHelper.checkedCast(baseProxy);
+        Test.MyClassPrx oneway = Test.MyClassPrxHelper.uncheckedCast(cl.ice_oneway());
 
         Console.Out.Write("testing ice_invoke... ");
         Console.Out.Flush();
 
         {
             byte[] inParams, outParams;
+            if(!oneway.ice_invoke("opOneway", Ice.OperationMode.Normal, null, out outParams))
+            {
+                test(false);
+            }
+
             Ice.OutputStream outS = Ice.Util.createOutputStream(communicator);
             outS.writeString(testString);
             inParams = outS.finished();
@@ -238,12 +244,18 @@ public class AllTests
 
         {
             byte[] inParams, outParams;
+            Ice.AsyncResult result = oneway.begin_ice_invoke("opOneway", Ice.OperationMode.Normal, null);
+            if(!oneway.end_ice_invoke(out outParams, result))
+            {
+                test(false);
+            }
+
             Ice.OutputStream outS = Ice.Util.createOutputStream(communicator);
             outS.writeString(testString);
             inParams = outS.finished();
 
             // begin_ice_invoke with no callback
-            Ice.AsyncResult result = cl.begin_ice_invoke("opString", Ice.OperationMode.Normal, inParams);
+            result = cl.begin_ice_invoke("opString", Ice.OperationMode.Normal, inParams);
             if(cl.end_ice_invoke(out outParams, result))
             {
                 Ice.InputStream inS = Ice.Util.createInputStream(communicator, outParams);

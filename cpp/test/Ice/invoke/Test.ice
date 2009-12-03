@@ -19,6 +19,8 @@ exception MyException
 
 class MyClass
 {
+    void opOneway();
+
     string opString(string s1, out string s2);
 
     void opException() throws MyException;

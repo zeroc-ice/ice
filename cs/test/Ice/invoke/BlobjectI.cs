@@ -15,7 +15,12 @@ public class BlobjectI : Ice.Blobject
         Ice.Communicator communicator = current.adapter.getCommunicator();
         Ice.InputStream inS = Ice.Util.createInputStream(communicator, inParams);
         Ice.OutputStream outS = Ice.Util.createOutputStream(communicator);
-        if(current.operation.Equals("opString"))
+        if(current.operation.Equals("opOneway"))
+        {
+            outParams = new byte[0];
+            return true;
+        }
+        else if(current.operation.Equals("opString"))
         {
             string s = inS.readString();
             outS.writeString(s);
@@ -69,7 +74,11 @@ public class BlobjectAsyncI : Ice.BlobjectAsync
         Ice.Communicator communicator = current.adapter.getCommunicator();
         Ice.InputStream inS = Ice.Util.createInputStream(communicator, inParams);
         Ice.OutputStream outS = Ice.Util.createOutputStream(communicator);
-        if(current.operation.Equals("opString"))
+        if(current.operation.Equals("opOneway"))
+        {
+            cb.ice_response(true, new byte[0]);
+        }
+        else if(current.operation.Equals("opString"))
         {
             string s = inS.readString();
             outS.writeString(s);

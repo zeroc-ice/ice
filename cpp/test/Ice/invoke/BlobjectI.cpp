@@ -19,7 +19,11 @@ invokeInternal(const Ice::InputStreamPtr& in, vector<Ice::Byte>& outParams, cons
 {
     Ice::CommunicatorPtr communicator = current.adapter->getCommunicator();
     Ice::OutputStreamPtr out = Ice::createOutputStream(communicator);
-    if(current.operation == "opString")
+    if(current.operation == "opOneway")
+    {
+        return true;
+    }
+    else if(current.operation == "opString")
     {
         string s;
         in->read(s);

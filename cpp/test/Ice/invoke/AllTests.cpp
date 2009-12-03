@@ -234,6 +234,8 @@ allTests(const Ice::CommunicatorPtr& communicator)
     Test::MyClassPrx cl = Test::MyClassPrx::checkedCast(base);
     test(cl);
 
+    Test::MyClassPrx oneway = cl->ice_oneway();
+
     void (Callback::*nullEx)(const Ice::Exception&) = 0;
     void (Callback::*nullExWC)(const Ice::Exception&, const CookiePtr&) = 0;
     
@@ -241,6 +243,11 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
     {
         Ice::ByteSeq inParams, outParams;
+        if(!oneway->ice_invoke("opOneway", Ice::Normal, inParams, outParams))
+        {
+            test(false);
+        }
+
         Ice::OutputStreamPtr out = Ice::createOutputStream(communicator);
         out->write(testString);
         out->finished(inParams);
@@ -308,12 +315,18 @@ allTests(const Ice::CommunicatorPtr& communicator)
         CookiePtr cookie = new Cookie();
 
         Ice::ByteSeq inParams, outParams;
+        Ice::AsyncResultPtr result = oneway->begin_ice_invoke("opOneway", Ice::Normal, inParams);
+        if(!oneway->end_ice_invoke(outParams, result))
+        {
+            test(false);
+        }
+        
         Ice::OutputStreamPtr out = Ice::createOutputStream(communicator);
         out->write(testString);
         out->finished(inParams);
 
         // begin_ice_invoke with no callback
-        Ice::AsyncResultPtr result = cl->begin_ice_invoke("opString", Ice::Normal, inParams);
+        result = cl->begin_ice_invoke("opString", Ice::Normal, inParams);
         if(cl->end_ice_invoke(outParams, result))
         {
             Ice::InputStreamPtr in = Ice::createInputStream(communicator, outParams);
