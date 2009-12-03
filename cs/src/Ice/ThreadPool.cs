@@ -313,13 +313,13 @@ namespace IceInternal
         }
 
         public void
-        dispatch(Ice.DispatcherCall call)
+        dispatch(System.Action call)
         {
             if(_dispatcher != null)
             {
                 try
                 {
-                    _dispatcher.dispatch(call, null);
+                    _dispatcher(call, null);
                 }
                 catch(System.Exception ex)
                 {

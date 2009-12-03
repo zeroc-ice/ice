@@ -43,6 +43,14 @@ public class HelloApplet extends JApplet
             Ice.InitializationData initData = new Ice.InitializationData();
             initData.properties = Ice.Util.createProperties();
             initData.properties.load("config.applet");
+            initData.dispatcher = new Ice.Dispatcher()
+            {
+                public void
+                dispatch(Runnable runnable, Ice.Connection connection)
+                {
+                    SwingUtilities.invokeLater(runnable);
+                }
+            };
             _communicator = Ice.Util.initialize(initData);
         }
         catch(Throwable ex)
@@ -322,13 +330,7 @@ public class HelloApplet extends JApplet
         String host = _hostname.getText().toString().trim();
         if(host.length() == 0)
         {
-            SwingUtilities.invokeLater(new Runnable()
-            {
-                public void run()
-                {
-                    _status.setText("No hostname");
-                }
-            });
+            _status.setText("No hostname");
             return null;
         }
 
@@ -352,13 +354,7 @@ public class HelloApplet extends JApplet
         {
             assert (!_response);
             _response = true;
-            SwingUtilities.invokeLater(new Runnable()
-            {
-                public void run()
-                {
-                    _status.setText("Ready");
-                }
-            });
+            _status.setText("Ready");
         }
 
         @Override
@@ -366,14 +362,7 @@ public class HelloApplet extends JApplet
         {
             assert (!_response);
             _response = true;
-
-            SwingUtilities.invokeLater(new Runnable()
-            {
-                public void run()
-                {
-                    handleException(ex);
-                }
-            });
+            handleException(ex);
         }
 
         @Override
@@ -384,20 +373,14 @@ public class HelloApplet extends JApplet
                 return;
             }
 
-            SwingUtilities.invokeLater(new Runnable()
+            if(_deliveryMode == DeliveryMode.TWOWAY || _deliveryMode == DeliveryMode.TWOWAY_SECURE)
             {
-                public void run()
-                {
-                    if(_deliveryMode == DeliveryMode.TWOWAY || _deliveryMode == DeliveryMode.TWOWAY_SECURE)
-                    {
-                        _status.setText("Waiting for response");
-                    }
-                    else
-                    {
-                        _status.setText("Ready");
-                    }
-                }
-            });
+                _status.setText("Waiting for response");
+            }
+            else
+            {
+                _status.setText("Ready");
+            }
         }
     }
 
@@ -450,25 +433,13 @@ public class HelloApplet extends JApplet
                     @Override
                     public void response()
                     {
-                        SwingUtilities.invokeLater(new Runnable()
-                        {
-                            public void run()
-                            {
-                                _status.setText("Ready");
-                            }
-                        });
+                        _status.setText("Ready");
                     }
 
                     @Override
                     public void exception(final Ice.LocalException ex)
                     {
-                        SwingUtilities.invokeLater(new Runnable()
-                        {
-                            public void run()
-                            {
-                                handleException(ex);
-                            }
-                        });
+                        handleException(ex);
                     }
                 });
                 if(_deliveryMode == DeliveryMode.TWOWAY || _deliveryMode == DeliveryMode.TWOWAY_SECURE)
@@ -501,13 +472,7 @@ public class HelloApplet extends JApplet
                 }
                 catch(final Ice.LocalException ex)
                 {
-                    SwingUtilities.invokeLater(new Runnable()
-                    {
-                        public void run()
-                        {
-                            handleException(ex);
-                        }
-                    });
+                    handleException(ex);
                 }
             }
         }).start();
@@ -550,14 +515,7 @@ public class HelloApplet extends JApplet
     private void handleException(final Throwable ex)
     {
         ex.printStackTrace();
-        SwingUtilities.invokeLater(new Runnable()
-            {
-                public void run()
-                {
-                    _status.setText(ex.getClass().getName());
-                }
-            }
-        );
+        _status.setText(ex.getClass().getName());
     }
 
     private static class SliderListener implements ChangeListener

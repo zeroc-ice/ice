@@ -13,7 +13,7 @@ using System.Reflection;
 using System.Collections.Generic;
 using System.Threading;
 
-public class Dispatcher : Ice.Dispatcher
+public class Dispatcher
 {
     private static void test(bool b)
     {
@@ -36,7 +36,7 @@ public class Dispatcher : Ice.Dispatcher
     {
         while(true)
         {
-            Ice.DispatcherCall call = null;
+            System.Action call = null;
             lock(this)
             {
                 if(!_terminated && _calls.Count == 0)
@@ -71,7 +71,7 @@ public class Dispatcher : Ice.Dispatcher
     }
     
     public void
-    dispatch(Ice.DispatcherCall call, Ice.Connection con)
+    dispatch(System.Action call, Ice.Connection con)
     {
         lock(this)
         {
@@ -103,7 +103,7 @@ public class Dispatcher : Ice.Dispatcher
 
     static Dispatcher _instance; 
 
-    private Queue<Ice.DispatcherCall> _calls = new Queue<Ice.DispatcherCall>();
+    private Queue<System.Action> _calls = new Queue<System.Action>();
     Thread _thread;
     bool _terminated = false;
 };

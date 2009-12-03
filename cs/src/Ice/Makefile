@@ -25,7 +25,6 @@ SRCS		= Acceptor.cs \
 		  BasicStream.cs \
 		  Buffer.cs \
 		  ByteBuffer.cs \
-		  Dispatcher.cs \
 		  CommunicatorI.cs \
                   Compare.cs \
 		  CollectionBase.cs \

@@ -35,6 +35,12 @@ namespace Ice
     }
 
     /// <summary>
+    /// A delegate for the dispatcher. The dispatcher is called by the Ice 
+    /// runtime to dispatch servant calls and AMI callbacks.
+    /// </summary>
+    public delegate void Dispatcher(System.Action call, Connection con);
+
+    /// <summary>
     /// A class that encpasulates data to initalize a communicator.
     /// </summary>
     public class InitializationData : ICloneable

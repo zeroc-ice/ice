@@ -1187,11 +1187,11 @@ namespace Ice
                         {
                             try
                             {
-                                _dispatcher.dispatch(delegate()
-                                                     {
-                                                         dispatch(startCB, sentCBs, info);
-                                                     }, 
-                                                     this);
+                                _dispatcher(delegate()
+                                            {
+                                                dispatch(startCB, sentCBs, info);
+                                            },
+                                            this);
                             }
                             catch(System.Exception ex)
                             {
@@ -1286,7 +1286,7 @@ namespace Ice
                     {
                         try
                         {
-                            _dispatcher.dispatch(delegate() { finish(); }, this);
+                            _dispatcher(finish, this);
                         }
                         catch(System.Exception ex)
                         {

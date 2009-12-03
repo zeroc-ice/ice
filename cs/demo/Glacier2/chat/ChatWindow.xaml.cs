@@ -68,24 +68,30 @@ namespace Glacier2.chat.client
             {
                 _window = window;
             }
+
             public override void
             message(string data, Ice.Current current)
             {
-                _window.Dispatcher.BeginInvoke(DispatcherPriority.Normal, (Action)delegate()
-                            {
-                                _window.appendMessage(data);
-                            }
-                 );
+                _window.appendMessage(data);
             }
-            ChatWindow _window;
+
+            private ChatWindow _window;
         }
 
         public ChatWindow()
         {
-            Ice.Properties properties = Ice.Util.createProperties();
-            properties.load("config.client");
+            Ice.InitializationData initData = new Ice.InitializationData();
 
-            _factory = new SessionFactoryHelper(properties, this);
+            initData.properties = Ice.Util.createProperties();
+            initData.properties.load("config.client");
+
+            // Dispatch servant calls and AMI callbacks with this windows Dispatcher.
+            initData.dispatcher = delegate(System.Action action, Ice.Connection connection)
+            {
+                Dispatcher.BeginInvoke(DispatcherPriority.Normal, action);
+            };
+
+            _factory = new SessionFactoryHelper(initData, this);
             InitializeComponent();
             Util.locateOnScreen(this);
         }
@@ -159,16 +165,10 @@ namespace Glacier2.chat.client
                 string message = input.Text.Trim();
                 if(message.Length > 0)
                 {
-                    _chat.begin_say(message).whenCompleted(delegate()
-                                             {
-                                             },
-                                             delegate(Ice.Exception ex)
-                                             {
-                                                 Dispatcher.BeginInvoke(DispatcherPriority.Normal, (Action)delegate()
-                                                 {
-                                                     appendMessage("<system-message> - " + ex.ToString());
-                                                 });
-                                             });
+                    _chat.begin_say(message).whenCompleted(delegate(Ice.Exception ex)
+                                                           {
+                                                               appendMessage("<system-message> - " + ex.ToString());
+                                                           });
                 }
                 input.Text = "";
             }
@@ -243,22 +243,16 @@ namespace Glacier2.chat.client
             _chat = Demo.ChatSessionPrxHelper.uncheckedCast(_session.session());
             _chat.begin_setCallback(callback).whenCompleted(delegate()
                                               {
-                                                  Dispatcher.BeginInvoke(DispatcherPriority.Normal, (Action)delegate()
-                                                  {
-                                                      closeCancelDialog();
-                                                      input.IsEnabled = true;
-                                                      status.Content = "Connected with " + _loginData.routerHost;
-                                                  });
+                                                  closeCancelDialog();
+                                                  input.IsEnabled = true;
+                                                  status.Content = "Connected with " + _loginData.routerHost;
                                               },
                                               delegate(Ice.Exception ex)
                                               {
-                                                  Dispatcher.BeginInvoke(DispatcherPriority.Normal, (Action)delegate()
+                                                  if(_session != null)
                                                   {
-                                                     if(_session != null)
-                                                     {
-                                                          _session.destroy();
-                                                     }
-                                                  });
+                                                      _session.destroy();
+                                                  }
                                               });
         }
 
@@ -279,11 +273,6 @@ namespace Glacier2.chat.client
             _chat = null;
             input.IsEnabled = false;
             status.Content = "Not connected";
-        }
-
-        public Dispatcher getDispatcher()
-        {
-            return this.Dispatcher;// System.Windows.Application.Current.Dispatcher;
         }
 
         #endregion

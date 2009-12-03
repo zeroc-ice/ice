@@ -52,6 +52,10 @@ namespace Ice.wpf.client
                 Ice.InitializationData initData = new Ice.InitializationData();
                 initData.properties = Ice.Util.createProperties();
                 initData.properties.load("config.client");
+                initData.dispatcher = delegate(System.Action action, Ice.Connection connection)
+                {
+                    Dispatcher.BeginInvoke(DispatcherPriority.Normal, action);
+                };
                 _communicator = Ice.Util.initialize(initData);
             }
             catch(Ice.LocalException ex)
@@ -129,10 +133,7 @@ namespace Ice.wpf.client
                 {
                     Debug.Assert(!_response);
                     _response = true;
-                    _window.Dispatcher.BeginInvoke(DispatcherPriority.Normal,(Action)delegate()
-                    {
-                        _window.status.Content = "Ready";
-                    });
+                    _window.status.Content = "Ready";
                 }
             }
 
@@ -142,10 +143,7 @@ namespace Ice.wpf.client
                 {
                     Debug.Assert(!_response);
                     _response = true;
-                    _window.Dispatcher.BeginInvoke(DispatcherPriority.Normal,(Action)delegate()
-                    {
-                        _window.handleException(ex);
-                    });
+                    _window.handleException(ex);
                 }
             }
 
@@ -157,17 +155,14 @@ namespace Ice.wpf.client
                     {
                         return;
                     }
-                    _window.Dispatcher.BeginInvoke(DispatcherPriority.Normal,(Action)delegate()
+                    if(_window.deliveryMode.Text.Equals(TWOWAY) || _window.deliveryMode.Text.Equals(TWOWAY_SECURE))
                     {
-                        if(_window.deliveryMode.Text.Equals(TWOWAY) || _window.deliveryMode.Text.Equals(TWOWAY_SECURE))
-                        {
-                            _window.status.Content = "Waiting for response";
-                        }
-                        else
-                        {
-                            _window.status.Content = "Ready";
-                        }
-                    });
+                        _window.status.Content = "Waiting for response";
+                    }
+                    else
+                    {
+                        _window.status.Content = "Ready";
+                    }
                 }
             }
 
@@ -208,10 +203,7 @@ namespace Ice.wpf.client
 
         private void handleException(Exception ex)
         {
-            this.Dispatcher.BeginInvoke(DispatcherPriority.Normal,(Action)delegate()
-            {
-                status.Content = ex.GetType();
-            });
+            status.Content = ex.GetType();
         }
 
         private void shutdown_Click(object sender, RoutedEventArgs e)
@@ -232,17 +224,11 @@ namespace Ice.wpf.client
                     status.Content = "Sending request";
                     result.whenCompleted(delegate()
                                          {
-                                             Dispatcher.BeginInvoke(DispatcherPriority.Normal,(Action)delegate()
-                                             {
-                                                 status.Content = "Ready";
-                                             });
+                                             status.Content = "Ready";
                                          },
                                          delegate(Exception ex)
                                          {
-                                             Dispatcher.BeginInvoke(DispatcherPriority.Normal,(Action)delegate()
-                                             {
-                                                 handleException(ex);
-                                             });
+                                             handleException(ex);
                                          });
                 }
                 else
@@ -268,10 +254,7 @@ namespace Ice.wpf.client
                     }
                     catch(Ice.LocalException ex)
                     {
-                        this.Dispatcher.BeginInvoke(DispatcherPriority.Normal,(Action)delegate()
-                        {
-                            handleException(ex);
-                        });
+                        handleException(ex);
                     }
                 })).Start();
             flush.IsEnabled = false;

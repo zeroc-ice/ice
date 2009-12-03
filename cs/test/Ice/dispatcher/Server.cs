@@ -49,7 +49,7 @@ public class Server
             Ice.InitializationData initData = new Ice.InitializationData();
             initData.properties = Ice.Util.createProperties(ref args);
             initData.properties.setProperty("Ice.ServerIdleTime", "30");
-            initData.dispatcher = new Dispatcher();
+            initData.dispatcher = new Dispatcher().dispatch;
             communicator = Ice.Util.initialize(ref args, initData);
             status = run(args, communicator);
         }

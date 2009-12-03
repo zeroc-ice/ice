@@ -54,8 +54,6 @@ import Ice.LocalException;
 import Ice.StringSeqHolder;
 import Ice.Util;
 
-// TODO: Simplify the callbacks when http://bugzilla/bugzilla/show_bug.cgi?id=4193 is fixed.
-
 @SuppressWarnings("serial")
 public class Client extends JFrame
 {
@@ -137,14 +135,7 @@ public class Client extends JFrame
                                 public void
                                 exception(final LocalException ex)
                                 {
-                                    SwingUtilities.invokeLater(new Runnable() {
-
-                                        public void
-                                        run()
-                                        {
-                                            appendMessage("<system-message> - " + ex);
-                                        }
-                                    });
+                                    appendMessage("<system-message> - " + ex);
                                 }
                             });
                         }
@@ -311,90 +302,82 @@ public class Client extends JFrame
         _connectionPanel.add(fieldPanel);
 
         _input.setEnabled(false);
-        Ice.Properties properties = Ice.Util.createProperties();
-        properties.load("config.client");
+
+        Ice.InitializationData initData = new Ice.InitializationData();
+
+        // Load the configuration file.
+        initData.properties = Ice.Util.createProperties();
+        initData.properties.load("config.client");
         StringSeqHolder argHolder = new StringSeqHolder(args);
-        properties = Util.createProperties(argHolder, properties);
-        _factory = new SessionFactoryHelper(properties, new SessionCallback()
+        initData.properties = Util.createProperties(argHolder, initData.properties);
+
+        // Setup a dispatcher to dispath Ice and Glacier2 helper callbacks to the GUI thread.
+        initData.dispatcher = new Ice.Dispatcher()
+        {
+            public void
+            dispatch(Runnable runnable, Ice.Connection connection)
             {
-                // The session helper callbacks are all called from the
-                // GUI thread.
-                public void
-                connected(SessionHelper session)
-                    throws SessionNotExistException
+                SwingUtilities.invokeLater(runnable);
+            }
+        };
+
+        _factory = new SessionFactoryHelper(initData, new SessionCallback()
+        {
+            public void
+            connected(SessionHelper session)
+                throws SessionNotExistException
+            {
+                // If the session has been reassigned avoid the spurious callback.
+                if(session != _session)
                 {
-                    // If the session has been reassigned avoid the
-                    // spurious callback.
-                    if(session != _session)
+                    return;
+                }
+
+                // The chat callback servant. We use an anonymous
+                // inner class since the implementation is very
+                // simple.
+                Demo._ChatCallbackDisp servant = new Demo._ChatCallbackDisp()
+                {
+                    public void
+                    message(final String data, Current current)
+                    {                            
+                        appendMessage(data);
+                    }
+                };
+
+                Demo.ChatCallbackPrx callback = Demo.ChatCallbackPrxHelper.uncheckedCast(_session.addWithUUID(servant));
+
+                _chat = Demo.ChatSessionPrxHelper.uncheckedCast(_session.session());
+                _chat.begin_setCallback(callback, new Demo.Callback_ChatSession_setCallback()
+                {
+                    @Override
+                    public void
+                    response()
                     {
-                        return;
+                        assert _loginDialog != null;
+                        _loginDialog.dispose();
+                        
+                        _login.setEnabled(false);
+                        _logout.setEnabled(true);
+                        
+                        _input.setEnabled(true);
+                        
+                        _status.setText("Connected with " + _hostField.getText());
                     }
 
-                    // The chat callback servant. We use an anonymous
-                    // inner class since the implementation is very
-                    // simple.
-                    Demo._ChatCallbackDisp servant = new Demo._ChatCallbackDisp()
+                    @Override
+                    public void
+                    exception(LocalException ex)
                     {
-                        public void
-                        message(final String data, Current current)
-                        {
-                            SwingUtilities.invokeLater(new Runnable()
-                            {
-                                public void
-                                run()
-                                {
-                                    appendMessage(data);
-                                }
-                            });
-                        }
-                    };
-                    Demo.ChatCallbackPrx callback = Demo.ChatCallbackPrxHelper.uncheckedCast(
-                                _session.addWithUUID(servant));
-
-                    _chat = Demo.ChatSessionPrxHelper.uncheckedCast(_session.session());
-                    _chat.begin_setCallback(callback, new Demo.Callback_ChatSession_setCallback()
-                    {
-                        @Override
-                        public void
-                        response()
-                        {
-                            SwingUtilities.invokeLater(new Runnable()
-                            {
-                                public void run()
-                                {
-                                    assert _loginDialog != null;
-                                    _loginDialog.dispose();
-
-                                    _login.setEnabled(false);
-                                    _logout.setEnabled(true);
-
-                                    _input.setEnabled(true);
-
-                                    _status.setText("Connected with " + _hostField.getText());
-                                }
-                            });
-                        }
-
-                        @Override
-                        public void
-                        exception(LocalException ex)
-                        {
-                            SwingUtilities.invokeLater(new Runnable()
-                            {
-                                public void run()
-                                {
-                                    destroySession();
-                                }
-                            });
-                        }
-                    });
+                        destroySession();
+                    }
+                });
             }
 
             public void
             disconnected(SessionHelper session)
             {
-                // If the session has been reassigned avoid the
-                // spurious callback.
+                // If the session has been reassigned avoid the spurious callback.
                 if(session != _session)
                 {
                     return;
@@ -455,7 +438,7 @@ public class Client extends JFrame
             _factory.setRouterHost(_hostField.getText());
             // Connect to Glacier2 using SessionFactoryHelper
             _session = _factory.connect(_userNameField.getText(), _passwordField.getText());
-            String[] cancel = {"Cancel" };
+            String[] cancel = { "Cancel" };
 
             // Show Connecting Dialog
             JOptionPane pane = new JOptionPane("Please wait while connecting...", JOptionPane.INFORMATION_MESSAGE,
