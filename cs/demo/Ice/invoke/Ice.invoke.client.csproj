@@ -107,7 +107,7 @@
   </PropertyGroup>
   <ProjectExtensions>
     <VisualStudio>
-      <UserProperties ZerocIce_Streaming="True" ZerocIce_ConsoleOutput="True" ZerocIce_Enabled="True" ZerocIce_HomeExpanded="..\..\..\.." />
+      <UserProperties ZerocIce_HomeExpanded="..\..\..\.." ZerocIce_Home="..\..\..\.." ZerocIce_Enabled="True" ZerocIce_ConsoleOutput="True" ZerocIce_Streaming="True" />
     </VisualStudio>
   </ProjectExtensions>
 </Project>

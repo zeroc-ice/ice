@@ -55,7 +55,7 @@
   </ItemGroup>
   <ProjectExtensions>
     <VisualStudio>
-      <UserProperties ZerocIce_ConsoleOutput="True" ZerocIce_Enabled="True" ZerocIce_HomeExpanded="..\..\..\.." />
+      <UserProperties ZerocIce_ConsoleOutput="True" ZerocIce_Enabled="True" ZerocIce_Home= "..\..\..\.." ZerocIce_HomeExpanded="..\..\..\.." />
     </VisualStudio>
   </ProjectExtensions>
   <ItemGroup>

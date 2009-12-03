@@ -48,7 +48,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="2"
 				InlineFunctionExpansion="1"
-				AdditionalIncludeDirectories="dummyinclude ; . ; C:\Program Files\ZeroC\Ice-3.4b\include"
+				AdditionalIncludeDirectories="dummyinclude ; . ; ..\..\..\..\cpp\include"
 				PreprocessorDefinitions="_CONSOLE;NDEBUG;WIN32_LEAN_AND_MEAN"
 				StringPooling="true"
 				RuntimeLibrary="2"
@@ -80,7 +80,7 @@
 				OutputFile="client.exe"
 				LinkIncremental="2"
 				SuppressStartupBanner="true"
-				AdditionalLibraryDirectories="C:\Program Files\ZeroC\Ice-3.4b\lib"
+				AdditionalLibraryDirectories="..\..\..\..\cpp\lib"
 				ProgramDatabaseFile=".\Release/client.pdb"
 				SubSystem="1"
 				RandomizedBaseAddress="1"
@@ -140,7 +140,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories=". ; C:\Program Files\ZeroC\Ice-3.4b\include"
+				AdditionalIncludeDirectories=". ; ..\..\..\..\cpp\include"
 				PreprocessorDefinitions="_CONSOLE;_DEBUG;WIN32_LEAN_AND_MEAN"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
@@ -173,7 +173,7 @@
 				OutputFile="client.exe"
 				LinkIncremental="2"
 				SuppressStartupBanner="true"
-				AdditionalLibraryDirectories="C:\Program Files\ZeroC\Ice-3.4b\lib"
+				AdditionalLibraryDirectories="..\..\..\..\cpp\lib"
 				GenerateDebugInformation="true"
 				ProgramDatabaseFile=".\Debug/client.pdb"
 				SubSystem="1"
@@ -477,8 +477,12 @@
 			Value="True"
 		/>
 		<Global
+			Name="ZerocIce_Home"
+			Value="..\..\..\.."
+		/>
+		<Global
 			Name="ZerocIce_HomeExpanded"
-			Value="C:\Program Files\ZeroC\Ice-3.4b"
+			Value="..\..\..\.."
 		/>
 	</Globals>
 </VisualStudioProject>
