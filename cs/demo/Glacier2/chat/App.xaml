@@ -11,7 +11,7 @@
 <Application x:Class="Glacier2.chat.client.App"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    StartupUri="ChatWindow.xaml" ShutdownMode="OnLastWindowClose">
+    Startup="start" ShutdownMode="OnLastWindowClose">
     <Application.Resources>
         <Style x:Key="Menu">
             <Setter Property="MenuItem.FontFamily" Value="Times New Romans"/>

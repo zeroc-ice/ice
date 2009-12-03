@@ -72,7 +72,7 @@ namespace Glacier2.chat.client
             public override void
             message(string data, Ice.Current current)
             {
-                _window.appendMessage(data);
+                _window.appendMessage(data + Environment.NewLine);
             }
 
             private ChatWindow _window;
@@ -99,6 +99,11 @@ namespace Glacier2.chat.client
         private void
         login(object sender, ExecutedRoutedEventArgs args)
         {
+            doLogin();
+        }
+        
+        public void doLogin()
+        {
             LoginDialog loginDialog = new LoginDialog(_loginData);
             Util.centerWindow(loginDialog, this);
             if(loginDialog.ShowModal())
@@ -120,6 +125,7 @@ namespace Glacier2.chat.client
         private void
         logout(object sender, ExecutedRoutedEventArgs args)
         {
+            txtMessages.Text = "";
             status.Content = "Logging out";
             destroySession();
         }
@@ -167,7 +173,7 @@ namespace Glacier2.chat.client
                 {
                     _chat.begin_say(message).whenCompleted(delegate(Ice.Exception ex)
                                                            {
-                                                               appendMessage("<system-message> - " + ex.ToString());
+                                                               appendMessage("<system-message> - " + ex.ToString() + Environment.NewLine);
                                                            });
                 }
                 input.Text = "";

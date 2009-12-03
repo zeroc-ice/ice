@@ -54,6 +54,7 @@
         <!--- Define an editable text box for the user to write messages. -->
         <TextBox Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="3"
                  Name="input"
+                 IsEnabled="False"
                  TextWrapping="Wrap" 
                  ScrollViewer.CanContentScroll="True"
                  HorizontalScrollBarVisibility="Hidden"
