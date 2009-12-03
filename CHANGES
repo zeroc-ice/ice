@@ -33,6 +33,10 @@ General Changes
 These entries apply to all relevant language mappings unless otherwise
 noted.
 
+- It is now legal to pass an empty name to createObjectAdpaterWithRouter
+  and createObjectAdapterWithEndpoints. If so, a UUID will be generated
+  as the name.
+
 - Added support for dispatching servant invocations and AMI callbacks
   with application specific threads (with a GUI dedicated thread for
   example). The application needs to implement the Ice::Dispatcher
