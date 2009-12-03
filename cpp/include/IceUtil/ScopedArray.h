@@ -28,7 +28,7 @@ public:
     ScopedArray(const ScopedArray& other)
     {
         _ptr = other._ptr;
-        other._ptr = 0;
+        const_cast<ScopedArray&>(other)._ptr = 0;
     }
 
     ~ScopedArray()

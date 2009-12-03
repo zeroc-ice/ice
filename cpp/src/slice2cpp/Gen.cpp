@@ -6352,7 +6352,7 @@ Slice::Gen::AsyncVisitor::visitOperation(const OperationPtr& p)
         H << eb;
         H << nl << "void __sent(bool sentSynchronously)";
         H << sb;
-        H << nl << "AMICallbackBase::__sent(sentSynchronously);";
+        H << nl << "::Ice::AMICallbackBase::__sent(sentSynchronously);";
         H << eb;
         H << eb << ';';
         H << sp << nl << "typedef ::IceUtil::Handle< " << classScopedAMI << '_' << name << "> " << classNameAMI
