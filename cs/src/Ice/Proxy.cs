@@ -696,10 +696,10 @@ namespace Ice
             {
                 result__.whenCompletedWithAsyncCallback(cb__);
             }
+            checkAsyncTwowayOnly__(__ice_isA_name);
 
             try
             {
-                ((ObjectPrxHelperBase)this).checkTwowayOnly__(__ice_isA_name);
                 result__.prepare__(__ice_isA_name, OperationMode.Normal, context__, explicitContext__);
                 IceInternal.BasicStream os__ = result__.ostr__;
                 os__.writeString(id);
@@ -946,10 +946,10 @@ namespace Ice
             {
                 result__.whenCompletedWithAsyncCallback(cb__);
             }
+            checkAsyncTwowayOnly__(__ice_ids_name);
 
             try
             {
-                ((ObjectPrxHelperBase)this).checkTwowayOnly__(__ice_ids_name);
                 result__.prepare__(__ice_ids_name, OperationMode.Normal, context__, explicitContext__);
                 IceInternal.BasicStream os__ = result__.ostr__;
                 os__.endWriteEncaps();
@@ -1086,10 +1086,10 @@ namespace Ice
             {
                 result__.whenCompletedWithAsyncCallback(cb__);
             }
+            checkAsyncTwowayOnly__(__ice_id_name);
 
             try
             {
-                ((ObjectPrxHelperBase)this).checkTwowayOnly__(__ice_id_name);
                 result__.prepare__(__ice_id_name, OperationMode.Normal, context__, explicitContext__);
                 IceInternal.BasicStream os__ = result__.ostr__;
                 os__.endWriteEncaps();
@@ -1290,12 +1290,12 @@ namespace Ice
         }
 
         private AsyncResult<Callback_Object_ice_invoke> begin_ice_invoke(string operation, 
-                                                                            OperationMode mode,
-                                                                            byte[] inParams,
-                                                                            Dictionary<string, string> context__,
-                                                                            bool explicitContext__,
-                                                                            Ice.AsyncCallback cb__, 
-                                                                            object cookie__)
+                                                                         OperationMode mode,
+                                                                         byte[] inParams,
+                                                                         Dictionary<string, string> context__,
+                                                                         bool explicitContext__,
+                                                                         Ice.AsyncCallback cb__, 
+                                                                         object cookie__)
         {
             IceInternal.TwowayOutgoingAsync<Callback_Object_ice_invoke> result__ =
                 new IceInternal.TwowayOutgoingAsync<Callback_Object_ice_invoke>(this, __ice_invoke_name,
@@ -1307,7 +1307,6 @@ namespace Ice
 
             try
             {
-                ((ObjectPrxHelperBase)this).checkTwowayOnly__(__ice_invoke_name);
                 result__.prepare__(operation, mode, context__, explicitContext__);
                 IceInternal.BasicStream os__ = result__.ostr__;
                 os__.writeBlob(inParams);
@@ -2209,6 +2208,19 @@ namespace Ice
                 TwowayOnlyException ex = new TwowayOnlyException();
                 ex.operation = name;
                 throw ex;
+            }
+        }
+
+        public void checkAsyncTwowayOnly__(string name)
+        {
+            //
+            // No mutex lock necessary, there is nothing mutable in this
+            // operation.
+            //
+
+            if(!ice_isTwoway())
+            {
+                throw new System.ArgumentException("`" + name + "' can only be called with a twoway proxy");
             }
         }
 

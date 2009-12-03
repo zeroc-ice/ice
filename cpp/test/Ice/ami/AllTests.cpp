@@ -929,13 +929,12 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	}
 
 
-        r = p->ice_oneway()->begin_opWithResult();
         try
         {
-            Test::TestIntfPrx::uncheckedCast(r->getProxy())->end_opWithResult(r);
+            r = p->ice_oneway()->begin_opWithResult();
             test(false);
         }
-        catch(const Ice::TwowayOnlyException&)
+        catch(const IceUtil::IllegalArgumentException&)
         {
         }
 

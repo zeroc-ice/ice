@@ -3863,12 +3863,12 @@ Slice::Gen::HelperVisitor::visitClassDefStart(const ClassDefPtr& p)
             out << sb;
             out << nl << "IceInternal.OutgoingAsync __result = new IceInternal.OutgoingAsync(this, __" << op->name()
                 << "_name, __cb);";
-            out << nl << "try";
-            out << sb;
             if(op->returnsData())
             {
                 out << nl << "__checkTwowayOnly(__" << op->name() << "_name);";
             }
+            out << nl << "try";
+            out << sb;
             out << nl << "__result.__prepare(__" << op->name() << "_name, " << sliceModeToIceMode(op->mode())
                 << ", __ctx, __explicitCtx);";
             out << nl << "IceInternal.BasicStream __os = __result.__os();";

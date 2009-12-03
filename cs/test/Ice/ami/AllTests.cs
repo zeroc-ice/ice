@@ -709,13 +709,12 @@ public class AllTests
             }
 
 
-            r = ((Test.TestIntfPrx)p.ice_oneway()).begin_opWithResult();
             try
             {
-                Test.TestIntfPrxHelper.uncheckedCast(r.getProxy()).end_opWithResult(r);
+                r = ((Test.TestIntfPrx)p.ice_oneway()).begin_opWithResult();
                 test(false);
             }
-            catch(Ice.TwowayOnlyException)
+            catch(System.ArgumentException)
             {
             }
 

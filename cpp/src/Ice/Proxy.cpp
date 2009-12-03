@@ -151,9 +151,9 @@ IceProxy::Ice::Object::begin_ice_isA(const string& typeId,
 				     const ::Ice::LocalObjectPtr& cookie)
 {
     OutgoingAsyncPtr __result = new OutgoingAsync(this, ice_isA_name, del, cookie);
+    __checkAsyncTwowayOnly(ice_isA_name);
     try
     {
-        __checkTwowayOnly(ice_isA_name);
         __result->__prepare(ice_isA_name, Normal, ctx);
         IceInternal::BasicStream* __os = __result->__getOs();
         __os->write(typeId);
@@ -294,9 +294,9 @@ IceProxy::Ice::Object::begin_ice_ids(const Context* ctx,
                                      const ::Ice::LocalObjectPtr& cookie)
 {
     OutgoingAsyncPtr __result = new OutgoingAsync(this, ice_ids_name, del, cookie);
+    __checkAsyncTwowayOnly(ice_ids_name);
     try
     {
-        __checkTwowayOnly(ice_ids_name);
         __result->__prepare(ice_ids_name, Normal, ctx);
         IceInternal::BasicStream* __os = __result->__getOs();
         __os->endWriteEncaps();
@@ -338,9 +338,9 @@ IceProxy::Ice::Object::begin_ice_id(const Context* ctx,
                                     const ::Ice::LocalObjectPtr& cookie)
 {
     OutgoingAsyncPtr __result = new OutgoingAsync(this, ice_id_name, del, cookie);
+    __checkAsyncTwowayOnly(ice_id_name);
     try
     {
-        __checkTwowayOnly(ice_id_name);
         __result->__prepare(ice_id_name, Normal, ctx);
         IceInternal::BasicStream* __os = __result->__getOs();
         __os->endWriteEncaps();
@@ -1303,6 +1303,20 @@ IceProxy::Ice::Object::__checkTwowayOnly(const string& name) const
         TwowayOnlyException ex(__FILE__, __LINE__);
         ex.operation = name;
         throw ex;
+    }
+}
+
+void
+IceProxy::Ice::Object::__checkAsyncTwowayOnly(const string& name) const
+{
+    //
+    // No mutex lock necessary, there is nothing mutable in this operation.
+    //
+    if(!ice_isTwoway())
+    {
+        throw IceUtil::IllegalArgumentException(__FILE__, 
+                                                __LINE__, 
+                                                "`" + name + "' can only be called with a twoway proxy");
     }
 }
 

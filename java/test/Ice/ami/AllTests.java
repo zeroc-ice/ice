@@ -933,13 +933,12 @@ public class AllTests
             }
 
 
-            r = ((TestIntfPrx)p.ice_oneway()).begin_opWithResult();
             try
             {
-                TestIntfPrxHelper.uncheckedCast(r.getProxy()).end_opWithResult(r);
+                r = ((TestIntfPrx)p.ice_oneway()).begin_opWithResult();
                 test(false);
             }
-            catch(Ice.TwowayOnlyException ex)
+            catch(java.lang.IllegalArgumentException ex)
             {
             }
 

@@ -2673,12 +2673,12 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
     string flatName = p->flattenedScope() + name + "_name";
     C << nl << "::IceInternal::OutgoingAsyncPtr __result = new ::IceInternal::OutgoingAsync(this, ";
     C << flatName << ", __del, __cookie);";
-    C << nl << "try";
-    C << sb;
     if(p->returnsData())
     {
-	C << nl << "__checkTwowayOnly(" << flatName <<  ");";
+	C << nl << "__checkAsyncTwowayOnly(" << flatName <<  ");";
     }
+    C << nl << "try";
+    C << sb;
     C << nl << "__result->__prepare(" << flatName << ", " << operationModeToString(p->sendMode()) << ", __ctx);";
     C << nl << "::IceInternal::BasicStream* __os = __result->__getOs();";
     writeMarshalCode(C, inParams, 0, StringList(), true);

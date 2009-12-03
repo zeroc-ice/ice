@@ -603,6 +603,7 @@ public:
                                         const ::IceInternal::LocalExceptionWrapper&, bool, int&);
 
     void __checkTwowayOnly(const ::std::string&) const;
+    void __checkAsyncTwowayOnly(const ::std::string&) const;
     void __end(const ::Ice::AsyncResultPtr&, const std::string&) const;
 
     ::IceInternal::Handle< ::IceDelegate::Ice::Object> __getDelegate(bool);

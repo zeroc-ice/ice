@@ -205,9 +205,9 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
                   IceInternal.CallbackBase __cb)
     {
         IceInternal.OutgoingAsync __result = new IceInternal.OutgoingAsync(this, __ice_isA_name, __cb);
+        __checkAsyncTwowayOnly(__ice_isA_name);
         try
         {
-            __checkTwowayOnly(__ice_isA_name);
             __result.__prepare(__ice_isA_name, OperationMode.Nonmutating, __context, __explicitCtx);
             IceInternal.BasicStream __os = __result.__os();
             __os.writeString(__id);
@@ -536,9 +536,9 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
     begin_ice_ids(java.util.Map<String, String> __context, boolean __explicitCtx, IceInternal.CallbackBase __cb)
     {
         IceInternal.OutgoingAsync __result = new IceInternal.OutgoingAsync(this, __ice_ids_name, __cb);
+        __checkAsyncTwowayOnly(__ice_ids_name);
         try
         {
-            __checkTwowayOnly(__ice_ids_name);
             __result.__prepare(__ice_ids_name, OperationMode.Nonmutating, __context, __explicitCtx);
             IceInternal.BasicStream __os = __result.__os();
             __os.endWriteEncaps();
@@ -712,9 +712,9 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
     begin_ice_id(java.util.Map<String, String> __context, boolean __explicitCtx, IceInternal.CallbackBase __cb)
     {
         IceInternal.OutgoingAsync __result = new IceInternal.OutgoingAsync(this, __ice_id_name, __cb);
+        __checkAsyncTwowayOnly(__ice_id_name);
         try
         {
-            __checkTwowayOnly(__ice_id_name);
             __result.__prepare(__ice_id_name, OperationMode.Nonmutating, __context, __explicitCtx);
             IceInternal.BasicStream __os = __result.__os();
             __os.endWriteEncaps();
@@ -2029,6 +2029,20 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
             TwowayOnlyException ex = new TwowayOnlyException();
             ex.operation = name;
             throw ex;
+        }
+    }
+
+    public final void
+    __checkAsyncTwowayOnly(String name)
+    {
+        //
+        // No mutex lock necessary, there is nothing mutable in this
+        // operation.
+        //
+
+        if(!ice_isTwoway())
+        {
+            throw new java.lang.IllegalArgumentException("`" + name + "' can only be called with a twoway proxy");
         }
     }
 

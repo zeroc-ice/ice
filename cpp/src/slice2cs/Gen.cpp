@@ -4254,12 +4254,12 @@ Slice::Gen::HelperVisitor::visitClassDefStart(const ClassDefPtr& p)
         _out << sb;
         _out << nl << "result__.whenCompletedWithAsyncCallback(cb__);";
         _out << eb;
-        _out << nl << "try";
-        _out << sb;
         if(op->returnsData())
         {
-            _out << nl << "((Ice.ObjectPrxHelperBase)this).checkTwowayOnly__(" << flatName << ");";
+            _out << nl << "checkAsyncTwowayOnly__(" << flatName << ");";
         }
+        _out << nl << "try";
+        _out << sb;
         _out << nl << "result__.prepare__(" << flatName << ", "
              << sliceModeToIceMode(op->sendMode()) << ", ctx__, explicitContext__);";
         _out << nl << "IceInternal.BasicStream os__ = result__.ostr__;";
