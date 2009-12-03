@@ -280,14 +280,10 @@ Ice::AsyncResult::__exceptionAsync(const Ice::Exception& ex)
     // from this thread. Instead the exception callback is called asynchronously from
     // the client thread pool.
     //
-    try
-    {
-        _instance->clientThreadPool()->execute(new AsynchronousException(_instance, this, ex));
-    }
-    catch(const Ice::CommunicatorDestroyedException&)
-    {
-        throw; // CommunicatorDestroyedException is the only exception that can propagate directly.
-    }
+    // CommunicatorDestroyedException is the only exception that can propagate directly
+    // from this method.
+    //
+    _instance->clientThreadPool()->execute(new AsynchronousException(_instance, this, ex));
 }
 
 void

@@ -969,7 +969,6 @@ twowaysAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrx& p)
         cb->check();
     }
 
-#ifndef __BCPLUSPLUS__
     {
 	//
         // Check that CommunicatorDestroyedException is raised directly.
@@ -993,7 +992,6 @@ twowaysAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrx& p)
             // Expected.
         }
     }
-#endif
 
     {
         AMI_MyClass_opByteIPtr cb = new AMI_MyClass_opByteI;

@@ -939,7 +939,6 @@ allTests(const Ice::CommunicatorPtr& communicator)
         {
         }
 
-#ifndef __BCPLUSPLUS__
 	//
         // Check that CommunicatorDestroyedException is raised directly.
 	//
@@ -959,7 +958,6 @@ allTests(const Ice::CommunicatorPtr& communicator)
         {
             // Expected.
         }
-#endif
     }
     cout << "ok" << endl;
 
