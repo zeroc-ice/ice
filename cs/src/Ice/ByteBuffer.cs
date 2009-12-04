@@ -921,6 +921,10 @@ namespace IceInternal
                 _o = BitConverter.IsLittleEndian ? ByteOrder.LITTLE_ENDIAN : ByteOrder.BIG_ENDIAN;
             }
             internal static readonly ByteOrder _o;
+
+            private NO()
+            {
+            }
         }
     }
 }
