@@ -284,6 +284,9 @@ noted.
 C++ Changes
 ============
 
+- Fixed a bug in slice2cpp that could cause incorrect includes to be 
+  generated if a Slice file was included that was a symbolic link.
+
 - On Windows it is now possible to build the Ice DLLs with unique names
   for each supported compiler. See UNIQUE_DLL_NAMES setting in 
   cpp/config/Make.rules.mak.
