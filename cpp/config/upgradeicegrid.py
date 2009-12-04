@@ -10,9 +10,7 @@
 
 #
 # This script upgrades the IceGrid registry database environment for
-# 3.1.x or 3.2.x version of IceGrid to the new format (3.3 or 3.4).
-# There's no need to upgrade a 3.3 IceGrid registry database to 3.4
-# as the database format did not changed.
+# 3.1.x or 3.2.x version of IceGrid to the new format (>= 3.3).
 #
 # Usage:
 #
@@ -50,8 +48,7 @@ def usage():
     print "Usage: " + sys.argv[0] + " [options] olddbenv newdbenv"
     print
     print "This script upgrades a 3.1 or 3.2 IceGrid registry database environment"
-    print "to a 3.4 database environment. There's no need to upgrade a 3.3 database"
-    print "environment to 3.4, the database format did not change."
+    print "to an IceGrid registry 3.3 or superior database environment."
     print
     print "Options:"
     print "-h    Show this message."
