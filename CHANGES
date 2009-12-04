@@ -493,6 +493,8 @@ C# Changes
 Python Changes
 ==============
 
+- The extension now restores the pre-existing dlopen flags.
+
 - The __cmp__ method generated for slice structures and enumerations
   has been replaced by the rich operators __lt__, __le__, __eq__,
   __ne__, __gt__, __ge__.
