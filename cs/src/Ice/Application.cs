@@ -810,7 +810,9 @@ namespace Ice
             // at run time, and it will never be executed on Mono.
             //
             [DllImport("kernel32.dll")]
-            private static extern bool SetConsoleCtrlHandler(EventHandler eh, bool add);
+            [return: MarshalAsAttribute(UnmanagedType.Bool)] 
+            private static extern bool 
+            SetConsoleCtrlHandler(EventHandler eh, [MarshalAsAttribute(UnmanagedType.Bool)]bool add);
 #endif
         }
     }

@@ -10,6 +10,7 @@
 using System;
 using System.Reflection;
 using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
 
 [assembly: CLSCompliant(true)]
 
@@ -23,3 +24,5 @@ using System.Runtime.CompilerServices;
 [assembly: AssemblyCulture("")]         
 [assembly: AssemblyVersion("3.4.51")]
 [assembly: AssemblyDelaySign(false)]
+
+[assembly: ComVisible(false)]
