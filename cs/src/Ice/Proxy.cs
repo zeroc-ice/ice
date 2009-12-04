@@ -1360,7 +1360,7 @@ namespace Ice
         /// </summary>
         public ObjectPrx ice_identity(Identity newIdentity)
         {
-            if(newIdentity.name.Equals(""))
+            if(newIdentity.name.Length == 0)
             {
                 throw new IllegalIdentityException();
             }

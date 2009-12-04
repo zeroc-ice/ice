@@ -349,11 +349,6 @@ namespace IceSSL
             return _checkCRL;
         }
 
-        internal bool checkCertName()
-        {
-            return _checkCertName;
-        }
-
         internal void traceStream(System.Net.Security.SslStream stream, string connInfo)
         {
             System.Text.StringBuilder s = new System.Text.StringBuilder();

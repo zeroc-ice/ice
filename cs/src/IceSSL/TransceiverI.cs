@@ -371,11 +371,6 @@ namespace IceSSL
             return _desc;
         }
 
-        public ConnectionInfo getConnectionInfo()
-        {
-            return _info;
-        }
-
         //
         // Only for use by ConnectorI, AcceptorI.
         //
@@ -388,7 +383,6 @@ namespace IceSSL
             _host = host;
             _adapterName = adapterName;
             _stream = null;
-            _info = null;
             _logger = instance.communicator().getLogger();
             _stats = instance.communicator().getStats();
             _desc = connected ? IceInternal.Network.fdToString(_fd) : "<not connected>";
@@ -735,7 +729,6 @@ namespace IceSSL
         private string _host;
         private string _adapterName;
         private SslStream _stream;
-        private ConnectionInfo _info;
         private Ice.Logger _logger;
         private Ice.Stats _stats;
         private string _desc;

@@ -856,6 +856,6 @@ namespace IceInternal
         // to get the maximum payload.
         //
         private const int _udpOverhead = 20 + 8;
-        private static readonly int _maxPacketSize = 65535 - _udpOverhead;
+        private const int _maxPacketSize = 65535 - _udpOverhead;
     }
 }

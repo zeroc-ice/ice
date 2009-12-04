@@ -40,12 +40,6 @@ public class SessionHelper
                 _helper.destroy();
             }
 
-            public void ice_exception(Ice.UserException ex)
-            {
-                _thread.done();
-                _helper.destroy();
-            }
-
             SessionRefreshThread _thread;
             SessionHelper _helper;
         }

@@ -20,7 +20,7 @@ namespace Ice
     {
         public static ImplicitContextI create(string kind)
         {
-            if(kind.Equals("None") || kind.Equals(""))
+            if(kind.Equals("None") || kind.Length == 0)
             {
                 return null;
             }

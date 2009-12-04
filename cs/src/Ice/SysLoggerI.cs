@@ -195,33 +195,33 @@ namespace Ice
         //
         // Syslog facilities facilities (as defined in syslog.h)
         // 
-        private static readonly int LOG_KERN = 0;
-        private static readonly int LOG_USER = 1;
-        private static readonly int LOG_MAIL = 2;
-        private static readonly int LOG_DAEMON = 3;
-        private static readonly int LOG_AUTH = 4;
-        private static readonly int LOG_SYSLOG = 5;
-        private static readonly int LOG_LPR = 6;
-        private static readonly int LOG_NEWS = 7;
-        private static readonly int LOG_UUCP = 8;
-        private static readonly int LOG_CRON = 9;
-        private static readonly int LOG_AUTHPRIV = 10;
-        private static readonly int LOG_FTP = 11;
-        private static readonly int LOG_LOCAL0 = 16;
-        private static readonly int LOG_LOCAL1 = 17;
-        private static readonly int LOG_LOCAL2 = 18;
-        private static readonly int LOG_LOCAL3 = 19;
-        private static readonly int LOG_LOCAL4 = 20;
-        private static readonly int LOG_LOCAL5 = 21;
-        private static readonly int LOG_LOCAL6 = 22;
-        private static readonly int LOG_LOCAL7 = 23;
+        private const int LOG_KERN = 0;
+        private const int LOG_USER = 1;
+        private const int LOG_MAIL = 2;
+        private const int LOG_DAEMON = 3;
+        private const int LOG_AUTH = 4;
+        private const int LOG_SYSLOG = 5;
+        private const int LOG_LPR = 6;
+        private const int LOG_NEWS = 7;
+        private const int LOG_UUCP = 8;
+        private const int LOG_CRON = 9;
+        private const int LOG_AUTHPRIV = 10;
+        private const int LOG_FTP = 11;
+        private const int LOG_LOCAL0 = 16;
+        private const int LOG_LOCAL1 = 17;
+        private const int LOG_LOCAL2 = 18;
+        private const int LOG_LOCAL3 = 19;
+        private const int LOG_LOCAL4 = 20;
+        private const int LOG_LOCAL5 = 21;
+        private const int LOG_LOCAL6 = 22;
+        private const int LOG_LOCAL7 = 23;
         
         //
         // Syslog priorities (as defined in syslog.h)
         // 
-        private static readonly int LOG_ERR = 3;
-        private static readonly int LOG_WARNING = 4;
-        private static readonly int LOG_INFO = 6;
+        private const int LOG_ERR = 3;
+        private const int LOG_WARNING = 4;
+        private const int LOG_INFO = 6;
     }
 
 }
