@@ -33,6 +33,10 @@ General Changes
 These entries apply to all relevant language mappings unless otherwise
 noted.
 
+- When using the system logger (enabled when Ice.UseSyslog is set) it 
+  is now possible to set the facility using the Ice.SyslogFacility
+  property. The default value is LOG_USER.
+
 - It is now legal to pass an empty name to createObjectAdpaterWithRouter
   and createObjectAdapterWithEndpoints. If so, a UUID will be generated
   as the name.

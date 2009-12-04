@@ -347,6 +347,7 @@ generated from the section label.
         <property name="ServerIdleTime" />
         <property name="StdErr" />
         <property name="StdOut" />
+        <property name="SyslogFacility" />
         <property name="ThreadPool.Client" class="threadpool" />
         <property name="ThreadPool.Server" class="threadpool" />
         <property name="ThreadPriority"/>
