@@ -3861,12 +3861,12 @@ Slice::Gen::HelperVisitor::visitClassDefStart(const ClassDefPtr& p)
             out << nl << "private Ice.AsyncResult begin_" << op->name() << spar << inParams << contextParam
                 << "boolean __explicitCtx" << "IceInternal.CallbackBase __cb" << epar;
             out << sb;
-            out << nl << "IceInternal.OutgoingAsync __result = new IceInternal.OutgoingAsync(this, __" << op->name()
-                << "_name, __cb);";
             if(op->returnsData())
             {
-                out << nl << "__checkTwowayOnly(__" << op->name() << "_name);";
+                out << nl << "__checkAsyncTwowayOnly(__" << op->name() << "_name);";
             }
+            out << nl << "IceInternal.OutgoingAsync __result = new IceInternal.OutgoingAsync(this, __" << op->name()
+                << "_name, __cb);";
             out << nl << "try";
             out << sb;
             out << nl << "__result.__prepare(__" << op->name() << "_name, " << sliceModeToIceMode(op->mode())
@@ -4023,8 +4023,26 @@ Slice::Gen::HelperVisitor::visitClassDefStart(const ClassDefPtr& p)
             writeDocCommentAsync(out, op, InParam);
             out << nl << "public boolean" << nl << op->name() << "_async" << spar << paramsAMI << epar;
             out << sb;
-            out << nl << "Ice.AsyncResult __r = begin_" << op->name() << spar << argsAMI << "null" << "false"
-                << "__cb" << epar << ';';
+            if(op->returnsData())
+            {
+                out << nl << "Ice.AsyncResult __r;";
+                out << nl << "try";
+                out << sb;
+                out << nl << "__checkTwowayOnly(__" << op->name() << "_name);";
+                out << nl << "__r = begin_" << op->name() << spar << argsAMI << "null" << "false"
+                    << "__cb" << epar << ';';
+                out << eb;
+                out << nl << "catch(Ice.TwowayOnlyException ex)";
+                out << sb;
+                out << nl << "__r = new IceInternal.OutgoingAsync(this, __" << op->name() << "_name, __cb);";
+                out << nl << "__r.__exceptionAsync(ex);";
+                out << eb;
+            }
+            else
+            {
+                out << nl << "Ice.AsyncResult __r = begin_" << op->name() << spar << argsAMI << "null" << "false"
+                    << "__cb" << epar << ';';
+            }
             out << nl << "return __r.sentSynchronously();";
             out << eb;
 
@@ -4032,8 +4050,26 @@ Slice::Gen::HelperVisitor::visitClassDefStart(const ClassDefPtr& p)
             writeDocCommentAsync(out, op, InParam, contextDoc);
             out << nl << "public boolean" << nl << op->name() << "_async" << spar << paramsAMI << contextParam << epar;
             out << sb;
-            out << nl << "Ice.AsyncResult __r = begin_" << op->name() << spar << argsAMI << "__ctx" << "true"
-                << "__cb" << epar << ';';
+            if(op->returnsData())
+            {
+                out << nl << "Ice.AsyncResult __r;";
+                out << nl << "try";
+                out << sb;
+                out << nl << "__checkTwowayOnly(__" << op->name() << "_name);";
+                out << nl << "__r = begin_" << op->name() << spar << argsAMI << "__ctx" << "true"
+                    << "__cb" << epar << ';';
+                out << eb;
+                out << nl << "catch(Ice.TwowayOnlyException ex)";
+                out << sb;
+                out << nl << "__r = new IceInternal.OutgoingAsync(this, __" << op->name() << "_name, __cb);";
+                out << nl << "__r.__exceptionAsync(ex);";
+                out << eb;
+            }
+            else
+            {
+                out << nl << "Ice.AsyncResult __r = begin_" << op->name() << spar << argsAMI << "__ctx" << "true"
+                    << "__cb" << epar << ';';
+            }
             out << nl << "return __r.sentSynchronously();";
             out << eb;
         }

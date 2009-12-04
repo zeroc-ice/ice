@@ -2671,12 +2671,12 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
       << "const ::Ice::LocalObjectPtr& __cookie" << epar;
     C << sb;
     string flatName = p->flattenedScope() + name + "_name";
-    C << nl << "::IceInternal::OutgoingAsyncPtr __result = new ::IceInternal::OutgoingAsync(this, ";
-    C << flatName << ", __del, __cookie);";
     if(p->returnsData())
     {
 	C << nl << "__checkAsyncTwowayOnly(" << flatName <<  ");";
     }
+    C << nl << "::IceInternal::OutgoingAsyncPtr __result = new ::IceInternal::OutgoingAsync(this, ";
+    C << flatName << ", __del, __cookie);";
     C << nl << "try";
     C << sb;
     C << nl << "__result->__prepare(" << flatName << ", " << operationModeToString(p->sendMode()) << ", __ctx);";
@@ -2860,7 +2860,25 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
               << opScopedAMI << "::__exception);";
             C << eb;
         }
-        C << nl << "::Ice::AsyncResultPtr __ar = begin_" << name << spar << argsAMI << "0, __del" << epar << ';';
+
+        if(p->returnsData())
+        {
+            C << nl << "::Ice::AsyncResultPtr __ar;";
+            C << nl << "try";
+            C << sb;
+            C << nl << "__checkTwowayOnly(" << flatName <<  ");"; 
+            C << nl << "__ar = begin_" << name << spar << argsAMI << "0, __del" << epar << ';';
+            C << eb;
+            C << nl << "catch(const ::Ice::TwowayOnlyException& ex)";
+            C << sb;
+            C << nl << "__ar = new ::IceInternal::OutgoingAsync(this, " << flatName << ", __del, 0);";
+            C << nl << "__ar->__exceptionAsync(ex);";
+            C << eb;
+        }
+        else
+        {
+            C << nl << "::Ice::AsyncResultPtr __ar = begin_" << name << spar << argsAMI << "0, __del" << epar << ';';
+        }
         C << nl << "return __ar->sentSynchronously();";
         C << eb;
 
@@ -2896,8 +2914,26 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
               << opScopedAMI << "::__exception);";
             C << eb;
         }
-        C << nl << "::Ice::AsyncResultPtr __ar = begin_" << name << spar << argsAMI << "&__ctx" << "__del" << epar
-          << ';';
+
+        if(p->returnsData())
+        {
+            C << nl << "::Ice::AsyncResultPtr __ar;";
+            C << nl << "try";
+            C << sb;
+            C << nl << "__checkTwowayOnly(" << flatName <<  ");"; 
+            C << nl << "__ar = begin_" << name << spar << argsAMI << "&__ctx" << "__del" << epar << ';';
+            C << eb;
+            C << nl << "catch(const ::Ice::TwowayOnlyException& ex)";
+            C << sb;
+            C << nl << "__ar = new ::IceInternal::OutgoingAsync(this, " << flatName << ", __del, 0);";
+            C << nl << "__ar->__exceptionAsync(ex);";
+            C << eb;
+        }
+        else
+        {
+            C << nl << "::Ice::AsyncResultPtr __ar = begin_" << name << spar << argsAMI << "&__ctx" << "__del" << epar
+              << ';';
+        }
         C << nl << "return __ar->sentSynchronously();";
         C << eb;
     }

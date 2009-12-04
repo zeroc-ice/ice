@@ -4239,6 +4239,7 @@ Slice::Gen::HelperVisitor::visitClassDefStart(const ClassDefPtr& p)
         _out << sb;
         if(op->returnsData())
         {
+            _out << nl << "checkAsyncTwowayOnly__(" << flatName << ");";
             _out << nl << "IceInternal.TwowayOutgoingAsync<" << delType << "> result__ = " 
                  << " new IceInternal.TwowayOutgoingAsync<" << delType << ">(this, " << flatName << ", " << op->name() 
                  << "_completed__";
@@ -4254,10 +4255,6 @@ Slice::Gen::HelperVisitor::visitClassDefStart(const ClassDefPtr& p)
         _out << sb;
         _out << nl << "result__.whenCompletedWithAsyncCallback(cb__);";
         _out << eb;
-        if(op->returnsData())
-        {
-            _out << nl << "checkAsyncTwowayOnly__(" << flatName << ");";
-        }
         _out << nl << "try";
         _out << sb;
         _out << nl << "result__.prepare__(" << flatName << ", "
@@ -4346,16 +4343,10 @@ Slice::Gen::HelperVisitor::visitClassDefStart(const ClassDefPtr& p)
             _out << eb;
             _out << eb;
         }
-    }
 
-    //
-    // Old AMI mapping.
-    //
-    for(r = ops.begin(); r != ops.end(); ++r)
-    {
-        OperationPtr op = *r;
-
-        ClassDefPtr containingClass = ClassDefPtr::dynamicCast(op->container());
+        //
+        // Old AMI mapping.
+        //
         if(containingClass->hasMetaData("ami") || op->hasMetaData("ami"))
         {
             vector<string> paramsAMI = getParamsAsync(op, false);
@@ -4363,6 +4354,7 @@ Slice::Gen::HelperVisitor::visitClassDefStart(const ClassDefPtr& p)
             vector<string> argsNewAMI = getArgsAsync(op, true);
 
             string opName = op->name();
+            string flatName = "__" + opName + "_name";
 
             //
             // Write two versions of the operation - with and without a
@@ -4372,13 +4364,32 @@ Slice::Gen::HelperVisitor::visitClassDefStart(const ClassDefPtr& p)
             writeDocCommentAsync(op, InParam);
             _out << nl << "public bool " << opName << "_async" << spar << paramsAMI << epar;
             _out << sb;
-            _out << nl << "Ice.AsyncResult result__ = begin_" << opName << spar << argsNewAMI << epar;
-            _out << ".whenCompleted(cb__.response__, cb__.exception__);";
+            if(op->returnsData())
+            {
+                _out << nl << "Ice.AsyncResult<" << delType << "> result__;";
+                _out << nl << "try";
+                _out << sb;
+                _out << nl << "checkTwowayOnly__(" << flatName << ");";
+                _out << nl << "result__ = begin_" << opName << spar << argsNewAMI << epar << ";";
+                _out << eb;
+                _out << nl << "catch(Ice.TwowayOnlyException ex)";
+                _out << sb;
+                _out << nl << "result__ = new IceInternal.TwowayOutgoingAsync<" << delType << ">(this, " 
+                     << flatName << ", " << op->name() << "_completed__, null);";
+                _out << nl << "((IceInternal.OutgoingAsyncBase)result__).exceptionAsync__(ex);";
+                _out << eb;
+            }
+            else
+            {
+                _out << nl << "Ice.AsyncResult<" << delType << "> result__ = begin_" << opName << spar << argsNewAMI 
+                     << epar << ";";
+            }
+            _out << nl << "result__.whenCompleted(cb__.response__, cb__.exception__);";
             _out << nl << "if(cb__ is Ice.AMISentCallback)";
             _out << sb;
             _out << nl << "result__.whenSent((Ice.AsyncCallback)cb__.sent__);";
             _out << eb;
-            _out << "return result__.sentSynchronously();";
+            _out << nl << "return result__.sentSynchronously();";
             _out << eb;
 
             _out << sp;
@@ -4387,13 +4398,32 @@ Slice::Gen::HelperVisitor::visitClassDefStart(const ClassDefPtr& p)
             _out << nl << "public bool " << opName << "_async" << spar << paramsAMI
                  << "_System.Collections.Generic.Dictionary<string, string> ctx__" << epar;
             _out << sb;
-            _out << nl << "Ice.AsyncResult result__ = begin_" << opName << spar << argsNewAMI << "ctx__" << epar;
-            _out << ".whenCompleted(cb__.response__, cb__.exception__);";
+            if(op->returnsData())
+            {
+                _out << nl << "Ice.AsyncResult<" << delType << "> result__;";
+                _out << nl << "try";
+                _out << sb;
+                _out << nl << "checkTwowayOnly__(" << flatName << ");";
+                _out << nl << "result__ = begin_" << opName << spar << argsNewAMI << "ctx__" << epar << ";";
+                _out << eb;
+                _out << nl << "catch(Ice.TwowayOnlyException ex)";
+                _out << sb;
+                _out << nl << "result__ = new IceInternal.TwowayOutgoingAsync<" << delType << ">(this, " 
+                     << flatName << ", " << op->name() << "_completed__, null);";
+                _out << nl << "((IceInternal.OutgoingAsyncBase)result__).exceptionAsync__(ex);";
+                _out << eb;
+            }
+            else
+            {
+                _out << nl << "Ice.AsyncResult<" << delType << "> result__ = begin_" << opName << spar << argsNewAMI
+                     << "ctx__" << epar << ";";
+            }
+            _out << nl << "result__.whenCompleted(cb__.response__, cb__.exception__);";
             _out << nl << "if(cb__ is Ice.AMISentCallback)";
             _out << sb;
             _out << nl << "result__.whenSent((Ice.AsyncCallback)cb__.sent__);";
             _out << eb;
-            _out << "return result__.sentSynchronously();";
+            _out << nl << "return result__.sentSynchronously();";
             _out << eb;
         }
     }

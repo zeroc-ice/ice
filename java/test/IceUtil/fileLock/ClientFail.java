@@ -70,7 +70,7 @@ public class ClientFail
                     test(false);
                 }
 
-                if(pid.isEmpty())
+                if(pid.length() == 0)
                 {
                     test(false);
                 }

@@ -70,22 +70,6 @@ public class OnewaysNewAMI
         {
             test(false);
         }
-        
-        public void twowayOnlyException(Ice.Exception ex)
-        {
-            try
-            {
-                throw ex;
-            }
-            catch(Ice.TwowayOnlyException)
-            {
-                called();
-            }
-            catch(Ice.Exception)
-            {
-                test(false);
-            }
-        }
     }
 
     internal static void onewaysNewAMI(Ice.Communicator communicator, Test.MyClassPrx proxy)
@@ -99,21 +83,36 @@ public class OnewaysNewAMI
         }
 
         {
-            Callback cb = new Callback();
-            p.begin_ice_isA("::Test::MyClass").whenCompleted((Ice.ExceptionCallback)cb.twowayOnlyException);
-            cb.check();
+            try
+            {
+                p.begin_ice_isA("::Test::MyClass");
+                test(false);
+            }
+            catch(System.ArgumentException)
+            {
+            }
         }
     
         {
-            Callback cb = new Callback();
-            p.begin_ice_id().whenCompleted((Ice.ExceptionCallback)cb.twowayOnlyException);
-            cb.check();
+            try
+            {
+                p.begin_ice_id();
+                test(false);
+            }
+            catch(System.ArgumentException)
+            {
+            }
         }
     
         {
-            Callback cb = new Callback();
-            p.begin_ice_ids().whenCompleted((Ice.ExceptionCallback)cb.twowayOnlyException);
-            cb.check();
+            try
+            {
+                p.begin_ice_ids();
+                test(false);
+            }
+            catch(System.ArgumentException)
+            {
+            }
         }
 
         {
@@ -124,13 +123,15 @@ public class OnewaysNewAMI
             }
         }
 
-        //
-        // Test that calling a twoway operation with a oneway proxy raises TwowayOnlyException.
-        //
         {
-            Callback cb = new Callback();
-            p.begin_opByte((byte)0xff, (byte)0x0f).whenCompleted(cb.twowayOnlyException);
-            cb.check();
+            try
+            {
+                p.begin_opByte((byte)0xff, (byte)0x0f);
+                test(false);
+            }
+            catch(System.ArgumentException)
+            {
+            }
         }
     }
 }

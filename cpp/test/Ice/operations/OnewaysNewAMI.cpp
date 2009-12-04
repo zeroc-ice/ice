@@ -78,22 +78,6 @@ public:
     {
         test(false);
     }
-
-    void twowayOnlyException(const Ice::Exception& ex)
-    {
-        try
-        {
-            ex.ice_throw();
-        }
-        catch(const Ice::TwowayOnlyException&)
-        {
-            called();
-        }
-        catch(const Ice::Exception&)
-        {
-            test(false);
-        }
-    }
 };
 typedef IceUtil::Handle<Callback> CallbackPtr;
 
@@ -113,24 +97,36 @@ onewaysNewAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrx& 
     }
 
     {
-	CallbackPtr cb = new Callback;
-        Ice::Callback_Object_ice_isAPtr callback = Ice::newCallback_Object_ice_isA(cb, &Callback::twowayOnlyException);
-        p->begin_ice_isA(Test::MyClass::ice_staticId(), callback);
-        cb->check();
+        try
+        {
+            p->begin_ice_isA(Test::MyClass::ice_staticId());
+            test(false);
+        }
+        catch(const IceUtil::IllegalArgumentException&)
+        {
+        }
     }
     
     {
-	CallbackPtr cb = new Callback;
-        Ice::Callback_Object_ice_idPtr callback = Ice::newCallback_Object_ice_id(cb, &Callback::twowayOnlyException);
-        p->begin_ice_id(callback);
-        cb->check();
+        try
+        {
+            p->begin_ice_id();
+            test(false);
+        }
+        catch(const IceUtil::IllegalArgumentException&)
+        {
+        }
     }
     
     {
-	CallbackPtr cb = new Callback;
-        Ice::Callback_Object_ice_idsPtr callback = Ice::newCallback_Object_ice_ids(cb, &Callback::twowayOnlyException);
-        p->begin_ice_ids(callback);
-        cb->check();
+        try
+        {
+            p->begin_ice_ids();
+            test(false);
+        }
+        catch(const IceUtil::IllegalArgumentException&)
+        {
+        }
     }
 
     {
@@ -143,14 +139,14 @@ onewaysNewAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrx& 
         }
     }
 
-    //
-    // Test that calling a twoway operation with a oneway proxy raises TwowayOnlyException.
-    //
     {
-        CallbackPtr cb = new Callback;
-        Test::Callback_MyClass_opBytePtr callback =
-            Test::newCallback_MyClass_opByte(cb, &Callback::opByte, &Callback::twowayOnlyException);
-        p->begin_opByte(Ice::Byte(0xff), Ice::Byte(0x0f), callback);
-        cb->check();
+        try
+        {
+            p->begin_opByte(Ice::Byte(0xff), Ice::Byte(0x0f));
+            test(false);
+        }
+        catch(const IceUtil::IllegalArgumentException&)
+        {
+        }
     }
 }

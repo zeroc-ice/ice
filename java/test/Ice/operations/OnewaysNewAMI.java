@@ -75,23 +75,7 @@ class OnewaysNewAMI
         void noException(Ice.LocalException ex)
         {
             test(false);
-        }
-        
-        void twowayOnlyException(Ice.LocalException ex)
-        {
-            try
-            {
-                throw ex;
-            }
-            catch(Ice.TwowayOnlyException e)
-            {
-                called();
-            }
-            catch(Ice.LocalException e)
-            {
-                test(false);
-            }
-        }
+        }        
     };
 
     static void
@@ -127,63 +111,36 @@ class OnewaysNewAMI
         }
 
         {
-            final Callback cb = new Callback();
-            Ice.Callback_Object_ice_isA callback = new Ice.Callback_Object_ice_isA()
-                {
-                    public void
-                    response(boolean isA)
-                    {
-                        test(false);
-                    }
-
-                    public void 
-                    exception(Ice.LocalException ex)
-                    {
-                        cb.twowayOnlyException(ex);
-                    }
-                };
-            p.begin_ice_isA("::Test::MyClass", callback);
-            cb.check();
+            try
+            {
+                p.begin_ice_isA("::Test::MyClass");
+                test(false);
+            }
+            catch(java.lang.IllegalArgumentException ex)
+            {
+            }
         }
-    
-        {
-            final Callback cb = new Callback();
-            Ice.Callback_Object_ice_id callback = new Ice.Callback_Object_ice_id()
-                {
-                    public void
-                    response(String id)
-                    {
-                        test(false);
-                    }
 
-                    public void 
-                    exception(Ice.LocalException ex)
-                    {
-                        cb.twowayOnlyException(ex);
-                    }
-                };
-            p.begin_ice_id(callback);
-            cb.check();
+        {
+            try
+            {
+                p.begin_ice_id();
+                test(false);
+            }
+            catch(java.lang.IllegalArgumentException ex)
+            {
+            }
         }
-    
-        {
-            final Callback cb = new Callback();
-            Ice.Callback_Object_ice_ids callback = new Ice.Callback_Object_ice_ids()
-                {
-                    public void
-                    response(String[] ids)
-                    {
-                        test(false);
-                    }
 
-                    public void 
-                    exception(Ice.LocalException ex)
-                    {
-                        cb.twowayOnlyException(ex);
-                    }
-                };
-            p.begin_ice_ids(callback);
-            cb.check();
+        {
+            try
+            {
+                p.begin_ice_ids();
+                test(false);
+            }
+            catch(java.lang.IllegalArgumentException ex)
+            {
+            }
         }
 
         {
@@ -212,27 +169,15 @@ class OnewaysNewAMI
             cb.check();
         }
 
-        //
-        // Test that calling a twoway operation with a oneway proxy raises TwowayOnlyException.
-        //
         {
-            final Callback cb = new Callback();
-            Callback_MyClass_opByte callback = new Callback_MyClass_opByte()
-                {
-                    public void
-                    response(byte r, byte o)
-                    {
-                        test(false);
-                    }
-
-                    public void 
-                    exception(Ice.LocalException ex)
-                    {
-                        cb.twowayOnlyException(ex);
-                    }
-                };
-            p.begin_opByte((byte)0xff, (byte)0x0f, callback);
-            cb.check();
+            try
+            {
+                p.begin_opByte((byte)0xff, (byte)0x0f);
+                test(false);
+            }
+            catch(java.lang.IllegalArgumentException ex)
+            {
+            }
         }
     }
 }
