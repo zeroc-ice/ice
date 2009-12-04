@@ -482,6 +482,14 @@ Freeze::SharedDbEnv::SharedDbEnv(const std::string& envName,
     }
 #endif
 
+    string propertyPrefix = string("Freeze.DbEnv.") + envName;
+    string dbHome = properties->getPropertyWithDefault(propertyPrefix + ".DbHome", envName);
+    
+    //
+    // File lock to prevent multiple process open the same db env.
+    //
+    _fileLock = new ::IceUtilInternal::FileLock(dbHome + "/Freeze.lock");
+
     _trace = properties->getPropertyAsInt("Freeze.Trace.DbEnv");
 
     try
@@ -497,11 +505,8 @@ Freeze::SharedDbEnv::SharedDbEnv(const std::string& envName,
                 out << "opening database environment \"" << envName << "\"";
             }
             
-            string propertyPrefix = string("Freeze.DbEnv.") + envName;
-            
-         
             _env->set_errpfx(reinterpret_cast<char*>(this));
-                
+            
             _env->set_errcall(dbErrCallback);
                 
 #ifdef _WIN32
@@ -552,9 +557,6 @@ Freeze::SharedDbEnv::SharedDbEnv(const std::string& envName,
             // Threading
             // 
             flags |= DB_THREAD;
-            
-            string dbHome = properties->getPropertyWithDefault(
-                propertyPrefix + ".DbHome", envName);
 
             _env->open(Ice::nativeToUTF8(_communicator, dbHome).c_str(), flags, FREEZE_DB_MODE);
        

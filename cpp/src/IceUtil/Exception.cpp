@@ -401,3 +401,52 @@ IceUtil::SyscallException::error() const
 {
     return _error;
 }
+
+
+IceUtil::FileLockException::FileLockException(const char* file, int line, int err, const string& path): 
+    Exception(file, line),
+    _error(err),
+    _path(path)
+{
+}
+
+IceUtil::FileLockException::~FileLockException() throw()
+{
+}
+
+const char* IceUtil::FileLockException::_name = "IceUtil::FileLockedException";
+
+string
+IceUtil::FileLockException::ice_name() const
+{
+    return _name;
+}
+
+void
+IceUtil::FileLockException::ice_print(ostream& os) const
+{
+    Exception::ice_print(os);
+    os << ":\ncould not lock file: `" << _path << "'"; 
+    if(_error != 0)
+    {
+        os << "\nsyscall exception: " << IceUtilInternal::errorToString(_error);
+    }
+}
+
+IceUtil::Exception*
+IceUtil::FileLockException::ice_clone() const
+{
+    return new FileLockException(*this);
+}
+
+void
+IceUtil::FileLockException::ice_throw() const
+{
+    throw *this;
+}
+
+int
+IceUtil::FileLockException::error() const
+{
+    return _error;
+}

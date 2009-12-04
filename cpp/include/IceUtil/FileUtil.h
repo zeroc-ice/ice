@@ -11,6 +11,9 @@
 #define ICE_FILE_UTIL_H
 
 #include <IceUtil/Config.h>
+#include <IceUtil/Shared.h>
+#include <IceUtil/Handle.h>
+
 #include <sys/stat.h>
 #include <fcntl.h>
 #include <stdio.h>
@@ -72,6 +75,40 @@ ICE_UTIL_API int getcwd(std::string&);
 ICE_UTIL_API int unlink(const std::string&);
 ICE_UTIL_API int close(int);
 
+//
+// This class is used to implement process file locking. This class
+// is not intended to do file locking within the same process.
+//
+class ICE_UTIL_API FileLock : public IceUtil::Shared, public IceUtil::noncopyable
+{
+public:
+    //
+    // The constructor opens the given file (eventually creating it)
+    // and acquires a lock on the file or throws FileLockException if
+    // the file couldn't be locked.
+    //
+    // If the lock can be acquired, the process pid is written to the
+    // file.
+    //
+    FileLock(const std::string&);
+    
+    //
+    // The destructor releases the lock and removes the file.
+    //
+    virtual ~FileLock();
+    
+private:
+    
+#ifdef _WIN32
+    HANDLE _fd;
+#else
+    int _fd;
+#endif
+    std::string _path;
+};
+
+typedef IceUtil::Handle<FileLock> FileLockPtr;
+
 class ICE_UTIL_API ifstream : public std::ifstream
 {
 public:
@@ -118,6 +155,5 @@ private:
 #endif
 };
 
-};
-
+}
 #endif

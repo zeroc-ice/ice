@@ -462,7 +462,7 @@
         <javac srcdir=".:${generated.test.dir}" destdir="${lib.dir}" source="1.5" debug="${debug}" deprecation="on"
                classpathref="freeze.classpath" fork="true" memoryinitialsize="256m" memorymaximumsize="256m">
             <exclude name="${generated.test.dir}/**"/>
-	    <include name="test/**"/>
+            <include name="test/**"/>
             <exclude name="test/Ice/translator/"/>
             <compilerarg value="${javac.lint}"/>
         </javac>

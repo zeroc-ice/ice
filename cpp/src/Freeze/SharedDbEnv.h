@@ -11,6 +11,7 @@
 #define FREEZE_SHARED_DB_ENV_H
 
 #include <Freeze/Map.h>
+#include <IceUtil/FileUtil.h>
 #include <Ice/Ice.h>
 #include <db_cxx.h>
 #include <map>
@@ -96,6 +97,7 @@ private:
 
     SharedDbMap _sharedDbMap;
     IceUtil::Mutex _mutex;
+    IceUtilInternal::FileLockPtr _fileLock;
 };
 
 inline DbEnv*

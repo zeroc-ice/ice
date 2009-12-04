@@ -271,6 +271,9 @@ public class SharedDbEnv implements com.sleepycat.db.ErrorHandler, Runnable
         Ice.Properties properties = key.communicator.getProperties();
         _trace = properties.getPropertyAsInt("Freeze.Trace.DbEnv");
 
+        String propertyPrefix = "Freeze.DbEnv." + _key.envName;
+        String dbHome = properties.getPropertyWithDefault(propertyPrefix + ".DbHome", _key.envName);
+        _fileLock = new IceUtilInternal.FileLock(dbHome + "/Freeze.lock");
         try
         {
             if(_ownDbEnv)
@@ -289,7 +292,6 @@ public class SharedDbEnv implements com.sleepycat.db.ErrorHandler, Runnable
                 //
                 config.setLockDetectMode(com.sleepycat.db.LockDetectMode.YOUNGEST);
 
-                String propertyPrefix = "Freeze.DbEnv." + _key.envName;
                 if(properties.getPropertyAsInt(propertyPrefix + ".DbRecoverFatal") != 0)
                 {
                     config.setRunFatalRecovery(true);
@@ -317,7 +319,6 @@ public class SharedDbEnv implements com.sleepycat.db.ErrorHandler, Runnable
 
                 try
                 {
-                    String dbHome = properties.getPropertyWithDefault(propertyPrefix + ".DbHome", _key.envName);
                     java.io.File home = new java.io.File(dbHome);
                     _dbEnv = new com.sleepycat.db.Environment(home, config);
                 }
@@ -465,6 +466,14 @@ public class SharedDbEnv implements com.sleepycat.db.ErrorHandler, Runnable
                 _dbEnv = null;
             }
         }
+
+        //
+        // Release the file lock
+        //
+        if(_fileLock != null)
+        {
+            _fileLock.release();
+        }
     }
 
     private static String
@@ -524,4 +533,6 @@ public class SharedDbEnv implements com.sleepycat.db.ErrorHandler, Runnable
     private java.util.Map<String, MapDb> _sharedDbMap = new java.util.HashMap<String, MapDb>();
 
     private static java.util.Map<MapKey, SharedDbEnv> _map = new java.util.HashMap<MapKey, SharedDbEnv>();
+
+    private IceUtilInternal.FileLock _fileLock;
 }

@@ -9,16 +9,20 @@
  **********************************************************************
 -->
 
-<project name="test_Ice" default="all" basedir=".">
+<project name="test_Freeze_fileLock" default="all" basedir=".">
 
-    <target name="all">
-        <ant dir="inputUtil"/>
-        <ant dir="fileLock"/>
-    </target>
+    <!-- set global properties for this build -->
+    <property name="top.dir" value="../../.."/>
+
+    <!-- import common definitions -->
+    <import file="${top.dir}/config/common.xml"/>
+
+    <target name="all"/>
 
     <target name="clean">
-        <ant dir="inputUtil" target="clean"/>
-        <ant dir="fileLock" target="clean"/>
+        <delete>
+            <fileset dir="db" includes="*"/>
+        </delete>
     </target>
 
 </project>

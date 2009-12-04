@@ -32,6 +32,7 @@ tests = [
     ("Slice/generation", ["once"]),
     ("Slice/keyword", ["once"]),
     ("IceUtil/inputUtil", ["once"]),
+    ("IceUtil/fileLock", ["once"]),
     ("Ice/proxy", ["core"]),
     ("Ice/operations", ["core"]),
     ("Ice/seqMapping", ["core"]),
@@ -68,9 +69,10 @@ tests = [
     ("Freeze/dbmap", ["once"]),
     ("Freeze/complex", ["once"]),
     ("Freeze/evictor", ["core"]),
+    ("Freeze/fileLock", ["once"]),
     ("Glacier2/router", ["service"]),
     ("IceGrid/simple", ["service"]),
-    ("IceSSL/configuration", ["once"]),
+    ("IceSSL/configuration", ["once"])
     ]
 
 if __name__ == "__main__":

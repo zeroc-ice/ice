@@ -10,7 +10,13 @@
 #include <IceUtil/DisableWarnings.h>
 #include <IceUtil/FileUtil.h>
 #include <IceUtil/Unicode.h>
+#include <IceUtil/Exception.h>
 #include <climits>
+#include <string.h>
+
+#ifdef _WIN32
+#  include <process.h>
+#endif
 
 #ifdef _WIN32
 #  include <io.h>
@@ -19,6 +25,7 @@
 #ifdef __BCPLUSPLUS__
 #  include <dir.h>
 #endif
+
 using namespace std;
 
 //
@@ -170,6 +177,37 @@ IceUtilInternal::close(int fd)
 #else
         return ::close(fd);
 #endif
+}
+
+IceUtilInternal::FileLock::FileLock(const std::string& path) :
+    _fd(INVALID_HANDLE_VALUE),
+    _path(path)
+{
+    _fd = ::CreateFileW(IceUtil::stringToWstring(path).c_str(), GENERIC_WRITE, 0, NULL,
+                        OPEN_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
+    _path = path;
+
+    if(_fd == INVALID_HANDLE_VALUE)
+    {
+        throw IceUtil::FileLockException(__FILE__, __LINE__, GetLastError(), _path);
+    }
+
+    if(::LockFile(_fd, 0, 0, 0, 0) == 0)
+    {
+        ::CloseHandle(_fd);
+        throw IceUtil::FileLockException(__FILE__, __LINE__, GetLastError(), _path);
+    }
+    //
+    // In Windows implementation we don't write the process pid to the file, as is 
+    // not posible to read the file from other process while it is locked here.
+    //
+}
+
+IceUtilInternal::FileLock::~FileLock()
+{
+    assert(_fd != INVALID_HANDLE_VALUE);
+    CloseHandle(_fd);
+    unlink(_path);
 }
 
 #ifdef _STLP_BEGIN_NAMESPACE
@@ -405,6 +443,60 @@ int
 IceUtilInternal::close(int fd)
 {
     return ::close(fd);
+}
+
+IceUtilInternal::FileLock::FileLock(const std::string& path) :
+    _fd(-1),
+    _path(path)
+{
+    _fd = ::open(path.c_str(), O_RDWR | O_CREAT, S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP);
+    if(_fd < 0)
+    {
+        throw IceUtil::FileLockException(__FILE__, __LINE__, errno, _path);
+    }
+
+    struct ::flock lock;
+    lock.l_type = F_WRLCK; // Write lock
+    lock.l_whence = SEEK_SET; // Begining of file
+    lock.l_start = 0;
+    lock.l_len = 0;
+    
+    //
+    // F_SETLK tells fcntl to not block if it cannot 
+    // acquire the lock, if the lock cannot be acquired 
+    // it returns -1 without wait.
+    //
+    if(::fcntl(_fd, F_SETLK, &lock) == -1)
+    {
+        IceUtil::FileLockException ex(__FILE__, __LINE__, errno, _path);
+        close(_fd);
+        throw ex;
+    }
+
+    //
+    // If there is an error after here, we close the fd,
+    // to release the lock.
+    //
+    
+    //
+    // Now that we have acquire an excluxive write lock,
+    // write the process pid there.
+    //
+    ostringstream os;
+    os << getpid();
+    
+    if(write(_fd, os.str().c_str(), os.str().size()) == -1)
+    {
+        IceUtil::FileLockException ex(__FILE__, __LINE__, errno, _path);
+        close(_fd);
+        throw ex;
+    }
+}
+
+IceUtilInternal::FileLock::~FileLock()
+{
+    assert(_fd > -1);
+    unlink(_path);
 }
 
 IceUtilInternal::ifstream::ifstream()

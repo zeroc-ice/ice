@@ -13,7 +13,8 @@ top_srcdir	= ..\..
 
 SUBDIRS		= dbmap \
 		  complex \
-		  evictor
+		  evictor \
+		  fileLock
 
 $(EVERYTHING)::
 	@for %i in ( $(SUBDIRS) ) do \
