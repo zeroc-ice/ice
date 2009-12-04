@@ -1001,26 +1001,42 @@ namespace Ice.VisualStudio
                     }
                 }
             }
-            else
+            else if(Util.isCppProject(project))
             {
-                if(!File.Exists(fullPath + "\\bin\\slice2cpp.exe") || !File.Exists(fullPath + "\\bin\\slice2cs.exe") ||
-                   !Directory.Exists(fullPath + "\\slice\\Ice"))
+                if(!Directory.Exists(fullPath + "\\slice\\Ice") || 
+                   (!File.Exists(fullPath + "\\bin\\slice2cpp.exe") && 
+                    !File.Exists(fullPath + "\\bin\\x64\\slice2cpp.exe") &&  
+                    !File.Exists(fullPath + "\\cpp\\bin\\slice2cpp.exe")))
                 {
-                    if(!File.Exists(fullPath + "\\cpp\\bin\\slice2cpp.exe") || 
-                       !File.Exists(fullPath + "\\cpp\\bin\\slice2cs.exe") ||
-                       !Directory.Exists(fullPath + "\\slice\\Ice"))
-                    {
-                        System.Windows.Forms.MessageBox.Show("Could not locate Ice installation in '"
+                    System.Windows.Forms.MessageBox.Show("Could not locate Ice installation in '"
                                                          + expanded + "' directory.\n",
                                                          "Ice Visual Studio Extension", MessageBoxButtons.OK,
                                                          MessageBoxIcon.Error);
 
-                        return;
-                    }
+                    return;
+                }
+            }
+            else if(Util.isCSharpProject(project))
+            {
+                if(!Directory.Exists(fullPath + "\\slice\\Ice") || 
+                   (!File.Exists(fullPath + "\\bin\\slice2cs.exe") && 
+                    !File.Exists(fullPath + "\\bin\\x64\\slice2cs.exe") &&  
+                    !File.Exists(fullPath + "\\cpp\\bin\\slice2cs.exe")))
+                {
+                    System.Windows.Forms.MessageBox.Show("Could not locate Ice installation in '"
+                                                         + expanded + "' directory.\n",
+                                                         "Ice Visual Studio Extension", MessageBoxButtons.OK,
+                                                         MessageBoxIcon.Error);
+
+                    return;
                 }
             }
 
-            if(!value.Equals(defaultIceHome))
+            if(value.Equals(defaultIceHome))
+            {
+                setProjectProperty(project, Util.PropertyNames.IceHome, "");
+            }
+            else
             {
                 setProjectProperty(project, Util.PropertyNames.IceHome, value);
             }
