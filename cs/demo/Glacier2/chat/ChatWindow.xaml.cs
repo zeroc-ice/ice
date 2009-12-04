@@ -172,9 +172,10 @@ namespace Glacier2.chat.client
                 if(message.Length > 0)
                 {
                     _chat.begin_say(message).whenCompleted(delegate(Ice.Exception ex)
-                                                           {
-                                                               appendMessage("<system-message> - " + ex.ToString() + Environment.NewLine);
-                                                           });
+                                             {
+                                                 appendMessage("<system-message> - " + ex.ToString() + 
+                                                               Environment.NewLine);
+                                             });
                 }
                 input.Text = "";
             }
