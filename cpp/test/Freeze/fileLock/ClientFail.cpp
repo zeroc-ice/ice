@@ -15,17 +15,8 @@ using namespace std;
 using namespace Ice;
 using namespace Freeze;
 
-//COMPILERFIX: Borland C++ 2010 doesn't support wmain for console applications.
-#if defined(_WIN32) && !defined(__BCPLUSPLUS__)
-int
-wmain(int argc, wchar_t* argv[])
-
-#else
-
 int
 main(int argc, char* argv[])
-
-#endif
 {
     int status = EXIT_SUCCESS;
     Ice::CommunicatorPtr communicator;
@@ -35,11 +26,7 @@ main(int argc, char* argv[])
     communicator = Ice::initialize(argc, argv);
     if(argc != 1)
     {
-#if defined(_WIN32) && !defined(__BCPLUSPLUS__)
-        envName = IceUtil::wstringToString(argv[1]);
-#else
         envName = argv[1];
-#endif
         envName += "/db";
     }
     
