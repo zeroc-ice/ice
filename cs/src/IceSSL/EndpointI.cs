@@ -9,10 +9,12 @@
 
 namespace IceSSL
 {
+    using System;
     using System.Diagnostics;
     using System.Collections.Generic;
     using System.Net;
-
+    using System.Globalization;
+	
     sealed class EndpointI : IceInternal.EndpointI
     {
         internal EndpointI(Instance instance, string ho, int po, int ti, string conId, bool co)
@@ -90,7 +92,7 @@ namespace IceSSL
 
                         try
                         {
-                            _port = System.Int32.Parse(argument);
+                            _port = System.Int32.Parse(argument, CultureInfo.InvariantCulture);
                         }
                         catch(System.FormatException ex)
                         {
@@ -120,7 +122,7 @@ namespace IceSSL
 
                         try
                         {
-                            _timeout = System.Int32.Parse(argument);
+                            _timeout = System.Int32.Parse(argument, CultureInfo.InvariantCulture);
                         }
                         catch(System.FormatException ex)
                         {
@@ -515,7 +517,7 @@ namespace IceSSL
 
             if(!_connectionId.Equals(p._connectionId))
             {
-                return _connectionId.CompareTo(p._connectionId);
+                return string.Compare(_connectionId, p._connectionId, StringComparison.Ordinal);
             }
 
             if(!_compress && p._compress)
@@ -527,7 +529,7 @@ namespace IceSSL
                 return 1;
             }
 
-            return _host.CompareTo(p._host);
+            return string.Compare(_host, p._host, StringComparison.Ordinal);
         }
 
         private void calcHashValue()

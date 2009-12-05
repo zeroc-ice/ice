@@ -8,7 +8,8 @@
 // **********************************************************************
 
 using System.Diagnostics;
-
+using System.Globalization;
+    
 namespace IceInternal
 {
     public class Ex
@@ -76,7 +77,7 @@ namespace Ice
             // without string parsing (perhaps tokenize on "\n"), it
             // doesn't appear to be possible to reformat it.
             //
-            System.IO.StringWriter sw = new System.IO.StringWriter();
+            System.IO.StringWriter sw = new System.IO.StringWriter(CultureInfo.CurrentCulture);
             IceUtilInternal.OutputBase op = new IceUtilInternal.OutputBase(sw);
             op.setUseTab(false);
             op.print(GetType().FullName);

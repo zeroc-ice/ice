@@ -9,6 +9,7 @@
 
 using System.Collections;
 using System.Diagnostics;
+using System.Globalization;
 
 namespace IceUtilInternal
 {
@@ -316,11 +317,11 @@ namespace IceUtilInternal
                                     case 'c':
                                     {
                                         c = l[++i]; 
-                                        if((char.ToUpper(c) >= 'A' && char.ToUpper(c) <= 'Z') || 
+                                        if((char.ToUpper(c, CultureInfo.InvariantCulture) >= 'A' && char.ToUpper(c, CultureInfo.InvariantCulture) <= 'Z') || 
                                            c == '@' || 
                                            (c >= '[' && c <= '_'))
                                         {
-                                            arg += (char)(char.ToUpper(c) - '@');
+                                            arg += (char)(char.ToUpper(c, CultureInfo.InvariantCulture) - '@');
                                         }
                                         else
                                         {

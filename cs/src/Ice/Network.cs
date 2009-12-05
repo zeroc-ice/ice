@@ -19,6 +19,7 @@ namespace IceInternal
     using System.Net.Sockets;
     using System.Runtime.InteropServices;
     using System.Threading;
+    using System.Globalization;
 
     public sealed class Network
     {
@@ -252,7 +253,7 @@ namespace IceInternal
             // TODO: Instead of testing for an English substring, we need to examine the inner
             // exception (if there is one).
             //
-            return ex.Message.IndexOf("period of time") >= 0;
+            return ex.Message.IndexOf("period of time", StringComparison.Ordinal) >= 0;
         }
 
         public static bool noMoreFds(System.Exception ex)
@@ -269,14 +270,14 @@ namespace IceInternal
 
         public static bool isMulticast(IPEndPoint addr)
         {
-            string ip = addr.Address.ToString().ToLower();
+            string ip = addr.Address.ToString().ToUpperInvariant();
             if(addr.AddressFamily == AddressFamily.InterNetwork)
             {
                 char[] splitChars = { '.' };
                 string[] arr = ip.Split(splitChars);
                 try
                 {
-                    int i = System.Int32.Parse(arr[0]);
+                    int i = System.Int32.Parse(arr[0], CultureInfo.InvariantCulture);
                     if(i >= 223 && i <= 239)
                     {
                         return true;
@@ -289,7 +290,7 @@ namespace IceInternal
             }
             else // AddressFamily.InterNetworkV6
             {
-                if(ip.StartsWith("ff"))
+                if(ip.StartsWith("FF", StringComparison.Ordinal))
                 {
                     return true;
                 }
@@ -501,7 +502,7 @@ namespace IceInternal
                         {
                             try
                             {
-                                ifaceIndex = System.Int32.Parse(iface);
+                                ifaceIndex = System.Int32.Parse(iface, CultureInfo.InvariantCulture);
                             }
                             catch(System.FormatException ex)
                             {

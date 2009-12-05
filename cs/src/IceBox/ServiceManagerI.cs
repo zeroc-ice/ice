@@ -955,7 +955,7 @@ class ServiceManagerI : ServiceManagerDisp_
                 }
                 for(int j = 0; j < serverArgs.Length; j++)
                 {
-                    if(serverArgs[j].StartsWith("--" + service + "."))
+                    if(serverArgs[j].StartsWith("--" + service + ".", StringComparison.Ordinal))
                     {
                         l.Add(serverArgs[j]);
                     }

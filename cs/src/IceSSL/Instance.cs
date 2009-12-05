@@ -18,7 +18,8 @@ namespace IceSSL
     using System.Security.Cryptography;
     using System.Security.Cryptography.X509Certificates;
     using System.Text;
-
+    using System.Globalization;
+	
     internal class Instance
     {
         internal Instance(Ice.Communicator communicator)
@@ -443,7 +444,7 @@ namespace IceSSL
                                 {
                                     dnsNames = new List<string>();
                                 }
-                                dnsNames.Add(b.ToString().ToLower());
+                                dnsNames.Add(b.ToString().ToUpperInvariant());
                             }
                             else if(tag == 0x87)
                             {
@@ -458,13 +459,13 @@ namespace IceSSL
                                     {
                                         b.Append(sep);
                                     }
-                                    b.Append(data[j].ToString());
+                                    b.Append(data[j].ToString(CultureInfo.InvariantCulture));
                                 }
                                 if(ipAddresses == null)
                                 {
                                     ipAddresses = new List<string>();
                                 }
-                                ipAddresses.Add(b.ToString().ToLower());
+                                ipAddresses.Add(b.ToString().ToUpperInvariant());
                             }
 
                             pos += len;
@@ -477,11 +478,11 @@ namespace IceSSL
                 // the dnsName and ipAddress values in the subject alternative name.
                 //
                 string dn = info.nativeCerts[0].Subject;
-                string addrLower = address.ToLower();
+                string addrLower = address.ToUpperInvariant();
                 bool certNameOK = false;
                 {
-                    string cn = "cn=" + addrLower;
-                    int pos = dn.ToLower().IndexOf(cn);
+                    string cn = "CN=" + addrLower;
+                    int pos = dn.ToLower(CultureInfo.InvariantCulture).IndexOf(cn, StringComparison.Ordinal);
                     if(pos >= 0)
                     {
                         //
@@ -620,12 +621,12 @@ namespace IceSSL
                 throw e;
             }
 
-            string sloc = store.Substring(0, pos).ToLower();
-            if(sloc.Equals("currentuser"))
+            string sloc = store.Substring(0, pos).ToUpperInvariant();
+            if(sloc.Equals("CURRENTUSER"))
             {
                 loc = StoreLocation.CurrentUser;
             }
-            else if(sloc.Equals("localmachine"))
+            else if(sloc.Equals("LOCALMACHINE"))
             {
                 loc = StoreLocation.LocalMachine;
             }
@@ -856,12 +857,12 @@ namespace IceSSL
                 result = 0;
                 for(int i = 0; i < arr.Length; ++i)
                 {
-                    string s = arr[i].ToLower();
-                    if(s.Equals("ssl3") || s.Equals("sslv3"))
+                    string s = arr[i].ToUpperInvariant();
+                    if(s.Equals("SSL3") || s.Equals("SSLV3"))
                     {
                         result |= SslProtocols.Ssl3;
                     }
-                    else if(s.Equals("tls") || s.Equals("tls1") || s.Equals("tlsv1"))
+                    else if(s.Equals("TLS") || s.Equals("TLS1") || s.Equals("TLSV1"))
                     {
                         result |= SslProtocols.Tls;
                     }
@@ -935,33 +936,33 @@ namespace IceSSL
                         //
                         // Parse the X509FindType.
                         //
-                        string field = value.Substring(start, pos - start).Trim().ToLower();
+                        string field = value.Substring(start, pos - start).Trim().ToUpperInvariant();
                         X509FindType findType;
-                        if(field.Equals("subject"))
+                        if(field.Equals("SUBJECT"))
                         {
                             findType = X509FindType.FindBySubjectName;
                         }
-                        else if(field.Equals("subjectdn"))
+                        else if(field.Equals("SUBJECTDN"))
                         {
                             findType = X509FindType.FindBySubjectDistinguishedName;
                         }
-                        else if(field.Equals("issuer"))
+                        else if(field.Equals("ISSUER"))
                         {
                             findType = X509FindType.FindByIssuerName;
                         }
-                        else if(field.Equals("issuerdn"))
+                        else if(field.Equals("ISSUERDN"))
                         {
                             findType = X509FindType.FindByIssuerDistinguishedName;
                         }
-                        else if(field.Equals("thumbprint"))
+                        else if(field.Equals("THUMBPRINT"))
                         {
                             findType = X509FindType.FindByThumbprint;
                         }
-                        else if(field.Equals("subjectkeyid"))
+                        else if(field.Equals("SUBJECTKEYID"))
                         {
                             findType = X509FindType.FindBySubjectKeyIdentifier;
                         }
-                        else if(field.Equals("serial"))
+                        else if(field.Equals("SERIAL"))
                         {
                             findType = X509FindType.FindBySerialNumber;
                         }

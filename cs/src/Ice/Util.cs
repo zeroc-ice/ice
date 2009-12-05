@@ -293,7 +293,7 @@ namespace Ice
         [Obsolete("This method is deprecated. Use System.Guid instead.")]
         public static string generateUUID()
         {
-            return Guid.NewGuid().ToString().ToUpper();
+            return Guid.NewGuid().ToString().ToUpper(System.Globalization.CultureInfo.InvariantCulture);
         }
 
         /// <summary>
@@ -489,7 +489,7 @@ namespace IceInternal
             {
                 return ThreadPriority.Normal;
             }
-            if(s.StartsWith("ThreadPriority."))
+            if(s.StartsWith("ThreadPriority.", StringComparison.Ordinal))
             {
                 s = s.Substring("ThreadPriority.".Length, s.Length);
             }

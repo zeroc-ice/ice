@@ -9,6 +9,7 @@
 
 using System.Diagnostics;
 using System.Collections.Generic;
+using System.Globalization;
 
 namespace IceInternal
 {
@@ -252,7 +253,7 @@ namespace IceInternal
                     
                     try
                     {
-                        v = System.Int32.Parse(arr[i]);
+                        v = System.Int32.Parse(arr[i], CultureInfo.InvariantCulture);
                     }
                     catch(System.FormatException)
                     {

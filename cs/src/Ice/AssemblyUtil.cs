@@ -119,7 +119,7 @@ namespace IceInternal
                     Type[] types = a.GetTypes();
                     foreach(Type t in types)
                     {
-                        if(t.AssemblyQualifiedName.IndexOf(prefix) == 0)
+                        if(t.AssemblyQualifiedName.IndexOf(prefix, StringComparison.Ordinal) == 0)
                         {
                             l.Add(t);
                         }

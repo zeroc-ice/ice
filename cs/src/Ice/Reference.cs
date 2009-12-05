@@ -12,6 +12,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Text;
+using System.Globalization;
 
 namespace IceInternal
 {
@@ -981,7 +982,7 @@ namespace IceInternal
             properties[prefix + ".PreferSecure"] = _preferSecure ? "1" : "0";
             properties[prefix + ".EndpointSelection"] =
                        _endpointSelection == Ice.EndpointSelectionType.Random ? "Random" : "Ordered";
-            properties[prefix + ".LocatorCacheTimeout"] = _locatorCacheTimeout.ToString();
+            properties[prefix + ".LocatorCacheTimeout"] = _locatorCacheTimeout.ToString(CultureInfo.InvariantCulture);
 
             if(_routerInfo != null)
             {

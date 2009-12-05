@@ -12,6 +12,7 @@ namespace IceInternal
 
     using System.Collections;
     using System.Collections.Generic;
+    using System.Globalization;
 
     sealed class OpaqueEndpointI : EndpointI
     {
@@ -56,7 +57,7 @@ namespace IceInternal
                         int t;
                         try
                         {
-                            t = System.Int32.Parse(argument);
+                            t = System.Int32.Parse(argument, CultureInfo.InvariantCulture);
                         }
                         catch(System.FormatException)
                         {

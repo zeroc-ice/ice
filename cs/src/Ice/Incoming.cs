@@ -13,6 +13,7 @@ namespace IceInternal
     using System.Collections.Generic;
     using System.Diagnostics;
     using System.IO;
+    using System.Globalization;
 
     public class IncomingBase
     {
@@ -130,7 +131,7 @@ namespace IceInternal
         {
             Debug.Assert(os_ != null);
 
-            using(StringWriter sw = new StringWriter())
+            using(StringWriter sw = new StringWriter(CultureInfo.CurrentCulture))
             {
                 IceUtilInternal.OutputBase output = new IceUtilInternal.OutputBase(sw);
                 output.setUseTab(false);
