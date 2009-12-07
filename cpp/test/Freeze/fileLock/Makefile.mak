@@ -39,6 +39,6 @@ $(CLIENTF): $(OBJFS)
 
 
 clean::
-	del /q db/*
+	-for %f in (db\*) do if not %f == db\.gitignore del /q %f
 
 !include .depend
