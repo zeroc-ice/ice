@@ -29,6 +29,11 @@ public class AllTests
             Console.Out.Flush();
             TwowaysAMI.twowaysAMI(communicator, cl);
             Console.Out.WriteLine("ok");
+
+            Console.Out.Write("testing twoway operations with new AMI mapping... ");
+            Console.Out.Flush();
+            TwowaysNewAMI.twowaysAMI(communicator, cl);
+            Console.Out.WriteLine("ok");
         }
 
         return cl;

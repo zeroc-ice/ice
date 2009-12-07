@@ -46,9 +46,20 @@ public class AllTests
             TwowaysAMI.twowaysAMI(app, derived);
             out.println("ok");
 
+            out.print("testing twoway operations with new AMI mapping... ");
+            out.flush();
+            TwowaysNewAMI.twowaysNewAMI(app, cl);
+            TwowaysNewAMI.twowaysNewAMI(app, derived);
+            out.println("ok");
+
             out.print("testing oneway operations with AMI... ");
             out.flush();
             OnewaysAMI.onewaysAMI(app, cl);
+            out.println("ok");
+
+            out.print("testing oneway operations with new AMI mapping... ");
+            out.flush();
+            OnewaysNewAMI.onewaysNewAMI(app, cl);
             out.println("ok");
 
             out.print("testing batch oneway operations... ");

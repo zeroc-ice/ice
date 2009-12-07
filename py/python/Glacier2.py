@@ -133,11 +133,7 @@ Application.NoSignalHandling.
         if Application._adapter == None:
             if Application._router == None:
                 raise SessionNotExistException()
-            # TODO: Depending on the resolution of
-            # http://bugzilla/bugzilla/show_bug.cgi?id=4264 the OA
-            # name could be an empty string.
-            uuid = Ice.generateUUID()
-            Application._adapter = self.communicator().createObjectAdapterWithRouter(uuid, Application._router)
+            Application._adapter = self.communicator().createObjectAdapterWithRouter("", Application._router)
             Application._adapter.activate()
         return Application._adapter
 

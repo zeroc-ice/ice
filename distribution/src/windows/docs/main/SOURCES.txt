@@ -1,0 +1,7 @@
+Source Code
+-----------
+
+The source distributions of Ice, Berkeley DB, bzip2/libbzip2, OpenSSL,
+Expat, MCPP, JGoodies Looks, JGoodies Forms, Qt and STLport used to build
+this distribution can be downloaded at no cost from
+http://www.zeroc.com/download.html.

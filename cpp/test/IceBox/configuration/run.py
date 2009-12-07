@@ -25,6 +25,6 @@ icebox = TestUtil.getIceBox()
 config = os.path.join(os.getcwd(), "config.icebox")
 config2 = os.path.join(os.getcwd(), "config.icebox2")
 
-TestUtil.clientServerTest(additionalServerOptions= "--Ice.Config=%s" % config, server = icebox)
-TestUtil.clientServerTest(additionalServerOptions= "--Ice.Config=%s" % config2, server = icebox)
+TestUtil.clientServerTest(additionalServerOptions= '--Ice.Config="%s"' % config, server = icebox)
+TestUtil.clientServerTest(additionalServerOptions= '--Ice.Config="%s"' % config2, server = icebox)
 

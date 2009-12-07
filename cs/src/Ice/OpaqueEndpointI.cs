@@ -12,6 +12,7 @@ namespace IceInternal
 
     using System.Collections;
     using System.Collections.Generic;
+    using System.Globalization;
 
     sealed class OpaqueEndpointI : EndpointI
     {
@@ -56,7 +57,7 @@ namespace IceInternal
                         int t;
                         try
                         {
-                            t = System.Int32.Parse(argument);
+                            t = System.Int32.Parse(argument, CultureInfo.InvariantCulture);
                         }
                         catch(System.FormatException)
                         {
@@ -239,14 +240,6 @@ namespace IceInternal
             return false;
         }
 
-        //
-        // Return the raw encoded endpoint.
-        //
-        public byte[] rawBytes()
-        {
-            return _rawBytes;
-        }
-        
         //
         // Return a server side transceiver for this endpoint, or null if a
         // transceiver can only be created by an acceptor. In case a

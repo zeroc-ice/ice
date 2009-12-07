@@ -56,6 +56,9 @@ void
 Client::usage()
 {
     cerr << "Usage: " << appName() << " old-env new-env\n";
+    cerr << "\n";
+    cerr << "This utility upgrades a 3.1 or 3.2 IceStorm database environment\n";
+    cerr << "to a 3.3 or superior IceStorm database environment.\n";
 }
 
 string

@@ -934,6 +934,10 @@ namespace Ice.VisualStudio
             else
             {
                 iceHome = Path.Combine(iceHome, "bin");
+                if(!File.Exists(Path.Combine(iceHome, compiler)))
+                {
+                    iceHome = Path.Combine(iceHome, "x64");
+                }
             }
             return Path.Combine(iceHome, compiler);
         }

@@ -41,7 +41,7 @@ os.mkdir(tmp_dbdir)
 print "creating test database...",
 sys.stdout.flush()
 
-makedb = os.path.join(os.getcwd(), "makedb") + " " + os.getcwd()
+makedb = '"%s" "%s"' % (os.path.join(os.getcwd(), "makedb"), os.getcwd())
 proc = TestUtil.spawn(makedb)
 proc.waitTestSuccess()
 print "ok"
@@ -54,8 +54,8 @@ checkxml = os.path.join(os.getcwd(), "check.xml")
 print "executing evictor transformations...",
 sys.stdout.flush()
 
-command = transformdb + " -e -p --old " + testold + " --new " + testnew + " -f " + transformxml + " " + dbdir + \
-    " evictor.db " + check_dbdir
+command = '"' + transformdb + '" -e -p --old "' + testold + '" --new "' + testnew + '" -f "' + transformxml + '" "' + dbdir + \
+    '" evictor.db "' + check_dbdir + '" '
 proc = TestUtil.spawn(command)
 proc.waitTestSuccess()
 print "ok"
@@ -63,8 +63,8 @@ print "ok"
 print "validating database...",
 sys.stdout.flush()
 
-command = transformdb + " -e --old " + testnew + " --new " + testnew + " -f " + checkxml + " " + check_dbdir + \
-    " evictor.db " + tmp_dbdir
+command = '"' + transformdb + '" -e --old "' + testnew + '" --new "' + testnew + '" -f "' + checkxml + '" "' + check_dbdir + \
+    '" evictor.db "' + tmp_dbdir + '"'
 proc = TestUtil.spawn(command)
 proc.waitTestSuccess()
 print "ok"

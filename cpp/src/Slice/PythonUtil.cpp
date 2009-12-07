@@ -1317,21 +1317,11 @@ Slice::Python::CodeVisitor::visitSequence(const SequencePtr& p)
     }
     else
     {
-        TypePtr type = p->type();
         _out << nl << "_M_" << getAbsolute(p, "_t_") << " = IcePy.defineSequence('" << scoped << "', ";
         writeMetaData(metaData);
         _out << ", ";
         writeType(p->type());
-        _out << ", ";
-        if(type->isVariableLength())
-        {
-            _out << "True";
-        }
-        else
-        {
-            _out << "False";
-        }
-        _out << ", " << type->minWireSize() << ")";
+        _out << ")";
     }
     _out.dec();
 }

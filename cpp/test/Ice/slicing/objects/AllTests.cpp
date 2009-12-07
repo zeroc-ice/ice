@@ -53,10 +53,12 @@ private:
     bool _called;
 };
 
-class AMI_Test_SBaseAsObjectI : public AMI_TestIntf_SBaseAsObject, public CallbackBase
+class Callback : public CallbackBase, public IceUtil::Shared
 {
-    virtual void
-    ice_response(const ::Ice::ObjectPtr& o)
+public:
+
+    void
+    response_SBaseAsObject(const ::Ice::ObjectPtr& o)
     {
         test(o);
         test(o->ice_id() == "::Test::SBase");
@@ -66,112 +68,51 @@ class AMI_Test_SBaseAsObjectI : public AMI_TestIntf_SBaseAsObject, public Callba
         called();
     }
 
-    virtual void
-    ice_exception(const Ice::Exception& exc)
-    {
-        test(false);
-    }
-};
-
-typedef IceUtil::Handle<AMI_Test_SBaseAsObjectI> AMI_Test_SBaseAsObjectIPtr;
-
-class AMI_Test_SBaseAsSBaseI : public AMI_TestIntf_SBaseAsSBase, public CallbackBase
-{
-    virtual void
-    ice_response(const SBasePtr& sb)
+    void
+    response_SBaseAsSBase(const SBasePtr& sb)
     {
         test(sb->sb == "SBase.sb");
         called();
     }
 
-    virtual void
-    ice_exception(const Ice::Exception& exc)
-    {
-        test(false);
-    }
-};
-
-typedef IceUtil::Handle<AMI_Test_SBaseAsSBaseI> AMI_Test_SBaseAsSBaseIPtr;
-
-class AMI_Test_SBSKnownDerivedAsSBaseI : public AMI_TestIntf_SBSKnownDerivedAsSBase, public CallbackBase
-{
-    virtual void
-    ice_response(const SBasePtr& sb)
+    void
+    response_SBSKnownDerivedAsSBase(const SBasePtr& sb)
     {
         SBSKnownDerivedPtr sbskd = SBSKnownDerivedPtr::dynamicCast(sb);
         test(sbskd);
         test(sbskd->sbskd == "SBSKnownDerived.sbskd");
         called();
     }
-
-    virtual void
-    ice_exception(const Ice::Exception& exc)
-    {
-        test(false);
-    }
-};
-
-typedef IceUtil::Handle<AMI_Test_SBSKnownDerivedAsSBaseI> AMI_Test_SBSKnownDerivedAsSBaseIPtr;
-
-class AMI_Test_SBSKnownDerivedAsSBSKnownDerivedI
-    : public AMI_TestIntf_SBSKnownDerivedAsSBSKnownDerived, public CallbackBase
-{
-    virtual void
-    ice_response(const SBSKnownDerivedPtr& sbskd)
+    
+    void
+    response_SBSKnownDerivedAsSBSKnownDerived(const SBSKnownDerivedPtr& sbskd)
     {
         test(sbskd->sbskd == "SBSKnownDerived.sbskd");
         called();
     }
 
-    virtual void
-    ice_exception(const Ice::Exception& exc)
-    {
-        test(false);
-    }
-};
-
-typedef IceUtil::Handle<AMI_Test_SBSKnownDerivedAsSBSKnownDerivedI> AMI_Test_SBSKnownDerivedAsSBSKnownDerivedIPtr;
-
-class AMI_Test_SBSUnknownDerivedAsSBaseI : public AMI_TestIntf_SBSUnknownDerivedAsSBase, public CallbackBase
-{
-    virtual void
-    ice_response(const SBasePtr& sb)
+    void
+    response_SBSUnknownDerivedAsSBase(const SBasePtr& sb)
     {
         test(sb->sb == "SBSUnknownDerived.sb");
         called();
     }
 
-    virtual void
-    ice_exception(const Ice::Exception& exc)
-    {
-        test(false);
-    }
-};
-
-typedef IceUtil::Handle<AMI_Test_SBSUnknownDerivedAsSBaseI> AMI_Test_SBSUnknownDerivedAsSBaseIPtr;
-
-class AMI_Test_SUnknownAsObjectI : public AMI_TestIntf_SUnknownAsObject, public CallbackBase
-{
-    virtual void
-    ice_response(const Ice::ObjectPtr& o)
+    void
+    response_SUnknownAsObject(const Ice::ObjectPtr& o)
     {
         test(false);
     }
 
-    virtual void
-    ice_exception(const Ice::Exception& exc)
+    void
+    exception_SUnknownAsObject(const Ice::Exception& exc)
     {
         test(exc.ice_name() == "Ice::NoObjectFactoryException");
         called();
     }
-};
 
-typedef IceUtil::Handle<AMI_Test_SUnknownAsObjectI> AMI_Test_SUnknownAsObjectIPtr;
-
-class AMI_Test_oneElementCycleI : public AMI_TestIntf_oneElementCycle, public CallbackBase
-{
-    virtual void
-    ice_response(const BPtr& b)
+    void
+    response_oneElementCycle(const BPtr& b)
     {
         test(b);
         test(b->ice_id() == "::Test::B");
@@ -180,19 +121,8 @@ class AMI_Test_oneElementCycleI : public AMI_TestIntf_oneElementCycle, public Ca
         called();
     }
 
-    virtual void
-    ice_exception(const Ice::Exception& exc)
-    {
-        test(false);
-    }
-};
-
-typedef IceUtil::Handle<AMI_Test_oneElementCycleI> AMI_Test_oneElementCycleIPtr;
-
-class AMI_Test_twoElementCycleI : public AMI_TestIntf_twoElementCycle, public CallbackBase
-{
-    virtual void
-    ice_response(const BPtr& b1)
+    void
+    response_twoElementCycle(const BPtr& b1)
     {
         test(b1);
         test(b1->ice_id() == "::Test::B");
@@ -206,19 +136,8 @@ class AMI_Test_twoElementCycleI : public AMI_TestIntf_twoElementCycle, public Ca
         called();
     }
 
-    virtual void
-    ice_exception(const Ice::Exception& exc)
-    {
-        test(false);
-    }
-};
-
-typedef IceUtil::Handle<AMI_Test_twoElementCycleI> AMI_Test_twoElementCycleIPtr;
-
-class AMI_Test_D1AsBI : public AMI_TestIntf_D1AsB, public CallbackBase
-{
-    virtual void
-    ice_response(const BPtr& b1)
+    void
+    response_D1AsB(const BPtr& b1)
     {
         test(b1);
         test(b1->ice_id() == "::Test::D1");
@@ -240,19 +159,8 @@ class AMI_Test_D1AsBI : public AMI_TestIntf_D1AsB, public CallbackBase
         called();
     }
 
-    virtual void
-    ice_exception(const Ice::Exception& exc)
-    {
-        test(false);
-    }
-};
-
-typedef IceUtil::Handle<AMI_Test_D1AsBI> AMI_Test_D1AsBIPtr;
-
-class AMI_Test_D1AsD1I : public AMI_TestIntf_D1AsD1, public CallbackBase
-{
-    virtual void
-    ice_response(const D1Ptr& d1)
+    void
+    response_D1AsD1(const D1Ptr& d1)
     {
         test(d1);
         test(d1->ice_id() == "::Test::D1");
@@ -268,19 +176,8 @@ class AMI_Test_D1AsD1I : public AMI_TestIntf_D1AsD1, public CallbackBase
         called();
     }
 
-    virtual void
-    ice_exception(const Ice::Exception& exc)
-    {
-        test(false);
-    }
-};
-
-typedef IceUtil::Handle<AMI_Test_D1AsD1I> AMI_Test_D1AsD1IPtr;
-
-class AMI_Test_D2AsBI : public AMI_TestIntf_D2AsB, public CallbackBase
-{
-    virtual void
-    ice_response(const BPtr& b2)
+    void
+    response_D2AsB(const BPtr& b2)
     {
         test(b2);
         test(b2->ice_id() == "::Test::B");
@@ -300,19 +197,8 @@ class AMI_Test_D2AsBI : public AMI_TestIntf_D2AsB, public CallbackBase
         called();
     }
 
-    virtual void
-    ice_exception(const Ice::Exception& exc)
-    {
-        test(false);
-    }
-};
-
-typedef IceUtil::Handle<AMI_Test_D2AsBI> AMI_Test_D2AsBIPtr;
-
-class AMI_Test_paramTest1I : public AMI_TestIntf_paramTest1, public CallbackBase
-{
-    virtual void
-    ice_response(const BPtr& b1, const BPtr& b2)
+    void
+    response_paramTest1(const BPtr& b1, const BPtr& b2)
     {
         test(b1);
         test(b1->ice_id() == "::Test::D1");
@@ -330,76 +216,29 @@ class AMI_Test_paramTest1I : public AMI_TestIntf_paramTest1, public CallbackBase
         called();
     }
 
-    virtual void
-    ice_exception(const Ice::Exception& exc)
-    {
-        test(false);
-    }
-};
-
-typedef IceUtil::Handle<AMI_Test_paramTest1I> AMI_Test_paramTest1IPtr;
-
-class AMI_Test_returnTest1I : public AMI_TestIntf_returnTest1, public CallbackBase
-{
-    virtual void
-    ice_response(const BPtr& r, const BPtr& p1, const BPtr& p2)
+    void
+    response_returnTest1(const BPtr& r, const BPtr& p1, const BPtr& p2)
     {
         test(r == p1);
         called();
     }
 
-    virtual void
-    ice_exception(const Ice::Exception& exc)
-    {
-        test(false);
-    }
-};
-
-typedef IceUtil::Handle<AMI_Test_returnTest1I> AMI_Test_returnTest1IPtr;
-
-class AMI_Test_returnTest2I : public AMI_TestIntf_returnTest2, public CallbackBase
-{
-    virtual void
-    ice_response(const BPtr& r, const BPtr& p1, const BPtr& p2)
+    void
+    response_returnTest2(const BPtr& r, const BPtr& p1, const BPtr& p2)
     {
         test(r == p1);
         called();
     }
 
-    virtual void
-    ice_exception(const Ice::Exception& exc)
+    void
+    response_returnTest3(const BPtr& b)
     {
-        test(false);
-    }
-};
-
-typedef IceUtil::Handle<AMI_Test_returnTest2I> AMI_Test_returnTest2IPtr;
-
-class AMI_Test_returnTest3I : public AMI_TestIntf_returnTest3, public CallbackBase
-{
-public:
-    virtual void
-    ice_response(const BPtr& b)
-    {
-        r = b;
+        rb = b;
         called();
     }
 
-    virtual void
-    ice_exception(const Ice::Exception& exc)
-    {
-        test(false);
-    }
-
-    BPtr r;
-};
-
-typedef IceUtil::Handle<AMI_Test_returnTest3I> AMI_Test_returnTest3IPtr;
-
-class AMI_Test_paramTest3I : public AMI_TestIntf_paramTest3, public CallbackBase
-{
-    virtual void
-    ice_response(const BPtr& ret, const BPtr& p1, const BPtr& p2)
+    void
+    response_paramTest3(const BPtr& ret, const BPtr& p1, const BPtr& p2)
     {
         test(p1);
         test(p1->sb == "D2.sb (p1 1)");
@@ -418,19 +257,8 @@ class AMI_Test_paramTest3I : public AMI_TestIntf_paramTest3, public CallbackBase
         called();
     }
 
-    virtual void
-    ice_exception(const Ice::Exception& exc)
-    {
-        test(false);
-    }
-};
-
-typedef IceUtil::Handle<AMI_Test_paramTest3I> AMI_Test_paramTest3IPtr;
-
-class AMI_Test_paramTest4I : public AMI_TestIntf_paramTest4, public CallbackBase
-{
-    virtual void
-    ice_response(const BPtr& ret, const BPtr& b)
+    void
+    response_paramTest4(const BPtr& ret, const BPtr& b)
     {
         test(b);
         test(b->sb == "D4.sb (1)");
@@ -444,71 +272,23 @@ class AMI_Test_paramTest4I : public AMI_TestIntf_paramTest4, public CallbackBase
         called();
     }
 
-    virtual void
-    ice_exception(const Ice::Exception& exc)
+    void
+    response_sequenceTest(const SS3& ss)
     {
-        test(false);
-    }
-};
-
-typedef IceUtil::Handle<AMI_Test_paramTest4I> AMI_Test_paramTest4IPtr;
-
-class AMI_Test_sequenceTestI : public AMI_TestIntf_sequenceTest, public CallbackBase
-{
-    virtual void
-    ice_response(const SS3& ss)
-    {
-        r = ss;
+        rss3 = ss;
         called();
     }
 
-    virtual void
-    ice_exception(const Ice::Exception& exc)
+    void
+    response_dictionaryTest(const BDict& r, const BDict& bout)
     {
-        test(false);
-    }
-
-public:
-
-    SS3 r;
-};
-
-typedef IceUtil::Handle<AMI_Test_sequenceTestI> AMI_Test_sequenceTestIPtr;
-
-class AMI_Test_dictionaryTestI : public AMI_TestIntf_dictionaryTest, public CallbackBase
-{
-    virtual void
-    ice_response(const BDict& r, const BDict& bout)
-    {
-        this->r = r;
-        this->bout = bout;
+        rbdict = r;
+        obdict = bout;
         called();
     }
 
-    virtual void
-    ice_exception(const Ice::Exception& exc)
-    {
-        test(false);
-    }
-
-public:
-
-    BDict bout;
-    BDict r;
-};
-
-typedef IceUtil::Handle<AMI_Test_dictionaryTestI> AMI_Test_dictionaryTestIPtr;
-
-class AMI_Test_throwBaseAsBaseI : public AMI_TestIntf_throwBaseAsBase, public CallbackBase
-{
-    virtual void
-    ice_response()
-    {
-        test(false);
-    }
-
-    virtual void
-    ice_exception(const ::Ice::Exception& ex)
+    void
+    exception_throwBaseAsBase(const ::Ice::Exception& ex)
     {
         test(ex.ice_name() == "Test::BaseException");
         const BaseException& e = dynamic_cast<const BaseException&>(ex);
@@ -518,20 +298,9 @@ class AMI_Test_throwBaseAsBaseI : public AMI_TestIntf_throwBaseAsBase, public Ca
         test(e.pb->pb == e.pb);
         called();
     }
-};
 
-typedef IceUtil::Handle<AMI_Test_throwBaseAsBaseI> AMI_Test_throwBaseAsBaseIPtr;
-
-class AMI_Test_throwDerivedAsBaseI : public AMI_TestIntf_throwDerivedAsBase, public CallbackBase
-{
-    virtual void
-    ice_response()
-    {
-        test(false);
-    }
-
-    virtual void
-    ice_exception(const ::Ice::Exception& ex)
+    void
+    exception_throwDerivedAsBase(const ::Ice::Exception& ex)
     {
         test(ex.ice_name() == "Test::DerivedException");
         const DerivedException& e = dynamic_cast<const DerivedException&>(ex);
@@ -547,20 +316,9 @@ class AMI_Test_throwDerivedAsBaseI : public AMI_TestIntf_throwDerivedAsBase, pub
         test(e.pd1->pd1 == e.pd1);
         called();
     }
-};
 
-typedef IceUtil::Handle<AMI_Test_throwDerivedAsBaseI> AMI_Test_throwDerivedAsBaseIPtr;
-
-class AMI_Test_throwDerivedAsDerivedI : public AMI_TestIntf_throwDerivedAsDerived, public CallbackBase
-{
-    virtual void
-    ice_response()
-    {
-        test(false);
-    }
-
-    virtual void
-    ice_exception(const ::Ice::Exception& ex)
+    void
+    exception_throwDerivedAsDerived(const ::Ice::Exception& ex)
     {
         test(ex.ice_name() == "Test::DerivedException");
         const DerivedException& e = dynamic_cast<const DerivedException&>(ex);
@@ -576,20 +334,10 @@ class AMI_Test_throwDerivedAsDerivedI : public AMI_TestIntf_throwDerivedAsDerive
         test(e.pd1->pd1 == e.pd1);
         called();
     }
-};
 
-typedef IceUtil::Handle<AMI_Test_throwDerivedAsDerivedI> AMI_Test_throwDerivedAsDerivedIPtr;
 
-class AMI_Test_throwUnknownDerivedAsBaseI : public AMI_TestIntf_throwUnknownDerivedAsBase, public CallbackBase
-{
-    virtual void
-    ice_response()
-    {
-        test(false);
-    }
-
-    virtual void
-    ice_exception(const ::Ice::Exception& ex)
+    void
+    exception_throwUnknownDerivedAsBase(const ::Ice::Exception& ex)
     {
         test(ex.ice_name() == "Test::BaseException");
         const BaseException& e = dynamic_cast<const BaseException&>(ex);
@@ -599,27 +347,32 @@ class AMI_Test_throwUnknownDerivedAsBaseI : public AMI_TestIntf_throwUnknownDeri
         test(e.pb->pb == e.pb);
         called();
     }
-};
 
-typedef IceUtil::Handle<AMI_Test_throwUnknownDerivedAsBaseI> AMI_Test_throwUnknownDerivedAsBaseIPtr;
-
-class AMI_Test_useForwardI : public AMI_TestIntf_useForward, public CallbackBase
-{
-    virtual void
-    ice_response(const ForwardPtr& f)
+    void
+    response_useForward(const ForwardPtr& f)
     {
         test(f);
         called();
     }
 
-    virtual void
-    ice_exception(const Ice::Exception& exc)
+    void 
+    response()
     {
         test(false);
     }
+    void 
+    exception(const ::Ice::Exception&)
+    {
+        test(false);
+    }
+ 
+    BPtr rb;
+    SS3 rss3;
+    BDict rbdict;
+    BDict obdict;
 };
 
-typedef IceUtil::Handle<AMI_Test_useForwardI> AMI_Test_useForwardIPtr;
+typedef IceUtil::Handle<Callback> CallbackPtr;
 
 void
 testUOO(const TestIntfPrx& test)
@@ -666,8 +419,9 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
     cout << "base as Object (AMI)... " << flush;
     {
-        AMI_Test_SBaseAsObjectIPtr cb = new AMI_Test_SBaseAsObjectI;
-        test->SBaseAsObject_async(cb);
+        CallbackPtr cb = new Callback;
+        test->begin_SBaseAsObject(
+            newCallback_TestIntf_SBaseAsObject(cb, &Callback::response_SBaseAsObject, &Callback::exception));
         cb->check();
     }
     cout << "ok" << endl;
@@ -689,8 +443,9 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
     cout << "base as base (AMI)... " << flush;
     {
-        AMI_Test_SBaseAsSBaseIPtr cb = new AMI_Test_SBaseAsSBaseI;
-        test->SBaseAsSBase_async(cb);
+        CallbackPtr cb = new Callback;
+        test->begin_SBaseAsSBase(
+            newCallback_TestIntf_SBaseAsSBase(cb, &Callback::response_SBaseAsSBase, &Callback::exception));
         cb->check();
     }
     cout << "ok" << endl;
@@ -715,8 +470,10 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
     cout << "base with known derived as base (AMI)... " << flush;
     {
-        AMI_Test_SBSKnownDerivedAsSBaseIPtr cb = new AMI_Test_SBSKnownDerivedAsSBaseI;
-        test->SBSKnownDerivedAsSBase_async(cb);
+        CallbackPtr cb = new Callback;
+        test->begin_SBSKnownDerivedAsSBase(
+            newCallback_TestIntf_SBSKnownDerivedAsSBase(
+                cb, &Callback::response_SBSKnownDerivedAsSBase, &Callback::exception));
         cb->check();
     }
     cout << "ok" << endl;
@@ -738,8 +495,10 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
     cout << "base with known derived as known derived (AMI)... " << flush;
     {
-        AMI_Test_SBSKnownDerivedAsSBSKnownDerivedIPtr cb = new AMI_Test_SBSKnownDerivedAsSBSKnownDerivedI;
-        test->SBSKnownDerivedAsSBSKnownDerived_async(cb);
+        CallbackPtr cb = new Callback;
+        test->begin_SBSKnownDerivedAsSBSKnownDerived(
+            newCallback_TestIntf_SBSKnownDerivedAsSBSKnownDerived(
+                cb, &Callback::response_SBSKnownDerivedAsSBSKnownDerived, &Callback::exception));
         cb->check();
     }
     cout << "ok" << endl;
@@ -761,8 +520,10 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
     cout << "base with unknown derived as base (AMI)... " << flush;
     {
-        AMI_Test_SBSUnknownDerivedAsSBaseIPtr cb = new AMI_Test_SBSUnknownDerivedAsSBaseI;
-        test->SBSUnknownDerivedAsSBase_async(cb);
+        CallbackPtr cb = new Callback;
+        test->begin_SBSUnknownDerivedAsSBase(
+            newCallback_TestIntf_SBSUnknownDerivedAsSBase(
+                cb, &Callback::response_SBSUnknownDerivedAsSBase, &Callback::exception));
         cb->check();
     }
     cout << "ok" << endl;
@@ -777,8 +538,10 @@ allTests(const Ice::CommunicatorPtr& communicator)
     {
         try
         {
-            AMI_Test_SUnknownAsObjectIPtr cb = new AMI_Test_SUnknownAsObjectI;
-            test->SUnknownAsObject_async(cb);
+            CallbackPtr cb = new Callback;
+            test->begin_SUnknownAsObject(
+                newCallback_TestIntf_SUnknownAsObject(
+                    cb, &Callback::response_SUnknownAsObject, &Callback::exception_SUnknownAsObject));
             cb->check();
         }
         catch(...)
@@ -807,8 +570,10 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
     cout << "one-element cycle (AMI)... " << flush;
     {
-        AMI_Test_oneElementCycleIPtr cb = new AMI_Test_oneElementCycleI;
-        test->oneElementCycle_async(cb);
+        CallbackPtr cb = new Callback;
+        test->begin_oneElementCycle(
+            newCallback_TestIntf_oneElementCycle(
+                cb, &Callback::response_oneElementCycle, &Callback::exception));
         cb->check();
     }
     cout << "ok" << endl;
@@ -837,8 +602,10 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
     cout << "two-element cycle (AMI)... " << flush;
     {
-        AMI_Test_twoElementCycleIPtr cb = new AMI_Test_twoElementCycleI;
-        test->twoElementCycle_async(cb);
+        CallbackPtr cb = new Callback;
+        test->begin_twoElementCycle(
+            newCallback_TestIntf_twoElementCycle(
+                cb, &Callback::response_twoElementCycle, &Callback::exception));
         cb->check();
     }
     cout << "ok" << endl;
@@ -876,8 +643,8 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
     cout << "known derived pointer slicing as base (AMI)... " << flush;
     {
-        AMI_Test_D1AsBIPtr cb = new AMI_Test_D1AsBI;
-        test->D1AsB_async(cb);
+        CallbackPtr cb = new Callback;
+        test->begin_D1AsB(newCallback_TestIntf_D1AsB(cb, &Callback::response_D1AsB, &Callback::exception));
         cb->check();
     }
     cout << "ok" << endl;
@@ -909,8 +676,8 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
     cout << "known derived pointer slicing as derived (AMI)... " << flush;
     {
-        AMI_Test_D1AsD1IPtr cb = new AMI_Test_D1AsD1I;
-        test->D1AsD1_async(cb);
+        CallbackPtr cb = new Callback;
+        test->begin_D1AsD1(newCallback_TestIntf_D1AsD1(cb, &Callback::response_D1AsD1, &Callback::exception));
         cb->check();
     }
     cout << "ok" << endl;
@@ -946,8 +713,8 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
     cout << "unknown derived pointer slicing as base (AMI)... " << flush;
     {
-        AMI_Test_D2AsBIPtr cb = new AMI_Test_D2AsBI;
-        test->D2AsB_async(cb);
+        CallbackPtr cb = new Callback;
+        test->begin_D2AsB(newCallback_TestIntf_D2AsB(cb, &Callback::response_D2AsB, &Callback::exception));
         cb->check();
     }
     cout << "ok" << endl;
@@ -983,8 +750,9 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
     cout << "param ptr slicing with known first (AMI)... " << flush;
     {
-        AMI_Test_paramTest1IPtr cb = new AMI_Test_paramTest1I;
-        test->paramTest1_async(cb);
+        CallbackPtr cb = new Callback;
+        test->begin_paramTest1(
+            newCallback_TestIntf_paramTest1(cb, &Callback::response_paramTest1, &Callback::exception));
         cb->check();
     }
     cout << "ok" << endl;
@@ -1036,8 +804,9 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
     cout << "return value identity with known first (AMI)... " << flush;
     {
-        AMI_Test_returnTest1IPtr cb = new AMI_Test_returnTest1I;
-        test->returnTest1_async(cb);
+        CallbackPtr cb = new Callback;
+        test->begin_returnTest1(
+            newCallback_TestIntf_returnTest1(cb, &Callback::response_returnTest1, &Callback::exception));
         cb->check();
     }
     cout << "ok" << endl;
@@ -1060,8 +829,9 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
     cout << "return value identity with unknown first (AMI)... " << flush;
     {
-        AMI_Test_returnTest2IPtr cb = new AMI_Test_returnTest2I;
-        test->returnTest2_async(cb);
+        CallbackPtr cb = new Callback;
+        test->begin_returnTest2(
+            newCallback_TestIntf_returnTest2(cb, &Callback::response_returnTest2, &Callback::exception));
         cb->check();
     }
     cout << "ok" << endl;
@@ -1126,10 +896,11 @@ allTests(const Ice::CommunicatorPtr& communicator)
             d1->pb = d3;
             d1->pd1 = d3;
 
-            AMI_Test_returnTest3IPtr cb = new AMI_Test_returnTest3I;
-            test->returnTest3_async(cb, d1, d3);
+            CallbackPtr cb = new Callback;
+            test->begin_returnTest3(d1, d3,
+                newCallback_TestIntf_returnTest3(cb, &Callback::response_returnTest3, &Callback::exception));
             cb->check();
-            BPtr b1 = cb->r;
+            BPtr b1 = cb->rb;
 
             test(b1);
             test(b1->sb == "D1.sb");
@@ -1219,10 +990,11 @@ allTests(const Ice::CommunicatorPtr& communicator)
             d1->pb = d3;
             d1->pd1 = d3;
 
-            AMI_Test_returnTest3IPtr cb = new AMI_Test_returnTest3I;
-            test->returnTest3_async(cb, d3, d1);
+            CallbackPtr cb = new Callback;
+            test->begin_returnTest3(d3, d1, 
+                newCallback_TestIntf_returnTest3(cb, &Callback::response_returnTest3, &Callback::exception));
             cb->check();
-            BPtr b1 = cb->r;
+            BPtr b1 = cb->rb;
 
             test(b1);
             test(b1->sb == "D3.sb");
@@ -1284,8 +1056,9 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
     cout << "remainder unmarshaling (3 instances) (AMI)... " << flush;
     {
-        AMI_Test_paramTest3IPtr cb = new AMI_Test_paramTest3I;
-        test->paramTest3_async(cb);
+        CallbackPtr cb = new Callback;
+        test->begin_paramTest3(
+            newCallback_TestIntf_paramTest3(cb, &Callback::response_paramTest3, &Callback::exception));
         cb->check();
     }
     cout << "ok" << endl;
@@ -1316,9 +1089,9 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
     cout << "remainder unmarshaling (4 instances) (AMI)... " << flush;
     {
-        BPtr b;
-        AMI_Test_paramTest4IPtr cb = new AMI_Test_paramTest4I;
-        test->paramTest4_async(cb);
+        CallbackPtr cb = new Callback;
+        test->begin_paramTest4(
+            newCallback_TestIntf_paramTest4(cb, &Callback::response_paramTest4, &Callback::exception));
         cb->check();
     }
     cout << "ok" << endl;
@@ -1373,10 +1146,11 @@ allTests(const Ice::CommunicatorPtr& communicator)
             b2->sb = "B.sb(2)";
             b2->pb = b1;
 
-            AMI_Test_returnTest3IPtr cb = new AMI_Test_returnTest3I;
-            test->returnTest3_async(cb, d3, b2);
+            CallbackPtr cb = new Callback;
+            test->begin_returnTest3(d3, b2,
+                newCallback_TestIntf_returnTest3(cb, &Callback::response_returnTest3, &Callback::exception));
             cb->check();
-            BPtr r = cb->r;
+            BPtr r = cb->rb;
 
             test(r);
             test(r->ice_id() == "::Test::B");
@@ -1447,10 +1221,11 @@ allTests(const Ice::CommunicatorPtr& communicator)
             d12->sd1 = "D1.sd1(2)";
             d12->pd1 = d11;
 
-            AMI_Test_returnTest3IPtr cb = new AMI_Test_returnTest3I;
-            test->returnTest3_async(cb, d3, d12);
+            CallbackPtr cb = new Callback;
+            test->begin_returnTest3(d3, d12,
+                newCallback_TestIntf_returnTest3(cb, &Callback::response_returnTest3, &Callback::exception));
             cb->check();
-            BPtr r = cb->r;
+            BPtr r = cb->rb;
             test(r);
             test(r->ice_id() == "::Test::B");
             test(r->sb == "D3.sb");
@@ -1600,10 +1375,11 @@ allTests(const Ice::CommunicatorPtr& communicator)
                 ss2->s.push_back(ss2d1);
                 ss2->s.push_back(ss2d3);
 
-                AMI_Test_sequenceTestIPtr cb = new AMI_Test_sequenceTestI;
-                test->sequenceTest_async(cb, ss1, ss2);
+                CallbackPtr cb = new Callback;
+                test->begin_sequenceTest(ss1, ss2,
+                    newCallback_TestIntf_sequenceTest(cb, &Callback::response_sequenceTest, &Callback::exception));
                 cb->check();
-                ss = cb->r;
+                ss = cb->rss3;
             }
 
             test(ss.c1);
@@ -1716,11 +1492,12 @@ allTests(const Ice::CommunicatorPtr& communicator)
                 bin[i] = d1;
             }
 
-            AMI_Test_dictionaryTestIPtr cb = new AMI_Test_dictionaryTestI;
-            test->dictionaryTest_async(cb, bin);
+            CallbackPtr cb = new Callback;
+            test->begin_dictionaryTest(bin,
+                newCallback_TestIntf_dictionaryTest(cb, &Callback::response_dictionaryTest, &Callback::exception));
             cb->check();
-            bout = cb->bout;
-            r = cb->r;
+            bout = cb->obdict;
+            r = cb->rbdict;
 
             test(bout.size() == 10);
             for(i = 0; i < 10; ++i)
@@ -1782,8 +1559,9 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
     cout << "base exception thrown as base exception (AMI)... " << flush;
     {
-        AMI_Test_throwBaseAsBaseIPtr cb = new AMI_Test_throwBaseAsBaseI;
-        test->throwBaseAsBase_async(cb);
+        CallbackPtr cb = new Callback;
+        test->begin_throwBaseAsBase(
+            newCallback_TestIntf_throwBaseAsBase(cb, &Callback::response, &Callback::exception_throwBaseAsBase));
         cb->check();
     }
     cout << "ok" << endl;
@@ -1818,8 +1596,9 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
     cout << "derived exception thrown as base exception (AMI)... " << flush;
     {
-        AMI_Test_throwDerivedAsBaseIPtr cb = new AMI_Test_throwDerivedAsBaseI;
-        test->throwDerivedAsBase_async(cb);
+        CallbackPtr cb = new Callback;
+        test->begin_throwDerivedAsBase(
+            newCallback_TestIntf_throwDerivedAsBase(cb, &Callback::response, &Callback::exception_throwDerivedAsBase));
         cb->check();
     }
     cout << "ok" << endl;
@@ -1854,8 +1633,10 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
     cout << "derived exception thrown as derived exception (AMI)... " << flush;
     {
-        AMI_Test_throwDerivedAsDerivedIPtr cb = new AMI_Test_throwDerivedAsDerivedI;
-        test->throwDerivedAsDerived_async(cb);
+        CallbackPtr cb = new Callback;
+        test->begin_throwDerivedAsDerived(
+            newCallback_TestIntf_throwDerivedAsDerived(
+                cb, &Callback::response, &Callback::exception_throwDerivedAsDerived));
         cb->check();
     }
     cout << "ok" << endl;
@@ -1884,8 +1665,10 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
     cout << "unknown derived exception thrown as base exception (AMI)... " << flush;
     {
-        AMI_Test_throwUnknownDerivedAsBaseIPtr cb = new AMI_Test_throwUnknownDerivedAsBaseI;
-        test->throwUnknownDerivedAsBase_async(cb);
+        CallbackPtr cb = new Callback;
+        test->begin_throwUnknownDerivedAsBase(
+            newCallback_TestIntf_throwUnknownDerivedAsBase(
+                cb, &Callback::response, &Callback::exception_throwUnknownDerivedAsBase));
         cb->check();
     }
     cout << "ok" << endl;
@@ -1907,8 +1690,9 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
     cout << "forward-declared class (AMI)... " << flush;
     {
-        AMI_Test_useForwardIPtr cb = new AMI_Test_useForwardI;
-        test->useForward_async(cb);
+        CallbackPtr cb = new Callback;
+        test->begin_useForward(
+            newCallback_TestIntf_useForward(cb, &Callback::response_useForward, &Callback::exception));
         cb->check();
     }
     cout << "ok" << endl;

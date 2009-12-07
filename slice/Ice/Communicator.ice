@@ -206,11 +206,11 @@ local interface Communicator
      *
      * <p>It is legal to create an object adapter with the empty string as
      * its name. Such an object adapter is accessible via bidirectional
-     * connections or by collocated invocations
-     * that originate from the the same communicator as is used by the adapter.</p>
+     * connections or by collocated invocations that originate from the the
+     * same communicator as is used by the adapter.</p>
      *
-     * <p>Attempts to create a named object adapter for which no endpoint or
-     * router configuration can be found raise {@link InitializationException}.
+     * <p>Attempts to create a named object adapter for which no configuration
+     * can be found raise {@link InitializationException}.
      *
      * @param name The object adapter name.
      *
@@ -230,8 +230,8 @@ local interface Communicator
      * and then calls {@link createObjectAdapter}. It is provided as a
      * convenience function.</p>
      *
-     * <p>Calling this operation with an empty name or empty endpoint string
-     * raises {@link InitializationException}.
+     * <p>Calling this operation with an empty name will result in a
+     * UUID being generated for the name.
      * 
      * @param name The object adapter name.
      *
@@ -249,8 +249,11 @@ local interface Communicator
     /**
      *
      * Create a new object adapter with a router. This operation
-     * creates a routed object adapter.
+     * creates a routed object adapter.</p>
      * 
+     * <p>Calling this operation with an empty name will result in a
+     * UUID being generated for the name.
+     *
      * @param name The object adapter name.
      *
      * @param rtr The router.

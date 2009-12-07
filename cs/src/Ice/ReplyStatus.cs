@@ -19,5 +19,9 @@ namespace IceInternal
         public const byte replyUnknownLocalException = 5;
         public const byte replyUnknownUserException = 6;
         public const byte replyUnknownException = 7;
+
+        private ReplyStatus()
+        {
+        }
     }
 }

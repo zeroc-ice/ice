@@ -10,7 +10,7 @@
 top_srcdir	= ..\..
 
 LIBNAME     	= $(top_srcdir)\lib\freeze$(LIBSUFFIX).lib
-DLLNAME		= $(top_srcdir)\bin\freeze$(SOVERSION)$(LIBSUFFIX).dll
+DLLNAME		= $(top_srcdir)\bin\freeze$(COMPSUFFIX)$(SOVERSION)$(LIBSUFFIX).dll
 
 TARGETS		= $(LIBNAME) $(DLLNAME)
 

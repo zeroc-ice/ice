@@ -1228,7 +1228,7 @@ namespace Ice
                 if(endp == null)
                 {
                     if(IceInternal.AssemblyUtil.runtime_ == IceInternal.AssemblyUtil.Runtime.Mono &&
-                       s.StartsWith("ssl"))
+                       s.StartsWith("ssl", StringComparison.Ordinal))
                     {
                         instance_.initializationData().logger.warning(
                             "SSL endpoint `" + s + "' ignored: IceSSL is not supported with Mono");
@@ -1503,7 +1503,7 @@ namespace Ice
             String prefix = _name + ".";
             for(int i = 0; IceInternal.PropertyNames.clPropNames[i] != null; ++i)
             {
-                if(prefix.StartsWith(IceInternal.PropertyNames.clPropNames[i] + "."))
+                if(prefix.StartsWith(IceInternal.PropertyNames.clPropNames[i] + ".", StringComparison.Ordinal))
                 {
                     addUnknown = false;
                     break;

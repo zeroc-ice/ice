@@ -27,7 +27,7 @@ if Util.defaultHost:
 else:
     args = ''
 
-server = Util.spawn('%s --Ice.Config=config.icebox --Ice.PrintAdapterReady %s' % (Util.getIceBox("cs"), args))
+server = Util.spawn("'%s' --Ice.Config=config.icebox --Ice.PrintAdapterReady %s" % (Util.getIceBox("cs"), args))
 server.expect('.* ready')
 client = Util.spawn('client.exe')
 client.expect('.*==>')

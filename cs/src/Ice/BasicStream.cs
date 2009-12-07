@@ -2857,7 +2857,7 @@ namespace IceInternal
 
         private static string typeToClass(string id)
         {
-            if(!id.StartsWith("::"))
+            if(!id.StartsWith("::", StringComparison.Ordinal))
             {
                 throw new Ice.MarshalException("type ID does not start with `::'");
             }

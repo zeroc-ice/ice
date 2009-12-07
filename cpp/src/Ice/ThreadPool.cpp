@@ -112,6 +112,44 @@ class ThreadPoolDestroyedException
 
 }
 
+IceInternal::DispatchWorkItem::DispatchWorkItem(const InstancePtr& instance) : _instance(instance)
+{
+}
+
+void
+IceInternal::DispatchWorkItem::execute(ThreadPoolCurrent& current)
+{
+    Ice::DispatcherPtr dispatcher = _instance->initializationData().dispatcher;
+    if(dispatcher)
+    {
+        try
+        {
+            dispatcher->dispatch(this, 0);
+        }
+        catch(const std::exception& ex)
+        {
+            if(_instance->initializationData().properties->getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 1)
+            {
+                Warning out(_instance->initializationData().logger);
+                out << "dispatch exception:\n" << ex;
+            }
+        }
+        catch(...)
+        {
+            if(_instance->initializationData().properties->getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 1)
+            {
+                Warning out(_instance->initializationData().logger);
+                out << "dispatch exception:\nunknown c++ exception";
+            }
+        }
+    }
+    else
+    {
+        current.ioCompleted(); // Promote a follower.
+        run();
+    }    
+}
+
 IceInternal::ThreadPoolWorkQueue::ThreadPoolWorkQueue(ThreadPool* threadPool,
                                                       const InstancePtr& instance,
                                                       Selector& selector) :

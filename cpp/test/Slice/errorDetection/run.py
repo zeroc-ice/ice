@@ -8,7 +8,7 @@
 #
 # **********************************************************************
 
-import os, sys, re
+import os, sys, re, subprocess
 
 path = [ ".", "..", "../..", "../../..", "../../../.." ]
 head = os.path.dirname(sys.argv[0])
@@ -20,7 +20,7 @@ if len(path) == 0:
 sys.path.append(os.path.join(path[0]))
 from scripts import *
 
-slice2cpp = os.path.join(TestUtil.getCppBinDir(), "slice2cpp")
+slice2cpp = '"%s"' % os.path.join(TestUtil.getCppBinDir(), "slice2cpp")
 
 regex1 = re.compile("\.ice$", re.IGNORECASE)
 files = []
@@ -33,13 +33,15 @@ files.sort()
 for file in files:
 
     print file + "...",
+    command = slice2cpp + ' -I. "%s"' % os.path.join(os.getcwd(), file)
 
-    command = slice2cpp + " -I. " + os.path.join(os.getcwd(), file);
-    stdin, stdout, stderr = os.popen3(command)
+    p = TestUtil.runCommand(command)
+    (stdin, stdout, stderr) = (p.stdin, p.stdout, p.stderr)
+    
     lines1 = stderr.readlines()
     lines2 = open(os.path.join(os.getcwd(), regex1.sub(".err", file)), "r").readlines()
     if len(lines1) != len(lines2):
-        print "failed!"
+        print "failed! "
         sys.exit(1)
     
     regex2 = re.compile("^.*(?=" + file + ")")
@@ -48,7 +50,7 @@ for file in files:
         line1 = regex2.sub("", lines1[i]).strip()
         line2 = regex2.sub("", lines2[i]).strip()
         if line1 != line2:
-            print "failed!"
+            print "failed! "
             sys.exit(1)
         i = i + 1
     else:

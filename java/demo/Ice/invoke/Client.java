@@ -11,77 +11,6 @@ import Demo.*;
 
 public class Client extends Ice.Application
 {
-    private class AMI_Object_ice_invokeI extends Ice.AMI_Object_ice_invoke
-    {
-        public void ice_response(boolean ok, byte[] outParams)
-        {
-            if(!ok)
-            {
-                System.out.println("Unknown user exception");
-            }
-        }
-
-        public void ice_exception(Ice.LocalException ex)
-        {
-            ex.printStackTrace();
-        }
-    }
-
-    private class AMI_Object_ice_invokeGetValuesI extends Ice.AMI_Object_ice_invoke
-    {
-        public void ice_response(boolean ok, byte[] outParams)
-        {
-            if(!ok)
-            {
-                System.out.println("Unknown user exception");
-            }
-            else
-            {
-                //
-                // Unmarshal the results.
-                //
-                Ice.InputStream in = Ice.Util.createInputStream(communicator(), outParams);
-                Demo.CHolder c = new Demo.CHolder();
-                Demo.CHelper.read(in, c);
-                String str = in.readString();
-                in.readPendingObjects();
-                in.destroy();
-                System.out.println("Got string `" + str + "' and class: s.name=" + c.value.s.name +
-                                   ", s.value=" + c.value.s.value);
-            }
-        }
-
-        public void ice_exception(Ice.LocalException ex)
-        {
-            ex.printStackTrace();
-        }
-    }
-
-    private class AMI_Object_ice_invokeThrowPrintFailureI extends Ice.AMI_Object_ice_invoke
-    {
-        public void ice_response(boolean ok, byte[] outParams)
-        {
-            Ice.InputStream in = Ice.Util.createInputStream(communicator(), outParams);
-            try
-            {
-                in.throwException();
-            }
-            catch(Demo.PrintFailure ex)
-            {
-                // Expected.
-            }
-            catch(Ice.UserException ex)
-            {
-                System.out.println("Unknown user exception");
-            }
-            in.destroy();
-        }
-
-        public void ice_exception(Ice.LocalException ex)
-        {
-            ex.printStackTrace();
-        }
-    }
     private static void
     menu()
     {
@@ -120,14 +49,9 @@ public class Client extends Ice.Application
     public int
     run(String[] args)
     {
-        boolean async = false;
-        if(args.length == 1 && args[0].equals("--async"))
+        if(args.length > 0)
         {
-            async = true;
-        }
-        else if(args.length > 0)
-        {
-            System.err.println("Usage: " + appName() + " [--async]");
+            System.err.println(appName() + ": too many arguments");
             return 1;
         }
 
@@ -167,17 +91,9 @@ public class Client extends Ice.Application
                     //
                     // Invoke operation.
                     //
-                    if(async)
+                    if(!obj.ice_invoke("printString", Ice.OperationMode.Normal, out.finished(), null))
                     {
-                        obj.ice_invoke_async(new AMI_Object_ice_invokeI(), "printString", Ice.OperationMode.Normal,
-                                             out.finished());
-                    }
-                    else
-                    {
-                        if(!obj.ice_invoke("printString", Ice.OperationMode.Normal, out.finished(), null))
-                        {
-                            System.out.println("Unknown user exception");
-                        }
+                        System.out.println("Unknown user exception");
                     }
 
                     out.destroy();
@@ -194,17 +110,9 @@ public class Client extends Ice.Application
                     //
                     // Invoke operation.
                     //
-                    if(async)
+                    if(!obj.ice_invoke("printStringSequence", Ice.OperationMode.Normal, out.finished(), null))
                     {
-                        obj.ice_invoke_async(new AMI_Object_ice_invokeI(), "printStringSequence",
-                                             Ice.OperationMode.Normal, out.finished());
-                    }
-                    else
-                    {
-                        if(!obj.ice_invoke("printStringSequence", Ice.OperationMode.Normal, out.finished(), null))
-                        {
-                            System.out.println("Unknown user exception");
-                        }
+                        System.out.println("Unknown user exception");
                     }
 
                     out.destroy();
@@ -223,17 +131,9 @@ public class Client extends Ice.Application
                     //
                     // Invoke operation.
                     //
-                    if(async)
+                    if(!obj.ice_invoke("printDictionary", Ice.OperationMode.Normal, out.finished(), null))
                     {
-                        obj.ice_invoke_async(new AMI_Object_ice_invokeI(), "printDictionary", Ice.OperationMode.Normal,
-                                             out.finished());
-                    }
-                    else
-                    {
-                        if(!obj.ice_invoke("printDictionary", Ice.OperationMode.Normal, out.finished(), null))
-                        {
-                            System.out.println("Unknown user exception");
-                        }
+                        System.out.println("Unknown user exception");
                     }
 
                     out.destroy();
@@ -249,17 +149,9 @@ public class Client extends Ice.Application
                     //
                     // Invoke operation.
                     //
-                    if(async)
+                    if(!obj.ice_invoke("printEnum", Ice.OperationMode.Normal, out.finished(), null))
                     {
-                        obj.ice_invoke_async(new AMI_Object_ice_invokeI(), "printEnum", Ice.OperationMode.Normal,
-                                             out.finished());
-                    }
-                    else
-                    {
-                        if(!obj.ice_invoke("printEnum", Ice.OperationMode.Normal, out.finished(), null))
-                        {
-                            System.out.println("Unknown user exception");
-                        }
+                        System.out.println("Unknown user exception");
                     }
 
                     out.destroy();
@@ -278,17 +170,9 @@ public class Client extends Ice.Application
                     //
                     // Invoke operation.
                     //
-                    if(async)
+                    if(!obj.ice_invoke("printStruct", Ice.OperationMode.Normal, out.finished(), null))
                     {
-                        obj.ice_invoke_async(new AMI_Object_ice_invokeI(), "printStruct", Ice.OperationMode.Normal,
-                                             out.finished());
-                    }
-                    else
-                    {
-                        if(!obj.ice_invoke("printStruct", Ice.OperationMode.Normal, out.finished(), null))
-                        {
-                            System.out.println("Unknown user exception");
-                        }
+                        System.out.println("Unknown user exception");
                     }
 
                     out.destroy();
@@ -314,17 +198,9 @@ public class Client extends Ice.Application
                     //
                     // Invoke operation.
                     //
-                    if(async)
+                    if(!obj.ice_invoke("printStructSequence", Ice.OperationMode.Normal, out.finished(), null))
                     {
-                        obj.ice_invoke_async(new AMI_Object_ice_invokeI(), "printStructSequence",
-                                             Ice.OperationMode.Normal, out.finished());
-                    }
-                    else
-                    {
-                        if(!obj.ice_invoke("printStructSequence", Ice.OperationMode.Normal, out.finished(), null))
-                        {
-                            System.out.println("Unknown user exception");
-                        }
+                        System.out.println("Unknown user exception");
                     }
 
                     out.destroy();
@@ -345,17 +221,9 @@ public class Client extends Ice.Application
                     //
                     // Invoke operation.
                     //
-                    if(async)
+                    if(!obj.ice_invoke("printClass", Ice.OperationMode.Normal, out.finished(), null))
                     {
-                        obj.ice_invoke_async(new AMI_Object_ice_invokeI(), "printClass", Ice.OperationMode.Normal,
-                                             out.finished());
-                    }
-                    else
-                    {
-                        if(!obj.ice_invoke("printClass", Ice.OperationMode.Normal, out.finished(), null))
-                        {
-                            System.out.println("Unknown user exception");
-                        }
+                        System.out.println("Unknown user exception");
                     }
 
                     out.destroy();
@@ -366,31 +234,23 @@ public class Client extends Ice.Application
                     // Invoke operation.
                     //
                     Ice.ByteSeqHolder outParams = new Ice.ByteSeqHolder();
-                    if(async)
+                    if(!obj.ice_invoke("getValues", Ice.OperationMode.Normal, null, outParams))
                     {
-                        obj.ice_invoke_async(new AMI_Object_ice_invokeGetValuesI(), "getValues",
-                                             Ice.OperationMode.Normal, null);
+                        System.out.println("Unknown user exception");
+                        continue;
                     }
-                    else
-                    {
-                        if(!obj.ice_invoke("getValues", Ice.OperationMode.Normal, null, outParams))
-                        {
-                            System.out.println("Unknown user exception");
-                            continue;
-                        }
 
-                        //
-                        // Unmarshal the results.
-                        //
-                        Ice.InputStream in = Ice.Util.createInputStream(communicator(), outParams.value);
-                        Demo.CHolder c = new Demo.CHolder();
-                        Demo.CHelper.read(in, c);
-                        String str = in.readString();
-                        in.readPendingObjects();
-                        in.destroy();
-                        System.out.println("Got string `" + str + "' and class: s.name=" + c.value.s.name +
-                                           ", s.value=" + c.value.s.value);
-                    }
+                    //
+                    // Unmarshal the results.
+                    //
+                    Ice.InputStream in = Ice.Util.createInputStream(communicator(), outParams.value);
+                    Demo.CHolder c = new Demo.CHolder();
+                    Demo.CHelper.read(in, c);
+                    String str = in.readString();
+                    in.readPendingObjects();
+                    in.destroy();
+                    System.out.println("Got string `" + str + "' and class: s.name=" + c.value.s.name +
+                        ", s.value=" + c.value.s.value);
                 }
                 else if(line.equals("9"))
                 {
@@ -398,45 +258,30 @@ public class Client extends Ice.Application
                     // Invoke operation.
                     //
                     Ice.ByteSeqHolder outParams = new Ice.ByteSeqHolder();
-                    if(async)
+                    if(obj.ice_invoke("throwPrintFailure", Ice.OperationMode.Normal, null, outParams))
                     {
-                        obj.ice_invoke_async(new AMI_Object_ice_invokeThrowPrintFailureI(), "throwPrintFailure",
-                                             Ice.OperationMode.Normal, null);
+                        System.out.println("Expected exception");
+                        continue;
                     }
-                    else
-                    {
-                        if(obj.ice_invoke("throwPrintFailure", Ice.OperationMode.Normal, null, outParams))
-                        {
-                            System.out.println("Expected exception");
-                            continue;
-                        }
 
-                        Ice.InputStream in = Ice.Util.createInputStream(communicator(), outParams.value);
-                        try
-                        {
-                            in.throwException();
-                        }
-                        catch(Demo.PrintFailure ex)
-                        {
-                            // Expected.
-                        }
-                        catch(Ice.UserException ex)
-                        {
-                            System.out.println("Unknown user exception");
-                        }
-                        in.destroy();
+                    Ice.InputStream in = Ice.Util.createInputStream(communicator(), outParams.value);
+                    try
+                    {
+                        in.throwException();
                     }
+                    catch(Demo.PrintFailure ex)
+                    {
+                        // Expected.
+                    }
+                    catch(Ice.UserException ex)
+                    {
+                        System.out.println("Unknown user exception");
+                    }
+                    in.destroy();
                 }
                 else if(line.equals("s"))
                 {
-                    if(async)
-                    {
-                        obj.ice_invoke_async(new AMI_Object_ice_invokeI(), "shutdown", Ice.OperationMode.Normal, null);
-                    }
-                    else
-                    {
-                        obj.ice_invoke("shutdown", Ice.OperationMode.Normal, null, null);
-                    }
+                    obj.ice_invoke("shutdown", Ice.OperationMode.Normal, null, null);
                 }
                 else if(line.equals("x"))
                 {

@@ -1,3 +1,0 @@
-Latency.o: Latency.cpp Latency.h
-Client.o: Client.cpp Latency.h
-Server.o: Server.cpp Latency.h

@@ -28,21 +28,20 @@ GENERATE_PDB	= yes
 !endif
 
 CPPFLAGS	= $(CPPFLAGS) -nologo -W3 -WX -GR -EHsc -FD -D_CONSOLE
+!if "$(CPP_COMPILER)" != "VC60"
+CPPFLAGS        = $(CPPFLAGS) -MP
+!endif
 
 !if "$(OPTIMIZE)" == "yes"
 
-CPPFLAGS	= $(CPPFLAGS) -O2 -DNDEBUG
-
-CPPFLAGS	= $(CPPFLAGS) -MD
+CPPFLAGS	= $(CPPFLAGS) -O2 -DNDEBUG -MD
 
 !else
 
-CPPFLAGS	= $(CPPFLAGS) -Zi -Gm -Od -D_DEBUG
+CPPFLAGS	= $(CPPFLAGS) -Zi -Od -D_DEBUG -MDd
 
-CPPFLAGS	= $(CPPFLAGS) -MDd
-
-!if "$(CPP_COMPILER)" == "VC60" || "$(CPP_COMPILER)" == "VC71"
-CPPFLAGS        = $(CPPFLAGS) -GZ
+!if "$(CPP_COMPILER)" == "VC60"
+CPPFLAGS        = $(CPPFLAGS) -GZ -Gm
 !else
 CPPFLAGS        = $(CPPFLAGS) -RTC1
 !endif

@@ -26,8 +26,9 @@ STLPortVer = '4.6.2'
 ExpatVer = '2.0.1'
 DBVer = '4.8.24'
 MCPPVer = '2.7.2'
-LooksVer = '2.2.2'
+LooksVer = '2.3.0'
 FormsVer = '1.2.1'
+QtVer = '4.5.3'
 
 
 class DistEnvironmentError:
@@ -76,7 +77,7 @@ def usage():
 
 def environmentCheck():
     """Warning: uses global environment."""
-    required = ["DB_HOME", "BZIP2_HOME", "EXPAT_HOME", "OPENSSL_HOME", "MCPP_HOME", "STLPORT_HOME", "JGOODIES_FORMS_HOME", "JGOODIES_LOOKS_HOME"]
+    required = ["DB_HOME", "BZIP2_HOME", "EXPAT_HOME", "OPENSSL_HOME", "MCPP_HOME", "STLPORT_HOME", "JGOODIES_FORMS_HOME", "JGOODIES_LOOKS_HOME", "QT_HOME"]
 
     fail = False
 
@@ -104,16 +105,17 @@ def list2english(l):
         return l[0] + ", " + list2english(l[1:])
 
 def convertLicensesToRTF(toolDir):
-    openssl = (os.path.join(os.environ["OPENSSL_HOME"], "LICENSE"), "OpenSSL", "OPENSSL_LICENSE.rtf")
-    berkeleydb = (os.path.join(os.environ["DB_HOME"], "LICENSE"), "Berkeley DB", "BERKELEY_DB_LICENSE.rtf")
-    expat = (os.path.join(os.environ["EXPAT_HOME"], "COPYING.txt"), "Expat", "EXPAT_LICENSE.rtf")
-    bzip2 = (os.path.join(os.environ["BZIP2_HOME"], "LICENSE"), "bzip2/libbzip2", "BZIP2_LICENSE.rtf")
-    mcpp = (os.path.join(os.environ["MCPP_HOME"], "LICENSE"), "MCPP", "MCPP_LICENSE.rtf")
-    looks = (os.path.join(os.environ["JGOODIES_LOOKS_HOME"], "license.txt"), "JGoodies Looks", 
+    openssl = ([os.path.join(os.environ["OPENSSL_HOME"], "LICENSE")], "OpenSSL", "OPENSSL_LICENSE.rtf")
+    berkeleydb = ([os.path.join(os.environ["DB_HOME"], "LICENSE")], "Berkeley DB", "BERKELEY_DB_LICENSE.rtf")
+    expat = ([os.path.join(os.environ["EXPAT_HOME"], "COPYING.txt")], "Expat", "EXPAT_LICENSE.rtf")
+    bzip2 = ([os.path.join(os.environ["BZIP2_HOME"], "LICENSE")], "bzip2/libbzip2", "BZIP2_LICENSE.rtf")
+    mcpp = ([os.path.join(os.environ["MCPP_HOME"], "LICENSE")], "MCPP", "MCPP_LICENSE.rtf")
+    looks = ([os.path.join(os.environ["JGOODIES_LOOKS_HOME"], "license.txt")], "JGoodies Looks", 
     	     "JGOODIES_LOOKS_LICENSE.rtf")
-    forms = (os.path.join(os.environ["JGOODIES_FORMS_HOME"], "license.txt"), "JGoodies Forms",
+    forms = ([os.path.join(os.environ["JGOODIES_FORMS_HOME"], "license.txt")], "JGoodies Forms",
              "JGOODIES_FORMS_LICENSE.rtf")
-    stlport = (os.path.join(os.environ["STLPORT_HOME"], "doc", "license.html"), "STLport", "STLPORT_LICENSE.rtf")
+    stlport = ([os.path.join(os.environ["STLPORT_HOME"], "doc", "license.html")], "STLport", "STLPORT_LICENSE.rtf")
+    qt = ([os.path.join(os.environ["QT_HOME"], "LICENSE.LGPL"), os.path.join(os.environ["QT_HOME"], "LGPL_EXCEPTION.txt")], "Qt", "QT_LICENSE.rtf")
 
     #
     # The license file isn't quite right for this.
@@ -123,7 +125,7 @@ def convertLicensesToRTF(toolDir):
     rtfhdr = file(os.path.join(toolDir, "docs", "rtf.hdr")).readlines()
     rtfftr = file(os.path.join(toolDir, "docs", "rtf.footer")).readlines()
 
-    collection = [ berkeleydb, bzip2, openssl, expat, mcpp, looks, forms, stlport ]
+    collection = [ berkeleydb, bzip2, openssl, expat, mcpp, looks, forms, qt, stlport ]
 
     third_party_sources_file_hdr = """Source Code
 -----------
@@ -153,22 +155,29 @@ def convertLicensesToRTF(toolDir):
     licensefile = file(os.path.join(toolDir, "docs", "thirdparty", "LICENSE.txt"), "w")
     for f in collection:
         contents = None
-        if f[0].endswith(".html"):
-            #
-            # Here's me wishing the Python standard library had a class
-            # for converting HTML to plain text. In the meantime, we'll
-            # have to leverage 'links' in cygwin.
-            #
-            pipe_stdin, pipe_stdout = os.popen2("cygpath %s" % f[0])
-            lines = pipe_stdout.readlines()
-            pipe_stdin.close()
-            pipe_stdout.close()
-            cygname = lines[0].strip()
-            pipe_stdin, pipe_stdout = os.popen2("links -dump %s" % cygname)
-            lines = pipe_stdout.readlines()
-            contents = lines[2:]
-        else:
-            contents = file(f[0]).readlines()
+	for lf in f[0]:
+            if lf.endswith(".html"):
+                #
+                # Here's me wishing the Python standard library had a class
+                # for converting HTML to plain text. In the meantime, we'll
+                # have to leverage 'links' in cygwin.
+                #
+                pipe_stdin, pipe_stdout = os.popen2("cygpath %s" % lf)
+                lines = pipe_stdout.readlines()
+                pipe_stdin.close()
+                pipe_stdout.close()
+                cygname = lines[0].strip()
+                pipe_stdin, pipe_stdout = os.popen2("links -dump %s" % cygname)
+                lines = pipe_stdout.readlines()
+		if contents == None:
+		    contents = lines[2:]
+		else:
+                    contents = contents + lines[2:]
+            else:
+		if contents == None:
+		    contents = file(lf).readlines()
+		else:
+                    contents = contents + file(lf).readlines()
         hdr = section_header % f[1]
 
         licensefile.write(hdr)
@@ -275,6 +284,7 @@ def main():
                 os.environ['MCPP_HOME'] = os.path.join(a, 'VC9', 'mcpp-%s' % MCPPVer)
                 os.environ['JGOODIES_FORMS_HOME'] = os.path.join(a, 'VC9', 'forms-%s' % FormsVer)
                 os.environ['JGOODIES_LOOKS_HOME'] = os.path.join(a, 'VC9', 'looks-%s' % LooksVer)
+                os.environ['QT_HOME'] = os.path.join(a, 'VC9', 'qt-win-opensource-src-%s' % QtVer)
 
         if debugLevel != logging.NOTSET:
             if a != None:

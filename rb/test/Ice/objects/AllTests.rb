@@ -213,6 +213,10 @@ def allTests(communicator)
     rescue Ice::UnexpectedObjectException => ex
         test(ex.type == "::Test::AlsoEmpty")
         test(ex.expectedType == "::Test::Empty")
+    rescue Ice::UnmarshalOutOfBoundsException => ex
+        # This test raises Ice::UnmarshalOutOfBoundsException on Windows when the
+        # server is compiled with VC6.
+        test(RUBY_PLATFORM =~ /(win|w)32$/)
     rescue Ice::Exception => ex
         puts $!
         print ex.backtrace.join("\n")

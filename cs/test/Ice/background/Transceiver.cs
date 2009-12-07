@@ -79,10 +79,10 @@ internal class Transceiver : IceInternal.Transceiver
         _transceiver.finishRead(buf);
     }
 
-    public bool startWrite(IceInternal.Buffer buf, AsyncCallback callback, object state)
+    public bool startWrite(IceInternal.Buffer buf, AsyncCallback callback, object state, out bool completed)
     {
         _configuration.checkWriteException();
-        return _transceiver.startWrite(buf, callback, state);
+        return _transceiver.startWrite(buf, callback, state, out completed);
     }
 
     public void finishWrite(IceInternal.Buffer buf)

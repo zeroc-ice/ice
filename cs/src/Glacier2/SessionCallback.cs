@@ -50,9 +50,6 @@ public interface SessionCallback
     /// <param name="ex">The exception.</param>
     void
     connectFailed(SessionHelper session, Exception ex);
-
-    System.Windows.Threading.Dispatcher
-    getDispatcher();
 }
 
 }

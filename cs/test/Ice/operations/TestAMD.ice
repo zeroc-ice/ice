@@ -78,10 +78,10 @@ dictionary<MyStruct, MyEnum> MyStructMyEnumD;
 {
     void shutdown();
 
+    void delay(int ms);
+
     void opVoid();
 
-    void opSleep(int duration);
-    
     byte opByte(byte p1, byte p2,
                 out byte p3);
 

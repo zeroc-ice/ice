@@ -10,7 +10,7 @@
 top_srcdir	= ..\..\..
 
 LIBNAME		= $(top_srcdir)\lib\icegridfreezedb$(LIBSUFFIX).lib
-DLLNAME		= $(top_srcdir)\bin\icegridfreezedb$(SOVERSION)$(LIBSUFFIX).dll
+DLLNAME		= $(top_srcdir)\bin\icegridfreezedb$(COMPSUFFIX)$(SOVERSION)$(LIBSUFFIX).dll
 
 TARGETS         = $(LIBNAME) $(DLLNAME)
 

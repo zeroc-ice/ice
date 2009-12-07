@@ -56,6 +56,26 @@ void
 twoways(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrx& p)
 {
     {
+        p->ice_ping();
+    }
+
+    {
+        test(p->ice_isA(Test::MyClass::ice_staticId()));
+    }
+
+    {
+        test(p->ice_id() == Test::MyDerivedClass::ice_staticId());
+    }
+
+    {
+        Ice::StringSeq ids = p->ice_ids();
+        test(ids.size() == 3);
+        test(ids[0] == "::Ice::Object");
+        test(ids[1] == "::Test::MyClass");
+        test(ids[2] == "::Test::MyDerivedClass");
+    }
+
+    {
         p->opVoid();
     }
 

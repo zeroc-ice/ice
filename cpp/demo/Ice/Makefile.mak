@@ -18,13 +18,15 @@ SUBDIRS		= minimal \
 		  value \
 		  callback \
 		  nested \
+		  invoke \
 		  bidir \
 		  session \
 		  converter \
 		  async \
 		  multicast \
 		  nrvo \
-		  plugin
+		  plugin \
+		  interleaved
 
 !if "$(CPP_COMPILER)" != "VC60"
 SUBDIRS		= $(SUBDIRS) \

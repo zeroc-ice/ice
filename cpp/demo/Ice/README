@@ -29,6 +29,12 @@ Demos in this directory:
   well as how to invoke oneway operations, use datagrams, secure
   invocations, and how to use batched invocations.
 
+- interleaved
+
+  A more advanced throughput demo that allows you to send sequences of
+  various types between client and server and to measure the maximum
+  bandwidth that can be achieved using asynchronous requests & replies.
+
 - invoke
 
   This demo illustrates the use of the Ice streaming API.

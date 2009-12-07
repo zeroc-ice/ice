@@ -63,6 +63,10 @@ module Ice
         def ice_name
             to_s
         end
+
+        def inspect
+            return ::Ice::__stringifyException(self)
+        end
     end
 
     class UserException < Exception

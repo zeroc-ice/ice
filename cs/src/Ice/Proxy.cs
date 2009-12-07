@@ -15,6 +15,48 @@ using IceUtilInternal;
 
 namespace Ice
 {
+    public delegate void Callback_Object_ice_isA(bool ret__);
+
+    public delegate void Callback_Object_ice_ids(string[] ret__);
+
+    public delegate void Callback_Object_ice_id(string ret__);
+
+    public delegate void Callback_Object_ice_ping();
+
+    public delegate void Callback_Object_ice_invoke(bool ret__, byte[] outParams);
+
+    /// <summary>
+    /// Callback object for Blobject AMI invocations.
+    /// </summary>
+    public abstract class AMI_Object_ice_invoke : AMICallbackBase
+    {
+         /// <summary>
+         /// The Ice run time calls <code>ice_response</code> when an asynchronous operation invocation
+         /// completes successfully or raises a user exception.
+         /// </summary>
+         /// <param name="ok">Indicates the result of the invocation. If true, the operation
+         /// completed succesfully; if false, the operation raised a user exception.</param>
+         /// <param name="outParams">Contains the encoded out-parameters of the operation (if any) if ok
+         /// is true; otherwise, if ok is false, contains the
+         /// encoded user exception raised by the operation.</param>
+        public abstract void ice_response(bool ok, byte[] outParams);
+
+        public void response__(bool ok, byte[] outParams)
+        {
+            ice_response(ok, outParams);
+        }
+    }
+
+    /// <summary>
+    /// Callback object for ObjectPrx.ice_flushBatchRequests_async.
+    /// </summary>
+    public abstract class AMI_Object_ice_flushBatchRequests : AMICallbackBase
+    {
+        //
+        // Subclass must override ice_exception, which is inherited from AMICallbackBase.
+        //
+    }
+
     /// <summary>
     /// Base interface of all object proxies.
     /// </summary>
@@ -55,6 +97,13 @@ namespace Ice
         /// from the interface specified by id__.</returns>
         bool ice_isA(string id__, Dictionary<string, string> context__);
 
+        AsyncResult<Callback_Object_ice_isA> begin_ice_isA(string id);
+        AsyncResult<Callback_Object_ice_isA> begin_ice_isA(string id, Dictionary<string, string> context__);
+        AsyncResult begin_ice_isA(string id, AsyncCallback cb__, object cookie__);
+        AsyncResult begin_ice_isA(string id, Dictionary<string, string> context__, AsyncCallback cb__, object cookie__);
+
+        bool end_ice_isA(AsyncResult r__);
+
         /// <summary>
         /// Tests whether the target object of this proxy can be reached.
         /// </summary>
@@ -65,6 +114,13 @@ namespace Ice
         /// </summary>
         /// <param name="context__">The context dictionary for the invocation.</param>
         void ice_ping(Dictionary<string, string> context__);
+
+        AsyncResult<Callback_Object_ice_ping> begin_ice_ping();
+        AsyncResult<Callback_Object_ice_ping> begin_ice_ping(Dictionary<string, string> context__);
+        AsyncResult begin_ice_ping(AsyncCallback cb__, object cookie__);
+        AsyncResult begin_ice_ping(Dictionary<string, string> context__, AsyncCallback cb__, object cookie__);
+
+        void end_ice_ping(AsyncResult r__);
 
         /// <summary>
         /// Returns the Slice type IDs of the interfaces supported by the target object of this proxy.
@@ -81,6 +137,13 @@ namespace Ice
         /// order. The first element of the returned array is always ::Ice::Object.</returns>
         string[] ice_ids(Dictionary<string, string> context__);
 
+        AsyncResult<Callback_Object_ice_ids> begin_ice_ids();
+        AsyncResult<Callback_Object_ice_ids> begin_ice_ids(Dictionary<string, string> context__);
+        AsyncResult begin_ice_ids(AsyncCallback cb__, object cookie__);
+        AsyncResult begin_ice_ids(Dictionary<string, string> context__, AsyncCallback cb__, object cookie__);
+
+        string[] end_ice_ids(AsyncResult r__);
+
         /// <summary>
         /// Returns the Slice type ID of the most-derived interface supported by the target object of this proxy.
         /// </summary>
@@ -93,6 +156,13 @@ namespace Ice
         /// <param name="context__">The context dictionary for the invocation.</param>
         /// <returns>The Slice type ID of the most-derived interface.</returns>
         string ice_id(Dictionary<string, string> context__);
+
+        AsyncResult<Callback_Object_ice_id> begin_ice_id();
+        AsyncResult<Callback_Object_ice_id> begin_ice_id(Dictionary<string, string> context__);
+        AsyncResult begin_ice_id(AsyncCallback cb__, object cookie__);
+        AsyncResult begin_ice_id(Dictionary<string, string> context__, AsyncCallback cb__, object cookie__);
+
+        string end_ice_id(AsyncResult r__);
 
         /// <summary>
         /// Invokes an operation dynamically.
@@ -124,7 +194,7 @@ namespace Ice
         /// contains the encoded user exception. If the operation raises a run-time exception,
         /// it throws it directly.</returns>
         bool ice_invoke(string operation, OperationMode mode, byte[] inParams, out byte[] outParams,
-            Dictionary<string, string> context__);
+                        Dictionary<string, string> context__);
 
         /// <summary>
         /// Invokes an operation dynamically and asynchronously.
@@ -133,9 +203,9 @@ namespace Ice
         /// <param name="operation">The name of the operation to invoke.</param>
         /// <param name="mode">The operation mode (normal or idempotent).</param>
         /// <param name="inParams">The encoded in-parameters for the operation.</param>
-	/// <returns> If the operation was invoked synchronously (because there
-	/// was no need to queue the request), the return value is true;
-	/// otherwise, if the invocation was queued, the return value is false.</returns>
+        /// <returns> If the operation was invoked synchronously (because there
+        /// was no need to queue the request), the return value is true;
+        /// otherwise, if the invocation was queued, the return value is false.</returns>
         bool ice_invoke_async(AMI_Object_ice_invoke cb, string operation, OperationMode mode, byte[] inParams);
 
         /// <summary>
@@ -146,11 +216,23 @@ namespace Ice
         /// <param name="mode">The operation mode (normal or idempotent).</param>
         /// <param name="inParams">The encoded in-parameters for the operation.</param>
         /// <param name="context">The context dictionary for the invocation.</param>
-	/// <returns> If the operation was invoked synchronously (because there
-	/// was no need to queue the request), the return value is true;
-	/// otherwise, if the invocation was queued, the return value is false.</returns>
+        /// <returns> If the operation was invoked synchronously (because there
+        /// was no need to queue the request), the return value is true;
+        /// otherwise, if the invocation was queued, the return value is false.</returns>
         bool ice_invoke_async(AMI_Object_ice_invoke cb, string operation, OperationMode mode, byte[] inParams,
-            Dictionary<string, string> context);
+                              Dictionary<string, string> context);
+
+        AsyncResult<Callback_Object_ice_invoke> begin_ice_invoke(string operation, OperationMode mode, 
+                                                                    byte[] inParams);
+        AsyncResult<Callback_Object_ice_invoke> begin_ice_invoke(string operation, OperationMode mode, 
+                                                                    byte[] inParams,
+                                                                    Dictionary<string, string> context__);
+        AsyncResult begin_ice_invoke(string operation, OperationMode mode, byte[] inParams, AsyncCallback cb__,
+                                     object cookie__);
+        AsyncResult begin_ice_invoke(string operation, OperationMode mode, byte[] inParams,
+                                     Dictionary<string, string> context__, AsyncCallback cb__, object cookie__);
+
+        bool end_ice_invoke(out byte[] outParams, AsyncResult r__);
 
         /// <summary>
         /// Returns the identity embedded in this proxy.
@@ -164,7 +246,7 @@ namespace Ice
         /// <returns>The proxy with the new identity.</returns>
         /// </summary>
         ObjectPrx ice_identity(Identity newIdentity);
-        
+
         /// <summary>
         /// Returns the per-proxy context for this proxy.
         /// </summary>
@@ -178,7 +260,7 @@ namespace Ice
         /// <param name="newContext">The context for the new proxy.</param>
         /// <returns>The proxy with the new per-proxy context.</returns>
         ObjectPrx ice_context(Dictionary<string, string> newContext);
-        
+
         /// <summary>
         /// Returns the facet for this proxy.
         /// </summary>
@@ -231,7 +313,7 @@ namespace Ice
         /// </summary>
         /// <param name="timeout">The new locator cache timeout (in seconds).</param>
         ObjectPrx ice_locatorCacheTimeout(int timeout);
-        
+
         /// <summary>
         /// Returns whether this proxy caches connections.
         /// </summary>
@@ -418,19 +500,6 @@ namespace Ice
         string ice_getConnectionId();
 
         /// <summary>
-        /// Flushes any pending batched requests for this communicator. The call blocks until the flush is complete.
-        /// </summary>
-        void ice_flushBatchRequests();
-
-        /// <summary>
-        /// Asynchronously flushes any pending batched requests for this communicator. The call does not block.
-        /// </summary>
-        /// <param name="cb">The callback object to notify the application when the flush is complete.</param>
-        /// <returns>True if the requests were flushed immediately without blocking; false
-        /// if the requests could not be flushed immediately.</returns>
-        bool ice_flushBatchRequests_async(AMI_Object_ice_flushBatchRequests cb);
-
-        /// <summary>
         /// Returns the Connection for this proxy. If the proxy does not yet have an established connection,
         /// it first attempts to create a connection.
         /// </summary>
@@ -448,6 +517,24 @@ namespace Ice
         /// <exception name="CollocationOptimizationException">If the proxy uses collocation optimization and denotes a
         /// collocated object.</exception>
         Connection ice_getCachedConnection();
+
+        /// <summary>
+        /// Flushes any pending batched requests for this communicator. The call blocks until the flush is complete.
+        /// </summary>
+        void ice_flushBatchRequests();
+
+        /// <summary>
+        /// Asynchronously flushes any pending batched requests for this communicator. The call does not block.
+        /// </summary>
+        /// <param name="cb">The callback object to notify the application when the flush is complete.</param>
+        /// <returns>True if the requests were flushed immediately without blocking; false
+        /// if the requests could not be flushed immediately.</returns>
+        bool ice_flushBatchRequests_async(AMI_Object_ice_flushBatchRequests cb);
+
+        AsyncResult begin_ice_flushBatchRequests();
+        AsyncResult begin_ice_flushBatchRequests(AsyncCallback cb__, object cookie__);
+
+        void end_ice_flushBatchRequests(AsyncResult r__);
     }
 
     /// <summary>
@@ -542,12 +629,108 @@ namespace Ice
                 }
                 catch(IceInternal.LocalExceptionWrapper ex__)
                 {
-                    handleExceptionWrapperRelaxed__(del__, ex__, null, ref cnt__);
+                    handleExceptionWrapperRelaxed__(del__, ex__, true, ref cnt__);
                 }
                 catch(LocalException ex__)
                 {
-                    handleException__(del__, ex__, null, ref cnt__);
+                    handleException__(del__, ex__, true, ref cnt__);
                 }
+            }
+        }
+
+        public AsyncResult<Callback_Object_ice_isA> begin_ice_isA(string id)
+        {
+            return begin_ice_isA(id, null, false, null, null);
+        }
+
+        public AsyncResult<Callback_Object_ice_isA> begin_ice_isA(string id, Dictionary<string, string> context__)
+        {
+            return begin_ice_isA(id, context__, true, null, null);
+        }
+
+        public AsyncResult begin_ice_isA(string id, AsyncCallback cb__, object cookie__)
+        {
+            return begin_ice_isA(id, null, false, cb__, cookie__);
+        }
+
+        public AsyncResult begin_ice_isA(string id, Dictionary<string, string> context__, AsyncCallback cb__,
+                                         object cookie__)
+        {
+            return begin_ice_isA(id, null, false, cb__, cookie__);
+        }
+
+        private const string __ice_isA_name = "ice_isA";
+
+        public bool end_ice_isA(AsyncResult r__)
+        {
+            IceInternal.OutgoingAsync outAsync__ = (IceInternal.OutgoingAsync)r__;
+            IceInternal.OutgoingAsync.check__(outAsync__, this, __ice_isA_name);
+            if(!outAsync__.wait__())
+            {
+                try
+                {
+                    outAsync__.throwUserException__();
+                }
+                catch(Ice.UserException ex__)
+                {
+                    throw new Ice.UnknownUserException(ex__.ice_name(), ex__);
+                }
+            }
+            bool ret__;
+            IceInternal.BasicStream is__ = outAsync__.istr__;
+            is__.startReadEncaps();
+            ret__ = is__.readBool();
+            is__.endReadEncaps();
+            return ret__;
+        }
+
+        private AsyncResult<Callback_Object_ice_isA> begin_ice_isA(string id, Dictionary<string, string> context__,
+                                                                      bool explicitContext__, 
+                                                                      Ice.AsyncCallback cb__, 
+                                                                      object cookie__)
+        {
+            IceInternal.TwowayOutgoingAsync<Callback_Object_ice_isA> result__ = 
+                new IceInternal.TwowayOutgoingAsync<Callback_Object_ice_isA>(this, __ice_isA_name, ice_isA_completed__, 
+                                                                             cookie__);
+            if(cb__ != null)
+            {
+                result__.whenCompletedWithAsyncCallback(cb__);
+            }
+            checkAsyncTwowayOnly__(__ice_isA_name);
+
+            try
+            {
+                result__.prepare__(__ice_isA_name, OperationMode.Normal, context__, explicitContext__);
+                IceInternal.BasicStream os__ = result__.ostr__;
+                os__.writeString(id);
+                os__.endWriteEncaps();
+                result__.send__(true);
+            }
+            catch(Ice.LocalException ex__)
+            {
+                result__.exceptionAsync__(ex__);
+            }
+            return result__;
+        }
+
+        private void ice_isA_completed__(AsyncResult r__, Callback_Object_ice_isA cb__, Ice.ExceptionCallback excb__)
+        {
+            bool ret__;
+            try
+            {
+                ret__ = end_ice_isA(r__);
+            }
+            catch(Ice.Exception ex__)
+            {
+                if(excb__ != null)
+                {
+                    excb__(ex__);
+                }
+                return;
+            }
+            if(cb__ != null)
+            {
+                cb__(ret__);
             }
         }
 
@@ -587,12 +770,74 @@ namespace Ice
                 }
                 catch(IceInternal.LocalExceptionWrapper ex__)
                 {
-                    handleExceptionWrapperRelaxed__(del__, ex__, null, ref cnt__);
+                    handleExceptionWrapperRelaxed__(del__, ex__, true, ref cnt__);
                 }
                 catch(LocalException ex__)
                 {
-                    handleException__(del__, ex__, null, ref cnt__);
+                    handleException__(del__, ex__, true, ref cnt__);
                 }
+            }
+        }
+
+        public AsyncResult<Callback_Object_ice_ping> begin_ice_ping()
+        {
+            return begin_ice_ping(null, false, null, null);
+        }
+
+        public AsyncResult<Callback_Object_ice_ping> begin_ice_ping(Dictionary<string, string> context__)
+        {
+            return begin_ice_ping(context__, true, null, null);
+        }
+
+        public AsyncResult begin_ice_ping(AsyncCallback cb__, object cookie__)
+        {
+            return begin_ice_ping(null, false, cb__, cookie__);
+        }
+
+        public AsyncResult begin_ice_ping(Dictionary<string, string> context__, AsyncCallback cb__, object cookie__)
+        {
+            return begin_ice_ping(null, false, cb__, cookie__);
+        }
+
+        private const string __ice_ping_name = "ice_ping";
+
+        public void end_ice_ping(AsyncResult r__)
+        {
+            end__(r__, __ice_ping_name);
+        }
+
+        private AsyncResult<Callback_Object_ice_ping> begin_ice_ping(Dictionary<string, string> context__, 
+                                                                 bool explicitContext__,
+                                                                 Ice.AsyncCallback cb__, 
+                                                                 object cookie__)
+        {
+            IceInternal.OnewayOutgoingAsync<Callback_Object_ice_ping> result__ = 
+                new IceInternal.OnewayOutgoingAsync<Callback_Object_ice_ping>(this, __ice_ping_name, 
+                                                                              ice_ping_completed__, cookie__);
+            if(cb__ != null)
+            {
+                result__.whenCompletedWithAsyncCallback(cb__);
+            }
+
+            try
+            {
+                result__.prepare__(__ice_ping_name, OperationMode.Normal, context__, explicitContext__);
+                IceInternal.BasicStream os__ = result__.ostr__;
+                os__.endWriteEncaps();
+                result__.send__(true);
+            }
+            catch(Ice.LocalException ex__)
+            {
+                result__.exceptionAsync__(ex__);
+            }
+            return result__;
+        }
+
+        private void ice_ping_completed__(Callback_Object_ice_ping cb)
+        {
+            if(cb != null)
+            {
+                cb();
             }
         }
 
@@ -635,12 +880,106 @@ namespace Ice
                 }
                 catch(IceInternal.LocalExceptionWrapper ex__)
                 {
-                    handleExceptionWrapperRelaxed__(del__, ex__, null, ref cnt__);
+                    handleExceptionWrapperRelaxed__(del__, ex__, true, ref cnt__);
                 }
                 catch(LocalException ex__)
                 {
-                    handleException__(del__, ex__, null, ref cnt__);
+                    handleException__(del__, ex__, true, ref cnt__);
                 }
+            }
+        }
+
+        public AsyncResult<Callback_Object_ice_ids> begin_ice_ids()
+        {
+            return begin_ice_ids(null, false, null, null);
+        }
+
+        public AsyncResult<Callback_Object_ice_ids> begin_ice_ids(Dictionary<string, string> context__)
+        {
+            return begin_ice_ids(context__, true, null, null);
+        }
+
+        public AsyncResult begin_ice_ids(AsyncCallback cb__, object cookie__)
+        {
+            return begin_ice_ids(null, false, cb__, cookie__);
+        }
+
+        public AsyncResult begin_ice_ids(Dictionary<string, string> context__, AsyncCallback cb__, object cookie__)
+        {
+            return begin_ice_ids(null, false, cb__, cookie__);
+        }
+
+        private const string __ice_ids_name = "ice_ids";
+
+        public string[] end_ice_ids(AsyncResult r__)
+        {
+            IceInternal.OutgoingAsync outAsync__ = (IceInternal.OutgoingAsync)r__;
+            IceInternal.OutgoingAsync.check__(outAsync__, this, __ice_ids_name);
+            if(!outAsync__.wait__())
+            {
+                try
+                {
+                    outAsync__.throwUserException__();
+                }
+                catch(Ice.UserException ex__)
+                {
+                    throw new Ice.UnknownUserException(ex__.ice_name(), ex__);
+                }
+            }
+            string[] ret__;
+            IceInternal.BasicStream is__ = outAsync__.istr__;
+            is__.startReadEncaps();
+            ret__ = is__.readStringSeq();
+            is__.endReadEncaps();
+            return ret__;
+        }
+
+        private AsyncResult<Callback_Object_ice_ids> begin_ice_ids(Dictionary<string, string> context__,
+                                                                      bool explicitContext__,
+                                                                      Ice.AsyncCallback cb__, 
+                                                                      object cookie__)
+        {
+            IceInternal.TwowayOutgoingAsync<Callback_Object_ice_ids> result__ = 
+                new IceInternal.TwowayOutgoingAsync<Callback_Object_ice_ids>(this, __ice_ids_name, ice_ids_completed__,
+                                                                             cookie__);
+            if(cb__ != null)
+            {
+                result__.whenCompletedWithAsyncCallback(cb__);
+            }
+            checkAsyncTwowayOnly__(__ice_ids_name);
+
+            try
+            {
+                result__.prepare__(__ice_ids_name, OperationMode.Normal, context__, explicitContext__);
+                IceInternal.BasicStream os__ = result__.ostr__;
+                os__.endWriteEncaps();
+                result__.send__(true);
+            }
+            catch(Ice.LocalException ex__)
+            {
+                result__.exceptionAsync__(ex__);
+            }
+            return result__;
+        }
+
+        private void ice_ids_completed__(AsyncResult r__, Callback_Object_ice_ids cb__, Ice.ExceptionCallback excb__)
+        {
+            string[] ret__;
+            try
+            {
+                ret__ = end_ice_ids(r__);
+            }
+            catch(Ice.Exception ex__)
+            {
+                if(excb__ != null)
+                {
+                    excb__(ex__);
+                }
+                return;
+            }
+            if(cb__ != null)
+            {
+                cb__(ret__);
             }
         }
 
@@ -681,12 +1020,106 @@ namespace Ice
                 }
                 catch(IceInternal.LocalExceptionWrapper ex__)
                 {
-                    handleExceptionWrapperRelaxed__(del__, ex__, null, ref cnt__);
+                    handleExceptionWrapperRelaxed__(del__, ex__, true, ref cnt__);
                 }
                 catch(LocalException ex__)
                 {
-                    handleException__(del__, ex__, null, ref cnt__);
+                    handleException__(del__, ex__, true, ref cnt__);
                 }
+            }
+        }
+
+        public AsyncResult<Callback_Object_ice_id> begin_ice_id()
+        {
+            return begin_ice_id(null, false, null, null);
+        }
+
+        public AsyncResult<Callback_Object_ice_id> begin_ice_id(Dictionary<string, string> context__)
+        {
+            return begin_ice_id(context__, true, null, null);
+        }
+
+        public AsyncResult begin_ice_id(AsyncCallback cb__, object cookie__)
+        {
+            return begin_ice_id(null, false, cb__, cookie__);
+        }
+
+        public AsyncResult begin_ice_id(Dictionary<string, string> context__, AsyncCallback cb__, object cookie__)
+        {
+            return begin_ice_id(null, false, cb__, cookie__);
+        }
+
+        private const string __ice_id_name = "ice_id";
+
+        public string end_ice_id(AsyncResult r__)
+        {
+            IceInternal.OutgoingAsync outAsync__ = (IceInternal.OutgoingAsync)r__;
+            IceInternal.OutgoingAsync.check__(outAsync__, this, __ice_id_name);
+            if(!outAsync__.wait__())
+            {
+                try
+                {
+                    outAsync__.throwUserException__();
+                }
+                catch(Ice.UserException ex__)
+                {
+                    throw new Ice.UnknownUserException(ex__.ice_name(), ex__);
+                }
+            }
+            string ret__;
+            IceInternal.BasicStream is__ = outAsync__.istr__;
+            is__.startReadEncaps();
+            ret__ = is__.readString();
+            is__.endReadEncaps();
+            return ret__;
+        }
+
+        private AsyncResult<Callback_Object_ice_id> begin_ice_id(Dictionary<string, string> context__, 
+                                                                    bool explicitContext__,
+                                                                    Ice.AsyncCallback cb__, 
+                                                                    object cookie__)
+        {
+            IceInternal.TwowayOutgoingAsync<Callback_Object_ice_id> result__ = 
+                new IceInternal.TwowayOutgoingAsync<Callback_Object_ice_id>(this, __ice_id_name, ice_id_completed__, 
+                                                                            cookie__);
+            if(cb__ != null)
+            {
+                result__.whenCompletedWithAsyncCallback(cb__);
+            }
+            checkAsyncTwowayOnly__(__ice_id_name);
+
+            try
+            {
+                result__.prepare__(__ice_id_name, OperationMode.Normal, context__, explicitContext__);
+                IceInternal.BasicStream os__ = result__.ostr__;
+                os__.endWriteEncaps();
+                result__.send__(true);
+            }
+            catch(Ice.LocalException ex__)
+            {
+                result__.exceptionAsync__(ex__);
+            }
+            return result__;
+        }
+
+        private void ice_id_completed__(AsyncResult r__, Callback_Object_ice_id cb__, Ice.ExceptionCallback excb__)
+        {
+            string ret__;
+            try
+            {
+                ret__ = end_ice_id(r__);
+            }
+            catch(Ice.Exception ex__)
+            {
+                if(excb__ != null)
+                {
+                    excb__(ex__);
+                }
+                return;
+            }
+            if(cb__ != null)
+            {
+                cb__(ret__);
             }
         }
 
@@ -727,7 +1160,7 @@ namespace Ice
         {
             return ice_invoke(operation, mode, inParams, out outParams, context, true);
         }
-            
+
         private bool ice_invoke(string operation, OperationMode mode, byte[] inParams, out byte[] outParams,
                                 Dictionary<string, string> context,  bool explicitContext)
         {
@@ -749,16 +1182,16 @@ namespace Ice
                 {
                     if(mode == OperationMode.Nonmutating || mode == OperationMode.Idempotent)
                     {
-                        handleExceptionWrapperRelaxed__(del__, ex__, null, ref cnt__);
+                        handleExceptionWrapperRelaxed__(del__, ex__, true, ref cnt__);
                     }
                     else
                     {
-                        handleExceptionWrapper__(del__, ex__, null);
+                        handleExceptionWrapper__(del__, ex__);
                     }
                 }
                 catch(LocalException ex__)
                 {
-                    handleException__(del__, ex__, null, ref cnt__);
+                    handleException__(del__, ex__, true, ref cnt__);
                 }
             }
         }
@@ -770,13 +1203,18 @@ namespace Ice
         /// <param name="operation">The name of the operation to invoke.</param>
         /// <param name="mode">The operation mode (normal or idempotent).</param>
         /// <param name="inParams">The encoded in-parameters for the operation.</param>
-	/// <returns> If the operation was invoked synchronously (because there
-	/// was no need to queue the request), the return value is true;
-	/// otherwise, if the invocation was queued, the return value is false.</returns>
+        /// <returns> If the operation was invoked synchronously (because there
+        /// was no need to queue the request), the return value is true;
+        /// otherwise, if the invocation was queued, the return value is false.</returns>
         public bool ice_invoke_async(AMI_Object_ice_invoke cb, string operation, OperationMode mode, byte[] inParams)
         {
-            checkTwowayOnly__("ice_invoke_async");
-            return cb.invoke__(this, operation, mode, inParams, null);
+            AsyncResult<Callback_Object_ice_invoke> result = begin_ice_invoke(operation, mode, inParams);
+            result.whenCompleted(cb.response__, cb.exception__);
+            if(cb is Ice.AMISentCallback)
+            {
+                result.whenSent((Ice.AsyncCallback)cb.sent__);
+            }
+            return result.sentSynchronously();
         }
 
         /// <summary>
@@ -787,18 +1225,123 @@ namespace Ice
         /// <param name="mode">The operation mode (normal or idempotent).</param>
         /// <param name="inParams">The encoded in-parameters for the operation.</param>
         /// <param name="context">The context dictionary for the invocation.</param>
-	/// <returns> If the operation was invoked synchronously (because there
-	/// was no need to queue the request), the return value is true;
-	/// otherwise, if the invocation was queued, the return value is false.</returns>
+        /// <returns> If the operation was invoked synchronously (because there
+        /// was no need to queue the request), the return value is true;
+        /// otherwise, if the invocation was queued, the return value is false.</returns>
         public bool ice_invoke_async(AMI_Object_ice_invoke cb, string operation, OperationMode mode, byte[] inParams,
                                      Dictionary<string, string> context)
         {
-            if(context == null)
+            AsyncResult<Callback_Object_ice_invoke> result = begin_ice_invoke(operation, mode, inParams, context);
+            result.whenCompleted(cb.response__, cb.exception__);
+            if(cb is Ice.AMISentCallback)
             {
-                context = emptyContext_;
+                result.whenSent((Ice.AsyncCallback)cb.sent__);
             }
-            checkTwowayOnly__("ice_invoke_async");
-            return cb.invoke__(this, operation, mode, inParams, context);
+            return result.sentSynchronously();
+        }
+
+        public AsyncResult<Callback_Object_ice_invoke> begin_ice_invoke(string operation,
+                                                                           OperationMode mode,
+                                                                           byte[] inParams)
+        {
+            return begin_ice_invoke(operation, mode, inParams, null, false, null, null);
+        }
+
+        public AsyncResult<Callback_Object_ice_invoke> begin_ice_invoke(string operation, 
+                                                                           OperationMode mode, 
+                                                                           byte[] inParams,
+                                                                           Dictionary<string, string> context__)
+        {
+            return begin_ice_invoke(operation, mode, inParams, context__, true, null, null);
+        }
+
+        public AsyncResult begin_ice_invoke(string operation, OperationMode mode, byte[] inParams, AsyncCallback cb__,
+                                            object cookie__)
+        {
+            return begin_ice_invoke(operation, mode, inParams, null, false, cb__, cookie__);
+        }
+
+        public AsyncResult begin_ice_invoke(string operation, OperationMode mode, byte[] inParams,
+                                            Dictionary<string, string> context__, AsyncCallback cb__, object cookie__)
+        {
+            return begin_ice_invoke(operation, mode, inParams, null, false, cb__, cookie__);
+        }
+
+        private const string __ice_invoke_name = "ice_invoke";
+
+        public bool end_ice_invoke(out byte[] outParams, AsyncResult r__)
+        {
+            IceInternal.OutgoingAsync outAsync__ = (IceInternal.OutgoingAsync)r__;
+            IceInternal.OutgoingAsync.check__(outAsync__, this, __ice_invoke_name);
+            bool ok = outAsync__.wait__();
+            if(_reference.getMode() == IceInternal.Reference.Mode.ModeTwoway)
+            {
+                IceInternal.BasicStream is__ = outAsync__.istr__;
+                is__.startReadEncaps();
+                int sz = is__.getReadEncapsSize();
+                outParams = is__.readBlob(sz);
+                is__.endReadEncaps();
+            }
+            else
+            {
+                outParams = null; // Satisfy compiler
+            }
+            return ok;
+        }
+
+        private AsyncResult<Callback_Object_ice_invoke> begin_ice_invoke(string operation, 
+                                                                         OperationMode mode,
+                                                                         byte[] inParams,
+                                                                         Dictionary<string, string> context__,
+                                                                         bool explicitContext__,
+                                                                         Ice.AsyncCallback cb__, 
+                                                                         object cookie__)
+        {
+            IceInternal.TwowayOutgoingAsync<Callback_Object_ice_invoke> result__ =
+                new IceInternal.TwowayOutgoingAsync<Callback_Object_ice_invoke>(this, __ice_invoke_name,
+                                                                                ice_invoke_completed__, cookie__);
+            if(cb__ != null)
+            {
+                result__.whenCompletedWithAsyncCallback(cb__);
+            }
+
+            try
+            {
+                result__.prepare__(operation, mode, context__, explicitContext__);
+                IceInternal.BasicStream os__ = result__.ostr__;
+                os__.writeBlob(inParams);
+                os__.endWriteEncaps();
+                result__.send__(true);
+            }
+            catch(Ice.LocalException ex__)
+            {
+                result__.exceptionAsync__(ex__);
+            }
+            return result__;
+        }
+
+        private void ice_invoke_completed__(AsyncResult r__, 
+                                            Callback_Object_ice_invoke cb__,
+                                            Ice.ExceptionCallback excb__)
+        {
+            byte[] outParams;
+            bool ret__;
+            try
+            {
+                ret__ = end_ice_invoke(out outParams, r__);
+            }
+            catch(Ice.Exception ex__)
+            {
+                if(excb__ != null)
+                {
+                    excb__(ex__);
+                }
+                return;
+            }
+            if(cb__ != null)
+            {
+                cb__(ret__, outParams);
+            }
         }
 
         /// <summary>
@@ -817,7 +1360,7 @@ namespace Ice
         /// </summary>
         public ObjectPrx ice_identity(Identity newIdentity)
         {
-            if(newIdentity.name.Equals(""))
+            if(newIdentity.name.Length == 0)
             {
                 throw new IllegalIdentityException();
             }
@@ -840,7 +1383,7 @@ namespace Ice
         /// is null.</returns>
         public Dictionary<string, string> ice_getContext()
         {
-	    return new Dictionary<string, string>(_reference.getContext());
+            return new Dictionary<string, string>(_reference.getContext());
         }
 
         /// <summary>
@@ -1374,7 +1917,7 @@ namespace Ice
                 }
                 catch(LocalException ex__)
                 {
-                    handleException__(del__, ex__, null, ref cnt__);
+                    handleException__(del__, ex__, true, ref cnt__);
                 }
             }
         }
@@ -1428,7 +1971,7 @@ namespace Ice
             }
             catch(LocalException ex__)
             {
-                handleException__(del__, ex__, null, ref cnt__);
+                handleException__(del__, ex__, true, ref cnt__);
             }
         }
 
@@ -1440,7 +1983,45 @@ namespace Ice
         /// if the requests could not be flushed immediately.</returns>
         public bool ice_flushBatchRequests_async(AMI_Object_ice_flushBatchRequests cb)
         {
-            return cb.invoke__(this);
+            Ice.AsyncResult result = begin_ice_flushBatchRequests().whenCompleted(cb.exception__);
+            if(cb is Ice.AMISentCallback)
+            {
+                result.whenSent((Ice.AsyncCallback)cb.sent__);
+            }
+            return result.sentSynchronously();
+        }
+
+        private const string __ice_flushBatchRequests_name = "ice_flushBatchRequests";
+
+        public AsyncResult begin_ice_flushBatchRequests()
+        {
+            return begin_ice_flushBatchRequests(null, null);
+        }
+
+        public AsyncResult begin_ice_flushBatchRequests(Ice.AsyncCallback cb__, object cookie__)
+        {
+            IceInternal.ProxyBatchOutgoingAsync result__ =
+                new IceInternal.ProxyBatchOutgoingAsync(this, __ice_flushBatchRequests_name, cookie__);
+            if(cb__ != null)
+            {
+                result__.whenCompletedWithAsyncCallback(cb__);
+            }
+            try
+            {
+                result__.send__();
+            }
+            catch(Ice.LocalException ex__)
+            {
+                result__.exceptionAsync__(ex__);
+            }
+            return result__;
+        }
+
+        public void end_ice_flushBatchRequests(Ice.AsyncResult r__)
+        {
+            IceInternal.BatchOutgoingAsync outAsync__ = (IceInternal.BatchOutgoingAsync)r__;
+            IceInternal.BatchOutgoingAsync.check__(outAsync__, this, __ice_flushBatchRequests_name);
+            outAsync__.wait__();
         }
 
         /// <summary>
@@ -1462,7 +2043,7 @@ namespace Ice
         /// <param name="lhs">A proxy to compare with the proxy rhs.</param>
         /// <param name="rhs">A proxy to compare with the proxy lhs.</param>
         /// <returns>True if the proxies are equal; false, otherwise.</returns>
-        public static bool Equals(Ice.ObjectPrxHelperBase lhs, Ice.ObjectPrxHelperBase rhs)
+        public static bool Equals(ObjectPrxHelperBase lhs, ObjectPrxHelperBase rhs)
         {
             return object.ReferenceEquals(lhs, null) ? object.ReferenceEquals(rhs, null) : lhs.Equals(rhs);
         }
@@ -1526,7 +2107,7 @@ namespace Ice
                 // The _delegate attribute is only used if "cache connection"
                 // is enabled. If it's not enabled, we don't keep track of the
                 // delegate -- a new delegate is created for each invocations.
-                //      
+                //
 
                 if(delegateD != null)
                 {
@@ -1543,10 +2124,7 @@ namespace Ice
             }
         }
 
-        public void handleException__(ObjectDel_ @delegate, 
-                                      LocalException ex, 
-                                      IceInternal.OutgoingAsync outAsync,
-                                      ref int cnt)
+        public int handleException__(ObjectDel_ @delegate, LocalException ex, bool sleep, ref int cnt)
         {
             //
             // Only _delegate needs to be mutex protected here.
@@ -1567,7 +2145,7 @@ namespace Ice
 
             try
             {
-                _reference.getInstance().proxyFactory().checkRetryAfterException(ex, _reference, outAsync, ref cnt);
+                return _reference.getInstance().proxyFactory().checkRetryAfterException(ex, _reference, sleep, ref cnt);
             }
             catch(CommunicatorDestroyedException)
             {
@@ -1579,8 +2157,7 @@ namespace Ice
             }
         }
 
-        public void handleExceptionWrapper__(ObjectDel_ @delegate, IceInternal.LocalExceptionWrapper ex, 
-                                             IceInternal.OutgoingAsync outAsync)
+        public int handleExceptionWrapper__(ObjectDel_ @delegate, IceInternal.LocalExceptionWrapper ex)
         {
             lock(this)
             {
@@ -1595,18 +2172,15 @@ namespace Ice
                 throw ex.get();
             }
 
-            if(outAsync != null)
-            {
-                outAsync.send__();
-            }
+            return 0;
         }
 
-        public void handleExceptionWrapperRelaxed__(ObjectDel_ @delegate, IceInternal.LocalExceptionWrapper ex, 
-                                                    IceInternal.OutgoingAsync outAsync, ref int cnt)
+        public int handleExceptionWrapperRelaxed__(ObjectDel_ @delegate, IceInternal.LocalExceptionWrapper ex,
+                                                   bool sleep, ref int cnt)
         {
             if(!ex.retry())
             {
-                handleException__(@delegate, ex.get(), outAsync, ref cnt);
+                return handleException__(@delegate, ex.get(), sleep, ref cnt);
             }
             else
             {
@@ -1618,10 +2192,7 @@ namespace Ice
                     }
                 }
 
-                if(outAsync != null)
-                {
-                    outAsync.send__();
-                }
+                return 0;
             }
         }
 
@@ -1637,6 +2208,42 @@ namespace Ice
                 TwowayOnlyException ex = new TwowayOnlyException();
                 ex.operation = name;
                 throw ex;
+            }
+        }
+
+        public void checkAsyncTwowayOnly__(string name)
+        {
+            //
+            // No mutex lock necessary, there is nothing mutable in this
+            // operation.
+            //
+
+            if(!ice_isTwoway())
+            {
+                throw new System.ArgumentException("`" + name + "' can only be called with a twoway proxy");
+            }
+        }
+
+        public void end__(AsyncResult result, string operation)
+        {
+            IceInternal.OutgoingAsync outAsync = (IceInternal.OutgoingAsync)result;
+            IceInternal.OutgoingAsync.check__(outAsync, this, operation);
+            bool ok = outAsync.wait__();
+            if(_reference.getMode() == IceInternal.Reference.Mode.ModeTwoway)
+            {
+                if(!ok)
+                {
+                    try
+                    {
+                        outAsync.throwUserException__();
+                    }
+                    catch(Ice.UserException ex)
+                    {
+                        throw new Ice.UnknownUserException(ex.ice_name(), ex);
+                    }
+                }
+                IceInternal.BasicStream is__ = outAsync.istr__;
+                is__.skipEmptyEncaps();
             }
         }
 
@@ -1658,7 +2265,7 @@ namespace Ice
             else
             {
                 IceInternal.Reference.Mode mode = _reference.getMode();
-                return createDelegate(ami || 
+                return createDelegate(ami ||
                                       mode == IceInternal.Reference.Mode.ModeBatchOneway ||
                                       mode == IceInternal.Reference.Mode.ModeBatchDatagram);
             }
@@ -1746,26 +2353,26 @@ namespace Ice
     public class ObjectPrxHelper : ObjectPrxHelperBase
     {
         /// <summary>
-        /// Casts a proxy to {@link Ice.ObjectPrx}. This call contacts
+        /// Casts a proxy to {@link ObjectPrx}. This call contacts
         /// the server and will throw an Ice run-time exception if the target
         /// object does not exist or the server cannot be reached.
         /// </summary>
-        /// <param name="b">The proxy to cast to Ice.ObjectPrx.</param>
+        /// <param name="b">The proxy to cast to ObjectPrx.</param>
         /// <returns>b.</returns>
-        public static ObjectPrx checkedCast(Ice.ObjectPrx b)
+        public static ObjectPrx checkedCast(ObjectPrx b)
         {
             return b;
         }
 
         /// <summary>
-        /// Casts a proxy to {@link Ice.ObjectPrx}. This call contacts
+        /// Casts a proxy to {@link ObjectPrx}. This call contacts
         /// the server and throws an Ice run-time exception if the target
         /// object does not exist or the server cannot be reached.
         /// </summary>
-        /// <param name="b">The proxy to cast to Ice.ObjectPrx.</param>
+        /// <param name="b">The proxy to cast to ObjectPrx.</param>
         /// <param name="ctx">The Context map for the invocation.</param>
         /// <returns>b.</returns>
-        public static ObjectPrx checkedCast(Ice.ObjectPrx b, Dictionary<string, string> ctx)
+        public static ObjectPrx checkedCast(ObjectPrx b, Dictionary<string, string> ctx)
         {
             return b;
         }
@@ -1776,17 +2383,17 @@ namespace Ice
         /// the server and throws an Ice run-time exception if the target
         /// object does not exist, the specified facet does not exist, or the server cannot be reached.
         /// </summary>
-        /// <param name="b">The proxy to cast to Ice.ObjectPrx.</param>
+        /// <param name="b">The proxy to cast to ObjectPrx.</param>
         /// <param name="f">The facet for the new proxy.</param>
         /// <returns>The new proxy with the specified facet.</returns>
-        public static ObjectPrx checkedCast(Ice.ObjectPrx b, string f)
+        public static ObjectPrx checkedCast(ObjectPrx b, string f)
         {
             ObjectPrx d = null;
             if(b != null)
             {
                 try
                 {
-                    Ice.ObjectPrx bb = b.ice_facet(f);
+                    ObjectPrx bb = b.ice_facet(f);
                     bool ok = bb.ice_isA("::Ice::Object");
                     Debug.Assert(ok);
                     ObjectPrxHelper h = new ObjectPrxHelper();
@@ -1806,18 +2413,18 @@ namespace Ice
         /// the server and throws an Ice run-time exception if the target
         /// object does not exist, the specified facet does not exist, or the server cannot be reached.
         /// </summary>
-        /// <param name="b">The proxy to cast to Ice.ObjectPrx.</param>
+        /// <param name="b">The proxy to cast to ObjectPrx.</param>
         /// <param name="f">The facet for the new proxy.</param>
         /// <param name="ctx">The Context map for the invocation.</param>
         /// <returns>The new proxy with the specified facet.</returns>
-        public static ObjectPrx checkedCast(Ice.ObjectPrx b, string f, Dictionary<string, string> ctx)
+        public static ObjectPrx checkedCast(ObjectPrx b, string f, Dictionary<string, string> ctx)
         {
             ObjectPrx d = null;
             if(b != null)
             {
                 try
                 {
-                    Ice.ObjectPrx bb = b.ice_facet(f);
+                    ObjectPrx bb = b.ice_facet(f);
                     bool ok = bb.ice_isA("::Ice::Object", ctx);
                     Debug.Assert(ok);
                     ObjectPrxHelper h = new ObjectPrxHelper();
@@ -1832,12 +2439,12 @@ namespace Ice
         }
 
         /// <summary>
-        /// Casts a proxy to {@link Ice.ObjectPrx}. This call does
+        /// Casts a proxy to {@link ObjectPrx}. This call does
         /// not contact the server and always succeeds.
         /// </summary>
-        /// <param name="b">The proxy to cast to Ice.ObjectPrx.</param>
+        /// <param name="b">The proxy to cast to ObjectPrx.</param>
         /// <returns>b.</returns>
-        public static ObjectPrx uncheckedCast(Ice.ObjectPrx b)
+        public static ObjectPrx uncheckedCast(ObjectPrx b)
         {
             return b;
         }
@@ -1846,15 +2453,15 @@ namespace Ice
         /// Creates a new proxy that is identical to the passed proxy, except
         /// for its facet. This call does not contact the server and always succeeds.
         /// </summary>
-        /// <param name="b">The proxy to cast to Ice.ObjectPrx.</param>
+        /// <param name="b">The proxy to cast to ObjectPrx.</param>
         /// <param name="f">The facet for the new proxy.</param>
         /// <returns>The new proxy with the specified facet.</returns>
-        public static ObjectPrx uncheckedCast(Ice.ObjectPrx b, string f)
+        public static ObjectPrx uncheckedCast(ObjectPrx b, string f)
         {
             ObjectPrx d = null;
             if(b != null)
             {
-                Ice.ObjectPrx bb = b.ice_facet(f);
+                ObjectPrx bb = b.ice_facet(f);
                 ObjectPrxHelper h = new ObjectPrxHelper();
                 h.copyFrom__(bb);
                 d = h;
@@ -1869,7 +2476,7 @@ namespace Ice
         void ice_ping(Dictionary<string, string> context);
         string[] ice_ids(Dictionary<string, string> context);
         string ice_id(Dictionary<string, string> context);
-        bool ice_invoke(string operation, Ice.OperationMode mode, byte[] inParams, out byte[] outParams,
+        bool ice_invoke(string operation, OperationMode mode, byte[] inParams, out byte[] outParams,
                         Dictionary<string, string> context);
 
         void ice_flushBatchRequests();
@@ -1886,7 +2493,7 @@ namespace Ice
             initCurrent__(ref current__, "ice_isA", OperationMode.Nonmutating, context__);
 
             bool result__ = false;
-            IceInternal.Direct.RunDelegate run__ = delegate(Ice.Object servant__)
+            IceInternal.Direct.RunDelegate run__ = delegate(Object servant__)
             {
                 result__ = servant__.ice_isA(id__, current__);
                 return Ice.DispatchStatus.DispatchOK;
@@ -1904,7 +2511,7 @@ namespace Ice
 
             try
             {
-                DispatchStatus status__ = direct__.servant().collocDispatch__(direct__); 
+                DispatchStatus status__ = direct__.servant().collocDispatch__(direct__);
                 Debug.Assert(status__ == DispatchStatus.DispatchOK);
                 return result__;
             }
@@ -1920,13 +2527,13 @@ namespace Ice
                 }
             }
         }
-        
+
         public virtual void ice_ping(Dictionary<string, string> context__)
         {
             Current current__ = new Current();
             initCurrent__(ref current__, "ice_ping", OperationMode.Nonmutating, context__);
-         
-            IceInternal.Direct.RunDelegate run__ = delegate(Ice.Object servant__)
+
+            IceInternal.Direct.RunDelegate run__ = delegate(Object servant__)
             {
                 servant__.ice_ping(current__);
                 return Ice.DispatchStatus.DispatchOK;
@@ -1941,10 +2548,10 @@ namespace Ice
             {
                 IceInternal.LocalExceptionWrapper.throwWrapper(ex__);
             }
-            
+
             try
             {
-                DispatchStatus status__ = direct__.servant().collocDispatch__(direct__); 
+                DispatchStatus status__ = direct__.servant().collocDispatch__(direct__);
                 Debug.Assert(status__ == DispatchStatus.DispatchOK);
             }
             finally
@@ -1959,14 +2566,14 @@ namespace Ice
                 }
             }
         }
-        
+
         public virtual string[] ice_ids(Dictionary<string, string> context__)
         {
             Current current__ = new Current();
             initCurrent__(ref current__, "ice_ids", OperationMode.Nonmutating, context__);
 
             string[] result__ = null;
-            IceInternal.Direct.RunDelegate run__ = delegate(Ice.Object servant__)
+            IceInternal.Direct.RunDelegate run__ = delegate(Object servant__)
             {
                 result__ = servant__.ice_ids(current__);
                 return Ice.DispatchStatus.DispatchOK;
@@ -1981,10 +2588,10 @@ namespace Ice
             {
                 IceInternal.LocalExceptionWrapper.throwWrapper(ex__);
             }
-            
+
             try
             {
-                DispatchStatus status__ = direct__.servant().collocDispatch__(direct__); 
+                DispatchStatus status__ = direct__.servant().collocDispatch__(direct__);
                 Debug.Assert(status__ == DispatchStatus.DispatchOK);
                 return result__;
             }
@@ -2000,14 +2607,14 @@ namespace Ice
                 }
             }
         }
-        
+
         public virtual string ice_id(Dictionary<string, string> context__)
         {
             Current current__ = new Current();
             initCurrent__(ref current__, "ice_id", OperationMode.Nonmutating, context__);
-            
+
             string result__ = null;
-            IceInternal.Direct.RunDelegate run__ = delegate(Ice.Object servant__)
+            IceInternal.Direct.RunDelegate run__ = delegate(Object servant__)
             {
                 result__ = servant__.ice_id(current__);
                 return Ice.DispatchStatus.DispatchOK;
@@ -2022,10 +2629,10 @@ namespace Ice
             {
                 IceInternal.LocalExceptionWrapper.throwWrapper(ex__);
             }
-            
+
             try
             {
-                DispatchStatus status__ = direct__.servant().collocDispatch__(direct__); 
+                DispatchStatus status__ = direct__.servant().collocDispatch__(direct__);
                 Debug.Assert(status__ == DispatchStatus.DispatchOK);
                 return result__;
             }
@@ -2041,8 +2648,8 @@ namespace Ice
                 }
             }
         }
-        
-        public virtual bool ice_invoke(string operation, Ice.OperationMode mode, byte[] inParams,
+
+        public virtual bool ice_invoke(string operation, OperationMode mode, byte[] inParams,
                                        out byte[] outParams, Dictionary<string, string> context)
         {
             throw new CollocationOptimizationException();
@@ -2072,23 +2679,23 @@ namespace Ice
             // No need to synchronize "from", as the delegate is immutable
             // after creation.
             //
-            
+
             //
             // No need to synchronize, as this operation is only called
             // upon initialization.
             //
-            
+
             Debug.Assert(reference__ == null);
             Debug.Assert(adapter__ == null);
-            
+
             reference__ = from.reference__;
             adapter__ = from.adapter__;
         }
-        
+
         protected internal IceInternal.Reference reference__;
-        protected internal Ice.ObjectAdapter adapter__;
-        
-        protected internal void initCurrent__(ref Current current, string op, Ice.OperationMode mode,
+        protected internal ObjectAdapter adapter__;
+
+        protected internal void initCurrent__(ref Current current, string op, OperationMode mode,
                                               Dictionary<string, string> context)
         {
             current.adapter = adapter__;
@@ -2108,9 +2715,9 @@ namespace Ice
                 //
                 ImplicitContextI implicitContext =
                     reference__.getInstance().getImplicitContext();
-            
+
                 Dictionary<string, string> prxContext = reference__.getContext();
-                
+
                 if(implicitContext == null)
                 {
                     current.ctx = new Dictionary<string, string>(prxContext);
@@ -2120,25 +2727,25 @@ namespace Ice
                     current.ctx = implicitContext.combine(prxContext);
                 }
             }
-            
+
             current.requestId = -1;
         }
-        
-        public virtual void setup(IceInternal.Reference rf, Ice.ObjectAdapter adapter)
+
+        public virtual void setup(IceInternal.Reference rf, ObjectAdapter adapter)
         {
             //
             // No need to synchronize, as this operation is only called
             // upon initialization.
             //
-            
+
             Debug.Assert(reference__ == null);
             Debug.Assert(adapter__ == null);
-            
+
             reference__ = rf;
             adapter__ = adapter;
         }
     }
-            
+
     public class ObjectDelM_ : ObjectDel_
     {
         public virtual bool ice_isA(string id__, Dictionary<string, string> context__)
@@ -2185,7 +2792,7 @@ namespace Ice
                 handler__.reclaimOutgoing(og__);
             }
         }
-        
+
         public virtual void ice_ping(Dictionary<string, string> context__)
         {
             IceInternal.Outgoing og__ = handler__.getOutgoing("ice_ping", OperationMode.Nonmutating, context__);
@@ -2220,7 +2827,7 @@ namespace Ice
                 handler__.reclaimOutgoing(og__);
             }
         }
-        
+
         public virtual string[] ice_ids(Dictionary<string, string> context__)
         {
             IceInternal.Outgoing og__ = handler__.getOutgoing("ice_ids", OperationMode.Nonmutating, context__);
@@ -2256,7 +2863,7 @@ namespace Ice
                 handler__.reclaimOutgoing(og__);
             }
         }
-        
+
         public virtual string ice_id(Dictionary<string, string> context__)
         {
             IceInternal.Outgoing og__ = handler__.getOutgoing("ice_id", OperationMode.Nonmutating, context__);
@@ -2332,7 +2939,7 @@ namespace Ice
                 handler__.reclaimOutgoing(og__);
             }
         }
-        
+
         public virtual void ice_flushBatchRequests()
         {
             IceInternal.BatchOutgoing @out = new IceInternal.BatchOutgoing(handler__);
@@ -2348,7 +2955,7 @@ namespace Ice
         {
             handler__ = handler;
         }
-        
+
         //
         // Only for use by ObjectPrx
         //
@@ -2368,10 +2975,10 @@ namespace Ice
 
             handler__ = from.handler__;
         }
-        
+
         protected IceInternal.RequestHandler handler__;
 
-        public virtual void setup(IceInternal.Reference rf, Ice.ObjectPrx proxy, bool async)
+        public virtual void setup(IceInternal.Reference rf, ObjectPrx proxy, bool async)
         {
             //
             // No need to synchronize, as this operation is only called

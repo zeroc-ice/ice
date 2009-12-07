@@ -23,6 +23,8 @@ COBJS		= Test.obj \
 		  Oneways.obj \
 		  TwowaysAMI.obj \
 		  OnewaysAMI.obj \
+		  TwowaysNewAMI.obj \
+		  OnewaysNewAMI.obj \
 		  BatchOneways.obj
 
 SOBJS		= Test.obj \
@@ -41,7 +43,9 @@ COLOBJS		= Test.obj \
 		  Oneways.obj \
 		  TwowaysAMI.obj \
 		  OnewaysAMI.obj \
-		  BatchOneways.obj
+		  TwowaysNewAMI.obj \
+		  OnewaysNewAMI.obj \
+		  BatchOneways.obj \
 
 SRCS		= $(COBJS:.obj=.cpp) \
 		  $(SOBJS:.obj=.cpp) \
@@ -51,6 +55,9 @@ SRCS		= $(COBJS:.obj=.cpp) \
 !include $(top_srcdir)/config/Make.rules.mak
 
 CPPFLAGS	= -I. -I../../include $(CPPFLAGS) -DWIN32_LEAN_AND_MEAN
+!if "$(BCPLUSPLUS)" != "yes"
+CPPFLAGS	= $(CPPFLAGS) -Zm200
+!endif
 
 !if "$(GENERATE_PDB)" == "yes"
 CPDBFLAGS        = /pdb:$(CLIENT:.exe=.pdb)

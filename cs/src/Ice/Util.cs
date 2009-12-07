@@ -35,6 +35,12 @@ namespace Ice
     }
 
     /// <summary>
+    /// A delegate for the dispatcher. The dispatcher is called by the Ice 
+    /// runtime to dispatch servant calls and AMI callbacks.
+    /// </summary>
+    public delegate void Dispatcher(System.Action call, Connection con);
+
+    /// <summary>
     /// A class that encpasulates data to initalize a communicator.
     /// </summary>
     public class InitializationData : ICloneable
@@ -69,6 +75,11 @@ namespace Ice
         /// The thread hook for the communicator.
         /// </summary>
         public ThreadNotification threadHook;
+
+        /// <summary>
+        /// The dispatcher for the communicator.
+        /// </summary>
+        public Dispatcher dispatcher;
     }
 
     /// <summary>
@@ -282,7 +293,7 @@ namespace Ice
         [Obsolete("This method is deprecated. Use System.Guid instead.")]
         public static string generateUUID()
         {
-            return Guid.NewGuid().ToString().ToUpper();
+            return Guid.NewGuid().ToString().ToUpper(System.Globalization.CultureInfo.InvariantCulture);
         }
 
         /// <summary>
@@ -478,7 +489,7 @@ namespace IceInternal
             {
                 return ThreadPriority.Normal;
             }
-            if(s.StartsWith("ThreadPriority."))
+            if(s.StartsWith("ThreadPriority.", StringComparison.Ordinal))
             {
                 s = s.Substring("ThreadPriority.".Length, s.Length);
             }

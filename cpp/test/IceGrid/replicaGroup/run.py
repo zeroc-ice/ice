@@ -20,6 +20,6 @@ if len(path) == 0:
 sys.path.append(os.path.join(path[0]))
 from scripts import *
 
-IceGridAdmin.iceGridTest("application.xml", "--Ice.RetryIntervals=\"0 50 100 250\"",
-                         "icebox.exe=%s" % TestUtil.getIceBox())
+IceGridAdmin.iceGridTest("application.xml", "--Ice.RetryIntervals='0 50 100 250'",
+                         "icebox.exe='%s'" % TestUtil.getIceBox())
 

@@ -28,11 +28,11 @@ protected:
     virtual void writeInheritedOperations(const ClassDefPtr&);
     virtual void writeDispatchAndMarshalling(const ClassDefPtr&, bool);
     virtual std::vector<std::string> getParams(const OperationPtr&);
-    virtual std::vector<std::string> getParamsAsync(const OperationPtr&, bool);
-    virtual std::vector<std::string> getParamsAsyncCB(const OperationPtr&);
+    virtual std::vector<std::string> getParamsAsync(const OperationPtr&, bool, bool = false);
+    virtual std::vector<std::string> getParamsAsyncCB(const OperationPtr&, bool = false, bool = true);
     virtual std::vector<std::string> getArgs(const OperationPtr&);
-    virtual std::vector<std::string> getArgsAsync(const OperationPtr&);
-    virtual std::vector<std::string> getArgsAsyncCB(const OperationPtr&);
+    virtual std::vector<std::string> getArgsAsync(const OperationPtr&, bool = false);
+    virtual std::vector<std::string> getArgsAsyncCB(const OperationPtr&, bool = false, bool = false);
 
     void emitAttributes(const ContainedPtr&);
     std::string getParamAttributes(const ParamDeclPtr&);
@@ -48,8 +48,8 @@ protected:
     void writeDocCommentOp(const OperationPtr&);
 
     enum ParamDir { InParam, OutParam };
-    void writeDocCommentAsync(const OperationPtr&, ParamDir, const std::string& = "");
-    void writeDocCommentParam(const OperationPtr&, ParamDir);
+    void writeDocCommentAsync(const OperationPtr&, ParamDir, const std::string& = "", bool = false);
+    void writeDocCommentParam(const OperationPtr&, ParamDir, bool = false);
 
     ::IceUtilInternal::Output& _out;
 };
@@ -120,6 +120,19 @@ private:
         void writeMemberEquals(const DataMemberList&, int);
 
         bool _stream;
+    };
+
+    class AsyncDelegateVisitor : public CsVisitor
+    {
+    public:
+
+        AsyncDelegateVisitor(::IceUtilInternal::Output&);
+
+        virtual bool visitModuleStart(const ModulePtr&);
+        virtual void visitModuleEnd(const ModulePtr&);
+        virtual bool visitClassDefStart(const ClassDefPtr&);
+        virtual void visitClassDefEnd(const ClassDefPtr&);
+	virtual void visitOperation(const OperationPtr&);
     };
 
     class ProxyVisitor : public CsVisitor

@@ -72,3 +72,8 @@ Demos in this directory:
 
   This demo shows how to use classes, class factories, and the
   difference between local and remote invocations of class operations.
+
+- wpf
+
+  A Windows Presentation Foundation (WPF) application that shows
+  how to use Asynchronous Method Invocation (AMI) in a graphical client.

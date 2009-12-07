@@ -33,13 +33,13 @@ following:
 
 %vendor ZeroC, Inc.
 
-%dist .sles10
+%dist .sles11
 
 The gpg settings are only needed if you want to sign your RPMs.
 Replace "/home/rpmbuilder" with a path name that is appropriate for
 your system.
 
-The value for %dist should be one of ".sles10", ".rhel4" or ".rhel5".
+The value for %dist should be one of ".sles11" or ".rhel5".
 
 
 ======================================================================
@@ -89,10 +89,9 @@ dependencies are listed below:
  - openssl-devel
  - jpackage-utils
  - python-devel
- - bzip2-devel (RHEL4/RHEL5)
- - expat-devel (RHEL4/RHEL5)
- - php-devel (RHEL4/RHEL5)
- - nptl-devel (RHEL4)
+ - bzip2-devel (RHEL5)
+ - expat-devel (RHEL5)
+ - php-devel (RHEL5)
  - php5-devel (SLES)
  - mono-core (SLES)
  - mono-devel (SLES)
@@ -191,8 +190,8 @@ building the binary RPMs.
 
 The Mono-related RPMs created during this process are shown below:
 
-  ice-mono-@ver@-1.sles10.noarch.rpm
-  ice-mono-devel-@ver@-1.sles10.<arch>.rpm
+  ice-mono-@ver@-1.sles11.noarch.rpm
+  ice-mono-devel-@ver@-1.sles11.<arch>.rpm
 
 The ice-mono-devel RPM is arch-specific because it contains the
 executable for the Slice-to-C# compiler.
@@ -200,7 +199,7 @@ executable for the Slice-to-C# compiler.
 Note that building the binary RPMs also generates an arch-specific
 ice-mono package:
 
-  ice-mono-@ver@-1.sles10.<arch>.rpm
+  ice-mono-@ver@-1.sles11.<arch>.rpm
 
 This file is an artifact of the build process and should be removed.
 

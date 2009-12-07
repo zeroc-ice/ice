@@ -679,7 +679,8 @@ namespace IceInternal
                         {
                             throw new Ice.InitializationException("Ice.LogFile and Ice.UseSyslog cannot both be set.");
                         }
-                        _initData.logger = new Ice.SysLoggerI(_initData.properties.getProperty("Ice.ProgramName"));
+                        _initData.logger = new Ice.SysLoggerI(_initData.properties.getProperty("Ice.ProgramName"),
+                            _initData.properties.getPropertyWithDefault("Ice.SyslogFacility", "LOG_USER"));
                     }
                     else if(logfile.Length != 0 || Ice.Util.getProcessLogger() is Ice.LoggerI) 
                     {

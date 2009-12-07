@@ -25,6 +25,13 @@ namespace IceInternal
 
 ICE_API Ice::LocalObject* upCast(Ice::ConnectionI*);
 
+enum AsyncStatus
+{
+    AsyncStatusQueued = 0,
+    AsyncStatusSent = 1,
+    AsyncStatusInvokeSentCallback = 2
+};
+
 }
 
 namespace Ice

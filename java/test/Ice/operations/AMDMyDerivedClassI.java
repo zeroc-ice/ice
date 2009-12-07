@@ -41,6 +41,7 @@ import test.Ice.operations.AMD.Test.AMD_MyClass_opStringStringD;
 import test.Ice.operations.AMD.Test.AMD_MyClass_opStruct;
 import test.Ice.operations.AMD.Test.AMD_MyClass_opVoid;
 import test.Ice.operations.AMD.Test.AMD_MyClass_shutdown;
+import test.Ice.operations.AMD.Test.AMD_MyClass_delay;
 import test.Ice.operations.AMD.Test.AMD_MyDerivedClass_opDerived;
 import test.Ice.operations.AMD.Test.MyClassPrx;
 import test.Ice.operations.AMD.Test.MyClassPrxHelper;
@@ -77,7 +78,7 @@ public final class AMDMyDerivedClassI extends MyDerivedClass
         private AMD_MyClass_opVoid _cb;
     }
 
-    public void
+    synchronized public void
     shutdown_async(AMD_MyClass_shutdown cb,
                    Ice.Current current)
     {
@@ -98,6 +99,19 @@ public final class AMDMyDerivedClassI extends MyDerivedClass
     }
 
     public void
+    delay_async(AMD_MyClass_delay cb, int ms, Ice.Current current)
+    {
+        try
+        {
+            Thread.sleep(ms);
+        }
+        catch(InterruptedException ex)
+        {
+        }
+        cb.ice_response();
+    }
+
+    synchronized public void
     opVoid_async(AMD_MyClass_opVoid cb,
                  Ice.Current current)
     {

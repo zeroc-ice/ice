@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<DOCUMENT type="Advanced Installer" CreateVersion="6.9.1" version="7.3" modules="enterprise" RootPath=".." Language="en">
+<DOCUMENT type="Advanced Installer" CreateVersion="6.9.1" version="7.3.1" modules="enterprise" RootPath=".." Language="en">
   <COMPONENT cid="caphyon.advinst.msicomp.MsiPropsComponent">
     <ROW Property="AI_UPGRADE" Value="No"/>
     <ROW Property="ALLUSERS" Value="2"/>
@@ -18,6 +18,7 @@
     <ROW Property="ProductLanguage" Value="1033"/>
     <ROW Property="ProductName" Value="Ice 3.4b Third Party Packages" ValueLocId="*"/>
     <ROW Property="ProductVersion" Value="3.4.0"/>
+    <ROW Property="QTLICENSEDLGRADIOBUTTONGROUP_1_PROP" Value="No" Type="4"/>
     <ROW Property="REBOOT" MultiBuildValue="DefaultBuild:ReallySuppress"/>
     <ROW Property="STLPORTLICENSEDLGRADIOBUTTONGROUP_1_PROP" Value="No" Type="4"/>
     <ROW Property="SecureCustomProperties" Value="OLDPRODUCTS;AI_NEWERPRODUCTFOUND"/>
@@ -26,6 +27,8 @@
   <COMPONENT cid="caphyon.advinst.msicomp.MsiDirsComponent">
     <ROW Directory="APPDIR" Directory_Parent="TARGETDIR" DefaultDir="APPDIR:." IsPseudoRoot="1"/>
     <ROW Directory="BC50_DIR" Directory_Parent="stlport_DIR" DefaultDir="BC50"/>
+    <ROW Directory="QtCore_DIR" Directory_Parent="include_DIR" DefaultDir="QtCore"/>
+    <ROW Directory="QtSql_DIR" Directory_Parent="include_DIR" DefaultDir="QtSql"/>
     <ROW Directory="TARGETDIR" DefaultDir="SourceDir"/>
     <ROW Directory="bak_DIR" Directory_Parent="BC50_DIR" DefaultDir="bak"/>
     <ROW Directory="bcc10_1_DIR" Directory_Parent="bin_DIR" DefaultDir="bcc10"/>
@@ -52,6 +55,16 @@
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiCompsComponent">
     <ROW Component="InstallDir" ComponentId="{8A29DFEF-C5F1-4146-87FE-47AE93DCC102}" Directory_="APPDIR" Attributes="4" KeyPath="InstallDir"/>
+    <ROW Component="QXmlStreamWriter" ComponentId="{4C2DD2B2-3DCD-438E-9CDB-7429FB38BBDB}" Directory_="QtCore_DIR" Attributes="0" KeyPath="QXmlStreamWriter" Type="0"/>
+    <ROW Component="QtCore4.dll" ComponentId="{3B7FD26A-E4AF-4A0F-9744-0FFB4B87C9A3}" Directory_="bin_DIR" Attributes="0" KeyPath="QtCore4.dll"/>
+    <ROW Component="QtCore4.dll_1" ComponentId="{62D8C64C-09CF-4C45-A65E-A80ACD343296}" Directory_="x64_1_DIR" Attributes="256" KeyPath="QtCore4.dll_1"/>
+    <ROW Component="QtCored4.dll" ComponentId="{FA33D6F4-49C7-4BB8-AC87-6D908A1C0E2B}" Directory_="bin_DIR" Attributes="0" KeyPath="QtCored4.dll"/>
+    <ROW Component="QtCored4.dll_1" ComponentId="{F35CBDB5-1B07-4F87-89F2-4C916D12CC75}" Directory_="x64_1_DIR" Attributes="256" KeyPath="QtCored4.dll_1"/>
+    <ROW Component="QtSql4.dll" ComponentId="{18EDFE3E-EA50-4781-889D-8A228EC451C3}" Directory_="bin_DIR" Attributes="0" KeyPath="QtSql4.dll"/>
+    <ROW Component="QtSql4.dll_1" ComponentId="{F57423E0-E957-47DC-B5C6-32FD55BFD34F}" Directory_="x64_1_DIR" Attributes="256" KeyPath="QtSql4.dll_1"/>
+    <ROW Component="QtSql_1" ComponentId="{A1CD7EBB-8EAD-4FAF-B544-DF4B430D02D6}" Directory_="QtSql_DIR" Attributes="0" KeyPath="QtSql" Type="0"/>
+    <ROW Component="QtSqld4.dll" ComponentId="{E15FDD8A-7D67-4ADF-ABB0-F6855DCD7F80}" Directory_="bin_DIR" Attributes="0" KeyPath="QtSqld4.dll"/>
+    <ROW Component="QtSqld4.dll_1" ComponentId="{05D3AD66-4FF7-47B6-AD0E-9B5BBC2E36AC}" Directory_="x64_1_DIR" Attributes="256" KeyPath="QtSqld4.dll_1"/>
     <ROW Component="SOURCES" ComponentId="{5FB8EE09-9CA7-46EA-8866-CBADC5EFC88E}" Directory_="APPDIR" Attributes="0" KeyPath="SOURCES.txt" Type="0"/>
     <ROW Component="aes.h" ComponentId="{C4774909-1E9D-4A3B-BAB0-824ACAAC1C9A}" Directory_="openssl_DIR" Attributes="0" KeyPath="aes.h" Type="0"/>
     <ROW Component="algo.h" ComponentId="{6F483A70-4B15-410C-8C0B-5B3A9F7B7D92}" Directory_="old_hp_DIR" Attributes="0" KeyPath="algo.h" Type="0"/>
@@ -124,14 +137,306 @@
     <ROW Component="stlport_vc6_stldebug46.pdb" ComponentId="{6069F7E4-7DB6-481E-B0D7-59886D3390A7}" Directory_="bin_DIR" Attributes="0" KeyPath="stlport_vc6_stldebug46.pdb" Type="0"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiFeatsComponent">
-    <ROW Feature="MainFeature" Title="MainFeature" Description="Description" Display="1" Level="1" Attributes="0" Components="bzlib.h db.jar InstallDir aes.h SOURCES stlport_vc6_stldebug46.pdb stlport_vc6_stldebug46.dll stlport_vc646.dll algorithm algorith.h stddef.h cstring.h configure stlcomp.h algo.h char_traits.h debug.c deque.h cstring fstream.h complex fstream.h_1 msvcp60.dll msvcrt.dll bzip2_vc6d.dll bzip2_vc6.dll libeay32_vc6.dll ssleay32_vc6.dll ssleay32.lib libdb48d.lib libbz2.lib bzip2d.dll bzip2.dll libdb48d.dll libdb_java48.dll db_archive.exe db_checkpoint.exe db_deadlock.exe db_dump.exe db_hotbackup.exe db_load.exe db_printlog.exe db_recover.exe db_stat.exe db_upgrade.exe db_verify.exe libdb48.dll libexpat.dll ssleay32.dll libeay32.dll libdb48.dll_1 bzip2d.dll_1 bzip2.dll_2 libdb48d.dll_1 libdb48.dll_2 db_archive.exe_1 db_checkpoint.exe_1 db_deadlock.exe_1 db_dump.exe_1 db_hotbackup.exe_1 db_load.exe_1 db_printlog.exe_1 db_recover.exe_1 db_stat.exe_1 db_upgrade.exe_1 db_verify.exe_1 ssleay32.dll_2 libeay32.dll_2 openssl.exe libexpat.dll_2 openssl.exe_1"/>
+    <ROW Feature="MainFeature" Title="MainFeature" Description="Description" Display="1" Level="1" Attributes="0" Components="bzlib.h db.jar InstallDir aes.h SOURCES stlport_vc6_stldebug46.pdb stlport_vc6_stldebug46.dll stlport_vc646.dll algorithm algorith.h stddef.h cstring.h configure stlcomp.h algo.h char_traits.h debug.c deque.h cstring fstream.h complex fstream.h_1 msvcp60.dll msvcrt.dll bzip2_vc6d.dll bzip2_vc6.dll libeay32_vc6.dll ssleay32_vc6.dll ssleay32.lib libdb48d.lib libbz2.lib bzip2d.dll bzip2.dll libdb48d.dll libdb_java48.dll db_archive.exe db_checkpoint.exe db_deadlock.exe db_dump.exe db_hotbackup.exe db_load.exe db_printlog.exe db_recover.exe db_stat.exe db_upgrade.exe db_verify.exe libdb48.dll libexpat.dll ssleay32.dll libeay32.dll libdb48.dll_1 bzip2d.dll_1 bzip2.dll_2 libdb48d.dll_1 libdb48.dll_2 db_archive.exe_1 db_checkpoint.exe_1 db_deadlock.exe_1 db_dump.exe_1 db_hotbackup.exe_1 db_load.exe_1 db_printlog.exe_1 db_recover.exe_1 db_stat.exe_1 db_upgrade.exe_1 db_verify.exe_1 ssleay32.dll_2 libeay32.dll_2 openssl.exe libexpat.dll_2 openssl.exe_1 QtSqld4.dll QtCore4.dll QtCored4.dll QtSql4.dll QtSqld4.dll_1 QtCore4.dll_1 QtCored4.dll_1 QtSql4.dll_1 QXmlStreamWriter QtSql_1"/>
     <ATTRIBUTE name="CurrentFeature" value="MainFeature"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiFilesComponent">
-    <ROW File="LICENSE.txt" Component_="SOURCES" FileName="LICENSE.txt" Attributes="0" SourcePath="windows\docs\thirdparty\LICENSE.txt" SelfReg="false" Sequence="76"/>
+    <ROW File="LICENSE.txt" Component_="SOURCES" FileName="LICENSE.txt" Attributes="0" SourcePath="&lt;WindowsVolume&gt;Builds\ice\distribution\src\windows\docs\thirdparty\LICENSE.txt" SelfReg="false" Sequence="76"/>
+    <ROW File="QAbstractEventDispatcher" Component_="QXmlStreamWriter" FileName="QAbstr~1|QAbstractEventDispatcher" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\QAbstractEventDispatcher" SelfReg="false" Sequence="606"/>
+    <ROW File="QAbstractFileEngine" Component_="QXmlStreamWriter" FileName="QAbstr~2|QAbstractFileEngine" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\QAbstractFileEngine" SelfReg="false" Sequence="608"/>
+    <ROW File="QAbstractFileEngineHandler" Component_="QXmlStreamWriter" FileName="QAbstr~3|QAbstractFileEngineHandler" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\QAbstractFileEngineHandler" SelfReg="false" Sequence="609"/>
+    <ROW File="QAbstractFileEngineIterator" Component_="QXmlStreamWriter" FileName="QAbstr~4|QAbstractFileEngineIterator" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\QAbstractFileEngineIterator" SelfReg="false" Sequence="610"/>
+    <ROW File="QAbstractItemModel" Component_="QXmlStreamWriter" FileName="QAbstr~5|QAbstractItemModel" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\QAbstractItemModel" SelfReg="false" Sequence="612"/>
+    <ROW File="QAbstractListModel" Component_="QXmlStreamWriter" FileName="QAbstr~6|QAbstractListModel" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\QAbstractListModel" SelfReg="false" Sequence="613"/>
+    <ROW File="QAbstractTableModel" Component_="QXmlStreamWriter" FileName="QAbstr~7|QAbstractTableModel" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\QAbstractTableModel" SelfReg="false" Sequence="614"/>
+    <ROW File="QArgument" Component_="QXmlStreamWriter" FileName="QArgum~1|QArgument" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\QArgument" SelfReg="false" Sequence="616"/>
+    <ROW File="QAtomicInt" Component_="QXmlStreamWriter" FileName="QAtomi~1|QAtomicInt" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\QAtomicInt" SelfReg="false" Sequence="638"/>
+    <ROW File="QAtomicPointer" Component_="QXmlStreamWriter" FileName="QAtomi~2|QAtomicPointer" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\QAtomicPointer" SelfReg="false" Sequence="639"/>
+    <ROW File="QBasicAtomicInt" Component_="QXmlStreamWriter" FileName="QBasic~1|QBasicAtomicInt" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\QBasicAtomicInt" SelfReg="false" Sequence="641"/>
+    <ROW File="QBasicAtomicPointer" Component_="QXmlStreamWriter" FileName="QBasic~2|QBasicAtomicPointer" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\QBasicAtomicPointer" SelfReg="false" Sequence="642"/>
+    <ROW File="QBasicTimer" Component_="QXmlStreamWriter" FileName="QBasic~3|QBasicTimer" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\QBasicTimer" SelfReg="false" Sequence="644"/>
+    <ROW File="QBitArray" Component_="QXmlStreamWriter" FileName="QBitAr~1|QBitArray" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\QBitArray" SelfReg="false" Sequence="646"/>
+    <ROW File="QBitRef" Component_="QXmlStreamWriter" FileName="QBitRef" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\QBitRef" SelfReg="false" Sequence="647"/>
+    <ROW File="QBool" Component_="QXmlStreamWriter" FileName="QBool" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\QBool" SelfReg="false" Sequence="648"/>
+    <ROW File="QBuffer" Component_="QXmlStreamWriter" FileName="QBuffer" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\QBuffer" SelfReg="false" Sequence="650"/>
+    <ROW File="QByteArray" Component_="QXmlStreamWriter" FileName="QByteA~1|QByteArray" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\QByteArray" SelfReg="false" Sequence="652"/>
+    <ROW File="QByteArrayMatcher" Component_="QXmlStreamWriter" FileName="QByteA~2|QByteArrayMatcher" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\QByteArrayMatcher" SelfReg="false" Sequence="654"/>
+    <ROW File="QByteRef" Component_="QXmlStreamWriter" FileName="QByteRef" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\QByteRef" SelfReg="false" Sequence="655"/>
+    <ROW File="QCOORD" Component_="QXmlStreamWriter" FileName="QCOORD" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\QCOORD" SelfReg="false" Sequence="670"/>
+    <ROW File="QCache" Component_="QXmlStreamWriter" FileName="QCache" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\QCache" SelfReg="false" Sequence="657"/>
+    <ROW File="QChar" Component_="QXmlStreamWriter" FileName="QChar" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\QChar" SelfReg="false" Sequence="659"/>
+    <ROW File="QCharRef" Component_="QXmlStreamWriter" FileName="QCharRef" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\QCharRef" SelfReg="false" Sequence="660"/>
+    <ROW File="QChildEvent" Component_="QXmlStreamWriter" FileName="QChild~1|QChildEvent" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\QChildEvent" SelfReg="false" Sequence="661"/>
+    <ROW File="QConstString" Component_="QXmlStreamWriter" FileName="QConst~1|QConstString" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\QConstString" SelfReg="false" Sequence="668"/>
+    <ROW File="QCoreApplication" Component_="QXmlStreamWriter" FileName="QCoreA~1|QCoreApplication" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\QCoreApplication" SelfReg="false" Sequence="672"/>
+    <ROW File="QCryptographicHash" Component_="QXmlStreamWriter" FileName="QCrypt~1|QCryptographicHash" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\QCryptographicHash" SelfReg="false" Sequence="675"/>
+    <ROW File="QCustomEvent" Component_="QXmlStreamWriter" FileName="QCusto~1|QCustomEvent" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\QCustomEvent" SelfReg="false" Sequence="676"/>
+    <ROW File="QDB2Driver" Component_="QtSql_1" FileName="QDB2Dr~1|QDB2Driver" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtSql\QDB2Driver" SelfReg="false" Sequence="973"/>
+    <ROW File="QDB2Result" Component_="QtSql_1" FileName="QDB2Re~1|QDB2Result" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtSql\QDB2Result" SelfReg="false" Sequence="974"/>
+    <ROW File="QDataStream" Component_="QXmlStreamWriter" FileName="QDataS~1|QDataStream" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\QDataStream" SelfReg="false" Sequence="678"/>
+    <ROW File="QDate" Component_="QXmlStreamWriter" FileName="QDate" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\QDate" SelfReg="false" Sequence="679"/>
+    <ROW File="QDateTime" Component_="QXmlStreamWriter" FileName="QDateT~1|QDateTime" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\QDateTime" SelfReg="false" Sequence="681"/>
+    <ROW File="QDebug" Component_="QXmlStreamWriter" FileName="QDebug" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\QDebug" SelfReg="false" Sequence="683"/>
+    <ROW File="QDir" Component_="QXmlStreamWriter" FileName="QDir" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\QDir" SelfReg="false" Sequence="685"/>
+    <ROW File="QDirIterator" Component_="QXmlStreamWriter" FileName="QDirIt~1|QDirIterator" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\QDirIterator" SelfReg="false" Sequence="687"/>
+    <ROW File="QDynamicPropertyChangeEvent" Component_="QXmlStreamWriter" FileName="QDynam~1|QDynamicPropertyChangeEvent" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\QDynamicPropertyChangeEvent" SelfReg="false" Sequence="688"/>
+    <ROW File="QEvent" Component_="QXmlStreamWriter" FileName="QEvent" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\QEvent" SelfReg="false" Sequence="690"/>
+    <ROW File="QEventLoop" Component_="QXmlStreamWriter" FileName="QEvent~1|QEventLoop" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\QEventLoop" SelfReg="false" Sequence="692"/>
+    <ROW File="QExplicitlySharedDataPointer" Component_="QXmlStreamWriter" FileName="QExpli~1|QExplicitlySharedDataPointer" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\QExplicitlySharedDataPointer" SelfReg="false" Sequence="693"/>
+    <ROW File="QFSFileEngine" Component_="QXmlStreamWriter" FileName="QFSFil~1|QFSFileEngine" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\QFSFileEngine" SelfReg="false" Sequence="710"/>
+    <ROW File="QFactoryInterface" Component_="QXmlStreamWriter" FileName="QFacto~1|QFactoryInterface" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\QFactoryInterface" SelfReg="false" Sequence="695"/>
+    <ROW File="QFile" Component_="QXmlStreamWriter" FileName="QFile" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\QFile" SelfReg="false" Sequence="698"/>
+    <ROW File="QFileInfo" Component_="QXmlStreamWriter" FileName="QFileI~1|QFileInfo" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\QFileInfo" SelfReg="false" Sequence="700"/>
+    <ROW File="QFileInfoList" Component_="QXmlStreamWriter" FileName="QFileI~2|QFileInfoList" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\QFileInfoList" SelfReg="false" Sequence="701"/>
+    <ROW File="QFileInfoListIterator" Component_="QXmlStreamWriter" FileName="QFileI~3|QFileInfoListIterator" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\QFileInfoListIterator" SelfReg="false" Sequence="702"/>
+    <ROW File="QFileSystemWatcher" Component_="QXmlStreamWriter" FileName="QFileS~1|QFileSystemWatcher" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\QFileSystemWatcher" SelfReg="false" Sequence="704"/>
+    <ROW File="QFlag" Component_="QXmlStreamWriter" FileName="QFlag" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\QFlag" SelfReg="false" Sequence="705"/>
+    <ROW File="QFlags" Component_="QXmlStreamWriter" FileName="QFlags" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\QFlags" SelfReg="false" Sequence="706"/>
+    <ROW File="QForeachContainer" Component_="QXmlStreamWriter" FileName="QForea~1|QForeachContainer" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\QForeachContainer" SelfReg="false" Sequence="707"/>
+    <ROW File="QForeachContainerBase" Component_="QXmlStreamWriter" FileName="QForea~2|QForeachContainerBase" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\QForeachContainerBase" SelfReg="false" Sequence="708"/>
+    <ROW File="QFuture" Component_="QXmlStreamWriter" FileName="QFuture" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\QFuture" SelfReg="false" Sequence="712"/>
+    <ROW File="QFutureInterface" Component_="QXmlStreamWriter" FileName="QFutur~1|QFutureInterface" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\QFutureInterface" SelfReg="false" Sequence="714"/>
+    <ROW File="QFutureInterfaceBase" Component_="QXmlStreamWriter" FileName="QFutur~2|QFutureInterfaceBase" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\QFutureInterfaceBase" SelfReg="false" Sequence="715"/>
+    <ROW File="QFutureIterator" Component_="QXmlStreamWriter" FileName="QFutur~3|QFutureIterator" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\QFutureIterator" SelfReg="false" Sequence="716"/>
+    <ROW File="QFutureSynchronizer" Component_="QXmlStreamWriter" FileName="QFutur~4|QFutureSynchronizer" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\QFutureSynchronizer" SelfReg="false" Sequence="718"/>
+    <ROW File="QFutureWatcher" Component_="QXmlStreamWriter" FileName="QFutur~5|QFutureWatcher" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\QFutureWatcher" SelfReg="false" Sequence="720"/>
+    <ROW File="QFutureWatcherBase" Component_="QXmlStreamWriter" FileName="QFutur~6|QFutureWatcherBase" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\QFutureWatcherBase" SelfReg="false" Sequence="721"/>
+    <ROW File="QGenericArgument" Component_="QXmlStreamWriter" FileName="QGener~1|QGenericArgument" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\QGenericArgument" SelfReg="false" Sequence="722"/>
+    <ROW File="QGenericReturnArgument" Component_="QXmlStreamWriter" FileName="QGener~2|QGenericReturnArgument" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\QGenericReturnArgument" SelfReg="false" Sequence="723"/>
+    <ROW File="QGlobalStatic" Component_="QXmlStreamWriter" FileName="QGloba~1|QGlobalStatic" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\QGlobalStatic" SelfReg="false" Sequence="725"/>
+    <ROW File="QGlobalStaticDeleter" Component_="QXmlStreamWriter" FileName="QGloba~2|QGlobalStaticDeleter" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\QGlobalStaticDeleter" SelfReg="false" Sequence="726"/>
+    <ROW File="QHash" Component_="QXmlStreamWriter" FileName="QHash" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\QHash" SelfReg="false" Sequence="728"/>
+    <ROW File="QHashData" Component_="QXmlStreamWriter" FileName="QHashD~1|QHashData" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\QHashData" SelfReg="false" Sequence="729"/>
+    <ROW File="QHashDummyNode" Component_="QXmlStreamWriter" FileName="QHashD~2|QHashDummyNode" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\QHashDummyNode" SelfReg="false" Sequence="730"/>
+    <ROW File="QHashDummyValue" Component_="QXmlStreamWriter" FileName="QHashD~3|QHashDummyValue" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\QHashDummyValue" SelfReg="false" Sequence="731"/>
+    <ROW File="QHashIterator" Component_="QXmlStreamWriter" FileName="QHashI~1|QHashIterator" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\QHashIterator" SelfReg="false" Sequence="732"/>
+    <ROW File="QHashNode" Component_="QXmlStreamWriter" FileName="QHashN~1|QHashNode" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\QHashNode" SelfReg="false" Sequence="733"/>
+    <ROW File="QIBaseDriver" Component_="QtSql_1" FileName="QIBase~1|QIBaseDriver" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtSql\QIBaseDriver" SelfReg="false" Sequence="975"/>
+    <ROW File="QIBaseResult" Component_="QtSql_1" FileName="QIBase~2|QIBaseResult" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtSql\QIBaseResult" SelfReg="false" Sequence="976"/>
+    <ROW File="QIODevice" Component_="QXmlStreamWriter" FileName="QIODev~1|QIODevice" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\QIODevice" SelfReg="false" Sequence="739"/>
+    <ROW File="QIncompatibleFlag" Component_="QXmlStreamWriter" FileName="QIncom~1|QIncompatibleFlag" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\QIncompatibleFlag" SelfReg="false" Sequence="734"/>
+    <ROW File="QIntForSize" Component_="QXmlStreamWriter" FileName="QIntFo~1|QIntForSize" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\QIntForSize" SelfReg="false" Sequence="736"/>
+    <ROW File="QIntForType" Component_="QXmlStreamWriter" FileName="QIntFo~2|QIntForType" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\QIntForType" SelfReg="false" Sequence="737"/>
+    <ROW File="QInternal" Component_="QXmlStreamWriter" FileName="QInter~1|QInternal" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\QInternal" SelfReg="false" Sequence="735"/>
+    <ROW File="QLatin1Char" Component_="QXmlStreamWriter" FileName="QLatin~1|QLatin1Char" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\QLatin1Char" SelfReg="false" Sequence="741"/>
+    <ROW File="QLatin1String" Component_="QXmlStreamWriter" FileName="QLatin~2|QLatin1String" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\QLatin1String" SelfReg="false" Sequence="742"/>
+    <ROW File="QLibrary" Component_="QXmlStreamWriter" FileName="QLibrary" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\QLibrary" SelfReg="false" Sequence="744"/>
+    <ROW File="QLibraryInfo" Component_="QXmlStreamWriter" FileName="QLibra~1|QLibraryInfo" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\QLibraryInfo" SelfReg="false" Sequence="746"/>
+    <ROW File="QLine" Component_="QXmlStreamWriter" FileName="QLine" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\QLine" SelfReg="false" Sequence="748"/>
+    <ROW File="QLineF" Component_="QXmlStreamWriter" FileName="QLineF" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\QLineF" SelfReg="false" Sequence="749"/>
+    <ROW File="QLinkedList" Component_="QXmlStreamWriter" FileName="QLinke~1|QLinkedList" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\QLinkedList" SelfReg="false" Sequence="751"/>
+    <ROW File="QLinkedListData" Component_="QXmlStreamWriter" FileName="QLinke~2|QLinkedListData" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\QLinkedListData" SelfReg="false" Sequence="752"/>
+    <ROW File="QLinkedListIterator" Component_="QXmlStreamWriter" FileName="QLinke~3|QLinkedListIterator" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\QLinkedListIterator" SelfReg="false" Sequence="753"/>
+    <ROW File="QLinkedListNode" Component_="QXmlStreamWriter" FileName="QLinke~4|QLinkedListNode" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\QLinkedListNode" SelfReg="false" Sequence="754"/>
+    <ROW File="QList" Component_="QXmlStreamWriter" FileName="QList" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\QList" SelfReg="false" Sequence="756"/>
+    <ROW File="QListData" Component_="QXmlStreamWriter" FileName="QListD~1|QListData" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\QListData" SelfReg="false" Sequence="757"/>
+    <ROW File="QListIterator" Component_="QXmlStreamWriter" FileName="QListI~1|QListIterator" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\QListIterator" SelfReg="false" Sequence="758"/>
+    <ROW File="QLocale" Component_="QXmlStreamWriter" FileName="QLocale" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\QLocale" SelfReg="false" Sequence="760"/>
+    <ROW File="QMYSQLDriver" Component_="QtSql_1" FileName="QMYSQL~1|QMYSQLDriver" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtSql\QMYSQLDriver" SelfReg="false" Sequence="977"/>
+    <ROW File="QMYSQLResult" Component_="QtSql_1" FileName="QMYSQL~2|QMYSQLResult" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtSql\QMYSQLResult" SelfReg="false" Sequence="978"/>
+    <ROW File="QMap" Component_="QXmlStreamWriter" FileName="QMap" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\QMap" SelfReg="false" Sequence="762"/>
+    <ROW File="QMapData" Component_="QXmlStreamWriter" FileName="QMapData" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\QMapData" SelfReg="false" Sequence="763"/>
+    <ROW File="QMapIterator" Component_="QXmlStreamWriter" FileName="QMapIt~1|QMapIterator" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\QMapIterator" SelfReg="false" Sequence="764"/>
+    <ROW File="QMapNode" Component_="QXmlStreamWriter" FileName="QMapNode" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\QMapNode" SelfReg="false" Sequence="765"/>
+    <ROW File="QMapPayloadNode" Component_="QXmlStreamWriter" FileName="QMapPa~1|QMapPayloadNode" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\QMapPayloadNode" SelfReg="false" Sequence="766"/>
+    <ROW File="QMetaClassInfo" Component_="QXmlStreamWriter" FileName="QMetaC~1|QMetaClassInfo" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\QMetaClassInfo" SelfReg="false" Sequence="768"/>
+    <ROW File="QMetaEnum" Component_="QXmlStreamWriter" FileName="QMetaE~1|QMetaEnum" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\QMetaEnum" SelfReg="false" Sequence="769"/>
+    <ROW File="QMetaMethod" Component_="QXmlStreamWriter" FileName="QMetaM~1|QMetaMethod" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\QMetaMethod" SelfReg="false" Sequence="770"/>
+    <ROW File="QMetaObject" Component_="QXmlStreamWriter" FileName="QMetaO~1|QMetaObject" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\QMetaObject" SelfReg="false" Sequence="772"/>
+    <ROW File="QMetaObjectExtraData" Component_="QXmlStreamWriter" FileName="QMetaO~2|QMetaObjectExtraData" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\QMetaObjectExtraData" SelfReg="false" Sequence="773"/>
+    <ROW File="QMetaProperty" Component_="QXmlStreamWriter" FileName="QMetaP~1|QMetaProperty" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\QMetaProperty" SelfReg="false" Sequence="774"/>
+    <ROW File="QMetaType" Component_="QXmlStreamWriter" FileName="QMetaT~1|QMetaType" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\QMetaType" SelfReg="false" Sequence="776"/>
+    <ROW File="QMetaTypeId" Component_="QXmlStreamWriter" FileName="QMetaT~2|QMetaTypeId" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\QMetaTypeId" SelfReg="false" Sequence="777"/>
+    <ROW File="QMetaTypeId2" Component_="QXmlStreamWriter" FileName="QMetaT~3|QMetaTypeId2" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\QMetaTypeId2" SelfReg="false" Sequence="778"/>
+    <ROW File="QMimeData" Component_="QXmlStreamWriter" FileName="QMimeD~1|QMimeData" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\QMimeData" SelfReg="false" Sequence="780"/>
+    <ROW File="QModelIndex" Component_="QXmlStreamWriter" FileName="QModel~1|QModelIndex" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\QModelIndex" SelfReg="false" Sequence="781"/>
+    <ROW File="QModelIndexList" Component_="QXmlStreamWriter" FileName="QModel~2|QModelIndexList" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\QModelIndexList" SelfReg="false" Sequence="782"/>
+    <ROW File="QMultiHash" Component_="QXmlStreamWriter" FileName="QMulti~1|QMultiHash" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\QMultiHash" SelfReg="false" Sequence="783"/>
+    <ROW File="QMultiMap" Component_="QXmlStreamWriter" FileName="QMulti~2|QMultiMap" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\QMultiMap" SelfReg="false" Sequence="784"/>
+    <ROW File="QMutableFutureIterator" Component_="QXmlStreamWriter" FileName="QMutab~1|QMutableFutureIterator" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\QMutableFutureIterator" SelfReg="false" Sequence="785"/>
+    <ROW File="QMutableHashIterator" Component_="QXmlStreamWriter" FileName="QMutab~2|QMutableHashIterator" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\QMutableHashIterator" SelfReg="false" Sequence="786"/>
+    <ROW File="QMutableLinkedListIterator" Component_="QXmlStreamWriter" FileName="QMutab~3|QMutableLinkedListIterator" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\QMutableLinkedListIterator" SelfReg="false" Sequence="787"/>
+    <ROW File="QMutableListIterator" Component_="QXmlStreamWriter" FileName="QMutab~4|QMutableListIterator" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\QMutableListIterator" SelfReg="false" Sequence="788"/>
+    <ROW File="QMutableMapIterator" Component_="QXmlStreamWriter" FileName="QMutab~5|QMutableMapIterator" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\QMutableMapIterator" SelfReg="false" Sequence="789"/>
+    <ROW File="QMutableSetIterator" Component_="QXmlStreamWriter" FileName="QMutab~6|QMutableSetIterator" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\QMutableSetIterator" SelfReg="false" Sequence="790"/>
+    <ROW File="QMutableStringListIterator" Component_="QXmlStreamWriter" FileName="QMutab~7|QMutableStringListIterator" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\QMutableStringListIterator" SelfReg="false" Sequence="791"/>
+    <ROW File="QMutableVectorIterator" Component_="QXmlStreamWriter" FileName="QMutab~8|QMutableVectorIterator" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\QMutableVectorIterator" SelfReg="false" Sequence="792"/>
+    <ROW File="QMutex" Component_="QXmlStreamWriter" FileName="QMutex" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\QMutex" SelfReg="false" Sequence="794"/>
+    <ROW File="QMutexLocker" Component_="QXmlStreamWriter" FileName="QMutex~1|QMutexLocker" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\QMutexLocker" SelfReg="false" Sequence="795"/>
+    <ROW File="QNoDebug" Component_="QXmlStreamWriter" FileName="QNoDebug" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\QNoDebug" SelfReg="false" Sequence="797"/>
+    <ROW File="QNoImplicitBoolCast" Component_="QXmlStreamWriter" FileName="QNoImp~1|QNoImplicitBoolCast" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\QNoImplicitBoolCast" SelfReg="false" Sequence="798"/>
+    <ROW File="QOCIDriver" Component_="QtSql_1" FileName="QOCIDr~1|QOCIDriver" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtSql\QOCIDriver" SelfReg="false" Sequence="979"/>
+    <ROW File="QOCIResult" Component_="QtSql_1" FileName="QOCIRe~1|QOCIResult" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtSql\QOCIResult" SelfReg="false" Sequence="980"/>
+    <ROW File="QODBCDriver" Component_="QtSql_1" FileName="QODBCD~1|QODBCDriver" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtSql\QODBCDriver" SelfReg="false" Sequence="981"/>
+    <ROW File="QODBCResult" Component_="QtSql_1" FileName="QODBCR~1|QODBCResult" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtSql\QODBCResult" SelfReg="false" Sequence="982"/>
+    <ROW File="QObject" Component_="QXmlStreamWriter" FileName="QObject" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\QObject" SelfReg="false" Sequence="801"/>
+    <ROW File="QObjectCleanupHandler" Component_="QXmlStreamWriter" FileName="QObjec~1|QObjectCleanupHandler" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\QObjectCleanupHandler" SelfReg="false" Sequence="803"/>
+    <ROW File="QObjectData" Component_="QXmlStreamWriter" FileName="QObjec~2|QObjectData" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\QObjectData" SelfReg="false" Sequence="804"/>
+    <ROW File="QObjectList" Component_="QXmlStreamWriter" FileName="QObjec~3|QObjectList" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\QObjectList" SelfReg="false" Sequence="806"/>
+    <ROW File="QObjectUserData" Component_="QXmlStreamWriter" FileName="QObjec~4|QObjectUserData" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\QObjectUserData" SelfReg="false" Sequence="807"/>
+    <ROW File="QPSQLDriver" Component_="QtSql_1" FileName="QPSQLD~1|QPSQLDriver" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtSql\QPSQLDriver" SelfReg="false" Sequence="983"/>
+    <ROW File="QPSQLResult" Component_="QtSql_1" FileName="QPSQLR~1|QPSQLResult" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtSql\QPSQLResult" SelfReg="false" Sequence="984"/>
+    <ROW File="QPair" Component_="QXmlStreamWriter" FileName="QPair" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\QPair" SelfReg="false" Sequence="809"/>
+    <ROW File="QPersistentModelIndex" Component_="QXmlStreamWriter" FileName="QPersi~1|QPersistentModelIndex" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\QPersistentModelIndex" SelfReg="false" Sequence="810"/>
+    <ROW File="QPluginLoader" Component_="QXmlStreamWriter" FileName="QPlugi~1|QPluginLoader" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\QPluginLoader" SelfReg="false" Sequence="813"/>
+    <ROW File="QPoint" Component_="QXmlStreamWriter" FileName="QPoint" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\QPoint" SelfReg="false" Sequence="815"/>
+    <ROW File="QPointF" Component_="QXmlStreamWriter" FileName="QPointF" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\QPointF" SelfReg="false" Sequence="818"/>
+    <ROW File="QPointer" Component_="QXmlStreamWriter" FileName="QPointer" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\QPointer" SelfReg="false" Sequence="817"/>
+    <ROW File="QProcess" Component_="QXmlStreamWriter" FileName="QProcess" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\QProcess" SelfReg="false" Sequence="820"/>
+    <ROW File="QQueue" Component_="QXmlStreamWriter" FileName="QQueue" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\QQueue" SelfReg="false" Sequence="822"/>
+    <ROW File="QReadLocker" Component_="QXmlStreamWriter" FileName="QReadL~1|QReadLocker" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\QReadLocker" SelfReg="false" Sequence="823"/>
+    <ROW File="QReadWriteLock" Component_="QXmlStreamWriter" FileName="QReadW~1|QReadWriteLock" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\QReadWriteLock" SelfReg="false" Sequence="825"/>
+    <ROW File="QRect" Component_="QXmlStreamWriter" FileName="QRect" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\QRect" SelfReg="false" Sequence="827"/>
+    <ROW File="QRectF" Component_="QXmlStreamWriter" FileName="QRectF" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\QRectF" SelfReg="false" Sequence="828"/>
+    <ROW File="QRegExp" Component_="QXmlStreamWriter" FileName="QRegExp" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\QRegExp" SelfReg="false" Sequence="830"/>
+    <ROW File="QResource" Component_="QXmlStreamWriter" FileName="QResou~1|QResource" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\QResource" SelfReg="false" Sequence="832"/>
+    <ROW File="QReturnArgument" Component_="QXmlStreamWriter" FileName="QRetur~1|QReturnArgument" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\QReturnArgument" SelfReg="false" Sequence="833"/>
+    <ROW File="QRunnable" Component_="QXmlStreamWriter" FileName="QRunna~1|QRunnable" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\QRunnable" SelfReg="false" Sequence="835"/>
+    <ROW File="QSQLite2Driver" Component_="QtSql_1" FileName="QSQLit~1|QSQLite2Driver" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtSql\QSQLite2Driver" SelfReg="false" Sequence="1010"/>
+    <ROW File="QSQLite2Result" Component_="QtSql_1" FileName="QSQLit~2|QSQLite2Result" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtSql\QSQLite2Result" SelfReg="false" Sequence="1011"/>
+    <ROW File="QSQLiteDriver" Component_="QtSql_1" FileName="QSQLit~3|QSQLiteDriver" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtSql\QSQLiteDriver" SelfReg="false" Sequence="1012"/>
+    <ROW File="QSQLiteResult" Component_="QtSql_1" FileName="QSQLit~4|QSQLiteResult" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtSql\QSQLiteResult" SelfReg="false" Sequence="1013"/>
+    <ROW File="QSemaphore" Component_="QXmlStreamWriter" FileName="QSemap~1|QSemaphore" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\QSemaphore" SelfReg="false" Sequence="837"/>
+    <ROW File="QSet" Component_="QXmlStreamWriter" FileName="QSet" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\QSet" SelfReg="false" Sequence="839"/>
+    <ROW File="QSetIterator" Component_="QXmlStreamWriter" FileName="QSetIt~1|QSetIterator" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\QSetIterator" SelfReg="false" Sequence="840"/>
+    <ROW File="QSettings" Component_="QXmlStreamWriter" FileName="QSetti~1|QSettings" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\QSettings" SelfReg="false" Sequence="842"/>
+    <ROW File="QSharedData" Component_="QXmlStreamWriter" FileName="QShare~1|QSharedData" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\QSharedData" SelfReg="false" Sequence="844"/>
+    <ROW File="QSharedDataPointer" Component_="QXmlStreamWriter" FileName="QShare~2|QSharedDataPointer" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\QSharedDataPointer" SelfReg="false" Sequence="845"/>
+    <ROW File="QSharedMemory" Component_="QXmlStreamWriter" FileName="QShare~3|QSharedMemory" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\QSharedMemory" SelfReg="false" Sequence="847"/>
+    <ROW File="QSharedPointer" Component_="QXmlStreamWriter" FileName="QShare~4|QSharedPointer" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\QSharedPointer" SelfReg="false" Sequence="849"/>
+    <ROW File="QSignalMapper" Component_="QXmlStreamWriter" FileName="QSigna~1|QSignalMapper" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\QSignalMapper" SelfReg="false" Sequence="852"/>
+    <ROW File="QSize" Component_="QXmlStreamWriter" FileName="QSize" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\QSize" SelfReg="false" Sequence="854"/>
+    <ROW File="QSizeF" Component_="QXmlStreamWriter" FileName="QSizeF" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\QSizeF" SelfReg="false" Sequence="855"/>
+    <ROW File="QSocketNotifier" Component_="QXmlStreamWriter" FileName="QSocke~1|QSocketNotifier" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\QSocketNotifier" SelfReg="false" Sequence="857"/>
+    <ROW File="QSqlDatabase" Component_="QtSql_1" FileName="QSqlDa~1|QSqlDatabase" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtSql\QSqlDatabase" SelfReg="false" Sequence="996"/>
+    <ROW File="QSqlDriver" Component_="QtSql_1" FileName="QSqlDr~1|QSqlDriver" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtSql\QSqlDriver" SelfReg="false" Sequence="998"/>
+    <ROW File="QSqlDriverCreator" Component_="QtSql_1" FileName="QSqlDr~2|QSqlDriverCreator" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtSql\QSqlDriverCreator" SelfReg="false" Sequence="999"/>
+    <ROW File="QSqlDriverCreatorBase" Component_="QtSql_1" FileName="QSqlDr~3|QSqlDriverCreatorBase" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtSql\QSqlDriverCreatorBase" SelfReg="false" Sequence="1000"/>
+    <ROW File="QSqlDriverFactoryInterface" Component_="QtSql_1" FileName="QSqlDr~4|QSqlDriverFactoryInterface" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtSql\QSqlDriverFactoryInterface" SelfReg="false" Sequence="1001"/>
+    <ROW File="QSqlDriverPlugin" Component_="QtSql_1" FileName="QSqlDr~5|QSqlDriverPlugin" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtSql\QSqlDriverPlugin" SelfReg="false" Sequence="1003"/>
+    <ROW File="QSqlError" Component_="QtSql_1" FileName="QSqlEr~1|QSqlError" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtSql\QSqlError" SelfReg="false" Sequence="1005"/>
+    <ROW File="QSqlField" Component_="QtSql_1" FileName="QSqlFi~1|QSqlField" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtSql\QSqlField" SelfReg="false" Sequence="1007"/>
+    <ROW File="QSqlIndex" Component_="QtSql_1" FileName="QSqlIn~1|QSqlIndex" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtSql\QSqlIndex" SelfReg="false" Sequence="1009"/>
+    <ROW File="QSqlQuery" Component_="QtSql_1" FileName="QSqlQu~1|QSqlQuery" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtSql\QSqlQuery" SelfReg="false" Sequence="1015"/>
+    <ROW File="QSqlQueryModel" Component_="QtSql_1" FileName="QSqlQu~2|QSqlQueryModel" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtSql\QSqlQueryModel" SelfReg="false" Sequence="1017"/>
+    <ROW File="QSqlRecord" Component_="QtSql_1" FileName="QSqlRe~1|QSqlRecord" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtSql\QSqlRecord" SelfReg="false" Sequence="1019"/>
+    <ROW File="QSqlRelation" Component_="QtSql_1" FileName="QSqlRe~2|QSqlRelation" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtSql\QSqlRelation" SelfReg="false" Sequence="1020"/>
+    <ROW File="QSqlRelationalDelegate" Component_="QtSql_1" FileName="QSqlRe~3|QSqlRelationalDelegate" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtSql\QSqlRelationalDelegate" SelfReg="false" Sequence="1022"/>
+    <ROW File="QSqlRelationalTableModel" Component_="QtSql_1" FileName="QSqlRe~4|QSqlRelationalTableModel" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtSql\QSqlRelationalTableModel" SelfReg="false" Sequence="1024"/>
+    <ROW File="QSqlResult" Component_="QtSql_1" FileName="QSqlRe~5|QSqlResult" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtSql\QSqlResult" SelfReg="false" Sequence="1026"/>
+    <ROW File="QSqlTableModel" Component_="QtSql_1" FileName="QSqlTa~1|QSqlTableModel" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtSql\QSqlTableModel" SelfReg="false" Sequence="1028"/>
+    <ROW File="QStack" Component_="QXmlStreamWriter" FileName="QStack" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\QStack" SelfReg="false" Sequence="859"/>
+    <ROW File="QStdWString" Component_="QXmlStreamWriter" FileName="QStdWS~1|QStdWString" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\QStdWString" SelfReg="false" Sequence="860"/>
+    <ROW File="QString" Component_="QXmlStreamWriter" FileName="QString" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\QString" SelfReg="false" Sequence="862"/>
+    <ROW File="QStringList" Component_="QXmlStreamWriter" FileName="QStrin~1|QStringList" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\QStringList" SelfReg="false" Sequence="864"/>
+    <ROW File="QStringListIterator" Component_="QXmlStreamWriter" FileName="QStrin~2|QStringListIterator" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\QStringListIterator" SelfReg="false" Sequence="865"/>
+    <ROW File="QStringMatcher" Component_="QXmlStreamWriter" FileName="QStrin~3|QStringMatcher" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\QStringMatcher" SelfReg="false" Sequence="867"/>
+    <ROW File="QStringRef" Component_="QXmlStreamWriter" FileName="QStrin~4|QStringRef" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\QStringRef" SelfReg="false" Sequence="868"/>
+    <ROW File="QSysInfo" Component_="QXmlStreamWriter" FileName="QSysInfo" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\QSysInfo" SelfReg="false" Sequence="869"/>
+    <ROW File="QSystemLocale" Component_="QXmlStreamWriter" FileName="QSyste~1|QSystemLocale" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\QSystemLocale" SelfReg="false" Sequence="870"/>
+    <ROW File="QSystemSemaphore" Component_="QXmlStreamWriter" FileName="QSyste~2|QSystemSemaphore" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\QSystemSemaphore" SelfReg="false" Sequence="872"/>
+    <ROW File="QTDSDriver" Component_="QtSql_1" FileName="QTDSDr~1|QTDSDriver" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtSql\QTDSDriver" SelfReg="false" Sequence="1029"/>
+    <ROW File="QTDSResult" Component_="QtSql_1" FileName="QTDSRe~1|QTDSResult" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtSql\QTDSResult" SelfReg="false" Sequence="1030"/>
+    <ROW File="QTS" Component_="QXmlStreamWriter" FileName="QTS" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\QTS" SelfReg="false" Sequence="935"/>
+    <ROW File="QTemporaryFile" Component_="QXmlStreamWriter" FileName="QTempo~1|QTemporaryFile" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\QTemporaryFile" SelfReg="false" Sequence="899"/>
+    <ROW File="QTextBoundaryFinder" Component_="QXmlStreamWriter" FileName="QTextB~1|QTextBoundaryFinder" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\QTextBoundaryFinder" SelfReg="false" Sequence="902"/>
+    <ROW File="QTextCodec" Component_="QXmlStreamWriter" FileName="QTextC~1|QTextCodec" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\QTextCodec" SelfReg="false" Sequence="904"/>
+    <ROW File="QTextCodecFactoryInterface" Component_="QXmlStreamWriter" FileName="QTextC~2|QTextCodecFactoryInterface" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\QTextCodecFactoryInterface" SelfReg="false" Sequence="905"/>
+    <ROW File="QTextCodecPlugin" Component_="QXmlStreamWriter" FileName="QTextC~3|QTextCodecPlugin" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\QTextCodecPlugin" SelfReg="false" Sequence="907"/>
+    <ROW File="QTextDecoder" Component_="QXmlStreamWriter" FileName="QTextD~1|QTextDecoder" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\QTextDecoder" SelfReg="false" Sequence="908"/>
+    <ROW File="QTextEncoder" Component_="QXmlStreamWriter" FileName="QTextE~1|QTextEncoder" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\QTextEncoder" SelfReg="false" Sequence="909"/>
+    <ROW File="QTextIStream" Component_="QXmlStreamWriter" FileName="QTextI~1|QTextIStream" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\QTextIStream" SelfReg="false" Sequence="910"/>
+    <ROW File="QTextOStream" Component_="QXmlStreamWriter" FileName="QTextO~1|QTextOStream" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\QTextOStream" SelfReg="false" Sequence="911"/>
+    <ROW File="QTextStream" Component_="QXmlStreamWriter" FileName="QTextS~1|QTextStream" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\QTextStream" SelfReg="false" Sequence="913"/>
+    <ROW File="QTextStreamFunction" Component_="QXmlStreamWriter" FileName="QTextS~2|QTextStreamFunction" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\QTextStreamFunction" SelfReg="false" Sequence="914"/>
+    <ROW File="QTextStreamManipulator" Component_="QXmlStreamWriter" FileName="QTextS~3|QTextStreamManipulator" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\QTextStreamManipulator" SelfReg="false" Sequence="915"/>
+    <ROW File="QThread" Component_="QXmlStreamWriter" FileName="QThread" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\QThread" SelfReg="false" Sequence="918"/>
+    <ROW File="QThreadPool" Component_="QXmlStreamWriter" FileName="QThrea~1|QThreadPool" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\QThreadPool" SelfReg="false" Sequence="920"/>
+    <ROW File="QThreadStorage" Component_="QXmlStreamWriter" FileName="QThrea~2|QThreadStorage" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\QThreadStorage" SelfReg="false" Sequence="922"/>
+    <ROW File="QThreadStorageData" Component_="QXmlStreamWriter" FileName="QThrea~3|QThreadStorageData" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\QThreadStorageData" SelfReg="false" Sequence="923"/>
+    <ROW File="QTime" Component_="QXmlStreamWriter" FileName="QTime" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\QTime" SelfReg="false" Sequence="924"/>
+    <ROW File="QTimeLine" Component_="QXmlStreamWriter" FileName="QTimeL~1|QTimeLine" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\QTimeLine" SelfReg="false" Sequence="926"/>
+    <ROW File="QTimer" Component_="QXmlStreamWriter" FileName="QTimer" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\QTimer" SelfReg="false" Sequence="928"/>
+    <ROW File="QTimerEvent" Component_="QXmlStreamWriter" FileName="QTimer~1|QTimerEvent" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\QTimerEvent" SelfReg="false" Sequence="929"/>
+    <ROW File="QTranslator" Component_="QXmlStreamWriter" FileName="QTrans~1|QTranslator" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\QTranslator" SelfReg="false" Sequence="934"/>
+    <ROW File="QTypeInfo" Component_="QXmlStreamWriter" FileName="QTypeI~1|QTypeInfo" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\QTypeInfo" SelfReg="false" Sequence="936"/>
+    <ROW File="QUintForSize" Component_="QXmlStreamWriter" FileName="QUintF~1|QUintForSize" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\QUintForSize" SelfReg="false" Sequence="937"/>
+    <ROW File="QUintForType" Component_="QXmlStreamWriter" FileName="QUintF~2|QUintForType" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\QUintForType" SelfReg="false" Sequence="938"/>
+    <ROW File="QUrl" Component_="QXmlStreamWriter" FileName="QUrl" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\QUrl" SelfReg="false" Sequence="940"/>
+    <ROW File="QUuid" Component_="QXmlStreamWriter" FileName="QUuid" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\QUuid" SelfReg="false" Sequence="942"/>
+    <ROW File="QVarLengthArray" Component_="QXmlStreamWriter" FileName="QVarLe~1|QVarLengthArray" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\QVarLengthArray" SelfReg="false" Sequence="950"/>
+    <ROW File="QVariant" Component_="QXmlStreamWriter" FileName="QVariant" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\QVariant" SelfReg="false" Sequence="944"/>
+    <ROW File="QVariantComparisonHelper" Component_="QXmlStreamWriter" FileName="QVaria~1|QVariantComparisonHelper" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\QVariantComparisonHelper" SelfReg="false" Sequence="945"/>
+    <ROW File="QVariantHash" Component_="QXmlStreamWriter" FileName="QVaria~2|QVariantHash" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\QVariantHash" SelfReg="false" Sequence="946"/>
+    <ROW File="QVariantList" Component_="QXmlStreamWriter" FileName="QVaria~3|QVariantList" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\QVariantList" SelfReg="false" Sequence="947"/>
+    <ROW File="QVariantMap" Component_="QXmlStreamWriter" FileName="QVaria~4|QVariantMap" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\QVariantMap" SelfReg="false" Sequence="948"/>
+    <ROW File="QVector" Component_="QXmlStreamWriter" FileName="QVector" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\QVector" SelfReg="false" Sequence="952"/>
+    <ROW File="QVectorData" Component_="QXmlStreamWriter" FileName="QVecto~1|QVectorData" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\QVectorData" SelfReg="false" Sequence="953"/>
+    <ROW File="QVectorIterator" Component_="QXmlStreamWriter" FileName="QVecto~2|QVectorIterator" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\QVectorIterator" SelfReg="false" Sequence="954"/>
+    <ROW File="QVectorTypedData" Component_="QXmlStreamWriter" FileName="QVecto~3|QVectorTypedData" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\QVectorTypedData" SelfReg="false" Sequence="955"/>
+    <ROW File="QWaitCondition" Component_="QXmlStreamWriter" FileName="QWaitC~1|QWaitCondition" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\QWaitCondition" SelfReg="false" Sequence="957"/>
+    <ROW File="QWeakPointer" Component_="QXmlStreamWriter" FileName="QWeakP~1|QWeakPointer" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\QWeakPointer" SelfReg="false" Sequence="958"/>
+    <ROW File="QWriteLocker" Component_="QXmlStreamWriter" FileName="QWrite~1|QWriteLocker" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\QWriteLocker" SelfReg="false" Sequence="959"/>
+    <ROW File="QXmlStreamAttribute" Component_="QXmlStreamWriter" FileName="QXmlSt~2|QXmlStreamAttribute" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\QXmlStreamAttribute" SelfReg="false" Sequence="961"/>
+    <ROW File="QXmlStreamAttributes" Component_="QXmlStreamWriter" FileName="QXmlSt~3|QXmlStreamAttributes" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\QXmlStreamAttributes" SelfReg="false" Sequence="962"/>
+    <ROW File="QXmlStreamEntityDeclaration" Component_="QXmlStreamWriter" FileName="QXmlSt~4|QXmlStreamEntityDeclaration" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\QXmlStreamEntityDeclaration" SelfReg="false" Sequence="963"/>
+    <ROW File="QXmlStreamEntityDeclarations" Component_="QXmlStreamWriter" FileName="QXmlSt~5|QXmlStreamEntityDeclarations" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\QXmlStreamEntityDeclarations" SelfReg="false" Sequence="964"/>
+    <ROW File="QXmlStreamEntityResolver" Component_="QXmlStreamWriter" FileName="QXmlSt~6|QXmlStreamEntityResolver" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\QXmlStreamEntityResolver" SelfReg="false" Sequence="965"/>
+    <ROW File="QXmlStreamNamespaceDeclaration" Component_="QXmlStreamWriter" FileName="QXmlSt~7|QXmlStreamNamespaceDeclaration" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\QXmlStreamNamespaceDeclaration" SelfReg="false" Sequence="966"/>
+    <ROW File="QXmlStreamNamespaceDeclarations" Component_="QXmlStreamWriter" FileName="QXmlSt~8|QXmlStreamNamespaceDeclarations" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\QXmlStreamNamespaceDeclarations" SelfReg="false" Sequence="967"/>
+    <ROW File="QXmlStreamNotationDeclaration" Component_="QXmlStreamWriter" FileName="QXmlSt~9|QXmlStreamNotationDeclaration" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\QXmlStreamNotationDeclaration" SelfReg="false" Sequence="968"/>
+    <ROW File="QXmlStreamNotationDeclarations" Component_="QXmlStreamWriter" FileName="QXmlS~10|QXmlStreamNotationDeclarations" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\QXmlStreamNotationDeclarations" SelfReg="false" Sequence="969"/>
+    <ROW File="QXmlStreamReader" Component_="QXmlStreamWriter" FileName="QXmlS~11|QXmlStreamReader" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\QXmlStreamReader" SelfReg="false" Sequence="970"/>
+    <ROW File="QXmlStreamStringRef" Component_="QXmlStreamWriter" FileName="QXmlS~12|QXmlStreamStringRef" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\QXmlStreamStringRef" SelfReg="false" Sequence="971"/>
+    <ROW File="QXmlStreamWriter" Component_="QXmlStreamWriter" FileName="QXmlSt~1|QXmlStreamWriter" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\QXmlStreamWriter" SelfReg="false" Sequence="591"/>
+    <ROW File="Q_INT16" Component_="QXmlStreamWriter" FileName="Q_INT16" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\Q_INT16" SelfReg="false" Sequence="593"/>
+    <ROW File="Q_INT32" Component_="QXmlStreamWriter" FileName="Q_INT32" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\Q_INT32" SelfReg="false" Sequence="594"/>
+    <ROW File="Q_INT64" Component_="QXmlStreamWriter" FileName="Q_INT64" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\Q_INT64" SelfReg="false" Sequence="595"/>
+    <ROW File="Q_INT8" Component_="QXmlStreamWriter" FileName="Q_INT8" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\Q_INT8" SelfReg="false" Sequence="592"/>
+    <ROW File="Q_LLONG" Component_="QXmlStreamWriter" FileName="Q_LLONG" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\Q_LLONG" SelfReg="false" Sequence="596"/>
+    <ROW File="Q_LONG" Component_="QXmlStreamWriter" FileName="Q_LONG" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\Q_LONG" SelfReg="false" Sequence="597"/>
+    <ROW File="Q_PID" Component_="QXmlStreamWriter" FileName="Q_PID" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\Q_PID" SelfReg="false" Sequence="598"/>
+    <ROW File="Q_UINT16" Component_="QXmlStreamWriter" FileName="Q_UINT16" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\Q_UINT16" SelfReg="false" Sequence="600"/>
+    <ROW File="Q_UINT32" Component_="QXmlStreamWriter" FileName="Q_UINT32" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\Q_UINT32" SelfReg="false" Sequence="601"/>
+    <ROW File="Q_UINT64" Component_="QXmlStreamWriter" FileName="Q_UINT64" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\Q_UINT64" SelfReg="false" Sequence="602"/>
+    <ROW File="Q_UINT8" Component_="QXmlStreamWriter" FileName="Q_UINT8" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\Q_UINT8" SelfReg="false" Sequence="599"/>
+    <ROW File="Q_ULLONG" Component_="QXmlStreamWriter" FileName="Q_ULLONG" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\Q_ULLONG" SelfReg="false" Sequence="603"/>
+    <ROW File="Q_ULONG" Component_="QXmlStreamWriter" FileName="Q_ULONG" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\Q_ULONG" SelfReg="false" Sequence="604"/>
+    <ROW File="Qt" Component_="QXmlStreamWriter" FileName="Qt" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\Qt" SelfReg="false" Sequence="873"/>
+    <ROW File="QtAlgorithms" Component_="QXmlStreamWriter" FileName="QtAlgo~1|QtAlgorithms" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\QtAlgorithms" SelfReg="false" Sequence="875"/>
+    <ROW File="QtCleanUpFunction" Component_="QXmlStreamWriter" FileName="QtClea~1|QtCleanUpFunction" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\QtCleanUpFunction" SelfReg="false" Sequence="876"/>
+    <ROW File="QtConcurrentFilter" Component_="QXmlStreamWriter" FileName="QtConc~1|QtConcurrentFilter" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\QtConcurrentFilter" SelfReg="false" Sequence="880"/>
+    <ROW File="QtConcurrentMap" Component_="QXmlStreamWriter" FileName="QtConc~2|QtConcurrentMap" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\QtConcurrentMap" SelfReg="false" Sequence="885"/>
+    <ROW File="QtConcurrentRun" Component_="QXmlStreamWriter" FileName="QtConc~3|QtConcurrentRun" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\QtConcurrentRun" SelfReg="false" Sequence="891"/>
+    <ROW File="QtContainerFwd" Component_="QXmlStreamWriter" FileName="QtCont~1|QtContainerFwd" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\QtContainerFwd" SelfReg="false" Sequence="895"/>
+    <ROW File="QtCore" Component_="QXmlStreamWriter" FileName="QtCore" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\QtCore" SelfReg="false" Sequence="896"/>
+    <ROW File="QtCore4.dll" Component_="QtCore4.dll" FileName="QtCore4.dll" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;bin\QtCore4.dll" SelfReg="false" Sequence="576" DigSign="true"/>
+    <ROW File="QtCore4.dll_1" Component_="QtCore4.dll_1" FileName="QtCore4.dll" Attributes="0" SourcePath="&lt;QT_HOME_VC9_X64&gt;bin\QtCore4.dll" SelfReg="false" Sequence="580" DigSign="true"/>
+    <ROW File="QtCore4.lib" Component_="db.jar" FileName="QtCore4.lib" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;lib\QtCore4.lib" SelfReg="false" Sequence="584"/>
+    <ROW File="QtCore4.lib_1" Component_="libdb48d.lib" FileName="QtCore4.lib" Attributes="0" SourcePath="&lt;QT_HOME_VC9_X64&gt;lib\QtCore4.lib" SelfReg="false" Sequence="588"/>
+    <ROW File="QtCored4.dll" Component_="QtCored4.dll" FileName="QtCored4.dll" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;bin\QtCored4.dll" SelfReg="false" Sequence="577" DigSign="true"/>
+    <ROW File="QtCored4.dll_1" Component_="QtCored4.dll_1" FileName="QtCored4.dll" Attributes="0" SourcePath="&lt;QT_HOME_VC9_X64&gt;bin\QtCored4.dll" SelfReg="false" Sequence="581" DigSign="true"/>
+    <ROW File="QtCored4.lib" Component_="db.jar" FileName="QtCored4.lib" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;lib\QtCored4.lib" SelfReg="false" Sequence="585"/>
+    <ROW File="QtCored4.lib_1" Component_="libdb48d.lib" FileName="QtCored4.lib" Attributes="0" SourcePath="&lt;QT_HOME_VC9_X64&gt;lib\QtCored4.lib" SelfReg="false" Sequence="589"/>
+    <ROW File="QtDebug" Component_="QXmlStreamWriter" FileName="QtDebug" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\QtDebug" SelfReg="false" Sequence="897"/>
+    <ROW File="QtEndian" Component_="QXmlStreamWriter" FileName="QtEndian" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\QtEndian" SelfReg="false" Sequence="900"/>
+    <ROW File="QtGlobal" Component_="QXmlStreamWriter" FileName="QtGlobal" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\QtGlobal" SelfReg="false" Sequence="916"/>
+    <ROW File="QtMsgHandler" Component_="QXmlStreamWriter" FileName="QtMsgH~1|QtMsgHandler" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\QtMsgHandler" SelfReg="false" Sequence="930"/>
+    <ROW File="QtPlugin" Component_="QXmlStreamWriter" FileName="QtPlugin" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\QtPlugin" SelfReg="false" Sequence="931"/>
+    <ROW File="QtPluginInstanceFunction" Component_="QXmlStreamWriter" FileName="QtPlug~1|QtPluginInstanceFunction" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\QtPluginInstanceFunction" SelfReg="false" Sequence="932"/>
+    <ROW File="QtSql" Component_="QtSql_1" FileName="QtSql" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtSql\QtSql" SelfReg="false" Sequence="972"/>
+    <ROW File="QtSql4.dll" Component_="QtSql4.dll" FileName="QtSql4.dll" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;bin\QtSql4.dll" SelfReg="false" Sequence="578" DigSign="true"/>
+    <ROW File="QtSql4.dll_1" Component_="QtSql4.dll_1" FileName="QtSql4.dll" Attributes="0" SourcePath="&lt;QT_HOME_VC9_X64&gt;bin\QtSql4.dll" SelfReg="false" Sequence="582" DigSign="true"/>
+    <ROW File="QtSql4.lib" Component_="db.jar" FileName="QtSql4.lib" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;lib\QtSql4.lib" SelfReg="false" Sequence="586"/>
+    <ROW File="QtSql4.lib_1" Component_="libdb48d.lib" FileName="QtSql4.lib" Attributes="0" SourcePath="&lt;QT_HOME_VC9_X64&gt;lib\QtSql4.lib" SelfReg="false" Sequence="590"/>
+    <ROW File="QtSqld4.dll" Component_="QtSqld4.dll" FileName="QtSqld4.dll" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;bin\QtSqld4.dll" SelfReg="false" Sequence="575" DigSign="true"/>
+    <ROW File="QtSqld4.dll_1" Component_="QtSqld4.dll_1" FileName="QtSqld4.dll" Attributes="0" SourcePath="&lt;QT_HOME_VC9_X64&gt;bin\QtSqld4.dll" SelfReg="false" Sequence="579" DigSign="true"/>
+    <ROW File="QtSqld4.lib" Component_="db.jar" FileName="QtSqld4.lib" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;lib\QtSqld4.lib" SelfReg="false" Sequence="583"/>
+    <ROW File="QtSqld4.lib_1" Component_="libdb48d.lib" FileName="QtSqld4.lib" Attributes="0" SourcePath="&lt;QT_HOME_VC9_X64&gt;lib\QtSqld4.lib" SelfReg="false" Sequence="587"/>
     <ROW File="README" Component_="algorith.h" FileName="README" Attributes="0" SourcePath="&lt;STLPORT_HOME&gt;stlport\BC50\README" SelfReg="false" Sequence="128"/>
+    <ROW File="README.txt" Component_="SOURCES" FileName="README.txt" Attributes="0" SourcePath="&lt;WindowsVolume&gt;Builds\ice\distribution\src\windows\docs\thirdparty\README.txt" SelfReg="false" Sequence="1031"/>
     <ROW File="README_1" Component_="configure" FileName="README" Attributes="0" SourcePath="&lt;STLPORT_HOME&gt;stlport\config\new_compiler\README" SelfReg="false" Sequence="167"/>
-    <ROW File="SOURCES.txt" Component_="SOURCES" FileName="SOURCES.txt" Attributes="0" SourcePath="windows\docs\thirdparty\SOURCES.txt" SelfReg="false" Sequence="75"/>
+    <ROW File="SOURCES.txt" Component_="SOURCES" FileName="SOURCES.txt" Attributes="0" SourcePath="&lt;WindowsVolume&gt;Builds\ice\distribution\src\windows\docs\thirdparty\SOURCES.txt" SelfReg="false" Sequence="75"/>
     <ROW File="abbrevs.h" Component_="char_traits.h" FileName="_abbrevs.h" Attributes="0" SourcePath="&lt;STLPORT_HOME&gt;stlport\stl\_abbrevs.h" SelfReg="false" Sequence="321"/>
     <ROW File="aes.h" Component_="aes.h" FileName="aes.h" Attributes="0" SourcePath="&lt;OPENSSL_HOME_VC9&gt;crypto\aes\aes.h" SelfReg="false" Sequence="6"/>
     <ROW File="algo.c" Component_="char_traits.h" FileName="_algo.c" Attributes="0" SourcePath="&lt;STLPORT_HOME&gt;stlport\stl\_algo.c" SelfReg="false" Sequence="322"/>
@@ -407,9 +712,9 @@
     <ROW File="libeay32.lib_3" Component_="libbz2.lib" FileName="libeay32.lib" Attributes="0" SourcePath="&lt;OPENSSL_HOME_BCC10&gt;out32dll\libeay32.lib" SelfReg="false" Sequence="533"/>
     <ROW File="libeay32_vc6.dll" Component_="libeay32_vc6.dll" FileName="libeay~1.dll|libeay32_vc6.dll" Attributes="0" SourcePath="&lt;OPENSSL_HOME_VC6&gt;out32dll\libeay32_vc6.dll" SelfReg="false" Sequence="502" DigSign="true"/>
     <ROW File="libexpat.dll" Component_="libexpat.dll" FileName="libexpat.dll" Attributes="0" SourcePath="&lt;EXPAT_HOME_VC9&gt;Bin\libexpat.dll" SelfReg="false" Sequence="550" DigSign="true"/>
-    <ROW File="libexpat.dll_2" Component_="libexpat.dll_2" FileName="libexpat.dll" Attributes="0" SourcePath="..\..\..\..\ThirdParty-3.4\VC9\Expat-2.0.1-x64\Source\win32\bin\Release\libexpat.dll" SelfReg="false" Sequence="572" DigSign="true"/>
+    <ROW File="libexpat.dll_2" Component_="libexpat.dll_2" FileName="libexpat.dll" Attributes="0" SourcePath="&lt;EXPAT_HOME_VC9_X64&gt;Source\win32\bin\Release\libexpat.dll" SelfReg="false" Sequence="572" DigSign="true"/>
     <ROW File="libexpat.lib" Component_="db.jar" FileName="libexpat.lib" Attributes="0" SourcePath="&lt;EXPAT_HOME_VC9&gt;Bin\libexpat.lib" SelfReg="false" Sequence="5"/>
-    <ROW File="libexpat.lib_1" Component_="libdb48d.lib" FileName="libexpat.lib" Attributes="0" SourcePath="..\..\..\..\ThirdParty-3.4\VC9\Expat-2.0.1-x64\Source\win32\bin\Release\libexpat.lib" SelfReg="false" Sequence="523"/>
+    <ROW File="libexpat.lib_1" Component_="libdb48d.lib" FileName="libexpat.lib" Attributes="0" SourcePath="&lt;EXPAT_HOME_VC9_X64&gt;Source\win32\bin\Release\libexpat.lib" SelfReg="false" Sequence="523"/>
     <ROW File="libexpat.lib_2" Component_="libbz2.lib" FileName="libexpat.lib" Attributes="0" SourcePath="&lt;EXPAT_HOME_BCC10&gt;Bin\libexpat.lib" SelfReg="false" Sequence="530"/>
     <ROW File="limits" Component_="algorithm" FileName="limits" Attributes="0" SourcePath="&lt;STLPORT_HOME&gt;stlport\limits" SelfReg="false" Sequence="235"/>
     <ROW File="limits.c" Component_="char_traits.h" FileName="_limits.c" Attributes="0" SourcePath="&lt;STLPORT_HOME&gt;stlport\stl\_limits.c" SelfReg="false" Sequence="372"/>
@@ -510,10 +815,175 @@
     <ROW File="pthread_alloc.h_1" Component_="algo.h" FileName="pthrea~1.h|pthread_alloc.h" Attributes="0" SourcePath="&lt;STLPORT_HOME&gt;stlport\old_hp\pthread_alloc.h" SelfReg="false" Sequence="266"/>
     <ROW File="pthread_alloc.h_2" Component_="char_traits.h" FileName="_pthre~1.h|_pthread_alloc.h" Attributes="0" SourcePath="&lt;STLPORT_HOME&gt;stlport\stl\_pthread_alloc.h" SelfReg="false" Sequence="396"/>
     <ROW File="ptrs_specialize.h" Component_="char_traits.h" FileName="_ptrs_~1.h|_ptrs_specialize.h" Attributes="0" SourcePath="&lt;STLPORT_HOME&gt;stlport\stl\_ptrs_specialize.h" SelfReg="false" Sequence="397"/>
+    <ROW File="qabstracteventdispatcher.h" Component_="QXmlStreamWriter" FileName="qabstr~1.h|qabstracteventdispatcher.h" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\qabstracteventdispatcher.h" SelfReg="false" Sequence="605"/>
+    <ROW File="qabstractfileengine.h" Component_="QXmlStreamWriter" FileName="qabstr~2.h|qabstractfileengine.h" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\qabstractfileengine.h" SelfReg="false" Sequence="607"/>
+    <ROW File="qabstractitemmodel.h" Component_="QXmlStreamWriter" FileName="qabstr~3.h|qabstractitemmodel.h" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\qabstractitemmodel.h" SelfReg="false" Sequence="611"/>
+    <ROW File="qalgorithms.h" Component_="QXmlStreamWriter" FileName="qalgor~1.h|qalgorithms.h" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\qalgorithms.h" SelfReg="false" Sequence="615"/>
+    <ROW File="qatomic.h" Component_="QXmlStreamWriter" FileName="qatomic.h" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\qatomic.h" SelfReg="false" Sequence="617"/>
+    <ROW File="qatomic_alpha.h" Component_="QXmlStreamWriter" FileName="qatomi~1.h|qatomic_alpha.h" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\qatomic_alpha.h" SelfReg="false" Sequence="618"/>
+    <ROW File="qatomic_arch.h" Component_="QXmlStreamWriter" FileName="qatomi~2.h|qatomic_arch.h" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\qatomic_arch.h" SelfReg="false" Sequence="619"/>
+    <ROW File="qatomic_arm.h" Component_="QXmlStreamWriter" FileName="qatomi~3.h|qatomic_arm.h" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\qatomic_arm.h" SelfReg="false" Sequence="620"/>
+    <ROW File="qatomic_armv6.h" Component_="QXmlStreamWriter" FileName="qatomi~4.h|qatomic_armv6.h" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\qatomic_armv6.h" SelfReg="false" Sequence="621"/>
+    <ROW File="qatomic_avr32.h" Component_="QXmlStreamWriter" FileName="qatomi~5.h|qatomic_avr32.h" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\qatomic_avr32.h" SelfReg="false" Sequence="622"/>
+    <ROW File="qatomic_bfin.h" Component_="QXmlStreamWriter" FileName="qatomi~6.h|qatomic_bfin.h" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\qatomic_bfin.h" SelfReg="false" Sequence="623"/>
+    <ROW File="qatomic_bootstrap.h" Component_="QXmlStreamWriter" FileName="qatomi~7.h|qatomic_bootstrap.h" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\qatomic_bootstrap.h" SelfReg="false" Sequence="624"/>
+    <ROW File="qatomic_generic.h" Component_="QXmlStreamWriter" FileName="qatomi~8.h|qatomic_generic.h" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\qatomic_generic.h" SelfReg="false" Sequence="625"/>
+    <ROW File="qatomic_i386.h" Component_="QXmlStreamWriter" FileName="qatomi~9.h|qatomic_i386.h" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\qatomic_i386.h" SelfReg="false" Sequence="626"/>
+    <ROW File="qatomic_ia64.h" Component_="QXmlStreamWriter" FileName="qatom~10.h|qatomic_ia64.h" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\qatomic_ia64.h" SelfReg="false" Sequence="627"/>
+    <ROW File="qatomic_mips.h" Component_="QXmlStreamWriter" FileName="qatom~11.h|qatomic_mips.h" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\qatomic_mips.h" SelfReg="false" Sequence="628"/>
+    <ROW File="qatomic_parisc.h" Component_="QXmlStreamWriter" FileName="qatom~12.h|qatomic_parisc.h" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\qatomic_parisc.h" SelfReg="false" Sequence="629"/>
+    <ROW File="qatomic_powerpc.h" Component_="QXmlStreamWriter" FileName="qatom~13.h|qatomic_powerpc.h" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\qatomic_powerpc.h" SelfReg="false" Sequence="630"/>
+    <ROW File="qatomic_s390.h" Component_="QXmlStreamWriter" FileName="qatom~14.h|qatomic_s390.h" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\qatomic_s390.h" SelfReg="false" Sequence="631"/>
+    <ROW File="qatomic_sh.h" Component_="QXmlStreamWriter" FileName="qatom~15.h|qatomic_sh.h" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\qatomic_sh.h" SelfReg="false" Sequence="632"/>
+    <ROW File="qatomic_sh4a.h" Component_="QXmlStreamWriter" FileName="qatom~16.h|qatomic_sh4a.h" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\qatomic_sh4a.h" SelfReg="false" Sequence="633"/>
+    <ROW File="qatomic_sparc.h" Component_="QXmlStreamWriter" FileName="qatom~17.h|qatomic_sparc.h" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\qatomic_sparc.h" SelfReg="false" Sequence="634"/>
+    <ROW File="qatomic_windows.h" Component_="QXmlStreamWriter" FileName="qatom~18.h|qatomic_windows.h" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\qatomic_windows.h" SelfReg="false" Sequence="635"/>
+    <ROW File="qatomic_windowsce.h" Component_="QXmlStreamWriter" FileName="qatom~19.h|qatomic_windowsce.h" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\qatomic_windowsce.h" SelfReg="false" Sequence="636"/>
+    <ROW File="qatomic_x86_64.h" Component_="QXmlStreamWriter" FileName="qatom~20.h|qatomic_x86_64.h" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\qatomic_x86_64.h" SelfReg="false" Sequence="637"/>
+    <ROW File="qbasicatomic.h" Component_="QXmlStreamWriter" FileName="qbasic~1.h|qbasicatomic.h" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\qbasicatomic.h" SelfReg="false" Sequence="640"/>
+    <ROW File="qbasictimer.h" Component_="QXmlStreamWriter" FileName="qbasic~2.h|qbasictimer.h" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\qbasictimer.h" SelfReg="false" Sequence="643"/>
+    <ROW File="qbitarray.h" Component_="QXmlStreamWriter" FileName="qbitar~1.h|qbitarray.h" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\qbitarray.h" SelfReg="false" Sequence="645"/>
+    <ROW File="qbuffer.h" Component_="QXmlStreamWriter" FileName="qbuffer.h" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\qbuffer.h" SelfReg="false" Sequence="649"/>
+    <ROW File="qbytearray.h" Component_="QXmlStreamWriter" FileName="qbytea~1.h|qbytearray.h" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\qbytearray.h" SelfReg="false" Sequence="651"/>
+    <ROW File="qbytearraymatcher.h" Component_="QXmlStreamWriter" FileName="qbytea~2.h|qbytearraymatcher.h" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\qbytearraymatcher.h" SelfReg="false" Sequence="653"/>
+    <ROW File="qcache.h" Component_="QXmlStreamWriter" FileName="qcache.h" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\qcache.h" SelfReg="false" Sequence="656"/>
+    <ROW File="qchar.h" Component_="QXmlStreamWriter" FileName="qchar.h" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\qchar.h" SelfReg="false" Sequence="658"/>
+    <ROW File="qconfig.h" Component_="QXmlStreamWriter" FileName="qconfig.h" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\qconfig.h" SelfReg="false" Sequence="662"/>
+    <ROW File="qconfig_dist.h" Component_="QXmlStreamWriter" FileName="qconfi~1.h|qconfig-dist.h" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\qconfig-dist.h" SelfReg="false" Sequence="663"/>
+    <ROW File="qconfig_large.h" Component_="QXmlStreamWriter" FileName="qconfi~2.h|qconfig-large.h" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\qconfig-large.h" SelfReg="false" Sequence="664"/>
+    <ROW File="qconfig_medium.h" Component_="QXmlStreamWriter" FileName="qconfi~3.h|qconfig-medium.h" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\qconfig-medium.h" SelfReg="false" Sequence="665"/>
+    <ROW File="qconfig_minimal.h" Component_="QXmlStreamWriter" FileName="qconfi~4.h|qconfig-minimal.h" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\qconfig-minimal.h" SelfReg="false" Sequence="666"/>
+    <ROW File="qconfig_small.h" Component_="QXmlStreamWriter" FileName="qconfi~5.h|qconfig-small.h" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\qconfig-small.h" SelfReg="false" Sequence="667"/>
+    <ROW File="qcontainerfwd.h" Component_="QXmlStreamWriter" FileName="qconta~1.h|qcontainerfwd.h" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\qcontainerfwd.h" SelfReg="false" Sequence="669"/>
+    <ROW File="qcoreapplication.h" Component_="QXmlStreamWriter" FileName="qcorea~1.h|qcoreapplication.h" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\qcoreapplication.h" SelfReg="false" Sequence="671"/>
+    <ROW File="qcoreevent.h" Component_="QXmlStreamWriter" FileName="qcoree~1.h|qcoreevent.h" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\qcoreevent.h" SelfReg="false" Sequence="673"/>
+    <ROW File="qcryptographichash.h" Component_="QXmlStreamWriter" FileName="qcrypt~1.h|qcryptographichash.h" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\qcryptographichash.h" SelfReg="false" Sequence="674"/>
+    <ROW File="qdatastream.h" Component_="QXmlStreamWriter" FileName="qdatas~1.h|qdatastream.h" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\qdatastream.h" SelfReg="false" Sequence="677"/>
+    <ROW File="qdatetime.h" Component_="QXmlStreamWriter" FileName="qdatet~1.h|qdatetime.h" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\qdatetime.h" SelfReg="false" Sequence="680"/>
+    <ROW File="qdebug.h" Component_="QXmlStreamWriter" FileName="qdebug.h" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\qdebug.h" SelfReg="false" Sequence="682"/>
+    <ROW File="qdir.h" Component_="QXmlStreamWriter" FileName="qdir.h" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\qdir.h" SelfReg="false" Sequence="684"/>
+    <ROW File="qdiriterator.h" Component_="QXmlStreamWriter" FileName="qdirit~1.h|qdiriterator.h" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\qdiriterator.h" SelfReg="false" Sequence="686"/>
+    <ROW File="qendian.h" Component_="QXmlStreamWriter" FileName="qendian.h" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\qendian.h" SelfReg="false" Sequence="689"/>
+    <ROW File="qeventloop.h" Component_="QXmlStreamWriter" FileName="qevent~1.h|qeventloop.h" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\qeventloop.h" SelfReg="false" Sequence="691"/>
+    <ROW File="qfactoryinterface.h" Component_="QXmlStreamWriter" FileName="qfacto~1.h|qfactoryinterface.h" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\qfactoryinterface.h" SelfReg="false" Sequence="694"/>
+    <ROW File="qfeatures.h" Component_="QXmlStreamWriter" FileName="qfeatu~1.h|qfeatures.h" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\qfeatures.h" SelfReg="false" Sequence="696"/>
+    <ROW File="qfile.h" Component_="QXmlStreamWriter" FileName="qfile.h" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\qfile.h" SelfReg="false" Sequence="697"/>
+    <ROW File="qfileinfo.h" Component_="QXmlStreamWriter" FileName="qfilei~1.h|qfileinfo.h" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\qfileinfo.h" SelfReg="false" Sequence="699"/>
+    <ROW File="qfilesystemwatcher.h" Component_="QXmlStreamWriter" FileName="qfiles~1.h|qfilesystemwatcher.h" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\qfilesystemwatcher.h" SelfReg="false" Sequence="703"/>
+    <ROW File="qfsfileengine.h" Component_="QXmlStreamWriter" FileName="qfsfil~1.h|qfsfileengine.h" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\qfsfileengine.h" SelfReg="false" Sequence="709"/>
+    <ROW File="qfuture.h" Component_="QXmlStreamWriter" FileName="qfuture.h" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\qfuture.h" SelfReg="false" Sequence="711"/>
+    <ROW File="qfutureinterface.h" Component_="QXmlStreamWriter" FileName="qfutur~1.h|qfutureinterface.h" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\qfutureinterface.h" SelfReg="false" Sequence="713"/>
+    <ROW File="qfuturesynchronizer.h" Component_="QXmlStreamWriter" FileName="qfutur~2.h|qfuturesynchronizer.h" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\qfuturesynchronizer.h" SelfReg="false" Sequence="717"/>
+    <ROW File="qfuturewatcher.h" Component_="QXmlStreamWriter" FileName="qfutur~3.h|qfuturewatcher.h" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\qfuturewatcher.h" SelfReg="false" Sequence="719"/>
+    <ROW File="qglobal.h" Component_="QXmlStreamWriter" FileName="qglobal.h" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\qglobal.h" SelfReg="false" Sequence="724"/>
+    <ROW File="qhash.h" Component_="QXmlStreamWriter" FileName="qhash.h" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\qhash.h" SelfReg="false" Sequence="727"/>
+    <ROW File="qiodevice.h" Component_="QXmlStreamWriter" FileName="qiodev~1.h|qiodevice.h" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\qiodevice.h" SelfReg="false" Sequence="738"/>
+    <ROW File="qiterator.h" Component_="QXmlStreamWriter" FileName="qitera~1.h|qiterator.h" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\qiterator.h" SelfReg="false" Sequence="740"/>
+    <ROW File="qlibrary.h" Component_="QXmlStreamWriter" FileName="qlibrary.h" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\qlibrary.h" SelfReg="false" Sequence="743"/>
+    <ROW File="qlibraryinfo.h" Component_="QXmlStreamWriter" FileName="qlibra~1.h|qlibraryinfo.h" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\qlibraryinfo.h" SelfReg="false" Sequence="745"/>
+    <ROW File="qline.h" Component_="QXmlStreamWriter" FileName="qline.h" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\qline.h" SelfReg="false" Sequence="747"/>
+    <ROW File="qlinkedlist.h" Component_="QXmlStreamWriter" FileName="qlinke~1.h|qlinkedlist.h" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\qlinkedlist.h" SelfReg="false" Sequence="750"/>
+    <ROW File="qlist.h" Component_="QXmlStreamWriter" FileName="qlist.h" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\qlist.h" SelfReg="false" Sequence="755"/>
+    <ROW File="qlocale.h" Component_="QXmlStreamWriter" FileName="qlocale.h" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\qlocale.h" SelfReg="false" Sequence="759"/>
+    <ROW File="qmap.h" Component_="QXmlStreamWriter" FileName="qmap.h" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\qmap.h" SelfReg="false" Sequence="761"/>
+    <ROW File="qmath.h" Component_="QXmlStreamWriter" FileName="qmath.h" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\qmath.h" SelfReg="false" Sequence="767"/>
+    <ROW File="qmetaobject.h" Component_="QXmlStreamWriter" FileName="qmetao~1.h|qmetaobject.h" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\qmetaobject.h" SelfReg="false" Sequence="771"/>
+    <ROW File="qmetatype.h" Component_="QXmlStreamWriter" FileName="qmetat~1.h|qmetatype.h" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\qmetatype.h" SelfReg="false" Sequence="775"/>
+    <ROW File="qmimedata.h" Component_="QXmlStreamWriter" FileName="qmimed~1.h|qmimedata.h" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\qmimedata.h" SelfReg="false" Sequence="779"/>
+    <ROW File="qmutex.h" Component_="QXmlStreamWriter" FileName="qmutex.h" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\qmutex.h" SelfReg="false" Sequence="793"/>
+    <ROW File="qnamespace.h" Component_="QXmlStreamWriter" FileName="qnames~1.h|qnamespace.h" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\qnamespace.h" SelfReg="false" Sequence="796"/>
+    <ROW File="qnumeric.h" Component_="QXmlStreamWriter" FileName="qnumeric.h" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\qnumeric.h" SelfReg="false" Sequence="799"/>
+    <ROW File="qobject.h" Component_="QXmlStreamWriter" FileName="qobject.h" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\qobject.h" SelfReg="false" Sequence="800"/>
+    <ROW File="qobjectcleanuphandler.h" Component_="QXmlStreamWriter" FileName="qobjec~1.h|qobjectcleanuphandler.h" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\qobjectcleanuphandler.h" SelfReg="false" Sequence="802"/>
+    <ROW File="qobjectdefs.h" Component_="QXmlStreamWriter" FileName="qobjec~2.h|qobjectdefs.h" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\qobjectdefs.h" SelfReg="false" Sequence="805"/>
+    <ROW File="qpair.h" Component_="QXmlStreamWriter" FileName="qpair.h" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\qpair.h" SelfReg="false" Sequence="808"/>
+    <ROW File="qplugin.h" Component_="QXmlStreamWriter" FileName="qplugin.h" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\qplugin.h" SelfReg="false" Sequence="811"/>
+    <ROW File="qpluginloader.h" Component_="QXmlStreamWriter" FileName="qplugi~1.h|qpluginloader.h" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\qpluginloader.h" SelfReg="false" Sequence="812"/>
+    <ROW File="qpoint.h" Component_="QXmlStreamWriter" FileName="qpoint.h" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\qpoint.h" SelfReg="false" Sequence="814"/>
+    <ROW File="qpointer.h" Component_="QXmlStreamWriter" FileName="qpointer.h" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\qpointer.h" SelfReg="false" Sequence="816"/>
+    <ROW File="qprocess.h" Component_="QXmlStreamWriter" FileName="qprocess.h" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\qprocess.h" SelfReg="false" Sequence="819"/>
+    <ROW File="qqueue.h" Component_="QXmlStreamWriter" FileName="qqueue.h" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\qqueue.h" SelfReg="false" Sequence="821"/>
+    <ROW File="qreadwritelock.h" Component_="QXmlStreamWriter" FileName="qreadw~1.h|qreadwritelock.h" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\qreadwritelock.h" SelfReg="false" Sequence="824"/>
+    <ROW File="qrect.h" Component_="QXmlStreamWriter" FileName="qrect.h" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\qrect.h" SelfReg="false" Sequence="826"/>
+    <ROW File="qregexp.h" Component_="QXmlStreamWriter" FileName="qregexp.h" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\qregexp.h" SelfReg="false" Sequence="829"/>
+    <ROW File="qresource.h" Component_="QXmlStreamWriter" FileName="qresou~1.h|qresource.h" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\qresource.h" SelfReg="false" Sequence="831"/>
+    <ROW File="qrunnable.h" Component_="QXmlStreamWriter" FileName="qrunna~1.h|qrunnable.h" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\qrunnable.h" SelfReg="false" Sequence="834"/>
+    <ROW File="qsemaphore.h" Component_="QXmlStreamWriter" FileName="qsemap~1.h|qsemaphore.h" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\qsemaphore.h" SelfReg="false" Sequence="836"/>
+    <ROW File="qset.h" Component_="QXmlStreamWriter" FileName="qset.h" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\qset.h" SelfReg="false" Sequence="838"/>
+    <ROW File="qsettings.h" Component_="QXmlStreamWriter" FileName="qsetti~1.h|qsettings.h" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\qsettings.h" SelfReg="false" Sequence="841"/>
+    <ROW File="qshareddata.h" Component_="QXmlStreamWriter" FileName="qshare~1.h|qshareddata.h" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\qshareddata.h" SelfReg="false" Sequence="843"/>
+    <ROW File="qsharedmemory.h" Component_="QXmlStreamWriter" FileName="qshare~2.h|qsharedmemory.h" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\qsharedmemory.h" SelfReg="false" Sequence="846"/>
+    <ROW File="qsharedpointer.h" Component_="QXmlStreamWriter" FileName="qshare~3.h|qsharedpointer.h" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\qsharedpointer.h" SelfReg="false" Sequence="848"/>
+    <ROW File="qsharedpointer_impl.h" Component_="QXmlStreamWriter" FileName="qshare~4.h|qsharedpointer_impl.h" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\qsharedpointer_impl.h" SelfReg="false" Sequence="850"/>
+    <ROW File="qsignalmapper.h" Component_="QXmlStreamWriter" FileName="qsigna~1.h|qsignalmapper.h" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\qsignalmapper.h" SelfReg="false" Sequence="851"/>
+    <ROW File="qsize.h" Component_="QXmlStreamWriter" FileName="qsize.h" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\qsize.h" SelfReg="false" Sequence="853"/>
+    <ROW File="qsocketnotifier.h" Component_="QXmlStreamWriter" FileName="qsocke~1.h|qsocketnotifier.h" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\qsocketnotifier.h" SelfReg="false" Sequence="856"/>
+    <ROW File="qsql.h" Component_="QtSql_1" FileName="qsql.h" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtSql\qsql.h" SelfReg="false" Sequence="985"/>
+    <ROW File="qsql_db2.h" Component_="QtSql_1" FileName="qsql_db2.h" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtSql\qsql_db2.h" SelfReg="false" Sequence="986"/>
+    <ROW File="qsql_ibase.h" Component_="QtSql_1" FileName="qsql_i~1.h|qsql_ibase.h" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtSql\qsql_ibase.h" SelfReg="false" Sequence="987"/>
+    <ROW File="qsql_mysql.h" Component_="QtSql_1" FileName="qsql_m~1.h|qsql_mysql.h" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtSql\qsql_mysql.h" SelfReg="false" Sequence="988"/>
+    <ROW File="qsql_oci.h" Component_="QtSql_1" FileName="qsql_oci.h" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtSql\qsql_oci.h" SelfReg="false" Sequence="989"/>
+    <ROW File="qsql_odbc.h" Component_="QtSql_1" FileName="qsql_o~1.h|qsql_odbc.h" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtSql\qsql_odbc.h" SelfReg="false" Sequence="990"/>
+    <ROW File="qsql_psql.h" Component_="QtSql_1" FileName="qsql_p~1.h|qsql_psql.h" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtSql\qsql_psql.h" SelfReg="false" Sequence="991"/>
+    <ROW File="qsql_sqlite.h" Component_="QtSql_1" FileName="qsql_s~1.h|qsql_sqlite.h" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtSql\qsql_sqlite.h" SelfReg="false" Sequence="992"/>
+    <ROW File="qsql_sqlite2.h" Component_="QtSql_1" FileName="qsql_s~2.h|qsql_sqlite2.h" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtSql\qsql_sqlite2.h" SelfReg="false" Sequence="993"/>
+    <ROW File="qsql_tds.h" Component_="QtSql_1" FileName="qsql_tds.h" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtSql\qsql_tds.h" SelfReg="false" Sequence="994"/>
+    <ROW File="qsqldatabase.h" Component_="QtSql_1" FileName="qsqlda~1.h|qsqldatabase.h" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtSql\qsqldatabase.h" SelfReg="false" Sequence="995"/>
+    <ROW File="qsqldriver.h" Component_="QtSql_1" FileName="qsqldr~1.h|qsqldriver.h" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtSql\qsqldriver.h" SelfReg="false" Sequence="997"/>
+    <ROW File="qsqldriverplugin.h" Component_="QtSql_1" FileName="qsqldr~2.h|qsqldriverplugin.h" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtSql\qsqldriverplugin.h" SelfReg="false" Sequence="1002"/>
+    <ROW File="qsqlerror.h" Component_="QtSql_1" FileName="qsqler~1.h|qsqlerror.h" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtSql\qsqlerror.h" SelfReg="false" Sequence="1004"/>
+    <ROW File="qsqlfield.h" Component_="QtSql_1" FileName="qsqlfi~1.h|qsqlfield.h" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtSql\qsqlfield.h" SelfReg="false" Sequence="1006"/>
+    <ROW File="qsqlindex.h" Component_="QtSql_1" FileName="qsqlin~1.h|qsqlindex.h" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtSql\qsqlindex.h" SelfReg="false" Sequence="1008"/>
+    <ROW File="qsqlquery.h" Component_="QtSql_1" FileName="qsqlqu~1.h|qsqlquery.h" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtSql\qsqlquery.h" SelfReg="false" Sequence="1014"/>
+    <ROW File="qsqlquerymodel.h" Component_="QtSql_1" FileName="qsqlqu~2.h|qsqlquerymodel.h" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtSql\qsqlquerymodel.h" SelfReg="false" Sequence="1016"/>
+    <ROW File="qsqlrecord.h" Component_="QtSql_1" FileName="qsqlre~1.h|qsqlrecord.h" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtSql\qsqlrecord.h" SelfReg="false" Sequence="1018"/>
+    <ROW File="qsqlrelationaldelegate.h" Component_="QtSql_1" FileName="qsqlre~2.h|qsqlrelationaldelegate.h" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtSql\qsqlrelationaldelegate.h" SelfReg="false" Sequence="1021"/>
+    <ROW File="qsqlrelationaltablemodel.h" Component_="QtSql_1" FileName="qsqlre~3.h|qsqlrelationaltablemodel.h" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtSql\qsqlrelationaltablemodel.h" SelfReg="false" Sequence="1023"/>
+    <ROW File="qsqlresult.h" Component_="QtSql_1" FileName="qsqlre~4.h|qsqlresult.h" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtSql\qsqlresult.h" SelfReg="false" Sequence="1025"/>
+    <ROW File="qsqltablemodel.h" Component_="QtSql_1" FileName="qsqlta~1.h|qsqltablemodel.h" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtSql\qsqltablemodel.h" SelfReg="false" Sequence="1027"/>
+    <ROW File="qstack.h" Component_="QXmlStreamWriter" FileName="qstack.h" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\qstack.h" SelfReg="false" Sequence="858"/>
+    <ROW File="qstring.h" Component_="QXmlStreamWriter" FileName="qstring.h" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\qstring.h" SelfReg="false" Sequence="861"/>
+    <ROW File="qstringlist.h" Component_="QXmlStreamWriter" FileName="qstrin~1.h|qstringlist.h" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\qstringlist.h" SelfReg="false" Sequence="863"/>
+    <ROW File="qstringmatcher.h" Component_="QXmlStreamWriter" FileName="qstrin~2.h|qstringmatcher.h" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\qstringmatcher.h" SelfReg="false" Sequence="866"/>
+    <ROW File="qsystemsemaphore.h" Component_="QXmlStreamWriter" FileName="qsyste~1.h|qsystemsemaphore.h" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\qsystemsemaphore.h" SelfReg="false" Sequence="871"/>
+    <ROW File="qt_windows.h" Component_="QXmlStreamWriter" FileName="qt_win~1.h|qt_windows.h" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\qt_windows.h" SelfReg="false" Sequence="874"/>
+    <ROW File="qtconcurrentcompilertest.h" Component_="QXmlStreamWriter" FileName="qtconc~1.h|qtconcurrentcompilertest.h" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\qtconcurrentcompilertest.h" SelfReg="false" Sequence="877"/>
+    <ROW File="qtconcurrentexception.h" Component_="QXmlStreamWriter" FileName="qtconc~2.h|qtconcurrentexception.h" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\qtconcurrentexception.h" SelfReg="false" Sequence="878"/>
+    <ROW File="qtconcurrentfilter.h" Component_="QXmlStreamWriter" FileName="qtconc~3.h|qtconcurrentfilter.h" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\qtconcurrentfilter.h" SelfReg="false" Sequence="879"/>
+    <ROW File="qtconcurrentfilterkernel.h" Component_="QXmlStreamWriter" FileName="qtconc~4.h|qtconcurrentfilterkernel.h" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\qtconcurrentfilterkernel.h" SelfReg="false" Sequence="881"/>
+    <ROW File="qtconcurrentfunctionwrappers.h" Component_="QXmlStreamWriter" FileName="qtconc~5.h|qtconcurrentfunctionwrappers.h" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\qtconcurrentfunctionwrappers.h" SelfReg="false" Sequence="882"/>
+    <ROW File="qtconcurrentiteratekernel.h" Component_="QXmlStreamWriter" FileName="qtconc~6.h|qtconcurrentiteratekernel.h" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\qtconcurrentiteratekernel.h" SelfReg="false" Sequence="883"/>
+    <ROW File="qtconcurrentmap.h" Component_="QXmlStreamWriter" FileName="qtconc~7.h|qtconcurrentmap.h" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\qtconcurrentmap.h" SelfReg="false" Sequence="884"/>
+    <ROW File="qtconcurrentmapkernel.h" Component_="QXmlStreamWriter" FileName="qtconc~8.h|qtconcurrentmapkernel.h" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\qtconcurrentmapkernel.h" SelfReg="false" Sequence="886"/>
+    <ROW File="qtconcurrentmedian.h" Component_="QXmlStreamWriter" FileName="qtconc~9.h|qtconcurrentmedian.h" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\qtconcurrentmedian.h" SelfReg="false" Sequence="887"/>
+    <ROW File="qtconcurrentreducekernel.h" Component_="QXmlStreamWriter" FileName="qtcon~10.h|qtconcurrentreducekernel.h" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\qtconcurrentreducekernel.h" SelfReg="false" Sequence="888"/>
+    <ROW File="qtconcurrentresultstore.h" Component_="QXmlStreamWriter" FileName="qtcon~11.h|qtconcurrentresultstore.h" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\qtconcurrentresultstore.h" SelfReg="false" Sequence="889"/>
+    <ROW File="qtconcurrentrun.h" Component_="QXmlStreamWriter" FileName="qtcon~12.h|qtconcurrentrun.h" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\qtconcurrentrun.h" SelfReg="false" Sequence="890"/>
+    <ROW File="qtconcurrentrunbase.h" Component_="QXmlStreamWriter" FileName="qtcon~13.h|qtconcurrentrunbase.h" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\qtconcurrentrunbase.h" SelfReg="false" Sequence="892"/>
+    <ROW File="qtconcurrentstoredfunctioncall.h" Component_="QXmlStreamWriter" FileName="qtcon~14.h|qtconcurrentstoredfunctioncall.h" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\qtconcurrentstoredfunctioncall.h" SelfReg="false" Sequence="893"/>
+    <ROW File="qtconcurrentthreadengine.h" Component_="QXmlStreamWriter" FileName="qtcon~15.h|qtconcurrentthreadengine.h" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\qtconcurrentthreadengine.h" SelfReg="false" Sequence="894"/>
+    <ROW File="qtemporaryfile.h" Component_="QXmlStreamWriter" FileName="qtempo~1.h|qtemporaryfile.h" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\qtemporaryfile.h" SelfReg="false" Sequence="898"/>
+    <ROW File="qtextboundaryfinder.h" Component_="QXmlStreamWriter" FileName="qtextb~1.h|qtextboundaryfinder.h" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\qtextboundaryfinder.h" SelfReg="false" Sequence="901"/>
+    <ROW File="qtextcodec.h" Component_="QXmlStreamWriter" FileName="qtextc~1.h|qtextcodec.h" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\qtextcodec.h" SelfReg="false" Sequence="903"/>
+    <ROW File="qtextcodecplugin.h" Component_="QXmlStreamWriter" FileName="qtextc~2.h|qtextcodecplugin.h" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\qtextcodecplugin.h" SelfReg="false" Sequence="906"/>
+    <ROW File="qtextstream.h" Component_="QXmlStreamWriter" FileName="qtexts~1.h|qtextstream.h" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\qtextstream.h" SelfReg="false" Sequence="912"/>
+    <ROW File="qthread.h" Component_="QXmlStreamWriter" FileName="qthread.h" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\qthread.h" SelfReg="false" Sequence="917"/>
+    <ROW File="qthreadpool.h" Component_="QXmlStreamWriter" FileName="qthrea~1.h|qthreadpool.h" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\qthreadpool.h" SelfReg="false" Sequence="919"/>
+    <ROW File="qthreadstorage.h" Component_="QXmlStreamWriter" FileName="qthrea~2.h|qthreadstorage.h" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\qthreadstorage.h" SelfReg="false" Sequence="921"/>
+    <ROW File="qtimeline.h" Component_="QXmlStreamWriter" FileName="qtimel~1.h|qtimeline.h" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\qtimeline.h" SelfReg="false" Sequence="925"/>
+    <ROW File="qtimer.h" Component_="QXmlStreamWriter" FileName="qtimer.h" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\qtimer.h" SelfReg="false" Sequence="927"/>
+    <ROW File="qtranslator.h" Component_="QXmlStreamWriter" FileName="qtrans~1.h|qtranslator.h" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\qtranslator.h" SelfReg="false" Sequence="933"/>
     <ROW File="queue" Component_="algorithm" FileName="queue" Attributes="0" SourcePath="&lt;STLPORT_HOME&gt;stlport\queue" SelfReg="false" Sequence="279"/>
     <ROW File="queue.h" Component_="algorith.h" FileName="queue.h" Attributes="0" SourcePath="&lt;STLPORT_HOME&gt;stlport\BC50\queue.h" SelfReg="false" Sequence="127"/>
     <ROW File="queue.h_1" Component_="algo.h" FileName="queue.h" Attributes="0" SourcePath="&lt;STLPORT_HOME&gt;stlport\old_hp\queue.h" SelfReg="false" Sequence="267"/>
     <ROW File="queue.h_2" Component_="char_traits.h" FileName="_queue.h" Attributes="0" SourcePath="&lt;STLPORT_HOME&gt;stlport\stl\_queue.h" SelfReg="false" Sequence="398"/>
+    <ROW File="qurl.h" Component_="QXmlStreamWriter" FileName="qurl.h" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\qurl.h" SelfReg="false" Sequence="939"/>
+    <ROW File="quuid.h" Component_="QXmlStreamWriter" FileName="quuid.h" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\quuid.h" SelfReg="false" Sequence="941"/>
+    <ROW File="qvariant.h" Component_="QXmlStreamWriter" FileName="qvariant.h" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\qvariant.h" SelfReg="false" Sequence="943"/>
+    <ROW File="qvarlengtharray.h" Component_="QXmlStreamWriter" FileName="qvarle~1.h|qvarlengtharray.h" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\qvarlengtharray.h" SelfReg="false" Sequence="949"/>
+    <ROW File="qvector.h" Component_="QXmlStreamWriter" FileName="qvector.h" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\qvector.h" SelfReg="false" Sequence="951"/>
+    <ROW File="qwaitcondition.h" Component_="QXmlStreamWriter" FileName="qwaitc~1.h|qwaitcondition.h" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\qwaitcondition.h" SelfReg="false" Sequence="956"/>
+    <ROW File="qxmlstream.h" Component_="QXmlStreamWriter" FileName="qxmlst~1.h|qxmlstream.h" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\qxmlstream.h" SelfReg="false" Sequence="960"/>
     <ROW File="rand.h" Component_="aes.h" FileName="rand.h" Attributes="0" SourcePath="&lt;OPENSSL_HOME_VC9&gt;crypto\rand\rand.h" SelfReg="false" Sequence="53"/>
     <ROW File="range_errors.h" Component_="char_traits.h" FileName="_range~1.h|_range_errors.h" Attributes="0" SourcePath="&lt;STLPORT_HOME&gt;stlport\stl\_range_errors.h" SelfReg="false" Sequence="399"/>
     <ROW File="raw_storage_iter.h" Component_="char_traits.h" FileName="_raw_s~1.h|_raw_storage_iter.h" Attributes="0" SourcePath="&lt;STLPORT_HOME&gt;stlport\stl\_raw_storage_iter.h" SelfReg="false" Sequence="400"/>
@@ -707,9 +1177,6 @@
     <ROW BuildKey="DefaultBuild" BuildName="DefaultBuild" BuildOrder="1" BuildType="1" Languages="en" InstallationType="4"/>
     <ATTRIBUTE name="CurrentBuild" value="DefaultBuild"/>
   </COMPONENT>
-  <COMPONENT cid="caphyon.advinst.msicomp.CacheComponent">
-    <ATTRIBUTE name="Enable" value="false"/>
-  </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.DictionaryComponent">
     <ROW Path="&lt;AI_DICTS&gt;ui.ail"/>
     <ROW Path="&lt;AI_DICTS&gt;ui_en.ail"/>
@@ -727,8 +1194,8 @@
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiBinaryComponent">
     <ROW Name="aicustact.dll" SourcePath="&lt;AI_CUSTACTS&gt;aicustact.dll"/>
-    <ROW Name="installer_header.bmp" SourcePath="windows\installer-header.bmp"/>
-    <ROW Name="installer_main.bmp" SourcePath="windows\installer-main.bmp"/>
+    <ROW Name="installer_header.bmp" SourcePath="&lt;WindowsVolume&gt;Builds\ice\distribution\src\windows\installer-header.bmp"/>
+    <ROW Name="installer_main.bmp" SourcePath="&lt;WindowsVolume&gt;Builds\ice\distribution\src\windows\installer-main.bmp"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiControlComponent">
     <ROW Dialog_="FolderDlg" Control="Description" Type="Text" X="25" Y="23" Width="280" Height="15" Attributes="196611" Text="Installation folder for [ProductName]." Control_Next="BannerLine" TextLocId="Control.Text.FolderDlg#Description" MsiKey="FolderDlg#Description"/>
@@ -753,8 +1220,8 @@
     <ROW Dialog_="BerkeleyLicenseDlg" Control="Description" Type="Text" X="25" Y="23" Width="280" Height="15" Attributes="196611" Text="Please read the following license agreement carefully." Control_Next="Logo"/>
     <ROW Dialog_="BerkeleyLicenseDlg" Control="Logo" Type="Text" X="4" Y="228" Width="70" Height="12" Attributes="1" Text="Advanced Installer" Control_Next="Title"/>
     <ROW Dialog_="BerkeleyLicenseDlg" Control="Next" Type="PushButton" X="236" Y="243" Width="56" Height="17" Attributes="3" Text="[ButtonText_Next]" Control_Next="Cancel" TextLocId="-"/>
-    <ROW Dialog_="BerkeleyLicenseDlg" Control="Title" Type="Text" X="15" Y="6" Width="200" Height="15" Attributes="196611" Text="License Agreement" TextStyle="[DlgTitleFont]" Control_Next="BerkeleyLicenseDlgFileScrollableText_1"/>
-    <ROW Dialog_="BerkeleyLicenseDlg" Control="BerkeleyLicenseDlgFileScrollableText_1" Type="FileScrollableText" X="20" Y="60" Width="330" Height="120" Attributes="7" Text="windows\docs\thirdparty\BERKELEY_DB_LICENSE.rtf" Control_Next="BerkeleyLicenseDlgRadioButtonGroup_1"/>
+    <ROW Dialog_="BerkeleyLicenseDlg" Control="Title" Type="Text" X="15" Y="6" Width="200" Height="15" Attributes="196611" Text="Berkeley DB License Agreement" TextStyle="[DlgTitleFont]" Control_Next="BerkeleyLicenseDlgFileScrollableText_1"/>
+    <ROW Dialog_="BerkeleyLicenseDlg" Control="BerkeleyLicenseDlgFileScrollableText_1" Type="FileScrollableText" X="20" Y="60" Width="330" Height="120" Attributes="7" Text="&lt;WindowsVolume&gt;Builds\ice\distribution\src\windows\docs\thirdparty\BERKELEY_DB_LICENSE.rtf" Control_Next="BerkeleyLicenseDlgRadioButtonGroup_1"/>
     <ROW Dialog_="BerkeleyLicenseDlg" Control="BerkeleyLicenseDlgRadioButtonGroup_1" Type="RadioButtonGroup" X="20" Y="187" Width="330" Height="40" Attributes="3" Property="BERKELEYLICENSEDLGRADIOBUTTONGROUP_1_PROP" Control_Next="Next"/>
     <ROW Dialog_="JgoodiesLooksLicesneDlg" Control="Back" Type="PushButton" X="180" Y="243" Width="56" Height="17" Attributes="3" Text="[ButtonText_Back]" Control_Next="BannerBitmap" TextLocId="-"/>
     <ROW Dialog_="JgoodiesLooksLicesneDlg" Control="BannerBitmap" Type="Bitmap" X="0" Y="0" Width="370" Height="44" Attributes="1048577" Text="[BannerBitmap]" Control_Next="BannerLine"/>
@@ -764,7 +1231,7 @@
     <ROW Dialog_="JgoodiesLooksLicesneDlg" Control="Description" Type="Text" X="25" Y="23" Width="280" Height="15" Attributes="196611" Text="Please read the following license agreement carefully." Control_Next="Logo"/>
     <ROW Dialog_="JgoodiesLooksLicesneDlg" Control="Logo" Type="Text" X="4" Y="228" Width="70" Height="12" Attributes="1" Text="Advanced Installer" Control_Next="Title"/>
     <ROW Dialog_="JgoodiesLooksLicesneDlg" Control="Next" Type="PushButton" X="236" Y="243" Width="56" Height="17" Attributes="3" Text="[ButtonText_Next]" Control_Next="Cancel" TextLocId="-"/>
-    <ROW Dialog_="JgoodiesLooksLicesneDlg" Control="Title" Type="Text" X="15" Y="6" Width="200" Height="15" Attributes="196611" Text="License Agreement" TextStyle="[DlgTitleFont]" Control_Next="JgoodiesLooksLicesneDlgFileScrollableText_1"/>
+    <ROW Dialog_="JgoodiesLooksLicesneDlg" Control="Title" Type="Text" X="15" Y="6" Width="200" Height="15" Attributes="196611" Text="JGoodies Looks License Agreement" TextStyle="[DlgTitleFont]" Control_Next="JgoodiesLooksLicesneDlgFileScrollableText_1"/>
     <ROW Dialog_="JgoodiesFormsLicenseDlg" Control="Back" Type="PushButton" X="180" Y="243" Width="56" Height="17" Attributes="3" Text="[ButtonText_Back]" Control_Next="BannerBitmap" TextLocId="-"/>
     <ROW Dialog_="JgoodiesFormsLicenseDlg" Control="BannerBitmap" Type="Bitmap" X="0" Y="0" Width="370" Height="44" Attributes="1048577" Text="[BannerBitmap]" Control_Next="BannerLine"/>
     <ROW Dialog_="JgoodiesFormsLicenseDlg" Control="BannerLine" Type="Line" X="0" Y="44" Width="372" Height="0" Attributes="1" Control_Next="BottomLine"/>
@@ -773,7 +1240,7 @@
     <ROW Dialog_="JgoodiesFormsLicenseDlg" Control="Description" Type="Text" X="25" Y="23" Width="280" Height="15" Attributes="196611" Text="Please read the following license agreement carefully." Control_Next="Logo"/>
     <ROW Dialog_="JgoodiesFormsLicenseDlg" Control="Logo" Type="Text" X="4" Y="228" Width="70" Height="12" Attributes="1" Text="Advanced Installer" Control_Next="Title"/>
     <ROW Dialog_="JgoodiesFormsLicenseDlg" Control="Next" Type="PushButton" X="236" Y="243" Width="56" Height="17" Attributes="3" Text="[ButtonText_Next]" Control_Next="Cancel" TextLocId="-"/>
-    <ROW Dialog_="JgoodiesFormsLicenseDlg" Control="Title" Type="Text" X="15" Y="6" Width="200" Height="15" Attributes="196611" Text="License Agreement" TextStyle="[DlgTitleFont]" Control_Next="JgoodiesFormsLicenseDlgFileScrollableText_1"/>
+    <ROW Dialog_="JgoodiesFormsLicenseDlg" Control="Title" Type="Text" X="15" Y="6" Width="200" Height="15" Attributes="196611" Text="JGoodies Forms License Agreement" TextStyle="[DlgTitleFont]" Control_Next="JgoodiesFormsLicenseDlgFileScrollableText_1"/>
     <ROW Dialog_="OpensslLicesneDlg" Control="Back" Type="PushButton" X="180" Y="243" Width="56" Height="17" Attributes="3" Text="[ButtonText_Back]" Control_Next="BannerBitmap" TextLocId="-"/>
     <ROW Dialog_="OpensslLicesneDlg" Control="BannerBitmap" Type="Bitmap" X="0" Y="0" Width="370" Height="44" Attributes="1048577" Text="[BannerBitmap]" Control_Next="BannerLine"/>
     <ROW Dialog_="OpensslLicesneDlg" Control="BannerLine" Type="Line" X="0" Y="44" Width="372" Height="0" Attributes="1" Control_Next="BottomLine"/>
@@ -782,7 +1249,7 @@
     <ROW Dialog_="OpensslLicesneDlg" Control="Description" Type="Text" X="25" Y="23" Width="280" Height="15" Attributes="196611" Text="Please read the following license agreement carefully." Control_Next="Logo"/>
     <ROW Dialog_="OpensslLicesneDlg" Control="Logo" Type="Text" X="4" Y="228" Width="70" Height="12" Attributes="1" Text="Advanced Installer" Control_Next="Title"/>
     <ROW Dialog_="OpensslLicesneDlg" Control="Next" Type="PushButton" X="236" Y="243" Width="56" Height="17" Attributes="3" Text="[ButtonText_Next]" Control_Next="Cancel" TextLocId="-"/>
-    <ROW Dialog_="OpensslLicesneDlg" Control="Title" Type="Text" X="15" Y="6" Width="200" Height="15" Attributes="196611" Text="License Agreement" TextStyle="[DlgTitleFont]" Control_Next="OpensslLicesneDlgFileScrollableText_1"/>
+    <ROW Dialog_="OpensslLicesneDlg" Control="Title" Type="Text" X="15" Y="6" Width="200" Height="15" Attributes="196611" Text="OpenSSL License Agreement" TextStyle="[DlgTitleFont]" Control_Next="OpensslLicesneDlgFileScrollableText_1"/>
     <ROW Dialog_="ExpatLicenseDlg" Control="Back" Type="PushButton" X="180" Y="243" Width="56" Height="17" Attributes="3" Text="[ButtonText_Back]" Control_Next="BannerBitmap" TextLocId="-"/>
     <ROW Dialog_="ExpatLicenseDlg" Control="BannerBitmap" Type="Bitmap" X="0" Y="0" Width="370" Height="44" Attributes="1048577" Text="[BannerBitmap]" Control_Next="BannerLine"/>
     <ROW Dialog_="ExpatLicenseDlg" Control="BannerLine" Type="Line" X="0" Y="44" Width="372" Height="0" Attributes="1" Control_Next="BottomLine"/>
@@ -791,7 +1258,7 @@
     <ROW Dialog_="ExpatLicenseDlg" Control="Description" Type="Text" X="25" Y="23" Width="280" Height="15" Attributes="196611" Text="Please read the following license agreement carefully." Control_Next="Logo"/>
     <ROW Dialog_="ExpatLicenseDlg" Control="Logo" Type="Text" X="4" Y="228" Width="70" Height="12" Attributes="1" Text="Advanced Installer" Control_Next="Title"/>
     <ROW Dialog_="ExpatLicenseDlg" Control="Next" Type="PushButton" X="236" Y="243" Width="56" Height="17" Attributes="3" Text="[ButtonText_Next]" Control_Next="Cancel" TextLocId="-"/>
-    <ROW Dialog_="ExpatLicenseDlg" Control="Title" Type="Text" X="15" Y="6" Width="200" Height="15" Attributes="196611" Text="License Agreement" TextStyle="[DlgTitleFont]" Control_Next="ExpatLicenseDlgFileScrollableText_1"/>
+    <ROW Dialog_="ExpatLicenseDlg" Control="Title" Type="Text" X="15" Y="6" Width="200" Height="15" Attributes="196611" Text="Expat License Agreement" TextStyle="[DlgTitleFont]" Control_Next="ExpatLicenseDlgFileScrollableText_1"/>
     <ROW Dialog_="Bzip2LicenseDlg" Control="Back" Type="PushButton" X="180" Y="243" Width="56" Height="17" Attributes="3" Text="[ButtonText_Back]" Control_Next="BannerBitmap" TextLocId="-"/>
     <ROW Dialog_="Bzip2LicenseDlg" Control="BannerBitmap" Type="Bitmap" X="0" Y="0" Width="370" Height="44" Attributes="1048577" Text="[BannerBitmap]" Control_Next="BannerLine"/>
     <ROW Dialog_="Bzip2LicenseDlg" Control="BannerLine" Type="Line" X="0" Y="44" Width="372" Height="0" Attributes="1" Control_Next="BottomLine"/>
@@ -800,7 +1267,7 @@
     <ROW Dialog_="Bzip2LicenseDlg" Control="Description" Type="Text" X="25" Y="23" Width="280" Height="15" Attributes="196611" Text="Please read the following license agreement carefully." Control_Next="Logo"/>
     <ROW Dialog_="Bzip2LicenseDlg" Control="Logo" Type="Text" X="4" Y="228" Width="70" Height="12" Attributes="1" Text="Advanced Installer" Control_Next="Title"/>
     <ROW Dialog_="Bzip2LicenseDlg" Control="Next" Type="PushButton" X="236" Y="243" Width="56" Height="17" Attributes="3" Text="[ButtonText_Next]" Control_Next="Cancel" TextLocId="-"/>
-    <ROW Dialog_="Bzip2LicenseDlg" Control="Title" Type="Text" X="15" Y="6" Width="200" Height="15" Attributes="196611" Text="License Agreement" TextStyle="[DlgTitleFont]" Control_Next="Bzip2LicenseDlgFileScrollableText_1"/>
+    <ROW Dialog_="Bzip2LicenseDlg" Control="Title" Type="Text" X="15" Y="6" Width="200" Height="15" Attributes="196611" Text="Bzip2 License Agreement" TextStyle="[DlgTitleFont]" Control_Next="Bzip2LicenseDlgFileScrollableText_1"/>
     <ROW Dialog_="McppLicensDlg" Control="Back" Type="PushButton" X="180" Y="243" Width="56" Height="17" Attributes="3" Text="[ButtonText_Back]" Control_Next="BannerBitmap" TextLocId="-"/>
     <ROW Dialog_="McppLicensDlg" Control="BannerBitmap" Type="Bitmap" X="0" Y="0" Width="370" Height="44" Attributes="1048577" Text="[BannerBitmap]" Control_Next="BannerLine"/>
     <ROW Dialog_="McppLicensDlg" Control="BannerLine" Type="Line" X="0" Y="44" Width="372" Height="0" Attributes="1" Control_Next="BottomLine"/>
@@ -809,13 +1276,13 @@
     <ROW Dialog_="McppLicensDlg" Control="Description" Type="Text" X="25" Y="23" Width="280" Height="15" Attributes="196611" Text="Please read the following license agreement carefully." Control_Next="Logo"/>
     <ROW Dialog_="McppLicensDlg" Control="Logo" Type="Text" X="4" Y="228" Width="70" Height="12" Attributes="1" Text="Advanced Installer" Control_Next="Title"/>
     <ROW Dialog_="McppLicensDlg" Control="Next" Type="PushButton" X="236" Y="243" Width="56" Height="17" Attributes="3" Text="[ButtonText_Next]" Control_Next="Cancel" TextLocId="-"/>
-    <ROW Dialog_="McppLicensDlg" Control="Title" Type="Text" X="15" Y="6" Width="200" Height="15" Attributes="196611" Text="License Agreement" TextStyle="[DlgTitleFont]" Control_Next="McppLicensDlgFileScrollableText_1"/>
-    <ROW Dialog_="McppLicensDlg" Control="McppLicensDlgFileScrollableText_1" Type="FileScrollableText" X="20" Y="60" Width="330" Height="120" Attributes="7" Text="windows\docs\thirdparty\MCPP_LICENSE.rtf" Control_Next="McppLicensDlgRadioButtonGroup_1"/>
-    <ROW Dialog_="Bzip2LicenseDlg" Control="Bzip2LicenseDlgFileScrollableText_1" Type="FileScrollableText" X="20" Y="60" Width="330" Height="120" Attributes="7" Text="windows\docs\thirdparty\BZIP2_LICENSE.rtf" Control_Next="Bzip2LicenseDlgRadioButtonGroup_1"/>
-    <ROW Dialog_="ExpatLicenseDlg" Control="ExpatLicenseDlgFileScrollableText_1" Type="FileScrollableText" X="20" Y="60" Width="330" Height="120" Attributes="7" Text="windows\docs\thirdparty\EXPAT_LICENSE.rtf" Control_Next="ExpatLicenseDlgRadioButtonGroup_1"/>
-    <ROW Dialog_="OpensslLicesneDlg" Control="OpensslLicesneDlgFileScrollableText_1" Type="FileScrollableText" X="20" Y="60" Width="330" Height="120" Attributes="7" Text="windows\docs\thirdparty\OPENSSL_LICENSE.rtf" Control_Next="OpensslLicesneDlgRadioButtonGroup_1"/>
-    <ROW Dialog_="JgoodiesFormsLicenseDlg" Control="JgoodiesFormsLicenseDlgFileScrollableText_1" Type="FileScrollableText" X="20" Y="60" Width="330" Height="120" Attributes="7" Text="windows\docs\thirdparty\JGOODIES_FORMS_LICENSE.rtf" Control_Next="JgoodiesFormsLicenseDlgRadioButtonGroup_1"/>
-    <ROW Dialog_="JgoodiesLooksLicesneDlg" Control="JgoodiesLooksLicesneDlgFileScrollableText_1" Type="FileScrollableText" X="20" Y="60" Width="330" Height="120" Attributes="7" Text="windows\docs\thirdparty\JGOODIES_LOOKS_LICENSE.rtf" Control_Next="JgoodiesLooksLicesneDlgRadioButtonGroup_1"/>
+    <ROW Dialog_="McppLicensDlg" Control="Title" Type="Text" X="15" Y="6" Width="200" Height="15" Attributes="196611" Text="MCPP License Agreement" TextStyle="[DlgTitleFont]" Control_Next="McppLicensDlgFileScrollableText_1"/>
+    <ROW Dialog_="McppLicensDlg" Control="McppLicensDlgFileScrollableText_1" Type="FileScrollableText" X="20" Y="60" Width="330" Height="120" Attributes="7" Text="&lt;WindowsVolume&gt;Builds\ice\distribution\src\windows\docs\thirdparty\MCPP_LICENSE.rtf" Control_Next="McppLicensDlgRadioButtonGroup_1"/>
+    <ROW Dialog_="Bzip2LicenseDlg" Control="Bzip2LicenseDlgFileScrollableText_1" Type="FileScrollableText" X="20" Y="60" Width="330" Height="120" Attributes="7" Text="&lt;WindowsVolume&gt;Builds\ice\distribution\src\windows\docs\thirdparty\BZIP2_LICENSE.rtf" Control_Next="Bzip2LicenseDlgRadioButtonGroup_1"/>
+    <ROW Dialog_="ExpatLicenseDlg" Control="ExpatLicenseDlgFileScrollableText_1" Type="FileScrollableText" X="20" Y="60" Width="330" Height="120" Attributes="7" Text="&lt;WindowsVolume&gt;Builds\ice\distribution\src\windows\docs\thirdparty\EXPAT_LICENSE.rtf" Control_Next="ExpatLicenseDlgRadioButtonGroup_1"/>
+    <ROW Dialog_="OpensslLicesneDlg" Control="OpensslLicesneDlgFileScrollableText_1" Type="FileScrollableText" X="20" Y="60" Width="330" Height="120" Attributes="7" Text="&lt;WindowsVolume&gt;Builds\ice\distribution\src\windows\docs\thirdparty\OPENSSL_LICENSE.rtf" Control_Next="OpensslLicesneDlgRadioButtonGroup_1"/>
+    <ROW Dialog_="JgoodiesFormsLicenseDlg" Control="JgoodiesFormsLicenseDlgFileScrollableText_1" Type="FileScrollableText" X="20" Y="60" Width="330" Height="120" Attributes="7" Text="&lt;WindowsVolume&gt;Builds\ice\distribution\src\windows\docs\thirdparty\JGOODIES_FORMS_LICENSE.rtf" Control_Next="JgoodiesFormsLicenseDlgRadioButtonGroup_1"/>
+    <ROW Dialog_="JgoodiesLooksLicesneDlg" Control="JgoodiesLooksLicesneDlgFileScrollableText_1" Type="FileScrollableText" X="20" Y="60" Width="330" Height="120" Attributes="7" Text="&lt;WindowsVolume&gt;Builds\ice\distribution\src\windows\docs\thirdparty\JGOODIES_LOOKS_LICENSE.rtf" Control_Next="JgoodiesLooksLicesneDlgRadioButtonGroup_1"/>
     <ROW Dialog_="JgoodiesLooksLicesneDlg" Control="JgoodiesLooksLicesneDlgRadioButtonGroup_1" Type="RadioButtonGroup" X="20" Y="187" Width="330" Height="40" Attributes="3" Property="JGOODIESLOOKSLICESNEDLGRADIOBUTTONGROUP_1_PROP" Control_Next="Next"/>
     <ROW Dialog_="JgoodiesFormsLicenseDlg" Control="JgoodiesFormsLicenseDlgRadioButtonGroup_1" Type="RadioButtonGroup" X="20" Y="187" Width="330" Height="40" Attributes="3" Property="JGOODIESFORMSLICENSEDLGRADIOBUTTONGROUP_1_PROP" Control_Next="Next"/>
     <ROW Dialog_="OpensslLicesneDlg" Control="OpensslLicesneDlgRadioButtonGroup_1" Type="RadioButtonGroup" X="20" Y="187" Width="330" Height="40" Attributes="3" Property="OPENSSLLICESNEDLGRADIOBUTTONGROUP_1_PROP" Control_Next="Next"/>
@@ -830,9 +1297,20 @@
     <ROW Dialog_="STLportLicenseDlg" Control="Description" Type="Text" X="25" Y="23" Width="280" Height="15" Attributes="196611" Text="Please read the following license agreement carefully." Control_Next="Logo"/>
     <ROW Dialog_="STLportLicenseDlg" Control="Logo" Type="Text" X="4" Y="228" Width="70" Height="12" Attributes="1" Text="Advanced Installer" Control_Next="Title"/>
     <ROW Dialog_="STLportLicenseDlg" Control="Next" Type="PushButton" X="236" Y="243" Width="56" Height="17" Attributes="3" Text="[ButtonText_Next]" Control_Next="Cancel" TextLocId="-"/>
-    <ROW Dialog_="STLportLicenseDlg" Control="Title" Type="Text" X="15" Y="6" Width="200" Height="15" Attributes="196611" Text="License Agreement" TextStyle="[DlgTitleFont]" Control_Next="STLportLicenseDlgFileScrollableText_1"/>
-    <ROW Dialog_="STLportLicenseDlg" Control="STLportLicenseDlgFileScrollableText_1" Type="FileScrollableText" X="20" Y="60" Width="330" Height="120" Attributes="7" Property="STLPORTLICENSEDLGFILESCROLLABLETEXT_1_PROP" Text="windows\docs\thirdparty\STLPORT_LICENSE.rtf" Control_Next="STLportLicenseDlgRadioButtonGroup_1"/>
+    <ROW Dialog_="STLportLicenseDlg" Control="Title" Type="Text" X="15" Y="6" Width="200" Height="15" Attributes="196611" Text="STLport License Agreement" TextStyle="[DlgTitleFont]" Control_Next="STLportLicenseDlgFileScrollableText_1"/>
+    <ROW Dialog_="STLportLicenseDlg" Control="STLportLicenseDlgFileScrollableText_1" Type="FileScrollableText" X="20" Y="60" Width="330" Height="120" Attributes="7" Property="STLPORTLICENSEDLGFILESCROLLABLETEXT_1_PROP" Text="&lt;WindowsVolume&gt;Builds\ice\distribution\src\windows\docs\thirdparty\STLPORT_LICENSE.rtf" Control_Next="STLportLicenseDlgRadioButtonGroup_1"/>
     <ROW Dialog_="STLportLicenseDlg" Control="STLportLicenseDlgRadioButtonGroup_1" Type="RadioButtonGroup" X="20" Y="187" Width="330" Height="40" Attributes="3" Property="STLPORTLICENSEDLGRADIOBUTTONGROUP_1_PROP" Control_Next="Next"/>
+    <ROW Dialog_="QtLicenseDlg" Control="Back" Type="PushButton" X="180" Y="243" Width="56" Height="17" Attributes="3" Text="[ButtonText_Back]" Control_Next="BannerBitmap" TextLocId="-"/>
+    <ROW Dialog_="QtLicenseDlg" Control="BannerBitmap" Type="Bitmap" X="0" Y="0" Width="370" Height="44" Attributes="1048577" Text="[BannerBitmap]" Control_Next="BannerLine"/>
+    <ROW Dialog_="QtLicenseDlg" Control="BannerLine" Type="Line" X="0" Y="44" Width="372" Height="0" Attributes="1" Control_Next="BottomLine"/>
+    <ROW Dialog_="QtLicenseDlg" Control="BottomLine" Type="Line" X="5" Y="234" Width="368" Height="0" Attributes="1" Control_Next="Description"/>
+    <ROW Dialog_="QtLicenseDlg" Control="Cancel" Type="PushButton" X="304" Y="243" Width="56" Height="17" Attributes="3" Text="[ButtonText_Cancel]" Control_Next="Back" TextLocId="-"/>
+    <ROW Dialog_="QtLicenseDlg" Control="Description" Type="Text" X="25" Y="23" Width="280" Height="15" Attributes="196611" Text="Please read the following license agreement carefully." Control_Next="Logo"/>
+    <ROW Dialog_="QtLicenseDlg" Control="Logo" Type="Text" X="4" Y="228" Width="70" Height="12" Attributes="1" Text="Advanced Installer" Control_Next="Title"/>
+    <ROW Dialog_="QtLicenseDlg" Control="Next" Type="PushButton" X="236" Y="243" Width="56" Height="17" Attributes="3" Text="[ButtonText_Next]" Control_Next="Cancel" TextLocId="-"/>
+    <ROW Dialog_="QtLicenseDlg" Control="Title" Type="Text" X="15" Y="6" Width="200" Height="15" Attributes="196611" Text="Qt License Agreement" TextStyle="[DlgTitleFont]" Control_Next="QtLicenseDlgFileScrollableText_1"/>
+    <ROW Dialog_="QtLicenseDlg" Control="QtLicenseDlgFileScrollableText_1" Type="FileScrollableText" X="20" Y="60" Width="330" Height="120" Attributes="3" Property="QTLICENSEDLGFILESCROLLABLETEXT_1_PROP" Text="&lt;WindowsVolume&gt;Builds\ice\distribution\src\windows\docs\thirdparty\QT_LICENSE.rtf" Control_Next="QtLicenseDlgRadioButtonGroup_1"/>
+    <ROW Dialog_="QtLicenseDlg" Control="QtLicenseDlgRadioButtonGroup_1" Type="RadioButtonGroup" X="20" Y="187" Width="330" Height="40" Attributes="3" Property="QTLICENSEDLGRADIOBUTTONGROUP_1_PROP" Text="RadioButtonGroup" Control_Next="Next"/>
     <ATTRIBUTE name="FixedSizeBitmaps" value="2"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiControlConditionComponent">
@@ -852,12 +1330,14 @@
     <ROW Dialog_="JgoodiesLooksLicesneDlg" Control_="Next" Action="Disable" Condition="JGOODIESLOOKSLICESNEDLGRADIOBUTTONGROUP_1_PROP &lt;&gt; &quot;Yes&quot;"/>
     <ROW Dialog_="STLportLicenseDlg" Control_="Next" Action="Enable" Condition="STLPORTLICENSEDLGRADIOBUTTONGROUP_1_PROP = &quot;Yes&quot;"/>
     <ROW Dialog_="STLportLicenseDlg" Control_="Next" Action="Disable" Condition="STLPORTLICENSEDLGRADIOBUTTONGROUP_1_PROP &lt;&gt; &quot;Yes&quot;"/>
+    <ROW Dialog_="QtLicenseDlg" Control_="Next" Action="Enable" Condition="QTLICENSEDLGRADIOBUTTONGROUP_1_PROP = &quot;Yes&quot;"/>
+    <ROW Dialog_="QtLicenseDlg" Control_="Next" Action="Disable" Condition="QTLICENSEDLGRADIOBUTTONGROUP_1_PROP &lt;&gt; &quot;Yes&quot;"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiControlEventComponent">
     <ROW Dialog_="FolderDlg" Control_="Back" Event="NewDialog" Argument="STLportLicenseDlg" Condition="AI_INSTALL" Ordering="1"/>
     <ROW Dialog_="WelcomeDlg" Control_="Next" Event="NewDialog" Argument="BerkeleyLicenseDlg" Condition="AI_INSTALL" Ordering="1"/>
     <ROW Dialog_="VerifyReadyDlg" Control_="Back" Event="NewDialog" Argument="FolderDlg" Condition="AI_INSTALL" Ordering="1"/>
-    <ROW Dialog_="FolderDlg" Control_="Next" Event="NewDialog" Argument="VerifyReadyDlg" Condition="AI_INSTALL" Ordering="88"/>
+    <ROW Dialog_="FolderDlg" Control_="Next" Event="NewDialog" Argument="VerifyReadyDlg" Condition="AI_INSTALL" Ordering="92"/>
     <ROW Dialog_="MaintenanceTypeDlg" Control_="Back" Event="NewDialog" Argument="MaintenanceWelcomeDlg" Condition="AI_MAINT" Ordering="1"/>
     <ROW Dialog_="MaintenanceWelcomeDlg" Control_="Next" Event="NewDialog" Argument="MaintenanceTypeDlg" Condition="AI_MAINT" Ordering="2"/>
     <ROW Dialog_="VerifyReadyDlg" Control_="Back" Event="NewDialog" Argument="PatchWelcomeDlg" Condition="AI_PATCH" Ordering="1"/>
@@ -867,7 +1347,7 @@
     <ROW Dialog_="BerkeleyLicenseDlg" Control_="Next" Event="NewDialog" Argument="McppLicensDlg" Condition="AI_INSTALL" Ordering="1"/>
     <ROW Dialog_="JgoodiesLooksLicesneDlg" Control_="Cancel" Event="SpawnDialog" Argument="CancelDlg" Condition="1" Ordering="1"/>
     <ROW Dialog_="JgoodiesLooksLicesneDlg" Control_="Back" Event="NewDialog" Argument="JgoodiesFormsLicenseDlg" Condition="AI_INSTALL" Ordering="1"/>
-    <ROW Dialog_="JgoodiesLooksLicesneDlg" Control_="Next" Event="NewDialog" Argument="STLportLicenseDlg" Condition="AI_INSTALL" Ordering="1"/>
+    <ROW Dialog_="JgoodiesLooksLicesneDlg" Control_="Next" Event="NewDialog" Argument="QtLicenseDlg" Condition="AI_INSTALL" Ordering="1"/>
     <ROW Dialog_="JgoodiesFormsLicenseDlg" Control_="Cancel" Event="SpawnDialog" Argument="CancelDlg" Condition="1" Ordering="1"/>
     <ROW Dialog_="JgoodiesFormsLicenseDlg" Control_="Back" Event="NewDialog" Argument="OpensslLicesneDlg" Condition="AI_INSTALL" Ordering="1"/>
     <ROW Dialog_="JgoodiesFormsLicenseDlg" Control_="Next" Event="NewDialog" Argument="JgoodiesLooksLicesneDlg" Condition="AI_INSTALL" Ordering="1"/>
@@ -884,8 +1364,11 @@
     <ROW Dialog_="McppLicensDlg" Control_="Back" Event="NewDialog" Argument="BerkeleyLicenseDlg" Condition="AI_INSTALL" Ordering="1"/>
     <ROW Dialog_="McppLicensDlg" Control_="Next" Event="NewDialog" Argument="Bzip2LicenseDlg" Condition="AI_INSTALL" Ordering="1"/>
     <ROW Dialog_="STLportLicenseDlg" Control_="Cancel" Event="SpawnDialog" Argument="CancelDlg" Condition="1" Ordering="1"/>
-    <ROW Dialog_="STLportLicenseDlg" Control_="Back" Event="NewDialog" Argument="JgoodiesLooksLicesneDlg" Condition="AI_INSTALL" Ordering="1"/>
+    <ROW Dialog_="STLportLicenseDlg" Control_="Back" Event="NewDialog" Argument="QtLicenseDlg" Condition="AI_INSTALL" Ordering="1"/>
     <ROW Dialog_="STLportLicenseDlg" Control_="Next" Event="NewDialog" Argument="FolderDlg" Condition="AI_INSTALL" Ordering="1"/>
+    <ROW Dialog_="QtLicenseDlg" Control_="Cancel" Event="SpawnDialog" Argument="CancelDlg" Condition="1" Ordering="1"/>
+    <ROW Dialog_="QtLicenseDlg" Control_="Back" Event="NewDialog" Argument="JgoodiesLooksLicesneDlg" Condition="AI_INSTALL" Ordering="1"/>
+    <ROW Dialog_="QtLicenseDlg" Control_="Next" Event="NewDialog" Argument="STLportLicenseDlg" Condition="AI_INSTALL" Ordering="1"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiCustActComponent">
     <ROW Action="AI_PREPARE_UPGRADE" Type="65" Source="aicustact.dll" Target="PrepareUpgrade"/>
@@ -903,6 +1386,7 @@
     <ROW Dialog="JgoodiesLooksLicesneDlg" HCentering="50" VCentering="50" Width="370" Height="270" Attributes="3" Title="[ProductName] [Setup]" Control_First="Next" Control_Default="Next" Control_Cancel="Cancel"/>
     <ROW Dialog="McppLicensDlg" HCentering="50" VCentering="50" Width="370" Height="270" Attributes="3" Title="[ProductName] [Setup]" Control_First="Next" Control_Default="Next" Control_Cancel="Cancel"/>
     <ROW Dialog="OpensslLicesneDlg" HCentering="50" VCentering="50" Width="370" Height="270" Attributes="3" Title="[ProductName] [Setup]" Control_First="Next" Control_Default="Next" Control_Cancel="Cancel"/>
+    <ROW Dialog="QtLicenseDlg" HCentering="50" VCentering="50" Width="370" Height="270" Attributes="3" Title="[ProductName] [Setup]" Control_First="Next" Control_Default="Next" Control_Cancel="Cancel"/>
     <ROW Dialog="STLportLicenseDlg" HCentering="50" VCentering="50" Width="370" Height="270" Attributes="3" Title="[ProductName] [Setup]" Control_First="Next" Control_Default="Next" Control_Cancel="Cancel"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiInstExSeqComponent">
@@ -914,8 +1398,10 @@
     <ROW Action="AI_RESTORE_LOCATION" Condition="APPDIR=&quot;&quot;" Sequence="749"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiMergeModsComponent">
-    <ROW Module="Microsoft_VC90_CRT_x86.msm" Path="&lt;CommonFilesFolder&gt;Merge Modules\Microsoft_VC90_CRT_x86.msm" Feature="MainFeature" Directory="APPDIR"/>
-    <ROW Module="Microsoft_VC90_CRT_x86_x64.msm" Path="&lt;CommonFilesFolder&gt;Merge Modules\Microsoft_VC90_CRT_x86_x64.msm" Feature="MainFeature" Directory="APPDIR"/>
+    <ROW Module="Microsoft_VC90_CRT_x86.msm" Path="..\..\..\..\Program Files (x86)\Common Files\Merge Modules\Microsoft_VC90_CRT_x86.msm" Feature="MainFeature" Directory="APPDIR"/>
+    <ROW Module="Microsoft_VC90_CRT_x86_x64.msm" Path="..\..\..\..\Program Files (x86)\Common Files\Merge Modules\Microsoft_VC90_CRT_x86_x64.msm" Feature="MainFeature" Directory="APPDIR"/>
+    <ROW Module="policy_9_0_Microsoft_VC90_CRT_x86.msm" Path="..\..\..\..\Program Files (x86)\Common Files\Merge Modules\policy_9_0_Microsoft_VC90_CRT_x86.msm" Feature="MainFeature" Directory="APPDIR"/>
+    <ROW Module="policy_9_0_Microsoft_VC90_CRT_x86_x64.msm" Path="..\..\..\..\Program Files (x86)\Common Files\Merge Modules\policy_9_0_Microsoft_VC90_CRT_x86_x64.msm" Feature="MainFeature" Directory="APPDIR"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiRadioButtonComponent">
     <ROW Property="BERKELEYLICENSEDLGRADIOBUTTONGROUP_1_PROP" Order="1" Value="Yes" X="5" Y="0" Width="250" Height="15" Text="I &amp;accept the terms in the License Agreement"/>
@@ -934,6 +1420,8 @@
     <ROW Property="MCPPLICENSDLGRADIOBUTTONGROUP_1_PROP" Order="2" Value="No" X="5" Y="20" Width="250" Height="15" Text="I &amp;do not accept the terms in the License Agreement"/>
     <ROW Property="STLPORTLICENSEDLGRADIOBUTTONGROUP_1_PROP" Order="1" Value="Yes" X="5" Y="0" Width="250" Height="15" Text="I &amp;accept the terms in the License Agreement" Help="|"/>
     <ROW Property="STLPORTLICENSEDLGRADIOBUTTONGROUP_1_PROP" Order="2" Value="No" X="5" Y="20" Width="250" Height="15" Text="I &amp;do not accept the terms in the License Agreement"/>
+    <ROW Property="QTLICENSEDLGRADIOBUTTONGROUP_1_PROP" Order="1" Value="Yes" X="5" Y="0" Width="250" Height="15" Text="I &amp;accept the terms in the License Agreement"/>
+    <ROW Property="QTLICENSEDLGRADIOBUTTONGROUP_1_PROP" Order="2" Value="No" X="5" Y="20" Width="250" Height="15" Text="I &amp;do not accept the terms in the License Agreement"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiRegsComponent">
     <ROW Registry="InstallDir" Root="2" Key="Software\ZeroC\[ProductName]" Name="InstallDir" Value="[APPDIR]" Component_="InstallDir"/>

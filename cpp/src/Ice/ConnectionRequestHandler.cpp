@@ -81,7 +81,7 @@ ConnectionRequestHandler::sendRequest(Outgoing* out)
     }
 }
 
-bool
+AsyncStatus
 ConnectionRequestHandler::sendAsyncRequest(const OutgoingAsyncPtr& out)
 {
     return _connection->sendAsyncRequest(out, _compress, _response);
@@ -93,7 +93,7 @@ ConnectionRequestHandler::flushBatchRequests(BatchOutgoing* out)
     return _connection->flushBatchRequests(out);
 }
 
-bool
+AsyncStatus
 ConnectionRequestHandler::flushAsyncBatchRequests(const BatchOutgoingAsyncPtr& out)
 {
     return _connection->flushAsyncBatchRequests(out);

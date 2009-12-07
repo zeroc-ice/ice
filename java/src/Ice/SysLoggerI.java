@@ -17,9 +17,107 @@ import java.io.IOException;
 public final class SysLoggerI implements Logger
 {
     public 
-    SysLoggerI(String ident)
+    SysLoggerI(String ident, String facilityString)
+    {
+        int facility;
+        if(facilityString.equals("LOG_KERN"))
+        {
+            facility = LOG_KERN;
+        }
+        else if(facilityString.equals("LOG_USER"))
+        {
+            facility = LOG_USER;
+        }
+        else if(facilityString.equals("LOG_MAIL"))
+        {
+            facility = LOG_MAIL;
+        }
+        else if(facilityString.equals("LOG_DAEMON"))
+        {
+            facility = LOG_DAEMON;
+        }
+        else if(facilityString.equals("LOG_AUTH"))
+        {
+            facility = LOG_AUTH;
+        }
+        else if(facilityString.equals("LOG_SYSLOG"))
+        {
+            facility = LOG_SYSLOG;
+        }
+        else if(facilityString.equals("LOG_LPR"))
+        {
+            facility = LOG_LPR;
+        }
+        else if(facilityString.equals("LOG_NEWS"))
+        {
+            facility = LOG_NEWS;
+        }
+        else if(facilityString.equals("LOG_UUCP"))
+        {
+            facility = LOG_UUCP;
+        }
+        else if(facilityString.equals("LOG_CRON"))
+        {
+            facility = LOG_CRON;
+        }
+        else if(facilityString.equals("LOG_AUTHPRIV"))
+        {
+            facility = LOG_AUTHPRIV;
+        }
+        else if(facilityString.equals("LOG_FTP"))
+        {
+            facility = LOG_FTP;
+        }
+        else if(facilityString.equals("LOG_LOCAL0"))
+        {
+            facility = LOG_LOCAL0;
+        }
+        else if(facilityString.equals("LOG_LOCAL1"))
+        {
+            facility = LOG_LOCAL1;
+        }
+        else if(facilityString.equals("LOG_LOCAL2"))
+        {
+            facility = LOG_LOCAL2;
+        }
+        else if(facilityString.equals("LOG_LOCAL3"))
+        {
+            facility = LOG_LOCAL3;
+        }
+        else if(facilityString.equals("LOG_LOCAL4"))
+        {
+            facility = LOG_LOCAL4;
+        }
+        else if(facilityString.equals("LOG_LOCAL5"))
+        {
+            facility = LOG_LOCAL5;
+        }
+        else if(facilityString.equals("LOG_LOCAL6"))
+        {
+            facility = LOG_LOCAL6;
+        }
+        else if(facilityString.equals("LOG_LOCAL7"))
+        {
+            facility = LOG_LOCAL7;
+        }
+        else
+        {
+            throw new Ice.InitializationException("Invalid value for Ice.SyslogFacility: " + facilityString);
+        }
+        initialize(ident, facility);
+    }
+
+    private 
+    SysLoggerI(String ident, int facility)
+    {
+        initialize(ident, facility);
+    }
+
+    private void
+    initialize(String ident, int facility)
     {
         _ident = ident;
+        _facility = facility;
 
         //
         // Open a datagram socket to communicate with the localhost
@@ -66,7 +164,7 @@ public final class SysLoggerI implements Logger
     public Logger
     cloneWithPrefix(String prefix)
     {
-        return new SysLoggerI(prefix);
+        return new SysLoggerI(prefix, _facility);
     }
 
     private void
@@ -82,7 +180,7 @@ public final class SysLoggerI implements Logger
             // colon character and the message.
             //
 
-            int priority = (LOG_USER << 3) | severity;
+            int priority = (_facility << 3) | severity;
 
             String msg = '<' + Integer.toString(priority) + '>' + _ident + ": " + message;
 
@@ -99,14 +197,34 @@ public final class SysLoggerI implements Logger
     }
 
     private String _ident;
+    private int _facility;
     private DatagramSocket _socket;
     private InetAddress _host;
     private static int _port = 514;
 
     //
-    // Syslog facilities facilities (as defined in syslog.h)
+    // Syslog facilities (as defined in syslog.h)
     // 
+    private final static int LOG_KERN = 0;
     private final static int LOG_USER = 1;
+    private final static int LOG_MAIL = 2;
+    private final static int LOG_DAEMON = 3;
+    private final static int LOG_AUTH = 4;
+    private final static int LOG_SYSLOG = 5;
+    private final static int LOG_LPR = 6;
+    private final static int LOG_NEWS = 7;
+    private final static int LOG_UUCP = 8;
+    private final static int LOG_CRON = 9;
+    private final static int LOG_AUTHPRIV = 10;
+    private final static int LOG_FTP = 11;
+    private final static int LOG_LOCAL0 = 16;
+    private final static int LOG_LOCAL1 = 17;
+    private final static int LOG_LOCAL2 = 18;
+    private final static int LOG_LOCAL3 = 19;
+    private final static int LOG_LOCAL4 = 20;
+    private final static int LOG_LOCAL5 = 21;
+    private final static int LOG_LOCAL6 = 22;
+    private final static int LOG_LOCAL7 = 23;
 
     //
     // Syslog priorities (as defined in syslog.h)
@@ -115,4 +233,3 @@ public final class SysLoggerI implements Logger
     private final static int LOG_WARNING = 4;
     private final static int LOG_INFO = 6;
 }
-

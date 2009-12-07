@@ -111,8 +111,8 @@ def configurePaths():
             binDir = binDir + "64"
 
     # Only add the lib directory to the shared library path if we're
-     # not using the embedded location.
-    if libDir and iceHome != "/opt/Ice-3.3":
+    # not using the embedded location.
+    if libDir and iceHome != "/opt/Ice-3.4b":
         addLdPath(libDir)
 
     if not iceHome:
@@ -301,7 +301,7 @@ def runDemos(start, args, demos, num = 0, script = False, root = False):
                 print "  exit 1"
             print "fi"
         else:
-            status = os.system("python " + os.path.join(dir, "expect.py " + args))
+            status = os.system('python "' + os.path.join(dir, "expect.py") + '" ' + args)
 
             if status:
                 if(num > 0):

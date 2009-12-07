@@ -9,19 +9,19 @@
 
 package test.Ice.slicing.exceptions;
 
-import test.Ice.slicing.exceptions.Test.AMI_TestIntf_baseAsBase;
-import test.Ice.slicing.exceptions.Test.AMI_TestIntf_knownDerivedAsBase;
-import test.Ice.slicing.exceptions.Test.AMI_TestIntf_knownDerivedAsKnownDerived;
-import test.Ice.slicing.exceptions.Test.AMI_TestIntf_knownIntermediateAsBase;
-import test.Ice.slicing.exceptions.Test.AMI_TestIntf_knownIntermediateAsKnownIntermediate;
-import test.Ice.slicing.exceptions.Test.AMI_TestIntf_knownMostDerivedAsBase;
-import test.Ice.slicing.exceptions.Test.AMI_TestIntf_knownMostDerivedAsKnownIntermediate;
-import test.Ice.slicing.exceptions.Test.AMI_TestIntf_knownMostDerivedAsKnownMostDerived;
-import test.Ice.slicing.exceptions.Test.AMI_TestIntf_unknownDerivedAsBase;
-import test.Ice.slicing.exceptions.Test.AMI_TestIntf_unknownIntermediateAsBase;
-import test.Ice.slicing.exceptions.Test.AMI_TestIntf_unknownMostDerived1AsBase;
-import test.Ice.slicing.exceptions.Test.AMI_TestIntf_unknownMostDerived1AsKnownIntermediate;
-import test.Ice.slicing.exceptions.Test.AMI_TestIntf_unknownMostDerived2AsBase;
+import test.Ice.slicing.exceptions.Test.Callback_TestIntf_baseAsBase;
+import test.Ice.slicing.exceptions.Test.Callback_TestIntf_knownDerivedAsBase;
+import test.Ice.slicing.exceptions.Test.Callback_TestIntf_knownDerivedAsKnownDerived;
+import test.Ice.slicing.exceptions.Test.Callback_TestIntf_knownIntermediateAsBase;
+import test.Ice.slicing.exceptions.Test.Callback_TestIntf_knownIntermediateAsKnownIntermediate;
+import test.Ice.slicing.exceptions.Test.Callback_TestIntf_knownMostDerivedAsBase;
+import test.Ice.slicing.exceptions.Test.Callback_TestIntf_knownMostDerivedAsKnownIntermediate;
+import test.Ice.slicing.exceptions.Test.Callback_TestIntf_knownMostDerivedAsKnownMostDerived;
+import test.Ice.slicing.exceptions.Test.Callback_TestIntf_unknownDerivedAsBase;
+import test.Ice.slicing.exceptions.Test.Callback_TestIntf_unknownIntermediateAsBase;
+import test.Ice.slicing.exceptions.Test.Callback_TestIntf_unknownMostDerived1AsBase;
+import test.Ice.slicing.exceptions.Test.Callback_TestIntf_unknownMostDerived1AsKnownIntermediate;
+import test.Ice.slicing.exceptions.Test.Callback_TestIntf_unknownMostDerived2AsBase;
 import test.Ice.slicing.exceptions.Test.Base;
 import test.Ice.slicing.exceptions.Test.KnownDerived;
 import test.Ice.slicing.exceptions.Test.KnownIntermediate;
@@ -75,22 +75,22 @@ public class AllTests
         private boolean _called;
     }
 
-    private static class AMI_Test_baseAsBaseI extends AMI_TestIntf_baseAsBase
+    private static class Callback_TestIntf_baseAsBaseI extends Callback_TestIntf_baseAsBase
     {
         public void
-        ice_response()
+        response()
         {
             test(false);
         }
 
         public void
-        ice_exception(Ice.LocalException exc)
+        exception(Ice.LocalException exc)
         {
             test(false);
         }
 
         public void
-        ice_exception(Ice.UserException exc)
+        exception(Ice.UserException exc)
         {
             try
             {
@@ -117,22 +117,22 @@ public class AllTests
         private Callback callback = new Callback();
     }
 
-    private static class AMI_Test_unknownDerivedAsBaseI extends AMI_TestIntf_unknownDerivedAsBase
+    private static class Callback_TestIntf_unknownDerivedAsBaseI extends Callback_TestIntf_unknownDerivedAsBase
     {
         public void
-        ice_response()
+        response()
         {
             test(false);
         }
 
         public void
-        ice_exception(Ice.LocalException exc)
+        exception(Ice.LocalException exc)
         {
             test(false);
         }
 
         public void
-        ice_exception(Ice.UserException exc)
+        exception(Ice.UserException exc)
         {
             try
             {
@@ -159,22 +159,22 @@ public class AllTests
         private Callback callback = new Callback();
     }
 
-    private static class AMI_Test_knownDerivedAsBaseI extends AMI_TestIntf_knownDerivedAsBase
+    private static class Callback_TestIntf_knownDerivedAsBaseI extends Callback_TestIntf_knownDerivedAsBase
     {
         public void
-        ice_response()
+        response()
         {
             test(false);
         }
 
         public void
-        ice_exception(Ice.LocalException exc)
+        exception(Ice.LocalException exc)
         {
             test(false);
         }
 
         public void
-        ice_exception(Ice.UserException exc)
+        exception(Ice.UserException exc)
         {
             try
             {
@@ -202,22 +202,23 @@ public class AllTests
         private Callback callback = new Callback();
     }
 
-    private static class AMI_Test_knownDerivedAsKnownDerivedI extends AMI_TestIntf_knownDerivedAsKnownDerived
+    private static class Callback_TestIntf_knownDerivedAsKnownDerivedI
+        extends Callback_TestIntf_knownDerivedAsKnownDerived
     {
         public void
-        ice_response()
+        response()
         {
             test(false);
         }
 
         public void
-        ice_exception(Ice.LocalException exc)
+        exception(Ice.LocalException exc)
         {
             test(false);
         }
 
         public void
-        ice_exception(Ice.UserException exc)
+        exception(Ice.UserException exc)
         {
             try
             {
@@ -245,22 +246,23 @@ public class AllTests
         private Callback callback = new Callback();
     }
 
-    private static class AMI_Test_unknownIntermediateAsBaseI extends AMI_TestIntf_unknownIntermediateAsBase
+    private static class Callback_TestIntf_unknownIntermediateAsBaseI 
+        extends Callback_TestIntf_unknownIntermediateAsBase
     {
         public void
-        ice_response()
+        response()
         {
             test(false);
         }
 
         public void
-        ice_exception(Ice.LocalException exc)
+        exception(Ice.LocalException exc)
         {
             test(false);
         }
 
         public void
-        ice_exception(Ice.UserException exc)
+        exception(Ice.UserException exc)
         {
             try
             {
@@ -287,22 +289,22 @@ public class AllTests
         private Callback callback = new Callback();
     }
 
-    private static class AMI_Test_knownIntermediateAsBaseI extends AMI_TestIntf_knownIntermediateAsBase
+    private static class Callback_TestIntf_knownIntermediateAsBaseI extends Callback_TestIntf_knownIntermediateAsBase
     {
         public void
-        ice_response()
+        response()
         {
             test(false);
         }
 
         public void
-        ice_exception(Ice.LocalException exc)
+        exception(Ice.LocalException exc)
         {
             test(false);
         }
 
         public void
-        ice_exception(Ice.UserException exc)
+        exception(Ice.UserException exc)
         {
             try
             {
@@ -330,22 +332,22 @@ public class AllTests
         private Callback callback = new Callback();
     }
 
-    private static class AMI_Test_knownMostDerivedAsBaseI extends AMI_TestIntf_knownMostDerivedAsBase
+    private static class Callback_TestIntf_knownMostDerivedAsBaseI extends Callback_TestIntf_knownMostDerivedAsBase
     {
         public void
-        ice_response()
+        response()
         {
             test(false);
         }
 
         public void
-        ice_exception(Ice.LocalException exc)
+        exception(Ice.LocalException exc)
         {
             test(false);
         }
 
         public void
-        ice_exception(Ice.UserException exc)
+        exception(Ice.UserException exc)
         {
             try
             {
@@ -374,23 +376,23 @@ public class AllTests
         private Callback callback = new Callback();
     }
 
-    private static class AMI_Test_knownIntermediateAsKnownIntermediateI
-        extends AMI_TestIntf_knownIntermediateAsKnownIntermediate
+    private static class Callback_TestIntf_knownIntermediateAsKnownIntermediateI
+        extends Callback_TestIntf_knownIntermediateAsKnownIntermediate
     {
         public void
-        ice_response()
+        response()
         {
             test(false);
         }
 
         public void
-        ice_exception(Ice.LocalException exc)
+        exception(Ice.LocalException exc)
         {
             test(false);
         }
 
         public void
-        ice_exception(Ice.UserException exc)
+        exception(Ice.UserException exc)
         {
             try
             {
@@ -418,23 +420,23 @@ public class AllTests
         private Callback callback = new Callback();
     }
 
-    private static class AMI_Test_knownMostDerivedAsKnownIntermediateI
-        extends AMI_TestIntf_knownMostDerivedAsKnownIntermediate
+    private static class Callback_TestIntf_knownMostDerivedAsKnownIntermediateI
+        extends Callback_TestIntf_knownMostDerivedAsKnownIntermediate
     {
         public void
-        ice_response()
+        response()
         {
             test(false);
         }
 
         public void
-        ice_exception(Ice.LocalException exc)
+        exception(Ice.LocalException exc)
         {
             test(false);
         }
 
         public void
-        ice_exception(Ice.UserException exc)
+        exception(Ice.UserException exc)
         {
             try
             {
@@ -463,23 +465,23 @@ public class AllTests
         private Callback callback = new Callback();
     }
 
-    private static class AMI_Test_knownMostDerivedAsKnownMostDerivedI
-        extends AMI_TestIntf_knownMostDerivedAsKnownMostDerived
+    private static class Callback_TestIntf_knownMostDerivedAsKnownMostDerivedI
+        extends Callback_TestIntf_knownMostDerivedAsKnownMostDerived
     {
         public void
-        ice_response()
+        response()
         {
             test(false);
         }
 
         public void
-        ice_exception(Ice.LocalException exc)
+        exception(Ice.LocalException exc)
         {
             test(false);
         }
 
         public void
-        ice_exception(Ice.UserException exc)
+        exception(Ice.UserException exc)
         {
             try
             {
@@ -508,22 +510,23 @@ public class AllTests
         private Callback callback = new Callback();
     }
 
-    private static class AMI_Test_unknownMostDerived1AsBaseI extends AMI_TestIntf_unknownMostDerived1AsBase
+    private static class Callback_TestIntf_unknownMostDerived1AsBaseI 
+        extends Callback_TestIntf_unknownMostDerived1AsBase
     {
         public void
-        ice_response()
+        response()
         {
             test(false);
         }
 
         public void
-        ice_exception(Ice.LocalException exc)
+        exception(Ice.LocalException exc)
         {
             test(false);
         }
 
         public void
-        ice_exception(Ice.UserException exc)
+        exception(Ice.UserException exc)
         {
             try
             {
@@ -551,23 +554,23 @@ public class AllTests
         private Callback callback = new Callback();
     }
 
-    private static class AMI_Test_unknownMostDerived1AsKnownIntermediateI
-        extends AMI_TestIntf_unknownMostDerived1AsKnownIntermediate
+    private static class Callback_TestIntf_unknownMostDerived1AsKnownIntermediateI
+        extends Callback_TestIntf_unknownMostDerived1AsKnownIntermediate
     {
         public void
-        ice_response()
+        response()
         {
             test(false);
         }
 
         public void
-        ice_exception(Ice.LocalException exc)
+        exception(Ice.LocalException exc)
         {
             test(false);
         }
 
         public void
-        ice_exception(Ice.UserException exc)
+        exception(Ice.UserException exc)
         {
             try
             {
@@ -595,22 +598,23 @@ public class AllTests
         private Callback callback = new Callback();
     }
 
-    private static class AMI_Test_unknownMostDerived2AsBaseI extends AMI_TestIntf_unknownMostDerived2AsBase
+    private static class Callback_TestIntf_unknownMostDerived2AsBaseI 
+        extends Callback_TestIntf_unknownMostDerived2AsBase
     {
         public void
-        ice_response()
+        response()
         {
             test(false);
         }
 
         public void
-        ice_exception(Ice.LocalException exc)
+        exception(Ice.LocalException exc)
         {
             test(false);
         }
 
         public void
-        ice_exception(Ice.UserException exc)
+        exception(Ice.UserException exc)
         {
             try
             {
@@ -677,8 +681,8 @@ public class AllTests
         out.print("base (AMI)... ");
         out.flush();
         {
-            AMI_Test_baseAsBaseI cb = new AMI_Test_baseAsBaseI();
-            test.baseAsBase_async(cb);
+            Callback_TestIntf_baseAsBaseI cb = new Callback_TestIntf_baseAsBaseI();
+            test.begin_baseAsBase(cb);
             cb.check();
         }
         out.println("ok");
@@ -706,8 +710,8 @@ public class AllTests
         out.print("slicing of unknown derived (AMI)... ");
         out.flush();
         {
-            AMI_Test_unknownDerivedAsBaseI cb = new AMI_Test_unknownDerivedAsBaseI();
-            test.unknownDerivedAsBase_async(cb);
+            Callback_TestIntf_unknownDerivedAsBaseI cb = new Callback_TestIntf_unknownDerivedAsBaseI();
+            test.begin_unknownDerivedAsBase(cb);
             cb.check();
         }
         out.println("ok");
@@ -736,8 +740,8 @@ public class AllTests
         out.print("non-slicing of known derived as base (AMI)... ");
         out.flush();
         {
-            AMI_Test_knownDerivedAsBaseI cb = new AMI_Test_knownDerivedAsBaseI();
-            test.knownDerivedAsBase_async(cb);
+            Callback_TestIntf_knownDerivedAsBaseI cb = new Callback_TestIntf_knownDerivedAsBaseI();
+            test.begin_knownDerivedAsBase(cb);
             cb.check();
         }
         out.println("ok");
@@ -766,8 +770,8 @@ public class AllTests
         out.print("non-slicing of known derived as derived (AMI)... ");
         out.flush();
         {
-            AMI_Test_knownDerivedAsKnownDerivedI cb = new AMI_Test_knownDerivedAsKnownDerivedI();
-            test.knownDerivedAsKnownDerived_async(cb);
+            Callback_TestIntf_knownDerivedAsKnownDerivedI cb = new Callback_TestIntf_knownDerivedAsKnownDerivedI();
+            test.begin_knownDerivedAsKnownDerived(cb);
             cb.check();
         }
         out.println("ok");
@@ -795,8 +799,8 @@ public class AllTests
         out.print("slicing of unknown intermediate as base (AMI)... ");
         out.flush();
         {
-            AMI_Test_unknownIntermediateAsBaseI cb = new AMI_Test_unknownIntermediateAsBaseI();
-            test.unknownIntermediateAsBase_async(cb);
+            Callback_TestIntf_unknownIntermediateAsBaseI cb = new Callback_TestIntf_unknownIntermediateAsBaseI();
+            test.begin_unknownIntermediateAsBase(cb);
             cb.check();
         }
         out.println("ok");
@@ -825,8 +829,8 @@ public class AllTests
         out.print("slicing of known intermediate as base (AMI)... ");
         out.flush();
         {
-            AMI_Test_knownIntermediateAsBaseI cb = new AMI_Test_knownIntermediateAsBaseI();
-            test.knownIntermediateAsBase_async(cb);
+            Callback_TestIntf_knownIntermediateAsBaseI cb = new Callback_TestIntf_knownIntermediateAsBaseI();
+            test.begin_knownIntermediateAsBase(cb);
             cb.check();
         }
         out.println("ok");
@@ -856,8 +860,8 @@ public class AllTests
         out.print("slicing of known most derived as base (AMI)... ");
         out.flush();
         {
-            AMI_Test_knownMostDerivedAsBaseI cb = new AMI_Test_knownMostDerivedAsBaseI();
-            test.knownMostDerivedAsBase_async(cb);
+            Callback_TestIntf_knownMostDerivedAsBaseI cb = new Callback_TestIntf_knownMostDerivedAsBaseI();
+            test.begin_knownMostDerivedAsBase(cb);
             cb.check();
         }
         out.println("ok");
@@ -886,8 +890,9 @@ public class AllTests
         out.print("non-slicing of known intermediate as intermediate (AMI)... ");
         out.flush();
         {
-            AMI_Test_knownIntermediateAsKnownIntermediateI cb = new AMI_Test_knownIntermediateAsKnownIntermediateI();
-            test.knownIntermediateAsKnownIntermediate_async(cb);
+            Callback_TestIntf_knownIntermediateAsKnownIntermediateI cb = 
+                new Callback_TestIntf_knownIntermediateAsKnownIntermediateI();
+            test.begin_knownIntermediateAsKnownIntermediate(cb);
             cb.check();
         }
         out.println("ok");
@@ -917,8 +922,9 @@ public class AllTests
         out.print("non-slicing of known most derived as intermediate (AMI)... ");
         out.flush();
         {
-            AMI_Test_knownMostDerivedAsKnownIntermediateI cb = new AMI_Test_knownMostDerivedAsKnownIntermediateI();
-            test.knownMostDerivedAsKnownIntermediate_async(cb);
+            Callback_TestIntf_knownMostDerivedAsKnownIntermediateI cb = 
+                new Callback_TestIntf_knownMostDerivedAsKnownIntermediateI();
+            test.begin_knownMostDerivedAsKnownIntermediate(cb);
             cb.check();
         }
         out.println("ok");
@@ -948,8 +954,9 @@ public class AllTests
         out.print("non-slicing of known most derived as most derived (AMI)... ");
         out.flush();
         {
-            AMI_Test_knownMostDerivedAsKnownMostDerivedI cb = new AMI_Test_knownMostDerivedAsKnownMostDerivedI();
-            test.knownMostDerivedAsKnownMostDerived_async(cb);
+            Callback_TestIntf_knownMostDerivedAsKnownMostDerivedI cb = 
+                new Callback_TestIntf_knownMostDerivedAsKnownMostDerivedI();
+            test.begin_knownMostDerivedAsKnownMostDerived(cb);
             cb.check();
         }
         out.println("ok");
@@ -978,8 +985,8 @@ public class AllTests
         out.print("slicing of unknown most derived, known intermediate as base (AMI)... ");
         out.flush();
         {
-            AMI_Test_unknownMostDerived1AsBaseI cb = new AMI_Test_unknownMostDerived1AsBaseI();
-            test.unknownMostDerived1AsBase_async(cb);
+            Callback_TestIntf_unknownMostDerived1AsBaseI cb = new Callback_TestIntf_unknownMostDerived1AsBaseI();
+            test.begin_unknownMostDerived1AsBase(cb);
             cb.check();
         }
         out.println("ok");
@@ -1008,9 +1015,9 @@ public class AllTests
         out.print("slicing of unknown most derived, known intermediate as intermediate (AMI)... ");
         out.flush();
         {
-            AMI_Test_unknownMostDerived1AsKnownIntermediateI cb =
-                new AMI_Test_unknownMostDerived1AsKnownIntermediateI();
-            test.unknownMostDerived1AsKnownIntermediate_async(cb);
+            Callback_TestIntf_unknownMostDerived1AsKnownIntermediateI cb =
+                new Callback_TestIntf_unknownMostDerived1AsKnownIntermediateI();
+            test.begin_unknownMostDerived1AsKnownIntermediate(cb);
             cb.check();
         }
         out.println("ok");
@@ -1038,8 +1045,8 @@ public class AllTests
         out.print("slicing of unknown most derived, unknown intermediate thrown as base (AMI)... ");
         out.flush();
         {
-            AMI_Test_unknownMostDerived2AsBaseI cb = new AMI_Test_unknownMostDerived2AsBaseI();
-            test.unknownMostDerived2AsBase_async(cb);
+            Callback_TestIntf_unknownMostDerived2AsBaseI cb = new Callback_TestIntf_unknownMostDerived2AsBaseI();
+            test.begin_unknownMostDerived2AsBase(cb);
             cb.check();
         }
         out.println("ok");

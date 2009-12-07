@@ -16,13 +16,6 @@
 using namespace std;
 using namespace IceUtil;
 
-class AMI_Servant_setValueAsyncI : public Test::AMI_Servant_setValueAsync
-{
-public:
-    void ice_response() {}
-    void ice_exception(const Ice::Exception&) {}
-};
-
 class ReadThread : public Thread
 {
 public:
@@ -565,13 +558,12 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator, bool trans
         // 
         // Test saving while busy
         //
-        Test::AMI_Servant_setValueAsyncPtr setCB = new AMI_Servant_setValueAsyncI;
         for(i = 0; i < size; i++)
         {
             //
             // Start a mutating operation so that the object is not idle.
             //
-            servants[i]->setValueAsync_async(setCB, i + 300);
+            servants[i]->begin_setValueAsync(i + 300);
             
             test(servants[i]->getValue() == i + 100);
             //

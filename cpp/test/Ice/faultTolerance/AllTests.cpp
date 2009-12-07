@@ -52,19 +52,49 @@ private:
     bool _called;
 };
 
-class AMI_Test_pidI : virtual public AMI_TestIntf_pid, virtual public CallbackBase
+class Callback : virtual public IceUtil::Shared, virtual public CallbackBase
 {
 public:
 
-    virtual void ice_response(Ice::Int pid)
+    void response()
+    {
+        test(false);
+    }
+
+    void exception(const Ice::Exception&)
+    {
+        test(false);
+    }
+
+    void opPidI(Ice::Int pid)
     {
         _pid = pid;
         called();
     }
 
-    virtual void ice_exception(const Ice::Exception& ex)
+    void opShutdownI()
     {
-        test(false);
+        called();
+    }
+
+    void exceptAbortI(const Ice::Exception& ex)
+    {
+        try
+        {
+            ex.ice_throw();
+        }
+        catch(const Ice::ConnectionLostException&)
+        {
+        }
+        catch(const Ice::ConnectFailedException&)
+        {
+        }
+        catch(Ice::Exception& ex)
+        {
+            cout << ex << endl;
+            test(false);
+        }
+        called();
     }
 
     Ice::Int pid() const
@@ -76,87 +106,7 @@ private:
 
     Ice::Int _pid;
 };
-
-typedef IceUtil::Handle<AMI_Test_pidI> AMI_Test_pidIPtr;
-
-class AMI_Test_shutdownI : virtual public AMI_TestIntf_shutdown, virtual public CallbackBase
-{
-public:
-
-    virtual void ice_response()
-    {
-        called();
-    }
-
-    virtual void ice_exception(const Ice::Exception&)
-    {
-        test(false);
-    }
-};
-
-typedef IceUtil::Handle<AMI_Test_shutdownI> AMI_Test_shutdownIPtr;
-
-class AMI_Test_abortI : virtual public AMI_TestIntf_abort, virtual public CallbackBase
-{
-public:
-
-    virtual void ice_response()
-    {
-        test(false);
-    }
-
-    virtual void ice_exception(const Ice::Exception& ex)
-    {
-        try
-        {
-            ex.ice_throw();
-        }
-        catch(const Ice::ConnectionLostException&)
-        {
-        }
-        catch(const Ice::ConnectFailedException&)
-        {
-        }
-        catch(Ice::Exception& ex)
-        {
-            cout << ex << endl;
-            test(false);
-        }
-        called();
-    }
-};
-
-typedef IceUtil::Handle<AMI_Test_abortI> AMI_Test_abortIPtr;
-
-class AMI_Test_idempotentAbortI : public AMI_TestIntf_idempotentAbort, public CallbackBase
-{
-    virtual void ice_response()
-    {
-        test(false);
-    }
-
-    virtual void ice_exception(const Ice::Exception& ex)
-    {
-        try
-        {
-            ex.ice_throw();
-        }
-        catch(const Ice::ConnectionLostException&)
-        {
-        }
-        catch(const Ice::ConnectFailedException&)
-        {
-        }
-        catch(Ice::Exception& ex)
-        {
-            cout << ex << endl;
-            test(false);
-        }
-        called();
-    }
-};
-
-typedef IceUtil::Handle<AMI_Test_idempotentAbortI> AMI_Test_idempotentAbortIPtr;
+typedef IceUtil::Handle<Callback> CallbackPtr;
 
 void
 allTests(const Ice::CommunicatorPtr& communicator, const vector<int>& ports)
@@ -199,8 +149,8 @@ allTests(const Ice::CommunicatorPtr& communicator, const vector<int>& ports)
         else
         {
             cout << "testing server #" << i << " with AMI... " << flush;
-            AMI_Test_pidIPtr cb = new AMI_Test_pidI();
-            obj->pid_async(cb);
+            CallbackPtr cb = new Callback();
+            obj->begin_pid(newCallback_TestIntf_pid(cb, &Callback::opPidI, &Callback::exception));
             cb->check();
             int pid = cb->pid();
             test(pid != oldPid);
@@ -219,8 +169,8 @@ allTests(const Ice::CommunicatorPtr& communicator, const vector<int>& ports)
             else
             {
                 cout << "shutting down server #" << i << " with AMI... " << flush;
-                AMI_Test_shutdownIPtr cb = new AMI_Test_shutdownI;
-                obj->shutdown_async(cb);
+                CallbackPtr cb = new Callback;
+                obj->begin_shutdown(newCallback_TestIntf_shutdown(cb, &Callback::opShutdownI, &Callback::exception));
                 cb->check();
                 cout << "ok" << endl;
             }
@@ -247,8 +197,8 @@ allTests(const Ice::CommunicatorPtr& communicator, const vector<int>& ports)
             else
             {
                 cout << "aborting server #" << i << " with AMI... " << flush;
-                AMI_Test_abortIPtr cb = new AMI_Test_abortI;
-                obj->abort_async(cb);
+                CallbackPtr cb = new Callback;
+                obj->begin_abort(newCallback_TestIntf_abort(cb, &Callback::response, &Callback::exceptAbortI));
                 cb->check();
                 cout << "ok" << endl;
             }
@@ -275,8 +225,9 @@ allTests(const Ice::CommunicatorPtr& communicator, const vector<int>& ports)
             else
             {
                 cout << "aborting server #" << i << " and #" << i + 1 << " with idempotent AMI call... " << flush;
-                AMI_Test_idempotentAbortIPtr cb = new AMI_Test_idempotentAbortI;
-                obj->idempotentAbort_async(cb);
+                CallbackPtr cb = new Callback;
+                obj->begin_idempotentAbort(newCallback_TestIntf_idempotentAbort(cb, &Callback::response, 
+                                                                                &Callback::exceptAbortI));
                 cb->check();
                 cout << "ok" << endl;
             }

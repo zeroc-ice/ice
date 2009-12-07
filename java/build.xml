@@ -225,7 +225,7 @@
         </javac>
     </target>
 
-    <target name="freeze-jar" depends="freeze-compile">
+    <target name="freeze-jar" depends="freeze-compile,ice-jar">
         <jar jarfile="${lib.dir}/Freeze.jar" basedir="${lib.dir}">
             <include name="Freeze/**"/>
             <manifest>
@@ -251,6 +251,9 @@
             <fileset dir="test/Ice/adapterDeactivation">
                 <include name="Test.ice" />
             </fileset>
+            <fileset dir="test/Ice/ami">
+                <include name="Test.ice" />
+            </fileset>
             <fileset dir="test/Ice/background">
                 <include name="Test.ice" />
             </fileset>
@@ -264,6 +267,9 @@
                 <include name="Test.ice" />
             </fileset>
             <fileset dir="test/Ice/defaultServant">
+                <include name="Test.ice" />
+            </fileset>
+            <fileset dir="test/Ice/dispatcher">
                 <include name="Test.ice" />
             </fileset>
             <fileset dir="test/Ice/exceptions">
@@ -286,6 +292,9 @@
                 <include name="Test.ice" />
             </fileset>
             <fileset dir="test/Ice/interceptor">
+                <include name="Test.ice" />
+            </fileset>
+            <fileset dir="test/Ice/invoke">
                 <include name="Test.ice" />
             </fileset>
             <fileset dir="test/Ice/location">
@@ -453,13 +462,13 @@
         <javac srcdir=".:${generated.test.dir}" destdir="${lib.dir}" source="1.5" debug="${debug}" deprecation="on"
                classpathref="freeze.classpath" fork="true" memoryinitialsize="256m" memorymaximumsize="256m">
             <exclude name="${generated.test.dir}/**"/>
-	    <include name="test/**"/>
+            <include name="test/**"/>
             <exclude name="test/Ice/translator/"/>
             <compilerarg value="${javac.lint}"/>
         </javac>
     </target>
 
-    <target name="test-jar" depends="test-compile">
+    <target name="test-jar" depends="test-compile,freeze-jar">
         <jar jarfile="${lib.dir}/IceTest.jar" basedir="${lib.dir}">
             <include name="test/**"/>
             <manifest>
@@ -505,16 +514,21 @@
         <delete file="${lib.dir}/icegridgui.mf" />
     </target>
 
-    <target name="icegridadmin-pro-jar" depends="icegridadmin-compile" if="build-icegridadmin-pro-jar">
+    <target name="icegridadmin-pro-jar" depends="ice-jar,icegridadmin-compile" if="build-icegridadmin-pro-jar">
         <condition property="library.jarfiles" value="classes.jar,jsse.jar">
             <os family="mac"/>
         </condition>
         <condition property="library.jarfiles" value="rt.jar,jsse.jar">
             <!-- Library jar files for Sun JDK -->
-            <available file="${java.home}/lib/rt.jar"/>
+            <and>
+                <available file="${java.home}/lib/rt.jar"/>
+                <not>
+                    <available file="${java.home}/lib/vm.jar"/>
+                </not>
+            </and>
         </condition>
-        <condition property="library.jarfiles" value="vm.jar,core.jar,graphics.jar,security.jar,server.jar">
-            <!-- Library jar files for IBM J9 (from Linux SuSE) -->
+        <condition property="library.jarfiles" value="vm.jar,rt.jar,security.jar,beans.jar,java.util.jar,ibmjssefw.jar,ibmcertpathfw.jar,logging.jar">
+            <!-- Library jar files for IBM J9 (from SuSE Linux) -->
             <available file="${java.home}/lib/vm.jar"/>
         </condition>
         <condition property="library.jarpath" value="${java.home}/../Classes" else="${java.home}/lib">
@@ -539,7 +553,7 @@
             update="true">
             <include name="icons/**"/>
         </jar>
-        <delete file="${lib.dir}/icegridgui.mf" />
+
         <taskdef resource="proguard/ant/task.properties"/>
 
         <proguard>
@@ -552,6 +566,19 @@
              -include config/icegridgui.pro
         </proguard>
         <delete file="${lib.dir}/IceGridGUItemp.jar" />
+
+        <!-- Remove Ice source code from the jar and regenerate -->
+        <mkdir dir="${lib.dir}/tmp"/>
+        <unzip src="${lib.dir}/IceGridGUI.jar" dest="${lib.dir}/tmp"/>
+        <delete>
+            <fileset dir="${lib.dir}" includes="**/*.java"/>
+        </delete>
+        <delete file="${lib.dir}/IceGridGUI.jar"/>
+        <jar jarfile="${lib.dir}/IceGridGUI.jar" manifest="${lib.dir}/icegridgui.mf" basedir="${lib.dir}/tmp" level="9">
+            <include name="**/**"/>
+        </jar>
+        <delete file="${lib.dir}/icegridgui.mf" />
+        <delete dir="${lib.dir}/tmp"/>
     </target>
 
     <target name="compile" depends="ice-compile, icegridadmin-compile">

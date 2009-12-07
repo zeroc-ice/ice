@@ -634,7 +634,8 @@ public final class Instance
                     {
                         throw new Ice.InitializationException("Both syslog and file logger cannot be enabled.");
                     }
-                    _initData.logger = new Ice.SysLoggerI(_initData.properties.getProperty("Ice.ProgramName"));
+                    _initData.logger = new Ice.SysLoggerI(_initData.properties.getProperty("Ice.ProgramName"),
+                                _initData.properties.getPropertyWithDefault("Ice.SyslogFacility", "LOG_USER"));
                 }
                 else if(logfile.length() != 0)
                 {

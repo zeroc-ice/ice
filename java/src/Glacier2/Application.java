@@ -216,11 +216,7 @@ public abstract class Application extends Ice.Application
             {
                 throw new SessionNotExistException();
             }
-            // TODO: Depending on the resolution of
-            // http://bugzilla/bugzilla/show_bug.cgi?id=4264 the OA
-            // name could be an empty string.
-            String uuid = java.util.UUID.randomUUID().toString();
-            _adapter = communicator().createObjectAdapterWithRouter(uuid, _router);
+            _adapter = communicator().createObjectAdapterWithRouter("", _router);
             _adapter.activate();
         }
         return _adapter;

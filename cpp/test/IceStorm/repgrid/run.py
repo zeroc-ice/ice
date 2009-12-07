@@ -31,7 +31,7 @@ if TestUtil.appverifier:
 for filename in [os.path.join("db", f) for f in os.listdir("db") if f.endswith(".db")]:
     os.remove(filename)
 
-variables = '"icebox.exe=%s"' % TestUtil.getIceBox()
+variables = "icebox.exe='%s'" % TestUtil.getIceBox()
 
 if TestUtil.sqlType != None:
     variables += " db-plugin=IceStormSqlDB:createSqlDB"

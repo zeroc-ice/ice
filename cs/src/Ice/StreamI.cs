@@ -199,31 +199,6 @@ namespace Ice
             return _is.readBlob(sz);
         }
 
-        public void startSeq(int numElements, int minSize)
-        {
-            _is.startSeq(numElements, minSize);
-        }
-
-        public void checkSeq()
-        {
-            _is.checkSeq();
-        }
-
-        public void checkFixedSeq(int numElements, int minSize)
-        {
-            _is.checkFixedSeq(numElements, minSize);
-        }
-
-        public void endSeq(int sz)
-        {
-            _is.endSeq(sz);
-        }
-
-        public void endElement()
-        {
-            _is.endElement();
-        }
-
         public void readPendingObjects()
         {
             _is.readPendingObjects();

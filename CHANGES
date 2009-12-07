@@ -33,6 +33,20 @@ General Changes
 These entries apply to all relevant language mappings unless otherwise
 noted.
 
+- When using the system logger (enabled when Ice.UseSyslog is set) it 
+  is now possible to set the facility using the Ice.SyslogFacility
+  property. The default value is LOG_USER.
+
+- It is now legal to pass an empty name to createObjectAdpaterWithRouter
+  and createObjectAdapterWithEndpoints. If so, a UUID will be generated
+  as the name.
+
+- Added support for dispatching servant invocations and AMI callbacks
+  with application specific threads (with a GUI dedicated thread for
+  example). The application needs to implement the Ice::Dispatcher
+  interface and initialize the communicator appropiately to use this
+  dispatcher implementation. See the Ice manual for more information.
+
 - icegridadmin when using username/password authentication now zeros
   the entire password after use.
 
@@ -172,8 +186,7 @@ noted.
     HKLM\Software\MyCompany\IceProperties
 
   This will read all the string values from the specified key in
-  HKEY_LOCAL_MACHINE and set them as Ice properties. You can also use
-  HKEY_CURRENT_USER by specifying HKCU instead of HKLM.
+  HKEY_LOCAL_MACHINE and set them as Ice properties.
 
 - Added ability to get information from endpoints such as host and
   port without having to parse the stringified endpoint.
@@ -270,6 +283,13 @@ noted.
 
 C++ Changes
 ============
+
+- Fixed a bug in slice2cpp that could cause incorrect includes to be 
+  generated if a Slice file was included that was a symbolic link.
+
+- On Windows it is now possible to build the Ice DLLs with unique names
+  for each supported compiler. See UNIQUE_DLL_NAMES setting in 
+  cpp/config/Make.rules.mak.
 
 - The Ice DLLs no longer all use the default base load address.
 
@@ -473,6 +493,8 @@ C# Changes
 Python Changes
 ==============
 
+- The extension now restores the pre-existing dlopen flags.
+
 - The __cmp__ method generated for slice structures and enumerations
   has been replaced by the rich operators __lt__, __le__, __eq__,
   __ne__, __gt__, __ge__.
@@ -484,9 +506,6 @@ Python Changes
 
 - Integer values are now accepted where floating point values are
   expected.
-
-- Changed the way sequences are unmarshaled to protect against
-  malicious messages with faked very large sequence count values.
 
 - Objects that support the number protocol are now accepted as legal
   values for Slice integer and floating-point types.
@@ -501,9 +520,6 @@ Ruby Changes
   future release.
 
   ObjectPrx::ice_getHash()
-
-- Changed the way sequences are unmarshaled to protect against
-  malicious messages with faked very large sequence count values.
 
 
 PHP Changes

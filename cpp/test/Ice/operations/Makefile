@@ -22,12 +22,14 @@ COBJS		= Test.o \
 		  Twoways.o \
 		  Oneways.o \
 		  TwowaysAMI.o \
+		  TwowaysNewAMI.o \
 		  OnewaysAMI.o \
+		  OnewaysNewAMI.o \
 		  BatchOneways.o
 
 SOBJS		= Test.o \
 		  TestI.o \
-		  Server.o
+		  Server.o \
 
 SAMDOBJS	= TestAMD.o \
 		  TestAMDI.o \
@@ -40,7 +42,9 @@ COLOBJS		= Test.o \
 		  Twoways.o \
 		  Oneways.o \
 		  TwowaysAMI.o \
+		  TwowaysNewAMI.o \
 		  OnewaysAMI.o \
+		  OnewaysNewAMI.o \
 		  BatchOneways.o
 
 SRCS		= $(COBJS:.o=.cpp) \

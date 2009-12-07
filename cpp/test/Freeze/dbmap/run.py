@@ -28,7 +28,7 @@ client = os.path.join(os.getcwd(), "client")
 if TestUtil.appverifier:
     TestUtil.setAppVerifierSettings([client])
 
-clientProc = TestUtil.startClient(client, " --Freeze.Warn.Rollback=0 %s" % os.getcwd())
+clientProc = TestUtil.startClient(client, ' --Freeze.Warn.Rollback=0 "%s"' % os.getcwd())
 clientProc.waitTestSuccess()
 
 if TestUtil.appverifier:

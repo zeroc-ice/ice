@@ -14,9 +14,105 @@ namespace Ice
 
     public sealed class SysLoggerI :  Logger
     {
-        public SysLoggerI(string ident)
+        public SysLoggerI(string ident, string facilityString)
+        {
+            int facility;
+            if(facilityString.Equals("LOG_KERN"))
+            {
+                facility = LOG_KERN;
+            }
+            else if(facilityString.Equals("LOG_USER"))
+            {
+                facility = LOG_USER;
+            }
+            else if(facilityString.Equals("LOG_MAIL"))
+            {
+                facility = LOG_MAIL;
+            }
+            else if(facilityString.Equals("LOG_DAEMON"))
+            {
+                facility = LOG_DAEMON;
+            }
+            else if(facilityString.Equals("LOG_AUTH"))
+            {
+                facility = LOG_AUTH;
+            }
+            else if(facilityString.Equals("LOG_SYSLOG"))
+            {
+                facility = LOG_SYSLOG;
+            }
+            else if(facilityString.Equals("LOG_LPR"))
+            {
+                facility = LOG_LPR;
+            }
+            else if(facilityString.Equals("LOG_NEWS"))
+            {
+                facility = LOG_NEWS;
+            }
+            else if(facilityString.Equals("LOG_UUCP"))
+            {
+                facility = LOG_UUCP;
+            }
+            else if(facilityString.Equals("LOG_CRON"))
+            {
+                facility = LOG_CRON;
+            }
+            else if(facilityString.Equals("LOG_AUTHPRIV"))
+            {
+                facility = LOG_AUTHPRIV;
+            }
+            else if(facilityString.Equals("LOG_FTP"))
+            {
+                facility = LOG_FTP;
+            }
+            else if(facilityString.Equals("LOG_LOCAL0"))
+            {
+                facility = LOG_LOCAL0;
+            }
+            else if(facilityString.Equals("LOG_LOCAL1"))
+            {
+                facility = LOG_LOCAL1;
+            }
+            else if(facilityString.Equals("LOG_LOCAL2"))
+            {
+                facility = LOG_LOCAL2;
+            }
+            else if(facilityString.Equals("LOG_LOCAL3"))
+            {
+                facility = LOG_LOCAL3;
+            }
+            else if(facilityString.Equals("LOG_LOCAL4"))
+            {
+                facility = LOG_LOCAL4;
+            }
+            else if(facilityString.Equals("LOG_LOCAL5"))
+            {
+                facility = LOG_LOCAL5;
+            }
+            else if(facilityString.Equals("LOG_LOCAL6"))
+            {
+                facility = LOG_LOCAL6;
+            }
+            else if(facilityString.Equals("LOG_LOCAL7"))
+            {
+                facility = LOG_LOCAL7;
+            }
+            else
+            {
+                throw new Ice.InitializationException("Invalid value for Ice.SyslogFacility: " + facilityString);
+            }
+            initialize(ident, facility);
+        }
+        
+        private SysLoggerI(string ident, int facility)
+        {
+            initialize(ident, facility);
+        }
+
+        private void initialize(string ident, int facility)
         {
             _ident = ident;
+            _facility = facility;
             
             //
             // Open a datagram socket to communicate with the localhost
@@ -57,7 +153,7 @@ namespace Ice
 
         public Logger cloneWithPrefix(string prefix)
         {
-            return new SysLoggerI(prefix);
+            return new SysLoggerI(prefix, _facility);
         }
         
         private void log(int severity, string message)
@@ -72,7 +168,7 @@ namespace Ice
                 // colon character and the message.
                 //
                 
-                int priority = (LOG_USER << 3) | severity;
+                int priority = (_facility << 3) | severity;
                 
                 string msg = '<' + priority + '>' + _ident + ": " + message;
                 
@@ -91,6 +187,7 @@ namespace Ice
         }
         
         private string _ident;
+        private int _facility;
         private UdpClient _socket;
         private System.Net.IPAddress _host;
         private static int _port = 514;
@@ -98,14 +195,33 @@ namespace Ice
         //
         // Syslog facilities facilities (as defined in syslog.h)
         // 
-        private static readonly int LOG_USER = 1;
+        private const int LOG_KERN = 0;
+        private const int LOG_USER = 1;
+        private const int LOG_MAIL = 2;
+        private const int LOG_DAEMON = 3;
+        private const int LOG_AUTH = 4;
+        private const int LOG_SYSLOG = 5;
+        private const int LOG_LPR = 6;
+        private const int LOG_NEWS = 7;
+        private const int LOG_UUCP = 8;
+        private const int LOG_CRON = 9;
+        private const int LOG_AUTHPRIV = 10;
+        private const int LOG_FTP = 11;
+        private const int LOG_LOCAL0 = 16;
+        private const int LOG_LOCAL1 = 17;
+        private const int LOG_LOCAL2 = 18;
+        private const int LOG_LOCAL3 = 19;
+        private const int LOG_LOCAL4 = 20;
+        private const int LOG_LOCAL5 = 21;
+        private const int LOG_LOCAL6 = 22;
+        private const int LOG_LOCAL7 = 23;
         
         //
         // Syslog priorities (as defined in syslog.h)
         // 
-        private static readonly int LOG_ERR = 3;
-        private static readonly int LOG_WARNING = 4;
-        private static readonly int LOG_INFO = 6;
+        private const int LOG_ERR = 3;
+        private const int LOG_WARNING = 4;
+        private const int LOG_INFO = 6;
     }
 
 }

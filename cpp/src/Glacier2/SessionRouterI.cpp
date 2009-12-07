@@ -715,8 +715,10 @@ Glacier2::SessionRouterI::SessionRouterI(const InstancePtr& instance,
     _sessionThread(_sessionTimeout > IceUtil::Time() ? new SessionThread(this, _sessionTimeout) : 0),
     _routersByConnectionHint(_routersByConnection.end()),
     _routersByCategoryHint(_routersByCategory.end()),
+    _sessionPingCallback(newCallback_Object_ice_ping(this, &SessionRouterI::sessionPingException)),
     _destroy(false)
 {
+
     //
     // This session router is used directly as servant for the main
     // Glacier2 router Ice object.
@@ -802,6 +804,8 @@ Glacier2::SessionRouterI::destroy()
         
         sessionThread = _sessionThread;
         _sessionThread = 0;
+
+        _sessionPingCallback = 0; // Break cyclic reference count.
     }
 
     //
@@ -943,7 +947,11 @@ Glacier2::SessionRouterI::refreshSession(const Ice::Current& current)
     }
     router->updateTimestamp();
 
-    // XXX - TODO ping session async when new async mapping available!
+    //
+    // Ping the session to ensure it does not timeout.
+    //
+    assert(_sessionPingCallback);
+    router->getSession()->begin_ice_ping(_sessionPingCallback, current.con);
 }
 
 void
@@ -1133,6 +1141,12 @@ Glacier2::SessionRouterI::expireSessions()
             
         (*p)->destroy(new DestroyCB(_sessionTraceLevel, _instance->logger()));
     }
+}
+
+void
+Glacier2::SessionRouterI::sessionPingException(const Ice::Exception&, const Ice::ConnectionPtr& con)
+{
+    destroySession(con);
 }
 
 bool

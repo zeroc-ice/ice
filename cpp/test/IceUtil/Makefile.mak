@@ -18,7 +18,8 @@ SUBDIRS		= condvar \
                   uuid \
                   ctrlCHandler \
 		  timer \
-		  priority
+		  priority \
+		  fileLock
 
 $(EVERYTHING)::
 	@for %i in ( $(SUBDIRS) ) do \

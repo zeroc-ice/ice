@@ -33,7 +33,6 @@ public abstract class EventHandler
     internal int _ready = 0;
     internal int _pending = 0;
     internal int _started = 0;
-    internal int _completedSynchronously = 0;
     internal bool _finish = false;
     
     internal int _registered = 0;

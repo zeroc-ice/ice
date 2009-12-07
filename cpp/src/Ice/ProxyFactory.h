@@ -40,7 +40,7 @@ public:
 
     Ice::ObjectPrx referenceToProxy(const ReferencePtr&) const;
 
-    void checkRetryAfterException(const Ice::LocalException&, const ReferencePtr&, OutgoingAsync*, int&) const;
+    int checkRetryAfterException(const Ice::LocalException&, const ReferencePtr&, bool, int&) const;
 
 private:
 

@@ -21,5 +21,12 @@ namespace Glacier2.chat.client
     /// </summary>
     public partial class App : System.Windows.Application
     {
+    
+        public void start(object sender, StartupEventArgs e)
+        {
+            ChatWindow window = new ChatWindow();
+            window.Show();
+            window.doLogin();
+        }
     }
 }

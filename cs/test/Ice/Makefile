@@ -18,12 +18,15 @@ SUBDIRS		= application \
 		  faultTolerance \
 		  info \
 		  inheritance \
+		  invoke \
 		  hold \
 		  location \
 		  objects \
 		  binding \
 		  proxy \
 		  operations \
+		  ami \
+		  dispatcher \
 		  slicing \
 		  checksum \
 		  stream \

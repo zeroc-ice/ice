@@ -10,20 +10,20 @@
 
 #
 # This script upgrades the IceGrid registry database environment for
-# 3.0.x version of IceGrid to the new format.
+# 3.1.x or 3.2.x version of IceGrid to the new format (>= 3.3).
 #
 # Usage:
 #
 # python upgradeicegrid.py olddbenv newdbenv
 #
-# Where:
+# Where for example:
 #
 # olddbenv is the path of the Ice 3.1.x registry database environment
-# newdbenv is the path of the Ice 3.2 registry database environment
+# newdbenv is the path of new registry database environment
 #
 #
-# NOTE: the 3.1 slice definitions for the IceGrid database are stored
-# in the icegrid-slice.3.1.tar.gz file. These definitions are used by
+# NOTE: the 3.x slice definitions for the IceGrid database are stored
+# in the icegrid-slice.3.x.tar.gz file. These definitions are used by
 # the script to perform the database transformation.
 #
 
@@ -46,6 +46,9 @@ if win32:
 #
 def usage():
     print "Usage: " + sys.argv[0] + " [options] olddbenv newdbenv"
+    print
+    print "This script upgrades a 3.1 or 3.2 IceGrid registry database environment"
+    print "to an IceGrid registry 3.3 or superior database environment."
     print
     print "Options:"
     print "-h    Show this message."

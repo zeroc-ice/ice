@@ -421,12 +421,13 @@ namespace IceInternal
             buf.b.position(ret);
         }
 
-        public bool startWrite(Buffer buf, AsyncCallback callback, object state)
+        public bool startWrite(Buffer buf, AsyncCallback callback, object state, out bool completed)
         {
             if(!_incoming && _state < StateConnected)
             {
                 Debug.Assert(_addr != null);
                 _writeResult = Network.doConnectAsync(_fd, _addr, callback, state);
+                completed = false;
                 return _writeResult.CompletedSynchronously;
             }
 
@@ -465,6 +466,7 @@ namespace IceInternal
                 }
             }
 
+            completed = true;
             return _writeResult.CompletedSynchronously;
         }
 
@@ -854,6 +856,6 @@ namespace IceInternal
         // to get the maximum payload.
         //
         private const int _udpOverhead = 20 + 8;
-        private static readonly int _maxPacketSize = 65535 - _udpOverhead;
+        private const int _maxPacketSize = 65535 - _udpOverhead;
     }
 }

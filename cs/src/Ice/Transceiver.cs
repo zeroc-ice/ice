@@ -60,7 +60,7 @@ namespace IceInternal
         // will be invoked in the same thread as beginWrite. The request
         // will be canceled upon the termination of the thread that calls beginWrite.
         //
-        bool startWrite(Buffer buf, AsyncCallback callback, object state);
+        bool startWrite(Buffer buf, AsyncCallback callback, object state, out bool completed);
         void finishWrite(Buffer buf);
 
         string type();

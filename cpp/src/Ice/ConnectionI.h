@@ -28,6 +28,7 @@
 #include <Ice/TraceLevelsF.h>
 #include <Ice/OutgoingAsyncF.h>
 #include <Ice/EventHandler.h>
+#include <Ice/Dispatcher.h>
 
 #include <deque>
 #include <memory>
@@ -95,7 +96,7 @@ public:
     void monitor(const IceUtil::Time&);
 
     bool sendRequest(IceInternal::Outgoing*, bool, bool);
-    bool sendAsyncRequest(const IceInternal::OutgoingAsyncPtr&, bool, bool);
+    IceInternal::AsyncStatus sendAsyncRequest(const IceInternal::OutgoingAsyncPtr&, bool, bool);
 
     void prepareBatchRequest(IceInternal::BasicStream*);
     void finishBatchRequest(IceInternal::BasicStream*, bool);
@@ -104,7 +105,7 @@ public:
     virtual void flushBatchRequests(); // From Connection.
 
     bool flushBatchRequests(IceInternal::BatchOutgoing*);
-    bool flushAsyncBatchRequests(const IceInternal::BatchOutgoingAsyncPtr&);
+    IceInternal::AsyncStatus flushAsyncBatchRequests(const IceInternal::BatchOutgoingAsyncPtr&);
 
     void sendResponse(IceInternal::BasicStream*, Byte);
     void sendNoResponse();
@@ -138,6 +139,11 @@ public:
     void exception(const LocalException&);
     void invokeException(const LocalException&, int);
 
+    void dispatch(const StartCallbackPtr&, const std::vector<IceInternal::OutgoingAsyncMessageCallbackPtr>&,
+                  Byte, Int, Int, const IceInternal::ServantManagerPtr&, const ObjectAdapterPtr&, 
+                  const IceInternal::OutgoingAsyncPtr&, IceInternal::BasicStream&);
+    void finish();
+
 private:
 
     enum State
@@ -154,31 +160,32 @@ private:
     struct OutgoingMessage
     {
         OutgoingMessage(IceInternal::BasicStream* str, bool comp) : 
-	    stream(str), out(0), compress(comp), response(false), adopted(false)
+	    stream(str), out(0), compress(comp), requestId(0), adopted(false), isSent(false)
 	{
 	}
 
-        OutgoingMessage(IceInternal::OutgoingMessageCallback* o, IceInternal::BasicStream* str, bool comp, bool resp) :
-	    stream(str), out(o), compress(comp), response(resp), adopted(false)
+        OutgoingMessage(IceInternal::OutgoingMessageCallback* o, IceInternal::BasicStream* str, bool comp, int rid) :
+	    stream(str), out(o), compress(comp), requestId(rid), adopted(false), isSent(false)
 	{
 	}
 
         OutgoingMessage(const IceInternal::OutgoingAsyncMessageCallbackPtr& o, IceInternal::BasicStream* str, 
-                        bool comp, bool resp) :
-	    stream(str), out(0), outAsync(o), compress(comp), response(resp), adopted(false)
+                        bool comp, int rid) :
+	    stream(str), out(0), outAsync(o), compress(comp), requestId(rid), adopted(false), isSent(false)
 	{
 	}
 
         void adopt(IceInternal::BasicStream*);
-        void sent(ConnectionI*, bool);
+        bool sent(ConnectionI*, bool);
         void finished(const Ice::LocalException&);
 
         IceInternal::BasicStream* stream;
         IceInternal::OutgoingMessageCallback* out;
         IceInternal::OutgoingAsyncMessageCallbackPtr outAsync;
         bool compress;
-        bool response;
+        int requestId;
         bool adopted;
+        bool isSent;
     };
 
     ConnectionI(const IceInternal::InstancePtr&, const IceInternal::ConnectionReaperPtr&, 
@@ -197,7 +204,7 @@ private:
     bool initialize(IceInternal::SocketOperation = IceInternal::SocketOperationNone);
     bool validate(IceInternal::SocketOperation = IceInternal::SocketOperationNone);
     void sendNextMessage(std::vector<IceInternal::OutgoingAsyncMessageCallbackPtr>&);
-    bool sendMessage(OutgoingMessage&);
+    IceInternal::AsyncStatus sendMessage(OutgoingMessage&);
 
     void doCompress(IceInternal::BasicStream&, IceInternal::BasicStream&);
     void doUncompress(IceInternal::BasicStream&, IceInternal::BasicStream&);
@@ -262,6 +269,7 @@ private:
     ObjectAdapterPtr _adapter;
     IceInternal::ServantManagerPtr _servantManager;
 
+    const DispatcherPtr _dispatcher;
     const LoggerPtr _logger;
     const IceInternal::TraceLevelsPtr _traceLevels;
     const IceInternal::ThreadPoolPtr _threadPool;

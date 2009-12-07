@@ -98,6 +98,27 @@ private:
     static const char* _name;
 };
 
+class ICE_UTIL_API FileLockException : public Exception
+{
+public:
+
+    FileLockException(const char*, int, int, const std::string&);
+    virtual ~FileLockException() throw();
+    virtual std::string ice_name() const;
+    virtual void ice_print(std::ostream&) const;
+    virtual Exception* ice_clone() const;
+    virtual void ice_throw() const;
+
+    std::string path() const;
+    int error() const;
+
+private:
+
+    const int _error;
+    static const char* _name;
+    std::string _path;
+};
+
 }
 
 #endif

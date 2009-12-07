@@ -6,9 +6,8 @@
 // ICE_LICENSE file included in this distribution.
 //
 // **********************************************************************
-package Glacier2;
 
-import javax.swing.SwingUtilities;
+package Glacier2;
 
 /**
  * A helper class for using Glacier2 with GUI applications.
@@ -240,10 +239,7 @@ public class SessionHelper
         }
         if(_adapter == null)
         {
-            // TODO: Depending on the resolution of
-            // http://bugzilla/bugzilla/show_bug.cgi?id=4264 the OA
-            // name could be an empty string.
-            _adapter = _communicator.createObjectAdapterWithRouter(java.util.UUID.randomUUID().toString(), _router);
+            _adapter = _communicator.createObjectAdapterWithRouter("", _router);
             _adapter.activate();
         }
         return _adapter;
@@ -340,7 +336,7 @@ public class SessionHelper
             // hooks.
         }
 
-        SwingUtilities.invokeLater(new Runnable()
+        dispatchCallback(new Runnable()
         {
             public void run()
             {
@@ -408,7 +404,7 @@ public class SessionHelper
         _communicator = null;
 
         // Notify the callback that the session is gone.
-        SwingUtilities.invokeLater(new Runnable()
+        dispatchCallback(new Runnable()
         {
             public void run()
             {
@@ -429,7 +425,7 @@ public class SessionHelper
         catch(final Ice.LocalException ex)
         {
             _destroy = true;
-            SwingUtilities.invokeLater(new Runnable()
+            dispatchCallback(new Runnable()
             {
                 public void run()
                 {
@@ -445,7 +441,7 @@ public class SessionHelper
             {
                 try
                 {
-                    SwingUtilities.invokeAndWait(new Runnable()
+                    dispatchCallbackAndWait(new Runnable()
                     {
                         public void run()
                         {
@@ -468,7 +464,7 @@ public class SessionHelper
                     {
                     }
 
-                    SwingUtilities.invokeLater(new Runnable()
+                    dispatchCallback(new Runnable()
                     {
                         public void run()
                         {
@@ -478,6 +474,43 @@ public class SessionHelper
                 }
             }
         }).start();
+    }
+
+    private void
+    dispatchCallback(Runnable runnable)
+    {
+        if(_initData.dispatcher != null)
+        {
+            _initData.dispatcher.dispatch(runnable, null);
+        }
+        else
+        {
+            runnable.run();
+        }
+    }
+
+    private void
+    dispatchCallbackAndWait(final Runnable runnable)
+    {
+        if(_initData.dispatcher != null)
+        {
+            final java.util.concurrent.Semaphore sem = new java.util.concurrent.Semaphore(0);
+            _initData.dispatcher.dispatch(
+                new Runnable()
+                {
+                    public void 
+                    run()
+                    {
+                        runnable.run();
+                        sem.release();
+                    }
+                }, null);
+            sem.acquireUninterruptibly();
+        }
+        else
+        {
+            runnable.run();
+        }
     }
 
     private Ice.InitializationData _initData;

@@ -11,8 +11,6 @@ package test.Ice.timeout;
 
 import java.io.PrintWriter;
 
-import test.Ice.timeout.Test.AMI_Timeout_sendData;
-import test.Ice.timeout.Test.AMI_Timeout_sleep;
 import test.Ice.timeout.Test.TimeoutPrx;
 import test.Ice.timeout.Test.TimeoutPrxHelper;
 
@@ -62,41 +60,27 @@ public class AllTests
         private boolean _called;
     }
 
-    private static class AMISendData extends AMI_Timeout_sendData
+    private static class CallbackSuccess extends Ice.AsyncCallback
     {
         public void
-        ice_response()
+        completed(Ice.AsyncResult result)
         {
-            callback.called();
-        }
-
-        public void
-        ice_exception(Ice.LocalException ex)
-        {
-            test(false);
-        }
-
-        public void
-        check()
-        {
-            callback.check();
-        }
-
-        private Callback callback = new Callback();
-    }
-
-    private static class AMISendDataEx extends AMI_Timeout_sendData
-    {
-        public void
-        ice_response()
-        {
-            test(false);
-        }
-
-        public void
-        ice_exception(Ice.LocalException ex)
-        {
-            test(ex instanceof Ice.TimeoutException);
+            try
+            {
+                TimeoutPrx p = TimeoutPrxHelper.uncheckedCast(result.getProxy());
+                if(result.getOperation().equals("sendData"))
+                {
+                    p.end_sendData(result);
+                }
+                else if(result.getOperation().equals("sleep"))
+                {
+                    p.end_sleep(result);
+                }
+            }
+            catch(Ice.LocalException ex)
+            {
+                test(false);
+            }
             callback.called();
         }
 
@@ -109,42 +93,32 @@ public class AllTests
         private Callback callback = new Callback();
     }
 
-    private static class AMISleep extends AMI_Timeout_sleep
+    private static class CallbackFail extends Ice.AsyncCallback
     {
         public void
-        ice_response()
+        completed(Ice.AsyncResult result)
         {
-            callback.called();
-        }
-
-        public void
-        ice_exception(Ice.LocalException ex)
-        {
-            test(false);
-        }
-
-        public void
-        check()
-        {
-            callback.check();
-        }
-
-        private Callback callback = new Callback();
-    }
-
-    private static class AMISleepEx extends AMI_Timeout_sleep
-    {
-        public void
-        ice_response()
-        {
-            test(false);
-        }
-
-        public void
-        ice_exception(Ice.LocalException ex)
-        {
-            test(ex instanceof Ice.TimeoutException);
-            callback.called();
+            try
+            {
+                TimeoutPrx p = TimeoutPrxHelper.uncheckedCast(result.getProxy());
+                if(result.getOperation().equals("sendData"))
+                {
+                    p.end_sendData(result);
+                }
+                else if(result.getOperation().equals("sleep"))
+                {
+                    p.end_sleep(result);
+                }
+                test(false);
+            }
+            catch(Ice.TimeoutException ex)
+            {
+                callback.called();
+            }
+            catch(Ice.LocalException ex)
+            {
+                test(false);
+            }
         }
 
         public void
@@ -299,8 +273,8 @@ public class AllTests
             // Expect TimeoutException.
             //
             TimeoutPrx to = TimeoutPrxHelper.uncheckedCast(obj.ice_timeout(500 * mult));
-            AMISleepEx cb = new AMISleepEx();
-            to.sleep_async(cb, 2000 * mult);
+            CallbackFail cb = new CallbackFail();
+            to.begin_sleep(2000 * mult, cb);
             cb.check();
         }
         {
@@ -309,8 +283,8 @@ public class AllTests
             //
             timeout.op(); // Ensure adapter is active.
             TimeoutPrx to = TimeoutPrxHelper.uncheckedCast(obj.ice_timeout(1500 * mult));
-            AMISleep cb = new AMISleep();
-            to.sleep_async(cb, 500 * mult);
+            CallbackSuccess cb = new CallbackSuccess();
+            to.begin_sleep(500 * mult, cb);
             cb.check();
         }
         out.println("ok");
@@ -332,8 +306,8 @@ public class AllTests
             {
                 seq = new byte[5 * 1024];
             }
-            AMISendDataEx cb = new AMISendDataEx();
-            to.sendData_async(cb, seq);
+            CallbackFail cb = new CallbackFail();
+            to.begin_sendData(seq, cb);
             cb.check();
         }
         {
@@ -352,8 +326,8 @@ public class AllTests
             {
                 seq = new byte[5 * 1024];
             }
-            AMISendData cb = new AMISendData();
-            to.sendData_async(cb, seq);
+            CallbackSuccess cb = new CallbackSuccess();
+            to.begin_sendData(seq, cb);
             cb.check();
         }
         out.println("ok");

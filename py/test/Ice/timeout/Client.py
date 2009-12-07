@@ -15,7 +15,7 @@ slice_dir = Ice.getSliceDir()
 if not slice_dir:
     print sys.argv[0] + ': Slice directory not found.'
     sys.exit(1)
-Ice.loadSlice('-I' + slice_dir + ' Test.ice')
+Ice.loadSlice("'-I" + slice_dir + "' Test.ice")
 import AllTests
 
 def test(b):

@@ -300,7 +300,8 @@ Slice::CsGenerator::writeMarshalUnmarshalCode(Output &out,
                                               bool marshal,
                                               bool streamingAPI,
                                               bool isOutParam,
-                                              const string& patchParams)
+                                              const string& patchParams,
+					      bool newAMI)
 {
     string stream;
 

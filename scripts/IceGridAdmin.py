@@ -54,8 +54,8 @@ registryOptions = r' --Ice.Warn.Connections=0' + \
                   r' --Ice.ThreadPool.Client.SizeWarn=0' + \
                   r' --IceGrid.Registry.Client.ThreadPool.SizeWarn=0' + \
                   r' --Ice.ServerIdleTime=0' + \
-                  r' --IceGrid.Registry.DefaultTemplates=' + \
-                  os.path.abspath(os.path.join(TestUtil.toplevel, "cpp", "config", "templates.xml"))
+                  r' --IceGrid.Registry.DefaultTemplates="' + \
+                  os.path.abspath(os.path.join(TestUtil.toplevel, "cpp", "config", "templates.xml") + '"')
 
 def getDefaultLocatorProperty():
 
@@ -99,7 +99,7 @@ def startIceGridRegistry(testdir, dynamicRegistration = False):
         cmd = command + ' ' + TestUtil.getQtSqlOptions('IceGrid') + \
               r' --Ice.ProgramName=' + name + \
               r' --IceGrid.Registry.Client.Endpoints="default -p ' + str(iceGridPort + i) + '" ' + \
-              r' --IceGrid.Registry.Data=' + dataDir
+              r' --IceGrid.Registry.Data="' + dataDir + '" '
 
         if i > 0:
             cmd += r' --IceGrid.Registry.ReplicaName=' + name + ' ' + getDefaultLocatorProperty()
@@ -156,7 +156,7 @@ def startIceGridNode(testdir):
 
     print "starting icegrid node...",
     command = r' --nowarn ' + nodeOptions + getDefaultLocatorProperty() + \
-              r' --IceGrid.Node.Data=' + dataDir + \
+              r' --IceGrid.Node.Data="' + dataDir + '"' \
               r' --IceGrid.Node.Name=localnode' + \
               r' --IceGrid.Node.PropertiesOverride=' + overrideOptions
 
@@ -170,17 +170,14 @@ def startIceGridNode(testdir):
 
 def iceGridAdmin(cmd, ignoreFailure = False):
 
-    iceGridAdmin = ""
-    if TestUtil.isBCC2010() or TestUtil.isVC6():
-        iceGridAdmin = os.path.join(TestUtil.getServiceDir(), "icegridadmin")
-    else:
-        iceGridAdmin = os.path.join(TestUtil.getCppBinDir(), "icegridadmin")
+    iceGridAdmin = TestUtil.getIceGridAdmin()
 
     user = r"admin1"
     if cmd == "registry shutdown":
         user = r"shutdown"
     command = getDefaultLocatorProperty() + r" --IceGridAdmin.Username=" + user + " --IceGridAdmin.Password=test1 " + \
               r' -e "' + cmd + '"'
+
     if TestUtil.appverifier:
         TestUtil.setAppVerifierSettings([TestUtil.getIceGridAdmin()])
 
@@ -232,8 +229,8 @@ def iceGridTest(application, additionalOptions = "", applicationOptions = ""):
     
     if application != "":
         print "adding application...",
-        iceGridAdmin('application add -n ' + os.path.join(testdir, application) + ' ' + \
-                     '"test.dir=' + testdir + '" "ice.bindir=' + TestUtil.getCppBinDir() + '" ' + applicationOptions)
+        iceGridAdmin("application add -n '" + os.path.join(testdir, application) + "' " + \
+                     "test.dir='" + testdir + "' ice.bindir='" + TestUtil.getCppBinDir() + "' " + applicationOptions)
         print "ok"
 
     print "starting client...",

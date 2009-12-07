@@ -649,7 +649,7 @@ namespace IceInternal
             //
             for(int i = 0; IceInternal.PropertyNames.clPropNames[i] != null; ++i)
             {
-                if(prefix.StartsWith(IceInternal.PropertyNames.clPropNames[i] + "."))
+                if(prefix.StartsWith(IceInternal.PropertyNames.clPropNames[i] + ".", StringComparison.Ordinal))
                 {
                     return;
                 }
@@ -739,7 +739,7 @@ namespace IceInternal
                 Ice.RouterPrx router = Ice.RouterPrxHelper.uncheckedCast(_communicator.propertyToProxy(property));
                 if(router != null)
                 {
-                    if(propertyPrefix.EndsWith(".Router"))
+                    if(propertyPrefix.EndsWith(".Router", StringComparison.Ordinal))
                     {
                         string s = "`" + property + "=" + properties.getProperty(property) +
                             "': cannot set a router on a router; setting ignored";

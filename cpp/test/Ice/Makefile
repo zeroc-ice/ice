@@ -14,6 +14,7 @@ include $(top_srcdir)/config/Make.rules
 SUBDIRS		= proxy \
                   operations \
 		  exceptions \
+		  ami \
 		  info \
 		  inheritance \
 		  facets \
@@ -25,6 +26,7 @@ SUBDIRS		= proxy \
 		  gc \
 		  checksum \
 		  stream \
+		  dispatcher \
 		  hold \
 		  custom \
 		  binding \
@@ -36,7 +38,8 @@ SUBDIRS		= proxy \
 		  background \
 		  udp \
 		  defaultServant \
-		  threadPoolPriority
+		  threadPoolPriority \
+		  invoke
 
 $(EVERYTHING)::
 	@for subdir in $(SUBDIRS); \

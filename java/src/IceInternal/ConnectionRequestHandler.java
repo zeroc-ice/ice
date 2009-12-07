@@ -44,7 +44,7 @@ public class ConnectionRequestHandler implements RequestHandler
         }
     }
 
-    public boolean
+    public int
     sendAsyncRequest(OutgoingAsync out)
         throws LocalExceptionWrapper
     {
@@ -57,7 +57,7 @@ public class ConnectionRequestHandler implements RequestHandler
         return _connection.flushBatchRequests(out);
     }
 
-    public boolean
+    public int
     flushAsyncBatchRequests(BatchOutgoingAsync out)
     {
         return _connection.flushAsyncBatchRequests(out);

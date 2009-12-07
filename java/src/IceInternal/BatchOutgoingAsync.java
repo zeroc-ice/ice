@@ -9,18 +9,30 @@
 
 package IceInternal;
 
-public abstract class BatchOutgoingAsync extends OutgoingAsyncMessageCallback
+public class BatchOutgoingAsync extends Ice.AsyncResult implements OutgoingAsyncMessageCallback
 {
-    public final void
-    __sent(final Ice.ConnectionI connection)
+    public BatchOutgoingAsync(Instance instance, String operation, CallbackBase callback)
     {
-        __releaseCallback();
+        super(instance, operation, callback);
+    }
+
+    public boolean __sent(Ice.ConnectionI connection)
+    {
+        synchronized(_monitor)
+        {
+            _state |= Done | OK | Sent;
+            _monitor.notifyAll();
+            return true;
+        }
+    }
+
+    public void __sent()
+    {
+        __sentInternal();
     }
     
-    public final void
-    __finished(Ice.LocalException exc)
+    public void __finished(Ice.LocalException exc, boolean sent)
     {
         __exception(exc);
     }
-
 }

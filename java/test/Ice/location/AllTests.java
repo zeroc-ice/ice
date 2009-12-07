@@ -11,7 +11,7 @@ package test.Ice.location;
 
 import java.io.PrintWriter;
 
-import test.Ice.location.Test.AMI_Hello_sayHello;
+import test.Ice.location.Test.Callback_Hello_sayHello;
 import test.Ice.location.Test.HelloPrx;
 import test.Ice.location.Test.HelloPrxHelper;
 import test.Ice.location.Test.ServerManagerPrx;
@@ -328,21 +328,23 @@ public class AllTests
         test(++count == locator.getRequestCount());
         for(int i = 0; i < 1000; i++)
         {
-            class AMICallback extends AMI_Hello_sayHello
+            class AMICallback extends Callback_Hello_sayHello
             {
+                @Override
                 public void
-                ice_exception(Ice.LocalException ex)
+                exception(Ice.LocalException ex)
                 {
                     ex.printStackTrace();
                     test(false);
                 }
 
+                @Override
                 public void
-                ice_response()
+                response()
                 {
                 }
             };
-            hello.sayHello_async(new AMICallback());
+            hello.begin_sayHello(new AMICallback());
         }
         hello.ice_ping();
         test(locator.getRequestCount() > count && locator.getRequestCount() < count + 999);
@@ -354,21 +356,23 @@ public class AllTests
         hello = (HelloPrx)hello.ice_adapterId("unknown");
         for(int i = 0; i < 1000; i++)
         {
-            class AMICallback extends AMI_Hello_sayHello
+            class AMICallback extends Callback_Hello_sayHello
             {
+                @Override
                 public void
-                ice_exception(Ice.LocalException ex)
+                exception(Ice.LocalException ex)
                 {
                     test(ex instanceof Ice.NotRegisteredException);
                 }
 
+                @Override
                 public void
-                ice_response()
+                response()
                 {
                     test(false);
                 }
             };
-            hello.sayHello_async(new AMICallback());
+            hello.begin_sayHello(new AMICallback());
         }
         try
         {

@@ -17,7 +17,7 @@ namespace IceInternal
     public interface OutgoingMessageCallback
     {
         void sent(bool notify);
-        void finished(Ice.LocalException ex);
+        void finished(Ice.LocalException ex, bool sent);
     }
 
     public class Outgoing : OutgoingMessageCallback
@@ -388,13 +388,14 @@ namespace IceInternal
             }
         }
 
-        public void finished(Ice.LocalException ex)
+        public void finished(Ice.LocalException ex, bool sent)
         {
             lock(this)
             {
                 Debug.Assert(_state <= StateInProgress);
                 _state = StateFailed;
                 _exception = ex;
+                _sent = sent;
                 Monitor.Pulse(this);
             }
         }
@@ -575,7 +576,7 @@ namespace IceInternal
             }
         }
 
-        public void finished(Ice.LocalException ex)
+        public void finished(Ice.LocalException ex, bool sent)
         {
             lock(this)
             {

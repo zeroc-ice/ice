@@ -14,8 +14,11 @@ LIBNAME		= $(PKG).dll
 TARGETS		= $(bindir)/$(LIBNAME)
 POLICY_TARGET	= $(POLICY).dll
 
-SRCS		= AssemblyInfo.cs \
-            	  Application.cs
+SRCS		= SessionFactoryHelper.cs \
+		  SessionHelper.cs \
+		  SessionCallback.cs \
+		  AssemblyInfo.cs \
+		  Application.cs
 
 SLICE_SRCS	= $(SDIR)/PermissionsVerifier.ice \
 		  $(SDIR)/Router.ice \
@@ -45,5 +48,8 @@ ifeq ($(GACINSTALL),yes)
 install:: all
 	$(call installdata,../../lib/pkgconfig/$(PKG).pc,$(install_pkgconfigdir))
 endif
+
+clean::
+	-rm -f $(bindir)/$(PKG).xml
 
 include .depend

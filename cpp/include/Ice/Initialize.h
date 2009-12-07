@@ -16,6 +16,7 @@
 #include <Ice/LoggerF.h>
 #include <Ice/StreamF.h>
 #include <Ice/StatsF.h>
+#include <Ice/Dispatcher.h>
 #include <Ice/StringConverter.h>
 #include <Ice/BuiltinSequences.h>
 
@@ -47,8 +48,8 @@ ICE_API PropertiesPtr createProperties(StringSeq&, const PropertiesPtr& = 0, con
 ICE_API PropertiesPtr createProperties(int&, char*[], const PropertiesPtr& = 0, const StringConverterPtr& = 0);
 
 //
-// This class is used to notify user of when Ice threads
-// are started and stopped.
+// This class is used to notify user of when Ice threads are started
+// and stopped.
 //
 class ICE_API ThreadNotification : public IceUtil::Shared
 {
@@ -86,6 +87,7 @@ struct InitializationData
     StringConverterPtr stringConverter;
     WstringConverterPtr wstringConverter;
     ThreadNotificationPtr threadHook;
+    DispatcherPtr dispatcher;
 };
 
 ICE_API CommunicatorPtr initialize(int&, char*[], const InitializationData& = InitializationData(),

@@ -16,13 +16,19 @@
 #include <Ice/ObjectFactoryF.h>
 #include <Ice/Buffer.h>
 #include <Ice/Protocol.h>
-#include <Ice/StringConverter.h>
-#include <IceUtil/Unicode.h>
 
 namespace Ice
 {
 
 class UserException;
+
+template<typename charT> class BasicStringConverter;
+
+typedef BasicStringConverter<char> StringConverter;
+typedef IceUtil::Handle<StringConverter> StringConverterPtr;
+
+typedef BasicStringConverter<wchar_t> WstringConverter;
+typedef IceUtil::Handle<WstringConverter> WstringConverterPtr;
 
 }
 
@@ -32,47 +38,6 @@ namespace IceInternal
 class ICE_API BasicStream : public Buffer
 {
 public:
-
-    class StreamUTF8BufferI : public Ice::UTF8Buffer
-    {
-    public:
-
-        StreamUTF8BufferI(BasicStream& stream) : 
-            _stream(stream)
-        {
-        }
-
-        Ice::Byte*
-        getMoreBytes(size_t howMany, Ice::Byte* firstUnused)
-        {
-            assert(howMany > 0);
-
-            if(firstUnused != 0)
-            {
-                //
-                // Return unused bytes
-                //
-                _stream.b.resize(firstUnused - _stream.b.begin());
-            }
-
-            //
-            // Index of first unused byte
-            //
-            Container::size_type pos = _stream.b.size();
-
-            //
-            // Since resize may reallocate the buffer, when firstUnused != 0, the
-            // return value can be != firstUnused
-            //
-            _stream.resize(pos + howMany);
-
-            return &_stream.b[pos];
-        }
-
-    private:
-
-        BasicStream& _stream;
-    };
 
     typedef void (*PatchFunc)(void*, Ice::ObjectPtr&);
 
@@ -534,8 +499,9 @@ public:
         }
     }
     void write(const std::string*, const std::string*, bool = true);
-    void read(std::string& v, bool convert = true)
 
+    void readConverted(std::string&, Ice::Int);
+    void read(std::string& v, bool convert = true)
     {
         Ice::Int sz;
         readSize(sz);
@@ -547,7 +513,7 @@ public:
             }
             if(convert && _stringConverter != 0)
             {
-                _stringConverter->fromUTF8(i, i + sz, v);
+                readConverted(v, sz);
             }
             else
             {
@@ -564,25 +530,7 @@ public:
 
     void write(const std::wstring& v);
     void write(const std::wstring*, const std::wstring*);
-    void read(std::wstring& v)
-    {
-        Ice::Int sz;
-        readSize(sz);
-        if(sz > 0)
-        {
-            if(b.end() - i < sz)
-            {
-                throwUnmarshalOutOfBoundsException(__FILE__, __LINE__);
-            }
-
-            _wstringConverter->fromUTF8(i, i + sz, v);
-            i += sz;
-        }
-        else
-        {
-            v.clear();
-        }
-    }
+    void read(std::wstring&);
     void read(std::vector<std::wstring>&);
 
     void write(const Ice::ObjectPrx&);

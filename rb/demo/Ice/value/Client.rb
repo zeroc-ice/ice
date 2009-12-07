@@ -56,7 +56,7 @@ class Ice::Application
     end
 
     def run(args)
-        if args.length > 0:
+        if args.length > 0
             puts $0 + ": too many argumnets"
             return 1
         end
@@ -138,7 +138,7 @@ class Ice::Application
             puts $0 + ": Did not get the expected NoMethodError!"
             exit(false)
         rescue NoMethodError => ex
-            puts "==> " + ex
+            print "==> ", ex, "\n"
         end
 
         puts "\n"\

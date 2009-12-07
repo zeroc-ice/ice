@@ -201,8 +201,7 @@ IceRuby_ObjectPrx_ice_ids(int argc, VALUE* argv, VALUE self)
         long i = 0;
         for(vector<string>::iterator q = ids.begin(); q != ids.end(); ++q, ++i)
         {
-            RARRAY(result)->ptr[i] = createString(*q);
-            RARRAY(result)->len++; // Increment len for each new element to prevent premature GC.
+            RARRAY_PTR(result)[i] = createString(*q);
         }
 
         return result;
@@ -363,11 +362,10 @@ IceRuby_ObjectPrx_ice_getEndpoints(VALUE self)
 
         Ice::EndpointSeq seq = p->ice_getEndpoints();
         volatile VALUE result = createArray(seq.size());
-        Ice::EndpointSeq::size_type i = 0;
+        long i = 0;
         for(Ice::EndpointSeq::iterator q = seq.begin(); q != seq.end(); ++q, ++i)
         {
-            RARRAY(result)->ptr[i] = createEndpoint(seq[i]);
-            RARRAY(result)->len++; // Increment len for each new element to prevent premature GC.
+            RARRAY_PTR(result)[i] = createEndpoint(*q);
         }
         return result;
     }
@@ -396,13 +394,13 @@ IceRuby_ObjectPrx_ice_endpoints(VALUE self, VALUE seq)
             {
                 throw RubyException(rb_eTypeError, "unable to convert value to an array of endpoints");
             }
-            for(long i = 0; i < RARRAY(arr)->len; ++i)
+            for(long i = 0; i < RARRAY_LEN(arr); ++i)
             {
-                if(!checkEndpoint(RARRAY(arr)->ptr[i]))
+                if(!checkEndpoint(RARRAY_PTR(arr)[i]))
                 {
                     throw RubyException(rb_eTypeError, "array element is not an Ice::Endpoint");
                 }
-                Ice::EndpointPtr* e = reinterpret_cast<Ice::EndpointPtr*>(DATA_PTR(RARRAY(arr)->ptr[i]));
+                Ice::EndpointPtr* e = reinterpret_cast<Ice::EndpointPtr*>(DATA_PTR(RARRAY_PTR(arr)[i]));
                 assert(e);
                 endpoints.push_back(*e);
             }

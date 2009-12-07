@@ -83,12 +83,6 @@ public:
     virtual void skipEncapsulation();
     virtual void endEncapsulation();
 
-    virtual void startSeq(int, int);
-    virtual void checkSeq();
-    virtual void checkFixedSeq(int, int);
-    virtual void endSeq(int);
-    virtual void endElement();
-
     virtual void readPendingObjects();
 
     virtual void rewind();

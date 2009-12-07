@@ -25,6 +25,11 @@ public sealed class MyDerivedClassI : Test.MyDerivedClass
         current.adapter.getCommunicator().shutdown();
     }
 
+    public override void delay(int ms, Ice.Current current)
+    {
+        System.Threading.Thread.Sleep(ms);
+    }
+
     public override void opVoid(Ice.Current current)
     {
     }

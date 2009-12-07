@@ -108,10 +108,10 @@ IceInternal::ProxyFactory::referenceToProxy(const ReferencePtr& ref) const
     }
 }
 
-void
+int
 IceInternal::ProxyFactory::checkRetryAfterException(const LocalException& ex, 
                                                     const ReferencePtr& ref, 
-                                                    OutgoingAsync* out,
+                                                    bool sleep,
                                                     int& cnt) const
 {
     TraceLevelsPtr traceLevels = _instance->traceLevels();
@@ -147,11 +147,7 @@ IceInternal::ProxyFactory::checkRetryAfterException(const LocalException& ex,
                 out << "retrying operation call to add proxy to router\n" << ex;
             }
 
-            if(out)
-            {
-                out->__send();
-            }
-            return; // We must always retry, so we don't look at the retry count.
+            return 0; // We must always retry, so we don't look at the retry count.
         }
         else if(ref->isIndirect())
         {
@@ -252,17 +248,14 @@ IceInternal::ProxyFactory::checkRetryAfterException(const LocalException& ex,
         out << " because of exception\n" << ex;
     }
 
-    if(out)
-    {
-        out->__retry(interval);
-    }
-    else if(interval > 0)
+    if(sleep && interval > 0)
     {
         //
         // Sleep before retrying.
         //
         IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(interval));
     }
+    return interval;
 }
 
 IceInternal::ProxyFactory::ProxyFactory(const InstancePtr& instance) :

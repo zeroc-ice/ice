@@ -39,16 +39,17 @@ CPP_COMPILER		= VC90
 # change the following setting to reflect the installation location.
 #
 !if "$(THIRDPARTY_HOME)" == ""
-THIRDPARTY_HOME		= C:\Program Files\ZeroC\Ice-$(VERSION)-ThirdParty
-#THIRDPARTY_HOME	 = C:\Program Files (x86)\ZeroC\Ice-$(VERSION)-ThirdParty
+!if "$(PROCESSOR_ARCHITECTURE)" == "AMD64" || "$(PROCESSOR_ARCHITECTUREW6432)" == "AMD64"
+THIRDPARTY_HOME	 = $(PROGRAMFILES) (x86)\ZeroC\Ice-$(VERSION)-ThirdParty
+!else
+THIRDPARTY_HOME	 = $(PROGRAMFILES)\ZeroC\Ice-$(VERSION)-ThirdParty
+!endif
 !endif
 
 #
-# If you want to build the SQL database plugins for IceStorm and
-# IceGrid, set QT_HOME to the Qt installation directory.
+# Define if you want the Ice DLLs to have compiler specific names
 #
-#QT_HOME     = C:\Qt\4.5.3
-
+#UNIQUE_DLL_NAMES	= yes
 
 # ----------------------------------------------------------------------
 # Don't change anything below this line!
@@ -100,11 +101,12 @@ BCPLUSPLUS		= yes
 !endif
 
 !if "$(CPP_COMPILER)" == "BCC2010"
-libsuff		= \bcc10
+libsuff			= \bcc10
 !elseif "$(CPP_COMPILER)" == "VC60"
-libsuff		= \vc6
+libsuff			= \vc6
+UNIQUE_DLL_NAMES	= yes
 !else
-libsuff		= $(x64suffix)
+libsuff			= $(x64suffix)
 !endif
 
 !if "$(ice_src_dist)" != ""
@@ -121,8 +123,14 @@ CPPFLAGS        = -I"$(ice_dir)\include\stlport" $(CPPFLAGS)
 !endif
 !endif
 
+!if "$(UNIQUE_DLL_NAMES)" == "yes"
 !if "$(CPP_COMPILER)" == "VC60"
-COMPSUFFIX	= _vc6
+COMPSUFFIX	= vc60_
+!elseif "$(CPP_COMPILER)" == "VC90" || "$(CPP_COMPILER)" == "VC90_EXPRESS"
+COMPSUFFIX	= vc90_
+!elseif "$(CPP_COMPILER)" == "BCC2010"
+COMPSUFFIX	= bcc10_
+!endif
 !endif
 
 !if "$(OPTIMIZE)" != "yes"
@@ -133,8 +141,7 @@ RCFLAGS		= -D_DEBUG
 OPENSSL_LIBS            = ssleay32.lib libeay32.lib
 EXPAT_LIBS              = libexpat.lib
 
-QT_FLAGS		= -DQTSQL -I"$(QT_HOME)\include"
-QT_LIBS			= $(PRELIBPATH)"$(QT_HOME)\lib" QtSql$(LIBSUFFIX)4.lib QtCore$(LIBSUFFIX)4.lib
+QT_LIBS			= QtSql$(LIBSUFFIX)4.lib QtCore$(LIBSUFFIX)4.lib
 
 CPPFLAGS		= $(CPPFLAGS) -I$(includedir)
 ICECPPFLAGS		= -I$(slicedir)
@@ -143,7 +150,7 @@ SLICE2CPPFLAGS		= $(ICECPPFLAGS)
 !if "$(ice_src_dist)" != ""
 LDFLAGS			= $(LDFLAGS) $(PRELIBPATH)"$(libdir)"
 !else
-LDFLAGS			= $(LDFLAGS) $(PRELIBPATH)"$(ice_dir)\lib$(x64suffix)"
+LDFLAGS			= $(LDFLAGS) $(PRELIBPATH)"$(ice_dir)\lib$(libsuff)"
 !endif
 LDFLAGS			= $(LDFLAGS) $(LDPLATFORMFLAGS) $(CXXFLAGS)
 

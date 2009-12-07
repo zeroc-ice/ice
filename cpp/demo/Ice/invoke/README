@@ -7,7 +7,3 @@ $ server
 In a separate window, start the client:
 
 $ client
-
-To run the client using asynchronous calls use:
-
-$ client --async

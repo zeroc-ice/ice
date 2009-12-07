@@ -739,7 +739,7 @@ namespace Ice
                     // used without change on Windows and Mono.
                     //
                     Assembly a = Assembly.Load(
-                        "Mono.Posix, Version=1.0.5000.0, Culture=neutral, PublicKeyToken=0738eb9f132ed756");
+                        "Mono.Posix, Version=2.0.0.0, Culture=neutral, PublicKeyToken=0738eb9f132ed756");
                     Type sigs = a.GetType("Mono.Unix.Native.Signum");
                     object SIGHUP = Enum.Parse(sigs, "SIGHUP");
                     object SIGINT = Enum.Parse(sigs, "SIGINT");
@@ -810,7 +810,9 @@ namespace Ice
             // at run time, and it will never be executed on Mono.
             //
             [DllImport("kernel32.dll")]
-            private static extern bool SetConsoleCtrlHandler(EventHandler eh, bool add);
+            [return: MarshalAsAttribute(UnmanagedType.Bool)] 
+            private static extern bool 
+            SetConsoleCtrlHandler(EventHandler eh, [MarshalAsAttribute(UnmanagedType.Bool)]bool add);
 #endif
         }
     }

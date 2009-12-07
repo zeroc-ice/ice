@@ -170,6 +170,14 @@ DatabaseCache::DatabaseCache(const Ice::CommunicatorPtr& communicator,
                              bool requiresBlob)
 {
     Ice::PropertiesPtr properties = communicator->getProperties();
+    
+    //
+    // File lock to prevent multiple process open the same db env.
+    //
+    if(type == "QSQLITE")
+    {
+        _fileLock = new IceUtilInternal::FileLock(name + ".lock");
+    }
 
     _connection = QSqlDatabase::addDatabase(type.c_str(), IceUtil::generateUUID().c_str());
     _connection.setDatabaseName(name.c_str());

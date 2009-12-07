@@ -34,7 +34,7 @@ public class Server
                     usage();
                     return 0;
                 }
-                else if(!args[i].StartsWith("--"))
+                else if(!args[i].StartsWith("--", StringComparison.CurrentCulture))
                 {
                     Console.Error.WriteLine("Server: unknown option `" + args[i] + "'");
                     usage();

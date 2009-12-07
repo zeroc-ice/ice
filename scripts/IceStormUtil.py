@@ -129,7 +129,7 @@ class Replicated(IceStormUtil):
 
             sqlOptions = TestUtil.getQtSqlOptions('IceStorm', dbHome)
             if len(sqlOptions) == 0:
-                self.iceStormDBEnv.append(" --Freeze.DbEnv.IceStorm.DbHome=%s" % dbHome)
+                self.iceStormDBEnv.append(' --Freeze.DbEnv.IceStorm.DbHome="%s"' % dbHome)
             else:
                 self.iceStormDBEnv.append(" %s" % sqlOptions)
             self.procs.append(None)
@@ -229,7 +229,7 @@ class NonReplicated(IceStormUtil):
 
         sqlOptions = TestUtil.getQtSqlOptions('IceStorm', self.dbHome)
         if len(sqlOptions) == 0:
-            self.iceStormDBEnv = " --Freeze.DbEnv.IceStorm.DbHome=" + self.dbHome
+            self.iceStormDBEnv = ' --Freeze.DbEnv.IceStorm.DbHome="%s"' % self.dbHome
         else:
             self.iceStormDBEnv = " " + sqlOptions
 

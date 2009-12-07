@@ -25,6 +25,12 @@ public:
     {
     }
 
+    ScopedArray(const ScopedArray& other)
+    {
+        _ptr = other._ptr;
+        const_cast<ScopedArray&>(other)._ptr = 0;
+    }
+
     ~ScopedArray()
     {
         if(_ptr != 0)

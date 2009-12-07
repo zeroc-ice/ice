@@ -13,6 +13,7 @@ namespace IceInternal
     using System.Collections;
     using System.Diagnostics;
     using IceUtilInternal;
+    using System.Globalization;
 
     sealed class TraceUtil
     {
@@ -23,7 +24,7 @@ namespace IceInternal
                 int p = str.pos();
                 str.pos(0);
 
-                using(System.IO.StringWriter s = new System.IO.StringWriter())
+                using(System.IO.StringWriter s = new System.IO.StringWriter(CultureInfo.CurrentCulture))
                 {
                     byte type = printMessage(s, str);
 
@@ -40,7 +41,7 @@ namespace IceInternal
                 int p = str.pos();
                 str.pos(0);
 
-                using(System.IO.StringWriter s = new System.IO.StringWriter())
+                using(System.IO.StringWriter s = new System.IO.StringWriter(CultureInfo.CurrentCulture))
                 {
                     byte type = printMessage(s, str);
 
@@ -57,7 +58,7 @@ namespace IceInternal
                 int p = str.pos();
                 str.pos(0);
 
-                using(System.IO.StringWriter s = new System.IO.StringWriter())
+                using(System.IO.StringWriter s = new System.IO.StringWriter(CultureInfo.CurrentCulture))
                 {
                     s.Write(heading);
                     printMessage(s, str);
@@ -76,7 +77,7 @@ namespace IceInternal
             {
                 if(slicingIds.Add(typeId))
                 {
-                    using(System.IO.StringWriter s = new System.IO.StringWriter())
+                    using(System.IO.StringWriter s = new System.IO.StringWriter(CultureInfo.CurrentCulture))
                     {
                         s.Write("unknown " + kind + " type `" + typeId + "'");
                         logger.trace(slicingCat, s.ToString());
@@ -464,7 +465,7 @@ namespace IceInternal
                 int p = str.pos();
                 str.pos(0);
 
-                using(System.IO.StringWriter s = new System.IO.StringWriter())
+                using(System.IO.StringWriter s = new System.IO.StringWriter(CultureInfo.CurrentCulture))
                 {
                     s.Write(heading);
                     printHeader(s, str);

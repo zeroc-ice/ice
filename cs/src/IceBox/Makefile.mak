@@ -45,18 +45,23 @@ clean::
 	del /q $(bindir)\iceboxnet.pdb
 !endif
 
+clean::
+	del /q $(bindir)\$(PKG).xml
+
+
 install:: all
 	copy $(LIBNAME) $(install_bindir)
 	copy $(bindir)\$(PKG).xml $(install_bindir)
+!if "$(generate_policies)" == "yes"
 	copy $(bindir)\$(POLICY) $(install_bindir)
 	copy $(bindir)\$(POLICY_TARGET) $(install_bindir)
+!endif
 !if "$(DEBUG)" == "yes"
 	copy $(bindir)\$(PKG).pdb $(install_bindir)
 !endif
 
 install:: all
 	copy $(ICEBOXNET) $(install_bindir)
-	copy $(ICEBOXNET:.exe=.exe.config) $(install_bindir)
 !if "$(DEBUG)" == "yes"
 	copy $(bindir)\iceboxnet.pdb $(install_bindir)
 !endif

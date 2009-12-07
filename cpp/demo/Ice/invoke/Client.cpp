@@ -31,106 +31,6 @@ operator<<(ostream& out, Demo::Color c)
     return out;
 }
 
-class AMI_Object_ice_invokeI : public Ice::AMI_Object_ice_invoke
-{
-public:
-
-    virtual void
-    ice_response(bool result, const Ice::ByteSeq& outParams)
-    {
-        if(!result)
-        {
-            cout << "Unknown user exception" << endl;
-        }
-    }
-
-    virtual void
-    ice_exception(const Ice::Exception& ex)
-    {
-        cout << ex << endl;
-    }
-};
-
-class AMI_Object_ice_invokeGetValuesI : public Ice::AMI_Object_ice_invoke
-{
-public:
-
-    AMI_Object_ice_invokeGetValuesI(const Ice::CommunicatorPtr& communicator) : 
-        _communicator(communicator)
-    {
-    }
-
-    virtual void
-    ice_response(bool result, const Ice::ByteSeq& outParams)
-    {
-        if(!result)
-        {
-            cout << "Unknown user exception" << endl;
-        }
-        else
-        {
-            //
-            // Unmarshal the results.
-            //
-            Ice::InputStreamPtr in = Ice::createInputStream(_communicator, outParams);
-            Demo::CPtr c;
-            in->read(c);
-            string str = in->readString();
-            in->readPendingObjects();
-            cout << "Got string `" << str << "' and class: s.name=" << c->s.name
-                 << ", s.value=" << c->s.value << endl;
-        }
-    }
-
-    virtual void
-    ice_exception(const Ice::Exception& ex)
-    {
-        cout << ex << endl;
-    }
-
-private:
-
-    Ice::CommunicatorPtr _communicator;
-};
-
-class AMI_Object_ice_invokeThrowPrintFailureI : public Ice::AMI_Object_ice_invoke
-{
-public:
-
-    AMI_Object_ice_invokeThrowPrintFailureI(const Ice::CommunicatorPtr& communicator) : 
-        _communicator(communicator)
-    {
-    }
-
-    virtual void
-    ice_response(bool result, const Ice::ByteSeq& outParams)
-    {
-        Ice::InputStreamPtr in = Ice::createInputStream(_communicator, outParams);
-        try
-        {
-            in->throwException();
-        }
-        catch(const Demo::PrintFailure&)
-        {
-            // Expected.
-        }
-        catch(const Ice::UserException&)
-        {
-            cout << "Unknown user exception" << endl;
-        }
-    }
-
-    virtual void
-    ice_exception(const Ice::Exception& ex)
-    {
-        cout << ex << endl;
-    }
-
-private:
-
-    Ice::CommunicatorPtr _communicator;
-};
-
 class InvokeClient : public Ice::Application
 {
 public:
@@ -163,14 +63,9 @@ InvokeClient::InvokeClient() :
 int
 InvokeClient::run(int argc, char* argv[])
 {
-    bool async = false;
-    if(argc == 2 && strcmp(argv[1], "--async") == 0)
+    if(argc > 1)
     {
-        async = true;
-    }
-    else if(argc > 1)
-    {
-        cerr << "Usage: " << appName() << " [--async]" << endl;
+        cerr << appName() << ": too many arguments" << endl;
         return EXIT_FAILURE;
     }
 
@@ -198,16 +93,9 @@ InvokeClient::run(int argc, char* argv[])
                 //
                 // Invoke operation.
                 //
-                if(async)
+                if(!obj->ice_invoke("printString", Ice::Normal, inParams, outParams))
                 {
-                    obj->ice_invoke_async(new AMI_Object_ice_invokeI(), "printString", Ice::Normal, inParams);
-                }
-                else
-                {
-                    if(!obj->ice_invoke("printString", Ice::Normal, inParams, outParams))
-                    {
-                        cout << "Unknown user exception" << endl;
-                    }
+                    cout << "Unknown user exception" << endl;
                 }
             }
             else if(ch == '2')
@@ -228,16 +116,9 @@ InvokeClient::run(int argc, char* argv[])
                 //
                 // Invoke operation.
                 //
-                if(async)
+                if(!obj->ice_invoke("printStringSequence", Ice::Normal, inParams, outParams))
                 {
-                    obj->ice_invoke_async(new AMI_Object_ice_invokeI(), "printStringSequence", Ice::Normal, inParams);
-                }
-                else
-                {
-                    if(!obj->ice_invoke("printStringSequence", Ice::Normal, inParams, outParams))
-                    {
-                        cout << "Unknown user exception" << endl;
-                    }
+                    cout << "Unknown user exception" << endl;
                 }
             }
             else if(ch == '3')
@@ -256,16 +137,9 @@ InvokeClient::run(int argc, char* argv[])
                 //
                 // Invoke operation.
                 //
-                if(async)
+                if(!obj->ice_invoke("printDictionary", Ice::Normal, inParams, outParams))
                 {
-                    obj->ice_invoke_async(new AMI_Object_ice_invokeI(), "printDictionary", Ice::Normal, inParams);
-                }
-                else
-                {
-                    if(!obj->ice_invoke("printDictionary", Ice::Normal, inParams, outParams))
-                    {
-                        cout << "Unknown user exception" << endl;
-                    }
+                    cout << "Unknown user exception" << endl;
                 }
             }
             else if(ch == '4')
@@ -281,16 +155,9 @@ InvokeClient::run(int argc, char* argv[])
                 //
                 // Invoke operation.
                 //
-                if(async)
+                if(!obj->ice_invoke("printEnum", Ice::Normal, inParams, outParams))
                 {
-                    obj->ice_invoke_async(new AMI_Object_ice_invokeI(), "printEnum", Ice::Normal, inParams);
-                }
-                else
-                {
-                    if(!obj->ice_invoke("printEnum", Ice::Normal, inParams, outParams))
-                    {
-                        cout << "Unknown user exception" << endl;
-                    }
+                    cout << "Unknown user exception" << endl;
                 }
             }
             else if(ch == '5')
@@ -309,16 +176,9 @@ InvokeClient::run(int argc, char* argv[])
                 //
                 // Invoke operation.
                 //
-                if(async)
+                if(!obj->ice_invoke("printStruct", Ice::Normal, inParams, outParams))
                 {
-                    obj->ice_invoke_async(new AMI_Object_ice_invokeI(), "printStruct", Ice::Normal, inParams);
-                }
-                else
-                {
-                    if(!obj->ice_invoke("printStruct", Ice::Normal, inParams, outParams))
-                    {
-                        cout << "Unknown user exception" << endl;
-                    }
+                    cout << "Unknown user exception" << endl;
                 }
             }
             else if(ch == '6')
@@ -344,16 +204,9 @@ InvokeClient::run(int argc, char* argv[])
                 //
                 // Invoke operation.
                 //
-                if(async)
+                if(!obj->ice_invoke("printStructSequence", Ice::Normal, inParams, outParams))
                 {
-                    obj->ice_invoke_async(new AMI_Object_ice_invokeI(), "printStructSequence", Ice::Normal, inParams);
-                }
-                else
-                {
-                    if(!obj->ice_invoke("printStructSequence", Ice::Normal, inParams, outParams))
-                    {
-                        cout << "Unknown user exception" << endl;
-                    }
+                    cout << "Unknown user exception" << endl;
                 }
             }
             else if(ch == '7')
@@ -373,16 +226,9 @@ InvokeClient::run(int argc, char* argv[])
                 //
                 // Invoke operation.
                 //
-                if(async)
+                if(!obj->ice_invoke("printClass", Ice::Normal, inParams, outParams))
                 {
-                    obj->ice_invoke_async(new AMI_Object_ice_invokeI(), "printClass", Ice::Normal, inParams);
-                }
-                else
-                {
-                    if(!obj->ice_invoke("printClass", Ice::Normal, inParams, outParams))
-                    {
-                        cout << "Unknown user exception" << endl;
-                    }
+                    cout << "Unknown user exception" << endl;
                 }
             }
             else if(ch == '8')
@@ -391,30 +237,22 @@ InvokeClient::run(int argc, char* argv[])
                 // Invoke operation.
                 //
                 Ice::ByteSeq inParams, outParams;
-                if(async)
+                if(!obj->ice_invoke("getValues", Ice::Normal, inParams, outParams))
                 {
-                    obj->ice_invoke_async(new AMI_Object_ice_invokeGetValuesI(communicator()), "getValues",
-                                          Ice::Normal, inParams);
+                    cout << "Unknown user exception" << endl;
+                    continue;
                 }
-                else
-                {
-                    if(!obj->ice_invoke("getValues", Ice::Normal, inParams, outParams))
-                    {
-                        cout << "Unknown user exception" << endl;
-                        continue;
-                    }
 
-                    //
-                    // Unmarshal the results.
-                    //
-                    Ice::InputStreamPtr in = Ice::createInputStream(communicator(), outParams);
-                    Demo::CPtr c;
-                    in->read(c);
-                    string str = in->readString();
-                    in->readPendingObjects();
-                    cout << "Got string `" << str << "' and class: s.name=" << c->s.name
-                         << ", s.value=" << c->s.value << endl;
-                }
+                //
+                // Unmarshal the results.
+                //
+                Ice::InputStreamPtr in = Ice::createInputStream(communicator(), outParams);
+                Demo::CPtr c;
+                in->read(c);
+                string str = in->readString();
+                in->readPendingObjects();
+                cout << "Got string `" << str << "' and class: s.name=" << c->s.name
+                     << ", s.value=" << c->s.value << endl;
             }
             else if(ch == '9')
             {
@@ -422,45 +260,30 @@ InvokeClient::run(int argc, char* argv[])
                 // Invoke operation.
                 //
                 Ice::ByteSeq inParams, outParams;
-                if(async)
+                if(obj->ice_invoke("throwPrintFailure", Ice::Normal, inParams, outParams))
                 {
-                    obj->ice_invoke_async(new AMI_Object_ice_invokeThrowPrintFailureI(communicator()),
-                                          "throwPrintFailure", Ice::Normal, inParams);
+                    cout << "Expected exception" << endl;
+                    continue;
                 }
-                else
-                {
-                    if(obj->ice_invoke("throwPrintFailure", Ice::Normal, inParams, outParams))
-                    {
-                        cout << "Expected exception" << endl;
-                        continue;
-                    }
 
-                    Ice::InputStreamPtr in = Ice::createInputStream(communicator(), outParams);
-                    try
-                    {
-                        in->throwException();
-                    }
-                    catch(const Demo::PrintFailure&)
-                    {
-                        // Expected.
-                    }
-                    catch(const Ice::UserException&)
-                    {
-                        cout << "Unknown user exception" << endl;
-                    }
+                Ice::InputStreamPtr in = Ice::createInputStream(communicator(), outParams);
+                try
+                {
+                    in->throwException();
+                }
+                catch(const Demo::PrintFailure&)
+                {
+                    // Expected.
+                }
+                catch(const Ice::UserException&)
+                {
+                    cout << "Unknown user exception" << endl;
                 }
             }
             else if(ch == 's')
             {
                 Ice::ByteSeq inParams, outParams;
-                if(async)
-                {
-                    obj->ice_invoke_async(new AMI_Object_ice_invokeI(), "shutdown", Ice::Normal, inParams);
-                }
-                else
-                {
-                    obj->ice_invoke("shutdown", Ice::Normal, inParams, outParams);
-                }
+                obj->ice_invoke("shutdown", Ice::Normal, inParams, outParams);
             }
             else if(ch == 'x')
             {

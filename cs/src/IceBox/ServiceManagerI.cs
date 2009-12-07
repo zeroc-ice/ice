@@ -301,7 +301,7 @@ class ServiceManagerI : ServiceManagerDisp_
             // will most likely need to be firewalled for security reasons.
             //
             Ice.ObjectAdapter adapter = null;
-            if(!properties.getProperty("IceBox.ServiceManager.Endpoints").Equals(""))
+            if(properties.getProperty("IceBox.ServiceManager.Endpoints").Length != 0)
             {
                 adapter = _communicator.createObjectAdapter("IceBox.ServiceManager");
 
@@ -955,7 +955,7 @@ class ServiceManagerI : ServiceManagerDisp_
                 }
                 for(int j = 0; j < serverArgs.Length; j++)
                 {
-                    if(serverArgs[j].StartsWith("--" + service + "."))
+                    if(serverArgs[j].StartsWith("--" + service + ".", StringComparison.Ordinal))
                     {
                         l.Add(serverArgs[j]);
                     }

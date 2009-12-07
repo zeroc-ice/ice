@@ -1,2 +1,0 @@
-Client.o: Client.cpp
-Server.o: Server.cpp

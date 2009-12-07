@@ -40,7 +40,7 @@ main(int argc, char** argv)
     }
     catch(const Ice::Exception& ex)
     {
-        cerr << ex << endl;
+        cerr << ex << ": " << ex.ice_stackTrace() << endl;
         status = EXIT_FAILURE;
     }
 

@@ -10,7 +10,7 @@
 
 import os, sys, fnmatch, re, getopt
 
-sys.path.append(os.path.join(os.path.dirname(__file__), "distribution", "lib"))
+sys.path.append(os.path.join(os.path.dirname(__file__), "lib"))
 from DistUtils import *
 
 #
@@ -37,10 +37,10 @@ includeSubDirs = [ \
 # Files to not include in the source distributions.
 #
 filesToRemove = [ \
-    "fixCopyright.py", \
-    "fixVersion.py", \
-    "FixUtil.py", \
-    "makedist.py", \
+    "distribution/bin/fixCopyright.py", \
+    "distribution/bin/fixVersion.py", \
+    "distribution/lib/FixUtil.py", \
+    "distribution/makedist.py", \
     "cpp/config/makegitignore.py", \
     "rb/config/Make.rules.Darwin", \
 ]
@@ -105,7 +105,7 @@ for (o, a) in opts:
         compareToDir = a
 
 cwd = os.getcwd()
-os.chdir(os.path.dirname(__file__))
+os.chdir(os.path.join(os.path.dirname(__file__), ".."))
 
 #
 # Get Ice versions.
@@ -241,23 +241,42 @@ for d in os.listdir('.'):
         move(os.path.join(d, "allDemos.py"), os.path.join(md, "allDemos.py"))
         os.rmdir(os.path.join(demoscriptDir, d))
 
-    if d == "vb":
-        continue
-
     if os.path.isdir(d) and os.path.exists(os.path.join(d, "demo")):
         copy(os.path.join(d, "demo"), os.path.join(demoDir, getMappingDir("demo", d)))
 
 rmFiles = []
 configSubstituteExprs = [(re.compile(regexpEscape("../../certs")), "../certs")]
+csprojSubstituteExprs = [(re.compile(regexpEscape("ZerocIce_Home=\"..\..\..\..\"")), "")]
 for root, dirnames, filesnames in os.walk(demoDir):
     for f in filesnames:
 
         if fnmatch.fnmatch(f, "config*"):
             substitute(os.path.join(root, f), configSubstituteExprs)
 
-        for m in [ "*.dsp", "*.dsw", "*.sln", "*.csproj", "*.vbproj", "*.exe.config", "Make*mak*"]:
-            if fnmatch.fnmatch(f, m):
-                rmFiles.append(os.path.join(root[len(demoDir) + 1:], f))
+        # Remove ZerocIce_Home setting from C# projects
+        if fnmatch.fnmatch(f, "*.csproj"):
+            substitute(os.path.join(root, f), csprojSubstituteExprs)
+
+        # Remove ZerocIce_Home setting from C++ projects
+        if fnmatch.fnmatch(f, "*.vcproj"):
+            foundGlobal = False
+            deleteLines = 0
+            globalLine = None
+            for line in fileinput.input(os.path.join(root, f), True):
+                if deleteLines > 0:
+                    deleteLines = deleteLines - 1
+                elif foundGlobal:
+                    if line.find("Name=\"ZerocIce_Home\"") != -1:
+                        deleteLines = 2
+                    else:
+                        print globalLine,
+                        print line,
+                    foundGlobal = False
+                elif line.find("<Global") != -1:
+                        foundGlobal = True
+                        globalLine = line
+                else:
+                    print line,
 
 for f in rmFiles: remove(os.path.join(demoDir, f))
 
@@ -296,7 +315,7 @@ for d in [srcDir, demoDir, distFilesDir, rpmBuildDir]:
 for (dir, archiveDir) in [(demoscriptDir, "Ice-" + version + "-demos")]:
     tarArchive(dir, verbose, archiveDir)
 
-for d in [srcDir]:
+for d in [srcDir, demoDir]:
     zipArchive(d, verbose)
 
 #
@@ -310,7 +329,7 @@ writeSrcDistReport("Ice", version, compareToDir, [srcDir, demoDir, distFilesDir,
 print "Cleaning up...",
 sys.stdout.flush()
 remove(srcDir)
-remove(demoDir)
+#remove(demoDir)
 remove(demoscriptDir)
 remove(rpmBuildDir)
 remove(distFilesDir)

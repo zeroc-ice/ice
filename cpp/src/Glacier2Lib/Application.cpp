@@ -143,10 +143,7 @@ Glacier2::Application::objectAdapter()
     IceUtil::Mutex::Lock lock(*IceInternal::Application::mutex);
     if(!_adapter)
     {
-        // TODO: Depending on the resolution of
-        // http://bugzilla/bugzilla/show_bug.cgi?id=4264 the OA
-        // name could be an empty string.
-        _adapter = communicator()->createObjectAdapterWithRouter(IceUtil::generateUUID(), router());
+        _adapter = communicator()->createObjectAdapterWithRouter("", router());
         _adapter->activate();
     }
     return _adapter;

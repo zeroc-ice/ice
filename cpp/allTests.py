@@ -15,6 +15,7 @@ for toplevel in [".", "..", "../..", "../../..", "../../../.."]:
     if os.path.exists(os.path.join(toplevel, "scripts", "TestUtil.py")):
         break
 else:
+    print "can't find toplevel directory!"
     raise "can't find toplevel directory!"
 
 sys.path.append(os.path.join(toplevel))
@@ -30,11 +31,13 @@ tests = [
     ("IceUtil/inputUtil",  ["once"]),
     ("IceUtil/uuid", ["once", "noappverifier"]), # This test is very slow with appverifier.
     ("IceUtil/timer", ["once"]),
+    ("IceUtil/fileLock", ["once"]),
     ("Slice/errorDetection", ["once"]),
     ("Slice/keyword", ["once"]),
     ("Ice/proxy", ["core"]),
     ("Ice/operations", ["core"]),
     ("Ice/exceptions", ["core"]),
+    ("Ice/ami", ["core"]),
     ("Ice/info", ["core", "noipv6", "nocompress"]),
     ("Ice/inheritance", ["core"]),
     ("Ice/facets", ["core"]),
@@ -46,6 +49,7 @@ tests = [
     ("Ice/slicing/exceptions", ["core"]),
     ("Ice/slicing/objects", ["core"]),
     ("Ice/gc", ["once"]),
+    ("Ice/dispatcher", ["once"]),
     ("Ice/checksum", ["core"]),
     ("Ice/stream", ["core", "novc6"]),
     ("Ice/hold", ["core"]),
@@ -58,11 +62,13 @@ tests = [
     ("Ice/stringConverter", ["core"]),
     ("Ice/udp", ["core"]),
     ("Ice/defaultServant", ["core"]),
+    ("Ice/invoke", ["core", "novc6"]),
     ("IceSSL/configuration", ["once", "novalgrind"]), # valgrind doesn't work well with openssl
     ("IceBox/configuration", ["core", "noipv6", "nobcc", "novc6"]),
     ("Freeze/dbmap", ["once", "novc6"]),
     ("Freeze/complex", ["once", "novc6"]),
     ("Freeze/evictor", ["core", "novc6"]),
+    ("Freeze/fileLock", ["core", "novc6"]),
     ("IceStorm/single", ["service", "novc6", "noappverifier"]),  # This test doensn't work with appverifier is sensitive to timeouts.
     ("IceStorm/federation", ["service", "novc6"]),
     ("IceStorm/federation2", ["service", "novc6"]),
@@ -72,7 +78,8 @@ tests = [
     ("IceStorm/repstress", ["service", "noipv6", "stress", "novc6"]),
     ("FreezeScript/dbmap", ["once", "novc6"]),
     ("FreezeScript/evictor", ["once", "novc6"]),
-    ("IceGrid/simple", ["service"]),
+    ("IceGrid/simple", ["service", "novc6"]),
+    ("IceGrid/fileLock", ["service", "nobcc", "novc6"]),
     ("IceGrid/deployer", ["service", "nobcc", "novc6"]),
     ("IceGrid/session", ["service", "nobcc", "novc6"]),
     ("IceGrid/update", ["service", "nobcc", "novc6"]),

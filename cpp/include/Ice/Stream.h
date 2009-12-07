@@ -38,6 +38,7 @@ enum StreamTraitType
     StreamTraitTypeIntEnum,     // Enums with more than 32767 enumerators
     StreamTraitTypeSequence,
     StreamTraitTypeDictionary,
+    StreamTraitTypeUserException,
     StreamTraitTypeUnknown
 };
 
@@ -65,6 +66,13 @@ template <typename T>
 struct StreamTrait< std::vector<T> >
 {
     static const ::Ice::StreamTraitType type = Ice::StreamTraitTypeSequence;
+    static const int enumLimit = 0;     // Used to implement enum range check
+};
+
+template<>
+struct StreamTrait<UserException>
+{
+    static const ::Ice::StreamTraitType type = Ice::StreamTraitTypeUserException;
     static const int enumLimit = 0;     // Used to implement enum range check
 };
 
@@ -211,12 +219,6 @@ public:
     virtual void startEncapsulation() = 0;
     virtual void endEncapsulation() = 0;
     virtual void skipEncapsulation() = 0;
-
-    virtual void startSeq(int, int) = 0;
-    virtual void checkSeq() = 0;
-    virtual void checkFixedSeq(int, int) = 0;
-    virtual void endSeq(int) = 0;
-    virtual void endElement() = 0;
 
     virtual void readPendingObjects() = 0;
 
@@ -691,6 +693,17 @@ struct StreamReader<StreamTraitTypeDictionary>
         }
     }
 };
+
+template<>          // Writer specialization for UserExceptions.
+struct StreamWriter<StreamTraitTypeUserException>
+{
+    template<typename T>
+    static void write(const ::Ice::OutputStreamPtr& outS, const T& v)
+    {
+        outS->writeException(v);
+    }
+};
+
 #endif
 
 class ICE_API ObjectReader : public ::Ice::Object

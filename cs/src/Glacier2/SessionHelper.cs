@@ -10,7 +10,6 @@
 using System;
 using System.Diagnostics;
 using System.Threading;
-using System.Windows.Threading;
 
 namespace Glacier2
 {
@@ -36,12 +35,6 @@ public class SessionHelper
             }
 
             public override void ice_exception(Ice.Exception ex)
-            {
-                _thread.done();
-                _helper.destroy();
-            }
-
-            public void ice_exception(Ice.UserException ex)
             {
                 _thread.done();
                 _helper.destroy();
@@ -264,10 +257,7 @@ public class SessionHelper
             }
             if(_adapter == null)
             {
-                // TODO: Depending on the resolution of
-                // http://bugzilla/bugzilla/show_bug.cgi?id=4264 the OA
-                // name could be an empty string.
-                _adapter = _communicator.createObjectAdapterWithRouter(Guid.NewGuid().ToString(), _router);
+                _adapter = _communicator.createObjectAdapterWithRouter("", _router);
                 _adapter.activate();
             }
             return _adapter;
@@ -336,18 +326,17 @@ public class SessionHelper
             _refreshThread.Start();
 
 
-            _callback.getDispatcher().Invoke(DispatcherPriority.Normal, 
-                                             (Action)delegate()
-                                                        {
-                                                            try
-                                                            {
-                                                                _callback.connected(this);
-                                                            }
-                                                            catch(Glacier2.SessionNotExistException)
-                                                            {
-                                                                destroy();
-                                                            }
-                                                        });
+            dispatchCallback(delegate()
+                             {
+                                 try
+                                 {
+                                     _callback.connected(this);
+                                 }
+                                 catch(Glacier2.SessionNotExistException)
+                                 {
+                                     destroy();
+                                 }
+                             });
         }
     }
 
@@ -406,11 +395,10 @@ public class SessionHelper
             _communicator = null;
 
             // Notify the callback that the session is gone.
-            _callback.getDispatcher().BeginInvoke(DispatcherPriority.Normal, 
-                                                  (Action)delegate()
-                                                    {
-                                                        _callback.disconnected(this);
-                                                    });
+            dispatchCallback(delegate()
+                             {
+                                 _callback.disconnected(this);
+                             });
         }
     }
     
@@ -429,10 +417,10 @@ public class SessionHelper
         catch(Ice.LocalException ex)
         {
             _destroy = true;
-            _callback.getDispatcher().BeginInvoke(DispatcherPriority.Normal, (Action)delegate()
-                    {
-                        _callback.connectFailed(this, ex);
-                    });
+            dispatchCallback(delegate()
+                             {
+                                 _callback.connectFailed(this, ex);
+                             });
             return;
         }
 
@@ -440,14 +428,13 @@ public class SessionHelper
         {
                 try
                 {
-                    _callback.getDispatcher().BeginInvoke(DispatcherPriority.Normal,
-                                                          (Action)delegate()
-                                                                    {
-                                                                        _callback.createdCommunicator(this);
-                                                                    });
+                    dispatchCallbackAndWait(delegate()
+                                            {
+                                                _callback.createdCommunicator(this);
+                                            });
 
                     Glacier2.RouterPrx routerPrx = Glacier2.RouterPrxHelper.uncheckedCast(
-                                                                    _communicator.getDefaultRouter());
+                        _communicator.getDefaultRouter());
                     Glacier2.SessionPrx session = factory(routerPrx);
                     connected(routerPrx, session);
                 }
@@ -461,12 +448,44 @@ public class SessionHelper
                     {
                     }
 
-                    _callback.getDispatcher().BeginInvoke(DispatcherPriority.Normal, (Action)delegate()
-                    {
-                        _callback.connectFailed(this, ex);
-                    });
+                    dispatchCallback(delegate()
+                                     {
+                                         _callback.connectFailed(this, ex);
+                                     });
                 }
         })).Start();
+    }
+
+    private void
+    dispatchCallback(System.Action callback)
+    {
+        if(_initData.dispatcher != null)
+        {
+            _initData.dispatcher(callback, null);
+        }
+        else
+        {
+            callback();
+        }
+    }
+
+    private void
+    dispatchCallbackAndWait(System.Action callback)
+    {
+        if(_initData.dispatcher != null)
+        {
+            EventWaitHandle h = new EventWaitHandle(false, EventResetMode.ManualReset);
+            _initData.dispatcher(delegate()
+                                 {
+                                     callback();
+                                     h.Set();
+                                 }, null);
+            h.WaitOne();
+        }
+        else
+        {
+            callback();
+        }
     }
 
     private Ice.InitializationData _initData;

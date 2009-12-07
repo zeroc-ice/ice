@@ -10,7 +10,7 @@
 top_srcdir	= ..\..\..
 
 LIBNAME		= $(top_srcdir)\lib\icestormsqldb$(LIBSUFFIX).lib
-DLLNAME		= $(top_srcdir)\bin\icestormsqldb$(SOVERSION)$(LIBSUFFIX).dll
+DLLNAME		= $(top_srcdir)\bin\icestormsqldb$(COMPSUFFIX)$(SOVERSION)$(LIBSUFFIX).dll
 
 TARGETS         = $(LIBNAME) $(DLLNAME)
 
@@ -29,8 +29,7 @@ SRCS		= $(OBJS:.obj=.cpp) \
 
 !include $(top_srcdir)\config\Make.rules.mak
 
-CPPFLAGS	= -I..\.. -Idummyinclude $(QT_FLAGS) $(CPPFLAGS) -DWIN32_LEAN_AND_MEAN
-SLICE2CPPFLAGS	= -I..\.. --ice --include-dir IceStorm\SqlDB $(SLICE2CPPFLAGS)
+CPPFLAGS	= -I..\.. $(CPPFLAGS) -DWIN32_LEAN_AND_MEAN
 
 LINKWITH 	= $(QT_LIBS) icestormservice$(LIBSUFFIX).lib icestorm$(LIBSUFFIX).lib icedb$(LIBSUFFIX).lib $(LIBS)
 
@@ -38,11 +37,7 @@ LINKWITH 	= $(QT_LIBS) icestormservice$(LIBSUFFIX).lib icestorm$(LIBSUFFIX).lib 
 PDBFLAGS        = /pdb:$(DLLNAME:.dll=.pdb)
 !endif
 
-!if "$(BCPLUSPLUS)" == "yes"
-RES_FILE        = ,, IceStormSqlDB.res
-!else
 RES_FILE        = IceStormSqlDB.res
-!endif
 
 $(LIBNAME): $(DLLNAME)
 

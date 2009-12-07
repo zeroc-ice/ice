@@ -16,6 +16,7 @@
 #include <IceUtil/Thread.h>
 
 #include <Ice/Config.h>
+#include <Ice/Dispatcher.h>
 #include <Ice/ThreadPoolF.h>
 #include <Ice/InstanceF.h>
 #include <Ice/LoggerF.h>
@@ -160,6 +161,19 @@ class ThreadPoolWorkItem : virtual public IceUtil::Shared
 public:
     
     virtual void execute(ThreadPoolCurrent&) = 0;
+};
+
+class DispatchWorkItem : public ThreadPoolWorkItem, public Ice::DispatcherCall
+{
+public:
+    
+    DispatchWorkItem(const InstancePtr&);
+ 
+    virtual void execute(ThreadPoolCurrent&);
+
+private:
+
+    const InstancePtr _instance;
 };
 
 class ThreadPoolWorkQueue : public EventHandler, public IceUtil::Mutex

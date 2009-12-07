@@ -612,14 +612,14 @@ IceSSL::TransceiverI::read(IceInternal::Buffer& buf)
 }
 
 #ifdef ICE_USE_IOCP
-void
+bool
 IceSSL::TransceiverI::startWrite(IceInternal::Buffer& buf)
 {
     if(_state < StateConnected)
     {
         IceInternal::doConnectAsync(_fd, _connectAddr, _write);
         _desc = IceInternal::fdToString(_fd);
-        return;
+        return false;
     }
 
     assert(!_writeBuffer.empty() && _writeI != _writeBuffer.end());
@@ -651,6 +651,7 @@ IceSSL::TransceiverI::startWrite(IceInternal::Buffer& buf)
             }
         }
     }
+    return packetSize == static_cast<int>(_writeBuffer.end() - _writeI);
 }
 
 void

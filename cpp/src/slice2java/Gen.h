@@ -27,10 +27,13 @@ protected:
 
     JavaVisitor(const std::string&);
 
+    enum ParamDir { InParam, OutParam };
+
     //
     // Compose the parameter lists for an operation.
     //
     std::vector<std::string> getParams(const OperationPtr&, const std::string&, bool = false);
+    std::vector<std::string> getInOutParams(const OperationPtr&, const std::string&, ParamDir);
     std::vector<std::string> getParamsAsync(const OperationPtr&, const std::string&, bool);
     std::vector<std::string> getParamsAsyncCB(const OperationPtr&, const std::string&);
 
@@ -38,6 +41,7 @@ protected:
     // Compose the argument lists for an operation.
     //
     std::vector<std::string> getArgs(const OperationPtr&);
+    std::vector<std::string> getInOutArgs(const OperationPtr&, ParamDir);
     std::vector<std::string> getArgsAsync(const OperationPtr&);
     std::vector<std::string> getArgsAsyncCB(const OperationPtr&);
 
@@ -71,10 +75,11 @@ protected:
                                 const std::string&, const std::string& = "");
     static void writeDocCommentOp(::IceUtilInternal::Output&, const OperationPtr&);
 
-    enum ParamDir { InParam, OutParam };
     static void writeDocCommentAsync(::IceUtilInternal::Output&, const OperationPtr&,
                                      ParamDir, const std::string& = "");
-    static void writeDocCommentParam(::IceUtilInternal::Output&, const OperationPtr&, ParamDir);
+    static void writeDocCommentAMI(::IceUtilInternal::Output&, const OperationPtr&, ParamDir, const std::string& = "",
+                                   const std::string& = "", const std::string& = "");
+    static void writeDocCommentParam(::IceUtilInternal::Output&, const OperationPtr&, ParamDir, bool = true);
 };
 
 class Gen : private ::IceUtil::noncopyable
@@ -294,6 +299,10 @@ private:
         AsyncVisitor(const std::string&);
 
         virtual void visitOperation(const OperationPtr&);
+
+    private:
+
+        static std::string initValue(const TypePtr&);
     };
 };
 

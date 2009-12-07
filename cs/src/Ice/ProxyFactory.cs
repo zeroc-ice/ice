@@ -9,6 +9,7 @@
 
 using System.Diagnostics;
 using System.Collections.Generic;
+using System.Globalization;
 
 namespace IceInternal
 {
@@ -95,7 +96,7 @@ namespace IceInternal
             }
         }
         
-        public void checkRetryAfterException(Ice.LocalException ex, Reference @ref, OutgoingAsync outAsync, ref int cnt)
+        public int checkRetryAfterException(Ice.LocalException ex, Reference @ref, bool sleep, ref int cnt)
         {
             TraceLevels traceLevels = instance_.traceLevels();
             Ice.Logger logger = instance_.initializationData().logger;
@@ -129,11 +130,7 @@ namespace IceInternal
                         string s = "retrying operation call to add proxy to router\n" + ex;
                         logger.trace(traceLevels.retryCat, s);
                     }
-                    if(outAsync != null)
-                    {
-                        outAsync.send__();
-                    }
-                    return; // We must always retry, so we don't look at the retry count.
+                    return 0; // We must always retry, so we don't look at the retry count.
                 }
                 else if(@ref.isIndirect())
                 {
@@ -227,17 +224,14 @@ namespace IceInternal
                 logger.trace(traceLevels.retryCat, s);
             }
 
-            if(outAsync != null)
-            {
-                outAsync.retry__(interval);
-            }
-            else if(interval > 0)
+            if(sleep && interval > 0)
             {
                 //
                 // Sleep before retrying.
                 //
                 System.Threading.Thread.Sleep(interval);
             }
+            return interval;
         }
 
         //
@@ -259,7 +253,7 @@ namespace IceInternal
                     
                     try
                     {
-                        v = System.Int32.Parse(arr[i]);
+                        v = System.Int32.Parse(arr[i], CultureInfo.InvariantCulture);
                     }
                     catch(System.FormatException)
                     {

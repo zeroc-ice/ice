@@ -98,19 +98,6 @@ public:
     }
 };
 
-class AMI_ChatCallback_messageI : public Demo::AMI_ChatCallback_message
-{
-public:
-
-    virtual void ice_response()
-    {
-    }
-
-    virtual void ice_exception(const Ice::Exception&)
-    {
-    }
-};
-
 }
 
 ChatRoom::ChatRoom()
@@ -170,7 +157,7 @@ ChatRoom::message(const string& data) const
     Lock sync(*this);
     for(list<MemberInfo>::const_iterator p = _members.begin(); p != _members.end(); ++p)
     {
-        (*p).callback->message_async(new AMI_ChatCallback_messageI(), data);
+        (*p).callback->begin_message(data);
     }
 }
 

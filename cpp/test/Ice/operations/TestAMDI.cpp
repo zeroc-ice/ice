@@ -51,6 +51,13 @@ MyDerivedClassI::shutdown_async(const Test::AMD_MyClass_shutdownPtr& cb, const I
 }
 
 void
+MyDerivedClassI::delay_async(const Test::AMD_MyClass_delayPtr& cb, Ice::Int ms, const Ice::Current& current)
+{
+    IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(ms));
+    cb->ice_response();
+}
+
+void
 MyDerivedClassI::opVoid_async(const Test::AMD_MyClass_opVoidPtr& cb, const Ice::Current&)
 {
     IceUtil::Mutex::Lock sync(_opVoidMutex);

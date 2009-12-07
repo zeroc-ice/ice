@@ -12,9 +12,9 @@ package test.Ice.hold;
 import java.io.PrintStream;
 import java.io.PrintWriter;
 
-import test.Ice.hold.Test.AMI_Hold_set;
 import test.Ice.hold.Test.HoldPrx;
 import test.Ice.hold.Test.HoldPrxHelper;
+import test.Ice.hold.Test.Callback_Hold_set;
 
 public class AllTests
 {
@@ -49,7 +49,7 @@ public class AllTests
         private boolean _value;
     };
 
-    static class AMICheckSetValue extends AMI_Hold_set implements Ice.AMISentCallback
+    static class AMICheckSetValue extends Callback_Hold_set
     {
         public
         AMICheckSetValue(Condition condition, int expected)
@@ -58,8 +58,9 @@ public class AllTests
             _expected = expected;
         }
 
+        @Override
         public void
-        ice_response(int value)
+        response(int value)
         {
             if(value != _expected)
             {
@@ -67,13 +68,15 @@ public class AllTests
             }
         }
 
+        @Override
         public void
-        ice_exception(Ice.LocalException ex)
+        exception(Ice.LocalException ex)
         {
+            test(false);
         }
 
         synchronized public void
-        ice_sent()
+        sent(boolean sync)
         {
             _sent = true;
             notify();
@@ -154,17 +157,11 @@ public class AllTests
             while(cond.value())
             {
                 cb = new AMICheckSetValue(cond, value);
-                if(hold.set_async(cb, ++value, random.nextInt(5)))
-                {
-                    cb = null;
-                }
+                hold.begin_set(++value, random.nextInt(5), cb);
                 if(value % 100 == 0)
                 {
-                    if(cb != null)
-                    {
-                        cb.waitForSent();
-                        cb = null;
-                    }
+                    cb.waitForSent();
+                    cb = null;
                 }
             }
             if(cb != null)
@@ -184,17 +181,11 @@ public class AllTests
             while(value < 3000 && cond.value())
             {
                 cb = new AMICheckSetValue(cond, value);
-                if(holdSerialized.set_async(cb, ++value, 0))
-                {
-                    cb = null;
-                }
+                holdSerialized.begin_set(++value, 0, cb);
                 if(value % 100 == 0)
                 {
-                    if(cb != null)
-                    {
-                        cb.waitForSent();
-                        cb = null;
-                    }
+                    cb.waitForSent();
+                    cb = null;
                 }
             }
             if(cb != null)

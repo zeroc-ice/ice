@@ -13,10 +13,12 @@
 
     <target name="all">
         <ant dir="inputUtil"/>
+        <ant dir="fileLock"/>
     </target>
 
     <target name="clean">
         <ant dir="inputUtil" target="clean"/>
+        <ant dir="fileLock" target="clean"/>
     </target>
 
 </project>

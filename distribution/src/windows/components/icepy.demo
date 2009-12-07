@@ -1,4 +1,0 @@
-README
-include=*.*
-include=**/*.*
-exclude=Freeze/backup/**

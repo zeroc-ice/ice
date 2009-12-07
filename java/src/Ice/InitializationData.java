@@ -72,4 +72,9 @@ public final class InitializationData implements Cloneable
      * The custom class loader for the communicator.
      **/
     public ClassLoader classLoader;
+
+    /**
+     * The call dispatcher for the communicator.
+     **/
+    public Dispatcher dispatcher;
 }

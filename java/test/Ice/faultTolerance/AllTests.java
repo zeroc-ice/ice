@@ -12,12 +12,10 @@ package test.Ice.faultTolerance;
 import java.io.PrintStream;
 import java.io.PrintWriter;
 
-import test.Ice.faultTolerance.Test.AMI_TestIntf_abort;
-import test.Ice.faultTolerance.Test.AMI_TestIntf_idempotentAbort;
-import test.Ice.faultTolerance.Test.AMI_TestIntf_pid;
-import test.Ice.faultTolerance.Test.AMI_TestIntf_shutdown;
 import test.Ice.faultTolerance.Test.TestIntfPrx;
 import test.Ice.faultTolerance.Test.TestIntfPrxHelper;
+import test.Ice.faultTolerance.Test.Callback_TestIntf_pid;
+import test.Ice.faultTolerance.Test.Callback_TestIntf_shutdown;
 
 public class AllTests
 {
@@ -65,23 +63,19 @@ public class AllTests
         private boolean _called;
     }
 
-    private static class AMI_Test_pidI extends AMI_TestIntf_pid
+    private static class Callback_TestIntf_pidI extends Callback_TestIntf_pid
     {
+        @Override
         public void
-        ice_response(int pid)
+        response(int pid)
         {
             _pid = pid;
             callback.called();
         }
         
+        @Override
         public void
-        ice_exception(Ice.LocalException ex)
-        {
-            test(false);
-        }
-        
-        public void
-        ice_exception(Ice.UserException ex)
+        exception(Ice.LocalException ex)
         {
             test(false);
         }
@@ -103,22 +97,18 @@ public class AllTests
         private Callback callback = new Callback();
     }
     
-    private static class AMI_Test_shutdownI extends AMI_TestIntf_shutdown
+    private static class Callback_TestIntf_shutdownI extends Callback_TestIntf_shutdown
     {
+        @Override
         public void
-        ice_response()
+        response()
         {
             callback.called();
         }
         
+        @Override
         public void
-        ice_exception(Ice.LocalException ex)
-        {
-            test(false);
-        }
-        
-        public void
-        ice_exception(Ice.UserException ex)
+        exception(Ice.LocalException ex)
         {
             test(false);
         }
@@ -132,20 +122,23 @@ public class AllTests
         private Callback callback = new Callback();
     }
     
-    private static class AMI_Test_abortI extends AMI_TestIntf_abort
+    private static class AbortCallback extends Ice.AsyncCallback
     {
         public void
-        ice_response()
-        {
-            test(false);
-        }
-        
-        public void
-        ice_exception(Ice.LocalException ex)
+        completed(Ice.AsyncResult result)
         {
             try
             {
-                throw ex;
+                TestIntfPrx p = TestIntfPrxHelper.uncheckedCast(result.getProxy());
+                if(result.getOperation().equals("abort"))
+                {
+                    p.end_abort(result);
+                }
+                else if(result.getOperation().equals("idempotentAbort"))
+                {
+                    p.end_idempotentAbort(result);
+                }
+                test(false);
             }
             catch(Ice.ConnectionLostException exc)
             {
@@ -164,12 +157,6 @@ public class AllTests
         }
         
         public void
-        ice_exception(Ice.UserException ex)
-        {
-            test(false);
-        }
-        
-        public void
         check()
         {
             callback.check();
@@ -178,35 +165,6 @@ public class AllTests
         private Callback callback = new Callback();
     }
     
-    private static class AMI_Test_idempotentAbortI extends AMI_TestIntf_idempotentAbort
-    {
-        public void
-        ice_response()
-        {
-            test(false);
-        }
-        
-        public void
-        ice_exception(Ice.LocalException ex)
-        {
-            delegate.ice_exception(ex);
-        }
-        
-        public void
-        ice_exception(Ice.UserException ex)
-        {
-            delegate.ice_exception(ex);
-        }
-        
-        public void
-        check()
-        {
-            delegate.check();
-        }
-
-        private AMI_Test_abortI delegate = new AMI_Test_abortI();
-    }
-     
     public static void
     allTests(Ice.Communicator communicator, int[] ports, PrintWriter out)
     {
@@ -251,8 +209,8 @@ public class AllTests
             {
                 out.print("testing server #" + i + " with AMI... ");
                 out.flush();
-                AMI_Test_pidI cb = new AMI_Test_pidI();
-                obj.pid_async(cb);
+                Callback_TestIntf_pidI cb = new Callback_TestIntf_pidI();
+                obj.begin_pid(cb);
                 cb.check();
                 int pid = cb.pid();
                 test(pid != oldPid);
@@ -273,8 +231,8 @@ public class AllTests
                 {
                     out.print("shutting down server #" + i + " with AMI... ");
                     out.flush();
-                    AMI_Test_shutdownI cb = new AMI_Test_shutdownI();
-                    obj.shutdown_async(cb);
+                    Callback_TestIntf_shutdownI cb = new Callback_TestIntf_shutdownI();
+                    obj.begin_shutdown(cb);
                     cb.check();
                     out.println("ok");
                 }
@@ -307,8 +265,8 @@ public class AllTests
                 {
                     out.print("aborting server #" + i + " with AMI... ");
                     out.flush();
-                    AMI_Test_abortI cb = new AMI_Test_abortI();
-                    obj.abort_async(cb);
+                    AbortCallback cb = new AbortCallback();
+                    obj.begin_abort(cb);
                     cb.check();
                     out.println("ok");
                 }
@@ -341,8 +299,8 @@ public class AllTests
                 {
                     out.print("aborting server #" + i + " and #" + (i + 1) + " with idempotent AMI call... ");
                     out.flush();
-                    AMI_Test_idempotentAbortI cb = new AMI_Test_idempotentAbortI();
-                    obj.idempotentAbort_async(cb);
+                    AbortCallback cb = new AbortCallback();
+                    obj.begin_idempotentAbort(cb);
                     cb.check();
                     out.println("ok");
                 }

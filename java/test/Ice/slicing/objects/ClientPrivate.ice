@@ -72,7 +72,7 @@ exception DerivedException extends BaseException
 
 class Forward; /* Forward-declared class defined in another compilation unit */
 
-["ami"] interface TestIntf
+interface TestIntf
 {
     Object SBaseAsObject();
     SBase SBaseAsSBase();

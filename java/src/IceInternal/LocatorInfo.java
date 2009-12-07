@@ -245,19 +245,19 @@ public final class LocatorInfo
                             public void
                             ice_response(Ice.ObjectPrx proxy)
                             {
-                                response(proxy);
+                                ObjectRequest.this.response(proxy);
                             }
                             
                             public void
                             ice_exception(Ice.UserException ex)
                             {
-                                exception(ex);
+                                ObjectRequest.this.exception(ex);
                             }
                             
                             public void
                             ice_exception(Ice.LocalException ex)
                             {
-                                exception(ex);
+                                ObjectRequest.this.exception(ex);
                             }
                         },
                         _ref.getIdentity());
@@ -295,19 +295,19 @@ public final class LocatorInfo
                             public void
                             ice_response(Ice.ObjectPrx proxy)
                             {
-                                response(proxy);
+                                AdapterRequest.this.response(proxy);
                             }
                             
                             public void
                             ice_exception(Ice.UserException ex)
                             {
-                                exception(ex);
+                                AdapterRequest.this.exception(ex);
                             }
                             
                             public void
                             ice_exception(Ice.LocalException ex)
                             {
-                                exception(ex);
+                                AdapterRequest.this.exception(ex);
                             }
                         },
                         _ref.getAdapterId());

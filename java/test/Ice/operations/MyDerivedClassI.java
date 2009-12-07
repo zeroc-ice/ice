@@ -61,6 +61,18 @@ public final class MyDerivedClassI extends MyDerivedClass
     }
 
     public void
+    delay(int ms, Ice.Current current)
+    {
+        try
+        {
+            Thread.sleep(ms);
+        }
+        catch(InterruptedException ex)
+        {
+        }
+    }
+
+    public void
     opVoid(Ice.Current current)
     {
     }

@@ -86,6 +86,29 @@ interface MyInterface
 {
 };
 
+class MyClassForException
+{
+    MyClassForException c;
+    Object o;
+    SmallStruct s;
+    BoolS seq1;
+    ByteS seq2;
+    ShortS seq3;
+    IntS seq4;
+    LongS seq5;
+    FloatS seq6;
+    DoubleS seq7;
+    StringS seq8;
+    MyEnumS seq9;
+};
+
+
+
+exception MyException
+{
+    MyClassForException c;
+};
+
 };
 
 #endif

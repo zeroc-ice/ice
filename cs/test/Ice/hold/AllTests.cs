@@ -48,17 +48,17 @@ public class AllTests
         private bool _value;
     };
 
-    private  class AMICheckSetValue : AMI_Hold_set, Ice.AMISentCallback
+    private  class SetCB
     {
         public
-        AMICheckSetValue(Condition condition, int expected)
+        SetCB(Condition condition, int expected)
         {
             _condition = condition;
             _expected = expected;
         }
 
-        public override void
-        ice_response(int value)
+        public void
+        response(int value)
         {
             if(value != _expected)
             {
@@ -66,13 +66,14 @@ public class AllTests
             }
         }
 
-        public override void
-        ice_exception(Ice.Exception ex)
+        public void
+        exception(Ice.Exception ex)
         {
+            test(false);
         }
 
         public void
-        ice_sent()
+        sent(bool sync)
         {
             lock(this)
             {
@@ -148,21 +149,16 @@ public class AllTests
         {
             Condition cond = new Condition(true);
             int value = 0;
-            AMICheckSetValue cb = null;
+            SetCB cb = null;
             while(cond.value())
             {
-                cb = new AMICheckSetValue(cond, value);
-                if(hold.set_async(cb, ++value, value < 500 ? rand.Next(5) : 0))
-                {
-                    cb = null;
-                }
+                cb = new SetCB(cond, value);
+                hold.begin_set(++value, value < 500 ? rand.Next(5) : 0).
+                        whenCompleted(cb.response, cb.exception).whenSent(cb.sent);
                 if(value % 100 == 0)
                 {
-                    if(cb != null)
-                    {
-                        cb.waitForSent();
-                        cb = null;
-                    }
+                    cb.waitForSent();
+                    cb = null;
                 }
 
                 if(value > 100000)
@@ -186,21 +182,16 @@ public class AllTests
         {
             Condition cond = new Condition(true);
             int value = 0;
-            AMICheckSetValue cb = null;
+            SetCB cb = null;
             while(value < 3000 && cond.value())
             {
-                cb = new AMICheckSetValue(cond, value);
-                if(holdSerialized.set_async(cb, ++value, 0))
-                {
-                    cb = null;
-                }
+                cb = new SetCB(cond, value);
+                holdSerialized.begin_set(++value, value < 500 ? rand.Next(5) : 0).
+                        whenCompleted(cb.response, cb.exception).whenSent(cb.sent);
                 if(value % 100 == 0)
                 {
-                    if(cb != null)
-                    {
-                        cb.waitForSent();
-                        cb = null;
-                    }
+                    cb.waitForSent();
+                    cb = null;
                 }
             }
             if(cb != null)

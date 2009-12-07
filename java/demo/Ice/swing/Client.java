@@ -29,7 +29,7 @@ public class Client extends JFrame
                 }
                 catch(Ice.LocalException e)
                 {
-                    JOptionPane.showMessageDialog(null, e.toString(), "Initialization failed", 
+                    JOptionPane.showMessageDialog(null, e.toString(), "Initialization failed",
                                                   JOptionPane.ERROR_MESSAGE);
                 }
             }
@@ -70,6 +70,14 @@ public class Client extends JFrame
             Ice.InitializationData initData = new Ice.InitializationData();
             initData.properties = Ice.Util.createProperties();
             initData.properties.load("config.client");
+            initData.dispatcher = new Ice.Dispatcher()
+            {
+                public void
+                dispatch(Runnable runnable, Ice.Connection connection)
+                {
+                    SwingUtilities.invokeLater(runnable);
+                }
+            };
             _communicator = Ice.Util.initialize(args, initData);
         }
         catch(Throwable ex)
@@ -371,13 +379,7 @@ public class Client extends JFrame
         String host = _hostname.getText().toString().trim();
         if(host.length() == 0)
         {
-            SwingUtilities.invokeLater(new Runnable()
-            {
-                public void run()
-                {
-                    _status.setText("No hostname");
-                }
-            });
+            _status.setText("No hostname");
             return null;
         }
 
@@ -392,56 +394,40 @@ public class Client extends JFrame
         return Demo.HelloPrxHelper.uncheckedCast(prx);
     }
 
-    class SayHelloI extends Demo.AMI_Hello_sayHello implements Ice.AMISentCallback
+    class SayHelloI extends Demo.Callback_Hello_sayHello
     {
-        synchronized public void ice_exception(final Ice.LocalException ex)
+        @Override
+        synchronized public void response()
         {
             assert (!_response);
             _response = true;
-
-            SwingUtilities.invokeLater(new Runnable()
-            {
-                public void run()
-                {
-                    handleException(ex);
-                }
-            });
+            _status.setText("Ready");
         }
 
-        synchronized public void ice_sent()
+        @Override
+        synchronized public void exception(final Ice.LocalException ex)
+        {
+            assert (!_response);
+            _response = true;
+            handleException(ex);
+        }
+
+        @Override
+        synchronized public void sent(boolean ss)
         {
             if(_response)
             {
                 return;
             }
 
-            SwingUtilities.invokeLater(new Runnable()
+            if(_deliveryMode == DeliveryMode.TWOWAY || _deliveryMode == DeliveryMode.TWOWAY_SECURE)
             {
-                public void run()
-                {
-                    if(_deliveryMode == DeliveryMode.TWOWAY || _deliveryMode == DeliveryMode.TWOWAY_SECURE)
-                    {
-                        _status.setText("Waiting for response");
-                    }
-                    else
-                    {
-                        _status.setText("Ready");
-                    }
-                }
-            });
-        }
-
-        synchronized public void ice_response()
-        {
-            assert (!_response);
-            _response = true;
-            SwingUtilities.invokeLater(new Runnable()
+                _status.setText("Waiting for response");
+            }
+            else
             {
-                public void run()
-                {
-                    _status.setText("Ready");
-                }
-            });
+                _status.setText("Ready");
+            }
         }
 
         private boolean _response = false;
@@ -460,17 +446,8 @@ public class Client extends JFrame
         {
             if(!_deliveryMode.isBatch())
             {
-                if(hello.sayHello_async(new SayHelloI(), delay))
-                {
-                    if(_deliveryMode == DeliveryMode.TWOWAY || _deliveryMode == DeliveryMode.TWOWAY_SECURE)
-                    {
-                        _status.setText("Waiting for response");
-                    }
-                }
-                else
-                {
-                    _status.setText("Sending request");
-                }
+                _status.setText("Sending request");
+                hello.begin_sayHello(delay, new SayHelloI());
             }
             else
             {
@@ -497,30 +474,20 @@ public class Client extends JFrame
         {
             if(!_deliveryMode.isBatch())
             {
-                hello.shutdown_async(new Demo.AMI_Hello_shutdown()
+                hello.begin_shutdown(new Demo.Callback_Hello_shutdown()
+                {
+                    @Override
+                    public void response()
                     {
-                        public void ice_exception(final Ice.LocalException ex)
-                        {
-                            SwingUtilities.invokeLater(new Runnable()
-                            {
-                                public void run()
-                                {
-                                    handleException(ex);
-                                }
-                            });
-                        }
+                        _status.setText("Ready");
+                    }
 
-                        public void ice_response()
-                        {
-                            SwingUtilities.invokeLater(new Runnable()
-                            {
-                                public void run()
-                                {
-                                    _status.setText("Ready");
-                                }
-                            });
-                        }
-                    });
+                    @Override
+                    public void exception(final Ice.LocalException ex)
+                    {
+                        handleException(ex);
+                    }
+                });
                 if(_deliveryMode == DeliveryMode.TWOWAY || _deliveryMode == DeliveryMode.TWOWAY_SECURE)
                 {
                     _status.setText("Waiting for response");
@@ -551,13 +518,7 @@ public class Client extends JFrame
                 }
                 catch(final Ice.LocalException ex)
                 {
-                    SwingUtilities.invokeLater(new Runnable()
-                    {
-                        public void run()
-                        {
-                            handleException(ex);
-                        }
-                    });
+                    handleException(ex);
                 }
             }
         }).start();
@@ -606,13 +567,7 @@ public class Client extends JFrame
             return;
         }
         ex.printStackTrace();
-        SwingUtilities.invokeLater(new Runnable()
-        {
-            public void run()
-            {
-                _status.setText(ex.getClass().getName());
-            }
-        });
+        _status.setText(ex.getClass().getName());
     }
 
     private static class SliderListener implements ChangeListener

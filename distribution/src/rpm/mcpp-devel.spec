@@ -5,8 +5,10 @@
 Summary: mcpp, a portable C/C++ preprocessor
 Name: mcpp-devel
 Version: 2.7.2
-Release: 1ice%{?dist}
+Release: 2ice%{?dist}
 Source0: http://prdownloads.sourceforge.net/mcpp/mcpp-2.7.2.tar.gz
+Patch1: patch.2.7.2_1
+Patch2: patch.2.7.2_2
 URL: http://mcpp.sourceforge.net/
 License: BSD
 Group: System Environment/Libraries
@@ -38,6 +40,8 @@ It is probably number one C/C++ preprocessor now available in the world.
 %prep
 
 %setup -q -n mcpp-%{version}
+%patch1 -p0 -b .2.7.2_1
+%patch2 -p0 -b .2.7.2_2
 
 %build
 

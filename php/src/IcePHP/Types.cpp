@@ -475,7 +475,7 @@ IcePHP::PrimitiveInfo::marshal(zval* zv, const Ice::OutputStreamPtr& os, ObjectM
     }
     case PrimitiveInfo::KindFloat:
     {
-        double val;
+        double val = 0;
         if(Z_TYPE_P(zv) == IS_DOUBLE)
         {
             val = Z_DVAL_P(zv);
@@ -493,7 +493,7 @@ IcePHP::PrimitiveInfo::marshal(zval* zv, const Ice::OutputStreamPtr& os, ObjectM
     }
     case PrimitiveInfo::KindDouble:
     {
-        double val;
+        double val = 0;
         if(Z_TYPE_P(zv) == IS_DOUBLE)
         {
             val = Z_DVAL_P(zv);
@@ -954,27 +954,10 @@ IcePHP::SequenceInfo::unmarshal(const Ice::InputStreamPtr& is, const UnmarshalCa
     AutoDestroy destroy(zv);
 
     Ice::Int sz = is->readSize();
-    if(variableLength)
-    {
-        is->startSeq(sz, minWireSize);
-    }
-    else
-    {
-        is->checkFixedSeq(sz, minWireSize);
-    }
     for(Ice::Int i = 0; i < sz; ++i)
     {
         void* cl = reinterpret_cast<void*>(i);
         elementType->unmarshal(is, this, comm, zv, cl TSRMLS_CC);
-        if(variableLength)
-        {
-            is->checkSeq();
-            is->endElement();
-        }
-    }
-    if(variableLength)
-    {
-        is->endSeq(sz);
     }
 
     cb->unmarshaled(zv, target, closure TSRMLS_CC);
@@ -1175,7 +1158,7 @@ IcePHP::SequenceInfo::marshalPrimitiveSequence(const PrimitiveInfoPtr& pi, zval*
             {
                 throw AbortMarshaling();
             }
-            double d;
+            double d = 0;
             if(Z_TYPE_P(*val) == IS_DOUBLE)
             {
                 d = Z_DVAL_P(*val);
@@ -1206,7 +1189,7 @@ IcePHP::SequenceInfo::marshalPrimitiveSequence(const PrimitiveInfoPtr& pi, zval*
             {
                 throw AbortMarshaling();
             }
-            double d;
+            double d = 0;
             if(Z_TYPE_P(*val) == IS_DOUBLE)
             {
                 d = Z_DVAL_P(*val);
@@ -2509,11 +2492,8 @@ ZEND_FUNCTION(IcePHP_defineSequence)
     char* id;
     int idLen;
     zval* element;
-    zend_bool variableLength;
-    long minWireSize;
 
-    if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, const_cast<char*>("sobl"), &id, &idLen, &element,
-                             &variableLength, &minWireSize) == FAILURE)
+    if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, const_cast<char*>("sobl"), &id, &idLen, &element) == FAILURE)
     {
         return;
     }
@@ -2521,8 +2501,6 @@ ZEND_FUNCTION(IcePHP_defineSequence)
     SequenceInfoPtr type = new SequenceInfo();
     type->id = id;
     type->elementType = Wrapper<TypeInfoPtr>::value(element TSRMLS_CC);
-    type->variableLength = variableLength ? true : false;
-    type->minWireSize = static_cast<int>(minWireSize);
 
     if(!createTypeInfo(return_value, type TSRMLS_CC))
     {

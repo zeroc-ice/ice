@@ -179,7 +179,7 @@ main(int argc, char* argv[])
 
         cout << "ok" << endl;
     }
-
+#ifndef __BCPLUSPLUS__
     {
         cout << "testing UTF-8 filename... ";
         IceUtilInternal::ifstream fn(dir + "filename.txt");
@@ -251,6 +251,6 @@ main(int argc, char* argv[])
         
         cout << "ok" << endl;
     }
-
+#endif
     return EXIT_SUCCESS;
 }

@@ -22,5 +22,5 @@ from scripts import *
 
 client = os.path.join(os.getcwd(), "client")
 
-TestUtil.simpleTest(client, os.getcwd())
+TestUtil.simpleTest(client, '"%s"' % os.getcwd())
 

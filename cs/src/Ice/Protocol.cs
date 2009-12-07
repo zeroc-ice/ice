@@ -84,6 +84,9 @@ namespace IceInternal
             (byte)0, (byte)0, (byte)0, (byte)0 // Message size (placeholder).
         };
         
+        private Protocol()
+        {
+        }
     }
 
 }

@@ -12,7 +12,8 @@
 namespace Ice
 {
     using System.Diagnostics;
-
+    using System.Globalization;
+	
     public abstract class LoggerI : Logger
     {
         public LoggerI(string prefix)
@@ -37,9 +38,9 @@ namespace Ice
         public void trace(string category, string message)
         {
             System.Text.StringBuilder s = new System.Text.StringBuilder("-- ");
-            s.Append(System.DateTime.Now.ToString(_date));
+            s.Append(System.DateTime.Now.ToString(_date, CultureInfo.CurrentCulture));
             s.Append(' ');
-            s.Append(System.DateTime.Now.ToString(_time));
+            s.Append(System.DateTime.Now.ToString(_time, CultureInfo.CurrentCulture));
             s.Append(' ');
             s.Append(_prefix);
             s.Append(category);
@@ -56,9 +57,9 @@ namespace Ice
         public void warning(string message)
         {
             System.Text.StringBuilder s = new System.Text.StringBuilder("-! ");
-            s.Append(System.DateTime.Now.ToString(_date));
+            s.Append(System.DateTime.Now.ToString(_date, CultureInfo.CurrentCulture));
             s.Append(' ');
-            s.Append(System.DateTime.Now.ToString(_time));
+            s.Append(System.DateTime.Now.ToString(_time, CultureInfo.CurrentCulture));
             s.Append(' ');
             s.Append(_prefix);
             s.Append("warning: ");
@@ -74,9 +75,9 @@ namespace Ice
         public void error(string message)
         {
             System.Text.StringBuilder s = new System.Text.StringBuilder("!! ");
-            s.Append(System.DateTime.Now.ToString(_date));
+            s.Append(System.DateTime.Now.ToString(_date, CultureInfo.CurrentCulture));
             s.Append(' ');
-            s.Append(System.DateTime.Now.ToString(_time));
+            s.Append(System.DateTime.Now.ToString(_time, CultureInfo.CurrentCulture));
             s.Append(' ');
             s.Append(_prefix);
             s.Append("error: ");

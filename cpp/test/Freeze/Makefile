@@ -11,7 +11,7 @@ top_srcdir	= ../..
 
 include $(top_srcdir)/config/Make.rules
 
-SUBDIRS		= dbmap complex evictor
+SUBDIRS		= dbmap complex evictor fileLock
 
 $(EVERYTHING)::
 	@for subdir in $(SUBDIRS); \

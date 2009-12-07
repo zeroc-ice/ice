@@ -15,12 +15,14 @@
         <ant dir="Ice"/>
         <ant dir="Freeze"/>
         <ant dir="IceGrid"/>
+        <ant dir="Slice"/>
     </target>
 
     <target name="clean">
         <ant dir="Ice" target="clean"/>
         <ant dir="Freeze" target="clean"/>
         <ant dir="IceGrid" target="clean"/>
+        <ant dir="Slice" target="clean"/>
     </target>
 
 </project>

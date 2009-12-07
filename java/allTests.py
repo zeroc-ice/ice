@@ -32,10 +32,12 @@ tests = [
     ("Slice/generation", ["once"]),
     ("Slice/keyword", ["once"]),
     ("IceUtil/inputUtil", ["once"]),
+    ("IceUtil/fileLock", ["once"]),
     ("Ice/proxy", ["core"]),
     ("Ice/operations", ["core"]),
     ("Ice/seqMapping", ["core"]),
     ("Ice/exceptions", ["core"]),
+    ("Ice/ami", ["core"]),
     ("Ice/info", ["core", "noipv6", "nocompress"]),
     ("Ice/inheritance", ["core"]),
     ("Ice/facets", ["core"]),
@@ -48,6 +50,7 @@ tests = [
     ("Ice/slicing/objects", ["core"]),
     ("Ice/custom", ["core"]),
     ("Ice/checksum", ["core"]),
+    ("Ice/dispatcher", ["core"]),
     ("Ice/packagemd", ["core"]),
     ("Ice/stream", ["core"]),
     ("Ice/hold", ["core"]),
@@ -61,13 +64,15 @@ tests = [
     ("Ice/defaultServant", ["core"]),
     ("Ice/threadPoolPriority", ["core"]),
     ("Ice/classLoader", ["core"]),
+    ("Ice/invoke", ["core"]),
     ("IceBox/configuration", ["core", "noipv6"]),
     ("Freeze/dbmap", ["once"]),
     ("Freeze/complex", ["once"]),
     ("Freeze/evictor", ["core"]),
+    ("Freeze/fileLock", ["once"]),
     ("Glacier2/router", ["service"]),
     ("IceGrid/simple", ["service"]),
-    ("IceSSL/configuration", ["once"]),
+    ("IceSSL/configuration", ["once"])
     ]
 
 if __name__ == "__main__":

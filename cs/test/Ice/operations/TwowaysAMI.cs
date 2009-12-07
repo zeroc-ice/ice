@@ -1412,7 +1412,7 @@ public class TwowaysAMI
             // Test implicit context propagation
             //
 
-            String[] impls = {"Shared", "PerThread"};
+            string[] impls = {"Shared", "PerThread"};
             for(int i = 0; i < 2; i++)
             {
                 Ice.InitializationData initData = new Ice.InitializationData();
@@ -1480,6 +1480,7 @@ public class TwowaysAMI
                     cb.check();
                 }
 
+		ic.getImplicitContext().setContext(null);
                 ic.destroy();
             }
         }

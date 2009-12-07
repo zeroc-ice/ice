@@ -10,7 +10,7 @@
 top_srcdir	= ..\..
 
 LIBNAME		= $(top_srcdir)\lib\icestormservice$(LIBSUFFIX).lib
-DLLNAME		= $(top_srcdir)\bin\icestormservice$(SOVERSION)$(LIBSUFFIX).dll
+DLLNAME		= $(top_srcdir)\bin\icestormservice$(COMPSUFFIX)$(SOVERSION)$(LIBSUFFIX).dll
 
 ADMIN		= $(top_srcdir)\bin\icestormadmin.exe
 
@@ -95,10 +95,7 @@ Grammar.cpp Grammar.h: Grammar.y
 	move Grammar.tab.h Grammar.h
 	del /q Grammar.output
 
-SUBDIRS = FreezeDB
-!if "$(QT_HOME)" != ""
-SUBDIRS = $(SUBDIRS) SqlDB
-!endif
+SUBDIRS = FreezeDB SqlDB
 
 $(EVERYTHING)::
 	@for %i in ( $(SUBDIRS) ) do \

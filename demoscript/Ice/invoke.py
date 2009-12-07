@@ -51,16 +51,6 @@ def run(clientStr, server):
 
     runDemo(client, server)
 
-    client.sendline('x')
-    client.waitTestSuccess()
-    print "ok"
-
-    print "testing async...",
-    client = Util.spawn(clientStr + ' --async')
-    client.expect('==>')
-
-    runDemo(client, server)
-
     client.sendline('s')
     server.waitTestSuccess()
 

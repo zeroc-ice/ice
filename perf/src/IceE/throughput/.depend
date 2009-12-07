@@ -1,3 +1,0 @@
-Throughput.o: Throughput.cpp Throughput.h
-Client.o: Client.cpp Throughput.h
-Server.o: Server.cpp ThroughputI.h Throughput.h

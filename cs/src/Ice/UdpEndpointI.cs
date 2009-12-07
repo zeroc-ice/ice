@@ -14,6 +14,8 @@ namespace IceInternal
     using System.Collections;
     using System.Collections.Generic;
     using System.Net;
+    using System;
+    using System.Globalization;
 
     sealed class UdpEndpointI : EndpointI
     {
@@ -131,8 +133,8 @@ namespace IceInternal
                     int minVersion;
                     try
                     {
-                        majVersion = System.Int32.Parse(majStr);
-                        minVersion = System.Int32.Parse(minStr);
+                        majVersion = System.Int32.Parse(majStr, CultureInfo.InvariantCulture);
+                        minVersion = System.Int32.Parse(minStr, CultureInfo.InvariantCulture);
                     }
                     catch(System.FormatException ex)
                     {
@@ -184,8 +186,8 @@ namespace IceInternal
                     int minVersion;
                     try
                     {
-                        majVersion = System.Int32.Parse(majStr);
-                        minVersion = System.Int32.Parse(minStr);
+                        majVersion = System.Int32.Parse(majStr, CultureInfo.InvariantCulture);
+                        minVersion = System.Int32.Parse(minStr, CultureInfo.InvariantCulture);
                     }
                     catch(System.FormatException ex)
                     {
@@ -236,7 +238,7 @@ namespace IceInternal
                     
                     try
                     {
-                        _port = System.Int32.Parse(argument);
+                        _port = System.Int32.Parse(argument, CultureInfo.InvariantCulture);
                     }
                     catch(System.FormatException ex)
                     {
@@ -296,7 +298,7 @@ namespace IceInternal
                     
                     try
                     {
-                        _mcastTtl = System.Int32.Parse(argument);
+                        _mcastTtl = System.Int32.Parse(argument, CultureInfo.InvariantCulture);
                     }
                     catch(System.FormatException ex)
                     {
@@ -742,7 +744,7 @@ namespace IceInternal
             
             if(!_connectionId.Equals(p._connectionId))
             {
-                return _connectionId.CompareTo(p._connectionId);
+                return string.Compare(_connectionId, p._connectionId, StringComparison.Ordinal);
             }
 
             if(!_compress && p._compress)
@@ -790,7 +792,7 @@ namespace IceInternal
                 return 1;
             }
 
-            int rc = _mcastInterface.CompareTo(p._mcastInterface);
+            int rc = string.Compare(_mcastInterface, p._mcastInterface, StringComparison.Ordinal);
             if(rc != 0)
             {
                 return rc;
@@ -805,7 +807,7 @@ namespace IceInternal
                 return 1;
             }
 
-            return _host.CompareTo(p._host);
+            return string.Compare(_host, p._host, StringComparison.Ordinal);
         }
         
         private void calcHashValue()

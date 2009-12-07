@@ -46,7 +46,7 @@ class Client < Ice::Application
     end
 
     def run(args)
-        if args.length > 0:
+        if args.length > 0
             puts $0 + ": too many argumnets"
             return 1
         end

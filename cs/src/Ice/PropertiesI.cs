@@ -7,10 +7,12 @@
 //
 // **********************************************************************
 
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Text.RegularExpressions;
+using System.Globalization;
 using Microsoft.Win32;
 
 namespace Ice
@@ -84,7 +86,7 @@ namespace Ice
                     pv.used = true;
                     try
                     {
-                        return System.Int32.Parse(pv.val);
+                        return System.Int32.Parse(pv.val, CultureInfo.InvariantCulture);
                     }
                     catch(System.FormatException)
                     {
@@ -143,7 +145,7 @@ namespace Ice
 
                 foreach(string s in _properties.Keys)
                 {
-                    if(prefix.Length == 0 || s.StartsWith(prefix))
+                    if(prefix.Length == 0 || s.StartsWith(prefix, StringComparison.Ordinal))
                     {
                         PropertyValue pv = (PropertyValue)_properties[s];
                         pv.used = true;
@@ -261,7 +263,7 @@ namespace Ice
             for(int i = 0; i < options.Length; i++)
             {
                 string opt = options[i];
-                if(opt.StartsWith(pfx))
+                if(opt.StartsWith(pfx, StringComparison.Ordinal))
                 {
                     if(opt.IndexOf('=') == -1)
                     {
@@ -296,17 +298,10 @@ namespace Ice
         public void load(string file)
         {
             if(IceInternal.AssemblyUtil.platform_ == IceInternal.AssemblyUtil.Platform.Windows &&
-               (file.StartsWith("HKLM\\") || file.StartsWith("HKCU\\")))
+               (file.StartsWith("HKLM\\", StringComparison.Ordinal)))
             {
-                RegistryKey key;
-                if(file.StartsWith("HKLM\\"))
-                {
-                    key = Registry.LocalMachine;
-                }
-                else
-                {
-                    key = Registry.CurrentUser;
-                }
+                RegistryKey key = Registry.LocalMachine;
+                
                 RegistryKey iceKey = key.OpenSubKey(file.Substring(5));
                 if(iceKey == null)
                 {
@@ -405,7 +400,7 @@ namespace Ice
 
             for(int i = 0; i < args.Length; i++)
             {
-                if(args[i].StartsWith("--Ice.Config"))
+                if(args[i].StartsWith("--Ice.Config", StringComparison.Ordinal))
                 {
                     string line = args[i];
                     if(line.IndexOf('=') == -1)

@@ -10,7 +10,7 @@
 top_srcdir	= ..\..
 
 LIBNAME		= $(top_srcdir)\lib\icebox$(LIBSUFFIX).lib
-DLLNAME		= $(top_srcdir)\bin\icebox$(SOVERSION)$(LIBSUFFIX).dll
+DLLNAME		= $(top_srcdir)\bin\icebox$(COMPSUFFIX)$(SOVERSION)$(LIBSUFFIX).dll
 
 SERVER_D	= $(top_srcdir)\bin\iceboxd.exe
 SERVER_R	= $(top_srcdir)\bin\icebox.exe

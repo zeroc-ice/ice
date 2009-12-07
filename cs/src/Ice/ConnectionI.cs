@@ -358,7 +358,7 @@ namespace Ice
                 bool sent = false;
                 try
                 {
-                    sent = sendMessage(new OutgoingMessage(og, og.ostr(), compress, response));
+                    sent = sendMessage(new OutgoingMessage(og, og.ostr(), compress, requestId));
                 }
                 catch(LocalException ex)
                 {
@@ -379,9 +379,10 @@ namespace Ice
             }
         }
 
-        public bool sendAsyncRequest(IceInternal.OutgoingAsync og, bool compress, bool response)
+        public bool sendAsyncRequest(IceInternal.OutgoingAsync og, bool compress, bool response, 
+                                     out Ice.AsyncCallback sentCallback)
         {
-            IceInternal.BasicStream os = og.ostr__();
+            IceInternal.BasicStream os = og.ostr__;
 
             lock(this)
             {
@@ -427,7 +428,9 @@ namespace Ice
                 bool sent;
                 try
                 {
-                    sent = sendMessage(new OutgoingMessage(og, og.ostr__(), compress, response));
+                    OutgoingMessage msg = new OutgoingMessage(og, og.ostr__, compress, requestId);
+                    sent = sendMessage(msg);
+                    sentCallback = msg.sentCallback;
                 }
                 catch(LocalException ex)
                 {
@@ -683,7 +686,7 @@ namespace Ice
                 bool sent = false;
                 try
                 {
-                    OutgoingMessage message = new OutgoingMessage(@out, @out.ostr(), _batchRequestCompress, false);
+                    OutgoingMessage message = new OutgoingMessage(@out, @out.ostr(), _batchRequestCompress, 0);
                     sent = sendMessage(message);
                 }
                 catch(LocalException ex)
@@ -705,7 +708,7 @@ namespace Ice
             }
         }
 
-        public bool flushAsyncBatchRequests(IceInternal.BatchOutgoingAsync outAsync)
+        public bool flushAsyncBatchRequests(IceInternal.BatchOutgoingAsync outAsync, out Ice.AsyncCallback sentCallback)
         {
             lock(this)
             {
@@ -721,7 +724,7 @@ namespace Ice
 
                 if(_batchRequestNum == 0)
                 {
-                    outAsync.sent__(this);
+                    sentCallback = outAsync.sent__(this);
                     return true;
                 }
 
@@ -731,7 +734,7 @@ namespace Ice
                 _batchStream.pos(IceInternal.Protocol.headerSize);
                 _batchStream.writeInt(_batchRequestNum);
 
-                _batchStream.swap(outAsync.ostr__());
+                _batchStream.swap(outAsync.ostr__);
 
                 //
                 // Send the batch stream.
@@ -739,9 +742,9 @@ namespace Ice
                 bool sent;
                 try
                 {
-                    OutgoingMessage message = new OutgoingMessage(outAsync, outAsync.ostr__(), _batchRequestCompress,
-                                                                  false);
+                    OutgoingMessage message = new OutgoingMessage(outAsync, outAsync.ostr__, _batchRequestCompress, 0);
                     sent = sendMessage(message);
+                    sentCallback = message.sentCallback;
                 }
                 catch(LocalException ex)
                 {
@@ -900,7 +903,7 @@ namespace Ice
         //
         // Operations from EventHandler
         //
-        public override bool startAsync(int operation, AsyncCallback callback, ref bool completedSynchronously)
+        public override bool startAsync(int operation, System.AsyncCallback cb, ref bool completedSynchronously)
         {
             if(_state >= StateClosed)
             {
@@ -911,11 +914,17 @@ namespace Ice
             {
                 if((operation & IceInternal.SocketOperation.Write) != 0)
                 {
-                    completedSynchronously = _transceiver.startWrite(_writeStream.getBuffer(), callback, this);
+                    bool completed;
+                    completedSynchronously = _transceiver.startWrite(_writeStream.getBuffer(), cb, this, out completed);
+                    if(!completed && _sendStreams.Count > 0)
+                    {
+                        // The whole message is written, assume it's sent now for at-most-once semantics.
+                        _sendStreams.Peek().isSent = true;
+                    }
                 }
                 else if((operation & IceInternal.SocketOperation.Read) != 0)
                 {
-                    completedSynchronously = _transceiver.startRead(_readStream.getBuffer(), callback, this);
+                    completedSynchronously = _transceiver.startRead(_readStream.getBuffer(), cb, this);
                 }
             }
             catch(Ice.LocalException ex)
@@ -1166,7 +1175,7 @@ namespace Ice
 
                 //
                 // Unlike C++/Java, this method is called from an IO thread of the .NET thread
-                // pool of from the communicator async IO thread. While it's fine to handle the 
+                // pool or from the communicator async IO thread. While it's fine to handle the
                 // non-blocking activity of the connection from these threads, the dispatching 
                 // of the message must be taken care of by the Ice thread pool.
                 //
@@ -1174,48 +1183,74 @@ namespace Ice
                 _threadPool.execute(
                     delegate()
                     {
-                        //
-                        // Notify the factory that the connection establishment and
-                        // validation has completed.
-                        //
-                        if(startCB != null)
+                        if(_dispatcher != null)
                         {
-                            startCB.connectionStartCompleted(this);
-                        }
-                        
-                        //
-                        // Notify AMI calls that the message was sent.
-                        //
-                        if(sentCBs != null)
-                        {
-                            foreach(OutgoingMessage m in sentCBs)
+                            try
                             {
-                                m.outAsync.sent__(_instance);
+                                _dispatcher(delegate()
+                                            {
+                                                dispatch(startCB, sentCBs, info);
+                                            },
+                                            this);
+                            }
+                            catch(System.Exception ex)
+                            {
+                                if(_instance.initializationData().properties.getPropertyAsIntWithDefault(
+                                       "Ice.Warn.Dispatch", 1) > 1)
+                                {
+                                    warning("dispatch exception", ex);
+                                }
                             }
                         }
-                        
-                        //
-                        // Asynchronous replies must be handled outside the thread
-                        // synchronization, so that nested calls are possible.
-                        //
-                        if(info.outAsync != null)
+                        else
                         {
-                            info.outAsync.finished__(info.stream);
+                            dispatch(startCB, sentCBs, info);
                         }
-                        
-                        if(info.invokeNum > 0)
-                        {
-                            //
-                            // Method invocation (or multiple invocations for batch messages)
-                            // must be done outside the thread synchronization, so that nested
-                            // calls are possible.
-                            //
-                            invokeAll(info.stream, info.invokeNum, info.requestId, info.compress, info.servantManager, 
-                                      info.adapter);
-                        }
-        
                         msg.destroy(ref c);
                     });
+            }
+        }
+
+        private void dispatch(StartCallback startCB, Queue<OutgoingMessage> sentCBs, MessageInfo info)
+        {
+            //
+            // Notify the factory that the connection establishment and
+            // validation has completed.
+            //
+            if(startCB != null)
+            {
+                startCB.connectionStartCompleted(this);
+            }
+                        
+            //
+            // Notify AMI calls that the message was sent.
+            //
+            if(sentCBs != null)
+            {
+                foreach(OutgoingMessage m in sentCBs)
+                {
+                    m.outAsync.sent__(m.sentCallback);
+                }
+            }
+                        
+            //
+            // Asynchronous replies must be handled outside the thread
+            // synchronization, so that nested calls are possible.
+            //
+            if(info.outAsync != null)
+            {
+                info.outAsync.finished__(info.stream);
+            }
+                        
+            if(info.invokeNum > 0)
+            {
+                //
+                // Method invocation (or multiple invocations for batch messages)
+                // must be done outside the thread synchronization, so that nested
+                // calls are possible.
+                //
+                invokeAll(info.stream, info.invokeNum, info.requestId, info.compress, info.servantManager, 
+                          info.adapter);
             }
         }
 
@@ -1227,91 +1262,120 @@ namespace Ice
                 unscheduleTimeout(IceInternal.SocketOperation.Read | IceInternal.SocketOperation.Write);
             }
 
-            foreach(IceInternal.Outgoing o in _requests.Values)
-            {
-                o.finished(_exception);
-            }
-            _requests.Clear();
-
             //
             // If there are no callbacks to call, we don't call ioCompleted() since we're not going
             // to call code that will potentially block (this avoids promoting a new leader and 
             // unecessary thread creation, especially if this is called on shutdown).
             //
-            if(_startCallback != null || _sendStreams.Count > 0 || _asyncRequests.Count > 0)
+            if(_startCallback == null && _sendStreams.Count == 0 && _asyncRequests.Count == 0)
             {
-                //
-                // Unlike C++/Java, this method is called from an IO thread of the .NET thread
-                // pool of from the communicator async IO thread. While it's fine to handle the 
-                // non-blocking activity of the connection from these threads, the dispatching 
-                // of the message must be taken care of by the Ice thread pool.
-                //
-                _threadPool.execute(
-                    delegate()
-                    {
-                        if(_startCallback != null)
-                        {
-                            _startCallback.connectionStartFailed(this, _exception);
-                            _startCallback = null;
-                        }
-                        
-                        if(_sendStreams.Count > 0)
-                        {
-                            Debug.Assert(!_writeStream.isEmpty());
-
-                            //
-                            // The current message might be sent but not yet removed from _sendStreams if the 
-                            // connection was closed shortly after. We check if that's the case here and mark
-                            // the message as sent if necessary.
-                            //
-                            OutgoingMessage message = _sendStreams.Peek();
-                            _writeStream.swap(message.stream);
-                            if(!message.stream.getBuffer().b.hasRemaining())
-                            {
-                                message.sent(this, true);
-                                if(message.outAsync is Ice.AMISentCallback)
-                                {
-                                    message.outAsync.sent__(_instance);
-                                }
-                                _sendStreams.Dequeue();
-                            }
-
-                            foreach(OutgoingMessage m in _sendStreams)
-                            {
-                                m.finished(_exception);
-                            }
-                            _sendStreams.Clear();
-                        }
-
-                        foreach(IceInternal.OutgoingAsync o in _asyncRequests.Values)
-                        {
-                            o.finished__(_exception);
-                        }
-                        _asyncRequests.Clear();
-                        
-                        lock(this)
-                        {
-                            setState(StateFinished);
-                            if(_dispatchCount == 0)
-                            {
-                                _reaper.add(this);
-                            }
-                        }
-                    });
+                finish();
+                return;
             }
-            else
-            {
-                //
-                // This must be done last as this will cause waitUntilFinished() to return (and communicator
-                // objects such as the timer might be destroyed too).
-                //
-                lock(this)
+
+            //
+            // Unlike C++/Java, this method is called from an IO thread of the .NET thread
+            // pool of from the communicator async IO thread. While it's fine to handle the 
+            // non-blocking activity of the connection from these threads, the dispatching 
+            // of the message must be taken care of by the Ice thread pool.
+            //
+            _threadPool.execute(
+                delegate()
                 {
-                    setState(StateFinished);
-                    if(_dispatchCount == 0)
+                    if(_dispatcher != null)
                     {
-                        _reaper.add(this);
+                        try
+                        {
+                            _dispatcher(finish, this);
+                        }
+                        catch(System.Exception ex)
+                        {
+                            if(_instance.initializationData().properties.getPropertyAsIntWithDefault(
+                                   "Ice.Warn.Dispatch", 1) > 1)
+                            {
+                                warning("dispatch exception", ex);
+                            }
+                        }
                     }
+                    else
+                    {
+                        finish();
+                    }
+                });
+        }
+
+        private void
+        finish()
+        {
+            if(_startCallback != null)
+            {
+                _startCallback.connectionStartFailed(this, _exception);
+                _startCallback = null;
+            }
+                        
+            if(_sendStreams.Count > 0)
+            {
+                Debug.Assert(!_writeStream.isEmpty());
+
+                //
+                // The current message might be sent but not yet removed from _sendStreams. If
+                // the response has been received in the meantime, we remove the message from 
+                // _sendStreams to not call finished on a message which is already done.
+                //
+                OutgoingMessage message = _sendStreams.Peek();
+                _writeStream.swap(message.stream);
+                if(message.requestId > 0 &&
+                   (message.@out != null && !_requests.ContainsKey(message.requestId) ||
+                    message.outAsync != null && !_asyncRequests.ContainsKey(message.requestId)))
+                {
+                    if(message.sent(this, true))
+                    {
+                        Debug.Assert(message.outAsync != null);
+                        message.outAsync.sent__(message.sentCallback);
+                    }
+                    _sendStreams.Dequeue();
+                }
+
+                foreach(OutgoingMessage m in _sendStreams)
+                {
+                    m.finished(_exception);
+                    if(m.requestId > 0) // Make sure finished isn't called twice.
+                    {
+                        if(m.@out != null)
+                        {
+                            _requests.Remove(m.requestId);
+                        }
+                        else
+                        {
+                            _asyncRequests.Remove(m.requestId);
+                        }
+                    }
+                }
+                _sendStreams.Clear();
+            }
+
+            foreach(IceInternal.Outgoing o in _requests.Values)
+            {
+                o.finished(_exception, true);
+            }
+            _requests.Clear();
+
+            foreach(IceInternal.OutgoingAsync o in _asyncRequests.Values)
+            {
+                o.finished__(_exception, true);
+            }
+            _asyncRequests.Clear();
+                        
+            //
+            // This must be done last as this will cause waitUntilFinished() to return (and communicator
+            // objects such as the timer might be destroyed too).
+            //
+            lock(this)
+            {
+                setState(StateFinished);
+                if(_dispatchCount == 0)
+                {
+                    _reaper.add(this);
                 }
             }
         }
@@ -1425,6 +1489,7 @@ namespace Ice
             _connector = connector;
             _endpoint = endpoint;
             _adapter = adapter;
+            _dispatcher = initData.dispatcher; // Cached for better performance.
             _logger = initData.logger; // Cached for better performance.
             _traceLevels = instance.traceLevels(); // Cached for better performance.
             _timer = instance.timer();
@@ -1885,10 +1950,11 @@ namespace Ice
                     // Notify the message that it was sent.
                     //
                     OutgoingMessage message = _sendStreams.Peek();
-                    _writeStream.swap(message.stream);                    
-                    message.sent(this, true);
-                    if(message.outAsync is Ice.AMISentCallback)
+                    _writeStream.swap(message.stream);
+                    Debug.Assert(_writeStream.isEmpty());
+                    if(message.sent(this, true))
                     {
+                        Debug.Assert(message.outAsync != null);
                         if(callbacks == null)
                         {
                             callbacks = new Queue<OutgoingMessage>();
@@ -2450,24 +2516,28 @@ namespace Ice
                 this.stream = stream;
                 this.compress = compress;
                 this._adopt = adopt;
+                this.isSent = false;
+                this.requestId = 0;
             }
 
             internal OutgoingMessage(IceInternal.OutgoingMessageCallback @out, IceInternal.BasicStream stream,
-                                     bool compress, bool resp)
+                                     bool compress, int requestId)
             {
                 this.stream = stream;
                 this.compress = compress;
                 this.@out = @out;
-                this.response = resp;
+                this.requestId = requestId;
+                this.isSent = false;
             }
 
             internal OutgoingMessage(IceInternal.OutgoingAsyncMessageCallback @out, IceInternal.BasicStream stream,
-                                     bool compress, bool resp)
+                                     bool compress, int requestId)
             {
                 this.stream = stream;
                 this.compress = compress;
                 this.outAsync = @out;
-                this.response = resp;
+                this.requestId = requestId;
+                this.isSent = false;
             }
 
             internal void adopt()
@@ -2481,35 +2551,35 @@ namespace Ice
                 }
             }
 
-            internal void sent(ConnectionI connection, bool notify)
+            internal bool sent(ConnectionI connection, bool notify)
             {
+                isSent = true; // The message is sent.
+    
                 if(@out != null)
                 {
                     @out.sent(notify); // true = notify the waiting thread that the request was sent.
+                    return false;
                 }
                 else if(outAsync != null)
                 {
-                    outAsync.sent__(connection);
+                    sentCallback = outAsync.sent__(connection);
+                    return sentCallback != null;
+                }
+                else 
+                {
+                    return false;
                 }
             }
 
             internal void finished(LocalException ex)
             {
-                //
-                // Only notify oneway requests. The connection keeps track of twoway
-                // requests in the _requests/_asyncRequests maps and will notify them
-                // of the connection exceptions.
-                //
-                if(!response)
+                if(@out != null)
                 {
-                    if(@out != null)
-                    {
-                        @out.finished(ex);
-                    }
-                    else if(outAsync != null)
-                    {
-                        outAsync.finished__(ex);
-                    }
+                    @out.finished(ex, isSent);
+                }
+                else if(outAsync != null)
+                {
+                    outAsync.finished__(ex, isSent);
                 }
             }
 
@@ -2517,9 +2587,11 @@ namespace Ice
             internal IceInternal.OutgoingMessageCallback @out;
             internal IceInternal.OutgoingAsyncMessageCallback outAsync;
             internal bool compress;
-            internal bool response;
+            internal int requestId;
             internal bool _adopt;
             internal bool prepared;
+            internal bool isSent;
+            internal Ice.AsyncCallback sentCallback = null;
         }
 
         private IceInternal.Instance _instance;
@@ -2533,6 +2605,7 @@ namespace Ice
         private ObjectAdapter _adapter;
         private IceInternal.ServantManager _servantManager;
 
+        private Dispatcher _dispatcher;
         private Logger _logger;
         private IceInternal.TraceLevels _traceLevels;
         private IceInternal.ThreadPool _threadPool;

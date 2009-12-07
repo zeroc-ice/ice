@@ -1,5 +1,0 @@
-Perf.o: Perf.cpp Perf.h
-Publisher.o: Publisher.cpp Perf.h Sync.h
-Sync.o: Sync.cpp Sync.h
-Subscriber.o: Subscriber.cpp PerfI.h Perf.h
-PerfI.o: PerfI.cpp PerfI.h Perf.h

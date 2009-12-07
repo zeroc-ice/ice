@@ -74,6 +74,10 @@ refdir = $(bindir)
 refdir = $(ice_dir)\bin
 !endif
 
+!if "$(VERSION_PATCH)" > "0" && "$(VERSION_PATCH)" < "51"
+    generate_policies   = yes
+!endif
+
 MCS			= csc -nologo
 
 MCSFLAGS = -warnaserror -d:MAKEFILE_BUILD
@@ -128,7 +132,7 @@ all:: $(TARGETS)
 AL      = al
 POLICY  = policy.$(SHORT_VERSION).$(PKG)
 
-!if "$(POLICY_TARGET)" != ""
+!if "$(generate_policies)" == "yes" && "$(POLICY_TARGET)" != ""
 all:: $(bindir)/$(POLICY_TARGET)
 !endif
 
@@ -156,7 +160,7 @@ clean::
 	del /q $(SAMD_GEN_SRCS)
 !endif
 
-!if "$(POLICY_TARGET)" != ""
+!if "$(generate_policies)" == "yes" && "$(POLICY_TARGET)" != ""
 
 $(bindir)/$(POLICY_TARGET):
 !if "$(PUBLIC_KEY_TOKEN)" == ""

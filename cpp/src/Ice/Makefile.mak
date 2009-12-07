@@ -10,7 +10,7 @@
 top_srcdir	= ..\..
 
 LIBNAME		= $(top_srcdir)\lib\ice$(LIBSUFFIX).lib
-DLLNAME		= $(top_srcdir)\bin\ice$(SOVERSION)$(COMPSUFFIX)$(LIBSUFFIX).dll
+DLLNAME		= $(top_srcdir)\bin\ice$(COMPSUFFIX)$(SOVERSION)$(LIBSUFFIX).dll
 
 TARGETS		= $(LIBNAME) $(DLLNAME)
 
@@ -116,6 +116,9 @@ SDIR		= $(slicedir)\Ice
 !include $(top_srcdir)\config\Make.rules.mak
 
 CPPFLAGS	= -I.. $(CPPFLAGS) -DICE_API_EXPORTS -DFD_SETSIZE=1024 -DWIN32_LEAN_AND_MEAN
+!if "$(UNIQUE_DLL_NAMES)" == "yes"
+CPPFLAGS	= $(CPPFLAGS) -DCOMPSUFFIX=\"$(COMPSUFFIX)\"
+!endif
 SLICE2CPPFLAGS	= --ice --include-dir Ice --dll-export ICE_API $(SLICE2CPPFLAGS)
 LINKWITH        = $(BASELIBS) $(BZIP2_LIBS) $(ICE_OS_LIBS) ws2_32.lib
 #!if "$(BCPLUSPLUS)" != "yes"

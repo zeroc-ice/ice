@@ -26,12 +26,12 @@ struct RandomNumberGenerator : public std::unary_function<ptrdiff_t, ptrdiff_t>
     }
 };
 
-class GetAdapterNameCB : public AMI_TestIntf_getAdapterName, public IceUtil::Monitor<IceUtil::Mutex>
+class GetAdapterNameCB : public IceUtil::Shared, public IceUtil::Monitor<IceUtil::Mutex>
 {
 public:
 
-    virtual void
-    ice_response(const string& name)
+    void
+    response(const string& name)
     {
         Lock sync(*this);
         assert(!name.empty());
@@ -39,8 +39,8 @@ public:
         notify();
     }
 
-    virtual void
-    ice_exception(const Ice::Exception&)
+    void
+    exception(const Ice::Exception&)
     {
         test(false);
     }
@@ -62,26 +62,12 @@ private:
 };
 typedef IceUtil::Handle<GetAdapterNameCB> GetAdapterNameCBPtr;
 
-class NoOpGetAdapterNameCB : public AMI_TestIntf_getAdapterName
-{
-public:
-
-    virtual void
-    ice_response(const string&)
-    {
-    }
-
-    virtual void
-    ice_exception(const Ice::Exception&)
-    {
-    }
-};
-
 string
 getAdapterNameWithAMI(const TestIntfPrx& test)
 {
     GetAdapterNameCBPtr cb = new GetAdapterNameCB();
-    test->getAdapterName_async(cb);
+    test->begin_getAdapterName(
+        newCallback_TestIntf_getAdapterName(cb, &GetAdapterNameCB::response,  &GetAdapterNameCB::exception));
     return cb->getResult();
 }
 
@@ -287,7 +273,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
             
             for(i = 0; i < proxies.size(); i++)
             {
-                proxies[i]->getAdapterName_async(new NoOpGetAdapterNameCB());
+                proxies[i]->begin_getAdapterName();
             }
             for(i = 0; i < proxies.size(); i++)
             {

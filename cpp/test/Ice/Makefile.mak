@@ -14,6 +14,7 @@ top_srcdir	= ..\..
 SUBDIRS		= proxy \
 		  operations \
 		  exceptions \
+		  ami \
 		  info \
 		  inheritance \
 		  facets \
@@ -24,6 +25,7 @@ SUBDIRS		= proxy \
 		  slicing \
 		  gc \
 		  checksum \
+		  dispatcher \
 		  hold \
 		  custom \
 		  binding \
@@ -35,11 +37,12 @@ SUBDIRS		= proxy \
 		  background \
 		  udp \
 		  defaultServant \
-		  threadPoolPriority
+		  threadPoolPriority \
 
 !if "$(CPP_COMPILER)" != "VC60"
 SUBDIRS		= $(SUBDIRS) \
-		  stream
+		  stream \
+		  invoke
 !endif
 
 $(EVERYTHING)::

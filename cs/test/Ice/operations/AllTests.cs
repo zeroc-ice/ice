@@ -39,9 +39,20 @@ public class AllTests
             TwowaysAMI.twowaysAMI(communicator, derivedProxy);
             Console.Out.WriteLine("ok");
 
+            Console.Out.Write("testing twoway operations with new AMI mapping... ");
+            Console.Out.Flush();
+            TwowaysNewAMI.twowaysNewAMI(communicator, cl);
+            TwowaysNewAMI.twowaysNewAMI(communicator, derivedProxy);
+            Console.Out.WriteLine("ok");
+
             Console.Out.Write("testing oneway operations with AMI... ");
             Console.Out.Flush();
             OnewaysAMI.onewaysAMI(communicator, cl);
+            Console.Out.WriteLine("ok");
+
+            Console.Out.Write("testing oneway operations with new AMI mapping... ");
+            Console.Out.Flush();
+            OnewaysNewAMI.onewaysNewAMI(communicator, cl);
             Console.Out.WriteLine("ok");
 
             Console.Out.Write("testing batch oneway operations... ");

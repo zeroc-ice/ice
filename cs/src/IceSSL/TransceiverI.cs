@@ -218,7 +218,7 @@ namespace IceSSL
             }
         }
 
-        public bool startWrite(IceInternal.Buffer buf, AsyncCallback callback, object state)
+        public bool startWrite(IceInternal.Buffer buf, AsyncCallback callback, object state, out bool completed)
         {
             Debug.Assert(_fd != null);
             
@@ -227,10 +227,12 @@ namespace IceSSL
                 if(_state == StateConnectPending)
                 {
                     _writeResult = IceInternal.Network.doConnectAsync(_fd, _addr, callback, state);
+                    completed = false;
                     return _writeResult.CompletedSynchronously;
                 }
                 else if(_state == StateAuthenticatePending)
                 {
+                    completed = false;
                     return beginAuthenticate(callback, state);
                 }
             }
@@ -248,6 +250,7 @@ namespace IceSSL
             try
             {
                 _writeResult = _stream.BeginWrite(buf.b.rawBytes(), buf.b.position(), packetSize, callback, state);
+                completed = packetSize == buf.b.remaining();
                 return _writeResult.CompletedSynchronously;
             }
             catch(IOException ex)
@@ -368,11 +371,6 @@ namespace IceSSL
             return _desc;
         }
 
-        public ConnectionInfo getConnectionInfo()
-        {
-            return _info;
-        }
-
         //
         // Only for use by ConnectorI, AcceptorI.
         //
@@ -385,7 +383,6 @@ namespace IceSSL
             _host = host;
             _adapterName = adapterName;
             _stream = null;
-            _info = null;
             _logger = instance.communicator().getLogger();
             _stats = instance.communicator().getStats();
             _desc = connected ? IceInternal.Network.fdToString(_fd) : "<not connected>";
@@ -732,7 +729,6 @@ namespace IceSSL
         private string _host;
         private string _adapterName;
         private SslStream _stream;
-        private ConnectionInfo _info;
         private Ice.Logger _logger;
         private Ice.Stats _stats;
         private string _desc;

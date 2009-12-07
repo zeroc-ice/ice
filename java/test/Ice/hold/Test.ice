@@ -18,7 +18,7 @@ interface Hold
 {
     void putOnHold(int seconds);
     void waitForHold();
-    ["ami"] int set(int value, int delay);
+    int set(int value, int delay);
     void setOneway(int value, int expected);
     void shutdown();
 };

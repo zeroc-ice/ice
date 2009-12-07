@@ -23,7 +23,7 @@ public:
     virtual bool write(IceInternal::Buffer&);
     virtual bool read(IceInternal::Buffer&);
 #ifdef ICE_USE_IOCP
-    virtual void startWrite(IceInternal::Buffer&);
+    virtual bool startWrite(IceInternal::Buffer&);
     virtual void finishWrite(IceInternal::Buffer&);
     virtual void startRead(IceInternal::Buffer&);
     virtual void finishRead(IceInternal::Buffer&);

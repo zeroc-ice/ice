@@ -14,6 +14,7 @@
 
 #include <IceUtil/Handle.h>
 #include <IceUtil/Thread.h>
+#include <IceUtil/FileUtil.h>
 
 #include <Ice/CommunicatorF.h>
 #include <Ice/Initialize.h> // For ThreadHook
@@ -122,6 +123,10 @@ protected:
 
     QSqlDatabase _connection;
     ThreadDatabaseMap _cache;
+    
+private:
+    
+    IceUtilInternal::FileLockPtr _fileLock;
 };
 
 typedef IceUtil::Handle<DatabaseCache> DatabaseCachePtr;

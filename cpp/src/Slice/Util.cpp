@@ -117,7 +117,7 @@ Slice::fullPath(const string& path)
         {
             subpath = result.substr(0, next);
         }
-            
+
         char buf[PATH_MAX + 1];
         int len = readlink(subpath.c_str(), buf, sizeof(buf));
         if(len > 0)
@@ -147,7 +147,17 @@ Slice::fullPath(const string& path)
 string
 Slice::changeInclude(const string& orig, const vector<string>& includePaths)
 {
-    string file = fullPath(orig);
+    //
+    // MCPP does not follow symlinks included files so we only
+    // call fullPath on the base directory and not the file itself.
+    //
+    string file = orig;
+    string::size_type pos;
+    if((pos = orig.rfind('/')) != string::npos)
+    {
+        string base = orig.substr(0, pos);
+        file = fullPath(base) + orig.substr(pos);
+    }
 
     //
     // Compare each include path against the included file and select
@@ -175,7 +185,6 @@ Slice::changeInclude(const string& orig, const vector<string>& includePaths)
         result = normalizePath(orig);
     }
 
-    string::size_type pos;
     if((pos = result.rfind('.')) != string::npos)
     {
         result.erase(pos);

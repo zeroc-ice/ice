@@ -53,6 +53,34 @@ namespace IceInternal
 
             v = System.Environment.OSVersion.Version;
             xp_ = v.Major == 5 && v.Minor == 1; // Are we running on XP?
+
+            osx_ = false;
+            if(platform_ == Platform.NonWindows)
+            {
+                try
+                {
+                    Assembly a = Assembly.Load(
+                        "Mono.Posix, Version=2.0.0.0, Culture=neutral, PublicKeyToken=0738eb9f132ed756");
+                    Type syscall = a.GetType("Mono.Unix.Native.Syscall");
+                    if(syscall != null)
+                    {
+                        MethodInfo method = syscall.GetMethod("uname", BindingFlags.Static | BindingFlags.Public);
+                        if(method != null)
+                        {
+                            object[] p = new object[1];
+                            method.Invoke(null, p);
+                            if(p[0] != null)
+                            {
+                                Type utsname = a.GetType("Mono.Unix.Native.Utsname");
+                                osx_ = ((string)utsname.GetField("sysname").GetValue(p[0])).Equals("Darwin");
+                            }
+                        }
+                    }
+                }
+                catch(System.Exception)
+                {
+                }
+            }
         }
 
         public static Type findType(string csharpId)
@@ -91,7 +119,7 @@ namespace IceInternal
                     Type[] types = a.GetTypes();
                     foreach(Type t in types)
                     {
-                        if(t.AssemblyQualifiedName.IndexOf(prefix) == 0)
+                        if(t.AssemblyQualifiedName.IndexOf(prefix, StringComparison.Ordinal) == 0)
                         {
                             l.Add(t);
                         }
@@ -195,6 +223,7 @@ namespace IceInternal
 
         public readonly static Platform platform_;
         public readonly static bool xp_;
+        public readonly static bool osx_;
     }
 
 }

@@ -297,7 +297,7 @@ repeat:
 }
 
 #ifdef ICE_USE_IOCP
-void
+bool
 IceInternal::UdpTransceiver::startWrite(Buffer& buf)
 {
     assert(buf.i == buf.b.begin());
@@ -354,6 +354,7 @@ IceInternal::UdpTransceiver::startWrite(Buffer& buf)
             }
         }
     }
+    return true;
 }
 
 void

@@ -11,12 +11,12 @@ package test.Ice.binding;
 
 import java.io.PrintWriter;
 
-import test.Ice.binding.Test.AMI_TestIntf_getAdapterName;
 import test.Ice.binding.Test.RemoteCommunicatorPrx;
 import test.Ice.binding.Test.RemoteCommunicatorPrxHelper;
 import test.Ice.binding.Test.RemoteObjectAdapterPrx;
 import test.Ice.binding.Test.TestIntfPrx;
 import test.Ice.binding.Test.TestIntfPrxHelper;
+import test.Ice.binding.Test.Callback_TestIntf_getAdapterName;
 
 public class AllTests
 {
@@ -29,43 +29,20 @@ public class AllTests
         }
     }
 
-    static class NoOpGetAdapterNameCB extends AMI_TestIntf_getAdapterName
-    {
-        public
-        void ice_response(String name)
-        {
-        }
-
-        public void
-        ice_exception(Ice.LocalException ex)
-        {
-        }
-
-        public void
-        ice_exception(Ice.UserException ex)
-        {
-        }
-    };
-
-    static class GetAdapterNameCB extends AMI_TestIntf_getAdapterName
+    static class GetAdapterNameCB extends Ice.AsyncCallback
     {
         synchronized public void
-        ice_response(String adapterName)
+        completed(Ice.AsyncResult result)
         {
-            _name = adapterName;
-            notify();
-        }
-
-        public void
-        ice_exception(Ice.LocalException ex)
-        {
-            test(false);
-        }
-
-        public void
-        ice_exception(Ice.UserException ex)
-        {
-            test(false);
+            try
+            {
+                _name = TestIntfPrxHelper.uncheckedCast(result.getProxy()).end_getAdapterName(result);
+                notify();
+            }
+            catch(Ice.LocalException ex)
+            {
+                test(false);
+            }
         }
 
         synchronized public String
@@ -91,7 +68,7 @@ public class AllTests
     getAdapterNameWithAMI(TestIntfPrx test)
     {
         GetAdapterNameCB cb = new GetAdapterNameCB();
-        test.getAdapterName_async(cb);
+        test.begin_getAdapterName(cb);
         return cb.getResult();
     }
 
@@ -314,7 +291,7 @@ public class AllTests
 
                 for(TestIntfPrx p : proxies)
                 {
-                    p.getAdapterName_async(new NoOpGetAdapterNameCB());
+                    p.begin_getAdapterName();
                 }
                 for(TestIntfPrx p : proxies)
                 {

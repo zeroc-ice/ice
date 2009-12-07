@@ -10,7 +10,7 @@
 top_srcdir	= ..\..\..
 
 LIBNAME		= $(top_srcdir)\lib\icestormfreezedb$(LIBSUFFIX).lib
-DLLNAME		= $(top_srcdir)\bin\icestormfreezedb$(SOVERSION)$(LIBSUFFIX).dll
+DLLNAME		= $(top_srcdir)\bin\icestormfreezedb$(COMPSUFFIX)$(SOVERSION)$(LIBSUFFIX).dll
 
 MIGRATE		= $(top_srcdir)\bin\icestormmigrate.exe
 

@@ -688,6 +688,10 @@ public class BasicStream
     public void
     writeBlob(byte[] v)
     {
+        if(v == null)
+        {
+            return;
+        }
         expand(v.length);
         _buf.b.put(v);
     }
@@ -695,6 +699,10 @@ public class BasicStream
     public void
     writeBlob(byte[] v, int off, int len)
     {
+        if(v == null)
+        {
+            return;
+        }
         expand(len);
         _buf.b.put(v, off, len);
     }
@@ -1986,6 +1994,7 @@ public class BasicStream
             // Otherwise, allocate an array to hold a copy of the uncompressed data.
             //
             data = new byte[size()];
+            pos(0);
             _buf.b.get(data);
         }
 
@@ -2081,6 +2090,7 @@ public class BasicStream
             // Otherwise, allocate an array to hold a copy of the compressed data.
             //
             compressed = new byte[size()];
+            pos(0);
             _buf.b.get(compressed);
         }
 
@@ -2522,38 +2532,44 @@ public class BasicStream
         new java.util.HashMap<String, UserExceptionFactory>();
     private static java.lang.Object _factoryMutex = new java.lang.Object(); // Protects _exceptionFactories.
 
-    public static boolean
-    compressible()
-    {
-        return _bzInputStreamCtor != null && _bzOutputStreamCtor != null;
-    }
-
+    private static boolean _checkedBZip2 = false;
     private static java.lang.reflect.Constructor<?> _bzInputStreamCtor;
     private static java.lang.reflect.Constructor<?> _bzOutputStreamCtor;
-    static
+
+    public synchronized static boolean
+    compressible()
     {
-        try
+        //
+        // Use lazy initialization when determining whether support for bzip2 compression
+        // is available.
+        //
+        if(!_checkedBZip2)
         {
-            Class<?> cls;
-            Class<?>[] types = new Class<?>[1];
-            cls = IceInternal.Util.findClass("org.apache.tools.bzip2.CBZip2InputStream", null);
-            if(cls != null)
+            _checkedBZip2 = true;
+            try
             {
-                types[0] = java.io.InputStream.class;
-                _bzInputStreamCtor = cls.getDeclaredConstructor(types);
+                Class<?> cls;
+                Class<?>[] types = new Class<?>[1];
+                cls = IceInternal.Util.findClass("org.apache.tools.bzip2.CBZip2InputStream", null);
+                if(cls != null)
+                {
+                    types[0] = java.io.InputStream.class;
+                    _bzInputStreamCtor = cls.getDeclaredConstructor(types);
+                }
+                cls = IceInternal.Util.findClass("org.apache.tools.bzip2.CBZip2OutputStream", null);
+                if(cls != null)
+                {
+                    types = new Class[2];
+                    types[0] = java.io.OutputStream.class;
+                    types[1] = Integer.TYPE;
+                    _bzOutputStreamCtor = cls.getDeclaredConstructor(types);
+                }
             }
-            cls = IceInternal.Util.findClass("org.apache.tools.bzip2.CBZip2OutputStream", null);
-            if(cls != null)
+            catch(Exception ex)
             {
-                types = new Class[2];
-                types[0] = java.io.OutputStream.class;
-                types[1] = Integer.TYPE;
-                _bzOutputStreamCtor = cls.getDeclaredConstructor(types);
+                // Ignore - bzip2 compression not available.
             }
         }
-        catch(Exception ex)
-        {
-            // Ignore - bzip2 compression not available.
-        }
+        return _bzInputStreamCtor != null && _bzOutputStreamCtor != null;
     }
 }

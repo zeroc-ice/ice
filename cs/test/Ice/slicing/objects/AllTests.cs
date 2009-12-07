@@ -56,9 +56,9 @@ public class AllTests
         private bool _called;
     }
     
-    private class AMI_Test_SBaseAsObjectI : AMI_TestIntf_SBaseAsObject
+    private class AsyncCallback
     {
-        public override void ice_response(Ice.Object o)
+        public void response_SBaseAsObject(Ice.Object o)
         {
             AllTests.test(o != null);
             AllTests.test(o.ice_id().Equals("::Test::SBase"));
@@ -68,43 +68,13 @@ public class AllTests
             callback.called();
         }
         
-        public override void ice_exception(Ice.Exception exc)
-        {
-            AllTests.test(false);
-        }
-        
-        public virtual void check()
-        {
-            callback.check();
-        }
-        
-        private Callback callback = new Callback();
-    }
-    
-    private class AMI_Test_SBaseAsSBaseI : AMI_TestIntf_SBaseAsSBase
-    {
-        public override void ice_response(SBase sb)
+        public void response_SBaseAsSBase(SBase sb)
         {
             AllTests.test(sb.sb.Equals("SBase.sb"));
             callback.called();
         }
         
-        public override void ice_exception(Ice.Exception exc)
-        {
-            AllTests.test(false);
-        }
-        
-        public virtual void check()
-        {
-            callback.check();
-        }
-        
-        private Callback callback = new Callback();
-    }
-    
-    private class AMI_Test_SBSKnownDerivedAsSBaseI : AMI_TestIntf_SBSKnownDerivedAsSBase
-    {
-        public override void ice_response(SBase sb)
+        public void response_SBSKnownDerivedAsSBase(SBase sb)
         {
             AllTests.test(sb.sb.Equals("SBSKnownDerived.sb"));
             SBSKnownDerived sbskd = (SBSKnownDerived) sb;
@@ -113,85 +83,30 @@ public class AllTests
             callback.called();
         }
         
-        public override void ice_exception(Ice.Exception exc)
-        {
-            AllTests.test(false);
-        }
-        
-        public virtual void check()
-        {
-            callback.check();
-        }
-        
-        private Callback callback = new Callback();
-    }
-    
-    private class AMI_Test_SBSKnownDerivedAsSBSKnownDerivedI : AMI_TestIntf_SBSKnownDerivedAsSBSKnownDerived
-    {
-        public override void ice_response(SBSKnownDerived sbskd)
+        public void response_SBSKnownDerivedAsSBSKnownDerived(SBSKnownDerived sbskd)
         {
             AllTests.test(sbskd.sbskd.Equals("SBSKnownDerived.sbskd"));
             callback.called();
         }
         
-        public override void ice_exception(Ice.Exception exc)
-        {
-            AllTests.test(false);
-        }
-        
-        public virtual void check()
-        {
-            callback.check();
-        }
-        
-        private Callback callback = new Callback();
-    }
-    
-    private class AMI_Test_SBSUnknownDerivedAsSBaseI : AMI_TestIntf_SBSUnknownDerivedAsSBase
-    {
-        public override void ice_response(SBase sb)
+        public void response_SBSUnknownDerivedAsSBase(SBase sb)
         {
             AllTests.test(sb.sb.Equals("SBSUnknownDerived.sb"));
             callback.called();
         }
         
-        public override void ice_exception(Ice.Exception exc)
+        public void response_SUnknownAsObject(Ice.Object o)
         {
             AllTests.test(false);
         }
         
-        public virtual void check()
-        {
-            callback.check();
-        }
-        
-        private Callback callback = new Callback();
-    }
-    
-    private class AMI_Test_SUnknownAsObjectI : AMI_TestIntf_SUnknownAsObject
-    {
-        public override void ice_response(Ice.Object o)
-        {
-            AllTests.test(false);
-        }
-        
-        public override void ice_exception(Ice.Exception exc)
+        public void exception_SUnknownAsObject(Ice.Exception exc)
         {
             AllTests.test(exc.GetType().FullName.Equals("Ice.NoObjectFactoryException"));
             callback.called();
         }
         
-        public virtual void check()
-        {
-            callback.check();
-        }
-        
-        private Callback callback = new Callback();
-    }
-    
-    private class AMI_Test_oneElementCycleI : AMI_TestIntf_oneElementCycle
-    {
-        public override void ice_response(B b)
+        public void response_oneElementCycle(B b)
         {
             AllTests.test(b != null);
             AllTests.test(b.ice_id().Equals("::Test::B"));
@@ -200,22 +115,7 @@ public class AllTests
             callback.called();
         }
         
-        public override void ice_exception(Ice.Exception exc)
-        {
-            AllTests.test(false);
-        }
-        
-        public virtual void check()
-        {
-            callback.check();
-        }
-        
-        private Callback callback = new Callback();
-    }
-    
-    private class AMI_Test_twoElementCycleI : AMI_TestIntf_twoElementCycle
-    {
-        public override void ice_response(B b1)
+        public void response_twoElementCycle(B b1)
         {
             AllTests.test(b1 != null);
             AllTests.test(b1.ice_id().Equals("::Test::B"));
@@ -229,22 +129,7 @@ public class AllTests
             callback.called();
         }
         
-        public override void ice_exception(Ice.Exception exc)
-        {
-            AllTests.test(false);
-        }
-        
-        public virtual void check()
-        {
-            callback.check();
-        }
-        
-        private Callback callback = new Callback();
-    }
-    
-    private class AMI_Test_D1AsBI : AMI_TestIntf_D1AsB
-    {
-        public override void ice_response(B b1)
+        public void response_D1AsB(B b1)
         {
             AllTests.test(b1 != null);
             AllTests.test(b1.ice_id().Equals("::Test::D1"));
@@ -266,22 +151,7 @@ public class AllTests
             callback.called();
         }
         
-        public override void ice_exception(Ice.Exception exc)
-        {
-            AllTests.test(false);
-        }
-        
-        public virtual void check()
-        {
-            callback.check();
-        }
-        
-        private Callback callback = new Callback();
-    }
-    
-    private class AMI_Test_D1AsD1I : AMI_TestIntf_D1AsD1
-    {
-        public override void ice_response(D1 d1)
+        public void response_D1AsD1(D1 d1)
         {
             AllTests.test(d1 != null);
             AllTests.test(d1.ice_id().Equals("::Test::D1"));
@@ -297,22 +167,7 @@ public class AllTests
             callback.called();
         }
         
-        public override void ice_exception(Ice.Exception exc)
-        {
-            AllTests.test(false);
-        }
-        
-        public virtual void check()
-        {
-            callback.check();
-        }
-        
-        private Callback callback = new Callback();
-    }
-    
-    private class AMI_Test_D2AsBI : AMI_TestIntf_D2AsB
-    {
-        public override void ice_response(B b2)
+        public void response_D2AsB(B b2)
         {
             AllTests.test(b2 != null);
             AllTests.test(b2.ice_id().Equals("::Test::B"));
@@ -332,22 +187,7 @@ public class AllTests
             callback.called();
         }
         
-        public override void ice_exception(Ice.Exception exc)
-        {
-            AllTests.test(false);
-        }
-        
-        public virtual void check()
-        {
-            callback.check();
-        }
-        
-        private Callback callback = new Callback();
-    }
-    
-    private class AMI_Test_paramTest1I : AMI_TestIntf_paramTest1
-    {
-        public override void ice_response(B b1, B b2)
+        public void response_paramTest1(B b1, B b2)
         {
             AllTests.test(b1 != null);
             AllTests.test(b1.ice_id().Equals("::Test::D1"));
@@ -365,22 +205,7 @@ public class AllTests
             callback.called();
         }
         
-        public override void ice_exception(Ice.Exception exc)
-        {
-            AllTests.test(false);
-        }
-        
-        public virtual void check()
-        {
-            callback.check();
-        }
-        
-        private Callback callback = new Callback();
-    }
-    
-    private class AMI_Test_paramTest2I : AMI_TestIntf_paramTest2
-    {
-        public override void ice_response(B b2, B b1)
+        public void response_paramTest2(B b2, B b1)
         {
             AllTests.test(b1 != null);
             AllTests.test(b1.ice_id().Equals("::Test::D1"));
@@ -398,87 +223,25 @@ public class AllTests
             callback.called();
         }
         
-        public override void ice_exception(Ice.Exception exc)
-        {
-            AllTests.test(false);
-        }
-        
-        public virtual void check()
-        {
-            callback.check();
-        }
-        
-        private Callback callback = new Callback();
-    }
-    
-    private class AMI_Test_returnTest1I : AMI_TestIntf_returnTest1
-    {
-        public override void ice_response(B r, B p1, B p2)
+        public void response_returnTest1(B r, B p1, B p2)
         {
             AllTests.test(r == p1);
             callback.called();
         }
         
-        public override void ice_exception(Ice.Exception exc)
-        {
-            AllTests.test(false);
-        }
-        
-        public virtual void check()
-        {
-            callback.check();
-        }
-        
-        private Callback callback = new Callback();
-    }
-    
-    private class AMI_Test_returnTest2I : AMI_TestIntf_returnTest2
-    {
-        public override void ice_response(B r, B p1, B p2)
+        public void response_returnTest2(B r, B p1, B p2)
         {
             AllTests.test(r == p1);
             callback.called();
         }
         
-        public override void ice_exception(Ice.Exception exc)
+        public void response_returnTest3(B b)
         {
-            AllTests.test(false);
-        }
-        
-        public virtual void check()
-        {
-            callback.check();
-        }
-        
-        private Callback callback = new Callback();
-    }
-    
-    private class AMI_Test_returnTest3I : AMI_TestIntf_returnTest3
-    {
-        public override void ice_response(B b)
-        {
-            r = b;
+            rb = b;
             callback.called();
         }
         
-        public override void ice_exception(Ice.Exception exc)
-        {
-            AllTests.test(false);
-        }
-        
-        public virtual void check()
-        {
-            callback.check();
-        }
-        
-        private Callback callback = new Callback();
-        
-        public B r;
-    }
-    
-    private class AMI_Test_paramTest3I : AMI_TestIntf_paramTest3
-    {
-        public override void ice_response(B ret, B p1, B p2)
+        public void response_paramTest3(B ret, B p1, B p2)
         {
             AllTests.test(p1 != null);
             AllTests.test(p1.sb.Equals("D2.sb (p1 1)"));
@@ -497,22 +260,7 @@ public class AllTests
             callback.called();
         }
         
-        public override void ice_exception(Ice.Exception exc)
-        {
-            AllTests.test(false);
-        }
-        
-        public virtual void check()
-        {
-            callback.check();
-        }
-        
-        private Callback callback = new Callback();
-    }
-    
-    private class AMI_Test_paramTest4I : AMI_TestIntf_paramTest4
-    {
-        public override void ice_response(B ret, B b)
+        public void response_paramTest4(B ret, B b)
         {
             AllTests.test(b != null);
             AllTests.test(b.sb.Equals("D4.sb (1)"));
@@ -526,75 +274,20 @@ public class AllTests
             callback.called();
         }
         
-        public override void ice_exception(Ice.Exception exc)
+        public void response_sequenceTest(SS ss)
         {
-            AllTests.test(false);
-        }
-        
-        public virtual void check()
-        {
-            callback.check();
-        }
-        
-        private Callback callback = new Callback();
-    }
-    
-    private class AMI_Test_sequenceTestI : AMI_TestIntf_sequenceTest
-    {
-        public override void ice_response(SS ss)
-        {
-            r = ss;
+            rss = ss;
             callback.called();
         }
         
-        public override void ice_exception(Ice.Exception exc)
+        public void response_dictionaryTest(Dictionary<int, B> r, Dictionary<int, B> bout)
         {
-            AllTests.test(false);
-        }
-        
-        public virtual void check()
-        {
-            callback.check();
-        }
-        
-        private Callback callback = new Callback();
-        
-        public SS r;
-    }
-    
-    private class AMI_Test_dictionaryTestI : AMI_TestIntf_dictionaryTest
-    {
-        public override void ice_response(Dictionary<int, B> r, Dictionary<int, B> bout)
-        {
-            this.r = (Dictionary<int, B>)r;
-            this.bout = (Dictionary<int, B>)bout;
+            this.rbdict = (Dictionary<int, B>)r;
+            this.obdict = (Dictionary<int, B>)bout;
             callback.called();
         }
         
-        public override void ice_exception(Ice.Exception exc)
-        {
-            AllTests.test(false);
-        }
-        
-        public virtual void check()
-        {
-            callback.check();
-        }
-        
-        private Callback callback = new Callback();
-        
-        public Dictionary<int, B>  r;
-        public Dictionary<int, B> bout;
-    }
-    
-    private class AMI_Test_throwBaseAsBaseI : AMI_TestIntf_throwBaseAsBase
-    {
-        public override void ice_response()
-        {
-            AllTests.test(false);
-        }
-        
-        public override void ice_exception(Ice.Exception exc)
+        public void exception_throwBaseAsBase(Ice.Exception exc)
         {
             try
             {
@@ -611,22 +304,7 @@ public class AllTests
             callback.called();
         }
         
-        public virtual void check()
-        {
-            callback.check();
-        }
-        
-        private Callback callback = new Callback();
-    }
-    
-    private class AMI_Test_throwDerivedAsBaseI : AMI_TestIntf_throwDerivedAsBase
-    {
-        public override void ice_response()
-        {
-            AllTests.test(false);
-        }
-        
-        public override void ice_exception(Ice.Exception exc)
+        public void exception_throwDerivedAsBase(Ice.Exception exc)
         {
             try
             {
@@ -649,22 +327,7 @@ public class AllTests
             callback.called();
         }
         
-        public virtual void check()
-        {
-            callback.check();
-        }
-        
-        private Callback callback = new Callback();
-    }
-    
-    private class AMI_Test_throwDerivedAsDerivedI : AMI_TestIntf_throwDerivedAsDerived
-    {
-        public override void ice_response()
-        {
-            AllTests.test(false);
-        }
-        
-        public override void ice_exception(Ice.Exception exc)
+        public void exception_throwDerivedAsDerived(Ice.Exception exc)
         {
             try
             {
@@ -687,22 +350,7 @@ public class AllTests
             callback.called();
         }
         
-        public virtual void check()
-        {
-            callback.check();
-        }
-        
-        private Callback callback = new Callback();
-    }
-    
-    private class AMI_Test_throwUnknownDerivedAsBaseI : AMI_TestIntf_throwUnknownDerivedAsBase
-    {
-        public override void ice_response()
-        {
-            AllTests.test(false);
-        }
-        
-        public override void ice_exception(Ice.Exception exc)
+        public void exception_throwUnknownDerivedAsBase(Ice.Exception exc)
         {
             try
             {
@@ -719,23 +367,18 @@ public class AllTests
             callback.called();
         }
         
-        public virtual void check()
-        {
-            callback.check();
-        }
-        
-        private Callback callback = new Callback();
-    }
-    
-    private class AMI_Test_useForwardI : AMI_TestIntf_useForward
-    {
-        public override void ice_response(Forward f)
+        public void response_useForward(Forward f)
         {
             AllTests.test(f != null);
             callback.called();
         }
         
-        public override void ice_exception(Ice.Exception exc)
+        public void response()
+        {
+            AllTests.test(false);
+        }
+        
+        public void exception(Ice.Exception exc)
         {
             AllTests.test(false);
         }
@@ -744,6 +387,11 @@ public class AllTests
         {
             callback.check();
         }
+
+        public B rb;
+        public SS rss;
+        public Dictionary<int, B> rbdict;
+        public Dictionary<int, B> obdict;
         
         private Callback callback = new Callback();
     }
@@ -788,8 +436,8 @@ public class AllTests
         Console.Out.Write("base as Object (AMI)... ");
         Console.Out.Flush();
         {
-            AMI_Test_SBaseAsObjectI cb = new AMI_Test_SBaseAsObjectI();
-            testPrx.SBaseAsObject_async(cb);
+            AsyncCallback cb = new AsyncCallback();
+            testPrx.begin_SBaseAsObject().whenCompleted(cb.response_SBaseAsObject, cb.exception);
             cb.check();
         }
         Console.Out.WriteLine("ok");
@@ -813,8 +461,8 @@ public class AllTests
         Console.Out.Write("base as base (AMI)... ");
         Console.Out.Flush();
         {
-            AMI_Test_SBaseAsSBaseI cb = new AMI_Test_SBaseAsSBaseI();
-            testPrx.SBaseAsSBase_async(cb);
+            AsyncCallback cb = new AsyncCallback();
+            testPrx.begin_SBaseAsSBase().whenCompleted(cb.response_SBaseAsSBase, cb.exception);
             cb.check();
         }
         Console.Out.WriteLine("ok");
@@ -842,8 +490,8 @@ public class AllTests
         Console.Out.Write("base with known derived as base (AMI)... ");
         Console.Out.Flush();
         {
-            AMI_Test_SBSKnownDerivedAsSBaseI cb = new AMI_Test_SBSKnownDerivedAsSBaseI();
-            testPrx.SBSKnownDerivedAsSBase_async(cb);
+            AsyncCallback cb = new AsyncCallback();
+            testPrx.begin_SBSKnownDerivedAsSBase().whenCompleted(cb.response_SBSKnownDerivedAsSBase, cb.exception);
             cb.check();
         }
         Console.Out.WriteLine("ok");
@@ -867,8 +515,9 @@ public class AllTests
         Console.Out.Write("base with known derived as known derived (AMI)... ");
         Console.Out.Flush();
         {
-            AMI_Test_SBSKnownDerivedAsSBSKnownDerivedI cb = new AMI_Test_SBSKnownDerivedAsSBSKnownDerivedI();
-            testPrx.SBSKnownDerivedAsSBSKnownDerived_async(cb);
+            AsyncCallback cb = new AsyncCallback();
+            testPrx.begin_SBSKnownDerivedAsSBSKnownDerived().whenCompleted(
+                        cb.response_SBSKnownDerivedAsSBSKnownDerived, cb.exception);
             cb.check();
         }
         Console.Out.WriteLine("ok");
@@ -892,8 +541,9 @@ public class AllTests
         Console.Out.Write("base with unknown derived as base (AMI)... ");
         Console.Out.Flush();
         {
-            AMI_Test_SBSUnknownDerivedAsSBaseI cb = new AMI_Test_SBSUnknownDerivedAsSBaseI();
-            testPrx.SBSUnknownDerivedAsSBase_async(cb);
+            AsyncCallback cb = new AsyncCallback();
+            testPrx.begin_SBSUnknownDerivedAsSBase().whenCompleted(
+                        cb.response_SBSUnknownDerivedAsSBase, cb.exception);
             cb.check();
         }
         Console.Out.WriteLine("ok");
@@ -921,8 +571,9 @@ public class AllTests
         {
             try
             {
-                AMI_Test_SUnknownAsObjectI cb = new AMI_Test_SUnknownAsObjectI();
-                testPrx.SUnknownAsObject_async(cb);
+                AsyncCallback cb = new AsyncCallback();
+                testPrx.begin_SUnknownAsObject().whenCompleted(
+                        cb.response_SUnknownAsObject, cb.exception_SUnknownAsObject);
                 cb.check();
             }
             catch(Exception)
@@ -953,8 +604,9 @@ public class AllTests
         Console.Out.Write("one-element cycle (AMI)... ");
         Console.Out.Flush();
         {
-            AMI_Test_oneElementCycleI cb = new AMI_Test_oneElementCycleI();
-            testPrx.oneElementCycle_async(cb);
+            AsyncCallback cb = new AsyncCallback();
+            testPrx.begin_oneElementCycle().whenCompleted(
+                        cb.response_oneElementCycle, cb.exception);
             cb.check();
         }
         Console.Out.WriteLine("ok");
@@ -985,8 +637,9 @@ public class AllTests
         Console.Out.Write("two-element cycle (AMI)... ");
         Console.Out.Flush();
         {
-            AMI_Test_twoElementCycleI cb = new AMI_Test_twoElementCycleI();
-            testPrx.twoElementCycle_async(cb);
+            AsyncCallback cb = new AsyncCallback();
+            testPrx.begin_twoElementCycle().whenCompleted(
+                        cb.response_twoElementCycle, cb.exception);
             cb.check();
         }
         Console.Out.WriteLine("ok");
@@ -1026,8 +679,8 @@ public class AllTests
         Console.Out.Write("known derived pointer slicing as base (AMI)... ");
         Console.Out.Flush();
         {
-            AMI_Test_D1AsBI cb = new AMI_Test_D1AsBI();
-            testPrx.D1AsB_async(cb);
+            AsyncCallback cb = new AsyncCallback();
+            testPrx.begin_D1AsB().whenCompleted(cb.response_D1AsB, cb.exception);
             cb.check();
         }
         Console.Out.WriteLine("ok");
@@ -1061,8 +714,8 @@ public class AllTests
         Console.Out.Write("known derived pointer slicing as derived (AMI)... ");
         Console.Out.Flush();
         {
-            AMI_Test_D1AsD1I cb = new AMI_Test_D1AsD1I();
-            testPrx.D1AsD1_async(cb);
+            AsyncCallback cb = new AsyncCallback();
+            testPrx.begin_D1AsD1().whenCompleted(cb.response_D1AsD1, cb.exception);
             cb.check();
         }
         Console.Out.WriteLine("ok");
@@ -1100,8 +753,8 @@ public class AllTests
         Console.Out.Write("unknown derived pointer slicing as base (AMI)... ");
         Console.Out.Flush();
         {
-            AMI_Test_D2AsBI cb = new AMI_Test_D2AsBI();
-            testPrx.D2AsB_async(cb);
+            AsyncCallback cb = new AsyncCallback();
+            testPrx.begin_D2AsB().whenCompleted(cb.response_D2AsB, cb.exception);
             cb.check();
         }
         Console.Out.WriteLine("ok");
@@ -1139,8 +792,8 @@ public class AllTests
         Console.Out.Write("param ptr slicing with known first (AMI)... ");
         Console.Out.Flush();
         {
-            AMI_Test_paramTest1I cb = new AMI_Test_paramTest1I();
-            testPrx.paramTest1_async(cb);
+            AsyncCallback cb = new AsyncCallback();
+            testPrx.begin_paramTest1().whenCompleted(cb.response_paramTest1, cb.exception);
             cb.check();
         }
         Console.Out.WriteLine("ok");
@@ -1178,8 +831,8 @@ public class AllTests
         Console.Out.Write("param ptr slicing with unknown first (AMI)... ");
         Console.Out.Flush();
         {
-            AMI_Test_paramTest2I cb = new AMI_Test_paramTest2I();
-            testPrx.paramTest2_async(cb);
+            AsyncCallback cb = new AsyncCallback();
+            testPrx.begin_paramTest2().whenCompleted(cb.response_paramTest2, cb.exception);
             cb.check();
         }
         Console.Out.WriteLine("ok");
@@ -1204,8 +857,8 @@ public class AllTests
         Console.Out.Write("return value identity with known first (AMI)... ");
         Console.Out.Flush();
         {
-            AMI_Test_returnTest1I cb = new AMI_Test_returnTest1I();
-            testPrx.returnTest1_async(cb);
+            AsyncCallback cb = new AsyncCallback();
+            testPrx.begin_returnTest1().whenCompleted(cb.response_returnTest1, cb.exception);
             cb.check();
         }
         Console.Out.WriteLine("ok");
@@ -1230,8 +883,8 @@ public class AllTests
         Console.Out.Write("return value identity with unknown first (AMI)... ");
         Console.Out.Flush();
         {
-            AMI_Test_returnTest2I cb = new AMI_Test_returnTest2I();
-            testPrx.returnTest2_async(cb);
+            AsyncCallback cb = new AsyncCallback();
+            testPrx.begin_returnTest2().whenCompleted(cb.response_returnTest2, cb.exception);
             cb.check();
         }
         Console.Out.WriteLine("ok");
@@ -1303,10 +956,10 @@ public class AllTests
             d1.pb = d3;
             d1.pd1 = d3;
             
-            AMI_Test_returnTest3I cb = new AMI_Test_returnTest3I();
-            testPrx.returnTest3_async(cb, d1, d3);
+            AsyncCallback cb = new AsyncCallback();
+            testPrx.begin_returnTest3(d1, d3).whenCompleted(cb.response_returnTest3, cb.exception);
             cb.check();
-            B b1 = cb.r;
+            B b1 = cb.rb;
             
             test(b1 != null);
             test(b1.sb.Equals("D1.sb"));
@@ -1406,10 +1059,10 @@ public class AllTests
             d1.pb = d3;
             d1.pd1 = d3;
             
-            AMI_Test_returnTest3I cb = new AMI_Test_returnTest3I();
-            testPrx.returnTest3_async(cb, d3, d1);
+            AsyncCallback cb = new AsyncCallback();
+            testPrx.begin_returnTest3(d3, d1).whenCompleted(cb.response_returnTest3, cb.exception);
             cb.check();
-            B b1 = cb.r;
+            B b1 = cb.rb;
             
             test(b1 != null);
             test(b1.sb.Equals("D3.sb"));
@@ -1476,8 +1129,8 @@ public class AllTests
         Console.Out.Write("remainder unmarshaling (3 instances) (AMI)... ");
         Console.Out.Flush();
         {
-            AMI_Test_paramTest3I cb = new AMI_Test_paramTest3I();
-            testPrx.paramTest3_async(cb);
+            AsyncCallback cb = new AsyncCallback();
+            testPrx.begin_paramTest3().whenCompleted(cb.response_paramTest3, cb.exception);
             cb.check();
         }
         Console.Out.WriteLine("ok");
@@ -1510,8 +1163,8 @@ public class AllTests
         Console.Out.Write("remainder unmarshaling (4 instances) (AMI)... ");
         Console.Out.Flush();
         {
-            AMI_Test_paramTest4I cb = new AMI_Test_paramTest4I();
-            testPrx.paramTest4_async(cb);
+            AsyncCallback cb = new AsyncCallback();
+            testPrx.begin_paramTest4().whenCompleted(cb.response_paramTest4, cb.exception);
             cb.check();
         }
         Console.Out.WriteLine("ok");
@@ -1566,10 +1219,10 @@ public class AllTests
             b2.sb = "B.sb(2)";
             b2.pb = b1;
             
-            AMI_Test_returnTest3I cb = new AMI_Test_returnTest3I();
-            testPrx.returnTest3_async(cb, d3, b2);
+            AsyncCallback cb = new AsyncCallback();
+            testPrx.begin_returnTest3(d3, b2).whenCompleted(cb.response_returnTest3, cb.exception);
             cb.check();
-            B rv = cb.r;
+            B rv = cb.rb;
             
             test(rv != null);
             test(rv.ice_id().Equals("::Test::B"));
@@ -1633,10 +1286,10 @@ public class AllTests
             d12.sd1 = "D1.sd1(2)";
             d12.pd1 = d11;
             
-            AMI_Test_returnTest3I cb = new AMI_Test_returnTest3I();
-            testPrx.returnTest3_async(cb, d3, d12);
+            AsyncCallback cb = new AsyncCallback();
+            testPrx.begin_returnTest3(d3, d12).whenCompleted(cb.response_returnTest3, cb.exception);
             cb.check();
-            B rv = cb.r;
+            B rv = cb.rb;
             
             test(rv != null);
             test(rv.ice_id().Equals("::Test::B"));
@@ -1786,10 +1439,10 @@ public class AllTests
                 ss2.s.Add(ss2d1);
                 ss2.s.Add(ss2d3);
                 
-                AMI_Test_sequenceTestI cb = new AMI_Test_sequenceTestI();
-                testPrx.sequenceTest_async(cb, ss1, ss2);
+                AsyncCallback cb = new AsyncCallback();
+                testPrx.begin_sequenceTest(ss1, ss2).whenCompleted(cb.response_sequenceTest, cb.exception);
                 cb.check();
-                ss = cb.r;
+                ss = cb.rss;
             }
             test(ss.c1 != null);
             B ss1b3 = ss.c1.s[0];
@@ -1892,11 +1545,11 @@ public class AllTests
                 bin[i] = d1;
             }
             
-            AMI_Test_dictionaryTestI cb = new AMI_Test_dictionaryTestI();
-            testPrx.dictionaryTest_async(cb, bin);
+            AsyncCallback cb = new AsyncCallback();
+            testPrx.begin_dictionaryTest(bin).whenCompleted(cb.response_dictionaryTest, cb.exception);
             cb.check();
-            bout = cb.bout;
-            rv = cb.r;
+            bout = cb.obdict;
+            rv = cb.rbdict;
             
             test(bout.Count == 10);
             for(i = 0; i < 10; ++i)
@@ -1953,8 +1606,8 @@ public class AllTests
         Console.Out.Write("base exception thrown as base exception (AMI)... ");
         Console.Out.Flush();
         {
-            AMI_Test_throwBaseAsBaseI cb = new AMI_Test_throwBaseAsBaseI();
-            testPrx.throwBaseAsBase_async(cb);
+            AsyncCallback cb = new AsyncCallback();
+            testPrx.begin_throwBaseAsBase().whenCompleted(cb.response, cb.exception_throwBaseAsBase);
             cb.check();
         }
         Console.Out.WriteLine("ok");
@@ -1991,8 +1644,8 @@ public class AllTests
         Console.Out.Write("derived exception thrown as base exception (AMI)... ");
         Console.Out.Flush();
         {
-            AMI_Test_throwDerivedAsBaseI cb = new AMI_Test_throwDerivedAsBaseI();
-            testPrx.throwDerivedAsBase_async(cb);
+            AsyncCallback cb = new AsyncCallback();
+            testPrx.begin_throwDerivedAsBase().whenCompleted(cb.response, cb.exception_throwDerivedAsBase);
             cb.check();
         }
         Console.Out.WriteLine("ok");
@@ -2029,8 +1682,8 @@ public class AllTests
         Console.Out.Write("derived exception thrown as derived exception (AMI)... ");
         Console.Out.Flush();
         {
-            AMI_Test_throwDerivedAsDerivedI cb = new AMI_Test_throwDerivedAsDerivedI();
-            testPrx.throwDerivedAsDerived_async(cb);
+            AsyncCallback cb = new AsyncCallback();
+            testPrx.begin_throwDerivedAsDerived().whenCompleted(cb.response, cb.exception_throwDerivedAsDerived);
             cb.check();
         }
         Console.Out.WriteLine("ok");
@@ -2061,8 +1714,9 @@ public class AllTests
         Console.Out.Write("unknown derived exception thrown as base exception (AMI)... ");
         Console.Out.Flush();
         {
-            AMI_Test_throwUnknownDerivedAsBaseI cb = new AMI_Test_throwUnknownDerivedAsBaseI();
-            testPrx.throwUnknownDerivedAsBase_async(cb);
+            AsyncCallback cb = new AsyncCallback();
+            testPrx.begin_throwUnknownDerivedAsBase().whenCompleted(
+                        cb.response, cb.exception_throwUnknownDerivedAsBase);
             cb.check();
         }
         Console.Out.WriteLine("ok");
@@ -2086,8 +1740,8 @@ public class AllTests
         Console.Out.Write("forward-declared class (AMI)... ");
         Console.Out.Flush();
         {
-            AMI_Test_useForwardI cb = new AMI_Test_useForwardI();
-            testPrx.useForward_async(cb);
+            AsyncCallback cb = new AsyncCallback();
+            testPrx.begin_useForward().whenCompleted(cb.response_useForward, cb.exception);
             cb.check();
         }
         Console.Out.WriteLine("ok");

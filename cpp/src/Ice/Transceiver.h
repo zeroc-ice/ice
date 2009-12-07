@@ -30,7 +30,7 @@ public:
     virtual bool write(Buffer&) = 0;
     virtual bool read(Buffer&) = 0;
 #ifdef ICE_USE_IOCP
-    virtual void startWrite(Buffer&) = 0;
+    virtual bool startWrite(Buffer&) = 0;
     virtual void finishWrite(Buffer&) = 0;
     virtual void startRead(Buffer&) = 0;
     virtual void finishRead(Buffer&) = 0;

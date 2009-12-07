@@ -7,7 +7,3 @@ $ java Server
 In a separate window, start the client:
 
 $ java Client
-
-To run the client using asynchronous calls use:
-
-$ java Client --async
