@@ -808,36 +808,53 @@ namespace IceInternal
                 return;
             }
 
-            if(v is List<byte>)
             {
-                writeByteSeq(((List<byte>)v).ToArray());
-            }
-            else if(v is LinkedList<byte>)
-            {
-                writeSize(count);
-                expand(count);
-                IEnumerator<byte> i = v.GetEnumerator();
-                while(i.MoveNext())
+                List<byte> value = v as List<byte>;
+                if(value != null)
                 {
-                    _buf.b.put(i.Current);
+                    writeByteSeq(value.ToArray());
+                    return;
                 }
             }
-            else if(v is Queue<byte>)
+
             {
-                writeByteSeq(((Queue<byte>)v).ToArray());
-            }
-            else if (v is Stack<byte>)
-            {
-                writeByteSeq(((Stack<byte>)v).ToArray());
-            }
-            else
-            {
-                writeSize(count);
-                expand(count);
-                foreach(byte b in v)
+                LinkedList<byte> value = v as LinkedList<byte>;
+                if(value != null)
                 {
-                    _buf.b.put(b);
+                    writeSize(count);
+                    expand(count);
+                    IEnumerator<byte> i = v.GetEnumerator();
+                    while(i.MoveNext())
+                    {
+                        _buf.b.put(i.Current);
+                    }
+                    return;
                 }
+            }
+
+            {
+                Queue<byte> value = v as Queue<byte>;
+                if(value != null)
+                {
+                    writeByteSeq(value.ToArray());
+                    return;
+                }
+            }
+
+            {
+                Stack<byte> value = v as Stack<byte>;
+                if(value != null)
+                {
+                    writeByteSeq(value.ToArray());
+                    return;
+                }
+            }
+
+            writeSize(count);
+            expand(count);
+            foreach(byte b in v)
+            {
+                _buf.b.put(b);
             }
         }
 
@@ -991,36 +1008,53 @@ namespace IceInternal
                 return;
             }
 
-            if(v is List<bool>)
             {
-                writeBoolSeq(((List<bool>)v).ToArray());
-            }
-            else if(v is LinkedList<bool>)
-            {
-                writeSize(count);
-                expand(count);
-                IEnumerator<bool> i = v.GetEnumerator();
-                while(i.MoveNext())
+                List<bool> value = v as List<bool>;
+                if(value != null)
                 {
-                    _buf.b.putBool(i.Current);
+                    writeBoolSeq(value.ToArray());
+                    return;
                 }
             }
-            else if(v is Queue<bool>)
+
             {
-                writeBoolSeq(((Queue<bool>)v).ToArray());
-            }
-            else if (v is Stack<bool>)
-            {
-                writeBoolSeq(((Stack<bool>)v).ToArray());
-            }
-            else
-            {
-                writeSize(count);
-                expand(count);
-                foreach(bool b in v)
+                LinkedList<bool> value = v as LinkedList<bool>;
+                if(value != null)
                 {
-                    _buf.b.putBool(b);
+                    writeSize(count);
+                    expand(count);
+                    IEnumerator<bool> i = v.GetEnumerator();
+                    while(i.MoveNext())
+                    {
+                        _buf.b.putBool(i.Current);
+                    }
+                    return;
                 }
+            }
+
+            {
+                Queue<bool> value = v as Queue<bool>;
+                if(value != null)
+                {
+                    writeBoolSeq(value.ToArray());
+                    return;
+                }
+            }
+
+            {
+                Stack<bool> value = v as Stack<bool>;
+                if(value != null)
+                {
+                    writeBoolSeq(value.ToArray());
+                    return;
+                }
+            }
+
+            writeSize(count);
+            expand(count);
+            foreach(bool b in v)
+            {
+                _buf.b.putBool(b);
             }
         }
 
@@ -1123,37 +1157,54 @@ namespace IceInternal
                 writeSize(0);
                 return;
             }
+            
+            {
+                List<short> value = v as List<short>;
+                if(value != null)
+                {
+                    writeShortSeq(value.ToArray());
+                    return;
+                }
+            }
 
-            if(v is List<short>)
             {
-                writeShortSeq(((List<short>)v).ToArray());
-            }
-            else if(v is LinkedList<short>)
-            {
-                writeSize(count);
-                expand(count * 2);
-                IEnumerator<short> i = v.GetEnumerator();
-                while(i.MoveNext())
+                LinkedList<short> value = v as LinkedList<short>;
+                if(value != null)
                 {
-                    _buf.b.putShort(i.Current);
+                    writeSize(count);
+                    expand(count * 2);
+                    IEnumerator<short> i = v.GetEnumerator();
+                    while(i.MoveNext())
+                    {
+                        _buf.b.putShort(i.Current);
+                    }
+                    return;
                 }
             }
-            else if(v is Queue<short>)
+
             {
-                writeShortSeq(((Queue<short>)v).ToArray());
-            }
-            else if (v is Stack<short>)
-            {
-                writeShortSeq(((Stack<short>)v).ToArray());
-            }
-            else
-            {
-                writeSize(count);
-                expand(count * 2);
-                foreach(short s in v)
+                Queue<short> value = v as Queue<short>;
+                if(value != null)
                 {
-                    _buf.b.putShort(s);
+                    writeShortSeq(value.ToArray());
+                    return;
                 }
+            }
+
+            {
+                Stack<short> value = v as Stack<short>;
+                if(value != null)
+                {
+                    writeShortSeq(value.ToArray());
+                    return;
+                }
+            }
+
+            writeSize(count);
+            expand(count * 2);
+            foreach(short s in v)
+            {
+                _buf.b.putShort(s);
             }
         }
 
@@ -1257,36 +1308,53 @@ namespace IceInternal
                 return;
             }
 
-            if(v is List<int>)
             {
-                writeIntSeq(((List<int>)v).ToArray());
-            }
-            else if(v is LinkedList<int>)
-            {
-                writeSize(count);
-                expand(count * 4);
-                IEnumerator<int> i = v.GetEnumerator();
-                while(i.MoveNext())
+                List<int> value = v as List<int>;
+                if(value != null)
                 {
-                    _buf.b.putInt(i.Current);
+                    writeIntSeq(value.ToArray());
+                    return;
                 }
             }
-            else if(v is Queue<int>)
+
             {
-                writeIntSeq(((Queue<int>)v).ToArray());
-            }
-            else if (v is Stack<int>)
-            {
-                writeIntSeq(((Stack<int>)v).ToArray());
-            }
-            else
-            {
-                writeSize(count);
-                expand(count * 4);
-                foreach(int i in v)
+                LinkedList<int> value = v as LinkedList<int>;
+                if(value != null)
                 {
-                    _buf.b.putInt(i);
+                    writeSize(count);
+                    expand(count * 4);
+                    IEnumerator<int> i = v.GetEnumerator();
+                    while(i.MoveNext())
+                    {
+                        _buf.b.putInt(i.Current);
+                    }
+                    return;
                 }
+            }
+
+            {
+                Queue<int> value = v as Queue<int>;
+                if(value != null)
+                {
+                    writeIntSeq(value.ToArray());
+                    return;
+                }
+            }
+    
+            {
+                Stack<int> value = v as Stack<int>;
+                if(value != null)
+                {
+                    writeIntSeq(value.ToArray());
+                    return;
+                }
+            }
+
+            writeSize(count);
+            expand(count * 4);
+            foreach(int i in v)
+            {
+                _buf.b.putInt(i);
             }
         }
 
@@ -1412,36 +1480,53 @@ namespace IceInternal
                 return;
             }
 
-            if(v is List<long>)
             {
-                writeLongSeq(((List<long>)v).ToArray());
-            }
-            else if(v is LinkedList<long>)
-            {
-                writeSize(count);
-                expand(count * 8);
-                IEnumerator<long> i = v.GetEnumerator();
-                while(i.MoveNext())
+                List<long> value = v as List<long>;
+                if(value != null)
                 {
-                    _buf.b.putLong(i.Current);
+                    writeLongSeq(value.ToArray());
+                    return;
                 }
             }
-            else if(v is Queue<long>)
+
             {
-                writeLongSeq(((Queue<long>)v).ToArray());
-            }
-            else if (v is Stack<long>)
-            {
-                writeLongSeq(((Stack<long>)v).ToArray());
-            }
-            else
-            {
-                writeSize(count);
-                expand(count * 8);
-                foreach(long l in v)
+                LinkedList<long> value = v as LinkedList<long>;
+                if(value != null)
                 {
-                    _buf.b.putLong(l);
+                    writeSize(count);
+                    expand(count * 8);
+                    IEnumerator<long> i = v.GetEnumerator();
+                    while(i.MoveNext())
+                    {
+                        _buf.b.putLong(i.Current);
+                    }
+                    return;
                 }
+            }
+
+            {
+                Queue<long> value = v as Queue<long>;
+                if(value != null)
+                {
+                    writeLongSeq(value.ToArray());
+                    return;
+                }
+            }
+
+            {
+                Stack<long> value = v as Stack<long>;
+                if(value != null)
+                {
+                    writeLongSeq(value.ToArray());
+                    return;
+                }
+            }
+
+            writeSize(count);
+            expand(count * 8);
+            foreach(long l in v)
+            {
+                _buf.b.putLong(l);
             }
         }
 
@@ -1567,36 +1652,53 @@ namespace IceInternal
                 return;
             }
 
-            if(v is List<float>)
             {
-                writeFloatSeq(((List<float>)v).ToArray());
-            }
-            else if(v is LinkedList<float>)
-            {
-                writeSize(count);
-                expand(count * 4);
-                IEnumerator<float> i = v.GetEnumerator();
-                while(i.MoveNext())
+                List<float> value = v as List<float>;
+                if(value != null)
                 {
-                    _buf.b.putFloat(i.Current);
+                    writeFloatSeq(value.ToArray());
+                    return;
                 }
             }
-            else if(v is Queue<float>)
+
             {
-                writeFloatSeq(((Queue<float>)v).ToArray());
-            }
-            else if (v is Stack<float>)
-            {
-                writeFloatSeq(((Stack<float>)v).ToArray());
-            }
-            else
-            {
-                writeSize(count);
-                expand(count * 4);
-                foreach(float f in v)
+                LinkedList<float> value = v as LinkedList<float>;
+                if(value != null)
                 {
-                    _buf.b.putFloat(f);
+                    writeSize(count);
+                    expand(count * 4);
+                    IEnumerator<float> i = v.GetEnumerator();
+                    while(i.MoveNext())
+                    {
+                        _buf.b.putFloat(i.Current);
+                    }
+                    return;
                 }
+            }
+
+            {
+                Queue<float> value = v as Queue<float>;
+                if(value != null)
+                {
+                    writeFloatSeq(value.ToArray());
+                    return;
+                }
+            }
+            
+            {
+                Stack<float> value = v as Stack<float>;
+                if(value != null)
+                {
+                    writeFloatSeq(value.ToArray());
+                    return;
+                }
+            }
+
+            writeSize(count);
+            expand(count * 4);
+            foreach(float f in v)
+            {
+                _buf.b.putFloat(f);
             }
         }
 
@@ -1722,36 +1824,53 @@ namespace IceInternal
                 return;
             }
 
-            if(v is List<double>)
             {
-                writeDoubleSeq(((List<double>)v).ToArray());
-            }
-            else if(v is LinkedList<double>)
-            {
-                writeSize(count);
-                expand(count * 8);
-                IEnumerator<double> i = v.GetEnumerator();
-                while(i.MoveNext())
+                List<double> value = v as List<double>;
+                if(value != null)
                 {
-                    _buf.b.putDouble(i.Current);
+                    writeDoubleSeq(value.ToArray());
+                    return;
                 }
             }
-            else if(v is Queue<double>)
+
             {
-                writeDoubleSeq(((Queue<double>)v).ToArray());
-            }
-            else if (v is Stack<double>)
-            {
-                writeDoubleSeq(((Stack<double>)v).ToArray());
-            }
-            else
-            {
-                writeSize(count);
-                expand(count * 8);
-                foreach(double d in v)
+                LinkedList<double> value = v as LinkedList<double>;
+                if(value != null)
                 {
-                    _buf.b.putDouble(d);
+                    writeSize(count);
+                    expand(count * 8);
+                    IEnumerator<double> i = v.GetEnumerator();
+                    while(i.MoveNext())
+                    {
+                        _buf.b.putDouble(i.Current);
+                    }
+                    return;
                 }
+            }
+
+            {
+                Queue<double> value = v as Queue<double>;
+                if(value != null)
+                {
+                    writeDoubleSeq(value.ToArray());
+                    return;
+                }
+            }
+            
+            {
+                Stack<double> value = v as Stack<double>;
+                if (value != null)
+                {
+                    writeDoubleSeq(value.ToArray());
+                    return;
+                }
+            }
+
+            writeSize(count);
+            expand(count * 8);
+            foreach(double d in v)
+            {
+                _buf.b.putDouble(d);
             }
         }
 

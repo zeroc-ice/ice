@@ -2532,7 +2532,8 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
     _out << sb;
     _out << nl << "return true;";
     _out << eb;
-    _out << nl << "if(!(other__ is " << name << "))";
+    _out << nl << name << " o__ = other__ as " << name << ";";
+    _out << nl << "if(o__ == null)";
     _out << sb;
     _out << nl << "return false;";
     _out << eb;
@@ -2542,10 +2543,6 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
         _out << sb;
         _out << nl << "return false;";
         _out << eb;
-    }
-    if(!dataMembers.empty())
-    {
-        _out << nl << name << " o__ = (" << name << ")other__;";
     }
     writeMemberEquals(dataMembers, DotNet::Exception);
     _out << nl << "return true;";

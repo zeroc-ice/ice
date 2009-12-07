@@ -52,15 +52,18 @@ namespace Ice
         /// 0, otherwise.</returns>
         public int Compare(object obj1, object obj2)
         {
-            if(obj1 != null && !(obj1 is Ice.ObjectPrx))
+            Ice.ObjectPrx proxy1 = obj1 as Ice.ObjectPrx;
+            if(obj1 != null && proxy1 == null)
             {
                 throw new System.ArgumentException("Argument must be derived from Ice.ObjectPrx", "obj1");
             }
-            if(obj2 != null && !(obj2 is Ice.ObjectPrx))
+
+            Ice.ObjectPrx proxy2 = obj2 as Ice.ObjectPrx;
+            if(obj2 != null && proxy2 == null)
             {
                 throw new System.ArgumentException("Argument must be derived from Ice.ObjectPrx", "obj2");
             }
-            return Ice.Util.proxyIdentityCompare((Ice.ObjectPrx)obj1, (Ice.ObjectPrx)obj2);
+            return Ice.Util.proxyIdentityCompare(proxy1, proxy2);
         }
     }
 
@@ -108,15 +111,18 @@ namespace Ice
         /// 0, otherwise.</returns>
         public int Compare(object obj1, object obj2)
         {
-            if(obj1 != null && !(obj1 is Ice.ObjectPrx))
+            Ice.ObjectPrx proxy1 = obj1 as Ice.ObjectPrx;
+            if(obj1 != null && proxy1 == null)
             {
                 throw new System.ArgumentException("Argument must be derived from Ice.ObjectPrx", "obj1");
             }
-            if(obj2 != null && !(obj2 is Ice.ObjectPrx))
+
+            Ice.ObjectPrx proxy2 = obj2 as Ice.ObjectPrx;
+            if(obj2 != null && proxy2 == null)
             {
                 throw new System.ArgumentException("Argument must be derived from Ice.ObjectPrx", "obj2");
             }
-            return Ice.Util.proxyIdentityAndFacetCompare((Ice.ObjectPrx)obj1, (Ice.ObjectPrx)obj2);
+            return Ice.Util.proxyIdentityAndFacetCompare(proxy1, proxy2);
         }
     }
 

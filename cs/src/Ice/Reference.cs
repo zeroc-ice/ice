@@ -658,11 +658,11 @@ namespace IceInternal
             {
                 return true;
             }
-            if(!(obj is FixedReference))
+            FixedReference rhs = obj as FixedReference;
+            if(rhs == null)
             {
                 return false;
             }
-            FixedReference rhs = (FixedReference)obj;
             if(!base.Equals(rhs))
             {
                 return false;
@@ -1031,7 +1031,9 @@ namespace IceInternal
             {
                 return true;
             }
-            if(!(obj is RoutableReference))
+
+            RoutableReference rhs = obj as RoutableReference;
+            if(rhs == null)
             {
                 return false;
             }
@@ -1041,7 +1043,6 @@ namespace IceInternal
                 return false;
             }
 
-            RoutableReference rhs = (RoutableReference)obj; // Guaranteed to succeed.
             if(_locatorInfo == null ? rhs._locatorInfo != null : !_locatorInfo.Equals(rhs._locatorInfo))
             {
                 return false;

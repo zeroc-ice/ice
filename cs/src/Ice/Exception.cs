@@ -220,22 +220,24 @@ namespace IceInternal
 
         public static void throwWrapper(System.Exception ex)
         {
-            if(ex is Ice.UserException)
+            Ice.UserException userException = ex as Ice.UserException;
+            if(userException != null)
             {
-                throw new LocalExceptionWrapper(new Ice.UnknownUserException(((Ice.UserException)ex).ice_name()), 
+                throw new LocalExceptionWrapper(new Ice.UnknownUserException(userException.ice_name()), 
                                                 false);
             }
 
-            if(ex is Ice.LocalException)
+            Ice.LocalException localException = ex as Ice.LocalException;
+            if(localException != null)
             {
                 if(ex is Ice.UnknownException ||
                    ex is Ice.ObjectNotExistException ||
                    ex is Ice.OperationNotExistException ||
                    ex is Ice.FacetNotExistException)
                 {
-                    throw new LocalExceptionWrapper((Ice.LocalException)ex, false);
+                    throw new LocalExceptionWrapper(localException, false);
                 }
-                throw new LocalExceptionWrapper(new Ice.UnknownLocalException(((Ice.LocalException)ex).ice_name()), 
+                throw new LocalExceptionWrapper(new Ice.UnknownLocalException(localException.ice_name()), 
                                                 false);
             }
             throw new LocalExceptionWrapper(new Ice.UnknownException(ex.GetType().FullName), false);

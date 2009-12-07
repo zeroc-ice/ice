@@ -739,7 +739,8 @@ namespace IceInternal
         private void
         finishRequest(Reference @ref, List<Reference> wellKnownRefs, Ice.ObjectPrx proxy, bool notRegistered)
         {
-            if(proxy == null || ((Ice.ObjectPrxHelperBase)proxy).reference__().isIndirect())
+            Ice.ObjectPrxHelperBase @base = proxy as Ice.ObjectPrxHelperBase;
+            if(proxy == null || @base.reference__().isIndirect())
             {
                 //
                 // Remove the cached references of well-known objects for which we tried
@@ -753,11 +754,10 @@ namespace IceInternal
     
             if(!@ref.isWellKnown())
             {
-                if(proxy != null && !((Ice.ObjectPrxHelperBase)proxy).reference__().isIndirect())
+                if(proxy != null && !@base.reference__().isIndirect())
                 {
                     // Cache the adapter endpoints.
-                    _table.addAdapterEndpoints(@ref.getAdapterId(), 
-                                               ((Ice.ObjectPrxHelperBase)proxy).reference__().getEndpoints());
+                    _table.addAdapterEndpoints(@ref.getAdapterId(), @base.reference__().getEndpoints());
                 }
                 else if(notRegistered) // If the adapter isn't registered anymore, remove it from the cache.
                 {
@@ -772,10 +772,10 @@ namespace IceInternal
             }
             else
             {
-                if(proxy != null && !((Ice.ObjectPrxHelperBase)proxy).reference__().isWellKnown()) 
+                if(proxy != null && !@base.reference__().isWellKnown()) 
                 {
                     // Cache the well-known object reference.
-                    _table.addObjectReference(@ref.getIdentity(), ((Ice.ObjectPrxHelperBase)proxy).reference__());
+                    _table.addObjectReference(@ref.getIdentity(), @base.reference__());
                 }
                 else if(notRegistered) // If the well-known object isn't registered anymore, remove it from the cache.
                 {
