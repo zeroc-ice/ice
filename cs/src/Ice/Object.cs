@@ -200,7 +200,10 @@ namespace Ice
             return MemberwiseClone();
         }
 
-        public static readonly string[] ids__ = new string[] { "::Ice::Object" };
+        public static readonly string[] ids__ =
+        {
+            "::Ice::Object"
+        };
         
         /// <summary>
         /// Tests whether this object supports a specific Slice interface.

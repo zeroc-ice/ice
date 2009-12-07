@@ -1807,7 +1807,7 @@ Slice::Gen::generateChecksums(const UnitPtr& u)
         _out << sb;
         _out << nl << "public sealed class " << className;
         _out << sb;
-        _out << nl << "public readonly static System.Collections.Hashtable map = new System.Collections.Hashtable();";
+        _out << nl << "public static System.Collections.Hashtable map = new System.Collections.Hashtable();";
         _out << sp << nl << "static " << className << "()";
         _out << sb;
         for(ChecksumMap::const_iterator p = map.begin(); p != map.end(); ++p)
