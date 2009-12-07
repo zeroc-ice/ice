@@ -15,3 +15,5 @@ servant for this demo.
 
 Please look in the client and sever configuration files to see the
 plugin configuration.
+
+Note that in linux the plugin directory should be in your LD_LIBRARY_PATH
