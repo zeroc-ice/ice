@@ -10,9 +10,8 @@
 namespace IceInternal
 {
 
-    using System.Collections;
+    using System.Collections.Generic;
     using System.Diagnostics;
-    using IceUtilInternal;
     using System.Globalization;
 
     sealed class TraceUtil
@@ -69,7 +68,7 @@ namespace IceInternal
             }
         }
 
-        private static Set slicingIds;
+        private static HashSet<string> slicingIds;
 
         internal static void traceSlicing(string kind, string typeId, string slicingCat, Ice.Logger logger)
         {
@@ -497,7 +496,7 @@ namespace IceInternal
 
         static TraceUtil()
         {
-            slicingIds = new Set();
+            slicingIds = new HashSet<string>();
         }
     }
 

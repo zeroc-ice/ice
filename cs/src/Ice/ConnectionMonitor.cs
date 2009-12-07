@@ -11,7 +11,7 @@ namespace IceInternal
 {
 
     using System.Diagnostics;
-    using IceUtilInternal;
+    using System.Collections.Generic;
 
     public sealed class ConnectionMonitor : TimerTask
     {
@@ -96,12 +96,12 @@ namespace IceInternal
             instance_ = instance;
             _interval = interval;
             _scheduledInterval = 0;
-            _connections = new Set();
+            _connections = new HashSet<Ice.ConnectionI>();
         }
         
         public void runTimerTask()
         {
-            Set connections = new Set();
+            Ice.ConnectionI[] connections = null;
             lock(this)
             {                    
                 if(instance_ == null)
@@ -109,11 +109,8 @@ namespace IceInternal
                     return;
                 }
 
-                connections.Clear();
-                foreach(Ice.ConnectionI connection in _connections)
-                {
-                    connections.Add(connection);
-                }
+                connections = new Ice.ConnectionI[_connections.Count];
+                _connections.CopyTo(connections);
             }
                 
             //
@@ -145,7 +142,7 @@ namespace IceInternal
         private Instance instance_;
         private readonly int _interval;
         private int _scheduledInterval;
-        private Set _connections;
+        private HashSet<Ice.ConnectionI> _connections;
     }
 
 }

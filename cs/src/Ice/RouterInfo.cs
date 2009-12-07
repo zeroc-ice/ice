@@ -341,7 +341,7 @@ namespace IceInternal
         private EndpointI[] _clientEndpoints;
         private EndpointI[] _serverEndpoints;
         private Ice.ObjectAdapter _adapter;
-        private IceUtilInternal.Set _identities = new IceUtilInternal.Set();
+        private HashSet<Ice.Identity> _identities = new HashSet<Ice.Identity>();
         private List<Ice.Identity> _evictedIdentities = new List<Ice.Identity>();
     }
 

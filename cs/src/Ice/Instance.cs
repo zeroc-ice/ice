@@ -1116,7 +1116,7 @@ namespace IceInternal
         private Ice.PluginManager _pluginManager;
         private Ice.ObjectAdapter _adminAdapter;
         private Dictionary<string, Ice.Object> _adminFacets = new Dictionary<string, Ice.Object>();
-        private IceUtilInternal.Set _adminFacetFilter = new IceUtilInternal.Set();
+        private HashSet<string> _adminFacetFilter = new HashSet<string>();
         private Ice.Identity _adminIdentity;
 
         private static bool _printProcessIdDone = false;

@@ -9,6 +9,7 @@
 
 using Test;
 using System.Threading;
+using System.Collections.Generic;
 
 internal class BackgroundControllerI : BackgroundControllerDisp_
 {
@@ -83,6 +84,6 @@ internal class BackgroundControllerI : BackgroundControllerDisp_
     }
 
     private Ice.ObjectAdapter _adapter;
-    private IceUtilInternal.Set _pausedCalls = new IceUtilInternal.Set();
+    private HashSet<string> _pausedCalls = new HashSet<string>();
     private Configuration _configuration;
 }

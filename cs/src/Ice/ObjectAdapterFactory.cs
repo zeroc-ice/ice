@@ -13,7 +13,6 @@ namespace IceInternal
     using System.Collections;
     using System.Collections.Generic;
     using System.Diagnostics;
-    using IceUtilInternal;
 
     public sealed class ObjectAdapterFactory
     {
@@ -204,13 +203,13 @@ namespace IceInternal
         {
             instance_ = instance;
             _communicator = communicator;
-            _adapterNamesInUse = new Set();
+            _adapterNamesInUse = new HashSet<string>();
             _adapters = new List<Ice.ObjectAdapterI>();
         }
         
         private Instance instance_;
         private Ice.Communicator _communicator;
-        private Set _adapterNamesInUse;
+        private HashSet<string> _adapterNamesInUse;
         private List<Ice.ObjectAdapterI> _adapters;
     }
 

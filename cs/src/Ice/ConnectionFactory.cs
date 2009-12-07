@@ -709,18 +709,18 @@ namespace IceInternal
                                          Ice.ConnectionI connection,
                                          ConnectCallback cb)
         {
-            Set connectionCallbacks = new Set();
+            HashSet<ConnectCallback> connectionCallbacks = new HashSet<ConnectCallback>();
             if(cb != null)
             {
                 connectionCallbacks.Add(cb);
             }
 
-            Set callbacks = new Set();
+            HashSet<ConnectCallback> callbacks = new HashSet<ConnectCallback>();
             lock(this)
             {
                 foreach(ConnectorInfo c in connectors)
                 {
-                    Set s = null;
+                    HashSet<ConnectCallback> s = null;
                     if(_pending.TryGetValue(c.connector, out s))
                     {
                         foreach(ConnectCallback cc in s)
@@ -773,18 +773,18 @@ namespace IceInternal
 
         private void finishGetConnection(List<ConnectorInfo> connectors, Ice.LocalException ex, ConnectCallback cb)
         {
-            Set failedCallbacks = new Set();
+            HashSet<ConnectCallback> failedCallbacks = new HashSet<ConnectCallback>();
             if(cb != null)
             {
                 failedCallbacks.Add(cb);
             }
-
-            Set callbacks = new Set();
+            
+            HashSet<ConnectCallback> callbacks = new HashSet<ConnectCallback>();
             lock(this)
             {
                 foreach(ConnectorInfo c in connectors)
                 {
-                    Set s = null;
+                    HashSet<ConnectCallback> s = null;
                     if(_pending.TryGetValue(c.connector, out s))
                     {
                         foreach(ConnectCallback cc in s)
@@ -856,7 +856,7 @@ namespace IceInternal
             bool found = false;
             foreach(ConnectorInfo ci in connectors)
             {
-                Set cbs = null;
+                HashSet<ConnectCallback> cbs = null;
                 if(_pending.TryGetValue(ci.connector, out cbs))
                 {
                     found = true;
@@ -881,7 +881,7 @@ namespace IceInternal
             {
                 if(!_pending.ContainsKey(ci.connector))
                 {
-                    _pending.Add(ci.connector, new Set());
+                    _pending.Add(ci.connector, new HashSet<ConnectCallback>());
                 }
             }
             return false;
@@ -892,7 +892,7 @@ namespace IceInternal
         {
             foreach(ConnectorInfo ci in connectors)
             {
-                Set cbs = null;
+                HashSet<ConnectCallback> cbs = null;
                 if(_pending.TryGetValue(ci.connector, out cbs))
                 {
                     cbs.Remove(cb);
@@ -1199,7 +1199,8 @@ namespace IceInternal
             new MultiDictionary<Connector, Ice.ConnectionI>();
         private MultiDictionary<EndpointI, Ice.ConnectionI> _connectionsByEndpoint = 
             new MultiDictionary<EndpointI, Ice.ConnectionI>();
-        private Dictionary<Connector, Set> _pending = new Dictionary<Connector, Set>();
+        private Dictionary<Connector, HashSet<ConnectCallback>> _pending = 
+            new Dictionary<Connector, HashSet<ConnectCallback>>();
         private int _pendingConnectCount;
 
         private static System.Random rand_ = new System.Random(unchecked((int)System.DateTime.Now.Ticks));
