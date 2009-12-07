@@ -98,12 +98,7 @@ namespace Ice
         internal string _date = null;
         internal string _time = null;
 
-        internal static object _globalMutex;
-
-        static LoggerI()
-        {
-            _globalMutex = new object();
-        }
+        internal static object _globalMutex = new object();
     }
 
     public sealed class ConsoleLoggerI : LoggerI

@@ -20,12 +20,33 @@ namespace IceInternal
     using System.Runtime.Serialization.Formatters.Binary;
     using System.Threading;
 
+#if !MANAGED
+    internal static class NativeMethods
+    {
+        [DllImport("bzip2.dll")]
+        internal static extern IntPtr BZ2_bzlibVersion();
+
+        [DllImport("bzip2.dll")]
+        internal static extern int BZ2_bzBuffToBuffCompress(byte[] dest,
+                                                            ref int destLen,
+                                                            byte[] source,
+                                                            int sourceLen,
+                                                            int blockSize100k,
+                                                            int verbosity,
+                                                            int workFactor);
+
+        [DllImport("bzip2.dll")]
+        internal static extern int BZ2_bzBuffToBuffDecompress(byte[] dest,
+                                                              ref int destLen,
+                                                              byte[] source,
+                                                              int sourceLen,
+                                                              int small,
+                                                              int verbosity);
+    }
+#endif
+
     public class BasicStream
     {
-#if !MANAGED
-        [DllImport("bzip2.dll")]
-        static extern IntPtr BZ2_bzlibVersion();
-#endif
 
         static BasicStream()
         {
@@ -51,7 +72,7 @@ namespace IceInternal
             string lib = AssemblyUtil.runtime_ == AssemblyUtil.Runtime.Mono ? "bzip2 library" : "bzip2.dll";
             try
             {
-                BZ2_bzlibVersion();
+                NativeMethods.BZ2_bzlibVersion();
                 _bzlibInstalled = true;
             }
             catch(DllNotFoundException)
@@ -2265,7 +2286,7 @@ namespace IceInternal
                         {
                             readPendingObjects();
                         }
-                        throw ex;
+                        throw;
                     }
                 }
                 else
@@ -2297,7 +2318,7 @@ namespace IceInternal
                         // so we set the reason member to a more helpful message.
                         //
                         ex.reason = "unknown exception type `" + origId + "'";
-                        throw ex;
+                        throw;
                     }
                 }
             }
@@ -2558,17 +2579,6 @@ namespace IceInternal
             return _bzlibInstalled;
         }
 
-#if !MANAGED
-        [DllImport("bzip2.dll")]
-        extern static int BZ2_bzBuffToBuffCompress(byte[] dest,
-                                                   ref int destLen,
-                                                   byte[] source,
-                                                   int sourceLen,
-                                                   int blockSize100k,
-                                                   int verbosity,
-                                                   int workFactor);
-#endif
-
         public bool compress(ref BasicStream cstream, int headerSize, int compressionLevel)
         {
 #if MANAGED
@@ -2589,8 +2599,8 @@ namespace IceInternal
             int compressedLen = (int)(uncompressedLen * 1.01 + 600);
             byte[] compressed = new byte[compressedLen];
 
-            int rc = BZ2_bzBuffToBuffCompress(compressed, ref compressedLen, uncompressed, uncompressedLen,
-                                              compressionLevel, 0, 0);
+            int rc = NativeMethods.BZ2_bzBuffToBuffCompress(compressed, ref compressedLen, uncompressed, 
+                                                            uncompressedLen, compressionLevel, 0, 0);
             if(rc == BZ_OUTBUFF_FULL)
             {
                 cstream = null;
@@ -2637,16 +2647,6 @@ namespace IceInternal
 #endif
         }
 
-#if !MANAGED
-        [DllImport("bzip2.dll")]
-        extern static int BZ2_bzBuffToBuffDecompress(byte[] dest,
-                                                     ref int destLen,
-                                                     byte[] source,
-                                                     int sourceLen,
-                                                     int small,
-                                                     int verbosity);
-#endif
-
         public BasicStream uncompress(int headerSize)
         {
 #if MANAGED
@@ -2668,7 +2668,8 @@ namespace IceInternal
             byte[] compressed = _buf.b.rawBytes(headerSize + 4, compressedLen);
             int uncompressedLen = uncompressedSize - headerSize;
             byte[] uncompressed = new byte[uncompressedLen];
-            int rc = BZ2_bzBuffToBuffDecompress(uncompressed, ref uncompressedLen, compressed, compressedLen, 0, 0);
+            int rc = NativeMethods.BZ2_bzBuffToBuffDecompress(uncompressed, ref uncompressedLen, compressed, 
+                                                              compressedLen, 0, 0);
             if(rc < 0)
             {
                 Ice.CompressionException ex = new Ice.CompressionException("BZ2_bzBuffToBuffDecompress failed");

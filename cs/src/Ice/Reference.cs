@@ -1133,9 +1133,9 @@ namespace IceInternal
                 {
                     return createConnection(endpts, out comp);
                 }
-                catch(Ice.NoEndpointException ex)
+                catch(Ice.NoEndpointException)
                 {
-                    throw ex; // No need to retry if there's no endpoints.
+                    throw; // No need to retry if there's no endpoints.
                 }
                 catch(Ice.LocalException ex)
                 {

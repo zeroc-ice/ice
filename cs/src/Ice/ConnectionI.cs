@@ -93,7 +93,7 @@ namespace Ice
                 else
                 {
                     waitUntilFinished();
-                    throw ex;
+                    throw;
                 }
             }
 

@@ -54,11 +54,11 @@ namespace Ice
         {
             if(obj1 != null && !(obj1 is Ice.ObjectPrx))
             {
-                throw new System.ArgumentException("Argument must be derived from Ice.ObjectPrx", "o1");
+                throw new System.ArgumentException("Argument must be derived from Ice.ObjectPrx", "obj1");
             }
             if(obj2 != null && !(obj2 is Ice.ObjectPrx))
             {
-                throw new System.ArgumentException("Argument must be derived from Ice.ObjectPrx", "o2");
+                throw new System.ArgumentException("Argument must be derived from Ice.ObjectPrx", "obj2");
             }
             return Ice.Util.proxyIdentityCompare((Ice.ObjectPrx)obj1, (Ice.ObjectPrx)obj2);
         }
@@ -110,11 +110,11 @@ namespace Ice
         {
             if(obj1 != null && !(obj1 is Ice.ObjectPrx))
             {
-                throw new System.ArgumentException("Argument must be derived from Ice.ObjectPrx", "o1");
+                throw new System.ArgumentException("Argument must be derived from Ice.ObjectPrx", "obj1");
             }
             if(obj2 != null && !(obj2 is Ice.ObjectPrx))
             {
-                throw new System.ArgumentException("Argument must be derived from Ice.ObjectPrx", "o2");
+                throw new System.ArgumentException("Argument must be derived from Ice.ObjectPrx", "obj2");
             }
             return Ice.Util.proxyIdentityAndFacetCompare((Ice.ObjectPrx)obj1, (Ice.ObjectPrx)obj2);
         }

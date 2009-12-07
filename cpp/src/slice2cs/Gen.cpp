@@ -208,7 +208,7 @@ Slice::CsVisitor::writeDispatchAndMarshalling(const ClassDefPtr& p, bool stream)
 
     _out << sp << nl << "#region Slice type-related members";
 
-    _out << sp << nl << "public static new string[] ids__ = ";
+    _out << sp << nl << "public static new readonly string[] ids__ = ";
     _out << sb;
 
     {
