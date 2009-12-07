@@ -3822,6 +3822,14 @@ Slice::Gen::ObjectVisitor::visitClassDefStart(const ClassDefPtr& p)
             }
         }
     }
+
+    bool hasBaseClass = !bases.empty() && !bases.front()->isInterface();
+    bool override = p->canBeCyclic() && (!hasBaseClass || !bases.front()->canBeCyclic());
+    if(override)
+    {
+        H << ", private IceInternal::GCShared";
+    }
+
     H.restoreIndent();
     H << sb;
     H.dec();
@@ -4827,20 +4835,6 @@ Slice::Gen::ObjectVisitor::emitGCFunctions(const ClassDefPtr& p)
 
     if(override)
     {
-        H << nl << "virtual void __incRef();";
-
-        C << sp << nl << "void" << nl << scoped.substr(2) << "::__incRef()";
-        C << sb;
-        C << nl << "__gcIncRef();";
-        C << eb;
-
-        H << nl << "virtual void __decRef();";
-
-        C << sp << nl << "void" << nl << scoped.substr(2) << "::__decRef()";
-        C << sb;
-        C << nl << "__gcDecRef();";
-        C << eb;
-
         H << nl << "virtual void __addObject(::IceInternal::GCCountMap&);";
 
         C << sp << nl << "void" << nl << scoped.substr(2) << "::__addObject(::IceInternal::GCCountMap& _c)";

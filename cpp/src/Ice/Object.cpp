@@ -19,7 +19,7 @@ using namespace std;
 using namespace Ice;
 using namespace IceInternal;
 
-IceInternal::GCShared* IceInternal::upCast(Object* p) { return p; }
+IceUtil::Shared* IceInternal::upCast(Object* p) { return p; }
 
 bool
 Ice::Object::operator==(const Object& r) const
