@@ -1273,8 +1273,8 @@ public:
             (callback.get()->*response)(CT::dynamicCast(result->getCookie()));
 #else
             (Callback<T, CT>::callback.get()->*response)(CT::dynamicCast(result->getCookie()));
-        }
 #endif
+        }
     }
 
     Response response;
@@ -1323,8 +1323,8 @@ public:
             (callback.get()->*response)(__ret);
 #else
             (::IceInternal::CallbackNC<T>::callback.get()->*response)(__ret);
-        }
 #endif
+        }
     }
 
     Response response;
@@ -1368,8 +1368,8 @@ public:
             (callback.get()->*response)(__ret, CT::dynamicCast(__result->getCookie()));
 #else
             (::IceInternal::Callback<T, CT>::callback.get()->*response)(__ret, CT::dynamicCast(__result->getCookie()));
-        }
 #endif
+        }
     }
 
     Response response;

@@ -6382,7 +6382,17 @@ Slice::Gen::AsyncVisitor::visitOperation(const OperationPtr& p)
         H << eb;
         H << nl << "void __sent(bool sentSynchronously)";
         H << sb;
+        H.zeroIndent();
+        H << nl << "#if defined(_MSC_VER) && (_MSC_VER < 1300) // VC++ 6 compiler bug"; // COMPILERBUG
+        H.restoreIndent();
+        H << nl << "AMICallbackBase::__sent(sentSynchronously);";
+        H.zeroIndent();
+        H << nl << "#else";
+        H.restoreIndent();
         H << nl << "::Ice::AMICallbackBase::__sent(sentSynchronously);";
+        H.zeroIndent();
+        H << nl << "#endif";
+        H.restoreIndent();
         H << eb;
         H << eb << ';';
         H << sp << nl << "typedef ::IceUtil::Handle< " << classScopedAMI << '_' << name << "> " << classNameAMI
