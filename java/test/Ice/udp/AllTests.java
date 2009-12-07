@@ -198,12 +198,18 @@ public class AllTests
             reply = (PingReplyPrx)PingReplyPrxHelper.uncheckedCast(adapter.addWithUUID(replyI)).ice_datagram();
         }
         test(ret);
-        if(!System.getProperty("os.name").startsWith("Windows"))
+
+        //
+        // Neither Windows nor Snow Leopard support sending replies back
+        // on the multicast UDP connection. For Windows, see
+        // UdpTransceiver constructor for the details.
+        // 
+        if(System.getProperty("os.name").startsWith("Windows") || System.getProperty("os.name").startsWith("Mac OS X"))
         {
-            //
-            // Windows doesn't support sending replies back on the multicast UDP connection,
-            // see UdpTransceiver constructor for the details.
-            // 
+            System.out.println("ok");
+        }
+        else
+        {
             nRetry = 5;
             while(nRetry-- > 0)
             {
@@ -226,10 +232,6 @@ public class AllTests
             {
                 System.out.println("ok");
             }
-        }
-        else
-        {
-            System.out.println("ok");
         }
         
         return objMcast;
