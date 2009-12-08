@@ -10,8 +10,7 @@
 using System;
 using System.Reflection;
 using System.Runtime.CompilerServices;
-
-[assembly: CLSCompliant(false)]
+using System.Runtime.InteropServices;
 
 [assembly: AssemblyTitle("IceVisualStudioExtension")]
 [assembly: AssemblyDescription("Ice Extension for Visual Studio")]

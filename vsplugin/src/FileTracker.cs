@@ -89,7 +89,7 @@ namespace Ice.VisualStudio
             }
         }
 
-        public void reap(Project project, Builder builder)
+        public void reap(Project project)
         {
             lock(this)
             {

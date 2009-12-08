@@ -93,10 +93,10 @@ namespace Ice.VisualStudio
             Array items = value.Split(separator);
             foreach(string s in items)
             {
-                s.Trim();
-                if(s.Length > 0)
+                string trimmed = s.Trim();
+                if(trimmed.Length > 0)
                 {
-                    Add(s.Trim());
+                    Add(trimmed);
                 }
             }
         }
@@ -152,56 +152,62 @@ namespace Ice.VisualStudio
         }
     }
 
-    public class Util
+    public static class Util
     {
-        public class SliceTranslator
-        {
-            public const string slice2cs = "slice2cs.exe";
-            public const string slice2cpp = "slice2cpp.exe";
-            public const string slice2sl = "slice2sl.exe";
-        };
+        public const string slice2cs = "slice2cs.exe";
+        public const string slice2cpp = "slice2cpp.exe";
+        public const string slice2sl = "slice2sl.exe";
 
         //
         // Property names used to persist project configuration.
         //
-        public class PropertyNames
+        public const string PropertyIce = "ZerocIce_Enabled";
+        public const string PropertyIceHome = "ZerocIce_Home";
+        public const string PropertyIceHomeExpanded = "ZerocIce_HomeExpanded";
+        public const string PropertyIceComponents = "ZerocIce_Components";
+        public const string PropertyIceExtraOptions = "ZerocIce_ExtraOptions";
+        public const string PropertyIceIncludePath = "ZerocIce_IncludePath";
+        public const string PropertyIceStreaming = "ZerocIce_Streaming";
+        public const string PropertyIceChecksum = "ZerocIce_Checksum";
+        public const string PropertyIceTie = "ZerocIce_Tie";
+        public const string PropertyIcePrefix = "ZerocIce_Prefix";
+        public const string PropertyIceDllExport = "ZerocIce_DllExport";
+        public const string PropertyConsoleOutput = "ZerocIce_ConsoleOutput";
+
+        private static readonly string[] silverlightNames =
         {
-            public const string Ice = "ZerocIce_Enabled";
-            public const string IceHome = "ZerocIce_Home";
-            public const string IceHomeExpanded = "ZerocIce_HomeExpanded";
-            public const string IceComponents = "ZerocIce_Components";
-            public const string IceExtraOptions = "ZerocIce_ExtraOptions";
-            public const string IceIncludePath = "ZerocIce_IncludePath";
-            public const string IceStreaming = "ZerocIce_Streaming";
-            public const string IceChecksum = "ZerocIce_Checksum";
-            public const string IceTie = "ZerocIce_Tie";
-            public const string IcePrefix = "ZerocIce_Prefix";
-            public const string IceDllExport = "ZerocIce_DllExport";
-            public const string ConsoleOutput = "ZerocIce_ConsoleOutput";
+            "IceSL"
+        };
+
+        public static string[] getSilverlightNames()
+        {
+            return (string[])silverlightNames.Clone();
         }
-
-        public class ComponentNames
+        
+        private static readonly string[] cppNames =
         {
-            public static readonly string[] silverlightNames =
-            {
-                "IceSL"
-            };
-            
-            public static readonly string[] cppNames =
-            {
-                "Freeze", "Glacier2", "Ice", "IceBox", "IceGrid", "IcePatch2", 
-                "IceSSL", "IceStorm", "IceUtil" 
-            };
+            "Freeze", "Glacier2", "Ice", "IceBox", "IceGrid", "IcePatch2", 
+            "IceSSL", "IceStorm", "IceUtil" 
+        };
 
-            public static readonly string[] cSharpNames =
-            {
-                "Glacier2", "Ice", "IceBox", "IceGrid", "IcePatch2", 
-                "IceSSL", "IceStorm"
-            };
+        public static string[] getCppNames()
+        {
+            return (string[])cppNames.Clone();
+        }
+        
+        private static readonly string[] cSharpNames =
+        {
+            "Glacier2", "Ice", "IceBox", "IceGrid", "IcePatch2", 
+            "IceSSL", "IceStorm"
+        };
+
+        public static string[] getCSharpNames()
+        {
+            return (string[])cSharpNames.Clone();
         }
 
         const string iceSilverlightHome = "C:\\IceSL-0.3.3";
-        static string defaultIceHome = null;
+        static string defaultIceHome;
 
         private static void setIceHomeDefault()
         {
@@ -221,9 +227,9 @@ namespace Ice.VisualStudio
 
             if(Util.isSilverlightProject(project))
             {
-                return Util.getProjectProperty(project, Util.PropertyNames.IceHome, iceSilverlightHome, update);
+                return Util.getProjectProperty(project, Util.PropertyIceHome, iceSilverlightHome, update);
             }
-            string iceHome = Util.getProjectProperty(project, Util.PropertyNames.IceHome, "", update);
+            string iceHome = Util.getProjectProperty(project, Util.PropertyIceHome, "", update);
             if(iceHome.Length == 0)
             {
                 iceHome = defaultIceHome;
@@ -240,9 +246,9 @@ namespace Ice.VisualStudio
 
             if(Util.isSilverlightProject(project))
             {
-                return Util.getProjectProperty(project, Util.PropertyNames.IceHomeExpanded, iceSilverlightHome);
+                return Util.getProjectProperty(project, Util.PropertyIceHomeExpanded, iceSilverlightHome);
             }
-            string iceHome = Util.getProjectProperty(project, Util.PropertyNames.IceHomeExpanded, defaultIceHome);
+            string iceHome = Util.getProjectProperty(project, Util.PropertyIceHomeExpanded, defaultIceHome);
             Environment.SetEnvironmentVariable("IceHome", iceHome);
             return iceHome;
         }
@@ -455,7 +461,7 @@ namespace Ice.VisualStudio
                 return;
             }
 
-            string iceComponent = Array.Find(Util.ComponentNames.cppNames, delegate(string name)
+            string iceComponent = Array.Find(Util.getCppNames(), delegate(string name)
                                                                             {
                                                                                 return name.Equals(component);
                                                                             });
@@ -598,7 +604,7 @@ namespace Ice.VisualStudio
 
         public static bool isSliceBuilderEnabled(Project project)
         {
-            return Util.getProjectPropertyAsBool(project, Util.PropertyNames.Ice);
+            return Util.getProjectPropertyAsBool(project, Util.PropertyIce);
         }
 
         public static bool isCSharpProject(Project project)
@@ -868,7 +874,7 @@ namespace Ice.VisualStudio
             return newPath;
         }
 
-        public static ProjectItem getSelectedProjectItem(DTE dte)
+        public static ProjectItem getSelectedProjectItem(_DTE dte)
         {
             UIHierarchyItem uiItem = getSelectedUIHierearchyItem(dte);
             if(uiItem == null)
@@ -883,7 +889,7 @@ namespace Ice.VisualStudio
             return Util.getSelectedProject(Util.getCurrentDTE());
         }
 
-        public static Project getSelectedProject(DTE dte)
+        public static Project getSelectedProject(_DTE dte)
         {
             UIHierarchyItem uiItem = getSelectedUIHierearchyItem(dte);
             if(uiItem == null)
@@ -893,7 +899,7 @@ namespace Ice.VisualStudio
             return uiItem.Object as Project;
         }
 
-        public static UIHierarchyItem getSelectedUIHierearchyItem(DTE dte)
+        public static UIHierarchyItem getSelectedUIHierearchyItem(_DTE dte)
         {
             if(dte == null)
             {
@@ -1034,13 +1040,13 @@ namespace Ice.VisualStudio
 
             if(value.Equals(defaultIceHome))
             {
-                setProjectProperty(project, Util.PropertyNames.IceHome, "");
+                setProjectProperty(project, Util.PropertyIceHome, "");
             }
             else
             {
-                setProjectProperty(project, Util.PropertyNames.IceHome, value);
+                setProjectProperty(project, Util.PropertyIceHome, value);
             }
-            setProjectProperty(project, Util.PropertyNames.IceHomeExpanded, expanded);
+            setProjectProperty(project, Util.PropertyIceHomeExpanded, expanded);
         }
 
         public static bool getProjectPropertyAsBool(Project project, string name)
@@ -1197,7 +1203,7 @@ namespace Ice.VisualStudio
                         continue;
                     }
 
-                    string iceComponent = Array.Find(Util.ComponentNames.cppNames, delegate(string name)
+                    string iceComponent = Array.Find(Util.getCppNames(), delegate(string name)
                                                                                     {
                                                                                         return name.Equals(libName);
                                                                                     });
@@ -1222,10 +1228,11 @@ namespace Ice.VisualStudio
             VSLangProj.VSProject vsProject = (VSLangProj.VSProject)project.Object;
             foreach(Reference r in vsProject.References)
             {
-                string iceComponent = Array.Find(Util.ComponentNames.silverlightNames, delegate(string name)
-                                                                                        {
-                                                                                            return name.Equals(r.Name);
-                                                                                        });
+                string iceComponent =
+                    Array.Find(Util.getSilverlightNames(), delegate(string name)
+                                                                          {
+                                                                              return name.Equals(r.Name);
+                                                                          });
 
                 if(String.IsNullOrEmpty(iceComponent))
                 {
@@ -1248,7 +1255,7 @@ namespace Ice.VisualStudio
             VSLangProj.VSProject vsProject = (VSLangProj.VSProject)project.Object;
             foreach(Reference r in vsProject.References)
             {
-                string iceComponent = Array.Find(Util.ComponentNames.cSharpNames, delegate(string name)
+                string iceComponent = Array.Find(Util.getCSharpNames(), delegate(string name)
                 {
                     return name.Equals(r.Name);
                 });
@@ -1368,7 +1375,7 @@ namespace Ice.VisualStudio
 
         public static ComponentList removeIceCppLibs(Project project)
         {
-            return Util.removeIceCppLibs(project, new ComponentList(Util.ComponentNames.cppNames));
+            return Util.removeIceCppLibs(project, new ComponentList(Util.getCppNames()));
         }
 
         public static ComponentList removeIceCppLibs(Project project, ComponentList components)
