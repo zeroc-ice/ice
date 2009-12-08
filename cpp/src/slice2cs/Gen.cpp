@@ -276,7 +276,8 @@ Slice::CsVisitor::writeDispatchAndMarshalling(const ClassDefPtr& p, bool stream)
         assert(cl);
 
         string opName = op->name();
-        _out << sp << nl << "public static Ice.DispatchStatus " << opName << "___(" << name
+        _out << sp << nl << "[_System.Diagnostics.CodeAnalysis.SuppressMessage(\"Microsoft.Design\", \"CA1011\")]";
+        _out << nl << "public static Ice.DispatchStatus " << opName << "___(" << name
              << " obj__, IceInternal.Incoming inS__, Ice.Current current__)";
         _out << sb;
 
@@ -5311,6 +5312,7 @@ Slice::Gen::DelegateDVisitor::visitClassDefStart(const ClassDefPtr& p)
         vector<string> args = getArgs(op);
 
         _out << sp;
+        _out << nl << "[_System.Diagnostics.CodeAnalysis.SuppressMessage(\"Microsoft.Design\", \"CA1031\")]";
         _out << nl << "public " << retS << ' ' << opName << spar << params
              << "_System.Collections.Generic.Dictionary<string, string> context__" << epar;
         _out << sb;
