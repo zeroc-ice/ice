@@ -22,9 +22,7 @@ sys.path.append(path[0])
 from demoscript import *
 from demoscript.Ice import plugin
 
-libraryPath = os.environ["LD_LIBRARY_PATH"];
-if Util.isLinux():
-    os.environ["LD_LIBRARY_PATH"] = libraryPath + ":."
+Util.addLdPath(os.getcwd())
 
 server = Util.spawn('./server --Ice.PrintAdapterReady --Ice.Warn.Connections=0')
 server.expect('.* ready')
@@ -32,6 +30,3 @@ client = Util.spawn('./client --Ice.Warn.Connections=0')
 client.expect('.*==>')
 
 plugin.run(client, server)
-
-if Util.isLinux():
-    os.environ["LD_LIBRARY_PATH"] = libraryPath

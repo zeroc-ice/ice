@@ -52,7 +52,7 @@ $(SERVER): $(OBJS) $(SOBJS)
 
 $(LOGGERFILENAME): $(LOBJS)
 	rm -f $@
-	$(call mkshlib,$@,$(SONAME),$(LOBJS),$(LIBS))
+	$(call mkshlib,$@,$(LOGGERSONAME),$(LOBJS),$(LIBS))
 
 $(LOGGERSONAME): $(LOGGERFILENAME)
 	rm -f $@
@@ -60,7 +60,7 @@ $(LOGGERSONAME): $(LOGGERFILENAME)
 
 $(HELLOFILENAME): $(OBJS) $(HOBJS)
 	rm -f $@
-	$(call mkshlib,$@,$(SONAME),$(OBJS) $(HOBJS),$(LIBS))
+	$(call mkshlib,$@,$(HELLOSONAME),$(OBJS) $(HOBJS),$(LIBS))
 
 $(HELLOSONAME): $(HELLOFILENAME)
 	rm -f $@
