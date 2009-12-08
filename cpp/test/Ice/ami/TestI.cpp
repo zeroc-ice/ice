@@ -13,8 +13,13 @@
 using namespace std;
 using namespace Ice;
 
+TestIntfI::TestIntfI() :
+    _batchCount(0)
+{
+}
+
 void
-TestIntfI::op(const Ice::Current& current)
+TestIntfI::op(const Ice::Current&)
 {
 }
 
@@ -25,7 +30,7 @@ TestIntfI::opWithResult(const Ice::Current& current)
 }
 
 void
-TestIntfI::opWithUE(const Ice::Current& current)
+TestIntfI::opWithUE(const Ice::Current&)
 {
     throw Test::TestIntfException();
 }
@@ -33,6 +38,34 @@ TestIntfI::opWithUE(const Ice::Current& current)
 void
 TestIntfI::opWithPayload(const Ice::ByteSeq&, const Ice::Current& current)
 {
+}
+
+void
+TestIntfI::opBatch(const Ice::Current&)
+{
+    IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
+    ++_batchCount;
+    notify();
+}
+
+Ice::Int
+TestIntfI::opBatchCount(const Ice::Current&)
+{
+    IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
+    return _batchCount;
+}
+
+bool
+TestIntfI::waitForBatch(Ice::Int count, const Ice::Current&)
+{
+    IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
+    while(_batchCount < count)
+    {
+        timedWait(IceUtil::Time::milliSeconds(5000));
+    }
+    bool result = count == _batchCount;
+    _batchCount = 0;
+    return result;
 }
 
 void

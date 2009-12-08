@@ -60,6 +60,12 @@ public:
 
     virtual void flushBatchRequests();
 
+    virtual AsyncResultPtr begin_flushBatchRequests();
+    virtual AsyncResultPtr begin_flushBatchRequests(const CallbackPtr&, const LocalObjectPtr& = 0);
+    virtual AsyncResultPtr begin_flushBatchRequests(const Callback_Communicator_flushBatchRequestsPtr&,
+                                                    const LocalObjectPtr& = 0);
+    virtual void end_flushBatchRequests(const AsyncResultPtr&);
+
     virtual ObjectPrx getAdmin() const;
     virtual void addAdminFacet(const ObjectPtr&, const std::string&);
     virtual ObjectPtr removeAdminFacet(const std::string&);
@@ -79,6 +85,8 @@ private:
     friend ICE_API CommunicatorPtr initialize(StringSeq&, const InitializationData&, Int);
     friend ICE_API CommunicatorPtr initialize(const InitializationData&, Int);
     friend ICE_API ::IceInternal::InstancePtr IceInternal::getInstance(const ::Ice::CommunicatorPtr&);
+
+    AsyncResultPtr begin_flushBatchRequestsInternal(const IceInternal::CallbackBasePtr&, const LocalObjectPtr&);
 
     const ::IceInternal::InstancePtr _instance;
 

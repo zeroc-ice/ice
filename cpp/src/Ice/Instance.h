@@ -37,6 +37,7 @@
 #include <Ice/FacetMap.h>
 #include <Ice/Process.h>
 #include <list>
+#include <memory>
 
 namespace Ice
 {
@@ -77,7 +78,6 @@ public:
     size_t messageSizeMax() const { return _messageSizeMax; }
     Ice::Int clientACM() const;
     Ice::Int serverACM() const;
-    void flushBatchRequests();
     Ice::Identity stringToIdentity(const std::string&) const;
     std::string identityToString(const Ice::Identity&) const;
 
@@ -159,7 +159,6 @@ private:
     Ice::Byte* _buffer;
     size_t _offset;
 };
-
 
 class ProcessI : public Ice::Process
 {

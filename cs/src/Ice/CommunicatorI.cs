@@ -156,7 +156,52 @@ namespace Ice
 
         public void flushBatchRequests()
         {
-            instance_.flushBatchRequests();
+            AsyncResult r = begin_flushBatchRequests();
+            end_flushBatchRequests(r);
+        }
+
+        public AsyncResult begin_flushBatchRequests()
+        {
+            return begin_flushBatchRequests(null, null);
+        }
+
+        private const string __flushBatchRequests_name = "flushBatchRequests";
+
+        public AsyncResult begin_flushBatchRequests(AsyncCallback cb, object cookie)
+        {
+            IceInternal.OutgoingConnectionFactory connectionFactory = instance_.outgoingConnectionFactory();
+            IceInternal.ObjectAdapterFactory adapterFactory = instance_.objectAdapterFactory();
+
+            //
+            // This callback object receives the results of all invocations
+            // of Connection.begin_flushBatchRequests.
+            //
+            IceInternal.CommunicatorBatchOutgoingAsync result =
+                new IceInternal.CommunicatorBatchOutgoingAsync(this, instance_, __flushBatchRequests_name, cookie);
+
+            if(cb != null)
+            {
+                result.whenCompletedWithAsyncCallback(cb);
+            }
+
+            connectionFactory.flushAsyncBatchRequests(result);
+            adapterFactory.flushAsyncBatchRequests(result);
+
+            //
+            // Inform the callback that we have finished initiating all of the
+            // flush requests. If all of the requests have already completed,
+            // the callback is invoked now.
+            //
+            result.ready();
+
+            return result;
+        }
+
+        public void end_flushBatchRequests(AsyncResult result)
+        {
+            IceInternal.OutgoingAsyncBase outAsync = (IceInternal.OutgoingAsyncBase)result;
+            IceInternal.OutgoingAsyncBase.check__(outAsync, this, __flushBatchRequests_name);
+            outAsync.wait__();
         }
         
         public Ice.ObjectPrx 

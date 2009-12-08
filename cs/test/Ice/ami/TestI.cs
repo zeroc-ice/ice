@@ -8,6 +8,7 @@
 // **********************************************************************
 
 using Test;
+using System.Threading;
 
 public class TestI : TestIntfDisp_
 {
@@ -38,10 +39,46 @@ public class TestI : TestIntfDisp_
     }
 
     override public void
+    opBatch(Ice.Current current)
+    {
+        lock(this)
+        {
+            ++_batchCount;
+            Monitor.Pulse(this);
+        }
+    }
+
+    override public int
+    opBatchCount(Ice.Current current)
+    {
+        lock(this)
+        {
+            return _batchCount;
+        }
+    }
+
+    override public bool
+    waitForBatch(int count, Ice.Current current)
+    {
+        lock(this)
+        {
+            while(_batchCount < count)
+            {
+                Monitor.Wait(this, 5000);
+            }
+            bool result = count == _batchCount;
+            _batchCount = 0;
+            return result;
+        }
+    }
+
+    override public void
     shutdown(Ice.Current current)
     {
         current.adapter.getCommunicator().shutdown();
     }
+
+    private int _batchCount;
 }
 
 public class TestControllerI : TestIntfControllerDisp_

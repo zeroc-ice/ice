@@ -245,17 +245,9 @@ namespace Ice.wpf.client
 
         private void flush_Click(object sender, RoutedEventArgs e)
         {
-            new System.Threading.Thread(new System.Threading.ThreadStart(delegate()
-                {
-                    try
-                    {
-                        _communicator.flushBatchRequests();
-                    }
-                    catch(Ice.LocalException ex)
-                    {
-                        handleException(ex);
-                    }
-                })).Start();
+            Ice.AsyncResult r = _communicator.begin_flushBatchRequests();
+            r.whenCompleted(handleException);
+
             flush.IsEnabled = false;
             status.Content = "Flushed batch requests";
         }

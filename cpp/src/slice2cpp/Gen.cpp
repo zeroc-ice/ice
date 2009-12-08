@@ -4821,6 +4821,55 @@ Slice::Gen::ObjectVisitor::visitOperation(const OperationPtr& p)
         }
         C << eb;
     }
+
+    if(cl->isLocal() && (cl->hasMetaData("async") || p->hasMetaData("async")))
+    {
+        vector<string> paramsDeclAMI;
+        vector<string> outParamsDeclAMI;
+
+        ParamDeclList paramList = p->parameters();
+        for(ParamDeclList::const_iterator r = paramList.begin(); r != paramList.end(); ++r)
+        {
+            string paramName = fixKwd((*r)->name());
+
+            StringList metaData = (*r)->getMetaData();
+            string typeString;
+            if((*r)->isOutParam())
+            {
+                typeString = outputTypeToString((*r)->type(), metaData, _useWstring | TypeContextAMIEnd);
+            }
+            else
+            {
+                typeString = inputTypeToString((*r)->type(), metaData, _useWstring);
+            }
+
+            if(!(*r)->isOutParam())
+            {
+                paramsDeclAMI.push_back(typeString + ' ' + paramName);
+            }
+            else
+            {
+                outParamsDeclAMI.push_back(typeString + ' ' + paramName);
+            }
+        }
+
+        H << sp << nl << "virtual ::Ice::AsyncResultPtr begin_" << name << spar << paramsDeclAMI << epar << " = 0;";
+
+        H << sp << nl << "virtual ::Ice::AsyncResultPtr begin_" << name << spar << paramsDeclAMI
+          << "const ::Ice::CallbackPtr& __del"
+          << "const ::Ice::LocalObjectPtr& __cookie = 0" << epar << " = 0;";
+
+        string clScope = fixKwd(cl->scope());
+        string delName = "Callback_" + cl->name() + "_" + name;
+        string delNameScoped = clScope + delName;
+
+        H << sp << nl << "virtual ::Ice::AsyncResultPtr begin_" << name << spar << paramsDeclAMI
+          << "const " + delNameScoped + "Ptr& __del"
+          << "const ::Ice::LocalObjectPtr& __cookie = 0" << epar << " = 0;";
+
+        H << sp << nl << "virtual " << retS << " end_" << name << spar << outParamsDeclAMI
+          << "const ::Ice::AsyncResultPtr&" << epar << " = 0;";
+    }
 }
 
 void
@@ -5174,20 +5223,9 @@ Slice::Gen::AsyncCallbackVisitor::AsyncCallbackVisitor(Output& h, Output& c, con
 }
 
 bool
-Slice::Gen::AsyncCallbackVisitor::visitUnitStart(const UnitPtr& p)
-{
-    return p->hasNonLocalClassDefs();
-}
-
-void
-Slice::Gen::AsyncCallbackVisitor::visitUnitEnd(const UnitPtr&)
-{
-}
-
-bool
 Slice::Gen::AsyncCallbackVisitor::visitModuleStart(const ModulePtr& p)
 {
-    if(!p->hasNonLocalClassDefs())
+    if(!p->hasNonLocalClassDefs() && !p->hasContentsWithMetaData("async"))
     {
         return false;
     }
@@ -5225,7 +5263,7 @@ Slice::Gen::AsyncCallbackVisitor::visitOperation(const OperationPtr& p)
 {
     ClassDefPtr cl = ClassDefPtr::dynamicCast(p->container());
 
-    if(cl->isLocal() || cl->operations().empty())
+    if(cl->isLocal() && !(cl->hasMetaData("async") || p->hasMetaData("async")))
     {
         return;
     }
@@ -5530,7 +5568,7 @@ Slice::Gen::AsyncCallbackTemplateVisitor::generateOperation(const OperationPtr& 
         if(withCookie)
         {
             cookieT = "const CT&";
-            comCookieT = " , const CT&";
+            comCookieT = ", const CT&";
             H << sp << nl << "template<class T, typename CT> " << delName << "Ptr"; 
         }
         else
@@ -5555,9 +5593,9 @@ Slice::Gen::AsyncCallbackTemplateVisitor::generateOperation(const OperationPtr& 
         }
         else
         {
-            H  << "void (T::*cb)(" << cookieT << "),";
+            H  << "void (T::*cb)(" << cookieT << "), ";
         }
-        H << "void (T::*excb)(" << "const ::Ice::Exception&" << comCookieT << "),";
+        H << "void (T::*excb)(" << "const ::Ice::Exception&" << comCookieT << "), ";
         H << "void (T::*sentcb)(bool" << comCookieT << ") = 0)";
         H << sb;
         if(withCookie)
@@ -5581,7 +5619,7 @@ Slice::Gen::AsyncCallbackTemplateVisitor::generateOperation(const OperationPtr& 
                 H << sp << nl << "template<class T> " << delName << "Ptr"; 
             }
             H << nl << "new" << delName << "(" << callbackT << " instance, ";
-            H << "void (T::*excb)(" << "const ::Ice::Exception&" << comCookieT << "),";
+            H << "void (T::*excb)(" << "const ::Ice::Exception&" << comCookieT << "), ";
             H << "void (T::*sentcb)(bool" << comCookieT << ") = 0)";
             H << sb;
             if(withCookie)

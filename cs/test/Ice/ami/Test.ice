@@ -19,13 +19,16 @@ exception TestIntfException
 {
 };
 
-["ami"] interface TestIntf
+interface TestIntf
 {
     void op();
     void opWithPayload(Ice::ByteSeq seq);
     int opWithResult();
     void opWithUE()
         throws TestIntfException;    
+    void opBatch();
+    int opBatchCount();
+    bool waitForBatch(int count);
     void shutdown();
 };
 

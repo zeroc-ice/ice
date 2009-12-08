@@ -739,8 +739,8 @@ namespace Ice
                 }
             }
         }
-        
-        public void flushBatchRequests()
+
+        public void flushAsyncBatchRequests(IceInternal.CommunicatorBatchOutgoingAsync outAsync)
         {
             List<IceInternal.IncomingConnectionFactory> f;
             lock(this)
@@ -750,7 +750,7 @@ namespace Ice
 
             foreach(IceInternal.IncomingConnectionFactory factory in f)
             {
-                factory.flushBatchRequests();
+                factory.flushAsyncBatchRequests(outAsync);
             }
         }
 

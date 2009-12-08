@@ -69,7 +69,7 @@ public class AllTests
     {
         public AsyncCallback()
         {
-        }    
+        }
 
         public void
         isA(Ice.AsyncResult result)
@@ -78,14 +78,14 @@ public class AllTests
             called();
         }
 
-        public void 
+        public void
         ping(Ice.AsyncResult result)
         {
             result.getProxy().end_ice_ping(result);
             called();
         }
 
-        public void 
+        public void
         id(Ice.AsyncResult result)
         {
             test(result.getProxy().end_ice_id(result).equals("::Test::TestIntf"));
@@ -98,7 +98,7 @@ public class AllTests
             test(result.getProxy().end_ice_ids(result).length == 2);
             called();
         }
-        
+
         public void
         op(Ice.AsyncResult result)
         {
@@ -112,7 +112,7 @@ public class AllTests
             test(TestIntfPrxHelper.uncheckedCast(result.getProxy()).end_opWithResult(result) == 15);
             called();
         }
-        
+
         public void
         opWithUE(Ice.AsyncResult result)
         {
@@ -148,7 +148,7 @@ public class AllTests
                 test(false);
             }
         }
-        
+
         public void
         pingEx(Ice.AsyncResult result)
         {
@@ -220,22 +220,21 @@ public class AllTests
                 test(false);
             }
         }
-
-    };
+    }
 
     static class ResponseCallback extends CallbackBase
     {
         ResponseCallback()
         {
         }
-    
+
         public void
         isA(boolean r)
         {
             test(r);
             called();
         }
-        
+
         public void
         ping()
         {
@@ -261,14 +260,14 @@ public class AllTests
         {
             called();
         }
-        
+
         public void
         opWithResult(int r)
         {
             test(r == 15);
             called();
         }
-        
+
         public void
         opWithUE(Ice.UserException e)
         {
@@ -285,45 +284,44 @@ public class AllTests
                 test(false);
             }
         }
-            
-    };
+    }
 
     static class ExceptionCallback extends CallbackBase
     {
         public ExceptionCallback()
         {
         }
-    
+
         public void
         isA(boolean r)
         {
             test(false);
         }
-        
+
         public void
         ping()
         {
             test(false);
         }
-        
+
         public void
         id(String id)
         {
             test(false);
         }
-        
+
         public void
         ids(String[] ids)
         {
             test(false);
         }
-        
+
         public void
         op()
         {
             test(false);
         }
-        
+
         public void
         ex(Ice.LocalException ex)
         {
@@ -336,7 +334,7 @@ public class AllTests
         {
             test(false);
         }
-    };
+    }
 
     static class SentCallback extends CallbackBase
     {
@@ -356,7 +354,7 @@ public class AllTests
         }
 
         public void
-        id(String s) 
+        id(String s)
         {
         }
 
@@ -395,9 +393,96 @@ public class AllTests
                  !ss && _thread != Thread.currentThread().getId());
             called();
         }
-        
+
         long _thread;
-    };
+    }
+
+    static class FlushCallback extends CallbackBase
+    {
+        FlushCallback()
+        {
+            _thread = Thread.currentThread().getId();
+        }
+
+        public void
+        completedAsync(Ice.AsyncResult r)
+        {
+            test(false);
+        }
+
+        public void
+        exception(Ice.LocalException ex)
+        {
+            test(false);
+        }
+
+        public void
+        sentAsync(Ice.AsyncResult r)
+        {
+            test((r.sentSynchronously() && _thread == Thread.currentThread().getId()) ||
+                 (!r.sentSynchronously() && _thread != Thread.currentThread().getId()));
+            called();
+        }
+
+        public void
+        sent(boolean sentSynchronously)
+        {
+            test((sentSynchronously && _thread == Thread.currentThread().getId()) ||
+                 (!sentSynchronously && _thread != Thread.currentThread().getId()));
+            called();
+        }
+
+        long _thread;
+    }
+
+    static class FlushExCallback extends CallbackBase
+    {
+        FlushExCallback()
+        {
+            _thread = Thread.currentThread().getId();
+        }
+
+        public void
+        completedAsync(Ice.AsyncResult r)
+        {
+            try
+            {
+                if(r.getConnection() != null)
+                {
+                    r.getConnection().end_flushBatchRequests(r);
+                }
+                else
+                {
+                    r.getProxy().end_ice_flushBatchRequests(r);
+                }
+                test(false);
+            }
+            catch(Ice.LocalException ex)
+            {
+                called();
+            }
+        }
+
+        public void
+        exception(Ice.LocalException ex)
+        {
+            called();
+        }
+
+        public void
+        sentAsync(Ice.AsyncResult r)
+        {
+            test(false);
+        }
+
+        public void
+        sent(boolean sentSynchronously)
+        {
+            test(false);
+        }
+
+        long _thread;
+    }
 
     enum ThrowType { LocalException, OtherException };
 
@@ -461,9 +546,9 @@ public class AllTests
             }
             }
         }
-        
+
         ThrowType _t;
-    };
+    }
 
     public static void
     allTests(Ice.Communicator communicator, PrintWriter out)
@@ -495,7 +580,7 @@ public class AllTests
             p.end_ice_ping(result);
             result = p.begin_ice_ping(ctx);
             p.end_ice_ping(result);
-        
+
             result = p.begin_ice_id();
             test(p.end_ice_id(result).equals("::Test::TestIntf"));
             result = p.begin_ice_id(ctx);
@@ -542,7 +627,7 @@ public class AllTests
         {
             final AsyncCallback cb = new AsyncCallback();
             java.util.Map<String, String> ctx = new java.util.HashMap<String, String>();
-        
+
             p.begin_ice_isA("::Test::TestIntf", new Ice.AsyncCallback()
                 {
                     public void
@@ -571,7 +656,7 @@ public class AllTests
                         cb.ping(r);
                     }
                 });
-            cb.check();        
+            cb.check();
             p.begin_ice_ping(ctx, new Ice.AsyncCallback()
                 {
                     public void
@@ -580,8 +665,8 @@ public class AllTests
                         cb.ping(r);
                     }
                 });
-            cb.check();        
-        
+            cb.check();
+
             p.begin_ice_id(new Ice.AsyncCallback()
                 {
                     public void
@@ -590,7 +675,7 @@ public class AllTests
                         cb.id(r);
                     }
                 });
-            cb.check();        
+            cb.check();
             p.begin_ice_id(ctx, new Ice.AsyncCallback()
                 {
                     public void
@@ -599,7 +684,7 @@ public class AllTests
                         cb.id(r);
                     }
                 });
-            cb.check();        
+            cb.check();
 
             p.begin_ice_ids(new Ice.AsyncCallback()
                 {
@@ -609,7 +694,7 @@ public class AllTests
                         cb.ids(r);
                     }
                 });
-            cb.check();        
+            cb.check();
             p.begin_ice_ids(ctx, new Ice.AsyncCallback()
                 {
                     public void
@@ -618,7 +703,7 @@ public class AllTests
                         cb.ids(r);
                     }
                 });
-            cb.check();        
+            cb.check();
 
             p.begin_op(new Ice.AsyncCallback()
                 {
@@ -628,7 +713,7 @@ public class AllTests
                         cb.op(r);
                     }
                 });
-            cb.check();        
+            cb.check();
             p.begin_op(ctx, new Ice.AsyncCallback()
                 {
                     public void
@@ -637,7 +722,7 @@ public class AllTests
                         cb.op(r);
                     }
                 });
-            cb.check();        
+            cb.check();
 
             p.begin_opWithResult(new Ice.AsyncCallback()
                 {
@@ -684,7 +769,7 @@ public class AllTests
         {
             final ResponseCallback cb = new ResponseCallback();
             java.util.Map<String, String> ctx = new java.util.HashMap<String, String>();
-        
+
             p.begin_ice_isA("::Test::TestIntf", new Ice.Callback_Object_ice_isA()
                 {
                     public void
@@ -699,7 +784,7 @@ public class AllTests
                         test(false);
                     }
                 });
-            cb.check();        
+            cb.check();
             p.begin_ice_isA("::Test::TestIntf", ctx, new Ice.Callback_Object_ice_isA()
                 {
                     public void
@@ -714,7 +799,7 @@ public class AllTests
                         test(false);
                     }
                 });
-            cb.check();        
+            cb.check();
 
             p.begin_ice_ping(new Ice.Callback_Object_ice_ping()
                 {
@@ -730,7 +815,7 @@ public class AllTests
                         test(false);
                     }
                 });
-            cb.check();        
+            cb.check();
             p.begin_ice_ping(ctx, new Ice.Callback_Object_ice_ping()
                 {
                     public void
@@ -745,8 +830,8 @@ public class AllTests
                         test(false);
                     }
                 });
-            cb.check();        
-        
+            cb.check();
+
             p.begin_ice_id(new Ice.Callback_Object_ice_id()
                 {
                     public void
@@ -761,7 +846,7 @@ public class AllTests
                         test(false);
                     }
                 });
-            cb.check();        
+            cb.check();
             p.begin_ice_id(ctx, new Ice.Callback_Object_ice_id()
                 {
                     public void
@@ -776,7 +861,7 @@ public class AllTests
                         test(false);
                     }
                 });
-            cb.check();        
+            cb.check();
 
             p.begin_ice_ids(new Ice.Callback_Object_ice_ids()
                 {
@@ -792,7 +877,7 @@ public class AllTests
                         test(false);
                     }
                 });
-            cb.check();        
+            cb.check();
             p.begin_ice_ids(ctx, new Ice.Callback_Object_ice_ids()
                 {
                     public void
@@ -807,7 +892,7 @@ public class AllTests
                         test(false);
                     }
                 });
-            cb.check();        
+            cb.check();
 
             p.begin_op(new Callback_TestIntf_op()
                 {
@@ -951,7 +1036,7 @@ public class AllTests
             Ice.ObjectPrx o = ic.stringToProxy(p.toString());
             TestIntfPrx p2 = TestIntfPrxHelper.checkedCast(o);
             ic.destroy();
-    
+
             try
             {
                 p2.begin_op();
@@ -969,7 +1054,7 @@ public class AllTests
         {
             TestIntfPrx i = TestIntfPrxHelper.uncheckedCast(p.ice_adapterId("dummy"));
             final AsyncCallback cb = new AsyncCallback();
-        
+
             i.begin_ice_isA("::Test::TestIntf", new Ice.AsyncCallback()
                 {
                     public void
@@ -988,8 +1073,8 @@ public class AllTests
                         cb.pingEx(r);
                     }
                 });
-            cb.check();        
-        
+            cb.check();
+
             i.begin_ice_id(new Ice.AsyncCallback()
                 {
                     public void
@@ -998,7 +1083,7 @@ public class AllTests
                         cb.idEx(r);
                     }
                 });
-            cb.check();        
+            cb.check();
 
             i.begin_ice_ids(new Ice.AsyncCallback()
                 {
@@ -1008,7 +1093,7 @@ public class AllTests
                         cb.idsEx(r);
                     }
                 });
-            cb.check();        
+            cb.check();
 
             i.begin_op(new Ice.AsyncCallback()
                 {
@@ -1018,7 +1103,7 @@ public class AllTests
                         cb.opEx(r);
                     }
                 });
-            cb.check();        
+            cb.check();
         }
         out.println("ok");
 
@@ -1027,7 +1112,7 @@ public class AllTests
         {
             TestIntfPrx i = TestIntfPrxHelper.uncheckedCast(p.ice_adapterId("dummy"));
             final ExceptionCallback cb = new ExceptionCallback();
-        
+
             i.begin_ice_isA("::Test::TestIntf", new Ice.Callback_Object_ice_isA()
                 {
                     public void
@@ -1042,7 +1127,7 @@ public class AllTests
                         cb.ex(ex);
                     }
                 });
-            cb.check();        
+            cb.check();
 
             i.begin_ice_ping(new Ice.Callback_Object_ice_ping()
                 {
@@ -1058,8 +1143,8 @@ public class AllTests
                         cb.ex(ex);
                     }
                 });
-            cb.check();        
-        
+            cb.check();
+
             i.begin_ice_id(new Ice.Callback_Object_ice_id()
                 {
                     public void
@@ -1074,7 +1159,7 @@ public class AllTests
                         cb.ex(ex);
                     }
                 });
-            cb.check();        
+            cb.check();
 
             i.begin_ice_ids(new Ice.Callback_Object_ice_ids()
                 {
@@ -1090,7 +1175,7 @@ public class AllTests
                         cb.ex(ex);
                     }
                 });
-            cb.check();        
+            cb.check();
 
             i.begin_op(new Callback_TestIntf_op()
                 {
@@ -1109,7 +1194,7 @@ public class AllTests
             cb.check();
         }
         out.println("ok");
-    
+
         out.print("testing sent callback... ");
         out.flush();
         {
@@ -1136,7 +1221,7 @@ public class AllTests
                     }
                 });
             cb.check();
-        
+
             p.begin_ice_ping(new Ice.Callback_Object_ice_ping()
                 {
                     public void
@@ -1180,7 +1265,7 @@ public class AllTests
                     }
                 });
             cb.check();
-        
+
             p.begin_ice_ids(new Ice.Callback_Object_ice_ids()
                 {
                     public void
@@ -1224,7 +1309,7 @@ public class AllTests
                     }
                 });
             cb.check();
-        
+
             p.begin_op(new Ice.AsyncCallback()
                 {
                     public void
@@ -1232,7 +1317,7 @@ public class AllTests
                     {
                         cb.opAsync(result);
                     }
-                    
+
                     public void
                     sent(Ice.AsyncResult result)
                     {
@@ -1261,7 +1346,7 @@ public class AllTests
                         {
                             cb2.ex(ex);
                         }
-                    
+
                         public void
                         sent(boolean ss)
                         {
@@ -1283,7 +1368,7 @@ public class AllTests
         out.flush();
         {
             Ice.AsyncResult result;
-        
+
             result = p.begin_op();
             p.end_op(result);
             try
@@ -1313,7 +1398,7 @@ public class AllTests
             catch(IllegalArgumentException ex)
             {
             }
-        
+
             // try
 //             {
 //                 p.begin_op((Ice.Callback)null);
@@ -1339,7 +1424,7 @@ public class AllTests
         {
             TestIntfPrx q = TestIntfPrxHelper.uncheckedCast(p.ice_adapterId("dummy"));
             ThrowType throwEx[] = { ThrowType.LocalException, ThrowType.OtherException };
-        
+
             for(int i = 0; i < 2; ++i)
             {
                 final Thrower cb = new Thrower(throwEx[i]);
@@ -1356,12 +1441,12 @@ public class AllTests
 
                 p.begin_op(new Callback_TestIntf_op()
                     {
-                        public void 
+                        public void
                         response()
                         {
                             cb.op();
                         }
-                        
+
                         public void
                         exception(Ice.LocalException ex)
                         {
@@ -1371,12 +1456,12 @@ public class AllTests
 
                 q.begin_op(new Callback_TestIntf_op()
                     {
-                        public void 
+                        public void
                         response()
                         {
                             cb.op();
                         }
-                        
+
                         public void
                         exception(Ice.LocalException ex)
                         {
@@ -1387,16 +1472,16 @@ public class AllTests
 
                 p.begin_op(new Callback_TestIntf_op()
                     {
-                        public void 
+                        public void
                         response()
                         {
                         }
-                        
+
                         public void
                         exception(Ice.LocalException ex)
                         {
                         }
-                        
+
                         public void
                         sent(boolean ss)
                         {
@@ -1404,6 +1489,593 @@ public class AllTests
                         }
                     });
                 cb.check();
+            }
+        }
+        out.println("ok");
+
+        out.print("testing batch requests with proxy... ");
+        out.flush();
+        {
+            {
+                //
+                // AsyncResult.
+                //
+                test(p.opBatchCount() == 0);
+                TestIntfPrx b1 = (TestIntfPrx)p.ice_batchOneway();
+                b1.opBatch();
+                b1.opBatch();
+                final FlushCallback cb = new FlushCallback();
+                Ice.AsyncResult r = b1.begin_ice_flushBatchRequests(
+                    new Ice.AsyncCallback()
+                    {
+                        @Override
+                        public void completed(Ice.AsyncResult result)
+                        {
+                            cb.completedAsync(result);
+                        }
+
+                        @Override
+                        public void sent(Ice.AsyncResult result)
+                        {
+                            cb.sentAsync(result);
+                        }
+                    });
+                cb.check();
+                test(r.isSent());
+                test(r.isCompleted());
+                test(p.waitForBatch(2));
+            }
+
+            {
+                //
+                // AsyncResult exception.
+                //
+                test(p.opBatchCount() == 0);
+                TestIntfPrx b1 = (TestIntfPrx)p.ice_batchOneway();
+                b1.opBatch();
+                b1.ice_getConnection().close(false);
+                final FlushExCallback cb = new FlushExCallback();
+                Ice.AsyncResult r = b1.begin_ice_flushBatchRequests(
+                    new Ice.AsyncCallback()
+                    {
+                        @Override
+                        public void completed(Ice.AsyncResult result)
+                        {
+                            cb.completedAsync(result);
+                        }
+
+                        @Override
+                        public void sent(Ice.AsyncResult result)
+                        {
+                            cb.sentAsync(result);
+                        }
+                    });
+                cb.check();
+                test(!r.isSent());
+                test(r.isCompleted());
+                test(p.opBatchCount() == 0);
+            }
+
+            {
+                //
+                // Type-safe.
+                //
+                test(p.opBatchCount() == 0);
+                TestIntfPrx b1 = (TestIntfPrx)p.ice_batchOneway();
+                b1.opBatch();
+                b1.opBatch();
+                final FlushCallback cb = new FlushCallback();
+                Ice.AsyncResult r = b1.begin_ice_flushBatchRequests(
+                    new Ice.Callback_Object_ice_flushBatchRequests()
+                    {
+                        @Override
+                        public void exception(Ice.LocalException ex)
+                        {
+                            cb.exception(ex);
+                        }
+
+                        @Override
+                        public void sent(boolean sentSynchronously)
+                        {
+                            cb.sent(sentSynchronously);
+                        }
+                    });
+                cb.check();
+                test(r.isSent());
+                test(r.isCompleted());
+                test(p.waitForBatch(2));
+            }
+
+            {
+                //
+                // Type-safe exception.
+                //
+                test(p.opBatchCount() == 0);
+                TestIntfPrx b1 = (TestIntfPrx)p.ice_batchOneway();
+                b1.opBatch();
+                b1.ice_getConnection().close(false);
+                final FlushExCallback cb = new FlushExCallback();
+                Ice.AsyncResult r = b1.begin_ice_flushBatchRequests(
+                    new Ice.Callback_Object_ice_flushBatchRequests()
+                    {
+                        @Override
+                        public void exception(Ice.LocalException ex)
+                        {
+                            cb.exception(ex);
+                        }
+
+                        @Override
+                        public void sent(boolean sentSynchronously)
+                        {
+                            cb.sent(sentSynchronously);
+                        }
+                    });
+                cb.check();
+                test(!r.isSent());
+                test(r.isCompleted());
+                test(p.opBatchCount() == 0);
+            }
+        }
+        out.println("ok");
+
+        out.print("testing batch requests with connection... ");
+        out.flush();
+        {
+            {
+                //
+                // AsyncResult.
+                //
+                test(p.opBatchCount() == 0);
+                TestIntfPrx b1 = (TestIntfPrx)p.ice_batchOneway();
+                b1.opBatch();
+                b1.opBatch();
+                final FlushCallback cb = new FlushCallback();
+                Ice.AsyncResult r = b1.ice_getConnection().begin_flushBatchRequests(
+                    new Ice.AsyncCallback()
+                    {
+                        @Override
+                        public void completed(Ice.AsyncResult result)
+                        {
+                            cb.completedAsync(result);
+                        }
+
+                        @Override
+                        public void sent(Ice.AsyncResult result)
+                        {
+                            cb.sentAsync(result);
+                        }
+                    });
+                cb.check();
+                test(r.isSent());
+                test(r.isCompleted());
+                test(p.waitForBatch(2));
+            }
+
+            {
+                //
+                // AsyncResult exception.
+                //
+                test(p.opBatchCount() == 0);
+                TestIntfPrx b1 = (TestIntfPrx)p.ice_batchOneway();
+                b1.opBatch();
+                b1.ice_getConnection().close(false);
+                final FlushExCallback cb = new FlushExCallback();
+                Ice.AsyncResult r = b1.ice_getConnection().begin_flushBatchRequests(
+                    new Ice.AsyncCallback()
+                    {
+                        @Override
+                        public void completed(Ice.AsyncResult result)
+                        {
+                            cb.completedAsync(result);
+                        }
+
+                        @Override
+                        public void sent(Ice.AsyncResult result)
+                        {
+                            cb.sentAsync(result);
+                        }
+                    });
+                cb.check();
+                test(!r.isSent());
+                test(r.isCompleted());
+                test(p.opBatchCount() == 0);
+            }
+
+            {
+                //
+                // Type-safe.
+                //
+                test(p.opBatchCount() == 0);
+                TestIntfPrx b1 = (TestIntfPrx)p.ice_batchOneway();
+                b1.opBatch();
+                b1.opBatch();
+                final FlushCallback cb = new FlushCallback();
+                Ice.AsyncResult r = b1.ice_getConnection().begin_flushBatchRequests(
+                    new Ice.Callback_Connection_flushBatchRequests()
+                    {
+                        @Override
+                        public void exception(Ice.LocalException ex)
+                        {
+                            cb.exception(ex);
+                        }
+
+                        @Override
+                        public void sent(boolean sentSynchronously)
+                        {
+                            cb.sent(sentSynchronously);
+                        }
+                    });
+                cb.check();
+                test(r.isSent());
+                test(r.isCompleted());
+                test(p.waitForBatch(2));
+            }
+
+            {
+                //
+                // Type-safe exception.
+                //
+                test(p.opBatchCount() == 0);
+                TestIntfPrx b1 = (TestIntfPrx)p.ice_batchOneway();
+                b1.opBatch();
+                b1.ice_getConnection().close(false);
+                final FlushExCallback cb = new FlushExCallback();
+                Ice.AsyncResult r = b1.ice_getConnection().begin_flushBatchRequests(
+                    new Ice.Callback_Connection_flushBatchRequests()
+                    {
+                        @Override
+                        public void exception(Ice.LocalException ex)
+                        {
+                            cb.exception(ex);
+                        }
+
+                        @Override
+                        public void sent(boolean sentSynchronously)
+                        {
+                            cb.sent(sentSynchronously);
+                        }
+                    });
+                cb.check();
+                test(!r.isSent());
+                test(r.isCompleted());
+                test(p.opBatchCount() == 0);
+            }
+        }
+        out.println("ok");
+
+        out.print("testing batch requests with communicator... ");
+        out.flush();
+        {
+            {
+                //
+                // AsyncResult - 1 connection.
+                //
+                test(p.opBatchCount() == 0);
+                TestIntfPrx b1 = (TestIntfPrx)p.ice_batchOneway();
+                b1.opBatch();
+                b1.opBatch();
+                final FlushCallback cb = new FlushCallback();
+                Ice.AsyncResult r = communicator.begin_flushBatchRequests(
+                    new Ice.AsyncCallback()
+                    {
+                        @Override
+                        public void completed(Ice.AsyncResult result)
+                        {
+                            cb.completedAsync(result);
+                        }
+
+                        @Override
+                        public void sent(Ice.AsyncResult result)
+                        {
+                            cb.sentAsync(result);
+                        }
+                    });
+                cb.check();
+                test(r.isSent());
+                test(r.isCompleted());
+                test(p.waitForBatch(2));
+            }
+
+            {
+                //
+                // AsyncResult exception - 1 connection.
+                //
+                test(p.opBatchCount() == 0);
+                TestIntfPrx b1 = (TestIntfPrx)p.ice_batchOneway();
+                b1.opBatch();
+                b1.ice_getConnection().close(false);
+                final FlushCallback cb = new FlushCallback();
+                Ice.AsyncResult r = communicator.begin_flushBatchRequests(
+                    new Ice.AsyncCallback()
+                    {
+                        @Override
+                        public void completed(Ice.AsyncResult result)
+                        {
+                            cb.completedAsync(result);
+                        }
+
+                        @Override
+                        public void sent(Ice.AsyncResult result)
+                        {
+                            cb.sentAsync(result);
+                        }
+                    });
+                cb.check();
+                test(r.isSent()); // Exceptions are ignored!
+                test(r.isCompleted());
+                test(p.opBatchCount() == 0);
+            }
+
+            {
+                //
+                // AsyncResult - 2 connections.
+                //
+                test(p.opBatchCount() == 0);
+                TestIntfPrx b1 = (TestIntfPrx)p.ice_batchOneway();
+                TestIntfPrx b2 = (TestIntfPrx)p.ice_connectionId("2").ice_batchOneway();
+                b2.ice_getConnection(); // Ensure connection is established.
+                b1.opBatch();
+                b1.opBatch();
+                b2.opBatch();
+                b2.opBatch();
+                final FlushCallback cb = new FlushCallback();
+                Ice.AsyncResult r = communicator.begin_flushBatchRequests(
+                    new Ice.AsyncCallback()
+                    {
+                        @Override
+                        public void completed(Ice.AsyncResult result)
+                        {
+                            cb.completedAsync(result);
+                        }
+
+                        @Override
+                        public void sent(Ice.AsyncResult result)
+                        {
+                            cb.sentAsync(result);
+                        }
+                    });
+                cb.check();
+                test(r.isSent());
+                test(r.isCompleted());
+                test(p.waitForBatch(4));
+            }
+
+            {
+                //
+                // AsyncResult exception - 2 connections - 1 failure.
+                //
+                // All connections should be flushed even if there are failures on some connections.
+                // Exceptions should not be reported.
+                //
+                test(p.opBatchCount() == 0);
+                TestIntfPrx b1 = (TestIntfPrx)p.ice_batchOneway();
+                TestIntfPrx b2 = (TestIntfPrx)p.ice_connectionId("2").ice_batchOneway();
+                b2.ice_getConnection(); // Ensure connection is established.
+                b1.opBatch();
+                b2.opBatch();
+                b1.ice_getConnection().close(false);
+                final FlushCallback cb = new FlushCallback();
+                Ice.AsyncResult r = communicator.begin_flushBatchRequests(
+                    new Ice.AsyncCallback()
+                    {
+                        @Override
+                        public void completed(Ice.AsyncResult result)
+                        {
+                            cb.completedAsync(result);
+                        }
+
+                        @Override
+                        public void sent(Ice.AsyncResult result)
+                        {
+                            cb.sentAsync(result);
+                        }
+                    });
+                cb.check();
+                test(r.isSent()); // Exceptions are ignored!
+                test(r.isCompleted());
+                test(p.waitForBatch(1));
+            }
+
+            {
+                //
+                // AsyncResult exception - 2 connections - 2 failures.
+                //
+                // The sent callback should be invoked even if all connections fail.
+                //
+                test(p.opBatchCount() == 0);
+                TestIntfPrx b1 = (TestIntfPrx)p.ice_batchOneway();
+                TestIntfPrx b2 = (TestIntfPrx)p.ice_connectionId("2").ice_batchOneway();
+                b2.ice_getConnection(); // Ensure connection is established.
+                b1.opBatch();
+                b2.opBatch();
+                b1.ice_getConnection().close(false);
+                b2.ice_getConnection().close(false);
+                final FlushCallback cb = new FlushCallback();
+                Ice.AsyncResult r = communicator.begin_flushBatchRequests(
+                    new Ice.AsyncCallback()
+                    {
+                        @Override
+                        public void completed(Ice.AsyncResult result)
+                        {
+                            cb.completedAsync(result);
+                        }
+
+                        @Override
+                        public void sent(Ice.AsyncResult result)
+                        {
+                            cb.sentAsync(result);
+                        }
+                    });
+                cb.check();
+                test(r.isSent()); // Exceptions are ignored!
+                test(r.isCompleted());
+                test(p.opBatchCount() == 0);
+            }
+
+            {
+                //
+                // Type-safe - 1 connection.
+                //
+                test(p.opBatchCount() == 0);
+                TestIntfPrx b1 = (TestIntfPrx)p.ice_batchOneway();
+                b1.opBatch();
+                b1.opBatch();
+                final FlushCallback cb = new FlushCallback();
+                Ice.AsyncResult r = communicator.begin_flushBatchRequests(
+                    new Ice.Callback_Communicator_flushBatchRequests()
+                    {
+                        @Override
+                        public void exception(Ice.LocalException ex)
+                        {
+                            cb.exception(ex);
+                        }
+
+                        @Override
+                        public void sent(boolean sentSynchronously)
+                        {
+                            cb.sent(sentSynchronously);
+                        }
+                    });
+                cb.check();
+                test(r.isSent());
+                test(r.isCompleted());
+                test(p.waitForBatch(2));
+            }
+
+            {
+                //
+                // Type-safe exception - 1 connection.
+                //
+                test(p.opBatchCount() == 0);
+                TestIntfPrx b1 = (TestIntfPrx)p.ice_batchOneway();
+                b1.opBatch();
+                b1.ice_getConnection().close(false);
+                final FlushCallback cb = new FlushCallback();
+                Ice.AsyncResult r = communicator.begin_flushBatchRequests(
+                    new Ice.Callback_Communicator_flushBatchRequests()
+                    {
+                        @Override
+                        public void exception(Ice.LocalException ex)
+                        {
+                            cb.exception(ex);
+                        }
+
+                        @Override
+                        public void sent(boolean sentSynchronously)
+                        {
+                            cb.sent(sentSynchronously);
+                        }
+                    });
+                cb.check();
+                test(r.isSent()); // Exceptions are ignored!
+                test(r.isCompleted());
+                test(p.opBatchCount() == 0);
+            }
+
+            {
+                //
+                // 2 connections.
+                //
+                test(p.opBatchCount() == 0);
+                TestIntfPrx b1 = (TestIntfPrx)p.ice_batchOneway();
+                TestIntfPrx b2 = (TestIntfPrx)p.ice_connectionId("2").ice_batchOneway();
+                b2.ice_getConnection(); // Ensure connection is established.
+                b1.opBatch();
+                b1.opBatch();
+                b2.opBatch();
+                b2.opBatch();
+                final FlushCallback cb = new FlushCallback();
+                Ice.AsyncResult r = communicator.begin_flushBatchRequests(
+                    new Ice.Callback_Communicator_flushBatchRequests()
+                    {
+                        @Override
+                        public void exception(Ice.LocalException ex)
+                        {
+                            cb.exception(ex);
+                        }
+
+                        @Override
+                        public void sent(boolean sentSynchronously)
+                        {
+                            cb.sent(sentSynchronously);
+                        }
+                    });
+                cb.check();
+                test(r.isSent());
+                test(r.isCompleted());
+                test(p.waitForBatch(4));
+            }
+
+            {
+                //
+                // Exception - 2 connections - 1 failure.
+                //
+                // All connections should be flushed even if there are failures on some connections.
+                // Exceptions should not be reported.
+                //
+                test(p.opBatchCount() == 0);
+                TestIntfPrx b1 = (TestIntfPrx)p.ice_batchOneway();
+                TestIntfPrx b2 = (TestIntfPrx)p.ice_connectionId("2").ice_batchOneway();
+                b2.ice_getConnection(); // Ensure connection is established.
+                b1.opBatch();
+                b2.opBatch();
+                b1.ice_getConnection().close(false);
+                final FlushCallback cb = new FlushCallback();
+                Ice.AsyncResult r = communicator.begin_flushBatchRequests(
+                    new Ice.Callback_Communicator_flushBatchRequests()
+                    {
+                        @Override
+                        public void exception(Ice.LocalException ex)
+                        {
+                            cb.exception(ex);
+                        }
+
+                        @Override
+                        public void sent(boolean sentSynchronously)
+                        {
+                            cb.sent(sentSynchronously);
+                        }
+                    });
+                cb.check();
+                test(r.isSent()); // Exceptions are ignored!
+                test(r.isCompleted());
+                test(p.waitForBatch(1));
+            }
+
+            {
+                //
+                // Exception - 2 connections - 2 failures.
+                //
+                // The sent callback should be invoked even if all connections fail.
+                //
+                test(p.opBatchCount() == 0);
+                TestIntfPrx b1 = (TestIntfPrx)p.ice_batchOneway();
+                TestIntfPrx b2 = (TestIntfPrx)p.ice_connectionId("2").ice_batchOneway();
+                b2.ice_getConnection(); // Ensure connection is established.
+                b1.opBatch();
+                b2.opBatch();
+                b1.ice_getConnection().close(false);
+                b2.ice_getConnection().close(false);
+                final FlushCallback cb = new FlushCallback();
+                Ice.AsyncResult r = communicator.begin_flushBatchRequests(
+                    new Ice.Callback_Communicator_flushBatchRequests()
+                    {
+                        @Override
+                        public void exception(Ice.LocalException ex)
+                        {
+                            cb.exception(ex);
+                        }
+
+                        @Override
+                        public void sent(boolean sentSynchronously)
+                        {
+                            cb.sent(sentSynchronously);
+                        }
+                    });
+                cb.check();
+                test(r.isSent()); // Exceptions are ignored!
+                test(r.isCompleted());
+                test(p.opBatchCount() == 0);
             }
         }
         out.println("ok");
@@ -1418,7 +2090,7 @@ public class AllTests
             new java.util.Random().nextBytes(seq); // Make sure the request doesn't compress too well.
             Ice.AsyncResult r2;
             while((r2 = p.begin_opWithPayload(seq)).sentSynchronously());
-        
+
             test(r1.sentSynchronously() && r1.isSent() && !r1.isCompleted() ||
                  !r1.sentSynchronously() && !r1.isCompleted());
 
@@ -1428,13 +2100,13 @@ public class AllTests
 
             r1.waitForSent();
             test(r1.isSent());
-        
+
             r2.waitForSent();
             test(r2.isSent());
-        
+
             r1.waitForCompleted();
             test(r1.isCompleted());
-        
+
             r2.waitForCompleted();
             test(r2.isCompleted());
 
@@ -1443,6 +2115,6 @@ public class AllTests
         }
         out.println("ok");
 
-        p.shutdown();        
+        p.shutdown();
     }
 }

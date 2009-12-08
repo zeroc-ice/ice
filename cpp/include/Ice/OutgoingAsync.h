@@ -258,6 +258,49 @@ private:
     Ice::ObjectPrx _proxy;
 };
 
+class ICE_API ConnectionBatchOutgoingAsync : public BatchOutgoingAsync
+{
+public:
+
+    ConnectionBatchOutgoingAsync(const Ice::ConnectionIPtr&, const InstancePtr&, const std::string&,
+                                 const CallbackBasePtr&, const Ice::LocalObjectPtr&);
+
+    void __send();
+
+    virtual Ice::ConnectionPtr getConnection() const;
+
+private:
+
+    const Ice::ConnectionIPtr _connection;
+};
+
+class ICE_API CommunicatorBatchOutgoingAsync : public BatchOutgoingAsync
+{
+public:
+
+    CommunicatorBatchOutgoingAsync(const Ice::CommunicatorPtr&, const InstancePtr&, const std::string&,
+                                   const CallbackBasePtr&, const Ice::LocalObjectPtr&);
+
+    void flushConnection(const Ice::ConnectionPtr&);
+    void ready();
+
+    void completed(const Ice::AsyncResultPtr&);
+    void sent(const Ice::AsyncResultPtr&);
+
+    virtual Ice::CommunicatorPtr
+    getCommunicator() const
+    {
+        return _communicator;
+    }
+
+private:
+
+    void check(const Ice::AsyncResultPtr&, const Ice::LocalException*, bool);
+
+    const Ice::CommunicatorPtr _communicator;
+    int _useCount;
+};
+
 //
 // Base class for all callbacks.
 //

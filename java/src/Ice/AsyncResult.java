@@ -66,7 +66,7 @@ public class AsyncResult
     {
         synchronized(_monitor)
         {
-            return (_state & (Sent | Done)) > 0;
+            return (_state & Sent) > 0;
         }
     }
 

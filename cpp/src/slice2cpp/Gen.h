@@ -278,8 +278,6 @@ private:
 
         AsyncCallbackVisitor(::IceUtilInternal::Output&, ::IceUtilInternal::Output&, const std::string&);
 
-        virtual bool visitUnitStart(const UnitPtr&);
-        virtual void visitUnitEnd(const UnitPtr&);
         virtual bool visitModuleStart(const ModulePtr&);
         virtual void visitModuleEnd(const ModulePtr&);
         virtual bool visitClassDefStart(const ClassDefPtr&);

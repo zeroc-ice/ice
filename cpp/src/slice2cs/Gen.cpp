@@ -2186,10 +2186,19 @@ Slice::Gen::TypesVisitor::visitClassDefEnd(const ClassDefPtr& p)
 void
 Slice::Gen::TypesVisitor::visitOperation(const OperationPtr& p)
 {
-
     ClassDefPtr classDef = ClassDefPtr::dynamicCast(p->container());
-
     bool isLocal = classDef->isLocal();
+    bool isInterface = classDef->isInterface();
+
+    //
+    // Non-local classes and interfaces get the operations from their
+    // Operations base interfaces.
+    //
+    if(isInterface && !isLocal)
+    {
+        return;
+    }
+
     bool amd = !isLocal && (classDef->hasMetaData("amd") || p->hasMetaData("amd"));
 
     string name = p->name();
@@ -2213,24 +2222,15 @@ Slice::Gen::TypesVisitor::visitOperation(const OperationPtr& p)
         name = name + "_async";
     }
 
-    //
-    // Non-local classes and interfaces get the operations from their
-    // Operations base interfaces.
-    //
-    if(classDef->isInterface() && !classDef->isLocal())
-    {
-        return;
-    }
-
     _out << sp;
-    if(classDef->isInterface() && classDef->isLocal())
+    if(isInterface && isLocal)
     {
         _out << nl;
     }
 
     writeDocComment(p, getDeprecateReason(p, classDef, "operation"));
     emitAttributes(p);
-    if(!classDef->isInterface())
+    if(!isInterface)
     {
         _out << nl << "public ";
         if(isLocal)
@@ -2259,6 +2259,44 @@ Slice::Gen::TypesVisitor::visitOperation(const OperationPtr& p)
     {
         _out << nl << "public abstract " << retS << " " << name
              << spar << params << "Ice.Current current__" << epar << ';';
+    }
+
+    if(isLocal && (classDef->hasMetaData("async") || p->hasMetaData("async")))
+    {
+        vector<string> paramsNewAsync = getParamsAsync(p, false, true);
+
+        _out << sp << nl;
+        emitAttributes(p);
+        if(!isInterface)
+        {
+            _out << "public abstract ";
+        }
+        _out << "Ice.AsyncResult";
+        if(p->returnsData())
+        {
+            string clScope = fixId(classDef->scope());
+            string cbType = clScope + "Callback_" + classDef->name() + "_" + name;
+            _out << '<' << cbType << '>';
+        }
+        _out << " begin_" << name << spar << paramsNewAsync << epar << ';';
+
+        _out << sp << nl;
+        emitAttributes(p);
+        if(!isInterface)
+        {
+            _out << "public abstract ";
+        }
+        _out << "Ice.AsyncResult begin_" << name << spar << paramsNewAsync << "Ice.AsyncCallback cb__"
+             << "object cookie__" << epar << ';';
+
+        _out << sp << nl;
+        emitAttributes(p);
+        if(!isInterface)
+        {
+            _out << "public abstract ";
+        }
+        _out << typeToString(p->returnType()) << " end_" << name << spar << getParamsAsyncCB(p, true)
+             << "Ice.AsyncResult r__" << epar << ';';
     }
 }
 
@@ -3624,7 +3662,6 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
     string clScope = fixId(cl->scope());
     string delType = clScope + "Callback_" + cl->name() + "_" + p->name();
 
-
     _out << sp;
     if(!deprecateReason.empty())
     {
@@ -3722,7 +3759,11 @@ void
 Slice::Gen::AsyncDelegateVisitor::visitOperation(const OperationPtr& p)
 {
     ClassDefPtr cl = ClassDefPtr::dynamicCast(p->container());
-    if(cl->isLocal())
+
+    //
+    // We also generate delegates for local twoway-style operations marked with "async" metadata.
+    //
+    if(cl->isLocal() && (!(cl->hasMetaData("async") || p->hasMetaData("async")) || !p->returnsData()))
     {
         return;
     }

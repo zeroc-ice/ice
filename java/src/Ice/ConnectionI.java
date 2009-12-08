@@ -617,6 +617,49 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
         out.invoke();
     }
 
+    private static final String __flushBatchRequests_name = "flushBatchRequests";
+
+    public Ice.AsyncResult
+    begin_flushBatchRequests()
+    {
+        return begin_flushBatchRequestsInternal(null);
+    }
+
+    public Ice.AsyncResult
+    begin_flushBatchRequests(Callback cb)
+    {
+        return begin_flushBatchRequestsInternal(cb);
+    }
+
+    public Ice.AsyncResult
+    begin_flushBatchRequests(Callback_Connection_flushBatchRequests cb)
+    {
+        return begin_flushBatchRequestsInternal(cb);
+    }
+
+    private Ice.AsyncResult
+    begin_flushBatchRequestsInternal(IceInternal.CallbackBase cb)
+    {
+        IceInternal.ConnectionBatchOutgoingAsync result =
+            new IceInternal.ConnectionBatchOutgoingAsync(this, _instance, __flushBatchRequests_name, cb);
+        try
+        {
+            result.__send();
+        }
+        catch(LocalException __ex)
+        {
+            result.__exceptionAsync(__ex);
+        }
+        return result;
+    }
+
+    public void
+    end_flushBatchRequests(AsyncResult r)
+    {
+        AsyncResult.__check(r, this, __flushBatchRequests_name);
+        r.__wait();
+    }
+
     synchronized public boolean
     flushBatchRequests(IceInternal.BatchOutgoing out)
     {

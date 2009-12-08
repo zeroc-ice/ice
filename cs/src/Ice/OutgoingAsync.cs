@@ -77,7 +77,7 @@ namespace Ice
 
         new AsyncResult<T> whenCompleted(Ice.ExceptionCallback excb);
         new AsyncResult<T> whenSent(Ice.SentCallback cb);
-    };
+    }
 }
 
 namespace IceInternal
@@ -158,7 +158,7 @@ namespace IceInternal
         {
             lock(monitor_)
             {
-                return (state_ & (Sent | Done)) != 0;
+                return (state_ & Sent) != 0;
             }
         }
 
@@ -456,15 +456,18 @@ namespace IceInternal
             // from this thread. Instead the exception callback is called asynchronously from
             // the client thread pool.
             //
-            try
+            if(callback != null)
             {
-                instance_.clientThreadPool().dispatch(delegate()
-                                                      {
-                                                          sent__(callback);
-                                                      });
-            }
-            catch(Ice.CommunicatorDestroyedException)
-            {
+                try
+                {
+                    instance_.clientThreadPool().dispatch(delegate()
+                                                          {
+                                                              sent__(callback);
+                                                          });
+                }
+                catch(Ice.CommunicatorDestroyedException)
+                {
+                }
             }
         }
 
@@ -1015,17 +1018,11 @@ namespace IceInternal
                         if(synchronous) // Only set sentSynchronously_ If called synchronously by the user thread.
                         {
                             sentSynchronously_ = true;
-                            if(sentCallback != null)
-                            {
-                                sent__(sentCallback);
-                            }
+                            sent__(sentCallback);
                         }
                         else
                         {
-                            if(sentCallback != null)
-                            {
-                                sentAsync__(sentCallback);
-                            }
+                            sentAsync__(sentCallback);
                         }
                     }
                     break;
@@ -1354,6 +1351,143 @@ namespace IceInternal
         }
 
         private Ice.ObjectPrx _proxy;
+    }
+
+    public class ConnectionBatchOutgoingAsync : BatchOutgoingAsync
+    {
+        public ConnectionBatchOutgoingAsync(Ice.ConnectionI con, Instance instance, string operation, object cookie) :
+            base(instance, operation, cookie)
+        {
+            _connection = con;
+        }
+
+        public void send__()
+        {
+            Ice.AsyncCallback sentCallback;
+            if(_connection.flushAsyncBatchRequests(this, out sentCallback))
+            {
+                sentSynchronously_ = true;
+                sent__(sentCallback);
+            }
+        }
+
+        public override Ice.Connection getConnection()
+        {
+            return _connection;
+        }
+
+        private Ice.ConnectionI _connection;
+    }
+
+    public class CommunicatorBatchOutgoingAsync : BatchOutgoingAsync
+    {
+        public CommunicatorBatchOutgoingAsync(Ice.Communicator communicator, Instance instance, String operation,
+                                              object cookie) :
+            base(instance, operation, cookie)
+        {
+            _communicator = communicator;
+
+            //
+            // _useCount is initialized to 1 to prevent premature callbacks.
+            // The caller must invoke ready() after all flush requests have
+            // been initiated.
+            //
+            _useCount = 1;
+
+            //
+            // Assume all connections are flushed synchronously.
+            //
+            sentSynchronously_ = true;
+        }
+
+        public override Ice.Communicator getCommunicator()
+        {
+            return _communicator;
+        }
+
+        public void flushConnection(Ice.Connection con)
+        {
+            lock(monitor_)
+            {
+                ++_useCount;
+            }
+            Ice.AsyncResult r = con.begin_flushBatchRequests(completed, null);
+            r.whenSent((Ice.AsyncCallback)sent);
+        }
+
+        public void ready()
+        {
+            check(null, null, true);
+        }
+
+        private void completed(Ice.AsyncResult r)
+        {
+            Ice.Connection con = r.getConnection();
+            Debug.Assert(con != null);
+
+            try
+            {
+                con.end_flushBatchRequests(r);
+                Debug.Assert(false); // completed() should only be called when an exception occurs.
+            }
+            catch(Ice.LocalException ex)
+            {
+                check(r, ex, false);
+            }
+        }
+
+        private void sent(Ice.AsyncResult r)
+        {
+            check(r, null, r.sentSynchronously());
+        }
+
+        private void check(Ice.AsyncResult r, Ice.LocalException ex, bool userThread)
+        {
+            bool done = false;
+            Ice.AsyncCallback sentCallback = null;
+
+            lock(monitor_)
+            {
+                Debug.Assert(_useCount > 0);
+                --_useCount;
+
+                //
+                // We report that the communicator flush request was sent synchronously
+                // if all of the connection flush requests are sent synchronously.
+                //
+                if((r != null && !r.sentSynchronously()) || ex != null)
+                {
+                    sentSynchronously_ = false;
+                }
+
+                if(_useCount == 0)
+                {
+                    done = true;
+                    state_ |= Done | OK | Sent;
+                    sentCallback = sentCallback_;
+                    Monitor.PulseAll(monitor_);
+                }
+            }
+
+            if(done)
+            {
+                //
+                // sentSynchronously_ is immutable here.
+                //
+                if(!sentSynchronously_ && userThread)
+                {
+                    sentAsync__(sentCallback);
+                }
+                else
+                {
+                    Debug.Assert(sentSynchronously_ == userThread); // sentSynchronously && !userThread is impossible.
+                    sent__(sentCallback);
+                }
+            }
+        }
+
+        private Ice.Communicator _communicator;
+        private int _useCount;
     }
 }
 

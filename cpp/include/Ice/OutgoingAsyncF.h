@@ -43,6 +43,14 @@ class ProxyBatchOutgoingAsync;
 ICE_API IceUtil::Shared* upCast(ProxyBatchOutgoingAsync*);
 typedef IceInternal::Handle<ProxyBatchOutgoingAsync> ProxyBatchOutgoingAsyncPtr;
 
+class ConnectionBatchOutgoingAsync;
+ICE_API IceUtil::Shared* upCast(ConnectionBatchOutgoingAsync*);
+typedef IceInternal::Handle<ConnectionBatchOutgoingAsync> ConnectionBatchOutgoingAsyncPtr;
+
+class CommunicatorBatchOutgoingAsync;
+ICE_API IceUtil::Shared* upCast(CommunicatorBatchOutgoingAsync*);
+typedef IceInternal::Handle<CommunicatorBatchOutgoingAsync> CommunicatorBatchOutgoingAsyncPtr;
+
 }
 
 #endif

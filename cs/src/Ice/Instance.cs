@@ -321,26 +321,6 @@ namespace IceInternal
             return _implicitContext;
         }
 
-        public void flushBatchRequests()
-        {
-            OutgoingConnectionFactory connectionFactory;
-            ObjectAdapterFactory adapterFactory;
-            
-            lock(this)
-            {
-                if(_state == StateDestroyed)
-                {
-                    throw new Ice.CommunicatorDestroyedException();
-                }
-                
-                connectionFactory = _outgoingConnectionFactory;
-                adapterFactory = _objectAdapterFactory;
-            }
-            
-            connectionFactory.flushBatchRequests();
-            adapterFactory.flushBatchRequests();
-        }
-
         public Ice.Identity stringToIdentity(string s)
         {
             return Ice.Util.stringToIdentity(s);
@@ -1124,5 +1104,4 @@ namespace IceInternal
         private static bool _oneOffDone = false;
         private static System.Object _staticLock = new System.Object();
     }
-
 }

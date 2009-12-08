@@ -20,6 +20,7 @@
 #define WM_AMI_SENT                 (WM_USER + 1)
 #define WM_AMI_RESPONSE             (WM_USER + 2)
 #define WM_AMI_EXCEPTION            (WM_USER + 3)
+#define WM_AMI_FLUSH                (WM_USER + 4)
 
 using namespace std;
 using namespace Demo;
@@ -54,6 +55,25 @@ public:
         _dialog->PostMessage(WM_AMI_EXCEPTION, 0, reinterpret_cast<LONG>(ex.ice_clone()));
     }
 
+    void
+    flushCompleted(const Ice::AsyncResultPtr& r)
+    {
+        try
+        {
+            r->getCommunicator()->end_flushBatchRequests(r);
+        }
+        catch(const Ice::LocalException& ex)
+        {
+            _dialog->PostMessage(WM_AMI_EXCEPTION, 0, reinterpret_cast<LONG>(ex.ice_clone()));
+        }
+    }
+
+    void
+    flushSent(const Ice::AsyncResultPtr& r)
+    {
+        _dialog->PostMessage(WM_AMI_FLUSH, 0, 0);
+    }
+
 private:
 
     CHelloClientDlg* _dialog;
@@ -81,9 +101,10 @@ BEGIN_MESSAGE_MAP(CHelloClientDlg, CDialog)
     ON_BN_CLICKED(IDC_INVOKE, OnSayHello)
     ON_BN_CLICKED(IDC_FLUSH, OnFlush)
     ON_BN_CLICKED(IDC_SHUTDOWN, OnShutdown)
-    ON_MESSAGE(WM_AMI_EXCEPTION, OnAMIException)
-    ON_MESSAGE(WM_AMI_RESPONSE, OnAMIResponse)
     ON_MESSAGE(WM_AMI_SENT, OnAMISent)
+    ON_MESSAGE(WM_AMI_RESPONSE, OnAMIResponse)
+    ON_MESSAGE(WM_AMI_EXCEPTION, OnAMIException)
+    ON_MESSAGE(WM_AMI_FLUSH, OnAMIFlush)
 END_MESSAGE_MAP()
 
 
@@ -291,14 +312,15 @@ CHelloClientDlg::OnFlush()
 {
     try
     {
-        _communicator->flushBatchRequests();
+        CallbackPtr cb = new Callback(this);
+        Ice::CallbackPtr del = Ice::newCallback(cb, &Callback::flushCompleted, &Callback::flushSent);
+        _communicator->begin_flushBatchRequests(del);
     }
     catch(const IceUtil::Exception& ex)
     {
         handleException(ex);
     }
     _flush->EnableWindow(FALSE);
-    _status->SetWindowText(CString(" Flushed batch requests"));
 }
 
 LRESULT
@@ -332,6 +354,14 @@ CHelloClientDlg::OnAMIException(WPARAM, LPARAM lParam)
         handleException(*ex);
     }
     delete ex;
+    return 0;
+}
+
+LRESULT
+CHelloClientDlg::OnAMIFlush(WPARAM, LPARAM)
+{
+    int mode = _mode->GetCurSel();
+    _status->SetWindowText(CString(" Flushed batch requests"));
     return 0;
 }
 
