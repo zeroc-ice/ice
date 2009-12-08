@@ -21,7 +21,9 @@
 
     <target name="clean">
         <delete>
-            <fileset dir="db" includes="*"/>
+	    <fileset dir="db" includes="log.*"/>
+            <fileset dir="db" includes="test"/>
+            <fileset dir="db" includes="__catalog*"/>
         </delete>
     </target>
 
