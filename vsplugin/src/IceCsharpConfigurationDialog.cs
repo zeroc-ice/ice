@@ -46,7 +46,6 @@ namespace Ice.VisualStudio
                 chkEnableBuilder.Checked = enabled;
                 load();
                 _initialized = true;
-                _changed = false;
             }
         }
         
@@ -57,16 +56,16 @@ namespace Ice.VisualStudio
             {
                 includeDirList.Items.Clear();
                 txtIceHome.Text = Util.getIceHomeRaw(_project, false);
-                txtExtraOptions.Text = Util.getProjectProperty(_project, Util.PropertyNames.IceExtraOptions);
+                txtExtraOptions.Text = Util.getProjectProperty(_project, Util.PropertyIceExtraOptions);
 
-                chkIcePrefix.Checked = Util.getProjectPropertyAsBool(_project, Util.PropertyNames.IcePrefix);
-                chkTie.Checked = Util.getProjectPropertyAsBool(_project, Util.PropertyNames.IceTie);
-                chkStreaming.Checked = Util.getProjectPropertyAsBool(_project, Util.PropertyNames.IceStreaming);
-                chkChecksum.Checked = Util.getProjectPropertyAsBool(_project, Util.PropertyNames.IceChecksum);
-                chkConsole.Checked = Util.getProjectPropertyAsBool(_project, Util.PropertyNames.ConsoleOutput);
+                chkIcePrefix.Checked = Util.getProjectPropertyAsBool(_project, Util.PropertyIcePrefix);
+                chkTie.Checked = Util.getProjectPropertyAsBool(_project, Util.PropertyIceTie);
+                chkStreaming.Checked = Util.getProjectPropertyAsBool(_project, Util.PropertyIceStreaming);
+                chkChecksum.Checked = Util.getProjectPropertyAsBool(_project, Util.PropertyIceChecksum);
+                chkConsole.Checked = Util.getProjectPropertyAsBool(_project, Util.PropertyConsoleOutput);
                 
                 IncludePathList list =
-                    new IncludePathList(Util.getProjectProperty(_project, Util.PropertyNames.IceIncludePath));
+                    new IncludePathList(Util.getProjectProperty(_project, Util.PropertyIceIncludePath));
                 foreach(String s in list)
                 {
                     includeDirList.Items.Add(s.Trim());
@@ -77,7 +76,7 @@ namespace Ice.VisualStudio
                 }
 
                 ComponentList selectedComponents = Util.getIceCSharpComponents(_project);
-                foreach(String s in Util.ComponentNames.cSharpNames)
+                foreach(String s in Util.getCSharpNames())
                 {
                     if(String.IsNullOrEmpty(selectedComponents.Find(delegate(string d)
                                                     {
@@ -279,7 +278,7 @@ namespace Ice.VisualStudio
             if(!_iceHomeUpdating)
             {
                 _iceHomeUpdating = true;
-                if(!txtIceHome.Text.Equals(Util.getProjectProperty(_project, Util.PropertyNames.IceHome),
+                if(!txtIceHome.Text.Equals(Util.getProjectProperty(_project, Util.PropertyIceHome),
                                            StringComparison.CurrentCultureIgnoreCase))
                 {
                     Util.updateIceHome(_project, txtIceHome.Text, false);
@@ -298,7 +297,7 @@ namespace Ice.VisualStudio
             {
                 endEditIncludeDir(false);
             }
-            Util.setProjectProperty(_project, Util.PropertyNames.IcePrefix, chkIcePrefix.Checked.ToString());
+            Util.setProjectProperty(_project, Util.PropertyIcePrefix, chkIcePrefix.Checked.ToString());
             _changed = true;
             Cursor = Cursors.Default;
         }
@@ -310,7 +309,7 @@ namespace Ice.VisualStudio
             {
                 endEditIncludeDir(false);
             }
-            Util.setProjectProperty(_project, Util.PropertyNames.IceTie, chkTie.Checked.ToString());
+            Util.setProjectProperty(_project, Util.PropertyIceTie, chkTie.Checked.ToString());
             _changed = true;
             Cursor = Cursors.Default;
         }
@@ -322,7 +321,7 @@ namespace Ice.VisualStudio
             {
                 endEditIncludeDir(false);
             }
-            Util.setProjectProperty(_project, Util.PropertyNames.IceStreaming, chkStreaming.Checked.ToString());
+            Util.setProjectProperty(_project, Util.PropertyIceStreaming, chkStreaming.Checked.ToString());
             _changed = true;
             Cursor = Cursors.Default;
         }
@@ -334,7 +333,7 @@ namespace Ice.VisualStudio
             {
                 endEditIncludeDir(false);
             }
-            Util.setProjectProperty(_project, Util.PropertyNames.IceChecksum, chkChecksum.Checked.ToString());
+            Util.setProjectProperty(_project, Util.PropertyIceChecksum, chkChecksum.Checked.ToString());
             _changed = true;
             Cursor = Cursors.Default;
         }
@@ -347,7 +346,7 @@ namespace Ice.VisualStudio
             {
                 paths.Add(s.Trim());
             }
-            Util.setProjectProperty(_project, Util.PropertyNames.IceIncludePath, paths.ToString());
+            Util.setProjectProperty(_project, Util.PropertyIceIncludePath, paths.ToString());
             _changed = true;
             Cursor = Cursors.Default;
         }
@@ -494,7 +493,7 @@ namespace Ice.VisualStudio
         {
             if(txtExtraOptions.Modified)
             {
-                Util.setProjectProperty(_project, Util.PropertyNames.IceExtraOptions, txtExtraOptions.Text);
+                Util.setProjectProperty(_project, Util.PropertyIceExtraOptions, txtExtraOptions.Text);
                 _changed = true;
             }
         }
@@ -563,7 +562,7 @@ namespace Ice.VisualStudio
             {
                 endEditIncludeDir(false);
             }
-            Util.setProjectProperty(_project, Util.PropertyNames.ConsoleOutput, chkConsole.Checked.ToString());
+            Util.setProjectProperty(_project, Util.PropertyConsoleOutput, chkConsole.Checked.ToString());
             Cursor = Cursors.Default;
         }
 

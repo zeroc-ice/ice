@@ -175,6 +175,7 @@ namespace Ice.VisualStudio
                 if(_builder != null)
                 {
                     _builder.disconnect();
+                    _builder.Dispose();
                     _builder = null;
                 }
             }
