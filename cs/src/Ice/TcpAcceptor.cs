@@ -146,7 +146,7 @@ namespace IceInternal
                 }
                 if(_traceLevels.network >= 2)
                 {
-                    string s = "attempting to bind to tcp socket " + ToString();
+                    string s = "attempting to bind to tcp socket " + Network.addrToString(_addr);
                     _logger.trace(_traceLevels.networkCat, s);
                 }
                 _addr = Network.doBind(_fd, _addr);
