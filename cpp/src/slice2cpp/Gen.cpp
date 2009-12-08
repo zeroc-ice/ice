@@ -2702,6 +2702,15 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
     if(p->returnsData())
     {
         C << nl << "::Ice::AsyncResult::__check(__result, this, " << flatName << ");";
+
+        //
+        // COMPILERBUG: It's necessary to generate the allocate code here before 
+        // this if(!__result->wait()). If generated after this if block, we get
+        // access violations errors with the test/Ice/slicing/objects test on VC9 
+        // and Windows 64 bits when compiled with optimization (see bug 4400).
+        //
+        writeAllocateCode(C, ParamDeclList(), ret, p->getMetaData(), _useWstring | TypeContextAMIEnd);
+
         C << nl << "if(!__result->__wait())";
         C << sb;
         C << nl << "try";
@@ -2733,7 +2742,6 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
         C << nl << "throw ::Ice::UnknownUserException(__FILE__, __LINE__, __ex.ice_name());";
         C << eb;
         C << eb;
-        writeAllocateCode(C, ParamDeclList(), ret, p->getMetaData(), _useWstring | TypeContextAMIEnd);
         C << nl << "::IceInternal::BasicStream* __is = __result->__getIs();";
         if(ret || !outParams.empty())
         {
