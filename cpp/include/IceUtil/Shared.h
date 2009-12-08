@@ -13,9 +13,24 @@
 #include <IceUtil/Config.h>
 
 #if defined(ICE_USE_MUTEX_SHARED)
+
 #   include <IceUtil/Mutex.h>
 
+// Using the gcc builtins requires gcc 4.1 or better. For Linux, i386
+// doesn't work. Apple is supported for all architectures. Sun only
+// supports sparc (32 and 64 bit).
+
+#elif __GNUC__ >= 4 && __GNUC_MINOR__ >= 1 && \
+	((defined(__sun) && (defined(__sparc) || defined(__sparcv9))) || \
+	 defined(__APPLE__) || \
+	(defined(__linux) && \
+		(defined(__i486) || defined(__i586) || \
+		 defined(__i686) || defined(__x86_64))))
+
+#   define ICE_HAS_GCC_BUILTINS
+
 #elif (defined(__APPLE__) || defined(__linux) || defined(__FreeBSD__)) && (defined(__i386) || defined(__x86_64)) && !defined(__ICC)
+
 #   define ICE_HAS_ATOMIC_FUNCTIONS
 
 #elif defined(_WIN32)
@@ -119,7 +134,7 @@ protected:
 
 #if defined(_WIN32)
     LONG _ref;
-#elif defined(ICE_HAS_ATOMIC_FUNCTIONS)
+#elif defined(ICE_HAS_ATOMIC_FUNCTIONS) || defined(ICE_HAS_GCC_BUILTINS)
     volatile int _ref;
 #else
     int _ref;

@@ -13,6 +13,7 @@
 
 USE_SPARC_ASM           = irrelevant
 MACHINE                 = $(shell uname -m)
+SUSE_i586		= $(shell grep i586 /etc/SuSE-release 2>/dev/null)
 
 #
 # Default compiler is c++ (aka g++).
@@ -39,6 +40,10 @@ ifeq ($(MACHINE),x86_64)
 endif
 
 ifeq ($(CXX),c++)
+
+    ifneq ($(SUSE_i586),)
+        CXXARCHFLAGS	+= -march=i586
+    endif
 
    ifeq ($(MACHINE),sparc64)
       #

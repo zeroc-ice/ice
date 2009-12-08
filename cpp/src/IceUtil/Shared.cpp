@@ -114,6 +114,9 @@ IceUtil::Shared::__incRef()
 #if defined(_WIN32)
     assert(InterlockedExchangeAdd(&_ref, 0) >= 0);
     InterlockedIncrement(&_ref);
+#elif defined(ICE_HAS_GCC_BUILTINS)
+    int c = __sync_fetch_and_add(&_ref, 1);
+    assert(c >= 0);
 #elif defined(ICE_HAS_ATOMIC_FUNCTIONS)
     assert(IceUtilInternal::atomicExchangeAdd(&_ref, 0) >= 0);
     IceUtilInternal::atomicInc(&_ref);
@@ -131,6 +134,14 @@ IceUtil::Shared::__decRef()
 #if defined(_WIN32)
     assert(InterlockedExchangeAdd(&_ref, 0) > 0);
     if(InterlockedDecrement(&_ref) == 0 && !_noDelete)
+    {
+        _noDelete = true;
+        delete this;
+    }
+#elif defined(ICE_HAS_GCC_BUILTINS)
+    int c = __sync_fetch_and_sub(&_ref, 1);
+    assert(c > 0);
+    if(c == 1 && !_noDelete)
     {
         _noDelete = true;
         delete this;
@@ -164,6 +175,8 @@ IceUtil::Shared::__getRef() const
 {
 #if defined(_WIN32)
     return InterlockedExchangeAdd(const_cast<LONG*>(&_ref), 0);
+#elif defined(ICE_HAS_GCC_BUILTINS)
+    return __sync_fetch_and_sub(const_cast<volatile int*>(&_ref), 0);
 #elif defined(ICE_HAS_ATOMIC_FUNCTIONS)
     return IceUtilInternal::atomicExchangeAdd(const_cast<volatile int*>(&_ref), 0);
 #else
