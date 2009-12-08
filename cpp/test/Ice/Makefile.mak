@@ -14,7 +14,6 @@ top_srcdir	= ..\..
 SUBDIRS		= proxy \
 		  operations \
 		  exceptions \
-		  ami \
 		  info \
 		  inheritance \
 		  facets \
@@ -27,7 +26,6 @@ SUBDIRS		= proxy \
 		  checksum \
 		  dispatcher \
 		  hold \
-		  custom \
 		  binding \
 		  retry \
 		  timeout \
@@ -41,6 +39,8 @@ SUBDIRS		= proxy \
 
 !if "$(CPP_COMPILER)" != "VC60"
 SUBDIRS		= $(SUBDIRS) \
+		  ami \
+		  custom \
 		  stream \
 		  invoke
 !endif
