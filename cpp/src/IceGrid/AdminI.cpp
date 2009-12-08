@@ -774,6 +774,25 @@ AdminI::getNodeLoad(const string& name, const Current&) const
     return LoadInfo(); // Keep the compiler happy.
 }
 
+int
+AdminI::getNodeProcessorSocketCount(const string& name, const Current&) const
+{
+    try
+    {
+        return _database->getNode(name)->getProxy()->getProcessorSocketCount();
+    }
+    catch(const Ice::ObjectNotExistException&)
+    {
+        throw NodeNotExistException(name);
+    }
+    catch(const Ice::LocalException& ex)
+    {
+        ostringstream os;
+        os << ex;
+        throw NodeUnreachableException(name, os.str());
+    }
+}
+
 void
 AdminI::shutdownNode(const string& name, const Current&)
 {

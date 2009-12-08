@@ -409,6 +409,7 @@ generated from the section label.
         <property name="Node.DisableOnFailure" />
         <property name="Node.Name" />
         <property name="Node.Output" />
+        <property name="Node.ProcessorSocketCount" />
         <property name="Node.PrintServersReady" />
         <property name="Node.PropertiesOverride" />
         <property name="Node.RedirectErrToOut" />

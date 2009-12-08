@@ -408,6 +408,14 @@ interface Node extends FileReader, ReplicaObserver
 
     /**
      *
+     * Get the number of processor sockets for the machine where this
+     * node is running.
+     *
+     **/
+    ["nonmutating", "cpp:const"] idempotent int getProcessorSocketCount();
+
+    /**
+     *
      * Shutdown the node.
      *
      **/
