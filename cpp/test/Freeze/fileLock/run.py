@@ -32,14 +32,18 @@ clientFail = os.path.join(os.getcwd(), "clientFail")
 clientFailExe = TestUtil.startClient(clientFail, "", None, None, False)
 clientFailExe.expect('File lock not acquired')
 
+clientFailExe.waitTestSuccess()
+
 # send some output to client to terminate it.
 clientExe.sendline('go')
 clientExe.expect('File lock released.')
+clientExe.waitTestSuccess()
 
 # The lock is gone try to acquire it again.
 clientExe = TestUtil.startClient(client, "", None, None, False)
 clientExe.expect('File lock acquired.\.*')
 clientExe.sendline('go')
 clientExe.expect('File lock released.')
+clientExe.waitTestSuccess()
 
 print "ok"
