@@ -67,7 +67,10 @@ CPPFLAGS	:= -I.. $(CPPFLAGS) -DFREEZE_API_EXPORTS $(DB_FLAGS)
 SLICE2CPPFLAGS	:= --ice --include-dir Freeze --dll-export FREEZE_API $(SLICE2CPPFLAGS)
 LINKWITH	:= $(BZIP2_RPATH_LINK) -lIce -lIceUtil $(DB_LIBS)
 
-$(HDIR)/Catalog.h Catalog.cpp: $(SDIR)/CatalogData.ice $(SLICE2FREEZE) $(SLICEPARSERLIB)
+# The slice2freeze rules are structured like this to avoid issues with
+# parallel make.
+$(HDIR)/Catalog.h: Catalog.cpp
+Catalog.cpp: $(SDIR)/CatalogData.ice $(SLICE2FREEZE) $(SLICEPARSERLIB)
 	rm -f  $(HDIR)/Catalog.h Catalog.cpp
 	$(SLICE2FREEZE) $(SLICE2CPPFLAGS) --dict Freeze::Catalog,string,Freeze::CatalogData \
 	Catalog $(slicedir)/Freeze/CatalogData.ice
@@ -76,7 +79,8 @@ $(HDIR)/Catalog.h Catalog.cpp: $(SDIR)/CatalogData.ice $(SLICE2FREEZE) $(SLICEPA
 clean::
 	-rm -f $(HDIR)/Catalog.h Catalog.cpp
 
-$(HDIR)/CatalogIndexList.h CatalogIndexList.cpp: $(slicedir)/Ice/BuiltinSequences.ice $(SLICE2FREEZE) $(SLICEPARSERLIB)
+$(HDIR)/CatalogIndexList.h: CatalogIndexList.cpp
+CatalogIndexList.cpp: $(slicedir)/Ice/BuiltinSequences.ice $(SLICE2FREEZE) $(SLICEPARSERLIB)
 	rm -f  $(HDIR)/CatalogIndexList.h CatalogIndexList.cpp
 	$(SLICE2FREEZE) $(SLICE2CPPFLAGS) --dict Freeze::CatalogIndexList,string,Ice::StringSeq \
 	CatalogIndexList ../../../slice/Ice/BuiltinSequences.ice

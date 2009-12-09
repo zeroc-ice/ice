@@ -32,7 +32,10 @@ $(CLIENT): $(OBJS)
 	rm -f $@
 	$(CXX) $(LDFLAGS) -o $@ $(OBJS) $(DB_RPATH_LINK) -lFreeze $(LIBS)
 
-ComplexDict.h ComplexDict.cpp: Complex.ice $(SLICE2FREEZE) $(SLICEPARSERLIB)
+# The slice2freeze rules are structured like this to avoid issues with
+# parallel make.
+ComplexDict.h: ComplexDict.cpp
+ComplexDict.cpp: Complex.ice $(SLICE2FREEZE) $(SLICEPARSERLIB)
 	rm -f ComplexDict.h ComplexDict.cpp
 	$(SLICE2FREEZE) -I$(slicedir) --dict Complex::ComplexDict,Complex::Key,Complex::Node ComplexDict Complex.ice
 

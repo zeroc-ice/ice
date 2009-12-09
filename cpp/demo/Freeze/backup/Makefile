@@ -27,7 +27,10 @@ $(CLIENT): $(OBJS) $(COBJS)
 	rm -f $@
 	$(CXX) $(LDFLAGS) -o $@ $(OBJS) $(COBJS) $(DB_RPATH_LINK) -lFreeze $(LIBS)
 
-IntLongMap.h IntLongMap.cpp: $(SLICE2FREEZE) $(SLICEPARSERLIB)
+# The slice2freeze rules are structured like this to avoid issues with
+# parallel make.
+IntLongMap.h: IntLongMap.cpp
+IntLongMap.cpp: $(SLICE2FREEZE) $(SLICEPARSERLIB)
 	rm -f IntLongMap.h IntLongMap.cpp
 	$(SLICE2FREEZE) -I$(slicedir) --dict IntLongMap,int,long IntLongMap
 

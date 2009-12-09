@@ -61,7 +61,10 @@ $(COLLOCATED): $(OBJS) $(COLOBJS)
 	rm -f $@
 	$(CXX) $(LDFLAGS) -o $@ $(OBJS) $(COLOBJS) $(DB_RPATH_LINK) -lFreeze $(LIBS) $(READLINE_LIBS)
 
-LibraryTypes.h LibraryTypes.cpp: Library.ice $(SLICE2FREEZE) $(SLICEPARSERLIB)
+# The slice2freeze rules are structured like this to avoid issues with
+# parallel make.
+LibraryTypes.h: LibraryTypes.cpp
+LibraryTypes.cpp: Library.ice $(SLICE2FREEZE) $(SLICEPARSERLIB)
 	rm -f LibraryTypes.h LibraryTypes.cpp
 	$(SLICE2FREEZE) --ice -I$(slicedir) --dict StringIsbnSeqDict,string,Ice::StringSeq LibraryTypes $(slicedir)/Ice/BuiltinSequences.ice Library.ice
 
