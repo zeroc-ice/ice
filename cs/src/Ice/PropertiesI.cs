@@ -300,9 +300,7 @@ namespace Ice
             if(IceInternal.AssemblyUtil.platform_ == IceInternal.AssemblyUtil.Platform.Windows &&
                (file.StartsWith("HKLM\\", StringComparison.Ordinal)))
             {
-                RegistryKey key = Registry.LocalMachine;
-                
-                RegistryKey iceKey = key.OpenSubKey(file.Substring(5));
+                RegistryKey iceKey = Registry.LocalMachine.OpenSubKey(file.Substring(5));
                 if(iceKey == null)
                 {
                     Ice.InitializationException ex = new Ice.InitializationException();
@@ -313,7 +311,7 @@ namespace Ice
                 foreach(string propKey in iceKey.GetValueNames())
                 {
                     RegistryValueKind kind = iceKey.GetValueKind(propKey);
-                    if(kind == RegistryValueKind.String)
+                    if(kind == RegistryValueKind.String || RegistryValueKind.ExpandString)
                     {
                         setProperty(propKey, iceKey.GetValue(propKey).ToString());
                     }

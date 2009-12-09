@@ -286,8 +286,7 @@ public final class PropertiesI implements Properties
     public void
     load(String file)
     {
-        if(System.getProperty("os.name").startsWith("Windows") &&
-           (file.startsWith("HKLM\\") || file.startsWith("HKCU\\")))
+        if(System.getProperty("os.name").startsWith("Windows") && file.startsWith("HKLM\\"))
         {
             String regQuery = "reg query " + file;
             try
@@ -316,6 +315,43 @@ public final class PropertiesI implements Properties
                     if(pos != -1)
                     {
                         setProperty(line.substring(0, pos).trim(), line.substring(pos + 6, line.length()).trim());
+                        continue;
+                    }
+
+                    pos = line.indexOf("REG_EXPAND_SZ");
+                    if(pos != -1)
+                    {
+                        String name = line.substring(0, pos).trim();
+                        line = line.substring(pos + 13, line.length()).trim();
+                        while(true)
+                        {
+                            int start = line.indexOf("%", 0);
+                            int end = line.indexOf("%", start + 1);
+
+                            //
+                            // If there isn't more %var% break the loop
+                            //
+                            if(start == -1 || end == -1)
+                            {
+                                break;
+                            }
+                            
+                            String envKey = line.substring(start + 1, end);
+                            String envValue = System.getenv(envKey);
+                            if(envValue == null)
+                            {
+                                envValue = "";
+                            }
+
+                            envKey = "%" + envKey + "%";
+                            do
+                            {
+                                line = line.replace(envKey , envValue);
+                            }
+                            while(line.indexOf(envKey) != -1);
+                        }
+                        setProperty(name, line);
+                        continue;
                     }
                 }
             }
