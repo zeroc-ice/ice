@@ -197,7 +197,7 @@ IceInternal::ObjectAdapterFactory::removeObjectAdapter(const ObjectAdapterPtr& a
 }
 
 void
-IceInternal::ObjectAdapterFactory::flushBatchRequests() const
+IceInternal::ObjectAdapterFactory::flushAsyncBatchRequests(const CommunicatorBatchOutgoingAsyncPtr& outAsync) const
 {
     list<ObjectAdapterIPtr> adapters;
     {
@@ -205,7 +205,11 @@ IceInternal::ObjectAdapterFactory::flushBatchRequests() const
 
         adapters = _adapters;
     }
-    for_each(adapters.begin(), adapters.end(), IceUtil::voidMemFun(&ObjectAdapterI::flushBatchRequests));
+
+    for(list<ObjectAdapterIPtr>::const_iterator p = adapters.begin(); p != adapters.end(); ++p)
+    {
+        (*p)->flushAsyncBatchRequests(outAsync);
+    }
 }
 
 IceInternal::ObjectAdapterFactory::ObjectAdapterFactory(const InstancePtr& instance,

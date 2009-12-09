@@ -178,7 +178,60 @@ public final class CommunicatorI implements Communicator
     public void
     flushBatchRequests()
     {
-        _instance.flushBatchRequests();
+        AsyncResult r = begin_flushBatchRequests();
+        end_flushBatchRequests(r);
+    }
+
+    public AsyncResult
+    begin_flushBatchRequests()
+    {
+        return begin_flushBatchRequestsInternal(null);
+    }
+
+    public AsyncResult
+    begin_flushBatchRequests(Callback cb)
+    {
+        return begin_flushBatchRequestsInternal(cb);
+    }
+
+    public AsyncResult
+    begin_flushBatchRequests(Callback_Communicator_flushBatchRequests cb)
+    {
+        return begin_flushBatchRequestsInternal(cb);
+    }
+
+    private static final String __flushBatchRequests_name = "flushBatchRequests";
+
+    private Ice.AsyncResult
+    begin_flushBatchRequestsInternal(IceInternal.CallbackBase cb)
+    {
+        IceInternal.OutgoingConnectionFactory connectionFactory = _instance.outgoingConnectionFactory();
+        IceInternal.ObjectAdapterFactory adapterFactory = _instance.objectAdapterFactory();
+
+        //
+        // This callback object receives the results of all invocations
+        // of Connection.begin_flushBatchRequests.
+        //
+        IceInternal.CommunicatorBatchOutgoingAsync result =
+            new IceInternal.CommunicatorBatchOutgoingAsync(this, _instance, __flushBatchRequests_name, cb);
+
+        connectionFactory.flushAsyncBatchRequests(result);
+        adapterFactory.flushAsyncBatchRequests(result);
+
+        //
+        // Inform the callback that we have finished initiating all of the
+        // flush requests.
+        //
+        result.ready();
+
+        return result;
+    }
+
+    public void
+    end_flushBatchRequests(AsyncResult r)
+    {
+        AsyncResult.__check(r, this, __flushBatchRequests_name);
+        r.__wait();
     }
 
     public ObjectPrx 

@@ -17,9 +17,7 @@
 #define new DEBUG_NEW
 #endif
 
-#define WM_AMI_SENT                 (WM_USER + 1)
-#define WM_AMI_RESPONSE             (WM_USER + 2)
-#define WM_AMI_EXCEPTION            (WM_USER + 3)
+#define WM_AMI_CALLBACK             (WM_USER + 1)
 
 using namespace std;
 using namespace Demo;
@@ -27,31 +25,58 @@ using namespace Demo;
 namespace
 {
 
+class Dispatcher : public Ice::Dispatcher
+{
+public:
+
+    Dispatcher(CHelloClientDlg* dialog) : _dialog(dialog)
+    {
+    }
+
+    virtual void 
+    dispatch(const Ice::DispatcherCallPtr& call, const Ice::ConnectionPtr&)
+    {
+        //
+        // Dispatch Ice AMI callbacks with the event loop thread.
+        //
+        _dialog->PostMessage(WM_AMI_CALLBACK, 0, reinterpret_cast<LPARAM>(new Ice::DispatcherCallPtr(call)));
+    }
+
+private:
+
+    CHelloClientDlg* _dialog;
+};
+
 class Callback : public IceUtil::Shared
 {
 public:
 
-    Callback(CHelloClientDlg* dialog) :
-        _dialog(dialog)
+    Callback(CHelloClientDlg* dialog) : _dialog(dialog)
     {
     }
 
     void
     sent(bool)
     {
-        _dialog->PostMessage(WM_AMI_SENT, 0, 0);
+        _dialog->sent();
     }
 
     void
     response()
     {
-        _dialog->PostMessage(WM_AMI_RESPONSE, 0, 0);
+        _dialog->response();
     }
 
     void
     exception(const Ice::Exception& ex)
     {
-        _dialog->PostMessage(WM_AMI_EXCEPTION, 0, reinterpret_cast<LONG>(ex.ice_clone()));
+        _dialog->exception(ex);
+    }
+
+    void
+    flushSent(bool)
+    {
+        _dialog->flushed();
     }
 
 private:
@@ -81,18 +106,30 @@ BEGIN_MESSAGE_MAP(CHelloClientDlg, CDialog)
     ON_BN_CLICKED(IDC_INVOKE, OnSayHello)
     ON_BN_CLICKED(IDC_FLUSH, OnFlush)
     ON_BN_CLICKED(IDC_SHUTDOWN, OnShutdown)
-    ON_MESSAGE(WM_AMI_EXCEPTION, OnAMIException)
-    ON_MESSAGE(WM_AMI_RESPONSE, OnAMIResponse)
-    ON_MESSAGE(WM_AMI_SENT, OnAMISent)
+    ON_MESSAGE(WM_AMI_CALLBACK, OnAMICallback)
 END_MESSAGE_MAP()
 
 
-CHelloClientDlg::CHelloClientDlg(const Ice::CommunicatorPtr& communicator, CWnd* pParent /*=NULL*/) :
-    CDialog(CHelloClientDlg::IDD, pParent),
-    _communicator(communicator)
-
+CHelloClientDlg::CHelloClientDlg(CWnd* pParent /*=NULL*/) : CDialog(CHelloClientDlg::IDD, pParent)
 {
     _hIcon = AfxGetApp()->LoadIcon(IDR_MAINFRAME);
+
+    //
+    // Create the communicator.
+    //
+    Ice::InitializationData initData;
+    initData.properties = Ice::createProperties();
+    initData.properties->load("config");
+    initData.dispatcher = new Dispatcher(this);
+    _communicator = Ice::initialize(initData);
+
+    //
+    // Create AMI callbacks.
+    // 
+    CallbackPtr cb = new Callback(this);
+    _sayHelloCallback = newCallback_Hello_sayHello(cb, &Callback::response, &Callback::exception, &Callback::sent);
+    _shutdownCallback = newCallback_Hello_shutdown(cb, &Callback::response, &Callback::exception);
+    _flushCallback = Ice::newCallback_Communicator_flushBatchRequests(cb, &Callback::exception, &Callback::flushSent);
 }
 
 void
@@ -243,9 +280,7 @@ CHelloClientDlg::OnSayHello()
         if(!deliveryModeIsBatch())
         {
             _status->SetWindowText(CString(" Sending request"));
-            CallbackPtr cb = new Callback(this);
-            hello->begin_sayHello(delay, newCallback_Hello_sayHello(cb, &Callback::response, &Callback::exception,
-                                                                    &Callback::sent));
+            hello->begin_sayHello(delay, _sayHelloCallback);
         }
         else
         {
@@ -270,8 +305,7 @@ CHelloClientDlg::OnShutdown()
         {
             _status->SetWindowText(CString(" Sending request"));
             CallbackPtr cb = new Callback(this);
-            hello->begin_shutdown(newCallback_Hello_shutdown(cb, &Callback::response, &Callback::exception, 
-                                                             &Callback::sent));
+            hello->begin_shutdown(_shutdownCallback);
         }
         else
         {
@@ -291,18 +325,33 @@ CHelloClientDlg::OnFlush()
 {
     try
     {
-        _communicator->flushBatchRequests();
+        _communicator->begin_flushBatchRequests(_flushCallback);
     }
     catch(const IceUtil::Exception& ex)
     {
         handleException(ex);
     }
     _flush->EnableWindow(FALSE);
-    _status->SetWindowText(CString(" Flushed batch requests"));
 }
 
 LRESULT
-CHelloClientDlg::OnAMISent(WPARAM, LPARAM)
+CHelloClientDlg::OnAMICallback(WPARAM, LPARAM lParam)
+{
+    try
+    {
+        Ice::DispatcherCallPtr* call = reinterpret_cast<Ice::DispatcherCallPtr*>(lParam);
+        (*call)->run();
+        delete call;
+    }
+    catch(const Ice::Exception& ex)
+    {
+        handleException(ex);
+    }
+    return 0;
+}
+
+void
+CHelloClientDlg::sent()
 {
     int mode = _mode->GetCurSel();
     if(mode == TWOWAY || mode == TWOWAY_SECURE)
@@ -313,26 +362,27 @@ CHelloClientDlg::OnAMISent(WPARAM, LPARAM)
     {
         _status->SetWindowText(CString(" Ready"));
     }
-    return 0;
 }
 
-LRESULT
-CHelloClientDlg::OnAMIResponse(WPARAM, LPARAM)
+void
+CHelloClientDlg::response()
 {
     _status->SetWindowText(CString(" Ready"));
-    return 0;
 }
 
-LRESULT
-CHelloClientDlg::OnAMIException(WPARAM, LPARAM lParam)
+void
+CHelloClientDlg::exception(const Ice::Exception& ex)
 {
-    Ice::Exception* ex = reinterpret_cast<Ice::Exception*>(lParam);
-    if(!dynamic_cast<Ice::CommunicatorDestroyedException*>(ex))
+    if(!dynamic_cast<const Ice::CommunicatorDestroyedException*>(&ex))
     {
-        handleException(*ex);
+        handleException(ex);
     }
-    delete ex;
-    return 0;
+}
+
+void
+CHelloClientDlg::flushed()
+{
+    _status->SetWindowText(CString(" Flushed batch requests"));
 }
 
 Demo::HelloPrx

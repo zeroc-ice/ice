@@ -2277,6 +2277,52 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
                 writeThrowsClause(package, throws);
             }
             out << ';';
+
+            //
+            // Generate asynchronous API for local operations marked with XXX metadata.
+            //
+            if(p->hasMetaData("async") || op->hasMetaData("async"))
+            {
+                vector<string> inParams = getInOutParams(op, package, InParam);
+
+                out << sp;
+                writeDocCommentAMI(out, op, InParam);
+                out << nl;
+                if(!p->isInterface())
+                {
+                    out << "public abstract ";
+                }
+                out << "Ice.AsyncResult begin_" << opname << spar << inParams << epar << ';';
+
+                out << sp;
+                writeDocCommentAMI(out, op, InParam);
+                out << nl;
+                if(!p->isInterface())
+                {
+                    out << "public abstract ";
+                }
+                out << "Ice.AsyncResult begin_" << opname << spar << inParams << "Ice.Callback __cb" << epar << ';';
+
+                out << sp;
+                writeDocCommentAMI(out, op, InParam);
+                out << nl;
+                if(!p->isInterface())
+                {
+                    out << "public abstract ";
+                }
+                string cb = "Callback_" + name + "_" + opname + " __cb";
+                out << "Ice.AsyncResult begin_" << opname << spar << inParams << cb << epar << ';';
+
+                vector<string> outParams = getInOutParams(op, package, OutParam);
+                out << sp;
+                writeDocCommentAMI(out, op, OutParam);
+                out << nl;
+                if(!p->isInterface())
+                {
+                    out << "public abstract ";
+                }
+                out << retS << " end_" << opname << spar << outParams << "Ice.AsyncResult __result" << epar << ';';
+            }
         }
     }
 

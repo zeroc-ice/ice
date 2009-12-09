@@ -394,22 +394,23 @@ namespace IceInternal
             }
         }
 
-        public void flushBatchRequests()
+        public void flushAsyncBatchRequests(CommunicatorBatchOutgoingAsync outAsync)
         {
             ICollection<Ice.ConnectionI> c = new List<Ice.ConnectionI>();
 
             lock(this)
             {
-                if(_destroyed)
+                if(!_destroyed)
                 {
-                    return;
-                }
-
-                foreach(ICollection<Ice.ConnectionI> connectionList in _connections.Values)
-                {
-                    foreach(Ice.ConnectionI conn in connectionList)
+                    foreach(ICollection<Ice.ConnectionI> connectionList in _connections.Values)
                     {
-                        c.Add(conn);
+                        foreach(Ice.ConnectionI conn in connectionList)
+                        {
+                            if(conn.isActiveOrHolding())
+                            {
+                                c.Add(conn);
+                            }
+                        }
                     }
                 }
             }
@@ -418,7 +419,7 @@ namespace IceInternal
             {
                 try
                 {
-                    conn.flushBatchRequests();
+                    outAsync.flushConnection(conn);
                 }
                 catch(Ice.LocalException)
                 {
@@ -1335,7 +1336,7 @@ namespace IceInternal
             }
         }
 
-        public void flushBatchRequests()
+        public void flushAsyncBatchRequests(CommunicatorBatchOutgoingAsync outAsync)
         {
             //
             // connections() is synchronized, no need to synchronize here.
@@ -1344,7 +1345,7 @@ namespace IceInternal
             {
                 try
                 {
-                    connection.flushBatchRequests();
+                    outAsync.flushConnection(connection);
                 }
                 catch(Ice.LocalException)
                 {

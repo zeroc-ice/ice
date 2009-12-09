@@ -14,4 +14,9 @@ package Ice;
  **/
 public abstract class Callback_Object_ice_flushBatchRequests extends OnewayCallback
 {
+    @Override
+    public final void response()
+    {
+        // Not used.
+    }
 }

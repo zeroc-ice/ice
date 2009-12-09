@@ -41,9 +41,42 @@ public class TestI extends _TestIntfDisp
     {
     }
 
+    public synchronized void
+    opBatch(Ice.Current current)
+    {
+        ++_batchCount;
+        notify();
+    }
+
+    public synchronized int
+    opBatchCount(Ice.Current current)
+    {
+        return _batchCount;
+    }
+
+    public synchronized boolean
+    waitForBatch(int count, Ice.Current current)
+    {
+        while(_batchCount < count)
+        {
+            try
+            {
+                wait(5000);
+            }
+            catch(InterruptedException ex)
+            {
+            }
+        }
+        boolean result = count == _batchCount;
+        _batchCount = 0;
+        return result;
+    }
+
     public void
     shutdown(Ice.Current current)
     {
         current.adapter.getCommunicator().shutdown();
     }
+
+    private int _batchCount;
 }

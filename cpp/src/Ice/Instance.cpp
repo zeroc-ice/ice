@@ -374,28 +374,6 @@ IceInternal::Instance::serverACM() const
     return _serverACM;
 }
 
-void
-IceInternal::Instance::flushBatchRequests()
-{
-    OutgoingConnectionFactoryPtr connectionFactory;
-    ObjectAdapterFactoryPtr adapterFactory;
-
-    {
-        IceUtil::RecMutex::Lock sync(*this);
-
-        if(_state == StateDestroyed)
-        {
-            throw CommunicatorDestroyedException(__FILE__, __LINE__);
-        }
-
-        connectionFactory = _outgoingConnectionFactory;
-        adapterFactory = _objectAdapterFactory;
-    }
-
-    connectionFactory->flushBatchRequests();
-    adapterFactory->flushBatchRequests();
-}
-
 Identity
 IceInternal::Instance::stringToIdentity(const string& s) const
 {

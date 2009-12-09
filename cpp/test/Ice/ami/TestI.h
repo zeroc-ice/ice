@@ -15,15 +15,24 @@
 class TestIntfControllerI;
 typedef IceUtil::Handle<TestIntfControllerI> TestIntfControllerIPtr;
 
-class TestIntfI : virtual public Test::TestIntf
+class TestIntfI : virtual public Test::TestIntf, public IceUtil::Monitor<IceUtil::Mutex>
 {
 public:
+
+    TestIntfI();
 
     virtual void op(const Ice::Current&);
     virtual int opWithResult(const Ice::Current&);
     virtual void opWithUE(const Ice::Current&);
     virtual void opWithPayload(const Ice::ByteSeq&, const Ice::Current&);
+    virtual void opBatch(const Ice::Current&);
+    virtual Ice::Int opBatchCount(const Ice::Current&);
+    virtual bool waitForBatch(Ice::Int, const Ice::Current&);
     virtual void shutdown(const Ice::Current&);
+
+private:
+
+    int _batchCount;
 };
 
 class TestIntfControllerI : public Test::TestIntfController, IceUtil::Monitor<IceUtil::Mutex>

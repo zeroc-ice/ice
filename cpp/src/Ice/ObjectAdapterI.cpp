@@ -764,14 +764,18 @@ Ice::ObjectAdapterI::isLocal(const ObjectPrx& proxy) const
 }
 
 void
-Ice::ObjectAdapterI::flushBatchRequests()
+Ice::ObjectAdapterI::flushAsyncBatchRequests(const CommunicatorBatchOutgoingAsyncPtr& outAsync)
 {
     vector<IncomingConnectionFactoryPtr> f;
     {
         IceUtil::Monitor<IceUtil::RecMutex>::Lock sync(*this);
         f = _incomingConnectionFactories;
     }
-    for_each(f.begin(), f.end(), Ice::voidMemFun(&IncomingConnectionFactory::flushBatchRequests));
+
+    for(vector<IncomingConnectionFactoryPtr>::const_iterator p = f.begin(); p != f.end(); ++p)
+    {
+        (*p)->flushAsyncBatchRequests(outAsync);
+    }
 }
 
 void

@@ -454,7 +454,7 @@ local interface Communicator
      * obtained via this communicator to be sent to the server.
      *
      **/
-    void flushBatchRequests();
+    ["async"] void flushBatchRequests();
 
     /**
      *

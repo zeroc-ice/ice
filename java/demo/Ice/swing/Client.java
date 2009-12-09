@@ -508,20 +508,13 @@ public class Client extends JFrame
 
     private void flush()
     {
-        new Thread(new Runnable()
-        {
-            public void run()
+        _communicator.begin_flushBatchRequests(new Ice.Callback_Communicator_flushBatchRequests()
             {
-                try
-                {
-                    _communicator.flushBatchRequests();
-                }
-                catch(final Ice.LocalException ex)
+                public void exception(final Ice.LocalException ex)
                 {
                     handleException(ex);
                 }
-            }
-        }).start();
+            });
 
         _flush.setEnabled(false);
         _status.setText("Flushed batch requests");

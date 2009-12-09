@@ -181,8 +181,8 @@ namespace IceInternal
                 _adapterNamesInUse.Remove(adapter.getName());
             }
         }
-        
-        public void flushBatchRequests()
+
+        public void flushAsyncBatchRequests(CommunicatorBatchOutgoingAsync outAsync)
         {
             List<Ice.ObjectAdapterI> adapters;
             lock(this)
@@ -192,7 +192,7 @@ namespace IceInternal
 
             foreach(Ice.ObjectAdapterI adapter in adapters)
             {
-                adapter.flushBatchRequests();
+                adapter.flushAsyncBatchRequests(outAsync);
             }
         }
         

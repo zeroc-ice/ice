@@ -127,7 +127,7 @@ local interface Connection
      * this connection to be sent to the server.
      *
      **/
-    void flushBatchRequests();
+    ["async"] void flushBatchRequests();
 
     /**
      *

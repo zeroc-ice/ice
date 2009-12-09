@@ -11,6 +11,7 @@
 #include <Ice/CommunicatorI.h>
 #include <Ice/Instance.h>
 #include <Ice/Properties.h>
+#include <Ice/ConnectionFactory.h>
 #include <Ice/ReferenceFactory.h>
 #include <Ice/ProxyFactory.h>
 #include <Ice/ObjectFactoryManager.h>
@@ -296,7 +297,62 @@ Ice::CommunicatorI::getPluginManager() const
 void
 Ice::CommunicatorI::flushBatchRequests()
 {
-    _instance->flushBatchRequests();
+    AsyncResultPtr r = begin_flushBatchRequests();
+    end_flushBatchRequests(r);
+}
+
+AsyncResultPtr
+Ice::CommunicatorI::begin_flushBatchRequests()
+{
+    return begin_flushBatchRequestsInternal(0, 0);
+}
+
+AsyncResultPtr
+Ice::CommunicatorI::begin_flushBatchRequests(const CallbackPtr& cb, const LocalObjectPtr& cookie)
+{
+    return begin_flushBatchRequestsInternal(cb, cookie);
+}
+
+AsyncResultPtr
+Ice::CommunicatorI::begin_flushBatchRequests(const Callback_Communicator_flushBatchRequestsPtr& cb,
+                                             const LocalObjectPtr& cookie)
+{
+    return begin_flushBatchRequestsInternal(cb, cookie);
+}
+
+static const ::std::string __flushBatchRequests_name = "flushBatchRequests";
+
+AsyncResultPtr
+Ice::CommunicatorI::begin_flushBatchRequestsInternal(const IceInternal::CallbackBasePtr& cb,
+                                                     const LocalObjectPtr& cookie)
+{
+    OutgoingConnectionFactoryPtr connectionFactory = _instance->outgoingConnectionFactory();
+    ObjectAdapterFactoryPtr adapterFactory = _instance->objectAdapterFactory();
+
+    //
+    // This callback object receives the results of all invocations
+    // of Connection::begin_flushBatchRequests.
+    //
+    CommunicatorBatchOutgoingAsyncPtr result =
+        new CommunicatorBatchOutgoingAsync(this, _instance, __flushBatchRequests_name, cb, cookie);
+
+    connectionFactory->flushAsyncBatchRequests(result);
+    adapterFactory->flushAsyncBatchRequests(result);
+
+    //
+    // Inform the callback that we have finished initiating all of the
+    // flush requests.
+    //
+    result->ready();
+
+    return result;
+}
+
+void
+Ice::CommunicatorI::end_flushBatchRequests(const AsyncResultPtr& r)
+{
+    AsyncResult::__check(r, this, __flushBatchRequests_name);
+    r->__wait();
 }
 
 ObjectPrx

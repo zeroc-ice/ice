@@ -378,22 +378,23 @@ public final class OutgoingConnectionFactory
     }
 
     public void
-    flushBatchRequests()
+    flushAsyncBatchRequests(CommunicatorBatchOutgoingAsync outAsync)
     {
         java.util.List<Ice.ConnectionI> c = new java.util.LinkedList<Ice.ConnectionI>();
 
         synchronized(this)
         {
-            if(_destroyed)
+            if(!_destroyed)
             {
-                return;
-            }
-
-            for(java.util.List<Ice.ConnectionI> connectionList : _connections.values())
-            {
-                for(Ice.ConnectionI connection : connectionList)
+                for(java.util.List<Ice.ConnectionI> connectionList : _connections.values())
                 {
-                    c.add(connection);
+                    for(Ice.ConnectionI connection : connectionList)
+                    {
+                        if(connection.isActiveOrHolding())
+                        {
+                            c.add(connection);
+                        }
+                    }
                 }
             }
         }
@@ -402,7 +403,7 @@ public final class OutgoingConnectionFactory
         {
             try
             {
-                conn.flushBatchRequests();
+                outAsync.flushConnection(conn);
             }
             catch(Ice.LocalException ex)
             {
