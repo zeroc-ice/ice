@@ -26,19 +26,6 @@ ifeq ($(CXX),g++)
    CXX			= c++
 endif
 
-#
-# icecpp is built with a C compiler
-#
-CFLAGS = -O2
-
-ifeq ($(MACHINE),x86_64)
-   ifeq ($(LP64),yes)
-      CFLAGS	+= -m64
-   else
-      CFLAGS	+= -m32
-   endif
-endif
-
 ifeq ($(CXX),c++)
 
     ifneq ($(SUSE_i586),)
@@ -93,19 +80,6 @@ ifeq ($(CXX),c++)
       CXXFLAGS		+= -O2 -DNDEBUG
    else
       CXXFLAGS		+= -g 
-   endif
-
-   ifeq ($(USE_SPARC_ASM),yes)
-      CFLAGS		= -O2 -mcpu=ultrasparc -pipe -DNDEBUG -DUSE_SPARC_ASM
-      ifneq ($(GENPIC),no)
-         CFLAGS		+= -fPIC
-      endif
-   endif
-   ifeq ($(USE_SPARC_ASM),no)
-      CFLAGS		= -O2 -mcpu=v8 -pipe -DNDEBUG -DICE_USE_MUTEX_SHARED
-      ifneq ($(GENPIC),no)
-         CFLAGS		+= -fPIC
-      endif
    endif
 
    #
