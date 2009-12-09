@@ -20,7 +20,7 @@ $(warning ===================================================================)
 
 CXX			= c++
 
-CXXFLAGS		= -ftemplate-depth-128 -Wall -D_REENTRANT -D_THREAD_SAFE
+CXXFLAGS		= -Wall -D_REENTRANT -D_THREAD_SAFE
 
 ifeq ($(STATICLIBS),)
     CXXFLAGS		+= -fPIC

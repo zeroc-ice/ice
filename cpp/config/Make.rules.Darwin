@@ -13,7 +13,7 @@
 
 CXX	                = c++
 
-CXXFLAGS		= -ftemplate-depth-128 -Wall -D_REENTRANT
+CXXFLAGS		= -Wall -D_REENTRANT
 
 ifeq ($(OPTIMIZE),yes)
      CXXFLAGS		:= -O2 -DNDEBUG $(CXXFLAGS)

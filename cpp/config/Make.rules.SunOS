@@ -136,7 +136,7 @@ ifeq ($(CXX),g++)
         CXXARCHFLAGS	    = -m64
     endif
 
-    CXXFLAGS		    = $(CXXARCHFLAGS) -ftemplate-depth-128 -Wall -D_REENTRANT
+    CXXFLAGS		    = $(CXXARCHFLAGS) -Wall -D_REENTRANT
 
     ifeq ($(STATICLIBS),)
 	CXXFLAGS	    += -fPIC

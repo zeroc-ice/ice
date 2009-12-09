@@ -50,7 +50,7 @@ endif
 
 ifeq ($(CXX),g)
 
-   CXXFLAGS		= $(CXXARCHFLAGS) -ftemplate-depth-128 -Wall -D_REENTRANT
+   CXXFLAGS		= $(CXXARCHFLAGS) -Wall -D_REENTRANT
 
    ifneq ($(GENPIC),no)
       CXXFLAGS		= -fPIC
