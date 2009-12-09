@@ -10,7 +10,6 @@
 using System;
 using System.Reflection;
 using System.Runtime.CompilerServices;
-using System.Runtime.InteropServices;
 
 [assembly: AssemblyTitle("IceVisualStudioExtension")]
 [assembly: AssemblyDescription("Ice Extension for Visual Studio")]

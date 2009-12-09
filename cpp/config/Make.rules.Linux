@@ -70,7 +70,7 @@ ifeq ($(CXX),c++)
       endif
    endif
 
-   CXXFLAGS		= $(CXXARCHFLAGS) -ftemplate-depth-128 -Wall -D_REENTRANT -I/usr/include/nptl
+   CXXFLAGS		= $(CXXARCHFLAGS) -Wall -D_REENTRANT -I/usr/include/nptl
 
    ifneq ($(GENPIC),no)
       CXXFLAGS		+= -fPIC
