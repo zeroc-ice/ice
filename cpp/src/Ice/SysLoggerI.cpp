@@ -57,14 +57,18 @@ Ice::SysLoggerI::SysLoggerI(const string& prefix, const string& facilityString)
     {
         _facility = LOG_CRON;
     }
+#ifdef LOG_AUTHPRIV
     else if(facilityString == "LOG_AUTHPRIV")
     {
         _facility = LOG_AUTHPRIV;
     }
+#endif
+#ifdef LOG_FTP
     else if(facilityString == "LOG_FTP")
     {
         _facility = LOG_FTP;
     }
+#endif
     else if(facilityString == "LOG_LOCAL0")
     {
         _facility = LOG_LOCAL0;
