@@ -259,7 +259,15 @@ public class SliceTask extends org.apache.tools.ant.Task
                     pos = 0;
                     while(pos < chars.length)
                     {
-                        if(Character.isWhitespace(chars[pos]))
+                        if(chars[pos] == '\\') // Skip backslash of an escaped character.
+                        {
+                            if(pos + 1 >= chars.length)
+                            {
+                                throw new BuildException("dependency parse failure");
+                            }
+                            file.append(chars[++pos]);
+                        }
+                        else if(Character.isWhitespace(chars[pos]))
                         {
                             if(file.length() > 0)
                             {
@@ -267,7 +275,7 @@ public class SliceTask extends org.apache.tools.ant.Task
                                 file = new StringBuilder(128);
                             }
                         }
-                        else if(chars[pos] != '\\') // Skip backslash of an escaped character.
+                        else
                         {
                             file.append(chars[pos]);
                         }
@@ -287,7 +295,10 @@ public class SliceTask extends org.apache.tools.ant.Task
                     l.toArray(depend._dependencies);
                     depend._timeStamp = new java.util.Date().getTime();
                     pos = depend._dependencies[0].lastIndexOf(':');
-                    assert(pos == depend._dependencies[0].length() - 1);
+                    if(pos != depend._dependencies[0].length() - 1)
+                    {
+                        throw new BuildException("dependency parse failure");
+                    }
                     depend._dependencies[0] = depend._dependencies[0].substring(0, pos);
                     for(int i = 0; i < depend._dependencies.length; ++i)
                     {
