@@ -15,12 +15,13 @@
 #define new DEBUG_NEW
 #endif
 
+#define WM_AMI_CALLBACK             (WM_USER + 1)
+
 BEGIN_MESSAGE_MAP(CHelloClientApp, CWinApp)
     ON_COMMAND(ID_HELP, CWinApp::OnHelp)
 END_MESSAGE_MAP()
 
 using namespace std;
-
 
 CHelloClientApp::CHelloClientApp()
 {
@@ -41,17 +42,11 @@ CHelloClientApp::InitInstance()
 
     CWinApp::InitInstance();
 
-    //
-    // Create a communicator.
-    //
-    Ice::CommunicatorPtr communicator;
     try
     {
-        int argc = 0;
-        Ice::InitializationData initData;
-        initData.properties = Ice::createProperties();
-        initData.properties->load("config");
-        communicator = Ice::initialize(argc, 0, initData);
+        CHelloClientDlg dlg;
+        m_pMainWnd = &dlg;
+        dlg.DoModal();
     }
     catch(const IceUtil::Exception& ex)
     {
@@ -59,14 +54,10 @@ CHelloClientApp::InitInstance()
         ostr << ex;
         string s = ostr.str();
         AfxMessageBox(CString(s.c_str()), MB_OK|MB_ICONEXCLAMATION);
-        return FALSE;
     }
-
-    CHelloClientDlg dlg(communicator);
-    m_pMainWnd = &dlg;
-    dlg.DoModal();
 
     // Since the dialog has been closed, return FALSE so that we exit the
     // application, rather than start the application's message pump.
     return FALSE;
 }
+

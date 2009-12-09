@@ -19,17 +19,25 @@ class CHelloClientDlg : public CDialog
 {
 public:
 
-    CHelloClientDlg(const Ice::CommunicatorPtr&, CWnd* = NULL);
+    CHelloClientDlg(CWnd* = NULL);
 
     enum { IDD = IDD_HELLOCLIENT_DIALOG };
 
     afx_msg void OnCbnSelchangeMode();
+
+    void exception(const Ice::Exception&);
+    void response();;
+    void sent();
+    void flushed();
 
 protected:
 
     virtual void DoDataExchange(CDataExchange*);    // DDX/DDV support
 
     Ice::CommunicatorPtr _communicator;
+    Demo::Callback_Hello_sayHelloPtr _sayHelloCallback;
+    Demo::Callback_Hello_shutdownPtr _shutdownCallback;
+    Ice::Callback_Communicator_flushBatchRequestsPtr _flushCallback;
     CEdit* _host;
     CComboBox* _mode;
     CSliderCtrl* _timeout;
@@ -49,10 +57,7 @@ protected:
     afx_msg void OnSayHello();
     afx_msg void OnFlush();
     afx_msg void OnShutdown();
-    afx_msg LRESULT OnAMISent(WPARAM, LPARAM);
-    afx_msg LRESULT OnAMIResponse(WPARAM, LPARAM);
-    afx_msg LRESULT OnAMIException(WPARAM, LPARAM);
-    afx_msg LRESULT OnAMIFlush(WPARAM, LPARAM);
+    afx_msg LRESULT OnAMICallback(WPARAM, LPARAM);
     DECLARE_MESSAGE_MAP()
 
 private:
