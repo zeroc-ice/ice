@@ -304,7 +304,7 @@ Ice::CommunicatorI::flushBatchRequests()
 AsyncResultPtr
 Ice::CommunicatorI::begin_flushBatchRequests()
 {
-    return begin_flushBatchRequestsInternal(0, 0);
+    return begin_flushBatchRequestsInternal(::IceInternal::__dummyCallback, 0);
 }
 
 AsyncResultPtr

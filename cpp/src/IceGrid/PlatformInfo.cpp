@@ -301,8 +301,21 @@ PlatformInfo::PlatformInfo(const string& prefix,
     _nProcessorSockets = properties->getPropertyAsIntWithDefault("IceGrid.Node.ProcessorSocketCount", 0);
     if(_nProcessorSockets == 0)
     {
-#ifdef _WIN32
+#if defined(_WIN32)
         _nProcessorSockets = getSocketCount(_traceLevels->logger);
+#elif defined(__linux)
+        IceUtilInternal::ifstream is(string("/proc/cpuinfo"));
+        set<string> ids;
+        while(is)
+        {
+            string line;
+            getline(is, line);
+            if(line.find("physical id") == 0)
+            {
+                ids.insert(line);
+            }
+        }
+        _nProcessorSockets = ids.size();
 #else
         // Not supported.
 #endif

@@ -198,41 +198,37 @@ public class AllTests
             reply = (PingReplyPrx)PingReplyPrxHelper.uncheckedCast(adapter.addWithUUID(replyI)).ice_datagram();
         }
         test(ret);
+        System.out.println("ok");
 
         //
-        // Neither Windows nor Snow Leopard support sending replies back
-        // on the multicast UDP connection. For Windows, see
-        // UdpTransceiver constructor for the details.
+        // Sending the replies back on the multicast UDP connection doesn't work for most
+        // platform (it works for OS X Leopard but not Snow Leopard, doesn't work on SLES,
+        // Windows...). For Windows, see UdpTransceiver constructor for the details. So
+        // we don't run this test.
         // 
-        if(System.getProperty("os.name").startsWith("Windows") || System.getProperty("os.name").startsWith("Mac OS X"))
-        {
-            System.out.println("ok");
-        }
-        else
-        {
-            nRetry = 5;
-            while(nRetry-- > 0)
-            {
-                replyI.reset();
-                objMcast.pingBiDir(reply.ice_getIdentity());
-                ret = replyI.waitReply(5, 2000);
-                if(ret)
-                {
-                    break; // Success
-                }
-                replyI = new PingReplyI();
-                reply = (PingReplyPrx)PingReplyPrxHelper.uncheckedCast(adapter.addWithUUID(replyI)).ice_datagram();
-            }
+//         System.out.print("testing udp bi-dir connection... ");
+//         nRetry = 5;
+//         while(nRetry-- > 0)
+//         {
+//             replyI.reset();
+//             objMcast.pingBiDir(reply.ice_getIdentity());
+//             ret = replyI.waitReply(5, 2000);
+//             if(ret)
+//             {
+//                 break; // Success
+//             }
+//             replyI = new PingReplyI();
+//             reply = (PingReplyPrx)PingReplyPrxHelper.uncheckedCast(adapter.addWithUUID(replyI)).ice_datagram();
+//         }
 
-            if(!ret)
-            {
-                System.out.println("failed (is a firewall enabled?)");
-            }
-            else
-            {
-                System.out.println("ok");
-            }
-        }
+//         if(!ret)
+//         {
+//             System.out.println("failed (is a firewall enabled?)");
+//         }
+//         else
+//         {
+//             System.out.println("ok");
+//         }
         
         return objMcast;
     }

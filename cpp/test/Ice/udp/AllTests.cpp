@@ -193,37 +193,36 @@ allTests(const CommunicatorPtr& communicator)
         reply = PingReplyPrx::uncheckedCast(adapter->addWithUUID(replyI))->ice_datagram();
     }
     test(ret);
+    cout << "ok" << endl;
 
     //
-    // Neither Windows nor Snow Leopard support sending replies back
-    // on the multicast UDP connection. For Windows, see
-    // UdpTransceiver constructor for the details.
+    // Sending the replies back on the multicast UDP connection doesn't work for most
+    // platform (it works for OS X Leopard but not Snow Leopard, doesn't work on SLES,
+    // Windows...). For Windows, see UdpTransceiver constructor for the details. So
+    // we don't run this test.
     // 
-#if defined(_WIN32) || defined(__APPLE__)
-    cout << "ok" << endl;
-#else
-    nRetry = 5;
-    while(nRetry-- > 0)
-    {
-        replyI->reset();
-        objMcast->pingBiDir(reply->ice_getIdentity());
-        ret = replyI->waitReply(5, IceUtil::Time::seconds(2));
-        if(ret)
-        {
-            break; // Success
-        }        
-        replyI = new PingReplyI;
-        reply = PingReplyPrx::uncheckedCast(adapter->addWithUUID(replyI))->ice_datagram();
-    }
-    if(!ret)
-    {
-        cout << "failed (is a firewall enabled?)" << endl;
-    }
-    else
-    {
-        cout << "ok" << endl;
-    }
-#endif
+//     cout << "testing udp bi-dir connection... " << flush;    
+//     nRetry = 5;
+//     while(nRetry-- > 0)
+//     {
+//         replyI->reset();
+//         objMcast->pingBiDir(reply->ice_getIdentity());
+//         ret = replyI->waitReply(5, IceUtil::Time::seconds(2));
+//         if(ret)
+//         {
+//             break; // Success
+//         }        
+//         replyI = new PingReplyI;
+//         reply = PingReplyPrx::uncheckedCast(adapter->addWithUUID(replyI))->ice_datagram();
+//     }
+//     if(!ret)
+//     {
+//         cout << "failed (is a firewall enabled?)" << endl;
+//     }
+//     else
+//     {
+//         cout << "ok" << endl;
+//     }
 
     return objMcast;
 }
