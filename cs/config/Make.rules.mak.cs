@@ -94,6 +94,9 @@ MCSFLAGS 		= $(MCSFLAGS) -define:DEBUG
 MCSFLAGS 		= $(MCSFLAGS) -optimize+
 !endif
 
+# Define for SupressMessage to work
+#MCSFLAGS		= $(MCSFLAGS) -define:CODE_ANALYSIS
+
 !if "$(ice_src_dist)" != ""
 !if "$(ice_cpp_dir)" == "$(ice_dir)\cpp"
 SLICE2CS		= "$(ice_cpp_dir)\bin\slice2cs.exe"

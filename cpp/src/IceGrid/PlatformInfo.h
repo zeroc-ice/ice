@@ -46,6 +46,7 @@ public:
     RegistryInfo getRegistryInfo() const;
 
     LoadInfo getLoadInfo();
+    int getProcessorSocketCount() const;
     std::string getHostname() const;
     std::string getDataDir() const;
     std::string getCwd() const;
@@ -67,6 +68,7 @@ private:
     std::string _dataDir;
     std::string _cwd;
     std::string _endpoints;
+    int _nProcessorSockets;
 
 #if defined(_WIN32)
     IceUtil::ThreadPtr _updateUtilizationThread;

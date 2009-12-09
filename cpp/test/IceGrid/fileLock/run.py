@@ -29,14 +29,12 @@ def runIceGridRegistry(testdir):
 
     command = ' --nowarn ' + IceGridAdmin.registryOptions
 
-    name = "registry"
-
-    dataDir = os.path.join(testdir, "db", name)
+    dataDir = os.path.join(testdir, "db")
     if not os.path.exists(dataDir):
         os.mkdir(dataDir)
 
     cmd = command + ' ' + TestUtil.getQtSqlOptions('IceGrid') + \
-            r' --Ice.ProgramName=' + name + \
+            r' --Ice.ProgramName=registry' + \
             r' --IceGrid.Registry.Client.Endpoints="default -p ' + str(IceGridAdmin.iceGridPort) + '" ' + \
             r' --IceGrid.Registry.Data=' + dataDir
 
@@ -47,7 +45,7 @@ def runIceGridRegistry(testdir):
     proc = TestUtil.spawn(cmd)
     return proc
 
-IceGridAdmin.cleanDbDir("./db/registry")
+IceGridAdmin.cleanDbDir("./db")
 
 print "testing IceGrid file lock...",
 iceGrid1 = runIceGridRegistry(".")
@@ -58,4 +56,4 @@ iceGrid2.expect(".*IceUtil::FileLockedException.*")
 print "ok"
 
 IceGridAdmin.iceGridAdmin("registry shutdown")
-IceGridAdmin.cleanDbDir("./db/registry")
+IceGridAdmin.cleanDbDir("./db")

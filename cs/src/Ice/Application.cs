@@ -16,6 +16,18 @@ namespace Ice
     using System.Runtime.InteropServices;
     using System.Threading;
 
+    internal static class NativeMethods
+    {
+        //
+        // It's not necessary to wrap DllImport in conditional compilation. The binding occurs
+        // at run time, and it will never be executed on Mono.
+        //
+        [DllImport("kernel32.dll")]
+        [return: MarshalAsAttribute(UnmanagedType.Bool)] 
+        internal static extern bool 
+        SetConsoleCtrlHandler(CtrlCEventHandler eh, [MarshalAsAttribute(UnmanagedType.Bool)]bool add);
+    }
+
     /// <summary>
     /// The signal policy for Ice.Application signal handling.
     /// </summary>
@@ -789,14 +801,13 @@ namespace Ice
             public void register(SignalHandler handler)
             {
                 _handler = handler;
-                _callback = new EventHandler(callback);
+                _callback = new CtrlCEventHandler(callback);
 
-                bool rc = SetConsoleCtrlHandler(_callback, true);
+                bool rc = NativeMethods.SetConsoleCtrlHandler(_callback, true);
                 Debug.Assert(rc);
             }
 
-            private delegate bool EventHandler(int sig);
-            private EventHandler _callback;
+            private CtrlCEventHandler _callback;
             private SignalHandler _handler;
 
             private bool callback(int sig)
@@ -805,15 +816,9 @@ namespace Ice
                 return true;
             }
 
-            //
-            // It's not necessary to wrap DllImport in conditional compilation. The binding occurs
-            // at run time, and it will never be executed on Mono.
-            //
-            [DllImport("kernel32.dll")]
-            [return: MarshalAsAttribute(UnmanagedType.Bool)] 
-            private static extern bool 
-            SetConsoleCtrlHandler(EventHandler eh, [MarshalAsAttribute(UnmanagedType.Bool)]bool add);
 #endif
         }
     }
+    
+    delegate bool CtrlCEventHandler(int sig);
 }

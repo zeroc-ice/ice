@@ -321,26 +321,6 @@ namespace IceInternal
             return _implicitContext;
         }
 
-        public void flushBatchRequests()
-        {
-            OutgoingConnectionFactory connectionFactory;
-            ObjectAdapterFactory adapterFactory;
-            
-            lock(this)
-            {
-                if(_state == StateDestroyed)
-                {
-                    throw new Ice.CommunicatorDestroyedException();
-                }
-                
-                connectionFactory = _outgoingConnectionFactory;
-                adapterFactory = _objectAdapterFactory;
-            }
-            
-            connectionFactory.flushBatchRequests();
-            adapterFactory.flushBatchRequests();
-        }
-
         public Ice.Identity stringToIdentity(string s)
         {
             return Ice.Util.stringToIdentity(s);
@@ -482,7 +462,7 @@ namespace IceInternal
                             s.Append("couldn't register server `" + serverId + "' with the locator registry:\n" + ex);
                             _initData.logger.trace(_traceLevels.locationCat, s.ToString());
                         }
-                        throw ex; // TODO: Shall we raise a special exception instead of a non obvious local exception?
+                        throw; // TODO: Shall we raise a special exception instead of a non obvious local exception?
                     }
             
                     if(_traceLevels.location >= 1)
@@ -818,7 +798,7 @@ namespace IceInternal
             {
                 string s = "cannot create thread for timer:\n" + ex;
                 _initData.logger.error(s);
-                throw ex;
+                throw;
             }
           
             try
@@ -829,7 +809,7 @@ namespace IceInternal
             {
                 string s = "cannot create thread for endpoint host resolver:\n" + ex;
                 _initData.logger.error(s);
-                throw ex;
+                throw;
             }
 
             _clientThreadPool = new ThreadPool(this, "Ice.ThreadPool.Client", 0);
@@ -1116,7 +1096,7 @@ namespace IceInternal
         private Ice.PluginManager _pluginManager;
         private Ice.ObjectAdapter _adminAdapter;
         private Dictionary<string, Ice.Object> _adminFacets = new Dictionary<string, Ice.Object>();
-        private IceUtilInternal.Set _adminFacetFilter = new IceUtilInternal.Set();
+        private HashSet<string> _adminFacetFilter = new HashSet<string>();
         private Ice.Identity _adminIdentity;
 
         private static bool _printProcessIdDone = false;
@@ -1124,5 +1104,4 @@ namespace IceInternal
         private static bool _oneOffDone = false;
         private static System.Object _staticLock = new System.Object();
     }
-
 }

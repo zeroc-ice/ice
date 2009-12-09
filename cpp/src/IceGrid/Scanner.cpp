@@ -1726,6 +1726,7 @@ initScanner()
     keywordMap["registry"] = ICE_GRID_REGISTRY;
     keywordMap["ping"] = ICE_GRID_PING;
     keywordMap["load"] = ICE_GRID_LOAD;
+    keywordMap["processors"] = ICE_GRID_PROCESSORS;
     keywordMap["activation"] = ICE_GRID_ACTIVATION;
     keywordMap["object"] = ICE_GRID_OBJECT;
     keywordMap["find"] = ICE_GRID_FIND;

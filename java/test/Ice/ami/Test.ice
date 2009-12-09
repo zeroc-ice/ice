@@ -28,6 +28,9 @@ interface TestIntf
     int opWithResult();
     void opWithUE()
         throws TestIntfException;    
+    void opBatch();
+    int opBatchCount();
+    bool waitForBatch(int count);
     void shutdown();
 };
 

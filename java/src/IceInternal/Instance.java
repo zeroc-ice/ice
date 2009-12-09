@@ -269,27 +269,6 @@ public final class Instance
         return _implicitContext;
     }
 
-    public void
-    flushBatchRequests()
-    {
-        OutgoingConnectionFactory connectionFactory;
-        ObjectAdapterFactory adapterFactory;
-
-        synchronized(this)
-        {
-            if(_state == StateDestroyed)
-            {
-                throw new Ice.CommunicatorDestroyedException();
-            }
-
-            connectionFactory = _outgoingConnectionFactory;
-            adapterFactory = _objectAdapterFactory;
-        }
-
-        connectionFactory.flushBatchRequests();
-        adapterFactory.flushBatchRequests();
-    }
-
     public Ice.Identity
     stringToIdentity(String s)
     {

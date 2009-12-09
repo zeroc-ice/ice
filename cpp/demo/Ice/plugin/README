@@ -15,3 +15,9 @@ servant for this demo.
 
 Please look in the client and sever configuration files to see the
 plugin configuration.
+
+For the server or client to be able to find the library containing the
+plugin, you must add the current directory to your shared library
+search path (e.g., LD_LIBRARY_PATH on Linux, DYLD_LIBRARY_PATH on Mac
+OS X, etc.).  Alternatively, you can copy the library to a directory
+that is already in the search path.

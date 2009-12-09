@@ -196,12 +196,18 @@ public class AllTests
         }
         test(ret);
 
-        if(IceInternal.AssemblyUtil.platform_ != IceInternal.AssemblyUtil.Platform.Windows)
+        //
+        // Neither Windows nor Snow Leopard support sending replies back
+        // on the multicast UDP connection. For Windows, see
+        // UdpTransceiver constructor for the details.
+        // 
+        if(IceInternal.AssemblyUtil.platform_ == IceInternal.AssemblyUtil.Platform.Windows ||
+           IceInternal.AssemblyUtil.osx_)
         {
-            //
-            // Windows doesn't support sending replies back on the multicast UDP connection,
-            // see UdpTransceiver constructor for the details.
-            // 
+            Console.Out.WriteLine("ok");
+        }
+        else
+        {
             nRetry = 5;
             while(nRetry-- > 0)
             {
@@ -224,10 +230,6 @@ public class AllTests
             {
                 Console.Out.WriteLine("ok");
             }
-        }
-        else
-        {
-            Console.Out.WriteLine("ok");
         }
         return objMcast;
     }

@@ -42,7 +42,7 @@ namespace Ice
             }
             if(index < 0)
             {
-                throw new ArgumentException("index", "Array index cannot be less than zero");
+                throw new ArgumentException("Array index cannot be less than zero", "index");
             }
             if(index >= a__.Length)
             {
@@ -54,12 +54,12 @@ namespace Ice
             }
             if(a__.Rank > 1)
             {
-                throw new ArgumentException("a__", "Cannot copy to multidimensional array");
+                throw new ArgumentException("Cannot copy to multidimensional array", "a__");
             }
             Type t = a__.GetType().GetElementType();
             if(!t.IsAssignableFrom(typeof(System.Collections.DictionaryEntry)))
             {
-                throw new ArgumentException("a__", "Cannot assign DictionaryEntry to target array");
+                throw new ArgumentException("Cannot assign DictionaryEntry to target array", "a__");
             }
 
             IEnumerator<KeyValuePair<KT, VT>> e = dict_.GetEnumerator();

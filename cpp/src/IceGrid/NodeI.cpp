@@ -813,6 +813,12 @@ NodeI::getLoad(const Ice::Current&) const
     return _platform.getLoadInfo();
 }
 
+int
+NodeI::getProcessorSocketCount(const Ice::Current&) const
+{
+    return _platform.getProcessorSocketCount();
+}
+
 void
 NodeI::shutdown(const Ice::Current&) const
 {

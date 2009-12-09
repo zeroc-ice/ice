@@ -17,6 +17,7 @@
 #include <Ice/LoggerUtil.h>
 #include <Ice/Stats.h>
 #include <Ice/Communicator.h>
+#include <Ice/CommunicatorAsync.h>
 #include <Ice/ObjectFactory.h>
 #include <Ice/ObjectAdapter.h>
 #include <Ice/ServantLocator.h>
@@ -27,6 +28,7 @@
 #include <Ice/Process.h>
 #include <Ice/Application.h>
 #include <Ice/Connection.h>
+#include <Ice/ConnectionAsync.h>
 #include <Ice/Functional.h>
 #include <Ice/Stream.h>
 #include <Ice/ImplicitContext.h>

@@ -84,7 +84,7 @@ namespace Ice
                 dummy.name = "dummy";
                 updateLocatorRegistry(locatorInfo, createDirectProxy(dummy), registerProcess);
             }
-            catch(Ice.LocalException ex)
+            catch(Ice.LocalException)
             {
                 //
                 // If we couldn't update the locator registry, we let the
@@ -97,7 +97,7 @@ namespace Ice
                     _waitForActivate = false;
                     System.Threading.Monitor.PulseAll(this);
                 }
-                throw ex;
+                throw;
             }
                 
             if(printAdapterReady)
@@ -627,7 +627,7 @@ namespace Ice
                 dummy.name = "dummy";
                 updateLocatorRegistry(locatorInfo, createDirectProxy(dummy), registerProcess);
             }
-            catch(Ice.LocalException ex)
+            catch(Ice.LocalException)
             {
                 lock(this)
                 {
@@ -635,7 +635,7 @@ namespace Ice
                     // Restore the old published endpoints.
                     //
                     _publishedEndpoints = oldPublishedEndpoints;
-                    throw ex;
+                    throw;
                 }
             }
         }
@@ -739,8 +739,8 @@ namespace Ice
                 }
             }
         }
-        
-        public void flushBatchRequests()
+
+        public void flushAsyncBatchRequests(IceInternal.CommunicatorBatchOutgoingAsync outAsync)
         {
             List<IceInternal.IncomingConnectionFactory> f;
             lock(this)
@@ -750,7 +750,7 @@ namespace Ice
 
             foreach(IceInternal.IncomingConnectionFactory factory in f)
             {
-                factory.flushBatchRequests();
+                factory.flushAsyncBatchRequests(outAsync);
             }
         }
 
@@ -1379,7 +1379,7 @@ namespace Ice
 
                     ObjectAdapterIdInUseException ex1 = new ObjectAdapterIdInUseException();
                     ex1.id = _id;
-                    throw ex1;
+                    throw;
                 }
                 catch(LocalException e)
                 {
@@ -1390,7 +1390,7 @@ namespace Ice
                         s.Append(e.ToString());
                         instance_.initializationData().logger.trace(instance_.traceLevels().locationCat, s.ToString());
                     }
-                    throw e; // TODO: Shall we raise a special exception instead of a non obvious local exception?
+                    throw; // TODO: Shall we raise a special exception instead of a non obvious local exception?
                 }
 
                 if(instance_.traceLevels().location >= 1)
@@ -1453,7 +1453,7 @@ namespace Ice
                         s.Append("couldn't register server `" + serverId + "' with the locator registry:\n" + ex);
                         instance_.initializationData().logger.trace(instance_.traceLevels().locationCat, s.ToString());
                     }
-                    throw ex; // TODO: Shall we raise a special exception instead of a non obvious local exception?
+                    throw; // TODO: Shall we raise a special exception instead of a non obvious local exception?
                 }
             
                 if(instance_.traceLevels().location >= 1)

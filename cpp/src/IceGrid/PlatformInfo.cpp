@@ -95,6 +95,56 @@ private:
     
     PlatformInfo& _platform;
 };
+
+typedef BOOL (WINAPI *LPFN_GLPI)(PSYSTEM_LOGICAL_PROCESSOR_INFORMATION, PDWORD);
+
+int
+getSocketCount(const Ice::LoggerPtr& logger)
+{
+    LPFN_GLPI glpi;
+    glpi = (LPFN_GLPI) GetProcAddress(GetModuleHandle(TEXT("kernel32")), "GetLogicalProcessorInformation");
+    if(!glpi) 
+    {
+        Ice::Warning out(logger);
+        out << "Unable to figure out the number of process sockets:\n";
+        out << "GetLogicalProcessInformation not supported on this OS;";
+        return 0;
+    }
+
+    vector<SYSTEM_LOGICAL_PROCESSOR_INFORMATION> buffer(1);
+    DWORD returnLength = sizeof(SYSTEM_LOGICAL_PROCESSOR_INFORMATION) * buffer.size();
+    while(true)
+    {
+        DWORD rc = glpi(&buffer[0], &returnLength);
+        if(!rc) 
+        {
+            if(GetLastError() == ERROR_INSUFFICIENT_BUFFER)
+            {
+                buffer.resize(returnLength / sizeof(SYSTEM_LOGICAL_PROCESSOR_INFORMATION) + 1);
+                continue;
+            } 
+            else
+            { 
+                Ice::Warning out(logger);
+                out << "Unable to figure out the number of process sockets:\n";
+                out << IceUtilInternal::lastErrorToString();
+                return 0;
+            }
+        }
+        buffer.resize(returnLength / sizeof(SYSTEM_LOGICAL_PROCESSOR_INFORMATION));
+        break;
+    }
+
+    int socketCount = 0;
+    for(vector<SYSTEM_LOGICAL_PROCESSOR_INFORMATION>::const_iterator p = buffer.begin(); p != buffer.end(); ++p)
+    {
+        if(p->Relationship == RelationProcessorPackage)
+        {
+            socketCount++;
+        }
+    }
+    return socketCount;
+}
 #endif
 
 }
@@ -244,6 +294,20 @@ PlatformInfo::PlatformInfo(const string& prefix,
 #endif
 
     Ice::PropertiesPtr properties = communicator->getProperties();
+
+    //
+    // Try to obtain the number of processor sockets.
+    //
+    _nProcessorSockets = properties->getPropertyAsIntWithDefault("IceGrid.Node.ProcessorSocketCount", 0);
+    if(_nProcessorSockets == 0)
+    {
+#ifdef _WIN32
+        _nProcessorSockets = getSocketCount(_traceLevels->logger);
+#else
+        // Not supported.
+#endif
+    }
+
     string endpointsPrefix;
     if(prefix == "IceGrid.Registry")
     {
@@ -409,6 +473,12 @@ PlatformInfo::getLoadInfo()
     }
 #endif
     return info;
+}
+
+int
+PlatformInfo::getProcessorSocketCount() const
+{
+    return _nProcessorSockets;
 }
 
 std::string

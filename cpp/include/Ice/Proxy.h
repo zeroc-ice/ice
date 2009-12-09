@@ -582,13 +582,19 @@ public:
     bool ice_flushBatchRequests_async(const ::Ice::AMI_Object_ice_flushBatchRequestsPtr&);
     ::Ice::AsyncResultPtr begin_ice_flushBatchRequests()
     {
-        return begin_ice_flushBatchRequests(0, ::IceInternal::__dummyCallback, 0);
+        return begin_ice_flushBatchRequestsInternal(::IceInternal::__dummyCallback, 0);
     }
 
     ::Ice::AsyncResultPtr begin_ice_flushBatchRequests(const ::Ice::CallbackPtr& __del,
                                                        const ::Ice::LocalObjectPtr& __cookie = 0)
     {
-        return begin_ice_flushBatchRequests(0, __del, __cookie);
+        return begin_ice_flushBatchRequestsInternal(__del, __cookie);
+    }
+
+    ::Ice::AsyncResultPtr begin_ice_flushBatchRequests(const ::Ice::Callback_Object_ice_flushBatchRequestsPtr& __del,
+                                                       const ::Ice::LocalObjectPtr& __cookie = 0)
+    {
+        return begin_ice_flushBatchRequestsInternal(__del, __cookie);
     }
 
     void end_ice_flushBatchRequests(const ::Ice::AsyncResultPtr&);
@@ -664,9 +670,8 @@ private:
                                            const ::IceInternal::CallbackBasePtr&,
                                            const ::Ice::LocalObjectPtr&);
   
-    ::Ice::AsyncResultPtr begin_ice_flushBatchRequests(const ::Ice::Context*,
-                                                       const ::IceInternal::CallbackBasePtr&,
-                                                       const ::Ice::LocalObjectPtr&);
+    ::Ice::AsyncResultPtr begin_ice_flushBatchRequestsInternal(const ::IceInternal::CallbackBasePtr&,
+                                                               const ::Ice::LocalObjectPtr&);
 
     ::IceInternal::Handle< ::IceDelegate::Ice::Object> createDelegate(bool);
     void setup(const ::IceInternal::ReferencePtr&);
@@ -1273,8 +1278,8 @@ public:
             (callback.get()->*response)(CT::dynamicCast(result->getCookie()));
 #else
             (Callback<T, CT>::callback.get()->*response)(CT::dynamicCast(result->getCookie()));
-        }
 #endif
+        }
     }
 
     Response response;
@@ -1323,8 +1328,8 @@ public:
             (callback.get()->*response)(__ret);
 #else
             (::IceInternal::CallbackNC<T>::callback.get()->*response)(__ret);
-        }
 #endif
+        }
     }
 
     Response response;
@@ -1368,8 +1373,8 @@ public:
             (callback.get()->*response)(__ret, CT::dynamicCast(__result->getCookie()));
 #else
             (::IceInternal::Callback<T, CT>::callback.get()->*response)(__ret, CT::dynamicCast(__result->getCookie()));
-        }
 #endif
+        }
     }
 
     Response response;

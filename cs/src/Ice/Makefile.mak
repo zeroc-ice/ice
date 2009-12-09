@@ -84,7 +84,6 @@ SRCS		= Acceptor.cs \
 		  RetryQueue.cs \
 		  RouterInfo.cs \
 		  ServantManager.cs \
-		  Set.cs \
 		  SocketOperation.cs \
 		  SliceChecksums.cs \
 		  Stream.cs \

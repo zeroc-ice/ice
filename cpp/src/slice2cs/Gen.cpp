@@ -208,7 +208,7 @@ Slice::CsVisitor::writeDispatchAndMarshalling(const ClassDefPtr& p, bool stream)
 
     _out << sp << nl << "#region Slice type-related members";
 
-    _out << sp << nl << "public static new string[] ids__ = ";
+    _out << sp << nl << "public static new readonly string[] ids__ = ";
     _out << sb;
 
     {
@@ -276,7 +276,8 @@ Slice::CsVisitor::writeDispatchAndMarshalling(const ClassDefPtr& p, bool stream)
         assert(cl);
 
         string opName = op->name();
-        _out << sp << nl << "public static Ice.DispatchStatus " << opName << "___(" << name
+        _out << sp << nl << "[_System.Diagnostics.CodeAnalysis.SuppressMessage(\"Microsoft.Design\", \"CA1011\")]";
+        _out << nl << "public static Ice.DispatchStatus " << opName << "___(" << name
              << " obj__, IceInternal.Incoming inS__, Ice.Current current__)";
         _out << sb;
 
@@ -1807,7 +1808,7 @@ Slice::Gen::generateChecksums(const UnitPtr& u)
         _out << sb;
         _out << nl << "public sealed class " << className;
         _out << sb;
-        _out << nl << "public readonly static System.Collections.Hashtable map = new System.Collections.Hashtable();";
+        _out << nl << "public static System.Collections.Hashtable map = new System.Collections.Hashtable();";
         _out << sp << nl << "static " << className << "()";
         _out << sb;
         for(ChecksumMap::const_iterator p = map.begin(); p != map.end(); ++p)
@@ -2185,10 +2186,19 @@ Slice::Gen::TypesVisitor::visitClassDefEnd(const ClassDefPtr& p)
 void
 Slice::Gen::TypesVisitor::visitOperation(const OperationPtr& p)
 {
-
     ClassDefPtr classDef = ClassDefPtr::dynamicCast(p->container());
-
     bool isLocal = classDef->isLocal();
+    bool isInterface = classDef->isInterface();
+
+    //
+    // Non-local classes and interfaces get the operations from their
+    // Operations base interfaces.
+    //
+    if(isInterface && !isLocal)
+    {
+        return;
+    }
+
     bool amd = !isLocal && (classDef->hasMetaData("amd") || p->hasMetaData("amd"));
 
     string name = p->name();
@@ -2212,24 +2222,15 @@ Slice::Gen::TypesVisitor::visitOperation(const OperationPtr& p)
         name = name + "_async";
     }
 
-    //
-    // Non-local classes and interfaces get the operations from their
-    // Operations base interfaces.
-    //
-    if(classDef->isInterface() && !classDef->isLocal())
-    {
-        return;
-    }
-
     _out << sp;
-    if(classDef->isInterface() && classDef->isLocal())
+    if(isInterface && isLocal)
     {
         _out << nl;
     }
 
     writeDocComment(p, getDeprecateReason(p, classDef, "operation"));
     emitAttributes(p);
-    if(!classDef->isInterface())
+    if(!isInterface)
     {
         _out << nl << "public ";
         if(isLocal)
@@ -2258,6 +2259,44 @@ Slice::Gen::TypesVisitor::visitOperation(const OperationPtr& p)
     {
         _out << nl << "public abstract " << retS << " " << name
              << spar << params << "Ice.Current current__" << epar << ';';
+    }
+
+    if(isLocal && (classDef->hasMetaData("async") || p->hasMetaData("async")))
+    {
+        vector<string> paramsNewAsync = getParamsAsync(p, false, true);
+
+        _out << sp << nl;
+        emitAttributes(p);
+        if(!isInterface)
+        {
+            _out << "public abstract ";
+        }
+        _out << "Ice.AsyncResult";
+        if(p->returnsData())
+        {
+            string clScope = fixId(classDef->scope());
+            string cbType = clScope + "Callback_" + classDef->name() + "_" + name;
+            _out << '<' << cbType << '>';
+        }
+        _out << " begin_" << name << spar << paramsNewAsync << epar << ';';
+
+        _out << sp << nl;
+        emitAttributes(p);
+        if(!isInterface)
+        {
+            _out << "public abstract ";
+        }
+        _out << "Ice.AsyncResult begin_" << name << spar << paramsNewAsync << "Ice.AsyncCallback cb__"
+             << "object cookie__" << epar << ';';
+
+        _out << sp << nl;
+        emitAttributes(p);
+        if(!isInterface)
+        {
+            _out << "public abstract ";
+        }
+        _out << typeToString(p->returnType()) << " end_" << name << spar << getParamsAsyncCB(p, true)
+             << "Ice.AsyncResult r__" << epar << ';';
     }
 }
 
@@ -2532,7 +2571,8 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
     _out << sb;
     _out << nl << "return true;";
     _out << eb;
-    _out << nl << "if(!(other__ is " << name << "))";
+    _out << nl << name << " o__ = other__ as " << name << ";";
+    _out << nl << "if(o__ == null)";
     _out << sb;
     _out << nl << "return false;";
     _out << eb;
@@ -2542,10 +2582,6 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
         _out << sb;
         _out << nl << "return false;";
         _out << eb;
-    }
-    if(!dataMembers.empty())
-    {
-        _out << nl << name << " o__ = (" << name << ")other__;";
     }
     writeMemberEquals(dataMembers, DotNet::Exception);
     _out << nl << "return true;";
@@ -3626,7 +3662,6 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
     string clScope = fixId(cl->scope());
     string delType = clScope + "Callback_" + cl->name() + "_" + p->name();
 
-
     _out << sp;
     if(!deprecateReason.empty())
     {
@@ -3724,7 +3759,11 @@ void
 Slice::Gen::AsyncDelegateVisitor::visitOperation(const OperationPtr& p)
 {
     ClassDefPtr cl = ClassDefPtr::dynamicCast(p->container());
-    if(cl->isLocal())
+
+    //
+    // We also generate delegates for local twoway-style operations marked with "async" metadata.
+    //
+    if(cl->isLocal() && (!(cl->hasMetaData("async") || p->hasMetaData("async")) || !p->returnsData()))
     {
         return;
     }
@@ -5314,6 +5353,7 @@ Slice::Gen::DelegateDVisitor::visitClassDefStart(const ClassDefPtr& p)
         vector<string> args = getArgs(op);
 
         _out << sp;
+        _out << nl << "[_System.Diagnostics.CodeAnalysis.SuppressMessage(\"Microsoft.Design\", \"CA1031\")]";
         _out << nl << "public " << retS << ' ' << opName << spar << params
              << "_System.Collections.Generic.Dictionary<string, string> context__" << epar;
         _out << sb;

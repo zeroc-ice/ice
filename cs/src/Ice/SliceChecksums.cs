@@ -17,7 +17,7 @@ namespace Ice
 
     public sealed class SliceChecksums
     {
-        public readonly static Dictionary<string, string> checksums = new Dictionary<string, string>();
+        public static Dictionary<string, string> checksums = new Dictionary<string, string>();
 
         static SliceChecksums()
         {

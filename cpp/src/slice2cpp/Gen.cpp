@@ -2702,6 +2702,15 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
     if(p->returnsData())
     {
         C << nl << "::Ice::AsyncResult::__check(__result, this, " << flatName << ");";
+
+        //
+        // COMPILERBUG: It's necessary to generate the allocate code here before 
+        // this if(!__result->wait()). If generated after this if block, we get
+        // access violations errors with the test/Ice/slicing/objects test on VC9 
+        // and Windows 64 bits when compiled with optimization (see bug 4400).
+        //
+        writeAllocateCode(C, ParamDeclList(), ret, p->getMetaData(), _useWstring | TypeContextAMIEnd);
+
         C << nl << "if(!__result->__wait())";
         C << sb;
         C << nl << "try";
@@ -2733,7 +2742,6 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
         C << nl << "throw ::Ice::UnknownUserException(__FILE__, __LINE__, __ex.ice_name());";
         C << eb;
         C << eb;
-        writeAllocateCode(C, ParamDeclList(), ret, p->getMetaData(), _useWstring | TypeContextAMIEnd);
         C << nl << "::IceInternal::BasicStream* __is = __result->__getIs();";
         if(ret || !outParams.empty())
         {
@@ -3822,6 +3830,14 @@ Slice::Gen::ObjectVisitor::visitClassDefStart(const ClassDefPtr& p)
             }
         }
     }
+
+    bool hasBaseClass = !bases.empty() && !bases.front()->isInterface();
+    bool override = p->canBeCyclic() && (!hasBaseClass || !bases.front()->canBeCyclic());
+    if(override)
+    {
+        H << ", private IceInternal::GCShared";
+    }
+
     H.restoreIndent();
     H << sb;
     H.dec();
@@ -4805,6 +4821,55 @@ Slice::Gen::ObjectVisitor::visitOperation(const OperationPtr& p)
         }
         C << eb;
     }
+
+    if(cl->isLocal() && (cl->hasMetaData("async") || p->hasMetaData("async")))
+    {
+        vector<string> paramsDeclAMI;
+        vector<string> outParamsDeclAMI;
+
+        ParamDeclList paramList = p->parameters();
+        for(ParamDeclList::const_iterator r = paramList.begin(); r != paramList.end(); ++r)
+        {
+            string paramName = fixKwd((*r)->name());
+
+            StringList metaData = (*r)->getMetaData();
+            string typeString;
+            if((*r)->isOutParam())
+            {
+                typeString = outputTypeToString((*r)->type(), metaData, _useWstring | TypeContextAMIEnd);
+            }
+            else
+            {
+                typeString = inputTypeToString((*r)->type(), metaData, _useWstring);
+            }
+
+            if(!(*r)->isOutParam())
+            {
+                paramsDeclAMI.push_back(typeString + ' ' + paramName);
+            }
+            else
+            {
+                outParamsDeclAMI.push_back(typeString + ' ' + paramName);
+            }
+        }
+
+        H << sp << nl << "virtual ::Ice::AsyncResultPtr begin_" << name << spar << paramsDeclAMI << epar << " = 0;";
+
+        H << sp << nl << "virtual ::Ice::AsyncResultPtr begin_" << name << spar << paramsDeclAMI
+          << "const ::Ice::CallbackPtr& __del"
+          << "const ::Ice::LocalObjectPtr& __cookie = 0" << epar << " = 0;";
+
+        string clScope = fixKwd(cl->scope());
+        string delName = "Callback_" + cl->name() + "_" + name;
+        string delNameScoped = clScope + delName;
+
+        H << sp << nl << "virtual ::Ice::AsyncResultPtr begin_" << name << spar << paramsDeclAMI
+          << "const " + delNameScoped + "Ptr& __del"
+          << "const ::Ice::LocalObjectPtr& __cookie = 0" << epar << " = 0;";
+
+        H << sp << nl << "virtual " << retS << " end_" << name << spar << outParamsDeclAMI
+          << "const ::Ice::AsyncResultPtr&" << epar << " = 0;";
+    }
 }
 
 void
@@ -4827,20 +4892,6 @@ Slice::Gen::ObjectVisitor::emitGCFunctions(const ClassDefPtr& p)
 
     if(override)
     {
-        H << nl << "virtual void __incRef();";
-
-        C << sp << nl << "void" << nl << scoped.substr(2) << "::__incRef()";
-        C << sb;
-        C << nl << "__gcIncRef();";
-        C << eb;
-
-        H << nl << "virtual void __decRef();";
-
-        C << sp << nl << "void" << nl << scoped.substr(2) << "::__decRef()";
-        C << sb;
-        C << nl << "__gcDecRef();";
-        C << eb;
-
         H << nl << "virtual void __addObject(::IceInternal::GCCountMap&);";
 
         C << sp << nl << "void" << nl << scoped.substr(2) << "::__addObject(::IceInternal::GCCountMap& _c)";
@@ -5172,20 +5223,9 @@ Slice::Gen::AsyncCallbackVisitor::AsyncCallbackVisitor(Output& h, Output& c, con
 }
 
 bool
-Slice::Gen::AsyncCallbackVisitor::visitUnitStart(const UnitPtr& p)
-{
-    return p->hasNonLocalClassDefs();
-}
-
-void
-Slice::Gen::AsyncCallbackVisitor::visitUnitEnd(const UnitPtr&)
-{
-}
-
-bool
 Slice::Gen::AsyncCallbackVisitor::visitModuleStart(const ModulePtr& p)
 {
-    if(!p->hasNonLocalClassDefs())
+    if(!p->hasNonLocalClassDefs() && !p->hasContentsWithMetaData("async"))
     {
         return false;
     }
@@ -5223,7 +5263,7 @@ Slice::Gen::AsyncCallbackVisitor::visitOperation(const OperationPtr& p)
 {
     ClassDefPtr cl = ClassDefPtr::dynamicCast(p->container());
 
-    if(cl->isLocal() || cl->operations().empty())
+    if(cl->isLocal() && !(cl->hasMetaData("async") || p->hasMetaData("async")))
     {
         return;
     }
@@ -5528,7 +5568,7 @@ Slice::Gen::AsyncCallbackTemplateVisitor::generateOperation(const OperationPtr& 
         if(withCookie)
         {
             cookieT = "const CT&";
-            comCookieT = " , const CT&";
+            comCookieT = ", const CT&";
             H << sp << nl << "template<class T, typename CT> " << delName << "Ptr"; 
         }
         else
@@ -5553,9 +5593,9 @@ Slice::Gen::AsyncCallbackTemplateVisitor::generateOperation(const OperationPtr& 
         }
         else
         {
-            H  << "void (T::*cb)(" << cookieT << "),";
+            H  << "void (T::*cb)(" << cookieT << "), ";
         }
-        H << "void (T::*excb)(" << "const ::Ice::Exception&" << comCookieT << "),";
+        H << "void (T::*excb)(" << "const ::Ice::Exception&" << comCookieT << "), ";
         H << "void (T::*sentcb)(bool" << comCookieT << ") = 0)";
         H << sb;
         if(withCookie)
@@ -5579,7 +5619,7 @@ Slice::Gen::AsyncCallbackTemplateVisitor::generateOperation(const OperationPtr& 
                 H << sp << nl << "template<class T> " << delName << "Ptr"; 
             }
             H << nl << "new" << delName << "(" << callbackT << " instance, ";
-            H << "void (T::*excb)(" << "const ::Ice::Exception&" << comCookieT << "),";
+            H << "void (T::*excb)(" << "const ::Ice::Exception&" << comCookieT << "), ";
             H << "void (T::*sentcb)(bool" << comCookieT << ") = 0)";
             H << sb;
             if(withCookie)
@@ -6388,7 +6428,17 @@ Slice::Gen::AsyncVisitor::visitOperation(const OperationPtr& p)
         H << eb;
         H << nl << "void __sent(bool sentSynchronously)";
         H << sb;
+        H.zeroIndent();
+        H << nl << "#if defined(_MSC_VER) && (_MSC_VER < 1300) // VC++ 6 compiler bug"; // COMPILERBUG
+        H.restoreIndent();
+        H << nl << "AMICallbackBase::__sent(sentSynchronously);";
+        H.zeroIndent();
+        H << nl << "#else";
+        H.restoreIndent();
         H << nl << "::Ice::AMICallbackBase::__sent(sentSynchronously);";
+        H.zeroIndent();
+        H << nl << "#endif";
+        H.restoreIndent();
         H << eb;
         H << eb << ';';
         H << sp << nl << "typedef ::IceUtil::Handle< " << classScopedAMI << '_' << name << "> " << classNameAMI

@@ -10,9 +10,8 @@
 #ifndef ICE_OBJECT_F_H
 #define ICE_OBJECT_F_H
 
+#include <IceUtil/Shared.h>
 #include <Ice/Handle.h>
-#include <Ice/GCCountMap.h>
-#include <Ice/GCShared.h>
 
 namespace Ice
 {
@@ -24,7 +23,7 @@ class Object;
 namespace IceInternal
 {
 
-ICE_API GCShared* upCast(::Ice::Object*);
+ICE_API IceUtil::Shared* upCast(::Ice::Object*);
 
 }
 

@@ -58,16 +58,7 @@ public:
     virtual const Current& getCurrent() = 0;
 };
 
-//
-// We should not need virtual inheritance here since Object is the only class
-// that derives from GCShared. However, Visual C++ seems to generate bad code
-// without 'virtual'. This needs to be investigated further.
-//
-#ifdef _MSC_VER
-class ICE_API Object : public virtual IceInternal::GCShared
-#else
-class ICE_API Object : public IceInternal::GCShared
-#endif
+class ICE_API Object : virtual public IceUtil::Shared
 {
 public:
 
@@ -113,8 +104,14 @@ public:
     virtual void __write(const OutputStreamPtr&) const;
     virtual void __read(const InputStreamPtr&, bool);
 
-    virtual void __gcReachable(IceInternal::GCCountMap&) const {}
-    virtual void __gcClear() {}
+    // Virtual methods to support garbage collection of Slice class instances. These
+    // methods are overriden by Slice classes which can have cycles.
+    virtual void __addObject(IceInternal::GCCountMap&) {}
+    virtual bool __usesClasses() { return false; }
+    void __decRefUnsafe()
+    {
+        --_ref;
+    }
 
 protected:
 

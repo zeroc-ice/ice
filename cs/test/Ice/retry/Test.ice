@@ -15,7 +15,7 @@ module Test
 
 interface Retry
 {
-    ["ami"] void op(bool kill);
+    void op(bool kill);
     void shutdown();
 };
 

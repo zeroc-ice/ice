@@ -399,6 +399,6 @@ namespace IceUtilInternal
                 return string.CompareOrdinal((string)l, (string)r);
             }        
         }
-        public static readonly System.Collections.IComparer OrdinalStringComparer = new OrdinalStringComparerImpl();
+        public static System.Collections.IComparer OrdinalStringComparer = new OrdinalStringComparerImpl();
     }
 }

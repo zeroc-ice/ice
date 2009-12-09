@@ -87,6 +87,7 @@ public:
     virtual std::string getName(const Ice::Current& = Ice::Current()) const;
     virtual std::string getHostname(const Ice::Current& = Ice::Current()) const;
     virtual LoadInfo getLoad(const Ice::Current& = Ice::Current()) const;
+    virtual int getProcessorSocketCount(const Ice::Current&) const;
     virtual void shutdown(const Ice::Current&) const;
 
     virtual Ice::Long getOffsetFromEnd(const std::string&, int, const Ice::Current&) const;

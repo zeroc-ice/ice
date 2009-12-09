@@ -15,7 +15,7 @@ namespace IceUtilInternal
 {
     public sealed class Options
     {
-        public sealed class BadQuote : System.ApplicationException
+        public sealed class BadQuote : System.Exception
         {
             public BadQuote(string message) : base(message)
             {

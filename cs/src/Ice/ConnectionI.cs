@@ -93,7 +93,7 @@ namespace Ice
                 else
                 {
                     waitUntilFinished();
-                    throw ex;
+                    throw;
                 }
             }
 
@@ -653,6 +653,47 @@ namespace Ice
         {
             IceInternal.BatchOutgoing @out = new IceInternal.BatchOutgoing(this, _instance);
             @out.invoke();
+        }
+
+        public AsyncResult begin_flushBatchRequests()
+        {
+            return begin_flushBatchRequestsInternal(null, null);
+        }
+
+        public AsyncResult begin_flushBatchRequests(AsyncCallback cb, object cookie)
+        {
+            return begin_flushBatchRequestsInternal(cb, cookie);
+        }
+
+        public void end_flushBatchRequests(AsyncResult r)
+        {
+            IceInternal.OutgoingAsyncBase outAsync = (IceInternal.OutgoingAsyncBase)r;
+            IceInternal.OutgoingAsyncBase.check__(outAsync, this, __flushBatchRequests_name);
+            outAsync.wait__();
+        }
+
+        private const string __flushBatchRequests_name = "flushBatchRequests";
+
+        private AsyncResult begin_flushBatchRequestsInternal(AsyncCallback cb, object cookie)
+        {
+            IceInternal.ConnectionBatchOutgoingAsync result =
+                new IceInternal.ConnectionBatchOutgoingAsync(this, _instance, __flushBatchRequests_name, cookie);
+
+            if(cb != null)
+            {
+                result.whenCompletedWithAsyncCallback(cb);
+            }
+
+            try
+            {
+                result.send__();
+            }
+            catch(LocalException ex)
+            {
+                result.exceptionAsync__(ex);
+            }
+
+            return result;
         }
 
         public bool flushBatchRequests(IceInternal.BatchOutgoing @out)

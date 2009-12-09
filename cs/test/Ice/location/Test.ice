@@ -39,7 +39,7 @@ interface ServerManager
 
 interface Hello
 {
-    ["ami"] void sayHello();
+    void sayHello();
 };
 
 interface TestIntf

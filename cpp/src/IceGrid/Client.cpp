@@ -161,7 +161,7 @@ public:
     void interrupted();
 
     Ice::CommunicatorPtr communicator() const { return _communicator; }
-    const char* appName() const { return _appName; }
+    const string& appName() const { return _appName; }
 
     string getPassword(const string&);
 
@@ -169,7 +169,7 @@ private:
 
     IceUtil::CtrlCHandler _ctrlCHandler;
     Ice::CommunicatorPtr _communicator;
-    const char* _appName;
+    string _appName;
     ParserPtr _parser;
 };
 
@@ -227,7 +227,7 @@ Client::main(Ice::StringSeq& args)
 
     try
     {
-        _appName = args[0].c_str();
+        _appName = args[0];
         _communicator = Ice::initialize(args);
         
         {

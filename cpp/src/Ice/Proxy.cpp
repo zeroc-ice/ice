@@ -1129,14 +1129,13 @@ IceProxy::Ice::Object::ice_flushBatchRequests_async(const AMI_Object_ice_flushBa
     {
         __del = newCallback_Object_ice_flushBatchRequests(cb, &AMI_Object_ice_flushBatchRequests::__exception);
     }
-    ::Ice::AsyncResultPtr result = begin_ice_flushBatchRequests(0, __del, 0);
+    ::Ice::AsyncResultPtr result = begin_ice_flushBatchRequestsInternal(__del, 0);
     return result->sentSynchronously();
 }
 
 ::Ice::AsyncResultPtr
-IceProxy::Ice::Object::begin_ice_flushBatchRequests(const ::Ice::Context* /* unused */,
-                                                    const ::IceInternal::CallbackBasePtr& del,
-                                                    const ::Ice::LocalObjectPtr& cookie)
+IceProxy::Ice::Object::begin_ice_flushBatchRequestsInternal(const ::IceInternal::CallbackBasePtr& del,
+                                                            const ::Ice::LocalObjectPtr& cookie)
 {
     ::IceInternal::ProxyBatchOutgoingAsyncPtr __result = 
         new ::IceInternal::ProxyBatchOutgoingAsync(this, ice_flushBatchRequests_name, del, cookie);

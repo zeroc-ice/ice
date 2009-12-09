@@ -410,7 +410,7 @@ IceInternal::OutgoingConnectionFactory::removeAdapter(const ObjectAdapterPtr& ad
 }
 
 void
-IceInternal::OutgoingConnectionFactory::flushBatchRequests()
+IceInternal::OutgoingConnectionFactory::flushAsyncBatchRequests(const CommunicatorBatchOutgoingAsyncPtr& outAsync)
 {
     list<ConnectionIPtr> c;
 
@@ -419,7 +419,10 @@ IceInternal::OutgoingConnectionFactory::flushBatchRequests()
         for(multimap<ConnectorPtr,  ConnectionIPtr>::const_iterator p = _connections.begin(); p != _connections.end();
             ++p)
         {
-            c.push_back(p->second);
+            if(p->second->isActiveOrHolding())
+            {
+                c.push_back(p->second);
+            }
         }
     }
 
@@ -427,7 +430,7 @@ IceInternal::OutgoingConnectionFactory::flushBatchRequests()
     {
         try
         {
-            (*p)->flushBatchRequests();
+            outAsync->flushConnection(*p);
         }
         catch(const LocalException&)
         {
@@ -1287,7 +1290,7 @@ IceInternal::IncomingConnectionFactory::connections() const
 }
 
 void
-IceInternal::IncomingConnectionFactory::flushBatchRequests()
+IceInternal::IncomingConnectionFactory::flushAsyncBatchRequests(const CommunicatorBatchOutgoingAsyncPtr& outAsync)
 {
     list<ConnectionIPtr> c = connections(); // connections() is synchronized, so no need to synchronize here.
 
@@ -1295,7 +1298,7 @@ IceInternal::IncomingConnectionFactory::flushBatchRequests()
     {
         try
         {
-            (*p)->flushBatchRequests();
+            outAsync->flushConnection(*p);
         }
         catch(const LocalException&)
         {

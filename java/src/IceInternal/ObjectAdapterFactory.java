@@ -179,7 +179,7 @@ public final class ObjectAdapterFactory
     }
 
     public void
-    flushBatchRequests()
+    flushAsyncBatchRequests(CommunicatorBatchOutgoingAsync outAsync)
     {
         java.util.List<Ice.ObjectAdapterI> adapters;
         synchronized(this)
@@ -189,7 +189,7 @@ public final class ObjectAdapterFactory
 
         for(Ice.ObjectAdapterI adapter : adapters)
         {
-            adapter.flushBatchRequests();
+            adapter.flushAsyncBatchRequests(outAsync);
         }
     }
 

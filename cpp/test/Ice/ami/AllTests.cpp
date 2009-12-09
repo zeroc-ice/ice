@@ -24,11 +24,9 @@ struct Cookie : public Ice::LocalObject
     }
     int val;
 };
-
 typedef IceUtil::Handle<Cookie> CookiePtr;
 
-class CallbackBase
- : public Ice::LocalObject
+class CallbackBase : public Ice::LocalObject
 {
 public:
 
@@ -50,7 +48,7 @@ public:
         }
         _called = false;
     }
-    
+
 protected:
 
     void called()
@@ -66,7 +64,6 @@ private:
     IceUtil::Monitor<IceUtil::Mutex> _m;
     bool _called;
 };
-
 typedef IceUtil::Handle<CallbackBase> CallbackBasePtr;
 
 class AsyncCallback : public CallbackBase
@@ -75,57 +72,57 @@ public:
 
     AsyncCallback()
     {
-    }    
+    }
 
     AsyncCallback(const CookiePtr& cookie) : _cookie(cookie)
     {
     }
-    
+
     void isA(const Ice::AsyncResultPtr& result)
     {
-        test(result->getCookie() == _cookie);        
+        test(result->getCookie() == _cookie);
         test(result->getProxy()->end_ice_isA(result));
         called();
     }
 
     void ping(const Ice::AsyncResultPtr& result)
     {
-        test(result->getCookie() == _cookie);        
+        test(result->getCookie() == _cookie);
         result->getProxy()->end_ice_ping(result);
         called();
     }
 
     void id(const Ice::AsyncResultPtr& result)
     {
-        test(result->getCookie() == _cookie);        
+        test(result->getCookie() == _cookie);
         test(result->getProxy()->end_ice_id(result) == Test::TestIntf::ice_staticId());
         called();
     }
 
     void ids(const Ice::AsyncResultPtr& result)
     {
-        test(result->getCookie() == _cookie);        
+        test(result->getCookie() == _cookie);
         test(result->getProxy()->end_ice_ids(result).size() == 2);
         called();
     }
 
     void op(const Ice::AsyncResultPtr& result)
     {
-        test(result->getCookie() == _cookie);        
+        test(result->getCookie() == _cookie);
         Test::TestIntfPrx::uncheckedCast(result->getProxy())->end_op(result);
         called();
     }
 
     void opWithResult(const Ice::AsyncResultPtr& result)
     {
-        test(result->getCookie() == _cookie);        
+        test(result->getCookie() == _cookie);
         test(Test::TestIntfPrx::uncheckedCast(result->getProxy())->end_opWithResult(result) == 15);
         called();
     }
-    
+
     void opWithUE(const Ice::AsyncResultPtr& result)
     {
-        test(result->getCookie() == _cookie);        
+        test(result->getCookie() == _cookie);
         try
         {
             Test::TestIntfPrx::uncheckedCast(result->getProxy())->end_opWithUE(result);
@@ -143,7 +140,7 @@ public:
 
     void isAEx(const Ice::AsyncResultPtr& result)
     {
-        test(result->getCookie() == _cookie);        
+        test(result->getCookie() == _cookie);
         try
         {
             result->getProxy()->end_ice_isA(result);
@@ -161,7 +158,7 @@ public:
 
     void pingEx(const Ice::AsyncResultPtr& result)
     {
-        test(result->getCookie() == _cookie);        
+        test(result->getCookie() == _cookie);
         try
         {
             result->getProxy()->end_ice_ping(result);
@@ -179,7 +176,7 @@ public:
 
     void idEx(const Ice::AsyncResultPtr& result)
     {
-        test(result->getCookie() == _cookie);        
+        test(result->getCookie() == _cookie);
         try
         {
             result->getProxy()->end_ice_id(result);
@@ -197,7 +194,7 @@ public:
 
     void idsEx(const Ice::AsyncResultPtr& result)
     {
-        test(result->getCookie() == _cookie);        
+        test(result->getCookie() == _cookie);
         try
         {
             result->getProxy()->end_ice_ids(result);
@@ -215,7 +212,7 @@ public:
 
     void opEx(const Ice::AsyncResultPtr& result)
     {
-        test(result->getCookie() == _cookie);        
+        test(result->getCookie() == _cookie);
         try
         {
             Test::TestIntfPrx::uncheckedCast(result->getProxy())->end_op(result);
@@ -244,13 +241,13 @@ public:
     ResponseCallback()
     {
     }
-    
+
     void isA(bool r)
     {
         test(r);
         called();
     }
-    
+
     void ping()
     {
         called();
@@ -278,7 +275,7 @@ public:
         test(r == 15);
         called();
     }
-    
+
     void opWithUE(const Ice::Exception& ex)
     {
         try
@@ -305,50 +302,50 @@ public:
     ResponseCallbackWC(const CookiePtr& cookie) : _cookie(cookie)
     {
     }
-    
+
     void isA(bool r, const CookiePtr& cookie)
     {
         test(cookie == _cookie);
         test(r);
         called();
     }
-    
+
     void ping(const CookiePtr& cookie)
     {
-        test(cookie == _cookie);        
+        test(cookie == _cookie);
         called();
     }
 
     void id(const string& id, const CookiePtr& cookie)
     {
-        test(cookie == _cookie);        
+        test(cookie == _cookie);
         test(id == Test::TestIntf::ice_staticId());
         called();
     }
 
     void ids(const Ice::StringSeq& ids, const CookiePtr& cookie)
     {
-        test(cookie == _cookie);        
+        test(cookie == _cookie);
         test(ids.size() == 2);
         called();
     }
 
     void op(const CookiePtr& cookie)
     {
-        test(cookie == _cookie);        
+        test(cookie == _cookie);
         called();
     }
 
     void opWithResult(int r, const CookiePtr& cookie)
     {
-        test(cookie == _cookie);        
+        test(cookie == _cookie);
         test(r == 15);
         called();
     }
-    
+
     void opWithUE(const Ice::Exception& ex, const CookiePtr& cookie)
     {
-        test(cookie == _cookie);        
+        test(cookie == _cookie);
         try
         {
             ex.ice_throw();
@@ -365,7 +362,7 @@ public:
     }
 
 private:
-    
+
     CookiePtr _cookie;
 };
 typedef IceUtil::Handle<ResponseCallbackWC> ResponseCallbackWCPtr;
@@ -377,12 +374,12 @@ public:
     ExceptionCallback()
     {
     }
-    
+
     void isA(bool r)
     {
         test(false);
     }
-    
+
     void ping()
     {
         test(false);
@@ -429,12 +426,12 @@ public:
     ExceptionCallbackWC(const CookiePtr& cookie) : _cookie(cookie)
     {
     }
-    
+
     void isA(bool r, const CookiePtr& cookie)
     {
         test(false);
     }
-    
+
     void ping(const CookiePtr& cookie)
     {
         test(false);
@@ -457,14 +454,14 @@ public:
 
     void opWithUE(const Ice::Exception& ex, const CookiePtr& cookie)
     {
-        test(cookie == _cookie);        
+        test(cookie == _cookie);
         test(dynamic_cast<const Test::TestIntfException*>(&ex));
         called();
     }
 
     void ex(const Ice::Exception& ex, const CookiePtr& cookie)
     {
-        test(cookie == _cookie);        
+        test(cookie == _cookie);
         test(dynamic_cast<const Ice::NoEndpointException*>(&ex));
         called();
     }
@@ -475,7 +472,7 @@ public:
     }
 
 private:
-    
+
     CookiePtr _cookie;
 };
 typedef IceUtil::Handle<ExceptionCallbackWC> ExceptionCallbackWCPtr;
@@ -483,7 +480,7 @@ typedef IceUtil::Handle<ExceptionCallbackWC> ExceptionCallbackWCPtr;
 class SentCallback : public CallbackBase
 {
 public:
-    
+
     SentCallback()
     {
     }
@@ -546,24 +543,24 @@ public:
 
     void sentAsync(const Ice::AsyncResultPtr& result)
     {
-        test(result->sentSynchronously() && _thread == IceUtil::ThreadControl() ||
-             !result->sentSynchronously() && _thread != IceUtil::ThreadControl());
-	called();
+        test((result->sentSynchronously() && _thread == IceUtil::ThreadControl()) ||
+             (!result->sentSynchronously() && _thread != IceUtil::ThreadControl()));
+        called();
     }
 
     void sent(bool sentSynchronously)
     {
-        test(sentSynchronously && _thread == IceUtil::ThreadControl() ||
-             !sentSynchronously && _thread != IceUtil::ThreadControl());
-	called();
+        test((sentSynchronously && _thread == IceUtil::ThreadControl()) ||
+             (!sentSynchronously && _thread != IceUtil::ThreadControl()));
+        called();
     }
 
     void sentWC(bool sentSynchronously, const CookiePtr& cookie)
     {
-        test(sentSynchronously && _thread == IceUtil::ThreadControl() ||
-             !sentSynchronously && _thread != IceUtil::ThreadControl());
+        test((sentSynchronously && _thread == IceUtil::ThreadControl()) ||
+             (!sentSynchronously && _thread != IceUtil::ThreadControl()));
         test(cookie == _cookie);
-	called();
+        called();
     }
 
 private:
@@ -572,6 +569,128 @@ private:
     IceUtil::ThreadControl _thread;
 };
 typedef IceUtil::Handle<SentCallback> SentCallbackPtr;
+
+class FlushCallback : public CallbackBase
+{
+public:
+
+    FlushCallback()
+    {
+    }
+
+    FlushCallback(const CookiePtr& cookie) : _cookie(cookie)
+    {
+    }
+
+    void completedAsync(const Ice::AsyncResultPtr&)
+    {
+        test(false);
+    }
+
+    void exception(const Ice::Exception&)
+    {
+        test(false);
+    }
+
+    void exceptionWC(const Ice::Exception&, const CookiePtr&)
+    {
+        test(false);
+    }
+
+    void sentAsync(const Ice::AsyncResultPtr& result)
+    {
+        test((result->sentSynchronously() && _thread == IceUtil::ThreadControl()) ||
+             (!result->sentSynchronously() && _thread != IceUtil::ThreadControl()));
+        called();
+    }
+
+    void sent(bool sentSynchronously)
+    {
+        test((sentSynchronously && _thread == IceUtil::ThreadControl()) ||
+             (!sentSynchronously && _thread != IceUtil::ThreadControl()));
+        called();
+    }
+
+    void sentWC(bool sentSynchronously, const CookiePtr& cookie)
+    {
+        test((sentSynchronously && _thread == IceUtil::ThreadControl()) ||
+             (!sentSynchronously && _thread != IceUtil::ThreadControl()));
+        test(cookie == _cookie);
+        called();
+    }
+
+private:
+
+    CookiePtr _cookie;
+    IceUtil::ThreadControl _thread;
+};
+typedef IceUtil::Handle<FlushCallback> FlushCallbackPtr;
+
+class FlushExCallback : public CallbackBase
+{
+public:
+
+    FlushExCallback()
+    {
+    }
+
+    FlushExCallback(const CookiePtr& cookie) : _cookie(cookie)
+    {
+    }
+
+    void completedAsync(const Ice::AsyncResultPtr& r)
+    {
+        test(r->getCookie() == _cookie);
+        try
+        {
+            if(r->getConnection())
+            {
+                r->getConnection()->end_flushBatchRequests(r);
+            }
+            else
+            {
+                r->getProxy()->end_ice_flushBatchRequests(r);
+            }
+            test(false);
+        }
+        catch(const Ice::LocalException&)
+        {
+            called();
+        }
+    }
+
+    void exception(const Ice::Exception&)
+    {
+        called();
+    }
+
+    void exceptionWC(const Ice::Exception&, const CookiePtr& cookie)
+    {
+        test(cookie == _cookie);
+        called();
+    }
+
+    void sentAsync(const Ice::AsyncResultPtr& result)
+    {
+        test(false);
+    }
+
+    void sent(bool sentSynchronously)
+    {
+        test(false);
+    }
+
+    void sentWC(bool sentSynchronously, const CookiePtr& cookie)
+    {
+        test(false);
+    }
+
+private:
+
+    CookiePtr _cookie;
+    IceUtil::ThreadControl _thread;
+};
+typedef IceUtil::Handle<FlushExCallback> FlushExCallbackPtr;
 
 enum ThrowType { LocalException, UserException, StandardException, OtherException };
 
@@ -586,20 +705,20 @@ public:
 
     void opAsync(const Ice::AsyncResultPtr& r)
     {
-	called();
-	throwEx();
+        called();
+        throwEx();
     }
 
     void op()
     {
-	called();
-	throwEx();
+        called();
+        throwEx();
     }
 
     void opWC(const CookiePtr&)
     {
-	called();
-	throwEx();
+        called();
+        throwEx();
     }
 
     void noOp()
@@ -612,14 +731,14 @@ public:
 
     void ex(const Ice::Exception& ex)
     {
-	called();
-	throwEx();
+        called();
+        throwEx();
     }
 
     void exWC(const Ice::Exception& ex, const CookiePtr&)
     {
-	called();
-	throwEx();
+        called();
+        throwEx();
     }
 
     void noEx(const Ice::Exception& ex)
@@ -634,53 +753,52 @@ public:
 
     void sent(bool)
     {
-	called();
-	throwEx();
+        called();
+        throwEx();
     }
 
     void sentWC(bool, const CookiePtr&)
     {
-	called();
-	throwEx();
+        called();
+        throwEx();
     }
 
 private:
 
     void throwEx()
     {
-	switch(_t)
-	{
-	    case LocalException:
-	    {
-		throw Ice::ObjectNotExistException(__FILE__, __LINE__);
-		break;
-	    }
-	    case UserException:
-	    {
-		throw Test::TestIntfException();
-		break;
-	    }
-	    case StandardException:
-	    {
-		throw ::std::bad_alloc();
-		break;
-	    }
-	    case OtherException:
-	    {
-	    	throw 99;
-		break;
-	    }
-	    default:
-	    {
-	        assert(false);
-		break;
-	    }
-	}
+        switch(_t)
+        {
+            case LocalException:
+            {
+                throw Ice::ObjectNotExistException(__FILE__, __LINE__);
+                break;
+            }
+            case UserException:
+            {
+                throw Test::TestIntfException();
+                break;
+            }
+            case StandardException:
+            {
+                throw ::std::bad_alloc();
+                break;
+            }
+            case OtherException:
+            {
+                    throw 99;
+                break;
+            }
+            default:
+            {
+                assert(false);
+                break;
+            }
+        }
     }
 
     ThrowType _t;
 };
-
 typedef IceUtil::Handle<Thrower> ThrowerPtr;
 
 }
@@ -700,10 +818,10 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
     Test::TestIntfControllerPrx testController = Test::TestIntfControllerPrx::uncheckedCast(obj);
 
-    cout << "testing begin/end invocation... " << flush;    
+    cout << "testing begin/end invocation... " << flush;
     {
         Ice::AsyncResultPtr result;
-        Ice::Context ctx;        
+        Ice::Context ctx;
 
         result = p->begin_ice_isA(Test::TestIntf::ice_staticId());
         test(p->end_ice_isA(result));
@@ -714,7 +832,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
         p->end_ice_ping(result);
         result = p->begin_ice_ping(ctx);
         p->end_ice_ping(result);
-        
+
         result = p->begin_ice_id();
         test(p->end_ice_id(result) == Test::TestIntf::ice_staticId());
         result = p->begin_ice_id(ctx);
@@ -756,13 +874,13 @@ allTests(const Ice::CommunicatorPtr& communicator)
     }
     cout << "ok" << endl;
 
-    cout << "testing async callback... " << flush;        
+    cout << "testing async callback... " << flush;
     {
         AsyncCallbackPtr cb = new AsyncCallback();
         Ice::Context ctx;
         CookiePtr cookie = new Cookie(5);
         AsyncCallbackPtr cbWC = new AsyncCallback(cookie);
-        
+
         p->begin_ice_isA(Test::TestIntf::ice_staticId(), Ice::newCallback(cb, &AsyncCallback::isA));
         cb->check();
         p->begin_ice_isA(Test::TestIntf::ice_staticId(), Ice::newCallback(cbWC, &AsyncCallback::isA), cookie);
@@ -773,40 +891,40 @@ allTests(const Ice::CommunicatorPtr& communicator)
         cbWC->check();
 
         p->begin_ice_ping(Ice::newCallback(cb, &AsyncCallback::ping));
-        cb->check();        
+        cb->check();
         p->begin_ice_ping(Ice::newCallback(cbWC, &AsyncCallback::ping), cookie);
-        cbWC->check();        
+        cbWC->check();
         p->begin_ice_ping(ctx, Ice::newCallback(cb, &AsyncCallback::ping));
-        cb->check();        
+        cb->check();
         p->begin_ice_ping(ctx, Ice::newCallback(cbWC, &AsyncCallback::ping), cookie);
-        cbWC->check();        
-        
+        cbWC->check();
+
         p->begin_ice_id(Ice::newCallback(cb, &AsyncCallback::id));
-        cb->check();        
+        cb->check();
         p->begin_ice_id(Ice::newCallback(cbWC, &AsyncCallback::id), cookie);
-        cbWC->check();        
+        cbWC->check();
         p->begin_ice_id(ctx, Ice::newCallback(cb, &AsyncCallback::id));
-        cb->check();        
+        cb->check();
         p->begin_ice_id(ctx, Ice::newCallback(cbWC, &AsyncCallback::id), cookie);
-        cbWC->check();        
+        cbWC->check();
 
         p->begin_ice_ids(Ice::newCallback(cb, &AsyncCallback::ids));
-        cb->check();        
+        cb->check();
         p->begin_ice_ids(Ice::newCallback(cbWC, &AsyncCallback::ids), cookie);
-        cbWC->check();        
+        cbWC->check();
         p->begin_ice_ids(ctx, Ice::newCallback(cb, &AsyncCallback::ids));
-        cb->check();        
+        cb->check();
         p->begin_ice_ids(ctx, Ice::newCallback(cbWC, &AsyncCallback::ids), cookie);
-        cbWC->check();        
+        cbWC->check();
 
         p->begin_op(Ice::newCallback(cb, &AsyncCallback::op));
-        cb->check();        
+        cb->check();
         p->begin_op(Ice::newCallback(cbWC, &AsyncCallback::op), cookie);
-        cbWC->check();        
+        cbWC->check();
         p->begin_op(ctx, Ice::newCallback(cb, &AsyncCallback::op));
-        cb->check();        
+        cb->check();
         p->begin_op(ctx, Ice::newCallback(cbWC, &AsyncCallback::op), cookie);
-        cbWC->check();        
+        cbWC->check();
 
         p->begin_opWithResult(Ice::newCallback(cb, &AsyncCallback::opWithResult));
         cb->check();
@@ -828,55 +946,55 @@ allTests(const Ice::CommunicatorPtr& communicator)
     }
     cout << "ok" << endl;
 
-    cout << "testing response callback... " << flush;        
+    cout << "testing response callback... " << flush;
     {
         ResponseCallbackPtr cb = new ResponseCallback();
         Ice::Context ctx;
         CookiePtr cookie = new Cookie(5);
         ResponseCallbackWCPtr cbWC = new ResponseCallbackWC(cookie);
-        
+
         Ice::CallbackNC_Object_ice_isA<ResponseCallback>::Exception nullEx = 0;
         Ice::Callback_Object_ice_isA<ResponseCallbackWC, CookiePtr>::Exception nullExWC = 0;
 
-        p->begin_ice_isA(Test::TestIntf::ice_staticId(), Ice::newCallback_Object_ice_isA(cb, &ResponseCallback::isA, 
+        p->begin_ice_isA(Test::TestIntf::ice_staticId(), Ice::newCallback_Object_ice_isA(cb, &ResponseCallback::isA,
                                                                                          nullEx));
-        cb->check();        
-        p->begin_ice_isA(Test::TestIntf::ice_staticId(), 
+        cb->check();
+        p->begin_ice_isA(Test::TestIntf::ice_staticId(),
                          Ice::newCallback_Object_ice_isA(cbWC, &ResponseCallbackWC::isA, nullExWC), cookie);
-        cbWC->check();        
-        p->begin_ice_isA(Test::TestIntf::ice_staticId(), ctx, 
+        cbWC->check();
+        p->begin_ice_isA(Test::TestIntf::ice_staticId(), ctx,
                          Ice::newCallback_Object_ice_isA(cb, &ResponseCallback::isA, nullEx));
-        cb->check();        
+        cb->check();
         p->begin_ice_isA(Test::TestIntf::ice_staticId(), ctx,
                          Ice::newCallback_Object_ice_isA(cbWC, &ResponseCallbackWC::isA, nullExWC), cookie);
-        cbWC->check();        
+        cbWC->check();
 
         p->begin_ice_ping(Ice::newCallback_Object_ice_ping(cb, &ResponseCallback::ping, nullEx));
-        cb->check();        
+        cb->check();
         p->begin_ice_ping(Ice::newCallback_Object_ice_ping(cbWC, &ResponseCallbackWC::ping, nullExWC), cookie);
-        cbWC->check();        
+        cbWC->check();
         p->begin_ice_ping(ctx, Ice::newCallback_Object_ice_ping(cb, &ResponseCallback::ping, nullEx));
-        cb->check();        
+        cb->check();
         p->begin_ice_ping(ctx, Ice::newCallback_Object_ice_ping(cbWC, &ResponseCallbackWC::ping, nullExWC), cookie);
-        cbWC->check();        
-        
+        cbWC->check();
+
         p->begin_ice_id(Ice::newCallback_Object_ice_id(cb, &ResponseCallback::id, nullEx));
-        cb->check();        
+        cb->check();
         p->begin_ice_id(Ice::newCallback_Object_ice_id(cbWC, &ResponseCallbackWC::id, nullExWC), cookie);
-        cbWC->check();        
+        cbWC->check();
         p->begin_ice_id(ctx, Ice::newCallback_Object_ice_id(cb, &ResponseCallback::id, nullEx));
-        cb->check();        
+        cb->check();
         p->begin_ice_id(ctx, Ice::newCallback_Object_ice_id(cbWC, &ResponseCallbackWC::id, nullExWC), cookie);
-        cbWC->check();        
+        cbWC->check();
 
         p->begin_ice_ids(Ice::newCallback_Object_ice_ids(cb, &ResponseCallback::ids, nullEx));
-        cb->check();        
+        cb->check();
         p->begin_ice_ids(Ice::newCallback_Object_ice_ids(cbWC, &ResponseCallbackWC::ids, nullExWC), cookie);
-        cbWC->check();        
+        cbWC->check();
         p->begin_ice_ids(ctx, Ice::newCallback_Object_ice_ids(cb, &ResponseCallback::ids, nullEx));
-        cb->check();        
+        cb->check();
         p->begin_ice_ids(ctx, Ice::newCallback_Object_ice_ids(cbWC, &ResponseCallbackWC::ids, nullExWC), cookie);
-        cbWC->check();        
+        cbWC->check();
 
         p->begin_op(Test::newCallback_TestIntf_op(cb, &ResponseCallback::op, nullEx));
         cb->check();
@@ -895,19 +1013,19 @@ allTests(const Ice::CommunicatorPtr& communicator)
         p->begin_opWithResult(ctx, Test::newCallback_TestIntf_opWithResult(cb, &ResponseCallback::opWithResult,
                                                                            nullEx));
         cb->check();
-        p->begin_opWithResult(ctx, Test::newCallback_TestIntf_opWithResult(cbWC, &ResponseCallbackWC::opWithResult, 
+        p->begin_opWithResult(ctx, Test::newCallback_TestIntf_opWithResult(cbWC, &ResponseCallbackWC::opWithResult,
                                                                            nullExWC), cookie);
         cbWC->check();
 
         p->begin_opWithUE(Test::newCallback_TestIntf_opWithUE(cb, &ResponseCallback::op, &ResponseCallback::opWithUE));
         cb->check();
-        p->begin_opWithUE(Test::newCallback_TestIntf_opWithUE(cbWC, &ResponseCallbackWC::op, 
+        p->begin_opWithUE(Test::newCallback_TestIntf_opWithUE(cbWC, &ResponseCallbackWC::op,
                                                               &ResponseCallbackWC::opWithUE), cookie);
         cbWC->check();
-        p->begin_opWithUE(ctx, Test::newCallback_TestIntf_opWithUE(cb, &ResponseCallback::op, 
+        p->begin_opWithUE(ctx, Test::newCallback_TestIntf_opWithUE(cb, &ResponseCallback::op,
                                                                    &ResponseCallback::opWithUE));
         cb->check();
-        p->begin_opWithUE(ctx, Test::newCallback_TestIntf_opWithUE(cbWC, &ResponseCallbackWC::op, 
+        p->begin_opWithUE(ctx, Test::newCallback_TestIntf_opWithUE(cbWC, &ResponseCallbackWC::op,
                                                                    &ResponseCallbackWC::opWithUE), cookie);
         cbWC->check();
     }
@@ -916,17 +1034,17 @@ allTests(const Ice::CommunicatorPtr& communicator)
     cout << "testing local exceptions... " << flush;
     {
         Test::TestIntfPrx indirect = Test::TestIntfPrx::uncheckedCast(p->ice_adapterId("dummy"));
-	Ice::AsyncResultPtr r;
+        Ice::AsyncResultPtr r;
 
-	r = indirect->begin_op();
-	try
-	{
-	    indirect->end_op(r);
-	    test(false);
-	}
-	catch(const Ice::NoEndpointException&)
-	{
-	}
+        r = indirect->begin_op();
+        try
+        {
+            indirect->end_op(r);
+            test(false);
+        }
+        catch(const Ice::NoEndpointException&)
+        {
+        }
 
 
         try
@@ -938,19 +1056,19 @@ allTests(const Ice::CommunicatorPtr& communicator)
         {
         }
 
-	//
+        //
         // Check that CommunicatorDestroyedException is raised directly.
-	//
+        //
         Ice::InitializationData initData;
         initData.properties = communicator->getProperties()->clone();
         Ice::CommunicatorPtr ic = Ice::initialize(initData);
         Ice::ObjectPrx obj = ic->stringToProxy(p->ice_toString());
         Test::TestIntfPrx p2 = Test::TestIntfPrx::checkedCast(obj);
         ic->destroy();
-    
+
         try
         {
-	    p2->begin_op();
+            p2->begin_op();
             test(false);
         }
         catch(const Ice::CommunicatorDestroyedException&)
@@ -966,66 +1084,66 @@ allTests(const Ice::CommunicatorPtr& communicator)
         AsyncCallbackPtr cb = new AsyncCallback();
         CookiePtr cookie = new Cookie(5);
         AsyncCallbackPtr cbWC = new AsyncCallback(cookie);
-        
+
         i->begin_ice_isA(Test::TestIntf::ice_staticId(), Ice::newCallback(cb, &AsyncCallback::isAEx));
         cb->check();
         i->begin_ice_isA(Test::TestIntf::ice_staticId(), Ice::newCallback(cbWC, &AsyncCallback::isAEx), cookie);
         cbWC->check();
 
         i->begin_ice_ping(Ice::newCallback(cb, &AsyncCallback::pingEx));
-        cb->check();        
+        cb->check();
         i->begin_ice_ping(Ice::newCallback(cbWC, &AsyncCallback::pingEx), cookie);
-        cbWC->check();        
-        
+        cbWC->check();
+
         i->begin_ice_id(Ice::newCallback(cb, &AsyncCallback::idEx));
-        cb->check();        
+        cb->check();
         i->begin_ice_id(Ice::newCallback(cbWC, &AsyncCallback::idEx), cookie);
-        cbWC->check();        
+        cbWC->check();
 
         i->begin_ice_ids(Ice::newCallback(cb, &AsyncCallback::idsEx));
-        cb->check();        
+        cb->check();
         i->begin_ice_ids(Ice::newCallback(cbWC, &AsyncCallback::idsEx), cookie);
-        cbWC->check();        
+        cbWC->check();
 
         i->begin_op(Ice::newCallback(cb, &AsyncCallback::opEx));
-        cb->check();        
+        cb->check();
         i->begin_op(Ice::newCallback(cbWC, &AsyncCallback::opEx), cookie);
-        cbWC->check();        
+        cbWC->check();
     }
     cout << "ok" << endl;
 
-    cout << "testing local exceptions with response callback... " << flush;        
+    cout << "testing local exceptions with response callback... " << flush;
     {
         Test::TestIntfPrx i = Test::TestIntfPrx::uncheckedCast(p->ice_adapterId("dummy"));
         ExceptionCallbackPtr cb = new ExceptionCallback();
         CookiePtr cookie = new Cookie(5);
         ExceptionCallbackWCPtr cbWC = new ExceptionCallbackWC(cookie);
-        
+
         i->begin_ice_isA(Test::TestIntf::ice_staticId(),
                          Ice::newCallback_Object_ice_isA(cb, &ExceptionCallback::isA, &ExceptionCallback::ex));
-        cb->check();        
+        cb->check();
         i->begin_ice_isA(Test::TestIntf::ice_staticId(),
-                         Ice::newCallback_Object_ice_isA(cbWC, &ExceptionCallbackWC::isA, &ExceptionCallbackWC::ex), 
+                         Ice::newCallback_Object_ice_isA(cbWC, &ExceptionCallbackWC::isA, &ExceptionCallbackWC::ex),
                          cookie);
-        cbWC->check();        
+        cbWC->check();
 
         i->begin_ice_ping(Ice::newCallback_Object_ice_ping(cb, &ExceptionCallback::ping, &ExceptionCallback::ex));
-        cb->check();        
-        i->begin_ice_ping(Ice::newCallback_Object_ice_ping(cbWC, &ExceptionCallbackWC::ping, 
+        cb->check();
+        i->begin_ice_ping(Ice::newCallback_Object_ice_ping(cbWC, &ExceptionCallbackWC::ping,
                                                            &ExceptionCallbackWC::ex), cookie);
-        cbWC->check();        
-        
+        cbWC->check();
+
         i->begin_ice_id(Ice::newCallback_Object_ice_id(cb, &ExceptionCallback::id, &ExceptionCallback::ex));
-        cb->check();        
-        i->begin_ice_id(Ice::newCallback_Object_ice_id(cbWC, &ExceptionCallbackWC::id, 
+        cb->check();
+        i->begin_ice_id(Ice::newCallback_Object_ice_id(cbWC, &ExceptionCallbackWC::id,
                                                        &ExceptionCallbackWC::ex), cookie);
-        cbWC->check();        
+        cbWC->check();
 
         i->begin_ice_ids(Ice::newCallback_Object_ice_ids(cb, &ExceptionCallback::ids, &ExceptionCallback::ex));
-        cb->check();        
-        i->begin_ice_ids(Ice::newCallback_Object_ice_ids(cbWC, &ExceptionCallbackWC::ids, 
+        cb->check();
+        i->begin_ice_ids(Ice::newCallback_Object_ice_ids(cbWC, &ExceptionCallbackWC::ids,
                                                          &ExceptionCallbackWC::ex), cookie);
-        cbWC->check();        
+        cbWC->check();
 
         i->begin_op(Test::newCallback_TestIntf_op(cb, &ExceptionCallback::op, &ExceptionCallback::ex));
         cb->check();
@@ -1033,18 +1151,18 @@ allTests(const Ice::CommunicatorPtr& communicator)
         cbWC->check();
     }
     cout << "ok" << endl;
-    
+
     cout << "testing exception callback... " << flush;
     {
         Test::TestIntfPrx i = Test::TestIntfPrx::uncheckedCast(p->ice_adapterId("dummy"));
         ExceptionCallbackPtr cb = new ExceptionCallback();
         CookiePtr cookie = new Cookie(5);
         ExceptionCallbackWCPtr cbWC = new ExceptionCallbackWC(cookie);
-        
-        i->begin_ice_isA(Test::TestIntf::ice_staticId(), 
+
+        i->begin_ice_isA(Test::TestIntf::ice_staticId(),
                          Ice::newCallback_Object_ice_isA(cb, &ExceptionCallback::ex));
-        cb->check();        
-        i->begin_ice_isA(Test::TestIntf::ice_staticId(), 
+        cb->check();
+        i->begin_ice_isA(Test::TestIntf::ice_staticId(),
                          Ice::newCallback_Object_ice_isA(cbWC, &ExceptionCallbackWC::ex), cookie);
         cbWC->check();
 
@@ -1065,9 +1183,9 @@ allTests(const Ice::CommunicatorPtr& communicator)
         cbWC->check();
 
         // Ensures no exception is called when response is received
-        p->begin_ice_isA(Test::TestIntf::ice_staticId(), 
+        p->begin_ice_isA(Test::TestIntf::ice_staticId(),
                          Ice::newCallback_Object_ice_isA(cb, &ExceptionCallback::noEx));
-        p->begin_ice_isA(Test::TestIntf::ice_staticId(), 
+        p->begin_ice_isA(Test::TestIntf::ice_staticId(),
                          Ice::newCallback_Object_ice_isA(cbWC, &ExceptionCallbackWC::noEx), cookie);
         p->begin_op(Test::newCallback_TestIntf_op(cb, &ExceptionCallback::noEx));
         p->begin_op(Test::newCallback_TestIntf_op(cbWC, &ExceptionCallbackWC::noEx), cookie);
@@ -1089,26 +1207,26 @@ allTests(const Ice::CommunicatorPtr& communicator)
         CookiePtr cookie = new Cookie(4);
         SentCallbackPtr cbWC = new SentCallback(cookie);
 
-        p->begin_ice_isA("", Ice::newCallback_Object_ice_isA(cb, &SentCallback::isA, &SentCallback::ex, 
+        p->begin_ice_isA("", Ice::newCallback_Object_ice_isA(cb, &SentCallback::isA, &SentCallback::ex,
                                                              &SentCallback::sent));
         cb->check();
         p->begin_ice_isA("", Ice::newCallback_Object_ice_isA(cbWC, &SentCallback::isAWC, &SentCallback::exWC,
                                                              &SentCallback::sentWC), cookie);
         cbWC->check();
-        
+
         p->begin_ice_ping(Ice::newCallback_Object_ice_ping(cb, &SentCallback::ping, &SentCallback::ex,
                                                            &SentCallback::sent));
         cb->check();
-        p->begin_ice_ping(Ice::newCallback_Object_ice_ping(cbWC, &SentCallback::pingWC, &SentCallback::exWC, 
+        p->begin_ice_ping(Ice::newCallback_Object_ice_ping(cbWC, &SentCallback::pingWC, &SentCallback::exWC,
                                                            &SentCallback::sentWC), cookie);
         cbWC->check();
 
         p->begin_ice_id(Ice::newCallback_Object_ice_id(cb, &SentCallback::id, &SentCallback::ex, &SentCallback::sent));
         cb->check();
-        p->begin_ice_id(Ice::newCallback_Object_ice_id(cbWC, &SentCallback::idWC, &SentCallback::exWC, 
+        p->begin_ice_id(Ice::newCallback_Object_ice_id(cbWC, &SentCallback::idWC, &SentCallback::exWC,
                                                        &SentCallback::sentWC), cookie);
         cbWC->check();
-        
+
         p->begin_ice_ids(Ice::newCallback_Object_ice_ids(cb, &SentCallback::ids, &SentCallback::ex,
                                                          &SentCallback::sent));
         cb->check();
@@ -1119,9 +1237,9 @@ allTests(const Ice::CommunicatorPtr& communicator)
         p->begin_op(Test::newCallback_TestIntf_op(cb, &SentCallback::op, &SentCallback::ex, &SentCallback::sent));
         cb->check();
         p->begin_op(Test::newCallback_TestIntf_op(cbWC, &SentCallback::opWC, &SentCallback::exWC,
-                                                  &SentCallback::sentWC), cookie); 
+                                                  &SentCallback::sentWC), cookie);
         cbWC->check();
-        
+
         p->begin_op(Ice::newCallback(cb, &SentCallback::opAsync, &SentCallback::sentAsync));
         cb->check();
         p->begin_op(Ice::newCallback(cbWC, &SentCallback::opAsync, &SentCallback::sentAsync), cookie);
@@ -1153,12 +1271,12 @@ allTests(const Ice::CommunicatorPtr& communicator)
             (*r)->check();
         }
     }
-    cout << "ok" << endl;    
+    cout << "ok" << endl;
 
     cout << "testing illegal arguments... " << flush;
     {
         Ice::AsyncResultPtr result;
-        
+
         result = p->begin_op();
         p->end_op(result);
         try
@@ -1188,7 +1306,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
         catch(const IceUtil::IllegalArgumentException&)
         {
         }
-        
+
         try
         {
             p->begin_op(Ice::newCallback(AsyncCallbackPtr(), &AsyncCallback::op));
@@ -1200,7 +1318,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
         try
         {
-            p->begin_op(Test::newCallback_TestIntf_op(ResponseCallbackPtr(), &ResponseCallback::op, 
+            p->begin_op(Test::newCallback_TestIntf_op(ResponseCallbackPtr(), &ResponseCallback::op,
                                                       &ResponseCallback::ex));
             test(false);
         }
@@ -1247,18 +1365,18 @@ allTests(const Ice::CommunicatorPtr& communicator)
         }
         catch(const IceUtil::IllegalArgumentException&)
         {
-        }  
+        }
 
         try
         {
             ResponseCallbackWCPtr cb = new ResponseCallbackWC(new Cookie(3));
-            p->begin_op(Test::newCallback_TestIntf_op(cb, &ResponseCallbackWC::op, &ResponseCallbackWC::ex), 
+            p->begin_op(Test::newCallback_TestIntf_op(cb, &ResponseCallbackWC::op, &ResponseCallbackWC::ex),
                         new Ice::LocalObject());
             test(false);
         }
         catch(const IceUtil::IllegalArgumentException&)
         {
-        }      
+        }
     }
     cout << "ok" << endl;
 
@@ -1267,38 +1385,583 @@ allTests(const Ice::CommunicatorPtr& communicator)
         Test::TestIntfPrx q = Test::TestIntfPrx::uncheckedCast(p->ice_adapterId("dummy"));
         ThrowType throwEx[] = { LocalException, UserException, StandardException, OtherException };
         CookiePtr cookie = new Cookie(5);
-        
+
         for(int i = 0; i < 4; ++i)
         {
-	    ThrowerPtr cb = new Thrower(throwEx[i]);
+            ThrowerPtr cb = new Thrower(throwEx[i]);
 
-	    p->begin_op(Ice::newCallback(cb, &Thrower::opAsync));
-	    cb->check();
+            p->begin_op(Ice::newCallback(cb, &Thrower::opAsync));
+            cb->check();
 
-	    p->begin_op(Test::newCallback_TestIntf_op(cb, &Thrower::op, &Thrower::noEx));
-	    cb->check();
+            p->begin_op(Test::newCallback_TestIntf_op(cb, &Thrower::op, &Thrower::noEx));
+            cb->check();
 
-	    p->begin_op(Test::newCallback_TestIntf_op(cb, &Thrower::opWC, &Thrower::noExWC), cookie);
-	    cb->check();
+            p->begin_op(Test::newCallback_TestIntf_op(cb, &Thrower::opWC, &Thrower::noExWC), cookie);
+            cb->check();
 
-	    q->begin_op(Test::newCallback_TestIntf_op(cb, &Thrower::op, &Thrower::ex));
-	    cb->check();
+            q->begin_op(Test::newCallback_TestIntf_op(cb, &Thrower::op, &Thrower::ex));
+            cb->check();
 
-	    q->begin_op(Test::newCallback_TestIntf_op(cb, &Thrower::opWC, &Thrower::exWC), cookie);
-	    cb->check();
+            q->begin_op(Test::newCallback_TestIntf_op(cb, &Thrower::opWC, &Thrower::exWC), cookie);
+            cb->check();
 
-	    p->begin_op(Test::newCallback_TestIntf_op(cb, &Thrower::noOp, &Thrower::ex, &Thrower::sent));
-	    cb->check();
+            p->begin_op(Test::newCallback_TestIntf_op(cb, &Thrower::noOp, &Thrower::ex, &Thrower::sent));
+            cb->check();
 
-	    p->begin_op(Test::newCallback_TestIntf_op(cb, &Thrower::noOpWC, &Thrower::exWC, &Thrower::sentWC), cookie);
-	    cb->check();
+            p->begin_op(Test::newCallback_TestIntf_op(cb, &Thrower::noOpWC, &Thrower::exWC, &Thrower::sentWC), cookie);
+            cb->check();
 
-	    q->begin_op(Test::newCallback_TestIntf_op(cb, &Thrower::ex));
-	    cb->check();
+            q->begin_op(Test::newCallback_TestIntf_op(cb, &Thrower::ex));
+            cb->check();
 
             q->begin_op(Test::newCallback_TestIntf_op(cb, &Thrower::exWC), cookie);
-	    cb->check();
-	}
+            cb->check();
+        }
+    }
+    cout << "ok" << endl;
+
+    cout << "testing batch requests with proxy... " << flush;
+    {
+        CookiePtr cookie = new Cookie(5);
+
+        {
+            //
+            // AsyncResult without cookie.
+            //
+            test(p->opBatchCount() == 0);
+            Test::TestIntfPrx b1 = p->ice_batchOneway();
+            b1->opBatch();
+            b1->opBatch();
+            FlushCallbackPtr cb = new FlushCallback();
+            Ice::AsyncResultPtr r = b1->begin_ice_flushBatchRequests(
+                Ice::newCallback(cb, &FlushCallback::completedAsync, &FlushCallback::sentAsync));
+            cb->check();
+            test(r->isSent());
+            test(r->isCompleted());
+            test(p->waitForBatch(2));
+        }
+
+        {
+            //
+            // AsyncResult with cookie.
+            //
+            test(p->opBatchCount() == 0);
+            Test::TestIntfPrx b1 = p->ice_batchOneway();
+            b1->opBatch();
+            b1->opBatch();
+            FlushCallbackPtr cb = new FlushCallback(cookie);
+            b1->begin_ice_flushBatchRequests(
+                Ice::newCallback(cb, &FlushCallback::completedAsync, &FlushCallback::sentAsync), cookie);
+            cb->check();
+            test(p->waitForBatch(2));
+        }
+
+        {
+            //
+            // AsyncResult exception without cookie.
+            //
+            test(p->opBatchCount() == 0);
+            Test::TestIntfPrx b1 = p->ice_batchOneway();
+            b1->opBatch();
+            b1->ice_getConnection()->close(false);
+            FlushExCallbackPtr cb = new FlushExCallback();
+            Ice::AsyncResultPtr r = b1->begin_ice_flushBatchRequests(
+                Ice::newCallback(cb, &FlushExCallback::completedAsync, &FlushExCallback::sentAsync));
+            cb->check();
+            test(!r->isSent());
+            test(r->isCompleted());
+            test(p->opBatchCount() == 0);
+        }
+
+        {
+            //
+            // AsyncResult exception with cookie.
+            //
+            test(p->opBatchCount() == 0);
+            Test::TestIntfPrx b1 = p->ice_batchOneway();
+            b1->opBatch();
+            b1->ice_getConnection()->close(false);
+            FlushExCallbackPtr cb = new FlushExCallback(cookie);
+            b1->begin_ice_flushBatchRequests(
+                Ice::newCallback(cb, &FlushExCallback::completedAsync, &FlushExCallback::sentAsync), cookie);
+            cb->check();
+            test(p->opBatchCount() == 0);
+        }
+
+        {
+            //
+            // Without cookie.
+            //
+            test(p->opBatchCount() == 0);
+            Test::TestIntfPrx b1 = p->ice_batchOneway();
+            b1->opBatch();
+            b1->opBatch();
+            FlushCallbackPtr cb = new FlushCallback();
+            Ice::AsyncResultPtr r = b1->begin_ice_flushBatchRequests(
+                Ice::newCallback_Object_ice_flushBatchRequests(cb, &FlushCallback::exception,
+                                                               &FlushCallback::sent));
+            cb->check();
+            test(r->isSent());
+            test(r->isCompleted());
+            test(p->waitForBatch(2));
+        }
+
+        {
+            //
+            // With cookie.
+            //
+            test(p->opBatchCount() == 0);
+            Test::TestIntfPrx b1 = p->ice_batchOneway();
+            b1->opBatch();
+            b1->opBatch();
+            FlushCallbackPtr cb = new FlushCallback(cookie);
+            b1->begin_ice_flushBatchRequests(
+                Ice::newCallback_Object_ice_flushBatchRequests(cb, &FlushCallback::exceptionWC,
+                                                               &FlushCallback::sentWC), cookie);
+            cb->check();
+            test(p->waitForBatch(2));
+        }
+
+        {
+            //
+            // Exception without cookie.
+            //
+            test(p->opBatchCount() == 0);
+            Test::TestIntfPrx b1 = p->ice_batchOneway();
+            b1->opBatch();
+            b1->ice_getConnection()->close(false);
+            FlushExCallbackPtr cb = new FlushExCallback();
+            Ice::AsyncResultPtr r = b1->begin_ice_flushBatchRequests(
+                Ice::newCallback_Object_ice_flushBatchRequests(cb, &FlushExCallback::exception,
+                                                               &FlushExCallback::sent));
+            cb->check();
+            test(!r->isSent());
+            test(r->isCompleted());
+            test(p->opBatchCount() == 0);
+        }
+
+        {
+            //
+            // Exception with cookie.
+            //
+            test(p->opBatchCount() == 0);
+            Test::TestIntfPrx b1 = p->ice_batchOneway();
+            b1->opBatch();
+            b1->ice_getConnection()->close(false);
+            FlushExCallbackPtr cb = new FlushExCallback(cookie);
+            b1->begin_ice_flushBatchRequests(
+                Ice::newCallback_Object_ice_flushBatchRequests(cb, &FlushExCallback::exceptionWC,
+                                                               &FlushExCallback::sentWC), cookie);
+            cb->check();
+            test(p->opBatchCount() == 0);
+        }
+    }
+    cout << "ok" << endl;
+
+    cout << "testing batch requests with connection... " << flush;
+    {
+        CookiePtr cookie = new Cookie(5);
+
+        {
+            //
+            // AsyncResult without cookie.
+            //
+            test(p->opBatchCount() == 0);
+            Test::TestIntfPrx b1 = p->ice_batchOneway();
+            b1->opBatch();
+            b1->opBatch();
+            FlushCallbackPtr cb = new FlushCallback();
+            Ice::AsyncResultPtr r = b1->ice_getConnection()->begin_flushBatchRequests(
+                Ice::newCallback(cb, &FlushCallback::completedAsync, &FlushCallback::sentAsync));
+            cb->check();
+            test(r->isSent());
+            test(r->isCompleted());
+            test(p->waitForBatch(2));
+        }
+
+        {
+            //
+            // AsyncResult with cookie.
+            //
+            test(p->opBatchCount() == 0);
+            Test::TestIntfPrx b1 = p->ice_batchOneway();
+            b1->opBatch();
+            b1->opBatch();
+            FlushCallbackPtr cb = new FlushCallback(cookie);
+            b1->ice_getConnection()->begin_flushBatchRequests(
+                Ice::newCallback(cb, &FlushCallback::completedAsync, &FlushCallback::sentAsync), cookie);
+            cb->check();
+            test(p->waitForBatch(2));
+        }
+
+        {
+            //
+            // AsyncResult exception without cookie.
+            //
+            test(p->opBatchCount() == 0);
+            Test::TestIntfPrx b1 = p->ice_batchOneway();
+            b1->opBatch();
+            b1->ice_getConnection()->close(false);
+            FlushExCallbackPtr cb = new FlushExCallback();
+            Ice::AsyncResultPtr r = b1->ice_getConnection()->begin_flushBatchRequests(
+                Ice::newCallback(cb, &FlushExCallback::completedAsync, &FlushExCallback::sentAsync));
+            cb->check();
+            test(!r->isSent());
+            test(r->isCompleted());
+            test(p->opBatchCount() == 0);
+        }
+
+        {
+            //
+            // AsyncResult exception with cookie.
+            //
+            test(p->opBatchCount() == 0);
+            Test::TestIntfPrx b1 = p->ice_batchOneway();
+            b1->opBatch();
+            b1->ice_getConnection()->close(false);
+            FlushExCallbackPtr cb = new FlushExCallback(cookie);
+            b1->ice_getConnection()->begin_flushBatchRequests(
+                Ice::newCallback(cb, &FlushExCallback::completedAsync, &FlushExCallback::sentAsync), cookie);
+            cb->check();
+            test(p->opBatchCount() == 0);
+        }
+
+        {
+            //
+            // Without cookie.
+            //
+            test(p->opBatchCount() == 0);
+            Test::TestIntfPrx b1 = p->ice_batchOneway();
+            b1->opBatch();
+            b1->opBatch();
+            FlushCallbackPtr cb = new FlushCallback();
+            Ice::AsyncResultPtr r = b1->ice_getConnection()->begin_flushBatchRequests(
+                Ice::newCallback_Connection_flushBatchRequests(cb, &FlushCallback::exception, &FlushCallback::sent));
+            cb->check();
+            test(r->isSent());
+            test(r->isCompleted());
+            test(p->waitForBatch(2));
+        }
+
+        {
+            //
+            // With cookie.
+            //
+            test(p->opBatchCount() == 0);
+            Test::TestIntfPrx b1 = p->ice_batchOneway();
+            b1->opBatch();
+            b1->opBatch();
+            FlushCallbackPtr cb = new FlushCallback(cookie);
+            b1->ice_getConnection()->begin_flushBatchRequests(
+                Ice::newCallback_Connection_flushBatchRequests(cb, &FlushCallback::exceptionWC,
+                                                               &FlushCallback::sentWC), cookie);
+            cb->check();
+            test(p->waitForBatch(2));
+        }
+
+        {
+            //
+            // Exception without cookie.
+            //
+            test(p->opBatchCount() == 0);
+            Test::TestIntfPrx b1 = p->ice_batchOneway();
+            b1->opBatch();
+            b1->ice_getConnection()->close(false);
+            FlushExCallbackPtr cb = new FlushExCallback();
+            Ice::AsyncResultPtr r = b1->ice_getConnection()->begin_flushBatchRequests(
+                Ice::newCallback_Connection_flushBatchRequests(cb, &FlushExCallback::exception,
+                                                               &FlushExCallback::sent));
+            cb->check();
+            test(!r->isSent());
+            test(r->isCompleted());
+            test(p->opBatchCount() == 0);
+        }
+
+        {
+            //
+            // Exception with cookie.
+            //
+            test(p->opBatchCount() == 0);
+            Test::TestIntfPrx b1 = p->ice_batchOneway();
+            b1->opBatch();
+            b1->ice_getConnection()->close(false);
+            FlushExCallbackPtr cb = new FlushExCallback(cookie);
+            b1->ice_getConnection()->begin_flushBatchRequests(
+                Ice::newCallback_Connection_flushBatchRequests(cb, &FlushExCallback::exceptionWC,
+                                                               &FlushExCallback::sentWC), cookie);
+            cb->check();
+            test(p->opBatchCount() == 0);
+        }
+    }
+    cout << "ok" << endl;
+
+    cout << "testing batch requests with communicator... " << flush;
+    {
+        CookiePtr cookie = new Cookie(5);
+
+        {
+            //
+            // AsyncResult without cookie - 1 connection.
+            //
+            test(p->opBatchCount() == 0);
+            Test::TestIntfPrx b1 = p->ice_batchOneway();
+            b1->opBatch();
+            b1->opBatch();
+            FlushCallbackPtr cb = new FlushCallback();
+            Ice::AsyncResultPtr r = communicator->begin_flushBatchRequests(
+                Ice::newCallback(cb, &FlushCallback::completedAsync, &FlushCallback::sentAsync));
+            cb->check();
+            test(r->isSent());
+            test(r->isCompleted());
+            test(p->waitForBatch(2));
+        }
+
+        {
+            //
+            // AsyncResult with cookie - 1 connection.
+            //
+            test(p->opBatchCount() == 0);
+            Test::TestIntfPrx b1 = p->ice_batchOneway();
+            b1->opBatch();
+            b1->opBatch();
+            FlushCallbackPtr cb = new FlushCallback(cookie);
+            communicator->begin_flushBatchRequests(
+                Ice::newCallback(cb, &FlushCallback::completedAsync, &FlushCallback::sentAsync), cookie);
+            cb->check();
+            test(p->waitForBatch(2));
+        }
+
+        {
+            //
+            // AsyncResult exception without cookie - 1 connection.
+            //
+            test(p->opBatchCount() == 0);
+            Test::TestIntfPrx b1 = p->ice_batchOneway();
+            b1->opBatch();
+            b1->ice_getConnection()->close(false);
+            FlushCallbackPtr cb = new FlushCallback();
+            Ice::AsyncResultPtr r = communicator->begin_flushBatchRequests(
+                Ice::newCallback(cb, &FlushCallback::completedAsync, &FlushCallback::sentAsync));
+            cb->check();
+            test(r->isSent()); // Exceptions are ignored!
+            test(r->isCompleted());
+            test(p->opBatchCount() == 0);
+        }
+
+        {
+            //
+            // AsyncResult exception with cookie - 1 connection.
+            //
+            test(p->opBatchCount() == 0);
+            Test::TestIntfPrx b1 = p->ice_batchOneway();
+            b1->opBatch();
+            b1->ice_getConnection()->close(false);
+            FlushCallbackPtr cb = new FlushCallback(cookie);
+            communicator->begin_flushBatchRequests(
+                Ice::newCallback(cb, &FlushCallback::completedAsync, &FlushCallback::sentAsync), cookie);
+            cb->check();
+            test(p->opBatchCount() == 0);
+        }
+
+        {
+            //
+            // AsyncResult - 2 connections.
+            //
+            test(p->opBatchCount() == 0);
+            Test::TestIntfPrx b1 = p->ice_batchOneway();
+            Test::TestIntfPrx b2 = p->ice_connectionId("2")->ice_batchOneway();
+            b2->ice_getConnection(); // Ensure connection is established.
+            b1->opBatch();
+            b1->opBatch();
+            b2->opBatch();
+            b2->opBatch();
+            FlushCallbackPtr cb = new FlushCallback();
+            Ice::AsyncResultPtr r = communicator->begin_flushBatchRequests(
+                Ice::newCallback(cb, &FlushCallback::completedAsync, &FlushCallback::sentAsync));
+            cb->check();
+            test(r->isSent());
+            test(r->isCompleted());
+            test(p->waitForBatch(4));
+        }
+
+        {
+            //
+            // AsyncResult exception - 2 connections - 1 failure.
+            //
+            // All connections should be flushed even if there are failures on some connections.
+            // Exceptions should not be reported.
+            //
+            test(p->opBatchCount() == 0);
+            Test::TestIntfPrx b1 = p->ice_batchOneway();
+            Test::TestIntfPrx b2 = p->ice_connectionId("2")->ice_batchOneway();
+            b2->ice_getConnection(); // Ensure connection is established.
+            b1->opBatch();
+            b2->opBatch();
+            b1->ice_getConnection()->close(false);
+            FlushCallbackPtr cb = new FlushCallback();
+            Ice::AsyncResultPtr r = communicator->begin_flushBatchRequests(
+                Ice::newCallback(cb, &FlushCallback::completedAsync, &FlushCallback::sentAsync));
+            cb->check();
+            test(r->isSent()); // Exceptions are ignored!
+            test(r->isCompleted());
+            test(p->waitForBatch(1));
+        }
+
+        {
+            //
+            // AsyncResult exception - 2 connections - 2 failures.
+            //
+            // The sent callback should be invoked even if all connections fail.
+            //
+            test(p->opBatchCount() == 0);
+            Test::TestIntfPrx b1 = p->ice_batchOneway();
+            Test::TestIntfPrx b2 = p->ice_connectionId("2")->ice_batchOneway();
+            b2->ice_getConnection(); // Ensure connection is established.
+            b1->opBatch();
+            b2->opBatch();
+            b1->ice_getConnection()->close(false);
+            b2->ice_getConnection()->close(false);
+            FlushCallbackPtr cb = new FlushCallback();
+            Ice::AsyncResultPtr r = communicator->begin_flushBatchRequests(
+                Ice::newCallback(cb, &FlushCallback::completedAsync, &FlushCallback::sentAsync));
+            cb->check();
+            test(r->isSent()); // Exceptions are ignored!
+            test(r->isCompleted());
+            test(p->opBatchCount() == 0);
+        }
+
+        {
+            //
+            // Without cookie - 1 connection.
+            //
+            test(p->opBatchCount() == 0);
+            Test::TestIntfPrx b1 = p->ice_batchOneway();
+            b1->opBatch();
+            b1->opBatch();
+            FlushCallbackPtr cb = new FlushCallback();
+            Ice::AsyncResultPtr r = communicator->begin_flushBatchRequests(
+                Ice::newCallback_Communicator_flushBatchRequests(cb, &FlushCallback::exception, &FlushCallback::sent));
+            cb->check();
+            test(r->isSent());
+            test(r->isCompleted());
+            test(p->waitForBatch(2));
+        }
+
+        {
+            //
+            // With cookie - 1 connection.
+            //
+            test(p->opBatchCount() == 0);
+            Test::TestIntfPrx b1 = p->ice_batchOneway();
+            b1->opBatch();
+            b1->opBatch();
+            FlushCallbackPtr cb = new FlushCallback(cookie);
+            communicator->begin_flushBatchRequests(
+                Ice::newCallback_Communicator_flushBatchRequests(cb, &FlushCallback::exceptionWC,
+                    &FlushCallback::sentWC), cookie);
+            cb->check();
+            test(p->waitForBatch(2));
+        }
+
+        {
+            //
+            // Exception without cookie - 1 connection.
+            //
+            test(p->opBatchCount() == 0);
+            Test::TestIntfPrx b1 = p->ice_batchOneway();
+            b1->opBatch();
+            b1->ice_getConnection()->close(false);
+            FlushCallbackPtr cb = new FlushCallback();
+            Ice::AsyncResultPtr r = communicator->begin_flushBatchRequests(
+                Ice::newCallback_Communicator_flushBatchRequests(cb, &FlushCallback::exception, &FlushCallback::sent));
+            cb->check();
+            test(r->isSent()); // Exceptions are ignored!
+            test(r->isCompleted());
+            test(p->opBatchCount() == 0);
+        }
+
+        {
+            //
+            // Exception with cookie - 1 connection.
+            //
+            test(p->opBatchCount() == 0);
+            Test::TestIntfPrx b1 = p->ice_batchOneway();
+            b1->opBatch();
+            b1->ice_getConnection()->close(false);
+            FlushCallbackPtr cb = new FlushCallback(cookie);
+            communicator->begin_flushBatchRequests(
+                Ice::newCallback_Communicator_flushBatchRequests(cb, &FlushCallback::exceptionWC,
+                    &FlushCallback::sentWC), cookie);
+            cb->check();
+            test(p->opBatchCount() == 0);
+        }
+
+        {
+            //
+            // 2 connections.
+            //
+            test(p->opBatchCount() == 0);
+            Test::TestIntfPrx b1 = p->ice_batchOneway();
+            Test::TestIntfPrx b2 = p->ice_connectionId("2")->ice_batchOneway();
+            b2->ice_getConnection(); // Ensure connection is established.
+            b1->opBatch();
+            b1->opBatch();
+            b2->opBatch();
+            b2->opBatch();
+            FlushCallbackPtr cb = new FlushCallback();
+            Ice::AsyncResultPtr r = communicator->begin_flushBatchRequests(
+                Ice::newCallback_Communicator_flushBatchRequests(cb, &FlushCallback::exception, &FlushCallback::sent));
+            cb->check();
+            test(r->isSent());
+            test(r->isCompleted());
+            test(p->waitForBatch(4));
+        }
+
+        {
+            //
+            // Exception - 2 connections - 1 failure.
+            //
+            // All connections should be flushed even if there are failures on some connections.
+            // Exceptions should not be reported.
+            //
+            test(p->opBatchCount() == 0);
+            Test::TestIntfPrx b1 = p->ice_batchOneway();
+            Test::TestIntfPrx b2 = p->ice_connectionId("2")->ice_batchOneway();
+            b2->ice_getConnection(); // Ensure connection is established.
+            b1->opBatch();
+            b2->opBatch();
+            b1->ice_getConnection()->close(false);
+            FlushCallbackPtr cb = new FlushCallback();
+            Ice::AsyncResultPtr r = communicator->begin_flushBatchRequests(
+                Ice::newCallback_Communicator_flushBatchRequests(cb, &FlushCallback::exception, &FlushCallback::sent));
+            cb->check();
+            test(r->isSent()); // Exceptions are ignored!
+            test(r->isCompleted());
+            test(p->waitForBatch(1));
+        }
+
+        {
+            //
+            // Exception - 2 connections - 2 failures.
+            //
+            // The sent callback should be invoked even if all connections fail.
+            //
+            test(p->opBatchCount() == 0);
+            Test::TestIntfPrx b1 = p->ice_batchOneway();
+            Test::TestIntfPrx b2 = p->ice_connectionId("2")->ice_batchOneway();
+            b2->ice_getConnection(); // Ensure connection is established.
+            b1->opBatch();
+            b2->opBatch();
+            b1->ice_getConnection()->close(false);
+            b2->ice_getConnection()->close(false);
+            FlushCallbackPtr cb = new FlushCallback();
+            Ice::AsyncResultPtr r = communicator->begin_flushBatchRequests(
+                Ice::newCallback_Communicator_flushBatchRequests(cb, &FlushCallback::exception, &FlushCallback::sent));
+            cb->check();
+            test(r->isSent()); // Exceptions are ignored!
+            test(r->isCompleted());
+            test(p->opBatchCount() == 0);
+        }
     }
     cout << "ok" << endl;
 
@@ -1318,13 +1981,13 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
         test(r1 == r1);
         test(r1 != r2);
-        
+
         test(r1->getHash() == r1->getHash());
         test(r1->getHash() != r2->getHash());
         test(r1->getHash() < r2->getHash() || r2->getHash() < r1->getHash());
 
-        test(r1->sentSynchronously() && r1->isSent() && !r1->isCompleted() ||
-             !r1->sentSynchronously() && !r1->isCompleted());
+        test((r1->sentSynchronously() && r1->isSent() && !r1->isCompleted()) ||
+             (!r1->sentSynchronously() && !r1->isCompleted()));
 
         test(!r2->sentSynchronously() && !r2->isCompleted());
 
@@ -1332,13 +1995,13 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
         r1->waitForSent();
         test(r1->isSent());
-        
+
         r2->waitForSent();
         test(r2->isSent());
-        
+
         r1->waitForCompleted();
         test(r1->isCompleted());
-        
+
         r2->waitForCompleted();
         test(r2->isCompleted());
 
@@ -1349,5 +2012,3 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
     p->shutdown();
 }
-
-

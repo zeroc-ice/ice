@@ -732,7 +732,7 @@ public final class ObjectAdapterI implements ObjectAdapter
     }
 
     public void
-    flushBatchRequests()
+    flushAsyncBatchRequests(IceInternal.CommunicatorBatchOutgoingAsync outAsync)
     {
         java.util.List<IceInternal.IncomingConnectionFactory> f;
         synchronized(this)
@@ -741,7 +741,7 @@ public final class ObjectAdapterI implements ObjectAdapter
         }
         for(IceInternal.IncomingConnectionFactory p : f)
         {
-            p.flushBatchRequests();
+            p.flushAsyncBatchRequests(outAsync);
         }
     }
 

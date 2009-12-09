@@ -30,11 +30,8 @@ public:
         return *this;
     }
 
-    virtual void __incRef(); // First derived class with class data members overrides this.
-    virtual void __decRef(); // Ditto.
-    virtual void __addObject(GCCountMap&) {} // Ditto.
-    virtual bool __usesClasses() { return false; } // Ditto.
-
+    virtual void __incRef();
+    virtual void __decRef();
     virtual int __getRef() const;
     virtual void __setNoDelete(bool);
 
@@ -46,15 +43,7 @@ public:
         return _ref;
     }
 
-    void __decRefUnsafe()
-    {
-        --_ref;
-    }
-
 protected:
-
-    void __gcIncRef();
-    void __gcDecRef();
 
     friend class IceInternal::GC; // Allows IceInternal::GC to read value of _ref.
 };

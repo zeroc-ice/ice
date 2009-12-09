@@ -111,10 +111,9 @@ namespace IceInternal
                 throw ex;
             }
 
-            if(ex is Ice.ObjectNotExistException)
+            Ice.ObjectNotExistException one = ex as Ice.ObjectNotExistException;
+            if(one != null)
             {
-                Ice.ObjectNotExistException one = (Ice.ObjectNotExistException)ex;
-                
                 if(@ref.getRouterInfo() != null && one.operation.Equals("ice_add_proxy"))
                 {
                     //

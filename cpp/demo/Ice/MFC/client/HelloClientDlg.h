@@ -49,9 +49,10 @@ protected:
     afx_msg void OnSayHello();
     afx_msg void OnFlush();
     afx_msg void OnShutdown();
-    afx_msg LRESULT OnAMIException(WPARAM, LPARAM);
-    afx_msg LRESULT OnAMIResponse(WPARAM, LPARAM);
     afx_msg LRESULT OnAMISent(WPARAM, LPARAM);
+    afx_msg LRESULT OnAMIResponse(WPARAM, LPARAM);
+    afx_msg LRESULT OnAMIException(WPARAM, LPARAM);
+    afx_msg LRESULT OnAMIFlush(WPARAM, LPARAM);
     DECLARE_MESSAGE_MAP()
 
 private:

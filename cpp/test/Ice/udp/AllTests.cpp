@@ -194,11 +194,14 @@ allTests(const CommunicatorPtr& communicator)
     }
     test(ret);
 
-#ifndef _WIN32
     //
-    // Windows doesn't support sending replies back on the multicast UDP connection,
-    // see UdpTransceiver constructor for the details.
+    // Neither Windows nor Snow Leopard support sending replies back
+    // on the multicast UDP connection. For Windows, see
+    // UdpTransceiver constructor for the details.
     // 
+#if defined(_WIN32) || defined(__APPLE__)
+    cout << "ok" << endl;
+#else
     nRetry = 5;
     while(nRetry-- > 0)
     {
@@ -220,8 +223,6 @@ allTests(const CommunicatorPtr& communicator)
     {
         cout << "ok" << endl;
     }
-#else
-    cout << "ok" << endl;
 #endif
 
     return objMcast;
