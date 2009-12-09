@@ -20,7 +20,12 @@ if len(path) == 0:
 sys.path.append(os.path.join(path[0]))
 from scripts import *
 
-def runIceGridRegistry(testdir):
+testdir = os.getcwd();
+
+# No need to spawn repliacs for this test.
+IceGridAdmin.nreplicas = 0
+
+def runIceGridRegistry():
     iceGrid = ""
     if TestUtil.isBCC2010() or TestUtil.isVC6():
         iceGrid = os.path.join(TestUtil.getServiceDir(), "icegridregistry")
@@ -29,7 +34,7 @@ def runIceGridRegistry(testdir):
 
     command = ' --nowarn ' + IceGridAdmin.registryOptions
 
-    dataDir = os.path.join(testdir, "db")
+    dataDir = os.path.join(testdir, "db", "registry")
     if not os.path.exists(dataDir):
         os.mkdir(dataDir)
 
@@ -45,15 +50,13 @@ def runIceGridRegistry(testdir):
     proc = TestUtil.spawn(cmd)
     return proc
 
-IceGridAdmin.cleanDbDir("./db")
+registryProcs = IceGridAdmin.startIceGridRegistry(testdir)
 
 print "testing IceGrid file lock...",
-iceGrid1 = runIceGridRegistry(".")
-iceGrid1.expect("[^\n]+ ready\n")
-
-iceGrid2 = runIceGridRegistry(".")
-iceGrid2.expect(".*IceUtil::FileLockedException.*")
+iceGrid = runIceGridRegistry()
+iceGrid.expect(".*IceUtil::FileLockedException.*")
+iceGrid.wait()
 print "ok"
 
-IceGridAdmin.iceGridAdmin("registry shutdown")
-IceGridAdmin.cleanDbDir("./db")
+IceGridAdmin.shutdownIceGridRegistry(registryProcs)
+
