@@ -311,7 +311,7 @@ namespace Ice
                 foreach(string propKey in iceKey.GetValueNames())
                 {
                     RegistryValueKind kind = iceKey.GetValueKind(propKey);
-                    if(kind == RegistryValueKind.String || RegistryValueKind.ExpandString)
+                    if(kind == RegistryValueKind.String || kind == RegistryValueKind.ExpandString)
                     {
                         setProperty(propKey, iceKey.GetValue(propKey).ToString());
                     }
