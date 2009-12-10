@@ -226,7 +226,7 @@ namespace Ice
                         // Extra unescaped slash found.
                         //
                         IdentityParseException ex = new IdentityParseException();
-                        ex.str = s;
+                        ex.str = "unescaped backslash in identity `" + s + "'";
                         throw ex;
                     }
                 }
@@ -235,28 +235,40 @@ namespace Ice
 
             if(slash == -1)
             {
-                if(!IceUtilInternal.StringUtil.unescapeString(s, 0, s.Length, out ident.name))
+                ident.category = "";
+                try
+                {
+                    ident.name = IceUtilInternal.StringUtil.unescapeString(s, 0, s.Length);
+                }
+                catch(System.ArgumentException e)
                 {
                     IdentityParseException ex = new IdentityParseException();
-                    ex.str = s;
+                    ex.str = "invalid identity name `" + s + "': " + e.Message;
                     throw ex;
                 }
-                ident.category = "";
             }
             else
             {
-                if(!IceUtilInternal.StringUtil.unescapeString(s, 0, slash, out ident.category))
+                try
+                {
+                    ident.category = IceUtilInternal.StringUtil.unescapeString(s, 0, slash);
+                }
+                catch(System.ArgumentException e)
                 {
                     IdentityParseException ex = new IdentityParseException();
-                    ex.str = s;
+                    ex.str = "invalid category in identity `" + s + "': " + e.Message;
                     throw ex;
                 }
                 if(slash + 1 < s.Length)
                 {
-                    if(!IceUtilInternal.StringUtil.unescapeString(s, slash + 1, s.Length, out ident.name))
+                    try
+                    {
+                        ident.name = IceUtilInternal.StringUtil.unescapeString(s, slash + 1, s.Length);
+                    }
+                    catch(System.ArgumentException e)
                     {
                         IdentityParseException ex = new IdentityParseException();
-                        ex.str = s;
+                        ex.str = "invalid name in identity `" + s + "': " + e.Message;
                         throw ex;
                     }
                 }

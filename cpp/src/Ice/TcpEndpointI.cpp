@@ -62,7 +62,7 @@ IceInternal::TcpEndpointI::TcpEndpointI(const InstancePtr& instance, const strin
         if(option.length() != 2 || option[0] != '-')
         {
             EndpointParseException ex(__FILE__, __LINE__);
-            ex.str = "tcp " + str;
+            ex.str = "expected an endpoint option but found `" + option + "' in endpoint `tcp " + str + "'";
             throw ex;
         }
 
@@ -90,7 +90,7 @@ IceInternal::TcpEndpointI::TcpEndpointI(const InstancePtr& instance, const strin
                 if(argument.empty())
                 {
                     EndpointParseException ex(__FILE__, __LINE__);
-                    ex.str = "tcp " + str;
+                    ex.str = "no argument provided for -h option in endpoint `tcp " + str + "'";
                     throw ex;
                 }
                 const_cast<string&>(_host) = argument;
@@ -99,11 +99,23 @@ IceInternal::TcpEndpointI::TcpEndpointI(const InstancePtr& instance, const strin
 
             case 'p':
             {
-                istringstream p(argument);
-                if(!(p >> const_cast<Int&>(_port)) || !p.eof() || _port < 0 || _port > 65535)
+                if(argument.empty())
                 {
                     EndpointParseException ex(__FILE__, __LINE__);
-                    ex.str = "tcp " + str;
+                    ex.str = "no argument provided for -p option in endpoint `tcp " + str + "'";
+                    throw ex;
+                }
+                istringstream p(argument);
+                if(!(p >> const_cast<Int&>(_port)) || !p.eof())
+                {
+                    EndpointParseException ex(__FILE__, __LINE__);
+                    ex.str = "invalid port value `" + argument + "' in endpoint `tcp " + str + "'";
+                    throw ex;
+                }
+                else if(_port < 0 || _port > 65535)
+                {
+                    EndpointParseException ex(__FILE__, __LINE__);
+                    ex.str = "port value `" + argument + "' out of range in endpoint `tcp " + str + "'";
                     throw ex;
                 }
                 break;
@@ -111,11 +123,17 @@ IceInternal::TcpEndpointI::TcpEndpointI(const InstancePtr& instance, const strin
 
             case 't':
             {
+                if(argument.empty())
+                {
+                    EndpointParseException ex(__FILE__, __LINE__);
+                    ex.str = "no argument provided for -t option in endpoint `tcp " + str + "'";
+                    throw ex;
+                }
                 istringstream t(argument);
                 if(!(t >> const_cast<Int&>(_timeout)) || !t.eof())
                 {
                     EndpointParseException ex(__FILE__, __LINE__);
-                    ex.str = "tcp " + str;
+                    ex.str = "invalid timeout value `" + argument + "' in endpoint `tcp " + str + "'";
                     throw ex;
                 }
                 break;
@@ -126,7 +144,7 @@ IceInternal::TcpEndpointI::TcpEndpointI(const InstancePtr& instance, const strin
                 if(!argument.empty())
                 {
                     EndpointParseException ex(__FILE__, __LINE__);
-                    ex.str = "tcp " + str;
+                    ex.str = "unexpected argument `" + argument + "' provided for -z option in `tcp " + str + "'";
                     throw ex;
                 }
                 const_cast<bool&>(_compress) = true;
@@ -136,7 +154,7 @@ IceInternal::TcpEndpointI::TcpEndpointI(const InstancePtr& instance, const strin
             default:
             {
                 EndpointParseException ex(__FILE__, __LINE__);
-                ex.str = "tcp " + str;
+                ex.str = "unknown option `" + option + "' in `tcp " + str + "'";
                 throw ex;
             }
         }
@@ -155,7 +173,7 @@ IceInternal::TcpEndpointI::TcpEndpointI(const InstancePtr& instance, const strin
         else
         {
             EndpointParseException ex(__FILE__, __LINE__);
-            ex.str = "tcp " + str;
+            ex.str = "`-h *' not valid for proxy endpoint `tcp " + str + "'";
             throw ex;
         }
     }

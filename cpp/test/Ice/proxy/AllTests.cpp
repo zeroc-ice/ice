@@ -93,6 +93,27 @@ allTests(const Ice::CommunicatorPtr& communicator)
     test(b1->ice_getIdentity().name == "test" && b1->ice_getIdentity().category == "category" &&
          b1->ice_getAdapterId().empty());
 
+    b1 = communicator->stringToProxy("");
+    test(!b1);
+    b1 = communicator->stringToProxy("\"\"");
+    test(!b1);
+    try
+    {
+        b1 = communicator->stringToProxy("\"\" test"); // Invalid trailing characters.
+        test(false);
+    }
+    catch(const Ice::ProxyParseException&)
+    {
+    }
+    try
+    {
+        b1 = communicator->stringToProxy("test:"); // Missing endpoint.
+        test(false);
+    }
+    catch(const Ice::EndpointParseException&)
+    {
+    }
+
     b1 = communicator->stringToProxy("test@adapter");
     test(b1->ice_getIdentity().name == "test" && b1->ice_getIdentity().category.empty() &&
          b1->ice_getAdapterId() == "adapter");

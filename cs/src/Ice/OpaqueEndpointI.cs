@@ -36,7 +36,8 @@ namespace IceInternal
                 string option = arr[i++];
                 if(option.Length != 2 || option[0] != '-')
                 {
-                    throw new Ice.EndpointParseException("opaque " + str);
+                    throw new Ice.EndpointParseException("expected an endpoint option but found `" + option +
+                                                         "' in endpoint `opaque " + str + "'");
                 }
 
                 string argument = null;
@@ -51,7 +52,8 @@ namespace IceInternal
                     {
                         if(argument == null)
                         {
-                            throw new Ice.EndpointParseException("opaque " + str);
+                            throw new Ice.EndpointParseException(
+                                "no argument provided for -t option in endpoint `opaque " + str + "'");
                         }
 
                         int t;
@@ -61,16 +63,23 @@ namespace IceInternal
                         }
                         catch(System.FormatException)
                         {
-                            throw new Ice.EndpointParseException("opaque " + str);
+                            throw new Ice.EndpointParseException("invalid timeout value `" + argument +
+                                                                 "' in endpoint `opaque " + str + "'");
                         }
 
                         if(t < 0 || t > 65535)
                         {
-                            throw new Ice.EndpointParseException("opaque " + str);
+                            throw new Ice.EndpointParseException("timeout value `" + argument +
+                                                                 "' out of range in endpoint `opaque " + str + "'");
                         }
 
                         _type = (short)t;
                         ++topt;
+                        if(topt > 1)
+                        {
+                            throw new Ice.EndpointParseException("multiple -t options in endpoint `opaque " + str +
+                                                                 "'");
+                        }
                         break;
                     }
 
@@ -78,30 +87,43 @@ namespace IceInternal
                     {
                         if(argument == null)
                         {
-                            throw new Ice.EndpointParseException("opaque " + str);
+                            throw new Ice.EndpointParseException(
+                                "no argument provided for -v option in endpoint `opaque " + str + "'");
                         }
                         for(int j = 0; j < argument.Length; ++j)
                         {
                             if(!IceUtilInternal.Base64.isBase64(argument[j]))
                             {
-                                throw new Ice.EndpointParseException("opaque " + str);
+                                throw new Ice.EndpointParseException(
+                                    "invalid base64 character `" + argument[j] + "' (ordinal " +
+                                    ((int)argument[j]) + ") in endpoint `opaque " + str + "'");
                             }
                         }
                         _rawBytes = IceUtilInternal.Base64.decode(argument);
                         ++vopt;
+                        if(vopt > 1)
+                        {
+                            throw new Ice.EndpointParseException("multiple -v options in endpoint `opaque " + str +
+                                                                 "'");
+                        }
                         break;
                     }
 
                     default:
                     {
-                        throw new Ice.EndpointParseException("opaque " + str);
+                        throw new Ice.EndpointParseException("invalid option `" + option + "' in endpoint `opaque " +
+                                                              str + "'");
                     }
                 }
             }
 
-            if(topt != 1 || vopt != 1)
+            if(topt != 1)
             {
-                throw new Ice.EndpointParseException("opaque " + str);
+                throw new Ice.EndpointParseException("no -t option in endpoint `opaque " + str + "'");
+            }
+            if(vopt != 1)
+            {
+                throw new Ice.EndpointParseException("no -v option in endpoint `opaque " + str + "'");
             }
             calcHashValue();
         }

@@ -406,7 +406,7 @@ IceInternal::Instance::stringToIdentity(const string& s) const
                 // Extra unescaped slash found.
                 //
                 IdentityParseException ex(__FILE__, __LINE__);
-                ex.str = s;
+                ex.str = "unescaped backslash in identity `" + s + "'";
                 throw ex;
             }
         }
@@ -415,27 +415,39 @@ IceInternal::Instance::stringToIdentity(const string& s) const
 
     if(slash == string::npos)
     {
-        if(!IceUtilInternal::unescapeString(s, 0, s.size(), ident.name))
+        try
+        {
+            ident.name = IceUtilInternal::unescapeString(s, 0, s.size());
+        }
+        catch(const IceUtil::IllegalArgumentException& e)
         {
             IdentityParseException ex(__FILE__, __LINE__);
-            ex.str = s;
+            ex.str = "invalid identity name `" + s + "': " + e.reason();
             throw ex;
         }
     }
     else
     {
-        if(!IceUtilInternal::unescapeString(s, 0, slash, ident.category))
+        try
+        {
+            ident.category = IceUtilInternal::unescapeString(s, 0, slash);
+        }
+        catch(const IceUtil::IllegalArgumentException& e)
         {
             IdentityParseException ex(__FILE__, __LINE__);
-            ex.str = s;
+            ex.str = "invalid category in identity `" + s + "': " + e.reason();
             throw ex;
         }
         if(slash + 1 < s.size())
         {
-            if(!IceUtilInternal::unescapeString(s, slash + 1, s.size(), ident.name))
+            try
+            {
+                ident.name = IceUtilInternal::unescapeString(s, slash + 1, s.size());
+            }
+            catch(const IceUtil::IllegalArgumentException& e)
             {
                 IdentityParseException ex(__FILE__, __LINE__);
-                ex.str = s;
+                ex.str = "invalid name in identity `" + s + "': " + e.reason();
                 throw ex;
             }
         }

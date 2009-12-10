@@ -161,11 +161,22 @@ namespace
 {
 
 char
-checkChar(char c)
+checkChar(const string& s, string::size_type pos)
 {
-    if(!(static_cast<unsigned char>(c) >= 32 && static_cast<unsigned char>(c) <= 126))
+    unsigned char c = static_cast<unsigned char>(s[pos]);
+    if(!(c >= 32 && c <= 126))
     {
-        throw IllegalArgumentException(__FILE__, __LINE__, "illegal input character");
+        ostringstream ostr;
+        if(pos > 0)
+        {
+            ostr << "character after `" << s.substr(0, pos) << "'";
+        }
+        else
+        {
+            ostr << "first character";
+        }
+        ostr << " is not a printable ASCII character (ordinal " << (int)c << ")";
+        throw IllegalArgumentException(__FILE__, __LINE__, ostr.str());
     }
     return c;
 }
@@ -186,13 +197,13 @@ decodeChar(const string& s, string::size_type start, string::size_type end, stri
 
     if(s[start] != '\\')
     {
-        c = checkChar(s[start++]);
+        c = checkChar(s, start++);
     }
     else
     {
         if(start + 1 == end)
         {
-            throw IllegalArgumentException(__FILE__, __LINE__, "trailing backslash in argument");
+            throw IllegalArgumentException(__FILE__, __LINE__, "trailing backslash");
         }
         switch(s[++start])
         {
@@ -242,7 +253,7 @@ decodeChar(const string& s, string::size_type start, string::size_type end, stri
             case '6':
             case '7':
             {
-                int oct = 0;
+                int val = 0;
                 for(int j = 0; j < 3 && start < end; ++j)
                 {
                     int charVal = s[start++] - '0';
@@ -251,18 +262,20 @@ decodeChar(const string& s, string::size_type start, string::size_type end, stri
                         --start;
                         break;
                     }
-                    oct = oct * 8 + charVal;
+                    val = val * 8 + charVal;
                 }
-                if(oct > 255)
+                if(val > 255)
                 {
-                    throw IllegalArgumentException(__FILE__, __LINE__, "octal value out of range");
+                    ostringstream ostr;
+                    ostr << "octal value \\" << oct << val << dec << " (" << val << ") is out of range";
+                    throw IllegalArgumentException(__FILE__, __LINE__, ostr.str());
                 }
-                c = (char)oct;
+                c = (char)val;
                 break;
             }
             default:
             {
-                c = checkChar(s[start++]);
+                c = checkChar(s, start++);
                 break;
             }
         }
@@ -289,30 +302,16 @@ decodeString(const string& s, string::size_type start, string::size_type end, st
 //
 // Remove escape sequences added by escapeString.
 //
-bool
-IceUtilInternal::unescapeString(const string& s, string::size_type start, string::size_type end, string& result)
+string
+IceUtilInternal::unescapeString(const string& s, string::size_type start, string::size_type end)
 {
-    if(end > s.size())
-    {
-        throw IllegalArgumentException(__FILE__, __LINE__, "end offset must be <= s.size()");
-    }
-    if(start > end)
-    {
-        throw IllegalArgumentException(__FILE__, __LINE__, "start offset must <= end offset");
-    }
+    assert(start <= end && end <= s.size());
 
+    string result;
     result.reserve(end - start);
-
-    try
-    {
-        result.clear();
-        decodeString(s, start, end, result);
-        return true;
-    }
-    catch(...)
-    {
-        return false;
-    }
+    result.clear();
+    decodeString(s, start, end, result);
+    return result;
 }
 
 bool

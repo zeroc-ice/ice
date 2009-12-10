@@ -72,7 +72,7 @@ IceInternal::EndpointFactoryManager::create(const string& str, bool oaEndpoint) 
     if(beg == string::npos)
     {
         EndpointParseException ex(__FILE__, __LINE__);
-        ex.str = str;
+        ex.str = "value has no non-whitespace characters";
         throw ex;
     }
 

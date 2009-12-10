@@ -46,7 +46,8 @@ final class EndpointI extends IceInternal.EndpointI
             String option = arr[i++];
             if(option.length() != 2 || option.charAt(0) != '-')
             {
-                throw new Ice.EndpointParseException("ssl " + str);
+                throw new Ice.EndpointParseException("expected an endpoint option but found `" + option +
+                                                     "' in endpoint `ssl " + str + "'");
             }
 
             String argument = null;
@@ -65,7 +66,8 @@ final class EndpointI extends IceInternal.EndpointI
                 {
                     if(argument == null)
                     {
-                        throw new Ice.EndpointParseException("ssl " + str);
+                        throw new Ice.EndpointParseException("no argument provided for -h option in endpoint `ssl "
+                                                             + str + "'");
                     }
 
                     _host = argument;
@@ -76,7 +78,8 @@ final class EndpointI extends IceInternal.EndpointI
                 {
                     if(argument == null)
                     {
-                        throw new Ice.EndpointParseException("ssl " + str);
+                        throw new Ice.EndpointParseException("no argument provided for -p option in endpoint `ssl "
+                                                             + str + "'");
                     }
 
                     try
@@ -85,12 +88,14 @@ final class EndpointI extends IceInternal.EndpointI
                     }
                     catch(NumberFormatException ex)
                     {
-                        throw new Ice.EndpointParseException("ssl " + str);
+                        throw new Ice.EndpointParseException("invalid port value `" + argument +
+                                                             "' in endpoint `ssl " + str + "'");
                     }
 
                     if(_port < 0 || _port > 65535)
                     {
-                        throw new Ice.EndpointParseException("ssl " + str);
+                        throw new Ice.EndpointParseException("port value `" + argument +
+                                                             "' out of range in endpoint `ssl " + str + "'");
                     }
 
                     break;
@@ -100,7 +105,8 @@ final class EndpointI extends IceInternal.EndpointI
                 {
                     if(argument == null)
                     {
-                        throw new Ice.EndpointParseException("ssl " + str);
+                        throw new Ice.EndpointParseException("no argument provided for -t option in endpoint `ssl "
+                                                             + str + "'");
                     }
 
                     try
@@ -109,7 +115,8 @@ final class EndpointI extends IceInternal.EndpointI
                     }
                     catch(NumberFormatException ex)
                     {
-                        throw new Ice.EndpointParseException("ssl " + str);
+                        throw new Ice.EndpointParseException("invalid timeout value `" + argument +
+                                                             "' in endpoint `ssl " + str + "'");
                     }
 
                     break;
@@ -119,7 +126,8 @@ final class EndpointI extends IceInternal.EndpointI
                 {
                     if(argument != null)
                     {
-                        throw new Ice.EndpointParseException("ssl " + str);
+                        throw new Ice.EndpointParseException("unexpected argument `" + argument +
+                                                             "' provided for -z option in `ssl " + str + "'");
                     }
 
                     _compress = true;
@@ -128,7 +136,7 @@ final class EndpointI extends IceInternal.EndpointI
 
                 default:
                 {
-                    throw new Ice.EndpointParseException("ssl " + str);
+                    throw new Ice.EndpointParseException("unknown option `" + option + "' in `ssl " + str + "'");
                 }
             }
         }
@@ -145,7 +153,7 @@ final class EndpointI extends IceInternal.EndpointI
             }
             else
             {
-                throw new Ice.EndpointParseException("ssl " + str);
+                throw new Ice.EndpointParseException("`-h *' not valid for proxy endpoint `ssl " + str + "'");
             }
         }
 

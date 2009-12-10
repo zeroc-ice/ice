@@ -124,7 +124,8 @@ local interface Communicator
      * having an identity with a name "MyObject" and a category
      * "MyCategory", with the server running on host "some_host", port
      * 10000. If the string does not parse correctly, the operation
-     * throws {@link ProxyParseException}.
+     * throws one of {@link ProxyParseException},
+     * {@link EndpointParseException}, or {@link IdentityParseException}.
      *
      * @param str The string to convert into a proxy.
      *
@@ -175,7 +176,8 @@ local interface Communicator
 
     /**
      *
-     * Convert a string into an identity.
+     * Convert a string into an identity. If the string does not parse
+     * correctly, the operation throws {@link IdentityParseException}.
      *
      * @param str The string to convert into an identity.
      *

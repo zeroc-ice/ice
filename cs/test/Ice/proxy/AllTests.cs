@@ -98,7 +98,28 @@ public class AllTests
         b1 = communicator.stringToProxy("category/test");
         test(b1.ice_getIdentity().name.Equals("test") && b1.ice_getIdentity().category.Equals("category") &&
              b1.ice_getAdapterId().Length == 0);
-             
+
+        b1 = communicator.stringToProxy("");
+        test(b1 == null);
+        b1 = communicator.stringToProxy("\"\"");
+        test(b1 == null);
+        try
+        {
+            b1 = communicator.stringToProxy("\"\" test"); // Invalid trailing characters.
+            test(false);
+        }
+        catch(Ice.ProxyParseException)
+        {
+        }
+        try
+        {
+            b1 = communicator.stringToProxy("test:"); // Missing endpoint.
+            test(false);
+        }
+        catch(Ice.EndpointParseException)
+        {
+        }
+
         b1 = communicator.stringToProxy("test@adapter");
         test(b1.ice_getIdentity().name.Equals("test") && b1.ice_getIdentity().category.Length == 0 &&
              b1.ice_getAdapterId().Equals("adapter"));

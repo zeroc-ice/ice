@@ -62,7 +62,7 @@ namespace IceInternal
                 if(s.Length == 0)
                 {
                     Ice.EndpointParseException e = new Ice.EndpointParseException();
-                    e.str = str;
+                    e.str = "value has no non-whitespace characters";
                     throw e;
                 }
                 

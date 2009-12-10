@@ -74,7 +74,7 @@ IceInternal::UdpEndpointI::UdpEndpointI(const InstancePtr& instance, const strin
         if(option[0] != '-')
         {
             EndpointParseException ex(__FILE__, __LINE__);
-            ex.str = "udp " + str;
+            ex.str = "expected an endpoint option but found `" + option + "' in endpoint `udp " + str + "'";
             throw ex;
         }
 
@@ -89,7 +89,7 @@ IceInternal::UdpEndpointI::UdpEndpointI(const InstancePtr& instance, const strin
                 if(end == string::npos)
                 {
                     EndpointParseException ex(__FILE__, __LINE__);
-                    ex.str = "udp " + str;
+                    ex.str = "mismatched quotes around `" + argument + "' in endpoint `udp " + str + "'";
                     throw ex;
                 }
                 else
@@ -117,7 +117,7 @@ IceInternal::UdpEndpointI::UdpEndpointI(const InstancePtr& instance, const strin
             if(argument.empty())
             {
                 EndpointParseException ex(__FILE__, __LINE__);
-                ex.str = "udp " + str;
+                ex.str = "no argument provided for -v option in endpoint `udp " + str + "'";
                 throw ex;
             }
 
@@ -125,7 +125,7 @@ IceInternal::UdpEndpointI::UdpEndpointI(const InstancePtr& instance, const strin
             if(pos == string::npos)
             {
                 EndpointParseException ex(__FILE__, __LINE__);
-                ex.str = "udp " + str;
+                ex.str = "malformed protocol version `" + argument + "' in endpoint `udp " + str + "'";
                 throw ex;
             }
             string majorStr = argument.substr(0, pos);
@@ -136,7 +136,7 @@ IceInternal::UdpEndpointI::UdpEndpointI(const InstancePtr& instance, const strin
             if(!(majStr >> majVersion) || !majStr.eof())
             {
                 EndpointParseException ex(__FILE__, __LINE__);
-                ex.str = "udp " + str;
+                ex.str = "invalid protocol major version `" + argument + "' in endpoint `udp " + str + "'";
                 throw ex;
             }
 
@@ -145,14 +145,14 @@ IceInternal::UdpEndpointI::UdpEndpointI(const InstancePtr& instance, const strin
             if(!(minStr >> minVersion) || !minStr.eof())
             {
                 EndpointParseException ex(__FILE__, __LINE__);
-                ex.str = "udp " + str;
+                ex.str = "invalid protocol minor version `" + argument + "' in endpoint `udp " + str + "'";
                 throw ex;
             }
 
             if(majVersion < 1 || majVersion > 255 || minVersion < 0 || minVersion > 255)
             {
                 EndpointParseException ex(__FILE__, __LINE__);
-                ex.str = "udp " + str;
+                ex.str = "range error in protocol version `" + argument + "' in endpoint `udp " + str + "'";
                 throw ex;
             }
 
@@ -174,7 +174,7 @@ IceInternal::UdpEndpointI::UdpEndpointI(const InstancePtr& instance, const strin
             if(argument.empty())
             {
                 EndpointParseException ex(__FILE__, __LINE__);
-                ex.str = "udp " + str;
+                ex.str = "no argument provided for -e option in endpoint `udp " + str + "'";
                 throw ex;
             }
             string::size_type pos = argument.find('.');
@@ -186,7 +186,7 @@ IceInternal::UdpEndpointI::UdpEndpointI(const InstancePtr& instance, const strin
             if(!(majStr >> majVersion) || !majStr.eof())
             {
                 EndpointParseException ex(__FILE__, __LINE__);
-                ex.str = "udp " + str;
+                ex.str = "invalid encoding major version `" + argument + "' in endpoint `udp " + str + "'";
                 throw ex;
             }
 
@@ -195,14 +195,14 @@ IceInternal::UdpEndpointI::UdpEndpointI(const InstancePtr& instance, const strin
             if(!(minStr >> minVersion) || !minStr.eof())
             {
                 EndpointParseException ex(__FILE__, __LINE__);
-                ex.str = "udp " + str;
+                ex.str = "invalid encoding minor version `" + argument + "' in endpoint `udp " + str + "'";
                 throw ex;
             }
 
             if(majVersion < 1 || majVersion > 255 || minVersion < 0 || minVersion > 255)
             {
                 EndpointParseException ex(__FILE__, __LINE__);
-                ex.str = "udp " + str;
+                ex.str = "range error in encoding version `" + argument + "' in endpoint `udp " + str + "'";
                 throw ex;
             }
 
@@ -224,18 +224,30 @@ IceInternal::UdpEndpointI::UdpEndpointI(const InstancePtr& instance, const strin
             if(argument.empty())
             {
                 EndpointParseException ex(__FILE__, __LINE__);
-                ex.str = "udp " + str;
+                ex.str = "no argument provided for -h option in endpoint `udp " + str + "'";
                 throw ex;
             }
             const_cast<string&>(_host) = argument;
         }
         else if(option == "-p")
         {
-            istringstream p(argument);
-            if(!(p >> const_cast<Int&>(_port)) || !p.eof() || _port < 0 || _port > 65535)
+            if(argument.empty())
             {
                 EndpointParseException ex(__FILE__, __LINE__);
-                ex.str = "udp " + str;
+                ex.str = "no argument provided for -p option in endpoint `udp " + str + "'";
+                throw ex;
+            }
+            istringstream p(argument);
+            if(!(p >> const_cast<Int&>(_port)) || !p.eof())
+            {
+                EndpointParseException ex(__FILE__, __LINE__);
+                ex.str = "invalid port value `" + argument + "' in endpoint `udp " + str + "'";
+                throw ex;
+            }
+            else if(_port < 0 || _port > 65535)
+            {
+                EndpointParseException ex(__FILE__, __LINE__);
+                ex.str = "port value `" + argument + "' out of range in endpoint `udp " + str + "'";
                 throw ex;
             }
         }
@@ -244,7 +256,7 @@ IceInternal::UdpEndpointI::UdpEndpointI(const InstancePtr& instance, const strin
             if(!argument.empty())
             {
                 EndpointParseException ex(__FILE__, __LINE__);
-                ex.str = "udp " + str;
+                ex.str = "unexpected argument `" + argument + "' provided for -c option in `udp " + str + "'";
                 throw ex;
             }
             const_cast<bool&>(_connect) = true;
@@ -254,7 +266,7 @@ IceInternal::UdpEndpointI::UdpEndpointI(const InstancePtr& instance, const strin
             if(!argument.empty())
             {
                 EndpointParseException ex(__FILE__, __LINE__);
-                ex.str = "udp " + str;
+                ex.str = "unexpected argument `" + argument + "' provided for -z option in `udp " + str + "'";
                 throw ex;
             }
             const_cast<bool&>(_compress) = true;
@@ -264,25 +276,31 @@ IceInternal::UdpEndpointI::UdpEndpointI(const InstancePtr& instance, const strin
             if(argument.empty())
             {
                 EndpointParseException ex(__FILE__, __LINE__);
-                ex.str = "udp " + str;
+                ex.str = "no argument provided for --interface option in endpoint `udp " + str + "'";
                 throw ex;
             }
             const_cast<string&>(_mcastInterface) = argument;
         }
         else if(option == "--ttl")
         {
+            if(argument.empty())
+            {
+                EndpointParseException ex(__FILE__, __LINE__);
+                ex.str = "no argument provided for --ttl option in endpoint `udp " + str + "'";
+                throw ex;
+            }
             istringstream p(argument);
             if(!(p >> const_cast<Int&>(_mcastTtl)) || !p.eof())
             {
                 EndpointParseException ex(__FILE__, __LINE__);
-                ex.str = "udp " + str;
+                ex.str = "invalid TTL value `" + argument + "' in endpoint `udp " + str + "'";
                 throw ex;
             }
         }
         else
         {
             EndpointParseException ex(__FILE__, __LINE__);
-            ex.str = "udp " + str;
+            ex.str = "unknown option `" + option + "' in `udp " + str + "'";
             throw ex;
         }
     }
@@ -300,7 +318,7 @@ IceInternal::UdpEndpointI::UdpEndpointI(const InstancePtr& instance, const strin
         else
         {
             EndpointParseException ex(__FILE__, __LINE__);
-            ex.str = "udp " + str;
+            ex.str = "`-h *' not valid for proxy endpoint `udp " + str + "'";
             throw ex;
         }
     }

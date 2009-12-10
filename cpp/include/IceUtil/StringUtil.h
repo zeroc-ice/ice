@@ -23,9 +23,10 @@ namespace IceUtilInternal
 ICE_UTIL_API std::string escapeString(const std::string&, const std::string&);
 
 //
-// Remove escape sequences added by escapeString.
+// Remove escape sequences added by escapeString. Throws IllegalArgumentException
+// for an invalid input string.
 //
-ICE_UTIL_API bool unescapeString(const std::string&, std::string::size_type, std::string::size_type, std::string&);
+ICE_UTIL_API std::string unescapeString(const std::string&, std::string::size_type, std::string::size_type);
 
 //
 // Split a string using the given delimiters. Considers single and double quotes;

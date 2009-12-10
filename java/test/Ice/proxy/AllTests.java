@@ -99,12 +99,34 @@ public class AllTests
         test(b1.ice_getIdentity().name.equals("test\1114test"));
 
         b1 = communicator.stringToProxy("test\\b\\f\\n\\r\\t\\'\\\"\\\\test");
-        test(b1.ice_getIdentity().name.equals("test\b\f\n\r\t\'\"\\test") && b1.ice_getIdentity().category.length() == 0);
+        test(b1.ice_getIdentity().name.equals("test\b\f\n\r\t\'\"\\test") &&
+             b1.ice_getIdentity().category.length() == 0);
 
         b1 = communicator.stringToProxy("category/test");
         test(b1.ice_getIdentity().name.equals("test") && b1.ice_getIdentity().category.equals("category") &&
              b1.ice_getAdapterId().length() == 0);
-             
+
+        b1 = communicator.stringToProxy("");
+        test(b1 == null);
+        b1 = communicator.stringToProxy("\"\"");
+        test(b1 == null);
+        try
+        {
+            b1 = communicator.stringToProxy("\"\" test"); // Invalid trailing characters.
+            test(false);
+        }
+        catch(Ice.ProxyParseException ex)
+        {
+        }
+        try
+        {
+            b1 = communicator.stringToProxy("test:"); // Missing endpoint.
+            test(false);
+        }
+        catch(Ice.EndpointParseException ex)
+        {
+        }
+
         b1 = communicator.stringToProxy("test@adapter");
         test(b1.ice_getIdentity().name.equals("test") && b1.ice_getIdentity().category.length() == 0 &&
              b1.ice_getAdapterId().equals("adapter"));
@@ -637,7 +659,7 @@ public class AllTests
             Ice.ObjectPrx p1 = communicator.stringToProxy("test:opaque -t 1 -v CTEyNy4wLjAuMeouAAAQJwAAAA==");
             String pstr = communicator.proxyToString(p1);
             test(pstr.equals("test -t:tcp -h 127.0.0.1 -p 12010 -t 10000"));
-        
+
             // Working?
             boolean ssl = communicator.getProperties().getProperty("Ice.Default.Protocol").equals("ssl");
             if(!ssl)

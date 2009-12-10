@@ -199,11 +199,22 @@ public final class StringUtil
     }
 
     private static char
-    checkChar(char c)
+    checkChar(String s, int pos)
     {
+        char c = s.charAt(pos);
         if(!(c >= 32 && c <= 126))
         {
-            throw new IllegalArgumentException("illegal input character");
+            String msg;
+            if(pos > 0)
+            {
+                msg = "character after `" + s.substring(0, pos) + "'";
+            }
+            else
+            {
+                msg = "first character";
+            }
+            msg += " is not a printable ASCII character (ordinal " + (int)c + ")";
+            throw new IllegalArgumentException(msg);
         }
         return c;
     }
@@ -223,13 +234,13 @@ public final class StringUtil
 
         if(s.charAt(start) != '\\')
         {
-            c = checkChar(s.charAt(start++));
+            c = checkChar(s, start++);
         }
         else
         {
             if(start + 1 == end)
             {
-                throw new IllegalArgumentException("trailing backslash in argument");
+                throw new IllegalArgumentException("trailing backslash");
             }
             switch(s.charAt(++start))
             {
@@ -279,7 +290,7 @@ public final class StringUtil
                 case '6':
                 case '7':
                 {
-                    int oct = 0;
+                    int val = 0;
                     for(int j = 0; j < 3 && start < end; ++j)
                     {
                         int charVal = s.charAt(start++) - '0';
@@ -288,18 +299,19 @@ public final class StringUtil
                             --start;
                             break;
                         }
-                        oct = oct * 8 + charVal;
+                        val = val * 8 + charVal;
                     }
-                    if(oct > 255)
+                    if(val > 255)
                     {
-                        throw new IllegalArgumentException("octal value out of range");
+                        String msg = "octal value \\" + Integer.toOctalString(val) + " (" + val + ") is out of range";
+                        throw new IllegalArgumentException(msg);
                     }
-                    c = (char)oct;
+                    c = (char)val;
                     break;
                 }
                 default:
                 {
-                    c = checkChar(s.charAt(start++));
+                    c = checkChar(s, start++);
                     break;
                 }
             }
@@ -324,42 +336,33 @@ public final class StringUtil
     }
 
     //
-    // Remove escape sequences added by escapeString.
+    // Remove escape sequences added by escapeString. Throws IllegalArgumentException
+    // for an invalid input string.
     //
-    public static boolean
-    unescapeString(String s, int start, int end, Ice.StringHolder result)
+    public static String
+    unescapeString(String s, int start, int end)
     {
-        if(start < 0)
+        assert(start >= 0 && start <= end && end <= s.length());
+
+        StringBuilder sb = new StringBuilder(end - start);
+        decodeString(s, start, end, sb);
+        String decodedString = sb.toString();
+
+        byte[] arr = new byte[decodedString.length()];
+        for(int i = 0; i < arr.length; ++i)
         {
-            throw new IllegalArgumentException("start offset must be >= 0");
-        }
-        if(end > s.length())
-        {
-            throw new IllegalArgumentException("end offset must <= s.length()");
-        }
-        if(start > end)
-        {
-            throw new IllegalArgumentException("start offset must <= end offset");
+            arr[i] = (byte)decodedString.charAt(i);
         }
 
         try
         {
-            StringBuilder sb = new StringBuilder(end - start);
-            decodeString(s, start, end, sb);
-            String decodedString = sb.toString();
-
-            byte[] arr = new byte[decodedString.length()];
-            for(int i = 0; i < arr.length; ++i)
-            {
-                arr[i] = (byte)decodedString.charAt(i);
-            }
-
-            result.value = new String(arr, 0, arr.length, "UTF8");
-            return true;
+            return new String(arr, 0, arr.length, "UTF8");
         }
-        catch(java.lang.Exception ex)
+        catch(java.io.UnsupportedEncodingException ex)
         {
-            return false;
+            IllegalArgumentException e = new IllegalArgumentException("unsupported encoding");
+            e.initCause(ex);
+            throw e;
         }
     }
 

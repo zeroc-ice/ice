@@ -62,7 +62,7 @@ IceSSL::EndpointI::EndpointI(const InstancePtr& instance, const string& str, boo
         if(option.length() != 2 || option[0] != '-')
         {
             EndpointParseException ex(__FILE__, __LINE__);
-            ex.str = "ssl " + str;
+            ex.str = "expected an endpoint option but found `" + option + "' in endpoint `ssl " + str + "'";
             throw ex;
         }
 
@@ -90,7 +90,7 @@ IceSSL::EndpointI::EndpointI(const InstancePtr& instance, const string& str, boo
                 if(argument.empty())
                 {
                     EndpointParseException ex(__FILE__, __LINE__);
-                    ex.str = "ssl " + str;
+                    ex.str = "no argument provided for -h option in endpoint `ssl " + str + "'";
                     throw ex;
                 }
                 const_cast<string&>(_host) = argument;
@@ -99,11 +99,23 @@ IceSSL::EndpointI::EndpointI(const InstancePtr& instance, const string& str, boo
 
             case 'p':
             {
-                istringstream p(argument);
-                if(!(p >> const_cast<Int&>(_port)) || !p.eof() || _port < 0 || _port > 65535)
+                if(argument.empty())
                 {
                     EndpointParseException ex(__FILE__, __LINE__);
-                    ex.str = "ssl " + str;
+                    ex.str = "no argument provided for -p option in endpoint `ssl " + str + "'";
+                    throw ex;
+                }
+                istringstream p(argument);
+                if(!(p >> const_cast<Int&>(_port)) || !p.eof())
+                {
+                    EndpointParseException ex(__FILE__, __LINE__);
+                    ex.str = "invalid port value `" + argument + "' in endpoint `ssl " + str + "'";
+                    throw ex;
+                }
+                else if(_port < 0 || _port > 65535)
+                {
+                    EndpointParseException ex(__FILE__, __LINE__);
+                    ex.str = "port value `" + argument + "' out of range in endpoint `ssl " + str + "'";
                     throw ex;
                 }
                 break;
@@ -111,11 +123,17 @@ IceSSL::EndpointI::EndpointI(const InstancePtr& instance, const string& str, boo
 
             case 't':
             {
+                if(argument.empty())
+                {
+                    EndpointParseException ex(__FILE__, __LINE__);
+                    ex.str = "no argument provided for -t option in endpoint `ssl " + str + "'";
+                    throw ex;
+                }
                 istringstream t(argument);
                 if(!(t >> const_cast<Int&>(_timeout)) || !t.eof())
                 {
                     EndpointParseException ex(__FILE__, __LINE__);
-                    ex.str = "ssl " + str;
+                    ex.str = "invalid timeout value `" + argument + "' in endpoint `ssl " + str + "'";
                     throw ex;
                 }
                 break;
@@ -126,7 +144,7 @@ IceSSL::EndpointI::EndpointI(const InstancePtr& instance, const string& str, boo
                 if(!argument.empty())
                 {
                     EndpointParseException ex(__FILE__, __LINE__);
-                    ex.str = "ssl " + str;
+                    ex.str = "unexpected argument `" + argument + "' provided for -z option in `ssl " + str + "'";
                     throw ex;
                 }
                 const_cast<bool&>(_compress) = true;
@@ -136,7 +154,7 @@ IceSSL::EndpointI::EndpointI(const InstancePtr& instance, const string& str, boo
             default:
             {
                 EndpointParseException ex(__FILE__, __LINE__);
-                ex.str = "ssl " + str;
+                ex.str = "unknown option `" + option + "' in `ssl " + str + "'";
                 throw ex;
             }
         }
@@ -155,7 +173,7 @@ IceSSL::EndpointI::EndpointI(const InstancePtr& instance, const string& str, boo
         else
         {
             EndpointParseException ex(__FILE__, __LINE__);
-            ex.str = "ssl " + str;
+            ex.str = "`-h *' not valid for proxy endpoint `ssl " + str + "'";
             throw ex;
         }
     }

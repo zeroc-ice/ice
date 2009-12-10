@@ -1236,7 +1236,7 @@ namespace Ice
                         continue;
                     }
                     Ice.EndpointParseException e2 = new Ice.EndpointParseException();
-                    e2.str = s;
+                    e2.str = "invalid object adapter endpoint `" + s + "'";
                     throw e2;
                 }
                 endpoints.Add(endp);

@@ -252,7 +252,7 @@ public final class Util
                     // Extra unescaped slash found.
                     //
                     IdentityParseException ex = new IdentityParseException();
-                    ex.str = s;
+                    ex.str = "unescaped backslash in identity `" + s + "'";
                     throw ex;
                 }
             }
@@ -261,35 +261,42 @@ public final class Util
 
         if(slash == -1)
         {
-            StringHolder token = new StringHolder();
-            if(!IceUtilInternal.StringUtil.unescapeString(s, 0, s.length(), token))
+            ident.category = "";
+            try
+            {
+                ident.name = IceUtilInternal.StringUtil.unescapeString(s, 0, s.length());
+            }
+            catch(IllegalArgumentException e)
             {
                 IdentityParseException ex = new IdentityParseException();
-                ex.str = s;
+                ex.str = "invalid identity name `" + s + "': " + e.getMessage();
                 throw ex;
             }
-            ident.category = "";
-            ident.name = token.value;
         }
         else
         {
-            StringHolder token = new StringHolder();
-            if(!IceUtilInternal.StringUtil.unescapeString(s, 0, slash, token))
+            try
+            {
+                ident.category = IceUtilInternal.StringUtil.unescapeString(s, 0, slash);
+            }
+            catch(IllegalArgumentException e)
             {
                 IdentityParseException ex = new IdentityParseException();
-                ex.str = s;
+                ex.str = "invalid category in identity `" + s + "': " + e.getMessage();
                 throw ex;
             }
-            ident.category = token.value;
             if(slash + 1 < s.length())
             {
-                if(!IceUtilInternal.StringUtil.unescapeString(s, slash + 1, s.length(), token))
+                try
+                {
+                    ident.name = IceUtilInternal.StringUtil.unescapeString(s, slash + 1, s.length());
+                }
+                catch(IllegalArgumentException e)
                 {
                     IdentityParseException ex = new IdentityParseException();
-                    ex.str = s;
+                    ex.str = "invalid name in identity `" + s + "': " + e.getMessage();
                     throw ex;
                 }
-                ident.name = token.value;
             }
             else
             {

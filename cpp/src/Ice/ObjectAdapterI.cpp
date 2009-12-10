@@ -1213,7 +1213,7 @@ Ice::ObjectAdapterI::parseEndpoints(const string& endpts, bool oaEndpoints) cons
         if(endp == 0)
         {
             EndpointParseException ex(__FILE__, __LINE__);
-            ex.str = s;
+            ex.str = "invalid object adapter endpoint `" + s + "'";
             throw ex;
         }
         endpoints.push_back(endp);

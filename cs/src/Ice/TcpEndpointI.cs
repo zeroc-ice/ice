@@ -52,7 +52,7 @@ namespace IceInternal
                 if(option.Length != 2 || option[0] != '-')
                 {
                     Ice.EndpointParseException e = new Ice.EndpointParseException();
-                    e.str = "tcp " + str;
+                    e.str = "expected an endpoint option but found `" + option + "' in endpoint `tcp " + str + "'";
                     throw e;
                 }
 
@@ -73,7 +73,7 @@ namespace IceInternal
                         if(argument == null)
                         {
                             Ice.EndpointParseException e = new Ice.EndpointParseException();
-                            e.str = "tcp " + str;
+                            e.str = "no argument provided for -h option in endpoint `tcp " + str + "'";
                             throw e;
                         }
 
@@ -86,7 +86,7 @@ namespace IceInternal
                         if(argument == null)
                         {
                             Ice.EndpointParseException e = new Ice.EndpointParseException();
-                            e.str = "tcp " + str;
+                            e.str = "no argument provided for -p option in endpoint `tcp " + str + "'";
                             throw e;
                         }
 
@@ -97,14 +97,14 @@ namespace IceInternal
                         catch(System.FormatException ex)
                         {
                             Ice.EndpointParseException e = new Ice.EndpointParseException(ex);
-                            e.str = "tcp " + str;
+                            e.str = "invalid port value `" + argument + "' in endpoint `tcp " + str + "'";
                             throw e;
                         }
 
                         if(_port < 0 || _port > 65535)
                         {
                             Ice.EndpointParseException e = new Ice.EndpointParseException();
-                            e.str = "tcp " + str;
+                            e.str = "port value `" + argument + "' out of range in endpoint `tcp " + str + "'";
                             throw e;
                         }
 
@@ -116,7 +116,7 @@ namespace IceInternal
                         if(argument == null)
                         {
                             Ice.EndpointParseException e = new Ice.EndpointParseException();
-                            e.str = "tcp " + str;
+                            e.str = "no argument provided for -t option in endpoint `tcp " + str + "'";
                             throw e;
                         }
 
@@ -127,7 +127,7 @@ namespace IceInternal
                         catch(System.FormatException ex)
                         {
                             Ice.EndpointParseException e = new Ice.EndpointParseException(ex);
-                            e.str = "tcp " + str;
+                            e.str = "invalid timeout value `" + argument + "' in endpoint `tcp " + str + "'";
                             throw e;
                         }
 
@@ -139,7 +139,8 @@ namespace IceInternal
                         if(argument != null)
                         {
                             Ice.EndpointParseException e = new Ice.EndpointParseException();
-                            e.str = "tcp " + str;
+                            e.str = "unexpected argument `" + argument + "' provided for -z option in `tcp " + str +
+                                    "'";
                             throw e;
                         }
 
@@ -150,7 +151,7 @@ namespace IceInternal
                     default:
                     {
                         Ice.EndpointParseException e = new Ice.EndpointParseException();
-                        e.str = "tcp " + str;
+                        e.str = "unknown option `" + option + "' in `tcp " + str + "'";
                         throw e;
                     }
                 }
@@ -168,7 +169,7 @@ namespace IceInternal
                 }
                 else
                 {
-                    throw new Ice.EndpointParseException("tcp " + str);
+                    throw new Ice.EndpointParseException("`-h *' not valid for proxy endpoint `tcp " + str + "'");
                 }
             }
 

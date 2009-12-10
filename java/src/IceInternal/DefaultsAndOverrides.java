@@ -108,7 +108,7 @@ public final class DefaultsAndOverrides
         else
         {
             Ice.EndpointSelectionTypeParseException ex = new Ice.EndpointSelectionTypeParseException();
-            ex.str = value;
+            ex.str = "illegal value `" + value + "'; expected `Random' or `Ordered'";
             throw ex;
         }
 

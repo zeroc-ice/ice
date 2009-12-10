@@ -46,7 +46,7 @@ IceInternal::OpaqueEndpointI::OpaqueEndpointI(const string& str)
         if(option.length() != 2 || option[0] != '-')
         {
             EndpointParseException ex(__FILE__, __LINE__);
-            ex.str = "opaque " + str;
+            ex.str = "expected an endpoint option but found `" + option + "' in endpoint `opaque " + str + "'";
             throw ex;
         }
 
@@ -67,16 +67,34 @@ IceInternal::OpaqueEndpointI::OpaqueEndpointI(const string& str)
         {
             case 't':
             {
-                istringstream p(argument);
-                Ice::Int t;
-                if(!(p >> t) || !p.eof() || t < 0 || t > 65535)
+                if(argument.empty())
                 {
                     EndpointParseException ex(__FILE__, __LINE__);
-                    ex.str = "opaque " + str;
+                    ex.str = "no argument provided for -t option in endpoint `opaque " + str + "'";
+                    throw ex;
+                }
+                istringstream p(argument);
+                Ice::Int t;
+                if(!(p >> t) || !p.eof())
+                {
+                    EndpointParseException ex(__FILE__, __LINE__);
+                    ex.str = "invalid timeout value `" + argument + "' in endpoint `opaque " + str + "'";
+                    throw ex;
+                }
+                else if(t < 0 || t > 65535)
+                {
+                    EndpointParseException ex(__FILE__, __LINE__);
+                    ex.str = "timeout value `" + argument + "' out of range in endpoint `opaque " + str + "'";
                     throw ex;
                 }
                 _type = static_cast<Ice::Short>(t);
                 ++topt;
+                if(topt > 1)
+                {
+                    EndpointParseException ex(__FILE__, __LINE__);
+                    ex.str = "multiple -t options in endpoint `opaque " + str + "'";
+                    throw ex;
+                }
                 break;
             }
 
@@ -85,7 +103,7 @@ IceInternal::OpaqueEndpointI::OpaqueEndpointI(const string& str)
                 if(argument.empty())
                 {
                     EndpointParseException ex(__FILE__, __LINE__);
-                    ex.str = "opaque " + str;
+                    ex.str = "no argument provided for -v option in endpoint `opaque " + str + "'";
                     throw ex;
                 }
                 for(string::size_type i = 0; i < argument.size(); ++i)
@@ -93,27 +111,43 @@ IceInternal::OpaqueEndpointI::OpaqueEndpointI(const string& str)
                     if(!Base64::isBase64(argument[i]))
                     {
                         EndpointParseException ex(__FILE__, __LINE__);
-                        ex.str = "opaque " + str;
+                        ostringstream ostr;
+                        ostr << "invalid base64 character `" << argument[i] << "' (ordinal " << (int)argument[i]
+                             << ") in endpoint `opaque " << str << "'";
+                        ex.str = ostr.str();
                         throw ex;
                     }
                 }
                 const_cast<vector<Byte>&>(_rawBytes) = Base64::decode(argument);
                 ++vopt;
+                if(vopt > 1)
+                {
+                    EndpointParseException ex(__FILE__, __LINE__);
+                    ex.str = "multiple -v options in endpoint `opaque " + str + "'";
+                    throw ex;
+                }
                 break;
             }
 
             default:
             {
                 EndpointParseException ex(__FILE__, __LINE__);
-                ex.str = "opaque " + str;
+                ex.str = "invalid option `" + option + "' in endpoint `opaque " + str + "'";
                 throw ex;
             }
         }
     }
-    if(topt != 1 || vopt != 1)
+
+    if(topt != 1)
     {
         EndpointParseException ex(__FILE__, __LINE__);
-        ex.str = "opaque " + str;
+        ex.str = "no -t option in endpoint `opaque " + str + "'";
+        throw ex;
+    }
+    if(vopt != 1)
+    {
+        EndpointParseException ex(__FILE__, __LINE__);
+        ex.str = "no -v option in endpoint `opaque " + str + "'";
         throw ex;
     }
 }

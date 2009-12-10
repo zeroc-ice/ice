@@ -1211,7 +1211,7 @@ public final class ObjectAdapterI implements ObjectAdapter
             if(endp == null)
             {
                 Ice.EndpointParseException e = new Ice.EndpointParseException();
-                e.str = s;
+                e.str = "invalid object adapter endpoint `" + s + "'";
                 throw e;
             }
             endpoints.add(endp);

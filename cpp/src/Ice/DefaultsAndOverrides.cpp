@@ -86,7 +86,7 @@ IceInternal::DefaultsAndOverrides::DefaultsAndOverrides(const PropertiesPtr& pro
     else
     {
         EndpointSelectionTypeParseException ex(__FILE__, __LINE__);
-        ex.str = value;
+        ex.str = "illegal value `" + value + "'; expected `Random' or `Ordered'";
         throw ex;
     }
 

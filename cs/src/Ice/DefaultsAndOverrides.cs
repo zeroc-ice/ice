@@ -111,7 +111,7 @@ namespace IceInternal
             else
             {
                 Ice.EndpointSelectionTypeParseException ex = new Ice.EndpointSelectionTypeParseException();
-                ex.str = val;
+                ex.str = "illegal value `" + val + "'; expected `Random' or `Ordered'";
                 throw ex;
             }
 

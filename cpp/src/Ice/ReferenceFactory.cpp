@@ -110,7 +110,7 @@ IceInternal::ReferenceFactory::create(const string& str, const string& propertyP
     if(beg == string::npos)
     {
         ProxyParseException ex(__FILE__, __LINE__);
-        ex.str = str;
+        ex.str = "no non-whitespace characters found in `" + s + "'";
         throw ex;
     }
     
@@ -123,7 +123,7 @@ IceInternal::ReferenceFactory::create(const string& str, const string& propertyP
     if(end == string::npos)
     {
         ProxyParseException ex(__FILE__, __LINE__);
-        ex.str = str;
+        ex.str = "mismatched quotes around identity in `" + s + "'";
         throw ex;
     }
     else if(end == 0)
@@ -145,7 +145,7 @@ IceInternal::ReferenceFactory::create(const string& str, const string& propertyP
     if(beg == end)
     {
         ProxyParseException ex(__FILE__, __LINE__);
-        ex.str = str;
+        ex.str = "no identity in `" + s + "'";
         throw ex;
     }
 
@@ -174,7 +174,7 @@ IceInternal::ReferenceFactory::create(const string& str, const string& propertyP
         else if(s.find_first_not_of(delim, end) != string::npos)
         {
             ProxyParseException ex(__FILE__, __LINE__);
-            ex.str = str;
+            ex.str = "invalid characters after identity in `" + s + "'";
             throw ex;
         }
         else
@@ -216,7 +216,7 @@ IceInternal::ReferenceFactory::create(const string& str, const string& propertyP
         if(option.length() != 2 || option[0] != '-')
         {
             ProxyParseException ex(__FILE__, __LINE__);
-            ex.str = str;
+            ex.str = "expected a proxy option but found `" + option + "' in `" + s + "'";
             throw ex;
         }
 
@@ -236,7 +236,7 @@ IceInternal::ReferenceFactory::create(const string& str, const string& propertyP
                 if(end == string::npos)
                 {
                     ProxyParseException ex(__FILE__, __LINE__);
-                    ex.str = str;
+                    ex.str = "mismatched quotes around value for " + option + " option in `" + s + "'";
                     throw ex;
                 }
                 else if(end == 0)
@@ -268,14 +268,18 @@ IceInternal::ReferenceFactory::create(const string& str, const string& propertyP
                 if(argument.empty())
                 {
                     ProxyParseException ex(__FILE__, __LINE__);
-                    ex.str = str;
+                    ex.str = "no argument provided for -f option in `" + s + "'";
                     throw ex;
                 }
 
-                if(!IceUtilInternal::unescapeString(argument, 0, argument.size(), facet))
+                try
+                {
+                    facet = IceUtilInternal::unescapeString(argument, 0, argument.size());
+                }
+                catch(const IceUtil::IllegalArgumentException& e)
                 {
                     ProxyParseException ex(__FILE__, __LINE__);
-                    ex.str = str;
+                    ex.str = "invalid facet in `" + s + "': " + e.reason();
                     throw ex;
                 }
 
@@ -288,7 +292,7 @@ IceInternal::ReferenceFactory::create(const string& str, const string& propertyP
                 if(!argument.empty())
                 {
                     ProxyParseException ex(__FILE__, __LINE__);
-                    ex.str = str;
+                    ex.str = "unexpected argument `" + argument + "' provided for -t option in `" + s + "'";
                     throw ex;
                 }
                 mode = Reference::ModeTwoway;
@@ -300,7 +304,7 @@ IceInternal::ReferenceFactory::create(const string& str, const string& propertyP
                 if(!argument.empty())
                 {
                     ProxyParseException ex(__FILE__, __LINE__);
-                    ex.str = str;
+                    ex.str = "unexpected argument `" + argument + "' provided for -o option in `" + s + "'";
                     throw ex;
                 }
                 mode = Reference::ModeOneway;
@@ -312,7 +316,7 @@ IceInternal::ReferenceFactory::create(const string& str, const string& propertyP
                 if(!argument.empty())
                 {
                     ProxyParseException ex(__FILE__, __LINE__);
-                    ex.str = str;
+                    ex.str = "unexpected argument `" + argument + "' provided for -O option in `" + s + "'";
                     throw ex;
                 }
                 mode = Reference::ModeBatchOneway;
@@ -324,7 +328,7 @@ IceInternal::ReferenceFactory::create(const string& str, const string& propertyP
                 if(!argument.empty())
                 {
                     ProxyParseException ex(__FILE__, __LINE__);
-                    ex.str = str;
+                    ex.str = "unexpected argument `" + argument + "' provided for -d option in `" + s + "'";
                     throw ex;
                 }
                 mode = Reference::ModeDatagram;
@@ -336,7 +340,7 @@ IceInternal::ReferenceFactory::create(const string& str, const string& propertyP
                 if(!argument.empty())
                 {
                     ProxyParseException ex(__FILE__, __LINE__);
-                    ex.str = str;
+                    ex.str = "unexpected argument `" + argument + "' provided for -D option in `" + s + "'";
                     throw ex;
                 }
                 mode = Reference::ModeBatchDatagram;
@@ -348,7 +352,7 @@ IceInternal::ReferenceFactory::create(const string& str, const string& propertyP
                 if(!argument.empty())
                 {
                     ProxyParseException ex(__FILE__, __LINE__);
-                    ex.str = str;
+                    ex.str = "unexpected argument `" + argument + "' provided for -s option in `" + s + "'";
                     throw ex;
                 }
                 secure = true;
@@ -358,7 +362,7 @@ IceInternal::ReferenceFactory::create(const string& str, const string& propertyP
             default:
             {
                 ProxyParseException ex(__FILE__, __LINE__);
-                ex.str = str;
+                ex.str = "unknown option `" + option + "' in `" + s + "'";
                 throw ex;
             }
         }
@@ -439,8 +443,9 @@ IceInternal::ReferenceFactory::create(const string& str, const string& propertyP
             }
             if(endpoints.size() == 0)
             {
+                assert(!unknownEndpoints.empty());
                 EndpointParseException ex(__FILE__, __LINE__);
-                ex.str = unknownEndpoints.front();
+                ex.str = "invalid endpoint `" + unknownEndpoints.front() + "' in `" + s + "'";
                 throw ex;
             }
             else if(unknownEndpoints.size() != 0 &&
@@ -464,7 +469,7 @@ IceInternal::ReferenceFactory::create(const string& str, const string& propertyP
             if(beg == string::npos)
             {
                 ProxyParseException ex(__FILE__, __LINE__);
-                ex.str = str;
+                ex.str = "missing adapter id in `" + s + "'";
                 throw ex;
             }
 
@@ -473,7 +478,7 @@ IceInternal::ReferenceFactory::create(const string& str, const string& propertyP
             if(end == string::npos)
             {
                 ProxyParseException ex(__FILE__, __LINE__);
-                ex.str = str;
+                ex.str = "mismatched quotes around adapter id in `" + s + "'";
                 throw ex;
             }
             else if(end == 0)
@@ -496,14 +501,24 @@ IceInternal::ReferenceFactory::create(const string& str, const string& propertyP
             if(end != string::npos && s.find_first_not_of(delim, end) != string::npos)
             {
                 ProxyParseException ex(__FILE__, __LINE__);
-                ex.str = str;
+                ex.str = "invalid trailing characters after `" + s.substr(0, end + 1) + "' in `" + s + "'";
                 throw ex;
             }
 
-            if(!IceUtilInternal::unescapeString(adapterstr, 0, adapterstr.size(), adapter) || adapter.size() == 0)
+            try
+            {
+                adapter = IceUtilInternal::unescapeString(adapterstr, 0, adapterstr.size());
+            }
+            catch(const IceUtil::IllegalArgumentException& e)
             {
                 ProxyParseException ex(__FILE__, __LINE__);
-                ex.str = str;
+                ex.str = "invalid adapter id in `" + s + "': " + e.reason();
+                throw ex;
+            }
+            if(adapter.size() == 0)
+            {
+                ProxyParseException ex(__FILE__, __LINE__);
+                ex.str = "empty adapter id in `" + s + "'";
                 throw ex;
             }
 
@@ -515,7 +530,7 @@ IceInternal::ReferenceFactory::create(const string& str, const string& propertyP
         default:
         {
             ProxyParseException ex(__FILE__, __LINE__);
-            ex.str = str;
+            ex.str = "malformed proxy `" + s + "'";
             throw ex;
         }
     }
@@ -771,7 +786,7 @@ IceInternal::ReferenceFactory::create(const Identity& ident,
             else
             {
                 EndpointSelectionTypeParseException ex(__FILE__, __LINE__);
-                ex.str = type;
+                ex.str = "illegal value `" + type + "'; expected `Random' or `Ordered'";
                 throw ex;
             }
         }

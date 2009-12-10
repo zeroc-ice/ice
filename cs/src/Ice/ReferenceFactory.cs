@@ -10,6 +10,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Text;
 
 namespace IceInternal
@@ -89,7 +90,7 @@ namespace IceInternal
             if(beg == -1)
             {
                 Ice.ProxyParseException e = new Ice.ProxyParseException();
-                e.str = s;
+                e.str = "no non-whitespace characters found in `" + s + "'";
                 throw e;
             }
 
@@ -102,7 +103,7 @@ namespace IceInternal
             if(end == -1)
             {
                 Ice.ProxyParseException e = new Ice.ProxyParseException();
-                e.str = s;
+                e.str = "mismatched quotes around identity in `" + s + "'";
                 throw e;
             }
             else if(end == 0)
@@ -124,7 +125,7 @@ namespace IceInternal
             if(beg == end)
             {
                 Ice.ProxyParseException e = new Ice.ProxyParseException();
-                e.str = s;
+                e.str = "no identity in `" + s + "'";
                 throw e;
             }
 
@@ -154,7 +155,7 @@ namespace IceInternal
                 else if(IceUtilInternal.StringUtil.findFirstNotOf(s, delim, end) != -1)
                 {
                     Ice.ProxyParseException e = new Ice.ProxyParseException();
-                    e.str = s;
+                    e.str = "invalid characters after identity in `" + s + "'";
                     throw e;
                 }
                 else
@@ -196,7 +197,7 @@ namespace IceInternal
                 if(option.Length != 2 || option[0] != '-')
                 {
                     Ice.ProxyParseException e = new Ice.ProxyParseException();
-                    e.str = s;
+                    e.str = "expected a proxy option but found `" + option + "' in `" + s + "'";
                     throw e;
                 }
 
@@ -217,7 +218,7 @@ namespace IceInternal
                         if(end == -1)
                         {
                             Ice.ProxyParseException e = new Ice.ProxyParseException();
-                            e.str = s;
+                            e.str = "mismatched quotes around value for " + option + " option in `" + s + "'";
                             throw e;
                         }
                         else if(end == 0)
@@ -249,18 +250,20 @@ namespace IceInternal
                         if(argument == null)
                         {
                             Ice.ProxyParseException e = new Ice.ProxyParseException();
-                            e.str = s;
+                            e.str = "no argument provided for -f option in `" + s + "'";
                             throw e;
                         }
 
-                        string token;
-                        if(!IceUtilInternal.StringUtil.unescapeString(argument, 0, argument.Length, out token))
+                        try
+                        {
+                            facet = IceUtilInternal.StringUtil.unescapeString(argument, 0, argument.Length);
+                        }
+                        catch(System.ArgumentException argEx)
                         {
                             Ice.ProxyParseException e = new Ice.ProxyParseException();
-                            e.str = s;
+                            e.str = "invalid facet in `" + s + "': " + argEx.Message;
                             throw e;
                         }
-                        facet = token;
                         break;
                     }
 
@@ -269,7 +272,7 @@ namespace IceInternal
                         if(argument != null)
                         {
                             Ice.ProxyParseException e = new Ice.ProxyParseException();
-                            e.str = s;
+                            e.str = "unexpected argument `" + argument + "' provided for -t option in `" + s + "'";
                             throw e;
                         }
                         mode = Reference.Mode.ModeTwoway;
@@ -281,7 +284,7 @@ namespace IceInternal
                         if(argument != null)
                         {
                             Ice.ProxyParseException e = new Ice.ProxyParseException();
-                            e.str = s;
+                            e.str = "unexpected argument `" + argument + "' provided for -o option in `" + s + "'";
                             throw e;
                         }
                         mode = Reference.Mode.ModeOneway;
@@ -293,7 +296,7 @@ namespace IceInternal
                         if(argument != null)
                         {
                             Ice.ProxyParseException e = new Ice.ProxyParseException();
-                            e.str = s;
+                            e.str = "unexpected argument `" + argument + "' provided for -O option in `" + s + "'";
                             throw e;
                         }
                         mode = Reference.Mode.ModeBatchOneway;
@@ -305,7 +308,7 @@ namespace IceInternal
                         if(argument != null)
                         {
                             Ice.ProxyParseException e = new Ice.ProxyParseException();
-                            e.str = s;
+                            e.str = "unexpected argument `" + argument + "' provided for -d option in `" + s + "'";
                             throw e;
                         }
                         mode = Reference.Mode.ModeDatagram;
@@ -317,7 +320,7 @@ namespace IceInternal
                         if(argument != null)
                         {
                             Ice.ProxyParseException e = new Ice.ProxyParseException();
-                            e.str = s;
+                            e.str = "unexpected argument `" + argument + "' provided for -D option in `" + s + "'";
                             throw e;
                         }
                         mode = Reference.Mode.ModeBatchDatagram;
@@ -329,7 +332,7 @@ namespace IceInternal
                         if(argument != null)
                         {
                             Ice.ProxyParseException e = new Ice.ProxyParseException();
-                            e.str = s;
+                            e.str = "unexpected argument `" + argument + "' provided for -s option in `" + s + "'";
                             throw e;
                         }
                         secure = true;
@@ -339,7 +342,7 @@ namespace IceInternal
                     default:
                     {
                         Ice.ProxyParseException e = new Ice.ProxyParseException();
-                        e.str = s;
+                        e.str = "unknown option `" + option + "' in `" + s + "'";
                         throw e;
                     }
                 }
@@ -417,8 +420,9 @@ namespace IceInternal
                 }
                 if(endpoints.Count == 0)
                 {
+                    Debug.Assert(unknownEndpoints.Count > 0);
                     Ice.EndpointParseException e2 = new Ice.EndpointParseException();
-                    e2.str = s;
+                    e2.str = "invalid endpoint `" + unknownEndpoints[0] + "' in `" + s + "'";
                     throw e2;
                 }
                 else if(unknownEndpoints.Count != 0 &&
@@ -445,7 +449,7 @@ namespace IceInternal
                 if(beg == -1)
                 {
                     Ice.ProxyParseException e = new Ice.ProxyParseException();
-                    e.str = s;
+                    e.str = "missing adapter id in `" + s + "'";
                     throw e;
                 }
 
@@ -454,7 +458,7 @@ namespace IceInternal
                 if(end == -1)
                 {
                     Ice.ProxyParseException e = new Ice.ProxyParseException();
-                    e.str = s;
+                    e.str = "mismatched quotes around adapter id in `" + s + "'";
                     throw e;
                 }
                 else if(end == 0)
@@ -476,22 +480,31 @@ namespace IceInternal
                 if(end != s.Length && IceUtilInternal.StringUtil.findFirstNotOf(s, delim, end) != -1)
                 {
                     Ice.ProxyParseException e = new Ice.ProxyParseException();
-                    e.str = s;
+                    e.str = "invalid trailing characters after `" + s.Substring(0, end + 1) + "' in `" + s + "'";
                     throw e;
                 }
 
-                if(!IceUtilInternal.StringUtil.unescapeString(adapterstr, 0, adapterstr.Length, out adapter) ||
-                   adapter.Length == 0)
+                try
+                {
+                    adapter = IceUtilInternal.StringUtil.unescapeString(adapterstr, 0, adapterstr.Length);
+                }
+                catch(System.ArgumentException argEx)
                 {
                     Ice.ProxyParseException e = new Ice.ProxyParseException();
-                    e.str = s;
+                    e.str = "invalid adapter id in `" + s + "': " + argEx.Message;
+                    throw e;
+                }
+                if(adapter.Length == 0)
+                {
+                    Ice.ProxyParseException e = new Ice.ProxyParseException();
+                    e.str = "empty adapter id in `" + s + "'";
                     throw e;
                 }
                 return create(ident, facet, mode, secure, null, adapter, propertyPrefix);
             }
 
             Ice.ProxyParseException ex = new Ice.ProxyParseException();
-            ex.str = s;
+            ex.str = "malformed proxy `" + s + "'";
             throw ex;
         }
 
@@ -774,7 +787,8 @@ namespace IceInternal
                     }
                     else
                     {
-                        throw new Ice.EndpointSelectionTypeParseException(type);
+                        throw new Ice.EndpointSelectionTypeParseException("illegal value `" + type +
+                                                                          "'; expected `Random' or `Ordered'");
                     }
                 }
         
