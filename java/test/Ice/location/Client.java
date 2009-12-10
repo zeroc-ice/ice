@@ -14,7 +14,26 @@ public class Client extends test.Util.Application
     public int run(String[] args)
     {
         Ice.Communicator communicator = communicator();
-        AllTests.allTests(communicator, getWriter());
+        try
+        {
+            AllTests.allTests(communicator, getWriter());
+        }
+        catch(Ice.AdapterAlreadyActiveException ex)
+        {
+            ex.printStackTrace();
+            throw new RuntimeException();
+        }
+        catch(Ice.AdapterNotFoundException ex)
+        {
+            ex.printStackTrace();
+            throw new RuntimeException();
+        }
+        catch(InterruptedException ex)
+        {
+            ex.printStackTrace();
+            throw new RuntimeException();
+        }
+
         return 0;
     }
 

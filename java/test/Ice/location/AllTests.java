@@ -36,6 +36,7 @@ public class AllTests
 
     public static void
     allTests(Ice.Communicator communicator, PrintWriter out)
+        throws Ice.AdapterAlreadyActiveException, Ice.AdapterNotFoundException, InterruptedException
     {
         ServerManagerPrx manager = ServerManagerPrxHelper.checkedCast(
             communicator.stringToProxy("ServerManager :default -p 12010"));
@@ -46,9 +47,9 @@ public class AllTests
 
         TestLocatorRegistryPrx registry = TestLocatorRegistryPrxHelper.checkedCast(locator.getRegistry());
         test(registry != null);
+
         out.print("testing stringToProxy... ");
         out.flush();
-
         Ice.ObjectPrx base = communicator.stringToProxy("test @ TestAdapter");
         Ice.ObjectPrx base2 = communicator.stringToProxy("test @ TestAdapter");
         Ice.ObjectPrx base3 = communicator.stringToProxy("test");
@@ -89,11 +90,6 @@ public class AllTests
         test(base.ice_getRouter() == null);
         out.println("ok");
 
-        //
-        // Start a server, get the port of the adapter it's listening on,
-        // and add it to the configuration so that the client can locate
-        // the TestAdapter adapter.
-        //
         out.print("starting server... ");
         out.flush();
         manager.startServer();
@@ -136,7 +132,6 @@ public class AllTests
         manager.startServer();
         try
         {
-            obj6 = TestIntfPrxHelper.checkedCast(base6);
             obj6.ice_ping();
         }
         catch(Ice.LocalException ex)
@@ -152,7 +147,6 @@ public class AllTests
         manager.startServer();
         try
         {
-            obj3 = TestIntfPrxHelper.checkedCast(base3);
             obj3.ice_ping();
         }
         catch(Ice.LocalException ex)
@@ -162,7 +156,6 @@ public class AllTests
         }
         try
         {
-            obj2 = TestIntfPrxHelper.checkedCast(base2);
             obj2.ice_ping();
         }
         catch(Ice.LocalException ex)
@@ -174,7 +167,6 @@ public class AllTests
         manager.startServer();
         try
         {
-            obj2 = TestIntfPrxHelper.checkedCast(base2);
             obj2.ice_ping();
         }
         catch(Ice.LocalException ex)
@@ -184,7 +176,29 @@ public class AllTests
         }
         try
         {
-            obj3 = TestIntfPrxHelper.checkedCast(base3);
+            obj3.ice_ping();
+        }
+        catch(Ice.LocalException ex)
+        {
+            ex.printStackTrace();
+            test(false);
+        }
+        obj.shutdown();
+        manager.startServer();
+
+        try
+        {
+            obj2.ice_ping();
+        }
+        catch(Ice.LocalException ex)
+        {
+            ex.printStackTrace();
+            test(false);
+        }
+        obj.shutdown();
+        manager.startServer();
+        try
+        {
             obj3.ice_ping();
         }
         catch(Ice.LocalException ex)
@@ -196,7 +210,6 @@ public class AllTests
         manager.startServer();
         try
         {
-            obj2 = TestIntfPrxHelper.checkedCast(base2);
             obj2.ice_ping();
         }
         catch(Ice.LocalException ex)
@@ -206,21 +219,9 @@ public class AllTests
         }
         obj.shutdown();
         manager.startServer();
+
         try
         {
-            obj3 = TestIntfPrxHelper.checkedCast(base2);
-            obj3.ice_ping();
-        }
-        catch(Ice.LocalException ex)
-        {
-            ex.printStackTrace();
-            test(false);
-        }
-        obj.shutdown();
-        manager.startServer();
-        try
-        {
-            obj5 = TestIntfPrxHelper.checkedCast(base5);
             obj5.ice_ping();
         }
         catch(Ice.LocalException ex)
@@ -228,7 +229,6 @@ public class AllTests
             ex.printStackTrace();
             test(false);
         }
-
         out.println("ok");    
 
         out.print("testing proxy with unknown identity... ");
@@ -271,13 +271,7 @@ public class AllTests
         test(++count == locator.getRequestCount());
         communicator.stringToProxy("test@TestAdapter").ice_locatorCacheTimeout(1).ice_ping(); // 1s timeout.
         test(count == locator.getRequestCount());
-        try
-        {
-            Thread.sleep(1200);
-        }
-        catch(InterruptedException ex)
-        {
-        }
+        Thread.sleep(1200);
         communicator.stringToProxy("test@TestAdapter").ice_locatorCacheTimeout(1).ice_ping(); // 1s timeout.
         test(++count == locator.getRequestCount());
         
@@ -286,13 +280,7 @@ public class AllTests
         test(count == locator.getRequestCount());
         communicator.stringToProxy("test").ice_locatorCacheTimeout(1).ice_ping(); // 1s timeout
         test(count == locator.getRequestCount());
-        try
-        {
-            Thread.sleep(1200);
-        }
-        catch(InterruptedException ex)
-        {
-        }
+        Thread.sleep(1200);
         communicator.stringToProxy("test").ice_locatorCacheTimeout(1).ice_ping(); // 1s timeout
         count += 2;
         test(count == locator.getRequestCount());
@@ -320,12 +308,20 @@ public class AllTests
         hello.sayHello();
         out.println("ok");
 
+        out.print("testing proxy from server after shutdown... ");
+        out.flush();
+        obj.shutdown();
+        manager.startServer();
+        hello.sayHello();
+        out.println("ok");
+
         out.print("testing locator request queuing... ");
         out.flush();
         hello = (HelloPrx)obj.getReplicatedHello().ice_locatorCacheTimeout(0).ice_connectionCached(false);
         count = locator.getRequestCount();
         hello.ice_ping();
         test(++count == locator.getRequestCount());
+        java.util.List<Ice.AsyncResult> results = new java.util.LinkedList<Ice.AsyncResult>();
         for(int i = 0; i < 1000; i++)
         {
             class AMICallback extends Callback_Hello_sayHello
@@ -344,9 +340,14 @@ public class AllTests
                 {
                 }
             };
-            hello.begin_sayHello(new AMICallback());
+            Ice.AsyncResult result = hello.begin_sayHello(new AMICallback());
+            results.add(result);
         }
-        hello.ice_ping();
+        while(!results.isEmpty())
+        {
+            Ice.AsyncResult result = results.remove(0);
+            result.waitForCompleted();
+        }
         test(locator.getRequestCount() > count && locator.getRequestCount() < count + 999);
         if(locator.getRequestCount() > count + 800)
         {
@@ -362,6 +363,11 @@ public class AllTests
                 public void
                 exception(Ice.LocalException ex)
                 {
+                    if(ex instanceof Ice.CommunicatorDestroyedException)
+                    {
+                        ex.printStackTrace();
+                        assert false;
+                    }
                     test(ex instanceof Ice.NotRegisteredException);
                 }
 
@@ -372,17 +378,15 @@ public class AllTests
                     test(false);
                 }
             };
-            hello.begin_sayHello(new AMICallback());
+            Ice.AsyncResult result = hello.begin_sayHello(new AMICallback());
+            results.add(result);
         }
-        try
+        while(!results.isEmpty())
         {
-            hello.ice_ping();
-            test(false);
+            Ice.AsyncResult result = results.remove(0);
+            result.waitForCompleted();
         }
-        catch(Ice.NotRegisteredException ex)
-        {
-        }
-        // We need to take into account the retries.
+        // Take into account the retries.
         test(locator.getRequestCount() > count && locator.getRequestCount() < count + 1999);
         if(locator.getRequestCount() > count + 800)
         {
@@ -402,29 +406,11 @@ public class AllTests
             test(ex.kindOfObject == "object adapter");
             test(ex.id.equals("TestAdapter3"));
         }
-        try
-        {
-            registry.setAdapterDirectProxy("TestAdapter3", locator.findAdapterById("TestAdapter"));
-        }
-        catch(Ice.AdapterAlreadyActiveException ex)
-        {
-        }
-        catch(Ice.AdapterNotFoundException ex)
-        {
-        }
+        registry.setAdapterDirectProxy("TestAdapter3", locator.findAdapterById("TestAdapter"));
         try
         {
             communicator.stringToProxy("test@TestAdapter3").ice_ping();
-            try
-            {
-                registry.setAdapterDirectProxy("TestAdapter3", communicator.stringToProxy("dummy:tcp"));
-            }
-            catch(Ice.AdapterAlreadyActiveException ex)
-            {
-            }
-            catch(Ice.AdapterNotFoundException ex)
-            {
-            }
+            registry.setAdapterDirectProxy("TestAdapter3", communicator.stringToProxy("dummy:tcp"));
             communicator.stringToProxy("test@TestAdapter3").ice_ping();
         }
         catch(Ice.LocalException ex)
@@ -449,16 +435,7 @@ public class AllTests
         catch(Ice.LocalException ex)
         {   
         }
-        try
-        {
-            registry.setAdapterDirectProxy("TestAdapter3", locator.findAdapterById("TestAdapter"));
-        }
-        catch(Ice.AdapterAlreadyActiveException ex)
-        {
-        }
-        catch(Ice.AdapterNotFoundException ex)
-        {
-        }
+        registry.setAdapterDirectProxy("TestAdapter3", locator.findAdapterById("TestAdapter"));
         try
         {
             communicator.stringToProxy("test@TestAdapter3").ice_ping();
@@ -472,6 +449,7 @@ public class AllTests
 
         out.print("testing well-known object locator cache... ");
         out.flush();
+
         registry.addObject(communicator.stringToProxy("test3@TestUnknown"));
         try
         {
@@ -484,16 +462,7 @@ public class AllTests
             test(ex.id.equals("TestUnknown"));
         }
         registry.addObject(communicator.stringToProxy("test3@TestAdapter4")); // Update
-        try
-        {
-            registry.setAdapterDirectProxy("TestAdapter4", communicator.stringToProxy("dummy:tcp"));
-        }
-        catch(Ice.AdapterAlreadyActiveException ex)
-        {
-        }
-        catch(Ice.AdapterNotFoundException ex)
-        {
-        }
+        registry.setAdapterDirectProxy("TestAdapter4", communicator.stringToProxy("dummy:tcp"));
 
         try
         {
@@ -503,16 +472,7 @@ public class AllTests
         catch(Ice.LocalException ex)
         {
         }
-        try
-        {
-            registry.setAdapterDirectProxy("TestAdapter4", locator.findAdapterById("TestAdapter"));
-        }
-        catch(Ice.AdapterAlreadyActiveException ex)
-        {
-        }
-        catch(Ice.AdapterNotFoundException ex)
-        {
-        }
+        registry.setAdapterDirectProxy("TestAdapter4", locator.findAdapterById("TestAdapter"));
         try
         {
             communicator.stringToProxy("test3").ice_ping();
@@ -523,16 +483,7 @@ public class AllTests
             test(false);
         }
 
-        try
-        {
-            registry.setAdapterDirectProxy("TestAdapter4", communicator.stringToProxy("dummy:tcp"));
-        }
-        catch(Ice.AdapterAlreadyActiveException ex)
-        {
-        }
-        catch(Ice.AdapterNotFoundException ex)
-        {
-        }
+        registry.setAdapterDirectProxy("TestAdapter4", communicator.stringToProxy("dummy:tcp"));
         try
         {
             communicator.stringToProxy("test3").ice_ping();
@@ -596,46 +547,22 @@ public class AllTests
             initData.properties.setProperty("Ice.BackgroundLocatorCacheUpdates", "1");
             Ice.Communicator ic = Ice.Util.initialize(initData);
 
-            try
-            {
-                registry.setAdapterDirectProxy("TestAdapter5", locator.findAdapterById("TestAdapter"));
-                registry.addObject(communicator.stringToProxy("test3@TestAdapter"));
-            }
-            catch(Ice.AdapterAlreadyActiveException ex)
-            {
-            }
-            catch(Ice.AdapterNotFoundException ex)
-            {
-            }
+            registry.setAdapterDirectProxy("TestAdapter5", locator.findAdapterById("TestAdapter"));
+            registry.addObject(communicator.stringToProxy("test3@TestAdapter"));
 
             count = locator.getRequestCount();
             ic.stringToProxy("test@TestAdapter5").ice_locatorCacheTimeout(0).ice_ping(); // No locator cache.
             ic.stringToProxy("test3").ice_locatorCacheTimeout(0).ice_ping(); // No locator cache.
             count += 3;
             test(count == locator.getRequestCount());
-            try
-            {
-                registry.setAdapterDirectProxy("TestAdapter5", null);
-            }
-            catch(Ice.AdapterAlreadyActiveException ex)
-            {
-            }
-            catch(Ice.AdapterNotFoundException ex)
-            {
-            }
+            registry.setAdapterDirectProxy("TestAdapter5", null);
             registry.addObject(communicator.stringToProxy("test3:tcp"));
             ic.stringToProxy("test@TestAdapter5").ice_locatorCacheTimeout(10).ice_ping(); // 10s timeout.
             ic.stringToProxy("test3").ice_locatorCacheTimeout(10).ice_ping(); // 10s timeout.
             test(count == locator.getRequestCount());
-            try
-            {
-                Thread.sleep(1200);
-            }
-            catch(InterruptedException ex)
-            {
-            }
+            Thread.sleep(1200);
 
-            // The following requets should trigger the background updates but still use the cached endpoints
+            // The following request should trigger the background updates but still use the cached endpoints
             // and therefore succeed.
             ic.stringToProxy("test@TestAdapter5").ice_locatorCacheTimeout(1).ice_ping(); // 1s timeout.
             ic.stringToProxy("test3").ice_locatorCacheTimeout(1).ice_ping(); // 1s timeout.
@@ -645,13 +572,7 @@ public class AllTests
                 while(true)
                 {
                     ic.stringToProxy("test@TestAdapter5").ice_locatorCacheTimeout(1).ice_ping(); // 1s timeout.
-                    try
-                    {
-                        Thread.sleep(10);
-                    }
-                    catch(InterruptedException ex)
-                    {
-                    }
+                    Thread.sleep(10);
                 }
             }
             catch(Ice.LocalException ex)
@@ -663,13 +584,7 @@ public class AllTests
                 while(true)
                 {
                     ic.stringToProxy("test3").ice_locatorCacheTimeout(1).ice_ping(); // 1s timeout.
-                    try
-                    {
-                        Thread.sleep(10);
-                    }
-                    catch(InterruptedException ex)
-                    {
-                    }
+                    Thread.sleep(10);
                 }
             }
             catch(Ice.LocalException ex)
@@ -699,9 +614,13 @@ public class AllTests
         hello.sayHello();
         out.println("ok");
 
-        out.print("testing whether server is gone... ");
+        out.print("shutdown server... ");
         out.flush();
         obj.shutdown();
+        out.println("ok");
+
+        out.print("testing whether server is gone... ");
+        out.flush();
         try
         {
             obj2.ice_ping();
@@ -709,10 +628,30 @@ public class AllTests
         }
         catch(Ice.LocalException ex)
         {
-            out.println("ok");
         }
+        try
+        {
+            obj3.ice_ping();
+            test(false);
+        }
+        catch(Ice.LocalException ex)
+        {
+        }
+        try
+        {
+            obj5.ice_ping();
+            test(false);
+        }
+        catch(Ice.LocalException ex)
+        {
+        }
+        out.println("ok");
 
         out.print("testing indirect proxies to collocated objects... ");
+        //
+        // Set up test for calling a collocated object through an
+        // indirect, adapterless reference.
+        //
         Ice.Properties properties = communicator.getProperties();
         properties.setProperty("Ice.PrintAdapterReady", "0");
         Ice.ObjectAdapter adapter = communicator.createObjectAdapterWithEndpoints("Hello", "default");
@@ -725,6 +664,8 @@ public class AllTests
 
         try
         {
+            // Note the quotes are necessary here due to ":" in the
+            // java generated UUID.
             HelloPrx helloPrx = HelloPrxHelper.checkedCast(
                 communicator.stringToProxy("\"" + communicator.identityToString(id) + "\""));
             Ice.Connection connection = helloPrx.ice_getConnection();
@@ -732,9 +673,9 @@ public class AllTests
         }
         catch(Ice.CollocationOptimizationException ex)
         {
-            out.println("ok");
         }
-        adapter.destroy();
+        adapter.deactivate();
+        out.println("ok");
 
         out.print("shutdown server manager... ");
         out.flush();

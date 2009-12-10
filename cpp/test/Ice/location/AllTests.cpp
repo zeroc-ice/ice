@@ -12,6 +12,7 @@
 #include <IceUtil/IceUtil.h>
 #include <TestCommon.h>
 #include <Test.h>
+#include <list>
 
 using namespace std;
 using namespace Test;
@@ -27,45 +28,10 @@ public:
     }
 };
 
-class ResponseCounter : public IceUtil::Monitor<IceUtil::Mutex>
-{
-public:
-    
-    ResponseCounter(int expected) : _expected(expected)
-    {
-    }
-    
-    void response()
-    {
-        Lock sync(*this);
-        if(--_expected == 0)
-        {
-            notifyAll();
-        }
-    }
-    
-    void waitForAllResponses()
-    {
-        Lock sync(*this);
-        while(_expected > 0)
-        {
-            wait();
-        }
-    }
-    
-    void reset(int expected)
-    {
-        _expected = expected;
-    }
-private:
-
-    int _expected;
-};
-
 class AMICallback : public IceUtil::Shared
 {
 public:
-    AMICallback(ResponseCounter& c) : _counter(c)
+    AMICallback()
     {
     }
 
@@ -77,14 +43,12 @@ public:
     void
     exception2(const Ice::Exception& ex)
     {
-        _counter.response();
         test(dynamic_cast<const Ice::NotRegisteredException*>(&ex));
     }
 
     void
     response1()
     {
-        _counter.response();
     }
 
     void
@@ -92,10 +56,6 @@ public:
     {
         test(false);
     }
-
-private:
-
-    ResponseCounter& _counter;
 };
 typedef IceUtil::Handle<AMICallback> AMICallbackPtr;
 
@@ -155,9 +115,6 @@ allTests(const Ice::CommunicatorPtr& communicator, const string& ref)
 
     cout << "testing checked cast... " << flush;
     TestIntfPrx obj = TestIntfPrx::checkedCast(base);
-    obj = TestIntfPrx::checkedCast(communicator->stringToProxy("test@TestAdapter"));
-    obj = TestIntfPrx::checkedCast(communicator->stringToProxy("test   @TestAdapter"));
-    obj = TestIntfPrx::checkedCast(communicator->stringToProxy("test@   TestAdapter"));
     test(obj);
     TestIntfPrx obj2 = TestIntfPrx::checkedCast(base2);
     test(obj2);
@@ -176,7 +133,6 @@ allTests(const Ice::CommunicatorPtr& communicator, const string& ref)
     manager->startServer();
     try
     {
-        obj2 = TestIntfPrx::checkedCast(base2);
         obj2->ice_ping();
     }
     catch(const Ice::LocalException& ex)
@@ -191,7 +147,6 @@ allTests(const Ice::CommunicatorPtr& communicator, const string& ref)
     manager->startServer();
     try
     {
-        obj6 = TestIntfPrx::checkedCast(base6);
         obj6->ice_ping();
     }
     catch(const Ice::LocalException& ex)
@@ -206,7 +161,6 @@ allTests(const Ice::CommunicatorPtr& communicator, const string& ref)
     manager->startServer();
     try
     {
-        obj3 = TestIntfPrx::checkedCast(base3);
         obj3->ice_ping();
     }
     catch(const Ice::LocalException& ex)
@@ -216,7 +170,6 @@ allTests(const Ice::CommunicatorPtr& communicator, const string& ref)
     }
     try
     {
-        obj2 = TestIntfPrx::checkedCast(base2);
         obj2->ice_ping();
     }
     catch(const Ice::LocalException& ex)
@@ -228,7 +181,6 @@ allTests(const Ice::CommunicatorPtr& communicator, const string& ref)
     manager->startServer();
     try
     {
-        obj2 = TestIntfPrx::checkedCast(base2);
         obj2->ice_ping();
     }
     catch(const Ice::LocalException& ex)
@@ -238,7 +190,6 @@ allTests(const Ice::CommunicatorPtr& communicator, const string& ref)
     }
     try
     {
-        obj3 = TestIntfPrx::checkedCast(base3);
         obj3->ice_ping();
     }
     catch(const Ice::LocalException& ex)
@@ -251,7 +202,6 @@ allTests(const Ice::CommunicatorPtr& communicator, const string& ref)
 
     try
     {
-        obj2 = TestIntfPrx::checkedCast(base2);
         obj2->ice_ping();
     }
     catch(const Ice::LocalException& ex)
@@ -263,7 +213,6 @@ allTests(const Ice::CommunicatorPtr& communicator, const string& ref)
     manager->startServer();
     try
     {
-        obj3 = TestIntfPrx::checkedCast(base3);
         obj3->ice_ping();
     }
     catch(const Ice::LocalException& ex)
@@ -275,7 +224,6 @@ allTests(const Ice::CommunicatorPtr& communicator, const string& ref)
     manager->startServer();
     try
     {
-        obj2 = TestIntfPrx::checkedCast(base2);
         obj2->ice_ping();
     }
     catch(const Ice::LocalException& ex)
@@ -288,7 +236,6 @@ allTests(const Ice::CommunicatorPtr& communicator, const string& ref)
 
     try
     {
-        obj5 = TestIntfPrx::checkedCast(base5);
         obj5->ice_ping();
     }
     catch(const Ice::LocalException& ex)
@@ -379,13 +326,20 @@ allTests(const Ice::CommunicatorPtr& communicator, const string& ref)
     test(++count == locator->getRequestCount());
     int i;
 
-    ResponseCounter counter(1000);
+    list<Ice::AsyncResultPtr>  results;
+    AMICallbackPtr cb = new AMICallback;
     for(i = 0; i < 1000; i++)
     {
-        AMICallbackPtr cb = new AMICallback(counter);
-        hello->begin_sayHello(newCallback_Hello_sayHello(cb, &AMICallback::response1, &AMICallback::exception1));
+        Ice::AsyncResultPtr result = hello->begin_sayHello(
+            newCallback_Hello_sayHello(cb, &AMICallback::response1, &AMICallback::exception1));
+        results.push_back(result);
     }
-    counter.waitForAllResponses();
+    while(!results.empty())
+    {
+        Ice::AsyncResultPtr result = results.front();
+        results.pop_front();
+        result->waitForCompleted();
+    }
     test(locator->getRequestCount() > count && locator->getRequestCount() < count + 999);
     if(locator->getRequestCount() > count + 800)
     {
@@ -393,13 +347,18 @@ allTests(const Ice::CommunicatorPtr& communicator, const string& ref)
     }
     count = locator->getRequestCount();
     hello = hello->ice_adapterId("unknown");
-    counter.reset(1000);
     for(i = 0; i < 1000; i++)
     {
-        AMICallbackPtr cb = new AMICallback(counter);
-        hello->begin_sayHello(newCallback_Hello_sayHello(cb, &AMICallback::response2, &AMICallback::exception2));
+        Ice::AsyncResultPtr result = hello->begin_sayHello(
+            newCallback_Hello_sayHello(cb, &AMICallback::response2, &AMICallback::exception2));
+        results.push_back(result);
     }
-    counter.waitForAllResponses();
+    while(!results.empty())
+    {
+        Ice::AsyncResultPtr result = results.front();
+        results.pop_front();
+        result->waitForCompleted();
+    }
     // Take into account the retries.
     test(locator->getRequestCount() > count && locator->getRequestCount() < count + 1999);
     if(locator->getRequestCount() > count + 800)
@@ -409,7 +368,6 @@ allTests(const Ice::CommunicatorPtr& communicator, const string& ref)
     cout << "ok" << endl;
 
     cout << "testing adapter locator cache... " << flush;
-
     try
     {
         communicator->stringToProxy("test@TestAdapter3")->ice_ping();
@@ -569,7 +527,7 @@ allTests(const Ice::CommunicatorPtr& communicator, const string& ref)
         test(count == locator->getRequestCount());
         IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(1200));
 
-        // The following requets should trigger the background updates but still use the cached endpoints
+        // The following request should trigger the background updates but still use the cached endpoints
         // and therefore succeed.
         ic->stringToProxy("test@TestAdapter5")->ice_locatorCacheTimeout(1)->ice_ping(); // 1s timeout.
         ic->stringToProxy("test3")->ice_locatorCacheTimeout(1)->ice_ping(); // 1s timeout.
