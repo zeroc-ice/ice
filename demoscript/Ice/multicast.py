@@ -51,7 +51,10 @@ def runDemo(clientCmd, serverCmd):
 def run(clientCmd, serverCmd):
     print "testing multicast discovery (Ipv4)...",
     sys.stdout.flush()
-    runDemo(clientCmd, serverCmd)
+    if serverCmd.startswith("java"):
+        runDemo(clientCmd, "java -Djava.net.preferIPv4Stack=true Server")
+    else:
+        runDemo(clientCmd, serverCmd)
     print "ok"
 
     if Util.getMapping() == "java" and Util.isWin32():
