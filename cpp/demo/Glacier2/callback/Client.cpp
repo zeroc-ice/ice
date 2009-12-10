@@ -78,7 +78,7 @@ CallbackClient::createSession()
     
         try
         {
-            router()->createSession(id, pw);
+            session = router()->createSession(id, pw);
             break;
         }
         catch(const Glacier2::PermissionDeniedException& ex)

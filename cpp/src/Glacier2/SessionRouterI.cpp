@@ -951,7 +951,11 @@ Glacier2::SessionRouterI::refreshSession(const Ice::Current& current)
     // Ping the session to ensure it does not timeout.
     //
     assert(_sessionPingCallback);
-    router->getSession()->begin_ice_ping(_sessionPingCallback, current.con);
+    Glacier2::SessionPrx session = router->getSession();
+    if(session)
+    {
+        session->begin_ice_ping(_sessionPingCallback, current.con);
+    }
 }
 
 void
