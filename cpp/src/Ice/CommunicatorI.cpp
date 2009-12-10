@@ -225,7 +225,7 @@ Ice::CommunicatorI::createObjectAdapterWithRouter(const string& name, const Rout
         getProperties()->setProperty(p->first, p->second);
     }
 
-    return _instance->objectAdapterFactory()->createObjectAdapter(name, router);
+    return _instance->objectAdapterFactory()->createObjectAdapter(oaName, router);
 }
 
 void
