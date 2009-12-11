@@ -85,7 +85,7 @@ if TestUtil.protocol == "ssl":
     sys.stdout.flush()
 
     # Direct registry connection with SSL
-    icegridadmin = TestUil.getIceGridAdmin()
+    icegridadmin = TestUtil.getIceGridAdmin()
     args = ' --Ice.Default.Locator="IceGrid/Locator:default -p 12010" --ssl'
     admin = TestUtil.startClient(icegridadmin, args, None, None, False)
     admin.expect('>>> ')
