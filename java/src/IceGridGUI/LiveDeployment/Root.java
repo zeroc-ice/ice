@@ -32,6 +32,122 @@ import IceGridGUI.*;
 //
 public class Root extends ListArrayTreeNode
 {
+
+    //
+    // A custom tree model to filter tree views.
+    //
+    class FilteredTreeModel extends DefaultTreeModel
+    {
+        public FilteredTreeModel(TreeNode root)
+        {
+            super(root, true);
+        }
+
+        public void resetFilters()
+        {
+            Object[] path = { root };
+            int[] childIndices  = new int[root.getChildCount()];
+            Object[] children  = new Object[root.getChildCount()];
+            for(int i = 0; i < root.getChildCount(); i++)
+            {
+                childIndices[i] = i;
+                children[i] = root.getChildAt(i);
+            }
+            fireTreeStructureChanged(this, path, childIndices, children);
+        }
+
+        public int
+        getChildCount(Object parent)
+        {
+            if(!filterEnabled())
+            {
+                return super.getChildCount(parent);
+            }
+            int p = super.getChildCount(parent);
+            int q = 0;
+            for (int j = 0; j < p; j++)
+            {
+                TreeNode node = (TreeNode)super.getChild(parent, j);
+                if(matchFilter(node))
+                {
+                    q++;
+                }
+            }
+            return q;
+        }
+
+        public Object getChild(Object parent, int index)
+        {
+            if(!filterEnabled())
+            {
+                return super.getChild(parent, index);
+            }
+            Object child = null;
+            int p = 0;
+            int q = super.getChildCount(parent);
+            for (int j = 0; j < q ; ++j)
+            {
+                TreeNode node = (TreeNode)super.getChild(parent, j);
+                if(!matchFilter(node))
+                {
+                    continue;
+                }
+
+                if(p == index)
+                {
+                    child = node;
+                    break;
+                }
+                p++;
+                if(p > index)
+                {
+                    break;
+                }
+            }
+            return child;
+        }
+
+        private boolean _filtered;
+    }
+
+    private boolean matchFilter(TreeNode n)
+    {
+        if(_applicationNameFilter == null)
+        {
+            return true;
+        }
+
+        if(n instanceof Server)
+        {
+            Server server = (Server)n;
+            if(!_applicationNameFilter.equals(server.getApplication().name))
+            {
+                return false;
+            }
+        }
+        else if(n instanceof Node)
+        {
+            return ((Node)n).hasServersFromApplication(_applicationNameFilter);
+        }
+        return true;
+    }
+
+    private boolean filterEnabled()
+    {
+        return _applicationNameFilter != null;
+    }
+
+    public void setApplicationNameFilter(String name)
+    {
+        _applicationNameFilter = name;
+        _label = _instanceName + " (" + _replicaName + ")";
+        if(_applicationNameFilter != null)
+        {
+            _label += " - " + _applicationNameFilter;
+        }
+        _treeModel.resetFilters();
+    }
+
     public Root(Coordinator coordinator)
     {
         super(null, "Root", 2);
@@ -40,8 +156,9 @@ public class Root extends ListArrayTreeNode
         _childrenArray[1] = _nodes;
         _messageSizeMax = computeMessageSizeMax(_coordinator.getProperties().getPropertyAsInt("Ice.MessageSizeMax"));
 
-        _tree = new JTree(this, true);
-        _treeModel = (DefaultTreeModel)_tree.getModel();
+        _treeModel = new FilteredTreeModel(this);
+        _tree = new JTree();
+        _tree.setModel(_treeModel);
         _addObjectDialog = new ObjectDialog(this, false);
         _showObjectDialog = new ObjectDialog(this, true);
 
@@ -210,6 +327,7 @@ public class Root extends ListArrayTreeNode
         {
             applicationAdded(p);
         }
+        _treeModel.resetFilters();
     }
 
     //
@@ -220,6 +338,7 @@ public class Root extends ListArrayTreeNode
         _adapters.clear();
         _objects.clear();
         _replicaName = null;
+        _applicationNameFilter = null;
 
         _infoMap.clear();
         _nodes.clear();
@@ -1064,7 +1183,7 @@ public class Root extends ListArrayTreeNode
     // 'this' is the root of the tree
     //
     private final JTree _tree;
-    private final DefaultTreeModel _treeModel;
+    private final FilteredTreeModel _treeModel;
 
     private RegistryInfo _info;
 
@@ -1091,4 +1210,10 @@ public class Root extends ListArrayTreeNode
     static private RegistryEditor _editor;
     static private JPopupMenu _popup;
     static private DefaultTreeCellRenderer _cellRenderer;
+
+
+    //
+    // Application name to filter, if empty all applications are displayed.
+    //
+    private String _applicationNameFilter = null;
 }

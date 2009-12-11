@@ -253,6 +253,11 @@ class Node extends ListTreeNode
         return getRoot().findNamedPropertySet(name, applicationName);
     }
 
+    boolean hasServersFromApplication(String name)
+    {
+        return _map.containsKey(name);
+    }
+
     void add(ApplicationDescriptor appDesc, NodeDescriptor nodeDesc)
     {
         ApplicationData data = new ApplicationData();

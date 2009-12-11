@@ -49,6 +49,7 @@ public class ApplicationPane extends JSplitPane implements Tab
     {
         Coordinator c = _root.getCoordinator();
 
+        c.getShowLiveDeploymentFiltersAction().setEnabled(false);
         c.getCloseApplicationAction().setEnabled(true);
 
         c.getSaveAction().setEnabled(_root.needsSaving() && (_root.isLive() && c.connectedToMaster() ||

@@ -523,6 +523,13 @@ public class Coordinator
 
             addSeparator();
 
+            button = new JButton(_showLiveDeploymentFilters);
+            button.setText(null);
+            button.setIcon(Utils.getIcon("/icons/24x24/view_filter.png"));
+            add(button);
+
+            addSeparator();
+
             button = new JButton(_openApplicationFromRegistry);
             button.setText(null);
             button.setIcon(Utils.getIcon("/icons/24x24/open_from_registry.png"));
@@ -640,6 +647,11 @@ public class Coordinator
     public Action getCloseApplicationAction()
     {
         return _closeApplication;
+    }
+
+    public Action getShowLiveDeploymentFiltersAction()
+    {
+        return _showLiveDeploymentFilters;
     }
 
     public Action getSaveAction()
@@ -1185,6 +1197,7 @@ public class Coordinator
         _liveApplications.clear();
 
         _logout.setEnabled(false);
+        _showLiveDeploymentFilters.setEnabled(false);
         _openApplicationFromRegistry.setEnabled(false);
         _patchApplication.setEnabled(false);
         _showApplicationDetails.setEnabled(false);
@@ -1484,6 +1497,7 @@ public class Coordinator
         }
 
         _logout.setEnabled(true);
+        _showLiveDeploymentFilters.setEnabled(true);
         _openApplicationFromRegistry.setEnabled(true);
         _patchApplication.setEnabled(true);
         _showApplicationDetails.setEnabled(true);
@@ -1491,7 +1505,6 @@ public class Coordinator
         _appMenu.setEnabled(true);
         _newApplicationWithDefaultTemplates.setEnabled(true);
         _acquireExclusiveWriteAccess.setEnabled(true);
-
         _mainPane.setSelectedComponent(_liveDeploymentPane);
 
         return session;
@@ -1982,6 +1995,49 @@ public class Coordinator
         _releaseExclusiveWriteAccess.putValue(Action.SHORT_DESCRIPTION,
                                               "Release exclusive write access on the registry");
         _releaseExclusiveWriteAccess.setEnabled(false);
+
+        _showLiveDeploymentFilters = new AbstractAction("Filter live deployment")
+            {
+                public void actionPerformed(ActionEvent e)
+                {
+
+                    Object[] applicationNames = _liveDeploymentRoot.getApplicationNames();
+
+                    if(applicationNames.length == 0)
+                    {
+                        JOptionPane.showMessageDialog(
+                            _mainFrame,
+                            "The registry does not contain any application",
+                            "Empty registry",
+                            JOptionPane.INFORMATION_MESSAGE);
+                    }
+                    else
+                    {
+                        java.util.List<Object> names = new java.util.ArrayList<Object>();
+                        names.add("<All>");
+                        names.addAll(java.util.Arrays.asList(applicationNames));
+                        String appName = (String)JOptionPane.showInputDialog(
+                            _mainFrame, "Which Application do you want to see in the live deployment?",
+                            "Filter live deployment",
+                            JOptionPane.QUESTION_MESSAGE, null,
+                            names.toArray(), names.get(0));
+
+                        if(appName != null)
+                        {
+                            if(appName.equals("<All>"))
+                            {
+                                _liveDeploymentRoot.setApplicationNameFilter(null);
+                            }
+                            else
+                            {
+                                _liveDeploymentRoot.setApplicationNameFilter(appName);
+                            }
+                        }
+                    }
+                }
+            };
+        _showLiveDeploymentFilters.putValue(Action.SHORT_DESCRIPTION, "Filter live deployment");
+        _showLiveDeploymentFilters.setEnabled(false);
 
         _openApplicationFromFile = new AbstractAction("Application from File")
             {
@@ -2711,6 +2767,7 @@ public class Coordinator
     private Action _acquireExclusiveWriteAccess;
     private Action _releaseExclusiveWriteAccess;
 
+    private Action _showLiveDeploymentFilters;
     private Action _openApplicationFromFile;
     private Action _openApplicationFromRegistry;
     private Action _closeApplication;

@@ -555,7 +555,8 @@ class Server extends ListArrayTreeNode
             // IceBox servers
             //
             _icons[0][1][0] = Utils.getIcon("/icons/16x16/icebox_server_unknown.png");
-            _icons[ServerState.Inactive.ordinal() + 1][1][0] = Utils.getIcon("/icons/16x16/icebox_server_inactive.png");
+            _icons[ServerState.Inactive.ordinal() + 1][1][0] = 
+                Utils.getIcon("/icons/16x16/icebox_server_inactive.png");
             _icons[ServerState.Activating.ordinal() + 1][1][0] =
                 Utils.getIcon("/icons/16x16/icebox_server_activating.png");
             _icons[ServerState.ActivationTimedOut.ordinal() + 1][1][0] =
