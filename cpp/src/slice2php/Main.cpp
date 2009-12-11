@@ -845,16 +845,7 @@ CodeVisitor::visitSequence(const SequencePtr& p)
     _out << sb;
     _out << nl << type << " = IcePHP_defineSequence('" << scoped << "', ";
     writeType(content);
-    _out << ", ";
-    if(content->isVariableLength())
-    {
-        _out << "true";
-    }
-    else
-    {
-        _out << "false";
-    }
-    _out << ", " << content->minWireSize() << ");";
+    _out << ");";
     _out << eb;
 
     endNamespace();

@@ -369,12 +369,22 @@ function allTests($communicator)
     catch(Exception $ex)
     {
         $uoe = $NS ? "Ice\\UnexpectedObjectException" : "Ice_UnexpectedObjectException";
-        if(!($ex instanceof $uoe))
+        $uoob = $NS ? "Ice\\UnmarshalOutOfBoundsException" : "Ice_UnmarshalOutOfBoundsException";
+        if($ex instanceof $uoe)
+        {
+            test($ex->type == "::Test::AlsoEmpty");
+            test($ex->expectedType == "::Test::Empty");
+        }
+        else if($ex instanceof $uoob)
+        {
+            //
+            // We get UnmarshalOutOfBoundsException on Windows with VC6.
+            //
+        }
+        else
         {
             throw $ex;
         }
-        test($ex->type == "::Test::AlsoEmpty");
-        test($ex->expectedType == "::Test::Empty");
     }
     echo "ok\n";
 

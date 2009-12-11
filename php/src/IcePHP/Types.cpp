@@ -2493,7 +2493,7 @@ ZEND_FUNCTION(IcePHP_defineSequence)
     int idLen;
     zval* element;
 
-    if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, const_cast<char*>("sobl"), &id, &idLen, &element) == FAILURE)
+    if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, const_cast<char*>("so"), &id, &idLen, &element) == FAILURE)
     {
         return;
     }
