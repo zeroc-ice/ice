@@ -188,7 +188,7 @@ sequenceTypeToString(const SequencePtr& seq, const StringList& metaData, int typ
     {
         // Get the metadata associated at the point of definition.
         bool protobuf;
-        seqType = findMetaData(seq, metaData, protobuf, typeCtx);
+        seqType = findMetaData(seq, seq->getMetaData(), protobuf, typeCtx);
         if(protobuf && !seqType.empty())
         {
             return seqType;
