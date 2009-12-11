@@ -36,7 +36,16 @@ extern "C"
 {
 #endif
 
+#ifdef _WIN32
+#   pragma warning( disable : 4018) // suppress signed/unsigned mismatch in zend_execute.h (PHP 5.3.x)
+#endif
+
 #include "php.h"
+
+#ifdef _WIN32
+#   pragma warning( default : 4018)
+#endif
+
 #include "php_ini.h"
 #include "ext/standard/info.h"
 #include "zend_interfaces.h"

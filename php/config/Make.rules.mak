@@ -41,7 +41,7 @@ USE_NAMESPACES		= no
 # Set PHP_HOME to your PHP source directory.
 #
 !if "$(PHP_HOME)" == ""
-PHP_HOME		= C:\php-5.2.11
+PHP_HOME		= C:\php-5.3.1
 !endif
 
 #
@@ -59,15 +59,24 @@ PHP_ZTS			= yes
 !endif
 
 #
+# If third party libraries are not installed in the default location
+# or THIRDPARTY_HOME is not set in your environment variables then
+# change the following setting to reflect the installation location.
+#
+!if "$(THIRDPARTY_HOME)" == ""
+!if "$(PROCESSOR_ARCHITECTURE)" == "AMD64" || "$(PROCESSOR_ARCHITECTUREW6432)" == "AMD64"
+THIRDPARTY_HOME	 = $(PROGRAMFILES) (x86)\ZeroC\Ice-$(VERSION)-ThirdParty
+!else
+THIRDPARTY_HOME	 = $(PROGRAMFILES)\ZeroC\Ice-$(VERSION)-ThirdParty
+!endif
+!endif
+
+#
 # STLPort is required if using MSVC++ 6.0. Change if STLPort
 # is located in a different location.
 #
 !if "$(CPP_COMPILER)" == "VC60" && "$(STLPORT_HOME)" == ""
-!if "$(THIRDPARTY_HOME)" != ""
 STLPORT_HOME            = $(THIRDPARTY_HOME)
-!else
-STLPORT_HOME            = C:\Ice-$(VERSION)-ThirdParty-VC60
-!endif
 !endif
 
 

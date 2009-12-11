@@ -4,8 +4,8 @@ Requirements
 
 - A supported version of PHP:
 
-  * 5.1.2 (SLES 10)
-  * 5.1.6 (RHEL)
+  * 5.2.6 (SLES 11)
+  * 5.1.6 (RHEL 5)
   * 5.2.x or 5.3.x (source builds)
 
   You can download PHP from
@@ -55,24 +55,23 @@ Building PHP with the Ice extension (Windows)
 
 Compiling PHP from source code on Windows is a tedious process,
 therefore we recommend that you download a binary distribution of PHP
-and use it along with the precompiled dynamic Ice extension included
-in the Ice installer for Visual C++ 6.0 (VC6).
+and use it along with the precompiled dynamic Ice extension for Visual
+C++ 6.0 that is included in the Ice installer for Windows.
 
 If you prefer to build the Ice extension yourself, you must first
 understand the C run time dependency issues. Specifically, the Ice
-extension must use the same C run time as PHP5. Since the binary
-distribution of PHP5 available from php.net depends on the Visual C++
-6.0 run time DLL (MSVCRT), you must also build the Ice extension using
-VC6 if you want to use Ice with this PHP distribution. This is why the
-precompiled Ice extension is included in the Ice installer for VC6, as
-attempting to use an Ice extension that was built with a newer
-compiler together with the binary PHP distribution results in
-undefined behavior.
+extension must use the same C run time as PHP5. Two compilers are
+supported by the binary distributions of PHP 5.3.x available from
+php.net: Visual C++ 6.0 (VC6) and Visual C++ 9.0 (VC9). The VC6
+distribution is intended to be used with the Apache web server,
+whereas the VC9 distribution is intended to be used with Microsoft
+IIS. You will need to compile the Ice extension using whichever
+compiler is appropriate for your web server.
 
-To use a later version of Visual C++, you must obtain (or build) PHP5
-with the desired compiler, and use the same compiler to build the Ice
-extension. Refer to the PHP documentation for instructions on building
-PHP5 from source.
+To use a different version of Visual C++, you must obtain (or build)
+PHP5 with the desired compiler, and use the same compiler to build
+the Ice extension. Refer to the PHP documentation for instructions on
+building PHP5 from source.
 
 Follow these instructions to build the Ice extension:
 
@@ -96,7 +95,7 @@ Follow these instructions to build the Ice extension:
    you need to set the ICE_HOME environment variable to the location
    of your Ice for C++ installation. For example:
 
-   > set ICE_HOME=C:\Ice-@ver@-VC60
+   > set ICE_HOME=C:\Program Files\ZeroC\Ice-@ver@
 
 5) Change to the Ice for PHP source directory.
 
