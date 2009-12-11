@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="Windows-1252"?>
 <VisualStudioProject
 	ProjectType="Visual C++"
-	Version="8.00"
-	Name="Database.Oracle.occi.server"
+	Version="9,00"
+	Name="Database.Oracle.occi"
 	ProjectGUID="{C234B2E6-EE0A-44BD-AA82-CFBF3E47239D}"
+	TargetFrameworkVersion="131072"
 	>
 	<Platforms>
 		<Platform
@@ -44,7 +45,7 @@
 				AdditionalOptions="/wd4101 /wd4291 "
 				Optimization="2"
 				InlineFunctionExpansion="1"
-				AdditionalIncludeDirectories=".,../../../../include,../../../../include/stlport"
+				AdditionalIncludeDirectories=".,../../../../include,../../../../include/stlport ; . ; ..\..\..\..\..\cpp\include"
 				PreprocessorDefinitions="_CONSOLE;NDEBUG;WIN32_LEAN_AND_MEAN"
 				StringPooling="true"
 				RuntimeLibrary="2"
@@ -76,8 +77,10 @@
 				OutputFile="server.exe"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
-				AdditionalLibraryDirectories="../../../../lib"
+				AdditionalLibraryDirectories="../../../../lib ; ..\..\..\..\..\cpp\lib"
 				SubSystem="1"
+				RandomizedBaseAddress="1"
+				DataExecutionPrevention="0"
 				TargetMachine="1"
 			/>
 			<Tool
@@ -99,9 +102,6 @@
 			/>
 			<Tool
 				Name="VCAppVerifierTool"
-			/>
-			<Tool
-				Name="VCWebDeploymentTool"
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
@@ -137,7 +137,7 @@
 				Name="VCCLCompilerTool"
 				AdditionalOptions="/wd4101 /wd4291 "
 				Optimization="0"
-				AdditionalIncludeDirectories=".,../../../../include,../../../../include/stlport"
+				AdditionalIncludeDirectories=".,../../../../include,../../../../include/stlport ; . ; ..\..\..\..\..\cpp\include"
 				PreprocessorDefinitions="_CONSOLE;_DEBUG;WIN32_LEAN_AND_MEAN"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
@@ -170,10 +170,12 @@
 				OutputFile="server.exe"
 				LinkIncremental="2"
 				SuppressStartupBanner="true"
-				AdditionalLibraryDirectories="../../../../lib"
+				AdditionalLibraryDirectories="../../../../lib ; ..\..\..\..\..\cpp\lib"
 				GenerateDebugInformation="true"
 				ProgramDatabaseFile=".\Debug/server.pdb"
 				SubSystem="1"
+				RandomizedBaseAddress="1"
+				DataExecutionPrevention="0"
 				TargetMachine="1"
 			/>
 			<Tool
@@ -195,9 +197,6 @@
 			/>
 			<Tool
 				Name="VCAppVerifierTool"
-			/>
-			<Tool
-				Name="VCWebDeploymentTool"
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
@@ -322,26 +321,8 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="HR.cpp"
+				RelativePath=".\HR.cpp"
 				>
-				<FileConfiguration
-					Name="Release|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Debug|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="OCCIServantLocator.cpp"
@@ -435,7 +416,7 @@
 				>
 			</File>
 			<File
-				RelativePath="HR.h"
+				RelativePath=".\HR.h"
 				>
 			</File>
 			<File
@@ -476,24 +457,6 @@
 			<File
 				RelativePath="HR.ice"
 				>
-				<FileConfiguration
-					Name="Release|Win32"
-					>
-					<Tool
-						Name="VCCustomBuildTool"
-						CommandLine="..\..\..\..\bin\slice2cpp.exe $(InputPath)&#x0D;&#x0A;"
-						Outputs="$(InputName).h;$(InputName).cpp"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Debug|Win32"
-					>
-					<Tool
-						Name="VCCustomBuildTool"
-						CommandLine="..\..\..\..\bin\slice2cpp.exe $(InputPath)&#x0D;&#x0A;"
-						Outputs="$(InputName).h;$(InputName).cpp"
-					/>
-				</FileConfiguration>
 			</File>
 		</Filter>
 		<File
@@ -506,5 +469,17 @@
 		</File>
 	</Files>
 	<Globals>
+		<Global
+			Name="ZerocIce_Enabled"
+			Value="True"
+		/>
+		<Global
+			Name="ZerocIce_Home"
+			Value="..\..\..\..\.."
+		/>
+		<Global
+			Name="ZerocIce_HomeExpanded"
+			Value="..\..\..\..\.."
+		/>
 	</Globals>
 </VisualStudioProject>

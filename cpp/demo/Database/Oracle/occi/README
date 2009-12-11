@@ -18,8 +18,12 @@ Building the demo
 OCCI is only available for some C++ compilers. Make sure to select a 
 platform and C++ compiler supported by both Ice and OCCI.
 
+OCCI oracle drivers are available at:
+
+ http://www.oracle.com/technology/tech/oci/occi/occidownloads.html
+
 - Setup an Oracle database with the traditional EMP/DEPT schema. 
-  With Oracle server 10.2 and 11.1, the corresponding SQL script is 
+  With Oracle server 11.1, the corresponding SQL script is 
   $ORACLE_HOME/rdbms/admin/utlsampl.sql.
 
 - Ensure that your user (by default, scott) has the CREATE VIEW
@@ -44,19 +48,23 @@ platform and C++ compiler supported by both Ice and OCCI.
 - Set the environment variable ORACLE_HOME to point to your Oracle
   installation home directory.
 
-- On Windows with Visual Studio 2005 Project Files, add the 
+- On Windows with Visual Studio 2008 Project Files, add the 
   following directories to your Visual C++ environment: 
 
   - Include files: $(ORACLE_HOME)\oci\include
 
-  - Library files: $(ORACLE_HOME)\oci\lib\msvc\vc8
+  - Library files: $(ORACLE_HOME)\oci\lib\msvc\vc9
                    $(ORACLE_HOME)\oci\lib\msvc
 
-    (make sure to list msvc\vc8 before msvc)
+    (make sure to list the driver folder before lib\msvc)
 
   - Executable files: 
 
-    $(ORACLE_HOME)\oci\lib\msvc\vc8;$(ORACLE_HOME)\bin
+    $(ORACLE_HOME)\oci\lib\msvc\vc9;$(ORACLE_HOME)\bin
+
+  - If OCCI driver isn't installed in the standard location,
+  update Library and Executable files to match your installation
+  directories
 
 - On Windows, when using nmake Makefiles, please review 
   Makefile.mak.

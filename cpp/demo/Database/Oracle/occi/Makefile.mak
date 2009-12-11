@@ -48,11 +48,12 @@ SPDBFLAGS        = /pdb:$(SERVER:.exe=.pdb)
 #
 # OCCI first
 #
-!if "$(CPP_COMPILER)" == "VC80" || "$(CPP_COMPILER)" == "VC80_EXPRESS"
+!if "$(CPP_COMPILER)" == "VC90" || "$(CPP_COMPILER)" == "VC90_EXPRESS"
+
 #
-# oraocci10$(LIBSUFFIX).lib with Oracle 10
+# OCCI libraries default location, adjust to match your setup.
 #
-ORACLE_LIBS     = -LIBPATH:"$(ORACLE_HOME)\oci\lib\msvc\vc8" oraocci11$(LIBSUFFIX).lib
+ORACLE_LIBS     = -LIBPATH:"$(ORACLE_HOME)\oci\lib\msvc\vc9" oraocci11$(LIBSUFFIX).lib
 !else
 !error "$(CPP_COMPILER) is not supported by this demo"
 !endif

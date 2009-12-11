@@ -1,4 +1,4 @@
-HR.Endpoints=tcp -p 10000
+HR.Endpoints=tcp -p 12000
 
 Ice.ThreadPool.Server.Size=5
 

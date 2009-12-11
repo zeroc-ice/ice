@@ -86,11 +86,33 @@ private:
 
 }
 
+namespace
+{
+IceUtil::Mutex* _globalMutex = 0;
+class Init
+{
+public:
+
+	Init()
+	{
+             _globalMutex = new IceUtil::Mutex();
+	}
+	
+	~Init()
+	{
+	    delete _globalMutex;
+	    _globalMutex = 0;
+	}
+};
+
+Init init;
+}
+
 CurrentSqlContext::CurrentSqlContext(const string& connectInfo) :
     _connectInfo(connectInfo)
 {
     {
-        IceUtil::StaticMutex::Lock lock(IceUtil::globalMutex);
+        IceUtil::Mutex::Lock lock(*_globalMutex);
         _index = _currentIndex++;
     }
     _hook = new Notification(_index);
