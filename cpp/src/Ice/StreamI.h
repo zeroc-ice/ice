@@ -66,6 +66,7 @@ public:
     virtual std::vector< std::wstring > readWstringSeq();
 
     virtual Ice::Int readSize();
+    virtual Ice::Int readAndCheckSeqSize(int);
 
     virtual Ice::ObjectPrx readProxy();
 

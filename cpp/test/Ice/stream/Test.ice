@@ -36,6 +36,11 @@ struct SmallStruct
     MyClass* p;
 };
 
+["cpp:class"] struct ClassStruct
+{
+    int i;
+};
+
 sequence<bool> BoolS;
 sequence<byte> ByteS;
 sequence<short> ShortS;
@@ -45,6 +50,7 @@ sequence<float> FloatS;
 sequence<double> DoubleS;
 sequence<string> StringS;
 sequence<MyEnum> MyEnumS;
+sequence<SmallStruct> SmallStructS;
 sequence<MyClass> MyClassS;
 
 sequence<BoolS> BoolSS;
@@ -56,6 +62,7 @@ sequence<FloatS> FloatSS;
 sequence<DoubleS> DoubleSS;
 sequence<StringS> StringSS;
 sequence<MyEnumS> MyEnumSS;
+sequence<SmallStructS> SmallStructSS;
 sequence<MyClassS> MyClassSS;
 
 dictionary<byte, bool> ByteBoolD;
@@ -86,27 +93,9 @@ interface MyInterface
 {
 };
 
-class MyClassForException
-{
-    MyClassForException c;
-    Object o;
-    SmallStruct s;
-    BoolS seq1;
-    ByteS seq2;
-    ShortS seq3;
-    IntS seq4;
-    LongS seq5;
-    FloatS seq6;
-    DoubleS seq7;
-    StringS seq8;
-    MyEnumS seq9;
-};
-
-
-
 exception MyException
 {
-    MyClassForException c;
+    MyClass c;
 };
 
 };

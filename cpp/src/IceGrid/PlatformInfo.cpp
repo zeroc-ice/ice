@@ -112,7 +112,7 @@ getSocketCount(const Ice::LoggerPtr& logger)
     }
 
     vector<SYSTEM_LOGICAL_PROCESSOR_INFORMATION> buffer(1);
-    DWORD returnLength = sizeof(SYSTEM_LOGICAL_PROCESSOR_INFORMATION) * buffer.size();
+    DWORD returnLength = sizeof(SYSTEM_LOGICAL_PROCESSOR_INFORMATION) * static_cast<int>(buffer.size());
     while(true)
     {
         DWORD rc = glpi(&buffer[0], &returnLength);

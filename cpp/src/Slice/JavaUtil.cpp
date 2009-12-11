@@ -1235,15 +1235,8 @@ Slice::JavaGenerator::writeSequenceMarshalUnmarshalCode(Output& out,
                 isObject = true;
             }
             out << nl << v << " = new " << instanceType << "();";
-            out << nl << "final int __len" << iter << " = " << stream << ".readSize();";
-            if(type->isVariableLength())
-            {
-                out << nl << stream << ".startSeq(__len" << iter << ", " << type->minWireSize() << ");";
-            }
-            else
-            {
-                out << nl << stream << ".checkFixedSeq(__len" << iter << ", " << type->minWireSize() << ");";
-            }
+            out << nl << "final int __len" << iter << " = " << stream << ".readAndCheckSeqSize(" << type->minWireSize()
+                << ");";
             if(isObject)
             {
                 if(b)
@@ -1288,33 +1281,7 @@ Slice::JavaGenerator::writeSequenceMarshalUnmarshalCode(Output& out,
             {
                 out << nl << v << ".add(__elem);";
             }
-
-            //
-            // After unmarshaling each element, check that there are still enough bytes left in the stream
-            // to unmarshal the remainder of the sequence, and decrement the count of elements
-            // yet to be unmarshaled for sequences with variable-length element type (that is, for sequences
-            // of classes, structs, dictionaries, sequences, strings, or proxies). This allows us to
-            // abort unmarshaling for bogus sequence sizes at the earliest possible moment.
-            // (For fixed-length sequences, we don't need to do this because the prediction of how many
-            // bytes will be taken up by the sequence is accurate.)
-            //
-            if(type->isVariableLength())
-            {
-                if(!SequencePtr::dynamicCast(type))
-                {
-                    //
-                    // No need to check for directly nested sequences because, at the at start of each
-                    // sequence, we check anyway.
-                    //
-                    out << nl << stream << ".checkSeq();";
-                }
-                out << nl << stream << ".endElement();";
-            }
             out << eb;
-            if(type->isVariableLength())
-            {
-                out << nl << stream << ".endSeq(__len" << iter << ");";
-            }
             iter++;
         }
     }
@@ -1459,15 +1426,8 @@ Slice::JavaGenerator::writeSequenceMarshalUnmarshalCode(Output& out,
                 {
                     isObject = true;
                 }
-                out << nl << "final int __len" << iter << " = " << stream << ".readSize();";
-                if(type->isVariableLength())
-                {
-                    out << nl << stream << ".startSeq(__len" << iter << ", " << type->minWireSize() << ");";
-                }
-                else
-                {
-                    out << nl << stream << ".checkFixedSeq(__len" << iter << ", " << type->minWireSize() << ");";
-                }
+                out << nl << "final int __len" << iter << " = " << stream << ".readAndCheckSeqSize(" 
+                    << type->minWireSize() << ");";
                 if(isObject)
                 {
                     if(b)
@@ -1546,33 +1506,7 @@ Slice::JavaGenerator::writeSequenceMarshalUnmarshalCode(Output& out,
                 {
                     writeMarshalUnmarshalCode(out, package, type, o.str(), false, iter, false);
                 }
-
-                //
-                // After unmarshaling each element, check that there are still enough bytes left in the stream
-                // to unmarshal the remainder of the sequence, and decrement the count of elements
-                // yet to be unmarshaled for sequences with variable-length element type (that is, for sequences
-                // of classes, structs, dictionaries, sequences, strings, or proxies). This allows us to
-                // abort unmarshaling for bogus sequence sizes at the earliest possible moment.
-                // (For fixed-length sequences, we don't need to do this because the prediction of how many
-                // bytes will be taken up by the sequence is accurate.)
-                //
-                if(type->isVariableLength())
-                {
-                    if(!SequencePtr::dynamicCast(type))
-                    {
-                        //
-                        // No need to check for directly nested sequences because, at the at start of each
-                        // sequence, we check anyway.
-                        //
-                        out << nl << stream << ".checkSeq();";
-                    }
-                    out << nl << stream << ".endElement();";
-                }
                 out << eb;
-                if(type->isVariableLength())
-                {
-                    out << nl << stream << ".endSeq(__len" << iter << ");";
-                }
                 iter++;
             }
         }
@@ -2166,7 +2100,8 @@ Slice::JavaGenerator::writeStreamSequenceMarshalUnmarshalCode(Output& out,
                 isObject = true;
             }
             out << nl << v << " = new " << instanceType << "();";
-            out << nl << "final int __len" << iter << " = " << stream << ".readSize();";
+            out << nl << "final int __len" << iter << " = " << stream << ".readAndCheckSeqSize(" << type->minWireSize()
+                << ");";
             if(isObject)
             {
                 if(b)
@@ -2356,7 +2291,8 @@ Slice::JavaGenerator::writeStreamSequenceMarshalUnmarshalCode(Output& out,
                 {
                     isObject = true;
                 }
-                out << nl << "final int __len" << iter << " = " << stream << ".readSize();";
+                out << nl << "final int __len" << iter << " = " << stream << ".readAndCheckSeqSize(" 
+                    << type->minWireSize() << ");";
                 if(isObject)
                 {
                     if(b)

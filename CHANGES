@@ -33,6 +33,12 @@ General Changes
 These entries apply to all relevant language mappings unless otherwise
 noted.
 
+- Added new InputStream::readAndCheckSeqSize method to read and check
+  the size of a sequence. The check ensures the sequence size is
+  consistent with the stream buffer size. This is useful to prevent
+  over-allocating memory for the sequence if the input stream data
+  can't be trusted.
+
 - When using the system logger (enabled when Ice.UseSyslog is set) it 
   is now possible to set the facility using the Ice.SyslogFacility
   property. The default value is LOG_USER.

@@ -42,7 +42,7 @@ public class BasicStream
 
         _messageSizeMax = _instance.messageSizeMax(); // Cached for efficiency.
 
-        _seqDataStack = null;
+        _startSeq = -1;
         _objectList = null;
     }
 
@@ -78,7 +78,7 @@ public class BasicStream
             _writeEncapsStack = null;
         }
 
-        _seqDataStack = null;
+        _startSeq = -1;
 
         if(_objectList != null)
         {
@@ -145,9 +145,13 @@ public class BasicStream
         other._writeSlice = _writeSlice;
         _writeSlice = tmpWriteSlice;
 
-        SeqData tmpSeqDataStack = other._seqDataStack;
-        other._seqDataStack = _seqDataStack;
-        _seqDataStack = tmpSeqDataStack;
+        int tmpStartSeq = other._startSeq;
+        other._startSeq = _startSeq;
+        _startSeq = tmpStartSeq;
+
+        int tmpMinSeqSize = other._minSeqSize;
+        other._minSeqSize = _minSeqSize;
+        _minSeqSize = tmpMinSeqSize;
 
         java.util.ArrayList<Ice.Object> tmpObjectList = other._objectList;
         other._objectList = _objectList;
@@ -185,157 +189,6 @@ public class BasicStream
     getBuffer()
     {
         return _buf;
-    }
-
-    //
-    // startSeq() and endSeq() sanity-check sequence sizes during
-    // unmarshaling and prevent malicious messages with incorrect
-    // sequence sizes from causing the receiver to use up all
-    // available memory by allocating sequences with an impossibly
-    // large number of elements.
-    //
-    // The code generator inserts calls to startSeq() and endSeq()
-    // around the code to unmarshal a sequence. startSeq() is called
-    // immediately after reading the sequence size, and endSeq() is
-    // called after reading the final element of a sequence.
-    //
-    // For sequences that contain constructed types that, in turn,
-    // contain sequences, the code generator also inserts a call to
-    // endElement() after unmarshaling each element.
-    //
-    // startSeq() is passed the unmarshaled element count, plus the
-    // minimum size (in bytes) occupied by the sequence's element
-    // type. numElements * minSize is the smallest possible number of
-    // bytes that the sequence will occupy on the wire.
-    //
-    // Every time startSeq() is called, it pushes the element count
-    // and the minimum size on a stack. Every time endSeq() is called,
-    // it pops the stack.
-    //
-    // For an ordinary sequence (one that does not (recursively)
-    // contain nested sequences), numElements * minSize must be less
-    // than the number of bytes remaining in the stream.
-    //
-    // For a sequence that is nested within some other sequence, there
-    // must be enough bytes remaining in the stream for this sequence
-    // (numElements + minSize), plus the sum of the bytes required by
-    // the remaining elements of all the enclosing sequences.
-    //
-    // For the enclosing sequences, numElements - 1 is the number of
-    // elements for which unmarshaling has not started yet. (The call
-    // to endElement() in the generated code decrements that number
-    // whenever a sequence element is unmarshaled.)
-    //
-    // For sequence that variable-length elements, checkSeq() is
-    // called whenever an element is unmarshaled. checkSeq() also
-    // checks whether the stream has a sufficient number of bytes
-    // remaining.  This means that, for messages with bogus sequence
-    // sizes, unmarshaling is aborted at the earliest possible point.
-    //
-
-    public void
-    startSeq(int numElements, int minSize)
-    {
-        if(numElements == 0) // Optimization to avoid pushing a useless stack frame.
-        {
-            return;
-        }
-
-        //
-        // Push the current sequence details on the stack.
-        //
-        SeqData sd = new SeqData(numElements, minSize);
-        sd.previous = _seqDataStack;
-        _seqDataStack = sd;
-
-        int bytesLeft = _buf.b.remaining();
-        if(_seqDataStack.previous == null) // Outermost sequence
-        {
-            //
-            // The sequence must fit within the message.
-            //
-            if(numElements * minSize > bytesLeft) 
-            {
-                throw new Ice.UnmarshalOutOfBoundsException();
-            }
-        }
-        else // Nested sequence
-        {
-            checkSeq(bytesLeft);
-        }
-    }
-
-    //
-    // Check, given the number of elements requested for this
-    // sequence, that this sequence, plus the sum of the sizes of the
-    // remaining number of elements of all enclosing sequences, would
-    // still fit within the message.
-    //
-    public void
-    checkSeq()
-    {
-        checkSeq(_buf.b.remaining());
-    }
-
-    public void
-    checkSeq(int bytesLeft)
-    {
-        int size = 0;
-        SeqData sd = _seqDataStack;
-        do
-        {
-            size += (sd.numElements - 1) * sd.minSize;
-            sd = sd.previous;
-        }
-        while(sd != null);
-
-        if(size > bytesLeft)
-        {
-            throw new Ice.UnmarshalOutOfBoundsException();
-        }
-    }
-
-    public void
-    checkFixedSeq(int numElements, int elemSize)
-    {
-        int bytesLeft = _buf.b.remaining();
-        if(_seqDataStack == null) // Outermost sequence
-        {
-            //
-            // The sequence must fit within the message.
-            //
-            if(numElements * elemSize > bytesLeft) 
-            {
-                throw new Ice.UnmarshalOutOfBoundsException();
-            }
-        }
-        else // Nested sequence
-        {
-            checkSeq(bytesLeft - numElements * elemSize);
-        }
-    }
-
-    public void
-    endSeq(int sz)
-    {
-        if(sz == 0) // Pop only if something was pushed previously.
-        {
-            return;
-        }
-
-        //
-        // Pop the sequence stack.
-        //
-        SeqData oldSeqData = _seqDataStack;
-        assert(oldSeqData != null);
-        _seqDataStack = oldSeqData.previous;
-    }
-
-    public void
-    endElement()
-    {
-        assert(_seqDataStack != null);
-        --_seqDataStack.numElements;
     }
 
     final private static byte[] _encapsBlob =
@@ -585,6 +438,56 @@ public class BasicStream
         }
     }
 
+    public int
+    readAndCheckSeqSize(int minSize)
+    {
+        int sz = readSize();
+        
+        if(sz == 0)
+        {
+            return 0;
+        }
+        
+        //
+        // The _startSeq variable points to the start of the sequence for which
+        // we expect to read at least _minSeqSize bytes from the stream.
+        //
+        // If not initialized or if we already read more data than _minSeqSize, 
+        // we reset _startSeq and _minSeqSize for this sequence (possibly a 
+        // top-level sequence or enclosed sequence it doesn't really matter).
+        //
+        // Otherwise, we are reading an enclosed sequence and we have to bump
+        // _minSeqSize by the minimum size that this sequence will  require on
+        // the stream.
+        //
+        // The goal of this check is to ensure that when we start un-marshalling
+        // a new sequence, we check the minimal size of this new sequence against
+        // the estimated remaining buffer size. This estimatation is based on 
+        // the minimum size of the enclosing sequences, it's _minSeqSize.
+        //
+        if(_startSeq == -1 || _buf.b.position() > (_startSeq + _minSeqSize))
+        {
+            _startSeq = _buf.b.position();
+            _minSeqSize = sz * minSize;
+        }
+        else
+        {
+            _minSeqSize += sz * minSize;
+        }
+        
+        //
+        // If there isn't enough data to read on the stream for the sequence (and
+        // possibly enclosed sequences), something is wrong with the marshalled 
+        // data: it's claiming having more data that what is possible to read.
+        //
+        if(_startSeq + _minSeqSize > _buf.size())
+        {
+            throw new Ice.UnmarshalOutOfBoundsException();
+        }
+        
+        return sz;
+    }
+
     public void
     writeSize(int v)
     {
@@ -805,8 +708,7 @@ public class BasicStream
     {
         try
         {
-            final int sz = readSize();
-            checkFixedSeq(sz, 1);
+            final int sz = readAndCheckSeqSize(1);
             byte[] v = new byte[sz];
             _buf.b.get(v);
             return v;
@@ -820,12 +722,11 @@ public class BasicStream
     public java.io.Serializable
     readSerializable()
     {
-        int sz = readSize();
+        int sz = readAndCheckSeqSize(1);
         if (sz == 0)
         {
             return null;
         }
-        checkFixedSeq(sz, 1);
         try
         {
             InputStreamWrapper w = new InputStreamWrapper(sz, this);
@@ -883,8 +784,7 @@ public class BasicStream
     {
         try
         {
-            final int sz = readSize();
-            checkFixedSeq(sz, 1);
+            final int sz = readAndCheckSeqSize(1);
             boolean[] v = new boolean[sz];
             for(int i = 0; i < sz; i++)
             {
@@ -961,8 +861,7 @@ public class BasicStream
     {
         try
         {
-            final int sz = readSize();
-            checkFixedSeq(sz, 2);
+            final int sz = readAndCheckSeqSize(2);
             short[] v = new short[sz];
             java.nio.ShortBuffer shortBuf = _buf.b.asShortBuffer();
             shortBuf.get(v);
@@ -1038,8 +937,7 @@ public class BasicStream
     {
         try
         {
-            final int sz = readSize();
-            checkFixedSeq(sz, 4);
+            final int sz = readAndCheckSeqSize(4);
             int[] v = new int[sz];
             java.nio.IntBuffer intBuf = _buf.b.asIntBuffer();
             intBuf.get(v);
@@ -1094,8 +992,7 @@ public class BasicStream
     {
         try
         {
-            final int sz = readSize();
-            checkFixedSeq(sz, 8);
+            final int sz = readAndCheckSeqSize(8);
             long[] v = new long[sz];
             java.nio.LongBuffer longBuf = _buf.b.asLongBuffer();
             longBuf.get(v);
@@ -1150,8 +1047,7 @@ public class BasicStream
     {
         try
         {
-            final int sz = readSize();
-            checkFixedSeq(sz, 4);
+            final int sz = readAndCheckSeqSize(4);
             float[] v = new float[sz];
             java.nio.FloatBuffer floatBuf = _buf.b.asFloatBuffer();
             floatBuf.get(v);
@@ -1206,8 +1102,7 @@ public class BasicStream
     {
         try
         {
-            final int sz = readSize();
-            checkFixedSeq(sz, 8);
+            final int sz = readAndCheckSeqSize(8);
             double[] v = new double[sz];
             java.nio.DoubleBuffer doubleBuf = _buf.b.asDoubleBuffer();
             doubleBuf.get(v);
@@ -1378,16 +1273,12 @@ public class BasicStream
     public String[]
     readStringSeq()
     {
-        final int sz = readSize();
-        startSeq(sz, 1);
+        final int sz = readAndCheckSeqSize(1);
         String[] v = new String[sz];
         for(int i = 0; i < sz; i++)
         {
             v[i] = readString();
-            checkSeq();
-            endElement();
         }
-        endSeq(sz);
         return v;
     }
 
@@ -2512,19 +2403,8 @@ public class BasicStream
     private int _messageSizeMax;
     private boolean _unlimited;
 
-    private static final class SeqData
-    {
-        public SeqData(int numElements, int minSize)
-        {
-            this.numElements = numElements;
-            this.minSize = minSize;
-        }
-
-        public int numElements;
-        public int minSize;
-        public SeqData previous;
-    }
-    SeqData _seqDataStack;
+    private int _startSeq;
+    private int _minSeqSize;
 
     private java.util.ArrayList<Ice.Object> _objectList;
 

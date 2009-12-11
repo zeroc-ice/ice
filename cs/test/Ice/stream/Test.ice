@@ -89,6 +89,11 @@ interface MyInterface
 {
 };
 
+exception MyException
+{
+    MyClass c;
+};
+
 };
 
 #endif

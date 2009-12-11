@@ -248,6 +248,14 @@ Ice::InputStreamI::readSize()
     return sz;
 }
 
+Int
+Ice::InputStreamI::readAndCheckSeqSize(int minSize)
+{
+    Int sz;
+    _is->readAndCheckSeqSize(minSize, sz);
+    return sz;
+}
+
 ObjectPrx
 Ice::InputStreamI::readProxy()
 {

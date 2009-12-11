@@ -127,7 +127,7 @@ namespace IceInternal
 
             _messageSizeMax = instance_.messageSizeMax(); // Cached for efficiency.
 
-            _seqDataStack = null;
+            _startSeq = -1;
             _objectList = null;
         }
 
@@ -161,7 +161,7 @@ namespace IceInternal
                 _writeEncapsCache.reset();
             }
 
-            _seqDataStack = null;
+            _startSeq = -1;
 
             if(_objectList != null)
             {
@@ -224,9 +224,13 @@ namespace IceInternal
             other._writeSlice = _writeSlice;
             _writeSlice = tmpWriteSlice;
 
-            SeqData tmpSeqDataStack = other._seqDataStack;
-            other._seqDataStack = _seqDataStack;
-            _seqDataStack = tmpSeqDataStack;
+            int tmpStartSeq = other._startSeq;
+            other._startSeq = _startSeq;
+            _startSeq = tmpStartSeq;
+
+            int tmpMinSeqSize = other._minSeqSize;
+            other._minSeqSize = _minSeqSize;
+            _minSeqSize = tmpMinSeqSize;
 
             ArrayList tmpObjectList = other._objectList;
             other._objectList = _objectList;
@@ -261,156 +265,6 @@ namespace IceInternal
         public virtual Buffer getBuffer()
         {
             return _buf;
-        }
-
-        //
-        // startSeq() and endSeq() sanity-check sequence sizes during
-        // unmarshaling and prevent malicious messages with incorrect
-        // sequence sizes from causing the receiver to use up all
-        // available memory by allocating sequences with an impossibly
-        // large number of elements.
-        //
-        // The code generator inserts calls to startSeq() and endSeq()
-        // around the code to unmarshal a sequence. startSeq() is
-        // called immediately after reading the sequence size, and
-        // endSeq() is called after reading the final element of a
-        // sequence.
-        //
-        // For sequences that contain constructed types that, in turn,
-        // contain sequences, the code generator also inserts a call
-        // to endElement() after unmarshaling each element.
-        //
-        // startSeq() is passed the unmarshaled element count, plus
-        // the minimum size (in bytes) occupied by the sequence's
-        // element type. numElements * minSize is the smallest
-        // possible number of bytes that the sequence will occupy on
-        // the wire.
-        //
-        // Every time startSeq() is called, it pushes the element
-        // count and the minimum size on a stack. Every time endSeq()
-        // is called, it pops the stack.
-        //
-        // For an ordinary sequence (one that does not (recursively)
-        // contain nested sequences), numElements * minSize must be
-        // less than the number of bytes remaining in the stream.
-        //
-        // For a sequence that is nested within some other sequence,
-        // there must be enough bytes remaining in the stream for this
-        // sequence (numElements + minSize), plus the sum of the bytes
-        // required by the remaining elements of all the enclosing
-        // sequences.
-        //
-        // For the enclosing sequences, numElements - 1 is the number
-        // of elements for which unmarshaling has not started
-        // yet. (The call to endElement() in the generated code
-        // decrements that number whenever a sequence element is
-        // unmarshaled.)
-        //
-        // For sequence that variable-length elements, checkSeq() is
-        // called whenever an element is unmarshaled. checkSeq() also
-        // checks whether the stream has a sufficient number of bytes
-        // remaining.  This means that, for messages with bogus
-        // sequence sizes, unmarshaling is aborted at the earliest
-        // possible point.
-        //
-
-        public void startSeq(int numElements, int minSize)
-        {
-            if(numElements == 0) // Optimization to avoid pushing a useless stack frame.
-            {
-                return;
-            }
-
-            //
-            // Push the current sequence details on the stack.
-            //
-            SeqData sd = new SeqData(numElements, minSize);
-            sd.previous = _seqDataStack;
-            _seqDataStack = sd;
-
-            int bytesLeft = _buf.b.remaining();
-            if(_seqDataStack.previous == null) // Outermost sequence
-            {
-                //
-                // The sequence must fit within the message.
-                //
-                if(numElements * minSize > bytesLeft) 
-                {
-                    throw new Ice.UnmarshalOutOfBoundsException();
-                }
-            }
-            else // Nested sequence
-            {
-                checkSeq(bytesLeft);
-            }
-        }
-
-        //
-        // Check, given the number of elements requested for this
-        // sequence, that this sequence, plus the sum of the sizes of
-        // the remaining number of elements of all enclosing
-        // sequences, would still fit within the message.
-        //
-        public void checkSeq()
-        {
-            checkSeq(_buf.b.remaining());
-        }
-
-        public void checkSeq(int bytesLeft)
-        {
-            int size = 0;
-            SeqData sd = _seqDataStack;
-            do
-            {
-                size += (sd.numElements - 1) * sd.minSize;
-                sd = sd.previous;
-            }
-            while(sd != null);
-
-            if(size > bytesLeft)
-            {
-                throw new Ice.UnmarshalOutOfBoundsException();
-            }
-        }
-
-        public void checkFixedSeq(int numElements, int elemSize)
-        {
-            int bytesLeft = _buf.b.remaining();
-            if(_seqDataStack == null) // Outermost sequence
-            {
-                //
-                // The sequence must fit within the message.
-                //
-                if(numElements * elemSize > bytesLeft) 
-                {
-                    throw new Ice.UnmarshalOutOfBoundsException();
-                }
-            }
-            else // Nested sequence
-            {
-                checkSeq(bytesLeft - numElements * elemSize);
-            }
-        }
-
-        public void endElement()
-        {
-            Debug.Assert(_seqDataStack != null);
-            --_seqDataStack.numElements;
-        }
-
-        public void endSeq(int sz)
-        {
-            if(sz == 0) // Pop only if something was pushed previously.
-            {
-                return;
-            }
-
-            //
-            // Pop the sequence stack.
-            //
-            SeqData oldSeqData = _seqDataStack;
-            Debug.Assert(oldSeqData != null);
-            _seqDataStack = oldSeqData.previous;
         }
 
         public virtual void startWriteEncaps()
@@ -639,6 +493,55 @@ namespace IceInternal
             {
                 throw new Ice.UnmarshalOutOfBoundsException(ex);
             }
+        }
+
+        public int readAndCheckSeqSize(int minSize)
+        {
+            int sz = readSize();
+            
+            if(sz == 0)
+            {
+                return 0;
+            }
+
+            //
+            // The _startSeq variable points to the start of the sequence for which
+            // we expect to read at least _minSeqSize bytes from the stream.
+            //
+            // If not initialized or if we already read more data than _minSeqSize, 
+            // we reset _startSeq and _minSeqSize for this sequence (possibly a 
+            // top-level sequence or enclosed sequence it doesn't really matter).
+            //
+            // Otherwise, we are reading an enclosed sequence and we have to bump
+            // _minSeqSize by the minimum size that this sequence will  require on
+            // the stream.
+            //
+            // The goal of this check is to ensure that when we start un-marshalling
+            // a new sequence, we check the minimal size of this new sequence against
+            // the estimated remaining buffer size. This estimatation is based on 
+            // the minimum size of the enclosing sequences, it's _minSeqSize.
+            //
+            if(_startSeq == -1 || _buf.b.position() > (_startSeq + _minSeqSize))
+            {
+                _startSeq = _buf.b.position();
+                _minSeqSize = sz * minSize;
+            }
+            else
+            {
+                _minSeqSize += sz * minSize;
+            }
+
+            //
+            // If there isn't enough data to read on the stream for the sequence (and
+            // possibly enclosed sequences), something is wrong with the marshalled 
+            // data: it's claiming having more data that what is possible to read.
+            //
+            if(_startSeq + _minSeqSize > _buf.size())
+            {
+                throw new Ice.UnmarshalOutOfBoundsException();
+            }
+
+            return sz;
         }
 
         public virtual void writeSize(int v)
@@ -904,8 +807,7 @@ namespace IceInternal
         {
             try
             {
-                int sz = readSize();
-                checkFixedSeq(sz, 1);
+                int sz = readAndCheckSeqSize(1);
                 byte[] v = new byte[sz];
                 _buf.b.get(v);
                 return v;
@@ -962,12 +864,11 @@ namespace IceInternal
 
         public virtual object readSerializable()
         {
-            int sz = readSize();
+            int sz = readAndCheckSeqSize(1);
             if(sz == 0)
             {
                 return null;
             }
-            checkFixedSeq(sz, 1);
             try
             {
                 StreamWrapper w = new StreamWrapper(sz, this);
@@ -1074,8 +975,7 @@ namespace IceInternal
         {
             try
             {
-                int sz = readSize();
-                checkFixedSeq(sz, 1);
+                int sz = readAndCheckSeqSize(1);
                 bool[] v = new bool[sz];
                 _buf.b.getBoolSeq(v);
                 return v;
@@ -1224,8 +1124,7 @@ namespace IceInternal
         {
             try
             {
-                int sz = readSize();
-                checkFixedSeq(sz, 2);
+                int sz = readAndCheckSeqSize(2);
                 short[] v = new short[sz];
                 _buf.b.getShortSeq(v);
                 return v;
@@ -1374,8 +1273,7 @@ namespace IceInternal
         {
             try
             {
-                int sz = readSize();
-                checkFixedSeq(sz, 4);
+                int sz = readAndCheckSeqSize(4);
                 int[] v = new int[sz];
                 _buf.b.getIntSeq(v);
                 return v;
@@ -1400,8 +1298,7 @@ namespace IceInternal
         {
             try
             {
-                int sz = readSize();
-                checkFixedSeq(sz, 4);
+                int sz = readAndCheckSeqSize(4);
                 l = new LinkedList<int>();
                 for(int i = 0; i < sz; ++i)
                 {
@@ -1424,8 +1321,7 @@ namespace IceInternal
             //
             try
             {
-                int sz = readSize();
-                checkFixedSeq(sz, 4);
+                int sz = readAndCheckSeqSize(4);
                 l = new Queue<int>(sz);
                 for(int i = 0; i < sz; ++i)
                 {
@@ -1546,8 +1442,7 @@ namespace IceInternal
         {
             try
             {
-                int sz = readSize();
-                checkFixedSeq(sz, 8);
+                int sz = readAndCheckSeqSize(8);
                 long[] v = new long[sz];
                 _buf.b.getLongSeq(v);
                 return v;
@@ -1572,8 +1467,7 @@ namespace IceInternal
         {
             try
             {
-                int sz = readSize();
-                checkFixedSeq(sz, 4);
+                int sz = readAndCheckSeqSize(4);
                 l = new LinkedList<long>();
                 for(int i = 0; i < sz; ++i)
                 {
@@ -1596,8 +1490,7 @@ namespace IceInternal
             //
             try
             {
-                int sz = readSize();
-                checkFixedSeq(sz, 4);
+                int sz = readAndCheckSeqSize(4);
                 l = new Queue<long>(sz);
                 for(int i = 0; i < sz; ++i)
                 {
@@ -1718,8 +1611,7 @@ namespace IceInternal
         {
             try
             {
-                int sz = readSize();
-                checkFixedSeq(sz, 4);
+                int sz = readAndCheckSeqSize(4);
                 float[] v = new float[sz];
                 _buf.b.getFloatSeq(v);
                 return v;
@@ -1744,8 +1636,7 @@ namespace IceInternal
         {
             try
             {
-                int sz = readSize();
-                checkFixedSeq(sz, 4);
+                int sz = readAndCheckSeqSize(4);
                 l = new LinkedList<float>();
                 for(int i = 0; i < sz; ++i)
                 {
@@ -1768,8 +1659,7 @@ namespace IceInternal
             //
             try
             {
-                int sz = readSize();
-                checkFixedSeq(sz, 4);
+                int sz = readAndCheckSeqSize(4);
                 l = new Queue<float>(sz);
                 for(int i = 0; i < sz; ++i)
                 {
@@ -1890,8 +1780,7 @@ namespace IceInternal
         {
             try
             {
-                int sz = readSize();
-                checkFixedSeq(sz, 8);
+                int sz = readAndCheckSeqSize(8);
                 double[] v = new double[sz];
                 _buf.b.getDoubleSeq(v);
                 return v;
@@ -1916,8 +1805,7 @@ namespace IceInternal
         {
             try
             {
-                int sz = readSize();
-                checkFixedSeq(sz, 4);
+                int sz = readAndCheckSeqSize(4);
                 l = new LinkedList<double>();
                 for(int i = 0; i < sz; ++i)
                 {
@@ -1940,8 +1828,7 @@ namespace IceInternal
             //
             try
             {
-                int sz = readSize();
-                checkFixedSeq(sz, 4);
+                int sz = readAndCheckSeqSize(4);
                 l = new Queue<double>(sz);
                 for(int i = 0; i < sz; ++i)
                 {
@@ -2050,16 +1937,12 @@ namespace IceInternal
 
         public virtual string[] readStringSeq()
         {
-            int sz = readSize();
-            startSeq(sz, 1);
+            int sz = readAndCheckSeqSize(1);
             string[] v = new string[sz];
             for(int i = 0; i < sz; i++)
             {
                 v[i] = readString();
-                checkSeq();
-                endElement();
             }
-            endSeq(sz);
             return v;
         }
 
@@ -2070,16 +1953,12 @@ namespace IceInternal
             // list is slower than constructing the list
             // and adding to it one element at a time.
             //
-            int sz = readSize();
-            startSeq(sz, 1);
+            int sz = readAndCheckSeqSize(1);
             l = new List<string>(sz);
             for(int i = 0; i < sz; ++i)
             {
                 l.Add(readString());
-                checkSeq();
-                endElement();
             }
-            endSeq(sz);
         }
 
         public virtual void readStringSeq(out LinkedList<string> l)
@@ -2089,16 +1968,12 @@ namespace IceInternal
             // list is slower than constructing the list
             // and adding to it one element at a time.
             //
-            int sz = readSize();
-            startSeq(sz, 1);
+            int sz = readAndCheckSeqSize(1);
             l = new LinkedList<string>();
             for(int i = 0; i < sz; ++i)
             {
                 l.AddLast(readString());
-                checkSeq();
-                endElement();
             }
-            endSeq(sz);
         }
 
         public virtual void readStringSeq(out Queue<string> l)
@@ -2108,16 +1983,12 @@ namespace IceInternal
             // queue is slower than constructing the queue
             // and adding to it one element at a time.
             //
-            int sz = readSize();
-            startSeq(sz, 1);
+            int sz = readAndCheckSeqSize(1);
             l = new Queue<string>();
             for(int i = 0; i < sz; ++i)
             {
                 l.Enqueue(readString());
-                checkSeq();
-                endElement();
             }
-            endSeq(sz);
         }
 
         public virtual void readStringSeq(out Stack<string> l)
@@ -3055,19 +2926,8 @@ namespace IceInternal
         private int _messageSizeMax;
         private bool _unlimited;
 
-        private sealed class SeqData
-        {
-            public SeqData(int numElements, int minSize)
-            {
-                this.numElements = numElements;
-                this.minSize = minSize;
-            }
-
-            public int numElements;
-            public int minSize;
-            public SeqData previous;
-        }
-        SeqData _seqDataStack;
+        int _startSeq;
+        int _minSeqSize;
 
         private ArrayList _objectList;
 

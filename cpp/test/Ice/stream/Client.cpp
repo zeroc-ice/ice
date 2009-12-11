@@ -11,9 +11,11 @@
 #include <TestCommon.h>
 #include <Test.h>
 
-// XXX: We disable deprecation warning here, to allow clean
-// compilation of test cases that uses the old stream api.
-// Once the old stream API is gone this could be removed.
+//
+// We disable deprecation warning here, to allow clean compilation of
+// test cases that uses the old stream api.  Once the old stream API
+// is gone this could be removed.
+//
 #ifdef _MSC_VER
 #   pragma warning( disable : 4996 )
 #endif
@@ -117,7 +119,14 @@ public:
     void
     setFactory(const Ice::ObjectFactoryPtr& factory)
     {
-        _factory = factory;
+        if(!factory)
+        {
+            _factory = Test::MyClass::ice_factory();
+        }
+        else
+        {
+            _factory = factory;
+        }
     }
 
 private:
@@ -318,6 +327,18 @@ run(int argc, char** argv, const Ice::CommunicatorPtr& communicator)
     }
 
     {
+        out = Ice::createOutputStream(communicator);
+        Test::ClassStructPtr s = new Test::ClassStruct();
+        s->i = 10;
+        out->write(s);
+        out->finished(data);
+        in = Ice::createInputStream(communicator, data);
+        Test::ClassStructPtr s2 = new Test::ClassStruct();
+        in->read(s2);
+        test(s2->i == s->i);
+    }
+
+    {
         Test::BoolS arr;
         arr.push_back(true);
         arr.push_back(false);
@@ -332,6 +353,20 @@ run(int argc, char** argv, const Ice::CommunicatorPtr& communicator)
         Test::BoolS arr2;
         in->read(arr2);
         test(arr2 == arr);
+
+        Test::BoolSS arrS;
+        arrS.push_back(arr);
+        arrS.push_back(Test::BoolS());
+        arrS.push_back(arr);
+
+        out = Ice::createOutputStream(communicator);
+        out->write(arrS);
+        out->finished(data);
+        
+        in = Ice::createInputStream(communicator, data);
+        Test::BoolSS arr2S;
+        in->read(arr2S);
+        test(arr2S == arrS);
     }
 
     {
@@ -348,6 +383,20 @@ run(int argc, char** argv, const Ice::CommunicatorPtr& communicator)
         Test::ByteS arr2;
         in->read(arr2);
         test(arr2 == arr);
+
+        Test::ByteSS arrS;
+        arrS.push_back(arr);
+        arrS.push_back(Test::ByteS());
+        arrS.push_back(arr);
+
+        out = Ice::createOutputStream(communicator);
+        out->write(arrS);
+        out->finished(data);
+        
+        in = Ice::createInputStream(communicator, data);
+        Test::ByteSS arr2S;
+        in->read(arr2S);
+        test(arr2S == arrS);
     }
 
     {
@@ -363,6 +412,20 @@ run(int argc, char** argv, const Ice::CommunicatorPtr& communicator)
         Test::ShortS arr2;
         in->read(arr2);
         test(arr2 == arr);
+
+        Test::ShortSS arrS;
+        arrS.push_back(arr);
+        arrS.push_back(Test::ShortS());
+        arrS.push_back(arr);
+
+        out = Ice::createOutputStream(communicator);
+        out->write(arrS);
+        out->finished(data);
+        
+        in = Ice::createInputStream(communicator, data);
+        Test::ShortSS arr2S;
+        in->read(arr2S);
+        test(arr2S == arrS);
     }
 
     {
@@ -378,6 +441,20 @@ run(int argc, char** argv, const Ice::CommunicatorPtr& communicator)
         Test::IntS arr2;
         in->read(arr2);
         test(arr2 == arr);
+
+        Test::IntSS arrS;
+        arrS.push_back(arr);
+        arrS.push_back(Test::IntS());
+        arrS.push_back(arr);
+
+        out = Ice::createOutputStream(communicator);
+        out->write(arrS);
+        out->finished(data);
+        
+        in = Ice::createInputStream(communicator, data);
+        Test::IntSS arr2S;
+        in->read(arr2S);
+        test(arr2S == arrS);
     }
 
     {
@@ -393,6 +470,20 @@ run(int argc, char** argv, const Ice::CommunicatorPtr& communicator)
         Test::LongS arr2;
         in->read(arr2);
         test(arr2 == arr);
+
+        Test::LongSS arrS;
+        arrS.push_back(arr);
+        arrS.push_back(Test::LongS());
+        arrS.push_back(arr);
+
+        out = Ice::createOutputStream(communicator);
+        out->write(arrS);
+        out->finished(data);
+        
+        in = Ice::createInputStream(communicator, data);
+        Test::LongSS arr2S;
+        in->read(arr2S);
+        test(arr2S == arrS);
     }
 
     {
@@ -408,6 +499,20 @@ run(int argc, char** argv, const Ice::CommunicatorPtr& communicator)
         Test::FloatS arr2;
         in->read(arr2);
         test(arr2 == arr);
+
+        Test::FloatSS arrS;
+        arrS.push_back(arr);
+        arrS.push_back(Test::FloatS());
+        arrS.push_back(arr);
+
+        out = Ice::createOutputStream(communicator);
+        out->write(arrS);
+        out->finished(data);
+        
+        in = Ice::createInputStream(communicator, data);
+        Test::FloatSS arr2S;
+        in->read(arr2S);
+        test(arr2S == arrS);
     }
 
     {
@@ -423,6 +528,20 @@ run(int argc, char** argv, const Ice::CommunicatorPtr& communicator)
         Test::DoubleS arr2;
         in->read(arr2);
         test(arr2 == arr);
+
+        Test::DoubleSS arrS;
+        arrS.push_back(arr);
+        arrS.push_back(Test::DoubleS());
+        arrS.push_back(arr);
+
+        out = Ice::createOutputStream(communicator);
+        out->write(arrS);
+        out->finished(data);
+        
+        in = Ice::createInputStream(communicator, data);
+        Test::DoubleSS arr2S;
+        in->read(arr2S);
+        test(arr2S == arrS);
     }
 
     {
@@ -438,6 +557,20 @@ run(int argc, char** argv, const Ice::CommunicatorPtr& communicator)
         Test::StringS arr2;
         in->read(arr2);
         test(arr2 == arr);
+
+        Test::StringSS arrS;
+        arrS.push_back(arr);
+        arrS.push_back(Test::StringS());
+        arrS.push_back(arr);
+
+        out = Ice::createOutputStream(communicator);
+        out->write(arrS);
+        out->finished(data);
+        
+        in = Ice::createInputStream(communicator, data);
+        Test::StringSS arr2S;
+        in->read(arr2S);
+        test(arr2S == arrS);
     }
 
     {
@@ -454,6 +587,66 @@ run(int argc, char** argv, const Ice::CommunicatorPtr& communicator)
         Test::MyEnumS arr2;
         in->read(arr2);
         test(arr2 == arr);
+
+        Test::MyEnumSS arrS;
+        arrS.push_back(arr);
+        arrS.push_back(Test::MyEnumS());
+        arrS.push_back(arr);
+
+        out = Ice::createOutputStream(communicator);
+        out->write(arrS);
+        out->finished(data);
+        
+        in = Ice::createInputStream(communicator, data);
+        Test::MyEnumSS arr2S;
+        in->read(arr2S);
+        test(arr2S == arrS);
+    }
+
+    {
+        Test::SmallStructS arr;
+        for(int i = 0; i < 4; ++i)
+        {
+            Test::SmallStruct s;
+            s.bo = true;
+            s.by = 1;
+            s.sh = 2;
+            s.i = 3;
+            s.l = 4;
+            s.f = 5.0;
+            s.d = 6.0;
+            s.str = "7";
+            s.e = Test::enum2;
+            s.p = Test::MyClassPrx::uncheckedCast(communicator->stringToProxy("test:default"));
+            arr.push_back(s);
+        }
+        out = Ice::createOutputStream(communicator);
+        out->write(arr);
+        out->writePendingObjects();
+        out->finished(data);
+        in = Ice::createInputStream(communicator, data);
+        Test::SmallStructS arr2;
+        in->read(arr2);
+        in->readPendingObjects();
+        test(arr2.size() == arr.size());
+        for(Test::SmallStructS::size_type j = 0; j < arr2.size(); ++j)
+        {
+            test(arr[j] == arr2[j]);
+        }
+
+        Test::SmallStructSS arrS;
+        arrS.push_back(arr);
+        arrS.push_back(Test::SmallStructS());
+        arrS.push_back(arr);
+
+        out = Ice::createOutputStream(communicator);
+        out->write(arrS);
+        out->finished(data);
+        
+        in = Ice::createInputStream(communicator, data);
+        Test::SmallStructSS arr2S;
+        in->read(arr2S);
+        test(arr2S == arrS);
     }
 
     {
@@ -537,6 +730,20 @@ run(int argc, char** argv, const Ice::CommunicatorPtr& communicator)
             test(arr2[j]->seq9 == arr[j]->seq9);
             test(arr2[j]->d["hi"] == arr2[j]);
         }
+
+        Test::MyClassSS arrS;
+        arrS.push_back(arr);
+        arrS.push_back(Test::MyClassS());
+        arrS.push_back(arr);
+
+        out = Ice::createOutputStream(communicator);
+        out->write(arrS);
+        out->finished(data);
+        
+        in = Ice::createInputStream(communicator, data);
+        Test::MyClassSS arr2S;
+        in->read(arr2S);
+        test(arr2S == arrS);
     }
 
     {
@@ -583,12 +790,13 @@ run(int argc, char** argv, const Ice::CommunicatorPtr& communicator)
         test(reader->called);
         test(reader->obj);
         test(reader->obj->s.e == Test::enum2);
+        factoryWrapper->setFactory(0);
     }
     
     {
         out = Ice::createOutputStream(communicator);
         Test::MyException ex;
-        Test::MyClassForExceptionPtr c = new Test::MyClassForException;
+        Test::MyClassPtr c = new Test::MyClass;
         c->c = c;
         c->o = c;
         c->s.e = Test::enum2;
@@ -640,7 +848,6 @@ run(int argc, char** argv, const Ice::CommunicatorPtr& communicator)
         ex.c = c;
         
         out->write(ex);
-        out->writePendingObjects();
         out->finished(data);
  
         in = Ice::createInputStream(communicator, data);
@@ -662,6 +869,77 @@ run(int argc, char** argv, const Ice::CommunicatorPtr& communicator)
             test(ex1.c->seq8 == c->seq8);
             test(ex1.c->seq9 == c->seq9);
         }
+    }
+
+    {
+        Test::ByteBoolD dict;
+        dict[0x04] = true;
+        dict[0x01] = false;
+        out = Ice::createOutputStream(communicator);
+        out->write(dict);
+        out->finished(data);
+        in = Ice::createInputStream(communicator, data);
+        Test::ByteBoolD dict2;
+        in->read(dict2);
+        test(dict2 == dict);
+    }
+
+    {
+        Test::ShortIntD dict;
+        dict[1] = 9;
+        dict[4] = 8;
+        out = Ice::createOutputStream(communicator);
+        out->write(dict);
+        out->finished(data);
+        in = Ice::createInputStream(communicator, data);
+        Test::ShortIntD dict2;
+        in->read(dict2);
+        test(dict2 == dict);
+    }
+
+    {
+        Test::LongFloatD dict;
+        dict[123809828] = 0.51f;
+        dict[123809829] = 0.56f;
+        out = Ice::createOutputStream(communicator);
+        out->write(dict);
+        out->finished(data);
+        in = Ice::createInputStream(communicator, data);
+        Test::LongFloatD dict2;
+        in->read(dict2);
+        test(dict2 == dict);
+    }
+
+    {
+        Test::StringStringD dict;
+        dict["key1"] = "value1";
+        dict["key2"] = "value2";
+        out = Ice::createOutputStream(communicator);
+        out->write(dict);
+        out->finished(data);
+        in = Ice::createInputStream(communicator, data);
+        Test::StringStringD dict2;
+        in->read(dict2);
+        test(dict2 == dict);
+    }
+
+    {
+        Test::StringMyClassD dict;
+        dict["key1"] = new Test::MyClass;
+        dict["key1"]->s.e = Test::enum2;
+        dict["key2"] = new Test::MyClass;
+        dict["key2"]->s.e = Test::enum3;
+        out = Ice::createOutputStream(communicator);
+        out->write(dict);
+        out->writePendingObjects();
+        out->finished(data);
+        in = Ice::createInputStream(communicator, data);
+        Test::StringMyClassD dict2;
+        in->read(dict2);
+        in->readPendingObjects();
+        test(dict2.size() == dict.size());
+        test(dict2["key1"] && (dict2["key1"]->s.e == Test::enum2));
+        test(dict2["key2"] && (dict2["key2"]->s.e == Test::enum3));
     }
 
     cout << "ok" << endl;
@@ -803,6 +1081,18 @@ run(int argc, char** argv, const Ice::CommunicatorPtr& communicator)
         Test::SmallStruct s2;
         Test::ice_readSmallStruct(in, s2);
         test(s2 == s);
+    }
+
+    {
+        out = Ice::createOutputStream(communicator);
+        Test::ClassStructPtr s = new Test::ClassStruct();
+        s->i = 10;
+        Test::ice_writeClassStruct(out, s);
+        out->finished(data);
+        in = Ice::createInputStream(communicator, data);
+        Test::ClassStructPtr s2 = new Test::ClassStruct();
+        Test::ice_readClassStruct(in, s2);
+        test(s2->i == s->i);
     }
 
     {
@@ -1062,6 +1352,7 @@ run(int argc, char** argv, const Ice::CommunicatorPtr& communicator)
         test(reader->called);
         test(reader->obj);
         test(reader->obj->s.e == Test::enum2);
+        factoryWrapper->setFactory(0);
     }
 
     cout << "ok" << endl;

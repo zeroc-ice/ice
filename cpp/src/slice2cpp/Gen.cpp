@@ -720,7 +720,7 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
         H.zeroIndent();
         H << nl << "#if defined(_MSC_VER) && (_MSC_VER < 1300) // VC++ 6 compiler bug"; // COMPILERBUG
         H.restoreIndent();
-        H << nl << "//Stream api is not supported in VC++ 6";
+        H << nl << "// Stream API is not supported with VC++ 6";
         H.zeroIndent();
         H << nl << "#else";
         H.restoreIndent();
@@ -766,14 +766,15 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
 
         if(_stream)
         {
+            C << sp;
             C.zeroIndent();
             C << nl << "#if defined(_MSC_VER) && (_MSC_VER < 1300) // VC++ 6 compiler bug"; // COMPILERBUG
             C.restoreIndent();
-            C << nl << "//Stream api is not supported in VC++ 6";
+            C << nl << "// Stream API is not supported with VC++ 6";
             C.zeroIndent();
             C << nl << "#else";
             C.restoreIndent();
-            C << sp << nl << "void" << nl << scoped.substr(2)
+            C << nl << "void" << nl << scoped.substr(2)
               << "::__write(const ::Ice::OutputStreamPtr& __outS) const";
             C << sb;
             C << nl << "__outS->writeString(::std::string(\"" << p->scoped() << "\"));";
@@ -818,14 +819,15 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
             //
             // Emit placeholder functions to catch errors.
             //
+            C << sp;
             C.zeroIndent();
             C << nl << "#if defined(_MSC_VER) && (_MSC_VER < 1300) // VC++ 6 compiler bug"; // COMPILERBUG
             C.restoreIndent();
-            C << nl << "//Stream api is not supported in VC++ 6";
+            C << nl << "// Stream API is not supported with VC++ 6";
             C.zeroIndent();
             C << nl << "#else";
             C.restoreIndent();
-            C << sp << nl << "void" << nl << scoped.substr(2) << "::__write(const ::Ice::OutputStreamPtr&) const";
+            C << nl << "void" << nl << scoped.substr(2) << "::__write(const ::Ice::OutputStreamPtr&) const";
             C << sb;
             C << nl << "Ice::MarshalException ex(__FILE__, __LINE__);";
             C << nl << "ex.reason = \"exception " << scoped.substr(2) << " was not generated with stream support\";";
@@ -1073,11 +1075,11 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
             H.zeroIndent();
             H << nl << "#if defined(_MSC_VER) && (_MSC_VER < 1300) // VC++ 6 compiler bug"; // COMPILERBUG
             H.restoreIndent();
-            H << nl << "//Stream api is not supported in VC++ 6";
+            H << nl << "// Stream API is not supported with VC++ 6";
             H.zeroIndent();
             H << nl << "#else";
             H.restoreIndent();
-            H << sp << nl << dllExport << "void ice_write(const ::Ice::OutputStreamPtr&) const;";
+            H << nl << dllExport << "void ice_write(const ::Ice::OutputStreamPtr&) const;";
             H << nl << dllExport << "void ice_read(const ::Ice::InputStreamPtr&);";
             H.zeroIndent();
             H << nl << "#endif";
@@ -1102,14 +1104,15 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
 
         if(_stream)
         {
+            C << sp;
             C.zeroIndent();
             C << nl << "#if defined(_MSC_VER) && (_MSC_VER < 1300) // VC++ 6 compiler bug"; // COMPILERBUG
             C.restoreIndent();
-            C << nl << "//Stream api is not supported in VC++ 6";
+            C << nl << "// Stream API is not supported with VC++ 6";
             C.zeroIndent();
             C << nl << "#else";
             C.restoreIndent();
-            C << sp << nl << "void" << nl << scoped.substr(2)
+            C << nl << "void" << nl << scoped.substr(2)
               << "::ice_write(const ::Ice::OutputStreamPtr& __outS) const";
             C << sb;
             for(q = dataMembers.begin(); q != dataMembers.end(); ++q)
@@ -1140,14 +1143,15 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
 
         if(!p->isLocal() && _stream)
         {
+            H << sp;
             H.zeroIndent();
             H << nl << "#if defined(_MSC_VER) && (_MSC_VER < 1300) // VC++ 6 compiler bug"; // COMPILERBUG
             H.restoreIndent();
-            H << nl << "//Stream api is not supported in VC++ 6";
+            H << nl << "// Stream API is not supported with VC++ 6";
             H.zeroIndent();
             H << nl << "#else";
             H.restoreIndent();
-            H << sp << nl << "void ice_write" << p->name() << "(const ::Ice::OutputStreamPtr&, const "
+            H << nl << "void ice_write" << p->name() << "(const ::Ice::OutputStreamPtr&, const "
               << p->name() << "Ptr&);";
             H << nl << "void ice_read" << p->name() << "(const ::Ice::InputStreamPtr&, " << p->name()
               << "Ptr&);";
@@ -1155,14 +1159,15 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
             H << nl << "#endif";
             H.restoreIndent();
               
+            C << sp;
             C.zeroIndent();
             C << nl << "#if defined(_MSC_VER) && (_MSC_VER < 1300) // VC++ 6 compiler bug"; // COMPILERBUG
             C.restoreIndent();
-            C << nl << "//Stream api is not supported in VC++ 6";
+            C << nl << "// Stream API is not supported with VC++ 6";
             C.zeroIndent();
             C << nl << "#else";
             C.restoreIndent();
-            C << sp << nl << "void" << nl << scope.substr(2) << "ice_write" << p->name()
+            C << nl << "void" << nl << scope.substr(2) << "ice_write" << p->name()
               << "(const ::Ice::OutputStreamPtr& __outS, const " << fixKwd(p->scoped() + "Ptr") << "& __v)";
             C << sb;
             C << nl << "__v->ice_write(__outS);";
@@ -1182,28 +1187,30 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
     {
         if(!p->isLocal() && _stream)
         {
+            H << sp;
             H.zeroIndent();
             H << nl << "#if defined(_MSC_VER) && (_MSC_VER < 1300) // VC++ 6 compiler bug"; // COMPILERBUG
             H.restoreIndent();
-            H << nl << "//Stream api is not supported in VC++ 6";
+            H << nl << "// Stream API is not supported with VC++ 6";
             H.zeroIndent();
             H << nl << "#else";
             H.restoreIndent();
-            H << sp << nl << dllExport << "void ice_write" << p->name() << "(const ::Ice::OutputStreamPtr&, const "
+            H << nl << dllExport << "void ice_write" << p->name() << "(const ::Ice::OutputStreamPtr&, const "
               << name << "&);";
             H << nl << dllExport << "void ice_read" << p->name() << "(const ::Ice::InputStreamPtr&, " << name << "&);";
             H.zeroIndent();
             H << nl << "#endif";
             H.restoreIndent();
-            
+
+            C << sp;
             C.zeroIndent();
             C << nl << "#if defined(_MSC_VER) && (_MSC_VER < 1300) // VC++ 6 compiler bug"; // COMPILERBUG
             C.restoreIndent();
-            C << nl << "//Stream api is not supported in VC++ 6";
+            C << nl << "// Stream API is not supported with VC++ 6";
             C.zeroIndent();
             C << nl << "#else";
             C.restoreIndent();
-            C << sp << nl << "void" << nl << scope.substr(2) << "ice_write" << p->name()
+            C << nl << "void" << nl << scope.substr(2) << "ice_write" << p->name()
               << "(const ::Ice::OutputStreamPtr& __outS, const " << scoped << "& __v)";
             C << sb;
             C << nl << "__v.ice_write(__outS);";
@@ -1299,7 +1306,7 @@ Slice::Gen::TypesVisitor::visitSequence(const SequencePtr& p)
                 H.zeroIndent();
                 H << nl << "#if defined(_MSC_VER) && (_MSC_VER < 1300) // VC++ 6 compiler bug"; // COMPILERBUG
                 H.restoreIndent();
-                H << nl << "//Stream api is not supported in VC++ 6";
+                H << nl << "// Stream API is not supported with VC++ 6";
                 H.zeroIndent();
                 H << nl << "#else";
                 H.restoreIndent();
@@ -1354,60 +1361,26 @@ Slice::Gen::TypesVisitor::visitSequence(const SequencePtr& p)
             else
             {
                 C << nl << "::Ice::Int sz;";
-                C << nl << "__is->readSize(sz);";
+                C << nl << "__is->readAndCheckSeqSize(" << type->minWireSize() << ", sz);";
                 C << nl << name << "(sz).swap(v);";
-                if(type->isVariableLength())
-                {
-                    // Protect against bogus sequence sizes.
-                    C << nl << "__is->startSeq(sz, " << type->minWireSize() << ");";
-                }
-                else
-                {
-                    C << nl << "__is->checkFixedSeq(sz, " << type->minWireSize() << ");";
-                }
                 C << nl << "for(" << name << "::iterator p = v.begin(); p != v.end(); ++p)";
                 C << sb;
                 writeMarshalUnmarshalCode(C, type, "(*p)", false);
-
-                //
-                // After unmarshaling each element, check that there are still enough bytes left in the stream
-                // to unmarshal the remainder of the sequence, and decrement the count of elements
-                // yet to be unmarshaled for sequences with variable-length element type (that is, for sequences
-                // of classes, structs, dictionaries, sequences, strings, or proxies). This allows us to
-                // abort unmarshaling for bogus sequence sizes at the earliest possible moment.
-                // (For fixed-length sequences, we don't need to do this because the prediction of how many
-                // bytes will be taken up by the sequence is accurate.)
-                //
-                if(type->isVariableLength())
-                {
-                    if(!SequencePtr::dynamicCast(type))
-                    {
-                        //
-                        // No need to check for directly nested sequences because, at the start of each
-                        // sequence, we check anyway.
-                        //
-                        C << nl << "__is->checkSeq();";
-                    }
-                    C << nl << "__is->endElement();";
-                }
                 C << eb;
-                if(type->isVariableLength())
-                {
-                    C << nl << "__is->endSeq(sz);";
-                }
             }
             C << eb;
 
             if(_stream)
             {
+                C << sp;
                 C.zeroIndent();
                 C << nl << "#if defined(_MSC_VER) && (_MSC_VER < 1300) // VC++ 6 compiler bug"; // COMPILERBUG
                 C.restoreIndent();
-                C << nl << "//Stream api is not supported in VC++ 6";
+                C << nl << "// Stream API is not supported with VC++ 6";
                 C.zeroIndent();
                 C << nl << "#else";
                 C.restoreIndent();
-                C << sp << nl << "void" << nl << scope.substr(2) << "ice_write" << p->name()
+                C << nl << "void" << nl << scope.substr(2) << "ice_write" << p->name()
                   << "(const ::Ice::OutputStreamPtr& __outS, const " << scopedName << "& v)";
                 C << sb;
                 if(protobuf)
@@ -1446,7 +1419,7 @@ Slice::Gen::TypesVisitor::visitSequence(const SequencePtr& p)
                 }
                 else
                 {
-                    C << nl << "::Ice::Int sz = __inS->readSize();";
+                    C << nl << "::Ice::Int sz = __inS->readAndCheckSeqSize(" << type->minWireSize() << ");";
                     C << nl << scopedName << "(sz).swap(v);";
                     C << nl << scopedName << "::iterator p;";
                     C << nl << "for(p = v.begin(); p != v.end(); ++p)";
@@ -1471,7 +1444,7 @@ Slice::Gen::TypesVisitor::visitSequence(const SequencePtr& p)
                 H.zeroIndent();
                 H << nl << "#if defined(_MSC_VER) && (_MSC_VER < 1300) // VC++ 6 compiler bug"; // COMPILERBUG
                 H.restoreIndent();
-                H << nl << "//Stream api is not supported in VC++ 6";
+                H << nl << "// Stream API is not supported with VC++ 6";
                 H.zeroIndent();
                 H << nl << "#else";
                 H.restoreIndent();
@@ -1499,59 +1472,25 @@ Slice::Gen::TypesVisitor::visitSequence(const SequencePtr& p)
               << "(::IceInternal::BasicStream* __is, " << scoped << "& v)";
             C << sb;
             C << nl << "::Ice::Int sz;";
-            C << nl << "__is->readSize(sz);";
-            if(type->isVariableLength())
-            {
-                // Protect against bogus sequence sizes.
-                C << nl << "__is->startSeq(sz, " << type->minWireSize() << ");";
-            }
-            else
-            {
-                C << nl << "__is->checkFixedSeq(sz, " << type->minWireSize() << ");";
-            }
+            C << nl << "__is->readAndCheckSeqSize(" << type->minWireSize() << ", sz);";
             C << nl << "v.resize(sz);";
             C << nl << "for(int i = 0; i < sz; ++i)";
             C << sb;
             writeMarshalUnmarshalCode(C, type, "v[i]", false);
-
-            //
-            // After unmarshaling each element, check that there are still enough bytes left in the stream
-            // to unmarshal the remainder of the sequence, and decrement the count of elements
-            // yet to be unmarshaled for sequences with variable-length element type (that is, for sequences
-            // of classes, structs, dictionaries, sequences, strings, or proxies). This allows us to
-            // abort unmarshaling for bogus sequence sizes at the earliest possible moment.
-            // (For fixed-length sequences, we don't need to do this because the prediction of how many
-            // bytes will be taken up by the sequence is accurate.)
-            //
-            if(type->isVariableLength())
-            {
-                if(!SequencePtr::dynamicCast(type))
-                {
-                    //
-                    // No need to check for directly nested sequences because, at the start of each
-                    // sequence, we check anyway.
-                    //
-                    C << nl << "__is->checkSeq();";
-                }
-                C << nl << "__is->endElement();";
-            }
             C << eb;
-            if(type->isVariableLength())
-            {
-                C << nl << "__is->endSeq(sz);";
-            }
             C << eb;
 
             if(_stream)
             {
+                C << sp;
                 C.zeroIndent();
                 C << nl << "#if defined(_MSC_VER) && (_MSC_VER < 1300) // VC++ 6 compiler bug"; // COMPILERBUG
                 C.restoreIndent();
-                C << nl << "//Stream api is not supported in VC++ 6";
+                C << nl << "// Stream API is not supported with VC++ 6";
                 C.zeroIndent();
                 C << nl << "#else";
                 C.restoreIndent();
-                C << sp << nl << "void" << nl << scope.substr(2) << "ice_write" << p->name()
+                C << nl << "void" << nl << scope.substr(2) << "ice_write" << p->name()
                   << "(const ::Ice::OutputStreamPtr& __outS, const " << scoped << "& v)";
                 C << sb;
                 C << nl << "__outS->writeSize(::Ice::Int(v.size()));";
@@ -1565,7 +1504,7 @@ Slice::Gen::TypesVisitor::visitSequence(const SequencePtr& p)
                 C << sp << nl << "void" << nl << scope.substr(2) << "ice_read" << p->name()
                   << "(const ::Ice::InputStreamPtr& __inS, " << scoped << "& v)";
                 C << sb;
-                C << nl << "::Ice::Int sz = __inS->readSize();";
+                C << nl << "::Ice::Int sz = __inS->readAndCheckSeqSize(" << type->minWireSize() << ");";
                 C << nl << "v.resize(sz);";
                 C << nl << "for(int i = 0; i < sz; ++i)";
                 C << sb;
@@ -1623,7 +1562,7 @@ Slice::Gen::TypesVisitor::visitDictionary(const DictionaryPtr& p)
             H.zeroIndent();
             H << nl << "#if defined(_MSC_VER) && (_MSC_VER < 1300) // VC++ 6 compiler bug"; // COMPILERBUG
             H.restoreIndent();
-            H << nl << "//Stream api is not supported in VC++ 6";
+            H << nl << "// Stream API is not supported with VC++ 6";
             H.zeroIndent();
             H << nl << "#else";
             H.restoreIndent();
@@ -1664,14 +1603,15 @@ Slice::Gen::TypesVisitor::visitDictionary(const DictionaryPtr& p)
 
         if(_stream)
         {
+            C << sp;
             C.zeroIndent();
             C << nl << "#if defined(_MSC_VER) && (_MSC_VER < 1300) // VC++ 6 compiler bug"; // COMPILERBUG
             C.restoreIndent();
-            C << nl << "//Stream api is not supported in VC++ 6";
+            C << nl << "// Stream API is not supported with VC++ 6";
             C.zeroIndent();
             C << nl << "#else";
             C.restoreIndent();
-            C << sp << nl << "void" << nl << scope.substr(2) << "ice_write" << p->name()
+            C << nl << "void" << nl << scope.substr(2) << "ice_write" << p->name()
               << "(const ::Ice::OutputStreamPtr& __outS, const " << scoped << "& v)";
             C << sb;
             C << nl << "__outS->writeSize(::Ice::Int(v.size()));";
@@ -1736,11 +1676,11 @@ Slice::Gen::TypesVisitor::visitEnum(const EnumPtr& p)
             H.zeroIndent();
             H << nl << "#if defined(_MSC_VER) && (_MSC_VER < 1300) // VC++ 6 compiler bug"; // COMPILERBUG
             H.restoreIndent();
-            H << nl << "//Stream api is not supported in VC++ 6";
+            H << nl << "// Stream API is not supported with VC++ 6";
             H.zeroIndent();
             H.restoreIndent();
             H << nl << "#else";
-            H << sp << nl << _dllExport << "ICE_DEPRECATED_API void ice_write" << p->name()
+            H << nl << _dllExport << "ICE_DEPRECATED_API void ice_write" << p->name()
               << "(const ::Ice::OutputStreamPtr&, " << name << ");";
             H << nl << _dllExport << "ICE_DEPRECATED_API void ice_read" << p->name() << "(const ::Ice::InputStreamPtr&, " << name << "&);";
             H.zeroIndent();
@@ -1786,14 +1726,15 @@ Slice::Gen::TypesVisitor::visitEnum(const EnumPtr& p)
 
         if(_stream)
         {
+            C << sp;
             C.zeroIndent();
             C << nl << "#if defined(_MSC_VER) && (_MSC_VER < 1300) // VC++ 6 compiler bug"; // COMPILERBUG
             C.restoreIndent();
-            C << nl << "//Stream api is not supported in VC++ 6";
+            C << nl << "// Stream API is not supported with VC++ 6";
             C.zeroIndent();
             C.restoreIndent();
             C << nl << "#else";
-            C << sp << nl << "void" << nl << scope.substr(2) << "ice_write" << p->name()
+            C << nl << "void" << nl << scope.substr(2) << "ice_write" << p->name()
               << "(const ::Ice::OutputStreamPtr& __outS, " << scoped << " v)";
             C << sb;
             C << nl << "if(";
@@ -4266,7 +4207,7 @@ Slice::Gen::ObjectVisitor::visitClassDefEnd(const ClassDefPtr& p)
         H.zeroIndent();
         H << nl << "#if defined(_MSC_VER) && (_MSC_VER < 1300) // VC++ 6 compiler bug"; // COMPILERBUG
         H.restoreIndent();
-        H << nl << "//Stream api is not supported in VC++ 6";
+        H << nl << "// Stream API is not supported with VC++ 6";
         H.zeroIndent();
         H << nl << "#else";
         H.restoreIndent();
@@ -4310,14 +4251,14 @@ Slice::Gen::ObjectVisitor::visitClassDefEnd(const ClassDefPtr& p)
 
         if(_stream)
         {
+            C << sp;
             C.zeroIndent();
             C << nl << "#if defined(_MSC_VER) && (_MSC_VER < 1300) // VC++ 6 compiler bug"; // COMPILERBUG
             C.restoreIndent();
-            C << nl << "//Stream api is not supported in VC++ 6";
+            C << nl << "// Stream API is not supported with VC++ 6";
             C.zeroIndent();
             C << nl << "#else";
             C.restoreIndent();
-            C << sp;
             C << nl << "void" << nl << scoped.substr(2) << "::__write(const ::Ice::OutputStreamPtr& __outS) const";
             C << sb;
             C << nl << "__outS->writeTypeId(ice_staticId());";
@@ -4352,17 +4293,17 @@ Slice::Gen::ObjectVisitor::visitClassDefEnd(const ClassDefPtr& p)
         }
         else
         {
+            C << sp;
             C.zeroIndent();
             C << nl << "#if defined(_MSC_VER) && (_MSC_VER < 1300) // VC++ 6 compiler bug"; // COMPILERBUG
             C.restoreIndent();
-            C << nl << "//Stream api is not supported in VC++ 6";
+            C << nl << "// Stream API is not supported with VC++ 6";
             C.zeroIndent();
             C << nl << "#else";
             C.restoreIndent();
             //
             // Emit placeholder functions to catch errors.
             //
-            C << sp;
             C << nl << "void" << nl << scoped.substr(2) << "::__write(const ::Ice::OutputStreamPtr&) const";
             C << sb;
             C << nl << "Ice::MarshalException ex(__FILE__, __LINE__);";
@@ -5751,14 +5692,14 @@ Slice::Gen::HandleVisitor::visitClassDecl(const ClassDeclPtr& p)
         H << nl << _dllExport << "void __patch__" << name << "Ptr(void*, ::Ice::ObjectPtr&);";
         if(_stream)
         {
+            H << sp;
             H.zeroIndent();
             H << nl << "#if defined(_MSC_VER) && (_MSC_VER < 1300) // VC++ 6 compiler bug"; // COMPILERBUG
             H.restoreIndent();
-            H << nl << "//Stream api is not supported in VC++ 6";
+            H << nl << "// Stream API is not supported with VC++ 6";
             H.zeroIndent();
             H << nl << "#else";
             H.restoreIndent();
-            H << sp;
             H << nl << _dllExport << "ICE_DEPRECATED_API void ice_write" << name << "Prx(const ::Ice::OutputStreamPtr&, const " << name
               << "Prx&);";
             H << nl << _dllExport << "ICE_DEPRECATED_API void ice_read" << name << "Prx(const ::Ice::InputStreamPtr&, " << name
@@ -5815,14 +5756,14 @@ Slice::Gen::HandleVisitor::visitClassDefStart(const ClassDefPtr& p)
 
         if(_stream)
         {
+            C << sp;
             C.zeroIndent();
             C << nl << "#if defined(_MSC_VER) && (_MSC_VER < 1300) // VC++ 6 compiler bug"; // COMPILERBUG
             C.restoreIndent();
-            C << nl << "//Stream api is not supported in VC++ 6";
+            C << nl << "// Stream API is not supported with VC++ 6";
             C.zeroIndent();
             C << nl << "#else";
             C.restoreIndent();
-            C << sp;
             C << nl << "void" << nl << scope.substr(2) << "ice_write" << name
               << "Prx(const ::Ice::OutputStreamPtr& __outS, const " << scope << name << "Prx& v)";
             C << sb;
@@ -6715,21 +6656,28 @@ Slice::Gen::StreamVisitor::StreamVisitor(Output& h, Output& c) :
 }
 
 bool
-Slice::Gen::StreamVisitor::visitModuleStart(const ModulePtr&)
+Slice::Gen::StreamVisitor::visitModuleStart(const ModulePtr& m)
 {
+    if(!m->hasOtherConstructedOrExceptions())
+    {
+        return false;
+    }
+    else if(m->structs().empty() && m->enums().empty() && m->exceptions().empty())
+    {
+        return false;
+    }
     H.zeroIndent();
     H << nl << "#if defined(_MSC_VER) && (_MSC_VER < 1300) // VC++ 6 compiler bug"; // COMPILERBUG
     H << nl << "#else";
     H.restoreIndent();
-    H << nl << "namespace Ice" << sb;
+    H << nl << "namespace Ice" << nl << '{';
     return true;
 }
 
 void
 Slice::Gen::StreamVisitor::visitModuleEnd(const ModulePtr&)
 {
-    H << eb;
-    H << nl;
+    H << nl << '}';
     H.zeroIndent();
     H << nl << "#endif";
     H.restoreIndent();
@@ -6741,10 +6689,10 @@ Slice::Gen::StreamVisitor::visitExceptionStart(const ExceptionPtr& p)
     if(!p->isLocal())
     {
         string scoped = p->scoped();
-        H << nl << sp << "template<>";
-        H << nl << "struct StreamTrait< " << fixKwd(scoped) << " >" << nl;
+        H << nl << "template<>";
+        H << nl << "struct StreamTrait< " << fixKwd(scoped) << ">";
         H << sb;
-        H << nl << "static const ::Ice::StreamTraitType type = ::Ice::StreamTraitTypeUserException;" << nl;
+        H << nl << "static const ::Ice::StreamTraitType type = ::Ice::StreamTraitTypeUserException;";
         H << nl << "static const int enumLimit = 0;";
         H << eb << ";" << nl;
     }
@@ -6763,25 +6711,25 @@ Slice::Gen::StreamVisitor::visitStructStart(const StructPtr& p)
     {
         bool classMetaData = findMetaData(p->getMetaData(), false) == "class";
         string scoped = p->scoped();
-        H << nl << sp << "template<>";
+        H << nl << "template<>";
         if(classMetaData)
         {
-            H << nl << "struct StreamTrait< " << fixKwd(scoped + "Ptr") << " >" << nl;
+            H << nl << "struct StreamTrait< " << fixKwd(scoped + "Ptr") << ">";
         }
         else
         {
-            H << nl << "struct StreamTrait< " << fixKwd(scoped) << " >" << nl;
+            H << nl << "struct StreamTrait< " << fixKwd(scoped) << ">";
         }
         H << sb;
         if(classMetaData)
         {
-          H << nl << "static const ::Ice::StreamTraitType type = ::Ice::StreamTraitTypeStructClass;" << nl;
+            H << nl << "static const ::Ice::StreamTraitType type = ::Ice::StreamTraitTypeStructClass;";
         }
         else
         {
             H << nl << "static const ::Ice::StreamTraitType type = ::Ice::StreamTraitTypeStruct;";
         }
-        H << nl << "static const int enumLimit = 0;";
+        H << nl << "static const int minWireSize = " << p->minWireSize() << ";";
         H << eb << ";" << nl;
     }
     return true;
@@ -6796,11 +6744,10 @@ void
 Slice::Gen::StreamVisitor::visitEnum(const EnumPtr& p)
 {
     string scoped = fixKwd(p->scoped());
-    H << nl << sp << "template<>" << nl
-        << "struct StreamTrait< " << scoped << ">" << nl
-        << sb << nl
-        << "static const ::Ice::StreamTraitType type = ";
-
+    H << nl << "template<>";
+    H << nl << "struct StreamTrait< " << scoped << ">";
+    H << sb;
+    H << nl << "static const ::Ice::StreamTraitType type = ";
     size_t sz = p->getEnumerators().size();
     if(sz <= 127)
     {
@@ -6814,8 +6761,9 @@ Slice::Gen::StreamVisitor::visitEnum(const EnumPtr& p)
     {
         H << "::Ice::StreamTraitTypeIntEnum;";
     }
-    H << nl << "static const int enumLimit = " << sz << ";"
-        << eb << ";" << nl;
+    H << nl << "static const int enumLimit = " << sz << ";";
+    H << nl << "static const int minWireSize = " << p->minWireSize() << ";";
+    H << eb << ";" << nl;
 }
 
 void

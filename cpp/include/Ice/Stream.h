@@ -21,8 +21,7 @@ namespace Ice
     
 #if defined(_MSC_VER) && (_MSC_VER < 1300) // COMPILERBUG
 //
-// VC++ 6 compiler bugs doesn't allow to write 
-// the Stream API using c++ templates.
+// VC++ 6 compiler bugs doesn't allow using templates for the Stream API.
 //
 // see: http://support.microsoft.com/kb/240866
 //      http://support.microsoft.com/kb/241569
@@ -31,6 +30,7 @@ namespace Ice
 
 enum StreamTraitType
 {
+    StreamTraitTypeBuiltin,
     StreamTraitTypeStruct,
     StreamTraitTypeStructClass, // struct with cpp:class metadata
     StreamTraitTypeByteEnum,    // Enums with up to 127 enumerators
@@ -42,73 +42,150 @@ enum StreamTraitType
     StreamTraitTypeUnknown
 };
 
-//
-// We need to predefine this, it is used by the enum 
-// stream writer specializations.
-//
+// Forward declaration required for writer specializations.
 class MarshalException;
 
 //
-// Basic trait template. This doesn't actually do anything--we
-// just use it as a template that we can specialize.
+// Base trait template. This doesn't actually do anything -- we just
+// use it as a template that we can specialize.
 //
-template <typename T>
+template<typename T>
 struct StreamTrait
 {
     static const ::Ice::StreamTraitType type = Ice::StreamTraitTypeUnknown;
-    static const int enumLimit = 0;     // Used to implement enum range check
+    static const int minWireSize = 0;
 };
 
 //
 // StreamTrait specialization for std::vector
 //
-template <typename T>
+template<typename T>
 struct StreamTrait< std::vector<T> >
 {
     static const ::Ice::StreamTraitType type = Ice::StreamTraitTypeSequence;
-    static const int enumLimit = 0;     // Used to implement enum range check
+    static const int minWireSize = 1;
 };
 
 template<>
 struct StreamTrait<UserException>
 {
     static const ::Ice::StreamTraitType type = Ice::StreamTraitTypeUserException;
-    static const int enumLimit = 0;     // Used to implement enum range check
 };
 
 //
 // StreamTrait specialization for std::map.
 //
-template <typename K, typename V>
+template<typename K, typename V>
 struct StreamTrait< std::map<K, V> >
 {
     static const ::Ice::StreamTraitType type = Ice::StreamTraitTypeDictionary;
-    static const int enumLimit = 0;     // Used to implement enum range check
+    static const int minWireSize = 1;
 };
 
 //
-// This is the non-specialized version of the writer. For each
-// kind of user-defined type (enum, struct, etc), we specialize
-// this template to call the correct member function that writes
-// an instance of that type to the stream.
+// StreamTrait specialization for builtins (these are need for sequence
+// marshalling to figure out the minWireSize of each built-in).
 //
-template <StreamTraitType st>
+template<>
+struct StreamTrait< bool>
+{
+    static const ::Ice::StreamTraitType type = Ice::StreamTraitTypeBuiltin;
+    static const int minWireSize = 1;
+};
+
+template<>
+struct StreamTrait< ::Ice::Byte>
+{
+    static const ::Ice::StreamTraitType type = Ice::StreamTraitTypeBuiltin;
+    static const int minWireSize = 1;
+};
+
+template<>
+struct StreamTrait< ::Ice::Short>
+{
+    static const ::Ice::StreamTraitType type = Ice::StreamTraitTypeBuiltin;
+    static const int minWireSize = 2;
+};
+
+template<>
+struct StreamTrait< ::Ice::Int>
+{
+    static const ::Ice::StreamTraitType type = Ice::StreamTraitTypeBuiltin;
+    static const int minWireSize = 4;
+};
+
+template<>
+struct StreamTrait< ::Ice::Long>
+{
+    static const ::Ice::StreamTraitType type = Ice::StreamTraitTypeBuiltin;
+    static const int minWireSize = 8;
+};
+
+template<>
+struct StreamTrait< ::Ice::Float>
+{
+    static const ::Ice::StreamTraitType type = Ice::StreamTraitTypeBuiltin;
+    static const int minWireSize = 4;
+};
+
+template<>
+struct StreamTrait< ::Ice::Double>
+{
+    static const ::Ice::StreamTraitType type = Ice::StreamTraitTypeBuiltin;
+    static const int minWireSize = 8;
+};
+
+template<>
+struct StreamTrait< ::std::string>
+{
+    static const ::Ice::StreamTraitType type = Ice::StreamTraitTypeBuiltin;
+    static const int minWireSize = 1;
+};
+
+template<>
+struct StreamTrait< ::std::wstring>
+{
+    static const ::Ice::StreamTraitType type = Ice::StreamTraitTypeBuiltin;
+    static const int minWireSize = 1;
+};
+
+template<typename T>
+struct StreamTrait< ::IceInternal::ProxyHandle<T> >
+{
+    static const ::Ice::StreamTraitType type = Ice::StreamTraitTypeBuiltin;
+    static const int minWireSize = 2;
+};
+
+template<typename T>
+struct StreamTrait< ::IceInternal::Handle<T> >
+{
+    static const ::Ice::StreamTraitType type = Ice::StreamTraitTypeBuiltin;
+    static const int minWireSize = 4;
+};
+
+//
+// This is the non-specialized version of the writer. For each kind of
+// user-defined type (enum, struct, etc), we specialize this template
+// to call the correct member function that writes an instance of that
+// type to the stream.
+//
+template<StreamTraitType st>
 struct StreamWriter
 {
     template<typename T>
     static void write(const ::Ice::OutputStreamPtr&, const T&)
     {
-        // This asserts because we end up writing
-        // something for which we never defined a trait.
+        // This asserts because we end up writing something for which
+        // we never defined a trait.
         assert(false);
     }
 };
 
 //
-// This is the non-specialized version of the reader. For each
-// kind of user-defined type (enum, struct, etc), we specialize
-// this template to call the correct member function that reads
-// an instance of that type to the stream.
+// This is the non-specialized version of the reader. For each kind of
+// user-defined type (enum, struct, etc), we specialize this template
+// to call the correct member function that reads an instance of that
+// type to the stream.
 //
 template<StreamTraitType st>
 struct StreamReader
@@ -116,8 +193,8 @@ struct StreamReader
     template<typename T>
     static void read(const ::Ice::InputStreamPtr&, T&)
     {
-        // This asserts because we end up reading
-        // something for wich we never define a trait.
+        // This asserts because we end up reading something for wich
+        // we never define a trait.
         assert(false);
     }
 };
@@ -134,7 +211,6 @@ __patch__Ptr(void* __addr, ::Ice::ObjectPtr& v)
    }
 }
 #endif
-
 
 class ICE_API ReadObjectCallback : public ::IceUtil::Shared
 {
@@ -203,6 +279,7 @@ public:
     virtual ::std::vector< ::std::wstring > readWstringSeq() = 0;
 
     virtual ::Ice::Int readSize() = 0;
+    virtual ::Ice::Int readAndCheckSeqSize(int) = 0;
 
     virtual ::Ice::ObjectPrx readProxy() = 0;
 
@@ -226,8 +303,7 @@ public:
 
 #if defined(_MSC_VER) && (_MSC_VER < 1300) // COMPILERBUG
 //
-// VC++ 6 compiler bugs doesn't allow to write 
-// the Stream API using c++ templates.
+// VC++ 6 compiler bugs doesn't allow using templates for the Stream API.
 //
 // see: http://support.microsoft.com/kb/240866
 //      http://support.microsoft.com/kb/241569
@@ -235,7 +311,7 @@ public:
 #else
 
     //
-    // read overloads for bool references in a std::vector.
+    // read overloads for std::vector<bool>.
     //
     inline void
 #if defined(_MSC_VER) && (_MSC_VER >= 1300)
@@ -249,11 +325,9 @@ public:
 #endif
 
 #elif defined(__BCPLUSPLUS__)
-    // std::vector<bool> optimization for Borland.
-    read(std::_Vb_reference<unsigned int, int> v)
+    read(std::_Vb_reference<unsigned int, int> v) // std::vector<bool> optimization for Borland C++ Builder
 #else
-    // default optimization for GCC
-    read(std::_Bit_reference v)
+    read(std::_Bit_reference v) // default optimization for GCC
 #endif
     {
         v = readBool();
@@ -407,8 +481,7 @@ public:
 
 #if defined(_MSC_VER) && (_MSC_VER < 1300) // COMPILERBUG
 //
-// VC++ 6 compiler bugs doesn't allow to write 
-// the Stream API using c++ templates.
+// VC++ 6 compiler bugs doesn't allow using templates for the Stream API.
 //
 // see: http://support.microsoft.com/kb/240866
 //      http://support.microsoft.com/kb/241569
@@ -496,54 +569,53 @@ public:
 
 #if defined(_MSC_VER) && (_MSC_VER < 1300) // COMPILERBUG
 //
-// VC++ 6 compiler bugs doesn't allow to write 
-// the Stream API using c++ templates.
+// VC++ 6 compiler bugs doesn't allow using templates for the Stream API.
 //
 // see: http://support.microsoft.com/kb/240866
 //      http://support.microsoft.com/kb/241569
 //
 #else
-template <>         // StreamWriter specialization for structs
+template<> // StreamWriter specialization for structs
 struct StreamWriter<StreamTraitTypeStruct>
 {
     template<typename T>
     static void write(const ::Ice::OutputStreamPtr& outS, const T& v)
     {
-        v.ice_write(outS); // Call the member function in the struct
+        v.ice_write(outS);
     }
 };
 
-template <>         // Reder specialization for structs
+template<> // StreamReader specialization for structs
 struct StreamReader<StreamTraitTypeStruct>
 {
     template<typename T>
     static void read(const ::Ice::InputStreamPtr& inS, T& v)
     {
-        v.ice_read(inS); // Call the member function in the struct
+        v.ice_read(inS);
     }
 };
 
-template <>         // Writer specialization for structs with cpp:class metadata
+template<> // StreamWriter specialization for structs with cpp:class metadata
 struct StreamWriter<StreamTraitTypeStructClass>
 {
     template<typename T>
     static void write(const ::Ice::OutputStreamPtr& outS, const T& v)
     {
-        v->ice_write(outS); // Call the member function in the class    
+        v->ice_write(outS);
     }
 };
 
-template <>         // Reder specialization for structs with cpp:class metadata
+template<> // StreamReader specialization for structs with cpp:class metadata
 struct StreamReader<StreamTraitTypeStructClass>
 {
     template<typename T>
-    static void read(const ::Ice::InputStreamPtr& inS, T& v)
+    static void read(const ::Ice::InputStreamPtr& inS, const T& v)
     {
-        v->ice_read(inS); // Call the member function in the class
+        v->ice_read(inS);
     }
 };
 
-template <>         // Writer specialization for byte enums
+template<> // StreamWriter specialization for byte enums
 struct StreamWriter<StreamTraitTypeByteEnum>
 {
     template<typename T>
@@ -557,7 +629,7 @@ struct StreamWriter<StreamTraitTypeByteEnum>
     }
 };
 
-template<>          // Reader specialization for byte enums
+template<> // StreamReader specialization for byte enums
 struct StreamReader<StreamTraitTypeByteEnum>
 {
     template<typename T>
@@ -573,7 +645,7 @@ struct StreamReader<StreamTraitTypeByteEnum>
 };
 
 
-template <>         // Writer specialization for short enums
+template<> // StreamWriter specialization for short enums
 struct StreamWriter<StreamTraitTypeShortEnum>
 {
     template<typename T>
@@ -587,7 +659,7 @@ struct StreamWriter<StreamTraitTypeShortEnum>
     }
 };
 
-template<>          // Reader specialization for short enums
+template<> // StreamReader specialization for short enums
 struct StreamReader<StreamTraitTypeShortEnum>
 {
     template<typename T>
@@ -602,7 +674,7 @@ struct StreamReader<StreamTraitTypeShortEnum>
     }
 };
 
-template <>         // Writer specialization for int enums
+template<> // StreamWriter specialization for int enums
 struct StreamWriter<StreamTraitTypeIntEnum>
 {
     template<typename T>
@@ -616,7 +688,7 @@ struct StreamWriter<StreamTraitTypeIntEnum>
     }
 };
 
-template<>          // Reader specialization for int enums
+template<> // StreamReader specialization for int enums
 struct StreamReader<StreamTraitTypeIntEnum>
 {
     template<typename T>
@@ -631,13 +703,13 @@ struct StreamReader<StreamTraitTypeIntEnum>
     }
 };
 
-template<>          // Writer specialization for sequences
+template<> // StreamWriter specialization for sequences
 struct StreamWriter<StreamTraitTypeSequence>
 {
     template<typename T>
     static void write(const ::Ice::OutputStreamPtr& outS, const T& v)
     {
-        outS->writeSize(::Ice::Int(v.size()));
+        outS->writeSize(static_cast< ::Ice::Int>(v.size()));
         typename T::const_iterator p;
         for(p = v.begin(); p != v.end(); ++p)
         {
@@ -646,13 +718,13 @@ struct StreamWriter<StreamTraitTypeSequence>
     }
 };
 
-template<>          // Reader specialization for sequences
+template<> // StreamReader specialization for sequences
 struct StreamReader<StreamTraitTypeSequence>
 {
     template<typename T>
     static void read(const ::Ice::InputStreamPtr& inS, T& v)
     {
-        ::Ice::Int sz = inS->readSize();
+        ::Ice::Int sz = inS->readAndCheckSeqSize(::Ice::StreamTrait<typename T::value_type>::minWireSize);
         v.resize(sz);
         for(int i = 0; i < sz; ++i)
         {
@@ -661,13 +733,13 @@ struct StreamReader<StreamTraitTypeSequence>
     }
 };
 
-template<>          // Writer specialization for dictionaries.
+template<> // StreamWriter specialization for dictionaries.
 struct StreamWriter<StreamTraitTypeDictionary>
 {
     template<typename T>
     static void write(const ::Ice::OutputStreamPtr& outS, const T& v)
     {
-        outS->writeSize(::Ice::Int(v.size()));
+        outS->writeSize(static_cast< ::Ice::Int>(v.size()));
         typename T::const_iterator p;
         for(p = v.begin(); p != v.end(); ++p)
         {
@@ -677,7 +749,7 @@ struct StreamWriter<StreamTraitTypeDictionary>
     }
 };
 
-template<>          // Reader specialization for dictionaries.
+template<> // StreamReader specialization for dictionaries.
 struct StreamReader<StreamTraitTypeDictionary>
 {
     template<typename T>
@@ -694,7 +766,7 @@ struct StreamReader<StreamTraitTypeDictionary>
     }
 };
 
-template<>          // Writer specialization for UserExceptions.
+template<> // StreamWriter specialization for UserExceptions.
 struct StreamWriter<StreamTraitTypeUserException>
 {
     template<typename T>

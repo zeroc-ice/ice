@@ -48,7 +48,7 @@ public:
 
         if(_currentReadEncaps != &_preAllocatedReadEncaps ||
            _currentWriteEncaps != &_preAllocatedWriteEncaps ||
-           _seqDataStack || _objectList)
+           _objectList)
         {
             clear(); // Not inlined.
         }
@@ -79,41 +79,6 @@ public:
         
         b.resize(sz);
     }
-
-    void startSeq(int, int);
-    void checkSeq()
-    {
-        checkSeq(static_cast<int>(b.end() - i));
-    }
-    void checkSeq(int bytesLeft)
-    {
-        //
-        // Check, given the number of elements requested for this sequence,
-        // that this sequence, plus the sum of the sizes of the remaining
-        // number of elements of all enclosing sequences, would still fit
-        // within the message.
-        //
-        int size = 0;
-        SeqData* sd = _seqDataStack;
-        do
-        {
-            size += (sd->numElements - 1) * sd->minSize;
-            sd = sd->previous;
-        }
-        while(sd);
-
-        if(size > bytesLeft)
-        {
-            throwUnmarshalOutOfBoundsException(__FILE__, __LINE__);
-        }
-    }
-    void checkFixedSeq(int, int); // For sequences of fixed-size types.
-    void endElement()
-    {
-        assert(_seqDataStack);
-        --_seqDataStack->numElements;
-    }
-    void endSeq(int);
 
     void startWriteEncaps()
     {
@@ -327,6 +292,8 @@ public:
             v = static_cast<Ice::Int>(static_cast<unsigned char>(byte));
         }
     }
+
+    void  readAndCheckSeqSize(int, Ice::Int&);
 
     void writeTypeId(const std::string&);
     void readTypeId(std::string&);
@@ -695,14 +662,8 @@ private:
     const Ice::StringConverterPtr& _stringConverter;
     const Ice::WstringConverterPtr& _wstringConverter;
 
-    struct SeqData
-    {
-        SeqData(int, int);
-        int numElements;
-        int minSize;
-        SeqData* previous;
-    };
-    SeqData* _seqDataStack;
+    int _startSeq;
+    int _minSeqSize;
 
     ObjectList* _objectList;
 };

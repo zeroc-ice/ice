@@ -910,36 +910,15 @@ Slice::writeMarshalUnmarshalCode(Output& out, const TypePtr& type, const string&
                 // Using alternate sequence type. 
                 //
                 out << nl << "::Ice::Int __sz_" << fixedParam << ";";
-                out << nl << stream << deref << "readSize(__sz_" << fixedParam << ");";
+                out << nl << stream << deref << "readAndCheckSeqSize(" << seq->type()->minWireSize() << ", __sz_" 
+                    << fixedParam << ");";
                 out << nl << seqType << "(__sz_" << fixedParam << ").swap(" << fixedParam << ");";
-                if(seq->type()->isVariableLength())
-                {
-                    out << nl << stream << deref << "startSeq(__sz_" << fixedParam << ", " 
-                        << seq->type()->minWireSize() << ");";
-                }
-                else
-                {
-                    out << nl << stream << deref << "checkFixedSeq(__sz_" << fixedParam << ", " 
-                        << seq->type()->minWireSize() << ");";
-                }
                 out << nl << seqType << "::iterator __p_" << fixedParam << ";";
                 out << nl << "for(__p_" << fixedParam << " = " << fixedParam << ".begin(); __p_" << fixedParam 
                    << " != " << fixedParam << ".end(); ++__p_" << fixedParam << ")";
                 out << sb;
                 writeMarshalUnmarshalCode(out, seq->type(), "(*__p_" + fixedParam + ")", false);
-                if(seq->type()->isVariableLength())
-                {
-                    if(!SequencePtr::dynamicCast(seq->type()))
-                    {
-                        out << nl << stream << deref << "checkSeq();";
-                    }
-                    out << nl << stream << deref << "endElement();";
-                }
                 out << eb;
-                if(seq->type()->isVariableLength())
-                {
-                    out << nl << stream << deref << "endSeq(__sz_" << fixedParam << ");";
-                }
             }
             else
             {

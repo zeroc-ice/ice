@@ -124,6 +124,11 @@ namespace Ice
             return _is.readSize();
         }
 
+        public int readAndCheckSeqSize(int minSize)
+        {
+            return _is.readAndCheckSeqSize(minSize);
+        }
+
         public ObjectPrx readProxy()
         {
             return _is.readProxy();

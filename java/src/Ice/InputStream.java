@@ -161,6 +161,16 @@ public interface InputStream
     int readSize();
 
     /**
+     * Extracts and check a sequence size from the stream. The check ensures not too much memory will
+     * be pre-allocated for the sequence.
+     *
+     * @param minSize The minimum size of an element of the sequence.
+     *
+     * @return The extracted size.
+     **/
+    int readAndCheckSeqSize(int minSize);
+
+    /**
      * Extracts a proxy from the stream.
      *
      * @return The extracted proxy.

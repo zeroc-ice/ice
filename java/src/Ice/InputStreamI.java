@@ -145,6 +145,12 @@ public class InputStreamI implements InputStream
         return _is.readSize();
     }
 
+    public int
+    readAndCheckSeqSize(int minWire)
+    {
+        return _is.readAndCheckSeqSize(minWire);
+    }
+
     public ObjectPrx
     readProxy()
     {

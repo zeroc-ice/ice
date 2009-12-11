@@ -154,6 +154,14 @@ namespace Ice
         int readSize();
 
         /// <summary>
+        /// Extracts and check a sequence size from the stream. The check ensures not too much memory will
+        /// be pre-allocated for the sequence.
+        /// </summary>
+        /// <param name="minSize">The minimum size of an element of the sequence.</param>
+        /// <returns>The extracted size.</returns>
+        int readAndCheckSeqSize(int minSize);
+
+        /// <summary>
         /// Extracts a proxy from the stream.
         /// </summary>
         /// <returns>The extracted proxy.</returns>
