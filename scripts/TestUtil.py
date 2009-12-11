@@ -666,15 +666,12 @@ sslConfigTree["php"] = sslConfigTree["cpp"]
 
 def getDefaultMapping():
     """Try and guess the language mapping out of the current path"""
-
-    here = os.getcwd()
-    while len(here) > 0 and here != '/':
-	current = os.path.basename(here)
-	here = os.path.dirname(here)
-        if current in ["cpp", "cs", "java", "php", "py", "rb", "cppe", "javae", "tmp"]:
-	    return current
-    else:
-        raise "cannot determine mapping"
+    here = os.getcwd().split(os.sep)
+    here.reverse()
+    for i in range(0, len(here)):
+        if here[i] in ["cpp", "cs", "java", "php", "py", "rb", "cppe", "javae", "tmp"]:
+            return here[i]
+    raise "cannot find language dir"
 
 class DriverConfig:
     lang = None
