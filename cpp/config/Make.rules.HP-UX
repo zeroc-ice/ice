@@ -22,9 +22,9 @@ $(warning ===================================================================)
 CXX			= aCC
 
 ifeq ($(LP64),yes)
-    CXXARCHFLAGS	= +DD64
+    CXXARCHFLAGS	+= +DD64
 else
-    CXXARCHFLAGS	= +DA2.0N
+    CXXARCHFLAGS	+= +DA2.0N
 endif
 
 #

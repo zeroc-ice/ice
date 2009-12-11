@@ -39,7 +39,7 @@ CC			= xlc_r -qcpluscmt
 #
 
 ifneq ($(OBJECT_MODE),64)
-    CXXARCHFLAGS	= -D_LARGE_FILES 
+    CXXARCHFLAGS	+= -D_LARGE_FILES 
 endif
 
 CXXFLAGS		= -brtl -qrtti=all -qstaticinline $(CXXARCHFLAGS)

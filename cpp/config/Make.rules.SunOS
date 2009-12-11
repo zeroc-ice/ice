@@ -37,22 +37,22 @@ ifeq ($(CXX),CC)
 
     ifeq ($(CCVERSION),5.9)
         ifeq ($(LP64),yes)
-	    CXXARCHFLAGS	= -m64
+	    CXXARCHFLAGS	+= -m64
 	else
-	    CXXARCHFLAGS	= -m32
+	    CXXARCHFLAGS	+= -m32
 	endif
     else
         ifeq ($(MACHINE_TYPE),sun4u)
             ifeq ($(LP64),yes)
-                CXXARCHFLAGS    = -xarch=v9
+                CXXARCHFLAGS    += -xarch=v9
             else
-                CXXARCHFLAGS    = -xarch=v8plus
+                CXXARCHFLAGS    += -xarch=v8plus
             endif
         endif
 
         ifeq ($(MACHINE_TYPE),i86pc)
             ifeq ($(LP64),yes)
-                CXXARCHFLAGS    = -xarch=amd64
+                CXXARCHFLAGS    += -xarch=amd64
             endif
         endif
     endif
@@ -133,7 +133,7 @@ ifeq ($(CXX),g++)
     CC			    = gcc
 
     ifeq ($(LP64),yes)
-        CXXARCHFLAGS	    = -m64
+        CXXARCHFLAGS	    += -m64
     endif
 
     CXXFLAGS		    = $(CXXARCHFLAGS) -Wall -D_REENTRANT
