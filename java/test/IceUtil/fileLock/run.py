@@ -37,10 +37,12 @@ assert(os.path.exists("file.lock"));
 
 clientFailExe = TestUtil.startClient(clientFail, "", None, None, False)
 clientFailExe.expect('File lock not acquired.')
+clientFailExe.wait()
 
 # send some output to client to terminate it.
 clientExe.sendline('go')
 clientExe.expect('File lock released.')
+clientExe.wait()
 
 #
 # Ensure that the file lock was removed.
@@ -52,6 +54,7 @@ clientExe = TestUtil.startClient(client, "", None, None, False)
 clientExe.expect('File lock acquired.\.*')
 clientExe.sendline('go')
 clientExe.expect('File lock released.')
+clientExe.wait()
 
 print "ok"
 

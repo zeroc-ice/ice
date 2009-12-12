@@ -27,7 +27,7 @@ dbdir = os.path.join(os.getcwd(), "db")
 TestUtil.cleanDbDir(dbdir)
 
 print "starting populate...",
-populateProc = TestUtil.startClient("test.Freeze.complex.Client", " --dbdir '%s' populate" % os.getcwd(),
+populateProc = TestUtil.startClient("test.Freeze.complex.Client", ' --dbdir "%s" populate' % os.getcwd(),
                                     startReader=False)
 print "ok"
 populateProc.startReader()
@@ -35,9 +35,8 @@ populateProc.startReader()
 populateProc.waitTestSuccess()
 
 print "starting verification client...",
-clientProc = TestUtil.startClient("test.Freeze.complex.Client", " --dbdir '%s' validate" % os.getcwd(), startReader=False)
+clientProc = TestUtil.startClient("test.Freeze.complex.Client", ' --dbdir "%s" validate' % os.getcwd(), startReader=False)
 
 print "ok"
 clientProc.startReader()
 clientProc.waitTestSuccess()
-
