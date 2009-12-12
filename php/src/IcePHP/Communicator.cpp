@@ -1289,14 +1289,27 @@ IcePHP::communicatorInit(TSRMLS_D)
     //
     // Create the profiles from configuration settings.
     //
+    const char* empty = "";
     const char* config = INI_STR(const_cast<char*>("ice.config"));
+    if(!config)
+    {
+        config = empty;
+    }
     const char* options = INI_STR(const_cast<char*>("ice.options"));
+    if(!options)
+    {
+        options = empty;
+    }
     if(!createProfile(_defaultProfileName, config, options TSRMLS_CC))
     {
         return false;
     }
 
     const char* profiles = INI_STR(const_cast<char*>("ice.profiles"));
+    if(!profiles)
+    {
+        profiles = empty;
+    }
     if(strlen(profiles) > 0)
     {
         if(!parseProfiles(profiles TSRMLS_CC))
