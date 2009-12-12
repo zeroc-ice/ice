@@ -14,7 +14,8 @@
     <target name="all">
         <ant dir="printer"/>
         <ant dir="simple_filesystem"/>
-        <ant dir="freeze_filesystem"/>
+        <ant dir="evictor_filesystem"/>
+        <ant dir="map_filesystem"/>
         <ant dir="lifecycle"/>
     </target>
 
@@ -22,7 +23,8 @@
         <ant dir="printer" target="clean"/>
         <ant dir="simple_filesystem" target="clean"/>
         <ant dir="lifecycle" target="clean"/>
-        <ant dir="freeze_filesystem" target="clean"/>
+        <ant dir="evictor_filesystem" target="clean"/>
+        <ant dir="map_filesystem" target="clean"/>
     </target>
 
 </project>

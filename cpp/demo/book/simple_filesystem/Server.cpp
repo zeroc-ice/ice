@@ -24,7 +24,7 @@ public:
         //
         Ice::ObjectAdapterPtr adapter =
             communicator()->createObjectAdapterWithEndpoints(
-                                "SimpleFilesystem", "default -p 10000");
+                                "SimpleFilesystem", "default -h 127.0.0.1 -p 10000");
 
         // Create the root directory (with name "/" and no parent)
         //

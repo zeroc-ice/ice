@@ -17,7 +17,8 @@ SUBDIRS		= printer \
 
 !if "$(CPP_COMPILER)" != "VC60"
 SUBDIRS		= $(SUBDIRS) \
-		  freeze_filesystem
+		  map_filesystem \
+		  evictor_filesystem
 !endif
 
 $(EVERYTHING)::

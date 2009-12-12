@@ -15,7 +15,7 @@ Module Server
             ' static members)
             '
             Dim adapter As Ice.ObjectAdapter = communicator().createObjectAdapterWithEndpoints( _
-                     "SimpleFilesystem", "default -p 10000")
+                     "SimpleFilesystem", "default -h 127.0.0.1 -p 10000")
             DirectoryI._adapter = adapter
             FileI._adapter = adapter
 

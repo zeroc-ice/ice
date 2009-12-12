@@ -14,7 +14,8 @@ include $(top_srcdir)/config/Make.rules
 SUBDIRS		= printer \
 		  simple_filesystem \
 		  lifecycle \
-		  freeze_filesystem
+		  evictor_filesystem \
+                  map_filesystem
 
 $(EVERYTHING)::
 	@for subdir in $(SUBDIRS); \
