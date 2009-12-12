@@ -33,6 +33,13 @@ General Changes
 These entries apply to all relevant language mappings unless otherwise
 noted.
 
+- Added new utility classes to simplify the use of Glacier2. The
+  Glacier2::Application class extends Ice::Application to add support
+  for keeping a Glacier2 session alive and automatically restarting it
+  when necessary. For Java and C#, helper classes are also provided
+  for use in graphical programs. See the Ice manual for more
+  information.
+
 - Added new InputStream::readAndCheckSeqSize method to read and check
   the size of a sequence. The check ensures the sequence size is
   consistent with the stream buffer size. This is useful to prevent
@@ -43,23 +50,22 @@ noted.
   is now possible to set the facility using the Ice.SyslogFacility
   property. The default value is LOG_USER.
 
-- It is now legal to pass an empty name to createObjectAdpaterWithRouter
+- It is now legal to pass an empty name to createObjectAdapterWithRouter
   and createObjectAdapterWithEndpoints. If so, a UUID will be generated
   as the name.
 
 - Added support for dispatching servant invocations and AMI callbacks
   with application specific threads (with a GUI dedicated thread for
   example). The application needs to implement the Ice::Dispatcher
-  interface and initialize the communicator appropiately to use this
+  interface and initialize the communicator appropriately to use this
   dispatcher implementation. See the Ice manual for more information.
 
-- icegridadmin when using username/password authentication now zeros
-  the entire password after use.
+- icegridadmin now clears the user-supplied password after use.
 
 - icegridadmin now correctly handles EOF when reading username and
   password.
 
-- The Ice::Connection createProxy method will now create a secure
+- The Connection::createProxy method will now create a secure
   proxy if the connection is secure and a datagram proxy if the
   connection is a datagram connection.
 
