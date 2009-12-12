@@ -302,33 +302,33 @@ public:
     virtual void rewind() = 0;
 
 #if defined(_MSC_VER) && (_MSC_VER < 1300) // COMPILERBUG
-//
-// VC++ 6 compiler bugs doesn't allow using templates for the Stream API.
-//
-// see: http://support.microsoft.com/kb/240866
-//      http://support.microsoft.com/kb/241569
-//
+    //
+    // VC++ 6 compiler bugs doesn't allow using templates for the Stream API.
+    //
+    // see: http://support.microsoft.com/kb/240866
+    //      http://support.microsoft.com/kb/241569
+    //
 #else
-
     //
     // read overloads for std::vector<bool>.
     //
-    inline void
-#if defined(_MSC_VER) && (_MSC_VER >= 1300)
-
-#if defined (ICE_64)
+    // We need all this variants because std::vector<bool> is defined in C++ standard
+    // as a vector of bit references, but there isn't standar type for bit references.
+    //
+    void
+#   if defined(_MSC_VER) && (_MSC_VER >= 1300)
+#      if defined (ICE_64)
     // std::vector<bool> optimization for Vs2008 x64
     read(std::_Vb_reference<unsigned __int64, __int64, std::vector<bool, std::allocator<bool> > > v)
-#else
+#      else
     // std::vector<bool> optimization for Vs2008 x86
     read(std::_Vb_reference<unsigned int, int, std::vector<bool, std::allocator<bool> > > v)
-#endif
-
-#elif defined(__BCPLUSPLUS__)
+#      endif
+#   elif defined(__BCPLUSPLUS__)
     read(std::_Vb_reference<unsigned int, int> v) // std::vector<bool> optimization for Borland C++ Builder
-#else
+#   else
     read(std::_Bit_reference v) // default optimization for GCC
-#endif
+#   endif
     {
         v = readBool();
     }
