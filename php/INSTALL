@@ -162,8 +162,10 @@ command shown below:
 
 Look for "ice" among the installed modules. Note that your library
 search path (LD_LIBRARY_PATH) must include the directory containing
-the Ice shared libraries. See the section "Dependencies" below for
-more information.
+the Ice shared libraries.
+
+Read the "Dependencies" and "Source Files" sections below for more
+information about installing the Ice extension.
 
 
 ======================================================================
@@ -207,8 +209,8 @@ line:
 If you used the Windows installer for PHP, your Web server's
 configuration may have already been modified to load PHP. You can also
 review your Web server's settings to discover the location of php.ini.
-For example, the Windows installer modifies Apache's configuration to
-add the following directives:
+For example, PHP's Windows installer modifies Apache's configuration
+to add the following directives:
 
   PHPIniDir "C:/Program Files/PHP/"
   LoadModule php5_module "C:/Program Files/PHP/php5apache2_2.dll"
@@ -220,18 +222,40 @@ Open php.ini and append this directive:
 
   extension = php_ice.dll
 
+Read the "Dependencies" and "Source Files" sections below for more
+information about installing the Ice extension.
+
 
 ======================================================================
 Dependencies
 ======================================================================
 
-PHP will need to be able to locate the Ice run-time libraries "Ice",
-"Slice", "IceUtil" and "bzip2" (Windows) or "libbz2" (Unix). On
-Windows, the STLport library is also necessary when using VC6. In
-general, these libraries must reside in a directory of the user's
-PATH.
+PHP will need to be able to locate the libraries for the Ice run-time
+libraries and its third-party dependencies. On Unix-style platforms,
+these libraries are named as follows:
 
-For Web servers, the libraries may need to reside in a system
+  libIce
+  libIceUtil
+  libSlice
+  libbz2
+
+On Windows with VC6, the DLLs have the following names:
+
+  icevc60_@libver@.dll
+  iceutilvc60_@libver@.dll
+  slicevc60_@libver@.dll
+  bzip2_vc6.dll
+  stlport_vc646.dll
+
+On Windows with VC9, these DLLs are required:
+
+  ice@libver@.dll
+  iceutil@libver@.dll
+  slice@libver@.dll
+  bzip2.dll
+
+In general, these libraries must reside in a directory of the user's
+PATH. For Web servers, the libraries may need to reside in a system
 directory. For example, on Linux you can add the directory containing
 the Ice run-time libraries to /etc/ld.so.conf and run ldconfig. On
 Windows, you can copy the DLLs to the C:\WINDOWS\system32 directory,
@@ -259,11 +283,12 @@ will also need access to the shared libraries for IceSSL and OpenSSL.
 Source Files
 ======================================================================
 
-In addition to the binary Ice extension module, you will also need to
-make the Ice for PHP source files available to your scripts. These
-files are located in the "lib" subdirectory and consist of the Ice run
-time definitions (Ice.php or Ice_ns.php) along with PHP source files
-generated from the Slice files included in the Ice distribution.
+In addition to the binary Ice extension module and its library
+dependencies, you will also need to make the Ice for PHP source files
+available to your scripts. These files are located in the "lib"
+subdirectory and consist of the Ice run time definitions (Ice.php or
+Ice_ns.php) along with PHP source files generated from the Slice files
+included in the Ice distribution.
 
 The Ice extension makes no assumptions about the location of these
 files, so you can install them anywhere you like. For example, you can
