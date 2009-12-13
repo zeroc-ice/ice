@@ -20,10 +20,7 @@ subdirectory of each language mapping (e.g., cpp/CHANGES).
 
 
 ======================================================================
-Changes since version 3.3.x
-
-NOTE: Use this section for changes that are NOT included in the 3.3
-branch.
+Changes since version 3.3.1
 ======================================================================
 
 
@@ -44,21 +41,21 @@ noted.
   the size of a sequence. The check ensures the sequence size is
   consistent with the stream buffer size. This is useful to prevent
   over-allocating memory for the sequence if the input stream data
-  can't be trusted.
+  cannot be trusted.
 
-- When using the system logger (enabled when Ice.UseSyslog is set) it 
-  is now possible to set the facility using the Ice.SyslogFacility
+- When using the system logger (enabled when Ice.UseSyslog is set), it
+  is now possible to set the facility via the Ice.SyslogFacility
   property. The default value is LOG_USER.
 
 - It is now legal to pass an empty name to createObjectAdapterWithRouter
-  and createObjectAdapterWithEndpoints. If so, a UUID will be generated
-  as the name.
+  and createObjectAdapterWithEndpoints. If so, a UUID will be used for
+  the object adapter's name.
 
 - Added support for dispatching servant invocations and AMI callbacks
-  with application specific threads (with a GUI dedicated thread for
-  example). The application needs to implement the Ice::Dispatcher
-  interface and initialize the communicator appropriately to use this
-  dispatcher implementation. See the Ice manual for more information.
+  in application-specific threads (e.g., in a GUI-safe thread). The
+  application needs to implement the Ice::Dispatcher interface and
+  initialize the communicator appropriately to use this dispatcher
+  implementation. See the Ice manual for more information.
 
 - icegridadmin now clears the user-supplied password after use.
 
@@ -73,26 +70,26 @@ noted.
   property set.
 
 - Calling Glacier2::Router::destroySession() no longer raises an
-  Ice::ConnectionLostException exception. Glacier2 doesn't forcefully
-  close anymore the connection but instead relies on Glacier2
-  activation connection management for client connections to close it.
+  Ice::ConnectionLostException exception. Glacier2 no longer
+  forcefully closes the connection of a destroyed session but instead
+  allows active connection management (ACM) for client connections to
+  close it (see below).
 
-- Glacier2 has been changed to allow enabling active connection
+- Glacier2 has been changed to support the use of active connection
   management. Active connection management is enabled by default for
-  Glacier2 client connections and if Glacier2.SessionTimeout is set.
+  Glacier2 client connections if Glacier2.SessionTimeout is set.
   The ACM timeout is set to twice the value of the session timeout. If
-  session timeout is disabled, ACM is also disabled for client
+  the session timeout is disabled, ACM is also disabled for client
   connections.
 
-- Added support for per-object adapter ACM timeout. This timeout is
-  set with the <adapter>.ACM property. If not set, the connections
-  from the object adapter will use by default the ACM timeout set at
-  the communicator level with the Ice.ACM.Server property.
+- Added support for a per-object adapter ACM timeout configured via
+  the <adapter>.ACM property. If not set, the property defaults to
+  value of Ice.ACM.Server set for the adapter's communicator.
 
-- Improved the Ice runtime invocation retry to always retry at least
-  once on Ice::CloseConnectionException failures even if the retry
-  limit has been reached. If retries are disabled, this ensures that
-  the invocation will still be retried if it fails with an
+- Improved the Ice run time's invocation retry facility to always
+  retry at least once on Ice::CloseConnectionException failures even
+  if the retry limit has been reached. If retries are disabled, this
+  ensures that an invocation is retried if it fails with an
   Ice::CloseConnectionException.
 
 - Added Glacier2.AddConnectionContext property to enable forwarding
@@ -108,8 +105,8 @@ noted.
   expires. Previously, the connection would only be closed when the
   object adapter or communicator was destroyed.
 
-- The new Ice::ThreadHookPlugin class allows you to install thread 
-  notification hooks during communicator initialization via plugins.
+- The new Ice::ThreadHookPlugin class allows you to install thread
+  notification hooks during communicator initialization via plug-ins.
 
 - Added Glacier2::Router::refreshSession, which keeps the client's
   Glacier2 session alive. This is useful in the case that the
@@ -119,37 +116,38 @@ noted.
 
 - Fixed bug in icegridadmin where invalid XML could cause a crash.
 
-- Fixed a bug where calling the object adapter waitForHold() method 
-  would cause other calls on the object adapter to hang until the 
+- Fixed a bug where calling the object adapter waitForHold() method
+  would cause other calls on the object adapter to hang until the
   waitForHold() method returned.
 
 - Improved connection establishment scalability. Creating or accepting
-  a new connection show now be done in constant time regardless of the
-  number of connections already established or accepted.
+  a new connection should now be done in constant time regardless of
+  the number of connections already established or accepted.
 
 - Fixed Glacier2 router bug which would cause the getCategoryForClient
   method to throw Ice::NullHandleException if the server endpoints
-  were not set, instead it now returns an empty string.
+  were not set; instead it now returns an empty string.
 
 - Ice.NegativeSizeException has been removed. The run time now throws
   MarshalException or UnmarshalOutOfBoundsException instead.
 
 - The Ice thread pool now supports receiving and sending data over Ice
-  conncetions using multiple threads. Allowing multiple connections to
+  connections using multiple threads. Allowing multiple connections to
   concurrently send and receive data improves CPU usage on machines
   with multiple cores. The maximum number of threads allowed to
   concurrently send/receive data is capped by the number of available
   cores.
 
-- The Ice runtime now uses Windows completion ports and overlapped IO
-  to accept, connect and receive and send data over connections. This
-  improves scalability of server applications handling many connection
-  on Windows.
+- The Ice run time now uses Windows completion ports and overlapped IO
+  to accept, connect, and receive and send data over connections. This
+  improves scalability of server applications handling many
+  connections on Windows.
 
 - Ice connections now support read timeouts. A connection will now
   eventually timeout once the connection timeout is reached if no more
-  data is available for read after the message header was received. 
-  ACM no longer closes connection which have a message being received.
+  data is available for reading after the message header was received.
+  ACM no longer closes a connection for which a message is being
+  received.
 
 - The IceSSL.TrustOnly properties support a new syntax that allows you
   to reject a peer whose distinguished name matches certain criteria.
@@ -185,10 +183,10 @@ noted.
   The old syntax is still supported; slice2html prints a warning for
   each source file in which it encounters the old syntax.
 
-- A batch invocation will now only throw if the connection associated
+- A batch invocation now only throws if the connection associated
   with the proxy failed and there were batch requests queued at the
   time of the failure. If there were no batch requests queued, the
-  batch invocation won't throw but will instead try to obtain a new
+  batch invocation does not throw but instead tries to obtain a new
   connection.
 
 - Added the ability to read properties from the Windows registry. This
@@ -209,7 +207,7 @@ noted.
 - Fixed bug in Slice compilers that would cause a crash if a Slice
   file had double slashes in its path.
 
-- The following properties were deprecated in Ice 3.2 and have been 
+- The following properties were deprecated in Ice 3.2 and have been
   removed:
 
   Glacier2.AddUserToAllowCategories
@@ -230,22 +228,22 @@ noted.
 - HP-UX is no longer a supported platform for Ice.
 
 - Added extra network tracing to show the list of local interfaces
-  currently available when an endpoint is using a wildcard host and
-  the published endpoints for an object adapter. Both of these traces
-  will be shown when Ice.Trace.Network >= 1.
+  currently available when an endpoint is using a wildcard host, as
+  well as the published endpoints for an object adapter. Both of these
+  traces will be shown when Ice.Trace.Network >= 1.
 
 - Added new property, Ice.Trace.ThreadPool, that when set >= 1 enables
-  tracing of thread pool creation as the growing/shrinking of dynamic
-  thread pools.
+  tracing of thread pool creation as dynamic thread pools grow and
+  shrink.
 
-- Changed the format of the default logger output. Traces are now 
+- Changed the format of the default logger output. Traces are now
   prepended by '--', warnings by '-!' and errors by '!!'.
 
 - All permutations of Ice.initialize() will now recognize the value of
   the ICE_CONFIG environment variable as long as an already-created
-  property set has not been passed in the InitializationData or an 
+  property set has not been passed in the InitializationData or an
   Ice.Config argument/property has not been set. Previously if the
-  no argument version of initialize was used, ICE_CONFIG was ignored
+  no-argument version of initialize was used, ICE_CONFIG was ignored
   in C++, .NET and Java but used in Python and Ruby.
 
 - The value of the thread pool SizeWarn property is now 0 by default
@@ -288,8 +286,8 @@ noted.
   These methods provide a simpler way of using default servants in
   Ice. Please refer to the manual for more information.
 
-- Using the --depend option with Slice compilers that support it no 
-  longer outputs dependency info even if the Slice file itself 
+- Using the --depend option with Slice compilers that support it no
+  longer outputs dependency info even if the Slice file itself
   contains errors.
 
 
@@ -300,11 +298,11 @@ C++ Changes
   4.1 and later on supported platforms. For details see
   http://gcc.gnu.org/onlinedocs/gcc-4.1.0/gcc/Atomic-Builtins.html
 
-- Fixed a bug in slice2cpp that could cause incorrect includes to be 
+- Fixed a bug in slice2cpp that could cause incorrect includes to be
   generated if a Slice file was included that was a symbolic link.
 
 - On Windows it is now possible to build the Ice DLLs with unique names
-  for each supported compiler. See UNIQUE_DLL_NAMES setting in 
+  for each supported compiler. See UNIQUE_DLL_NAMES setting in
   cpp/config/Make.rules.mak.
 
 - The Ice DLLs no longer all use the default base load address.
@@ -319,11 +317,11 @@ C++ Changes
   IceUtil::Time::microSecondsDouble(double)
 
 - Added the ability to use alternative database storage for IceStorm
-  and IceGrid other than Freeze. The following SQL databases are 
+  and IceGrid other than Freeze. The following SQL databases are
   supported: SQLite, PostgresSQL, MySQL and SQL Server. Please see
   the manual for more information.
 
-- Fixed a bug where globally scoped garbage collected class pointers
+- Fixed a bug where globally-scoped garbage collected class pointers
   could cause a crash on application termination.
 
 - Fixed a bug where an SSL connection was rejected because of a
@@ -342,10 +340,10 @@ C++ Changes
   ice_response method to AMD_Object_ice_invoke that uses the array
   type.
 
-- The system logger (enabled when Ice.UseSyslog is set) now uses the 
+- The system logger (enabled when Ice.UseSyslog is set) now uses the
   value of Ice.ProgramName as the log identifier prefix.
 
-- Fixed crash if Application::main() or Service::main() were called 
+- Fixed crash if Application::main() or Service::main() were called
   with argc == 0.
 
 
@@ -353,7 +351,7 @@ Java Changes
 ============
 
 - Added new ice_dispatch method to Object that does not take a
-  DispatchInterceptorAsyncCallback paramter to be used for
+  DispatchInterceptorAsyncCallback parameter to be used for
   synchronous dispatch only.
 
 - Added support for using direct buffers in the transport layer to
@@ -366,12 +364,12 @@ Java Changes
 
   If this property is not defined, the new default value is 2.
 
-- The Ice runtime now re-throws exceptions using fillInStackTrace to
+- The Ice run time now re-throws exceptions using fillInStackTrace to
   ensure the exception stack trace includes the calling point.
 
 - Added the "classLoader" member to Ice.InitializationData, which
-  allows you to supply a custom class loader that Ice will use when
-  it loads plug-ins, user exceptions, concrete Slice classes, etc.
+  allows you to supply a custom class loader that Ice uses to load
+  plug-ins, user exceptions, concrete Slice classes, etc.
 
 - Fixed a bug in the implementation of ice_invoke_async.
 
@@ -405,12 +403,12 @@ Java Changes
   attempt to unmarshal an exception or class if Ice.jar is installed
   in the JVM's extension directory.
 
-- The following APIs are deprecated and will be removed in a future 
+- The following APIs are deprecated and will be removed in a future
   release.
 
-  Object::ice_hash()
-  ObjectPrx::ice_getHash()
-  ObjectPrx::ice_toString()
+  Ice.Object.ice_hash()
+  Ice.ObjectPrx.ice_getHash()
+  Ice.ObjectPrx.ice_toString()
 
 - The StackSize thread pool configuration property is now used.
 
@@ -426,8 +424,6 @@ Java Changes
   a class path resource and, if that fails, tries to open it as a file
   in the local file system. See the manual for more information.
 
-- A configuration file can now be loaded as a class path resource.
-  
 - Removed the Java2 mapping. The release notes contain instructions
   for migrating an application to the Java5 mapping.
 
@@ -438,8 +434,8 @@ Java Changes
   IceSSL.CheckCertName and its actual behavior. The documented
   behavior states that IceSSL compares the host name as it appears in
   the proxy's endpoint against the server certificate's alternative
-  subject names. The actual behavior in Ice 3.3.0 differed slightly
-  in that the host name may have undergone a translation that could
+  subject names. The actual behavior in Ice 3.3 differed slightly in
+  that the host name may have undergone a translation that could
   result in IceSSL using a different host name than that of the proxy.
   For example, the proxy may have contained "127.0.0.1" but IceSSL
   used "localhost". This could cause the SSL connection attempt to
@@ -456,7 +452,7 @@ C# Changes
   enter a full path as the assembly DLL name.
 
 - Added new ice_dispatch method to Object that does not take a
-  DispatchInterceptorAsyncCallback paramter to be used for
+  DispatchInterceptorAsyncCallback parameter to be used for
   synchronous dispatch only.
 
 - IceSSL's behavior with respect to the IceSSL.CheckCertName property
@@ -478,27 +474,28 @@ C# Changes
 
 - slice2cs now converts javadoc comments in Slice files into Visual C#
   XML documentation comments. This allows you to generate
-  an <assembly>.xml file from the documenation comments by passing the
-  /doc option to Visual C#. The comments in the <assembly>.xml file
-  are shown as Visual C# tooltips if the <assembly>.xml file is installed
-  in the same directory as the <assembly>.dll file.
+  an <assembly>.xml file from the documentation comments by passing
+  the /doc option to Visual C#. The comments in the <assembly>.xml
+  file are shown as Visual C# tooltips if the <assembly>.xml file is
+  installed in the same directory as the <assembly>.dll file.
 
-  The build for Ice now generates the <assembly>.xml file for each assembly
-  and installs it, so Visual C# displays tooltips for Ice APIs.
+  The build for Ice now generates the <assembly>.xml file for each
+  assembly and installs it, so Visual C# displays tooltips for Ice
+  APIs.
 
 - The generated types for Slice classes, interfaces, structs and
   exceptions are now declared as partial.
 
-- The following APIs are deprecated and will be removed in a future 
+- The following APIs are deprecated and will be removed in a future
   release.
 
-  Object::ice_hash()
-  ObjectPrx::ice_getHash()
-  ObjectPrx::ice_toString()
+  Ice.Object.ice_hash()
+  Ice.ObjectPrx.ice_getHash()
+  Ice.ObjectPrx.ice_toString()
 
 - The StackSize thread pool configuration property is now used.
 
-- The default Ice logger now uses System.Diagnostics.Trace to 
+- The default Ice logger now uses System.Diagnostics.Trace to
   output messages. Please see manual and Trace documentation for
   more information.
 
@@ -535,7 +532,7 @@ Ruby Changes
 - The following API as been deprecated and will be removed in a
   future release.
 
-  ObjectPrx::ice_getHash()
+  Ice::ObjectPrx::ice_getHash()
 
 
 PHP Changes
@@ -595,13 +592,13 @@ PHP Changes
 Visual Studio Plugin Changes
 ============================
 
-- It is now possible to install the plugin when "My Documents" is
+- It is now possible to install the plug-in when "My Documents" is
   linked to a network drive.
 
-- The plugin will no longer modify projects for which it is not
+- The plug-in will no longer modify projects for which it is not
   enabled.
 
-- The plugin will now compile slice files for C++ projects even if
+- The plug-in will now compile slice files for C++ projects even if
   the project does not have "C++ Options".
 
 
@@ -666,7 +663,7 @@ noted.
   version previous to Ice 3.3.0.
 
 - Fixed a bug in the Slice translators that prevented them from being
-  run from a directory without write permissions, even if no output 
+  run from a directory without write permissions, even if no output
   files were being written to the directory.
 
 - Fixed a bug where retried AMI calls could cause the timer thread to
@@ -722,7 +719,7 @@ noted.
 C++ Changes
 ===========
 
-- Fixed a bug in IceSSL plugin which could cause a crash on
+- Fixed a bug in IceSSL plug-in which could cause a crash on
   communicator destruction.
 
 - Changed the thread pool to ensure that references to AMI callback
@@ -806,7 +803,7 @@ C# Changes
 
 - Fixed a bug in marshaling code that caused a trailing zero byte
   to be marshaled for user exceptions without class data members.
-  
+
 - Fixed a bug in slice2cs that caused incorrect code to be generated
   for a dictionary that used a structure as the key type.
 
@@ -873,7 +870,7 @@ PHP Changes
 - It is now possible to specify multiple Slice files in your profile
   configuration that have common include files. For example, if A.ice
   and B.ice both include Common.ice, you can now do the following:
-  
+
   ice.slice=-I. A.ice B.ice
 
   In previous releases this would have caused a redefinition error,
@@ -909,7 +906,7 @@ noted.
 
 - AMI requests now return a boolean to indicate if the request is
   sent synchronously. If not sent synchronously and the AMI callback
-  implements the Ice::AMISentCallback interface, the Ice run time 
+  implements the Ice::AMISentCallback interface, the Ice run time
   calls the ice_sent() method once the request is sent.
 
 - AMI timeouts are no longer triggered by the connection monitor
@@ -989,7 +986,7 @@ noted.
   communicator instance that is not used by the IceBox server. This
   dedicated communicator only inherits properties from the server's
   communicator if IceBox.InheritProperties is set to a non-zero value.
-  
+
 - It is no longer necessary to define a value for the property
   IceBox.ServiceManager.Endpoints. If this property is not defined,
   the ServiceManager interface is not available.
@@ -1042,7 +1039,7 @@ noted.
 
     In this case the IceStorm configuration properties must use the
     "Foo" prefix, such as
-    
+
     Foo.Discard.Interval=10
 
   - Removed the icestormadmin Slice checksum check. This avoids
@@ -1057,7 +1054,7 @@ noted.
 - Properties set programmatically can no longer have leading or
   trailing whitespace in the key.
 
-- There is no longer a limit on the allowable length of a property 
+- There is no longer a limit on the allowable length of a property
   line in an Ice config file. Previously the limit was 1024.
 
 - The new property Ice.Warn.UnusedProperties causes the communicator
@@ -1112,14 +1109,14 @@ noted.
 
   hello = (HelloPrx)hello.ice_oneway();
 
-- If a proxy contains a host that is multihomed, the client will now 
+- If a proxy contains a host that is multihomed, the client will now
   try all the available IP addresses. Previously, only the first in
   the address list returned by the DNS was used and others were
   ignored.
 
 - It's now possible to change the compression setting for a fixed
   proxy. In previous releases, calling ice_compress on a fixed proxy
-  would raise Ice::FixedProxyException. 
+  would raise Ice::FixedProxyException.
 
 - Added a new skipEncapsulation method to the Ice::InputStream
   interface. This method can be used to skip an encapsulation when
@@ -1167,7 +1164,7 @@ noted.
   endpoints. It can no longer be used in proxy endpoints or object
   adapter published endpoints.
 
-- Ice now listens on INADDR_ANY for object adapter endpoints that do 
+- Ice now listens on INADDR_ANY for object adapter endpoints that do
   not contain a host name (or are set to use "-h *" or "-h 0.0.0.0").
   Previously, Ice would only listen on the local interfaces that were
   present when the adapter was created.
@@ -1271,7 +1268,7 @@ C++ Changes
   defined only the SSL permissions verifier.
 
 - The IceUtil::Timer destroy method no longer joins with the timer
-  execution thread if it's called from a timer task. Instead, the 
+  execution thread if it's called from a timer task. Instead, the
   thread is detached.
 
 - The IceUtil::Timer schedule and scheduleRepeated methods now throw
@@ -1320,7 +1317,7 @@ C++ Changes
 - Added "public" keyword to the definition of IceSSL::PublicKey.
 
 - Fixed a bug in slice2freeze in which it was not properly handling
-  the "cpp:type:wstring" metadata, which would result in narrow 
+  the "cpp:type:wstring" metadata, which would result in narrow
   strings being used in generated code when wstring should have been
   used instead.
 
@@ -1408,8 +1405,8 @@ Java Changes
 
 - LocalObject is now mapped to java.lang.Object; an out LocalObject
   parameter is still mapped to an Ice.LocalObjectHolder object.
-  Ice.LocalObjectHolder now holds a java.lang.Object. The interface 
-  Ice.LocalObject and the abstract class Ice.LocalObjectImpl are now 
+  Ice.LocalObjectHolder now holds a java.lang.Object. The interface
+  Ice.LocalObject and the abstract class Ice.LocalObjectImpl are now
   deprecated.
 
 - Ice.LocalException and Ice.UserException now implement
@@ -1516,13 +1513,13 @@ Java Changes
   The previous mapping to the .NET 1.1 DictionaryBase class is still
   supported with the "clr:collection" metadata directive.
 
-- LocalObject is now mapped to System.Object. The interface 
+- LocalObject is now mapped to System.Object. The interface
   Ice.LocalObject and the abstract class Ice.LocalObjectImpl are now
   deprecated.
 
 - The Ice.Util.proxyIdentityCompare and proxyIdentityAndFacetCompare
   methods are now using string.CompareOrdinal to compare the identity
-  category, name and the facet instead of string.Compare with the 
+  category, name and the facet instead of string.Compare with the
   CultureInfo.InvariantCulture culture-specific information.
 
 - Ice.LocalException and Ice.UserException now implement
