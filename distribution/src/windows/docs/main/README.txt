@@ -156,21 +156,6 @@ libraries, and executables.
   For x64 binaries add <Ice installation root directory>\bin\x64
 
 
-Setting up Visual C++ 2008 Express Edition
-------------------------------------------
-
-Visual C++ 2008 Express is available for download from:
-
-  http://www.microsoft.com/express/vc
-
-In addition to the steps listed above for setting up Visual Studio
-2008, users of Visual C++ 2008 Express Edition must also install
-the Platform SDK in order to obtain the Microsoft Message Compiler
-(MC.EXE). The Platform SDK is available at the following link:
-
-  http://www.microsoft.com/downloads/details.aspx?FamilyId=F26B1AA4-741A-433A-9BE5-FA919850BDBF&displaylang=en
-
-
 Building and running the C++ demos
 ----------------------------------
 
