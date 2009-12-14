@@ -329,7 +329,7 @@ ifeq ($(installprogram),)
 endif
 
 ifeq ($(mkdir),)
-    mkdir		= mkdir $(1) $(2); \
+    mkdir		= $(if $(2),mkdir $(2) $(1),mkdir $(1)); \
 			  chmod a+rx $(1)
 endif
 
