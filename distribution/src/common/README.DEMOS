@@ -13,14 +13,15 @@ distributions. Distributions for specific platform/tool combinations
 may not support every Ice language mapping.
 
 The build systems included in the demo distribution are either
-'makefile' based or 'ant' based. The C++ and C# demos use makefiles
-and the Java demos use the Apache Foundation's ant build tool.
+'makefile' based or 'ant' based. The C++, C#, and PHP demos use
+makefiles and the Java demos use the Apache Foundation's ant build
+tool.
 
-NOTE: The Ruby, Python and PHP demos do not need to be built.
+NOTE: The Ruby and Python demos do not need to be built.
 
-The makefiles for C++ and C# require GNU make 3.80 or later. If your
-system does not come with GNU make, you can find information on how
-to acquire it at the following link:
+The makefiles for C++, C#, and PHP require GNU make 3.80 or later. If
+your system does not come with GNU make, you can find information on
+how to acquire it at the following link:
 
   http://www.gnu.org/software/make/
 
@@ -70,6 +71,10 @@ To build the demos you need to:
     cd Ice-@ver@-demos/democs
     make
 
+    # PHP demos
+    cd Ice-@ver@-demos/demophp
+    make
+
     # Java demos
     cd Ice-@ver@-demos/demoj
     ant
@@ -101,7 +106,9 @@ $ ./client
 Running the Java demos
 ======================
 
-To run the demos you need to add classes to your CLASSPATH.
+After a successful build, the compiled classes are stored in a
+subdirectory named "classes" in each demo directory. You need to add
+this subdirectory to your CLASSPATH.
 
 For example with a bash shell:
 
@@ -123,7 +130,7 @@ Running the C# demos
 
 The C# demos are only supported on SuSE Enterprise Linux Server but
 may work on other platforms. Note however that the Ice for .NET run
-time is included only in the binary distributions for SuSE Enterprise
+time is included only in the RPM distribution for SuSE Enterprise
 Linux Server.
 
 To run a demo, open a terminal window, change to the desired demo
@@ -180,12 +187,13 @@ you'll need to build PHP and the Ice extension from source
 code. Please refer to the php/INSTALL file included in the Ice source
 distribution for more information.
 
-The example in demophp/Ice/hello demonstrates the use of the Ice
-extension for PHP in a dynamic Web page, whereas the example in
-demophp/Ice/value requires PHP's command line interpreter. Both
-examples require that an Ice server be available; a matching server
-from any of the other language mappings can be used. A README file is
-provided in each of the example directories.
+The examples in demophp/Ice/hello and demophp/Glacier2/hello
+demonstrate the use of the Ice extension for PHP in a dynamic Web
+page, whereas the example in demophp/Ice/value requires PHP's command
+line interpreter. Both examples require that an Ice server be
+available; a matching server from any of the other language mappings
+can be used. A README file is provided in each of the example
+directories.
 
 Note that you may need to modify the php.ini files in each demo
 directory to match your PHP installation and ensure that the Ice
