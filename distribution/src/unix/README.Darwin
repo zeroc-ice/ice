@@ -37,8 +37,8 @@ includes the following components:
 Requirements
 ======================================================================
 
-This binary distribution was compiled on Mac OS X 10.5.2 using the
-default C++ compiler, GCC 4.0.1. 
+This binary distribution was compiled on Mac OS X 10.6.2 using the
+default C++ compiler, GCC 4.2.1. 
 
 This distribution only includes Intel binaries. If you need PowerPC
 binaries, you can download the Ice source code from the ZeroC web site
@@ -55,7 +55,7 @@ Python
 ------
 
 The Ice extension for Python included in this distribution requires
-Python 2.5.1 installed with Mac OS X 10.5. If you prefer to use a
+Python 2.5.1 installed with Mac OS X 10.6. If you prefer to use a
 later version of Python, you can download the Ice for Python source
 code from the ZeroC web site at http://www.zeroc.com/download.html.
 
@@ -66,7 +66,7 @@ Berkeley DB and Expat
 
 This distribution includes the C++ and Java run time for Berkeley DB
 4.8.24 and the Expat 2.0.0 library. The Berkeley DB C++ run time was
-built using GCC 4.0.1. The Berkeley DB and Expat licenses are provided
+built using GCC 4.2.1. The Berkeley DB and Expat licenses are provided
 in the file THIRD_PARTY_LICENSE.
 
 

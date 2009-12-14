@@ -31,13 +31,13 @@ Ice @ver@ for Linux is distributed in several RPM packages:
 - The ice-utils RPM contains utilities necessary to administer an Ice
   installation.
 
-- The ice-servers RPM contains all Ice servers, and sample init.d
-  scripts.
+- The ice-servers RPM contains all Ice servers along with sample
+  init.d scripts.
 
-- For each supported Ice language, C++, Java, Python, Ruby and .NET
-  (Mono), we provide an associated run-time library RPM that enables
-  you to execute Ice applications developed in that language. In
-  addition, a development kit for each language is contained in a
+- For each supported Ice language, C++, Java, Python, Ruby, PHP and
+  .NET (Mono), we provide an associated run-time library RPM that
+  enables you to execute Ice applications developed in that language.
+  In addition, a development kit for each language is contained in a
   separate RPM.
 
 These RPMs are available for download at the ZeroC web site at
@@ -45,9 +45,6 @@ These RPMs are available for download at the ZeroC web site at
   http://www.zeroc.com/download.html
 
 Notes:
-
-- Ice for Ruby RPMs are currently available only on Red Hat Enterprise
-  Linux.
 
 - Ice for .NET RPMs are currently available only on SuSE Enterprise
   Linux Server.
@@ -156,10 +153,11 @@ assembly cache (GAC), so that no changes to your environment are
 necessary to locate the assemblies.
 
 The instructions for running the demos assume that you have configured
-your kernel to automatically execute the Mono interpreter. "Registering
-.exe as non-native binaries" at
-http://www.mono-project.com/Guide:Running_Mono_Applications describes
-how to configure your kernel.
+your kernel to automatically execute the Mono interpreter. The page
+shown below describes how to configure your kernel to register Mono's
+.exe files as non-native binaries:
+
+  http://www.mono-project.com/Guide:Running_Mono_Applications
 
 If you don't want to do this you need to run the executable with
 mono. For example,
@@ -195,16 +193,16 @@ examining the output of the "php -m" command, or by calling the
 phpinfo() function from a script.
 
 Your application will also need to include at least some of the Ice
-for PHP run-time source files (installed in /usr/share/Ice-@ver@/php).
-To make these files available to your application, you can either
-modify PHP's include path or copy the necessary files to a directory
-that is already in the interpreter's include path. You can determine
-the current include path by executing the following command:
+for PHP run-time source files (installed in /usr/share/Ice-@ver@/php
+on RHEL5 and /usr/share/Ice-@ver@/php5 on SLES11). This installation
+directory is included in PHP's default include path, which you can
+verify by executing the following command:
 
 % php -i | grep include_path
 
-If you want to make the Ice run-time files available to all PHP
-applications on the host, you can modify the include_path setting in
+If the installation directory is listed, no further action is
+necessary to make the run-time source files available to your
+application. Otherwise, you can modify the include_path setting in
 php.ini to add the installation directory:
 
 include_path = /usr/share/Ice-@ver@/php:...
@@ -216,12 +214,6 @@ script prior to including any Ice run-time file:
 ini_set('include_path',
   ini_get('include_path') . PATH_SEPARATOR . '/usr/share/Ice-@ver@/php');
 require 'Ice.php'; // Load the core Ice run time definitions.
-
-On SuSE Linux Enterprise Server 10, you need to install php5 version
-5.1.2-29.22 or greater (as long as the greater version maintains
-binary compatibility). Note that php5 5.1.2-29.22 is not binary
-compatible with the php5 RPM (version 5.1.2-29.5) included in the
-original SuSE Linux Enterprise Server 10 distribution.
 
 
 SELinux Notes (for Red Hat Enterprise Linux users)
@@ -321,6 +313,7 @@ warn about not being able to create the system preferences directory.
 To get rid of this warning, you can either run the icegridgui once as
 root or create the /usr/lib/jre/.systemPrefs directory (this directory
 should be world readable).
+
 
 ======================================================================
 Demos
