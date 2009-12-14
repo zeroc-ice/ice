@@ -68,7 +68,7 @@ The following C++ compilers are supported:
 
 
 C++Builder 2010 Setup
----------------------------------
+---------------------
 
 Users of C++Builder 2010 need to install the Microsoft Platform SDK:
 
@@ -80,17 +80,6 @@ executing the following script from within the compiler command prompt:
 
   C:\Program Files\Microsoft Platform SDK for Windows Server 2003 R2\SetEnv.Cmd
 
-
-Visual C++ 2008 Express Setup
----------------------------------
-
-Users of Visual C++ 2008 Express need to install the Microsoft Platform SDK:
-
-  http://www.microsoft.com/downloads/details.aspx?FamilyID=c17ba869-9671-4330-a63e-1fd44e0e2505&displaylang=en
-
-Once installed, you need to make it the current sdk by running the configuration
-tool (Microsoft Windows SDK v7.0->Visual Studio Registration->Windows SDK
-Configuration Tool) and then choosing v7.0 and selecting "Make Current".
 
 Visual C++ 6.0 Setup
 --------------------

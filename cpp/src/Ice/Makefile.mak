@@ -151,10 +151,11 @@ $(HDIR)\BuiltinSequences.h BuiltinSequences.cpp: $(SDIR)\BuiltinSequences.ice $(
 
 Service.obj: EventLoggerMsg.h
 
-EventLoggerMsg.h EventLoggerMsg.rc: EventLoggerMsg.mc
-	mc EventLoggerMsg.mc
-
 Ice.res: EventLoggerMsg.rc
+
+# These files are not automatically generated because VC2008 Express doesn't have mc.exe
+#EventLoggerMsg.h EventLoggerMsg.rc: EventLoggerMsg.mc
+#	mc EventLoggerMsg.mc
 
 !if "$(CPP_COMPILER)" == "BCC2010" & "$(OPTIMIZE)" == "yes"
 #
@@ -200,7 +201,6 @@ clean::
 	-del /q SliceChecksumDict.cpp $(HDIR)\SliceChecksumDict.h
 	-del /q StatsF.cpp $(HDIR)\StatsF.h
 	-del /q Stats.cpp $(HDIR)\Stats.h
-	-del /q EventLoggerMsg.h EventLoggerMsg.rc
 	-del /q Ice.res
 
 install:: all
