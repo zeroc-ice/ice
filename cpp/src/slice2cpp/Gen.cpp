@@ -1411,7 +1411,7 @@ Slice::Gen::TypesVisitor::visitSequence(const SequencePtr& p)
                 C << sb;
                 if(protobuf)
                 {
-                    C << nl << "std::vectpr< ::Ice::Byte> data;";
+                    C << nl << "std::vector< ::Ice::Byte> data;";
                     C << nl << "__inS->read(data);";
                     C << nl << "if(!v.ParseFromArray(data.begin(), data.end()))";
                     C << sb;
