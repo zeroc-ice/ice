@@ -459,12 +459,11 @@ Ice::BlobjectArrayAsync::__dispatch(Incoming& in, const Current& current)
 void
 Ice::ice_writeObject(const OutputStreamPtr& out, const ObjectPtr& p)
 {
-    out->writeObject(p);
+    out->write(p);
 }
 
 void
 Ice::ice_readObject(const InputStreamPtr& in, ObjectPtr& p)
 {
-    Ice::ReadObjectCallbackPtr cb = new ReadObjectCallbackI(__patch__ObjectPtr, &p);
-    in->readObject(cb);
+    in->read(p);
 }

@@ -777,7 +777,7 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
             C << nl << "void" << nl << scoped.substr(2)
               << "::__write(const ::Ice::OutputStreamPtr& __outS) const";
             C << sb;
-            C << nl << "__outS->writeString(::std::string(\"" << p->scoped() << "\"));";
+            C << nl << "__outS->write(::std::string(\"" << p->scoped() << "\"));";
             C << nl << "__outS->startSlice();";
             for(q = dataMembers.begin(); q != dataMembers.end(); ++q)
             {
@@ -796,7 +796,8 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
             C << sb;
             C << nl << "if(__rid)";
             C << sb;
-            C << nl << "__inS->readString();";
+            C << nl << "std::string s;";
+            C << nl << "__inS->read(s);";
             C << eb;
             C << nl << "__inS->startSlice();";
             for(q = dataMembers.begin(); q != dataMembers.end(); ++q)
@@ -1392,7 +1393,7 @@ Slice::Gen::TypesVisitor::visitSequence(const SequencePtr& p)
                     C << eb;
                     C << nl << "v.SerializeToArray(&data[0], data.size());";
 
-                    C << nl << "__outS->writeByteSeq(data);";
+                    C << nl << "__outS->write(data);";
                 }
                 else
                 {
@@ -1410,9 +1411,9 @@ Slice::Gen::TypesVisitor::visitSequence(const SequencePtr& p)
                 C << sb;
                 if(protobuf)
                 {
-                    C << nl << "std::pair<const ::Ice::Byte*, const ::Ice::Byte*> data;";
-                    C << nl << "__inS->readByteSeq(data);";
-                    C << nl << "if(!v.ParseFromArray(data.first, data.second - data.first))";
+                    C << nl << "std::vectpr< ::Ice::Byte> data;";
+                    C << nl << "__inS->read(data);";
+                    C << nl << "if(!v.ParseFromArray(data.begin(), data.end()))";
                     C << sb;
                     C << nl << "throw ::Ice::MarshalException(__FILE__, __LINE__, \"ParseFromArray failed\");";
                     C << eb;
@@ -1737,54 +1738,13 @@ Slice::Gen::TypesVisitor::visitEnum(const EnumPtr& p)
             C << nl << "void" << nl << scope.substr(2) << "ice_write" << p->name()
               << "(const ::Ice::OutputStreamPtr& __outS, " << scoped << " v)";
             C << sb;
-            C << nl << "if(";
-            if(sz > 0x7f)
-            {
-                C << "static_cast<int>(val) < 0 || ";
-            }
-            C << "static_cast<int>(v) >= " << sz << ")";
-            C << sb;
-            C << nl << "throw ::Ice::MarshalException(__FILE__, __LINE__, \"enumerator out of range\");";
-            C << eb;
-            if(sz <= 0x7f)
-            {
-                C << nl << "__outS->writeByte(static_cast< ::Ice::Byte>(v));";
-            }
-            else if(sz <= 0x7fff)
-            {
-                C << nl << "__outS->writeShort(static_cast< ::Ice::Short>(v));";
-            }
-            else
-            {
-                C << nl << "__outS->writeInt(static_cast< ::Ice::Int>(v));";
-            }
+            C << nl << "__outS->write(v);";
             C << eb;
 
             C << sp << nl << "void" << nl << scope.substr(2) << "ice_read" << p->name()
               << "(const ::Ice::InputStreamPtr& __inS, " << scoped << "& v)";
             C << sb;
-            if(sz <= 0x7f)
-            {
-                C << nl << "::Ice::Byte val = __inS->readByte();";
-            }
-            else if(sz <= 0x7fff)
-            {
-                C << nl << "::Ice::Short val = __inS->readShort();";
-            }
-            else
-            {
-                C << nl << "::Ice::Int val = __inS->readInt();";
-            }
-            C << nl << "if(";
-            if(sz > 0x7f)
-            {
-                C << "val < 0 || ";
-            }
-            C << "val > " << sz << ")";
-            C << sb;
-            C << nl << "throw ::Ice::MarshalException(__FILE__, __LINE__, \"enumerator out of range\");";
-            C << eb;
-            C << nl << "v = static_cast< " << scoped << ">(val);";
+            C << nl << "__inS->read(v);";
             C << eb;
             C.zeroIndent();
             C << nl << "#endif";
@@ -5767,23 +5727,14 @@ Slice::Gen::HandleVisitor::visitClassDefStart(const ClassDefPtr& p)
             C << nl << "void" << nl << scope.substr(2) << "ice_write" << name
               << "Prx(const ::Ice::OutputStreamPtr& __outS, const " << scope << name << "Prx& v)";
             C << sb;
-            C << nl << "__outS->writeProxy(v);";
+            C << nl << "__outS->write(v);";
             C << eb;
 
             C << sp;
             C << nl << "void" << nl << scope.substr(2) << "ice_read" << name
               << "Prx(const ::Ice::InputStreamPtr& __inS, " << scope << name << "Prx& v)";
             C << sb;
-            C << nl << "::Ice::ObjectPrx proxy = __inS->readProxy();";
-            C << nl << "if(!proxy)";
-            C << sb;
-            C << nl << "v = 0;";
-            C << eb;
-            C << nl << "else";
-            C << sb;
-            C << nl << "v = new ::IceProxy" << scoped << ';';
-            C << nl << "v->__copyFrom(proxy);";
-            C << eb;
+            C << nl << "__inS->read(v);";
             C << eb;
 
             C << sp;

@@ -31,44 +31,8 @@ public:
 
     virtual void sliceObjects(bool);
 
-    virtual bool readBool();
-    virtual std::vector< bool > readBoolSeq();
-    virtual bool* readBoolSeq(std::pair<const bool*, const bool*>&);
-
-    virtual Ice::Byte readByte();
-    virtual std::vector< Ice::Byte > readByteSeq();
-    virtual void readByteSeq(std::pair<const Ice::Byte*, const Ice::Byte*>&);
-
-    virtual Ice::Short readShort();
-    virtual std::vector< Ice::Short > readShortSeq();
-    virtual Ice::Short* readShortSeq(std::pair<const Ice::Short*, const Ice::Short*>&);
-
-    virtual Ice::Int readInt();
-    virtual std::vector< Ice::Int > readIntSeq();
-    virtual Ice::Int* readIntSeq(std::pair<const Ice::Int*, const Ice::Int*>&);
-
-    virtual Ice::Long readLong();
-    virtual std::vector< Ice::Long > readLongSeq();
-    virtual Ice::Long* readLongSeq(std::pair<const Ice::Long*, const Ice::Long*>&);
-
-    virtual Ice::Float readFloat();
-    virtual std::vector< Ice::Float > readFloatSeq();
-    virtual Ice::Float* readFloatSeq(std::pair<const Ice::Float*, const Ice::Float*>&);
-
-    virtual Ice::Double readDouble();
-    virtual std::vector< Ice::Double > readDoubleSeq();
-    virtual Ice::Double* readDoubleSeq(std::pair<const Ice::Double*, const Ice::Double*>&);
-
-    virtual std::string readString(bool = true);
-    virtual std::vector< std::string > readStringSeq(bool = true);
-
-    virtual std::wstring readWstring();
-    virtual std::vector< std::wstring > readWstringSeq();
-
     virtual Ice::Int readSize();
     virtual Ice::Int readAndCheckSeqSize(int);
-
-    virtual Ice::ObjectPrx readProxy();
 
     virtual void readObject(const Ice::ReadObjectCallbackPtr&);
 
@@ -89,6 +53,45 @@ public:
     virtual void rewind();
 
 private:
+    
+    virtual bool internalReadBool();
+    virtual ::Ice::Byte internalReadByte();
+    virtual ::Ice::Short internalReadShort();
+    virtual ::Ice::Int internalReadInt();
+    virtual ::Ice::Long internalReadLong();
+    virtual ::Ice::Float internalReadFloat();
+    virtual ::Ice::Double internalReadDouble();
+    virtual ::std::string internalReadString(bool = true);
+    virtual ::std::wstring internalReadWstring();
+    virtual ::Ice::ObjectPrx internalReadProxy();
+    
+    //
+    // Remove these methods when the old Stream api, is removed.
+    //
+    virtual std::vector< bool > internalReadBoolSeq();
+    virtual bool* internalReadBoolSeq(std::pair<const bool*, const bool*>&);
+
+    virtual std::vector< Ice::Byte > internalReadByteSeq();
+    virtual void internalReadByteSeq(std::pair<const Ice::Byte*, const Ice::Byte*>&);
+
+    virtual std::vector< Ice::Short > internalReadShortSeq();
+    virtual Ice::Short* internalReadShortSeq(std::pair<const Ice::Short*, const Ice::Short*>&);
+
+    virtual std::vector< Ice::Int > internalReadIntSeq();
+    virtual Ice::Int* internalReadIntSeq(std::pair<const Ice::Int*, const Ice::Int*>&);
+
+    virtual std::vector< Ice::Long > internalReadLongSeq();
+    virtual Ice::Long* internalReadLongSeq(std::pair<const Ice::Long*, const Ice::Long*>&);
+
+    virtual std::vector< Ice::Float > internalReadFloatSeq();
+    virtual Ice::Float* internalReadFloatSeq(std::pair<const Ice::Float*, const Ice::Float*>&);
+
+    virtual std::vector< Ice::Double > internalReadDoubleSeq();
+    virtual Ice::Double* internalReadDoubleSeq(std::pair<const Ice::Double*, const Ice::Double*>&);
+
+    virtual std::vector< std::string > internalReadStringSeq(bool = true);
+
+    virtual std::vector< std::wstring > internalReadWstringSeq();
 
     Ice::CommunicatorPtr _communicator;
     IceInternal::BasicStream* _is;
@@ -107,49 +110,13 @@ public:
 
     virtual Ice::CommunicatorPtr communicator() const;
 
-    virtual void writeBool(bool);
-    virtual void writeBoolSeq(const std::vector< bool >&);
-    virtual void writeBoolSeq(const bool*, const bool*);
-
-    virtual void writeByte(Ice::Byte);
-    virtual void writeByteSeq(const std::vector< Ice::Byte >&);
-    virtual void writeByteSeq(const Ice::Byte*, const Ice::Byte*);
-
-    virtual void writeShort(Ice::Short);
-    virtual void writeShortSeq(const std::vector< Ice::Short >&);
-    virtual void writeShortSeq(const Ice::Short*, const Ice::Short*);
-
-    virtual void writeInt(Ice::Int);
-    virtual void writeIntSeq(const std::vector< Ice::Int >&);
-    virtual void writeIntSeq(const Ice::Int*, const Ice::Int*);
-
-    virtual void writeLong(Ice::Long);
-    virtual void writeLongSeq(const std::vector< Ice::Long >&);
-    virtual void writeLongSeq(const Ice::Long*, const Ice::Long*);
-
-    virtual void writeFloat(Ice::Float);
-    virtual void writeFloatSeq(const std::vector< Ice::Float >&);
-    virtual void writeFloatSeq(const Ice::Float*, const Ice::Float*);
-
-    virtual void writeDouble(Ice::Double);
-    virtual void writeDoubleSeq(const std::vector< Ice::Double >&);
-    virtual void writeDoubleSeq(const Ice::Double*, const Ice::Double*);
-
-    virtual void writeString(const std::string&, bool = true);
-    virtual void writeStringSeq(const std::vector< std::string >&, bool = true);
-
-    virtual void writeWstring(const std::wstring&);
-    virtual void writeWstringSeq(const std::vector< std::wstring >&);
-
+    virtual void writeObject(const ::Ice::ObjectPtr&);
+    virtual void writeException(const Ice::UserException&);
+    
     virtual void writeSize(Ice::Int);
-
-    virtual void writeProxy(const Ice::ObjectPrx&);
-
-    virtual void writeObject(const Ice::ObjectPtr&);
 
     virtual void writeTypeId(const std::string&);
 
-    virtual void writeException(const Ice::UserException&);
 
     virtual void startSlice();
     virtual void endSlice();
@@ -164,6 +131,45 @@ public:
     virtual void reset(bool);
 
 private:
+    
+    virtual void internalWriteBool(bool);
+    virtual void internalWriteByte(::Ice::Byte);
+    virtual void internalWriteShort(::Ice::Short);
+    virtual void internalWriteInt(::Ice::Int);
+    virtual void internalWriteLong(::Ice::Long);
+    virtual void internalWriteFloat(::Ice::Float);
+    virtual void internalWriteDouble(::Ice::Double);
+    virtual void internalWriteString(const ::std::string&, bool = true);
+    virtual void internalWriteWstring(const ::std::wstring&);
+    virtual void internalWriteProxy(const ::Ice::ObjectPrx&);
+    
+    //
+    // Remove these methods when the old Stream api, is removed.
+    //
+    virtual void internalWriteBoolSeq(const std::vector< bool >&);
+    virtual void internalWriteBoolSeq(const bool*, const bool*);
+
+    virtual void internalWriteByteSeq(const std::vector< Ice::Byte >&);
+    virtual void internalWriteByteSeq(const Ice::Byte*, const Ice::Byte*);
+
+    virtual void internalWriteShortSeq(const std::vector< Ice::Short >&);
+    virtual void internalWriteShortSeq(const Ice::Short*, const Ice::Short*);
+
+    virtual void internalWriteIntSeq(const std::vector< Ice::Int >&);
+    virtual void internalWriteIntSeq(const Ice::Int*, const Ice::Int*);
+
+    virtual void internalWriteLongSeq(const std::vector< Ice::Long >&);
+    virtual void internalWriteLongSeq(const Ice::Long*, const Ice::Long*);
+
+    virtual void internalWriteFloatSeq(const std::vector< Ice::Float >&);
+    virtual void internalWriteFloatSeq(const Ice::Float*, const Ice::Float*);
+
+    virtual void internalWriteDoubleSeq(const std::vector< Ice::Double >&);
+    virtual void internalWriteDoubleSeq(const Ice::Double*, const Ice::Double*);
+
+    virtual void internalWriteStringSeq(const std::vector< std::string >&, bool = true);
+
+    virtual void internalWriteWstringSeq(const std::vector< std::wstring >&);
 
     Ice::CommunicatorPtr _communicator;
     IceInternal::BasicStream* _os;

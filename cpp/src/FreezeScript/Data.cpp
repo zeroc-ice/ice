@@ -523,13 +523,13 @@ FreezeScript::BooleanData::getType() const
 void
 FreezeScript::BooleanData::marshal(const Ice::OutputStreamPtr& out) const
 {
-    out->writeBool(_value);
+    out->write(_value);
 }
 
 void
 FreezeScript::BooleanData::unmarshal(const Ice::InputStreamPtr& in)
 {
-    _value = in->readBool();
+    in->read(_value);
 }
 
 bool
@@ -657,22 +657,22 @@ FreezeScript::IntegerData::marshal(const Ice::OutputStreamPtr& out) const
     {
     case Slice::Builtin::KindByte:
     {
-        out->writeByte(static_cast<Ice::Byte>(_value));
+        out->write(static_cast<Ice::Byte>(_value));
         break;
     }
     case Slice::Builtin::KindShort:
     {
-        out->writeShort(static_cast<Ice::Short>(_value));
+        out->write(static_cast<Ice::Short>(_value));
         break;
     }
     case Slice::Builtin::KindInt:
     {
-        out->writeInt(static_cast<Ice::Int>(_value));
+        out->write(static_cast<Ice::Int>(_value));
         break;
     }
     case Slice::Builtin::KindLong:
     {
-        out->writeLong(_value);
+        out->write(_value);
         break;
     }
 
@@ -694,23 +694,30 @@ FreezeScript::IntegerData::unmarshal(const Ice::InputStreamPtr& in)
     {
     case Slice::Builtin::KindByte:
     {
-        Ice::Byte val = in->readByte();
+        Ice::Byte val;
+        in->read(val);
         _value = val & 0xff;
         break;
     }
     case Slice::Builtin::KindShort:
     {
-        _value = in->readShort();
+        Ice::Short val;
+        in->read(val);
+        _value = val;
         break;
     }
     case Slice::Builtin::KindInt:
     {
-        _value = in->readInt();
+        Ice::Int val;
+        in->read(val);
+        _value = val;
         break;
     }
     case Slice::Builtin::KindLong:
     {
-        _value = in->readLong();
+        Ice::Long val;
+        in->read(val);
+        _value = val;
         break;
     }
 
@@ -939,12 +946,12 @@ FreezeScript::DoubleData::marshal(const Ice::OutputStreamPtr& out) const
     {
     case Slice::Builtin::KindFloat:
     {
-        out->writeFloat(static_cast<Ice::Float>(_value));
+        out->write(static_cast<Ice::Float>(_value));
         break;
     }
     case Slice::Builtin::KindDouble:
     {
-        out->writeDouble(_value);
+        out->write(_value);
         break;
     }
 
@@ -968,12 +975,14 @@ FreezeScript::DoubleData::unmarshal(const Ice::InputStreamPtr& in)
     {
     case Slice::Builtin::KindFloat:
     {
-        _value = in->readFloat();
+        Ice::Float val;
+        in->read(val);
+        _value = val;
         break;
     }
     case Slice::Builtin::KindDouble:
     {
-        _value = in->readDouble();
+        in->read(_value);
         break;
     }
 
@@ -1133,13 +1142,15 @@ FreezeScript::StringData::getType() const
 void
 FreezeScript::StringData::marshal(const Ice::OutputStreamPtr& out) const
 {
-    out->writeString(_value);
+    out->write(_value);
 }
 
 void
 FreezeScript::StringData::unmarshal(const Ice::InputStreamPtr& in)
 {
-    setValue(in->readString());
+    string val;
+    in->read(val);
+    setValue(val);
 }
 
 bool
@@ -1276,13 +1287,13 @@ FreezeScript::ProxyData::destroy()
 void
 FreezeScript::ProxyData::marshal(const Ice::OutputStreamPtr& out) const
 {
-    out->writeProxy(_value);
+    out->write(_value);
 }
 
 void
 FreezeScript::ProxyData::unmarshal(const Ice::InputStreamPtr& in)
 {
-    _value = in->readProxy();
+    in->read(_value);
 }
 
 bool
@@ -1814,15 +1825,15 @@ FreezeScript::EnumData::marshal(const Ice::OutputStreamPtr& out) const
 {
     if(_count <= 127)
     {
-        out->writeByte(static_cast<Ice::Byte>(_value));
+        out->write(static_cast<Ice::Byte>(_value));
     }
     else if(_count <= 32767)
     {
-        out->writeShort(static_cast<Ice::Short>(_value));
+        out->write(static_cast<Ice::Short>(_value));
     }
     else
     {
-        out->writeInt(_value);
+        out->write(_value);
     }
 }
 
@@ -1831,17 +1842,19 @@ FreezeScript::EnumData::unmarshal(const Ice::InputStreamPtr& in)
 {
     if(_count <= 127)
     {
-        Ice::Byte val = in ->readByte();
+        Ice::Byte val;
+        in ->read(val);
         _value = val & 0xff;
     }
     else if(_count <= 32767)
     {
-        Ice::Short val = in->readShort();
+        Ice::Short val;
+        in->read(val);
         _value = val;
     }
     else
     {
-        _value = in->readInt();
+        in->read(_value);
     }
 }
 

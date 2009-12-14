@@ -2150,11 +2150,11 @@ Ice::proxyIdentityAndFacetEqual(const ObjectPrx& lhs, const ObjectPrx& rhs)
 void
 Ice::ice_writeObjectPrx(const OutputStreamPtr& out, const ObjectPrx& v)
 {
-    out->writeProxy(v);
+    out->write(v);
 }
 
 void
 Ice::ice_readObjectPrx(const InputStreamPtr& in, ObjectPrx& v)
 {
-    v = in->readProxy();
+    in->read(v);
 }

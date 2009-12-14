@@ -87,7 +87,7 @@ InvokeClient::run(int argc, char* argv[])
                 //
                 Ice::ByteSeq inParams, outParams;
                 Ice::OutputStreamPtr out = Ice::createOutputStream(communicator());
-                out->writeString("The streaming API works!");
+                out->write("The streaming API works!");
                 out->finished(inParams);
 
                 //
@@ -110,7 +110,7 @@ InvokeClient::run(int argc, char* argv[])
                 arr.push_back("streaming");
                 arr.push_back("API");
                 arr.push_back("works!");
-                out->writeStringSeq(arr);
+                out->write(arr);
                 out->finished(inParams);
 
                 //
@@ -249,7 +249,8 @@ InvokeClient::run(int argc, char* argv[])
                 Ice::InputStreamPtr in = Ice::createInputStream(communicator(), outParams);
                 Demo::CPtr c;
                 in->read(c);
-                string str = in->readString();
+                string str;
+                in->read(str);
                 in->readPendingObjects();
                 cout << "Got string `" << str << "' and class: s.name=" << c->s.name
                      << ", s.value=" << c->s.value << endl;

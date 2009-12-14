@@ -43,13 +43,15 @@ PrinterI::ice_invoke(const vector<Ice::Byte>& inParams, vector<Ice::Byte>& outPa
 
     if(current.operation == "printString")
     {
-        string message = in->readString();
+        string message;
+        in->read(message);
         cout << "Printing string `" << message << "'" << endl;
         return true;
     }
     else if(current.operation == "printStringSequence")
     {
-        Demo::StringSeq seq = in->readStringSeq();
+        Demo::StringSeq seq;
+        in->read(seq);
         cout << "Printing string sequence {";
         for(Demo::StringSeq::iterator p = seq.begin(); p != seq.end(); ++p)
         {
@@ -123,7 +125,7 @@ PrinterI::ice_invoke(const vector<Ice::Byte>& inParams, vector<Ice::Byte>& outPa
         c->s.value = Demo::green;
         Ice::OutputStreamPtr out = Ice::createOutputStream(communicator);
         out->write(c);
-        out->writeString("hello");
+        out->write("hello");
         out->writePendingObjects();
         out->finished(outParams);
         return true;
@@ -134,7 +136,7 @@ PrinterI::ice_invoke(const vector<Ice::Byte>& inParams, vector<Ice::Byte>& outPa
         Demo::PrintFailure ex;
         ex.reason = "paper tray empty";
         Ice::OutputStreamPtr out = Ice::createOutputStream(communicator);
-        out->writeException(ex);
+        out->write(ex);
         out->finished(outParams);
         return false;
     }
