@@ -10,13 +10,9 @@ Ice is expected to build and run properly on any recent Linux
 distribution for x86 and x86_64. However, Ice is officially supported
 only on:
 
- - Red Hat Enterprise Linux Advanced Server 4 Update 6 for i386 or
-   x86_64 (RHEL 4.6)
+ - Red Hat Enterprise Linux 5 Update 4 for i386 or x86_64 (RHEL 5.4)
 
- - Red Hat Enterprise Linux 5 Update 1 for i386 or x86_64 (RHEL 5.1)
-
- - Novell SuSE Linux Enterprise Server 10 Service Pack 1 for i586 or
-   x86_64 (SLES 10 SP1)
+ - Novell SuSE Linux Enterprise Server 11 for i586 or x86_64 (SLES 11)
 
 
 C++ compiler
@@ -25,16 +21,8 @@ C++ compiler
 Ice is expected to build properly with GCC 3.3 or later. However, only
 the following compilers are officially supported:
 
- - GCC 3.4.6 on RHEL 4.6
- - GCC 4.1.2 on RHEL 5.1
- - GCC 4.1.x on SLES 10 SP1
-
-
-Required packages
------------------
-
-On RHEL 4, Ice requires the nptl-devel package, which contains the
-function pthread_condattr_setclock.
+ - GCC 4.1.2 on RHEL 5.4
+ - GCC 4.3.2 on SLES 11
 
 
 Third-party libraries
@@ -42,11 +30,11 @@ Third-party libraries
 
 Ice has dependencies on a number of third-party libraries:
 
-- Berkeley DB 4.7.25
-- expat 1.95.7 or 2.0.1
+- Berkeley DB 4.8.24
+- expat 1.95.8 or 2.0.1
 - OpenSSL 0.9.7 or later (OpenSSL 0.9.8 or later recommended)
 - bzip2 1.0.x
-- mcpp 2.7.2
+- mcpp 2.7.2 (with patches)
 
 Some of these packages may have been included in your Linux
 distribution. For those packages that are not installed or have an
@@ -59,8 +47,8 @@ This archive contains the source distributions for each of the
 third-party dependencies, as well as required source patches and 
 configuration instructions.
 
-ZeroC also supplies RPMs at the link above for Berkeley DB on RHEL
-4.x, RHEL 5.x and SLES 10.x.
+ZeroC also supplies RPMs at the link above for Berkeley DB on RHEL 5
+and SLES 11.
 
 For more information about these dependencies, please refer to
 the links below:

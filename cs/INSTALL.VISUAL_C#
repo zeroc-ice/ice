@@ -3,8 +3,8 @@ Build instructions
 
 Ice for .NET has been built and tested with:
 
-- Microsoft Visual Studio 2008 Version 9.0.21022.8 RTM and .NET
-  Framework Version 3.5.
+- Microsoft Visual Studio 2008 Version 9.0.30729.1 RTM and .NET
+  Framework Version 3.5 SP1.
 
 Unpack the archive. The .NET sources will be contained in the
 Ice-@ver@\cs subdirectory.
@@ -20,7 +20,7 @@ Binary distributions for the supported platforms are available at
 
 Follow these steps to build the source:
 
-1) If you have not built Ice for C++ from the cpp subdirectory, set
+1) If you have not built Ice for C++ in the cpp subdirectory, set
    ICE_HOME to the directory of your Ice for C++ installation.
    For example:
 

@@ -24,7 +24,7 @@ Follow these steps to build the Ice extension for Python:
 
    > cd Ice-@ver@/py
 
-2) If you have not built Ice for C++ from the cpp subdirectory, set
+2) If you have not built Ice for C++ in the cpp subdirectory, set
    ICE_HOME to the directory of your Ice for C++ installation.
    For example:
 
@@ -63,8 +63,9 @@ support the use of Python extensions that are compiled with other
 versions of Visual C++, we have tested the Ice extension built with
 Visual C++ 8.0 SP1 and experienced no issues in combination with
 Python's binary distribution. The Python 2.6.x binary distribution
-is compiled with Visual C++ 9.0, you should use this binary
-distribution if you want to compile the Ice extension with Visual C++ 9.0.
+is compiled with Visual C++ 9.0, and you should use this binary
+distribution if you want to compile the Ice extension with Visual C++
+9.0.
 
 Visual C++ 6.0 is not supported with Ice for Python.
 

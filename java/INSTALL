@@ -16,8 +16,8 @@ Operating systems
 -----------------
 
 Ice for Java has been tested under Linux, Solaris, MacOS X, and
-Windows XP/Server 2003/Vista, but due to the portability of Java, it is
-very likely that it will also work on other platforms for which a
+Windows XP/Server 2003/Vista/7, but due to the portability of Java, it
+is very likely that it will also work on other platforms for which a
 suitable Java implementation is available.
 
 Note, however, that you will need the Slice to Java translator (see
@@ -213,8 +213,8 @@ To build only the Ice run time (Ice.jar), use the following command:
 
   ant ice-jar
 
-To build the Ice run time along with the IceGrid administrative
-console, use this command:
+To build the Ice run time along with Freeze and the IceGrid
+administrative console, use this command:
 
   ant jar
 
@@ -252,7 +252,8 @@ specified by the "prefix" variable in config/build.properties.
 It is not necessary to rebuild Ice for Java after changing the
 value of the prefix variable.
 
-After installation add Ice.jar to your CLASSPATH.
+After installation add Ice.jar (and optionally Freeze.jar) to your
+CLASSPATH.
 
 
 ======================================================================

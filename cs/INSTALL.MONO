@@ -3,8 +3,7 @@ Mono Version
 
 This version of Ice for .NET requires Mono version 2.0.1 or later.
 
-Note that Mono currently does not contain full SSL support and 
-therefore IceSSL is not supported.
+Note that IceSSL is not currently supported for Mono.
 
 
 Operating System
@@ -14,15 +13,7 @@ Ice for .NET is expected to build and run properly on any recent Linux
 distribution for x86 and x86_64. However, Ice is officially supported
 only on:
 
- - Novell SuSE Linux Enterprise Server 10 Service Pack 1 for i586 or
-   x86_64 (SLES 10 SP1).
-
-   Note that SLES 10 SP1 includes Mono 1.2.2, which does not support
-   IPv6 multi-cast. If you want to use this feature, you need to upgrade
-   to Mono 1.2.6 or later. To upgrade to a more recent version
-   of Mono please follow the directions at:
-
-   http://www.go-mono.com/mono-downloads/download.html
+ - Novell SuSE Linux Enterprise Server 11 for i586 or x86_64 (SLES 11)
 
 You need to install the mono-core and the mono-devel RPMs to build Ice 
 for .NET on Linux.
@@ -34,9 +25,9 @@ Build instructions
 Unpack the source archive. The .NET sources will be contained in the 
 Ice-@ver@/cs subdirectory.
 
-You will need the Slice to C# translator and supporting executables
-and libraries. You can download a binary distribution from the ZeroC
-web site, or you can build Ice for C++ yourself.
+You will need the Slice to C# translator (slice2cs) and supporting
+executables and libraries. You can download a binary distribution from
+the ZeroC web site, or you can build Ice for C++ yourself.
 
 Binary distributions for the supported platforms are available at
 
@@ -48,10 +39,10 @@ $ make
 
 in the cs subdirectory.
 
-If you have not built Ice for C++ from the cpp subdirectory, then
-you need to set (and export) ICE_HOME to the top-level directory of
-an Ice for C++ installation. (The makefiles look there for a bin
-directory that contains slice2cs.)
+If you have not built Ice for C++ in the cpp subdirectory, then you
+need to set (and export) ICE_HOME to the top-level directory of an Ice
+for C++ installation. (The makefiles look there for a bin directory
+that contains slice2cs.)
 
 
 Managed Code
@@ -79,9 +70,9 @@ in demo/Ice/minimal as follows:
 
 $ MONO_LOG_LEVEL=info MONO_LOG_MASK=dll mono --debug server.exe
 
-This produces trace that shows whether the bzip2 library could
-be located at run time. If the library could be found, you will
-see a line of trace as follows:
+This produces trace output that shows whether the bzip2 library could
+be located at run time. If the library could be found, you will see a
+line of trace as follows:
 
 Mono-INFO: Found as 'BZ2_bzlibVersion'.
 
@@ -96,8 +87,10 @@ that binary:
 $ mono foo
 
 If you want to avoid having to explicitly invoke the Mono interpreter,
-please follow the "Registering .exe as non-native binaries" instructions
-at http://www.mono-project.com/Guide:Running_Mono_Applications.
+please follow the "Registering .exe as non-native binaries"
+instructions at
+
+  http://www.mono-project.com/Guide:Running_Mono_Applications
 
 
 Running the tests
@@ -133,23 +126,23 @@ Running the demos
 -----------------
 
 To run the demos, you need to have Ice-@ver@/cs/bin in your MONO_PATH
-or install the Ice DLLs in the GAC. See the README file in each
-demo directory for a description of each demo.
+or install the Ice DLLs in the GAC. See the README file in each demo
+directory for a description of each demo.
 
 
 Installation
 ------------
 
-Open config/Make.rules.cs and change the "prefix" variable to hold
-the top-level installation directory. This directory will be
-created automatically if necessary. Also review the comments for the
-"no_gac" variable and decide whether to enable it. Next, run
+Open config/Make.rules.cs and change the "prefix" variable to hold the
+top-level installation directory. This directory will be created
+automatically if necessary. Also review the comments for the "no_gac"
+variable and decide whether to enable it. Next, run
 
 $ make install
 
-After installation, add the directory containing the libraries to
-your MONO_PATH. When building applications, you need to reference
-the libraries with the -r option to mcs.
+After installation, add the directory containing the libraries to your
+MONO_PATH. When building applications, you need to reference the
+libraries with the -r option to mcs.
 
 Alternatively, you can add the libraries to the global assembly cache.
 To do this, use

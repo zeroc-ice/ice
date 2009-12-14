@@ -7,14 +7,14 @@ Operating System
 ----------------
 
 Ice is expected to build and run properly on any recent Mac OS X
-version. However, Ice is officially supported only on Mac OS X 10.5.x.
+version. However, Ice is officially supported only on Mac OS X 10.6.x.
 
 
 C++ compiler
 ------------
 
 Ice is expected to build properly with GCC 3.3 or later. However, only
-the GCC 4.0.1 compiler is officially supported on Mac OS X 10.5.x.
+the GCC 4.2.1 compiler is officially supported on Mac OS X 10.6.x.
 
 
 Third-party libraries
@@ -26,7 +26,7 @@ Ice has dependencies on a number of third-party libraries:
 - expat 1.95.7 or 2.0.0
 - OpenSSL 0.9.7 or later (OpenSSL 0.9.8 or later recommended)
 - bzip2 1.0.x
-- mcpp 2.7.2
+- mcpp 2.7.2 (with patches)
 
 Some of these packages are included with your system. For those
 packages that are not installed or have an older version than what

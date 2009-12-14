@@ -35,7 +35,7 @@ Ice has dependencies on a number of third-party libraries:
 - expat 1.95.7 or 2.0.0
 - OpenSSL 0.9.7 or later (OpenSSL 0.9.8 or later recommended)
 - bzip2 1.0.x
-- mcpp 2.7.2
+- mcpp 2.7.2 (with patches)
 - libiconv 1.13.1 (x86/x64 only)
 
 We recommend downloading the Ice third-party source archive from

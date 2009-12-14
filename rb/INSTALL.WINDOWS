@@ -29,7 +29,9 @@ your build environment:
 
    http://www.zeroc.com/download.html
 
-   The default installation directory is C:\Ice-@ver@-VC60.
+   The default installation directory is the following:
+   
+   C:\Program Files\ZeroC\Ice-@ver@
 
 2. You have installed Ruby using the Windows installer available at
    RubyForge:
@@ -59,7 +61,7 @@ Follow these steps to build the Ice extension for Ruby:
    start a "Visual Studio Command Prompt" by selecting the appropriate
    entry from the Visual Studio program group in your Start menu.
 
-2) Change to the Ice for Ruby source directory.
+2) Change to the Ice for Ruby source directory:
 
    > cd Ice-@ver@\rb
 
@@ -152,12 +154,12 @@ C:\Ice-@ver@ directory.
 In addition, you must modify your PATH environment variable to include
 the following directories:
 
-  C:\Ice-@ver@-VC60\bin
+  C:\Program Files\ZeroC\Ice-@ver@\bin
   C:\Ice-@ver@\bin
 
 At a command prompt, you can set your PATH as shown below:
 
-  > set PATH=C:\Ice-@ver@-VC60\bin;C:\Ice-@ver@\bin;%PATH%
+  > set PATH=C:\Program Files\ZeroC\Ice-@ver@\bin;C:\Ice-@ver@\bin;%PATH%
 
 
 Testing your installation
@@ -187,11 +189,11 @@ must first start its corresponding server from another Ice language
 mapping, such as C++.
 
 As an example, let's run the hello application in demo\Ice\hello using
-the C++ server. Assuming that your Ice installation is located in
-C:\Ice-@ver@, and that you have already compiled the sample C++
-programs, we begin by starting the server:
+the C++ server. Assuming that you have extracted the Ice demo archive
+into C:\Ice-@ver@-demos, and that you have already compiled the sample
+C++ programs, we begin by starting the server:
 
-  > cd \Ice-@ver@-VC60\demo\Ice\hello
+  > cd \Ice-@ver@-demos\demo\Ice\hello
   > server
 
 In a separate window, start the client:
