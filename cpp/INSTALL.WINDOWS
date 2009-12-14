@@ -27,7 +27,9 @@ Ice has been extensively tested on:
 - Windows XP SP2 x86
 - Windows 2003 Server SP2 x86 and x64
 - Windows 2008 Server x86 and x64
+- Windows 2008 Server R2 x86 and x64
 - Windows Vista x86 and x64
+- Windows 7 x86 and x64
 
 Ice does not work on Windows 2000. However, porting Ice to Windows
 2000 should be fairly simple if you do not require UDP multicast or
@@ -62,9 +64,7 @@ The following C++ compilers are supported:
   supported. STLport is included in the Ice third-party package
   for Visual C++ 6.0.
 
-- CodeGear C++Builder 2007 R2 with December 2007 Update
-
-- CodeGear C++Builder 2009 Update 2
+- CodeGear C++Builder 2010
 
 
 C++Builder 2010 Setup
@@ -123,11 +123,12 @@ Third-party libraries
 Ice has dependencies on a number of third-party libraries:
 
 - STLport 4.6.2 or later (only for Visual C++ 6.0)
-- Berkeley DB 4.7.25
+- Berkeley DB 4.8.24
 - expat 2.0
 - OpenSSL 0.9.7 or later (OpenSSL 0.9.8 or later recommended)
 - bzip2 1.0
 - mcpp 2.7.2
+- QT 4.5.3
 
 You do not need to build these packages yourself, as ZeroC supplies a
 Windows installer for each supported compiler that contains release
@@ -151,6 +152,7 @@ expat          http://expat.sourceforge.net
 OpenSSL        http://www.openssl.org
 bzip2          http://sources.redhat.com/bzip2
 mcpp           http://mcpp.sourceforge.net
+QT             http://qt.nokia.com
 
 
 Monotonic clock

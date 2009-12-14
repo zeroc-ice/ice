@@ -1,8 +1,7 @@
 Mono Version
 ------------
 
-This version of Ice for .NET requires Mono version 1.2.2 or later
-(1.2.6 or later if you want to use IPv6 multi-cast).
+This version of Ice for .NET requires Mono version 2.0.1 or later.
 
 Note that Mono currently does not contain full SSL support and 
 therefore IceSSL is not supported.

@@ -81,7 +81,7 @@ Berkeley DB
 
 "Freeze" is an optional Ice component that provides a persistence
 facility for Ice applications. Freeze uses Berkeley DB as its
-underlying database and currently requires Berkeley DB 4.7.25.
+underlying database and currently requires Berkeley DB 4.8.24.
 
 ZeroC provides Berkeley DB binary distributions (with Java support)
 for many platforms: 
@@ -139,7 +139,7 @@ The libraries are available here:
 The IceGrid administrative tool has been tested with the following
 versions:
 
-  JGoodies Looks 2.2.2
+  JGoodies Looks 2.3.0
   JGoodies Forms 1.2.1
 
 
@@ -173,7 +173,7 @@ This source distribution cannot be compiled successfully without the
 Berkeley DB run time for Java (db.jar). On Unix platforms, the build
 system searches for this file in two locations:
 
-  * /usr/share/java/db-4.7.25.jar
+  * /usr/share/java/db-4.8.24.jar
   * /opt/Ice-@ver@/lib/db.jar
 
 If neither of these files is present on your system, or if you are not
