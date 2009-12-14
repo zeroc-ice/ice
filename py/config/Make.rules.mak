@@ -33,7 +33,7 @@ CPP_COMPILER            = VC90
 # Set PYTHON_HOME to your Python installation directory.
 #
 !if "$(PYTHON_HOME)" == ""
-PYTHON_HOME		= C:\Python25
+PYTHON_HOME		= C:\Python26
 !endif
 
 #
