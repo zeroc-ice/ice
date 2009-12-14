@@ -84,7 +84,7 @@ public class DirectoryI extends _DirectoryDisp
             throw new Ice.ObjectNotExistException();
         }
 
-        if(name.isEmpty() || _dir.nodes.get(name) != null)
+        if(name.length() == 0 || _dir.nodes.get(name) != null)
         {
             throw new NameInUse(name);
         }
@@ -119,7 +119,7 @@ public class DirectoryI extends _DirectoryDisp
             throw new Ice.ObjectNotExistException();
         }
 
-        if(name.isEmpty() || _dir.nodes.get(name) != null)
+        if(name.length() == 0 || _dir.nodes.get(name) != null)
         {
             throw new NameInUse(name);
         }

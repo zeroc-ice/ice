@@ -781,6 +781,10 @@ AdminI::getNodeProcessorSocketCount(const string& name, const Current&) const
     {
         return _database->getNode(name)->getProxy()->getProcessorSocketCount();
     }
+    catch(const Ice::OperationNotExistException&)
+    {
+        return 0; // Not supported.
+    }
     catch(const Ice::ObjectNotExistException&)
     {
         throw NodeNotExistException(name);

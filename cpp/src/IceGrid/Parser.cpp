@@ -836,7 +836,14 @@ Parser::printNodeProcessors(const list<string>& args)
     {
         if(args.size() == 1)
         {
-            cout << _admin->getNodeProcessorSocketCount(args.front()) << endl;
+            try
+            {
+                cout << _admin->getNodeProcessorSocketCount(args.front()) << endl;
+            }
+            catch(const Ice::OperationNotExistException&)
+            {
+                cout << "not supported" << endl;
+            }
         }
         else
         {
@@ -848,7 +855,15 @@ Parser::printNodeProcessors(const list<string>& args)
                 {
                     NodeInfo info = _admin->getNodeInfo(*p);
                     processorSocketCounts[info.hostname].first.push_back(*p);
-                    processorSocketCounts[info.hostname].second = _admin->getNodeProcessorSocketCount(*p);
+                    try
+                    {
+                        processorSocketCounts[info.hostname].second = _admin->getNodeProcessorSocketCount(*p);
+                    }
+                    catch(const Ice::OperationNotExistException&)
+                    {
+                        // Not supported.
+                        processorSocketCounts[info.hostname].second = 0;
+                    }
                 }
                 catch(const NodeNotExistException&)
                 {
