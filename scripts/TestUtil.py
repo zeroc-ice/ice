@@ -647,7 +647,7 @@ sslConfigTree = {
             },
         "java" : { 
             "plugin" : " --Ice.Plugin.IceSSL=IceSSL.PluginFactory --Ice.Default.Protocol=ssl " +
-            "--IceSSL.DefaultDir=%(certsdir)s --IceSSL.Truststore=certs.jks --IceSSL.Password=password",
+            "--IceSSL.DefaultDir=%(certsdir)s --IceSSL.Password=password",
             "client" : " --IceSSL.Keystore=client.jks",
             "server" : " --IceSSL.Keystore=server.jks",
             "colloc" : " --IceSSL.Keystore=client.jks"

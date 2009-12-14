@@ -524,6 +524,10 @@ class Instance
                         }
                     }
                 }
+                else
+                {
+                    ts = keys;
+                }
 
                 //
                 // Collect the trust managers.

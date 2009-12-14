@@ -350,6 +350,9 @@ C++ Changes
 Java Changes
 ============
 
+- Changed IceSSL to use the keystore as the truststore if no
+  truststore is explicitly defined.
+
 - Added new ice_dispatch method to Object that does not take a
   DispatchInterceptorAsyncCallback parameter to be used for
   synchronous dispatch only.

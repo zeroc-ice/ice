@@ -17,4 +17,3 @@ Ice.Plugin.IceSSL=IceSSL.PluginFactory
 IceSSL.DefaultDir=../../../../certs
 IceSSL.Keystore=server.jks
 IceSSL.Password=password
-IceSSL.Truststore=certs.jks

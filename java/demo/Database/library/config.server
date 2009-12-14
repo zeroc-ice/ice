@@ -61,4 +61,3 @@ IceSSL.VerifyPeer=0
 IceSSL.DefaultDir=../../../../certs
 IceSSL.Keystore=server.jks
 IceSSL.Password=password
-IceSSL.Truststore=certs.jks
