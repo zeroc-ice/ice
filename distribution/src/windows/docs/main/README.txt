@@ -22,13 +22,13 @@ About this distribution
 This binary distribution provides all Ice run time services and
 development tools to build Ice applications:
 
- - in C++, using Visual Studio 2008, Visual C++ 2008 Express Edition or
-   C++Builder 2010
+ - in C++, using Visual Studio 2008, Visual C++ 2008 Express Edition
+   or C++Builder 2010
  - in .NET, using Visual Studio 2008
  - in Java, using Java 5 or Java 6
- - in Python, using Python 2.6.1
+ - in Python, using Python 2.6.4
  - in Ruby, using Ruby 1.8.6
- - in PHP, using PHP 5.2.11
+ - in PHP, using PHP 5.3.1
 
 You only need the development environment for your target programming
 language to use this distribution. For example if you want to build
@@ -48,7 +48,9 @@ This distribution is supported on the following Windows versions:
  - Windows XP with Service Pack 2 (x86)
  - Windows Server 2003 Standard with Service Pack 2 (x86 & x64)
  - Windows Server 2008 Standard (x86 & x64)
+ - Windows Server 2008 Standard R2 (x86 & x64)
  - Windows Vista (x86 & x64)
+ - Windows 7 (x86 & x64)
 
 
 Monotonic clock
@@ -84,7 +86,7 @@ algorithm and therefore add significant latency to Ice requests.
 For .NET, Ice attempts to load the native library bzip2.dll from a
 directory in your PATH. This DLL is included in your Ice distribution
 and can be found in <Ice installation root directory>\bin (or in
-<Ice installation root directory>\bin\bin\x64 for a 64-bit system).
+<Ice installation root directory>\bin\x64 for a 64-bit system).
 
 
 Managed code in Ice for .NET
@@ -156,9 +158,10 @@ libraries, and executables.
 Building and running the demos
 ------------------------------
 
-This distribution contains a archive, Ice-@ver@-demos.zip, which
-includes demos for the various supported languages. To build and run
-the demos you must first extract this archive.
+This distribution includes an archive named Ice-@ver@-demos.zip that
+contains sample programs for the various supported languages. To build
+and run the demos you must first extract this archive in the location
+of your choice.
 
 
 Building and running the C++ demos (Visual C++ 2008)
@@ -171,7 +174,7 @@ demo\demo.sln. Select your target configuration: Debug or Release,
 Win32 or x64 (on supported x64 platforms). Right click on the desired
 demo in the Solution Explorer window and select "Build".
 
-Note that if you are using Visual C++ 2008 Express Edition the Ice
+Note that if you are using Visual C++ 2008 Express Edition, the Ice
 demos that require MFC (demo\Ice\MFC and demo\IcePatch2\MFC) will not
 compile since only the Professional edition contains MFC support. You
 can either ignore any compile errors these demos generate or just
@@ -181,13 +184,13 @@ To run these demos, you will typically need at least two Command
 Prompt windows. In each command prompt, add the Ice bin directory to
 your PATH, as shown below:
 
-set PATH=<Ice installation root directory>\bin;%PATH%
+  > set PATH=<Ice installation root directory>\bin;%PATH%
 
 If you built an x64 configuration, use this setting instead (the
 x64 directory must come first in your PATH):
 
-set PATH=<Ice installation root directory>\bin;%PATH%
-set PATH=<Ice installation root directory>\bin\x64;%PATH%
+  > set PATH=<Ice installation root directory>\bin;%PATH%
+  > set PATH=<Ice installation root directory>\bin\x64;%PATH%
 
 Change to the desired demo subdirectory and review the README file if
 one is present. Type 'server' to start the server. In another command
@@ -199,7 +202,7 @@ demo.sln file mentioned above. If you want to build these demos you
 must add the demo project files located in the demo\Database
 subdirectories to the demo solution and build from there.
 
-The current examples are for Oracle, and require the appropriate
+The current examples are for Oracle and require the appropriate
 Oracle development environment. Please see the individual demo README
 files for more information.
 
@@ -209,9 +212,9 @@ Building and running the C++ demos (C++ Builder 2008)
 
 The C++ demos are in the demo directory.
 
-To build the C++ demos, open a "RAD Studio Command Prompt" and
+To build the C++ demos, open a "RAD Studio Command Prompt" window,
 change to the demo directory and run the following command to build
-the demos
+the demos:
 
   > nmake /f Makefile.mak
 
@@ -235,6 +238,7 @@ Change to the desired demo subdirectory and review the README file if
 one is present. Type 'server' to start the server. In another command
 prompt, type 'client' to start the client.
 
+
 Building and running the C# demos
 ---------------------------------
 
@@ -256,7 +260,7 @@ your DEVPATH, as shown below:
 set DEVPATH=<Ice installation root directory>\bin;%DEVPATH%
 
 Change to the desired demo subdirectory and review the README file if
-one is present. Type 'server.exe' to start the server. In another 
+one is present. Type 'server.exe' to start the server. In another
 command prompt, type 'client.exe' to start the client.
 
 
@@ -361,9 +365,9 @@ To build the Java demos, you need J2SE SDK 1.5.0 or later, and Ant
 The ant bin directory must be added to your PATH, and the following
 environment variables need to be defined:
 
-set JAVA_HOME=<Java SDK installation root directory>
-set PATH=<Ice installation root directory>\bin;%PATH%
-set CLASSPATH=<Ice installation root directory>\lib\db.jar;%CLASSPATH%
+  > set JAVA_HOME=<Java SDK installation root directory>
+  > set PATH=<Ice installation root directory>\bin;%PATH%
+  > set CLASSPATH=<Ice installation root directory>\lib\db.jar;%CLASSPATH%
 
 You can build all of the demos by running 'ant' in the demoj
 directory, or you can build individual demos by changing to the
@@ -371,12 +375,12 @@ desired subdirectory and then running 'ant'.
 
 Before running the demos you must modify your CLASSPATH as follows:
 
-set CLASSPATH=<Ice installation root directory>\lib\Ice.jar;classes;%CLASSPATH%
+  > set CLASSPATH=<Ice installation root directory>\lib\Ice.jar;classes;%CLASSPATH%
 
 Some of the demos use Freeze for Java. To run these demos you must
 also include Freeze.jar in your CLASSPATH:
 
-set CLASSPATH=<Ice installation root directory>\lib\Freeze.jar;%CLASSPATH%
+  > set CLASSPATH=<Ice installation root directory>\lib\Freeze.jar;%CLASSPATH%
 
 Furthermore, to use a Freeze demo the JVM requires that the directory
 containing Berkeley DB's native libraries be included in
@@ -386,12 +390,12 @@ requirement.
 To run a demo, open a Command Prompt, change to the desired demo
 directory, and enter the following command to run the server:
 
-java Server
+  > java Server
 
 In a separate Command Prompt window, enter the following command to
 run the client:
 
-java Client
+  > java Client
 
 Some demo directories contain README files if additional requirements
 are necessary.
@@ -402,23 +406,23 @@ Running the Python demos
 
 The Python demos are in the demopy directory.
 
-You need Python 2.6.1 to run the demos. A binary installer for Python
+You need Python 2.6.4 to run the demos. A binary installer for Python
 can be downloaded from:
 
   http://www.python.org/download
 
 You also need to add the Ice bin directory to your PATH, for example:
 
-set PATH=<Ice installation root directory>\bin;%PATH%
+  > set PATH=<Ice installation root directory>\bin;%PATH%
 
 Finally, set PYTHONPATH so that the Python interpreter is able to load
 the Ice extension. For a 32-bit Python installation, use this setting:
 
-set PYTHONPATH=<Ice installation root directory>\python
+  > set PYTHONPATH=<Ice installation root directory>\python
 
 For a 64-bit Python installation, use this setting instead:
 
-set PYTHONPATH=<Ice installation root directory>\python\x64
+  > set PYTHONPATH=<Ice installation root directory>\python\x64
 
 To run a demo, open a Command Prompt, change to the desired demo
 directory, and type 'python Server.py' to start the server. In a
@@ -438,12 +442,12 @@ can be downloaded from:
 
 You also need to add the Ice bin directory to your PATH, for example:
 
-set PATH=<Ice installation root directory>\bin;%PATH%
+  > set PATH=<Ice installation root directory>\bin;%PATH%
 
 Finally, set RUBYLIB so that the Ruby interpreter is able to load
 the Ice extension:
 
-set RUBYLIB=<Ice installation root directory>\ruby;%RUBYLIB%
+  > set RUBYLIB=<Ice installation root directory>\ruby;%RUBYLIB%
 
 Since Ice for Ruby does not support server-side activities, only
 clients are provided in the demos. In order to run the demos you must
@@ -452,13 +456,13 @@ use the corresponding C++ server.
 For example, to run the hello application in demo\Ice\hello, we begin
 by starting the C++ server:
 
-> cd <Ice installation root directory>\demo\Ice\hello
-> server
+  > cd <Ice installation root directory>\demo\Ice\hello
+  > server
 
 Then in a separate window, start the Ruby client:
 
-> cd <Ice installation root directory>\demorb\Ice\hello
-> ruby Client.rb
+  > cd <Ice installation root directory>\demorb\Ice\hello
+  > ruby Client.rb
 
 
 Ruby/OpenSSL Compatibility Issue
@@ -486,7 +490,7 @@ Running the PHP demos
 
 PHP demos are provided in the demophp directory.
 
-You will need PHP 5.2.10 to run the demos. It can be downloaded from:
+You will need PHP 5.3.1 to run the demos. It can be downloaded from:
 
   http://www.php.net/downloads.php
 
@@ -547,17 +551,16 @@ appropriate changes as you follow the instructions.
    PHP's configuration file. It typically has the following value by
    default:
 
-   extension_dir = "./"
+   extension_dir = "C:\Program Files\PHP\ext"
 
-   If the extension_dir setting contains a relative path such as the
-   one shown above, it is resolved relative to the working directory
-   of the Apache process. Normally Apache's working directory is its
-   installation directory. Therefore, unless you change the value of
-   extension_dir, the DLL for the Ice extension must be copied to the
-   Apache installation directory:
+   If instead the extension_dir setting contains a relative path, it
+   it is resolved relative to the working directory of the Apache
+   process (Apache's working directory is usually its installation
+   directory).
 
-   > copy C:\Ice\bin\php_ice.dll \
-        "C:\Program Files\Apache Software Foundation\Apache2.2"
+   Copy the DLL for the Ice extension to PHP's extension directory:
+
+   > copy C:\Ice\bin\php_ice.dll "C:\Program Files\PHP\ext"
 
 4) Verify that Apache can load the dependent libraries for the Ice
    extension. Regardless of the location of PHP's extension directory,
@@ -588,13 +591,14 @@ appropriate changes as you follow the instructions.
    * Copy the dependent libraries to the Windows system directory
      (\WINDOWS\system32). We do not recommend this option.
 
-   If Apache cannot find or access a DLL, the PHP module will usually
-   ignore the Ice extension and continue its initialization, therefore
-   a successful Apache startup does not necessarily mean that the Ice
-   extension has been loaded. Unfortunately, the message reported by
-   PHP in Apache's error log is not very helpful; the error implies
-   that it cannot find php_ice.dll when in fact it was able to open
-   php_ice.dll but a dependent DLL was missing.
+   If Apache cannot find or access a DLL, Apache startup may fail with
+   an access violation, or the PHP module may ignore the Ice extension
+   and continue its initialization. Consequently, a successful Apache
+   startup does not necessarily mean that the Ice extension has been
+   loaded. Unfortunately, the message reported by PHP in Apache's
+   error log is not very helpful; the error might imply that it cannot
+   find php_ice.dll when in fact it was able to open php_ice.dll but a
+   dependent DLL was missing or inaccessible.
 
 5) Review the access rights on PHP's extension directory, the Ice
    extension DLL, and its dependent libraries. When running as a
