@@ -55,7 +55,7 @@ Python
 ------
 
 The Ice extension for Python included in this distribution requires
-Python 2.5.1 installed with Mac OS X 10.6. If you prefer to use a
+Python 2.6.1 installed with Mac OS X 10.6. If you prefer to use a
 later version of Python, you can download the Ice for Python source
 code from the ZeroC web site at http://www.zeroc.com/download.html.
 
