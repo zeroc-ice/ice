@@ -80,11 +80,11 @@ writeString(PyObject* p, const Ice::OutputStreamPtr& os)
 {
     if(p == Py_None)
     {
-        os->writeString(string());
+        os->write(string());
     }
     else if(PyString_Check(p))
     {
-        os->writeString(string(PyString_AS_STRING(p), PyString_GET_SIZE(p)));
+        os->write(string(PyString_AS_STRING(p), PyString_GET_SIZE(p)));
     }
 #ifdef Py_USING_UNICODE
     else if(PyUnicode_Check(p))
@@ -98,7 +98,7 @@ writeString(PyObject* p, const Ice::OutputStreamPtr& os)
         {
             return false;
         }
-        os->writeString(string(PyString_AS_STRING(h.get()), PyString_GET_SIZE(h.get())), false);
+        os->write(string(PyString_AS_STRING(h.get()), PyString_GET_SIZE(h.get())), false);
     }
 #endif
     else
@@ -453,7 +453,7 @@ IcePy::PrimitiveInfo::marshal(PyObject* p, const Ice::OutputStreamPtr& os, Objec
         {
             assert(false); // validate() should have caught this.
         }
-        os->writeBool(isTrue ? true : false);
+        os->write(isTrue ? true : false);
         break;
     }
     case PrimitiveInfo::KindByte:
@@ -480,7 +480,7 @@ IcePy::PrimitiveInfo::marshal(PyObject* p, const Ice::OutputStreamPtr& os, Objec
 
         assert(!PyErr_Occurred()); // validate() should have caught this.
         assert(val >= 0 && val <= 255); // validate() should have caught this.
-        os->writeByte(static_cast<Ice::Byte>(val));
+        os->write(static_cast<Ice::Byte>(val));
         break;
     }
     case PrimitiveInfo::KindShort:
@@ -507,7 +507,7 @@ IcePy::PrimitiveInfo::marshal(PyObject* p, const Ice::OutputStreamPtr& os, Objec
 
         assert(!PyErr_Occurred()); // validate() should have caught this.
         assert(val >= SHRT_MIN && val <= SHRT_MAX); // validate() should have caught this.
-        os->writeShort(static_cast<Ice::Short>(val));
+        os->write(static_cast<Ice::Short>(val));
         break;
     }
     case PrimitiveInfo::KindInt:
@@ -534,7 +534,7 @@ IcePy::PrimitiveInfo::marshal(PyObject* p, const Ice::OutputStreamPtr& os, Objec
 
         assert(!PyErr_Occurred()); // validate() should have caught this.
         assert(val >= INT_MIN && val <= INT_MAX); // validate() should have caught this.
-        os->writeInt(static_cast<Ice::Int>(val));
+        os->write(static_cast<Ice::Int>(val));
         break;
     }
     case PrimitiveInfo::KindLong:
@@ -560,7 +560,7 @@ IcePy::PrimitiveInfo::marshal(PyObject* p, const Ice::OutputStreamPtr& os, Objec
         }
 
         assert(!PyErr_Occurred()); // validate() should have caught this.
-        os->writeLong(val);
+        os->write(val);
         break;
     }
     case PrimitiveInfo::KindFloat:
@@ -589,7 +589,7 @@ IcePy::PrimitiveInfo::marshal(PyObject* p, const Ice::OutputStreamPtr& os, Objec
             assert(false); // validate() should have caught this.
         }
 
-        os->writeFloat(val);
+        os->write(val);
         break;
     }
     case PrimitiveInfo::KindDouble:
@@ -618,7 +618,7 @@ IcePy::PrimitiveInfo::marshal(PyObject* p, const Ice::OutputStreamPtr& os, Objec
             assert(false);
         }
 
-        os->writeDouble(val);
+        os->write(val);
         break;
     }
     case PrimitiveInfo::KindString:
@@ -641,7 +641,9 @@ IcePy::PrimitiveInfo::unmarshal(const Ice::InputStreamPtr& is, const UnmarshalCa
     {
     case PrimitiveInfo::KindBool:
     {
-        if(is->readBool())
+        bool b;
+        is->read(b);
+        if(b)
         {
             cb->unmarshaled(getTrue(), target, closure);
         }
@@ -653,49 +655,56 @@ IcePy::PrimitiveInfo::unmarshal(const Ice::InputStreamPtr& is, const UnmarshalCa
     }
     case PrimitiveInfo::KindByte:
     {
-        Ice::Byte val = is->readByte();
+        Ice::Byte val;
+        is->read(val);
         PyObjectHandle p = PyInt_FromLong(val);
         cb->unmarshaled(p.get(), target, closure);
         break;
     }
     case PrimitiveInfo::KindShort:
     {
-        Ice::Short val = is->readShort();
+        Ice::Short val;
+        is->read(val);
         PyObjectHandle p = PyInt_FromLong(val);
         cb->unmarshaled(p.get(), target, closure);
         break;
     }
     case PrimitiveInfo::KindInt:
     {
-        Ice::Int val = is->readInt();
+        Ice::Int val;
+        is->read(val);
         PyObjectHandle p = PyInt_FromLong(val);
         cb->unmarshaled(p.get(), target, closure);
         break;
     }
     case PrimitiveInfo::KindLong:
     {
-        Ice::Long val = is->readLong();
+        Ice::Long val;
+        is->read(val);
         PyObjectHandle p = PyLong_FromLongLong(val);
         cb->unmarshaled(p.get(), target, closure);
         break;
     }
     case PrimitiveInfo::KindFloat:
     {
-        Ice::Float val = is->readFloat();
+        Ice::Float val;
+        is->read(val);
         PyObjectHandle p = PyFloat_FromDouble(val);
         cb->unmarshaled(p.get(), target, closure);
         break;
     }
     case PrimitiveInfo::KindDouble:
     {
-        Ice::Double val = is->readDouble();
+        Ice::Double val;
+        is->read(val);
         PyObjectHandle p = PyFloat_FromDouble(val);
         cb->unmarshaled(p.get(), target, closure);
         break;
     }
     case PrimitiveInfo::KindString:
     {
-        string val = is->readString();
+        string val;
+        is->read(val);
         PyObjectHandle p = PyString_FromStringAndSize(val.c_str(), static_cast<Py_ssize_t>(val.size()));
         cb->unmarshaled(p.get(), target, closure);
         break;
@@ -754,8 +763,8 @@ IcePy::EnumInfo::marshal(PyObject* p, const Ice::OutputStreamPtr& os, ObjectMap*
         PyErr_Format(PyExc_ValueError, STRCAST("value for enum %s is not an int"), id.c_str());
         throw AbortMarshaling();
     }
-    int ival = static_cast<int>(PyInt_AsLong(val.get()));
-    int count = static_cast<int>(enumerators.size());
+    Ice::Int ival = static_cast<Ice::Int>(PyInt_AsLong(val.get()));
+    Ice::Int count = static_cast<Ice::Int>(enumerators.size());
     if(ival < 0 || ival >= count)
     {
         PyErr_Format(PyExc_ValueError, STRCAST("value %d is out of range for enum %s"), ival, id.c_str());
@@ -764,15 +773,15 @@ IcePy::EnumInfo::marshal(PyObject* p, const Ice::OutputStreamPtr& os, ObjectMap*
 
     if(count <= 127)
     {
-        os->writeByte(static_cast<Ice::Byte>(ival));
+        os->write(static_cast<Ice::Byte>(ival));
     }
     else if(count <= 32767)
     {
-        os->writeShort(static_cast<Ice::Short>(ival));
+        os->write(static_cast<Ice::Short>(ival));
     }
     else
     {
-        os->writeInt(ival);
+        os->write(ival);
     }
 }
 
@@ -780,19 +789,23 @@ void
 IcePy::EnumInfo::unmarshal(const Ice::InputStreamPtr& is, const UnmarshalCallbackPtr& cb, PyObject* target,
                            void* closure, const Ice::StringSeq*)
 {
-    int val;
-    int count = static_cast<int>(enumerators.size());
+    Ice::Int val;
+    Ice::Int count = static_cast<Ice::Int>(enumerators.size());
     if(count <= 127)
     {
-        val = is->readByte();
+        Ice::Byte b;
+        is->read(b);
+        val = b;
     }
     else if(count <= 32767)
     {
-        val = is->readShort();
+        Ice::Short sh;
+        is->read(sh);
+        val = sh;
     }
     else
     {
-        val = is->readInt();
+        is->read(val);
     }
 
     if(val < 0 || val >= count)
@@ -1130,38 +1143,37 @@ IcePy::SequenceInfo::marshalPrimitiveSequence(const PrimitiveInfoPtr& pi, PyObje
         {
         case PrimitiveInfo::KindBool:
         {
-            os->writeBoolSeq(reinterpret_cast<const bool*>(b), reinterpret_cast<const bool*>(b + sz));
+            os->write(reinterpret_cast<const bool*>(b), reinterpret_cast<const bool*>(b + sz));
             break;
         }
         case PrimitiveInfo::KindByte:
         {
-            os->writeByteSeq(reinterpret_cast<const Ice::Byte*>(b), reinterpret_cast<const Ice::Byte*>(b + sz));
+            os->write(reinterpret_cast<const Ice::Byte*>(b), reinterpret_cast<const Ice::Byte*>(b + sz));
             break;
         }
         case PrimitiveInfo::KindShort:
         {
-            os->writeShortSeq(reinterpret_cast<const Ice::Short*>(b), reinterpret_cast<const Ice::Short*>(b + sz));
+            os->write(reinterpret_cast<const Ice::Short*>(b), reinterpret_cast<const Ice::Short*>(b + sz));
             break;
         }
         case PrimitiveInfo::KindInt:
         {
-            os->writeIntSeq(reinterpret_cast<const Ice::Int*>(b), reinterpret_cast<const Ice::Int*>(b + sz));
+            os->write(reinterpret_cast<const Ice::Int*>(b), reinterpret_cast<const Ice::Int*>(b + sz));
             break;
         }
         case PrimitiveInfo::KindLong:
         {
-            os->writeLongSeq(reinterpret_cast<const Ice::Long*>(b), reinterpret_cast<const Ice::Long*>(b + sz));
+            os->write(reinterpret_cast<const Ice::Long*>(b), reinterpret_cast<const Ice::Long*>(b + sz));
             break;
         }
         case PrimitiveInfo::KindFloat:
         {
-            os->writeFloatSeq(reinterpret_cast<const Ice::Float*>(b), reinterpret_cast<const Ice::Float*>(b + sz));
+            os->write(reinterpret_cast<const Ice::Float*>(b), reinterpret_cast<const Ice::Float*>(b + sz));
             break;
         }
         case PrimitiveInfo::KindDouble:
         {
-            os->writeDoubleSeq(reinterpret_cast<const Ice::Double*>(b),
-                               reinterpret_cast<const Ice::Double*>(b + sz));
+            os->write(reinterpret_cast<const Ice::Double*>(b), reinterpret_cast<const Ice::Double*>(b + sz));
             break;
         }
         case PrimitiveInfo::KindString:
@@ -1225,7 +1237,7 @@ IcePy::SequenceInfo::marshalPrimitiveSequence(const PrimitiveInfoPtr& pi, PyObje
             }
             seq[i] = isTrue ? true : false;
         }
-        os->writeBoolSeq(seq);
+        os->write(seq);
         break;
     }
     case PrimitiveInfo::KindByte:
@@ -1235,7 +1247,7 @@ IcePy::SequenceInfo::marshalPrimitiveSequence(const PrimitiveInfoPtr& pi, PyObje
             assert(PyString_Check(p));
             const char* str = PyString_AS_STRING(p);
             sz = PyString_GET_SIZE(p);
-            os->writeByteSeq(reinterpret_cast<const Ice::Byte*>(str), reinterpret_cast<const Ice::Byte*>(str + sz));
+            os->write(reinterpret_cast<const Ice::Byte*>(str), reinterpret_cast<const Ice::Byte*>(str + sz));
         }
         else
         {
@@ -1274,7 +1286,7 @@ IcePy::SequenceInfo::marshalPrimitiveSequence(const PrimitiveInfoPtr& pi, PyObje
                 }
                 seq[i] = static_cast<Ice::Byte>(val);
             }
-            os->writeByteSeq(seq);
+            os->write(seq);
         }
         break;
     }
@@ -1315,7 +1327,7 @@ IcePy::SequenceInfo::marshalPrimitiveSequence(const PrimitiveInfoPtr& pi, PyObje
             }
             seq[i] = static_cast<Ice::Short>(val);
         }
-        os->writeShortSeq(seq);
+        os->write(seq);
         break;
     }
     case PrimitiveInfo::KindInt:
@@ -1361,7 +1373,7 @@ IcePy::SequenceInfo::marshalPrimitiveSequence(const PrimitiveInfoPtr& pi, PyObje
             }
             seq[i] = static_cast<Ice::Int>(val);
         }
-        os->writeIntSeq(seq);
+        os->write(seq);
         break;
     }
     case PrimitiveInfo::KindLong:
@@ -1407,7 +1419,7 @@ IcePy::SequenceInfo::marshalPrimitiveSequence(const PrimitiveInfoPtr& pi, PyObje
             }
             seq[i] = val;
         }
-        os->writeLongSeq(seq);
+        os->write(seq);
         break;
     }
     case PrimitiveInfo::KindFloat:
@@ -1451,7 +1463,7 @@ IcePy::SequenceInfo::marshalPrimitiveSequence(const PrimitiveInfoPtr& pi, PyObje
 
             seq[i] = val;
         }
-        os->writeFloatSeq(seq);
+        os->write(seq);
         break;
     }
     case PrimitiveInfo::KindDouble:
@@ -1495,7 +1507,7 @@ IcePy::SequenceInfo::marshalPrimitiveSequence(const PrimitiveInfoPtr& pi, PyObje
 
             seq[i] = val;
         }
-        os->writeDoubleSeq(seq);
+        os->write(seq);
         break;
     }
     case PrimitiveInfo::KindString:
@@ -1545,7 +1557,8 @@ IcePy::SequenceInfo::unmarshalPrimitiveSequence(const PrimitiveInfoPtr& pi, cons
     case PrimitiveInfo::KindBool:
     {
         pair<const bool*, const bool*> p;
-        IceUtilInternal::ScopedArray<bool> arr(is->readBoolSeq(p));
+        IceUtil::ScopedArray<bool> arr;
+        is->read(p, arr);
         int sz = static_cast<int>(p.second - p.first);
         result = sm->createContainer(sz);
         if(!result.get())
@@ -1563,7 +1576,7 @@ IcePy::SequenceInfo::unmarshalPrimitiveSequence(const PrimitiveInfoPtr& pi, cons
     case PrimitiveInfo::KindByte:
     {
         pair<const Ice::Byte*, const Ice::Byte*> p;
-        is->readByteSeq(p);
+        is->read(p);
         int sz = static_cast<int>(p.second - p.first);
         if(sm->type == SequenceMapping::SEQ_DEFAULT)
         {
@@ -1599,7 +1612,8 @@ IcePy::SequenceInfo::unmarshalPrimitiveSequence(const PrimitiveInfoPtr& pi, cons
     case PrimitiveInfo::KindShort:
     {
         pair<const Ice::Short*, const Ice::Short*> p;
-        IceUtilInternal::ScopedArray<Ice::Short> arr(is->readShortSeq(p));
+        IceUtil::ScopedArray<Ice::Short> arr;
+        is->read(p, arr);
         int sz = static_cast<int>(p.second - p.first);
         result = sm->createContainer(sz);
         if(!result.get())
@@ -1623,7 +1637,8 @@ IcePy::SequenceInfo::unmarshalPrimitiveSequence(const PrimitiveInfoPtr& pi, cons
     case PrimitiveInfo::KindInt:
     {
         pair<const Ice::Int*, const Ice::Int*> p;
-        IceUtilInternal::ScopedArray<Ice::Int> arr(is->readIntSeq(p));
+        IceUtil::ScopedArray<Ice::Int> arr;
+        is->read(p, arr);
         int sz = static_cast<int>(p.second - p.first);
         result = sm->createContainer(sz);
         if(!result.get())
@@ -1647,7 +1662,8 @@ IcePy::SequenceInfo::unmarshalPrimitiveSequence(const PrimitiveInfoPtr& pi, cons
     case PrimitiveInfo::KindLong:
     {
         pair<const Ice::Long*, const Ice::Long*> p;
-        IceUtilInternal::ScopedArray<Ice::Long> arr(is->readLongSeq(p));
+        IceUtil::ScopedArray<Ice::Long> arr;
+        is->read(p, arr);
         int sz = static_cast<int>(p.second - p.first);
         result = sm->createContainer(sz);
         if(!result.get())
@@ -1671,7 +1687,8 @@ IcePy::SequenceInfo::unmarshalPrimitiveSequence(const PrimitiveInfoPtr& pi, cons
     case PrimitiveInfo::KindFloat:
     {
         pair<const Ice::Float*, const Ice::Float*> p;
-        IceUtilInternal::ScopedArray<Ice::Float> arr(is->readFloatSeq(p));
+        IceUtil::ScopedArray<Ice::Float> arr;
+        is->read(p, arr);
         int sz = static_cast<int>(p.second - p.first);
         result = sm->createContainer(sz);
         if(!result.get())
@@ -1695,7 +1712,8 @@ IcePy::SequenceInfo::unmarshalPrimitiveSequence(const PrimitiveInfoPtr& pi, cons
     case PrimitiveInfo::KindDouble:
     {
         pair<const Ice::Double*, const Ice::Double*> p;
-        IceUtilInternal::ScopedArray<Ice::Double> arr(is->readDoubleSeq(p));
+        IceUtil::ScopedArray<Ice::Double> arr;
+        is->read(p, arr);
         int sz = static_cast<int>(p.second - p.first);
         result = sm->createContainer(sz);
         if(!result.get())
@@ -1718,7 +1736,8 @@ IcePy::SequenceInfo::unmarshalPrimitiveSequence(const PrimitiveInfoPtr& pi, cons
     }
     case PrimitiveInfo::KindString:
     {
-        Ice::StringSeq seq = is->readStringSeq();
+        Ice::StringSeq seq;
+        is->read(seq);
         int sz = static_cast<int>(seq.size());
         result = sm->createContainer(sz);
         if(!result.get())
@@ -1879,7 +1898,7 @@ IcePy::CustomInfo::marshal(PyObject* p, const Ice::OutputStreamPtr& os, ObjectMa
     assert(PyString_Check(obj.get()));
     const char* str = PyString_AS_STRING(obj.get());
     Py_ssize_t sz = PyString_GET_SIZE(obj.get());
-    os->writeByteSeq(reinterpret_cast<const Ice::Byte*>(str), reinterpret_cast<const Ice::Byte*>(str + sz));
+    os->write(reinterpret_cast<const Ice::Byte*>(str), reinterpret_cast<const Ice::Byte*>(str + sz));
 }
 
 void
@@ -1890,7 +1909,7 @@ IcePy::CustomInfo::unmarshal(const Ice::InputStreamPtr& is, const UnmarshalCallb
     // Unmarshal the raw byte sequence.
     //
     pair<const Ice::Byte*, const Ice::Byte*> seq;
-    is->readByteSeq(seq);
+    is->read(seq);
     int sz = static_cast<int>(seq.second - seq.first);
 
     //
@@ -2343,11 +2362,11 @@ IcePy::ProxyInfo::marshal(PyObject* p, const Ice::OutputStreamPtr& os, ObjectMap
 {
     if(p == Py_None)
     {
-        os->writeProxy(0);
+        os->write(Ice::ObjectPrx());
     }
     else if(checkProxy(p))
     {
-        os->writeProxy(getProxy(p));
+        os->write(getProxy(p));
     }
     else
     {
@@ -2359,7 +2378,8 @@ void
 IcePy::ProxyInfo::unmarshal(const Ice::InputStreamPtr& is, const UnmarshalCallbackPtr& cb, PyObject* target,
                             void* closure, const Ice::StringSeq*)
 {
-    Ice::ObjectPrx proxy = is->readProxy();
+    Ice::ObjectPrx proxy;
+    is->read(proxy);
 
     if(!proxy)
     {
@@ -2648,7 +2668,7 @@ IcePy::ExceptionInfo::marshal(PyObject* p, const Ice::OutputStreamPtr& os, Objec
     ExceptionInfoPtr info = this;
     while(info)
     {
-        os->writeString(info->id);
+        os->write(info->id);
 
         os->startSlice();
         for(DataMemberList::iterator q = info->members.begin(); q != info->members.end(); ++q)
@@ -2701,7 +2721,8 @@ IcePy::ExceptionInfo::unmarshal(const Ice::InputStreamPtr& is)
         info = info->base;
         if(info)
         {
-            is->readString(); // Read the ID of the next slice.
+            string id;
+            is->read(id); // Read the ID of the next slice.
         }
     }
 

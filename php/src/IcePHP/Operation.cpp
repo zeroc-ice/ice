@@ -455,9 +455,11 @@ IcePHP::TypedInvocation::unmarshalException(const pair<const Ice::Byte*, const I
 
     Ice::InputStreamPtr is = Ice::createInputStream(_communicator->getCommunicator(), bytes);
 
-    is->readBool(); // usesClasses
+    bool usesClasses;
+    is->read(usesClasses);
 
-    string id = is->readString();
+    string id;
+    is->read(id);
     const string origId = id;
 
     while(!id.empty())
@@ -503,7 +505,7 @@ IcePHP::TypedInvocation::unmarshalException(const pair<const Ice::Byte*, const I
 
             try
             {
-                id = is->readString(); // Read type id for next slice.
+                is->read(id); // Read type id for next slice.
             }
             catch(Ice::UnmarshalOutOfBoundsException& ex)
             {

@@ -36,12 +36,12 @@ SUBDIRS		= proxy \
 		  udp \
 		  defaultServant \
 		  threadPoolPriority \
+		  stream \
 
 !if "$(CPP_COMPILER)" != "VC60"
 SUBDIRS		= $(SUBDIRS) \
 		  ami \
 		  custom \
-		  stream \
 		  invoke
 !endif
 

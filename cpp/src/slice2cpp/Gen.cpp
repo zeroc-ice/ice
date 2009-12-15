@@ -718,11 +718,8 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
         H << nl << "virtual void __read(::IceInternal::BasicStream*, bool);";
         
         H.zeroIndent();
-        H << nl << "#if defined(_MSC_VER) && (_MSC_VER < 1300) // VC++ 6 compiler bug"; // COMPILERBUG
-        H.restoreIndent();
-        H << nl << "// Stream API is not supported with VC++ 6";
-        H.zeroIndent();
-        H << nl << "#else";
+        H << nl << "// COMPILERFIX: Stream API is not supported with VC++ 6";
+        H << nl << "#if !defined(_MSC_VER) || (_MSC_VER >= 1300)";
         H.restoreIndent();
         H << nl << "virtual void __write(const ::Ice::OutputStreamPtr&) const;";
         H << nl << "virtual void __read(const ::Ice::InputStreamPtr&, bool);";
@@ -768,11 +765,8 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
         {
             C << sp;
             C.zeroIndent();
-            C << nl << "#if defined(_MSC_VER) && (_MSC_VER < 1300) // VC++ 6 compiler bug"; // COMPILERBUG
-            C.restoreIndent();
-            C << nl << "// Stream API is not supported with VC++ 6";
-            C.zeroIndent();
-            C << nl << "#else";
+            C << nl << "// COMPILERFIX: Stream API is not supported with VC++ 6";
+            C << nl << "#if !defined(_MSC_VER) || (_MSC_VER >= 1300)";
             C.restoreIndent();
             C << nl << "void" << nl << scoped.substr(2)
               << "::__write(const ::Ice::OutputStreamPtr& __outS) const";
@@ -822,11 +816,8 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
             //
             C << sp;
             C.zeroIndent();
-            C << nl << "#if defined(_MSC_VER) && (_MSC_VER < 1300) // VC++ 6 compiler bug"; // COMPILERBUG
-            C.restoreIndent();
-            C << nl << "// Stream API is not supported with VC++ 6";
-            C.zeroIndent();
-            C << nl << "#else";
+            C << nl << "// COMPILERFIX: Stream API is not supported with VC++ 6";
+            C << nl << "#if !defined(_MSC_VER) || (_MSC_VER >= 1300)";
             C.restoreIndent();
             C << nl << "void" << nl << scoped.substr(2) << "::__write(const ::Ice::OutputStreamPtr&) const";
             C << sb;
@@ -1074,11 +1065,8 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
         if(_stream)
         {
             H.zeroIndent();
-            H << nl << "#if defined(_MSC_VER) && (_MSC_VER < 1300) // VC++ 6 compiler bug"; // COMPILERBUG
-            H.restoreIndent();
-            H << nl << "// Stream API is not supported with VC++ 6";
-            H.zeroIndent();
-            H << nl << "#else";
+            H << nl << "// COMPILERFIX: Stream API is not supported with VC++ 6";
+            H << nl << "#if !defined(_MSC_VER) || (_MSC_VER >= 1300)";
             H.restoreIndent();
             H << nl << dllExport << "void ice_write(const ::Ice::OutputStreamPtr&) const;";
             H << nl << dllExport << "void ice_read(const ::Ice::InputStreamPtr&);";
@@ -1107,11 +1095,8 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
         {
             C << sp;
             C.zeroIndent();
-            C << nl << "#if defined(_MSC_VER) && (_MSC_VER < 1300) // VC++ 6 compiler bug"; // COMPILERBUG
-            C.restoreIndent();
-            C << nl << "// Stream API is not supported with VC++ 6";
-            C.zeroIndent();
-            C << nl << "#else";
+            C << nl << "// COMPILERFIX: Stream API is not supported with VC++ 6";
+            C << nl << "#if !defined(_MSC_VER) || (_MSC_VER >= 1300)";
             C.restoreIndent();
             C << nl << "void" << nl << scoped.substr(2)
               << "::ice_write(const ::Ice::OutputStreamPtr& __outS) const";
@@ -1146,11 +1131,8 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
         {
             H << sp;
             H.zeroIndent();
-            H << nl << "#if defined(_MSC_VER) && (_MSC_VER < 1300) // VC++ 6 compiler bug"; // COMPILERBUG
-            H.restoreIndent();
-            H << nl << "// Stream API is not supported with VC++ 6";
-            H.zeroIndent();
-            H << nl << "#else";
+            H << nl << "// COMPILERFIX: Stream API is not supported with VC++ 6";
+            H << nl << "#if !defined(_MSC_VER) || (_MSC_VER >= 1300)";
             H.restoreIndent();
             H << nl << "void ice_write" << p->name() << "(const ::Ice::OutputStreamPtr&, const "
               << p->name() << "Ptr&);";
@@ -1162,11 +1144,8 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
               
             C << sp;
             C.zeroIndent();
-            C << nl << "#if defined(_MSC_VER) && (_MSC_VER < 1300) // VC++ 6 compiler bug"; // COMPILERBUG
-            C.restoreIndent();
-            C << nl << "// Stream API is not supported with VC++ 6";
-            C.zeroIndent();
-            C << nl << "#else";
+            C << nl << "// COMPILERFIX: Stream API is not supported with VC++ 6";
+            C << nl << "#if !defined(_MSC_VER) || (_MSC_VER >= 1300)";
             C.restoreIndent();
             C << nl << "void" << nl << scope.substr(2) << "ice_write" << p->name()
               << "(const ::Ice::OutputStreamPtr& __outS, const " << fixKwd(p->scoped() + "Ptr") << "& __v)";
@@ -1190,11 +1169,8 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
         {
             H << sp;
             H.zeroIndent();
-            H << nl << "#if defined(_MSC_VER) && (_MSC_VER < 1300) // VC++ 6 compiler bug"; // COMPILERBUG
-            H.restoreIndent();
-            H << nl << "// Stream API is not supported with VC++ 6";
-            H.zeroIndent();
-            H << nl << "#else";
+            H << nl << "// COMPILERFIX: Stream API is not supported with VC++ 6";
+            H << nl << "#if !defined(_MSC_VER) || (_MSC_VER >= 1300)";
             H.restoreIndent();
             H << nl << dllExport << "void ice_write" << p->name() << "(const ::Ice::OutputStreamPtr&, const "
               << name << "&);";
@@ -1205,11 +1181,8 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
 
             C << sp;
             C.zeroIndent();
-            C << nl << "#if defined(_MSC_VER) && (_MSC_VER < 1300) // VC++ 6 compiler bug"; // COMPILERBUG
-            C.restoreIndent();
-            C << nl << "// Stream API is not supported with VC++ 6";
-            C.zeroIndent();
-            C << nl << "#else";
+            C << nl << "// COMPILERFIX: Stream API is not supported with VC++ 6";
+            C << nl << "#if !defined(_MSC_VER) || (_MSC_VER >= 1300)";
             C.restoreIndent();
             C << nl << "void" << nl << scope.substr(2) << "ice_write" << p->name()
               << "(const ::Ice::OutputStreamPtr& __outS, const " << scoped << "& __v)";
@@ -1305,11 +1278,8 @@ Slice::Gen::TypesVisitor::visitSequence(const SequencePtr& p)
             if(_stream)
             {
                 H.zeroIndent();
-                H << nl << "#if defined(_MSC_VER) && (_MSC_VER < 1300) // VC++ 6 compiler bug"; // COMPILERBUG
-                H.restoreIndent();
-                H << nl << "// Stream API is not supported with VC++ 6";
-                H.zeroIndent();
-                H << nl << "#else";
+                H << nl << "// COMPILERFIX: Stream API is not supported with VC++ 6";
+                H << nl << "#if !defined(_MSC_VER) || (_MSC_VER >= 1300)";
                 H.restoreIndent();
                 H << nl << _dllExport << "ICE_DEPRECATED_API void ice_write" << p->name() << "(const ::Ice::OutputStreamPtr&, const "
                   << typeName << "&);";
@@ -1375,11 +1345,8 @@ Slice::Gen::TypesVisitor::visitSequence(const SequencePtr& p)
             {
                 C << sp;
                 C.zeroIndent();
-                C << nl << "#if defined(_MSC_VER) && (_MSC_VER < 1300) // VC++ 6 compiler bug"; // COMPILERBUG
-                C.restoreIndent();
-                C << nl << "// Stream API is not supported with VC++ 6";
-                C.zeroIndent();
-                C << nl << "#else";
+                C << nl << "// COMPILERFIX: Stream API is not supported with VC++ 6";
+                C << nl << "#if !defined(_MSC_VER) || (_MSC_VER >= 1300)";
                 C.restoreIndent();
                 C << nl << "void" << nl << scope.substr(2) << "ice_write" << p->name()
                   << "(const ::Ice::OutputStreamPtr& __outS, const " << scopedName << "& v)";
@@ -1411,9 +1378,9 @@ Slice::Gen::TypesVisitor::visitSequence(const SequencePtr& p)
                 C << sb;
                 if(protobuf)
                 {
-                    C << nl << "std::vector< ::Ice::Byte> data;";
-                    C << nl << "__inS->read(data);";
-                    C << nl << "if(!v.ParseFromArray(data.begin(), data.end()))";
+                    C << nl << "std::pair<const ::Ice::Byte*, const ::Ice::Byte*> data;";
+                    C << nl << "__inS->readByteSeq(data);";
+                    C << nl << "if(!v.ParseFromArray(data.first, data.second - data.first))";
                     C << sb;
                     C << nl << "throw ::Ice::MarshalException(__FILE__, __LINE__, \"ParseFromArray failed\");";
                     C << eb;
@@ -1443,11 +1410,8 @@ Slice::Gen::TypesVisitor::visitSequence(const SequencePtr& p)
             if(_stream)
             {
                 H.zeroIndent();
-                H << nl << "#if defined(_MSC_VER) && (_MSC_VER < 1300) // VC++ 6 compiler bug"; // COMPILERBUG
-                H.restoreIndent();
-                H << nl << "// Stream API is not supported with VC++ 6";
-                H.zeroIndent();
-                H << nl << "#else";
+                H << nl << "// COMPILERFIX: Stream API is not supported with VC++ 6";
+                H << nl << "#if !defined(_MSC_VER) || (_MSC_VER >= 1300)";
                 H.restoreIndent();
                 H << nl << _dllExport << "ICE_DEPRECATED_API void ice_write" << p->name() << "(const ::Ice::OutputStreamPtr&, const "
                   << name << "&);";
@@ -1485,11 +1449,8 @@ Slice::Gen::TypesVisitor::visitSequence(const SequencePtr& p)
             {
                 C << sp;
                 C.zeroIndent();
-                C << nl << "#if defined(_MSC_VER) && (_MSC_VER < 1300) // VC++ 6 compiler bug"; // COMPILERBUG
-                C.restoreIndent();
-                C << nl << "// Stream API is not supported with VC++ 6";
-                C.zeroIndent();
-                C << nl << "#else";
+                C << nl << "// COMPILERFIX: Stream API is not supported with VC++ 6";
+                C << nl << "#if !defined(_MSC_VER) || (_MSC_VER >= 1300)";
                 C.restoreIndent();
                 C << nl << "void" << nl << scope.substr(2) << "ice_write" << p->name()
                   << "(const ::Ice::OutputStreamPtr& __outS, const " << scoped << "& v)";
@@ -1561,11 +1522,8 @@ Slice::Gen::TypesVisitor::visitDictionary(const DictionaryPtr& p)
         if(_stream)
         {
             H.zeroIndent();
-            H << nl << "#if defined(_MSC_VER) && (_MSC_VER < 1300) // VC++ 6 compiler bug"; // COMPILERBUG
-            H.restoreIndent();
-            H << nl << "// Stream API is not supported with VC++ 6";
-            H.zeroIndent();
-            H << nl << "#else";
+            H << nl << "// COMPILERFIX: Stream API is not supported with VC++ 6";
+            H << nl << "#if !defined(_MSC_VER) || (_MSC_VER >= 1300)";
             H.restoreIndent();
             H << nl << _dllExport << "ICE_DEPRECATED_API void ice_write" << p->name() << "(const ::Ice::OutputStreamPtr&, const " << name
               << "&);";
@@ -1606,11 +1564,8 @@ Slice::Gen::TypesVisitor::visitDictionary(const DictionaryPtr& p)
         {
             C << sp;
             C.zeroIndent();
-            C << nl << "#if defined(_MSC_VER) && (_MSC_VER < 1300) // VC++ 6 compiler bug"; // COMPILERBUG
-            C.restoreIndent();
-            C << nl << "// Stream API is not supported with VC++ 6";
-            C.zeroIndent();
-            C << nl << "#else";
+            C << nl << "// COMPILERFIX: Stream API is not supported with VC++ 6";
+            C << nl << "#if !defined(_MSC_VER) || (_MSC_VER >= 1300)";
             C.restoreIndent();
             C << nl << "void" << nl << scope.substr(2) << "ice_write" << p->name()
               << "(const ::Ice::OutputStreamPtr& __outS, const " << scoped << "& v)";
@@ -1675,12 +1630,8 @@ Slice::Gen::TypesVisitor::visitEnum(const EnumPtr& p)
         if(_stream)
         {
             H.zeroIndent();
-            H << nl << "#if defined(_MSC_VER) && (_MSC_VER < 1300) // VC++ 6 compiler bug"; // COMPILERBUG
-            H.restoreIndent();
-            H << nl << "// Stream API is not supported with VC++ 6";
-            H.zeroIndent();
-            H.restoreIndent();
-            H << nl << "#else";
+            H << nl << "// COMPILERFIX: Stream API is not supported with VC++ 6";
+            H << nl << "#if !defined(_MSC_VER) || (_MSC_VER >= 1300)";
             H << nl << _dllExport << "ICE_DEPRECATED_API void ice_write" << p->name()
               << "(const ::Ice::OutputStreamPtr&, " << name << ");";
             H << nl << _dllExport << "ICE_DEPRECATED_API void ice_read" << p->name() << "(const ::Ice::InputStreamPtr&, " << name << "&);";
@@ -1729,12 +1680,8 @@ Slice::Gen::TypesVisitor::visitEnum(const EnumPtr& p)
         {
             C << sp;
             C.zeroIndent();
-            C << nl << "#if defined(_MSC_VER) && (_MSC_VER < 1300) // VC++ 6 compiler bug"; // COMPILERBUG
-            C.restoreIndent();
-            C << nl << "// Stream API is not supported with VC++ 6";
-            C.zeroIndent();
-            C.restoreIndent();
-            C << nl << "#else";
+            C << nl << "// COMPILERFIX: Stream API is not supported with VC++ 6";
+            C << nl << "#if !defined(_MSC_VER) || (_MSC_VER >= 1300)";
             C << nl << "void" << nl << scope.substr(2) << "ice_write" << p->name()
               << "(const ::Ice::OutputStreamPtr& __outS, " << scoped << " v)";
             C << sb;
@@ -1825,7 +1772,7 @@ void
 Slice::Gen::TypesVisitor::emitUpcall(const ExceptionPtr& base, const string& call, bool isLocal)
 {
     C.zeroIndent();
-    C << nl << "#if defined(_MSC_VER) && (_MSC_VER < 1300) // VC++ 6 compiler bug"; // COMPILERBUG
+    C << nl << "#if defined(_MSC_VER) && (_MSC_VER < 1300) // VC++ 6 compiler bug"; // COMPILERFIX
     C.restoreIndent();
     C << nl << (base ? fixKwd(base->name()) : string(isLocal ? "LocalException" : "UserException")) << call;
     C.zeroIndent();
@@ -2018,7 +1965,7 @@ Slice::Gen::ProxyVisitor::visitClassDefEnd(const ClassDefPtr& p)
     H << nl << nl << "::IceInternal::ProxyHandle<" << name << "> ice_context(const ::Ice::Context& __context) const";
     H << sb;
     H.dec();
-    H << nl << "#if defined(_MSC_VER) && (_MSC_VER < 1300) // VC++ 6 compiler bug"; // COMPILERBUG
+    H << nl << "#if defined(_MSC_VER) && (_MSC_VER < 1300) // VC++ 6 compiler bug"; // COMPILERFIX
     H.inc();
     H << nl << "typedef ::IceProxy::Ice::Object _Base;";
     H << nl << "return dynamic_cast<" << name << "*>(_Base::ice_context(__context).get());";
@@ -2038,7 +1985,7 @@ Slice::Gen::ProxyVisitor::visitClassDefEnd(const ClassDefPtr& p)
     H << nl << nl << "::IceInternal::ProxyHandle<" << name << "> ice_adapterId(const std::string& __id) const";
     H << sb;
     H.dec();
-    H << nl << "#if defined(_MSC_VER) && (_MSC_VER < 1300) // VC++ 6 compiler bug"; // COMPILERBUG
+    H << nl << "#if defined(_MSC_VER) && (_MSC_VER < 1300) // VC++ 6 compiler bug"; // COMPILERFIX
     H.inc();
     H << nl << "typedef ::IceProxy::Ice::Object _Base;";
     H << nl << "return dynamic_cast<" << name << "*>(_Base::ice_adapterId(__id).get());";
@@ -2054,7 +2001,7 @@ Slice::Gen::ProxyVisitor::visitClassDefEnd(const ClassDefPtr& p)
     H << nl << nl << "::IceInternal::ProxyHandle<" << name << "> ice_endpoints(const ::Ice::EndpointSeq& __endpoints) const";
     H << sb;
     H.dec();
-    H << nl << "#if defined(_MSC_VER) && (_MSC_VER < 1300) // VC++ 6 compiler bug"; // COMPILERBUG
+    H << nl << "#if defined(_MSC_VER) && (_MSC_VER < 1300) // VC++ 6 compiler bug"; // COMPILERFIX
     H.inc();
     H << nl << "typedef ::IceProxy::Ice::Object _Base;";
     H << nl << "return dynamic_cast<" << name << "*>(_Base::ice_endpoints(__endpoints).get());";
@@ -2070,7 +2017,7 @@ Slice::Gen::ProxyVisitor::visitClassDefEnd(const ClassDefPtr& p)
     H << nl << nl << "::IceInternal::ProxyHandle<" << name << "> ice_locatorCacheTimeout(int __timeout) const";
     H << sb;
     H.dec();
-    H << nl << "#if defined(_MSC_VER) && (_MSC_VER < 1300) // VC++ 6 compiler bug"; // COMPILERBUG
+    H << nl << "#if defined(_MSC_VER) && (_MSC_VER < 1300) // VC++ 6 compiler bug"; // COMPILERFIX
     H.inc();
     H << nl << "typedef ::IceProxy::Ice::Object _Base;";
     H << nl << "return dynamic_cast<" << name << "*>(_Base::ice_locatorCacheTimeout(__timeout).get());";
@@ -2086,7 +2033,7 @@ Slice::Gen::ProxyVisitor::visitClassDefEnd(const ClassDefPtr& p)
     H << nl << nl << "::IceInternal::ProxyHandle<" << name << "> ice_connectionCached(bool __cached) const";
     H << sb;
     H.dec();
-    H << nl << "#if defined(_MSC_VER) && (_MSC_VER < 1300) // VC++ 6 compiler bug"; // COMPILERBUG
+    H << nl << "#if defined(_MSC_VER) && (_MSC_VER < 1300) // VC++ 6 compiler bug"; // COMPILERFIX
     H.inc();
     H << nl << "typedef ::IceProxy::Ice::Object _Base;";
     H << nl << "return dynamic_cast<" << name << "*>(_Base::ice_connectionCached(__cached).get());";
@@ -2100,7 +2047,7 @@ Slice::Gen::ProxyVisitor::visitClassDefEnd(const ClassDefPtr& p)
     H << nl << nl << "::IceInternal::ProxyHandle<" << name << "> ice_endpointSelection(::Ice::EndpointSelectionType __est) const";
     H << sb;
     H.dec();
-    H << nl << "#if defined(_MSC_VER) && (_MSC_VER < 1300) // VC++ 6 compiler bug"; // COMPILERBUG
+    H << nl << "#if defined(_MSC_VER) && (_MSC_VER < 1300) // VC++ 6 compiler bug"; // COMPILERFIX
     H.inc();
     H << nl << "typedef ::IceProxy::Ice::Object _Base;";
     H << nl << "return dynamic_cast<" << name << "*>(_Base::ice_endpointSelection(__est).get());";
@@ -2116,7 +2063,7 @@ Slice::Gen::ProxyVisitor::visitClassDefEnd(const ClassDefPtr& p)
     H << nl << nl << "::IceInternal::ProxyHandle<" << name << "> ice_secure(bool __secure) const";
     H << sb;
     H.dec();
-    H << nl << "#if defined(_MSC_VER) && (_MSC_VER < 1300) // VC++ 6 compiler bug"; // COMPILERBUG
+    H << nl << "#if defined(_MSC_VER) && (_MSC_VER < 1300) // VC++ 6 compiler bug"; // COMPILERFIX
     H.inc();
     H << nl << "typedef ::IceProxy::Ice::Object _Base;";
     H << nl << "return dynamic_cast<" << name << "*>(_Base::ice_secure(__secure).get());";
@@ -2132,7 +2079,7 @@ Slice::Gen::ProxyVisitor::visitClassDefEnd(const ClassDefPtr& p)
     H << nl << nl << "::IceInternal::ProxyHandle<" << name << "> ice_preferSecure(bool __preferSecure) const";
     H << sb;
     H.dec();
-    H << nl << "#if defined(_MSC_VER) && (_MSC_VER < 1300) // VC++ 6 compiler bug"; // COMPILERBUG
+    H << nl << "#if defined(_MSC_VER) && (_MSC_VER < 1300) // VC++ 6 compiler bug"; // COMPILERFIX
     H.inc();
     H << nl << "typedef ::IceProxy::Ice::Object _Base;";
     H << nl << "return dynamic_cast<" << name << "*>(_Base::ice_preferSecure(__preferSecure).get());";
@@ -2148,7 +2095,7 @@ Slice::Gen::ProxyVisitor::visitClassDefEnd(const ClassDefPtr& p)
     H << nl << nl << "::IceInternal::ProxyHandle<" << name << "> ice_router(const ::Ice::RouterPrx& __router) const";
     H << sb;
     H.dec();
-    H << nl << "#if defined(_MSC_VER) && (_MSC_VER < 1300) // VC++ 6 compiler bug"; // COMPILERBUG
+    H << nl << "#if defined(_MSC_VER) && (_MSC_VER < 1300) // VC++ 6 compiler bug"; // COMPILERFIX
     H.inc();
     H << nl << "typedef ::IceProxy::Ice::Object _Base;";
     H << nl << "return dynamic_cast<" << name << "*>(_Base::ice_router(__router).get());";
@@ -2163,7 +2110,7 @@ Slice::Gen::ProxyVisitor::visitClassDefEnd(const ClassDefPtr& p)
 
     H << nl << nl << "::IceInternal::ProxyHandle<" << name << "> ice_locator(const ::Ice::LocatorPrx& __locator) const";
     H << sb;
-    H.dec(); H << nl << "#if defined(_MSC_VER) && (_MSC_VER < 1300) // VC++ 6 compiler bug"; // COMPILERBUG
+    H.dec(); H << nl << "#if defined(_MSC_VER) && (_MSC_VER < 1300) // VC++ 6 compiler bug"; // COMPILERFIX
     H.inc();
     H << nl << "typedef ::IceProxy::Ice::Object _Base;";
     H << nl << "return dynamic_cast<" << name << "*>(_Base::ice_locator(__locator).get());";
@@ -2178,7 +2125,7 @@ Slice::Gen::ProxyVisitor::visitClassDefEnd(const ClassDefPtr& p)
 
     H << nl << nl << "::IceInternal::ProxyHandle<" << name << "> ice_collocationOptimized(bool __co) const";
     H << sb;
-    H.dec(); H << nl << "#if defined(_MSC_VER) && (_MSC_VER < 1300) // VC++ 6 compiler bug"; // COMPILERBUG
+    H.dec(); H << nl << "#if defined(_MSC_VER) && (_MSC_VER < 1300) // VC++ 6 compiler bug"; // COMPILERFIX
     H.inc();
     H << nl << "typedef ::IceProxy::Ice::Object _Base;";
     H << nl << "return dynamic_cast<" << name << "*>(_Base::ice_collocationOptimized(__co).get());";
@@ -2190,7 +2137,7 @@ Slice::Gen::ProxyVisitor::visitClassDefEnd(const ClassDefPtr& p)
     H << nl << nl << "::IceInternal::ProxyHandle<" << name << "> ice_twoway() const";
     H << sb;
     H.dec();
-    H << nl << "#if defined(_MSC_VER) && (_MSC_VER < 1300) // VC++ 6 compiler bug"; // COMPILERBUG
+    H << nl << "#if defined(_MSC_VER) && (_MSC_VER < 1300) // VC++ 6 compiler bug"; // COMPILERFIX
     H.inc();
     H << nl << "typedef ::IceProxy::Ice::Object _Base;";
     H << nl << "return dynamic_cast<" << name << "*>(_Base::ice_twoway().get());";
@@ -2206,7 +2153,7 @@ Slice::Gen::ProxyVisitor::visitClassDefEnd(const ClassDefPtr& p)
     H << nl << nl << "::IceInternal::ProxyHandle<" << name << "> ice_oneway() const";
     H << sb;
     H.dec();
-    H << nl << "#if defined(_MSC_VER) && (_MSC_VER < 1300) // VC++ 6 compiler bug"; // COMPILERBUG
+    H << nl << "#if defined(_MSC_VER) && (_MSC_VER < 1300) // VC++ 6 compiler bug"; // COMPILERFIX
     H.inc();
     H << nl << "typedef ::IceProxy::Ice::Object _Base;";
     H << nl << "return dynamic_cast<" << name << "*>(_Base::ice_oneway().get());";
@@ -2221,7 +2168,7 @@ Slice::Gen::ProxyVisitor::visitClassDefEnd(const ClassDefPtr& p)
     H << nl << nl << "::IceInternal::ProxyHandle<" << name << "> ice_batchOneway() const";
     H << sb;
     H.dec();
-    H << nl << "#if defined(_MSC_VER) && (_MSC_VER < 1300) // VC++ 6 compiler bug"; // COMPILERBUG
+    H << nl << "#if defined(_MSC_VER) && (_MSC_VER < 1300) // VC++ 6 compiler bug"; // COMPILERFIX
     H.inc();
     H << nl << "typedef ::IceProxy::Ice::Object _Base;";
     H << nl << "return dynamic_cast<" << name << "*>(_Base::ice_batchOneway().get());";
@@ -2237,7 +2184,7 @@ Slice::Gen::ProxyVisitor::visitClassDefEnd(const ClassDefPtr& p)
     H << nl << nl << "::IceInternal::ProxyHandle<" << name << "> ice_datagram() const";
     H << sb;
     H.dec();
-    H << nl << "#if defined(_MSC_VER) && (_MSC_VER < 1300) // VC++ 6 compiler bug"; // COMPILERBUG
+    H << nl << "#if defined(_MSC_VER) && (_MSC_VER < 1300) // VC++ 6 compiler bug"; // COMPILERFIX
     H.inc();
     H << nl << "typedef ::IceProxy::Ice::Object _Base;";
     H << nl << "return dynamic_cast<" << name << "*>(_Base::ice_datagram().get());";
@@ -2253,7 +2200,7 @@ Slice::Gen::ProxyVisitor::visitClassDefEnd(const ClassDefPtr& p)
     H << nl << nl << "::IceInternal::ProxyHandle<" << name << "> ice_batchDatagram() const";
     H << sb;
     H.dec();
-    H << nl << "#if defined(_MSC_VER) && (_MSC_VER < 1300) // VC++ 6 compiler bug"; // COMPILERBUG
+    H << nl << "#if defined(_MSC_VER) && (_MSC_VER < 1300) // VC++ 6 compiler bug"; // COMPILERFIX
     H.inc();
     H << nl << "typedef ::IceProxy::Ice::Object _Base;";
     H << nl << "return dynamic_cast<" << name << "*>(_Base::ice_batchDatagram().get());";
@@ -2269,7 +2216,7 @@ Slice::Gen::ProxyVisitor::visitClassDefEnd(const ClassDefPtr& p)
     H << nl << nl << "::IceInternal::ProxyHandle<" << name << "> ice_compress(bool __compress) const";
     H << sb;
     H.dec();
-    H << nl << "#if defined(_MSC_VER) && (_MSC_VER < 1300) // VC++ 6 compiler bug"; // COMPILERBUG
+    H << nl << "#if defined(_MSC_VER) && (_MSC_VER < 1300) // VC++ 6 compiler bug"; // COMPILERFIX
     H.inc();
     H << nl << "typedef ::IceProxy::Ice::Object _Base;";
     H << nl << "return dynamic_cast<" << name << "*>(_Base::ice_compress(__compress).get());";
@@ -2285,7 +2232,7 @@ Slice::Gen::ProxyVisitor::visitClassDefEnd(const ClassDefPtr& p)
     H << nl << nl << "::IceInternal::ProxyHandle<" << name << "> ice_timeout(int __timeout) const";
     H << sb;
     H.dec();
-    H << nl << "#if defined(_MSC_VER) && (_MSC_VER < 1300) // VC++ 6 compiler bug"; // COMPILERBUG
+    H << nl << "#if defined(_MSC_VER) && (_MSC_VER < 1300) // VC++ 6 compiler bug"; // COMPILERFIX
     H.inc();
     H << nl << "typedef ::IceProxy::Ice::Object _Base;";
     H << nl << "return dynamic_cast<" << name << "*>(_Base::ice_timeout(__timeout).get());";
@@ -2301,7 +2248,7 @@ Slice::Gen::ProxyVisitor::visitClassDefEnd(const ClassDefPtr& p)
     H << nl << nl << "::IceInternal::ProxyHandle<" << name << "> ice_connectionId(const std::string& __id) const";
     H << sb;
     H.dec();
-    H << nl << "#if defined(_MSC_VER) && (_MSC_VER < 1300) // VC++ 6 compiler bug"; // COMPILERBUG
+    H << nl << "#if defined(_MSC_VER) && (_MSC_VER < 1300) // VC++ 6 compiler bug"; // COMPILERFIX
     H.inc();
     H << nl << "typedef ::IceProxy::Ice::Object _Base;";
     H << nl << "return dynamic_cast<" << name << "*>(_Base::ice_connectionId(__id).get());";
@@ -2605,7 +2552,7 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
         C << nl << "::Ice::AsyncResult::__check(__result, this, " << flatName << ");";
 
         //
-        // COMPILERBUG: It's necessary to generate the allocate code here before 
+        // COMPILERFIX: It's necessary to generate the allocate code here before 
         // this if(!__result->wait()). If generated after this if block, we get
         // access violations errors with the test/Ice/slicing/objects test on VC9 
         // and Windows 64 bits when compiled with optimization (see bug 4400).
@@ -4165,11 +4112,8 @@ Slice::Gen::ObjectVisitor::visitClassDefEnd(const ClassDefPtr& p)
       
         
         H.zeroIndent();
-        H << nl << "#if defined(_MSC_VER) && (_MSC_VER < 1300) // VC++ 6 compiler bug"; // COMPILERBUG
-        H.restoreIndent();
-        H << nl << "// Stream API is not supported with VC++ 6";
-        H.zeroIndent();
-        H << nl << "#else";
+        H << nl << "// COMPILERFIX: Stream API is not supported with VC++ 6";
+        H << nl << "#if !defined(_MSC_VER) || (_MSC_VER >= 1300)";
         H.restoreIndent();
         H << nl << "virtual void __write(const ::Ice::OutputStreamPtr&) const;";
         H << nl << "virtual void __read(const ::Ice::InputStreamPtr&, bool);";
@@ -4213,11 +4157,8 @@ Slice::Gen::ObjectVisitor::visitClassDefEnd(const ClassDefPtr& p)
         {
             C << sp;
             C.zeroIndent();
-            C << nl << "#if defined(_MSC_VER) && (_MSC_VER < 1300) // VC++ 6 compiler bug"; // COMPILERBUG
-            C.restoreIndent();
-            C << nl << "// Stream API is not supported with VC++ 6";
-            C.zeroIndent();
-            C << nl << "#else";
+            C << nl << "// COMPILERFIX: Stream API is not supported with VC++ 6";
+            C << nl << "#if !defined(_MSC_VER) || (_MSC_VER >= 1300)";
             C.restoreIndent();
             C << nl << "void" << nl << scoped.substr(2) << "::__write(const ::Ice::OutputStreamPtr& __outS) const";
             C << sb;
@@ -4255,11 +4196,8 @@ Slice::Gen::ObjectVisitor::visitClassDefEnd(const ClassDefPtr& p)
         {
             C << sp;
             C.zeroIndent();
-            C << nl << "#if defined(_MSC_VER) && (_MSC_VER < 1300) // VC++ 6 compiler bug"; // COMPILERBUG
-            C.restoreIndent();
-            C << nl << "// Stream API is not supported with VC++ 6";
-            C.zeroIndent();
-            C << nl << "#else";
+            C << nl << "// COMPILERFIX: Stream API is not supported with VC++ 6";
+            C << nl << "#if !defined(_MSC_VER) || (_MSC_VER >= 1300)";
             C.restoreIndent();
             //
             // Emit placeholder functions to catch errors.
@@ -5106,7 +5044,7 @@ void
 Slice::Gen::ObjectVisitor::emitUpcall(const ClassDefPtr& base, const string& call)
 {
     C.zeroIndent();
-    C << nl << "#if defined(_MSC_VER) && (_MSC_VER < 1300) // VC++ 6 compiler bug"; // COMPILERBUG
+    C << nl << "#if defined(_MSC_VER) && (_MSC_VER < 1300) // VC++ 6 compiler bug"; // COMPILERFIX
     C.restoreIndent();
     C << nl << (base ? fixKwd(base->name()) : string("Object")) << call;
     C.zeroIndent();
@@ -5409,7 +5347,7 @@ Slice::Gen::AsyncCallbackTemplateVisitor::generateOperation(const OperationPtr& 
         H << nl << "catch(::Ice::Exception& ex)";
         H << sb;
 	H.zeroIndent();
-	H << nl << "#if defined(_MSC_VER) && (_MSC_VER < 1300) // VC++ 6 compiler bug"; // COMPILERBUG
+	H << nl << "#if defined(_MSC_VER) && (_MSC_VER < 1300) // VC++ 6 compiler bug"; // COMPILERFIX
 	H.restoreIndent();
         H << nl << "__exception(__result, ex);";
 	H.zeroIndent();
@@ -5424,7 +5362,7 @@ Slice::Gen::AsyncCallbackTemplateVisitor::generateOperation(const OperationPtr& 
         H << nl << "if(response)";
         H << sb;
 	H.zeroIndent();
-	H << nl << "#if defined(_MSC_VER) && (_MSC_VER < 1300) // VC++ 6 compiler bug"; // COMPILERBUG
+	H << nl << "#if defined(_MSC_VER) && (_MSC_VER < 1300) // VC++ 6 compiler bug"; // COMPILERFIX
 	H.restoreIndent();
         H << nl << "(callback.get()->*response)" << spar;
         if(ret)
@@ -5654,11 +5592,8 @@ Slice::Gen::HandleVisitor::visitClassDecl(const ClassDeclPtr& p)
         {
             H << sp;
             H.zeroIndent();
-            H << nl << "#if defined(_MSC_VER) && (_MSC_VER < 1300) // VC++ 6 compiler bug"; // COMPILERBUG
-            H.restoreIndent();
-            H << nl << "// Stream API is not supported with VC++ 6";
-            H.zeroIndent();
-            H << nl << "#else";
+            H << nl << "// COMPILERFIX: Stream API is not supported with VC++ 6";
+            H << nl << "#if !defined(_MSC_VER) || (_MSC_VER >= 1300)";
             H.restoreIndent();
             H << nl << _dllExport << "ICE_DEPRECATED_API void ice_write" << name << "Prx(const ::Ice::OutputStreamPtr&, const " << name
               << "Prx&);";
@@ -5718,11 +5653,8 @@ Slice::Gen::HandleVisitor::visitClassDefStart(const ClassDefPtr& p)
         {
             C << sp;
             C.zeroIndent();
-            C << nl << "#if defined(_MSC_VER) && (_MSC_VER < 1300) // VC++ 6 compiler bug"; // COMPILERBUG
-            C.restoreIndent();
-            C << nl << "// Stream API is not supported with VC++ 6";
-            C.zeroIndent();
-            C << nl << "#else";
+            C << nl << "// COMPILERFIX: Stream API is not supported with VC++ 6";
+            C << nl << "#if !defined(_MSC_VER) || (_MSC_VER >= 1300)";
             C.restoreIndent();
             C << nl << "void" << nl << scope.substr(2) << "ice_write" << name
               << "Prx(const ::Ice::OutputStreamPtr& __outS, const " << scope << name << "Prx& v)";
@@ -5748,9 +5680,7 @@ Slice::Gen::HandleVisitor::visitClassDefStart(const ClassDefPtr& p)
             C << nl << "void" << nl << scope.substr(2) << "ice_read" << name << "(const ::Ice::InputStreamPtr& __inS, "
               << scope << name << "Ptr& __v)";
             C << sb;
-            C << nl << "::Ice::ReadObjectCallbackPtr __cb = new ::Ice::ReadObjectCallbackI(" << scope << "__patch__"
-              << name << "Ptr, &__v);";
-            C << nl << "__inS->readObject(__cb);";
+            C << nl << "__inS->read(__v);";
             C << eb;
             C.zeroIndent();
             C << nl << "#endif";
@@ -6321,7 +6251,7 @@ Slice::Gen::AsyncVisitor::visitOperation(const OperationPtr& p)
         H << nl << "void __sent(bool sentSynchronously)";
         H << sb;
         H.zeroIndent();
-        H << nl << "#if defined(_MSC_VER) && (_MSC_VER < 1300) // VC++ 6 compiler bug"; // COMPILERBUG
+        H << nl << "#if defined(_MSC_VER) && (_MSC_VER < 1300) // VC++ 6 compiler bug"; // COMPILERFIX
         H.restoreIndent();
         H << nl << "AMICallbackBase::__sent(sentSynchronously);";
         H.zeroIndent();
@@ -6585,7 +6515,7 @@ Slice::Gen::AsyncImplVisitor::visitOperation(const OperationPtr& p)
         C << nl << "else";
         C << sb;
         C.zeroIndent();
-        C << nl << "#if defined(_MSC_VER) && (_MSC_VER < 1300) // VC++ 6 compiler bug"; // COMPILERBUG
+        C << nl << "#if defined(_MSC_VER) && (_MSC_VER < 1300) // VC++ 6 compiler bug"; // COMPILERFIX
         C.restoreIndent();
         C << nl << "IncomingAsync::ice_exception(ex);";
         C.zeroIndent();
@@ -6618,7 +6548,7 @@ Slice::Gen::StreamVisitor::visitModuleStart(const ModulePtr& m)
         return false;
     }
     H.zeroIndent();
-    H << nl << "#if defined(_MSC_VER) && (_MSC_VER < 1300) // VC++ 6 compiler bug"; // COMPILERBUG
+    H << nl << "#if defined(_MSC_VER) && (_MSC_VER < 1300) // VC++ 6 compiler bug"; // COMPILERFIX
     H << nl << "#else";
     H.restoreIndent();
     H << nl << "namespace Ice" << nl << '{';
@@ -6644,7 +6574,6 @@ Slice::Gen::StreamVisitor::visitExceptionStart(const ExceptionPtr& p)
         H << nl << "struct StreamTrait< " << fixKwd(scoped) << ">";
         H << sb;
         H << nl << "static const ::Ice::StreamTraitType type = ::Ice::StreamTraitTypeUserException;";
-        H << nl << "static const int enumLimit = 0;";
         H << eb << ";" << nl;
     }
     return true;

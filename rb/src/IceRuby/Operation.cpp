@@ -408,9 +408,11 @@ IceRuby::OperationI::unmarshalException(const vector<Ice::Byte>& bytes, const Ic
 
     Ice::InputStreamPtr is = Ice::createInputStream(communicator, bytes);
 
-    is->readBool(); // usesClasses
+    bool usesClasses;
+    is->read(usesClasses);
 
-    string id = is->readString();
+    string id;
+    is->read(id);
     const string origId = id;
 
     while(!id.empty())
@@ -454,7 +456,7 @@ IceRuby::OperationI::unmarshalException(const vector<Ice::Byte>& bytes, const Ic
 
             try
             {
-                id = is->readString(); // Read type id for next slice.
+                is->read(id); // Read type id for next slice.
             }
             catch(Ice::UnmarshalOutOfBoundsException& ex)
             {

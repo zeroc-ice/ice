@@ -7,6 +7,14 @@
 //
 // **********************************************************************
 
+//
+// We disable deprecation warning here, to allow clean compilation of
+// of deprecated methods from StreamI.h.
+//
+#ifdef _MSC_VER
+#   pragma warning( disable : 4996 )
+#endif
+
 #include <IceUtil/DisableWarnings.h>
 #include <IceUtil/ArgVector.h>
 #include <Ice/GC.h>

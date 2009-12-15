@@ -957,9 +957,11 @@ IcePy::TypedInvocation::unmarshalException(const pair<const Ice::Byte*, const Ic
 
     Ice::InputStreamPtr is = Ice::createInputStream(_communicator, bytes);
 
-    is->readBool(); // usesClasses
+    bool usesClasses;
+    is->read(usesClasses);
 
-    string id = is->readString();
+    string id;
+    is->read(id);
     const string origId = id;
 
     while(!id.empty())
@@ -999,7 +1001,7 @@ IcePy::TypedInvocation::unmarshalException(const pair<const Ice::Byte*, const Ic
 
             try
             {
-                id = is->readString(); // Read type id for next slice.
+                is->read(id); // Read type id for next slice.
             }
             catch(Ice::UnmarshalOutOfBoundsException& ex)
             {
@@ -2012,7 +2014,7 @@ IcePy::TypedUpcall::exception(PyException& ex)
                 {
                     Ice::OutputStreamPtr os = Ice::createOutputStream(_communicator);
 
-                    os->writeBool(info->usesClasses);
+                    os->write(info->usesClasses);
 
                     ObjectMap objectMap;
                     info->marshal(ex.ex.get(), os, &objectMap);

@@ -119,7 +119,7 @@ IcePatch2::FileServerI::getFileCompressed_async(const AMD_FileServer_getFileComp
         return;
     }
 
-    IceUtilInternal::ScopedArray<Byte> bytes(new Byte[num]);
+    IceUtil::ScopedArray<Byte> bytes(new Byte[num]);
 #ifdef _WIN32
     int r;
     if((r =

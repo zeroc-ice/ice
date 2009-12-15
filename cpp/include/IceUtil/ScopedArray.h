@@ -12,7 +12,7 @@
 
 #include <IceUtil/Config.h>
 
-namespace IceUtilInternal
+namespace IceUtil
 {
 
 template<typename T>

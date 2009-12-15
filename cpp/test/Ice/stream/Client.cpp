@@ -22,6 +22,14 @@
 
 using namespace std;
 
+#if defined(_MSC_VER) && (_MSC_VER < 1300) // COMPILERBUG
+//
+// VC++ 6 compiler bugs doesn't allow using templates for the Stream API.
+//
+// see: http://support.microsoft.com/kb/240866
+//      http://support.microsoft.com/kb/241569
+//
+#else
 class TestObjectWriter : public Ice::ObjectWriter
 {
 public:
@@ -150,14 +158,25 @@ public:
     {
     }
 };
+#endif
 
 int
 run(int argc, char** argv, const Ice::CommunicatorPtr& communicator)
 {
+#if defined(_MSC_VER) && (_MSC_VER < 1300)
+//
+// VC++ 6 compiler bugs doesn't allow to write 
+// the Stream API using c++ templates.
+//
+// see: http://support.microsoft.com/kb/240866
+//      http://support.microsoft.com/kb/241569
+//
+#else
     MyClassFactoryWrapperPtr factoryWrapper = new MyClassFactoryWrapper;
     communicator->addObjectFactory(factoryWrapper, Test::MyClass::ice_staticId());
     communicator->addObjectFactory(new MyInterfaceFactory, Test::MyInterface::ice_staticId());
-
+#endif
+	
     Ice::InputStreamPtr in;
     Ice::OutputStreamPtr out;
     vector<Ice::Byte> data;
@@ -1049,7 +1068,15 @@ run(int argc, char** argv, const Ice::CommunicatorPtr& communicator)
     }
 
     cout << "ok" << endl;
-
+#if defined(_MSC_VER) && (_MSC_VER < 1300)
+//
+// VC++ 6 compiler bugs doesn't allow to write 
+// the Stream API using c++ templates.
+//
+// see: http://support.microsoft.com/kb/240866
+//      http://support.microsoft.com/kb/241569
+//
+#else
     cout << "testing constructed types... " << flush;
 
     {
@@ -1094,7 +1121,7 @@ run(int argc, char** argv, const Ice::CommunicatorPtr& communicator)
         Test::ice_readClassStruct(in, s2);
         test(s2->i == s->i);
     }
-
+#endif
     {
         Test::BoolS arr;
         arr.push_back(true);
@@ -1208,7 +1235,15 @@ run(int argc, char** argv, const Ice::CommunicatorPtr& communicator)
         Test::StringS arr2 = in->readStringSeq();
         test(arr2 == arr);
     }
-
+#if defined(_MSC_VER) && (_MSC_VER < 1300)
+//
+// VC++ 6 compiler bugs doesn't allow to write 
+// the Stream API using c++ templates.
+//
+// see: http://support.microsoft.com/kb/240866
+//      http://support.microsoft.com/kb/241569
+//
+#else
     {
         Test::MyEnumS arr;
         arr.push_back(Test::enum3);
@@ -1354,9 +1389,8 @@ run(int argc, char** argv, const Ice::CommunicatorPtr& communicator)
         test(reader->obj->s.e == Test::enum2);
         factoryWrapper->setFactory(0);
     }
-
     cout << "ok" << endl;
-
+#endif
     return 0;
 }
 

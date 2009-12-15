@@ -51,7 +51,7 @@ tests = [
     ("Ice/gc", ["once"]),
     ("Ice/dispatcher", ["once"]),
     ("Ice/checksum", ["core"]),
-    ("Ice/stream", ["core", "novc6"]),
+    ("Ice/stream", ["core"]),
     ("Ice/hold", ["core"]),
     ("Ice/custom", ["core", "novc6"]),
     ("Ice/retry", ["core"]),

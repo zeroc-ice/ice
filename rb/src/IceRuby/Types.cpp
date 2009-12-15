@@ -228,7 +228,7 @@ IceRuby::PrimitiveInfo::marshal(VALUE p, const Ice::OutputStreamPtr& os, ObjectM
     {
     case PrimitiveInfo::KindBool:
     {
-        os->writeBool(RTEST(p));
+        os->write(static_cast<bool>(RTEST(p)));
         break;
     }
     case PrimitiveInfo::KindByte:
@@ -236,7 +236,7 @@ IceRuby::PrimitiveInfo::marshal(VALUE p, const Ice::OutputStreamPtr& os, ObjectM
         long i = getInteger(p);
         if(i >= 0 && i <= 255)
         {
-            os->writeByte(static_cast<Ice::Byte>(i));
+            os->write(static_cast<Ice::Byte>(i));
             break;
         }
         throw RubyException(rb_eTypeError, "value is out of range for a byte");
@@ -246,7 +246,7 @@ IceRuby::PrimitiveInfo::marshal(VALUE p, const Ice::OutputStreamPtr& os, ObjectM
         long i = getInteger(p);
         if(i >= SHRT_MIN && i <= SHRT_MAX)
         {
-            os->writeShort(static_cast<Ice::Short>(i));
+            os->write(static_cast<Ice::Short>(i));
             break;
         }
         throw RubyException(rb_eTypeError, "value is out of range for a short");
@@ -256,14 +256,14 @@ IceRuby::PrimitiveInfo::marshal(VALUE p, const Ice::OutputStreamPtr& os, ObjectM
         long i = getInteger(p);
         if(i >= INT_MIN && i <= INT_MAX)
         {
-            os->writeInt(static_cast<Ice::Int>(i));
+            os->write(static_cast<Ice::Int>(i));
             break;
         }
         throw RubyException(rb_eTypeError, "value is out of range for an int");
     }
     case PrimitiveInfo::KindLong:
     {
-        os->writeLong(getLong(p));
+        os->write(getLong(p));
         break;
     }
     case PrimitiveInfo::KindFloat:
@@ -274,7 +274,7 @@ IceRuby::PrimitiveInfo::marshal(VALUE p, const Ice::OutputStreamPtr& os, ObjectM
             throw RubyException(rb_eTypeError, "unable to convert value to a float");
         }
         assert(TYPE(val) == T_FLOAT);
-        os->writeFloat(static_cast<float>(RFLOAT_VALUE(val)));
+        os->write(static_cast<float>(RFLOAT_VALUE(val)));
         break;
     }
     case PrimitiveInfo::KindDouble:
@@ -285,13 +285,13 @@ IceRuby::PrimitiveInfo::marshal(VALUE p, const Ice::OutputStreamPtr& os, ObjectM
             throw RubyException(rb_eTypeError, "unable to convert value to a double");
         }
         assert(TYPE(val) == T_FLOAT);
-        os->writeDouble(RFLOAT_VALUE(val));
+        os->write(static_cast<double>(RFLOAT_VALUE(val)));
         break;
     }
     case PrimitiveInfo::KindString:
     {
         string val = getString(p);
-        os->writeString(val);
+        os->write(val);
         break;
     }
     }
@@ -306,48 +306,57 @@ IceRuby::PrimitiveInfo::unmarshal(const Ice::InputStreamPtr& is, const Unmarshal
     {
     case PrimitiveInfo::KindBool:
     {
-        val = is->readBool() ? Qtrue : Qfalse;
+        bool b;
+        is->read(b);
+        val = b ? Qtrue : Qfalse;
         break;
     }
     case PrimitiveInfo::KindByte:
     {
-        long l = is->readByte();
-        val = callRuby(rb_int2inum, l);
+        Ice::Byte b;
+        is->read(b);
+        val = callRuby(rb_int2inum, b);
         break;
     }
     case PrimitiveInfo::KindShort:
     {
-        long l = is->readShort();
-        val = callRuby(rb_int2inum, l);
+        Ice::Short sh;
+        is->read(sh);
+        val = callRuby(rb_int2inum, sh);
         break;
     }
     case PrimitiveInfo::KindInt:
     {
-        long l = is->readInt();
-        val = callRuby(rb_int2inum, l);
+        Ice::Int i;
+        is->read(i);
+        val = callRuby(rb_int2inum, i);
         break;
     }
     case PrimitiveInfo::KindLong:
     {
-        Ice::Long l = is->readLong();
+        Ice::Long l;
+        is->read(l);
         val = callRuby(rb_ll2inum, l);
         break;
     }
     case PrimitiveInfo::KindFloat:
     {
-        Ice::Float f = is->readFloat();
+        Ice::Float f;
+        is->read(f);
         val = callRuby(rb_float_new, f);
         break;
     }
     case PrimitiveInfo::KindDouble:
     {
-        Ice::Double d = is->readDouble();
+        Ice::Double d;
+        is->read(d);
         val = callRuby(rb_float_new, d);
         break;
     }
     case PrimitiveInfo::KindString:
     {
-        string str = is->readString();
+        string str;
+        is->read(str);
         val = createString(str);
         break;
     }
@@ -439,34 +448,38 @@ IceRuby::EnumInfo::marshal(VALUE p, const Ice::OutputStreamPtr& os, ObjectMap*)
 
     if(count <= 127)
     {
-        os->writeByte(static_cast<Ice::Byte>(ival));
+        os->write(static_cast<Ice::Byte>(ival));
     }
     else if(count <= 32767)
     {
-        os->writeShort(static_cast<Ice::Short>(ival));
+        os->write(static_cast<Ice::Short>(ival));
     }
     else
     {
-        os->writeInt(ival);
+        os->write(static_cast<Ice::Int>(ival));
     }
 }
 
 void
 IceRuby::EnumInfo::unmarshal(const Ice::InputStreamPtr& is, const UnmarshalCallbackPtr& cb, VALUE target, void* closure)
 {
-    int val;
-    int count = static_cast<int>(enumerators.size());
+    Ice::Int val;
+    Ice::Int count = static_cast<Ice::Int>(enumerators.size());
     if(count <= 127)
     {
-        val = is->readByte();
+        Ice::Byte b;
+        is->read(b);
+        val = b;
     }
     else if(count <= 32767)
     {
-        val = is->readShort();
+        Ice::Short sh;
+        is->read(sh);
+        val = sh;
     }
     else
     {
-        val = is->readInt();
+        is->read(val);
     }
 
     if(val < 0 || val >= count)
@@ -784,7 +797,11 @@ IceRuby::SequenceInfo::marshalPrimitiveSequence(const PrimitiveInfoPtr& pi, VALU
         {
             seq[i] = RTEST(RARRAY_PTR(arr)[i]);
         }
+#if defined(_MSC_VER) && (_MSC_VER < 1300)
         os->writeBoolSeq(seq);
+#else
+        os->write(seq);
+#endif
         break;
     }
     case PrimitiveInfo::KindByte:
@@ -799,7 +816,7 @@ IceRuby::SequenceInfo::marshalPrimitiveSequence(const PrimitiveInfoPtr& pi, VALU
             }
             else
             {
-                os->writeByteSeq(reinterpret_cast<const Ice::Byte*>(s), reinterpret_cast<const Ice::Byte*>(s + len));
+                os->write(reinterpret_cast<const Ice::Byte*>(s), reinterpret_cast<const Ice::Byte*>(s + len));
             }
         }
         else
@@ -815,7 +832,7 @@ IceRuby::SequenceInfo::marshalPrimitiveSequence(const PrimitiveInfoPtr& pi, VALU
                 }
                 seq[i] = static_cast<Ice::Byte>(val);
             }
-            os->writeByteSeq(seq);
+            os->write(&seq[0], &seq[0] + seq.size());
         }
         break;
     }
@@ -832,7 +849,7 @@ IceRuby::SequenceInfo::marshalPrimitiveSequence(const PrimitiveInfoPtr& pi, VALU
             }
             seq[i] = static_cast<Ice::Short>(val);
         }
-        os->writeShortSeq(seq);
+        os->write(&seq[0], &seq[0] + seq.size());
         break;
     }
     case PrimitiveInfo::KindInt:
@@ -848,7 +865,7 @@ IceRuby::SequenceInfo::marshalPrimitiveSequence(const PrimitiveInfoPtr& pi, VALU
             }
             seq[i] = static_cast<Ice::Int>(val);
         }
-        os->writeIntSeq(seq);
+        os->write(&seq[0], &seq[0] + seq.size());
         break;
     }
     case PrimitiveInfo::KindLong:
@@ -859,7 +876,7 @@ IceRuby::SequenceInfo::marshalPrimitiveSequence(const PrimitiveInfoPtr& pi, VALU
         {
             seq[i] = getLong(RARRAY_PTR(arr)[i]);
         }
-        os->writeLongSeq(seq);
+        os->write(&seq[0], &seq[0] + seq.size());
         break;
     }
     case PrimitiveInfo::KindFloat:
@@ -876,7 +893,7 @@ IceRuby::SequenceInfo::marshalPrimitiveSequence(const PrimitiveInfoPtr& pi, VALU
             assert(TYPE(v) == T_FLOAT);
             seq[i] = static_cast<Ice::Float>(RFLOAT_VALUE(v));
         }
-        os->writeFloatSeq(seq);
+        os->write(&seq[0], &seq[0] + seq.size());
         break;
     }
     case PrimitiveInfo::KindDouble:
@@ -893,7 +910,7 @@ IceRuby::SequenceInfo::marshalPrimitiveSequence(const PrimitiveInfoPtr& pi, VALU
             assert(TYPE(v) == T_FLOAT);
             seq[i] = RFLOAT_VALUE(v);
         }
-        os->writeDoubleSeq(seq);
+        os->write(&seq[0], &seq[0] + seq.size());
         break;
     }
     case PrimitiveInfo::KindString:
@@ -904,7 +921,7 @@ IceRuby::SequenceInfo::marshalPrimitiveSequence(const PrimitiveInfoPtr& pi, VALU
         {
             seq[i] = getString(RARRAY_PTR(arr)[i]);
         }
-        os->writeStringSeq(seq);
+        os->write(seq, true);
         break;
     }
     }
@@ -921,7 +938,8 @@ IceRuby::SequenceInfo::unmarshalPrimitiveSequence(const PrimitiveInfoPtr& pi, co
     case PrimitiveInfo::KindBool:
     {
         pair<const bool*, const bool*> p;
-        IceUtilInternal::ScopedArray<bool> sa(is->readBoolSeq(p));
+        IceUtil::ScopedArray<bool> sa;
+        is->read(p, sa);
         long sz = static_cast<long>(p.second - p.first);
         result = createArray(sz);
 
@@ -937,14 +955,15 @@ IceRuby::SequenceInfo::unmarshalPrimitiveSequence(const PrimitiveInfoPtr& pi, co
     case PrimitiveInfo::KindByte:
     {
         pair<const Ice::Byte*, const Ice::Byte*> p;
-        is->readByteSeq(p);
+        is->read(p);
         result = callRuby(rb_str_new, reinterpret_cast<const char*>(p.first), static_cast<long>(p.second - p.first));
         break;
     }
     case PrimitiveInfo::KindShort:
     {
         pair<const Ice::Short*, const Ice::Short*> p;
-        IceUtilInternal::ScopedArray<Ice::Short> sa(is->readShortSeq(p));
+        IceUtil::ScopedArray<Ice::Short> sa;
+        is->read(p, sa);
         long sz = static_cast<long>(p.second - p.first);
         result = createArray(sz);
 
@@ -960,7 +979,8 @@ IceRuby::SequenceInfo::unmarshalPrimitiveSequence(const PrimitiveInfoPtr& pi, co
     case PrimitiveInfo::KindInt:
     {
         pair<const Ice::Int*, const Ice::Int*> p;
-        IceUtilInternal::ScopedArray<Ice::Int> sa(is->readIntSeq(p));
+        IceUtil::ScopedArray<Ice::Int> sa;
+        is->read(p, sa);
         long sz = static_cast<long>(p.second - p.first);
         result = createArray(sz);
 
@@ -976,7 +996,8 @@ IceRuby::SequenceInfo::unmarshalPrimitiveSequence(const PrimitiveInfoPtr& pi, co
     case PrimitiveInfo::KindLong:
     {
         pair<const Ice::Long*, const Ice::Long*> p;
-        IceUtilInternal::ScopedArray<Ice::Long> sa(is->readLongSeq(p));
+        IceUtil::ScopedArray<Ice::Long> sa;
+        is->read(p, sa);
         long sz = static_cast<long>(p.second - p.first);
         result = createArray(sz);
 
@@ -992,7 +1013,8 @@ IceRuby::SequenceInfo::unmarshalPrimitiveSequence(const PrimitiveInfoPtr& pi, co
     case PrimitiveInfo::KindFloat:
     {
         pair<const Ice::Float*, const Ice::Float*> p;
-        IceUtilInternal::ScopedArray<Ice::Float> sa(is->readFloatSeq(p));
+        IceUtil::ScopedArray<Ice::Float> sa;
+        is->read(p, sa);
         long sz = static_cast<long>(p.second - p.first);
         result = createArray(sz);
 
@@ -1008,7 +1030,8 @@ IceRuby::SequenceInfo::unmarshalPrimitiveSequence(const PrimitiveInfoPtr& pi, co
     case PrimitiveInfo::KindDouble:
     {
         pair<const Ice::Double*, const Ice::Double*> p;
-        IceUtilInternal::ScopedArray<Ice::Double> sa(is->readDoubleSeq(p));
+        IceUtil::ScopedArray<Ice::Double> sa;
+        is->read(p, sa);
         long sz = static_cast<long>(p.second - p.first);
         result = createArray(sz);
 
@@ -1023,7 +1046,8 @@ IceRuby::SequenceInfo::unmarshalPrimitiveSequence(const PrimitiveInfoPtr& pi, co
     }
     case PrimitiveInfo::KindString:
     {
-        Ice::StringSeq seq = is->readStringSeq();
+        Ice::StringSeq seq;
+        is->read(seq, true);
         long sz = static_cast<long>(seq.size());
         result = createArray(sz);
 
@@ -1533,12 +1557,12 @@ IceRuby::ProxyInfo::marshal(VALUE p, const Ice::OutputStreamPtr& os, ObjectMap*)
 {
     if(NIL_P(p))
     {
-        os->writeProxy(0);
+        os->write(Ice::ObjectPrx());
     }
     else
     {
         assert(checkProxy(p)); // validate() should have caught this.
-        os->writeProxy(getProxy(p));
+        os->write(getProxy(p));
     }
 }
 
@@ -1546,7 +1570,8 @@ void
 IceRuby::ProxyInfo::unmarshal(const Ice::InputStreamPtr& is, const UnmarshalCallbackPtr& cb, VALUE target,
                               void* closure)
 {
-    Ice::ObjectPrx proxy = is->readProxy();
+    Ice::ObjectPrx proxy;
+    is->read(proxy);
 
     if(!proxy)
     {
@@ -1788,12 +1813,12 @@ IceRuby::ExceptionInfo::marshal(VALUE p, const Ice::OutputStreamPtr& os, ObjectM
         throw RubyException(rb_eTypeError, "expected exception %s", id.c_str());
     }
 
-    os->writeBool(usesClasses);
+    os->write(usesClasses);
 
     ExceptionInfoPtr info = this;
     while(info)
     {
-        os->writeString(info->id);
+        os->write(info->id);
 
         os->startSlice();
         for(DataMemberList::iterator q = info->members.begin(); q != info->members.end(); ++q)
@@ -1836,7 +1861,8 @@ IceRuby::ExceptionInfo::unmarshal(const Ice::InputStreamPtr& is)
         info = info->base;
         if(info)
         {
-            is->readString(); // Read the ID of the next slice.
+            string id;
+            is->read(id); // Read the ID of the next slice.
         }
     }
 

@@ -7,6 +7,14 @@
 //
 // **********************************************************************
 
+//
+// We disable deprecation warning here, to allow clean compilation of
+// of deprecated methods.
+//
+#ifdef _MSC_VER
+#   pragma warning( disable : 4996 )
+#endif
+
 #include <Ice/StreamI.h>
 #include <Ice/Initialize.h>
 #include <Ice/LocalException.h>
@@ -54,7 +62,7 @@ Ice::InputStreamI::sliceObjects(bool b)
 }
 
 bool
-Ice::InputStreamI::internalReadBool()
+Ice::InputStreamI::readBool()
 {
     bool v;
     _is->read(v);
@@ -62,7 +70,7 @@ Ice::InputStreamI::internalReadBool()
 }
 
 vector<bool>
-Ice::InputStreamI::internalReadBoolSeq()
+Ice::InputStreamI::readBoolSeq()
 {
     vector<bool> v;
     _is->read(v);
@@ -70,13 +78,13 @@ Ice::InputStreamI::internalReadBoolSeq()
 }
 
 bool*
-Ice::InputStreamI::internalReadBoolSeq(pair<const bool*, const bool*>& p)
+Ice::InputStreamI::readBoolSeq(pair<const bool*, const bool*>& p)
 {
     return _is->read(p);
 }
 
 Byte
-Ice::InputStreamI::internalReadByte()
+Ice::InputStreamI::readByte()
 {
     Byte v;
     _is->read(v);
@@ -84,7 +92,7 @@ Ice::InputStreamI::internalReadByte()
 }
 
 vector<Byte>
-Ice::InputStreamI::internalReadByteSeq()
+Ice::InputStreamI::readByteSeq()
 {
     pair<const Byte*, const Byte*> p;
     _is->read(p);
@@ -93,13 +101,13 @@ Ice::InputStreamI::internalReadByteSeq()
 }
 
 void
-Ice::InputStreamI::internalReadByteSeq(pair<const Byte*, const Byte*>& p)
+Ice::InputStreamI::readByteSeq(pair<const Byte*, const Byte*>& p)
 {
     _is->read(p);
 }
 
 Short
-Ice::InputStreamI::internalReadShort()
+Ice::InputStreamI::readShort()
 {
     Short v;
     _is->read(v);
@@ -107,7 +115,7 @@ Ice::InputStreamI::internalReadShort()
 }
 
 vector<Short>
-Ice::InputStreamI::internalReadShortSeq()
+Ice::InputStreamI::readShortSeq()
 {
     vector<Short> v;
     _is->read(v);
@@ -115,13 +123,13 @@ Ice::InputStreamI::internalReadShortSeq()
 }
 
 Short*
-Ice::InputStreamI::internalReadShortSeq(pair<const Short*, const Short*>& p)
+Ice::InputStreamI::readShortSeq(pair<const Short*, const Short*>& p)
 {
     return _is->read(p);
 }
 
 Int
-Ice::InputStreamI::internalReadInt()
+Ice::InputStreamI::readInt()
 {
     Int v;
     _is->read(v);
@@ -129,7 +137,7 @@ Ice::InputStreamI::internalReadInt()
 }
 
 vector<Int>
-Ice::InputStreamI::internalReadIntSeq()
+Ice::InputStreamI::readIntSeq()
 {
     vector<Int> v;
     _is->read(v);
@@ -137,13 +145,13 @@ Ice::InputStreamI::internalReadIntSeq()
 }
 
 Int*
-Ice::InputStreamI::internalReadIntSeq(pair<const Int*, const Int*>& p)
+Ice::InputStreamI::readIntSeq(pair<const Int*, const Int*>& p)
 {
     return _is->read(p);
 }
 
 Long
-Ice::InputStreamI::internalReadLong()
+Ice::InputStreamI::readLong()
 {
     Long v;
     _is->read(v);
@@ -151,7 +159,7 @@ Ice::InputStreamI::internalReadLong()
 }
 
 vector<Long>
-Ice::InputStreamI::internalReadLongSeq()
+Ice::InputStreamI::readLongSeq()
 {
     vector<Long> v;
     _is->read(v);
@@ -159,13 +167,13 @@ Ice::InputStreamI::internalReadLongSeq()
 }
 
 Long*
-Ice::InputStreamI::internalReadLongSeq(pair<const Long*, const Long*>& p)
+Ice::InputStreamI::readLongSeq(pair<const Long*, const Long*>& p)
 {
     return _is->read(p);
 }
 
 Float
-Ice::InputStreamI::internalReadFloat()
+Ice::InputStreamI::readFloat()
 {
     Float v;
     _is->read(v);
@@ -173,7 +181,7 @@ Ice::InputStreamI::internalReadFloat()
 }
 
 vector<Float>
-Ice::InputStreamI::internalReadFloatSeq()
+Ice::InputStreamI::readFloatSeq()
 {
     vector<Float> v;
     _is->read(v);
@@ -181,13 +189,13 @@ Ice::InputStreamI::internalReadFloatSeq()
 }
 
 Float*
-Ice::InputStreamI::internalReadFloatSeq(pair<const Float*, const Float*>& p)
+Ice::InputStreamI::readFloatSeq(pair<const Float*, const Float*>& p)
 {
     return _is->read(p);
 }
 
 Double
-Ice::InputStreamI::internalReadDouble()
+Ice::InputStreamI::readDouble()
 {
     Double v;
     _is->read(v);
@@ -195,7 +203,7 @@ Ice::InputStreamI::internalReadDouble()
 }
 
 vector<Double>
-Ice::InputStreamI::internalReadDoubleSeq()
+Ice::InputStreamI::readDoubleSeq()
 {
     vector<Double> v;
     _is->read(v);
@@ -203,13 +211,13 @@ Ice::InputStreamI::internalReadDoubleSeq()
 }
 
 Double*
-Ice::InputStreamI::internalReadDoubleSeq(pair<const Double*, const Double*>& p)
+Ice::InputStreamI::readDoubleSeq(pair<const Double*, const Double*>& p)
 {
     return _is->read(p);
 }
 
 string
-Ice::InputStreamI::internalReadString(bool convert)
+Ice::InputStreamI::readString(bool convert)
 {
     string v;
     _is->read(v, convert);
@@ -217,7 +225,7 @@ Ice::InputStreamI::internalReadString(bool convert)
 }
 
 vector<string>
-Ice::InputStreamI::internalReadStringSeq(bool convert)
+Ice::InputStreamI::readStringSeq(bool convert)
 {
     vector<string> v;
     _is->read(v, convert);
@@ -225,7 +233,7 @@ Ice::InputStreamI::internalReadStringSeq(bool convert)
 }
 
 wstring
-Ice::InputStreamI::internalReadWstring()
+Ice::InputStreamI::readWstring()
 {
     wstring v;
     _is->read(v);
@@ -233,7 +241,7 @@ Ice::InputStreamI::internalReadWstring()
 }
 
 vector<wstring>
-Ice::InputStreamI::internalReadWstringSeq()
+Ice::InputStreamI::readWstringSeq()
 {
     vector<wstring> v;
     _is->read(v);
@@ -257,19 +265,24 @@ Ice::InputStreamI::readAndCheckSeqSize(int minSize)
 }
 
 ObjectPrx
-Ice::InputStreamI::internalReadProxy()
+Ice::InputStreamI::readProxy()
 {
     Ice::ObjectPrx v;
     _is->read(v);
     return v;
 }
 
-static void
+namespace 
+{
+
+void
 patchObject(void* addr, ObjectPtr& v)
 {
     ReadObjectCallback* cb = static_cast<ReadObjectCallback*>(addr);
     assert(cb);
     cb->invoke(v);
+}
+
 }
 
 void
@@ -285,6 +298,108 @@ Ice::InputStreamI::readTypeId()
     string id;
     _is->readTypeId(id);
     return id;
+}
+
+void
+Ice::InputStreamI::read(bool& v)
+{
+    _is->read(v);
+}
+
+void
+Ice::InputStreamI::read(::Ice::Byte& v)
+{
+    _is->read(v);
+}
+
+void
+Ice::InputStreamI::read(::Ice::Short& v)
+{
+    _is->read(v);
+}
+
+void
+Ice::InputStreamI::read(Ice::Int& v)
+{
+    _is->read(v);
+}
+
+void
+Ice::InputStreamI::read(Ice::Long& v)
+{
+    _is->read(v);
+}
+
+void
+Ice::InputStreamI::read(Ice::Float& v)
+{
+    _is->read(v);
+}
+
+void
+Ice::InputStreamI::read(Ice::Double& v)
+{
+    _is->read(v);
+}
+
+void
+Ice::InputStreamI::read(std::string& v, bool convert)
+{
+    _is->read(v, convert);
+}
+
+void
+Ice::InputStreamI::read(std::vector<std::string>& v, bool convert)
+{
+    _is->read(v, convert);
+}
+
+void
+Ice::InputStreamI::read(std::wstring& v)
+{
+    _is->read(v);
+}
+
+void
+Ice::InputStreamI::read(std::pair<const bool*, const bool*>& p, ::IceUtil::ScopedArray<bool>& result)
+{
+    result.reset(_is->read(p));
+}
+
+void
+Ice::InputStreamI::read(std::pair<const Ice::Byte*, const Ice::Byte*>& p)
+{
+    _is->read(p);
+}
+void
+Ice::InputStreamI::read(std::pair<const Ice::Short*, const Ice::Short*>& p, ::IceUtil::ScopedArray<Ice::Short>& result)
+{
+    result.reset(_is->read(p));
+}
+
+void
+Ice::InputStreamI::read(std::pair<const Ice::Int*, const Ice::Int*>& p, ::IceUtil::ScopedArray<Ice::Int>& result)
+{
+    result.reset(_is->read(p));
+}
+
+void
+Ice::InputStreamI::read(std::pair<const Ice::Long*, const Ice::Long*>& p, ::IceUtil::ScopedArray<Ice::Long>& result)
+{
+    result.reset(_is->read(p));
+}
+
+void
+Ice::InputStreamI::read(std::pair<const Ice::Float*, const Ice::Float*>& p, ::IceUtil::ScopedArray<Ice::Float>& result)
+{
+    result.reset(_is->read(p));
+}
+
+void
+Ice::InputStreamI::read(std::pair<const Ice::Double*, const Ice::Double*>& p, 
+                        ::IceUtil::ScopedArray<Ice::Double>& result)
+{
+    result.reset(_is->read(p));
 }
 
 void
@@ -370,209 +485,21 @@ Ice::OutputStreamI::communicator() const
 }
 
 void
-Ice::OutputStreamI::internalWriteBool(bool v)
+Ice::OutputStreamI::writeObject(const ObjectPtr& v)
 {
     _os->write(v);
 }
 
 void
-Ice::OutputStreamI::internalWriteBoolSeq(const vector<bool>& v)
+Ice::OutputStreamI::writeException(const UserException& v)
 {
     _os->write(v);
 }
 
 void
-Ice::OutputStreamI::internalWriteBoolSeq(const bool* begin, const bool* end)
-{
-    _os->write(begin, end);
-}
-
-void
-Ice::OutputStreamI::internalWriteByte(Byte v)
+Ice::OutputStreamI::writeProxy(const ObjectPrx& v)
 {
     _os->write(v);
-}
-
-void
-Ice::OutputStreamI::internalWriteByteSeq(const vector<Byte>& v)
-{
-    if(v.size() == 0)
-    {
-        _os->writeSize(0);
-    }
-    else
-    {
-        _os->write(&v[0], &v[0] + v.size());
-    }
-}
-
-void
-Ice::OutputStreamI::internalWriteByteSeq(const Byte* begin, const Byte* end)
-{
-    _os->write(begin, end);
-}
-
-void
-Ice::OutputStreamI::internalWriteShort(Short v)
-{
-    _os->write(v);
-}
-
-void
-Ice::OutputStreamI::internalWriteShortSeq(const vector<Short>& v)
-{
-    if(v.size() == 0)
-    {
-        _os->writeSize(0);
-    }
-    else
-    {
-        _os->write(&v[0], &v[0] + v.size());
-    }
-}
-
-void
-Ice::OutputStreamI::internalWriteShortSeq(const Short* begin, const Short* end)
-{
-    _os->write(begin, end);
-}
-
-void
-Ice::OutputStreamI::internalWriteInt(Int v)
-{
-    _os->write(v);
-}
-
-void
-Ice::OutputStreamI::internalWriteIntSeq(const vector<Int>& v)
-{
-    if(v.size() == 0)
-    {
-        _os->writeSize(0);
-    }
-    else
-    {
-        _os->write(&v[0], &v[0] + v.size());
-    }
-}
-
-void
-Ice::OutputStreamI::internalWriteIntSeq(const Int* begin, const Int* end)
-{
-    _os->write(begin, end);
-}
-
-void
-Ice::OutputStreamI::internalWriteLong(Long v)
-{
-    _os->write(v);
-}
-
-void
-Ice::OutputStreamI::internalWriteLongSeq(const vector<Long>& v)
-{
-    if(v.size() == 0)
-    {
-        _os->writeSize(0);
-    }
-    else
-    {
-        _os->write(&v[0], &v[0] + v.size());
-    }
-}
-
-void
-Ice::OutputStreamI::internalWriteLongSeq(const Long* begin, const Long* end)
-{
-    _os->write(begin, end);
-}
-
-void
-Ice::OutputStreamI::internalWriteFloat(Float v)
-{
-    _os->write(v);
-}
-
-void
-Ice::OutputStreamI::internalWriteFloatSeq(const vector<Float>& v)
-{
-    if(v.size() == 0)
-    {
-        _os->writeSize(0);
-    }
-    else
-    {
-        _os->write(&v[0], &v[0] + v.size());
-    }
-}
-
-void
-Ice::OutputStreamI::internalWriteFloatSeq(const Float* begin, const Float* end)
-{
-    _os->write(begin, end);
-}
-
-void
-Ice::OutputStreamI::internalWriteDouble(Double v)
-{
-    _os->write(v);
-}
-
-void
-Ice::OutputStreamI::internalWriteDoubleSeq(const vector<Double>& v)
-{
-    if(v.size() == 0)
-    {
-        _os->writeSize(0);
-    }
-    else
-    {
-        _os->write(&v[0], &v[0] + v.size());
-    }
-}
-
-void
-Ice::OutputStreamI::internalWriteDoubleSeq(const Double* begin, const Double* end)
-{
-    _os->write(begin, end);
-}
-
-void
-Ice::OutputStreamI::internalWriteString(const string& v, bool convert)
-{
-    _os->write(v, convert);
-}
-
-void
-Ice::OutputStreamI::internalWriteStringSeq(const vector<string>& v, bool convert)
-{
-    if(v.size() == 0)
-    {
-        _os->writeSize(0);
-    }
-    else
-    {
-        _os->write(&v[0], &v[0] + v.size(), convert);
-    }
-}
-
-void
-Ice::OutputStreamI::internalWriteWstring(const wstring& v)
-{
-    _os->write(v);
-}
-
-void
-Ice::OutputStreamI::internalWriteWstringSeq(const vector<wstring>& v)
-{
-    if(v.size() == 0)
-    {
-        _os->writeSize(0);
-    }
-    else
-    {
-        _os->write(&v[0], &v[0] + v.size());
-    }
 }
 
 void
@@ -587,27 +514,118 @@ Ice::OutputStreamI::writeSize(Int sz)
 }
 
 void
-Ice::OutputStreamI::internalWriteProxy(const ObjectPrx& v)
-{
-    _os->write(v);
-}
-
-void
-Ice::OutputStreamI::writeObject(const ObjectPtr& v)
-{
-    _os->write(v);
-}
-
-void
 Ice::OutputStreamI::writeTypeId(const string& id)
 {
     _os->writeTypeId(id);
 }
 
 void
-Ice::OutputStreamI::writeException(const UserException& v)
+Ice::OutputStreamI::write(bool v)
 {
     _os->write(v);
+}
+
+void
+Ice::OutputStreamI::write(Byte v)
+{
+    _os->write(v);
+}
+
+void
+Ice::OutputStreamI::write(Short v)
+{
+    _os->write(v);
+}
+
+void
+Ice::OutputStreamI::write(Int v)
+{
+    _os->write(v);
+}
+
+void
+Ice::OutputStreamI::write(Long v)
+{
+    _os->write(v);
+}
+
+void
+Ice::OutputStreamI::write(Float v)
+{
+    _os->write(v);
+}
+
+void
+Ice::OutputStreamI::write(Double v)
+{
+    _os->write(v);
+}
+
+void
+Ice::OutputStreamI::write(const string& v, bool convert)
+{
+    _os->write(v, convert);
+}
+
+void
+Ice::OutputStreamI::write(const char* v, bool convert)
+{
+    _os->write(v, convert);
+}
+
+void
+Ice::OutputStreamI::write(const vector<string>& v, bool convert)
+{
+    if(v.size() == 0)
+    {
+        _os->writeSize(0);
+    }
+    else
+    {
+        _os->write(&v[0], &v[0] + v.size(), convert);
+    }
+}
+
+void
+Ice::OutputStreamI::write(const wstring& v)
+{
+    _os->write(v);
+}
+
+void
+Ice::OutputStreamI::write(const bool* begin, const bool* end)
+{
+    _os->write(begin, end);
+}
+
+void
+Ice::OutputStreamI::write(const Byte* begin, const Byte* end)
+{
+    _os->write(begin, end);
+}
+
+void
+Ice::OutputStreamI::write(const Int* begin, const Int* end)
+{
+    _os->write(begin, end);
+}
+
+void
+Ice::OutputStreamI::write(const Long* begin, const Long* end)
+{
+    _os->write(begin, end);
+}
+
+void
+Ice::OutputStreamI::write(const Float* begin, const Float* end)
+{
+    _os->write(begin, end);
+}
+
+void
+Ice::OutputStreamI::write(const Double* begin, const Double* end)
+{
+    _os->write(begin, end);
 }
 
 void
@@ -661,7 +679,219 @@ Ice::OutputStreamI::reset(bool clearBuffer)
     }
     
     _os->i = _os->b.begin();
-}       
+}
+
+void
+Ice::OutputStreamI::writeBool(bool v)
+{
+    _os->write(v);
+}
+
+void
+Ice::OutputStreamI::writeBoolSeq(const vector<bool>& v)
+{
+    _os->write(v);
+}
+
+void
+Ice::OutputStreamI::writeBoolSeq(const bool* begin, const bool* end)
+{
+    write(begin, end);
+}
+
+void
+Ice::OutputStreamI::writeByte(Byte v)
+{
+    _os->write(v);
+}
+
+void
+Ice::OutputStreamI::writeByteSeq(const vector<Byte>& v)
+{
+    if(v.size() == 0)
+    {
+        _os->writeSize(0);
+    }
+    else
+    {
+        _os->write(&v[0], &v[0] + v.size());
+    }
+}
+
+void
+Ice::OutputStreamI::writeByteSeq(const Ice::Byte* begin, const Ice::Byte* end)
+{
+    write(begin, end);
+}
+
+void
+Ice::OutputStreamI::writeShort(Short v)
+{
+    _os->write(v);
+}
+
+void
+Ice::OutputStreamI::writeShortSeq(const vector<Short>& v)
+{
+    if(v.size() == 0)
+    {
+        _os->writeSize(0);
+    }
+    else
+    {
+        _os->write(&v[0], &v[0] + v.size());
+    }
+}
+
+void
+Ice::OutputStreamI::writeShortSeq(const Ice::Short* begin, const Ice::Short* end)
+{
+    write(begin, end);
+}
+
+void
+Ice::OutputStreamI::writeInt(Int v)
+{
+    _os->write(v);
+}
+
+void
+Ice::OutputStreamI::writeIntSeq(const vector<Int>& v)
+{
+    if(v.size() == 0)
+    {
+        _os->writeSize(0);
+    }
+    else
+    {
+        _os->write(&v[0], &v[0] + v.size());
+    }
+}
+
+void
+Ice::OutputStreamI::writeIntSeq(const Ice::Int* begin, const Ice::Int* end)
+{
+    write(begin, end);
+}
+
+void
+Ice::OutputStreamI::writeLong(Long v)
+{
+    _os->write(v);
+}
+
+void
+Ice::OutputStreamI::writeLongSeq(const vector<Long>& v)
+{
+    if(v.size() == 0)
+    {
+        _os->writeSize(0);
+    }
+    else
+    {
+        _os->write(&v[0], &v[0] + v.size());
+    }
+}
+
+void
+Ice::OutputStreamI::writeLongSeq(const Ice::Long* begin, const Ice::Long* end)
+{
+    write(begin, end);
+}
+
+void
+Ice::OutputStreamI::writeFloat(Float v)
+{
+    _os->write(v);
+}
+
+void
+Ice::OutputStreamI::writeFloatSeq(const vector<Float>& v)
+{
+    if(v.size() == 0)
+    {
+        _os->writeSize(0);
+    }
+    else
+    {
+        _os->write(&v[0], &v[0] + v.size());
+    }
+}
+
+void
+Ice::OutputStreamI::writeFloatSeq(const Ice::Float* begin, const Ice::Float* end)
+{
+    write(begin, end);
+}
+
+void
+Ice::OutputStreamI::writeDouble(Double v)
+{
+    _os->write(v);
+}
+
+void
+Ice::OutputStreamI::writeDoubleSeq(const vector<Double>& v)
+{
+    if(v.size() == 0)
+    {
+        _os->writeSize(0);
+    }
+    else
+    {
+        _os->write(&v[0], &v[0] + v.size());
+    }
+}
+
+void
+Ice::OutputStreamI::writeDoubleSeq(const Ice::Double* begin, const Ice::Double* end)
+{
+    write(begin, end);
+}
+
+void
+Ice::OutputStreamI::write(const Short* begin, const Short* end)
+{
+    _os->write(begin, end);
+}
+
+void
+Ice::OutputStreamI::writeString(const string& v, bool convert)
+{
+    _os->write(v, convert);
+}
+
+void
+Ice::OutputStreamI::writeStringSeq(const vector<string>& v, bool convert)
+{
+    if(v.size() == 0)
+    {
+        _os->writeSize(0);
+    }
+    else
+    {
+        _os->write(&v[0], &v[0] + v.size(), convert);
+    }
+}
+
+void
+Ice::OutputStreamI::writeWstring(const wstring& v)
+{
+    _os->write(v);
+}
+
+void
+Ice::OutputStreamI::writeWstringSeq(const vector<wstring>& v)
+{
+    if(v.size() == 0)
+    {
+        _os->writeSize(0);
+    }
+    else
+    {
+        _os->write(&v[0], &v[0] + v.size());
+    }
+}
 
 //
 // ObjectReader

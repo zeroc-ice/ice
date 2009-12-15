@@ -145,7 +145,7 @@ sequenceTypeToString(const SequencePtr& seq, const StringList& metaData, int typ
                     {
                         s = " " + s;
                     }
-                    return "::std::pair< ::IceUtilInternal::ScopedArray<" + s + ">," +
+                    return "::std::pair< ::IceUtil::ScopedArray<" + s + ">," +
                         " ::std::pair<const " + s + "*, const " + s + "*> >";
                 }
                 else
@@ -854,7 +854,7 @@ Slice::writeMarshalUnmarshalCode(Output& out, const TypePtr& type, const string&
                     }
                     else
                     {
-                        out << nl << "::IceUtilInternal::ScopedArray<" << s << "> ___" << fixedParam << '('
+                        out << nl << "::IceUtil::ScopedArray<" << s << "> ___" << fixedParam << '('
                             << stream << deref << func << fixedParam << "));";
                     }
                 }
