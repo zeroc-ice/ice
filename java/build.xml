@@ -527,7 +527,7 @@
                 </not>
             </and>
         </condition>
-        <condition property="library.jarfiles" value="vm.jar,rt.jar,security.jar,beans.jar,java.util.jar,ibmjssefw.jar,ibmcertpathfw.jar,logging.jar">
+        <condition property="library.jarfiles" value="vm.jar,rt.jar,security.jar,beans.jar,java.util.jar,ibmjssefw.jar,ibmcertpathfw.jar,logging.jar,jlm.jar">
             <!-- Library jar files for IBM J9 (from SuSE Linux) -->
             <available file="${java.home}/lib/vm.jar"/>
         </condition>
