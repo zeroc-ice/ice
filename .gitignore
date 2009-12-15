@@ -41,10 +41,7 @@ sgenerated
 *.idb
 *.suo
 core.*
-cpp/src/Ice/EventLoggerMsg.h
-cpp/src/Ice/EventLoggerMsg.rc
 cpp/src/Ice/EventLoggerMsg.res
-cpp/src/Ice/MSG00001.bin
 tmp_*.xml
 obj
 *.RES
