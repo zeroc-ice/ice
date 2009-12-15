@@ -294,6 +294,8 @@ noted.
 C++ Changes
 ============
 
+- Added new demo book/map_filesystem.
+
 - IceUtil:: Shared now uses the native atomic functions provided by gcc
   4.1 and later on supported platforms. For details see
   http://gcc.gnu.org/onlinedocs/gcc-4.1.0/gcc/Atomic-Builtins.html
@@ -349,6 +351,8 @@ C++ Changes
 
 Java Changes
 ============
+
+- Added new demo book/map_filesystem.
 
 - Changed IceSSL to use the keystore as the truststore if no
   truststore is explicitly defined.
