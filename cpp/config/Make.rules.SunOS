@@ -162,7 +162,10 @@ rpathlink                   = -L$(1)
 BASELIBS		    = -lIceUtil -lpthread
 LIBS			    = $(BZIP2_RPATH_LINK) -lIce $(BASELIBS)
 
-QT_LIBS			= -lQtCore -lQtSql
+ifneq ($(QT_HOME),)
+   QT_FLAGS             = -I$(QT_HOME)/include
+   QT_LIBS              = -L$(QT_HOME)/$(libsubdir) -lQtCore -lQtSql
+endif
 
 ICEUTIL_OS_LIBS		    = -lpthread -lrt
 ICE_OS_LIBS		    = -ldl -lsocket
