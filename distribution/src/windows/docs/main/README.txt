@@ -50,9 +50,9 @@ This distribution is supported on the following Windows versions:
 
  - Windows XP with Service Pack 3 (x86)
  - Windows Server 2003 Standard with Service Pack 2 (x86 & x64)
- - Windows Server 2008 Standard (x86 & x64)
- - Windows Server 2008 Standard R2 (x86 & x64)
- - Windows Vista (x86 & x64)
+ - Windows Server 2008 Standard with Service Pack 2 (x86 & x64)
+ - Windows Server 2008 Standard R2 (x64)
+ - Windows Vista with Service Pack 2 (x86 & x64)
  - Windows 7 (x86 & x64)
 
 

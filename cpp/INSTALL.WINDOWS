@@ -8,8 +8,7 @@ instructions for building and testing the distribution.
 
 If you prefer, you can download a Windows installer that contains
 pre-compiled debug and release libraries, executables, and everything
-else necessary to build Ice applications on Windows. Installers for
-each supported compiler are available at the link below:
+else necessary to build Ice applications on Windows at the link below:
 
   http://www.zeroc.com/download.html
 
@@ -24,26 +23,23 @@ Windows version
 
 Ice has been extensively tested on:
 
-- Windows XP SP2 x86
-- Windows 2003 Server SP2 x86 and x64
-- Windows 2008 Server x86 and x64
-- Windows 2008 Server R2 x86 and x64
-- Windows Vista x86 and x64
-- Windows 7 x86 and x64
+ - Windows XP with Service Pack 3 (x86)
+ - Windows Server 2003 Standard with Service Pack 2 (x86 & x64)
+ - Windows Server 2008 Standard with Service Pack 2 (x86 & x64)
+ - Windows Server 2008 Standard R2 (x64)
+ - Windows Vista with Service Pack 2 (x86 & x64)
+ - Windows 7 (x86 & x64)
 
 Ice does not work on Windows 2000. However, porting Ice to Windows
 2000 should be fairly simple if you do not require UDP multicast or
 IPv6.
 
-There are several Ice binary distributions available for Windows, each
-built with a different C++ compiler. These distributions can be 
-downloaded from:
+The Ice binary distribution for Windows can be downloaded from:
 
   http://www.zeroc.com/download.html
 
-The binary distributions include everything necessary to build Ice 
-applications and require Windows XP, Windows Server 2003, or
-Windows Vista.
+The distribution includes everything necessary to build Ice 
+applications and requires one of the Windows platforms listed above.
 
 
 C++ compiler
@@ -64,16 +60,17 @@ The following C++ compilers are supported:
   supported. STLport is included in the Ice third-party package
   for Visual C++ 6.0.
 
-  Visual C++ 6.0 is only officially supported in order to be able build
-  Ice for Ruby and PHP and not for general Visual C++ 6.0  development.
+  Visual C++ 6.0 is only officially supported in order to build the
+  Ice extensions for Ruby and PHP. Visual C++ 6.0 is not supported for
+  general application development in this release.
 
 - CodeGear C++Builder 2010
 
-  The Ice services (IceGrid, IceStorm, etc) are not supported with
+  The Ice services (IceGrid, IceStorm, etc.) are not supported with
   C++Builder builds. C++Builder applications can use the Ice services
   but the service executables themselves must come from either a 
   Visual C++ 2008 build or from the Windows installer (which includes
-  the Visual C++ 2008 built executables).
+  executables built using Visual C++ 2008).
 
 
 C++Builder 2010 Setup
@@ -85,7 +82,8 @@ Users of C++Builder 2010 need to install the Microsoft Platform SDK:
 
 Once installed, you need to add the Platform SDK directories to the
 INCLUDE, LIB and PATH environment variables. This can be done by
-executing the following script from within the compiler command prompt:
+executing the following script from within the compiler command
+prompt:
 
   C:\Program Files\Microsoft Platform SDK for Windows Server 2003 R2\SetEnv.Cmd
 
@@ -103,7 +101,7 @@ the MSDN Subscriber Downloads. In the content tree open:
 
   Tools, SDKs, and DDKs / Platform SDK / Platform SDK - February 2003 Edition (English)
 
-and then download en_platformsdk_win2003.exe
+and then download the file en_platformsdk_win2003.exe.
 
 Once installed, you need to add the Platform SDK directories to the
 INCLUDE, LIB and PATH environment variables. This can be done by
@@ -140,8 +138,8 @@ Ice has dependencies on a number of third-party libraries:
 - QT 4.5.3
 
 You do not need to build these packages yourself, as ZeroC supplies a
-Windows installer for each supported compiler that contains release
-and debug libraries for all of the third-party dependencies.
+Windows installer that contains release and debug libraries for all of
+the third-party dependencies.
 
 If you intend to build the third-party dependencies from source, we
 recommend downloading the Ice third-party source archive from

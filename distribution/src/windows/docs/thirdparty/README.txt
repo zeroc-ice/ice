@@ -22,28 +22,28 @@ create this package:
 
 This distribution provides:
 
- - headers file for Berkeley DB, OpenSSL, Expat, Bzip2, Qt and STLPort
+ - Header files for Berkeley DB, OpenSSL, Expat, Bzip2, Qt and STLPort
    in the include directory.
 
- - import libraries for Berkeley DB, OpenSSL, Expat, Bzip2, MCPP and
+ - Import libraries for Berkeley DB, OpenSSL, Expat, Bzip2, MCPP and
    Qt built using Visual Studio 2008 SP1, in the lib and lib\x64
    directories.
 
- - import libraries for Berkeley DB, OpenSSL, Expat, Bzip2 and MCPP
+ - Import libraries for Berkeley DB, OpenSSL, Expat, Bzip2 and MCPP
    built using CodeGear C++Builder 2010, in the lib\bcc10 directory. 
 
- - import libraries for OpenSSL, Bzip2 and STLport built using Visual
+ - Import libraries for OpenSSL, Bzip2 and STLport built using Visual
    C++ 6.0 in the lib\vc6 directory. 
 
  - DLLs and exes for Berkeley DB, OpenSSL, Expat, Bzip2 and Qt built
    using Visual Studio 2008 SP1 in the bin and bin\x64 directories.
 
  - DLL for Berkeley DB built using CodeGear C++Builder 2010 in the
-   bin/bcc10 directory. For other third party DLLs the Visual Studio
+   bin/bcc10 directory. For other third-party DLLs, the Visual Studio
    2008 DLLs are used, with just the import libraries generated for
    C++Builder 2010.
 
  - DLLs for OpenSSL, Bzip2 and STLport built using Visual C++ 6.0 in 
    the bin directory.
 
- - jar files for JGoodies Looks and JGoodies Forms in lib directory.
+ - JAR files for JGoodies Looks and JGoodies Forms in lib directory.
