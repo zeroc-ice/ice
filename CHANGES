@@ -30,6 +30,9 @@ General Changes
 These entries apply to all relevant language mappings unless otherwise
 noted.
 
+- Freeze now uses file locks to prevent multiple processes from
+  opening the same database environment.
+
 - Added new utility classes to simplify the use of Glacier2. The
   Glacier2::Application class extends Ice::Application to add support
   for keeping a Glacier2 session alive and automatically restarting it
@@ -293,6 +296,21 @@ noted.
 
 C++ Changes
 ============
+
+- The C++ class generated for a derived Slice class no longer uses
+  virtual inheritance by default. The metadata "cpp:virtual" can be
+  defined for a Slice class to force the translator to use virtual
+  inheritance when necessary.
+
+- The following functions have new overloaded versions on Windows that
+  accept a Unicode argument vector:
+
+  Ice::Application::main
+  Ice::Service::main
+  Ice::argsToStringSeq
+
+- Added support for specifying the priority of threads in a thread
+  pool. See the Ice manual for more information.
 
 - Added new demo book/map_filesystem.
 
