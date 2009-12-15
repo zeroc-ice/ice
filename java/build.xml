@@ -623,6 +623,7 @@
 
     <target name="install-jar">
         <copy file="${lib.dir}/Ice.jar" todir="${prefix}/lib"/>
+        <copy file="${lib.dir}/Freeze.jar" todir="${prefix}/lib"/>
     </target>
 
     <target name="install-tasks">
