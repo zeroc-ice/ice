@@ -1,5 +1,6 @@
+======================================================================
 The Internet Communications Engine
-----------------------------------
+======================================================================
 
 Ice is a modern alternative to object middleware such as CORBA or
 COM/DCOM/COM+. It is easy to learn, yet provides a powerful network
@@ -16,8 +17,9 @@ customers who wish to use Ice in proprietary products. Please contact
 sales@zeroc.com for more information on licensing Ice.
 
 
+======================================================================
 About this distribution
------------------------
+======================================================================
 
 This binary distribution provides all Ice run time services and
 development tools to build Ice applications:
@@ -40,8 +42,9 @@ C++ applications), and provides instructions for building and running
 the sample programs.
 
 
+======================================================================
 Supported Windows versions
---------------------------
+======================================================================
 
 This distribution is supported on the following Windows versions:
 
@@ -53,8 +56,9 @@ This distribution is supported on the following Windows versions:
  - Windows 7 (x86 & x64)
 
 
+======================================================================
 Monotonic clock
----------------
+======================================================================
 
 Ice uses the QueryPerformanceCounter Windows API function to measure
 time with a monotonic clock. If you are experiencing timing or
@@ -65,8 +69,9 @@ relevant for your system:
   http://support.microsoft.com/?id=895980
 
 
+======================================================================
 Protocol compression
---------------------
+======================================================================
 
 The Ice for Java and Ice for .NET run times implement protocol
 compression by dynamically loading third-party bzip2 libraries. Ice
@@ -89,8 +94,9 @@ and can be found in <Ice installation root directory>\bin (or in
 <Ice installation root directory>\bin\x64 for a 64-bit system).
 
 
+======================================================================
 Managed code in Ice for .NET
-----------------------------
+======================================================================
 
 The main Ice for .NET assembly (Ice.dll) included in this distribution
 uses unmanaged code. If you require only managed code then you can
@@ -104,16 +110,18 @@ You can download the source distribution at the link below:
     http://www.zeroc.com/download.html
 
 
+======================================================================
 Running IceGrid and Glacier2 components as services
----------------------------------------------------
+======================================================================
 
 An appendix in the Ice manual provides information on installing and
 running the IceGrid registry, IceGrid node, and Glacier2 router as
 Windows services.
 
 
+======================================================================
 Using the IceGrid Administrative Console
-----------------------------------------
+======================================================================
 
 A Java-based graphical tool for administering IceGrid applications
 is included in this distribution. The Java archive file is installed
@@ -125,11 +133,124 @@ With a suitable Java installation, you can execute the application
 by double-clicking on this file.
 
 
-Setting up Visual Studio 2008 to build Ice applications in C++
---------------------------------------------------------------
+======================================================================
+Ice Visual Studio 2008 Extension
+======================================================================
 
-Before you can use Ice in your C++ applications, you first need to
-configure Visual Studio with the locations of the Ice header files,
+The Ice Visual Studio Extension integrates Ice projects into the
+Visual Studio 2008 IDE. The extension supports C++, .NET, and
+Silverlight projects.
+
+
+Activating the plug-in for a project
+------------------------------------
+
+After installing the plug-in, right-click on the project in Solution
+Explorer and choose "Ice Configuration..." or go to "Ice
+Configuration..." in the "Tools" menu. This opens a dialog where you
+can configure Ice build properties.
+
+Note that after adding new configurations or platforms to your
+project, it may be necessary to disable and then re-enable the plug-in
+in order for the new configuration/platform to get the correct Ice
+settings.
+
+
+Project properties
+------------------
+
+  * Ice Home
+
+    Set the directory where Ice is installed.
+
+  * Slice Compiler Options
+
+    Tick the corresponding check boxes to pass options such as --ice,
+    --stream, --checksum, or --tie (.NET only) to the Slice compiler.
+
+    Tick "Console Output" if you want compiler output to appear in the
+    Output window.
+
+  * Extra Compiler Options
+
+    Add extra Slice compiler options that are not explicitly supported
+    above.
+
+    These options must be entered the same as they would be on the command
+    line to the Slice compiler. For example, preprocessor macros can be
+    defined by entering the following:
+
+    -DFOO -DBAR
+
+  * Slice Include Path
+
+    Set the list of directories to search for included Slice files
+    (-I option).
+
+    The checkbox for each path specifies whether the path should be
+    relative to the project directory or an absolute path. Note that
+    paths that use environment variables are not changed by this
+    feature.
+
+  * DLL Export Symbol (C++ only)
+
+    Set the symbol to use for DLL exports (--dll-export option).
+
+  * Ice Components
+
+    Set the list of Ice libraries to link with.
+
+
+Environment Variables
+---------------------
+
+The "Ice Home", "Extra Compiler Options", and "Slice Include Path"
+settings support the use of environment variables. Use the $(VAR)
+syntax to refer to an environment variable named VAR. For example,
+for "Ice Home" you could use $(ICE_HOME).
+
+
+Adding Slice files to a project
+-------------------------------
+
+Use "Add -> New Item..." to create a Slice file and add it to a
+project.  Use "Slice File (.ice)" as the file type. To add an existing
+Slice file, use "Add -> Existing Item...".
+
+
+Generating code
+---------------
+
+The extension compiles a Slice file whenever you save the file. The
+extension tracks dependencies among Slice files in the project and
+recompiles only those files that require it after a change.
+
+Generated files are automatically added to the project. For example,
+for Demo.ice, the extension for C++ adds Demo.cpp and Demo.h to the
+project, whereas the extension for C# adds Demo.cs to the project.
+
+Errors that occur during Slice compilation are displayed in the Visual
+Studio "Output" and "Error List" panels.
+
+
+VC++ Pre-compiled headers
+-------------------------
+
+For C++ projects, pre-compiled headers are detected automatically.
+(The extension automatically passes the required --add-header option
+to slice2cpp.)
+
+If you change the pre-compiled header setting of a project, you must
+rebuild the project.
+
+
+======================================================================
+Setting up Visual Studio 2008 to build Ice applications in C++
+======================================================================
+
+If you do not want to use the Ice Visual Studion Extenstion then
+before you can use Ice in your C++ applications, you first need to 
+configure Visual Studio with the locations of the Ice header files, 
 libraries, and executables.
 
 - In the IDE, choose Tools->Options->Projects and Solutions->VC++ Directories
@@ -155,8 +276,9 @@ libraries, and executables.
   For x64 binaries add <Ice installation root directory>\bin\x64
 
 
+======================================================================
 Building and running the demos
-------------------------------
+======================================================================
 
 This distribution includes an archive named Ice-@ver@-demos.zip that
 contains sample programs for the various supported languages. To build
@@ -164,8 +286,9 @@ and run the demos you must first extract this archive in the location
 of your choice.
 
 
+======================================================================
 Building and running the C++ demos (Visual C++ 2008)
-----------------------------------------------------
+======================================================================
 
 The C++ demos are in the demo directory.
 
@@ -207,8 +330,9 @@ Oracle development environment. Please see the individual demo README
 files for more information.
 
 
+======================================================================
 Building and running the C++ demos (C++ Builder 2008)
-----------------------------------------------------
+======================================================================
 
 The C++ demos are in the demo directory.
 
@@ -239,8 +363,12 @@ one is present. Type 'server' to start the server. In another command
 prompt, type 'client' to start the client.
 
 
-Building and running the C# demos
----------------------------------
+======================================================================
+Building and running the .NET demos
+======================================================================
+
+C# demos
+--------
 
 The C# demos are in the democs directory.
 
@@ -264,8 +392,8 @@ one is present. Type 'server.exe' to start the server. In another
 command prompt, type 'client.exe' to start the client.
 
 
-Building and running the Visual Basic demos
--------------------------------------------
+Visual Basic demos
+------------------
 
 The Visual Basic demos are in the demovb directory.
 
@@ -351,8 +479,9 @@ Ice.pdb file into this directory:
   > copy <path_to_ice.pdb> .
 
 
+======================================================================
 Building and running the Java demos
------------------------------------
+======================================================================
 
 The Java demos are in the demoj directory.
 
@@ -401,8 +530,9 @@ Some demo directories contain README files if additional requirements
 are necessary.
 
 
+======================================================================
 Running the Python demos
-------------------------
+======================================================================
 
 The Python demos are in the demopy directory.
 
@@ -430,8 +560,9 @@ separate Command Prompt window, type 'python Client.py' to run the
 client.
 
 
+======================================================================
 Running the Ruby demos
-----------------------
+======================================================================
 
 The Ruby demos are in the demorb directory.
 
@@ -485,8 +616,9 @@ have an adverse impact on other Ice language mappings that use
 OpenSSL, such as C++ and Python.
 
 
+======================================================================
 Running the PHP demos
----------------------
+======================================================================
 
 PHP demos are provided in the demophp directory.
 
@@ -644,8 +776,9 @@ appropriate changes as you follow the instructions.
    require 'Ice.php'; // Load the core Ice run time definitions.
 
 
+======================================================================
 Protocol compression with 64-bit Windows
-----------------------------------------
+======================================================================
 
 Ice for .NET attempts to dynamically load bzip2.dll to support
 protocol compression. On 64-bit Windows, you have to make sure that
@@ -657,8 +790,9 @@ that <prefix>\bin\x64 appears in the application's PATH instead of
 detects a bzip2.dll format mismatch during start-up.)
 
 
+======================================================================
 Binary compatibility
---------------------
+======================================================================
 
 Ice patch releases are binary compatible. For example, Ice version
 @mmver@.1 is compatible with @mmver@.0: you can run an application built
@@ -669,8 +803,9 @@ Please refer to the RELEASE_NOTES.txt file included in this
 distribution for detailed upgrade instructions.
 
 
+======================================================================
 Ice and the Windows Registry
-----------------------------
+======================================================================
 
 The Ice installer adds information to the Windows registry to indicate
 where it was installed. Developers can use this information to locate
@@ -678,12 +813,14 @@ the Ice files in their applications.
 
 The registration key used by this installer is:
 
-HKEY_LOCAL_MACHINE\Software\ZeroC\Ice @ver@ for Visual Studio 2008
+HKEY_LOCAL_MACHINE\Software\ZeroC\Ice @ver@
 
 The install location is stored as a string value named 'InstallDir'.
 
 
+======================================================================
 Acknowledgments
+======================================================================
 ---------------
 
 This product includes software developed by the OpenSSL Project for

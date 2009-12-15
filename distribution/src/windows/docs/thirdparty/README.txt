@@ -1,9 +1,9 @@
-Ice 3.4b Third Party Packages
+Ice @ver@ Third Party Packages
 -----------------------------
 
 This distribution contains the development kit (including binaries)
-for the open-source packages used by Ice 3.4b on Windows. Its primary
-purpose is to simplify building Ice 3.4b from sources.
+for the open-source packages used by Ice @ver@ on Windows. Its primary
+purpose is to simplify building Ice @ver@ from sources.
 
 
 The following versions of the third party software were used to

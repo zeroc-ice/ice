@@ -329,7 +329,7 @@ writeSrcDistReport("Ice", version, compareToDir, [srcDir, demoDir, distFilesDir,
 print "Cleaning up...",
 sys.stdout.flush()
 remove(srcDir)
-#remove(demoDir)
+remove(demoDir)
 remove(demoscriptDir)
 remove(rpmBuildDir)
 remove(distFilesDir)

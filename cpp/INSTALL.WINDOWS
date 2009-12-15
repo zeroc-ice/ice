@@ -64,7 +64,16 @@ The following C++ compilers are supported:
   supported. STLport is included in the Ice third-party package
   for Visual C++ 6.0.
 
+  Visual C++ 6.0 is only officially supported in order to be able build
+  Ice for Ruby and PHP and not for general Visual C++ 6.0  development.
+
 - CodeGear C++Builder 2010
+
+  The Ice services (IceGrid, IceStorm, etc) are not supported with
+  C++Builder builds. C++Builder applications can use the Ice services
+  but the service executables themselves must come from either a 
+  Visual C++ 2008 build or from the Windows installer (which includes
+  the Visual C++ 2008 built executables).
 
 
 C++Builder 2010 Setup
@@ -127,7 +136,7 @@ Ice has dependencies on a number of third-party libraries:
 - expat 2.0
 - OpenSSL 0.9.7 or later (OpenSSL 0.9.8 or later recommended)
 - bzip2 1.0
-- mcpp 2.7.2
+- mcpp 2.7.2 (with patches)
 - QT 4.5.3
 
 You do not need to build these packages yourself, as ZeroC supplies a
