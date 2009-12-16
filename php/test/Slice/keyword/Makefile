@@ -11,7 +11,7 @@ top_srcdir	= ../../..
 
 SLICE_SRCS	= Key.ice
 
-include $(top_srcdir)/config/Make.rules
+include $(top_srcdir)/config/Make.rules.php
 
 SRCS	= Key.php
 

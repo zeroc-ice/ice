@@ -12,7 +12,7 @@ top_srcdir	= ../../..
 SLICE_SRCS	= Test.ice \
 		  CTypes.ice
 
-include $(top_srcdir)/config/Make.rules
+include $(top_srcdir)/config/Make.rules.php
 
 SRCS		= Test.php CTypes.php
 

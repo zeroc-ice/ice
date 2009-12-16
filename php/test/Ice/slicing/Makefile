@@ -9,7 +9,7 @@
 
 top_srcdir	= ../../..
 
-include $(top_srcdir)/config/Make.rules
+include $(top_srcdir)/config/Make.rules.php
 
 SUBDIRS		= exceptions objects
 

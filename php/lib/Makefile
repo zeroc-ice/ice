@@ -9,7 +9,7 @@
 
 top_srcdir	= ..
 
-include $(top_srcdir)/config/Make.rules
+include $(top_srcdir)/config/Make.rules.php
 
 #
 # IMPORTANT: If you add or remove Slice files, you also need to check Ice.php!

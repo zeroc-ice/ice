@@ -11,7 +11,7 @@ top_srcdir	= ../../../..
 
 SLICE_SRCS	= Test.ice
 
-include $(top_srcdir)/config/Make.rules
+include $(top_srcdir)/config/Make.rules.php
 
 SRCS	= Test.php
 

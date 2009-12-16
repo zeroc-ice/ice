@@ -27,7 +27,7 @@ OBJS		= Communicator.o \
 
 SRCS		= $(OBJS:.o=.cpp)
 
-include $(top_srcdir)/config/Make.rules
+include $(top_srcdir)/config/Make.rules.php
 
 CPPFLAGS	:= -I. $(CPPFLAGS) $(ICE_FLAGS) $(PHP_FLAGS)
 

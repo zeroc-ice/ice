@@ -9,7 +9,7 @@
 
 top_srcdir	= ../..
 
-include $(top_srcdir)/config/Make.rules
+include $(top_srcdir)/config/Make.rules.php
 
 SUBDIRS		= binding checksum exceptions facets info inheritance objects operations proxy slicing
 
