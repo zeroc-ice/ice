@@ -8,7 +8,7 @@
 #
 # **********************************************************************
 
-import os, sys, re, subprocess
+import os, sys, re
 
 path = [ ".", "..", "../..", "../../..", "../../../.." ]
 head = os.path.dirname(sys.argv[0])
