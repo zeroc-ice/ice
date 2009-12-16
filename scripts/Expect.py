@@ -47,7 +47,7 @@ class TIMEOUT:
     def __str__(self):
         return str(self.value)
 
-def escape(s):
+def escape(s, escapeNewlines = True):
     if s == TIMEOUT:
         return "<TIMEOUT>"
     o = StringIO.StringIO()
@@ -63,7 +63,10 @@ def escape(s):
 	elif c == '\f':
 	    o.write('\\f')
 	elif c == '\n':
-	    o.write('\\n')
+            if escapeNewlines:
+                o.write('\\n')
+            else:
+                o.write('\n')
 	elif c == '\r':
 	    o.write('\\r')
 	elif c == '\t':
@@ -233,8 +236,8 @@ class reader(threading.Thread):
 				self.logfile.write('%s: match failed.\npattern: "%s"\nbuffer: "%s"\n"' %
 						   (self.desc, escape(s), escape(buf)))
 				self.logfile.flush()
-			    raise TIMEOUT ('timeout exceeded in match\npattern: "%s"\nbuffer: "%s"\n"' %
-					   (escape(s), escape(buf)))
+			    raise TIMEOUT ('timeout exceeded in match\npattern: "%s"\nbuffer: "%s"\n' %
+					   (escape(s), escape(buf, False)))
 	    except TIMEOUT, e:
 		if (TIMEOUT, None) in pattern:
 		    return buf, buf, TIMEOUT, None, pattern.index((TIMEOUT, None))
