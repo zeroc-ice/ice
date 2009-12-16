@@ -91,7 +91,7 @@ public class DirectoryI extends _DirectoryDisp
 
         PersistentFile persistentFile = new PersistentFile();
         persistentFile.name = name;
-        Ice.Identity id = _communicator.stringToIdentity(java.util.UUID.randomUUID().toString());
+        Ice.Identity id = c.adapter.getCommunicator().stringToIdentity(java.util.UUID.randomUUID().toString());
         FileI file = new FileI(persistentFile, this);
         _map.put(id, persistentFile);
 
@@ -127,7 +127,7 @@ public class DirectoryI extends _DirectoryDisp
         PersistentDirectory persistentDir = new PersistentDirectory();
         persistentDir.name = name;
         persistentDir.nodes = new java.util.HashMap<String, NodeDesc>();
-        Ice.Identity id = _communicator.stringToIdentity(java.util.UUID.randomUUID().toString());
+        Ice.Identity id = c.adapter.getCommunicator().stringToIdentity(java.util.UUID.randomUUID().toString());
         DirectoryI dir = new DirectoryI(id, persistentDir, this);
         _map.put(id, persistentDir);
 
@@ -190,7 +190,6 @@ public class DirectoryI extends _DirectoryDisp
         }
     }
 
-    public static Ice.Communicator _communicator;
     public static Ice.ObjectAdapter _adapter;
     public static IdentityNodeMap _map;
 
