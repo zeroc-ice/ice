@@ -180,6 +180,11 @@ below:
   $ ./configure CFLAGS=-fPIC --enable-mcpplib --disable-shared
   (and --prefix=<dir> if you like)
 
+For 64-bit builds, use:
+
+  $ ./configure CFLAGS="-fPIC -m64" --enable-mcpplib --disable-shared
+  (and --prefix=<dir> if you like)
+
 On 64-bit platforms, after installation it is necessary to rename the
 library installation directory from $(prefix)/lib to
 $(prefix)/lib/sparcv9 for SPARC or $(prefix)/lib/amd64 for x86.
