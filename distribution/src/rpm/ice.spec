@@ -289,13 +289,11 @@ services to use a SQL database via the Qt4 SQL API.
 
 %build
 
-#
-# We build C++ all the time since we need slice2xxx
-#
+%ifarch %{core_arches}
+
 cd $RPM_BUILD_DIR/Ice-%{version}/cpp/src
 make %{makeopts} OPTIMIZE=yes embedded_runpath_prefix="" QT_HOME=%{qt_home}
 
-%ifarch %{core_arches}
 cd $RPM_BUILD_DIR/Ice-%{version}/py
 make %{makeopts} OPTIMIZE=yes embedded_runpath_prefix=""
 
@@ -306,6 +304,26 @@ make %{makeopts} OPTIMIZE=yes embedded_runpath_prefix=""
 cd $RPM_BUILD_DIR/Ice-%{version}/rb
 make %{makeopts} OPTIMIZE=yes embedded_runpath_prefix=""
 %endif
+
+%else
+
+#
+# Build only what we need in C++.
+#
+cd $RPM_BUILD_DIR/Ice-%{version}/cpp/src/IceUtil
+make %{makeopts} OPTIMIZE=yes embedded_runpath_prefix=""
+
+cd $RPM_BUILD_DIR/Ice-%{version}/cpp/src/Slice
+make %{makeopts} OPTIMIZE=yes embedded_runpath_prefix=""
+
+cd $RPM_BUILD_DIR/Ice-%{version}/cpp/src/slice2java
+make %{makeopts} OPTIMIZE=yes embedded_runpath_prefix=""
+
+cd $RPM_BUILD_DIR/Ice-%{version}/cpp/src/slice2freezej
+make %{makeopts} OPTIMIZE=yes embedded_runpath_prefix=""
+
+cd $RPM_BUILD_DIR/Ice-%{version}/cpp/src/slice2cs
+make %{makeopts} OPTIMIZE=yes embedded_runpath_prefix=""
 
 %endif
 
@@ -318,7 +336,7 @@ export CLASSPATH=`build-classpath db-%{dbversion} jgoodies-forms-%{formsversion}
 JGOODIES_FORMS=`find-jar jgoodies-forms-%{formsversion}`
 JGOODIES_LOOKS=`find-jar jgoodies-looks-%{looksversion}`
 
-ant -Djgoodies.forms=$JGOODIES_FORMS -Djgoodies.looks=$JGOODIES_LOOKS jar
+ant -Djgoodies.forms=$JGOODIES_FORMS -Djgoodies.looks=$JGOODIES_LOOKS dist-jar
 
 # 
 # We build mono all the time because we include iceboxnet.exe in an
@@ -435,7 +453,7 @@ cd $RPM_BUILD_DIR/Ice-%{version}/cs
 make prefix=$RPM_BUILD_ROOT GACINSTALL=yes GAC_ROOT=$RPM_BUILD_ROOT%{_prefix}/lib install
 for f in Ice Glacier2 IceBox IceGrid IcePatch2 IceStorm
 do
-     mv $RPM_BUILD_ROOT/bin/$f.xml $RPM_BUILD_ROOT%{_libdir}/mono/gac/$f/%{dotnetversion}.*/
+     mv $RPM_BUILD_ROOT/bin/$f.xml $RPM_BUILD_ROOT%{_prefix}/lib/mono/gac/$f/%{dotnetversion}.*/
 done
 mv $RPM_BUILD_ROOT/bin/* $RPM_BUILD_ROOT%{_bindir}
 
@@ -472,6 +490,7 @@ rm -f $RPM_BUILD_ROOT/ICE_LICENSE
 rm -f $RPM_BUILD_ROOT/LICENSE
 rm -fr $RPM_BUILD_ROOT/doc/reference
 rm -fr $RPM_BUILD_ROOT/slice
+rm -f $RPM_BUILD_ROOT%{_libdir}/libIceDB.so
 rm -f $RPM_BUILD_ROOT%{_libdir}/libIceStormService.so
 rm -f $RPM_BUILD_ROOT%{_libdir}/libIceStormFreezeDB.so
 rm -f $RPM_BUILD_ROOT%{_libdir}/libIceGridFreezeDB.so
@@ -520,7 +539,7 @@ cd $RPM_BUILD_DIR/Ice-%{version}/cs
 make prefix=$RPM_BUILD_ROOT GACINSTALL=yes GAC_ROOT=$RPM_BUILD_ROOT%{_prefix}/lib install
 for f in Ice Glacier2 IceBox IceGrid IcePatch2 IceStorm
 do
-     mv $RPM_BUILD_ROOT/bin/$f.xml $RPM_BUILD_ROOT%{_libdir}/mono/gac/$f/%{dotnetversion}.*/
+     mv $RPM_BUILD_ROOT/bin/$f.xml $RPM_BUILD_ROOT%{_prefix}/lib/mono/gac/$f/%{dotnetversion}.*/
 done
 %endif
 
@@ -622,8 +641,6 @@ rm -rf $RPM_BUILD_ROOT
 %{_libdir}/libGlacier2.so.%{soversion}
 %{_libdir}/libIceBox.so.%{version}
 %{_libdir}/libIceBox.so.%{soversion}
-%{_libdir}/libIceDB.so.%{version}
-%{_libdir}/libIceDB.so.%{soversion}
 %{_libdir}/libIcePatch2.so.%{version}
 %{_libdir}/libIcePatch2.so.%{soversion}
 %{_libdir}/libIce.so.%{version}
@@ -638,10 +655,6 @@ rm -rf $RPM_BUILD_ROOT
 %{_libdir}/libSlice.so.%{soversion}
 %{_libdir}/libIceGrid.so.%{version}
 %{_libdir}/libIceGrid.so.%{soversion}
-%{_libdir}/libIceGridFreezeDB.so.%{version}
-%{_libdir}/libIceGridFreezeDB.so.%{soversion}
-%{_libdir}/libIceStormFreezeDB.so.%{version}
-%{_libdir}/libIceStormFreezeDB.so.%{soversion}
 
 %post libs -p /sbin/ldconfig
 %postun libs -p /sbin/ldconfig
@@ -680,10 +693,12 @@ rm -rf $RPM_BUILD_ROOT
 %endif
 %{_bindir}/icegridnode
 %{_bindir}/icegridregistry
-%{_libdir}/libIceGridFreezeDB.so.%{version}
-%{_libdir}/libIceGridFreezeDB.so.%{soversion}
 %{_bindir}/icepatch2server
 %{_bindir}/icestormmigrate
+%{_libdir}/libIceDB.so.%{version}
+%{_libdir}/libIceDB.so.%{soversion}
+%{_libdir}/libIceGridFreezeDB.so.%{version}
+%{_libdir}/libIceGridFreezeDB.so.%{soversion}
 %{_libdir}/libIceStormService.so.%{version}
 %{_libdir}/libIceStormService.so.%{soversion}
 %{_libdir}/libIceStormFreezeDB.so.%{version}
@@ -766,7 +781,6 @@ fi
 %{_libdir}/libFreeze.so
 %{_libdir}/libGlacier2.so
 %{_libdir}/libIceBox.so
-%{_libdir}/libIceDB.so
 %{_libdir}/libIceGrid.so
 %{_libdir}/libIcePatch2.so
 %{_libdir}/libIce.so
