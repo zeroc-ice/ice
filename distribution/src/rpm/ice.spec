@@ -12,7 +12,7 @@
   %define mono 0
 %else
   %if "%{dist}" == ".sles11"
-    %define ruby 0
+    %define ruby 1
     %define mono 1
   %else
     %define ruby 0
@@ -21,9 +21,21 @@
 %endif
 
 %define buildall 1
-%define makeopts -j2
+%define makeopts -j1
 
 %define core_arches %{ix86} x86_64
+
+%if "%{dist}" == ".rhel5"
+  %ifarch x86_64
+    %define qt_home /usr/lib64/qt4
+  %else
+    %define qt_home /usr/lib/qt4
+  %endif
+%endif
+
+%if "%{dist}" == ".sles11"
+  %define qt_home /usr
+%endif
 
 #
 # See http://fedoraproject.org/wiki/Packaging/Python
@@ -61,7 +73,7 @@ BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 %define dotnetpolicyversion 3.4
 
 %define formsversion 1.2.1
-%define looksversion 2.2.2
+%define looksversion 2.3.0
 %define dbversion 4.8.24
 
 BuildRequires: openssl-devel >= 0.9.7a
@@ -95,10 +107,12 @@ BuildRequires: bzip2-devel >= 1.0.3
 BuildRequires: expat-devel >= 1.95.8
 BuildRequires: php-devel >= 5.1.6
 BuildRequires: python-devel >= 2.4.3
+BuildRequires: qt4-devel >= 4.2.1
 %endif
 %if "%{dist}" == ".sles11"
 BuildRequires: php5-devel >= 5.2.6
 BuildRequires: python-devel >= 2.6.0
+BuildRequires: libqt4-devel >= 4.4.3
 %endif
 
 %description
@@ -134,7 +148,7 @@ The Ice runtime for .NET (mono).
 %package java
 Summary: The Ice runtime for Java
 Group: System Environment/Libraries
-Requires: ice = %{version}-%{release}, db48-java,
+Requires: ice = %{version}-%{release}, db48-java
 %description java
 The Ice runtime for Java.
 %endif
@@ -144,7 +158,7 @@ The Ice runtime for Java.
 #
 %ifarch %{core_arches}
 %package libs
-Summary: The Ice runtime for C++
+Summary: The Ice run time for C++
 Group: System Environment/Libraries
 Requires: ice = %{version}-%{release}, db48
 %description libs
@@ -155,7 +169,7 @@ Summary: Ice utilities and admin tools.
 Group: Applications/System
 Requires: ice-libs = %{version}-%{release}
 %description utils
-Admin tools to manage Ice servers (IceGrid, IceStorm, IceBox etc.),
+Admin tools to manage Ice servers (IceGrid, IceStorm, IceBox, etc.),
 plus various Ice-related utilities.
 
 %package servers
@@ -247,6 +261,22 @@ Group: Development/Tools
 Requires: ice-php = %{version}-%{release}
 %description php-devel
 Tools for developing Ice applications in PHP.
+
+%package sqldb
+Summary: Ice servers and related files.
+Group: System Environment/Daemons
+Requires: ice-libs = %{version}-%{release}
+# Requirements for the users
+%if "%{dist}" == ".sles11"
+Requires(pre): libqt4
+%endif
+%if "%{dist}" == ".rhel5"
+Requires(pre): qt4
+%endif
+%description sqldb
+Database plug-ins that allow the IceGrid registry and IceStorm
+services to use a SQL database via the Qt4 SQL API.
+
 %endif
 
 
@@ -263,7 +293,7 @@ Tools for developing Ice applications in PHP.
 # We build C++ all the time since we need slice2xxx
 #
 cd $RPM_BUILD_DIR/Ice-%{version}/cpp/src
-make %{makeopts} OPTIMIZE=yes embedded_runpath_prefix=""
+make %{makeopts} OPTIMIZE=yes embedded_runpath_prefix="" QT_HOME=%{qt_home}
 
 %ifarch %{core_arches}
 cd $RPM_BUILD_DIR/Ice-%{version}/py
@@ -320,7 +350,7 @@ rm -rf $RPM_BUILD_ROOT
 mkdir -p $RPM_BUILD_ROOT/lib
 
 cd $RPM_BUILD_DIR/Ice-%{version}/cpp
-make prefix=$RPM_BUILD_ROOT embedded_runpath_prefix="" install
+make prefix=$RPM_BUILD_ROOT embedded_runpath_prefix="" QT_HOME=%{qt_home} install
 
 mkdir -p $RPM_BUILD_ROOT%{_bindir}
 mv $RPM_BUILD_ROOT/bin/* $RPM_BUILD_ROOT%{_bindir}
@@ -445,6 +475,8 @@ rm -fr $RPM_BUILD_ROOT/slice
 rm -f $RPM_BUILD_ROOT%{_libdir}/libIceStormService.so
 rm -f $RPM_BUILD_ROOT%{_libdir}/libIceStormFreezeDB.so
 rm -f $RPM_BUILD_ROOT%{_libdir}/libIceGridFreezeDB.so
+rm -f $RPM_BUILD_ROOT%{_libdir}/libIceStormSqlDB.so
+rm -f $RPM_BUILD_ROOT%{_libdir}/libIceGridSqlDB.so
 
 %if !%{mono}
 rm -f $RPM_BUILD_ROOT%{_bindir}/slice2cs
@@ -476,6 +508,8 @@ ant -Dprefix=$RPM_BUILD_ROOT install
 mkdir -p $RPM_BUILD_ROOT%{_javadir}
 mv $RPM_BUILD_ROOT/lib/Ice.jar $RPM_BUILD_ROOT%{_javadir}/Ice-%{version}.jar
 ln -s  Ice-%{version}.jar $RPM_BUILD_ROOT%{_javadir}/Ice.jar 
+mv $RPM_BUILD_ROOT/lib/Freeze.jar $RPM_BUILD_ROOT%{_javadir}/Freeze-%{version}.jar
+ln -s  Freeze-%{version}.jar $RPM_BUILD_ROOT%{_javadir}/Freeze.jar
 
 
 %if %{mono}
@@ -572,6 +606,8 @@ rm -rf $RPM_BUILD_ROOT
 %defattr(-, root, root, -)
 %{_javadir}/Ice-%{version}.jar
 %{_javadir}/Ice.jar
+%{_javadir}/Freeze-%{version}.jar
+%{_javadir}/Freeze.jar
 %endif
 
 #
@@ -803,11 +839,25 @@ fi
 %files php-devel
 %defattr(-, root, root, -)
 %{_bindir}/slice2php
+
+%files sqldb
+%defattr(-, root, root, -)
+%{_libdir}/libIceGridSqlDB.so.%{version}
+%{_libdir}/libIceGridSqlDB.so.%{soversion}
+%{_libdir}/libIceStormSqlDB.so.%{version}
+%{_libdir}/libIceStormSqlDB.so.%{soversion}
+
+%post sqldb -p /sbin/ldconfig
+%postun sqldb -p /sbin/ldconfig
 %endif
 
 
 %changelog
 
+* Wed Dec 15 2009 Mark Spruiell <mes@zeroc.com> 3.4b
+- Updates for the Ice 3.4b release.
+
+* Wed Feb 27 2008 Bernard Normier <bernard@zeroc.com> 3.3b-1
 * Wed Mar 4 2009 Bernard Normier <bernard@zeroc.com> 3.3.1
 - Minor updates for the Ice 3.3.1 release.
 
