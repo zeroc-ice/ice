@@ -24,7 +24,7 @@
     <property name="cache.dir" value="depcache${build.suffix}"/>
 
     <!-- This target cannot depend on init because the tasks may not be compiled yet -->
-    <target name="tasks" depends="config-init">
+    <target name="tasks" depends="config-init" unless="ice.bin.dist">
         <mkdir dir="${lib.dir}/ant"/>
         <javac srcdir="${src.dir}/ant" destdir="${lib.dir}/ant"
             source="1.5"
@@ -40,7 +40,7 @@
         </jar>
     </target>
 
-    <target name="generate" depends="tasks, task-init">
+    <target name="generate" depends="tasks, task-init" unless="ice.bin.dist">
         <!-- Create the output directory for generated code -->
         <mkdir dir="${generated.dir}"/>
         <slice2java ice="on" stream="on" outputdir="${generated.dir}" dependencyfile="${generated.dir}/.depend.Ice">
@@ -175,7 +175,7 @@
         </slice2java>
     </target>
 
-    <target name="ice-compile" depends="generate">
+    <target name="ice-compile" depends="generate" unless="ice.bin.dist">
         <mkdir dir="${lib.dir}"/>
         <mkdir dir="${cache.dir}"/>
         <depend srcdir="${generated.dir}:${src.dir}" destdir="${lib.dir}" cache="${cache.dir}"/>
@@ -188,7 +188,7 @@
         </javac>
     </target>
 
-    <target name="ice-jar" depends="ice-compile">
+    <target name="ice-jar" depends="ice-compile" unless="ice.bin.dist">
         <jar jarfile="${lib.dir}/Ice.jar" basedir="${lib.dir}">
             <include name="**/*.class"/>
             <exclude name="Freeze/**"/>
@@ -214,7 +214,7 @@
         </jar>
     </target>
 
-    <target name="freeze-compile" depends="ice-compile">
+    <target name="freeze-compile" depends="ice-compile" unless="ice.bin.dist">
         <mkdir dir="${lib.dir}"/>
         <javac srcdir="${generated.dir}:${src.dir}" destdir="${lib.dir}"
             source="1.5" debug="${debug}"
@@ -225,7 +225,7 @@
         </javac>
     </target>
 
-    <target name="freeze-jar" depends="freeze-compile,ice-jar">
+    <target name="freeze-jar" depends="freeze-compile,ice-jar" unless="ice.bin.dist">
         <jar jarfile="${lib.dir}/Freeze.jar" basedir="${lib.dir}">
             <include name="Freeze/**"/>
             <manifest>
@@ -460,8 +460,12 @@
         <mkdir dir="${cache.dir}"/>
         <depend srcdir="." destdir="${lib.dir}" cache="${cache.dir}"/>
         <javac srcdir=".:${generated.test.dir}" destdir="${lib.dir}" source="1.5" debug="${debug}" deprecation="on"
-               classpathref="freeze.classpath" fork="true" memoryinitialsize="256m" memorymaximumsize="256m">
+               fork="true" memoryinitialsize="256m" memorymaximumsize="256m">
             <exclude name="${generated.test.dir}/**"/>
+	    <classpath>
+              <path refid="ice.classpath"/>
+	      <path refid="freeze.classpath"/>
+	    </classpath>
             <include name="test/**"/>
             <exclude name="test/Ice/translator/"/>
             <compilerarg value="${javac.lint}"/>
@@ -478,7 +482,7 @@
         </jar>
     </target>
 
-    <target name="icegridadmin-compile" depends="ice-compile">
+    <target name="icegridadmin-compile" depends="ice-compile" unless="ice.bin.dist">
         <javac srcdir="${src.dir}" destdir="${lib.dir}"
             source="1.5" debug="${debug}"
             includes="IceGridGUI/**"
@@ -500,7 +504,7 @@
         <not><isset property="build-icegridadmin-pro-jar"/></not>
     </condition>
 
-    <target name="icegridadmin-plain-jar" depends="icegridadmin-compile" if="build-icegridadmin-plain-jar">
+    <target name="icegridadmin-plain-jar" depends="icegridadmin-compile" if="build-icegridadmin-plain-jar" unless="ice.bin.dist">
         <manifest file="${lib.dir}/icegridgui.mf">
             <attribute name="Main-Class" value="IceGridGUI.Main"/>
             <attribute name="Class-Path" value="Ice.jar ${jgoodies.forms} ${jgoodies.looks} ../resources/ "/>
@@ -514,7 +518,7 @@
         <delete file="${lib.dir}/icegridgui.mf" />
     </target>
 
-    <target name="icegridadmin-pro-jar" depends="ice-jar,icegridadmin-compile" if="build-icegridadmin-pro-jar">
+    <target name="icegridadmin-pro-jar" depends="ice-jar,icegridadmin-compile" if="build-icegridadmin-pro-jar" unless="ice.bin.dist">
         <condition property="library.jarfiles" value="classes.jar,jsse.jar">
             <os family="mac"/>
         </condition>
@@ -589,8 +593,8 @@
     <target name="test" depends="test-compile, ice-compile"/>
 
     <target name="all" depends="jar">
-        <ant inheritAll="false" dir="demo"/>
-        <ant inheritAll="false" dir="test"/>
+      <ant inheritAll="false" dir="test"/>
+      <ant inheritAll="false" dir="demo"/>
     </target>
 
     <target name="install-common">
