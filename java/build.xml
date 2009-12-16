@@ -595,10 +595,11 @@
         <delete dir="${lib.dir}/tmp"/>
     </target>
 
-    <target name="compile" depends="ice-compile, icegridadmin-compile">
-    </target>
+    <target name="compile" depends="ice-compile, icegridadmin-compile"/>
 
-    <target name="jar" depends="ice-jar, test-jar, freeze-jar, icegridadmin-plain-jar, icegridadmin-pro-jar"/>
+    <target name="dist-jar" depends="ice-jar, freeze-jar, icegridadmin-plain-jar, icegridadmin-pro-jar"/>
+
+    <target name="jar" depends="dist-jar, test-jar"/>
 
     <target name="test" depends="test-compile, ice-compile"/>
 
@@ -644,7 +645,7 @@
         <copy file="${lib.dir}/ant-ice.jar" todir="${prefix}/lib"/>
     </target>
 
-    <target name="install" depends="jar, install-common, install-jar, install-icegridgui-jar, install-tasks, install-slice">
+    <target name="install" depends="dist-jar, install-common, install-jar, install-icegridgui-jar, install-tasks, install-slice">
     </target>
 
     <target name="clean" depends="config-init">
