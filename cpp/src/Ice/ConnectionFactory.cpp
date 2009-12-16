@@ -1534,7 +1534,7 @@ IceInternal::IncomingConnectionFactory::IncomingConnectionFactory(const Instance
 }
 
 void
-IceInternal::IncomingConnectionFactory::initialize(const string& adapterName)
+IceInternal::IncomingConnectionFactory::initialize(const string& oaName)
 {
     if(_instance->defaultsAndOverrides()->overrideTimeout)
     {
@@ -1548,16 +1548,26 @@ IceInternal::IncomingConnectionFactory::initialize(const string& adapterName)
             _endpoint->compress(_instance->defaultsAndOverrides()->overrideCompressValue);
     }
 
-    const_cast<TransceiverPtr&>(_transceiver) = _endpoint->transceiver(const_cast<EndpointIPtr&>(_endpoint));
-    if(_transceiver)
+    try
     {
-        ConnectionIPtr connection;
-
-        try
+        const_cast<TransceiverPtr&>(_transceiver) = _endpoint->transceiver(const_cast<EndpointIPtr&>(_endpoint));
+        if(_transceiver)
         {
-            connection = new ConnectionI(_instance, _reaper, _transceiver, 0, _endpoint, _adapter);
+            ConnectionIPtr connection = new ConnectionI(_instance, _reaper, _transceiver, 0, _endpoint, _adapter);
+            connection->start(0);            
+            _connections.insert(connection);
         }
-        catch(const LocalException&)
+        else
+        {
+            const_cast<AcceptorPtr&>(_acceptor) = _endpoint->acceptor(const_cast<EndpointIPtr&>(_endpoint), oaName);
+            assert(_acceptor);
+            _acceptor->listen();
+            dynamic_cast<ObjectAdapterI*>(_adapter.get())->getThreadPool()->initialize(this);
+        }
+    }
+    catch(const Ice::Exception&)
+    {
+        if(_transceiver)
         {
             try
             {
@@ -1567,35 +1577,30 @@ IceInternal::IncomingConnectionFactory::initialize(const string& adapterName)
             {
                 // Ignore
             }
-            throw;
         }
 
-        connection->start(0);
 
-        _connections.insert(connection);
-    }
-    else
-    {
-        _acceptor = _endpoint->acceptor(const_cast<EndpointIPtr&>(_endpoint), adapterName);
-        assert(_acceptor);
-        _acceptor->listen();
-
-        try
+        if(_acceptor)
         {
-            dynamic_cast<ObjectAdapterI*>(_adapter.get())->getThreadPool()->initialize(this);
+            try
+            {
+                _acceptor->close();
+            }
+            catch(const Ice::LocalException&)
+            {
+                // Ignore
+            }
         }
-        catch(const Ice::Exception&)
-        {
-            _acceptor->close();
-            _acceptor = 0;
-            throw;
-        }
+        
+        _state = StateFinished;
+        _connections.clear();
+        throw;
     }
 }
 
 IceInternal::IncomingConnectionFactory::~IncomingConnectionFactory()
 {
-    //assert(_state == StateFinished);
+    assert(_state == StateFinished);
     assert(_connections.empty());
 }
 

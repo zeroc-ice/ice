@@ -205,7 +205,7 @@ private:
     const InstancePtr _instance;
     const ConnectionReaperPtr _reaper;
 
-    AcceptorPtr _acceptor;
+    const AcceptorPtr _acceptor;
     const TransceiverPtr _transceiver;
     const EndpointIPtr _endpoint;
 

@@ -356,26 +356,9 @@ public final class IncomingConnectionFactory extends EventHandler implements Ice
             if(_transceiver != null)
             {
                 _endpoint = h.value;
-                
-                Ice.ConnectionI connection;
-		try
-		{
-		    connection = new Ice.ConnectionI(_instance, _reaper, _transceiver, null, _endpoint, _adapter);
-		}
-		catch(Ice.LocalException ex)
-		{
-		    try
-		    {
-			_transceiver.close();
-		    }
-		    catch(Ice.LocalException exc)
-		    {
-			// Ignore
-		    }
-		    throw ex;
-		}
-                connection.start(null);
-                
+                Ice.ConnectionI connection = 
+                    new Ice.ConnectionI(_instance, _reaper, _transceiver, null, _endpoint, _adapter);
+                connection.start(null);                
                 _connections.add(connection);
             }
             else
@@ -393,6 +376,17 @@ public final class IncomingConnectionFactory extends EventHandler implements Ice
             //
             // Clean up for finalizer.
             //
+            if(_transceiver != null)
+            {
+                try
+                {
+                    _transceiver.close();
+                }
+                catch(Ice.LocalException e)
+                {
+                    // Here we ignore any exceptions in close().                        
+                }
+            }
 
             if(_acceptor != null)
             {
@@ -406,12 +400,8 @@ public final class IncomingConnectionFactory extends EventHandler implements Ice
                 }
             }
 
-            synchronized(this)
-            {
-                _state = StateClosed;
-                _acceptor = null;
-                _connections.clear();
-            }
+            _state = StateFinished;
+            _connections.clear();
 
             if(ex instanceof Ice.LocalException)
             {
@@ -431,7 +421,7 @@ public final class IncomingConnectionFactory extends EventHandler implements Ice
         throws Throwable
     {
         IceUtilInternal.Assert.FinalizerAssert(_state == StateFinished);
-        //IceUtilInternal.Assert.FinalizerAssert(_connections.isEmpty());
+        IceUtilInternal.Assert.FinalizerAssert(_connections.isEmpty());
 
         super.finalize();
     }
@@ -531,7 +521,7 @@ public final class IncomingConnectionFactory extends EventHandler implements Ice
     private final ConnectionReaper _reaper = new ConnectionReaper();
 
     private Acceptor _acceptor;
-    private final Transceiver _transceiver;
+    private Transceiver _transceiver;
     private EndpointI _endpoint;
 
     private Ice.ObjectAdapter _adapter;

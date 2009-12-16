@@ -1602,39 +1602,17 @@ namespace IceInternal
 
             try
             {
-                EndpointI h = _endpoint;
-                _transceiver = _endpoint.transceiver(ref h);
-
+                _transceiver = _endpoint.transceiver(ref _endpoint);
                 if(_transceiver != null)
                 {
-                    _endpoint = h;
-
-                    Ice.ConnectionI connection = null;
-                    try
-                    {
-                        connection = new Ice.ConnectionI(_instance, _reaper, _transceiver, null, _endpoint, _adapter);
-                    }
-                    catch(Ice.LocalException)
-                    {
-                        try
-                        {
-                            _transceiver.close();
-                        }
-                        catch(Ice.LocalException)
-                        {
-                            // Ignore
-                        }
-                        throw;
-                    }
+                    Ice.ConnectionI connection = 
+                        new Ice.ConnectionI(_instance, _reaper, _transceiver, null, _endpoint, _adapter);
                     connection.start(null);
-
                     _connections.Add(connection);
                 }
                 else
                 {
-                    h = _endpoint;
-                    _acceptor = _endpoint.acceptor(ref h, adapterName);
-                    _endpoint = h;
+                    _acceptor = _endpoint.acceptor(ref _endpoint, adapterName);
                     Debug.Assert(_acceptor != null);
                     _acceptor.listen();
                     ((Ice.ObjectAdapterI)_adapter).getThreadPool().initialize(this);
@@ -1645,6 +1623,18 @@ namespace IceInternal
                 //
                 // Clean up.
                 //
+
+                if(_transceiver != null)
+                {
+                    try
+                    {
+                        _transceiver.close();
+                    }
+                    catch(Ice.LocalException)
+                    {
+                        // Ignore
+                    }
+                }
 
                 if(_acceptor != null)
                 {
@@ -1658,12 +1648,8 @@ namespace IceInternal
                     }
                 }
 
-                lock(this)
-                {
-                    _state = StateClosed;
-                    _acceptor = null;
-                    _connections.Clear();
-                }
+                _state = StateFinished;
+                _connections.Clear();
 
                 if(ex is Ice.LocalException)
                 {
