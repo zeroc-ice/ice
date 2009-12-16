@@ -25,7 +25,6 @@ class NodeI : virtual public Node
 protected:
 
     NodeI(const DirectoryIPtr&);
-    PersistentNodePtr find(const Ice::Identity&) const;
 
     const DirectoryIPtr _parent;
     IceUtil::Mutex _nodeMutex;
