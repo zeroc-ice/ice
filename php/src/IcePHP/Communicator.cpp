@@ -13,7 +13,7 @@
 #include <Proxy.h>
 #include <Util.h>
 #include <IceUtil/Options.h>
-#include <IceUtil/StaticMutex.h>
+#include <IceUtil/MutexPtrLock.h>
 #include <IceUtil/Timer.h>
 
 using namespace std;
@@ -111,10 +111,12 @@ public:
 
 }
 
+namespace
+{
 //
 // Communicator support.
 //
-static zend_object_handlers _handlers;
+zend_object_handlers _handlers;
 
 //
 // The profile map holds Properties objects corresponding to the "default" profile
@@ -122,18 +124,18 @@ static zend_object_handlers _handlers;
 // profiles defined in an external file.
 //
 typedef map<string, Ice::PropertiesPtr> ProfileMap;
-static ProfileMap _profiles;
-static const string _defaultProfileName = "";
+ProfileMap _profiles;
+const string _defaultProfileName = "";
 
 //
 // This map represents communicators that have been registered so that they can be used
 // by multiple PHP requests.
 //
 typedef map<string, ActiveCommunicatorPtr> RegisteredCommunicatorMap;
-static RegisteredCommunicatorMap _registeredCommunicators;
-static IceUtil::StaticMutex _registeredCommunicatorsMutex = ICE_STATIC_MUTEX_INITIALIZER;
+RegisteredCommunicatorMap _registeredCommunicators;
+IceUtil::Mutex* _registeredCommunicatorsMutex = 0;
 
-static IceUtil::TimerPtr _timer;
+IceUtil::TimerPtr _timer;
 
 //
 // This map is stored in the "global" variables for each PHP request and holds
@@ -141,6 +143,25 @@ static IceUtil::TimerPtr _timer;
 // been used) by the request.
 //
 typedef map<Ice::CommunicatorPtr, CommunicatorInfoIPtr> CommunicatorMap;
+
+class Init
+{
+public:
+
+    Init()
+    {
+        _registeredCommunicatorsMutex = new IceUtil::Mutex();
+    }
+    
+    ~Init()
+    {
+        delete _registeredCommunicatorsMutex;
+        _registeredCommunicatorsMutex = 0;
+    }
+};
+
+Init init;
+}
 
 extern "C"
 {
@@ -163,7 +184,7 @@ ZEND_METHOD(Ice_Communicator, destroy)
     // Remove all registrations.
     //
     {
-        IceUtil::StaticMutex::Lock sync(_registeredCommunicatorsMutex);
+        IceUtilInternal::MutexPtrLock<IceUtil::Mutex> lock(_registeredCommunicatorsMutex);
         for(vector<string>::iterator p = _this->ac->ids.begin(); p != _this->ac->ids.end(); ++p)
         {
             _registeredCommunicators.erase(*p);
@@ -904,7 +925,7 @@ ZEND_FUNCTION(Ice_register)
     CommunicatorInfoIPtr info = Wrapper<CommunicatorInfoIPtr>::value(comm TSRMLS_CC);
     assert(info);
 
-    IceUtil::StaticMutex::Lock sync(_registeredCommunicatorsMutex);
+    IceUtilInternal::MutexPtrLock<IceUtil::Mutex> lock(_registeredCommunicatorsMutex);
 
     RegisteredCommunicatorMap::iterator p = _registeredCommunicators.find(id);
     if(p != _registeredCommunicators.end())
@@ -956,7 +977,7 @@ ZEND_FUNCTION(Ice_unregister)
 
     string id(s, sLen);
 
-    IceUtil::StaticMutex::Lock sync(_registeredCommunicatorsMutex);
+    IceUtilInternal::MutexPtrLock<IceUtil::Mutex> lock(_registeredCommunicatorsMutex);
 
     RegisteredCommunicatorMap::iterator p = _registeredCommunicators.find(id);
     if(p == _registeredCommunicators.end())
@@ -991,7 +1012,7 @@ ZEND_FUNCTION(Ice_find)
 
     string id(s, sLen);
 
-    IceUtil::StaticMutex::Lock sync(_registeredCommunicatorsMutex);
+    IceUtilInternal::MutexPtrLock<IceUtil::Mutex> lock(_registeredCommunicatorsMutex);
 
     RegisteredCommunicatorMap::iterator p = _registeredCommunicators.find(id);
     if(p == _registeredCommunicators.end())
@@ -1342,7 +1363,7 @@ IcePHP::communicatorShutdown(TSRMLS_D)
 {
     _profiles.clear();
 
-    IceUtil::StaticMutex::Lock sync(_registeredCommunicatorsMutex);
+    IceUtilInternal::MutexPtrLock<IceUtil::Mutex> lock(_registeredCommunicatorsMutex);
 
     if(_timer)
     {
@@ -1615,7 +1636,7 @@ IcePHP::ObjectFactoryI::destroy()
 void
 IcePHP::ReaperTask::runTimerTask()
 {
-    IceUtil::StaticMutex::Lock sync(_registeredCommunicatorsMutex);
+    IceUtilInternal::MutexPtrLock<IceUtil::Mutex> lock(_registeredCommunicatorsMutex);
 
     IceUtil::Time now = IceUtil::Time::now();
     RegisteredCommunicatorMap::iterator p = _registeredCommunicators.begin();
