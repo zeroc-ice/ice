@@ -527,13 +527,23 @@
             <and>
                 <available file="${java.home}/lib/rt.jar"/>
                 <not>
-                    <available file="${java.home}/lib/vm.jar"/>
+                    <equals arg1="${java.vm.name}" arg2="IBM J9 VM"/>
                 </not>
             </and>
         </condition>
         <condition property="library.jarfiles" value="vm.jar,rt.jar,security.jar,beans.jar,java.util.jar,ibmjssefw.jar,ibmcertpathfw.jar,logging.jar,jlm.jar">
-            <!-- Library jar files for IBM J9 (from SuSE Linux) -->
-            <available file="${java.home}/lib/vm.jar"/>
+            <!-- Library jar files for IBM J9 (from SuSE Linux i586) -->
+            <and>
+                <equals arg1="${java.vm.name}" arg2="IBM J9 VM"/>
+                <equals arg1="${os.arch}" arg2="x86"/>
+            </and>
+        </condition>
+        <condition property="library.jarfiles" value="amd64/default/jclSC160/vm.jar,rt.jar,security.jar,beans.jar,java.util.jar,ibmjssefw.jar,ibmcertpathfw.jar,logging.jar,jlm.jar">
+            <!-- Library jar files for IBM J9 (from SuSE Linux x86_64) -->
+            <and>
+                <equals arg1="${java.vm.name}" arg2="IBM J9 VM"/>
+                <equals arg1="${os.arch}" arg2="amd64"/>
+            </and>
         </condition>
         <condition property="library.jarpath" value="${java.home}/../Classes" else="${java.home}/lib">
             <os family="mac"/>
@@ -541,7 +551,7 @@
         <pathconvert property="library.jars">
            <filelist dir="${library.jarpath}" files="${library.jarfiles}"/>
            <mapper>
-              <!-- Add quotes around the patch of each Jar file (necessary for Windows) -->
+              <!-- Add quotes around the path of each JAR file (necessary for Windows) -->
               <globmapper from="*" to="&quot;*&quot;"/>   
            </mapper>
         </pathconvert>
@@ -561,11 +571,11 @@
         <taskdef resource="proguard/ant/task.properties"/>
 
         <proguard>
-             -injars ${lib.dir}/IceGridGUItemp.jar
-             -injars ${lib.dir}/Ice.jar(!META-INF/**)
-             -injars ${jgoodies.looks}(!META-INF/**)
-             -injars ${jgoodies.forms}(!META-INF/**)
-             -outjars ${lib.dir}/IceGridGUI.jar
+             -injars "${lib.dir}/IceGridGUItemp.jar"
+             -injars "${lib.dir}/Ice.jar"(!META-INF/**)
+             -injars "${jgoodies.looks}"(!META-INF/**)
+             -injars "${jgoodies.forms}"(!META-INF/**)
+             -outjars "${lib.dir}/IceGridGUI.jar"
              -libraryjars ${library.jars}
              -include config/icegridgui.pro
         </proguard>
