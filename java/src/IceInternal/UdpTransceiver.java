@@ -371,7 +371,8 @@ final class UdpTransceiver implements Transceiver
             {
                 Network.setReuseAddress(_fd, true);
                 _mcastAddr = _addr;
-                if(System.getProperty("os.name").startsWith("Windows"))
+                if(System.getProperty("os.name").startsWith("Windows") ||
+                   System.getProperty("java.vm.name").startsWith("OpenJDK"))
                 {
                     //
                     // Windows does not allow binding to the mcast address itself
@@ -511,7 +512,7 @@ final class UdpTransceiver implements Transceiver
     // to (temporarily) wrap the channel's file descriptor.
     //
     private void
-    configureMulticast(java.net.SocketAddress group, String interfaceAddr, int ttl)
+    configureMulticast(java.net.InetSocketAddress group, String interfaceAddr, int ttl)
     {
         try
         {
@@ -530,9 +531,16 @@ final class UdpTransceiver implements Transceiver
             // We have to invoke the protected create() method on the PlainDatagramSocketImpl object so
             // that this hack works properly when IPv6 is enabled on Windows.
             //
-            java.lang.reflect.Method m = cls.getDeclaredMethod("create", (Class<?>[])null);
-            m.setAccessible(true);
-            m.invoke(socketImpl);
+	    java.lang.reflect.Method m;
+	    try
+	    {
+		m = cls.getDeclaredMethod("create", (Class<?>[])null);
+		m.setAccessible(true);
+		m.invoke(socketImpl);
+	    }
+	    catch(java.lang.NoSuchMethodException ex) // OpenJDK
+	    {
+	    }
 
             cls = Util.findClass("sun.nio.ch.DatagramChannelImpl", null);
             if(cls == null)
@@ -561,16 +569,33 @@ final class UdpTransceiver implements Transceiver
 
                 if(group != null)
                 {
-                    Class<?>[] types = new Class<?>[]{ java.net.SocketAddress.class, java.net.NetworkInterface.class };
-                    m = socketImpl.getClass().getDeclaredMethod("joinGroup", types);
+                    Class<?>[] types;
+		    try
+		    {
+                        types = new Class<?>[]{ java.net.SocketAddress.class, java.net.NetworkInterface.class };
+			m = socketImpl.getClass().getDeclaredMethod("joinGroup", types);
+		    }
+		    catch(java.lang.NoSuchMethodException ex) // OpenJDK
+		    {                        
+                        types = new Class<?>[]{ java.net.InetAddress.class, java.net.NetworkInterface.class };
+			m = socketImpl.getClass().getDeclaredMethod("join", types);
+		    }
                     m.setAccessible(true);
-                    Object[] args = new Object[]{ group, intf };
+                    Object[] args = new Object[]{ group.getAddress(), intf };
                     m.invoke(socketImpl, args);
                 }
                 else if(intf != null)
                 {
                     Class<?>[] types = new Class<?>[]{ Integer.TYPE, Object.class };
-                    m = socketImpl.getClass().getDeclaredMethod("setOption", types);
+
+		    try
+		    {
+			m = socketImpl.getClass().getDeclaredMethod("setOption", types);
+		    }
+		    catch(java.lang.NoSuchMethodException ex) // OpenJDK
+		    {
+			m = socketImpl.getClass().getDeclaredMethod("socketSetOption", types);
+		    }
                     m.setAccessible(true);
                     Object[] args = new Object[]{ Integer.valueOf(java.net.SocketOptions.IP_MULTICAST_IF2), intf };
                     m.invoke(socketImpl, args);
