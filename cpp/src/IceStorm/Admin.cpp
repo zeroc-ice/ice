@@ -39,7 +39,16 @@ main(int argc, char* argv[])
 #endif
 {
     Client app;
-    int rc = app.main(argc, argv);
+    Ice::InitializationData id;
+    Ice::StringSeq args = Ice::argsToStringSeq(argc, argv);
+    id.properties = Ice::createProperties(args);
+    //
+    // We don't want to load DB plug-ins with icestormadmin, as this will
+    // cause FileLock issues when run with the same configuration file
+    // used by the service.
+    //
+    id.properties->setProperty("Ice.Plugin.DB", "");
+    int rc = app.main(argc, argv, id);
     return rc;
 }
 

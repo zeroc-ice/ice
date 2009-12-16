@@ -228,8 +228,16 @@ Client::main(Ice::StringSeq& args)
     try
     {
         _appName = args[0];
-        _communicator = Ice::initialize(args);
-        
+        Ice::InitializationData id;
+        id.properties = Ice::createProperties(args);
+        //
+        // We don't want to load DB plug-ins with icegridadmin, as this will
+        // cause FileLock issues when run with the same configuration file
+        // used by the service.
+        //
+        id.properties->setProperty("Ice.Plugin.DB", "");
+        _communicator = Ice::initialize(id);
+
         {
             IceUtilInternal::MutexPtrLock<IceUtil::Mutex> sync(_staticMutex);
             _globalClient = this;
