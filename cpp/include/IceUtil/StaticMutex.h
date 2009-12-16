@@ -39,7 +39,7 @@ class Cond;
 //
 
 //
-class StaticMutex
+class ICE_UTIL_API StaticMutex
 {
 public:
 
@@ -54,20 +54,20 @@ public:
     // directly. Instead use Lock & TryLock.
     //
  
-    void lock() const;
+    ICE_DEPRECATED_API void lock() const;
 
     //
     // Returns true if the lock was acquired, and false otherwise.
     //
-    bool tryLock() const;
+    ICE_DEPRECATED_API bool tryLock() const;
 
-    void unlock() const;
+    ICE_DEPRECATED_API void unlock() const;
 
 
 #ifdef _WIN32
-    mutable CRITICAL_SECTION* _mutex;
+    ICE_DEPRECATED_API mutable CRITICAL_SECTION* _mutex;
 #else
-    mutable pthread_mutex_t _mutex;
+    ICE_DEPRECATED_API mutable pthread_mutex_t _mutex;
 #endif
 
 
@@ -98,8 +98,8 @@ private:
     void lock(LockState&) const;
 
 #ifdef _WIN32
-    inline bool initialized() const;
-    ICE_UTIL_API void initialize() const;
+    bool initialized() const;
+    void initialize() const;
 #endif
 
 #ifndef _MSC_VER
@@ -113,139 +113,6 @@ private:
 #else
 #   define ICE_STATIC_MUTEX_INITIALIZER { PTHREAD_MUTEX_INITIALIZER }
 #endif
-
-//
-// For performance reasons the following functions are inlined.
-//
-
-#ifdef _WIN32
-
-inline bool 
-StaticMutex::initialized() const
-{
-    //
-    // Read mutex and then inserts a memory barrier to ensure we can't 
-    // see tmp != 0 before we see the initialized object
-    //
-    void* tmp = _mutex;
-    return InterlockedCompareExchangePointer(reinterpret_cast<void**>(&tmp), 0, 0) != 0;
-}
-
-inline void
-StaticMutex::lock() const
-{
-    if(!initialized())
-    {
-        initialize();
-    }
-    EnterCriticalSection(_mutex);
-    assert(_mutex->RecursionCount == 1);
-}
-
-inline bool
-StaticMutex::tryLock() const
-{
-    if(!initialized())
-    {
-        initialize();
-    }
-    if(!TryEnterCriticalSection(_mutex))
-    {
-        return false;
-    }
-    if(_mutex->RecursionCount > 1)
-    {
-        LeaveCriticalSection(_mutex);
-        throw ThreadLockedException(__FILE__, __LINE__);
-    }
-    return true;
-}
-
-inline void
-StaticMutex::unlock() const
-{
-    assert(_mutex != 0);
-    assert(_mutex->RecursionCount == 1);
-    LeaveCriticalSection(_mutex);
-}
-
-inline void
-StaticMutex::unlock(LockState&) const
-{
-    assert(_mutex != 0);
-    assert(_mutex->RecursionCount == 1);
-    LeaveCriticalSection(_mutex);
-}
-
-inline void
-StaticMutex::lock(LockState&) const
-{
-    if(!initialized())
-    {
-        initialize();
-    }
-    EnterCriticalSection(_mutex);
-}
-
-#else
-
-inline void
-StaticMutex::lock() const
-{
-    int rc = pthread_mutex_lock(&_mutex);
-    if(rc != 0)
-    {
-        if(rc == EDEADLK)
-        {
-            throw ThreadLockedException(__FILE__, __LINE__);
-        }
-        else
-        {
-            throw ThreadSyscallException(__FILE__, __LINE__, rc);
-        }
-    }
-}
-
-inline bool
-StaticMutex::tryLock() const
-{
-    int rc = pthread_mutex_trylock(&_mutex);
-    if(rc != 0 && rc != EBUSY)
-    {
-        if(rc == EDEADLK)
-        {
-            throw ThreadLockedException(__FILE__, __LINE__);
-        }
-        else
-        {
-            throw ThreadSyscallException(__FILE__, __LINE__, rc);
-        }
-    }
-    return (rc == 0);
-}
-
-inline void
-StaticMutex::unlock() const
-{
-    int rc = pthread_mutex_unlock(&_mutex);
-    if(rc != 0)
-    {
-        throw ThreadSyscallException(__FILE__, __LINE__, rc);
-    }
-}
-
-inline void
-StaticMutex::unlock(LockState& state) const
-{
-    state.mutex = &_mutex;
-}
-
-inline void
-StaticMutex::lock(LockState&) const
-{
-}
-
-#endif    
 
 } // End namespace IceUtil
 

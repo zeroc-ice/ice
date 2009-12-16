@@ -10,7 +10,6 @@
 #ifndef ICE_FACTORYTABLE_H
 #define ICE_FACTORYTABLE_H
 
-#include <IceUtil/StaticMutex.h>
 #include <IceUtil/Mutex.h>
 #include <Ice/UserExceptionFactory.h>
 #include <Ice/ObjectFactoryF.h>

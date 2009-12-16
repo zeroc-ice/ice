@@ -16,15 +16,19 @@
 
 namespace IceUtil
 {
+    
+//
+// All classes defined in this file are now deprecated.
+//
 
 class ICE_UTIL_API DeadlockException : public Exception
 {
 public:
 
-    DeadlockException(const char*, int);
-    virtual std::string ice_name() const;
-    virtual Exception* ice_clone() const;
-    virtual void ice_throw() const;
+    ICE_DEPRECATED_API DeadlockException(const char*, int);
+    ICE_DEPRECATED_API virtual std::string ice_name() const;
+    ICE_DEPRECATED_API virtual Exception* ice_clone() const;
+    ICE_DEPRECATED_API virtual void ice_throw() const;
 
 private:
 
@@ -36,14 +40,14 @@ class RLockT
 {
 public:
 
-    RLockT(const T& mutex) :
+    ICE_DEPRECATED_API RLockT(const T& mutex) :
         _mutex(mutex)
     {
         _mutex.readLock();
         _acquired = true;
     }
 
-    ~RLockT()
+    ICE_DEPRECATED_API ~RLockT()
     {
         if (_acquired)
         {
@@ -51,7 +55,7 @@ public:
         }
     }
 
-    void acquire() const
+    ICE_DEPRECATED_API void acquire() const
     {
         if (_acquired)
         {
@@ -61,7 +65,7 @@ public:
         _acquired = true;
     }
 
-    bool tryAcquire() const
+    ICE_DEPRECATED_API bool tryAcquire() const
     {
         if (_acquired)
         {
@@ -71,7 +75,7 @@ public:
         return _acquired;
     }
 
-    bool timedAcquire(const Time& timeout) const
+    ICE_DEPRECATED_API bool timedAcquire(const Time& timeout) const
     {
         if (_acquired)
         {
@@ -79,11 +83,9 @@ public:
         }
         _acquired = _mutex.timedReadLock(timeout);
         return _acquired;
-    }
+    }    
 
-    
-
-    void release() const
+    ICE_DEPRECATED_API void release() const
     {
         if (!_acquired)
         {
@@ -93,24 +95,24 @@ public:
         _acquired = false;
     }
 
-    bool acquired() const
+    ICE_DEPRECATED_API bool acquired() const
     {
         return _acquired;
     }
 
-    void
+    ICE_DEPRECATED_API void
     upgrade() const
     {
         _mutex.upgrade();
     }
 
-    bool
+    ICE_DEPRECATED_API bool
     timedUpgrade(const Time& timeout) const
     {
         return _mutex.timedUpgrade(timeout);
     }
 
-    void
+    ICE_DEPRECATED_API void
     downgrade() const
     {
         _mutex.downgrade();
@@ -150,12 +152,12 @@ class TryRLockT : public RLockT<T>
 {
 public:
 
-    TryRLockT(const T& mutex) :
+    ICE_DEPRECATED_API TryRLockT(const T& mutex) :
         RLockT<T>(mutex, true)
     {
     }
 
-    TryRLockT(const T& mutex, const Time& timeout) :
+    ICE_DEPRECATED_API TryRLockT(const T& mutex, const Time& timeout) :
         RLockT<T>(mutex, timeout)
     {
     }
@@ -166,14 +168,14 @@ class WLockT
 {
 public:
 
-    WLockT(const T& mutex) :
+    ICE_DEPRECATED_API WLockT(const T& mutex) :
         _mutex(mutex)
     {
         _mutex.writeLock();
         _acquired = true;
     }
 
-    ~WLockT()
+    ICE_DEPRECATED_API ~WLockT()
     {
         if(_acquired)
         {
@@ -181,7 +183,7 @@ public:
         }
     }
 
-    void acquire() const
+    ICE_DEPRECATED_API void acquire() const
     {
         if (_acquired)
         {
@@ -191,7 +193,7 @@ public:
         _acquired = true;
     }
 
-    bool tryAcquire() const
+    ICE_DEPRECATED_API bool tryAcquire() const
     {
         if (_acquired)
         {
@@ -201,7 +203,7 @@ public:
         return _acquired;
     }
 
-    bool timedAcquire(const Time& timeout) const
+    ICE_DEPRECATED_API bool timedAcquire(const Time& timeout) const
     {
         if (_acquired)
         {
@@ -211,7 +213,7 @@ public:
         return _acquired;
     }
 
-    void release() const
+    ICE_DEPRECATED_API void release() const
     {
         if (!_acquired)
         {
@@ -221,7 +223,7 @@ public:
         _acquired = false;
     }
 
-    bool acquired() const
+    ICE_DEPRECATED_API bool acquired() const
     {
         return _acquired;
     }
@@ -258,12 +260,12 @@ class TryWLockT : public WLockT<T>
 {
 public:
 
-    TryWLockT(const T& mutex) :
+    ICE_DEPRECATED_API TryWLockT(const T& mutex) :
         WLockT<T>(mutex, true)
     {
     }
 
-    TryWLockT(const T& mutex, const Time& timeout) :
+    ICE_DEPRECATED_API TryWLockT(const T& mutex, const Time& timeout) :
         WLockT<T>(mutex, timeout)
     {
     }
@@ -279,6 +281,7 @@ public:
 // upgrade() or timedUpgrade() while holding a read lock promotes
 // the reader to a writer lock.
 //
+
 class ICE_UTIL_API RWRecMutex
 {
 public:
@@ -291,8 +294,8 @@ public:
     typedef WLockT<RWRecMutex> WLock;
     typedef TryWLockT<RWRecMutex> TryWLock;
 
-    RWRecMutex();
-    ~RWRecMutex();
+    ICE_DEPRECATED_API RWRecMutex();
+    ICE_DEPRECATED_API ~RWRecMutex();
 
     //
     // Note that readLock/writeLock & unlock in general should not be
@@ -302,55 +305,55 @@ public:
     //
     // Acquire a read lock.
     //
-    void readLock() const;
+    ICE_DEPRECATED_API void readLock() const;
 
     //
     // Try to acquire a read lock.
     //
-    bool tryReadLock() const;
+    ICE_DEPRECATED_API bool tryReadLock() const;
 
     //
     // Try to acquire a read lock for upto the given timeout.
     //
-    bool timedReadLock(const Time&) const;
+    ICE_DEPRECATED_API bool timedReadLock(const Time&) const;
 
     //
     // Acquire a write lock.
     //
-    void writeLock() const;
+    ICE_DEPRECATED_API void writeLock() const;
 
     //
     // Acquire a write lock.
     //
-    bool tryWriteLock() const;
+    ICE_DEPRECATED_API bool tryWriteLock() const;
 
     //
     // Acquire a write lock for up to the given timeout.
     //
-    bool timedWriteLock(const Time&) const;
+    ICE_DEPRECATED_API bool timedWriteLock(const Time&) const;
 
     //
     // Unlock the reader/writer lock.
     //
-    void unlock() const;
+    ICE_DEPRECATED_API void unlock() const;
 
     //
     // Upgrade the read lock to a writer lock. Note that this method
     // can only be called if the reader lock is not held recursively.
     //
-    void upgrade() const;
+    ICE_DEPRECATED_API void upgrade() const;
 
     //
     // Upgrade the read lock to a writer lock for up to the given
     // timeout Note that this method can only be called if the reader
     // lock is not held recursively.
     //
-    bool timedUpgrade(const Time&) const;
+    ICE_DEPRECATED_API bool timedUpgrade(const Time&) const;
 
     //
     // Downgrade a write lock to a read lock.
     //
-    void downgrade() const;
+    ICE_DEPRECATED_API void downgrade() const;
 
 private:
 
