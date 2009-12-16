@@ -92,7 +92,6 @@ Filesystem::FileI::FileI(const PersistentFilePtr& file, const DirectoryIPtr& par
 // Filesystem::DirectoryI
 //
 
-Ice::CommunicatorPtr Filesystem::DirectoryI::_communicator;
 Ice::ObjectAdapterPtr Filesystem::DirectoryI::_adapter;
 
 void
@@ -185,7 +184,7 @@ Filesystem::DirectoryI::createDirectory(const string& name, const Ice::Current& 
 
     PersistentDirectoryPtr persistentDir = new PersistentDirectory;
     persistentDir->name = name;
-    Ice::Identity id = _communicator->stringToIdentity(IceUtil::generateUUID());
+    Ice::Identity id = c.adapter->getCommunicator()->stringToIdentity(IceUtil::generateUUID());
     DirectoryIPtr dir = new DirectoryI(id, persistentDir, this);
     _map->put(make_pair(id, persistentDir));
 
@@ -199,7 +198,7 @@ Filesystem::DirectoryI::createDirectory(const string& name, const Ice::Current& 
 
     _map->put(make_pair(c.id, _dir));
 
-    _adapter->add(dir, id);
+    c.adapter->add(dir, id);
 
     return proxy;
 }
@@ -222,7 +221,7 @@ Filesystem::DirectoryI::createFile(const string& name, const Ice::Current& c)
     PersistentFilePtr persistentFile = new PersistentFile;
     persistentFile->name = name;
     FileIPtr file = new FileI(persistentFile, this);
-    Ice::Identity id = _communicator->stringToIdentity(IceUtil::generateUUID());
+    Ice::Identity id = c.adapter->getCommunicator()->stringToIdentity(IceUtil::generateUUID());
     _map->put(make_pair(id, persistentFile));
 
     FilePrx proxy = FilePrx::uncheckedCast(c.adapter->createProxy(id));
@@ -235,7 +234,7 @@ Filesystem::DirectoryI::createFile(const string& name, const Ice::Current& c)
 
     _map->put(make_pair(c.id, _dir));
 
-    _adapter->add(file, id);
+    c.adapter->add(file, id);
 
     return proxy;
 }

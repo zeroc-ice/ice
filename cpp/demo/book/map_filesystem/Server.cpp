@@ -46,7 +46,6 @@ public:
         // Set static members
         //
         NodeI::_map = &persistentMap;
-        DirectoryI::_communicator = communicator();
         DirectoryI::_adapter = adapter;
 
         // Find the persistent node for the root directory, or create it if not found

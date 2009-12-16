@@ -70,7 +70,6 @@ public:
 
     DirectoryI(const Ice::Identity& id, const PersistentDirectoryPtr&, const DirectoryIPtr&);
 
-    static Ice::CommunicatorPtr _communicator;
     static Ice::ObjectAdapterPtr _adapter;
 
 private:
