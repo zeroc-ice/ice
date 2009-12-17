@@ -349,7 +349,7 @@ public class AllTests
             }
             try
             {
-                Thread.sleep(300);
+                Thread.sleep(500);
             }
             catch(java.lang.InterruptedException ex)
             {

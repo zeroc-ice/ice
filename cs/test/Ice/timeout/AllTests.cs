@@ -269,7 +269,7 @@ public class AllTests
             {
                 test(false);
             }
-            Thread.Sleep(300);
+            Thread.Sleep(500);
             try
             {
                 connection.getInfo();

@@ -258,7 +258,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
         {
             test(false);
         }
-        IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(300));
+        IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(500));
         try
         {
             connection->getInfo();
