@@ -30,6 +30,29 @@ General Changes
 These entries apply to all relevant language mappings unless otherwise
 noted.
 
+- Added a new asynchronous method invocation (AMI) facility for C++,
+  C#, and Java. The previous API is now deprecated.
+
+- Added the ability to invoke flushBatchRequests asynchronously on a
+  communicator or connection.
+
+- Added a cloneWithPrefix operation to the Logger interface.
+
+- Added a removeServantLocator operation to the ObjectAdapter
+  interface.
+
+- The translators now include a comment at the beginning of each
+  generated file to indicate that the file is machine-generated.
+  This is particularly useful for tools such as StyleCop.
+
+- The IceGrid graphical administration tool now allows you to filter
+  the live deployment for a particular application.
+
+- Added the ability to query an IceGrid node to determine the number
+  of CPU sockets on its host machine. Currently this only works for
+  Windows Vista (or later) and native (non-VM) Linux. You can also
+  manually configure the number of CPU sockets.
+
 - Freeze now uses file locks to prevent multiple processes from
   opening the same database environment.
 
@@ -201,8 +224,18 @@ noted.
   This will read all the string values from the specified key in
   HKEY_LOCAL_MACHINE and set them as Ice properties.
 
+- iceserviceinstall, the Windows service installation utility, now
+  supports reading its configuration settings from HKLM in the Windows
+  registry.
+
 - Added ability to get information from endpoints such as host and
   port without having to parse the stringified endpoint.
+
+- Added ability to get addressing information from a connection.
+
+- The IceSSL::ConnectionInfo type is now generated from a local Slice
+  definition. You can downcast this type to NativeConnectionInfo if
+  you require access to native certificates.
 
 - Slice files are now allowed to be in UTF-8 format and include UTF-8
   BOM at start of file and include UTF-8 characters in comments.
@@ -297,6 +330,16 @@ noted.
 C++ Changes
 ============
 
+- Added a new demo named "interleaved" that shows how to use
+  asynchronous invocation and dispatch to achieve maximum throughput
+  with Ice.
+
+- Fixed a bug that prevented an application from using Unicode path
+  names for Freeze databases on Windows.
+
+- Enhanced the portable streaming API to provide better support for
+  template programming.
+
 - The C++ class generated for a derived Slice class no longer uses
   virtual inheritance by default. The metadata "cpp:virtual" can be
   defined for a Slice class to force the translator to use virtual
@@ -369,6 +412,11 @@ C++ Changes
 
 Java Changes
 ============
+
+- The Freeze map API now uses Java5 generic type conventions.
+
+- Ice now tests for the presence of the Bzip2 classes only if an
+  application attempts to use compression.
 
 - Added new demo book/map_filesystem.
 
