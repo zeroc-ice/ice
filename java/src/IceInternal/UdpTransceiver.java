@@ -570,18 +570,20 @@ final class UdpTransceiver implements Transceiver
                 if(group != null)
                 {
                     Class<?>[] types;
+                    Object[] args;
 		    try
 		    {
                         types = new Class<?>[]{ java.net.SocketAddress.class, java.net.NetworkInterface.class };
-			m = socketImpl.getClass().getDeclaredMethod("joinGroup", types);
+                        m = socketImpl.getClass().getDeclaredMethod("joinGroup", types);
+                        args = new Object[]{ group, intf };
 		    }
 		    catch(java.lang.NoSuchMethodException ex) // OpenJDK
 		    {                        
                         types = new Class<?>[]{ java.net.InetAddress.class, java.net.NetworkInterface.class };
 			m = socketImpl.getClass().getDeclaredMethod("join", types);
+                        args = new Object[]{ group.getAddress(), intf };
 		    }
                     m.setAccessible(true);
-                    Object[] args = new Object[]{ group.getAddress(), intf };
                     m.invoke(socketImpl, args);
                 }
                 else if(intf != null)
