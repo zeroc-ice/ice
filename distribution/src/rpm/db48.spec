@@ -14,7 +14,6 @@ Name: db48
 Version: 4.8.24
 Release: 1ice%{?dist}
 Source0: http://download.oracle.com/berkeley-db/db-%{version}.NC.tar.gz
-Patch1: patch.4.8.24.17646
 URL: http://www.oracle.com/database/berkeley-db/
 License: Berkeley DB open-source license
 Group: System Environment/Libraries
@@ -76,7 +75,6 @@ for building programs which use the Berkeley DB in Java.
 %prep
 
 %setup -q -n db-%{version}.NC
-%patch1 -p0 -b .4.8.24.17646
 
 # Remove tags files which we don't need.
 find . -name tags | xargs rm -f
@@ -195,6 +193,9 @@ rm -rf ${RPM_BUILD_ROOT}
 %endif
 
 %changelog
+
+* Thu Dec 17 2009 Mark Spruiell <mes@zeroc.com> 4.8.24-1ice
+- Updated Berkeley DB to version 4.8.24
 
 * Mon Jan 26 2009 Bernard Normier <bernard@zeroc.com> 4.6.21-3ice
 - Applied DB patches
