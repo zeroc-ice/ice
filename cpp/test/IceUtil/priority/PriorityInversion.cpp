@@ -11,6 +11,10 @@
 #include <vector>
 #include <map>
 
+#ifndef _WIN32
+#include <unistd.h>
+#endif
+
 using namespace std;
 using namespace IceUtil;
 

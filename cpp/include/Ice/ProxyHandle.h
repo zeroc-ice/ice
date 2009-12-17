@@ -89,13 +89,29 @@ uncheckedCastHelper(const ::IceInternal::ProxyHandle<Y>& b, T*)
 template<typename T, typename Y> inline ProxyHandle<T> 
 checkedCastHelper(const ::IceInternal::ProxyHandle<Y>& b, void*, const ::Ice::Context* ctx)
 {
+#ifdef __SUNPRO_CC
+    //
+    // Sun CC bug introduced in version 5.10
+    //
+    const ::Ice::ObjectPrx& o = b;
+    return checkedCastImpl<ProxyHandle<T> >(o, ctx);
+#else
     return checkedCastImpl<ProxyHandle<T> >(b, ctx);
+#endif
 }
 
 template<typename T, typename Y> inline ProxyHandle<T> 
 uncheckedCastHelper(const ::IceInternal::ProxyHandle<Y>& b, void*)
 {
+#ifdef __SUNPRO_CC
+    //
+    // Sun CC bug introduced in version 5.10
+    //
+    const ::Ice::ObjectPrx& o = b;
+    return uncheckedCastImpl<ProxyHandle<T> >(o);
+#else
     return uncheckedCastImpl<ProxyHandle<T> >(b);
+#endif
 }
 
 //
@@ -264,7 +280,15 @@ public:
     static ProxyHandle checkedCast(const ProxyHandle<Y>& r, const std::string& f)
     {
         Ice::Context* ctx = 0;
+#ifdef __SUNPRO_CC
+        //
+        // Sun CC bug introduced in version 5.10
+        //
+        const ::Ice::ObjectPrx& o = r;
+        return ::IceInternal::checkedCastImpl<ProxyHandle>(o, f, ctx);
+#else
         return ::IceInternal::checkedCastImpl<ProxyHandle>(r, f, ctx);
+#endif
     }
 
     template<class Y>
@@ -277,7 +301,15 @@ public:
     template<class Y>
     static ProxyHandle checkedCast(const ProxyHandle<Y>& r, const std::string& f, const ::Ice::Context& ctx)
     {
+#ifdef __SUNPRO_CC
+        //
+        // Sun CC bug introduced in version 5.10
+        //
+        const ::Ice::ObjectPrx& o = r;
+        return ::IceInternal::checkedCastImpl<ProxyHandle>(o, f, &ctx);
+#else
         return ::IceInternal::checkedCastImpl<ProxyHandle>(r, f, &ctx);
+#endif
     }
 
     template<class Y>
@@ -290,7 +322,15 @@ public:
     template<class Y>
     static ProxyHandle uncheckedCast(const ProxyHandle<Y>& r, const std::string& f)
     {
+#ifdef __SUNPRO_CC
+        //
+        // Sun CC bug introduced in version 5.10
+        //
+        const ::Ice::ObjectPrx& o = r;
+        return ::IceInternal::uncheckedCastImpl<ProxyHandle<T> >(o, f);
+#else
         return ::IceInternal::uncheckedCastImpl<ProxyHandle>(r, f);
+#endif
     }
 };
 

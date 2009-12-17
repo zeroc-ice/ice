@@ -113,7 +113,12 @@ public:
             for(typename Dict::const_iterator p = _dict.begin(); p != _dict.end(); ++p)
 #endif
             {
-                m.insert(*p);
+#ifdef __SUNPRO_CC             
+                std::map<Key, Value>::value_type v(p->first, p->second);
+                m.insert(v);
+#else
+		m.insert(*p);
+#endif
             }
             return m;
         }

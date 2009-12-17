@@ -70,7 +70,7 @@ remove(multimap<K, V>& m, K k, V v)
 }
 
 template <typename K, typename V> ::IceInternal::Handle<V>
-find(multimap<K,::IceInternal::Handle<V> >& m, 
+find(const multimap<K,::IceInternal::Handle<V> >& m, 
      K k, 
      const ::IceUtilInternal::ConstMemFun<bool, V, ::IceInternal::Handle<V> >& predicate)
 {
