@@ -220,6 +220,10 @@ namespace IceInternal
                     {
                         waitHandle_ = new EventWaitHandle(false, EventResetMode.ManualReset);
                     }
+                    if((state_ & Done) != 0)
+                    {
+                        waitHandle_.Set();
+                    }
                     return waitHandle_;
                 }
             }
