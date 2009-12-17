@@ -196,8 +196,14 @@ public final class Selector
         {
             EventHandler handler = (EventHandler)key.attachment();
             try
-            {
-                handler._ready = fromJavaOps(key.readyOps());
+            { 
+                //
+                // It's important to check for interestOps here because the event handler
+                // registration might have changed above when _changes was processed. We
+                // don't want to return event handlers which aren't interested anymore in
+                // a given operation.
+                //
+                handler._ready = fromJavaOps(key.readyOps() & key.interestOps());
                 if(handler.hasMoreData() && _pendingHandlers.remove(handler))
                 {
                     handler._ready |= SocketOperation.Read;
