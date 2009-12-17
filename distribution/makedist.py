@@ -248,6 +248,7 @@ for d in os.listdir('.'):
 rmFiles = []
 configSubstituteExprs = [(re.compile(regexpEscape("../../certs")), "../certs")]
 csprojSubstituteExprs = [(re.compile(regexpEscape("ZerocIce_Home=\"..\..\..\..\"")), "")]
+slice2freezeSubstituteExprs = [(re.compile(regexpEscape("..\\..\\..\\bin\\slice2freeze")), "&quot;$(IceHome)&quot;\\\\bin\\slice2freeze")]
 for root, dirnames, filesnames in os.walk(demoDir):
     for f in filesnames:
 
@@ -258,8 +259,8 @@ for root, dirnames, filesnames in os.walk(demoDir):
         if fnmatch.fnmatch(f, "*.csproj"):
             substitute(os.path.join(root, f), csprojSubstituteExprs)
 
-        # Remove ZerocIce_Home setting from C++ projects
         if fnmatch.fnmatch(f, "*.vcproj"):
+            # Remove ZerocIce_Home setting from C++ projects
             foundGlobal = False
             deleteLines = 0
             globalLine = None
@@ -278,6 +279,9 @@ for root, dirnames, filesnames in os.walk(demoDir):
                         globalLine = line
                 else:
                     print line,
+
+            # Fix slice2freeze commands
+            substitute(os.path.join(root, f), slice2freezeSubstituteExprs)
 
 for f in rmFiles: remove(os.path.join(demoDir, f))
 
