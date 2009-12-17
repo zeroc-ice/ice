@@ -766,7 +766,7 @@
 					>
 					<Tool
 						Name="VCCustomBuildTool"
-						CommandLine="if exist ../../../../slice (set sliceDir=../../../../slice) else set sliceDir=$(IceHome)\slice&#x0D;&#x0A;&quot;$(IceHome)&quot;\bin\slice2freeze.exe -I%sliceDir% --index NameIndex,Demo::Contact,name,case-insensitive NameIndex PhoneBook.ice&#x0D;&#x0A;"
+						CommandLine="..\..\..\bin\slice2freeze.exe -I&quot;$(IceHome)&quot;\slice --index NameIndex,Demo::Contact,name,case-insensitive NameIndex PhoneBook.ice&#x0D;&#x0A;"
 						Outputs="NameIndex.cpp;NameIndex.h"
 					/>
 				</FileConfiguration>
@@ -775,8 +775,7 @@
 					>
 					<Tool
 						Name="VCCustomBuildTool"
-						CommandLine="if exist ../../../../slice (set sliceDir=../../../../slice) else set sliceDir=$(IceHome)\slice&#x0D;&#x0A;&quot;$(IceHome)&quot;\bin\slice2freeze.exe -I%sliceDir% --index NameIndex,Demo::Contact,name,case-insensitive NameIndex PhoneBook.ice&#x0D;&#x0A;"
-						AdditionalDependencies="..\..\..\bin\slice2freeze.exe;..\..\..\lib\slice.lib;"
+						CommandLine="..\..\..\bin\slice2freeze.exe -I&quot;$(IceHome)&quot;\slice --index NameIndex,Demo::Contact,name,case-insensitive NameIndex PhoneBook.ice&#x0D;&#x0A;"
 						Outputs="NameIndex.cpp;NameIndex.h"
 					/>
 				</FileConfiguration>
@@ -785,7 +784,7 @@
 					>
 					<Tool
 						Name="VCCustomBuildTool"
-						CommandLine="if exist ../../../../slice (set sliceDir=../../../../slice) else set sliceDir=$(IceHome)\slice&#x0D;&#x0A;&quot;$(IceHome)&quot;\bin\slice2freeze.exe -I%sliceDir% --index NameIndex,Demo::Contact,name,case-insensitive NameIndex PhoneBook.ice&#x0D;&#x0A;"
+						CommandLine="..\..\..\bin\slice2freeze.exe -I&quot;$(IceHome)&quot;\slice --index NameIndex,Demo::Contact,name,case-insensitive NameIndex PhoneBook.ice&#x0D;&#x0A;"
 						Outputs="NameIndex.cpp;NameIndex.h"
 					/>
 				</FileConfiguration>
@@ -794,7 +793,7 @@
 					>
 					<Tool
 						Name="VCCustomBuildTool"
-						CommandLine="if exist ../../../../slice (set sliceDir=../../../../slice) else set sliceDir=$(IceHome)\slice&#x0D;&#x0A;&quot;$(IceHome)&quot;\bin\slice2freeze.exe -I%sliceDir% --index NameIndex,Demo::Contact,name,case-insensitive NameIndex PhoneBook.ice&#x0D;&#x0A;"
+						CommandLine="..\..\..\bin\slice2freeze.exe -I&quot;$(IceHome)&quot;\slice --index NameIndex,Demo::Contact,name,case-insensitive NameIndex PhoneBook.ice&#x0D;&#x0A;"
 						Outputs="NameIndex.cpp;NameIndex.h"
 					/>
 				</FileConfiguration>

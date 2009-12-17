@@ -502,7 +502,7 @@
 					>
 					<Tool
 						Name="VCCustomBuildTool"
-						CommandLine="&quot;$(IceHome)&quot;\bin\slice2freeze.exe --dict IntLongMap,int,long IntLongMap&#x0D;&#x0A;"
+						CommandLine="..\..\..\bin\slice2freeze.exe --dict IntLongMap,int,long IntLongMap&#x0D;&#x0A;"
 						Outputs="IntLongMap.h;IntLongMap.cpp"
 					/>
 				</FileConfiguration>
@@ -511,7 +511,7 @@
 					>
 					<Tool
 						Name="VCCustomBuildTool"
-						CommandLine="&quot;$(IceHome)&quot;\bin\slice2freeze.exe --dict IntLongMap,int,long IntLongMap&#x0D;&#x0A;"
+						CommandLine="..\..\..\bin\slice2freeze.exe --dict IntLongMap,int,long IntLongMap&#x0D;&#x0A;"
 						Outputs="IntLongMap.h;IntLongMap.cpp"
 					/>
 				</FileConfiguration>
@@ -520,7 +520,7 @@
 					>
 					<Tool
 						Name="VCCustomBuildTool"
-						CommandLine="&quot;$(IceHome)&quot;\bin\slice2freeze.exe --dict IntLongMap,int,long IntLongMap&#x0D;&#x0A;"
+						CommandLine="..\..\..\bin\slice2freeze.exe --dict IntLongMap,int,long IntLongMap&#x0D;&#x0A;"
 						Outputs="IntLongMap.h;IntLongMap.cpp"
 					/>
 				</FileConfiguration>
@@ -529,7 +529,7 @@
 					>
 					<Tool
 						Name="VCCustomBuildTool"
-						CommandLine="&quot;$(IceHome)&quot;\bin\slice2freeze.exe --dict IntLongMap,int,long IntLongMap&#x0D;&#x0A;"
+						CommandLine="..\..\..\bin\slice2freeze.exe --dict IntLongMap,int,long IntLongMap&#x0D;&#x0A;"
 						Outputs="IntLongMap.h;IntLongMap.cpp"
 					/>
 				</FileConfiguration>

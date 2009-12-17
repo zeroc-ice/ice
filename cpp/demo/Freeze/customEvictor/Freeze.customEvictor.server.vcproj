@@ -710,7 +710,7 @@
 					>
 					<Tool
 						Name="VCCustomBuildTool"
-						CommandLine="&quot;$(IceHome)&quot;\bin\slice2freeze.exe --dict Database,string,Warehouse::ItemInfo Database ItemInfo.ice&#x0D;&#x0A;"
+						CommandLine="..\..\..\bin\slice2freeze.exe --dict Database,string,Warehouse::ItemInfo Database ItemInfo.ice&#x0D;&#x0A;"
 						Outputs="Database.cpp;Database.h"
 					/>
 				</FileConfiguration>
@@ -719,7 +719,7 @@
 					>
 					<Tool
 						Name="VCCustomBuildTool"
-						CommandLine="&quot;$(IceHome)&quot;\bin\slice2freeze.exe --dict Database,string,Warehouse::ItemInfo Database ItemInfo.ice&#x0D;&#x0A;"
+						CommandLine="..\..\..\bin\slice2freeze.exe --dict Database,string,Warehouse::ItemInfo Database ItemInfo.ice&#x0D;&#x0A;"
 						Outputs="Database.cpp;Database.h"
 					/>
 				</FileConfiguration>
@@ -728,7 +728,7 @@
 					>
 					<Tool
 						Name="VCCustomBuildTool"
-						CommandLine="&quot;$(IceHome)&quot;\bin\slice2freeze.exe --dict Database,string,Warehouse::ItemInfo Database ItemInfo.ice&#x0D;&#x0A;"
+						CommandLine="..\..\..\bin\slice2freeze.exe --dict Database,string,Warehouse::ItemInfo Database ItemInfo.ice&#x0D;&#x0A;"
 						Outputs="Database.cpp;Database.h"
 					/>
 				</FileConfiguration>
@@ -737,7 +737,7 @@
 					>
 					<Tool
 						Name="VCCustomBuildTool"
-						CommandLine="&quot;$(IceHome)&quot;\bin\slice2freeze.exe --dict Database,string,Warehouse::ItemInfo Database ItemInfo.ice&#x0D;&#x0A;"
+						CommandLine="..\..\..\bin\slice2freeze.exe --dict Database,string,Warehouse::ItemInfo Database ItemInfo.ice&#x0D;&#x0A;"
 						Outputs="Database.cpp;Database.h"
 					/>
 				</FileConfiguration>

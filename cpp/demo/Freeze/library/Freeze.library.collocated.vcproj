@@ -766,7 +766,7 @@
 					>
 					<Tool
 						Name="VCCustomBuildTool"
-						CommandLine="if exist ../../../../slice (set sliceDir=../../../../slice) else set sliceDir=$(IceHome)\slice&#x0D;&#x0A;&quot;$(IceHome)&quot;\bin\slice2freeze.exe --ice -I%sliceDir% --dict StringIsbnSeqDict,string,Ice::StringSeq LibraryTypes %sliceDir%/Ice/BuiltinSequences.ice Library.ice&#x0D;&#x0A;"
+						CommandLine="..\..\..\bin\slice2freeze.exe --ice -I&quot;$(IceHome)&quot;\slice --dict StringIsbnSeqDict,string,Ice::StringSeq LibraryTypes &quot;$(IceHome)&quot;\slice/Ice/BuiltinSequences.ice Library.ice&#x0D;&#x0A;"
 						Outputs="LibraryTypes.cpp;LibraryTypes.h"
 					/>
 				</FileConfiguration>
@@ -775,7 +775,7 @@
 					>
 					<Tool
 						Name="VCCustomBuildTool"
-						CommandLine="if exist ../../../../slice (set sliceDir=../../../../slice) else set sliceDir=$(IceHome)\slice&#x0D;&#x0A;&quot;$(IceHome)&quot;\bin\slice2freeze.exe --ice -I%sliceDir% --dict StringIsbnSeqDict,string,Ice::StringSeq LibraryTypes %sliceDir%/Ice/BuiltinSequences.ice Library.ice&#x0D;&#x0A;"
+						CommandLine="..\..\..\bin\slice2freeze.exe --ice -I&quot;$(IceHome)&quot;\slice --dict StringIsbnSeqDict,string,Ice::StringSeq LibraryTypes &quot;$(IceHome)&quot;\slice/Ice/BuiltinSequences.ice Library.ice&#x0D;&#x0A;"
 						Outputs="LibraryTypes.cpp;LibraryTypes.h"
 					/>
 				</FileConfiguration>
@@ -784,7 +784,7 @@
 					>
 					<Tool
 						Name="VCCustomBuildTool"
-						CommandLine="if exist ../../../../slice (set sliceDir=../../../../slice) else set sliceDir=$(IceHome)\slice&#x0D;&#x0A;&quot;$(IceHome)&quot;\bin\slice2freeze.exe --ice -I%sliceDir% --dict StringIsbnSeqDict,string,Ice::StringSeq LibraryTypes %sliceDir%/Ice/BuiltinSequences.ice Library.ice&#x0D;&#x0A;"
+						CommandLine="..\..\..\bin\slice2freeze.exe --ice -I&quot;$(IceHome)&quot;\slice --dict StringIsbnSeqDict,string,Ice::StringSeq LibraryTypes &quot;$(IceHome)&quot;\slice/Ice/BuiltinSequences.ice Library.ice&#x0D;&#x0A;"
 						Outputs="LibraryTypes.cpp;LibraryTypes.h"
 					/>
 				</FileConfiguration>
@@ -793,7 +793,7 @@
 					>
 					<Tool
 						Name="VCCustomBuildTool"
-						CommandLine="if exist ../../../../slice (set sliceDir=../../../../slice) else set sliceDir=$(IceHome)\slice&#x0D;&#x0A;&quot;$(IceHome)&quot;\bin\slice2freeze.exe --ice -I%sliceDir% --dict StringIsbnSeqDict,string,Ice::StringSeq LibraryTypes %sliceDir%/Ice/BuiltinSequences.ice Library.ice&#x0D;&#x0A;"
+						CommandLine="..\..\..\bin\slice2freeze.exe --ice -I&quot;$(IceHome)&quot;\slice --dict StringIsbnSeqDict,string,Ice::StringSeq LibraryTypes &quot;$(IceHome)&quot;\slice/Ice/BuiltinSequences.ice Library.ice&#x0D;&#x0A;"
 						Outputs="LibraryTypes.cpp;LibraryTypes.h"
 					/>
 				</FileConfiguration>
