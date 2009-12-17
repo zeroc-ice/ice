@@ -161,7 +161,7 @@ Follow these instructions for building mcpp:
 
   > patch -p0 < ..\noconfig\vc2008.dif
 
-  and for C++Builder 2007 you would run:
+  and for C++Builder 2010 you would run:
 
   > patch -p0 < ..\noconfig\bc59.dif
 
