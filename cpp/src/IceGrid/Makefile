@@ -112,6 +112,10 @@ $(NODE_SERVER): $(NODE_SVR_OBJS) $(LIBTARGETS)
 	$(CXX) $(LDFLAGS) -o $@ $(NODE_SVR_OBJS) -lIceGrid -lIceStorm -lIceStormService -lIceBox -lGlacier2 \
 	-lIcePatch2 -lIceDB $(EXPAT_RPATH_LINK) -lIceXML -lIceSSL $(OPENSSL_LIBS) $(LIBS)
 
+install:: all
+	$(call installprogram,$(ADMIN),$(install_bindir))
+	$(call installprogram,$(NODE_SERVER),$(install_bindir))
+	$(call installprogram,$(REGISTRY_SERVER),$(install_bindir))
 
 SUBDIRS = FreezeDB
 ifneq ($(QT_HOME),)
@@ -130,10 +134,5 @@ $(EVERYTHING)::
 
 # Needed for make -jn to work.
 #../IceGrid/Grammar.y: Grammar.h
-
-install:: all
-	$(call installprogram,$(ADMIN),$(install_bindir))
-	$(call installprogram,$(NODE_SERVER),$(install_bindir))
-	$(call installprogram,$(REGISTRY_SERVER),$(install_bindir))
 
 include .depend

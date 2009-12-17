@@ -54,6 +54,7 @@ thirdParties = [
     "Expat", \
     "OpenSSL", \
     "Mcpp", \
+    "Qt", \
     "JGoodiesLooks", \
     "JGoodiesForms", \
     "Proguard", \

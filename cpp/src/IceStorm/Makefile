@@ -76,6 +76,10 @@ $(ADMIN): $(AOBJS) $(LIBTARGETS)
 # Needed for make -jn to work.
 ../IceStorm/Grammar.y: Grammar.h
 
+install:: all
+	$(call installlib,$(install_libdir),$(libdir),$(LIBFILENAME),$(SONAME),$(LIBNAME))
+	$(call installprogram,$(ADMIN),$(install_bindir))
+
 SUBDIRS = FreezeDB
 ifneq ($(QT_HOME),)
    SUBDIRS += SqlDB
@@ -90,9 +94,5 @@ $(EVERYTHING)::
 		( cd $$subdir && $(MAKE) $@ ) || exit 1; \
 	    fi; \
 	done
-
-install:: all
-	$(call installlib,$(install_libdir),$(libdir),$(LIBFILENAME),$(SONAME),$(LIBNAME))
-	$(call installprogram,$(ADMIN),$(install_bindir))
 
 include .depend

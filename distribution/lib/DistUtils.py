@@ -50,23 +50,28 @@ mcpp = {
     'Darwin' : '/opt/mcpp' 
 }
 
+qt = { \
+    'SunOS' : '/opt/qt', \
+    'Darwin' : '/Library/Frameworks', \
+}
+
 jgoodies_looks = { \
-    'SunOS' : '/share/opt/looks-2.2.2/looks-2.2.2.jar', \
-    'Darwin' : '/opt/looks-2.2.2/looks-2.2.2.jar', \
-    'Linux' : '/opt/looks-2.2.2/looks-2.2.2.jar', \
+    'SunOS' : '/usr/share/java/looks-2.3.0.jar', \
+    'Darwin' : '/opt/looks-2.3.0/looks-2.3.0.jar', \
+    'Linux' : '/opt/looks-2.3.0/looks-2.3.0.jar', \
 }
 
 jgoodies_forms = { \
-    'SunOS' : '/share/opt/forms-1.2.1/forms-1.2.1.jar', \
+    'SunOS' : '/usr/share/java/forms-1.2.1.jar', \
     'Darwin' : '/opt/forms-1.2.1/forms-1.2.1.jar', \
     'Linux' : '/opt/forms-1.2.1/forms-1.2.1.jar', \
 }
 
 proguard = { \
-    'SunOS' : '/share/opt/proguard4.1/lib/proguard.jar', \
+    'SunOS' : '/usr/share/java/proguard.jar', \
     'Darwin' : '/opt/proguard/lib/proguard.jar', \
     'Linux' : '/opt/proguard/lib/proguard.jar', \
-}    
+}
 
 #
 # Some utility methods
@@ -898,6 +903,16 @@ class Mcpp(ThirdParty):
     def __init__(self, platform):
         global mcpp
         ThirdParty.__init__(self, platform, "Mcpp", mcpp, ["cpp"])
+
+class Qt(ThirdParty):
+    def __init__(self, platform):
+        global mcpp
+        ThirdParty.__init__(self, platform, "Qt", qt, ["cpp"])
+
+    def getFilesFromSubDirs(self, platform, bindir, libdir, x64):
+	files = platform.getSharedLibraryFiles(self.location, os.path.join(libdir, "QtCore*"))
+	files += platform.getSharedLibraryFiles(self.location, os.path.join(libdir, "QtSql*"))
+        return files
 
 class JGoodiesLooks(ThirdParty):
     def __init__(self, platform):

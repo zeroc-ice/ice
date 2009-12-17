@@ -95,14 +95,6 @@ Grammar.cpp Grammar.h: Grammar.y
 	move Grammar.tab.h Grammar.h
 	del /q Grammar.output
 
-SUBDIRS = FreezeDB SqlDB
-
-$(EVERYTHING)::
-	@for %i in ( $(SUBDIRS) ) do \
-	    @if exist %i \
-	        @echo "making $@ in %i" && \
-	        cmd /c "cd %i && $(MAKE) -nologo -f Makefile.mak $@" || exit 1
-
 clean::
 	-del /q IceStormInternal.cpp IceStormInternal.h
 	-del /q LinkRecord.cpp LinkRecord.h
@@ -116,5 +108,21 @@ install:: all
 	copy $(LIBNAME) $(install_libdir)
 	copy $(DLLNAME) $(install_bindir)
 	copy $(ADMIN) $(install_bindir)
+
+!if "$(GENERATE_PDB)" == "yes"
+
+install:: all
+        copy $(ADMIN:.exe=.pdb) $(install_bindir)
+        copy $(DLLNAME:.exe=.pdb) $(install_bindir)
+
+!endif
+
+SUBDIRS = FreezeDB SqlDB
+
+$(EVERYTHING)::
+	@for %i in ( $(SUBDIRS) ) do \
+	    @if exist %i \
+	        @echo "making $@ in %i" && \
+	        cmd /c "cd %i && $(MAKE) -nologo -f Makefile.mak $@" || exit 1
 
 !include .depend
