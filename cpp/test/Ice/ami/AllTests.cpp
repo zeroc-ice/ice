@@ -1258,12 +1258,20 @@ allTests(const Ice::CommunicatorPtr& communicator)
             *q = static_cast<Ice::Byte>(IceUtilInternal::random(255));
         }
         testController->holdAdapter();
-        cb = new SentCallback();
-        while(p->begin_opWithPayload(seq, Test::newCallback_TestIntf_opWithPayload(
-                                         cb, &SentCallback::ex, &SentCallback::sent))->sentSynchronously())
+        try
         {
-            cbs.push_back(cb);
             cb = new SentCallback();
+            while(p->begin_opWithPayload(seq, Test::newCallback_TestIntf_opWithPayload(
+                                             cb, &SentCallback::ex, &SentCallback::sent))->sentSynchronously())
+            {
+                cbs.push_back(cb);
+                cb = new SentCallback();
+            }
+        }
+        catch(...)
+        {
+            testController->resumeAdapter();
+            throw;
         }
         testController->resumeAdapter();
         for(vector<SentCallbackPtr>::const_iterator r = cbs.begin(); r != cbs.end(); r++)
@@ -1968,29 +1976,36 @@ allTests(const Ice::CommunicatorPtr& communicator)
     cout << "testing AsyncResult operations... " << flush;
     {
         testController->holdAdapter();
-
-        Ice::AsyncResultPtr r1 = p->begin_op();
-        Ice::ByteSeq seq;
-        seq.resize(1024); // Make sure the request doesn't compress too well.
-        for(Ice::ByteSeq::iterator q = seq.begin(); q != seq.end(); ++q)
-        {
-            *q = static_cast<Ice::Byte>(IceUtilInternal::random(255));
-        }
+        Ice::AsyncResultPtr r1;
         Ice::AsyncResultPtr r2;
-        while((r2 = p->begin_opWithPayload(seq))->sentSynchronously());
+        try
+        {
+            r1 = p->begin_op();
+            Ice::ByteSeq seq;
+            seq.resize(1024); // Make sure the request doesn't compress too well.
+            for(Ice::ByteSeq::iterator q = seq.begin(); q != seq.end(); ++q)
+            {
+                *q = static_cast<Ice::Byte>(IceUtilInternal::random(255));
+            }
+            while((r2 = p->begin_opWithPayload(seq))->sentSynchronously());
+            
+            test(r1 == r1);
+            test(r1 != r2);
 
-        test(r1 == r1);
-        test(r1 != r2);
-
-        test(r1->getHash() == r1->getHash());
-        test(r1->getHash() != r2->getHash());
-        test(r1->getHash() < r2->getHash() || r2->getHash() < r1->getHash());
-
-        test((r1->sentSynchronously() && r1->isSent() && !r1->isCompleted()) ||
-             (!r1->sentSynchronously() && !r1->isCompleted()));
-
-        test(!r2->sentSynchronously() && !r2->isCompleted());
-
+            test(r1->getHash() == r1->getHash());
+            test(r1->getHash() != r2->getHash());
+            test(r1->getHash() < r2->getHash() || r2->getHash() < r1->getHash());
+            
+            test((r1->sentSynchronously() && r1->isSent() && !r1->isCompleted()) ||
+                 (!r1->sentSynchronously() && !r1->isCompleted()));
+            
+            test(!r2->sentSynchronously() && !r2->isCompleted());
+        }
+        catch(...)
+        {
+            testController->resumeAdapter();
+            throw;
+        }
         testController->resumeAdapter();
 
         r1->waitForSent();

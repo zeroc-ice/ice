@@ -957,15 +957,21 @@ public class AllTests
             byte[] seq = new byte[10024];
             (new System.Random()).NextBytes(seq);
             testController.holdAdapter();
-            Ice.AsyncResult r;
-            do
+            try
             {
-                SentCallback cb2 = new SentCallback();
-                r = p.begin_opWithPayload(seq).whenCompleted(cb2.ex).whenSent(cb2.sent);
-                cbs.Add(cb2);
+                Ice.AsyncResult r;
+                do
+                {
+                    SentCallback cb2 = new SentCallback();
+                    r = p.begin_opWithPayload(seq).whenCompleted(cb2.ex).whenSent(cb2.sent);
+                    cbs.Add(cb2);
+                }
+                while(r.sentSynchronously());
             }
-            while(r.sentSynchronously());
-            testController.resumeAdapter();
+            finally
+            {
+                testController.resumeAdapter();
+            }
             foreach(SentCallback cb3 in cbs)
             {
                 cb3.check();
@@ -1411,25 +1417,30 @@ public class AllTests
         Console.Out.Flush();
         {
             testController.holdAdapter();
-
-            Ice.AsyncResult r1 = p.begin_op();
-            byte[] seq = new byte[10024];
-            (new System.Random()).NextBytes(seq);
+            Ice.AsyncResult r1;
             Ice.AsyncResult r2;
-            while((r2 = p.begin_opWithPayload(seq)).sentSynchronously());
-
-            test(r1.sentSynchronously() && r1.isSent() && !r1.isCompleted_() ||
-                 !r1.sentSynchronously() && !r1.isCompleted_());
-
-            test(!r2.sentSynchronously() && !r2.isCompleted_());
-
-            test(!r1.IsCompleted && !r1.CompletedSynchronously);
-            test(!r2.IsCompleted && !r2.CompletedSynchronously);
+            try
+            {
+                r1 = p.begin_op();
+                byte[] seq = new byte[10024];
+                (new System.Random()).NextBytes(seq);
+                while((r2 = p.begin_opWithPayload(seq)).sentSynchronously());
+                
+                test(r1.sentSynchronously() && r1.isSent() && !r1.isCompleted_() ||
+                     !r1.sentSynchronously() && !r1.isCompleted_());
+                
+                test(!r2.sentSynchronously() && !r2.isCompleted_());
+                
+                test(!r1.IsCompleted && !r1.CompletedSynchronously);
+                test(!r2.IsCompleted && !r2.CompletedSynchronously);
+            }
+            finally
+            {
+                testController.resumeAdapter();
+            }
 
             WaitHandle w1 = r1.AsyncWaitHandle;
             WaitHandle w2 = r2.AsyncWaitHandle;
-
-            testController.resumeAdapter();
 
             r1.waitForSent();
             test(r1.isSent());

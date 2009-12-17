@@ -1331,32 +1331,38 @@ public class AllTests
             new java.util.Random().nextBytes(seq); // Make sure the request doesn't compress too well.
             Ice.AsyncResult r;
             testController.holdAdapter();
-            do
+            try
             {
-                final SentCallback cb2 = new SentCallback();
-                r = p.begin_opWithPayload(seq, new Callback_TestIntf_opWithPayload()
-                    {
-                        public void
-                        response()
+                do
+                {
+                    final SentCallback cb2 = new SentCallback();
+                    r = p.begin_opWithPayload(seq, new Callback_TestIntf_opWithPayload()
                         {
-                        }
+                            public void
+                            response()
+                            {
+                            }
 
-                        public void
-                        exception(Ice.LocalException ex)
-                        {
-                            cb2.ex(ex);
-                        }
+                            public void
+                            exception(Ice.LocalException ex)
+                            {
+                                    cb2.ex(ex);
+                            }
 
-                        public void
-                        sent(boolean ss)
-                        {
-                            cb2.sent(ss);
-                        }
-                    });
-                cbs.add(cb2);
+                            public void
+                            sent(boolean ss)
+                            {
+                                    cb2.sent(ss);
+                            }
+                        });
+                    cbs.add(cb2);
+                }
+                while(r.sentSynchronously());
             }
-            while(r.sentSynchronously());
-            testController.resumeAdapter();
+            finally
+            {
+                testController.resumeAdapter();
+            }
             for(SentCallback cb3 : cbs)
             {
                 cb3.check();
@@ -2084,19 +2090,24 @@ public class AllTests
         out.flush();
         {
             testController.holdAdapter();
-
-            Ice.AsyncResult r1 = p.begin_op();
-            byte[] seq = new byte[10024];
-            new java.util.Random().nextBytes(seq); // Make sure the request doesn't compress too well.
+            Ice.AsyncResult r1;
             Ice.AsyncResult r2;
-            while((r2 = p.begin_opWithPayload(seq)).sentSynchronously());
+            try
+            {
+                r1 = p.begin_op();
+                byte[] seq = new byte[10024];
+                new java.util.Random().nextBytes(seq); // Make sure the request doesn't compress too well.
+                while((r2 = p.begin_opWithPayload(seq)).sentSynchronously());
 
-            test(r1.sentSynchronously() && r1.isSent() && !r1.isCompleted() ||
-                 !r1.sentSynchronously() && !r1.isCompleted());
+                test(r1.sentSynchronously() && r1.isSent() && !r1.isCompleted() ||
+                     !r1.sentSynchronously() && !r1.isCompleted());
 
-            test(!r2.sentSynchronously() && !r2.isCompleted());
-
-            testController.resumeAdapter();
+                test(!r2.sentSynchronously() && !r2.isCompleted());
+            }
+            finally
+            {
+                testController.resumeAdapter();
+            }
 
             r1.waitForSent();
             test(r1.isSent());
