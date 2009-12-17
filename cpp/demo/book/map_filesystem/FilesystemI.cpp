@@ -30,26 +30,25 @@ FileI::name(const Ice::Current& c)
 
     for(;;)
     {
-	try
-	{
+        try
+        {
             IdentityFileEntryMap::iterator p = fileDB.find(c.id);
             if(p == fileDB.end())
             {
                 throw Ice::ObjectNotExistException(__FILE__, __LINE__);
             }
             return p->second.name;
-	}
-	catch(const Freeze::DeadlockException&)
-	{
-	    continue;
-	}
-	catch(const Freeze::DatabaseException& ex)
-	{
-	    halt(ex);
-	}
+        }
+        catch(const Freeze::DeadlockException&)
+        {
+            continue;
+        }
+        catch(const Freeze::DatabaseException& ex)
+        {
+            halt(ex);
+        }
     }
 }
-
 
 Lines
 FileI::read(const Ice::Current& c)
@@ -59,23 +58,23 @@ FileI::read(const Ice::Current& c)
 
     for(;;)
     {
-	try
-	{
+        try
+        {
             IdentityFileEntryMap::iterator p = fileDB.find(c.id);
             if(p == fileDB.end())
             {
                 throw Ice::ObjectNotExistException(__FILE__, __LINE__);
             }
             return p->second.text;
-	}
-	catch(const Freeze::DeadlockException&)
-	{
-	    continue;
-	}
-	catch(const Freeze::DatabaseException& ex)
-	{
-	    halt(ex);
-	}
+        }
+        catch(const Freeze::DeadlockException&)
+        {
+            continue;
+        }
+        catch(const Freeze::DatabaseException& ex)
+        {
+            halt(ex);
+        }
     }
 }
 
@@ -87,8 +86,8 @@ FileI::write(const Filesystem::Lines& text, const Ice::Current& c)
 
     for(;;)
     {
-	try
-	{
+        try
+        {
             IdentityFileEntryMap::iterator p = fileDB.find(c.id);
             if(p == fileDB.end())
             {
@@ -98,15 +97,15 @@ FileI::write(const Filesystem::Lines& text, const Ice::Current& c)
             entry.text = text;
             p.set(entry);
             break;
-	}
-	catch(const Freeze::DeadlockException&)
-	{
-	    continue;
-	}
-	catch(const Freeze::DatabaseException& ex)
-	{
-	    halt(ex);
-	}
+        }
+        catch(const Freeze::DeadlockException&)
+        {
+            continue;
+        }
+        catch(const Freeze::DatabaseException& ex)
+        {
+            halt(ex);
+        }
     }
 }
 
@@ -119,8 +118,8 @@ FileI::destroy(const Ice::Current& c)
 
     for(;;)
     {
-	try
-	{
+        try
+        {
             // The transaction is necessary since we are altering two
             // records in one atomic action.
             //
@@ -146,15 +145,15 @@ FileI::destroy(const Ice::Current& c)
             fileDB.erase(p);
             txn.commit();
             break;
-	}
-	catch(const Freeze::DeadlockException&)
-	{
-	    continue;
-	}
-	catch(const Freeze::DatabaseException& ex)
-	{
-	    halt(ex);
-	}
+        }
+        catch(const Freeze::DeadlockException&)
+        {
+            continue;
+        }
+        catch(const Freeze::DatabaseException& ex)
+        {
+            halt(ex);
+        }
     }
 }
 
@@ -178,7 +177,7 @@ DirectoryI::DirectoryI(const Ice::CommunicatorPtr& communicator, const string& e
 {
     const Freeze::ConnectionPtr connection = Freeze::createConnection(_communicator, _envName);
     IdentityDirectoryEntryMap dirDB(connection, directoriesDB());
-    
+
     // Create the record for the root directory if necessary.
     //
     for(;;)
@@ -215,23 +214,23 @@ DirectoryI::name(const Ice::Current& c)
 
     for(;;)
     {
-	try
-	{
+        try
+        {
             IdentityDirectoryEntryMap::iterator p = directoryDB.find(c.id);
             if(p == directoryDB.end())
             {
                 throw Ice::ObjectNotExistException(__FILE__, __LINE__);
             }
             return p->second.name;
-	}
-	catch(const Freeze::DeadlockException&)
-	{
-	    continue;
-	}
-	catch(const Freeze::DatabaseException& ex)
-	{
-	    halt(ex);
-	}
+        }
+        catch(const Freeze::DeadlockException&)
+        {
+            continue;
+        }
+        catch(const Freeze::DatabaseException& ex)
+        {
+            halt(ex);
+        }
     }
 }
 
@@ -243,8 +242,8 @@ DirectoryI::list(const Ice::Current& c)
 
     for(;;)
     {
-	try
-	{
+        try
+        {
             IdentityDirectoryEntryMap::iterator p = directoryDB.find(c.id);
             if(p == directoryDB.end())
             {
@@ -257,15 +256,15 @@ DirectoryI::list(const Ice::Current& c)
                 result.push_back(q->second);
             }
             return result;
-	}
-	catch(const Freeze::DeadlockException&)
-	{
-	    continue;
-	}
-	catch(const Freeze::DatabaseException& ex)
-	{
-	    halt(ex);
-	}
+        }
+        catch(const Freeze::DeadlockException&)
+        {
+            continue;
+        }
+        catch(const Freeze::DatabaseException& ex)
+        {
+            halt(ex);
+        }
     }
 }
 
@@ -277,8 +276,8 @@ DirectoryI::find(const string& name, const Ice::Current& c)
 
     for(;;)
     {
-	try
-	{
+        try
+        {
             IdentityDirectoryEntryMap::iterator p = directoryDB.find(c.id);
             if(p == directoryDB.end())
             {
@@ -290,15 +289,15 @@ DirectoryI::find(const string& name, const Ice::Current& c)
                 throw NoSuchName(name);
             }
             return q->second;
-	}
-	catch(const Freeze::DeadlockException&)
-	{
-	    continue;
-	}
-	catch(const Freeze::DatabaseException& ex)
-	{
-	    halt(ex);
-	}
+        }
+        catch(const Freeze::DeadlockException&)
+        {
+            continue;
+        }
+        catch(const Freeze::DatabaseException& ex)
+        {
+            halt(ex);
+        }
     }
 }
 
@@ -310,8 +309,8 @@ DirectoryI::createDirectory(const string& name, const Ice::Current& c)
 
     for(;;)
     {
-	try
-	{
+        try
+        {
             // The transaction is necessary since we are altering two
             // records in one atomic action.
             //
@@ -349,15 +348,15 @@ DirectoryI::createDirectory(const string& name, const Ice::Current& c)
             txn.commit();
 
             return proxy;
-	}
-	catch(const Freeze::DeadlockException&)
-	{
-	    continue;
-	}
-	catch(const Freeze::DatabaseException& ex)
-	{
-	    halt(ex);
-	}
+        }
+        catch(const Freeze::DeadlockException&)
+        {
+            continue;
+        }
+        catch(const Freeze::DatabaseException& ex)
+        {
+            halt(ex);
+        }
     }
 }
 
@@ -370,8 +369,8 @@ DirectoryI::createFile(const string& name, const Ice::Current& c)
 
     for(;;)
     {
-	try
-	{
+        try
+        {
             // The transaction is necessary since we are altering two
             // records in one atomic action.
             //
@@ -410,15 +409,15 @@ DirectoryI::createFile(const string& name, const Ice::Current& c)
             txn.commit();
 
             return proxy;
-	}
-	catch(const Freeze::DeadlockException&)
-	{
-	    continue;
-	}
-	catch(const Freeze::DatabaseException& ex)
-	{
-	    halt(ex);
-	}
+        }
+        catch(const Freeze::DeadlockException&)
+        {
+            continue;
+        }
+        catch(const Freeze::DatabaseException& ex)
+        {
+            halt(ex);
+        }
     }
 }
 
@@ -430,8 +429,8 @@ DirectoryI::destroy(const Ice::Current& c)
 
     for(;;)
     {
-	try
-	{
+        try
+        {
             // The transaction is necessary since we are altering two
             // records in one atomic action.
             //
@@ -464,15 +463,15 @@ DirectoryI::destroy(const Ice::Current& c)
             directoryDB.erase(p);
             txn.commit();
             break;
-	}
-	catch(const Freeze::DeadlockException&)
-	{
-	    continue;
-	}
-	catch(const Freeze::DatabaseException& ex)
-	{
-	    halt(ex);
-	}
+        }
+        catch(const Freeze::DeadlockException&)
+        {
+            continue;
+        }
+        catch(const Freeze::DatabaseException& ex)
+        {
+            halt(ex);
+        }
     }
 }
 

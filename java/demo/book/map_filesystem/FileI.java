@@ -22,87 +22,87 @@ public class FileI extends _FileDisp
     public String
     name(Ice.Current c)
     {
-	Freeze.Connection connection = Freeze.Util.createConnection(_communicator, _envName);
-	try
-	{
+        Freeze.Connection connection = Freeze.Util.createConnection(_communicator, _envName);
+        try
+        {
             IdentityFileEntryMap fileDB = new IdentityFileEntryMap(connection, filesDB());
 
-	    for(;;)
-	    {
-		try
-		{
-                    FileEntry entry = (FileEntry)fileDB.get(c.id);
+            for(;;)
+            {
+                try
+                {
+                    FileEntry entry = fileDB.get(c.id);
                     if(entry == null)
                     {
                         throw new Ice.ObjectNotExistException();
                     }
                     return entry.name;
-		}
-		catch(Freeze.DeadlockException ex)
-		{
-		    continue;
-		}
+                }
+                catch(Freeze.DeadlockException ex)
+                {
+                    continue;
+                }
                 catch(Freeze.DatabaseException ex)
                 {
                     halt(ex);
                 }
-	    }
-	}
-	finally
-	{
+            }
+        }
+        finally
+        {
             connection.close();
-	}
+        }
     }
 
     public String[]
     read(Ice.Current c)
     {
-	Freeze.Connection connection = Freeze.Util.createConnection(_communicator, _envName);
-	try
-	{
+        Freeze.Connection connection = Freeze.Util.createConnection(_communicator, _envName);
+        try
+        {
             IdentityFileEntryMap fileDB = new IdentityFileEntryMap(connection, filesDB());
 
-	    for(;;)
-	    {
-		try
-		{
-                    FileEntry entry = (FileEntry)fileDB.get(c.id);
+            for(;;)
+            {
+                try
+                {
+                    FileEntry entry = fileDB.get(c.id);
                     if(entry == null)
                     {
                         throw new Ice.ObjectNotExistException();
                     }
                     return entry.text;
-		}
-		catch(Freeze.DeadlockException ex)
-		{
-		    continue;
-		}
-		catch(Freeze.DatabaseException ex)
-		{
-		    halt(ex);
-		}
-	    }
-	}
-	finally
-	{
+                }
+                catch(Freeze.DeadlockException ex)
+                {
+                    continue;
+                }
+                catch(Freeze.DatabaseException ex)
+                {
+                    halt(ex);
+                }
+            }
+        }
+        finally
+        {
             connection.close();
-	}
+        }
     }
 
     public void
     write(String[] text, Ice.Current c)
         throws GenericError
     {
-	Freeze.Connection connection = Freeze.Util.createConnection(_communicator, _envName);
-	try
-	{
+        Freeze.Connection connection = Freeze.Util.createConnection(_communicator, _envName);
+        try
+        {
             IdentityFileEntryMap fileDB = new IdentityFileEntryMap(connection, filesDB());
 
-	    for(;;)
-	    {
-		try
-		{
-                    FileEntry entry = (FileEntry)fileDB.get(c.id);
+            for(;;)
+            {
+                try
+                {
+                    FileEntry entry = fileDB.get(c.id);
                     if(entry == null)
                     {
                         throw new Ice.ObjectNotExistException();
@@ -110,43 +110,43 @@ public class FileI extends _FileDisp
                     entry.text = text;
                     fileDB.put(c.id, entry);
                     break;
-		}
-		catch(Freeze.DeadlockException ex)
-		{
-		    continue;
-		}
-		catch(Freeze.DatabaseException ex)
-		{
-		    halt(ex);
-		}
-	    }
-	}
-	finally
-	{
+                }
+                catch(Freeze.DeadlockException ex)
+                {
+                    continue;
+                }
+                catch(Freeze.DatabaseException ex)
+                {
+                    halt(ex);
+                }
+            }
+        }
+        finally
+        {
             connection.close();
-	}
+        }
     }
 
     public void
     destroy(Ice.Current c)
         throws PermissionDenied
     {
-	Freeze.Connection connection = Freeze.Util.createConnection(_communicator, _envName);
-	try
-	{
+        Freeze.Connection connection = Freeze.Util.createConnection(_communicator, _envName);
+        try
+        {
             IdentityFileEntryMap fileDB = new IdentityFileEntryMap(connection, filesDB());
             IdentityDirectoryEntryMap dirDB = new IdentityDirectoryEntryMap(connection, DirectoryI.directoriesDB());
 
-	    for(;;)
-	    {
+            for(;;)
+            {
                 Freeze.Transaction txn = null;
-		try
-		{
+                try
+                {
                     // The transaction is necessary since we are
                     // altering two records in one atomic action.
                     //
                     txn = connection.beginTransaction();
-                    FileEntry entry = (FileEntry)fileDB.get(c.id);
+                    FileEntry entry = fileDB.get(c.id);
                     if(entry == null)
                     {
                         throw new Ice.ObjectNotExistException();
@@ -162,19 +162,19 @@ public class FileI extends _FileDisp
                     dirDB.put(entry.parent, dirEntry);
 
                     fileDB.remove(c.id);
-                    
+
                     txn.commit();
                     txn = null;
                     break;
-		}
-		catch(Freeze.DeadlockException ex)
-		{
-		    continue;
-		}
-		catch(Freeze.DatabaseException ex)
-		{
-		    halt(ex);
-		}
+                }
+                catch(Freeze.DeadlockException ex)
+                {
+                    continue;
+                }
+                catch(Freeze.DatabaseException ex)
+                {
+                    halt(ex);
+                }
                 finally
                 {
                     if(txn != null)
@@ -182,12 +182,12 @@ public class FileI extends _FileDisp
                         txn.rollback();
                     }
                 }
-	    }
-	}
-	finally
-	{
+            }
+        }
+        finally
+        {
             connection.close();
-	}
+        }
     }
 
     public static String
@@ -199,17 +199,16 @@ public class FileI extends _FileDisp
     private void
     halt(Freeze.DatabaseException e)
     {
-	//
-	// If this fails its very bad news. We log the error and
-	// then kill the server.
-	//
-	java.io.StringWriter sw = new java.io.StringWriter();
-	java.io.PrintWriter pw = new java.io.PrintWriter(sw);
-	e.printStackTrace(pw);
-	pw.flush();
-	_communicator.getLogger().error("fatal database error\n" + sw.toString() +
-						     "\n*** Halting JVM ***");
-	Runtime.getRuntime().halt(1);
+        //
+        // If this is called it's very bad news. We log the error and
+        // then kill the server.
+        //
+        java.io.StringWriter sw = new java.io.StringWriter();
+        java.io.PrintWriter pw = new java.io.PrintWriter(sw);
+        e.printStackTrace(pw);
+        pw.flush();
+        _communicator.getLogger().error("fatal database error\n" + sw.toString() + "\n*** Halting JVM ***");
+        Runtime.getRuntime().halt(1);
     }
 
     private Ice.Communicator _communicator;

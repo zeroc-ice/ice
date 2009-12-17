@@ -5,6 +5,8 @@ client
 server
 Filesystem.cpp
 Filesystem.h
+FilesystemDB.cpp
+FilesystemDB.h
 IdentityFileEntryMap.cpp
 IdentityFileEntryMap.h
 IdentityDirectoryEntryMap.cpp
