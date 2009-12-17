@@ -1,3 +1,3 @@
-To apply the patchs on top of db 4.8.24
+To apply the patch for db 4.8.24, run this command:
 
-patch -p0 < patch.db-4.8.24.17646
+  patch -p0 < patch.db-4.8.24.17646

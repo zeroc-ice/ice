@@ -9,9 +9,8 @@ Windows.
 This document provides instructions for applying patches and important
 information about building the third-party packages. Note that you do
 not need to build these packages yourself, as ZeroC supplies a Windows
-installer for each supported compiler that contains release and debug
-libraries for all of the third-party dependencies. The installer is
-available at
+installer that contains release and debug libraries for all of the
+third-party dependencies. The installer is available at
 
   http://www.zeroc.com/download.html
 
@@ -66,6 +65,7 @@ to the top-level directory and apply the patches as shown below:
  > cd db-4.8.24
  > patch -p0 < patch.db-4.8.24.17646
 
+
 mcpp
 ----
 
@@ -76,9 +76,9 @@ changes will be included in a future release of mcpp.
 After extracting the mcpp source distribution, change to the top-level
 directory and apply the patch as shown below:
 
-  $ cd mcpp-2.7.2
-  $ patch -p0 < patch.2.7.2_1
-  $ patch -p0 < patch.2.7.2_2
+  > cd mcpp-2.7.2
+  > patch -p0 < patch.2.7.2_1
+  > patch -p0 < patch.2.7.2_2
 
 
 ======================================================================
@@ -98,25 +98,11 @@ instructions, please refer to
 Berkeley DB
 -----------
 
-Users of Visual C++ 6.0 must configure Visual Studio to use STLport
-before building Berkeley DB:
-
-- In the Visual C++ 6.0 IDE, choose Tools->Options->Directories
-
-- Select "Include files"
-
-- Add the include directory for STLport first in the list. (Note that
-  you must add the "include\stlport" directory, not just "include".)
-
-- Select "Library files"
-
-- Add the lib directory for STLport.
-
 When building the debug version of the Berkeley DB DLL (db_dll
-project), you should also remove the "DIAGNOSTIC" define and the
+project), you should remove the "DIAGNOSTIC" define and the
 /export:__db_assert linker option. Without these modifications,
-Berkeley DB environments created by the debug DLL are not compatible
-with environments created by the release DLL.
+database environments created by the debug DLL are not compatible with
+environments created by the release DLL.
 
 For installation instructions, please refer to
 
@@ -137,10 +123,11 @@ OpenSSL
 After extracting the OpenSSL source archive, refer to the file
 INSTALL.W32 or INSTALL.W64 for build instructions.
 
-For VC++6 you should use the replacement makefile included in this
-archive:
+For Visual C++ 6.0, you should use the replacement makefile included
+in this archive:
 
   > nmake /f ..\openssl\ntdll.mak
+
 
 bzip2
 -----
@@ -154,8 +141,8 @@ makefile included in this archive:
   > nmake /f ..\bzip2\Makefile.mak
 
 This will build the release and debug versions of the bzip2 DLLs. If
-conmpiling for VC++6 then first set the CPP_COMPILER envirnment variable
-to be VC60.
+you are using Visual C++ 6.0, first set the CPP_COMPILER environment
+variable as shown below:
 
   > set CPP_COMPILER=VC60
 
