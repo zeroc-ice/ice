@@ -65,7 +65,7 @@ public class AllTests
         private int _replies;
     }
 
-    public static TestIntfPrx
+    public static void
     allTests(Ice.Communicator communicator)
     {
         communicator.getProperties().setProperty("ReplyAdapter.Endpoints", "udp -p 12030");
@@ -229,7 +229,5 @@ public class AllTests
 //         {
 //             System.out.println("ok");
 //         }
-        
-        return objMcast;
     }
 }

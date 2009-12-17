@@ -14,12 +14,26 @@ public class Server extends test.Util.Application
     public int run(String[] args)
     {
         Ice.Properties properties = communicator().getProperties();
-        if(args.length == 1 && args[0].equals("1"))
+
+        int port = 12010;
+        try
+        {
+            port += args.length == 1 ? Integer.parseInt(args[0]) : 0;
+        }
+        catch(NumberFormatException ex)
+        {
+        }
+        properties.setProperty("ControlAdapter.Endpoints", "tcp -p " + port);
+        Ice.ObjectAdapter adapter = communicator().createObjectAdapter("ControlAdapter");
+        adapter.add(new TestIntfI(), communicator().stringToIdentity("control"));
+        adapter.activate();
+
+        if(port == 12010)
         {
             properties.setProperty("TestAdapter.Endpoints", "udp -p 12010");
-            Ice.ObjectAdapter adapter = communicator().createObjectAdapter("TestAdapter");
-            adapter.add(new TestIntfI(), communicator().stringToIdentity("test"));
-            adapter.activate();
+            Ice.ObjectAdapter adapter2 = communicator().createObjectAdapter("TestAdapter");
+            adapter2.add(new TestIntfI(), communicator().stringToIdentity("test"));
+            adapter2.activate();
         }
 
         Ice.ObjectAdapter mcastAdapter = communicator().createObjectAdapter("McastTestAdapter");

@@ -17,9 +17,16 @@ using namespace Test;
 int
 run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
 {
-    TestIntfPrx allTests(const Ice::CommunicatorPtr&);
-    TestIntfPrx obj = allTests(communicator);
-    obj->shutdown();
+    void allTests(const Ice::CommunicatorPtr&);
+    allTests(communicator);
+
+    int num = argc == 2 ? atoi(argv[1]) : 0;
+    for(int i = 0; i < num; i++)
+    {
+        ostringstream os;
+        os << "control:tcp -p " << (12010 + i);
+        TestIntfPrx::uncheckedCast(communicator->stringToProxy(os.str()))->shutdown();
+    }
     return EXIT_SUCCESS;
 }
 

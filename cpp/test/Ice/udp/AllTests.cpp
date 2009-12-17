@@ -60,7 +60,7 @@ private:
 
 typedef IceUtil::Handle<PingReplyI> PingReplyIPtr;
 
-TestIntfPrx
+void
 allTests(const CommunicatorPtr& communicator)
 {
     communicator->getProperties()->setProperty("ReplyAdapter.Endpoints", "udp -p 12030");
@@ -223,6 +223,4 @@ allTests(const CommunicatorPtr& communicator)
 //     {
 //         cout << "ok" << endl;
 //     }
-
-    return objMcast;
 }

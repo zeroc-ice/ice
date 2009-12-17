@@ -28,11 +28,11 @@ num = 5
 serverProc = []
 for i in range(0, num):
     print "starting server #%d..." % (i + 1),
-    serverProc.append(TestUtil.startServer(server, "%d" % (i + 1) , adapter="McastTestAdapter"))
+    serverProc.append(TestUtil.startServer(server, "%d" % i, adapter="McastTestAdapter"))
     print "ok"
 
 print "starting client...",
-clientProc = TestUtil.startClient(client, startReader = False)
+clientProc = TestUtil.startClient(client, "%d" % num, startReader = False)
 print "ok"
 clientProc.startReader()
 

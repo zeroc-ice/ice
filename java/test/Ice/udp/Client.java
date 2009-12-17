@@ -15,8 +15,21 @@ public class Client extends test.Util.Application
 {
     public int run(String[] args)
     {
-        TestIntfPrx obj = AllTests.allTests(communicator());
-        obj.shutdown();
+        AllTests.allTests(communicator());
+
+        int num;
+        try 
+        {
+            num = args.length == 1 ? Integer.parseInt(args[0]) : 0;
+        }
+        catch(NumberFormatException ex)
+        {
+            num = 0;
+        }
+        for(int i = 0; i < num; ++i)
+        {
+            TestIntfPrxHelper.uncheckedCast(communicator().stringToProxy("control:tcp -p " + (12010 + i))).shutdown();
+        }
         return 0;
     }
 
