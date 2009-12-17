@@ -53,7 +53,7 @@ public class Server extends test.Util.Application
         initData.properties.setProperty("Ice.UDP.SndSize", "16384");
 
         String host;
-        if(initData.properties.getProperty("Ice.IPv6") == "1")
+        if(initData.properties.getProperty("Ice.IPv6").equals("1"))
         {
             host = "\"ff01::1:1\"";
         }

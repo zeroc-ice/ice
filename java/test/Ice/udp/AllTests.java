@@ -145,7 +145,7 @@ public class AllTests
         System.out.print("testing udp multicast... ");
         System.out.flush();
         String host;
-        if(communicator.getProperties().getProperty("Ice.IPv6") == "1")
+        if(communicator.getProperties().getProperty("Ice.IPv6").equals("1"))
         {
             host = "\"ff01::1:1\"";
         }
