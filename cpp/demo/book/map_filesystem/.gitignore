@@ -4,9 +4,9 @@
 client
 server
 Filesystem.cpp
-PersistentFilesystem.cpp
 Filesystem.h
-PersistentFilesystem.h
-IdentityNodeMap.cpp
-IdentityNodeMap.h
+IdentityFileEntryMap.cpp
+IdentityFileEntryMap.h
+IdentityDirectoryEntryMap.cpp
+IdentityDirectoryEntryMap.h
 db/*

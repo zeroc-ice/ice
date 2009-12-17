@@ -8,193 +8,391 @@
 // **********************************************************************
 
 import Filesystem.*;
+import FilesystemDB.*;
 
 public class DirectoryI extends _DirectoryDisp
 {
-    public synchronized void
-    destroy(Ice.Current c)
-        throws PermissionDenied
+    public
+    DirectoryI(Ice.Communicator communicator, String envName)
     {
-        if(_destroyed)
-        {
-            throw new Ice.ObjectNotExistException(c.id, c.facet, c.operation);
-        }
-        if(_parent == null)
-        {
-            throw new PermissionDenied("Cannot destroy root directory");
-        }
-        if(!_dir.nodes.isEmpty())
-        {
-            throw new PermissionDenied("Cannot destroy non-empty directory");
-        }
-        _destroyed = true;
-        _parent.removeEntry(_dir.name);
-        _map.remove(c.id);
-        c.adapter.remove(c.id);
+        _communicator = communicator;
+        _envName = envName;
+
+	Freeze.Connection connection = Freeze.Util.createConnection(_communicator, _envName);
+	try
+	{
+            IdentityDirectoryEntryMap dirDB = new IdentityDirectoryEntryMap(connection, directoriesDB());
+
+            // Create the record for the root directory if necessary.
+            //
+	    for(;;)
+	    {
+		try
+		{
+                    Ice.Identity rootId = new Ice.Identity("RootDir", "");
+                    DirectoryEntry entry = (DirectoryEntry)dirDB.get(rootId);
+                    if(entry == null)
+                    {
+                        dirDB.put(rootId, new DirectoryEntry("/", new Ice.Identity("", ""), null));
+                    }
+		    break;
+		}
+		catch(Freeze.DeadlockException ex)
+		{
+		    continue;
+		}
+		catch(Freeze.DatabaseException ex)
+		{
+		    halt(ex);
+		}
+	    }
+	}
+	finally
+	{
+            connection.close();
+	}
     }
 
-    public synchronized String
+    public String
     name(Ice.Current c)
     {
-        if(_destroyed)
-        {
-            throw new Ice.ObjectNotExistException();
-        }
-        return _dir.name;
+	Freeze.Connection connection = Freeze.Util.createConnection(_communicator, _envName);
+	try
+	{
+            IdentityDirectoryEntryMap dirDB = new IdentityDirectoryEntryMap(connection, directoriesDB());
+
+	    for(;;)
+	    {
+		try
+		{
+                    DirectoryEntry entry = (DirectoryEntry)dirDB.get(c.id);
+                    if(entry == null)
+                    {
+                        throw new Ice.ObjectNotExistException();
+                    }
+                    return entry.name;
+		}
+		catch(Freeze.DeadlockException ex)
+		{
+		    continue;
+		}
+		catch(Freeze.DatabaseException ex)
+		{
+		    halt(ex);
+		}
+	    }
+	}
+	finally
+	{
+            connection.close();
+	}
     }
 
-    public synchronized NodeDesc[]
+    public NodeDesc[]
     list(Ice.Current c)
     {
-        if(_destroyed)
-        {
-            throw new Ice.ObjectNotExistException();
-        }
-        NodeDesc[] result = new NodeDesc[_dir.nodes.size()];
-        java.util.Iterator<NodeDesc> p = _dir.nodes.values().iterator();
-        for(int i = 0; i < _dir.nodes.size(); ++i)
-        {
-            result[i] = p.next();
-        }
-        return result;
+	Freeze.Connection connection = Freeze.Util.createConnection(_communicator, _envName);
+	try
+	{
+            IdentityDirectoryEntryMap dirDB = new IdentityDirectoryEntryMap(connection, directoriesDB());
+
+	    for(;;)
+	    {
+		try
+		{
+                    DirectoryEntry entry = (DirectoryEntry)dirDB.get(c.id);
+                    if(entry == null)
+                    {
+                        throw new Ice.ObjectNotExistException();
+                    }
+                    NodeDesc[] result = new NodeDesc[entry.nodes.size()];
+                    java.util.Iterator<NodeDesc> p = entry.nodes.values().iterator();
+                    for(int i = 0; i < entry.nodes.size(); ++i)
+                    {
+                        result[i] = p.next();
+                    }
+                    return result;
+		}
+		catch(Freeze.DeadlockException ex)
+		{
+		    continue;
+		}
+		catch(Freeze.DatabaseException ex)
+		{
+		    halt(ex);
+		}
+	    }
+	}
+	finally
+	{
+            connection.close();
+	}
     }
 
-    public synchronized NodeDesc
+    public NodeDesc
     find(String name, Ice.Current c)
         throws NoSuchName
     {
-        if(_destroyed)
-        {
-            throw new Ice.ObjectNotExistException();
-        }
-        NodeDesc nd = _dir.nodes.get(name);
-        if(nd == null)
-        {
-            throw new NoSuchName(name);
-        }
-        return nd;
+	Freeze.Connection connection = Freeze.Util.createConnection(_communicator, _envName);
+	try
+	{
+            IdentityDirectoryEntryMap dirDB = new IdentityDirectoryEntryMap(connection, directoriesDB());
+
+	    for(;;)
+	    {
+		try
+		{
+                    DirectoryEntry entry = (DirectoryEntry)dirDB.get(c.id);
+                    if(entry == null)
+                    {
+                        throw new Ice.ObjectNotExistException();
+                    }
+                    NodeDesc nd = entry.nodes.get(name);
+                    if(nd == null)
+                    {
+                        throw new NoSuchName(name);
+                    }
+                    return nd;
+		}
+		catch(Freeze.DeadlockException ex)
+		{
+		    continue;
+		}
+		catch(Freeze.DatabaseException ex)
+		{
+		    halt(ex);
+		}
+	    }
+	}
+	finally
+	{
+            connection.close();
+	}
     }
 
-    public synchronized FilePrx
+    public FilePrx
     createFile(String name, Ice.Current c)
         throws NameInUse
     {
-        if(_destroyed)
-        {
-            throw new Ice.ObjectNotExistException();
-        }
+	Freeze.Connection connection = Freeze.Util.createConnection(_communicator, _envName);
+	try
+	{
+            IdentityFileEntryMap fileDB = new IdentityFileEntryMap(connection, FileI.filesDB());
+            IdentityDirectoryEntryMap dirDB = new IdentityDirectoryEntryMap(connection, directoriesDB());
 
-        if(name.length() == 0 || _dir.nodes.get(name) != null)
-        {
-            throw new NameInUse(name);
-        }
+	    for(;;)
+	    {
+                // The transaction is necessary since we are altering
+                // two records in one atomic action.
+                //
+                Freeze.Transaction txn = null;
+		try
+		{
+                    txn = connection.beginTransaction();
+                    DirectoryEntry entry = (DirectoryEntry)dirDB.get(c.id);
+                    if(entry == null)
+                    {
+                        throw new Ice.ObjectNotExistException();
+                    }
+                    if(name.length() == 0 || entry.nodes.get(name) != null)
+                    {
+                        throw new NameInUse(name);
+                    }
 
-        PersistentFile persistentFile = new PersistentFile();
-        persistentFile.name = name;
-        Ice.Identity id = c.adapter.getCommunicator().stringToIdentity(java.util.UUID.randomUUID().toString());
-        FileI file = new FileI(persistentFile, this);
-        _map.put(id, persistentFile);
+                    FileEntry newEntry = new FileEntry(name, c.id, null);
+                    Ice.Identity id = new Ice.Identity(java.util.UUID.randomUUID().toString(), "file");
+                    FilePrx proxy = FilePrxHelper.uncheckedCast(c.adapter.createProxy(id));
 
-        FilePrx proxy = FilePrxHelper.uncheckedCast(c.adapter.createProxy(id));
+                    entry.nodes.put(name, new NodeDesc(name, NodeType.FileType, proxy));
+                    dirDB.put(c.id, entry);
 
-        NodeDesc nd = new NodeDesc();
-        nd.name = name;
-        nd.type = NodeType.FileType;
-        nd.proxy = proxy;
-        _dir.nodes.put(name, nd);
+                    fileDB.put(id, newEntry);
 
-        _map.put(c.id, _dir);
+                    txn.commit();
+                    txn = null;
 
-        _adapter.add(file, id);
-
-        return proxy;
+                    return proxy;
+		}
+		catch(Freeze.DeadlockException ex)
+		{
+		    continue;
+		}
+		catch(Freeze.DatabaseException ex)
+		{
+		    halt(ex);
+		}
+                finally
+                {
+                    if(txn != null)
+                    {
+                        txn.rollback();
+                    }
+                }
+	    }
+	}
+	finally
+	{
+            connection.close();
+	}
     }
 
-    public synchronized DirectoryPrx
+    public DirectoryPrx
     createDirectory(String name, Ice.Current c)
         throws NameInUse
     {
-        if(_destroyed)
-        {
-            throw new Ice.ObjectNotExistException();
-        }
+	Freeze.Connection connection = Freeze.Util.createConnection(_communicator, _envName);
+	try
+	{
+            IdentityDirectoryEntryMap dirDB = new IdentityDirectoryEntryMap(connection, directoriesDB());
 
-        if(name.length() == 0 || _dir.nodes.get(name) != null)
-        {
-            throw new NameInUse(name);
-        }
+	    for(;;)
+	    {
+                // The transaction is necessary since we are altering
+                // two records in one atomic action.
+                //
+                Freeze.Transaction txn = null;
+		try
+		{
+                    txn = connection.beginTransaction();
+                    DirectoryEntry entry = (DirectoryEntry)dirDB.get(c.id);
+                    if(entry == null)
+                    {
+                        throw new Ice.ObjectNotExistException();
+                    }
+                    if(name.length() == 0 || entry.nodes.get(name) != null)
+                    {
+                        throw new NameInUse(name);
+                    }
 
-        PersistentDirectory persistentDir = new PersistentDirectory();
-        persistentDir.name = name;
-        persistentDir.nodes = new java.util.HashMap<String, NodeDesc>();
-        Ice.Identity id = c.adapter.getCommunicator().stringToIdentity(java.util.UUID.randomUUID().toString());
-        DirectoryI dir = new DirectoryI(id, persistentDir, this);
-        _map.put(id, persistentDir);
+                    DirectoryEntry newEntry = new DirectoryEntry(name, c.id, null);
+                    Ice.Identity id = new Ice.Identity(java.util.UUID.randomUUID().toString(), "");
+                    DirectoryPrx proxy = DirectoryPrxHelper.uncheckedCast(c.adapter.createProxy(id));
 
-        DirectoryPrx proxy = DirectoryPrxHelper.uncheckedCast(c.adapter.createProxy(id));
+                    entry.nodes.put(name, new NodeDesc(name, NodeType.DirType, proxy));
+                    dirDB.put(c.id, entry);
 
-        NodeDesc nd = new NodeDesc();
-        nd.name = name;
-        nd.type = NodeType.DirType;
-        nd.proxy = proxy;
-        _dir.nodes.put(name, nd);
+                    dirDB.put(id, newEntry);
 
-        _map.put(c.id, _dir);
+                    txn.commit();
+                    txn = null;
 
-        _adapter.add(dir, id);
-
-        return proxy;
+                    return proxy;
+		}
+		catch(Freeze.DeadlockException ex)
+		{
+		    continue;
+		}
+		catch(Freeze.DatabaseException ex)
+		{
+		    halt(ex);
+		}
+                finally
+                {
+                    if(txn != null)
+                    {
+                        txn.rollback();
+                    }
+                }
+	    }
+	}
+	finally
+	{
+            connection.close();
+	}
     }
 
-    //
-    // Called by the child to remove itself from the parent's node map when the child is destroyed.
-    //
-    public synchronized void
-    removeEntry(String name)
+    public void
+    destroy(Ice.Current c)
+        throws PermissionDenied
     {
-        _dir.nodes.remove(name);
-        _map.put(_id, _dir);
+	Freeze.Connection connection = Freeze.Util.createConnection(_communicator, _envName);
+	try
+	{
+            IdentityDirectoryEntryMap dirDB = new IdentityDirectoryEntryMap(connection, directoriesDB());
+
+	    for(;;)
+	    {
+                // The transaction is necessary since we are altering
+                // two records in one atomic action.
+                //
+                Freeze.Transaction txn = null;
+		try
+		{
+                    txn = connection.beginTransaction();
+                    DirectoryEntry entry = (DirectoryEntry)dirDB.get(c.id);
+                    if(entry == null)
+                    {
+                        throw new Ice.ObjectNotExistException();
+                    }
+                    if(entry.parent.name.isEmpty())
+                    {
+                        throw new PermissionDenied("Cannot destroy root directory");
+                    }
+                    if(!entry.nodes.isEmpty())
+                    {
+                        throw new PermissionDenied("Cannot destroy non-empty directory");
+                    }
+
+                    DirectoryEntry dirEntry = (DirectoryEntry)dirDB.get(entry.parent);
+                    if(dirEntry == null)
+                    {
+                        halt(new Freeze.DatabaseException("consistency error: directory without parent"));
+                    }
+
+                    dirEntry.nodes.remove(entry.name);
+                    dirDB.put(entry.parent, dirEntry);
+
+                    dirDB.remove(c.id);
+                    
+                    txn.commit();
+                    txn = null;
+                    break;
+		}
+		catch(Freeze.DeadlockException ex)
+		{
+		    continue;
+		}
+		catch(Freeze.DatabaseException ex)
+		{
+		    halt(ex);
+		}
+                finally
+                {
+                    if(txn != null)
+                    {
+                        txn.rollback();
+                    }
+                }
+	    }
+	}
+	finally
+	{
+            connection.close();
+	}
     }
 
-    public
-    DirectoryI(Ice.Identity pid, PersistentDirectory dir, DirectoryI parent)
+    private void
+    halt(Freeze.DatabaseException e)
     {
-        _id = pid;
-        _dir = dir;
-        _parent = parent;
-        _destroyed = false;
-
-        // Instantiate the child nodes
-        //
-        java.util.Iterator<NodeDesc> p = _dir.nodes.values().iterator();
-        while(p.hasNext())
-        {
-            NodeDesc desc = p.next();
-            Ice.Identity id = desc.proxy.ice_getIdentity();
-            PersistentNode node = _map.get(id);
-            assert(node != null);
-            if(desc.type == NodeType.DirType)
-            {
-                PersistentDirectory pDir = (PersistentDirectory)node;
-                assert(pDir != null);
-                DirectoryI d = new DirectoryI(id, pDir, this);
-                _adapter.add(d, id);
-            }
-            else
-            {
-                PersistentFile pFile = (PersistentFile)node;
-                assert(pFile != null);
-                FileI f = new FileI(pFile, this);
-                _adapter.add(f, id);
-            }
-        }
+	//
+	// If this fails its very bad news. We log the error and
+	// then kill the server.
+	//
+	java.io.StringWriter sw = new java.io.StringWriter();
+	java.io.PrintWriter pw = new java.io.PrintWriter(sw);
+	e.printStackTrace(pw);
+	pw.flush();
+	_communicator.getLogger().error("fatal database error\n" + sw.toString() +
+						     "\n*** Halting JVM ***");
+	Runtime.getRuntime().halt(1);
+    }
+    
+    public static String
+    directoriesDB()
+    {
+        return "directories";
     }
 
-    public static Ice.ObjectAdapter _adapter;
-    public static IdentityNodeMap _map;
-
-    private Ice.Identity _id;
-    private PersistentDirectory _dir;
-    private DirectoryI _parent;
-    private boolean _destroyed;
+    private Ice.Communicator _communicator;
+    private String _envName;
 }

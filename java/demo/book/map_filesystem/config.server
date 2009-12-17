@@ -14,18 +14,6 @@ MapFilesystem.Endpoints=default -h 127.0.0.1 -p 10000
 Freeze.Trace.Map=1
 
 #
-# Freeze Evictor Tracing.
-#
-# 0 = No evictor activity trace (default). 
-# 1 = Trace Ice object and facet creation and destruction, facet
-#     streaming time, facet saving time, object eviction (every 50
-#     objects) and evictor deactivation.
-# 2 = Also trace object lookups, and all object evictions. 
-# 3 = Also trace object retrieval from the database.
-#
-Freeze.Trace.Evictor=2
-
-#
 # Warn about connection exceptions
 #
 Ice.Warn.Connections=1

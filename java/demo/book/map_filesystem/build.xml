@@ -23,9 +23,10 @@
         <slice2java outputdir="${generated.dir}">
             <includepath>
                 <pathelement path="." />
+                <pathelement path="${slice.dir}" />
             </includepath>
             <fileset dir="." includes="Filesystem.ice"/>
-            <fileset dir="." includes="PersistentFilesystem.ice"/>
+            <fileset dir="." includes="FilesystemDB.ice"/>
         </slice2java>
 
         <slice2freezej ice="on" outputdir="${generated.dir}">
@@ -33,11 +34,20 @@
                 <pathelement path="." />
                 <pathelement path="${slice.dir}" />
             </includepath>
-            <fileset dir="." includes="Filesystem.ice"/>
-            <fileset dir="." includes="PersistentFilesystem.ice"/>
-            <fileset dir="." includes="Filesystem.ice,PersistentFilesystem.ice"/>
+            <fileset dir="." includes="FilesystemDB.ice"/>
             <fileset dir="${slice.dir}/Ice" includes="Identity.ice"/>
-	    <dict name="Filesystem.IdentityNodeMap" key="Ice::Identity" value="Filesystem::PersistentNode"/>
+	    <dict name="FilesystemDB.IdentityFileEntryMap" key="Ice::Identity" value="FilesystemDB::FileEntry"/>
+        </slice2freezej>
+
+        <slice2freezej ice="on" outputdir="${generated.dir}">
+            <includepath>
+                <pathelement path="." />
+                <pathelement path="${slice.dir}" />
+            </includepath>
+            <fileset dir="." includes="FilesystemDB.ice"/>
+            <fileset dir="${slice.dir}/Ice" includes="Identity.ice"/>
+	    <dict name="FilesystemDB.IdentityDirectoryEntryMap" key="Ice::Identity"
+                  value="FilesystemDB::DirectoryEntry"/>
         </slice2freezej>
 
     </target>

@@ -17,14 +17,15 @@ using namespace Filesystem;
 class FilesystemClient : public Ice::Application
 {
 public:
+
     FilesystemClient() :
         //
         // Since this is an interactive demo we don't want any signal
         // handling.
         //
         Ice::Application(Ice::NoSignalHandling)
-    {
-    }
+        {
+        }
 
     virtual int run(int, char * []) {
 

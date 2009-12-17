@@ -8,66 +8,210 @@
 // **********************************************************************
 
 import Filesystem.*;
+import FilesystemDB.*;
 
 public class FileI extends _FileDisp
 {
-    public synchronized String
+    public
+    FileI(Ice.Communicator communicator, String envName)
+    {
+        _communicator = communicator;
+        _envName = envName;
+    }
+
+    public String
     name(Ice.Current c)
     {
-        if(_destroyed)
-        {
-            throw new Ice.ObjectNotExistException();
-        }
-        return _file.name;
+	Freeze.Connection connection = Freeze.Util.createConnection(_communicator, _envName);
+	try
+	{
+            IdentityFileEntryMap fileDB = new IdentityFileEntryMap(connection, filesDB());
+
+	    for(;;)
+	    {
+		try
+		{
+                    FileEntry entry = (FileEntry)fileDB.get(c.id);
+                    if(entry == null)
+                    {
+                        throw new Ice.ObjectNotExistException();
+                    }
+                    return entry.name;
+		}
+		catch(Freeze.DeadlockException ex)
+		{
+		    continue;
+		}
+                catch(Freeze.DatabaseException ex)
+                {
+                    halt(ex);
+                }
+	    }
+	}
+	finally
+	{
+            connection.close();
+	}
     }
 
-    public synchronized void
-    destroy(Ice.Current c)
-        throws PermissionDenied
-    {
-        if(_destroyed)
-        {
-            throw new Ice.ObjectNotExistException(c.id, c.facet, c.operation);
-        }
-        _destroyed = true;
-        _parent.removeEntry(_file.name);
-        _map.remove(c.id);
-        c.adapter.remove(c.id);
-    }
-
-    public synchronized String[]
+    public String[]
     read(Ice.Current c)
     {
-        if(_destroyed)
-        {
-            throw new Ice.ObjectNotExistException(c.id, c.facet, c.operation);
-        }
-        return _file.text;
+	Freeze.Connection connection = Freeze.Util.createConnection(_communicator, _envName);
+	try
+	{
+            IdentityFileEntryMap fileDB = new IdentityFileEntryMap(connection, filesDB());
+
+	    for(;;)
+	    {
+		try
+		{
+                    FileEntry entry = (FileEntry)fileDB.get(c.id);
+                    if(entry == null)
+                    {
+                        throw new Ice.ObjectNotExistException();
+                    }
+                    return entry.text;
+		}
+		catch(Freeze.DeadlockException ex)
+		{
+		    continue;
+		}
+		catch(Freeze.DatabaseException ex)
+		{
+		    halt(ex);
+		}
+	    }
+	}
+	finally
+	{
+            connection.close();
+	}
     }
 
-    public synchronized void
+    public void
     write(String[] text, Ice.Current c)
         throws GenericError
     {
-        if(_destroyed)
-        {
-            throw new Ice.ObjectNotExistException(c.id, c.facet, c.operation);
-        }
-       _file.text = text;
-       _map.put(c.id, _file);
+	Freeze.Connection connection = Freeze.Util.createConnection(_communicator, _envName);
+	try
+	{
+            IdentityFileEntryMap fileDB = new IdentityFileEntryMap(connection, filesDB());
+
+	    for(;;)
+	    {
+		try
+		{
+                    FileEntry entry = (FileEntry)fileDB.get(c.id);
+                    if(entry == null)
+                    {
+                        throw new Ice.ObjectNotExistException();
+                    }
+                    entry.text = text;
+                    fileDB.put(c.id, entry);
+                    break;
+		}
+		catch(Freeze.DeadlockException ex)
+		{
+		    continue;
+		}
+		catch(Freeze.DatabaseException ex)
+		{
+		    halt(ex);
+		}
+	    }
+	}
+	finally
+	{
+            connection.close();
+	}
     }
 
-    public
-    FileI(PersistentFile file, DirectoryI parent)
+    public void
+    destroy(Ice.Current c)
+        throws PermissionDenied
     {
-        _file = file;
-        _parent = parent;
-        _destroyed = false;
+	Freeze.Connection connection = Freeze.Util.createConnection(_communicator, _envName);
+	try
+	{
+            IdentityFileEntryMap fileDB = new IdentityFileEntryMap(connection, filesDB());
+            IdentityDirectoryEntryMap dirDB = new IdentityDirectoryEntryMap(connection, DirectoryI.directoriesDB());
+
+	    for(;;)
+	    {
+                Freeze.Transaction txn = null;
+		try
+		{
+                    // The transaction is necessary since we are
+                    // altering two records in one atomic action.
+                    //
+                    txn = connection.beginTransaction();
+                    FileEntry entry = (FileEntry)fileDB.get(c.id);
+                    if(entry == null)
+                    {
+                        throw new Ice.ObjectNotExistException();
+                    }
+
+                    DirectoryEntry dirEntry = (DirectoryEntry)dirDB.get(entry.parent);
+                    if(dirEntry == null)
+                    {
+                        halt(new Freeze.DatabaseException("consistency error: file without parent"));
+                    }
+
+                    dirEntry.nodes.remove(entry.name);
+                    dirDB.put(entry.parent, dirEntry);
+
+                    fileDB.remove(c.id);
+                    
+                    txn.commit();
+                    txn = null;
+                    break;
+		}
+		catch(Freeze.DeadlockException ex)
+		{
+		    continue;
+		}
+		catch(Freeze.DatabaseException ex)
+		{
+		    halt(ex);
+		}
+                finally
+                {
+                    if(txn != null)
+                    {
+                        txn.rollback();
+                    }
+                }
+	    }
+	}
+	finally
+	{
+            connection.close();
+	}
     }
 
-    public static IdentityNodeMap _map;
+    public static String
+    filesDB()
+    {
+        return "files";
+    }
 
-    private PersistentFile _file;
-    private DirectoryI _parent;
-    private boolean _destroyed;
+    private void
+    halt(Freeze.DatabaseException e)
+    {
+	//
+	// If this fails its very bad news. We log the error and
+	// then kill the server.
+	//
+	java.io.StringWriter sw = new java.io.StringWriter();
+	java.io.PrintWriter pw = new java.io.PrintWriter(sw);
+	e.printStackTrace(pw);
+	pw.flush();
+	_communicator.getLogger().error("fatal database error\n" + sw.toString() +
+						     "\n*** Halting JVM ***");
+	Runtime.getRuntime().halt(1);
+    }
+
+    private Ice.Communicator _communicator;
+    private String _envName;
 }

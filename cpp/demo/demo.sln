@@ -310,6 +310,9 @@ EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Ice.interleaved.server", "Ice\interleaved\Ice.interleaved.server.vcproj", "{383AB467-E29D-4A9D-A5D4-6BCA8E754A88}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "book.map_filesystem.client", "book\map_filesystem\book.map_filesystem.client.vcproj", "{0C6E1127-1105-49F0-99BB-CBDC1C2566F0}"
+	ProjectSection(ProjectDependencies) = postProject
+		{37369B6D-DFB9-4413-A4F5-AE261FDA74A2} = {37369B6D-DFB9-4413-A4F5-AE261FDA74A2}
+	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "book.map_filesystem.server", "book\map_filesystem\book.map_filesystem.server.vcproj", "{37369B6D-DFB9-4413-A4F5-AE261FDA74A2}"
 EndProject

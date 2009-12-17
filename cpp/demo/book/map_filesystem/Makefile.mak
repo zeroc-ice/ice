@@ -21,9 +21,10 @@ COBJS		= Scanner.obj \
 		  Parser.obj \
 		  Client.obj
 
-SOBJS		= IdentityNodeMap.obj \
-		  PersistentFilesystem.obj \
-		  PersistentFilesystemI.obj \
+SOBJS		= FilesystemDB.obj \
+                  IdentityFileEntryMap.obj \
+                  IdentityDirectoryEntryMap.obj \
+		  FilesystemI.obj \
 		  Server.obj
 
 SRCS		= $(OBJS:.obj=.cpp) \
@@ -50,11 +51,19 @@ $(SERVER): $(OBJS) $(SOBJS)
 	@if exist $@.manifest echo ^ ^ ^ Embedding manifest using $(MT) && \
 	    $(MT) -nologo -manifest $@.manifest -outputresource:$@;#1 && del /q $@.manifest
 
-IdentityNodeMap.h: IdentityNodeMap.cpp
-IdentityNodeMap.cpp: PersistentFilesystem.ice Filesystem.ice $(SLICE2FREEZE) $(SLICEPARSERLIB)
-	del /q IdentityNodeMap.h IdentityNodeMap.cpp
-	$(SLICE2FREEZE) -I$(slicedir) -I. --ice --dict IdentityNodeMap,Ice::Identity,Filesystem::PersistentNode \
-		IdentityNodeMap Filesystem.ice PersistentFilesystem.ice  $(slicedir)/Ice/Identity.ice
+IdentityFileEntryMap.h: IdentityFileEntryMap.cpp
+IdentityFileEntryMap.cpp: FilesystemDB.ice Filesystem.ice $(SLICE2FREEZE) $(SLICEPARSERLIB)
+	del /q IdentityFileEntryMap.h IdentityFileEntryMap.cpp
+	$(SLICE2FREEZE) -I$(slicedir) -I. --ice \
+                --dict FilesystemDB::IdentityFileEntryMap,Ice::Identity,FilesystemDB::FileEntry \
+		IdentityFileEntryMap FilesystemDB.ice $(slicedir)/Ice/Identity.ice
+
+IdentityDirectoryEntryMap.h: IdentityDirectoryEntryMap.cpp
+IdentityDirectoryEntryMap.cpp: FilesystemDB.ice Filesystem.ice $(SLICE2FREEZE) $(SLICEPARSERLIB)
+	del /q IdentityDirectoryEntryMap.h IdentityDirectoryEntryMap.cpp
+	$(SLICE2FREEZE) -I$(slicedir) -I. --ice \
+                --dict FilesystemDB::IdentityDirectoryEntryMap,Ice::Identity,FilesystemDB::DirectoryEntry \
+		IdentityDirectoryEntryMap FilesystemDB.ice $(slicedir)/Ice/Identity.ice
 
 Scanner.cpp: Scanner.l
 	flex Scanner.l
@@ -72,8 +81,9 @@ Grammar.cpp Grammar.h: Grammar.y
 
 clean::
 	-del /q Filesystem.cpp Filesystem.h
-	-del /q PersistentFilesystem.cpp PersistentFilesystem.h
-	-del /q IdentityNodeMap.cpp IdentityNodeMap.h
+	-del /q FilesystemDB.cpp FilesystemDB.h
+	-del /q IdentityFileEntryMap.cpp IdentityFileEntryMap.h
+	-del /q IdentityDirectoryEntryMap.cpp IdentityDirectoryEntryMap.h
 
 clean::
 	-for %f in (db\*) do if not %f == db\.gitignore del /q %f

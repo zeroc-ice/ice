@@ -8,28 +8,22 @@
 // **********************************************************************
 
 #include <Filesystem.ice>
+#include <Ice/Identity.ice>
 
-module Filesystem
+module FilesystemDB
 {
-    class PersistentDirectory;
-
-    class PersistentNode
+    struct FileEntry
     {
         string name;
-        PersistentDirectory* parent;
+        Ice::Identity parent;
+        Filesystem::Lines text;
     };
 
-    ["cpp:virtual"]
-    class PersistentFile extends PersistentNode
+    dictionary<string, Filesystem::NodeDesc> StringNodeDescDict;
+    struct DirectoryEntry
     {
-        Lines text;
-    };
-
-    dictionary<string, NodeDesc> NodeDict;
-
-    ["cpp:virtual"]
-    class PersistentDirectory extends PersistentNode
-    {
-        NodeDict nodes;
+        string name;
+        Ice::Identity parent;
+        StringNodeDescDict nodes;
     };
 };

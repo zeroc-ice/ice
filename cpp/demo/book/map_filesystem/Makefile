@@ -21,17 +21,17 @@ COBJS		= Client.o \
 		  Grammar.o \
 		  Scanner.o
 
-SOBJS		= IdentityNodeMap.o \
-		  PersistentFilesystem.o \
-		  PersistentFilesystemI.o \
+SOBJS		= FilesystemDB.o \
+		  IdentityFileEntryMap.o \
+		  IdentityDirectoryEntryMap.o \
+		  FilesystemI.o \
 		  Server.o
 
 SRCS		= $(OBJS:.o=.cpp) \
 		  $(COBJS:.o=.cpp) \
-		  $(SOBJS:.o=.cpp) \
-		  $(COLOBJS:.o=.cpp)
+		  $(SOBJS:.o=.cpp)
 
-SLICE_SRCS	= Filesystem.ice PersistentFilesystem.ice
+SLICE_SRCS	= Filesystem.ice FilesystemDB.ice
 
 include $(top_srcdir)/config/Make.rules
 
@@ -46,13 +46,25 @@ $(SERVER): $(OBJS) $(SOBJS)
 	rm -f $@
 	$(CXX) $(LDFLAGS) -o $@ $(OBJS) $(SOBJS) $(DB_RPATH_LINK) -lFreeze $(LIBS)
 
-IdentityNodeMap.h: IdentityNodeMap.cpp
-IdentityNodeMap.cpp: PersistentFilesystem.ice Filesystem.ice $(SLICE2FREEZE) $(SLICEPARSERLIB)
-	rm -f IdentityNodeMap.h IdentityNodeMap.cpp
-	$(SLICE2FREEZE) -I$(slicedir) -I. --ice --dict IdentityNodeMap,Ice::Identity,Filesystem::PersistentNode \
-		IdentityNodeMap Filesystem.ice PersistentFilesystem.ice  $(slicedir)/Ice/Identity.ice
+IdentityFileEntryMap.h: IdentityFileEntryMap.cpp
+IdentityFileEntryMap.cpp: FilesystemDB.ice Filesystem.ice $(SLICE2FREEZE) $(SLICEPARSERLIB)
+	rm -f IdentityFileEntryMap.h IdentityFileEntryMap.cpp
+	$(SLICE2FREEZE) -I$(slicedir) -I. --ice \
+	    --dict FilesystemDB::IdentityFileEntryMap,Ice::Identity,FilesystemDB::FileEntry \
+	    IdentityFileEntryMap FilesystemDB.ice  $(slicedir)/Ice/Identity.ice
+clean::
+	-rm -f IdentityFileEntryMap.h IdentityFileEntryMap.cpp
+
+IdentityDirectoryEntryMap.h: IdentityDirectoryEntryMap.cpp
+IdentityDirectoryEntryMap.cpp: FilesystemDB.ice Filesystem.ice $(SLICE2FREEZE) $(SLICEPARSERLIB)
+	rm -f IdentityDirectoryEntryMap.h IdentityDirectoryEntryMap.cpp
+	$(SLICE2FREEZE) -I$(slicedir) -I. --ice \
+	    --dict FilesystemDB::IdentityDirectoryEntryMap,Ice::Identity,FilesystemDB::DirectoryEntry \
+	    IdentityDirectoryEntryMap FilesystemDB.ice  $(slicedir)/Ice/Identity.ice
+clean::
+	-rm -f IdentityDirectoryEntryMap.h IdentityDirectoryEntryMap.cpp
+
 clean::
 	-rm -f db/*
-	-rm -f IdentityNodeMap.h IdentityNodeMap.cpp
 
 include .depend

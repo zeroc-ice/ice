@@ -7,12 +7,15 @@
 //
 // **********************************************************************
 
-#include <PersistentFilesystemI.h>
+#include <FilesystemI.h>
+#include <IdentityFileEntryMap.h>
+#include <IdentityDirectoryEntryMap.h>
 #include <Ice/Application.h>
 #include <Freeze/Freeze.h>
 
 using namespace std;
 using namespace Filesystem;
+using namespace FilesystemDB;
 
 class FilesystemApp : public virtual Ice::Application
 {
@@ -29,48 +32,21 @@ public:
         //
         shutdownOnInterrupt();
 
-        // Install object factories
-        //
-        communicator()->addObjectFactory(PersistentFile::ice_factory(), PersistentFile::ice_staticId());
-        communicator()->addObjectFactory(PersistentDirectory::ice_factory(), PersistentDirectory::ice_staticId());
-
         // Create an object adapter
         //
         Ice::ObjectAdapterPtr adapter = communicator()->createObjectAdapter("MapFilesystem");
 
-        // Create a Freeze connection and the map
+        // Open a connection to the files and directories database. This should remain open
+        // for the duration of the application for performance reasons.
         //
-        Freeze::ConnectionPtr connection = Freeze::createConnection(communicator(), _envName);
-        IdentityNodeMap persistentMap(connection, "mapfs");
+        const Freeze::ConnectionPtr connection(Freeze::createConnection(communicator(), _envName));
+        const IdentityFileEntryMap fileDB(connection, FileI::filesDB());
+        const IdentityDirectoryEntryMap dirDB(connection, DirectoryI::directoriesDB());
 
-        // Set static members
+        // Add default servants for the file and directory.
         //
-        NodeI::_map = &persistentMap;
-        DirectoryI::_adapter = adapter;
-
-        // Find the persistent node for the root directory, or create it if not found
-        //
-        Ice::Identity rootId = communicator()->stringToIdentity("RootDir");
-        PersistentDirectoryPtr pRoot;
-        {
-            IdentityNodeMap::iterator p = persistentMap.find(rootId);
-            if(p != persistentMap.end())
-            {
-                pRoot = PersistentDirectoryPtr::dynamicCast(p->second);
-                assert(pRoot);
-            }
-            else
-            {
-                pRoot = new PersistentDirectory;
-                pRoot->name = "/";
-                persistentMap.insert(IdentityNodeMap::value_type(rootId, pRoot));
-            }
-        }
-
-        // Create the root directory (with name "/" and no parent)
-        //
-        DirectoryIPtr root = new DirectoryI(rootId, pRoot, 0);
-        adapter->add(root, rootId);
+        adapter->addDefaultServant(new FileI(communicator(), _envName), "file");
+        adapter->addDefaultServant(new DirectoryI(communicator(), _envName), "");
 
         // Ready to accept requests now
         //
@@ -86,12 +62,12 @@ public:
         {
             cerr << appName() << ": received signal, shutting down" << endl;
         }
-        connection->close();
 
         return 0;
     }
 
 private:
+
     string _envName;
 };
 
