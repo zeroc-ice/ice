@@ -41,7 +41,7 @@ def runIceGridRegistry():
     cmd = command + ' ' + TestUtil.getQtSqlOptions('IceGrid') + \
             r' --Ice.ProgramName=registry' + \
             r' --IceGrid.Registry.Client.Endpoints="default -p ' + str(IceGridAdmin.iceGridPort) + '" ' + \
-            r' --IceGrid.Registry.Data=' + dataDir
+            r' --IceGrid.Registry.Data="' + dataDir + '"'
 
     driverConfig = TestUtil.DriverConfig("server")
     driverConfig.lang = "cpp"
