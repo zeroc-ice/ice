@@ -76,7 +76,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalOptions="/FIXED:NO"
-				AdditionalDependencies="IceStormd.lib IceGridd.lib Iced.lib IceUtild.lib setargv.obj"
+				AdditionalDependencies="IceStormd.lib Iced.lib IceUtild.lib setargv.obj"
 				OutputFile="publisher.exe"
 				LinkIncremental="2"
 				SuppressStartupBanner="true"
@@ -170,7 +170,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalOptions="/FIXED:NO /IGNORE:4089"
-				AdditionalDependencies="IceStorm.lib IceGrid.lib Ice.lib IceUtil.lib setargv.obj"
+				AdditionalDependencies="IceStorm.lib Ice.lib IceUtil.lib setargv.obj"
 				OutputFile="publisher.exe"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
