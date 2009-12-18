@@ -64,7 +64,6 @@ demos = [
     "book/simple_filesystem",
     "book/printer",
     "book/lifecycle",
-    "cookbook/compression",
 ]
 
 if not Util.isNoServices():

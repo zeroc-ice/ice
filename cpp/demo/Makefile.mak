@@ -13,8 +13,7 @@ top_srcdir	= ..
 
 SUBDIRS		= IceUtil \
 		  Ice \
-		  book \
-		  cookbook
+		  book
 
 
 !if "$(CPP_COMPILER)" != "VC60"
