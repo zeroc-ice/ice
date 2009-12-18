@@ -914,7 +914,7 @@ class Mcpp(ThirdParty):
 
 class Qt(ThirdParty):
     def __init__(self, platform):
-        global mcpp
+        global qt
         ThirdParty.__init__(self, platform, "Qt", qt, ["cpp"])
 
     def getFilesFromSubDirs(self, platform, bindir, libdir, x64):
