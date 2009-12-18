@@ -43,7 +43,6 @@ elif os.path.isdir(os.path.join(path[0], "cpp")):
 command = 'python -u makecerts.py'
 if icecaPath != "":
     command += ' --iceca="%s"' % os.path.join(icecaPath, "bin", "iceca")
-print command
 
 print "creating certificates...",
 sys.stdout.flush()
