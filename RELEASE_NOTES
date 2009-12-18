@@ -10,11 +10,6 @@ may affect the operation of your applications or have an impact on
 your source code. Refer to the "Upgrading" sections for more
 information about migrating to a new Ice release.
 
-The main purpose of a patch release such as this one is to correct
-defects while maintaining binary compatibility with the most recent
-minor release (3.3). This patch release also introduces a few 
-enhancements and new features while maintaining binary compatibility.
-
 For a detailed list of the changes in this release, please refer to
 the CHANGES file included in your Ice distribution.
 
@@ -54,9 +49,175 @@ Table of Contents
 
 This section discusses the significant enhancements in Ice 3.4.
 
-- ConnectionInfo/EndpointInfo
+
+New API for Asynchronous Method Invocation (AMI)
+------------------------------------------------
+
+This release features a completely new AMI facility for C++, C# and
+Java that provides you with much greater flexibility in the ways you
+can structure your code. To get a better understanding of the
+motivations for this enhancement and how it can improve your own
+applications, we encourage you to read the white papers available at
+the link below:
+
+  http://www.zeroc.com/articles/index.html
+
+
+Better scalability
+------------------
+
+The Ice run time underwent significant retooling to make use of
+Windows completion ports and overlapped I/O for its networking
+operations. As a result, server applications that handle many
+connections should see a significant improvement in scalability.
+
+Additional enhancements were made to improve scalability on all
+platforms. For example, Ice now establishes an outgoing connection
+and accepts an incoming connection in constant time, regardless of
+the number of connections that have already been established.
+Furthermore, the Ice thread pool now supports receiving and sending
+data using multiple threads, which improves CPU usage on machines
+with multiple cores.
+
+
+New Dispatcher facility
+-----------------------
+
+In previous releases, the developer of a graphical Ice application
+would need to take precautions to make sure that updates to the user
+interface were performed in the proper thread. For example, graphical
+applications typically use AMI because it does not block the calling
+thread, but AMI callbacks are invoked from an Ice run time thread.
+Since the callback cannot update the user interface directly from such
+a thread, it is forced to schedule an update instead. Consequently,
+the application code grew more complex and was prone to error if the
+developer neglected the threading rules.
+
+Ice 3.4 introduces the Dispatcher facility that lets you control the
+thread in which servant methods and AMI callbacks are invoked. It is
+especially useful for a graphical application, in which you can easily
+install a custom dispatcher to guarantee that all of your servant and
+callback invocations are made in a thread that can safely update the
+user interface.
+
+We have updated the MFC-based C++ sample application and added a
+Swing-based Java example along with a WPF-based C# example to
+demonstrate this new feature.
+
+
+Glacier2 utility classes
+------------------------
+
+Some effort is required to write an application that correctly manages
+a Glacier2 session. To simplify this task, we have added utility
+classes in C++, C# and Java that manage the session for you.
+
+All three language mappings include a new subclass of Ice::Application
+named Glacier2::Application that is intended to be used by command-
+line applications that require a Glacier2 session. The class takes
+care of establishing the session, keeping it alive, and recovering
+from session failures.
+
+In Java and C#, Ice also includes the Glacier2.SessionHelper class for
+use in graphical applications that performs many of the same tasks as
+Glacier2.Application.
+
+
+Using Active Connection Management (ACM) in Glacier2
+----------------------------------------------------
 
 TBD
+
+Glacier2 has been changed to support the use of active connection
+management. Active connection management is enabled by default for
+Glacier2 client connections if Glacier2.SessionTimeout is set.
+The ACM timeout is set to twice the value of the session timeout. If
+the session timeout is disabled, ACM is also disabled for client
+connections.
+
+
+Default servants
+----------------
+
+TBD
+
+Added the following operations to the ObjectAdapter API:
+
+ - addDefaultServant
+ - removeDefaultServant
+ - findDefaultServant
+
+
+Alternate storage for IceGrid and IceStorm
+------------------------------------------
+
+TBD
+
+Added the ability to use alternative database storage for IceStorm
+and IceGrid other than Freeze. The following SQL databases are
+supported: SQLite, PostgresSQL, MySQL and SQL Server. Please see
+the manual for more information.
+
+
+Connection and Endpoint information
+-----------------------------------
+
+TBD
+
+- ConnectionInfo/EndpointInfo
+Added ability to get information from endpoints such as host and
+port without having to parse the stringified endpoint.
+
+
+New Slice compiler and API for PHP
+----------------------------------
+
+TBD
+
+See XXX
+
+
+Slice comments
+--------------
+
+TBD
+
+Ice.jar and Freeze.jar now include source files. This allows IDEs
+such as Eclipse to browse the Ice source code and to display javadoc
+comments.
+
+slice2java now preserves javadoc comments that appear in the Slice
+source and writes them through to the corresponding APIs in the
+generated code.
+
+slice2cs now converts javadoc comments in Slice files into Visual C#
+XML documentation comments. This allows you to generate
+an <assembly>.xml file from the documentation comments by passing
+the /doc option to Visual C#. The comments in the <assembly>.xml
+file are shown as Visual C# tooltips if the <assembly>.xml file is
+installed in the same directory as the <assembly>.dll file.
+
+The build for Ice now generates the <assembly>.xml file for each
+assembly and installs it, so Visual C# displays tooltips for Ice
+APIs.
+
+Slice comments are now converted into Python docstrings in the
+generated code.
+
+
+Properties in the Windows registry
+----------------------------------
+
+TBD
+
+Added the ability to read properties from the Windows registry. This
+is done by setting the Ice.Config property to a value such as the
+following:
+
+  HKLM\Software\MyCompany\IceProperties
+
+This will read all the string values from the specified key in
+HKEY_LOCAL_MACHINE and set them as Ice properties.
 
 
 Features added with 3.3.1
