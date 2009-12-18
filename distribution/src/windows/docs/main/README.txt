@@ -176,9 +176,9 @@ Project properties
     Add extra Slice compiler options that are not explicitly supported
     above.
 
-    These options must be entered the same as they would be on the command
-    line to the Slice compiler. For example, preprocessor macros can be
-    defined by entering the following:
+    These options must be entered the same as they would be on the
+    command line to the Slice compiler. For example, preprocessor
+    macros can be defined by entering the following:
 
     -DFOO -DBAR
 
@@ -214,7 +214,7 @@ Adding Slice files to a project
 -------------------------------
 
 Use "Add -> New Item..." to create a Slice file and add it to a
-project.  Use "Slice File (.ice)" as the file type. To add an existing
+project. Use "Slice File (.ice)" as the file type. To add an existing
 Slice file, use "Add -> Existing Item...".
 
 
@@ -226,8 +226,8 @@ extension tracks dependencies among Slice files in the project and
 recompiles only those files that require it after a change.
 
 Generated files are automatically added to the project. For example,
-for Demo.ice, the extension for C++ adds Demo.cpp and Demo.h to the
-project, whereas the extension for C# adds Demo.cs to the project.
+for Demo.ice, the extension adds Demo.cpp and Demo.h to a C++
+project, whereas the extension adds Demo.cs to the C# project.
 
 Errors that occur during Slice compilation are displayed in the Visual
 Studio "Output" and "Error List" panels.
