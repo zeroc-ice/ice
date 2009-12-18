@@ -7,12 +7,17 @@ Visual Studio & Windows Version
 
 Ice Visual Studio Extension has been extensively tested on
 
- - Windows XP SP2 x86
- - Windows Vista x86 and x64
+ - Windows XP with Service Pack 3 (x86)
+ - Windows Server 2003 Standard with Service Pack 2 (x86 & x64)
+ - Windows Server 2008 Standard with Service Pack 2 (x86 & x64)
+ - Windows Server 2008 Standard R2 (x64)
+ - Windows Vista with Service Pack 2 (x86 & x64)
+ - Windows 7 (x86 & x64)
+
 
 using
 
- - Visual Studio 2008
+ - Visual Studio 2008 SP1
 
 
 Compilers
