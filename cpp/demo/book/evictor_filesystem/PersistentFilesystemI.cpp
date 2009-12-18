@@ -12,27 +12,19 @@
 using namespace std;
 
 //
-// Filesystem::NodeI
-//
-Freeze::EvictorPtr Filesystem::NodeI::_evictor;
-
-Filesystem::NodeI::NodeI()
-  : _destroyed(false), _id(Ice::Identity())
-{
-}
-
-Filesystem::NodeI::NodeI(const Ice::Identity& id)
-    : _destroyed(false), _id(id)
-{
-}
-
-//
 // Filesystem::FileI
 //
+
+Freeze::EvictorPtr Filesystem::FileI::_evictor;
+
+Filesystem::FileI::FileI() : _destroyed(false)
+{
+}
+
 string
 Filesystem::FileI::name(const Ice::Current& c)
 {
-    IceUtil::Mutex::Lock lock(*this);
+    IceUtil::Mutex::Lock lock(_mutex);
 
     if(_destroyed)
     {
@@ -46,7 +38,7 @@ void
 Filesystem::FileI::destroy(const Ice::Current& c)
 {
     {
-        IceUtil::Mutex::Lock lock(*this);
+        IceUtil::Mutex::Lock lock(_mutex);
 
 	if(_destroyed)
 	{
@@ -55,14 +47,17 @@ Filesystem::FileI::destroy(const Ice::Current& c)
 	_destroyed = true;
     }
 
+    //
+    // Because we use a transactional evictor, these updates are guaranteed to be atomic.
+    //
     parent->removeNode(nodeName);
-    _evictor->remove(_id);
+    _evictor->remove(c.id);
 }
 
 Filesystem::Lines
 Filesystem::FileI::read(const Ice::Current& c)
 {
-    IceUtil::Mutex::Lock lock(*this);
+    IceUtil::Mutex::Lock lock(_mutex);
 
     if(_destroyed)
     {
@@ -75,7 +70,7 @@ Filesystem::FileI::read(const Ice::Current& c)
 void
 Filesystem::FileI::write(const Filesystem::Lines& text, const Ice::Current& c)
 {
-    IceUtil::Mutex::Lock lock(*this);
+    IceUtil::Mutex::Lock lock(_mutex);
 
     if(_destroyed)
     {
@@ -85,22 +80,20 @@ Filesystem::FileI::write(const Filesystem::Lines& text, const Ice::Current& c)
     this->text = text;
 }
 
-Filesystem::FileI::FileI()
-{
-}
-
-Filesystem::FileI::FileI(const Ice::Identity& id)
-    : NodeI(id)
-{
-}
-
 //
 // Filesystem::DirectoryI
 //
+
+Freeze::EvictorPtr Filesystem::DirectoryI::_evictor;
+
+Filesystem::DirectoryI::DirectoryI() : _destroyed(false)
+{
+}
+
 string
 Filesystem::DirectoryI::name(const Ice::Current& c)
 {
-    IceUtil::Mutex::Lock lock(*this);
+    IceUtil::Mutex::Lock lock(_mutex);
 
     if(_destroyed)
     {
@@ -119,7 +112,7 @@ Filesystem::DirectoryI::destroy(const Ice::Current& c)
     }
 
     {
-        IceUtil::Mutex::Lock lock(*this);
+        IceUtil::Mutex::Lock lock(_mutex);
 
         if(_destroyed)
         {
@@ -132,14 +125,17 @@ Filesystem::DirectoryI::destroy(const Ice::Current& c)
         _destroyed = true;
     }
 
+    //
+    // Because we use a transactional evictor, these updates are guaranteed to be atomic.
+    //
     parent->removeNode(nodeName);
-    _evictor->remove(_id);
+    _evictor->remove(c.id);
 }
 
 Filesystem::NodeDescSeq
 Filesystem::DirectoryI::list(const Ice::Current& c)
 {
-    IceUtil::Mutex::Lock lock(*this);
+    IceUtil::Mutex::Lock lock(_mutex);
 
     if(_destroyed)
     {
@@ -158,7 +154,7 @@ Filesystem::DirectoryI::list(const Ice::Current& c)
 Filesystem::NodeDesc
 Filesystem::DirectoryI::find(const string& name, const Ice::Current& c)
 {
-    IceUtil::Mutex::Lock lock(*this);
+    IceUtil::Mutex::Lock lock(_mutex);
 
     if(_destroyed)
     {
@@ -176,7 +172,7 @@ Filesystem::DirectoryI::find(const string& name, const Ice::Current& c)
 Filesystem::DirectoryPrx
 Filesystem::DirectoryI::createDirectory(const string& name, const Ice::Current& c)
 {
-    IceUtil::Mutex::Lock lock(*this);
+    IceUtil::Mutex::Lock lock(_mutex);
 
     if(_destroyed)
     {
@@ -190,7 +186,7 @@ Filesystem::DirectoryI::createDirectory(const string& name, const Ice::Current& 
 
     Ice::Identity id;
     id.name = IceUtil::generateUUID();
-    PersistentDirectoryPtr dir = new DirectoryI(id);
+    PersistentDirectoryPtr dir = new DirectoryI;
     dir->nodeName = name;
     dir->parent = PersistentDirectoryPrx::uncheckedCast(c.adapter->createProxy(c.id));
     DirectoryPrx proxy = DirectoryPrx::uncheckedCast(_evictor->add(dir, id));
@@ -207,7 +203,7 @@ Filesystem::DirectoryI::createDirectory(const string& name, const Ice::Current& 
 Filesystem::FilePrx
 Filesystem::DirectoryI::createFile(const string& name, const Ice::Current& c)
 {
-    IceUtil::Mutex::Lock lock(*this);
+    IceUtil::Mutex::Lock lock(_mutex);
 
     if(_destroyed)
     {
@@ -221,7 +217,7 @@ Filesystem::DirectoryI::createFile(const string& name, const Ice::Current& c)
 
     Ice::Identity id;
     id.name = IceUtil::generateUUID();
-    PersistentFilePtr file = new FileI(id);
+    PersistentFilePtr file = new FileI;
     file->nodeName = name;
     file->parent = PersistentDirectoryPrx::uncheckedCast(c.adapter->createProxy(c.id));
     FilePrx proxy = FilePrx::uncheckedCast(_evictor->add(file, id));
@@ -238,20 +234,11 @@ Filesystem::DirectoryI::createFile(const string& name, const Ice::Current& c)
 void
 Filesystem::DirectoryI::removeNode(const string& name, const Ice::Current&)
 {
-    IceUtil::Mutex::Lock lock(*this);
+    IceUtil::Mutex::Lock lock(_mutex);
 
     NodeDict::iterator p = nodes.find(name);
     assert(p != nodes.end());
     nodes.erase(p);
-}
-
-Filesystem::DirectoryI::DirectoryI()
-{
-}
-
-Filesystem::DirectoryI::DirectoryI(const Ice::Identity& id) :
-    NodeI(id)
-{
 }
 
 //
@@ -278,18 +265,4 @@ Filesystem::NodeFactory::create(const string& type)
 void
 Filesystem::NodeFactory::destroy()
 {
-}
-
-//
-// Filesystem::NodeInitializer
-//
-void
-Filesystem::NodeInitializer::initialize(const Ice::ObjectAdapterPtr&,
-                                        const Ice::Identity& id,
-                                        const string& facet,
-                                        const Ice::ObjectPtr& obj)
-{
-    NodeIPtr node = NodeIPtr::dynamicCast(obj);
-    assert(node);
-    const_cast<Ice::Identity&>(node->_id) = id;
 }

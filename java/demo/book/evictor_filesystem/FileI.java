@@ -17,13 +17,6 @@ public final class FileI extends PersistentFile
         _destroyed = false;
     }
 
-    public
-    FileI(Ice.Identity id)
-    {
-        _id = id;
-        _destroyed = false;
-    }
-
     public synchronized String
     name(Ice.Current current)
     {
@@ -48,8 +41,11 @@ public final class FileI extends PersistentFile
 	    _destroyed = true;
 	}
 
+        //
+        // Because we use a transactional evictor, these updates are guaranteed to be atomic.
+        //
         parent.removeNode(nodeName);
-        _evictor.remove(_id);
+        _evictor.remove(current.id);
     }
 
     public synchronized String[]
@@ -76,6 +72,5 @@ public final class FileI extends PersistentFile
     }
 
     public static Freeze.Evictor _evictor;
-    public Ice.Identity _id;
     private boolean _destroyed;
 }

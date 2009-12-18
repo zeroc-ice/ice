@@ -27,20 +27,16 @@ public:
 protected:
 
     NodeI();
-    NodeI(const Ice::Identity&);
 
     bool _destroyed;
-
-public:
-
-    const Ice::Identity _id;
 };
 typedef IceUtil::Handle<NodeI> NodeIPtr;
 
-class FileI : virtual public PersistentFile,
-              virtual public NodeI
+class FileI : virtual public PersistentFile
 {
 public:
+
+    FileI();
 
     virtual std::string name(const Ice::Current&);
     virtual void destroy(const Ice::Current&);
@@ -48,14 +44,19 @@ public:
     virtual Lines read(const Ice::Current&);
     virtual void write(const Lines&, const Ice::Current&);
 
-    FileI();
-    FileI(const Ice::Identity&);
+    static Freeze::EvictorPtr _evictor;
+
+private:
+
+    bool _destroyed;
+    IceUtil::Mutex _mutex;
 };
 
-class DirectoryI : virtual public PersistentDirectory,
-                   virtual public NodeI
+class DirectoryI : virtual public PersistentDirectory
 {
 public:
+
+    DirectoryI();
 
     virtual std::string name(const Ice::Current&);
     virtual void destroy(const Ice::Current&);
@@ -66,9 +67,12 @@ public:
     virtual FilePrx createFile(const std::string&, const Ice::Current&);
     virtual void removeNode(const std::string&, const Ice::Current&);
 
-    DirectoryI();
-    DirectoryI(const Ice::Identity&);
+    static Freeze::EvictorPtr _evictor;
 
+public:
+
+    bool _destroyed;
+    IceUtil::Mutex _mutex;
 };
 
 class NodeFactory : virtual public Ice::ObjectFactory
@@ -77,16 +81,6 @@ public:
 
     virtual Ice::ObjectPtr create(const std::string&);
     virtual void destroy();
-};
-
-class NodeInitializer : virtual public Freeze::ServantInitializer
-{
-public:
-
-    virtual void initialize(const Ice::ObjectAdapterPtr&,
-                            const Ice::Identity&,
-                            const std::string&,
-                            const Ice::ObjectPtr&);
 };
 
 }

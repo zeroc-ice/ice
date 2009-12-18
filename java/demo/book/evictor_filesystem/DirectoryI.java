@@ -15,14 +15,7 @@ public final class DirectoryI extends PersistentDirectory
     DirectoryI()
     {
         _destroyed = false;
-    }
-
-    public
-    DirectoryI(Ice.Identity id)
-    {
-        _id = id;
         nodes = new java.util.HashMap<java.lang.String, NodeDesc>();
-        _destroyed = false;
     }
 
     public synchronized String
@@ -58,8 +51,11 @@ public final class DirectoryI extends PersistentDirectory
 	    _destroyed = true;
         }
 
+        //
+        // Because we use a transactional evictor, these updates are guaranteed to be atomic.
+        //
         parent.removeNode(nodeName);
-        _evictor.remove(_id);
+        _evictor.remove(current.id);
     }
 
     public synchronized NodeDesc[]
@@ -112,7 +108,7 @@ public final class DirectoryI extends PersistentDirectory
         }
 
         Ice.Identity id = current.adapter.getCommunicator().stringToIdentity(java.util.UUID.randomUUID().toString());
-        PersistentDirectory dir = new DirectoryI(id);
+        PersistentDirectory dir = new DirectoryI();
         dir.nodeName = name;
         dir.parent = PersistentDirectoryPrxHelper.uncheckedCast(current.adapter.createProxy(current.id));
         DirectoryPrx proxy = DirectoryPrxHelper.uncheckedCast(_evictor.add(dir, id));
@@ -141,7 +137,7 @@ public final class DirectoryI extends PersistentDirectory
         }
 
         Ice.Identity id = current.adapter.getCommunicator().stringToIdentity(java.util.UUID.randomUUID().toString());
-        PersistentFile file = new FileI(id);
+        PersistentFile file = new FileI();
         file.nodeName = name;
         file.parent = PersistentDirectoryPrxHelper.uncheckedCast(current.adapter.createProxy(current.id));
         FilePrx proxy = FilePrxHelper.uncheckedCast(_evictor.add(file, id));
@@ -163,6 +159,5 @@ public final class DirectoryI extends PersistentDirectory
     }
 
     public static Freeze.Evictor _evictor;
-    public Ice.Identity _id;
     private boolean _destroyed;
 }

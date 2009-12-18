@@ -36,23 +36,24 @@ public:
         Ice::ObjectAdapterPtr adapter = communicator()->createObjectAdapter("EvictorFilesystem");
 
         //
-        // Create the Freeze evictor (stored in the NodeI::_evictor static member).
+        // Create the Freeze evictor.
         //
-        Freeze::ServantInitializerPtr init = new NodeInitializer;
-        NodeI::_evictor = Freeze::createTransactionalEvictor(adapter, _envName, "evictorfs",
-                                                             Freeze::FacetTypeMap(), init);
+        Freeze::EvictorPtr evictor = Freeze::createTransactionalEvictor(adapter, _envName, "evictorfs");
+        FileI::_evictor = evictor;
+        DirectoryI::_evictor = evictor;
 
-        adapter->addServantLocator(NodeI::_evictor, "");
+        adapter->addServantLocator(evictor, "");
 
         //
         // Create the root node if it doesn't exist.
         //
-        Ice::Identity rootId = communicator()->stringToIdentity("RootDir");
-        if(!NodeI::_evictor->hasObject(rootId))
+        Ice::Identity rootId;
+        rootId.name = "RootDir";
+        if(!evictor->hasObject(rootId))
         {
-            PersistentDirectoryPtr root = new DirectoryI(rootId);
+            PersistentDirectoryPtr root = new DirectoryI;
             root->nodeName = "/";
-            NodeI::_evictor->add(root, rootId);
+            evictor->add(root, rootId);
         }
 
         //

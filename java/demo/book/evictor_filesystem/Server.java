@@ -37,9 +37,8 @@ public class Server extends Ice.Application
         // Create the Freeze evictor (stored in the _evictor
         // static member).
         //
-        Freeze.ServantInitializer init = new NodeInitializer();
         Freeze.Evictor evictor = Freeze.Util.createTransactionalEvictor(adapter, _envName, "evictorfs",
-                                                                        null, init, null, true);
+                                                                        null, null, null, true);
         DirectoryI._evictor = evictor;
         FileI._evictor = evictor;
 
@@ -48,10 +47,11 @@ public class Server extends Ice.Application
         //
         // Create the root node if it doesn't exist.
         //
-        Ice.Identity rootId = Ice.Util.stringToIdentity("RootDir");
+        Ice.Identity rootId = new Ice.Identity();
+        rootId.name = "RootDir";
         if(!evictor.hasObject(rootId))
         {
-            PersistentDirectory root = new DirectoryI(rootId);
+            PersistentDirectory root = new DirectoryI();
             root.nodeName = "/";
             root.nodes = new java.util.HashMap<java.lang.String, NodeDesc>();
             evictor.add(root, rootId);
