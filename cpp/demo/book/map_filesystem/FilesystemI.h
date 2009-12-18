@@ -31,7 +31,7 @@ public:
 
 private:
 
-    void halt(const Freeze::DatabaseException& ex) const;
+    void halt(const Freeze::DatabaseException&) const;
 
     const Ice::CommunicatorPtr _communicator;
     const std::string _envName;
@@ -54,7 +54,7 @@ public:
 
 private:
 
-    void halt(const Freeze::DatabaseException& ex) const;
+    void halt(const Freeze::DatabaseException&) const;
 
     const Ice::CommunicatorPtr _communicator;
     const std::string _envName;
