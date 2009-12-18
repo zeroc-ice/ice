@@ -321,49 +321,51 @@ IceUtilInternal::splitString(const string& str, const string& delim, vector<stri
     string::size_type length = str.length();
     string elt;
 
+    char quoteChar = '\0';
     while(pos < length)
     {
-        char quoteChar = '\0';
-        if(str[pos] == '"' || str[pos] == '\'')
+        if(quoteChar == '\0' && (str[pos] == '"' || str[pos] == '\''))
         {
-            quoteChar = str[pos];
+            quoteChar = str[pos++];
+            continue; // Skip the quote
+        }
+        else if(quoteChar != '\0' && str[pos] == '\\' && pos + 1 < length && str[pos + 1] == quoteChar)
+        {
             ++pos;
         }
-        while(pos < length)
+        else if(quoteChar != '\0' && str[pos] == quoteChar)
         {
-            if(quoteChar != '\0' && str[pos] == '\\' && pos + 1 < length && str[pos + 1] == quoteChar)
+            ++pos;
+            quoteChar = '\0';
+            continue; // Skip the end quote
+        }
+        else if(delim.find(str[pos]) != string::npos)
+        {
+            if(quoteChar == '\0')
             {
                 ++pos;
-            }
-            else if(quoteChar != '\0' && str[pos] == quoteChar)
-            {
-                ++pos;
-                quoteChar = '\0';
-                break;
-            }
-            else if(delim.find(str[pos]) != string::npos)
-            {
-                if(quoteChar == '\0')
+                if(elt.length() > 0)
                 {
-                    ++pos;
-                    break;
+                    result.push_back(elt);
+                    elt = "";
                 }
+                continue;
             }
+        }
             
-            if(pos < length)
-            {
-               elt += str[pos++];
-            }
-        }
-        if(quoteChar != '\0')
+        if(pos < length)
         {
-            return false; // Unmatched quote.
+            elt += str[pos++];
         }
-        if(elt.length() > 0)
-        {
-            result.push_back(elt);
-            elt = "";
-        }
+    }
+
+    if(elt.length() > 0)
+    {
+        result.push_back(elt);
+    }
+    if(quoteChar != '\0')
+    {
+        return false; // Unmatched quote.
     }
     return true;
 }

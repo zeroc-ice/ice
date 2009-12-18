@@ -753,9 +753,9 @@ def argsToDict(argumentString, results):
         else:
             results[current] = None
     return results
-            
-def getCommandLine(exe, config):
 
+def getCommandLineProperties(exe, config):
+            
     #
     # Command lines are built up from the items in the components
     # sequence, which is initialized with command line options common to
@@ -813,6 +813,15 @@ def getCommandLine(exe, config):
                 components.append("%s=%s" % (k, v))
             else:
                 components.append("%s" % k)
+
+    output = StringIO.StringIO()
+    for c in components:
+        print >>output, c,
+    properties = output.getvalue()
+    output.close()
+    return properties
+
+def getCommandLine(exe, config):
     
     output = StringIO.StringIO()
     if config.mono and config.lang == "cs":
@@ -841,8 +850,7 @@ def getCommandLine(exe, config):
         else:
             print >>output, exe,
 
-    for c in components:
-        print >>output, c,
+    print >>output, getCommandLineProperties(exe, config),
     commandline = output.getvalue()
     output.close()
 

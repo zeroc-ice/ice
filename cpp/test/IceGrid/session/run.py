@@ -48,7 +48,7 @@ IceGridAdmin.registryOptions += \
 
 IceGridAdmin.iceGridTest("application.xml",
     '--IceBinDir="%s" --TestDir="%s"' % (TestUtil.getCppBinDir(), os.getcwd()),
-    '\\"properties-override=%s\\"' % TestUtil.getCommandLine("", TestUtil.DriverConfig("server")).replace("--", ""))
+    'properties-override=\'%s\'' % IceGridAdmin.iceGridNodePropertiesOverride())
 
 verifierProc.waitTestSuccess()
 

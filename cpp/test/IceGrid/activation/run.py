@@ -20,6 +20,7 @@ if len(path) == 0:
 sys.path.append(os.path.join(path[0]))
 from scripts import *
 
-IceGridAdmin.iceGridTest("application.xml", "",
-	" 'properties-override=%s'" % TestUtil.getCommandLine("", TestUtil.DriverConfig("colloc")).replace("--", ""))
+IceGridAdmin.iceGridTest("application.xml", 
+                         "",
+                         "properties-override='%s'" % IceGridAdmin.iceGridNodePropertiesOverride())
 

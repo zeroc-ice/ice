@@ -8,7 +8,7 @@
 #
 # **********************************************************************
 
-import sys, os, TestUtil
+import sys, os, TestUtil, shlex
 from threading import Thread
 
 #
@@ -129,6 +129,26 @@ def shutdownIceGridRegistry(procs):
     for p in procs:
         p.waitTestSuccess()
 
+def iceGridNodePropertiesOverride():
+   
+    #
+    # Create property overrides from command line options.
+    #
+    overrideOptions = ''
+    for opt in shlex.split(TestUtil.getCommandLineProperties("", TestUtil.DriverConfig("server"))):
+       index = opt.find("=")
+       if index == -1:
+          overrideOptions += ("%s=1 ") % opt
+       else:          
+          key = opt[0:index]
+          value = opt[index + 1:]
+          if(value.find(' ') == -1):
+             overrideOptions += ("%s=%s ") % (key, value)
+          else:
+             overrideOptions += ("%s=\\\"%s\\\" ") % (key, value)
+
+    return overrideOptions
+
 def startIceGridNode(testdir):
 
     iceGrid = ""
@@ -143,15 +163,7 @@ def startIceGridNode(testdir):
     else:
         cleanDbDir(dataDir)
 
-    #
-    # Create property overrides from command line options.
-    #
-    overrideOptions = '"'
-    for opt in TestUtil.getCommandLine("", TestUtil.DriverConfig("server")).split():
-        opt = opt.replace("--", "")
-        if opt.find("=") == -1:
-            opt += "=1"
-        overrideOptions += opt + " "
+    overrideOptions = '" ' + iceGridNodePropertiesOverride()
     overrideOptions += ' Ice.ServerIdleTime=0 Ice.PrintProcessId=0 Ice.PrintAdapterReady=0"'
 
     print "starting icegrid node...",

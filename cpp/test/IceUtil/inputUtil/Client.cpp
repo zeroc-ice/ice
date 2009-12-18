@@ -9,6 +9,7 @@
 
 #include <IceUtil/Unicode.h>
 #include <IceUtil/InputUtil.h>
+#include <IceUtil/StringUtil.h>
 #include <IceUtil/Options.h>
 #include <TestCommon.h>
 
@@ -187,6 +188,50 @@ main(int, char**)
         catch(const IceUtilInternal::BadOptException&)
         {
         }
+    }
+    cout << "ok" << endl;
+
+    cout << "checking string splitting... " << flush;
+    {
+        vector<string> ss;
+        test(IceUtilInternal::splitString("", "", ss) && ss.empty());
+        ss.clear();
+        test(IceUtilInternal::splitString("", ":", ss) && ss.empty());
+        ss.clear();
+        test(IceUtilInternal::splitString("a", "", ss) && ss.size() == 1 && ss[0] == "a");
+        ss.clear();
+        test(IceUtilInternal::splitString("a", ":", ss) && ss.size() == 1 && ss[0] == "a");
+        ss.clear();
+        test(IceUtilInternal::splitString("ab", "", ss) && ss.size() == 1 && ss[0] == "ab");
+        ss.clear();
+        test(IceUtilInternal::splitString("ab:", ":", ss) && ss.size() == 1 && ss[0] == "ab");
+        ss.clear();
+        test(IceUtilInternal::splitString(":ab", ":", ss) && ss.size() == 1 && ss[0] == "ab");
+        ss.clear();
+        test(IceUtilInternal::splitString("a:b", ":", ss) && ss.size() == 2 && ss[0] == "a" && ss[1] == "b");
+        ss.clear();
+        test(IceUtilInternal::splitString(":a:b:", ":", ss) && ss.size() == 2 && ss[0] == "a" && ss[1] == "b");
+        ss.clear();
+        
+        test(IceUtilInternal::splitString("\"a\"", ":", ss) && ss.size() == 1 && ss[0] == "a");
+        ss.clear();
+        test(IceUtilInternal::splitString("\"a\":b", ":", ss) && ss.size() == 2 && ss[0] == "a" && ss[1] == "b");
+        ss.clear();
+        test(IceUtilInternal::splitString("\"a\":\"b\"", ":", ss) && ss.size() == 2 && ss[0] == "a" && ss[1] == "b");
+        ss.clear();
+        test(IceUtilInternal::splitString("\"a:b\"", ":", ss) && ss.size() == 1 && ss[0] == "a:b");
+        ss.clear();
+        test(IceUtilInternal::splitString("a=\"a:b\"", ":", ss) && ss.size() == 1 && ss[0] == "a=a:b");
+        ss.clear();
+
+        test(IceUtilInternal::splitString("'a'", ":", ss) && ss.size() == 1 && ss[0] == "a");
+        ss.clear();
+        test(IceUtilInternal::splitString("'\"a'", ":", ss) && ss.size() == 1 && ss[0] == "\"a");
+        ss.clear();
+        test(IceUtilInternal::splitString("\"'a\"", ":", ss) && ss.size() == 1 && ss[0] == "'a");
+        ss.clear();
+
+        test(!IceUtilInternal::splitString("a\"b", ":", ss));
     }
     cout << "ok" << endl;
 

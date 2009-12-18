@@ -366,60 +366,28 @@ NodeI::NodeI(const Ice::ObjectAdapterPtr& adapter,
     string overrides = props->getProperty("IceGrid.Node.PropertiesOverride");
     if(!overrides.empty())
     {
-        string::size_type end = 0;
-        while(end != string::npos)
+        const string delim = " \t\r\n";
+        vector<string> overrideProps;
+        if(!IceUtilInternal::splitString(overrides, delim, overrideProps))
         {
-            const string delim = " \t\r\n";
+            Ice::Warning out(_traceLevels->logger);
+            out << "invalid value for property `IceGrid.Node.PropertiesOverride':\nunmatched quote";
+        }
 
-            string::size_type beg = overrides.find_first_not_of(delim, end);
-            if(beg == string::npos)
+        for(vector<string>::iterator p = overrideProps.begin(); p != overrideProps.end(); ++p)
+        {
+            if(p->find("--") != 0)
             {
-                break;
+                *p = "--" + *p;
             }
-         
-            end = overrides.find_first_of(delim, beg);
-            string arg;
-            if(end == string::npos)
-            {
-                arg = overrides.substr(beg);
-            }
-            else
-            {
-                arg = overrides.substr(beg, end - beg); 
-            }
+        }
 
-            if(arg.find("--") == 0)
-            {
-                arg = arg.substr(2);
-            }
-
-            //
-            // Extract the key/value
-            //
-            string::size_type argEnd = arg.find_first_of(delim + "=");
-            if(argEnd == string::npos)
-            {
-                continue;
-            }
-        
-            string key = arg.substr(0, argEnd);
-        
-            argEnd = arg.find('=', argEnd);
-            if(argEnd == string::npos)
-            {
-                return;
-            }
-            ++argEnd;
-        
-            string value;
-            string::size_type argBeg = arg.find_first_not_of(delim, argEnd);
-            if(argBeg != string::npos)
-            {
-                argEnd = arg.length();
-                value = arg.substr(argBeg, argEnd - argBeg);
-            }
-    
-            _propertiesOverride.push_back(createProperty(key, value));
+        Ice::PropertiesPtr p = Ice::createProperties();
+        p->parseCommandLineOptions("", overrideProps);
+        Ice::PropertyDict propDict = p->getPropertiesForPrefix("");
+        for(Ice::PropertyDict::const_iterator q = propDict.begin(); q != propDict.end(); ++q)
+        {
+            _propertiesOverride.push_back(createProperty(q->first, q->second));
         }
     }
 }
