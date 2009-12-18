@@ -2,10 +2,12 @@
 Requirements
 ======================================================================
 
+
 Visual Studio & Windows Version
 -------------------------------
 
-Ice Visual Studio Extension has been extensively tested on
+Ice Visual Studio Extension has been extensively tested using Visual
+Studio 2008 SP1 on the following platforms:
 
  - Windows XP with Service Pack 3 (x86)
  - Windows Server 2003 Standard with Service Pack 2 (x86 & x64)
@@ -15,17 +17,12 @@ Ice Visual Studio Extension has been extensively tested on
  - Windows 7 (x86 & x64)
 
 
-using
-
- - Visual Studio 2008 SP1
-
-
 Compilers
 ---------
 
-The Ice Visual Studio Extension requires:
+Building the Ice Visual Studio Extension requires:
 
-- Microsoft Visual Studio 2008
+- Microsoft Visual Studio 2008 SP1
 
 - Visual Studio 2008 SDK Version 1.0
 
@@ -40,7 +37,7 @@ Unpack the archive. The sources are contained in the
 IceVisualStudioExtension-@ver@ subdirectory.
 
 1) In a Visual Studio 2008 command prompt, change to the distribution
-   directory.
+   directory:
 
    > cd IceVisualStudioExtension-@ver@
 
@@ -54,7 +51,7 @@ IceVisualStudioExtension-@ver@ subdirectory.
 The plug-in DLL is placed into the IceVisualStudio-@ver@\bin 
 directory. The library name is
 
-   - bin\IceVisualStudioAddin-VS2008.dll
+   bin\IceVisualStudioAddin-VS2008.dll
 
 
 ======================================================================
@@ -73,7 +70,7 @@ Configuration
 ======================================================================
 
 1) In a Visual Studio 2008 command prompt, change to the installation
-   bin subdirectory.
+   bin subdirectory:
 
    > cd c:\IceVisualStudioExtension-@ver@\bin
 
@@ -84,12 +81,12 @@ Configuration
    file contains the plug-in configuration in XML format.
 
    You can view the list of directories that Visual Studio searches
-   for add-in files with
+   for add-in files in the following window:
 
-    'Tools -> Options -> Enviroment -> Add-in/Macros Security'
+     Tools -> Options -> Environment -> Add-in/Macros Security
 
    The .Addin file is typically placed into the Visual Studio user's
-   Addins sub-directory.
+   Addins subdirectory.
 
    For a Windows Vista default installation, the directory is:
 
@@ -100,10 +97,10 @@ Configuration
      C:\Document and Settings\username\My Documents\Visual Studio 2008\Addins
 
   Once you have chosen the directory, you must copy the corresponding
-  .Addin file to that directory.
+  .Addin file to that directory:
 
-   > cd C:\Users\username\Documents\Visual Studio 2008\Addins
-   > copy C:\IceVisualStudioExtension-@ver@\conf\Ice-VS2008.AddIn
+  > cd C:\Users\username\Documents\Visual Studio 2008\Addins
+  > copy C:\IceVisualStudioExtension-@ver@\conf\Ice-VS2008.AddIn
 
   If you have not installed the add-in in the default location, you 
   must edit the .Addin file and update the value of the "Assembly"
@@ -111,8 +108,8 @@ Configuration
 
 3) Install item templates.
 
-   To be able to add new items from the standard "New Item" dialog, you
-   must install the corresponding item templates.
+   To be able to add new items from the standard "New Item" dialog,
+   you must install the corresponding item templates.
 
    For C++, item templates are installed in:
   
@@ -141,12 +138,11 @@ Configuration
 
      C:\Program Files\...
 
-   For C# you should also install a user template, this made slice file template
-   available for all C# project subtypes.
+   For C# you should also install a user template to make Slice the
+   file template available for all C# project subtypes.
 
-   C# user templates are installed in:
-
-   For a Windows Vista default installation, the directory is:
+   For a Windows Vista default installation, C# user templates are
+   installed in:
 
      C:\Users\username\Documents\Visual Studio 2008\Templates\ItemTemplates\Visual C#
 
@@ -159,8 +155,8 @@ Configuration
    > cd C:\Users\username\Documents\Visual Studio 2008\Templates\ItemTemplates\Visual C#
    > copy C:\IceVisualStudioExtension-@ver@\templates\Slice.zip .
 
-4) This completes the configuration. The plug-in is available
-   once you restart Visual Studio.
+4) This completes the configuration. The plug-in is available once you
+   restart Visual Studio.
 
 
 ======================================================================
