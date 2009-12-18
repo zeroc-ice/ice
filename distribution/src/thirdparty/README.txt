@@ -69,16 +69,15 @@ to the top-level directory and apply the patches as shown below:
 mcpp
 ----
 
-The files mcpp/patch.2.7.2_1 and mcpp/patch.2.7.2_2 in this archive 
-contain several important fixes required by Ice. We expect that these 
-changes will be included in a future release of mcpp.
+The file mcpp/patch.mcpp.2.7.2 in this archive contains several
+important fixes required by Ice. We expect that these changes will be
+included in a future release of mcpp.
 
 After extracting the mcpp source distribution, change to the top-level
 directory and apply the patch as shown below:
 
   > cd mcpp-2.7.2
-  > patch -p0 < patch.2.7.2_1
-  > patch -p0 < patch.2.7.2_2
+  > patch -p0 < patch.mcpp.2.7.2
 
 
 ======================================================================
