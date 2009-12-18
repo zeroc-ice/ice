@@ -6,7 +6,7 @@ Warehouse.Endpoints=tcp -p 10000
 
 #
 # Configure 10 threads in the server side thread pool. Setting
-# SizeWarn to -1 disables warnings if we start to run out of threads.
+# SizeWarn to 10 disables warnings if we start to run out of threads.
 #
 Ice.ThreadPool.Server.Size=10
-Ice.ThreadPool.Server.SizeWarn=-1
+Ice.ThreadPool.Server.SizeWarn=10
