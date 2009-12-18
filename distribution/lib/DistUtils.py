@@ -918,8 +918,11 @@ class Qt(ThirdParty):
         ThirdParty.__init__(self, platform, "Qt", qt, ["cpp"])
 
     def getFilesFromSubDirs(self, platform, bindir, libdir, x64):
-	files = platform.getSharedLibraryFiles(self.location, os.path.join(libdir, "QtCore*"))
-	files += platform.getSharedLibraryFiles(self.location, os.path.join(libdir, "QtSql*"))
+	files = platform.getSharedLibraryFiles(self.location, os.path.join(libdir, "libQtCore*"))
+	files += platform.getSharedLibraryFiles(self.location, os.path.join(libdir, "libQtSql*"))
+	# We also need some symbolic links
+	files += [os.path.join(self.location, os.path.join(libdir, "libQtCore." + platform.shlibExtension + ".4")),
+	          os.path.join(self.location, os.path.join(libdir, "libQtSql." + platform.shlibExtension + ".4"))]
         return files
 
 class JGoodiesLooks(ThirdParty):
