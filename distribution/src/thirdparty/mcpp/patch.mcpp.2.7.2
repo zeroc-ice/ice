@@ -1,6 +1,6 @@
 diff -c -r -N ../mcpp-2.7.2/src/internal.H ./src/internal.H
 *** ../mcpp-2.7.2/src/internal.H	2008-08-27 10:31:16.000000000 -0230
---- ./src/internal.H	2009-12-17 20:42:42.000000000 -0330
+--- ./src/internal.H	2009-12-17 21:01:35.000000000 -0330
 ***************
 *** 390,395 ****
 --- 390,397 ----
@@ -12,6 +12,21 @@ diff -c -r -N ../mcpp-2.7.2/src/internal.H ./src/internal.H
           /* Temporary buffer for directive line and macro expansion  */
   
   /* main.c   */
+***************
+*** 557,562 ****
+  #endif
+  #endif
+  
+! #if HOST_HAVE_STPCPY
+  extern char *   stpcpy( char * dest, const char * src);
+  #endif
+--- 559,564 ----
+  #endif
+  #endif
+  
+! #if HOST_HAVE_STPCPY && !defined(stpcpy)
+  extern char *   stpcpy( char * dest, const char * src);
+  #endif
 diff -c -r -N ../mcpp-2.7.2/src/main.c ./src/main.c
 *** ../mcpp-2.7.2/src/main.c	2008-11-05 05:04:46.000000000 -0330
 --- ./src/main.c	2009-12-17 20:42:42.000000000 -0330
