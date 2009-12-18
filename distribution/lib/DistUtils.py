@@ -798,6 +798,13 @@ class Darwin(Platform):
                 links.append(link[len(root) + 1::])
         return libraries + links
 
+    def getMakeEnvs(self, version, language):
+        envs = Platform.getMakeEnvs(self, version, language)
+        # Build fat binaries by default.
+        if not os.environ.has_key("CXXARCHFLAGS"):
+            envs += " CXXARCHFLAGS=\"-arch i386 -arch x86_64\"";
+        return envs
+
     def completeDistribution(self, buildDir, version):
 
         print "Fixing install names...",
@@ -887,7 +894,7 @@ class Expat(ThirdParty):
         ThirdParty.__init__(self, platform, "Expat", expat, ["cpp"])
 
     def getFilesFromSubDirs(self, platform, bindir, libdir, x64):
-        return platform.getSharedLibraryFiles(self.location, os.path.join(libdir, "*"))
+        return platform.getSharedLibraryFiles(self.location, os.path.join(libdir, "libexpat*"))
 
 class OpenSSL(ThirdParty):
     def __init__(self, platform):
@@ -896,7 +903,8 @@ class OpenSSL(ThirdParty):
 
     def getFilesFromSubDirs(self, platform, bindir, libdir, x64):
         files = [ os.path.join(bindir, "openssl") ]
-        files += platform.getSharedLibraryFiles(self.location, os.path.join(libdir, "*"))
+        files += platform.getSharedLibraryFiles(self.location, os.path.join(libdir, "libssl*"))
+        files += platform.getSharedLibraryFiles(self.location, os.path.join(libdir, "libcrypto*"))
         return files
 
 class Mcpp(ThirdParty):
