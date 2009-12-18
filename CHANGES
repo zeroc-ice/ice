@@ -381,8 +381,8 @@ C++ Changes
 
 - Added the ability to use alternative database storage for IceStorm
   and IceGrid other than Freeze. The following SQL databases are
-  supported: SQLite, PostgresSQL, MySQL and SQL Server. Please see
-  the manual for more information.
+  supported: SQLite and PostgreSQL. Please see the manual for more
+  information.
 
 - Fixed a bug where globally-scoped garbage collected class pointers
   could cause a crash on application termination.

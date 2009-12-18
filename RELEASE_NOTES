@@ -18,12 +18,25 @@ Table of Contents
 -----------------
 
   1. New Features
+     - New API for Asynchronous Method Invocation (AMI)
+     - Better scalability
+     - New Dispatcher facility
+     - Glacier2 utility classes
+     - Default servants
+     - Alternate storage for IceGrid and IceStorm
+     - Connection and endpoint information
+     - New Slice compiler and API for PHP
+     - Slice comments
+     - Properties in the Windows registry
+     - New sample programs
   2. Upgrading your application from Ice 3.3
      - Java language mapping changes
      - Changes to the Java API for Freeze maps
      - Freeze packaging
      - PHP changes
      - IceSSL changes
+     - Removed APIs
+     - Deprecated APIs
   3. Upgrading your application from Ice 3.2 or earlier releases
      - Compatibility
      - Migrating IceStorm databases
@@ -54,11 +67,10 @@ New API for Asynchronous Method Invocation (AMI)
 ------------------------------------------------
 
 This release features a completely new AMI facility for C++, C# and
-Java that provides you with much greater flexibility in the ways you
-can structure your code. To get a better understanding of the
-motivations for this enhancement and how it can improve your own
-applications, we encourage you to read the white papers available at
-the link below:
+Java that allows you to structure your code with much greater
+flexibility. To get a better understanding of the motivations for this
+enhancement and how it can improve your own applications, we encourage
+you to read the white papers available at the link below:
 
   http://www.zeroc.com/articles/index.html
 
@@ -100,9 +112,9 @@ install a custom dispatcher to guarantee that all of your servant and
 callback invocations are made in a thread that can safely update the
 user interface.
 
-We have updated the MFC-based C++ sample application and added a
-Swing-based Java example along with a WPF-based C# example to
-demonstrate this new feature.
+This technique is demonstrated in a sample application for each of
+the language mappings: refer to the "MFC" demo in C++, the "swing"
+demo in Java, and the "wpf" demo in C#.
 
 
 Glacier2 utility classes
@@ -110,178 +122,103 @@ Glacier2 utility classes
 
 Some effort is required to write an application that correctly manages
 a Glacier2 session. To simplify this task, we have added utility
-classes in C++, C# and Java that manage the session for you.
+classes in C++, C#, Java and Python that manage the session for you.
 
-All three language mappings include a new subclass of Ice::Application
-named Glacier2::Application that is intended to be used by command-
-line applications that require a Glacier2 session. The class takes
-care of establishing the session, keeping it alive, and recovering
-from session failures.
+For all of these language mappings, Ice includes a new subclass of
+Ice::Application named Glacier2::Application that is intended to be
+used by command-line applications that require a Glacier2 session. The
+class takes care of establishing the session, keeping it alive, and
+recovering from session failures.
 
 In Java and C#, Ice also includes the Glacier2.SessionHelper class for
-use in graphical applications that performs many of the same tasks as
-Glacier2.Application.
-
-
-Using Active Connection Management (ACM) in Glacier2
-----------------------------------------------------
-
-TBD
-
-Glacier2 has been changed to support the use of active connection
-management. Active connection management is enabled by default for
-Glacier2 client connections if Glacier2.SessionTimeout is set.
-The ACM timeout is set to twice the value of the session timeout. If
-the session timeout is disabled, ACM is also disabled for client
-connections.
+use in graphical applications. This class performs many of the same
+tasks as Glacier2.Application.
 
 
 Default servants
 ----------------
 
-TBD
-
-Added the following operations to the ObjectAdapter API:
-
- - addDefaultServant
- - removeDefaultServant
- - findDefaultServant
+The traditional way of implementing a default servant was to install a
+servant locator that returned the same servant for every request.
+However, since default servants are one of the most common use cases
+for servant locators, we have made them easier to use by adding new
+operations to the ObjectAdapter interface. If you make use of default
+servants, you can simplify your code by migrating your application to
+this new API.
 
 
 Alternate storage for IceGrid and IceStorm
 ------------------------------------------
 
-TBD
+IceStorm and the IceGrid registry now have the ability to use a SQL
+database instead of Freeze for their persistent storage requirements.
+This release supports SQLite on all platforms and PostgreSQL on Unix
+platforms. If you would like to see support added for other SQL
+servers, please contact info@zeroc.com.
 
-Added the ability to use alternative database storage for IceStorm
-and IceGrid other than Freeze. The following SQL databases are
-supported: SQLite, PostgresSQL, MySQL and SQL Server. Please see
-the manual for more information.
 
-
-Connection and Endpoint information
+Connection and endpoint information
 -----------------------------------
 
-TBD
+Ice developers frequently want to obtain information about connections
+and endpoints, as evidenced by the numerous inquiries on the user
+forum about this issue. For example, the developer may want to know
+the IP address of a remote client. This information was available in
+prior releases, but not in a form that was easy to manipulate.
 
-- ConnectionInfo/EndpointInfo
-Added ability to get information from endpoints such as host and
-port without having to parse the stringified endpoint.
+Now it is possible to obtain more details about connections and
+endpoints with the addition of the ConnectionInfo and EndpointInfo
+class hierarchies. Using these classes, you can discover addresses,
+ports, and other attributes of a connection or endpoint.
+
+As always, we caution against using such addressing information for
+authentication purposes, as IP addresses can easily be forged.
 
 
 New Slice compiler and API for PHP
 ----------------------------------
 
-TBD
-
-See XXX
+Significant changes have been made to the PHP mapping and API. For
+example, Ice for PHP now uses static translation via the new slice2php
+compiler, and the language mapping is now more consistent with that
+of Python and Ruby. For more information on migrating your PHP
+application, please refer to the section titled "PHP changes" below.
 
 
 Slice comments
 --------------
 
-TBD
+This release offers several improvements that will be appreciated by
+developers, especially those that use integrated development
+environments (IDEs):
+    
+* The Slice compilers for Java, C#, and Python now preserve Slice
+  comments in the generated code.
 
-Ice.jar and Freeze.jar now include source files. This allows IDEs
-such as Eclipse to browse the Ice source code and to display javadoc
-comments.
+* Doc comments have been added to the native Ice APIs.
 
-slice2java now preserves javadoc comments that appear in the Slice
-source and writes them through to the corresponding APIs in the
-generated code.
+* The JAR files for Ice and Freeze include source code to allow IDEs
+  such as Eclipse to browse the Ice source code and to display javadoc
+  comments.
 
-slice2cs now converts javadoc comments in Slice files into Visual C#
-XML documentation comments. This allows you to generate
-an <assembly>.xml file from the documentation comments by passing
-the /doc option to Visual C#. The comments in the <assembly>.xml
-file are shown as Visual C# tooltips if the <assembly>.xml file is
-installed in the same directory as the <assembly>.dll file.
-
-The build for Ice now generates the <assembly>.xml file for each
-assembly and installs it, so Visual C# displays tooltips for Ice
-APIs.
-
-Slice comments are now converted into Python docstrings in the
-generated code.
+* For C# users that compile generated Slice code into an assembly, you
+  can now instruct Visual C# to emit documentation comments into an
+  XML file for your assembly. This enables the IDE to display tooltips
+  for your Slice definitions. Ice generates these XML files for its
+  own assemblies so that you can view tooltips for the Ice APIs as
+  well.
 
 
 Properties in the Windows registry
 ----------------------------------
 
-TBD
-
-Added the ability to read properties from the Windows registry. This
-is done by setting the Ice.Config property to a value such as the
-following:
-
-  HKLM\Software\MyCompany\IceProperties
-
-This will read all the string values from the specified key in
-HKEY_LOCAL_MACHINE and set them as Ice properties.
-
-
-Features added with 3.3.1
-=========================
-
-
-Java and .NET serialization
----------------------------
-
-This release adds support for Java and .NET serializable classes. You
-can now enable the serialization, transmission, and deserialization
-of Java and .NET classes with a simple metadata directive. As an
-example, the Slice definition shown below specifies the name of a
-serializable Java class:
-
-// Slice
-["java:serializable:Demo.MyGreeting"] sequence<byte> Greeting;
-
-This definition allows you to transfer instances of Demo.MyGreeting as
-a byte sequence while Ice handles the low-level serialization chores.
-
-You can read more about this feature in the Ice manual. We have also
-included a new sample program for each of the supported languages.
-
-
-Background locator updates
---------------------------
-
-For an indirect proxy, the Ice run time queries the locator and caches
-the resulting endpoints. By default, Ice caches these endpoints
-indefinitely unless the proxy is configured with a cache timeout, in
-which case Ice must update the cached endpoints after the timeout
-expires by issuing a new locator query. This update occurs upon the
-next invocation on the proxy, and in previous releases the update
-would delay the invocation until the new endpoints were obtained from
-the locator.
-
-This update can now be performed in the background by setting the new
-property Ice.BackgroundLocatorCacheUpdates to 1. With this feature
-enabled, Ice allows the invocation that triggered the update to use
-the previously-cached endpoints while the locator query completes in
-the background.
-
-
-Glacier2 session destruction
-----------------------------
-
-Glacier2 now automatically destroys the client session if the
-forwarding of a request from a back-end server to the client fails
-with an unrecoverable error. This is particularly useful for clients
-that receive requests from back-end servers on a regular basis and
-disable the Glacier2 session timeout. If for some reason the client
-becomes unreachable, Glacier2 will eventually destroy the client
-session (assuming timeouts are properly configured on the Glacier2
-client endpoints).
-
-
-Java Applets
-------------
-
-It is now possible to use Ice for Java in an applet. Additionally,
-IceSSL can now obtain keystores, truststores, and RNG seeds from class
-path resources using configuration properties or programmatically
-using input streams.
+Ice configuration properties can now be loaded from the Windows
+registry by specifying a registry key as the value of the Ice.Config
+property. Ice programs that run as Windows services are likely to make
+use of this feature because it avoids the need to hard-code properties
+in the application, eliminates the dependency on a configuration file,
+and allows the program's configuration settings to be edited using
+familiar registry tools.
 
 
 New sample programs
@@ -289,146 +226,65 @@ New sample programs
 
 This release adds the following sample programs:
 
-  - serialize (.NET, Java)
+  - map_filesystem (C++, Java)
 
-    Shows how to transfer serializable classes with Ice.
+    Shows how to implement the filesystem application using a Freeze
+    map.
 
-  - nrvo (C++)
+  - interleaved (C++)
 
-    Highlights the benefits of Named Return Value Optimization (NRVO).
-    See the section titled "Upgrading your application from Ice 3.3.0"
-    for more information on NRVO.
+    Uses interleaved asynchronous invocations to achieve maximum
+    throughput.
 
-  - applet (Java)
+  - plugin (C++, Java, C#)
 
-    Shows how to use asynchronous invocations in an applet and how to
-    configure IceSSL using class path resources.
+    Demonstrates how to write an Ice plug-in.
 
-  - Database (Java)
+  - chat (Java, C#)
 
-    A client/server application in which the server accesses MySQL via
-    the JDBC API.
+    A graphical chat client that uses Glacier2 to communicate with
+    a C++ server.
 
+  - swing (Java)
+    wpf (C#)
 
-Features added with 3.3.0
-=========================
+    Graphical versions of the hello client.
 
+  - hello (PHP)
 
-AMI
----
-
-AMI requests are now guaranteed non-blocking. New proxy methods,
-ice_flushBatchRequests and ice_flushBatchRequests_async, allow
-flushing of requests batched for a connection. The latter method
-is guaranteed to not block. AMI requests can now be sent oneway.
-
-
-Threads
--------
-
-The Ice thread pool now supports serialization of requests received
-over a connection.
-
-
-Exceptions
-----------
-
-Exceptions thrown from collocation-optimized invocations are now fully
-transparent, so a collocated invocation raises the same exception as a
-remote invocation. (Previously, a collocated invocation raised the
-original exception whereas the corresponding remote invocation raised
-an unknown exception.)
-
-Servant locators now can throw a user exception from the locate and
-finished operations.
-
-
-Transports
-----------
-
-The run time now tries to connect to multi-homed hosts on all IP
-addresses returned by the DNS.
-
-Ice.TCP.Backlog allows control of the incoming connection backlog.
-
-Ice now supports IPv6.
-
-Ice now supports UDP multicast.
-
-A new adapter operation, refreshPublishedEndpoints, permits you to
-update an adapter's published endpoints after a change to the
-available network interfaces or an update to the PublishedEndpoints
-property.
-
-Ice now listens on INADDR_ANY for endpoints that do not specify a
-host, instead of listening only on the interfaces that were present
-when the adapter was created.
-
-
-IceBox
-------
-
-IceBox can now recursively start and stop other IceBox services.
-
-IceBox properties can now be defined on the command line.
-
-Setting IceBox.ServiceManager.Endpoints is now optional.
-
-
-IceStorm
---------
-
-IceStorm now supports master/slave replication with automatic
-failover.
-
-IceStorm now has a transient mode that allows it to run without a
-database.
-
-IceStorm subscriptions are now persistent (except in transient mode).
-
-A new QoS parameter, retryCount, allows you to control after how many
-soft failures a subscription is removed.
-
-A new replication2 demo illustrates how to manually configure
-replication.
-
-IceStorm now guarantees ordering by default even for oneway proxies.
-
-
-Freeze
-------
-
-The existing evictor is now named BackgroundSaveEvictor. A new
-evictor, TransactionalEvictor, makes updates in a transaction.
-
-
-IceGrid
--------
-
-A new secure demo illustrates how to secure an IceGrid deployment.
-
-
-Miscellaneous features
-----------------------
-
-Ice for Java now supports the ICE_CONFIG environment variable.
-
-Ice.Application now supports signal handling with Mono.
-
-Improved marshaling performance with Ice for .NET.
-
-Ice for .NET now supports C# 2.0 generics for sequences and
-dictionaries.
-
-Ice for Python now includes a converter demo that illustrates
-how to use the C++ string converter plug-in.
-
-Ice for Python now supports blobjects.
+    A Glacier2 client that demonstrates the use of registered
+    communicators.
 
 
 ======================================================================
 2. Upgrading your application from Ice 3.3
 ======================================================================
+
+Ice 3.4 does not maintain backward binary compatibility with
+applications built using Ice 3.3, but every effort was made to
+preserve source compatibility. Note however that Ice always maintains
+protocol ("on the wire") compatibility with prior releases.
+
+The requirements for upgrading depend on the language mapping used by
+your application:
+
+- For statically-typed languages (C++, Java, .NET), the application
+  must be recompiled.
+
+- For scripting languages that use static translation, your Slice
+  files must be recompiled.
+
+If your application uses IceStorm or IceGrid, please refer to the
+relevant sections below for migration instructions.
+
+Finally, certain APIs that were deprecated in previous Ice releases
+have been removed in this release. If your application relied on one
+of these APIs, it may no longer compile or execute correctly. A list
+of the removed APIs is provided in the section titled "Removed APIs"
+along with a description of their replacements. Furthermore, the
+section "Deprecated APIs" discusses APIs that are deprecated as of
+this release; we encourage you to update your applications and
+eliminate the use of these APIs as soon as possible.
 
 
 Java language mapping changes
@@ -1195,192 +1051,81 @@ implications for existing applications:
         IceSSL::NativeConnectionInfoPtr::dynamicCast(con->getInfo());
 
 
-================
-OLD
-================
+Removed APIs
+============
 
-Since Ice 3.3.1 maintains binary compatibility with Ice 3.3.0, it is
-not necessary for you to recompile your Slice files or your program
-code, nor is it necessary to relink your application. The database
-formats used by Ice services such as IceGrid and IceStorm have not
-changed, therefore no database migration is required. Finally, this
-release has not removed or deprecated any APIs. Generally speaking,
-you are free to use any combination of Ice 3.3.0 or Ice 3.3.1
-applications and Ice services.
+Release 3.4.0 removed a number of APIs. These APIs are no longer
+available.
 
-The subsections below provide additional information about upgrading
-to Ice 3.3.1, including administrative procedures for the supported
-platforms.
+* Glacier2.AddUserToAllowCategories
+* Glacier2.AllowCategories
+* Ice.UseEventLog
 
+  These properties were deprecated in Ice 3.2.
 
-NRVO in C++
------------
+* Communicator::setDefaultContext
+* Communicator::getDefaultContext
+* ObjectPrx:ice_defaultContext
 
-Named Return Value Optimization (NRVO) is a C++ compiler feature that
-can improve the marshaling performance of Ice applications that
-return large data structures. The Slice-to-C++ compiler (slice2cpp) in 
-Ice 3.3.1 generates code for client-side stubs with a structure that
-is slightly different than in previous Ice releases to make the code
-eligible for NRVO with GNU C++ (GCC).
+  These operations were deprecated in Ice 3.2.
 
-Note that this enhancement to the generated code in Ice 3.3.1 only
-affects client-side stubs, and is only necessary to satisfy the NRVO
-requirements for GCC. If you use GCC and you wish to take advantage of
-this optimization in your client-side invocations, you must recompile
-your Slice files as well as the resulting generated code, and then
-relink your application. No action is necessary for Visual C++ users.
+* nonmutating keyword
 
+  This keyword is no longer supported.
 
-RPMs (Linux)
-------------
+* Freeze.UseNonmutating
 
-For RPM installations, you can use the Ice 3.3.1 RPMs to upgrade an
-existing installation of Ice 3.3.0.
+  Support for this property was removed along with the nonmutating
+  keyword.
 
-For a Java application, no additional steps are necessary if your
-CLASSPATH refers to /usr/share/java/Ice.jar, which is a symbolic link
-that points to the actual version-specific JAR file.
+* Ice::NegativeSizeException
 
-For a Mono application, the ice-mono RPM for Ice 3.3.1 installs the
-updated Ice run time assemblies into the Global Assembly Cache (GAC)
-along with policy assemblies that enable backward compatibility with
-Ice 3.3.0.
+  The run time now throws UnmarshalOutOfBoundsException or
+  MarshalException instead.
+
+* slice2docbook
+
+  This utility is no longer included in Ice.
+
+* Ice::AMD_Array_Object_ice_invoke
+
+  A new overloading of ice_response in the AMD_Object_ice_invoke class
+  makes AMD_Array_Object_ice_invoke obsolete.
+
+* Java2 mapping
+
+  The Java2 mapping is no longer supported.
 
 
-Windows
--------
+Deprecated APIs
+---------------
 
-The file names of the Ice for C++ run time DLLs do not contain the
-patch number of a release. For example, the core Ice DLL uses the same
-name (ice33.dll) for both Ice 3.3.0 and Ice 3.3.1. As a result, you
-can simply substitute the 3.3.1 DLLs for the 3.3.0 DLLs. If you
-install the 3.3.1 DLLs in a different directory, you will typically
-need to adjust the PATH setting of a C++ application so that it can
-locate the new libraries. This also applies to Python, Ruby, and PHP
-applications because they use the Ice for C++ DLLs.
+The Ice APIs and components listed below are deprecated. We encourage
+you to update your applications and eliminate the use of these APIs as
+soon as possible.
 
-For a Java application, you can replace the existing Ice.jar file
-with the one from Ice 3.3.1, or you can adjust the CLASSPATH setting
-to point to the new JAR file.
+* Asynchronous Method Invocation (AMI) interface
 
-For a .NET application, Ice for .NET includes policy assemblies that
-supply the .NET run time with the required compatibility information.
-Policy assemblies have names of the form policy.3.3.<package>.dll.
-For example, the policy assembly for IceBox is policy.3.3.IceBox.dll.
-One way to upgrade an existing .NET application to a new patch release
-while maintaining binary compatibility is to install the policy
-assemblies into the Global Assembly Cache (GAC) using one of the
-following methods:
+  The AMI interface in Ice 3.3 and earlier is now deprecated for C++,
+  Java, and C#.
 
-  - Open Windows Explorer and navigate to the directory
-    C:\WINDOWS\assembly. Next, drag and drop (or copy and paste) the
-    assemblies into the right-hand pane to install them in the GAC.
+* Glacier2.AddSSLContext
 
-  - Use gacutil from the command line:
+  Replaced by Glacier2.AddConnectionContext.
 
-    > gacutil -i <policy.dll>
+* Standard platform methods should be used instead of the following:
 
-Another option is to modify the .config file of your application to
-add bindingRedirect directives, as explained in the links below:
+  Ice.Object.ice_hash()         // Use hashCode
+  Ice.ObjectPrx.ice_getHash()   // Use hashCode
+  Ice.ObjectPrx.ice_toString()  // Use toString
 
-  http://msdn.microsoft.com/en-us/library/7wd6ex19.aspx
-  http://msdn.microsoft.com/en-us/library/yx7xezcf.aspx
+  In Java, use hashCode and toString. In C#, use GetHashCode and
+  ToString. In Ruby, use hash instead of ice_getHash.
 
-For example, in the .config file of an application you can modify the
-configuration of the Ice assembly as follows:
+* Ice.Util.generateUUID()
 
-  <dependentAssembly>
-    <assemblyIdentity name="Ice" culture="neutral"
-      publicKeyToken="cdd571ade22f2f16"/>
-    <bindingRedirect oldVersion="3.3.0.0" newVersion="3.3.1.0"/>
-    <codeBase version="3.3.1.0" href="...\Ice.dll"/>
-  </dependentAssembly>
-
-The advantage of installing the policy assemblies into the GAC is that
-they establish binary compatibility for all Ice applications, whereas
-modifying a .config file must be done for each application
-individually.
-
-On a development system, it is not necessary to remove your existing
-Ice installation prior to installing Ice 3.3.1 unless you intend to
-install Ice 3.3.1 in the same directory as your existing installation.
-You may need to update your PATH setting and modify your Visual C++
-directory configurations to reflect the installation directory for
-Ice 3.3.1.
-
-
-Binary Archives (Mac OS X, Solaris)
------------------------------------
-
-The README file included in each binary distribution archive
-describes how to configure your environment so that the embedded
-path names in the Ice for C++ shared libraries are resolved correctly.
-For example, if you extracted the binary distribution for Ice 3.3.0
-into /opt/Ice-3.3.0, the README file instructs you to create the
-following symbolic link:
-
-  /opt/Ice-3.3 -> /opt/Ice-3.3.0
-
-To upgrade to Ice 3.3.1, you simply extract the binary distribution
-archive into /opt/Ice-3.3.1 and reset the symbolic link to point to
-the new installation:
-
-  /opt/Ice-3.3 -> /opt/Ice-3.3.1
-
-No additional steps are necessary for a Java application if its
-CLASSPATH refers to the JAR file via the symbolic link:
-
-  export CLASSPATH=/opt/Ice-3.3/lib/Ice.jar
-
-This also applies for Python and Ruby applications:
-
-  export PYTHONPATH=/opt/Ice-3.3/python
-  export RUBYLIB=/opt/Ice-3.3/ruby
-
-
-Source Distribution (Linux, Mac OS X, Solaris)
-----------------------------------------------
-
-If you compiled an Ice 3.3.0 source distribution and installed it via
-"make install", the installation process created a symbolic link in
-the target directory (/opt by default) that points to the 3.3.0
-subdirectory:
-
-  /opt/Ice-3.3 -> /opt/Ice-3.3.0
-
-When you build and install an Ice 3.3.1 source distribution, this
-symbolic link is reset to point to the 3.3.1 installation:
-
-  /opt/Ice-3.3 -> /opt/Ice-3.3.1
-
-If an application resolves its Ice run time via the symbolic link,
-that application will automatically use the Ice 3.3.1 run time for its
-next execution. The relevant environment variables for each language
-mapping are detailed below.
-
-C++, Ruby, Python, PHP:
-
-  export LD_LIBRARY_PATH=/opt/Ice-3.3/lib (32-bit Linux & 32-bit Solaris)
-  export LD_LIBRARY_PATH=/opt/Ice-3.3/lib64 (64-bit Linux)
-  export LD_LIBRARY_PATH_64=/opt/Ice-3.3/lib/amd64 (64-bit Solaris Intel)
-  export LD_LIBRARY_PATH_64=/opt/Ice-3.3/lib/sparcv9 (64-bit Solaris SPARC)
-  export DYLD_LIBRARY_PATH=/opt/Ice-3.3/lib (Mac OS X)
-
-Python:
-
-  export PYTHONPATH=/opt/Ice-3.3/python
-
-Ruby:
-
-  export RUBYLIB=/opt/Ice-3.3/ruby
-
-Java:
-
-  export CLASSPATH=/opt/Ice-3.3/lib/Ice.jar
-
-Mono:
-
-  export MONO_PATH=/opt/Ice-3.3/bin
+  In Java use java.util.UUID.randomUUID().toString(). In C# use
+  System.Guid.NewGuid.ToString().
 
 
 ======================================================================
