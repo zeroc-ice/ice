@@ -106,7 +106,7 @@ public final class PropertiesI implements Properties
         {
             pv.used = true;
 
-            String[] result = splitString(pv.value, ", \t\r\n");
+            String[] result = IceUtilInternal.StringUtil.splitString(pv.value, ", \t\r\n");
             if(result == null)
             {
                 Ice.Util.getProcessLogger().warning("mismatched quotes in property " + key
@@ -713,65 +713,6 @@ public final class PropertiesI implements Properties
         }
 
         _properties.put("Ice.Config", new PropertyValue(value, true));
-    }
-
-    //
-    // Split string helper; returns null for unmatched quotes
-    //
-    private String[]
-    splitString(String str, String delim)
-    {
-        java.util.List<String> l = new java.util.ArrayList<String>();
-        char[] arr = new char[str.length()];
-        int pos = 0;
-
-        while(pos < str.length())
-        {
-            int n = 0;
-            char quoteChar = '\0';
-            if(str.charAt(pos) == '"' || str.charAt(pos) == '\'')
-            {
-                quoteChar = str.charAt(pos);
-                ++pos;
-            }
-            while(pos < str.length())
-            {
-                if(quoteChar != '\0' && str.charAt(pos) == '\\' && pos + 1 < str.length() &&
-                   str.charAt(pos + 1) == quoteChar)
-                {
-                    ++pos;
-                }
-                else if(quoteChar != '\0' && str.charAt(pos) == quoteChar)
-                {
-                    ++pos;
-                    quoteChar = '\0';
-                    break;
-                }
-                else if(delim.indexOf(str.charAt(pos)) != -1)
-                {
-                    if(quoteChar == '\0')
-                    {
-                        ++pos;
-                        break;
-                    }
-                }
-
-                if(pos < str.length())
-                {
-                    arr[n++] = str.charAt(pos++);
-                }
-            }
-            if(quoteChar != '\0')
-            {
-                return null; // Unmatched quote.
-            }
-            if(n > 0)
-            {
-                l.add(new String(arr, 0, n));
-            }
-        }
-
-        return (String[])l.toArray(new String[0]);
     }
 
     private java.util.HashMap<String, PropertyValue> _properties = new java.util.HashMap<String, PropertyValue>();

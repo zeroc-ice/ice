@@ -106,5 +106,64 @@ public class Client
         }
 
         System.out.println("ok");
+
+        System.out.print("checking string splitting... ");
+        System.out.flush();
+        {
+            String[] arr;
+
+            arr = IceUtilInternal.StringUtil.splitString("", "");
+            test(arr.length == 0);
+            arr = IceUtilInternal.StringUtil.splitString("", ":");
+            test(arr.length == 0);
+            arr = IceUtilInternal.StringUtil.splitString("a", "");
+            test(arr.length == 1 && arr[0].equals("a"));
+            arr = IceUtilInternal.StringUtil.splitString("a", ":");
+            test(arr.length == 1 && arr[0].equals("a"));
+            arr = IceUtilInternal.StringUtil.splitString("ab", "");
+            test(arr.length == 1 && arr[0].equals("ab"));
+            arr = IceUtilInternal.StringUtil.splitString("ab:", ":");
+            test(arr.length == 1 && arr[0].equals("ab"));
+            arr = IceUtilInternal.StringUtil.splitString(":ab", ":");
+            test(arr.length == 1 && arr[0].equals("ab"));
+            arr = IceUtilInternal.StringUtil.splitString("a:b", ":");
+            test(arr.length == 2 && arr[0].equals("a") && arr[1].equals("b"));
+            arr = IceUtilInternal.StringUtil.splitString(":a:b:", ":");
+            test(arr.length == 2 && arr[0].equals("a") && arr[1].equals("b"));
+                 
+            arr = IceUtilInternal.StringUtil.splitString("\"a\"", ":");
+            test(arr.length == 1 && arr[0].equals("a"));
+            arr = IceUtilInternal.StringUtil.splitString("\"a\":b", ":");
+            test(arr.length == 2 && arr[0].equals("a") && arr[1].equals("b"));
+            arr = IceUtilInternal.StringUtil.splitString("\"a\":\"b\"", ":");
+            test(arr.length == 2 && arr[0].equals("a") && arr[1].equals("b"));
+            arr = IceUtilInternal.StringUtil.splitString("\"a:b\"", ":");
+            test(arr.length == 1 && arr[0].equals("a:b"));
+            arr = IceUtilInternal.StringUtil.splitString("a=\"a:b\"", ":");
+            test(arr.length == 1 && arr[0].equals("a=a:b"));
+
+            arr = IceUtilInternal.StringUtil.splitString("'a'", ":");
+            test(arr.length == 1 && arr[0].equals("a"));
+            arr = IceUtilInternal.StringUtil.splitString("'\"a'", ":");
+            test(arr.length == 1 && arr[0].equals("\"a"));
+            arr = IceUtilInternal.StringUtil.splitString("\"'a\"", ":");
+            test(arr.length == 1 && arr[0].equals("'a"));
+            
+            arr = IceUtilInternal.StringUtil.splitString("a\\'b", ":");
+            test(arr.length == 1 && arr[0].equals("a'b"));
+            arr = IceUtilInternal.StringUtil.splitString("'a:b\\'c'", ":");
+            test(arr.length == 1 && arr[0].equals("a:b'c"));
+            arr = IceUtilInternal.StringUtil.splitString("a\\\"b", ":");
+            test(arr.length == 1 && arr[0].equals("a\"b"));
+            arr = IceUtilInternal.StringUtil.splitString("\"a:b\\\"c\"", ":");
+            test(arr.length == 1 && arr[0].equals("a:b\"c"));
+            arr = IceUtilInternal.StringUtil.splitString("'a:b\"c'", ":");
+            test(arr.length == 1 && arr[0].equals("a:b\"c"));
+            arr = IceUtilInternal.StringUtil.splitString("\"a:b'c\"", ":");
+            test(arr.length == 1 && arr[0].equals("a:b'c"));
+
+            test(IceUtilInternal.StringUtil.splitString("a\"b", ":") == null);
+        }
+        System.out.println("ok");
     }
 }

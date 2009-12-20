@@ -324,7 +324,7 @@ public class DirectoryI extends _DirectoryDisp
                     {
                         throw new Ice.ObjectNotExistException();
                     }
-                    if(entry.parent.name.isEmpty())
+                    if(entry.parent.name.length() == 0)
                     {
                         throw new PermissionDenied("Cannot destroy root directory");
                     }

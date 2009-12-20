@@ -386,6 +386,72 @@ public final class StringUtil
         return s.toString();
     }
 
+    //
+    // Split string helper; returns null for unmatched quotes
+    //
+    static public String[]
+    splitString(String str, String delim)
+    {
+        java.util.List<String> l = new java.util.ArrayList<String>();
+        char[] arr = new char[str.length()];
+        int pos = 0;
+        
+        int n = 0;
+        char quoteChar = '\0';
+        while(pos < str.length())
+        {
+            if(quoteChar == '\0' && (str.charAt(pos) == '"' || str.charAt(pos) == '\''))
+            {
+                quoteChar = str.charAt(pos++);
+                continue; // Skip the quote.
+            }
+            else if(quoteChar == '\0' && str.charAt(pos) == '\\' && pos + 1 < str.length() && 
+                    (str.charAt(pos + 1) == '"' || str.charAt(pos + 1) == '\''))
+            {
+                ++pos; // Skip the backslash
+            }
+            else if(quoteChar != '\0' && str.charAt(pos) == '\\' && pos + 1 < str.length() && 
+                    str.charAt(pos + 1) == quoteChar)
+            {
+                ++pos; // Skip the backslash
+            }
+            else if(quoteChar != '\0' && str.charAt(pos) == quoteChar)
+            {
+                ++pos;
+                quoteChar = '\0';
+                continue; // Skip the quote.
+            }
+            else if(delim.indexOf(str.charAt(pos)) != -1)
+            {
+                if(quoteChar == '\0')
+                {
+                    ++pos;
+                    if(n > 0)
+                    {
+                        l.add(new String(arr, 0, n));
+                        n = 0;
+                    }
+                    continue;
+                }
+            }
+
+            if(pos < str.length())
+            {
+                arr[n++] = str.charAt(pos++);
+            }
+        }
+
+        if(n > 0)
+        {
+            l.add(new String(arr, 0, n));
+        }
+        if(quoteChar != '\0')
+        {
+            return null; // Unmatched quote.
+        }
+        return (String[])l.toArray(new String[0]);
+    }
+
     public static int
     checkQuote(String s)
     {

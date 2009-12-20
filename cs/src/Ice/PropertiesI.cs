@@ -121,7 +121,7 @@ namespace Ice
                 {
                     pv.used = true;
 
-                    string[] result = splitString(pv.val, ", \t\r\n");
+                    string[] result = IceUtilInternal.StringUtil.splitString(pv.val, ", \t\r\n");
                     if(result == null)
                     {
                         Ice.Util.getProcessLogger().warning("mismatched quotes in property " + key 
@@ -646,66 +646,7 @@ namespace Ice
             }
             
             _properties["Ice.Config"] = new PropertyValue(val, true);
-        }
-        
-        //
-        // Split string helper; returns null for unmatched quotes
-        //
-        private string[] splitString(string str, string delim)
-        {
-            ArrayList l = new ArrayList();
-            char[] arr = new char[str.Length];
-            int pos = 0;
-
-            while(pos < str.Length)
-            {
-                int n = 0;
-                char quoteChar = '\0';
-                if(str[pos] == '"' || str[pos] == '\'')
-                {
-                    quoteChar = str[pos];
-                    ++pos;
-                }
-                while(pos < str.Length)
-                {
-                    if(quoteChar != '\0' && str[pos] == '\\' && pos + 1 < str.Length && str[pos + 1] == quoteChar)
-                    {
-                        ++pos;
-                    }
-                    else if(quoteChar != '\0' && str[pos] == quoteChar)
-                    {
-                        ++pos;
-                        quoteChar = '\0';
-                        break;
-                    }
-                    else if(delim.IndexOf(str[pos]) != -1)
-                    {
-                        if(quoteChar == '\0')
-                        {
-                            ++pos;
-                            break;
-                        }
-                    }
-                
-                    if(pos < str.Length)
-                    {
-                        arr[n++] = str[pos++];
-                    }
-                }
-                if(quoteChar != '\0')
-                {
-                    return null; // Unmatched quote.
-                }
-                if(n > 0)
-                {
-                    l.Add(new string(arr, 0, n));
-                }
-            }
-
-            return (string[])l.ToArray(typeof(string));
-        }
-
-        
+        }        
 
         private Hashtable _properties;
     }

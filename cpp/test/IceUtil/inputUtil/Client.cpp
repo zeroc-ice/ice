@@ -231,6 +231,19 @@ main(int, char**)
         test(IceUtilInternal::splitString("\"'a\"", ":", ss) && ss.size() == 1 && ss[0] == "'a");
         ss.clear();
 
+        test(IceUtilInternal::splitString("a\\'b", ":", ss) && ss.size() == 1 && ss[0] == "a'b");
+        ss.clear();
+        test(IceUtilInternal::splitString("'a:b\\'c'", ":", ss) && ss.size() == 1 && ss[0] == "a:b'c");
+        ss.clear();
+        test(IceUtilInternal::splitString("a\\\"b", ":", ss) && ss.size() == 1 && ss[0] == "a\"b");
+        ss.clear();
+        test(IceUtilInternal::splitString("\"a:b\\\"c\"", ":", ss) && ss.size() == 1 && ss[0] == "a:b\"c");
+        ss.clear();
+        test(IceUtilInternal::splitString("'a:b\"c'", ":", ss) && ss.size() == 1 && ss[0] == "a:b\"c");
+        ss.clear();
+        test(IceUtilInternal::splitString("\"a:b'c\"", ":", ss) && ss.size() == 1 && ss[0] == "a:b'c");
+        ss.clear();
+
         test(!IceUtilInternal::splitString("a\"b", ":", ss));
     }
     cout << "ok" << endl;

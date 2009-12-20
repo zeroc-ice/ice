@@ -27,12 +27,13 @@ allTests(const Ice::CommunicatorPtr& communicator)
     communicator->getProperties()->setProperty("Ice.Admin.Facets", "foobar");
     Ice::StringSeq facetFilter = communicator->getProperties()->getPropertyAsList("Ice.Admin.Facets");
     test(facetFilter.size() == 1 && facetFilter[0] == "foobar");
-    communicator->getProperties()->setProperty("Ice.Admin.Facets", "foo'bar");
+    communicator->getProperties()->setProperty("Ice.Admin.Facets", "foo\\'bar");
     facetFilter = communicator->getProperties()->getPropertyAsList("Ice.Admin.Facets");
     test(facetFilter.size() == 1 && facetFilter[0] == "foo'bar");
     communicator->getProperties()->setProperty("Ice.Admin.Facets", "'foo bar' toto 'titi'");
     facetFilter = communicator->getProperties()->getPropertyAsList("Ice.Admin.Facets");
-    test(facetFilter.size() == 3 && facetFilter[0] == "foo bar" && facetFilter[1] == "toto" && facetFilter[2] == "titi");
+    test(facetFilter.size() == 3 && facetFilter[0] == "foo bar" && facetFilter[1] == "toto" && 
+         facetFilter[2] == "titi");
     communicator->getProperties()->setProperty("Ice.Admin.Facets", "'foo bar\\' toto' 'titi'");
     facetFilter = communicator->getProperties()->getPropertyAsList("Ice.Admin.Facets");
     test(facetFilter.size() == 2 && facetFilter[0] == "foo bar' toto" && facetFilter[1] == "titi");

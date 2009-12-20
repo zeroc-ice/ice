@@ -9,6 +9,7 @@
 
 using System.Text;
 using System.Diagnostics;
+using System.Collections.Generic;
 
 namespace IceUtilInternal
 {
@@ -353,6 +354,71 @@ namespace IceUtilInternal
 
             UTF8Encoding utf8 = new UTF8Encoding(false, true);
             return utf8.GetString(arr); // May raise ArgumentException.
+        }
+
+        //
+        // Split string helper; returns null for unmatched quotes
+        //
+        static public string[] splitString(string str, string delim)
+        {
+            List<string> l = new List<string>();
+            char[] arr = new char[str.Length];
+            int pos = 0;
+
+            int n = 0;
+            char quoteChar = '\0';
+            while(pos < str.Length)
+            {
+                if(quoteChar == '\0' && (str[pos] == '"' || str[pos] == '\''))
+                {
+                    quoteChar = str[pos++];
+                    continue; // Skip the quote.
+                }
+                else if(quoteChar == '\0' && str[pos] == '\\' && pos + 1 < str.Length &&
+                        (str[pos + 1] == '\'' || str[pos + 1] == '"'))
+                {
+                    ++pos; // Skip the backslash
+                }
+                else if(quoteChar != '\0' && str[pos] == '\\' && pos + 1 < str.Length && str[pos + 1] == quoteChar)
+                {
+                    ++pos; // Skip the backslash
+                }
+                else if(quoteChar != '\0' && str[pos] == quoteChar)
+                {
+                    ++pos;
+                    quoteChar = '\0';
+                    continue; // Skip the quote.
+                }
+                else if(delim.IndexOf(str[pos]) != -1)
+                {
+                    if(quoteChar == '\0')
+                    {
+                        ++pos;
+                        if(n > 0)
+                        {
+                            l.Add(new string(arr, 0, n));
+                            n = 0;
+                        }
+                        continue;
+                    }
+                }
+                
+                if(pos < str.Length)
+                {
+                    arr[n++] = str[pos++];
+                }
+
+            }
+
+            if(n > 0)
+            {
+                l.Add(new string(arr, 0, n));
+            }
+            if(quoteChar != '\0')
+            {
+                return null; // Unmatched quote.
+            }
+            return l.ToArray();
         }
 
         public static int checkQuote(string s)

@@ -329,6 +329,11 @@ IceUtilInternal::splitString(const string& str, const string& delim, vector<stri
             quoteChar = str[pos++];
             continue; // Skip the quote
         }
+        else if(quoteChar == '\0' && str[pos] == '\\' && pos + 1 < length && 
+                (str[pos + 1] == '\'' || str[pos + 1] == '"'))
+        {
+            ++pos;
+        }
         else if(quoteChar != '\0' && str[pos] == '\\' && pos + 1 < length && str[pos + 1] == quoteChar)
         {
             ++pos;

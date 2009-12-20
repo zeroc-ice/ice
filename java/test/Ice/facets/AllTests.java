@@ -40,7 +40,7 @@ public class AllTests
         communicator.getProperties().setProperty("Ice.Admin.Facets", "foobar");
         String[] facetFilter = communicator.getProperties().getPropertyAsList("Ice.Admin.Facets");
         test(facetFilter.length == 1 && facetFilter[0].equals("foobar"));
-        communicator.getProperties().setProperty("Ice.Admin.Facets", "foo'bar");
+        communicator.getProperties().setProperty("Ice.Admin.Facets", "foo\\'bar");
         facetFilter = communicator.getProperties().getPropertyAsList("Ice.Admin.Facets");
         test(facetFilter.length == 1 && facetFilter[0].equals("foo'bar"));
         communicator.getProperties().setProperty("Ice.Admin.Facets", "'foo bar' toto 'titi'");

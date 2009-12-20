@@ -363,18 +363,10 @@ NodeI::NodeI(const Ice::ObjectAdapterPtr& adapter,
     //
     // Parse the properties override property.
     //
-    string overrides = props->getProperty("IceGrid.Node.PropertiesOverride");
+    vector<string> overrides = props->getPropertyAsList("IceGrid.Node.PropertiesOverride");
     if(!overrides.empty())
     {
-        const string delim = " \t\r\n";
-        vector<string> overrideProps;
-        if(!IceUtilInternal::splitString(overrides, delim, overrideProps))
-        {
-            Ice::Warning out(_traceLevels->logger);
-            out << "invalid value for property `IceGrid.Node.PropertiesOverride':\nunmatched quote";
-        }
-
-        for(vector<string>::iterator p = overrideProps.begin(); p != overrideProps.end(); ++p)
+        for(vector<string>::iterator p = overrides.begin(); p != overrides.end(); ++p)
         {
             if(p->find("--") != 0)
             {
@@ -383,7 +375,7 @@ NodeI::NodeI(const Ice::ObjectAdapterPtr& adapter,
         }
 
         Ice::PropertiesPtr p = Ice::createProperties();
-        p->parseCommandLineOptions("", overrideProps);
+        p->parseCommandLineOptions("", overrides);
         Ice::PropertyDict propDict = p->getPropertiesForPrefix("");
         for(Ice::PropertyDict::const_iterator q = propDict.begin(); q != propDict.end(); ++q)
         {
