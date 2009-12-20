@@ -155,7 +155,7 @@ if forceclean or not os.path.exists(srcDir) or not os.path.exists(buildDir):
         sys.exit(1)
     os.rename("Ice-" + version, srcDir)
     
-    if build_lp64.has_key(str(platform)):
+    if "cpp-64" in buildLanguages:
         if os.system("gunzip -c " + os.path.join(cwd, "Ice-" + version + ".tar.gz") + " | tar x" + quiet + "f -"):
             print sys.argv[0] + ": failed to unpack ./Ice-" + version + ".tar.gz"
             sys.exit(1)
@@ -174,29 +174,19 @@ for l in buildLanguages:
     print "============= Building " + l + " sources ============="
     print
 
-    os.chdir(os.path.join(srcDir, l))
+    if l != "cpp-64":
+        os.chdir(os.path.join(srcDir, l))
+    else:
+        os.chdir(os.path.join(srcDir + "-64", "cpp"))
 
     if l != "java":
 
         makeCmd = "gmake " + platform.getMakeEnvs(version, l) + " prefix=" + buildDir + " install"
 
-        if not l in build_lp64.get(str(platform), []):
-            if os.system(makeCmd) != 0:
-                print sys.argv[0] + ": `" + l + "' build failed"
-                os.chdir(cwd)
-                sys.exit(1)
-        else:
-            if os.system("LP64=no " + makeCmd) != 0:
-                print sys.argv[0] + ": `" + l + "' build failed"
-                os.chdir(cwd)
-                sys.exit(1)
-
-            os.chdir(os.path.join(srcDir + "-64", l))
-            if os.system("LP64=yes " + makeCmd) != 0:
-                print sys.argv[0] + ": `" + l + "' build failed"
-                os.chdir(cwd)
-                sys.exit(1)
-
+        if os.system(makeCmd) != 0:
+            print sys.argv[0] + ": `" + l + "' build failed"
+            os.chdir(cwd)
+            sys.exit(1)
     else:
         antCmd = platform.getAntEnv() + " ant " + platform.getAntOptions() + " -Dprefix=" + buildDir
 

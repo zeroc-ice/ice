@@ -15,7 +15,7 @@ from stat import *
 # Defines which languges are supported on each supported platform
 #
 languages = { \
-    'SunOS' : ['cpp', 'java'], \
+    'SunOS' : ['cpp', 'cpp-64', 'java'], \
     'Darwin' : ['cpp', 'java', 'py'], \
     'Linux' : ['cpp', 'java', 'cs', 'py', 'rb', 'php'], \
 }
@@ -719,11 +719,17 @@ class Platform:
             envs.append("OPTIMIZE=yes")
 
         # Language specific environment variables to pass to make.
-        if language == "cpp":
+        if language == "cpp" or language == "cpp-64":
             envs.append("create_runpath_symlink=no")
         elif language == "cs":
             envs.append("NOGAC=1")
 
+        # LP64
+        if language == "cpp-64":
+            envs.append("LP64=yes")
+        else:
+            envs.append("LP64=no")
+            
         return string.join(envs, " ")
 
     def getAntEnv(self):
@@ -860,7 +866,7 @@ class SunOS(Platform):
 class BerkeleyDB(ThirdParty):
     def __init__(self, platform):
         global berkeleydb, berkeleydbjar
-        ThirdParty.__init__(self, platform, "BerkeleyDB", berkeleydb, ["cpp", "java"], None, "DB_HOME")
+        ThirdParty.__init__(self, platform, "BerkeleyDB", berkeleydb, ["cpp", "cpp-64", "java"], None, "DB_HOME")
         if not self.location: # BerkeleyDB is installed with the system (Linux)
             self.languages = ["java"]
             self.location = berkeleydbjar.get(str(platform), None)
@@ -891,7 +897,7 @@ class Bzip2(ThirdParty):
 class Expat(ThirdParty):
     def __init__(self, platform):
         global expat
-        ThirdParty.__init__(self, platform, "Expat", expat, ["cpp"])
+        ThirdParty.__init__(self, platform, "Expat", expat, ["cpp", "cpp-64"])
 
     def getFilesFromSubDirs(self, platform, bindir, libdir, x64):
         return platform.getSharedLibraryFiles(self.location, os.path.join(libdir, "libexpat*"))
@@ -899,7 +905,7 @@ class Expat(ThirdParty):
 class OpenSSL(ThirdParty):
     def __init__(self, platform):
         global openssl
-        ThirdParty.__init__(self, platform, "OpenSSL", openssl, ["cpp"])
+        ThirdParty.__init__(self, platform, "OpenSSL", openssl, ["cpp", "cpp-64"])
 
     def getFilesFromSubDirs(self, platform, bindir, libdir, x64):
         files = [ os.path.join(bindir, "openssl") ]
@@ -910,13 +916,16 @@ class OpenSSL(ThirdParty):
 class Mcpp(ThirdParty):
     def __init__(self, platform):
         global mcpp
-        ThirdParty.__init__(self, platform, "Mcpp", mcpp, ["cpp"])
+        ThirdParty.__init__(self, platform, "Mcpp", mcpp, ["cpp", "cpp-64"])
 
 class Qt(ThirdParty):
     def __init__(self, platform):
         global qt
-        ThirdParty.__init__(self, platform, "Qt", qt, ["cpp"])
-
+        if platform.pkgArch == "sparc":
+            ThirdParty.__init__(self, platform, "Qt", qt, ["cpp"])
+        else:
+            ThirdParty.__init__(self, platform, "Qt", qt, ["cpp", "cpp-64"])
+            
     def getFilesFromSubDirs(self, platform, bindir, libdir, x64):
 	files = platform.getSharedLibraryFiles(self.location, os.path.join(libdir, "libQtCore*"))
 	files += platform.getSharedLibraryFiles(self.location, os.path.join(libdir, "libQtSql*"))
