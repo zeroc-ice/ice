@@ -89,10 +89,12 @@ dependencies are listed below:
  - openssl-devel
  - jpackage-utils
  - python-devel
- - bzip2-devel (RHEL5)
- - expat-devel (RHEL5)
- - php-devel (RHEL5)
+ - bzip2-devel (RHEL)
+ - expat-devel (RHEL)
+ - php-devel (RHEL)
+ - qt4-devel (RHEL)
  - php5-devel (SLES)
+ - libqt4-devel (SLES)
  - mono-core (SLES)
  - mono-devel (SLES)
 
@@ -128,9 +130,9 @@ $ rpm -i ice-@ver@-1.src.rpm
 If you have not already done so, install the RPM prerequisites listed
 in step 3 above. The following additional steps are also necessary:
 
- - Install the JGoodies Looks 2.2.2 JAR file as
+ - Install the JGoodies Looks 2.3.0 JAR file as
 
-   /usr/share/java/jgoodies-looks-2.2.2.jar
+   /usr/share/java/jgoodies-looks-2.3.0.jar
 
  - Install the JGoodies Forms 1.2.1 JAR file as
 
@@ -154,7 +156,7 @@ in step 3 above. The following additional steps are also necessary:
 You can run the 'find-jar' program to verify that the JAR files are
 installed correctly. For example:
 
-$ find-jar jgoodies-looks-2.2.2.jar
+$ find-jar jgoodies-looks-2.3.0.jar
 $ find-jar jgoodies-forms-1.2.1.jar
 $ find-jar proguard.jar
 
