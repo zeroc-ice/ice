@@ -21,7 +21,7 @@ def allTests(communicator)
     communicator.getProperties().setProperty("Ice.Admin.Facets", "foobar");
     facetFilter = communicator.getProperties().getPropertyAsList("Ice.Admin.Facets");
     test(facetFilter.length == 1 && facetFilter[0] == "foobar");
-    communicator.getProperties().setProperty("Ice.Admin.Facets", "foo'bar");
+    communicator.getProperties().setProperty("Ice.Admin.Facets", "foo\\'bar");
     facetFilter = communicator.getProperties().getPropertyAsList("Ice.Admin.Facets");
     test(facetFilter.length == 1 && facetFilter[0] == "foo'bar");
     communicator.getProperties().setProperty("Ice.Admin.Facets", "'foo bar' toto 'titi'");
