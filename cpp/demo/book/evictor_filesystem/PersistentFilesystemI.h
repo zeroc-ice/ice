@@ -17,21 +17,6 @@
 namespace Filesystem
 {
 
-class NodeI : virtual public PersistentNode,
-              public IceUtil::AbstractMutexI<IceUtil::Mutex>
-{
-public:
-
-    static Freeze::EvictorPtr _evictor;
-
-protected:
-
-    NodeI();
-
-    bool _destroyed;
-};
-typedef IceUtil::Handle<NodeI> NodeIPtr;
-
 class FileI : virtual public PersistentFile
 {
 public:
