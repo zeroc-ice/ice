@@ -75,7 +75,7 @@ public:
         return _cookie;	// No lock needed, cookie is immutable
     }
 
-    const std::string& getOperation()
+    const std::string& getOperation() const
     {
         return _operation;
     }
