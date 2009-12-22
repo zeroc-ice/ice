@@ -55,6 +55,10 @@ qt = { \
     'Darwin' : '/Library/Frameworks', \
 }
 
+iconv = { \
+    'SunOS' : '/usr/sfw' \
+}
+
 jgoodies_looks = { \
     'SunOS' : '/usr/share/java/looks-2.3.0.jar', \
     'Darwin' : '/opt/looks-2.3.0/looks-2.3.0.jar', \
@@ -932,6 +936,18 @@ class Qt(ThirdParty):
 	# We also need some symbolic links
 	files += [os.path.join(self.location, os.path.join(libdir, "libQtCore." + platform.shlibExtension + ".4")),
 	          os.path.join(self.location, os.path.join(libdir, "libQtSql." + platform.shlibExtension + ".4"))]
+        return files
+
+class Iconv(ThirdParty):
+    def __init__(self, platform):
+        global iconv
+        ThirdParty.__init__(self, platform, "Iconv", iconv, ["cpp", "cpp-64"])
+
+    def getFilesFromSubDirs(self, platform, bindir, libdir, x64):
+	files = platform.getSharedLibraryFiles(self.location, os.path.join(libdir, "libiconv*"))
+	# We also need some symbolic links
+	files += [os.path.join(self.location, os.path.join(libdir, "libiconv." + platform.shlibExtension + ".2")),
+	          os.path.join(self.location, os.path.join(libdir, "libiconv." + platform.shlibExtension))]
         return files
 
 class JGoodiesLooks(ThirdParty):

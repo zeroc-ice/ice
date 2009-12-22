@@ -55,6 +55,7 @@ thirdParties = [
     "OpenSSL", \
     "Mcpp", \
     "Qt", \
+    "Iconv", \
     "JGoodiesLooks", \
     "JGoodiesForms", \
     "Proguard", \
