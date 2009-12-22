@@ -230,8 +230,13 @@ def isNoServices():
     if os.environ.get("CPP_COMPILER", "") != "":
         compiler = os.environ["CPP_COMPILER"]
     else:
-        config = open(os.path.join(toplevel, "cpp", "config", "Make.rules.mak"), "r")
-        compiler = re.search("CPP_COMPILER[\t\s]*= ([A-Z0-9]*)", config.read()).group(1)
+        config = None
+        if os.path.exists(os.path.join(toplevel, "cpp", "config", "Make.rules.mak")):
+            config = open(os.path.join(toplevel, "cpp", "config", "Make.rules.mak"), "r")
+        elif os.path.exists(os.path.join(toplevel, "config", "Make.rules.mak")):
+            config = open(os.path.join(toplevel, "config", "Make.rules.mak"), "r")
+        if config != None:
+            compiler = re.search("CPP_COMPILER[\t\s]*= ([A-Z0-9]*)", config.read()).group(1)
     return compiler == "BCC2010" or compiler == "VC60"
 
 def getMapping():
@@ -456,9 +461,12 @@ def getIceVersion():
 def getServiceDir():
     global serviceDir
     if serviceDir == None:
-        serviceDir = "C:\\Ice-" + str(getIceVersion()) + "\\bin"
+        if iceHome:
+            serviceDir = os.path.join(iceHome, "bin")
+        else:
+            serviceDir = "C:\\Program Files\ZeroC\Ice-" + str(getIceVersion()) + "\\bin"
     return serviceDir
-        
+
 def getIceBox(mapping = "cpp"):
     if mapping == "cpp":
         if isNoServices():
