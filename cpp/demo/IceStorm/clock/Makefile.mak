@@ -28,7 +28,6 @@ SRCS		= $(OBJS:.obj=.cpp) \
 !include $(top_srcdir)/config/Make.rules.mak
 
 CPPFLAGS	= -I. $(CPPFLAGS) -DWIN32_LEAN_AND_MEAN
-LIBS		= $(libdir)\icestorm$(LIBSUFFIX).lib $(LIBS)
 
 !if "$(GENERATE_PDB)" == "yes"
 PPDBFLAGS        = /pdb:$(PUBLISHER:.exe=.pdb)
@@ -36,12 +35,14 @@ SPDBFLAGS        = /pdb:$(SUBSCRIBER:.exe=.pdb)
 !endif
 
 $(PUBLISHER): $(OBJS) $(POBJS)
-	$(LINK) $(LD_EXEFLAGS) $(PPDBFLAGS) $(SETARGV) $(OBJS) $(POBJS) $(PREOUT)$@ $(PRELIBS)$(LIBS)
+	$(LINK) $(LD_EXEFLAGS) $(PPDBFLAGS) $(SETARGV) $(OBJS) $(POBJS) $(PREOUT)$@ $(PRELIBS)$(LIBS) \
+	    icestorm$(LIBSUFFIX).lib
 	@if exist $@.manifest echo ^ ^ ^ Embedding manifest using $(MT) && \
 	    $(MT) -nologo -manifest $@.manifest -outputresource:$@;#1 && del /q $@.manifest
 
 $(SUBSCRIBER): $(OBJS) $(SOBJS)
-	$(LINK) $(LD_EXEFLAGS) $(SPDBFLAGS) $(SETARGV) $(OBJS) $(SOBJS) $(PREOUT)$@ $(PRELIBS)$(LIBS)
+	$(LINK) $(LD_EXEFLAGS) $(SPDBFLAGS) $(SETARGV) $(OBJS) $(SOBJS) $(PREOUT)$@ $(PRELIBS)$(LIBS) \
+	    icestorm$(LIBSUFFIX).lib
 	@if exist $@.manifest echo ^ ^ ^ Embedding manifest using $(MT) && \
 	    $(MT) -nologo -manifest $@.manifest -outputresource:$@;#1 && del /q $@.manifest
 

@@ -30,7 +30,6 @@ SRCS		= $(OBJS:.obj=.cpp) \
 !include $(top_srcdir)/config/Make.rules.mak
 
 CPPFLAGS	= -I. $(CPPFLAGS) -DWIN32_LEAN_AND_MEAN
-IS_LIBS		= $(libdir)\icestorm$(LIBSUFFIX).lib $(LIBS)
 
 !if "$(GENERATE_PDB)" == "yes"
 PPDBFLAGS        = /pdb:$(CLIENT:.exe=.pdb)
@@ -43,7 +42,8 @@ $(CLIENT): $(OBJS) $(COBJS)
 	    $(MT) -nologo -manifest $@.manifest -outputresource:$@;#1 && del /q $@.manifest
 
 $(SERVER): $(OBJS) $(SOBJS)
-	$(LINK) $(LD_EXEFLAGS) $(SPDBFLAGS) $(SETARGV) $(OBJS) $(SOBJS) $(PREOUT)$@ $(PRELIBS)$(IS_LIBS)
+	$(LINK) $(LD_EXEFLAGS) $(SPDBFLAGS) $(SETARGV) $(OBJS) $(SOBJS) $(PREOUT)$@ $(PRELIBS)$(LIBS) \
+	    icestorm$(LIBSUFFIX).lib
 	@if exist $@.manifest echo ^ ^ ^ Embedding manifest using $(MT) && \
 	    $(MT) -nologo -manifest $@.manifest -outputresource:$@;#1 && del /q $@.manifest
 
