@@ -141,6 +141,10 @@ The Ice Visual Studio Extension integrates Ice projects into the
 Visual Studio 2008 IDE. The extension supports C++, .NET, and
 Silverlight projects.
 
+Note that the extension is not supported for Visual Studio 2008
+Express as Microsoft does not permit extensions to be written for
+express editions of Visual Studio.
+
 
 Activating the plug-in for a project
 ------------------------------------
@@ -297,12 +301,6 @@ demo\demo.sln. Select your target configuration: Debug or Release,
 Win32 or x64 (on supported x64 platforms). Right click on the desired
 demo in the Solution Explorer window and select "Build".
 
-Note that if you are using Visual C++ 2008 Express Edition, the Ice
-demos that require MFC (demo\Ice\MFC and demo\IcePatch2\MFC) will not
-compile since only the Professional edition contains MFC support. You
-can either ignore any compile errors these demos generate or just
-remove the projects from the solution entirely.
-
 To run these demos, you will typically need at least two Command
 Prompt windows. In each command prompt, add the Ice bin directory to
 your PATH, as shown below:
@@ -331,7 +329,35 @@ files for more information.
 
 
 ======================================================================
-Building and running the C++ demos (C++ Builder 2008)
+Building and running the C++ demos (Visual Studio 2008 Express)
+======================================================================
+
+The C++ demos are in the demo directory.
+
+To build the C++ demos, open a "Visual Studio 2008 Command Prompt"
+window, change to the demo directory and run the following commands to
+build the demos:
+
+  > set CPP_COMPILER=VC90_EXPRESS
+  > nmake /f Makefile.mak
+
+Note that the Ice demos that require MFC (demo\Ice\MFC and
+demo\IcePatch2\MFC) will not compile since only the Professional
+edition contains MFC support.
+
+To run these demos, you will typically need at least two Command
+Prompt windows. In each command prompt, add the Ice bin directory to
+your PATH, as shown below:
+
+set PATH=<Ice installation root directory>\bin;%PATH%
+
+Change to the desired demo subdirectory and review the README file if
+one is present. Type 'server' to start the server. In another command
+prompt, type 'client' to start the client.
+
+
+======================================================================
+Building and running the C++ demos (C++ Builder 2010)
 ======================================================================
 
 The C++ demos are in the demo directory.
@@ -340,6 +366,7 @@ To build the C++ demos, open a "RAD Studio Command Prompt" window,
 change to the demo directory and run the following command to build
 the demos:
 
+  > set CPP_COMPILER=BCC2010
   > nmake /f Makefile.mak
 
 Note that this requires Microsoft NMAKE. If you do not already have
