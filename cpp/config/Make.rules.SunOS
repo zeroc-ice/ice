@@ -152,6 +152,12 @@ ifeq ($(CXX),g++)
 
     mklib		    = ar cr $(1) $(2)
 
+    ifneq ($(embedded_runpath_prefix),)
+         LDPLATFORMFLAGS    = -R $(runpath_libdir):/usr/sfw/$(libsubdir) $(PLATFORMLIBDIRS)
+    else
+         LDPLATFORMFLAGS    = -R /usr/sfw/$(libsubdir) $(PLATFORMLIBDIRS)
+    endif
+
     ifeq ($(MACHINE_TYPE),i86pc)
         ICONV_LIB	    = -liconv
     endif
