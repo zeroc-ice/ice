@@ -110,9 +110,4 @@
     <PostBuildEvent>
     </PostBuildEvent>
   </PropertyGroup>
-  <ProjectExtensions>
-    <VisualStudio>
-      <UserProperties ZerocIce_HomeExpanded="C:\Ice-3.3.1" ZerocIce_Home="C:\Ice-3.3.1" />
-    </VisualStudio>
-  </ProjectExtensions>
 </Project>
