@@ -10,4 +10,4 @@ REM **********************************************************************
 
 REM .bat wrapper for iceca python script. Assumes python is in your PATH.
 
-@python %~dp0iceca  %*
+@python "%~dp0iceca"  %*

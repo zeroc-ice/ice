@@ -10,11 +10,9 @@
 
 import os, sys, shutil, glob
 
-iceca = "iceca"
-
 def runIceca(args):
     os.environ['PYTHONUNBUFFERED'] = '1'
-    command = 'python "%s" %s' % (iceca, args)
+    command = 'iceca %s' % args
     if os.system(command):
         sys.exit(1)
 
@@ -29,12 +27,7 @@ def createCertificate(filename, cn):
     print
     print
 
-for x in sys.argv[1:]:
-    if x[0:7] == "--iceca":
-        iceca = x[8:]
-
 cwd = os.getcwd()
-
 if not os.path.exists("certs") or os.path.basename(cwd) != "secure":
     print "You must run this script from the secure demo directory"
     sys.exit(1)

@@ -34,8 +34,15 @@ os.putenv("ICE_CA_HOME", home)
 
 opensslCmd = "openssl"
 if sys.platform == "win32" or sys.platform[:6] == "cygwin":
+
+    # Add the directory containing this script to the PATH, this is
+    # also where the openssl.exe is located.
     if os.path.exists(os.path.join(os.path.dirname(sys.argv[0]), "openssl.exe")):
-        opensslCmd = os.path.join(os.path.dirname(sys.argv[0]), "openssl.exe")
+        os.environ["PATH"] = os.path.dirname(sys.argv[0]) + os.pathsep + os.getenv("PATH", "")
+
+    # Setup RANDFILE to avoid errors on Vista about openssl not being
+    # able to write 'Random State'
+    os.environ["RANDFILE"] = os.path.join(os.getenv("ICE_CA_HOME"), "randfile")
 
 caroot = os.path.join(home, "ca")
 cadb = os.path.join(caroot, "db")

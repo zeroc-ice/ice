@@ -96,6 +96,7 @@ def configurePaths():
 
     # 64-bits binaries are located in a subdirectory with binary
     # distributions.
+    addenv("PATH", binDir)
     if iceHome and x64: 
         if isWin32():
             binDir = os.path.join(binDir, "x64")
@@ -109,6 +110,7 @@ def configurePaths():
         else:
             libDir = libDir + "64"
             binDir = binDir + "64"
+        addenv("PATH", binDir)
 
     # Only add the lib directory to the shared library path if we're
     # not using the embedded location.
@@ -117,7 +119,6 @@ def configurePaths():
 
     if not iceHome:
         addenv("PATH", os.path.join(getIceDir("cs"), "bin"))
-    addenv("PATH", binDir)
 
     javaDir = getIceDir("java")
 
