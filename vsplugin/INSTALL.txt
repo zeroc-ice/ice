@@ -34,12 +34,12 @@ Compilation
 ======================================================================
 
 Unpack the archive. The sources are contained in the
-IceVisualStudioExtension-@ver@ subdirectory.
+Ice-@ver@\vsplugin subdirectory.
 
 1) In a Visual Studio 2008 command prompt, change to the distribution
    directory:
 
-   > cd IceVisualStudioExtension-@ver@
+   > cd Ice-@ver@\vsplugin
 
 2) Open config\Make.rules.mak and review the comments that describe
    the settings you can modify.
@@ -48,10 +48,10 @@ IceVisualStudioExtension-@ver@ subdirectory.
 
    > nmake /f Makefile.mak
 
-The plug-in DLL is placed into the IceVisualStudio-@ver@\bin 
+The plug-in DLL is placed into the Ice-@ver@\vsplugin\bin 
 directory. The library name is
 
-   bin\IceVisualStudioAddin-VS2008.dll
+   IceVisualStudioAddin-VS2008.dll
 
 
 ======================================================================
@@ -69,10 +69,7 @@ config\Make.rules.mak.
 Configuration
 ======================================================================
 
-1) In a Visual Studio 2008 command prompt, change to the installation
-   bin subdirectory:
-
-   > cd c:\IceVisualStudioExtension-@ver@\bin
+1) Open a visual Studio 2008 command prompt
 
 2) Set up an Addin file
 
@@ -81,7 +78,7 @@ Configuration
    file contains the plug-in configuration in XML format.
 
    You can view the list of directories that Visual Studio searches
-   for add-in files in the following window:
+   for add-in files in the following Visual Studio window:
 
      Tools -> Options -> Environment -> Add-in/Macros Security
 
@@ -100,7 +97,7 @@ Configuration
   .Addin file to that directory:
 
   > cd C:\Users\username\Documents\Visual Studio 2008\Addins
-  > copy C:\IceVisualStudioExtension-@ver@\conf\Ice-VS2008.AddIn
+  > copy C:\Ice-@ver@\vsplugin\conf\Ice-VS2008.AddIn
 
   If you have not installed the add-in in the default location, you 
   must edit the .Addin file and update the value of the "Assembly"
@@ -117,7 +114,7 @@ Configuration
 
    Copy the Slice template and configuration files:
 
-   > cd C:\IceVisualStudioExtension-@ver@\templates\vs
+   > cd C:\Ice-@ver@\vsplugin\templates\vs
    > xcopy /e * C:\Program Files\Microsoft Visual Studio 9.0\VC\vcprojectitems
 
    For C#, item templates are installed in:
@@ -126,7 +123,7 @@ Configuration
 
    Copy the slice template and configuration files:
 
-   > cd C:\IceVisualStudioExtension-@ver@\templates\vs
+   > cd C:\Ice-@ver@\vsplugin\templates\vs
    > xcopy /e * C:\Program Files\Microsoft Visual Studio 9.0\VC#\CSharpProjectItems
 
    On 64-bit platforms, you must the copy the template files to the Visual
@@ -138,7 +135,7 @@ Configuration
 
      C:\Program Files\...
 
-   For C# you should also install a user template to make Slice the
+   For C# you should also install a user template to make the Slice
    file template available for all C# project subtypes.
 
    For a Windows Vista default installation, C# user templates are
@@ -150,10 +147,10 @@ Configuration
 
      C:\Document and Settings\username\My Documents\Visual Studio 2008\Templates\ItemTemplates\Visual C#
 
-   Copy templates\Slice.zip to the C# template directory. For example:
+   Copy C:\Ice-@ver@\vsplugin\templates\Slice.zip to the C# template directory. For example:
 
    > cd C:\Users\username\Documents\Visual Studio 2008\Templates\ItemTemplates\Visual C#
-   > copy C:\IceVisualStudioExtension-@ver@\templates\Slice.zip .
+   > copy C:\Ice-@ver@\vsplugin\templates\Slice.zip .
 
 4) This completes the configuration. The plug-in is available once you
    restart Visual Studio.

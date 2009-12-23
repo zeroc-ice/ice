@@ -1,6 +1,3 @@
-This archive contains the source code for the Ice Visual Studio
-Extension.
-
 For installation instructions, please refer to the INSTALL.txt file.
 
 If you would like to install the Ice Visual Studio Extension without
