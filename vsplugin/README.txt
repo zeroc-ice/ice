@@ -23,7 +23,7 @@ can configure Ice build properties.
 
 Note that after adding new configurations or platforms to your
 project, it may be necessary to disable and then re-enable the plug-in
-in order for the new configuration/platform to get the correct Ice
+in order for the new configuration/platform to have the correct Ice
 settings.
 
 
@@ -78,7 +78,8 @@ Environment Variables
 The "Ice Home", "Extra Compiler Options", and "Slice Include Path"
 settings support the use of environment variables. Use the $(VAR)
 syntax to refer to an environment variable named VAR. For example,
-for "Ice Home" you could use $(ICE_HOME).
+if you have defined the ICE_HOME environment variable, you could
+use $(ICE_HOME) in the "Ice Home" field.
 
 
 Adding Slice files to a project

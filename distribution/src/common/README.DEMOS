@@ -51,10 +51,10 @@ To build the demos you need to:
     $ICE_HOME/lib/sparcv9 on Solaris for SPARC 64-bit and
     $ICE_HOME/lib/amd64 on Solaris for x86 64-bit.
 
-  - Review the build settings found in config/Make.rule (C++), 
+  - Review the build settings found in config/Make.rules (C++), 
     config/Make.rules.cs (C#) and config/build.properties (Java)
-    and adjust any you want changed. For example, for C++ and C#
-    set OPTIMIZE=yes in order to build with optimization or for
+    and adjust any you want changed. For example, for C++ and C#,
+    set OPTIMIZE=yes in order to build with optimization, or for
     C++ set LP64=yes if you are building against a 64-bit Ice
     installation.
 
@@ -164,7 +164,7 @@ must first start its corresponding server from another Ice language
 mapping, such as C++:
 
 # for example in $HOME/testing/Ice-@ver@-demos/demo/Ice/hello
-$ server
+$ ./server
 
 To run the client, open another terminal window, change to the
 corresponding demo directory, and run:
@@ -176,7 +176,7 @@ $ ruby Client.rb
 Running the PHP demos
 =====================
 
-Two PHP demos are provided in the demophp directory.
+PHP demos are provided in the demophp directory.
 
 The Ice extension for PHP is provided as a dynamically-loadable shared
 library in Linux RPM distributions. On all other Unix platforms,
@@ -187,7 +187,7 @@ distribution for more information.
 The examples in demophp/Ice/hello and demophp/Glacier2/hello
 demonstrate the use of the Ice extension for PHP in a dynamic Web
 page, whereas the example in demophp/Ice/value requires PHP's command
-line interpreter. Both examples require that an Ice server be
+line interpreter. All examples require that an Ice server be
 available; a matching server from any of the other language mappings
 can be used. A README file is provided in each of the example
 directories.

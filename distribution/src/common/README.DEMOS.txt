@@ -1,5 +1,5 @@
 This archive contains sample programs for C++, Java, C#, VB, Ruby,
-Python and PHP. To build and run the demos follow the language 
+Python and PHP. To build and run the demos, follow the language-
 specific instructions below.
 
 
@@ -35,7 +35,7 @@ prompt, type 'client' to start the client.
 
 This distribution includes examples for integrating Ice with databases
 other than Berkeley DB. These examples are not included in the
-demo.sln file mentioned above. If you want to build these demos you
+demo.sln file mentioned above. If you want to build these demos, you
 must add the demo project files located in the demo\Database
 subdirectories to the demo solution and build from there.
 
@@ -58,8 +58,8 @@ build the demos:
   > nmake /f Makefile.mak
 
 Note that the Ice demos that require MFC (demo\Ice\MFC and
-demo\IcePatch2\MFC) will not compile since only the Professional
-edition contains MFC support.
+demo\IcePatch2\MFC) will not compile since the Express edition does
+not include MFC support.
 
 To run these demos, you will typically need at least two Command
 Prompt windows. In each command prompt, add the Ice bin directory to
@@ -118,6 +118,7 @@ Building and running the .NET demos
 
 Note that the Visual Studio project files require the Ice Visual
 Studio Extension.
+
 
 Building the C# demos
 ---------------------
@@ -284,12 +285,12 @@ use the corresponding C++ server.
 For example, to run the hello application in demo\Ice\hello, we begin
 by starting the C++ server:
 
-  > cd <Ice installation root directory>\demo\Ice\hello
+  > cd <Ice demo root directory>\demo\Ice\hello
   > server
 
 Then in a separate window, start the Ruby client:
 
-  > cd <Ice installation root directory>\demorb\Ice\hello
+  > cd <Ice demo root directory>\demorb\Ice\hello
   > ruby Client.rb
 
 

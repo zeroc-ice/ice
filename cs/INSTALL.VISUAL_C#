@@ -3,16 +3,14 @@ Build instructions
 
 Ice for .NET has been built and tested with:
 
-- Microsoft Visual Studio 2008 Version 9.0.30729.1 RTM and .NET
-  Framework Version 3.5 SP1.
+- Microsoft Visual Studio 2008 SP1 and .NET Framework Version 3.5 SP1
 
 Unpack the archive. The .NET sources will be contained in the
 Ice-@ver@\cs subdirectory.
 
 You will need the Slice to C# translator and supporting executables
-and libraries from the Ice for C++ distribution. You can download a
-binary distribution from the ZeroC web site, or you can build Ice for
-C++ yourself.
+and libraries from Ice for C++. You can download a binary distribution
+from the ZeroC web site, or you can build Ice for C++ yourself.
 
 Binary distributions for the supported platforms are available at
 
@@ -27,7 +25,7 @@ Follow these steps to build the source:
    > set ICE_HOME=C:\Ice-@ver@
 
 2) Change to the top-level directory of the Ice for .NET source
-   distribution.
+   distribution:
 
    > cd Ice-@ver@\cs
 
@@ -44,9 +42,9 @@ the source code of a sample program, you can rebuild it using nmake.
 
 You can also build the demos using the Visual Studio solution located 
 in demo\demo.sln. Note that the demo projects require the Ice Visual
-Studio Extension. The extension is installed with the Ice installer or 
-can be manually installed following the instructions in 
-..\vsplugin\INSTALL.txt.
+Studio Extension. The extension is installed automatically when you
+use the Ice installer, or you can install the extension manually by
+following the instructions in ..\vsplugin\INSTALL.txt.
 
 
 Managed Code
@@ -93,11 +91,11 @@ Ice applications.
 Running the tests
 -----------------
 
-Some of the Ice for .NET tests employ applications that are part of the
-Ice for C++ distribution. If you have not built Ice for C++ from the cpp
-subdirectory then you need to set the ICE_HOME environment variable to
-the path where these applications are installed for these tests to run
-properly:
+Some of the Ice for .NET tests employ applications that are part of
+Ice for C++. If you have not built Ice for C++ from the cpp
+subdirectory, then you need to set the ICE_HOME environment variable
+to the path where these applications are installed for the tests to
+run properly:
 
   > set ICE_HOME=c:\Ice-@ver@
 
@@ -126,17 +124,17 @@ To run the demos, you need to have the cpp\bin directory in your PATH
 and the cs\bin directory in your DEVPATH. See the README file in each
 demo directory for a description of the demo.
 
-Note that in demos that use IceSSL, the IceSSL plug-in configuration
+Note that for demos that use IceSSL, the IceSSL plug-in configuration
 does not contain the fully-qualified name (FQN) for the IceSSL
 assembly. Instead it just contains the partial name:
 
   Ice.Plugin.IceSSL=IceSSL:IceSSL.PluginFactory
 
-The IceSSL assembly is found though the use of DEVPATH which is enabled
-in the *.exe.config files. If you want to run an application using the
-IceSSL assembly installed in the GAC without the use of the *.exe.config
-files, you must add the FQN to the IceSSL plug-in configuration, as
-shown below:
+The IceSSL assembly is found though the use of DEVPATH, which is
+enabled in the *.exe.config files. If you want to run an application
+using the IceSSL assembly installed in the GAC without the use of the
+*.exe.config files, you must add the FQN to the IceSSL plug-in
+configuration, as shown below:
 
   Ice.Plugin.IceSSL=IceSSL, Version=@ver@.0, Culture=neutral, PublicKeyToken=1f998c50fec78381:IceSSL.PluginFactory
 
@@ -156,19 +154,19 @@ GAC Installation
 You can add the assemblies to the Global Assembly Cache (GAC). To do
 this, open Windows Explorer and navigate to the directory
 C:\WINDOWS\assembly. Next, drag and drop (or copy and paste) the
-assemblies from IceNET-@ver@\bin into the right-hand pane to install
+assemblies from Ice-@ver@\bin into the right-hand pane to install
 them in the cache.
 
-Or you can use gacutil from the command line to achieve the same
+You can also use gacutil from the command line to achieve the same
 result:
 
   > gacutil /i <library.dll>
 
-You can find gacutil.exe in the SDK\Tools\Bin folder of your Visual C#
-installation. For example, if you have installed Visual C# 8.0 in
-C:\Program Files, the path to gacutil is
+The gacutil tool is included with your Visual C# installation. For
+example, if you have installed Visual C# 9.0 in C:\Program Files, the
+path to gacutil is
 
-  C:\Program Files\Microsoft Visual Studio 8\SDK\v2.0\Bin\gacutil.exe
+  C:\Program Files\Microsoft SDKs\Windows\v6.0A\bin\gacutil.exe
 
 Once installed in the cache, the assemblies will always be located
 correctly without having to set environment variables or copy them
@@ -177,8 +175,8 @@ into the same directory as an executable.
 If you want line numbers for stack traces, you must also install the
 PDB (.pdb) files in the GAC. Unfortunately, you cannot do this using
 Explorer, so you have to do it from the command line. Open a command
-shell window and navigate to C:\WINDOWS\assembly\GAC_MSIL\Ice.
-(Assuming C:\WINDOWS is your system root.) Doing a directory listing
+shell window and navigate to C:\WINDOWS\assembly\GAC_MSIL\Ice
+(assuming C:\WINDOWS is your system root). Doing a directory listing
 there, you will find a directory named @dotnetver@__<UUID>, for 
 example:
 

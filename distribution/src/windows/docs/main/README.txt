@@ -24,9 +24,9 @@ About this distribution
 This binary distribution provides all Ice run time services and
 development tools to build Ice applications:
 
- - in C++, using Visual Studio 2008, Visual C++ 2008 Express Edition
-   or C++Builder 2010
- - in .NET, using Visual Studio 2008
+ - in C++, using Visual Studio 2008 SP1, Visual C++ 2008 Express
+   Edition SP1, or C++Builder 2010
+ - in .NET, using Visual Studio 2008 SP1
  - in Java, using Java 5 or Java 6
  - in Python, using Python 2.6.4
  - in Ruby, using Ruby 1.8.6
@@ -143,12 +143,12 @@ Silverlight projects.
 
 The extension is only installed if Visual Studio 2008 is present on
 the target machine. If you install Visual Studio 2008 after installing
-Ice you will have to rerun the Ice installer and choose "Repair" to
+Ice, you will have to rerun the Ice installer and choose "Repair" to
 install the extension.
 
 Note that the extension is not supported for Visual Studio 2008
 Express as Microsoft does not permit extensions to be written for
-express editions of Visual Studio.
+Express editions of Visual Studio.
 
 
 Activating the plug-in for a project
@@ -161,7 +161,7 @@ can configure Ice build properties.
 
 Note that after adding new configurations or platforms to your
 project, it may be necessary to disable and then re-enable the plug-in
-in order for the new configuration/platform to get the correct Ice
+in order for the new configuration/platform to have the correct Ice
 settings.
 
 
@@ -216,7 +216,8 @@ Environment Variables
 The "Ice Home", "Extra Compiler Options", and "Slice Include Path"
 settings support the use of environment variables. Use the $(VAR)
 syntax to refer to an environment variable named VAR. For example,
-for "Ice Home" you could use $(ICE_HOME).
+if you have defined the ICE_HOME environment variable, you could
+use $(ICE_HOME) in the "Ice Home" field.
 
 
 Adding Slice files to a project
@@ -231,12 +232,12 @@ Generating code
 ---------------
 
 The extension compiles a Slice file whenever you save the file. The
-extension tracks dependencies among Slice files in the project and
-recompiles only those files that require it after a change.
+extension also tracks dependencies among Slice files in the project
+and recompiles only those files that require it after a change.
 
 Generated files are automatically added to the project. For example,
 for Demo.ice, the extension adds Demo.cpp and Demo.h to a C++
-project, whereas the extension adds Demo.cs to the C# project.
+project, whereas the extension adds Demo.cs to a C# project.
 
 Errors that occur during Slice compilation are displayed in the Visual
 Studio "Output" and "Error List" panels.
@@ -257,10 +258,10 @@ rebuild the project.
 Setting up Visual Studio 2008 to build Ice applications in C++
 ======================================================================
 
-If you do not want to use the Ice Visual Studio Extenstion then
-before you can use Ice in your C++ applications, you first need to 
-configure Visual Studio with the locations of the Ice header files, 
-libraries, and executables.
+This section describes how to configure Visual Studio for building
+Ice applications in C++ without using the Ice Visual Studio Extension.
+These steps involve adding the locations of the Ice header files,
+libraries, and executables to Visual Studio's configuration.
 
 - In the IDE, choose Tools->Options->Projects and Solutions->VC++ Directories
 
@@ -290,8 +291,8 @@ Building and running the demos
 ======================================================================
 
 This distribution includes an archive named demos.zip that contains
-sample programs for the various supported languages. To build and run
-the demos you must extract this archive in the location of your choice
+sample programs for the supported languages. To build and run the
+demos, you must extract this archive in the location of your choice
 and follow the instructions in the README file located in the archive.
 
 
@@ -302,17 +303,17 @@ Installing the .NET assemblies in the GAC
 You can add the .NET assemblies to the Global Assembly Cache (GAC). To
 do this, open Windows Explorer and navigate to the directory
 C:\WINDOWS\assembly. Next, drag and drop (or copy and paste) the
-.NET assemblies from bin directory into the right-hand pane to install
-them in the cache.
+.NET assemblies from the bin directory into the right-hand pane to
+install them in the cache.
 
-Or you can use gacutil from the command line to achieve the same
+You can use also gacutil from the command line to achieve the same
 result:
 
   > gacutil /i <library.dll>
 
-You can find gacutil.exe in the SDK\Tools\Bin folder of your Visual C#
-installation. For example, if you have installed Visual C# 9.0 in
-C:\Program Files, the path to gacutil is
+The gacutil tool is included with your Visual C# installation. For
+example, if you have installed Visual C# 9.0 in C:\Program Files, the
+path to gacutil is
 
   C:\Program Files\Microsoft SDKs\Windows\v6.0A\bin\gacutil.exe
 
@@ -323,8 +324,8 @@ into the same directory as an executable.
 If you want line numbers for stack traces, you must also install the
 PDB (.pdb) files in the GAC. Unfortunately, you cannot do this using
 Explorer, so you have to do it from the command line. Open a command
-shell window and navigate to C:\WINDOWS\assembly\GAC_MSIL\Ice.
-(Assuming C:\WINDOWS is your system root.) Doing a directory listing
+shell window and navigate to C:\WINDOWS\assembly\GAC_MSIL\Ice
+(assuming C:\WINDOWS is your system root). Doing a directory listing
 there, you will find a directory named @ver@.0__<UUID>, for
 example:
 
@@ -548,7 +549,6 @@ The install location is stored as a string value named 'InstallDir'.
 ======================================================================
 Acknowledgments
 ======================================================================
----------------
 
 This product includes software developed by the OpenSSL Project for
 use in the OpenSSL Toolkit (http://www.openssl.org/).

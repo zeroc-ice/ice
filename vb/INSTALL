@@ -3,16 +3,14 @@ Build instructions
 
 The Visual Basic demos have been built and tested with:
 
-- Microsoft Visual Studio 2008 Version 9.0.30729.1 RTM and .NET
-  Framework Version 3.5 SP1.
+- Microsoft Visual Studio 2008 SP1 and .NET Framework Version 3.5 SP1
 
 Unpack the archive. The Visual Basic demo sources will be 
 contained in the Ice-@ver@\vb subdirectory.
 
 You will need the Slice to C# translator and supporting executables
-and libraries from the Ice for C++ distribution. You can download a
-binary distribution from the ZeroC web site, or you can build Ice for
-C++ yourself.
+and libraries from Ice for C++. You can download a binary distribution
+from the ZeroC web site, or you can build Ice for C++ yourself.
 
 Binary distributions for the supported platforms are available at
 
@@ -49,9 +47,9 @@ a DLL. That DLL is then referenced from the Visual Basic project.
 
 You can also build the demos using the Visual Studio solution located
 in demo\demo.sln. Note that the demo projects require the Ice Visual
-Studio Extension. The extension is installed with the Ice installer or
-can be manually installed following the instructions in
-..\vsplugin\INSTALL.txt.
+Studio Extension. The extension is installed automatically when you
+use the Ice installer, or you can install the extension manually by
+following the instructions in ..\vsplugin\INSTALL.txt.
 
 
 Running the demos
