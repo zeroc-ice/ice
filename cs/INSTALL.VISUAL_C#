@@ -40,8 +40,13 @@ Follow these steps to build the source:
    > nmake /f Makefile.mak
 
 The tests and sample programs are built automatically. If you modify
-the source code of a sample program, you can rebuild it using nmake,
-or you can open the Visual Studio solution located in demo\demo.sln.
+the source code of a sample program, you can rebuild it using nmake.
+
+You can also build the demos using the Visual Studio solution located 
+in demo\demo.sln. Note that the demo projects require the Ice Visual
+Studio Extension. The extension is installed with the Ice installer or 
+can be manually installed following the instructions in 
+..\vsplugin\INSTALL.txt.
 
 
 Managed Code
@@ -117,9 +122,9 @@ case of a failure, the tests abort with "failed".
 Running the demos
 -----------------
 
-To run the demos, you need to have the Ice bin directory in your PATH 
-and DEVPATH. See the README file in each demo directory for a 
-description of the demo.
+To run the demos, you need to have the cpp\bin directory in your PATH 
+and the cs\bin directory in your DEVPATH. See the README file in each
+demo directory for a description of the demo.
 
 Note that in demos that use IceSSL, the IceSSL plug-in configuration
 does not contain the fully-qualified name (FQN) for the IceSSL

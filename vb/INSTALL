@@ -1,41 +1,62 @@
 Build instructions
 ------------------
 
-The code has been built and tested with:
+The Visual Basic demos have been built and tested with:
 
-- Microsoft Visual Studio 2008 Version 9.0.21022.8 RTM and .NET Framework
-  Version 3.5.
+- Microsoft Visual Studio 2008 Version 9.0.30729.1 RTM and .NET
+  Framework Version 3.5 SP1.
 
-Unpack the archive. The VB demo sources will be contained in the 
-Ice-@ver@\vb subdirectory.
+Unpack the archive. The Visual Basic demo sources will be 
+contained in the Ice-@ver@\vb subdirectory.
 
-Add the directory containing slice2cs to the list of "Executable
-files" directories in Visual Studio:
+You will need the Slice to C# translator and supporting executables
+and libraries from the Ice for C++ distribution. You can download a
+binary distribution from the ZeroC web site, or you can build Ice for
+C++ yourself.
 
-- In the IDE, choose Tools->Options->Projects->VC++ Directories
+Binary distributions for the supported platforms are available at
 
-- Select "Executable files"
-
-- Add <Ice installation root directory>\bin
+  http://www.zeroc.com/download.html
 
 To use Visual Basic (or other .NET languages) with Ice, you need
-the run-time support provided by the Ice for .NET assembly
-(Ice.dll). The Ice for Visual Basic build environment expects
-Ice.dll to be installed in $(solutiondir)\..\cs\bin.  Alternatively,
-you can install Ice.dll in the Global Assembly Cache (GAC). Refer to the
-INSTALL.VISUAL_C# file in the cs subdirectory for instructions on
-installing the asemblies in the GAC.
+the run-time support provided by the Ice for .NET assembly (Ice.dll).
+See ..\cs\INSTALL.VISUAL_C# for instructions on building the .NET
+assembly.
 
-To compile your Slice definitions, you need to use slice2cs to generate
-C# source code and use a C# compiler to compile the generated code into
-a DLL. Then reference that DLL from your Visual Basic project.
+Follow these steps to build the demos:
 
-See the Ice Manual and the makefiles and Visual Studio projects included
-with the demos for more information.
+1) If you have not built Ice for C++ in the cpp subdirectory, set
+   ICE_HOME to the directory of your Ice for C++ installation.
+   For example:
+
+   > set ICE_HOME=C:\Ice-@ver@
+
+2) Change to the top-level directory of the Visual Basic demos:
+
+   > cd Ice-@ver@\vb
+
+3) Open config\Make.rules.mak.vb and review the comments that describe
+   the settings you can modify. For example, you may wish to enable
+   optimization.
+
+4) Run nmake:
+
+   > nmake /f Makefile.mak
+
+For the Slice definitions, slice2cs is used to generate C# source code
+and the C# compiler is used to compile the generated code into
+a DLL. That DLL is then referenced from the Visual Basic project.
+
+You can also build the demos using the Visual Studio solution located
+in demo\demo.sln. Note that the demo projects require the Ice Visual
+Studio Extension. The extension is installed with the Ice installer or
+can be manually installed following the instructions in
+..\vsplugin\INSTALL.txt.
 
 
-Building demos with Visual Basic
---------------------------------
+Running the demos
+-----------------
 
-Open demo\demo.sln in Visual Basic and build the solution. (Both release
-and debug builds are supported.)
+To run the demos, you need to have the cpp\bin directory in your PATH
+and the cs\bin directory in your DEVPATH. See the README file in each
+demo directory for a description of the demo.

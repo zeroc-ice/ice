@@ -43,6 +43,7 @@ filesToRemove = [ \
     "distribution/makedist.py", \
     "cpp/config/makegitignore.py", \
     "rb/config/Make.rules.Darwin", \
+    "vsplugin/action.vbs", \
 ]
 
 #
@@ -130,11 +131,13 @@ print "Creating " + version + " source distributions in " + distDir
 
 demoscriptDir = os.path.join(distDir, "Ice-" + version + "-demo-scripts")
 demoDir = os.path.join(distDir, "Ice-" + version + "-demos")
+winDemoDir = os.path.join(distDir, "demos")
 srcDir = os.path.join(distDir, "Ice-" + version)
 rpmBuildDir = os.path.join(distDir, "Ice-rpmbuild-" + version)
 distFilesDir = os.path.join(distDir, "distfiles-" + version)
 os.mkdir(demoscriptDir)
 os.mkdir(demoDir)
+os.mkdir(winDemoDir)
 os.mkdir(rpmBuildDir)
 
 #
@@ -219,7 +222,7 @@ print "ok"
 print "Consolidating demo and demo scripts distributions...",
 sys.stdout.flush()
 
-# Demo distribution
+# Unix demo distribution
 copy("ICE_LICENSE", demoDir)
 copy(os.path.join(distFilesDir, "src", "common", "README.DEMOS"), demoDir)
 
@@ -242,14 +245,50 @@ for d in os.listdir('.'):
         move(os.path.join(d, "allDemos.py"), os.path.join(md, "allDemos.py"))
         os.rmdir(os.path.join(demoscriptDir, d))
 
+    if d == "vb":
+        continue
+
     if os.path.isdir(d) and os.path.exists(os.path.join(d, "demo")):
         copy(os.path.join(d, "demo"), os.path.join(demoDir, getMappingDir("demo", d)))
 
 rmFiles = []
 configSubstituteExprs = [(re.compile(regexpEscape("../../certs")), "../certs")]
+for root, dirnames, filesnames in os.walk(demoDir):
+    for f in filesnames:
+
+        if fnmatch.fnmatch(f, "config*"):
+            substitute(os.path.join(root, f), configSubstituteExprs)
+
+        for m in [ "*.sln", "*.csproj", "*.vbproj", "*.vcproj", "Make*mak*", "Make.rules.msvc", "Make.rules.bcc" ]:
+            if fnmatch.fnmatch(f, m):
+                rmFiles.append(os.path.join(root[len(demoDir) + 1:], f))
+
+for f in rmFiles: remove(os.path.join(demoDir, f))
+
+# Windows demo distribution
+copy(os.path.join(distFilesDir, "src", "common", "README.DEMOS.txt"), os.path.join(winDemoDir, "README.txt"))
+
+copyMatchingFiles(os.path.join("certs"), os.path.join(winDemoDir, "certs"), certsFiles)
+
+os.mkdir(os.path.join(winDemoDir, "config"))
+copy(os.path.join(srcDir, "config", "Make.common.rules.mak"), os.path.join(winDemoDir, "config"), False)
+copy(os.path.join(srcDir, "cpp", "config", "Make.rules.mak"), os.path.join(winDemoDir, "config"), False)
+copy(os.path.join(srcDir, "cpp", "config", "Make.rules.bcc"), os.path.join(winDemoDir, "config"), False)
+copy(os.path.join(srcDir, "cpp", "config", "Make.rules.msvc"), os.path.join(winDemoDir, "config"), False)
+copy(os.path.join(srcDir, "java", "config", "common.xml"), os.path.join(winDemoDir, "config"), False)
+
+copy(os.path.join(distFilesDir, "src", "common", "build.properties"), os.path.join(winDemoDir, "config"), False)
+
+# Consolidate demo distribution with files from each language mapping
+for d in os.listdir('.'):
+
+    if os.path.isdir(d) and os.path.exists(os.path.join(d, "demo")):
+        copy(os.path.join(d, "demo"), os.path.join(winDemoDir, getMappingDir("demo", d)))
+
+rmFiles = []
 csprojSubstituteExprs = [(re.compile(regexpEscape("ZerocIce_Home=\"..\..\..\..\"")), "")]
 slice2freezeSubstituteExprs = [(re.compile(regexpEscape("..\\..\\..\\bin\\slice2freeze")), "&quot;$(IceHome)&quot;\\\\bin\\slice2freeze")]
-for root, dirnames, filesnames in os.walk(demoDir):
+for root, dirnames, filesnames in os.walk(winDemoDir):
     for f in filesnames:
 
         if fnmatch.fnmatch(f, "config*"):
@@ -283,7 +322,18 @@ for root, dirnames, filesnames in os.walk(demoDir):
             # Fix slice2freeze commands
             substitute(os.path.join(root, f), slice2freezeSubstituteExprs)
 
-for f in rmFiles: remove(os.path.join(demoDir, f))
+        for m in [ "Makefile" ]:
+            if fnmatch.fnmatch(f, m):
+                rmFiles.append(os.path.join(root[len(winDemoDir) + 1:], f))
+
+for d in ["democs", "demovb"]:
+    for root, dirnames, filesnames in os.walk(os.path.join(winDemoDir, d)):
+        for f in filesnames:
+            for m in [ "Makefile.mak" ]:
+                if fnmatch.fnmatch(f, m):
+                    rmFiles.append(os.path.join(root[len(winDemoDir) + 1:], f))
+
+for f in rmFiles: remove(os.path.join(winDemoDir, f))
 
 print "ok"
 
@@ -320,13 +370,13 @@ for d in [srcDir, demoDir, distFilesDir, rpmBuildDir]:
 for (dir, archiveDir) in [(demoscriptDir, "Ice-" + version + "-demos")]:
     tarArchive(dir, verbose, archiveDir)
 
-for d in [srcDir, demoDir]:
+for d in [srcDir, winDemoDir]:
     zipArchive(d, verbose)
 
 #
 # Write source distribution report in README file.
 #
-writeSrcDistReport("Ice", version, compareToDir, [srcDir, demoDir, distFilesDir, rpmBuildDir, demoscriptDir])
+writeSrcDistReport("Ice", version, compareToDir, [srcDir, demoDir, winDemoDir, distFilesDir, rpmBuildDir, demoscriptDir])
 
 #
 # Done.
@@ -335,6 +385,7 @@ print "Cleaning up...",
 sys.stdout.flush()
 remove(srcDir)
 remove(demoDir)
+remove(winDemoDir)
 remove(demoscriptDir)
 remove(rpmBuildDir)
 remove(distFilesDir)
