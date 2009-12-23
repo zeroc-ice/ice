@@ -74,12 +74,12 @@
   <ItemGroup>
     <Reference Include="IceBox">
       <Name>IceBox</Name>
-      <HintPath>..\..\..\..\cs\bin\IceBox.dll</HintPath>
+      <HintPath>IceBox.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="Ice">
       <Name>Ice</Name>
-      <HintPath>..\..\..\..\cs\bin\Ice.dll</HintPath>
+      <HintPath>Ice.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="System">

@@ -73,12 +73,12 @@
   <ItemGroup>
     <Reference Include="Glacier2">
       <Name>Glacier2</Name>
-      <HintPath>..\..\..\..\cs\bin\Glacier2.dll</HintPath>
+      <HintPath>Glacier2.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="Ice">
       <Name>Ice</Name>
-      <HintPath>..\..\..\..\cs\bin\Ice.dll</HintPath>
+      <HintPath>Ice.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="System">
