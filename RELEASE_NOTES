@@ -44,6 +44,8 @@ Table of Contents
      - Migrating IceStorm databases
      - Migrating IceGrid databases
      - Migrating Freeze databases
+     - Removed APIs
+     - Deprecated APIs
   4. Platform-specific notes
      - Supported platforms
      - Java and IPv6
@@ -1189,24 +1191,26 @@ This section describes APIs that were deprecated in a previous release
 and have now been removed. Your application may no longer compile
 successfully if it relies on one of these APIs.
 
-
-Ice 3.4
--------
-
 The following APIs were removed in Ice 3.4:
 
 * Glacier2.AddUserToAllowCategories
+
+  Use Glacier2.Filter.Category.AcceptUser instead.
+
 * Glacier2.AllowCategories
+
+  Use Glacier2.Filter.Category.Accept instead.
+
 * Ice.UseEventLog
 
-  These properties were deprecated in Ice 3.2.
-TBD
+  Ice services (applications that use the C++ class Ice::Service)
+  always use the Windows event log by default.
 
 * Communicator::setDefaultContext
 * Communicator::getDefaultContext
 * ObjectPrx:ice_defaultContext
 
-  These operations were deprecated in Ice 3.2.
+  Use the communicator's implicit context instead.
 
 * nonmutating keyword
 
@@ -1233,144 +1237,8 @@ TBD
 
 * Java2 mapping
 
-  The Java2 mapping is no longer supported.
-
-
-Ice 3.3
--------
-
-The following APIs were removed in Ice 3.3:
-
-* Thread per connection
-
-  The primary purpose of this concurrency model was to serialize the
-  requests received over a connection, either because the application
-  needed to ensure that requests are dispatched in the order they are
-  received, or because the application did not want to implement the
-  synchronization that might be required when using the thread pool
-  concurrency model.
-
-  Another reason for using the thread-per-connection concurrency model
-  is that it was required by the IceSSL plug-ins for Java and C#. This
-  requirement has been eliminated.
-
-  The ability to serialize requests is now provided by the thread pool
-  and enabled via a new configuration property:
-
-  <threadpool>.Serialize=1
-
-  Please refer to the "Ice Run Time" chapter of the Ice manual for
-  more details on this feature.
-
-  Aside from the potential semantic changes involved in migrating your
-  application to the thread pool concurrency model, other artifacts of
-  thread-per-connection may be present in your application and must be
-  removed:
-
-  - The configuration properties Ice.ThreadPerConnection and
-    <proxy>.ThreadPerConnection
-
-  - The proxy methods ice_threadPerConnection and
-    ice_isThreadPerConnection
-
-* .NET metadata
-
-  The metadata directive "cs:collection" is no longer valid. Use
-  ["clr:collection"] instead.
-
-* C++
-
-  The following methods have been removed:
-
-  - Application::main(int, char*[], const char*, const Ice::LoggerPtr&)
-
-    Use Application::main(int, char*[], const InitializationData&)
-    instead.
-
-  - initializeWithLogger
-  - initializeWithProperties
-  - initializeWithPropertiesAndLogger
-
-    Use initialize(int, char*[], const InitializationData&) instead.
-
-  - stringToIdentity
-  - identityToString
-
-    Use the equivalent Communicator operations.
-
-* Java
-
-  The following methods have been removed:
-
-  - Application.main(String, String[], String, Logger)
-
-    Use Application.main(String, String[], InitializationData)
-    instead.
-
-  - initializeWithLogger
-  - initializeWithProperties
-  - initializeWithPropertiesAndLogger
-
-    Use initialize(String[], InitializationData) instead.
-
-* .NET
-
-  The following methods have been removed:
-
-  - Application.main(string, string[], string, Logger)
-
-    Use Application.main(string, string[], InitializationData)
-    instead.
-
-  - initializeWithLogger
-  - initializeWithProperties
-  - initializeWithPropertiesAndLogger
-
-    Use initialize(ref string[], InitializationData) instead.
-
-* Python
-
-  The following methods have been removed:
-
-  - initializeWithLogger
-  - initializeWithProperties
-  - initializeWithPropertiesAndLogger
-
-    Use initialize(args, initializationData) instead.
-
-  - stringToIdentity
-  - identityToString
-
-    Use the equivalent Communicator operations.
-
-* General
-
-  The following methods have been removed:
-
-  - ice_hash
-  - ice_communicator
-  - ice_collocationOptimization
-  - ice_connection
-
-    These proxy methods were replaced by ones of the form ice_get...,
-    such as ice_getHash. ice_collocationOptimization is now
-    ice_getCollocationOptimized.
-
-  - ice_newIdentity
-  - ice_newContext
-  - ice_newFacet
-  - ice_newAdapterId
-  - ice_newEndpoints
-
-    These proxy methods were replaced by ones that do not use "new" in
-    their names. For example, ice_newIdentity was replaced by
-    ice_identity.
-
-* Ice.LoggerPlugin
-
-  This property provided a way to install a custom logger
-  implementation. It has been replaced by a more generalized facility
-  for installing custom loggers.
+  The Java2 mapping is no longer supported. Refer to "Java language
+  mapping changes" for more information.
 
 
 Deprecated APIs
@@ -1380,10 +1248,6 @@ This section discusses APIs and components that are now deprecated.
 These APIs will be removed in a future Ice release, therefore we
 encourage you to update your applications and eliminate the use of
 these APIs as soon as possible.
-
-
-Ice 3.4
--------
 
 The following APIs were deprecated in Ice 3.4:
 
@@ -1409,60 +1273,6 @@ The following APIs were deprecated in Ice 3.4:
 
   In Java use java.util.UUID.randomUUID().toString(). In C# use
   System.Guid.NewGuid.ToString().
-
-
-Ice 3.3
--------
-
-The following APIs were deprecated in Ice 3.3:
-
-* Sequences as dictionary keys
-
-  The use of sequences, and structures containing sequences, as the
-  key type of a Slice dictionary is now deprecated.
-
-* LocalObject
-
-  The mappings for the LocalObject type have changed in Java, .NET and
-  Python. The new mappings are shown below:
-
-  Java    java.lang.Object
-  .NET    System.Object
-  Python  object
-
-  The types Ice.LocalObject and Ice.LocalObjectImpl are deprecated.
-
-* Ice.Trace.Location
-
-  This property has been replaced by Ice.Trace.Locator.
-
-* Ice.Default.CollocationOptimization
-
-  This property, as well as the corresponding proxy property, have
-  been replaced by Ice.Default.CollocationOptimized and
-  <proxy>.CollocationOptimized, respectively.
-
-* <Adapter>.RegisterProcess
-
-  This property caused the Ice run time to register a proxy with the
-  locator registry (e.g., IceGrid) that allowed the process to be shut
-  down remotely. The new administrative facility (see "New Features")
-  has replaced this functionality.
-
-* Ice.ServerId
-
-  As with <Adapter>.RegisterProcess, this property was used primarily
-  for IceGrid integration and has been replaced by a similar mechanism
-  in the administrative facility (see "New Features").
-
-* Glacier2.Admin
-  IcePatch2.Admin
-
-  These are the names of administrative object adapters in Glacier2
-  and IcePatch2, respectively. The functionality offered by these
-  object adapters has been replaced by that of the administrative
-  facility (see "New Features"), therefore these adapters (and their
-  associated configuration properties) are deprecated.
 
 
 ======================================================================
@@ -1644,6 +1454,212 @@ To migrate your database:
  7. Restart the application.
 
 
+Removed APIs
+============
+
+This section describes APIs that were deprecated in a previous release
+and have now been removed. Your application may no longer compile
+successfully if it relies on one of these APIs.
+
+The following APIs were removed in Ice 3.3:
+
+* Thread per connection
+
+  The primary purpose of this concurrency model was to serialize the
+  requests received over a connection, either because the application
+  needed to ensure that requests are dispatched in the order they are
+  received, or because the application did not want to implement the
+  synchronization that might be required when using the thread pool
+  concurrency model.
+
+  Another reason for using the thread-per-connection concurrency model
+  is that it was required by the IceSSL plug-ins for Java and C#. This
+  requirement has been eliminated.
+
+  The ability to serialize requests is now provided by the thread pool
+  and enabled via a new configuration property:
+
+  <threadpool>.Serialize=1
+
+  Please refer to the "Ice Run Time" chapter of the Ice manual for
+  more details on this feature.
+
+  Aside from the potential semantic changes involved in migrating your
+  application to the thread pool concurrency model, other artifacts of
+  thread-per-connection may be present in your application and must be
+  removed:
+
+  - The configuration properties Ice.ThreadPerConnection and
+    <proxy>.ThreadPerConnection
+
+  - The proxy methods ice_threadPerConnection and
+    ice_isThreadPerConnection
+
+* .NET metadata
+
+  The metadata directive "cs:collection" is no longer valid. Use
+  ["clr:collection"] instead.
+
+* C++
+
+  The following methods have been removed:
+
+  - Application::main(int, char*[], const char*, const Ice::LoggerPtr&)
+
+    Use Application::main(int, char*[], const InitializationData&)
+    instead.
+
+  - initializeWithLogger
+  - initializeWithProperties
+  - initializeWithPropertiesAndLogger
+
+    Use initialize(int, char*[], const InitializationData&) instead.
+
+  - stringToIdentity
+  - identityToString
+
+    Use the equivalent Communicator operations.
+
+* Java
+
+  The following methods have been removed:
+
+  - Application.main(String, String[], String, Logger)
+
+    Use Application.main(String, String[], InitializationData)
+    instead.
+
+  - initializeWithLogger
+  - initializeWithProperties
+  - initializeWithPropertiesAndLogger
+
+    Use initialize(String[], InitializationData) instead.
+
+* .NET
+
+  The following methods have been removed:
+
+  - Application.main(string, string[], string, Logger)
+
+    Use Application.main(string, string[], InitializationData)
+    instead.
+
+  - initializeWithLogger
+  - initializeWithProperties
+  - initializeWithPropertiesAndLogger
+
+    Use initialize(ref string[], InitializationData) instead.
+
+* Python
+
+  The following methods have been removed:
+
+  - initializeWithLogger
+  - initializeWithProperties
+  - initializeWithPropertiesAndLogger
+
+    Use initialize(args, initializationData) instead.
+
+  - stringToIdentity
+  - identityToString
+
+    Use the equivalent Communicator operations.
+
+* General
+
+  The following methods have been removed:
+
+  - ice_hash
+  - ice_communicator
+  - ice_collocationOptimization
+  - ice_connection
+
+    These proxy methods were replaced by ones of the form ice_get...,
+    such as ice_getHash. ice_collocationOptimization is now
+    ice_getCollocationOptimized.
+
+  - ice_newIdentity
+  - ice_newContext
+  - ice_newFacet
+  - ice_newAdapterId
+  - ice_newEndpoints
+
+    These proxy methods were replaced by ones that do not use "new" in
+    their names. For example, ice_newIdentity was replaced by
+    ice_identity.
+
+* Ice.LoggerPlugin
+
+  This property provided a way to install a custom logger
+  implementation. It has been replaced by a more generalized facility
+  for installing custom loggers.
+
+Please refer to "Removed APIs" in Section 2 for information on APIs
+that were removed in Ice 3.4.
+
+
+Deprecated APIs
+===============
+
+This section discusses APIs and components that are now deprecated.
+These APIs will be removed in a future Ice release, therefore we
+encourage you to update your applications and eliminate the use of
+these APIs as soon as possible.
+
+The following APIs were deprecated in Ice 3.3:
+
+* Sequences as dictionary keys
+
+  The use of sequences, and structures containing sequences, as the
+  key type of a Slice dictionary is now deprecated.
+
+* LocalObject
+
+  The mappings for the LocalObject type have changed in Java, .NET and
+  Python. The new mappings are shown below:
+
+  Java    java.lang.Object
+  .NET    System.Object
+  Python  object
+
+  The types Ice.LocalObject and Ice.LocalObjectImpl are deprecated.
+
+* Ice.Trace.Location
+
+  This property has been replaced by Ice.Trace.Locator.
+
+* Ice.Default.CollocationOptimization
+
+  This property, as well as the corresponding proxy property, have
+  been replaced by Ice.Default.CollocationOptimized and
+  <proxy>.CollocationOptimized, respectively.
+
+* <Adapter>.RegisterProcess
+
+  This property caused the Ice run time to register a proxy with the
+  locator registry (e.g., IceGrid) that allowed the process to be shut
+  down remotely. The new administrative facility (see "New Features")
+  has replaced this functionality.
+
+* Ice.ServerId
+
+  As with <Adapter>.RegisterProcess, this property was used primarily
+  for IceGrid integration and has been replaced by a similar mechanism
+  in the administrative facility (see "New Features").
+
+* Glacier2.Admin
+  IcePatch2.Admin
+
+  These are the names of administrative object adapters in Glacier2
+  and IcePatch2, respectively. The functionality offered by these
+  object adapters has been replaced by that of the administrative
+  facility (see "New Features"), therefore these adapters (and their
+  associated configuration properties) are deprecated.
+
+Please refer to "Deprecated APIs" in Section 2 for information on APIs
+that were deprecated in Ice 3.4.
+
+
 ======================================================================
 4. Platform-specific notes
 ======================================================================
@@ -1685,8 +1701,7 @@ cryptographic libraries. This creates an issue for Ice's certificate
 authority script (iceca) when running with the command-line options
 "iceca java --import". The import fails with an error similar to:
 
-  "java.lang.SecurityException: Unsupported keysize or algorithm
-  parameters"
+  "lengthTag=127, too big"
 
 To solve this problem you must install the unlimited jurisdiction
 policy files. For more information, including a link to download
