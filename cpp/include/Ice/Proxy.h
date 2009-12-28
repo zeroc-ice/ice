@@ -1094,7 +1094,7 @@ public:
 
 protected:
 
-    void __exception(const ::Ice::AsyncResultPtr& result, const ::Ice::Exception& ex) const
+    void __exception(const ::Ice::AsyncResultPtr&, const ::Ice::Exception& ex) const
     {
         if(exception)
         {
