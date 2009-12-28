@@ -2457,6 +2457,13 @@ public class Coordinator
                 String path = url.getPath().substring(1);
                 try
                 {
+                    path = java.net.URLDecoder.decode(path, "UTF-8");
+                }
+                catch(java.io.UnsupportedEncodingException ex)
+                {
+                }
+                try
+                {
                     Runtime.getRuntime().exec("hh.exe " + path);
                     return; // success
                 }
