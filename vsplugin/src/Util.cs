@@ -212,7 +212,7 @@ namespace Ice.VisualStudio
         private static void setIceHomeDefault()
         {
             defaultIceHome = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-            if(defaultIceHome.EndsWith("\\bin"))
+            if(defaultIceHome.EndsWith("\\bin", StringComparison.Ordinal))
             {
                 defaultIceHome = defaultIceHome.Substring(0, defaultIceHome.Length - 4);
             }
@@ -433,7 +433,9 @@ namespace Ice.VisualStudio
             System.Windows.Forms.MessageBox.Show("Could not locate '" + component + 
                                                  ".dll'. Review you 'Ice Home' setting.",
                                                  "Ice Visual Studio Extension", MessageBoxButtons.OK,
-                                                 MessageBoxIcon.Error);
+                                                 MessageBoxIcon.Error,
+                                                 System.Windows.Forms.MessageBoxDefaultButton.Button1,
+                                                 System.Windows.Forms.MessageBoxOptions.RightAlign);
         }
 
         public static bool removeCSharpReference(Project project, string component)
@@ -806,11 +808,11 @@ namespace Ice.VisualStudio
         {
             path = path.Replace('/', '\\');
             path = path.Replace(".\\", "");
-            if(path.IndexOf("\\") == 0)
+            if(path.IndexOf("\\", StringComparison.Ordinal) == 0)
             {
                 path = path.Substring(1, path.Length - 1);
             }
-            if(path.EndsWith("\\."))
+            if(path.EndsWith("\\.", StringComparison.Ordinal))
             {
                 path = path.Substring(0, path.Length - "\\.".Length);
             }
@@ -934,7 +936,7 @@ namespace Ice.VisualStudio
 
             if(!force)
             {
-                string oldIceHome = Util.getIceHomeRaw(project, true).ToUpper();
+                string oldIceHome = Util.getIceHomeRaw(project, true).ToUpper(CultureInfo.InvariantCulture);
                 if(oldIceHome.Equals(iceHome, StringComparison.CurrentCultureIgnoreCase))
                 {
                     return;
@@ -1002,7 +1004,9 @@ namespace Ice.VisualStudio
                         System.Windows.Forms.MessageBox.Show("Could not locate Ice for Silverlight installation in '"
                                                              + expanded + "' directory.\n",
                                                              "Ice Visual Studio Extension", MessageBoxButtons.OK,
-                                                             MessageBoxIcon.Error);
+                                                             MessageBoxIcon.Error,
+                                                             System.Windows.Forms.MessageBoxDefaultButton.Button1,
+                                                             System.Windows.Forms.MessageBoxOptions.RightAlign);
                         return;
                     }
                 }
@@ -1017,7 +1021,9 @@ namespace Ice.VisualStudio
                     System.Windows.Forms.MessageBox.Show("Could not locate Ice installation in '"
                                                          + expanded + "' directory.\n",
                                                          "Ice Visual Studio Extension", MessageBoxButtons.OK,
-                                                         MessageBoxIcon.Error);
+                                                         MessageBoxIcon.Error,
+                                                         System.Windows.Forms.MessageBoxDefaultButton.Button1,
+                                                         System.Windows.Forms.MessageBoxOptions.RightAlign);
 
                     return;
                 }
@@ -1032,7 +1038,9 @@ namespace Ice.VisualStudio
                     System.Windows.Forms.MessageBox.Show("Could not locate Ice installation in '"
                                                          + expanded + "' directory.\n",
                                                          "Ice Visual Studio Extension", MessageBoxButtons.OK,
-                                                         MessageBoxIcon.Error);
+                                                         MessageBoxIcon.Error,
+                                                         System.Windows.Forms.MessageBoxDefaultButton.Button1,
+                                                         System.Windows.Forms.MessageBoxOptions.RightAlign);
 
                     return;
                 }
@@ -1309,9 +1317,6 @@ namespace Ice.VisualStudio
 
             VCProject vcProject = (VCProject)project.Object;
             IVCCollection configurations = (IVCCollection)vcProject.Configurations;
-            VCProjectEngine vcProjectEngine = (VCProjectEngine)configurations.VCProjectEngine;
-            IVCCollection platforms = (IVCCollection)vcProjectEngine.Platforms;
-            VCPlatform win32Platform = (VCPlatform)platforms.Item("Win32");
             foreach(VCConfiguration conf in configurations)
             {
                 if(conf != null)
@@ -1335,9 +1340,7 @@ namespace Ice.VisualStudio
 
             VCProject vcProject = (VCProject)project.Object;
             IVCCollection configurations = (IVCCollection)vcProject.Configurations;
-            VCProjectEngine vcProjectEngine = (VCProjectEngine)configurations.VCProjectEngine;
-            IVCCollection platforms = (IVCCollection)vcProjectEngine.Platforms;
-            VCPlatform win32Platform = (VCPlatform)platforms.Item("Win32");
+            
             foreach(VCConfiguration conf in configurations)
             {
                 if(conf != null)
@@ -1388,9 +1391,7 @@ namespace Ice.VisualStudio
 
             VCProject vcProject = (VCProject)project.Object;
             IVCCollection configurations = (IVCCollection)vcProject.Configurations;
-            VCProjectEngine vcProjectEngine = (VCProjectEngine)configurations.VCProjectEngine;
-            IVCCollection platforms = (IVCCollection)vcProjectEngine.Platforms;
-            VCPlatform win32Platform = (VCPlatform)platforms.Item("Win32");
+
             foreach(VCConfiguration conf in configurations)
             {
                 if(conf != null)
@@ -1440,9 +1441,9 @@ namespace Ice.VisualStudio
             string result = s;
             int beg = 0;
             int end;
-            while((beg = result.IndexOf("$(", beg)) != -1 && beg < result.Length -1)
+            while((beg = result.IndexOf("$(", beg, StringComparison.Ordinal)) != -1 && beg < result.Length -1)
             {
-                end = result.IndexOf(")", beg + 1);
+                end = result.IndexOf(")", beg + 1, StringComparison.Ordinal);
                 if(end == -1)
                 {
                     break;
@@ -1461,10 +1462,10 @@ namespace Ice.VisualStudio
 
         public static bool containsEnvironmentVars(string s)
         {
-            int pos = s.IndexOf("$(");
+            int pos = s.IndexOf("$(", StringComparison.Ordinal);
             if(pos != -1)
             {
-               return s.IndexOf(')', pos) != -1;
+                return s.IndexOf(')', pos) != -1;
             }
             return false;
         }

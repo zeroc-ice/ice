@@ -180,6 +180,6 @@ namespace Ice.VisualStudio
         }
 
         private Dictionary<string, Dictionary<string, List<string>>> _files;
-        private bool _reaping = false;
+        private bool _reaping;
     }
 }

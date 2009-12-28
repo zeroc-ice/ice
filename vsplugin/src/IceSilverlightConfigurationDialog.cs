@@ -613,12 +613,12 @@ namespace Ice.VisualStudio
 
         private int _editingIndex = -1;
         private bool _editingIncludes;
-        private bool _initialized = false;
-        private bool _changed = false;
+        private bool _initialized;
+        private bool _changed;
         private Project _project;
-        private bool _iceHomeUpdating = false;
-        private TextBox _txtIncludeDir = null;
-        private Button _btnSelectInclude = null;
+        private bool _iceHomeUpdating;
+        private TextBox _txtIncludeDir;
+        private Button _btnSelectInclude;
 
     }
 }

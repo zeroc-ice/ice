@@ -101,8 +101,6 @@ namespace Ice.VisualStudio
             //
             _serviceProvider =
                 new ServiceProvider((Microsoft.VisualStudio.OLE.Interop.IServiceProvider)_applicationObject.DTE);
-            IVsSolutionBuildManager vsSlnBldMgr = 
-                (IVsSolutionBuildManager)_serviceProvider.GetService(typeof(SVsSolutionBuildManager));
             initErrorListProvider();
             setupCommandBars();
         }
@@ -198,8 +196,6 @@ namespace Ice.VisualStudio
 
         private void setupCommandBars()
         {
-            CommandBar menuBarCommandBar = ((CommandBars)_applicationObject.CommandBars)["MenuBar"];
-
             _iceConfigurationCmd = null;
             try
             {
@@ -227,7 +223,9 @@ namespace Ice.VisualStudio
                                                      "Cannot create required commands",
                                                      "Ice Visual Studio Extension",
                                                      System.Windows.Forms.MessageBoxButtons.OK,
-                                                     System.Windows.Forms.MessageBoxIcon.Error);
+                                                     System.Windows.Forms.MessageBoxIcon.Error,
+                                                     System.Windows.Forms.MessageBoxDefaultButton.Button1,
+                                                     System.Windows.Forms.MessageBoxOptions.RightAlign);
                 return;
             }
 
@@ -411,7 +409,7 @@ namespace Ice.VisualStudio
             {
                 return;
             }
-            if(!document.Name.EndsWith(".ice"))
+            if(!document.Name.EndsWith(".ice", StringComparison.Ordinal))
             {
                 return;
             }
@@ -609,7 +607,7 @@ namespace Ice.VisualStudio
                 return true;
             }
 
-            if(!item.Name.EndsWith(".ice"))
+            if(!item.Name.EndsWith(".ice", StringComparison.Ordinal))
             {
                 return true;
             }
@@ -711,7 +709,6 @@ namespace Ice.VisualStudio
                 return;
             }
 
-            string projectDir = Path.GetDirectoryName(project.FileName);
             VCProject vcProject = (VCProject)project.Object;
 
             if(File.Exists(cpp.FullName))
@@ -774,7 +771,7 @@ namespace Ice.VisualStudio
                 return "";
             }
 
-            if(!fullPath.EndsWith(".ice"))
+            if(!fullPath.EndsWith(".ice", StringComparison.Ordinal))
             {
                 return "";
             }
@@ -799,7 +796,7 @@ namespace Ice.VisualStudio
                 return "";
             }
 
-            if(!item.Name.EndsWith(".ice"))
+            if(!item.Name.EndsWith(".ice", StringComparison.Ordinal))
             {
                 return "";
             }
@@ -832,7 +829,7 @@ namespace Ice.VisualStudio
                 return true;
             }
 
-            if(!item.Name.EndsWith(".ice"))
+            if(!item.Name.EndsWith(".ice", StringComparison.Ordinal))
             {
                 return true;
             }
@@ -1012,13 +1009,13 @@ namespace Ice.VisualStudio
                     continue;
                 }
                 String include = Util.subEnvironmentVars(i);
-                if(include.EndsWith("\\") &&
+                if(include.EndsWith("\\", StringComparison.Ordinal) &&
                    include.Split(new char[]{'\\'}, StringSplitOptions.RemoveEmptyEntries).Length == 1)
                 {
                     include += ".";
                 }
-                
-                if(include.EndsWith("\\") && !include.EndsWith("\\\\"))
+
+                if(include.EndsWith("\\", StringComparison.Ordinal) && !include.EndsWith("\\\\", StringComparison.Ordinal))
                 {
                    include += "\\";
                 }
@@ -1107,7 +1104,7 @@ namespace Ice.VisualStudio
                 }
                 else if(Util.isProjectItemFile(item))
                 {
-                    if(!item.Name.EndsWith(".ice"))
+                    if(!item.Name.EndsWith(".ice", StringComparison.Ordinal))
                     {
                         continue;
                     }
@@ -1182,9 +1179,10 @@ namespace Ice.VisualStudio
             Dictionary<string, List<string>> projectDeps = _dependenciesMap[project.Name];
             while ((line = output.ReadLine()) != null)
             {
+                writeBuildOutput(line);
                 if(!String.IsNullOrEmpty(line))
                 {
-                    if(line.EndsWith(" \\"))
+                    if(line.EndsWith(" \\", StringComparison.Ordinal))
                     {
                         line = line.Substring(0, line.Length - 2);
                     }
@@ -1193,7 +1191,8 @@ namespace Ice.VisualStudio
                     // Unescape white spaces.
                     //
                     line = line.Replace("\\ ", " ");
-                    if(line.EndsWith(".ice") &&
+
+                    if(line.EndsWith(".ice", StringComparison.Ordinal) &&
                        System.IO.Path.GetFileName(line) != System.IO.Path.GetFileName(file))
                     {
                         line = line.Replace('/', '\\');
@@ -1308,7 +1307,7 @@ namespace Ice.VisualStudio
                 {
                     return;
                 }
-                if(!file.Name.EndsWith(".ice"))
+                if(!file.Name.EndsWith(".ice", StringComparison.Ordinal))
                 {
                     return;
                 }
@@ -1343,7 +1342,9 @@ namespace Ice.VisualStudio
                                                              Path.GetFileName(hPath) + "' from your project.",
                                                              "Ice Visual Studio Extension",
                                                              System.Windows.Forms.MessageBoxButtons.OK,
-                                                             System.Windows.Forms.MessageBoxIcon.Error);
+                                                             System.Windows.Forms.MessageBoxIcon.Error,
+                                                             System.Windows.Forms.MessageBoxDefaultButton.Button1,
+                                                             System.Windows.Forms.MessageBoxOptions.RightAlign);
                         item.Name = oldName;
                         return;
                     }
@@ -1357,7 +1358,9 @@ namespace Ice.VisualStudio
                                                              Path.GetFileName(hPath) + "' from your project.",
                                                              "Ice Visual Studio Extension",
                                                              System.Windows.Forms.MessageBoxButtons.OK,
-                                                             System.Windows.Forms.MessageBoxIcon.Error);
+                                                             System.Windows.Forms.MessageBoxIcon.Error,
+                                                             System.Windows.Forms.MessageBoxDefaultButton.Button1,
+                                                             System.Windows.Forms.MessageBoxOptions.RightAlign);
                         item.Name = oldName;
                         return;
                     }
@@ -1418,7 +1421,7 @@ namespace Ice.VisualStudio
                 {
                     return;
                 }
-                if(!file.Name.EndsWith(".ice"))
+                if(!file.Name.EndsWith(".ice", StringComparison.Ordinal))
                 {
                     _fileTracker.reap(project);
                     return;
@@ -1452,7 +1455,7 @@ namespace Ice.VisualStudio
                 {
                     return;
                 }
-                if(!file.Name.EndsWith(".ice"))
+                if(!file.Name.EndsWith(".ice", StringComparison.Ordinal))
                 {
                     return;
                 }
@@ -1495,7 +1498,9 @@ namespace Ice.VisualStudio
                                                              Path.GetFileName(hPath) + "'.",
                                                              "Ice Visual Studio Extension",
                                                              System.Windows.Forms.MessageBoxButtons.OK,
-                                                             System.Windows.Forms.MessageBoxIcon.Error);
+                                                             System.Windows.Forms.MessageBoxIcon.Error,
+                                                             System.Windows.Forms.MessageBoxDefaultButton.Button1,
+                                                             System.Windows.Forms.MessageBoxOptions.RightAlign);
                         _deleted.Add(fullPath);
                         item.Remove();
                         return;
@@ -1510,7 +1515,9 @@ namespace Ice.VisualStudio
                                                              Path.GetFileName(hPath) + "'.",
                                                              "Ice Visual Studio Extension",
                                                              System.Windows.Forms.MessageBoxButtons.OK,
-                                                             System.Windows.Forms.MessageBoxIcon.Error);
+                                                             System.Windows.Forms.MessageBoxIcon.Error,
+                                                             System.Windows.Forms.MessageBoxDefaultButton.Button1,
+                                                             System.Windows.Forms.MessageBoxOptions.RightAlign);
                         _deleted.Add(fullPath);
                         item.Remove();
                         return;
@@ -1539,7 +1546,7 @@ namespace Ice.VisualStudio
                 {
                     return;
                 }
-                if(!oldName.EndsWith(".ice") || !Util.isProjectItemFile(item))
+                if(!oldName.EndsWith(".ice", StringComparison.Ordinal) || !Util.isProjectItemFile(item))
                 {
                     return;
                 }
@@ -1559,7 +1566,9 @@ namespace Ice.VisualStudio
                                                              " could not be renamed to '" + item.Name + "'.",
                                                              "Ice Visual Studio Extension",
                                                              System.Windows.Forms.MessageBoxButtons.OK,
-                                                             System.Windows.Forms.MessageBoxIcon.Error);
+                                                             System.Windows.Forms.MessageBoxIcon.Error,
+                                                             System.Windows.Forms.MessageBoxDefaultButton.Button1,
+                                                             System.Windows.Forms.MessageBoxOptions.RightAlign);
                         item.Name = oldName;
                         return;
                     }
@@ -1590,7 +1599,7 @@ namespace Ice.VisualStudio
                 {
                     return;
                 }
-                if(!item.Name.EndsWith(".ice"))
+                if(!item.Name.EndsWith(".ice", StringComparison.Ordinal))
                 {
                     return;
                 }
@@ -1629,7 +1638,7 @@ namespace Ice.VisualStudio
                     return;
                 }
 
-                if(!item.Name.EndsWith(".ice"))
+                if(!item.Name.EndsWith(".ice", StringComparison.Ordinal))
                 {
                     return;
                 }
@@ -1652,7 +1661,9 @@ namespace Ice.VisualStudio
                                                          " '" + Path.GetFileName(csPath) + "'.",
                                                          "Ice Visual Studio Extension",
                                                          System.Windows.Forms.MessageBoxButtons.OK,
-                                                         System.Windows.Forms.MessageBoxIcon.Error);
+                                                         System.Windows.Forms.MessageBoxIcon.Error,
+                                                         System.Windows.Forms.MessageBoxDefaultButton.Button1,
+                                                         System.Windows.Forms.MessageBoxOptions.RightAlign);
                     _deleted.Add(fullPath);
                     item.Remove();
                     return;
@@ -1679,7 +1690,7 @@ namespace Ice.VisualStudio
                 return;
             }
 
-            if(!item.Name.EndsWith(".ice"))
+            if(!item.Name.EndsWith(".ice", StringComparison.Ordinal))
             {
                 return;
             }
@@ -1706,7 +1717,7 @@ namespace Ice.VisualStudio
                     string path = i.Properties.Item("FullPath").Value.ToString();
                     if(!String.IsNullOrEmpty(path))
                     {
-                        if(path.EndsWith(".ice"))
+                        if(path.EndsWith(".ice", StringComparison.Ordinal))
                         {
                             removeCppGeneratedItems(i);
                         }
@@ -1731,7 +1742,7 @@ namespace Ice.VisualStudio
                 return;
             }
 
-            if(!item.Name.EndsWith(".ice"))
+            if(!item.Name.EndsWith(".ice", StringComparison.Ordinal))
             {
                 return;
             }
@@ -1777,7 +1788,7 @@ namespace Ice.VisualStudio
             string args = getSliceCompilerArgs(project, false);
             if(!String.IsNullOrEmpty(outputDir))
             {
-                if(outputDir.EndsWith("\\"))
+                if(outputDir.EndsWith("\\", StringComparison.Ordinal))
                 {
                     outputDir = outputDir.Replace("\\", "\\\\");
                 }
@@ -1817,8 +1828,8 @@ namespace Ice.VisualStudio
                 List<String> tokens = new List<string>(version.Split(new char[]{'.'}, 
                                                                      StringSplitOptions.RemoveEmptyEntries));
                                                                      
-                int mayor = Int32.Parse(tokens[0]);
-                int minor = Int32.Parse(tokens[1]);
+                int mayor = Int32.Parse(tokens[0], CultureInfo.InvariantCulture);
+                int minor = Int32.Parse(tokens[1], CultureInfo.InvariantCulture);
                 if(mayor == 0 && minor <= 3)
                 {
                     standardError = false;
@@ -1858,7 +1869,7 @@ namespace Ice.VisualStudio
             string sliceCompiler = getSliceCompilerPath(project);
             while(!String.IsNullOrEmpty(errorMessage))
             {
-                if(errorMessage.StartsWith(sliceCompiler))
+                if(errorMessage.StartsWith(sliceCompiler, StringComparison.Ordinal))
                 {
                     hasErrors = true;
                     String message = strer.ReadLine();
@@ -1901,7 +1912,7 @@ namespace Ice.VisualStudio
                     writeBuildOutput(errorMessage + "\n");
                 }
 
-                if(errorMessage.StartsWith("    ")) // Still the same mcpp warning
+                if(errorMessage.StartsWith("    ", StringComparison.Ordinal)) // Still the same mcpp warning
                 {
                     errorMessage = strer.ReadLine();
                     continue;
@@ -1933,7 +1944,7 @@ namespace Ice.VisualStudio
                 int l;
                 try
                 {
-                    l = Int16.Parse(n);
+                    l = Int16.Parse(n, CultureInfo.InvariantCulture);
                 }
                 catch(Exception)
                 {
@@ -1993,6 +2004,18 @@ namespace Ice.VisualStudio
             Guid guidSvc = typeof(IVsProfferCommands).GUID;
             object objService;
             int rc = sp.QueryService(ref guidSvc, ref guidSvc, out objService);
+            if(ErrorHandler.Failed(rc))
+            {
+                try
+                {
+                    ErrorHandler.ThrowOnFailure(rc);
+                }
+                catch(Exception ex)
+                {
+                    writeBuildOutput(ex.ToString() + "\n");
+                }
+                return null;
+            }
             IVsProfferCommands vsProfferCmds = (IVsProfferCommands)objService;
             return vsProfferCmds.FindCommandBar(IntPtr.Zero, ref guidCmdGroup, menuID) as CommandBar;
         }
@@ -2180,7 +2203,18 @@ namespace Ice.VisualStudio
             IVsHierarchy hierarchy = null;
             if(ivSSolution != null)
             {
-                ivSSolution.GetProjectOfUniqueName(project.UniqueName, out hierarchy);
+                int hr = ivSSolution.GetProjectOfUniqueName(project.UniqueName, out hierarchy);
+                if(ErrorHandler.Failed(hr))
+                { 
+                    try
+                    {
+                        ErrorHandler.ThrowOnFailure(hr);
+                    }
+                    catch(Exception ex)
+                    {
+                        writeBuildOutput(ex.ToString() + "\n");
+                    }
+                }
             }
             return hierarchy;
         }
@@ -2302,14 +2336,14 @@ namespace Ice.VisualStudio
         private AddIn _addInInstance;
         private SolutionEvents _solutionEvents;
         private BuildEvents _buildEvents;
-        private DocumentEvents _docEvents = null;
+        private DocumentEvents _docEvents;
         private ProjectItemsEvents _csProjectItemsEvents;
         private VCProjectEngineEvents _vcProjectItemsEvents;
         private ServiceProvider _serviceProvider;
 
         private ErrorListProvider _errorListProvider;
         private List<ErrorTask> _errors;
-        private int _errorCount = 0;
+        private int _errorCount;
         private FileTracker _fileTracker;
         private Dictionary<string, Dictionary<string, List<string>>> _dependenciesMap;
         private string _deletedFile;
@@ -2321,6 +2355,6 @@ namespace Ice.VisualStudio
         private CommandEvents _editDeleteEvent;
         private List<String> _deleted = new List<String>();
         private Command _iceConfigurationCmd;
-        private bool _building = false;
+        private bool _building;
     }
 }
