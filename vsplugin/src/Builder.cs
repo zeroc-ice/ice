@@ -1189,6 +1189,10 @@ namespace Ice.VisualStudio
                         line = line.Substring(0, line.Length - 2);
                     }
                     line = line.Trim();
+                    //
+                    // Unescape white spaces.
+                    //
+                    line = line.Replace("\\ ", " ");
                     if(line.EndsWith(".ice") &&
                        System.IO.Path.GetFileName(line) != System.IO.Path.GetFileName(file))
                     {
