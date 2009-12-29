@@ -191,7 +191,6 @@ environment variables need to be defined:
 
   > set JAVA_HOME=<Java SDK installation root directory>
   > set PATH=<Ice installation root directory>\bin;%PATH%
-  > set CLASSPATH=<Ice installation root directory>\lib\db.jar;%CLASSPATH%
 
 You can build all of the demos by running 'ant' in the demoj
 directory, or you can build individual demos by changing to the
