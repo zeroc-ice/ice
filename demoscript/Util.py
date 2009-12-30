@@ -442,7 +442,7 @@ def guessBuildMode():
     else:
 	m = guessBuildModeForDir(".")
     if m is None:
-        raise "cannot guess debug or release mode"
+        raise RuntimeError("cannot guess debug or release mode")
     return m
 
 def isDebugBuild():
@@ -668,6 +668,10 @@ def processCmdLine():
         configurePaths()
     if env:
         dumpenv()
+
+    if iceHome and isWin32() and not buildmode:
+        print "Error: please define --mode=debug or --mode=release"
+        sys.exit(1)
 
 import inspect
 frame = inspect.currentframe().f_back
