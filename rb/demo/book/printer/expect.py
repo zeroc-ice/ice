@@ -22,7 +22,7 @@ sys.path.append(path[0])
 from demoscript import *
 import signal
 
-server = Util.spawn('./server --Ice.PrintAdapterReady', Util.getMirrorDir("cpp"))
+server = Util.spawn('./server --Ice.PrintAdapterReady', Util.getMirrorDir("cpp"), mapping="cpp")
 server.expect('.* ready')
 
 print "testing...",

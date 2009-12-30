@@ -22,7 +22,7 @@ sys.path.append(path[0])
 from demoscript import *
 from demoscript.Ice import session
 
-server = Util.spawn('./server --Ice.PrintAdapterReady', Util.getMirrorDir("cpp"))
+server = Util.spawn('./server --Ice.PrintAdapterReady', Util.getMirrorDir("cpp"), mapping="cpp")
 server.expect('.* ready')
 
 session.run('ruby Client.rb', server)

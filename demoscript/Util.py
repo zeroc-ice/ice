@@ -513,19 +513,26 @@ def getGlacier2Router():
     else:
         return "glacier2router"
 
-def spawn(command, cwd = None):
-    desc = command.split(' ')[0]
+def spawn(command, cwd = None, mapping = None):
+    tokens = command.split(' ')
+    desc = tokens[0]
+    args = ""
+    for arg in tokens[1:len(tokens)]:
+        args += " " + arg
+
 
     if defaultHost:
         command = '%s %s' % (command, defaultHost)
+        args = '%s %s' % (args, defaultHost)
 
     # magic
     knownCommands = [ "icegridnode", "icegridregistry", "icebox", "iceboxd", "icegridadmin", "icestormadmin",
                       "iceboxadmin", "transformdb", "glacier2router" ]
-    if desc in knownCommands:
-        mapping = "cpp"
-    else:
-        mapping = getMapping()
+    if mapping == None:
+        if desc in knownCommands:
+            mapping = "cpp"
+        else:
+            mapping = getMapping()
 
     if mapping == "cs":
         if isMono():
@@ -541,12 +548,18 @@ def spawn(command, cwd = None):
             command = command.replace("java", "java -Djava.net.preferIPv4Stack=true")
         if isSolaris() and x64:
             command = command.replace("java", "java -d64")
+    elif mapping == "cpp":
+        if cwd != None:
+            desc = os.path.join(cwd, desc)
+        if isWin32():
+            if not desc.endswith(".exe"):
+                desc += ".exe"
+        command = desc + " " + args
 
-    if debug:
-        print '(%s)' % (command)
     if isWin32(): # Under Win32 ./ does not work.
         command = command.replace("./", "")
-
+    if debug:
+        print '(%s)' % (command)
     return Expect.Expect(command, logfile = tracefile, desc = desc, mapping = mapping, cwd = cwd)
 
 def cleanDbDir(path):
