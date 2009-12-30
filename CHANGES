@@ -36,6 +36,11 @@ noted.
 - Added the ability to invoke flushBatchRequests asynchronously on a
   communicator or connection.
 
+- The Ice extension for Visual Studio is now included in the Ice
+  distribution. The source code for the extension can be found in the
+  vsplugin subdirectory of the source distribution. Note that the
+  extension no longer supports Visual Studio 2005.
+
 - Added a cloneWithPrefix operation to the Logger interface.
 
 - Added a removeServantLocator operation to the ObjectAdapter
