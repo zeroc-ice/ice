@@ -4,18 +4,16 @@ Ice.Admin functionality of IceGrid-managed servers. These components
 use IceSSL secure connections to communicate and restrict access to
 their endpoints.
 
-The client and server use a regular TCP endpoint to communicate. Of
-course, they could also use a secure endpoint if necessary.
+The client and server use a regular TCP endpoint to communicate, but
+they could also use a secure endpoint if necessary.
 
 To run the demo, you first need to generate certificates for the
-IceGrid registry and node, the Glacier2 administrative router and the
-server.
-
-Run the makecerts.py script to create the certificates:
+IceGrid registry and node, the Glacier2 administrative router, and the
+server. Run the makecerts.py script to create these certificates:
 
 $ makecerts.py
 
-And follow the instructions from the script. Note that to run the
+Follow the instructions provided by the script. Note that to run the
 script you must have java (Java5 or greater) in your path.
 
 For simplicity, the certificates created by makecerts.py are not
@@ -27,13 +25,13 @@ the Glacier2 certificate.
 
 You could also protect the server certificate with a password and
 specify the password in the server configuration in clear text.
-However, this wouldn't improve security as you would still rely on
+However, this would not improve security as you would still rely on
 filesystem permissions to restrict access to the configuration file,
 so you might as well use a certificate without a password and rely on
 the filesystem permissions to restrict access to the certificate.
 
 Once the certificates are generated, you can start the IceGrid
-registry, node and Glacier2 router:
+registry, node, and Glacier2 router:
 
 $ icegridregistry --Ice.Config=config.registry
 $ icegridnode --Ice.Config=config.node
@@ -100,4 +98,5 @@ following warning:
 
 This issue can be resolved by granting appropriate permissions to the
 node's user account. Please refer to the Troubleshooting section of
-Appendix H in the Ice manual for more information.
+the "Windows Services" appendix in the Ice manual for more
+information.

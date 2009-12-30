@@ -52,6 +52,7 @@ Table of Contents
      - Mono
      - IBM JDK
   5. Known Problems
+     - iceca failure on SLES11
 
 
 ======================================================================
@@ -1697,24 +1698,38 @@ IBM JDK
 --------
 
 The IBM JDK ships with limited jurisdiction policy files for the
-cryptographic libraries. This creates an issue for Ice's certificate
-authority script (iceca) when running with the command-line options
-"iceca java --import". The import fails with an error similar to:
-
-  "lengthTag=127, too big"
-
-To solve this problem you must install the unlimited jurisdiction
-policy files. For more information, including a link to download
-the policy files, see:
+cryptographic libraries. For more information, including a link to
+download unrestricted jurisdiction policy files, see:
 
   http://www.ibm.com/developerworks/java/jdk/security/60/
 
-Once you have downloaded the policy files, you must unpack them into
-the jre/lib/security directory.
+Once you have downloaded the policy files, unpack them into this
+directory:
+
+  /usr/lib/jvm-private/java-1_6_0-ibm/jce/vanilla
 
 
 ======================================================================
 5. Known Problems
 ======================================================================
 
-There are no known problems.
+
+iceca failure on SLES11
+-----------------------
+
+The Ice Certificate Authority (iceca) script may fail to import
+OpenSSL-generated certificates into a Java keystore. This failure
+occurs when using the following command-line options:
+
+  iceca java --import ...
+
+The import fails with an error similar to:
+
+  lengthTag=127, too big
+
+The error is caused by an incompatibility between the JDK's keytool
+and the version of OpenSSL that is included with SLES11 (OpenSSL
+0.9.8h). To work around this issue, you can install a newer version of
+OpenSSL. Note that it is not necessary to rebuild Ice with the new
+OpenSSL version; the only requirement is that you have the new
+"openssl" executable in your PATH when running "iceca java --import".
