@@ -328,13 +328,3 @@ You can start the console with this command:
 
   java IceGridGUI.Main
 
-
-======================================================================
-MacOS X Notes
-======================================================================
-
-On MacOS X, an Ice server may not correctly detect the closure of
-client connections, which can lead to a hang during server shutdown.
-This appears to be caused by a problem in the JVM implementation, but
-we are still looking into this issue. Until we resolve this matter, We
-recommend the use of timeouts in object adapter endpoints.

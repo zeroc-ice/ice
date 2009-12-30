@@ -1383,8 +1383,15 @@ public class Client
 
             {
                 NavigableMap<Integer, Ice.Identity> dmap = sm.descendingMap();
+                //
+                // testSortedMap is memory intensive test, so we force garbage
+                // collection before run the test.
+                //
+                System.gc();
                 testSortedMap(dmap, false);
+                System.gc();
                 testSortedMap(dmap.descendingMap(), true); // Ascending submap.
+                System.gc();
             }
 
             int finc, tinc; // Inclusive flags

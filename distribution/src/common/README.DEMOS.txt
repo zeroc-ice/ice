@@ -50,6 +50,9 @@ Building and running the C++ demos (Visual Studio 2008 Express)
 
 The C++ demos are in the demo directory.
 
+NMAKE is used to build the demos with Visual Studio Express since it
+doesn't support the Ice Visual Studio extension.
+
 To build the C++ demos, open a "Visual Studio 2008 Command Prompt"
 window, change to the demo directory and run the following commands to
 build the demos:
@@ -66,12 +69,6 @@ Prompt windows. In each command prompt, add the Ice bin directory to
 your PATH, as shown below:
 
   > set PATH=<Ice installation root directory>\bin;%PATH%
-
-If you built an x64 configuration, use this setting instead (the
-x64 directory must come first in your PATH):
-
-  > set PATH=<Ice installation root directory>\bin;%PATH%
-  > set PATH=<Ice installation root directory>\bin\x64;%PATH%
 
 Change to the desired demo subdirectory and review the README file if
 one is present. Type 'server' to start the server. In another command
@@ -194,7 +191,6 @@ environment variables need to be defined:
 
   > set JAVA_HOME=<Java SDK installation root directory>
   > set PATH=<Ice installation root directory>\bin;%PATH%
-  > set CLASSPATH=<Ice installation root directory>\lib\db.jar;%CLASSPATH%
 
 You can build all of the demos by running 'ant' in the demoj
 directory, or you can build individual demos by changing to the
