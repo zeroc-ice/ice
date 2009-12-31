@@ -148,17 +148,17 @@ clean::
 	-del /q IceGridAdmin.res IceGridNode.res IceGridRegistry.res
 
 install:: all
-	copy $(ADMIN) $(install_bindir)
-	copy $(NODE_SERVER) $(install_bindir)
-	copy $(REGISTRY_SERVER) $(install_bindir)
+	copy $(ADMIN) "$(install_bindir)"
+	copy $(NODE_SERVER) "$(install_bindir)"
+	copy $(REGISTRY_SERVER) "$(install_bindir)"
 
 
 !if "$(GENERATE_PDB)" == "yes"
 
 install:: all
-	copy $(ADMIN:.exe=.pdb) $(install_bindir)
-	copy $(NODE_SERVER:.exe=.pdb) $(install_bindir)
-	copy $(REGISTRY_SERVER:.exe=.pdb) $(install_bindir)
+	copy $(ADMIN:.exe=.pdb) "$(install_bindir)"
+	copy $(NODE_SERVER:.exe=.pdb) "$(install_bindir)"
+	copy $(REGISTRY_SERVER:.exe=.pdb) "$(install_bindir)"
 
 !endif
 
@@ -170,4 +170,4 @@ $(EVERYTHING)::
 	        @echo "making $@ in %i" && \
 	        cmd /c "cd %i && $(MAKE) -nologo -f Makefile.mak $@" || exit 1
 
-!include .depend
+!include .depend.mak

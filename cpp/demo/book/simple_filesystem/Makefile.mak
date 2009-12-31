@@ -47,4 +47,4 @@ $(SERVER): $(OBJS) $(SOBJS)
 clean::
 	del /q Filesystem.cpp Filesystem.h
 
-!include .depend
+!include .depend.mak

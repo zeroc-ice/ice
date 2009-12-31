@@ -35,4 +35,4 @@ $(CLIENT): $(COBJS)
 clean::
 	del /q Key.cpp Key.h
 
-!include .depend
+!include .depend.mak

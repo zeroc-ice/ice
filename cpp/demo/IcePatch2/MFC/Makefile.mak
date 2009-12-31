@@ -37,4 +37,4 @@ $(CLIENT): $(OBJS) $(COBJS) PatchClient.res
 clean::
 	del /q PatchClient.res
 
-!include .depend
+!include .depend.mak

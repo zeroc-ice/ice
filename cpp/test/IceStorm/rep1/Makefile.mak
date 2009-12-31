@@ -73,4 +73,4 @@ clean::
 	-for %f in (1.db\*) do if not %f == 1.db\.gitignore del /q %f
 	-for %f in (2.db\*) do if not %f == 2.db\.gitignore del /q %f
 
-!include .depend
+!include .depend.mak

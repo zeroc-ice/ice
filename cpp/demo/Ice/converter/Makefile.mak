@@ -48,4 +48,4 @@ $(SERVER): $(OBJS) $(SOBJS)
 clean::
 	del /q Greet.cpp Greet.h
 
-!include .depend
+!include .depend.mak

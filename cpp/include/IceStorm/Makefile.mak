@@ -12,10 +12,10 @@ top_srcdir	= ..\..
 !include $(top_srcdir)/config/Make.rules.mak
 
 install::
-	@if not exist $(install_includedir)\IceStorm \
+	@if not exist "$(install_includedir)\IceStorm" \
 	    @echo "Creating $(install_includedir)\IceStorm..." && \
-	    mkdir $(install_includedir)\IceStorm
+	    mkdir "$(install_includedir)\IceStorm"
 
 	@for %i in ( *.h ) do \
 	    @echo Installing %i && \
-	    copy %i $(install_includedir)\IceStorm
+	    copy %i "$(install_includedir)\IceStorm"

@@ -44,11 +44,7 @@ MLINKWITH 	= freeze$(LIBSUFFIX).lib icegrid$(LIBSUFFIX).lib icegriddb$(LIBSUFFIX
 PDBFLAGS        = /pdb:$(DLLNAME:.dll=.pdb)
 !endif
 
-!if "$(BCPLUSPLUS)" == "yes"
-RES_FILE        = ,, IceGridFreezeDB.res
-!else
 RES_FILE        = IceGridFreezeDB.res
-!endif
 
 $(LIBNAME): $(DLLNAME)
 
@@ -83,7 +79,14 @@ clean::
 	-del /q IceGridFreezeDB.res IceGridMigrate.res
 
 install:: all
-	copy $(LIBNAME) $(install_libdir)
-	copy $(DLLNAME) $(install_bindir)
+	copy $(LIBNAME) "$(install_libdir)"
+	copy $(DLLNAME) "$(install_bindir)"
 
-!include .depend
+!if "$(GENERATE_PDB)" == "yes"
+
+install:: all
+	copy $(DLLNAME:.dll=.pdb) "$(install_bindir)"
+
+!endif
+
+!include .depend.mak

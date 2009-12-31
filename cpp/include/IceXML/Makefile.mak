@@ -12,10 +12,10 @@ top_srcdir	= ..\..
 !include $(top_srcdir)/config/Make.rules.mak
 
 install::
-	@if not exist $(install_includedir)\IceXML \
+	@if not exist "$(install_includedir)\IceXML" \
 	    @echo "Creating $(install_includedir)\IceXML..." && \
-	    mkdir $(install_includedir)\IceXML
+	    mkdir "$(install_includedir)\IceXML"
 
 	@for %i in ( *.h ) do \
 	    @echo Installing %i && \
-	    copy %i $(install_includedir)\IceXML
+	    copy %i "$(install_includedir)\IceXML"

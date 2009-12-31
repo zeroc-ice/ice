@@ -12,10 +12,10 @@ top_srcdir	= ..\..
 !include $(top_srcdir)/config/Make.rules.mak
 
 install::
-	@if not exist $(install_includedir)\Slice \
+	@if not exist "$(install_includedir)\Slice" \
 	    @echo "Creating $(install_includedir)\Slice..." && \
-	    mkdir $(install_includedir)\Slice
+	    mkdir "$(install_includedir)\Slice"
 
 	@for %i in ( *.h ) do \
 	    @echo Installing %i && \
-	    copy %i $(install_includedir)\Slice
+	    copy %i "$(install_includedir)\Slice"

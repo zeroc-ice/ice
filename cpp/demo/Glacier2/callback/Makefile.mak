@@ -47,4 +47,4 @@ $(SERVER): $(OBJS) $(SOBJS)
 clean::
 	del /q Callback.cpp Callback.h
 
-!include .depend
+!include .depend.mak

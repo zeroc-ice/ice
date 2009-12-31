@@ -55,14 +55,14 @@ $(RECREATE): $(RECREATE_OBJS)
 	@if exist $@.manifest echo ^ ^ ^ Embedding manifest using $(MT) && \
 	    $(MT) -nologo -manifest $@.manifest -outputresource:$@;#1 && del /q $@.manifest
 
-Contacts.h Contacts.cpp: ContactData.ice $(SLICE2FREEZE) $(SLICEPARSERLIB)
+Contacts.h Contacts.cpp: ContactData.ice "$(SLICE2FREEZE)" "$(SLICEPARSERLIB)"
 	del /q Contacts.h Contacts.cpp
-	$(SLICE2FREEZE) -I$(slicedir) --dict Demo::Contacts,string,Demo::ContactData,sort \
+	"$(SLICE2FREEZE)" -I"$(slicedir)" --dict Demo::Contacts,string,Demo::ContactData,sort \
               --dict-index Demo::Contacts,phoneNumber,sort Contacts ContactData.ice
 
-NewContacts.h NewContacts.cpp: NewContactData.ice $(SLICE2FREEZE) $(SLICEPARSERLIB)
+NewContacts.h NewContacts.cpp: NewContactData.ice "$(SLICE2FREEZE)" "$(SLICEPARSERLIB)"
 	del /q NewContacts.h NewContacts.cpp
-	$(SLICE2FREEZE) -I$(slicedir) --dict Demo::NewContacts,string,Demo::ContactData,sort \
+	"$(SLICE2FREEZE)" -I"$(slicedir)" --dict Demo::NewContacts,string,Demo::ContactData,sort \
               --dict-index Demo::NewContacts,phoneNumber,sort NewContacts NewContactData.ice
 
 cleandb::
@@ -75,4 +75,4 @@ clean:: cleandb
         -del /q Contacts.h Contacts.cpp
         -del /q NewContacts.h NewContacts.cpp
 
-!include .depend
+!include .depend.mak

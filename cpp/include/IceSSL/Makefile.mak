@@ -12,10 +12,10 @@ top_srcdir	= ..\..
 !include $(top_srcdir)/config/Make.rules.mak
 
 install::
-	@if not exist $(install_includedir)\IceSSL \
+	@if not exist "$(install_includedir)\IceSSL" \
 	    @echo "Creating $(install_includedir)\IceSSL..." && \
-	    mkdir $(install_includedir)\IceSSL
+	    mkdir "$(install_includedir)\IceSSL"
 
 	@for %i in ( *.h ) do \
 	    @echo Installing %i && \
-	    copy %i $(install_includedir)\IceSSL
+	    copy %i "$(install_includedir)\IceSSL"

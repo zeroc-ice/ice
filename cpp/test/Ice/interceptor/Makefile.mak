@@ -56,4 +56,4 @@ $(CLIENT): $(COBJS)
 clean::
 	del /q Test.cpp Test.h
 
-!include .depend
+!include .depend.mak

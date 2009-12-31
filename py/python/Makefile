@@ -125,24 +125,24 @@ install:: $(ALL_SRCS)
 	done
 
 depend::  $(ICE_SLICE) $(GLACIER2_SLICE) $(ICEBOX_SLICE) $(ICEGRID_SLICE) $(ICEPATCH2_SLICE) $(ICESTORM_SLICE)
-	-rm -f .depend
+	-rm -f .depend .depend.mak
 	if test -n "$(ICE_SLICE)" ; then \
-	    $(SLICE2PY) --depend --prefix Ice_ $(SLICE2PYFLAGS) $(ICE_SLICE) | $(ice_dir)/config/makedepend.py >> .depend; \
+	    $(SLICE2PY) --depend --prefix Ice_ $(SLICE2PYFLAGS) $(ICE_SLICE) | $(ice_dir)/config/makedepend.py; \
 	fi
 	if test -n "$(GLACIER2_SLICE)" ; then \
-	    $(SLICE2PY) --depend --prefix Glacier2_ $(SLICE2PYFLAGS) $(GLACIER2_SLICE) | $(ice_dir)/config/makedepend.py >> .depend; \
+	    $(SLICE2PY) --depend --prefix Glacier2_ $(SLICE2PYFLAGS) $(GLACIER2_SLICE) | $(ice_dir)/config/makedepend.py; \
 	fi
 	if test -n "$(ICEBOX_SLICE)" ; then \
-	    $(SLICE2PY) --depend --prefix IceBox_ $(SLICE2PYFLAGS) $(ICEBOX_SLICE) | $(ice_dir)/config/makedepend.py >> .depend; \
+	    $(SLICE2PY) --depend --prefix IceBox_ $(SLICE2PYFLAGS) $(ICEBOX_SLICE) | $(ice_dir)/config/makedepend.py; \
 	fi
 	if test -n "$(ICEGRID_SLICE)" ; then \
-	    $(SLICE2PY) --depend --prefix IceGrid_ $(SLICE2PYFLAGS) $(ICEGRID_SLICE) | $(ice_dir)/config/makedepend.py >> .depend; \
+	    $(SLICE2PY) --depend --prefix IceGrid_ $(SLICE2PYFLAGS) $(ICEGRID_SLICE) | $(ice_dir)/config/makedepend.py; \
 	fi
 	if test -n "$(ICEPATCH2_SLICE)" ; then \
-	    $(SLICE2PY) --depend --prefix IcePatch2_ $(SLICE2PYFLAGS) $(ICEPATCH2_SLICE) | $(ice_dir)/config/makedepend.py >> .depend; \
+	    $(SLICE2PY) --depend --prefix IcePatch2_ $(SLICE2PYFLAGS) $(ICEPATCH2_SLICE) | $(ice_dir)/config/makedepend.py; \
 	fi
 	if test -n "$(ICESTORM_SLICE)" ; then \
-	    $(SLICE2PY) --depend --prefix IceStorm_ $(SLICE2PYFLAGS) $(ICESTORM_SLICE) | $(ice_dir)/config/makedepend.py >> .depend; \
+	    $(SLICE2PY) --depend --prefix IceStorm_ $(SLICE2PYFLAGS) $(ICESTORM_SLICE) | $(ice_dir)/config/makedepend.py; \
 	fi
 
 clean::

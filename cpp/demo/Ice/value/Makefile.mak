@@ -48,4 +48,4 @@ $(SERVER): $(OBJS) $(SOBJS)
 clean::
 	del /q Value.cpp Value.h
 
-!include .depend
+!include .depend.mak

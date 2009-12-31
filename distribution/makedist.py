@@ -260,7 +260,8 @@ for root, dirnames, filesnames in os.walk(demoDir):
         if fnmatch.fnmatch(f, "config*"):
             substitute(os.path.join(root, f), configSubstituteExprs)
 
-        for m in [ "*.sln", "*.csproj", "*.vbproj", "*.vcproj", "Make*mak*", "Make.rules.msvc", "Make.rules.bcc" ]:
+        for m in [ "*.sln", "*.csproj", "*.vbproj", "*.vcproj", "Make*mak*", "Make.rules.msvc", "Make.rules.bcc",
+                   ".depend.mak"]:
             if fnmatch.fnmatch(f, m):
                 rmFiles.append(os.path.join(root[len(demoDir) + 1:], f))
 
@@ -273,12 +274,12 @@ copyMatchingFiles(os.path.join("certs"), os.path.join(winDemoDir, "certs"), cert
 
 os.mkdir(os.path.join(winDemoDir, "config"))
 copy(os.path.join(srcDir, "config", "Make.common.rules.mak"), os.path.join(winDemoDir, "config"), False)
-copy(os.path.join(srcDir, "cpp", "config", "Make.rules.mak"), os.path.join(winDemoDir, "config"), False)
 copy(os.path.join(srcDir, "cpp", "config", "Make.rules.bcc"), os.path.join(winDemoDir, "config"), False)
 copy(os.path.join(srcDir, "cpp", "config", "Make.rules.msvc"), os.path.join(winDemoDir, "config"), False)
 copy(os.path.join(srcDir, "java", "config", "common.xml"), os.path.join(winDemoDir, "config"), False)
 
 copy(os.path.join(distFilesDir, "src", "common", "build.properties"), os.path.join(winDemoDir, "config"), False)
+copy(os.path.join(distFilesDir, "src", "common", "Make.rules.mak"), os.path.join(winDemoDir, "config"), False)
 
 # Consolidate demo distribution with files from each language mapping
 for d in os.listdir('.'):
@@ -323,7 +324,7 @@ for root, dirnames, filesnames in os.walk(winDemoDir):
             # Fix slice2freeze commands
             substitute(os.path.join(root, f), slice2freezeSubstituteExprs)
 
-        for m in [ "Makefile" ]:
+        for m in [ "Makefile", ".depend" ]:
             if fnmatch.fnmatch(f, m):
                 rmFiles.append(os.path.join(root[len(winDemoDir) + 1:], f))
 

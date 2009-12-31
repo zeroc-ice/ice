@@ -16,7 +16,7 @@ SRCS		= ClientPrivate.php Forward.php Test.php
 all:: $(SRCS)
 
 $(SRCS): $*.ice
-	-$(SLICE2PHP) $(SLICE2PHPFLAGS) -I. $*.ice
+	-"$(SLICE2PHP)" $(SLICE2PHPFLAGS) -I. $*.ice
 
 clean::
 	del /q $(SRCS)

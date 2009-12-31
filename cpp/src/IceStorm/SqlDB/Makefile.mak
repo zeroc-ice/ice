@@ -53,7 +53,14 @@ clean::
 	-del /q IceStormSqlDB.res
 
 install:: all
-	copy $(LIBNAME) $(install_libdir)
-	copy $(DLLNAME) $(install_bindir)
+	copy $(LIBNAME) "$(install_libdir)"
+	copy $(DLLNAME) "$(install_bindir)"
 
-!include .depend
+!if "$(GENERATE_PDB)" == "yes"
+
+install:: all
+	copy $(DLLNAME:.dll=.pdb) "$(install_bindir)"
+
+!endif
+
+!include .depend.mak

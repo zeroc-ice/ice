@@ -19,6 +19,11 @@
 module Ice
 {
 
+/**
+ *
+ * Base class providing access to the connection details.
+ *
+ **/
 local class ConnectionInfo
 {
     /**

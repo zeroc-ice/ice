@@ -23,7 +23,7 @@ const short UDPEndpointType = 3;
 
 /**
  *
- * The user-level interface to an endpoint.
+ * Base class providing access to the endpoint details.
  *
  **/
 local class EndpointInfo

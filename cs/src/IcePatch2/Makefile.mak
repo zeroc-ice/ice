@@ -42,14 +42,14 @@ clean::
 	del /q $(bindir)\$(PKG).xml
 
 install:: all
-	copy $(bindir)\$(LIBNAME) $(install_bindir)
-	copy $(bindir)\$(PKG).xml $(install_bindir)
+	copy $(bindir)\$(LIBNAME) "$(install_bindir)"
+	copy $(bindir)\$(PKG).xml "$(install_bindir)"
 !if "$(generate_policies)" == "yes"
-	copy $(bindir)\$(POLICY) $(install_bindir)
-	copy $(bindir)\$(POLICY_TARGET) $(install_bindir)
+	copy $(bindir)\$(POLICY) "$(install_bindir)"
+	copy $(bindir)\$(POLICY_TARGET) "$(install_bindir)"
 !endif
 !if "$(DEBUG)" == "yes"
-	copy $(bindir)\$(PKG).pdb $(install_bindir)
+	copy $(bindir)\$(PKG).pdb "$(install_bindir)"
 !endif
 
-!include .depend
+!include .depend.mak

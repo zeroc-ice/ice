@@ -46,4 +46,4 @@ $(SERVER): $(OBJS) $(SOBJS)
 clean::
 	del /q Printer.cpp Printer.h
 
-!include .depend
+!include .depend.mak

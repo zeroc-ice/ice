@@ -31,12 +31,12 @@ MCSFLAGS	= $(MCSFLAGS) -target:exe
 SLICE2CSFLAGS	= $(SLICE2CSFLAGS) -I.
 
 client.exe: $(C_SRCS) $(GEN_SRCS)
-	$(MCS) $(MCSFLAGS) -out:$@ -r:$(refdir)\Ice.dll $(C_SRCS) $(GEN_SRCS)
+	$(MCS) $(MCSFLAGS) -out:$@ -r:"$(refdir)\Ice.dll" $(C_SRCS) $(GEN_SRCS)
 
 server.exe: $(S_SRCS) $(GEN_SRCS) $(SGEN_SRCS)
-	$(MCS) $(MCSFLAGS) -out:$@ -r:$(refdir)\Ice.dll $(S_SRCS) $(GEN_SRCS) $(SGEN_SRCS)
+	$(MCS) $(MCSFLAGS) -out:$@ -r:"$(refdir)\Ice.dll" $(S_SRCS) $(GEN_SRCS) $(SGEN_SRCS)
 
 serveramd.exe: $(SAMD_SRCS) $(GEN_AMD_SRCS) $(SAMD_GEN_SRCS)
-	$(MCS) $(MCSFLAGS) -out:$@ -r:$(refdir)\Ice.dll $(SAMD_SRCS) $(GEN_AMD_SRCS) $(SAMD_GEN_SRCS)
+	$(MCS) $(MCSFLAGS) -out:$@ -r:"$(refdir)\Ice.dll" $(SAMD_SRCS) $(GEN_AMD_SRCS) $(SAMD_GEN_SRCS)
 
-!include .depend
+!include .depend.mak

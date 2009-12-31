@@ -212,7 +212,8 @@ main(int, char**)
         ss.clear();
         test(IceUtilInternal::splitString(":a:b:", ":", ss) && ss.size() == 2 && ss[0] == "a" && ss[1] == "b");
         ss.clear();
-        
+
+#if defined(_MSC_VER) && _MSC_VER >= 1300 // COMPILERBUG: VC++ 6 doesn't like escaped quotes
         test(IceUtilInternal::splitString("\"a\"", ":", ss) && ss.size() == 1 && ss[0] == "a");
         ss.clear();
         test(IceUtilInternal::splitString("\"a\":b", ":", ss) && ss.size() == 2 && ss[0] == "a" && ss[1] == "b");
@@ -223,6 +224,7 @@ main(int, char**)
         ss.clear();
         test(IceUtilInternal::splitString("a=\"a:b\"", ":", ss) && ss.size() == 1 && ss[0] == "a=a:b");
         ss.clear();
+#endif
 
         test(IceUtilInternal::splitString("'a'", ":", ss) && ss.size() == 1 && ss[0] == "a");
         ss.clear();
@@ -231,6 +233,7 @@ main(int, char**)
         test(IceUtilInternal::splitString("\"'a\"", ":", ss) && ss.size() == 1 && ss[0] == "'a");
         ss.clear();
 
+#if defined(_MSC_VER) && _MSC_VER >= 1300 // COMPILERBUG: VC++ 6 doesn't like escaped quotes
         test(IceUtilInternal::splitString("a\\'b", ":", ss) && ss.size() == 1 && ss[0] == "a'b");
         ss.clear();
         test(IceUtilInternal::splitString("'a:b\\'c'", ":", ss) && ss.size() == 1 && ss[0] == "a:b'c");
@@ -243,6 +246,7 @@ main(int, char**)
         ss.clear();
         test(IceUtilInternal::splitString("\"a:b'c\"", ":", ss) && ss.size() == 1 && ss[0] == "a:b'c");
         ss.clear();
+#endif
 
         test(!IceUtilInternal::splitString("a\"b", ":", ss));
     }

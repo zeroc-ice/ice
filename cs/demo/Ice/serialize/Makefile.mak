@@ -24,13 +24,11 @@ GDIR		= generated
 
 MCSFLAGS	= $(MCSFLAGS) -target:exe
 
-SLICE2CSFLAGS	= $(SLICE2CSFLAGS) --ice -I. -I$(slicedir)
-
 client.exe: $(C_SRCS) $(GEN_SRCS) MyGreeting.dll
-	$(MCS) $(MCSFLAGS) -out:$@ -r:$(refdir)\Ice.dll -r:MyGreeting.dll $(C_SRCS) $(GEN_SRCS)
+	$(MCS) $(MCSFLAGS) -out:$@ -r:"$(refdir)\Ice.dll" -r:MyGreeting.dll $(C_SRCS) $(GEN_SRCS)
 
 server.exe: $(S_SRCS) $(GEN_SRCS) MyGreeting.dll
-	$(MCS) $(MCSFLAGS) -out:$@ -r:$(refdir)\Ice.dll -r:MyGreeting.dll $(S_SRCS) $(GEN_SRCS)
+	$(MCS) $(MCSFLAGS) -out:$@ -r:"$(refdir)\Ice.dll" -r:MyGreeting.dll $(S_SRCS) $(GEN_SRCS)
 
 MyGreeting.dll: MyGreeting.cs
 	$(MCS) $(MCSFLAGS) -target:library -out:MyGreeting.dll MyGreeting.cs
@@ -38,4 +36,4 @@ MyGreeting.dll: MyGreeting.cs
 clean::
 	del /q Serializable.dll
 
-!include .depend
+!include .depend.mak

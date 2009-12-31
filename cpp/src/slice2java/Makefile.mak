@@ -39,14 +39,14 @@ clean::
 	del /q Slice2Java.res
 
 install:: all
-	copy $(NAME) $(install_bindir)
+	copy $(NAME) "$(install_bindir)"
 
 
 !if "$(GENERATE_PDB)" == "yes"
 
 install:: all
-	copy $(NAME:.exe=.pdb) $(install_bindir)
+	copy $(NAME:.exe=.pdb) "$(install_bindir)"
 
 !endif
 
-!include .depend
+!include .depend.mak

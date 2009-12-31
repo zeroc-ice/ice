@@ -82,4 +82,4 @@ clean::
 	del /q HR.cpp HR.h
 	del /q DbTypes.h DbTypes.cpp DbTypesMap.h DbTypesMap.cpp DbTypesOut.typ
 
-!include .depend
+!include .depend.mak

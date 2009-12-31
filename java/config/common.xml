@@ -146,11 +146,19 @@
           <available file="/usr/bin/${slice.translator}"/>
         </and>
     </condition>
-    <condition property="ice.dir" value="C:\Ice-${ice.version}">
+    <condition property="ice.dir" value="C:\Program Files\ZeroC\Ice-${ice.version}">
         <and>
             <os family="windows"/>
             <not><isset property="ice.dir"/></not>
-            <available file="C:\Ice-${ice.version}\bin\${slice.translator}"/>
+            <available file="C:\Program Files\ZeroC\Ice-${ice.version}\bin\${slice.translator}"/>
+        </and>
+    </condition>
+    <condition property="ice.dir" value="C:\Program Files (x86)\ZeroC\Ice-${ice.version}">
+        <and>
+            <!-- We can't check for PROCESSOR_ARCHITECTURE because it's set to x86 by ant even on AMD64 platforms. -->
+            <os family="windows"/>
+            <not><isset property="ice.dir"/></not>
+            <available file="C:\Program Files (x86)\ZeroC\Ice-${ice.version}\bin\${slice.translator}"/>
         </and>
     </condition>
     <condition property="ice.dir" value="/opt/Ice-${ice.version}">

@@ -32,7 +32,7 @@ $(top_srcdir)\lib\ImportKey.class: ImportKey.class
 install::
 	@for %i in ( $(CA_FILES) ) do \
 	    @echo "Installing %i" && \
-	    copy %i $(prefix)\bin
+	    copy %i "$(prefix)\bin"
 	@for %i in ( $(CLASS_FILES) ) do \
 	    @echo "Installing %i" && \
-	    copy %i $(prefix)\lib
+	    copy %i "$(prefix)\lib"

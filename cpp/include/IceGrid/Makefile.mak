@@ -12,10 +12,10 @@ top_srcdir	= ..\..
 !include $(top_srcdir)/config/Make.rules.mak
 
 install::
-	@if not exist $(install_includedir)\IceGrid \
+	@if not exist "$(install_includedir)\IceGrid" \
 	    @echo "Creating $(install_includedir)\IceGrid..." && \
-	    mkdir $(install_includedir)\IceGrid
+	    mkdir "$(install_includedir)\IceGrid"
 
 	@for %i in ( *.h ) do \
 	    @echo Installing %i && \
-	    copy %i $(install_includedir)\IceGrid
+	    copy %i "$(install_includedir)\IceGrid"

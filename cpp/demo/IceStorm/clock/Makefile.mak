@@ -52,4 +52,4 @@ clean::
 clean::
 	-for %f in (db\*) do if not %f == db\.gitignore del /q %f
 
-!include .depend
+!include .depend.mak

@@ -48,10 +48,9 @@ SLICE2CPP		= $(ICEE_HOME)/bin/slice2cppe
 	$(CXX) -c $(CPPFLAGS) $(CXXFLAGS) $<
 
 depend:: $(SRCS) $(SLICE_SRCS)
-	-rm -f .depend
+	-rm -f .depend .depend.mak
 	if test -n "$(SRCS)" ; then \
-	    $(CXX) -DMAKEDEPEND -M $(CXXFLAGS) $(CPPFLAGS) $(SRCS) | \
-	    $(configdir)/makedepend.py >> .depend; \
+	    $(CXX) -DMAKEDEPEND -M $(CXXFLAGS) $(CPPFLAGS) $(SRCS) | $(configdir)/makedepend.py; \
 	fi
 
 ifneq ($(TEMPLATE_REPOSITORY),)

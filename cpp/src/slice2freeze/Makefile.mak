@@ -42,19 +42,19 @@ clean::
 	del /q Slice2Freeze.res
 
 install:: all
-	copy $(NAME) $(install_bindir)
+	copy $(NAME) "$(install_bindir)"
 
 
 !if "$(BCPLUSPLUS)" == "yes" && "$(OPTIMIZE)" != "yes"
 
 install:: all
-	copy $(NAME:.exe=.tds) $(install_bindir)
+	copy $(NAME:.exe=.tds) "$(install_bindir)"
 
 !elseif "$(GENERATE_PDB)" == "yes"
 
 install:: all
-	copy $(NAME:.exe=.pdb) $(install_bindir)
+	copy $(NAME:.exe=.pdb) "$(install_bindir)"
 
 !endif
 
-!include .depend
+!include .depend.mak

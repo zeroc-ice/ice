@@ -51,8 +51,7 @@ SLICE2CPP		= $(ICE_HOME)/bin/slice2cpp
 # XXX- Fix SLICE_SRCS depend rule.
 #
 depend:: $(SRCS) $(SLICE_SRCS)
-	-rm -f .depend
+	-rm -f .depend .depend.mak
 	if test -n "$(SRCS)" ; then \
-	    $(CXX) -DMAKEDEPEND -MM $(CXXFLAGS) $(CPPFLAGS) $(SRCS) | \
-	    $(configdir)/makedepend.py >> .depend; \
+	    $(CXX) -DMAKEDEPEND -MM $(CXXFLAGS) $(CPPFLAGS) $(SRCS) | $(configdir)/makedepend.py; \
 	fi

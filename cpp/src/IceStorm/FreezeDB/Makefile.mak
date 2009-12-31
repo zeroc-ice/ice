@@ -56,13 +56,8 @@ PDBFLAGS        = /pdb:$(DLLNAME:.dll=.pdb)
 MPDBFLAGS       = /pdb:$(MIGRATE:.exe=.pdb)
 !endif
 
-!if "$(BCPLUSPLUS)" == "yes"
-RES_FILE        = ,, IceStormFreezeDB.res
-MRES_FILE       = ,, IceStormMigrate.res
-!else
 RES_FILE        = IceStormFreezeDB.res
 MRES_FILE       = IceStormMigrate.res
-!endif
 
 $(LIBNAME): $(DLLNAME)
 
@@ -110,8 +105,16 @@ clean::
 	-del /q IceStormFreezeDB.res IceStormMigrate.res
 
 install:: all
-	copy $(LIBNAME) $(install_libdir)
-	copy $(DLLNAME) $(install_bindir)
-	copy $(MIGRATE) $(install_bindir)
+	copy $(LIBNAME) "$(install_libdir)"
+	copy $(DLLNAME) "$(install_bindir)"
+	copy $(MIGRATE) "$(install_bindir)"
 
-!include .depend
+!if "$(GENERATE_PDB)" == "yes"
+
+install:: all
+	copy $(DLLNAME:.dll=.pdb) "$(install_bindir)"
+	copy $(MIGRATE:.exe=.pdb) "$(install_bindir)"
+
+!endif
+
+!include .depend.mak

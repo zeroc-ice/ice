@@ -53,4 +53,4 @@ clean::
 	-for %f in (db\registry\*) do if not %f == db\registry\.gitignore del /q %f
 	-for %f in (distrib servers tmp) do if exist db\node\%f rmdir /s /q db\node\%f
 
-!include .depend
+!include .depend.mak

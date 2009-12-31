@@ -26,9 +26,9 @@ MCSFLAGS	= $(MCSFLAGS) -target:exe
 SLICE2CSFLAGS	= $(SLICE2CSFLAGS) --stream -I.
 
 client.exe: $(C_SRCS) $(GEN_SRCS) Serializable.dll
-	$(MCS) $(MCSFLAGS) -out:$@ -r:$(refdir)\Ice.dll -r:Serializable.dll $(C_SRCS) $(GEN_SRCS)
+	$(MCS) $(MCSFLAGS) -out:$@ -r:"$(refdir)\Ice.dll" -r:Serializable.dll $(C_SRCS) $(GEN_SRCS)
 
 Serializable.dll: Serializable.cs
 	$(MCS) $(MCSFLAGS) -target:library -out:Serializable.dll /keyfile:$(KEYFILE) Serializable.cs
 
-!include .depend
+!include .depend.mak

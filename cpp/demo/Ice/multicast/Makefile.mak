@@ -48,4 +48,4 @@ clean::
 	del /q Hello.cpp Hello.h
 	del /q Discovery.cpp Discovery.h
 
-!include .depend
+!include .depend.mak

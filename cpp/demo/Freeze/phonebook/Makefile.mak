@@ -67,9 +67,9 @@ $(COLLOCATED): $(OBJS) $(COLOBJS)
 	@if exist $@.manifest echo ^ ^ ^ Embedding manifest using $(MT) && \
 	    $(MT) -nologo -manifest $@.manifest -outputresource:$@;#1 && del /q $@.manifest
 
-NameIndex.h NameIndex.cpp: PhoneBook.ice $(SLICE2FREEZE) $(SLICEPARSERLIB)
+NameIndex.h NameIndex.cpp: PhoneBook.ice "$(SLICE2FREEZE)" "$(SLICEPARSERLIB)"
 	del /q NameIndex.h NameIndex.cpp
-	$(SLICE2FREEZE) $(ICECPPFLAGS) --index NameIndex,Demo::Contact,name,case-insensitive NameIndex PhoneBook.ice
+	"$(SLICE2FREEZE)" $(ICECPPFLAGS) --index NameIndex,Demo::Contact,name,case-insensitive NameIndex PhoneBook.ice
 
 Scanner.cpp : Scanner.l
 	flex Scanner.l
@@ -92,4 +92,4 @@ clean::
 	-del /q NameIndex.h NameIndex.cpp
 	-for %f in (db\*) do if not %f == db\.gitignore del /q %f
 
-!include .depend
+!include .depend.mak

@@ -58,4 +58,4 @@ clean::
 	if exist db\node-1 rmdir /s /q db\node-1 
 	if exist db\replica-1 rmdir /s /q db\replica-1
 
-!include .depend
+!include .depend.mak

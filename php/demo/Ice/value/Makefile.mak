@@ -16,7 +16,7 @@ SRCS		= Value.php
 all:: $(SRCS)
 
 $(SRCS): $*.ice
-	-$(SLICE2PHP) $(SLICE2PHPFLAGS) $*.ice
+	-"$(SLICE2PHP)" $(SLICE2PHPFLAGS) $*.ice
 
 clean::
 	del /q $(SRCS)

@@ -49,14 +49,14 @@ clean::
 	-del /q $(ROUTER:.exe=.*)
 
 install:: all
-	copy $(ROUTER) $(install_bindir)
+	copy $(ROUTER) "$(install_bindir)"
 
 
 !if "$(GENERATE_PDB)" == "yes"
 
 install:: all
-	copy $(ROUTER:.exe=.pdb) $(install_bindir)
+	copy $(ROUTER:.exe=.pdb) "$(install_bindir)"
 
 !endif
 
-!include .depend
+!include .depend.mak

@@ -130,28 +130,28 @@ RUBY_LIBS		= msvcrt-ruby18.lib
 #RUBY_LDFLAGS		= /LIBPATH:"$(RUBY_HOME)\lib"
 #RUBY_LIBS		= msvcrt-ruby191.lib
 
-ICECPPFLAGS		= -I$(slicedir)
+ICECPPFLAGS		= -I"$(slicedir)"
 SLICE2RBFLAGS		= $(ICECPPFLAGS)
 
 !if "$(ice_src_dist)" != ""
 !if "$(ice_cpp_dir)" == "$(ice_dir)\cpp"
-SLICE2RB                = "$(ice_cpp_dir)\bin\slice2rb.exe"
-SLICEPARSERLIB          = "$(ice_cpp_dir)\lib\slice.lib"
-!if !exist ($(SLICEPARSERLIB))
-SLICEPARSERLIB          = "$(ice_cpp_dir)\lib\sliced.lib"
+SLICE2RB                = $(ice_cpp_dir)\bin\slice2rb.exe
+SLICEPARSERLIB          = $(ice_cpp_dir)\lib\slice.lib
+!if !exist ("$(SLICEPARSERLIB)")
+SLICEPARSERLIB          = $(ice_cpp_dir)\lib\sliced.lib
 !endif
 !else
-SLICE2RB                = "$(ice_cpp_dir)\bin$(x64suffix)\slice2rb.exe"
-SLICEPARSERLIB          = "$(ice_cpp_dir)\lib$(x64suffix)\slice.lib"
-!if !exist ($(SLICEPARSERLIB))
-SLICEPARSERLIB          = "$(ice_cpp_dir)\lib$(x64suffix)\sliced.lib"
+SLICE2RB                = $(ice_cpp_dir)\bin$(x64suffix)\slice2rb.exe
+SLICEPARSERLIB          = $(ice_cpp_dir)\lib$(libsuff)\slice.lib
+!if !exist ("$(SLICEPARSERLIB)")
+SLICEPARSERLIB          = $(ice_cpp_dir)\lib$(libsuff)\sliced.lib
 !endif
 !endif
 !else
-SLICE2RB                = "$(ice_dir)\bin$(x64suffix)\slice2rb.exe"
-SLICEPARSERLIB          = "$(ice_dir)\lib$(x64suffix)\slice.lib"
-!if !exist ($(SLICEPARSERLIB))
-SLICEPARSERLIB          = "$(ice_dir)\lib$(x64suffix)\sliced.lib"
+SLICE2RB                = $(ice_dir)\bin$(x64suffix)\slice2rb.exe
+SLICEPARSERLIB          = $(ice_dir)\lib$(libsuff)\slice.lib
+!if !exist ("$(SLICEPARSERLIB)")
+SLICEPARSERLIB          = $(ice_dir)\lib$(libsuff)\sliced.lib
 !endif
 !endif
 

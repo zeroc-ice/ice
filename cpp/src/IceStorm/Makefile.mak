@@ -105,15 +105,15 @@ clean::
 	-del /q IceStormAdmin.res IceStormDB.res IceStormService.res
 
 install:: all
-	copy $(LIBNAME) $(install_libdir)
-	copy $(DLLNAME) $(install_bindir)
-	copy $(ADMIN) $(install_bindir)
+	copy $(LIBNAME) "$(install_libdir)"
+	copy $(DLLNAME) "$(install_bindir)"
+	copy $(ADMIN) "$(install_bindir)"
 
 !if "$(GENERATE_PDB)" == "yes"
 
 install:: all
-        copy $(ADMIN:.exe=.pdb) $(install_bindir)
-        copy $(DLLNAME:.exe=.pdb) $(install_bindir)
+        copy $(ADMIN:.exe=.pdb) "$(install_bindir)"
+        copy $(DLLNAME:.dll=.pdb) "$(install_bindir)"
 
 !endif
 
@@ -125,4 +125,4 @@ $(EVERYTHING)::
 	        @echo "making $@ in %i" && \
 	        cmd /c "cd %i && $(MAKE) -nologo -f Makefile.mak $@" || exit 1
 
-!include .depend
+!include .depend.mak

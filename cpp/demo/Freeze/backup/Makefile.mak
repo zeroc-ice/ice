@@ -30,9 +30,9 @@ $(CLIENT): $(OBJS)
 	@if exist $@.manifest echo ^ ^ ^ Embedding manifest using $(MT) && \
 	    $(MT) -nologo -manifest $@.manifest -outputresource:$@;#1 && del /q $@.manifest
 
-IntLongMap.h IntLongMap.cpp: $(SLICE2FREEZE) $(SLICEPARSERLIB)
+IntLongMap.h IntLongMap.cpp: "$(SLICE2FREEZE)" "$(SLICEPARSERLIB)"
 	del /q IntLongMap.h IntLongMap.cpp
-	$(SLICE2FREEZE) -I$(slicedir) --dict IntLongMap,int,long IntLongMap
+	"$(SLICE2FREEZE)" -I"$(slicedir)" --dict IntLongMap,int,long IntLongMap
 
 clean::
 	-del /q IntLongMap.h IntLongMap.cpp
@@ -43,4 +43,4 @@ clean::
 	-for %f in (db\data\*) do if not %f == db\data\.gitignore del /q %f
 	-for %f in (db\logs\*) do if not %f == db\logs\.gitignore del /q %f
 
-!include .depend
+!include .depend.mak

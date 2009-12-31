@@ -16,7 +16,7 @@ SRCS		= Test.php CTypes.php
 all:: $(SRCS)
 
 $(SRCS): $*.ice
-	-$(SLICE2PHP) $(SLICE2PHPFLAGS) --checksum $*.ice
+	-"$(SLICE2PHP)" $(SLICE2PHPFLAGS) --checksum $*.ice
 
 clean::
 	del /q $(SRCS)

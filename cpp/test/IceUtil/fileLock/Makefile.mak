@@ -40,4 +40,4 @@ $(CLIENTF): $(OBJFS)
 clean::
 	del /q run.pid
 
-!include .depend
+!include .depend.mak

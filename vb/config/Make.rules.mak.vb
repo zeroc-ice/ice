@@ -79,9 +79,25 @@ MCSFLAGS 		= $(MCSFLAGS) -optimize+
 !endif
 
 !if "$(ice_src_dist)" != ""
-SLICE2CS		= "$(ice_cpp_dir)\bin\slice2cs.exe"
+!if "$(ice_cpp_dir)" == "$(ice_dir)\cpp"
+SLICE2CS		= $(ice_cpp_dir)\bin\slice2cs.exe
+SLICEPARSERLIB		= $(ice_cpp_dir)\lib\slice.lib
+!if !exist ("$(SLICEPARSERLIB)")
+SLICEPARSERLIB		= $(ice_cpp_dir)\lib\sliced.lib
+!endif
 !else
-SLICE2CS		= "$(ice_dir)\bin$(x64suffix)\slice2cs.exe"
+SLICE2CS		= $(ice_cpp_dir)\bin$(x64suffix)\slice2cs.exe
+SLICEPARSERLIB		= $(ice_cpp_dir)\lib$(x64suffix)\slice.lib
+!if !exist ("$(SLICEPARSERLIB)")
+SLICEPARSERLIB		= $(ice_cpp_dir)\lib$(x64suffix)\sliced.lib
+!endif
+!endif
+!else
+SLICE2CS		= $(ice_dir)\bin$(x64suffix)\slice2cs.exe
+SLICEPARSERLIB		= $(ice_dir)\lib$(x64suffix)\slice.lib
+!if !exist ("$(SLICEPARSERLIB)")
+SLICEPARSERLIB		= $(ice_dir)\lib$(x64suffix)\sliced.lib
+!endif
 !endif
 
 EVERYTHING		= all clean depend
@@ -90,14 +106,14 @@ EVERYTHING		= all clean depend
 .SUFFIXES:		.cs .vb .ice
 
 .ice.cs:
-	$(SLICE2CS) $(SLICE2CSFLAGS) $<
+	"$(SLICE2CS)" $(SLICE2CSFLAGS) $<
 
 {$(SDIR)\}.ice{$(GDIR)}.cs:
-	$(SLICE2CS) --output-dir $(GDIR) $(SLICE2CSFLAGS) $<
+	"$(SLICE2CS)" --output-dir $(GDIR) $(SLICE2CSFLAGS) $<
 
 !if "$(SLICE_ASSEMBLY)" != ""
 $(SLICE_ASSEMBLY): $(GEN_SRCS)
-        $(MCS) $(MCSFLAGS) -target:library -out:$@ -r:$(csbindir)\Ice.dll $(GEN_SRCS)
+        $(MCS) $(MCSFLAGS) -target:library -out:$@ -r:"$(csbindir)\Ice.dll" $(GEN_SRCS)
 !endif
 
 all:: $(TARGETS) $(SLICE_ASSEMBLY)
@@ -107,7 +123,7 @@ clean::
 
 !if "$(SLICE_SRCS)" != ""
 depend::
-	$(SLICE2CS) --depend $(SLICE2CSFLAGS) $(SLICE_SRCS) | python $(ice_dir)\config\makedepend.py > .depend
+	"$(SLICE2CS)" --depend $(SLICE2CSFLAGS) $(SLICE_SRCS) | python $(ice_dir)\config\makedepend.py -n
 !else
 depend::
 !endif

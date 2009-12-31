@@ -47,4 +47,4 @@ $(SERVER): $(OBJS) $(SOBJS)
 clean::
 	del /q Chat.cpp Chat.h
 
-!include .depend
+!include .depend.mak

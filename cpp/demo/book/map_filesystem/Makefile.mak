@@ -52,18 +52,18 @@ $(SERVER): $(OBJS) $(SOBJS)
 	    $(MT) -nologo -manifest $@.manifest -outputresource:$@;#1 && del /q $@.manifest
 
 IdentityFileEntryMap.h: IdentityFileEntryMap.cpp
-IdentityFileEntryMap.cpp: FilesystemDB.ice Filesystem.ice $(SLICE2FREEZE) $(SLICEPARSERLIB)
+IdentityFileEntryMap.cpp: FilesystemDB.ice Filesystem.ice "$(SLICE2FREEZE)" "$(SLICEPARSERLIB)"
 	del /q IdentityFileEntryMap.h IdentityFileEntryMap.cpp
-	$(SLICE2FREEZE) -I$(slicedir) -I. --ice \
+	"$(SLICE2FREEZE)" -I"$(slicedir)" -I. --ice \
                 --dict FilesystemDB::IdentityFileEntryMap,Ice::Identity,FilesystemDB::FileEntry \
-		IdentityFileEntryMap FilesystemDB.ice $(slicedir)/Ice/Identity.ice
+		IdentityFileEntryMap FilesystemDB.ice "$(slicedir)/Ice/Identity.ice"
 
 IdentityDirectoryEntryMap.h: IdentityDirectoryEntryMap.cpp
-IdentityDirectoryEntryMap.cpp: FilesystemDB.ice Filesystem.ice $(SLICE2FREEZE) $(SLICEPARSERLIB)
+IdentityDirectoryEntryMap.cpp: FilesystemDB.ice Filesystem.ice "$(SLICE2FREEZE)" "$(SLICEPARSERLIB)"
 	del /q IdentityDirectoryEntryMap.h IdentityDirectoryEntryMap.cpp
-	$(SLICE2FREEZE) -I$(slicedir) -I. --ice \
+	"$(SLICE2FREEZE)" -I"$(slicedir)" -I. --ice \
                 --dict FilesystemDB::IdentityDirectoryEntryMap,Ice::Identity,FilesystemDB::DirectoryEntry \
-		IdentityDirectoryEntryMap FilesystemDB.ice $(slicedir)/Ice/Identity.ice
+		IdentityDirectoryEntryMap FilesystemDB.ice "$(slicedir)/Ice/Identity.ice"
 
 Scanner.cpp: Scanner.l
 	flex Scanner.l
@@ -88,4 +88,4 @@ clean::
 clean::
 	-for %f in (db\*) do if not %f == db\.gitignore del /q %f
 
-!include .depend
+!include .depend.mak

@@ -27,9 +27,9 @@ GDIR		= generated
 
 MCSFLAGS	= $(MCSFLAGS) -target:exe
 
-SLICE2CSFLAGS	= $(SLICE2CSFLAGS) --checksum --ice -I. -I$(slicedir)
+SLICE2CSFLAGS	= $(SLICE2CSFLAGS) -I. -I"$(slicedir)"
 
 server.exe: $(SRCS) $(GEN_SRCS)
-	$(MCS) $(MCSFLAGS) -out:$@ -r:$(refdir)\Ice.dll $(SRCS) $(GEN_SRCS)
+	$(MCS) $(MCSFLAGS) -out:$@ -r:"$(refdir)\Ice.dll" $(SRCS) $(GEN_SRCS)
 
-!include .depend
+!include .depend.mak

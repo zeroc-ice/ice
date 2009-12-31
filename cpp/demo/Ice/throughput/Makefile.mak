@@ -47,4 +47,4 @@ $(SERVER): $(OBJS) $(SOBJS)
 clean::
 	del /q Throughput.cpp Throughput.h
 
-!include .depend
+!include .depend.mak

@@ -165,7 +165,7 @@ PHP_CPPFLAGS		= -I"$(PHP_HOME)" -I"$(PHP_HOME)\main" -I"$(PHP_HOME)\TSRM" -I"$(P
 PHP_CPPFLAGS		= $(PHP_CPPFLAGS) -DZTS
 !endif
 
-ICECPPFLAGS		= -I$(slicedir)
+ICECPPFLAGS		= -I"$(slicedir)"
 SLICE2PHPFLAGS		= $(ICECPPFLAGS)
 
 !if "$(USE_NAMESPACES)" == "yes"
@@ -175,23 +175,23 @@ SLICE2PHPFLAGS		= $(SLICE2PHPFLAGS) -n
 
 !if "$(ice_src_dist)" != ""
 !if "$(ice_cpp_dir)" == "$(ice_dir)\cpp"
-SLICE2PHP               = "$(ice_cpp_dir)\bin\slice2php.exe"
-SLICEPARSERLIB          = "$(ice_cpp_dir)\lib\slice.lib"
-!if !exist ($(SLICEPARSERLIB))
-SLICEPARSERLIB          = "$(ice_cpp_dir)\lib\sliced.lib"
+SLICE2PHP               = $(ice_cpp_dir)\bin\slice2php.exe
+SLICEPARSERLIB          = $(ice_cpp_dir)\lib\slice.lib
+!if !exist ("$(SLICEPARSERLIB)")
+SLICEPARSERLIB          = $(ice_cpp_dir)\lib\sliced.lib
 !endif
 !else
-SLICE2PHP               = "$(ice_cpp_dir)\bin$(x64suffix)\slice2php.exe"
-SLICEPARSERLIB          = "$(ice_cpp_dir)\lib$(x64suffix)\slice.lib"
-!if !exist ($(SLICEPARSERLIB))
-SLICEPARSERLIB          = "$(ice_cpp_dir)\lib$(x64suffix)\sliced.lib"
+SLICE2PHP               = $(ice_cpp_dir)\bin$(x64suffix)\slice2php.exe
+SLICEPARSERLIB          = $(ice_cpp_dir)\lib$(libsuff)\slice.lib
+!if !exist ("$(SLICEPARSERLIB)")
+SLICEPARSERLIB          = $(ice_cpp_dir)\lib$(libsuff)\sliced.lib
 !endif
 !endif
 !else
-SLICE2PHP               = "$(ice_dir)\bin$(x64suffix)\slice2php.exe"
-SLICEPARSERLIB          = "$(ice_dir)\lib$(x64suffix)\slice.lib"
-!if !exist ($(SLICEPARSERLIB))
-SLICEPARSERLIB          = "$(ice_dir)\lib$(x64suffix)\sliced.lib"
+SLICE2PHP               = $(ice_dir)\bin$(x64suffix)\slice2php.exe
+SLICEPARSERLIB          = $(ice_dir)\lib$(libsuff)\slice.lib
+!if !exist ("$(SLICEPARSERLIB)")
+SLICEPARSERLIB          = $(ice_dir)\lib$(libsuff)\sliced.lib
 !endif
 !endif
 

@@ -52,6 +52,6 @@ $(DLLNAME): $(OBJS)
 	@if exist $(@:.pyd=.exp) del /q $(@:.pyd=.exp)
 
 install:: all
-	copy $(DLLNAME) $(install_libdir)
+	copy $(DLLNAME) "$(install_libdir)"
 
-!include .depend
+!include .depend.mak

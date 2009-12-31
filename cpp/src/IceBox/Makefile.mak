@@ -80,19 +80,19 @@ clean::
 	-del /q IceBox.res IceBoxAdmin.res IceBoxExe.res
 
 install:: all
-	copy $(LIBNAME) $(install_libdir)
-	copy $(DLLNAME) $(install_bindir)
-	copy $(SERVER) $(install_bindir)
-	copy $(ADMIN) $(install_bindir)
+	copy $(LIBNAME) "$(install_libdir)"
+	copy $(DLLNAME) "$(install_bindir)"
+	copy $(SERVER) "$(install_bindir)"
+	copy $(ADMIN) "$(install_bindir)"
 
 
 !if "$(GENERATE_PDB)" == "yes"
 
 install:: all
-	copy $(DLLNAME:.dll=.pdb) $(install_bindir)
-	copy $(SERVER:.exe=.pdb) $(install_bindir)
-	copy $(ADMIN:.exe=.pdb) $(install_bindir)
+	copy $(DLLNAME:.dll=.pdb) "$(install_bindir)"
+	copy $(SERVER:.exe=.pdb) "$(install_bindir)"
+	copy $(ADMIN:.exe=.pdb) "$(install_bindir)"
 
 !endif
 
-!include .depend
+!include .depend.mak

@@ -50,4 +50,4 @@ clean::
 clean::
 	del /q attack.cfg router.cfg server.cfg
 
-!include .depend
+!include .depend.mak

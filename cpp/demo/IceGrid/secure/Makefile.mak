@@ -57,4 +57,4 @@ clean::
         -for %f in (certs\*) do if not %f == certs\.gitignore del /q %f
 	-if exist certs\ca rmdir /s /q certs\ca
 
-!include .depend
+!include .depend.mak

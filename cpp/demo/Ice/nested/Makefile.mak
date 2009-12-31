@@ -47,4 +47,4 @@ $(SERVER): $(OBJS) $(SOBJS)
 clean::
 	del /q Nested.cpp Nested.h
 
-!include .depend
+!include .depend.mak

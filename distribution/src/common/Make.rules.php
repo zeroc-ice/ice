@@ -75,8 +75,8 @@ all:: $(SRCS) $(TARGETS)
 
 ifneq ($(SLICE_SRCS),)
 depend:: $(SLICE_SRCS)
-	rm -f .depend
-	$(SLICE2PHP) --depend $(SLICE2PHPFLAGS) $(SLICE_SRCS) | $(ice_dir)/config/makedepend.py >> .depend
+	rm -f .depend .depend.mak
+	$(SLICE2PHP) --depend $(SLICE2PHPFLAGS) $(SLICE_SRCS) | $(ice_dir)/config/makedepend.py
 else
 depend::
 endif

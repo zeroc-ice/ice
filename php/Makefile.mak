@@ -14,9 +14,9 @@ top_srcdir	= .
 SUBDIRS		= src lib demo test
 
 install:: install-common
-	@if not exist $(install_libdir) \
+	@if not exist "$(install_libdir)" \
 	    @echo "Creating $(install_libdir)..." && \
-	    mkdir $(install_libdir)
+	    mkdir "$(install_libdir)"
 
 $(EVERYTHING)::
 	@for %i in ( $(SUBDIRS) ) do \

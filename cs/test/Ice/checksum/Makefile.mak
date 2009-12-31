@@ -27,10 +27,10 @@ GDIR		= generated
 
 MCSFLAGS	= $(MCSFLAGS) -target:exe
 
-SLICE2CSFLAGS	= $(SLICE2CSFLAGS) --checksum --ice -I. -I$(slicedir)
+SLICE2CSFLAGS	= $(SLICE2CSFLAGS) -I. -I"$(slicedir)"
 
 client.exe: $(C_SRCS) $(GEN_SRCS)
-	$(MCS) $(MCSFLAGS) -out:$@ -r:$(refdir)\Ice.dll $(C_SRCS) $(GEN_SRCS)
+	$(MCS) $(MCSFLAGS) -out:$@ -r:"$(refdir)\Ice.dll" $(C_SRCS) $(GEN_SRCS)
 
 
 SUBDIRS		= server
@@ -43,4 +43,4 @@ $(EVERYTHING)::
 test::
 	@python $(top_srcdir)/allTests.py
 
-!include .depend
+!include .depend.mak

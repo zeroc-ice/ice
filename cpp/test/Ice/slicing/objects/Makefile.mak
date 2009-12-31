@@ -72,4 +72,4 @@ clean::
 	del /q ServerPrivateAMD.cpp ServerPrivateAMD.h
 	del /q Forward.cpp Forward.h
 
-!include .depend
+!include .depend.mak

@@ -96,27 +96,27 @@ ALL_SRCS	= $(ICE_SRCS) \
 
 MODULES		= Glacier2 Ice IceBox IceGrid IcePatch2 IceStorm
 
-SLICE2RBFLAGS	= -I$(slicedir) --ice
+SLICE2RBFLAGS	= $(SLICE2RBFLAGS) --ice
 
 all:: $(ALL_SRCS)
 
 $(MODULES):
 	-mkdir $@
 
-$(ALL_SRCS): $(MODULES) {$(slicedir)}$*.ice $(SLICE2RB) $(SLICEPARSERLIB)
-	-$(SLICE2RB) $(SLICE2RBFLAGS) --output-dir $(*D) $(slicedir)\$*.ice
+$(ALL_SRCS): $(MODULES) {$(slicedir)}$*.ice "$(SLICE2RB)" "$(SLICEPARSERLIB)"
+	-"$(SLICE2RB)" $(SLICE2RBFLAGS) --output-dir $(*D) $(slicedir)\$*.ice
 
 
-install::
+install:: all
 	@echo "Installing generated code"
-	copy *.rb $(install_rubydir)
+	copy *.rb "$(install_rubydir)"
 	@for %i in ( $(MODULES) ) do \
-	    @if not exist $(install_rubydir)\%i \
-	        mkdir $(install_rubydir)\%i
+	    @if not exist "$(install_rubydir)\%i" \
+	        mkdir "$(install_rubydir)\%i"
 	@for %i in ( $(MODULES) ) do \
-	    copy %i\* $(install_rubydir)\%i
+	    copy %i\* "$(install_rubydir)\%i"
 
 clean::
 	-rmdir /S /Q $(MODULES)
 
-include .depend
+include .depend.mak

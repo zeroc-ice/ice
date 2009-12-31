@@ -46,4 +46,4 @@ $(SERVER): $(OBJS) $(SOBJS)
 clean::
 	del /q Latency.cpp Latency.h
 
-!include .depend
+!include .depend.mak

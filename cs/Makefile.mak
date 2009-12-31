@@ -14,9 +14,9 @@ top_srcdir	= .
 SUBDIRS		= src test demo
 
 install:: install-common
-	@if not exist $(install_bindir) \
+	@if not exist "$(install_bindir)" \
 	    @echo "Creating $(install_bindir)..." && \
-	    mkdir $(install_bindir)
+	    mkdir "$(install_bindir)"
 
 $(EVERYTHING)::
 	@for %i in ( $(SUBDIRS) ) do \

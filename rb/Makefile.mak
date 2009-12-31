@@ -14,9 +14,9 @@ top_srcdir	= .
 SUBDIRS		= src ruby
 
 install:: install-common
-	@if not exist $(install_rubydir) \
+	@if not exist "$(install_rubydir)" \
 	    @echo "Creating $(install_rubydir)..." && \
-	    mkdir $(install_rubydir)
+	    mkdir "$(install_rubydir)"
 
 $(EVERYTHING)::
 	@for %i in ( $(SUBDIRS) ) do \

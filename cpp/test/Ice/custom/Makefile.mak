@@ -94,4 +94,4 @@ clean::
 	del /q Wstring.cpp Wstring.h
 	del /q WstringAMD.cpp WstringAMD.h
 
-!include .depend
+!include .depend.mak

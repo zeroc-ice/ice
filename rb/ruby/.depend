@@ -1,5 +1,5 @@
 Ice/LocalException.rb: $(slicedir)/Ice/LocalException.ice $(slicedir)/Ice/Identity.ice $(slicedir)/Ice/BuiltinSequences.ice
-Ice/Communicator.rb: $(slicedir)/Ice/Communicator.ice $(slicedir)/Ice/LoggerF.ice $(slicedir)/Ice/StatsF.ice $(slicedir)/Ice/ObjectAdapterF.ice $(slicedir)/Ice/PropertiesF.ice $(slicedir)/Ice/ObjectFactoryF.ice $(slicedir)/Ice/RouterF.ice $(slicedir)/Ice/LocatorF.ice $(slicedir)/Ice/PluginF.ice $(slicedir)/Ice/ImplicitContextF.ice $(slicedir)/Ice/Current.ice $(slicedir)/Ice/ConnectionF.ice $(slicedir)/Ice/Identity.ice
+Ice/Communicator.rb: $(slicedir)/Ice/Communicator.ice $(slicedir)/Ice/LoggerF.ice $(slicedir)/Ice/StatsF.ice $(slicedir)/Ice/ObjectAdapterF.ice $(slicedir)/Ice/ObjectFactoryF.ice $(slicedir)/Ice/RouterF.ice $(slicedir)/Ice/LocatorF.ice $(slicedir)/Ice/PluginF.ice $(slicedir)/Ice/ImplicitContextF.ice $(slicedir)/Ice/Current.ice $(slicedir)/Ice/ConnectionF.ice $(slicedir)/Ice/Identity.ice $(slicedir)/Ice/Properties.ice $(slicedir)/Ice/BuiltinSequences.ice
 Ice/CommunicatorF.rb: $(slicedir)/Ice/CommunicatorF.ice
 Ice/Logger.rb: $(slicedir)/Ice/Logger.ice
 Ice/LoggerF.rb: $(slicedir)/Ice/LoggerF.ice

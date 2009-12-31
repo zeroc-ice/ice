@@ -48,4 +48,4 @@ clean::
 	del /q Test.cpp Test.h
 	-for %f in (db\*) do if not %f == db\DB_CONFIG del /q %f
 
-!include .depend
+!include .depend.mak

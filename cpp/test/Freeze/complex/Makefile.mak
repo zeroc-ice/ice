@@ -35,9 +35,9 @@ $(CLIENT): $(OBJS)
 	@if exist $@.manifest echo ^ ^ ^ Embedding manifest using $(MT) && \
 	    $(MT) -nologo -manifest $@.manifest -outputresource:$@;#1 && del /q $@.manifest
 
-ComplexDict.h ComplexDict.cpp: Complex.ice $(SLICE2FREEZE) $(SLICEPARSERLIB)
+ComplexDict.h ComplexDict.cpp: Complex.ice "$(SLICE2FREEZE)" "$(SLICEPARSERLIB)"
 	del /q ComplexDict.h ComplexDict.cpp
-	$(SLICE2FREEZE) -I$(slicedir) --dict Complex::ComplexDict,Complex::Key,Complex::Node ComplexDict Complex.ice
+	"$(SLICE2FREEZE)" -I"$(slicedir)" --dict Complex::ComplexDict,Complex::Key,Complex::Node ComplexDict Complex.ice
 
 Scanner.cpp : Scanner.l
 	flex Scanner.l
@@ -58,4 +58,4 @@ clean::
 	del /q ComplexDict.h ComplexDict.cpp
 	-for %f in (db\*) do if not %f == db\.gitignore del /q %f
 
-!include .depend
+!include .depend.mak

@@ -65,18 +65,18 @@ clean::
 	-del /q IcePatch2Server.res IcePatch2Client.res IcePatch2Calc.res
 
 install:: all
-	copy $(SERVER) $(install_bindir)
-	copy $(CLIENT) $(install_bindir)
-	copy $(CALC) $(install_bindir)
+	copy $(SERVER) "$(install_bindir)"
+	copy $(CLIENT) "$(install_bindir)"
+	copy $(CALC) "$(install_bindir)"
 
 
 !if "$(GENERATE_PDB)" == "yes"
 
 install:: all
-	copy $(SERVER:.exe=.pdb) $(install_bindir)
-	copy $(CLIENT:.exe=.pdb) $(install_bindir)
-	copy $(CALC:.exe=.pdb) $(install_bindir)
+	copy $(SERVER:.exe=.pdb) "$(install_bindir)"
+	copy $(CLIENT:.exe=.pdb) "$(install_bindir)"
+	copy $(CALC:.exe=.pdb) "$(install_bindir)"
 
 !endif
 
-!include .depend
+!include .depend.mak

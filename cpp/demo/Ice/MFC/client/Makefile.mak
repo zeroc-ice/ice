@@ -38,4 +38,4 @@ clean::
 	del /q Hello.cpp Hello.h
 	del /q HelloClient.res
 
-!include .depend
+!include .depend.mak

@@ -54,4 +54,4 @@ clean::
 	del /q CasinoStore.cpp CasinoStore.h
 	-for %f in (db\*) do if not %f == db\DB_CONFIG del /q %f
 
-!include .depend
+!include .depend.mak

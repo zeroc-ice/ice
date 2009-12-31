@@ -38,4 +38,4 @@ clean::
 	del /q Test.cpp Test.h
 	del /q Types.cpp Types.h
 
-!include .depend
+!include .depend.mak

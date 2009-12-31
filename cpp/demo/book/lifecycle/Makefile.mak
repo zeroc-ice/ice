@@ -64,4 +64,4 @@ Grammar.cpp Grammar.h: Grammar.y
 clean::
 	-del /q Filesystem.cpp Filesystem.h
 
-!include .depend
+!include .depend.mak

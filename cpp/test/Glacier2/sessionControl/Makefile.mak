@@ -46,4 +46,4 @@ $(SERVER): $(SOBJS)
 clean::
 	del /q Session.cpp Session.h
 
-!include .depend
+!include .depend.mak

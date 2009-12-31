@@ -66,8 +66,8 @@ slice_translator = slice2py.exe
 !endif
 
 libdir			= $(top_srcdir)\python
-install_pythondir	= $(prefix)\python
-install_libdir		= $(prefix)\python
+install_pythondir	= $(prefix)\python$(x64suffix)
+install_libdir		= $(prefix)\python$(x64suffix)
 
 !if "$(CPP_COMPILER)" != "VC60" && "$(CPP_COMPILER)" != "VC71" && \
     "$(CPP_COMPILER)" != "VC80" && "$(CPP_COMPILER)" != "VC80_EXPRESS" && \
@@ -125,23 +125,23 @@ SLICE2PYFLAGS		= $(ICECPPFLAGS)
 
 !if "$(ice_src_dist)" != ""
 !if "$(ice_cpp_dir)" == "$(ice_dir)\cpp"
-SLICE2PY                = "$(ice_cpp_dir)\bin\slice2py.exe"
-SLICEPARSERLIB          = "$(ice_cpp_dir)\lib\slice.lib"
-!if !exist ($(SLICEPARSERLIB))
-SLICEPARSERLIB          = "$(ice_cpp_dir)\lib\sliced.lib"
+SLICE2PY                = $(ice_cpp_dir)\bin\slice2py.exe
+SLICEPARSERLIB          = $(ice_cpp_dir)\lib\slice.lib
+!if !exist ("$(SLICEPARSERLIB)")
+SLICEPARSERLIB          = $(ice_cpp_dir)\lib\sliced.lib
 !endif
 !else
-SLICE2PY                = "$(ice_cpp_dir)\bin$(x64suffix)\slice2py.exe"
-SLICEPARSERLIB          = "$(ice_cpp_dir)\lib$(x64suffix)\slice.lib"
-!if !exist ($(SLICEPARSERLIB))
-SLICEPARSERLIB          = "$(ice_cpp_dir)\lib$(x64suffix)\sliced.lib"
+SLICE2PY                = $(ice_cpp_dir)\bin$(x64suffix)\slice2py.exe
+SLICEPARSERLIB          = $(ice_cpp_dir)\lib$(x64suffix)\slice.lib
+!if !exist ("$(SLICEPARSERLIB)")
+SLICEPARSERLIB          = $(ice_cpp_dir)\lib$(x64suffix)\sliced.lib
 !endif
 !endif
 !else
-SLICE2PY                = "$(ice_dir)\bin$(x64suffix)\slice2py.exe"
-SLICEPARSERLIB          = "$(ice_dir)\lib$(x64suffix)\slice.lib"
-!if !exist ($(SLICEPARSERLIB))
-SLICEPARSERLIB          = "$(ice_dir)\lib$(x64suffix)\sliced.lib"
+SLICE2PY                = $(ice_dir)\bin$(x64suffix)\slice2py.exe
+SLICEPARSERLIB          = $(ice_dir)\lib$(x64suffix)\slice.lib
+!if !exist ("$(SLICEPARSERLIB)")
+SLICEPARSERLIB          = $(ice_dir)\lib$(x64suffix)\sliced.lib
 !endif
 !endif
 

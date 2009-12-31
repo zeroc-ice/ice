@@ -47,6 +47,6 @@ $(DLLNAME): $(OBJS)
 	move $(DLLNAME:.so=.lib) $(LIBNAME)
 
 install:: all
-	copy $(DLLNAME) $(install_libdir)
+	copy $(DLLNAME) "$(install_libdir)"
 
-!include .depend
+!include .depend.mak

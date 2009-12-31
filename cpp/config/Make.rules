@@ -296,12 +296,12 @@ $(HDIR)/%.h %.cpp: $(SDIR)/%.ice $(SLICE2CPP) $(SLICEPARSERLIB)
 all:: $(SRCS) $(TARGETS)
 
 depend:: $(SRCS)  $(patsubst $(SDIR)/%.ice,$(HDIR)/%.h,$(wildcard $(SDIR)/*F.ice)) $(SLICE_SRCS)
-	-rm -f .depend
+	-rm -f .depend .depend.mak
 	if test -n "$(SRCS)" ; then \
-	    $(CXX) -DMAKEDEPEND -M $(CXXFLAGS) $(CPPFLAGS) $(SRCS) | $(ice_dir)/config/makedepend.py >> .depend; \
+	    $(CXX) -DMAKEDEPEND -M $(CXXFLAGS) $(CPPFLAGS) $(SRCS) | $(ice_dir)/config/makedepend.py; \
 	fi
 	if test -n "$(SLICE_SRCS)" ; then \
-	    $(SLICE2CPP) --depend $(SLICE2CPPFLAGS) $(SLICE_SRCS) | $(ice_dir)/config/makedepend.py >> .depend; \
+	    $(SLICE2CPP) --depend $(SLICE2CPPFLAGS) $(SLICE_SRCS) | $(ice_dir)/config/makedepend.py; \
 	fi
 
 clean::
@@ -309,9 +309,6 @@ clean::
 	-rm -f core *.o *.bak
 
 ifneq ($(SLICE_SRCS),)
-depend::
-	$(foreach slice, $(SLICE_SRCS), echo '$(slice): $$(SLICE2CPP) $$(SLICEPARSERLIB)' >> .depend;)
-
 clean::
 	rm -f $(addsuffix .cpp, $(basename $(notdir $(SLICE_SRCS))))
 	rm -f $(addsuffix .h, $(basename $(notdir $(SLICE_SRCS))))

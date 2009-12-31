@@ -45,15 +45,15 @@ clean::
 	del /q IceServiceInstall.res
 
 install:: all
-	copy $(TOOL) $(install_bindir)
+	copy $(TOOL) "$(install_bindir)"
 
 !if "$(GENERATE_PDB)" == "yes"
 
 install:: all
-	copy $(TOOL:.exe=.pdb) $(install_bindir)
+	copy $(TOOL:.exe=.pdb) "$(install_bindir)"
 
 !endif
 
 
-!include .depend
+!include .depend.mak
 

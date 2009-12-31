@@ -56,20 +56,20 @@ clean::
 	-del /q IcePatch.res
 
 install:: all
-	copy $(LIBNAME) $(install_libdir)
-	copy $(DLLNAME) $(install_bindir)
+	copy $(LIBNAME) "$(install_libdir)"
+	copy $(DLLNAME) "$(install_bindir)"
 
 
 !if "$(BCPLUSPLUS)" == "yes" && "$(OPTIMIZE)" != "yes"
 
 install:: all
-	copy $(DLLNAME:.dll=.tds) $(install_bindir)
+	copy $(DLLNAME:.dll=.tds) "$(install_bindir)"
 
 !elseif "$(GENERATE_PDB)" == "yes"
 
 install:: all
-	copy $(DLLNAME:.dll=.pdb) $(install_bindir)
+	copy $(DLLNAME:.dll=.pdb) "$(install_bindir)"
 
 !endif
 
-!include .depend
+!include .depend.mak

@@ -48,4 +48,4 @@ $(SERVER): $(OBJS) $(SOBJS)
 clean::
 	del /q Nrvo.cpp Nrvo.h
 
-!include .depend
+!include .depend.mak

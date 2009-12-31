@@ -66,4 +66,4 @@ clean::
 	del /q ServerPrivate.cpp ServerPrivate.h
 	del /q ServerPrivateAMD.cpp ServerPrivateAMD.h
 
-!include .depend
+!include .depend.mak

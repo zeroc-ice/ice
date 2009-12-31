@@ -87,22 +87,22 @@ clean::
 	-del /q TransformDB.res DumpDB.res
 
 install:: all
-	copy $(TRANSFORMDB) $(install_bindir)
-	copy $(DUMPDB) $(install_bindir)
+	copy $(TRANSFORMDB) "$(install_bindir)"
+	copy $(DUMPDB) "$(install_bindir)"
 
 
 !if "$(BCPLUSPLUS)" == "yes" && "$(OPTIMIZE)" != "yes"
 
 install:: all
-	copy $(TRANSFORMDB:.exe=.tds) $(install_bindir)
-	copy $(DUMPDB:.exe=.tds) $(install_bindir)
+	copy $(TRANSFORMDB:.exe=.tds) "$(install_bindir)"
+	copy $(DUMPDB:.exe=.tds) "$(install_bindir)"
 
 !elseif "$(GENERATE_PDB)" == "yes"
 
 install:: all
-	copy $(TRANSFORMDB:.exe=.pdb) $(install_bindir)
-	copy $(DUMPDB:.exe=.pdb) $(install_bindir)
+	copy $(TRANSFORMDB:.exe=.pdb) "$(install_bindir)"
+	copy $(DUMPDB:.exe=.pdb) "$(install_bindir)"
 
 !endif
 
-!include .depend
+!include .depend.mak

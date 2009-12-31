@@ -101,25 +101,27 @@ MODULE_SRCS	= Glacier2.php Ice_ns.php IceBox.php IceGrid.php IcePatch2.php IceSt
 MODULE_SRCS	= Glacier2.php Ice.php IceBox.php IceGrid.php IcePatch2.php IceStorm.php
 !endif
 
+SLICE2PHPFLAGS	= $(SLICE2PHPFLAGS) --ice
+
 all:: $(ALL_SRCS)
 
 $(MODULES):
 	-mkdir $@
 
-$(ALL_SRCS): $(MODULES) {$(slicedir)}$*.ice
-	-$(SLICE2PHP) $(SLICE2PHPFLAGS) --output-dir $(*D) --ice $(slicedir)\$*.ice
+$(ALL_SRCS): $(MODULES) {$(slicedir)}$*.ice "$(SLICE2PHP)" "$(SLICEPARSERLIB)"
+	-"$(SLICE2PHP)" $(SLICE2PHPFLAGS) --output-dir $(*D) "$(slicedir)\$*.ice"
 
 install::
 	@echo "Installing generated code"
 	@for %i in ( $(MODULES) ) do \
-	    @if not exist $(install_phpdir)\%i \
-	        mkdir $(install_phpdir)\%i
+	    @if not exist "$(install_phpdir)\%i" \
+	        mkdir "$(install_phpdir)\%i"
 	@for %i in ( $(MODULES) ) do \
-	    copy %i\* $(install_phpdir)\%i
+	    copy %i\* "$(install_phpdir)\%i"
 	@for %i in ( $(MODULE_SRCS) ) do \
-	    copy %i $(install_phpdir)
+	    copy %i "$(install_phpdir)"
 
 clean::
 	-rmdir /S /Q $(MODULES)
 
-include .depend
+include .depend.mak

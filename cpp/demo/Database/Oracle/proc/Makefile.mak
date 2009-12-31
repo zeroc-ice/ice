@@ -67,4 +67,4 @@ clean::
 	del /q HR.cpp HR.h
 	del /q $(GENERATED_PROC_FILES)
 
-!include .depend
+!include .depend.mak

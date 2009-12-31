@@ -55,4 +55,4 @@ clean::
 	  for %f in (db\%d\*) do if not %f == db\%d\.gitignore del /q %f
 	-for %f in (distrib servers tmp) do if exist db\%d\%f rmdir /s /q db\%d\%f
 
-!include .depend
+!include .depend.mak

@@ -14,9 +14,9 @@ top_srcdir	= .
 SUBDIRS		= modules python
 
 install:: install-common
-	@if not exist $(install_pythondir) \
+	@if not exist "$(install_pythondir)" \
 	    @echo "Creating $(install_pythondir)..." && \
-	    mkdir $(install_pythondir)
+	    mkdir "$(install_pythondir)"
 
 $(EVERYTHING)::
 	@for %i in ( $(SUBDIRS) ) do \

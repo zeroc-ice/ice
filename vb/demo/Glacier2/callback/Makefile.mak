@@ -29,9 +29,10 @@ GDIR		= generated
 VBCFLAGS	= $(VBCFLAGS) -target:exe -rootnamespace:Glacier2Demo
 
 client.exe: $(C_SRCS) $(SLICE_ASSEMBLY)
-	$(VBC) $(VBCFLAGS) -out:$@ -r:$(csbindir)\Ice.dll -r:$(SLICE_ASSEMBLY) -r:$(csbindir)\Glacier2.dll $(C_SRCS)
+	$(VBC) $(VBCFLAGS) -out:$@ -r:"$(csbindir)\Ice.dll" -r:$(SLICE_ASSEMBLY) -r:"$(csbindir)\Glacier2.dll" \
+	 $(C_SRCS)
 
 server.exe: $(S_SRCS) $(SLICE_ASSEMBLY)
-	$(VBC) $(VBCFLAGS) -out:$@ -r:$(csbindir)\Ice.dll -r:$(SLICE_ASSEMBLY) $(S_SRCS)
+	$(VBC) $(VBCFLAGS) -out:$@ -r:"$(csbindir)\Ice.dll" -r:$(SLICE_ASSEMBLY) $(S_SRCS)
 
-!include .depend
+!include .depend.mak

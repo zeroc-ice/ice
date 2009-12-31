@@ -70,4 +70,4 @@ $(DLLNAME): $(OBJS) $(TRANSPORT_OBJS)
 clean::
 	del /q Test.cpp Test.h
 
-!include .depend
+!include .depend.mak

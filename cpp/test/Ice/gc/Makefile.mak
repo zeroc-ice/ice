@@ -37,4 +37,4 @@ clean::
 clean::
 	del /q seed
 
-!include .depend
+!include .depend.mak

@@ -25,4 +25,4 @@ clean::
 	del /q CircularA.cpp CircularA.h
 	del /q CircularB.cpp CircularB.h
 
-!include .depend
+!include .depend.mak

@@ -41,4 +41,4 @@ clean::
 	if exist db_check rmdir /s /q db_check
 	if exist db_tmp rmdir /s /q db_tmp
 
-!include .depend
+!include .depend.mak

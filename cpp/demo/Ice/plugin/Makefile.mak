@@ -76,4 +76,4 @@ $(HELLODLLNAME): $(OBJS) $(HOBJS)
 clean::
 	del /q Hello.cpp Hello.h
 
-!include .depend
+!include .depend.mak

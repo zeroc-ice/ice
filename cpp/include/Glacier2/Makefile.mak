@@ -12,10 +12,10 @@ top_srcdir	= ..\..
 !include $(top_srcdir)/config/Make.rules.mak
 
 install::
-	@if not exist $(install_includedir)\Glacier2 \
+	@if not exist "$(install_includedir)\Glacier2" \
 	    @echo "Creating $(install_includedir)\Glacier2..." && \
-	    mkdir $(install_includedir)\Glacier2
+	    mkdir "$(install_includedir)\Glacier2"
 
 	@for %i in ( *.h ) do \
 	    @echo Installing %i && \
-	    copy %i $(install_includedir)\Glacier2
+	    copy %i "$(install_includedir)\Glacier2"

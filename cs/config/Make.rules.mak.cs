@@ -99,23 +99,23 @@ MCSFLAGS 		= $(MCSFLAGS) -optimize+
 
 !if "$(ice_src_dist)" != ""
 !if "$(ice_cpp_dir)" == "$(ice_dir)\cpp"
-SLICE2CS		= "$(ice_cpp_dir)\bin\slice2cs.exe"
-SLICEPARSERLIB		= "$(ice_cpp_dir)\lib\slice.lib"
-!if !exist ($(SLICEPARSERLIB))
-SLICEPARSERLIB		= "$(ice_cpp_dir)\lib\sliced.lib"
+SLICE2CS		= $(ice_cpp_dir)\bin\slice2cs.exe
+SLICEPARSERLIB		= $(ice_cpp_dir)\lib\slice.lib
+!if !exist ("$(SLICEPARSERLIB)")
+SLICEPARSERLIB		= $(ice_cpp_dir)\lib\sliced.lib
 !endif
 !else
-SLICE2CS		= "$(ice_cpp_dir)\bin$(x64suffix)\slice2cs.exe"
-SLICEPARSERLIB		= "$(ice_cpp_dir)\lib$(x64suffix)\slice.lib"
-!if !exist ($(SLICEPARSERLIB))
-SLICEPARSERLIB		= "$(ice_cpp_dir)\lib$(x64suffix)\sliced.lib"
+SLICE2CS		= $(ice_cpp_dir)\bin$(x64suffix)\slice2cs.exe
+SLICEPARSERLIB		= $(ice_cpp_dir)\lib$(x64suffix)\slice.lib
+!if !exist ("$(SLICEPARSERLIB)")
+SLICEPARSERLIB		= $(ice_cpp_dir)\lib$(x64suffix)\sliced.lib
 !endif
 !endif
 !else
-SLICE2CS		= "$(ice_dir)\bin$(x64suffix)\slice2cs.exe"
-SLICEPARSERLIB		= "$(ice_dir)\lib$(x64suffix)\slice.lib"
-!if !exist ($(SLICEPARSERLIB))
-SLICEPARSERLIB		= "$(ice_dir)\lib$(x64suffix)\sliced.lib"
+SLICE2CS		= $(ice_dir)\bin$(x64suffix)\slice2cs.exe
+SLICEPARSERLIB		= $(ice_dir)\lib$(x64suffix)\slice.lib
+!if !exist ("$(SLICEPARSERLIB)")
+SLICEPARSERLIB		= $(ice_dir)\lib$(x64suffix)\sliced.lib
 !endif
 !endif
 
@@ -125,10 +125,10 @@ EVERYTHING		= all clean install
 .SUFFIXES:		.cs .ice
 
 .ice.cs:
-	$(SLICE2CS) $(SLICE2CSFLAGS) $<
+	"$(SLICE2CS)" $(SLICE2CSFLAGS) $<
 
-{$(SDIR)\}.ice{$(GDIR)}.cs:
-	$(SLICE2CS) --output-dir $(GDIR) $(SLICE2CSFLAGS) $<
+{$(SDIR)}.ice{$(GDIR)}.cs:
+	"$(SLICE2CS)" --output-dir $(GDIR) $(SLICE2CSFLAGS) $<
 
 all:: $(TARGETS)
 

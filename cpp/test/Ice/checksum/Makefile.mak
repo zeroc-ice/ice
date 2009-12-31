@@ -45,4 +45,4 @@ $(EVERYTHING)::
 	    @echo "making $@ in %i" && \
 	    cmd /c "cd %i && $(MAKE) -nologo -f Makefile.mak $@" || exit 1
 
-!include .depend
+!include .depend.mak

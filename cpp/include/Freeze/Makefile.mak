@@ -12,10 +12,10 @@ top_srcdir	= ..\..
 !include $(top_srcdir)/config/Make.rules.mak
 
 install::
-	@if not exist $(install_includedir)\Freeze \
+	@if not exist "$(install_includedir)\Freeze" \
 	    @echo "Creating $(install_includedir)\Freeze..." && \
-	    mkdir $(install_includedir)\Freeze
+	    mkdir "$(install_includedir)\Freeze"
 
 	@for %i in ( *.h ) do \
 	    @echo Installing %i && \
-	    copy %i $(install_includedir)\Freeze
+	    copy %i "$(install_includedir)\Freeze"

@@ -35,6 +35,12 @@ ice_bin_dist = 1
 x64suffix		= \x64
 !endif
 
+!if "$(PROCESSOR_ARCHITECTURE)" == "AMD64" || "$(PROCESSOR_ARCHITECTUREW6432)" == "AMD64"
+ice_bin_dist_dir = $(PROGRAMFILES) (x86)\ZeroC\Ice-$(VERSION)
+!else
+ice_bin_dist_dir = $(PROGRAMFILES)\ZeroC\Ice-$(VERSION)
+!endif
+
 #
 # The following variables might also be defined:
 #
@@ -68,7 +74,7 @@ ice_src_dist = 1
 !if "$(ICE_HOME)" != ""
 
 !if "$(slice_translator)" != ""
-!if !exist ($(ICE_HOME)\bin$(x64suffix)\$(slice_translator))
+!if !exist ("$(ICE_HOME)\bin$(x64suffix)\$(slice_translator)")
 !error Unable to find $(slice_translator) in $(ICE_HOME)\bin$(x64suffix), please verify ICE_HOME is properly configured and Ice is correctly installed.
 !endif
 !if exist ($(ice_dir)\cpp\bin\$(slice_translator))
@@ -98,14 +104,14 @@ ice_cpp_dir = $(ice_dir)\cpp
 !endif
 
 !if "$(ICE_HOME)" != ""
-!if !exist ($(ICE_HOME)\bin$(x64suffix)\$(slice_translator))
+!if !exist ("$(ICE_HOME)\bin$(x64suffix)\$(slice_translator)")
 !error Unable to find $(slice_translator) in $(ICE_HOME)\bin$(x64suffix), please verify ICE_HOME is properly configured and Ice is correctly installed.
 !endif
 ice_dir = $(ICE_HOME)
 !elseif exist ($(top_srcdir)/bin/$(slice_translator))
 ice_dir = $(top_srcdir)
-!elseif exist ("C:\Ice-$(VERSION)\bin$(x64suffix)\$(slice_translator)")
-ice_dir = C:\Ice-$(VERSION)
+!elseif exist ("$(ice_bin_dist_dir)\bin$(x64suffix)\$(slice_translator)")
+ice_dir = $(ice_bin_dist_dir)
 !endif
 
 !if "$(ice_dir)" == ""
@@ -124,7 +130,7 @@ ice_cpp_header = $(ice_cpp_dir)\include\Ice\Ice.h
 !else
 ice_cpp_header = $(ice_dir)\include\Ice\Ice.h
 !endif
-!if !exist ($(ice_cpp_header))
+!if !exist ("$(ice_cpp_header)")
 !error Unable to find the C++ header file $(ice_cpp_header), please verify ICE_HOME is properly configured and Ice is correctly installed.
 !endif
 !endif
@@ -141,20 +147,20 @@ install_slicedir    	= $(prefix)\slice
 all::
 
 install-common::
-	@if not exist $(prefix) \
+	@if not exist "$(prefix)" \
 	    @echo "Creating $(prefix)..." && \
-	    mkdir $(prefix)
+	    mkdir "$(prefix)"
 
 !if "$(install_slicedir)" != ""
-	@if not exist $(install_slicedir) \
+	@if not exist "$(install_slicedir)" \
 	    @echo "Creating $(install_slicedir)..." && \
-	    mkdir $(install_slicedir) && \
+	    mkdir "$(install_slicedir)" && \
 	    @echo "Copying slice files..." && \
-	    cmd /c "xcopy /s /y $(top_srcdir)\..\slice $(install_slicedir)" || exit 1
+	    cmd /c "xcopy /s /y $(top_srcdir)\..\slice "$(install_slicedir)"" || exit 1
 !endif
 
-	@if not exist $(prefix)\ICE_LICENSE \
-	    @copy $(top_srcdir)\..\ICE_LICENSE $(prefix)
-	@if not exist $(prefix)\LICENSE \
-	    @copy $(top_srcdir)\..\LICENSE $(prefix)
+	@if not exist "$(prefix)\ICE_LICENSE" \
+	    @copy $(top_srcdir)\..\ICE_LICENSE "$(prefix)"
+	@if not exist "$(prefix)\LICENSE" \
+	    @copy $(top_srcdir)\..\LICENSE "$(prefix)"
 
