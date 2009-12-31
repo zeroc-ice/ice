@@ -552,7 +552,7 @@ def spawn(command, cwd = None, mapping = None):
         if cwd != None:
             desc = os.path.join(cwd, desc)
         if isWin32():
-            if not desc.endswith(".exe"):
+            if desc.find(".") == -1:
                 desc += ".exe"
         command = desc + " " + args
 
