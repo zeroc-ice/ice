@@ -84,8 +84,8 @@ comments in the file provide more information. Pay particular
 attention to the variables that define the locations of the third-
 party libraries.
 
-If you want to build with g++ instead of Sun CC, edit the file
-config/Make.rules.SunOS and change or comment out the CXX = <compiler>
+If you want to build with Sun CC instead of g++, edit the file
+config/Make.rules.SunOS and change or uncomment the CXX = <compiler>
 line (at the top of the file). The default value for CXX with GNU make
 is g++.
 

@@ -522,13 +522,9 @@ detects a bzip2.dll format mismatch during start-up.)
 Binary compatibility
 ======================================================================
 
-Ice patch releases are binary compatible. For example, Ice version
-@mmver@.1 is compatible with @mmver@.0: you can run an application built
-against Ice @mmver@.0 with Ice @mmver@.1 (or later) without having to
-recompile or relink this application.
-
 Please refer to the RELEASE_NOTES.txt file included in this
-distribution for detailed upgrade instructions.
+distribution for information on binary compatibility and detailed
+upgrade instructions.
 
 
 ======================================================================

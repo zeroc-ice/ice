@@ -72,8 +72,8 @@ Berkeley DB
 ======================================================================
 
 This distribution includes the C++ and Java run time for Berkeley DB
-4.8.24. The C++ run time was built using Sun CC version 5.9. The
-Berkeley DB license is provided in the file THIRD_PARTY_LICENSE.
+4.8.24. The C++ run time was built using GCC 3.4.3. The Berkeley DB
+license is provided in the file THIRD_PARTY_LICENSE.
 
 
 ======================================================================
@@ -237,10 +237,6 @@ more information.
 Binary compatibility
 ======================================================================
 
-Ice patch releases are binary compatible. For example, Ice version
-@mmver@.1 is compatible with @mmver@.0: you can run an application built
-against Ice @mmver@.0 with Ice @mmver@.1 (or later) without having to
-recompile or relink this application.
-
 Please refer to the RELEASE_NOTES file included in this distribution
-for detailed upgrade instructions.
+for information on binary compatibility and detailed upgrade
+instructions.
