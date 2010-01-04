@@ -75,6 +75,16 @@ This distribution includes the C++ and Java run time for Berkeley DB
 4.8.24. The C++ run time was built using GCC 4.3.2. The Berkeley DB
 license is provided in the file THIRD_PARTY_LICENSE.
 
+======================================================================
+Qt
+======================================================================
+
+This distribution includes the QtCore and QtSql libraries. These
+libraries were built usng GCC 4.3.2. The Qt license is provided in the
+file THIRD_PARTY_LICENSE.
+
+NOTE: the QtCore and QtSql libraries are only provided in 32 bits due
+to issues compiling Qt in 64 bits with GCC 4.3.2.
 
 ======================================================================
 Ice extension for Python

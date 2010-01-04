@@ -77,6 +77,15 @@ license is provided in the file THIRD_PARTY_LICENSE.
 
 
 ======================================================================
+Qt
+======================================================================
+
+This distribution includes the QtCore and QtSql libraries. These
+libraries were built usng GCC 3.4.3. The Qt license is provided in the
+file THIRD_PARTY_LICENSE.
+
+
+======================================================================
 Ice extension for Python
 ======================================================================
 
