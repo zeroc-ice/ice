@@ -193,10 +193,10 @@ examining the output of the "php -m" command, or by calling the
 phpinfo() function from a script.
 
 Your application will also need to include at least some of the Ice
-for PHP run-time source files (installed in /usr/share/Ice-@ver@/php
-on RHEL5 and /usr/share/Ice-@ver@/php5 on SLES11). This installation
-directory is included in PHP's default include path, which you can
-verify by executing the following command:
+for PHP run-time source files (installed in /usr/share/php on RHEL5
+and /usr/share/php5 on SLES11). This installation directory is
+included in PHP's default include path, which you can verify by
+executing the following command:
 
 % php -i | grep include_path
 
@@ -205,14 +205,14 @@ necessary to make the run-time source files available to your
 application. Otherwise, you can modify the include_path setting in
 php.ini to add the installation directory:
 
-include_path = /usr/share/Ice-@ver@/php:...
+include_path = /usr/share/php:...
 
 Another option is to modify the include path from within your
 script prior to including any Ice run-time file:
 
 // PHP
 ini_set('include_path',
-  ini_get('include_path') . PATH_SEPARATOR . '/usr/share/Ice-@ver@/php');
+  ini_get('include_path') . PATH_SEPARATOR . '/usr/share/php');
 require 'Ice.php'; // Load the core Ice run time definitions.
 
 
@@ -283,7 +283,6 @@ chkconfig --level 35 icegridregistry on
 # icegridregistry to start at runlevel 3 and 5:
 #
 chkconfig icegridregistry 35
-
 
 Before doing so, please review the script itself and its associated
 configuration file.
