@@ -81,8 +81,9 @@ Qt
 ======================================================================
 
 This distribution includes the QtCore and QtSql libraries. These
-libraries were built usng GCC 3.4.3. The Qt license is provided in the
-file THIRD_PARTY_LICENSE.
+libraries were built using GCC 3.4.3. The Qt license is provided in
+the file THIRD_PARTY_LICENSE. The QtSql library has the SQLite and
+PostreSQL drivers built-in.
 
 
 ======================================================================
