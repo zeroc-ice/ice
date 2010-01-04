@@ -263,7 +263,7 @@ Requires: ice-php = %{version}-%{release}
 Tools for developing Ice applications in PHP.
 
 %package sqldb
-Summary: Ice servers and related files.
+Summary: SQL database support for IceGrid and IceStorm
 Group: System Environment/Daemons
 Requires: ice-libs = %{version}-%{release}
 # Requirements for the users
