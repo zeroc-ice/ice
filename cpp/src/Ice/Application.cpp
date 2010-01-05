@@ -613,7 +613,11 @@ Ice::Application::doMain(int argc, char* argv[], const InitializationData& initi
     try
     {
         IceInternal::Application::_interrupted = false;
-        IceInternal::Application::_appName = argv[0] ? argv[0] : "";
+        IceInternal::Application::_appName = "";
+        if(argc > 0)
+        {
+            IceInternal::Application::_appName = argv[0];
+        }
 
         //
         // We parse the properties here to extract Ice.ProgramName.
