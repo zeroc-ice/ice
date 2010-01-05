@@ -63,10 +63,10 @@ NewContacts.cpp: NewContactData.ice $(SLICE2FREEZE) $(SLICEPARSERLIB)
               --dict-index Demo::NewContacts,phoneNumber,sort NewContacts NewContactData.ice
 
 cleandb::
-	-rm -f db/* dbnew/*
+	-rm -rf db/* dbnew/*
 
 clean::
-	-rm -f db/* dbnew/*
+	-rm -rf db/* dbnew/*
 	-rm -f Contacts.h Contacts.cpp NewContacts.h NewContacts.cpp
 
 include .depend

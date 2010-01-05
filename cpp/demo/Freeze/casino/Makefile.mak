@@ -52,6 +52,7 @@ $(SERVER): $(OBJS) $(SOBJS)
 clean::
 	del /q Casino.cpp Casino.h
 	del /q CasinoStore.cpp CasinoStore.h
+	-if exist db\__Freeze rmdir /q /s db\__Freeze
 	-for %f in (db\*) do if not %f == db\DB_CONFIG del /q %f
 
 !include .depend.mak

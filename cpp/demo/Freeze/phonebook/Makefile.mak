@@ -90,6 +90,7 @@ clean::
 
 clean::
 	-del /q NameIndex.h NameIndex.cpp
+	-if exist db\__Freeze rmdir /q /s db\__Freeze
 	-for %f in (db\*) do if not %f == db\.gitignore del /q %f
 
 !include .depend.mak

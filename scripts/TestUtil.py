@@ -1180,6 +1180,10 @@ def collocatedTest(additionalOptions = ""):
         appVerifierAfterTestEnd([exe])
 
 def cleanDbDir(path):
+    if os.path.exists(os.path.join(path, "__Freeze", "lock")):
+        os.remove(os.path.join(path, "__Freeze", "lock"))
+    if os.path.exists(os.path.join(path, "__Freeze")):
+        os.rmdir(os.path.join(path, "__Freeze"))
     for filename in [ os.path.join(path, f) for f in os.listdir(path) if f != ".gitignore" and f != "DB_CONFIG" ]:
         os.remove(filename)
 

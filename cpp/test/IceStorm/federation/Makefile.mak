@@ -60,9 +60,13 @@ clean::
 	del /q build.txt
 	del /q Event.cpp Event.h
 	del /q db\topicmanager db\log.*
+	-if exist db\__Freeze rmdir /q /s db\__Freeze
 	-for %f in (db\*) do if not %f == db\.gitignore del /q %f
+	-if exist 0.db\__Freeze rmdir /q /s 0.db\__Freeze
 	-for %f in (0.db\*) do if not %f == 0.db\.gitignore del /q %f
+	-if exist 1.db\__Freeze rmdir /q /s 1.db\__Freeze
 	-for %f in (1.db\*) do if not %f == 1.db\.gitignore del /q %f
+	-if exist 2.db\__Freeze rmdir /q /s 2.db\__Freeze
 	-for %f in (2.db\*) do if not %f == 2.db\.gitignore del /q %f
 
 !include .depend.mak

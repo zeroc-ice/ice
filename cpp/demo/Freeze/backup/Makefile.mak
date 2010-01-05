@@ -39,6 +39,7 @@ clean::
 	-del /q oldlogs.txt
 	if exist hotbackup rmdir /q /s hotbackup
 	if exist hotbackup.1 rmdir /q /s hotbackup.1
+	-if exist db\__Freeze rmdir /q /s db\__Freeze
 	-del /q  db\__*.*
 	-for %f in (db\data\*) do if not %f == db\data\.gitignore del /q %f
 	-for %f in (db\logs\*) do if not %f == db\logs\.gitignore del /q %f

@@ -52,9 +52,8 @@
     <target name="clean">
         <delete dir="${generated.dir}"/>
         <delete dir="${class.dir}"/>
-        <delete>
-	    <fileset dir="db" includes="log.*"/>
-            <fileset dir="db" includes="contacts,contacts.*"/>
+        <delete includeEmptyDirs="true">
+	    <fileset dir="db" excludes=".gitignore"/>
         </delete>
     </target>
 

@@ -65,6 +65,6 @@ clean::
 	-rm -f IntIdentityMapWithIndex.h IntIdentityMapWithIndex.cpp
 	-rm -f SortedMap.h SortedMap.cpp
 	-rm -f WstringWstringMap.h WstringWstringMap.cpp
-	-rm -f db/*
+	-rm -rf db/*
 
 include .depend

@@ -50,6 +50,8 @@ clean::
 
 clean::
 	-for %d in (master replica1 replica2) do \
+	  if exist db\%d\__Freeze rmdir /q /s db\%d\__Freeze
+	-for %d in (master replica1 replica2) do \
 	  for %f in (db\%d\*) do if not %f == db\%d\.gitignore del /q %f
 	-for %d in (node1 node2) do \
 	  for %f in (db\%d\*) do if not %f == db\%d\.gitignore del /q %f

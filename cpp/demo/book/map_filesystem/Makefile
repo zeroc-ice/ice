@@ -65,6 +65,6 @@ clean::
 	-rm -f IdentityDirectoryEntryMap.h IdentityDirectoryEntryMap.cpp
 
 clean::
-	-rm -f db/*
+	-rm -rf db/*
 
 include .depend

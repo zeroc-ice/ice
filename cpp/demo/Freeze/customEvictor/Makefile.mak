@@ -61,6 +61,7 @@ clean::
 	del /q Item.h Item.cpp
 	del /q ItemInfo.h ItemInfo.cpp
 	del /q Database.h Database.cpp
+	if exist db\__Freeze rmdir /q /s db\__Freeze
 	for %f in (db\*) do if not %f == db\DB_CONFIG del /q %f
 
 include .depend.mak

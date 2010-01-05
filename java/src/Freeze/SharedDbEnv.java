@@ -273,7 +273,13 @@ public class SharedDbEnv implements com.sleepycat.db.ErrorHandler, Runnable
 
         String propertyPrefix = "Freeze.DbEnv." + _key.envName;
         String dbHome = properties.getPropertyWithDefault(propertyPrefix + ".DbHome", _key.envName);
-        _fileLock = new IceUtilInternal.FileLock(dbHome + "/Freeze.lock");
+
+        java.io.File dir = new java.io.File(dbHome + "/__Freeze");
+        if(!dir.exists())
+        {
+            dir.mkdir();
+        }
+        _fileLock = new IceUtilInternal.FileLock(dbHome + "/__Freeze/lock");
         try
         {
             if(_ownDbEnv)

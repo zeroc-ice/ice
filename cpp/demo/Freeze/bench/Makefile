@@ -44,7 +44,7 @@ BenchTypes.cpp: Test.ice $(SLICE2FREEZE) $(SLICEPARSERLIB)
         BenchTypes Test.ice
 
 clean::
-	-rm -f db/*
+	-rm -rf db/*
 	-rm -f BenchTypes.h BenchTypes.cpp
 
 include .depend

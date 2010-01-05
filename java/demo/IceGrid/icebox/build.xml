@@ -39,6 +39,10 @@
     <target name="clean">
         <delete dir="${generated.dir}"/>
         <delete dir="${class.dir}"/>
+        <delete quiet="true" includeEmptyDirs="true">
+	    <fileset dir="db/node" excludes=".gitignore"/>
+            <fileset dir="db/registry" excludes=".gitignore"/>
+        </delete>
     </target>
 
 </project>

@@ -53,7 +53,7 @@ Database.cpp: ItemInfo.ice $(SLICE2FREEZE) $(SLICEPARSERLIB)
 	$(SLICE2FREEZE) -I$(slicedir) --dict Database,string,Warehouse::ItemInfo Database ItemInfo.ice
 
 clean::
-	-rm -rf db/__* db/items db/log*
+	-rm -rf db/__* db/items db/log* db/__Freeze
 	-rm -f Database.h Database.cpp
 
 include .depend

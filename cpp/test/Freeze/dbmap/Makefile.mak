@@ -61,6 +61,7 @@ clean::
 	del /q IntIdentityMapWithIndex.h IntIdentityMapWithIndex.cpp
         del /q SortedMap.h SortedMap.cpp
 	del /q WstringWstringMap.h WstringWstringMap.cpp
+	-if exist db\__Freeze rmdir /q /s db\__Freeze
 	-for %f in (db\*) do if not %f == db\.gitignore del /q %f
 
 !include .depend.mak

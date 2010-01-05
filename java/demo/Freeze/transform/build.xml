@@ -52,15 +52,9 @@
     <target name="all" depends="compile"/>
 
    <target name="cleandb">
-        <delete>
-	    <fileset dir="db" includes="log.*"/>
-            <fileset dir="db" includes="__catalog,__catalogIndexList"/>
-            <fileset dir="db" includes="contacts, contacts.phoneNumber"/>
-            <fileset dir="db" includes="__db.*"/>
-            <fileset dir="dbnew" includes="log.*"/>
-            <fileset dir="dbnew" includes="__catalog,__catalogIndexList"/>
-            <fileset dir="dbnew" includes="contacts, contacts.phoneNumber"/>
-            <fileset dir="dbnew" includes="__db.*"/> 
+        <delete includeEmptyDirs="true">
+	    <fileset dir="db" excludes=".gitignore"/>
+	    <fileset dir="dbnew" excludes=".gitignore"/>
         </delete>
     </target>
 

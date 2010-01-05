@@ -36,7 +36,7 @@ IntLongMap.cpp: $(SLICE2FREEZE) $(SLICEPARSERLIB)
 
 clean::
 	-rm -f IntLongMap.h IntLongMap.cpp
-	-rm -f db/__* db/data/* db/logs/*
+	-rm -rf db/__* db/data/* db/logs/* db/__Freeze
 	-rm -rf hotbackup hotbackup.1
 
 include .depend

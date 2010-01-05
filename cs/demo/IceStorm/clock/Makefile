@@ -31,6 +31,6 @@ subscriber.exe: $(S_SRCS) $(GEN_SRCS)
 	$(MCS) $(MCSFLAGS) -out:$@ $(call ref,Ice) $(call ref,IceStorm) $(subst /,$(DSEP),$^)
 
 clean::
-	-rm -f db/*
+	-rm -rf db/*
 
 include .depend

@@ -20,10 +20,8 @@
     <target name="all"/>
 
     <target name="clean">
-        <delete>
-	    <fileset dir="db" includes="log.*"/>
-            <fileset dir="db" includes="test"/>
-            <fileset dir="db" includes="__catalog*"/>
+        <delete includeEmptyDirs="true">
+	    <fileset dir="db" excludes=".gitignore"/>
         </delete>
     </target>
 

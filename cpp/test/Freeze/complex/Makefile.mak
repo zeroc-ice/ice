@@ -56,6 +56,7 @@ Grammar.cpp Grammar.h: Grammar.y
 clean::
 	del /q Complex.cpp Complex.h
 	del /q ComplexDict.h ComplexDict.cpp
+	-if exist db\__Freeze rmdir /q /s db\__Freeze
 	-for %f in (db\*) do if not %f == db\.gitignore del /q %f
 
 !include .depend.mak

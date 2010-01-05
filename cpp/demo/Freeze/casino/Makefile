@@ -47,12 +47,7 @@ $(SERVER): $(OBJS) $(SOBJS)
 	rm -f $@
 	$(CXX) $(LDFLAGS) -o $@ $(OBJS) $(SOBJS) $(DB_RPATH_LINK) -lFreeze $(LIBS)
 
-cleandb::
-	-rm -f db/__catalog db/__catalogIndexList db/bet db/bank db/player
-	-rm -f db/log.*	
-
-clean:: cleandb
-	-rm -f db/__catalog db/bet db/bank db/player
-	-rm -f db/log.*
+clean::
+	-rm -rf db/__catalog db/__catalogIndexList db/bet db/bank db/player db/log.* db/__Freeze
 
 include .depend

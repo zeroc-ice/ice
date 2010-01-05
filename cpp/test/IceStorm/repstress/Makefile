@@ -52,8 +52,8 @@ $(CONTROL): $(COBJS)
 
 clean::
 	-rm -f build.txt
-	-rm -f 0.db/*
-	-rm -f 1.db/*
-	-rm -f 2.db/*
+	-rm -rf 0.db/*
+	-rm -rf 1.db/*
+	-rm -rf 2.db/*
 
 include .depend

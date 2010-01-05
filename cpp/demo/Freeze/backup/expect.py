@@ -27,7 +27,7 @@ def cleandb():
     shutil.rmtree("db.save", True)
     Util.cleanDbDir("db/data")
     Util.cleanDbDir("db/logs")
-    for filename in [ os.path.join("db", f) for f in os.listdir("db") if f.startswith("__") ]:
+    for filename in [ os.path.join("db", f) for f in os.listdir("db") if f.startswith("__db") ]:
         os.remove(filename)
 
 print "cleaning databases...",

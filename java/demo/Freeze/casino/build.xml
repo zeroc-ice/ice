@@ -46,10 +46,8 @@
     <target name="clean">
         <delete dir="${generated.dir}"/>
         <delete dir="${class.dir}"/>
-        <delete>
-	    <fileset dir="db" includes="log.*"/>
-            <fileset dir="db" includes="__catalog"/>
-             <fileset dir="db" includes="bank,bet,player"/>
+        <delete includeEmptyDirs="true">
+	    <fileset dir="db" excludes="DB_CONFIG"/>
         </delete>
     </target>
 

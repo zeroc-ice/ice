@@ -1262,7 +1262,6 @@ NodeI::canRemoveServerDirectory(const string& name)
     Ice::StringSeq c = readDirectory(_serversDir + "/" + name);
     set<string> contents(c.begin(), c.end());
     contents.erase("dbs");
-    contents.erase("dbs");
     contents.erase("config");
     contents.erase("distrib");
     contents.erase("revision");
@@ -1288,6 +1287,7 @@ NodeI::canRemoveServerDirectory(const string& name)
         {
             Ice::StringSeq files = readDirectory(_serversDir + "/" + name + "/dbs/" + *p);
             files.erase(remove(files.begin(), files.end(), "DB_CONFIG"), files.end());
+            files.erase(remove(files.begin(), files.end(), "__Freeze"), files.end());
             if(!files.empty())
             {
                 return false;

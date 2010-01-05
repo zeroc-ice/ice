@@ -66,7 +66,9 @@ NewContacts.h NewContacts.cpp: NewContactData.ice "$(SLICE2FREEZE)" "$(SLICEPARS
               --dict-index Demo::NewContacts,phoneNumber,sort NewContacts NewContactData.ice
 
 cleandb::
+	-if exist db\__Freeze rmdir /q /s db\__Freeze
         -for %f in (db\*) do if not %f == db\.gitignore del /q %f
+	-if exist dbnew\__Freeze rmdir /q /s dbnew\__Freeze
         -for %f in (dbnew\*) do if not %f == dbnew\.gitignore del /q %f
 
 clean:: cleandb

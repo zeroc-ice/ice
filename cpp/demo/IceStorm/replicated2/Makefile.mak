@@ -50,6 +50,11 @@ clean::
 	-del /q Clock.cpp Clock.h
 
 clean::
-	-for %f in (db\*) do if not %f == db\.gitignore del /q %f
+	-if exist db1\__Freeze rmdir /q /s db1\__Freeze
+	-for %f in (db1\*) do if not %f == db1\.gitignore del /q %f
+	-if exist db2\__Freeze rmdir /q /s db2\__Freeze
+	-for %f in (db2\*) do if not %f == db2\.gitignore del /q %f
+	-if exist db3\__Freeze rmdir /q /s db3\__Freeze
+	-for %f in (db3\*) do if not %f == db3\.gitignore del /q %f
 
 !include .depend.mak

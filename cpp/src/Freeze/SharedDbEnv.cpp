@@ -486,9 +486,16 @@ Freeze::SharedDbEnv::SharedDbEnv(const std::string& envName,
     string dbHome = properties->getPropertyWithDefault(propertyPrefix + ".DbHome", envName);
     
     //
-    // File lock to prevent multiple process open the same db env.
+    // File lock to prevent multiple process open the same db env. We create the lock
+    // file in a sub-directory to ensure db_hotbackup won't try to copy the file when
+    // backing up the environment (this would fail on Windows where copying a locked
+    // file isn't possible).
     //
-    _fileLock = new ::IceUtilInternal::FileLock(dbHome + "/Freeze.lock");
+    if(!::IceUtilInternal::directoryExists(dbHome + "/__Freeze"))
+    {
+        ::IceUtilInternal::mkdir(dbHome + "/__Freeze", 0777);
+    }
+    _fileLock = new ::IceUtilInternal::FileLock(dbHome + "/__Freeze/lock");
 
     _trace = properties->getPropertyAsInt("Freeze.Trace.DbEnv");
 

@@ -40,6 +40,6 @@ $(SUBSCRIBER): $(OBJS) $(SOBJS)
 	$(CXX) $(LDFLAGS) -o $@ $(OBJS) $(SOBJS) $(LIBS)
 
 clean::
-	-rm -f db/*
+	-rm -rf db/*
 
 include .depend

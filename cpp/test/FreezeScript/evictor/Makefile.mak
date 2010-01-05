@@ -37,7 +37,8 @@ clean::
 	del /q TestOld.cpp TestOld.h
 
 clean::
-	del /q db\*.db db\log.* db\__catalog
+	if exist db\__Freeze rmdir /s /q db\__Freeze
+	del /q db\*.db db\log.* db\__catalog db\__catalogIndexList
 	if exist db_check rmdir /s /q db_check
 	if exist db_tmp rmdir /s /q db_tmp
 

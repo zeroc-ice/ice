@@ -69,7 +69,7 @@ LibraryTypes.cpp: Library.ice $(SLICE2FREEZE) $(SLICEPARSERLIB)
 	$(SLICE2FREEZE) --ice -I$(slicedir) --dict StringIsbnSeqDict,string,Ice::StringSeq LibraryTypes $(slicedir)/Ice/BuiltinSequences.ice Library.ice
 
 clean::
-	-rm -f db/*
+	-rm -rf db/*
 	-rm -f LibraryTypes.h LibraryTypes.cpp
 
 include .depend

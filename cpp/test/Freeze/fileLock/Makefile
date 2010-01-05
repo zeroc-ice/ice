@@ -36,6 +36,6 @@ $(CLIENTF): $(OBJFS)
 
 
 clean::
-	-rm -f db/*
+	-rm -rf db/*
 
 include .depend

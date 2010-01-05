@@ -41,6 +41,6 @@ ComplexDict.cpp: Complex.ice $(SLICE2FREEZE) $(SLICEPARSERLIB)
 
 clean::
 	-rm -f ComplexDict.h ComplexDict.cpp
-	-rm -f db/*
+	-rm -rf db/*
 
 include .depend
