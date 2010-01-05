@@ -205,9 +205,6 @@ def configurePaths():
 	addClasspath(os.path.join(javaDir, "IceE.jar"))
         os.environ["CLASSPATH"] = os.path.join(javaDir, "IceE.jar") + os.pathsep + os.getenv("CLASSPATH", "")
     else:
-        # The IceTest.jar is never installed, and so will always live
-        # in the toplevel java/lib directory.
-	addClasspath(os.path.join(toplevel, "java", "lib", "IceTest.jar"))
         # The Ice.jar and Freeze.jar comes from the installation
         # directory or the toplevel dir.
         javaDir = os.path.join(getIceDir("java"), "lib")
@@ -1253,7 +1250,7 @@ def getTestEnv(lang, testdir):
     if lang == "cpp":
         addLdPath(os.path.join(testdir), env)
     elif lang == "java":
-        addClasspath(os.path.join(testdir, "classes"), env)
+	addClasspath(os.path.join(toplevel, "java", "lib", "IceTest.jar"))
     return env;
 
 def getTestName():

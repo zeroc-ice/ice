@@ -20,18 +20,9 @@ if len(path) == 0:
 sys.path.append(os.path.join(path[0]))
 from scripts import *
 
-testdir = os.getcwd()
-testdirAMD = os.path.join(testdir, "..", "objectsAMD", "classes")
-
 print "tests with regular server."
-import copy
-serverenv = copy.deepcopy(os.environ)
-TestUtil.addClasspath(os.path.join(os.getcwd(), "sclasses"), serverenv)
-TestUtil.clientServerTest(serverenv = serverenv)
+TestUtil.clientServerTest()
 
 print "tests with AMD server."
-import copy
-amdenv = copy.deepcopy(os.environ)
-TestUtil.addClasspath(os.path.join(os.getcwd(), "..", "objectsAMD", "classes"), amdenv)
-TestUtil.clientServerTest(serverenv = amdenv)
+TestUtil.clientServerTest(server="test.Ice.slicing.objects.AMDServer")
 
