@@ -233,6 +233,10 @@ namespace IceInternal
         {
             lock(monitor_)
             {
+                if(cb == null)
+                {
+                    throw new System.ArgumentException("callback is null");
+                }
                 if(sentCallback_ != null)
                 {
                     throw new System.ArgumentException("sent callback already set");
@@ -276,6 +280,10 @@ namespace IceInternal
         {
             lock(monitor_)
             {
+                if(cb == null)
+                {
+                    throw new System.ArgumentException("callback is null");
+                }
                 if(sentCallback_ != null)
                 {
                     throw new System.ArgumentException("sent callback already set");
@@ -351,6 +359,10 @@ namespace IceInternal
         {
             lock(monitor_)
             {
+                if(cb == null)
+                {
+                    throw new System.ArgumentException("callback is null");
+                }
                 setCompletedCallback(getCompletedCallback());
                 exceptionCallback_ = cb;
                 if((state_ & Done) == 0)
@@ -1158,6 +1170,10 @@ namespace IceInternal
         {
             lock(monitor_)
             {
+                if(excb == null)
+                {
+                    throw new System.ArgumentException("callback is null");
+                }
                 setCompletedCallback(getCompletedCallback());
                 exceptionCallback_ = excb;
                 if((state_ & Done) == 0)
@@ -1184,10 +1200,14 @@ namespace IceInternal
             return this;
         }
 
-        public Ice.AsyncResult<T> whenCompleted(T cb, Ice.ExceptionCallback excb)
+        virtual public Ice.AsyncResult<T> whenCompleted(T cb, Ice.ExceptionCallback excb)
         {
             lock(monitor_)
             {
+                if(cb == null && excb == null)
+                {
+                    throw new System.ArgumentException("callback is null");
+                }
                 setCompletedCallback(getCompletedCallback());
                 responseCallback_ = cb;
                 exceptionCallback_ = excb;
@@ -1248,7 +1268,7 @@ namespace IceInternal
 
     public class OnewayOutgoingAsync<T> : OutgoingAsync<T>
     {
-        public OnewayOutgoingAsync(Ice.ObjectPrx prx, string operation, ProxyOnewayCallback<T> cb,object cookie) :
+        public OnewayOutgoingAsync(Ice.ObjectPrx prx, string operation, ProxyOnewayCallback<T> cb, object cookie) :
             base(prx, operation, cookie)
         {
             Debug.Assert(cb != null);
