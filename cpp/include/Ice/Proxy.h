@@ -1172,7 +1172,7 @@ public:
 
     TwowayCallbackNC(const TPtr& instance, bool cb, Exception excb, Sent sentcb) : CallbackNC<T>(instance, excb, sentcb)
     {
-        checkCallback(instance, cb != 0 || excb != 0);
+        checkCallback(instance, cb || excb != 0);
     }
 };
 
@@ -1188,7 +1188,7 @@ public:
 
     TwowayCallback(const TPtr& instance, bool cb, Exception excb, Sent sentcb) : Callback<T, CT>(instance, excb, sentcb)
     {
-        checkCallback(instance, cb != 0 || excb != 0);
+        checkCallback(instance, cb || excb != 0);
     }
 };
 

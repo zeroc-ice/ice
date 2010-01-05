@@ -501,7 +501,11 @@ Ice::Service::interrupt()
 int
 Ice::Service::main(int& argc, char* argv[], const InitializationData& initializationData)
 {
-    _name = argv[0] ? argv[0] : "";
+    _name = "";
+    if(argc > 0)
+    {
+        _name = argv[0];
+    }
 
     //
     // We parse the properties here to extract Ice.ProgramName and
@@ -836,6 +840,13 @@ Ice::Service::main(int& argc, char* argv[], const InitializationData& initializa
     return run(argc, argv, initData);
 }
 
+int 
+Ice::Service::main(int argc, char* const argv[], const InitializationData& initializationData)
+{
+    IceUtilInternal::ArgVector av(argc, argv);
+    return main(av.argc, av.argv, initializationData);
+}
+
 #ifdef _WIN32
 
 int
@@ -843,7 +854,7 @@ Ice::Service::main(int& argc, wchar_t* argv[], const InitializationData& initial
 {
 #ifdef __BCPLUSPLUS__ // COMPILER FIX
     //
-    //BCC don't see the main overload if we don't create the temp args object here.
+    // BCC doesn't see the main overload if we don't create the temp args object here.
     //
     Ice::StringSeq args = Ice::argsToStringSeq(argc, argv, initializationData.stringConverter);
     return main(args, initializationData);

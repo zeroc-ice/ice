@@ -60,6 +60,7 @@ public:
     // EXIT_SUCCESS.
     //
     int main(int&, char*[], const InitializationData& = InitializationData());
+    int main(int, char* const [], const Ice::InitializationData& = Ice::InitializationData());
 
 #ifdef _WIN32
 
