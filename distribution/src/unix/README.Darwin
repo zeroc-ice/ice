@@ -71,6 +71,16 @@ in the file THIRD_PARTY_LICENSE.
 
 
 ======================================================================
+Qt
+======================================================================
+
+The IceGrid and IceStorm SQL database plugins depend on the Qt 4.6
+framework. This framework is not included with this distribution. You
+can download binaries for the Qt framework at
+http://qt.nokia.com/downloads.
+
+
+======================================================================
 Setting up your environment to use Ice
 ======================================================================
 
