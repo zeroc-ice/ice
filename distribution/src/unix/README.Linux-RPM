@@ -61,10 +61,6 @@ C++
 No additional compiler or linker options are required for an RPM
 installation of the Ice for C++ development kit.
 
-On RHEL 4, Ice requires the nptl-devel package, which contains the
-function pthread_condattr_setclock. It is necessary to link with
-the nptl libpthread when building Ice applications.
-
 
 Java
 ----

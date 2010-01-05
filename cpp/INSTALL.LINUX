@@ -59,6 +59,10 @@ OpenSSL        http://www.openssl.org
 bzip2          http://sources.redhat.com/bzip2
 mcpp           http://mcpp.sourceforge.net
 
+On RHEL 4, Ice also requires the nptl-devel package, which contains
+the function pthread_condattr_setclock. It is necessary to link with
+the nptl libpthread when building Ice applications.
+
 
 ======================================================================
 Compilation and Testing
