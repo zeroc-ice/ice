@@ -1424,10 +1424,6 @@ IcePy::TypedInvocation::unmarshalResults(const pair<const Ice::Byte*, const Ice:
     PyObjectHandle results = PyTuple_New(numResults);
     if(results.get() && numResults > 0)
     {
-        //
-        // Unmarshal the results. If there is more than one value to be returned, then return them
-        // in a tuple of the form (result, outParam1, ...). Otherwise just return the value.
-        //
         Ice::InputStreamPtr is = Ice::createInputStream(_communicator, bytes);
         for(ParamInfoList::iterator p = _op->outParams.begin(); p != _op->outParams.end(); ++p, ++i)
         {
@@ -1714,41 +1710,41 @@ IcePy::AsyncTypedInvocation::invoke(PyObject* args, PyObject* /* kwds */)
     PyObject* pyparams = PyTuple_GET_ITEM(args, 0);
     assert(PyTuple_Check(pyparams));
 
-    PyObject* method;
+    PyObject* callable;
 
-    method = PyTuple_GET_ITEM(args, 1);
-    if(PyMethod_Check(method))
+    callable = PyTuple_GET_ITEM(args, 1);
+    if(PyCallable_Check(callable))
     {
-        _response = method;
+        _response = callable;
         Py_INCREF(_response);
     }
-    else if(method != Py_None)
+    else if(callable != Py_None)
     {
-        PyErr_Format(PyExc_RuntimeError, STRCAST("response callback must be a method or None"));
+        PyErr_Format(PyExc_RuntimeError, STRCAST("response callback must be a callable object or None"));
         return 0;
     }
 
-    method = PyTuple_GET_ITEM(args, 2);
-    if(PyMethod_Check(method))
+    callable = PyTuple_GET_ITEM(args, 2);
+    if(PyCallable_Check(callable))
     {
-        _ex = method;
+        _ex = callable;
         Py_INCREF(_ex);
     }
-    else if(method != Py_None)
+    else if(callable != Py_None)
     {
-        PyErr_Format(PyExc_RuntimeError, STRCAST("exception callback must be a method or None"));
+        PyErr_Format(PyExc_RuntimeError, STRCAST("exception callback must be a callable object or None"));
         return 0;
     }
 
-    method = PyTuple_GET_ITEM(args, 3);
-    if(PyMethod_Check(method))
+    callable = PyTuple_GET_ITEM(args, 3);
+    if(PyCallable_Check(callable))
     {
-        _sent = method;
+        _sent = callable;
         Py_INCREF(_sent);
     }
-    else if(method != Py_None)
+    else if(callable != Py_None)
     {
-        PyErr_Format(PyExc_RuntimeError, STRCAST("sent callback must be a method or None"));
+        PyErr_Format(PyExc_RuntimeError, STRCAST("sent callback must be a callable object or None"));
         return 0;
     }
 
@@ -2380,36 +2376,36 @@ IcePy::AsyncBlobjectInvocation::invoke(PyObject* args, PyObject* kwds)
     PyObjectHandle modeValue = PyObject_GetAttrString(mode, STRCAST("value"));
     Ice::OperationMode sendMode = (Ice::OperationMode)static_cast<int>(PyInt_AS_LONG(modeValue.get()));
 
-    if(PyMethod_Check(response))
+    if(PyCallable_Check(response))
     {
         _response = response;
         Py_INCREF(_response);
     }
     else if(response != Py_None)
     {
-        PyErr_Format(PyExc_RuntimeError, STRCAST("response callback must be a method or None"));
+        PyErr_Format(PyExc_RuntimeError, STRCAST("response callback must be a callable object or None"));
         return 0;
     }
 
-    if(PyMethod_Check(ex))
+    if(PyCallable_Check(ex))
     {
         _ex = ex;
         Py_INCREF(_ex);
     }
     else if(ex != Py_None)
     {
-        PyErr_Format(PyExc_RuntimeError, STRCAST("exception callback must be a method or None"));
+        PyErr_Format(PyExc_RuntimeError, STRCAST("exception callback must be a callable object or None"));
         return 0;
     }
 
-    if(PyMethod_Check(sent))
+    if(PyCallable_Check(sent))
     {
         _sent = sent;
         Py_INCREF(_sent);
     }
     else if(sent != Py_None)
     {
-        PyErr_Format(PyExc_RuntimeError, STRCAST("sent callback must be a method or None"));
+        PyErr_Format(PyExc_RuntimeError, STRCAST("sent callback must be a callable object or None"));
         return 0;
     }
 

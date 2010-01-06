@@ -70,6 +70,51 @@ class ResponseCallback(CallbackBase):
     def ex(self, ex):
         pass
 
+class ResponseCallbackWC(CallbackBase):
+    def __init__(self, cookie):
+        CallbackBase.__init__(self)
+        self._cookie = cookie
+
+    def isA(self, r, cookie):
+        test(cookie == self._cookie)
+        test(r)
+        self.called()
+
+    def ping(self, cookie):
+        test(cookie == self._cookie)
+        self.called()
+
+    def id(self, id, cookie):
+        test(cookie == self._cookie)
+        test(id == "::Test::TestIntf")
+        self.called()
+
+    def ids(self, ids, cookie):
+        test(cookie == self._cookie)
+        test(len(ids) == 2)
+        self.called()
+
+    def op(self, cookie):
+        test(cookie == self._cookie)
+        self.called()
+
+    def opWithResult(self, r, cookie):
+        test(cookie == self._cookie)
+        test(r == 15)
+        self.called()
+
+    def opWithUE(self, ex, cookie):
+        test(cookie == self._cookie)
+        try:
+            raise ex
+        except Test.TestIntfException:
+            self.called()
+        except:
+            test(False)
+
+    def ex(self, ex, cookie):
+        pass
+
 class ExceptionCallback(CallbackBase):
     def response(self, *args):
         test(False)
@@ -88,6 +133,30 @@ class ExceptionCallback(CallbackBase):
     def noEx(self, ex):
         test(False)
 
+class ExceptionCallbackWC(CallbackBase):
+    def __init__(self, cookie):
+        CallbackBase.__init__(self)
+        self._cookie = cookie
+
+    def response(self, *args):
+        test(False)
+
+    def nullResponse(self, *args):
+        pass
+
+    def opWithUE(self, ex, cookie):
+        test(cookie == self._cookie)
+        test(isinstance(ex, Test.TestIntfException))
+        self.called()
+
+    def ex(self, ex, cookie):
+        test(cookie == self._cookie)
+        test(isinstance(ex, Ice.NoEndpointException))
+        self.called()
+
+    def noEx(self, ex, cookie):
+        test(False)
+
 class SentCallback(CallbackBase):
     def __init__(self):
         CallbackBase.__init__(self)
@@ -104,12 +173,34 @@ class SentCallback(CallbackBase):
              (not sentSynchronously and self._thread != threading.currentThread()))
         self.called()
 
-class FlushCallback(CallbackBase):
-    def __init__(self):
+class SentCallbackWC(CallbackBase):
+    def __init__(self, cookie):
         CallbackBase.__init__(self)
         self._thread = threading.currentThread()
+        self._cookie = cookie
+
+    def response(self, *args):
+        pass
+
+    def ex(self, ex, cookie):
+        pass
+
+    def sent(self, sentSynchronously, cookie):
+        test(cookie == self._cookie)
+        test((sentSynchronously and self._thread == threading.currentThread()) or \
+             (not sentSynchronously and self._thread != threading.currentThread()))
+        self.called()
+
+class FlushCallback(CallbackBase):
+    def __init__(self, cookie=None):
+        CallbackBase.__init__(self)
+        self._thread = threading.currentThread()
+        self._cookie = cookie
 
     def exception(self, ex):
+        test(False)
+
+    def exceptionWC(self, ex, cookie):
         test(False)
 
     def sent(self, sentSynchronously):
@@ -117,14 +208,28 @@ class FlushCallback(CallbackBase):
              (not sentSynchronously and self._thread != threading.currentThread()))
         self.called()
 
+    def sentWC(self, sentSynchronously, cookie):
+        test((sentSynchronously and self._thread == threading.currentThread()) or \
+             (not sentSynchronously and self._thread != threading.currentThread()))
+        test(cookie == self._cookie)
+        self.called()
+
 class FlushExCallback(CallbackBase):
-    def response(self, *args):
-        test(False)
+    def __init__(self, cookie=None):
+        CallbackBase.__init__(self)
+        self._cookie = cookie
 
     def exception(self, ex):
         self.called()
 
+    def exceptionWC(self, ex, cookie):
+        test(cookie == self._cookie)
+        self.called()
+
     def sent(self, sentSynchronously):
+        test(False)
+
+    def sentWC(self, sentSynchronously, cookie):
         test(False)
 
 LocalException = 0
@@ -150,17 +255,35 @@ class Thrower(CallbackBase):
         self.called()
         throwEx(self._t)
 
+    def opWC(self, cookie):
+        self.called()
+        throwEx(self._t)
+
     def noOp(self):
+        pass
+
+    def noOpWC(self, cookie):
         pass
 
     def ex(self, ex):
         self.called()
         throwEx(self._t)
 
+    def exWC(self, ex, cookie):
+        self.called()
+        throwEx(self._t)
+
     def noEx(self, ex):
         test(False)
 
+    def noExWC(self, ex, cookie):
+        test(False)
+
     def sent(self, ss):
+        self.called()
+        throwEx(self._t)
+
+    def sentWC(self, ss, cookie):
         self.called()
         throwEx(self._t)
 
@@ -229,41 +352,72 @@ def allTests(communicator):
 
     ctx = {}
     cb = ResponseCallback()
+    cookie = 5
+    cbWC = ResponseCallbackWC(cookie)
 
     p.begin_ice_isA(Test.TestIntf.ice_staticId(), cb.isA, cb.ex)
     cb.check()
+    p.begin_ice_isA(Test.TestIntf.ice_staticId(), lambda r: cbWC.isA(r, cookie), lambda ex: cbWC.ex(ex, cookie))
+    cbWC.check()
     p.begin_ice_isA(Test.TestIntf.ice_staticId(), cb.isA, cb.ex, _ctx=ctx)
     cb.check()
+    p.begin_ice_isA(Test.TestIntf.ice_staticId(), lambda r: cbWC.isA(r, cookie), lambda ex: cbWC.ex(ex, cookie),
+                    _ctx=ctx)
+    cbWC.check()
 
     p.begin_ice_ping(cb.ping, cb.ex)
     cb.check()
+    p.begin_ice_ping(lambda: cbWC.ping(cookie), lambda ex: cbWC.ex(ex, cookie))
+    cbWC.check()
     p.begin_ice_ping(cb.ping, cb.ex, _ctx=ctx)
     cb.check()
+    p.begin_ice_ping(lambda: cbWC.ping(cookie), lambda: cbWC.ex(ex, cookie), _ctx=ctx)
+    cbWC.check()
 
     p.begin_ice_id(cb.id, cb.ex)
     cb.check()
+    p.begin_ice_id(lambda id: cbWC.id(id, cookie), lambda ex: cbWC.ex(ex, cookie))
+    cbWC.check()
     p.begin_ice_id(cb.id, cb.ex, _ctx=ctx)
     cb.check()
+    p.begin_ice_id(lambda id: cbWC.id(id, cookie), lambda ex: cbWC.ex(ex, cookie), _ctx=ctx)
+    cbWC.check()
 
     p.begin_ice_ids(cb.ids, cb.ex)
     cb.check()
+    p.begin_ice_ids(lambda ids: cbWC.ids(ids, cookie), lambda ex: cbWC.ex(ex, cookie))
+    cbWC.check()
     p.begin_ice_ids(cb.ids, cb.ex, _ctx=ctx)
     cb.check()
+    p.begin_ice_ids(lambda ids: cbWC.ids(ids, cookie), lambda ex: cbWC.ex(ex, cookie), _ctx=ctx)
+    cbWC.check()
 
     p.begin_op(cb.op, cb.ex)
     cb.check()
+    p.begin_op(lambda: cbWC.op(cookie), lambda ex: cbWC.ex(ex, cookie))
+    cbWC.check()
     p.begin_op(cb.op, cb.ex, _ctx=ctx)
     cb.check()
+    p.begin_op(lambda: cbWC.op(cookie), lambda ex: cbWC.ex(ex, cookie), _ctx=ctx)
+    cbWC.check()
 
     p.begin_opWithResult(cb.opWithResult, cb.ex)
     cb.check()
+    p.begin_opWithResult(lambda r: cbWC.opWithResult(r, cookie), lambda ex: cbWC.ex(ex, cookie))
+    cbWC.check()
     p.begin_opWithResult(cb.opWithResult, cb.ex, _ctx=ctx)
     cb.check()
+    p.begin_opWithResult(lambda r: cbWC.opWithResult(r, cookie), lambda ex: cbWC.ex(ex, cookie), _ctx=ctx)
+    cbWC.check()
 
     p.begin_opWithUE(cb.op, cb.opWithUE)
     cb.check()
+    p.begin_opWithUE(lambda: cbWC.op(cookie), lambda ex: cbWC.opWithUE(ex, cookie))
+    cbWC.check()
     p.begin_opWithUE(cb.op, cb.opWithUE, _ctx=ctx)
     cb.check()
+    p.begin_opWithUE(lambda: cbWC.op(cookie), lambda ex: cbWC.opWithUE(ex, cookie), _ctx=ctx)
+    cbWC.check()
 
     print "ok"
 
@@ -305,56 +459,90 @@ def allTests(communicator):
 
     i = Test.TestIntfPrx.uncheckedCast(p.ice_adapterId("dummy"))
     cb = ExceptionCallback()
+    cookie = 5
+    cbWC = ExceptionCallbackWC(cookie)
 
     i.begin_ice_isA(Test.TestIntf.ice_staticId(), cb.response, cb.ex)
     cb.check()
+    i.begin_ice_isA(Test.TestIntf.ice_staticId(), lambda b: cbWC.response(b, cookie), lambda ex: cbWC.ex(ex, cookie))
+    cbWC.check()
 
     i.begin_ice_ping(cb.response, cb.ex)
     cb.check()
+    i.begin_ice_ping(lambda: cbWC.response(cookie), lambda ex: cbWC.ex(ex, cookie))
+    cbWC.check()
 
     i.begin_ice_id(cb.response, cb.ex)
     cb.check()
+    i.begin_ice_id(lambda id: cbWC.response(id, cookie), lambda ex: cbWC.ex(ex, cookie))
+    cbWC.check()
 
     i.begin_ice_ids(cb.response, cb.ex)
     cb.check()
+    i.begin_ice_ids(lambda ids: cbWC.response(ids, cookie), lambda ex: cbWC.ex(ex, cookie))
+    cbWC.check()
 
     i.begin_op(cb.response, cb.ex)
     cb.check()
+    i.begin_op(lambda: cbWC.response(cookie), lambda ex: cbWC.ex(ex, cookie))
+    cbWC.check()
 
     print "ok"
 
     print "testing exception callback...",
 
     cb = ExceptionCallback()
+    cookie = 5
+    cbWC = ExceptionCallbackWC(cookie)
 
     # Ensures no exception is called when response is received.
     p.begin_ice_isA(Test.TestIntf.ice_staticId(), cb.nullResponse, cb.noEx)
+    p.begin_ice_isA(Test.TestIntf.ice_staticId(), lambda b: cbWC.nullResponse(b, cookie),
+                    lambda ex: cbWC.noEx(ex, cookie))
     p.begin_op(cb.nullResponse, cb.noEx)
+    p.begin_op(lambda: cbWC.nullResponse(cookie), lambda ex: cbWC.noEx(ex, cookie))
 
     # If response is a user exception, it should be received.
     p.begin_opWithUE(cb.nullResponse, cb.opWithUE)
     cb.check()
+    p.begin_opWithUE(lambda: cbWC.nullResponse(cookie), lambda ex: cbWC.opWithUE(ex, cookie))
+    cbWC.check()
 
     print "ok"
 
     print "testing sent callback...",
 
     cb = SentCallback()
+    cookie = 5
+    cbWC = SentCallbackWC(cookie)
 
     p.begin_ice_isA("", cb.response, cb.ex, cb.sent)
     cb.check()
+    p.begin_ice_isA("", lambda b: cbWC.response(b, cookie), lambda ex: cbWC.ex(ex, cookie),
+                    lambda ss: cbWC.sent(ss, cookie))
+    cbWC.check()
 
     p.begin_ice_ping(cb.response, cb.ex, cb.sent)
     cb.check()
+    p.begin_ice_ping(lambda: cbWC.response(cookie), lambda ex: cbWC.ex(ex, cookie), lambda ss: cbWC.sent(ss, cookie))
+    cbWC.check()
 
     p.begin_ice_id(cb.response, cb.ex, cb.sent)
     cb.check()
+    p.begin_ice_id(lambda id: cbWC.response(id, cookie), lambda ex: cbWC.ex(ex, cookie),
+                   lambda ss: cbWC.sent(ss, cookie))
+    cbWC.check()
 
     p.begin_ice_ids(cb.response, cb.ex, cb.sent)
     cb.check()
+    p.begin_ice_ids(lambda ids: cbWC.response(ids, cookie), lambda ex: cbWC.ex(ex, cookie),
+                    lambda ss: cbWC.sent(ss, cookie))
+    cbWC.check()
 
     p.begin_op(cb.response, cb.ex, cb.sent)
     cb.check()
+    p.begin_op(lambda: cbWC.response(cookie), lambda ex: cbWC.ex(ex, cookie), lambda ss: cbWC.sent(ss, cookie))
+    cbWC.check()
 
     cbs = []
     bytes = []
@@ -402,23 +590,41 @@ def allTests(communicator):
 
     for t in throwTypes:
         cb = Thrower(t)
+        cookie = 5
 
         p.begin_op(cb.op, cb.noEx)
+        cb.check()
+
+        p.begin_op(lambda: cb.opWC(cookie), lambda ex: cb.noExWC(ex, cookie))
         cb.check()
 
         q.begin_op(cb.op, cb.ex)
         cb.check()
 
+        q.begin_op(lambda: cb.opWC(cookie), lambda ex: cb.exWC(ex, cookie))
+        cb.check()
+
         p.begin_op(cb.noOp, cb.ex, cb.sent)
         cb.check()
 
+        p.begin_op(lambda: cb.noOpWC(cookie), lambda ex: cb.exWC(ex, cookie), lambda ss: cb.sentWC(ss, cookie))
+        cb.check()
+
         q.begin_op(None, cb.ex)
+        cb.check()
+
+        q.begin_op(None, lambda ex: cb.exWC(ex, cookie))
         cb.check()
 
     print "ok"
 
     print "testing batch requests with proxy...",
 
+    cookie = 5
+
+    #
+    # Without cookie.
+    #
     test(p.opBatchCount() == 0)
     b1 = p.ice_batchOneway()
     b1.opBatch()
@@ -430,6 +636,21 @@ def allTests(communicator):
     test(r.isCompleted())
     test(p.waitForBatch(2))
 
+    #
+    # With cookie.
+    #
+    test(p.opBatchCount() == 0)
+    b1 = p.ice_batchOneway()
+    b1.opBatch()
+    b1.opBatch()
+    cb = FlushCallback(cookie)
+    r = b1.begin_ice_flushBatchRequests(lambda ex: cb.exceptionWC(ex, cookie), lambda ss: cb.sentWC(ss, cookie))
+    cb.check()
+    test(p.waitForBatch(2))
+
+    #
+    # Exception without cookie.
+    #
     test(p.opBatchCount() == 0)
     b1 = p.ice_batchOneway()
     b1.opBatch()
@@ -439,12 +660,29 @@ def allTests(communicator):
     cb.check()
     test(not r.isSent())
     test(r.isCompleted())
+    test(p.opBatchCount() == 0)
+
+    #
+    # Exception with cookie.
+    #
+    test(p.opBatchCount() == 0)
+    b1 = p.ice_batchOneway()
+    b1.opBatch()
+    b1.ice_getConnection().close(False)
+    cb = FlushExCallback(cookie)
+    r = b1.begin_ice_flushBatchRequests(lambda ex: cb.exceptionWC(ex, cookie), lambda ss: cb.sentWC(ss, cookie))
+    cb.check()
     test(p.opBatchCount() == 0)
 
     print "ok"
 
     print "testing batch requests with connection...",
 
+    cookie = 5
+
+    #
+    # Without cookie.
+    #
     test(p.opBatchCount() == 0)
     b1 = p.ice_batchOneway()
     b1.opBatch()
@@ -456,6 +694,22 @@ def allTests(communicator):
     test(r.isCompleted())
     test(p.waitForBatch(2))
 
+    #
+    # With cookie.
+    #
+    test(p.opBatchCount() == 0)
+    b1 = p.ice_batchOneway()
+    b1.opBatch()
+    b1.opBatch()
+    cb = FlushCallback(cookie)
+    r = b1.ice_getConnection().begin_flushBatchRequests(lambda ex: cb.exceptionWC(ex, cookie),
+                                                        lambda ss: cb.sentWC(ss, cookie))
+    cb.check()
+    test(p.waitForBatch(2))
+
+    #
+    # Exception without cookie.
+    #
     test(p.opBatchCount() == 0)
     b1 = p.ice_batchOneway()
     b1.opBatch()
@@ -465,6 +719,19 @@ def allTests(communicator):
     cb.check()
     test(not r.isSent())
     test(r.isCompleted())
+    test(p.opBatchCount() == 0)
+
+    #
+    # Exception with cookie.
+    #
+    test(p.opBatchCount() == 0)
+    b1 = p.ice_batchOneway()
+    b1.opBatch()
+    b1.ice_getConnection().close(False)
+    cb = FlushExCallback(cookie)
+    r = b1.ice_getConnection().begin_flushBatchRequests(lambda ex: cb.exceptionWC(ex, cookie),
+                                                        lambda ss: cb.sentWC(ss, cookie))
+    cb.check()
     test(p.opBatchCount() == 0)
 
     print "ok"
