@@ -46,6 +46,7 @@ typedef IceUtil::Handle<Parser> ParserPtr;
 class Parser : public IceUtil::SimpleShared
 {
 public:
+
     Parser(const Filesystem::DirectoryPrx&);
 
     void usage();
@@ -72,6 +73,7 @@ public:
     int parse(bool = false);
 
 private:
+
     ::std::list<Filesystem::DirectoryPrx> _dirs;
 
     bool _continue;

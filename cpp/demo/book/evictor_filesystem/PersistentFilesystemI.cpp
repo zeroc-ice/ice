@@ -40,11 +40,11 @@ Filesystem::FileI::destroy(const Ice::Current& c)
     {
         IceUtil::Mutex::Lock lock(_mutex);
 
-	if(_destroyed)
-	{
-	    throw Ice::ObjectNotExistException(__FILE__, __LINE__, c.id, c.facet, c.operation);
-	}
-	_destroyed = true;
+        if(_destroyed)
+        {
+            throw Ice::ObjectNotExistException(__FILE__, __LINE__, c.id, c.facet, c.operation);
+        }
+        _destroyed = true;
     }
 
     //

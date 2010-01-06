@@ -19,6 +19,7 @@ public class DirectoryI : DirectoryDisp_
         _name = name;
         _parent = parent;
 
+        //
         // Create an identity. The root directory has the fixed identity "RootDir"
         //
         _id = new Ice.Identity();

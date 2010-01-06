@@ -29,16 +29,22 @@ public class Client
 
         NodePrx[] contents = dir.list();
 
-        foreach (NodePrx node in contents) {
+        foreach(NodePrx node in contents)
+        {
             DirectoryPrx subdir = DirectoryPrxHelper.checkedCast(node);
             FilePrx file = FilePrxHelper.uncheckedCast(node);
             Console.WriteLine(indent + node.name() + (subdir != null ? " (directory):" : " (file):"));
-            if (subdir != null) {
+            if(subdir != null)
+            {
                 listRecursive(subdir, depth);
-            } else {
+            }
+            else
+            {
                 string[] text = file.read();
-                for (int j = 0; j < text.Length; ++j)
+                for(int j = 0; j < text.Length; ++j)
+                {
                     Console.WriteLine(indent + "\t" + text[j]);
+                }
             }
         }
     }
@@ -47,35 +53,46 @@ public class Client
     {
         int status = 0;
         Ice.Communicator ic = null;
-        try {
+        try
+        {
+            //
             // Create a communicator
             //
             ic = Ice.Util.initialize(ref args);
 
+            //
             // Create a proxy for the root directory
             //
             Ice.ObjectPrx obj = ic.stringToProxy("RootDir:default -p 10000");
 
+            //
             // Down-cast the proxy to a Directory proxy
             //
             DirectoryPrx rootDir = DirectoryPrxHelper.checkedCast(obj);
-            if (rootDir == null)
+            if(rootDir == null)
+            {
                 throw new ApplicationException("Invalid proxy");
+            }
 
+            //
             // Recursively list the contents of the root directory
             //
             Console.WriteLine("Contents of root directory:");
             listRecursive(rootDir, 0);
-        } catch (Exception e) {
+        }
+        catch(Exception e)
+        {
             Console.Error.WriteLine(e);
             status = 1;
         }
-        if (ic != null) {
-            // Clean up
-            //
-            try {
+        if(ic != null)
+        {
+            try
+            {
                 ic.destroy();
-            } catch (Exception e) {
+            }
+            catch(Exception e)
+            {
                 Console.Error.WriteLine(e);
                 status = 1;
             }

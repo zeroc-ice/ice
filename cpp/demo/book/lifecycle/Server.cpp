@@ -14,19 +14,24 @@ using namespace std;
 using namespace Filesystem;
 using namespace FilesystemI;
 
-class FilesystemApp : virtual public Ice::Application {
+class FilesystemApp : virtual public Ice::Application
+{
 public:
-    virtual int run(int, char* []) {
+
+    virtual int run(int, char*[])
+    {
+        //
         // Terminate cleanly on receipt of a signal
         //
         shutdownOnInterrupt();
 
+        //
         // Create an object adapter.
         //
         Ice::ObjectAdapterPtr adapter =
-            communicator()->createObjectAdapterWithEndpoints(
-                                "SimpleFilesystem", "default -h 127.0.0.1 -p 10000");
+            communicator()->createObjectAdapterWithEndpoints("SimpleFilesystem", "default -h 127.0.0.1 -p 10000");
 
+        //
         // Create the root directory.
         //
         DirectoryIPtr root = new DirectoryI;
@@ -34,10 +39,12 @@ public:
         id.name = "RootDir";
         adapter->add(root, id);
 
+        //
         // All objects are created, allow client requests now.
         //
         adapter->activate();
 
+        //
         // Wait until we are done.
         //
         communicator()->waitForShutdown();

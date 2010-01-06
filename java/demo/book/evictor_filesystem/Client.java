@@ -14,10 +14,12 @@ public class Client extends Ice.Application
     public int
     run(String[] args)
     {
+        //
         // Terminate cleanly on receipt of a signal.
         //
         shutdownOnInterrupt();
 
+        //
         // Create a proxy for the root directory
         //
         DirectoryPrx rootDir = DirectoryPrxHelper.checkedCast(communicator().propertyToProxy("RootDir.Proxy"));

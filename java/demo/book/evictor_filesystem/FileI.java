@@ -33,13 +33,13 @@ public final class FileI extends PersistentFile
         throws PermissionDenied
     {
         synchronized(this)
-	{
-	    if(_destroyed)
-	    {
-		throw new Ice.ObjectNotExistException(current.id, current.facet, current.operation);
-	    }
-	    _destroyed = true;
-	}
+        {
+            if(_destroyed)
+            {
+                throw new Ice.ObjectNotExistException(current.id, current.facet, current.operation);
+            }
+            _destroyed = true;
+        }
 
         //
         // Because we use a transactional evictor, these updates are guaranteed to be atomic.

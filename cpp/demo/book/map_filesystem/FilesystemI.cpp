@@ -120,6 +120,7 @@ FileI::destroy(const Ice::Current& c)
     {
         try
         {
+            //
             // The transaction is necessary since we are altering two
             // records in one atomic action.
             //
@@ -178,6 +179,7 @@ DirectoryI::DirectoryI(const Ice::CommunicatorPtr& communicator, const string& e
     const Freeze::ConnectionPtr connection = Freeze::createConnection(_communicator, _envName);
     IdentityDirectoryEntryMap dirDB(connection, directoriesDB());
 
+    //
     // Create the record for the root directory if necessary.
     //
     for(;;)
@@ -250,8 +252,7 @@ DirectoryI::list(const Ice::Current& c)
                 throw Ice::ObjectNotExistException(__FILE__, __LINE__);
             }
             NodeDescSeq result;
-            for(StringNodeDescDict::const_iterator q = p->second.nodes.begin();
-                q != p->second.nodes.end(); ++q)
+            for(StringNodeDescDict::const_iterator q = p->second.nodes.begin(); q != p->second.nodes.end(); ++q)
             {
                 result.push_back(q->second);
             }
@@ -311,6 +312,7 @@ DirectoryI::createDirectory(const string& name, const Ice::Current& c)
     {
         try
         {
+            //
             // The transaction is necessary since we are altering two
             // records in one atomic action.
             //
@@ -371,6 +373,7 @@ DirectoryI::createFile(const string& name, const Ice::Current& c)
     {
         try
         {
+            //
             // The transaction is necessary since we are altering two
             // records in one atomic action.
             //
@@ -431,6 +434,7 @@ DirectoryI::destroy(const Ice::Current& c)
     {
         try
         {
+            //
             // The transaction is necessary since we are altering two
             // records in one atomic action.
             //

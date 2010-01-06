@@ -30,8 +30,7 @@ public class Server extends Ice.Application
         //
         // Create an object adapter.
         //
-        Ice.ObjectAdapter adapter =
-            communicator().createObjectAdapter("EvictorFilesystem");
+        Ice.ObjectAdapter adapter = communicator().createObjectAdapter("EvictorFilesystem");
 
         //
         // Create the Freeze evictor (stored in the _evictor

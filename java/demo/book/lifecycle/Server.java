@@ -14,16 +14,19 @@ class Server extends Ice.Application
     public int
     run(String[] args)
     {
+        //
         // Terminate cleanly on receipt of a signal.
         //
         shutdownOnInterrupt();
         Ice.Properties properties = communicator().getProperties();
 
+        //
         // Create an object adapter
         //
         Ice.ObjectAdapter adapter = communicator().createObjectAdapterWithEndpoints(
-                                                        "LifecycleFilesystem", "default -h 127.0.0.1 -p 10000");
+            "LifecycleFilesystem", "default -h 127.0.0.1 -p 10000");
 
+        //
         // Create the root directory.
         //
         DirectoryI root = new DirectoryI();
@@ -31,11 +34,12 @@ class Server extends Ice.Application
         id.name = "RootDir";
         adapter.add(root, id);
 
-
+        //
         // All objects are created, allow client requests now.
         //
         adapter.activate();
 
+        //
         // Wait until we are done.
         //
         communicator().waitForShutdown();

@@ -37,7 +37,6 @@ namespace FilesystemI
         Ice::Identity _id;
         IceUtil::Mutex _m;
     };
-
     typedef IceUtil::Handle<NodeI> NodeIPtr;
 
     class FileI : virtual public Filesystem::File, virtual public NodeI
@@ -54,7 +53,6 @@ namespace FilesystemI
 
         Filesystem::Lines _lines;
     };
-
     typedef IceUtil::Handle<FileI> FileIPtr;
 
     class DirectoryI : virtual public NodeI, virtual public Filesystem::Directory

@@ -9,8 +9,8 @@
 
 import Filesystem.*;
 
-public class Client {
-
+public class Client
+{
     // Recursively print the contents of directory "dir" in tree fashion. 
     // For files, show the contents of each file. The "depth"
     // parameter is the current nesting level (for indentation).
@@ -24,16 +24,22 @@ public class Client {
 
         NodePrx[] contents = dir.list();
 
-        for (int i = 0; i < contents.length; ++i) {
+        for(int i = 0; i < contents.length; ++i)
+        {
             DirectoryPrx subdir = DirectoryPrxHelper.checkedCast(contents[i]);
             FilePrx file = FilePrxHelper.uncheckedCast(contents[i]);
             System.out.println(indent + contents[i].name() + (subdir != null ? " (directory):" : " (file):"));
-            if (subdir != null) {
+            if(subdir != null)
+            {
                 listRecursive(subdir, depth);
-            } else {
+            }
+            else
+            {
                 String[] text = file.read();
-                for (int j = 0; j < text.length; ++j)
+                for(int j = 0; j < text.length; ++j)
+                {
                     System.out.println(indent + "\t" + text[j]);
+                }
             }
         }
     }
@@ -43,38 +49,51 @@ public class Client {
     {
         int status = 0;
         Ice.Communicator ic = null;
-        try {
+        try
+        {
+            //
             // Create a communicator
             //
             ic = Ice.Util.initialize(args);
 
+            //
             // Create a proxy for the root directory
             //
             Ice.ObjectPrx base = ic.stringToProxy("RootDir:default -p 10000");
 
+            //
             // Down-cast the proxy to a Directory proxy
             //
             DirectoryPrx rootDir = DirectoryPrxHelper.checkedCast(base);
-            if (rootDir == null)
+            if(rootDir == null)
+            {
                 throw new RuntimeException("Invalid proxy");
+            }
 
+            //
             // Recursively list the contents of the root directory
             //
             System.out.println("Contents of root directory:");
             listRecursive(rootDir, 0);
-        } catch (Ice.LocalException e) {
+        }
+        catch(Ice.LocalException e)
+        {
             e.printStackTrace();
             status = 1;
-        } catch (Exception e) {
+        }
+        catch(Exception e)
+        {
             System.err.println(e.getMessage());
             status = 1;
         }
-        if (ic != null) {
-            // Clean up
-            //
-            try {
+        if(ic != null)
+        {
+            try
+            {
                 ic.destroy();
-            } catch (Exception e) {
+            }
+            catch(Exception e)
+            {
                 System.err.println(e.getMessage());
                 status = 1;
             }

@@ -21,6 +21,7 @@ public class FileI extends _FileDisp
 
         assert(_parent != null);
 
+        //
         // Create an identity
         //
         _id = new Ice.Identity();

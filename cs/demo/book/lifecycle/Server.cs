@@ -23,15 +23,18 @@ public class Server
     {
         public override int run(string[] args)
         {
+            //
             // Terminate cleanly on receipt of a signal.
             //
             shutdownOnInterrupt();
 
+            //
             // Create an object adapter
             //
             Ice.ObjectAdapter adapter = communicator().createObjectAdapterWithEndpoints(
-                                                            "LifecycleFilesystem", "default -h 127.0.0.1 -p 10000");
+                "LifecycleFilesystem", "default -h 127.0.0.1 -p 10000");
 
+            //
             // Create the root directory.
             //
             DirectoryI root = new DirectoryI();
@@ -39,12 +42,14 @@ public class Server
             id.name = "RootDir";
             adapter.add(root, id);
 
+            //
             // All objects are created, allow client requests now.
             //
             adapter.activate();
 
             //
             // Wait until we are done.
+            //
             communicator().waitForShutdown();
             if(interrupted())
             {

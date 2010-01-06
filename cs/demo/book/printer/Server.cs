@@ -30,28 +30,29 @@ public class Server
     {
         int status = 0;
         Ice.Communicator ic = null;
-        try {
+        try
+        {
             ic = Ice.Util.initialize(ref args);
-            Ice.ObjectAdapter adapter
-                = ic.createObjectAdapterWithEndpoints(
-                    "SimplePrinterAdapter", "default -p 10000");
+            Ice.ObjectAdapter adapter =
+                ic.createObjectAdapterWithEndpoints("SimplePrinterAdapter", "default -p 10000");
             Ice.Object obj = new PrinterI();
-            adapter.add(
-                    obj,
-                    ic.stringToIdentity("SimplePrinter"));
+            adapter.add(obj, ic.stringToIdentity("SimplePrinter"));
             adapter.activate();
             ic.waitForShutdown();
-        } catch (Exception e) {
+        }
+        catch(Exception e)
+        {
             Console.Error.WriteLine(e);
             status = 1;
         }
-        if (ic != null)
+        if(ic != null)
         {
-            // Clean up
-            //
-            try {
+            try
+            {
                 ic.destroy();
-            } catch (Exception e) {
+            }
+            catch(Exception e)
+            {
                 Console.Error.WriteLine(e);
                 status = 1;
             }

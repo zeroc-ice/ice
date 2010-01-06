@@ -43,6 +43,7 @@ FilesystemI::NodeI::id() const
 FilesystemI::NodeI::NodeI(const string& name, const DirectoryIPtr& parent)
     : _name(name), _parent(parent), _destroyed(false)
 {
+    //
     // Create an identity. The root directory has the fixed identity "RootDir".
     //
     if(parent != 0)

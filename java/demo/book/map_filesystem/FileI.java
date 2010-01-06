@@ -142,6 +142,7 @@ public class FileI extends _FileDisp
                 Freeze.Transaction txn = null;
                 try
                 {
+                    //
                     // The transaction is necessary since we are
                     // altering two records in one atomic action.
                     //

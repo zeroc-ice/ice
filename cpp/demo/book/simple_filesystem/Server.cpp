@@ -13,24 +13,30 @@
 using namespace std;
 using namespace Filesystem;
 
-class FilesystemApp : virtual public Ice::Application {
+class FilesystemApp : virtual public Ice::Application
+{
 public:
-    virtual int run(int, char*[]) {
+
+    virtual int run(int, char*[])
+    {
+        //
         // Terminate cleanly on receipt of a signal
         //
         shutdownOnInterrupt();
 
+        //
         // Create an object adapter.
         //
         Ice::ObjectAdapterPtr adapter =
-            communicator()->createObjectAdapterWithEndpoints(
-                                "SimpleFilesystem", "default -h 127.0.0.1 -p 10000");
+            communicator()->createObjectAdapterWithEndpoints("SimpleFilesystem", "default -h 127.0.0.1 -p 10000");
 
+        //
         // Create the root directory (with name "/" and no parent)
         //
         DirectoryIPtr root = new DirectoryI(communicator(), "/", 0);
         root->activate(adapter);
 
+        //
         // Create a file called "README" in the root directory
         //
         FileIPtr file = new FileI(communicator(), "README", root);
@@ -39,11 +45,13 @@ public:
         file->write(text);
         file->activate(adapter);
 
+        //
         // Create a directory called "Coleridge" in the root directory
         //
         DirectoryIPtr coleridge = new DirectoryI(communicator(), "Coleridge", root);
         coleridge->activate(adapter);
 
+        //
         // Create a file called "Kubla_Khan" in the Coleridge directory
         //
         file = new FileI(communicator(), "Kubla_Khan", coleridge);
@@ -56,20 +64,22 @@ public:
         file->write(text);
         file->activate(adapter);
 
+        //
         // All objects are created, allow client requests now
         //
         adapter->activate();
 
+        //
         // Wait until we are done
         //
         communicator()->waitForShutdown();
-        if (interrupted()) {
-            cerr << appName()
-                 << ": received signal, shutting down" << endl;
+        if(interrupted())
+        {
+            cerr << appName() << ": received signal, shutting down" << endl;
         }
 
         return 0;
-    };
+    }
 };
 
 int

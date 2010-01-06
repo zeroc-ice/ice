@@ -21,6 +21,7 @@ public class FileI : FileDisp_
 
         Debug.Assert(_parent != null);
 
+        //
         // Create an identity
         //
         _id = new Ice.Identity();

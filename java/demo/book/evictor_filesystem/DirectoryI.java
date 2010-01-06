@@ -48,7 +48,7 @@ public final class DirectoryI extends PersistentDirectory
             {
                 throw new PermissionDenied("Cannot destroy non-empty directory");
             }
-	    _destroyed = true;
+            _destroyed = true;
         }
 
         //

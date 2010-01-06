@@ -23,7 +23,6 @@ public final class DirectoryI extends _DirectoryDisp
         //
         _id = new Ice.Identity();
         _id.name = _parent != null ? java.util.UUID.randomUUID().toString() : "RootDir";
-
     }
 
     // Slice Node::name() operation

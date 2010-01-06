@@ -23,6 +23,7 @@ public class DirectoryI extends _DirectoryDisp
         {
             IdentityDirectoryEntryMap dirDB = new IdentityDirectoryEntryMap(connection, directoriesDB());
 
+            //
             // Create the record for the root directory if necessary.
             //
             for(;;)
@@ -182,6 +183,7 @@ public class DirectoryI extends _DirectoryDisp
 
             for(;;)
             {
+                //
                 // The transaction is necessary since we are altering
                 // two records in one atomic action.
                 //
@@ -247,6 +249,7 @@ public class DirectoryI extends _DirectoryDisp
 
             for(;;)
             {
+                //
                 // The transaction is necessary since we are altering
                 // two records in one atomic action.
                 //
@@ -312,6 +315,7 @@ public class DirectoryI extends _DirectoryDisp
 
             for(;;)
             {
+                //
                 // The transaction is necessary since we are altering
                 // two records in one atomic action.
                 //

@@ -23,18 +23,17 @@ public class Client
     {
         public override int run(String[] args)
         {
+            //
             // Terminate cleanly on receipt of a signal.
             //
             shutdownOnInterrupt();
 
+            //
             // Create a proxy for the root directory
             //
             Ice.ObjectPrx @base = communicator().stringToProxy("RootDir:default -p 10000");
-            if(@base == null)
-            {
-                throw new Error("Could not create proxy");
-            }
 
+            //
             // Down-cast the proxy to a Directory proxy.
             //
             DirectoryPrx rootDir = DirectoryPrxHelper.checkedCast(@base);

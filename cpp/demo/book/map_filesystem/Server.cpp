@@ -28,14 +28,17 @@ public:
 
     virtual int run(int, char*[])
     {
+        //
         // Terminate cleanly on receipt of a signal
         //
         shutdownOnInterrupt();
 
+        //
         // Create an object adapter
         //
         Ice::ObjectAdapterPtr adapter = communicator()->createObjectAdapter("MapFilesystem");
 
+        //
         // Open a connection to the files and directories database. This should remain open
         // for the duration of the application for performance reasons.
         //
@@ -43,19 +46,23 @@ public:
         const IdentityFileEntryMap fileDB(connection, FileI::filesDB());
         const IdentityDirectoryEntryMap dirDB(connection, DirectoryI::directoriesDB());
 
+        //
         // Add default servants for the file and directory.
         //
         adapter->addDefaultServant(new FileI(communicator(), _envName), "file");
         adapter->addDefaultServant(new DirectoryI(communicator(), _envName), "");
 
+        //
         // Ready to accept requests now
         //
         adapter->activate();
 
+        //
         // Wait until we are done
         //
         communicator()->waitForShutdown();
 
+        //
         // Clean up
         //
         if(interrupted())

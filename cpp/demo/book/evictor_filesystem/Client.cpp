@@ -26,19 +26,12 @@ public:
     {
     }
 
-    virtual int run(int, char * []) {
-
-        // Create a proxy for the root directory
+    virtual int run(int, char*[])
+    {
         //
-        Ice::ObjectPrx base = communicator()->stringToProxy("RootDir:default -p 10000");
-        if(!base)
-        {
-            throw "Could not create proxy";
-        }
-
         // Down-cast the proxy to a Directory proxy.
         //
-        DirectoryPrx rootDir = DirectoryPrx::checkedCast(base);
+        DirectoryPrx rootDir = DirectoryPrx::checkedCast(communicator()->propertyToProxy("RootDir.Proxy"));
         if(!rootDir)
         {
             throw "Invalid proxy";

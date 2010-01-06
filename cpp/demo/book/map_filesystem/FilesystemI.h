@@ -7,8 +7,8 @@
 //
 // **********************************************************************
 
-#ifndef PERSISTENT_FILESYSTEM_I_H
-#define PERSISTENT_FILESYSTEM_I_H
+#ifndef FILESYSTEM_I_H
+#define FILESYSTEM_I_H
 
 #include <Filesystem.h>
 #include <Freeze/Freeze.h>
