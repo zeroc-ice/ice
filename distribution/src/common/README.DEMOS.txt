@@ -1,6 +1,8 @@
 This archive contains sample programs for C++, Java, C#, VB, Ruby,
 Python and PHP. To build and run the demos, follow the language-
-specific instructions below.
+specific instructions below. These build instructions assume that you
+have configured your system according to the directions in the main
+README file.
 
 
 ======================================================================
@@ -16,18 +18,6 @@ demo in the Solution Explorer window and select "Build".
 
 Note that the Visual Studio project files require the Ice Visual
 Studio Extension.
-
-To run these demos, you will typically need at least two Command
-Prompt windows. In each command prompt, add the Ice bin directory to
-your PATH, as shown below:
-
-  > set PATH=<Ice installation root directory>\bin;%PATH%
-
-If you built an x64 configuration, use this setting instead (the
-x64 directory must come first in your PATH):
-
-  > set PATH=<Ice installation root directory>\bin;%PATH%
-  > set PATH=<Ice installation root directory>\bin\x64;%PATH%
 
 Change to the desired demo subdirectory and review the README file if
 one is present. Type 'server' to start the server. In another command
@@ -60,15 +50,14 @@ build the demos:
   > set CPP_COMPILER=VC90_EXPRESS
   > nmake /f Makefile.mak
 
+If Ice is installed in a non-default location it will also be 
+necessary to set ICE_HOME:
+
+  > set ICE_HOME=<Ice installation root directory>
+
 Note that the Ice demos that require MFC (demo\Ice\MFC and
 demo\IcePatch2\MFC) will not compile since the Express edition does
 not include MFC support.
-
-To run these demos, you will typically need at least two Command
-Prompt windows. In each command prompt, add the Ice bin directory to
-your PATH, as shown below:
-
-  > set PATH=<Ice installation root directory>\bin;%PATH%
 
 Change to the desired demo subdirectory and review the README file if
 one is present. Type 'server' to start the server. In another command
@@ -94,15 +83,10 @@ SDK:
 
   http://www.microsoft.com/downloads/details.aspx?FamilyId=E6E1C3DF-A74F-4207-8586-711EBE331CDC&displaylang=en
 
-To run these demos, you will typically need at least two Command
-Prompt windows. In each command prompt, add the Ice bin directory to
-your PATH, as shown below:
+If Ice is installed in a non-default location it will also be 
+necessary to set ICE_HOME:
 
-  > set PATH=<Ice installation root directory>\bin;%PATH%
-  > set PATH=<Ice installation root directory>\bin\bcc10;%PATH%
-
-Note that the bin\bcc10 directory must be in the PATH before the bin
-directory.
+  > set ICE_HOME=<Ice installation root directory>
 
 Change to the desired demo subdirectory and review the README file if
 one is present. Type 'server' to start the server. In another command
@@ -192,23 +176,18 @@ environment variables need to be defined:
   > set JAVA_HOME=<Java SDK installation root directory>
   > set PATH=<Ice installation root directory>\bin;%PATH%
 
+If Ice is installed in a non-default location it will also be 
+necessary to set ICE_HOME:
+
+  > set ICE_HOME=<Ice installation root directory>
+
 You can build all of the demos by running 'ant' in the demoj
 directory, or you can build individual demos by changing to the
 desired subdirectory and then running 'ant'.
 
 Before running the demos you must modify your CLASSPATH as follows:
 
-  > set CLASSPATH=<Ice installation root directory>\lib\Ice.jar;classes;%CLASSPATH%
-
-Some of the demos use Freeze for Java. To run these demos you must
-also include Freeze.jar in your CLASSPATH:
-
-  > set CLASSPATH=<Ice installation root directory>\lib\Freeze.jar;%CLASSPATH%
-
-Furthermore, to use a Freeze demo the JVM requires that the directory
-containing Berkeley DB's native libraries be included in
-java.library.path. Setting PATH as shown above satisfies this
-requirement.
+  > set CLASSPATH=classes;%CLASSPATH%
 
 To run a demo, open a Command Prompt, change to the desired demo
 directory, and enter the following command to run the server:
@@ -235,19 +214,6 @@ can be downloaded from:
 
   http://www.python.org/download
 
-You also need to add the Ice bin directory to your PATH, for example:
-
-  > set PATH=<Ice installation root directory>\bin;%PATH%
-
-Finally, set PYTHONPATH so that the Python interpreter is able to load
-the Ice extension. For a 32-bit Python installation, use this setting:
-
-  > set PYTHONPATH=<Ice installation root directory>\python
-
-For a 64-bit Python installation, use this setting instead:
-
-  > set PYTHONPATH=<Ice installation root directory>\python\x64
-
 To run a demo, open a Command Prompt, change to the desired demo
 directory, and type 'python Server.py' to start the server. In a
 separate Command Prompt window, type 'python Client.py' to run the
@@ -264,15 +230,6 @@ You need Ruby 1.8.6 to run the demos. A binary installer for Ruby
 can be downloaded from:
 
   http://rubyforge.org/projects/rubyinstaller/
-
-You also need to add the Ice bin directory to your PATH, for example:
-
-  > set PATH=<Ice installation root directory>\bin;%PATH%
-
-Finally, set RUBYLIB so that the Ruby interpreter is able to load
-the Ice extension:
-
-  > set RUBYLIB=<Ice installation root directory>\ruby;%RUBYLIB%
 
 Since Ice for Ruby does not support server-side activities, only
 clients are provided in the demos. In order to run the demos you must

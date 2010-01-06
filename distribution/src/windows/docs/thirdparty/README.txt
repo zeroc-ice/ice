@@ -38,10 +38,10 @@ This distribution provides:
  - DLLs and exes for Berkeley DB, OpenSSL, Expat, Bzip2 and Qt built
    using Visual Studio 2008 SP1 in the bin and bin\x64 directories.
 
- - DLL for Berkeley DB built using CodeGear C++Builder 2010 in the
-   bin/bcc10 directory. For other third-party DLLs, the Visual Studio
-   2008 DLLs are used, with just the import libraries generated for
-   C++Builder 2010.
+ - DLL and exes for Berkeley DB built using CodeGear C++Builder 2010
+   in the bin/bcc10 directory. For other third-party DLLs, the Visual
+   Studio 2008 DLLs are used, with just the import libraries generated
+   for C++Builder 2010.
 
  - DLLs for OpenSSL, Bzip2 and STLport built using Visual C++ 6.0 in 
    the bin directory.

@@ -57,6 +57,29 @@ This distribution is supported on the following Windows versions:
 
 
 ======================================================================
+Third Party Packages
+======================================================================
+
+This distribution contains binaries for various third party packages
+that are required to use Ice.
+
+ - Berkeley DB 4.8.24 (Visual C++ 2008, C++Builder 2010)
+ - OpenSSL 0.9.8k (Visual C++ 2008, Visual C++ 6.0)
+ - Expat 2.0.1 (Visual C++ 2008)
+ - Bzip2 1.0.5 (Visual C++ 2008, Visual C++ 6.0)
+ - Qt 4.5.3 (Visual C++ 2008)
+ - STLport 4.6.2 (Visual C++ 6.0)
+
+The licenses for these packages are included in THIRD_PARTY_LICENSES.
+
+Qt SQL Driver
+------------
+
+The QtSql DLL included in this distribution has the SQLite driver
+built-in.
+
+
+======================================================================
 Monotonic clock
 ======================================================================
 
@@ -255,13 +278,27 @@ rebuild the project.
 
 
 ======================================================================
-Setting up Visual Studio 2008 to build Ice applications in C++
+Setting up your environment to use Ice
 ======================================================================
 
-This section describes how to configure Visual Studio for building
-Ice applications in C++ without using the Ice Visual Studio Extension.
-These steps involve adding the locations of the Ice header files,
-libraries, and executables to Visual Studio's configuration.
+Visual C++
+----------
+
+To use Ice for C++ you must add the Ice bin directory(s) to your PATH.
+
+  > set PATH=<Ice installation root directory>\bin;%PATH%
+
+If you built an x64 platform, use this setting instead (the x64
+directory must come first in your PATH):
+
+  > set PATH=<Ice installation root directory>\bin;%PATH%
+  > set PATH=<Ice installation root directory>\bin\x64;%PATH%
+
+If you do not want to use the Ice Visual Studio Extension described
+above then you will have to configure Visual Studio manualy in order
+to build Ice applications. This involves adding the locations of the
+Ice header files, libraries, and executables to Visual Studio's
+configuration.
 
 - In the IDE, choose Tools->Options->Projects and Solutions->VC++ Directories
 
@@ -286,22 +323,24 @@ libraries, and executables to Visual Studio's configuration.
   For x64 binaries add <Ice installation root directory>\bin\x64
 
 
-======================================================================
-Building and running the demos
-======================================================================
+C++Builder
+----------
 
-This distribution includes an archive named demos.zip that contains
-sample programs for the supported languages. To build and run the
-demos, you must extract this archive in the location of your choice
-and follow the instructions in the README file located in the archive.
+To use Ice for C++ with C++Builder you must add the Ice bin
+directories to your PATH.
+
+  > set PATH=<Ice installation root directory>\bin;%PATH%
+  > set PATH=<Ice installation root directory>\bin\bcc10;%PATH%
+
+Note that the bin\bcc10 directory must be in the PATH before the bin
+directory.
 
 
-======================================================================
-Installing the .NET assemblies in the GAC
-======================================================================
-
-You can add the .NET assemblies to the Global Assembly Cache (GAC). To
-do this, open Windows Explorer and navigate to the directory
+.NET
+----
+  
+Add the .NET assemblies to the Global Assembly Cache (GAC). To do
+ this, open Windows Explorer and navigate to the directory
 C:\WINDOWS\assembly. Next, drag and drop (or copy and paste) the
 .NET assemblies from the bin directory into the right-hand pane to
 install them in the cache.
@@ -338,10 +377,69 @@ Ice.pdb file into this directory:
 
   > copy <path_to_ice.pdb> .
 
+Ice for .NET attempts to dynamically load bzip2.dll to support
+protocol compression. Therefore the Ice bin directory must be added
+to your PATH.
 
-======================================================================
-Ruby/OpenSSL Compatibility Issue
-======================================================================
+  > set PATH=<Ice installation root directory>\bin;%PATH%
+
+On 64-bit Windows use the following setting instead:
+
+  > set PATH=<Ice installation root directory>\bin\x64;%PATH%
+
+If the wrong PATH is set, the Ice run time prints a warning to the
+console when it detects a bzip2.dll format mismatch during start-up
+
+
+Java
+----
+
+To use Ice for Java, you must add Ice.jar to your CLASSPATH, as shown
+below:
+
+  > set CLASSPATH=<Ice installation root directory>\lib\Ice.jar;%CLASSPATH%
+
+If you intend to use Freeze for Java, you must include Freeze.jar in
+your CLASSPATH along with Ice.jar:
+
+  > set CLASSPATH=<Ice installation root directory>\lib\Freeze.jar;%CLASSPATH%
+
+Furthermore, to use a Freeze demo the JVM requires that the directory
+containing Berkeley DB's native libraries be included in
+java.library.path, therefore you must add this directory to your PATH.
+
+  > set PATH=<Ice installation root directory>\bin;%PATH%
+
+
+Python
+------
+
+To use Ice for Python, you must add Ice bin directory to your PATH.
+
+  > set PATH=<Ice installation root directory>\bin;%PATH%
+
+You must also set PYTHONPATH so that the Python interpreter is able to
+load the Ice extension. For a 32-bit Python installation, use this
+setting:
+
+  > set PYTHONPATH=<Ice installation root directory>\python
+
+For a 64-bit Python installation, use this setting instead:
+
+  > set PYTHONPATH=<Ice installation root directory>\python\x64
+
+
+Ruby
+----
+
+To use Ice for Ruby, you must add Ice bin directory to your PATH.
+
+  > set PATH=<Ice installation root directory>\bin;%PATH%
+
+You must also set RUBYLIB so that the Ruby interpreter is able to 
+load the Ice extension.
+
+ > set RUBYLIB=<Ice installation root directory>\ruby;%RUBYLIB%
 
 The Ruby installer includes versions of the OpenSSL DLLs that are not
 compatible with the ones supplied with Ice. If you intend to use SSL
@@ -360,9 +458,8 @@ have an adverse impact on other Ice language mappings that use
 OpenSSL, such as C++ and Python.
 
 
-======================================================================
-Using IcePHP with Apache
-======================================================================
+PHP
+---
 
 The binary distribution of PHP for Windows includes loadable modules
 for Apache 1, Apache 2.0, and Apache 2.2. The Ice extension for PHP
@@ -505,17 +602,13 @@ appropriate changes as you follow the instructions.
 
 
 ======================================================================
-Protocol compression with 64-bit Windows
+Demos
 ======================================================================
 
-Ice for .NET attempts to dynamically load bzip2.dll to support
-protocol compression. On 64-bit Windows, you have to make sure that
-the 64-bit version of bzip2.dll is found instead of the 32-bit
-version. The bzip2 libraries are installed in <prefix>\bin\x64 and
-<prefix>\bin, respectively. For 64-bit Windows, you need to make sure
-that <prefix>\bin\x64 appears in the application's PATH instead of
-<prefix>\bin. (The Ice run time prints a warning to the console if it
-detects a bzip2.dll format mismatch during start-up.)
+This distribution includes an archive named demos.zip that contains
+sample programs for the supported languages. To build and run the
+demos, you must extract this archive in the location of your choice
+and follow the instructions in the README file located in the archive.
 
 
 ======================================================================
