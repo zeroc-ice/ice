@@ -495,7 +495,7 @@ def untarArchive(archive, verbose = False, archiveDir = None):
 
     return True
 
-def zipArchive(dir, verbose = False):
+def zipArchive(dir, verbose = False, archiveDir = None):
 
     dist = os.path.basename(dir)
     print "   creating " + dist + ".zip ...",
@@ -504,10 +504,22 @@ def zipArchive(dir, verbose = False):
     cwd = os.getcwd()
     os.chdir(os.path.dirname(dir))
 
-    if verbose:
-        os.system("zip -9r " + dist + ".zip " + dist)
+    if archiveDir:
+        os.mkdir("tmp")
+        os.rename(dist, os.path.join("tmp", archiveDir))
+        os.chdir("tmp")
+        if verbose:
+            os.system("zip -9r " + os.path.join("..", dist + ".zip ") + archiveDir)
+        else:
+            os.system("zip -9rq " + os.path.join("..", dist +".zip ") + archiveDir)
+        os.chdir("..")
+        os.rename(os.path.join("tmp", archiveDir), dir)
+        os.rmdir("tmp")
     else:
-        os.system("zip -9rq " + dist +".zip " + dist)
+        if verbose:
+            os.system("zip -9r " + dist + ".zip " + dist)
+        else:
+            os.system("zip -9rq " + dist +".zip " + dist)
 
     os.chdir(cwd)
     print "ok"
