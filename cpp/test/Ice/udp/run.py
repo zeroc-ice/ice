@@ -20,6 +20,15 @@ if len(path) == 0:
 sys.path.append(os.path.join(path[0]))
 from scripts import *
 
+#
+# COMPILERFIX: The server fails to start on Solaris when IPv6 is
+# enabled. It's apparently not possible to use multicast on a
+# linked-local configured link.
+#
+if TestUtil.isSolaris() and TestUtil.ipv6:
+    print "test not supported on Solaris with IPv6"
+    sys.exit(0)
+
 server = os.path.join(os.getcwd(), "server")
 client = os.path.join(os.getcwd(), "client")
 
