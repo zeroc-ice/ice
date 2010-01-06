@@ -65,8 +65,8 @@ This section discusses the significant enhancements in Ice 3.4.
 New API for Asynchronous Method Invocation (AMI)
 ------------------------------------------------
 
-This release features a completely new AMI facility for C++, C# and
-Java that allows you to structure your code with much greater
+This release features a completely new AMI facility for C++, C#, Java,
+and Python that allows you to structure your code with much greater
 flexibility. To get a better understanding of the motivations for this
 enhancement and how it can improve your own applications, we encourage
 you to read the white papers available at the link below:

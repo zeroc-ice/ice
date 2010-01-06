@@ -31,7 +31,7 @@ These entries apply to all relevant language mappings unless otherwise
 noted.
 
 - Added a new asynchronous method invocation (AMI) facility for C++,
-  C#, and Java. The previous API is now deprecated.
+  C#, Java, and Python. The previous API is now deprecated.
 
 - Added the ability to invoke flushBatchRequests asynchronously on a
   communicator or connection.
