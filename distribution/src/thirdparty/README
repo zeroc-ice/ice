@@ -145,13 +145,13 @@ Berkeley DB must be configured with C++ support enabled. If you intend
 to use Ice for Java with Berkeley DB, you must also enable Java
 support:
 
-  $ ../dist/configure --enable-cxx --with-mutex=POSIX/pthreads
+  $ ../dist/configure --enable-cxx
   (plus --prefix=<dir> and/or --enable-java if you like)
 
 For 64-bit builds, use:
 
-  $ export CFLAGS="-O -m64"
-  $ export CXXFLAGS="-O -m64"
+  $ export CFLAGS="-m64"
+  $ export CXXFLAGS="-m64"
   $ export LDFLAGS="-m64
   $ ../dist/configure --enable-cxx
   (plus --prefix=<dir> and/or --enable-java if you like)
