@@ -60,6 +60,7 @@ stringVersion = IcePy.stringVersion
 intVersion = IcePy.intVersion
 generateUUID = IcePy.generateUUID
 loadSlice = IcePy.loadSlice
+AsyncResult = IcePy.AsyncResult
 
 #
 # This value is used as the default value for struct types in the constructors
@@ -448,6 +449,12 @@ class CommunicatorI(Communicator):
 
     def flushBatchRequests(self):
         self._impl.flushBatchRequests()
+
+    def begin_flushBatchRequests(self, _ex=None, _sent=None):
+        return self._impl.begin_flushBatchRequests(_ex, _sent)
+
+    def end_flushBatchRequests(self, r):
+        return self._impl.end_flushBatchRequests(r)
 
     def getAdmin(self):
         return self._impl.getAdmin()

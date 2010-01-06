@@ -65,10 +65,6 @@ public:
     {
     }
 
-    void opByte(Ice::Byte b, Ice::Byte b1)
-    {
-    }
-
     void sent(bool)
     {
         called();

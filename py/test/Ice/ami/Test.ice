@@ -10,15 +10,33 @@
 #ifndef TEST_ICE
 #define TEST_ICE
 
+#include <Ice/BuiltinSequences.ice>
+#include <Ice/Endpoint.ice>
+
 module Test
 {
 
+exception TestIntfException
+{
+};
+
 interface TestIntf
 {
+    void op();
+    void opWithPayload(Ice::ByteSeq seq);
+    int opWithResult();
+    void opWithUE()
+        throws TestIntfException;
+    void opBatch();
+    int opBatchCount();
+    bool waitForBatch(int count);
     void shutdown();
-    void abort();
-    idempotent void idempotentAbort();
-    idempotent int pid();
+};
+
+interface TestIntfController
+{
+    void holdAdapter();
+    void resumeAdapter();
 };
 
 };

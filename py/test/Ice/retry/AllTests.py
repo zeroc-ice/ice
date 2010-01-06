@@ -33,24 +33,18 @@ class CallbackBase:
         self._cond.notify()
         self._cond.release()
 
-class AMIRegular(CallbackBase):
-    def __init__(self):
-        CallbackBase.__init__(self)
-
-    def ice_response(self):
+class CallbackSuccess(CallbackBase):
+    def response(self):
         self.called()
 
-    def ice_exception(self, ex):
+    def exception(self, ex):
         test(False)
 
-class AMIException(CallbackBase):
-    def __init__(self):
-        CallbackBase.__init__(self)
-
-    def ice_response(self):
+class CallbackFail(CallbackBase):
+    def response(self):
         test(False)
 
-    def ice_exception(self, ex):
+    def exception(self, ex):
         test(isinstance(ex, Ice.ConnectionLostException))
         self.called()
 
@@ -87,23 +81,22 @@ def allTests(communicator):
     retry1.op(False)
     print "ok"
 
-    cb1 = AMIRegular()
-    cb2 = AMIException()
+    cb1 = CallbackSuccess()
+    cb2 = CallbackFail()
 
     print "calling regular AMI operation with first proxy...",
-    retry1.op_async(cb1, False)
+    retry1.begin_op(False, cb1.response, cb1.exception)
     cb1.check()
     print "ok"
 
     print "calling AMI operation to kill connection with second proxy...",
-    retry2.op_async(cb2, True)
+    retry2.begin_op(True, cb2.response, cb2.exception)
     cb2.check()
     print "ok"
 
     print "calling regular AMI operation with first proxy again...",
-    retry1.op_async(cb1, False)
+    retry1.begin_op(False, cb1.response, cb1.exception)
     cb1.check()
     print "ok"
 
-    return retry1
     return retry1

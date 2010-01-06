@@ -42,41 +42,42 @@ class CallQueue(threading.Thread):
 
 class AsyncCallback(object):
     def __init__(self, cb):
-	self._cb = cb
+        self._cb = cb
 
-    def ice_response(self, ok, results):
-	self._cb.ice_response(ok, results)
+    def response(self, ok, results):
+        self._cb.ice_response(ok, results)
 
-    def ice_exception(self, ex):
-	self._cb.ice_exception(ex)
+    def exception(self, ex):
+        self._cb.ice_exception(ex)
 
 class BlobjectCall(object):
     def __init__(self, proxy, amdCallback, inParams, curr):
-	self._proxy = proxy
-	self._amdCallback = amdCallback
-	self._inParams = inParams
-	self._curr = curr
+        self._proxy = proxy
+        self._amdCallback = amdCallback
+        self._inParams = inParams
+        self._curr = curr
 
     def execute(self):
         proxy = self._proxy
-	if len(self._curr.facet) > 0:
-	    proxy = self._proxy.ice_facet(self._curr.facet)
+        if len(self._curr.facet) > 0:
+            proxy = self._proxy.ice_facet(self._curr.facet)
 
         if self._curr.ctx.has_key("_fwd") and self._curr.ctx["_fwd"] == "o":
             proxy = proxy.ice_oneway()
-	    try:
-		ok, out = proxy.ice_invoke(self._curr.operation, self._curr.mode, self._inParams, self._curr.ctx)
-		self._amdCallback.ice_response(ok, out)
-	    except Ice.Exception, e:
-		self._amdCallback.ice_exception(e)
+            try:
+                ok, out = proxy.ice_invoke(self._curr.operation, self._curr.mode, self._inParams, self._curr.ctx)
+                self._amdCallback.ice_response(ok, out)
+            except Ice.Exception, e:
+                self._amdCallback.ice_exception(e)
         else:
-	    proxy.ice_invoke_async(AsyncCallback(self._amdCallback), self._curr.operation,
-                                   self._curr.mode, self._inParams, self._curr.ctx)
+            cb = AsyncCallback(self._amdCallback)
+            proxy.begin_ice_invoke(self._curr.operation, self._curr.mode, self._inParams, cb.response, cb.exception,
+                                   None, self._curr.ctx)
 
 class BlobjectAsyncI(Ice.BlobjectAsync):
     def __init__(self):
-	self._queue = CallQueue()
-	self._queue.start()
+        self._queue = CallQueue()
+        self._queue.start()
         self._objects = {}
         self._lock = threading.Lock()
 
@@ -85,8 +86,8 @@ class BlobjectAsyncI(Ice.BlobjectAsync):
         proxy = self._objects[curr.id]
         assert proxy
         self._lock.release()
-	self._queue.add(BlobjectCall(proxy, amdCallback, inParams, curr))
-    
+        self._queue.add(BlobjectCall(proxy, amdCallback, inParams, curr))
+
     def add(self, proxy):
         self._lock.acquire()
         self._objects[proxy.ice_getIdentity()] = proxy.ice_facet("").ice_twoway().ice_router(None)
@@ -94,7 +95,7 @@ class BlobjectAsyncI(Ice.BlobjectAsync):
 
     def destroy(self):
         self._lock.acquire()
-	self._queue.destroy()
+        self._queue.destroy()
         self._queue.join()
         self._lock.release()
 
@@ -108,8 +109,8 @@ class BlobjectI(Ice.Blobject):
         proxy = self._objects[curr.id]
         self._lock.release()
 
-	if len(curr.facet) > 0:
-	    proxy = proxy.ice_facet(curr.facet)
+        if len(curr.facet) > 0:
+            proxy = proxy.ice_facet(curr.facet)
 
         try:
             if curr.ctx.has_key("_fwd") and curr.ctx["_fwd"] == "o":
@@ -119,7 +120,7 @@ class BlobjectI(Ice.Blobject):
                 return proxy.ice_invoke(curr.operation, curr.mode, inParams, curr.ctx)
         except Ice.Exception, e:
             raise
-    
+
     def add(self, proxy):
         self._lock.acquire()
         self._objects[proxy.ice_getIdentity()] = proxy.ice_facet("").ice_twoway().ice_router(None)
@@ -130,10 +131,10 @@ class BlobjectI(Ice.Blobject):
 
 class ServantLocatorI(Ice.ServantLocator):
     def __init__(self, blobject):
-	self._blobject = blobject
+        self._blobject = blobject
 
     def locate(self, current):
-	return self._blobject # and the cookie
+        return self._blobject # and the cookie
 
     def finished(self, current, object, cookie):
         pass

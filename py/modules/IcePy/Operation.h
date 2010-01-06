@@ -13,6 +13,7 @@
 #include <Config.h>
 #include <Ice/Current.h>
 #include <Ice/Object.h>
+#include <Ice/OutgoingAsyncF.h>
 
 namespace IcePy
 {
@@ -22,16 +23,42 @@ bool initOperation(PyObject*);
 //
 // Builtin operations.
 //
-PyObject* iceIsA(const Ice::ObjectPrx&, PyObject*);
-PyObject* icePing(const Ice::ObjectPrx&, PyObject*);
-PyObject* iceIds(const Ice::ObjectPrx&, PyObject*);
-PyObject* iceId(const Ice::ObjectPrx&, PyObject*);
+PyObject* invokeBuiltin(PyObject*, const std::string&, PyObject*);
+PyObject* beginBuiltin(PyObject*, const std::string&, PyObject*);
+PyObject* endBuiltin(PyObject*, const std::string&, PyObject*);
 
 //
 // Blobject invocations.
 //
-PyObject* iceInvoke(const Ice::ObjectPrx&, PyObject*);
-PyObject* iceInvokeAsync(const Ice::ObjectPrx&, PyObject*);
+PyObject* iceInvoke(PyObject*, PyObject*);
+PyObject* iceInvokeAsync(PyObject*, PyObject*);
+PyObject* beginIceInvoke(PyObject*, PyObject*, PyObject*);
+PyObject* endIceInvoke(PyObject*, PyObject*);
+
+extern PyTypeObject AsyncResultType;
+PyObject* createAsyncResult(const Ice::AsyncResultPtr&, PyObject*, PyObject*, PyObject*);
+Ice::AsyncResultPtr getAsyncResult(PyObject*);
+
+//
+// Used as the callback for the various flushBatchRequest operations.
+//
+class FlushCallback : public IceUtil::Shared
+{
+public:
+
+    FlushCallback(PyObject*, PyObject*, const std::string&);
+    ~FlushCallback();
+
+    void exception(const Ice::Exception&);
+    void sent(bool);
+
+protected:
+
+    PyObject* _ex;
+    PyObject* _sent;
+    std::string _op;
+};
+typedef IceUtil::Handle<FlushCallback> FlushCallbackPtr;
 
 //
 // ServantWrapper handles dispatching to a Python servant.

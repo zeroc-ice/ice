@@ -76,7 +76,7 @@ class OnewaysNewAMI
         {
             test(false);
         }        
-    };
+    }
 
     static void
     onewaysNewAMI(test.Util.Application app, MyClassPrx proxy)

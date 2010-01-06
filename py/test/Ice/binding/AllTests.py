@@ -18,13 +18,13 @@ class GetAdapterNameCB:
         self._name = ""
         self._cond = threading.Condition()
 
-    def ice_response(self, name):
+    def response(self, name):
         self._cond.acquire()
         self._name = name
         self._cond.notify()
         self._cond.release()
 
-    def ice_exception(self, ex):
+    def exception(self, ex):
         test(False)
 
     def getResult(self):
@@ -41,7 +41,7 @@ class GetAdapterNameCB:
 
 def getAdapterNameWithAMI(proxy):
     cb = GetAdapterNameCB()
-    proxy.getAdapterName_async(cb)
+    proxy.begin_getAdapterName(cb.response, cb.exception)
     return cb.getResult()
     
 def createTestIntfPrx(adapters):

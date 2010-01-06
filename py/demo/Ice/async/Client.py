@@ -13,11 +13,11 @@ import sys, os, traceback, threading, Ice
 Ice.loadSlice('Hello.ice')
 import Demo
 
-class AMI_Hello_sayHelloI:
-    def ice_response(self):
+class Callback:
+    def response(self):
         pass
 
-    def ice_exception(self, ex):
+    def exception(self, ex):
         if isinstance(ex, Demo.RequestCanceledException):
             print "Demo.RequestCanceledException"
         else:
@@ -54,7 +54,8 @@ class Client(Ice.Application):
                 if c == 'i':
                     hello.sayHello(0)
                 elif c == 'd':
-                    hello.sayHello_async(AMI_Hello_sayHelloI(), 5000)
+                    cb = Callback()
+                    hello.begin_sayHello(5000, cb.response, cb.exception)
                 elif c == 's':
                     hello.shutdown()
                 elif c == 'x':

@@ -1716,7 +1716,7 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
 
         cout << "ok" << endl;
 
-        cout << "catching unknown non-Ice exception with AMI... " << flush;
+        cout << "catching unknown non-Ice exception with new AMI mapping... " << flush;
 
         {
             CallbackPtr cb = new Callback;

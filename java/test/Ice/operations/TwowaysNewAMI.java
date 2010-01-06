@@ -207,32 +207,6 @@ class TwowaysNewAMI
         private Callback callback = new Callback();
     }
 
-    /*
-    private static class opVoidExI extends Ice.ResponseDelegate
-    {
-        public void
-        ice_response()
-        {
-            test(false);
-        }
-
-        public void
-        ice_exception(Ice.LocalException ex)
-        {
-            test(ex instanceof Ice.NoEndpointException);
-            callback.called();
-        }
-
-        public void
-        check()
-        {
-            callback.check();
-        }
-
-        private Callback callback = new Callback();
-    }
-    */
-
     private static class opByteI extends Callback_MyClass_opByte
     {
         @Override
@@ -256,32 +230,6 @@ class TwowaysNewAMI
 
         private Callback callback = new Callback();
     }
-
-    /*
-    private static class opByteExI extends Callback_MyClass_opByte
-    {
-        public void
-        ice_response(byte r, byte b)
-        {
-            test(false);
-        }
-
-        public void
-        ice_exception(Ice.LocalException ex)
-        {
-            test(ex instanceof Ice.NoEndpointException);
-            callback.called();
-        }
-
-        public void
-        check()
-        {
-            callback.check();
-        }
-
-        private Callback callback = new Callback();
-    }
-    */
 
     private static class opBoolI extends Callback_MyClass_opBool
     {
@@ -1134,66 +1082,6 @@ class TwowaysNewAMI
         private int _l;
         private Callback callback = new Callback();
     }
-
-    /*
-    private static class opContextEqualI extends Callback_MyClass_opContext
-    {
-        Callback_MyClass_opContextEqualI(java.util.Map<String, String> d)
-        {
-            _d = d;
-        }
-
-        @Override
-        public void response(java.util.Map r)
-        {
-            test(r.equals(_d));
-            callback.called();
-        }
-
-        @Override
-        public void exception(Ice.LocalException ex)
-        {
-            test(false);
-        }
-
-        public void check()
-        {
-            callback.check();
-        }
-
-        private java.util.Map<String, String> _d;
-        private Callback callback = new Callback();
-    }
-
-    private static class opContextNotEqualI extends Callback_MyClass_opContext
-    {
-        Callback_MyClass_opContextNotEqualI(java.util.Map<String, String> d)
-        {
-            _d = d;
-        }
-
-        @Override
-        public void response(java.util.Map r)
-        {
-            test(!r.equals(_d));
-            callback.called();
-        }
-
-        @Override
-        public void exception(Ice.LocalException ex)
-        {
-            test(false);
-        }
-
-        public void check()
-        {
-            callback.check();
-        }
-
-        private java.util.Map<String, String> _d;
-        private Callback callback = new Callback();
-    }
-    */
 
     private static class opDerivedI extends Callback_MyDerivedClass_opDerived
     {

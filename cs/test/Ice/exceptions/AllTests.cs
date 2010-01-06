@@ -1654,7 +1654,7 @@ public class AllTests
 
             Console.WriteLine("ok");
 
-            Console.Write("catching unknown non-Ice exception with AMI... ");
+            Console.Write("catching unknown non-Ice exception with new AMI mapping... ");
             Console.Out.Flush();
 
             {

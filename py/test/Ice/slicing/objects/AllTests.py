@@ -37,8 +37,8 @@ class CallbackBase:
         self._cond.notify()
         self._cond.release()
 
-class AMI_Test_SBaseAsObjectI(CallbackBase):
-    def ice_response(self, o):
+class Callback(CallbackBase):
+    def response_SBaseAsObject(self, o):
         test(o)
         test(o.ice_id() == "::Test::SBase")
         sb = o
@@ -46,64 +46,39 @@ class AMI_Test_SBaseAsObjectI(CallbackBase):
         test(sb.sb == "SBase.sb")
         self.called()
 
-    def ice_exception(self, exc):
-        test(False)
-
-class AMI_Test_SBaseAsSBaseI(CallbackBase):
-    def ice_response(self, sb):
+    def response_SBaseAsSBase(self, sb):
         test(sb.sb == "SBase.sb")
         self.called()
 
-    def ice_exception(self, exc):
-        test(False)
-
-class AMI_Test_SBSKnownDerivedAsSBaseI(CallbackBase):
-    def ice_response(self, sb):
+    def response_SBSKnownDerivedAsSBase(self, sb):
         sbskd = sb
         test(isinstance(sbskd, Test.SBSKnownDerived))
         test(sbskd.sbskd == "SBSKnownDerived.sbskd")
         self.called()
 
-    def ice_exception(self, exc):
-        test(False)
-
-class AMI_Test_SBSKnownDerivedAsSBSKnownDerivedI(CallbackBase):
-    def ice_response(self, sbskd):
+    def response_SBSKnownDerivedAsSBSKnownDerived(self, sbskd):
         test(sbskd.sbskd == "SBSKnownDerived.sbskd")
         self.called()
 
-    def ice_exception(self, exc):
-        test(False)
-
-class AMI_Test_SBSUnknownDerivedAsSBaseI(CallbackBase):
-    def ice_response(self, sb):
+    def response_SBSUnknownDerivedAsSBase(self, sb):
         test(sb.sb == "SBSUnknownDerived.sb")
         self.called()
 
-    def ice_exception(self, exc):
+    def response_SUnknownAsObject(self, o):
         test(False)
 
-class AMI_Test_SUnknownAsObjectI(CallbackBase):
-    def ice_response(self, o):
-        test(False)
-
-    def ice_exception(self, exc):
+    def exception_SUnknownAsObject(self, exc):
         test(exc.ice_name() == "Ice::NoObjectFactoryException")
         self.called()
 
-class AMI_Test_oneElementCycleI(CallbackBase):
-    def ice_response(self, b):
+    def response_oneElementCycle(self, b):
         test(b)
         test(b.ice_id() == "::Test::B")
         test(b.sb == "B1.sb")
         test(b.pb == b)
         self.called()
 
-    def ice_exception(self, exc):
-        test(False)
-
-class AMI_Test_twoElementCycleI(CallbackBase):
-    def ice_response(self, b1):
+    def response_twoElementCycle(self, b1):
         test(b1)
         test(b1.ice_id() == "::Test::B")
         test(b1.sb == "B1.sb")
@@ -115,11 +90,7 @@ class AMI_Test_twoElementCycleI(CallbackBase):
         test(b2.pb == b1)
         self.called()
 
-    def ice_exception(self, exc):
-        test(False)
-
-class AMI_Test_D1AsBI(CallbackBase):
-    def ice_response(self, b1):
+    def response_D1AsB(self, b1):
         test(b1)
         test(b1.ice_id() == "::Test::D1")
         test(b1.sb == "D1.sb")
@@ -139,11 +110,7 @@ class AMI_Test_D1AsBI(CallbackBase):
         test(b2.ice_id() == "::Test::B")
         self.called()
 
-    def ice_exception(self, exc):
-        test(False)
-
-class AMI_Test_D1AsD1I(CallbackBase):
-    def ice_response(self, d1):
+    def response_D1AsD1(self, d1):
         test(d1)
         test(d1.ice_id() == "::Test::D1")
         test(d1.sb == "D1.sb")
@@ -157,11 +124,7 @@ class AMI_Test_D1AsD1I(CallbackBase):
         test(b2.pb == d1)
         self.called()
 
-    def ice_exception(self, exc):
-        test(False)
-
-class AMI_Test_D2AsBI(CallbackBase):
-    def ice_response(self, b2):
+    def response_D2AsB(self, b2):
         test(b2)
         test(b2.ice_id() == "::Test::B")
         test(b2.sb == "D2.sb")
@@ -179,11 +142,7 @@ class AMI_Test_D2AsBI(CallbackBase):
         test(d1.pd1 == b2)
         self.called()
 
-    def ice_exception(self, exc):
-        test(False)
-
-class AMI_Test_paramTest1I(CallbackBase):
-    def ice_response(self, b1, b2):
+    def response_paramTest1(self, b1, b2):
         test(b1)
         test(b1.ice_id() == "::Test::D1")
         test(b1.sb == "D1.sb")
@@ -199,35 +158,19 @@ class AMI_Test_paramTest1I(CallbackBase):
         test(b2.pb == b1)
         self.called()
 
-    def ice_exception(self, exc):
-        test(False)
-
-class AMI_Test_returnTest1I(CallbackBase):
-    def ice_response(self, r, p1, p2):
+    def response_returnTest1(self, r, p1, p2):
         test(r == p1)
         self.called()
 
-    def ice_exception(self, exc):
-        test(False)
-
-class AMI_Test_returnTest2I(CallbackBase):
-    def ice_response(self, r, p1, p2):
+    def response_returnTest2(self, r, p1, p2):
         test(r == p1)
         self.called()
 
-    def ice_exception(self, exc):
-        test(False)
-
-class AMI_Test_returnTest3I(CallbackBase):
-    def ice_response(self, b):
+    def response_returnTest3(self, b):
         self.r = b
         self.called()
 
-    def ice_exception(self, exc):
-        test(False)
-
-class AMI_Test_paramTest3I(CallbackBase):
-    def ice_response(self, ret, p1, p2):
+    def response_paramTest3(self, ret, p1, p2):
         test(p1)
         test(p1.sb == "D2.sb (p1 1)")
         test(p1.pb == None)
@@ -244,11 +187,7 @@ class AMI_Test_paramTest3I(CallbackBase):
         test(ret.ice_id() == "::Test::D1")
         self.called()
 
-    def ice_exception(self, exc):
-        test(False)
-
-class AMI_Test_paramTest4I(CallbackBase):
-    def ice_response(self, ret, b):
+    def response_paramTest4(self, ret, b):
         test(b)
         test(b.sb == "D4.sb (1)")
         test(b.pb == None)
@@ -260,31 +199,16 @@ class AMI_Test_paramTest4I(CallbackBase):
         test(ret.ice_id() == "::Test::B")
         self.called()
 
-    def ice_exception(self, exc):
-        test(False)
-
-class AMI_Test_sequenceTestI(CallbackBase):
-    def ice_response(self, ss):
+    def response_sequenceTest(self, ss):
         self.r = ss
         self.called()
 
-    def ice_exception(self, exc):
-        test(False)
-
-class AMI_Test_dictionaryTestI(CallbackBase):
-    def ice_response(self, r, bout):
+    def response_dictionaryTest(self, r, bout):
         self.r = r
         self.bout = bout
         self.called()
 
-    def ice_exception(self, exc):
-        test(False)
-
-class AMI_Test_throwBaseAsBaseI(CallbackBase):
-    def ice_response(self):
-        test(False)
-
-    def ice_exception(self, ex):
+    def exception_throwBaseAsBase(self, ex):
         test(ex.ice_name() == "Test::BaseException")
         e = ex
         test(isinstance(e, Test.BaseException))
@@ -294,11 +218,7 @@ class AMI_Test_throwBaseAsBaseI(CallbackBase):
         test(e.pb.pb == e.pb)
         self.called()
 
-class AMI_Test_throwDerivedAsBaseI(CallbackBase):
-    def ice_response(self):
-        test(False)
-
-    def ice_exception(self, ex):
+    def exception_throwDerivedAsBase(self, ex):
         test(ex.ice_name() == "Test::DerivedException")
         e = ex
         test(isinstance(e, Test.DerivedException))
@@ -314,11 +234,7 @@ class AMI_Test_throwDerivedAsBaseI(CallbackBase):
         test(e.pd1.pd1 == e.pd1)
         self.called()
 
-class AMI_Test_throwDerivedAsDerivedI(CallbackBase):
-    def ice_response(self):
-        test(False)
-
-    def ice_exception(self, ex):
+    def exception_throwDerivedAsDerived(self, ex):
         test(ex.ice_name() == "Test::DerivedException")
         e = ex
         test(isinstance(e, Test.DerivedException))
@@ -334,11 +250,7 @@ class AMI_Test_throwDerivedAsDerivedI(CallbackBase):
         test(e.pd1.pd1 == e.pd1)
         self.called()
 
-class AMI_Test_throwUnknownDerivedAsBaseI(CallbackBase):
-    def ice_response(self):
-        test(False)
-
-    def ice_exception(self, ex):
+    def exception_throwUnknownDerivedAsBase(self, ex):
         test(ex.ice_name() == "Test::BaseException")
         e = ex
         test(isinstance(e, Test.BaseException))
@@ -348,12 +260,14 @@ class AMI_Test_throwUnknownDerivedAsBaseI(CallbackBase):
         test(e.pb.pb == e.pb)
         self.called()
 
-class AMI_Test_useForwardI(CallbackBase):
-    def ice_response(self, f):
+    def response_useForward(self, f):
         test(f)
         self.called()
 
-    def ice_exception(self, exc):
+    def response(self):
+        test(False)
+
+    def exception(self, exc):
         test(False)
 
 def allTests(communicator):
@@ -375,8 +289,8 @@ def allTests(communicator):
     print "ok"
 
     print "base as Object (AMI)... ",
-    cb = AMI_Test_SBaseAsObjectI()
-    t.SBaseAsObject_async(cb)
+    cb = Callback()
+    t.begin_SBaseAsObject(cb.response_SBaseAsObject, cb.exception)
     cb.check()
     print "ok"
 
@@ -389,8 +303,8 @@ def allTests(communicator):
     print "ok"
 
     print "base as base (AMI)... ",
-    cb = AMI_Test_SBaseAsSBaseI()
-    t.SBaseAsSBase_async(cb)
+    cb = Callback()
+    t.begin_SBaseAsSBase(cb.response_SBaseAsSBase, cb.exception)
     cb.check()
     print "ok"
 
@@ -407,8 +321,8 @@ def allTests(communicator):
     print "ok"
 
     print "base with known derived as base (AMI)... ",
-    cb = AMI_Test_SBSKnownDerivedAsSBaseI()
-    t.SBSKnownDerivedAsSBase_async(cb)
+    cb = Callback()
+    t.begin_SBSKnownDerivedAsSBase(cb.response_SBSKnownDerivedAsSBase, cb.exception)
     cb.check()
     print "ok"
 
@@ -421,8 +335,8 @@ def allTests(communicator):
     print "ok"
 
     print "base with known derived as known derived (AMI)... ",
-    cb = AMI_Test_SBSKnownDerivedAsSBSKnownDerivedI()
-    t.SBSKnownDerivedAsSBSKnownDerived_async(cb)
+    cb = Callback()
+    t.begin_SBSKnownDerivedAsSBSKnownDerived(cb.response_SBSKnownDerivedAsSBSKnownDerived, cb.exception)
     cb.check()
     print "ok"
 
@@ -435,8 +349,8 @@ def allTests(communicator):
     print "ok"
 
     print "base with unknown derived as base (AMI)... ",
-    cb = AMI_Test_SBSUnknownDerivedAsSBaseI()
-    t.SBSUnknownDerivedAsSBase_async(cb)
+    cb = Callback()
+    t.begin_SBSUnknownDerivedAsSBase(cb.response_SBSUnknownDerivedAsSBase, cb.exception)
     cb.check()
     print "ok"
 
@@ -452,8 +366,8 @@ def allTests(communicator):
 
     print "unknown with Object as Object (AMI)... ",
     try:
-        cb = AMI_Test_SUnknownAsObjectI()
-        t.SUnknownAsObject_async(cb)
+        cb = Callback()
+        t.begin_SUnknownAsObject(cb.response_SUnknownAsObject, cb.exception_SUnknownAsObject)
         cb.check()
     except Ice.NoObjectFactoryException:
         pass
@@ -473,8 +387,8 @@ def allTests(communicator):
     print "ok"
 
     print "one-element cycle (AMI)... ",
-    cb = AMI_Test_oneElementCycleI()
-    t.oneElementCycle_async(cb)
+    cb = Callback()
+    t.begin_oneElementCycle(cb.response_oneElementCycle, cb.exception)
     cb.check()
     print "ok"
 
@@ -495,8 +409,8 @@ def allTests(communicator):
     print "ok"
 
     print "two-element cycle (AMI)... ",
-    cb = AMI_Test_twoElementCycleI()
-    t.twoElementCycle_async(cb)
+    cb = Callback()
+    t.begin_twoElementCycle(cb.response_twoElementCycle, cb.exception)
     cb.check()
     print "ok"
 
@@ -525,8 +439,8 @@ def allTests(communicator):
     print "ok"
 
     print "known derived pointer slicing as base (AMI)... ",
-    cb = AMI_Test_D1AsBI()
-    t.D1AsB_async(cb)
+    cb = Callback()
+    t.begin_D1AsB(cb.response_D1AsB, cb.exception)
     cb.check()
     print "ok"
 
@@ -549,8 +463,8 @@ def allTests(communicator):
     print "ok"
 
     print "known derived pointer slicing as derived (AMI)... ",
-    cb = AMI_Test_D1AsD1I()
-    t.D1AsD1_async(cb)
+    cb = Callback()
+    t.begin_D1AsD1(cb.response_D1AsD1, cb.exception)
     cb.check()
     print "ok"
 
@@ -577,8 +491,8 @@ def allTests(communicator):
     print "ok"
 
     print "unknown derived pointer slicing as base (AMI)... ",
-    cb = AMI_Test_D2AsBI()
-    t.D2AsB_async(cb)
+    cb = Callback()
+    t.begin_D2AsB(cb.response_D2AsB, cb.exception)
     cb.check()
     print "ok"
 
@@ -604,8 +518,8 @@ def allTests(communicator):
     print "ok"
 
     print "param ptr slicing with known first (AMI)... ",
-    cb = AMI_Test_paramTest1I()
-    t.paramTest1_async(cb)
+    cb = Callback()
+    t.begin_paramTest1(cb.response_paramTest1, cb.exception)
     cb.check()
     print "ok"
 
@@ -641,8 +555,8 @@ def allTests(communicator):
     print "ok"
 
     print "return value identity with known first (AMI)... ",
-    cb = AMI_Test_returnTest1I()
-    t.returnTest1_async(cb)
+    cb = Callback()
+    t.begin_returnTest1(cb.response_returnTest1, cb.exception)
     cb.check()
     print "ok"
 
@@ -655,8 +569,8 @@ def allTests(communicator):
     print "ok"
 
     print "return value identity with unknown first (AMI)... ",
-    cb = AMI_Test_returnTest2I()
-    t.returnTest2_async(cb)
+    cb = Callback()
+    t.begin_returnTest2(cb.response_returnTest2, cb.exception)
     cb.check()
     print "ok"
 
@@ -712,8 +626,8 @@ def allTests(communicator):
         d1.pb = d3
         d1.pd1 = d3
 
-        cb = AMI_Test_returnTest3I()
-        t.returnTest3_async(cb, d1, d3)
+        cb = Callback()
+        t.begin_returnTest3(d1, d3, cb.response_returnTest3, cb.exception)
         cb.check()
         b1 = cb.r
 
@@ -793,8 +707,8 @@ def allTests(communicator):
         d1.pb = d3
         d1.pd1 = d3
 
-        cb = AMI_Test_returnTest3I()
-        t.returnTest3_async(cb, d3, d1)
+        cb = Callback()
+        t.begin_returnTest3(d3, d1, cb.response_returnTest3, cb.exception)
         cb.check()
         b1 = cb.r
 
@@ -845,8 +759,8 @@ def allTests(communicator):
     print "ok"
 
     print "remainder unmarshaling (3 instances) (AMI)... ",
-    cb = AMI_Test_paramTest3I()
-    t.paramTest3_async(cb)
+    cb = Callback()
+    t.begin_paramTest3(cb.response_paramTest3, cb.exception)
     cb.check()
     print "ok"
 
@@ -868,8 +782,8 @@ def allTests(communicator):
     print "ok"
 
     print "remainder unmarshaling (4 instances) (AMI)... ",
-    cb = AMI_Test_paramTest4I()
-    t.paramTest4_async(cb)
+    cb = Callback()
+    t.begin_paramTest4(cb.response_paramTest4, cb.exception)
     cb.check()
     print "ok"
 
@@ -915,8 +829,8 @@ def allTests(communicator):
         b2.sb = "B.sb(2)"
         b2.pb = b1
 
-        cb = AMI_Test_returnTest3I()
-        t.returnTest3_async(cb, d3, b2)
+        cb = Callback()
+        t.begin_returnTest3(d3, b2, cb.response_returnTest3, cb.exception)
         cb.check()
         r = cb.r
 
@@ -977,8 +891,8 @@ def allTests(communicator):
         d12.sd1 = "D1.sd1(2)"
         d12.pd1 = d11
 
-        cb = AMI_Test_returnTest3I()
-        t.returnTest3_async(cb, d3, d12)
+        cb = Callback()
+        t.begin_returnTest3(d3, d12, cb.response_returnTest3, cb.exception)
         cb.check()
         r = cb.r
 
@@ -1108,8 +1022,8 @@ def allTests(communicator):
         ss2 = Test.SS2()
         ss2.s = (ss2b, ss2d1, ss2d3)
 
-        cb = AMI_Test_sequenceTestI()
-        t.sequenceTest_async(cb, ss1, ss2)
+        cb = Callback()
+        t.begin_sequenceTest(ss1, ss2, cb.response_sequenceTest, cb.exception)
         cb.check()
         ss = cb.r
 
@@ -1198,8 +1112,8 @@ def allTests(communicator):
             d1.pd1 = None
             bin[i] = d1
 
-        cb = AMI_Test_dictionaryTestI()
-        t.dictionaryTest_async(cb, bin)
+        cb = Callback()
+        t.begin_dictionaryTest(bin, cb.response_dictionaryTest, cb.exception)
         cb.check()
         bout = cb.bout
         r = cb.r
@@ -1248,8 +1162,8 @@ def allTests(communicator):
     print "ok"
 
     print "base exception thrown as base exception (AMI)... ",
-    cb = AMI_Test_throwBaseAsBaseI()
-    t.throwBaseAsBase_async(cb)
+    cb = Callback()
+    t.begin_throwBaseAsBase(cb.response, cb.exception_throwBaseAsBase)
     cb.check()
     print "ok"
 
@@ -1274,8 +1188,8 @@ def allTests(communicator):
     print "ok"
 
     print "derived exception thrown as base exception (AMI)... ",
-    cb = AMI_Test_throwDerivedAsBaseI()
-    t.throwDerivedAsBase_async(cb)
+    cb = Callback()
+    t.begin_throwDerivedAsBase(cb.response, cb.exception_throwDerivedAsBase)
     cb.check()
     print "ok"
 
@@ -1300,8 +1214,8 @@ def allTests(communicator):
     print "ok"
 
     print "derived exception thrown as derived exception (AMI)... ",
-    cb = AMI_Test_throwDerivedAsDerivedI()
-    t.throwDerivedAsDerived_async(cb)
+    cb = Callback()
+    t.begin_throwDerivedAsDerived(cb.response, cb.exception_throwDerivedAsDerived)
     cb.check()
     print "ok"
 
@@ -1320,8 +1234,8 @@ def allTests(communicator):
     print "ok"
 
     print "unknown derived exception thrown as base exception (AMI)... ",
-    cb = AMI_Test_throwUnknownDerivedAsBaseI()
-    t.throwUnknownDerivedAsBase_async(cb)
+    cb = Callback()
+    t.begin_throwUnknownDerivedAsBase(cb.response, cb.exception_throwUnknownDerivedAsBase)
     cb.check()
     print "ok"
 
@@ -1334,8 +1248,8 @@ def allTests(communicator):
     print "ok"
 
     print "forward-declared class (AMI)... ",
-    cb = AMI_Test_useForwardI()
-    t.useForward_async(cb)
+    cb = Callback()
+    t.begin_useForward(cb.response_useForward, cb.exception)
     cb.check()
     print "ok"
 

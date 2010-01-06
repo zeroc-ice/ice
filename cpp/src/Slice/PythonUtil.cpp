@@ -680,20 +680,24 @@ Slice::Python::CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
                 }
             }
 
-            _out << sp << nl << "def " << fixedOpName << "(self";
+            comment = (*oli)->comment();
+            if(!comment.empty())
+            {
+                comment = "'''" + editComment(comment) + "'''";
+            }
+
+            _out << sp;
+            if(!comment.empty())
+            {
+                _out << nl << comment;
+            }
+            _out << nl << "def " << fixedOpName << "(self";
             if(!inParams.empty())
             {
                 _out << ", " << inParams;
             }
             _out << ", _ctx=None):";
             _out.inc();
-
-            comment = (*oli)->comment();
-            if(!comment.empty())
-            {
-                _out << nl << "'''" << editComment(comment) << "'''";
-            }
-
             _out << nl << "return _M_" << abs << "._op_" << (*oli)->name() << ".invoke(self, ((" << inParams;
             if(!inParams.empty() && inParams.find(',') == string::npos)
             {
@@ -702,20 +706,56 @@ Slice::Python::CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
             _out << "), _ctx))";
             _out.dec();
 
+            //
+            // Async operations.
+            //
+            _out << sp;
+            if(!comment.empty())
+            {
+                _out << nl << comment;
+            }
+            _out << nl << "def begin_" << (*oli)->name() << "(self";
+            if(!inParams.empty())
+            {
+                _out << ", " << inParams;
+            }
+            _out << ", _response=None, _ex=None, _sent=None, _ctx=None):";
+            _out.inc();
+            _out << nl << "return _M_" << abs << "._op_" << (*oli)->name() << ".begin(self, ((" << inParams;
+            if(!inParams.empty() && inParams.find(',') == string::npos)
+            {
+                _out << ", ";
+            }
+            _out << "), _response, _ex, _sent, _ctx))";
+            _out.dec();
+
+            _out << sp;
+            if(!comment.empty())
+            {
+                _out << nl << comment;
+            }
+            _out << nl << "def end_" << (*oli)->name() << "(self, _r):";
+            _out.inc();
+            _out << nl << "return _M_" << abs << "._op_" << (*oli)->name() << ".end(self, _r)";
+            _out.dec();
+
+            //
+            // Old AMI operations.
+            //
             if(p->hasMetaData("ami") || (*oli)->hasMetaData("ami"))
             {
-                _out << sp << nl << "def " << fixedOpName << "_async(self, _cb";
+                _out << sp;
+                if(!comment.empty())
+                {
+                    _out << nl << comment;
+                }
+                _out << nl << "def " << fixedOpName << "_async(self, _cb";
                 if(!inParams.empty())
                 {
                     _out << ", " << inParams;
                 }
                 _out << ", _ctx=None):";
                 _out.inc();
-
-                if(!comment.empty())
-                {
-                    _out << nl << "'''" << editComment(comment) << "'''";
-                }
 
                 _out << nl << "return _M_" << abs << "._op_" << (*oli)->name() << ".invokeAsync(self, (_cb, ("
                      << inParams;

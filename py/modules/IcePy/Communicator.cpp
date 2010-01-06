@@ -22,7 +22,7 @@
 #include <ThreadNotification.h>
 #include <Util.h>
 #include <Ice/Initialize.h>
-#include <Ice/Communicator.h>
+#include <Ice/CommunicatorAsync.h>
 #include <Ice/LocalException.h>
 #include <Ice/Locator.h>
 #include <Ice/ObjectAdapter.h>
@@ -687,6 +687,103 @@ communicatorFlushBatchRequests(CommunicatorObject* self)
 extern "C"
 #endif
 static PyObject*
+communicatorBeginFlushBatchRequests(CommunicatorObject* self, PyObject* args, PyObject* kwds)
+{
+    assert(self->communicator);
+
+    static char* argNames[] =
+    {
+        const_cast<char*>("_ex"),
+        const_cast<char*>("_sent"),
+        0
+    };
+    PyObject* ex = Py_None;
+    PyObject* sent = Py_None;
+    if(!PyArg_ParseTupleAndKeywords(args, kwds, STRCAST("|OO"), argNames, &ex, &sent))
+    {
+        return 0;
+    }
+
+    if(ex == Py_None)
+    {
+        ex = 0;
+    }
+    if(sent == Py_None)
+    {
+        sent = 0;
+    }
+
+    if(!ex && sent)
+    {
+        PyErr_Format(PyExc_RuntimeError,
+            STRCAST("exception callback must also be provided when sent callback is used"));
+        return 0;
+    }
+
+    Ice::Callback_Communicator_flushBatchRequestsPtr cb;
+    if(ex || sent)
+    {
+        FlushCallbackPtr d = new FlushCallback(ex, sent, "flushBatchRequests");
+        cb = Ice::newCallback_Communicator_flushBatchRequests(d, &FlushCallback::exception, &FlushCallback::sent);
+    }
+
+    Ice::AsyncResultPtr result;
+    try
+    {
+        AllowThreads allowThreads; // Release Python's global interpreter lock during remote invocations.
+
+        if(cb)
+        {
+            result = (*self->communicator)->begin_flushBatchRequests(cb);
+        }
+        else
+        {
+            result = (*self->communicator)->begin_flushBatchRequests();
+        }
+    }
+    catch(const Ice::Exception& ex)
+    {
+        setPythonException(ex);
+        return 0;
+    }
+
+    return createAsyncResult(result, 0, 0, reinterpret_cast<PyObject*>(self));
+}
+
+#ifdef WIN32
+extern "C"
+#endif
+static PyObject*
+communicatorEndFlushBatchRequests(CommunicatorObject* self, PyObject* args)
+{
+    assert(self->communicator);
+
+    PyObject* result;
+    if(!PyArg_ParseTuple(args, STRCAST("O!"), &AsyncResultType, &result))
+    {
+        return 0;
+    }
+
+    Ice::AsyncResultPtr r = getAsyncResult(result);
+    try
+    {
+        AllowThreads allowThreads; // Release Python's global interpreter lock during blocking invocations.
+        (*self->communicator)->end_flushBatchRequests(r);
+    }
+    catch(const Ice::Exception& ex)
+    {
+        setPythonException(ex);
+        return 0;
+    }
+
+    Py_INCREF(Py_None);
+    return Py_None;
+}
+
+#ifdef WIN32
+extern "C"
+#endif
+static PyObject*
 communicatorGetAdmin(CommunicatorObject* self)
 {
     assert(self->communicator);
@@ -1306,6 +1403,11 @@ static PyMethodDef CommunicatorMethods[] =
         PyDoc_STR(STRCAST("setDefaultLocator(proxy) -> None")) },
     { STRCAST("flushBatchRequests"), reinterpret_cast<PyCFunction>(communicatorFlushBatchRequests), METH_NOARGS,
         PyDoc_STR(STRCAST("flushBatchRequests() -> None")) },
+    { STRCAST("begin_flushBatchRequests"), reinterpret_cast<PyCFunction>(communicatorBeginFlushBatchRequests),
+        METH_VARARGS | METH_KEYWORDS,
+        PyDoc_STR(STRCAST("begin_flushBatchRequests([_ex][, _sent]) -> Ice.AsyncResult")) },
+    { STRCAST("end_flushBatchRequests"), reinterpret_cast<PyCFunction>(communicatorEndFlushBatchRequests),
+        METH_VARARGS, PyDoc_STR(STRCAST("end_flushBatchRequests(Ice.AsyncResult) -> None")) },
     { STRCAST("getAdmin"), reinterpret_cast<PyCFunction>(communicatorGetAdmin), METH_NOARGS,
         PyDoc_STR(STRCAST("getAdmin() -> Ice.ObjectPrx")) },
     { STRCAST("addAdminFacet"), reinterpret_cast<PyCFunction>(communicatorAddAdminFacet), METH_VARARGS,

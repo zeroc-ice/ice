@@ -33,119 +33,63 @@ class CallbackBase:
         self._cond.notify()
         self._cond.release()
 
-class AMI_MyClass_opVoidI(CallbackBase):
-    def __init__(self):
+class Callback(CallbackBase):
+    def __init__(self, communicator=None):
         CallbackBase.__init__(self)
+        self._communicator = communicator
 
-    def ice_response(self):
+    def ping(self):
         self.called()
 
-    def ice_exception(self, ex):
-        test(False)
-
-class AMI_MyClass_opVoidExI(CallbackBase):
-    def __init__(self):
-        CallbackBase.__init__(self)
-
-    def ice_response(self):
-        test(False)
-
-    def ice_exception(self, ex):
-        test(isinstance(ex, Ice.NoEndpointException))
+    def isA(self, r):
+        test(r)
         self.called()
 
-class AMI_MyClass_opByteI(CallbackBase):
-    def __init__(self):
-        CallbackBase.__init__(self)
+    def id(self, id):
+        test(id == "::Test::MyDerivedClass")
+        self.called()
 
-    def ice_response(self, r, b):
+    def ids(self, ids):
+        test(len(ids) == 3)
+        self.called()
+
+    def opVoid(self):
+        self.called()
+
+    def opByte(self, r, b):
         test(b == 0xf0)
         test(r == 0xff)
         self.called()
 
-    def ice_exception(self, ex):
-        test(False)
-
-class AMI_MyClass_opByteExI(CallbackBase):
-    def __init__(self):
-        CallbackBase.__init__(self)
-
-    def ice_response(self, r, b):
-        test(False)
-
-    def ice_exception(self, ex):
-        test(isinstance(ex, Ice.NoEndpointException))
-        self.called()
-
-class AMI_MyClass_opBoolI(CallbackBase):
-    def __init__(self):
-        CallbackBase.__init__(self)
-
-    def ice_response(self, r, b):
+    def opBool(self, r, b):
         test(b)
         test(not r)
         self.called()
 
-    def ice_exception(self, ex):
-        test(False)
-
-class AMI_MyClass_opShortIntLongI(CallbackBase):
-    def __init__(self):
-        CallbackBase.__init__(self)
-
-    def ice_response(self, r, s, i, l):
+    def opShortIntLong(self, r, s, i, l):
         test(s == 10)
         test(i == 11)
         test(l == 12)
         test(r == 12)
         self.called()
 
-    def ice_exception(self, ex):
-        test(False)
-
-class AMI_MyClass_opFloatDoubleI(CallbackBase):
-    def __init__(self):
-        CallbackBase.__init__(self)
-
-    def ice_response(self, r, f, d):
+    def opFloatDouble(self, r, f, d):
         test(f - 3.14 < 0.001)
         test(d == 1.1E10)
         test(r == 1.1E10)
         self.called()
 
-    def ice_exception(self, ex):
-        test(False)
-
-class AMI_MyClass_opStringI(CallbackBase):
-    def __init__(self):
-        CallbackBase.__init__(self)
-
-    def ice_response(self, r, s):
+    def opString(self, r, s):
         test(s == "world hello")
         test(r == "hello world")
         self.called()
 
-    def ice_exception(self, ex):
-        test(False)
-
-class AMI_MyClass_opMyEnumI(CallbackBase):
-    def __init__(self):
-        CallbackBase.__init__(self)
-
-    def ice_response(self, r, e):
+    def opMyEnum(self, r, e):
         test(e == Test.MyEnum.enum2)
         test(r == Test.MyEnum.enum3)
         self.called()
 
-    def ice_exception(self, ex):
-        test(False)
-
-class AMI_MyClass_opMyClassI(CallbackBase):
-    def __init__(self, communicator):
-        CallbackBase.__init__(self)
-        self._communicator = communicator
-
-    def ice_response(self, r, c1, c2):
+    def opMyClass(self, r, c1, c2):
         test(c1.ice_getIdentity() == self._communicator.stringToIdentity("test"))
         test(c2.ice_getIdentity() == self._communicator.stringToIdentity("noSuchIdentity"))
         test(r.ice_getIdentity() == self._communicator.stringToIdentity("test"))
@@ -160,16 +104,7 @@ class AMI_MyClass_opMyClassI(CallbackBase):
                 pass
         self.called()
 
-    def ice_exception(self, ex):
-        test(False)
-
-class AMI_MyClass_opStructI(CallbackBase):
-
-    def __init__(self, communicator):
-        CallbackBase.__init__(self)
-        self._communicator = communicator
-
-    def ice_response(self, rso, so):
+    def opStruct(self, rso, so):
         test(rso.p == None)
         test(rso.e == Test.MyEnum.enum2)
         test(rso.s.s == "def")
@@ -180,14 +115,7 @@ class AMI_MyClass_opStructI(CallbackBase):
             so.p.opVoid()
         self.called()
 
-    def ice_exception(self, ex):
-        test(False)
-
-class AMI_MyClass_opByteSI(CallbackBase):
-    def __init__(self):
-        CallbackBase.__init__(self)
-
-    def ice_response(self, rso, bso):
+    def opByteS(self, rso, bso):
         test(len(bso) == 4)
         test(bso[0] == '\x22')
         test(bso[1] == '\x12')
@@ -204,14 +132,7 @@ class AMI_MyClass_opByteSI(CallbackBase):
         test(rso[7] == '\xf4')
         self.called()
 
-    def ice_exception(self, ex):
-        test(False)
-
-class AMI_MyClass_opBoolSI(CallbackBase):
-    def __init__(self):
-        CallbackBase.__init__(self)
-
-    def ice_response(self, rso, bso):
+    def opBoolS(self, rso, bso):
         test(len(bso) == 4)
         test(bso[0])
         test(bso[1])
@@ -223,14 +144,7 @@ class AMI_MyClass_opBoolSI(CallbackBase):
         test(rso[2])
         self.called()
 
-    def ice_exception(self, ex):
-        test(False)
-
-class AMI_MyClass_opShortIntLongSI(CallbackBase):
-    def __init__(self):
-        CallbackBase.__init__(self)
-
-    def ice_response(self, rso, sso, iso, lso):
+    def opShortIntLongS(self, rso, sso, iso, lso):
         test(len(sso) == 3)
         test(sso[0] == 1)
         test(sso[1] == 2)
@@ -253,14 +167,7 @@ class AMI_MyClass_opShortIntLongSI(CallbackBase):
         test(rso[2] == 20)
         self.called()
 
-    def ice_exception(self, ex):
-        test(False)
-
-class AMI_MyClass_opFloatDoubleSI(CallbackBase):
-    def __init__(self):
-        CallbackBase.__init__(self)
-
-    def ice_response(self, rso, fso, dso):
+    def opFloatDoubleS(self, rso, fso, dso):
         test(len(fso) == 2)
         test(fso[0] - 3.14 < 0.001)
         test(fso[1] - 1.11 < 0.001)
@@ -276,14 +183,7 @@ class AMI_MyClass_opFloatDoubleSI(CallbackBase):
         test(rso[4] - 1.11 < 0.001)
         self.called()
 
-    def ice_exception(self, ex):
-        test(False)
-
-class AMI_MyClass_opStringSI(CallbackBase):
-    def __init__(self):
-        CallbackBase.__init__(self)
-
-    def ice_response(self, rso, sso):
+    def opStringS(self, rso, sso):
         test(len(sso) == 4)
         test(sso[0] == "abc")
         test(sso[1] == "de")
@@ -295,14 +195,7 @@ class AMI_MyClass_opStringSI(CallbackBase):
         test(rso[2] == "abc")
         self.called()
 
-    def ice_exception(self, ex):
-        test(False)
-
-class AMI_MyClass_opByteSSI(CallbackBase):
-    def __init__(self):
-        CallbackBase.__init__(self)
-
-    def ice_response(self, rso, bso):
+    def opByteSS(self, rso, bso):
         test(len(bso) == 2)
         test(len(bso[0]) == 1)
         test(bso[0][0] == '\xff')
@@ -324,14 +217,7 @@ class AMI_MyClass_opByteSSI(CallbackBase):
         test(rso[3][1] == '\xf1')
         self.called()
 
-    def ice_exception(self, ex):
-        test(False)
-
-class AMI_MyClass_opFloatDoubleSSI(CallbackBase):
-    def __init__(self):
-        CallbackBase.__init__(self)
-
-    def ice_response(self, rso, fso, dso):
+    def opFloatDoubleSS(self, rso, fso, dso):
         test(len(fso) == 3)
         test(len(fso[0]) == 1)
         test(fso[0][0] - 3.14 < 0.001)
@@ -354,14 +240,7 @@ class AMI_MyClass_opFloatDoubleSSI(CallbackBase):
         test(rso[1][2] == 1.3E10)
         self.called()
 
-    def ice_exception(self, ex):
-        test(False)
-
-class AMI_MyClass_opStringSSI(CallbackBase):
-    def __init__(self):
-        CallbackBase.__init__(self)
-
-    def ice_response(self, rso, sso):
+    def opStringSS(self, rso, sso):
         test(len(sso) == 5)
         test(len(sso[0]) == 1)
         test(sso[0][0] == "abc")
@@ -379,14 +258,7 @@ class AMI_MyClass_opStringSSI(CallbackBase):
         test(len(rso[2]) == 0)
         self.called()
 
-    def ice_exception(self, ex):
-        test(False)
-
-class AMI_MyClass_opByteBoolDI(CallbackBase):
-    def __init__(self):
-        CallbackBase.__init__(self)
-
-    def ice_response(self, ro, do):
+    def opByteBoolD(self, ro, do):
         di1 = {10: True, 100: False}
         test(do == di1)
         test(len(ro) == 4)
@@ -396,14 +268,7 @@ class AMI_MyClass_opByteBoolDI(CallbackBase):
         test(ro[101])
         self.called()
 
-    def ice_exception(self, ex):
-        test(False)
-
-class AMI_MyClass_opShortIntDI(CallbackBase):
-    def __init__(self):
-        CallbackBase.__init__(self)
-
-    def ice_response(self, ro, do):
+    def opShortIntD(self, ro, do):
         di1 = {110: -1, 1100: 123123}
         test(do == di1)
         test(len(ro) == 4)
@@ -413,14 +278,7 @@ class AMI_MyClass_opShortIntDI(CallbackBase):
         test(ro[1101] == 0)
         self.called()
 
-    def ice_exception(self, ex):
-        test(False)
-
-class AMI_MyClass_opLongFloatDI(CallbackBase):
-    def __init__(self):
-        CallbackBase.__init__(self)
-
-    def ice_response(self, ro, do):
+    def opLongFloatD(self, ro, do):
         di1 = {999999110: -1.1, 999999111: 123123.2}
         for k in do:
             test(math.fabs(do[k] - di1[k]) < 0.01)
@@ -431,14 +289,7 @@ class AMI_MyClass_opLongFloatDI(CallbackBase):
         test(ro[999999130] - 0.5 < 0.01)
         self.called()
 
-    def ice_exception(self, ex):
-        test(False)
-
-class AMI_MyClass_opStringStringDI(CallbackBase):
-    def __init__(self):
-        CallbackBase.__init__(self)
-
-    def ice_response(self, ro, do):
+    def opStringStringD(self, ro, do):
         di1 = {'foo': 'abc -1.1', 'bar': 'abc 123123.2'}
         test(do == di1)
         test(len(ro) == 4)
@@ -448,14 +299,7 @@ class AMI_MyClass_opStringStringDI(CallbackBase):
         test(ro["BAR"] == "abc 0.5")
         self.called()
 
-    def ice_exception(self, ex):
-        test(False)
-
-class AMI_MyClass_opStringMyEnumDI(CallbackBase):
-    def __init__(self):
-        CallbackBase.__init__(self)
-
-    def ice_response(self, ro, do):
+    def opStringMyEnumD(self, ro, do):
         di1 = {'abc': Test.MyEnum.enum1, '': Test.MyEnum.enum2}
         test(do == di1)
         test(len(ro) == 4)
@@ -465,14 +309,7 @@ class AMI_MyClass_opStringMyEnumDI(CallbackBase):
         test(ro["Hello!!"] == Test.MyEnum.enum2)
         self.called()
 
-    def ice_exception(self, ex):
-        test(False)
-
-class AMI_MyClass_opMyEnumStringDI(CallbackBase):
-    def __init__(self):
-        CallbackBase.__init__(self)
-
-    def ice_response(self, ro, do):
+    def opMyEnumStringD(self, ro, do):
         di1 = {Test.MyEnum.enum1: 'abc'}
         test(do == di1)
         test(len(ro) == 3)
@@ -481,14 +318,7 @@ class AMI_MyClass_opMyEnumStringDI(CallbackBase):
         test(ro[Test.MyEnum.enum3] == "qwerty")
         self.called()
 
-    def ice_exception(self, ex):
-        test(False)
-
-class AMI_MyClass_opMyStructMyEnumDI(CallbackBase):
-    def __init__(self):
-        CallbackBase.__init__(self)
-
-    def ice_response(self, ro, do):
+    def opMyStructMyEnumD(self, ro, do):
         s11 = Test.MyStruct()
         s11.i = 1
         s11.j = 1
@@ -510,159 +340,74 @@ class AMI_MyClass_opMyStructMyEnumDI(CallbackBase):
         test(ro[s23] == Test.MyEnum.enum2)
         self.called()
 
-    def ice_exception(self, ex):
-        test(False)
-
-class AMI_MyClass_opIntSI(CallbackBase):
-    def __init__(self, l):
-        CallbackBase.__init__(self)
-        self._l = l
-
-    def ice_response(self, r):
-        test(len(r) == self._l)
-        for j in range(0, self._l):
+    def opIntS(self, r):
+        for j in range(0, len(r)):
             test(r[j] == -j)
         self.called()
 
-    def ice_exception(self, ex):
-        test(False)
-
-class AMI_MyClass_opContextEqualI(CallbackBase):
-    def __init__(self, d):
-        CallbackBase.__init__(self)
-        self._d = d
-
-    def ice_response(self, r):
-        test(r == self._d)
+    def opDerived(self):
         self.called()
 
-    def ice_exception(self, ex):
+    def exCB(self, ex):
         test(False)
 
-class AMI_MyClass_opContextNotEqualI(CallbackBase):
-    def __init__(self, d):
-        CallbackBase.__init__(self)
-        self._d = d
-
-    def ice_response(self, r):
-        test(r != self._d)
-        self.called()
-
-    def ice_exception(self, ex):
-        test(False)
-
-class AMI_MyDerivedClass_opDerivedI(CallbackBase):
-    def __init__(self):
-        CallbackBase.__init__(self)
-
-    def ice_response(self):
-        self.called()
-
-    def ice_exception(self, ex):
-        test(False)
-
-def twowaysAMI(communicator, p):
-    # Check that a call to a void operation raises NoEndpointException
-    # in the ice_exception() callback instead of at the point of call.
-    indirect = Test.MyClassPrx.uncheckedCast(p.ice_adapterId("dummy"))
-    cb = AMI_MyClass_opVoidExI()
-    try:
-        test(not indirect.opVoid_async(cb))
-    except Ice.Exception:
-        test(False)
+def twowaysNewAMI(communicator, p):
+    cb = Callback()
+    p.begin_ice_ping(cb.ping, cb.exCB)
     cb.check()
 
-    # Check that a call to a twoway operation raises NoEndpointException
-    # in the ice_exception() callback instead of at the point of call.
-    indirect = Test.MyClassPrx.uncheckedCast(p.ice_adapterId("dummy"))
-    cb = AMI_MyClass_opByteExI()
-    try:
-        test(not indirect.opByte_async(cb, 0, 0))
-    except Ice.Exception:
-        test(False)
+    cb = Callback()
+    p.begin_ice_isA("::Test::MyClass", cb.isA, cb.exCB)
     cb.check()
 
-    #
-    # opVoid
-    #
-    cb = AMI_MyClass_opVoidI()
-    p.opVoid_async(cb)
-    cb.check()
-    # Let's check if we can reuse the same callback object for another call.
-    p.opVoid_async(cb)
+    cb = Callback()
+    p.begin_ice_id(cb.id, cb.exCB)
     cb.check()
 
-    # Check that CommunicatorDestroyedException is raised directly.
-    initData = Ice.InitializationData()
-    initData.properties = communicator.getProperties().clone()
-    ic = Ice.initialize(initData)
-    obj = ic.stringToProxy(p.ice_toString())
-    p2 = Test.MyClassPrx.checkedCast(obj)
-
-    ic.destroy()
-
-    cb = AMI_MyClass_opVoidI()
-    try:
-        test(not p2.opVoid_async(cb))
-        test(False)
-    except Ice.CommunicatorDestroyedException:
-        pass # Expected.
-
-    #
-    # opByte
-    #
-    cb = AMI_MyClass_opByteI()
-    p.opByte_async(cb, 0xff, 0x0f)
+    cb = Callback()
+    p.begin_ice_ids(cb.ids, cb.exCB)
     cb.check()
 
-    #
-    # opBool
-    #
-    cb = AMI_MyClass_opBoolI()
-    p.opBool_async(cb, True, False)
+    r = p.begin_opVoid()
+    p.end_opVoid(r)
+
+    cb = Callback()
+    p.begin_opVoid(cb.opVoid, cb.exCB)
     cb.check()
 
-    #
-    # opShortIntLong
-    #
-    cb = AMI_MyClass_opShortIntLongI()
-    p.opShortIntLong_async(cb, 10, 11, 12)
+    r = p.begin_opByte(0xff, 0x0f)
+    (ret, p3) = p.end_opByte(r)
+    test(p3 == 0xf0)
+    test(ret == 0xff)
+
+    cb = Callback()
+    p.begin_opByte(0xff, 0x0f, cb.opByte, cb.exCB)
     cb.check()
 
-    #
-    # opFloatDouble
-    #
-    cb = AMI_MyClass_opFloatDoubleI()
-    p.opFloatDouble_async(cb, 3.14, 1.1E10)
-    cb.check()
-    # Let's check if we can reuse the same callback object for another call.
-    p.opFloatDouble_async(cb, 3.14, 1.1E10)
+    cb = Callback()
+    p.begin_opBool(True, False, cb.opBool, cb.exCB)
     cb.check()
 
-    #
-    # opString
-    #
-    cb = AMI_MyClass_opStringI()
-    p.opString_async(cb, "hello", "world")
+    cb = Callback()
+    p.begin_opShortIntLong(10, 11, 12, cb.opShortIntLong, cb.exCB)
     cb.check()
 
-    #
-    # opMyEnum
-    #
-    cb = AMI_MyClass_opMyEnumI()
-    p.opMyEnum_async(cb, Test.MyEnum.enum2)
+    cb = Callback()
+    p.begin_opFloatDouble(3.14, 1.1E10, cb.opFloatDouble, cb.exCB)
     cb.check()
 
-    #
-    # opMyClass
-    #
-    cb = AMI_MyClass_opMyClassI(communicator)
-    p.opMyClass_async(cb, p)
+    cb = Callback()
+    p.begin_opString("hello", "world", cb.opString, cb.exCB)
     cb.check()
 
-    #
-    # opStruct
-    #
+    cb = Callback()
+    p.begin_opMyEnum(Test.MyEnum.enum2, cb.opMyEnum, cb.exCB)
+    cb.check()
+
+    cb = Callback(communicator)
+    p.begin_opMyClass(p, cb.opMyClass, cb.exCB)
+    cb.check()
+
     si1 = Test.Structure()
     si1.p = p
     si1.e = Test.MyEnum.enum3
@@ -674,154 +419,109 @@ def twowaysAMI(communicator, p):
     si2.s = Test.AnotherStruct()
     si2.s.s = "def"
 
-    cb = AMI_MyClass_opStructI(communicator)
-    p.opStruct_async(cb, si1, si2)
+    cb = Callback(communicator)
+    p.begin_opStruct(si1, si2, cb.opStruct, cb.exCB)
     cb.check()
 
-    #
-    # opByteS
-    #
     bsi1 = (0x01, 0x11, 0x12, 0x22)
     bsi2 = (0xf1, 0xf2, 0xf3, 0xf4)
 
-    cb = AMI_MyClass_opByteSI()
-    p.opByteS_async(cb, bsi1, bsi2)
+    cb = Callback()
+    p.begin_opByteS(bsi1, bsi2, cb.opByteS, cb.exCB)
     cb.check()
 
-    #
-    # opBoolS
-    #
     bsi1 = (True, True, False)
     bsi2 = (False,)
 
-    cb = AMI_MyClass_opBoolSI()
-    p.opBoolS_async(cb, bsi1, bsi2)
+    cb = Callback()
+    p.begin_opBoolS(bsi1, bsi2, cb.opBoolS, cb.exCB)
     cb.check()
 
-    #
-    # opShortIntLongS
-    #
     ssi = (1, 2, 3)
     isi = (5, 6, 7, 8)
     lsi = (10, 30, 20)
 
-    cb = AMI_MyClass_opShortIntLongSI()
-    p.opShortIntLongS_async(cb, ssi, isi, lsi)
+    cb = Callback()
+    p.begin_opShortIntLongS(ssi, isi, lsi, cb.opShortIntLongS, cb.exCB)
     cb.check()
 
-    #
-    # opFloatDoubleS
-    #
     fsi = (3.14, 1.11)
     dsi = (1.1E10, 1.2E10, 1.3E10)
 
-    cb = AMI_MyClass_opFloatDoubleSI()
-    p.opFloatDoubleS_async(cb, fsi, dsi)
+    cb = Callback()
+    p.begin_opFloatDoubleS(fsi, dsi, cb.opFloatDoubleS, cb.exCB)
     cb.check()
 
-    #
-    # opStringS
-    #
     ssi1 = ('abc', 'de', 'fghi')
     ssi2 = ('xyz',)
 
-    cb = AMI_MyClass_opStringSI()
-    p.opStringS_async(cb, ssi1, ssi2)
+    cb = Callback()
+    p.begin_opStringS(ssi1, ssi2, cb.opStringS, cb.exCB)
     cb.check()
 
-    #
-    # opByteSS
-    #
     bsi1 = ((0x01, 0x11, 0x12), (0xff,))
     bsi2 = ((0x0e,), (0xf2, 0xf1))
 
-    cb = AMI_MyClass_opByteSSI()
-    p.opByteSS_async(cb, bsi1, bsi2)
+    cb = Callback()
+    p.begin_opByteSS(bsi1, bsi2, cb.opByteSS, cb.exCB)
     cb.check()
 
-    #
-    # opFloatDoubleSS
-    #
     fsi = ((3.14,), (1.11,), ())
     dsi = ((1.1E10, 1.2E10, 1.3E10),)
 
-    cb = AMI_MyClass_opFloatDoubleSSI()
-    p.opFloatDoubleSS_async(cb, fsi, dsi)
+    cb = Callback()
+    p.begin_opFloatDoubleSS(fsi, dsi, cb.opFloatDoubleSS, cb.exCB)
     cb.check()
 
-    #
-    # opStringSS
-    #
     ssi1 = (('abc',), ('de', 'fghi'))
     ssi2 = ((), (), ('xyz',))
 
-    cb = AMI_MyClass_opStringSSI()
-    p.opStringSS_async(cb, ssi1, ssi2)
+    cb = Callback()
+    p.begin_opStringSS(ssi1, ssi2, cb.opStringSS, cb.exCB)
     cb.check()
 
-    #
-    # opByteBoolD
-    #
     di1 = {10: True, 100: False}
     di2 = {10: True, 11: False, 101: True}
 
-    cb = AMI_MyClass_opByteBoolDI()
-    p.opByteBoolD_async(cb, di1, di2)
+    cb = Callback()
+    p.begin_opByteBoolD(di1, di2, cb.opByteBoolD, cb.exCB)
     cb.check()
 
-    #
-    # opShortIntD
-    #
     di1 = {110: -1, 1100: 123123}
     di2 = {110: -1, 111: -100, 1101: 0}
 
-    cb = AMI_MyClass_opShortIntDI()
-    p.opShortIntD_async(cb, di1, di2)
+    cb = Callback()
+    p.begin_opShortIntD(di1, di2, cb.opShortIntD, cb.exCB)
     cb.check()
 
-    #
-    # opLongFloatD
-    #
     di1 = {999999110: -1.1, 999999111: 123123.2}
     di2 = {999999110: -1.1, 999999120: -100.4, 999999130: 0.5}
 
-    cb = AMI_MyClass_opLongFloatDI()
-    p.opLongFloatD_async(cb, di1, di2)
+    cb = Callback()
+    p.begin_opLongFloatD(di1, di2, cb.opLongFloatD, cb.exCB)
     cb.check()
 
-    #
-    # opStringStringD
-    #
     di1 = {'foo': 'abc -1.1', 'bar': 'abc 123123.2'}
     di2 = {'foo': 'abc -1.1', 'FOO': 'abc -100.4', 'BAR': 'abc 0.5'}
 
-    cb = AMI_MyClass_opStringStringDI()
-    p.opStringStringD_async(cb, di1, di2)
+    cb = Callback()
+    p.begin_opStringStringD(di1, di2, cb.opStringStringD, cb.exCB)
     cb.check()
 
-    #
-    # opStringMyEnumD
-    #
     di1 = {'abc': Test.MyEnum.enum1, '': Test.MyEnum.enum2}
     di2 = {'abc': Test.MyEnum.enum1, 'qwerty': Test.MyEnum.enum3, 'Hello!!': Test.MyEnum.enum2}
 
-    cb = AMI_MyClass_opStringMyEnumDI()
-    p.opStringMyEnumD_async(cb, di1, di2)
+    cb = Callback()
+    p.begin_opStringMyEnumD(di1, di2, cb.opStringMyEnumD, cb.exCB)
     cb.check()
 
-    #
-    # opMyEnumStringD
-    #
     di1 = {Test.MyEnum.enum1: 'abc'}
     di2 = {Test.MyEnum.enum2: 'Hello!!', Test.MyEnum.enum3: 'qwerty'}
 
-    cb = AMI_MyClass_opMyEnumStringDI()
-    p.opMyEnumStringD_async(cb, di1, di2)
+    cb = Callback()
+    p.begin_opMyEnumStringD(di1, di2, cb.opMyEnumStringD, cb.exCB)
     cb.check()
 
-    #
-    # opMyStructMyEnumD
-    #
     s11 = Test.MyStruct()
     s11.i = 1
     s11.j = 1
@@ -837,48 +537,40 @@ def twowaysAMI(communicator, p):
     di1 = {s11: Test.MyEnum.enum1, s12: Test.MyEnum.enum2}
     di2 = {s11: Test.MyEnum.enum1, s22: Test.MyEnum.enum3, s23: Test.MyEnum.enum2}
 
-    cb = AMI_MyClass_opMyStructMyEnumDI()
-    p.opMyStructMyEnumD_async(cb, di1, di2)
+    cb = Callback()
+    p.begin_opMyStructMyEnumD(di1, di2, cb.opMyStructMyEnumD, cb.exCB)
     cb.check()
 
-    #
-    # opIntS
-    #
     lengths = ( 0, 1, 2, 126, 127, 128, 129, 253, 254, 255, 256, 257, 1000 )
     for l in lengths:
         s = []
         for i in range(l):
             s.append(i)
-        cb = AMI_MyClass_opIntSI(l)
-        p.opIntS_async(cb, s)
+        cb = Callback(l)
+        p.begin_opIntS(s, cb.opIntS, cb.exCB)
         cb.check()
 
-    #
-    # opContext
-    #
     ctx = {'one': 'ONE', 'two': 'TWO', 'three': 'THREE'}
 
     test(len(p.ice_getContext()) == 0)
-    cb = AMI_MyClass_opContextNotEqualI(ctx)
-    p.opContext_async(cb)
-    cb.check()
+    r = p.begin_opContext()
+    c = p.end_opContext(r)
+    test(c != ctx)
 
     test(len(p.ice_getContext()) == 0)
-    cb = AMI_MyClass_opContextEqualI(ctx)
-    p.opContext_async(cb, ctx)
-    cb.check()
+    r = p.begin_opContext(_ctx=ctx)
+    c = p.end_opContext(r)
+    test(c == ctx)
 
     p2 = Test.MyClassPrx.checkedCast(p.ice_context(ctx))
     test(p2.ice_getContext() == ctx)
-    cb = AMI_MyClass_opContextEqualI(ctx)
-    p2.opContext_async(cb)
-    cb.check()
+    r = p2.begin_opContext()
+    c = p2.end_opContext(r)
+    test(c == ctx)
 
-    p2 = Test.MyClassPrx.checkedCast(p.ice_context(ctx))
-    test(p2.ice_getContext() == ctx)
-    cb = AMI_MyClass_opContextEqualI(ctx)
-    p2.opContext_async(cb, ctx)
-    cb.check()
+    r = p2.begin_opContext(_ctx=ctx)
+    c = p2.end_opContext(r)
+    test(c == ctx)
 
     #
     # Test implicit context propagation
@@ -896,41 +588,39 @@ def twowaysAMI(communicator, p):
 
         ic.getImplicitContext().setContext(ctx)
         test(ic.getImplicitContext().getContext() == ctx)
-
-        cb = AMI_MyClass_opContextEqualI(ctx)
-        p3.opContext_async(cb)
-        cb.check()
+        r = p3.begin_opContext()
+        c = p3.end_opContext(r)
+        test(c == ctx)
 
         ic.getImplicitContext().put('zero', 'ZERO')
-        ctx = ic.getImplicitContext().getContext()
 
-        cb = AMI_MyClass_opContextEqualI(ctx)
-        p3.opContext_async(cb)
-        cb.check()
+        ctx = ic.getImplicitContext().getContext()
+        r = p3.begin_opContext()
+        c = p3.end_opContext(r)
+        test(c == ctx)
 
         prxContext = {'one': 'UN', 'four': 'QUATRE'}
 
-        combined = ctx
+        combined = {}
+        combined.update(ctx)
         combined.update(prxContext)
         test(combined['one'] == 'UN')
 
         p3 = Test.MyClassPrx.uncheckedCast(p3.ice_context(prxContext))
         ic.getImplicitContext().setContext({})
-
-        cb = AMI_MyClass_opContextEqualI(prxContext)
-        p3.opContext_async(cb)
-        cb.check()
+        r = p3.begin_opContext()
+        c = p3.end_opContext(r)
+        test(c == prxContext)
 
         ic.getImplicitContext().setContext(ctx)
-
-        cb = AMI_MyClass_opContextEqualI(combined)
-        p3.opContext_async(cb)
-        cb.check()
+        r = p3.begin_opContext()
+        c = p3.end_opContext(r)
+        test(c == combined)
 
         ic.destroy()
 
     derived = Test.MyDerivedClassPrx.checkedCast(p)
     test(derived)
-    cb = AMI_MyDerivedClass_opDerivedI()
-    derived.opDerived_async(cb)
+    cb = Callback()
+    derived.begin_opDerived(cb.opDerived, cb.exCB)
     cb.check()

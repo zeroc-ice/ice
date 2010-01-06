@@ -2144,7 +2144,7 @@ public class AllTests
 
             out.println("ok");
 
-            out.print("catching unknown non-Ice exception with AMI... ");
+            out.print("catching unknown non-Ice exception with new AMI mapping... ");
             out.flush();
 
             {

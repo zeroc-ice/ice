@@ -44,7 +44,8 @@ tests = [
     ("Ice/timeout", ["core"]),
     ("Ice/servantLocator", ["core"]),
     ("Ice/blobject", ["core"]),
-    ("Ice/defaultServant", ["core"])
+    ("Ice/defaultServant", ["core"]),
+    ("Ice/ami", ["core"])
     ]
 
 if __name__ == "__main__":

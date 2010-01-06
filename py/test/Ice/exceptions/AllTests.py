@@ -282,6 +282,171 @@ class AMI_WrongOperation_noSuchOperationI(CallbackBase):
             test(False)
         self.called()
 
+class Callback(CallbackBase):
+    def __init__(self, communicator=None):
+        CallbackBase.__init__(self)
+        self._communicator = communicator
+
+    def response(self):
+        test(False)
+
+    def exception_AasA(self, ex):
+        test(isinstance(ex, Test.A))
+        test(ex.aMem == 1)
+        self.called()
+
+    def exception_AorDasAorD(self, ex):
+        try:
+            raise ex
+        except Test.A, ex:
+            test(ex.aMem == 1)
+        except Test.D, ex:
+            test(ex.dMem == -1)
+        except:
+            test(False)
+        self.called()
+
+    def exception_BasB(self, ex):
+        try:
+            raise ex
+        except Test.B, ex:
+            test(ex.aMem == 1)
+            test(ex.bMem == 2)
+        except:
+            test(False)
+        self.called()
+
+    def exception_CasC(self, ex):
+        try:
+            raise ex
+        except Test.C, ex:
+            test(ex.aMem == 1)
+            test(ex.bMem == 2)
+            test(ex.cMem == 3)
+        except:
+            test(False)
+        self.called()
+
+    def exception_ModA(self, ex):
+        try:
+            raise ex
+        except Test.Mod.A, ex:
+            test(ex.aMem == 1)
+            test(ex.a2Mem == 2)
+        except Ice.OperationNotExistException:
+            #
+            # This operation is not supported in Java.
+            #
+            pass
+        except:
+            test(False)
+        self.called()
+
+    def exception_BasA(self, ex):
+        try:
+            raise ex
+        except Test.B, ex:
+            test(ex.aMem == 1)
+            test(ex.bMem == 2)
+        except:
+            test(False)
+        self.called()
+
+    def exception_CasA(self, ex):
+        try:
+            raise ex
+        except Test.C, ex:
+            test(ex.aMem == 1)
+            test(ex.bMem == 2)
+            test(ex.cMem == 3)
+        except:
+            test(False)
+        self.called()
+
+    def exception_CasB(self, ex):
+        try:
+            raise ex
+        except Test.C, ex:
+            test(ex.aMem == 1)
+            test(ex.bMem == 2)
+            test(ex.cMem == 3)
+        except:
+            test(False)
+        self.called()
+
+    def exception_UndeclaredA(self, ex):
+        try:
+            raise ex
+        except Ice.UnknownUserException:
+            pass
+        except:
+            test(False)
+        self.called()
+
+    def exception_UndeclaredB(self, ex):
+        try:
+            raise ex
+        except Ice.UnknownUserException:
+            pass
+        except:
+            test(False)
+        self.called()
+
+    def exception_UndeclaredC(self, ex):
+        try:
+            raise ex
+        except Ice.UnknownUserException:
+            pass
+        except:
+            test(False)
+        self.called()
+
+    def exception_AasAObjectNotExist(self, ex):
+        try:
+            raise ex
+        except Ice.ObjectNotExistException, ex:
+            id = self._communicator.stringToIdentity("does not exist")
+            test(ex.id == id)
+        except:
+            test(False)
+        self.called()
+
+    def exception_AasAFacetNotExist(self, ex):
+        try:
+            raise ex
+        except Ice.FacetNotExistException, ex:
+            test(ex.facet == "no such facet")
+        except:
+            test(False)
+        self.called()
+
+    def exception_noSuchOperation(self, ex):
+        try:
+            raise ex
+        except Ice.OperationNotExistException, ex:
+            test(ex.operation == "noSuchOperation")
+        except:
+            test(False)
+        self.called()
+
+    def exception_LocalException(self, ex):
+        try:
+            raise ex
+        except Ice.UnknownLocalException, ex:
+            pass
+        except:
+            test(False)
+        self.called()
+
+    def exception_NonIceException(self, ex):
+        try:
+            raise ex
+        except Ice.UnknownException, ex:
+            pass
+        except:
+            test(False)
+        self.called()
+
 def allTests(communicator):
     print "testing servant registration exceptions...",
     communicator.getProperties().setProperty("TestAdapter1.Endpoints", "default")
@@ -690,6 +855,111 @@ def allTests(communicator):
 
     cb = AMI_Thrower_throwNonIceExceptionI()
     thrower.throwNonIceException_async(cb)
+    cb.check()
+
+    print "ok"
+
+    print "catching exact types with new AMI mapping...",
+
+    cb = Callback()
+    thrower.begin_throwAasA(1, cb.response, cb.exception_AasA)
+    cb.check()
+
+    cb = Callback()
+    thrower.begin_throwAorDasAorD(1, cb.response, cb.exception_AorDasAorD)
+    cb.check()
+
+    cb = Callback()
+    thrower.begin_throwAorDasAorD(-1, cb.response, cb.exception_AorDasAorD)
+    cb.check()
+
+    cb = Callback()
+    thrower.begin_throwBasB(1, 2, cb.response, cb.exception_BasB)
+    cb.check()
+
+    cb = Callback()
+    thrower.begin_throwCasC(1, 2, 3, cb.response, cb.exception_CasC)
+    cb.check()
+
+    cb = Callback()
+    thrower.begin_throwModA(1, 2, cb.response, cb.exception_ModA)
+    cb.check()
+
+    print "ok"
+
+    print "catching derived types with new AMI mapping...",
+
+    cb = Callback()
+    thrower.begin_throwBasA(1, 2, cb.response, cb.exception_BasA)
+    cb.check()
+
+    cb = Callback()
+    thrower.begin_throwCasA(1, 2, 3, cb.response, cb.exception_CasA)
+    cb.check()
+
+    cb = Callback()
+    thrower.begin_throwCasB(1, 2, 3, cb.response, cb.exception_CasB)
+    cb.check()
+
+    print "ok"
+
+    if thrower.supportsUndeclaredExceptions():
+        print "catching unknown user exception with new AMI mapping...",
+
+        cb = Callback()
+        thrower.begin_throwUndeclaredA(1, cb.response, cb.exception_UndeclaredA)
+        cb.check()
+
+        cb = Callback()
+        thrower.begin_throwUndeclaredB(1, 2, cb.response, cb.exception_UndeclaredB)
+        cb.check()
+
+        cb = Callback()
+        thrower.begin_throwUndeclaredC(1, 2, 3, cb.response, cb.exception_UndeclaredC)
+        cb.check()
+
+        print "ok"
+
+    print "catching object not exist exception with new AMI mapping...",
+
+    id = communicator.stringToIdentity("does not exist")
+    thrower2 = Test.ThrowerPrx.uncheckedCast(thrower.ice_identity(id))
+    cb = Callback(communicator)
+    thrower2.begin_throwAasA(1, cb.response, cb.exception_AasAObjectNotExist)
+    cb.check()
+
+    print "ok"
+
+    print "catching facet not exist exception with new AMI mapping...",
+
+    thrower2 = Test.ThrowerPrx.uncheckedCast(thrower, "no such facet")
+    cb = Callback()
+    thrower2.begin_throwAasA(1, cb.response, cb.exception_AasAFacetNotExist)
+    cb.check()
+
+    print "ok"
+
+    print "catching operation not exist exception with new AMI mapping...",
+
+    cb = Callback()
+    thrower4 = Test.WrongOperationPrx.uncheckedCast(thrower)
+    thrower4.begin_noSuchOperation(cb.response, cb.exception_noSuchOperation)
+    cb.check()
+
+    print "ok"
+
+    print "catching unknown local exception with new AMI mapping...",
+
+    cb = Callback()
+    thrower.begin_throwLocalException(cb.response, cb.exception_LocalException)
+    cb.check()
+
+    print "ok"
+
+    print "catching unknown non-Ice exception with new AMI mapping...",
+
+    cb = Callback()
+    thrower.begin_throwNonIceException(cb.response, cb.exception_NonIceException)
     cb.check()
 
     print "ok"

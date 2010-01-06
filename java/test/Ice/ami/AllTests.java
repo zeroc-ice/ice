@@ -439,7 +439,6 @@ public class AllTests
     {
         FlushExCallback()
         {
-            _thread = Thread.currentThread().getId();
         }
 
         public void
@@ -480,8 +479,6 @@ public class AllTests
         {
             test(false);
         }
-
-        long _thread;
     }
 
     enum ThrowType { LocalException, OtherException };

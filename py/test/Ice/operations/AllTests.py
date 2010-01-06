@@ -7,7 +7,7 @@
 #
 # **********************************************************************
 
-import Ice, Test, Twoways, TwowaysAMI, Oneways, OnewaysAMI, BatchOneways
+import Ice, Test, Twoways, TwowaysAMI, TwowaysNewAMI, Oneways, OnewaysAMI, OnewaysNewAMI, BatchOneways
 
 def test(b):
     if not b:
@@ -29,15 +29,23 @@ def allTests(communicator, collocated):
     Oneways.oneways(communicator, cl)
     print "ok"
 
-    print "testing twoway operations with AMI...",
-    TwowaysAMI.twowaysAMI(communicator, cl)
-    print "ok"
-
-    print "testing oneway operations with AMI...",
-    OnewaysAMI.onewaysAMI(communicator, cl)
-    print "ok"
-
     if not collocated:
+        print "testing twoway operations with AMI...",
+        TwowaysAMI.twowaysAMI(communicator, cl)
+        print "ok"
+
+        print "testing twoway operations with new AMI mapping...",
+        TwowaysNewAMI.twowaysNewAMI(communicator, cl)
+        print "ok"
+
+        print "testing oneway operations with AMI...",
+        OnewaysAMI.onewaysAMI(communicator, cl)
+        print "ok"
+
+        print "testing oneway operations with new AMI mapping...",
+        OnewaysNewAMI.onewaysNewAMI(communicator, cl)
+        print "ok"
+
         print "testing batch oneway operations... ",
         BatchOneways.batchOneways(cl)
         BatchOneways.batchOneways(derived)
