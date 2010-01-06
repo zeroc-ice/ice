@@ -12,7 +12,6 @@ platforms.
 For more information about the third-party dependencies, please refer
 to the links below:
 
-STLport        http://www.stlport.org
 Berkeley DB    http://www.oracle.com/database/berkeley-db/index.html
 expat          http://expat.sourceforge.net
 OpenSSL        http://www.openssl.org
@@ -59,7 +58,6 @@ support:
 
   $ ../dist/configure --enable-cxx
   (plus --prefix=<dir> and/or --enable-java if you like)
-  $ gmake
 
 
 mcpp
@@ -86,14 +84,20 @@ requirements for configuring or building that package.
 Berkeley DB
 -----------
 
-Berkeley DB must be configured with C++ support enabled. If you intend
-to use Ice for Java with Berkeley DB, you must also enable Java
-support:
+Berkeley DB must be configured with C++ support enabled.  If you
+intend to use Ice for Java with Berkeley DB, you must also enable Java
+support.
 
   $ ../dist/configure --enable-cxx
   (plus --prefix=<dir> and/or --enable-java if you like)
-  $ gmake
 
+
+For builds with support for both i386 and x86_64 architectures, use:
+
+  $ export CFLAGS="-arch i386 -arch x86_64"
+  $ export CXXFLAGS="-arch i386 -arch x86_64"
+  $ ../dist/configure --enable-cxx
+  (plus --prefix=<dir> and/or --enable-java if you like)
 
 mcpp
 ----
@@ -101,9 +105,30 @@ mcpp
 Ice requires the library version of mcpp, so configure mcpp as shown
 below:
 
-  $ ./configure CFLAGS=-fno-common --enable-mcpplib --disable-shared
+  $ export CFLAGS="-O3 -fno-common"
+  $ ./configure --enable-mcpplib --disable-shared
   (and --prefix=<dir> if you like)
 
+For builds with support for both i386 and x86_64 architectures, use:
+
+  $ export CFLAGS="-O3 -fno-common -arch i386 -arch x86_64"
+  $ ./configure --enable-mcpplib --disable-shared
+  (and --prefix=<dir> if you like)
+
+expat
+-----
+
+Configure expat as shown below:
+
+  $ export CFLAGS="-O3"
+  $ ./configure
+  (and --prefix=<dir> if you like)
+
+For builds with support for both i386 and x86_64 architectures, use:
+
+  $ export CFLAGS="-O3 -arch i386 -arch x86_64"
+  $ ./configure
+  (and --prefix=<dir> if you like)
 
 ======================================================================
 Instructions for Solaris
@@ -122,7 +147,6 @@ support:
 
   $ ../dist/configure --enable-cxx --with-mutex=POSIX/pthreads
   (plus --prefix=<dir> and/or --enable-java if you like)
-  $ gmake
 
 For 64-bit builds, use:
 
@@ -131,7 +155,6 @@ For 64-bit builds, use:
   $ export LDFLAGS="-m64
   $ ../dist/configure --enable-cxx
   (plus --prefix=<dir> and/or --enable-java if you like)
-  $ gmake
 
 
 OpenSSL
