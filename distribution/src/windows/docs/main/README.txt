@@ -374,6 +374,10 @@ java.library.path, therefore you must add this directory to your PATH.
 
   > set PATH=<Ice installation root directory>\bin;%PATH%
 
+For a 64-bit JVM use the following setting instead:
+
+  > set PATH=<Ice installation root directory>\bin\x64;%PATH%
+
 Ice for Java supports protocol compression using the bzip2 classes
 included with ant. Compression is automatically enabled if these
 classes are present in your CLASSPATH. You can either add ant.jar to
@@ -391,7 +395,6 @@ Python
 To use Ice for Python, you must add Ice bin directory to your PATH and
 set PYTHONPATH so that the Python interpreter is able to load the Ice
 extension. For a 32-bit Python installation, use these settings:
-
 
   > set PATH=<Ice installation root directory>\bin;%PATH%
   > set PYTHONPATH=<Ice installation root directory>\python
