@@ -43,7 +43,6 @@ filesToRemove = [ \
     "distribution/makedist.py", \
     "cpp/config/makegitignore.py", \
     "rb/config/Make.rules.Darwin", \
-    "vsplugin/action.vbs", \
 ]
 
 #
