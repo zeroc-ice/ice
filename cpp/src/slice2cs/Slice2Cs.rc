@@ -21,7 +21,7 @@ BEGIN
             VALUE "FileDescription", "Slice To C# Translator\0"
             VALUE "FileVersion", "3.4b\0"
             VALUE "InternalName", "slice2cs\0"
-            VALUE "LegalCopyright", "Copyright (c) 2003-2009 ZeroC, Inc.  All rights reserved.\0"
+            VALUE "LegalCopyright", "Copyright (c) 2003-2010 ZeroC, Inc.  All rights reserved.\0"
             VALUE "OriginalFilename", "slice2cs.exe\0"
             VALUE "ProductName", "Ice\0"
             VALUE "ProductVersion", "3.4b\0"
