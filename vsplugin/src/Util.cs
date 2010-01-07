@@ -447,7 +447,7 @@ namespace Ice.VisualStudio
 
             foreach(Reference r in ((VSProject)project.Object).References)
             {
-                if(Path.GetFileName(r.Path).Equals(component + ".dll", StringComparison.OrdinalIgnoreCase))
+                if(r.Identity.Equals(component, StringComparison.OrdinalIgnoreCase))
                 {
                     r.Remove();
                     return true;
@@ -962,6 +962,10 @@ namespace Ice.VisualStudio
 
         private static void updateIceHomeCSharpProject(Project project, string iceHome)
         {
+            Util.setIceHome(project, iceHome);
+
+            VSLangProj.VSProject vsProject = (VSLangProj.VSProject)project.Object;
+
             ComponentList components = Util.getIceCSharpComponents(project);
             foreach(string s in components)
             {
@@ -969,18 +973,21 @@ namespace Ice.VisualStudio
                 {
                     continue;
                 }
-                Util.removeCSharpReference(project, s);
-            }
 
-            Util.setIceHome(project, iceHome);
-
-            foreach(string s in components)
-            {
-                if(String.IsNullOrEmpty(s))
+                bool copyLocal = true;
+                Reference r = vsProject.References.Find(s);
+                if(r != null)
                 {
-                    continue;
+                    copyLocal = r.CopyLocal;
                 }
+                Util.removeCSharpReference(project, s);
+
                 Util.addCSharpReference(project, s);
+                r = vsProject.References.Find(s);
+                if(r != null)
+                {
+                    r.CopyLocal = copyLocal;
+                }
             }
         }
 
