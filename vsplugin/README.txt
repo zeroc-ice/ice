@@ -30,46 +30,50 @@ settings.
 Project properties
 ------------------
 
-  * Ice Home
+* Ice Home
 
-    Set the directory where Ice is installed.
+  Set the directory where Ice is installed.
 
-  * Slice Compiler Options
+* Slice Compiler Options
 
-    Tick the corresponding check boxes to pass options such as --ice,
-    --stream, --checksum, or --tie (.NET only) to the Slice compiler.
+  Tick the corresponding check boxes to pass options such as --ice,
+  --stream, --checksum, or --tie (.NET only) to the Slice compiler.
 
-    Tick "Console Output" if you want compiler output to appear in the
-    Output window.
+  Tick "Console Output" if you want compiler output to appear in the
+  Output window.
 
-  * Extra Compiler Options
+* Extra Compiler Options
 
-    Add extra Slice compiler options that are not explicitly supported
-    above.
+  Add extra Slice compiler options that are not explicitly supported
+  above.
 
-    These options must be entered the same as they would be on the
-    command line to the Slice compiler. For example, preprocessor
-    macros can be defined by entering the following:
+  These options must be entered the same as they would be on the
+  command line to the Slice compiler. For example, preprocessor
+  macros can be defined by entering the following:
 
-    -DFOO -DBAR
+  -DFOO -DBAR
 
-  * Slice Include Path
+* Slice Include Path
 
-    Set the list of directories to search for included Slice files
-    (-I option).
+  Set the list of directories to search for included Slice files
+  (-I option).
 
-    The checkbox for each path specifies whether the path should be
-    relative to the project directory or an absolute path. Note that
-    paths that use environment variables are not changed by this
-    feature.
+  The checkbox for each directory indicates whether it should be
+  stored as an absolute path or converted to a path that is relative
+  to the project directory. The extension stores an absolute path if
+  the box is checked, otherwise the extension attempts to convert the
+  directory into a relative path. If the directory cannot be converted
+  into a relative path, the directory is stored as an absolute path.
+  Directories that use environment variables (see below) are not
+  affected by this feature.
 
-  * DLL Export Symbol (C++ only)
+* DLL Export Symbol (C++ only)
 
-    Set the symbol to use for DLL exports (--dll-export option).
+  Set the symbol to use for DLL exports (--dll-export option).
 
-  * Ice Components
+* Ice Components
 
-    Set the list of Ice libraries to link with.
+  Set the list of Ice libraries to link with.
 
 
 Environment Variables

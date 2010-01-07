@@ -11,17 +11,18 @@ Building and running the C++ demos (Visual C++ 2008)
 
 The C++ demos are in the demo directory.
 
+Note that the Visual Studio project files require the Ice Visual
+Studio Extension.
+
 To build a C++ demo, start Visual Studio 2008 and open the solution
 demo\demo.sln. Select your target configuration: Debug or Release,
 Win32 or x64 (on supported x64 platforms). Right click on the desired
 demo in the Solution Explorer window and select "Build".
 
-Note that the Visual Studio project files require the Ice Visual
-Studio Extension.
-
-Change to the desired demo subdirectory and review the README file if
-one is present. Type 'server' to start the server. In another command
-prompt, type 'client' to start the client.
+To run a demo, open a command window and change to the desired demo
+subdirectory. Review the README file if one is present. Type 'server'
+to start the server. In another command window, type 'client' to start
+the client.
 
 This distribution includes examples for integrating Ice with databases
 other than Berkeley DB. These examples are not included in the
@@ -40,28 +41,28 @@ Building and running the C++ demos (Visual Studio 2008 Express)
 
 The C++ demos are in the demo directory.
 
-NMAKE is used to build the demos with Visual Studio Express since it
-doesn't support the Ice Visual Studio extension.
+Visual Studio Express does not support the Ice Visual Studio
+extension, therefore you must use NMAKE to build the demos.
 
 To build the C++ demos, open a "Visual Studio 2008 Command Prompt"
-window, change to the demo directory and run the following commands to
-build the demos:
+window. If you installed Ice in a non-default location, set
+ICE_HOME as shown below:
+
+  > set ICE_HOME=<Ice installation root directory>
+
+Change to the demo directory and run the following commands to build
+the demos:
 
   > set CPP_COMPILER=VC90_EXPRESS
   > nmake /f Makefile.mak
-
-If Ice is installed in a non-default location it will also be 
-necessary to set ICE_HOME:
-
-  > set ICE_HOME=<Ice installation root directory>
 
 Note that the Ice demos that require MFC (demo\Ice\MFC and
 demo\IcePatch2\MFC) will not compile since the Express edition does
 not include MFC support.
 
-Change to the desired demo subdirectory and review the README file if
-one is present. Type 'server' to start the server. In another command
-prompt, type 'client' to start the client.
+To run a demo, change to the desired demo subdirectory and review the
+README file if one is present. Type 'server' to start the server. In
+another command window, type 'client' to start the client.
 
 
 ======================================================================
@@ -70,27 +71,26 @@ Building and running the C++ demos (C++ Builder 2010)
 
 The C++ demos are in the demo directory.
 
-To build the C++ demos, open a "RAD Studio Command Prompt" window,
-change to the demo directory and run the following command to build
+You will need Microsoft NMAKE to build the demos. If you do not
+already have NMAKE installed, you can download it as part of the
+Windows Platform SDK:
+
+  http://www.microsoft.com/downloads/details.aspx?FamilyId=E6E1C3DF-A74F-4207-8586-711EBE331CDC&displaylang=en
+
+Open a "RAD Studio Command Prompt" window. If you installed Ice in a
+non-default location, set ICE_HOME as shown below:
+
+  > set ICE_HOME=<Ice installation root directory>
+
+Change to the demo directory and run the following commands to build
 the demos:
 
   > set CPP_COMPILER=BCC2010
   > nmake /f Makefile.mak
 
-Note that this requires Microsoft NMAKE. If you do not already have
-NMAKE installed, you can download it as part of the Windows Platform
-SDK:
-
-  http://www.microsoft.com/downloads/details.aspx?FamilyId=E6E1C3DF-A74F-4207-8586-711EBE331CDC&displaylang=en
-
-If Ice is installed in a non-default location it will also be 
-necessary to set ICE_HOME:
-
-  > set ICE_HOME=<Ice installation root directory>
-
-Change to the desired demo subdirectory and review the README file if
-one is present. Type 'server' to start the server. In another command
-prompt, type 'client' to start the client.
+To run a demo, change to the desired demo subdirectory and review the
+README file if one is present. Type 'server' to start the server. In
+another command window, type 'client' to start the client.
 
 
 ======================================================================
@@ -134,9 +134,10 @@ Assembly Cache (GAC) and would prefer to use them instead of relying
 on DEVPATH, you can delete the *.exe.config files located in each demo
 directory.
 
+To run a demo, open a command window and set DEVPATH if necessary.
 Change to the desired demo subdirectory and review the README file if
 one is present. Type 'server.exe' to start the server. In another
-command prompt, type 'client.exe' to start the client.
+command window, type 'client.exe' to start the client.
 
 
 SSL Notes for the .NET demos
@@ -145,7 +146,7 @@ SSL Notes for the .NET demos
 In order to use SSL with the sample programs, an SSL certificate must
 be installed on your system. The configuration files handle this for
 you, but you will be presented with a confirmation dialog the first
-time you run a sample program.
+time you run a sample program that uses SSL.
 
 Once you are finished with the sample programs, follow these steps to
 remove the certificate:
@@ -180,8 +181,8 @@ environment variables need to be defined:
   > set JAVA_HOME=<Java SDK installation root directory>
   > set PATH=<Ice installation root directory>\bin;%PATH%
 
-If Ice is installed in a non-default location it will also be 
-necessary to set ICE_HOME:
+If you installed Ice in a non-default location, set ICE_HOME as shown
+below:
 
   > set ICE_HOME=<Ice installation root directory>
 
@@ -193,13 +194,13 @@ Before running the demos you must modify your CLASSPATH as follows:
 
   > set CLASSPATH=classes;%CLASSPATH%
 
-To run a demo, open a Command Prompt, change to the desired demo
+To run a demo, open a command window, change to the desired demo
 directory, and enter the following command to run the server:
 
   > java Server
 
-In a separate Command Prompt window, enter the following command to
-run the client:
+In a separate command window, enter the following command to run the
+client:
 
   > java Client
 
@@ -218,10 +219,9 @@ can be downloaded from:
 
   http://www.python.org/download
 
-To run a demo, open a Command Prompt, change to the desired demo
+To run a demo, open a command window, change to the desired demo
 directory, and type 'python Server.py' to start the server. In a
-separate Command Prompt window, type 'python Client.py' to run the
-client.
+separate command window, type 'python Client.py' to run the client.
 
 
 ======================================================================
@@ -245,14 +245,14 @@ by starting the C++ server:
   > cd <Ice demo root directory>\demo\Ice\hello
   > server
 
-Then in a separate window, start the Ruby client:
+Then in a separate command window, start the Ruby client:
 
   > cd <Ice demo root directory>\demorb\Ice\hello
   > ruby Client.rb
 
 
 ======================================================================
-Running the PHP demos
+Building and running the PHP demos
 ======================================================================
 
 PHP demos are provided in the demophp directory.
@@ -260,6 +260,22 @@ PHP demos are provided in the demophp directory.
 You will need PHP 5.3.1 to run the demos. It can be downloaded from:
 
   http://www.php.net/downloads.php
+
+Building the demos requires Microsoft NMAKE. If you do not already
+have NMAKE installed, you can download it as part of the Windows
+Platform SDK:
+
+  http://www.microsoft.com/downloads/details.aspx?FamilyId=E6E1C3DF-A74F-4207-8586-711EBE331CDC&displaylang=en
+
+Open a command window. If you installed Ice in a non-default location,
+set ICE_HOME as shown below:
+
+  > set ICE_HOME=<Ice installation root directory>
+
+Change to the demophp directory and run the following command to build
+the demos:
+
+  > nmake /f Makefile.mak
 
 The examples in demophp\Ice\hello and demophp\Glacier2\hello
 demonstrate using the Ice extension for PHP in a dynamic Web page,

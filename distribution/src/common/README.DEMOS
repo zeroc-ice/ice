@@ -43,7 +43,7 @@ To build the demos you need to:
     With a non-RPM installation, you also need to either create an 
     /opt/Ice-@mmver@ symbolic link (as described in the binary 
     distribution README file), or add the Ice library directory to 
-    your shared library search path. For example on Linux x86:
+    your shared library search path. For example, on Linux x86:
 
     $ export LD_LIBRARY_PATH=$ICE_HOME/lib:$LD_LIBRARY_PATH
   
@@ -52,11 +52,11 @@ To build the demos you need to:
     $ICE_HOME/lib/amd64 on Solaris for x86 64-bit.
 
   - Review the build settings found in config/Make.rules (C++), 
-    config/Make.rules.cs (C#) and config/build.properties (Java)
-    and adjust any you want changed. For example, for C++ and C#,
-    set OPTIMIZE=yes in order to build with optimization, or for
-    C++ set LP64=yes if you are building against a 64-bit Ice
-    installation.
+    config/Make.rules.cs (C#), config/Make.rules.php (PHP) and
+    config/build.properties (Java) and adjust any you want changed.
+    For example, for C++ and C#, set OPTIMIZE=yes in order to build
+    with optimization, or for C++ set LP64=yes if you are building
+    against a 64-bit Ice installation.
 
   - Build the demos. For example:
 
@@ -89,8 +89,8 @@ files if additional steps are necessary.
 Running the C++ demos
 =====================
 
-To run a demo, open a terminal terminal window, change to the desired
-demo directory, and enter the following command to run the server:
+To run a demo, open a terminal window, change to the desired demo
+directory, and enter the following command to run the server:
 
 $ ./server
 
@@ -107,7 +107,7 @@ After a successful build, the compiled classes are stored in a
 subdirectory named "classes" in each demo directory. You need to add
 this subdirectory to your CLASSPATH.
 
-For example with a bash shell:
+For example, with a bash shell:
 
 $ export CLASSPATH=classes:$CLASSPATH
 
@@ -161,15 +161,15 @@ Running the Ruby demos
 Ice provides only client demos in Ruby since Ice for Ruby does not
 support server-side activities. In order to run a sample client, you
 must first start its corresponding server from another Ice language
-mapping, such as C++:
+mapping. For example, start the C++ hello server:
 
-# for example in $HOME/testing/Ice-@ver@-demos/demo/Ice/hello
+$ cd $HOME/testing/Ice-@ver@-demos/demo/Ice/hello
 $ ./server
 
 To run the client, open another terminal window, change to the
 corresponding demo directory, and run:
 
-# for example in $HOME/testing/Ice-@ver@-demos/demorb/Ice/hello
+$ cd $HOME/testing/Ice-@ver@-demos/demorb/Ice/hello
 $ ruby Client.rb
 
 
@@ -180,8 +180,8 @@ PHP demos are provided in the demophp directory.
 
 The Ice extension for PHP is provided as a dynamically-loadable shared
 library in Linux RPM distributions. On all other Unix platforms,
-you'll need to build PHP and the Ice extension from source
-code. Please refer to the php/INSTALL file included in the Ice source
+you will need to build PHP and the Ice extension from source code.
+Please refer to the php/INSTALL file included in the Ice source
 distribution for more information.
 
 The examples in demophp/Ice/hello and demophp/Glacier2/hello

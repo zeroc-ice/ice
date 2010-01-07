@@ -37,9 +37,8 @@ language to use this distribution. For example if you want to build
 Ice applications in Java, you need to install a JDK, but do not need
 to install Visual Studio or Python.
 
-This file describes how to setup Visual Studio for Ice (when building
-C++ applications), and provides instructions for building and running
-the sample programs.
+This file describes how to configure your development environment to
+build applications with Ice.
 
 
 ======================================================================
@@ -73,6 +72,7 @@ that are required to use Ice.
 The licenses for these packages are provided in the file
 THIRD_PARTY_LICENSE.txt.
 
+
 Qt SQL Driver
 -------------
 
@@ -90,7 +90,7 @@ Silverlight projects.
 
 The extension is only installed if Visual Studio 2008 is present on
 the target machine. If you install Visual Studio 2008 after installing
-Ice, you will have to rerun the Ice installer and choose "Repair" to
+Ice, you will have to re-run the Ice installer and choose "Repair" to
 install the extension.
 
 Note that the extension is not supported for Visual Studio 2008
@@ -115,46 +115,50 @@ settings.
 Project properties
 ------------------
 
-  * Ice Home
+* Ice Home
 
-    Set the directory where Ice is installed.
+  Set the directory where Ice is installed.
 
-  * Slice Compiler Options
+* Slice Compiler Options
 
-    Tick the corresponding check boxes to pass options such as --ice,
-    --stream, --checksum, or --tie (.NET only) to the Slice compiler.
+  Tick the corresponding check boxes to pass options such as --ice,
+  --stream, --checksum, or --tie (.NET only) to the Slice compiler.
 
-    Tick "Console Output" if you want compiler output to appear in the
-    Output window.
+  Tick "Console Output" if you want compiler output to appear in the
+  Output window.
 
-  * Extra Compiler Options
+* Extra Compiler Options
 
-    Add extra Slice compiler options that are not explicitly supported
-    above.
+  Add extra Slice compiler options that are not explicitly supported
+  above.
 
-    These options must be entered the same as they would be on the
-    command line to the Slice compiler. For example, preprocessor
-    macros can be defined by entering the following:
+  These options must be entered the same as they would be on the
+  command line to the Slice compiler. For example, preprocessor
+  macros can be defined by entering the following:
 
-    -DFOO -DBAR
+  -DFOO -DBAR
 
-  * Slice Include Path
+* Slice Include Path
 
-    Set the list of directories to search for included Slice files
-    (-I option).
+  Set the list of directories to search for included Slice files
+  (-I option).
 
-    The checkbox for each path specifies whether the path should be
-    relative to the project directory or an absolute path. Note that
-    paths that use environment variables are not changed by this
-    feature.
+  The checkbox for each directory indicates whether it should be
+  stored as an absolute path or converted to a path that is relative
+  to the project directory. The extension stores an absolute path if
+  the box is checked, otherwise the extension attempts to convert the
+  directory into a relative path. If the directory cannot be converted
+  into a relative path, the directory is stored as an absolute path.
+  Directories that use environment variables (see below) are not
+  affected by this feature.
 
-  * DLL Export Symbol (C++ only)
+* DLL Export Symbol (C++ only)
 
-    Set the symbol to use for DLL exports (--dll-export option).
+  Set the symbol to use for DLL exports (--dll-export option).
 
-  * Ice Components
+* Ice Components
 
-    Set the list of Ice libraries to link with.
+  Set the list of Ice libraries to link with.
 
 
 Environment Variables
@@ -205,24 +209,25 @@ rebuild the project.
 Setting up your environment to use Ice
 ======================================================================
 
+
 Visual C++
 ----------
 
-To use Ice for C++ you must add the Ice bin directory(s) to your PATH.
+To use Ice for C++ you must add the Ice bin directory(s) to your PATH:
 
   > set PATH=<Ice installation root directory>\bin;%PATH%
 
-If you built an x64 platform, use this setting instead (the x64
+If you use an x64 platform, use these settings instead (the x64
 directory must come first in your PATH):
 
   > set PATH=<Ice installation root directory>\bin;%PATH%
   > set PATH=<Ice installation root directory>\bin\x64;%PATH%
 
 If you do not want to use the Ice Visual Studio Extension described
-above then you will have to configure Visual Studio manualy in order
+above then you will have to configure Visual Studio manually in order
 to build Ice applications. This involves adding the locations of the
 Ice header files, libraries, and executables to Visual Studio's
-configuration.
+configuration. Follow these steps:
 
 - In the IDE, choose Tools->Options->Projects and Solutions->VC++ Directories
 
@@ -251,7 +256,7 @@ C++Builder
 ----------
 
 To use Ice for C++ with C++Builder you must add the Ice bin
-directories to your PATH.
+directories to your PATH:
 
   > set PATH=<Ice installation root directory>\bin;%PATH%
   > set PATH=<Ice installation root directory>\bin\bcc10;%PATH%
@@ -264,24 +269,24 @@ directory.
 ----
 
 To use Ice for .NET, you can either copy the .NET assemblies to the
-directory of your executable, use the DEVPATH environment variable or
-add the .NET assemblies to the Global Assembly Cache (GAC):
+directory of your executable, use the DEVPATH environment variable, or
+add the .NET assemblies to the Global Assembly Cache (GAC).
 
 - Copying the Ice for .NET assemblies to the executable directory is
-  the most straightforward. 
+  the simplest solution.
 
-  You can setup your Visual Studio projects to copy the assemblies by
+  You can set up your Visual Studio projects to copy the assemblies by
   setting the "Copy Local" property to "True". 
   
-  To access this property, in the Solution Explorer, open the
+  To access this property in the Solution Explorer, open the
   References folder of your project and click on the assembly to
   access its properties in the "Properties" panel.
 
 - The DEVPATH environment variable allows you to use Ice for .NET
   assemblies from your <Ice installation root directory>\bin directory
-  directly instead of copying them in the executable directory.
+  directly instead of copying them into the executable directory.
 
-  To enable locating assemblies using DEVPATH you need to use a .NET
+  For assemblies to be located using DEVPATH, you need to use a .NET
   configuration file for your executable. The configuration file must
   contain the following settings:
 
@@ -291,7 +296,7 @@ add the .NET assemblies to the Global Assembly Cache (GAC):
       </runtime>
     </configuration>
 
-  Then, add Ice bin directory to your DEVPATH:
+  Then, add the Ice bin directory to your DEVPATH:
 
     > set DEVPATH=<Ice installation root directory>\bin;%DEVPATH%
 
@@ -303,8 +308,8 @@ add the .NET assemblies to the Global Assembly Cache (GAC):
 
   To do this, open Windows Explorer and navigate to the directory
   C:\WINDOWS\assembly. Next, drag and drop (or copy and paste) the
-  .NET assemblies from the bin directory into the right-hand pane to
-  install them in the cache.
+  .NET assemblies from the <Ice installation root directory>\bin
+  directory into the right-hand pane to install them in the cache.
 
   You can use also gacutil from the command line to achieve the same
   result:
@@ -317,7 +322,7 @@ add the .NET assemblies to the Global Assembly Cache (GAC):
 
     C:\Program Files\Microsoft SDKs\Windows\v6.0A\bin\gacutil.exe
 
-  Once installed in the cache, the assemblies will always be located
+  Once installed in the GAC, the assemblies will always be located
   correctly without having to set environment variables or copy them
   into the same directory as an executable.
 
@@ -335,7 +340,7 @@ add the .NET assemblies to the Global Assembly Cache (GAC):
   see the Ice.dll you installed into the GAC in the preceding
   step. Now copy the Ice.pdb file into this directory:
 
-    > copy <path_to_ice.pdb> .
+    > copy <path_to_Ice.pdb> .
 
 The Ice for .NET run time implements protocol compression by
 dynamically loading the native library bzip2.dll from a directory in
@@ -352,7 +357,7 @@ On 64-bit Windows use the following setting instead:
   > set PATH=<Ice installation root directory>\bin\x64;%PATH%
 
 If the wrong PATH is set, the Ice run time prints a warning to the
-console when it detects a bzip2.dll format mismatch during start-up
+console when it detects a bzip2.dll format mismatch during start-up.
 
 
 Java
@@ -392,9 +397,9 @@ algorithm and therefore add significant latency to Ice requests.
 Python
 ------
 
-To use Ice for Python, you must add Ice bin directory to your PATH and
-set PYTHONPATH so that the Python interpreter is able to load the Ice
-extension. For a 32-bit Python installation, use these settings:
+To use Ice for Python, you must add the Ice bin directory to your PATH
+and set PYTHONPATH so that the Python interpreter is able to load the
+Ice extension. For a 32-bit Python installation, use these settings:
 
   > set PATH=<Ice installation root directory>\bin;%PATH%
   > set PYTHONPATH=<Ice installation root directory>\python
@@ -408,12 +413,12 @@ For a 64-bit Python installation, use these settings instead:
 Ruby
 ----
 
-To use Ice for Ruby, you must add Ice bin directory to your PATH.
+To use Ice for Ruby, you must add the Ice bin directory to your PATH:
 
   > set PATH=<Ice installation root directory>\bin;%PATH%
 
 You must also set RUBYLIB so that the Ruby interpreter is able to 
-load the Ice extension.
+load the Ice extension:
 
  > set RUBYLIB=<Ice installation root directory>\ruby;%RUBYLIB%
 
