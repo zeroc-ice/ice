@@ -261,7 +261,7 @@ for root, dirnames, filesnames in os.walk(demoDir):
             substitute(os.path.join(root, f), configSubstituteExprs)
 
         for m in [ "*.sln", "*.csproj", "*.vbproj", "*.vcproj", "Make*mak*", "Make.rules.msvc", "Make.rules.bcc",
-                   ".depend.mak"]:
+                   ".depend.mak", "*.exe.config"]:
             if fnmatch.fnmatch(f, m):
                 rmFiles.append(os.path.join(root[len(demoDir) + 1:], f))
 
@@ -331,7 +331,7 @@ for root, dirnames, filesnames in os.walk(winDemoDir):
 for d in ["democs", "demovb"]:
     for root, dirnames, filesnames in os.walk(os.path.join(winDemoDir, d)):
         for f in filesnames:
-            for m in [ "Makefile.mak" ]:
+            for m in [ "Makefile.mak", ".depend.mak" ]:
                 if fnmatch.fnmatch(f, m):
                     rmFiles.append(os.path.join(root[len(winDemoDir) + 1:], f))
 

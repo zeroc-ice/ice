@@ -2,7 +2,7 @@ This archive contains sample programs for C++, Java, C#, VB, Ruby,
 Python and PHP. To build and run the demos, follow the language-
 specific instructions below. These build instructions assume that you
 have configured your system according to the directions in the main
-README file.
+README.txt file.
 
 
 ======================================================================
@@ -124,11 +124,15 @@ Solution Explorer window and select "Build".
 Running .NET demos
 ------------------
 
-To run these demos, you will typically need at least two Command
-Prompt windows. In each command prompt, add the Ice bin directory to
-your DEVPATH, as shown below:
+The .NET demos require the DEVPATH environment variable to be set to
+locate the Ice for .NET assemblies. For information on setting
+DEVPATH, please refer to the README.txt file from your Ice
+installation.
 
-set DEVPATH=<Ice installation root directory>\bin;%DEVPATH%
+If you have installed the Ice for .NET assemblies in the Global
+Assembly Cache (GAC) and would prefer to use them instead of relying
+on DEVPATH, you can delete the *.exe.config files located in each demo
+directory.
 
 Change to the desired demo subdirectory and review the README file if
 one is present. Type 'server.exe' to start the server. In another

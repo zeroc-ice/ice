@@ -70,90 +70,14 @@ that are required to use Ice.
  - Qt 4.5.3 (Visual C++ 2008)
  - STLport 4.6.2 (Visual C++ 6.0)
 
-The licenses for these packages are included in THIRD_PARTY_LICENSES.
+The licenses for these packages are provided in the file
+THIRD_PARTY_LICENSE.txt.
 
 Qt SQL Driver
-------------
+-------------
 
 The QtSql DLL included in this distribution has the SQLite driver
 built-in.
-
-
-======================================================================
-Monotonic clock
-======================================================================
-
-Ice uses the QueryPerformanceCounter Windows API function to measure
-time with a monotonic clock. If you are experiencing timing or
-performance issues, there are two knowledgebase articles that may be
-relevant for your system:
-
-  http://support.microsoft.com/?id=896256
-  http://support.microsoft.com/?id=895980
-
-
-======================================================================
-Protocol compression
-======================================================================
-
-The Ice for Java and Ice for .NET run times implement protocol
-compression by dynamically loading third-party bzip2 libraries. Ice
-disables the protocol compression feature if it is unable to load the
-bzip2 library successfully.
-
-In the case of Java, the bzip2 classes are included in the Apache
-Ant JAR file (ant.jar). To use protocol compression, you must either
-include ant.jar in your CLASSPATH, or you can download just the
-bzip2-related classes at the link below:
-
-  http://www.kohsuke.org/bzip2/
-
-Note that these classes are a pure Java implementation of the bzip2
-algorithm and therefore add significant latency to Ice requests.
-
-For .NET, Ice attempts to load the native library bzip2.dll from a
-directory in your PATH. This DLL is included in your Ice distribution
-and can be found in <Ice installation root directory>\bin (or in
-<Ice installation root directory>\bin\x64 for a 64-bit system).
-
-
-======================================================================
-Managed code in Ice for .NET
-======================================================================
-
-The main Ice for .NET assembly (Ice.dll) included in this distribution
-uses unmanaged code. If you require only managed code then you can
-download the Ice source distribution and build Ice for .NET in a
-purely managed version. Note that the managed version of Ice for .NET
-omits support for protocol compression and for signal handling in the
-Ice.Application class.
-
-You can download the source distribution at the link below:
-
-    http://www.zeroc.com/download.html
-
-
-======================================================================
-Running IceGrid and Glacier2 components as services
-======================================================================
-
-An appendix in the Ice manual provides information on installing and
-running the IceGrid registry, IceGrid node, and Glacier2 router as
-Windows services.
-
-
-======================================================================
-Using the IceGrid Administrative Console
-======================================================================
-
-A Java-based graphical tool for administering IceGrid applications
-is included in this distribution. The Java archive file is installed
-as
-
-<Ice installation root directory>\bin\IceGridGUI.jar
-
-With a suitable Java installation, you can execute the application
-by double-clicking on this file.
 
 
 ======================================================================
@@ -338,48 +262,88 @@ directory.
 
 .NET
 ----
+
+To use Ice for .NET, you can either copy the .NET assemblies to the
+directory of your executable, use the DEVPATH environment variable or
+add the .NET assemblies to the Global Assembly Cache (GAC):
+
+- Copying the Ice for .NET assemblies to the executable directory is
+  the most straightforward. 
+
+  You can setup your Visual Studio projects to copy the assemblies by
+  setting the "Copy Local" property to "True". 
   
-Add the .NET assemblies to the Global Assembly Cache (GAC). To do
- this, open Windows Explorer and navigate to the directory
-C:\WINDOWS\assembly. Next, drag and drop (or copy and paste) the
-.NET assemblies from the bin directory into the right-hand pane to
-install them in the cache.
+  To access this property, in the Solution Explorer, open the
+  References folder of your project and click on the assembly to
+  access its properties in the "Properties" panel.
 
-You can use also gacutil from the command line to achieve the same
-result:
+- The DEVPATH environment variable allows you to use Ice for .NET
+  assemblies from your <Ice installation root directory>\bin directory
+  directly instead of copying them in the executable directory.
 
-  > gacutil /i <library.dll>
+  To enable locating assemblies using DEVPATH you need to use a .NET
+  configuration file for your executable. The configuration file must
+  contain the following settings:
 
-The gacutil tool is included with your Visual C# installation. For
-example, if you have installed Visual C# 9.0 in C:\Program Files, the
-path to gacutil is
+    <configuration>
+      <runtime>
+        <developmentMode developerInstallation="true"/>
+      </runtime>
+    </configuration>
 
-  C:\Program Files\Microsoft SDKs\Windows\v6.0A\bin\gacutil.exe
+  Then, add Ice bin directory to your DEVPATH:
 
-Once installed in the cache, the assemblies will always be located
-correctly without having to set environment variables or copy them
-into the same directory as an executable.
+    > set DEVPATH=<Ice installation root directory>\bin;%DEVPATH%
 
-If you want line numbers for stack traces, you must also install the
-PDB (.pdb) files in the GAC. Unfortunately, you cannot do this using
-Explorer, so you have to do it from the command line. Open a command
-shell window and navigate to C:\WINDOWS\assembly\GAC_MSIL\Ice
-(assuming C:\WINDOWS is your system root). Doing a directory listing
-there, you will find a directory named @ver@.0__<UUID>, for
-example:
+  For more information on DEVPATH, see:
 
-  @ver@.0__cdd571ade22f2f16
+    http://msdn.microsoft.com/en-us/library/cskzh7h6.aspx  
 
-Change to that directory (making sure that you use the correct version
-number for this release of Ice). In this directory, you will see the
-Ice.dll you installed into the GAC in the preceding step. Now copy the
-Ice.pdb file into this directory:
+- Finally, you can also add the Ice for .NET assemblies to your GAC.
 
-  > copy <path_to_ice.pdb> .
+  To do this, open Windows Explorer and navigate to the directory
+  C:\WINDOWS\assembly. Next, drag and drop (or copy and paste) the
+  .NET assemblies from the bin directory into the right-hand pane to
+  install them in the cache.
 
-Ice for .NET attempts to dynamically load bzip2.dll to support
-protocol compression. Therefore the Ice bin directory must be added
-to your PATH.
+  You can use also gacutil from the command line to achieve the same
+  result:
+
+    > gacutil /i <library.dll>
+
+  The gacutil tool is included with your Visual C# installation. For
+  example, if you have installed Visual C# 9.0 in C:\Program Files,
+  the path to gacutil is
+
+    C:\Program Files\Microsoft SDKs\Windows\v6.0A\bin\gacutil.exe
+
+  Once installed in the cache, the assemblies will always be located
+  correctly without having to set environment variables or copy them
+  into the same directory as an executable.
+
+  If you want line numbers for stack traces, you must also install the
+  PDB (.pdb) files in the GAC. Unfortunately, you cannot do this using
+  Explorer, so you have to do it from the command line. Open a command
+  shell window and navigate to C:\WINDOWS\assembly\GAC_MSIL\Ice
+  (assuming C:\WINDOWS is your system root). Doing a directory listing
+  there, you will find a directory named @ver@.0__<UUID>, for example:
+
+    @ver@.0__cdd571ade22f2f16
+
+  Change to that directory (making sure that you use the correct
+  version number for this release of Ice). In this directory, you will
+  see the Ice.dll you installed into the GAC in the preceding
+  step. Now copy the Ice.pdb file into this directory:
+
+    > copy <path_to_ice.pdb> .
+
+The Ice for .NET run time implements protocol compression by
+dynamically loading the native library bzip2.dll from a directory in
+your PATH. Ice disables the protocol compression feature if it is
+unable to load the bzip2 library successfully.
+
+This DLL is included in your Ice distribution. Therefore the Ice bin
+directory must be added to your PATH:
 
   > set PATH=<Ice installation root directory>\bin;%PATH%
 
@@ -410,22 +374,31 @@ java.library.path, therefore you must add this directory to your PATH.
 
   > set PATH=<Ice installation root directory>\bin;%PATH%
 
+Ice for Java supports protocol compression using the bzip2 classes
+included with ant. Compression is automatically enabled if these
+classes are present in your CLASSPATH. You can either add ant.jar to
+your CLASSPATH, or download only the bzip2 classes from
+
+  http://www.kohsuke.org/bzip2/
+
+Note that these classes are a pure Java implementation of the bzip2
+algorithm and therefore add significant latency to Ice requests.
+
 
 Python
 ------
 
-To use Ice for Python, you must add Ice bin directory to your PATH.
+To use Ice for Python, you must add Ice bin directory to your PATH and
+set PYTHONPATH so that the Python interpreter is able to load the Ice
+extension. For a 32-bit Python installation, use these settings:
+
 
   > set PATH=<Ice installation root directory>\bin;%PATH%
-
-You must also set PYTHONPATH so that the Python interpreter is able to
-load the Ice extension. For a 32-bit Python installation, use this
-setting:
-
   > set PYTHONPATH=<Ice installation root directory>\python
 
-For a 64-bit Python installation, use this setting instead:
+For a 64-bit Python installation, use these settings instead:
 
+  > set PATH=<Ice installation root directory>\bin\x64;%PATH%
   > set PYTHONPATH=<Ice installation root directory>\python\x64
 
 
@@ -602,13 +575,37 @@ appropriate changes as you follow the instructions.
 
 
 ======================================================================
+Running IceGrid and Glacier2 components as services
+======================================================================
+
+An appendix in the Ice manual provides information on installing and
+running the IceGrid registry, IceGrid node, and Glacier2 router as
+Windows services.
+
+
+======================================================================
+Using the IceGrid Administrative Console
+======================================================================
+
+A Java-based graphical tool for administering IceGrid applications
+is included in this distribution. The Java archive file is installed
+as
+
+<Ice installation root directory>\bin\IceGridGUI.jar
+
+With a suitable Java installation, you can execute the application
+by double-clicking on this file.
+
+
+======================================================================
 Demos
 ======================================================================
 
 This distribution includes an archive named demos.zip that contains
 sample programs for the supported languages. To build and run the
 demos, you must extract this archive in the location of your choice
-and follow the instructions in the README file located in the archive.
+and follow the instructions in the README.txt file located in the
+archive.
 
 
 ======================================================================
@@ -618,6 +615,35 @@ Binary compatibility
 Please refer to the RELEASE_NOTES.txt file included in this
 distribution for information on binary compatibility and detailed
 upgrade instructions.
+
+
+======================================================================
+Monotonic clock
+======================================================================
+
+Ice uses the QueryPerformanceCounter Windows API function to measure
+time with a monotonic clock. If you are experiencing timing or
+performance issues, there are two knowledgebase articles that may be
+relevant for your system:
+
+  http://support.microsoft.com/?id=896256
+  http://support.microsoft.com/?id=895980
+
+
+======================================================================
+Managed code in Ice for .NET
+======================================================================
+
+The main Ice for .NET assembly (Ice.dll) included in this distribution
+uses unmanaged code. If you require only managed code then you can
+download the Ice source distribution and build Ice for .NET in a
+purely managed version. Note that the managed version of Ice for .NET
+omits support for protocol compression and for signal handling in the
+Ice.Application class.
+
+You can download the source distribution at the link below:
+
+    http://www.zeroc.com/download.html
 
 
 ======================================================================

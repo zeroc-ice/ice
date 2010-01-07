@@ -36,10 +36,12 @@
   <ItemGroup>
     <Reference Include="Glacier2, Version=3.4.51.0, Culture=neutral, PublicKeyToken=1f998c50fec78381, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
+      <Private>True</Private>
       <HintPath>..\..\..\..\cs\bin\Glacier2.dll</HintPath>
     </Reference>
-    <Reference Include="Ice, Version=3.3.1.0, Culture=neutral, PublicKeyToken=1f998c50fec78381, processorArchitecture=MSIL">
+    <Reference Include="Ice, Version=3.4.51.0, Culture=neutral, PublicKeyToken=1f998c50fec78381, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
+      <Private>True</Private>
       <HintPath>..\..\..\..\cs\bin\Ice.dll</HintPath>
     </Reference>
     <Reference Include="System" />

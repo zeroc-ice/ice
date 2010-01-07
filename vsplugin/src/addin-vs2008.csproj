@@ -146,9 +146,4 @@
     <PostBuildEvent>
     </PostBuildEvent>
   </PropertyGroup>
-  <ProjectExtensions>
-    <VisualStudio>
-      <UserProperties IceHome="C:\Ice-3.3.1" IceIncludePath="C:\Ice-3.3.1-VC90\slice; ." Ice="False" IceTie="False" IceStreaming="True" />
-    </VisualStudio>
-  </ProjectExtensions>
 </Project>

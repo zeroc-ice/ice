@@ -77,12 +77,14 @@
     <ErrorReport>prompt</ErrorReport>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Ice, Version=3.3.1.0, Culture=neutral, PublicKeyToken=1f998c50fec78381, processorArchitecture=MSIL">
+    <Reference Include="Ice, Version=3.4.51.0, Culture=neutral, PublicKeyToken=1f998c50fec78381, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
+      <Private>False</Private>
       <HintPath>..\..\..\bin\Ice.dll</HintPath>
     </Reference>
-    <Reference Include="IceStorm, Version=3.3.1.0, Culture=neutral, PublicKeyToken=1f998c50fec78381, processorArchitecture=MSIL">
+    <Reference Include="IceStorm, Version=3.4.51.0, Culture=neutral, PublicKeyToken=1f998c50fec78381, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
+      <Private>False</Private>
       <HintPath>..\..\..\bin\IceStorm.dll</HintPath>
     </Reference>
     <Reference Include="System">
