@@ -21,11 +21,6 @@ sys.path.append(os.path.join(toplevel))
 from scripts import *
 
 #
-# TODO: custom14 is commented out. We need to determine a java2 vs java5 build to determine
-# which custom test to run.
-#
-
-#
 # List of all basic tests.
 #
 tests = [
