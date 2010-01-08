@@ -17,10 +17,20 @@ Follow these steps to install the demo:
    nmake in this directory. Verify that the files have appropriate
    access rights.
 
-3) In a command window on the Web server host, start a hello server.
+3) You may need to edit client.php so that the script is able to
+   include the Ice run time files. For example, if you installed Ice
+   in C:\Ice, add a call to ini_set as shown below:
+
+   <?php
+   ini_set('include_path',
+           ini_get('include_path') . PATH_SEPARATOR . 'C:/Ice/php');
+   require 'Ice.php';
+   ...
+
+4) In a command window on the Web server host, start a hello server.
    You can use a server from any Ice language mapping.
 
-4) Start a Web browser and open the client page to begin using the
+5) Start a Web browser and open the client page to begin using the
    demo. Note that support for secure invocations via SSL are disabled
    by default. If you have configured SSL for the Ice extension, edit
    client.php and set the have_ssl variable to true.
@@ -58,7 +68,7 @@ the following:
 
   # chcon -R -t httpd_sys_content_t /opt/MyApp
 
-For more information on SELinux in Red Hat Enterprise Linux 4, refer
+For more information on SELinux in Red Hat Enterprise Linux, refer
 to the link below:
 
-  http://www.redhat.com/docs/manuals/enterprise/RHEL-4-Manual/selinux-guide/
+  http://www.redhat.com/f/pdf/sec/WHP001USselinux.pdf

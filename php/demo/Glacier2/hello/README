@@ -34,15 +34,25 @@ Follow these steps to install the demo:
    nmake in this directory. Verify that the files have appropriate
    access rights.
 
-3) In a command window on the Web server host, start a Glacier2 router
+3) You may need to edit login.php and session.php so that the scripts
+   are able to include the Ice run time files. For example, if you
+   installed Ice in C:\Ice, add a call to ini_set as shown below:
+
+   <?php
+   ini_set('include_path',
+           ini_get('include_path') . PATH_SEPARATOR . 'C:/Ice/php');
+   require 'Ice.php';
+   ...
+
+4) In a command window on the Web server host, start a Glacier2 router
    using the configuration file provided in this directory:
 
    % glacier2router --Ice.Config=config.glacier2
 
-4) In a separate command window on the same host, start a hello
+5) In a separate command window on the same host, start a hello
    server. You can use a server from any Ice language mapping.
 
-5) Start a Web browser and open the login.php page to begin using the
+6) Start a Web browser and open the login.php page to begin using the
    demo. Note that the Glacier2 configuration uses a session timeout
    of 30 seconds.
 
@@ -84,7 +94,7 @@ the following:
 
   # chcon -R -t httpd_sys_content_t /opt/MyApp
 
-For more information on SELinux in Red Hat Enterprise Linux 4, refer
+For more information on SELinux in Red Hat Enterprise Linux, refer
 to the link below:
 
-  http://www.redhat.com/docs/manuals/enterprise/RHEL-4-Manual/selinux-guide/
+  http://www.redhat.com/f/pdf/sec/WHP001USselinux.pdf

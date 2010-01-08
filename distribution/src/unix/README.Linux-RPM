@@ -243,10 +243,10 @@ the following:
 
   # chcon -R -t httpd_sys_content_t /opt/MyApp/slice
 
-For more information on SELinux in Red Hat Enterprise Linux 4, refer
+For more information on SELinux in Red Hat Enterprise Linux, refer
 to the link below:
 
-  http://www.redhat.com/docs/manuals/enterprise/RHEL-4-Manual/selinux-guide/
+  http://www.redhat.com/f/pdf/sec/WHP001USselinux.pdf
 
 
 ======================================================================
