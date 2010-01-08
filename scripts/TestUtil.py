@@ -1259,7 +1259,7 @@ def getTestEnv(lang, testdir):
     if lang == "cpp":
         addLdPath(os.path.join(testdir), env)
     elif lang == "java":
-	addClasspath(os.path.join(toplevel, "java", "lib", "IceTest.jar"))
+	addClasspath(os.path.join(toplevel, "java", "lib", "IceTest.jar"), env)
     return env;
 
 def getTestName():
