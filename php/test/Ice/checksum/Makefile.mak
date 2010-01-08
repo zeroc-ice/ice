@@ -20,3 +20,5 @@ $(SRCS): $*.ice
 
 clean::
 	del /q $(SRCS)
+
+include .depend.mak
