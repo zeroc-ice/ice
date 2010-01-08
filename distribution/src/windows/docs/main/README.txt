@@ -33,7 +33,7 @@ development tools to build Ice applications:
  - in PHP, using PHP 5.3.1
 
 You only need the development environment for your target programming
-language to use this distribution. For example if you want to build
+language to use this distribution. For example, if you want to build
 Ice applications in Java, you need to install a JDK, but do not need
 to install Visual Studio or Python.
 
@@ -59,7 +59,7 @@ This distribution is supported on the following Windows versions:
 Third Party Packages
 ======================================================================
 
-This distribution contains binaries for various third party packages
+This distribution contains binaries for various third-party packages
 that are required to use Ice.
 
  - Berkeley DB 4.8.24 (Visual C++ 2008, C++Builder 2010)
@@ -167,7 +167,7 @@ Environment Variables
 The "Ice Home", "Extra Compiler Options", and "Slice Include Path"
 settings support the use of environment variables. Use the $(VAR)
 syntax to refer to an environment variable named VAR. For example,
-if you have defined the ICE_HOME environment variable, you could
+if you have defined the ICE_HOME environment variable, you can
 use $(ICE_HOME) in the "Ice Home" field.
 
 
@@ -224,7 +224,7 @@ directory must come first in your PATH):
   > set PATH=<Ice installation root directory>\bin\x64;%PATH%
 
 If you do not want to use the Ice Visual Studio Extension described
-above then you will have to configure Visual Studio manually in order
+above, you will have to configure Visual Studio manually in order
 to build Ice applications. This involves adding the locations of the
 Ice header files, libraries, and executables to Visual Studio's
 configuration. Follow these steps:
@@ -304,7 +304,7 @@ add the .NET assemblies to the Global Assembly Cache (GAC).
 
     http://msdn.microsoft.com/en-us/library/cskzh7h6.aspx  
 
-- Finally, you can also add the Ice for .NET assemblies to your GAC.
+- Finally, you can also add the Ice for .NET assemblies to the GAC.
 
   To do this, open Windows Explorer and navigate to the directory
   C:\WINDOWS\assembly. Next, drag and drop (or copy and paste) the
