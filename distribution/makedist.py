@@ -272,6 +272,7 @@ copy(os.path.join(distFilesDir, "src", "common", "README.DEMOS.txt"), os.path.jo
 copyMatchingFiles(os.path.join("certs"), os.path.join(winDemoDir, "certs"), certsFiles)
 
 os.mkdir(os.path.join(winDemoDir, "config"))
+
 copy(os.path.join(srcDir, "config", "Make.common.rules.mak"), os.path.join(winDemoDir, "config"), False)
 copy(os.path.join(srcDir, "cpp", "config", "Make.rules.bcc"), os.path.join(winDemoDir, "config"), False)
 copy(os.path.join(srcDir, "cpp", "config", "Make.rules.msvc"), os.path.join(winDemoDir, "config"), False)
@@ -279,6 +280,7 @@ copy(os.path.join(srcDir, "java", "config", "common.xml"), os.path.join(winDemoD
 
 copy(os.path.join(distFilesDir, "src", "common", "build.properties"), os.path.join(winDemoDir, "config"), False)
 copy(os.path.join(distFilesDir, "src", "common", "Make.rules.mak"), os.path.join(winDemoDir, "config"), False)
+copy(os.path.join(distFilesDir, "src", "common", "Make.rules.mak.php"), os.path.join(winDemoDir, "config"), False)
 
 # Consolidate demo distribution with files from each language mapping
 for d in os.listdir('.'):
