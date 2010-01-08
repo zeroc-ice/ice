@@ -96,15 +96,15 @@ BEGIN
     GROUPBOX        "Patch Information",IDC_STATIC,7,53,220,78,0,
                     WS_EX_TRANSPARENT
     CONTROL         "Current File:",IDC_STATIC,"Static",SS_LEFTNOWORDWRAP,13,
-                    63,46,8
+                    70,46,8
     CONTROL         "Received:",IDC_STATIC,"Static",SS_LEFTNOWORDWRAP | 
-                    WS_GROUP,13,83,45,8
+                    WS_GROUP,13,90,45,8
     CONTROL         "Transfer Rate:",IDC_STATIC,"Static",SS_LEFTNOWORDWRAP | 
-                    WS_GROUP,13,103,46,8
-    LTEXT           "",IDC_TOTAL,63,80,156,14,SS_CENTERIMAGE | NOT WS_GROUP,
+                    WS_GROUP,13,110,46,8
+    LTEXT           "",IDC_TOTAL,63,87,156,14,SS_CENTERIMAGE | NOT WS_GROUP,
                     WS_EX_STATICEDGE
-    LTEXT           "",IDC_FILE,63,59,156,14,SS_CENTERIMAGE,WS_EX_STATICEDGE
-    LTEXT           "",IDC_SPEED,63,101,156,14,SS_CENTERIMAGE | NOT WS_GROUP,
+    LTEXT           "",IDC_FILE,63,66,156,14,SS_CENTERIMAGE,WS_EX_STATICEDGE
+    LTEXT           "",IDC_SPEED,63,108,156,14,SS_CENTERIMAGE | NOT WS_GROUP,
                     WS_EX_STATICEDGE
     CONTROL         "Remove Orphans",IDC_ORPHAN,"Button",BS_AUTOCHECKBOX | 
                     WS_TABSTOP,33,37,71,10
