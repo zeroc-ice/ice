@@ -35,6 +35,12 @@ public:
         test(Dispatcher::isDispatcherThread());
     }
 
+    void 
+    ignoreEx(const Ice::Exception& ex)
+    {
+        test(dynamic_cast<const Ice::CommunicatorDestroyedException*>(&ex));
+    }
+
     void
     sent(bool sentSynchronously)
     {
@@ -77,7 +83,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
         testController->holdAdapter();
 
         Test::Callback_TestIntf_opWithPayloadPtr callback2 = 
-            Test::newCallback_TestIntf_opWithPayload(cb, &Callback::response, &Callback::exception, &Callback::sent);
+            Test::newCallback_TestIntf_opWithPayload(cb, &Callback::response, &Callback::ignoreEx, &Callback::sent);
 
         Ice::ByteSeq seq;
         seq.resize(1024); // Make sure the request doesn't compress too well.
@@ -85,8 +91,10 @@ allTests(const Ice::CommunicatorPtr& communicator)
         {
             *q = static_cast<Ice::Byte>(IceUtilInternal::random(255));
         }
-        while(p->begin_opWithPayload(seq, callback2)->sentSynchronously());
+        Ice::AsyncResultPtr result;
+        while((result = p->begin_opWithPayload(seq, callback2))->sentSynchronously());
         testController->resumeAdapter();
+        result->waitForCompleted();
     }
     cout << "ok" << endl;
 

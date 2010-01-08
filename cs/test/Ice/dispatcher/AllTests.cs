@@ -61,8 +61,10 @@ public class AllTests
 
             byte[] seq = new byte[10 * 1024];
             (new System.Random()).NextBytes(seq);
-            while(p.begin_opWithPayload(seq).whenCompleted(rcb, null).whenSent(scb).sentSynchronously());
+            Ice.AsyncResult r;
+            while((r = p.begin_opWithPayload(seq).whenCompleted(rcb, null).whenSent(scb)).sentSynchronously());
             testController.resumeAdapter();
+            r.waitForCompleted();
         }
         Console.Out.WriteLine("ok");
 

@@ -94,7 +94,7 @@ public class AllTests
                     public void 
                     exception(Ice.LocalException ex)
                     {
-                        test(false);
+                        test(ex instanceof Ice.CommunicatorDestroyedException);
                     }
 
                     public void 
@@ -106,8 +106,10 @@ public class AllTests
 
             byte[] seq = new byte[10 * 1024];
             new java.util.Random().nextBytes(seq); // Make sure the request doesn't compress too well.
-            while(p.begin_opWithPayload(seq, callback).sentSynchronously());
+            Ice.AsyncResult r;
+            while((r = p.begin_opWithPayload(seq, callback)).sentSynchronously());
             testController.resumeAdapter();
+            r.waitForCompleted();
         }
         out.println("ok");
 
