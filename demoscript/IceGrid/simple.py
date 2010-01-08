@@ -35,7 +35,10 @@ def run(clientStr, desc = 'application'):
     print "starting icegridnode...",
     sys.stdout.flush()
     node = Util.spawn(Util.getIceGridNode() + ' --Ice.Config=config.grid --Ice.PrintAdapterReady %s' % (args))
-    node.expect('IceGrid.Registry.Internal ready\nIceGrid.Registry.Server ready\nIceGrid.Registry.Client ready\nIceGrid.Node ready')
+    node.expect('IceGrid.Registry.Internal ready')
+    node.expect('IceGrid.Registry.Server ready')
+    node.expect('IceGrid.Registry.Client ready')
+    node.expect('IceGrid.Node ready')
     print "ok"
 
     print "deploying application...",
