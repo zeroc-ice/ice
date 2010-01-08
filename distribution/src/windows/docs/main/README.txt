@@ -546,7 +546,7 @@ appropriate changes as you follow the instructions.
    the following commands to review the current access rights of the
    Ice extension:
 
-   > cd \Program Files\Apache Software Foundation\Apache2.2
+   > cd \Program Files\PHP\ext
    > cacls php_ice.dll
 
 6) Restart Apache and verify that the PHP module and the Ice extension
