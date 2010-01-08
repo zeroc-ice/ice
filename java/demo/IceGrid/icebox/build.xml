@@ -40,8 +40,8 @@
         <delete dir="${generated.dir}"/>
         <delete dir="${class.dir}"/>
         <delete quiet="true" includeEmptyDirs="true">
-	    <fileset dir="db/node" excludes=".gitignore"/>
-            <fileset dir="db/registry" excludes=".gitignore"/>
+	    <fileset dir="db/node" includes="*" excludes=".gitignore"/>
+            <fileset dir="db/registry" includes="*" excludes=".gitignore"/>
         </delete>
     </target>
 

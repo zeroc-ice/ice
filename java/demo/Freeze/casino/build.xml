@@ -47,7 +47,7 @@
         <delete dir="${generated.dir}"/>
         <delete dir="${class.dir}"/>
         <delete includeEmptyDirs="true">
-	    <fileset dir="db" excludes="DB_CONFIG"/>
+	    <fileset dir="db" includes="*" excludes="DB_CONFIG"/>
         </delete>
     </target>
 

@@ -21,7 +21,7 @@
 
     <target name="clean">
         <delete includeEmptyDirs="true">
-	    <fileset dir="db" excludes="DB_CONFIG"/>
+	    <fileset dir="db" includes="*" excludes="DB_CONFIG"/>
         </delete>
     </target>
 

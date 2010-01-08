@@ -21,7 +21,7 @@
 
     <target name="clean">
         <delete includeEmptyDirs="true">
-	    <fileset dir="db" excludes=".gitignore"/>
+	    <fileset dir="db" includes="*" excludes=".gitignore"/>
         </delete>
     </target>
 
