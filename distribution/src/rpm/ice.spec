@@ -133,12 +133,12 @@ solution, and much more.
 #
 %if %{mono}
 %package mono
-Summary: The Ice runtime for .NET (mono)
+Summary: The Ice run time for .NET (mono)
 Group: System Environment/Libraries
 Requires: ice = %{version}-%{release}, mono-core >= 1.2.2
 Obsoletes: ice-dotnet < %{version}-%{release}
 %description mono
-The Ice runtime for .NET (mono).
+The Ice run time for .NET (mono).
 %endif
 
 #
@@ -146,11 +146,11 @@ The Ice runtime for .NET (mono).
 #
 %ifarch noarch
 %package java
-Summary: The Ice runtime for Java
+Summary: The Ice run time for Java
 Group: System Environment/Libraries
 Requires: ice = %{version}-%{release}, db48-java
 %description java
-The Ice runtime for Java.
+The Ice run time for Java.
 %endif
 
 #
@@ -162,7 +162,7 @@ Summary: The Ice run time for C++
 Group: System Environment/Libraries
 Requires: ice = %{version}-%{release}, db48
 %description libs
-The Ice runtime for C++
+The Ice run time for C++
 
 %package utils
 Summary: Ice utilities and admin tools.
@@ -220,11 +220,11 @@ Tools for developing Ice applications in C#.
 
 %if %{ruby}
 %package ruby
-Summary: The Ice runtime for Ruby
+Summary: The Ice run time for Ruby
 Group: System Environment/Libraries
 Requires: ice-libs = %{version}-%{release}, ruby
 %description ruby
-The Ice runtime for Ruby.
+The Ice run time for Ruby.
 
 %package ruby-devel
 Summary: Tools for developing Ice applications in Ruby
@@ -235,11 +235,11 @@ Tools for developing Ice applications in Ruby.
 %endif
 
 %package python
-Summary: The Ice runtime for Python
+Summary: The Ice run time for Python
 Group: System Environment/Libraries
-Requires: ice-libs = %{version}-%{release}
+Requires: ice-libs = %{version}-%{release}, python
 %description python
-The Ice runtime for Python.
+The Ice run time for Python.
 
 %package python-devel
 Summary: Tools for developing Ice applications in Python
@@ -249,11 +249,17 @@ Requires: ice-python = %{version}-%{release}
 Tools for developing Ice applications in Python.
 
 %package php
-Summary: The Ice runtime for PHP
+Summary: The Ice run time for PHP
 Group: System Environment/Libraries
 Requires: ice-libs = %{version}-%{release}
+%if "%{dist}" == ".sles11"
+Requires: php5
+%endif
+%if "%{dist}" == ".rhel5"
+Requires: php
+%endif
 %description php
-The Ice runtime for PHP.
+The Ice run time for PHP.
 
 %package php-devel
 Summary: Tools for developing Ice applications in PHP
