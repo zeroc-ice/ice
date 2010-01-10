@@ -19,6 +19,10 @@ if not slice_dir:
 Ice.loadSlice("'-I" + slice_dir + "' TestAMD.ice")
 import Test
 
+def test(b):
+    if not b:
+        raise RuntimeError('test assertion failed')
+
 class Thread_opVoid(threading.Thread):
     def __init__(self, cb):
         threading.Thread.__init__(self)
@@ -207,6 +211,13 @@ class MyDerivedClassI(Test.MyDerivedClass):
         cb.ice_response([-x for x in s])
 
     def opByteSOneway_async(self, cb, s, current=None):
+        cb.ice_response()
+
+    def opDoubleMarshaling_async(self, cb, p1, p2, current=None):
+        d = 1278312346.0 / 13.0;
+        test(p1 == d)
+        for i in p2:
+            test(i == d)
         cb.ice_response()
 
     def opContext_async(self, cb, current=None):

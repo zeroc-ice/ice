@@ -9,6 +9,10 @@
 
 import Ice, Test
 
+def test(b):
+    if not b:
+        raise RuntimeError('test assertion failed')
+
 class MyDerivedClassI(Test.MyDerivedClass):
     def shutdown(self, current=None):
         current.adapter.getCommunicator().shutdown()
@@ -174,6 +178,12 @@ class MyDerivedClassI(Test.MyDerivedClass):
 
     def opContext(self, current=None):
         return current.ctx
+
+    def opDoubleMarshaling(self, p1, p2, current=None):
+        d = 1278312346.0 / 13.0;
+        test(p1 == d)
+        for i in p2:
+            test(i == d)
 
     def opDerived(self, current=None):
         pass

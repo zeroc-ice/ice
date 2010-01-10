@@ -975,7 +975,6 @@ class TwowaysAMI
         {
             java.util.Map<MyEnum, String> di1 = new java.util.HashMap<MyEnum, String>();
             di1.put(MyEnum.enum1, "abc");
-            di1.put(MyEnum.enum2, "");
             test(_do.equals(di1));
             test(ro.size() == 3);
             test(ro.get(MyEnum.enum1).equals("abc"));
@@ -1531,9 +1530,7 @@ class TwowaysAMI
         {
             java.util.Map<MyEnum, String> di1 = new java.util.HashMap<MyEnum, String>();
             di1.put(MyEnum.enum1, "abc");
-            di1.put(MyEnum.enum2, "");
             java.util.Map<MyEnum, String> di2 = new java.util.HashMap<MyEnum, String>();
-            di2.put(MyEnum.enum1, "abc");
             di2.put(MyEnum.enum2, "Hello!!");
             di2.put(MyEnum.enum3, "qwerty");
 

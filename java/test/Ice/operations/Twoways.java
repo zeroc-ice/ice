@@ -1,3 +1,4 @@
+
 // **********************************************************************
 //
 // Copyright (c) 2003-2010 ZeroC, Inc. All rights reserved.
@@ -634,9 +635,7 @@ class Twoways
         {
             java.util.Map<MyEnum, String> di1 = new java.util.HashMap<MyEnum, String>();
             di1.put(MyEnum.enum1, "abc");
-            di1.put(MyEnum.enum2, "");
             java.util.Map<MyEnum, String> di2 = new java.util.HashMap<MyEnum, String>();
-            di2.put(MyEnum.enum1, "abc");
             di2.put(MyEnum.enum2, "Hello!!");
             di2.put(MyEnum.enum3, "qwerty");
 
@@ -645,7 +644,7 @@ class Twoways
 
             test(_do.value.equals(di1));
             test(ro.size() == 3);
-            test(ro.get(MyEnum.enum1).equals("abc"));
+             test(ro.get(MyEnum.enum1).equals("abc"));
             test(ro.get(MyEnum.enum2).equals("Hello!!"));
             test(ro.get(MyEnum.enum3).equals("qwerty"));
         }

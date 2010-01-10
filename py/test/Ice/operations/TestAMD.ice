@@ -161,6 +161,7 @@ dictionary<MyStruct, MyEnum> MyStructMyEnumD;
 
     StringStringD opContext();
 
+    void opDoubleMarshaling(double p1, DoubleS p2);
 };
 
 ["ami", "amd"] class MyDerivedClass extends MyClass

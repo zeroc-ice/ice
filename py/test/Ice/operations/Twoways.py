@@ -610,11 +610,11 @@ def twoways(communicator, p):
         
         ctx = {'one': 'ONE', 'two': 'TWO', 'three': 'THREE'}
         
-        p = Test.MyClassPrx.uncheckedCast(ic.stringToProxy('test:default -p 12010'))
+        p1 = Test.MyClassPrx.uncheckedCast(ic.stringToProxy('test:default -p 12010'))
         
         ic.getImplicitContext().setContext(ctx)
         test(ic.getImplicitContext().getContext() == ctx)
-        test(p.opContext() == ctx)
+        test(p1.opContext() == ctx)
 
         test(ic.getImplicitContext().containsKey('zero') == False);
         r = ic.getImplicitContext().put('zero', 'ZERO');
@@ -623,7 +623,7 @@ def twoways(communicator, p):
         test(ic.getImplicitContext().get('zero') == 'ZERO');
         
         ctx = ic.getImplicitContext().getContext()
-        test(p.opContext() == ctx)
+        test(p1.opContext() == ctx)
         
         prxContext = {'one': 'UN', 'four': 'QUATRE'}
         
@@ -631,14 +631,22 @@ def twoways(communicator, p):
         combined.update(prxContext)
         test(combined['one'] == 'UN')
         
-        p = Test.MyClassPrx.uncheckedCast(p.ice_context(prxContext))
+        p2 = Test.MyClassPrx.uncheckedCast(p1.ice_context(prxContext))
        
         ic.getImplicitContext().setContext({})
-        test(p.opContext() == prxContext)
+        test(p2.opContext() == prxContext)
         
         ic.getImplicitContext().setContext(ctx)
-        test(p.opContext() == combined)
+        test(p2.opContext() == combined)
         
         test(ic.getImplicitContext().remove('one') == 'ONE');
 
         ic.destroy()
+
+
+    d = 1278312346.0 / 13.0;
+    ds = []
+    for i in range(5):
+        ds.append(d);
+    p.opDoubleMarshaling(d, ds);
+
