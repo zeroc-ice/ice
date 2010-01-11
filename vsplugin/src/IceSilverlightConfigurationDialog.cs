@@ -407,11 +407,11 @@ namespace Ice.VisualStudio
             {
                 if(chkIceSl.Checked)
                 {
-                    Util.addCSharpReference(_project, "IceSL");
+                    Util.addDotNetReference(_project, "IceSL");
                 }
                 else
                 {
-                    Util.removeCSharpReference(_project, "IceSL");
+                    Util.removeDotNetReference(_project, "IceSL");
                 }
                 _changed = true;
             }

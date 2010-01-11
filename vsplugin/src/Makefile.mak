@@ -29,11 +29,14 @@ SRCS		=  AssemblyInfo.cs \
 		   IceCsharpConfigurationDialog.Designer.cs \
 		   IceSilverlightConfigurationDialog.cs \
 		   IceSilverlightConfigurationDialog.Designer.cs \
+		   IceVBConfigurationDialog.cs \
+		   IceVBConfigurationDialog.Designer.cs \
 		   Util.cs
 
 RESOURCES 	= /resource:IceCppConfigurationDialog.resx \
 	   	  /resource:IceCsharpConfigurationDialog.resx \
-	   	  /resource:IceSilverlightConfigurationDialog.resx
+	   	  /resource:IceSilverlightConfigurationDialog.resx \
+	   	  /resource:IceVBConfigurationDialog.resx
 
 MCSFLAGS	= $(MCSFLAGS) -out:$(TARGETS)
 

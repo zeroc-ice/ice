@@ -103,7 +103,7 @@ namespace Ice.VisualStudio
                         return;
                     }
 
-                    if(!Util.isCppProject(project) && !Util.isCSharpProject(project))
+                    if(!Util.isCppProject(project) && !Util.isCSharpProject(project) && !Util.isVBProject(project))
                     {
                         status = (vsCommandStatus)vsCommandStatus.vsCommandStatusSupported;
                         return;
@@ -156,6 +156,11 @@ namespace Ice.VisualStudio
                             IceCsharpConfigurationDialog dialog = new IceCsharpConfigurationDialog(project);
                             dialog.ShowDialog();
                         }
+                    }
+                    else if(Util.isVBProject(project))
+                    {
+                        IceVBConfigurationDialog dialog = new IceVBConfigurationDialog(project);
+                        dialog.ShowDialog();
                     }
                     else if(Util.isCppProject(project))
                     {

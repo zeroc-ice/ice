@@ -278,7 +278,8 @@ namespace Ice.VisualStudio
                 initDocumentEvents();
                 foreach(Project p in _applicationObject.Solution.Projects)
                 {
-                    if((Util.isCSharpProject(p) || Util.isCppProject(p)) && Util.isSliceBuilderEnabled(p))
+                    if((Util.isCSharpProject(p) || Util.isVBProject(p) || Util.isCppProject(p)) && 
+                        Util.isSliceBuilderEnabled(p))
                     {
                         //
                         // Update Ice Home if expansion does not match old setting.
@@ -288,8 +289,12 @@ namespace Ice.VisualStudio
                         {
                             Util.updateIceHome(p, Util.getIceHomeRaw(p, false), true);
                         }
-                        _dependenciesMap[p.Name] = new Dictionary<string, List<string>>();
-                        buildProject(p, true, vsBuildScope.vsBuildScopeSolution);
+
+                        if(!Util.isVBProject(p))
+                        {
+                            _dependenciesMap[p.Name] = new Dictionary<string, List<string>>();
+                            buildProject(p, true, vsBuildScope.vsBuildScopeSolution);
+                        }
                     }
                 }
                 if(hasErrors())
@@ -325,7 +330,7 @@ namespace Ice.VisualStudio
                 Util.getIceHomeRaw(project, true);
                 if(Util.isSilverlightProject(project))
                 {
-                    Util.addCSharpReference(project, "IceSL");
+                    Util.addDotNetReference(project, "IceSL");
                 }
                 else
                 {
@@ -337,11 +342,26 @@ namespace Ice.VisualStudio
                     }
                     foreach(string component in components)
                     {
-                        Util.addCSharpReference(project, component);
+                        Util.addDotNetReference(project, component);
                     }
                 }
                 Util.setProjectProperty(project, Util.PropertyIce, true.ToString());
                 buildCSharpProject(project, true);
+            }
+            else if(Util.isVBProject(project))
+            {
+                Util.getIceHomeRaw(project, true);
+                ComponentList components = 
+                    new ComponentList(Util.getProjectProperty(project, Util.PropertyIceComponents));
+                if(components.Count == 0)
+                {
+                    components.Add("Ice");
+                }
+                foreach(string component in components)
+                {
+                    Util.addDotNetReference(project, component);
+                }
+                Util.setProjectProperty(project, Util.PropertyIce, true.ToString());
             }
             if(hasErrors(project))
             {
@@ -363,19 +383,32 @@ namespace Ice.VisualStudio
             {
                 if(Util.isSilverlightProject(project))
                 {
-                    Util.removeCSharpReference(project, "IceSL");
+                    Util.removeDotNetReference(project, "IceSL");
                 }
                 else
                 {
                     ComponentList refs = new ComponentList();
-                    foreach(string component in Util.getCSharpNames())
+                    foreach(string component in Util.getDotNetNames())
                     {
-                        if(Util.removeCSharpReference(project, component))
+                        if(Util.removeDotNetReference(project, component))
                         {
                             refs.Add(component);
                         }
                         Util.setProjectProperty(project, Util.PropertyIceComponents, refs.ToString());
                     }
+                }
+                Util.setProjectProperty(project, Util.PropertyIce, false.ToString());
+            }
+            else if(Util.isVBProject(project))
+            {
+                ComponentList refs = new ComponentList();
+                foreach(string component in Util.getDotNetNames())
+                {
+                    if(Util.removeDotNetReference(project, component))
+                    {
+                        refs.Add(component);
+                    }
+                    Util.setProjectProperty(project, Util.PropertyIceComponents, refs.ToString());
                 }
                 Util.setProjectProperty(project, Util.PropertyIce, false.ToString());
             }
@@ -1015,7 +1048,8 @@ namespace Ice.VisualStudio
                     include += ".";
                 }
 
-                if(include.EndsWith("\\", StringComparison.Ordinal) && !include.EndsWith("\\\\", StringComparison.Ordinal))
+                if(include.EndsWith("\\", StringComparison.Ordinal) && 
+                   !include.EndsWith("\\\\", StringComparison.Ordinal))
                 {
                    include += "\\";
                 }

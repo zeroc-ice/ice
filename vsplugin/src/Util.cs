@@ -195,15 +195,15 @@ namespace Ice.VisualStudio
             return (string[])cppNames.Clone();
         }
         
-        private static readonly string[] cSharpNames =
+        private static readonly string[] dotNetNames =
         {
             "Glacier2", "Ice", "IceBox", "IceGrid", "IcePatch2", 
             "IceSSL", "IceStorm"
         };
 
-        public static string[] getCSharpNames()
+        public static string[] getDotNetNames()
         {
-            return (string[])cSharpNames.Clone();
+            return (string[])dotNetNames.Clone();
         }
 
         const string iceSilverlightHome = "C:\\IceSL-0.3.3";
@@ -401,7 +401,7 @@ namespace Ice.VisualStudio
             "\\sl\\bin\\",
         };
 
-        public static void addCSharpReference(Project project, string component)
+        public static void addDotNetReference(Project project, string component)
         {
             if(project == null || String.IsNullOrEmpty(component))
             {
@@ -438,7 +438,7 @@ namespace Ice.VisualStudio
                                                  System.Windows.Forms.MessageBoxOptions.RightAlign);
         }
 
-        public static bool removeCSharpReference(Project project, string component)
+        public static bool removeDotNetReference(Project project, string component)
         {
             if(project == null || String.IsNullOrEmpty(component))
             {
@@ -622,6 +622,21 @@ namespace Ice.VisualStudio
             }
 
             return project.Kind == VSLangProj.PrjKind.prjKindCSharpProject;
+        }
+
+        public static bool isVBProject(Project project)
+        {
+            if(project == null)
+            {
+                return false;
+            }
+
+            if(String.IsNullOrEmpty(project.Kind))
+            {
+                return false;
+            }
+
+            return project.Kind == VSLangProj.PrjKind.prjKindVBProject;
         }
 
         public static bool isSilverlightProject(Project project)
@@ -943,9 +958,9 @@ namespace Ice.VisualStudio
                 }
             }
 
-            if(Util.isCSharpProject(project))
+            if(Util.isCSharpProject(project) || Util.isVBProject(project))
             {
-                updateIceHomeCSharpProject(project, iceHome);
+                updateIceHomeDotNetProject(project, iceHome);
             }
             else if(Util.isCppProject(project))
             {
@@ -960,13 +975,13 @@ namespace Ice.VisualStudio
             Util.addIceCppConfigurations(project);
         }
 
-        private static void updateIceHomeCSharpProject(Project project, string iceHome)
+        private static void updateIceHomeDotNetProject(Project project, string iceHome)
         {
             Util.setIceHome(project, iceHome);
 
             VSLangProj.VSProject vsProject = (VSLangProj.VSProject)project.Object;
 
-            ComponentList components = Util.getIceCSharpComponents(project);
+            ComponentList components = Util.getIceDotNetComponents(project);
             foreach(string s in components)
             {
                 if(String.IsNullOrEmpty(s))
@@ -980,9 +995,9 @@ namespace Ice.VisualStudio
                 {
                     copyLocal = r.CopyLocal;
                 }
-                Util.removeCSharpReference(project, s);
+                Util.removeDotNetReference(project, s);
 
-                Util.addCSharpReference(project, s);
+                Util.addDotNetReference(project, s);
                 r = vsProject.References.Find(s);
                 if(r != null)
                 {
@@ -1041,6 +1056,20 @@ namespace Ice.VisualStudio
                    (!File.Exists(fullPath + "\\bin\\slice2cs.exe") && 
                     !File.Exists(fullPath + "\\bin\\x64\\slice2cs.exe") &&  
                     !File.Exists(fullPath + "\\cpp\\bin\\slice2cs.exe")))
+                {
+                    System.Windows.Forms.MessageBox.Show("Could not locate Ice installation in '"
+                                                         + expanded + "' directory.\n",
+                                                         "Ice Visual Studio Extension", MessageBoxButtons.OK,
+                                                         MessageBoxIcon.Error,
+                                                         System.Windows.Forms.MessageBoxDefaultButton.Button1,
+                                                         System.Windows.Forms.MessageBoxOptions.RightAlign);
+
+                    return;
+                }
+            }
+            else if(Util.isVBProject(project))
+            {
+                if(!File.Exists(fullPath + "\\bin\\Ice.dll") && !File.Exists(fullPath + "\\cs\\bin\\Ice.dll"))
                 {
                     System.Windows.Forms.MessageBox.Show("Could not locate Ice installation in '"
                                                          + expanded + "' directory.\n",
@@ -1259,7 +1288,7 @@ namespace Ice.VisualStudio
             return components;
         }
 
-        public static ComponentList getIceCSharpComponents(Project project)
+        public static ComponentList getIceDotNetComponents(Project project)
         {
             ComponentList components = new ComponentList();
             if(project == null)
@@ -1270,7 +1299,7 @@ namespace Ice.VisualStudio
             VSLangProj.VSProject vsProject = (VSLangProj.VSProject)project.Object;
             foreach(Reference r in vsProject.References)
             {
-                string iceComponent = Array.Find(Util.getCSharpNames(), delegate(string name)
+                string iceComponent = Array.Find(Util.getDotNetNames(), delegate(string name)
                 {
                     return name.Equals(r.Name);
                 });

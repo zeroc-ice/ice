@@ -73,6 +73,12 @@
     <Compile Include="Connect.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="IceVBConfigurationDialog.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="IceVBConfigurationDialog.Designer.cs">
+      <DependentUpon>IceVBConfigurationDialog.cs</DependentUpon>
+    </Compile>
     <Compile Include="FileTracker.cs" />
     <Compile Include="IceCppConfigurationDialog.cs">
       <SubType>Form</SubType>
@@ -129,6 +135,9 @@
     </COMReference>
   </ItemGroup>
   <ItemGroup>
+    <EmbeddedResource Include="IceVBConfigurationDialog.resx">
+      <DependentUpon>IceVBConfigurationDialog.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="IceCppConfigurationDialog.resx">
       <DependentUpon>IceCppConfigurationDialog.cs</DependentUpon>
     </EmbeddedResource>

@@ -297,8 +297,8 @@ for root, dirnames, filesnames in os.walk(winDemoDir):
         if fnmatch.fnmatch(f, "config*"):
             substitute(os.path.join(root, f), configSubstituteExprs)
 
-        # Remove ZerocIce_Home setting from C# projects
-        if fnmatch.fnmatch(f, "*.csproj"):
+        # Remove ZerocIce_Home setting from C# and VB projects
+        if fnmatch.fnmatch(f, "*.csproj") or fnmatch.fnmatch(f, "*.vbproj"):
             substitute(os.path.join(root, f), csprojSubstituteExprs)
 
         if fnmatch.fnmatch(f, "*.vcproj"):

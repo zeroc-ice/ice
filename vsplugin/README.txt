@@ -9,8 +9,8 @@ Description
 -----------
 
 The Ice Visual Studio Extension integrates Ice projects into the
-Visual Studio IDE. The extension supports C++, .NET, and Silverlight
-projects.
+Visual Studio IDE. The extension supports C++, .NET, VB and
+Silverlight projects.
 
 
 Activating the plug-in for a project

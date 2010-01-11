@@ -36,13 +36,8 @@
   <ItemGroup>
     <Reference Include="Ice, Version=3.4.51.0, Culture=neutral, PublicKeyToken=1f998c50fec78381, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <Private>True</Private>
       <HintPath>..\..\..\..\cs\bin\Ice.dll</HintPath>
-    </Reference>
-    <Reference Include="IceBox, Version=3.4.51.0, Culture=neutral, PublicKeyToken=1f998c50fec78381, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <Private>True</Private>
-      <HintPath>..\..\..\..\cs\bin\IceBox.dll</HintPath>
+      <Private>False</Private>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core">
@@ -74,7 +69,7 @@
   </PropertyGroup>
   <ProjectExtensions>
     <VisualStudio>
-      <UserProperties ZerocIce_HomeExpanded="..\..\..\.." ZerocIce_Home="..\..\..\.." ZerocIce_Enabled="True" ZerocIce_ConsoleOutput="True" />
+      <UserProperties ZerocIce_ConsoleOutput="True" ZerocIce_Enabled="True" ZerocIce_Home="..\..\..\.." ZerocIce_HomeExpanded="..\..\..\.." />
     </VisualStudio>
   </ProjectExtensions>
 </Project>

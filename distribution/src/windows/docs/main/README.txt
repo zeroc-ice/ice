@@ -85,7 +85,7 @@ Ice Visual Studio 2008 Extension
 ======================================================================
 
 The Ice Visual Studio Extension integrates Ice projects into the
-Visual Studio 2008 IDE. The extension supports C++, .NET, and
+Visual Studio 2008 IDE. The extension supports C++, .NET, VB, and
 Silverlight projects.
 
 The extension is only installed if Visual Studio 2008 is present on

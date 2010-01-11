@@ -75,8 +75,8 @@ namespace Ice.VisualStudio
                     }
                 }
 
-                ComponentList selectedComponents = Util.getIceCSharpComponents(_project);
-                foreach(String s in Util.getCSharpNames())
+                ComponentList selectedComponents = Util.getIceDotNetComponents(_project);
+                foreach(String s in Util.getDotNetNames())
                 {
                     if(String.IsNullOrEmpty(selectedComponents.Find(delegate(string d)
                                                     {
@@ -509,11 +509,11 @@ namespace Ice.VisualStudio
             {
                 if(value)
                 {
-                    Util.addCSharpReference(_project, name);
+                    Util.addDotNetReference(_project, name);
                 }
                 else
                 {
-                    Util.removeCSharpReference(_project, name);
+                    Util.removeDotNetReference(_project, name);
                 }
                 _changed = true;
             }
