@@ -7,7 +7,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "book.lifecycle.client", "bo
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "book.lifecycle.server", "book\lifecycle\book.lifecycle.server.csproj", "{710B7320-A714-4560-BCB0-A50FCA6ECAC5}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "book.printer.client", "book\printer\book.printer.client.csproj", "{B48255A1-FF6B-4A45-AA80-E4149A75393D}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "book.printer.client", "book\printer\book.printer.client.csproj", "{07861488-87F0-4EA6-8774-08E39ABDD468}"
 	ProjectSection(ProjectDependencies) = postProject
 		{2374126D-F982-4E2F-B9F3-278F8B38A310} = {2374126D-F982-4E2F-B9F3-278F8B38A310}
 	EndProjectSection
@@ -187,10 +187,10 @@ Global
 		{710B7320-A714-4560-BCB0-A50FCA6ECAC5}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{710B7320-A714-4560-BCB0-A50FCA6ECAC5}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{710B7320-A714-4560-BCB0-A50FCA6ECAC5}.Release|Any CPU.Build.0 = Release|Any CPU
-		{B48255A1-FF6B-4A45-AA80-E4149A75393D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{B48255A1-FF6B-4A45-AA80-E4149A75393D}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{B48255A1-FF6B-4A45-AA80-E4149A75393D}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{B48255A1-FF6B-4A45-AA80-E4149A75393D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{07861488-87F0-4EA6-8774-08E39ABDD468}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{07861488-87F0-4EA6-8774-08E39ABDD468}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{07861488-87F0-4EA6-8774-08E39ABDD468}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{07861488-87F0-4EA6-8774-08E39ABDD468}.Release|Any CPU.Build.0 = Release|Any CPU
 		{2374126D-F982-4E2F-B9F3-278F8B38A310}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{2374126D-F982-4E2F-B9F3-278F8B38A310}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{2374126D-F982-4E2F-B9F3-278F8B38A310}.Release|Any CPU.ActiveCfg = Release|Any CPU

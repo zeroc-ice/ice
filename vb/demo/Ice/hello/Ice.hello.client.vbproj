@@ -95,7 +95,7 @@
   <ItemGroup>
     <ProjectReference Include="Ice.hello.slice.csproj">
       <Project>{FCAA524C-D8C9-43CB-B004-F821DFC56C6E}</Project>
-      <Name>helloSlice</Name>
+      <Name>Ice.hello.slice</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

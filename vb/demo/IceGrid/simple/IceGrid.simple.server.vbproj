@@ -97,7 +97,7 @@
   <ItemGroup>
     <ProjectReference Include="IceGrid.simple.slice.csproj">
       <Project>{DB73D8A1-E1DB-4E43-AB42-1AE93E04EEAC}</Project>
-      <Name>simpleIceGridSlice</Name>
+      <Name>IceGrid.simple.slice</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

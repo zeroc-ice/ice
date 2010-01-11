@@ -95,7 +95,7 @@
   <ItemGroup>
     <ProjectReference Include="IceBox.hello.slice.csproj">
       <Project>{9D898733-2836-4D69-854E-7C93C8C1CFAF}</Project>
-      <Name>helloIceBoxSlice</Name>
+      <Name>IceBox.hello.slice</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

@@ -103,7 +103,7 @@
   <ItemGroup>
     <ProjectReference Include="Ice.value.slice.csproj">
       <Project>{CAE58DC4-A0E6-4CCE-A1DA-64AA8D77B4AC}</Project>
-      <Name>valueSlice</Name>
+      <Name>Ice.value.slice</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

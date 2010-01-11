@@ -97,7 +97,7 @@
   <ItemGroup>
     <ProjectReference Include="Ice.throughput.slice.csproj">
       <Project>{992E54B2-1EB6-4EA8-A73D-4B02E501CD81}</Project>
-      <Name>throughputSlice</Name>
+      <Name>Ice.throughput.slice</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
