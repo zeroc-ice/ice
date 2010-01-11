@@ -21,7 +21,7 @@ iceGridPort = 12010;
 
 nodeOptions = r' --Ice.Warn.Connections=0' + \
               r' --IceGrid.Node.Endpoints=default' + \
-              r' --IceGrid.Node.WaitTime=30' + \
+              r' --IceGrid.Node.WaitTime=240' + \
               r' --Ice.ProgramName=icegridnode' + \
               r' --IceGrid.Node.Trace.Replica=0' + \
               r' --IceGrid.Node.Trace.Activator=0' + \

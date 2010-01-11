@@ -332,7 +332,7 @@ public:
     virtual void read(Float&) = 0;
     virtual void read(Double&) = 0;
     virtual void read(std::string&, bool = true) = 0;
-    virtual void read(std::vector<std::string>&, bool) = 0;
+    virtual void read(std::vector<std::string>&, bool) = 0; // Overload required for additional bool argument.
     virtual void read(std::wstring&) = 0;
     
     virtual void read(std::pair<const bool*, const bool*>&, ::IceUtil::ScopedArray<bool>&) = 0;
@@ -442,7 +442,7 @@ public:
     virtual void write(Float) = 0;
     virtual void write(Double) = 0;
     virtual void write(const std::string&, bool = true) = 0;
-    virtual void write(const std::vector<std::string>&, bool) = 0;
+    virtual void write(const std::vector<std::string>&, bool) = 0; // Overload required for additional bool argument.
     virtual void write(const char* v, bool = true) = 0;
     virtual void write(const std::wstring& v) = 0;
 
