@@ -670,6 +670,10 @@ PHP Changes
 Visual Studio Plugin Changes
 ============================
 
+- Added support for Visual Basic projects. For Visual Basic projects
+  the plug-in only takes care of managing Ice references and not slice
+  compilation.
+
 - It is now possible to install the plug-in when "My Documents" is
   linked to a network drive.
 
