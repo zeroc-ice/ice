@@ -123,7 +123,7 @@
     <ROW Component="IceStorm_IceStorm_ice.py" ComponentId="{35D7B5DD-7129-40F9-9DD6-FFD3DD03041E}" Directory_="python_DIR" Attributes="0" KeyPath="IceStorm_IceStorm_ice.py" Type="0"/>
     <ROW Component="IceStorm_IceStorm_ice.py_1" ComponentId="{E8615BA3-95BA-4641-B203-5155C491D54B}" Directory_="x64_2_DIR" Attributes="0" KeyPath="IceStorm_IceStorm_ice.py_1" Type="0"/>
     <ROW Component="IceVisualStudioAddin_VS2008.dll" ComponentId="{43795DBD-00F0-4982-A187-17EC1F70F1E7}" Directory_="bin_DIR" Attributes="0" KeyPath="IceVisualStudioAddin_VS2008.dll"/>
-    <ROW Component="InstallDir" ComponentId="{700B2731-9211-4A14-A9FD-842AC09154F0}" Directory_="APPDIR" Attributes="4" KeyPath="InstallDir"/>
+    <ROW Component="InstallDir" ComponentId="{700B2731-9211-4A14-A9FD-842AC09154F0}" Directory_="APPDIR" Attributes="260" KeyPath="InstallDir"/>
     <ROW Component="Parser.h" ComponentId="{D3516E20-BF2D-4BE9-84C6-2124213E72C6}" Directory_="IceXML_DIR" Attributes="0" KeyPath="Parser.h" Type="0"/>
     <ROW Component="QtCore4.dll" ComponentId="{E87E2419-9075-4230-9F82-943242CE3661}" Directory_="bin_DIR" Attributes="0" KeyPath="QtCore4.dll"/>
     <ROW Component="QtCore4.dll_1" ComponentId="{D8C5FD95-BBFE-4C72-BBDD-381EDD867FD0}" Directory_="x64_DIR" Attributes="256" KeyPath="QtCore4.dll_1"/>

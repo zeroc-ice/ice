@@ -54,7 +54,7 @@
     <ROW Directory="x64_DIR" Directory_Parent="lib_DIR" DefaultDir="x64"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiCompsComponent">
-    <ROW Component="InstallDir" ComponentId="{8A29DFEF-C5F1-4146-87FE-47AE93DCC102}" Directory_="APPDIR" Attributes="4" KeyPath="InstallDir"/>
+    <ROW Component="InstallDir" ComponentId="{8A29DFEF-C5F1-4146-87FE-47AE93DCC102}" Directory_="APPDIR" Attributes="260" KeyPath="InstallDir"/>
     <ROW Component="QXmlStreamWriter" ComponentId="{4C2DD2B2-3DCD-438E-9CDB-7429FB38BBDB}" Directory_="QtCore_DIR" Attributes="0" KeyPath="QXmlStreamWriter" Type="0"/>
     <ROW Component="QtCore4.dll" ComponentId="{3B7FD26A-E4AF-4A0F-9744-0FFB4B87C9A3}" Directory_="bin_DIR" Attributes="0" KeyPath="QtCore4.dll"/>
     <ROW Component="QtCore4.dll_1" ComponentId="{62D8C64C-09CF-4C45-A65E-A80ACD343296}" Directory_="x64_1_DIR" Attributes="256" KeyPath="QtCore4.dll_1"/>
