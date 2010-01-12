@@ -524,6 +524,88 @@ namespace Ice.VisualStudio
             return false;
         }
 
+        public static void addIceCppEnviroment(VCDebugSettings debugSettings, Project project, bool x64)
+        {
+            if(debugSettings == null || project == null)
+            {
+                return;
+            }
+            string iceHome = Util.getAbsoluteIceHome(project);
+            string iceBinDir = "";
+            if(Directory.Exists(iceHome + "\\cpp\\bin"))
+            {
+                iceBinDir = Util.getIceHome(project) + "\\cpp\\bin";
+            }
+            else
+            {
+                iceBinDir = Util.getIceHome(project) + "\\bin";
+                if(x64)
+                {
+                    iceBinDir += "\\x64";
+                }
+            }
+            string icePath = "PATH=" + iceBinDir;
+
+            string enviroment = debugSettings.Environment;
+            if(String.IsNullOrEmpty(enviroment))
+            {
+                debugSettings.Environment = "PATH=" + iceBinDir;
+                return;
+            }
+
+            ComponentList envs = new ComponentList(enviroment, '\n');
+            if(String.IsNullOrEmpty(envs.Find(delegate(string d)
+            {
+                return d.Equals(icePath,
+                                StringComparison.CurrentCultureIgnoreCase);
+            })))
+            {
+                envs.Add(icePath);
+                debugSettings.Environment = envs.ToString('\n');
+                return;
+            }
+        
+        }
+
+        private static readonly string[] _cppBinDirs =
+        {
+            "\\bin",
+            "\\bin\\x64",
+            "\\cpp\\bin",
+        };
+
+        public static void removeIceCppEnviroment(VCDebugSettings debugSettings,
+                                                  Project project)
+        {
+            if(debugSettings == null || project == null)
+            {
+                return;
+            }
+
+            string iceHome = Util.getIceHome(project);
+            foreach (string dir in _cppBinDirs)
+            {
+                string enviroment = debugSettings.Environment;
+                if(String.IsNullOrEmpty(enviroment))
+                {
+                    return;
+                }
+
+                ComponentList envs = new ComponentList(enviroment, '\n');
+                string binDir = envs.Find(delegate(string d)
+                {
+                    return d.Equals("PATH=" + iceHome + dir, StringComparison.CurrentCultureIgnoreCase);
+                });
+
+                if(!String.IsNullOrEmpty(binDir))
+                {
+                    envs.Remove(binDir);
+                    debugSettings.Environment = envs.ToString('\n');
+                    return;
+                }
+            }
+        }
+
         public static void addIceCppLibraryDir(VCLinkerTool tool, Project project, bool x64)
         {
             if(tool == null || project == null)
@@ -1338,6 +1420,8 @@ namespace Ice.VisualStudio
                     VCCLCompilerTool compilerTool =
                         (VCCLCompilerTool)(((IVCCollection)conf.Tools).Item("VCCLCompilerTool"));
                     VCLinkerTool linkerTool = (VCLinkerTool)(((IVCCollection)conf.Tools).Item("VCLinkerTool"));
+
+                    Util.addIceCppEnviroment((VCDebugSettings)conf.DebugSettings, project, x64);
                     Util.addIceCppLibraryDir(linkerTool, project, x64);
                     Util.addCppIncludes(compilerTool, project);
                 }
@@ -1361,6 +1445,7 @@ namespace Ice.VisualStudio
                         (VCCLCompilerTool)(((IVCCollection)conf.Tools).Item("VCCLCompilerTool"));
                     VCLinkerTool linkerTool = (VCLinkerTool)(((IVCCollection)conf.Tools).Item("VCLinkerTool"));
 
+                    Util.removeIceCppEnviroment((VCDebugSettings)conf.DebugSettings, project);
                     Util.removeIceCppLibraryDir(linkerTool, project);
                     Util.removeCppIncludes(compilerTool, project);
                 }

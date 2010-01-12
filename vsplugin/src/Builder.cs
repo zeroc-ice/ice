@@ -492,15 +492,15 @@ namespace Ice.VisualStudio
 
             if(Util.isCSharpProject(project))
             {
-                removeCSharpGeneratedItems(project, project.ProjectItems);
+                removeCSharpGeneratedItems(project, project.ProjectItems, false);
             }
             else if(Util.isCppProject(project))
             {
-                removeCppGeneratedItems(project.ProjectItems);
+                removeCppGeneratedItems(project.ProjectItems, false);
             }
         }
 
-        public void removeCSharpGeneratedItems(Project project, ProjectItems items)
+        public void removeCSharpGeneratedItems(Project project, ProjectItems items, bool remove)
         {
             if(project == null)
             {
@@ -520,11 +520,11 @@ namespace Ice.VisualStudio
 
                 if(Util.isProjectItemFolder(i))
                 {
-                    removeCSharpGeneratedItems(project, i.ProjectItems);
+                    removeCSharpGeneratedItems(project, i.ProjectItems, remove);
                 }
                 else if(Util.isProjectItemFile(i))
                 {
-                    removeCSharpGeneratedItems(i);
+                    removeCSharpGeneratedItems(i, remove);
                 }
             }
         }
@@ -1191,11 +1191,11 @@ namespace Ice.VisualStudio
                 process.Close();
                 if(Util.isCppProject(project))
                 {
-                    removeCppGeneratedItems(project, file);
+                    removeCppGeneratedItems(project, file, false);
                 }
                 else if(Util.isCSharpProject(project))
                 {
-                    removeCSharpGeneratedItems(item);
+                    removeCSharpGeneratedItems(item, false);
                 }
                 return false;
             }
@@ -1461,7 +1461,7 @@ namespace Ice.VisualStudio
                     return;
                 }
                 clearErrors(file.FullPath);
-                removeCppGeneratedItems(project, file.FullPath);
+                removeCppGeneratedItems(project, file.FullPath, true);
 
                 //
                 // It appears that file is not actually removed from disk at this
@@ -1640,7 +1640,7 @@ namespace Ice.VisualStudio
 
                 string fullName = item.Properties.Item("FullPath").Value.ToString();
                 clearErrors(fullName);
-                removeCSharpGeneratedItems(item);
+                removeCSharpGeneratedItems(item, true);
                 _fileTracker.reap(item.ContainingProject);
 
                 removeDependency(item.ContainingProject, fullName);
@@ -1712,7 +1712,7 @@ namespace Ice.VisualStudio
             }
         }
 
-        private static void removeCSharpGeneratedItems(ProjectItem item)
+        private static void removeCSharpGeneratedItems(ProjectItem item, bool remove)
         {
             if(item == null)
             {
@@ -1733,17 +1733,24 @@ namespace Ice.VisualStudio
             if(!String.IsNullOrEmpty(generatedPath))
             {
                 FileInfo generatedFileInfo = new FileInfo(generatedPath);
-                ProjectItem generatedItem =
-                    Util.findItem(generatedFileInfo.FullName, item.ContainingProject.ProjectItems);
-
                 if(File.Exists(generatedFileInfo.FullName))
                 {
                     File.Delete(generatedFileInfo.FullName);
                 }
+
+                if(remove)
+                {
+                    ProjectItem generated =
+                        Util.findItem(generatedFileInfo.FullName, item.ContainingProject.ProjectItems);
+                    if(generated != null)
+                    {
+                        generated.Remove();
+                    }
+                }
             }
         }
 
-        private static void removeCppGeneratedItems(ProjectItems items)
+        private static void removeCppGeneratedItems(ProjectItems items, bool remove)
         {
             foreach(ProjectItem i in items)
             {
@@ -1754,18 +1761,18 @@ namespace Ice.VisualStudio
                     {
                         if(path.EndsWith(".ice", StringComparison.Ordinal))
                         {
-                            removeCppGeneratedItems(i);
+                            removeCppGeneratedItems(i, remove);
                         }
                     }
                 }
                 else if(Util.isProjectItemFilter(i))
                 {
-                    removeCppGeneratedItems(i.ProjectItems);
+                    removeCppGeneratedItems(i.ProjectItems, remove);
                 }
             }
         }
 
-        private static void removeCppGeneratedItems(ProjectItem item)
+        private static void removeCppGeneratedItems(ProjectItem item, bool remove)
         {
             if(item == null)
             {
@@ -1781,16 +1788,30 @@ namespace Ice.VisualStudio
             {
                 return;
             }
-            removeCppGeneratedItems(item.ContainingProject, item.Properties.Item("FullPath").Value.ToString());
+            removeCppGeneratedItems(item.ContainingProject, item.Properties.Item("FullPath").Value.ToString(), remove);
         }
 
-        public static void removeCppGeneratedItems(Project project, String slice)
+        public static void removeCppGeneratedItems(Project project, String slice, bool remove)
         {
             String projectDir = Path.GetDirectoryName(project.FileName);
             FileInfo hFileInfo = new FileInfo(getCppGeneratedFileName(projectDir, slice, "h"));
             FileInfo cppFileInfo = new FileInfo(Path.ChangeExtension(hFileInfo.FullName, "cpp"));
 
-            if(File.Exists(hFileInfo.FullName))
+            if(remove)
+            {
+                ProjectItem generated = Util.findItem(hFileInfo.FullName, project.ProjectItems);
+                if (generated != null)
+                {
+                    generated.Remove();
+                }
+                generated = Util.findItem(cppFileInfo.FullName, project.ProjectItems);
+                
+                if(generated != null)
+                {
+                    generated.Remove();
+                }
+            }
+            if (File.Exists(hFileInfo.FullName))
             {
                 File.Delete(hFileInfo.FullName);
             }
@@ -1866,14 +1887,14 @@ namespace Ice.VisualStudio
                 bringErrorsToFront();
                 if(Util.isCppProject(project))
                 {
-                    removeCppGeneratedItems(project, file);
+                    removeCppGeneratedItems(project, file, false);
                 }
                 else if(Util.isCSharpProject(project))
                 {
                     ProjectItem item = Util.findItem(file, project.ProjectItems);
                     if(item != null)
                     {
-                        removeCSharpGeneratedItems(item);
+                        removeCSharpGeneratedItems(item, false);
                     }
                 }
             }
