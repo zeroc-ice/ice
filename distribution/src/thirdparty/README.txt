@@ -127,6 +127,8 @@ in this archive:
 
   > nmake /f ..\openssl\ntdll.mak
 
+For 64-bit builds it is also necessary to remove references to
+libbufferoverflowu.lib from ms\ntdll.mak before running nmake.
 
 bzip2
 -----
