@@ -1735,9 +1735,10 @@ namespace Ice.VisualStudio
                 FileInfo generatedFileInfo = new FileInfo(generatedPath);
                 ProjectItem generatedItem =
                     Util.findItem(generatedFileInfo.FullName, item.ContainingProject.ProjectItems);
-                if(generatedItem != null)
+
+                if(File.Exists(generatedFileInfo.FullName))
                 {
-                    generatedItem.Delete();
+                    File.Delete(generatedFileInfo.FullName);
                 }
             }
         }
@@ -1789,30 +1790,14 @@ namespace Ice.VisualStudio
             FileInfo hFileInfo = new FileInfo(getCppGeneratedFileName(projectDir, slice, "h"));
             FileInfo cppFileInfo = new FileInfo(Path.ChangeExtension(hFileInfo.FullName, "cpp"));
 
-            ProjectItem generated = Util.findItem(hFileInfo.FullName, project.ProjectItems);
-            if(generated != null)
+            if(File.Exists(hFileInfo.FullName))
             {
-                if(File.Exists(hFileInfo.FullName))
-                {
-                    generated.Delete();
-                }
-                else
-                {
-                    generated.Remove();
-                }
+                File.Delete(hFileInfo.FullName);
             }
 
-            generated = Util.findItem(cppFileInfo.FullName, project.ProjectItems);
-            if(generated != null)
+            if(File.Exists(cppFileInfo.FullName))
             {
-                if(File.Exists(cppFileInfo.FullName))
-                {
-                    generated.Delete();
-                }
-                else
-                {
-                    generated.Remove();
-                }
+                File.Delete(cppFileInfo.FullName);
             }
         }
 
