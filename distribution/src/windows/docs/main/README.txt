@@ -666,6 +666,9 @@ The registration key used by this installer is:
 
 HKEY_LOCAL_MACHINE\Software\ZeroC\Ice @ver@
 
+On 64-bit machines this key is added to the 64-bit registry, but not
+the 32-bit registry.
+
 The install location is stored as a string value named 'InstallDir'.
 
 
