@@ -21,7 +21,7 @@ namespace Ice
 {
     
 //
-// COMPILERFIX: VC++ 6 compiler bugs doesn't allow using templates for
+// COMPILERFIX: VC++ 6 compiler bug doesn't allow using templates for
 // the Stream API.
 //
 // see: http://support.microsoft.com/kb/240866
@@ -63,7 +63,7 @@ struct StreamTrait
 // StreamTrait specialization for std::vector
 //
 template<typename T>
-struct StreamTrait< std::vector<T> >
+struct StreamTrait< ::std::vector<T> >
 {
     static const StreamTraitType type = StreamTraitTypeSequence;
     static const int minWireSize = 1;
@@ -81,7 +81,7 @@ struct StreamTrait< std::vector<T> >
 //
 #ifndef __BCPLUSPLUS__
 template<>
-struct StreamTrait< std::vector<bool> > 
+struct StreamTrait< ::std::vector<bool> > 
 {
     static const StreamTraitType type = StreamTraitTypeSequenceBool;
     static const int minWireSize = 1;
@@ -98,7 +98,7 @@ struct StreamTrait<UserException>
 // StreamTrait specialization for std::map.
 //
 template<typename K, typename V>
-struct StreamTrait< std::map<K, V> >
+struct StreamTrait< ::std::map<K, V> >
 {
     static const StreamTraitType type = StreamTraitTypeDictionary;
     static const int minWireSize = 1;
@@ -215,7 +215,7 @@ struct StreamReader
     template<typename T>
     static void read(const InputStreamPtr&, T&)
     {
-        // This asserts because we end up reading something for wich
+        // This asserts because we end up reading something for which
         // we never define a trait.
         assert(false);
     }
@@ -229,7 +229,7 @@ public:
 
     virtual void invoke(const ObjectPtr&) = 0;
 };
-typedef IceUtil::Handle< ReadObjectCallback > ReadObjectCallbackPtr;
+typedef IceUtil::Handle<ReadObjectCallback> ReadObjectCallbackPtr;
 
 template<typename T>
 class ReadObjectCallbackI : public ReadObjectCallback
@@ -270,7 +270,7 @@ public:
     //
 #ifdef __BCPLUSPLUS__
     void
-    read(std::_Vb_reference<unsigned int, int> v)
+    read(::std::_Vb_reference<unsigned int, int> v)
     {
         v = readBool();
     }
@@ -283,26 +283,26 @@ public:
     ICE_DEPRECATED_API virtual Long readLong() = 0;
     ICE_DEPRECATED_API virtual Float readFloat() = 0;
     ICE_DEPRECATED_API virtual Double readDouble() = 0;
-    ICE_DEPRECATED_API virtual ::std::string readString(bool convert = true) = 0;
+    ICE_DEPRECATED_API virtual ::std::string readString(bool = true) = 0;
     ICE_DEPRECATED_API virtual ::std::wstring readWstring() = 0;
 
-    ICE_DEPRECATED_API virtual ::std::vector< bool > readBoolSeq() = 0;
-    ICE_DEPRECATED_API virtual ::std::vector< Byte > readByteSeq() = 0;
-    ICE_DEPRECATED_API virtual ::std::vector< Short > readShortSeq() = 0;
-    ICE_DEPRECATED_API virtual ::std::vector< Int > readIntSeq() = 0;
-    ICE_DEPRECATED_API virtual ::std::vector< Long > readLongSeq() = 0;
-    ICE_DEPRECATED_API virtual ::std::vector< Float > readFloatSeq() = 0;
-    ICE_DEPRECATED_API virtual ::std::vector< Double > readDoubleSeq() = 0;
-    ICE_DEPRECATED_API virtual ::std::vector< ::std::string > readStringSeq(bool convert = true) = 0;
-    ICE_DEPRECATED_API virtual ::std::vector< ::std::wstring > readWstringSeq() = 0;
+    ICE_DEPRECATED_API virtual ::std::vector<bool> readBoolSeq() = 0;
+    ICE_DEPRECATED_API virtual ::std::vector<Byte> readByteSeq() = 0;
+    ICE_DEPRECATED_API virtual ::std::vector<Short> readShortSeq() = 0;
+    ICE_DEPRECATED_API virtual ::std::vector<Int> readIntSeq() = 0;
+    ICE_DEPRECATED_API virtual ::std::vector<Long> readLongSeq() = 0;
+    ICE_DEPRECATED_API virtual ::std::vector<Float> readFloatSeq() = 0;
+    ICE_DEPRECATED_API virtual ::std::vector<Double> readDoubleSeq() = 0;
+    ICE_DEPRECATED_API virtual ::std::vector< ::std::string> readStringSeq(bool = true) = 0;
+    ICE_DEPRECATED_API virtual ::std::vector< ::std::wstring> readWstringSeq() = 0;
     
-    ICE_DEPRECATED_API virtual bool* readBoolSeq(std::pair<const bool*, const bool*>&) = 0;
-    ICE_DEPRECATED_API virtual void readByteSeq(std::pair<const Byte*, const Byte*>&) = 0;
-    ICE_DEPRECATED_API virtual Short* readShortSeq(std::pair<const Short*, const Short*>&) = 0;
-    ICE_DEPRECATED_API virtual Int* readIntSeq(std::pair<const Int*, const Int*>&) = 0;
-    ICE_DEPRECATED_API virtual Long* readLongSeq(std::pair<const Long*, const Long*>&) = 0;
-    ICE_DEPRECATED_API virtual Float* readFloatSeq(std::pair<const Float*, const Float*>&) = 0;
-    ICE_DEPRECATED_API virtual Double* readDoubleSeq(std::pair<const Double*, const Double*>&) = 0;
+    ICE_DEPRECATED_API virtual bool* readBoolSeq(::std::pair<const bool*, const bool*>&) = 0;
+    ICE_DEPRECATED_API virtual void readByteSeq(::std::pair<const Byte*, const Byte*>&) = 0;
+    ICE_DEPRECATED_API virtual Short* readShortSeq(::std::pair<const Short*, const Short*>&) = 0;
+    ICE_DEPRECATED_API virtual Int* readIntSeq(::std::pair<const Int*, const Int*>&) = 0;
+    ICE_DEPRECATED_API virtual Long* readLongSeq(::std::pair<const Long*, const Long*>&) = 0;
+    ICE_DEPRECATED_API virtual Float* readFloatSeq(::std::pair<const Float*, const Float*>&) = 0;
+    ICE_DEPRECATED_API virtual Double* readDoubleSeq(::std::pair<const Double*, const Double*>&) = 0;
 
     virtual Int readSize() = 0;
     virtual Int readAndCheckSeqSize(int) = 0;
@@ -331,17 +331,17 @@ public:
     virtual void read(Long&) = 0;
     virtual void read(Float&) = 0;
     virtual void read(Double&) = 0;
-    virtual void read(std::string&, bool = true) = 0;
-    virtual void read(std::vector<std::string>&, bool) = 0; // Overload required for additional bool argument.
-    virtual void read(std::wstring&) = 0;
+    virtual void read(::std::string&, bool = true) = 0;
+    virtual void read(::std::vector< ::std::string>&, bool) = 0; // Overload required for additional bool argument.
+    virtual void read(::std::wstring&) = 0;
     
-    virtual void read(std::pair<const bool*, const bool*>&, ::IceUtil::ScopedArray<bool>&) = 0;
-    virtual void read(std::pair<const Byte*, const Byte*>&) = 0;
-    virtual void read(std::pair<const Short*, const Short*>&, ::IceUtil::ScopedArray<Short>&) = 0;
-    virtual void read(std::pair<const Int*, const Int*>&, ::IceUtil::ScopedArray<Int>&) = 0;
-    virtual void read(std::pair<const Long*, const Long*>&, ::IceUtil::ScopedArray<Long>&) = 0;
-    virtual void read(std::pair<const Float*, const Float*>&, ::IceUtil::ScopedArray<Float>&) = 0;
-    virtual void read(std::pair<const Double*, const Double*>&, ::IceUtil::ScopedArray<Double>&) = 0;
+    virtual void read(::std::pair<const bool*, const bool*>&, ::IceUtil::ScopedArray<bool>&) = 0;
+    virtual void read(::std::pair<const Byte*, const Byte*>&) = 0;
+    virtual void read(::std::pair<const Short*, const Short*>&, ::IceUtil::ScopedArray<Short>&) = 0;
+    virtual void read(::std::pair<const Int*, const Int*>&, ::IceUtil::ScopedArray<Int>&) = 0;
+    virtual void read(::std::pair<const Long*, const Long*>&, ::IceUtil::ScopedArray<Long>&) = 0;
+    virtual void read(::std::pair<const Float*, const Float*>&, ::IceUtil::ScopedArray<Float>&) = 0;
+    virtual void read(::std::pair<const Double*, const Double*>&, ::IceUtil::ScopedArray<Double>&) = 0;
     
     template<typename T> inline void
     read(::IceInternal::ProxyHandle<T>& v)
@@ -388,39 +388,39 @@ public:
 
     virtual CommunicatorPtr communicator() const = 0;
 
-    ICE_DEPRECATED_API virtual void writeBool(bool v) = 0;
-    ICE_DEPRECATED_API virtual void writeByte(Byte v) = 0;
-    ICE_DEPRECATED_API virtual void writeShort(Short v) = 0;
-    ICE_DEPRECATED_API virtual void writeInt(Int v) = 0;
-    ICE_DEPRECATED_API virtual void writeLong(Long v) = 0;
-    ICE_DEPRECATED_API virtual void writeFloat(Float v) = 0;
-    ICE_DEPRECATED_API virtual void writeDouble(Double v) = 0;
-    ICE_DEPRECATED_API virtual void writeString(const ::std::string& v, bool convert = true) = 0;
-    ICE_DEPRECATED_API virtual void writeWstring(const ::std::wstring& v)= 0;    
+    ICE_DEPRECATED_API virtual void writeBool(bool) = 0;
+    ICE_DEPRECATED_API virtual void writeByte(Byte) = 0;
+    ICE_DEPRECATED_API virtual void writeShort(Short) = 0;
+    ICE_DEPRECATED_API virtual void writeInt(Int) = 0;
+    ICE_DEPRECATED_API virtual void writeLong(Long) = 0;
+    ICE_DEPRECATED_API virtual void writeFloat(Float) = 0;
+    ICE_DEPRECATED_API virtual void writeDouble(Double) = 0;
+    ICE_DEPRECATED_API virtual void writeString(const ::std::string&, bool = true) = 0;
+    ICE_DEPRECATED_API virtual void writeWstring(const ::std::wstring&)= 0;    
     
-    ICE_DEPRECATED_API virtual void writeBoolSeq(const ::std::vector< bool >& v) = 0;    
-    ICE_DEPRECATED_API virtual void writeByteSeq(const ::std::vector< Byte >& v) = 0;
-    ICE_DEPRECATED_API virtual void writeShortSeq(const ::std::vector< Short >& v) = 0;
-    ICE_DEPRECATED_API virtual void writeIntSeq(const ::std::vector< Int >& v) = 0;
-    ICE_DEPRECATED_API virtual void writeLongSeq(const ::std::vector< Long >& v) = 0;
-    ICE_DEPRECATED_API virtual void writeFloatSeq(const ::std::vector< Float >& v) = 0;
-    ICE_DEPRECATED_API virtual void writeDoubleSeq(const ::std::vector< Double >& v) = 0;
-    ICE_DEPRECATED_API virtual void writeStringSeq(const ::std::vector< ::std::string >& v, bool convert = true) = 0;
-    ICE_DEPRECATED_API virtual void writeWstringSeq(const ::std::vector< ::std::wstring >& v) = 0;
+    ICE_DEPRECATED_API virtual void writeBoolSeq(const ::std::vector<bool>&) = 0;    
+    ICE_DEPRECATED_API virtual void writeByteSeq(const ::std::vector<Byte>&) = 0;
+    ICE_DEPRECATED_API virtual void writeShortSeq(const ::std::vector<Short>&) = 0;
+    ICE_DEPRECATED_API virtual void writeIntSeq(const ::std::vector<Int>&) = 0;
+    ICE_DEPRECATED_API virtual void writeLongSeq(const ::std::vector<Long>&) = 0;
+    ICE_DEPRECATED_API virtual void writeFloatSeq(const ::std::vector<Float>&) = 0;
+    ICE_DEPRECATED_API virtual void writeDoubleSeq(const ::std::vector<Double>&) = 0;
+    ICE_DEPRECATED_API virtual void writeStringSeq(const ::std::vector< ::std::string>&, bool = true) = 0;
+    ICE_DEPRECATED_API virtual void writeWstringSeq(const ::std::vector< ::std::wstring>&) = 0;
 
-    ICE_DEPRECATED_API virtual void writeBoolSeq(const bool* begin, const bool* end) = 0;
-    ICE_DEPRECATED_API virtual void writeByteSeq(const Byte* begin, const Byte* end) = 0;
-    ICE_DEPRECATED_API virtual void writeShortSeq(const Short* begin, const Short* end) = 0;    
-    ICE_DEPRECATED_API virtual void writeIntSeq(const Int* begin, const Int* end) = 0;
-    ICE_DEPRECATED_API virtual void writeLongSeq(const Long* begin, const Long* end) = 0;
-    ICE_DEPRECATED_API virtual void writeFloatSeq(const Float* begin, const Float* end) = 0;
-    ICE_DEPRECATED_API virtual void writeDoubleSeq(const Double* begin, const Double* end) = 0;
+    ICE_DEPRECATED_API virtual void writeBoolSeq(const bool*, const bool*) = 0;
+    ICE_DEPRECATED_API virtual void writeByteSeq(const Byte*, const Byte*) = 0;
+    ICE_DEPRECATED_API virtual void writeShortSeq(const Short*, const Short*) = 0;    
+    ICE_DEPRECATED_API virtual void writeIntSeq(const Int*, const Int*) = 0;
+    ICE_DEPRECATED_API virtual void writeLongSeq(const Long*, const Long*) = 0;
+    ICE_DEPRECATED_API virtual void writeFloatSeq(const Float*, const Float*) = 0;
+    ICE_DEPRECATED_API virtual void writeDoubleSeq(const Double*, const Double*) = 0;
 
     virtual void writeSize(Int) = 0;
-    virtual void writeProxy(const ObjectPrx& v) = 0;
-    virtual void writeObject(const ObjectPtr& v) = 0;
+    virtual void writeProxy(const ObjectPrx&) = 0;
+    virtual void writeObject(const ObjectPtr&) = 0;
     virtual void writeTypeId(const ::std::string&) = 0;
-    virtual void writeException(const UserException& v) = 0;
+    virtual void writeException(const UserException&) = 0;
 
     virtual void startSlice() = 0;
     virtual void endSlice() = 0;
@@ -430,29 +430,29 @@ public:
 
     virtual void writePendingObjects() = 0;
 
-    virtual void finished(::std::vector< Byte >&) = 0;
+    virtual void finished(::std::vector<Byte>&) = 0;
 
     virtual void reset(bool) = 0;
     
-    virtual void write(bool v) = 0;
+    virtual void write(bool) = 0;
     virtual void write(Byte) = 0;
     virtual void write(Short) = 0;
     virtual void write(Int) = 0;
     virtual void write(Long) = 0;
     virtual void write(Float) = 0;
     virtual void write(Double) = 0;
-    virtual void write(const std::string&, bool = true) = 0;
-    virtual void write(const std::vector<std::string>&, bool) = 0; // Overload required for additional bool argument.
-    virtual void write(const char* v, bool = true) = 0;
-    virtual void write(const std::wstring& v) = 0;
+    virtual void write(const ::std::string&, bool = true) = 0;
+    virtual void write(const ::std::vector< ::std::string>&, bool) = 0; // Overload required for bool argument.
+    virtual void write(const char*, bool = true) = 0;
+    virtual void write(const ::std::wstring&) = 0;
 
-    virtual void write(const bool* begin, const bool* end) = 0;
-    virtual void write(const Byte* begin, const Byte* end) = 0;
-    virtual void write(const Short* begin, const Short* end) = 0;
-    virtual void write(const Int* begin, const Int* end) = 0;
-    virtual void write(const Long* begin, const Long* end) = 0;
-    virtual void write(const Float* begin, const Float* end) = 0;
-    virtual void write(const Double* begin, const Double* end) = 0;    
+    virtual void write(const bool*, const bool*) = 0;
+    virtual void write(const Byte*, const Byte*) = 0;
+    virtual void write(const Short*, const Short*) = 0;
+    virtual void write(const Int*, const Int*) = 0;
+    virtual void write(const Long*, const Long*) = 0;
+    virtual void write(const Float*, const Float*) = 0;
+    virtual void write(const Double*, const Double*) = 0;    
     
     template<typename T> inline void
     write(const ::IceInternal::ProxyHandle<T>& v)
@@ -478,7 +478,7 @@ public:
     template<typename T> inline void
     write(const T& v)
     {
-        StreamWriter< StreamTrait<T>::type>::write(this, v);
+        StreamWriter<StreamTrait<T>::type>::write(this, v);
     }    
 #endif
 
@@ -540,11 +540,11 @@ struct StreamWriter<StreamTraitTypeByteEnum>
     template<typename T>
     static void write(const OutputStreamPtr& outS, const T& v)
     {
-        if(static_cast<int>(v) < 0 || static_cast<int>(v) >= StreamTrait<T>::enumLimit)
+        if(static_cast<int>(v) < 0 || static_cast<int>(v)>= StreamTrait<T>::enumLimit)
         {
             throw MarshalException(__FILE__, __LINE__, "enumerator out of range");
         }
-        outS->write(static_cast< Byte>(v));
+        outS->write(static_cast<Byte>(v));
     }
 };
 
@@ -571,11 +571,11 @@ struct StreamWriter<StreamTraitTypeShortEnum>
     template<typename T>
     static void write(const OutputStreamPtr& outS, const T& v)
     {
-        if(static_cast<int>(v) < 0 || static_cast<int>(v) >= StreamTrait<T>::enumLimit)
+        if(static_cast<int>(v) < 0 || static_cast<int>(v)>= StreamTrait<T>::enumLimit)
         {
             throw MarshalException(__FILE__, __LINE__, "enumerator out of range");
         }
-        outS->write(static_cast< Short>(v));
+        outS->write(static_cast<Short>(v));
     }
 };
 
@@ -601,11 +601,11 @@ struct StreamWriter<StreamTraitTypeIntEnum>
     template<typename T>
     static void write(const OutputStreamPtr& outS, const T& v)
     {
-        if(static_cast<int>(v) < 0 || static_cast<int>(v) >= StreamTrait<T>::enumLimit)
+        if(static_cast<int>(v) < 0 || static_cast<int>(v)>= StreamTrait<T>::enumLimit)
         {
             throw MarshalException(__FILE__, __LINE__, "enumerator out of range");
         }
-        outS->write(static_cast< Int>(v));
+        outS->write(static_cast<Int>(v));
     }
 };
 
@@ -631,7 +631,7 @@ struct StreamWriter<StreamTraitTypeSequence>
     template<typename T>
     static void write(const OutputStreamPtr& outS, const T& v)
     {
-        outS->writeSize(static_cast< Int>(v.size()));
+        outS->writeSize(static_cast<Int>(v.size()));
         for(typename T::const_iterator p = v.begin(); p != v.end(); ++p)
         {
             outS->write(*p);
@@ -661,7 +661,7 @@ struct StreamWriter<StreamTraitTypeSequenceBool>
     template<typename T>
     static void write(const OutputStreamPtr& outS, const T& v)
     {
-        outS->writeSize(static_cast< Int>(v.size()));
+        outS->writeSize(static_cast<Int>(v.size()));
         for(typename T::const_iterator p = v.begin(); p != v.end(); ++p)
         {
             outS->write(*p);
@@ -697,7 +697,7 @@ struct StreamWriter<StreamTraitTypeDictionary>
     template<typename T>
     static void write(const OutputStreamPtr& outS, const T& v)
     {
-        outS->writeSize(static_cast< Int>(v.size()));
+        outS->writeSize(static_cast<Int>(v.size()));
         typename T::const_iterator p;
         for(p = v.begin(); p != v.end(); ++p)
         {
@@ -717,7 +717,7 @@ struct StreamReader<StreamTraitTypeDictionary>
         while(sz--)
         {
             typename T::value_type p;
-            inS->read(const_cast< typename T::key_type&>(p.first));
+            inS->read(const_cast<typename T::key_type&>(p.first));
             typename T::iterator i = v.insert(v.end(), p);
             inS->read(i->second);
         }
@@ -750,7 +750,7 @@ private:
     virtual void __write(const OutputStreamPtr&) const;
     virtual void __read(const InputStreamPtr&, bool);
 };
-typedef ::IceInternal::Handle< ObjectReader > ObjectReaderPtr;
+typedef ::IceInternal::Handle<ObjectReader> ObjectReaderPtr;
 
 class ICE_API ObjectWriter : public Object
 {
@@ -766,7 +766,7 @@ private:
     virtual void __write(const OutputStreamPtr&) const;
     virtual void __read(const InputStreamPtr&, bool);
 };
-typedef ::IceInternal::Handle< ObjectWriter > ObjectWriterPtr;
+typedef ::IceInternal::Handle<ObjectWriter> ObjectWriterPtr;
 
 
 class ICE_API UserExceptionWriter : public UserException
@@ -779,7 +779,7 @@ public:
     virtual void write(const OutputStreamPtr&) const = 0;
     virtual bool usesClasses() const = 0;
 
-    virtual std::string ice_name() const = 0;
+    virtual ::std::string ice_name() const = 0;
     virtual Exception* ice_clone() const = 0;
     virtual void ice_throw() const = 0;
 
