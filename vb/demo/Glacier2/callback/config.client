@@ -22,14 +22,14 @@ Callback.Client.Endpoints=
 Callback.Proxy=callback:tcp -h 127.0.0.1 -p 10000
 
 #
-# No active connection management is permitted with Glacier2.
-# Connections must remain established.
+# Disable connection management to ensure the connection remains open
+# for the lifetime of the Glacier2 session.
 #
 Ice.ACM.Client=0
 
 #
-# Connection retry is not possible with Glacier2. Connections must
-# remain established.
+# Connection retry is not possible with Glacier2: the Glacier2 session
+# is bound to the connection.
 #
 Ice.RetryIntervals=-1
 
