@@ -24,7 +24,7 @@
 # VC90, VC90_EXPRESS, BCC2010
 #
 !if "$(CPP_COMPILER)" == ""
-CPP_COMPILER		= VC90
+CPP_COMPILER		= BCC2010
 !endif
 
 # ----------------------------------------------------------------------
@@ -74,7 +74,7 @@ SLICE2CPPFLAGS		= $(ICECPPFLAGS)
 LDFLAGS			= $(LDFLAGS) $(PRELIBPATH)"$(ice_dir)\lib$(libsuff)"
 LDFLAGS			= $(LDFLAGS) $(LDPLATFORMFLAGS) $(CXXFLAGS)
 
-SLICEPARSERLIB		= $(ice_dir)\lib$(libsuff)\slice$(LIBSUFFIX).lib
+SLICEPARSERLIB		= $(ice_dir)\lib$(x64suffix)\slice$(LIBSUFFIX).lib
 SLICE2CPP		= $(ice_dir)\bin$(x64suffix)\slice2cpp.exe
 SLICE2XSD		= $(ice_dir)\bin$(x64suffix)\slice2xsd.exe
 SLICE2FREEZE		= $(ice_dir)\bin$(x64suffix)\slice2freeze.exe
