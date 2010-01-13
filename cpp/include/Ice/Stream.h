@@ -540,7 +540,7 @@ struct StreamWriter<StreamTraitTypeByteEnum>
     template<typename T>
     static void write(const OutputStreamPtr& outS, const T& v)
     {
-        if(static_cast<int>(v) < 0 || static_cast<int>(v)>= StreamTrait<T>::enumLimit)
+        if(static_cast<int>(v) < 0 || static_cast<int>(v) >= StreamTrait<T>::enumLimit)
         {
             throw MarshalException(__FILE__, __LINE__, "enumerator out of range");
         }
@@ -571,7 +571,7 @@ struct StreamWriter<StreamTraitTypeShortEnum>
     template<typename T>
     static void write(const OutputStreamPtr& outS, const T& v)
     {
-        if(static_cast<int>(v) < 0 || static_cast<int>(v)>= StreamTrait<T>::enumLimit)
+        if(static_cast<int>(v) < 0 || static_cast<int>(v) >= StreamTrait<T>::enumLimit)
         {
             throw MarshalException(__FILE__, __LINE__, "enumerator out of range");
         }
@@ -601,7 +601,7 @@ struct StreamWriter<StreamTraitTypeIntEnum>
     template<typename T>
     static void write(const OutputStreamPtr& outS, const T& v)
     {
-        if(static_cast<int>(v) < 0 || static_cast<int>(v)>= StreamTrait<T>::enumLimit)
+        if(static_cast<int>(v) < 0 || static_cast<int>(v) >= StreamTrait<T>::enumLimit)
         {
             throw MarshalException(__FILE__, __LINE__, "enumerator out of range");
         }
