@@ -583,7 +583,7 @@ namespace Ice.VisualStudio
             }
 
             string iceHome = Util.getIceHome(project);
-            foreach (string dir in _cppBinDirs)
+            foreach(string dir in _cppBinDirs)
             {
                 string enviroment = debugSettings.Environment;
                 if(String.IsNullOrEmpty(enviroment))

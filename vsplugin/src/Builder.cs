@@ -88,7 +88,7 @@ namespace Ice.VisualStudio
                     _editDeleteEvent = application.Events.get_CommandEvents(c.Guid, c.ID);
                     _editDeleteEvent.AfterExecute += new _dispCommandEvents_AfterExecuteEventHandler(editDeleteEvent);
                 }
-                else if (c.Name.Equals("Project.AddExistingItem"))
+                else if(c.Name.Equals("Project.AddExistingItem"))
                 {
                     _addExistingItemEvent = application.Events.get_CommandEvents(c.Guid, c.ID);
                     _addExistingItemEvent.AfterExecute +=
@@ -432,7 +432,7 @@ namespace Ice.VisualStudio
             {
                 project = document.ProjectItem.ContainingProject;
             }
-            catch (COMException)
+            catch(COMException)
             {
                 // Expected when documents are create during project initialization
                 // and the ProjectItem is not yet available.
@@ -1211,7 +1211,7 @@ namespace Ice.VisualStudio
             }
             
             Dictionary<string, List<string>> projectDeps = _dependenciesMap[project.Name];
-            while ((line = output.ReadLine()) != null)
+            while((line = output.ReadLine()) != null)
             {
                 writeBuildOutput(line);
                 if(!String.IsNullOrEmpty(line))
@@ -1800,7 +1800,7 @@ namespace Ice.VisualStudio
             if(remove)
             {
                 ProjectItem generated = Util.findItem(hFileInfo.FullName, project.ProjectItems);
-                if (generated != null)
+                if(generated != null)
                 {
                     generated.Remove();
                 }
@@ -1811,7 +1811,7 @@ namespace Ice.VisualStudio
                     generated.Remove();
                 }
             }
-            if (File.Exists(hFileInfo.FullName))
+            if(File.Exists(hFileInfo.FullName))
             {
                 File.Delete(hFileInfo.FullName);
             }
