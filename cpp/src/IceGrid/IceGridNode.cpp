@@ -121,6 +121,29 @@ private:
     ObjectPtr _servant;
 };
 
+#ifdef _WIN32
+void
+setNoIndexingAttribute(const string& pa)
+{
+    wstring path = IceUtil::stringToWstring(pa);
+    DWORD attrs = GetFileAttributesW(path.c_str());
+    if(attrs == INVALID_FILE_ATTRIBUTES)
+    {
+        FileException ex(__FILE__, __LINE__);
+        ex.path = pa;
+        ex.error = IceInternal::getSystemErrno();
+        throw ex;
+    }
+    if(!SetFileAttributesW(path.c_str(), attrs | FILE_ATTRIBUTE_NOT_CONTENT_INDEXED))
+    {
+        FileException ex(__FILE__, __LINE__);
+        ex.path = pa;
+        ex.error = IceInternal::getSystemErrno();
+        throw ex;
+    }
+}
+#endif
+
 } 
 
 
@@ -386,6 +409,29 @@ NodeService::startImpl(int argc, char* argv[], int& status)
         IcePatch2::createDirectory(dataPath + "servers");
         IcePatch2::createDirectory(dataPath + "tmp");
         IcePatch2::createDirectory(dataPath + "distrib");
+
+#ifdef _WIN32
+        //
+        // Make sure these directories are not indexed by the Windows
+        // indexing service (which can cause random "Access Denied"
+        // errors if indexing runs at the same time as the node is
+        // creating/deleting files).
+        //
+        try
+        {
+            setNoIndexingAttribute(dataPath + "servers");
+            setNoIndexingAttribute(dataPath + "tmp");
+            setNoIndexingAttribute(dataPath + "distrib");
+        }
+        catch(const FileException& ex)
+        {
+            if(!nowarn)
+            {
+                Warning out(communicator()->getLogger());
+                out << "couldn't disable file indexing:\n" << ex;
+            }
+        }
+#endif
     }
 
     //
