@@ -210,10 +210,11 @@ Setting up your environment to use Ice
 ======================================================================
 
 
-Visual C++
-----------
+C++
+---
 
-To use Ice for C++ you must add the Ice bin directory(s) to your PATH:
+To use Ice for C++ you need to add the Ice bin directory(s) to your
+PATH:
 
   > set PATH=<Ice installation root directory>\bin;%PATH%
 
@@ -223,11 +224,25 @@ directory must come first in your PATH):
   > set PATH=<Ice installation root directory>\bin;%PATH%
   > set PATH=<Ice installation root directory>\bin\x64;%PATH%
 
-If you do not want to use the Ice Visual Studio Extension described
-above, you will have to configure Visual Studio manually in order
-to build Ice applications. This involves adding the locations of the
-Ice header files, libraries, and executables to Visual Studio's
-configuration. Follow these steps:
+If you use Ice for C++ with C++Builder, use these settings instead:
+
+  > set PATH=<Ice installation root directory>\bin;%PATH%
+  > set PATH=<Ice installation root directory>\bin\bcc10;%PATH%
+
+If you don't want to rely on the PATH environment variable to locate
+the Ice for C++ DLLs, you can also copy the DLLs into the same
+directory as your executable.
+
+To compile Ice for C++ applications with Visual C++, you should use
+the Ice Visual Studio Extension. Please refer to the Visual Studio
+Extension instructions above for more information on how to use
+it. 
+
+To compile with Visual C++ Express where the Ice Visual Studio
+Extension is not available, you need to configure Visual Studio
+manually. This involves adding the locations of the Ice header files,
+libraries, and executables to Visual Studio's configuration. Follow
+these steps:
 
 - In the IDE, choose Tools->Options->Projects and Solutions->VC++ Directories
 
@@ -250,19 +265,6 @@ configuration. Follow these steps:
   or
 
   For x64 binaries add <Ice installation root directory>\bin\x64
-
-
-C++Builder
-----------
-
-To use Ice for C++ with C++Builder you must add the Ice bin
-directories to your PATH:
-
-  > set PATH=<Ice installation root directory>\bin;%PATH%
-  > set PATH=<Ice installation root directory>\bin\bcc10;%PATH%
-
-Note that the bin\bcc10 directory must be in the PATH before the bin
-directory.
 
 
 .NET
