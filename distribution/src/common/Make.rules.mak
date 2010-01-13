@@ -23,9 +23,7 @@
 # Specify your C++ compiler. Supported values are:
 # VC90, VC90_EXPRESS, BCC2010
 #
-!if "$(CPP_COMPILER)" == ""
-CPP_COMPILER		= BCC2010
-!endif
+#CPP_COMPILER		= VC9
 
 # ----------------------------------------------------------------------
 # Don't change anything below this line!
@@ -53,7 +51,7 @@ BCPLUSPLUS		= yes
 !elseif "$(CPP_COMPILER)" == "VC90" || "$(CPP_COMPILER)" == "VC90_EXPRESS" 
 !include        $(top_srcdir)/config/Make.rules.msvc
 ! else
-!error Invalid setting for CPP_COMPILER: $(CPP_COMPILER)
+!error Invalid or no setting for CPP_COMPILER: $(CPP_COMPILER)
 !endif
 
 !if "$(CPP_COMPILER)" == "BCC2010"

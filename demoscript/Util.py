@@ -456,7 +456,10 @@ def isDebugBuild():
     return buildmode == "debug"
 
 def getIceVersion():
-    config = open(os.path.join(toplevel, "config", "Make.common.rules"), "r")
+    if isWin32():
+        config = open(os.path.join(toplevel, "config", "Make.common.rules.mak"), "r")
+    else:
+        config = open(os.path.join(toplevel, "config", "Make.common.rules"), "r")
     return re.search("VERSION[\t\s]*= ([0-9]+\.[0-9]+(\.[0-9]+|b[0-9]*))", config.read()).group(1)
 
 def getServiceDir():
@@ -465,7 +468,7 @@ def getServiceDir():
         if iceHome:
             serviceDir = os.path.join(iceHome, "bin")
         else:
-            serviceDir = "C:\\Program Files\ZeroC\Ice-" + str(getIceVersion()) + "\\bin"
+            serviceDir = "C:\\Progra~1\ZeroC\Ice-" + str(getIceVersion()) + "\\bin"
     return serviceDir
 
 def getIceBox(mapping = "cpp"):
