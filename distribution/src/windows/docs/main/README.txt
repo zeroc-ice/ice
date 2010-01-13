@@ -224,7 +224,8 @@ directory must come first in your PATH):
   > set PATH=<Ice installation root directory>\bin;%PATH%
   > set PATH=<Ice installation root directory>\bin\x64;%PATH%
 
-If you use Ice for C++ with C++Builder, use these settings instead:
+If you use Ice for C++ with C++Builder, use these settings instead
+(the bcc10 directory must come first in your PATH):
 
   > set PATH=<Ice installation root directory>\bin;%PATH%
   > set PATH=<Ice installation root directory>\bin\bcc10;%PATH%
