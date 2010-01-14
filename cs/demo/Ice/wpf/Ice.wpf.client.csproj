@@ -50,12 +50,12 @@
   <ItemGroup>
     <Reference Include="Ice, Version=3.4.51.0, Culture=neutral, PublicKeyToken=1f998c50fec78381, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <Private>False</Private>
+      <Private>True</Private>
       <HintPath>..\..\..\bin\Ice.dll</HintPath>
     </Reference>
     <Reference Include="IceSSL, Version=3.4.51.0, Culture=neutral, PublicKeyToken=1f998c50fec78381, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <Private>False</Private>
+      <Private>True</Private>
       <HintPath>..\..\..\bin\IceSSL.dll</HintPath>
     </Reference>
     <Reference Include="System" />
