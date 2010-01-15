@@ -118,7 +118,7 @@ local interface Communicator
 
     /**
      *
-     * Convert a string into a proxy. For example,
+     * Convert a stringified proxy into a proxy. For example,
      * <tt>MyCategory/MyObject:tcp -h some_host -p
      * 10000</tt> creates a proxy that refers to the Ice object
      * having an identity with a name "MyObject" and a category
@@ -138,11 +138,11 @@ local interface Communicator
 
     /**
      *
-     * Convert a proxy into a string.
+     * Convert a proxy into a stringified proxy.
      *
-     * @param obj The proxy to convert into a string.
+     * @param obj The proxy to convert into a stringified proxy.
      *
-     * @return The "stringified" proxy.
+     * @return The stringified proxy.
      *
      * @see #stringToProxy
      *
@@ -194,7 +194,7 @@ local interface Communicator
      *
      * @param ident The identity to convert into a string.
      *
-     * @return The "stringified" identity.
+     * @return The stringified identity.
      *
      * @see #stringToIdentity
      *
