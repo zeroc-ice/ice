@@ -272,8 +272,8 @@ these steps:
 ----
 
 To use Ice for .NET, you can either copy the .NET assemblies to the
-directory of your executable, use the DEVPATH environment variable, or
-add the .NET assemblies to the Global Assembly Cache (GAC).
+directory of your executable or add the .NET assemblies to the Global
+Assembly Cache (GAC).
 
 - Copying the Ice for .NET assemblies to the executable directory is
   the simplest solution.
@@ -284,28 +284,6 @@ add the .NET assemblies to the Global Assembly Cache (GAC).
   To access this property in the Solution Explorer, open the
   References folder of your project and click on the assembly to
   access its properties in the "Properties" panel.
-
-- The DEVPATH environment variable allows you to use Ice for .NET
-  assemblies from your <Ice installation root directory>\bin directory
-  directly instead of copying them into the executable directory.
-
-  For assemblies to be located using DEVPATH, you need to use a .NET
-  configuration file for your executable. The configuration file must
-  contain the following settings:
-
-    <configuration>
-      <runtime>
-        <developmentMode developerInstallation="true"/>
-      </runtime>
-    </configuration>
-
-  Then, add the Ice bin directory to your DEVPATH:
-
-    > set DEVPATH=<Ice installation root directory>\bin;%DEVPATH%
-
-  For more information on DEVPATH, see:
-
-    http://msdn.microsoft.com/en-us/library/cskzh7h6.aspx  
 
 - Finally, you can also add the Ice for .NET assemblies to the GAC.
 

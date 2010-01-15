@@ -325,7 +325,7 @@ for root, dirnames, filesnames in os.walk(winDemoDir):
             # Fix slice2freeze commands
             substitute(os.path.join(root, f), slice2freezeSubstituteExprs)
 
-        for m in [ "Makefile", ".depend" ]:
+        for m in [ "Makefile", ".depend", "*.exe.config" ]:
             if fnmatch.fnmatch(f, m):
                 rmFiles.append(os.path.join(root[len(winDemoDir) + 1:], f))
 

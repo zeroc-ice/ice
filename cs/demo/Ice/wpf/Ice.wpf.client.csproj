@@ -8,7 +8,8 @@
     <ProjectGuid>{1EB710F0-E760-499B-BFD6-24E3B7A132E8}</ProjectGuid>
     <OutputType>WinExe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace></RootNamespace>
+    <RootNamespace>
+    </RootNamespace>
     <AssemblyName>client</AssemblyName>
     <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
@@ -50,12 +51,10 @@
   <ItemGroup>
     <Reference Include="Ice, Version=3.4.51.0, Culture=neutral, PublicKeyToken=1f998c50fec78381, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <Private>True</Private>
       <HintPath>..\..\..\bin\Ice.dll</HintPath>
     </Reference>
     <Reference Include="IceSSL, Version=3.4.51.0, Culture=neutral, PublicKeyToken=1f998c50fec78381, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <Private>True</Private>
       <HintPath>..\..\..\bin\IceSSL.dll</HintPath>
     </Reference>
     <Reference Include="System" />
@@ -150,7 +149,7 @@
   -->
   <ProjectExtensions>
     <VisualStudio>
-      <UserProperties ZerocIce_Enabled="True" ZerocIce_HomeExpanded="..\..\..\.." ZerocIce_Home="..\..\..\.." ZerocIce_ConsoleOutput="True" />
+      <UserProperties ZerocIce_ConsoleOutput="True" ZerocIce_Home="..\..\..\.." ZerocIce_HomeExpanded="..\..\..\.." ZerocIce_Enabled="True" />
     </VisualStudio>
   </ProjectExtensions>
 </Project>

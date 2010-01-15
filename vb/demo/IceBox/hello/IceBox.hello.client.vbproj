@@ -75,7 +75,10 @@
     <Reference Include="Ice, Version=3.4.51.0, Culture=neutral, PublicKeyToken=1f998c50fec78381, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\..\cs\bin\Ice.dll</HintPath>
-      <Private>False</Private>
+    </Reference>
+    <Reference Include="IceSSL, Version=3.4.51.0, Culture=neutral, PublicKeyToken=1f998c50fec78381, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\..\cs\bin\IceSSL.dll</HintPath>
     </Reference>
     <Reference Include="System">
       <Name>System</Name>
@@ -110,7 +113,7 @@
   </PropertyGroup>
   <ProjectExtensions>
     <VisualStudio>
-      <UserProperties ZerocIce_Home="..\..\..\.." ZerocIce_Enabled="True" ZerocIce_HomeExpanded="..\..\..\.." />
+      <UserProperties ZerocIce_HomeExpanded="..\..\..\.." ZerocIce_Enabled="True" ZerocIce_Home="..\..\..\.." />
     </VisualStudio>
   </ProjectExtensions>
 </Project>

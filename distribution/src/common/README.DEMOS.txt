@@ -141,20 +141,10 @@ Solution Explorer window and select "Build".
 Running .NET demos
 ------------------
 
-The .NET demos require the DEVPATH environment variable to be set to
-locate the Ice for .NET assemblies. For information on setting
-DEVPATH, please refer to the README.txt file from your Ice
-installation.
-
-If you have installed the Ice for .NET assemblies in the Global
-Assembly Cache (GAC) and would prefer to use them instead of relying
-on DEVPATH, you can delete the *.exe.config files located in each demo
-directory.
-
-To run a demo, open a command window and set DEVPATH if necessary.
-Change to the desired demo subdirectory and review the README file if
-one is present. Type 'server.exe' to start the server. In another
-command window, type 'client.exe' to start the client.
+To run a demo, open a command window, change to the desired demo
+subdirectory and review the README file if one is present. Type
+'server.exe' to start the server. In another command window, type
+'client.exe' to start the client.
 
 
 SSL Notes for the .NET demos

@@ -79,12 +79,10 @@
   <ItemGroup>
     <Reference Include="Ice, Version=3.4.51.0, Culture=neutral, PublicKeyToken=1f998c50fec78381, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <Private>False</Private>
       <HintPath>..\..\..\bin\Ice.dll</HintPath>
     </Reference>
     <Reference Include="IceGrid, Version=3.4.51.0, Culture=neutral, PublicKeyToken=1f998c50fec78381, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <Private>False</Private>
       <HintPath>..\..\..\bin\IceGrid.dll</HintPath>
     </Reference>
     <Reference Include="System">
