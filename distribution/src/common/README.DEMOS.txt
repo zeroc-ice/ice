@@ -2,7 +2,24 @@ This archive contains sample programs for C++, Java, C#, VB, Ruby,
 Python and PHP. To build and run the demos, follow the language-
 specific instructions below. These build instructions assume that you
 have configured your system according to the directions in the main
-README.txt file.
+README.txt file that accompanied your installation.
+
+
+======================================================================
+Note for users of Windows Vista (or later) operating systems
+======================================================================
+
+We do not recommend extracting this archive into the "\Program Files"
+or "\Program Files (x86)" directories on Windows Vista or later. Such
+operating systems use "virtualization" to protect the integrity of
+files in these directories, which makes it cumbersome to experiment
+with the sample programs (for example, to edit Ice configuration
+files).
+
+For more information on this topic, refer to the "Virtualization"
+section of this page:
+
+  http://msdn.microsoft.com/en-us/library/bb756960.aspx
 
 
 ======================================================================

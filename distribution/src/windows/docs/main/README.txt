@@ -589,6 +589,22 @@ appropriate changes as you follow the instructions.
 Running IceGrid and Glacier2 components as services
 ======================================================================
 
+The "config" subdirectory of this distribution includes sample
+configuration files for the Glacier2 router, IceGrid node, and IceGrid
+registry. These files provide a good starting point on which to base
+your own configurations, and they contain comments that describe the
+settings in detail.
+
+If you intend to edit one of the configuration files but you have
+installed this distribution into "\Program Files" or
+"\Program Files (x86)" on Windows Vista or later, be aware that
+Windows makes it difficult to make permanent modifications to files
+in these directories. We recommend copying the files to the location
+of your choice. For more information on this topic, refer to the
+"Virtualization" section of the following page:
+
+  http://msdn.microsoft.com/en-us/library/bb756960.aspx
+
 An appendix in the Ice manual provides information on installing and
 running the IceGrid registry, IceGrid node, and Glacier2 router as
 Windows services.
@@ -615,8 +631,20 @@ Demos
 This distribution includes an archive named demos.zip that contains
 sample programs for the supported languages. To build and run the
 demos, you must extract this archive in the location of your choice
-and follow the instructions in the README.txt file located in the
+and follow the instructions in the README.txt file contained in the
 archive.
+
+Note that we do not recommend extracting the demos.zip archive into
+the "\Program Files" or "\Program Files (x86)" directories on Windows
+Vista or later. Such operating systems use "virtualization" to
+protect the integrity of files in these directories, which makes it
+cumbersome to experiment with the sample programs (for example, to
+edit Ice configuration files).
+
+For more information on this topic, refer to the "Virtualization"
+section of this page:
+
+  http://msdn.microsoft.com/en-us/library/bb756960.aspx
 
 
 ======================================================================
