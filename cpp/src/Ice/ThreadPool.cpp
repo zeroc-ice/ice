@@ -420,7 +420,7 @@ IceInternal::ThreadPool::ThreadPool(const InstancePtr& instance, const string& p
         sizeMax = size;
     }
     
-    int sizeWarn = properties->getPropertyAsIntWithDefault(_prefix + ".SizeWarn", sizeMax * 80 / 100);
+    int sizeWarn = properties->getPropertyAsInt(_prefix + ".SizeWarn");
     if(sizeWarn != 0 && sizeWarn < size)
     {
         Warning out(_instance->initializationData().logger);
