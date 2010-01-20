@@ -148,6 +148,11 @@ public class Root extends ListArrayTreeNode
         _treeModel.resetFilters();
     }
 
+    public String getApplicationNameFilter()
+    {
+        return _applicationNameFilter;
+    }
+
     public Root(Coordinator coordinator)
     {
         super(null, "Root", 2);

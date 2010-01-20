@@ -248,7 +248,7 @@ class SessionKeeper
             {
                 _coordinator.destroySession(_session);
             }
-            _coordinator.getStatusBar().setConnected(false);
+            _coordinator.setConnected(false);
         }
 
         private void registerObservers(boolean routed)
@@ -1334,7 +1334,7 @@ class SessionKeeper
                 return false;
             }
 
-            _coordinator.getStatusBar().setConnected(true);
+            _coordinator.setConnected(true);
 
             _connectedToMaster = _replicaName.equals("Master");
             if(_connectedToMaster)

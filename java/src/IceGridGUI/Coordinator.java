@@ -408,6 +408,7 @@ public class Coordinator
             toolsMenu.add(_appMenu);
             _appMenu.add(_patchApplication);
             _appMenu.add(_showApplicationDetails);
+            _appMenu.add(_showLiveDeploymentFilters);
             _appMenu.addSeparator();
             _appMenu.add(_removeApplicationFromRegistry);
             _appMenu.setEnabled(false);
@@ -1837,6 +1838,7 @@ public class Coordinator
 
     Coordinator(JFrame mainFrame, Ice.StringSeqHolder args, Preferences prefs)
     {
+        _connected = false;
         _mainFrame = mainFrame;
         _prefs = prefs;
         _initData = new Ice.InitializationData();
@@ -2278,11 +2280,15 @@ public class Coordinator
                     }
                     else
                     {
-                        String appName = (String)JOptionPane.showInputDialog(
-                            _mainFrame, "Which Application do you to display",
-                            "Show details",
-                            JOptionPane.QUESTION_MESSAGE, null,
-                            applicationNames, applicationNames[0]);
+                        String appName = _liveDeploymentRoot.getApplicationNameFilter();
+                        if(appName == null)
+                        {
+                            appName = (String)JOptionPane.showInputDialog(
+                                        _mainFrame, "Which Application do you to display",
+                                        "Show details",
+                                        JOptionPane.QUESTION_MESSAGE, null,
+                                        applicationNames, applicationNames[0]);
+                        }
 
                         if(appName != null)
                         {
@@ -2716,6 +2722,17 @@ public class Coordinator
         trace("SaveToRegistry", message);
     }
 
+    public void setConnected(boolean connected)
+    {
+        _connected = connected;
+        _statusBar.setConnected(connected);
+    }
+
+    public boolean connected()
+    {
+        return _connected;
+    }
+
     //
     // May run in any thread
     //
@@ -2839,6 +2856,7 @@ public class Coordinator
 
     private Process _icegridadminProcess;
     private String _fileParser;
+    private boolean _connected;
 
     static private final int HISTORY_MAX_SIZE = 20;
 }
