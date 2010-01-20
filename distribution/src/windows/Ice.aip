@@ -9,7 +9,7 @@
     <ROW Property="BannerBitmap" MultiBuildValue="DefaultBuild:installer_header.bmp" Type="1"/>
     <ROW Property="DialogBitmap" MultiBuildValue="DefaultBuild:installer_main.bmp" Type="1"/>
     <ROW Property="Manufacturer" Value="Zeroc, Inc" ValueLocId="*"/>
-    <ROW Property="ProductCode" Value="1033:{52346022-2013-4B7F-9ED3-6357DBD1F9E9} " Type="16"/>
+    <ROW Property="ProductCode" Value="1033:{C69C5CD7-2C53-4223-A228-EF40DCF90AE7} " Type="16"/>
     <ROW Property="ProductLanguage" Value="1033"/>
     <ROW Property="ProductName" Value="Ice 3.4.0" ValueLocId="*"/>
     <ROW Property="ProductVersion" Value="3.4.0"/>
@@ -88,282 +88,282 @@
     <ROW Directory="x64_DIR" Directory_Parent="bin_DIR" DefaultDir="x64"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiCompsComponent">
-    <ROW Component="AbstractMutex.h" ComponentId="{366BE2DD-7E22-4974-87F1-131BC5B4CC5A}" Directory_="IceUtil_DIR" Attributes="0" KeyPath="AbstractMutex.h" Type="0"/>
-    <ROW Component="Addins" ComponentId="{5A6F2863-41FB-4190-BE3A-5A3A27812772}" Directory_="Addins_DIR" Attributes="0"/>
-    <ROW Component="Admin.h" ComponentId="{37CBF70E-1676-4608-B007-76240B7787B1}" Directory_="IceGrid_1_DIR" Attributes="0" KeyPath="Admin.h" Type="0"/>
-    <ROW Component="Application.h" ComponentId="{D5470F9B-C233-4CCE-9E28-C99F59037445}" Directory_="Glacier2_1_DIR" Attributes="0" KeyPath="Application.h" Type="0"/>
-    <ROW Component="Application.h_1" ComponentId="{0E4ECDE3-E2B7-44F8-AB19-FEB4229A1381}" Directory_="Ice_1_DIR" Attributes="0" KeyPath="Application.h_1" Type="0"/>
-    <ROW Component="Checksum.h" ComponentId="{BD3FDC47-86EF-4F66-BB89-D7E1CC85E902}" Directory_="Slice_DIR" Attributes="0" KeyPath="Checksum.h" Type="0"/>
-    <ROW Component="ClientUtil.h" ComponentId="{D01D79F3-6BB2-4973-98EA-13C701B036EE}" Directory_="IcePatch2_1_DIR" Attributes="0" KeyPath="ClientUtil.h" Type="0"/>
-    <ROW Component="ConnectionInfo.h" ComponentId="{E824E1CF-B7AA-4647-9ABD-93876FE8FB99}" Directory_="IceSSL_1_DIR" Attributes="0" KeyPath="ConnectionInfo.h" Type="0"/>
-    <ROW Component="EndpointInfo.ice" ComponentId="{9CDE28FA-9CE7-443E-9ECB-87E5C9CE77C6}" Directory_="IceSSL_DIR" Attributes="0" KeyPath="EndpointInfo.ice" Type="0"/>
-    <ROW Component="FileServer.ice" ComponentId="{2C62AD5C-38C3-4C44-B62F-CA8382B66B89}" Directory_="IcePatch2_DIR" Attributes="0" KeyPath="FileServer.ice" Type="0"/>
-    <ROW Component="FileServer.php" ComponentId="{A3DFE575-9F46-49D7-B319-3FD9868BD834}" Directory_="IcePatch2_4_DIR" Attributes="0" KeyPath="FileServer.php" Type="0"/>
-    <ROW Component="FileServer.rb" ComponentId="{DF7AB2BD-82DC-4692-9E6D-A8FA08346CE1}" Directory_="IcePatch2_3_DIR" Attributes="0" KeyPath="FileServer.rb" Type="0"/>
-    <ROW Component="Glacier2.dll" ComponentId="{C5D7C95F-1A79-426C-85CA-027E74D23FCA}" Directory_="bin_DIR" Attributes="0" KeyPath="Glacier2.dll"/>
-    <ROW Component="Glacier2.php" ComponentId="{0B82D632-CAC3-4E8A-B197-79BD9E49D5A3}" Directory_="php_DIR" Attributes="0" KeyPath="Glacier2.php" Type="0"/>
-    <ROW Component="Ice.dll" ComponentId="{B216400E-E64D-4880-A200-901244DB8659}" Directory_="bin_DIR" Attributes="0" KeyPath="Ice.dll"/>
-    <ROW Component="Ice.jar" ComponentId="{9235B442-9430-44D1-8348-F71DAB65DBC0}" Directory_="lib_DIR" Attributes="0" KeyPath="Ice.jar" Type="0"/>
-    <ROW Component="IceBox.dll" ComponentId="{AAB2080E-14BA-4A12-B94C-A65E9927D46D}" Directory_="bin_DIR" Attributes="0" KeyPath="IceBox.dll"/>
-    <ROW Component="IceBox.h" ComponentId="{EFFADB8B-DFE1-45F6-B412-1491502B846F}" Directory_="IceBox_1_DIR" Attributes="0" KeyPath="IceBox.h" Type="0"/>
-    <ROW Component="IceBox.ice" ComponentId="{A2B3B067-AAF5-4334-A8BC-831B6613854F}" Directory_="IceBox_DIR" Attributes="0" KeyPath="IceBox.ice" Type="0"/>
-    <ROW Component="IceBox.php" ComponentId="{9ECFA6DF-CF7C-490B-B64E-41FD52932158}" Directory_="IceBox_3_DIR" Attributes="0" KeyPath="IceBox.php_1" Type="0"/>
-    <ROW Component="IceBox.rb" ComponentId="{D742126B-8724-45F5-88FB-9AF7D41B3EEE}" Directory_="New_Folder_2_DIR" Attributes="0" KeyPath="IceBox.rb_1" Type="0"/>
-    <ROW Component="IceGrid.dll" ComponentId="{9D4A38A7-DE67-4459-A0C7-9BD81F6B1753}" Directory_="bin_DIR" Attributes="0" KeyPath="IceGrid.dll"/>
-    <ROW Component="IceGridAdmin.chm" ComponentId="{C95E8802-BDBD-4E16-9E9F-1BF58CCCBCD8}" Directory_="help_DIR" Attributes="0" KeyPath="IceGridAdmin.chm" Type="1"/>
-    <ROW Component="IcePatch2.dll" ComponentId="{BBDF4A85-D377-43CD-B265-555544F53D01}" Directory_="bin_DIR" Attributes="0" KeyPath="IcePatch2.dll"/>
-    <ROW Component="IceRuby.dll" ComponentId="{8FF3FC73-A0C8-43A2-AC73-0C61BBE81EB4}" Directory_="ruby_DIR" Attributes="0" KeyPath="IceRuby.dll"/>
-    <ROW Component="IceSSL.dll" ComponentId="{2C173325-D853-4242-A3FC-932C0757A2A5}" Directory_="bin_DIR" Attributes="0" KeyPath="IceSSL.dll"/>
-    <ROW Component="IceStorm.dll" ComponentId="{B76D9FE5-14DC-4828-B7EC-A9FC591E6307}" Directory_="bin_DIR" Attributes="0" KeyPath="IceStorm.dll"/>
-    <ROW Component="IceStorm.h" ComponentId="{FA91D128-54ED-4A42-9839-7E80B3B315E7}" Directory_="IceStorm_1_DIR" Attributes="0" KeyPath="IceStorm.h" Type="0"/>
-    <ROW Component="IceStorm.ice" ComponentId="{DDA7D055-D808-4B6D-A595-9F4DBE4F5BDC}" Directory_="IceStorm_DIR" Attributes="0" KeyPath="IceStorm.ice" Type="0"/>
-    <ROW Component="IceStorm.php" ComponentId="{73DE45D2-2C21-4385-A3B9-8A64DBB29802}" Directory_="IceStorm_4_DIR" Attributes="0" KeyPath="IceStorm.php_1" Type="0"/>
-    <ROW Component="IceStorm.rb" ComponentId="{05A81FCA-035C-4D95-87C4-98768F1BF8BE}" Directory_="ruby_DIR" Attributes="0" KeyPath="IceStorm.rb" Type="0"/>
-    <ROW Component="IceStorm.rb_1" ComponentId="{FB34F2F2-BED7-48E8-9658-F9CDBB3824A9}" Directory_="IceStorm_3_DIR" Attributes="0" KeyPath="IceStorm.rb_1" Type="0"/>
-    <ROW Component="IceStorm_IceStorm_ice.py" ComponentId="{35D7B5DD-7129-40F9-9DD6-FFD3DD03041E}" Directory_="python_DIR" Attributes="0" KeyPath="IceStorm_IceStorm_ice.py" Type="0"/>
-    <ROW Component="IceStorm_IceStorm_ice.py_1" ComponentId="{E8615BA3-95BA-4641-B203-5155C491D54B}" Directory_="x64_2_DIR" Attributes="0" KeyPath="IceStorm_IceStorm_ice.py_1" Type="0"/>
-    <ROW Component="IceVisualStudioAddin_VS2008.dll" ComponentId="{43795DBD-00F0-4982-A187-17EC1F70F1E7}" Directory_="bin_DIR" Attributes="0" KeyPath="IceVisualStudioAddin_VS2008.dll"/>
-    <ROW Component="InstallDir" ComponentId="{700B2731-9211-4A14-A9FD-842AC09154F0}" Directory_="APPDIR" Attributes="260" KeyPath="InstallDir"/>
-    <ROW Component="Parser.h" ComponentId="{D3516E20-BF2D-4BE9-84C6-2124213E72C6}" Directory_="IceXML_DIR" Attributes="0" KeyPath="Parser.h" Type="0"/>
-    <ROW Component="QtCore4.dll" ComponentId="{E87E2419-9075-4230-9F82-943242CE3661}" Directory_="bin_DIR" Attributes="0" KeyPath="QtCore4.dll"/>
-    <ROW Component="QtCore4.dll_1" ComponentId="{D8C5FD95-BBFE-4C72-BBDD-381EDD867FD0}" Directory_="x64_DIR" Attributes="256" KeyPath="QtCore4.dll_1"/>
-    <ROW Component="QtCored4.dll" ComponentId="{675E6812-073E-43B9-B24B-031227E8C7F6}" Directory_="bin_DIR" Attributes="0" KeyPath="QtCored4.dll"/>
-    <ROW Component="QtCored4.dll_1" ComponentId="{B64C5787-6564-49E3-8BDA-6AF6A2598D1B}" Directory_="x64_DIR" Attributes="256" KeyPath="QtCored4.dll_1"/>
-    <ROW Component="QtSql4.dll" ComponentId="{1E72BA0A-82B6-4D37-804B-11EF936009E3}" Directory_="bin_DIR" Attributes="0" KeyPath="QtSql4.dll"/>
-    <ROW Component="QtSql4.dll_1" ComponentId="{0D597FF1-96FB-40D4-8594-B15366D69AAD}" Directory_="x64_DIR" Attributes="256" KeyPath="QtSql4.dll_1"/>
-    <ROW Component="QtSqld4.dll" ComponentId="{23840390-BD53-42AF-9DFD-6B2E5DDA81F4}" Directory_="bin_DIR" Attributes="0" KeyPath="QtSqld4.dll"/>
-    <ROW Component="QtSqld4.dll_1" ComponentId="{10D1F564-4CA1-49F5-99B4-AA48C5B40349}" Directory_="x64_DIR" Attributes="256" KeyPath="QtSqld4.dll_1"/>
-    <ROW Component="SSLInfo.ice" ComponentId="{8BEADB68-4961-4830-AD8C-64E24A718740}" Directory_="Glacier2_DIR" Attributes="0" KeyPath="SSLInfo.ice" Type="0"/>
-    <ROW Component="SSLInfo.php" ComponentId="{28DFA24D-7B3C-4082-BD03-9D3FF4D4991F}" Directory_="Glacier2_3_DIR" Attributes="0" KeyPath="SSLInfo.php" Type="0"/>
-    <ROW Component="SSLInfo.rb" ComponentId="{F48C86BB-DE4B-4D6C-9651-7AC501EC59C5}" Directory_="Glacier2_2_DIR" Attributes="0" KeyPath="SSLInfo.rb" Type="0"/>
-    <ROW Component="Slice.zip" ComponentId="{EF5EFF2D-450C-4D0E-998D-15152FE56EDB}" Directory_="Visual_C_DIR" Attributes="0" KeyPath="Slice.zip"/>
-    <ROW Component="StatsF.ice" ComponentId="{C474DE1F-BA19-4A29-A6B9-F8005D4CB218}" Directory_="Ice_DIR" Attributes="0" KeyPath="StatsF.ice" Type="0"/>
-    <ROW Component="StatsF.php" ComponentId="{079FD0CB-8802-4153-BA84-EEA39CF40D56}" Directory_="Ice_3_DIR" Attributes="0" KeyPath="StatsF.php" Type="0"/>
-    <ROW Component="StatsF.rb" ComponentId="{CB2E4E1F-81D9-4AA8-BC73-CF79BD05E873}" Directory_="Ice_2_DIR" Attributes="0" KeyPath="StatsF.rb" Type="0"/>
-    <ROW Component="THIRD_PARTY_SOURCES.txt" ComponentId="{3353A407-9CC8-4176-8726-7B4ACFFA1D1C}" Directory_="APPDIR" Attributes="0" KeyPath="LICENSE.txt" Type="0"/>
-    <ROW Component="TransactionHolder.h" ComponentId="{08FA0645-1FE8-41E0-9595-032EF465F8B9}" Directory_="Freeze_1_DIR" Attributes="0" KeyPath="TransactionHolder.h" Type="0"/>
-    <ROW Component="TransactionalEvictor.ice" ComponentId="{2B8DE629-108A-49C0-A23C-A80A1F522CEF}" Directory_="Freeze_DIR" Attributes="0" KeyPath="TransactionalEvictor.ice" Type="0"/>
-    <ROW Component="UserAccountMapper.ice" ComponentId="{B487D188-E4CB-44C7-84A6-E93D644A8336}" Directory_="IceGrid_DIR" Attributes="0" KeyPath="UserAccountMapper.ice" Type="0"/>
-    <ROW Component="UserAccountMapper.php" ComponentId="{93FBFCF4-9282-49C4-8308-C0C786183E82}" Directory_="IceGrid_4_DIR" Attributes="0" KeyPath="UserAccountMapper.php" Type="0"/>
-    <ROW Component="UserAccountMapper.rb" ComponentId="{46E0F667-55FF-48EA-9CE8-4F993E16CEF9}" Directory_="IceGrid_3_DIR" Attributes="0" KeyPath="UserAccountMapper.rb" Type="0"/>
-    <ROW Component="_" ComponentId="{1A80527C-7EA7-4190-94CF-42E568221D6D}" Directory_="APPDIR" Attributes="4" KeyPath="_"/>
-    <ROW Component="bzip2.dll" ComponentId="{259A5D25-26A2-4D8A-926F-5C945E6340F7}" Directory_="bin_DIR" Attributes="0" KeyPath="bzip2.dll"/>
-    <ROW Component="bzip2.dll_1" ComponentId="{02C61FC4-209A-417A-B539-6EBB717B9696}" Directory_="x64_DIR" Attributes="256" KeyPath="bzip2.dll_1"/>
-    <ROW Component="bzip2_vc6.dll" ComponentId="{B400EFF6-2F6E-45B1-86CC-C404DC342D30}" Directory_="bin_DIR" Attributes="0" KeyPath="bzip2_vc6.dll"/>
-    <ROW Component="bzip2d.dll" ComponentId="{F7A7DCDE-DBB2-467D-9A58-AEBF69215AA9}" Directory_="bin_DIR" Attributes="0" KeyPath="bzip2d.dll"/>
-    <ROW Component="bzip2d.dll_1" ComponentId="{DE247B1F-DA10-4F9F-B358-0655856C2E34}" Directory_="x64_DIR" Attributes="256" KeyPath="bzip2d.dll_1"/>
-    <ROW Component="db_archive.exe" ComponentId="{209E4DE2-6A19-435A-B3B6-F82ED845A462}" Directory_="bin_DIR" Attributes="0" KeyPath="db_archive.exe"/>
-    <ROW Component="db_archive.exe_1" ComponentId="{3D6695B6-5719-44A0-8734-1D4A98D2C79E}" Directory_="x64_DIR" Attributes="256" KeyPath="db_archive.exe_1"/>
-    <ROW Component="db_archive.exe_2" ComponentId="{543C8885-6E72-407A-B4D4-3DFA3AA13C6D}" Directory_="bcc10_DIR" Attributes="0" KeyPath="db_archive.exe_2"/>
-    <ROW Component="db_checkpoint.exe" ComponentId="{02AFB531-9771-4C13-A542-37BA6E9469C1}" Directory_="bin_DIR" Attributes="0" KeyPath="db_checkpoint.exe"/>
-    <ROW Component="db_checkpoint.exe_1" ComponentId="{C5A23049-3BE8-4741-90F3-1450F430C8B4}" Directory_="x64_DIR" Attributes="256" KeyPath="db_checkpoint.exe_1"/>
-    <ROW Component="db_checkpoint.exe_2" ComponentId="{9CE12CE2-DE0C-4C85-AF98-0C6E3CD872B7}" Directory_="bcc10_DIR" Attributes="0" KeyPath="db_checkpoint.exe_2"/>
-    <ROW Component="db_deadlock.exe" ComponentId="{FA545C3F-09EC-41BA-B9B4-B26C3AC473FD}" Directory_="bin_DIR" Attributes="0" KeyPath="db_deadlock.exe"/>
-    <ROW Component="db_deadlock.exe_1" ComponentId="{CD2F4313-4DDB-4125-A4BE-9E1FCE92969C}" Directory_="x64_DIR" Attributes="256" KeyPath="db_deadlock.exe_1"/>
-    <ROW Component="db_deadlock.exe_2" ComponentId="{29B693F9-9633-47E8-9C0C-0515BA349E00}" Directory_="bcc10_DIR" Attributes="0" KeyPath="db_deadlock.exe_2"/>
-    <ROW Component="db_dump.exe" ComponentId="{9729C755-00D2-4EE2-AFCD-E4F171D5BF28}" Directory_="bin_DIR" Attributes="0" KeyPath="db_dump.exe"/>
-    <ROW Component="db_dump.exe_1" ComponentId="{6D5A6DC0-EA12-4E21-97D3-3433F6778422}" Directory_="x64_DIR" Attributes="256" KeyPath="db_dump.exe_1"/>
-    <ROW Component="db_dump.exe_2" ComponentId="{2CA2BD51-FF28-4D6E-A5C6-41F10C6B96B3}" Directory_="bcc10_DIR" Attributes="0" KeyPath="db_dump.exe_2"/>
-    <ROW Component="db_hotbackup.exe" ComponentId="{0FAC4846-10FF-47F3-9663-33D4056A7382}" Directory_="bin_DIR" Attributes="0" KeyPath="db_hotbackup.exe"/>
-    <ROW Component="db_hotbackup.exe_1" ComponentId="{EAA4638A-5FFE-48C9-A22D-A32FA805BF6F}" Directory_="x64_DIR" Attributes="256" KeyPath="db_hotbackup.exe_1"/>
-    <ROW Component="db_hotbackup.exe_2" ComponentId="{66A6C39F-BA8C-4BE9-95C9-C0E62717B54D}" Directory_="bcc10_DIR" Attributes="0" KeyPath="db_hotbackup.exe_2"/>
-    <ROW Component="db_load.exe" ComponentId="{97F834F1-96EE-44FC-85A4-BB1FA5E1C119}" Directory_="bin_DIR" Attributes="0" KeyPath="db_load.exe"/>
-    <ROW Component="db_load.exe_1" ComponentId="{89AE0693-3E85-40B0-BB44-A6B8223E7153}" Directory_="x64_DIR" Attributes="256" KeyPath="db_load.exe_1"/>
-    <ROW Component="db_load.exe_2" ComponentId="{628932FD-DC8D-4075-8411-FF9F97E28EB7}" Directory_="bcc10_DIR" Attributes="0" KeyPath="db_load.exe_2"/>
-    <ROW Component="db_printlog.exe" ComponentId="{AF3D588D-C2C1-477B-88A4-9B9C27F226BD}" Directory_="bin_DIR" Attributes="0" KeyPath="db_printlog.exe"/>
-    <ROW Component="db_printlog.exe_1" ComponentId="{F49FE0DF-FA06-4E63-8D6D-C2619C174957}" Directory_="x64_DIR" Attributes="256" KeyPath="db_printlog.exe_1"/>
-    <ROW Component="db_printlog.exe_2" ComponentId="{1C7EF10A-E198-4A56-B778-6ECD20B0D357}" Directory_="bcc10_DIR" Attributes="0" KeyPath="db_printlog.exe_2"/>
-    <ROW Component="db_recover.exe" ComponentId="{5EF634AA-1F4C-4D4A-83C8-9193B8315A43}" Directory_="bin_DIR" Attributes="0" KeyPath="db_recover.exe"/>
-    <ROW Component="db_recover.exe_1" ComponentId="{44FA98B3-D9F4-4A38-AC95-B14CC5CD5947}" Directory_="x64_DIR" Attributes="256" KeyPath="db_recover.exe_1"/>
-    <ROW Component="db_recover.exe_2" ComponentId="{D26ED653-4207-475D-B2B2-AF721642DFD8}" Directory_="bcc10_DIR" Attributes="0" KeyPath="db_recover.exe_2"/>
-    <ROW Component="db_stat.exe" ComponentId="{EEEE6B6E-DE6D-4D27-9229-232BB3C7F77C}" Directory_="bin_DIR" Attributes="0" KeyPath="db_stat.exe"/>
-    <ROW Component="db_stat.exe_1" ComponentId="{6CE83224-3AD2-4027-A98C-35396789DBA0}" Directory_="x64_DIR" Attributes="256" KeyPath="db_stat.exe_1"/>
-    <ROW Component="db_stat.exe_2" ComponentId="{9B087AD9-F5B8-4EA3-AE33-8D3548496BEF}" Directory_="bcc10_DIR" Attributes="0" KeyPath="db_stat.exe_2"/>
-    <ROW Component="db_upgrade.exe" ComponentId="{BDB4F1DD-3EEF-4D61-9D98-F33B4C8DB13B}" Directory_="bin_DIR" Attributes="0" KeyPath="db_upgrade.exe"/>
-    <ROW Component="db_upgrade.exe_1" ComponentId="{035191D7-0620-4CF1-ACEA-B804A452A73C}" Directory_="x64_DIR" Attributes="256" KeyPath="db_upgrade.exe_1"/>
-    <ROW Component="db_upgrade.exe_2" ComponentId="{59FC8C6A-C15B-41A8-A734-07603AD7E0EF}" Directory_="bcc10_DIR" Attributes="0" KeyPath="db_upgrade.exe_2"/>
-    <ROW Component="db_verify.exe" ComponentId="{619DA762-71DB-472E-A3F0-34880CE26013}" Directory_="bin_DIR" Attributes="0" KeyPath="db_verify.exe"/>
-    <ROW Component="db_verify.exe_1" ComponentId="{08E7774D-DC7A-41C1-A25F-2673899A954C}" Directory_="x64_DIR" Attributes="256" KeyPath="db_verify.exe_1"/>
-    <ROW Component="db_verify.exe_2" ComponentId="{D8EECCE7-F393-4C9F-9813-D032C1541D04}" Directory_="bcc10_DIR" Attributes="0" KeyPath="db_verify.exe_2"/>
-    <ROW Component="dumpdb.exe" ComponentId="{6164CC01-BEEB-441B-B4B4-046E143D1223}" Directory_="bin_DIR" Attributes="0" KeyPath="dumpdb.exe"/>
-    <ROW Component="dumpdb.exe_1" ComponentId="{18781CAA-4EAD-490F-B3F0-375CF6A17ACA}" Directory_="x64_DIR" Attributes="256" KeyPath="dumpdb.exe_1"/>
-    <ROW Component="freeze34.dll" ComponentId="{6C7096A7-C110-4BF9-BFAF-D50ECB1F5107}" Directory_="bin_DIR" Attributes="0" KeyPath="freeze34.dll"/>
-    <ROW Component="freeze34.dll_1" ComponentId="{02EB8B90-89D3-4C23-A3F1-3F97E7AFAD61}" Directory_="bcc10_DIR" Attributes="0" KeyPath="freeze34.dll_1"/>
-    <ROW Component="freeze34.dll_2" ComponentId="{E736215D-1414-48D2-8B6D-BE5CE261C970}" Directory_="x64_DIR" Attributes="256" KeyPath="freeze34.dll_2"/>
-    <ROW Component="freeze34d.dll" ComponentId="{49CEFD86-DA28-4B8B-ABAC-B36B3A914ADD}" Directory_="bin_DIR" Attributes="0" KeyPath="freeze34d.dll"/>
-    <ROW Component="freeze34d.dll_1" ComponentId="{E552D5F0-A4F8-40F7-9781-C0809A0FD628}" Directory_="bcc10_DIR" Attributes="0" KeyPath="freeze34d.dll_1"/>
-    <ROW Component="freeze34d.dll_2" ComponentId="{FF481C31-1D80-4025-9B51-C0DE129A4B21}" Directory_="x64_DIR" Attributes="256" KeyPath="freeze34d.dll_2"/>
-    <ROW Component="freeze34d.pdb" ComponentId="{CE75032E-A004-4058-8617-73E571A6F07D}" Directory_="x64_DIR" Attributes="0" KeyPath="freeze34d.pdb_1" Type="0"/>
-    <ROW Component="freezed.lib" ComponentId="{716B72EF-1691-4DE5-B5EE-943CD7D51A21}" Directory_="x64_1_DIR" Attributes="0" KeyPath="freezed.lib_1" Type="0"/>
-    <ROW Component="freezed.lib_1" ComponentId="{CF53137E-8C7F-46B9-BFF0-065E604A2906}" Directory_="bcc10_1_DIR" Attributes="0" KeyPath="freezed.lib_2" Type="0"/>
-    <ROW Component="glacier234.dll" ComponentId="{2B0AD7E0-8FF5-4E18-96C1-4545893DDFF3}" Directory_="bin_DIR" Attributes="0" KeyPath="glacier234.dll"/>
-    <ROW Component="glacier234.dll_1" ComponentId="{687D40F3-3C34-444E-A161-DFADB5DD5B2C}" Directory_="bcc10_DIR" Attributes="0" KeyPath="glacier234.dll_1"/>
-    <ROW Component="glacier234.dll_2" ComponentId="{E2122B7E-16B2-4973-90B5-D5C908EDD3AA}" Directory_="x64_DIR" Attributes="256" KeyPath="glacier234.dll_2"/>
-    <ROW Component="glacier234d.dll" ComponentId="{4DEF5CDB-2936-4443-A43A-E3E44FBC9CCE}" Directory_="bin_DIR" Attributes="0" KeyPath="glacier234d.dll"/>
-    <ROW Component="glacier234d.dll_1" ComponentId="{5D56EC20-50F1-42D3-8AC5-B87D54D68E88}" Directory_="bcc10_DIR" Attributes="0" KeyPath="glacier234d.dll_1"/>
-    <ROW Component="glacier234d.dll_2" ComponentId="{3B88C9AC-D595-4DB3-8130-88E77F317239}" Directory_="x64_DIR" Attributes="256" KeyPath="glacier234d.dll_2"/>
-    <ROW Component="glacier2router.exe" ComponentId="{3D9EB463-727C-46F7-87FD-5B41A435EBDC}" Directory_="bin_DIR" Attributes="0" KeyPath="glacier2router.exe"/>
-    <ROW Component="glacier2router.exe_1" ComponentId="{BEBCB531-2342-4462-B2D0-0F047082A734}" Directory_="x64_DIR" Attributes="256" KeyPath="glacier2router.exe_1"/>
-    <ROW Component="ice34.dll" ComponentId="{8842636E-8113-462F-BAAB-B0FBF2068514}" Directory_="bin_DIR" Attributes="0" KeyPath="ice34.dll"/>
-    <ROW Component="ice34.dll_1" ComponentId="{8FC402BD-0AE1-4C7C-BAA5-60B385578F1F}" Directory_="bcc10_DIR" Attributes="0" KeyPath="ice34.dll_1"/>
-    <ROW Component="ice34.dll_2" ComponentId="{CA20C2F3-2CD5-488D-BCCE-0D62D88AF8F6}" Directory_="x64_DIR" Attributes="256" KeyPath="ice34.dll_2"/>
-    <ROW Component="ice34d.dll" ComponentId="{BCAB6CFD-0704-4C3D-9E78-ED5A2F8B24D9}" Directory_="bin_DIR" Attributes="0" KeyPath="ice34d.dll"/>
-    <ROW Component="ice34d.dll_1" ComponentId="{F029ED55-0DD0-420D-8E3F-1AA3DCAB1AAE}" Directory_="bcc10_DIR" Attributes="0" KeyPath="ice34d.dll_1"/>
-    <ROW Component="ice34d.dll_2" ComponentId="{9BCB8BC3-14DA-4A30-9050-E40B2DE744C0}" Directory_="x64_DIR" Attributes="256" KeyPath="ice34d.dll_2"/>
-    <ROW Component="icebox.exe" ComponentId="{95838FAE-BF1D-4F3F-9B87-A7C7F36885CF}" Directory_="bin_DIR" Attributes="0" KeyPath="icebox.exe"/>
-    <ROW Component="icebox.exe_1" ComponentId="{5D47FF26-9422-4DF3-8184-A27CD016446C}" Directory_="x64_DIR" Attributes="256" KeyPath="icebox.exe_1"/>
-    <ROW Component="icebox34.dll" ComponentId="{14A545AE-7771-4F72-9BBE-0BDFD8C0BB62}" Directory_="bin_DIR" Attributes="0" KeyPath="icebox34.dll"/>
-    <ROW Component="icebox34.dll_1" ComponentId="{E9D6BE0E-3993-4D1F-8206-7184ED06667F}" Directory_="x64_DIR" Attributes="256" KeyPath="icebox34.dll_1"/>
-    <ROW Component="icebox34d.dll" ComponentId="{113CCE30-E916-46B9-B3D5-079054D8A78D}" Directory_="bin_DIR" Attributes="0" KeyPath="icebox34d.dll"/>
-    <ROW Component="icebox34d.dll_1" ComponentId="{D6555F62-2F86-41C6-8192-82A43FCFC5DB}" Directory_="x64_DIR" Attributes="256" KeyPath="icebox34d.dll_1"/>
-    <ROW Component="iceboxadmin.exe" ComponentId="{64796BD2-41F1-4137-90A6-FB8AFFA6F9D6}" Directory_="bin_DIR" Attributes="0" KeyPath="iceboxadmin.exe"/>
-    <ROW Component="iceboxadmin.exe_1" ComponentId="{3313A4AC-513E-4B66-BCCB-7721DC522C20}" Directory_="x64_DIR" Attributes="256" KeyPath="iceboxadmin.exe_1"/>
-    <ROW Component="iceboxd.exe" ComponentId="{7E603E8D-367C-48D7-B9FE-56A75135D475}" Directory_="bin_DIR" Attributes="0" KeyPath="iceboxd.exe"/>
-    <ROW Component="iceboxd.exe_1" ComponentId="{F59B6062-3AB9-48F0-BA43-318C2583538E}" Directory_="x64_DIR" Attributes="256" KeyPath="iceboxd.exe_1"/>
-    <ROW Component="iceboxnet.exe" ComponentId="{31B8B7B6-D0AF-4F57-BE09-9C509CB66BA0}" Directory_="bin_DIR" Attributes="0" KeyPath="iceboxnet.exe"/>
-    <ROW Component="icedb34.dll" ComponentId="{1F8086A9-E55E-4891-AE05-30A983BAF82C}" Directory_="bin_DIR" Attributes="0" KeyPath="icedb34.dll"/>
-    <ROW Component="icedb34.dll_1" ComponentId="{45902415-7380-41B8-8FA9-86DEB2A9A7B4}" Directory_="x64_DIR" Attributes="256" KeyPath="icedb34.dll_1"/>
-    <ROW Component="icedb34d.dll" ComponentId="{7725D493-6135-4FD5-ABE1-3221E9A34A41}" Directory_="bin_DIR" Attributes="0" KeyPath="icedb34d.dll"/>
-    <ROW Component="icedb34d.dll_1" ComponentId="{D1A2B6F8-B6BC-4BA8-9567-E2643AE95E36}" Directory_="x64_DIR" Attributes="256" KeyPath="icedb34d.dll_1"/>
-    <ROW Component="icegrid34.dll" ComponentId="{DCD49C57-23D9-4A80-BC54-625E4BB32205}" Directory_="bin_DIR" Attributes="0" KeyPath="icegrid34.dll"/>
-    <ROW Component="icegrid34.dll_1" ComponentId="{EBB83D50-0A25-4499-9F0C-7C4C38F813F6}" Directory_="bcc10_DIR" Attributes="0" KeyPath="icegrid34.dll_1"/>
-    <ROW Component="icegrid34.dll_2" ComponentId="{CC90499B-A96C-4ACF-A5C5-6E71477230C8}" Directory_="x64_DIR" Attributes="256" KeyPath="icegrid34.dll_2"/>
-    <ROW Component="icegrid34d.dll" ComponentId="{CBC95DFC-0F2D-42D0-9989-EAFE36485410}" Directory_="bin_DIR" Attributes="0" KeyPath="icegrid34d.dll"/>
-    <ROW Component="icegrid34d.dll_1" ComponentId="{997FC446-9417-4AB4-9A5A-83FF8D2EC73D}" Directory_="bcc10_DIR" Attributes="0" KeyPath="icegrid34d.dll_1"/>
-    <ROW Component="icegrid34d.dll_2" ComponentId="{77392595-2BAA-49C1-9D2D-063E8B6098A9}" Directory_="x64_DIR" Attributes="256" KeyPath="icegrid34d.dll_2"/>
-    <ROW Component="icegridadmin.exe" ComponentId="{03213D41-D062-4EB9-B1BA-3FEB02168318}" Directory_="bin_DIR" Attributes="0" KeyPath="icegridadmin.exe"/>
-    <ROW Component="icegridadmin.exe_1" ComponentId="{9485764F-5389-48B7-8667-71DFB60C630D}" Directory_="x64_DIR" Attributes="256" KeyPath="icegridadmin.exe_1"/>
-    <ROW Component="icegridfreezedb34.dll" ComponentId="{17E0AFBE-92BA-4127-87A9-9917633D1890}" Directory_="bin_DIR" Attributes="0" KeyPath="icegridfreezedb34.dll"/>
-    <ROW Component="icegridfreezedb34.dll_1" ComponentId="{A3B71C8B-2765-4EF2-853B-2CEEC7C18F43}" Directory_="x64_DIR" Attributes="256" KeyPath="icegridfreezedb34.dll_1"/>
-    <ROW Component="icegridfreezedb34d.dll" ComponentId="{80D3A11C-C88C-43E0-96DA-FC95BB0FB4AD}" Directory_="bin_DIR" Attributes="0" KeyPath="icegridfreezedb34d.dll"/>
-    <ROW Component="icegridfreezedb34d.dll_1" ComponentId="{11F8A5DC-0930-4507-86ED-44DE74558F3A}" Directory_="x64_DIR" Attributes="256" KeyPath="icegridfreezedb34d.dll_1"/>
-    <ROW Component="icegridnode.exe" ComponentId="{AFCEFB89-48E6-4EE3-9238-C0BA37C1FC3A}" Directory_="bin_DIR" Attributes="0" KeyPath="icegridnode.exe"/>
-    <ROW Component="icegridnode.exe_1" ComponentId="{4769A70B-5E0F-408A-A272-31B37E56288C}" Directory_="x64_DIR" Attributes="256" KeyPath="icegridnode.exe_1"/>
-    <ROW Component="icegridregistry.exe" ComponentId="{2B907DDE-CF29-4E20-9D4D-A7BA70592669}" Directory_="bin_DIR" Attributes="0" KeyPath="icegridregistry.exe"/>
-    <ROW Component="icegridregistry.exe_1" ComponentId="{41E30EDF-A3D3-4EAE-89FA-35218F76489C}" Directory_="x64_DIR" Attributes="256" KeyPath="icegridregistry.exe_1"/>
-    <ROW Component="icegridsqldb34.dll" ComponentId="{197F9216-6D97-442C-AFED-836C49ACA4DB}" Directory_="bin_DIR" Attributes="0" KeyPath="icegridsqldb34.dll"/>
-    <ROW Component="icegridsqldb34.dll_1" ComponentId="{98F229DA-92D9-41FA-BEF0-543231AE1170}" Directory_="x64_DIR" Attributes="256" KeyPath="icegridsqldb34.dll_1"/>
-    <ROW Component="icegridsqldb34d.dll" ComponentId="{415DC1EF-D2F5-4962-BEC2-A802C706678E}" Directory_="bin_DIR" Attributes="0" KeyPath="icegridsqldb34d.dll"/>
-    <ROW Component="icegridsqldb34d.dll_1" ComponentId="{5FC3BAED-2A76-4D3E-8A05-00CE6E62C4B7}" Directory_="x64_DIR" Attributes="256" KeyPath="icegridsqldb34d.dll_1"/>
-    <ROW Component="icepatch234.dll" ComponentId="{804E9E09-2F7C-4607-8D4A-E5BAAD7B9706}" Directory_="bin_DIR" Attributes="0" KeyPath="icepatch234.dll"/>
-    <ROW Component="icepatch234.dll_1" ComponentId="{065DA353-778F-4FE3-B28D-6C5ABB6CA468}" Directory_="bcc10_DIR" Attributes="0" KeyPath="icepatch234.dll_1"/>
-    <ROW Component="icepatch234.dll_2" ComponentId="{BBB4C85B-096D-4256-815E-DB73C9243CF3}" Directory_="x64_DIR" Attributes="256" KeyPath="icepatch234.dll_2"/>
-    <ROW Component="icepatch234d.dll" ComponentId="{E0D13E34-7CBD-43B2-BD8D-ECBC8D4B46F4}" Directory_="bin_DIR" Attributes="0" KeyPath="icepatch234d.dll"/>
-    <ROW Component="icepatch234d.dll_1" ComponentId="{DE58814D-6905-44B9-8E8A-1B2D5AEFE182}" Directory_="bcc10_DIR" Attributes="0" KeyPath="icepatch234d.dll_1"/>
-    <ROW Component="icepatch234d.dll_2" ComponentId="{935BBC39-D736-48EE-94D5-6788743E0537}" Directory_="x64_DIR" Attributes="256" KeyPath="icepatch234d.dll_2"/>
-    <ROW Component="icepatch2calc.exe" ComponentId="{92FC968D-E7A3-4DA8-A8E3-2EE0CEF701D1}" Directory_="bin_DIR" Attributes="0" KeyPath="icepatch2calc.exe"/>
-    <ROW Component="icepatch2calc.exe_1" ComponentId="{6D18A561-CC2E-46CF-A8A1-D78B96CB421D}" Directory_="x64_DIR" Attributes="256" KeyPath="icepatch2calc.exe_1"/>
-    <ROW Component="icepatch2client.exe" ComponentId="{2FC591D7-9077-4A92-B7BD-6ECFE66A0494}" Directory_="bin_DIR" Attributes="0" KeyPath="icepatch2client.exe"/>
-    <ROW Component="icepatch2client.exe_1" ComponentId="{A6C9FBB8-D970-408C-B671-86AD05ABE7C8}" Directory_="x64_DIR" Attributes="256" KeyPath="icepatch2client.exe_1"/>
-    <ROW Component="icepatch2server.exe" ComponentId="{71C16453-E879-4BC9-8A49-798BF558037A}" Directory_="bin_DIR" Attributes="0" KeyPath="icepatch2server.exe"/>
-    <ROW Component="icepatch2server.exe_1" ComponentId="{DFAD6AC3-D9A6-4068-A184-CF0A8542A433}" Directory_="x64_DIR" Attributes="256" KeyPath="icepatch2server.exe_1"/>
-    <ROW Component="iceserviceinstall.exe" ComponentId="{117F5E39-A00E-4F82-AB0F-05B8EF09713F}" Directory_="bin_DIR" Attributes="0" KeyPath="iceserviceinstall.exe"/>
-    <ROW Component="iceserviceinstall.exe_1" ComponentId="{25A40EDA-EFB5-45FF-9558-FE56413D0ABA}" Directory_="x64_DIR" Attributes="256" KeyPath="iceserviceinstall.exe_1"/>
-    <ROW Component="icessl34.dll" ComponentId="{CF14B330-8E49-4438-94F0-49DD721C7BE0}" Directory_="bin_DIR" Attributes="0" KeyPath="icessl34.dll"/>
-    <ROW Component="icessl34.dll_1" ComponentId="{B3C7523F-F64F-4CAE-8F3A-5F3834E2BEE9}" Directory_="bcc10_DIR" Attributes="0" KeyPath="icessl34.dll_1"/>
-    <ROW Component="icessl34.dll_2" ComponentId="{40CDF1C7-0253-4FD2-A934-793AB5BBE3F0}" Directory_="x64_DIR" Attributes="256" KeyPath="icessl34.dll_2"/>
-    <ROW Component="icessl34d.dll" ComponentId="{AF4973E0-9000-473B-AB1F-2F76623DBBAB}" Directory_="bin_DIR" Attributes="0" KeyPath="icessl34d.dll"/>
-    <ROW Component="icessl34d.dll_1" ComponentId="{00F7A49F-631C-4559-A3C7-634EAE3A3CAA}" Directory_="bcc10_DIR" Attributes="0" KeyPath="icessl34d.dll_1"/>
-    <ROW Component="icessl34d.dll_2" ComponentId="{C932E657-41D7-4423-8F95-653271F1FB7C}" Directory_="x64_DIR" Attributes="256" KeyPath="icessl34d.dll_2"/>
-    <ROW Component="icesslvc60_34.dll" ComponentId="{A56CBC23-4558-462E-9A48-DE619C51EFFF}" Directory_="bin_DIR" Attributes="0" KeyPath="icesslvc60_34.dll"/>
-    <ROW Component="icestorm34.dll" ComponentId="{D934113B-7E79-4248-96C4-FDC61806294E}" Directory_="bin_DIR" Attributes="0" KeyPath="icestorm34.dll"/>
-    <ROW Component="icestorm34.dll_1" ComponentId="{226D6111-E817-4983-AC79-4F307A4EE85F}" Directory_="bcc10_DIR" Attributes="0" KeyPath="icestorm34.dll_1"/>
-    <ROW Component="icestorm34.dll_2" ComponentId="{9319B61C-7F8C-4416-8C4B-1BFA5B672634}" Directory_="x64_DIR" Attributes="256" KeyPath="icestorm34.dll_2"/>
-    <ROW Component="icestorm34d.dll" ComponentId="{95D4FA77-7BBA-42D9-A809-3F057A71CECC}" Directory_="bin_DIR" Attributes="0" KeyPath="icestorm34d.dll"/>
-    <ROW Component="icestorm34d.dll_1" ComponentId="{B562B6C9-919C-4225-AFBD-7A0744B86441}" Directory_="bcc10_DIR" Attributes="0" KeyPath="icestorm34d.dll_1"/>
-    <ROW Component="icestorm34d.dll_2" ComponentId="{3916D7D2-DB92-42D4-8866-9B9009E4E2C4}" Directory_="x64_DIR" Attributes="256" KeyPath="icestorm34d.dll_2"/>
-    <ROW Component="icestormadmin.exe" ComponentId="{950E08C0-A5CD-4324-AB1D-BE58776C0164}" Directory_="bin_DIR" Attributes="0" KeyPath="icestormadmin.exe"/>
-    <ROW Component="icestormadmin.exe_1" ComponentId="{0A9D87DF-BF31-4682-820F-F020284D94EC}" Directory_="x64_DIR" Attributes="256" KeyPath="icestormadmin.exe_1"/>
-    <ROW Component="icestormfreezedb34.dll" ComponentId="{3501BE0B-CFB6-4EC2-BE95-CA360665D177}" Directory_="bin_DIR" Attributes="0" KeyPath="icestormfreezedb34.dll"/>
-    <ROW Component="icestormfreezedb34.dll_1" ComponentId="{10B84958-1564-49C3-AEC1-CDBAE9A33B03}" Directory_="x64_DIR" Attributes="256" KeyPath="icestormfreezedb34.dll_1"/>
-    <ROW Component="icestormfreezedb34d.dll" ComponentId="{7882B03D-F5C7-4B12-9BBC-7C6E9037BDDF}" Directory_="bin_DIR" Attributes="0" KeyPath="icestormfreezedb34d.dll"/>
-    <ROW Component="icestormfreezedb34d.dll_1" ComponentId="{7A364601-C0F8-44B6-89CD-5F625444953F}" Directory_="x64_DIR" Attributes="256" KeyPath="icestormfreezedb34d.dll_1"/>
-    <ROW Component="icestormmigrate.exe" ComponentId="{B7A8740B-97CC-4711-9287-E66866FF963C}" Directory_="bin_DIR" Attributes="0" KeyPath="icestormmigrate.exe"/>
-    <ROW Component="icestormmigrate.exe_1" ComponentId="{4F190360-EC6D-4D01-B376-444F1BF73D54}" Directory_="x64_DIR" Attributes="256" KeyPath="icestormmigrate.exe_1"/>
-    <ROW Component="icestormservice34.dll" ComponentId="{6DD9E0D9-5824-4346-8F9E-6F63E1988DCE}" Directory_="bin_DIR" Attributes="0" KeyPath="icestormservice34.dll"/>
-    <ROW Component="icestormservice34.dll_1" ComponentId="{42209A30-F299-4D08-A770-69958C8559A2}" Directory_="x64_DIR" Attributes="256" KeyPath="icestormservice34.dll_1"/>
-    <ROW Component="icestormservice34d.dll" ComponentId="{8C45A182-E7B1-4715-B9A9-B55A571DAF34}" Directory_="bin_DIR" Attributes="0" KeyPath="icestormservice34d.dll"/>
-    <ROW Component="icestormservice34d.dll_1" ComponentId="{FCDD356D-CB50-4B82-934A-EC9070C1D9D6}" Directory_="x64_DIR" Attributes="256" KeyPath="icestormservice34d.dll_1"/>
-    <ROW Component="icestormsqldb34.dll" ComponentId="{7B9C45D2-6855-4B06-A2A4-81929F20D7FD}" Directory_="bin_DIR" Attributes="0" KeyPath="icestormsqldb34.dll"/>
-    <ROW Component="icestormsqldb34.dll_1" ComponentId="{8069005F-9D96-481D-A974-39C11B78AF21}" Directory_="x64_DIR" Attributes="256" KeyPath="icestormsqldb34.dll_1"/>
-    <ROW Component="icestormsqldb34d.dll" ComponentId="{27F15ECC-F44A-4D05-B977-E0B6700FB57D}" Directory_="bin_DIR" Attributes="0" KeyPath="icestormsqldb34d.dll"/>
-    <ROW Component="icestormsqldb34d.dll_1" ComponentId="{BE2EC17E-922E-46AB-8B0F-8D659626A210}" Directory_="x64_DIR" Attributes="256" KeyPath="icestormsqldb34d.dll_1"/>
-    <ROW Component="iceutil34.dll" ComponentId="{77C1382F-AD9A-4034-ADAA-2F450AB8780E}" Directory_="bin_DIR" Attributes="0" KeyPath="iceutil34.dll"/>
-    <ROW Component="iceutil34.dll_1" ComponentId="{11821A48-670C-46BD-A11E-9F248C6D6D6E}" Directory_="bcc10_DIR" Attributes="0" KeyPath="iceutil34.dll_1"/>
-    <ROW Component="iceutil34.dll_2" ComponentId="{10FF74C2-0D51-4B1B-9826-836DCFDF638F}" Directory_="x64_DIR" Attributes="256" KeyPath="iceutil34.dll_2"/>
-    <ROW Component="iceutil34d.dll" ComponentId="{C4F2DD4A-BCDF-4021-809D-807976E6224E}" Directory_="bin_DIR" Attributes="0" KeyPath="iceutil34d.dll"/>
-    <ROW Component="iceutil34d.dll_1" ComponentId="{1741EC7C-566C-4726-9C0C-166ED620F464}" Directory_="bcc10_DIR" Attributes="0" KeyPath="iceutil34d.dll_1"/>
-    <ROW Component="iceutil34d.dll_2" ComponentId="{9E7FD6D5-DA45-4C0C-88B8-A0445F3E9F9E}" Directory_="x64_DIR" Attributes="256" KeyPath="iceutil34d.dll_2"/>
-    <ROW Component="iceutilvc60_34.dll" ComponentId="{B4077FB2-66DF-4AA9-A71B-75172C9276E5}" Directory_="bin_DIR" Attributes="0" KeyPath="iceutilvc60_34.dll"/>
-    <ROW Component="icevc60_34.dll" ComponentId="{504FDF07-BC75-4A68-B331-5F5B5650C14F}" Directory_="bin_DIR" Attributes="0" KeyPath="icevc60_34.dll"/>
-    <ROW Component="icexml34.dll" ComponentId="{D1CEFAF0-4B3A-433B-B70B-9B50C8F0AC29}" Directory_="bin_DIR" Attributes="0" KeyPath="icexml34.dll"/>
-    <ROW Component="icexml34.dll_1" ComponentId="{A2FD1C1C-9233-4067-9D95-0408AD9CAC1E}" Directory_="bcc10_DIR" Attributes="0" KeyPath="icexml34.dll_1"/>
-    <ROW Component="icexml34.dll_2" ComponentId="{4F8AD729-A4AC-42B6-A996-08767F3E81E6}" Directory_="x64_DIR" Attributes="256" KeyPath="icexml34.dll_2"/>
-    <ROW Component="icexml34d.dll" ComponentId="{36D41CE6-606F-4148-9BA9-33A2A6454605}" Directory_="bin_DIR" Attributes="0" KeyPath="icexml34d.dll"/>
-    <ROW Component="icexml34d.dll_1" ComponentId="{4EF1E1C7-BFB6-41D2-82C0-BD06FBBE6BA0}" Directory_="bcc10_DIR" Attributes="0" KeyPath="icexml34d.dll_1"/>
-    <ROW Component="icexml34d.dll_2" ComponentId="{C8476570-8F1B-4AD2-B377-8E19C6735C16}" Directory_="x64_DIR" Attributes="256" KeyPath="icexml34d.dll_2"/>
-    <ROW Component="icexml34d.tds" ComponentId="{553B33A0-FDC4-41F9-9F23-3A5DBA94B2DF}" Directory_="bcc10_DIR" Attributes="0" KeyPath="icexml34d.tds" Type="0"/>
-    <ROW Component="init_.py" ComponentId="{D6C72D55-5605-43EC-9E6C-4A9DC290DB99}" Directory_="IceBox_2_DIR" Attributes="0" KeyPath="init_.py" Type="0"/>
-    <ROW Component="init_.py_1" ComponentId="{11BAD39B-B23F-4DFB-958B-DE6E50B222F7}" Directory_="IceGrid_2_DIR" Attributes="0" KeyPath="init_.py_1" Type="0"/>
-    <ROW Component="init_.py_2" ComponentId="{2E97510D-0B9E-4C2F-9BEC-8D75985C1B9E}" Directory_="IcePatch2_2_DIR" Attributes="0" KeyPath="init_.py_2" Type="0"/>
-    <ROW Component="init_.py_3" ComponentId="{7C63D2B3-5804-4151-A722-1431A8C600B1}" Directory_="IceStorm_2_DIR" Attributes="0" KeyPath="init_.py_3" Type="0"/>
-    <ROW Component="init_.py_4" ComponentId="{2E30BC6F-DB3E-4180-BE8B-A566B62F8453}" Directory_="IceBox_4_DIR" Attributes="0" KeyPath="init_.py_4" Type="0"/>
-    <ROW Component="init_.py_5" ComponentId="{0F303004-3589-4BA4-96EB-4E07301C2F29}" Directory_="IceGrid_5_DIR" Attributes="0" KeyPath="init_.py_5" Type="0"/>
-    <ROW Component="init_.py_6" ComponentId="{59EB889B-6E0C-4259-ADCD-DF4C65296C22}" Directory_="IcePatch2_5_DIR" Attributes="0" KeyPath="init_.py_6" Type="0"/>
-    <ROW Component="init_.py_7" ComponentId="{B1A28F83-1370-43C5-AF79-CD7C3FD1F109}" Directory_="IceStorm_5_DIR" Attributes="0" KeyPath="init_.py_7" Type="0"/>
-    <ROW Component="libdb48.dll" ComponentId="{A7E724B0-AAD5-4947-BA3E-C1D6B43BDF92}" Directory_="bin_DIR" Attributes="0" KeyPath="libdb48.dll"/>
-    <ROW Component="libdb48.dll_1" ComponentId="{779908C4-6889-4E22-A120-63E700B051F9}" Directory_="bcc10_DIR" Attributes="0" KeyPath="libdb48.dll_1"/>
-    <ROW Component="libdb48.dll_2" ComponentId="{071866C5-7804-444B-8269-96B910B6565F}" Directory_="x64_DIR" Attributes="256" KeyPath="libdb48.dll_2"/>
-    <ROW Component="libdb48d.dll" ComponentId="{602355F8-7DA0-4EBC-9A12-7A38AD2EE2EC}" Directory_="bin_DIR" Attributes="0" KeyPath="libdb48d.dll"/>
-    <ROW Component="libdb48d.dll_1" ComponentId="{160B13B9-287E-487E-84CB-628A9514E0FC}" Directory_="x64_DIR" Attributes="256" KeyPath="libdb48d.dll_1"/>
-    <ROW Component="libdb_java48.dll" ComponentId="{AD7B3B2A-61DC-445C-82C2-592F8BCA464D}" Directory_="bin_DIR" Attributes="0" KeyPath="libdb_java48.dll"/>
-    <ROW Component="libdb_java48.dll_1" ComponentId="{55D6E33D-6331-446A-BEDC-F2BF1ADD47F7}" Directory_="x64_DIR" Attributes="256" KeyPath="libdb_java48.dll_1"/>
-    <ROW Component="libeay32.dll" ComponentId="{C023331A-03FE-4949-B58B-89BD74C3AFE2}" Directory_="bin_DIR" Attributes="0" KeyPath="libeay32.dll"/>
-    <ROW Component="libeay32.dll_1" ComponentId="{8F1853E6-2EF5-42C4-8F93-BF5CFA4E913F}" Directory_="x64_DIR" Attributes="256" KeyPath="libeay32.dll_1"/>
-    <ROW Component="libeay32_vc6.dll" ComponentId="{2E3751A7-28C3-46C8-A3AE-9B1BBA9C806B}" Directory_="bin_DIR" Attributes="0" KeyPath="libeay32_vc6.dll"/>
-    <ROW Component="libexpat.dll" ComponentId="{B4EF88E0-0A0F-4E3C-AD83-123D6BE348E3}" Directory_="bin_DIR" Attributes="0" KeyPath="libexpat.dll"/>
-    <ROW Component="libexpat.dll_1" ComponentId="{DD243F62-57E5-4C2C-BA2E-17A8A5B5B4DC}" Directory_="x64_DIR" Attributes="0" KeyPath="libexpat.dll_1"/>
-    <ROW Component="msvcp60.dll" ComponentId="{CD2776BF-71BA-4017-B0E6-F14243E1FCB9}" Directory_="bin_DIR" Attributes="0" KeyPath="msvcp60.dll"/>
-    <ROW Component="msvcrt.dll" ComponentId="{1FE22C3B-529C-4D42-917E-51F9FDC15825}" Directory_="bin_DIR" Attributes="0" KeyPath="msvcrt.dll"/>
-    <ROW Component="newslice.ico" ComponentId="{08E8035A-F639-475F-8545-417021FEAF86}" Directory_="icon_DIR" Attributes="0" KeyPath="newslice.ico"/>
-    <ROW Component="openssl.exe" ComponentId="{10143178-8448-44F1-A900-4152554520AE}" Directory_="bin_DIR" Attributes="0" KeyPath="openssl.exe"/>
-    <ROW Component="openssl.exe_1" ComponentId="{3F6B7DBA-349C-4E53-A2B1-F7FE34EF3DA4}" Directory_="x64_DIR" Attributes="256" KeyPath="openssl.exe_1"/>
-    <ROW Component="php_ice.dll" ComponentId="{DEBBFDB3-AADF-41CE-904E-54BD51854437}" Directory_="bin_DIR" Attributes="0" KeyPath="php_ice.dll"/>
-    <ROW Component="slice.vsdir" ComponentId="{6163D9DD-9FC8-4BC7-9718-44F5CA838F77}" Directory_="VS_2008_CPP_TEMPLATE_DIR_MOD" Attributes="0" KeyPath="slice.vsdir"/>
-    <ROW Component="slice.vsdir_1" ComponentId="{5C8F1721-5C97-4F64-A07D-57AF3BBFA661}" Directory_="VS_2008_CS_TEMPLATE_DIR_MOD" Attributes="0" KeyPath="slice.vsdir_1"/>
-    <ROW Component="slice.vsdir_2" ComponentId="{0BBFD214-C437-41F7-80BB-504349287F67}" Directory_="Slice_1_DIR" Attributes="0" KeyPath="slice.vsdir_2"/>
-    <ROW Component="slice.vsdir_3" ComponentId="{9BF61CBB-FEA4-46CE-8D6D-758FFE2D8553}" Directory_="Slice_2_DIR" Attributes="0" KeyPath="slice.vsdir_3"/>
-    <ROW Component="slice2cpp.exe" ComponentId="{B8DA9C85-71DD-424A-AE5A-E79337624BC6}" Directory_="bin_DIR" Attributes="0" KeyPath="slice2cpp.exe"/>
-    <ROW Component="slice2cpp.exe_1" ComponentId="{507A319A-B6C2-4316-97C8-1146E5ED21D2}" Directory_="x64_DIR" Attributes="256" KeyPath="slice2cpp.exe_1"/>
-    <ROW Component="slice2cs.exe" ComponentId="{E68AD64F-C785-4409-9B81-0ED04323E53A}" Directory_="bin_DIR" Attributes="0" KeyPath="slice2cs.exe"/>
-    <ROW Component="slice2cs.exe_1" ComponentId="{004744EE-24F8-473B-99EE-0F497BE27553}" Directory_="x64_DIR" Attributes="256" KeyPath="slice2cs.exe_1"/>
-    <ROW Component="slice2freeze.exe" ComponentId="{A2BF1299-DBC7-4080-B7E4-45D667E3404A}" Directory_="bin_DIR" Attributes="0" KeyPath="slice2freeze.exe"/>
-    <ROW Component="slice2freeze.exe_1" ComponentId="{453F13A5-F359-4C98-A35E-CA3EEC66FD49}" Directory_="x64_DIR" Attributes="256" KeyPath="slice2freeze.exe_1"/>
-    <ROW Component="slice2freezej.exe" ComponentId="{7ECEF80B-8E21-4CCD-A1E6-4EE7CCB307F7}" Directory_="bin_DIR" Attributes="0" KeyPath="slice2freezej.exe"/>
-    <ROW Component="slice2freezej.exe_1" ComponentId="{00594B44-27AA-453F-AB99-9E8715D08510}" Directory_="x64_DIR" Attributes="256" KeyPath="slice2freezej.exe_1"/>
-    <ROW Component="slice2html.exe" ComponentId="{F708BB5C-4E7A-4C0D-BDB0-480FC835FAD0}" Directory_="bin_DIR" Attributes="0" KeyPath="slice2html.exe"/>
-    <ROW Component="slice2html.exe_1" ComponentId="{0D5C85CD-4A48-4FE6-BC21-D4EC23E3AC9A}" Directory_="x64_DIR" Attributes="256" KeyPath="slice2html.exe_1"/>
-    <ROW Component="slice2java.exe" ComponentId="{671450AA-6BAC-42D6-B082-876C1EA337AC}" Directory_="bin_DIR" Attributes="0" KeyPath="slice2java.exe"/>
-    <ROW Component="slice2java.exe_1" ComponentId="{774C239A-EAF9-4BB0-9B63-2AC58363D10F}" Directory_="x64_DIR" Attributes="256" KeyPath="slice2java.exe_1"/>
-    <ROW Component="slice2php.exe" ComponentId="{35B50856-B353-440D-9777-329F02852FE0}" Directory_="bin_DIR" Attributes="0" KeyPath="slice2php.exe"/>
-    <ROW Component="slice2php.exe_1" ComponentId="{430C7661-304C-4F27-9CBF-817AD72C0039}" Directory_="x64_DIR" Attributes="256" KeyPath="slice2php.exe_1"/>
-    <ROW Component="slice2py.exe" ComponentId="{438ACF87-D6A9-4577-975D-A7428931D370}" Directory_="bin_DIR" Attributes="0" KeyPath="slice2py.exe"/>
-    <ROW Component="slice2py.exe_1" ComponentId="{EEE4E2BC-70B9-4555-A3A9-8DCCF22FFDAB}" Directory_="x64_DIR" Attributes="256" KeyPath="slice2py.exe_1"/>
-    <ROW Component="slice2rb.exe" ComponentId="{8ACF3026-6C0C-40E3-8ED6-F1B986C8F0FD}" Directory_="bin_DIR" Attributes="0" KeyPath="slice2rb.exe"/>
-    <ROW Component="slice2rb.exe_1" ComponentId="{41841BCC-5622-4627-992A-3D14834E6D2A}" Directory_="x64_DIR" Attributes="256" KeyPath="slice2rb.exe_1"/>
-    <ROW Component="slice34.dll" ComponentId="{0D43837C-26DC-4612-9FB0-C69CC6AF4300}" Directory_="bin_DIR" Attributes="0" KeyPath="slice34.dll"/>
-    <ROW Component="slice34.dll_1" ComponentId="{2645AA7C-73BC-4B58-AFDA-3111319F4E75}" Directory_="x64_DIR" Attributes="256" KeyPath="slice34.dll_1"/>
-    <ROW Component="slice34d.dll" ComponentId="{81054C7F-D54D-4DA9-9299-3B32D7279028}" Directory_="bin_DIR" Attributes="0" KeyPath="slice34d.dll"/>
-    <ROW Component="slice34d.dll_1" ComponentId="{01CE9CA8-64A3-4689-89F8-52BB5D1C9510}" Directory_="x64_DIR" Attributes="256" KeyPath="slice34d.dll_1"/>
-    <ROW Component="slicevc60_34.dll" ComponentId="{597F04BC-4766-41F6-9478-8E61A7F32FAB}" Directory_="bin_DIR" Attributes="0" KeyPath="slicevc60_34.dll"/>
-    <ROW Component="ssleay32.dll" ComponentId="{F65CED20-CE6B-40B1-B2DC-200F208FBBB9}" Directory_="bin_DIR" Attributes="0" KeyPath="ssleay32.dll"/>
-    <ROW Component="ssleay32.dll_1" ComponentId="{6CECB891-CC31-4949-956C-345E50DF3637}" Directory_="x64_DIR" Attributes="256" KeyPath="ssleay32.dll_1"/>
-    <ROW Component="ssleay32_vc6.dll" ComponentId="{6C0E8787-03CD-4FB2-9599-401F90EDC6F2}" Directory_="bin_DIR" Attributes="0" KeyPath="ssleay32_vc6.dll"/>
-    <ROW Component="stlport_vc646.dll" ComponentId="{D8CA63A6-00B2-473E-BE53-78D9C499A655}" Directory_="bin_DIR" Attributes="0" KeyPath="stlport_vc646.dll"/>
-    <ROW Component="stlport_vc6_stldebug46.pdb" ComponentId="{649F73C2-81E9-484A-A5CD-D1D8ABF7223C}" Directory_="bin_DIR" Attributes="0" KeyPath="icepatch234d.pdb" Type="0"/>
-    <ROW Component="transformdb.exe" ComponentId="{ABCBFFD2-6B89-4385-8851-0ABDE97D497F}" Directory_="bin_DIR" Attributes="0" KeyPath="transformdb.exe"/>
-    <ROW Component="transformdb.exe_1" ComponentId="{2CDBA3D9-630C-4DD9-B13C-BBE9FE316940}" Directory_="x64_DIR" Attributes="256" KeyPath="transformdb.exe_1"/>
-    <ROW Component="upgradeicegrid.py" ComponentId="{96D72987-7570-441D-A530-5C6E9F69A2A0}" Directory_="config_DIR" Attributes="0" KeyPath="upgradeicegrid.py" Type="0"/>
+    <ROW Component="AbstractMutex.h" ComponentId="{5D2F7624-76EA-4C43-8ADD-4D8FA846EB0C}" Directory_="IceUtil_DIR" Attributes="0" KeyPath="AbstractMutex.h" Type="0"/>
+    <ROW Component="Addins" ComponentId="{C2FE0652-4FB3-43CD-BAEB-6DC15FD282E3}" Directory_="Addins_DIR" Attributes="0"/>
+    <ROW Component="Admin.h" ComponentId="{F3DF0D3E-25CC-4CD7-B438-79F5F85D1ACC}" Directory_="IceGrid_1_DIR" Attributes="0" KeyPath="Admin.h" Type="0"/>
+    <ROW Component="Application.h" ComponentId="{1AEFC58F-9EEA-4C8D-8ADA-4962CE2A1E5F}" Directory_="Glacier2_1_DIR" Attributes="0" KeyPath="Application.h" Type="0"/>
+    <ROW Component="Application.h_1" ComponentId="{0FDE6E4D-B0A8-4562-AC88-7CCE90D522BA}" Directory_="Ice_1_DIR" Attributes="0" KeyPath="Application.h_1" Type="0"/>
+    <ROW Component="Checksum.h" ComponentId="{E82A5921-AFE0-4E4D-AC0A-AFF96925C138}" Directory_="Slice_DIR" Attributes="0" KeyPath="Checksum.h" Type="0"/>
+    <ROW Component="ClientUtil.h" ComponentId="{FB10301A-6F6C-4D8C-A767-EF567A785AEE}" Directory_="IcePatch2_1_DIR" Attributes="0" KeyPath="ClientUtil.h" Type="0"/>
+    <ROW Component="ConnectionInfo.h" ComponentId="{0EA64C31-3AE7-4961-9A43-438D6EF5DA39}" Directory_="IceSSL_1_DIR" Attributes="0" KeyPath="ConnectionInfo.h" Type="0"/>
+    <ROW Component="EndpointInfo.ice" ComponentId="{0AEBE59A-CF0B-484B-AE8C-D3FAB2488E83}" Directory_="IceSSL_DIR" Attributes="0" KeyPath="EndpointInfo.ice" Type="0"/>
+    <ROW Component="FileServer.ice" ComponentId="{33A91E5F-008E-43A9-911C-23BED2CAEEC7}" Directory_="IcePatch2_DIR" Attributes="0" KeyPath="FileServer.ice" Type="0"/>
+    <ROW Component="FileServer.php" ComponentId="{E8D31770-BBA7-432E-80B3-EF9EE7C237BE}" Directory_="IcePatch2_4_DIR" Attributes="0" KeyPath="FileServer.php" Type="0"/>
+    <ROW Component="FileServer.rb" ComponentId="{B3A11996-7118-4CFA-B77F-BEA655D42198}" Directory_="IcePatch2_3_DIR" Attributes="0" KeyPath="FileServer.rb" Type="0"/>
+    <ROW Component="Glacier2.dll" ComponentId="{AAC00F25-B64C-4E0D-9054-FA7438BE86E8}" Directory_="bin_DIR" Attributes="0" KeyPath="Glacier2.dll"/>
+    <ROW Component="Glacier2.php" ComponentId="{E13522E0-1C33-43F7-B684-C885D553F484}" Directory_="php_DIR" Attributes="0" KeyPath="Glacier2.php" Type="0"/>
+    <ROW Component="Ice.dll" ComponentId="{E17ECB2B-AC1E-4940-8E10-F459E97C1710}" Directory_="bin_DIR" Attributes="0" KeyPath="Ice.dll"/>
+    <ROW Component="Ice.jar" ComponentId="{2F314BDE-9999-4535-8562-8CCBEFE46D8B}" Directory_="lib_DIR" Attributes="0" KeyPath="Ice.jar" Type="0"/>
+    <ROW Component="IceBox.dll" ComponentId="{4964E803-A181-436D-B14C-3E8E6DFDEF3C}" Directory_="bin_DIR" Attributes="0" KeyPath="IceBox.dll"/>
+    <ROW Component="IceBox.h" ComponentId="{80A63546-AD61-44F1-B1D2-9735E99AF36B}" Directory_="IceBox_1_DIR" Attributes="0" KeyPath="IceBox.h" Type="0"/>
+    <ROW Component="IceBox.ice" ComponentId="{E45FA429-4694-448E-879E-D024079E455D}" Directory_="IceBox_DIR" Attributes="0" KeyPath="IceBox.ice" Type="0"/>
+    <ROW Component="IceBox.php" ComponentId="{E269F542-47F2-49FE-AD74-3B9C0A384AB0}" Directory_="IceBox_3_DIR" Attributes="0" KeyPath="IceBox.php_1" Type="0"/>
+    <ROW Component="IceBox.rb" ComponentId="{D126BEC8-0869-4062-B33A-5AFBEE87253D}" Directory_="New_Folder_2_DIR" Attributes="0" KeyPath="IceBox.rb_1" Type="0"/>
+    <ROW Component="IceGrid.dll" ComponentId="{7A18DB04-C495-45F8-854A-92EA7F2A1831}" Directory_="bin_DIR" Attributes="0" KeyPath="IceGrid.dll"/>
+    <ROW Component="IceGridAdmin.chm" ComponentId="{82A67978-B51B-4599-9181-C1F4B980EBB2}" Directory_="help_DIR" Attributes="0" KeyPath="IceGridAdmin.chm" Type="1"/>
+    <ROW Component="IcePatch2.dll" ComponentId="{AD6CEF3B-1EDC-4AB2-94E6-CD2644775CFC}" Directory_="bin_DIR" Attributes="0" KeyPath="IcePatch2.dll"/>
+    <ROW Component="IceRuby.dll" ComponentId="{BA7AA813-9D9A-4B14-97DC-07EEE43F6EC0}" Directory_="ruby_DIR" Attributes="0" KeyPath="IceRuby.dll"/>
+    <ROW Component="IceSSL.dll" ComponentId="{3A9009E4-D472-4563-8615-1DC6B4731441}" Directory_="bin_DIR" Attributes="0" KeyPath="IceSSL.dll"/>
+    <ROW Component="IceStorm.dll" ComponentId="{585EA6E5-3B2D-41D6-8037-9BAFF3E31861}" Directory_="bin_DIR" Attributes="0" KeyPath="IceStorm.dll"/>
+    <ROW Component="IceStorm.h" ComponentId="{2A979BF3-BDFD-4CFD-9C4C-8C62B9410832}" Directory_="IceStorm_1_DIR" Attributes="0" KeyPath="IceStorm.h" Type="0"/>
+    <ROW Component="IceStorm.ice" ComponentId="{94CEAE2D-B1C7-4C59-84D7-C9E6FC340DCF}" Directory_="IceStorm_DIR" Attributes="0" KeyPath="IceStorm.ice" Type="0"/>
+    <ROW Component="IceStorm.php" ComponentId="{FFB86844-C2FA-4421-B302-287F850A5051}" Directory_="IceStorm_4_DIR" Attributes="0" KeyPath="IceStorm.php_1" Type="0"/>
+    <ROW Component="IceStorm.rb" ComponentId="{EBA75443-35AD-41B6-B0A4-741FE7BF3D1A}" Directory_="ruby_DIR" Attributes="0" KeyPath="IceStorm.rb" Type="0"/>
+    <ROW Component="IceStorm.rb_1" ComponentId="{80452562-F427-404B-8499-0DA978DBD227}" Directory_="IceStorm_3_DIR" Attributes="0" KeyPath="IceStorm.rb_1" Type="0"/>
+    <ROW Component="IceStorm_IceStorm_ice.py" ComponentId="{33F53DA6-7E4E-46C2-A1B4-EAC766553EAE}" Directory_="python_DIR" Attributes="0" KeyPath="IceStorm_IceStorm_ice.py" Type="0"/>
+    <ROW Component="IceStorm_IceStorm_ice.py_1" ComponentId="{E52BD2D8-9A96-463D-8EF5-CB11F5489B08}" Directory_="x64_2_DIR" Attributes="0" KeyPath="IceStorm_IceStorm_ice.py_1" Type="0"/>
+    <ROW Component="IceVisualStudioAddin_VS2008.dll" ComponentId="{4F7626EB-3E8C-4D08-8103-A7E41194E331}" Directory_="bin_DIR" Attributes="0" KeyPath="IceVisualStudioAddin_VS2008.dll"/>
+    <ROW Component="InstallDir" ComponentId="{A03494DF-86E4-4E77-B5AA-0EC2B02B6471}" Directory_="APPDIR" Attributes="260" KeyPath="InstallDir"/>
+    <ROW Component="Parser.h" ComponentId="{60A1E8C5-0721-4923-94E5-3FABA6B19533}" Directory_="IceXML_DIR" Attributes="0" KeyPath="Parser.h" Type="0"/>
+    <ROW Component="QtCore4.dll" ComponentId="{1D1256F1-43C4-4A9A-9CE3-AE4E1431339F}" Directory_="bin_DIR" Attributes="0" KeyPath="QtCore4.dll"/>
+    <ROW Component="QtCore4.dll_1" ComponentId="{1DFBC963-EF97-4C30-80B6-45A940D5A0C4}" Directory_="x64_DIR" Attributes="256" KeyPath="QtCore4.dll_1"/>
+    <ROW Component="QtCored4.dll" ComponentId="{20DB97BA-1D05-4AAD-B427-B273E9859B34}" Directory_="bin_DIR" Attributes="0" KeyPath="QtCored4.dll"/>
+    <ROW Component="QtCored4.dll_1" ComponentId="{41F3755C-6AF7-4892-BB77-1A492AC1E831}" Directory_="x64_DIR" Attributes="256" KeyPath="QtCored4.dll_1"/>
+    <ROW Component="QtSql4.dll" ComponentId="{793DDAAC-BCFF-4AB1-BF77-371223F10651}" Directory_="bin_DIR" Attributes="0" KeyPath="QtSql4.dll"/>
+    <ROW Component="QtSql4.dll_1" ComponentId="{9538EDD4-8F9C-44E5-B878-921012AEAA25}" Directory_="x64_DIR" Attributes="256" KeyPath="QtSql4.dll_1"/>
+    <ROW Component="QtSqld4.dll" ComponentId="{003EDBBB-EC15-4215-9882-D5492C8FCEF9}" Directory_="bin_DIR" Attributes="0" KeyPath="QtSqld4.dll"/>
+    <ROW Component="QtSqld4.dll_1" ComponentId="{C7113D91-B171-4C5B-9F29-27D66D1DE2F8}" Directory_="x64_DIR" Attributes="256" KeyPath="QtSqld4.dll_1"/>
+    <ROW Component="SSLInfo.ice" ComponentId="{2DDDBFA6-79F2-4291-84D1-133F58EA2F4E}" Directory_="Glacier2_DIR" Attributes="0" KeyPath="SSLInfo.ice" Type="0"/>
+    <ROW Component="SSLInfo.php" ComponentId="{79BFB743-98FC-46B8-8704-DC5D4CE1588C}" Directory_="Glacier2_3_DIR" Attributes="0" KeyPath="SSLInfo.php" Type="0"/>
+    <ROW Component="SSLInfo.rb" ComponentId="{45357D2B-A3AA-446F-A0D6-638C2FE6B500}" Directory_="Glacier2_2_DIR" Attributes="0" KeyPath="SSLInfo.rb" Type="0"/>
+    <ROW Component="Slice.zip" ComponentId="{760F576A-99DD-4C2C-B5D0-7A70B312183A}" Directory_="Visual_C_DIR" Attributes="0" KeyPath="Slice.zip"/>
+    <ROW Component="StatsF.ice" ComponentId="{48EC5B2B-F9F7-4AC8-9855-AECA66FCD6EA}" Directory_="Ice_DIR" Attributes="0" KeyPath="StatsF.ice" Type="0"/>
+    <ROW Component="StatsF.php" ComponentId="{091E6D19-5E2C-4ADA-AC48-2F32BDDAAE2B}" Directory_="Ice_3_DIR" Attributes="0" KeyPath="StatsF.php" Type="0"/>
+    <ROW Component="StatsF.rb" ComponentId="{0A6D35FD-EEBC-45F9-99E2-8D518C287DF8}" Directory_="Ice_2_DIR" Attributes="0" KeyPath="StatsF.rb" Type="0"/>
+    <ROW Component="THIRD_PARTY_SOURCES.txt" ComponentId="{E16285C2-2A4C-455E-82B6-8C0027A1273D}" Directory_="APPDIR" Attributes="0" KeyPath="LICENSE.txt" Type="0"/>
+    <ROW Component="TransactionHolder.h" ComponentId="{F801F668-0D40-4425-BBFA-861B6962E2B0}" Directory_="Freeze_1_DIR" Attributes="0" KeyPath="TransactionHolder.h" Type="0"/>
+    <ROW Component="TransactionalEvictor.ice" ComponentId="{EBCB344F-904C-40A4-9969-49BE4BB3CD8F}" Directory_="Freeze_DIR" Attributes="0" KeyPath="TransactionalEvictor.ice" Type="0"/>
+    <ROW Component="UserAccountMapper.ice" ComponentId="{7498B7C4-5CE8-4888-AB6F-6AE8EFA4A282}" Directory_="IceGrid_DIR" Attributes="0" KeyPath="UserAccountMapper.ice" Type="0"/>
+    <ROW Component="UserAccountMapper.php" ComponentId="{0EB285C6-F1E4-4402-A560-5676EFDFA632}" Directory_="IceGrid_4_DIR" Attributes="0" KeyPath="UserAccountMapper.php" Type="0"/>
+    <ROW Component="UserAccountMapper.rb" ComponentId="{E2C1EBF8-19AB-4793-9C68-35C811640174}" Directory_="IceGrid_3_DIR" Attributes="0" KeyPath="UserAccountMapper.rb" Type="0"/>
+    <ROW Component="_" ComponentId="{50158667-9CB5-4BBD-BDFF-C86EB9071FCF}" Directory_="APPDIR" Attributes="4" KeyPath="_"/>
+    <ROW Component="bzip2.dll" ComponentId="{A5B89FCD-F1B8-44DB-B15E-7CCD3DC8F443}" Directory_="bin_DIR" Attributes="0" KeyPath="bzip2.dll"/>
+    <ROW Component="bzip2.dll_1" ComponentId="{8E7D7EAE-34BF-46C3-9A71-2D27609DF451}" Directory_="x64_DIR" Attributes="256" KeyPath="bzip2.dll_1"/>
+    <ROW Component="bzip2_vc6.dll" ComponentId="{786E7590-B9AF-41D5-8B14-8016967EF7F0}" Directory_="bin_DIR" Attributes="0" KeyPath="bzip2_vc6.dll"/>
+    <ROW Component="bzip2d.dll" ComponentId="{6901FF0F-832C-4F63-819F-331F19507ACA}" Directory_="bin_DIR" Attributes="0" KeyPath="bzip2d.dll"/>
+    <ROW Component="bzip2d.dll_1" ComponentId="{969D207D-B459-464E-BA4D-72172011F975}" Directory_="x64_DIR" Attributes="256" KeyPath="bzip2d.dll_1"/>
+    <ROW Component="db_archive.exe" ComponentId="{555570B9-B8B1-4A13-9EDD-26ED77369E92}" Directory_="bin_DIR" Attributes="0" KeyPath="db_archive.exe"/>
+    <ROW Component="db_archive.exe_1" ComponentId="{915DEA9B-2495-4D24-8B3A-6E18FDDF88B0}" Directory_="x64_DIR" Attributes="256" KeyPath="db_archive.exe_1"/>
+    <ROW Component="db_archive.exe_2" ComponentId="{1D7387C1-426F-4ECB-B116-A5B776351ADE}" Directory_="bcc10_DIR" Attributes="0" KeyPath="db_archive.exe_2"/>
+    <ROW Component="db_checkpoint.exe" ComponentId="{8794FFF8-9134-42D5-937E-ECB1219336B4}" Directory_="bin_DIR" Attributes="0" KeyPath="db_checkpoint.exe"/>
+    <ROW Component="db_checkpoint.exe_1" ComponentId="{F5805699-561E-4295-B9E5-08D595A51BC5}" Directory_="x64_DIR" Attributes="256" KeyPath="db_checkpoint.exe_1"/>
+    <ROW Component="db_checkpoint.exe_2" ComponentId="{8D4475BF-9356-4CF0-B8BB-87EA66859E65}" Directory_="bcc10_DIR" Attributes="0" KeyPath="db_checkpoint.exe_2"/>
+    <ROW Component="db_deadlock.exe" ComponentId="{21660F8A-9528-45CD-B9EA-3C54C077D9A7}" Directory_="bin_DIR" Attributes="0" KeyPath="db_deadlock.exe"/>
+    <ROW Component="db_deadlock.exe_1" ComponentId="{B0D5F9C6-DA16-464F-A6F5-937AA5062953}" Directory_="x64_DIR" Attributes="256" KeyPath="db_deadlock.exe_1"/>
+    <ROW Component="db_deadlock.exe_2" ComponentId="{5E6668C2-9E6F-465E-9B92-5EFC818D3610}" Directory_="bcc10_DIR" Attributes="0" KeyPath="db_deadlock.exe_2"/>
+    <ROW Component="db_dump.exe" ComponentId="{481F8681-F79C-449B-B925-721F074D7603}" Directory_="bin_DIR" Attributes="0" KeyPath="db_dump.exe"/>
+    <ROW Component="db_dump.exe_1" ComponentId="{0E177D27-BE1A-40B6-8288-F0E4CD14C041}" Directory_="x64_DIR" Attributes="256" KeyPath="db_dump.exe_1"/>
+    <ROW Component="db_dump.exe_2" ComponentId="{965C505F-6EAA-4CD2-BF07-83D97A4FEC14}" Directory_="bcc10_DIR" Attributes="0" KeyPath="db_dump.exe_2"/>
+    <ROW Component="db_hotbackup.exe" ComponentId="{BCC044D8-04CC-416C-ABD3-6E95D0C9BAED}" Directory_="bin_DIR" Attributes="0" KeyPath="db_hotbackup.exe"/>
+    <ROW Component="db_hotbackup.exe_1" ComponentId="{A4EAE445-4D17-4E20-804B-5CEF4CCA07B4}" Directory_="x64_DIR" Attributes="256" KeyPath="db_hotbackup.exe_1"/>
+    <ROW Component="db_hotbackup.exe_2" ComponentId="{EE2BD1E6-F63C-46FC-8EAE-27E3CD35BC03}" Directory_="bcc10_DIR" Attributes="0" KeyPath="db_hotbackup.exe_2"/>
+    <ROW Component="db_load.exe" ComponentId="{33E8F9D2-1CB8-45D1-9F95-1A1FC22F90C6}" Directory_="bin_DIR" Attributes="0" KeyPath="db_load.exe"/>
+    <ROW Component="db_load.exe_1" ComponentId="{CAF1C1E0-E520-4897-B5D1-B5C902E9E4C8}" Directory_="x64_DIR" Attributes="256" KeyPath="db_load.exe_1"/>
+    <ROW Component="db_load.exe_2" ComponentId="{6F974CAF-B562-45E9-8C0D-1187D8BFE163}" Directory_="bcc10_DIR" Attributes="0" KeyPath="db_load.exe_2"/>
+    <ROW Component="db_printlog.exe" ComponentId="{B9AB410A-31F8-4CB9-9A78-515E3D08AF71}" Directory_="bin_DIR" Attributes="0" KeyPath="db_printlog.exe"/>
+    <ROW Component="db_printlog.exe_1" ComponentId="{8C3345B1-8DB2-4B50-B351-966B2649C6E2}" Directory_="x64_DIR" Attributes="256" KeyPath="db_printlog.exe_1"/>
+    <ROW Component="db_printlog.exe_2" ComponentId="{D364C1AB-3654-4AFE-93F6-F6B9D7303C12}" Directory_="bcc10_DIR" Attributes="0" KeyPath="db_printlog.exe_2"/>
+    <ROW Component="db_recover.exe" ComponentId="{C2FA7D9F-2FB8-4D43-9135-6D88B67D6FC8}" Directory_="bin_DIR" Attributes="0" KeyPath="db_recover.exe"/>
+    <ROW Component="db_recover.exe_1" ComponentId="{9E56AAC1-BA38-4A0F-824C-FEFCF34D3CEA}" Directory_="x64_DIR" Attributes="256" KeyPath="db_recover.exe_1"/>
+    <ROW Component="db_recover.exe_2" ComponentId="{68EEE79B-C7FF-4FC2-B33E-D840AFBF88EB}" Directory_="bcc10_DIR" Attributes="0" KeyPath="db_recover.exe_2"/>
+    <ROW Component="db_stat.exe" ComponentId="{960505BA-7BD7-4090-9517-95D7D54FED46}" Directory_="bin_DIR" Attributes="0" KeyPath="db_stat.exe"/>
+    <ROW Component="db_stat.exe_1" ComponentId="{1D57F050-28A6-4528-8A76-0FD483F4D8D0}" Directory_="x64_DIR" Attributes="256" KeyPath="db_stat.exe_1"/>
+    <ROW Component="db_stat.exe_2" ComponentId="{D980EB78-D360-48C5-82FF-776148E5A20B}" Directory_="bcc10_DIR" Attributes="0" KeyPath="db_stat.exe_2"/>
+    <ROW Component="db_upgrade.exe" ComponentId="{CEC95B27-EBFB-4CDE-BCB0-C5D404E2A625}" Directory_="bin_DIR" Attributes="0" KeyPath="db_upgrade.exe"/>
+    <ROW Component="db_upgrade.exe_1" ComponentId="{A2F66BC1-C9F9-465E-9B96-C221F96CB91D}" Directory_="x64_DIR" Attributes="256" KeyPath="db_upgrade.exe_1"/>
+    <ROW Component="db_upgrade.exe_2" ComponentId="{AE5FC9EB-E789-4994-8ACC-064740536657}" Directory_="bcc10_DIR" Attributes="0" KeyPath="db_upgrade.exe_2"/>
+    <ROW Component="db_verify.exe" ComponentId="{6C128486-5776-454D-BA0D-56836B297FDB}" Directory_="bin_DIR" Attributes="0" KeyPath="db_verify.exe"/>
+    <ROW Component="db_verify.exe_1" ComponentId="{D030E93D-6863-4E21-947B-B4B1E5FBA40A}" Directory_="x64_DIR" Attributes="256" KeyPath="db_verify.exe_1"/>
+    <ROW Component="db_verify.exe_2" ComponentId="{AAFAFD51-CE5D-4345-AC4B-512B0402F53C}" Directory_="bcc10_DIR" Attributes="0" KeyPath="db_verify.exe_2"/>
+    <ROW Component="dumpdb.exe" ComponentId="{75F796B2-1A1A-4BE1-9164-DF4B8DAB740F}" Directory_="bin_DIR" Attributes="0" KeyPath="dumpdb.exe"/>
+    <ROW Component="dumpdb.exe_1" ComponentId="{F701BA46-37FC-4BDF-8581-0014D272CB33}" Directory_="x64_DIR" Attributes="256" KeyPath="dumpdb.exe_1"/>
+    <ROW Component="freeze34.dll" ComponentId="{FAC0E19A-D956-4E07-8EA8-78AFD5E61E3F}" Directory_="bin_DIR" Attributes="0" KeyPath="freeze34.dll"/>
+    <ROW Component="freeze34.dll_1" ComponentId="{3C4A1F7B-9989-4EAC-99A3-ED674B755484}" Directory_="bcc10_DIR" Attributes="0" KeyPath="freeze34.dll_1"/>
+    <ROW Component="freeze34.dll_2" ComponentId="{D9E78930-736F-421A-A8C8-3F006F47A036}" Directory_="x64_DIR" Attributes="256" KeyPath="freeze34.dll_2"/>
+    <ROW Component="freeze34d.dll" ComponentId="{0CB76B2D-14B1-433A-BCD1-5781E761D097}" Directory_="bin_DIR" Attributes="0" KeyPath="freeze34d.dll"/>
+    <ROW Component="freeze34d.dll_1" ComponentId="{79FA279F-3CA5-4A96-9E83-05C55EA68C29}" Directory_="bcc10_DIR" Attributes="0" KeyPath="freeze34d.dll_1"/>
+    <ROW Component="freeze34d.dll_2" ComponentId="{DCA6BC2A-4ADF-4F57-B81B-6BFE0CE3473A}" Directory_="x64_DIR" Attributes="256" KeyPath="freeze34d.dll_2"/>
+    <ROW Component="freeze34d.pdb" ComponentId="{DE4F226C-B4ED-40E9-BFB8-87CF6DEFC9B4}" Directory_="x64_DIR" Attributes="0" KeyPath="freeze34d.pdb_1" Type="0"/>
+    <ROW Component="freezed.lib" ComponentId="{5EC999FE-75AD-45BE-B0B2-BC70B01642E7}" Directory_="x64_1_DIR" Attributes="0" KeyPath="freezed.lib_1" Type="0"/>
+    <ROW Component="freezed.lib_1" ComponentId="{9203018A-32B8-4B3C-938E-9EBC889A7FDB}" Directory_="bcc10_1_DIR" Attributes="0" KeyPath="freezed.lib_2" Type="0"/>
+    <ROW Component="glacier234.dll" ComponentId="{BC04EBF4-C6FD-496C-AB5A-32067A3AE6DF}" Directory_="bin_DIR" Attributes="0" KeyPath="glacier234.dll"/>
+    <ROW Component="glacier234.dll_1" ComponentId="{F8D65994-CEA9-4851-A722-E0C804250124}" Directory_="bcc10_DIR" Attributes="0" KeyPath="glacier234.dll_1"/>
+    <ROW Component="glacier234.dll_2" ComponentId="{F6A2CEE2-2FA9-4BEB-B4BB-235E66F24CE1}" Directory_="x64_DIR" Attributes="256" KeyPath="glacier234.dll_2"/>
+    <ROW Component="glacier234d.dll" ComponentId="{6C2A4917-3FBF-49D4-AF0E-B7F3D3A90C9B}" Directory_="bin_DIR" Attributes="0" KeyPath="glacier234d.dll"/>
+    <ROW Component="glacier234d.dll_1" ComponentId="{DA045AE8-AA0E-4BA3-A290-6F4E4244AF4F}" Directory_="bcc10_DIR" Attributes="0" KeyPath="glacier234d.dll_1"/>
+    <ROW Component="glacier234d.dll_2" ComponentId="{6487506B-DED0-4E9A-A1DC-CC38E33014F5}" Directory_="x64_DIR" Attributes="256" KeyPath="glacier234d.dll_2"/>
+    <ROW Component="glacier2router.exe" ComponentId="{4442BD5A-DB1C-477F-80F9-DF7EC36F9873}" Directory_="bin_DIR" Attributes="0" KeyPath="glacier2router.exe"/>
+    <ROW Component="glacier2router.exe_1" ComponentId="{53032721-6E75-468F-A4A3-DA2FCE510CEA}" Directory_="x64_DIR" Attributes="256" KeyPath="glacier2router.exe_1"/>
+    <ROW Component="ice34.dll" ComponentId="{9299DB75-5C9C-4BDE-9F3C-0E646CEE1E5A}" Directory_="bin_DIR" Attributes="0" KeyPath="ice34.dll"/>
+    <ROW Component="ice34.dll_1" ComponentId="{4A84FD37-F1FD-4E48-B568-7EA7A9ABA099}" Directory_="bcc10_DIR" Attributes="0" KeyPath="ice34.dll_1"/>
+    <ROW Component="ice34.dll_2" ComponentId="{3334294E-B6AB-4B96-8AA3-9825ED4310FF}" Directory_="x64_DIR" Attributes="256" KeyPath="ice34.dll_2"/>
+    <ROW Component="ice34d.dll" ComponentId="{7AFA5836-F436-4E44-B4C7-60B35AA15D73}" Directory_="bin_DIR" Attributes="0" KeyPath="ice34d.dll"/>
+    <ROW Component="ice34d.dll_1" ComponentId="{AB8A66DA-3FC8-4E50-8AE7-0007CFC00250}" Directory_="bcc10_DIR" Attributes="0" KeyPath="ice34d.dll_1"/>
+    <ROW Component="ice34d.dll_2" ComponentId="{41046C71-BEF9-4F19-8F13-99CF7699EBDB}" Directory_="x64_DIR" Attributes="256" KeyPath="ice34d.dll_2"/>
+    <ROW Component="icebox.exe" ComponentId="{E32017D0-3D4F-4AA7-80E3-0FF8C4AA984E}" Directory_="bin_DIR" Attributes="0" KeyPath="icebox.exe"/>
+    <ROW Component="icebox.exe_1" ComponentId="{5AE507BC-CD46-4172-8F22-977C45486987}" Directory_="x64_DIR" Attributes="256" KeyPath="icebox.exe_1"/>
+    <ROW Component="icebox34.dll" ComponentId="{F1EE6F00-A5EE-438D-9845-0BF01BC628BF}" Directory_="bin_DIR" Attributes="0" KeyPath="icebox34.dll"/>
+    <ROW Component="icebox34.dll_1" ComponentId="{2B6C87BE-B5A3-489A-AF08-88C426CB9159}" Directory_="x64_DIR" Attributes="256" KeyPath="icebox34.dll_1"/>
+    <ROW Component="icebox34d.dll" ComponentId="{36C4F4BA-197D-42C7-B622-C521592C5DFC}" Directory_="bin_DIR" Attributes="0" KeyPath="icebox34d.dll"/>
+    <ROW Component="icebox34d.dll_1" ComponentId="{18B058A8-96EF-4B7D-A643-F64D87486364}" Directory_="x64_DIR" Attributes="256" KeyPath="icebox34d.dll_1"/>
+    <ROW Component="iceboxadmin.exe" ComponentId="{B2D75BEB-06E5-4171-B6AB-22B25DAD6879}" Directory_="bin_DIR" Attributes="0" KeyPath="iceboxadmin.exe"/>
+    <ROW Component="iceboxadmin.exe_1" ComponentId="{D0EA463F-80AB-4162-9136-FCDF4EDCB3CF}" Directory_="x64_DIR" Attributes="256" KeyPath="iceboxadmin.exe_1"/>
+    <ROW Component="iceboxd.exe" ComponentId="{00A8EF75-3BA0-4081-893B-7F239FEDE8D3}" Directory_="bin_DIR" Attributes="0" KeyPath="iceboxd.exe"/>
+    <ROW Component="iceboxd.exe_1" ComponentId="{B5643973-29B2-4B92-958F-B469A97902F1}" Directory_="x64_DIR" Attributes="256" KeyPath="iceboxd.exe_1"/>
+    <ROW Component="iceboxnet.exe" ComponentId="{EB0C24F2-5BB4-4806-95E8-66B0F57D2550}" Directory_="bin_DIR" Attributes="0" KeyPath="iceboxnet.exe"/>
+    <ROW Component="icedb34.dll" ComponentId="{E7077D05-291A-4519-8068-1493CD799D79}" Directory_="bin_DIR" Attributes="0" KeyPath="icedb34.dll"/>
+    <ROW Component="icedb34.dll_1" ComponentId="{9CF94495-D07A-4B1E-BE9E-315A31D33875}" Directory_="x64_DIR" Attributes="256" KeyPath="icedb34.dll_1"/>
+    <ROW Component="icedb34d.dll" ComponentId="{CDB6B9F9-2CE3-4940-80AE-E43B99EFE13C}" Directory_="bin_DIR" Attributes="0" KeyPath="icedb34d.dll"/>
+    <ROW Component="icedb34d.dll_1" ComponentId="{4EEC6490-9707-44A7-B2C5-9280AF33BB02}" Directory_="x64_DIR" Attributes="256" KeyPath="icedb34d.dll_1"/>
+    <ROW Component="icegrid34.dll" ComponentId="{93F25EC0-8698-4E46-A644-6B10FB435FF3}" Directory_="bin_DIR" Attributes="0" KeyPath="icegrid34.dll"/>
+    <ROW Component="icegrid34.dll_1" ComponentId="{5B9A4B76-A2B4-4D7C-ACE7-802385113DA7}" Directory_="bcc10_DIR" Attributes="0" KeyPath="icegrid34.dll_1"/>
+    <ROW Component="icegrid34.dll_2" ComponentId="{FF789DC4-9E62-4A43-A9B4-4944B66C211B}" Directory_="x64_DIR" Attributes="256" KeyPath="icegrid34.dll_2"/>
+    <ROW Component="icegrid34d.dll" ComponentId="{0BF3D8D6-5A08-43C6-B6AC-84336DE7F03C}" Directory_="bin_DIR" Attributes="0" KeyPath="icegrid34d.dll"/>
+    <ROW Component="icegrid34d.dll_1" ComponentId="{0AB5575A-E0FD-4586-B021-6C736B0B93EB}" Directory_="bcc10_DIR" Attributes="0" KeyPath="icegrid34d.dll_1"/>
+    <ROW Component="icegrid34d.dll_2" ComponentId="{67247351-34FA-41A9-9B0F-6515ABACFDFF}" Directory_="x64_DIR" Attributes="256" KeyPath="icegrid34d.dll_2"/>
+    <ROW Component="icegridadmin.exe" ComponentId="{5163814C-2FF7-46C2-847E-3DE0CFC2A155}" Directory_="bin_DIR" Attributes="0" KeyPath="icegridadmin.exe"/>
+    <ROW Component="icegridadmin.exe_1" ComponentId="{648D078D-FE09-40A0-B63D-76FB551661F2}" Directory_="x64_DIR" Attributes="256" KeyPath="icegridadmin.exe_1"/>
+    <ROW Component="icegridfreezedb34.dll" ComponentId="{6297CE99-FB06-4392-B7CF-AA01524A64A5}" Directory_="bin_DIR" Attributes="0" KeyPath="icegridfreezedb34.dll"/>
+    <ROW Component="icegridfreezedb34.dll_1" ComponentId="{DD4B4793-3282-47FE-B943-7BEDDB32DDB8}" Directory_="x64_DIR" Attributes="256" KeyPath="icegridfreezedb34.dll_1"/>
+    <ROW Component="icegridfreezedb34d.dll" ComponentId="{69DA4D5F-89C0-4921-89D7-825BC0B9A8EB}" Directory_="bin_DIR" Attributes="0" KeyPath="icegridfreezedb34d.dll"/>
+    <ROW Component="icegridfreezedb34d.dll_1" ComponentId="{CAC9EDF4-84AF-4253-BB63-44B205A6E99D}" Directory_="x64_DIR" Attributes="256" KeyPath="icegridfreezedb34d.dll_1"/>
+    <ROW Component="icegridnode.exe" ComponentId="{E0697801-1B9A-44A3-90F3-B5A28E61632A}" Directory_="bin_DIR" Attributes="0" KeyPath="icegridnode.exe"/>
+    <ROW Component="icegridnode.exe_1" ComponentId="{14B4E74F-B819-4FC0-A53A-6E83FC22C555}" Directory_="x64_DIR" Attributes="256" KeyPath="icegridnode.exe_1"/>
+    <ROW Component="icegridregistry.exe" ComponentId="{F9ED9C07-898F-4FE4-9856-601E6188FCEB}" Directory_="bin_DIR" Attributes="0" KeyPath="icegridregistry.exe"/>
+    <ROW Component="icegridregistry.exe_1" ComponentId="{1B275272-95D5-4AC8-936C-96143FEBA5DA}" Directory_="x64_DIR" Attributes="256" KeyPath="icegridregistry.exe_1"/>
+    <ROW Component="icegridsqldb34.dll" ComponentId="{0E25A0B6-4C54-4184-9919-CAB8CD59D164}" Directory_="bin_DIR" Attributes="0" KeyPath="icegridsqldb34.dll"/>
+    <ROW Component="icegridsqldb34.dll_1" ComponentId="{427A1EBE-E226-4B6D-81C6-AAA716F23649}" Directory_="x64_DIR" Attributes="256" KeyPath="icegridsqldb34.dll_1"/>
+    <ROW Component="icegridsqldb34d.dll" ComponentId="{295BC22E-499C-423F-B166-8801F54A3D1B}" Directory_="bin_DIR" Attributes="0" KeyPath="icegridsqldb34d.dll"/>
+    <ROW Component="icegridsqldb34d.dll_1" ComponentId="{E3EF2D53-1C31-4EB0-BE61-FA42A4C10820}" Directory_="x64_DIR" Attributes="256" KeyPath="icegridsqldb34d.dll_1"/>
+    <ROW Component="icepatch234.dll" ComponentId="{34FD7666-E3AD-46F2-B98E-EBE551D9279F}" Directory_="bin_DIR" Attributes="0" KeyPath="icepatch234.dll"/>
+    <ROW Component="icepatch234.dll_1" ComponentId="{0517FAEE-FF32-41FD-BB84-0B7554F3A281}" Directory_="bcc10_DIR" Attributes="0" KeyPath="icepatch234.dll_1"/>
+    <ROW Component="icepatch234.dll_2" ComponentId="{8D1415A2-7B2A-41F9-8911-BD407C3D5BCB}" Directory_="x64_DIR" Attributes="256" KeyPath="icepatch234.dll_2"/>
+    <ROW Component="icepatch234d.dll" ComponentId="{34DB96AB-E7C3-4C98-AFDA-DD6E36EAA70D}" Directory_="bin_DIR" Attributes="0" KeyPath="icepatch234d.dll"/>
+    <ROW Component="icepatch234d.dll_1" ComponentId="{DB51555E-19EC-443C-9A48-0CABF760D82D}" Directory_="bcc10_DIR" Attributes="0" KeyPath="icepatch234d.dll_1"/>
+    <ROW Component="icepatch234d.dll_2" ComponentId="{B788A49C-2B11-435C-AA28-66E6608D4BE0}" Directory_="x64_DIR" Attributes="256" KeyPath="icepatch234d.dll_2"/>
+    <ROW Component="icepatch2calc.exe" ComponentId="{E7C63DE1-C58E-4520-A3BB-AB37B9C146E5}" Directory_="bin_DIR" Attributes="0" KeyPath="icepatch2calc.exe"/>
+    <ROW Component="icepatch2calc.exe_1" ComponentId="{95124313-6730-47BA-8F70-FF89FDB013C0}" Directory_="x64_DIR" Attributes="256" KeyPath="icepatch2calc.exe_1"/>
+    <ROW Component="icepatch2client.exe" ComponentId="{570612D9-CF91-4DB3-B9FA-DC62E92302B8}" Directory_="bin_DIR" Attributes="0" KeyPath="icepatch2client.exe"/>
+    <ROW Component="icepatch2client.exe_1" ComponentId="{11C5ABE8-B5C2-42CC-8125-0DE31865EF53}" Directory_="x64_DIR" Attributes="256" KeyPath="icepatch2client.exe_1"/>
+    <ROW Component="icepatch2server.exe" ComponentId="{4F356213-7650-4AC1-8A23-D3DDA02994F6}" Directory_="bin_DIR" Attributes="0" KeyPath="icepatch2server.exe"/>
+    <ROW Component="icepatch2server.exe_1" ComponentId="{21736166-1D60-4966-9A2F-B8AED917E335}" Directory_="x64_DIR" Attributes="256" KeyPath="icepatch2server.exe_1"/>
+    <ROW Component="iceserviceinstall.exe" ComponentId="{0973A71F-0366-4C2F-8244-43CC5467ED78}" Directory_="bin_DIR" Attributes="0" KeyPath="iceserviceinstall.exe"/>
+    <ROW Component="iceserviceinstall.exe_1" ComponentId="{1585CEC6-C93B-4178-A87A-865D4D415156}" Directory_="x64_DIR" Attributes="256" KeyPath="iceserviceinstall.exe_1"/>
+    <ROW Component="icessl34.dll" ComponentId="{15C84A31-7392-4EF3-ACFD-C2E8B2BF5A42}" Directory_="bin_DIR" Attributes="0" KeyPath="icessl34.dll"/>
+    <ROW Component="icessl34.dll_1" ComponentId="{ADEC1776-6837-4C0A-86AE-0841B3B9FF00}" Directory_="bcc10_DIR" Attributes="0" KeyPath="icessl34.dll_1"/>
+    <ROW Component="icessl34.dll_2" ComponentId="{4CCB390B-A3DD-4C39-B509-653200BCFA90}" Directory_="x64_DIR" Attributes="256" KeyPath="icessl34.dll_2"/>
+    <ROW Component="icessl34d.dll" ComponentId="{BD1195EB-B3C2-4AAD-A6EE-6F0CD3B9FD1B}" Directory_="bin_DIR" Attributes="0" KeyPath="icessl34d.dll"/>
+    <ROW Component="icessl34d.dll_1" ComponentId="{E90681B3-30D5-4A06-B2BA-3B86F1C36DE5}" Directory_="bcc10_DIR" Attributes="0" KeyPath="icessl34d.dll_1"/>
+    <ROW Component="icessl34d.dll_2" ComponentId="{72284B1A-76B6-4540-8013-70CB1DFF498D}" Directory_="x64_DIR" Attributes="256" KeyPath="icessl34d.dll_2"/>
+    <ROW Component="icesslvc60_34.dll" ComponentId="{7516803C-B717-42C0-BE56-B9ED3FD24AC1}" Directory_="bin_DIR" Attributes="0" KeyPath="icesslvc60_34.dll"/>
+    <ROW Component="icestorm34.dll" ComponentId="{CD396CB4-6FD7-4044-8B80-B71A92903B27}" Directory_="bin_DIR" Attributes="0" KeyPath="icestorm34.dll"/>
+    <ROW Component="icestorm34.dll_1" ComponentId="{EA16766E-A8B3-4724-B720-6F4ACAEE98E9}" Directory_="bcc10_DIR" Attributes="0" KeyPath="icestorm34.dll_1"/>
+    <ROW Component="icestorm34.dll_2" ComponentId="{3D54AF1C-763C-45DA-BC3F-88D1E9E095E1}" Directory_="x64_DIR" Attributes="256" KeyPath="icestorm34.dll_2"/>
+    <ROW Component="icestorm34d.dll" ComponentId="{73F7FD73-D8BE-40BC-84C0-B704DED4A770}" Directory_="bin_DIR" Attributes="0" KeyPath="icestorm34d.dll"/>
+    <ROW Component="icestorm34d.dll_1" ComponentId="{1F9FCF73-4831-482A-9086-C791BEF99D1C}" Directory_="bcc10_DIR" Attributes="0" KeyPath="icestorm34d.dll_1"/>
+    <ROW Component="icestorm34d.dll_2" ComponentId="{D5236C42-F162-43AB-B143-F30D4BEBE2A5}" Directory_="x64_DIR" Attributes="256" KeyPath="icestorm34d.dll_2"/>
+    <ROW Component="icestormadmin.exe" ComponentId="{E3B8C30C-E5A8-4900-BBA8-7881B32714D9}" Directory_="bin_DIR" Attributes="0" KeyPath="icestormadmin.exe"/>
+    <ROW Component="icestormadmin.exe_1" ComponentId="{58C09CD0-D9D1-4E22-81E9-97B702AE3528}" Directory_="x64_DIR" Attributes="256" KeyPath="icestormadmin.exe_1"/>
+    <ROW Component="icestormfreezedb34.dll" ComponentId="{8335AD34-3373-4EE6-816D-6F9055BAD1B8}" Directory_="bin_DIR" Attributes="0" KeyPath="icestormfreezedb34.dll"/>
+    <ROW Component="icestormfreezedb34.dll_1" ComponentId="{1A04BD48-C0B4-41BE-AAC5-45B6E07CFE20}" Directory_="x64_DIR" Attributes="256" KeyPath="icestormfreezedb34.dll_1"/>
+    <ROW Component="icestormfreezedb34d.dll" ComponentId="{19D290C8-F2B1-414C-A9D6-3221BDF5EBD4}" Directory_="bin_DIR" Attributes="0" KeyPath="icestormfreezedb34d.dll"/>
+    <ROW Component="icestormfreezedb34d.dll_1" ComponentId="{6B1CBB8B-A02E-4F61-A502-F5C8A0D74E63}" Directory_="x64_DIR" Attributes="256" KeyPath="icestormfreezedb34d.dll_1"/>
+    <ROW Component="icestormmigrate.exe" ComponentId="{8AB47DBC-EC65-4343-A474-6F4895AE5D18}" Directory_="bin_DIR" Attributes="0" KeyPath="icestormmigrate.exe"/>
+    <ROW Component="icestormmigrate.exe_1" ComponentId="{5090EBE1-5C23-46DB-A237-9DE08B2019F4}" Directory_="x64_DIR" Attributes="256" KeyPath="icestormmigrate.exe_1"/>
+    <ROW Component="icestormservice34.dll" ComponentId="{73E98360-79D6-4CA2-A47B-FA98BD4100E0}" Directory_="bin_DIR" Attributes="0" KeyPath="icestormservice34.dll"/>
+    <ROW Component="icestormservice34.dll_1" ComponentId="{4038D4D9-993F-4669-BD1C-BCD1A7E0FBBD}" Directory_="x64_DIR" Attributes="256" KeyPath="icestormservice34.dll_1"/>
+    <ROW Component="icestormservice34d.dll" ComponentId="{9E2C59B4-4BF0-472A-9129-E2B4C2F7C2CF}" Directory_="bin_DIR" Attributes="0" KeyPath="icestormservice34d.dll"/>
+    <ROW Component="icestormservice34d.dll_1" ComponentId="{7F938AB0-6AAF-46E3-A289-C1391C7CA43C}" Directory_="x64_DIR" Attributes="256" KeyPath="icestormservice34d.dll_1"/>
+    <ROW Component="icestormsqldb34.dll" ComponentId="{B18DE2FE-1EA7-47C5-86AD-006EF3B519CF}" Directory_="bin_DIR" Attributes="0" KeyPath="icestormsqldb34.dll"/>
+    <ROW Component="icestormsqldb34.dll_1" ComponentId="{F22D6672-1AA5-466B-911D-345134373B49}" Directory_="x64_DIR" Attributes="256" KeyPath="icestormsqldb34.dll_1"/>
+    <ROW Component="icestormsqldb34d.dll" ComponentId="{E3AE2E01-102D-4887-ACE1-0CC62CE0AC7F}" Directory_="bin_DIR" Attributes="0" KeyPath="icestormsqldb34d.dll"/>
+    <ROW Component="icestormsqldb34d.dll_1" ComponentId="{0CD7865D-153C-4A08-8757-DEEB488D455C}" Directory_="x64_DIR" Attributes="256" KeyPath="icestormsqldb34d.dll_1"/>
+    <ROW Component="iceutil34.dll" ComponentId="{3B27B192-5B83-45AD-AB68-8909BF9F228D}" Directory_="bin_DIR" Attributes="0" KeyPath="iceutil34.dll"/>
+    <ROW Component="iceutil34.dll_1" ComponentId="{3C34E1D2-EE58-4757-AB3A-3C8474571270}" Directory_="bcc10_DIR" Attributes="0" KeyPath="iceutil34.dll_1"/>
+    <ROW Component="iceutil34.dll_2" ComponentId="{B30B0F93-9FAC-479D-8AF2-1E54C96CE4F3}" Directory_="x64_DIR" Attributes="256" KeyPath="iceutil34.dll_2"/>
+    <ROW Component="iceutil34d.dll" ComponentId="{1129F67E-70A8-4D4E-B246-60F2C7A68D8A}" Directory_="bin_DIR" Attributes="0" KeyPath="iceutil34d.dll"/>
+    <ROW Component="iceutil34d.dll_1" ComponentId="{5D6F1ED1-F927-4669-8D59-EC0BDF1FBF9B}" Directory_="bcc10_DIR" Attributes="0" KeyPath="iceutil34d.dll_1"/>
+    <ROW Component="iceutil34d.dll_2" ComponentId="{16B1A627-F87D-4973-8021-F7378F2475A3}" Directory_="x64_DIR" Attributes="256" KeyPath="iceutil34d.dll_2"/>
+    <ROW Component="iceutilvc60_34.dll" ComponentId="{805ECA64-A43F-43EE-B1BC-478E6E812C75}" Directory_="bin_DIR" Attributes="0" KeyPath="iceutilvc60_34.dll"/>
+    <ROW Component="icevc60_34.dll" ComponentId="{DE6B0567-E2D1-456F-B78C-0F9BC953B10B}" Directory_="bin_DIR" Attributes="0" KeyPath="icevc60_34.dll"/>
+    <ROW Component="icexml34.dll" ComponentId="{1D12C321-1EBF-478D-99AB-BA53C3CD853C}" Directory_="bin_DIR" Attributes="0" KeyPath="icexml34.dll"/>
+    <ROW Component="icexml34.dll_1" ComponentId="{EA91E4FB-5308-4FED-98FA-AC7EE085D6B1}" Directory_="bcc10_DIR" Attributes="0" KeyPath="icexml34.dll_1"/>
+    <ROW Component="icexml34.dll_2" ComponentId="{D49F536C-91E4-4E9A-8209-BFD4A4AD4290}" Directory_="x64_DIR" Attributes="256" KeyPath="icexml34.dll_2"/>
+    <ROW Component="icexml34d.dll" ComponentId="{58A4A646-45A5-49AC-BF51-83AAC0D6E54B}" Directory_="bin_DIR" Attributes="0" KeyPath="icexml34d.dll"/>
+    <ROW Component="icexml34d.dll_1" ComponentId="{7FCA8615-95D8-4F86-9D90-25929B2BE460}" Directory_="bcc10_DIR" Attributes="0" KeyPath="icexml34d.dll_1"/>
+    <ROW Component="icexml34d.dll_2" ComponentId="{B0B722C9-F92F-47B4-85B0-C9BB9CF27F9D}" Directory_="x64_DIR" Attributes="256" KeyPath="icexml34d.dll_2"/>
+    <ROW Component="icexml34d.tds" ComponentId="{1D40A417-09B0-4857-948B-C4C2321E6D25}" Directory_="bcc10_DIR" Attributes="0" KeyPath="icexml34d.tds" Type="0"/>
+    <ROW Component="init_.py" ComponentId="{17E2D066-A936-41F7-8830-29E6209A3376}" Directory_="IceBox_2_DIR" Attributes="0" KeyPath="init_.py" Type="0"/>
+    <ROW Component="init_.py_1" ComponentId="{5D45913F-C2D5-4EE1-AEF2-EB7DB15014E2}" Directory_="IceGrid_2_DIR" Attributes="0" KeyPath="init_.py_1" Type="0"/>
+    <ROW Component="init_.py_2" ComponentId="{95239410-3C98-422A-9B4B-63E4AF4E606F}" Directory_="IcePatch2_2_DIR" Attributes="0" KeyPath="init_.py_2" Type="0"/>
+    <ROW Component="init_.py_3" ComponentId="{A3E05892-0DD7-4431-B453-6887DD6FBE2E}" Directory_="IceStorm_2_DIR" Attributes="0" KeyPath="init_.py_3" Type="0"/>
+    <ROW Component="init_.py_4" ComponentId="{4760DDE7-9507-4CE7-8536-668724575118}" Directory_="IceBox_4_DIR" Attributes="0" KeyPath="init_.py_4" Type="0"/>
+    <ROW Component="init_.py_5" ComponentId="{3209A37A-7664-4CFF-93F9-392AF08B852C}" Directory_="IceGrid_5_DIR" Attributes="0" KeyPath="init_.py_5" Type="0"/>
+    <ROW Component="init_.py_6" ComponentId="{A8BDC02F-56CD-4C6D-9F87-11DEB194FE70}" Directory_="IcePatch2_5_DIR" Attributes="0" KeyPath="init_.py_6" Type="0"/>
+    <ROW Component="init_.py_7" ComponentId="{549D45CB-FBEC-4422-93EE-06D5BC630D7A}" Directory_="IceStorm_5_DIR" Attributes="0" KeyPath="init_.py_7" Type="0"/>
+    <ROW Component="libdb48.dll" ComponentId="{C53792F0-4B69-452A-8866-9B9599092F54}" Directory_="bin_DIR" Attributes="0" KeyPath="libdb48.dll"/>
+    <ROW Component="libdb48.dll_1" ComponentId="{6170C29D-D2CE-4969-8C0A-B60E339F9317}" Directory_="bcc10_DIR" Attributes="0" KeyPath="libdb48.dll_1"/>
+    <ROW Component="libdb48.dll_2" ComponentId="{972FD77C-83A8-402E-B643-43C49258EDC2}" Directory_="x64_DIR" Attributes="256" KeyPath="libdb48.dll_2"/>
+    <ROW Component="libdb48d.dll" ComponentId="{965E43DA-6A31-4FCC-9A11-433FA039DF2F}" Directory_="bin_DIR" Attributes="0" KeyPath="libdb48d.dll"/>
+    <ROW Component="libdb48d.dll_1" ComponentId="{648142F3-3197-4F6C-988C-72F637A85046}" Directory_="x64_DIR" Attributes="256" KeyPath="libdb48d.dll_1"/>
+    <ROW Component="libdb_java48.dll" ComponentId="{2A51E660-BC44-4396-882F-00F2CE43B946}" Directory_="bin_DIR" Attributes="0" KeyPath="libdb_java48.dll"/>
+    <ROW Component="libdb_java48.dll_1" ComponentId="{8012D10F-BC62-4E35-BDE2-3498321CB217}" Directory_="x64_DIR" Attributes="256" KeyPath="libdb_java48.dll_1"/>
+    <ROW Component="libeay32.dll" ComponentId="{DA5D52DA-0324-4879-88C9-0471F00BE512}" Directory_="bin_DIR" Attributes="0" KeyPath="libeay32.dll"/>
+    <ROW Component="libeay32.dll_1" ComponentId="{46D12C77-5E71-4BF5-A018-527C7CBBFDFE}" Directory_="x64_DIR" Attributes="256" KeyPath="libeay32.dll_1"/>
+    <ROW Component="libeay32_vc6.dll" ComponentId="{BDCAE52F-A658-45CA-A572-5943976A90AF}" Directory_="bin_DIR" Attributes="0" KeyPath="libeay32_vc6.dll"/>
+    <ROW Component="libexpat.dll" ComponentId="{DDEE5D01-0B78-49AD-9E99-C54CFFB954C9}" Directory_="bin_DIR" Attributes="0" KeyPath="libexpat.dll"/>
+    <ROW Component="libexpat.dll_1" ComponentId="{F494E32A-34A6-4368-85DF-6BD956B36492}" Directory_="x64_DIR" Attributes="0" KeyPath="libexpat.dll_1"/>
+    <ROW Component="msvcp60.dll" ComponentId="{EEB7471D-9A84-49CD-937F-337BD769DA98}" Directory_="bin_DIR" Attributes="0" KeyPath="msvcp60.dll"/>
+    <ROW Component="msvcrt.dll" ComponentId="{82A53662-32D9-484A-8DD0-D41850C087B3}" Directory_="bin_DIR" Attributes="0" KeyPath="msvcrt.dll"/>
+    <ROW Component="newslice.ico" ComponentId="{F8D213D9-87C8-4BD3-AEA0-A2503AE746D7}" Directory_="icon_DIR" Attributes="0" KeyPath="newslice.ico"/>
+    <ROW Component="openssl.exe" ComponentId="{10E10097-33A4-4328-9D42-5B2BFA19D6C4}" Directory_="bin_DIR" Attributes="0" KeyPath="openssl.exe"/>
+    <ROW Component="openssl.exe_1" ComponentId="{E8D47306-FD7B-42F1-8F5A-E0830A0ABEDE}" Directory_="x64_DIR" Attributes="256" KeyPath="openssl.exe_1"/>
+    <ROW Component="php_ice.dll" ComponentId="{99D401D6-3775-49A5-995C-7B0CB5B6AE9B}" Directory_="bin_DIR" Attributes="0" KeyPath="php_ice.dll"/>
+    <ROW Component="slice.vsdir" ComponentId="{D5E31759-6E15-4053-94F6-E8D133A374CC}" Directory_="VS_2008_CPP_TEMPLATE_DIR_MOD" Attributes="0" KeyPath="slice.vsdir"/>
+    <ROW Component="slice.vsdir_1" ComponentId="{501632F7-EA5C-4AD5-8069-4FFFF129EA4E}" Directory_="VS_2008_CS_TEMPLATE_DIR_MOD" Attributes="0" KeyPath="slice.vsdir_1"/>
+    <ROW Component="slice.vsdir_2" ComponentId="{8909C551-9A14-4A64-BCE7-FB7B04BFE7C5}" Directory_="Slice_1_DIR" Attributes="0" KeyPath="slice.vsdir_2"/>
+    <ROW Component="slice.vsdir_3" ComponentId="{1CEDB5AC-61A0-4532-AE3F-1D30D129C326}" Directory_="Slice_2_DIR" Attributes="0" KeyPath="slice.vsdir_3"/>
+    <ROW Component="slice2cpp.exe" ComponentId="{FAFC0CF7-9E7A-475B-BD93-2D7590F20472}" Directory_="bin_DIR" Attributes="0" KeyPath="slice2cpp.exe"/>
+    <ROW Component="slice2cpp.exe_1" ComponentId="{06D5BD86-0A4A-4D02-B170-B5395AD62428}" Directory_="x64_DIR" Attributes="256" KeyPath="slice2cpp.exe_1"/>
+    <ROW Component="slice2cs.exe" ComponentId="{AAD9282E-6143-4292-8CAA-6BC6F28AB482}" Directory_="bin_DIR" Attributes="0" KeyPath="slice2cs.exe"/>
+    <ROW Component="slice2cs.exe_1" ComponentId="{BE729B8F-C6F3-4004-B845-E997CC0780C5}" Directory_="x64_DIR" Attributes="256" KeyPath="slice2cs.exe_1"/>
+    <ROW Component="slice2freeze.exe" ComponentId="{EAD724DD-4CD4-4806-8F6B-75A79948B180}" Directory_="bin_DIR" Attributes="0" KeyPath="slice2freeze.exe"/>
+    <ROW Component="slice2freeze.exe_1" ComponentId="{1D0D143A-BE38-46AA-A1BF-9D8665C023BE}" Directory_="x64_DIR" Attributes="256" KeyPath="slice2freeze.exe_1"/>
+    <ROW Component="slice2freezej.exe" ComponentId="{B9AF7633-612C-4A43-9181-D89BAC0082DF}" Directory_="bin_DIR" Attributes="0" KeyPath="slice2freezej.exe"/>
+    <ROW Component="slice2freezej.exe_1" ComponentId="{D7FA497B-6847-4D42-8F1F-1B89C0E1784E}" Directory_="x64_DIR" Attributes="256" KeyPath="slice2freezej.exe_1"/>
+    <ROW Component="slice2html.exe" ComponentId="{F059CC2D-25D9-43A2-A824-970EA49958C2}" Directory_="bin_DIR" Attributes="0" KeyPath="slice2html.exe"/>
+    <ROW Component="slice2html.exe_1" ComponentId="{125F8D9F-D442-4D6A-AEF8-30C24B347D09}" Directory_="x64_DIR" Attributes="256" KeyPath="slice2html.exe_1"/>
+    <ROW Component="slice2java.exe" ComponentId="{5664D20D-E97E-496C-9524-3E3182D35AD4}" Directory_="bin_DIR" Attributes="0" KeyPath="slice2java.exe"/>
+    <ROW Component="slice2java.exe_1" ComponentId="{1F8A065A-E4D8-4703-AADD-6467ACEBBA85}" Directory_="x64_DIR" Attributes="256" KeyPath="slice2java.exe_1"/>
+    <ROW Component="slice2php.exe" ComponentId="{A09568FE-CA4C-4E54-9CA0-0B09F70F1255}" Directory_="bin_DIR" Attributes="0" KeyPath="slice2php.exe"/>
+    <ROW Component="slice2php.exe_1" ComponentId="{A3A4D1ED-0AA3-4522-8EF5-43BAA0E2C396}" Directory_="x64_DIR" Attributes="256" KeyPath="slice2php.exe_1"/>
+    <ROW Component="slice2py.exe" ComponentId="{08F178F6-573C-4630-8080-E5B874400A81}" Directory_="bin_DIR" Attributes="0" KeyPath="slice2py.exe"/>
+    <ROW Component="slice2py.exe_1" ComponentId="{E55083CE-4308-41EC-83A9-D852DE6BD597}" Directory_="x64_DIR" Attributes="256" KeyPath="slice2py.exe_1"/>
+    <ROW Component="slice2rb.exe" ComponentId="{6CF5D737-C7DC-4B6B-8110-1F8832AA565D}" Directory_="bin_DIR" Attributes="0" KeyPath="slice2rb.exe"/>
+    <ROW Component="slice2rb.exe_1" ComponentId="{16B55518-784E-450C-81BD-3DF5B7DF992B}" Directory_="x64_DIR" Attributes="256" KeyPath="slice2rb.exe_1"/>
+    <ROW Component="slice34.dll" ComponentId="{EAD7C9AD-43A3-4BDC-A2F3-5E5AC4AC39CA}" Directory_="bin_DIR" Attributes="0" KeyPath="slice34.dll"/>
+    <ROW Component="slice34.dll_1" ComponentId="{F9617810-756C-4E6B-A310-F3924DF443B5}" Directory_="x64_DIR" Attributes="256" KeyPath="slice34.dll_1"/>
+    <ROW Component="slice34d.dll" ComponentId="{2E17A789-6219-46CD-932B-36A5046D92E4}" Directory_="bin_DIR" Attributes="0" KeyPath="slice34d.dll"/>
+    <ROW Component="slice34d.dll_1" ComponentId="{02D9F0E9-A0C1-4FB9-AF1E-CE1926A82323}" Directory_="x64_DIR" Attributes="256" KeyPath="slice34d.dll_1"/>
+    <ROW Component="slicevc60_34.dll" ComponentId="{3DE301CC-FBA9-40E8-B401-B74D44136244}" Directory_="bin_DIR" Attributes="0" KeyPath="slicevc60_34.dll"/>
+    <ROW Component="ssleay32.dll" ComponentId="{385919FA-6477-4789-968E-619D5F206ABA}" Directory_="bin_DIR" Attributes="0" KeyPath="ssleay32.dll"/>
+    <ROW Component="ssleay32.dll_1" ComponentId="{686C80F6-A6C6-4603-A76D-75E470660FFE}" Directory_="x64_DIR" Attributes="256" KeyPath="ssleay32.dll_1"/>
+    <ROW Component="ssleay32_vc6.dll" ComponentId="{123320FE-7ED7-48ED-8408-D69F862B987D}" Directory_="bin_DIR" Attributes="0" KeyPath="ssleay32_vc6.dll"/>
+    <ROW Component="stlport_vc646.dll" ComponentId="{127D6FF6-F8E0-4EC8-9C4A-3C2E9F594B62}" Directory_="bin_DIR" Attributes="0" KeyPath="stlport_vc646.dll"/>
+    <ROW Component="stlport_vc6_stldebug46.pdb" ComponentId="{87E10717-9A89-48EE-BBF5-BBBEC6299C1D}" Directory_="bin_DIR" Attributes="0" KeyPath="icepatch234d.pdb" Type="0"/>
+    <ROW Component="transformdb.exe" ComponentId="{09C7A839-BB64-45A4-B0BD-1BEAC9BECEB5}" Directory_="bin_DIR" Attributes="0" KeyPath="transformdb.exe"/>
+    <ROW Component="transformdb.exe_1" ComponentId="{98DDFC5B-D7F3-4FB7-9EDE-EAFCCF271939}" Directory_="x64_DIR" Attributes="256" KeyPath="transformdb.exe_1"/>
+    <ROW Component="upgradeicegrid.py" ComponentId="{1003F497-83B9-4591-94C5-200FA71C7C89}" Directory_="config_DIR" Attributes="0" KeyPath="upgradeicegrid.py" Type="0"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiFeatsComponent">
     <ROW Feature="MainFeature" Title="MainFeature" Description="Description" Display="3" Level="1" Directory_="APPDIR" Attributes="0" Components="THIRD_PARTY_SOURCES.txt stlport_vc646.dll bzip2.dll bzip2_vc6.dll bzip2d.dll db_archive.exe db_checkpoint.exe db_deadlock.exe db_dump.exe db_hotbackup.exe db_load.exe db_printlog.exe db_recover.exe db_stat.exe db_upgrade.exe db_verify.exe libdb48.dll libdb48d.dll libdb_java48.dll libeay32.dll libeay32_vc6.dll libexpat.dll msvcp60.dll msvcrt.dll openssl.exe ssleay32.dll ssleay32_vc6.dll stlport_vc6_stldebug46.pdb libdb48.dll_1 ssleay32.dll_1 bzip2.dll_1 bzip2d.dll_1 db_archive.exe_1 db_checkpoint.exe_1 db_deadlock.exe_1 db_dump.exe_1 db_hotbackup.exe_1 db_load.exe_1 db_printlog.exe_1 db_recover.exe_1 db_stat.exe_1 db_upgrade.exe_1 db_verify.exe_1 libdb48.dll_2 libdb48d.dll_1 libeay32.dll_1 libexpat.dll_1 openssl.exe_1 IceGridAdmin.chm TransactionalEvictor.ice SSLInfo.ice StatsF.ice IceBox.ice UserAccountMapper.ice FileServer.ice EndpointInfo.ice IceStorm.ice TransactionHolder.h Application.h Application.h_1 IceBox.h Admin.h ClientUtil.h ConnectionInfo.h IceStorm.h AbstractMutex.h Parser.h Checksum.h IceStorm.dll Glacier2.dll Ice.dll IceBox.dll iceboxnet.exe IceGrid.dll IcePatch2.dll IceSSL.dll transformdb.exe dumpdb.exe freeze34.dll glacier2router.exe glacier234.dll ice34.dll icebox.exe icebox34.dll iceboxadmin.exe icedb34.dll icegrid34.dll icegridadmin.exe icegridfreezedb34.dll icegridnode.exe icegridregistry.exe icepatch2calc.exe icepatch2client.exe icepatch2server.exe icepatch234.dll iceserviceinstall.exe icessl34.dll icestorm34.dll icestormadmin.exe icestormfreezedb34.dll icestormmigrate.exe icestormservice34.dll iceutil34.dll icexml34.dll slice2cpp.exe slice2cs.exe slice2freeze.exe slice2freezej.exe slice2html.exe slice2java.exe slice2php.exe slice2py.exe slice2rb.exe slice34.dll icessl34d.dll icestorm34d.dll icestormfreezedb34d.dll icestormservice34d.dll iceutil34d.dll icexml34d.dll slice34d.dll freeze34d.dll glacier234d.dll ice34d.dll icebox34d.dll iceboxd.exe icedb34d.dll icegrid34d.dll icegridfreezedb34d.dll icepatch234d.dll upgradeicegrid.py freeze34.dll_1 glacier234.dll_1 ice34.dll_1 icegrid34.dll_1 icepatch234.dll_1 icessl34.dll_1 icestorm34.dll_1 iceutil34.dll_1 icexml34.dll_1 icexml34d.tds freeze34d.dll_1 glacier234d.dll_1 ice34d.dll_1 icegrid34d.dll_1 icepatch234d.dll_1 icessl34d.dll_1 icestorm34d.dll_1 iceutil34d.dll_1 icexml34d.dll_1 transformdb.exe_1 dumpdb.exe_1 freeze34.dll_2 glacier2router.exe_1 glacier234.dll_2 ice34.dll_2 icebox.exe_1 icebox34.dll_1 iceboxadmin.exe_1 icedb34.dll_1 icegrid34.dll_2 icegridadmin.exe_1 icegridfreezedb34.dll_1 icegridnode.exe_1 icegridregistry.exe_1 icepatch2calc.exe_1 icepatch2client.exe_1 icepatch2server.exe_1 icepatch234.dll_2 iceserviceinstall.exe_1 icessl34.dll_2 icestorm34.dll_2 icestormadmin.exe_1 icestormfreezedb34.dll_1 icestormmigrate.exe_1 icestormservice34.dll_1 iceutil34.dll_2 icexml34.dll_2 slice2cpp.exe_1 slice2cs.exe_1 slice2freeze.exe_1 slice2freezej.exe_1 slice2html.exe_1 slice2java.exe_1 slice2php.exe_1 slice2py.exe_1 slice2rb.exe_1 slice34.dll_1 slice34d.dll_1 freeze34d.pdb freeze34d.dll_2 glacier234d.dll_2 ice34d.dll_2 icebox34d.dll_1 iceboxd.exe_1 icedb34d.dll_1 icegrid34d.dll_2 icegridfreezedb34d.dll_1 icepatch234d.dll_2 icessl34d.dll_2 icestorm34d.dll_2 icestormfreezedb34d.dll_1 icestormservice34d.dll_1 iceutil34d.dll_2 icexml34d.dll_2 Ice.jar freezed.lib freezed.lib_1 IceStorm_IceStorm_ice.py init_.py init_.py_1 init_.py_2 init_.py_3 php_ice.dll icestormsqldb34d.dll icegridsqldb34d.dll icegridsqldb34.dll icestormsqldb34.dll icestormsqldb34d.dll_1 icegridsqldb34d.dll_1 icegridsqldb34.dll_1 icestormsqldb34.dll_1 QtSqld4.dll QtCore4.dll QtCored4.dll QtSql4.dll QtSqld4.dll_1 QtCore4.dll_1 QtCored4.dll_1 QtSql4.dll_1 InstallDir IceStorm.rb IceRuby.dll SSLInfo.rb StatsF.rb IceBox.rb UserAccountMapper.rb IceStorm.rb_1 FileServer.rb slicevc60_34.dll icesslvc60_34.dll iceutilvc60_34.dll icevc60_34.dll libdb_java48.dll_1 Glacier2.php SSLInfo.php StatsF.php IceBox.php UserAccountMapper.php FileServer.php IceStorm.php IceStorm_IceStorm_ice.py_1 init_.py_4 init_.py_5 init_.py_6 init_.py_7 db_verify.exe_2 db_archive.exe_2 db_checkpoint.exe_2 db_deadlock.exe_2 db_dump.exe_2 db_hotbackup.exe_2 db_load.exe_2 db_printlog.exe_2 db_recover.exe_2 db_stat.exe_2 db_upgrade.exe_2"/>
@@ -1199,8 +1199,8 @@
     <ROW File="libeay32_vc6.dll" Component_="libeay32_vc6.dll" FileName="libeay~1.dll|libeay32_vc6.dll" Attributes="0" SourcePath="&lt;THIRDPARTY_HOME&gt;bin\libeay32_vc6.dll" SelfReg="false" Sequence="23" DigSign="true"/>
     <ROW File="libexpat.dll" Component_="libexpat.dll" FileName="libexpat.dll" Attributes="0" SourcePath="&lt;THIRDPARTY_HOME&gt;bin\libexpat.dll" SelfReg="false" Sequence="24" DigSign="true"/>
     <ROW File="libexpat.dll_1" Component_="libexpat.dll_1" FileName="libexpat.dll" Attributes="0" SourcePath="&lt;THIRDPARTY_HOME&gt;bin\x64\libexpat.dll" SelfReg="false" Sequence="48" DigSign="true"/>
-    <ROW File="msvcp60.dll" Component_="msvcp60.dll" FileName="msvcp60.dll" Attributes="0" SourcePath="&lt;THIRDPARTY_HOME&gt;bin\msvcp60.dll" SelfReg="false" Sequence="25" DigSign="true"/>
-    <ROW File="msvcrt.dll" Component_="msvcrt.dll" FileName="msvcrt.dll" Attributes="0" SourcePath="&lt;THIRDPARTY_HOME&gt;bin\msvcrt.dll" SelfReg="false" Sequence="26" DigSign="true"/>
+    <ROW File="msvcp60.dll" Component_="msvcp60.dll" FileName="msvcp60.dll" Attributes="0" SourcePath="&lt;THIRDPARTY_HOME&gt;bin\msvcp60.dll" SelfReg="false" Sequence="25"/>
+    <ROW File="msvcrt.dll" Component_="msvcrt.dll" FileName="msvcrt.dll" Attributes="0" SourcePath="&lt;THIRDPARTY_HOME&gt;bin\msvcrt.dll" SelfReg="false" Sequence="26"/>
     <ROW File="newslice.ice" Component_="slice.vsdir" FileName="newslice.ice" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;VC9\Release\vsplugin\templates\vs\newslice.ice" SelfReg="false" Sequence="664"/>
     <ROW File="newslice.ice_1" Component_="slice.vsdir_1" FileName="newslice.ice" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;VC9\Release\vsplugin\templates\vs\newslice.ice" SelfReg="false" Sequence="667"/>
     <ROW File="newslice.ico" Component_="newslice.ico" FileName="newslice.ico" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;VC9\Release\vsplugin\icon\newslice.ico" SelfReg="false" Sequence="660"/>

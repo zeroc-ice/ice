@@ -14,7 +14,7 @@
     <ROW Property="MCPPLICENSDLGRADIOBUTTONGROUP_1_PROP" Value="No" Type="4"/>
     <ROW Property="Manufacturer" Value="Zeroc, Inc" ValueLocId="*"/>
     <ROW Property="OPENSSLLICESNEDLGRADIOBUTTONGROUP_1_PROP" Value="No" Type="4"/>
-    <ROW Property="ProductCode" Value="1033:{7560FE8B-589F-4496-872F-A070B78DCD8E} " Type="16"/>
+    <ROW Property="ProductCode" Value="1033:{A3012004-0FA0-40B0-8A93-9C14AAD832EA} " Type="16"/>
     <ROW Property="ProductLanguage" Value="1033"/>
     <ROW Property="ProductName" Value="Ice 3.4.0 Third Party Packages" ValueLocId="*"/>
     <ROW Property="ProductVersion" Value="3.4.0"/>
@@ -54,99 +54,99 @@
     <ROW Directory="x64_DIR" Directory_Parent="lib_DIR" DefaultDir="x64"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiCompsComponent">
-    <ROW Component="InstallDir" ComponentId="{8A29DFEF-C5F1-4146-87FE-47AE93DCC102}" Directory_="APPDIR" Attributes="260" KeyPath="InstallDir"/>
-    <ROW Component="QXmlStreamWriter" ComponentId="{4C2DD2B2-3DCD-438E-9CDB-7429FB38BBDB}" Directory_="QtCore_DIR" Attributes="0" KeyPath="QXmlStreamWriter" Type="0"/>
-    <ROW Component="QtCore4.dll" ComponentId="{3B7FD26A-E4AF-4A0F-9744-0FFB4B87C9A3}" Directory_="bin_DIR" Attributes="0" KeyPath="QtCore4.dll"/>
-    <ROW Component="QtCore4.dll_1" ComponentId="{62D8C64C-09CF-4C45-A65E-A80ACD343296}" Directory_="x64_1_DIR" Attributes="256" KeyPath="QtCore4.dll_1"/>
-    <ROW Component="QtCored4.dll" ComponentId="{FA33D6F4-49C7-4BB8-AC87-6D908A1C0E2B}" Directory_="bin_DIR" Attributes="0" KeyPath="QtCored4.dll"/>
-    <ROW Component="QtCored4.dll_1" ComponentId="{F35CBDB5-1B07-4F87-89F2-4C916D12CC75}" Directory_="x64_1_DIR" Attributes="256" KeyPath="QtCored4.dll_1"/>
-    <ROW Component="QtSql4.dll" ComponentId="{18EDFE3E-EA50-4781-889D-8A228EC451C3}" Directory_="bin_DIR" Attributes="0" KeyPath="QtSql4.dll"/>
-    <ROW Component="QtSql4.dll_1" ComponentId="{F57423E0-E957-47DC-B5C6-32FD55BFD34F}" Directory_="x64_1_DIR" Attributes="256" KeyPath="QtSql4.dll_1"/>
-    <ROW Component="QtSql_1" ComponentId="{A1CD7EBB-8EAD-4FAF-B544-DF4B430D02D6}" Directory_="QtSql_DIR" Attributes="0" KeyPath="QtSql" Type="0"/>
-    <ROW Component="QtSqld4.dll" ComponentId="{E15FDD8A-7D67-4ADF-ABB0-F6855DCD7F80}" Directory_="bin_DIR" Attributes="0" KeyPath="QtSqld4.dll"/>
-    <ROW Component="QtSqld4.dll_1" ComponentId="{05D3AD66-4FF7-47B6-AD0E-9B5BBC2E36AC}" Directory_="x64_1_DIR" Attributes="256" KeyPath="QtSqld4.dll_1"/>
-    <ROW Component="SOURCES" ComponentId="{5FB8EE09-9CA7-46EA-8866-CBADC5EFC88E}" Directory_="APPDIR" Attributes="0" KeyPath="SOURCES.txt" Type="0"/>
-    <ROW Component="aes.h" ComponentId="{C4774909-1E9D-4A3B-BAB0-824ACAAC1C9A}" Directory_="openssl_DIR" Attributes="0" KeyPath="aes.h" Type="0"/>
-    <ROW Component="algo.h" ComponentId="{6F483A70-4B15-410C-8C0B-5B3A9F7B7D92}" Directory_="old_hp_DIR" Attributes="0" KeyPath="algo.h" Type="0"/>
-    <ROW Component="algorith.h" ComponentId="{A6CE043D-EA5B-4222-A96D-522822ACA174}" Directory_="BC50_DIR" Attributes="0" KeyPath="algorith.h" Type="0"/>
-    <ROW Component="algorithm" ComponentId="{D6561EBC-1943-475D-B1CF-BDAFFA6B9EDC}" Directory_="stlport_DIR" Attributes="0" KeyPath="algorithm" Type="0"/>
-    <ROW Component="bzip2.dll" ComponentId="{CE902FD5-B4C6-46D6-98D4-D1B4C6963F9A}" Directory_="bin_DIR" Attributes="0" KeyPath="bzip2.dll"/>
-    <ROW Component="bzip2.dll_2" ComponentId="{46E3E162-7C07-4B42-82DC-2D7C1EB5047A}" Directory_="x64_1_DIR" Attributes="256" KeyPath="bzip2.dll_2"/>
-    <ROW Component="bzip2_vc6.dll" ComponentId="{C29717ED-A340-4A4D-BFA2-75C5E0C65DA8}" Directory_="bin_DIR" Attributes="0" KeyPath="bzip2_vc6.dll"/>
-    <ROW Component="bzip2_vc6d.dll" ComponentId="{3B5E09D1-B6E3-4286-BA27-32E4F3745B8A}" Directory_="bin_DIR" Attributes="0" KeyPath="bzip2_vc6d.dll"/>
-    <ROW Component="bzip2d.dll" ComponentId="{E8CCF6E0-F897-4D72-8020-0018435D5810}" Directory_="bin_DIR" Attributes="0" KeyPath="bzip2d.dll"/>
-    <ROW Component="bzip2d.dll_1" ComponentId="{484D7B2F-3CC0-4D78-AF20-36EAC59B6CE6}" Directory_="x64_1_DIR" Attributes="256" KeyPath="bzip2d.dll_1"/>
-    <ROW Component="bzlib.h" ComponentId="{D2B7FAFB-A272-45E1-91C8-ACB1267B66ED}" Directory_="include_DIR" Attributes="0" KeyPath="expat.h" Type="0"/>
-    <ROW Component="char_traits.h" ComponentId="{13397D5D-0533-4263-AD15-6EAC7971DC3D}" Directory_="stl_DIR" Attributes="0" KeyPath="char_traits.h" Type="0"/>
-    <ROW Component="complex" ComponentId="{5AF5CBB1-83FB-4FF0-B87D-8205EF5B1F0E}" Directory_="wrap_std_DIR" Attributes="0" KeyPath="complex_1" Type="0"/>
-    <ROW Component="configure" ComponentId="{224ABE8E-9ACC-43E6-9D88-113BD164C1EC}" Directory_="new_compiler_DIR" Attributes="0" KeyPath="configure" Type="0"/>
-    <ROW Component="cstring" ComponentId="{B6BE3F5A-5104-46C0-A719-8B187E769981}" Directory_="using_1_DIR" Attributes="0" KeyPath="cstring_1" Type="0"/>
-    <ROW Component="cstring.h" ComponentId="{555D38DB-F610-4217-9775-858DF9B4BF52}" Directory_="using_DIR" Attributes="0" KeyPath="cstring.h_1" Type="0"/>
-    <ROW Component="db.jar" ComponentId="{FC29744B-1565-40F2-A030-6B7824DD200E}" Directory_="lib_DIR" Attributes="0" KeyPath="forms_1.2.1.jar" Type="0"/>
-    <ROW Component="db_archive.exe" ComponentId="{21727CE3-32B1-4638-9986-29D99F9CECB4}" Directory_="bin_DIR" Attributes="0" KeyPath="db_archive.exe"/>
-    <ROW Component="db_archive.exe_1" ComponentId="{1B38868B-C311-4A83-BF62-9D821BC17A1F}" Directory_="x64_1_DIR" Attributes="256" KeyPath="db_archive.exe_1"/>
-    <ROW Component="db_archive.exe_2" ComponentId="{551CFDF5-E7A9-4E1A-A721-2B77B9C6FB06}" Directory_="bcc10_1_DIR" Attributes="0" KeyPath="db_archive.exe_2"/>
-    <ROW Component="db_checkpoint.exe" ComponentId="{935704F4-FCCF-4190-867B-549F62996E21}" Directory_="bin_DIR" Attributes="0" KeyPath="db_checkpoint.exe"/>
-    <ROW Component="db_checkpoint.exe_1" ComponentId="{6F70D8DD-83BF-4955-9706-A0BE26692397}" Directory_="x64_1_DIR" Attributes="256" KeyPath="db_checkpoint.exe_1"/>
-    <ROW Component="db_checkpoint.exe_2" ComponentId="{D8C347CB-FB7A-4ECF-9B6C-35EAF94DF209}" Directory_="bcc10_1_DIR" Attributes="0" KeyPath="db_checkpoint.exe_2"/>
-    <ROW Component="db_deadlock.exe" ComponentId="{FAB42346-A038-42B0-A4C4-1268FE0449C6}" Directory_="bin_DIR" Attributes="0" KeyPath="db_deadlock.exe"/>
-    <ROW Component="db_deadlock.exe_1" ComponentId="{E8905650-2363-45F2-ACB0-DB8CDCE5E1BC}" Directory_="x64_1_DIR" Attributes="256" KeyPath="db_deadlock.exe_1"/>
-    <ROW Component="db_deadlock.exe_2" ComponentId="{742EE26B-EA98-49D8-B3DD-2EDECD4EE790}" Directory_="bcc10_1_DIR" Attributes="0" KeyPath="db_deadlock.exe_2"/>
-    <ROW Component="db_dump.exe" ComponentId="{C8D457F2-98DE-45BF-85CD-74E2BEAB7BC3}" Directory_="bin_DIR" Attributes="0" KeyPath="db_dump.exe"/>
-    <ROW Component="db_dump.exe_1" ComponentId="{275A65DE-E154-4FA9-9E5B-4A31ABC11631}" Directory_="x64_1_DIR" Attributes="256" KeyPath="db_dump.exe_1"/>
-    <ROW Component="db_dump.exe_2" ComponentId="{56CAC039-63D9-42D2-A37E-3E18FE5CB5E3}" Directory_="bcc10_1_DIR" Attributes="0" KeyPath="db_dump.exe_2"/>
-    <ROW Component="db_hotbackup.exe" ComponentId="{C7622294-80A3-496A-97AE-A3D6E1F7C470}" Directory_="bin_DIR" Attributes="0" KeyPath="db_hotbackup.exe"/>
-    <ROW Component="db_hotbackup.exe_1" ComponentId="{617C551B-148B-4253-AFF4-71174D417705}" Directory_="x64_1_DIR" Attributes="256" KeyPath="db_hotbackup.exe_1"/>
-    <ROW Component="db_hotbackup.exe_2" ComponentId="{439228B8-82D6-499B-983A-8A04BFD5E9BB}" Directory_="bcc10_1_DIR" Attributes="0" KeyPath="db_hotbackup.exe_2"/>
-    <ROW Component="db_load.exe" ComponentId="{9BA35909-86D4-4F8C-8386-F5508A80D320}" Directory_="bin_DIR" Attributes="0" KeyPath="db_load.exe"/>
-    <ROW Component="db_load.exe_1" ComponentId="{5400CCDB-98CF-44BD-A588-215ADC43CD12}" Directory_="x64_1_DIR" Attributes="256" KeyPath="db_load.exe_1"/>
-    <ROW Component="db_load.exe_2" ComponentId="{34DE5D0E-5DFF-4B7D-AFEC-560C2AF6A098}" Directory_="bcc10_1_DIR" Attributes="0" KeyPath="db_load.exe_2"/>
-    <ROW Component="db_printlog.exe" ComponentId="{8C1E9FCD-8202-4C99-9CEB-88B0D241DF28}" Directory_="bin_DIR" Attributes="0" KeyPath="db_printlog.exe"/>
-    <ROW Component="db_printlog.exe_1" ComponentId="{34DA0E4F-AE21-4BD1-8984-55053E4C66EE}" Directory_="x64_1_DIR" Attributes="256" KeyPath="db_printlog.exe_1"/>
-    <ROW Component="db_printlog.exe_2" ComponentId="{72914960-9E70-42F2-BDA2-D44F1AED257F}" Directory_="bcc10_1_DIR" Attributes="0" KeyPath="db_printlog.exe_2"/>
-    <ROW Component="db_recover.exe" ComponentId="{161A8F81-CB8B-4DDD-8D35-35798C5DC0DB}" Directory_="bin_DIR" Attributes="0" KeyPath="db_recover.exe"/>
-    <ROW Component="db_recover.exe_1" ComponentId="{6E0B7996-5FEC-4CE3-8E04-64B2366068CD}" Directory_="x64_1_DIR" Attributes="256" KeyPath="db_recover.exe_1"/>
-    <ROW Component="db_recover.exe_2" ComponentId="{93ACC548-E6B3-4279-AAC6-20DA17A32038}" Directory_="bcc10_1_DIR" Attributes="0" KeyPath="db_recover.exe_2"/>
-    <ROW Component="db_stat.exe" ComponentId="{D0926C19-E30A-4445-A67F-892CD602D19F}" Directory_="bin_DIR" Attributes="0" KeyPath="db_stat.exe"/>
-    <ROW Component="db_stat.exe_1" ComponentId="{206C9803-1C19-40F5-9BD8-990CEB03E0C3}" Directory_="x64_1_DIR" Attributes="256" KeyPath="db_stat.exe_1"/>
-    <ROW Component="db_stat.exe_2" ComponentId="{660552AB-F30B-48F0-931B-9D377FE6F0CC}" Directory_="bcc10_1_DIR" Attributes="0" KeyPath="db_stat.exe_2"/>
-    <ROW Component="db_upgrade.exe" ComponentId="{500FF28C-53DD-4A54-8D93-3C4F797F6551}" Directory_="bin_DIR" Attributes="0" KeyPath="db_upgrade.exe"/>
-    <ROW Component="db_upgrade.exe_1" ComponentId="{3AE91493-D77E-46D1-B910-CF30E035F6D3}" Directory_="x64_1_DIR" Attributes="256" KeyPath="db_upgrade.exe_1"/>
-    <ROW Component="db_upgrade.exe_2" ComponentId="{88844FD2-2885-4C6E-A947-51F361F3CAB8}" Directory_="bcc10_1_DIR" Attributes="0" KeyPath="db_upgrade.exe_2"/>
-    <ROW Component="db_verify.exe" ComponentId="{41388159-3AC8-49EC-8675-C9B292F6BBB9}" Directory_="bin_DIR" Attributes="0" KeyPath="db_verify.exe"/>
-    <ROW Component="db_verify.exe_1" ComponentId="{C95EB9FF-7425-42A7-A1DD-FA9C1E36959E}" Directory_="x64_1_DIR" Attributes="256" KeyPath="db_verify.exe_1"/>
-    <ROW Component="db_verify.exe_2" ComponentId="{E548EBCC-1E5F-4297-BE38-2F2A978E3C39}" Directory_="bcc10_1_DIR" Attributes="0" KeyPath="db_verify.exe_2"/>
-    <ROW Component="debug.c" ComponentId="{3862E340-B246-4D4D-A60F-9604123C00DA}" Directory_="debug_DIR" Attributes="0" KeyPath="debug.c" Type="0"/>
-    <ROW Component="deque.h" ComponentId="{19EC090C-AEB6-407F-B919-E709FD4D51AB}" Directory_="wrappers_DIR" Attributes="0" KeyPath="deque.h_3" Type="0"/>
-    <ROW Component="fstream.h" ComponentId="{EB7D1FAF-1E4F-4619-BFD2-7218647F9CA1}" Directory_="h_DIR" Attributes="0" KeyPath="fstream.h_4" Type="0"/>
-    <ROW Component="fstream.h_1" ComponentId="{E411C093-7D76-43D0-A065-FD8E3D5D866C}" Directory_="h_1_DIR" Attributes="0" KeyPath="fstream.h_5" Type="0"/>
-    <ROW Component="libbz2.lib" ComponentId="{5FB14D5B-E28B-449B-BE13-F973DC2AE459}" Directory_="bcc10_DIR" Attributes="0" KeyPath="libbz2.lib_3" Type="0"/>
-    <ROW Component="libdb48.dll" ComponentId="{F6AC2AC2-F19A-4FDF-B794-FC2E6C1857D5}" Directory_="bin_DIR" Attributes="0" KeyPath="libdb48.dll"/>
-    <ROW Component="libdb48.dll_1" ComponentId="{DAB3715C-0E14-41F5-9BB7-4F49BD6091B4}" Directory_="bcc10_1_DIR" Attributes="0" KeyPath="libdb48.dll_1"/>
-    <ROW Component="libdb48.dll_2" ComponentId="{2B1FCDB8-DAB4-4CDD-B354-C957C72F9445}" Directory_="x64_1_DIR" Attributes="256" KeyPath="libdb48.dll_2"/>
-    <ROW Component="libdb48d.dll" ComponentId="{B71C84ED-1D84-40C5-B58C-7E1A70BD25FE}" Directory_="bin_DIR" Attributes="0" KeyPath="libdb48d.dll"/>
-    <ROW Component="libdb48d.dll_1" ComponentId="{A0C361EB-A278-48C8-8AB8-A8F1D2B326E4}" Directory_="x64_1_DIR" Attributes="256" KeyPath="libdb48d.dll_1"/>
-    <ROW Component="libdb48d.lib" ComponentId="{4A2944A4-FB38-418A-B233-AEBACA73AFA7}" Directory_="x64_DIR" Attributes="0" KeyPath="libdb48d.lib_1" Type="0"/>
-    <ROW Component="libdb_java48.dll" ComponentId="{68D9D431-5A2E-45F6-BE1A-4D6DF3CFBA65}" Directory_="bin_DIR" Attributes="0" KeyPath="libdb_java48.dll"/>
-    <ROW Component="libdb_java48.dll_1" ComponentId="{99A73EB3-974C-4194-90E6-22BF37AA8F6B}" Directory_="x64_1_DIR" Attributes="256" KeyPath="libdb_java48.dll_1"/>
-    <ROW Component="libeay32.dll" ComponentId="{EDB797F8-B3E0-49A1-94AC-288CC9ED92FF}" Directory_="bin_DIR" Attributes="0" KeyPath="libeay32.dll"/>
-    <ROW Component="libeay32.dll_2" ComponentId="{A99B2A46-C058-45E1-B8D6-A701820325BD}" Directory_="x64_1_DIR" Attributes="256" KeyPath="libeay32.dll_2"/>
-    <ROW Component="libeay32_vc6.dll" ComponentId="{E995B5D3-7A5C-4C0D-8029-D3C483D78DA5}" Directory_="bin_DIR" Attributes="0" KeyPath="libeay32_vc6.dll"/>
-    <ROW Component="libexpat.dll" ComponentId="{CDE14F77-B147-4B9E-B122-6ECE5CBB5BDC}" Directory_="bin_DIR" Attributes="0" KeyPath="libexpat.dll"/>
-    <ROW Component="libexpat.dll_2" ComponentId="{0B9E4E44-02BF-4F44-9666-9B98E0C9B468}" Directory_="x64_1_DIR" Attributes="0" KeyPath="libexpat.dll_2"/>
-    <ROW Component="msvcp60.dll" ComponentId="{5B5DFB39-A624-448D-B1BF-B71429727A76}" Directory_="bin_DIR" Attributes="0" KeyPath="msvcp60.dll"/>
-    <ROW Component="msvcrt.dll" ComponentId="{B5FB6385-C34E-4149-9084-9E9CF09681C0}" Directory_="bin_DIR" Attributes="0" KeyPath="msvcrt.dll"/>
-    <ROW Component="openssl.exe" ComponentId="{50876E28-EB92-4AA4-A97C-DE3CA439A8CD}" Directory_="bin_DIR" Attributes="0" KeyPath="openssl.exe"/>
-    <ROW Component="openssl.exe_1" ComponentId="{545FB28C-38EF-45F7-90E6-CE804708E531}" Directory_="x64_1_DIR" Attributes="256" KeyPath="openssl.exe_1"/>
-    <ROW Component="ssleay32.dll" ComponentId="{2BEF29F9-C7E1-4C8E-AF99-1462869A5EF5}" Directory_="bin_DIR" Attributes="0" KeyPath="ssleay32.dll"/>
-    <ROW Component="ssleay32.dll_2" ComponentId="{526DCC18-DC5B-46FE-8152-B5DD6DA7FEB4}" Directory_="x64_1_DIR" Attributes="256" KeyPath="ssleay32.dll_2"/>
-    <ROW Component="ssleay32.lib" ComponentId="{ED081D1A-27C8-4216-9D6E-ECBBDB32CBEE}" Directory_="vc6_DIR" Attributes="0" KeyPath="ssleay32.lib" Type="0"/>
-    <ROW Component="ssleay32_vc6.dll" ComponentId="{2591BB8A-6A92-4DE9-AFA6-B8AF0EE96F2C}" Directory_="bin_DIR" Attributes="0" KeyPath="ssleay32_vc6.dll"/>
-    <ROW Component="stddef.h" ComponentId="{5F079DC2-E612-4363-8024-DD2507A7EA64}" Directory_="bak_DIR" Attributes="0" KeyPath="stddef.h" Type="0"/>
-    <ROW Component="stlcomp.h" ComponentId="{32A4E8D9-8121-42D3-80E6-1E5B3F0323D0}" Directory_="config_DIR" Attributes="0" KeyPath="stlcomp.h" Type="0"/>
-    <ROW Component="stlport_vc646.dll" ComponentId="{A97FA217-7198-45D0-939B-C05696EF22D9}" Directory_="bin_DIR" Attributes="0" KeyPath="stlport_vc646.dll"/>
-    <ROW Component="stlport_vc6_stldebug46.dll" ComponentId="{4054E63D-BB6F-474B-9529-66E73230CA85}" Directory_="bin_DIR" Attributes="0" KeyPath="stlport_vc6_stldebug46.dll"/>
-    <ROW Component="stlport_vc6_stldebug46.pdb" ComponentId="{6069F7E4-7DB6-481E-B0D7-59886D3390A7}" Directory_="bin_DIR" Attributes="0" KeyPath="stlport_vc6_stldebug46.pdb" Type="0"/>
+    <ROW Component="InstallDir" ComponentId="{83A50BCF-91BD-43A4-995B-16271AE99E80}" Directory_="APPDIR" Attributes="260" KeyPath="InstallDir"/>
+    <ROW Component="QXmlStreamWriter" ComponentId="{F24D7F39-ABA0-45E4-874C-5225DEFAB620}" Directory_="QtCore_DIR" Attributes="0" KeyPath="QXmlStreamWriter" Type="0"/>
+    <ROW Component="QtCore4.dll" ComponentId="{71A770B2-52E0-4080-BC7B-E9AFF5563C2E}" Directory_="bin_DIR" Attributes="0" KeyPath="QtCore4.dll"/>
+    <ROW Component="QtCore4.dll_1" ComponentId="{C2680496-1697-4C87-8666-5662BFB5AEBA}" Directory_="x64_1_DIR" Attributes="256" KeyPath="QtCore4.dll_1"/>
+    <ROW Component="QtCored4.dll" ComponentId="{2F6D0653-3CAB-424A-81B2-0E90429355DB}" Directory_="bin_DIR" Attributes="0" KeyPath="QtCored4.dll"/>
+    <ROW Component="QtCored4.dll_1" ComponentId="{DC671F25-6280-4B22-BF8C-E651D138218B}" Directory_="x64_1_DIR" Attributes="256" KeyPath="QtCored4.dll_1"/>
+    <ROW Component="QtSql4.dll" ComponentId="{D844D2DB-9AE9-48BC-A3A2-3DCB33BD449F}" Directory_="bin_DIR" Attributes="0" KeyPath="QtSql4.dll"/>
+    <ROW Component="QtSql4.dll_1" ComponentId="{3F32A64A-FED0-4E93-A5EC-347DA0C896FA}" Directory_="x64_1_DIR" Attributes="256" KeyPath="QtSql4.dll_1"/>
+    <ROW Component="QtSql_1" ComponentId="{1E57D799-AE77-431D-998F-ABDB1E42B733}" Directory_="QtSql_DIR" Attributes="0" KeyPath="QtSql" Type="0"/>
+    <ROW Component="QtSqld4.dll" ComponentId="{CECAA503-6E21-4680-AAB2-EAA49792E310}" Directory_="bin_DIR" Attributes="0" KeyPath="QtSqld4.dll"/>
+    <ROW Component="QtSqld4.dll_1" ComponentId="{9E5101C8-C10D-4042-B2FE-070954EAC767}" Directory_="x64_1_DIR" Attributes="256" KeyPath="QtSqld4.dll_1"/>
+    <ROW Component="SOURCES" ComponentId="{AB9CC336-E876-4385-8C78-310804C2F3DA}" Directory_="APPDIR" Attributes="0" KeyPath="SOURCES.txt" Type="0"/>
+    <ROW Component="aes.h" ComponentId="{B93E77BB-54E1-4348-AE39-1323CFD16F6D}" Directory_="openssl_DIR" Attributes="0" KeyPath="aes.h" Type="0"/>
+    <ROW Component="algo.h" ComponentId="{7A622670-EF1A-4376-B096-EC50899D8B3B}" Directory_="old_hp_DIR" Attributes="0" KeyPath="algo.h" Type="0"/>
+    <ROW Component="algorith.h" ComponentId="{9BF607D6-4DB4-4C5F-93D2-86F826CDA5FD}" Directory_="BC50_DIR" Attributes="0" KeyPath="algorith.h" Type="0"/>
+    <ROW Component="algorithm" ComponentId="{11338F51-408B-4D81-914E-FFE7069A6DA8}" Directory_="stlport_DIR" Attributes="0" KeyPath="algorithm" Type="0"/>
+    <ROW Component="bzip2.dll" ComponentId="{7F6A5FAF-5D90-461F-91A2-29E4FCEA5C7F}" Directory_="bin_DIR" Attributes="0" KeyPath="bzip2.dll"/>
+    <ROW Component="bzip2.dll_2" ComponentId="{47AD4E56-98A8-4D08-8D7E-A3567983C6C1}" Directory_="x64_1_DIR" Attributes="256" KeyPath="bzip2.dll_2"/>
+    <ROW Component="bzip2_vc6.dll" ComponentId="{F1C50776-56D1-45A8-9644-8D50FBA7376C}" Directory_="bin_DIR" Attributes="0" KeyPath="bzip2_vc6.dll"/>
+    <ROW Component="bzip2_vc6d.dll" ComponentId="{719B675B-2CF5-42FC-8CE6-E7536723D8C1}" Directory_="bin_DIR" Attributes="0" KeyPath="bzip2_vc6d.dll"/>
+    <ROW Component="bzip2d.dll" ComponentId="{D897CCA3-2AF4-4E5F-A7BB-960A534C95EA}" Directory_="bin_DIR" Attributes="0" KeyPath="bzip2d.dll"/>
+    <ROW Component="bzip2d.dll_1" ComponentId="{03FCBA77-5060-41D1-9AE3-36915E0E1B16}" Directory_="x64_1_DIR" Attributes="256" KeyPath="bzip2d.dll_1"/>
+    <ROW Component="bzlib.h" ComponentId="{77D3E4F7-2D31-4515-8E7F-81EA8AF053C4}" Directory_="include_DIR" Attributes="0" KeyPath="expat.h" Type="0"/>
+    <ROW Component="char_traits.h" ComponentId="{E1B6BC64-3161-4D16-BF27-83AB477BEAA5}" Directory_="stl_DIR" Attributes="0" KeyPath="char_traits.h" Type="0"/>
+    <ROW Component="complex" ComponentId="{D4076E7D-B386-4A31-9E61-E9A6C025AAD1}" Directory_="wrap_std_DIR" Attributes="0" KeyPath="complex_1" Type="0"/>
+    <ROW Component="configure" ComponentId="{E2333FEC-9A29-40D7-A1F8-AA4719E61209}" Directory_="new_compiler_DIR" Attributes="0" KeyPath="configure" Type="0"/>
+    <ROW Component="cstring" ComponentId="{3F26A71C-B4B9-4493-9A70-DD02499B9D6D}" Directory_="using_1_DIR" Attributes="0" KeyPath="cstring_1" Type="0"/>
+    <ROW Component="cstring.h" ComponentId="{F9DDB566-F18C-4E17-A8C3-2CAEB82E3528}" Directory_="using_DIR" Attributes="0" KeyPath="cstring.h_1" Type="0"/>
+    <ROW Component="db.jar" ComponentId="{F438246B-2E4A-4018-BA82-751B86E8E09F}" Directory_="lib_DIR" Attributes="0" KeyPath="forms_1.2.1.jar" Type="0"/>
+    <ROW Component="db_archive.exe" ComponentId="{B3AA58F8-D993-4A73-AA7E-FE2C9FAF474D}" Directory_="bin_DIR" Attributes="0" KeyPath="db_archive.exe"/>
+    <ROW Component="db_archive.exe_1" ComponentId="{72ED5DB1-6F35-49C8-A59B-7DF5C9031C00}" Directory_="x64_1_DIR" Attributes="256" KeyPath="db_archive.exe_1"/>
+    <ROW Component="db_archive.exe_2" ComponentId="{ECE60301-A67A-4219-8574-7D335D5BDBD2}" Directory_="bcc10_1_DIR" Attributes="0" KeyPath="db_archive.exe_2"/>
+    <ROW Component="db_checkpoint.exe" ComponentId="{32D88A48-3D16-4E4E-85DC-01DFAA058D7A}" Directory_="bin_DIR" Attributes="0" KeyPath="db_checkpoint.exe"/>
+    <ROW Component="db_checkpoint.exe_1" ComponentId="{64D674C5-CA77-4F34-8477-F06399141A5C}" Directory_="x64_1_DIR" Attributes="256" KeyPath="db_checkpoint.exe_1"/>
+    <ROW Component="db_checkpoint.exe_2" ComponentId="{3994E9D5-4703-4B0D-BB0A-5F90AE3433E5}" Directory_="bcc10_1_DIR" Attributes="0" KeyPath="db_checkpoint.exe_2"/>
+    <ROW Component="db_deadlock.exe" ComponentId="{F3D3658B-AB72-48C6-8CFB-636428EDA2E2}" Directory_="bin_DIR" Attributes="0" KeyPath="db_deadlock.exe"/>
+    <ROW Component="db_deadlock.exe_1" ComponentId="{6C135F79-E522-4FA2-A6FF-9F5E4BB4F594}" Directory_="x64_1_DIR" Attributes="256" KeyPath="db_deadlock.exe_1"/>
+    <ROW Component="db_deadlock.exe_2" ComponentId="{B058799E-1A5B-4A28-91E6-9E18853CFC1E}" Directory_="bcc10_1_DIR" Attributes="0" KeyPath="db_deadlock.exe_2"/>
+    <ROW Component="db_dump.exe" ComponentId="{38FB4858-8708-4F5B-B3A1-0271FA1923CE}" Directory_="bin_DIR" Attributes="0" KeyPath="db_dump.exe"/>
+    <ROW Component="db_dump.exe_1" ComponentId="{A8FCFC59-5BFD-45E2-A8B9-4D96E0901E15}" Directory_="x64_1_DIR" Attributes="256" KeyPath="db_dump.exe_1"/>
+    <ROW Component="db_dump.exe_2" ComponentId="{4E3D5520-E7C5-4A31-89D8-FFD74D6C0C64}" Directory_="bcc10_1_DIR" Attributes="0" KeyPath="db_dump.exe_2"/>
+    <ROW Component="db_hotbackup.exe" ComponentId="{B0115A4E-D552-4159-AD68-23282BDE0626}" Directory_="bin_DIR" Attributes="0" KeyPath="db_hotbackup.exe"/>
+    <ROW Component="db_hotbackup.exe_1" ComponentId="{56EED534-0C92-41DD-98A1-180E668838A5}" Directory_="x64_1_DIR" Attributes="256" KeyPath="db_hotbackup.exe_1"/>
+    <ROW Component="db_hotbackup.exe_2" ComponentId="{7B514E04-B7D9-4BB8-B143-3044FB846237}" Directory_="bcc10_1_DIR" Attributes="0" KeyPath="db_hotbackup.exe_2"/>
+    <ROW Component="db_load.exe" ComponentId="{83E4A35D-BC0B-4614-AE7F-91DF747DBF05}" Directory_="bin_DIR" Attributes="0" KeyPath="db_load.exe"/>
+    <ROW Component="db_load.exe_1" ComponentId="{C4973098-C45A-45D5-8C39-93A36AAC07C0}" Directory_="x64_1_DIR" Attributes="256" KeyPath="db_load.exe_1"/>
+    <ROW Component="db_load.exe_2" ComponentId="{67C1F7A3-C705-45A4-9827-EB20156A04D9}" Directory_="bcc10_1_DIR" Attributes="0" KeyPath="db_load.exe_2"/>
+    <ROW Component="db_printlog.exe" ComponentId="{85CF55EA-4C4A-48AE-B45C-35EDE766E139}" Directory_="bin_DIR" Attributes="0" KeyPath="db_printlog.exe"/>
+    <ROW Component="db_printlog.exe_1" ComponentId="{4E582E6E-C649-4ABC-BC06-590678390DBD}" Directory_="x64_1_DIR" Attributes="256" KeyPath="db_printlog.exe_1"/>
+    <ROW Component="db_printlog.exe_2" ComponentId="{22153150-F289-4ED6-A110-C9F5A04DA63B}" Directory_="bcc10_1_DIR" Attributes="0" KeyPath="db_printlog.exe_2"/>
+    <ROW Component="db_recover.exe" ComponentId="{91C8B561-C529-46E9-8275-232EA5D76E48}" Directory_="bin_DIR" Attributes="0" KeyPath="db_recover.exe"/>
+    <ROW Component="db_recover.exe_1" ComponentId="{70356AEF-27E6-4816-8D2A-AEC18A31E681}" Directory_="x64_1_DIR" Attributes="256" KeyPath="db_recover.exe_1"/>
+    <ROW Component="db_recover.exe_2" ComponentId="{CC87B0A4-18DF-4EBA-92C6-DEA7C0248126}" Directory_="bcc10_1_DIR" Attributes="0" KeyPath="db_recover.exe_2"/>
+    <ROW Component="db_stat.exe" ComponentId="{E0DDD20E-EB7E-4BC5-B351-18045AB92CEA}" Directory_="bin_DIR" Attributes="0" KeyPath="db_stat.exe"/>
+    <ROW Component="db_stat.exe_1" ComponentId="{F72DA93B-37EC-4E9D-B04C-6A902220BDEA}" Directory_="x64_1_DIR" Attributes="256" KeyPath="db_stat.exe_1"/>
+    <ROW Component="db_stat.exe_2" ComponentId="{101082BF-7B56-4934-B9F9-C0CD2DBAB90F}" Directory_="bcc10_1_DIR" Attributes="0" KeyPath="db_stat.exe_2"/>
+    <ROW Component="db_upgrade.exe" ComponentId="{ED088926-CAB2-453E-8157-844B34BF5AFC}" Directory_="bin_DIR" Attributes="0" KeyPath="db_upgrade.exe"/>
+    <ROW Component="db_upgrade.exe_1" ComponentId="{5A7E0687-DEA8-4610-9F8B-9DC3011BF6DF}" Directory_="x64_1_DIR" Attributes="256" KeyPath="db_upgrade.exe_1"/>
+    <ROW Component="db_upgrade.exe_2" ComponentId="{586AA297-C77B-4E4F-84E2-C80AA943E040}" Directory_="bcc10_1_DIR" Attributes="0" KeyPath="db_upgrade.exe_2"/>
+    <ROW Component="db_verify.exe" ComponentId="{D1624D16-01C2-4428-B27A-70F1BFE79C56}" Directory_="bin_DIR" Attributes="0" KeyPath="db_verify.exe"/>
+    <ROW Component="db_verify.exe_1" ComponentId="{A4BFD17C-BAF1-4126-BA60-3832A1B8F130}" Directory_="x64_1_DIR" Attributes="256" KeyPath="db_verify.exe_1"/>
+    <ROW Component="db_verify.exe_2" ComponentId="{73BEF700-63AC-4858-A64A-F25758B75535}" Directory_="bcc10_1_DIR" Attributes="0" KeyPath="db_verify.exe_2"/>
+    <ROW Component="debug.c" ComponentId="{D2AA8040-0992-42ED-9BD6-D4E1A0F47686}" Directory_="debug_DIR" Attributes="0" KeyPath="debug.c" Type="0"/>
+    <ROW Component="deque.h" ComponentId="{5D096BC9-E913-4351-A7C7-ADFD01B3B44D}" Directory_="wrappers_DIR" Attributes="0" KeyPath="deque.h_3" Type="0"/>
+    <ROW Component="fstream.h" ComponentId="{469C80E9-9C67-46B2-9263-825AA3116C11}" Directory_="h_DIR" Attributes="0" KeyPath="fstream.h_4" Type="0"/>
+    <ROW Component="fstream.h_1" ComponentId="{BC34F85D-205D-430A-A7F0-116934982DCA}" Directory_="h_1_DIR" Attributes="0" KeyPath="fstream.h_5" Type="0"/>
+    <ROW Component="libbz2.lib" ComponentId="{387CC4DE-7DFD-4621-AD6A-AB9D4607746B}" Directory_="bcc10_DIR" Attributes="0" KeyPath="libbz2.lib_3" Type="0"/>
+    <ROW Component="libdb48.dll" ComponentId="{D1130955-EF7C-4890-9A76-A136ECA01E49}" Directory_="bin_DIR" Attributes="0" KeyPath="libdb48.dll"/>
+    <ROW Component="libdb48.dll_1" ComponentId="{CB45B13D-C40E-49C6-ACF7-5A8D5930AB3B}" Directory_="bcc10_1_DIR" Attributes="0" KeyPath="libdb48.dll_1"/>
+    <ROW Component="libdb48.dll_2" ComponentId="{85B3235B-181F-46FA-91B0-124FAEAA4983}" Directory_="x64_1_DIR" Attributes="256" KeyPath="libdb48.dll_2"/>
+    <ROW Component="libdb48d.dll" ComponentId="{BC928C21-3F96-42DD-959F-2DE98722E0EC}" Directory_="bin_DIR" Attributes="0" KeyPath="libdb48d.dll"/>
+    <ROW Component="libdb48d.dll_1" ComponentId="{81CDB205-9E28-413B-8489-5162D2D5502A}" Directory_="x64_1_DIR" Attributes="256" KeyPath="libdb48d.dll_1"/>
+    <ROW Component="libdb48d.lib" ComponentId="{E2E73CB0-B479-4B42-A8D6-03F4F1087BC2}" Directory_="x64_DIR" Attributes="0" KeyPath="libdb48d.lib_1" Type="0"/>
+    <ROW Component="libdb_java48.dll" ComponentId="{58EBB0F7-F790-4292-94E3-D0C78827C3ED}" Directory_="bin_DIR" Attributes="0" KeyPath="libdb_java48.dll"/>
+    <ROW Component="libdb_java48.dll_1" ComponentId="{F6FAAA36-6F40-45A6-8EAE-D0951A7C5D37}" Directory_="x64_1_DIR" Attributes="256" KeyPath="libdb_java48.dll_1"/>
+    <ROW Component="libeay32.dll" ComponentId="{F6F0A88D-F40B-43CA-A31B-10D1616AE441}" Directory_="bin_DIR" Attributes="0" KeyPath="libeay32.dll"/>
+    <ROW Component="libeay32.dll_2" ComponentId="{2E8631D7-A28C-4354-B336-EC76D4125BA7}" Directory_="x64_1_DIR" Attributes="256" KeyPath="libeay32.dll_2"/>
+    <ROW Component="libeay32_vc6.dll" ComponentId="{E709702D-1B9B-4CBC-84D6-6470150747D1}" Directory_="bin_DIR" Attributes="0" KeyPath="libeay32_vc6.dll"/>
+    <ROW Component="libexpat.dll" ComponentId="{4A16A92F-57D0-4159-83E7-B01B5FB6413F}" Directory_="bin_DIR" Attributes="0" KeyPath="libexpat.dll"/>
+    <ROW Component="libexpat.dll_2" ComponentId="{9E39ACC4-0840-4214-89F1-8B610A148433}" Directory_="x64_1_DIR" Attributes="0" KeyPath="libexpat.dll_2"/>
+    <ROW Component="msvcp60.dll" ComponentId="{A96C0893-B452-4418-ABD0-5044FA6D9810}" Directory_="bin_DIR" Attributes="0" KeyPath="msvcp60.dll"/>
+    <ROW Component="msvcrt.dll" ComponentId="{5FFE3C44-E443-4BFB-8F86-65D1D1B1D8A2}" Directory_="bin_DIR" Attributes="0" KeyPath="msvcrt.dll"/>
+    <ROW Component="openssl.exe" ComponentId="{2EAD9566-C6F2-4F6B-BB28-C76323053D63}" Directory_="bin_DIR" Attributes="0" KeyPath="openssl.exe"/>
+    <ROW Component="openssl.exe_1" ComponentId="{13AACE7A-A7B6-4FEA-B291-CCD7681816D4}" Directory_="x64_1_DIR" Attributes="256" KeyPath="openssl.exe_1"/>
+    <ROW Component="ssleay32.dll" ComponentId="{01B2F616-B19E-4F66-84C9-92553AF7F8C3}" Directory_="bin_DIR" Attributes="0" KeyPath="ssleay32.dll"/>
+    <ROW Component="ssleay32.dll_2" ComponentId="{4EBDFD7E-3F9A-4640-A70A-7A16CC97E03A}" Directory_="x64_1_DIR" Attributes="256" KeyPath="ssleay32.dll_2"/>
+    <ROW Component="ssleay32.lib" ComponentId="{CD03F264-76B4-4EC3-938C-8125E11C615D}" Directory_="vc6_DIR" Attributes="0" KeyPath="ssleay32.lib" Type="0"/>
+    <ROW Component="ssleay32_vc6.dll" ComponentId="{9E1F0E5D-B64A-4975-A094-FF41EBC879C7}" Directory_="bin_DIR" Attributes="0" KeyPath="ssleay32_vc6.dll"/>
+    <ROW Component="stddef.h" ComponentId="{5BD9E671-1DE4-4EFF-A3DA-DFBDD38B5DD4}" Directory_="bak_DIR" Attributes="0" KeyPath="stddef.h" Type="0"/>
+    <ROW Component="stlcomp.h" ComponentId="{C73B32B6-A3A9-441A-BA58-BDA570F61F2B}" Directory_="config_DIR" Attributes="0" KeyPath="stlcomp.h" Type="0"/>
+    <ROW Component="stlport_vc646.dll" ComponentId="{5E1BE87B-D91B-4E11-93BE-CA08194482B7}" Directory_="bin_DIR" Attributes="0" KeyPath="stlport_vc646.dll"/>
+    <ROW Component="stlport_vc6_stldebug46.dll" ComponentId="{89BE17EA-AD66-439C-BDCC-34E302AB3668}" Directory_="bin_DIR" Attributes="0" KeyPath="stlport_vc6_stldebug46.dll"/>
+    <ROW Component="stlport_vc6_stldebug46.pdb" ComponentId="{84F6006B-112A-40AF-AEBE-DCC9E1B9AEE1}" Directory_="bin_DIR" Attributes="0" KeyPath="stlport_vc6_stldebug46.pdb" Type="0"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiFeatsComponent">
     <ROW Feature="MainFeature" Title="MainFeature" Description="Description" Display="1" Level="1" Attributes="0" Components="bzlib.h db.jar InstallDir aes.h SOURCES stlport_vc6_stldebug46.pdb stlport_vc6_stldebug46.dll stlport_vc646.dll algorithm algorith.h stddef.h cstring.h configure stlcomp.h algo.h char_traits.h debug.c deque.h cstring fstream.h complex fstream.h_1 msvcp60.dll msvcrt.dll bzip2_vc6d.dll bzip2_vc6.dll libeay32_vc6.dll ssleay32_vc6.dll ssleay32.lib libdb48d.lib libbz2.lib bzip2d.dll bzip2.dll libdb48d.dll libdb_java48.dll db_archive.exe db_checkpoint.exe db_deadlock.exe db_dump.exe db_hotbackup.exe db_load.exe db_printlog.exe db_recover.exe db_stat.exe db_upgrade.exe db_verify.exe libdb48.dll libexpat.dll ssleay32.dll libeay32.dll libdb48.dll_1 bzip2d.dll_1 bzip2.dll_2 libdb48d.dll_1 libdb48.dll_2 db_archive.exe_1 db_checkpoint.exe_1 db_deadlock.exe_1 db_dump.exe_1 db_hotbackup.exe_1 db_load.exe_1 db_printlog.exe_1 db_recover.exe_1 db_stat.exe_1 db_upgrade.exe_1 db_verify.exe_1 ssleay32.dll_2 libeay32.dll_2 openssl.exe libexpat.dll_2 openssl.exe_1 QtSqld4.dll QtCore4.dll QtCored4.dll QtSql4.dll QtSqld4.dll_1 QtCore4.dll_1 QtCored4.dll_1 QtSql4.dll_1 QXmlStreamWriter QtSql_1 libdb_java48.dll_1 db_verify.exe_2 db_archive.exe_2 db_checkpoint.exe_2 db_deadlock.exe_2 db_dump.exe_2 db_hotbackup.exe_2 db_load.exe_2 db_printlog.exe_2 db_recover.exe_2 db_stat.exe_2 db_upgrade.exe_2"/>
