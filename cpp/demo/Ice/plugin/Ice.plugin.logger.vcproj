@@ -81,15 +81,15 @@
 				Name="VCLinkerTool"
 				AdditionalOptions="/FIXED:NO"
 				AdditionalDependencies="Iced.lib IceUtild.lib setargv.obj"
-				OutputFile="loggerplugin34bd.dll"
+				OutputFile="loggerplugin34d.dll"
 				LinkIncremental="2"
 				SuppressStartupBanner="true"
 				AdditionalLibraryDirectories="..\..\..\..\cpp\lib"
 				GenerateDebugInformation="true"
-				ProgramDatabaseFile=".\Debug/loggerplugin34bd.pdb"
+				ProgramDatabaseFile=".\Debug/loggerplugin34d.pdb"
 				RandomizedBaseAddress="1"
 				DataExecutionPrevention="0"
-				ImportLibrary=".\Debug/loggerplugin34bd.lib"
+				ImportLibrary=".\Debug/loggerplugin34d.lib"
 				TargetMachine="1"
 			/>
 			<Tool
@@ -114,7 +114,7 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				CommandLine="copy $(OutDir)\loggerplugin34bd.* ."
+				CommandLine="copy $(OutDir)\loggerplugin34d.* ."
 			/>
 		</Configuration>
 		<Configuration
@@ -180,13 +180,13 @@
 				Name="VCLinkerTool"
 				AdditionalOptions="/FIXED:NO /IGNORE:4089"
 				AdditionalDependencies="Ice.lib IceUtil.lib setargv.obj"
-				OutputFile="loggerplugin34b.dll"
+				OutputFile="loggerplugin34.dll"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
 				AdditionalLibraryDirectories="..\..\..\..\cpp\lib"
 				RandomizedBaseAddress="1"
 				DataExecutionPrevention="0"
-				ImportLibrary=".\Release/loggerplugin34b.lib"
+				ImportLibrary=".\Release/loggerplugin34.lib"
 				TargetMachine="1"
 			/>
 			<Tool
@@ -276,15 +276,15 @@
 				Name="VCLinkerTool"
 				AdditionalOptions="/FIXED:NO"
 				AdditionalDependencies="Iced.lib IceUtild.lib setargv.obj"
-				OutputFile="loggerplugin34bd.dll"
+				OutputFile="loggerplugin34d.dll"
 				LinkIncremental="2"
 				SuppressStartupBanner="true"
 				AdditionalLibraryDirectories="..\..\..\..\cpp\lib"
 				GenerateDebugInformation="true"
-				ProgramDatabaseFile=".\Debug/loggerplugin34bd.pdb"
+				ProgramDatabaseFile=".\Debug/loggerplugin34d.pdb"
 				RandomizedBaseAddress="1"
 				DataExecutionPrevention="0"
-				ImportLibrary=".\Debug/loggerplugin34bd.lib"
+				ImportLibrary=".\Debug/loggerplugin34d.lib"
 				TargetMachine="17"
 			/>
 			<Tool
@@ -309,7 +309,7 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				CommandLine="copy $(OutDir)\loggerplugin34bd.* ."
+				CommandLine="copy $(OutDir)\loggerplugin34d.* ."
 			/>
 		</Configuration>
 		<Configuration
@@ -375,13 +375,13 @@
 				Name="VCLinkerTool"
 				AdditionalOptions="/FIXED:NO /IGNORE:4089"
 				AdditionalDependencies="Ice.lib IceUtil.lib setargv.obj"
-				OutputFile="loggerplugin34b.dll"
+				OutputFile="loggerplugin34.dll"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
 				AdditionalLibraryDirectories="..\..\..\..\cpp\lib"
 				RandomizedBaseAddress="1"
 				DataExecutionPrevention="0"
-				ImportLibrary=".\Release/loggerplugin34b.lib"
+				ImportLibrary=".\Release/loggerplugin34.lib"
 				TargetMachine="17"
 			/>
 			<Tool

@@ -12,11 +12,11 @@
 # ----------------------------------------------------------------------
 
 SHELL			= /bin/sh
-VERSION			= 3.4b
-INTVERSION		= 3.4.51
+VERSION			= 3.4.0
+INTVERSION		= 3.4.0
 SHORT_VERSION           = 3.4
 PATCH_VERSION           = 1
-SOVERSION		= 34b
+SOVERSION		= 34
 
 OBJEXT			= .obj
 

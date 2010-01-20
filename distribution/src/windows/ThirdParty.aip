@@ -16,7 +16,7 @@
     <ROW Property="OPENSSLLICESNEDLGRADIOBUTTONGROUP_1_PROP" Value="No" Type="4"/>
     <ROW Property="ProductCode" Value="1033:{7560FE8B-589F-4496-872F-A070B78DCD8E} " Type="16"/>
     <ROW Property="ProductLanguage" Value="1033"/>
-    <ROW Property="ProductName" Value="Ice 3.4b Third Party Packages" ValueLocId="*"/>
+    <ROW Property="ProductName" Value="Ice 3.4.0 Third Party Packages" ValueLocId="*"/>
     <ROW Property="ProductVersion" Value="3.4.0"/>
     <ROW Property="QTLICENSEDLGRADIOBUTTONGROUP_1_PROP" Value="No" Type="4"/>
     <ROW Property="REBOOT" MultiBuildValue="DefaultBuild:ReallySuppress"/>
@@ -1398,7 +1398,7 @@
     <ROW Action="AI_PREPARE_UPGRADE" Type="65" Source="aicustact.dll" Target="PrepareUpgrade"/>
     <ROW Action="AI_RESTORE_LOCATION" Type="65" Source="aicustact.dll" Target="RestoreLocation"/>
     <ROW Action="AI_STORE_LOCATION" Type="51" Source="ARPINSTALLLOCATION" Target="[APPDIR]"/>
-    <ROW Action="SET_APPDIR" Type="307" Source="APPDIR" Target="[ProgramFilesFolder][Manufacturer]\[ProductName]" MultiBuildTarget="DefaultBuild:[ProgramFilesFolder]\ZeroC\Ice-3.4b-ThirdParty"/>
+    <ROW Action="SET_APPDIR" Type="307" Source="APPDIR" Target="[ProgramFilesFolder][Manufacturer]\[ProductName]" MultiBuildTarget="DefaultBuild:[ProgramFilesFolder]\ZeroC\Ice-3.4.0-ThirdParty"/>
     <ROW Action="SET_SHORTCUTDIR" Type="307" Source="SHORTCUTDIR" Target="[ProgramMenuFolder][ProductName]"/>
     <ROW Action="SET_TARGETDIR_TO_APPDIR" Type="51" Source="TARGETDIR" Target="[APPDIR]"/>
   </COMPONENT>

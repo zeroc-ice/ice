@@ -19,5 +19,5 @@ using System.Runtime.CompilerServices;
 [assembly: AssemblyCopyright("Copyright (c) 2003-2010 ZeroC, Inc.")]
 [assembly: AssemblyTrademark("Ice")]
 [assembly: AssemblyCulture("")]
-[assembly: AssemblyVersion("3.4.51")]
+[assembly: AssemblyVersion("3.4.0")]
 [assembly: AssemblyDelaySign(false)]

@@ -21,7 +21,7 @@
 
        <icebox id="${instance-name}-${index}" exe="icebox" activation="on-demand">
 
-         <service name="IceStorm" entry="IceStormService,34b:createIceStorm">
+         <service name="IceStorm" entry="IceStormService,34:createIceStorm">
 
            <dbenv name="${service}"/>
 

@@ -116,7 +116,7 @@ if sys.argv[script] == "import":
         # script ../lib). For development purposes we also check ".".
         #
         checkLocations = [".", os.path.abspath(os.path.join(os.path.dirname(sys.argv[0]), "..", "lib")),
-                          "/usr/share/Ice-3.4b"]
+                          "/usr/share/Ice-3.4.0"]
         for bindir in checkLocations:
             bindir = os.path.normpath(bindir)
             if os.path.exists(os.path.join(bindir, "ImportKey.class")):

@@ -43,7 +43,7 @@ def run(subCmd, pubCmd):
     print "ok"
 
     if Util.defaultHost:
-        args = ' --IceBox.Service.IceStorm="IceStormService,34b:createIceStorm --Ice.Config=config.service %s"' % Util.defaultHost
+        args = ' --IceBox.Service.IceStorm="IceStormService,34:createIceStorm --Ice.Config=config.service %s"' % Util.defaultHost
     else:
         args = ''
 

@@ -1,4 +1,4 @@
-version = 3.4.51
+version = 3.4.0
 mono_root = /usr
 
 name = Ice
