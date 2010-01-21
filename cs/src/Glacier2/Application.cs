@@ -390,7 +390,7 @@ public abstract class Application : Ice.Application
         }
         catch(System.Exception ex)
         {
-            Ice.Util.getProcessLogger().error("unknown exception" + ex.ToString());
+            Ice.Util.getProcessLogger().error("unknown exception:\n" + ex.ToString());
             status = 1;
         }
 
@@ -461,7 +461,8 @@ public abstract class Application : Ice.Application
             catch(System.Exception ex)
             {
                 // Not expected.
-                Ice.Util.getProcessLogger().error("unexpected exception when destroying the session" + ex.ToString());
+                Ice.Util.getProcessLogger().error("unexpected exception when destroying the session:\n" + 
+                                                  ex.ToString());
             }
             _router = null;
         }
@@ -479,7 +480,7 @@ public abstract class Application : Ice.Application
             }
             catch(System.Exception ex)
             {
-                Ice.Util.getProcessLogger().error("unknown exception " + ex.ToString());
+                Ice.Util.getProcessLogger().error("unknown exception:\n" + ex.ToString());
                 status = 1;
             }
             communicator__ = null;

@@ -417,7 +417,7 @@ public abstract class Application extends Ice.Application
         }
         catch(java.lang.Exception ex)
         {
-            Ice.Util.getProcessLogger().error("unknown exception" + IceInternal.Ex.toString(ex));
+            Ice.Util.getProcessLogger().error("unknown exception:\n" + IceInternal.Ex.toString(ex));
             status.value = 1;
         }
         catch(java.lang.Error err)
@@ -425,7 +425,7 @@ public abstract class Application extends Ice.Application
             //
             // We catch Error to avoid hangs in some non-fatal situations
             //
-            Ice.Util.getProcessLogger().error("Java error " + IceInternal.Ex.toString(err));
+            Ice.Util.getProcessLogger().error("Java error:\n" + IceInternal.Ex.toString(err));
             status.value = 1;
         }
 
@@ -516,7 +516,7 @@ public abstract class Application extends Ice.Application
             }
             catch(java.lang.Exception ex)
             {
-                Ice.Util.getProcessLogger().error("unknown exception" + IceInternal.Ex.toString(ex));
+                Ice.Util.getProcessLogger().error("unknown exception:\n" + IceInternal.Ex.toString(ex));
                 status.value = 1;
             }
             _communicator = null;

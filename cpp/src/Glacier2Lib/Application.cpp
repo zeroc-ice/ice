@@ -385,7 +385,7 @@ Glacier2::Application::doMain(Ice::StringSeq& args, const Ice::InitializationDat
         {
             // Not expected.
             Error out(getProcessLogger());
-            out << "unexpected exception when destroying the session " << ex;
+            out << "unexpected exception when destroying the session:\n" << ex;
         }
         _router = 0;
     }
@@ -405,7 +405,7 @@ Glacier2::Application::doMain(Ice::StringSeq& args, const Ice::InitializationDat
         catch(const exception& ex)
         {
             Error out(getProcessLogger());
-            out << "unknown exception " << ex;
+            out << "unknown exception:\n" << ex;
             status = 1;
         }
         IceInternal::Application::_communicator = 0;
