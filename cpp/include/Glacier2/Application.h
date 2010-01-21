@@ -7,6 +7,9 @@
 //
 // **********************************************************************
 
+#ifndef GLACIER2_APPLICATION_H
+#define GLACIER2_APPLICATION_H
+
 #include <Ice/Application.h>
 
 #include <Glacier2/Session.h>
@@ -218,3 +221,4 @@ private:
 
 }
 
+#endif

@@ -9,8 +9,7 @@
 
 #include <IceUtil/IceUtil.h>
 #include <Ice/Ice.h>
-#include <Glacier2/Router.h>
-#include <Glacier2/Application.h>
+#include <Glacier2/Glacier2.h>
 #include <CallbackI.h>
 
 using namespace std;

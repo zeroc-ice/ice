@@ -10,7 +10,6 @@
 #include <IceUtil/IceUtil.h>
 #include <Ice/Ice.h>
 #include <Glacier2/Glacier2.h>
-#include <Glacier2/Application.h>
 #include <Chat.h>
 
 using namespace std;
