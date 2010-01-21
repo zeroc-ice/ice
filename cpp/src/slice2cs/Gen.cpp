@@ -1133,10 +1133,11 @@ Slice::CsVisitor::editMarkup(const string& s)
         if(pos != string::npos)
         {
             string::size_type endpos = result.find('>', pos);
-            if(endpos != string::npos)
+            if(endpos == string::npos)
             {
-                result.erase(pos, endpos - pos + 1);
+                break;
             }
+            result.erase(pos, endpos - pos + 1);
         }
     }
     while(pos != string::npos);
