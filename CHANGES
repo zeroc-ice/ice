@@ -28,6 +28,9 @@ General Changes
 - Fixed IceGrid bug where the IceGrid node would disconnect from the
   registry if the clock was moved backward.
 
+- Fixed hang in slice2cs and slice2py which would occur if a comment
+  contained a '<' with no closing '>'.
+
 ======================================================================
 Changes since version 3.3.1
 ======================================================================
