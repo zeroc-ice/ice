@@ -14,41 +14,7 @@ Imports System.Collections.Generic
 
 Module Glacier2callbackC
     Class Client
-        Inherits Ice.Application
-
-        Class SessionRefreshThread
-
-            Public Sub New(ByVal router As Glacier2.RouterPrx, ByVal timeout As Integer)
-                _router = router
-                _timeout = timeout
-                _terminated = False
-            End Sub
-
-            Public Sub run()
-                SyncLock Me
-                    While Not _terminated
-                        System.Threading.Monitor.Wait(Me, _timeout)
-                        If Not _terminated Then
-                            Try
-                                _router.refreshSession()
-                            Catch ex As Ice.Exception
-                            End Try
-                        End If
-                    End While
-                End SyncLock
-            End Sub
-
-            Public Sub terminate()
-                SyncLock Me
-                    _terminated = True
-                    System.Threading.Monitor.Pulse(Me)
-                End SyncLock
-            End Sub
-
-            Private _router As Glacier2.RouterPrx
-            Private _timeout As Integer
-            Private _terminated As Boolean
-        End Class
+        Inherits Glacier2.Application
 
         Private Sub menu()
             Console.Out.WriteLine("usage:")
@@ -63,7 +29,41 @@ Module Glacier2callbackC
             Console.Out.WriteLine("?: help")
         End Sub
 
-        Public Overloads Overrides Function run(ByVal args() As String) As Integer
+        Public Overloads Overrides Function createSession() As Glacier2.SessionPrx
+            Dim session As Glacier2.SessionPrx = Nothing
+            While True
+                Console.Out.WriteLine("This demo accepts any user-id / password combination.")
+
+                Dim id as String
+                Dim pw as String
+                Try
+                    Console.Out.Write("user id: ")
+                    Console.Out.Flush()
+                    id = Console.In.ReadLine().Trim()
+
+                    Console.Out.Write("password: ")
+                    Console.Out.Flush()
+                    pw = Console.In.ReadLine().Trim()
+                Catch ex As System.IO.IOException
+                    Console.Out.WriteLine(ex.StackTrace.ToString())
+                    Continue While
+                End try
+
+                Try
+                    session = router().createSession(id, pw)
+                    Exit While
+                Catch ex As Glacier2.PermissionDeniedException
+                    Console.Out.WriteLine("permission denied:\n" + ex.reason)
+                Catch ex As Glacier2.CannotCreateSessionException
+                    Console.Out.WriteLine("cannot create session:\n" + ex.reason)
+                End Try
+            End While
+
+            Return session
+        End Function
+
+
+        Public Overloads Overrides Function runWithSession(ByVal args() As String) As Integer
             If args.Length > 0 Then
                 Console.Error.WriteLine(appName() & ": too many arguments")
                 Return 1
@@ -81,38 +81,10 @@ Module Glacier2callbackC
                 Return 1
             End If
 
-            While True
-                Console.WriteLine("This demo accepts any user-id / password combination.")
 
-                Dim id As String
-                Console.Write("user id: ")
-                Console.Out.Flush()
-                id = Console.In.ReadLine()
+            Dim callbackReceiverIdent As Ice.Identity
+            callbackReceiverIdent = createCallbackIdentity("callbackReceiver")
 
-                Dim pw As String
-                Console.Write("password: ")
-                Console.Out.Flush()
-                pw = Console.In.ReadLine()
-
-                Try
-                    router.createSession(id, pw)
-                    Exit While
-                Catch ex As Glacier2.PermissionDeniedException
-                    Console.Write("permission denied:\n" & ex.reason)
-                Catch ex As Glacier2.CannotCreateSessionException
-                    Console.Write("cannot create session:\n" & ex.reason)
-                End Try
-
-            End While
-
-            Dim refresh As SessionRefreshThread = New SessionRefreshThread(router, router.getSessionTimeout() / 2)
-            Dim refreshThread As Thread = New Thread(New ThreadStart(AddressOf refresh.run))
-            refreshThread.Start()
-
-            Dim category As String = router.getCategoryForClient()
-            Dim callbackReceiverIdent As Ice.Identity = New Ice.Identity
-            callbackReceiverIdent.name = "callbackReceiver"
-            callbackReceiverIdent.category = category
             Dim callbackReceiverFakeIdent As Ice.Identity = New Ice.Identity
             callbackReceiverFakeIdent.name = "callbackReceiver"
             callbackReceiverFakeIdent.category = "fake"
@@ -122,12 +94,11 @@ Module Glacier2callbackC
             Dim oneway As CallbackPrx = CallbackPrxHelper.uncheckedCast(twoway.ice_oneway())
             Dim batchOneway As CallbackPrx = CallbackPrxHelper.uncheckedCast(twoway.ice_batchOneway())
 
-            Dim adapter As Ice.ObjectAdapter = communicator().createObjectAdapterWithRouter("Callback.Client", defaultRouter)
-            adapter.add(New CallbackReceiverI, callbackReceiverIdent)
-            adapter.add(New CallbackReceiverI, callbackReceiverFakeIdent)
-            adapter.activate()
+            objectAdapter().add(New CallbackReceiverI, callbackReceiverIdent)
+            objectAdapter().add(New CallbackReceiverI, callbackReceiverFakeIdent)
+            objectAdapter().activate()
 
-            Dim twowayR As CallbackReceiverPrx = CallbackReceiverPrxHelper.uncheckedCast(adapter.createProxy(callbackReceiverIdent))
+            Dim twowayR As CallbackReceiverPrx = CallbackReceiverPrxHelper.uncheckedCast(objectAdapter().createProxy(callbackReceiverIdent))
             Dim onewayR As CallbackReceiverPrx = CallbackReceiverPrxHelper.uncheckedCast(twowayR.ice_oneway())
 
             menu()
@@ -200,22 +171,6 @@ Module Glacier2callbackC
                     Console.Error.WriteLine(ex)
                 End Try
             Loop While Not line.Equals("x")
-
-            '
-            ' The refresher thread must be terminated before destroy Is
-            ' called, otherwIse it might get ObjectNotExIstException. refresh
-            ' Is set to 0 so that If session.destroy() raIses an exception
-            ' the thread will not be re-terminated and re-joined.
-            '
-            refresh.terminate()
-            refreshThread.Join()
-            refresh = Nothing
-
-            Try
-                router.destroySession()
-            Catch ex As Glacier2.SessionNotExistException
-                Console.Error.WriteLine(ex)
-            End Try
 
             Return 0
         End Function
