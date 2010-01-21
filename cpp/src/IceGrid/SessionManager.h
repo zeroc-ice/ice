@@ -103,12 +103,12 @@ public:
                     {
                         if(_state == Connected || action == Connect || action == KeepAlive)
                         {
-                            IceUtil::Time now = IceUtil::Time::now();
+                            IceUtil::Time now = IceUtil::Time::now(IceUtil::Time::Monotonic);
                             IceUtil::Time wakeTime = now + timeout;
                             while(_state != Destroyed && _nextAction == None && wakeTime > now)
                             {
                                 timedWait(wakeTime - now);
-                                now = IceUtil::Time::now();
+                                now = IceUtil::Time::now(IceUtil::Time::Monotonic);
                             }
                         }
                         if(_nextAction == None)
