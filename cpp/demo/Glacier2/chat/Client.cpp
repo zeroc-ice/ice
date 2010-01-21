@@ -10,36 +10,11 @@
 #include <IceUtil/IceUtil.h>
 #include <Ice/Ice.h>
 #include <Glacier2/Glacier2.h>
+#include <Glacier2/Application.h>
 #include <Chat.h>
 
 using namespace std;
 using namespace Demo;
-
-class PingTask : public IceUtil::TimerTask
-{
-public:
-
-    PingTask(const Glacier2::SessionPrx& session) :
-        _session(session)
-    {
-    }
-
-    virtual void runTimerTask()
-    {
-        try
-        {
-            _session->ice_ping();
-        }
-        catch(const Ice::Exception&)
-        {
-            // Ignore
-        }
-    }
-
-private:
-
-    const Glacier2::SessionPrx _session;
-};
 
 class ChatCallbackI : public ChatCallback
 {
@@ -64,7 +39,7 @@ public:
     }
 };
 
-class ChatClient : public Ice::Application
+class ChatClient : public Glacier2::Application
 {
 public:
 
@@ -73,51 +48,31 @@ public:
         // Since this is an interactive demo we don't want any signal
         // handling.
         //
-        Ice::Application(Ice::NoSignalHandling)
+        Glacier2::Application(Ice::NoSignalHandling)
     {
     }
-
-    virtual int
-    run(int argc, char* argv[])
+    
+    virtual Glacier2::SessionPrx
+    createSession()
     {
-        if(argc > 1)
-        {
-            cerr << appName() << ": too many arguments" << endl;
-            return EXIT_FAILURE;
-        }
-
-        Ice::RouterPrx defaultRouter = communicator()->getDefaultRouter();
-        if(!defaultRouter)
-        {
-            cerr << argv[0] << ": no default router set" << endl;
-            return EXIT_FAILURE;
-        }
-
-        _router = Glacier2::RouterPrx::checkedCast(defaultRouter);
-        if(!_router)
-        {
-            cerr << argv[0] << ": configured router is not a Glacier2 router" << endl;
-            return EXIT_FAILURE;
-        }
-
         ChatSessionPrx session;
         while(true)
         {
             cout << "This demo accepts any user-id / password combination.\n";
-
+            
             string id;
             cout << "user id: " << flush;
             getline(cin, id);
             id = trim(id);
-
+            
             string pw;
             cout << "password: " << flush;
             getline(cin, pw);
             pw = trim(pw);
-
+            
             try
             {
-                session = ChatSessionPrx::uncheckedCast(_router->createSession(id, pw));
+                session = ChatSessionPrx::uncheckedCast(router()->createSession(id, pw));
                 break;
             }
             catch(const Glacier2::PermissionDeniedException& ex)
@@ -125,23 +80,27 @@ public:
                 cout << "permission denied:\n" << ex.reason << endl;
             }
         }
+        return session;
+    }
 
-        _timer = new IceUtil::Timer();
-        _timer->scheduleRepeated(new PingTask(session), IceUtil::Time::secondsDouble(
-                                    _router->getSessionTimeout() / 2.0));
+    virtual int
+    runWithSession(int argc, char* argv[])
+    {
+        if(argc > 1)
+        {
+            cerr << appName() << ": too many arguments" << endl;
+            return EXIT_FAILURE;
+        }
 
-        Ice::Identity callbackReceiverIdent;
-        callbackReceiverIdent.name = "callbackReceiver";
-        callbackReceiverIdent.category = _router->getCategoryForClient();
+        Ice::Identity callbackReceiverIdent = createCallbackIdentity("callbackReceiver");
+    
 
-        Ice::ObjectAdapterPtr adapter = communicator()->createObjectAdapterWithRouter("Chat.Client", defaultRouter);
         ChatCallbackPtr cb = new ChatCallbackI;
         ChatCallbackPrx callback = ChatCallbackPrx::uncheckedCast(
-            adapter->add(cb, callbackReceiverIdent));
-        adapter->activate();
+            objectAdapter()->add(cb, callbackReceiverIdent));
 
-        session->setCallback(callback);
-
+        ChatSessionPrx sessionPrx = ChatSessionPrx::uncheckedCast(session());
+        sessionPrx->setCallback(callback);
         menu();
 
         try
@@ -164,45 +123,21 @@ public:
                     }
                     else
                     {
-                        session->say(s);
+                        sessionPrx->say(s);
                     }
                 }
             }
             while(cin.good());
-
-            cleanup();
         }
         catch(const Ice::Exception& ex)
         {
             cerr << ex << endl;
-            cleanup();
-
             return EXIT_FAILURE;
         }
         return EXIT_SUCCESS;
     }
 
 private:
-
-    void
-    cleanup()
-    {
-        //
-        // Destroy the timer before the router session is destroyed,
-        // otherwise it might get a spurious ObjectNotExistException.
-        //
-        if(_timer)
-        {
-            _timer->destroy();
-            _timer = 0;
-        }
-
-        if(_router)
-        {
-            _router->destroySession();
-            _router = 0;
-        }
-    }
 
     void
     menu()
@@ -221,9 +156,6 @@ private:
         }
         return s;
     }
-
-    Glacier2::RouterPrx _router;
-    IceUtil::TimerPtr _timer;
 };
 
 int
