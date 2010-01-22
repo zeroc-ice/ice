@@ -214,12 +214,6 @@ public class Client
             }
             while(!line.Equals("x"));
 
-            //
-            // The refresher thread must be terminated before destroy is
-            // called, otherwise it might get ObjectNotExistException. refresh
-            // is set to 0 so that if session.destroy() raises an exception
-            // the thread will not be re-terminated and re-joined.
-            //
             return 0;
         }
     }
