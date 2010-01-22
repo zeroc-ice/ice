@@ -51,11 +51,21 @@ public class Client
                 {
                     Console.Write("user id: ");
                     Console.Out.Flush();
-                    id = Console.In.ReadLine().Trim();
+                    id = Console.In.ReadLine();
+                    if(id == null)
+                    {
+                        throw new Ice.CommunicatorDestroyedException();
+                    }
+                    id = id.Trim();
 
                     Console.Write("password: ");
                     Console.Out.Flush();
                     pw = Console.In.ReadLine().Trim();
+                    if(pw == null)
+                    {
+                        throw new Ice.CommunicatorDestroyedException();
+                    }
+                    pw = pw.Trim();
                 }
                 catch(System.IO.IOException ex)
                 {

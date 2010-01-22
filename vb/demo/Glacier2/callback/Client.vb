@@ -39,11 +39,19 @@ Module Glacier2callbackC
                 Try
                     Console.Out.Write("user id: ")
                     Console.Out.Flush()
-                    id = Console.In.ReadLine().Trim()
+                    id = Console.In.ReadLine()
+                    If id Is Nothing Then
+                        throw New Ice.CommunicatorDestroyedException()
+                    End If
+                    id = id.Trim()
 
                     Console.Out.Write("password: ")
                     Console.Out.Flush()
-                    pw = Console.In.ReadLine().Trim()
+                    pw = Console.In.ReadLine()
+                    If pw Is Nothing Then
+                        throw New Ice.CommunicatorDestroyedException()
+                    End If
+                    pw = pw.Trim()
                 Catch ex As System.IO.IOException
                     Console.Out.WriteLine(ex.StackTrace.ToString())
                     Continue While
