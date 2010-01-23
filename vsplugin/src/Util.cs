@@ -330,21 +330,13 @@ namespace Ice.VisualStudio
 
             ComponentList includes = new ComponentList(additionalIncludeDirectories);
             bool changed = false;
-            if(String.IsNullOrEmpty(includes.Find(delegate(string d)
-                                                    {
-                                                        return d.Equals(iceIncludeDir,
-                                                                        StringComparison.CurrentCultureIgnoreCase);
-                                                    })))
+            if(!includes.Contains(iceIncludeDir))
             {
                 changed = true;
                 includes.Add(iceIncludeDir);
             }
 
-            if(String.IsNullOrEmpty(includes.Find(delegate(string d)
-                                                    {
-                                                        return d.Equals(".",
-                                                                        StringComparison.CurrentCultureIgnoreCase);
-                                                    })))
+            if(!includes.Contains("."))
             {
                 changed = true;
                 includes.Add(".");
@@ -369,23 +361,18 @@ namespace Ice.VisualStudio
                 return;
             }
 
+            string additionalIncludeDirectories = tool.AdditionalIncludeDirectories;
+            if(String.IsNullOrEmpty(additionalIncludeDirectories))
+            {
+                return;
+            }
+            ComponentList includes = new ComponentList(additionalIncludeDirectories);
+
             string iceHome = Util.getIceHome(project);
             foreach(string dir in _cppIncludeDirs)
             {
-                string additionalIncludeDirectories = tool.AdditionalIncludeDirectories;
-                if(String.IsNullOrEmpty(additionalIncludeDirectories))
-                {
-                    return;
-                }
-
-                ComponentList includes = new ComponentList(additionalIncludeDirectories);
-                string includeDir = includes.Find(delegate(string d)
-                                                {
-                                                    return d.Equals(iceHome + dir, 
-                                                                    StringComparison.CurrentCultureIgnoreCase);
-                                                });
-
-                if(!String.IsNullOrEmpty(includeDir))
+                string includeDir = iceHome + dir;
+                if(includes.Contains(includeDir))
                 {
                     includes.Remove(includeDir);
                     tool.AdditionalIncludeDirectories = includes.ToString();
@@ -463,12 +450,7 @@ namespace Ice.VisualStudio
                 return;
             }
 
-            string iceComponent = Array.Find(Util.getCppNames(), delegate(string name)
-                                                                            {
-                                                                                return name.Equals(component);
-                                                                            });
-
-            if(String.IsNullOrEmpty(iceComponent))
+            if(Array.BinarySearch(Util.getCppNames(), component) < 0)
             {
                 return;
             }
@@ -554,11 +536,7 @@ namespace Ice.VisualStudio
             }
 
             ComponentList envs = new ComponentList(enviroment, '\n');
-            if(String.IsNullOrEmpty(envs.Find(delegate(string d)
-            {
-                return d.Equals(icePath,
-                                StringComparison.CurrentCultureIgnoreCase);
-            })))
+            if(!envs.Contains(icePath))
             {
                 envs.Add(icePath);
                 debugSettings.Environment = envs.ToString('\n');
@@ -592,12 +570,8 @@ namespace Ice.VisualStudio
                 }
 
                 ComponentList envs = new ComponentList(enviroment, '\n');
-                string binDir = envs.Find(delegate(string d)
-                {
-                    return d.Equals("PATH=" + iceHome + dir, StringComparison.CurrentCultureIgnoreCase);
-                });
-
-                if(!String.IsNullOrEmpty(binDir))
+                string binDir = "PATH=" + iceHome + dir;
+                if(envs.Contains(binDir))
                 {
                     envs.Remove(binDir);
                     debugSettings.Environment = envs.ToString('\n');
@@ -636,11 +610,7 @@ namespace Ice.VisualStudio
             }
 
             ComponentList libs = new ComponentList(additionalLibraryDirectories);
-            if(String.IsNullOrEmpty(libs.Find(delegate(string d)
-                                                {
-                                                    return d.Equals(iceLibDir, 
-                                                                    StringComparison.CurrentCultureIgnoreCase);
-                                                })))
+            if(!libs.Contains(iceLibDir))
             {
                 libs.Add(iceLibDir);
                 tool.AdditionalLibraryDirectories = libs.ToString();
@@ -672,12 +642,8 @@ namespace Ice.VisualStudio
                 }
 
                 ComponentList libs = new ComponentList(additionalLibraryDirectories);
-                string libDir = libs.Find(delegate(string d)
-                                        {
-                                            return d.Equals(iceHome + dir, StringComparison.CurrentCultureIgnoreCase);
-                                        });
-
-                if(!String.IsNullOrEmpty(libDir))
+                string libDir = iceHome + dir;
+                if(libs.Contains(libDir))
                 {
                     libs.Remove(libDir);
                     tool.AdditionalLibraryDirectories = libs.ToString();
@@ -1315,15 +1281,11 @@ namespace Ice.VisualStudio
                         continue;
                     }
 
-                    string iceComponent = Array.Find(Util.getCppNames(), delegate(string name)
-                                                                                    {
-                                                                                        return name.Equals(libName);
-                                                                                    });
-                    if(String.IsNullOrEmpty(iceComponent))
+                    if(Array.BinarySearch(Util.getCppNames(), libName) < 0)
                     {
                         continue;
                     }
-                    components.Add(iceComponent.Trim());
+                    components.Add(libName.Trim());
                 }
             }
             return components;
@@ -1340,13 +1302,7 @@ namespace Ice.VisualStudio
             VSLangProj.VSProject vsProject = (VSLangProj.VSProject)project.Object;
             foreach(Reference r in vsProject.References)
             {
-                string iceComponent =
-                    Array.Find(Util.getSilverlightNames(), delegate(string name)
-                                                                          {
-                                                                              return name.Equals(r.Name);
-                                                                          });
-
-                if(String.IsNullOrEmpty(iceComponent))
+                if(Array.BinarySearch(Util.getSilverlightNames(), r.Name) < 0)
                 {
                     continue;
                 }
@@ -1367,12 +1323,7 @@ namespace Ice.VisualStudio
             VSLangProj.VSProject vsProject = (VSLangProj.VSProject)project.Object;
             foreach(Reference r in vsProject.References)
             {
-                string iceComponent = Array.Find(Util.getDotNetNames(), delegate(string name)
-                {
-                    return name.Equals(r.Name);
-                });
-
-                if(String.IsNullOrEmpty(iceComponent))
+                if(Array.BinarySearch(Util.getDotNetNames(), r.Name) < 0)
                 {
                     continue;
                 }

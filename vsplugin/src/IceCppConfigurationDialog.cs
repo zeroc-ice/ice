@@ -78,16 +78,13 @@ namespace Ice.VisualStudio
                 ComponentList selectedComponents = Util.getIceCppComponents(_project);
                 foreach(String s in Util.getCppNames())
                 {
-                    if(String.IsNullOrEmpty(selectedComponents.Find(delegate(string d)
-                                                    {
-                                                        return d.Equals(s, StringComparison.CurrentCultureIgnoreCase);
-                                                    })))
+                    if(selectedComponents.Contains(s))
                     {
-                        checkComponent(s, false);
+                        checkComponent(s, true);
                     }
                     else
                     {
-                        checkComponent(s, true);
+                        checkComponent(s, false);
                     }
                 }
                 txtDllExportSymbol.Text = Util.getProjectProperty(_project, Util.PropertyIceDllExport);

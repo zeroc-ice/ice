@@ -73,16 +73,13 @@ namespace Ice.VisualStudio
                 ComponentList selectedComponents = Util.getIceSilverlightComponents(_project);
                 foreach(String s in Util.getSilverlightNames())
                 {
-                    if(String.IsNullOrEmpty(selectedComponents.Find(delegate(string d)
-                                                    {
-                                                        return d.Equals(s, StringComparison.CurrentCultureIgnoreCase);
-                                                    })))
+                    if(selectedComponents.Contains(s))
                     {
-                        checkComponent(s, false);
+                        checkComponent(s, true);
                     }
                     else
                     {
-                        checkComponent(s, true);
+                        checkComponent(s, false);
                     }
                 }
             }
