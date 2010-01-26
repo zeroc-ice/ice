@@ -1023,6 +1023,32 @@ namespace Ice.VisualStudio
             Util.addIceCppConfigurations(project);
         }
 
+        private static bool getCopyLocal(Project project, string name)
+        {
+            VSLangProj.VSProject vsProject = (VSLangProj.VSProject)project.Object;
+            foreach(Reference r in vsProject.References)
+            {
+                if(r.Name.Equals(name))
+                {
+                    return r.CopyLocal;
+                }
+            }
+            return true;
+        }
+
+        private static void setCopyLocal(Project project, string name, bool copyLocal)
+        {
+            VSLangProj.VSProject vsProject = (VSLangProj.VSProject)project.Object;
+            foreach(Reference r in vsProject.References)
+            {
+                if(r.Name.Equals(name))
+                {
+                    r.CopyLocal = copyLocal;
+                    break;
+                }
+            }
+        }
+
         private static void updateIceHomeDotNetProject(Project project, string iceHome)
         {
             Util.setIceHome(project, iceHome);
@@ -1035,8 +1061,11 @@ namespace Ice.VisualStudio
                     continue;
                 }
 
+                bool copyLocal = getCopyLocal(project, s);
                 Util.removeDotNetReference(project, s);
+
                 Util.addDotNetReference(project, s);
+                setCopyLocal(project, s, copyLocal);
             }
         }
 
