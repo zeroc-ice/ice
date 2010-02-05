@@ -75,6 +75,15 @@ typedef VALUE(*ICE_RUBY_ENTRY_POINT)(...);
 #   define RBIGNUM_LEN(v) RBIGNUM(v)->len
 #endif
 
+//
+// The definition of RBIGNUM_DIGITS in 1.8.7p248+ causes a compilation error (see bug 4653),
+// so we undefine it and use our own definition below. Note that the macro HAVE_RUBY_RUBY_H
+// is only defined in Ruby 1.9.
+//
+#ifndef HAVE_RUBY_RUBY_H
+#   undef RBIGNUM_DIGITS
+#endif
+
 #ifndef RBIGNUM_DIGITS
 #   define RBIGNUM_DIGITS(v) ((BDIGIT*)RBIGNUM(v)->digits)
 #endif
