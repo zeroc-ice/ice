@@ -6817,12 +6817,6 @@ Slice::Gen::MetaDataVisitor::visitOperation(const OperationPtr& p)
 }
 
 void
-Slice::Gen::MetaDataVisitor::visitParamDecl(const ParamDeclPtr& p)
-{
-    validate(p, p->getMetaData(), p->file(), p->line());
-}
-
-void
 Slice::Gen::MetaDataVisitor::visitDataMember(const DataMemberPtr& p)
 {
     validate(p->type(), p->getMetaData(), p->file(), p->line());

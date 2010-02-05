@@ -473,7 +473,6 @@ private:
         virtual bool visitStructStart(const StructPtr&);
         virtual void visitStructEnd(const StructPtr&);
         virtual void visitOperation(const OperationPtr&);
-        virtual void visitParamDecl(const ParamDeclPtr&);
         virtual void visitDataMember(const DataMemberPtr&);
         virtual void visitSequence(const SequencePtr&);
         virtual void visitDictionary(const DictionaryPtr&);
