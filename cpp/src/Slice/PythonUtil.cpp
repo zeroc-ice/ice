@@ -1782,29 +1782,11 @@ Slice::Python::CodeVisitor::writeConstantValue(const TypePtr& type, const string
         case Slice::Builtin::KindInt:
         case Slice::Builtin::KindFloat:
         case Slice::Builtin::KindDouble:
+        case Slice::Builtin::KindLong:
         {
             _out << value;
             break;
         }
-        case Slice::Builtin::KindLong:
-        {
-            IceUtil::Int64 l;
-            IceUtilInternal::stringToInt64(value, l);
-            //
-            // The platform's 'long' type may not be 64 bits, so we store 64-bit
-            // values as a string.
-            //
-            if(sizeof(IceUtil::Int64) > sizeof(long) && (l < LONG_MIN || l > LONG_MAX))
-            {
-                _out << "'" << value << "'";
-            }
-            else
-            {
-                _out << value;
-            }
-            break;
-        }
-
         case Slice::Builtin::KindString:
         {
             //
@@ -1883,7 +1865,6 @@ Slice::Python::CodeVisitor::writeConstantValue(const TypePtr& type, const string
             _out << "\"";                                       // Closing "
             break;
         }
-
         case Slice::Builtin::KindObject:
         case Slice::Builtin::KindObjectProxy:
         case Slice::Builtin::KindLocalObject:

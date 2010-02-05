@@ -44,6 +44,13 @@ General Changes
   contained a '<' with no closing '>'.
 
 
+Python Changes
+==============
+
+- Changed the Python mapping for long integer constants so that 64-bit
+  values are no longer generated as strings.
+
+
 Ruby Changes
 ============
 
