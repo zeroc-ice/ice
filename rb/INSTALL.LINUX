@@ -220,7 +220,7 @@ There are two ways to solve this problem:
 
   SELINUX=disabled
 
-For more information on SELinux in Red Hat Enterprise Linux 4, refer
+For more information on SELinux in Red Hat Enterprise Linux 5, refer
 to the link below:
 
-  http://www.redhat.com/docs/manuals/enterprise/RHEL-4-Manual/selinux-guide/
+  http://www.redhat.com/docs/manuals/enterprise/RHEL-5-manual/Deployment_Guide-en-US/rhlcommon-chapter-0017.html
