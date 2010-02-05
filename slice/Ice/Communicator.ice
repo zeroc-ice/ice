@@ -208,7 +208,7 @@ local interface Communicator
      *
      * <p>It is legal to create an object adapter with the empty string as
      * its name. Such an object adapter is accessible via bidirectional
-     * connections or by collocated invocations that originate from the the
+     * connections or by collocated invocations that originate from the
      * same communicator as is used by the adapter.</p>
      *
      * <p>Attempts to create a named object adapter for which no configuration

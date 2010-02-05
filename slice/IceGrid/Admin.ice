@@ -1011,7 +1011,7 @@ interface Admin
      * running the node with the given name. 
      *
      * Note that this method will return 0 on operating systems where
-     * this can't be automatically determined and wher the
+     * this can't be automatically determined and where the
      * IceGrid.Node.ProcessorSocketCount property for the node is not
      * set.
      *
