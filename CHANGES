@@ -18,9 +18,11 @@ Note that this file only includes changes since Ice 3.2.1. For the
 change history of prior releases, refer to the CHANGES file in the
 subdirectory of each language mapping (e.g., cpp/CHANGES).
 
+
 ======================================================================
 Changes since version 3.4b
 ======================================================================
+
 
 General Changes
 ===============
@@ -28,8 +30,16 @@ General Changes
 - Fixed IceGrid bug where the IceGrid node would disconnect from the
   registry if the clock was moved backward.
 
-- Fixed hang in slice2cs and slice2py which would occur if a comment
+- Fixed hang in slice2cs and slice2py that would occur if a comment
   contained a '<' with no closing '>'.
+
+
+Ruby Changes
+============
+
+- Fixed a compilation error when using Ruby 1.8.7 (patch level >=
+  248).
+
 
 ======================================================================
 Changes since version 3.3.1
