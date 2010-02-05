@@ -68,6 +68,16 @@ protected:
     void writeDispatchAndMarshalling(::IceUtilInternal::Output&, const ClassDefPtr&, bool);
 
     //
+    // Write a constant or default value initializer.
+    //
+    void writeConstantValue(::IceUtilInternal::Output&, const TypePtr&, const std::string&, const std::string&);
+
+    //
+    // Generate assignment statements for those data members that have default values.
+    //
+    void writeDataMemberInitializers(::IceUtilInternal::Output&, const DataMemberList&, const std::string&);
+
+    //
     // Write doc comments.
     //
     static StringList splitComment(const ContainedPtr&);

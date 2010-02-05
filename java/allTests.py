@@ -57,6 +57,7 @@ tests = [
     ("Ice/udp", ["core"]),
     ("Ice/serialize", ["core"]),
     ("Ice/defaultServant", ["core"]),
+    ("Ice/defaultValue", ["core"]),
     ("Ice/threadPoolPriority", ["core"]),
     ("Ice/classLoader", ["core"]),
     ("Ice/invoke", ["core"]),

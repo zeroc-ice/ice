@@ -1074,25 +1074,9 @@ Slice::Container::createConst(const string name, const TypePtr& constType, const
     }
 
     //
-    // Check that the constant type is legal.
+    // Validate the constant and its value.
     //
-    if(nt == Real && !Const::isLegalType(name, constType, _unit))
-    {
-        return 0;
-    }
-
-    //
-    // Check that the type of the constant is compatible with the type of the initializer.
-    //
-    if(nt == Real && !Const::typesAreCompatible(name, constType, literalType, value, _unit))
-    {
-        return 0;
-    }
-
-    //
-    // Check that the initializer is in range.
-    //
-    if(nt == Real && !Const::isInRange(name, constType, value, _unit))
+    if(nt == Real && !validateConstant(name, constType, literalType, value, true))
     {
         return 0;
     }
@@ -2229,6 +2213,213 @@ Slice::Container::checkGlobalMetaData(const StringList& m1, const StringList& m2
     return true;
 }
 
+bool
+Slice::Container::validateConstant(const string& name, const TypePtr& type, const SyntaxTreeBasePtr& literalType,
+                                   const string& value, bool constant)
+{
+    const string desc = constant ? "constant" : "data member";
+
+    if(type == 0)
+    {
+        return false;
+    }
+
+    //
+    // First verify that it is legal to specify a constant or default value for the given type.
+    //
+
+    BuiltinPtr b = BuiltinPtr::dynamicCast(type);
+    EnumPtr e = EnumPtr::dynamicCast(type);
+
+    if(b)
+    {
+        switch(b->kind())
+        {
+            case Builtin::KindBool:
+            case Builtin::KindByte:
+            case Builtin::KindShort:
+            case Builtin::KindInt:
+            case Builtin::KindLong:
+            case Builtin::KindFloat:
+            case Builtin::KindDouble:
+            case Builtin::KindString:
+                break;
+            default:
+            {
+                if(constant)
+                {
+                    _unit->error("constant `" + name + "' has illegal type: `" + b->kindAsString() + "'");
+                }
+                else
+                {
+                    _unit->error("default value not allowed for data member `" + name + "' of type `" +
+                                 b->kindAsString() + "'");
+                }
+                return false;
+            }
+        }
+    }
+    else if(!e)
+    {
+        if(constant)
+        {
+            _unit->error("constant `" + name + "' has illegal type");
+        }
+        else
+        {
+            _unit->error("default value not allowed for data member `" + name + "'");
+        }
+        return false;
+    }
+
+    //
+    // Next, verify that the type of the constant or data member is compatible with the given value.
+    //
+
+    if(b)
+    {
+#if defined(__SUNPRO_CC) && (__SUNPRO_CC <= 0x530)
+        // Strange Sun C++ 5.3 bug.
+        const IceUtil::HandleBase<SyntaxTreeBase>& hb = literalType;
+        BuiltinPtr lt = BuiltinPtr::dynamicCast(hb);
+#else
+        BuiltinPtr lt = BuiltinPtr::dynamicCast(literalType);
+#endif
+
+        if(lt)
+        {
+            bool ok = true;
+            switch(b->kind())
+            {
+                case Builtin::KindBool:
+                {
+                    if(lt->kind() != Builtin::KindBool)
+                    {
+                        ok = false;
+                    }
+                    break;
+                }
+                case Builtin::KindByte:
+                case Builtin::KindShort:
+                case Builtin::KindInt:
+                case Builtin::KindLong:
+                {
+                    if(lt->kind() != Builtin::KindLong)
+                    {
+                        ok = false;
+                    }
+                    break;
+                }
+                case Builtin::KindFloat:
+                case Builtin::KindDouble:
+                {
+                    if(lt->kind() != Builtin::KindDouble)
+                    {
+                        ok = false;
+                    }
+                    break;
+                }
+                case Builtin::KindString:
+                {
+                    if(lt->kind() != Builtin::KindString)
+                    {
+                        ok = false;
+                    }
+                    break;
+                }
+
+                case Builtin::KindObject:
+                case Builtin::KindObjectProxy:
+                case Builtin::KindLocalObject:
+                {
+                    assert(false);
+                    break;
+                }
+            }
+
+            if(!ok)
+            {
+                string msg = "initializer of type `" + lt->kindAsString() + "' is incompatible with the type `" +
+                    b->kindAsString() + "' of " + desc + " `" + name + "'";
+                _unit->error(msg);
+                return false;
+            }
+        }
+        else
+        {
+            string msg = "type of initializer is incompatible with the type `" + b->kindAsString() + "' of " + desc +
+                " `" + name + "'";
+            _unit->error(msg);
+            return false;
+        }
+
+        switch(b->kind())
+        {
+            case Builtin::KindByte:
+            {
+                IceUtil::Int64 l = IceUtilInternal::strToInt64(value.c_str(), 0, 0);
+                if(l < ByteMin || l > ByteMax)
+                {
+                    string msg = "initializer `" + value + "' for " + desc + " `" + name +
+                        "' out of range for type byte";
+                    _unit->error(msg);
+                    return false;
+                }
+                break;
+            }
+            case Builtin::KindShort:
+            {
+                IceUtil::Int64 l = IceUtilInternal::strToInt64(value.c_str(), 0, 0);
+                if(l < Int16Min || l > Int16Max)
+                {
+                    string msg = "initializer `" + value + "' for " + desc + " `" + name +
+                        "' out of range for type short";
+                    _unit->error(msg);
+                    return false;
+                }
+                break;
+            }
+            case Builtin::KindInt:
+            {
+                IceUtil::Int64 l = IceUtilInternal::strToInt64(value.c_str(), 0, 0);
+                if(l < Int32Min || l > Int32Max)
+                {
+                    string msg = "initializer `" + value + "' for " + desc + " `" + name +
+                        "' out of range for type int";
+                    _unit->error(msg);
+                    return false;
+                }
+                break;
+            }
+
+            default:
+            {
+                break;
+            }
+        }
+    }
+
+    if(e)
+    {
+        EnumeratorPtr lte = EnumeratorPtr::dynamicCast(literalType);
+        if(!lte)
+        {
+            string msg = "type of initializer is incompatible with the type of " + desc + " `" + name + "'";
+            _unit->error(msg);
+            return false;
+        }
+        EnumeratorList elist = e->getEnumerators();
+        if(find(elist.begin(), elist.end(), lte) == elist.end())
+        {
+            string msg = "enumerator `" + value + "' is not defined in enumeration `" + e->scoped() + "'";
+            _unit->error(msg);
+            return false;
+        }
+    }
+
+    return true;
+}
+
 // ----------------------------------------------------------------------
 // Module
 // ----------------------------------------------------------------------
@@ -2707,7 +2898,8 @@ Slice::ClassDef::createOperation(const string& name,
 }
 
 DataMemberPtr
-Slice::ClassDef::createDataMember(const string& name, const TypePtr& type)
+Slice::ClassDef::createDataMember(const string& name, const TypePtr& type, const SyntaxTreeBasePtr& defaultLiteralType,
+                                  const string& defaultValue, const string& defaultLiteral)
 {
     checkPrefix(name);
 
@@ -2829,8 +3021,28 @@ Slice::ClassDef::createDataMember(const string& name, const TypePtr& type)
         _unit->error(msg);
     }
 
+    SyntaxTreeBasePtr dlt = defaultLiteralType;
+    string dv = defaultValue;
+    string dl = defaultLiteral;
+
+    if(dlt)
+    {
+        //
+        // Validate the default value.
+        //
+        if(!validateConstant(name, type, dlt, dv, false))
+        {
+            //
+            // Create the data member anyway, just without the default value.
+            //
+            dlt = 0;
+            dv.clear();
+            dl.clear();
+        }
+    }
+
     _hasDataMembers = true;
-    DataMemberPtr member = new DataMember(this, name, type);
+    DataMemberPtr member = new DataMember(this, name, type, dlt, dv, dl);
     _contents.push_back(member);
     return member;
 }
@@ -3061,6 +3273,21 @@ Slice::ClassDef::hasOperations() const
     return _hasOperations;
 }
 
+bool
+Slice::ClassDef::hasDefaultValues() const
+{
+    DataMemberList dml = dataMembers();
+    for(DataMemberList::const_iterator i = dml.begin(); i != dml.end(); ++i)
+    {
+        if((*i)->hasDefaultValue())
+        {
+            return true;
+        }
+    }
+
+    return false;
+}
+
 Contained::ContainedType
 Slice::ClassDef::containedType() const
 {
@@ -3179,7 +3406,8 @@ Slice::Exception::destroy()
 }
 
 DataMemberPtr
-Slice::Exception::createDataMember(const string& name, const TypePtr& type)
+Slice::Exception::createDataMember(const string& name, const TypePtr& type, const SyntaxTreeBasePtr& defaultLiteralType,
+                                   const string& defaultValue, const string& defaultLiteral)
 {
     checkPrefix(name);
 
@@ -3290,7 +3518,27 @@ Slice::Exception::createDataMember(const string& name, const TypePtr& type)
         _unit->error(msg);
     }
 
-    DataMemberPtr p = new DataMember(this, name, type);
+    SyntaxTreeBasePtr dlt = defaultLiteralType;
+    string dv = defaultValue;
+    string dl = defaultLiteral;
+
+    if(dlt)
+    {
+        //
+        // Validate the default value.
+        //
+        if(!validateConstant(name, type, dlt, dv, false))
+        {
+            //
+            // Create the data member anyway, just without the default value.
+            //
+            dlt = 0;
+            dv.clear();
+            dl.clear();
+        }
+    }
+
+    DataMemberPtr p = new DataMember(this, name, type, dlt, dv, dl);
     _contents.push_back(p);
     return p;
 }
@@ -3454,6 +3702,21 @@ Slice::Exception::usesClasses() const
     return false;
 }
 
+bool
+Slice::Exception::hasDefaultValues() const
+{
+    DataMemberList dml = dataMembers();
+    for(DataMemberList::const_iterator i = dml.begin(); i != dml.end(); ++i)
+    {
+        if((*i)->hasDefaultValue())
+        {
+            return true;
+        }
+    }
+
+    return false;
+}
+
 string
 Slice::Exception::kindOf() const
 {
@@ -3484,7 +3747,8 @@ Slice::Exception::Exception(const ContainerPtr& container, const string& name, c
 // ----------------------------------------------------------------------
 
 DataMemberPtr
-Slice::Struct::createDataMember(const string& name, const TypePtr& type)
+Slice::Struct::createDataMember(const string& name, const TypePtr& type, const SyntaxTreeBasePtr& defaultLiteralType,
+                                const string& defaultValue, const string& defaultLiteral)
 {
     checkPrefix(name);
 
@@ -3577,7 +3841,27 @@ Slice::Struct::createDataMember(const string& name, const TypePtr& type)
         _unit->error(msg);
     }
 
-    DataMemberPtr p = new DataMember(this, name, type);
+    SyntaxTreeBasePtr dlt = defaultLiteralType;
+    string dv = defaultValue;
+    string dl = defaultLiteral;
+
+    if(dlt)
+    {
+        //
+        // Validate the default value.
+        //
+        if(!validateConstant(name, type, dlt, dv, false))
+        {
+            //
+            // Create the data member anyway, just without the default value.
+            //
+            dlt = 0;
+            dv.clear();
+            dl.clear();
+        }
+    }
+
+    DataMemberPtr p = new DataMember(this, name, type, dlt, dv, dl);
     _contents.push_back(p);
     return p;
 }
@@ -3668,6 +3952,20 @@ Slice::Struct::isVariableLength() const
     for(DataMemberList::const_iterator i = dml.begin(); i != dml.end(); ++i)
     {
         if((*i)->type()->isVariableLength())
+        {
+            return true;
+        }
+    }
+    return false;
+}
+
+bool
+Slice::Struct::hasDefaultValues() const
+{
+    DataMemberList dml = dataMembers();
+    for(DataMemberList::const_iterator i = dml.begin(); i != dml.end(); ++i)
+    {
+        if((*i)->hasDefaultValue())
         {
             return true;
         }
@@ -4163,203 +4461,6 @@ void
 Slice::Const::visit(ParserVisitor* visitor, bool)
 {
     visitor->visitConst(this);
-}
-
-bool
-Slice::Const::isLegalType(const string& name, const TypePtr& constType, const UnitPtr& unit)
-{
-    if(constType == 0)
-    {
-        return false;
-    }
-
-    BuiltinPtr ct = BuiltinPtr::dynamicCast(constType);
-    if(ct)
-    {
-        switch(ct->kind())
-        {
-            case Builtin::KindBool:
-            case Builtin::KindByte:
-            case Builtin::KindShort:
-            case Builtin::KindInt:
-            case Builtin::KindLong:
-            case Builtin::KindFloat:
-            case Builtin::KindDouble:
-            case Builtin::KindString:
-            {
-                return true;
-                break;
-            }
-            default:
-            {
-                string msg = "constant `" + name + "' has illegal type: `" + ct->kindAsString() + "'";
-                unit->error(msg);
-                return false;
-                break;
-            }
-        }
-    }
-
-    EnumPtr ep = EnumPtr::dynamicCast(constType);
-    if(!ep)
-    {
-        string msg = "constant `" + name + "' has illegal type";
-        unit->error(msg);
-        return false;
-    }
-    return true;
-}
-
-bool
-Slice::Const::typesAreCompatible(const string& name, const TypePtr& constType,
-                                    const SyntaxTreeBasePtr& literalType, const string& value,
-                                    const UnitPtr& unit)
-{
-    BuiltinPtr ct = BuiltinPtr::dynamicCast(constType);
-
-#if defined(__SUNPRO_CC) && (__SUNPRO_CC <= 0x530)
-// Strange Sun C++ 5.3 bug.
-    const IceUtil::HandleBase<SyntaxTreeBase>& hb = literalType;
-    BuiltinPtr lt = BuiltinPtr::dynamicCast(hb);
-#else
-    BuiltinPtr lt = BuiltinPtr::dynamicCast(literalType);
-#endif
-
-    if(ct && lt)
-    {
-        switch(ct->kind())
-        {
-            case Builtin::KindBool:
-            {
-                if(lt->kind() == Builtin::KindBool)
-                {
-                    return true;
-                }
-                break;
-            }
-            case Builtin::KindByte:
-            case Builtin::KindShort:
-            case Builtin::KindInt:
-            case Builtin::KindLong:
-            {
-                if(lt->kind() == Builtin::KindLong)
-                {
-                    return true;
-                }
-                break;
-            }
-            case Builtin::KindFloat:
-            case Builtin::KindDouble:
-            {
-                if(lt->kind() == Builtin::KindDouble)
-                {
-                    return true;
-                }
-                break;
-            }
-            case Builtin::KindString:
-            {
-                if(lt->kind() == Builtin::KindString)
-                {
-                    return true;
-                }
-                break;
-            }
-
-            case Builtin::KindObject:
-            case Builtin::KindObjectProxy:
-            case Builtin::KindLocalObject:
-            {
-                assert(false);
-                break;
-            }
-        }
-
-        string msg = "initializer of type `" + lt->kindAsString();
-        msg += "' is incompatible with the type `" + ct->kindAsString() + "' of constant `" + name + "'";
-        unit->error(msg);
-        return false;
-    }
-
-    if(ct && !lt)
-    {
-        string msg = "type of initializer is incompatible with the type `" + ct->kindAsString();
-        msg += "' of constant `" + name + "'";
-        unit->error(msg);
-        return false;
-    }
-
-    EnumPtr enumP = EnumPtr::dynamicCast(constType);
-    assert(enumP);
-    EnumeratorPtr enumeratorP = EnumeratorPtr::dynamicCast(literalType);
-    if(!enumeratorP)
-    {
-        string msg = "type of initializer is incompatible with the type of constant `" + name + "'";
-        unit->error(msg);
-        return false;
-    }
-    EnumeratorList elist = enumP->getEnumerators();
-    if(find(elist.begin(), elist.end(), enumeratorP) == elist.end())
-    {
-        string msg = "enumerator `" + value + "' is not defined in enumeration `" + enumP->scoped() + "'";
-        unit->error(msg);
-        return false;
-    }
-    return true;
-}
-
-bool
-Slice::Const::isInRange(const string& name, const TypePtr& constType, const string& value,
-                           const UnitPtr& unit)
-{
-    BuiltinPtr ct = BuiltinPtr::dynamicCast(constType);
-    if (!ct)
-    {
-        return true; // Enums are checked elsewhere.
-    }
-
-    switch(ct->kind())
-    {
-        case Builtin::KindByte:
-        {
-            IceUtil::Int64 l = IceUtilInternal::strToInt64(value.c_str(), 0, 0);
-            if(l < ByteMin || l > ByteMax)
-            {
-                string msg = "initializer `" + value + "' for constant `" + name + "' out of range for type byte";
-                unit->error(msg);
-                return false;
-            }
-            break;
-        }
-        case Builtin::KindShort:
-        {
-            IceUtil::Int64 l = IceUtilInternal::strToInt64(value.c_str(), 0, 0);
-            if(l < Int16Min || l > Int16Max)
-            {
-                string msg = "initializer `" + value + "' for constant `" + name + "' out of range for type short";
-                unit->error(msg);
-                return false;
-            }
-            break;
-        }
-        case Builtin::KindInt:
-        {
-            IceUtil::Int64 l = IceUtilInternal::strToInt64(value.c_str(), 0, 0);
-            if(l < Int32Min || l > Int32Max)
-            {
-                string msg = "initializer `" + value + "' for constant `" + name + "' out of range for type int";
-                unit->error(msg);
-                return false;
-            }
-            break;
-        }
-
-        default:
-        {
-            break;
-        }
-    }
-    return true; // Everything else is either in range or doesn't need checking.
 }
 
 Slice::Const::Const(const ContainerPtr& container, const string& name, const TypePtr& type,
@@ -4869,6 +4970,24 @@ Slice::DataMember::type() const
     return _type;
 }
 
+bool
+Slice::DataMember::hasDefaultValue() const
+{
+    return _hasDefaultValue;
+}
+
+string
+Slice::DataMember::defaultValue() const
+{
+    return _defaultValue;
+}
+
+string
+Slice::DataMember::defaultLiteral() const
+{
+    return _defaultLiteral;
+}
+
 Contained::ContainedType
 Slice::DataMember::containedType() const
 {
@@ -4899,10 +5018,14 @@ Slice::DataMember::visit(ParserVisitor* visitor, bool)
     visitor->visitDataMember(this);
 }
 
-Slice::DataMember::DataMember(const ContainerPtr& container, const string& name, const TypePtr& type) :
+Slice::DataMember::DataMember(const ContainerPtr& container, const string& name, const TypePtr& type,
+                              bool hasDefaultValue, const string& defaultValue, const string& defaultLiteral) :
     SyntaxTreeBase(container->unit()),
     Contained(container, name),
-    _type(type)
+    _type(type),
+    _hasDefaultValue(hasDefaultValue),
+    _defaultValue(defaultValue),
+    _defaultLiteral(defaultLiteral)
 {
 }
 

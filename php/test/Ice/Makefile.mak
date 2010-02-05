@@ -11,7 +11,7 @@ top_srcdir	= ..\..
 
 !include $(top_srcdir)\config\Make.rules.mak.php
 
-SUBDIRS		= binding checksum exceptions facets info inheritance objects operations proxy slicing
+SUBDIRS		= binding checksum exceptions facets info inheritance objects operations proxy slicing defaultValue
 
 $(EVERYTHING)::
 	@for %i in ( $(SUBDIRS) ) do \

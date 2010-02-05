@@ -617,17 +617,44 @@ data_member
     DataMemberPtr dm;
     if(cl)
     {
-	dm = cl->createDataMember(name, type);
+	dm = cl->createDataMember(name, type, 0, "", "");
     }
     StructPtr st = StructPtr::dynamicCast(unit->currentContainer());
     if(st)
     {
-	dm = st->createDataMember(name, type);
+	dm = st->createDataMember(name, type, 0, "", "");
     }
     ExceptionPtr ex = ExceptionPtr::dynamicCast(unit->currentContainer());
     if(ex)
     {
-	dm = ex->createDataMember(name, type);
+	dm = ex->createDataMember(name, type, 0, "", "");
+    }
+    unit->currentContainer()->checkIntroduced(name, dm);
+    $$ = dm;
+}
+| type_id '=' const_initializer
+{
+    TypePtr type = TypeStringTokPtr::dynamicCast($1)->v.first;
+    string name = TypeStringTokPtr::dynamicCast($1)->v.second;
+    ConstDefTokPtr value = ConstDefTokPtr::dynamicCast($3);
+    SyntaxTreeBasePtr defaultLiteralType = value->v.value;
+    string defaultValue = value->v.valueAsString;
+    string defaultLiteral = value->v.valueAsLiteral;
+    ClassDefPtr cl = ClassDefPtr::dynamicCast(unit->currentContainer());
+    DataMemberPtr dm;
+    if(cl)
+    {
+	dm = cl->createDataMember(name, type, defaultLiteralType, defaultValue, defaultLiteral);
+    }
+    StructPtr st = StructPtr::dynamicCast(unit->currentContainer());
+    if(st)
+    {
+	dm = st->createDataMember(name, type, defaultLiteralType, defaultValue, defaultLiteral);
+    }
+    ExceptionPtr ex = ExceptionPtr::dynamicCast(unit->currentContainer());
+    if(ex)
+    {
+	dm = ex->createDataMember(name, type, defaultLiteralType, defaultValue, defaultLiteral);
     }
     unit->currentContainer()->checkIntroduced(name, dm);
     $$ = dm;
@@ -639,17 +666,17 @@ data_member
     ClassDefPtr cl = ClassDefPtr::dynamicCast(unit->currentContainer());
     if(cl)
     {
-	$$ = cl->createDataMember(name, type); // Dummy
+	$$ = cl->createDataMember(name, type, 0, "", ""); // Dummy
     }
     StructPtr st = StructPtr::dynamicCast(unit->currentContainer());
     if(st)
     {
-	$$ = st->createDataMember(name, type); // Dummy
+	$$ = st->createDataMember(name, type, 0, "", ""); // Dummy
     }
     ExceptionPtr ex = ExceptionPtr::dynamicCast(unit->currentContainer());
     if(ex)
     {
-	$$ = ex->createDataMember(name, type); // Dummy
+	$$ = ex->createDataMember(name, type, 0, "", ""); // Dummy
     }
     assert($$);
     unit->error("keyword `" + name + "' cannot be used as data member name");
@@ -660,17 +687,17 @@ data_member
     ClassDefPtr cl = ClassDefPtr::dynamicCast(unit->currentContainer());
     if(cl)
     {
-        $$ = cl->createDataMember(IceUtil::generateUUID(), type); // Dummy
+        $$ = cl->createDataMember(IceUtil::generateUUID(), type, 0, "", ""); // Dummy
     }
     StructPtr st = StructPtr::dynamicCast(unit->currentContainer());
     if(st)
     {
-	$$ = st->createDataMember(IceUtil::generateUUID(), type); // Dummy
+	$$ = st->createDataMember(IceUtil::generateUUID(), type, 0, "", ""); // Dummy
     }
     ExceptionPtr ex = ExceptionPtr::dynamicCast(unit->currentContainer());
     if(ex)
     {
-	$$ = ex->createDataMember(IceUtil::generateUUID(), type); // Dummy
+	$$ = ex->createDataMember(IceUtil::generateUUID(), type, 0, "", ""); // Dummy
     }
     assert($$);
     unit->error("missing data member name");

@@ -38,6 +38,93 @@ getDeprecateSymbol(const ContainedPtr& p1, const ContainedPtr& p2)
     return deprecateSymbol;
 }
 
+static void
+writeConstantValue(IceUtilInternal::Output& out, const TypePtr& type, const string& value, int useWstring,
+                   const StringList& metaData)
+{
+    BuiltinPtr bp = BuiltinPtr::dynamicCast(type);
+    if(bp && bp->kind() == Builtin::KindString)
+    {
+        //
+        // Expand strings into the basic source character set. We can't use isalpha() and the like
+        // here because they are sensitive to the current locale.
+        //
+        static const string basicSourceChars = "abcdefghijklmnopqrstuvwxyz"
+                                               "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+                                               "0123456789"
+                                               "_{}[]#()<>%:;.?*+-/^&|~!=,\\\"' ";
+        static const set<char> charSet(basicSourceChars.begin(), basicSourceChars.end());
+
+        if((useWstring & TypeContextUseWstring) || findMetaData(metaData) == "wstring")
+        {
+            out << 'L';
+        }
+        out << "\"";                                    // Opening "
+
+        for(string::const_iterator c = value.begin(); c != value.end(); ++c)
+        {
+            if(charSet.find(*c) == charSet.end())
+            {
+                unsigned char uc = *c;                  // char may be signed, so make it positive
+                ostringstream s;
+                s << "\\";                              // Print as octal if not in basic source character set
+                s.width(3);
+                s.fill('0');
+                s << oct;
+                s << static_cast<unsigned>(uc);
+                out << s.str();
+            }
+            else
+            {
+                out << *c;                              // Print normally if in basic source character set
+            }
+        }
+
+        out << "\"";                                    // Closing "
+    }
+    else if(bp && bp->kind() == Builtin::KindLong)
+    {
+        out << "ICE_INT64(" << value << ")";
+    }
+    else
+    {
+        EnumPtr ep = EnumPtr::dynamicCast(type);
+        if(ep)
+        {
+            out << fixKwd(value);
+        }
+        else
+        {
+            out << value;
+        }
+    }
+}
+
+static void
+writeDataMemberInitializers(IceUtilInternal::Output& C, const DataMemberList& members, int useWstring)
+{
+    bool first = true;
+    for(DataMemberList::const_iterator p = members.begin(); p != members.end(); ++p)
+    {
+        if((*p)->hasDefaultValue())
+        {
+            string memberName = fixKwd((*p)->name());
+
+            if(first)
+            {
+                first = false;
+            }
+            else
+            {
+                C << ',';
+            }
+            C << nl << memberName << '(';
+            writeConstantValue(C, (*p)->type(), (*p)->defaultValue(), useWstring, (*p)->getMetaData());
+            C << ')';
+        }
+    }
+}
+
 Slice::Gen::Gen(const string& base, const string& headerExtension, const string& sourceExtension,
                 const vector<string>& extraHeaders, const string& include,
                 const vector<string>& includePaths, const string& dllExport, const string& dir,
@@ -567,7 +654,7 @@ Slice::Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
         H << "const char*" << "int";
     }
     H << epar;
-    if(!p->isLocal())
+    if(!p->isLocal() && !p->hasDefaultValues())
     {
         H << " {}";
     }
@@ -598,6 +685,20 @@ Slice::Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
           << " :";
         C.inc();
         emitUpcall(base, "(__file, __line)", true);
+        if(p->hasDefaultValues())
+        {
+            C << nl << ", ";
+            writeDataMemberInitializers(C, dataMembers, _useWstring);
+        }
+        C.dec();
+        C << sb;
+        C << eb;
+    }
+    else if(p->hasDefaultValues())
+    {
+        C << sp << nl << scoped.substr(2) << "::" << name << "() :";
+        C.inc();
+        writeDataMemberInitializers(C, dataMembers, _useWstring);
         C.dec();
         C << sb;
         C << eb;
@@ -916,6 +1017,7 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
 bool
 Slice::Gen::TypesVisitor::visitStructStart(const StructPtr& p)
 {
+    DataMemberList dataMembers = p->dataMembers();
     _useWstring = setUseWstring(p, _useWstringHist, _useWstring);
 
     string name = fixKwd(p->name());
@@ -928,9 +1030,22 @@ Slice::Gen::TypesVisitor::visitStructStart(const StructPtr& p)
         H << nl << "public:";
         H.inc();
         H << nl;
-        H << nl << name << "() {}";
+        if(p->hasDefaultValues())
+        {
+            H << nl << name << "();";
 
-        DataMemberList dataMembers = p->dataMembers();
+            C << sp << nl << fixKwd(p->scoped()).substr(2) << "::" << fixKwd(p->name()) << "() :";
+            C.inc();
+            writeDataMemberInitializers(C, dataMembers, _useWstring);
+            C.dec();
+            C << sb;
+            C << eb;
+        }
+        else
+        {
+            H << nl << name << "() {}";
+        }
+
         if(!dataMembers.empty())
         {
             DataMemberList::const_iterator q;
@@ -958,10 +1073,10 @@ Slice::Gen::TypesVisitor::visitStructStart(const StructPtr& p)
             {
                 if(q != dataMembers.begin())
                 {
-                    C << ',' << nl;
+                    C << ',';
                 }
                 string memberName = fixKwd((*q)->name());
-                C << memberName << '(' << "__ice_" << (*q)->name() << ')';
+                C << nl << memberName << '(' << "__ice_" << (*q)->name() << ')';
             }
 
             C.dec();
@@ -973,6 +1088,17 @@ Slice::Gen::TypesVisitor::visitStructStart(const StructPtr& p)
     {
         H << sp << nl << "struct " << name;
         H << sb;
+        if(p->hasDefaultValues())
+        {
+            H << nl << name << "();";
+
+            C << sp << nl << fixKwd(p->scoped()).substr(2) << "::" << fixKwd(p->name()) << "() :";
+            C.inc();
+            writeDataMemberInitializers(C, dataMembers, _useWstring);
+            C.dec();
+            C << sb;
+            C << eb;
+        }
     }
 
     return true;
@@ -1706,65 +1832,7 @@ Slice::Gen::TypesVisitor::visitConst(const ConstPtr& p)
     H << sp;
     H << nl << "const " << typeToString(p->type(), p->typeMetaData(), _useWstring) << " " << fixKwd(p->name())
       << " = ";
-
-    BuiltinPtr bp = BuiltinPtr::dynamicCast(p->type());
-    if(bp && bp->kind() == Builtin::KindString)
-    {
-        //
-        // Expand strings into the basic source character set. We can't use isalpha() and the like
-        // here because they are sensitive to the current locale.
-        //
-        static const string basicSourceChars = "abcdefghijklmnopqrstuvwxyz"
-                                               "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-                                               "0123456789"
-                                               "_{}[]#()<>%:;.?*+-/^&|~!=,\\\"' ";
-        static const set<char> charSet(basicSourceChars.begin(), basicSourceChars.end());
-
-        if(_useWstring || findMetaData(p->typeMetaData()) == "wstring")
-        {
-            H << 'L';
-        }
-        H << "\"";                                      // Opening "
-
-        const string val = p->value();
-        for(string::const_iterator c = val.begin(); c != val.end(); ++c)
-        {
-            if(charSet.find(*c) == charSet.end())
-            {
-                unsigned char uc = *c;                  // char may be signed, so make it positive
-                ostringstream s;
-                s << "\\";                              // Print as octal if not in basic source character set
-                s.width(3);
-                s.fill('0');
-                s << oct;
-                s << static_cast<unsigned>(uc);
-                H << s.str();
-            }
-            else
-            {
-                H << *c;                                // Print normally if in basic source character set
-            }
-        }
-
-        H << "\"";                                      // Closing "
-    }
-    else if(bp && bp->kind() == Builtin::KindLong)
-    {
-        H << "ICE_INT64(" << p->value() << ")";
-    }
-    else
-    {
-        EnumPtr ep = EnumPtr::dynamicCast(p->type());
-        if(ep)
-        {
-            H << fixKwd(p->value());
-        }
-        else
-        {
-            H << p->value();
-        }
-    }
-
+    writeConstantValue(H, p->type(), p->value(), _useWstring, p->typeMetaData());
     H << ';';
 }
 
@@ -3718,7 +3786,21 @@ Slice::Gen::ObjectVisitor::visitClassDefStart(const ClassDefPtr& p)
 
     if(!p->isInterface())
     {
-        H << nl << name << "() {}";
+        if(p->hasDefaultValues())
+        {
+            H << nl << name << "();";
+
+            C << sp << nl << scoped.substr(2) << "::" << name << "() :";
+            C.inc();
+            writeDataMemberInitializers(C, dataMembers, _useWstring);
+            C.dec();
+            C << sb;
+            C << eb;
+        }
+        else
+        {
+            H << nl << name << "() {}";
+        }
         if(!allParamDecls.empty())
         {
             H << nl;

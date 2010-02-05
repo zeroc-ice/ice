@@ -53,6 +53,7 @@ tests = [
     ("Ice/background", ["core"]),
     ("Ice/udp", ["core"]),
     ("Ice/defaultServant", ["core"]),
+    ("Ice/defaultValue", ["core"]),
     ("Ice/threadPoolPriority", ["core", "nomono"]),
     ("Ice/invoke", ["core"]),
     ("IceBox/configuration", ["core", "noipv6"]),

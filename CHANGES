@@ -27,6 +27,16 @@ Changes since version 3.4b
 General Changes
 ===============
 
+- Added ability to define default values for Slice data members. For
+  example, you can write:
+
+  // Slice
+  class C
+  {
+      int i = 2;
+      string name = "John";
+  };
+
 - Fixed IceGrid bug where the IceGrid node would disconnect from the
   registry if the clock was moved backward.
 

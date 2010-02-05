@@ -27,6 +27,7 @@ Table of Contents
      - Connection and endpoint information
      - New Slice compiler and API for PHP
      - Slice comments
+     - New Slice syntax for default values
      - Properties in the Windows registry
      - New sample programs
   2. Upgrading your application from Ice 3.3
@@ -207,6 +208,26 @@ environments (IDEs):
   definitions. This enables the IDE to display tooltips for your Slice
   APIs. Ice generates these XML files for its own assemblies so that
   you can view tooltips for the Ice APIs as well.
+
+
+New Slice syntax for default values
+-----------------------------------
+
+It is now possible to specify in Slice the default values for data
+members of classes, structures, and exceptions. The semantics are the
+same as for Slice constants in that you can only specify default
+values for a data member whose type is a primitive or enumeration.
+For example:
+
+// Slice
+enum Color { red, green, blue };
+
+struct Point
+{
+    int x = -1;
+    int y = -1;
+    Color c = blue;
+};
 
 
 Properties in the Windows registry

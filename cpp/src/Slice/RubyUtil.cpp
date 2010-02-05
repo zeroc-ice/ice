@@ -74,14 +74,24 @@ private:
     //
     void writeHash(const string&, const TypePtr&, int&);
 
+    //
+    // Write a constant value.
+    //
+    void writeConstantValue(const TypePtr&, const string&);
+
     struct MemberInfo
     {
         string lowerName; // Mapped name beginning with a lower-case letter for use as the name of a local variable.
         string fixedName;
-        TypePtr type;
         bool inherited;
+        DataMemberPtr dataMember;
     };
     typedef list<MemberInfo> MemberInfoList;
+
+    //
+    // Write constructor parameters with default values.
+    //
+    void writeConstructorParams(const MemberInfoList&);
 
     void collectClassMembers(const ClassDefPtr&, MemberInfoList&, bool);
     void collectExceptionMembers(const ExceptionPtr&, MemberInfoList&, bool);
@@ -440,24 +450,24 @@ Slice::Ruby::CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
         //
         MemberInfoList allMembers;
         collectClassMembers(p, allMembers, false);
-        bool inheritsMembers = false;
         if(!allMembers.empty())
         {
-            _out << sp << nl << "def initialize";
-            _out << spar;
+            _out << sp << nl << "def initialize(";
+            writeConstructorParams(allMembers);
+            _out << ')';
+            _out.inc();
+
             MemberInfoList::iterator q;
+            bool inheritsMembers = false;
             for(q = allMembers.begin(); q != allMembers.end(); ++q)
             {
-                ostringstream ostr;
-                ostr << q->lowerName << '=' << getDefaultValue(q->type);
-                _out << ostr.str();
                 if(q->inherited)
                 {
                     inheritsMembers = true;
+                    break;
                 }
             }
-            _out << epar;
-            _out.inc();
+
             if(inheritsMembers)
             {
                 _out << nl << "super" << spar;
@@ -470,6 +480,7 @@ Slice::Ruby::CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
                 }
                 _out << epar;
             }
+
             for(q = allMembers.begin(); q != allMembers.end(); ++q)
             {
                 if(!q->inherited)
@@ -477,6 +488,7 @@ Slice::Ruby::CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
                     _out << nl << '@' << q->fixedName << " = " << q->lowerName;
                 }
             }
+
             _out.dec();
             _out << nl << "end";
         }
@@ -816,18 +828,16 @@ Slice::Ruby::CodeVisitor::visitExceptionStart(const ExceptionPtr& p)
     bool inheritsMembers = false;
     if(!allMembers.empty())
     {
-        _out << spar;
+        _out << '(';
+        writeConstructorParams(allMembers);
+        _out << ')';
         for(MemberInfoList::iterator q = allMembers.begin(); q != allMembers.end(); ++q)
         {
-            ostringstream ostr;
-            ostr << q->lowerName << '=' << getDefaultValue(q->type);
-            _out << ostr.str();
             if(q->inherited)
             {
                 inheritsMembers = true;
             }
         }
-        _out << epar;
     }
     _out.inc();
     if(!allMembers.empty())
@@ -947,7 +957,8 @@ Slice::Ruby::CodeVisitor::visitStructStart(const StructPtr& p)
             memberList.push_back(MemberInfo());
             memberList.back().lowerName = fixIdent((*q)->name(), IdentToLower);
             memberList.back().fixedName = fixIdent((*q)->name(), IdentNormal);
-            memberList.back().type = (*q)->type();
+            memberList.back().inherited = false;
+            memberList.back().dataMember = *q;
         }
     }
 
@@ -958,14 +969,7 @@ Slice::Ruby::CodeVisitor::visitStructStart(const StructPtr& p)
     if(!memberList.empty())
     {
         _out << nl << "def initialize(";
-        for(r = memberList.begin(); r != memberList.end(); ++r)
-        {
-            if(r != memberList.begin())
-            {
-                _out << ", ";
-            }
-            _out << r->lowerName << '=' << getDefaultValue(r->type);
-        }
+        writeConstructorParams(memberList);
         _out << ")";
         _out.inc();
         for(r = memberList.begin(); r != memberList.end(); ++r)
@@ -985,7 +989,7 @@ Slice::Ruby::CodeVisitor::visitStructStart(const StructPtr& p)
     int iter = 0;
     for(r = memberList.begin(); r != memberList.end(); ++r)
     {
-        writeHash("@" + r->fixedName, r->type, iter);
+        writeHash("@" + r->fixedName, r->dataMember->type(), iter);
     }
     _out << nl << "_h % 0x7fffffff";
     _out.dec();
@@ -1073,7 +1077,7 @@ Slice::Ruby::CodeVisitor::visitStructStart(const StructPtr& p)
             _out << ',' << nl;
         }
         _out << "[\"" << r->fixedName << "\", ";
-        writeType(r->type);
+        writeType(r->dataMember->type());
         _out << ']';
     }
     if(memberList.size() > 1)
@@ -1287,137 +1291,7 @@ Slice::Ruby::CodeVisitor::visitConst(const ConstPtr& p)
     string name = fixIdent(p->name(), IdentToUpper);
 
     _out << sp << nl << name << " = ";
-
-    Slice::BuiltinPtr b = Slice::BuiltinPtr::dynamicCast(type);
-    Slice::EnumPtr en = Slice::EnumPtr::dynamicCast(type);
-    if(b)
-    {
-        switch(b->kind())
-        {
-        case Slice::Builtin::KindBool:
-        {
-            _out << value;
-            break;
-        }
-        case Slice::Builtin::KindByte:
-        case Slice::Builtin::KindShort:
-        case Slice::Builtin::KindInt:
-        case Slice::Builtin::KindFloat:
-        case Slice::Builtin::KindDouble:
-        {
-            _out << value;
-            break;
-        }
-        case Slice::Builtin::KindLong:
-        {
-            IceUtil::Int64 l;
-            IceUtilInternal::stringToInt64(value, l);
-            _out << value;
-            break;
-        }
-
-        case Slice::Builtin::KindString:
-        {
-            //
-            // Expand strings into the basic source character set. We can't use isalpha() and the like
-            // here because they are sensitive to the current locale.
-            //
-            static const string basicSourceChars = "abcdefghijklmnopqrstuvwxyz"
-                                                   "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-                                                   "0123456789"
-                                                   "_{}[]#()<>%:;.?*+-/^&|~!=, '";
-            static const set<char> charSet(basicSourceChars.begin(), basicSourceChars.end());
-
-            _out << "\"";                                      // Opening "
-
-            for(string::const_iterator c = value.begin(); c != value.end(); ++c)
-            {
-                switch(*c)
-                {
-                case '"':
-                {
-                    _out << "\\\"";
-                    break;
-                }
-                case '\\':
-                {
-                    _out << "\\\\";
-                    break;
-                }
-                case '\r':
-                {
-                    _out << "\\r";
-                    break;
-                }
-                case '\n':
-                {
-                    _out << "\\n";
-                    break;
-                }
-                case '\t':
-                {
-                    _out << "\\t";
-                    break;
-                }
-                case '\b':
-                {
-                    _out << "\\b";
-                    break;
-                }
-                case '\f':
-                {
-                    _out << "\\f";
-                    break;
-                }
-                default:
-                {
-                    if(charSet.find(*c) == charSet.end())
-                    {
-                        unsigned char uc = *c;            // Char may be signed, so make it positive.
-                        stringstream s;
-                        s << "\\";                            // Print as octal if not in basic source character set.
-                        s.flags(ios_base::oct);
-                        s.width(3);
-                        s.fill('0');
-                        s << static_cast<unsigned>(uc);
-                        _out << s.str();
-                    }
-                    else
-                    {
-                        _out << *c;                          // Print normally if in basic source character set.
-                    }
-                    break;
-                }
-                }
-            }
-
-            _out << "\"";                                      // Closing "
-            break;
-        }
-
-        case Slice::Builtin::KindObject:
-        case Slice::Builtin::KindObjectProxy:
-        case Slice::Builtin::KindLocalObject:
-            assert(false);
-        }
-    }
-    else if(en)
-    {
-        _out << getAbsolute(en, IdentToUpper) << "::";
-        string::size_type colon = value.rfind(':');
-        if(colon != string::npos)
-        {
-            _out << fixIdent(value.substr(colon + 1), IdentToUpper);
-        }
-        else
-        {
-            _out << fixIdent(value, IdentToUpper);
-        }
-    }
-    else
-    {
-        assert(false); // Unknown const type.
-    }
+    writeConstantValue(type, value);
 }
 
 void
@@ -1559,6 +1433,158 @@ Slice::Ruby::CodeVisitor::writeHash(const string& name, const TypePtr& p, int& i
 }
 
 void
+Slice::Ruby::CodeVisitor::writeConstantValue(const TypePtr& type, const string& value)
+{
+    Slice::BuiltinPtr b = Slice::BuiltinPtr::dynamicCast(type);
+    Slice::EnumPtr en = Slice::EnumPtr::dynamicCast(type);
+    if(b)
+    {
+        switch(b->kind())
+        {
+        case Slice::Builtin::KindBool:
+        case Slice::Builtin::KindByte:
+        case Slice::Builtin::KindShort:
+        case Slice::Builtin::KindInt:
+        case Slice::Builtin::KindFloat:
+        case Slice::Builtin::KindDouble:
+        {
+            _out << value;
+            break;
+        }
+        case Slice::Builtin::KindLong:
+        {
+            IceUtil::Int64 l;
+            IceUtilInternal::stringToInt64(value, l);
+            _out << value;
+            break;
+        }
+        case Slice::Builtin::KindString:
+        {
+            //
+            // Expand strings into the basic source character set. We can't use isalpha() and the like
+            // here because they are sensitive to the current locale.
+            //
+            static const string basicSourceChars = "abcdefghijklmnopqrstuvwxyz"
+                                                   "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+                                                   "0123456789"
+                                                   "_{}[]#()<>%:;.?*+-/^&|~!=, '";
+            static const set<char> charSet(basicSourceChars.begin(), basicSourceChars.end());
+
+            _out << "\"";                                      // Opening "
+
+            for(string::const_iterator c = value.begin(); c != value.end(); ++c)
+            {
+                switch(*c)
+                {
+                case '"':
+                {
+                    _out << "\\\"";
+                    break;
+                }
+                case '\\':
+                {
+                    _out << "\\\\";
+                    break;
+                }
+                case '\r':
+                {
+                    _out << "\\r";
+                    break;
+                }
+                case '\n':
+                {
+                    _out << "\\n";
+                    break;
+                }
+                case '\t':
+                {
+                    _out << "\\t";
+                    break;
+                }
+                case '\b':
+                {
+                    _out << "\\b";
+                    break;
+                }
+                case '\f':
+                {
+                    _out << "\\f";
+                    break;
+                }
+                default:
+                {
+                    if(charSet.find(*c) == charSet.end())
+                    {
+                        unsigned char uc = *c;              // Char may be signed, so make it positive.
+                        stringstream s;
+                        s << "\\";                          // Print as octal if not in basic source character set.
+                        s.flags(ios_base::oct);
+                        s.width(3);
+                        s.fill('0');
+                        s << static_cast<unsigned>(uc);
+                        _out << s.str();
+                    }
+                    else
+                    {
+                        _out << *c;                         // Print normally if in basic source character set.
+                    }
+                    break;
+                }
+                }
+            }
+
+            _out << "\"";                                   // Closing "
+            break;
+        }
+
+        case Slice::Builtin::KindObject:
+        case Slice::Builtin::KindObjectProxy:
+        case Slice::Builtin::KindLocalObject:
+            assert(false);
+        }
+    }
+    else if(en)
+    {
+        _out << getAbsolute(en, IdentToUpper) << "::";
+        string::size_type colon = value.rfind(':');
+        if(colon != string::npos)
+        {
+            _out << fixIdent(value.substr(colon + 1), IdentToUpper);
+        }
+        else
+        {
+            _out << fixIdent(value, IdentToUpper);
+        }
+    }
+    else
+    {
+        assert(false); // Unknown const type.
+    }
+}
+
+void
+Slice::Ruby::CodeVisitor::writeConstructorParams(const MemberInfoList& members)
+{
+    for(MemberInfoList::const_iterator p = members.begin(); p != members.end(); ++p)
+    {
+        if(p != members.begin())
+        {
+            _out << ", ";
+        }
+        _out << p->lowerName << "=";
+
+        if(p->dataMember->hasDefaultValue())
+        {
+            writeConstantValue(p->dataMember->type(), p->dataMember->defaultValue());
+        }
+        else
+        {
+            _out << getDefaultValue(p->dataMember->type());
+        }
+    }
+}
+
+void
 Slice::Ruby::CodeVisitor::collectClassMembers(const ClassDefPtr& p, MemberInfoList& allMembers, bool inherited)
 {
     ClassList bases = p->bases();
@@ -1574,8 +1600,8 @@ Slice::Ruby::CodeVisitor::collectClassMembers(const ClassDefPtr& p, MemberInfoLi
         MemberInfo m;
         m.lowerName = fixIdent((*q)->name(), IdentToLower);
         m.fixedName = fixIdent((*q)->name(), IdentNormal);
-        m.type = (*q)->type();
         m.inherited = inherited;
+        m.dataMember = *q;
         allMembers.push_back(m);
     }
 }
@@ -1596,8 +1622,8 @@ Slice::Ruby::CodeVisitor::collectExceptionMembers(const ExceptionPtr& p, MemberI
         MemberInfo m;
         m.lowerName = fixIdent((*q)->name(), IdentToLower);
         m.fixedName = fixIdent((*q)->name(), IdentNormal);
-        m.type = (*q)->type();
         m.inherited = inherited;
+        m.dataMember = *q;
         allMembers.push_back(m);
     }
 }

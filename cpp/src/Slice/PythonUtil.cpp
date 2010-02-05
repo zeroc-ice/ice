@@ -143,9 +143,8 @@ private:
     struct MemberInfo
     {
         string fixedName;
-        TypePtr type;
         bool inherited;
-        StringList metaData;
+        DataMemberPtr dataMember;
     };
     typedef list<MemberInfo> MemberInfoList;
 
@@ -153,6 +152,16 @@ private:
     // Write a member assignment statement for a constructor.
     //
     void writeAssign(const MemberInfo&);
+
+    //
+    // Write a constant value.
+    //
+    void writeConstantValue(const TypePtr&, const string&);
+
+    //
+    // Write constructor parameters with default values.
+    //
+    void writeConstructorParams(const MemberInfoList&);
 
     void collectClassMembers(const ClassDefPtr&, MemberInfoList&, bool);
     void collectExceptionMembers(const ExceptionPtr&, MemberInfoList&, bool);
@@ -454,14 +463,7 @@ Slice::Python::CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
     _out << nl << "def __init__(self";
     MemberInfoList allMembers;
     collectClassMembers(p, allMembers, false);
-    if(!allMembers.empty())
-    {
-        for(MemberInfoList::iterator q = allMembers.begin(); q != allMembers.end(); ++q)
-        {
-            _out << ", " << q->fixedName << '=';
-            writeDefaultValue(q->type);
-        }
-    }
+    writeConstructorParams(allMembers);
     _out << "):";
     _out.inc();
     if(!base && !p->hasDataMembers() && !isAbstract)
@@ -1038,14 +1040,7 @@ Slice::Python::CodeVisitor::visitExceptionStart(const ExceptionPtr& p)
     _out << nl << "def __init__(self";
     MemberInfoList allMembers;
     collectExceptionMembers(p, allMembers, false);
-    if(!allMembers.empty())
-    {
-        for(MemberInfoList::iterator q = allMembers.begin(); q != allMembers.end(); ++q)
-        {
-            _out << ", " << q->fixedName << '=';
-            writeDefaultValue(q->type);
-        }
-    }
+    writeConstructorParams(allMembers);
     _out << "):";
     _out.inc();
     if(!base && members.empty())
@@ -1166,8 +1161,8 @@ Slice::Python::CodeVisitor::visitStructStart(const StructPtr& p)
         {
             memberList.push_back(MemberInfo());
             memberList.back().fixedName = fixIdent((*q)->name());
-            memberList.back().type = (*q)->type();
-            memberList.back().metaData = (*q)->getMetaData();
+            memberList.back().inherited = false;
+            memberList.back().dataMember = *q;
         }
     }
 
@@ -1184,11 +1179,7 @@ Slice::Python::CodeVisitor::visitStructStart(const StructPtr& p)
     }
 
     _out << nl << "def __init__(self";
-    for(r = memberList.begin(); r != memberList.end(); ++r)
-    {
-        _out << ", " << r->fixedName << '=';
-        writeDefaultValue(r->type);
-    }
+    writeConstructorParams(memberList);
     _out << "):";
     _out.inc();
     for(r = memberList.begin(); r != memberList.end(); ++r)
@@ -1204,7 +1195,7 @@ Slice::Python::CodeVisitor::visitStructStart(const StructPtr& p)
     for(r = memberList.begin(); r != memberList.end(); ++r)
     {
         string s = "self." + r->fixedName;
-        writeHash(s, r->type, iter);
+        writeHash(s, r->dataMember->type(), iter);
     }
     _out << nl << "return _h % 0x7fffffff";
     _out.dec();
@@ -1297,9 +1288,9 @@ Slice::Python::CodeVisitor::visitStructStart(const StructPtr& p)
             _out << ',' << nl;
         }
         _out << "('" << r->fixedName << "', ";
-        writeMetaData(r->metaData);
+        writeMetaData(r->dataMember->getMetaData());
         _out << ", ";
-        writeType(r->type);
+        writeType(r->dataMember->type());
         _out << ')';
     }
     if(memberList.size() == 1)
@@ -1517,150 +1508,7 @@ Slice::Python::CodeVisitor::visitConst(const ConstPtr& p)
     string name = fixIdent(p->name());
 
     _out << sp << nl << "_M_" << getAbsolute(p) << " = ";
-
-    Slice::BuiltinPtr b = Slice::BuiltinPtr::dynamicCast(type);
-    Slice::EnumPtr en = Slice::EnumPtr::dynamicCast(type);
-    if(b)
-    {
-        switch(b->kind())
-        {
-        case Slice::Builtin::KindBool:
-        {
-            _out << (value == "true" ? "True" : "False");
-            break;
-        }
-        case Slice::Builtin::KindByte:
-        case Slice::Builtin::KindShort:
-        case Slice::Builtin::KindInt:
-        case Slice::Builtin::KindFloat:
-        case Slice::Builtin::KindDouble:
-        {
-            _out << value;
-            break;
-        }
-        case Slice::Builtin::KindLong:
-        {
-            IceUtil::Int64 l;
-            IceUtilInternal::stringToInt64(value, l);
-            //
-            // The platform's 'long' type may not be 64 bits, so we store 64-bit
-            // values as a string.
-            //
-            if(sizeof(IceUtil::Int64) > sizeof(long) && (l < LONG_MIN || l > LONG_MAX))
-            {
-                _out << "'" << value << "'";
-            }
-            else
-            {
-                _out << value;
-            }
-            break;
-        }
-
-        case Slice::Builtin::KindString:
-        {
-            //
-            // Expand strings into the basic source character set. We can't use isalpha() and the like
-            // here because they are sensitive to the current locale.
-            //
-            static const string basicSourceChars = "abcdefghijklmnopqrstuvwxyz"
-                                                   "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-                                                   "0123456789"
-                                                   "_{}[]#()<>%:;.?*+-/^&|~!=, '";
-            static const set<char> charSet(basicSourceChars.begin(), basicSourceChars.end());
-
-            _out << "\"";                                       // Opening "
-
-            for(string::const_iterator c = value.begin(); c != value.end(); ++c)
-            {
-                switch(*c)
-                {
-                case '"':
-                {
-                    _out << "\\\"";
-                    break;
-                }
-                case '\\':
-                {
-                    _out << "\\\\";
-                    break;
-                }
-                case '\r':
-                {
-                    _out << "\\r";
-                    break;
-                }
-                case '\n':
-                {
-                    _out << "\\n";
-                    break;
-                }
-                case '\t':
-                {
-                    _out << "\\t";
-                    break;
-                }
-                case '\b':
-                {
-                    _out << "\\b";
-                    break;
-                }
-                case '\f':
-                {
-                    _out << "\\f";
-                    break;
-                }
-                default:
-                {
-                    if(charSet.find(*c) == charSet.end())
-                    {
-                        unsigned char uc = *c;                  // Char may be signed, so make it positive.
-                        stringstream s;
-                        s << "\\";                              // Print as octal if not in basic source character set.
-                        s.flags(ios_base::oct);
-                        s.width(3);
-                        s.fill('0');
-                        s << static_cast<unsigned>(uc);
-                        _out << s.str();
-                    }
-                    else
-                    {
-                        _out << *c;                             // Print normally if in basic source character set.
-                    }
-                    break;
-                }
-                }
-            }
-
-            _out << "\"";                                       // Closing "
-            break;
-        }
-
-        case Slice::Builtin::KindObject:
-        case Slice::Builtin::KindObjectProxy:
-        case Slice::Builtin::KindLocalObject:
-            assert(false);
-        }
-    }
-    else if(en)
-    {
-        string enumName = getSymbol(en);
-        string::size_type colon = value.rfind(':');
-        string enumerator;
-        if(colon != string::npos)
-        {
-            enumerator = fixIdent(value.substr(colon + 1));
-        }
-        else
-        {
-            enumerator = fixIdent(value);
-        }
-        _out << enumName << '.' << enumerator;
-    }
-    else
-    {
-        assert(false); // Unknown const type.
-    }
+    writeConstantValue(type, value);
 }
 
 string
@@ -1897,7 +1745,7 @@ Slice::Python::CodeVisitor::writeAssign(const MemberInfo& info)
     //
     // Structures are treated differently (see bug 3676).
     //
-    StructPtr st = StructPtr::dynamicCast(info.type);
+    StructPtr st = StructPtr::dynamicCast(info.dataMember->type());
     if(st)
     {
         _out << nl << "if " << info.fixedName << " is Ice._struct_marker:";
@@ -1912,6 +1760,172 @@ Slice::Python::CodeVisitor::writeAssign(const MemberInfo& info)
     else
     {
         _out << nl << "self." << info.fixedName << " = " << info.fixedName;
+    }
+}
+
+void
+Slice::Python::CodeVisitor::writeConstantValue(const TypePtr& type, const string& value)
+{
+    Slice::BuiltinPtr b = Slice::BuiltinPtr::dynamicCast(type);
+    Slice::EnumPtr en = Slice::EnumPtr::dynamicCast(type);
+    if(b)
+    {
+        switch(b->kind())
+        {
+        case Slice::Builtin::KindBool:
+        {
+            _out << (value == "true" ? "True" : "False");
+            break;
+        }
+        case Slice::Builtin::KindByte:
+        case Slice::Builtin::KindShort:
+        case Slice::Builtin::KindInt:
+        case Slice::Builtin::KindFloat:
+        case Slice::Builtin::KindDouble:
+        {
+            _out << value;
+            break;
+        }
+        case Slice::Builtin::KindLong:
+        {
+            IceUtil::Int64 l;
+            IceUtilInternal::stringToInt64(value, l);
+            //
+            // The platform's 'long' type may not be 64 bits, so we store 64-bit
+            // values as a string.
+            //
+            if(sizeof(IceUtil::Int64) > sizeof(long) && (l < LONG_MIN || l > LONG_MAX))
+            {
+                _out << "'" << value << "'";
+            }
+            else
+            {
+                _out << value;
+            }
+            break;
+        }
+
+        case Slice::Builtin::KindString:
+        {
+            //
+            // Expand strings into the basic source character set. We can't use isalpha() and the like
+            // here because they are sensitive to the current locale.
+            //
+            static const string basicSourceChars = "abcdefghijklmnopqrstuvwxyz"
+                                                   "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+                                                   "0123456789"
+                                                   "_{}[]#()<>%:;.?*+-/^&|~!=, '";
+            static const set<char> charSet(basicSourceChars.begin(), basicSourceChars.end());
+
+            _out << "\"";                                       // Opening "
+
+            for(string::const_iterator c = value.begin(); c != value.end(); ++c)
+            {
+                switch(*c)
+                {
+                case '"':
+                {
+                    _out << "\\\"";
+                    break;
+                }
+                case '\\':
+                {
+                    _out << "\\\\";
+                    break;
+                }
+                case '\r':
+                {
+                    _out << "\\r";
+                    break;
+                }
+                case '\n':
+                {
+                    _out << "\\n";
+                    break;
+                }
+                case '\t':
+                {
+                    _out << "\\t";
+                    break;
+                }
+                case '\b':
+                {
+                    _out << "\\b";
+                    break;
+                }
+                case '\f':
+                {
+                    _out << "\\f";
+                    break;
+                }
+                default:
+                {
+                    if(charSet.find(*c) == charSet.end())
+                    {
+                        unsigned char uc = *c;                  // Char may be signed, so make it positive.
+                        stringstream s;
+                        s << "\\";                              // Print as octal if not in basic source character set.
+                        s.flags(ios_base::oct);
+                        s.width(3);
+                        s.fill('0');
+                        s << static_cast<unsigned>(uc);
+                        _out << s.str();
+                    }
+                    else
+                    {
+                        _out << *c;                             // Print normally if in basic source character set.
+                    }
+                    break;
+                }
+                }
+            }
+
+            _out << "\"";                                       // Closing "
+            break;
+        }
+
+        case Slice::Builtin::KindObject:
+        case Slice::Builtin::KindObjectProxy:
+        case Slice::Builtin::KindLocalObject:
+            assert(false);
+        }
+    }
+    else if(en)
+    {
+        string enumName = getSymbol(en);
+        string::size_type colon = value.rfind(':');
+        string enumerator;
+        if(colon != string::npos)
+        {
+            enumerator = fixIdent(value.substr(colon + 1));
+        }
+        else
+        {
+            enumerator = fixIdent(value);
+        }
+        _out << enumName << '.' << enumerator;
+    }
+    else
+    {
+        assert(false); // Unknown const type.
+    }
+}
+
+void
+Slice::Python::CodeVisitor::writeConstructorParams(const MemberInfoList& members)
+{
+    for(MemberInfoList::const_iterator p = members.begin(); p != members.end(); ++p)
+    {
+        _out << ", " << p->fixedName << "=";
+
+        if(p->dataMember->hasDefaultValue())
+        {
+            writeConstantValue(p->dataMember->type(), p->dataMember->defaultValue());
+        }
+        else
+        {
+            writeDefaultValue(p->dataMember->type());
+        }
     }
 }
 
@@ -1956,9 +1970,8 @@ Slice::Python::CodeVisitor::collectClassMembers(const ClassDefPtr& p, MemberInfo
         {
             m.fixedName = fixIdent((*q)->name());
         }
-        m.type = (*q)->type();
         m.inherited = inherited;
-        m.metaData = (*q)->getMetaData();
+        m.dataMember = *q;
         allMembers.push_back(m);
     }
 }
@@ -1978,9 +1991,8 @@ Slice::Python::CodeVisitor::collectExceptionMembers(const ExceptionPtr& p, Membe
     {
         MemberInfo m;
         m.fixedName = fixIdent((*q)->name());
-        m.type = (*q)->type();
         m.inherited = inherited;
-        m.metaData = (*q)->getMetaData();
+        m.dataMember = *q;
         allMembers.push_back(m);
     }
 }

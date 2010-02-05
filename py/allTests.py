@@ -45,6 +45,7 @@ tests = [
     ("Ice/servantLocator", ["core"]),
     ("Ice/blobject", ["core"]),
     ("Ice/defaultServant", ["core"]),
+    ("Ice/defaultValue", ["core"]),
     ("Ice/ami", ["core"])
     ]
 

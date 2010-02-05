@@ -39,6 +39,7 @@ SUBDIRS         = application \
                   background \
                   udp \
                   defaultServant \
+                  defaultValue \
                   threadPoolPriority
 
 $(EVERYTHING)::

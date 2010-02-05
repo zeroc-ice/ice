@@ -1100,6 +1100,82 @@ Slice::CsVisitor::writeValue(const TypePtr& type)
     return "null";
 }
 
+void
+Slice::CsVisitor::writeConstantValue(const TypePtr& type, const string& value)
+{
+    BuiltinPtr bp = BuiltinPtr::dynamicCast(type);
+    if(bp && bp->kind() == Builtin::KindString)
+    {
+        //
+        // Expand strings into the basic source character set. We can't use isalpha() and the like
+        // here because they are sensitive to the current locale.
+        //
+        static const string basicSourceChars = "abcdefghijklmnopqrstuvwxyz"
+                                               "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+                                               "0123456789"
+                                               "_{}[]#()<>%:;.?*+-/^&|~!=,\\\"' ";
+        static const set<char> charSet(basicSourceChars.begin(), basicSourceChars.end());
+
+        _out << "\"";                                    // Opening "
+
+        for(string::const_iterator c = value.begin(); c != value.end(); ++c)
+        {
+            if(charSet.find(*c) == charSet.end())
+            {
+                unsigned char uc = *c;                   // char may be signed, so make it positive
+                ostringstream s;
+                s << "\\u";                      // Print as unicode if not in basic source character set
+                s << hex;
+                s.width(4);
+                s.fill('0');
+                s << static_cast<unsigned>(uc);
+                _out << s.str();
+            }
+            else
+            {
+                _out << *c;                              // Print normally if in basic source character set
+            }
+        }
+
+        _out << "\"";                                    // Closing "
+    }
+    else if(bp && bp->kind() == Builtin::KindLong)
+    {
+        _out << value << "L";
+    }
+    else if(bp && bp->kind() == Builtin::KindFloat)
+    {
+        _out << value << "F";
+    }
+    else
+    {
+        EnumPtr ep = EnumPtr::dynamicCast(type);
+        if(ep)
+        {
+            _out << typeToString(type) << "." << fixId(value);
+        }
+        else
+        {
+            _out << value;
+        }
+    }
+}
+
+void
+Slice::CsVisitor::writeDataMemberInitializers(const DataMemberList& members, int baseTypes)
+{
+    for(DataMemberList::const_iterator p = members.begin(); p != members.end(); ++p)
+    {
+        if((*p)->hasDefaultValue())
+        {
+            string memberName = fixId((*p)->name(), baseTypes);
+            _out << nl << "this." << memberName << " = ";
+            writeConstantValue((*p)->type(), (*p)->defaultValue());
+            _out << ';';
+        }
+    }
+}
+
 string
 Slice::CsVisitor::toCsIdent(const string& s)
 {
@@ -2129,6 +2205,7 @@ Slice::Gen::TypesVisitor::visitClassDefEnd(const ClassDefPtr& p)
                 _out << " : base()";
             }
             _out << sb;
+            writeDataMemberInitializers(dataMembers);
             _out << eb;
 
             _out << sp << nl << "public " << name << spar;
@@ -2487,12 +2564,30 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
 
     _out << sp << nl << "#region Constructors";
 
+    const bool hasDefaultValues = p->hasDefaultValues();
+
+    if(hasDefaultValues)
+    {
+        _out << sp << nl << "private void initDM__()";
+        _out << sb;
+        writeDataMemberInitializers(dataMembers, DotNet::Exception);
+        _out << eb;
+    }
+
     _out << sp << nl << "public " << name << "()";
     _out << sb;
+    if(hasDefaultValues)
+    {
+        _out << nl << "initDM__();";
+    }
     _out << eb;
 
     _out << sp << nl << "public " << name << "(_System.Exception ex__) : base(ex__)";
     _out << sb;
+    if(hasDefaultValues)
+    {
+        _out << nl << "initDM__();";
+    }
     _out << eb;
 
     if(!allDataMembers.empty())
@@ -2878,9 +2973,16 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
     _out << sp << nl << "#region Constructor";
     if(isClass)
     {
+        //
+        // Default values for struct data members are only generated if the struct
+        // is mapped to a C# class. We cannot generate a parameterless constructor
+        // or assign default values to data members if the struct maps to a value
+        // type (a C# struct) instead.
+        //
         _out << "s";
         _out << sp << nl << "public " << name << "()";
         _out << sb;
+        writeDataMemberInitializers(dataMembers, DotNet::ICloneable);
         _out << eb;
     }
 
@@ -3230,63 +3332,7 @@ Slice::Gen::TypesVisitor::visitConst(const ConstPtr& p)
     _out << nl << "public abstract class " << name;
     _out << sb;
     _out << sp << nl << "public const " << typeToString(p->type()) << " value = ";
-    BuiltinPtr bp = BuiltinPtr::dynamicCast(p->type());
-    if(bp && bp->kind() == Builtin::KindString)
-    {
-        //
-        // Expand strings into the basic source character set. We can't use isalpha() and the like
-        // here because they are sensitive to the current locale.
-        //
-        static const string basicSourceChars = "abcdefghijklmnopqrstuvwxyz"
-                                               "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-                                               "0123456789"
-                                               "_{}[]#()<>%:;.?*+-/^&|~!=,\\\"' ";
-        static const set<char> charSet(basicSourceChars.begin(), basicSourceChars.end());
-
-        _out << "\"";                                    // Opening "
-
-        const string val = p->value();
-        for(string::const_iterator c = val.begin(); c != val.end(); ++c)
-        {
-            if(charSet.find(*c) == charSet.end())
-            {
-                unsigned char uc = *c;                   // char may be signed, so make it positive
-                ostringstream s;
-                s << "\\u";                      // Print as unicode if not in basic source character set
-                s << hex;
-                s.width(4);
-                s.fill('0');
-                s << static_cast<unsigned>(uc);
-                _out << s.str();
-            }
-            else
-            {
-                _out << *c;                              // Print normally if in basic source character set
-            }
-        }
-
-        _out << "\"";                                    // Closing "
-    }
-    else if(bp && bp->kind() == Builtin::KindLong)
-    {
-        _out << p->value() << "L";
-    }
-    else if(bp && bp->kind() == Builtin::KindFloat)
-    {
-        _out << p->value() << "F";
-    }
-    else
-    {
-        EnumPtr ep = EnumPtr::dynamicCast(p->type());
-        if(ep)
-        {
-            _out << typeToString(p->type()) << "." << fixId(p->value());
-        }
-        else
-        {
-            _out << p->value();
-        }
-    }
+    writeConstantValue(p->type(), p->value());
     _out << ";";
     _out << eb;
 }

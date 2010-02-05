@@ -38,6 +38,7 @@ SUBDIRS		= proxy \
 		  background \
 		  udp \
 		  defaultServant \
+		  defaultValue \
 		  threadPoolPriority \
 		  invoke
 

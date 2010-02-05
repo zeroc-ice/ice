@@ -90,8 +90,8 @@ FreezeScript::createEvictorSliceTypes(const Slice::UnitPtr& u)
     {
         identity = ice->createStruct("Identity", false);
         Slice::TypePtr str = u->builtin(Slice::Builtin::KindString);
-        identity->createDataMember("name", str);
-        identity->createDataMember("category", str);
+        identity->createDataMember("name", str, 0, "", "");
+        identity->createDataMember("category", str, 0, "", "");
     }
     else
     {
@@ -132,9 +132,9 @@ FreezeScript::createEvictorSliceTypes(const Slice::UnitPtr& u)
     {
         stats = freeze->createStruct("Statistics", false);
         Slice::TypePtr tl = u->builtin(Slice::Builtin::KindLong);
-        stats->createDataMember("creationTime", tl);
-        stats->createDataMember("lastSaveTime", tl);
-        stats->createDataMember("avgSaveTime", tl);
+        stats->createDataMember("creationTime", tl, 0, "", "");
+        stats->createDataMember("lastSaveTime", tl, 0, "", "");
+        stats->createDataMember("avgSaveTime", tl, 0, "", "");
     }
     else
     {
@@ -155,8 +155,8 @@ FreezeScript::createEvictorSliceTypes(const Slice::UnitPtr& u)
     {
         Slice::StructPtr rec = freeze->createStruct("ObjectRecord", false);
         Slice::TypePtr obj = u->builtin(Slice::Builtin::KindObject);
-        rec->createDataMember("servant", obj);
-        rec->createDataMember("stats", stats);
+        rec->createDataMember("servant", obj, 0, "", "");
+        rec->createDataMember("stats", stats, 0, "", "");
     }
     else
     {

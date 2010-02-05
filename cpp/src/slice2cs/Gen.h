@@ -39,6 +39,13 @@ protected:
 
     std::string writeValue(const TypePtr&);
 
+    void writeConstantValue(const TypePtr&, const std::string&);
+
+    //
+    // Generate assignment statements for those data members that have default values.
+    //
+    void writeDataMemberInitializers(const DataMemberList&, int = 0);
+
     std::string toCsIdent(const std::string&);
     std::string editMarkup(const std::string&);
     StringList splitIntoLines(const std::string&);
