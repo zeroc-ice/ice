@@ -162,6 +162,13 @@ IcePy_loadSlice(PyObject* /*self*/, PyObject* args)
         u->destroy();
 
         string code = codeStream.str();
+
+        //
+        // We need to invoke Ice.updateModules() so that all of the types we've just generated
+        // are made "public".
+        //
+        code += "\nIce.updateModules()\n";
+
         PyObjectHandle src = Py_CompileString(const_cast<char*>(code.c_str()), const_cast<char*>(file.c_str()),
                                               Py_file_input);
         if(!src.get())

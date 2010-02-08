@@ -214,9 +214,14 @@ def getSliceDir():
 #
 # Utilities for use by generated code.
 #
+
+_pendingModules = {}
+
 def openModule(name):
     if sys.modules.has_key(name):
         result = sys.modules[name]
+    elif _pendingModules.has_key(name):
+        result = _pendingModules[name]
     else:
         result = createModule(name)
 
@@ -232,16 +237,31 @@ def createModule(name):
 
         if sys.modules.has_key(curr):
             mod = sys.modules[curr]
+        elif _pendingModules.has_key(curr):
+            mod = _pendingModules[curr]
         else:
             nmod = imp.new_module(curr)
-            if mod:
-                setattr(mod, s, nmod)
-            sys.modules[curr] = nmod
+            _pendingModules[curr] = nmod
             mod = nmod
 
         curr = curr + "."
 
     return mod
+
+def updateModule(name):
+    if _pendingModules.has_key(name):
+        pendingModule = _pendingModules[name]
+        mod = sys.modules[name]
+        mod.__dict__.update(pendingModule.__dict__)
+        del _pendingModules[name]
+
+def updateModules():
+    for name in _pendingModules.keys():
+        if sys.modules.has_key(name):
+            sys.modules[name].__dict__.update(_pendingModules[name].__dict__)
+        else:
+            sys.modules[name] = _pendingModules[name]
+        del _pendingModules[name]
 
 def createTempClass():
     class __temp: pass

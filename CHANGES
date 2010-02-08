@@ -47,6 +47,10 @@ General Changes
 Python Changes
 ==============
 
+- Fixed a code generation bug that could lead to undefined Slice
+  types, depending on the order in which the generated code was
+  imported.
+
 - Changed the Python mapping for long integer constants so that 64-bit
   values are no longer generated as strings.
 
