@@ -17,6 +17,7 @@ import threading, traceback, copy
 # Import the Python extension.
 #
 import Ice
+Ice.updateModule("Glacier2")
 
 import Glacier2_Router_ice
 import Glacier2_Session_ice

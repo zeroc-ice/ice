@@ -98,119 +98,89 @@ class PackageVisitor : public ParserVisitor
 {
 public:
 
-    PackageVisitor(const string&, const string&);
+    static void createModules(const UnitPtr&, const string&, const string&);
 
-    virtual bool visitModuleStart(const ModulePtr&);
     virtual void visitModuleEnd(const ModulePtr&);
 
 private:
+
+    PackageVisitor(StringList&);
 
     enum ReadState { PreModules, InModules, InSubmodules };
 
     static const char* _moduleTag;
     static const char* _submoduleTag;
 
-    void createDirectory(const string&);
+    static void createDirectory(const string&);
 
-    void addModule(const string&, const string&);
-    void addSubmodule(const string&, const string&);
+    static void addModule(const string&, const string&, const string&);
+    static void addSubmodule(const string&, const string&, const string&);
 
-    void readInit(const string&, StringList&, StringList&);
-    void writeInit(const string&, const StringList&, const StringList&);
+    static void readInit(const string&, StringList&, StringList&);
+    static void writeInit(const string&, const string&, const StringList&, const StringList&);
 
-    string _module;
-    StringList _pathStack;
+    StringList& _modules;
 };
 
 const char* PackageVisitor::_moduleTag = "# Modules:";
 const char* PackageVisitor::_submoduleTag = "# Submodules:";
 
-PackageVisitor::PackageVisitor(const string& module, const string& dir) :
-    _module(module)
+PackageVisitor::PackageVisitor(StringList& modules) :
+    _modules(modules)
 {
-    if(dir.empty())
-    {
-        _pathStack.push_front(".");
-    }
-    else
-    {
-        _pathStack.push_front(dir);
-    }
 }
 
-bool
-PackageVisitor::visitModuleStart(const ModulePtr& p)
+void
+PackageVisitor::createModules(const UnitPtr& unit, const string& module, const string& dir)
 {
-    assert(!_pathStack.empty());
-    string name = fixIdent(p->name());
+    StringList modules;
+    PackageVisitor v(modules);
+    unit->visit(&v, false);
 
-    string path;
-    if(_pathStack.size() == 1)
+    for(StringList::iterator p = modules.begin(); p != modules.end(); ++p)
     {
-        path = _pathStack.front();
-
-        //
-        // Check top-level modules for package metadata and create the package
-        // directories.
-        //
-        string package = getPackageMetadata(p);
-        if(!package.empty())
+        vector<string> v;
+        if(!IceUtilInternal::splitString(*p, ".", v))
         {
-            vector<string> v;
-            if(!IceUtilInternal::splitString(package, ".", v))
-            {
-                return false;
-            }
-            for(vector<string>::iterator q = v.begin(); q != v.end(); ++q)
-            {
-                if(q != v.begin())
-                {
-                    addSubmodule(path, fixIdent(*q));
-                }
-
-                path += "/" + *q;
-                createDirectory(path);
-
-                addModule(path, _module);
-            }
-
-            addSubmodule(path, name);
+            assert(false);
         }
+        string currentModule;
+        string path = dir.empty() ? "." : dir;
+        for(vector<string>::iterator q = v.begin(); q != v.end(); ++q)
+        {
+            if(q != v.begin())
+            {
+                addSubmodule(path, currentModule, *q);
+                currentModule += ".";
+            }
 
-        path += "/" + name;
+            currentModule += *q;
+            path += "/" + *q;
+            createDirectory(path);
+
+            addModule(path, currentModule, module);
+        }
     }
-    else
-    {
-        path = _pathStack.front() + "/" + name;
-    }
-
-    string parentPath = _pathStack.front();
-    _pathStack.push_front(path);
-
-    createDirectory(path);
-
-    //
-    // If necessary, add this module to the set of imported modules in __init__.py.
-    //
-    addModule(path, _module);
-
-    //
-    // If this is a submodule, then modify the parent's __init__.py to import us.
-    //
-    ModulePtr mod = ModulePtr::dynamicCast(p->container());
-    if(mod)
-    {
-        addSubmodule(parentPath, name);
-    }
-
-    return true;
 }
 
 void
 PackageVisitor::visitModuleEnd(const ModulePtr& p)
 {
-    assert(!_pathStack.empty());
-    _pathStack.pop_front();
+    //
+    // Collect the most deeply-nested modules. For example, if we have a
+    // module named M.N.O, then we don't need to keep M or M.N in the list.
+    //
+    string abs = getAbsolute(p);
+    if(find(_modules.begin(), _modules.end(), abs) == _modules.end())
+    {
+        _modules.push_back(abs);
+    }
+    string::size_type pos = abs.rfind('.');
+    if(pos != string::npos)
+    {
+        string parent = abs.substr(0, pos);
+        _modules.remove(parent);
+    }
 }
 
 void
@@ -247,7 +217,7 @@ PackageVisitor::createDirectory(const string& dir)
 }
 
 void
-PackageVisitor::addModule(const string& dir, const string& name)
+PackageVisitor::addModule(const string& dir, const string& module, const string& name)
 {
     //
     // Add a module to the set of imported modules in __init__.py.
@@ -258,12 +228,12 @@ PackageVisitor::addModule(const string& dir, const string& name)
     if(p == modules.end())
     {
         modules.push_back(name);
-        writeInit(dir, modules, submodules);
+        writeInit(dir, module, modules, submodules);
     }
 }
 
 void
-PackageVisitor::addSubmodule(const string& dir, const string& name)
+PackageVisitor::addSubmodule(const string& dir, const string& module, const string& name)
 {
     //
     // Add a submodule to the set of imported modules in __init__.py.
@@ -274,7 +244,7 @@ PackageVisitor::addSubmodule(const string& dir, const string& name)
     if(p == submodules.end())
     {
         submodules.push_back(name);
-        writeInit(dir, modules, submodules);
+        writeInit(dir, module, modules, submodules);
     }
 }
 
@@ -319,7 +289,7 @@ PackageVisitor::readInit(const string& dir, StringList& modules, StringList& sub
             {
                 if(state == PreModules)
                 {
-                    break;
+                    continue;
                 }
 
                 if(s.size() < 8)
@@ -351,7 +321,8 @@ PackageVisitor::readInit(const string& dir, StringList& modules, StringList& sub
 }
 
 void
-PackageVisitor::writeInit(const string& dir, const StringList& modules, const StringList& submodules)
+PackageVisitor::writeInit(const string& dir, const string& name, const StringList& modules,
+                          const StringList& submodules)
 {
     string initPath = dir + "/__init__.py";
 
@@ -367,8 +338,12 @@ PackageVisitor::writeInit(const string& dir, const StringList& modules, const St
     StringList::const_iterator p;
 
     os << "# Generated by slice2py - DO NOT EDIT!" << endl
-       << "#" << endl
-       << _moduleTag << endl;
+       << "#" << endl;
+    os << endl
+       << "import Ice" << endl
+       << "Ice.updateModule(\"" << name << "\")" << endl
+       << endl;
+    os << _moduleTag << endl;
     for(p = modules.begin(); p != modules.end(); ++p)
     {
         os << "import " << *p << endl;
@@ -400,7 +375,6 @@ usage(const char* n)
         "-d, --debug          Print debug messages.\n"
         "--ice                Permit `Ice' prefix (for building Ice source code only)\n"
         "--all                Generate code for Slice definitions in included files.\n"
-        "--no-package         Do not create Python packages.\n"
         "--checksum           Generate checksums for Slice definitions.\n"
         "--prefix PREFIX      Prepend filenames of Python modules with PREFIX.\n"
         ;
@@ -619,8 +593,7 @@ compile(int argc, char* argv[])
                         //
                         if(!noPackage)
                         {
-                            PackageVisitor visitor(prefix + base + "_ice", output);
-                            u->visit(&visitor, false);
+                            PackageVisitor::createModules(u, prefix + base + "_ice", output);
                         }
                     }
                     catch(const Slice::FileException& ex)
