@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<DOCUMENT type="Advanced Installer" CreateVersion="7.3" version="7.3.1" modules="enterprise" RootPath="." Language="en">
+<DOCUMENT type="Advanced Installer" CreateVersion="7.3" version="7.5" modules="enterprise" RootPath="." Language="en">
   <COMPONENT cid="caphyon.advinst.msicomp.MsiPropsComponent">
     <ROW Property="AI_UPGRADE" Value="No"/>
     <ROW Property="ALLUSERS" Value="2"/>
@@ -1105,7 +1105,7 @@
     <ROW File="icessld.lib" Component_="Ice.jar" FileName="icessld.lib" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;VC9\Debug\cpp\lib\icessld.lib" SelfReg="false" Sequence="531"/>
     <ROW File="icessld.lib_1" Component_="freezed.lib" FileName="icessld.lib" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;VC9\Debug-x64\cpp\lib\icessld.lib" SelfReg="false" Sequence="543"/>
     <ROW File="icessld.lib_2" Component_="freezed.lib_1" FileName="icessld.lib" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;BCC10\Debug\cpp\lib\icessld.lib" SelfReg="false" Sequence="567"/>
-    <ROW File="icesslvc60_34.dll" Component_="icesslvc60_34.dll" FileName="icessl~6.dll|icesslvc60_34.dll" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;VC6\Release\cpp\bin\icesslvc60_34.dll" SelfReg="false" Sequence="739"/>
+    <ROW File="icesslvc60_34.dll" Component_="icesslvc60_34.dll" FileName="icessl~6.dll|icesslvc60_34.dll" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;VC6\Release\cpp\bin\icesslvc60_34.dll" SelfReg="false" Sequence="739" DigSign="true"/>
     <ROW File="icestorm.lib" Component_="Ice.jar" FileName="icestorm.lib" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;VC9\Release\cpp\lib\icestorm.lib" SelfReg="false" Sequence="519"/>
     <ROW File="icestorm.lib_1" Component_="freezed.lib" FileName="icestorm.lib" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;VC9\Release-x64\cpp\lib\icestorm.lib" SelfReg="false" Sequence="557"/>
     <ROW File="icestorm.lib_2" Component_="freezed.lib_1" FileName="icestorm.lib" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;BCC10\Release\cpp\lib\icestorm.lib" SelfReg="false" Sequence="577"/>
@@ -1162,8 +1162,8 @@
     <ROW File="iceutild.lib" Component_="Ice.jar" FileName="iceutild.lib" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;VC9\Debug\cpp\lib\iceutild.lib" SelfReg="false" Sequence="534"/>
     <ROW File="iceutild.lib_1" Component_="freezed.lib" FileName="iceutild.lib" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;VC9\Debug-x64\cpp\lib\iceutild.lib" SelfReg="false" Sequence="546"/>
     <ROW File="iceutild.lib_2" Component_="freezed.lib_1" FileName="iceutild.lib" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;BCC10\Debug\cpp\lib\iceutild.lib" SelfReg="false" Sequence="569"/>
-    <ROW File="iceutilvc60_34.dll" Component_="iceutilvc60_34.dll" FileName="iceuti~6.dll|iceutilvc60_34.dll" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;VC6\Release\cpp\bin\iceutilvc60_34.dll" SelfReg="false" Sequence="740"/>
-    <ROW File="icevc60_34.dll" Component_="icevc60_34.dll" FileName="icevc6~2.dll|icevc60_34.dll" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;VC6\Release\cpp\bin\icevc60_34.dll" SelfReg="false" Sequence="741"/>
+    <ROW File="iceutilvc60_34.dll" Component_="iceutilvc60_34.dll" FileName="iceuti~6.dll|iceutilvc60_34.dll" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;VC6\Release\cpp\bin\iceutilvc60_34.dll" SelfReg="false" Sequence="740" DigSign="true"/>
+    <ROW File="icevc60_34.dll" Component_="icevc60_34.dll" FileName="icevc6~2.dll|icevc60_34.dll" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;VC6\Release\cpp\bin\icevc60_34.dll" SelfReg="false" Sequence="741" DigSign="true"/>
     <ROW File="icexml.lib" Component_="Ice.jar" FileName="icexml.lib" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;VC9\Release\cpp\lib\icexml.lib" SelfReg="false" Sequence="522"/>
     <ROW File="icexml.lib_1" Component_="freezed.lib" FileName="icexml.lib" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;VC9\Release-x64\cpp\lib\icexml.lib" SelfReg="false" Sequence="560"/>
     <ROW File="icexml.lib_2" Component_="freezed.lib_1" FileName="icexml.lib" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;BCC10\Release\cpp\lib\icexml.lib" SelfReg="false" Sequence="579"/>
@@ -1241,7 +1241,7 @@
     <ROW File="slice34d.pdb_1" Component_="freeze34d.pdb" FileName="slice3~1.pdb|slice34d.pdb" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;VC9\Debug-x64\cpp\bin\slice34d.pdb" SelfReg="false" Sequence="505"/>
     <ROW File="sliced.lib" Component_="Ice.jar" FileName="sliced.lib" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;VC9\Debug\cpp\lib\sliced.lib" SelfReg="false" Sequence="523"/>
     <ROW File="sliced.lib_1" Component_="freezed.lib" FileName="sliced.lib" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;VC9\Debug-x64\cpp\lib\sliced.lib" SelfReg="false" Sequence="548"/>
-    <ROW File="slicevc60_34.dll" Component_="slicevc60_34.dll" FileName="slicev~2.dll|slicevc60_34.dll" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;VC6\Release\cpp\bin\slicevc60_34.dll" SelfReg="false" Sequence="738"/>
+    <ROW File="slicevc60_34.dll" Component_="slicevc60_34.dll" FileName="slicev~2.dll|slicevc60_34.dll" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;VC6\Release\cpp\bin\slicevc60_34.dll" SelfReg="false" Sequence="738" DigSign="true"/>
     <ROW File="ssleay32.dll" Component_="ssleay32.dll" FileName="ssleay32.dll" Attributes="0" SourcePath="&lt;THIRDPARTY_HOME&gt;bin\ssleay32.dll" SelfReg="false" Sequence="28" DigSign="true"/>
     <ROW File="ssleay32.dll_1" Component_="ssleay32.dll_1" FileName="ssleay32.dll" Attributes="0" SourcePath="&lt;THIRDPARTY_HOME&gt;bin\x64\ssleay32.dll" SelfReg="false" Sequence="31" DigSign="true"/>
     <ROW File="ssleay32_vc6.dll" Component_="ssleay32_vc6.dll" FileName="ssleay~1.dll|ssleay32_vc6.dll" Attributes="0" SourcePath="&lt;THIRDPARTY_HOME&gt;bin\ssleay32_vc6.dll" SelfReg="false" Sequence="29" DigSign="true"/>
@@ -1266,6 +1266,7 @@
     <ROW Fragment="CommonUI.aip" Path="&lt;AI_FRAGS&gt;CommonUI.aip"/>
     <ROW Fragment="FolderDlg.aip" Path="&lt;AI_THEMES&gt;classic\fragments\FolderDlg.aip"/>
     <ROW Fragment="LicenseAgreementDlg.aip" Path="&lt;AI_THEMES&gt;classic\fragments\LicenseAgreementDlg.aip"/>
+    <ROW Fragment="SequenceDialogs.aip" Path="&lt;AI_THEMES&gt;classic\fragments\SequenceDialogs.aip"/>
     <ROW Fragment="Sequences.aip" Path="&lt;AI_FRAGS&gt;Sequences.aip"/>
     <ROW Fragment="StaticUIStrings.aip" Path="&lt;AI_FRAGS&gt;StaticUIStrings.aip"/>
     <ROW Fragment="UI.aip" Path="&lt;AI_THEMES&gt;classic\fragments\UI.aip"/>
@@ -1298,6 +1299,7 @@
   <COMPONENT cid="caphyon.advinst.msicomp.MsiControlComponent">
     <ROW Dialog_="LicenseAgreementDlg" Control="BannerBitmap" Type="Bitmap" X="0" Y="0" Width="370" Height="44" Attributes="1048577" Text="[BannerBitmap]" Control_Next="AgreementText" MsiKey="LicenseAgreementDlg#BannerBitmap"/>
     <ROW Dialog_="LicenseAgreementDlg" Control="AgreementText" Type="FileScrollableText" X="20" Y="60" Width="330" Height="120" Attributes="7" Text="&lt;WindowsVolume&gt;Builds\ice\distribution\src\windows\LICENSE.rtf" Control_Next="Buttons" TextLocId="Control.Text.LicenseAgreementDlg#AgreementText"/>
+    <ATTRIBUTE name="DeletedRows" value="LicenseAgreementDlg#AgreementText"/>
     <ATTRIBUTE name="FixedSizeBitmaps" value="2"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiControlEventComponent">
@@ -1319,6 +1321,7 @@
     <ROW Action="AI_DATA_SETTER" Type="51" Source="icegridregistry.vbs" Target="[APPDIR]"/>
     <ROW Action="AI_PREPARE_UPGRADE" Type="65" Source="aicustact.dll" Target="PrepareUpgrade"/>
     <ROW Action="AI_RESTORE_LOCATION" Type="65" Source="aicustact.dll" Target="RestoreLocation"/>
+    <ROW Action="AI_ResolveKnownFolders" Type="1" Source="aicustact.dll" Target="AI_ResolveKnownFolders"/>
     <ROW Action="AI_STORE_LOCATION" Type="51" Source="ARPINSTALLLOCATION" Target="[APPDIR]"/>
     <ROW Action="AI_XmlConfig" Type="1025" Source="xmlCfg.dll" Target="OnXmlConfig" WithoutSeq="true"/>
     <ROW Action="AI_XmlInstall" Type="1" Source="xmlCfg.dll" Target="OnXmlInstall"/>
@@ -1340,9 +1343,11 @@
     <ROW Action="AI_XmlUninstall" Condition="(REMOVE)" Sequence="3101"/>
     <ROW Action="icegridregistry.vbs" Condition="NOT Installed" Sequence="5936" AdditionalSeq="AI_DATA_SETTER"/>
     <ROW Action="AI_DATA_SETTER" Condition="NOT Installed" Sequence="5935"/>
+    <ROW Action="AI_ResolveKnownFolders" Sequence="51"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiInstallUISequenceComponent">
     <ROW Action="AI_RESTORE_LOCATION" Condition="APPDIR=&quot;&quot;" Sequence="749"/>
+    <ROW Action="AI_ResolveKnownFolders" Sequence="51"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiMergeModsComponent">
     <ROW Module="Microsoft_VC90_CRT_x86.msm" Path="&lt;CommonFilesFolder&gt;Merge Modules\Microsoft_VC90_CRT_x86.msm" Feature="MainFeature" Directory="APPDIR"/>
@@ -1360,7 +1365,6 @@
     <ROW Registry="_" Root="0" Key=".ice\DefaultIcon" Value="[#newslice.ico]" Component_="_"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiThemeComponent">
-    <ROW ThemeName="classic" ThemeManifestFilePath="&lt;AI_THEMES&gt;classic\classic.ini"/>
     <ATTRIBUTE name="UsedTheme" value="classic"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiUpgradeComponent">
