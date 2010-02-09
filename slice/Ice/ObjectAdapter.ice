@@ -142,7 +142,7 @@ local interface ObjectAdapter
 
     /**
      *
-     * Check whether object adapter has been deacivated.
+     * Check whether object adapter has been deactivated.
      *
      * @return Whether adapter has been deactivated.
      *

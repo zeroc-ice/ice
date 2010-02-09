@@ -118,18 +118,20 @@ local interface Communicator
 
     /**
      *
-     * Convert a string into a proxy. For example,
+     * Convert a stringified proxy into a proxy. For example,
      * <tt>MyCategory/MyObject:tcp -h some_host -p
      * 10000</tt> creates a proxy that refers to the Ice object
      * having an identity with a name "MyObject" and a category
      * "MyCategory", with the server running on host "some_host", port
-     * 10000. If the string does not parse correctly, the operation
-     * throws one of {@link ProxyParseException},
+     * 10000. If the stringified proxy does not parse correctly, the
+     * operation throws one of {@link ProxyParseException},
      * {@link EndpointParseException}, or {@link IdentityParseException}.
+     * An appendix in the Ice manual provides a detailed description
+     * of the syntax supported by stringified proxies.
      *
-     * @param str The string to convert into a proxy.
+     * @param str The stringified proxy to convert into a proxy.
      *
-     * @return The proxy.
+     * @return The proxy, or nil if <tt>str</tt> is an empty string.
      *
      * @see #proxyToString
      *
@@ -140,9 +142,10 @@ local interface Communicator
      *
      * Convert a proxy into a string.
      *
-     * @param obj The proxy to convert into a string.
+     * @param obj The proxy to convert into a stringified proxy.
      *
-     * @return The "stringified" proxy.
+     * @return The stringified proxy, or an empty string if
+     * <tt>obj</tt> is nil.
      *
      * @see #stringToProxy
      *
@@ -152,7 +155,14 @@ local interface Communicator
 
     /**
      * 
-     * Convert a set of proxy properties into a proxy.
+     * Convert a set of proxy properties into a proxy. The "base"
+     * name supplied in the <tt>property</tt> argument refers to a
+     * property containing a stringified proxy, such as
+     * <tt>MyProxy=id:tcp -h localhost -p 10000</tt>. Additional
+     * properties configure local settings for the proxy, such as
+     * <tt>MyProxy.PreferSecure=1</tt>. The "Properties"
+     * appendix in the Ice manual describes each of the supported
+     * proxy properties.
      *
      * @param property The base property name.
      * 
@@ -291,7 +301,7 @@ local interface Communicator
      * specifically for the type.</li>
      *
      * <li>If no instance has been created, the Ice run-time looks
-     * for the default factory, which is registered with an emtpy type id.
+     * for the default factory, which is registered with an empty type id.
      * </li>
      *
      * <li>If no instance has been created by any of the preceding
