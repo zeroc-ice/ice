@@ -1,3 +1,6 @@
+Introduction
+------------
+
 This archive contains sample programs for C++, Java, C#, VB, Ruby,
 Python and PHP. To build and run the demos, follow the language-
 specific instructions below. These build instructions assume that you
@@ -5,8 +8,26 @@ have configured your system according to the directions in the main
 README.txt file that accompanied your installation.
 
 
+Table of Contents
+-----------------
+
+  1. Note for users of Windows Vista (or later) operating systems
+  2. Building and running the C++ demos (Visual C++ 2008)
+  3. Building and running the C++ demos (Visual Studio 2008 Express)
+  4. Building and running the C++ demos (C++ Builder 2010)
+  5. Building and running the .NET demos
+     - Building the C# demos
+     - Building the Visual Basic demos
+     - Running .NET demos
+     - SSL Notes for the .NET demos
+  6. Building and running the Java demos
+  7. Running the Python demos
+  8. Running the Ruby demos
+  9. Building and running the PHP demos
+
+
 ======================================================================
-Note for users of Windows Vista (or later) operating systems
+1. Note for users of Windows Vista (or later) operating systems
 ======================================================================
 
 We do not recommend extracting this archive into the "\Program Files"
@@ -23,7 +44,7 @@ section of this page:
 
 
 ======================================================================
-Building and running the C++ demos (Visual C++ 2008)
+2. Building and running the C++ demos (Visual C++ 2008)
 ======================================================================
 
 The C++ demos are in the demo directory.
@@ -53,7 +74,7 @@ files for more information.
 
 
 ======================================================================
-Building and running the C++ demos (Visual Studio 2008 Express)
+3. Building and running the C++ demos (Visual Studio 2008 Express)
 ======================================================================
 
 The C++ demos are in the demo directory.
@@ -83,7 +104,7 @@ another command window, type 'client' to start the client.
 
 
 ======================================================================
-Building and running the C++ demos (C++ Builder 2010)
+4. Building and running the C++ demos (C++ Builder 2010)
 ======================================================================
 
 The C++ demos are in the demo directory.
@@ -111,7 +132,7 @@ another command window, type 'client' to start the client.
 
 
 ======================================================================
-Building and running the .NET demos
+5. Building and running the .NET demos
 ======================================================================
 
 Note that the Visual Studio project files require the Ice Visual
@@ -171,7 +192,7 @@ remove the certificate:
 
 
 ======================================================================
-Building and running the Java demos
+6. Building and running the Java demos
 ======================================================================
 
 The Java demos are in the demoj directory.
@@ -216,7 +237,7 @@ are necessary.
 
 
 ======================================================================
-Running the Python demos
+7. Running the Python demos
 ======================================================================
 
 The Python demos are in the demopy directory.
@@ -232,7 +253,7 @@ separate command window, type 'python Client.py' to run the client.
 
 
 ======================================================================
-Running the Ruby demos
+8. Running the Ruby demos
 ======================================================================
 
 The Ruby demos are in the demorb directory.
@@ -259,7 +280,7 @@ Then in a separate command window, start the Ruby client:
 
 
 ======================================================================
-Building and running the PHP demos
+9. Building and running the PHP demos
 ======================================================================
 
 PHP demos are provided in the demophp directory.

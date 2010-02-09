@@ -1,6 +1,9 @@
 ======================================================================
-Introduction
+Third Party Packages
 ======================================================================
+
+Introduction
+------------
 
 This archive contains the source code distributions, including any
 source patches, for the third-party packages required to build Ice.
@@ -19,8 +22,27 @@ bzip2          http://sources.redhat.com/bzip2
 mcpp           http://mcpp.sourceforge.net
 
 
+Table of Contents
+-----------------
+
+  1. Patches
+     - mcpp
+  2. Instructions for Linux
+     - Berkeley DB
+     - mcpp
+  3. Instructions for Mac OS X
+     - Berkeley DB
+     - mcpp
+     - expat
+  4. Instructions for Solaris
+     - Berkeley DB
+     - OpenSSL
+     - expat
+     - mcpp
+
+
 ======================================================================
-Patches
+1. Patches
 ======================================================================
 
 
@@ -42,7 +64,7 @@ building mcpp
 
 
 ======================================================================
-Instructions for Linux
+2. Instructions for Linux
 ======================================================================
 
 If a third-party package is not listed below, there are no special
@@ -74,7 +96,7 @@ library installation directory from $(prefix)/lib to $(prefix>/lib64.
 
 
 ======================================================================
-Instructions for Mac OS X
+3. Instructions for Mac OS X
 ======================================================================
 
 If a third-party package is not listed below, there are no special
@@ -130,8 +152,9 @@ For builds with support for both i386 and x86_64 architectures, use:
   $ ./configure
   (and --prefix=<dir> if you like)
 
+
 ======================================================================
-Instructions for Solaris
+4. Instructions for Solaris
 ======================================================================
 
 If a third-party package is not listed below, there are no special

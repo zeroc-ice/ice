@@ -1,6 +1,9 @@
 ======================================================================
-Introduction
+Third Party Packages
 ======================================================================
+
+Introduction
+------------
 
 This archive contains the source code distributions, including any
 source patches, for the third-party packages required to build Ice on
@@ -30,8 +33,24 @@ bzip2          http://sources.redhat.com/bzip2
 mcpp           http://mcpp.sourceforge.net
 
 
+Table of Contents
+-----------------
+
+  1. Patches
+     - bzip2
+     - Berkeley DB
+     - mcpp
+  2. Packages
+     - STLport
+     - Berkeley DB
+     - expat
+     - OpenSSL
+     - bzip2
+     - mcpp
+
+
 ======================================================================
-Patches
+1. Patches
 ======================================================================
 
 Applying patches requires the "patch" utility. You can download a
@@ -81,7 +100,7 @@ directory and apply the patch as shown below:
 
 
 ======================================================================
-Packages
+2. Packages
 ======================================================================
 
 
@@ -129,6 +148,7 @@ in this archive:
 
 For 64-bit builds it is also necessary to remove references to
 libbufferoverflowu.lib from ms\ntdll.mak before running nmake.
+
 
 bzip2
 -----

@@ -2,6 +2,9 @@
 The Internet Communications Engine
 ======================================================================
 
+Introduction
+------------
+
 Ice is a modern alternative to object middleware such as CORBA or
 COM/DCOM/COM+. It is easy to learn, yet provides a powerful network
 infrastructure for demanding technical applications. It features an
@@ -17,8 +20,27 @@ customers who wish to use Ice with proprietary products. Please
 contact sales@zeroc.com for more information about licensing Ice.
 
 
+Table of Contents
+-----------------
+
+  1. About this distribution
+  2. Requirements
+     - Java
+     - Python
+  3. Berkeley DB and Expat
+  4. Qt
+  5. Setting up your environment to use Ice
+     - General
+     - C++
+     - Java
+     - Python
+  6. Using the IceGrid Administrative Console
+  7. Demos
+  8. Binary compatibility
+
+
 ======================================================================
-About this distribution
+1. About this distribution
 ======================================================================
 
 This distribution is a binary release of Ice @ver@ for Mac OS X and
@@ -34,7 +56,7 @@ includes the following components:
 
 
 ======================================================================
-Requirements
+2. Requirements
 ======================================================================
 
 This binary distribution was compiled on Mac OS X 10.6.2 using the
@@ -61,7 +83,7 @@ code from the ZeroC web site at http://www.zeroc.com/download.html.
 
 
 ======================================================================
-Berkeley DB and Expat
+3. Berkeley DB and Expat
 ======================================================================
 
 This distribution includes the C++ and Java run time for Berkeley DB
@@ -71,7 +93,7 @@ in the file THIRD_PARTY_LICENSE.
 
 
 ======================================================================
-Qt
+4. Qt
 ======================================================================
 
 The IceGrid and IceStorm SQL database plugins depend on the Qt 4.6
@@ -81,7 +103,7 @@ http://qt.nokia.com/downloads.
 
 
 ======================================================================
-Setting up your environment to use Ice
+5. Setting up your environment to use Ice
 ======================================================================
 
 
@@ -196,7 +218,7 @@ $ export PYTHONPATH=<Ice installation directory>/python:$PYTHONPATH
 
 
 ======================================================================
-Using the IceGrid Administrative Console
+6. Using the IceGrid Administrative Console
 ======================================================================
 
 A Java-based graphical tool for administering IceGrid applications
@@ -212,7 +234,7 @@ $ java -jar IceGridGUI.jar
 
 
 ======================================================================
-Demos
+7. Demos
 ======================================================================
 
 Sample programs are provided in the Ice-@ver@-demos.tar.gz package,
@@ -225,7 +247,7 @@ more information.
 
 
 ======================================================================
-Binary compatibility
+8. Binary compatibility
 ======================================================================
 
 Please refer to the RELEASE_NOTES file included in this distribution

@@ -5,7 +5,6 @@ This distribution contains the development kit (including binaries)
 for the open-source packages used by Ice @ver@ on Windows. Its primary
 purpose is to simplify building Ice @ver@ from sources.
 
-
 The following versions of the third party software were used to
 create this package:
 
@@ -19,10 +18,9 @@ create this package:
  - JGoodies Forms 1.2.1
  - JGoodies Looks 2.3.0
 
-
 This distribution provides:
 
- - Header files for Berkeley DB, OpenSSL, Expat, Bzip2, Qt and STLPort
+ - Header files for Berkeley DB, OpenSSL, Expat, Bzip2, Qt and STLport
    in the include directory.
 
  - Import libraries for Berkeley DB, OpenSSL, Expat, Bzip2, MCPP and

@@ -2,6 +2,9 @@
 The Internet Communications Engine
 ======================================================================
 
+Introduction
+------------
+
 Ice is a modern alternative to object middleware such as CORBA or
 COM/DCOM/COM+. It is easy to learn, yet provides a powerful network
 infrastructure for demanding technical applications. It features an
@@ -17,8 +20,26 @@ customers who wish to use Ice with proprietary products. Please
 contact sales@zeroc.com for more information about licensing Ice.
 
 
+Table of Contents
+-----------------
+
+  1. About this distribution
+  2. Requirements
+     - Java
+  3. Berkeley DB
+  4. Qt
+  5. Ice extension for Python
+  6. Setting up your environment to use Ice
+     - General
+     - C++
+     - Java
+  7. Using the IceGrid Administrative Console
+  8. Demos
+  9. Binary compatibility
+
+
 ======================================================================
-About this distribution
+1. About this distribution
 ======================================================================
 
 This distribution is a binary release of Ice @ver@ for Solaris 10 on
@@ -68,15 +89,16 @@ obtained from Sun Microsystems at
 
 
 ======================================================================
-Berkeley DB
+3. Berkeley DB
 ======================================================================
 
 This distribution includes the C++ and Java run time for Berkeley DB
 4.8.24. The C++ run time was built using GCC 4.3.2. The Berkeley DB
 license is provided in the file THIRD_PARTY_LICENSE.
 
+
 ======================================================================
-Qt
+4. Qt
 ======================================================================
 
 This distribution includes the QtCore and QtSql libraries. These
@@ -87,8 +109,9 @@ PostreSQL drivers built-in.
 NOTE: the QtCore and QtSql libraries are only provided in 32 bits due
 to issues compiling Qt in 64 bits with GCC 4.3.2.
 
+
 ======================================================================
-Ice extension for Python
+5. Ice extension for Python
 ======================================================================
 
 Ice for Python is fully supported on Solaris. However it is not
@@ -103,7 +126,7 @@ distribution available at
 
 
 ======================================================================
-Setting up your environment to use Ice
+6. Setting up your environment to use Ice
 ======================================================================
 
 
@@ -215,7 +238,7 @@ algorithm and therefore add significant latency to Ice requests.
 
 
 ======================================================================
-Using the IceGrid Administrative Console
+7. Using the IceGrid Administrative Console
 ======================================================================
 
 A Java-based graphical tool for administering IceGrid applications
@@ -231,7 +254,7 @@ $ java -jar IceGridGUI.jar
 
 
 ======================================================================
-Demos
+8. Demos
 ======================================================================
 
 Sample programs are provided in the Ice-@ver@-demos.tar.gz package,
@@ -244,7 +267,7 @@ more information.
 
 
 ======================================================================
-Binary compatibility
+9. Binary compatibility
 ======================================================================
 
 Please refer to the RELEASE_NOTES file included in this distribution

@@ -2,6 +2,9 @@
 The Internet Communications Engine
 ======================================================================
 
+Introduction
+------------
+
 Ice is a modern alternative to object middleware such as CORBA or
 COM/DCOM/COM+. It is easy to learn, yet provides a powerful network
 infrastructure for demanding technical applications. It features an
@@ -17,8 +20,26 @@ customers who wish to use Ice with proprietary products. Please
 contact sales@zeroc.com for more information about licensing Ice.
 
 
+Table of Contents
+-----------------
+
+  1. About this distribution
+  2. Setting up your environment to use Ice
+     - C++
+     - Java
+     - Python
+     - .NET/Mono
+     - Ruby
+     - PHP
+     - SELinux Notes (for Red Hat Enterprise Linux users)
+  3. /etc/init.d scripts
+  4. Using the IceGrid Administrative Console
+  5. Demos
+  6. Binary compatibility
+
+
 ======================================================================
-About this distribution
+1. About this distribution
 ======================================================================
 
 Ice @ver@ for Linux is distributed in several RPM packages:
@@ -51,7 +72,7 @@ Notes:
 
 
 ======================================================================
-Setting up your environment to use Ice
+2. Setting up your environment to use Ice
 ======================================================================
 
 
@@ -250,7 +271,7 @@ to the link below:
 
 
 ======================================================================
-/etc/init.d scripts
+3. /etc/init.d scripts
 ======================================================================
 
 The ice-servers RPM includes the following sample /etc/init.d scripts
@@ -285,7 +306,7 @@ configuration file.
 
 
 ======================================================================
-Using the IceGrid Administrative Console
+4. Using the IceGrid Administrative Console
 ======================================================================
 
 A Java-based graphical tool for administering IceGrid applications
@@ -311,7 +332,7 @@ should be world readable).
 
 
 ======================================================================
-Demos
+5. Demos
 ======================================================================
 
 Sample programs are provided in the Ice-@ver@-demos.tar.gz package,
@@ -324,7 +345,7 @@ more information.
 
 
 ======================================================================
-Binary compatibility
+6. Binary compatibility
 ======================================================================
 
 Please refer to the RELEASE_NOTES file included in this distribution
