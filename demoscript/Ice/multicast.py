@@ -15,6 +15,7 @@ from scripts import Expect
 def runClient(clientCmd, server1, server2):
     client = Util.spawn(clientCmd)
     received = False
+    ex = None
     for i in range(0, 20):
         try:
             server1.expect('Hello World!', 1)
@@ -24,14 +25,15 @@ def runClient(clientCmd, server1, server2):
         try:
             server2.expect('Hello World!', 1)
             received = True
-        except Expect.TIMEOUT:
+        except Expect.TIMEOUT, e:
+            ex = e
             pass
 
         if received:
             break
 
     if not received:
-        raise Expect.TIMEOUT
+        raise ex
     client.waitTestSuccess()
 
 def runDemo(clientCmd, serverCmd):
