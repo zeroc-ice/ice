@@ -43,6 +43,13 @@ General Changes
 - Fixed hang in slice2cs and slice2py that would occur if a comment
   contained a '<' with no closing '>'.
 
+- Fixed Ice sources to have consistent end of line.
+
+Java Changes
+============
+
+- Fixed a bug in DispatchInterceptor where exceptions raised from disptach
+  were only handled if they inherit from RunTimeException.
 
 Python Changes
 ==============
