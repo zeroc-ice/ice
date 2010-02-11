@@ -211,3 +211,81 @@ def checkVersion(version):
     if not re.match(vpatCheck, version):
         print "invalid version number: " + version + " (it should have the form 3.2.1 or 3.2b or 3.2b2)"
         sys.exit(0)
+
+def fixLineEnd():
+    files = getTrackedFiles()
+
+    #
+    # Filename suffixes that don't need to be checked.
+    #
+    ignoreSubfix = ["\.aip", "\.bmp", "\.exe", "\.gif", "\.jpg", "\.png", "\.rtf", "\.zip", \
+                    "\.snk", "\.pfx", "\.class", "\.ico", "\.jks", "\.gz", "\.DS_Store", "\.chm", "\.utf16le", \
+                    "\.utf16be", "\.utf32le", "\.utf32be", "\.dat", "\.bin", "\.patch", "patch\..*", "passwords",
+                    "plugin.properties", ".jar", "\.cfg", "\.depend.mak"]
+
+    #
+    # File extensions that must use DOS-style line endings.
+    #
+    dosExtensions = [".mak", ".mak.cs", ".mak.php", ".mak.vb", ".txt", ".exe.config", ".csproj", ".vbproj", \
+                     ".vcproj", ".vsproj", ".sln", ".vsdir", ".bat", ".rc", ".rc2", ".settings", ".AddIn", \
+                     ".resx", ".bcc", ".msvc", ".dsp", ".dsw"]
+
+    for filename in files:
+        path = filename.lower()
+        ignore = False
+        for e in ignoreSubfix:
+            regexp = re.compile(e.lower() + "$")
+            if regexp.search(path):
+                ignore = True
+                #print "Ignoring file " + filename + " with extension " + e
+                break
+
+        if ignore:
+            continue
+
+        dos = False
+        for e in dosExtensions:
+            if path.endswith(e.lower()):
+                dos = True
+                break
+
+        file = open(filename, "r")
+
+        convert = False
+        for line in file:
+            if dos:
+                if line.endswith("\n") and not line.endswith("\r\n"):
+                    convert = True
+                    break
+            else:
+                if line.endswith("\r\n"):
+                    convert = True
+                    break
+
+        file.close()
+        file = open(filename, "r")
+        text = file.read()
+        file.close()
+
+        eol = None
+        if len(text) > 0: # Ignore empty files
+            if convert:
+                if not text.endswith("\n"):
+                    eol = "\n"
+            else:
+                if dos and not text.endswith("\r\n"):
+                    eol = "\r\n"
+                elif not dos and not text.endswith("\n"):
+                    eol = "\n"
+
+        if eol:
+            file = open(filename, "w")
+            file.write(text + eol)
+            file.close()
+            print "Added EOL to file " + filename
+
+        if convert:
+            print "Converting " + filename
+            os.popen("dos2unix -U -q " + filename)
+            if dos:
+                os.popen("recode -f latin1..dos " + filename)
