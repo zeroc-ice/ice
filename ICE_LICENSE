@@ -9,35 +9,46 @@ WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
 FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
 details.
 
-You should have received a copy of the GNU General Public License along
-with this program; if not, see http://www.gnu.org/licenses.
+You should have received a copy of the GNU General Public License version
+2 along with this program; if not, see http://www.gnu.org/licenses.
 
-Linking Ice statically or dynamically with other modules is making a
-combined work based on Ice. Thus, the terms and conditions of the GNU
-General Public License cover the whole combination.
+Linking Ice statically or dynamically with other software (such as a 
+library, module or application) is making a combined work based on Ice. 
+Thus, the terms and conditions of the GNU General Public License version
+2 cover this combined work.
 
-In addition, as a special exception, ZeroC gives you permission to
-combine Ice with:
+If such software can only be used together with Ice, then not only the 
+combined work but the software itself is a work derived from Ice and as
+such shall be licensed under the terms of the GNU General Public License 
+version 2. This includes the situation where Ice is only being used 
+through an abstraction layer.
 
-a) the OpenSSL library (or with modified versions of OpenSSL that use the
-same license as OpenSSL)
+As a special exception to the above, ZeroC grants to the contributors for
+the following projects the permission to license their Ice-based software 
+under the terms of the GNU Lesser General Public License (LGPL) version 
+2.1 or of the BSD license:
 
-b) any library licensed under the Apache License, version 2.0
-(http://www.apache.org/licenses/LICENSE-2.0.html)
+ - Orca Robotics (http://orca-robotics.sourceforge.net)
+ 
+ - Mumble (http://mumble.sourceforge.net)
 
-c) any Orca library (http://orca-robotics.sourceforge.net) licensed under
-the GNU Lesser General Public License (LGPL), version 2.1
-(http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html)
+This exception does not extend to the parts of Ice used by these 
+projects, or to any other derived work: as a whole, any work based on Ice
+shall be licensed under the terms and conditions of the GNU General
+Public License version 2.
 
-d) any code from the Mumble project (http://mumble.sourceforge.net)
-licensed under the BSD license
+You may also combine Ice with any software not derived from Ice, provided
+the license of such software is compatible with the GNU General Public 
+License version 2. In addition, as a special exception, ZeroC grants you
+permission to combine Ice with:
+ 
+ - the OpenSSL library, or with a modified version of the OpenSSL library
+   that uses the same license as OpenSSL
 
-You may copy and distribute such combinations following the terms of the
-GNU General Public License for Ice and the licenses of the other code
-concerned, provided that you include the source code of these other
-libraries or code when and as the GNU General Public License requires
-distribution of source code.
+ - any library not derived from Ice and licensed under the terms of
+   the Apache License, version 2.0 
+   (http://www.apache.org/licenses/LICENSE-2.0.html) 
 
-If you modify this copy of Ice, you may extend this exception to your
-version of Ice, but you are not obligated to do so. If you do not wish to
-do so, delete this exception statement from your version.
+If you modify this copy of Ice, you may extend any of the exceptions 
+provided above to your version of Ice, but you are not obligated to 
+do so.
