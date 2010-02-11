@@ -20,7 +20,7 @@ iceVersion = '3.4.0'
 #
 # Current default third party library versions.
 #
-OpenSSLVer = '0.9.8k'
+OpenSSLVer = '0.9.8l'
 Bzip2Ver = '1.0.5'
 STLPortVer = '4.6.2'
 ExpatVer = '2.0.1'

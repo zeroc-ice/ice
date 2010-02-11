@@ -1,13 +1,14 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<DOCUMENT type="Advanced Installer" CreateVersion="6.9.1" version="7.3.1" modules="enterprise" RootPath=".." Language="en">
+<DOCUMENT type="Advanced Installer" CreateVersion="6.9.1" version="7.5.1" modules="enterprise" RootPath=".." Language="en">
   <COMPONENT cid="caphyon.advinst.msicomp.MsiPropsComponent">
     <ROW Property="AI_UPGRADE" Value="No"/>
     <ROW Property="ALLUSERS" Value="2"/>
     <ROW Property="ARPCOMMENTS" Value="This installer database contains the logic and data required to install [|ProductName]." ValueLocId="*"/>
     <ROW Property="BERKELEYLICENSEDLGRADIOBUTTONGROUP_1_PROP" Value="No" Type="4"/>
     <ROW Property="BZIP2LICENSEDLGRADIOBUTTONGROUP_1_PROP" Value="No" Type="4"/>
-    <ROW Property="BannerBitmap" MultiBuildValue="DefaultBuild:installer_header.bmp" Type="1"/>
-    <ROW Property="DialogBitmap" MultiBuildValue="DefaultBuild:installer_main.bmp" Type="1"/>
+    <ROW Property="BannerBitmap" MultiBuildValue="DefaultBuild:installer_header.bmp_1" Type="1"/>
+    <ROW Property="CTRLS" Value="1"/>
+    <ROW Property="DialogBitmap" MultiBuildValue="DefaultBuild:installer_main.bmp_1" Type="1"/>
     <ROW Property="EXPATLICENSEDLGRADIOBUTTONGROUP_1_PROP" Value="No" Type="4"/>
     <ROW Property="JGOODIESFORMSLICENSEDLGRADIOBUTTONGROUP_1_PROP" Value="No" Type="4"/>
     <ROW Property="JGOODIESLOOKSLICESNEDLGRADIOBUTTONGROUP_1_PROP" Value="No" Type="4"/>
@@ -23,6 +24,7 @@
     <ROW Property="STLPORTLICENSEDLGRADIOBUTTONGROUP_1_PROP" Value="No" Type="4"/>
     <ROW Property="SecureCustomProperties" Value="OLDPRODUCTS;AI_NEWERPRODUCTFOUND"/>
     <ROW Property="UpgradeCode" Value="{09CA49EB-C442-49A2-B65E-46147E200E8C}"/>
+    <ROW Property="VIEWREADME" Value="1" Type="4"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiDirsComponent">
     <ROW Directory="APPDIR" Directory_Parent="TARGETDIR" DefaultDir="APPDIR:." IsPseudoRoot="1"/>
@@ -153,7 +155,7 @@
     <ATTRIBUTE name="CurrentFeature" value="MainFeature"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiFilesComponent">
-    <ROW File="LICENSE.txt" Component_="SOURCES" FileName="LICENSE.txt" Attributes="0" SourcePath="&lt;WindowsVolume&gt;Builds\ice\distribution\src\windows\docs\thirdparty\LICENSE.txt" SelfReg="false" Sequence="76"/>
+    <ROW File="LICENSE.txt" Component_="SOURCES" FileName="LICENSE.txt" Attributes="0" SourcePath="windows\docs\thirdparty\LICENSE.txt" SelfReg="false" Sequence="76"/>
     <ROW File="QAbstractEventDispatcher" Component_="QXmlStreamWriter" FileName="QAbstr~1|QAbstractEventDispatcher" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\QAbstractEventDispatcher" SelfReg="false" Sequence="606"/>
     <ROW File="QAbstractFileEngine" Component_="QXmlStreamWriter" FileName="QAbstr~2|QAbstractFileEngine" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\QAbstractFileEngine" SelfReg="false" Sequence="608"/>
     <ROW File="QAbstractFileEngineHandler" Component_="QXmlStreamWriter" FileName="QAbstr~3|QAbstractFileEngineHandler" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;include\QtCore\QAbstractFileEngineHandler" SelfReg="false" Sequence="609"/>
@@ -446,9 +448,9 @@
     <ROW File="QtSqld4.lib" Component_="db.jar" FileName="QtSqld4.lib" Attributes="0" SourcePath="&lt;QT_HOME_VC9&gt;lib\QtSqld4.lib" SelfReg="false" Sequence="583"/>
     <ROW File="QtSqld4.lib_1" Component_="libdb48d.lib" FileName="QtSqld4.lib" Attributes="0" SourcePath="&lt;QT_HOME_VC9_X64&gt;lib\QtSqld4.lib" SelfReg="false" Sequence="587"/>
     <ROW File="README" Component_="algorith.h" FileName="README" Attributes="0" SourcePath="&lt;STLPORT_HOME&gt;stlport\BC50\README" SelfReg="false" Sequence="128"/>
-    <ROW File="README.txt" Component_="SOURCES" FileName="README.txt" Attributes="0" SourcePath="&lt;WindowsVolume&gt;Builds\ice\distribution\src\windows\docs\thirdparty\README.txt" SelfReg="false" Sequence="1031"/>
+    <ROW File="README.txt" Component_="SOURCES" FileName="README.txt" Attributes="0" SourcePath="windows\docs\thirdparty\README.txt" SelfReg="false" Sequence="1031"/>
     <ROW File="README_1" Component_="configure" FileName="README" Attributes="0" SourcePath="&lt;STLPORT_HOME&gt;stlport\config\new_compiler\README" SelfReg="false" Sequence="167"/>
-    <ROW File="SOURCES.txt" Component_="SOURCES" FileName="SOURCES.txt" Attributes="0" SourcePath="&lt;WindowsVolume&gt;Builds\ice\distribution\src\windows\docs\thirdparty\SOURCES.txt" SelfReg="false" Sequence="75"/>
+    <ROW File="SOURCES.txt" Component_="SOURCES" FileName="SOURCES.txt" Attributes="0" SourcePath="windows\docs\thirdparty\SOURCES.txt" SelfReg="false" Sequence="75"/>
     <ROW File="abbrevs.h" Component_="char_traits.h" FileName="_abbrevs.h" Attributes="0" SourcePath="&lt;STLPORT_HOME&gt;stlport\stl\_abbrevs.h" SelfReg="false" Sequence="321"/>
     <ROW File="aes.h" Component_="aes.h" FileName="aes.h" Attributes="0" SourcePath="&lt;OPENSSL_HOME_VC9&gt;crypto\aes\aes.h" SelfReg="false" Sequence="6"/>
     <ROW File="algo.c" Component_="char_traits.h" FileName="_algo.c" Attributes="0" SourcePath="&lt;STLPORT_HOME&gt;stlport\stl\_algo.c" SelfReg="false" Sequence="322"/>
@@ -1206,11 +1208,12 @@
     <ROW Path="&lt;AI_DICTS&gt;ui_en.ail"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.DigCertStoreComponent">
-    <ROW DigitalCertificate="windows\zeroc.pfx" TimeStampUrl="http://timestamp.verisign.com/scripts/timstamp.dll" SignerDescription="[|ProductName]" DescriptionUrl="http://www.zeroc.com" SignOptions="7" SignTool="0"/>
+    <ROW DigitalCertificate="windows\verisign-code-signing.pfx" TimeStampUrl="http://timestamp.verisign.com/scripts/timstamp.dll" SignerDescription="[|ProductName]" DescriptionUrl="http://www.zeroc.com" SignOptions="7" SignTool="0"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.FragmentComponent">
     <ROW Fragment="CommonUI.aip" Path="&lt;AI_FRAGS&gt;CommonUI.aip"/>
     <ROW Fragment="FolderDlg.aip" Path="&lt;AI_THEMES&gt;classic\fragments\FolderDlg.aip"/>
+    <ROW Fragment="SequenceDialogs.aip" Path="&lt;AI_THEMES&gt;classic\fragments\SequenceDialogs.aip"/>
     <ROW Fragment="Sequences.aip" Path="&lt;AI_FRAGS&gt;Sequences.aip"/>
     <ROW Fragment="StaticUIStrings.aip" Path="&lt;AI_FRAGS&gt;StaticUIStrings.aip"/>
     <ROW Fragment="UI.aip" Path="&lt;AI_THEMES&gt;classic\fragments\UI.aip"/>
@@ -1218,8 +1221,8 @@
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiBinaryComponent">
     <ROW Name="aicustact.dll" SourcePath="&lt;AI_CUSTACTS&gt;aicustact.dll"/>
-    <ROW Name="installer_header.bmp" SourcePath="&lt;WindowsVolume&gt;Builds\ice\distribution\src\windows\installer-header.bmp"/>
-    <ROW Name="installer_main.bmp" SourcePath="&lt;WindowsVolume&gt;Builds\ice\distribution\src\windows\installer-main.bmp"/>
+    <ROW Name="installer_header.bmp_1" SourcePath="windows\installer-header.bmp"/>
+    <ROW Name="installer_main.bmp_1" SourcePath="windows\installer-main.bmp"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiControlComponent">
     <ROW Dialog_="FolderDlg" Control="Description" Type="Text" X="25" Y="23" Width="280" Height="15" Attributes="196611" Text="Installation folder for [ProductName]." Control_Next="BannerLine" TextLocId="Control.Text.FolderDlg#Description" MsiKey="FolderDlg#Description"/>
@@ -1245,7 +1248,7 @@
     <ROW Dialog_="BerkeleyLicenseDlg" Control="Logo" Type="Text" X="4" Y="228" Width="70" Height="12" Attributes="1" Text="Advanced Installer" Control_Next="Title"/>
     <ROW Dialog_="BerkeleyLicenseDlg" Control="Next" Type="PushButton" X="236" Y="243" Width="56" Height="17" Attributes="3" Text="[ButtonText_Next]" Control_Next="Cancel" TextLocId="-"/>
     <ROW Dialog_="BerkeleyLicenseDlg" Control="Title" Type="Text" X="15" Y="6" Width="200" Height="15" Attributes="196611" Text="Berkeley DB License Agreement" TextStyle="[DlgTitleFont]" Control_Next="BerkeleyLicenseDlgFileScrollableText_1"/>
-    <ROW Dialog_="BerkeleyLicenseDlg" Control="BerkeleyLicenseDlgFileScrollableText_1" Type="FileScrollableText" X="20" Y="60" Width="330" Height="120" Attributes="7" Text="&lt;WindowsVolume&gt;Builds\ice\distribution\src\windows\docs\thirdparty\BERKELEY_DB_LICENSE.rtf" Control_Next="BerkeleyLicenseDlgRadioButtonGroup_1"/>
+    <ROW Dialog_="BerkeleyLicenseDlg" Control="BerkeleyLicenseDlgFileScrollableText_1" Type="FileScrollableText" X="20" Y="60" Width="330" Height="120" Attributes="7" Text="windows\docs\thirdparty\BERKELEY_DB_LICENSE.rtf" Control_Next="BerkeleyLicenseDlgRadioButtonGroup_1"/>
     <ROW Dialog_="BerkeleyLicenseDlg" Control="BerkeleyLicenseDlgRadioButtonGroup_1" Type="RadioButtonGroup" X="20" Y="187" Width="330" Height="40" Attributes="3" Property="BERKELEYLICENSEDLGRADIOBUTTONGROUP_1_PROP" Control_Next="Next"/>
     <ROW Dialog_="JgoodiesLooksLicesneDlg" Control="Back" Type="PushButton" X="180" Y="243" Width="56" Height="17" Attributes="3" Text="[ButtonText_Back]" Control_Next="BannerBitmap" TextLocId="-"/>
     <ROW Dialog_="JgoodiesLooksLicesneDlg" Control="BannerBitmap" Type="Bitmap" X="0" Y="0" Width="370" Height="44" Attributes="1048577" Text="[BannerBitmap]" Control_Next="BannerLine"/>
@@ -1301,12 +1304,12 @@
     <ROW Dialog_="McppLicensDlg" Control="Logo" Type="Text" X="4" Y="228" Width="70" Height="12" Attributes="1" Text="Advanced Installer" Control_Next="Title"/>
     <ROW Dialog_="McppLicensDlg" Control="Next" Type="PushButton" X="236" Y="243" Width="56" Height="17" Attributes="3" Text="[ButtonText_Next]" Control_Next="Cancel" TextLocId="-"/>
     <ROW Dialog_="McppLicensDlg" Control="Title" Type="Text" X="15" Y="6" Width="200" Height="15" Attributes="196611" Text="MCPP License Agreement" TextStyle="[DlgTitleFont]" Control_Next="McppLicensDlgFileScrollableText_1"/>
-    <ROW Dialog_="McppLicensDlg" Control="McppLicensDlgFileScrollableText_1" Type="FileScrollableText" X="20" Y="60" Width="330" Height="120" Attributes="7" Text="&lt;WindowsVolume&gt;Builds\ice\distribution\src\windows\docs\thirdparty\MCPP_LICENSE.rtf" Control_Next="McppLicensDlgRadioButtonGroup_1"/>
-    <ROW Dialog_="Bzip2LicenseDlg" Control="Bzip2LicenseDlgFileScrollableText_1" Type="FileScrollableText" X="20" Y="60" Width="330" Height="120" Attributes="7" Text="&lt;WindowsVolume&gt;Builds\ice\distribution\src\windows\docs\thirdparty\BZIP2_LICENSE.rtf" Control_Next="Bzip2LicenseDlgRadioButtonGroup_1"/>
-    <ROW Dialog_="ExpatLicenseDlg" Control="ExpatLicenseDlgFileScrollableText_1" Type="FileScrollableText" X="20" Y="60" Width="330" Height="120" Attributes="7" Text="&lt;WindowsVolume&gt;Builds\ice\distribution\src\windows\docs\thirdparty\EXPAT_LICENSE.rtf" Control_Next="ExpatLicenseDlgRadioButtonGroup_1"/>
-    <ROW Dialog_="OpensslLicesneDlg" Control="OpensslLicesneDlgFileScrollableText_1" Type="FileScrollableText" X="20" Y="60" Width="330" Height="120" Attributes="7" Text="&lt;WindowsVolume&gt;Builds\ice\distribution\src\windows\docs\thirdparty\OPENSSL_LICENSE.rtf" Control_Next="OpensslLicesneDlgRadioButtonGroup_1"/>
-    <ROW Dialog_="JgoodiesFormsLicenseDlg" Control="JgoodiesFormsLicenseDlgFileScrollableText_1" Type="FileScrollableText" X="20" Y="60" Width="330" Height="120" Attributes="7" Text="&lt;WindowsVolume&gt;Builds\ice\distribution\src\windows\docs\thirdparty\JGOODIES_FORMS_LICENSE.rtf" Control_Next="JgoodiesFormsLicenseDlgRadioButtonGroup_1"/>
-    <ROW Dialog_="JgoodiesLooksLicesneDlg" Control="JgoodiesLooksLicesneDlgFileScrollableText_1" Type="FileScrollableText" X="20" Y="60" Width="330" Height="120" Attributes="7" Text="&lt;WindowsVolume&gt;Builds\ice\distribution\src\windows\docs\thirdparty\JGOODIES_LOOKS_LICENSE.rtf" Control_Next="JgoodiesLooksLicesneDlgRadioButtonGroup_1"/>
+    <ROW Dialog_="McppLicensDlg" Control="McppLicensDlgFileScrollableText_1" Type="FileScrollableText" X="20" Y="60" Width="330" Height="120" Attributes="7" Text="windows\docs\thirdparty\MCPP_LICENSE.rtf" Control_Next="McppLicensDlgRadioButtonGroup_1"/>
+    <ROW Dialog_="Bzip2LicenseDlg" Control="Bzip2LicenseDlgFileScrollableText_1" Type="FileScrollableText" X="20" Y="60" Width="330" Height="120" Attributes="7" Text="windows\docs\thirdparty\BZIP2_LICENSE.rtf" Control_Next="Bzip2LicenseDlgRadioButtonGroup_1"/>
+    <ROW Dialog_="ExpatLicenseDlg" Control="ExpatLicenseDlgFileScrollableText_1" Type="FileScrollableText" X="20" Y="60" Width="330" Height="120" Attributes="7" Text="windows\docs\thirdparty\EXPAT_LICENSE.rtf" Control_Next="ExpatLicenseDlgRadioButtonGroup_1"/>
+    <ROW Dialog_="OpensslLicesneDlg" Control="OpensslLicesneDlgFileScrollableText_1" Type="FileScrollableText" X="20" Y="60" Width="330" Height="120" Attributes="7" Text="windows\docs\thirdparty\OPENSSL_LICENSE.rtf" Control_Next="OpensslLicesneDlgRadioButtonGroup_1"/>
+    <ROW Dialog_="JgoodiesFormsLicenseDlg" Control="JgoodiesFormsLicenseDlgFileScrollableText_1" Type="FileScrollableText" X="20" Y="60" Width="330" Height="120" Attributes="7" Text="windows\docs\thirdparty\JGOODIES_FORMS_LICENSE.rtf" Control_Next="JgoodiesFormsLicenseDlgRadioButtonGroup_1"/>
+    <ROW Dialog_="JgoodiesLooksLicesneDlg" Control="JgoodiesLooksLicesneDlgFileScrollableText_1" Type="FileScrollableText" X="20" Y="60" Width="330" Height="120" Attributes="7" Text="windows\docs\thirdparty\JGOODIES_LOOKS_LICENSE.rtf" Control_Next="JgoodiesLooksLicesneDlgRadioButtonGroup_1"/>
     <ROW Dialog_="JgoodiesLooksLicesneDlg" Control="JgoodiesLooksLicesneDlgRadioButtonGroup_1" Type="RadioButtonGroup" X="20" Y="187" Width="330" Height="40" Attributes="3" Property="JGOODIESLOOKSLICESNEDLGRADIOBUTTONGROUP_1_PROP" Control_Next="Next"/>
     <ROW Dialog_="JgoodiesFormsLicenseDlg" Control="JgoodiesFormsLicenseDlgRadioButtonGroup_1" Type="RadioButtonGroup" X="20" Y="187" Width="330" Height="40" Attributes="3" Property="JGOODIESFORMSLICENSEDLGRADIOBUTTONGROUP_1_PROP" Control_Next="Next"/>
     <ROW Dialog_="OpensslLicesneDlg" Control="OpensslLicesneDlgRadioButtonGroup_1" Type="RadioButtonGroup" X="20" Y="187" Width="330" Height="40" Attributes="3" Property="OPENSSLLICESNEDLGRADIOBUTTONGROUP_1_PROP" Control_Next="Next"/>
@@ -1322,7 +1325,7 @@
     <ROW Dialog_="STLportLicenseDlg" Control="Logo" Type="Text" X="4" Y="228" Width="70" Height="12" Attributes="1" Text="Advanced Installer" Control_Next="Title"/>
     <ROW Dialog_="STLportLicenseDlg" Control="Next" Type="PushButton" X="236" Y="243" Width="56" Height="17" Attributes="3" Text="[ButtonText_Next]" Control_Next="Cancel" TextLocId="-"/>
     <ROW Dialog_="STLportLicenseDlg" Control="Title" Type="Text" X="15" Y="6" Width="200" Height="15" Attributes="196611" Text="STLport License Agreement" TextStyle="[DlgTitleFont]" Control_Next="STLportLicenseDlgFileScrollableText_1"/>
-    <ROW Dialog_="STLportLicenseDlg" Control="STLportLicenseDlgFileScrollableText_1" Type="FileScrollableText" X="20" Y="60" Width="330" Height="120" Attributes="7" Property="STLPORTLICENSEDLGFILESCROLLABLETEXT_1_PROP" Text="&lt;WindowsVolume&gt;Builds\ice\distribution\src\windows\docs\thirdparty\STLPORT_LICENSE.rtf" Control_Next="STLportLicenseDlgRadioButtonGroup_1"/>
+    <ROW Dialog_="STLportLicenseDlg" Control="STLportLicenseDlgFileScrollableText_1" Type="FileScrollableText" X="20" Y="60" Width="330" Height="120" Attributes="7" Property="STLPORTLICENSEDLGFILESCROLLABLETEXT_1_PROP" Text="windows\docs\thirdparty\STLPORT_LICENSE.rtf" Control_Next="STLportLicenseDlgRadioButtonGroup_1"/>
     <ROW Dialog_="STLportLicenseDlg" Control="STLportLicenseDlgRadioButtonGroup_1" Type="RadioButtonGroup" X="20" Y="187" Width="330" Height="40" Attributes="3" Property="STLPORTLICENSEDLGRADIOBUTTONGROUP_1_PROP" Control_Next="Next"/>
     <ROW Dialog_="QtLicenseDlg" Control="Back" Type="PushButton" X="180" Y="243" Width="56" Height="17" Attributes="3" Text="[ButtonText_Back]" Control_Next="BannerBitmap" TextLocId="-"/>
     <ROW Dialog_="QtLicenseDlg" Control="BannerBitmap" Type="Bitmap" X="0" Y="0" Width="370" Height="44" Attributes="1048577" Text="[BannerBitmap]" Control_Next="BannerLine"/>
@@ -1333,7 +1336,7 @@
     <ROW Dialog_="QtLicenseDlg" Control="Logo" Type="Text" X="4" Y="228" Width="70" Height="12" Attributes="1" Text="Advanced Installer" Control_Next="Title"/>
     <ROW Dialog_="QtLicenseDlg" Control="Next" Type="PushButton" X="236" Y="243" Width="56" Height="17" Attributes="3" Text="[ButtonText_Next]" Control_Next="Cancel" TextLocId="-"/>
     <ROW Dialog_="QtLicenseDlg" Control="Title" Type="Text" X="15" Y="6" Width="200" Height="15" Attributes="196611" Text="Qt License Agreement" TextStyle="[DlgTitleFont]" Control_Next="QtLicenseDlgFileScrollableText_1"/>
-    <ROW Dialog_="QtLicenseDlg" Control="QtLicenseDlgFileScrollableText_1" Type="FileScrollableText" X="20" Y="60" Width="330" Height="120" Attributes="3" Property="QTLICENSEDLGFILESCROLLABLETEXT_1_PROP" Text="&lt;WindowsVolume&gt;Builds\ice\distribution\src\windows\docs\thirdparty\QT_LICENSE.rtf" Control_Next="QtLicenseDlgRadioButtonGroup_1"/>
+    <ROW Dialog_="QtLicenseDlg" Control="QtLicenseDlgFileScrollableText_1" Type="FileScrollableText" X="20" Y="60" Width="330" Height="120" Attributes="3" Property="QTLICENSEDLGFILESCROLLABLETEXT_1_PROP" Text="windows\docs\thirdparty\QT_LICENSE.rtf" Control_Next="QtLicenseDlgRadioButtonGroup_1"/>
     <ROW Dialog_="QtLicenseDlg" Control="QtLicenseDlgRadioButtonGroup_1" Type="RadioButtonGroup" X="20" Y="187" Width="330" Height="40" Attributes="3" Property="QTLICENSEDLGRADIOBUTTONGROUP_1_PROP" Text="RadioButtonGroup" Control_Next="Next"/>
     <ATTRIBUTE name="FixedSizeBitmaps" value="2"/>
   </COMPONENT>
@@ -1397,7 +1400,9 @@
   <COMPONENT cid="caphyon.advinst.msicomp.MsiCustActComponent">
     <ROW Action="AI_PREPARE_UPGRADE" Type="65" Source="aicustact.dll" Target="PrepareUpgrade"/>
     <ROW Action="AI_RESTORE_LOCATION" Type="65" Source="aicustact.dll" Target="RestoreLocation"/>
+    <ROW Action="AI_ResolveKnownFolders" Type="1" Source="aicustact.dll" Target="AI_ResolveKnownFolders"/>
     <ROW Action="AI_STORE_LOCATION" Type="51" Source="ARPINSTALLLOCATION" Target="[APPDIR]"/>
+    <ROW Action="AI_ViewReadme" Type="1" Source="aicustact.dll" Target="[#README.txt]"/>
     <ROW Action="SET_APPDIR" Type="307" Source="APPDIR" Target="[ProgramFilesFolder][Manufacturer]\[ProductName]" MultiBuildTarget="DefaultBuild:[ProgramFilesFolder]\ZeroC\Ice-3.4.0-ThirdParty"/>
     <ROW Action="SET_SHORTCUTDIR" Type="307" Source="SHORTCUTDIR" Target="[ProgramMenuFolder][ProductName]"/>
     <ROW Action="SET_TARGETDIR_TO_APPDIR" Type="51" Source="TARGETDIR" Target="[APPDIR]"/>
@@ -1417,9 +1422,11 @@
     <ROW Action="AI_RESTORE_LOCATION" Condition="APPDIR=&quot;&quot;" Sequence="749"/>
     <ROW Action="AI_STORE_LOCATION" Condition="Not Installed" Sequence="1501"/>
     <ROW Action="AI_PREPARE_UPGRADE" Condition="AI_UPGRADE=&quot;No&quot; AND (Not Installed)" Sequence="1399"/>
+    <ROW Action="AI_ResolveKnownFolders" Sequence="51"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiInstallUISequenceComponent">
     <ROW Action="AI_RESTORE_LOCATION" Condition="APPDIR=&quot;&quot;" Sequence="749"/>
+    <ROW Action="AI_ResolveKnownFolders" Sequence="51"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiMergeModsComponent">
     <ROW Module="Microsoft_VC90_CRT_x86.msm" Path="..\..\..\..\Program Files (x86)\Common Files\Merge Modules\Microsoft_VC90_CRT_x86.msm" Feature="MainFeature" Directory="APPDIR"/>
@@ -1454,7 +1461,6 @@
     <ROW TextStyle="DlgFontBold10" FaceName="Tahoma" Size="10" Color="0" StyleBits="1"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiThemeComponent">
-    <ROW ThemeName="classic" ThemeManifestFilePath="&lt;AI_THEMES&gt;classic\classic.ini"/>
     <ATTRIBUTE name="UsedTheme" value="classic"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiUpgradeComponent">
