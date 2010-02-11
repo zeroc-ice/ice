@@ -247,7 +247,7 @@ public class Utils
         private Resolver(java.util.Map<String, String>[] variables, java.util.Map<String, String> predefinedVariables)
         {
             _variables = variables;
-            _predefinedVariables = _predefinedVariables;
+            _predefinedVariables = predefinedVariables;
 
             _parameters = null;
             _subResolver = this;
