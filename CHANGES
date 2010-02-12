@@ -45,11 +45,13 @@ General Changes
 
 - Fixed Ice sources to have consistent end of line.
 
+
 Java Changes
 ============
 
-- Fixed a bug in DispatchInterceptor where exceptions raised from disptach
-  were only handled if they inherit from RunTimeException.
+- Fixed a bug in DispatchInterceptor where exceptions raised during
+  dispatch were only handled if they inherited from RuntimeException.
+
 
 Python Changes
 ==============
