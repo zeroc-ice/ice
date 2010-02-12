@@ -54,6 +54,7 @@ Table of Contents
      - IBM JDK
   5. Known Problems
      - iceca failure on SLES11
+     - Minor memory leak in Berkeley DB
 
 
 ======================================================================
@@ -1754,3 +1755,17 @@ and the version of OpenSSL that is included with SLES11 (OpenSSL
 OpenSSL. Note that it is not necessary to rebuild Ice with the new
 OpenSSL version; the only requirement is that you have the new
 "openssl" executable in your PATH when running "iceca java --import".
+
+
+Minor memory leak in Berkeley DB
+--------------------------------
+
+Berkeley DB 4.8.24 leaks a small amount of memory for a database
+environment opened with the DB_PRIVATE flag. With respect to Freeze,
+this means a database environment for which the DbPrivate property is
+set to a non-zero value. Note that the DbPrivate property is enabled
+by default.
+
+We do not anticipate this leak causing any problems for Freeze
+applications, but you can work around it by setting DbPrivate=0 for
+each of your Freeze environments.
