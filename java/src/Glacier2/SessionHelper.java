@@ -63,7 +63,7 @@ public class SessionHelper
             }
         }
 
-        public synchronized void
+        synchronized public void
         done()
         {
             if(!_done)
@@ -173,7 +173,7 @@ public class SessionHelper
      * @return The proxy for the servant.
      * @throws SessionNotExistException No session exists.
      **/
-    public synchronized Ice.ObjectPrx
+    synchronized public Ice.ObjectPrx
     addWithUUID(Ice.Object servant)
         throws SessionNotExistException
     {
@@ -207,13 +207,10 @@ public class SessionHelper
      * Returns true if there is an active session, otherwise returns false.
      * @return <code>true</code>if session exists or false if no session exists. 
      */
-    public boolean
+    synchronized public boolean
     isConnected()
     {
-        synchronized(this)
-        {
-            return _connected;
-        }
+        return _connected;
     }
 
     /**
