@@ -54,7 +54,7 @@ public abstract class DispatchInterceptor extends ObjectImpl
         {
             return DispatchStatus.DispatchAsync;
         }
-        catch(java.lang.Throwable e)
+        catch(java.lang.RuntimeException e)
         {
             try
             {
