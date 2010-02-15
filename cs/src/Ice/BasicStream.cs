@@ -662,6 +662,10 @@ namespace IceInternal
 
         public virtual byte[] readBlob(int sz)
         {
+            if(_buf.b.remaining() < sz)
+            {
+                throw new Ice.UnmarshalOutOfBoundsException();
+            }
             byte[] v = new byte[sz];
             try
             {
@@ -1907,6 +1911,14 @@ namespace IceInternal
                 return "";
             }
 
+            //
+            // Check the buffer has enough bytes to read.
+            //
+            if(_buf.b.remaining() < len)
+            {
+                throw new Ice.UnmarshalOutOfBoundsException();
+            }
+
             try
             {
                 //
@@ -1927,11 +1939,6 @@ namespace IceInternal
             catch(System.ArgumentException ex)
             {
                 throw new Ice.MarshalException("Invalid UTF8 string", ex);
-            }
-            catch(Exception)
-            {
-                Debug.Assert(false);
-                return "";
             }
         }
 

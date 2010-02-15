@@ -613,6 +613,10 @@ public class BasicStream
     public byte[]
     readBlob(int sz)
     {
+        if(_buf.b.remaining() < sz)
+        {
+            throw new Ice.UnmarshalOutOfBoundsException();
+        }
         byte[] v = new byte[sz];
         try
         {
@@ -1211,6 +1215,15 @@ public class BasicStream
         }
         else
         {
+
+            //
+            // Check the buffer has enough bytes to read.
+            //
+            if(_buf.b.remaining() < len)
+            {
+                throw new Ice.UnmarshalOutOfBoundsException();
+            }
+
             try
             {
                 //

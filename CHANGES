@@ -43,6 +43,9 @@ General Changes
 - Fixed hang in slice2cs and slice2py that would occur if a comment
   contained a '<' with no closing '>'.
 
+- Fixed a bug in Java and C# BasicStream, readString() and readBlob()
+  operations were not checking the size before allocating memory.
+
 - Fixed Ice sources to have consistent end of line.
 
 
