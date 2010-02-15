@@ -20,5 +20,5 @@ else
 	ant -emacs -Dprefix=$(prefix) install
 endif
 
-test:
+test::
 	@python ./allTests.py

@@ -40,6 +40,13 @@ install::
 	    ( cd $$subdir && $(MAKE) install ) || exit 1; \
 	done
 
+test::
+	@for subdir in $(SUBDIRS); \
+	do \
+	    echo "making test in $$subdir"; \
+	    ( cd $$subdir && $(MAKE) test ) || exit 1; \
+	done
+
 cpp::
 	echo "making all in cpp";
 	( cd cpp && $(MAKE) all ) || exit 1;
