@@ -274,10 +274,19 @@ public class SharedDbEnv implements com.sleepycat.db.ErrorHandler, Runnable
         String propertyPrefix = "Freeze.DbEnv." + _key.envName;
         String dbHome = properties.getPropertyWithDefault(propertyPrefix + ".DbHome", _key.envName);
 
-        java.io.File dir = new java.io.File(dbHome + "/__Freeze");
+        java.io.File dir = new java.io.File(dbHome);
         if(!dir.exists())
         {
-            dir.mkdir();
+            throw new DatabaseException("DbHome directory `" + dbHome + "' does not exists");
+        }
+
+        dir = new java.io.File(dbHome + "/__Freeze");
+        if(!dir.exists())
+        {
+            if(!dir.mkdir())
+            {
+                throw new DatabaseException("Failed to create directory `" + dbHome + "/__Freeze'");
+            }
         }
         _fileLock = new IceUtilInternal.FileLock(dbHome + "/__Freeze/lock");
         try
