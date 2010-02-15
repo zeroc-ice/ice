@@ -293,8 +293,14 @@ Slice::filterMcppWarnings(const string& message)
     static const string separators = "\n\t ";
 
     vector<string> in;
+    string::size_type start = 0;
+    string::size_type end;
+    while((end = message.find('\n', start)) != string::npos)
+    {
+        in.push_back(message.substr(start, end - start));
+        start = end + 1;
+    }
     vector<string> out;
-    IceUtilInternal::splitString(message, "\n", in);
     bool skipped;
     for(vector<string>::const_iterator i = in.begin(); i != in.end(); i++)
     {
