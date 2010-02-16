@@ -194,7 +194,7 @@ public interface NavigableMap<K, V> extends java.util.SortedMap<K, V>
     /**
      * Returns a view of the portion of this map whose keys range from <code>fromKey</code> to <code>toKey</code>.
      * If <code>fromKey</code> and <code>toKey</code> are equal, the returned map is empty unless
-     * <code>fromExclusive</code> and <code>toExclusive</code> are both <code>true</code>.
+     * <code>fromInclusive</code> and <code>toInclusive</code> are both <code>true</code>.
      *<p>
      * Insertions cannot be made via the returned map and must be made on the main map.
      * <p>
@@ -207,10 +207,10 @@ public interface NavigableMap<K, V> extends java.util.SortedMap<K, V>
      *
      * @param fromKey Low endpoint of the keys in the returned map.
      * @param fromInclusive <code>true</code> if the low endpoint is to be included in the returned view;
-     * <code>false, otherwise</code>.
+     * <code>false</code>, otherwise.
      * @param toKey High endpoint of the keys in the returned map.
      * @param toInclusive <code>true</code> if the high endpoint is to be included in the returned view;
-     * <code>false, otherwise</code>.
+     * <code>false</code>, otherwise.
      * @return A view of the portion of this map whose keys range from <code>fromKey</code> to <code>toKey</code>.
      **/
     NavigableMap<K, V> subMap(K fromKey, boolean fromInclusive, K toKey, boolean toInclusive);

@@ -439,13 +439,29 @@ FreezeGenerator::generate(UnitPtr& u, const Dict& dict)
 
     if(dict.indices.size() > 0)
     {
-        out << sp << nl << "public static class IndexComparators";
+        out << sp;
+        out << nl << "/**"
+            << nl << " * Supplies a comparator for each index key."
+            << nl << " */";
+        out << nl << "public static class IndexComparators";
         out << sb;
-        out << sp << nl << "public" << nl << "IndexComparators()";
+        out << sp;
+        out << nl << "/**"
+            << nl << " * Default constructor assigns null to the comparator for each index key."
+            << nl << " */";
+        out << nl << "public" << nl << "IndexComparators()";
         out << sb;
         out << eb;
 
-        out << sp << nl << "public" << nl << "IndexComparators(";
+        out << sp;
+        out << nl << "/**"
+            << nl << " * This constructor accepts a comparator for each index key.";
+        for(i = 0; i < dict.indices.size(); ++i)
+        {
+            out << nl << " * @param " << members[i] << "Comparator Comparator for <code>" << members[i] << "</code>.";
+        }
+        out << nl << " */";
+        out << nl << "public" << nl << "IndexComparators(";
         for(i = 0; i < dict.indices.size(); ++i)
         {
             if(i > 0)
@@ -466,6 +482,7 @@ FreezeGenerator::generate(UnitPtr& u, const Dict& dict)
         out << sp;
         for(i = 0; i < dict.indices.size(); ++i)
         {
+            out << nl << "/** Comparator for <code>" << members[i] << "</code>. */";
             out << nl << "public java.util.Comparator<" << typeToObjectString(indexTypes[i]) << "> " << members[i]
                 << "Comparator;";
         }
@@ -500,7 +517,25 @@ FreezeGenerator::generate(UnitPtr& u, const Dict& dict)
 
     if(dict.indices.size() > 0)
     {
-        out << sp << nl << "public" << nl << name
+        out << sp;
+        out << nl << "/**"
+            << nl << " * Instantiates a Freeze map using the given connection. If the database"
+            << nl << " * named in <code>__dbName</code> does not exist and <code>__createDb</code>"
+            << nl << " * is true, the database is created automatically, otherwise this constructor"
+            << nl << " * raises <code>DatabaseException</code>."
+            << nl << " * @param __connection The Freeze connection associated with this map."
+            << nl << " * @param __dbName The name of the Berkeley DB database."
+            << nl << " * @param __createDb True if the database should be created if it does not"
+            << nl << " *   already exist, false otherwise."
+            << nl << " * @param __comparator A comparator for the map's main key, or null to use the"
+            << nl << " *   default key comparison strategy."
+            << nl << " * @param __indexComparators A map of string to comparator, representing the"
+            << nl << " *   key comparator for each of the map's indices. The map uses the default"
+            << nl << " *   key comparison strategy for an index if <code>__indexComparators</code>"
+            << nl << " *   is null, or if no entry can be found in the comparators map for an index."
+            << nl << " * @throws Freeze.DatabaseException If an error occurs during database operations."
+            << nl << " */"
+            << nl << "public" << nl << name
             << "(Freeze.Connection __connection, String __dbName, boolean __createDb, "
             << "java.util.Comparator<" << keyTypeS  << "> __comparator, "
             << "IndexComparators __indexComparators)";
@@ -511,7 +546,21 @@ FreezeGenerator::generate(UnitPtr& u, const Dict& dict)
         out << eb;
     }
 
-    out << sp << nl << "public" << nl << name
+    out << sp;
+    out << nl << "/**"
+        << nl << " * Instantiates a Freeze map using the given connection. If the database"
+        << nl << " * named in <code>__dbName</code> does not exist and <code>__createDb</code>"
+        << nl << " * is true, the database is created automatically, otherwise this constructor"
+        << nl << " * raises <code>DatabaseException</code>."
+        << nl << " * @param __connection The Freeze connection associated with this map."
+        << nl << " * @param __dbName The name of the Berkeley DB database."
+        << nl << " * @param __createDb True if the database should be created if it does not"
+        << nl << " *   already exist, false otherwise."
+        << nl << " * @param __comparator A comparator for the map's main key, or null to use the"
+        << nl << " *   default key comparison strategy."
+        << nl << " * @throws Freeze.DatabaseException If an error occurs during database operations."
+        << nl << " */";
+    out << nl << "public" << nl << name
         << "(Freeze.Connection __connection, String __dbName, boolean __createDb, "
         << "java.util.Comparator<" << keyTypeS << "> __comparator)";
     out << sb;
@@ -526,13 +575,35 @@ FreezeGenerator::generate(UnitPtr& u, const Dict& dict)
     }
     out << eb;
 
-    out << sp << nl << "public" << nl << name
+    out << sp;
+    out << nl << "/**"
+        << nl << " * Instantiates a Freeze map using the given connection. If the database"
+        << nl << " * named in <code>__dbName</code> does not exist and <code>__createDb</code>"
+        << nl << " * is true, the database is created automatically, otherwise this constructor"
+        << nl << " * raises <code>DatabaseException</code>. The map uses the default key"
+        << nl << " * comparison strategy."
+        << nl << " * @param __connection The Freeze connection associated with this map."
+        << nl << " * @param __dbName The name of the Berkeley DB database."
+        << nl << " * @param __createDb True if the database should be created if it does not"
+        << nl << " *   already exist, false otherwise."
+        << nl << " * @throws Freeze.DatabaseException If an error occurs during database operations."
+        << nl << " */";
+    out << nl << "public" << nl << name
         << "(Freeze.Connection __connection, String __dbName, boolean __createDb)";
     out << sb;
     out << nl << "this(__connection, __dbName, __createDb, null);";
     out << eb;
 
-    out << sp << nl << "public" << nl << name << "(Freeze.Connection __connection, String __dbName)";
+    out << sp;
+    out << nl << "/**"
+        << nl << " * Instantiates a Freeze map using the given connection. If the database"
+        << nl << " * named in <code>__dbName</code> does not exist, it is created automatically."
+        << nl << " * The map uses the default key comparison strategy."
+        << nl << " * @param __connection The Freeze connection associated with this map."
+        << nl << " * @param __dbName The name of the Berkeley DB database."
+        << nl << " * @throws Freeze.DatabaseException If an error occurs during database operations."
+        << nl << " */";
+    out << nl << "public" << nl << name << "(Freeze.Connection __connection, String __dbName)";
     out << sb;
     out << nl << "this(__connection, __dbName, true);";
     out << eb;
@@ -542,7 +613,22 @@ FreezeGenerator::generate(UnitPtr& u, const Dict& dict)
     //
     if(dict.indices.size() > 0)
     {
-        out << sp << nl << "public static void" << nl
+        out << sp;
+        out << nl << "/**"
+            << nl << " * Copies an existing database. The new database has the name given in"
+            << nl << " * <code>__dbName</code>, and the old database is renamed with a UUID"
+            << nl << " * suffix."
+            << nl << " * @param __connection The Freeze connection associated with this map."
+            << nl << " * @param __dbName The name of the Berkeley DB database."
+            << nl << " * @param __comparator A comparator for the map's main key, or null to use the"
+            << nl << " *   default key comparison strategy."
+            << nl << " * @param __indexComparators A map of string to comparator, representing the"
+            << nl << " *   key comparator for each of the map's indices. The map uses the default"
+            << nl << " *   key comparison strategy for an index if <code>__indexComparators</code>"
+            << nl << " *   is null, or if no entry can be found in the comparators map for an index."
+            << nl << " * @throws Freeze.DatabaseException If an error occurs during database operations."
+            << nl << " */";
+        out << nl << "public static void" << nl
             << "recreate(Freeze.Connection __connection, String __dbName, "
             << "java.util.Comparator<" << keyTypeS  << "> __comparator, "
             << "IndexComparators __indexComparators)";
@@ -554,7 +640,18 @@ FreezeGenerator::generate(UnitPtr& u, const Dict& dict)
         out << eb;
     }
 
-    out << sp << nl << "public static void" << nl
+    out << sp;
+    out << nl << "/**"
+        << nl << " * Copies an existing database. The new database has the name given in"
+        << nl << " * <code>__dbName</code>, and the old database is renamed with a UUID"
+        << nl << " * suffix."
+        << nl << " * @param __connection The Freeze connection associated with this map."
+        << nl << " * @param __dbName The name of the Berkeley DB database."
+        << nl << " * @param __comparator A comparator for the map's main key, or null to use the"
+        << nl << " *   default key comparison strategy."
+        << nl << " * @throws Freeze.DatabaseException If an error occurs during database operations."
+        << nl << " */";
+    out << nl << "public static void" << nl
         << "recreate(Freeze.Connection __connection, String __dbName, "
         << "java.util.Comparator<" << keyTypeS  << "> __comparator)";
     out << sb;
@@ -580,22 +677,52 @@ FreezeGenerator::generate(UnitPtr& u, const Dict& dict)
         string indexObjTypeS = typeToObjectString(indexTypes[i]);
         string indexObj = varToObject(indexTypes[i], "__key");
 
-        out << sp << nl << "public Freeze.Map.EntryIterator<java.util.Map.Entry<" << keyTypeS << ", " << valueTypeS
+        out << sp;
+        out << nl << "/**"
+            << nl << " * Obtains an iterator ordered using the index value."
+            << nl << " * The iterator's initial position is an element whose key matches <code>__key</code>; if"
+            << nl << " * no such element exists, the returned iterator is empty (<code>hasNext</code> returns"
+            << nl << " * false). If <code>__onlyDups</code> is true, the iterator only returns elements whose"
+            << nl << " * key exactly matches <code>__key</code>; otherwise, the iterator continues to iterate over"
+            << nl << " * the remaining elements in the map."
+            << nl << " * @param __key The value at which the iterator begins."
+            << nl << " * @param __onlyDups True if the iterator should be limited to elements whose key"
+            << nl << " *   exactly matches <code>__key</code>, false otherwise."
+            << nl << " * @return A new iterator."
+            << nl << " * @throws Freeze.DatabaseException If an error occurs during database operations."
+            << nl << " */";
+        out << nl << "public Freeze.Map.EntryIterator<java.util.Map.Entry<" << keyTypeS << ", " << valueTypeS
             << ">>";
         out << nl << "findBy" << capitalizedMembers[i] << "(" << indexTypeS << " __key, boolean __onlyDups)";
         out << sb;
         out << nl << "return _" << members[i] << "Index.find(" << indexObj << ", __onlyDups);";
         out << eb;
 
-        out << sp << nl << "public Freeze.Map.EntryIterator<java.util.Map.Entry<" << keyTypeS << ", " << valueTypeS
+        out << sp;
+        out << nl << "/**"
+            << nl << " * Obtains an iterator ordered using the values of member <code>" << members[i] << "</code>."
+            << nl << " * The iterator's initial position is an element whose key matches <code>__key</code>; if"
+            << nl << " * no such element exists, the returned iterator is empty (<code>hasNext</code> returns"
+            << nl << " * false). This iterator only returns elements whose key exactly matches <code>__key</code>."
+            << nl << " * @param __key The value at which the iterator begins."
+            << nl << " * @return A new iterator."
+            << nl << " * @throws Freeze.DatabaseException If an error occurs during database operations."
+            << nl << " */";
+        out << nl << "public Freeze.Map.EntryIterator<java.util.Map.Entry<" << keyTypeS << ", " << valueTypeS
             << ">>";
         out << nl << "findBy" << capitalizedMembers[i] << "(" << indexTypeS << " __key)";
         out << sb;
         out << nl << "return _" << members[i] << "Index.find(" << indexObj << ", true);";
         out << eb;
 
+        out << sp;
+        out << nl << "/**"
+            << nl << " * Determines the number of elements whose index values match <code>__key</code>."
+            << nl << " * @return The number of matching elements."
+            << nl << " * @throws Freeze.DatabaseException If an error occurs during database operations."
+            << nl << " */";
         string countMethod = dict.indices[i].member.empty() ?  string("valueCount") : dict.indices[i].member + "Count";
-        out << sp << nl << "public int";
+        out << nl << "public int";
         out << nl << countMethod << "(" << indexTypeS << " __key)";
         out << sb;
         out << nl << "return _" << members[i] << "Index.count(" << indexObj << ");";
@@ -604,33 +731,96 @@ FreezeGenerator::generate(UnitPtr& u, const Dict& dict)
         string subMap = "Freeze.NavigableMap<" + indexObjTypeS + ", java.util.Set<java.util.Map.Entry<" + keyTypeS +
             ", " + valueTypeS + ">>>";
 
-        out << sp << nl << "public " + subMap;
+        out << sp;
+        out << nl << "/**"
+            << nl << " * Returns a view of the portion of this map whose keys are strictly less than"
+            << nl << " * <code>__toKey</code>, or less than or equal to <code>__toKey</code> if"
+            << nl << " * <code>__inclusive</code> is true. Insertions and removals via this map are"
+            << nl << " * not supported."
+            << nl << " * @param __toKey High endpoint of the keys in the returned map."
+            << nl << " * @param __inclusive If true, the endpoint is included in the returned map;"
+            << nl << " *   otherwise, the endpoint is excluded."
+            << nl << " * @return A view of the portion of this map whose keys are strictly less than"
+            << nl << " *   <code>__toKey</code>, or less than or equal to <code>__toKey</code> if"
+            << nl << " *   <code>__inclusive</code> is true."
+            << nl << " * @throws Freeze.DatabaseException If an error occurs during database operations."
+            << nl << " */";
+        out << nl << "public " + subMap;
         out << nl << "headMapFor" << capitalizedMembers[i] << "(" << indexTypeS << " __toKey, boolean __inclusive)";
         out << sb;
         out << nl << "return _" << members[i] << "Index.createHeadMap(" << varToObject(indexTypes[i], "__toKey")
             << ", __inclusive);";
         out << eb;
 
-        out << sp << nl << "public " + subMap;
+        out << sp;
+        out << nl << "/**"
+            << nl << " * Returns a view of the portion of this map whose keys are strictly less than"
+            << nl << " * <code>__toKey</code>. Insertions and removals via this map are not supported."
+            << nl << " * @param __toKey High endpoint of the keys in the returned map."
+            << nl << " * @return A view of the portion of this map whose keys are strictly less than"
+            << nl << " *   <code>__toKey</code>>"
+            << nl << " * @throws Freeze.DatabaseException If an error occurs during database operations."
+            << nl << " */";
+        out << nl << "public " + subMap;
         out << nl << "headMapFor" << capitalizedMembers[i] << "(" << indexTypeS << " __toKey)";
         out << sb;
         out << nl << "return headMapFor" << capitalizedMembers[i] << "(__toKey, false);";
         out << eb;
 
-        out << sp << nl << "public " + subMap;
+        out << sp;
+        out << nl << "/**"
+            << nl << " * Returns a view of the portion of this map whose keys are strictly greater than"
+            << nl << " * <code>__fromKey</code>, or greater than or equal to <code>__fromKey</code> if"
+            << nl << " * <code>__inclusive</code> is true. Insertions and removals via this map are"
+            << nl << " * not supported."
+            << nl << " * @param __fromKey Low endpoint of the keys in the returned map."
+            << nl << " * @param __inclusive If true, the endpoint is included in the returned map;"
+            << nl << " *   otherwise, the endpoint is excluded."
+            << nl << " * @return A view of the portion of this map whose keys are strictly greater than"
+            << nl << " *   <code>__fromKey</code>, or greater than or equal to <code>__fromKey</code> if"
+            << nl << " *   <code>__inclusive</code> is true."
+            << nl << " * @throws Freeze.DatabaseException If an error occurs during database operations."
+            << nl << " */";
+        out << nl << "public " + subMap;
         out << nl << "tailMapFor" << capitalizedMembers[i] << "(" << indexTypeS << " __fromKey, boolean __inclusive)";
         out << sb;
         out << nl << "return _" << members[i] << "Index.createTailMap(" << varToObject(indexTypes[i], "__fromKey")
             << ", __inclusive);";
         out << eb;
 
-        out << sp << nl << "public " + subMap;
+        out << sp;
+        out << nl << "/**"
+            << nl << " * Returns a view of the portion of this map whose keys are greater than or equal"
+            << nl << " * to <code>__fromKey</code>. Insertions and removals via this map are not supported."
+            << nl << " * @param __fromKey Low endpoint of the keys in the returned map."
+            << nl << " * @return A view of the portion of this map whose keys are greater than or equal"
+            << nl << " *   to <code>__fromKey</code>."
+            << nl << " * @throws Freeze.DatabaseException If an error occurs during database operations."
+            << nl << " */";
+        out << nl << "public " + subMap;
         out << nl << "tailMapFor" << capitalizedMembers[i] << "(" << indexTypeS << " __fromKey)";
         out << sb;
         out << nl << "return tailMapFor" << capitalizedMembers[i] << "(__fromKey, true);";
         out << eb;
 
-        out << sp << nl << "public " + subMap;
+        out << sp;
+        out << nl << "/**"
+            << nl << " * Returns a view of the portion of this map whose keys range from"
+            << nl << " * <code>__fromKey</code> to <code>__toKey</code>. If <code>__fromKey</code>"
+            << nl << " * and <code>__toKey</code> are equal, the returned map is empty unless"
+            << nl << " * <code>__fromInclusive</code> and <code>__toInclusive</code> are both true."
+            << nl << " * Insertions and removals via this map are not supported."
+            << nl << " * @param __fromKey Low endpoint of the keys in the returned map."
+            << nl << " * @param __fromInclusive If true, the low endpoint is included in the returned map;"
+            << nl << " *   otherwise, the endpoint is excluded."
+            << nl << " * @param __toKey High endpoint of the keys in the returned map."
+            << nl << " * @param __toInclusive If true, the high endpoint is included in the returned map;"
+            << nl << " *   otherwise, the endpoint is excluded."
+            << nl << " * @return A view of the portion of this map whose keys range from"
+            << nl << " *   <code>__fromKey</code> to <code>__toKey</code>."
+            << nl << " * @throws Freeze.DatabaseException If an error occurs during database operations."
+            << nl << " */";
+        out << nl << "public " + subMap;
         out << nl << "subMapFor" << capitalizedMembers[i] << "(" << indexTypeS
             << " __fromKey, boolean __fromInclusive, " << indexTypeS << " __toKey, boolean __toInclusive)";
         out << sb;
@@ -638,14 +828,32 @@ FreezeGenerator::generate(UnitPtr& u, const Dict& dict)
             << ", __fromInclusive, " << varToObject(indexTypes[i], "__toKey") << ", __toInclusive);";
         out << eb;
 
-        out << sp << nl << "public " + subMap;
+        out << sp;
+        out << nl << "/**"
+            << nl << " * Returns a view of the portion of this map whose keys are greater than"
+            << nl << " * or equal to <code>__fromKey</code> and strictly less than <code>__toKey</code>."
+            << nl << " * Insertions and removals via this map are not supported."
+            << nl << " * @param __fromKey Low endpoint of the keys in the returned map."
+            << nl << " * @param __toKey High endpoint of the keys in the returned map."
+            << nl << " * @return A view of the portion of this map whose keys range from"
+            << nl << " *   <code>__fromKey</code> to <code>__toKey</code>."
+            << nl << " * @throws Freeze.DatabaseException If an error occurs during database operations."
+            << nl << " */";
+        out << nl << "public " + subMap;
         out << nl << "subMapFor" << capitalizedMembers[i] << "(" << indexTypeS << " __fromKey, " << indexTypeS
             << " __toKey)";
         out << sb;
         out << nl << "return subMapFor" << capitalizedMembers[i] << "(__fromKey, true, __toKey, false);";
         out << eb;
 
-        out << sp << nl << "public " + subMap;
+        out << sp;
+        out << nl << "/**"
+            << nl << " * Returns a view of this map whose keys are ordered by the index value."
+            << nl << " * Insertions and removals via this map are not supported."
+            << nl << " * @return A view of this map whose keys range are ordered by the index value."
+            << nl << " * @throws Freeze.DatabaseException If an error occurs during database operations."
+            << nl << " */";
+        out << nl << "public " + subMap;
         out << nl << "mapFor" << capitalizedMembers[i] << "()";
         out << sb;
         out << nl << "return _" << members[i] << "Index.createMap();";
