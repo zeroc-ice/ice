@@ -48,6 +48,11 @@ General Changes
 
 - Fixed source files to have consistent end of line terminators.
 
+- Fixed the Ice.initialize(), Ice.initialize(Ice.InitializationData)
+  and Ice.createProperties() overloads in Python, Ruby and PHP to
+  match the C++, .NET and Java behavior. These overloads no longer
+  read the ICE_CONFIG environment variable.
+
 
 Python Changes
 ==============
@@ -65,11 +70,6 @@ Ruby Changes
 
 - Fixed a compilation error when using Ruby 1.8.7 (patch level >=
   248).
-
-- Fixed the Ice.initialize(), Ice.initialize(Ice.InitializationData)
-  and Ice.createProperties() overloads in Python, Ruby and PHP to
-  match the C++, .NET and Java behavior. These overloads no longer
-  read the ICE_CONFIG environment variable.
 
 
 ======================================================================
