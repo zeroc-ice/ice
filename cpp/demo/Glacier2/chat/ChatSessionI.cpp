@@ -83,11 +83,11 @@ public:
         IceUtil::Time now = IceUtil::Time::now();
         for(list<ChatRoom::MemberInfo>::const_iterator p = members.begin(); p != members.end(); ++p)
         {
-            if(now - (*p).updateTime > IceUtil::Time::secondsDouble(30 * 1.5)) // SessionTimeout * 1.5
+            if(now - p->updateTime > IceUtil::Time::secondsDouble(30 * 1.5)) // SessionTimeout * 1.5
             {
                 try
                 {
-                    (*p).session->destroy();
+                    p->session->destroy();
                 }
                 catch(const Ice::Exception&)
                 {
@@ -141,7 +141,7 @@ ChatRoom::leave(const ChatCallbackPrx& callback)
     list<MemberInfo>::iterator p;
     for(p = _members.begin(); p != _members.end(); ++p)
     {
-        if(Ice::proxyIdentityEqual(callback, (*p).callback))
+        if(Ice::proxyIdentityEqual(callback, p->callback))
         {
             break;
         }
@@ -157,7 +157,7 @@ ChatRoom::message(const string& data) const
     Lock sync(*this);
     for(list<MemberInfo>::const_iterator p = _members.begin(); p != _members.end(); ++p)
     {
-        (*p).callback->begin_message(data);
+        p->callback->begin_message(data);
     }
 }
 
@@ -167,9 +167,9 @@ ChatRoom::update(const ChatCallbackPrx& callback)
     Lock sync(*this);
     for(list<MemberInfo>::iterator p = _members.begin(); p != _members.end(); ++p)
     {
-        if(Ice::proxyIdentityEqual(callback, (*p).callback))
+        if(Ice::proxyIdentityEqual(callback, p->callback))
         {
-            (*p).updateTime = IceUtil::Time::now();
+            p->updateTime = IceUtil::Time::now();
             break;
         }
     }
