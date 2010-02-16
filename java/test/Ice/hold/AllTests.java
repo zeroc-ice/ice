@@ -72,7 +72,6 @@ public class AllTests
         public void
         exception(Ice.LocalException ex)
         {
-            test(false);
         }
 
         synchronized public void
@@ -226,11 +225,10 @@ public class AllTests
             hold.ice_ping();            
         }
         out.println("ok");
-        
+
         out.print("changing state to hold and shutting down server... ");
         out.flush();
         hold.shutdown();
         out.println("ok");
     }
 }
-        
