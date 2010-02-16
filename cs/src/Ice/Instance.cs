@@ -592,8 +592,7 @@ namespace IceInternal
             {
                 if(_initData.properties == null)
                 {
-                    string[] args = new string[0];
-                    _initData.properties = Ice.Util.createProperties(ref args);
+                    _initData.properties = Ice.Util.createProperties();
                 }
 
                 lock(_staticLock)

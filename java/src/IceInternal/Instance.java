@@ -538,8 +538,7 @@ public final class Instance
         {
             if(_initData.properties == null)
             {
-                String[] args = new String[0];
-                _initData.properties = Ice.Util.createProperties(new Ice.StringSeqHolder(args));
+                _initData.properties = Ice.Util.createProperties();
             }
 
             synchronized(Instance.class)

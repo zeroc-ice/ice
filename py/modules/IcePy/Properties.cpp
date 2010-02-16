@@ -96,7 +96,14 @@ propertiesInit(PropertiesObject* self, PyObject* args, PyObject* /*kwds*/)
     Ice::PropertiesPtr props;
     try
     {
-        props = Ice::createProperties(seq, defaults);
+        if(defaults || (arglist && arglist != Py_None))
+        {
+            props = Ice::createProperties(seq, defaults);
+        }
+        else
+        {
+            props = Ice::createProperties();
+        }
     }
     catch(const Ice::Exception& ex)
     {

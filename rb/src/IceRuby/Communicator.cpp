@@ -100,7 +100,7 @@ IceRuby_initialize(int argc, VALUE* argv, VALUE self)
         //
         // Use the with-args or the without-args version of initialize()?
         //
-        bool hasArgs = !seq.empty();
+        bool hasArgs = !NIL_P(args);
 
         Ice::InitializationData data;
         if(!NIL_P(initData))
@@ -126,8 +126,14 @@ IceRuby_initialize(int argc, VALUE* argv, VALUE self)
         volatile VALUE progName = callRuby(rb_gv_get, "$0");
         seq.insert(seq.begin(), getString(progName));
 
-        data.properties = Ice::createProperties(seq, data.properties);
-
+        if(hasArgs)
+        {
+            data.properties = Ice::createProperties(seq, data.properties);
+        }
+        else if(!data.properties)
+        {
+            data.properties = Ice::createProperties();
+        }
         //
         // Disable collocation optimization, otherwise an invocation on a
         // collocated servant results in a CollocationOptimizationException

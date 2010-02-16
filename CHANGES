@@ -66,6 +66,11 @@ Ruby Changes
 - Fixed a compilation error when using Ruby 1.8.7 (patch level >=
   248).
 
+- Fixed the Ice.initialize(), Ice.initialize(Ice.InitializationData)
+  and Ice.createProperties() overloads in Python, Ruby and PHP to
+  match the C++, .NET and Java behavior. These overloads no longer
+  read the ICE_CONFIG environment variable.
+
 
 ======================================================================
 Changes since version 3.3.1
@@ -327,13 +332,6 @@ noted.
 
 - Changed the format of the default logger output. Traces are now
   prepended by '--', warnings by '-!' and errors by '!!'.
-
-- All permutations of Ice.initialize() will now recognize the value of
-  the ICE_CONFIG environment variable as long as an already-created
-  property set has not been passed in the InitializationData or an
-  Ice.Config argument/property has not been set. Previously if the
-  no-argument version of initialize was used, ICE_CONFIG was ignored
-  in C++, .NET and Java but used in Python and Ruby.
 
 - The value of the thread pool SizeWarn property is now 0 by default
   rather than 80% of Size. This means that by default warnings about

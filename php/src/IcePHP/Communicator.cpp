@@ -767,11 +767,20 @@ createCommunicator(zval* zv, const ActiveCommunicatorPtr& ac TSRMLS_DC)
 }
 
 static CommunicatorInfoIPtr
-initializeCommunicator(zval* zv, Ice::StringSeq& args, const Ice::InitializationData& initData TSRMLS_DC)
+initializeCommunicator(zval* zv, Ice::StringSeq& args, bool hasArgs, const Ice::InitializationData& initData TSRMLS_DC)
 {
     try
     {
-        Ice::CommunicatorPtr c = Ice::initialize(args, initData);
+        Ice::CommunicatorPtr c;
+        if(hasArgs)
+        {
+            c = Ice::initialize(args, initData);
+        }
+        else
+        {
+            c = Ice::initialize(initData);
+        }
+
         ActiveCommunicatorPtr ac = new ActiveCommunicator(c);
 
         //
@@ -834,6 +843,7 @@ ZEND_FUNCTION(Ice_initialize)
     // initialize(InitializationData)
     // initialize()
     //
+    bool hasArgs = false;
     if(ZEND_NUM_ARGS())
     {
         if(Z_TYPE_PP(args[0]) == IS_ARRAY)
@@ -842,6 +852,7 @@ ZEND_FUNCTION(Ice_initialize)
             {
                 RETURN_NULL();
             }
+            hasArgs = true;
             if(ZEND_NUM_ARGS() > 1)
             {
                 if(Z_TYPE_PP(args[1]) != IS_OBJECT || Z_OBJCE_PP(args[1]) != initClass)
@@ -896,7 +907,7 @@ ZEND_FUNCTION(Ice_initialize)
         }
     }
 
-    CommunicatorInfoIPtr info = initializeCommunicator(return_value, seq, initData TSRMLS_CC);
+    CommunicatorInfoIPtr info = initializeCommunicator(return_value, seq, hasArgs, initData TSRMLS_CC);
     if(!info)
     {
         RETURN_NULL();

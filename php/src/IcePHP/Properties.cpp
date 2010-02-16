@@ -555,7 +555,16 @@ ZEND_FUNCTION(Ice_createProperties)
 
     try
     {
-        Ice::PropertiesPtr props = Ice::createProperties(seq, defaults);
+        Ice::PropertiesPtr props;
+        if(arglist || defaults)
+        {
+            props = Ice::createProperties(seq, defaults);
+        }
+        else
+        {
+            props = Ice::createProperties();
+        }
+
         if(!createProperties(return_value, props TSRMLS_CC))
         {
             RETURN_NULL();

@@ -54,7 +54,15 @@ IceRuby_createProperties(int argc, VALUE* argv, VALUE self)
         volatile VALUE progName = callRuby(rb_gv_get, "$0");
         seq.insert(seq.begin(), getString(progName));
 
-        Ice::PropertiesPtr obj = Ice::createProperties(seq, defaults);
+        Ice::PropertiesPtr obj;
+        if(argc >= 1)
+        {
+            obj = Ice::createProperties(seq, defaults);
+        }
+        else
+        {
+            obj = Ice::createProperties();
+        }
 
         //
         // Replace the contents of the given argument list with the filtered arguments.

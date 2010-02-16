@@ -134,7 +134,7 @@ communicatorInit(CommunicatorObject* self, PyObject* args, PyObject* /*kwds*/)
     //
     // Use the with-args or the without-args version of initialize()?
     //
-    bool hasArgs = !seq.empty();
+    bool hasArgs = argList != 0;
 
     Ice::InitializationData data;
     if(initData)
@@ -167,7 +167,14 @@ communicatorInit(CommunicatorObject* self, PyObject* args, PyObject* /*kwds*/)
 
     try
     {
-        data.properties = Ice::createProperties(seq, data.properties);
+        if(argList)
+        {
+            data.properties = Ice::createProperties(seq, data.properties);
+        }
+        else if(!data.properties)
+        {
+            data.properties = Ice::createProperties();
+        }
     }
     catch(const Ice::Exception& ex)
     {

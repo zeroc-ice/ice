@@ -706,7 +706,7 @@ class PropertiesI(Properties):
 #
 # Ice.createProperties()
 #
-def createProperties(args=[], defaults=None):
+def createProperties(args=None, defaults=None):
     '''Creates a new property set. The optional arguments represent
 an argument list (such as sys.argv) and a property set that supplies
 default values. You can invoke this function as follows:
