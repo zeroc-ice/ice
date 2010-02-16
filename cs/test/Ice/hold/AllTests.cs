@@ -69,7 +69,6 @@ public class AllTests
         public void
         exception(Ice.Exception ex)
         {
-            test(false);
         }
 
         public void
