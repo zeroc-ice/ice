@@ -164,7 +164,7 @@ FixUtil.fileMatchAndReplace(os.path.join(icej_home, "src", "Ice", "Util.java"),
 # C# specific files
 #
 icecs_home = os.path.join(ice_dir, "cs")
-for f in FixUtil.find("AssemblyInfo.cs"):
+for f in FixUtil.find("AssemblyInfo*.cs"):
     if f.find("generate") < 0 and f.find("ConsoleApplication") < 0:
         FixUtil.fileMatchAndReplace(f, [("AssemblyVersion\(\"" + FixUtil.vpatMatch + "\"",
                                  FixUtil.majorVersion(version) + "." + FixUtil.minorVersion(version) + "." + \

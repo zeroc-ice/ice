@@ -41,10 +41,13 @@ LINKWITH        = $(ICE_LIBS) $(RUBY_LIBS) $(CXXLIBS)
 
 $(LIBNAME): $(DLLNAME)
 
-$(DLLNAME): $(OBJS)
+$(DLLNAME): $(OBJS) IceRuby.res
 	$(LINK) $(RUBY_LDFLAGS) $(ICE_LDFLAGS) $(LD_DLLFLAGS) $(PDBFLAGS) /export:Init_IceRuby $(OBJS) \
-		$(PREOUT)$(DLLNAME) $(PRELIBS)$(LINKWITH)
+		$(PREOUT)$(DLLNAME) $(PRELIBS)$(LINKWITH) IceRuby.res
 	move $(DLLNAME:.so=.lib) $(LIBNAME)
+
+clean::
+	-del /q IceRuby.res
 
 install:: all
 	copy $(DLLNAME) "$(install_libdir)"

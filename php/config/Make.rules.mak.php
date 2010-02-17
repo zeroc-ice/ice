@@ -130,6 +130,7 @@ CPPFLAGS        = -I"$(ice_dir)\include\stlport" $(CPPFLAGS)
 
 !if "$(OPTIMIZE)" != "yes"
 LIBSUFFIX       = $(LIBSUFFIX)d
+RCFLAGS		= -D_DEBUG
 !endif
 
 ICE_LIBS		= ice$(LIBSUFFIX).lib iceutil$(LIBSUFFIX).lib slice$(LIBSUFFIX).lib
@@ -202,12 +203,15 @@ SLICEPARSERLIB		= $(ice_dir)\lib$(x64suffix)\sliced.lib
 EVERYTHING		= all clean install
 
 .SUFFIXES:
-.SUFFIXES:		.cpp .obj .php
+.SUFFIXES:		.cpp .obj .php .res .rc
 
 all:: $(SRCS)
 
 .cpp.obj::
 	$(CXX) /c $(CPPFLAGS) $(CXXFLAGS) $<
+
+.rc.res:
+	rc $(RCFLAGS) $<
 
 clean::
 	del /q $(TARGETS) *.obj *.bak

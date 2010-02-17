@@ -97,6 +97,7 @@ CPPFLAGS        = -I"$(ice_dir)\include\stlport" $(CPPFLAGS)
 !if "$(OPTIMIZE)" != "yes"
 LIBSUFFIX       = $(LIBSUFFIX)d
 PYLIBSUFFIX     = _$(LIBSUFFIX)
+RCFLAGS		= -D_DEBUG
 !endif
 
 ICE_LIBS		= ice$(LIBSUFFIX).lib iceutil$(LIBSUFFIX).lib slice$(LIBSUFFIX).lib
@@ -150,12 +151,15 @@ MT			= mt.exe
 EVERYTHING		= all clean install
 
 .SUFFIXES:
-.SUFFIXES:		.cpp .obj .py
+.SUFFIXES:		.cpp .obj .py .res .rc
 
 all:: $(SRCS)
 
 .cpp.obj::
 	$(CXX) /c $(CPPFLAGS) $(CXXFLAGS) $<
+
+.rc.res:
+	rc $(RCFLAGS) $<
 
 clean::
 	del /q $(TARGETS) *.obj *.pyc *.bak

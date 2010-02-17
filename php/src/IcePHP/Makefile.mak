@@ -41,10 +41,13 @@ LINKWITH        = $(ICE_LIBS) $(PHP_LIBS) $(CXXLIBS)
 
 $(LIBNAME): $(DLLNAME)
 
-$(DLLNAME): $(OBJS)
+$(DLLNAME): $(OBJS) IcePHP.res
 	$(LINK) $(ICE_LDFLAGS) $(PHP_LDFLAGS) $(LD_DLLFLAGS) $(PDBFLAGS) /export:get_module $(OBJS) \
-		$(PREOUT)$(DLLNAME) $(PRELIBS)$(LINKWITH)
+		$(PREOUT)$(DLLNAME) $(PRELIBS)$(LINKWITH) IcePHP.res
 	move $(DLLNAME:.dll=.lib) $(LIBNAME)
+
+clean::
+	-del /q IcePHP.res
 
 install:: all
 	copy $(DLLNAME) "$(install_libdir)"

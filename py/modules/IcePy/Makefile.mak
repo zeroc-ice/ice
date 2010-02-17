@@ -43,13 +43,17 @@ LINKWITH        = $(ICE_LIBS) $(PYTHON_LIBS) $(CXXLIBS)
 
 $(LIBNAME): $(DLLNAME)
 
-$(DLLNAME): $(OBJS)
+$(DLLNAME): $(OBJS) IcePy.res
 	$(LINK) $(PYTHON_LDFLAGS) $(ICE_LDFLAGS) $(LD_DLLFLAGS) $(PDBFLAGS) $(OBJS) \
-		$(PREOUT)$@ $(PRELIBS)$(LINKWITH)
+		$(PREOUT)$@ $(PRELIBS)$(LINKWITH) IcePy.res
 	move $(@:.pyd=.lib) $(LIBNAME)
 	@if exist $@.manifest echo ^ ^ ^ Embedding manifest using $(MT) && \
 	   $(MT) -nologo -manifest $@.manifest -outputresource:$@;#2 && del /q $@.manifest
 	@if exist $(@:.pyd=.exp) del /q $(@:.pyd=.exp)
+
+
+clean::
+	-del /q IcePy.res
 
 install:: all
 	copy $(DLLNAME) "$(install_libdir)"
