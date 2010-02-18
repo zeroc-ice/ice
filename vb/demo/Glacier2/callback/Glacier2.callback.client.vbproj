@@ -74,14 +74,17 @@
     <Reference Include="Glacier2, Version=3.4.0.0, Culture=neutral, PublicKeyToken=1f998c50fec78381, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\..\cs\bin\Glacier2.dll</HintPath>
+      <Private>True</Private>
     </Reference>
     <Reference Include="Ice, Version=3.4.0.0, Culture=neutral, PublicKeyToken=1f998c50fec78381, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\..\cs\bin\Ice.dll</HintPath>
+      <Private>True</Private>
     </Reference>
     <Reference Include="IceSSL, Version=3.4.0.0, Culture=neutral, PublicKeyToken=1f998c50fec78381, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\..\cs\bin\IceSSL.dll</HintPath>
+      <Private>True</Private>
     </Reference>
     <Reference Include="System">
       <Name>System</Name>
