@@ -1371,44 +1371,53 @@ Activator::setInterrupt()
 int
 Activator::waitPid(pid_t processPid)
 {
-    int status;
-#if defined(__linux)
-    int nRetry = 0;
-    while(true) // The while loop is necessary for the linux workaround.
+    try
     {
+        int status;
+#if defined(__linux)
+        int nRetry = 0;
+        while(true) // The while loop is necessary for the linux workaround.
+        {
+            pid_t pid = waitpid(processPid, &status, 0);
+            if(pid < 0)
+            {
+                //
+                // Some Linux distribution have a bogus waitpid() (e.g.: CentOS 4.x). It doesn't 
+                // block and reports an incorrect ECHILD error on the first call. We sleep a 
+                // little and retry to work around this issue (it appears from testing that a
+                // single retry is enough but to make sure we retry up to 10 times before to throw.)
+                //
+                if(errno == ECHILD && nRetry < 10)
+                {
+                    // Wait 1ms, 11ms, 21ms, etc.
+                    IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(nRetry * 10 + 1)); 
+                    ++nRetry;
+                    continue;
+                }
+                SyscallException ex(__FILE__, __LINE__);
+                ex.error = getSystemErrno();
+                throw ex;
+            }
+            assert(pid == processPid);
+            break;
+        }
+#else
         pid_t pid = waitpid(processPid, &status, 0);
         if(pid < 0)
         {
-            //
-            // Some Linux distribution have a bogus waitpid() (e.g.: CentOS 4.x). It doesn't 
-            // block and reports an incorrect ECHILD error on the first call. We sleep a 
-            // little and retry to work around this issue (it appears from testing that a
-            // single retry is enough but to make sure we retry up to 10 times before to throw.)
-            //
-            if(errno == ECHILD && nRetry < 10)
-            {
-                // Wait 1ms, 11ms, 21ms, etc.
-                IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(nRetry * 10 + 1)); 
-                ++nRetry;
-                continue;
-            }
             SyscallException ex(__FILE__, __LINE__);
             ex.error = getSystemErrno();
             throw ex;
         }
         assert(pid == processPid);
-        break;
-    }
-#else
-    pid_t pid = waitpid(processPid, &status, 0);
-    if(pid < 0)
-    {
-        SyscallException ex(__FILE__, __LINE__);
-        ex.error = getSystemErrno();
-        throw ex;
-    }
-    assert(pid == processPid);
 #endif
-    return status;
+        return status;
+    }
+    catch(const Ice::LocalException& ex)
+    {
+        Error out(_traceLevels->logger);
+        out << "unable to get process status:\n" << ex;
+        return -1;
+    }
 }
 #endif

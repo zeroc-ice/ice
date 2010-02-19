@@ -18,6 +18,16 @@
 namespace IceGrid
 {
 
+class SynchronizationCallback : virtual public IceUtil::Shared
+{
+public:
+
+    virtual void synchronized() = 0;
+
+    virtual void synchronized(const Ice::Exception&) = 0;
+};
+typedef IceUtil::Handle<SynchronizationCallback> SynchronizationCallbackPtr;
+
 template<typename Key, typename Value>
 class Cache : public IceUtil::Monitor<IceUtil::Mutex>
 {

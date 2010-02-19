@@ -39,7 +39,14 @@ public:
 
     ServerProxyWrapper(const DatabasePtr& database, const string& id) : _id(id)
     {
-        _proxy = database->getServer(_id)->getProxy(_activationTimeout, _deactivationTimeout, _node);
+        try
+        {
+            _proxy = database->getServer(_id)->getProxy(_activationTimeout, _deactivationTimeout, _node, false, 5);
+        }
+        catch(const SynchronizationException&)
+        {
+            throw DeploymentException("server is being updated");
+        }
     }
 
     ServerProxyWrapper(const ServerProxyWrapper& wrapper) : 

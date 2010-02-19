@@ -37,9 +37,19 @@ public:
     ServerEntry(ServerCache&, const std::string&);
 
     void sync();
-    void syncAndWait();
-    void waitNoThrow();
+    void waitForSync(int);
+    void waitForSync()
+    {
+        waitForSync(-1);
+    }
+    void waitForSyncNoThrow(int);
+    void waitForSyncNoThrow()
+    {
+        waitForSyncNoThrow(-1);
+    }
     void unsync();
+
+    bool addSyncCallback(const SynchronizationCallbackPtr&);
 
     void update(const ServerInfo&);
     void destroy();
@@ -47,8 +57,8 @@ public:
     ServerInfo getInfo(bool = false) const;
     std::string getId() const;
 
-    ServerPrx getProxy(int&, int&, std::string&, bool = true);
-    ServerPrx getProxy(bool = true);
+    ServerPrx getProxy(int&, int&, std::string&, bool = true, int = 0);
+    ServerPrx getProxy(bool = true, int = 0);
     Ice::ObjectPrx getAdminProxy();
 
     AdapterPrx getAdapter(const std::string&, bool);
@@ -70,8 +80,10 @@ public:
 private:
     
     void syncImpl();
-    void waitImpl();
-    
+    void waitImpl(int);
+    void synchronized();
+    void synchronized(const Ice::Exception&);
+
     ServerCache& _cache;
     const std::string _id;
     std::auto_ptr<ServerInfo> _loaded;
@@ -86,6 +98,7 @@ private:
     bool _synchronizing;
     bool _updated;
     std::auto_ptr<Ice::Exception> _exception;
+    std::vector<SynchronizationCallbackPtr> _callbacks;
 
     SessionIPtr _session;
 };

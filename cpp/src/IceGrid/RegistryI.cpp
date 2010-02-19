@@ -236,7 +236,6 @@ RegistryI::startImpl()
     properties->setProperty("IceGrid.Registry.SessionManager.AdapterId", "");
     properties->setProperty("IceGrid.Registry.Internal.AdapterId", "");
 
-    setupThreadPool(properties, "Ice.ThreadPool.Client", 1, 100);
     setupThreadPool(properties, "IceGrid.Registry.Client.ThreadPool", 1, 10);
     setupThreadPool(properties, "IceGrid.Registry.Server.ThreadPool", 1, 10, true); // Serialize for admin callbacks
     setupThreadPool(properties, "IceGrid.Registry.SessionManager.ThreadPool", 1, 10);
@@ -981,38 +980,6 @@ Ice::ObjectPrx
 RegistryI::createAdminCallbackProxy(const Identity& id) const
 {
     return _serverAdapter->createProxy(id);
-}
-
-void
-RegistryI::setupThreadPool(const PropertiesPtr& properties, const string& name, int size, int sizeMax, bool serialize)
-{
-    if(properties->getPropertyAsIntWithDefault(name + ".Size", 0) < size)
-    {
-        ostringstream os;
-        os << size;
-        properties->setProperty(name + ".Size", os.str());
-    }
-    else
-    {
-        size = properties->getPropertyAsInt(name + ".Size");
-    }
-
-    if(sizeMax > 0 && properties->getPropertyAsIntWithDefault(name + ".SizeMax", 0) < sizeMax)
-    {
-        if(size >= sizeMax)
-        {
-            sizeMax = size * 10;
-        }
-        
-        ostringstream os;
-        os << sizeMax;
-        properties->setProperty(name + ".SizeMax", os.str());
-    }
-
-    if(serialize)
-    {
-        properties->setProperty(name + ".Serialize", "1");
-    }
 }
 
 Glacier2::PermissionsVerifierPrx

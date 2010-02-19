@@ -12,6 +12,7 @@
 #include <Ice/Service.h>
 #include <IceGrid/RegistryI.h>
 #include <IceGrid/TraceLevels.h>
+#include <IceGrid/Util.h>
 
 using namespace std;
 using namespace Ice;
@@ -169,6 +170,11 @@ RegistryService::initializeCommunicator(int& argc, char* argv[],
     {
         initData.properties->setProperty("Ice.Plugin.DB", "IceGridFreezeDB:createFreezeDB");
     }
+
+    //
+    // Setup the client thread pool size.
+    //
+    setupThreadPool(initData.properties, "Ice.ThreadPool.Client", 1, 100);
 
     return Service::initializeCommunicator(argc, argv, initData);
 }

@@ -101,6 +101,7 @@ public:
     AdapterPrx getAdapterProxy(const std::string&, const std::string&, bool);
     void getLocatorAdapterInfo(const std::string&, LocatorAdapterInfoSeq&, int&, bool&, bool&,
                                const std::set<std::string>& = std::set<std::string>());
+    bool addAdapterSyncCallback(const std::string&, const SynchronizationCallbackPtr&);
 
     std::vector<std::pair<std::string, AdapterPrx> > getAdapters(const std::string&, int&, bool&);
     AdapterInfoSeq getAdapterInfo(const std::string&);
@@ -198,9 +199,10 @@ private:
         std::string uuid;
         int revision;
         std::vector<AMD_NodeSession_waitForApplicationUpdatePtr> cbs;
+        bool updated;
 
         UpdateInfo(const std::string& n, const std::string& u, int r) :
-            name(n), uuid(u), revision(r)
+            name(n), uuid(u), revision(r), updated(false)
         {
         }
 
@@ -211,6 +213,22 @@ private:
         bool operator==(const std::pair<std::string, int>& p)
         {
             return uuid == p.first && revision == p.second;
+        }
+
+        void markUpdated()
+        {
+            updated = true;
+            std::vector<AMD_NodeSession_waitForApplicationUpdatePtr>::const_iterator q;
+            for(q = cbs.begin(); q != cbs.end(); ++q)
+            {
+                (*q)->ice_response();
+            }
+            cbs.clear();
+        }
+
+        void unmarkUpdated()
+        {
+            updated = false;
         }
     };
     std::vector<UpdateInfo> _updating;

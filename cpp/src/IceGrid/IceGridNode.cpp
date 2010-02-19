@@ -22,6 +22,7 @@
 #include <IceGrid/NodeSessionManager.h>
 #include <IceGrid/TraceLevels.h>
 #include <IceGrid/DescriptorParser.h>
+#include <IceGrid/Util.h>
 #include <IcePatch2/Util.h>
 
 #ifdef _WIN32
@@ -293,47 +294,7 @@ NodeService::startImpl(int argc, char* argv[], int& status)
         out << "you should set individual adapter thread pools instead.";
     }
     
-    int size = properties->getPropertyAsIntWithDefault("IceGrid.Node.ThreadPool.Size", 0);
-    if(size <= 0)
-    {
-        properties->setProperty("IceGrid.Node.ThreadPool.Size", "1");
-        size = 1;
-    }
-
-    int sizeMax = properties->getPropertyAsIntWithDefault("IceGrid.Node.ThreadPool.SizeMax", 0);
-    if(sizeMax <= 0)
-    {
-        if(size >= sizeMax)
-        {
-            sizeMax = size * 10;
-        }
-        
-        ostringstream os;
-        os << sizeMax;
-        properties->setProperty("IceGrid.Node.ThreadPool.SizeMax", os.str());
-    }
-
-    size = properties->getPropertyAsIntWithDefault("Ice.ThreadPool.Client.Size", 0);
-    if(size <= 0)
-    {
-        properties->setProperty("Ice.ThreadPool.Client.Size", "1");
-        size = 1;
-    }
-    sizeMax = properties->getPropertyAsIntWithDefault("Ice.ThreadPool.Client.SizeMax", 0);
-    if(sizeMax <= 0)
-    {
-        if(size >= sizeMax)
-        {
-            sizeMax = size * 10;
-        }
-        if(sizeMax < 100)
-        {
-            sizeMax = 100;
-        }
-        ostringstream os;
-        os << sizeMax;
-        properties->setProperty("Ice.ThreadPool.Client.SizeMax", os.str());
-    }
+    setupThreadPool(properties, "IceGrid.Node.ThreadPool", 1, 100);
 
     //
     // Create the activator.
@@ -837,6 +798,11 @@ NodeService::initializeCommunicator(int& argc, char* argv[],
     {
         initData.properties->setProperty("Ice.Plugin.DB", "IceGridFreezeDB:createFreezeDB");
     }
+
+    //
+    // Setup the client thread pool size.
+    //
+    setupThreadPool(initData.properties, "Ice.ThreadPool.Client", 1, 100);
 
     return Service::initializeCommunicator(argc, argv, initData);
 }

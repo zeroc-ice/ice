@@ -46,6 +46,8 @@ bool hasProperty(const PropertyDescriptorSeq&, const std::string&);
 PropertyDescriptor createProperty(const std::string&, const std::string& = std::string());
 std::string escapeProperty(const std::string&);
 
+void setupThreadPool(const Ice::PropertiesPtr&, const std::string&, int, int = 0, bool = false);
+
 int getMMVersion(const std::string&);
 
 template<class Function>

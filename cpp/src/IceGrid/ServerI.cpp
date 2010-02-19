@@ -1085,7 +1085,7 @@ ServerI::load(const AMD_Node_loadServerPtr& amdCB, const InternalServerDescripto
         }
         return 0;
     }
-    
+
     if(!StopCommand::isStopped(_state) && !_stop)
     {
         _stop = new StopCommand(this, _node->getTimer(), _deactivationTimeout);

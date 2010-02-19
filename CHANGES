@@ -53,6 +53,9 @@ General Changes
   match the C++, .NET and Java behavior. These overloads no longer
   read the ICE_CONFIG environment variable.
 
+- Fixed IceGrid bug where updating an application could cause a
+  temporary hang if a server deactivation hanged during the update.
+
 
 Python Changes
 ==============

@@ -21,6 +21,9 @@ namespace IceGrid
 
 class AdapterCache;
 
+class SynchronizationCallback;
+typedef IceUtil::Handle<SynchronizationCallback> SynchronizationCallbackPtr;
+
 class ServerEntry;
 typedef IceUtil::Handle<ServerEntry> ServerEntryPtr;
 typedef std::vector<ServerEntryPtr> ServerEntrySeq;
@@ -42,6 +45,8 @@ class AdapterEntry : virtual public IceUtil::Shared
 public:
     
     AdapterEntry(AdapterCache&, const std::string&, const std::string&);
+
+    virtual bool addSyncCallback(const SynchronizationCallbackPtr&) = 0;
 
     virtual void getLocatorAdapterInfo(LocatorAdapterInfoSeq&, int&, bool&, bool&, const std::set<std::string>&) = 0;
     virtual float getLeastLoadedNodeLoad(LoadSample) const = 0;
@@ -68,6 +73,8 @@ public:
     ServerAdapterEntry(AdapterCache&, const std::string&, const std::string&, const std::string&, int, 
                        const ServerEntryPtr&);
 
+    virtual bool addSyncCallback(const SynchronizationCallbackPtr&);
+
     virtual void getLocatorAdapterInfo(LocatorAdapterInfoSeq&, int&, bool&, bool&, const std::set<std::string>&);
     virtual float getLeastLoadedNodeLoad(LoadSample) const;
     virtual AdapterInfoSeq getAdapterInfo() const;
@@ -89,6 +96,8 @@ class ReplicaGroupEntry : public AdapterEntry, public IceUtil::Mutex
 public:
 
     ReplicaGroupEntry(AdapterCache&, const std::string&, const std::string&, const LoadBalancingPolicyPtr&);
+
+    virtual bool addSyncCallback(const SynchronizationCallbackPtr&);
 
     virtual void getLocatorAdapterInfo(LocatorAdapterInfoSeq&, int&, bool&, bool&, const std::set<std::string>&);
     virtual float getLeastLoadedNodeLoad(LoadSample) const;

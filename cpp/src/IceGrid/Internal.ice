@@ -26,6 +26,10 @@
 module IceGrid
 {
 
+local exception SynchronizationException
+{
+};
+
 class InternalDbEnvDescriptor
 {
     /** The name of the database environment. */

@@ -1271,10 +1271,21 @@ allTests(const Ice::CommunicatorPtr& communicator)
             cerr << ex.reason << endl;
             test(false);
         }
-        test(admin->getServerInfo("Server").node == "node-2" && admin->getServerState("Server") == Inactive);
+        while(true)
+        {
+            try
+            {
+                test(admin->getServerInfo("Server").node == "node-2" && admin->getServerState("Server") == Inactive);
 
-        admin->startServer("Server");
-        test(admin->getServerState("Server") == Active);
+                admin->startServer("Server");
+                test(admin->getServerState("Server") == Active);
+                break;
+            }
+            catch(DeploymentException&)
+            {
+                IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(200));
+            }
+        }
 
         IceUtil::ThreadControl::sleep(IceUtil::Time::seconds(1));
 

@@ -221,28 +221,21 @@ ServerEntry::sync()
 }
 
 void
-ServerEntry::syncAndWait()
+ServerEntry::waitForSync(int timeout)
 {
-    syncImpl();
-    try
-    {
-        waitImpl();
-    }
-    catch(const NodeUnreachableException&)
-    {
-        //
-        // The node being unreachable isn't considered as a failure to
-        // synchronize the server.
-        //
-    }
+    waitImpl(timeout);
 }
 
 void
-ServerEntry::waitNoThrow()
+ServerEntry::waitForSyncNoThrow(int timeout)
 {
     try
     {
-        waitImpl();
+        waitImpl(timeout);
+    }
+    catch(SynchronizationException&)
+    {
+        assert(timeout >= 0);
     }
     catch(const Ice::Exception&)
     {
@@ -261,6 +254,21 @@ ServerEntry::unsync()
     _adapters.clear();
     _activationTimeout = -1;
     _deactivationTimeout = -1;
+}
+
+bool
+ServerEntry::addSyncCallback(const SynchronizationCallbackPtr& callback)
+{
+    Lock sync(*this);
+    if(!_loaded.get() && !_load.get())
+    {
+        throw ServerNotExistException();
+    }
+    if(_synchronizing)
+    {
+        _callbacks.push_back(callback);
+    }
+    return _synchronizing;
 }
 
 void
@@ -363,7 +371,7 @@ ServerEntry::getId() const
 }
 
 ServerPrx
-ServerEntry::getProxy(bool upToDate)
+ServerEntry::getProxy(bool upToDate, int timeout)
 {
     //
     // NOTE: this might throw ServerNotExistException, NodeUnreachableException 
@@ -372,38 +380,18 @@ ServerEntry::getProxy(bool upToDate)
 
     int actTimeout, deactTimeout;
     string node;
-    return getProxy(actTimeout, deactTimeout, node, upToDate);
+    return getProxy(actTimeout, deactTimeout, node, upToDate, timeout);
 }
 
 ServerPrx
-ServerEntry::getProxy(int& activationTimeout, int& deactivationTimeout, string& node, bool upToDate)
+ServerEntry::getProxy(int& activationTimeout, int& deactivationTimeout, string& node, bool upToDate, int timeout)
 {
     //
     // NOTE: this might throw ServerNotExistException, NodeUnreachableException 
     // or DeploymentException.
     //
-
-    {
-        Lock sync(*this);
-        if(_loaded.get() || (_proxy && _synchronizing && !upToDate)) // Synced or if not up to date is fine
-        {
-            assert(_loaded.get() || _load.get() || _destroy.get());
-            activationTimeout = _activationTimeout;
-            deactivationTimeout = _deactivationTimeout;
-            node = _loaded.get() ? _loaded->node : (_load.get() ? _load->node : _destroy->node);
-            return _proxy;
-        }
-    }
-
     while(true)
     {
-        //
-        // Note that we don't call syncAndWait() because we want
-        // NodeUnreachableException exceptions to go through.
-        //
-        syncImpl();
-        waitImpl();
-
         {
             Lock sync(*this);
             if(_loaded.get() || (_proxy && _synchronizing && !upToDate)) // Synced or if not up to date is fine
@@ -414,15 +402,14 @@ ServerEntry::getProxy(int& activationTimeout, int& deactivationTimeout, string& 
                 node = _loaded.get() ? _loaded->node : (_load.get() ? _load->node : _destroy->node);
                 return _proxy;
             }
-            else if(_load.get())
-            {
-                continue; // Retry
-            }
-            else
+            else if(!_load.get() && !_destroy.get())
             {
                 throw ServerNotExistException(_id);
             }
         }
+
+        syncImpl();
+        waitImpl(timeout);
     }
 }
 
@@ -435,7 +422,14 @@ ServerEntry::getAdminProxy()
     Ice::Identity adminId;
     adminId.name = _id;
     adminId.category = _cache.getInstanceName() + "-NodeRouter";
-    return getProxy(true)->ice_identity(adminId);
+    try
+    {
+        return getProxy(true)->ice_identity(adminId);
+    }
+    catch(const SynchronizationException&)
+    {
+    }
+    return 0;
 }
 
 AdapterPrx
@@ -457,35 +451,8 @@ ServerEntry::getAdapter(int& activationTimeout, int& deactivationTimeout, const 
     // NOTE: this might throw AdapterNotExistException, NodeUnreachableException 
     // or DeploymentException.
     //
-
-    {
-        Lock sync(*this);
-        if(_loaded.get() || (_proxy && _synchronizing && !upToDate)) // Synced or if not up to date is fine
-        {
-            AdapterPrxDict::const_iterator p = _adapters.find(id);
-            if(p != _adapters.end())
-            {
-                assert(p->second);
-                activationTimeout = _activationTimeout;
-                deactivationTimeout = _deactivationTimeout;
-                return p->second;
-            }
-            else
-            {
-                throw AdapterNotExistException(id);
-            }
-        }
-    }
-
     while(true)
-    {    
-        //
-        // Note that we don't call syncAndWait() because we want
-        // NodeUnreachableException exceptions to go through.
-        //
-        syncImpl();
-        waitImpl();
-
+    {
         {
             Lock sync(*this);
             if(_loaded.get() || (_proxy && _synchronizing && !upToDate)) // Synced or if not up to date is fine
@@ -493,6 +460,7 @@ ServerEntry::getAdapter(int& activationTimeout, int& deactivationTimeout, const 
                 AdapterPrxDict::const_iterator p = _adapters.find(id);
                 if(p != _adapters.end())
                 {
+                    assert(p->second);
                     activationTimeout = _activationTimeout;
                     deactivationTimeout = _deactivationTimeout;
                     return p->second;
@@ -502,15 +470,14 @@ ServerEntry::getAdapter(int& activationTimeout, int& deactivationTimeout, const 
                     throw AdapterNotExistException(id);
                 }
             }
-            else if(_load.get())
+            else if(!_load.get() && !_destroy.get())
             {
-                continue; // Retry
-            }
-            else
-            {
-                throw AdapterNotExistException(id);                 
+                throw AdapterNotExistException(id);
             }
         }
+
+        syncImpl();
+        waitImpl(0); // Don't wait, just check for the result or throw SynchronizationException
     }
 }
 
@@ -620,12 +587,29 @@ ServerEntry::syncImpl()
 }
 
 void
-ServerEntry::waitImpl()
+ServerEntry::waitImpl(int timeout)
 {
     Lock sync(*this);
-    while(_synchronizing)
+    if(timeout != 0)
     {
-        wait();
+        while(_synchronizing)
+        {
+            if(timeout > 0)
+            {
+                if(!timedWait(IceUtil::Time::seconds(timeout)))
+                {
+                    break; // Timeout
+                }
+            }
+            else 
+            {
+                wait();
+            }
+        }
+    }
+    if(_synchronizing) // If we are still synchronizing, throw SynchronizationException
+    {
+        throw SynchronizationException(__FILE__, __LINE__);
     }
 
     if(_exception.get())
@@ -658,12 +642,55 @@ ServerEntry::waitImpl()
 }
     
 void
+ServerEntry::synchronized()
+{
+    vector<SynchronizationCallbackPtr> callbacks;
+    {
+        Lock sync(*this);
+        _callbacks.swap(callbacks);
+    }
+    for(vector<SynchronizationCallbackPtr>::const_iterator p = callbacks.begin(); p != callbacks.end(); ++p)
+    {
+        try
+        {
+            (*p)->synchronized();
+        }
+        catch(...)
+        {
+            assert(false);
+        }
+    }
+}
+
+void
+ServerEntry::synchronized(const Ice::Exception& ex)
+{
+    vector<SynchronizationCallbackPtr> callbacks;
+    {
+        Lock sync(*this);
+        _callbacks.swap(callbacks);
+    }
+    for(vector<SynchronizationCallbackPtr>::const_iterator p = callbacks.begin(); p != callbacks.end(); ++p)
+    {
+        try
+        {
+            (*p)->synchronized(ex);
+        }
+        catch(...)
+        {
+            assert(false);
+        }
+    }
+}
+
+void
 ServerEntry::loadCallback(const ServerPrx& proxy, const AdapterPrxDict& adpts, int at, int dt)
 {
     ServerInfo load;
     SessionIPtr session;
     ServerInfo destroy;
     int timeout = -1;
+    bool synced = false;
 
     {
         Lock sync(*this);
@@ -685,8 +712,8 @@ ServerEntry::loadCallback(const ServerPrx& proxy, const AdapterPrxDict& adpts, i
 
             assert(!_destroy.get() && !_load.get());
             _synchronizing = false;
+            synced = true;
             notifyAll();
-            return;
         }
         else
         {
@@ -702,6 +729,12 @@ ServerEntry::loadCallback(const ServerPrx& proxy, const AdapterPrxDict& adpts, i
                 timeout = _deactivationTimeout; // loadServer might block to deactivate the previous server.
             }
         }
+    }
+
+    if(synced)
+    {
+        synchronized();
+        return;
     }
 
     assert(destroy.descriptor || load.descriptor);
@@ -770,6 +803,7 @@ ServerEntry::destroyCallback()
     }
     else
     {
+        synchronized();
         _cache.clear(_id);
     }
 }
@@ -817,9 +851,13 @@ ServerEntry::exception(const Ice::Exception& ex)
             exception(NodeUnreachableException(load.node, "node is not active"));
         }
     }
-    else if(remove)
+    else
     {
-        _cache.clear(_id);
+        synchronized(ex);
+        if(remove)
+        {
+            _cache.clear(_id);
+        }
     }
 }
 
@@ -928,7 +966,7 @@ ServerEntry::allocatedNoSync(const SessionIPtr& session)
     }
     
     sync();
-    waitNoThrow();
+    waitForSyncNoThrow();
 }
 
 void
@@ -1022,5 +1060,5 @@ ServerEntry::releasedNoSync(const SessionIPtr& session)
     }
 
     sync();
-    waitNoThrow();
+    waitForSyncNoThrow();
 }

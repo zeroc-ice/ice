@@ -244,14 +244,11 @@ NodeSessionI::loadServers_async(const AMD_NodeSession_loadServersPtr& amdCB, con
     //
     // Get the server proxies to load them on the node.
     //
-    try
+    ServerEntrySeq servers = _database->getNode(_info->name)->getServers();
+    for(ServerEntrySeq::const_iterator p = servers.begin(); p != servers.end(); ++p)
     {
-        ServerEntrySeq servers = _database->getNode(_info->name)->getServers();
-        for_each(servers.begin(), servers.end(), IceUtil::voidMemFun(&ServerEntry::syncAndWait));
-    }
-    catch(const DeploymentException&)
-    {
-        // Ignore.
+        (*p)->sync();
+        (*p)->waitForSyncNoThrow(1); // Don't wait too long.
     }
 }
 

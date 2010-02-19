@@ -19,6 +19,9 @@ namespace IceGrid
 class Database;
 typedef IceUtil::Handle<Database> DatabasePtr;
 
+class TraceLevels;
+typedef IceUtil::Handle<TraceLevels> TraceLevelsPtr;
+
 class ReplicaSessionManager;
 
 class LocatorRegistryI : public Ice::LocatorRegistry
@@ -37,10 +40,12 @@ public:
     virtual void setServerProcessProxy_async(const Ice::AMD_LocatorRegistry_setServerProcessProxyPtr&,
                                              const ::std::string&, const ::Ice::ProcessPrx&, const ::Ice::Current&);
 
-private:
-
     void setAdapterDirectProxy(const AMI_Adapter_setDirectProxyPtr&, const std::string&, const std::string&,
                                const Ice::ObjectPrx&);
+
+    const TraceLevelsPtr& getTraceLevels() const;
+
+private:
     
     const DatabasePtr _database;
     const bool _dynamicRegistration;

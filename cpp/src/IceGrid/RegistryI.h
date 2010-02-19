@@ -89,7 +89,6 @@ private:
     Ice::ObjectAdapterPtr setupAdminSessionFactory(const Ice::ObjectAdapterPtr&, const Ice::ObjectPtr&, 
                                                    const LocatorPrx&);
 
-    void setupThreadPool(const Ice::PropertiesPtr&, const std::string&, int, int = 0, bool = false);
     Glacier2::PermissionsVerifierPrx getPermissionsVerifier(const Ice::ObjectAdapterPtr&, const LocatorPrx&,
                                                             const std::string&, const std::string&);
 

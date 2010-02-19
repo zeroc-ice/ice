@@ -231,19 +231,40 @@ AdminSessionI::getReplicaName(const Ice::Current& current) const
 FileIteratorPrx
 AdminSessionI::openServerLog(const string& id, const string& path, int nLines, const Ice::Current& current)
 {
-    return addFileIterator(_database->getServer(id)->getProxy(), "#" + path, nLines, current);
+    try
+    {
+        return addFileIterator(_database->getServer(id)->getProxy(false, 5), "#" + path, nLines, current);
+    }
+    catch(const SynchronizationException&)
+    {
+        throw DeploymentException("server is being updated");
+    }
 }
 
 FileIteratorPrx 
 AdminSessionI::openServerStdOut(const string& id, int nLines, const Ice::Current& current)
 {
-    return addFileIterator(_database->getServer(id)->getProxy(), "stdout", nLines, current);
+    try
+    {
+        return addFileIterator(_database->getServer(id)->getProxy(false, 5), "stdout", nLines, current);
+    }
+    catch(const SynchronizationException&)
+    {
+        throw DeploymentException("server is being updated");
+    }
 }
 
 FileIteratorPrx 
 AdminSessionI::openServerStdErr(const string& id, int nLines, const Ice::Current& current)
 {
-    return addFileIterator(_database->getServer(id)->getProxy(), "stderr", nLines, current);
+    try
+    {
+        return addFileIterator(_database->getServer(id)->getProxy(false, 5), "stderr", nLines, current);
+    }
+    catch(const SynchronizationException&)
+    {
+        throw DeploymentException("server is being updated");
+    }
 }
 
 FileIteratorPrx 

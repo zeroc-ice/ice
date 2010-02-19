@@ -229,6 +229,19 @@ ServerAdapterEntry::ServerAdapterEntry(AdapterCache& cache,
 {
 }
 
+bool
+ServerAdapterEntry::addSyncCallback(const SynchronizationCallbackPtr& callback)
+{
+    try
+    {
+        return _server->addSyncCallback(callback);
+    }
+    catch(const ServerNotExistException&)
+    {
+        throw AdapterNotExistException(_id);
+    }
+}
+
 void
 ServerAdapterEntry::getLocatorAdapterInfo(LocatorAdapterInfoSeq& adapters, int& nReplicas, bool& replicaGroup, 
                                           bool& roundRobin, const set<string>&)
@@ -278,6 +291,9 @@ ServerAdapterEntry::getAdapterInfo() const
     {
         info.proxy = _server->getAdapter(_id, true)->getDirectProxy();
     }
+    catch(const SynchronizationException&)
+    {
+    }
     catch(const Ice::Exception&)
     {
     }
@@ -317,6 +333,12 @@ ReplicaGroupEntry::ReplicaGroupEntry(AdapterCache& cache,
     _lastReplica(0)
 {
     update(policy);
+}
+
+bool
+ReplicaGroupEntry::addSyncCallback(const SynchronizationCallbackPtr&)
+{
+    return false;
 }
 
 void
@@ -464,6 +486,9 @@ ReplicaGroupEntry::getLocatorAdapterInfo(LocatorAdapterInfoSeq& adapters, int& n
             {
             }
             catch(const DeploymentException&)
+            {
+            }
+            catch(const SynchronizationException&)
             {
             }
         }
