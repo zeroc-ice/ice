@@ -348,7 +348,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
         to->op(); // Force connection.
         try
         {
-            to->sleep(1500);
+            to->sleep(2000);
             test(false);
         }
         catch(const Ice::TimeoutException&)

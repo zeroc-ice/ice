@@ -159,7 +159,7 @@ def allTests(communicator)
     #
     to.op() # Force connection.
     begin
-        to.sleep(1500)
+        to.sleep(2000)
         test(false)
     rescue Ice::TimeoutException
         # Expected.

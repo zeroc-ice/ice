@@ -220,7 +220,7 @@ def allTests(communicator, collocated):
     #
     to.op() # Force connection.
     try:
-        to.sleep(1500)
+        to.sleep(2000)
         test(False)
     except Ice.TimeoutException:
        pass # Expected.

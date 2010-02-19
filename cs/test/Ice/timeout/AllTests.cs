@@ -362,7 +362,7 @@ public class AllTests
             to.op(); // Force connection.
             try
             {
-                to.sleep(1500);
+                to.sleep(2000);
                 test(false);
             }
             catch(Ice.TimeoutException)
