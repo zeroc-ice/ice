@@ -21,9 +21,10 @@ that most distributed applications require, such as event distribution
 or server management.
 
 Ice is available under the terms and conditions of the GNU General
-Public License v2 (see the ICE_LICENSE file). Commercial licenses are
-available for customers who wish to use Ice in proprietary products.
-Please contact sales@zeroc.com for more information on licensing Ice.
+Public License v2 (see the ICE_LICENSE.txt file). Commercial licenses
+are available for customers who wish to use Ice in proprietary 
+products. Please contact sales@zeroc.com for more information on 
+licensing Ice.
 
 
 Table of Contents
