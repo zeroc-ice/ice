@@ -97,7 +97,6 @@ Grammar.cpp Grammar.h: Grammar.y
 
 clean::
 	-del /q IceStormInternal.cpp IceStormInternal.h
-	-del /q LinkRecord.cpp LinkRecord.h
 	-del /q LLURecord.cpp LLURecord.h
 	-del /q Election.cpp Election.h
 	-del /q SubscriberRecord.cpp SubscriberRecord.h

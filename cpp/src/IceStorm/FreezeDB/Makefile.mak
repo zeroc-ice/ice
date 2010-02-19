@@ -98,9 +98,10 @@ V31FormatDB.h V31FormatDB.cpp: V31Format.ice $(SLICE2FREEZE) $(SLICEPARSERLIB)
 clean::
 	-del /q LLUMap.h LLUMap.cpp
 	-del /q SubscriberMap.h SubscriberMap.cpp
-	-del /q V32FormatDB.cpp V31FormatDB.cpp V31FormatDB.h V31FormatDB.h
-	-del /q V32Migrate.cpp V32Migrate.h
-	-del /q V31Migrate.cpp V31Migrate.h
+	-del /q LinkRecord.cpp LinkRecord.h
+	-del /q V32FormatDB.cpp V31FormatDB.cpp V32FormatDB.h V31FormatDB.h
+	-del /q V32Format.cpp V32Format.h
+	-del /q V31Format.cpp V31Format.h
 	-del /q $(MIGRATE:.exe=.*)
 	-del /q IceStormFreezeDB.res IceStormMigrate.res
 
