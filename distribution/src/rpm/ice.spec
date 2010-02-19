@@ -116,14 +116,14 @@ BuildRequires: libqt4-devel >= 4.4.3
 %endif
 
 %description
-Ice is a modern alternative to object middleware such as CORBA or
-COM/DCOM/COM+.  It is easy to learn, yet provides a powerful network
-infrastructure for demanding technical applications. It features an
-object-oriented specification language, easy to use C++, .NET, Java,
-Python, Ruby, and PHP mappings, a highly efficient protocol, 
-asynchronous method invocation and dispatch, dynamic transport 
-plug-ins, TCP/IP and UDP/IP support, SSL-based security, a firewall
-solution, and much more.
+Ice is a modern object-oriented toolkit that enables you to build
+distributed applications with minimal effort. Ice allows you to focus
+your efforts on your application logic while it takes care of all
+interactions with low-level network programming interfaces. With Ice,
+there is no need to worry about details such as opening network
+connections, serializing and deserializing data for network
+transmission, or retrying failed connection attempts (to name but a
+few of dozens of such low-level details).
 
 #
 # We create both noarch and arch-specific packages for these GAC files.
