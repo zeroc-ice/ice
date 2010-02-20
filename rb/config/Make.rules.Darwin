@@ -21,9 +21,9 @@ CXX	                = c++
 CXXFLAGS		= -ftemplate-depth-128 -Wall -D_REENTRANT
 
 ifeq ($(OPTIMIZE),yes)
-     CXXFLAGS		:= -O2 -DNDEBUG $(CXXFLAGS)
+     CXXFLAGS		:= $(CXXARCHFLAGS) -O2 -DNDEBUG $(CXXFLAGS)
 else
-     CXXFLAGS		:= -g $(CXXFLAGS)
+     CXXFLAGS		:= $(CXXARCHFLAGS) -g $(CXXFLAGS)
 endif
 
 #
