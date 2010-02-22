@@ -11,13 +11,20 @@
 # Select an installation base directory. The directory will be created
 # if it does not exist.
 #
-prefix			 ?= /opt/Ice-$(VERSION)
+prefix			?= /opt/Ice-$(VERSION)
 
 #
 # The "root directory" for runpath embedded in executables. Can be unset
 # to avoid adding a runpath to Ice executables.
 #
-embedded_runpath_prefix  ?= /opt/Ice-$(VERSION_MAJOR).$(VERSION_MINOR)
+embedded_runpath_prefix ?= /opt/Ice-$(VERSION_MAJOR).$(VERSION_MINOR)
+
+#
+# Define create_runpath_symlink as yes if you would like 'make install'
+# to automatically create a symbolic link for the embedded runpath
+# directory. Only applies if embedded_runpath_prefix is also set.
+#
+create_runpath_symlink	?= no
 
 #
 # Define OPTIMIZE as yes if you want to build with
@@ -166,7 +173,8 @@ install_configdir 	:= $(prefix)/config
 
 ifneq ($(embedded_runpath_prefix),)
     runpath_libdir	:= $(embedded_runpath_prefix)/$(libsubdir)
-    create_runpath_symlink ?= yes
+else
+    create_runpath_symlink = no
 endif
 
 OPENSSL_FLAGS           = $(if $(OPENSSL_HOME),-I$(OPENSSL_HOME)/include)
