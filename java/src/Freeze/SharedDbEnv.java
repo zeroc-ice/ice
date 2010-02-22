@@ -390,6 +390,11 @@ public class SharedDbEnv implements com.sleepycat.db.ErrorHandler, Runnable
             cleanup();
             throw ex;
         }
+        catch(java.lang.Error ex)
+        {
+            cleanup();
+            throw ex;
+        }
 
         _refCount = 1;
     }
@@ -406,19 +411,16 @@ public class SharedDbEnv implements com.sleepycat.db.ErrorHandler, Runnable
             notify();
         }
         
-        for(;;)
+        while(_thread != null)
         {
-            if(_thread != null)
+            try
             {
-                try
-                {
-                    _thread.join();
-                    _thread = null;
-                    break;
-                }
-                catch(InterruptedException ex)
-                {
-                }
+                _thread.join();
+                _thread = null;
+                break;
+            }
+            catch(InterruptedException ex)
+            {
             }
         }
         
