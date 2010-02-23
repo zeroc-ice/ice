@@ -72,6 +72,8 @@ This distribution only includes Intel binaries. If you need PowerPC
 binaries, you can download the Ice source code from the ZeroC web site
 at http://www.zeroc.com/download.html.
 
+The Intel binaries from this distribution are FAT binaries with
+support for both 32-bit and 64-bit architectures.
 
 Java
 ----
@@ -93,7 +95,7 @@ code from the ZeroC web site at http://www.zeroc.com/download.html.
 ======================================================================
 
 This distribution includes the C++ and Java run time for Berkeley DB
-4.8.24 and the Expat 2.0.0 library. The Berkeley DB C++ run time was
+4.8.24 and the Expat 2.0.1 library. The Berkeley DB C++ run time was
 built using GCC 4.2.1. The Berkeley DB and Expat licenses are provided
 in the file THIRD_PARTY_LICENSE.
 
@@ -102,7 +104,7 @@ in the file THIRD_PARTY_LICENSE.
 4. Qt
 ======================================================================
 
-The IceGrid and IceStorm SQL database plugins depend on the Qt 4.6
+The IceGrid and IceStorm SQL database plugins depend on the Qt 4.6.2
 framework. This framework is not included with this distribution. You
 can download binaries for the Qt framework at
 http://qt.nokia.com/downloads.
@@ -156,6 +158,10 @@ $ c++ -I <Ice installation directory>/include -o myprogram myprogram.o \
 Additional libraries are necessary if you are using an Ice service
 such as IceGrid or Glacier2.
 
+To build FAT binaries or binaries using an architecture that differs
+from the default architecture, you can specify the GCC -arch compiler
+flag. For example, use "-arch i386 -arch x86_64" to build Intel 32-bit
+and 64-bit FAT binaries.
 
 Java
 ----

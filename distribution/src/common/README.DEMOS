@@ -65,12 +65,13 @@ To build the demos you need to:
     $ICE_HOME/lib/sparcv9 on Solaris for SPARC 64-bit and
     $ICE_HOME/lib/amd64 on Solaris for x86 64-bit.
 
-  - Review the build settings found in config/Make.rules (C++), 
+  - Review the build settings found in config/Make.rules (C++),
     config/Make.rules.cs (C#), config/Make.rules.php (PHP) and
     config/build.properties (Java) and adjust any you want changed.
     For example, for C++ and C#, set OPTIMIZE=yes in order to build
     with optimization, or for C++ set LP64=yes if you are building
-    against a 64-bit Ice installation.
+    against a 64-bit Ice installation (on Mac OS X, set CXXARCHFLAGS
+    to build 32-bit and 64-bit FAT binaries).
 
   - Build the demos. For example:
 
