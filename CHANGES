@@ -57,6 +57,13 @@ General Changes
   temporary hang if a server deactivation hanged during the update.
 
 
+C++ Changes
+===========
+
+- Renamed the createIceStringConverter function back to
+  createStringConverter for compatibility with previous releases.
+
+
 Python Changes
 ==============
 
