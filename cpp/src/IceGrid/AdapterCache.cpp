@@ -473,7 +473,9 @@ ReplicaGroupEntry::addSyncCallback(const SynchronizationCallbackPtr& callback, c
         }
     }
 
-    ReplicaGroupSyncCallbackPtr cb = new ReplicaGroupSyncCallback(callback, replicas.size(), nReplicas);
+    ReplicaGroupSyncCallbackPtr cb = new ReplicaGroupSyncCallback(callback, 
+                                                                  static_cast<int>(replicas.size()), 
+                                                                  nReplicas);
     set<string> emptyExcludes;
     for(vector<ServerAdapterEntryPtr>::const_iterator p = replicas.begin(); p != replicas.end(); ++p)
     {
