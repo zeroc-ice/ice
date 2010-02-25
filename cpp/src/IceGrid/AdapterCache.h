@@ -46,7 +46,7 @@ public:
     
     AdapterEntry(AdapterCache&, const std::string&, const std::string&);
 
-    virtual bool addSyncCallback(const SynchronizationCallbackPtr&) = 0;
+    virtual bool addSyncCallback(const SynchronizationCallbackPtr&, const std::set<std::string>&) = 0;
 
     virtual void getLocatorAdapterInfo(LocatorAdapterInfoSeq&, int&, bool&, bool&, const std::set<std::string>&) = 0;
     virtual float getLeastLoadedNodeLoad(LoadSample) const = 0;
@@ -73,7 +73,7 @@ public:
     ServerAdapterEntry(AdapterCache&, const std::string&, const std::string&, const std::string&, int, 
                        const ServerEntryPtr&);
 
-    virtual bool addSyncCallback(const SynchronizationCallbackPtr&);
+    virtual bool addSyncCallback(const SynchronizationCallbackPtr&, const std::set<std::string>&);
 
     virtual void getLocatorAdapterInfo(LocatorAdapterInfoSeq&, int&, bool&, bool&, const std::set<std::string>&);
     virtual float getLeastLoadedNodeLoad(LoadSample) const;
@@ -97,7 +97,7 @@ public:
 
     ReplicaGroupEntry(AdapterCache&, const std::string&, const std::string&, const LoadBalancingPolicyPtr&);
 
-    virtual bool addSyncCallback(const SynchronizationCallbackPtr&);
+    virtual bool addSyncCallback(const SynchronizationCallbackPtr&, const std::set<std::string>&);
 
     virtual void getLocatorAdapterInfo(LocatorAdapterInfoSeq&, int&, bool&, bool&, const std::set<std::string>&);
     virtual float getLeastLoadedNodeLoad(LoadSample) const;

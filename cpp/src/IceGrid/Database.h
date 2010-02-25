@@ -101,7 +101,8 @@ public:
     AdapterPrx getAdapterProxy(const std::string&, const std::string&, bool);
     void getLocatorAdapterInfo(const std::string&, LocatorAdapterInfoSeq&, int&, bool&, bool&,
                                const std::set<std::string>& = std::set<std::string>());
-    bool addAdapterSyncCallback(const std::string&, const SynchronizationCallbackPtr&);
+    bool addAdapterSyncCallback(const std::string&, const SynchronizationCallbackPtr&, 
+                                const std::set<std::string>& = std::set<std::string>());
 
     std::vector<std::pair<std::string, AdapterPrx> > getAdapters(const std::string&, int&, bool&);
     AdapterInfoSeq getAdapterInfo(const std::string&);

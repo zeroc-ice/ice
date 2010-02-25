@@ -1005,10 +1005,12 @@ Database::getLocatorAdapterInfo(const string& id,
 }
 
 bool
-Database::addAdapterSyncCallback(const string& id, const SynchronizationCallbackPtr& callback)
+Database::addAdapterSyncCallback(const string& id, 
+                                 const SynchronizationCallbackPtr& callback,
+                                 const std::set<std::string>& excludes)
 {
     Lock sync(*this); // Make sure this isn't call during an update.
-    return _adapterCache.get(id)->addSyncCallback(callback);
+    return _adapterCache.get(id)->addSyncCallback(callback, excludes);
 }
 
 AdapterInfoSeq
