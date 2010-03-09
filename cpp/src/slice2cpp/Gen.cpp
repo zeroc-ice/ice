@@ -6629,21 +6629,34 @@ Slice::Gen::StreamVisitor::visitModuleStart(const ModulePtr& m)
     {
         return false;
     }
-    H.zeroIndent();
-    H << nl << "#if defined(_MSC_VER) && (_MSC_VER < 1300) // VC++ 6 compiler bug"; // COMPILERFIX
-    H << nl << "#else";
-    H.restoreIndent();
-    H << nl << "namespace Ice" << nl << '{';
+    if(UnitPtr::dynamicCast(m->container()))
+    {
+        //
+        // Only emit this for the top-level module.
+        //
+        H << sp;
+        H.zeroIndent();
+        H << nl << "#if defined(_MSC_VER) && (_MSC_VER < 1300) // VC++ 6 compiler bug"; // COMPILERFIX
+        H << nl << "#else";
+        H.restoreIndent();
+        H << nl << "namespace Ice" << nl << '{';
+    }
     return true;
 }
 
 void
-Slice::Gen::StreamVisitor::visitModuleEnd(const ModulePtr&)
+Slice::Gen::StreamVisitor::visitModuleEnd(const ModulePtr& m)
 {
-    H << nl << '}';
-    H.zeroIndent();
-    H << nl << "#endif";
-    H.restoreIndent();
+    if(UnitPtr::dynamicCast(m->container()))
+    {
+        //
+        // Only emit this for the top-level module.
+        //
+        H << nl << '}';
+        H.zeroIndent();
+        H << nl << "#endif";
+        H.restoreIndent();
+    }
 }
 
 bool
