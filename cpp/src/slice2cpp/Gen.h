@@ -445,9 +445,7 @@ private:
         virtual bool visitModuleStart(const ModulePtr&);
         virtual void visitModuleEnd(const ModulePtr&);
         virtual bool visitStructStart(const StructPtr&);
-        virtual void visitStructEnd(const StructPtr&);
         virtual bool visitExceptionStart(const ExceptionPtr&);
-        virtual void visitExceptionEnd(const ExceptionPtr&);
         virtual void visitEnum(const EnumPtr&);
 
     private:

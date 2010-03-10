@@ -165,7 +165,7 @@ run(int argc, char** argv, const Ice::CommunicatorPtr& communicator)
 {
 #if defined(_MSC_VER) && (_MSC_VER < 1300)
 //
-// VC++ 6 compiler bugs doesn't allow to write 
+// VC++ 6 compiler bugs doesn't allow to write
 // the Stream API using c++ templates.
 //
 // see: http://support.microsoft.com/kb/240866
@@ -183,7 +183,7 @@ run(int argc, char** argv, const Ice::CommunicatorPtr& communicator)
 
 #if defined(_MSC_VER) && (_MSC_VER < 1300)
 //
-// VC++ 6 compiler bugs doesn't allow to write 
+// VC++ 6 compiler bugs doesn't allow to write
 // the Stream API using c++ templates.
 //
 // see: http://support.microsoft.com/kb/240866
@@ -367,7 +367,7 @@ run(int argc, char** argv, const Ice::CommunicatorPtr& communicator)
         out = Ice::createOutputStream(communicator);
         out->write(arr);
         out->finished(data);
-        
+
         in = Ice::createInputStream(communicator, data);
         Test::BoolS arr2;
         in->read(arr2);
@@ -381,7 +381,7 @@ run(int argc, char** argv, const Ice::CommunicatorPtr& communicator)
         out = Ice::createOutputStream(communicator);
         out->write(arrS);
         out->finished(data);
-        
+
         in = Ice::createInputStream(communicator, data);
         Test::BoolSS arr2S;
         in->read(arr2S);
@@ -411,7 +411,7 @@ run(int argc, char** argv, const Ice::CommunicatorPtr& communicator)
         out = Ice::createOutputStream(communicator);
         out->write(arrS);
         out->finished(data);
-        
+
         in = Ice::createInputStream(communicator, data);
         Test::ByteSS arr2S;
         in->read(arr2S);
@@ -440,7 +440,7 @@ run(int argc, char** argv, const Ice::CommunicatorPtr& communicator)
         out = Ice::createOutputStream(communicator);
         out->write(arrS);
         out->finished(data);
-        
+
         in = Ice::createInputStream(communicator, data);
         Test::ShortSS arr2S;
         in->read(arr2S);
@@ -469,7 +469,7 @@ run(int argc, char** argv, const Ice::CommunicatorPtr& communicator)
         out = Ice::createOutputStream(communicator);
         out->write(arrS);
         out->finished(data);
-        
+
         in = Ice::createInputStream(communicator, data);
         Test::IntSS arr2S;
         in->read(arr2S);
@@ -498,7 +498,7 @@ run(int argc, char** argv, const Ice::CommunicatorPtr& communicator)
         out = Ice::createOutputStream(communicator);
         out->write(arrS);
         out->finished(data);
-        
+
         in = Ice::createInputStream(communicator, data);
         Test::LongSS arr2S;
         in->read(arr2S);
@@ -527,7 +527,7 @@ run(int argc, char** argv, const Ice::CommunicatorPtr& communicator)
         out = Ice::createOutputStream(communicator);
         out->write(arrS);
         out->finished(data);
-        
+
         in = Ice::createInputStream(communicator, data);
         Test::FloatSS arr2S;
         in->read(arr2S);
@@ -556,7 +556,7 @@ run(int argc, char** argv, const Ice::CommunicatorPtr& communicator)
         out = Ice::createOutputStream(communicator);
         out->write(arrS);
         out->finished(data);
-        
+
         in = Ice::createInputStream(communicator, data);
         Test::DoubleSS arr2S;
         in->read(arr2S);
@@ -585,7 +585,7 @@ run(int argc, char** argv, const Ice::CommunicatorPtr& communicator)
         out = Ice::createOutputStream(communicator);
         out->write(arrS);
         out->finished(data);
-        
+
         in = Ice::createInputStream(communicator, data);
         Test::StringSS arr2S;
         in->read(arr2S);
@@ -615,7 +615,7 @@ run(int argc, char** argv, const Ice::CommunicatorPtr& communicator)
         out = Ice::createOutputStream(communicator);
         out->write(arrS);
         out->finished(data);
-        
+
         in = Ice::createInputStream(communicator, data);
         Test::MyEnumSS arr2S;
         in->read(arr2S);
@@ -661,7 +661,7 @@ run(int argc, char** argv, const Ice::CommunicatorPtr& communicator)
         out = Ice::createOutputStream(communicator);
         out->write(arrS);
         out->finished(data);
-        
+
         in = Ice::createInputStream(communicator, data);
         Test::SmallStructSS arr2S;
         in->read(arr2S);
@@ -758,7 +758,7 @@ run(int argc, char** argv, const Ice::CommunicatorPtr& communicator)
         out = Ice::createOutputStream(communicator);
         out->write(arrS);
         out->finished(data);
-        
+
         in = Ice::createInputStream(communicator, data);
         Test::MyClassSS arr2S;
         in->read(arr2S);
@@ -811,7 +811,7 @@ run(int argc, char** argv, const Ice::CommunicatorPtr& communicator)
         test(reader->obj->s.e == Test::enum2);
         factoryWrapper->setFactory(0);
     }
-    
+
     {
         out = Ice::createOutputStream(communicator);
         Test::MyException ex;
@@ -865,10 +865,10 @@ run(int argc, char** argv, const Ice::CommunicatorPtr& communicator)
         c->seq9.push_back(Test::enum1);
 
         ex.c = c;
-        
+
         out->write(ex);
         out->finished(data);
- 
+
         in = Ice::createInputStream(communicator, data);
         try
         {
@@ -959,6 +959,68 @@ run(int argc, char** argv, const Ice::CommunicatorPtr& communicator)
         test(dict2.size() == dict.size());
         test(dict2["key1"] && (dict2["key1"]->s.e == Test::enum2));
         test(dict2["key2"] && (dict2["key2"]->s.e == Test::enum3));
+    }
+
+    {
+        out = Ice::createOutputStream(communicator);
+        out->write(Test::Sub::nestedEnum3);
+        out->finished(data);
+        in = Ice::createInputStream(communicator, data);
+        Test::Sub::NestedEnum e;
+        in->read(e);
+        test(e == Test::Sub::nestedEnum3);
+    }
+
+    {
+        out = Ice::createOutputStream(communicator);
+        Test::Sub::NestedStruct s;
+        s.bo = true;
+        s.by = 1;
+        s.sh = 2;
+        s.i = 3;
+        s.l = 4;
+        s.f = 5.0;
+        s.d = 6.0;
+        s.str = "7";
+        s.e = Test::Sub::nestedEnum2;
+        out->write(s);
+        out->finished(data);
+        in = Ice::createInputStream(communicator, data);
+        Test::Sub::NestedStruct s2;
+        in->read(s2);
+        test(s2 == s);
+    }
+
+    {
+        out = Ice::createOutputStream(communicator);
+        Test::Sub::NestedClassStructPtr s = new Test::Sub::NestedClassStruct();
+        s->i = 10;
+        out->write(s);
+        out->finished(data);
+        in = Ice::createInputStream(communicator, data);
+        Test::Sub::NestedClassStructPtr s2 = new Test::Sub::NestedClassStruct();
+        in->read(s2);
+        test(s2->i == s->i);
+    }
+
+    {
+        out = Ice::createOutputStream(communicator);
+        Test::Sub::NestedException ex;
+        ex.str = "str";
+
+        out->write(ex);
+        out->finished(data);
+
+        in = Ice::createInputStream(communicator, data);
+        try
+        {
+            in->throwException();
+            test(false);
+        }
+        catch(const Test::Sub::NestedException& ex1)
+        {
+            test(ex1.str == ex.str);
+        }
     }
 
     cout << "ok" << endl;
@@ -1070,7 +1132,7 @@ run(int argc, char** argv, const Ice::CommunicatorPtr& communicator)
     cout << "ok" << endl;
 #if defined(_MSC_VER) && (_MSC_VER < 1300)
 //
-// VC++ 6 compiler bugs doesn't allow to write 
+// VC++ 6 compiler bugs doesn't allow to write
 // the Stream API using c++ templates.
 //
 // see: http://support.microsoft.com/kb/240866
@@ -1237,7 +1299,7 @@ run(int argc, char** argv, const Ice::CommunicatorPtr& communicator)
     }
 #if defined(_MSC_VER) && (_MSC_VER < 1300)
 //
-// VC++ 6 compiler bugs doesn't allow to write 
+// VC++ 6 compiler bugs doesn't allow to write
 // the Stream API using c++ templates.
 //
 // see: http://support.microsoft.com/kb/240866

@@ -6621,14 +6621,11 @@ Slice::Gen::StreamVisitor::StreamVisitor(Output& h, Output& c) :
 bool
 Slice::Gen::StreamVisitor::visitModuleStart(const ModulePtr& m)
 {
-    if(!m->hasOtherConstructedOrExceptions())
+    if(m->structs().empty() && m->enums().empty() && m->exceptions().empty())
     {
         return false;
     }
-    else if(m->structs().empty() && m->enums().empty() && m->exceptions().empty())
-    {
-        return false;
-    }
+
     if(UnitPtr::dynamicCast(m->container()))
     {
         //
@@ -6641,6 +6638,7 @@ Slice::Gen::StreamVisitor::visitModuleStart(const ModulePtr& m)
         H.restoreIndent();
         H << nl << "namespace Ice" << nl << '{';
     }
+
     return true;
 }
 
@@ -6671,12 +6669,7 @@ Slice::Gen::StreamVisitor::visitExceptionStart(const ExceptionPtr& p)
         H << nl << "static const ::Ice::StreamTraitType type = ::Ice::StreamTraitTypeUserException;";
         H << eb << ";" << nl;
     }
-    return true;
-}
-
-void
-Slice::Gen::StreamVisitor::visitExceptionEnd(const ExceptionPtr&)
-{
+    return false;
 }
 
 bool
@@ -6707,12 +6700,7 @@ Slice::Gen::StreamVisitor::visitStructStart(const StructPtr& p)
         H << nl << "static const int minWireSize = " << p->minWireSize() << ";";
         H << eb << ";" << nl;
     }
-    return true;
-}
-
-void
-Slice::Gen::StreamVisitor::visitStructEnd(const StructPtr&)
-{
+    return false;
 }
 
 void

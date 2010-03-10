@@ -98,6 +98,38 @@ exception MyException
     MyClass c;
 };
 
+module Sub
+{
+    enum NestedEnum
+    {
+        nestedEnum1,
+        nestedEnum2,
+        nestedEnum3
+    };
+
+    struct NestedStruct
+    {
+        bool bo;
+        byte by;
+        short sh;
+        int i;
+        long l;
+        float f;
+        double d;
+        string str;
+        NestedEnum e;
+    };
+
+    ["cpp:class"] struct NestedClassStruct
+    {
+        int i;
+    };
+
+    exception NestedException
+    {
+        string str;
+    };
+};
 };
 
 #endif
