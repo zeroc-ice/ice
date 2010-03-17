@@ -481,7 +481,7 @@ namespace IceSSL
                 string addrLower = address.ToUpperInvariant();
                 bool certNameOK = false;
                 {
-                    string cn = "CN=" + addrLower;
+                    string cn = "cn=" + addrLower;
                     int pos = dn.ToLower(CultureInfo.InvariantCulture).IndexOf(cn, StringComparison.Ordinal);
                     if(pos >= 0)
                     {

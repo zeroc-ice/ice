@@ -27,6 +27,8 @@ Changes since version 3.4.0
 C++ Changes
 ===========
 
+- Fixed compatibility issues with OpenSSL 1.0.
+
 - Fixed a bug in slice2cpp that would cause invalid code to be
   generated for a nested Slice definition when the --stream option was
   used.

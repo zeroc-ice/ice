@@ -31,7 +31,7 @@ certs            = $dir                     # Where issued certs are kept.
 RANDFILE         = $dir/.rand               # Private random number file.
 
 default_days     = 3650                     # How long certs are valid.
-default_md       = md5                      # The Message Digest type.
+default_md       = sha1                     # The Message Digest type.
 preserve         = yes                      # Keep passed DN ordering?
 
 policy           = ca_policy
@@ -59,7 +59,7 @@ subjectAltName = DNS:client, IP:127.0.0.1
 [ req ]
 default_bits        = 1024
 default_keyfile     = c_rsa1024_priv.pem
-default_md          = md5
+default_md          = sha1
 prompt              = no
 distinguished_name  = root_ca_distinguished_name
 x509_extensions     = root_ca_extensions

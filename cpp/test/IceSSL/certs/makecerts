@@ -8,6 +8,13 @@
 #
 # **********************************************************************
 
+openssl version | grep -i -q "openssl 1."
+if [ $? != 0 ]; then
+    echo "You must run this script with OpenSSL 1.0.x in your PATH."
+    echo "See the README file for more information."
+    exit 1
+fi
+
 TMP=tmp
 
 #
@@ -23,15 +30,31 @@ if ! [ -f cakey1.pem ]; then
     touch $TMP/index.txt
 
     #
-    # Generate CA certificates. Also make copies of the certificates using their
-    # hash values as filenames, which allows OpenSSL to find them at run time.
+    # Generate CA certificates.
     #
     openssl req -config test_ca1.cnf -x509 -days 3650 -newkey rsa:1024 -keyout cakey1.pem -out cacert1.pem \
         -outform PEM -nodes
     openssl req -config test_ca2.cnf -x509 -days 3650 -newkey rsa:1024 -keyout cakey2.pem -out cacert2.pem \
         -outform PEM -nodes
+
+    #
+    # In order for OpenSSL to locate CA certificates dynamically at run time, the
+    # directory containing the certificates must be indexed. Typically this is
+    # accomplished using the c_rehash script. The problem is c_rehash creates
+    # symbolic links, which isn't very portable. Therefore, we simply create
+    # copies of the certificates using the same naming scheme as c_rehash, in
+    # which the certificate's hash value is used in the filename.
+    #
     cp cacert1.pem `openssl x509 -hash -noout -in cacert1.pem`.0
-    cp cacert2.pem `openssl x509 -hash -noout -in cacert2.pem`.1
+    cp cacert2.pem `openssl x509 -hash -noout -in cacert2.pem`.0
+    #
+    # Note that the hashing scheme changed in OpenSSL 1.0 so that the hash values
+    # are no longer backward-compatible. In order to remain compatible with
+    # earlier versions of OpenSSL, we make another set of copies using the old hashing
+    # scheme.
+    #
+    cp cacert1.pem `openssl x509 -subject_hash_old -noout -in cacert1.pem`.0
+    cp cacert2.pem `openssl x509 -subject_hash_old -noout -in cacert2.pem`.0
 
     #
     # Create a server certificate and key (no password).
@@ -122,7 +145,7 @@ if ! [ -f cakey1.pem ]; then
     openssl req -config client.cnf -newkey rsa:1024 -passout pass:client -keyout c_rsa_pass_ca1_priv.pem \
         -keyform PEM -out $TMP/req.pem
     openssl ca -config client.cnf -batch -in $TMP/req.pem -out c_rsa_pass_ca1_pub.pem \
-        -cert cacert1.pem -keyfile cakey1.pem -key server
+        -cert cacert1.pem -keyfile cakey1.pem -key client
 
     #
     # Create an expired client certificate and key (no password).
