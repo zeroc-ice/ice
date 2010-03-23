@@ -354,6 +354,10 @@ Slice::Gen::generate(const UnitPtr& p)
         {
             H << "\n#include <Ice/Stream.h>";
         }
+        else
+        {
+            H << "\n#include <Ice/StreamF.h>";
+        }
     }
 
     if(_checksum)
