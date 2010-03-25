@@ -283,7 +283,6 @@ communicatorDealloc(CommunicatorObject* self)
         (*self->shutdownThread)->getThreadControl().join();
     }
     delete self->communicator;
-    Py_XDECREF(self->wrapper);
     delete self->shutdownMonitor;
     delete self->shutdownThread;
     PyObject_Del(self);
@@ -306,6 +305,12 @@ communicatorDestroy(CommunicatorObject* self)
         setPythonException(ex);
         return 0;
     }
+
+    //
+    // Break cyclic reference between this object and its Python wrapper.
+    //
+    Py_XDECREF(self->wrapper);
+    self->wrapper = 0;
 
     Py_INCREF(Py_None);
     return Py_None;

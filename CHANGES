@@ -45,6 +45,13 @@ C# Changes
   property is enabled.
 
 
+Python Changes
+==============
+
+- Fixed a bug in which destroyed Communicator instances were not being
+  garbage collected.
+
+
 ======================================================================
 Changes since version 3.4b
 ======================================================================
