@@ -25,7 +25,7 @@ class BetResolver
     {
         java.util.TimerTask task = new java.util.TimerTask()
             {
-                public void 
+                public void
                 run()
                 {
                     //

@@ -27,7 +27,6 @@ BetResolver::start()
     }
 }
 
-
 void
 BetResolver::add(const CasinoStore::PersistentBetPrx& bet, Ice::Long closeTime)
 {
@@ -41,7 +40,7 @@ BetResolver::add(const CasinoStore::PersistentBetPrx& bet, Ice::Long closeTime)
         {
         }
 
-        virtual void 
+        virtual void
         runTimerTask()
         {
             try
@@ -65,7 +64,7 @@ BetResolver::add(const CasinoStore::PersistentBetPrx& bet, Ice::Long closeTime)
     private:
         BetResolver& _resolver;
         CasinoStore::PersistentBetPrx _bet;
-     
+
     };
 
     IceUtil::Time timeLeft = IceUtil::Time::milliSeconds(closeTime) - IceUtil::Time::now();

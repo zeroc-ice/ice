@@ -9,21 +9,23 @@
 
 class BetI extends CasinoStore.PersistentBet
 {
-    public int 
+    public int
     getAmount(Ice.Current current)
     {
         return amount;
     }
 
-    public void 
-    accept(Casino.PlayerPrx p, Ice.Current current) throws Casino.OutOfChipsException
+    public void
+    accept(Casino.PlayerPrx p, Ice.Current current)
+        throws Casino.OutOfChipsException
     {
-        CasinoStore.PersistentPlayerPrx player = CasinoStore.PersistentPlayerPrxHelper.uncheckedCast(p);
-        if(player == null)
+        if(p == null)
         {
             throw new Casino.OutOfChipsException();
         }
-        
+
+        CasinoStore.PersistentPlayerPrx player = CasinoStore.PersistentPlayerPrxHelper.uncheckedCast(p);
+
         try
         {
             player.withdraw(amount);
@@ -35,7 +37,7 @@ class BetI extends CasinoStore.PersistentBet
         }
     }
 
-    public int 
+    public int
     getChipsInPlay(Ice.Current current)
     {
         return amount * potentialWinners.size();
@@ -61,14 +63,14 @@ class BetI extends CasinoStore.PersistentBet
         // Pick a winner using random
         //
         int winnerIndex = random % (size + (_bankEdge - 1));
-        
+
         if(winnerIndex >= size)
         {
             winnerIndex = 0;
         }
-        
-        CasinoStore.WinnerPrx winner = (CasinoStore.WinnerPrx)potentialWinners.elementAt(winnerIndex);
-        
+
+        CasinoStore.WinnerPrx winner = potentialWinners.elementAt(winnerIndex);
+
         try
         {
             winner.win(amount * size);
@@ -78,10 +80,10 @@ class BetI extends CasinoStore.PersistentBet
             //
             // Goes to the bank
             //
-            winner = (CasinoStore.WinnerPrx)potentialWinners.elementAt(0);
+            winner = potentialWinners.elementAt(0);
             winner.win(amount * size);
         }
-        
+
         //
         // Self-destroys
         //
@@ -109,6 +111,6 @@ class BetI extends CasinoStore.PersistentBet
         _bankEdge = bankEdge;
     }
 
-    private Freeze.TransactionalEvictor _evictor;    
+    private Freeze.TransactionalEvictor _evictor;
     private int _bankEdge;
 }

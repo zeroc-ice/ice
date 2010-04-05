@@ -9,22 +9,22 @@
 
 #include <BetI.h>
 
-
-int 
+int
 BetI::getAmount(const Ice::Current&) const
 {
     return amount;
 }
 
-void 
+void
 BetI::accept(const Casino::PlayerPrx& p, const Ice::Current&)
 {
-    CasinoStore::PersistentPlayerPrx player = CasinoStore::PersistentPlayerPrx::uncheckedCast(p);
-    if(player == 0)
+    if(!p)
     {
         throw Casino::OutOfChipsException();
     }
-        
+
+    CasinoStore::PersistentPlayerPrx player = CasinoStore::PersistentPlayerPrx::uncheckedCast(p);
+
     try
     {
         player->withdraw(amount);
@@ -36,7 +36,7 @@ BetI::accept(const Casino::PlayerPrx& p, const Ice::Current&)
     }
 }
 
-int 
+int
 BetI::getChipsInPlay(const Ice::Current&) const
 {
     return amount * static_cast<int>(potentialWinners.size());
@@ -62,14 +62,14 @@ BetI::complete(int random, const Ice::Current& current)
     // Pick a winner using random
     //
     int winnerIndex = random % (size + (_bankEdge - 1));
-        
+
     if(winnerIndex >= size)
     {
         winnerIndex = 0;
     }
-        
+
     CasinoStore::WinnerPrx winner = potentialWinners[winnerIndex];
-        
+
     try
     {
         winner->win(amount * size);
@@ -82,7 +82,7 @@ BetI::complete(int random, const Ice::Current& current)
         winner = potentialWinners[0];
         winner->win(amount * size);
     }
-        
+
     //
     // Self-destroys
     //
@@ -93,7 +93,7 @@ BetI::BetI()
 {
 }
 
-BetI::BetI(int amount, Ice::Long closeTime, const CasinoStore::PersistentBankPrx& bank, 
+BetI::BetI(int amount, Ice::Long closeTime, const CasinoStore::PersistentBankPrx& bank,
            const Freeze::TransactionalEvictorPtr& evictor, int bankEdge)
 {
     this->amount = amount;
@@ -108,5 +108,3 @@ BetI::init(const Freeze::TransactionalEvictorPtr& evictor, int bankEdge)
     _evictor = evictor;
     _bankEdge = bankEdge;
 }
-
-   

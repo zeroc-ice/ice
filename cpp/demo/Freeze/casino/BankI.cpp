@@ -18,7 +18,7 @@ BankI::buyChips(int chips, const Casino::PlayerPrx& p, const Ice::Current&)
 {
     outstandingChips += chips;
     chipsSold += chips;
-        
+
     CasinoStore::PersistentPlayerPrx player = CasinoStore::PersistentPlayerPrx::uncheckedCast(p);
 
     try
@@ -40,7 +40,7 @@ BankI::getPlayers(const Ice::Current& current) const
     Casino::PlayerPrxSeq result;
 
     Freeze::EvictorIteratorPtr p = _playerEvictor->getIterator("", 10);
-        
+
     while(p->hasNext())
     {
         Ice::Identity ident = p->next();
@@ -55,7 +55,7 @@ BankI::getOutstandingChips(const Ice::Current&) const
 {
     return outstandingChips;
 }
-    
+
 int
 BankI::getEarnings(const Ice::Current&) const
 {
@@ -71,7 +71,7 @@ BankI::getLiveBetCount(const Ice::Current&) const
 
 bool
 BankI::checkAllChips(const Ice::Current& current) const
-{ 
+{
     int playerTotal = 0;
 
     Casino::PlayerPrxSeq players = getPlayers(current);
@@ -114,7 +114,7 @@ BankI::createBet(int amount, int lifetime, const Ice::Current&)
     outstandingChips += amount;
     Ice::ObjectPtr betI = new BetI(amount, closeTime, _prx, _betEvictor, _bankEdge);
 
-    CasinoStore::PersistentBetPrx newBet = 
+    CasinoStore::PersistentBetPrx newBet =
         CasinoStore::PersistentBetPrx::uncheckedCast(_betEvictor->add(betI, ident));
 
     _betResolver->add(newBet, closeTime);
@@ -144,7 +144,7 @@ BankI::returnAllChips(const CasinoStore::PersistentPlayerPrx& p, const Ice::Curr
         assert(0);
         throw Freeze::DatabaseException(__FILE__, __LINE__, "returnAllChips: player does not exist");
     }
-        
+
     if(count != 0)
     {
         try
@@ -168,7 +168,7 @@ void
 BankI::reloadBets(const Ice::Current& current)
 {
     vector<CasinoStore::PersistentBetPrx> bets = getBets(current.adapter);
-        
+
     for(size_t i = 0; i < bets.size(); ++i)
     {
         _betResolver->add(bets[i], bets[i]->getCloseTime());
@@ -179,8 +179,8 @@ BankI::BankI()
 {
 }
 
-BankI::BankI(const CasinoStore::PersistentBankPrx& prx, 
-             const Freeze::TransactionalEvictorPtr& evictor, const Freeze::TransactionalEvictorPtr& playerEvictor, 
+BankI::BankI(const CasinoStore::PersistentBankPrx& prx,
+             const Freeze::TransactionalEvictorPtr& evictor, const Freeze::TransactionalEvictorPtr& playerEvictor,
              const Freeze::TransactionalEvictorPtr& betEvictor, BetResolver& betResolver, int bankEdge)
 {
     chipsSold = 0;
@@ -188,10 +188,9 @@ BankI::BankI(const CasinoStore::PersistentBankPrx& prx,
     init(prx, evictor, playerEvictor, betEvictor, betResolver, bankEdge);
 }
 
-
-void 
+void
 BankI::init(const CasinoStore::PersistentBankPrx& prx,
-            const Freeze::TransactionalEvictorPtr& evictor, const Freeze::TransactionalEvictorPtr& playerEvictor, 
+            const Freeze::TransactionalEvictorPtr& evictor, const Freeze::TransactionalEvictorPtr& playerEvictor,
             const Freeze::TransactionalEvictorPtr& betEvictor, BetResolver& betResolver, int bankEdge)
 {
     _prx = prx;
@@ -202,13 +201,13 @@ BankI::init(const CasinoStore::PersistentBankPrx& prx,
     _bankEdge = bankEdge;
 }
 
-vector<CasinoStore::PersistentBetPrx> 
+vector<CasinoStore::PersistentBetPrx>
 BankI::getBets(const Ice::ObjectAdapterPtr& adapter) const
 {
     vector<CasinoStore::PersistentBetPrx> result;
 
     Freeze::EvictorIteratorPtr p = _betEvictor->getIterator("", 100);
-        
+
     while(p->hasNext())
     {
         Ice::Identity ident = p->next();

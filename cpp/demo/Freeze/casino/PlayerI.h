@@ -21,16 +21,16 @@ public:
     virtual int getChips(const Ice::Current&) const;
 
     virtual void destroy(const Ice::Current&);
-  
+
     virtual void  withdraw(int, const Ice::Current&);
-    
+
     virtual void win(int count, const Ice::Current&);
-   
+
     PlayerI();
 
-    void init(const CasinoStore::PersistentPlayerPrx&, const Freeze::TransactionalEvictorPtr&, 
+    void init(const CasinoStore::PersistentPlayerPrx&, const Freeze::TransactionalEvictorPtr&,
               const CasinoStore::PersistentBankPrx&);
- 
+
 private:
 
     CasinoStore::PersistentPlayerPrx _myPrx;

@@ -55,19 +55,19 @@ CasinoClient::run(int argc, char* argv[])
     cout << "Retrieve bank and players... " << flush;
 
     Casino::BankPrx bank = Casino::BankPrx::uncheckedCast(communicator()->propertyToProxy("Bank.Proxy"));
-        
+
     Casino::PlayerPrxSeq players = bank->getPlayers();
     cout << "ok" << endl;
 
     cout << "Starting balances" << endl;
     printBalances(players);
-       
+
     cout << "Current bank earnings: " << bank->getEarnings() << " chips" << endl;
 
     cout << "All chips accounted for? " << (bank->checkAllChips() ? "yes" : "no") << endl;
-        
+
     cout << "Each player buys 3,000 chips... " << flush;
-        
+
     for(size_t i = 0; i < players.size(); ++i)
     {
         Casino::PlayerPrx player = players[i];
@@ -75,7 +75,7 @@ CasinoClient::run(int argc, char* argv[])
         {
             if(!bank->buyChips(3000, player))
             {
-                cout << "(" << player->ice_getIdentity().name << "is gone) " << flush;
+                cout << "(" << player->ice_getIdentity().name << " is gone) " << flush;
                 players[i] = 0;
             }
         }
@@ -83,7 +83,7 @@ CasinoClient::run(int argc, char* argv[])
     cout << "ok" << endl;
 
     cout << "All chips accounted for? " << (bank->checkAllChips() ? "yes" : "no") << endl;
-            
+
     cout << "Create " << betCount1 <<  " 10-chips bets... " << flush;
 
     int b;
@@ -108,7 +108,7 @@ CasinoClient::run(int argc, char* argv[])
                 catch(const Casino::OutOfChipsException&)
                 {
                     cout << "(" << player->ice_getIdentity().name << " is out) " << flush;
-                        
+
                     players[i] = 0;
                 }
             }
@@ -117,7 +117,7 @@ CasinoClient::run(int argc, char* argv[])
     cout << " ok" << endl;
 
     cout << "Live bets: " << bank->getLiveBetCount() << endl;
-       
+
     int index = static_cast<int>(rand() % players.size());
     Casino::PlayerPrx gonner = players[index];
     players[index] = 0;
@@ -139,12 +139,11 @@ CasinoClient::run(int argc, char* argv[])
     }
 
     cout << "All chips accounted for? " << (bank->checkAllChips() ? "yes" : "no") << endl;
-        
+
     cout << "Sleep for 2 seconds" << endl;
     IceUtil::ThreadControl::sleep(IceUtil::Time::seconds(2));
 
     cout << "Live bets: " << bank->getLiveBetCount() << endl;
-
 
     cout << "Create " << betCount2 << " 10-chips bets... " << flush;
 
@@ -169,22 +168,22 @@ CasinoClient::run(int argc, char* argv[])
                 catch(const Casino::OutOfChipsException&)
                 {
                     cout << "(" << player->ice_getIdentity().name << " is out) " << flush;
-                    
+
                     players[i] = 0;
                 }
             }
         }
     }
     cout << " ok" << endl;
-        
+
     cout << "Live bets: " << bank->getLiveBetCount() << endl;
     cout << "Sleep for 10 seconds" << endl;
     IceUtil::ThreadControl::sleep(IceUtil::Time::seconds(10));
     cout << "Live bets: " << bank->getLiveBetCount() << endl;
-        
+
     cout << "Ending balances" << endl;
     printBalances(players);
-       
+
     cout << "Current bank earnings: " << bank->getEarnings() << " chips" << endl;
 
     cout << "All chips accounted for? " << (bank->checkAllChips() ? "yes" : "no") << endl;
@@ -192,19 +191,19 @@ CasinoClient::run(int argc, char* argv[])
     return 0;
 }
 
-void 
+void
 CasinoClient::printBalances(Casino::PlayerPrxSeq& players) const
 {
     for(size_t i = 0; i < players.size(); ++i)
     {
         Casino::PlayerPrx player = players[i];
-            
+
         if(player != 0)
         {
             try
             {
                 int chips = player->getChips();
-                cout << player->ice_getIdentity().name << ": " << chips << " chips" << endl; 
+                cout << player->ice_getIdentity().name << ": " << chips << " chips" << endl;
             }
             catch(const Ice::ObjectNotExistException&)
             {
