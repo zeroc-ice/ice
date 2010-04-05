@@ -15,7 +15,7 @@ using System.Threading;
 namespace Glacier2
 {
 
-/// <sumary>
+/// <summary>
 /// Utility base class that makes it easy to to correctly initialize and finalize
 /// the Ice run time, as well as handle signals. Unless the application specifies
 /// a logger, Application installs a per-process logger that logs to the standard
@@ -24,29 +24,29 @@ namespace Glacier2
 /// Applications must create a derived class that implements the {@link #run} method.
 /// 
 /// A program can contain only one instance of this class.
-/// </sumary>
+/// </summary>
 public abstract class Application : Ice.Application
 {
-    /// <sumary>
+    /// <summary>
     /// This exception is raised if the session should be restarted.
-    /// </sumary>
+    /// </summary>
     public class RestartSessionException : System.Exception
     {
     }
 
-    /// <sumary>
+    /// <summary>
     /// Initializes an instance that calls Communicator.shutdown if
     /// a signal is received.
-    /// </sumary>
+    /// </summary>
     public
     Application()
     {
     }
 
-    /// <sumary>
+    /// <summary>
     /// Initializes an instance that handles signals according to the signal
     /// policy.
-    /// </sumary>
+    /// </summary>
     /// <param name="signalPolicy">@param signalPolicy Determines how to 
     /// respond to signals.</param>
     public
@@ -54,17 +54,16 @@ public abstract class Application : Ice.Application
     {
     }
 
-
-    /// <sumary>
+    /// <summary>
     /// Called once the communicator has been initialized and the Glacier2 session
     /// has been established. A derived class must implement <code>runWithSession</code>,
     /// which is the application's starting method.
-    /// </sumary>
+    /// </summary>
     /// <param name="args"> The argument vector for the application. Application
     /// scans the argument vector passed to <code>main</code> for options that are
     /// specific to the Ice run time and removes them; therefore, the vector passed
-    /// to <code>run</code> is free from Ice-related options and contains only options
-    /// and arguments that are application-specific.</param>
+    /// to <code>runWithSession</code> is free from Ice-related options and contains
+    /// only options and arguments that are application-specific.</param>
     ///
     /// <returns> The runWithSession method should return zero for successful
     /// termination, and non-zero otherwise. Application.main returns the
@@ -73,22 +72,24 @@ public abstract class Application : Ice.Application
     public abstract int
     runWithSession(string[] args);
 
-    /// <sumary>
+    /// <summary>
     /// Run should not be overridden for Glacier2.Application. Instead
     /// runWithSession should be used.
-    /// </sumary>
+    /// </summary>
     public override int
     run(string[] args)
     {
+        //
         // This shouldn't be called.
+        //
         Debug.Assert(false);
         return 0;
     }
 
-    /// <sumary>
+    /// <summary>
     /// Called to restart the application's Glacier2 session. This
     /// method never returns.
-    /// </sumary>
+    /// </summary>
     /// <returns>throws RestartSessionException This exception is 
     /// always thrown.</returns>
     ///
@@ -98,28 +99,28 @@ public abstract class Application : Ice.Application
         throw new RestartSessionException();
     }
 
-    /// <sumary>
+    /// <summary>
     /// Creates a new Glacier2 session. A call to createSession always
     /// precedes a call to runWithSession. If Ice.LocalException is thrown 
     /// from this method, the application is terminated.
-    /// </sumary>
+    /// </summary>
     /// <returns> The Glacier2 session.</returns>
     public abstract Glacier2.SessionPrx
     createSession();
 
-    /// <sumary>
+    /// <summary>
     /// Called when the base class detects that the session has been destroyed.
     /// A subclass can override this method to take action after the loss of
     /// connectivity with the Glacier2 router.
-    /// </sumary>
+    /// </summary>
     public virtual void
     sessionDestroyed()
     {
     }
 
-    /// <sumary>
-    /// Returns the Glacier2 router proxy
-    /// </sumary>
+    /// <summary>
+    /// Returns the Glacier2 router proxy.
+    /// </summary>
     /// <returns>The router proxy.</returns>
     public static Glacier2.RouterPrx
     router()
@@ -127,9 +128,9 @@ public abstract class Application : Ice.Application
         return _router;
     }
 
-    /// <sumary>
-    /// Returns the Glacier2 session proxy
-    /// </sumary>
+    /// <summary>
+    /// Returns the Glacier2 session proxy.
+    /// </summary>
     /// <returns>The session proxy.</returns>
     public static Glacier2.SessionPrx
     session()
@@ -137,12 +138,12 @@ public abstract class Application : Ice.Application
         return _session;
     }
 
-    /// <sumary>
+    /// <summary>
     /// Returns the category to be used in the identities of all of the client's
     /// callback objects. Clients must use this category for the router to
     /// forward callback requests to the intended client.
     /// Throws SessionNotExistException if no session exists.
-    /// </sumary>
+    /// </summary>
     /// <returns>The category.</returns>
     public string
     categoryForClient()
@@ -154,10 +155,10 @@ public abstract class Application : Ice.Application
         return router().getCategoryForClient();
     }
 
-    /// <sumary>
+    /// <summary>
     /// Create a new Ice identity for callback objects with the given
     /// identity name field.
-    /// </sumary>
+    /// </summary>
     /// <returns>The identity.</returns>
     public Ice.Identity
     createCallbackIdentity(string name)
@@ -165,9 +166,9 @@ public abstract class Application : Ice.Application
         return new Ice.Identity(name, categoryForClient());
     }
 
-    /// <sumary>
+    /// <summary>
     /// Adds a servant to the callback object adapter's Active Servant Map with a UUID.
-    /// </sumary>
+    /// </summary>
     /// <param name="servant">The servant to add.</param>
     /// <returns>The proxy for the servant.</returns>
     public Ice.ObjectPrx
@@ -176,9 +177,9 @@ public abstract class Application : Ice.Application
         return objectAdapter().add(servant, createCallbackIdentity(Guid.NewGuid().ToString()));
     }
 
-    /// <sumary>
-    /// Creates an object adapter for callback objects.
-    /// </sumary>
+    /// <summary>
+    /// Returns an object adapter for callback objects, creating it if necessary.
+    /// </summary>
     /// <returns>The object adapter.</returns>
     public Ice.ObjectAdapter
     objectAdapter()
@@ -243,7 +244,18 @@ public abstract class Application : Ice.Application
             {
                 while(!_done)
                 {
-                    _router.refreshSession_async(new AMI_Router_refreshSessionI(_app, this));
+                    try
+                    {
+                        _router.refreshSession_async(new AMI_Router_refreshSessionI(_app, this));
+                    }
+                    catch(Ice.CommunicatorDestroyedException)
+                    {
+                        //
+                        // AMI requests can raise CommunicatorDestroyedException directly.
+                        //
+                        break;
+                    }
+
                     if(!_done)
                     {
                         Monitor.Wait(this, (int)_period);
@@ -274,7 +286,9 @@ public abstract class Application : Ice.Application
     protected override int
     doMain(string[] originArgs, Ice.InitializationData initData)
     {
+        //
         // Set the default properties for all Glacier2 applications.
+        //
         initData.properties.setProperty("Ice.ACM.Client", "0");
         initData.properties.setProperty("Ice.RetryIntervals", "-1");
 
@@ -282,9 +296,11 @@ public abstract class Application : Ice.Application
         int ret = 0;
         do
         {
-            // A copy of the initialization data and the string seq
+            //
+            // A copy of the initialization data and the string array
             // needs to be passed to doMainInternal, as these can be
             // changed by the application.
+            //
             Ice.InitializationData id = (Ice.InitializationData)initData.Clone();
             id.properties = id.properties.ice_clone_();
             string[] args = (string[]) originArgs.Clone();
@@ -298,8 +314,10 @@ public abstract class Application : Ice.Application
     private bool
     doMain(string[] args, Ice.InitializationData initData, out int status)
     {
+        //
         // Reset internal state variables from Ice.Application. The
         // remainder are reset at the end of this method.
+        //
         callbackInProgress__ = false;
         destroyed__ = false;
         interrupted__ = false;
@@ -316,7 +334,7 @@ public abstract class Application : Ice.Application
             _router = Glacier2.RouterPrxHelper.uncheckedCast(communicator().getDefaultRouter());
             if(_router == null)
             {
-                Ice.Util.getProcessLogger().error(appName__ + ": no glacier2 router configured");
+                Ice.Util.getProcessLogger().error(appName__ + ": no Glacier2 router configured");
                 status = 1;
             }
             else
@@ -329,7 +347,9 @@ public abstract class Application : Ice.Application
                     destroyOnInterrupt();
                 }
 
+                //
                 // If createSession throws, we're done.
+                //
                 try
                 {
                     _session = createSession();
@@ -350,10 +370,12 @@ public abstract class Application : Ice.Application
                 }
             }
         }
-        // We want to restart on those exceptions which indicate a
+        //
+        // We want to restart on those exceptions that indicate a
         // break down in communications, but not those exceptions that
-        // indicate a programming logic error (ie: marshal, protocol
+        // indicate a programming logic error (i.e., marshal, protocol
         // failure, etc).
+        //
         catch(RestartSessionException)
         {
             restart = true;
@@ -452,15 +474,21 @@ public abstract class Application : Ice.Application
             }
             catch(Ice.ConnectionLostException)
             {
+                //
                 // Expected if another thread invoked on an object from the session concurrently.
+                //
             }
             catch(Glacier2.SessionNotExistException)
             {
+                //
                 // This can also occur.
+                //
             }
             catch(System.Exception ex)
             {
+                //
                 // Not expected.
+                //
                 Ice.Util.getProcessLogger().error("unexpected exception when destroying the session:\n" + 
                                                   ex.ToString());
             }
@@ -486,9 +514,11 @@ public abstract class Application : Ice.Application
             communicator__ = null;
         }
 
+        //
         // Reset internal state. We cannot reset the Application state
         // here, since destroyed__ must remain true until we re-run
         // this method.
+        //
         _adapter = null;
         _router = null;
         _session = null;
@@ -502,4 +532,5 @@ public abstract class Application : Ice.Application
     private static Glacier2.SessionPrx _session;
     private static bool _createdSession = false;
 }
+
 }

@@ -28,24 +28,35 @@ public class SessionHelper
         {
             while(true)
             {
-                _router.refreshSession_async(new Glacier2.AMI_Router_refreshSession()
+                try
                 {
-                    public void ice_response()
+                    _router.refreshSession_async(new Glacier2.AMI_Router_refreshSession()
                     {
-                    }
+                        public void ice_response()
+                        {
+                        }
 
-                    public void ice_exception(Ice.LocalException ex)
-                    {
-                        done();
-                        SessionHelper.this.destroy();
-                    }
+                        public void ice_exception(Ice.LocalException ex)
+                        {
+                            done();
+                            SessionHelper.this.destroy();
+                        }
 
-                    public void ice_exception(Ice.UserException ex)
-                    {
-                        done();
-                        SessionHelper.this.destroy();
-                    }
-                });
+                        public void ice_exception(Ice.UserException ex)
+                        {
+                            done();
+                            SessionHelper.this.destroy();
+                        }
+                    });
+                }
+                catch(Ice.CommunicatorDestroyedException ex)
+                {
+                    //
+                    // AMI requests can raise CommunicatorDestroyedException directly.
+                    //
+                    break;
+                }
+
                 if(!_done)
                 {
                     try
@@ -56,6 +67,7 @@ public class SessionHelper
                     {
                     }
                 }
+
                 if(_done)
                 {
                     break;
@@ -106,10 +118,12 @@ public class SessionHelper
         _destroy = true;
         if(_refreshThread == null)
         {
+            //
             // In this case a connecting session is being
             // destroyed. The communicator and session will be
             // destroyed when the connection establishment has
             // completed.
+            //
             return;
         }
         _session = null;
@@ -127,8 +141,10 @@ public class SessionHelper
             // Ignore
         }
 
+        //
         // Run the destroyInternal in a thread. This is because it
         // destroyInternal makes remote invocations.
+        //
         new Thread(new Runnable()
         {
             public void run()
@@ -225,7 +241,9 @@ public class SessionHelper
         return internalObjectAdapter();
     }
 
+    //
     // Only call this method when the calling thread owns the lock
+    //
     private Ice.ObjectAdapter
     internalObjectAdapter()
         throws SessionNotExistException
@@ -301,7 +319,9 @@ public class SessionHelper
             return;
         }
 
+        //
         // Assign the session after _destroy is checked.
+        //
         _session = session;
         _connected = true;
 
@@ -329,8 +349,9 @@ public class SessionHelper
         }
         catch(SecurityException ex)
         {
-            // Ignore. Unsigned applets cannot registered shutdown
-            // hooks.
+            //
+            // Ignore. Unsigned applets cannot registered shutdown hooks.
+            //
         }
 
         dispatchCallback(new Runnable()
@@ -360,15 +381,21 @@ public class SessionHelper
         }
         catch(Ice.ConnectionLostException e)
         {
+            //
             // Expected if another thread invoked on an object from the session concurrently.
+            //
         }
         catch(SessionNotExistException e)
         {
+            //
             // This can also occur.
+            //
         }
         catch(Throwable e)
         {
+            //
             // Not expected.
+            //
             _communicator.getLogger().warning("SessionHelper: unexpected exception when destroying the session:\n" + e);
         }
         _router = null;
@@ -400,7 +427,9 @@ public class SessionHelper
         }
         _communicator = null;
 
+        //
         // Notify the callback that the session is gone.
+        //
         dispatchCallback(new Runnable()
         {
             public void run()

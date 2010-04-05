@@ -83,12 +83,23 @@ public:
         IceUtil::Monitor<IceUtil::Mutex>::Lock lock(_monitor);
         while(true)
         {
-            _router->refreshSession_async(new AMI_Router_refreshSessionI(_app, this));
+            try
+            {
+                _router->refreshSession_async(new AMI_Router_refreshSessionI(_app, this));
+            }
+            catch(const Ice::CommunicatorDestroyedException&)
+            {
+                //
+                // AMI requests can raise CommunicatorDestroyedException directly.
+                //
+                break;
+            }
 
             if(!_done)
             {
                 _monitor.timedWait(IceUtil::Time::seconds((int)_period));
             }
+
             if(_done)
             {
                 break;

@@ -402,7 +402,7 @@ namespace Ice
             catch(System.Exception ex)
             {
                 //
-                // IceSSL is not supported with Mono 1.2. We avoid throwing an exception in that case,
+                // IceSSL is not yet supported with Mono. We avoid throwing an exception in that case,
                 // so the same configuration can be used with Mono or Visual C#.
                 //
                 if(IceInternal.AssemblyUtil.runtime_ == IceInternal.AssemblyUtil.Runtime.Mono && name == "IceSSL")

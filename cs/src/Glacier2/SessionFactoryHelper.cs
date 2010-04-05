@@ -13,19 +13,19 @@ using System.Text;
 namespace Glacier2
 {
 
-/// <sumary>
+/// <summary>
 /// A helper class for using Glacier2 with GUI applications.
 ///
 /// Applications should create a session factory for each Glacier2 router to which the application will
 /// connect. To connect with the Glacier2 router, call SessionFactory.connect. The callback object is
-/// notified of the various life cycle events. Once the session is torn down for whatever reason, the application
-/// can use the session factory to create another connection.
-/// </sumary>
+/// notified of the various life cycle events. Once the session is torn down for whatever reason, the
+/// application can use the session factory to create another connection.
+/// </summary>
 public class SessionFactoryHelper
 {
-    /// <sumary>
+    /// <summary>
     /// Creates a SessionFactory object.
-    /// </sumary>
+    /// </summary>
     /// <param name="callback">The callback object for notifications.</param>
     public
     SessionFactoryHelper(SessionCallback callback)
@@ -36,9 +36,9 @@ public class SessionFactoryHelper
         setDefaultProperties();
     }
 
-    /// <sumary>
+    /// <summary>
     /// Creates a SessionFactory object.
-    /// </sumary>
+    /// </summary>
     /// <param name="initData">The initialization data to use when creating the communicator.</param>
     /// <param name="callback">The callback object for notifications.</param>
     public
@@ -49,9 +49,9 @@ public class SessionFactoryHelper
         setDefaultProperties();
     }
 
-    /// <sumary>
+    /// <summary>
     /// Creates a SessionFactory object.
-    /// </sumary>
+    /// </summary>
     /// <param name="properties">The properties to use when creating the communicator.</param>
     /// <param name="callback">The callback object for notifications.</param>
     public
@@ -63,9 +63,9 @@ public class SessionFactoryHelper
         setDefaultProperties();
     }
 
-    /// <sumary>
+    /// <summary>
     /// Set the router object identity.
-    /// </sumary>
+    /// </summary>
     /// <param name="identity">The Glacier2 router's identity.</param>
     public void
     setRouterIdentity(Ice.Identity identity)
@@ -76,9 +76,9 @@ public class SessionFactoryHelper
         }
     }
 
-    /// <sumary>
+    /// <summary>
     /// Returns the object identity of the Glacier2 router.
-    /// </sumary>
+    /// </summary>
     /// <returns> The Glacier2 router's identity.</returns>
     public Ice.Identity
     getRouterIdentity()
@@ -89,9 +89,9 @@ public class SessionFactoryHelper
         }
     }
 
-    /// <sumary>
+    /// <summary>
     /// Sets the host on which the Glacier2 router runs.
-    /// </sumary>
+    /// </summary>
     /// <param name="hostname">The host name (or IP address) of the router host.</param>
     public void
     setRouterHost(string hostname)
@@ -102,9 +102,9 @@ public class SessionFactoryHelper
         }
     }
 
-    /// <sumary>
+    /// <summary>
     /// Returns the host on which the Glacier2 router runs.
-    /// </sumary>
+    /// </summary>
     /// <returns>The Glacier2 router host.</returns>
     public string
     getRouterHost()
@@ -115,9 +115,9 @@ public class SessionFactoryHelper
         }
     }
 
-    /// <sumary>
+    /// <summary>
     /// Sets whether to connect with the Glacier2 router securely.
-    /// </sumary>
+    /// </summary>
     /// <param name="secure">If true, the client connects to the router
     /// via SSL; otherwise, the client connects via TCP.</param>
     public void
@@ -129,9 +129,9 @@ public class SessionFactoryHelper
         }
     }
 
-    /// <sumary>
+    /// <summary>
     /// Returns whether the session factory will establish a secure connection to the Glacier2 router.
-    /// </sumary>
+    /// </summary>
     /// <returns>The secure flag.</returns>
     public bool
     getSecure()
@@ -142,9 +142,9 @@ public class SessionFactoryHelper
         }
     }
 
-    /// <sumary>
+    /// <summary>
     /// Sets the connect and connection timeout for the Glacier2 router.
-    /// </sumary>
+    /// </summary>
     /// <param name="timeoutMillisecs">The timeout in milliseconds. A zero
     /// or negative timeout value indicates that the router proxy has no
     /// associated timeout.</param>
@@ -157,9 +157,9 @@ public class SessionFactoryHelper
         }
     }
 
-    /// <sumary>
+    /// <summary>
     /// Returns the connect and connection timeout associated with the Glacier2 router.
-    /// </sumary>
+    /// </summary>
     /// <returns>The timeout.</returns>
     public int
     getTimeout()
@@ -170,9 +170,9 @@ public class SessionFactoryHelper
         }
     }
 
-    /// <sumary>
+    /// <summary>
     /// Sets the Glacier2 router port to connect to.
-    /// </sumary>
+    /// </summary>
     /// <param name="port">The port. If 0, then the default port (4063 for TCP or
     /// 4064 for SSL) is used.</param>
     public void
@@ -184,9 +184,9 @@ public class SessionFactoryHelper
         }
     }
 
-    /// <sumary>
+    /// <summary>
     /// Returns the Glacier2 router port to connect to.
-    /// </sumary>
+    /// </summary>
     /// <returns>The port.</returns>
     public int
     getPort()
@@ -211,13 +211,13 @@ public class SessionFactoryHelper
         }
     }
 
-    /// <sumary>
+    /// <summary>
     /// Connects to the Glacier2 router using the associated SSL credentials.
     /// 
     /// Once the connection is established, SesssionCallback.connected is called on
     /// the callback object; upon failure, SessionCallback.connectFailed is called 
     /// with the exception.
-    /// </sumary>
+    /// </summary>
     /// <returns>The connected session.</returns>
     public SessionHelper
     connect()
@@ -230,13 +230,13 @@ public class SessionFactoryHelper
         }
     }
 
-    /// <sumary>
+    /// <summary>
     /// Connect the Glacier2 session using user name and password credentials.
     ///
     /// Once the connection is established, SessionCallback.connected is called on
     /// the callback object; upon failure, SessionCallback.connectFailed is called
     /// with the exception. 
-    /// </sumary>
+    /// </summary>
     /// <param name="username">The user name.</param>
     /// <param name="password">The password.</param>
     /// <returns>The connected session.</returns>
@@ -254,7 +254,9 @@ public class SessionFactoryHelper
     private Ice.InitializationData
     createInitData()
     {
+        //
         // Clone the initialization data and properties.
+        //
         Ice.InitializationData initData = (Ice.InitializationData)_initData.Clone();
         initData.properties = initData.properties.ice_clone_();
 

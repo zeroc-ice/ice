@@ -26,7 +26,8 @@ public class SessionFactoryHelper
      * @throws {@link Ice.InitializationException}
      */
     public
-    SessionFactoryHelper(SessionCallback callback) throws Ice.InitializationException
+    SessionFactoryHelper(SessionCallback callback)
+        throws Ice.InitializationException
     {
         initialize(callback, new Ice.InitializationData(), Ice.Util.createProperties());
     }
@@ -39,7 +40,8 @@ public class SessionFactoryHelper
      * @throws {@link Ice.InitializationException}
      */
     public
-    SessionFactoryHelper(Ice.InitializationData initData, SessionCallback callback) throws Ice.InitializationException
+    SessionFactoryHelper(Ice.InitializationData initData, SessionCallback callback)
+        throws Ice.InitializationException
     {
         initialize(callback, initData, initData.properties);
     }
@@ -52,7 +54,8 @@ public class SessionFactoryHelper
      * @throws {@link Ice.InitializationException}
      */
     public
-    SessionFactoryHelper(Ice.Properties properties, SessionCallback callback) throws Ice.InitializationException
+    SessionFactoryHelper(Ice.Properties properties, SessionCallback callback)
+        throws Ice.InitializationException
     {
         initialize(callback, new Ice.InitializationData(), properties);
     }
@@ -63,8 +66,8 @@ public class SessionFactoryHelper
     {
         if(callback == null)
         {
-            throw new Ice.InitializationException("Attempt to create a SessionFactoryHelper with a null SessionCallback" +
-                                                  "argument");
+            throw new Ice.InitializationException("Attempt to create a SessionFactoryHelper with a null " +
+                                                  "SessionCallback argument");
         }
 
         if(initData == null)
@@ -250,7 +253,9 @@ public class SessionFactoryHelper
     private Ice.InitializationData
     createInitData()
     {
+        //
         // Clone the initialization data and properties.
+        //
         Ice.InitializationData initData = (Ice.InitializationData)_initData.clone();
         initData.properties = initData.properties._clone();
 

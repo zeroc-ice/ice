@@ -20,16 +20,14 @@ public interface SessionCallback
      *
      * @param session The Glacier2 session.
      */
-    void
-    createdCommunicator(SessionHelper session);
+    void createdCommunicator(SessionHelper session);
 
     /**
      * Notifies the application that the Glacier2 session has been established.
      *  
      * @param session The established session.
      */
-    void
-    connected(SessionHelper session)
+    void connected(SessionHelper session)
         throws SessionNotExistException;
 
     /**
@@ -37,8 +35,7 @@ public interface SessionCallback
      *
      * @param session The disconnected session.
      */
-    void
-    disconnected(SessionHelper session);
+    void disconnected(SessionHelper session);
 
     /**
      * Notifies the application that the Glacier2 session establishment failed. 
@@ -47,6 +44,5 @@ public interface SessionCallback
      * failure.
      * @param ex The exception.
      */
-    void
-    connectFailed(SessionHelper session, Throwable ex);
+    void connectFailed(SessionHelper session, Throwable ex);
 }
