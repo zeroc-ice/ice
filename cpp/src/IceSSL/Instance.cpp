@@ -1064,13 +1064,8 @@ IceSSL::Instance::traceConnection(SSL* ssl, bool incoming)
 {
     Trace out(_logger, _securityTraceCategory);
     out << "SSL summary for " << (incoming ? "incoming" : "outgoing") << " connection\n";
-#if OPENSSL_VERSION_NUMBER >= 0x10000000L
-    const SSL_CIPHER *cipher;
-#else
-    SSL_CIPHER *cipher;
-#endif
 
-    cipher = SSL_get_current_cipher(ssl);
+    const SSL_CIPHER *cipher = SSL_get_current_cipher(ssl);
     if(!cipher)
     {
         out << "unknown cipher\n";
