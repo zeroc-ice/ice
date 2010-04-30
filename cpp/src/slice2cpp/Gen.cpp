@@ -2519,7 +2519,7 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
     H << nl << "return begin_" << name << spar << argsAMI << "&__ctx" << "__del" << "__cookie" << epar << ';';
     H << eb;
 
-    H << sp << nl << retS << " end_" << name << spar << outParamsDeclAMI
+    H << sp << nl << _dllExport << retS << " end_" << name << spar << outParamsDeclAMI
       << "const ::Ice::AsyncResultPtr&" << epar << ';';
     if(generatePrivateEnd)
     {

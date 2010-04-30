@@ -92,8 +92,12 @@ public:
         communicator->getProperties()->setProperty("Ice.PrintAdapterReady", "");
         ObjectAdapterPtr adapter = communicator->createObjectAdapterWithRouter("CallbackReceiverAdapter", router);
         adapter->activate();
-        
-        string category = router->getCategoryForClient();
+
+        //
+        // Verify that the generated end_ method is exported properly - see bug 4719.
+        //
+        Ice::AsyncResultPtr r = router->begin_getCategoryForClient();
+        string category = router->end_getCategoryForClient(r);
         {
             Lock sync(*this);
             _callbackReceiver = new CallbackReceiverI;
