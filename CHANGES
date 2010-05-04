@@ -40,6 +40,14 @@ C++ Changes
   used.
 
 
+Java Changes
+============
+
+- Fixed race condition which could cause the thread pool selector
+  thread to go away (causing the thread pool to not dispatch further
+  incoming messages).
+
+
 C# Changes
 ==========
 
