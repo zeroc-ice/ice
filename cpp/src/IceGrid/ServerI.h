@@ -124,7 +124,6 @@ private:
     bool checkActivation();
     void checkDestroyed() const;
     void disableOnFailure();
-    void enableAfterFailure(bool);
 
     void setState(InternalServerState, const std::string& = std::string());
     ServerCommandPtr nextCommand();

@@ -24,6 +24,14 @@ Changes since version 3.4.0
 ======================================================================
 
 
+General Changes
+===============
+
+- Fixed IceGrid bug where node observers wouldn't be notified when a
+  server is re-enabled after it has been updated and if the server was
+  disabled following an activation failure.
+
+
 C++ Changes
 ===========
 

@@ -1304,29 +1304,6 @@ ServerI::disableOnFailure()
 }
 
 void
-ServerI::enableAfterFailure(bool force)
-{
-    if(_disableOnFailure == 0 || _failureTime == IceUtil::Time())
-    {
-        return;
-    }
-
-    if(force ||
-       (_disableOnFailure > 0 && 
-       (_failureTime + IceUtil::Time::seconds(_disableOnFailure) < IceUtil::Time::now(IceUtil::Time::Monotonic))))
-    {
-        _activation = _previousActivation;
-        _failureTime = IceUtil::Time();
-    }
-
-    if(_timerTask)
-    {
-        _node->getTimer()->cancel(_timerTask);
-        _timerTask = 0;
-    }
-}
-
-void
 ServerI::activationTimedOut()
 {
     ServerCommandPtr command;
@@ -1771,6 +1748,7 @@ ServerI::update()
         }
 
         InternalServerDescriptorPtr oldDescriptor = _desc;
+        bool disabled = oldDescriptor && _activation == Disabled;
         try
         {
             if(_load->clearDir())
@@ -1863,6 +1841,10 @@ ServerI::update()
             _load->failed(ex);
         }
 
+        if(oldDescriptor && disabled != (_activation == Disabled))
+        {
+            _node->observerUpdateServer(getDynamicInfo());
+        }
         setStateNoSync(Inactive);
         command = nextCommand();
     }
