@@ -544,17 +544,18 @@ public final class ThreadPool
         //
         // Wait to be promoted and for all the IO threads to be done.
         //
-        while(!_promote || _inUseIO == _sizeIO || _nextHandler.hasNext() && _inUseIO > 0)
+        while(!_promote || _inUseIO == _sizeIO || !_nextHandler.hasNext() && _inUseIO > 0)
         {
-            while(true)
+            try
             {
-                try
+                if(_threadIdleTime > 0)
                 {
-                    if(_threadIdleTime > 0)
+                    long before = IceInternal.Time.currentMonotonicTimeMillis();
+                    wait(_threadIdleTime * 1000);
+                    if(IceInternal.Time.currentMonotonicTimeMillis() - before >= _threadIdleTime * 1000)
                     {
-                        long before = IceInternal.Time.currentMonotonicTimeMillis();
-                        wait(_threadIdleTime * 1000);
-                        if(IceInternal.Time.currentMonotonicTimeMillis() - before >= _threadIdleTime * 1000)
+                        if(!_destroyed && (!_promote || _inUseIO == _sizeIO ||
+                                           (!_nextHandler.hasNext() && _inUseIO > 0)))
                         {
                             if(_instance.traceLevels().threadPool >= 1)
                             {
@@ -567,16 +568,14 @@ public final class ThreadPool
                             return true;
                         }
                     }
-                    else
-                    {
-                        wait();
-                    }
-
-                    break;
                 }
-                catch(InterruptedException ex)
+                else
                 {
+                    wait();
                 }
+            }
+            catch(InterruptedException ex)
+            {
             }
         }
         current._leader = true; // The current thread has become the leader.
