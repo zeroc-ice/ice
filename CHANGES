@@ -27,9 +27,13 @@ Changes since version 3.4.0
 General Changes
 ===============
 
-- Fixed IceGrid bug where node observers wouldn't be notified when a
+- Fixed IceGrid bug where node observers would not be notified when a
   server is re-enabled after it has been updated and if the server was
   disabled following an activation failure.
+
+- Fixed a bug in the Glacier2.SessionFactoryHelper class (Java/C#) in
+  which the getPort() method would return an incorrect default port if
+  no port was configured.
 
 
 C++ Changes

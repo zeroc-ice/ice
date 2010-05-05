@@ -193,7 +193,7 @@ public class SessionFactoryHelper
     {
         lock(this)
         {
-            return _port == 0 ? (_secure ? GLACIER2_TCP_PORT : GLACIER2_SSL_PORT) : _port;
+            return _port == 0 ? (_secure ? GLACIER2_SSL_PORT : GLACIER2_TCP_PORT) : _port;
         }
     }
 
