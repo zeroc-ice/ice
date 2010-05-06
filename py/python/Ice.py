@@ -1028,7 +1028,7 @@ value is an integer representing the exit status.
         return status
 
     def doMain(self, args, initData):
-        self.run(args)
+        return self.run(args)
 
     def run(self, args):
         '''This method must be overridden in a subclass. The base

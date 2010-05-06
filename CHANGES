@@ -74,6 +74,9 @@ Python Changes
 - Fixed a bug in which destroyed Communicator instances were not being
   garbage collected.
 
+- Fixed a bug in Ice.Application in which the exit status was not
+  properly returned from main().
+
 
 ======================================================================
 Changes since version 3.4b
