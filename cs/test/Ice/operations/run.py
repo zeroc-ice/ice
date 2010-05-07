@@ -24,6 +24,10 @@ print "tests with regular server."
 TestUtil.clientServerTest(additionalClientOptions = "--Ice.Warn.AMICallback=0")
 print "tests with AMD server."
 TestUtil.clientServerTest(additionalClientOptions = "--Ice.Warn.AMICallback=0", server="serveramd")
+print "tests with TIE server."
+TestUtil.clientServerTest(additionalClientOptions = "--Ice.Warn.AMICallback=0", server="servertie")
+print "tests with AMD TIE server."
+TestUtil.clientServerTest(additionalClientOptions = "--Ice.Warn.AMICallback=0", server="serveramdtie")
 print "tests with collocated server."
 TestUtil.collocatedTest()
 

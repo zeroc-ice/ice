@@ -303,10 +303,6 @@
             <fileset dir="test/Ice/location">
                 <include name="Test.ice" />
             </fileset>
-            <fileset dir="test/Ice/operations">
-                <include name="Test.ice" />
-                <include name="TestAMD.ice" />
-            </fileset>
             <fileset dir="test/Ice/proxy">
                 <include name="Test.ice" />
                 <include name="TestAMD.ice" />
@@ -373,6 +369,10 @@
             </includepath>
             <fileset dir="test/Freeze/evictor">
                 <include name="Test.ice" />
+            </fileset>
+            <fileset dir="test/Ice/operations">
+                <include name="Test.ice" />
+                <include name="TestAMD.ice" />
             </fileset>
         </slice2java>
 

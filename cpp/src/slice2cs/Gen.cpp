@@ -5862,29 +5862,18 @@ Slice::Gen::TieVisitor::visitModuleEnd(const ModulePtr&)
 bool
 Slice::Gen::TieVisitor::visitClassDefStart(const ClassDefPtr& p)
 {
-    if(!p->isAbstract())
+    if(p->isLocal() || !p->isAbstract())
     {
         return false;
     }
 
     string name = p->name();
     string opIntfName = "Operations";
-    if(p->isLocal())
-    {
-        opIntfName += "NC";
-    }
 
     _out << sp << nl << "public class " << name << "Tie_ : ";
     if(p->isInterface())
     {
-        if(p->isLocal())
-        {
-            _out << fixId(name) << ", Ice.TieBase";
-        }
-        else
-        {
-            _out << name << "Disp_, Ice.TieBase";
-        }
+        _out << name << "Disp_, Ice.TieBase";
     }
     else
     {
@@ -5909,18 +5898,6 @@ Slice::Gen::TieVisitor::visitClassDefStart(const ClassDefPtr& p)
     _out << sp << nl << "public void ice_delegate(object del)";
     _out << sb;
     _out << nl << "_ice_delegate = (" << name << opIntfName << "_)del;";
-    _out << eb;
-
-    _out << sp << nl <<"[Obsolete(\"This method is deprecated, use GetHashCode instead.\")]";
-    _out << nl << "public ";
-    if(!p->isInterface() || !p->isLocal())
-    {
-        _out << "override ";
-    }
-    _out << "int ice_hash()";
-
-    _out << sb;
-    _out << nl << "return GetHashCode();";
     _out << eb;
 
     _out << sp << nl << "public override int GetHashCode()";
@@ -5968,16 +5945,8 @@ Slice::Gen::TieVisitor::visitClassDefStart(const ClassDefPtr& p)
             args = getArgs(*r);
         }
 
-        _out << sp << nl << "public ";
-        if(!p->isInterface() || !p->isLocal())
-        {
-            _out << "override ";
-        }
-        _out << (hasAMD ? string("void") : retS) << ' ' << opName << spar << params;
-        if(!p->isLocal())
-        {
-            _out << "Ice.Current current__";
-        }
+        _out << sp << nl << "public override ";
+        _out << (hasAMD ? string("void") : retS) << ' ' << opName << spar << params << "Ice.Current current__";
         _out << epar;
         _out << sb;
         _out << nl;
@@ -5985,11 +5954,7 @@ Slice::Gen::TieVisitor::visitClassDefStart(const ClassDefPtr& p)
         {
             _out << "return ";
         }
-        _out << "_ice_delegate." << opName << spar << args;
-        if(!p->isLocal())
-        {
-            _out << "current__";
-        }
+        _out << "_ice_delegate." << opName << spar << args << "current__";
         _out << epar << ';';
         _out << eb;
     }
@@ -6043,16 +6008,8 @@ Slice::Gen::TieVisitor::writeInheritedOperationsWithOpNames(const ClassDefPtr& p
             args = getArgs(*r);
         }
 
-        _out << sp << nl << "public ";
-        if(!p->isInterface() || !p->isLocal())
-        {
-            _out << "override ";
-        }
-        _out << (hasAMD ? string("void") : retS) << ' ' << opName << spar << params;
-        if(!p->isLocal())
-        {
-            _out << "Ice.Current current__";
-        }
+        _out << sp << nl << "public override ";
+        _out << (hasAMD ? string("void") : retS) << ' ' << opName << spar << params << "Ice.Current current__";
         _out << epar;
         _out << sb;
         _out << nl;
@@ -6060,11 +6017,7 @@ Slice::Gen::TieVisitor::writeInheritedOperationsWithOpNames(const ClassDefPtr& p
         {
             _out << "return ";
         }
-        _out << "_ice_delegate." << opName << spar << args;
-        if(!p->isLocal())
-        {
-            _out << "current__";
-        }
+        _out << "_ice_delegate." << opName << spar << args << "current__";
         _out << epar << ';';
         _out << eb;
     }
@@ -6099,7 +6052,7 @@ Slice::Gen::BaseImplVisitor::writeOperation(const OperationPtr& op, bool comment
         _out << sp << nl;
     }
 
-        ParamDeclList::const_iterator i;
+    ParamDeclList::const_iterator i;
     if(!cl->isLocal() && (cl->hasMetaData("amd") || op->hasMetaData("amd")))
     {
         ParamDeclList::const_iterator i;
@@ -6184,7 +6137,6 @@ Slice::Gen::BaseImplVisitor::writeOperation(const OperationPtr& op, bool comment
         _out << eb;
     }
 }
-
 
 Slice::Gen::ImplVisitor::ImplVisitor(IceUtilInternal::Output& out)
     : BaseImplVisitor(out)
@@ -6282,7 +6234,7 @@ Slice::Gen::ImplTieVisitor::visitModuleEnd(const ModulePtr&)
 bool
 Slice::Gen::ImplTieVisitor::visitClassDefStart(const ClassDefPtr& p)
 {
-    if(!p->isAbstract())
+    if(p->isLocal() || !p->isAbstract())
     {
         return false;
     }
@@ -6313,10 +6265,6 @@ Slice::Gen::ImplTieVisitor::visitClassDefStart(const ClassDefPtr& p)
         _out << ", ";
     }
     _out << name << "Operations";
-    if(p->isLocal())
-    {
-        _out << "NC";
-    }
     _out << '_';
     _out << sb;
 
