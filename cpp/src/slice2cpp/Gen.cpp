@@ -1049,44 +1049,6 @@ Slice::Gen::TypesVisitor::visitStructStart(const StructPtr& p)
         {
             H << nl << name << "() {}";
         }
-
-        if(!dataMembers.empty())
-        {
-            DataMemberList::const_iterator q;
-            vector<string> paramDecls;
-            vector<string> types;
-            for(q = dataMembers.begin(); q != dataMembers.end(); ++q)
-            {
-                string typeName = inputTypeToString((*q)->type(), (*q)->getMetaData(), _useWstring);
-                types.push_back(typeName);
-                paramDecls.push_back(typeName + " __ice_" + (*q)->name());
-            }
-
-            H << nl;
-            if(paramDecls.size() == 1)
-            {
-                H << "explicit ";
-            }
-            H << name << spar << types << epar << ';';
-
-            C << sp << nl << fixKwd(p->scoped()).substr(2) << "::"
-              << fixKwd(p->name()) << spar << paramDecls << epar << " :";
-            C.inc();
-
-            for(q = dataMembers.begin(); q != dataMembers.end(); ++q)
-            {
-                if(q != dataMembers.begin())
-                {
-                    C << ',';
-                }
-                string memberName = fixKwd((*q)->name());
-                C << nl << memberName << '(' << "__ice_" << (*q)->name() << ')';
-            }
-
-            C.dec();
-            C << sb;
-            C << eb;
-        }
     }
     else
     {
@@ -1104,6 +1066,50 @@ Slice::Gen::TypesVisitor::visitStructStart(const StructPtr& p)
             C << eb;
         }
     }
+
+    //
+    // Generate a one-shot constructor if the struct uses the class mapping, or if at least
+    // one of its members has a default value.
+    //
+    if(!dataMembers.empty() && (findMetaData(p->getMetaData()) == "class" || p->hasDefaultValues()))
+    {
+        DataMemberList::const_iterator q;
+        vector<string> paramDecls;
+        vector<string> types;
+        for(q = dataMembers.begin(); q != dataMembers.end(); ++q)
+        {
+            string typeName = inputTypeToString((*q)->type(), (*q)->getMetaData(), _useWstring);
+            types.push_back(typeName);
+            paramDecls.push_back(typeName + " __ice_" + (*q)->name());
+        }
+
+        H << nl;
+        if(paramDecls.size() == 1)
+        {
+            H << "explicit ";
+        }
+        H << name << spar << types << epar << ';';
+
+        C << sp << nl << fixKwd(p->scoped()).substr(2) << "::"
+          << fixKwd(p->name()) << spar << paramDecls << epar << " :";
+        C.inc();
+
+        for(q = dataMembers.begin(); q != dataMembers.end(); ++q)
+        {
+            if(q != dataMembers.begin())
+            {
+                C << ',';
+            }
+            string memberName = fixKwd((*q)->name());
+            C << nl << memberName << '(' << "__ice_" << (*q)->name() << ')';
+        }
+
+        C.dec();
+        C << sb;
+        C << eb;
+    }
+
+    H << sp;
 
     return true;
 }

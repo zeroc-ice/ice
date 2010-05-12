@@ -39,6 +39,9 @@ General Changes
 C++ Changes
 ===========
 
+- slice2cpp now generates a "one-shot" constructor for a Slice
+  structure if at least one of its members has a default value.
+
 - Fixed a bug in slice2cpp so that asynchronous "end_op" methods are
   now exported properly.
 
