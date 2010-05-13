@@ -6,15 +6,25 @@ Requirements
 Visual Studio & Windows Version
 -------------------------------
 
-Ice Visual Studio Extension has been extensively tested using Visual
-Studio 2008 SP1 on the following platforms:
+The Ice Visual Studio Extension is supported in the following 
+environments:
 
- - Windows XP with Service Pack 3 (x86)
- - Windows Server 2003 Standard with Service Pack 2 (x86 & x64)
- - Windows Server 2008 Standard with Service Pack 2 (x86 & x64)
- - Windows Server 2008 Standard R2 (x64)
- - Windows Vista with Service Pack 2 (x86 & x64)
- - Windows 7 (x86 & x64)
+ - Windows XP SP3 (x86) with Visual Studio 2008 SP1
+
+ - Windows Server 2003 Standard SP2 (x86 & x64) with Visual Studio 
+   2008 SP1
+
+ - Windows Server 2008 Standard SP2 (x86 & x64) with Visual Studio 
+   2008 SP1
+
+ - Windows Server 2008 Standard R2 (x64) with Visual Studio 2008 SP1
+   or Visual Studio 2010
+
+ - Windows Vista SP2 (x86 & x64) with Visual Studio 2008 SP1 or Visual
+   Studio 2010
+
+ - Windows 7 (x86 & x64) with Visual Studio 2008 SP1 or Visual Studio 
+   2010
 
 
 Compilers
@@ -22,11 +32,11 @@ Compilers
 
 Building the Ice Visual Studio Extension requires:
 
-- Microsoft Visual Studio 2008 SP1
+- Microsoft Visual Studio 2008 SP1 and Visual Studio 2008 SDK
 
-- Visual Studio 2008 SDK Version 1.0
+or
 
-  http://www.microsoft.com/downloads/details.aspx?FamilyID=30402623-93ca-479a-867c-04dc45164f5b&displaylang=en
+- Microsoft Visual Studio 2010 and Visual Studio 2010 SDK
   
 
 ======================================================================
@@ -36,7 +46,7 @@ Compilation
 Unpack the archive. The sources are contained in the
 Ice-@ver@\vsplugin subdirectory.
 
-1) In a Visual Studio 2008 command prompt, change to the distribution
+1) In a Visual Studio command prompt, change to the distribution
    directory:
 
    > cd Ice-@ver@\vsplugin
@@ -48,10 +58,10 @@ Ice-@ver@\vsplugin subdirectory.
 
    > nmake /f Makefile.mak
 
-The plug-in DLL is placed into the Ice-@ver@\vsplugin\bin directory.
+The add-in DLL is placed into the Ice-@ver@\vsplugin\bin directory.
 The library name is
 
-   IceVisualStudioAddin-VS2008.dll
+   IceVisualStudioAddin-VS2008.dll or IceVisualStudioAddin-VS2010.dll
 
 
 ======================================================================
@@ -69,13 +79,15 @@ config\Make.rules.mak:
 Configuration
 ======================================================================
 
-1) Open a Visual Studio 2008 command prompt
+1) Open a command prompt
 
-2) Set up an Addin file
+   Use "Run as administrator" on Windows Vista or Windows 7.
+
+2) Install Add-in file
 
    Add-ins are added to Visual Studio by placing a .Addin file into
    one of the directories that Visual Studio searches for Add-ins. The
-   file contains the plug-in configuration in XML format.
+   file contains the add-in configuration in XML format.
 
    You can view the list of directories in which Visual Studio
    searches for add-in files using the following Visual Studio window:
@@ -88,47 +100,51 @@ Configuration
    For a Windows Vista (or later) default installation, the directory
    is:
 
-     C:\Users\username\Documents\Visual Studio 2008\Addins
+     C:\Users\username\Documents\Visual Studio 20xx\Addins
+     
+     (replace username and xx as appropriate)
 
    For a Windows XP default installation, the directory is:
 
-     C:\Document and Settings\username\My Documents\Visual Studio 2008\Addins
+     C:\Document and Settings\username\My Documents\Visual Studio 20xx\Addins
 
   Once you have chosen the directory, you must copy the corresponding
-  .Addin file to that directory:
+  .Addin file to that directory. For example (with Visual Studio 2008):
 
   > cd C:\Users\username\Documents\Visual Studio 2008\Addins
-  > copy C:\Ice-@ver@\vsplugin\conf\Ice-VS2008.AddIn
+  > copy C:\Ice-@ver@\vsplugin\config\Ice-VS2008.AddIn
 
   If you have not installed the add-in in the default location, you 
   must edit the .Addin file and update the value of the "Assembly"
   element with your installation path.
 
-3) Install item templates.
+3) Install item templates
 
    To be able to add new items from the standard "New Item" dialog,
    you must install the corresponding item templates.
 
    For C++, item templates are installed in:
   
-     C:\Program Files\Microsoft Visual Studio 9.0\VC\vcprojectitems 
+     C:\Program Files\Microsoft Visual Studio 9.0\VC\vcprojectitems or
+     C:\Program Files\Microsoft Visual Studio 10.0\VC\vcprojectitems
 
    Copy the Slice template and configuration files:
 
    > cd C:\Ice-@ver@\vsplugin\templates\vs
-   > xcopy /e * C:\Program Files\Microsoft Visual Studio 9.0\VC\vcprojectitems
+   > xcopy /e * "C:\Program Files\Microsoft Visual Studio 9.0\VC\vcprojectitems"
 
    For C#, item templates are installed in:
 
      C:\Program Files\Microsoft Visual Studio 9.0\VC#\CSharpProjectItems
+     or
+     C:\Program Files\Microsoft Visual Studio 10.0\VC#\CSharpProjectItems
 
    Copy the Slice template and configuration files:
 
    > cd C:\Ice-@ver@\vsplugin\templates\vs
-   > xcopy /e * C:\Program Files\Microsoft Visual Studio 9.0\VC#\CSharpProjectItems
+   > xcopy /e * "C:\Program Files\Microsoft Visual Studio 9.0\VC#\CSharpProjectItems"
 
-   On 64-bit platforms, you must the copy the template files to the
-   Visual Studio folder in: 
+   If you are using Windows 64-bit, these directories are:
    
      C:\Program Files (x86)\...
    
@@ -142,11 +158,11 @@ Configuration
    For a Windows Vista (or later) default installation, C# user
    templates are installed in:
 
-     C:\Users\username\Documents\Visual Studio 2008\Templates\ItemTemplates\Visual C#
-
+     C:\Users\username\Documents\Visual Studio 20xx\Templates\ItemTemplates\Visual C#
+   
    For a Windows XP default installation, the directory is:
 
-     C:\Document and Settings\username\My Documents\Visual Studio 2008\Templates\ItemTemplates\Visual C#
+     C:\Document and Settings\username\My Documents\Visual Studio 20xx\Templates\ItemTemplates\Visual C#
 
    Copy C:\Ice-@ver@\vsplugin\templates\Slice.zip to the C# template
    directory. For example:
