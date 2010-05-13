@@ -47,7 +47,7 @@ $(DLLNAME): $(OBJS) IcePatch2.res
 		$(OPENSSL_LIBS) $(RES_FILE)
 	move $(DLLNAME:.dll=.lib) $(LIBNAME)
 	@if exist $@.manifest echo ^ ^ ^ Embedding manifest using $(MT) && \
-	    $(MT) -nologo -manifest $@.manifest security.manifest -outputresource:$@;#2 && del /q $@.manifest
+	    $(MT) -nologo -manifest $@.manifest -outputresource:$@;#2 && del /q $@.manifest
 	@if exist $(DLLNAME:.dll=.exp) del /q $(DLLNAME:.dll=.exp)
 
 clean::
