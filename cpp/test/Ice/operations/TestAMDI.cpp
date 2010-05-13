@@ -11,9 +11,7 @@
 #include <TestAMDI.h>
 #include <TestCommon.h>
 #include <functional>
-#ifdef __BCPLUSPLUS__
-#  include <iterator>
-#endif
+#include <iterator>
 
 class Thread_opVoid : public IceUtil::Thread
 {

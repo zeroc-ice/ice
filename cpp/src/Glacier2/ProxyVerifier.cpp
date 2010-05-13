@@ -346,7 +346,7 @@ public:
         {
             return false;
         }
-        pos += istr.tellg();
+        pos += static_cast<string::size_type>(istr.tellg());
         {
             for(vector<int>::const_iterator i = _values.begin(); i != _values.end(); ++i)
             {

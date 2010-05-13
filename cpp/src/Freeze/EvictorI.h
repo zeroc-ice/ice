@@ -236,6 +236,9 @@ protected:
 #if defined(__BCPLUSPLUS__) || (defined(_MSC_VER) && (_MSC_VER < 1300))
             std::pair<StoreMap::iterator, bool> ir = 
                 _storeMap.insert(StoreMap::value_type(facet, 0));
+#elif (defined(_MSC_VER) && (_MSC_VER >= 1600))
+	    std::pair<typename StoreMap::iterator, bool> ir = 
+                _storeMap.insert(typename StoreMap::value_type(facet, nullptr));
 #else
             std::pair<typename StoreMap::iterator, bool> ir = 
                 _storeMap.insert(typename StoreMap::value_type(facet, 0));

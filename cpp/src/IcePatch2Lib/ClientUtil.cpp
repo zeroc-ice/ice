@@ -16,10 +16,7 @@
 #include <IcePatch2/Util.h>
 #include <IcePatch2/FileServerI.h>
 #include <list>
-
-#ifdef __BCPLUSPLUS__
-#  include <iterator>
-#endif
+#include <iterator>
 
 using namespace std;
 using namespace Ice;

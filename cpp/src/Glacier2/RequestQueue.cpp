@@ -102,7 +102,11 @@ public:
     virtual void
     ice_sent()
     {
+#if (defined(_MSC_VER) && (_MSC_VER >= 1600))
+        _amdCB->ice_response(true, pair<const Byte*, const Byte*>(nullptr, nullptr));
+#else
         _amdCB->ice_response(true, pair<const Byte*, const Byte*>(0, 0));
+#endif
     }
 };
 
@@ -123,7 +127,11 @@ Glacier2::Request::Request(const ObjectPrx& proxy, const std::pair<const Byte*, 
     //
     if(_proxy->ice_isBatchOneway() || _proxy->ice_isBatchDatagram())
     {
+#if (defined(_MSC_VER) && (_MSC_VER >= 1600))
+        _amdCB->ice_response(true, pair<const Byte*, const Byte*>(nullptr, nullptr));
+#else
         _amdCB->ice_response(true, pair<const Byte*, const Byte*>(0, 0));
+#endif
     }
 
     Context::const_iterator p = current.ctx.find("_ovrd");
@@ -216,7 +224,11 @@ Glacier2::Request::invoke(const InstancePtr& instance, const Ice::ConnectionPtr&
         }
         if(sent && !_proxy->ice_isTwoway())
         {
+#if (defined(_MSC_VER) && (_MSC_VER >= 1600))
+            _amdCB->ice_response(true, pair<const Byte*, const Byte*>(nullptr, nullptr));
+#else
             _amdCB->ice_response(true, pair<const Byte*, const Byte*>(0, 0));
+#endif
         }
         return false; // Not a batch invocation.
     }

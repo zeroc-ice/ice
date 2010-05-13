@@ -30,6 +30,12 @@ SRCS		= $(SOBJS:.obj=.cpp) \
 
 CPPFLAGS	= -I. -I.. $(CPPFLAGS) -DWIN32_LEAN_AND_MEAN
 
+!if "$(CPP_COMPILER)" == "VC90" || "$(CPP_COMPILER)" == "VC90_EXPRESS" || \
+    "$(CPP_COMPILER)" == "VC100" || "$(CPP_COMPILER)" == "VC100_EXPRESS"
+LD_EXEFLAGS  = /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" $(LD_EXEFLAGS)
+!endif
+
+
 !if "$(GENERATE_PDB)" == "yes"
 SPDBFLAGS       = /pdb:$(SERVER:.exe=.pdb)
 CPDBFLAGS       = /pdb:$(CLIENT:.exe=.pdb)
@@ -44,19 +50,19 @@ $(SERVER): $(SOBJS) IcePatch2Server.res
 	$(LINK) $(LD_EXEFLAGS) $(SPDBFLAGS) $(SETARGV) $(SOBJS) $(PREOUT)$@ $(PRELIBS)$(LIBS) \
 		icepatch2$(LIBSUFFIX).lib $(SRES_FILE)
 	@if exist $@.manifest echo ^ ^ ^ Embedding manifest using $(MT) && \
-	    $(MT) -nologo -manifest $@.manifest security.manifest -outputresource:$@;#1 && del /q $@.manifest
+	    $(MT) -nologo -manifest $@.manifest -outputresource:$@;#1 && del /q $@.manifest
 
 $(CLIENT): $(COBJS) IcePatch2Client.res
 	$(LINK) $(LD_EXEFLAGS) $(CPDBFLAGS) $(SETARGV) $(COBJS) $(PREOUT)$@ $(PRELIBS)$(LIBS) \
 		icepatch2$(LIBSUFFIX).lib $(CRES_FILE)
 	@if exist $@.manifest echo ^ ^ ^ Embedding manifest using $(MT) && \
-	    $(MT) -nologo -manifest $@.manifest security.manifest -outputresource:$@;#1 && del /q $@.manifest
+	    $(MT) -nologo -manifest $@.manifest -outputresource:$@;#1 && del /q $@.manifest
 
 $(CALC): $(CALCOBJS) IcePatch2Calc.res
 	$(LINK) $(LD_EXEFLAGS) $(CAPDBFLAGS) $(SETARGV) $(CALCOBJS) $(PREOUT)$@ $(PRELIBS)$(LIBS) \
 		icepatch2$(LIBSUFFIX).lib $(CARES_FILE)
 	@if exist $@.manifest echo ^ ^ ^ Embedding manifest using $(MT) && \
-	    $(MT) -nologo -manifest $@.manifest security.manifest -outputresource:$@;#1 && del /q $@.manifest
+	    $(MT) -nologo -manifest $@.manifest -outputresource:$@;#1 && del /q $@.manifest
 
 clean::
 	-del /q $(SERVER:.exe=.*)

@@ -15,9 +15,7 @@
 #include <Slice/GrammarUtil.h>
 #include <Slice/Util.h>
 #include <cstring>
-#ifdef __BCPLUSPLUS__
-#  include <iterator>
-#endif
+#include <iterator>
 
 #ifdef _WIN32
 #   include <io.h>

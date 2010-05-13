@@ -14,11 +14,8 @@
 #include <IceUtil/StringUtil.h>
 #include <IceGrid/Exception.h>
 #include <IceUtil/Random.h>
-
 #include <functional>
-#ifdef __BCPLUSPLUS__
-#  include <iterator>
-#endif
+#include <iterator>
 
 namespace IceGrid
 {

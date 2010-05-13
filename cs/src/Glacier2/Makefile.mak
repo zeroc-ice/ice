@@ -32,7 +32,9 @@ GDIR		= generated
 
 MCSFLAGS	= $(MCSFLAGS) -target:library -out:$(TARGETS) -warnaserror-
 MCSFLAGS	= $(MCSFLAGS) -keyfile:$(KEYFILE)
-MCSFLAGS	= $(MCSFLAGS) /doc:$(bindir)\$(PKG).xml /nowarn:1591 -r:WindowsBase.dll
+MCSFLAGS	= $(MCSFLAGS) /doc:$(bindir)\$(PKG).xml /nowarn:1591
+
+# -r:WindowsBase.dll
 
 SLICE2CSFLAGS	= $(SLICE2CSFLAGS) -I$(slicedir)
 

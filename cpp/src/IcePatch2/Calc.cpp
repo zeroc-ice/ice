@@ -12,6 +12,7 @@
 #include <IceUtil/StringUtil.h>
 #include <IceUtil/FileUtil.h>
 #include <IcePatch2/Util.h>
+#include <iterator>
 
 using namespace std;
 using namespace Ice;

@@ -25,9 +25,7 @@
 #include <Ice/LocalException.h>
 #include <Ice/Functional.h>
 #include <IceUtil/Random.h>
-#ifdef __BCPLUSPLUS__
-#  include <iterator>
-#endif
+#include <iterator>
 
 using namespace std;
 using namespace Ice;

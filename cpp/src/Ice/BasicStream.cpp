@@ -24,9 +24,7 @@
 #include <Ice/LoggerUtil.h>
 #include <Ice/StringConverter.h>
 #include <IceUtil/Unicode.h>
-#ifdef __BCPLUSPLUS__
-#  include <iterator>
-#endif
+#include <iterator>
 
 using namespace std;
 using namespace Ice;

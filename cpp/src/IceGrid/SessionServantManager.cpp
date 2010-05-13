@@ -11,6 +11,7 @@
 #include <Ice/LocalException.h>
 #include <Ice/ObjectAdapter.h>
 #include <IceGrid/SessionServantManager.h>
+#include <iterator>
 
 using namespace std;
 using namespace IceGrid;

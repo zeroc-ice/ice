@@ -99,7 +99,11 @@ public:
     virtual void
     ice_sent()
     {
+#if (defined(_MSC_VER) && (_MSC_VER >= 1600))
+        _amdCB->ice_response(true, pair<const Byte*, const Byte*>(nullptr, nullptr));
+#else
         _amdCB->ice_response(true, pair<const Byte*, const Byte*>(0, 0));
+#endif
     }
 
     virtual void

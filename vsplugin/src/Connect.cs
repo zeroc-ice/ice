@@ -52,11 +52,18 @@ namespace Ice.VisualStudio
                 {
 
                     //
-                    // This property is set to false to avoid VC++ "not maching rule" dialog
+                    // This property is set to false to avoid VC++ "no matching rule" dialog
                     //
                     EnvDTE.Properties props = _applicationObject.get_Properties("Projects", "VCGeneral");
-                    EnvDTE.Property prop = props.Item("ShowNoMatchingRuleDlg");
-                    prop.Value = false;
+                    try
+                    {
+                        EnvDTE.Property prop = props.Item("ShowNoMatchingRuleDlg");
+                        prop.Value = false;
+                    }
+                    catch (System.ArgumentException)
+                    {
+                        // ignored: this property does not exist with Visual Studio 2010
+                    }
 
                     _builder = new Builder();
                     _builder.init(_applicationObject, _addInInstance);

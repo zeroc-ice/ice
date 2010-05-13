@@ -16,6 +16,7 @@
 #include <Slice/FileTracker.h>
 #include <Slice/JavaUtil.h>
 #include <Slice/Util.h>
+#include <iterator>
 
 using namespace std;
 using namespace Slice;

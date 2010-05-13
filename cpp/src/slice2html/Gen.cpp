@@ -26,9 +26,7 @@
 #include <unistd.h>
 #endif
 
-#ifdef __BCPLUSPLUS__
-#  include <iterator>
-#endif
+#include <iterator>
 
 #include <string.h>
 

@@ -32,9 +32,7 @@
 #   include <dirent.h>
 #endif
 
-#ifdef __BCPLUSPLUS__
-#   include <iterator>
-#endif
+#include <iterator>
 
 const char* IcePatch2::checksumFile = "IcePatch2.sum";
 const char* IcePatch2::logFile = "IcePatch2.log";

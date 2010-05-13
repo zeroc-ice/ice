@@ -28,7 +28,7 @@ prefix			= C:\Ice-$(VERSION)
 
 #
 # Specify your C++ compiler. Supported values are:
-# VC60, VC90, VC90_EXPRESS, BCC2010
+# VC60, VC90, VC90_EXPRESS, VC100, VC100_EXPRESS, BCC2010
 #
 !if "$(CPP_COMPILER)" == ""
 CPP_COMPILER		= VC90
@@ -95,7 +95,9 @@ SETARGV			= setargv.obj
 !if "$(CPP_COMPILER)" == "BCC2010"
 BCPLUSPLUS		= yes
 !include 	$(top_srcdir)/config/Make.rules.bcc
-!elseif "$(CPP_COMPILER)" == "VC60" || "$(CPP_COMPILER)" == "VC90" || "$(CPP_COMPILER)" == "VC90_EXPRESS" 
+!elseif "$(CPP_COMPILER)" == "VC60" || \
+        "$(CPP_COMPILER)" == "VC90" || "$(CPP_COMPILER)" == "VC90_EXPRESS" || \
+        "$(CPP_COMPILER)" == "VC100" || "$(CPP_COMPILER)" == "VC100_EXPRESS"
 !include        $(top_srcdir)/config/Make.rules.msvc
 ! else
 !error Invalid setting for CPP_COMPILER: $(CPP_COMPILER)
@@ -106,6 +108,10 @@ libsuff			= \bcc10
 !elseif "$(CPP_COMPILER)" == "VC60"
 libsuff			= \vc6
 UNIQUE_DLL_NAMES	= yes
+!elseif "$(CPP_COMPILER)" == "VC100"
+libsuff			= \vc100$(x64suffix)
+!elseif "$(CPP_COMPILER)" == "VC100_EXPRESS"
+libsuff			= \vc100$(x64suffix)
 !else
 libsuff			= $(x64suffix)
 !endif
@@ -129,6 +135,8 @@ CPPFLAGS        = -I"$(ice_dir)\include\stlport" $(CPPFLAGS)
 COMPSUFFIX	= vc60_
 !elseif "$(CPP_COMPILER)" == "VC90" || "$(CPP_COMPILER)" == "VC90_EXPRESS"
 COMPSUFFIX	= vc90_
+!elseif "$(CPP_COMPILER)" == "VC100" || "$(CPP_COMPILER)" == "VC100_EXPRESS"
+COMPSUFFIX	= vc100_
 !elseif "$(CPP_COMPILER)" == "BCC2010"
 COMPSUFFIX	= bcc10_
 !endif

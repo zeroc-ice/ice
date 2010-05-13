@@ -11,8 +11,8 @@
 #include <IceStorm/Instance.h>
 #include <IceStorm/TraceLevels.h>
 #include <IceStorm/NodeI.h>
-
 #include <Ice/LoggerUtil.h>
+#include <iterator>
 
 using namespace std;
 using namespace IceStorm;

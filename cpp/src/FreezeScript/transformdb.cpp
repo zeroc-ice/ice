@@ -686,7 +686,7 @@ run(const Ice::StringSeq& originalArgs, const Ice::CommunicatorPtr& communicator
         while(true)
         {
             in.read(buff, 1024);
-            descriptors.append(buff, in.gcount());
+            descriptors.append(buff, static_cast<size_t>(in.gcount()));
             if(in.gcount() < 1024)
             {
                 break;

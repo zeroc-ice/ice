@@ -8,9 +8,7 @@
 // **********************************************************************
 
 #include <Ice/Base64.h>
-#ifdef __BCPLUSPLUS__
-#  include <iterator>
-#endif
+#include <iterator>
 
 using namespace std;
 

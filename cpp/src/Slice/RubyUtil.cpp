@@ -12,10 +12,7 @@
 #include <Slice/Util.h>
 #include <IceUtil/Functional.h>
 #include <IceUtil/InputUtil.h>
-
-#ifdef __BCPLUSPLUS__
 #include <iterator>
-#endif
 
 using namespace std;
 using namespace Slice;

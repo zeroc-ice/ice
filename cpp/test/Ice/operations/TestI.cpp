@@ -12,9 +12,7 @@
 #include <TestI.h>
 #include <TestCommon.h>
 #include <functional>
-#ifdef __BCPLUSPLUS__
-#  include <iterator>
-#endif
+#include <iterator>
 
 void
 MyDerivedClassI::shutdown(const Ice::Current& current)
