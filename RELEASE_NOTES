@@ -1,5 +1,5 @@
 ======================================================================
-Release notes for Ice 3.4
+Release notes for Ice 3.4.1
 ======================================================================
 
 Introduction
@@ -18,41 +18,38 @@ Table of Contents
 -----------------
 
   1. New Features
-     - New API for Asynchronous Method Invocation (AMI)
-     - Better scalability
-     - New Dispatcher facility
-     - Glacier2 utility classes
-     - Default servants
-     - Alternate storage for IceGrid and IceStorm
-     - Connection and endpoint information
-     - New Slice compiler and API for PHP
-     - Slice comments
-     - New Slice syntax for default values
-     - Properties in the Windows registry
-     - New sample programs
-  2. Upgrading your application from Ice 3.3
+     - Features added with Ice 3.4.1
+     - Features added with Ice 3.4.0
+  2. Upgrading your application from Ice 3.4.0
+     - RPMS
+     - Windows
+     - Binary Archives
+     - Source Distribution
+     - Deprecated APIs
+  3. Upgrading your application from Ice 3.3
      - Compatibility
      - Java language mapping changes
      - Changes to the Java API for Freeze maps
      - Freeze packaging
      - PHP changes
      - IceSSL changes
+     - Thread pool changes
      - Migrating IceStorm and IceGrid databases
      - Migrating Freeze databases
      - Removed APIs
      - Deprecated APIs
-  3. Upgrading your application from Ice 3.2 or earlier releases
+  4. Upgrading your application from Ice 3.2 or earlier releases
      - Migrating IceStorm databases
      - Migrating IceGrid databases
      - Migrating Freeze databases
      - Removed APIs
      - Deprecated APIs
-  4. Platform-specific notes
+  5. Platform-specific notes
      - Supported platforms
      - Java and IPv6
      - Mono
      - IBM JDK
-  5. Known Problems
+  6. Known Problems
      - iceca failure on SLES11
      - Minor memory leak in Berkeley DB
 
@@ -62,6 +59,20 @@ Table of Contents
 ======================================================================
 
 This section discusses the significant enhancements in Ice 3.4.
+
+
+Features added with Ice 3.4.1
+=============================
+
+Ice 3.4.1 fixes several bugs but does not provide any new features.
+
+Note that the new section "Thread pool changes" describes changes that
+were introduced in Ice 3.4.0 but not documented in the 3.4.0 release
+notes. Users of both 3.4.0 and 3.4.1 should review this section.
+
+
+Features added with Ice 3.4.0
+=============================
 
 
 New API for Asynchronous Method Invocation (AMI)
@@ -279,7 +290,191 @@ This release adds the following sample programs:
 
 
 ======================================================================
-2. Upgrading your application from Ice 3.3
+2. Upgrading your application from Ice 3.4.0
+======================================================================
+
+Since Ice 3.4.1 maintains binary compatibility with Ice 3.4.0, it is
+not necessary for you to recompile your Slice files or your program
+code, nor is it necessary to relink your application. The database
+formats used by Ice services such as IceGrid and IceStorm have not
+changed, therefore no database migration is required. Finally, this
+release has not removed any APIs. Generally speaking, you are free to
+use any combination of Ice 3.4.0 or Ice 3.4.1 applications and Ice
+services.
+
+The subsections below provide additional information about upgrading
+to Ice 3.4.1, including administrative procedures for the supported
+platforms.
+
+
+RPMs (Linux)
+============
+
+For RPM installations, you can use the Ice 3.4.1 RPMs to upgrade an
+existing installation of Ice 3.4.0.
+
+For a Java application, no additional steps are necessary if your
+CLASSPATH refers to /usr/share/java/Ice.jar, which is a symbolic link
+that points to the actual version-specific JAR file.
+
+For a Mono application, the ice-mono RPM for Ice 3.4.1 installs the
+updated Ice run time assemblies into the Global Assembly Cache (GAC)
+along with policy assemblies that enable backward compatibility with
+Ice 3.4.0.
+
+
+Windows
+=======
+
+The file names of the Ice for C++ run time DLLs do not contain the
+patch number of a release. For example, the core Ice DLL uses the same
+name (ice34.dll) for both Ice 3.4.0 and Ice 3.4.1. As a result, you
+can simply substitute the 3.4.1 DLLs for the 3.4.0 DLLs. If you
+install the 3.3.1 DLLs in a different directory, you will typically
+need to adjust the PATH setting of a C++ application so that it can
+locate the new libraries. This also applies to Python, Ruby, and PHP
+applications because they use the Ice for C++ DLLs.
+
+For a Java application, you can replace the existing Ice.jar file
+with the one from Ice 3.4.1, or you can adjust the CLASSPATH setting
+to point to the new JAR file.
+
+For a .NET application, Ice for .NET includes policy assemblies that
+supply the .NET run time with the required compatibility information.
+Policy assemblies have names of the form policy.3.4.<package>.dll.
+For example, the policy assembly for IceBox is policy.3.4.IceBox.dll.
+One way to upgrade an existing .NET application to a new patch release
+while maintaining binary compatibility is to install the policy
+assemblies into the Global Assembly Cache (GAC) using one of the
+following methods:
+
+  - Open Windows Explorer and navigate to the directory
+    C:\WINDOWS\assembly. Next, drag and drop (or copy and paste) the
+    assemblies into the right-hand pane to install them in the GAC.
+
+  - Use gacutil from the command line:
+
+    > gacutil -i <policy.dll>
+
+Another option is to modify the .config file of your application to
+add bindingRedirect directives, as explained in the links below:
+
+  http://msdn.microsoft.com/en-us/library/7wd6ex19.aspx
+  http://msdn.microsoft.com/en-us/library/yx7xezcf.aspx
+
+For example, in the .config file of an application you can modify the
+configuration of the Ice assembly as follows:
+
+  <dependentAssembly>
+    <assemblyIdentity name="Ice" culture="neutral"
+      publicKeyToken="cdd571ade22f2f16"/>
+    <bindingRedirect oldVersion="3.4.0.0" newVersion="3.4.1.0"/>
+    <codeBase version="3.4.1.0" href="...\Ice.dll"/>
+  </dependentAssembly>
+
+The advantage of installing the policy assemblies into the GAC is that
+they establish binary compatibility for all Ice applications, whereas
+modifying a .config file must be done for each application
+individually.
+
+On a development system, it is not necessary to remove your existing
+Ice installation prior to installing Ice 3.4.1 unless you intend to
+install Ice 3.4.1 in the same directory as your existing installation.
+You may need to update your PATH setting and modify your Visual C++
+directory configurations to reflect the installation directory for
+Ice 3.4.1.
+
+
+Binary Archives (Mac OS X, Solaris)
+===================================
+
+The README file included in each binary distribution archive
+describes how to configure your environment so that the embedded
+path names in the Ice for C++ shared libraries are resolved correctly.
+For example, if you extracted the binary distribution for Ice 3.4.0
+into /opt/Ice-3.4.0, the README file instructs you to create the
+following symbolic link:
+
+  /opt/Ice-3.4 -> /opt/Ice-3.4.0
+
+To upgrade to Ice 3.4.1, you simply extract the binary distribution
+archive into /opt/Ice-3.4.1 and reset the symbolic link to point to
+the new installation:
+
+  /opt/Ice-3.4 -> /opt/Ice-3.4.1
+
+No additional steps are necessary for a Java application if its
+CLASSPATH refers to the JAR file via the symbolic link:
+
+  export CLASSPATH=/opt/Ice-3.4/lib/Ice.jar
+
+This also applies for Python and Ruby applications:
+
+  export PYTHONPATH=/opt/Ice-3.4/python
+  export RUBYLIB=/opt/Ice-3.4/ruby
+
+
+Source Distribution (Linux, Mac OS X, Solaris)
+==============================================
+
+If you compiled an Ice 3.4.0 source distribution and installed it via
+"make install", the default installation directory uses a version-
+specific name such as /opt/Ice-3.4.0. Consequently, you can build and
+install the Ice 3.4.1 source distribution without affecting your
+existing Ice 3.4.0 installation.
+
+You may need to update your application's build settings to use the
+new installation directory for location include and library files.
+You may also need to update your shared library search path.
+
+The relevant environment variables for each language mapping are
+detailed below.
+
+C++, Ruby, Python, PHP:
+
+  export LD_LIBRARY_PATH=/opt/Ice-3.4.1/lib (32-bit Linux & 32-bit Solaris)
+  export LD_LIBRARY_PATH=/opt/Ice-3.4.1/lib64 (64-bit Linux)
+  export LD_LIBRARY_PATH_64=/opt/Ice-3.4.1/lib/amd64 (64-bit Solaris Intel)
+  export LD_LIBRARY_PATH_64=/opt/Ice-3.4.1/lib/sparcv9 (64-bit Solaris SPARC)
+  export DYLD_LIBRARY_PATH=/opt/Ice-3.4.1/lib (Mac OS X)
+
+Python:
+
+  export PYTHONPATH=/opt/Ice-3.4.1/python
+
+Ruby:
+
+  export RUBYLIB=/opt/Ice-3.4.1/ruby
+
+Java:
+
+  export CLASSPATH=/opt/Ice-3.4.1/lib/Ice.jar
+
+Mono:
+
+  export MONO_PATH=/opt/Ice-3.4.1/bin
+
+
+Deprecated APIs
+===============
+
+This section discusses APIs and components that are now deprecated.
+These APIs will be removed in a future Ice release, therefore we
+encourage you to update your applications and eliminate the use of
+these APIs as soon as possible.
+
+The following APIs were deprecated in Ice 3.4.1:
+
+* Ice.AsyncCallback
+
+  The methods in this class were moved into its base class,
+  Ice.Callback, therefore this class is no longer necessary.
+  Applications that use the generic asynchronous callback facility
+  should change their callbacks to inherit from Ice.Callback.
+
+
+======================================================================
+3. Upgrading your application from Ice 3.3
 ======================================================================
 
 
@@ -292,7 +487,7 @@ factors:
   - Source-code compatibility
 
     Ice maintains source-code compatibility between a patch release
-    (e.g., 3.3.1) and the most recent minor release (e.g., 3.3.0),
+    (e.g., 3.4.1) and the most recent minor release (e.g., 3.4.0),
     but does not guarantee source-code compatibility between minor
     releases (e.g., between 3.3 and 3.4).
 
@@ -1099,6 +1294,20 @@ release:
   Refer to the "Configuration" section above for more information.
 
 
+Thread pool changes
+===================
+
+A thread pool supports the ability to automatically grow and shrink
+as the demand for threads changes, within the limits set by the
+thread pool's configuration. In prior releases, the rate at which a
+thread pool shrinks was not configurable, but Ice 3.4.0 introduces the
+ThreadIdleTime property to allow you to specify how long a thread pool
+thread must remain idle before it terminates to conserve resources.
+
+Please refer to the "Ice Threading Model" section of the Ice manual
+for more information on this behavior.
+
+
 IceSSL changes
 ==============
 
@@ -1299,7 +1508,7 @@ The following APIs were deprecated in Ice 3.4:
 
 
 ======================================================================
-3. Upgrading your application from Ice 3.2 or earlier releases
+4. Upgrading your application from Ice 3.2 or earlier releases
 ======================================================================
 
 In addition to the information provided in the preceding section
@@ -1684,7 +1893,7 @@ that were deprecated in Ice 3.4.
 
 
 ======================================================================
-4. Platform-specific notes
+5. Platform-specific notes
 ======================================================================
 
 
@@ -1732,7 +1941,7 @@ directory:
 
 
 ======================================================================
-5. Known Problems
+6. Known Problems
 ======================================================================
 
 
