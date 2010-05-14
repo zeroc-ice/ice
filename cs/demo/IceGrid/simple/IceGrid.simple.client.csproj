@@ -77,12 +77,12 @@
     <ErrorReport>prompt</ErrorReport>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Ice, Version=3.4.0.0, Culture=neutral, PublicKeyToken=1f998c50fec78381, processorArchitecture=MSIL">
+    <Reference Include="Ice, Version=3.4.1.0, Culture=neutral, PublicKeyToken=1f998c50fec78381, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\bin\Ice.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="IceGrid, Version=3.4.0.0, Culture=neutral, PublicKeyToken=1f998c50fec78381, processorArchitecture=MSIL">
+    <Reference Include="IceGrid, Version=3.4.1.0, Culture=neutral, PublicKeyToken=1f998c50fec78381, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\bin\IceGrid.dll</HintPath>
       <Private>True</Private>
