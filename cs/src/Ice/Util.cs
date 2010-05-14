@@ -461,7 +461,7 @@ namespace Ice
         /// <returns>The Ice version.</returns>
         public static string stringVersion()
         {
-            return "3.4.0"; // "A.B.C", with A=major, B=minor, C=patch
+            return "3.4.1"; // "A.B.C", with A=major, B=minor, C=patch
         }
 
         /// <summary>
@@ -472,7 +472,7 @@ namespace Ice
         /// <returns>The Ice version.</returns>
         public static int intVersion()
         {
-            return 30400; // AABBCC, with AA=major, BB=minor, CC=patch
+            return 30401; // AABBCC, with AA=major, BB=minor, CC=patch
         }
 
         private static object _processLoggerMutex = new object();

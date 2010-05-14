@@ -509,7 +509,7 @@ public final class Util
     public static String
     stringVersion()
     {
-        return "3.4.0"; // "A.B.C", with A=major, B=minor, C=patch
+        return "3.4.1"; // "A.B.C", with A=major, B=minor, C=patch
     }
 
     /**
@@ -522,7 +522,7 @@ public final class Util
     public static int
     intVersion()
     {
-        return 30400; // AABBCC, with AA=major, BB=minor, CC=patch
+        return 30401; // AABBCC, with AA=major, BB=minor, CC=patch
     }
 
     private static String _localAddress = null;

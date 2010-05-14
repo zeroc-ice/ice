@@ -18,6 +18,6 @@ public final class Version
     //
     // The Ice version.
     //
-    public final static String ICE_STRING_VERSION = "3.4.0"; // "A.B.C", with A=major, B=minor, C=patch
-    public final static int ICE_INT_VERSION = 30400;         // AABBCC, with AA=major, BB=minor, CC=patch
+    public final static String ICE_STRING_VERSION = "3.4.1"; // "A.B.C", with A=major, B=minor, C=patch
+    public final static int ICE_INT_VERSION = 30401;         // AABBCC, with AA=major, BB=minor, CC=patch
 }
