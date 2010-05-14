@@ -1,3 +1,6 @@
-To apply the patch for db 4.8.24, run this command:
+To apply the patches for db 4.8.24, run these commands:
 
   patch -p0 < patch.db-4.8.24.17646
+  patch -p0 < patch.db-4.8.24.18273
+
+Note that patch.db-4.8.24.17646 is only relevant for Windows builds.

@@ -1,0 +1,12 @@
+diff -r 7a96715db31c dbreg/dbreg_util.c
+--- dbreg/dbreg_util.c	Wed Feb 03 08:30:13 2010 -0800
++++ dbreg/dbreg_util.c	Fri Feb 05 15:03:38 2010 -0800
+@@ -684,7 +684,7 @@ err:		if (cstat == TXN_UNEXPECTED)
+ 			    id, TXN_UNEXPECTED, NULL, &ret_stat, 1)) != 0)
+ 				goto not_right;
+ 			if (opcode == DBREG_OPEN) {
+-				if ((ret =
++				if (dbp->log_filename == NULL && (ret =
+ 				    __dbreg_setup(dbp, name, NULL, id)) != 0)
+ 					return (ret);
+ 				ret = __dbreg_assign_id(dbp, ndx, 1);
