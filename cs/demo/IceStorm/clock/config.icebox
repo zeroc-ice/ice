@@ -1,10 +1,15 @@
 #
-# The IceBox server endpoint configuration
+# The IceBox server endpoint configuration. This endpoint is only used
+# to communicate with the IceBox ServiceManager object (such as when
+# using iceboxadmin to shutdown the server).
+#
+# The IceStorm service has its own endpoints (see config.service).
 #
 IceBox.ServiceManager.Endpoints=tcp -p 9998
 
 #
-# The IceStorm service
+# The IceStorm service. The service is configured using a separate
+# configuration file (see config.service).
 #
 IceBox.Service.IceStorm=IceStormService,34:createIceStorm --Ice.Config=config.service
 
