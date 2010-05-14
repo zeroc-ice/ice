@@ -103,7 +103,7 @@ your CLASSPATH along with Ice.jar:
 $ export CLASSPATH=/usr/share/java/Freeze.jar:$CLASSPATH
 
 Note that Freeze requires Berkeley DB. Freeze.jar contains a manifest
-that automatically loads the Berkeley DB classes (db-4.8.24.jar),
+that automatically loads the Berkeley DB classes (db-4.8.30.jar),
 which means you do not need to include this file in your CLASSPATH
 when executing a Freeze application. However the JVM does require that
 the directory containing Berkeley DB's native libraries be listed in
@@ -121,7 +121,7 @@ $ export LD_LIBRARY_PATH=/usr/lib64:$LD_LIBRARY_PATH
 When building a Java application that uses Freeze, you will need to
 add the Berkeley DB JAR file to your CLASSPATH:
 
-$ export CLASSPATH=/usr/share/java/db-4.8.24.jar:$CLASSPATH
+$ export CLASSPATH=/usr/share/java/db-4.8.30.jar:$CLASSPATH
 
 Ice for Java supports protocol compression using the bzip2 classes
 included with ant. Compression is automatically enabled if these

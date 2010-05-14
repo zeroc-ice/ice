@@ -95,7 +95,7 @@ code from the ZeroC web site at http://www.zeroc.com/download.html.
 ======================================================================
 
 This distribution includes the C++ and Java run time for Berkeley DB
-4.8.24 and the Expat 2.0.1 library. The Berkeley DB C++ run time was
+4.8.30 and the Expat 2.0.1 library. The Berkeley DB C++ run time was
 built using GCC 4.2.1. The Berkeley DB and Expat licenses are provided
 in the file THIRD_PARTY_LICENSE.
 

@@ -19,7 +19,7 @@ db utility names
 ----------------
 
 The Berkeley DB utilities are usually named db_hotbackup, db_archive,
-db_recover, etc. If you use the Berkeley DB 4.8.24 RPMs provided by
+db_recover, etc. If you use the Berkeley DB 4.8.30 RPMs provided by
 ZeroC, the utility names are db48_hotbackup, db48_archive, etc. Please
 adjust the instructions below accordingly.
 

@@ -74,10 +74,10 @@ BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
 %define formsversion 1.2.1
 %define looksversion 2.3.0
-%define dbversion 4.8.24
+%define dbversion 4.8.30
 
 BuildRequires: openssl-devel >= 0.9.7a
-BuildRequires: db48-devel >= 4.8.24, db48-java >= 4.8.24
+BuildRequires: db48-devel >= 4.8.30, db48-java >= 4.8.30
 BuildRequires: jpackage-utils
 BuildRequires: mcpp-devel >= 2.7.2
 

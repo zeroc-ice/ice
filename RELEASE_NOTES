@@ -18,7 +18,7 @@ Table of Contents
 -----------------
 
   1. New Features
-     - Features added with Ice 3.4.1
+     - Changes and fixes in Ice 3.4.1
      - Features added with Ice 3.4.0
   2. Upgrading your application from Ice 3.4.0
      - RPMS
@@ -51,7 +51,6 @@ Table of Contents
      - IBM JDK
   6. Known Problems
      - iceca failure on SLES11
-     - Minor memory leak in Berkeley DB
 
 
 ======================================================================
@@ -61,14 +60,16 @@ Table of Contents
 This section discusses the significant enhancements in Ice 3.4.
 
 
-Features added with Ice 3.4.1
-=============================
+Changes and fixes in Ice 3.4.1
+==============================
 
-Ice 3.4.1 fixes several bugs but does not provide any new features.
+* Ice 3.4.1 requires Berkeley DB 4.8.30. This version of Berkeley DB
+  includes a fix for a minor memory leak that was present in earlier
+  versions.
 
-Note that the new section "Thread pool changes" describes changes that
-were introduced in Ice 3.4.0 but not documented in the 3.4.0 release
-notes. Users of both 3.4.0 and 3.4.1 should review this section.
+* The shrinking behavior of Ice thread pools changed in Ice 3.4.0 but
+  was not documented. Users of both 3.4.0 and 3.4.1 should review the
+  "Thread pool changes" section below for more information.
 
 
 Features added with Ice 3.4.0
@@ -1964,17 +1965,3 @@ and the version of OpenSSL that is included with SLES11 (OpenSSL
 OpenSSL. Note that it is not necessary to rebuild Ice with the new
 OpenSSL version; the only requirement is that you have the new
 "openssl" executable in your PATH when running "iceca java --import".
-
-
-Minor memory leak in Berkeley DB
---------------------------------
-
-Berkeley DB 4.8.24 leaks a small amount of memory for a database
-environment opened with the DB_PRIVATE flag. With respect to Freeze,
-this means a database environment for which the DbPrivate property is
-set to a non-zero value. Note that the DbPrivate property is enabled
-by default.
-
-We do not anticipate this leak causing any problems for Freeze
-applications, but you can work around it by setting DbPrivate=0 for
-each of your Freeze environments.

@@ -11,10 +11,9 @@
 
 Summary: The Berkeley DB database library (version 4.8) for C and C++
 Name: db48
-Version: 4.8.24
-Release: 2ice%{?dist}
+Version: 4.8.30
+Release: 1ice%{?dist}
 Source0: http://download.oracle.com/berkeley-db/db-%{version}.NC.tar.gz
-Patch1: patch.4.8.24.18273
 URL: http://www.oracle.com/database/berkeley-db/
 License: Berkeley DB open-source license
 Group: System Environment/Libraries
@@ -76,7 +75,6 @@ for building programs which use the Berkeley DB in Java.
 %prep
 
 %setup -q -n db-%{version}.NC
-%patch1 -p0 -b .4.8.24.18273
 
 # Remove tags files which we don't need.
 find . -name tags | xargs rm -f
@@ -196,8 +194,8 @@ rm -rf ${RPM_BUILD_ROOT}
 
 %changelog
 
-* Thu May 14 2010 Mark Spruiell <mes@zeroc.com> 4.8.24-2ice
-- Adding another patch for version 4.8.24
+* Thu May 14 2010 Mark Spruiell <mes@zeroc.com> 4.8.30-1ice
+- Updated Berkeley DB to version 4.8.30
 
 * Thu Dec 17 2009 Mark Spruiell <mes@zeroc.com> 4.8.24-1ice
 - Updated Berkeley DB to version 4.8.24

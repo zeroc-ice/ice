@@ -8,7 +8,7 @@ purpose is to simplify building Ice @ver@ from sources.
 The following versions of the third party software were used to
 create this package:
 
- - Berkeley DB 4.8.24
+ - Berkeley DB 4.8.30
  - OpenSSL 0.9.8l
  - Expat 2.0.1
  - Bzip2 1.0.5

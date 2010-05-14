@@ -103,7 +103,7 @@ This distribution is supported on the following Windows versions:
 This distribution contains binaries for various third-party packages
 that are required to use Ice.
 
- - Berkeley DB 4.8.24 (Visual C++ 2008, C++Builder 2010)
+ - Berkeley DB 4.8.30 (Visual C++ 2008, C++Builder 2010)
  - OpenSSL 0.9.8l (Visual C++ 2008, Visual C++ 6.0)
  - Expat 2.0.1 (Visual C++ 2008)
  - Bzip2 1.0.5 (Visual C++ 2008, Visual C++ 6.0)

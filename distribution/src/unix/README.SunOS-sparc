@@ -99,7 +99,7 @@ obtained from Sun Microsystems at
 ======================================================================
 
 This distribution includes the C++ and Java run time for Berkeley DB
-4.8.24. The C++ run time was built using GCC 4.3.2. The Berkeley DB
+4.8.30. The C++ run time was built using GCC 4.3.2. The Berkeley DB
 license is provided in the file THIRD_PARTY_LICENSE.
 
 

@@ -75,14 +75,14 @@ top-level directory and apply the patch as shown below:
 Berkeley DB
 -----------
 
-The file db/patch.4.8.24.17646 in this archive contains an important
+The file db/patch.4.8.30.17646 in this archive contains an important
 fix for Berkeley DB required by Ice. 
 
-After extracting the Berkeley DB 4.8.24 source distribution, change 
+After extracting the Berkeley DB 4.8.30 source distribution, change 
 to the top-level directory and apply the patches as shown below:
 
- > cd db-4.8.24
- > patch -p0 < patch.db-4.8.24.17646
+ > cd db-4.8.30
+ > patch --binary -p0 < patch.db-4.8.30.17646
 
 
 mcpp
@@ -96,7 +96,7 @@ After extracting the mcpp source distribution, change to the top-level
 directory and apply the patch as shown below:
 
   > cd mcpp-2.7.2
-  > patch -p0 < patch.mcpp.2.7.2
+  > patch --binary -p0 < patch.mcpp.2.7.2
 
 
 ======================================================================
@@ -180,11 +180,11 @@ Follow these instructions for building mcpp:
 - Apply the patch for noconfig.H appropriate for your compiler from
   the noconfig directory. For example, for VS2008 you would run:
 
-  > patch -p0 < ..\noconfig\vc2008.dif
+  > patch --binary -p0 < ..\noconfig\vc2008.dif
 
   and for C++Builder 2010 you would run:
 
-  > patch -p0 < ..\noconfig\bc59.dif
+  > patch --binary -p0 < ..\noconfig\bc59.dif
 
 - Microsoft Visual C++: 
  

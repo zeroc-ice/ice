@@ -31,7 +31,7 @@ Third-party libraries
 
 Ice has dependencies on a number of third-party libraries:
 
-- Berkeley DB 4.8.24
+- Berkeley DB 4.8.30
 - expat 1.95.7 or 2.0.0
 - OpenSSL 0.9.7 or later (OpenSSL 0.9.8 or later recommended)
 - bzip2 1.0.x
