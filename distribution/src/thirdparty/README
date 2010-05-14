@@ -121,6 +121,7 @@ For builds with support for both i386 and x86_64 architectures, use:
   $ ../dist/configure --enable-cxx
   (plus --prefix=<dir> and/or --enable-java if you like)
 
+
 mcpp
 ----
 
@@ -136,6 +137,7 @@ For builds with support for both i386 and x86_64 architectures, use:
   $ export CFLAGS="-O3 -fno-common -arch i386 -arch x86_64"
   $ ./configure --enable-mcpplib --disable-shared
   (and --prefix=<dir> if you like)
+
 
 expat
 -----

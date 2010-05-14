@@ -69,7 +69,7 @@ allows bzip2 to be compiled into a DLL.
 After extracting the bzip2 source distribution, change to the
 top-level directory and apply the patch as shown below:
 
-  > patch -p0 bzlib.h < ..\bzip2\bzlib.patch
+  > patch --binary -p0 bzlib.h < ..\bzip2\bzlib.patch
 
 
 Berkeley DB
