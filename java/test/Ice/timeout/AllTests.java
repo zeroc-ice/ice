@@ -60,7 +60,7 @@ public class AllTests
         private boolean _called;
     }
 
-    private static class CallbackSuccess extends Ice.AsyncCallback
+    private static class CallbackSuccess extends Ice.Callback
     {
         public void
         completed(Ice.AsyncResult result)
@@ -93,7 +93,7 @@ public class AllTests
         private Callback callback = new Callback();
     }
 
-    private static class CallbackFail extends Ice.AsyncCallback
+    private static class CallbackFail extends Ice.Callback
     {
         public void
         completed(Ice.AsyncResult result)

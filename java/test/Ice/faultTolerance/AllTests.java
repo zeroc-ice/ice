@@ -122,7 +122,7 @@ public class AllTests
         private Callback callback = new Callback();
     }
     
-    private static class AbortCallback extends Ice.AsyncCallback
+    private static class AbortCallback extends Ice.Callback
     {
         public void
         completed(Ice.AsyncResult result)

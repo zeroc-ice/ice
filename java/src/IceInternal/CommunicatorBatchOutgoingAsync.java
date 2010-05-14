@@ -117,7 +117,7 @@ public class CommunicatorBatchOutgoingAsync extends BatchOutgoingAsync
     private Ice.Communicator _communicator;
     private int _useCount;
 
-    private Ice.AsyncCallback _cb = new Ice.AsyncCallback()
+    private Ice.Callback _cb = new Ice.Callback()
     {
         @Override
         public void completed(Ice.AsyncResult r)

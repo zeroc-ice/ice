@@ -625,7 +625,7 @@ public class AllTests
             final AsyncCallback cb = new AsyncCallback();
             java.util.Map<String, String> ctx = new java.util.HashMap<String, String>();
 
-            p.begin_ice_isA("::Test::TestIntf", new Ice.AsyncCallback()
+            p.begin_ice_isA("::Test::TestIntf", new Ice.Callback()
                 {
                     public void
                     completed(Ice.AsyncResult r)
@@ -635,7 +635,7 @@ public class AllTests
                 });
             cb.check();
 
-            p.begin_ice_isA("::Test::TestIntf", ctx, new Ice.AsyncCallback()
+            p.begin_ice_isA("::Test::TestIntf", ctx, new Ice.Callback()
                 {
                     public void
                     completed(Ice.AsyncResult r)
@@ -645,7 +645,7 @@ public class AllTests
                 });
             cb.check();
 
-            p.begin_ice_ping(new Ice.AsyncCallback()
+            p.begin_ice_ping(new Ice.Callback()
                 {
                     public void
                     completed(Ice.AsyncResult r)
@@ -654,7 +654,7 @@ public class AllTests
                     }
                 });
             cb.check();
-            p.begin_ice_ping(ctx, new Ice.AsyncCallback()
+            p.begin_ice_ping(ctx, new Ice.Callback()
                 {
                     public void
                     completed(Ice.AsyncResult r)
@@ -664,7 +664,7 @@ public class AllTests
                 });
             cb.check();
 
-            p.begin_ice_id(new Ice.AsyncCallback()
+            p.begin_ice_id(new Ice.Callback()
                 {
                     public void
                     completed(Ice.AsyncResult r)
@@ -673,7 +673,7 @@ public class AllTests
                     }
                 });
             cb.check();
-            p.begin_ice_id(ctx, new Ice.AsyncCallback()
+            p.begin_ice_id(ctx, new Ice.Callback()
                 {
                     public void
                     completed(Ice.AsyncResult r)
@@ -683,7 +683,7 @@ public class AllTests
                 });
             cb.check();
 
-            p.begin_ice_ids(new Ice.AsyncCallback()
+            p.begin_ice_ids(new Ice.Callback()
                 {
                     public void
                     completed(Ice.AsyncResult r)
@@ -692,7 +692,7 @@ public class AllTests
                     }
                 });
             cb.check();
-            p.begin_ice_ids(ctx, new Ice.AsyncCallback()
+            p.begin_ice_ids(ctx, new Ice.Callback()
                 {
                     public void
                     completed(Ice.AsyncResult r)
@@ -702,7 +702,7 @@ public class AllTests
                 });
             cb.check();
 
-            p.begin_op(new Ice.AsyncCallback()
+            p.begin_op(new Ice.Callback()
                 {
                     public void
                     completed(Ice.AsyncResult r)
@@ -711,7 +711,7 @@ public class AllTests
                     }
                 });
             cb.check();
-            p.begin_op(ctx, new Ice.AsyncCallback()
+            p.begin_op(ctx, new Ice.Callback()
                 {
                     public void
                     completed(Ice.AsyncResult r)
@@ -721,7 +721,7 @@ public class AllTests
                 });
             cb.check();
 
-            p.begin_opWithResult(new Ice.AsyncCallback()
+            p.begin_opWithResult(new Ice.Callback()
                 {
                     public void
                     completed(Ice.AsyncResult r)
@@ -730,7 +730,7 @@ public class AllTests
                     }
                 });
             cb.check();
-            p.begin_opWithResult(ctx, new Ice.AsyncCallback()
+            p.begin_opWithResult(ctx, new Ice.Callback()
                 {
                     public void
                     completed(Ice.AsyncResult r)
@@ -740,7 +740,7 @@ public class AllTests
                 });
             cb.check();
 
-            p.begin_opWithUE(new Ice.AsyncCallback()
+            p.begin_opWithUE(new Ice.Callback()
                 {
                     public void
                     completed(Ice.AsyncResult r)
@@ -749,7 +749,7 @@ public class AllTests
                     }
                 });
             cb.check();
-            p.begin_opWithUE(ctx, new Ice.AsyncCallback()
+            p.begin_opWithUE(ctx, new Ice.Callback()
                 {
                     public void
                     completed(Ice.AsyncResult r)
@@ -1052,7 +1052,7 @@ public class AllTests
             TestIntfPrx i = TestIntfPrxHelper.uncheckedCast(p.ice_adapterId("dummy"));
             final AsyncCallback cb = new AsyncCallback();
 
-            i.begin_ice_isA("::Test::TestIntf", new Ice.AsyncCallback()
+            i.begin_ice_isA("::Test::TestIntf", new Ice.Callback()
                 {
                     public void
                     completed(Ice.AsyncResult r)
@@ -1062,7 +1062,7 @@ public class AllTests
                 });
             cb.check();
 
-            i.begin_ice_ping(new Ice.AsyncCallback()
+            i.begin_ice_ping(new Ice.Callback()
                 {
                     public void
                     completed(Ice.AsyncResult r)
@@ -1072,7 +1072,7 @@ public class AllTests
                 });
             cb.check();
 
-            i.begin_ice_id(new Ice.AsyncCallback()
+            i.begin_ice_id(new Ice.Callback()
                 {
                     public void
                     completed(Ice.AsyncResult r)
@@ -1082,7 +1082,7 @@ public class AllTests
                 });
             cb.check();
 
-            i.begin_ice_ids(new Ice.AsyncCallback()
+            i.begin_ice_ids(new Ice.Callback()
                 {
                     public void
                     completed(Ice.AsyncResult r)
@@ -1092,7 +1092,7 @@ public class AllTests
                 });
             cb.check();
 
-            i.begin_op(new Ice.AsyncCallback()
+            i.begin_op(new Ice.Callback()
                 {
                     public void
                     completed(Ice.AsyncResult r)
@@ -1307,7 +1307,7 @@ public class AllTests
                 });
             cb.check();
 
-            p.begin_op(new Ice.AsyncCallback()
+            p.begin_op(new Ice.Callback()
                 {
                     public void
                     completed(Ice.AsyncResult result)
@@ -1432,7 +1432,7 @@ public class AllTests
             {
                 final Thrower cb = new Thrower(throwEx[i]);
 
-                p.begin_op(new Ice.AsyncCallback()
+                p.begin_op(new Ice.Callback()
                     {
                         public void
                         completed(Ice.AsyncResult result)
@@ -1509,7 +1509,7 @@ public class AllTests
                 b1.opBatch();
                 final FlushCallback cb = new FlushCallback();
                 Ice.AsyncResult r = b1.begin_ice_flushBatchRequests(
-                    new Ice.AsyncCallback()
+                    new Ice.Callback()
                     {
                         @Override
                         public void completed(Ice.AsyncResult result)
@@ -1539,7 +1539,7 @@ public class AllTests
                 b1.ice_getConnection().close(false);
                 final FlushExCallback cb = new FlushExCallback();
                 Ice.AsyncResult r = b1.begin_ice_flushBatchRequests(
-                    new Ice.AsyncCallback()
+                    new Ice.Callback()
                     {
                         @Override
                         public void completed(Ice.AsyncResult result)
@@ -1634,7 +1634,7 @@ public class AllTests
                 b1.opBatch();
                 final FlushCallback cb = new FlushCallback();
                 Ice.AsyncResult r = b1.ice_getConnection().begin_flushBatchRequests(
-                    new Ice.AsyncCallback()
+                    new Ice.Callback()
                     {
                         @Override
                         public void completed(Ice.AsyncResult result)
@@ -1664,7 +1664,7 @@ public class AllTests
                 b1.ice_getConnection().close(false);
                 final FlushExCallback cb = new FlushExCallback();
                 Ice.AsyncResult r = b1.ice_getConnection().begin_flushBatchRequests(
-                    new Ice.AsyncCallback()
+                    new Ice.Callback()
                     {
                         @Override
                         public void completed(Ice.AsyncResult result)
@@ -1759,7 +1759,7 @@ public class AllTests
                 b1.opBatch();
                 final FlushCallback cb = new FlushCallback();
                 Ice.AsyncResult r = communicator.begin_flushBatchRequests(
-                    new Ice.AsyncCallback()
+                    new Ice.Callback()
                     {
                         @Override
                         public void completed(Ice.AsyncResult result)
@@ -1789,7 +1789,7 @@ public class AllTests
                 b1.ice_getConnection().close(false);
                 final FlushCallback cb = new FlushCallback();
                 Ice.AsyncResult r = communicator.begin_flushBatchRequests(
-                    new Ice.AsyncCallback()
+                    new Ice.Callback()
                     {
                         @Override
                         public void completed(Ice.AsyncResult result)
@@ -1823,7 +1823,7 @@ public class AllTests
                 b2.opBatch();
                 final FlushCallback cb = new FlushCallback();
                 Ice.AsyncResult r = communicator.begin_flushBatchRequests(
-                    new Ice.AsyncCallback()
+                    new Ice.Callback()
                     {
                         @Override
                         public void completed(Ice.AsyncResult result)
@@ -1859,7 +1859,7 @@ public class AllTests
                 b1.ice_getConnection().close(false);
                 final FlushCallback cb = new FlushCallback();
                 Ice.AsyncResult r = communicator.begin_flushBatchRequests(
-                    new Ice.AsyncCallback()
+                    new Ice.Callback()
                     {
                         @Override
                         public void completed(Ice.AsyncResult result)
@@ -1895,7 +1895,7 @@ public class AllTests
                 b2.ice_getConnection().close(false);
                 final FlushCallback cb = new FlushCallback();
                 Ice.AsyncResult r = communicator.begin_flushBatchRequests(
-                    new Ice.AsyncCallback()
+                    new Ice.Callback()
                     {
                         @Override
                         public void completed(Ice.AsyncResult result)

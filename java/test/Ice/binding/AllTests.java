@@ -29,7 +29,7 @@ public class AllTests
         }
     }
 
-    static class GetAdapterNameCB extends Ice.AsyncCallback
+    static class GetAdapterNameCB extends Ice.Callback
     {
         synchronized public void
         completed(Ice.AsyncResult result)

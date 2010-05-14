@@ -60,7 +60,7 @@ public class AllTests
         private boolean _called;
     }
 
-    private static class opStringI extends Ice.AsyncCallback
+    private static class opStringI extends Ice.Callback
     {
         public opStringI(Ice.Communicator communicator)
         {
@@ -95,7 +95,7 @@ public class AllTests
         private Callback callback = new Callback();
     }
 
-    private static class opExceptionI extends Ice.AsyncCallback
+    private static class opExceptionI extends Ice.Callback
     {
         public opExceptionI(Ice.Communicator communicator)
         {

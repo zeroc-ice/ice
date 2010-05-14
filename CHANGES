@@ -62,6 +62,10 @@ Java Changes
   thread to go away (causing the thread pool to not dispatch further
   incoming messages).
 
+- Deprecated Ice.AsyncCallback. To use the generic asynchronous
+  callback facility, applications should derive their classes from
+  Ice.Callback.
+
 
 C# Changes
 ==========
