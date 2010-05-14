@@ -1254,7 +1254,10 @@ FreezeGenerator::generate(UnitPtr& u, const Dict& dict)
     //
     // Fields
     //
-    out << sp << nl << "private Freeze.MapIndex[] _indices;";
+    if(!dict.indices.empty())
+    {
+        out << sp << nl << "private Freeze.MapIndex[] _indices;";
+    }
     for(i = 0; i < dict.indices.size(); ++i)
     {
         out << nl << "private " << capitalizedMembers[i] << "Index _" << members[i] << "Index;";
